@@ -12,5 +12,5 @@ local function chunk_modification(event)
 			surface.set_tiles(tiles)
 		end
 	end
-
+end
 Event.register(defines.events.on_chunk_generated, chunk_modification)
