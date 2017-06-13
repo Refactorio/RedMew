@@ -26,7 +26,7 @@ function player_joined(event)
 		--player.insert { name = "substation", count = 16 }
 		--player.insert { name = "logistic-chest-passive-provider", count = 16 }		
 		--player.insert { name = "power-armor", count = 1 }
-		player.print("bar")
+		player.print("Welcome to our Server. You can join our Discord at: discord.gg/RedMew")
 		player.print("And remember.. Keep Calm And Spaghetti!")
 end
 
