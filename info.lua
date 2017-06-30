@@ -1,7 +1,7 @@
 local function create_info_button(event)
 	local player = game.players[event.player_index]
 	
-	if player.gui.top.info == nil then
+	if player.gui.top.info_button == nil then
 		local button = player.gui.top.add({ type = "sprite-button", name = "info_button", sprite = "item/raw-fish" })		
 		button.style.minimal_height = 38
 		button.style.minimal_width = 38

@@ -4,12 +4,14 @@ require "config"
 require "locale/utils/utils"
 require "base_data"
 require "info"
+require "player_list"
 require "poll"
 require "band"
 require "fish_market"
 require "train_station_names"
 require "score"
 require "map_layout"
+
 
 
 function player_joined(event)
@@ -26,8 +28,9 @@ function player_joined(event)
 		--player.insert { name = "substation", count = 16 }
 		--player.insert { name = "logistic-chest-passive-provider", count = 16 }		
 		--player.insert { name = "power-armor", count = 1 }
-		player.print("Welcome to our Server. You can join our Discord at: discord.gg/RedMew")
+		player.print("Welcome to our Server. You can join our Discord at: discord.me/redmew")
 		player.print("And remember.. Keep Calm And Spaghetti!")
+		--game.speed=1
 end
 
 function walkabout(player_name, distance)
@@ -40,13 +43,23 @@ function walkabout(player_name, distance)
 	
 	if distance == "close" then
 		distance = math.random(3000, 7000)
+	else
+		if distance == "far" then
+			distance = math.random(7000, 11000)
+		else
+			if distance == "very far" then
+			distance = math.random(11000, 15000)
+			else
+				game.print("Walkabout failed.")
+				return
+			end
+		end		
 	end
-	if distance == "far" then
-		distance = math.random(7000, 11000)
-	end
-	if distance == "very far" then
-		distance = math.random(11000, 15000)
-	end
+	
+	
+	
+	
+	
 	
 	local x = 1
 	while game.players[x] ~= nil do

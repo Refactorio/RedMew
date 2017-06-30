@@ -1,5 +1,5 @@
 --[[
-Hello there script explorer! 
+Hello there script explorer!
 
 With this you can add a "Fish Market" to your World
 You can earn fish by killing alot of biters or by mining wood, ores, rocks.
@@ -7,7 +7,17 @@ To spawn the market, do "/c market()" in your chat ingame as the games host.
 It will spawn a few tiles north of the current position where your character is.
 
 ---MewMew---
+
+
+!! now with speed boost item addon from air20 !!
+
+to be added(maybe)
+fix pet health at refresh
+make pet faster
+make pet follow you moar
 --]]
+
+
 
 function market()
   local radius = 10
@@ -24,12 +34,12 @@ function market()
       end
     end
   end
-  
+
   local player = game.players[1]
- 
+
   local market_location = {x = player.position.x, y = player.position.y}
   market_location.y = market_location.y - 4
-  
+
   -- create water around market
   local waterTiles = {}
   for i = -4, 4 do
@@ -40,45 +50,34 @@ function market()
   surface.set_tiles(waterTiles)
   local market = surface.create_entity{name="market", position=market_location, force=force}
   market.destructible = false
-
+  
+  market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="exoskeleton-equipment"}}
+  market.add_market_item{price={{"raw-fish", 25}}, offer={type="give-item", item="small-plane"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="rail", count=2}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-signal"}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-chain-signal"}}
   market.add_market_item{price={{"raw-fish", 15}}, offer={type="give-item", item="train-stop"}}
   market.add_market_item{price={{"raw-fish", 75}}, offer={type="give-item", item="locomotive"}}
-  market.add_market_item{price={{"raw-fish", 250}}, offer={type="give-item", item="small-plane"}} 
   market.add_market_item{price={{"raw-fish", 30}}, offer={type="give-item", item="cargo-wagon"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="red-wire", count=2}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="green-wire", count=2}}
   market.add_market_item{price={{"raw-fish", 3}}, offer={type="give-item", item="decider-combinator"}}
   market.add_market_item{price={{"raw-fish", 3}}, offer={type="give-item", item="arithmetic-combinator"}}
   market.add_market_item{price={{"raw-fish", 3}}, offer={type="give-item", item="constant-combinator"}}
-  market.add_market_item{price={{"raw-fish", 7}}, offer={type="give-item", item="programmable-speaker"}}   
+  market.add_market_item{price={{"raw-fish", 7}}, offer={type="give-item", item="programmable-speaker"}}
   market.add_market_item{price={{"raw-fish", 3}}, offer={type="give-item", item="piercing-rounds-magazine"}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="grenade"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="land-mine"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="solid-fuel"}}
   market.add_market_item{price={{"raw-fish", 125}}, offer={type="give-item", item="rocket-launcher"}}
-  market.add_market_item{price={{"raw-fish", 15}}, offer={type="give-item", item="rocket"}}   
-  market.add_market_item{price={{"raw-fish", 20}}, offer={type="give-item", item="explosive-rocket"}}  
-  market.add_market_item{price={{"raw-fish", 2500}}, offer={type="give-item", item="atomic-bomb"}} 
-  market.add_market_item{price={{"raw-fish", 1000}}, offer={type="give-item", item="belt-immunity-equipment"}} 
-  
-end
+  market.add_market_item{price={{"raw-fish", 15}}, offer={type="give-item", item="rocket"}}
+  market.add_market_item{price={{"raw-fish", 20}}, offer={type="give-item", item="explosive-rocket"}}
+  market.add_market_item{price={{"raw-fish", 2500}}, offer={type="give-item", item="atomic-bomb"}}
+  market.add_market_item{price={{"raw-fish", 100}}, offer={type="give-item", item="loader"}}
+  market.add_market_item{price={{"raw-fish", 175}}, offer={type="give-item", item="fast-loader"}}
+  market.add_market_item{price={{"raw-fish", 250}}, offer={type="give-item", item="express-loader"}}
+  market.add_market_item{price={{"raw-fish", 1000}}, offer={type="give-item", item="belt-immunity-equipment"}}
 
-local function create_market_init_button(event)
-	local player = game.players[1]
-	
-	if player.gui.top.poll == nil then
-		local button = player.gui.top.add { name = "poll", type = "sprite-button", sprite = "item/programmable-speaker" }
-		button.style.font = "default-bold"
-		button.style.minimal_height = 38
-		button.style.minimal_width = 38
-		button.style.top_padding = 2
-		button.style.left_padding = 4
-		button.style.right_padding = 4
-		button.style.bottom_padding = 2
-	end
 end
 
 local fish_market_message = {}
@@ -94,23 +93,23 @@ local function fish_earned(event, amount)
 
 	local player = game.players[event.player_index]
 	player.insert { name = "raw-fish", count = amount }
-	
+
 	if global.fish_market_fish_caught[event.player_index] then
 		global.fish_market_fish_caught[event.player_index] = global.fish_market_fish_caught[event.player_index] + 1
 	else
 		global.fish_market_fish_caught[event.player_index] = 1
 	end
-	
+
 	if global.fish_market_fish_caught[event.player_index] <= total_fish_market_messages then
 		local x = global.fish_market_fish_caught[event.player_index]
 		player.print(fish_market_message[x])
-	end		
-	
+	end
+
 	local x = global.fish_market_fish_caught[event.player_index] % 7
 	if x == 0 then
 		local z = math.random(1,total_fish_market_bonus_messages)
 		player.print(fish_market_bonus_message[z])
-	end			
+	end
 
 end
 
@@ -120,49 +119,232 @@ local function preplayer_mined_item(event)
 --	game.print(event.entity.type)
 
 	if event.entity.type == "resource" then
-		local x = math.random(1,2)		
-		if x == 1 then		
+		local x = math.random(1,2)
+		if x == 1 then
 			fish_earned(event, 1)
-		end		
+		end
 	end
 	
-	if event.entity.name == "fish" then			
-			fish_earned(event, 0)	
+	if event.entity.name == "fish" then
+			fish_earned(event, 0)
 	end
-	
-	if event.entity.name == "stone-rock" then			
-			fish_earned(event, 10)	
+
+	if event.entity.name == "stone-rock" then
+			fish_earned(event, 10)
 	end
-	
-	if event.entity.name == "huge-rock" then			
-			fish_earned(event, 25)	
+
+	if event.entity.name == "red-desert-rock-huge-01" then
+			fish_earned(event, 20)
 	end
-	
-	if event.entity.name == "big-rock" then			
-			fish_earned(event, 15)	
+
+	if event.entity.name == "red-desert-rock-big-01" then
+			fish_earned(event, 10)
 	end
 
 	if event.entity.type == "tree" then
 		local x = math.random(1,4)
-		if x == 1 then		
+		if x == 1 then
 			fish_earned(event, 4)
 		end
 	end
 end
 
 local function fish_drop_entity_died(event)
-	
+
 	if event.entity.force.name == "enemy" then
 --		global.score_biter_total_kills = global.score_biter_total_kills + 1
 --		game.print(global.score_biter_total_kills)
-		if global.score_biter_total_kills % 30 == 0 then
+		if global.score_biter_total_kills % 150 == 0 then
 			local surface = event.entity.surface
-			local x = math.random(1,3)
+			local x = math.random(1,2)
 			surface.spill_item_stack(event.entity.position, { name = "raw-fish", count = x }, 1)
 		end
-	end		
+	end
 end
 
 
+function pet(player, entity_name)
+	if not player then
+		player = game.connected_players[1]
+	else
+		player = game.players[player]
+	end
+	if not entity_name then 
+		entity_name = "small-biter"
+	end
+	if not global.player_pets then global.player_pets = {} end
+	
+	local surface = game.surfaces[1]
+	
+	local pos = player.position
+	pos.y = pos.y + 1
+	
+	local x = 1
+	x = x + #global.player_pets
+			
+	global.player_pets[x] = {}
+	global.player_pets[x].entity = surface.create_entity {name=entity_name, position=pos, force="player"}
+	global.player_pets[x].owner = player.index
+	global.player_pets[x].id = x
+
+end
+
+local function reset_player_runningspeed(player)
+  player.character_running_speed_modifier = global.player_speed_boost_records[player.index].pre_boost_modifier
+  global.player_speed_boost_records[player.index] = nil
+end
+
+local function boost_player_runningspeed(player)
+  if global.player_speed_boost_records == nil then global.player_speed_boost_records = {} end
+
+  if global.player_speed_boost_records[player.index] == nil then
+    global.player_speed_boost_records[player.index] = {
+      start_tick = game.tick,
+      pre_boost_modifier = player.character_running_speed_modifier,
+      boost_lvl = 0
+    }
+  end
+  local boost_msg = {
+    [1] = "%s found the lost Dragon Scroll and got a lv.1 speed boost!",
+    [2] = "Guided by Master Oogway, %s got a lv.2 speed boost!",
+    [3] = "Kungfu Master %s defended the village and was awarded a lv.3 speed boost!",
+    [4] = "Travelled at the speed of light. %s saw a blackhole. Oops."
+  }
+  global.player_speed_boost_records[player.index].boost_lvl = 1 + global.player_speed_boost_records[player.index].boost_lvl
+  player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
+  game.print(string.format(boost_msg[global.player_speed_boost_records[player.index].boost_lvl], player.name))
+  if global.player_speed_boost_records[player.index].boost_lvl >= 4 then
+    reset_player_runningspeed(player)
+    player.character.die()
+  end
+end
+
+local function market_item_purchased(event)
+
+	local player = game.players[event.player_index]
+
+	if event.offer_index == 1 then -- exoskeleton-equipment
+		player.get_inventory(defines.inventory.player_main).remove({name="exoskeleton-equipment", count=event.count})
+		boost_player_runningspeed(player)
+	end
+
+	if event.offer_index == 2 then
+		player.get_inventory(defines.inventory.player_main).remove({name="small-plane", count=event.count})
+		local chance = 4		
+		local x = math.random(1,3)
+		if x < 3 then
+			local x = math.random(1,chance)
+			if x < chance then
+				rolled_pet = "small-biter"
+			else
+				local x = math.random(1,chance)
+				if x < chance then
+					rolled_pet = "medium-biter"
+				else
+					local x = math.random(1,chance)
+					if x < chance then
+						rolled_pet = "big-biter"
+					else					
+						rolled_pet = "behemoth-biter"						
+					end
+				end
+			end
+		else
+			local x = math.random(1,chance)
+			if x < chance then
+				rolled_pet = "small-spitter"
+			else
+				local x = math.random(1,chance)
+				if x < chance then
+					rolled_pet = "medium-spitter"
+				else
+					local x = math.random(1,chance)
+					if x < chance then
+						rolled_pet = "big-spitter"
+					else					
+						rolled_pet = "behemoth-spitter"						
+					end
+				end
+			end					
+		end
+		local str = player.name
+		str = str .. " bought his very own pet "
+		str = str .. rolled_pet
+		str = str .. " at the fish market!!"
+		game.print(str)
+		pet(event.player_index, rolled_pet)
+	end
+  
+end
+
+if not global.pet_command_rotation then global.pet_command_rotation = 1 end
+
+local function on_tick(event)
+
+  if game.tick % 1000 == 0 then
+	if global.player_speed_boost_records then
+		for k,v in pairs(global.player_speed_boost_records) do
+		  if game.tick - v.start_tick > 3000 then
+			reset_player_runningspeed(game.players[k])
+		  end
+		end
+	end
+  end
+  
+	if game.tick % 200 == 0 then	
+		for _, pets in pairs(global.player_pets) do					
+			local player = game.players[pets.owner]				
+			if pcall(function () local x = pets.entity.name end) then
+				if global.pet_command_rotation % 15 == 0 then	
+					local surface = game.surfaces[1]	
+					local pet_pos = pets.entity.position
+					local pet_name = pets.entity.name
+					local pet_direction = pets.entity.direction
+					pets.entity.destroy()					
+					pets.entity = surface.create_entity {name=pet_name, position=pet_pos, direction=pet_direction, force="player"}					
+				end
+				if global.pet_command_rotation % 2 == 1 then
+					pets.entity.set_command({type=defines.command.go_to_location, destination=player.position,distraction=defines.distraction.none})
+				else
+					local fake_pos = pets.entity.position
+					pets.entity.set_command({type=defines.command.go_to_location, destination=fake_pos,distraction=defines.distraction.none})
+				end				
+			else
+				global.player_pets[pets.id] = nil
+				local str = player.name .. "´s pet died ;_;"
+				game.print(str)
+			end				
+		end		
+		global.pet_command_rotation = global.pet_command_rotation + 1		
+	end
+end
+
+function help()
+	local infotext = global.player_pets[1].entity.help()
+	player = game.players[1]
+	player.gui.left.direction = "horizontal"
+	local frame = player.gui.left.add { type = "frame", name = "info_panel"}
+	frame.style.top_padding = 20
+	frame.style.left_padding = 20
+	frame.style.right_padding = 20
+	frame.style.bottom_padding = 20
+	local info_table = frame.add { type = "table", colspan = 1, name = "info_table" }
+	local headline_label = info_table.add { type = "label", name = "headline_label", caption = "redmew fishy info" }
+	headline_label.style.font = "default-listbox"
+	headline_label.style.font_color = { r=0.98, g=0.66, b=0.22}
+
+	
+	local text_box = info_table.add { type = "text-box", text = infotext, name = "text_box" }
+	text_box.read_only = true
+	text_box.selectable = true
+	text_box.word_wrap = false
+	text_box.style.right_padding = 5
+	text_box.style.top_padding = 5
+	text_box.style.left_padding = 5
+	text_box.style.bottom_padding = 5
+end
+
 Event.register(defines.events.on_preplayer_mined_item, preplayer_mined_item)
 Event.register(defines.events.on_entity_died, fish_drop_entity_died)
+Event.register(defines.events.on_market_item_purchased, market_item_purchased)
+Event.register(defines.events.on_tick, on_tick)

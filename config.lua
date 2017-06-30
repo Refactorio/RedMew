@@ -11,6 +11,5 @@ Event.register(-1, function()
     global.scenario.config.mapsettings.spiral_land_width = 70 -- width of land in spiral
     global.scenario.config.mapsettings.spiral_water_width = 70 -- width of water in spiral
     global.scenario.custom_functions = {}
-    global.map_layout_name = "HolyLand"
 end)
 
