@@ -12,13 +12,14 @@ require "fish_market"
 require "train_station_names"
 require "score"
 require "map_layout"
+require "custom_commands"
 
 
 
 function player_joined(event)
 	local player = game.players[event.player_index]
 		player.insert { name = "raw-fish", count = 4 }
-	    player.insert { name = "iron-gear-wheel", count = 8 }		
+	    player.insert { name = "iron-gear-wheel", count = 8 }
 	    player.insert { name = "iron-plate", count = 16 }
 	    --player.insert { name = "pistol", count = 1 }
 	    --player.insert { name = "firearm-magazine", count = 8 }
@@ -27,7 +28,7 @@ function player_joined(event)
 		--player.insert { name = "construction-robot", count = 16 }
 		--player.insert { name = "solar-panel", count = 16 }
 		--player.insert { name = "substation", count = 16 }
-		--player.insert { name = "logistic-chest-passive-provider", count = 16 }		
+		--player.insert { name = "logistic-chest-passive-provider", count = 16 }
 		--player.insert { name = "power-armor", count = 1 }
 		player.print("Welcome to our Server. You can join our Discord at: discord.me/redmew")
 		player.print("And remember.. Keep Calm And Spaghetti!")
@@ -41,7 +42,7 @@ function walkabout(player_name, distance)
 		distance = math.random(5000, 10000)
 		return
 	end
-	
+
 	if distance == "close" then
 		distance = math.random(3000, 7000)
 	else
@@ -54,14 +55,14 @@ function walkabout(player_name, distance)
 				game.print("Walkabout failed.")
 				return
 			end
-		end		
+		end
 	end
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	local x = 1
 	while game.players[x] ~= nil do
 		local player = game.players[x]
@@ -73,18 +74,18 @@ function walkabout(player_name, distance)
 			local distance_min = distance * 0.95
 			distance_max = round(distance_max, 0)
 			distance_min = round(distance_min, 0)
-			
+
 			--while r <= repeat_attempts do
 				x = math.random(distance_min, distance_max)
 				if 1 == math.random(1, 2) then
-					x = x * -1				
+					x = x * -1
 				end
-				
+
 				y = math.random(distance_min, distance_max)
 				if 1 == math.random(1, 2) then
 					y = y * -1
 				end
-				
+
 				if 1 == math.random(1, 2) then
 					z = distance_max * -1
 					x = math.random(z, distance_max)
@@ -92,11 +93,11 @@ function walkabout(player_name, distance)
 					z = distance_max * -1
 					y = math.random(z, distance_max)
 				end
-			
+
 				--r = r + 1
 				--local tile = surface.get_tile(x,y)
 				--game.print(tile.name)
-				--if tile.name == "deep-water" or tile.name == "water" then					
+				--if tile.name == "deep-water" or tile.name == "water" then
 					--if r >= repeat_attempts then
 						--game.print(player_name .. " tried to go on a walkabout, but could only find water.")
 						--return
@@ -105,7 +106,7 @@ function walkabout(player_name, distance)
 					local pos = {x, y}
 					player.teleport(pos)
 					game.print(player_name .. " went on a walkabout, to find himself.")
-					return			
+					return
 				--end
 			--end
 		end
