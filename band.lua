@@ -6,6 +6,7 @@
 
 -- SETTINGS
 local option_band_change_interval = 60 * 3 -- in ticks
+if not global.band_last_change then global.band_last_change = {} end
 
 -- Role list: "band_roles.lua"
 local band_roles = require "band_roles"
@@ -21,13 +22,14 @@ end
 
 
 local expand_band_gui
-local band_last_change = -option_band_change_interval
+
 
 -- store current role
 local local_role
 
 local function create_band_gui(event)
-  local player = game.players[event.player_index]
+	local player = game.players[event.player_index]	
+	global.band_last_change[event.player_index] = game.tick
   if player.gui.top.band_toggle_btn == nil then
     local button = player.gui.top.add { name = "band_toggle_btn", type = "sprite-button", caption = "Tag", style = "dialog_button_style" }
     button.style.font = "default-bold"
@@ -384,8 +386,8 @@ local function on_gui_click(event)
   
   --role button clicked
   if name:find("band_role_") == 1 then
-    if not player.admin and event.tick - band_last_change < option_band_change_interval then
-      player.print("Too fast! Please wait... " .. math.floor(1+(band_last_change + option_band_change_interval - event.tick)/60).." s.")
+    if not player.admin and event.tick - global.band_last_change[event.player_index] < option_band_change_interval then
+      player.print("Too fast! Please wait... " .. math.floor(1+(global.band_last_change[event.player_index] + option_band_change_interval - event.tick)/60).." s.")
       return
     end
     local _,role_ind_start = name:find("band_role_")
@@ -398,7 +400,7 @@ local function on_gui_click(event)
     
     for role, role_icons in pairs(roles) do
       if (name_role == role) then
-        band_last_change = event.tick
+        global.band_last_change[event.player_index] = event.tick
                
         player.gui.top.band_toggle_btn.caption = ""
         player.gui.top.band_toggle_btn.sprite = event.element.sprite  --get_random_from_table(role_icons)

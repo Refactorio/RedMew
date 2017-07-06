@@ -296,9 +296,9 @@ local function on_gui_click(event)
 		end					
 end
 
-local function poll_timeout()	
-	if game.tick % 60 == 0 then
-		for _, player in pairs(game.connected_players) do							
+local function on_tick()	
+	if game.tick % 60 == 0 then		
+		for _, player in pairs(game.connected_players) do			
 			if global.poll_panel_creation_time[player.index] then
 				local frame = player.gui.left["poll-panel"]
 				if frame then				
@@ -319,7 +319,7 @@ local function poll_timeout()
 	end	
 end
 
-Event.register(defines.events.on_tick, poll_timeout)
+Event.register(defines.events.on_tick, on_tick)
 Event.register(defines.events.on_gui_click, on_gui_click)
 Event.register(defines.events.on_player_joined_game, create_poll_gui)
 Event.register(defines.events.on_player_joined_game, poll_sync_for_new_joining_player)

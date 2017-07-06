@@ -52,7 +52,7 @@ function market()
   market.destructible = false
   
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="exoskeleton-equipment"}}
-  market.add_market_item{price={{"raw-fish", 25}}, offer={type="give-item", item="small-plane"}}
+  market.add_market_item{price={{"raw-fish", 30}}, offer={type="give-item", item="small-plane"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="rail", count=2}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-signal"}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-chain-signal"}}
@@ -319,6 +319,7 @@ local function on_tick(event)
 	end
 end
 
+--[[
 function help()
 	local infotext = global.player_pets[1].entity.help()
 	player = game.players[1]
@@ -343,6 +344,7 @@ function help()
 	text_box.style.left_padding = 5
 	text_box.style.bottom_padding = 5
 end
+--]]
 
 Event.register(defines.events.on_preplayer_mined_item, preplayer_mined_item)
 Event.register(defines.events.on_entity_died, fish_drop_entity_died)

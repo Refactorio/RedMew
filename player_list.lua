@@ -3,24 +3,24 @@ Hello there!
 
 This will add a player list with "ranks" to your server.
 Oh.. and you can also "poke" a player.
+pokemessages = 80% by redlabel
 
 To install, add: require "player_list"
 to your scenario control.lua.
 
 ---MewMew---
 
-pokemessage = 80% by redlabel
-
 
 things to do (maybe)
 make it sorted by time played
-make poke buttons count pokes
-make division instead of for loop
 --]]
 
-local pokemessages = {"a stick", "a leaf", "a moldy carrot", "a crispy slice of bacon", "a french fry", "a realistic toygun", "a broomstick", "a thirteen inch iron stick", "a mechanical keyboard", "a fly fishing cane", "a selfie stick", "an oversized fidget spinner", "a thumb extender", "a dirty straw", "a green bean", "a banana", "an umbrella", "grandpa's walking stick", "live firework", "a toilet brush", "a fake hand", "an undercooked hotdog", "a slice of yesterday's microwaved pizza", "bubblegum", "a biter leg", "grandma's toothbrush", "charred octopus", "a dollhouse bathtub", "a length of copper wire", "a decommissioned nuke", "a smelly trout", "an unopened can of deodorant", "a stone brick", "a half full barrel of lube", "a half empty barrel of lube", "an unexploded cannon shell", "a blasting programmable speaker", "a not so straight rail", "a mismatched pipe to ground", "a surplus box of landmines", "decommissioned yellow rounds", "an oily pumpjack shaft", "a melted plastic bar in the shape of the virgin mary", "a bottle of watermelon vitamin water", "a slice of watermelon", "a stegosaurus tibia", "a basking musician's clarinet", "a twig", "an undisclosed pokey item", "a childhood trophy everyone else got","a dead starfish","a titanium toothpick", "a nail file","a stamp collection","a bucket of lego","a rolled up carpet","a rolled up WELCOME doormat","Bobby's favorite bone","an empty bottle of cheap vodka","a tattooing needle","a peeled cucumber","a stack of cotton candy","a signed baseball bat","that 5 dollar bill grandma sent for christmas","a stack of overdue phone bills","the 'relax' section of the white pages","a bag of gym clothes which never made it to the washing machine","a handful of peanut butter","a pheasant's feather","a rusty pickaxe","a diamond sword","the bill of rights of a banana republic","one of those giant airport Toblerone's", "a long handed inserter", "a wiimote","an easter chocolate rabbit","a ball of yarn the cat threw up","a slightly expired but perfectly edible cheese sandwich", "conclusive proof of lizard people existence","a pen drive full of high res wallpapers","a pet hamster","an oversized goldfish","a one foot extension cord","a CD from Walmart's 1 dollar bucket","a magic wand","a list of disappointed people who believed in you","murder exhibit no. 3","a paperback copy of 'Great Expectations'", "a baby biter", "a little biter fang", "the latest diet fad","a belt that no longer fits you","an abandoned pet rock","a lava lamp", "some spirit herbs","a box of fish sticks found at the back of the freezer","a bowl of tofu rice", "a bowl of ramen noodles", "a live lobster!", "a miniature golf cart","dunce cap","a fully furnished x-mas tree", "an orphaned power pole"}
+local symbol_asc = "▲"
+local symbol_desc = "▼"
 
-local function create_player_list_button(event)	
+local pokemessages = {"a stick", "a leaf", "a moldy carrot", "a crispy slice of bacon", "a french fry", "a realistic toygun", "a broomstick", "a thirteen inch iron stick", "a mechanical keyboard", "a fly fishing cane", "a selfie stick", "an oversized fidget spinner", "a thumb extender", "a dirty straw", "a green bean", "a banana", "an umbrella", "grandpa's walking stick", "live firework", "a toilet brush", "a fake hand", "an undercooked hotdog", "a slice of yesterday's microwaved pizza", "bubblegum", "a biter leg", "grandma's toothbrush", "charred octopus", "a dollhouse bathtub", "a length of copper wire", "a decommissioned nuke", "a smelly trout", "an unopened can of deodorant", "a stone brick", "a half full barrel of lube", "a half empty barrel of lube", "an unexploded cannon shell", "a blasting programmable speaker", "a not so straight rail", "a mismatched pipe to ground", "a surplus box of landmines", "decommissioned yellow rounds", "an oily pumpjack shaft", "a melted plastic bar in the shape of the virgin mary", "a bottle of watermelon vitamin water", "a slice of watermelon", "a stegosaurus tibia", "a basking musician's clarinet", "a twig", "an undisclosed pokey item", "a childhood trophy everyone else got","a dead starfish","a titanium toothpick", "a nail file","a stamp collection","a bucket of lego","a rolled up carpet","a rolled up WELCOME doormat","Bobby's favorite bone","an empty bottle of cheap vodka","a tattooing needle","a peeled cucumber","a stack of cotton candy","a signed baseball bat","that 5 dollar bill grandma sent for christmas","a stack of overdue phone bills","the 'relax' section of the white pages","a bag of gym clothes which never made it to the washing machine","a handful of peanut butter","a pheasant's feather","a rusty pickaxe","a diamond sword","the bill of rights of a banana republic","one of those giant airport Toblerone's", "a long handed inserter", "a wiimote","an easter chocolate rabbit","a ball of yarn the cat threw up","a slightly expired but perfectly edible cheese sandwich", "conclusive proof of lizard people existence","a pen drive full of high res wallpapers","a pet hamster","an oversized goldfish","a one foot extension cord","a CD from Walmart's 1 dollar bucket","a magic wand","a list of disappointed people who believed in you","murder exhibit no. 3","a paperback copy of 'Great Expectations'", "a baby biter", "a little biter fang", "the latest diet fad","a belt that no longer fits you","an abandoned pet rock","a lava lamp", "some spirit herbs","a box of fish sticks found at the back of the freezer","a bowl of tofu rice", "a bowl of ramen noodles", "a live lobster!", "a miniature golf cart","dunce cap","a fully furnished x-mas tree", "an orphaned power pole", "an horphaned power pole","an box of overpriced girl scout cookies","the cheapest item from the yard sale","a Sharpie","a glowstick","a thick unibrow hair","a very detailed map of Kazakhstan","the official Factorio installation DVD","a Liberal Arts degree","a pitcher of Kool-Aid","a 1/4 pound vegan burrito","a bottle of expensive wine","a hamster sized gravestone","a counterfeit Cuban cigar","an old Nokia phone","a huge inferiority complex","a dead real state agent","a deck of tarot cards","unreleased Wikileaks documents","a mean-looking garden dwarf","the actual mythological OBESE cat","a telescope used to spy on the MILF next door","a fancy candelabra","the comic version of the Kama Sutra","an inflatable 'Netflix & chill' doll","whatever it is redlabel gets high on","Obama's birth certificate","a deck of Cards Against Humanity","a copy of META MEME HUMOR for Dummies","an abandoned, not-so-young-anymore puppy","one of those useless items advertised on TV","a genetic blueprint of a Japanese teen idol" }
+
+local function on_player_joined_game(event)	
 	local player = game.players[event.player_index]
 	if not global.poke_spam_protection then global.poke_spam_protection = {} end
 	global.poke_spam_protection[event.player_index] = game.tick
@@ -82,113 +82,182 @@ local function get_rank(player)
 	
 	--52 ranks
 	
-	local time_needed = 15
+	local time_needed = 15 -- in minutes between rank upgrades
+	m = m / time_needed
+	m = math.floor(m)
+	m = m + 1
 	
-	local time_counter = time_needed
-	for i=1,#ranks,1 do
-		if m < time_counter then return ranks[i] end
-		time_counter = time_counter + time_needed 
-	end
+	if m > #ranks then m = #ranks end
 
-	return ranks[#ranks]
+	return ranks[m]
 end
 
-local function player_list_show(player)
+local function get_sorted_list(sort_by)
+	local player_list = {}
+	for i, player in pairs(game.connected_players) do
+		player_list[i] = {}
+		player_list[i].rank = get_rank(player)
+		player_list[i].name = player.name
+		player_list[i].played_time = get_formatted_playtime(player.online_time)
+		player_list[i].played_ticks = player.online_time
+		if not global.player_list_pokes_counter[player.index] then global.player_list_pokes_counter[player.index] = 0 end
+		player_list[i].pokes = global.player_list_pokes_counter[player.index]
+		player_list[i].player_index = player.index
+	end
+	--[[
+	for i = 1, 4, 1 do
+		player_list[i] = {}
+		player_list[i].pokes = math.random(1,100)
+		player_list[i].name = "mewmew " .. i		
+		player_list[i].played_ticks = math.random(1,115222000)
+		player_list[i].played_time = get_formatted_playtime(player_list[i].played_ticks)
+		player_list[i].rank = "item/heavy-armor"	
+		player_list[i].player_index = 1	
+	end--]]
+	
+	for i = #player_list, 1, -1 do
+		for i2 = #player_list, 1, -1 do
+			if sort_by == "pokes_asc" then 
+				if player_list[i].pokes > player_list[i2].pokes then
+					local a = player_list[i]
+					local b = player_list[i2]
+					player_list[i] = b
+					player_list[i2] = a				
+				end				
+			end
+			if sort_by == "pokes_desc" then 
+				if player_list[i].pokes < player_list[i2].pokes then
+					local a = player_list[i]
+					local b = player_list[i2]
+					player_list[i] = b
+					player_list[i2] = a				
+				end				
+			end
+			if sort_by == "time_played_asc" then 
+				if player_list[i].played_ticks > player_list[i2].played_ticks then
+					local a = player_list[i]
+					local b = player_list[i2]
+					player_list[i] = b
+					player_list[i2] = a				
+				end				
+			end
+			if sort_by == "time_played_desc" then 
+				if player_list[i].played_ticks < player_list[i2].played_ticks then
+					local a = player_list[i]
+					local b = player_list[i2]
+					player_list[i] = b
+					player_list[i2] = a				
+				end				
+			end
+			if sort_by == "name_asc" then 
+				if player_list[i].name > player_list[i2].name then
+					local a = player_list[i]
+					local b = player_list[i2]
+					player_list[i] = b
+					player_list[i2] = a				
+				end				
+			end
+			if sort_by == "name_desc" then 
+				if player_list[i].name < player_list[i2].name then
+					local a = player_list[i]
+					local b = player_list[i2]
+					player_list[i] = b
+					player_list[i2] = a				
+				end				
+			end
+		end
+	end 
+	return player_list
+end
+
+local function player_list_show(player, sort_by)
+	
+	local frame = player.gui.left["player-list-panel"]
+	if frame then frame.destroy() end
 	
 	player.gui.left.direction = "horizontal"	
 	local frame = player.gui.left.add { type = "frame", name = "player-list-panel", direction = "vertical" }
+	frame.style.minimal_width = 408
 	frame.style.top_padding = 8
 	frame.style.left_padding = 8
 	frame.style.right_padding = 8
 	frame.style.bottom_padding = 8
 	
-	local player_list_panel_table = frame.add { type = "table", name = "player_list_panel_table", colspan = 4 }
 	
-	local label = player_list_panel_table.add { type = "label", name = "player_list_panel_header_1", caption = "" }
+	local player_list_panel_header_table = frame.add { type = "table", name = "player_list_panel_header_table", colspan = 4 }
+	
+	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_1", caption = "    " .. #game.connected_players }
 	label.style.font = "default-game"
 	label.style.font_color = { r=0.00, g=0.00, b=0.00}
 	label.style.minimal_width = 35
 	
-	local label = player_list_panel_table.add { type = "label", name = "player_list_panel_header_2", caption = "Players online" }
+	local str = ""
+	if sort_by == "name_asc" then str = symbol_asc .. " " end
+	if sort_by == "name_desc" then str = symbol_desc .. " " end
+	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_2", caption = str .. "Players online"  }
 	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
-	label.style.minimal_width = 140
+	label.style.minimal_width = 160
+	label.style.maximal_width = 160
 	
-	local label = player_list_panel_table.add { type = "label", name = "player_list_panel_header_3", caption = "Time played" }
+	str = ""
+	if sort_by == "time_played_asc" then str = symbol_asc .. " " end
+	if sort_by == "time_played_desc" then str = symbol_desc .. " " end
+	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_3", caption = str .. "Time played" }
 	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
-	label.style.minimal_width = 140
+	label.style.minimal_width = 130
+	label.style.maximal_width = 130
 	
-	local label = player_list_panel_table.add { type = "label", name = "player_list_panel_header_4", caption = "Poke" }
-	label.style.font = "default-bold"
+	str = ""
+	if sort_by == "pokes_asc" then str = symbol_asc .. " " end
+	if sort_by == "pokes_desc" then str = symbol_desc .. " " end
+	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_4", caption = str .. "Poke" }
+	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
-	--label.style.minimal_width = 35
+	label.style.minimal_width = 35	
+	
+	local player_list_panel_table = frame.add { type = "scroll-pane", name = "scroll_pane", direction = "vertical", horizontal_scroll_policy = "never", vertical_scroll_policy = "auto"}
+	player_list_panel_table.style.maximal_height = 530
 	
 	
-	local x = 1
-	local online_players_amount = 0
-	--local connected_player_table = {}
-	
-		while (game.players[x] ~= nil) do
+	player_list_panel_table = player_list_panel_table.add { type = "table", name = "player_list_panel_table", colspan = 4 }
 		
-			local player = game.players[x]
-			if player.connected then
-				
-				online_players_amount = online_players_amount + 1
-				--connected_player_table[online_players_amount] = {t_player_index = x, t_player_playtime = player.online_time}
-				local str = get_rank(player)
-
-				player_list_panel_table.add { type = "sprite", name = "player_rank_sprite_" .. x, sprite = str }
-				
-				local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_names_" .. x, caption = player.name }		
-				label.style.font = "default"				
-				label.style.font_color = {
-					r = .4 + player.color.r * 0.6,
-					g = .4 + player.color.g * 0.6,
-					b = .4 + player.color.b * 0.6,
-				}
-				--label.style.minimal_width = 140
-				
-				local time_played = get_formatted_playtime(player.online_time)
-								
-				local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_time_played_" .. x, caption = time_played }
-				
-				if not global.player_list_pokes_counter[player.index] then global.player_list_pokes_counter[player.index] = 0 end
-				
-				local button = player_list_panel_table.add { type = "button", name = "poke_player_" .. player.name, caption = global.player_list_pokes_counter[player.index] }		
-				button.style.font = "default"
-				label.style.font_color = { r=0.83, g=0.83, b=0.83}
-				button.style.minimal_height = 28
-				button.style.minimal_width = 28
-				button.style.maximal_height = 28
-				button.style.maximal_width = 28
-				button.style.top_padding = 0
-				button.style.left_padding = 0
-				button.style.right_padding = 0
-				button.style.bottom_padding = 0
-								
-			end
-		x = x + 1
-	end
-	x = x - 1
-	player_list_panel_table.player_list_panel_header_1.caption = "    " .. online_players_amount
+	local player_list = get_sorted_list(sort_by)	
 	
---[[	
-	connected_player_table[2] = {t_player_index = 27, t_player_playtime = 235355}
-	connected_player_table[3] = {t_player_index = 7, t_player_playtime = 11532563}
-	connected_player_table[4] = {t_player_index = 9, t_player_playtime = 2355}
-	connected_player_table[5] = {t_player_index = 15, t_player_playtime = 43545}
-	
-	--table.sort(connected_player_table, function(a, b) return a[2] > b[2] end)
-	
-	for x=1,#connected_player_table,1 do
-		local z = connected_player_table[x]
-		local a = "t_player_index=" ..  z.t_player_index
-		a = a.. "    t_player_playtime=" 
-		a = a .. z.t_player_playtime
-		game.print(a)
-	end
---]]	
+	for i = 1, #player_list, 1 do	
+		
+		local sprite = player_list_panel_table.add { type = "sprite", name = "player_rank_sprite_" .. i, sprite = player_list[i].rank }
+		sprite.style.minimal_width = 35
+		
+		local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_names_" .. i, caption = player_list[i].name }		
+		label.style.font = "default"				
+		label.style.font_color = {
+			r = .4 + game.players[player_list[i].player_index].color.r * 0.6,
+			g = .4 + game.players[player_list[i].player_index].color.g * 0.6,
+			b = .4 + game.players[player_list[i].player_index].color.b * 0.6,
+		}
+		label.style.minimal_width = 160
+		label.style.maximal_width = 160
+						
+		local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_time_played_" .. i, caption = player_list[i].played_time }		
+		label.style.minimal_width = 130
+		label.style.maximal_width = 130
+		
+		local flow = player_list_panel_table.add { type = "flow", name = "button_flow_" .. i, direction = "horizontal" }
+		flow.add { type = "label", name = "button_spacer_" .. i, caption = "" }
+		local button = flow.add { type = "button", name = "poke_player_" .. player_list[i].name, caption = player_list[i].pokes }		
+		button.style.font = "default"
+		label.style.font_color = { r=0.83, g=0.83, b=0.83}
+		button.style.minimal_height = 30
+		button.style.minimal_width = 30
+		button.style.maximal_height = 30
+		button.style.maximal_width = 30
+		button.style.top_padding = 0
+		button.style.left_padding = 0
+		button.style.right_padding = 0
+		button.style.bottom_padding = 0								
+	end				
 end
 
 local function on_gui_click(event)
@@ -196,14 +265,35 @@ local function on_gui_click(event)
 		local player = game.players[event.element.player_index]
 		local name = event.element.name
 		
-		if (name == "player_list_button") then
-			local frame = player.gui.left["player-list-panel"]
-			if (frame) then
-				frame.destroy()
+		if (name == "player_list_button") then			
+			if player.gui.left["player-list-panel"] then
+				player.gui.left["player-list-panel"].destroy()		
 			else
-				player_list_show(player)
-			end
+				player_list_show(player,"time_played_desc")
+			end			
 		end
+		
+		if (name == "player_list_panel_header_2") then	
+			if string.find(event.element.caption, symbol_desc) then
+				player_list_show(player,"name_asc")
+			else
+				player_list_show(player,"name_desc")
+			end						
+		end
+		if (name == "player_list_panel_header_3") then
+			if string.find(event.element.caption, symbol_desc) then
+				player_list_show(player,"time_played_asc")
+			else
+				player_list_show(player,"time_played_desc")
+			end
+		end		
+		if (name == "player_list_panel_header_4") then						
+			if string.find(event.element.caption, symbol_desc) then
+				player_list_show(player,"pokes_asc")
+			else
+				player_list_show(player,"pokes_desc")
+			end			
+		end	
 		
 		--Poke other players
 	if event.element.type == "button" then
@@ -233,25 +323,23 @@ local function on_gui_click(event)
 				
 end
 
-local function player_list_refresh()
-	if game.tick % 1800 == 0 then
-		local x = 1
-		while game.players[x] ~= nil do
-			local player = game.players[x]
-			if player.connected then
-				local frame = player.gui.left["player-list-panel"]
-				if frame then
-					frame.destroy()
-					player_list_show(player)
-				end
-			end
-			x = x + 1
+local function on_tick()
+	if game.tick % 1200 == 0 then
+		for _,player in pairs(game.connected_players) do				
+			if player.gui.left["player-list-panel"] then
+				local sort_method
+				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_2.caption, symbol_desc) then sort_method = "name_desc" end
+				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_2.caption, symbol_asc) then sort_method = "name_asc" end
+				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_3.caption, symbol_desc) then sort_method = "time_played_desc" end
+				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_3.caption, symbol_asc) then sort_method = "time_played_asc" end
+				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_4.caption, symbol_desc) then sort_method = "pokes_desc" end
+				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_4.caption, symbol_asc) then sort_method = "pokes_asc" end				
+				player.gui.left["player-list-panel"].destroy()
+				player_list_show(player,sort_method)
+			end			
 		end
 	end
 end
-
-
-Event.register(defines.events.on_tick, player_list_refresh)
-Event.register(defines.events.on_player_joined_game, create_player_list_button)
-Event.register(defines.events.on_player_left_game, player_log_out)
+Event.register(defines.events.on_tick, on_tick)
+Event.register(defines.events.on_player_joined_game, on_player_joined_game)
 Event.register(defines.events.on_gui_click, on_gui_click)

@@ -22,12 +22,17 @@ Hi stranger, I'm a fish..
 And this is what you ought to know:
 
 - Please be nice and don't grief.
+
 - Fix personal confrontations diplomatically.
+
 - No political, racist, or misogynistic content.
+
 - If you suspect you desync while connecting,
   close and relaunch Factorio ASAP. Very bad for us.
-- Join our community on discord.me/redmew
+  
+- Join our community on https://discord.gg/gKyDpQE
 for questions and feedback. Also on /r/redmew (reddit)
+
 - You can contribute to server costs and upgrades
 with bitcoin: 13qh5uJh3UDUiWKyQaybkpxC1gfLVDB1ww   
 ]===]
