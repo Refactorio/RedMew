@@ -15,7 +15,7 @@ local function helper_function()
 end
 
 --This function is called by the framework if the style is enabled.
-function mymodule.on_chunk_generated(event)
+function module.on_chunk_generated(event)
   game.print("Chunk was generated")
 end
 
