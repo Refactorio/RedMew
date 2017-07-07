@@ -1,3 +1,5 @@
+mymodule = {}
+
 local function rot_pos(pos, rot)
   local ctr = {x = 15, y = 15}
   return {
@@ -101,11 +103,8 @@ local function disable_items()
   force.recipes["express-underground-belt"].enabled = false
 end
 
-local function on_init()
-  global.map_gen_rng = game.create_random_generator()
-end
 
-local function on_chunk_generated(event)
+function mymodule.on_chunk_generated(event)
   local bd_box = event.area
   local surface = event.surface
   local chunk_size = 32
@@ -131,6 +130,6 @@ local function on_chunk_generated(event)
   end
 end
 
-Event.register(defines.events.on_chunk_generated, on_chunk_generated)
-Event.register(defines.events.on_research_finished, disable_items)
-Event.register(-1, on_init)
+
+
+return mymodule
