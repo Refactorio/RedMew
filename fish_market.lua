@@ -50,7 +50,7 @@ function market()
   surface.set_tiles(waterTiles)
   local market = surface.create_entity{name="market", position=market_location, force=force}
   market.destructible = false
-  
+
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="exoskeleton-equipment"}}
   market.add_market_item{price={{"raw-fish", 30}}, offer={type="give-item", item="small-plane"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="rail", count=2}}
@@ -124,7 +124,7 @@ local function preplayer_mined_item(event)
 			fish_earned(event, 1)
 		end
 	end
-	
+
 	if event.entity.name == "fish" then
 			fish_earned(event, 0)
 	end
@@ -169,19 +169,19 @@ function pet(player, entity_name)
 	else
 		player = game.players[player]
 	end
-	if not entity_name then 
+	if not entity_name then
 		entity_name = "small-biter"
 	end
 	if not global.player_pets then global.player_pets = {} end
-	
+
 	local surface = game.surfaces[1]
-	
+
 	local pos = player.position
 	pos.y = pos.y + 1
-	
+
 	local x = 1
 	x = x + #global.player_pets
-			
+
 	global.player_pets[x] = {}
 	global.player_pets[x].entity = surface.create_entity {name=entity_name, position=pos, force="player"}
 	global.player_pets[x].owner = player.index
@@ -230,7 +230,7 @@ local function market_item_purchased(event)
 
 	if event.offer_index == 2 then
 		player.get_inventory(defines.inventory.player_main).remove({name="small-plane", count=event.count})
-		local chance = 4		
+		local chance = 4
 		local x = math.random(1,3)
 		if x < 3 then
 			local x = math.random(1,chance)
@@ -244,8 +244,8 @@ local function market_item_purchased(event)
 					local x = math.random(1,chance)
 					if x < chance then
 						rolled_pet = "big-biter"
-					else					
-						rolled_pet = "behemoth-biter"						
+					else
+						rolled_pet = "behemoth-biter"
 					end
 				end
 			end
@@ -261,11 +261,11 @@ local function market_item_purchased(event)
 					local x = math.random(1,chance)
 					if x < chance then
 						rolled_pet = "big-spitter"
-					else					
-						rolled_pet = "behemoth-spitter"						
+					else
+						rolled_pet = "behemoth-spitter"
 					end
 				end
-			end					
+			end
 		end
 		local str = player.name
 		str = str .. " bought his very own pet "
@@ -274,7 +274,7 @@ local function market_item_purchased(event)
 		game.print(str)
 		pet(event.player_index, rolled_pet)
 	end
-  
+
 end
 
 if not global.pet_command_rotation then global.pet_command_rotation = 1 end
@@ -290,32 +290,35 @@ local function on_tick(event)
 		end
 	end
   end
-  
-	if game.tick % 200 == 0 then	
-		for _, pets in pairs(global.player_pets) do					
-			local player = game.players[pets.owner]				
+
+	if game.tick % 200 == 0 then
+    if global.player_pets == nil then
+      return
+    end
+		for _, pets in pairs(global.player_pets) do
+			local player = game.players[pets.owner]
 			if pcall(function () local x = pets.entity.name end) then
-				if global.pet_command_rotation % 15 == 0 then	
-					local surface = game.surfaces[1]	
+				if global.pet_command_rotation % 15 == 0 then
+					local surface = game.surfaces[1]
 					local pet_pos = pets.entity.position
 					local pet_name = pets.entity.name
 					local pet_direction = pets.entity.direction
-					pets.entity.destroy()					
-					pets.entity = surface.create_entity {name=pet_name, position=pet_pos, direction=pet_direction, force="player"}					
+					pets.entity.destroy()
+					pets.entity = surface.create_entity {name=pet_name, position=pet_pos, direction=pet_direction, force="player"}
 				end
 				if global.pet_command_rotation % 2 == 1 then
 					pets.entity.set_command({type=defines.command.go_to_location, destination=player.position,distraction=defines.distraction.none})
 				else
 					local fake_pos = pets.entity.position
 					pets.entity.set_command({type=defines.command.go_to_location, destination=fake_pos,distraction=defines.distraction.none})
-				end				
+				end
 			else
 				global.player_pets[pets.id] = nil
 				local str = player.name .. "´s pet died ;_;"
 				game.print(str)
-			end				
-		end		
-		global.pet_command_rotation = global.pet_command_rotation + 1		
+			end
+		end
+		global.pet_command_rotation = global.pet_command_rotation + 1
 	end
 end
 
@@ -334,7 +337,7 @@ function help()
 	headline_label.style.font = "default-listbox"
 	headline_label.style.font_color = { r=0.98, g=0.66, b=0.22}
 
-	
+
 	local text_box = info_table.add { type = "text-box", text = infotext, name = "text_box" }
 	text_box.read_only = true
 	text_box.selectable = true
