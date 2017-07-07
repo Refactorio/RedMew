@@ -10,8 +10,8 @@ notes:
 
 --]]
 
-require "perlin_noise"
-require "gens_neko"
+require "map_layout/perlin_noise"
+require "map_layout/gens_neko"
 perlin:load(  )
 
 
