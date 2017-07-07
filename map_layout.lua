@@ -11,7 +11,7 @@ notes:
 --]]
 
 require "perlin_noise"
-require "rail_grid"
+require "gens_neko"
 perlin:load(  )
 
 
@@ -2045,4 +2045,4 @@ end
 --]]
 
 --Event.register(defines.events.on_tick, on_tick)
-Event.register(defines.events.on_chunk_generated, on_chunk_generated)
+Event.register(defines.events.on_chunk_generated, worldgen_onchunk)
