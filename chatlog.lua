@@ -33,12 +33,12 @@ end
 
 function player_joined(event)
     local player = game.players[event.player_index]
-    log_chat_message(event, "##" .. player.name .. " joined the game.")
+    log_chat_message(event, "### " .. player.name .. " joined the game. ###")
 end
 
 function player_left(event)
     local player = game.players[event.player_index]
-    log_chat_message(event, "##" .. player.name .. " left the game.")
+    log_chat_message(event, "### " .. player.name .. " left the game. ###")
 end
 Event.register(defines.events.on_console_command, player_send_command)
 Event.register(defines.events.on_console_chat, player_send)
