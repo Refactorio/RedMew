@@ -8,9 +8,9 @@ function invoke(cmd)
         return
     end
     local target = cmd["parameter"]
-    if target == nil or game.players[target] == nil then 
-        game.player.print("Unknown player.") 
-        return 
+    if target == nil or game.players[target] == nil then
+        game.player.print("Unknown player.")
+        return
     end
     local pos = game.surfaces[1].find_non_colliding_position("player", game.player.position, 0, 1)
     game.players[target].teleport({pos.x, pos.y})
@@ -23,9 +23,9 @@ function teleport_player(cmd)
         return
     end
     local target = cmd["parameter"]
-    if target == nil or game.players[target] == nil then 
-        game.player.print("Unknown player.") 
-        return 
+    if target == nil or game.players[target] == nil then
+        game.player.print("Unknown player.")
+        return
     end
     local pos = game.surfaces[1].find_non_colliding_position("player", game.players[target].position, 0, 1)
     game.player.teleport({pos.x, pos.y})
@@ -58,9 +58,13 @@ local function detrain(param)
 end
 
 
+function kill()
+  game.player.character.die()
+end
 
 
 
+commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("detrain", "<player> - Kicks the player off a train.", detrain)
 commands.add_command("tpplayer", "<player> - Teleports you to the player.", teleport_player)
 commands.add_command("invoke", "<player> - Teleports the player to you.", invoke)
