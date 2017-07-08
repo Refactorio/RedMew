@@ -67,7 +67,7 @@ function walkabout(cmd)
       cant_run(cmd.name)
       return
   end
-  params = {}
+  local params = {}
   if cmd.parameter == nil then
       game.print("Walkabout failed.")
       return
@@ -138,10 +138,45 @@ function walkabout(cmd)
   game.print(player_name .. " could not go on a walkabout.")
 end
 
+function on_set_time(cmd)
+  if not game.player.admin then
+      cant_run(cmd.name)
+      return
+  end
 
+  local params = {}
+  local params_numeric = {}
+
+
+  if cmd.parameter == nil then
+    game.player.print("Setting clock failed. Usage: /settime <day> <month> <hour> <minute>")
+    return
+  end
+
+  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+
+  if params[4] == nil then
+    game.player.print("Setting clock failed. Usage: /settime <day> <month> <hour> <minute>")
+    return
+  end
+
+  for _, param in pairs(params) do
+    if tonumber(param) == nil then
+      game.player.print("Don't be stupid.")
+      return
+    end
+    table.insert(params_numeric, tonumber(param))
+  end
+  if (params_numeric[2] > 12)  or (params_numeric[2] < 1)  or (params_numeric[1] > 31)  or (params_numeric[1] < 1) or (params_numeric[2] % 2 == 0 and params_numeric[1] > 30) or (params_numeric[3] > 24) or (params_numeric[3] < 0) or (params_numeric[4] > 60) or (params_numeric[4] < 0)  then
+    game.player.print("Don't be stupid.")
+    return
+  end
+  set_time(params_numeric[1], params_numeric[2], params_numeric[3], params_numeric[4])
+end
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("detrain", "<player> - Kicks the player off a train.", detrain)
 commands.add_command("tpplayer", "<player> - Teleports you to the player.", teleport_player)
 commands.add_command("invoke", "<player> - Teleports the player to you.", invoke)
 commands.add_command("tppos", "Teleports you to a selected entity.", teleport_location)
-commands.add_command("walkabout", '<player> - <"close", "far", "very far", number>', walkabout)
+commands.add_command("walkabout", '<player> <"close", "far", "very far", number> - Send someone on a walk.', walkabout)
+commands.add_command("settime", '<day> <month> <hour> <minute> - Sets the clock', on_set_time)
