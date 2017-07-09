@@ -2,7 +2,7 @@
 
 
 local function allowed_to_nuke(player)
-  return player.admin or(player.online_time / 216000) > global.scenario.config.nuke_min_time_hours 
+  return player.admin or is_mod(player.name) or is_regular(player.name) or ((player.online_time / 216000) > global.scenario.config.nuke_min_time_hours)
 end
 
 

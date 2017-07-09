@@ -1,9 +1,9 @@
 function cant_run(name)
-    game.player.print("Can't run command (" .. name .. ") - you are not an admin.")
+    game.player.print("Can't run command (" .. name .. ") - insufficient permission.")
 end
 
 function invoke(cmd)
-    if not game.player.admin then
+    if not (game.player.admin or is_mod(game.player.name)) then
         cant_run(cmd.name)
         return
     end
@@ -18,7 +18,7 @@ function invoke(cmd)
 end
 
 function teleport_player(cmd)
-    if not game.player.admin then
+    if not (game.player.admin or is_mod(game.player.name)) then
         cant_run(cmd.name)
         return
     end
@@ -46,7 +46,7 @@ function teleport_location(cmd)
 end
 
 local function detrain(param)
-    if not game.player.admin then
+    if not (game.player.admin or is_mod(game.player.name)) then
         cant_run(param.name)
         return
     end
@@ -63,7 +63,7 @@ function kill()
 end
 
 function walkabout(cmd)
-  if not game.player.admin then
+  if not (game.player.admin or is_mod(game.player.name)) then
       cant_run(cmd.name)
       return
   end
@@ -139,7 +139,7 @@ function walkabout(cmd)
 end
 
 function on_set_time(cmd)
-  if not game.player.admin then
+  if not (game.player.admin or is_regular(game.player.name) or is_mod(game.player.name)) then
       cant_run(cmd.name)
       return
   end
@@ -177,11 +177,64 @@ end
 local function clock()
   game.player.print(format_time(game.tick))
 end
+
+local function regular(cmd)
+  if not (game.player.admin or is_mod(game.player.name)) then
+      cant_run(cmd.name)
+      return
+  end
+
+  if cmd.parameter == nil then
+    game.player.print("Command failed. Usage: /regular <promote, demote>, <player>")
+    return
+  end
+  local params = {}
+  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+  if params[2] == nil then
+    game.player.print("Command failed. Usage: /regular <promote, demote>, <player>")
+    return
+  elseif (params[1] == "promote") then
+    add_regular(params[2])
+  elseif (params[1] == "demote") then
+    remove_regular(params[2])
+  else
+      game.player.print("Command failed. Usage: /regular <promote, demote>, <player>")
+  end
+end
+
+local function mod(cmd)
+  if not game.player.admin then
+      cant_run(cmd.name)
+      return
+  end
+
+  if cmd.parameter == nil then
+    game.player.print("Command failed. Usage: /mod <promote, demote>, <player>")
+    return
+  end
+  local params = {}
+  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+  if params[2] == nil then
+    game.player.print("Command failed. Usage: /mod <promote, demote>, <player>")
+    return
+  elseif (params[1] == "promote") then
+    add_mod(params[2])
+  elseif (params[1] == "demote") then
+    remove_mod(params[2])
+  else
+      game.player.print("Command failed. Usage: /mod <promote, demote>, <player>")
+  end
+end
+
 commands.add_command("kill", "Will kill you.", kill)
-commands.add_command("detrain", "<player> - Kicks the player off a train.", detrain)
-commands.add_command("tpplayer", "<player> - Teleports you to the player.", teleport_player)
-commands.add_command("invoke", "<player> - Teleports the player to you.", invoke)
-commands.add_command("tppos", "Teleports you to a selected entity.", teleport_location)
-commands.add_command("walkabout", '<player> <"close", "far", "very far", number> - Send someone on a walk.', walkabout)
-commands.add_command("settime", '<day> <month> <hour> <minute> - Sets the clock', on_set_time)
-commands.add_command("clock", 'Look at the clock', clock)
+commands.add_command("detrain", "<player> - Kicks the player off a train. (Admins and moderators)", detrain)
+commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
+commands.add_command("invoke", "<player> - Teleports the player to you. (Admins and moderators)", invoke)
+commands.add_command("tppos", "Teleports you to a selected entity. (Admins only)", teleport_location)
+commands.add_command("walkabout", '<player> <"close", "far", "very far", number> - Send someone on a walk.  (Admins and moderators)', walkabout)
+commands.add_command("settime", '<day> <month> <hour> <minute> - Sets the clock (Admins, moderators and regulars)', on_set_time)
+commands.add_command("clock", 'Look at the clock.', clock)
+commands.add_command("regulars", 'Prints a list of game regulars.', print_regulars)
+commands.add_command("regular", '<promote, demote>, <player> Change regular status of a player. (Admins and moderators)', regular)
+commands.add_command("mods", 'Prints a list of game mods.', print_mods)
+commands.add_command("mod", '<promote, demote>, <player> Changes moderator status of a player. (Admins only)', mod)
