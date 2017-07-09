@@ -71,6 +71,7 @@ function set_time(d, month, h, m)
   current_day = d
   current_h = h
   current_m = m
+  game.print(game.player.name .. " set the clock to " .. format_time(game.tick) .. ". Type /clock to check the time.")
 end
 
 Event.register(defines.events.on_console_command, player_send_command)

@@ -173,6 +173,10 @@ function on_set_time(cmd)
   end
   set_time(params_numeric[1], params_numeric[2], params_numeric[3], params_numeric[4])
 end
+
+local function clock()
+  game.player.print(format_time(game.tick))
+end
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("detrain", "<player> - Kicks the player off a train.", detrain)
 commands.add_command("tpplayer", "<player> - Teleports you to the player.", teleport_player)
@@ -180,3 +184,4 @@ commands.add_command("invoke", "<player> - Teleports the player to you.", invoke
 commands.add_command("tppos", "Teleports you to a selected entity.", teleport_location)
 commands.add_command("walkabout", '<player> <"close", "far", "very far", number> - Send someone on a walk.', walkabout)
 commands.add_command("settime", '<day> <month> <hour> <minute> - Sets the clock', on_set_time)
+commands.add_command("clock", 'Look at the clock', clock)
