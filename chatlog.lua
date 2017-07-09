@@ -9,10 +9,7 @@ function ternary (cond, T, F)
 end
 
 function format_time(ticks)
-
-
   ticks = ticks - time_set_moment - 5184000 * days_passed + 3600 * (current_m + current_h * 60)
-
   if ticks > 5184000 then
     current_day = current_day + 1
     days_passed = days_passed + 1
@@ -69,6 +66,7 @@ function set_time(d, month, h, m)
   time_set_moment = game.tick
   current_month = month
   current_day = d
+  days_passed = 0
   current_h = h
   current_m = m
   game.print(game.player.name .. " set the clock to " .. format_time(game.tick) .. ". Type /clock to check the time.")
