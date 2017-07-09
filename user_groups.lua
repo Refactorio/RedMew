@@ -1,18 +1,20 @@
-local mods = {
+Event.register(-1, function()
+if global.scenario.variables == nil then global.scenario.variables = {} end
+global.scenario.variables.mods = {
 	sanctorio = "",
 }
-
-local regulars = {
+global.scenario.variables.regulars = {
 	helpower2 = "",
 }
+end)
 
 
 function is_mod(player_name)
-	return not (mods[player_name] == nil)
+	return not (global.scenario.variables.mods[player_name] == nil)
 end
 
 function is_regular(player_name)
-	return not (regulars[player_name] == nil)
+	return not (global.scenario.variables.regulars[player_name] == nil)
 end
 
 function add_regular(player_name)
@@ -20,7 +22,7 @@ function add_regular(player_name)
 	else
 		game.print(game.player.name .. " promoted " .. player_name .. " to regular.")
 	end
-	regulars[player_name] = ""
+	global.scenario.variables.regulars[player_name] = ""
 end
 
 function add_mod(player_name)
@@ -28,27 +30,27 @@ function add_mod(player_name)
 	else
 		game.print(game.player.name .. " promoted " .. player_name .. " to moderator.")
 	end
-	mods[player_name] = ""
+	global.scenario.variables.mods[player_name] = ""
 end
 
 function remove_regular(player_name)
 	if is_regular(player_name) then game.print(player_name .. " was demoted from regular by " .. game.player.name .. ".") end
-	regulars[player_name] = nil
+	global.scenario.variables.regulars[player_name] = nil
 end
 
 function remove_mod(player_name)
 	if is_mod(player_name) then game.print(player_name .. " was demoted from mod by " .. game.player.name .. ".") end
-	mods[player_name] = nil
+	global.scenario.variables.mods[player_name] = nil
 end
 
 function print_regulars()
-	for k,_ in pairs(regulars) do
+	for k,_ in pairs(global.scenario.variables.regulars) do
 		game.player.print(k)
 	end
 end
 
 function print_mods()
-	for k,_ in pairs(mods) do
+	for k,_ in pairs(global.scenario.variables.mods) do
 		game.player.print(k)
 	end
 end
