@@ -72,7 +72,7 @@ function set_time(d, month, h, m)
   global.scenario.variables.current_day = d
   global.scenario.variables.days_passed = 0
   global.scenario.variables.current_h = h
-  global.scenario.variables.current_m.current_m = m
+  global.scenario.variables.current_m = m
   game.print(game.player.name .. " set the clock to " .. format_time(game.tick) .. ". Type /clock to check the time.")
 end
 
