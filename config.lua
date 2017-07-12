@@ -7,6 +7,12 @@ Event.register(-1, function()
     global.scenario.variables.current_h = 0
     global.scenario.variables.current_m = 0
     global.scenario.variables.days_passed = 0
+    global.scenario.variables.mods = {
+    	sanctorio = "",
+    }
+    global.scenario.variables.regulars = {
+    	helpower2 = "",
+    }
     global.scenario.config = {}
     global.scenario.config.announcements_enabled = false -- if true announcements will be shown
     global.scenario.config.announcement_delay = 1000 -- number of seconds between each announcement
