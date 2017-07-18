@@ -150,7 +150,6 @@ local function removeChunk(event)
 	surface.set_tiles(tiles)
 end
 
-shape_module = true
 
 first = true
 function run_shape_module(event)

@@ -1,8 +1,5 @@
 require "locale.gen_shared.perlin_noise"
 
-if ores_module then return end
-ores_module = true
-
 local random_ores = {"iron-ore","coal","copper-ore","stone","uranium-ore"}
 local random_dense = {1.15,0.8,1,0.9, 0.5}	--ore density reference
 

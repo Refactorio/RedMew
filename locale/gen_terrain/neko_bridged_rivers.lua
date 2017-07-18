@@ -1,9 +1,6 @@
 
 require "locale.gen_shared.perlin_noise"
 
-if terrain_module then return end
-terrain_module = true
-
 local tree_to_place = {"dry-tree","dry-hairy-tree","tree-06","tree-06","tree-01","tree-02","tree-03"}
 
 function run_terrain_module(event)
