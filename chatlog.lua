@@ -47,11 +47,13 @@ end
 
 
 function player_joined(event)
+    update_player_list()
     local player = game.players[event.player_index]
     log_chat_message(event, "### " .. player.name .. " joined the game. ###")
 end
 
 function player_left(event)
+    update_player_list()
     local player = game.players[event.player_index]
     log_chat_message(event, "### " .. player.name .. " left the game. ###")
 end
@@ -65,6 +67,21 @@ function set_time(d, month, h, m)
   global.scenario.variables.current_m = m
   game.print(game.player.name .. " set the clock to " .. format_time(game.tick) .. ". Type /clock to check the time.")
 end
+
+function update_player_list()
+  local n_players = #game.players
+  local list = "{"
+  for k,v in pairs(game.players) do
+    if k < n_players then
+      list = list .. v.name .. ","
+    else
+      list = list .. v.name
+    end
+  end
+  list = list .. "}"
+  game.write_file("playerlist.txt", list)
+end
+
 
 
 Event.register(defines.events.on_console_command, player_send_command)
