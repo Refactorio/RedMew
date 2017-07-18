@@ -13,13 +13,16 @@ Neko Does stuff to key files because Im a derp
 --require "locale.gen_shape.donut"
 
 --terrain--
-require "locale.gen_terrain.neko_bridged_rivers"
+--require "locale.gen_terrain.neko_bridged_rivers"
 
 --ores--
 --require "locale.gen_ores.neko_crazy_ores"
---require "locale.gen_ores.mystery_ores"
 
---TODO: IMPLEMENT BROKEN STYLES. DO NOT MERGE INTO MASTER BEFORE THIS IS
+--everything else. You may use more than one of these, but beware they might not be compatible
+miscs = {}
+--miscs[1] = require "locale.gen_misc.rail_grid"
+
+
 
 local on_chunk_generated = function(event)
 	if run_shape_module ~= nil then
@@ -36,6 +39,9 @@ local on_chunk_generated = function(event)
 		elseif run_ores_module ~= nil then
 			run_ores_module(event)
 		end
+	end
+	for _,v in pairs(miscs) do
+		v.on_chunk_generated(event)
 	end
 end
 
