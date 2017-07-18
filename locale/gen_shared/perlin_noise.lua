@@ -69,3 +69,6 @@ function grad( hash, x, y, z )
     local v = h < 4 and y or ((h == 12 or h == 14) and x or z)
     return ((h % 2) == 0 and u or -u) + ((h % 3) == 0 and v or -v)
 end
+
+
+perlin:load(  )

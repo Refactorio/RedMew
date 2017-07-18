@@ -2,10 +2,6 @@
 Neko Does stuff to key files because Im a derp
 --]]
 
-require "locale.gen_shared.perlin_noise"
-perlin:load(  )
-require "locale.gen_shared.ent_functions"
-require "locale.gen_shared.simplex_noise"
 
 --shapes--
 --require "locale.gen_shape.right"
@@ -17,7 +13,7 @@ require "locale.gen_shared.simplex_noise"
 --require "locale.gen_shape.donut"
 
 --terrain--
---require "locale.gen_terrain.neko_bridged_rivers"
+require "locale.gen_terrain.neko_bridged_rivers"
 
 --ores--
 --require "locale.gen_ores.neko_crazy_ores"
