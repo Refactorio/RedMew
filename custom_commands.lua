@@ -234,9 +234,9 @@ local function afk()
         time = time .. math.floor(v.afk_time / 21600) .. " hours "
       end
       if v.afk_time > 3600 then
-        time = time .. math.floor(v.afk_time / 3600) .. " minutes and "
+        time = time .. math.floor(v.afk_time / 3600) % 60 .. " minutes and "
       end
-      time = time .. math.floor(v.afk_time / 3600) .. " seconds."
+      time = time .. math.floor(v.afk_time / 60) % 60 .. " seconds."
       game.player.print(v.name .. " has been afk for" .. time)
     end
   end
