@@ -39,20 +39,7 @@ end
 function walkabout(player_name, distance)
 		game.player.print("This command moved to /walkabout.")
 end
---function player_respawned(event)
-	--local player = game.players[event.player_index]
-	--player.insert { name = "pistol", count = 1 }
-	--player.insert { name = "firearm-magazine", count = 10 }
---end
 
-Event.register(defines.events.on_research_finished, function (event)
-	local research = event.research
-	if global.scenario.config.logistic_research_enabled then
-		research.force.technologies["logistic-system"].enabled=true
-	else
-	    research.force.technologies["logistic-system"].enabled=false
-	end
-end)
 
 Event.register(defines.events.on_player_created, player_joined)
 Event.register(defines.events.on_player_respawned, player_respawned)

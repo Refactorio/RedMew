@@ -226,6 +226,22 @@ local function mod(cmd)
   end
 end
 
+local function afk()
+  for _,v in pairs (game.players) do
+    if v.afk_time > 300 then
+      local time = " "
+      if v.afk_time > 21600 then
+        time = time .. math.floor(v.afk_time / 21600) .. " hours "
+      end
+      if v.afk_time > 3600 then
+        time = time .. math.floor(v.afk_time / 3600) .. " minutes and "
+      end
+      time = time .. math.floor(v.afk_time / 3600) .. " seconds."
+      game.player.print(v.name .. " has been afk for" .. time)
+    end
+  end
+end
+
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("detrain", "<player> - Kicks the player off a train. (Admins and moderators)", detrain)
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
@@ -238,3 +254,4 @@ commands.add_command("regulars", 'Prints a list of game regulars.', print_regula
 commands.add_command("regular", '<promote, demote>, <player> Change regular status of a player. (Admins and moderators)', regular)
 commands.add_command("mods", 'Prints a list of game mods.', print_mods)
 commands.add_command("mod", '<promote, demote>, <player> Changes moderator status of a player. (Admins only)', mod)
+commands.add_command("afktime", 'Shows how long players have been afk.', afk)
