@@ -10,6 +10,7 @@ require "locale.gen_shared.simplex_noise"
 --shapes--
 --require "locale.gen_shape.right"
 --require "locale.gen_shape.up"
+require "locale.gen_shape.maze"
 --require "locale.gen_shape.spiral"
 --require "locale.gen_shape.spiral_tri"
 --require "locale.gen_shape.spiral2"
@@ -26,17 +27,17 @@ require "locale.gen_shared.simplex_noise"
 local on_chunk_generated = function(event)
 	if shape_module then
 		if run_shape_module(event) then
-			if terrain_module then 
+			if terrain_module then
 				run_terrain_module(event)
-			elseif ores_module then 
-				run_ores_module(event) 
+			elseif ores_module then
+				run_ores_module(event)
 			end
 		end
 	else
-		if terrain_module then 
-			run_terrain_module(event) 
-		elseif ores_module then 
-			run_ores_module(event) 
+		if terrain_module then
+			run_terrain_module(event)
+		elseif ores_module then
+			run_ores_module(event)
 		end
 	end
 end
