@@ -248,6 +248,7 @@ commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admin
 commands.add_command("invoke", "<player> - Teleports the player to you. (Admins and moderators)", invoke)
 commands.add_command("tppos", "Teleports you to a selected entity. (Admins only)", teleport_location)
 commands.add_command("walkabout", '<player> <"close", "far", "very far", number> - Send someone on a walk.  (Admins and moderators)', walkabout)
+commands.add_command("market", 'Places a fish market near you.  (Admins only)', spawn_market)
 commands.add_command("settime", '<day> <month> <hour> <minute> - Sets the clock (Admins, moderators and regulars)', on_set_time)
 commands.add_command("clock", 'Look at the clock.', clock)
 commands.add_command("regulars", 'Prints a list of game regulars.', print_regulars)
