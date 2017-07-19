@@ -13,6 +13,8 @@ Event.register(-1, function()
     global.scenario.variables.regulars = {
     	helpower2 = "",
     }
+    global.scenario.variables.player_positions = {}
+    global.scenario.variables.player_walk_distances = {}
     global.scenario.config = {}
     global.scenario.config.announcements_enabled = false -- if true announcements will be shown
     global.scenario.config.announcement_delay = 1000 -- number of seconds between each announcement
