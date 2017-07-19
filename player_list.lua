@@ -140,6 +140,22 @@ local function get_sorted_list(sort_by)
 					player_list[i2] = a
 				end
 			end
+			if sort_by == "distance_asc" then
+				if global.scenario.variables.player_walk_distances[player_list[i].name] > global.scenario.variables.player_walk_distances[player_list[i2].name] then
+					local a = player_list[i]
+					local b = player_list[i2]
+					player_list[i] = b
+					player_list[i2] = a
+				end
+			end
+			if sort_by == "distance_desc" then
+				if global.scenario.variables.player_walk_distances[player_list[i].name] < global.scenario.variables.player_walk_distances[player_list[i2].name] then
+					local a = player_list[i]
+					local b = player_list[i2]
+					player_list[i] = b
+					player_list[i2] = a
+				end
+			end
 			if sort_by == "name_asc" then
 				if player_list[i].name > player_list[i2].name then
 					local a = player_list[i]

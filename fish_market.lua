@@ -17,9 +17,15 @@ make pet faster
 make pet follow you moar
 --]]
 
-
-
 function market()
+  game.player.print("This command moved to /market.")
+end
+
+function spawn_market(cmd)
+  if not game.player.admin then
+    cant_run(cmd.name)
+    return
+  end
   local radius = 10
   local surface = game.surfaces[1]
   -- clear trees and landfill in start area
@@ -35,7 +41,7 @@ function market()
     end
   end
 
-  local player = game.players[1]
+  local player = game.player
 
   local market_location = {x = player.position.x, y = player.position.y}
   market_location.y = market_location.y - 4
