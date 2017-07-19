@@ -1,3 +1,4 @@
+
 --[[
 Hello there!
 
@@ -104,16 +105,6 @@ local function get_sorted_list(sort_by)
 		player_list[i].pokes = global.player_list_pokes_counter[player.index]
 		player_list[i].player_index = player.index
 	end
-	--[[
-	for i = 1, 4, 1 do
-		player_list[i] = {}
-		player_list[i].pokes = math.random(1,100)
-		player_list[i].name = "mewmew " .. i
-		player_list[i].played_ticks = math.random(1,115222000)
-		player_list[i].played_time = get_formatted_playtime(player_list[i].played_ticks)
-		player_list[i].rank = "item/heavy-armor"
-		player_list[i].player_index = 1
-	end--]]
 
 	for i = #player_list, 1, -1 do
 		for i2 = #player_list, 1, -1 do
@@ -177,14 +168,14 @@ local function player_list_show(player, sort_by)
 
 	player.gui.left.direction = "horizontal"
 	local frame = player.gui.left.add { type = "frame", name = "player-list-panel", direction = "vertical" }
-	frame.style.minimal_width = 408
+	frame.style.minimal_width = 540
 	frame.style.top_padding = 8
 	frame.style.left_padding = 8
 	frame.style.right_padding = 8
 	frame.style.bottom_padding = 8
 
 
-	local player_list_panel_header_table = frame.add { type = "table", name = "player_list_panel_header_table", colspan = 4 }
+	local player_list_panel_header_table = frame.add { type = "table", name = "player_list_panel_header_table", colspan = 5 }
 
 	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_1", caption = "    " .. #game.connected_players }
 	label.style.font = "default-game"
@@ -209,10 +200,20 @@ local function player_list_show(player, sort_by)
 	label.style.minimal_width = 130
 	label.style.maximal_width = 130
 
+
+	str = ""
+	if sort_by == "distance_asc" then str = symbol_asc .. " " end
+	if sort_by == "distance_desc" then str = symbol_desc .. " " end
+	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_4", caption = str .. "Distance walked" }
+	label.style.font = "default-listbox"
+	label.style.font_color = { r=0.98, g=0.66, b=0.22}
+	label.style.minimal_width = 160
+	label.style.maximal_width = 160
+
 	str = ""
 	if sort_by == "pokes_asc" then str = symbol_asc .. " " end
 	if sort_by == "pokes_desc" then str = symbol_desc .. " " end
-	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_4", caption = str .. "Poke" }
+	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_5", caption = str .. "Poke" }
 	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
 	label.style.minimal_width = 35
@@ -221,7 +222,7 @@ local function player_list_show(player, sort_by)
 	player_list_panel_table.style.maximal_height = 530
 
 
-	player_list_panel_table = player_list_panel_table.add { type = "table", name = "player_list_panel_table", colspan = 4 }
+	player_list_panel_table = player_list_panel_table.add { type = "table", name = "player_list_panel_table", colspan = 5 }
 
 	local player_list = get_sorted_list(sort_by)
 
@@ -243,6 +244,11 @@ local function player_list_show(player, sort_by)
 		local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_time_played_" .. i, caption = player_list[i].played_time }
 		label.style.minimal_width = 130
 		label.style.maximal_width = 130
+
+		local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_distance_" .. i, caption = round(global.scenario.variables.player_walk_distances[player_list[i].name]/1000, 1) .. " km" }
+		label.style.minimal_width = 160
+		label.style.maximal_width = 160
+
 
 		local flow = player_list_panel_table.add { type = "flow", name = "button_flow_" .. i, direction = "horizontal" }
 		flow.add { type = "label", name = "button_spacer_" .. i, caption = "" }
@@ -289,12 +295,18 @@ local function on_gui_click(event)
 		end
 		if (name == "player_list_panel_header_4") then
 			if string.find(event.element.caption, symbol_desc) then
+				player_list_show(player,"distance_asc")
+			else
+				player_list_show(player,"distance_desc")
+			end
+		end
+		if (name == "player_list_panel_header_5") then
+			if string.find(event.element.caption, symbol_desc) then
 				player_list_show(player,"pokes_asc")
 			else
 				player_list_show(player,"pokes_desc")
 			end
 		end
-
 		--Poke other players
 	if event.element.type == "button" then
 		local x = string.find(name, "poke_player_")
@@ -323,6 +335,7 @@ local function on_gui_click(event)
 
 end
 
+
 local function on_tick()
 	if game.tick % 1200 == 0 then
 		for _,player in pairs(game.connected_players) do
@@ -332,8 +345,10 @@ local function on_tick()
 				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_2.caption, symbol_asc) then sort_method = "name_asc" end
 				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_3.caption, symbol_desc) then sort_method = "time_played_desc" end
 				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_3.caption, symbol_asc) then sort_method = "time_played_asc" end
-				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_4.caption, symbol_desc) then sort_method = "pokes_desc" end
-				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_4.caption, symbol_asc) then sort_method = "pokes_asc" end
+				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_4.caption, symbol_desc) then sort_method = "distance_desc" end
+				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_4.caption, symbol_asc) then sort_method = "distance_asc" end
+				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_5.caption, symbol_desc) then sort_method = "pokes_desc" end
+				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_5.caption, symbol_asc) then sort_method = "pokes_asc" end
 				player.gui.left["player-list-panel"].destroy()
 				player_list_show(player,sort_method)
 			end

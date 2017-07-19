@@ -15,6 +15,7 @@ require "score"
 require "map_layout"
 require "custom_commands"
 require "nuke_control"
+require "walk_distance"
 
 
 
