@@ -1,3 +1,5 @@
+require "locale.gen_shared.chunk_utils"
+
 local wall_thickness = 1
 local cell_size = 3 --must be an uneven number
 
@@ -137,17 +139,6 @@ function init()
 	make_maze(50, 50)
 	reduce_walls()
 	render()
-end
-
-local function removeChunk(event)
-	local surface = event.surface
-	local tiles = {}
-	for x = event.area.left_top.x, event.area.right_bottom.x do
-		for y = event.area.left_top.y, event.area.right_bottom.y do
-			table.insert(tiles, {name = "out-of-map", position = {x,y}})
-		end
-	end
-	surface.set_tiles(tiles)
 end
 
 

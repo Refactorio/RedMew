@@ -1,5 +1,8 @@
 --[[
-Neko Does stuff to key files because Im a derp
+This file is used to choose which styles you want.
+You may choose up to one of each type shapes, terrain, ores and misc by removing uncommenting the line.
+If you want to add your own module, just add it to the others 
+in this file and your run_*type*_module(event) function will be called.
 --]]
 
 
@@ -11,6 +14,9 @@ Neko Does stuff to key files because Im a derp
 --require "locale.gen_shape.spiral_tri"
 --require "locale.gen_shape.spiral2"
 --require "locale.gen_shape.donut"
+--require "locale.gen_shape.rectangular_spiral"
+
+
 
 --terrain--
 --require "locale.gen_terrain.neko_bridged_rivers"
