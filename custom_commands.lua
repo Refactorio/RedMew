@@ -242,6 +242,26 @@ local function afk()
   end
 end
 
+
+local function tag(cmd)
+  if not game.player.admin then
+      cant_run(cmd.name)
+      return
+  end
+  local params = {}
+  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+  if #params ~= 2 then
+    game.player.print("Two arguments expect failed. Usage: <player> <tag> Sets a players tag.")
+  elseif game.players[params[1]] == nil then
+    game.player.print("Player does not exist.")
+  else
+    game.players[params[1]].tag = "[" .. params[2] .. "]"
+    game.print(params[1] .. " joined [" .. params[2] .. "].")
+  end
+end
+
+
+
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("detrain", "<player> - Kicks the player off a train. (Admins and moderators)", detrain)
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
@@ -256,3 +276,4 @@ commands.add_command("regular", '<promote, demote>, <player> Change regular stat
 commands.add_command("mods", 'Prints a list of game mods.', print_mods)
 commands.add_command("mod", '<promote, demote>, <player> Changes moderator status of a player. (Admins only)', mod)
 commands.add_command("afktime", 'Shows how long players have been afk.', afk)
+commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
