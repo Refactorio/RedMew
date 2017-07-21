@@ -1,10 +1,4 @@
-local function on_tick()
-  if game.tick % 60 == 0 then
-    on_second()
-  end
-end
-
-function on_second()
+function walk_distance_on_second()
   local last_positions = global.scenario.variables.player_positions
   local d_x = 0
   local d_y = 0
@@ -34,5 +28,4 @@ local function init_player_position(event)
   end
 end
 
-Event.register(defines.events.on_tick, on_tick)
 Event.register(defines.events.on_player_joined_game, init_player_position)

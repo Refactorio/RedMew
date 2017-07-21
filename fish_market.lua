@@ -285,11 +285,11 @@ end
 
 if not global.pet_command_rotation then global.pet_command_rotation = 1 end
 
-local function on_tick(event)
+function fish_market_on_180_ticks()
 
-	if game.tick % 200 == 0 then
-    
-    if game.tick % 1000 == 0 then
+	if game.tick % 180 == 0 then
+
+    if game.tick % 900 == 0 then
     	if global.player_speed_boost_records then
     		for k,v in pairs(global.player_speed_boost_records) do
     		  if game.tick - v.start_tick > 3000 then
@@ -332,4 +332,3 @@ end
 Event.register(defines.events.on_preplayer_mined_item, preplayer_mined_item)
 Event.register(defines.events.on_entity_died, fish_drop_entity_died)
 Event.register(defines.events.on_market_item_purchased, market_item_purchased)
-Event.register(defines.events.on_tick, on_tick)
