@@ -29,7 +29,9 @@ end
 local function init_player_position(event)
   local player = game.players[event.player_index]
   global.scenario.variables.player_positions[player.name] = player.position
-  global.scenario.variables.player_walk_distances[player.name] = 0
+  if not global.scenario.variables.player_walk_distances[player.name] then
+    global.scenario.variables.player_walk_distances[player.name] = 0
+  end
 end
 
 Event.register(defines.events.on_tick, on_tick)
