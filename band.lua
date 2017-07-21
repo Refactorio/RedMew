@@ -20,6 +20,7 @@ do
   end
 end
 
+local custom_roles = {}
 
 local expand_band_gui
 
@@ -143,8 +144,21 @@ expand_band_gui = function(player, dev_icons, dev_addfakes, right_click)
   -- Will be filled: { roleN = {{name,color},...} , ...}
   local players_by_role = {}
 
+
   for role in pairs(roles) do
     players_by_role[role] = {}
+  end
+
+  for _,role in pairs(custom_roles) do
+    roles[role] = nil
+  end
+  for _,cplayer in pairs(game.players) do
+    local role = cplayer.tag:sub(2,-2)
+    if role ~= "" and roles[role] == nil then
+      players_by_role[role] = {}
+      table.insert(custom_roles, role)
+      roles[role] = {"item/iron-stick",tooltip = {"I'm sure he does something"},verbs = {"enlarged"}}
+    end
   end
 
   if right_click then
@@ -161,12 +175,11 @@ expand_band_gui = function(player, dev_icons, dev_addfakes, right_click)
   else
     for _, oplayer in pairs(game.connected_players) do
       local prole = oplayer.tag:sub(2,-2)
-      if players_by_role[prole] ~= nil then
+      if prole ~= "" then
           table.insert( players_by_role[prole], {oplayer.name, oplayer.color})
       end
     end
   end
-
 
   if dev_addfakes then
     test_fake_players(players_by_role)
