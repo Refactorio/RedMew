@@ -285,77 +285,50 @@ end
 
 if not global.pet_command_rotation then global.pet_command_rotation = 1 end
 
-local function on_tick(event)
+function fish_market_on_180_ticks()
 
-  if game.tick % 1000 == 0 then
-	if global.player_speed_boost_records then
-		for k,v in pairs(global.player_speed_boost_records) do
-		  if game.tick - v.start_tick > 3000 then
-			reset_player_runningspeed(game.players[k])
-		  end
-		end
-	end
-  end
+	if game.tick % 180 == 0 then
 
-	if game.tick % 200 == 0 then
-    if global.player_pets == nil then
-      return
+    if game.tick % 900 == 0 then
+    	if global.player_speed_boost_records then
+    		for k,v in pairs(global.player_speed_boost_records) do
+    		  if game.tick - v.start_tick > 3000 then
+    			reset_player_runningspeed(game.players[k])
+    		  end
+    		end
+    	end
     end
-		for _, pets in pairs(global.player_pets) do
-			local player = game.players[pets.owner]
-			if pcall(function () local x = pets.entity.name end) then
-				if global.pet_command_rotation % 15 == 0 then
-					local surface = game.surfaces[1]
-					local pet_pos = pets.entity.position
-					local pet_name = pets.entity.name
-					local pet_direction = pets.entity.direction
-					pets.entity.destroy()
-					pets.entity = surface.create_entity {name=pet_name, position=pet_pos, direction=pet_direction, force="player"}
-				end
-				if global.pet_command_rotation % 2 == 1 then
-					pets.entity.set_command({type=defines.command.go_to_location, destination=player.position,distraction=defines.distraction.none})
-				else
-					local fake_pos = pets.entity.position
-					pets.entity.set_command({type=defines.command.go_to_location, destination=fake_pos,distraction=defines.distraction.none})
-				end
-			else
-				global.player_pets[pets.id] = nil
-				local str = player.name .. "´s pet died ;_;"
-				game.print(str)
-			end
-		end
-		global.pet_command_rotation = global.pet_command_rotation + 1
+
+    if global.player_pets then
+  		for _, pets in pairs(global.player_pets) do
+  			local player = game.players[pets.owner]
+  			if pcall(function () local x = pets.entity.name end) then
+  				if global.pet_command_rotation % 15 == 0 then
+  					local surface = game.surfaces[1]
+  					local pet_pos = pets.entity.position
+  					local pet_name = pets.entity.name
+  					local pet_direction = pets.entity.direction
+  					pets.entity.destroy()
+  					pets.entity = surface.create_entity {name=pet_name, position=pet_pos, direction=pet_direction, force="player"}
+  				end
+  				if global.pet_command_rotation % 2 == 1 then
+  					pets.entity.set_command({type=defines.command.go_to_location, destination=player.position,distraction=defines.distraction.none})
+  				else
+  					local fake_pos = pets.entity.position
+  					pets.entity.set_command({type=defines.command.go_to_location, destination=fake_pos,distraction=defines.distraction.none})
+  				end
+  			else
+  				global.player_pets[pets.id] = nil
+  				local str = player.name .. "´s pet died ;_;"
+  				game.print(str)
+  			end
+  		end
+  		global.pet_command_rotation = global.pet_command_rotation + 1
+    end
 	end
 end
 
---[[
-function help()
-	local infotext = global.player_pets[1].entity.help()
-	player = game.players[1]
-	player.gui.left.direction = "horizontal"
-	local frame = player.gui.left.add { type = "frame", name = "info_panel"}
-	frame.style.top_padding = 20
-	frame.style.left_padding = 20
-	frame.style.right_padding = 20
-	frame.style.bottom_padding = 20
-	local info_table = frame.add { type = "table", colspan = 1, name = "info_table" }
-	local headline_label = info_table.add { type = "label", name = "headline_label", caption = "redmew fishy info" }
-	headline_label.style.font = "default-listbox"
-	headline_label.style.font_color = { r=0.98, g=0.66, b=0.22}
-
-
-	local text_box = info_table.add { type = "text-box", text = infotext, name = "text_box" }
-	text_box.read_only = true
-	text_box.selectable = true
-	text_box.word_wrap = false
-	text_box.style.right_padding = 5
-	text_box.style.top_padding = 5
-	text_box.style.left_padding = 5
-	text_box.style.bottom_padding = 5
-end
---]]
 
 Event.register(defines.events.on_preplayer_mined_item, preplayer_mined_item)
 Event.register(defines.events.on_entity_died, fish_drop_entity_died)
 Event.register(defines.events.on_market_item_purchased, market_item_purchased)
-Event.register(defines.events.on_tick, on_tick)

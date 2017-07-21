@@ -12,6 +12,10 @@ Event.register(-1, function()
     }
     global.scenario.variables.regulars = {
     	helpower2 = "",
+      rorror = "",
+      Medival3 = "",
+      dpoba = "",
+      settdigger = ""
     }
     global.scenario.variables.player_positions = {}
     global.scenario.variables.player_walk_distances = {}

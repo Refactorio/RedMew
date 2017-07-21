@@ -351,26 +351,22 @@ local function on_gui_click(event)
 
 end
 
-
-local function on_tick()
-	if game.tick % 1200 == 0 then
-		for _,player in pairs(game.connected_players) do
-			if player.gui.left["player-list-panel"] then
-				local sort_method
-				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_2.caption, symbol_desc) then sort_method = "name_desc" end
-				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_2.caption, symbol_asc) then sort_method = "name_asc" end
-				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_3.caption, symbol_desc) then sort_method = "time_played_desc" end
-				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_3.caption, symbol_asc) then sort_method = "time_played_asc" end
-				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_4.caption, symbol_desc) then sort_method = "distance_desc" end
-				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_4.caption, symbol_asc) then sort_method = "distance_asc" end
-				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_5.caption, symbol_desc) then sort_method = "pokes_desc" end
-				if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_5.caption, symbol_asc) then sort_method = "pokes_asc" end
-				player.gui.left["player-list-panel"].destroy()
-				player_list_show(player,sort_method)
-			end
+function player_list_on_12_seconds()
+	for _,player in pairs(game.connected_players) do
+		if player.gui.left["player-list-panel"] then
+			local sort_method
+			if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_2.caption, symbol_desc) then sort_method = "name_desc" end
+			if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_2.caption, symbol_asc) then sort_method = "name_asc" end
+			if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_3.caption, symbol_desc) then sort_method = "time_played_desc" end
+			if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_3.caption, symbol_asc) then sort_method = "time_played_asc" end
+			if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_4.caption, symbol_desc) then sort_method = "distance_desc" end
+			if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_4.caption, symbol_asc) then sort_method = "distance_asc" end
+			if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_5.caption, symbol_desc) then sort_method = "pokes_desc" end
+			if string.find(player.gui.left["player-list-panel"].player_list_panel_header_table.player_list_panel_header_5.caption, symbol_asc) then sort_method = "pokes_asc" end
+			player.gui.left["player-list-panel"].destroy()
+			player_list_show(player,sort_method)
 		end
 	end
 end
-Event.register(defines.events.on_tick, on_tick)
 Event.register(defines.events.on_player_joined_game, on_player_joined_game)
 Event.register(defines.events.on_gui_click, on_gui_click)
