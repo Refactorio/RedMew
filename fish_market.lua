@@ -287,45 +287,42 @@ if not global.pet_command_rotation then global.pet_command_rotation = 1 end
 
 function fish_market_on_180_ticks()
 
-	if game.tick % 180 == 0 then
-
-    if game.tick % 900 == 0 then
-    	if global.player_speed_boost_records then
-    		for k,v in pairs(global.player_speed_boost_records) do
-    		  if game.tick - v.start_tick > 3000 then
-    			reset_player_runningspeed(game.players[k])
-    		  end
-    		end
-    	end
-    end
-
-    if global.player_pets then
-  		for _, pets in pairs(global.player_pets) do
-  			local player = game.players[pets.owner]
-  			if pcall(function () local x = pets.entity.name end) then
-  				if global.pet_command_rotation % 15 == 0 then
-  					local surface = game.surfaces[1]
-  					local pet_pos = pets.entity.position
-  					local pet_name = pets.entity.name
-  					local pet_direction = pets.entity.direction
-  					pets.entity.destroy()
-  					pets.entity = surface.create_entity {name=pet_name, position=pet_pos, direction=pet_direction, force="player"}
-  				end
-  				if global.pet_command_rotation % 2 == 1 then
-  					pets.entity.set_command({type=defines.command.go_to_location, destination=player.position,distraction=defines.distraction.none})
-  				else
-  					local fake_pos = pets.entity.position
-  					pets.entity.set_command({type=defines.command.go_to_location, destination=fake_pos,distraction=defines.distraction.none})
-  				end
-  			else
-  				global.player_pets[pets.id] = nil
-  				local str = player.name .. "´s pet died ;_;"
-  				game.print(str)
-  			end
+  if game.tick % 900 == 0 then
+  	if global.player_speed_boost_records then
+  		for k,v in pairs(global.player_speed_boost_records) do
+  		  if game.tick - v.start_tick > 3000 then
+  			reset_player_runningspeed(game.players[k])
+  		  end
   		end
-  		global.pet_command_rotation = global.pet_command_rotation + 1
-    end
-	end
+  	end
+  end
+
+  if global.player_pets then
+  	for _, pets in pairs(global.player_pets) do
+  		local player = game.players[pets.owner]
+  		if pcall(function () local x = pets.entity.name end) then
+  			if global.pet_command_rotation % 15 == 0 then
+  				local surface = game.surfaces[1]
+  				local pet_pos = pets.entity.position
+  				local pet_name = pets.entity.name
+  				local pet_direction = pets.entity.direction
+  				pets.entity.destroy()
+  				pets.entity = surface.create_entity {name=pet_name, position=pet_pos, direction=pet_direction, force="player"}
+  			end
+  			if global.pet_command_rotation % 2 == 1 then
+  				pets.entity.set_command({type=defines.command.go_to_location, destination=player.position,distraction=defines.distraction.none})
+  			else
+  				local fake_pos = pets.entity.position
+  				pets.entity.set_command({type=defines.command.go_to_location, destination=fake_pos,distraction=defines.distraction.none})
+  			end
+  		else
+  			global.player_pets[pets.id] = nil
+  			local str = player.name .. "´s pet died ;_;"
+  			game.print(str)
+  		end
+  	end
+  	global.pet_command_rotation = global.pet_command_rotation + 1
+  end
 end
 
 
