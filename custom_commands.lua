@@ -1,3 +1,5 @@
+local Thread = require "locale.utils.Thread"
+
 function cant_run(name)
     game.player.print("Can't run command (" .. name .. ") - insufficient permission.")
 end
@@ -75,10 +77,28 @@ function walkabout(cmd)
   for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
   local player_name = params[1]
   local distance = ""
-  if params[3] == nil then
+  local duraction = 60
+  if #params == 2  then
     distance = params[2]
-  else
+  elseif #params == 3 then
     distance = params[2] .. " " .. params[3]
+    if distance ~= "very far" then
+      distance = params[2]
+      if tonumber(params[3]) == nil then
+        game.player.print(params[3] .. " is not a number.")
+        return
+      else
+        duraction = tonumber(params[3])
+      end
+    end
+  elseif #params == 4 then
+    distance = params[2] .. " " .. params[3]
+    if tonumber(params[4]) == nil then
+      game.player.print(params[4] .. " is not a number.")
+      return
+    else
+      duraction = tonumber(params[4])
+    end
   end
 
   if distance == nil or distance == "" then
@@ -98,44 +118,45 @@ function walkabout(cmd)
   end
 
   local x = 1
-  while game.players[x] ~= nil do
-    local player = game.players[x]
-    if player_name == player.name then
-      local repeat_attempts = 5
-      local r = 1
-      local surface = game.surfaces[1]
-      local distance_max = distance * 1.05
-      local distance_min = distance * 0.95
-      distance_max = round(distance_max, 0)
-      distance_min = round(distance_min, 0)
-
-      --while r <= repeat_attempts do
-        x = math.random(distance_min, distance_max)
-        if 1 == math.random(1, 2) then
-          x = x * -1
-        end
-
-        y = math.random(distance_min, distance_max)
-        if 1 == math.random(1, 2) then
-          y = y * -1
-        end
-
-        if 1 == math.random(1, 2) then
-          z = distance_max * -1
-          x = math.random(z, distance_max)
-        else
-          z = distance_max * -1
-          y = math.random(z, distance_max)
-        end
-
-          local pos = {x, y}
-          player.teleport(pos)
-          game.print(player_name .. " went on a walkabout, to find himself.")
-          return
-    end
-    x = x + 1
+  local y = 1
+  local player = game.players[player_name]
+  if player == nil then
+    game.player.print(player_name .. " could not go on a walkabout.")
+    return
   end
-  game.print(player_name .. " could not go on a walkabout.")
+  local surface = game.surfaces[1]
+  local distance_max = distance * 1.05
+  local distance_min = distance * 0.95
+  distance_max = round(distance_max, 0)
+  distance_min = round(distance_min, 0)
+
+  x = math.random(distance_min, distance_max)
+  if 1 == math.random(1, 2) then
+    x = x * -1
+  end
+  y = math.random(distance_min, distance_max)
+  if 1 == math.random(1, 2) then
+    y = y * -1
+  end
+  if 1 == math.random(1, 2) then
+    z = distance_max * -1
+    x = math.random(z, distance_max)
+  else
+    z = distance_max * -1
+    y = math.random(z, distance_max)
+  end
+
+  local pos = {x, y}
+  Thread.set_timeout(duraction, return_player, {player = player, force = player.force, position = player.position})
+  player.force = "enemy"
+  player.teleport(player.surface.find_non_colliding_position("player", pos, 100, 1))
+  game.print(player_name .. " went on a walkabout, to find himself.")
+end
+
+function return_player(args)
+  args.player.force = args.force
+  args.player.teleport(args.player.surface.find_non_colliding_position("player", args.position, 100, 1))
+  game.print(args.player.name .. " came back from his walkabout.")
 end
 
 function on_set_time(cmd)
@@ -267,7 +288,7 @@ commands.add_command("detrain", "<player> - Kicks the player off a train. (Admin
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
 commands.add_command("invoke", "<player> - Teleports the player to you. (Admins and moderators)", invoke)
 commands.add_command("tppos", "Teleports you to a selected entity. (Admins only)", teleport_location)
-commands.add_command("walkabout", '<player> <"close", "far", "very far", number> - Send someone on a walk.  (Admins and moderators)', walkabout)
+commands.add_command("walkabout", '<player> <"close", "far", "very far", number> <duration> - Send someone on a walk.  (Admins and moderators)', walkabout)
 commands.add_command("market", 'Places a fish market near you.  (Admins only)', spawn_market)
 commands.add_command("settime", '<day> <month> <hour> <minute> - Sets the clock (Admins, moderators and regulars)', on_set_time)
 commands.add_command("clock", 'Look at the clock.', clock)
