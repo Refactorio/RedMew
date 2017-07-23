@@ -298,19 +298,21 @@ end
 
 function poll_on_second()
 	for _, player in pairs(game.connected_players) do
-		if global.poll_panel_creation_time[player.index] then
-			local frame = player.gui.left["poll-panel"]
-			if frame then
-				local y = (game.tick - global.poll_panel_creation_time[player.index]) / 60
-				local y = global.poll_duration_in_seconds - y
-				y = round(y, 0)
-				if y <= 0 then
-					frame.destroy()
-					global.poll_panel_creation_time[player.index] = nil
-				else
-					y = "Hide (" .. y
-					y = y .. ")"
-					frame.poll_panel_button_table.poll_hide_button.caption = y
+		if global.poll_panel_creation_time then
+			if global.poll_panel_creation_time[player.index] then
+				local frame = player.gui.left["poll-panel"]
+				if frame then
+					local y = (game.tick - global.poll_panel_creation_time[player.index]) / 60
+					local y = global.poll_duration_in_seconds - y
+					y = round(y, 0)
+					if y <= 0 then
+						frame.destroy()
+						global.poll_panel_creation_time[player.index] = nil
+					else
+						y = "Hide (" .. y
+						y = y .. ")"
+						frame.poll_panel_button_table.poll_hide_button.caption = y
+					end
 				end
 			end
 		end
