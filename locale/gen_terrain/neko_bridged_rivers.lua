@@ -18,7 +18,7 @@ function run_terrain_module(event)
 		if entity.type == "simple-entity" or entity.type == "tree"then
 			entity.destroy()
 		--end
-		elseif (ores_module and entity.type == "resource") then
+		elseif (run_ores_module ~= nil and entity.type == "resource") then
 			entity.destroy()
 		end
 	end
@@ -80,7 +80,7 @@ function run_terrain_module(event)
 					--	surface.create_entity {name="stone", position={x,y}, amount=math.floor(terrain_sqr)}
 					--end
 
-					if ores_module then
+					if run_ores_module ~= nil then
 						run_ores_module_setup()
 						if x > top_left.x-1 and x < top_left.x+32 and y > top_left.y-1 and y < top_left.y+32 then
 							run_ores_module_tile(surface,x,y)
