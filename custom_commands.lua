@@ -285,7 +285,8 @@ local function follow(cmd)
   if cmd.parameter ~= nil and game.players[cmd.parameter] ~= nil then
     global.follows[game.player.name] = cmd.parameter
     global.follows.n_entries = global.follows.n_entries + 1
-    end
+  else
+    game.player.print("<player> makes you follow the player. Use /unfollow to stop following a player.")
   end
 end
 
