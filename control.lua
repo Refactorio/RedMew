@@ -17,6 +17,7 @@ require "custom_commands"
 require "nuke_control"
 require "walk_distance"
 require "on_tick"
+require "follow"
 
 
 

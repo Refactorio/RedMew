@@ -281,6 +281,21 @@ local function tag(cmd)
   end
 end
 
+local function follow(cmd)
+  if cmd.parameter ~= nil and game.players[cmd.parameter] ~= nil then
+    global.follows[game.player.name] = cmd.parameter
+    global.follows.n_entries = global.follows.n_entries + 1
+  else
+    game.player.print("<player> makes you follow the player. Use /unfollow to stop following a player.")
+  end
+end
+
+local function unfollow(cmd)
+  if global.follows[game.player.name] ~= nil then
+    global.follows[game.player.name] = nil
+    global.follows.n_entries = global.follows.n_entries - 1
+  end
+end
 
 
 commands.add_command("kill", "Will kill you.", kill)
@@ -298,3 +313,5 @@ commands.add_command("mods", 'Prints a list of game mods.', print_mods)
 commands.add_command("mod", '<promote, demote>, <player> Changes moderator status of a player. (Admins only)', mod)
 commands.add_command("afktime", 'Shows how long players have been afk.', afk)
 commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
+commands.add_command("follow", '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
+commands.add_command("unfollow", 'stops following a player.', unfollow)
