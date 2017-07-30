@@ -16,6 +16,7 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_shape.donut"
 --require "locale.gen_shape.rectangular_spiral"
 --require "locale.gen_shape.cross"
+--require "locale.gen_shape.infinite_mazes"
 
 
 

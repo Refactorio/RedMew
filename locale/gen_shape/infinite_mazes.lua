@@ -4,18 +4,21 @@ local maze_height = 19
 
 --The size of each cell within a maze, in tiles. This includes the border.
 --This is also the thickness of passages between mazes.
-local maze_tile_size = 20
+local maze_tile_size = 60
 --The thickness of cell borders (walls), in tiles.
 local maze_tile_border = 2
 --These two values are specifically chosen to only just allow train loops.
 --If tile size is reduced or border size is increased, players will be forced to use 4-way crossings instead.
 
 --Number of ore cells per maze, for each type.
-local iron_ore_count = 15
-local copper_ore_count = 15
-local coal_ore_count = 12
-local stone_ore_count = 5
+local iron_ore_count = 8
+local copper_ore_count = 6
+local coal_ore_count = 4
+local stone_ore_count = 2
 local uranium_ore_count = 1
+
+local resource_density_factor = 700
+
 --Warning: Do not exceed the total number of cells in the maze, or it will break!
 
 --DO NOT TOUCH BELOW THIS LINE--
@@ -232,12 +235,12 @@ local function handle_maze_tile_ore(x, y, surf, seed)
 
     local ore_name = nil
     if local_maze_x == 0 or local_maze_y == 0 then
-        if global_maze_x == 0 and global_maze_y == 0 then
-            if local_maze_x == 1 and local_maze_y == 0 then ore_name = "iron-ore" end
-            if local_maze_x == 0 and local_maze_y == 1 then ore_name = "stone" end
-        elseif global_maze_x == -1 and local_maze_x == maze_width and local_maze_y == 0 then ore_name = "copper-ore"
-        elseif global_maze_y == -1 and local_maze_x == 0 and local_maze_y == maze_height then ore_name = "coal"
-        end
+      if global_maze_x == 0 and global_maze_y == 0 then
+          if local_maze_x == 1 and local_maze_y == 0 then ore_name = "iron-ore" end
+          if local_maze_x == 0 and local_maze_y == 1 then ore_name = "stone" end
+      elseif global_maze_x == -1 and global_maze_y == 0 and local_maze_x == maze_width and local_maze_y == 0 then ore_name = "copper-ore"
+      elseif global_maze_x == 0 and global_maze_y == -1 and local_maze_x == 0 and local_maze_y == maze_height then ore_name = "coal"
+      end
     else
         local maze_data = get_maze_ore(global_maze_x, global_maze_y, seed, maze_width, maze_height)
         ore_name = maze_data[local_maze_x][local_maze_y]
@@ -253,8 +256,7 @@ local function handle_maze_tile_ore(x, y, surf, seed)
             local dist = dist_x
             if dist_y > dist then dist = dist_y end
 
-            local resource_amount_max = 500 + dist / 4
-
+            local resource_amount_max = math.floor(resource_density_factor  * (dist / 1000 + 1))
             local dist_x = maze_tile_size - x - 1
             if (x - maze_tile_border) < dist_x then dist_x = (x - maze_tile_border) end
             local dist_y = maze_tile_size - y - 1
@@ -264,10 +266,13 @@ local function handle_maze_tile_ore(x, y, surf, seed)
             if dist_y < dist then dist = dist_y end
             dist = dist + 1
 
-            local resource_amount = resource_amount_max * dist / maze_tile_size
-            if resource_amount <= 0 then resource_amount = 1 end
 
-            surf.create_entity{name=ore_name, position={orig_x, orig_y}, amount=resource_amount}
+
+
+            local resource_amount = resource_amount_max * dist / maze_tile_size * 2
+            if resource_amount > resource_amount_max / 2 then
+              surf.create_entity{name=ore_name, position={orig_x, orig_y}, amount=resource_amount}
+          end
         end
     end
 end
@@ -290,7 +295,7 @@ local function on_chunk_generated_ore(event)
     end
 end
 
-local function on_chunk_generated(event)
+function run_shape_module(event)
     if not global.maze_seed then global.maze_seed = math.random(0, 65536 * 65536 - 1) end
 
     local tiles = {}
@@ -307,5 +312,3 @@ local function on_chunk_generated(event)
 
     on_chunk_generated_ore(event)
 end
-
-script.on_event(defines.events.on_chunk_generated, on_chunk_generated)
