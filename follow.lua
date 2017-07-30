@@ -40,7 +40,7 @@ end
 local function distance(player_1, player_2)
   local d_x = player_1.position.x - player_2.position.x
   local d_y = player_1.position.y - player_2.position.y
-  return math.sqrt(d_x*d_x + d_y + d_y)
+  return math.sqrt(d_x*d_x + d_y * d_y)
 end
 function walk_on_tick()
   if global.follows.n_entries > 0 then
