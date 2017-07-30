@@ -269,15 +269,19 @@ local function tag(cmd)
       cant_run(cmd.name)
       return
   end
-  local params = {}
-  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
-  if #params ~= 2 then
-    game.player.print("Two arguments expect failed. Usage: <player> <tag> Sets a players tag.")
-  elseif game.players[params[1]] == nil then
-    game.player.print("Player does not exist.")
+  if cmd.parameter ~= nil then
+    local params = {}
+    for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+    if #params ~= 2 then
+      game.player.print("Two arguments expect failed. Usage: <player> <tag> Sets a players tag.")
+    elseif game.players[params[1]] == nil then
+      game.player.print("Player does not exist.")
+    else
+      game.players[params[1]].tag = "[" .. params[2] .. "]"
+      game.print(params[1] .. " joined [" .. params[2] .. "].")
+    end
   else
-    game.players[params[1]].tag = "[" .. params[2] .. "]"
-    game.print(params[1] .. " joined [" .. params[2] .. "].")
+   game.player.print('Usage: /tag <player> <tag> Sets a players tag.')
   end
 end
 
@@ -286,7 +290,7 @@ local function follow(cmd)
     global.follows[game.player.name] = cmd.parameter
     global.follows.n_entries = global.follows.n_entries + 1
   else
-    game.player.print("<player> makes you follow the player. Use /unfollow to stop following a player.")
+    game.player.print("Usage: /follow <player> makes you follow the player. Use /unfollow to stop following a player.")
   end
 end
 
