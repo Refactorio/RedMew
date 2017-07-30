@@ -17,7 +17,7 @@ local coal_ore_count = 4
 local stone_ore_count = 2
 local uranium_ore_count = 1
 
-local resource_density_factor = 700
+local resource_density_factor = 1000
 
 --Warning: Do not exceed the total number of cells in the maze, or it will break!
 
@@ -256,7 +256,8 @@ local function handle_maze_tile_ore(x, y, surf, seed)
             local dist = dist_x
             if dist_y > dist then dist = dist_y end
 
-            local resource_amount_max = math.floor(resource_density_factor  * (dist / 1000 + 1))
+            dist = dist / 1000
+            local resource_amount_max = math.floor(resource_density_factor  * (dist * dist + 2 * dist + 1))
             local dist_x = maze_tile_size - x - 1
             if (x - maze_tile_border) < dist_x then dist_x = (x - maze_tile_border) end
             local dist_y = maze_tile_size - y - 1
@@ -265,9 +266,6 @@ local function handle_maze_tile_ore(x, y, surf, seed)
             dist = dist_x
             if dist_y < dist then dist = dist_y end
             dist = dist + 1
-
-
-
 
             local resource_amount = resource_amount_max * dist / maze_tile_size * 2
             if resource_amount > resource_amount_max / 2 then
