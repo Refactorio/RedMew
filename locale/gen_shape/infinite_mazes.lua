@@ -1,10 +1,11 @@
+--Author: Hexicube
 --The size of each individual maze, in cells.
-local maze_width = 19
-local maze_height = 19
+local maze_width = 17
+local maze_height = 17
 
 --The size of each cell within a maze, in tiles. This includes the border.
 --This is also the thickness of passages between mazes.
-local maze_tile_size = 60
+local maze_tile_size = 80
 --The thickness of cell borders (walls), in tiles.
 local maze_tile_border = 2
 --These two values are specifically chosen to only just allow train loops.
@@ -17,7 +18,7 @@ local coal_ore_count = 4
 local stone_ore_count = 2
 local uranium_ore_count = 1
 
-local resource_density_factor = 1000
+local resource_density_factor = 500
 
 --Warning: Do not exceed the total number of cells in the maze, or it will break!
 
@@ -225,6 +226,7 @@ end
 
 local function handle_maze_tile_ore(x, y, surf, seed)
     local orig_x, orig_y = x, y
+    local spawn_distance_1k = math.sqrt(x*x + y*y) / 1000
     local global_maze_x, global_maze_y, local_maze_x, local_maze_y = 0, 0, 0, 0
     global_maze_x, global_maze_y, local_maze_x, local_maze_y, x, y = global_to_maze_pos(x, y)
 
@@ -248,16 +250,12 @@ local function handle_maze_tile_ore(x, y, surf, seed)
 
     if ore_name then
         if surf.can_place_entity{name=ore_name, position={orig_x, orig_y}} then
-            local dist_x = orig_x
-            local dist_y = orig_y
-            if dist_x < 0 then dist_x = dist_x * -1 end
-            if dist_y < 0 then dist_y = dist_y * -1 end
+            local dist_x = math.abs(orig_x)
+            local dist_y = math.abs(orig_y)
 
-            local dist = dist_x
-            if dist_y > dist then dist = dist_y end
 
-            dist = dist / 1000
-            local resource_amount_max = math.floor(resource_density_factor  * (dist * dist + 2 * dist + 1))
+            dist = spawn_distance_1k
+            local resource_amount_max = math.floor(resource_density_factor  * (dist * dist + 1))
             local dist_x = maze_tile_size - x - 1
             if (x - maze_tile_border) < dist_x then dist_x = (x - maze_tile_border) end
             local dist_y = maze_tile_size - y - 1
