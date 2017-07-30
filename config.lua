@@ -15,7 +15,19 @@ Event.register(-1, function()
       rorror = "",
       Medival3 = "",
       dpoba = "",
-      settdigger = ""
+      settdigger = "",
+      Cheeselicker = "",
+      cpaca0 = "",
+      UTIDI = "",
+      JokerOfTheZ = "",
+      saltlands = "",
+      Maniah = "",
+      COOL = "",
+      boail = "",
+      hunter117x = "",
+      TonyTroll = "",
+      rorror = "",
+      HighInFiberOptics = ""
     }
     global.scenario.variables.player_positions = {}
     global.scenario.variables.player_walk_distances = {}
