@@ -1,10 +1,13 @@
 --[[
 This file is used to choose which styles you want.
-You may choose up to one of each type shapes, terrain, ores and misc by removing uncommenting the line.
+You may choose up to one of each type shapes, terrain, ores and misc or one of the combined styles by removing uncommenting the line.
 If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
 
+
+--combined--
+--require "locale.gen_combined.island_resort"
 
 --shapes--
 --require "locale.gen_shape.right"
@@ -16,9 +19,8 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_shape.donut"
 --require "locale.gen_shape.rectangular_spiral"
 --require "locale.gen_shape.lattice"
-require "locale.gen_shape.infinite_mazes"
+--require "locale.gen_shape.infinite_mazes"
 --require "locale.gen_shape.x_shape"
-
 
 --terrain--
 --require "locale.gen_terrain.neko_bridged_rivers"
@@ -33,23 +35,27 @@ miscs = {}
 
 
 local on_chunk_generated = function(event)
-	if run_shape_module ~= nil then
-		if run_shape_module(event) then
+	if run_combined_module == nil then
+		if run_shape_module ~= nil then
+			if run_shape_module(event) then
+				if run_terrain_module ~= nil then
+					run_terrain_module(event)
+				elseif run_ores_module ~= nil then
+					run_ores_module(event)
+				end
+			end
+		else
 			if run_terrain_module ~= nil then
 				run_terrain_module(event)
 			elseif run_ores_module ~= nil then
 				run_ores_module(event)
 			end
 		end
-	else
-		if run_terrain_module ~= nil then
-			run_terrain_module(event)
-		elseif run_ores_module ~= nil then
-			run_ores_module(event)
+		for _,v in pairs(miscs) do
+			v.on_chunk_generated(event)
 		end
-	end
-	for _,v in pairs(miscs) do
-		v.on_chunk_generated(event)
+	else
+		run_combined_module(event)
 	end
 end
 
