@@ -21,13 +21,16 @@ Hi stranger, I'm a fish..
 And this is what you ought to know:
 
 - Please be nice and don't grief. Or else.. ;)
-- Don't fight with other players for silly things.
+- Admins: Don't abuse. Don't fight other Admins.
+- Don't argue with other players for silly things.
 - No political, racist, or misogynistic content.
 - If you suspect you desync, restart the game.
 - You can join our community on discord.me/redmew
 - View the chatlog on: log.mewmew.net
-- Contribute to server costs and upgrades with
-  bitcoin: 13qh5uJh3UDUiWKyQaybkpxC1gfLVDB1ww
+- Contribute to our Hookers & Blow Fund with:
+  Bitcoin: 13qh5uJh3UDUiWKyQaybkpxC1gfLVDB1ww
+  Paypal: paypal.me/redmew (5$+ get nudes)
+
 ]===]
 
 	player.gui.left.direction = "horizontal"
