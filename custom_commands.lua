@@ -72,8 +72,8 @@ end
 
 local function kill()
   if game.player then
-    game.player.character.die()
-  end
+  game.player.character.die()
+end
 end
 
 global.walking = {}
@@ -365,6 +365,39 @@ local function toggle_tp_mode(cmd)
   end
 end
 
+local function importship(cmd)
+  if not game.player.admin then
+      cant_run(cmd.name)
+      return
+  end
+  if cmd.parameter == nil or cmd.parameter == "" then
+    game.player.print("Please choose a ship type name.")
+    return
+  end
+
+  if cmd.parameter == nil then
+    game.player.print("Command failed. Usage: /importship <name> <speed> imports the top left blueprint as a ship type. Add a name and a speed from 1 to 20.")
+    return
+  end
+  local params = {}
+  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+  if params[2] == nil or tonumber(params[2]) == nil then
+    game.player.print("Command failed. Usage: /importship <name> <speed> imports the top left blueprint as a ship type. Add a name and a speed from 1 to 20.")
+    return
+  end
+  local blueprint = game.player.get_inventory(defines.inventory.player_quickbar).find_item_stack("blueprint")
+  if blueprint == nil then
+    game.player.print("Needs a ship blueprint in the top right of the quickbar.")
+    return
+  end
+  global.scenario.variables.ship_type[params[1]] =
+    {enitites = blueprint.get_blueprint_entities(),
+    tiles = blueprint.get_blueprint_tiles(),
+    speed = 21 - tonumber(params[2])
+  }
+end
+
+
 global.old_force = {}
 global.force_toggle_init = true
 local function forcetoggle(cmd)
@@ -486,6 +519,7 @@ commands.add_command("afk", 'Shows how long players have been afk.', afk)
 commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
 commands.add_command("follow", '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
 commands.add_command("unfollow", 'stops following a player.', unfollow)
+commands.add_command("importship", '<name> <speed> imports the top left blueprint as a ship type. Add a name and a speed from 1 to 20. (Admins only).', importship)
 commands.add_command("well", '<item> <items per second> Spawns an item well. (Admins only)', well_command)
 commands.add_command("tpmode", "Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)", toggle_tp_mode)
 commands.add_command("forcetoggle", "Toggles the players force between player and enemy (Admins and moderators)", forcetoggle)
