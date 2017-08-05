@@ -390,8 +390,9 @@ local function importship(cmd)
     game.player.print("Needs a ship blueprint in the top right of the quickbar.")
     return
   end
+  --TODO check for empty blueprint
   global.scenario.variables.ship_type[params[1]] =
-    {enitites = blueprint.get_blueprint_entities(),
+    {entities = blueprint.get_blueprint_entities(),
     tiles = blueprint.get_blueprint_tiles(),
     speed = 21 - tonumber(params[2])
   }

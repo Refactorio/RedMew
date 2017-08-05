@@ -1,5 +1,6 @@
 local function on_tick()
 	walk_on_tick()
+	ship_on_tick()
 	if game.tick % 60 == 0 then
     poll_on_second()
 		walk_distance_on_second()
