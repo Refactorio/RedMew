@@ -21,7 +21,7 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_shape.lattice"
 --require "locale.gen_shape.infinite_mazes"
 --require "locale.gen_shape.x_shape"
-require "locale.gen_shape.grid_islands"
+--require "locale.gen_shape.grid_islands"
 
 --terrain--
 --require "locale.gen_terrain.neko_bridged_rivers"
