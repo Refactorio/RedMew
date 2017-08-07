@@ -43,7 +43,6 @@ function Ship.new(ship_type)
   end
 
   local step = function()
-      direction = captain.walking_state.direction
       if direction == 0 then
         position = {x = position.x, y = position.y - 1}
       elseif direction == 2 then
@@ -72,6 +71,7 @@ function Ship.new(ship_type)
 
   self.move = function()
     if captain ~= nil and captain.connected and captain.walking_state.walking then
+      if captain.walking_state.direction % 2 == 1 then direction = (captain.walking_state.direction + 1) % 8 else direction = captain.walking_state.direction end
       remove_ship()
       step()
       self.place(position)
