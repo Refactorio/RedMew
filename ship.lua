@@ -30,11 +30,11 @@ function Ship.new(ship_type)
   local captain = {} -- player
   local sailors = {} -- list of players
   local orientations = {}
-  local abs_center_tile = {}
   orientations[0] = deepcopy(global.scenario.variables.ship_type[ship_type])
   orientations[2] = {entities = {}, tiles = {}}
   orientations[4] = {entities = {}, tiles = {}}
   orientations[6] = {entities = {}, tiles = {}}
+  local hit_box = {} hit_box[0] = {} hit_box[2] = {} hit_box[4] = {} hit_box[6] = {}
   local removed_tiles_to_be_replaced = {} -- Maps of position --> entity
 
   local remove_ship = function()
@@ -52,6 +52,28 @@ function Ship.new(ship_type)
       elseif direction == 6 then
         position = {x = position.x - 1, y = position.y}
       end
+  end
+
+  local evacuate_sailors = function()
+    for _,sailor in pairs(sailors) do
+      sailor.teleport({0,0})
+    end
+  end
+
+  local move_in_sailors = function()
+    for _,sailor in pairs(sailors) do
+      sailor.teleport({position.x + 0.5,position.y + 0.5})
+    end
+  end
+
+  local collides = function()
+    for _,pos in pairs(hit_box[direction]) do
+      local tile_name = game.surfaces[1].get_tile({pos.x + position.x, pos.y + position.y}).name
+      if tile_name ~= "water" and tile_name ~= "deepwater" and tile_name ~= "deepwater-green" and tile_name ~= "water-green" then
+        return true
+      end
+    end
+    return false
   end
 
   self.place = function(pos) -- add itself to global.ships and place entities
@@ -72,10 +94,13 @@ function Ship.new(ship_type)
   self.move = function()
     if captain ~= nil and captain.connected and captain.walking_state.walking then
       if captain.walking_state.direction % 2 == 1 then direction = (captain.walking_state.direction + 1) % 8 else direction = captain.walking_state.direction end
-      remove_ship()
-      step()
-      self.place(position)
-      --captain.teleport({position.x + 0.5, position.y + 0.5})
+      if not collides() then
+        evacuate_sailors()
+        remove_ship()
+        step()
+        self.place(position)
+        move_in_sailors()
+      end
     else
       if captain ~= nil and not captain.connected then
         captain = nil
@@ -86,10 +111,14 @@ function Ship.new(ship_type)
     end
   end
   self.board = function(player)
-    captain = player
-    --captain.teleport({position.x + 0.5, position.y + 0.5})
+    if captain == nil then captain = player end
+    table.insert(sailors, player)
+    player.teleport({position.x + 0.5, position.y + 0.5})
   end
-  self.leave = function()
+  self.leave = function(player)
+    if captain == player then captain = nil end
+    table.remove_element(sailors, player)
+    player.teleport({0,0})
   end
 
   for _,entity in pairs(orientations[0].entities) do
@@ -107,6 +136,18 @@ function Ship.new(ship_type)
       tile_rot = {position = translate(tile_rot.position.x, tile_rot.position.y), name = tile.name}
       table.insert(orientations[i].tiles, tile_rot)
     end
+  end
+
+  local min = 0
+  for _,tile in pairs(orientations[0].tiles) do
+    if tile.position.y < min then
+      min = tile.position.y
+      hit_box[0] = {} hit_box[2] = {} hit_box[4] = {} hit_box[6] = {}
+    end
+      table.insert(hit_box[0], {x = tile.position.x, y = min - 1})
+      table.insert(hit_box[2], {x = - min + 1, y = tile.position.x})
+      table.insert(hit_box[4], {x = - tile.position.x, y = - min + 1})
+      table.insert(hit_box[6], {x = min - 1, y = - tile.position.x})
   end
 
   return self
