@@ -83,36 +83,55 @@ end
 
 -- transforms and shape helpers
 function translate(builder, x_offset, y_offset)
-    return function(x, y)
-        return builder(x - x_offset, y - y_offset)
+    return function(x, y, world_x, world_y)
+        return builder(x - x_offset, y - y_offset, world_x, world_y)
     end
 end
 
 function scale(builder, x_scale, y_scale)
     x_scale = 1 / x_scale
     y_scale = 1 / y_scale
-    return function(x, y)
-        return builder(x * x_scale, y * y_scale)
+    return function(x, y, world_x, world_y)
+        return builder(x * x_scale, y * y_scale, world_x, world_y)
     end
 end
     
 function rotate(builder, angle)
     local qx = math.cos(angle)
     local qy = math.sin(angle)
-    return function(x, y)
+    return function(x, y, world_x, world_y)
         local rot_x = qx * x - qy * y
         local rot_y = qy * x + qx * y
-        return builder(rot_x, rot_y)
+        return builder(rot_x, rot_y, world_x, world_y)
     end
 end
 
 function scale_rotate_translate(builder, x_scale, y_scale, angle, x_offset, y_offset)
     local transform = translate(rotate(scale(builder, x_scale, y_scale), angle), x_offset, y_offset)
-    return function(x, y)
-        return transform(x, y)
+    return function(x, y, world_x, world_y)
+        return transform(x, y, world_x, world_y)
     end
 end
 
+function flip_x(builder)
+    return function(x, y, world_x, world_y)
+        return builder(-x, y, world_x, world_y)
+    end
+end
+
+function flip_y(builder)
+    return function(x, y, world_x, world_y)
+        return builder(x, -y, world_x, world_y)
+    end
+end
+
+function flip_xy(builder)
+    return function(x, y, world_x, world_y)
+        return builder(-x, -y, world_x, world_y)
+    end
+end
+
+-- For resource_module_builder it will return the first success.
 function compound_or(builders)
     return function(x, y, world_x, world_y)
         for _, v in ipairs(builders) do   
@@ -123,18 +142,29 @@ function compound_or(builders)
     end
 end
 
+-- Wont work correctly with resource_module_builder becasues I don't know which one to return.
 function compound_and(builders)
-    return function(x, y)
+    return function(x, y, world_x, world_y)
         for _, v in ipairs(builders) do
-            if not v(x, y) then return false end
+            if not v(x, y, world_x, world_y) then return false end
         end
         return true
     end
 end
 
 function invert(builder)
-    return function(x, y)
-        return not builder(x, y)
+    return function(x, y, world_x, world_y)
+        return not builder(x, y, world_x, world_y)
+    end
+end
+
+function throttle_xy(builder, x_in, x_size, y_in, y_size)
+    return function(x, y, world_x, world_y)
+        if x % x_size < x_in and y % y_size < y_in then     
+            return builder(x, y, world_x, world_y) 
+        else
+            return false
+        end
     end
 end
 

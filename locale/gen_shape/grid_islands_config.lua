@@ -18,6 +18,8 @@ PATTERN = nil  -- the 2D array describing the repeating pattern of islands
 GLOBAL_X_SHIFT = 0
 GLOBAL_Y_SHIFT = 0
 
+REPLACE_GEN_WATER = nil -- if set will replace water from the base world generator with the specified tile.
+
 START_BUILDER = nil --if set overrides the builder in the pattern at [1][1] but only for spawn.
 
 local function example_preset()
@@ -46,7 +48,7 @@ local function square_and_circle_preset()
 
     ISLAND_X_DISTANCE = 256    
     ISLAND_Y_DISTANCE = 256 
-    NOT_LAND = "out-of-map"
+    NOT_LAND = "out-of-map"    
     PATH = path_builder(16)
 
     PATTERN_COLS = 2
@@ -348,6 +350,7 @@ local function cross_image_preset()
     ISLAND_X_DISTANCE = 609 * scale_factor    
     ISLAND_Y_DISTANCE = 1114 * scale_factor
     NOT_LAND = "out-of-map"
+    REPLACE_GEN_WATER= "grass"
     PATH = empty_builder
 
     PATTERN_COLS = 1
@@ -406,13 +409,15 @@ local function darthplagueis_preset()
     }   
 end
 
-local function goat_preset()
+local function goat_preset()   
+
     local pic = require("grid_islands_data.goat_data")  
     
-    local goat1 = picture_builder(pic.data, pic.width, pic.height)
+    local goat1 = picture_builder(pic.data, pic.width, pic.height)   
+
     local floor = translate(rectangle_builder(pic.width, 32), 0 , (pic.height / 2) + 12)
 
-    local goats ={ floor, goat1 }
+    local goats = { floor, goat1 }
 
     local sf = 0.75    
     local tf = 0.7
@@ -426,15 +431,102 @@ local function goat_preset()
     end
 
     local ceiling = translate(rectangle_builder(pic.width, 32), 0 , -t - 32)
-    table.insert( goats, ceiling ) 
-
-    --local goat2 = translate(scale(goat1, 0.5, 0.5), 0, -pic.height / 2)
+    table.insert( goats, ceiling )     
 
     local shape = translate(compound_or(goats), 0, (t / 2) - 60)
 
-    local shape2 = rotate(shape, degrees(180))
+-- for custom goat ores
+--[[
+    local function rot(table)
+        local len = #table
+        local copy = {}        
+        for i = 1, len -1 do
+            copy[i+1] = table[i]           
+        end
+        copy[1] = table[len]
+        return copy
+    end
+    
+    local patch = flip_x(goat1)
+    --patch = throttle_xy(patch, 1, 2, 1 ,2)
+    local iron_patch = resource_module_builder(scale(patch,0.12,0.12), "iron-ore", function(x,y) return 500 end)
+    local copper_patch = resource_module_builder(scale(patch,0.12,0.12), "copper-ore", function(x,y) return 500 end)
+    local coal_patch = resource_module_builder(scale(patch,0.12,0.12), "coal", function(x,y) return 500 end)
+    local stone_patch = resource_module_builder(scale(patch,0.12,0.12), "stone", function(x,y) return 500 end)
+    local uraniumn_patch = resource_module_builder(scale(patch,0.12,0.12), "uraniumn-ore", function(x,y) return 500 end)
+    local oil_patch = resource_module_builder(scale(patch,0.12,0.12), "crude-oil", function(x,y) return 500 end)
+
+
+    local patch1 = translate(scale(patch,0.2,0.2),0,170)
+    local patch2 = translate(scale(patch,0.15,0.15),0,25)
+    local patch3 = translate(scale(patch,0.12,0.12),0,-88)
+    local patch4 = translate(scale(patch,0.1,0.1),0,-173)
+    local patch5 = translate(scale(patch,0.08,0.08),0,-238)
+    local patch6 = translate(scale(patch,0.04,0.04),0,-282)
+    local patch_table = { patch1, patch2, patch3, patch4, patch5, patch6 }
+
+    local function do_nothing(builder, x, y) return builder(x, y) end
+    local function throttle(builder, x, y)         
+        if x % 4 < 1 and y % 4 < 1 then     
+            return builder(x, y) 
+        else
+            return false
+        end
+    end
+
+    local function linear(base, mult) 
+        return function(x, y)
+            return base + (math.abs(x) + math.abs(y)) * mult
+        end
+    end
+
+    local res1 = {do_nothing, "iron-ore", linear(500, 1) }
+    local res2 = {do_nothing,"copper-ore", linear(400, 0.8) }
+    local res3 = {do_nothing,"coal", linear(400, 0.7) }
+    local res4 = {do_nothing,"stone", linear(200, 0.6) }
+    local res5 = {do_nothing,"uranium-ore", linear(50, 0.1) }
+    local res6 = {throttle, "crude-oil", linear(18750, 300) }    
+    local res_table = { res2, res3, res4, res5, res6, res1 }
+    
+    local res_tables = {}    
+    for i = 1, 6 do    
+        table.insert(res_tables, res_table)
+        res_table = rot(res_table)
+    end
+
+    local function res_builder(x, y, world_x, world_y)
+        local col_pos = math.floor(world_x / ISLAND_X_DISTANCE + 0.5)  
+        local row_pos = math.floor(world_y / ISLAND_Y_DISTANCE + 0.5)
+        local offset = ((math.abs(col_pos) + math.abs(row_pos)) % 6) + 1
+
+        local rt = res_tables[offset]
+        for k, v in ipairs(patch_table) do
+                local r = rt[k]
+                local f = r[1]
+                local name = r[2]
+                local amount = r[3]
+            if f(v,x,y) then                
+                return name, amount(world_x, world_y)
+            end
+        end
+    end
+
+    --local patches = compound_or(patch_table)
+    --local iron = resource_module_builder(patches,"iron-ore", function(x,y) return 400 end)
+    --local iron_goat = builder_with_resource(shape, iron)
+
+    local res_goat = builder_with_resource(shape, res_builder)
+
+    shape = res_goat
+--]]
+
+    local shape2 = flip_x(shape)
+    local shape3 = flip_y(shape)
+    local shape4 = flip_y(shape2)    
 
     GLOBAL_X_SHIFT = 1
+
+    REPLACE_GEN_WATER = "water-green"
 
     ISLAND_X_DISTANCE = pic.width 
     ISLAND_Y_DISTANCE = pic.height + t - 105
@@ -442,10 +534,11 @@ local function goat_preset()
     PATH = empty_builder
 
     PATTERN_COLS = 2
-    PATTERN_ROWS = 1
+    PATTERN_ROWS = 2
     PATTERN =
     {
-        {shape, shape2}
+        {shape, shape2},
+        {shape3, shape4},
     }  
 end
 
@@ -550,7 +643,7 @@ local function island_map_preset()
 
     ISLAND_X_DISTANCE = 288    
     ISLAND_Y_DISTANCE = 288 
-    NOT_LAND = "out-of-map"
+    NOT_LAND = "out-of-map"    
     PATH = path_builder(16)
 
     PATTERN_COLS = 6
@@ -613,6 +706,7 @@ local function mics_stuff_preset()
     ISLAND_X_DISTANCE = pic.width * scale_factor
     ISLAND_Y_DISTANCE = pic.height * scale_factor
     NOT_LAND = "water"
+    REPLACE_GEN_WATER = "grass"
     PATH = empty_builder
 
     PATTERN_COLS = 1
@@ -663,13 +757,138 @@ local function cubes_preset()
     }   
 end
 
-local function test_preset()
-    local pic = require("grid_islands_data.crosses_data") 
+local function poop_emoji_preset()
+    local pic = require("grid_islands_data.poop_emoji_data") 
+    local scale_factor = 0.2
+    
+    local poop = picture_builder(pic.data, pic.width, pic.height)
+    poop = scale(poop, scale_factor, scale_factor)
+
+    local iron_patch = resource_module_builder(poop,"iron-ore", function(x,y) return 500 + (math.abs(x) + math.abs(y)) end)
+    local copper_patch = resource_module_builder(poop, "copper-ore",function(x,y) return 400 + (math.abs(x) + math.abs(y)) * 0.8  end)
+    local coal_patch = resource_module_builder(poop, "coal",function(x,y) return 300 + (math.abs(x) + math.abs(y)) * 0.7  end)
+    local stone_patch = resource_module_builder(poop, "stone",function(x,y) return 100 + (math.abs(x) + math.abs(y)) * 0.5 end)
+    local uraniumn_patch = resource_module_builder(poop, "uranium-ore",function(x,y) return 100 + (math.abs(x) + math.abs(y)) * 0.2 end)   
+    local oil_patch = resource_module_builder(throttle_xy(poop, 1, 4, 1, 4), "crude-oil",function(x,y) return 75000 + (math.abs(x) + math.abs(y)) * 500 end)
+
+    local iron_poop = builder_with_resource(full_builder, iron_patch )
+    local copper_poop = builder_with_resource(full_builder, copper_patch )
+    local coal_poop = builder_with_resource(full_builder, coal_patch )
+    local stone_poop = builder_with_resource(full_builder, stone_patch )
+    local uraniumn_poop = builder_with_resource(full_builder, uraniumn_patch )
+    local oil_poop = builder_with_resource(full_builder, oil_patch )
+
+    ISLAND_X_DISTANCE = pic.width * scale_factor * 1.5
+    ISLAND_Y_DISTANCE = pic.height * scale_factor * 1.5
+    NOT_LAND = "out-of-map"
+    REPLACE_GEN_WATER = "grass"
+    PATH = empty_builder
+
+    PATTERN_COLS = 3
+    PATTERN_ROWS = 3
+    PATTERN =
+    {
+        {iron_poop, copper_poop, oil_poop },
+        {coal_poop, iron_poop, copper_poop},
+        {stone_poop, coal_poop, uraniumn_poop},
+    }   
+end
+
+local function mona_lisa_preset()
+    local scale_factor = 3
+
+    local pic = require("grid_islands_data.mona_lisa_data") 
     
     local shape = picture_builder(pic.data, pic.width, pic.height)
+    local up = scale(shape, scale_factor, scale_factor)
+
+    local down = flip_y(up)
+    local right = flip_x(up)
+    local right_down = flip_xy(up)
+    
+
+    ISLAND_X_DISTANCE = pic.width * scale_factor
+    ISLAND_Y_DISTANCE = pic.height * scale_factor
+    NOT_LAND = "out-of-map"
+    PATH = empty_builder
+    REPLACE_GEN_WATER = "grass"
+    GLOBAL_Y_SHIFT = 67 * scale_factor
+
+    PATTERN_COLS = 2
+    PATTERN_ROWS = 2
+    PATTERN =
+    {
+        {up, right},
+        {down, right_down}
+    }   
+end
+
+local function creation_of_adam_preset()
+    local scale_factor = 1
+
+    local pic = require("grid_islands_data.creation_of_adam_data") 
+    local outerbox = rectangle_builder(pic.width + 256, pic.height)
+    local innerbox = invert( rectangle_builder(pic.width,pic.height))
+    local border = compound_and({outerbox,innerbox})
+    border = invert(border)
+    
+    local shape = picture_builder(pic.data, pic.width, pic.height)    
+    shape = invert(shape)
+
+    
+    shape = compound_and({border, shape})
+    local up = scale(shape, scale_factor, scale_factor)
+
+    local down = flip_y(up)
+    local right = flip_x(up)
+    local right_down = flip_xy(up)
+    
+
+    ISLAND_X_DISTANCE = pic.width * scale_factor +256
+    ISLAND_Y_DISTANCE = pic.height * scale_factor 
+    NOT_LAND = "water"
+    PATH = empty_builder
+    REPLACE_GEN_WATER = "grass"
+    --GLOBAL_Y_SHIFT = 67 * scale_factor
+
+    PATTERN_COLS = 1
+    PATTERN_ROWS = 1
+    PATTERN =
+    {
+        {up, right},
+        {down, right_down}
+    }   
+end
+
+local function gears_preset()
+    local pic = require("grid_islands_data.gears_data") 
+    
+    local shape = picture_builder(pic.data, pic.width, pic.height)
+   -- shape = invert(shape)
 
     ISLAND_X_DISTANCE = pic.width
     ISLAND_Y_DISTANCE = pic.height
+    NOT_LAND = "out-of-map"
+    REPLACE_GEN_WATER = "grass"
+    PATH = empty_builder
+
+    PATTERN_COLS = 1
+    PATTERN_ROWS = 1
+    PATTERN =
+    {
+        {shape}
+    }   
+end
+
+local function maori_preset()
+    local pic = require("grid_islands_data.maori_data") 
+    local scale_factor = 3
+    
+    local shape = picture_builder(pic.data, pic.width, pic.height)
+    shape =scale(shape, scale_factor, scale_factor)
+
+    ISLAND_X_DISTANCE = (pic.width - 1) * scale_factor
+    ISLAND_Y_DISTANCE = (pic.height - 1) * scale_factor
     NOT_LAND = "out-of-map"
     PATH = empty_builder
 
@@ -679,6 +898,55 @@ local function test_preset()
     {
         {shape}
     }   
+end
+
+local function lines_preset()
+    local scale_factor = 5
+
+    local pic = require("grid_islands_data.lines_data")     
+    
+    local shape = picture_builder(pic.data, pic.width, pic.height)    
+    shape = scale(shape, scale_factor, scale_factor)
+    shape = invert(shape)    
+    
+    
+    ISLAND_X_DISTANCE = (pic.width ) * scale_factor 
+    ISLAND_Y_DISTANCE = (pic.height ) * scale_factor 
+    NOT_LAND = "out-of-map"
+    PATH = empty_builder
+    REPLACE_GEN_WATER = "grass"    
+
+    PATTERN_COLS = 1
+    PATTERN_ROWS = 1
+    PATTERN =
+    {
+        {shape}
+    }    
+end
+
+local function test_preset()
+    local scale_factor = 10
+
+    local pic = require("grid_islands_data.test_data")     
+    
+    local shape = picture_builder(pic.data, pic.width, pic.height)    
+    shape = scale(shape, scale_factor, scale_factor)
+    --shape = invert(shape)    
+    
+    
+    ISLAND_X_DISTANCE = (pic.width + 50) * scale_factor 
+    ISLAND_Y_DISTANCE = (pic.height + 50) * scale_factor 
+    NOT_LAND = "water"
+    PATH = empty_builder
+    REPLACE_GEN_WATER = "grass"
+    --GLOBAL_Y_SHIFT = 67 * scale_factor
+
+    PATTERN_COLS = 1
+    PATTERN_ROWS = 1
+    PATTERN =
+    {
+        {shape}
+    }    
 end
 
 -- uncomment the preset you want to use.
@@ -699,10 +967,16 @@ end
 --darthplagueis_preset()
 --goat_preset()
 --goat_preset2()
-island_map_preset()
+--island_map_preset()
 --broken_web_preset()
 --hexes_preset()
 --mics_stuff_preset()
 --cage_preset()
 --cubes_preset()
+--poop_emoji_preset()
+--mona_lisa_preset()
+--creation_of_adam_preset()
+--gears_preset()
+--maori_preset()
+lines_preset()
 --test_preset()

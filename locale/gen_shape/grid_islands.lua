@@ -2,6 +2,10 @@
 
 require("grid_islands_config")
 
+local function is_water_tile(surface, x, y)
+	return surface.get_tile(x, y).collides_with("water-tile")
+end
+
 local half_island_x_distance = (ISLAND_X_DISTANCE / 2) 
 local half_island_y_distance = (ISLAND_Y_DISTANCE / 2) 
 
@@ -38,11 +42,22 @@ function run_shape_module(event)
 			end
 
 			local entity, amount = builder(local_x, local_y, world_x, world_y) -- should this use world_x2 and world_y2
-			if entity then				
+			if entity then
+				-- relpace water tile if requested and needed.
+				if REPLACE_GEN_WATER and is_water_tile(surface, world_x, world_y) then
+					table.insert( tiles, {name = REPLACE_GEN_WATER, position = {world_x, world_y}} )
+				end
+				-- add entity if provided.
 				if not (type(entity) == "boolean") then					
 					table.insert(entities, {name = entity, position = {world_x, world_y}, amount = amount or 667})
 				end
-			elseif not PATH(local_x, local_y) then
+			elseif PATH(local_x, local_y) then
+				-- relpace water tile if requested and needed.
+				if REPLACE_GEN_WATER and is_water_tile(surface, world_x, world_y) then
+					table.insert( tiles, {name = REPLACE_GEN_WATER, position = {world_x, world_y}} )
+				end
+			else
+				-- this tile is neither on an island or on a path so should be replaced with the NOT_LAND tile.
 				table.insert(tiles, {name = NOT_LAND, position = {world_x, world_y}})
 			end 	
 		end
