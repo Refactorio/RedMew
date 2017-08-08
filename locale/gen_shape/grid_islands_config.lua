@@ -661,11 +661,13 @@ end
 
 local function broken_web_preset()
     local pic = require("grid_islands_data.broken_web_data") 
+    local scale_factor = 5
     
     local shape = picture_builder(pic.data, pic.width, pic.height)
+    shape = scale(shape, scale_factor, scale_factor)
 
-    ISLAND_X_DISTANCE = pic.width
-    ISLAND_Y_DISTANCE = pic.height
+    ISLAND_X_DISTANCE = pic.width * scale_factor
+    ISLAND_Y_DISTANCE = pic.height * scale_factor
     NOT_LAND = "water"
     PATH = empty_builder
 
@@ -862,13 +864,15 @@ end
 
 local function gears_preset()
     local pic = require("grid_islands_data.gears_data") 
+    local scale_factor = 1
     
     local shape = picture_builder(pic.data, pic.width, pic.height)
-   -- shape = invert(shape)
+    shape = scale(shape, scale_factor, scale_factor)
+    --shape = invert(shape)
 
-    ISLAND_X_DISTANCE = pic.width
-    ISLAND_Y_DISTANCE = pic.height
-    NOT_LAND = "out-of-map"
+    ISLAND_X_DISTANCE = pic.width * scale_factor
+    ISLAND_Y_DISTANCE = pic.height * scale_factor
+    NOT_LAND = "water"
     REPLACE_GEN_WATER = "grass"
     PATH = empty_builder
 
@@ -901,7 +905,7 @@ local function maori_preset()
 end
 
 local function lines_preset()
-    local scale_factor = 5
+    local scale_factor = 10
 
     local pic = require("grid_islands_data.lines_data")     
     
