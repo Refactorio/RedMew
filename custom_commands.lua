@@ -394,10 +394,28 @@ local function importship(cmd)
   global.scenario.variables.ship_type[params[1]] =
     {entities = blueprint.get_blueprint_entities(),
     tiles = blueprint.get_blueprint_tiles(),
-    speed = 21 - tonumber(params[2])
-  }
+    speed = 25 - 5 * tonumber(params[2])
+    }
 end
 
+local function spawnship(cmd)
+  if not game.player.admin then
+      cant_run(cmd.name)
+      return
+  end
+  if cmd.parameter ~= nil and global.scenario.variables.ship_type[cmd.parameter] ~= nil then
+    local position = {x = -20, y = -20}
+    local speed = global.scenario.variables.ship_type[cmd.parameter].speed
+    local ship = Ship.new(cmd.parameter)
+    table.insert(global.ships[speed], ship)
+    ship.place(position)
+  else
+    game.player.print("Usage: /spawnship <shiptype> Spawns the ship close to you.")
+  end
+end
+
+
+commands.add_command("kill", "Will kill you.", kill)
 
 global.old_force = {}
 global.force_toggle_init = true
@@ -520,6 +538,8 @@ commands.add_command("afk", 'Shows how long players have been afk.', afk)
 commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
 commands.add_command("follow", '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
 commands.add_command("unfollow", 'stops following a player.', unfollow)
+commands.add_command("importship", '<name> <speed> imports the top left blueprint as a ship type. Add a name and a speed from 1 to 4. (Admins only).', importship)
+commands.add_command("spawnship", '<shiptype> Spawns the ship close to you. (Admins only).', spawnship)
 commands.add_command("importship", '<name> <speed> imports the top left blueprint as a ship type. Add a name and a speed from 1 to 20. (Admins only).', importship)
 commands.add_command("well", '<item> <items per second> Spawns an item well. (Admins only)', well_command)
 commands.add_command("tpmode", "Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)", toggle_tp_mode)

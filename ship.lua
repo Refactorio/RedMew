@@ -1,4 +1,4 @@
-global.ships = {}
+global.ships = {} global.ships[5] = {} global.ships[10] = {} global.ships[15] = {} global.ships[20] = {}
 Ship = {}
 Ship.__index = Ship
 function dump(o)
@@ -23,7 +23,6 @@ function Ship.new(ship_type)
   if  not global.scenario.variables.ship_type[ship_type] then error("Type does not exist", 2) end
 
   local self = setmetatable({}, Ship)
-  self.Speed = 1 --global.scenario.variables.ship_type[ship_type] -- 20 is slowest 1 is fastest
   local type = type
   local direction = 0
   local position = {}
@@ -154,10 +153,17 @@ function Ship.new(ship_type)
 end
 
 function ship_on_tick()
-  for _,ship in pairs(global.ships) do
-    if game.tick % ship.Speed == 0 then
-      ship.move()
+  if game.tick % 5 == 0 then
+    if game.tick % 10 == 0 then
+      if game.tick % 20 == 0 then
+        for _,ship in pairs(global.ships[20]) do ship.move() end
+      end
+      for _,ship in pairs(global.ships[10]) do ship.move() end
     end
+    if game.tick % 15 == 0 then
+      for _,ship in pairs(global.ships[15]) do ship.move() end
+    end
+    for _,ship in pairs(global.ships[5]) do ship.move() end
   end
 end
 
