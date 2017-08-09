@@ -1,7 +1,7 @@
 --[[
 This file is used to choose which styles you want.
 You may choose up to one of each type shapes, terrain, ores and misc by removing uncommenting the line.
-If you want to add your own module, just add it to the others 
+If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
 
@@ -15,8 +15,9 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_shape.spiral2"
 --require "locale.gen_shape.donut"
 --require "locale.gen_shape.rectangular_spiral"
---require "locale.gen_shape.x_map"
---require "locale.gen_shape.x_infinite"
+--require "locale.gen_shape.lattice"
+require "locale.gen_shape.infinite_mazes"
+
 
 
 --terrain--
