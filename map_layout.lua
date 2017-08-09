@@ -16,11 +16,12 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_shape.donut"
 --require "locale.gen_shape.rectangular_spiral"
 --require "locale.gen_shape.x_map"
-require "locale.gen_shape.x_infinite"
+--require "locale.gen_shape.x_infinite"
 
 
 --terrain--
 --require "locale.gen_terrain.neko_bridged_rivers"
+--require "locale.gen_terrain.neko_river_overlay"
 
 --ores--
 --require "locale.gen_ores.neko_crazy_ores"
