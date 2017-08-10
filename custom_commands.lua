@@ -301,6 +301,28 @@ local function unfollow(cmd)
   end
 end
 
+global.wells = {}
+local function well(cmd)
+  if not game.player.admin then
+      cant_run(cmd.name)
+      return
+  end
+
+  if cmd.parameter == nil then
+    return
+  end
+
+  local params = {}
+  for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
+    if game.item_prototypes[params[1]] and params[2] and tonumber(params[2]) then
+      local ips = tonumber(params[2])
+      local chest = game.surfaces[1].create_entity({name = "steel-chest", force = game.player.force, position = game.player.position})
+      table.insert(global.wells, {chest = chest, item = params[1], items_per_second = ips})
+      refill_well()
+    else 
+        game.player.print("Usage: /well <item> <items per second>.")
+    end
+end
 
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("detrain", "<player> - Kicks the player off a train. (Admins and moderators)", detrain)
@@ -319,3 +341,5 @@ commands.add_command("afktime", 'Shows how long players have been afk.', afk)
 commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
 commands.add_command("follow", '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
 commands.add_command("unfollow", 'stops following a player.', unfollow)
+commands.add_command("well", '<item> <items per second> (Admins only)', well)
+
