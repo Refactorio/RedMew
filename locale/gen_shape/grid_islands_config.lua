@@ -863,8 +863,8 @@ local function creation_of_adam_preset()
 end
 
 local function gears_preset()
-    local pic = require("grid_islands_data.gears_data") 
-    local scale_factor = 1
+    local pic = require("grid_islands_data.void_gears_data") 
+    local scale_factor = 2
     
     local shape = picture_builder(pic.data, pic.width, pic.height)
     shape = scale(shape, scale_factor, scale_factor)
@@ -872,9 +872,11 @@ local function gears_preset()
 
     ISLAND_X_DISTANCE = pic.width * scale_factor
     ISLAND_Y_DISTANCE = pic.height * scale_factor
-    NOT_LAND = "water"
-    REPLACE_GEN_WATER = "grass"
+    NOT_LAND = "out-of-map"
+    --REPLACE_GEN_WATER = "grass"
     PATH = empty_builder
+    GLOBAL_X_SHIFT = -100 * scale_factor
+    GLOBAL_Y_SHIFT = 120 * scale_factor
 
     PATTERN_COLS = 1
     PATTERN_ROWS = 1
@@ -886,13 +888,13 @@ end
 
 local function maori_preset()
     local pic = require("grid_islands_data.maori_data") 
-    local scale_factor = 3
+    local scale_factor = 12
     
     local shape = picture_builder(pic.data, pic.width, pic.height)
     shape =scale(shape, scale_factor, scale_factor)
 
     ISLAND_X_DISTANCE = (pic.width - 1) * scale_factor
-    ISLAND_Y_DISTANCE = (pic.height - 1) * scale_factor
+    ISLAND_Y_DISTANCE = (pic.height - 2) * scale_factor
     NOT_LAND = "out-of-map"
     PATH = empty_builder
 
@@ -919,6 +921,33 @@ local function lines_preset()
     NOT_LAND = "out-of-map"
     PATH = empty_builder
     REPLACE_GEN_WATER = "grass"    
+
+    PATTERN_COLS = 1
+    PATTERN_ROWS = 1
+    PATTERN =
+    {
+        {shape}
+    }    
+end
+
+local function crosses3_preset()
+    local scale_factor = 64
+
+    local pic = require("grid_islands_data.crosses3_data")     
+    
+    local shape = picture_builder(pic.data, pic.width, pic.height)        
+    shape = scale(shape, scale_factor, scale_factor)
+    shape = rotate(shape, degrees(45))
+    shape = invert(shape)    
+    
+    
+    ISLAND_X_DISTANCE = (pic.width - 24.5 ) * scale_factor + 6
+    ISLAND_Y_DISTANCE = (pic.height - 21.5) * scale_factor  - 6
+    NOT_LAND = "out-of-map"
+    PATH = empty_builder
+    --REPLACE_GEN_WATER = "grass"    
+    GLOBAL_X_SHIFT = 48
+    GLOBAL_Y_SHIFT = -176 
 
     PATTERN_COLS = 1
     PATTERN_ROWS = 1
@@ -980,7 +1009,8 @@ end
 --poop_emoji_preset()
 --mona_lisa_preset()
 --creation_of_adam_preset()
---gears_preset()
+gears_preset()
 --maori_preset()
-lines_preset()
+--lines_preset()
+--crosses3_preset()
 --test_preset()
