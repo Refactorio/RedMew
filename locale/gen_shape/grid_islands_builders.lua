@@ -1,4 +1,3 @@
-
 -- helpers
 tau = 2 * math.pi
 deg_to_rad = tau / 360
