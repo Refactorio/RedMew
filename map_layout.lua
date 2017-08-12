@@ -9,6 +9,10 @@ in this file and your run_*type*_module(event) function will be called.
 --combined--
 --require "locale.gen_combined.island_resort"
 
+--grilledham's maps
+--MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.test"
+MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.picture_test"
+
 --shapes--
 --require "locale.gen_shape.right"
 --require "locale.gen_shape.up"
@@ -21,7 +25,7 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_shape.lattice"
 --require "locale.gen_shape.infinite_mazes"
 --require "locale.gen_shape.x_shape"
-require "locale.gen_shape.grid_islands"
+--require "locale.gen_shape.grid_islands"
 
 
 --terrain--
