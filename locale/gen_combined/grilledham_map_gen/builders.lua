@@ -1,5 +1,6 @@
 
 -- helpers
+
 tau = 2 * math.pi
 deg_to_rad = tau / 360
 function degrees(angle)
@@ -7,6 +8,7 @@ function degrees(angle)
 end
 
 -- shape builders
+
 function empty_builder(x, y)
     return false
 end
@@ -82,6 +84,7 @@ function picture_builder(data, width, height)
 end
 
 -- transforms and shape helpers
+
 function translate(builder, x_offset, y_offset)
     return function(x, y, world_x, world_y)
         return builder(x - x_offset, y - y_offset, world_x, world_y)
@@ -202,51 +205,24 @@ end
 
 -- pattern builders.
 
-local function proccess_shape(shape, local_x, local_y, world_x, world_y, not_land)
-    local tile, entity = shape(local_x, local_y, world_x, world_y)
-
-    if not tile and not_land then
-        tile = not_land
-    end            
-        
-    return tile, entity
-end
-
--- currently only useful for overriding not land tiles
-function single_shape_builder(shape, options)
-
-    options = options or {}
-    local not_land = options.not_land 
-
-    return function (local_x, local_y, world_x, world_y)
-        return proccess_shape(shape, local_x, local_y, world_x, world_y, not_land)
-    end
-end
-
-function single_pattern_builder(shape, width, height, options)
+function single_pattern_builder(shape, width, height)
 
     shape = shape or empty_builder
     local half_width  = width / 2
     local half_height = height / 2
 
-    options = options or {}
-    local not_land = options.not_land 
-
     return function (local_x, local_y, world_x, world_y)      
         local_y = ((local_y + half_height) % height) - half_height + 0.5     
         local_x = ((local_x + half_width) % width) - half_width + 0.5 
 
-        return proccess_shape(shape, local_x, local_y, world_x, world_y, not_land)
+        return shape(local_x, local_y, world_x, world_y)
     end
 end
 
-function grid_pattern_builder(pattern, columns, rows, width, height, options)
+function grid_pattern_builder(pattern, columns, rows, width, height)
     
     local half_width  = width / 2
     local half_height = height / 2
-
-    options = options or {}
-    local not_land = options.not_land 
 
     return function (local_x, local_y, world_x, world_y)
         local local_y2 = ((local_y + half_height) % height) - half_height + 0.5 
@@ -259,7 +235,7 @@ function grid_pattern_builder(pattern, columns, rows, width, height, options)
         local col_i = col_pos % columns + 1
 
         local shape = row[col_i] or empty_builder
-        return proccess_shape(shape, local_x2, local_y2, world_x, world_y, not_land)
+        return shape(local_x2, local_y2, world_x, world_y)
     end
 end
 
@@ -275,7 +251,7 @@ function change_tile(builder, old_tile, new_tile)
     end
 end
 
-function change_collision_tile(builder, collides, new_tile, )
+function change_collision_tile(builder, collides, new_tile)
     return function (local_x, local_y, world_x, world_y )
         local tile, entity = builder(local_x, local_y, world_x, world_y)
         if tile.collides_with(collides) then
@@ -285,10 +261,11 @@ function change_collision_tile(builder, collides, new_tile, )
     end
 end
 
+-- only changes tiles made by the factorio map generator.
 function change_map_gen_tile(builder, old_tile, new_tile)
     return function (local_x, local_y, world_x, world_y )
         local tile, entity = builder(local_x, local_y, world_x, world_y)
-        if not tile then
+        if type(tile) == "boolean" and tile then
             local gen_tile = MAP_GEN_SURFACE.get_tile(world_x, world_y)
             if old_tile == gen_tile then
                 tile = new_tile
@@ -298,10 +275,11 @@ function change_map_gen_tile(builder, old_tile, new_tile)
     end
 end
 
+-- only changes tiles made by the factorio map generator.
 function change_map_gen_collision_tile(builder, collides, new_tile)
     return function (local_x, local_y, world_x, world_y )
         local tile, entity = builder(local_x, local_y, world_x, world_y)
-        if not tile then
+        if type(tile) == "boolean" and tile then
             local gen_tile = MAP_GEN_SURFACE.get_tile(world_x, world_y)
             if gen_tile.collides_with(collides) then
                 tile = new_tile
