@@ -25,12 +25,12 @@ And this is what you ought to know:
 - Don't argue with other players for silly things.
 - No political, racist, or misogynistic content.
 - If you suspect you desync, restart the game.
-- You can join our community on discord.me/redmew
-- View the chatlog on: log.mewmew.net
+- Join our growing community on discord.me/redmew
+- Post server pics (or didn't happen): redmew.reddit.com
+- View the in-game chatlog on: log.mewmew.net
 - Contribute to our Hookers & Blow Fund with:
   Bitcoin: 13qh5uJh3UDUiWKyQaybkpxC1gfLVDB1ww
   Paypal: paypal.me/redmew (5$+ get nudes)
-
 ]===]
 
 	player.gui.left.direction = "horizontal"
