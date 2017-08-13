@@ -18,6 +18,12 @@ local pattern =
 local map = grid_pattern_builder(pattern, 2, 2, 64, 64)
 map = rotate(map, degrees(45))
 
+local start = rectangle_builder(48,48)
+
+map = choose(start, start, map)
+
+map = scale(map, 4, 4)
+
 map = change_map_gen_collision_tile(map, "water-tile", "grass")
 
 return map

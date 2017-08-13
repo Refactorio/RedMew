@@ -172,6 +172,16 @@ function throttle_xy(builder, x_in, x_size, y_in, y_size)
     end
 end
 
+function choose(condition, true_shape, false_shape)
+    return function(local_x, local_y, world_x, world_y)
+        if condition(local_x, local_y, world_x, world_y) then
+            return true_shape(local_x, local_y, world_x, world_y)
+        else
+            return false_shape(local_x, local_y, world_x, world_y)
+        end
+    end
+end
+
 -- ore generation.
 
 -- builder is the shape of the ore patch.
