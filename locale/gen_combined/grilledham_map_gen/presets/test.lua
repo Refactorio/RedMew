@@ -1,6 +1,7 @@
 require "locale.gen_combined.grilledham_map_gen.map_gen"
 require "locale.gen_combined.grilledham_map_gen.builders"
 
+--[[
 local square = rectangle_builder(32,32)
 local circle = circle_builder(16)
 local path = path_builder(8)
@@ -27,3 +28,13 @@ map = scale(map, 4, 4)
 map = change_map_gen_collision_tile(map, "water-tile", "grass")
 
 return map
+
+--]]
+
+
+
+local shape = rectangle_builder(5, 5)
+shape = project(shape, 5, 3)
+--shape = scale(shape, 1, 1)
+
+return shape

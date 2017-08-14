@@ -182,6 +182,43 @@ function choose(condition, true_shape, false_shape)
     end
 end
 
+function linear_grow(shape, size)
+    local half_size = size / 2
+    return function (local_x, local_y, world_x, world_y)
+        local t = math.ceil((local_y / size) + 0.5)                
+        local n = math.ceil((math.sqrt(8 * t + 1) - 1) / 2)
+        local t_upper = n * (n + 1) * 0.5
+        local t_lower = t_upper - n
+
+       local y = (local_y - size * (t_lower + n / 2 - 0.5)) / n
+        local x = local_x / n
+
+        return shape(x, y, world_x, world_y)
+    end
+end
+
+function project(shape, size, r)
+    local half_size = size / 2
+    local ln_r = math.log(r)
+    local r2 = 1 / (r - 1)
+    local a = 1 / size
+    return function(local_x, local_y, world_x, world_y)
+
+        local sn = math.ceil((local_y / size) + 0.5)
+        local n = math.ceil(math.log((r-1) * sn * a + 1) / ln_r - 1)
+        local c = r ^ n
+
+        local sn_upper = size * (r ^ (n + 1) - 1) * r2
+
+        local c2 = 1 / c
+        local x = local_x * c2
+        local y = (local_y - size * (sn_upper - 0.5 * c - 0.5 )) * c2
+
+        return shape(x, y, world_x, world_y)
+
+    end
+end
+
 -- ore generation.
 
 -- builder is the shape of the ore patch.
@@ -248,6 +285,8 @@ function grid_pattern_builder(pattern, columns, rows, width, height)
         return shape(local_x2, local_y2, world_x, world_y)
     end
 end
+
+
 
 -- tile converters
 
