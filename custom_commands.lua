@@ -1,4 +1,5 @@
 local Thread = require "locale.utils.Thread"
+require "locale/utils/event"
 
 function cant_run(name)
     game.player.print("Can't run command (" .. name .. ") - insufficient permission.")
@@ -328,6 +329,56 @@ local function well(cmd)
     end
 end
 
+tp_players = {}
+tp_players_count = 0
+
+local function built_entity(event)
+  local index = event.player_index  
+
+  if tp_players[index] then
+    local entity = event.created_entity
+
+    if entity.type ~= "entity-ghost" then return end
+    
+    game.players[index].teleport(entity.position)
+    entity.destroy()
+  end
+end
+
+local function toggle_tp_mode()
+  if not (game.player.admin or is_mod(game.player.name)) then
+        cant_run(cmd.name)
+        return
+  end
+
+  local index = game.player.index
+  local toggled = tp_players[index]
+
+  if toggled then
+    tp_players[index] = nil
+    tp_players_count = tp_players_count - 1
+
+    -- remove event handler if no players are using it.
+    if tp_players_count == 0 then
+      Event.remove(defines.events.on_built_entity, built_entity )
+    end
+
+    game.player.print("tp mode is now off")
+
+  else
+    tp_players[index] = true
+    tp_players_count = tp_players_count + 1
+
+    -- add event handler now that a player is using it.
+    if tp_players_count == 1 then
+      Event.register(defines.events.on_built_entity, built_entity )
+    end
+
+    game.player.print("tp mode is now on - place a ghost entity to teleport there.")
+
+  end
+end
+
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("detrain", "<player> - Kicks the player off a train. (Admins and moderators)", detrain)
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
@@ -346,4 +397,5 @@ commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', 
 commands.add_command("follow", '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
 commands.add_command("unfollow", 'stops following a player.', unfollow)
 commands.add_command("well", '<item> <items per second> Spawns an item well. (Admins only)', well)
+commands.add_command("tpmode", "Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)", toggle_tp_mode)
 
