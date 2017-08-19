@@ -329,13 +329,13 @@ local function well(cmd)
     end
 end
 
-tp_players = {}
-tp_players_count = 0
+global.tp_players = {}
+--global.tp_players_count = 0
 
 local function built_entity(event)
   local index = event.player_index  
 
-  if tp_players[index] then
+  if global.tp_players[index] then
     local entity = event.created_entity
 
     if entity.type ~= "entity-ghost" then return end
@@ -345,6 +345,8 @@ local function built_entity(event)
   end
 end
 
+Event.register(defines.events.on_built_entity, built_entity )
+
 local function toggle_tp_mode()
   if not (game.player.admin or is_mod(game.player.name)) then
         cant_run(cmd.name)
@@ -352,27 +354,32 @@ local function toggle_tp_mode()
   end
 
   local index = game.player.index
-  local toggled = tp_players[index]
+  local toggled = global.tp_players[index]
 
   if toggled then
-    tp_players[index] = nil
-    tp_players_count = tp_players_count - 1
+    global.tp_players[index] = nil
+
+    --[[
+    global.tp_players_count = global.tp_players_count - 1
 
     -- remove event handler if no players are using it.
-    if tp_players_count == 0 then
+    if global.tp_players_count == 0 then
       Event.remove(defines.events.on_built_entity, built_entity )
     end
+    --]]
 
     game.player.print("tp mode is now off")
 
   else
-    tp_players[index] = true
-    tp_players_count = tp_players_count + 1
+    global.tp_players[index] = true
+    --[[
+    global.tp_players_count = global.tp_players_count + 1
 
     -- add event handler now that a player is using it.
-    if tp_players_count == 1 then
+    if global.tp_players_count == 1 then
       Event.register(defines.events.on_built_entity, built_entity )
     end
+    --]]
 
     game.player.print("tp mode is now on - place a ghost entity to teleport there.")
 
