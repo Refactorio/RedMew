@@ -210,7 +210,7 @@ local function regular(cmd)
     return
   end
   local params = {}
-  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+  for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
   if params[2] == nil then
     game.player.print("Command failed. Usage: /regular <promote, demote>, <player>")
     return
@@ -234,7 +234,7 @@ local function mod(cmd)
     return
   end
   local params = {}
-  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+  for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
   if params[2] == nil then
     game.player.print("Command failed. Usage: /mod <promote, demote>, <player>")
     return

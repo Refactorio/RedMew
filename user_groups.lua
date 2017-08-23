@@ -11,21 +11,29 @@ function is_regular(player_name)
 end
 
 function add_regular(player_name)
-	if is_regular(player_name) then game.player.print(player_name .. " was already a regular.")
-	else
-		game.print(game.player.name .. " promoted " .. player_name .. " to regular.")
-		change_entry(player_name, "regulars", "add")
-	end
-	global.scenario.variables.regulars[player_name] = ""
+    if is_regular(player_name) then game.player.print(player_name .. " is already a regular.")
+    else
+        if game.players[player_name] then
+            game.print(game.player.name .. " promoted " .. player_name .. " to regular.")
+            change_entry(player_name, "regulars", "add")
+            global.scenario.variables.regulars[player_name] = ""
+        else
+            game.player.print(player_name .. " does not exist.")
+        end
+    end 
 end
 
 function add_mod(player_name)
-	if is_mod(player_name) then game.player.print(player_name .. " was already a moderator.")
-	else
-		game.print(game.player.name .. " promoted " .. player_name .. " to moderator.")
-		change_entry(player_name, "regulars", "remove")
-	end
-	global.scenario.variables.mods[player_name] = ""
+    if is_mod(player_name) then game.player.print(player_name .. " is already a moderator.")
+    else
+        if game.players[player_name] then
+            game.print(game.player.name .. " promoted " .. player_name .. " to moderator.")
+            change_entry(player_name, "regulars", "remove")
+            global.scenario.variables.mods[player_name] = ""
+        else
+            game.player.print(player_name .. " does not exist.")
+        end
+    end 
 end
 
 function remove_regular(player_name)
