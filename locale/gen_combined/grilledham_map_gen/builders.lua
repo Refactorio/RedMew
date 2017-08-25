@@ -17,29 +17,31 @@ function full_builder(x, y)
     return true
 end
 
-function path_builder(thickness)	
-    thickness = thickness / 2    
-	return function(x, y)        
-        return  math.abs(x) < thickness or math.abs(y) < thickness
+function path_builder(thickness, optional_thickness_height)	
+    local width = thickness / 2
+    local thickness2 = optional_thickness_height or thickness
+    local height = thickness2 / 2    
+	return function(x, y) 
+        return (x > -width and x <= width) or (y > -height and y <= height)
     end
 end
 
 function rectangle_builder(width, height)    
-    width = width / 2
-    height = height / 2
-    return function (x, y)                    
-        return  math.abs(x) < width and math.abs(y) < height
+    width = width / 2 
+    height = height / 2 
+    return function (x, y) 
+        return x > -width and x <= width and y > -height and y <= height        
     end
 end
 
 function square_diamond_builder(size)
     size = size / 2
     return function (x, y)        
-        return  math.abs(x) + math.abs(y) < size
+        return  math.abs(x) + math.abs(y) <= size      
     end
 end
 
-local rot = math.sqrt(2) / 2 -- 45 degree rotate.
+local rot = math.sqrt(2) / 2 -- 45 degree rotation.
 function rectangle_diamond_builder(width, height)
     width = width / 2
     height = height / 2
@@ -66,13 +68,14 @@ function oval_builder(x_radius, y_radius)
 end
 
 function picture_builder(data, width, height)
-    local half_width = math.floor(width / 2)
-    local half_height = math.floor(height / 2)
+    -- the plus one is because lua tables are one based.
+    local half_width = math.floor(width / 2) + 1
+    local half_height = math.floor(height / 2) + 1
     return function(x, y)
         x = math.floor(x)
         y = math.floor(y)
-        local x2 = x + half_width + 1
-        local y2 = y + half_height  + 1     
+        local x2 = x + half_width
+        local y2 = y + half_height     
 
         if y2 > 0 and y2 <= height and x2 > 0 and x2 <= width  then
             local pixel = data[y2][x2]            
@@ -197,25 +200,78 @@ function linear_grow(shape, size)
     end
 end
 
-function project(shape, size, r)
-    local half_size = size / 2
+function project(shape, size, r)    
     local ln_r = math.log(r)
     local r2 = 1 / (r - 1)
     local a = 1 / size
+    
     return function(local_x, local_y, world_x, world_y)
+        local offset = 0.5 * size
+        local sn = math.ceil(local_y  + offset)
 
-        local sn = math.ceil((local_y / size) + 0.5)
         local n = math.ceil(math.log((r-1) * sn * a + 1) / ln_r - 1)
-        local c = r ^ n
+        local rn = r ^ n
+        local rn2 = 1 / rn
+        local c = size * rn
 
         local sn_upper = size * (r ^ (n + 1) - 1) * r2
-
-        local c2 = 1 / c
-        local x = local_x * c2
-        local y = (local_y - size * (sn_upper - 0.5 * c - 0.5 )) * c2
+        local x = local_x * rn2  
+        local y = (local_y - (sn_upper - 0.5 * c  ) + offset ) * rn2        
 
         return shape(x, y, world_x, world_y)
+    end
+end
 
+function project_overlap(shape, size, r)    
+    local ln_r = math.log(r)
+    local r2 = 1 / (r - 1)
+    local a = 1 / size
+    local offset = 0.5 * size
+    
+    return function(local_x, local_y, world_x, world_y)
+        
+        local sn = math.ceil(local_y  + offset)
+
+        local n = math.ceil(math.log((r-1) * sn * a + 1) / ln_r - 1)
+        local rn = r ^ n
+        local rn2 = 1 / rn
+        local c = size * rn
+
+        local sn_upper = size * (r ^ (n + 1) - 1) * r2
+        local x = local_x * rn2  
+        local y = (local_y - (sn_upper - 0.5 * c  ) + offset ) * rn2        
+
+        local tile
+        local entity
+
+        tile, entity = shape(x, y, world_x, world_y)
+        if tile then
+            return tile, entity
+        end
+
+        local n_above = n - 1 
+        local rn_above = rn / r
+        local rn2_above = 1 / rn_above
+        local c_above = size * rn_above
+
+        local sn_upper_above = sn_upper - c
+        local x_above = local_x * rn2_above
+        local y_above = (local_y - (sn_upper_above - 0.5 * c_above  ) + offset ) * rn2_above
+
+        tile, entity = shape(x_above, y_above, world_x, world_y)
+        if tile then return tile, entity end
+
+        local n_below = n + 1
+        local rn_below = rn * r
+        local rn2_below = 1 / rn_below
+        local c_below = size * rn_below
+
+        local sn_upper_below = sn_upper + c_below
+        local x_below = local_x * rn2_below
+        local y_below = (local_y - (sn_upper_below - 0.5 * c_below  ) + offset ) * rn2_below
+
+        return shape(x_below, y_below, world_x, world_y)       
+        
     end
 end
 
@@ -259,8 +315,8 @@ function single_pattern_builder(shape, width, height)
     local half_height = height / 2
 
     return function (local_x, local_y, world_x, world_y)      
-        local_y = ((local_y + half_height) % height) - half_height + 0.5     
-        local_x = ((local_x + half_width) % width) - half_width + 0.5 
+        local_y = ((local_y + half_height) % height) - half_height      
+        local_x = ((local_x + half_width) % width) - half_width  
 
         return shape(local_x, local_y, world_x, world_y)
     end
@@ -272,12 +328,12 @@ function grid_pattern_builder(pattern, columns, rows, width, height)
     local half_height = height / 2
 
     return function (local_x, local_y, world_x, world_y)
-        local local_y2 = ((local_y + half_height) % height) - half_height + 0.5 
+        local local_y2 = ((local_y + half_height) % height) - half_height  
         local row_pos = math.floor(local_y / height + 0.5)
         local row_i = row_pos % rows + 1
         local row = pattern[row_i] or {} 
 
-        local local_x2 = ((local_x + half_width) % width) - half_width + 0.5 
+        local local_x2 = ((local_x + half_width) % width) - half_width 
         local col_pos = math.floor(local_x / width + 0.5)  
         local col_i = col_pos % columns + 1
 
