@@ -11,6 +11,8 @@ in this file and your run_*type*_module(event) function will be called.
 
 --grilledham's maps
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.test"
+MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mobius_strip"
+--MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.antfarm"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.picture_test"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.creation_of_adam"
 
