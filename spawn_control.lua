@@ -1,13 +1,13 @@
 global.player_spawns = {} -- player_index to spawn_name
-global.spawns = { left = { x = -2144, y = 0, count = 0 }, right = { x = 2144, y = 0, count = 0 }} -- spawn_name to x, y, player_count
+global.spawns = { left = { x = -2144, y = 0, count = 0 }, right = { x = 2144, y = 0, count = 0 }} -- spawn_name to x, y, player_online_count
 
 local function get_min_count_spawn_name()
-    local min = nil
+    local min = 1000000
     local min_spawn = nil
 
     for name, t in pairs(global.spawns) do
         local count = t.count
-        if not min or min < count then
+        if min > count then
             min = count
             min_spawn = name            
         end
@@ -60,10 +60,10 @@ local function player_respawned(event)
     local spawn_name = global.player_spawns[index]
     local spawn = global.spawns[spawn_name]    
 
-    if not spawn then
+    if not spawn then        
         return
-    end      
-
+    end
+    
     game.players[index].teleport(spawn)   
 end
 
