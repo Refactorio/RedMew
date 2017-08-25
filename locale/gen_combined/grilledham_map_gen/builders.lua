@@ -393,3 +393,11 @@ function change_map_gen_collision_tile(builder, collides, new_tile)
         return tile, entity
     end
 end
+
+function apply_effect(builder, func)
+    return function(local_x, local_y, world_x, world_y)
+        local tile, entity = builder(local_x, local_y, world_x, world_y)
+        tile, entity = func(local_x, local_y, world_x, world_y, tile, entity)
+        return tile, entity
+    end
+end
