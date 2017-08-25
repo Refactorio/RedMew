@@ -18,8 +18,16 @@ require "nuke_control"
 require "walk_distance"
 require "on_tick"
 require "follow"
+require "spawn_control"
 
+--[[
+local function player_respawned(event)
+    game.print("hello")
+end
 
+Event.register(defines.events.on_player_respawned, player_respawned)
+
+--]]
 
 function player_joined(event)
 	local player = game.players[event.player_index]

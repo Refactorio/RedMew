@@ -21,7 +21,7 @@ line2 = translate(line2, 55.5,-23.5)
 
 local half = compound_or({ line2,line1,circle})
 
-half = translate(half, -78.625, 0)
+half = translate(half, -78.71875, 0)
 local map = compound_or({ half, flip_xy(half) })
 
 map = scale(map, 16, 16)
