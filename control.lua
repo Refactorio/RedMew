@@ -20,15 +20,6 @@ require "on_tick"
 require "follow"
 require "spawn_control"
 
---[[
-local function player_respawned(event)
-    game.print("hello")
-end
-
-Event.register(defines.events.on_player_respawned, player_respawned)
-
---]]
-
 function player_joined(event)
 	local player = game.players[event.player_index]
 		player.insert { name = "raw-fish", count = 4 }
@@ -50,24 +41,6 @@ end
 function walkabout(player_name, distance)
 		game.player.print("This command moved to /walkabout.")
 end
-
---[[
-tp_players = {}
-
-function tp_mode(boolean)	
-	tp_players[game.player.index] = boolean	
-end
-
-local function put_item(event)
-	local index = event.player_index
-	if tp_players[index] then
-		game.players[index].teleport(event.position)		
-	end
-end
-
-Event.register(defines.events.on_put_item, put_item )
-
---]]
 
 Event.register(defines.events.on_player_created, player_joined)
 Event.register(defines.events.on_player_respawned, player_respawned)
