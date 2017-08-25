@@ -43,4 +43,3 @@ function walkabout(player_name, distance)
 end
 
 Event.register(defines.events.on_player_created, player_joined)
-Event.register(defines.events.on_player_respawned, player_respawned)
