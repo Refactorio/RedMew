@@ -94,7 +94,7 @@ local function effect(x, y, world_x, world_y, tile, entity)
         elseif name == "uranium-ore" then
             amount = 300 + 0.15 * amount
         elseif name == "crude-oil" then
-            amount = 15000 + 175 * amount 
+            amount = 50000 + 50 * amount 
         end
 
         e.amount = amount        
