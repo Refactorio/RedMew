@@ -13,7 +13,7 @@ local line1 = rectangle_builder(77,16)
 line1 = rotate(line1, degrees(45))
 line1 = translate(line1,66.5,12.6875)
 
-local line2 = rectangle_builder(46, 16)
+local line2 = rectangle_builder(45, 16)
 local line2 = rotate(line2, degrees(-45))
 line2 = translate(line2, 55.5,-23.6875)
 
@@ -24,7 +24,7 @@ local half = compound_or({ line2,line1,circle})
 half = translate(half, -79.1875, 0)
 local map = compound_or({ half, flip_xy(half) })
 
-map = scale(map, 16, 16)
+map = scale(map, 11, 11)
 
 
 local function research_finished(event)
@@ -67,6 +67,8 @@ local function effect(x, y, world_x, world_y, tile, entity)
         e.minable = false
     end
 
+--[[
+
     if max_axis_distance(world_x, world_y, -2144, 0) < safe_distance then        
         for _, e in ipairs(surface.find_entities_filtered({ force = "enemy", position = { world_x, world_y } } )) do            
             e.destroy()
@@ -99,6 +101,8 @@ local function effect(x, y, world_x, world_y, tile, entity)
 
         e.amount = amount        
     end
+
+--]]
 
     return tile, entity    
 end
