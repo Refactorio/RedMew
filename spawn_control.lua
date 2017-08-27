@@ -1,5 +1,5 @@
 global.player_spawns = {} -- player_index to spawn_name
-global.spawns = { left = { x = -2144, y = 0, count = 0 }, right = { x = 2144, y = 0, count = 0 }} -- spawn_name to x, y, player_online_count
+global.spawns = { left = { x = -88, y = -88, count = 0 }, right = { x = 88, y = 88, count = 0 }} -- spawn_name to x, y, player_online_count
 
 local function get_min_count_spawn_name()
     local min = 1000000
