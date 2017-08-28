@@ -18,7 +18,6 @@ require "nuke_control"
 require "walk_distance"
 require "on_tick"
 require "follow"
-require "spawn_control"
 
 function player_joined(event)
 	local player = game.players[event.player_index]
