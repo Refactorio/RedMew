@@ -1,4 +1,5 @@
 local Thread = require "locale.utils.Thread"
+require "locale/utils/event"
 
 function cant_run(name)
     game.player.print("Can't run command (" .. name .. ") - insufficient permission.")
@@ -64,6 +65,7 @@ function kill()
   game.player.character.die()
 end
 
+global.walking = {}
 function walkabout(cmd)
   if not (game.player.admin or is_mod(game.player.name)) then
       cant_run(cmd.name)
@@ -77,7 +79,7 @@ function walkabout(cmd)
   for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
   local player_name = params[1]
   local distance = ""
-  local duraction = 60
+  local duration = 60
   if #params == 2  then
     distance = params[2]
   elseif #params == 3 then
@@ -88,7 +90,7 @@ function walkabout(cmd)
         game.player.print(params[3] .. " is not a number.")
         return
       else
-        duraction = tonumber(params[3])
+        duration = tonumber(params[3])
       end
     end
   elseif #params == 4 then
@@ -97,10 +99,10 @@ function walkabout(cmd)
       game.player.print(params[4] .. " is not a number.")
       return
     else
-      duraction = tonumber(params[4])
+      duration = tonumber(params[4])
     end
   end
-
+  if duration < 15 then duration = 15 end
   if distance == nil or distance == "" then
     distance = math.random(5000, 10000)
   end
@@ -120,10 +122,11 @@ function walkabout(cmd)
   local x = 1
   local y = 1
   local player = game.players[player_name]
-  if player == nil then
+  if player == nil or global.walking[player_name:lower()] then
     game.player.print(player_name .. " could not go on a walkabout.")
     return
   end
+  global.walking[player_name:lower()] = true
   local surface = game.surfaces[1]
   local distance_max = distance * 1.05
   local distance_min = distance * 0.95
@@ -147,15 +150,25 @@ function walkabout(cmd)
   end
 
   local pos = {x, y}
-  Thread.set_timeout(duraction, return_player, {player = player, force = player.force, position = player.position})
-  player.force = "enemy"
-  player.teleport(player.surface.find_non_colliding_position("player", pos, 100, 1))
   game.print(player_name .. " went on a walkabout, to find himself.")
+  Thread.set_timeout(duration, return_player, {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}})
+  player.character = nil
+  player.create_character()
+  player.teleport(player.surface.find_non_colliding_position("player", pos, 100, 1))
+  player.force = "enemy"
 end
 
 function return_player(args)
+  global.walking[args.player.name:lower()] = false
+  args.player.character.destroy()
+  local character = args.player.surface.find_entity('player', args.position)
+  if character ~= nil and character.valid then
+    args.player.character = character
+  else
+    args.player.create_character()
+  end
   args.player.force = args.force
-  args.player.teleport(args.player.surface.find_non_colliding_position("player", args.position, 100, 1))
+  args.player.teleport(args.position)
   game.print(args.player.name .. " came back from his walkabout.")
 end
 
@@ -167,7 +180,6 @@ function on_set_time(cmd)
 
   local params = {}
   local params_numeric = {}
-
 
   if cmd.parameter == nil then
     game.player.print("Setting clock failed. Usage: /settime <day> <month> <hour> <minute>")
@@ -272,13 +284,14 @@ local function tag(cmd)
   if cmd.parameter ~= nil then
     local params = {}
     for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
-    if #params ~= 2 then
-      game.player.print("Two arguments expect failed. Usage: <player> <tag> Sets a players tag.")
+    if #params < 2 then
+      game.player.print("Usage: <player> <tag> Sets a players tag.")
     elseif game.players[params[1]] == nil then
       game.player.print("Player does not exist.")
     else
-      game.players[params[1]].tag = "[" .. params[2] .. "]"
-      game.print(params[1] .. " joined [" .. params[2] .. "].")
+      local tag = string.sub(cmd.parameter, params[1]:len() + 2)
+      game.players[params[1]].tag = "[" .. tag .. "]"
+      game.print(params[1] .. " joined [" .. tag .. "].")
     end
   else
    game.player.print('Usage: /tag <player> <tag> Sets a players tag.')
@@ -316,29 +329,26 @@ local function well(cmd)
   for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
     if game.item_prototypes[params[1]] and params[2] and tonumber(params[2]) then
       local ips = tonumber(params[2])
-      if ips < 1 then 
+      if ips < 1 then
         game.player.print("Items per second must be at least 1.")
 	return
       end
       local chest = game.surfaces[1].create_entity({name = "steel-chest", force = game.player.force, position = game.player.position})
       table.insert(global.wells, {chest = chest, item = params[1], items_per_second = math.floor(ips)})
       refill_well()
-    else 
+    else
         game.player.print("Usage: /well <item> <items per second>.")
     end
 end
 
 global.tp_players = {}
---global.tp_players_count = 0
-
 local function built_entity(event)
-  local index = event.player_index  
+  local index = event.player_index
 
   if global.tp_players[index] then
     local entity = event.created_entity
 
     if entity.type ~= "entity-ghost" then return end
-    
     game.players[index].teleport(entity.position)
     entity.destroy()
   end
@@ -357,31 +367,10 @@ local function toggle_tp_mode(cmd)
 
   if toggled then
     global.tp_players[index] = nil
-
-    --[[
-    global.tp_players_count = global.tp_players_count - 1
-
-    -- remove event handler if no players are using it.
-    if global.tp_players_count == 0 then
-      Event.remove(defines.events.on_built_entity, built_entity )
-    end
-    --]]
-
     game.player.print("tp mode is now off")
-
   else
     global.tp_players[index] = true
-    --[[
-    global.tp_players_count = global.tp_players_count + 1
-
-    -- add event handler now that a player is using it.
-    if global.tp_players_count == 1 then
-      Event.register(defines.events.on_built_entity, built_entity )
-    end
-    --]]
-
     game.player.print("tp mode is now on - place a ghost entity to teleport there.")
-
   end
 end
 
