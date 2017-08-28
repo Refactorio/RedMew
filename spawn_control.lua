@@ -1,5 +1,24 @@
 global.player_spawns = {} -- player_index to spawn_name
-global.spawns = { left = { x = -88, y = -88, count = 0 }, right = { x = 88, y = 88, count = 0 }} -- spawn_name to x, y, player_online_count
+global.spawns = {} -- spawn_name to x, y, player_online_count
+
+function add_spawn(name, x, y)
+    if type(name) ~= "string" then
+        game.print("name must be a string")
+        return
+    end
+
+    if type(x) ~= "number" then
+        game.print("x must be a number")
+        return
+    end
+
+    if type(y) ~= "number" then
+        game.print("y must be a number")
+        return
+    end
+    
+    global.spawns[name] = { x = x, y = y, count = 0}
+end
 
 local function get_min_count_spawn_name()
     local min = 1000000
