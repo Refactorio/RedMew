@@ -19,7 +19,8 @@ function run_combined_module(event)
     for y = top_y, top_y + 31 do
         for x = top_x, top_x + 31 do
             
-            local tile, entity = MAP_GEN(x, y, x, y)   
+            -- local coords need to be 'centered' to allow for correct rotation and scaling.
+            local tile, entity = MAP_GEN(x + 0.5, y + 0.5, x, y)   
 
             if type(tile) == "boolean" and not tile then                                             
                 table.insert( tiles, {name = "out-of-map", position = {x, y}} )                               

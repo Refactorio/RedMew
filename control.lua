@@ -19,8 +19,6 @@ require "walk_distance"
 require "on_tick"
 require "follow"
 
-
-
 function player_joined(event)
 	local player = game.players[event.player_index]
 		player.insert { name = "raw-fish", count = 4 }
@@ -43,6 +41,4 @@ function walkabout(player_name, distance)
 		game.player.print("This command moved to /walkabout.")
 end
 
-
 Event.register(defines.events.on_player_created, player_joined)
-Event.register(defines.events.on_player_respawned, player_respawned)

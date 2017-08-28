@@ -349,7 +349,6 @@ local function built_entity(event)
     local entity = event.created_entity
 
     if entity.type ~= "entity-ghost" then return end
-
     game.players[index].teleport(entity.position)
     entity.destroy()
   end
@@ -357,7 +356,7 @@ end
 
 Event.register(defines.events.on_built_entity, built_entity )
 
-local function toggle_tp_mode()
+local function toggle_tp_mode(cmd)
   if not (game.player.admin or is_mod(game.player.name)) then
         cant_run(cmd.name)
         return
