@@ -13,6 +13,7 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mobius_strip"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.antfarm"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.creation_of_adam"
+MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.manhattan"
 
 --shapes--
 --require "locale.gen_shape.right"
