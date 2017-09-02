@@ -13,12 +13,12 @@ require "fish_market"
 require "train_station_names"
 require "score"
 require "map_layout"
-require "custom_commands"
 require "nuke_control"
 require "walk_distance"
 require "on_tick"
 require "follow"
-
+require "wells"
+require "custom_commands"
 
 
 function player_joined(event)

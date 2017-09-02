@@ -1,9 +1,3 @@
-function refill_well()
-    for _,well in pairs(global.wells) do 
-      well.chest.insert({name = well.item, count = well.items_per_second * 15})
-    end
-end
-
 local function on_tick()
 	walk_on_tick()
 	if game.tick % 60 == 0 then
@@ -20,6 +14,5 @@ local function on_tick()
 		end
   end
 end
-
 
 Event.register(defines.events.on_tick, on_tick)
