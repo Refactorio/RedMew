@@ -1,6 +1,10 @@
 function refill_well()
-    for _,well in pairs(global.wells) do 
-      well.chest.insert({name = well.item, count = well.items_per_second * 15})
+    for _,well in pairs(global.wells) do
+      if well.chest.valid then
+        well.chest.insert({name = well.item, count = well.items_per_second * 15})
+      else
+        table.remove_element(global.wells, well)
+      end
     end
 end
 
