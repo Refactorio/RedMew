@@ -18,7 +18,7 @@ require "nuke_control"
 require "walk_distance"
 require "on_tick"
 require "follow"
-require "rusky_pvp"
+--require "rusky_pvp"
 
 
 
