@@ -13,7 +13,7 @@ function cant_run(name)
     player_print("Can't run command (" .. name .. ") - insufficient permission.")
 end
 
-function invoke(cmd)
+local function invoke(cmd)
     if not game.player or not (game.player.admin or is_mod(game.player.name)) then
         cant_run(cmd.name)
         return
@@ -28,7 +28,7 @@ function invoke(cmd)
     game.print(target .. ", get your ass over here!")
 end
 
-function teleport_player(cmd)
+local function teleport_player(cmd)
     if not game.player or not (game.player.admin or is_mod(game.player.name)) then
         cant_run(cmd.name)
         return
@@ -43,7 +43,7 @@ function teleport_player(cmd)
     game.print(target .. "! watcha doin'?!")
 end
 
-function teleport_location(cmd)
+local function teleport_location(cmd)
     if not game.player or not (game.player.admin or is_mod(game.player.name)) then
         cant_run(cmd.name)
         return
@@ -69,15 +69,14 @@ local function detrain(param)
     game.print(string.format("%s kicked %s off the train. God damn!", player.name, player_name))
 end
 
-
-function kill()
+local function kill()
   if game.player then
     game.player.character.die()
   end
 end
 
 global.walking = {}
-function walkabout(cmd)
+local function walkabout(cmd)
   if not ((not game.player) or game.player.admin or is_mod(game.player.name)) then
       cant_run(cmd.name)
       return
@@ -169,7 +168,7 @@ function walkabout(cmd)
   player.force = "enemy"
 end
 
-function return_player(args)
+local function return_player(args)
   global.walking[args.player.name:lower()] = false
   args.player.character.destroy()
   local character = args.player.surface.find_entity('player', args.position)
@@ -183,7 +182,7 @@ function return_player(args)
   game.print(args.player.name .. " came back from his walkabout.")
 end
 
-function on_set_time(cmd)
+local function on_set_time(cmd)
   if not ((not game.player) or game.player.admin or is_regular(game.player.name) or is_mod(game.player.name)) then
       cant_run(cmd.name)
       return
@@ -286,7 +285,6 @@ local function afk()
   end
 end
 
-
 local function tag(cmd)
   if game.player and not game.player.admin then
       cant_run(cmd.name)
@@ -347,7 +345,7 @@ local function built_entity(event)
   end
 end
 
-Event.register(defines.events.on_built_entity, built_entity )
+Event.register(defines.events.on_built_entity, built_entity)
 
 local function toggle_tp_mode(cmd)
   if not game.player or not (game.player.admin or is_mod(game.player.name)) then
