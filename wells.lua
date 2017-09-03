@@ -56,13 +56,13 @@ function create_well(entity, item, items_per_second)
     local error = validate(item, items_per_second)
     if error then
         return error
-    end  
+    end
 
-    non_validating_create_well(entity, item, items_per_second)  
+    non_validating_create_well(entity, item, items_per_second)
 end
 
 function well_command(cmd)
-    if not game.player.admin then
+    if not game.player or not game.player.admin then
         cant_run(cmd.name)
         return
     end
