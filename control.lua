@@ -2,6 +2,7 @@ require "util"
 require "locale/utils/event"
 require "config"
 require "locale/utils/utils"
+require "locale/utils/list_utils"
 require "base_data"
 require "user_groups"
 require "chatlog"
@@ -13,13 +14,12 @@ require "fish_market"
 require "train_station_names"
 require "score"
 require "map_layout"
-require "custom_commands"
 require "nuke_control"
 require "walk_distance"
 require "on_tick"
 require "follow"
-
-
+require "wells"
+require "custom_commands"
 
 function player_joined(event)
 	local player = game.players[event.player_index]
@@ -43,6 +43,4 @@ function walkabout(player_name, distance)
 		game.player.print("This command moved to /walkabout.")
 end
 
-
 Event.register(defines.events.on_player_created, player_joined)
-Event.register(defines.events.on_player_respawned, player_respawned)
