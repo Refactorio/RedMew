@@ -35,6 +35,7 @@ in this file and your run_*type*_module(event) function will be called.
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
 --miscs[1] = require "locale.gen_misc.rail_grid"
+--require "rusky_pvp"
 
 
 
