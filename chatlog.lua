@@ -29,33 +29,42 @@ function format_time(ticks)
 end
 
 function log_chat_message(event, message)
+    log(message)
     game.write_file("chatlog.txt", "[" .. format_time(event.tick) .. "] " .. message .. "\n", true)
 end
 
 function player_send_command(event)
     local silent = event.command == "silent-command"
     if not silent then
+      if event.player_index then
         local player = game.players[event.player_index]
         log_chat_message(event, player.name .. " used command: " .. event.command .. " " .. event.parameters)
+        else
+          log_chat_message(event, "<Server> used command: " .. event.command .. " " .. event.parameters)
+        end
     end
 end
 
 function player_send(event)
+  if event.player_index then
     local player = game.players[event.player_index]
-    log_chat_message(event, player.name .. ": " .. event.message)
+      log_chat_message(event, player.name .. ": " .. event.message)
+    else
+      log_chat_message(event, "<Server>: "  .. event.message)
+    end
 end
 
 
 function player_joined(event)
-    update_player_list()
-    local player = game.players[event.player_index]
-    log_chat_message(event, "### " .. player.name .. " joined the game. ###")
+  update_player_list()
+  local player = game.players[event.player_index]
+  log_chat_message(event, "### " .. player.name .. " joined the game. ###")
 end
 
 function player_left(event)
-    update_player_list()
-    local player = game.players[event.player_index]
-    log_chat_message(event, "### " .. player.name .. " left the game. ###")
+  update_player_list()
+  local player = game.players[event.player_index]
+  log_chat_message(event, "### " .. player.name .. " left the game. ###")
 end
 
 function set_time(d, month, h, m)
@@ -65,7 +74,8 @@ function set_time(d, month, h, m)
   global.scenario.variables.days_passed = 0
   global.scenario.variables.current_h = h
   global.scenario.variables.current_m = m
-  game.print(game.player.name .. " set the clock to " .. format_time(game.tick) .. ". Type /clock to check the time.")
+  local actor = get_actor()
+  game.print(actor .. " set the clock to " .. format_time(game.tick) .. ". Type /clock to check the time.")
 end
 
 function update_player_list()

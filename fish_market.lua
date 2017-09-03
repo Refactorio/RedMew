@@ -22,7 +22,7 @@ function market()
 end
 
 function spawn_market(cmd)
-  if not game.player.admin then
+  if not game.player or not game.player.admin then
     cant_run(cmd.name)
     return
   end
