@@ -17,7 +17,7 @@ end
 
 function add_regular(player_name)
 		local actor = get_actor()
-    if is_regular(player_name) then player_print.print(player_name .. " is already a regular.")
+    if is_regular(player_name) then player_print(player_name .. " is already a regular.")
     else
         if game.players[player_name] then
             game.print(actor .. " promoted " .. player_name .. " to regular.")
