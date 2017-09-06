@@ -540,7 +540,6 @@ commands.add_command("follow", '<player> makes you follow the player. Use /unfol
 commands.add_command("unfollow", 'stops following a player.', unfollow)
 commands.add_command("importship", '<name> <speed> imports the top left blueprint as a ship type. Add a name and a speed from 1 to 4. (Admins only).', importship)
 commands.add_command("spawnship", '<shiptype> Spawns the ship close to you. (Admins only).', spawnship)
-commands.add_command("importship", '<name> <speed> imports the top left blueprint as a ship type. Add a name and a speed from 1 to 20. (Admins only).', importship)
 commands.add_command("well", '<item> <items per second> Spawns an item well. (Admins only)', well_command)
 commands.add_command("tpmode", "Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)", toggle_tp_mode)
 commands.add_command("forcetoggle", "Toggles the players force between player and enemy (Admins and moderators)", forcetoggle)

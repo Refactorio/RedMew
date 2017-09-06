@@ -1,3 +1,4 @@
+local Thread = require "locale.utils.Thread"
 global.ships = {} global.ships[5] = {} global.ships[10] = {} global.ships[15] = {} global.ships[20] = {}
 Ship = {}
 Ship.__index = Ship
@@ -41,6 +42,8 @@ function Ship.new(ship_type)
     removed_tiles_to_be_replaced = {}
   end
 
+
+
   local step = function()
       if direction == 0 then
         position = {x = position.x, y = position.y - 1}
@@ -52,6 +55,7 @@ function Ship.new(ship_type)
         position = {x = position.x - 1, y = position.y}
       end
   end
+
 
   local evacuate_sailors = function()
     for _,sailor in pairs(sailors) do
@@ -87,6 +91,32 @@ function Ship.new(ship_type)
 
     for _,entity in pairs(orientations[direction].entities) do
       game.surfaces[1].create_entity({name = entity.name, direction = entity.direction, position = {x=entity.position.x + pos.x,y=entity.position.y + pos.y}})
+    end
+  end
+
+  local move_to_callback = function(desync_args)
+    game.print(tostring(game.tick) .. "callback")
+    game.print(dump(destination))
+    desync_args.self.move_to(desync_args.destination)
+  end
+
+  self.move_to = function(destination)
+    game.print(tostring(game.tick) .. "move_to")
+    if distance(position, destination) >  1 then
+      local dir = get_direction({position = position}, {position = destination})
+      direction = dir - dir % 2
+      if not collides() then
+        evacuate_sailors()
+        remove_ship()
+        step()
+        self.place(position)
+        move_in_sailors()
+        Thread.set_timeout(7/60, move_to_callback, {self = self, destination = destination})
+      else
+        game.print("collides")
+      end
+    else
+      game.print("There!")
     end
   end
 
