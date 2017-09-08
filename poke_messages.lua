@@ -139,7 +139,7 @@ return
     "non-stick honey",
     "gluten-free gluten",
     "organic petrol",
-    "an oversized midget",
+    "the world's tallest midget",
     "an inflammable fire extinguisher",
     "a chocolate teapot",
     "a dvd rewinder",
