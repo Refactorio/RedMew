@@ -255,7 +255,7 @@ return
     "a creaky floorboard",
     "an ask for forgiveness",
     "suspicious intentions",
-    "a list of their childhood nightmares",
+    "with all of their childhood nightmares",
     "an expired winning lottery ticket",
     "all the trash that’s piling up round back",
     "The location where they bury the bodies",
