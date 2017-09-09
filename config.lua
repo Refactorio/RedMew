@@ -4,7 +4,6 @@ local function apply_config()
   end
 end
 
-
 Event.register(-1, function()
     global.scenario = {}
     global.scenario.variables = {}
@@ -14,75 +13,9 @@ Event.register(-1, function()
     global.scenario.variables.current_h = 0
     global.scenario.variables.current_m = 0
     global.scenario.variables.days_passed = 0
-    global.scenario.variables.mods = {
-        dpoba = "",
-        masjazZ = ""
-    }
-    
-    global.scenario.variables.regulars = {
-      helpower2 = "",
-      rorror = "",
-      Medival3 = "",
-      dpoba = "",
-      settdigger = "",
-      Cheeselicker = "",
-      cpaca0 = "",
-      UTIDI = "",
-      JokerOfTheZ = "",
-      saltlands = "",
-      Maniah = "",
-      COOL = "",
-      boail = "",
-      hunter117x = "",
-      TonyTroll = "",
-      rorror = "",
-      HighInFiberOptics = "",
-      Atoms = "",
-      adlmr = "",
-      rayijin = "",
-      Sephir = "",
-      inator1192 = "",
-      TeZwo = "",
-      neumond = "",
-      bhenoa = "",
-      JBC363 = "",
-      Kaig3n = "",
-      Factorioio = "",
-      Bawz  = "",
-      CrazyStephen  = "",
-      eithel = "",
-      Coyote101 = "",
-      jedifan = "",
-      xsidd = "",
-      MaxTheSpunkyMunk  = "",
-      Tarpon907 = "",
-      BigHamster = "",
-      sir = "",
-      Arnietom = "",
-      Animal = "",
-      banakeg = "",
-      philip017 = "",
-      NinjrKillr = "",
-      MarckHardt = "",
-      BrainClot = "",
-      blzz = "",
-      WatchingHawk = "",
-      farcear = "",
-      selen = "",
-      trekie4747 = "",
-      Gizan = "",
-      Slastraf = "",
-      zacman0510 = "",
-      TheOrangeAngle = "",
-      williambellwisdo = "",
-      Extraxyz = "",
-      markupolionCZ = "",
-      BJHunter = "",
-      ZTX = "",
-      bigglesthepirate = ""
-    }
-    global.scenario.variables.regulars["-slug-"] = ""
-    global.scenario.variables.regulars["g-h-o-s-t"] = ""
+
+    global.scenario.variables.mods = require "locale.resources.mods"    
+    global.scenario.variables.regulars = require "locale.resources.regulars"    
     
     global.scenario.variables.player_positions = {}
     global.scenario.variables.player_walk_distances = {}
@@ -101,10 +34,6 @@ Event.register(-1, function()
     global.scenario.config.nuke_min_time_hours = 3 --how long a player must be on the server to be allowed to use the nuke
     apply_config()
 end)
-
-
-
-
 
 local function on_research_started(event)
   if not global.scenario.config.logistic_research_enabled then
