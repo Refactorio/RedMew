@@ -131,10 +131,6 @@ local function preplayer_mined_item(event)
 		end
 	end
 
-	if event.entity.name == "fish" then
-			fish_earned(event, 0)
-	end
-
 	if event.entity.name == "stone-rock" then
 			fish_earned(event, 10)
 	end
