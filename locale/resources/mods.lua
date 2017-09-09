@@ -1,5 +1,9 @@
-return 
+return
 {
-    dpoba = "",
-    masjazZ = "",
+["dpoba"] = "",
+["masjazZ"] = "",
+["-slug-"] = "",
+["mbas"] = "",
+["selen"] = "",
+["Sholvo"] = "",
 }
