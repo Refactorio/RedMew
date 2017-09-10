@@ -16,11 +16,11 @@ function get_actor()
 end
 
 function is_mod(player_name)
-	return not (global.scenario.variables.mods[player_name] == nil)
+	return global.scenario.variables.mods[player_name:lower()]
 end
 
 function is_regular(player_name)
-	return not (global.scenario.variables.regulars[player_name] == nil)
+	return global.scenario.variables.regulars[player_name:lower()]
 end
 
 function add_regular(player_name)
@@ -29,7 +29,7 @@ function add_regular(player_name)
     else
         if game.players[player_name] then
             game.print(actor .. " promoted " .. player_name .. " to regular.")
-            global.scenario.variables.regulars[player_name] = ""
+            global.scenario.variables.regulars[player_name:lower()] = ""
             update_group("regulars")
         else
             player_print(player_name .. " does not exist.")
@@ -43,7 +43,7 @@ function add_mod(player_name)
     else
         if game.players[player_name] then
             game.print(actor .. " promoted " .. player_name .. " to moderator.")
-            global.scenario.variables.mods[player_name] = ""
+            global.scenario.variables.mods[player_name:lower()] = ""
             update_group("mods")
         else
             player_print(player_name .. " does not exist.")

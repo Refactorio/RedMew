@@ -1,9 +1,9 @@
 return
 {
 ["dpoba"] = "",
-["masjazZ"] = "",
+["masjazz"] = "",
 ["-slug-"] = "",
 ["mbas"] = "",
 ["selen"] = "",
-["Sholvo"] = "",
+["sholvo"] = "",
 }
