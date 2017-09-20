@@ -10,6 +10,8 @@ local ore_ratios = {
    ["copper-ore"] = 1,
    ["stone"] = 0.25
 }
+-- 1-100% chance of sprinkling any individual ore
+local sprinkle_factor = 100
 
 -- Sets the buffer distance before ores are scrambled
 local starting_buffer = 100
@@ -51,20 +53,28 @@ function run_ores_module(event)
 
        for _, entity in pairs(entities) do
          if ore_ratios[entity.name] > 0 then 
-            
-            local new_name = nil
-            
-            --- Use the ratios to randomly select an ore
-            new_ore_random = math.random(1,mix_current)
-            new_name = ore_mix[new_ore_random]
-   --         game.print(new_name)
+            -- Roll to sprinkle_factor
+            if sprinkle_factor < 100 then
+               sprinkle_random = math.random(1,100)
+               should_sprinkle = sprinkle_random <= sprinkle_factor
+            else 
+               should_sprinkle = true
+            end
+            if should_sprinkle then
+               local new_name = nil
+               
+               --- Use the ratios to randomly select an ore
+               new_ore_random = math.random(1,mix_current)
+               new_name = ore_mix[new_ore_random]
+      --         game.print(new_name)
 
-            local position_old = entity.position
-            local amount_old = entity.amount
+               local position_old = entity.position
+               local amount_old = entity.amount
 
-            local surface = entity.surface
-            entity.destroy()
-            local new_entity = surface.create_entity{name = new_name, position = position_old, force="neutral", amount=amount_old}
+               local surface = entity.surface
+               entity.destroy()
+               local new_entity = surface.create_entity{name = new_name, position = position_old, force="neutral", amount=amount_old}
+            end
          end   
       end
     end
