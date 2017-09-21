@@ -2,7 +2,7 @@
 glitter_debug = false
 
 function run_ores_module_setup()
-	if glitter_debug then game.print("Glitter Ore: debug is enabled; module setup;") end
+   if glitter_debug then game.print("Glitter Ore: debug is enabled; module setup;") end
 
    ore_mix = {}
    ore_ratios = {
@@ -67,9 +67,6 @@ function run_ores_module(event)
                entity.destroy()
                local new_entity = surface.create_entity{name = new_name, position = position_old, force="neutral", amount=amount_old}
             end
-         else
-            -- game.print("Skipping")
-            -- game.print(entity.name)
          end   
       end
     end
