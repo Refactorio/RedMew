@@ -8,6 +8,8 @@ in this file and your run_*type*_module(event) function will be called.
 
 --combined--
 --require "locale.gen_combined.island_resort"
+--require "locale.gen_combined.red_planet_v2"
+--require "locale.gen_combined.borg_planet_v2"
 
 --grilledham's maps
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mobius_strip"
@@ -40,6 +42,7 @@ in this file and your run_*type*_module(event) function will be called.
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
 --miscs[1] = require "locale.gen_misc.rail_grid"
+--require "locale.gen_misc.rusky_pvp"
 
 local on_chunk_generated = function(event)
 	if run_combined_module == nil then

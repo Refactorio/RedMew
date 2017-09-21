@@ -8,8 +8,8 @@
 local option_band_change_interval = 60 * 3 -- in ticks
 if not global.band_last_change then global.band_last_change = {} end
 
--- Role list: "band_roles.lua"
-local band_roles = require "band_roles"
+-- Role list: "locale.resources.band_roles.lua"
+local band_roles = require "locale.resources.band_roles"
 local to_print, roles = band_roles.to_print, band_roles.roles
 
 do
