@@ -25,7 +25,6 @@ function run_ores_module_setup()
          ore_mix[ore_mix_max] = a
       end
    end
-    
 end
 
 run_ores_module_setup()
