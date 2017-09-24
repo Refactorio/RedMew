@@ -34,10 +34,8 @@ local function tasklist_show(player)
 	tasklist_label.style.maximal_height = 165
 	tasklist_label.style.font = "default"
 
-	local y = 1
 	local counter = 0
-	while (y < 6) do
-
+	for y = 1, 5 do
 		if not (global.tasklist_items[y] == "") then
 			counter = counter + 1
 
@@ -50,7 +48,6 @@ local function tasklist_show(player)
 			tasklist_label.style.maximal_height = 165
 			tasklist_label.style.font = "default"
 		end
-		y = y + 1
 	end
 
 	if global.tasklist_author ~= nil then
@@ -61,7 +58,6 @@ local function tasklist_show(player)
 		tasklist_label.style.maximal_height = 165
 		tasklist_label.style.font = "default"
 	end
-
 
 	frame.add { type = "table", name = "tasklist_panel_button_table", colspan = 3 }
 	local tasklist_panel_button_table = frame.tasklist_panel_button_table
@@ -79,7 +75,7 @@ local function tasklist_show(player)
 	tasklist_panel_button_table.new_tasklist_assembler_button.style.minimal_height = 38
 	tasklist_panel_button_table.tasklist_hide_button.style.font = "default-bold"
 	tasklist_panel_button_table.tasklist_hide_button.style.minimal_height = 38
-	-- tasklist_panel_button_table.add { type = "checkbox", caption = "Show Tasklist", state = global.autoshow_tasklist_for_player[player.name], name = "auto_show_tasklist_checkbox"	}
+	-- Possible for later preferences tasklist_panel_button_table.add { type = "checkbox", caption = "Show Tasklist", state = global.autoshow_tasklist_for_player[player.name], name = "auto_show_tasklist_checkbox"	}
 end
 
 local function tasklist(player)
@@ -104,11 +100,7 @@ local function tasklist(player)
 	local frame = player.gui.left["tasklist-assembler"]
 	frame.destroy()
 
-	local x = 1
-
-	while (game.players[x] ~= nil) do
-
-		local player = game.players[x]
+	for _,player in pairs(game.players) do
 
 		local frame = player.gui.left["tasklist-panel"]
 
@@ -120,28 +112,9 @@ local function tasklist(player)
 			tasklist_show(player)
 		end
 
-		player.print(msg)
-
-		x = x + 1
-	end
-end
-
-
-local function tasklist_refresh()
-
-	local x = 1
-
-	while (game.players[x] ~= nil) do
-
-		local player = game.players[x]
-
-		if (player.gui.left["tasklist-panel"]) then
-			local frame = player.gui.left["tasklist-panel"]
-			frame = frame.tasklist_panel_table
-		end
-		x = x + 1
 	end
 
+	game.print(msg)
 end
 
 local function tasklist_assembler(player)
@@ -169,7 +142,6 @@ local function tasklist_assembler(player)
 	frame_table["textfield_task_5"].style.maximal_width = 450
 	frame_table.add { type = "label", caption = "" }
 	frame_table.add { type = "button", name = "create_new_tasklist_button", caption = "Publish" }
-
 end
 
 function tasklist_sync_for_new_joining_player(event)
@@ -186,7 +158,6 @@ function tasklist_sync_for_new_joining_player(event)
 	if (frame == nil) then
 		tasklist_show(player)
 	end
-
 end
 
 local function on_gui_click(event)
@@ -236,7 +207,6 @@ local function on_gui_click(event)
 			global.autoshow_tasklist_for_player[player.name] = event.element.state
 		end
 end
-
 
 Event.register(defines.events.on_gui_click, on_gui_click)
 Event.register(defines.events.on_player_joined_game, create_tasklist_gui)
