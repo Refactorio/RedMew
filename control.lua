@@ -20,6 +20,7 @@ require "on_tick"
 require "follow"
 require "wells"
 require "custom_commands"
+require "tasklist"
 
 function player_joined(event)
 	local player = game.players[event.player_index]
@@ -37,6 +38,7 @@ function player_joined(event)
 		--player.insert { name = "power-armor", count = 1 }
 		player.print("Welcome to our Server. You can join our Discord at: discord.me/redmew")
 		player.print("And remember.. Keep Calm And Spaghetti!")
+		--player.print("Today's pasta is served with a helping of warehoused ores, railworld and moduled rail bases!")
 end
 
 function walkabout(player_name, distance)
