@@ -365,6 +365,32 @@ local function toggle_tp_mode(cmd)
   end
 end
 
+global.old_force = {}
+local function forcetoggle(cmd)
+  if not game.player then
+    cant_run(cmd.name)
+    return
+  end
+
+  if game.player.force.name == "enemy" then
+    local old_force = global.old_force[game.player.name]
+    if not old_force then
+      game.player.force = "player"
+      game.player.print("Your are now on the player force.")
+    else
+      if game.forces[old_force] then
+        game.player.force = old_force
+      else
+        game.player.force = "player"
+      end
+    end
+  else
+    global.old_force[game.player.name] = game.player.force.name
+    game.player.force = "enemy"
+  end
+  game.player.print("You are now on the " .. game.player.force.name .. " force.")
+end
+
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("detrain", "<player> - Kicks the player off a train. (Admins and moderators)", detrain)
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
@@ -384,3 +410,4 @@ commands.add_command("follow", '<player> makes you follow the player. Use /unfol
 commands.add_command("unfollow", 'stops following a player.', unfollow)
 commands.add_command("well", '<item> <items per second> Spawns an item well. (Admins only)', well_command)
 commands.add_command("tpmode", "Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)", toggle_tp_mode)
+commands.add_command("forcetoggle", "Toggles the players force between player and enemy (Admins and moderators)", forcetoggle)
