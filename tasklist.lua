@@ -54,7 +54,7 @@ local function tasklist_show(player)
 	end
 
 	if global.tasklist_author ~= nil then
-		tasklist_panel_table.add { type = "label", caption = "-- created by: " .. global.tasklist_author, single_line = false, name = "tasklist_author"}
+		tasklist_panel_table.add { type = "label", caption = "-- updated by: " .. global.tasklist_author, single_line = false, name = "tasklist_author"}
 		local tasklist_label = tasklist_panel_table["tasklist_author"]
 		tasklist_label.style.maximal_width = 208
 		tasklist_label.style.minimal_width = 208
