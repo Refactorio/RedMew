@@ -35,7 +35,7 @@ local function tasklist_show(player)
 	tasklist_label.style.font = "default"
 
 	local y = 1
-	while (y < 4) do
+	while (y < 6) do
 
 		if not (global.tasklist_items[y] == "") then
 
@@ -66,7 +66,7 @@ local function tasklist_show(player)
 
 	global.tasklist_panel_creation_time[player.index] = game.tick
 
-	if is_regular( player.name )  or is_admin( player.name ) or is_mod( player.name ) then
+	if is_regular( player.name ) or is_mod( player.name ) or player.admin then
 	   tasklist_panel_button_table.add { type = "button", caption = "New Tasks", name = "new_tasklist_assembler_button" }
 	end
 
@@ -84,11 +84,13 @@ local function tasklist(player)
 	local frame = player.gui.left["tasklist-assembler"]
 	frame = frame.table_tasklist_assembler
 
-	global.tasklist_items = {"","",""}
+	global.tasklist_items = {"","","","",""}
 	global.tasklist_items[1] = frame.textfield_task_1.text
 	global.tasklist_items[2] = frame.textfield_task_2.text
 	global.tasklist_items[3] = frame.textfield_task_3.text
-	if (global.tasklist_items[3] .. global.tasklist_items[2] .. global.tasklist_items[1] == "") then
+	global.tasklist_items[4] = frame.textfield_task_4.text
+	global.tasklist_items[5] = frame.textfield_task_5.text
+	if (global.tasklist_items[5] .. global.tasklist_items[4] .. global.tasklist_items[3] .. global.tasklist_items[2] .. global.tasklist_items[1] == "") then
 		return
 	end
 
@@ -155,13 +157,21 @@ local function tasklist_assembler(player)
 	frame_table.add { type = "textfield", name = "textfield_task_3", text = global.tasklist_items[3] }
 	frame_table["textfield_task_3"].style.minimal_width = 450
 	frame_table["textfield_task_3"].style.maximal_width = 450
+	frame_table.add { type = "label", caption = "Task #4:" }
+	frame_table.add { type = "textfield", name = "textfield_task_4", text = global.tasklist_items[4] }
+	frame_table["textfield_task_4"].style.minimal_width = 450
+	frame_table["textfield_task_4"].style.maximal_width = 450
+	frame_table.add { type = "label", caption = "Task #5:" }
+	frame_table.add { type = "textfield", name = "textfield_task_5", text = global.tasklist_items[5] }
+	frame_table["textfield_task_5"].style.minimal_width = 450
+	frame_table["textfield_task_5"].style.maximal_width = 450
 	frame_table.add { type = "label", caption = "" }
 	frame_table.add { type = "button", name = "create_new_tasklist_button", caption = "Publish" }
 
 end
 
 function tasklist_sync_for_new_joining_player(event)
-	if not global.tasklist_items then global.tasklist_items = {"","",""} end
+	if not global.tasklist_items then global.tasklist_items = {"","","","",""} end
 	if not global.autoshow_tasklist_for_player then global.autoshow_tasklist_for_player = {} end
 	if not global.tasklist_duration_in_seconds then global.tasklist_duration_in_seconds = 99 end
 	if not global.tasklist_panel_creation_time then global.tasklist_panel_creation_time = {} end
