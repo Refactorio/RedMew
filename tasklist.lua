@@ -35,13 +35,15 @@ local function tasklist_show(player)
 	tasklist_label.style.font = "default"
 
 	local y = 1
+	local counter = 0
 	while (y < 6) do
 
 		if not (global.tasklist_items[y] == "") then
+			counter = counter + 1
 
 			local z = tostring(y)
 
-			tasklist_panel_table.add { type = "label", caption = y .. ". " .. global.tasklist_items[y], single_line = false, name = "tasklist_item_label_" .. z}
+			tasklist_panel_table.add { type = "label", caption = counter .. ". " .. global.tasklist_items[y], single_line = false, name = "tasklist_item_label_" .. z}
 			local tasklist_label = tasklist_panel_table["tasklist_item_label_" .. z]
 			tasklist_label.style.maximal_width = 208
 			tasklist_label.style.minimal_width = 208
