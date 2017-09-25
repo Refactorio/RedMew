@@ -1,4 +1,8 @@
 -- Glittery ores, provide a mix value, and all patches outside uranium will be a full mix.
+-- Gameplay comment 9/22/2017 -- After a playtest,  we learned that at 1:1 ratio of iron/copper 
+-- creates a LARGE amount of extra copper from the start. Also a 4:1 ratio for stone is quite heavy.
+-- Suggest modifying the sprinkle_factor out of 100% to make for a less game about warehousing ore, 
+-- to one about picking patches that are mostly the preferred ore, along with a % of the wrong ores.
 glitter_debug = false
 
 function run_ores_module_setup()

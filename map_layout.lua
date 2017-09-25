@@ -33,6 +33,7 @@ in this file and your run_*type*_module(event) function will be called.
 --terrain--
 --require "locale.gen_terrain.neko_bridged_rivers"
 --require "locale.gen_terrain.neko_river_overlay"
+--require "locale.gen_terrain.tris_chunk_grid"
 
 --ores--
 --require "locale.gen_ores.neko_crazy_ores"

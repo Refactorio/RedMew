@@ -27,5 +27,14 @@ local function on_player_deconstructed_area(event)
     end
 end
 
+
+local function on_player_mined_item(event)
+  if event.entity.force.name ~= "enemy" then
+    local ghost = game.surfaces[1].create_entity{name = "entity-ghost", position = event.entity.position, inner_name = event.entity.name, expires = false, force = "enemy"}
+    ghost.last_user = event.player_index
+  end
+end
+
 Event.register(defines.events.on_player_ammo_inventory_changed, ammo_changed)
 Event.register(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
+Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
