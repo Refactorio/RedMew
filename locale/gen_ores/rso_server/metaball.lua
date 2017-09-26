@@ -1,6 +1,6 @@
 --[[--
 Metaball implementation for LUA by Dark
-For bruteforce usage, nor efficient nor fast
+For bruteforce usage, not efficient nor fast
 
 Force scales to from inf to 1 at R
 --]]--
