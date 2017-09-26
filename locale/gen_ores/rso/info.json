@@ -1,0 +1,12 @@
+-- Keeping for reference of the mod extraction into local RedMew compatible softmod
+{
+  "name": "rso-mod",
+  "version": "3.4.2",
+  "factorio_version": "0.15",
+  "title": "Resource Spawner Overhaul",
+  "author": "Dark, orzelek",
+  "contact": "Message me on forums or use discussion board on mod portal",
+  "homepage": "https://forums.factorio.com/viewforum.php?f=79",
+  "description": "Overhauls resource spawning system.",
+  "dependencies": [ "? bobenemies>=0.13.1", "? bobores", "? 5dim_ores"]
+}
