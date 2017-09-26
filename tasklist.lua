@@ -7,7 +7,7 @@ local function create_tasklist_gui(event)
    local player = game.players[event.player_index]
 
    if player.gui.top.tasklist == nil then
-      local button = player.gui.top.add { name = "tasklist", type = "sprite-button", sprite = "item/blueprint" }
+      local button = player.gui.top.add { name = "tasklist", type = "sprite-button", sprite = "item/discharge-defense-remote" }
       button.style.font = "default-bold"
       button.style.minimal_height = 38
       button.style.minimal_width = 38
