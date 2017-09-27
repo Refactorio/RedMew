@@ -366,6 +366,7 @@ local function toggle_tp_mode(cmd)
 end
 
 global.old_force = {}
+local function forcetoggle(cmd)
   if not game.player or not (game.player.admin or is_mod(game.player.name)) then
     cant_run(cmd.name)
     return
