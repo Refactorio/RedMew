@@ -15,12 +15,12 @@ function run_shape_module(event)
 	local left_top = event.area.left_top
 		for x = left_top.x-1, left_top.x + 32 do
 			for y = left_top.y-1, left_top.y + 32 do
-					local pseudo_x = x / (arm_width / 48)
-					local pseudo_y = y / (arm_width / 48)
-					local distance = math.sqrt(pseudo_x * pseudo_x + pseudo_y * pseudo_y)
-					if distance > 100 and not is_on_spiral(x,y, distance, 0) then
-						table.insert(tiles, {name = "out-of-map", position = {x,y}})
-					end
+				local pseudo_x = x / (arm_width / 48)
+				local pseudo_y = y / (arm_width / 48)
+				local distance = math.sqrt(pseudo_x * pseudo_x + pseudo_y * pseudo_y)
+				if distance > 100 and not is_on_spiral(x,y, distance, 0) then
+					table.insert(tiles, {name = "out-of-map", position = {x,y}})
+				end
 			end
 		end
 		event.surface.set_tiles(tiles)
