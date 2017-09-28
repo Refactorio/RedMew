@@ -367,7 +367,7 @@ end
 
 global.old_force = {}
 local function forcetoggle(cmd)
-  if not game.player then
+  if not game.player or not (game.player.admin or is_mod(game.player.name)) then
     cant_run(cmd.name)
     return
   end

@@ -23,14 +23,18 @@ local function on_player_deconstructed_area(event)
     game.print(player.name .. " tried to deconstruct something, but instead deconstructed himself.")
     player.character.health = 0
     for _,entity in pairs(game.players[event.player_index].surface.find_entities_filtered{area = event.area}) do
-      entity.cancel_deconstruction(game.players[event.player_index].force)
+      if entity.to_be_deconstructed(game.players[event.player_index].force) then
+        entity.cancel_deconstruction(game.players[event.player_index].force)
+      end
     end
 end
 
 
 local function on_player_mined_item(event)
   if event.entity.force.name ~= "enemy" and event.entity.force.name ~= "neutral" and event.entity.name ~= "entity-ghost" then
-    local ghost = game.surfaces[1].create_entity{name = "entity-ghost", position = event.entity.position, inner_name = event.entity.name, expires = false, force = "enemy"}
+    local entity_name = event.entity.name
+    if entity_name == "pipe-to-ground" then entity_name = "pipe" end
+    local ghost = game.surfaces[1].create_entity{name = "entity-ghost", position = event.entity.position, inner_name = entity_name, expires = false, force = "enemy", direction = event.entity.direction}
     ghost.last_user = event.player_index
   end
 end
