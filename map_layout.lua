@@ -39,6 +39,7 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_ores.neko_crazy_ores"
 --require "locale.gen_ores.fluffy_rainbows"
 --require "locale.gen_ores.glitter_ores"
+--require "locale.gen_ores.rso.rso_control"
 
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
