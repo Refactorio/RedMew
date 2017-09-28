@@ -47,6 +47,7 @@ miscs = {}
 --miscs[1] = require "locale.gen_misc.rail_grid"
 --require "locale.gen_misc.rusky_pvp"
 --miscs[1] = require "locale.gen_misc.wreck_items"
+--miscs[2] = require "locale.gen_misc.tris_chunk_grid"
 
 local on_chunk_generated = function(event)
 	if run_combined_module == nil then

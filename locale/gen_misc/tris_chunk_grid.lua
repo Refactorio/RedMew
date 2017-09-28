@@ -1,13 +1,15 @@
+chunk_grid_module = {}
 -- Drops a grid of concrete, hazard and brick along the chunk edges
 
 local function run_terrain_module_setup()
    grid = {}
+   -- Widths will always double, due to how we draw on the edge of the chunks
    grid_widths = {
       ["concrete"] = 2,
       ["hazard-concrete-left"] = 1,
       ["stone-path"] = 1
    }
-   grid_chunk_size = 3
+   grid_chunk_size = 8
 
    grid_width = 0
    -- Prime the array
@@ -19,11 +21,17 @@ local function run_terrain_module_setup()
    end
 end
 
+local no_grid = {}
+no_grid["out-of-map"] = 1;
+no_grid["water"] = 1;
+no_grid["water-green"] = 1;
+no_grid["deepwater"] = 1;
+no_grid["deepwater-green"] = 1;
+
 run_terrain_module_setup()
 
-function run_terrain_module(event)
+function chunk_grid_module.on_chunk_generated(event)
    -- Draw the grid
-   -- concrete width - 3, hazard = 1, brick = 2
    local surface = event.surface
    local tiles = {}
    local tile
@@ -52,7 +60,7 @@ function run_terrain_module(event)
 
             position = {rel_x + grid_width - pos, y}
             tile = surface.get_tile( position )
-            if tile.name ~= "out-of-map" and tile.name ~= "water" then
+            if no_grid[tile.name] == nil then
                table.insert(tiles, {name = tile_name, position = position})
             end
          end
@@ -65,7 +73,7 @@ function run_terrain_module(event)
 
             position = {pos + rel_x + 31 - grid_width, y}
             tile = surface.get_tile( position )
-            if tile.name ~= "out-of-map" and tile.name ~= "water" then
+            if no_grid[tile.name] == nil then
                table.insert(tiles, {name = tile_name, position = position})
             end
          end
@@ -81,7 +89,7 @@ function run_terrain_module(event)
 
             position = {x, rel_y + grid_width - pos}
             tile = surface.get_tile( position )
-            if tile.name ~= "out-of-map" and tile.name ~= "water" then
+            if no_grid[tile.name] == nil then
                table.insert(tiles, {name = tile_name, position = position})
             end
          end
@@ -93,7 +101,7 @@ function run_terrain_module(event)
             tile_name = grid[grid_width+1 - pos]
             position = {x, pos + rel_y + 31 - grid_width}
             tile = surface.get_tile( position )
-            if tile.name ~= "out-of-map" and tile.name ~= "water" then
+            if no_grid[tile.name] == nil then
                table.insert(tiles, {name = tile_name, position = position})
             end
          end
@@ -113,7 +121,7 @@ function run_terrain_module(event)
             -- Top Left
             position = {rel_x - 1 + pos_x, rel_y - 1 + pos_y}
             tile = surface.get_tile( position )
-            if tile.name ~= "out-of-map" and tile.name ~= "water" then
+            if no_grid[tile.name] == nil then
                table.insert(tiles, {name = tile_name, position=position})
             end
          end
@@ -122,7 +130,7 @@ function run_terrain_module(event)
             -- Top Right
             position = {rel_x + 32 - pos_x, rel_y - 1 + pos_y}
             tile = surface.get_tile( position )
-            if tile.name ~= "out-of-map" and tile.name ~= "water" then
+            if no_grid[tile.name] == nil then
                table.insert(tiles, {name = tile_name, position=position})
             end
          end
@@ -131,7 +139,7 @@ function run_terrain_module(event)
             -- Bottom Left
             position = {rel_x - 1 + pos_x, rel_y + 32 - pos_y}
             tile = surface.get_tile( position )
-            if tile.name ~= "out-of-map" and tile.name ~= "water" then
+            if no_grid[tile.name] == nil then
                table.insert(tiles, {name = tile_name, position=position})
             end
          end
@@ -140,7 +148,7 @@ function run_terrain_module(event)
             -- Bottom right
             position = {rel_x + 32 - pos_x, rel_y + 32 - pos_y}
             tile = surface.get_tile( position )
-            if tile.name ~= "out-of-map" and tile.name ~= "water" then
+            if no_grid[tile.name] == nil then
                table.insert(tiles, {name = tile_name, position=position})
             end
          end
@@ -149,3 +157,5 @@ function run_terrain_module(event)
 
   surface.set_tiles(tiles,true)
 end
+
+return chunk_grid_module
