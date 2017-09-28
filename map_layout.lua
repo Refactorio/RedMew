@@ -65,14 +65,11 @@ local on_chunk_generated = function(event)
 				run_ores_module(event)
 			end
 		end
-		for _,v in pairs(miscs) do
-			v.on_chunk_generated(event)
+		if run_misc_module ~= nil then
+			run_misc_module(event)
 		end
 	else
 		run_combined_module(event)
-	end
-	if run_misc_module ~= nil then
-		run_misc_module(event)
 	end
 end
 
