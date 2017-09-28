@@ -28,7 +28,7 @@ fluid_richness_distance_factor = 0.6 -- exponent for richness distance factor ca
 size_distance_factor=0.05	   	-- exponent for size distance factor calculation
 
 deterministic = true           	-- set to false to use system for all decisions  math.random
-
+removeTrees = true
 -- mode is no longer used by generation process - it autodetects endless resources
 -- endless_resource_mode = false   -- if true, the size of each resource is modified by the following modifier. Use with the endless resources mod.
 endless_resource_mode_sizeModifier = 0.80
