@@ -46,7 +46,7 @@ in this file and your run_*type*_module(event) function will be called.
 miscs = {}
 --miscs[1] = require "locale.gen_misc.rail_grid"
 --require "locale.gen_misc.rusky_pvp"
---require "locale.gen_misc.wreck_items"
+--miscs[1] = require "locale.gen_misc.wreck_items"
 
 local on_chunk_generated = function(event)
 	if run_combined_module == nil then
@@ -65,8 +65,8 @@ local on_chunk_generated = function(event)
 				run_ores_module(event)
 			end
 		end
-		if run_misc_module ~= nil then
-			run_misc_module(event)
+		for _,v in pairs(miscs) do
+			v.on_chunk_generated(event)
 		end
 	else
 		run_combined_module(event)

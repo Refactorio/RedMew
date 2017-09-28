@@ -1,3 +1,5 @@
+ wreck_items_module = {}
+
 -- adds some wrecked items around the map, good for MP, reduces total resources pulled from factory, and adds incentive to push out
 
 wreck_item_pool = {}
@@ -25,7 +27,7 @@ local function place_entities(surface, entity_list)
 	return false
 end
 
-function run_misc_module(event)
+function wreck_items_module.on_chunk_generated(event)
 	local surface = event.surface
 	for x = 0, 31, 1 do
 		for y = 0, 31, 1 do
@@ -50,3 +52,6 @@ function run_misc_module(event)
 		end
 	end
 end
+
+
+return wreck_items_module
