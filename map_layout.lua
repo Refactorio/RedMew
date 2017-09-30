@@ -22,7 +22,7 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_shape.up"
 --require "locale.gen_shape.maze"
 --require "locale.gen_shape.spiral"
---require "locale.gen_shape.threaded_spiral"
+--require "locale.gen_shape.threaded_spirals"
 --require "locale.gen_shape.spiral_tri"
 --require "locale.gen_shape.spiral2"
 --require "locale.gen_shape.donut"
