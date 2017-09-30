@@ -399,8 +399,12 @@ local function forcetoggle(cmd)
         if name:match("power") or name:match("modular") then 
         local equips = inv[1].grid.equipment 
         for _,equip in pairs(equips) do 
-          if equip.name == "personal-roboport-equipment" or equip.name == "personal-roboport-mk2-equipment" then 
-            game.player.insert{name = equip.name}
+          if equip.name == "personal-roboport-equipment" 
+           or equip.name == "personal-roboport-mk2-equipment" 
+           or equip.name == "personal-laser-defense-equipment" then 
+            if game.player.insert{name = equip.name} == 0 then
+                game.player.surface.spill_item_stack(game.player.position, {name = equip.name})
+            end
             inv[1].grid.take(equip)
           end
         end 
