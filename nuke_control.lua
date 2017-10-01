@@ -29,8 +29,12 @@ local function on_player_deconstructed_area(event)
     end
 end
 
-
+local init = true
 local function on_player_mined_item(event)
+  if init then 
+    game.forces.enemy.research_all_technologies() --avoids losing logstics slot configuration on force toggle
+    init = false
+  end
   if event.entity.force.name ~= "enemy" and event.entity.force.name ~= "neutral" and event.entity.name ~= "entity-ghost" then
     local entity_name = event.entity.name
     if entity_name == "pipe-to-ground" then entity_name = "pipe" end
