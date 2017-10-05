@@ -6,5 +6,5 @@ return
 ["mbas"] = "",
 ["selen"] = "",
 ["sholvo"] = "",
-["Animal"] = "",
+["animal"] = "",
 }
