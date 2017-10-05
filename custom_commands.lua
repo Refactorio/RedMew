@@ -417,6 +417,52 @@ local function forcetoggle(cmd)
   game.player.print("You are now on the " .. game.player.force.name .. " force.")
 end
 
+local function temp_ban_init()
+  if not global.temp_ban_init_done then
+  game.permissions.create_group("Banned")
+  local group = game.permissions.get_group("Banned")
+  for i=2,174 do
+    group.set_allows_action(i, false)
+  end
+  else
+    global.temp_ban_init_done = true
+  end
+end
+
+local function tempban(cmd)
+  if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+    cant_run(cmd.name)
+    return
+  end
+  if cmd.parameter == nil then
+      game.print("Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.")
+      return
+    end
+  local params = {}
+  for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
+  if #params < 2 or not tonumber(params[2]) then
+    game.print("Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.")
+    return
+  end
+  if not game.players[params[1]] then
+    game.print("Player doesn't exist.")
+    return
+  end
+  temp_ban_init()
+  game.print(get_actor() .. " put " .. params[1] .. " in timeout for " .. params[2] .. " minutes.")
+  game.permissions.get_group("Banned").add_player(params[1])
+  if not tonumber(cmd.parameter) then
+    Thread.set_timeout(
+      60 * tonumber(params[2]),
+      function(param)
+        game.print(param.name .. " is out of timeout.")
+        game.permissions.get_group("Default").add_player(param.name)
+      end,
+      {name = params[1]}
+    )
+  end
+end
+
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("detrain", "<player> - Kicks the player off a train. (Admins and moderators)", detrain)
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
@@ -437,3 +483,4 @@ commands.add_command("unfollow", 'stops following a player.', unfollow)
 commands.add_command("well", '<item> <items per second> Spawns an item well. (Admins only)', well_command)
 commands.add_command("tpmode", "Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)", toggle_tp_mode)
 commands.add_command("forcetoggle", "Toggles the players force between player and enemy (Admins and moderators)", forcetoggle)
+commands.add_command("tempban", "<player> <minutes> Temporarily bans a player (Admins and moderators)", tempban)
