@@ -86,7 +86,7 @@ local function walkabout(cmd)
       game.print("Walkabout failed.")
       return
     end
-  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+  for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
   local player_name = params[1]
   local distance = ""
   local duration = 60
@@ -232,7 +232,7 @@ local function regular(cmd)
     return
   end
   local params = {}
-  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+  for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
   if params[2] == nil then
     player_print("Command failed. Usage: /regular <promote, demote>, <player>")
     return
@@ -256,7 +256,7 @@ local function mod(cmd)
     return
   end
   local params = {}
-  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+  for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
   if params[2] == nil then
     player_print("Command failed. Usage: /mod <promote, demote>, <player>")
     return
@@ -292,7 +292,7 @@ local function tag(cmd)
   end
   if cmd.parameter ~= nil then
     local params = {}
-    for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
+    for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
     if #params < 2 then
       player_print("Usage: <player> <tag> Sets a players tag.")
     elseif game.players[params[1]] == nil then
@@ -373,11 +373,11 @@ local function forcetoggle(cmd)
     return
   end
 
-  if global.force_toggle_init then 
+  if global.force_toggle_init then
     game.forces.enemy.research_all_technologies() --avoids losing logstics slot configuration
     global.force_toggle_init = false
   end
-  
+
   if game.player.force.name == "enemy" then
     local old_force = global.old_force[game.player.name]
     if not old_force then
@@ -392,25 +392,25 @@ local function forcetoggle(cmd)
     end
   else
       --Put roboports into inventory
-    inv = game.player.get_inventory(defines.inventory.player_armor) 
-    if inv[1].valid_for_read 
-      then 
-        local name = inv[1].name 
-        if name:match("power") or name:match("modular") then 
-        local equips = inv[1].grid.equipment 
-        for _,equip in pairs(equips) do 
-          if equip.name == "personal-roboport-equipment" 
-           or equip.name == "personal-roboport-mk2-equipment" 
-           or equip.name == "personal-laser-defense-equipment" then 
+    inv = game.player.get_inventory(defines.inventory.player_armor)
+    if inv[1].valid_for_read
+      then
+        local name = inv[1].name
+        if name:match("power") or name:match("modular") then
+        local equips = inv[1].grid.equipment
+        for _,equip in pairs(equips) do
+          if equip.name == "personal-roboport-equipment"
+           or equip.name == "personal-roboport-mk2-equipment"
+           or equip.name == "personal-laser-defense-equipment" then
             if game.player.insert{name = equip.name} == 0 then
                 game.player.surface.spill_item_stack(game.player.position, {name = equip.name})
             end
             inv[1].grid.take(equip)
           end
-        end 
-      end 
-    end  
-      
+        end
+      end
+    end
+
     global.old_force[game.player.name] = game.player.force.name
     game.player.force = "enemy"
   end
