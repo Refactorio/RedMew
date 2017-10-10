@@ -7,6 +7,7 @@ local Thread = require "locale.utils.Thread"
 wreck_item_pool = {}
 wreck_item_pool = {{name="iron-gear-wheel", count=32},{name="iron-plate", count=64},{name="rocket-control-unit", count=1},{name="rocket-fuel", count=7} ,{name="coal", count=8},{name="rocket-launcher", count=1},{name="rocket", count=32},{name="copper-cable", count=128},{name="land-mine", count=64},{name="railgun", count=1},{name="railgun-dart", count=128},{name="fast-inserter", count=8},{name="stack-filter-inserter", count=2},{name="belt-immunity-equipment", count=1},{name="fusion-reactor-equipment", count=1},{name="electric-engine-unit", count=8},{name="exoskeleton-equipment", count=1},{name="rocket-fuel", count=10},{name="used-up-uranium-fuel-cell", count=3},{name="uranium-fuel-cell", count=2},{name="power-armor", count=1},{name="modular-armor", count=1},{name="water-barrel", count=4},{name="sulfuric-acid-barrel", count=6},{name="crude-oil-barrel", count=8},{name="energy-shield-equipment", count=1},{name="explosive-rocket", count=32}}
 
+global.perlin_noise_seed = 50000 --math.random(1000,1000000)
 local function place_entities(surface, entity_list)
 	local directions = {defines.direction.north, defines.direction.east, defines.direction.south, defines.direction.west}
 	for _, entity in pairs(entity_list) do
@@ -276,13 +277,8 @@ local function create_tile_cluster(tilename,position,amount)
 end
 
 function run_combined_module(event)
-	if not global.perlin_noise_seed then global.perlin_noise_seed = math.random(1000,1000000) end
-	if not global.void_slime then global.void_slime = {x=0,y=0} end
-	if not global.void_slime_is_alive then global.void_slime_is_alive = true end
 	local area = event.area
 	local surface = event.surface
-	local tiles = {}
-	local decoratives = {}
 
 	local entities = surface.find_entities(area)
 	for _, entity in pairs(entities) do
@@ -294,7 +290,7 @@ function run_combined_module(event)
 	end
 
 	for x = 0, 31, 1 do
-		Thread.queue_action(run_borg, {area = event.area, surface = event.surface, x = x})
+		Thread.queue_action("run_borg", {area = event.area, surface = event.surface, x = x})
 	end
 end
 
@@ -304,6 +300,7 @@ function run_borg( params )
 
 	local area = params.area
 	local surface = params.surface
+
 	local x = params.x
 	local pos_x = area.left_top.x + x
 
@@ -315,7 +312,7 @@ function run_borg( params )
 		local entity_placed = false
 
 		local seed_increment_number = 10000
-		local seed = global.perlin_noise_seed
+		local seed = surface.map_gen_settings.seed
 
 		local noise_borg_defense_1 = perlin:noise(((pos_x+seed)/100),((pos_y+seed)/100),0)
 		seed = seed + seed_increment_number
