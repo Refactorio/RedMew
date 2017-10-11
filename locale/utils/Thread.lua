@@ -23,7 +23,7 @@ global.next_async_callback_time = -1
 local function on_tick()
   if global.actions_queue[1] then
     local callback = global.actions_queue[1]
-    pcall(callback.action, callback.params)
+    pcall(_G[callback.action], callback.params)
     table.remove(global.actions_queue, 1)
   end
   if game.tick == global.next_async_callback_time then

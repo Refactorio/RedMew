@@ -31,7 +31,7 @@ end
 
 local init = true
 local function on_player_mined_item(event)
-  if init then 
+  if init then
     game.forces.enemy.research_all_technologies() --avoids losing logstics slot configuration on force toggle
     init = false
   end
@@ -45,4 +45,4 @@ end
 
 Event.register(defines.events.on_player_ammo_inventory_changed, ammo_changed)
 Event.register(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
-Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
+--Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
