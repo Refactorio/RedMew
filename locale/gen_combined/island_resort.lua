@@ -7,24 +7,37 @@ local radsquare = radius*radius
 
 function run_combined_module(event)
   local entities = event.surface.find_entities(event.area)
-  local tiles = {}
-  local decoratives = {}
   for _, entity in pairs(entities) do
     if entity.type == "simple-entity" or entity.type == "resource" or entity.type == "tree" then
       entity.destroy()
     end
   end
 
+  Thread.queue_action("run_island_init", {} )
   for x = 0, 31, 1 do
  		Thread.queue_action("run_island", {area = event.area, surface = event.surface, x = x})
       -- run_island( {area = event.area, surface = event.surface, x = x})
  	end
+   Thread.queue_action("run_island_place_tiles", {surface = event.surface})
+end
+
+global.island_tiles_hold = {}
+global.island_decoratives_hold = {}
+
+function run_island_init(params)
+   global.island_tiles_hold = {}
+   global.island_decoratives_hold = {}
+end
+
+function run_island_place_tiles(params)
+	local surface = params.surface
+   surface.set_tiles(global.island_tiles_hold)
+   for _,deco in pairs(global.island_decoratives_hold) do
+     surface.create_decoratives{check_collision=false, decoratives={deco}}
+   end
 end
 
 function run_island( params )
-   local tiles = {}
-	local decoratives = {}
-
 	local area = params.area
 	local surface = params.surface
 
@@ -202,12 +215,12 @@ function run_island( params )
             decorative = "red-asterisk"
           end
           if math.random(1,5) == 1 then
-            table.insert(decoratives, {name=decorative, position={pos_x,pos_y}, amount=1})
+            table.insert(global.island_decoratives_hold, {name=decorative, position={pos_x,pos_y}, amount=1})
           end
         end
         if tile_to_insert == "red-desert-dark" then
           if math.random(1,50) == 1 then
-            table.insert(decoratives, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})
+            table.insert(global.island_decoratives_hold, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})
           end
         end
       end
@@ -297,20 +310,16 @@ function run_island( params )
 
       if tile_to_insert == "water" then
         local a = pos_x + 1
-        table.insert(tiles, {name = tile_to_insert, position = {a,pos_y}})
+        table.insert(global.island_tiles_hold, {name = tile_to_insert, position = {a,pos_y}})
         local a = pos_y + 1
-        table.insert(tiles, {name = tile_to_insert, position = {pos_x,a}})
+        table.insert(global.island_tiles_hold, {name = tile_to_insert, position = {pos_x,a}})
         local a = pos_x - 1
-        table.insert(tiles, {name = tile_to_insert, position = {a,pos_y}})
+        table.insert(global.island_tiles_hold, {name = tile_to_insert, position = {a,pos_y}})
         local a = pos_y - 1
-        table.insert(tiles, {name = tile_to_insert, position = {pos_x,a}})
+        table.insert(global.island_tiles_hold, {name = tile_to_insert, position = {pos_x,a}})
       end
 
-      table.insert(tiles, {name = tile_to_insert, position = {pos_x,pos_y}})
+      table.insert(global.island_tiles_hold, {name = tile_to_insert, position = {pos_x,pos_y}})
   end
 
-  surface.set_tiles(tiles)
-  for _,deco in pairs(decoratives) do
-    surface.create_decoratives{check_collision=false, decoratives={deco}}
-  end
 end
