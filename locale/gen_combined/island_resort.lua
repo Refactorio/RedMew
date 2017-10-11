@@ -1,11 +1,11 @@
 --Author: MewMew
 require "locale.gen_shared.perlin_noise"
+local Thread = require "locale.utils.Thread"
 
 local radius = 129
 local radsquare = radius*radius
 
 function run_combined_module(event)
-  if not global.perlin_noise_seed then global.perlin_noise_seed = math.random(1000,1000000) end
   local entities = event.surface.find_entities(event.area)
   local tiles = {}
   local decoratives = {}
@@ -16,10 +16,24 @@ function run_combined_module(event)
   end
 
   for x = 0, 31, 1 do
-    for y = 0, 31, 1 do
-      local pos_x = event.area.left_top.x + x
-      local pos_y = event.area.left_top.y + y
-      local seed = global.perlin_noise_seed
+ 		Thread.queue_action("run_island", {area = event.area, surface = event.surface, x = x})
+      -- run_island( {area = event.area, surface = event.surface, x = x})
+ 	end
+end
+
+function run_island( params )
+   local tiles = {}
+	local decoratives = {}
+
+	local area = params.area
+	local surface = params.surface
+
+	local x = params.x
+	local pos_x = area.left_top.x + x
+
+   for y = 0, 31, 1 do
+      local pos_y = area.left_top.y + y
+      local seed = surface.map_gen_settings.seed
       local seed_increment = 10000
 
       seed = seed + seed_increment
@@ -140,8 +154,8 @@ function run_combined_module(event)
             end
           end
           if math.random(1,8) == 1 then
-            if event.surface.can_place_entity {name=tree, position={pos_x,pos_y}} then
-                event.surface.create_entity {name=tree, position={pos_x,pos_y}}
+            if surface.can_place_entity {name=tree, position={pos_x,pos_y}} then
+                surface.create_entity {name=tree, position={pos_x,pos_y}}
             end
           end
         end
@@ -149,15 +163,15 @@ function run_combined_module(event)
 
       if tile_to_insert == "sand" or tile_to_insert == "sand-dark" then
         if math.random(1,200) == 1 then
-            if event.surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
-                event.surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
+            if surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
+                surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
             end
         end
       end
       if tile_to_insert == "grass" or tile_to_insert == "grass-dry" or tile_to_insert == "grass-medium" then
         if math.random(1,2000) == 1 then
-            if event.surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
-                event.surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
+            if surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
+                surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
             end
         end
       end
@@ -203,8 +217,8 @@ function run_combined_module(event)
         local a = pos_x
         local b = pos_y
         local c = 1
-        if event.area.right_bottom.x < 0 then a = event.area.right_bottom.x * -1 end
-        if event.area.right_bottom.y < 0 then b = event.area.right_bottom.y * -1 end
+        if area.right_bottom.x < 0 then a = area.right_bottom.x * -1 end
+        if area.right_bottom.y < 0 then b = area.right_bottom.y * -1 end
         if a > b	then	c = a	else c = b	end
         local resource_amount_distance_multiplicator = (((c + 1) / 75) / 75) + 1
         local noise_resource_amount_modifier = perlin:noise(((pos_x+seed)/200),((pos_y+seed)/200),0)
@@ -212,41 +226,41 @@ function run_combined_module(event)
 
         if tile_to_insert == "sand" or tile_to_insert == "sand-dark" then
           if noise_island_iron_and_copper > 0.5 and noise_island_resource > 0.2 then
-            if event.surface.can_place_entity {name="iron-ore", position={pos_x,pos_y}} then
-              event.surface.create_entity {name="iron-ore", position={pos_x,pos_y}, amount=resource_amount}
+            if surface.can_place_entity {name="iron-ore", position={pos_x,pos_y}} then
+              surface.create_entity {name="iron-ore", position={pos_x,pos_y}, amount=resource_amount}
             end
           end
           if noise_island_iron_and_copper < -0.5 and noise_island_resource > 0.2 then
-            if event.surface.can_place_entity {name="copper-ore", position={pos_x,pos_y}} then
-              event.surface.create_entity {name="copper-ore", position={pos_x,pos_y}, amount=resource_amount}
+            if surface.can_place_entity {name="copper-ore", position={pos_x,pos_y}} then
+              surface.create_entity {name="copper-ore", position={pos_x,pos_y}, amount=resource_amount}
             end
           end
         end
 
         if tile_to_insert == "grass-medium" or tile_to_insert == "grass-dry" then
           if noise_island_stone_and_coal > 0.5 and noise_island_resource > 0.2 then
-            if event.surface.can_place_entity {name="stone", position={pos_x,pos_y}} then
-              event.surface.create_entity {name="stone", position={pos_x,pos_y}, amount=resource_amount*1.5}
+            if surface.can_place_entity {name="stone", position={pos_x,pos_y}} then
+              surface.create_entity {name="stone", position={pos_x,pos_y}, amount=resource_amount*1.5}
             end
           end
           if noise_island_stone_and_coal < -0.5 and noise_island_resource > 0.2 then
-            if event.surface.can_place_entity {name="coal", position={pos_x,pos_y}} then
-              event.surface.create_entity {name="coal", position={pos_x,pos_y}, amount=resource_amount}
+            if surface.can_place_entity {name="coal", position={pos_x,pos_y}} then
+              surface.create_entity {name="coal", position={pos_x,pos_y}, amount=resource_amount}
             end
           end
         end
 
         if tile_to_insert == "red-desert" or tile_to_insert == "red-desert-dark" then
           if noise_island_oil_and_uranium > 0.55 and noise_island_resource > 0.25 then
-            if event.surface.can_place_entity {name="crude-oil", position={pos_x,pos_y}} then
+            if surface.can_place_entity {name="crude-oil", position={pos_x,pos_y}} then
               if math.random(1,60) == 1 then
-                event.surface.create_entity {name="crude-oil", position={pos_x,pos_y}, amount=resource_amount*400}
+                surface.create_entity {name="crude-oil", position={pos_x,pos_y}, amount=resource_amount*400}
               end
             end
           end
           if noise_island_oil_and_uranium < -0.55 and noise_island_resource > 0.35 then
-            if event.surface.can_place_entity {name="uranium-ore", position={pos_x,pos_y}} then
-              event.surface.create_entity {name="uranium-ore", position={pos_x,pos_y}, amount=resource_amount}
+            if surface.can_place_entity {name="uranium-ore", position={pos_x,pos_y}} then
+              surface.create_entity {name="uranium-ore", position={pos_x,pos_y}, amount=resource_amount}
             end
           end
         end
@@ -254,28 +268,28 @@ function run_combined_module(event)
         --Starting Resources
         if tile_distance_to_center <= radsquare then
           if tile_distance_to_center + noise_island_starting > radsquare * 0.09 and tile_distance_to_center + noise_island_starting <= radsquare * 0.15 then
-            if event.surface.can_place_entity {name="stone", position={pos_x,pos_y}} then
-              event.surface.create_entity {name="stone", position={pos_x,pos_y}, amount=resource_amount*1.5}
+            if surface.can_place_entity {name="stone", position={pos_x,pos_y}} then
+              surface.create_entity {name="stone", position={pos_x,pos_y}, amount=resource_amount*1.5}
             end
           end
           if tile_distance_to_center + noise_island_starting > radsquare * 0.05 and tile_distance_to_center + noise_island_starting <= radsquare * 0.09 then
-            if event.surface.can_place_entity {name="coal", position={pos_x,pos_y}} then
-              event.surface.create_entity {name="coal", position={pos_x,pos_y}, amount=resource_amount*1.5}
+            if surface.can_place_entity {name="coal", position={pos_x,pos_y}} then
+              surface.create_entity {name="coal", position={pos_x,pos_y}, amount=resource_amount*1.5}
             end
           end
           if tile_distance_to_center + noise_island_starting > radsquare * 0.02 and tile_distance_to_center + noise_island_starting <= radsquare * 0.05 then
-            if event.surface.can_place_entity {name="iron-ore", position={pos_x,pos_y}} then
-              event.surface.create_entity {name="iron-ore", position={pos_x,pos_y}, amount=resource_amount*1.5}
+            if surface.can_place_entity {name="iron-ore", position={pos_x,pos_y}} then
+              surface.create_entity {name="iron-ore", position={pos_x,pos_y}, amount=resource_amount*1.5}
             end
           end
           if tile_distance_to_center + noise_island_starting > radsquare * 0.003 and tile_distance_to_center + noise_island_starting <= radsquare * 0.02 then
-            if event.surface.can_place_entity {name="copper-ore", position={pos_x,pos_y}} then
-              event.surface.create_entity {name="copper-ore", position={pos_x,pos_y}, amount=resource_amount*1.5}
+            if surface.can_place_entity {name="copper-ore", position={pos_x,pos_y}} then
+              surface.create_entity {name="copper-ore", position={pos_x,pos_y}, amount=resource_amount*1.5}
             end
           end
           if tile_distance_to_center + noise_island_starting <= radsquare * 0.002 then
-            if event.surface.can_place_entity {name="crude-oil", position={pos_x,pos_y}} then
-              if math.random(1,16) == 1 then event.surface.create_entity {name="crude-oil", position={pos_x,pos_y}, amount=resource_amount*400} end
+            if surface.can_place_entity {name="crude-oil", position={pos_x,pos_y}} then
+              if math.random(1,16) == 1 then surface.create_entity {name="crude-oil", position={pos_x,pos_y}, amount=resource_amount*400} end
             end
           end
         end
@@ -293,10 +307,10 @@ function run_combined_module(event)
       end
 
       table.insert(tiles, {name = tile_to_insert, position = {pos_x,pos_y}})
-    end
   end
-  event.surface.set_tiles(tiles)
+
+  surface.set_tiles(tiles)
   for _,deco in pairs(decoratives) do
-    event.surface.create_decoratives{check_collision=false, decoratives={deco}}
+    surface.create_decoratives{check_collision=false, decoratives={deco}}
   end
 end
