@@ -83,6 +83,17 @@ function spawn_market(cmd)
   market.add_market_item{price={{"raw-fish", 175}}, offer={type="give-item", item="fast-loader"}}
   market.add_market_item{price={{"raw-fish", 250}}, offer={type="give-item", item="express-loader"}}
   market.add_market_item{price={{"raw-fish", 1000}}, offer={type="give-item", item="belt-immunity-equipment"}}
+  market.add_market_item{price={{"raw-fish", 100}}, offer={type="give-item", item="modular-armor"}}
+  market.add_market_item{price={{"raw-fish", 500}}, offer={type="give-item", item="power-armor"}}
+  market.add_market_item{price={{"raw-fish", 2000}}, offer={type="give-item", item="power-armor-mk2"}}
+  market.add_market_item{price={{"raw-fish", 150}}, offer={type="give-item", item="personal-roboport-equipment"}}
+  market.add_market_item{price={{"raw-fish", 1500}}, offer={type="give-item", item="personal-roboport-mk2-equipment"}}
+  market.add_market_item{price={{"raw-fish", 50}}, offer={type="give-item", item="construction-robot", count=10}}
+  market.add_market_item{price={{"raw-fish", 50}}, offer={type="give-item", item="solar-panel-equipment", count=1}}
+  market.add_market_item{price={{"raw-fish", 50}}, offer={type="give-item", item="battery-equipment", count=1}}
+  market.add_market_item{price={{"raw-fish", 750}}, offer={type="give-item", item="battery-mk2-equipment", count=1}}
+  market.add_market_item{price={{"raw-fish", 2000}}, offer={type="give-item", item="fusion-reactor-equipment", count=1}}
+  market.add_market_item{price={{"raw-fish", 100}}, offer={type="give-item", item="exoskeleton-equipment"}}
 
 end
 
@@ -94,6 +105,7 @@ local total_fish_market_messages = #fish_market_message
 local total_fish_market_bonus_messages = #fish_market_bonus_message
 
 if not global.fish_market_fish_caught then global.fish_market_fish_caught = {} end
+if not global.fish_market_fish_spent then global.fish_market_fish_spent = {} end
 
 local function fish_earned(event, amount)
 
@@ -101,9 +113,9 @@ local function fish_earned(event, amount)
 	player.insert { name = "raw-fish", count = amount }
 
 	if global.fish_market_fish_caught[event.player_index] then
-		global.fish_market_fish_caught[event.player_index] = global.fish_market_fish_caught[event.player_index] + 1
+		global.fish_market_fish_caught[event.player_index] = global.fish_market_fish_caught[event.player_index] + amount
 	else
-		global.fish_market_fish_caught[event.player_index] = 1
+		global.fish_market_fish_caught[event.player_index] = amount
 	end
 
 	if global.fish_market_fish_caught[event.player_index] <= total_fish_market_messages then
@@ -225,6 +237,12 @@ local function market_item_purchased(event)
 
 	local player = game.players[event.player_index]
 
+   -- cost
+   market_items = event.market.get_market_items()
+   market_item = market_items[event.offer_index]
+   fish_cost = market_item.price[1].amount * event.count
+   global.fish_market_fish_spent[event.player_index] = global.fish_market_fish_spent[event.player_index] + fish_cost
+   
 	if event.offer_index == 1 then -- exoskeleton-equipment
 		player.get_inventory(defines.inventory.player_main).remove({name="exoskeleton-equipment", count=event.count})
 		boost_player_runningspeed(player)
