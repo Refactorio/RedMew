@@ -399,7 +399,7 @@ function player_list_on_12_seconds()
 	end
 end
 
-function on_player_died( event_player, cause )
+function player_list_on_player_died( event_player, cause )
 	player = game.players[event_player.player_index]
 	if not global.scenario.variables.player_deaths[player.name] then
 		global.scenario.variables.player_deaths[player.name] = 0
@@ -410,4 +410,4 @@ end
 
 Event.register(defines.events.on_player_joined_game, on_player_joined_game)
 Event.register(defines.events.on_gui_click, on_gui_click)
-Event.register(defines.events.on_player_died, on_player_died)
+Event.register(defines.events.on_player_died, player_list_on_player_died)
