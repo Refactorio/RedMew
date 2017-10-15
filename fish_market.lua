@@ -75,6 +75,7 @@ function spawn_market(cmd)
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="grenade"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="land-mine"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="solid-fuel"}}
+  market.add_market_item{price={{"raw-fish", 15}}, offer={type="give-item", item="steel-axe"}}
   market.add_market_item{price={{"raw-fish", 125}}, offer={type="give-item", item="rocket-launcher"}}
   market.add_market_item{price={{"raw-fish", 15}}, offer={type="give-item", item="rocket"}}
   market.add_market_item{price={{"raw-fish", 20}}, offer={type="give-item", item="explosive-rocket"}}

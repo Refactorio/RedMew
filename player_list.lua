@@ -400,10 +400,7 @@ function player_list_on_12_seconds()
 end
 
 function on_player_died( event_player, cause )
-	game.print(serpent.block(event_player))
 	player = game.players[event_player.player_index]
-	game.print(serpent.block(player))
-	game.print(player.name  .. " Died")
 	if not global.scenario.variables.player_deaths[player.name] then
 		global.scenario.variables.player_deaths[player.name] = 0
 	end
