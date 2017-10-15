@@ -214,7 +214,7 @@ local function player_list_show(player, sort_by)
 	str = ""
 	if sort_by == "time_played_asc" then str = symbol_asc .. " " end
 	if sort_by == "time_played_desc" then str = symbol_desc .. " " end
-	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_3", caption = str .. "Time played" }
+	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_3", caption = str .. "Time" }
 	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
 	label.style.minimal_width = 130
@@ -224,20 +224,20 @@ local function player_list_show(player, sort_by)
 	str = ""
 	if sort_by == "distance_asc" then str = symbol_asc .. " " end
 	if sort_by == "distance_desc" then str = symbol_desc .. " " end
-	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_4", caption = str .. "Distance walked" }
+	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_4", caption = str .. "Walked" }
 	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
-	label.style.minimal_width = 150
-	label.style.maximal_width = 150
+	label.style.minimal_width = 100
+	label.style.maximal_width = 100
 
 	str = ""
 	if sort_by == "fish_asc" then str = symbol_asc .. " " end
 	if sort_by == "fish_desc" then str = symbol_desc .. " " end
-	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_fish", caption = str .. "Fish (Caught/Used)" }
+	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_fish", caption = str .. "Fish" }
 	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
-	label.style.minimal_width = 150
-	label.style.maximal_width = 150
+	label.style.minimal_width = 80
+	label.style.maximal_width = 80
 
 	str = ""
 	if sort_by == "deaths_asc" then str = symbol_asc .. " " end
@@ -284,12 +284,12 @@ local function player_list_show(player, sort_by)
 		label.style.maximal_width = 130
 
 		local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_distance_" .. i, caption = round(global.scenario.variables.player_walk_distances[player_list[i].name]/1000, 1) .. " km" }
-		label.style.minimal_width = 150
-		label.style.maximal_width = 150
+		label.style.minimal_width = 100
+		label.style.maximal_width = 100
 
 		local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_fish" .. i, caption = global.fish_market_fish_caught[player_list[i].player_index] .. " / " .. global.fish_market_fish_spent[player_list[i].player_index] }
-		label.style.minimal_width = 150
-		label.style.maximal_width = 150
+		label.style.minimal_width = 80
+		label.style.maximal_width = 80
 
 		local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_deaths" .. i, caption = global.scenario.variables.player_deaths[player_list[i].name] }
 		label.style.minimal_width = 80
