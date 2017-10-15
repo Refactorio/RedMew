@@ -417,16 +417,16 @@ local function forcetoggle(cmd)
   game.player.print("You are now on the " .. game.player.force.name .. " force.")
 end
 
-local function temp_ban_init()
-  if not global.temp_ban_init_done then
-  game.permissions.create_group("Banned")
+local function get_group()
   local group = game.permissions.get_group("Banned")
-  for i=2,174 do
-    group.set_allows_action(i, false)
+  if not group then
+    game.permissions.create_group("Banned")
+    group = game.permissions.get_group("Banned")
+    for i=2,174 do
+      group.set_allows_action(i, false)
+    end
   end
-  else
-    global.temp_ban_init_done = true
-  end
+  return group
 end
 
 local function tempban(cmd)
@@ -448,9 +448,9 @@ local function tempban(cmd)
     game.print("Player doesn't exist.")
     return
   end
-  temp_ban_init()
+  local group = get_group()
   game.print(get_actor() .. " put " .. params[1] .. " in timeout for " .. params[2] .. " minutes.")
-  game.permissions.get_group("Banned").add_player(params[1])
+  group.add_player(params[1])
   if not tonumber(cmd.parameter) then
     Thread.set_timeout(
       60 * tonumber(params[2]),
