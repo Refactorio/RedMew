@@ -399,7 +399,7 @@ function player_list_on_12_seconds()
 	end
 end
 
-function player_list_on_player_died( event_player, cause )
+local function player_list_on_player_died( event_player, cause )
 	player = game.players[event_player.player_index]
 	if not global.scenario.variables.player_deaths[player.name] then
 		global.scenario.variables.player_deaths[player.name] = 0
