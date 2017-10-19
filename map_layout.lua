@@ -57,7 +57,8 @@ local on_chunk_generated = function(event)
 			if run_shape_module(event) then
 				if run_terrain_module ~= nil then
 					run_terrain_module(event)
-				elseif run_ores_module ~= nil then
+				end
+				if run_ores_module ~= nil then
 					run_ores_module(event)
 				end
 			end
