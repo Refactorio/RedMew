@@ -1,12 +1,11 @@
 -- Glittery ores, provide a mix value, and all patches outside uranium will be a full mix.
--- Gameplay comment 9/22/2017 -- After a playtest,  we learned that at 1:1 ratio of iron/copper 
+-- Gameplay comment 9/22/2017 -- After a playtest,  we learned that at 1:1 ratio of iron/copper
 -- creates a LARGE amount of extra copper from the start. Also a 4:1 ratio for stone is quite heavy.
--- Suggest modifying the sprinkle_factor out of 100% to make for a less game about warehousing ore, 
+-- Suggest modifying the sprinkle_factor out of 100% to make for a less game about warehousing ore,
 -- to one about picking patches that are mostly the preferred ore, along with a % of the wrong ores.
 glitter_debug = false
 
 function run_ores_module_setup()
-   if glitter_debug then game.print("Glitter Ore: debug is enabled; module setup;") end
 
    ore_mix = {}
    ore_ratios = {
@@ -16,11 +15,11 @@ function run_ores_module_setup()
       ["stone"] = 0.25
    }
    -- 1-100% chance of sprinkling any individual ore
-   sprinkle_factor = 100
+   sprinkle_factor = 25
 
    -- Sets the buffer distance before ores are scrambled
    starting_buffer = 125
-   
+
    ore_mix_max = 0
    -- Prime the array
    for a,b in pairs(ore_ratios) do
@@ -37,14 +36,14 @@ run_ores_module_setup()
 function run_ores_module(event)
 	local area = event.area
 	local surface = event.surface
-   
-	if glitter_debug then 
-      game.print("Glitter ore: chunk generation") 
+
+	if glitter_debug then
+      game.print("Glitter ore: chunk generation")
    end
 
    local chunk_mid = {(area.left_top.x + area.right_bottom.x) / 2, (area.left_top.y + area.right_bottom.y) / 2}
    local distance = math.sqrt(chunk_mid[1] * chunk_mid[1] + chunk_mid[2] * chunk_mid[2])
-   if distance > starting_buffer then 
+   if distance > starting_buffer then
       local entities = surface.find_entities_filtered{type="resource", area=area}
 
        for _, entity in ipairs(entities) do
@@ -53,12 +52,12 @@ function run_ores_module(event)
             if sprinkle_factor < 100 then
                sprinkle_random = math.random(1,100)
                should_sprinkle = sprinkle_random <= sprinkle_factor
-            else 
+            else
                should_sprinkle = true
             end
             if should_sprinkle then
                local new_name = nil
-               
+
                --- Use the ratios to randomly select an ore
                new_ore_random = math.random(1,ore_mix_max)
                new_name = ore_mix[new_ore_random]
@@ -70,7 +69,7 @@ function run_ores_module(event)
                entity.destroy()
                local new_entity = surface.create_entity{name = new_name, position = position_old, force="neutral", amount=amount_old}
             end
-         end   
+         end
       end
     end
 end
