@@ -121,4 +121,6 @@ return
 ["yago2003"] = "",
 ["saneman"] = "",
 ["mesohorknee"] = "",
+["brl_chacal"] = "",
+["spechok"] = "",
 }
