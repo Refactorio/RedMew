@@ -422,8 +422,10 @@ local function get_group()
   if not group then
     game.permissions.create_group("Banned")
     group = game.permissions.get_group("Banned")
-    for i=2,174 do
-      group.set_allows_action(i, false)
+    if group then
+    	for i=2,174 do
+      	    group.set_allows_action(i, false)
+        end
     end
   end
   return group
@@ -450,16 +452,18 @@ local function tempban(cmd)
   end
   local group = get_group()
   game.print(get_actor() .. " put " .. params[1] .. " in timeout for " .. params[2] .. " minutes.")
-  group.add_player(params[1])
-  if not tonumber(cmd.parameter) then
-    Thread.set_timeout(
-      60 * tonumber(params[2]),
-      function(param)
-        game.print(param.name .. " is out of timeout.")
-        game.permissions.get_group("Default").add_player(param.name)
-      end,
-      {name = params[1]}
-    )
+  if group then
+    group.add_player(params[1])
+    if not tonumber(cmd.parameter) then
+      Thread.set_timeout(
+        60 * tonumber(params[2]),
+        function(param)
+          game.print(param.name .. " is out of timeout.")
+          game.permissions.get_group("Default").add_player(param.name)
+        end,
+        {name = params[1]}
+      )
+    end
   end
 end
 
