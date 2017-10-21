@@ -426,6 +426,8 @@ local function get_group()
     	for i=2,174 do
       	    group.set_allows_action(i, false)
         end
+    else 
+      game.print("This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).")
     end
   end
   return group
