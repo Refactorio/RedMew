@@ -434,22 +434,22 @@ local function get_group()
 end
 
 local function tempban(cmd)
-  if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+  if (not game.player) or not (game.player.admin or is_mod(game.player.name)) then
     cant_run(cmd.name)
     return
   end
   if cmd.parameter == nil then
-      game.print("Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.")
+      player_print("Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.")
       return
     end
   local params = {}
   for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
   if #params < 2 or not tonumber(params[2]) then
-    game.print("Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.")
+    player_print("Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.")
     return
   end
   if not game.players[params[1]] then
-    game.print("Player doesn't exist.")
+    player_print("Player doesn't exist.")
     return
   end
   local group = get_group()
