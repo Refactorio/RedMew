@@ -1,6 +1,6 @@
 function update_group(position)
 	local file = position .. ".lua"
-	game.write_file(file, "return\n{\n", false)
+	game.write_file(file, "{", false)
 	local group = global.scenario.variables[position]
 	local line = ""
 	for player_name,_ in pairs(group) do
