@@ -364,7 +364,7 @@ function run_swamp_entities(params)
 end
 
 function run_combined_module(event)
-
+	Thread.set_actions_per_tick(10)
 	-- Generate Rivers
   if not global.perlin_noise_seed then global.perlin_noise_seed = math.random(1000,1000000) end
 
@@ -398,8 +398,11 @@ function run_combined_module(event)
 end
 
 function run_chart_update(params)
-	if game.forces.player.is_chunk_charted(params.surface, params.area) then
-		game.forces.player.chart(params.surface, params.area)
+	local x = params.area.left_top.x / 32
+	local y = params.area.left_top.y / 32
+	if game.forces.player.is_chunk_charted(params.surface, {x,y} ) then
+		-- Don't use full area, otherwise adjacent chunks get charted
+		game.forces.player.chart(params.surface, {{  params.area.left_top.x,  params.area.left_top.y}, { params.area.left_top.x+30,  params.area.left_top.y+30} } )
 	end
 end
 
