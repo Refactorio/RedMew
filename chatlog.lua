@@ -29,7 +29,6 @@ function format_time(ticks)
 end
 
 function log_chat_message(event, message)
-    log(message)
     game.write_file("chatlog.txt", "[" .. format_time(event.tick) .. "] " .. message .. "\n", true)
 end
 
