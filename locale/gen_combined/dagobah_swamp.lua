@@ -1,8 +1,9 @@
 --Author: MewMew
+-- Threaded by Tris
 -- !! ATTENTION !!
 -- Use water only in starting area as map setting!!!
 require "locale.gen_shared.perlin_noise"
-
+local Thread = require "locale.utils.Thread"
 	wreck_item_pool = {}
 	wreck_item_pool = {{name="iron-gear-wheel", count=32},{name="iron-plate", count=64},{name="rocket-control-unit", count=1} ,{name="coal", count=4},{name="rocket-launcher", count=1},{name="rocket", count=32},{name="copper-cable", count=128},{name="land-mine", count=64},{name="railgun", count=1},{name="railgun-dart", count=128},{name="fast-inserter", count=8},{name="stack-filter-inserter", count=2},{name="belt-immunity-equipment", count=1},{name="fusion-reactor-equipment", count=1},{name="electric-engine-unit", count=8},{name="exoskeleton-equipment", count=1},{name="rocket-fuel", count=10},{name="used-up-uranium-fuel-cell", count=3},{name="uranium-fuel-cell", count=2}}
 
@@ -252,7 +253,7 @@ end
 global.swamp_tiles_hold = {}
 global.swamp_decoratives_hold = {}
 
-function run_swamp_rivers_init(params)
+function run_swamp_init(params)
    global.swamp_tiles_hold = {}
    global.swamp_decoratives_hold = {}
 end
@@ -271,6 +272,7 @@ function run_swamp_river(params)
 
 	local x = params.x
 	local pos_x = area.left_top.x + x
+	local seed = params.seed
 
 	for y = 0, 31, 1 do
 		local pos_y = area.left_top.y + y
@@ -304,7 +306,62 @@ function run_swamp_destroy_trees(params)
 			end
 		end
 	end
-end function
+end
+
+function run_swamp_entities(params)
+	local area = params.area
+	local surface = params.surface
+
+	local x = params.x
+	local pos_x = area.left_top.x + x
+	local forest_cluster = params.forest_cluster
+
+	for y = 0, 31, 1 do
+		local pos_y = area.left_top.y + y
+		local pos = {x = pos_x,y = pos_y}
+		local tile = surface.get_tile(pos_x,pos_y)
+		local tile_to_insert = tile
+		local entity_placed = false
+									-- or tile.name == "grass-dry"
+		--if tile.name ~= "water" and tile.name ~= "deepwater" and tile.name ~= "water-green" then
+		if tile.name ~= "water-green" then
+			table.insert(global.swamp_tiles_hold, {name = "grass", position = {pos_x,pos_y}})
+
+			local entity_list = {}
+			table.insert(entity_list, {name="big-ship-wreck-1", pos={pos_x,pos_y},chance = 65000, health="random"})
+			table.insert(entity_list, {name="big-ship-wreck-2", pos={pos_x,pos_y},chance = 65000, health="random"})
+			table.insert(entity_list, {name="big-ship-wreck-3", pos={pos_x,pos_y},chance = 65000, health="random"})
+			local b, placed_entity = place_entities(surface, entity_list)
+			if b == true then
+				placed_entity.insert(wreck_item_pool[math.random(1,#wreck_item_pool)])
+				placed_entity.insert(wreck_item_pool[math.random(1,#wreck_item_pool)])
+				placed_entity.insert(wreck_item_pool[math.random(1,#wreck_item_pool)])
+			end
+
+			local entity_list = {}
+			table.insert(entity_list, {name="tree-04", pos={pos_x,pos_y},chance = 400})
+			table.insert(entity_list, {name="tree-09", pos={pos_x,pos_y},chance = 1000})
+			table.insert(entity_list, {name="tree-07", pos={pos_x,pos_y},chance = 400})
+			table.insert(entity_list, {name="tree-06", pos={pos_x,pos_y},chance = 150})
+			table.insert(entity_list, {name="stone-rock", pos={pos_x,pos_y},chance = 400})
+			table.insert(entity_list, {name="green-coral", pos={pos_x,pos_y},chance = 10000})
+			table.insert(entity_list, {name="medium-ship-wreck", pos={pos_x,pos_y},chance = 25000, health="random"})
+			table.insert(entity_list, {name="small-ship-wreck", pos={pos_x,pos_y},chance = 25000, health="random"})
+			table.insert(entity_list, {name="car", pos={pos_x,pos_y},chance = 125000, health="low"})
+			table.insert(entity_list, {name="stone-furnace", pos={pos_x,pos_y},chance = 100000, health="random", force="enemy"})
+			local b, placed_entity = place_entities(surface, entity_list)
+
+			if forest_cluster == true then
+				if math.random(1,800) == 1 then create_tree_cluster(pos, 120) end
+			end
+
+		else
+			--if tile.name == "water" then tile_to_insert = "water" end
+			--if tile.name == "deepwater" then tile_to_insert = "deepwater" end
+		end
+
+	end
+end
 
 function run_combined_module(event)
 
@@ -314,11 +371,11 @@ function run_combined_module(event)
 	local seed = global.perlin_noise_seed
 	local tiles = {}
 
-	Thread.queue_action("run_swamp_river_init", {} )
+	Thread.queue_action("run_swamp_init", {} )
 	for x = 0, 31, 1 do
-		Thread.queue_action("run_swamp_river", {area = event.area, surface = event.surface, x = x})
+		Thread.queue_action("run_swamp_river", {area = event.area, surface = event.surface, x = x, seed = seed})
 	end
-	Thread.queue_action("run_swamp_place_tiles", {} )
+	Thread.queue_action("run_swamp_place_tiles",  {surface = event.surface} )
 
 	-- Generate other thingies
 	Thread.queue_action("run_swamp_destroy_trees", {area = event.area, surface = event.surface, x = x} )
@@ -326,79 +383,52 @@ function run_combined_module(event)
 
 	local forest_cluster = true
 	if math.random(1,4) == 1 then forest_cluster = false end
+
+	Thread.queue_action("run_swamp_init", {} )
+
 -- @TODO THread this
 	for x = 0, 31, 1 do
-		for y = 0, 31, 1 do
-			local pos_x = event.area.left_top.x + x
-			local pos_y = event.area.left_top.y + y
-			local pos = {x = pos_x,y = pos_y}
-			local tile = surface.get_tile(pos_x,pos_y)
-			local tile_to_insert = tile
-			local entity_placed = false
-										-- or tile.name == "grass-dry"
-			--if tile.name ~= "water" and tile.name ~= "deepwater" and tile.name ~= "water-green" then
-			if tile.name ~= "water-green" then
-				table.insert(tiles, {name = "grass", position = {pos_x,pos_y}})
-
-				local entity_list = {}
-				table.insert(entity_list, {name="big-ship-wreck-1", pos={pos_x,pos_y},chance = 65000, health="random"})
-				table.insert(entity_list, {name="big-ship-wreck-2", pos={pos_x,pos_y},chance = 65000, health="random"})
-				table.insert(entity_list, {name="big-ship-wreck-3", pos={pos_x,pos_y},chance = 65000, health="random"})
-				local b, placed_entity = place_entities(surface, entity_list)
-				if b == true then
-					placed_entity.insert(wreck_item_pool[math.random(1,#wreck_item_pool)])
-					placed_entity.insert(wreck_item_pool[math.random(1,#wreck_item_pool)])
-					placed_entity.insert(wreck_item_pool[math.random(1,#wreck_item_pool)])
-				end
-
-				local entity_list = {}
-				table.insert(entity_list, {name="tree-04", pos={pos_x,pos_y},chance = 400})
-				table.insert(entity_list, {name="tree-09", pos={pos_x,pos_y},chance = 1000})
-				table.insert(entity_list, {name="tree-07", pos={pos_x,pos_y},chance = 400})
-				table.insert(entity_list, {name="tree-06", pos={pos_x,pos_y},chance = 150})
-				table.insert(entity_list, {name="stone-rock", pos={pos_x,pos_y},chance = 400})
-				table.insert(entity_list, {name="green-coral", pos={pos_x,pos_y},chance = 10000})
-				table.insert(entity_list, {name="medium-ship-wreck", pos={pos_x,pos_y},chance = 25000, health="random"})
-				table.insert(entity_list, {name="small-ship-wreck", pos={pos_x,pos_y},chance = 25000, health="random"})
-				table.insert(entity_list, {name="car", pos={pos_x,pos_y},chance = 125000, health="low"})
-				table.insert(entity_list, {name="stone-furnace", pos={pos_x,pos_y},chance = 100000, health="random", force="enemy"})
-				local b, placed_entity = place_entities(surface, entity_list)
-
-				if forest_cluster == true then
-					if math.random(1,800) == 1 then create_tree_cluster(pos, 120) end
-				end
-
-			else
-				--if tile.name == "water" then tile_to_insert = "water" end
-				--if tile.name == "deepwater" then tile_to_insert = "deepwater" end
-			end
-
-		end
+		Thread.queue_action("run_swamp_entities", {area = event.area, surface = event.surface, x = x, forest_cluster = forest_cluster})
 	end
-	surface.set_tiles(tiles,true)
+	Thread.queue_action("run_swamp_place_tiles",  {surface = event.surface} )
+
+	Thread.queue_action("run_swamp_cleanup", {area = event.area, surface = event.surface} )
+
+	Thread.queue_action("run_chart_update", {area = event.area, surface = event.surface} )
+end
+
+function run_chart_update(params)
+	if game.forces.player.is_chunk_charted(params.surface, params.area) then
+		game.forces.player.chart(params.surface, params.area)
+	end
+end
+
+function run_swamp_cleanup(params)
+	local area = params.area
+	local surface = params.surface
 
 	--check for existing chunk if you would overwrite decoratives
 	local for_start_x = 0
 	local for_end_x = 31
 	local for_start_y = 0
 	local for_end_y = 31
-	local testing_pos = event.area.left_top.x - 1
-	local tile = surface.get_tile(testing_pos, event.area.left_top.y)
+	local testing_pos = area.left_top.x - 1
+	local tile = surface.get_tile(testing_pos, area.left_top.y)
 	if tile.name then for_start_x = -1 end
 	local testing_pos = event.area.left_top.y - 1
-	local tile = surface.get_tile(event.area.left_top.x, testing_pos)
+	local tile = surface.get_tile(area.left_top.x, testing_pos)
 	if tile.name then for_start_y = -1 end
-	local testing_pos = event.area.right_bottom.x
-	local tile = surface.get_tile(testing_pos, event.area.right_bottom.y)
+	local testing_pos = area.right_bottom.x
+	local tile = surface.get_tile(testing_pos, area.right_bottom.y)
 	if tile.name then for_end_x = 32 end
-	local testing_pos = event.area.right_bottom.y
-	local tile = surface.get_tile(event.area.right_bottom.x, testing_pos)
+	local testing_pos = area.right_bottom.y
+	local tile = surface.get_tile(area.right_bottom.x, testing_pos)
 	if tile.name then for_end_y = 32 end
 
 	for x = for_start_x, for_end_x, 1 do
 		for y = for_start_y, for_end_y, 1 do
-			local pos_x = event.area.left_top.x + x
-			local pos_y = event.area.left_top.y + y
+			local pos_x = area.left_top.x + x
+			local pos_y = area.left_top.y + y
 			local tile = surface.get_tile(pos_x, pos_y)
 			local decal_has_been_placed = false
 
