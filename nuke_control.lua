@@ -38,11 +38,11 @@ local function on_player_mined_item(event)
   if event.entity.force.name ~= "enemy" and event.entity.force.name ~= "neutral" and event.entity.name ~= "entity-ghost" then
     local entity_name = event.entity.name
     if entity_name == "pipe-to-ground" then entity_name = "pipe" end
-    local ghost = game.surfaces[1].create_entity{name = "entity-ghost", position = event.entity.position, inner_name = entity_name, expires = false, force = "enemy", direction = event.entity.direction}
+    local ghost = event.entity.surface.create_entity{name = "entity-ghost", position = event.entity.position, inner_name = entity_name, expires = false, force = "enemy", direction = event.entity.direction}
     ghost.last_user = event.player_index
   end
 end
 
 Event.register(defines.events.on_player_ammo_inventory_changed, ammo_changed)
 Event.register(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
---Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
+Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
