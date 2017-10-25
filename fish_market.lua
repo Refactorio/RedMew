@@ -172,7 +172,19 @@ local function fish_drop_entity_died(event)
 	if event.entity.force.name == "enemy" then
 --		global.score_biter_total_kills = global.score_biter_total_kills + 1
 --		game.print(global.score_biter_total_kills)
-		if global.score_biter_total_kills % 150 == 0 then
+game.print(serpent.block(event.cause))
+game.print("Type")
+game.print(serpent.block(event.entity.type))
+game.print("Player")
+game.print(serpent.block(event.player_index))
+game.print("Cause Entity Player")
+game.print(serpent.block(event.cause.entity.player_index))
+      if event.entity.type == "unit" then
+      end
+      if event.entity.type == "unit-spawner" then
+
+      end
+      if global.score_biter_total_kills % 150 == 0 then
 			local surface = event.entity.surface
 			local x = math.random(1,2)
 			surface.spill_item_stack(event.entity.position, { name = "raw-fish", count = x }, 1)
@@ -371,7 +383,15 @@ function fish_built_entity (event)
 
 end
 
+function fish_player_crafted_item(event)
+   local x = math.random(1,5)
+   if x == 1 then
+      fish_earned(event, 1)
+   end
+end
+
 Event.register(defines.events.on_preplayer_mined_item, preplayer_mined_item)
 Event.register(defines.events.on_entity_died, fish_drop_entity_died)
 Event.register(defines.events.on_market_item_purchased, market_item_purchased)
 Event.register(defines.events.on_built_entity, fish_built_entity)
+Event.register(defines.events.on_player_crafted_item, fish_player_crafted_item)
