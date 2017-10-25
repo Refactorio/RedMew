@@ -21,6 +21,7 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.cage"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.maori"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.goat"
+--MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.connected_dots"
 
 --shapes--
 --require "locale.gen_shape.right"
