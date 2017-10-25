@@ -364,7 +364,6 @@ function run_swamp_entities(params)
 end
 
 function run_combined_module(event)
-	Thread.set_actions_per_tick(10)
 	-- Generate Rivers
   if not global.perlin_noise_seed then global.perlin_noise_seed = math.random(1000,1000000) end
 
