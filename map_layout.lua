@@ -10,7 +10,7 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_combined.island_resort"
 --require "locale.gen_combined.red_planet_v2"
 --require "locale.gen_combined.borg_planet_v2"
-require "locale.gen_combined.dagobah_swamp"
+--require "locale.gen_combined.dagobah_swamp"
 
 --grilledham's maps
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mobius_strip"
