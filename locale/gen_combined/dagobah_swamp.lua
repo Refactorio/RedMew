@@ -386,7 +386,6 @@ function run_combined_module(event)
 
 	Thread.queue_action("run_swamp_init", {} )
 
--- @TODO THread this
 	for x = 0, 31, 1 do
 		Thread.queue_action("run_swamp_entities", {area = event.area, surface = event.surface, x = x, forest_cluster = forest_cluster})
 	end
@@ -409,6 +408,7 @@ end
 function run_swamp_cleanup(params)
 	local area = params.area
 	local surface = params.surface
+	local decoratives = {}
 
 	--check for existing chunk if you would overwrite decoratives
 	local for_start_x = 0
@@ -418,7 +418,7 @@ function run_swamp_cleanup(params)
 	local testing_pos = area.left_top.x - 1
 	local tile = surface.get_tile(testing_pos, area.left_top.y)
 	if tile.name then for_start_x = -1 end
-	local testing_pos = event.area.left_top.y - 1
+	local testing_pos = area.left_top.y - 1
 	local tile = surface.get_tile(area.left_top.x, testing_pos)
 	if tile.name then for_start_y = -1 end
 	local testing_pos = area.right_bottom.x
