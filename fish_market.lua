@@ -86,6 +86,7 @@ function spawn_market(cmd)
   market.add_market_item{price={{"raw-fish", 175}}, offer={type="give-item", item="fast-loader"}}
   market.add_market_item{price={{"raw-fish", 250}}, offer={type="give-item", item="express-loader"}}
   market.add_market_item{price={{"raw-fish", 1000}}, offer={type="give-item", item="belt-immunity-equipment"}}
+  market.add_market_item{price={{"raw-fish", 100}}, offer={type="give-item", item="night-vision-equipment"}}
   market.add_market_item{price={{"raw-fish", 200}}, offer={type="give-item", item="modular-armor"}}
   market.add_market_item{price={{"raw-fish", 500}}, offer={type="give-item", item="power-armor"}}
   market.add_market_item{price={{"raw-fish", 2000}}, offer={type="give-item", item="power-armor-mk2"}}
