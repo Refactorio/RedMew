@@ -1,5 +1,7 @@
 --Author: Valansch
 
+local wrech_items_module = require "locale.gen_misc.wreck_items"
+
 local resource_types = {"copper-ore", "iron-ore", "coal", "stone", "uranium-ore", "crude-oil"}
 
 global.current_portal_index = 1
@@ -36,11 +38,17 @@ local function init()
     for _,type in pairs(resource_types) do
       game.create_surface(type, create_resource_setting(type))
     end
+    local enemy_settings = create_resource_setting("enemy-base")
+    enemy_settings.autoplace_controls["enemy-base"] = {frequency = "very-high", size = "very-big", richness = "very-good"}
+    game.create_surface("Zerus", enemy_settings)
   end
 end
 
 function run_combined_module(event)
   init()
+  if event.surface.name == "Zerus" then
+    wrech_items_module.on_chunk_generated(event)
+  end
 end
 
 local function teleport_nearby_players(portal)
