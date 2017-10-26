@@ -14,6 +14,7 @@ global.magic_chests = {}
 
 global.last_tp = {}
 global.teleport_cooldown = 3
+global.portal_radius = 2.5
 
 
 local function get_nice_surface_name(surface)
@@ -45,7 +46,7 @@ end
 local function teleport_nearby_players(portal)
   for _,player in pairs(game.players) do
     if player.connected and player.surface == portal.source then
-      if distance(portal.position, player.position) < 2.5 then
+      if distance(portal.position, player.position) < global.portal_radius then
         if not global.last_tp[player.name] or global.last_tp[player.name] + global.teleport_cooldown * 60 < game.tick then
           player.teleport(portal.target, portal.target_surface)
           global.last_tp[player.name] = game.tick
