@@ -5,7 +5,7 @@ local resource_types = {"copper-ore", "iron-ore", "coal", "stone", "uranium-ore"
 global.current_portal_index = 1
 global.portals = {}
 --Sample Portal:
---{entity : LuaEntity (stone-wall connected to gate), target : LuaEntity}
+--{position : LuaPosition, source: LuaSurface, target : LuaPosition, target_surface : LuaSurface}
 
 global.current_magic_chest_index = 1
 global.magic_chests = {}
@@ -13,7 +13,13 @@ global.magic_chests = {}
 
 
 global.last_tp = {}
+global.teleport_cooldown = 3
 
+
+local function get_nice_surface_name(surface)
+  local name = surface.name:gsub("-ore", ""):gsub("-oil", " Oil")
+  return name:sub(1,1):upper() .. name:sub(2)
+end
 
 --Creates autoplace_controls with only one resource type enabled
 local function create_resource_setting(resource)
@@ -36,14 +42,14 @@ function run_combined_module(event)
   init()
 end
 
-local function teleport_nearby_players(entity, target)
+local function teleport_nearby_players(portal)
   for _,player in pairs(game.players) do
-    if player.connected then
-      if player.surface.name == entity.surface.name and distance({x = entity.position.x + 2, y = entity.position.y + 2}, player.position) < 2.5 then
+    if player.connected and player.surface == portal.source then
+      if distance(portal.position, player.position) < 2.5 then
         if not global.last_tp[player.name] or global.last_tp[player.name] + global.teleport_cooldown * 60 < game.tick then
-          player.teleport({target.position.x + 2, target.position.y + 2}, target.surface)
+          player.teleport(portal.target, portal.target_surface)
           global.last_tp[player.name] = game.tick
-          player.print("Wooosh! You are now in the " .. target.surface.name .. " dimention.")
+          player.print("Wooosh! You are now in the " .. get_nice_surface_name(portal.target_surface) .. " dimention.")
         end
       end
     end
@@ -54,11 +60,8 @@ local function teleport_players()
   local num_portals = #global.portals
   if num_portals > 0 then
     local portal = global.portals[global.current_portal_index]
-    local network = portal.entity.get_circuit_network(defines.wire_type.green)
-    if network and portal.target then
-      if network.get_signal{type="virtual", name="signal-G"} > 0 then
-        teleport_nearby_players(portal.entity, portal.target)
-      end
+    if portal.target then
+        teleport_nearby_players(portal)
     end
     global.current_portal_index = (global.current_portal_index) % num_portals + 1 --Next portal
   end
@@ -74,7 +77,9 @@ local function teleport_stuff()
       if inv and target_inv then
         for item, count in pairs(inv.get_contents()) do
           local n_inserted = target_inv.insert{name = item, count = count}
-          inv.remove{name = item, count = n_inserted}
+          if n_inserted > 0 then
+            inv.remove{name = item, count = n_inserted}
+          end
         end
       end
     end
@@ -92,7 +97,7 @@ end
 
 global.chest_selected = false
 local function linkchests()
-  if game.player and game.player.admin and game.player.selected and game.player.selected.type == "container" then
+  if game.player and game.player.admin and game.player.selected and (game.player.selected.type == "logistic-container" or game.player.selected.type == "container") then
     game.player.selected.destructible = false
     game.player.selected.minable = false
     if global.chest_selected then
@@ -110,16 +115,15 @@ end
 
 global.portal_selected = false
 local function linkportals()
-    if game.player and game.player.admin and game.player.selected and game.player.selected.name == "stone-wall" and game.player.selected.get_circuit_network(defines.wire_type.green) then
-      game.player.selected.destructible = false
-      game.player.selected.minable = false
+    if game.player and game.player.admin then
       if global.portal_selected then
-        global.portals[#global.portals].target = game.player.selected
+        global.portals[#global.portals].target = game.player.position
+        global.portals[#global.portals].target_surface = game.player.surface
         --Way back home:
-        table.insert(global.portals, {entity = game.player.selected, target = global.portals[#global.portals].entity})
+        table.insert(global.portals, {position = game.player.position, target = global.portals[#global.portals].position, source = game.player.surface, target_surface = global.portals[#global.portals].source})
         game.print("Portal link established.")
       else
-          table.insert(global.portals, {entity = game.player.selected})
+          table.insert(global.portals, {position = game.player.position, source = game.player.surface})
           game.print("Selected first portal.")
       end
       global.portal_selected = not global.portal_selected
