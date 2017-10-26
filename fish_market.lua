@@ -110,10 +110,6 @@ local total_fish_market_bonus_messages = #fish_market_bonus_message
 if not global.fish_market_fish_caught then global.fish_market_fish_caught = {} end
 if not global.fish_market_fish_spent then global.fish_market_fish_spent = {} end
 
-local function fish_earned(event, amount)
-   fish_earned_index( event.player_index, amount )
-end
-
 local function fish_earned_index(player_index, amount)
    local player = game.players[player_index]
 	player.insert { name = "raw-fish", count = amount }
@@ -134,6 +130,10 @@ local function fish_earned_index(player_index, amount)
 		local z = math.random(1,total_fish_market_bonus_messages)
 		player.print(fish_market_bonus_message[z])
 	end
+end
+
+local function fish_earned(event, amount)
+   fish_earned_index( event.player_index, amount )
 end
 
 local function preplayer_mined_item(event)
