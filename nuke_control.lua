@@ -30,7 +30,7 @@ local function on_player_deconstructed_area(event)
 end
 
 local function log_on_player_mined_entity(str, event)
-  game.write_file("on_plalyer_mined_entity_debug", game.tick .. " (" .. game.players[event.player_index].name  .. ") " .. str .. "\n", true, 1)
+  game.write_file("on_player_mined_entity_debug", game.tick .. " (" .. game.players[event.player_index].name  .. ") " .. str .. "\n", true, 0)
 end
 
 global.on_player_mined_item_enabled = true
