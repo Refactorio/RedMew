@@ -16,7 +16,7 @@ global.magic_chests = {}
 
 global.last_tp = {}
 global.teleport_cooldown = 3
-global.portal_radius = 2.5
+global.portal_radius = 2
 
 
 local function get_nice_surface_name(surface)
@@ -52,17 +52,14 @@ function run_combined_module(event)
 end
 
 local function teleport_nearby_players(portal)
-  for _,player in pairs(game.players) do
-    if player.connected and player.surface == portal.source then
-      if distance(portal.position, player.position) < global.portal_radius then
-        if not global.last_tp[player.name] or global.last_tp[player.name] + global.teleport_cooldown * 60 < game.tick then
-          player.teleport(portal.target, portal.target_surface)
-          global.last_tp[player.name] = game.tick
-          player.print("Wooosh! You are now in the " .. get_nice_surface_name(portal.target_surface) .. " dimention.")
-        end
+  for _, player_character in pairs(portal.source.find_entities_filtered{area = {{portal.position.x - global.portal_radius,portal.position.y - global.portal_radius},{portal.position.x + global.portal_radius,portal.position.y + global.portal_radius}}, name = "player", type = "player"}) do
+    local player = player_character.player
+      if not global.last_tp[player.name] or global.last_tp[player.name] + global.teleport_cooldown * 60 < game.tick then
+        player.teleport(portal.target, portal.target_surface)
+        global.last_tp[player.name] = game.tick
+        player.print("Wooosh! You are now in the " .. get_nice_surface_name(portal.target_surface) .. " dimention.")
       end
     end
-  end
 end
 
 local function teleport_players()
@@ -92,7 +89,7 @@ local function teleport_stuff()
         end
       end
     end
-    global.current_magic_chest_index = (global.current_magic_chest_index) % num_chests + 1 --Next portal
+    global.current_magic_chest_index = (global.current_magic_chest_index) % num_chests + 1 --Next magic chest
   end
 end
 
