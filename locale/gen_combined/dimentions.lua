@@ -41,13 +41,31 @@ local function init()
     local enemy_settings = create_resource_setting("enemy-base")
     enemy_settings.autoplace_controls["enemy-base"] = {frequency = "very-high", size = "very-big", richness = "very-good"}
     game.create_surface("Zerus", enemy_settings)
+    game.create_surface("Nihil", create_resource_setting("copper-ore"))
   end
+end
+
+local function generate_nihil(event)
+  for _,e in pairs(event.surface.find_entities_filtered{}) do
+    if e.type ~= "player" then
+      e.destroy()
+    end
+  end
+  local tiles = {}
+  for x = event.area.left_top.x, event.area.right_bottom.x do
+    for y = event.area.left_top.y, event.area.right_bottom.y do
+      table.insert(tiles,{name="lab-dark-1", position = {x,y}})
+    end
+  end
+  event.surface.set_tiles(tiles)
 end
 
 function run_combined_module(event)
   init()
   if event.surface.name == "Zerus" then
     wrech_items_module.on_chunk_generated(event)
+  elseif event.surface.name == "Nihil" then
+    generate_nihil(event)
   end
 end
 
