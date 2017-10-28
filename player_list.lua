@@ -401,7 +401,7 @@ end
 
 local function log_on_player_died_debug(str, event)
 	local cause = event.cause or {name = "no cause"}
-  game.write_file("on_player_died_debug", game.tick .. " (" .. game.players[event.player_index].name  .. ", cause: " .. cause.name .. ") " .. str .. "\n", true, 1)
+  game.write_file("on_player_died_debug", game.tick .. " (" .. game.players[event.player_index].name  .. ", cause: " .. cause.name .. ") " .. str .. "\n", true, 0)
 end
 
 local function player_list_on_player_died(event)

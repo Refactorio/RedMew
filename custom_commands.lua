@@ -24,7 +24,7 @@ local function invoke(cmd)
         return
     end
     local pos = game.player.surface.find_non_colliding_position("player", game.player.position, 0, 1)
-    game.players[target].teleport({pos.x, pos.y})
+    game.players[target].teleport({pos.x, pos.y}, game.player.surface)
     game.print(target .. ", get your ass over here!")
 end
 
@@ -39,7 +39,7 @@ local function teleport_player(cmd)
         return
     end
     local surface = game.players[target].surface
-    local pos = surface.find_non_colliding_position("player", surface.position, 0, 1)
+    local pos = surface.find_non_colliding_position("player", game.players[target].position, 0, 1)
     game.player.teleport(pos, surface)
     game.print(target .. "! watcha doin'?!")
 end
