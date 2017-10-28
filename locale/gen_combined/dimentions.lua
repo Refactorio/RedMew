@@ -19,8 +19,8 @@ global.teleport_cooldown = 3
 global.portal_radius = 2
 
 
-local function get_nice_surface_name(surface)
-  local name = surface.name:gsub("-ore", ""):gsub("-oil", " Oil")
+local function get_nice_surface_name(name)
+  name = name:gsub("-ore", ""):gsub("-oil", " Oil")
   return name:sub(1,1):upper() .. name:sub(2)
 end
 
@@ -36,7 +36,7 @@ end
 local function init()
   if not game.surfaces[2] then
     for _,type in pairs(resource_types) do
-      game.create_surface(type, create_resource_setting(type))
+      game.create_surface(get_nice_surface_name(type), create_resource_setting(type))
     end
     local enemy_settings = create_resource_setting("enemy-base")
     enemy_settings.autoplace_controls["enemy-base"] = {frequency = "very-high", size = "very-big", richness = "very-good"}
@@ -75,7 +75,7 @@ local function teleport_nearby_players(portal)
       if not global.last_tp[player.name] or global.last_tp[player.name] + global.teleport_cooldown * 60 < game.tick then
         player.teleport(portal.target, portal.target_surface)
         global.last_tp[player.name] = game.tick
-        player.print("Wooosh! You are now in the " .. get_nice_surface_name(portal.target_surface) .. " dimention.")
+        player.print("Wooosh! You are now in the " .. portal.target_surface.name .. " dimention.")
       end
     end
 end
