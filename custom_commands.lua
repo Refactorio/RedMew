@@ -23,8 +23,8 @@ local function invoke(cmd)
         player_print("Unknown player.")
         return
     end
-    local pos = game.surfaces[1].find_non_colliding_position("player", game.player.position, 0, 1)
-    game.players[target].teleport({pos.x, pos.y})
+    local pos = game.player.surface.find_non_colliding_position("player", game.player.position, 0, 1)
+    game.players[target].teleport({pos.x, pos.y}, game.player.surface)
     game.print(target .. ", get your ass over here!")
 end
 
@@ -38,8 +38,9 @@ local function teleport_player(cmd)
         player_print("Unknown player.")
         return
     end
-    local pos = game.surfaces[1].find_non_colliding_position("player", game.players[target].position, 0, 1)
-    game.player.teleport({pos.x, pos.y})
+    local surface = game.players[target].surface
+    local pos = surface.find_non_colliding_position("player", game.players[target].position, 0, 1)
+    game.player.teleport(pos, surface)
     game.print(target .. "! watcha doin'?!")
 end
 
@@ -52,8 +53,8 @@ local function teleport_location(cmd)
         player_print("Nothing selected.")
         return
     end
-    local pos = game.surfaces[1].find_non_colliding_position("player", game.player.selected.position, 0, 1)
-    game.player.teleport({pos.x, pos.y})
+    local pos = game.player.surface.find_non_colliding_position("player", game.player.selected.position, 0, 1)
+    game.player.teleport(pos)
 end
 
 local function detrain(param)
@@ -137,7 +138,6 @@ local function walkabout(cmd)
     return
   end
   global.walking[player_name:lower()] = true
-  local surface = game.surfaces[1]
   local distance_max = distance * 1.05
   local distance_min = distance * 0.95
   distance_max = round(distance_max, 0)
@@ -426,7 +426,7 @@ local function get_group()
     	for i=2,174 do
       	    group.set_allows_action(i, false)
         end
-    else 
+    else
       game.print("This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).")
     end
   end

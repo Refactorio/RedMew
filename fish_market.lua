@@ -27,7 +27,7 @@ function spawn_market(cmd)
     return
   end
   local radius = 10
-  local surface = game.surfaces[1]
+  local surface = game.player.surface
   -- clear trees and landfill in start area
   local start_area = {left_top = {-20, -20}, right_bottom = {20, 20}}
   for _, e in pairs(surface.find_entities_filtered{area=start_area, type="tree"}) do
@@ -192,7 +192,7 @@ function pet(player, entity_name)
 	end
 	if not global.player_pets then global.player_pets = {} end
 
-	local surface = game.surfaces[1]
+	local surface = game.player.surface
 
 	local pos = player.position
 	pos.y = pos.y + 1
@@ -320,7 +320,7 @@ function fish_market_on_180_ticks()
   		local player = game.players[pets.owner]
   		if pcall(function () local x = pets.entity.name end) then
   			if global.pet_command_rotation % 15 == 0 then
-  				local surface = game.surfaces[1]
+  				local surface = player.surface
   				local pet_pos = pets.entity.position
   				local pet_name = pets.entity.name
   				local pet_direction = pets.entity.direction

@@ -29,20 +29,37 @@ local function on_player_deconstructed_area(event)
     end
 end
 
-local init = true
+local function log_on_player_mined_entity(str, event)
+  game.write_file("on_player_mined_entity_debug", game.tick .. " (" .. game.players[event.player_index].name  .. ") " .. str .. "\n", true, 0)
+end
+
+global.on_player_mined_item_enabled = true
+global.on_player_mined_item_init = true
+
 local function on_player_mined_item(event)
-  if init then
-    game.forces.enemy.research_all_technologies() --avoids losing logstics slot configuration on force toggle
-    init = false
+  log_on_player_mined_entity("nuke_control.on_player_mined_item: entry", event)
+  if global.on_player_mined_item_enabled then
+    log_on_player_mined_entity("nuke_control.on_player_mined_item: enabled", event)
+    if global.on_player_mined_item_init then
+      log_on_player_mined_entity("nuke_control.on_player_mined_item: init", event)
+      game.forces.enemy.research_all_technologies() --avoids losing logstics slot configuration on force toggle
+      global.on_player_mined_item_init = false
+    end
+    local entity = event.entity
+    if entity.force.name ~= "enemy" and entity.force.name ~= "neutral" and entity.name ~= "entity-ghost" and entity.type ~= "logistic-robot" and entity.type ~= "construction-robot" then
+      log_on_player_mined_entity("nuke_control.on_player_mined_item: in body", event)
+      local entity_name = entity.name
+      if entity_name == "pipe-to-ground" then entity_name = "pipe" end
+      log_on_player_mined_entity("nuke_control.on_player_mined_item: before ghost placement", event)
+      local ghost = event.entity.surface.create_entity{name = "entity-ghost", position = event.entity.position, inner_name = entity_name, expires = false, force = "enemy", direction = event.entity.direction}
+      log_on_player_mined_entity("nuke_control.on_player_mined_item: ghost placed", event)
+      ghost.last_user = event.player_index
+      log_on_player_mined_entity("nuke_control.on_player_mined_item: last user set", event)
+    end
   end
-  if event.entity.force.name ~= "enemy" and event.entity.force.name ~= "neutral" and event.entity.name ~= "entity-ghost" then
-    local entity_name = event.entity.name
-    if entity_name == "pipe-to-ground" then entity_name = "pipe" end
-    local ghost = game.surfaces[1].create_entity{name = "entity-ghost", position = event.entity.position, inner_name = entity_name, expires = false, force = "enemy", direction = event.entity.direction}
-    ghost.last_user = event.player_index
-  end
+  log_on_player_mined_entity("nuke_control.on_player_mined_item: exit", event)
 end
 
 Event.register(defines.events.on_player_ammo_inventory_changed, ammo_changed)
 Event.register(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
---Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
+Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
