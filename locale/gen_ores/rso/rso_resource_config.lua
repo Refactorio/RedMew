@@ -53,7 +53,7 @@ local function fillVanillaConfig()
 
         spawns_per_region={min=1, max=1},
         size={min=15, max=25},
-        richness=1300,
+        richness=13000,
         min_amount=500,
 
         starting={richness=6000, size=20, probability=1},
@@ -103,7 +103,7 @@ local function fillVanillaConfig()
         allotment=70,
         spawns_per_region={min=1, max=2},
         richness={min=240000, max=400000}, -- richness per resource spawn
-        size={min=2, max=5},
+        size={min=5, max=25},
 
         starting={richness=400000, size=3, probability=1},
 

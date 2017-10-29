@@ -18,13 +18,15 @@ end
 
 global.callbacks = {}
 global.next_async_callback_time = -1
-
+global.actions_per_tick = 1
 
 local function on_tick()
-  if global.actions_queue[1] then
-    local callback = global.actions_queue[1]
-    pcall(_G[callback.action], callback.params)
-    table.remove(global.actions_queue, 1)
+  for action = 1, global.actions_per_tick do
+    if global.actions_queue[1] then
+       local callback = global.actions_queue[1]
+       pcall(_G[callback.action], callback.params)
+       table.remove(global.actions_queue, 1)
+    end
   end
   if game.tick == global.next_async_callback_time then
     for index, callback in pairs(global.callbacks) do
@@ -39,6 +41,10 @@ local function on_tick()
       end
     end
   end
+end
+
+function Thread.set_actions_per_tick(count)
+   global.actions_per_tick = count
 end
 
 function Thread.set_timeout_in_ticks(ticks, callback, params)

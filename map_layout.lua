@@ -11,6 +11,7 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_combined.red_planet_v2"
 --require "locale.gen_combined.borg_planet_v2"
 --require "locale.gen_combined.dimentions"
+--require "locale.gen_combined.dagobah_swamp"
 
 --grilledham's maps
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mobius_strip"
@@ -19,6 +20,9 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.manhattan"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mona_lisa"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.connected_dots"
+--MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.cage"
+--MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.maori"
+--MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.goat"
 
 --shapes--
 --require "locale.gen_shape.right"
