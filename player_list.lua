@@ -399,12 +399,23 @@ function player_list_on_12_seconds()
 	end
 end
 
-local function player_list_on_player_died( event_player, cause )
-	player = game.players[event_player.player_index]
+local function log_on_player_died_debug(str, event)
+	local cause = event.cause or {name = "no cause"}
+  game.write_file("on_player_died_debug", game.tick .. " (" .. game.players[event.player_index].name  .. ", cause: " .. cause.name .. ") " .. str .. "\n", true, 0)
+end
+
+local function player_list_on_player_died(event)
+	log_on_player_died_debug("entry", event)
+	local player = game.players[event.player_index]
+	log_on_player_died_debug("player", event)
 	if not global.scenario.variables.player_deaths[player.name] then
+		log_on_player_died_debug("if", event)
 		global.scenario.variables.player_deaths[player.name] = 0
+		log_on_player_died_debug("deaths zero", event)
 	end
+	log_on_player_died_debug("deaths ++", event)
 	global.scenario.variables.player_deaths[player.name] = global.scenario.variables.player_deaths[player.name] + 1
+	log_on_player_died_debug("exit", event)
 end
 
 
