@@ -5,7 +5,6 @@ require "locale/utils/utils"
 require "locale/utils/list_utils"
 require "base_data"
 require "user_groups"
-require "chatlog"
 require "info"
 require "player_list"
 require "poll"
@@ -53,6 +52,12 @@ function hodor(event)
 				game.print("Hodor: " .. m[1])
 				return
 			end
+		end
+	end
+	if message:match("discord") then 
+		if game.player then
+			game.player.print("Did you ask about our discord server?")
+			game.player.print("You can find it here: www.discord.mew/redmew")
 		end
 	end
 end
