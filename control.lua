@@ -57,7 +57,7 @@ function hodor(event)
 	if message:match("discord") then 
 		if game.player then
 			game.player.print("Did you ask about our discord server?")
-			game.player.print("You can find it here: www.discord.mew/redmew")
+			game.player.print("You can find it here: www.discord.me/redmew")
 		end
 	end
 end
