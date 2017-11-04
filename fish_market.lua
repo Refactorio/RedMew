@@ -125,7 +125,7 @@ local function fish_earned_index(player_index, amount)
 		player.print(fish_market_message[x])
 	end
 
-	local x = global.fish_market_fish_caught[player_index] % 7
+	local x = global.fish_market_fish_caught[player_index] % 70
 	if x == 0 then
 		local z = math.random(1,total_fish_market_bonus_messages)
 		player.print(fish_market_bonus_message[z])
