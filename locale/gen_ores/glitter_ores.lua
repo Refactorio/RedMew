@@ -4,6 +4,7 @@
 -- Suggest modifying the sprinkle_factor out of 100% to make for a less game about warehousing ore,
 -- to one about picking patches that are mostly the preferred ore, along with a % of the wrong ores.
 glitter_debug = false
+glitter_ore_module = {}
 
 function run_ores_module_setup()
 
@@ -15,7 +16,7 @@ function run_ores_module_setup()
       ["stone"] = 0.25
    }
    -- 1-100% chance of sprinkling any individual ore
-   sprinkle_factor = 25
+   sprinkle_factor = 10
 
    -- Sets the buffer distance before ores are scrambled
    starting_buffer = 125
@@ -33,7 +34,7 @@ end
 run_ores_module_setup()
 
 --generate ores for entire chunk
-function run_ores_module(event)
+function glitter_ore_module.on_chunk_generated(event)
 	local area = event.area
 	local surface = event.surface
 
@@ -73,3 +74,5 @@ function run_ores_module(event)
       end
     end
 end
+
+return glitter_ore_module

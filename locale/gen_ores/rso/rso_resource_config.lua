@@ -6,16 +6,16 @@ local function fillVanillaConfig()
 
         -- general spawn params
         allotment=100, -- how common resource is
-        spawns_per_region={min=1, max=1}, --number of chunks
+        spawns_per_region={min=1, max=2}, --number of chunks
         richness=18000,        -- resource_ore has only one richness value - resource-liquid has min/max
 
-        size={min=20, max=30}, -- rough radius of area, too high value can produce square shaped areas
+        size={min=20, max=50}, -- rough radius of area, too high value can produce square shaped areas
         min_amount=500,
 
         -- resource provided at starting location
         -- probability: 1 = 100% chance to be in starting area
         --              0 = resource is not in starting area
-        starting={richness=8000, size=25, probability=1},
+        starting={richness=16000, size=25, probability=1},
 
         multi_resource_chance=0.20, -- absolute value
         multi_resource={
@@ -30,12 +30,12 @@ local function fillVanillaConfig()
         type="resource-ore",
 
         allotment=100,
-        spawns_per_region={min=1, max=1},
+        spawns_per_region={min=1, max=2},
         richness=16000,
-        size={min=20, max=30},
+        size={min=20, max=50},
         min_amount=500,
 
-        starting={richness=6000, size=25, probability=1},
+        starting={richness=12000, size=25, probability=1},
 
         multi_resource_chance=0.20,
         multi_resource={
@@ -58,7 +58,7 @@ local function fillVanillaConfig()
 
         starting={richness=6000, size=20, probability=1},
 
-        multi_resource_chance=0.30,
+        multi_resource_chance=0.75,
         multi_resource={
             ["crude-oil"] = 1,
             ["iron-ore"] = 3,
@@ -103,7 +103,7 @@ local function fillVanillaConfig()
         allotment=70,
         spawns_per_region={min=1, max=2},
         richness={min=240000, max=400000}, -- richness per resource spawn
-        size={min=5, max=25},
+        size={min=5, max=20},
 
         starting={richness=400000, size=3, probability=1},
 

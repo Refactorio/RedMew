@@ -25,6 +25,7 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.goat"
 
 --shapes--
+require "locale.gen_shape.left"
 --require "locale.gen_shape.right"
 --require "locale.gen_shape.up"
 --require "locale.gen_shape.maze"
@@ -48,8 +49,7 @@ in this file and your run_*type*_module(event) function will be called.
 --ores--
 --require "locale.gen_ores.neko_crazy_ores"
 --require "locale.gen_ores.fluffy_rainbows"
---require "locale.gen_ores.glitter_ores"
---require "locale.gen_ores.rso.rso_control"
+require "locale.gen_ores.rso.rso_control"
 
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
@@ -57,6 +57,7 @@ miscs = {}
 --require "locale.gen_misc.rusky_pvp"
 --miscs[1] = require "locale.gen_misc.wreck_items"
 --miscs[2] = require "locale.gen_misc.tris_chunk_grid"
+--miscs[1] = require "locale.gen_ores.glitter_ores"
 
 local on_chunk_generated = function(event)
 	if run_combined_module == nil then
