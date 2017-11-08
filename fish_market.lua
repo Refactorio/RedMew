@@ -248,7 +248,7 @@ function pet(player, entity_name)
 	end
 	if not global.player_pets then global.player_pets = {} end
 
-	local surface = game.player.surface
+	local surface = player.surface
 
 	local pos = player.position
 	pos.y = pos.y + 1
