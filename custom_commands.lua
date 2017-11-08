@@ -182,45 +182,6 @@ local function return_player(args)
   game.print(args.player.name .. " came back from his walkabout.")
 end
 
-local function on_set_time(cmd)
-  if not ((not game.player) or game.player.admin or is_regular(game.player.name) or is_mod(game.player.name)) then
-      cant_run(cmd.name)
-      return
-  end
-
-  local params = {}
-  local params_numeric = {}
-
-  if cmd.parameter == nil then
-    player_print("Setting clock failed. Usage: /settime <day> <month> <hour> <minute>")
-    return
-  end
-
-  for param in string.gmatch(cmd.parameter, "%w+") do table.insert(params, param) end
-
-  if params[4] == nil then
-    player_print("Setting clock failed. Usage: /settime <day> <month> <hour> <minute>")
-    return
-  end
-
-  for _, param in pairs(params) do
-    if tonumber(param) == nil then
-      player_print("Don't be stupid.")
-      return
-    end
-    table.insert(params_numeric, tonumber(param))
-  end
-  if (params_numeric[2] > 12)  or (params_numeric[2] < 1)  or (params_numeric[1] > 31)  or (params_numeric[1] < 1) or (params_numeric[2] % 2 == 0 and params_numeric[1] > 30) or (params_numeric[3] > 24) or (params_numeric[3] < 0) or (params_numeric[4] > 60) or (params_numeric[4] < 0)  then
-    player_print("Don't be stupid.")
-    return
-  end
-  set_time(params_numeric[1], params_numeric[2], params_numeric[3], params_numeric[4])
-end
-
-local function clock()
-  player_print(format_time(game.tick))
-end
-
 local function regular(cmd)
   if not ((not game.player) or game.player.admin or is_mod(game.player.name)) then
       cant_run(cmd.name)
@@ -476,8 +437,6 @@ commands.add_command("invoke", "<player> - Teleports the player to you. (Admins 
 commands.add_command("tppos", "Teleports you to a selected entity. (Admins only)", teleport_location)
 commands.add_command("walkabout", '<player> <"close", "far", "very far", number> <duration> - Send someone on a walk.  (Admins and moderators)', walkabout)
 commands.add_command("market", 'Places a fish market near you.  (Admins only)', spawn_market)
-commands.add_command("settime", '<day> <month> <hour> <minute> - Sets the clock (Admins, moderators and regulars)', on_set_time)
-commands.add_command("clock", 'Look at the clock.', clock)
 commands.add_command("regulars", 'Prints a list of game regulars.', print_regulars)
 commands.add_command("regular", '<promote, demote>, <player> Change regular status of a player. (Admins and moderators)', regular)
 commands.add_command("mods", 'Prints a list of game mods.', print_mods)
