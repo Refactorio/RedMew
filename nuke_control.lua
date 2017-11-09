@@ -23,7 +23,7 @@ local function on_player_deconstructed_area(event)
     game.print(player.name .. " tried to deconstruct something, but instead deconstructed himself.")
     player.character.health = 0
     for _,entity in pairs(game.players[event.player_index].surface.find_entities_filtered{area = event.area}) do
-      if entity.to_be_deconstructed(game.players[event.player_index].force) then
+      if entity.valid and entity.to_be_deconstructed(game.players[event.player_index].force) then
         entity.cancel_deconstruction(game.players[event.player_index].force)
       end
     end
