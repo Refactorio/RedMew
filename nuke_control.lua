@@ -22,7 +22,11 @@ local function on_player_deconstructed_area(event)
     local nukes = player.remove_item({name="deconstruction-planner", count=1000})
     game.print(player.name .. " tried to deconstruct something, but instead deconstructed himself.")
     player.character.health = 0
-    for _,entity in pairs(game.players[event.player_index].surface.find_entities_filtered{area = event.area, force = player.force}) do
+    local entities = player.surface.find_entities_filtered{area = event.area, force = player.force}
+    if #entities > 1000 then
+      game.print("Warning! " .. player.name .. " just tried to deconstruct " .. tostring(#entities) .. " entities!")
+    end
+    for _,entity in pairs(entities) do
       if entity.valid and entity.to_be_deconstructed(game.players[event.player_index].force) then
         entity.cancel_deconstruction(game.players[event.player_index].force)
       end
