@@ -479,6 +479,22 @@ function force_chat(name, message)
 	if force then force.print("[WEB] " .. message) end
 end
 
+function print_except(msg, player)
+	for _,p in pairs(game.players) do
+		if p.connected and p ~= player then
+			p.print(msg)
+		end
+	end
+end
+
+function print_admins(msg)
+	for _,p in pairs(game.players) do
+		if p.connected and p.admin then
+			p.print(msg)
+		end
+	end
+end
+
 function check_name(function_name)
 	for i,v in pairs(global.scenario.custom_functions) do
 		if v.name == function_name:lower() then
