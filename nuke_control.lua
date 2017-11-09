@@ -22,7 +22,7 @@ local function on_player_deconstructed_area(event)
     local nukes = player.remove_item({name="deconstruction-planner", count=1000})
     game.print(player.name .. " tried to deconstruct something, but instead deconstructed himself.")
     player.character.health = 0
-    for _,entity in pairs(game.players[event.player_index].surface.find_entities_filtered{area = event.area}) do
+    for _,entity in pairs(game.players[event.player_index].surface.find_entities_filtered{area = event.area, force = player.force}) do
       if entity.valid and entity.to_be_deconstructed(game.players[event.player_index].force) then
         entity.cancel_deconstruction(game.players[event.player_index].force)
       end
@@ -46,7 +46,7 @@ local function on_player_mined_item(event)
       global.on_player_mined_item_init = false
     end
     local entity = event.entity
-    if entity.force.name ~= "enemy" and entity.force.name ~= "neutral" and entity.name ~= "entity-ghost" and entity.type ~= "logistic-robot" and entity.type ~= "construction-robot" then
+    if entity.valid and entity.force.name ~= "enemy" and entity.force.name ~= "neutral" and entity.name ~= "entity-ghost" and entity.type ~= "logistic-robot" and entity.type ~= "construction-robot" then
       log_on_player_mined_entity("nuke_control.on_player_mined_item: in body", event)
       local entity_name = entity.name
       if entity_name == "pipe-to-ground" then entity_name = "pipe" end
