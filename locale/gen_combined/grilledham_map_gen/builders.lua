@@ -67,7 +67,61 @@ function oval_builder(x_radius, y_radius)
     end
 end
 
-function picture_builder(data, width, height)
+local tile_map =
+{
+    [1] = false,
+    [2] = true,
+    [3] = "concrete",
+    [4] = "deepwater",
+    [5] = "deepwater-green",
+    [6] = "dirt",
+    [7] = "dirt-dark",
+    [8] = "grass",
+    [9] = "grass-dry",
+    [10] = "grass-medium",
+    [11] = "lab-dark-1",
+    [12] = "lab-dark-2",
+    [13] = "out-of-map",
+    [14] = "red-desert",
+    [15] = "red-desert-dark",
+    [16] = "sand",
+    [17] = "sand-dark",
+    [18] = "stone-path",
+    [19] = "water",
+    [20] = "water-green",
+}
+
+function decompress(pic)
+    local data = pic.data
+    local width = pic.width
+    local height = pic.height
+
+    local uncompressed = {}
+
+    for y = 1, height do
+        local row = data[y]
+        local u_row = {}
+        uncompressed[y] = u_row
+        local x = 1
+        for index = 1, #row, 2 do
+            local pixel = tile_map[row[index]]
+            local count = row[index + 1]
+
+            for i = 1, count do
+                u_row[x] = pixel
+                x = x + 1
+            end
+        end
+    end   
+
+    return {width = width, height = height, data = uncompressed}
+end
+
+function picture_builder(pic)
+    local data = pic.data
+    local width = pic.width
+    local height = pic.height
+
     -- the plus one is because lua tables are one based.
     local half_width = math.floor(width / 2) + 1
     local half_height = math.floor(height / 2) + 1
@@ -162,6 +216,26 @@ function invert(builder)
     return function(x, y, world_x, world_y)
         local tile, entity = builder(x, y, world_x, world_y)
         return not tile, entity
+    end
+end
+
+function throttle_x(builder, x_in, x_size)
+    return function(x, y, world_x, world_y)
+        if x % x_size < x_in then     
+            return builder(x, y, world_x, world_y) 
+        else
+            return false
+        end
+    end
+end
+
+function throttle_y(builder, y_in, y_size)
+    return function(x, y, world_x, world_y)
+        if y % y_size < y_in then     
+            return builder(x, y, world_x, world_y) 
+        else
+            return false
+        end
     end
 end
 
@@ -371,7 +445,7 @@ function change_map_gen_tile(builder, old_tile, new_tile)
     return function (local_x, local_y, world_x, world_y )
         local tile, entity = builder(local_x, local_y, world_x, world_y)
         if type(tile) == "boolean" and tile then
-            local gen_tile = MAP_GEN_SURFACE.get_tile(world_x, world_y)
+            local gen_tile = MAP_GEN_SURFACE.get_tile(world_x, world_y).name
             if old_tile == gen_tile then
                 tile = new_tile
             end
