@@ -12,7 +12,6 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_combined.borg_planet_v2"
 --require "locale.gen_combined.dimentions"
 --require "locale.gen_combined.dagobah_swamp"
---require "locale.gen_combined.uk"
 
 --grilledham's maps
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mobius_strip"
@@ -26,7 +25,7 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.goat"
 
 --shapes--
---require "locale.gen_shape.left"
+require "locale.gen_shape.left"
 --require "locale.gen_shape.right"
 --require "locale.gen_shape.up"
 --require "locale.gen_shape.maze"
@@ -50,8 +49,7 @@ in this file and your run_*type*_module(event) function will be called.
 --ores--
 --require "locale.gen_ores.neko_crazy_ores"
 --require "locale.gen_ores.fluffy_rainbows"
---require "locale.gen_ores.rso.rso_control"
---require "locale.gen_ores.harmonic_gen"
+require "locale.gen_ores.rso.rso_control"
 
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
@@ -85,9 +83,6 @@ local on_chunk_generated = function(event)
 		end
 	else
 		run_combined_module(event)
-		for _,v in pairs(miscs) do
-			v.on_chunk_generated(event)
-		end
 		if run_ores_module ~= nil then
 			run_ores_module(event)
 		end
