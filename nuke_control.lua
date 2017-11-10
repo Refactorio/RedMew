@@ -20,11 +20,15 @@ local function on_player_deconstructed_area(event)
   local player = game.players[event.player_index]
     if allowed_to_nuke(player) then return end
     local nukes = player.remove_item({name="deconstruction-planner", count=1000})
-    game.print(player.name .. " tried to deconstruct something, but instead deconstructed himself.")
+
+    --Make them think they arent noticed
+    print_except(player.name .. " tried to deconstruct something, but instead deconstructed himself.", player)
+    player.print("Only regulars can mark things for deconstruction.")
+
     player.character.health = 0
     local entities = player.surface.find_entities_filtered{area = event.area, force = player.force}
     if #entities > 1000 then
-      game.print("Warning! " .. player.name .. " just tried to deconstruct " .. tostring(#entities) .. " entities!")
+      print_admins("Warning! " .. player.name .. " just tried to deconstruct " .. tostring(#entities) .. " entities!")
     end
     for _,entity in pairs(entities) do
       if entity.valid and entity.to_be_deconstructed(game.players[event.player_index].force) then
