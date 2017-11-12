@@ -23,9 +23,10 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.cage"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.maori"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.goat"
+MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.biome_test"
 
 --shapes--
-require "locale.gen_shape.left"
+--require "locale.gen_shape.left"
 --require "locale.gen_shape.right"
 --require "locale.gen_shape.up"
 --require "locale.gen_shape.maze"
@@ -49,7 +50,7 @@ require "locale.gen_shape.left"
 --ores--
 --require "locale.gen_ores.neko_crazy_ores"
 --require "locale.gen_ores.fluffy_rainbows"
-require "locale.gen_ores.rso.rso_control"
+--require "locale.gen_ores.rso.rso_control"
 
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
