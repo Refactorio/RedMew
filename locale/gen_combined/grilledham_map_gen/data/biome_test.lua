@@ -11,37 +11,50 @@ local tile_types = {
 "hazard-concrete-right",
 "lab-dark-1",
 "lab-dark-2",
-"out-of-map",
 "red-desert",
 "red-desert-dark",
 "sand",
 "sand-dark",
 "stone-path",
 "water",
-"water-green"
+"water-green",
+"out-of-map",
 }
+local cols = 5
+local rows = 20 / cols
 
 local tile_width = 32
 local tile_height = 32
 
 local tile_data = {}
 
-local abs_y = 1
+local abs_y = 0
+local rel_x = 0
+local abs_col = 0
+local block = 0
 
-for e,_ in ipairs(tile_types) do
-	for y = 1, tile_width do
-		row = {}
-		for x = 1, tile_height do
-			table.insert( row, e)
+for _,e in pairs(tile_types) do
+	block = _  - 1
+
+	abs_row = math.floor(block / cols)
+	abs_col = block % cols
+
+	rel_x = tile_width * (abs_col)
+	rel_y = tile_height * (abs_row)
+
+	for y = 1, tile_height do
+		if tile_data[rel_y + y] == nil then
+			tile_data[rel_y + y] = {}
 		end
---		abs_y = abs_y + 1
-		table.insert(tile_data, row)
---		tile_data[abs_y] = row
+		for x = 1, tile_width do
+			tile_data[rel_y + y][rel_x + x] = e
+		end
 	end
+
 end
 
 return {
-height = tile_height * #tile_data,
-width = tile_height,
-data = tile_data
+	height = tile_height * rows,
+	width = tile_width * cols,
+	data = tile_data
 }
