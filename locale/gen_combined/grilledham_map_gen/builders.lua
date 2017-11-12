@@ -17,27 +17,27 @@ function full_builder(x, y)
     return true
 end
 
-function path_builder(thickness, optional_thickness_height)	
+function path_builder(thickness, optional_thickness_height)
     local width = thickness / 2
     local thickness2 = optional_thickness_height or thickness
-    local height = thickness2 / 2    
-	return function(x, y) 
+    local height = thickness2 / 2
+	return function(x, y)
         return (x > -width and x <= width) or (y > -height and y <= height)
     end
 end
 
-function rectangle_builder(width, height)    
-    width = width / 2 
-    height = height / 2 
-    return function (x, y) 
-        return x > -width and x <= width and y > -height and y <= height        
+function rectangle_builder(width, height)
+    width = width / 2
+    height = height / 2
+    return function (x, y)
+        return x > -width and x <= width and y > -height and y <= height
     end
 end
 
 function square_diamond_builder(size)
     size = size / 2
-    return function (x, y)        
-        return  math.abs(x) + math.abs(y) <= size      
+    return function (x, y)
+        return  math.abs(x) + math.abs(y) <= size
     end
 end
 
@@ -52,14 +52,14 @@ function rectangle_diamond_builder(width, height)
     end
 end
 
-function circle_builder(radius)  
+function circle_builder(radius)
     local rr = radius * radius
     return function (x, y)
         return  x * x + y * y < rr
     end
 end
 
-function oval_builder(x_radius, y_radius)    
+function oval_builder(x_radius, y_radius)
     local x_rr = x_radius * x_radius
     local y_rr = y_radius * y_radius
     return function (x, y)
@@ -125,18 +125,24 @@ function picture_builder(pic)
     -- the plus one is because lua tables are one based.
     local half_width = math.floor(width / 2) + 1
     local half_height = math.floor(height / 2) + 1
+
     return function(x, y)
         x = math.floor(x)
         y = math.floor(y)
         local x2 = x + half_width
-        local y2 = y + half_height     
+        local y2 = y + half_height
 
         if y2 > 0 and y2 <= height and x2 > 0 and x2 <= width  then
-            local pixel = data[y2][x2]            
+           local pixel = "out-of-map"
+            if data[y2] ~= nil then
+               if data[y2][x2] ~= nil then
+                  pixel = data[y2][x2]
+               end
+            end
             return pixel
         else
             return false
-        end        
+        end
     end
 end
 
@@ -155,7 +161,7 @@ function scale(builder, x_scale, y_scale)
         return builder(x * x_scale, y * y_scale, world_x, world_y)
     end
 end
-    
+
 function rotate(builder, angle)
     local qx = math.cos(angle)
     local qy = math.sin(angle)
@@ -194,8 +200,8 @@ end
 -- For resource_module_builder it will return the first success.
 function compound_or(builders)
     return function(x, y, world_x, world_y)
-        for _, v in ipairs(builders) do   
-            local tile, entity = v(x, y, world_x, world_y)         
+        for _, v in ipairs(builders) do
+            local tile, entity = v(x, y, world_x, world_y)
             if tile then return tile, entity end
         end
         return false
@@ -241,8 +247,8 @@ end
 
 function throttle_xy(builder, x_in, x_size, y_in, y_size)
     return function(x, y, world_x, world_y)
-        if x % x_size < x_in and y % y_size < y_in then     
-            return builder(x, y, world_x, world_y) 
+        if x % x_size < x_in and y % y_size < y_in then
+            return builder(x, y, world_x, world_y)
         else
             return false
         end
@@ -262,7 +268,7 @@ end
 function linear_grow(shape, size)
     local half_size = size / 2
     return function (local_x, local_y, world_x, world_y)
-        local t = math.ceil((local_y / size) + 0.5)                
+        local t = math.ceil((local_y / size) + 0.5)
         local n = math.ceil((math.sqrt(8 * t + 1) - 1) / 2)
         local t_upper = n * (n + 1) * 0.5
         local t_lower = t_upper - n
@@ -274,11 +280,11 @@ function linear_grow(shape, size)
     end
 end
 
-function project(shape, size, r)    
+function project(shape, size, r)
     local ln_r = math.log(r)
     local r2 = 1 / (r - 1)
     local a = 1 / size
-    
+
     return function(local_x, local_y, world_x, world_y)
         local offset = 0.5 * size
         local sn = math.ceil(local_y  + offset)
@@ -289,21 +295,21 @@ function project(shape, size, r)
         local c = size * rn
 
         local sn_upper = size * (r ^ (n + 1) - 1) * r2
-        local x = local_x * rn2  
-        local y = (local_y - (sn_upper - 0.5 * c  ) + offset ) * rn2        
+        local x = local_x * rn2
+        local y = (local_y - (sn_upper - 0.5 * c  ) + offset ) * rn2
 
         return shape(x, y, world_x, world_y)
     end
 end
 
-function project_overlap(shape, size, r)    
+function project_overlap(shape, size, r)
     local ln_r = math.log(r)
     local r2 = 1 / (r - 1)
     local a = 1 / size
     local offset = 0.5 * size
-    
+
     return function(local_x, local_y, world_x, world_y)
-        
+
         local sn = math.ceil(local_y  + offset)
 
         local n = math.ceil(math.log((r-1) * sn * a + 1) / ln_r - 1)
@@ -312,8 +318,8 @@ function project_overlap(shape, size, r)
         local c = size * rn
 
         local sn_upper = size * (r ^ (n + 1) - 1) * r2
-        local x = local_x * rn2  
-        local y = (local_y - (sn_upper - 0.5 * c  ) + offset ) * rn2        
+        local x = local_x * rn2
+        local y = (local_y - (sn_upper - 0.5 * c  ) + offset ) * rn2
 
         local tile
         local entity
@@ -323,7 +329,7 @@ function project_overlap(shape, size, r)
             return tile, entity
         end
 
-        local n_above = n - 1 
+        local n_above = n - 1
         local rn_above = rn / r
         local rn2_above = 1 / rn_above
         local c_above = size * rn_above
@@ -344,8 +350,8 @@ function project_overlap(shape, size, r)
         local x_below = local_x * rn2_below
         local y_below = (local_y - (sn_upper_below - 0.5 * c_below  ) + offset ) * rn2_below
 
-        return shape(x_below, y_below, world_x, world_y)       
-        
+        return shape(x_below, y_below, world_x, world_y)
+
     end
 end
 
@@ -356,12 +362,12 @@ function resource_module_builder(builder, resource_type, amount_function)
     amount_function = amount_function or function(a, b) return 603 end
     return function(x, y, world_x, world_y)
         if builder(x, y, world_x, world_y) then
-            return 
+            return
             {
                 name = resource_type,
                 position = {world_x, world_y},
                 amount = amount_function(world_x, world_y)
-            }            
+            }
         else
             return nil
         end
@@ -373,9 +379,9 @@ function builder_with_resource(land_builder, resource_module)
         local tile = land_builder(x, y)
         if tile then
             local entity = resource_module(x, y ,world_x, world_y)
-            return tile, entity        
+            return tile, entity
         else
-            return false            
+            return false
         end
     end
 end
@@ -388,27 +394,27 @@ function single_pattern_builder(shape, width, height)
     local half_width  = width / 2
     local half_height = height / 2
 
-    return function (local_x, local_y, world_x, world_y)      
-        local_y = ((local_y + half_height) % height) - half_height      
-        local_x = ((local_x + half_width) % width) - half_width  
+    return function (local_x, local_y, world_x, world_y)
+        local_y = ((local_y + half_height) % height) - half_height
+        local_x = ((local_x + half_width) % width) - half_width
 
         return shape(local_x, local_y, world_x, world_y)
     end
 end
 
 function grid_pattern_builder(pattern, columns, rows, width, height)
-    
+
     local half_width  = width / 2
     local half_height = height / 2
 
     return function (local_x, local_y, world_x, world_y)
-        local local_y2 = ((local_y + half_height) % height) - half_height  
+        local local_y2 = ((local_y + half_height) % height) - half_height
         local row_pos = math.floor(local_y / height + 0.5)
         local row_i = row_pos % rows + 1
-        local row = pattern[row_i] or {} 
+        local row = pattern[row_i] or {}
 
-        local local_x2 = ((local_x + half_width) % width) - half_width 
-        local col_pos = math.floor(local_x / width + 0.5)  
+        local local_x2 = ((local_x + half_width) % width) - half_width
+        local col_pos = math.floor(local_x / width + 0.5)
         local col_i = col_pos % columns + 1
 
         local shape = row[col_i] or empty_builder
