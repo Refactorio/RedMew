@@ -450,7 +450,7 @@ local function spyshot(cmd)
           table.insert(pseudo_ghosts, pseudo_ghost)
           ghost.destroy()
         end
-        game.take_screenshot{by_player = spy, position = pos, show_gui = false, show_entity_info = true, resolution = {1920, 1080}, anti_alias = true, zoom = 1}
+        game.take_screenshot{by_player = spy, position = pos, show_gui = false, show_entity_info = true, resolution = {1920, 1080}, anti_alias = true, zoom = 0.5, path ="spyshot.png"}
         game.players[spy].print("You just took a screenshot!")
         Thread.set_timeout(2, custom_commands_replace_ghosts, {ghosts = pseudo_ghosts, surface_index = game.players[player_name].surface.index}) --delay replacements for the screenshot to render
         return
