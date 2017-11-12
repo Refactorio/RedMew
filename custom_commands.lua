@@ -430,6 +430,36 @@ local function tempban(cmd)
   end
 end
 
+
+function custom_commands_replace_ghosts(param)
+  for _,ghost in pairs(param.ghosts) do
+    local new_ghost = game.surfaces[param.surface_index].create_entity{name = "entity-ghost", position = ghost.position, inner_name = ghost.ghost_name, expires = false, force = "enemy", direction = ghost.direction}
+    new_ghost.last_user = ghost.last_user
+  end
+end
+
+local function spyshot(cmd)
+  local player_name = cmd.parameter
+  if player_name and game.players[player_name] then
+    for _,spy in pairs(global.spys) do
+      if game.players[spy] and game.players[spy].connected then
+        local pos = game.players[player_name].position
+        pseudo_ghosts = {}
+        for _,ghost in pairs(game.players[player_name].surface.find_entities_filtered{area = {{pos.x - 60, pos.y - 35},{pos.x + 60, pos.y + 35}},name = "entity-ghost", force = enemy}) do
+          local pseudo_ghost = {position = ghost.position, ghost_name = ghost.ghost_name, expires = false, force = "enemy", direction = ghost.direction, last_user = ghost.last_user}
+          table.insert(pseudo_ghosts, pseudo_ghost)
+          ghost.destroy()
+        end
+        game.take_screenshot{by_player = spy, position = pos, show_gui = false, show_entity_info = true, resolution = {1920, 1080}, anti_alias = true, zoom = 1}
+        game.players[spy].print("You just took a screenshot!")
+        Thread.set_timeout(2, custom_commands_replace_ghosts, {ghosts = pseudo_ghosts, surface_index = game.players[player_name].surface.index}) --delay replacements for the screenshot to render
+        return
+      end
+    end
+    player_print("No spy online!")
+  end
+end
+
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("detrain", "<player> - Kicks the player off a train. (Admins and moderators)", detrain)
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
@@ -449,3 +479,4 @@ commands.add_command("well", '<item> <items per second> Spawns an item well. (Ad
 commands.add_command("tpmode", "Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)", toggle_tp_mode)
 commands.add_command("forcetoggle", "Toggles the players force between player and enemy (Admins and moderators)", forcetoggle)
 commands.add_command("tempban", "<player> <minutes> Temporarily bans a player (Admins and moderators)", tempban)
+commands.add_command("spyshot", "<player> sends a screenshot of player to discord. (If a host is online. If no host is online, you can become one yourself. Ask on discord :))", spyshot)

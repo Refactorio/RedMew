@@ -1,11 +1,6 @@
 global.scenario = {}
+global.spys = {"valansch", "air20"}
 global.scenario.variables = {}
-global.scenario.variables.time_set_moment = 0
-global.scenario.variables.current_month = 1
-global.scenario.variables.current_day = 1
-global.scenario.variables.current_h = 0
-global.scenario.variables.current_m = 0
-global.scenario.variables.days_passed = 0
 global.scenario.variables.mods = require "locale.resources.mods"
 global.scenario.variables.regulars = require "locale.resources.regulars"
 global.scenario.variables.player_positions = {}
