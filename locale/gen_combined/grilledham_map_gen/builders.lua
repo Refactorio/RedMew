@@ -112,7 +112,7 @@ function decompress(pic)
                 x = x + 1
             end
         end
-    end   
+    end
 
     return {width = width, height = height, data = uncompressed}
 end
@@ -125,7 +125,6 @@ function picture_builder(pic)
     -- the plus one is because lua tables are one based.
     local half_width = math.floor(width / 2) + 1
     local half_height = math.floor(height / 2) + 1
-
     return function(x, y)
         x = math.floor(x)
         y = math.floor(y)
@@ -133,12 +132,7 @@ function picture_builder(pic)
         local y2 = y + half_height
 
         if y2 > 0 and y2 <= height and x2 > 0 and x2 <= width  then
-           local pixel = "out-of-map"
-            if data[y2] ~= nil then
-               if data[y2][x2] ~= nil then
-                  pixel = data[y2][x2]
-               end
-            end
+            local pixel = data[y2][x2]
             return pixel
         else
             return false
@@ -227,8 +221,8 @@ end
 
 function throttle_x(builder, x_in, x_size)
     return function(x, y, world_x, world_y)
-        if x % x_size < x_in then     
-            return builder(x, y, world_x, world_y) 
+        if x % x_size < x_in then
+            return builder(x, y, world_x, world_y)
         else
             return false
         end
@@ -237,8 +231,8 @@ end
 
 function throttle_y(builder, y_in, y_size)
     return function(x, y, world_x, world_y)
-        if y % y_size < y_in then     
-            return builder(x, y, world_x, world_y) 
+        if y % y_size < y_in then
+            return builder(x, y, world_x, world_y)
         else
             return false
         end
