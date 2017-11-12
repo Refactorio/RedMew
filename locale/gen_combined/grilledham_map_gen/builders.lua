@@ -125,6 +125,7 @@ function picture_builder(pic)
     -- the plus one is because lua tables are one based.
     local half_width = math.floor(width / 2) + 1
     local half_height = math.floor(height / 2) + 1
+
     return function(x, y)
         x = math.floor(x)
         y = math.floor(y)
@@ -132,7 +133,12 @@ function picture_builder(pic)
         local y2 = y + half_height
 
         if y2 > 0 and y2 <= height and x2 > 0 and x2 <= width  then
-            local pixel = data[y2][x2]
+           local pixel = "out-of-map"
+            if data[y2] ~= nil then
+               if data[y2][x2] ~= nil then
+                  pixel = data[y2][x2]
+               end
+            end
             return pixel
         else
             return false
