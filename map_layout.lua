@@ -12,9 +12,9 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_combined.borg_planet_v2"
 --require "locale.gen_combined.dimentions"
 --require "locale.gen_combined.dagobah_swamp"
---require "locale.gen_combined.uk"
+--require "locale.gen_combined.UK"
 
---grilledham's maps
+--grilledham's map gen
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mobius_strip"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.antfarm"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.creation_of_adam"
@@ -24,6 +24,7 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.cage"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.maori"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.goat"
+--require "locale.grilledham_map_gen.presets.UK"
 
 --shapes--
 --require "locale.gen_shape.left"
