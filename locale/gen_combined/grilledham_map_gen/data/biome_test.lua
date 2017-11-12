@@ -23,8 +23,8 @@ local tile_types = {
 local cols = 5
 local rows = 20 / cols
 
-local tile_width = 32
-local tile_height = 32
+local tile_width = 64
+local tile_height = 64
 
 local tile_data = {}
 
