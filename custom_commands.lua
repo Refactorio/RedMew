@@ -439,6 +439,7 @@ function custom_commands_replace_ghosts(param)
 end
 
 local function spyshot(cmd)
+  if not cmd then return 0 end
   local player_name = cmd.parameter
   if player_name and game.players[player_name] then
     for _,spy in pairs(global.spys) do
@@ -457,6 +458,12 @@ local function spyshot(cmd)
       end
     end
     player_print("No spy online!")
+  end
+end
+
+local function zoom(cmd)
+  if game.player and cmd and cmd.parameter and tonumber(cmd.parameter) then
+    game.player.zoom = tonumber(cmd.parameter)
   end
 end
 
@@ -479,4 +486,5 @@ commands.add_command("well", '<item> <items per second> Spawns an item well. (Ad
 commands.add_command("tpmode", "Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)", toggle_tp_mode)
 commands.add_command("forcetoggle", "Toggles the players force between player and enemy (Admins and moderators)", forcetoggle)
 commands.add_command("tempban", "<player> <minutes> Temporarily bans a player (Admins and moderators)", tempban)
-commands.add_command("spyshot", "<player> sends a screenshot of player to discord. (If a host is online. If no host is online, you can become one yourself. Ask on discord :))", spyshot)
+commands.add_command("spyshot", "<player> Sends a screenshot of player to discord. (If a host is online. If no host is online, you can become one yourself. Ask on discord :))", spyshot)
+commands.add_command("zoom", "<number> Sets your zoom.", zoom)
