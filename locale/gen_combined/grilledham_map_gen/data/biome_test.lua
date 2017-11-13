@@ -1,30 +1,30 @@
 local tile_types = {
+	"hazard-concrete-left",
 	"concrete",
-	"deepwater",
-	"deepwater-green",
-	"dirt",
-	"dirt-dark",
+	"stone-path",
+	"hazard-concrete-right",
+	"lab-dark-1",
 	"grass",
 	"grass-medium",
 	"grass-dry",
-	"hazard-concrete-left",
-	"hazard-concrete-right",
-	"lab-dark-1",
-	"lab-dark-2",
+	"dirt",
+	"dirt-dark",
 	"red-desert",
 	"red-desert-dark",
 	"sand",
 	"sand-dark",
-	"stone-path",
+	"lab-dark-2",
 	"water",
+	"deepwater",
 	"water-green",
+	"deepwater-green",
 	"out-of-map",
 }
 local cols = 5
 local rows = 20 / cols
 
-local tile_width = 64
-local tile_height = 64
+local tile_width = 32
+local tile_height = 32
 
 local tile_data = {}
 
