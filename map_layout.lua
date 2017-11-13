@@ -12,8 +12,9 @@ in this file and your run_*type*_module(event) function will be called.
 --require "locale.gen_combined.borg_planet_v2"
 --require "locale.gen_combined.dimentions"
 --require "locale.gen_combined.dagobah_swamp"
+--require "locale.gen_combined.UK"
 
---grilledham's maps
+--grilledham's map gen
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mobius_strip"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.antfarm"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.creation_of_adam"
@@ -25,6 +26,7 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.goat"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.biome_test"
 MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.GoT"
+--require "locale.grilledham_map_gen.presets.UK"
 
 --shapes--
 --require "locale.gen_shape.left"
@@ -51,7 +53,8 @@ MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.GoT"
 --ores--
 --require "locale.gen_ores.neko_crazy_ores"
 --require "locale.gen_ores.fluffy_rainbows"
-require "locale.gen_ores.rso.rso_control"
+--require "locale.gen_ores.rso.rso_control"
+--require "locale.gen_ores.harmonic_gen"
 
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
@@ -85,6 +88,9 @@ local on_chunk_generated = function(event)
 		end
 	else
 		run_combined_module(event)
+		for _,v in pairs(miscs) do
+			v.on_chunk_generated(event)
+		end
 		if run_ores_module ~= nil then
 			run_ores_module(event)
 		end

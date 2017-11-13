@@ -112,7 +112,7 @@ function decompress(pic)
                 x = x + 1
             end
         end
-    end
+    end   
 
     return {width = width, height = height, data = uncompressed}
 end
@@ -221,8 +221,8 @@ end
 
 function throttle_x(builder, x_in, x_size)
     return function(x, y, world_x, world_y)
-        if x % x_size < x_in then
-            return builder(x, y, world_x, world_y)
+        if x % x_size < x_in then     
+            return builder(x, y, world_x, world_y) 
         else
             return false
         end
@@ -231,8 +231,8 @@ end
 
 function throttle_y(builder, y_in, y_size)
     return function(x, y, world_x, world_y)
-        if y % y_size < y_in then
-            return builder(x, y, world_x, world_y)
+        if y % y_size < y_in then     
+            return builder(x, y, world_x, world_y) 
         else
             return false
         end
