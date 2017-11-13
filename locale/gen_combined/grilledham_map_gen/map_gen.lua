@@ -10,14 +10,11 @@ end
 
 function run_place_tiles(params)
 	local surface = params.surface
-   surface.set_tiles(global._tiles_hold)
+   surface.set_tiles(global._tiles_hold, true)
 end
 
 function run_place_items(params)
 	local surface = params.surface
-   for _,deco in pairs(global._decoratives_hold) do
-     surface.create_decoratives{check_collision=false, decoratives={deco}}
-   end
    for _,deco in pairs(global._decoratives_hold) do
      surface.create_decoratives{check_collision=false, decoratives={deco}}
    end
@@ -125,9 +122,23 @@ end
 local decorative_options = {
    ["concrete"] = {},
    ["deepwater"] = {},
-   ["deepwater-green"] = {},
-   ["dirt"] = {},
-   ["dirt-dark"] = {},
+   ["deepwater-green"] = {
+      {"brown-carpet-grass", 100},
+      {"brown-cane-cluster", 500},
+   },
+   ["dirt"] = {
+      {"brown-carpet-grass", 100},
+      {"brown-cane-cluster", 200},
+      {"red-desert-rock-tiny", 150},
+   },
+   ["dirt-dark"] = {
+      {"red-desert-rock-tiny", 150},
+      {"red-asterisk", 45},
+      {"red-desert-bush", 12},
+      {"red-desert-rock-medium", 375},
+
+
+   },
    ["grass"] = {
       {"green-carpet-grass", 3},
       {"green-hairy-grass", 7},
@@ -136,6 +147,7 @@ local decorative_options = {
       {"green-small-grass", 12},
       {"green-asterisk", 25},
       {"green-bush-mini", 7},
+      {"garballo", 20},
    },
    ["grass-medium"] = {
       {"green-carpet-grass", 12},
@@ -147,13 +159,14 @@ local decorative_options = {
       {"green-bush-mini", 28},
    },
    ["grass-dry"] = {
-      {"green-carpet-grass", 24},
       {"green-hairy-grass", 56},
       {"green-bush-mini", 80},
       {"green-pita", 48},
       {"green-small-grass", 96},
       {"green-asterisk", 200},
       {"green-bush-mini", 56},
+      {"brown-cane-cluster", 100},
+      {"brown-carpet-grass", 100},
    },
    ["hazard-concrete-left"] = {},
    ["hazard-concrete-right"] = {},
@@ -177,7 +190,17 @@ local decorative_options = {
       {"red-desert-rock-small", 200},
       {"red-desert-rock-tiny", 150},
    },
-   ["sand-dark"] = {},
+   ["sand"] = {
+      {"brown-carpet-grass", 35},
+      {"orange-coral-mini", 45},
+      {"red-asterisk", 45},
+      {"brown-asterisk", 45},
+   },
+   ["sand-dark"] = {
+      {"brown-carpet-grass", 35},
+      {"orange-coral-mini", 45},
+      {"brown-asterisk", 45},
+   },
    ["stone-path"] = {},
    ["water"] = {},
    ["water-green"] = {},
@@ -203,18 +226,48 @@ local entity_options = {
    ["concrete"] = {},
    ["deepwater"] = {},
    ["deepwater-green"] = {},
-   ["dirt"] = {},
-   ["dirt-dark"] = {},
-   ["grass"] = {
-      {"tree-04", 400},
+   ["water"] = {},
+   ["water-green"] = {},
+   ["dirt"] = {
+      {"tree-01", 500},
+      {"tree-06", 300},
+      {"tree-07", 800},
+      {"tree-09", 2000},
+      {"stone-rock", 400},
+   },
+   ["dirt-dark"] = {
       {"tree-06", 150},
+      {"tree-07", 400},
+      {"tree-09", 1000},
+      {"stone-rock", 300},
+   },
+   ["grass"] = {
+      {"tree-01", 150},
+      {"tree-04", 400},
+      {"tree-06", 400},
       {"tree-07", 400},
       {"tree-09", 1000},
       {"stone-rock", 400},
       {"green-coral", 10000},
    },
-   ["grass-dry"] = {},
-   ["grass-medium"] = {},
+   ["grass-medium"] = {
+      {"tree-02", 400},
+      {"tree-03", 400},
+      {"tree-04", 800},
+      {"tree-06", 300},
+      {"tree-07", 800},
+      {"tree-08", 400},
+      {"tree-09", 2000},
+      {"stone-rock", 400},
+   },
+   ["grass-dry"] = {
+      {"tree-04", 800},
+      {"tree-06", 300},
+      {"tree-07", 400},
+      {"tree-09", 1000},
+      {"dry-tree", 1000},
+      {"stone-rock", 200},
+   },
    ["hazard-concrete-left"] = {},
    ["hazard-concrete-right"] = {},
    ["lab-dark-1"] = {},
@@ -243,11 +296,21 @@ local entity_options = {
       {"red-desert-rock-huge-01", 400},
       {"red-desert-rock-huge-02", 400},
    },
-   ["sand"] = {},
-   ["sand-dark"] = {},
+   ["sand"] = {
+      {"dry-tree", 1000},
+      {"dry-hairy-tree", 1000},
+      {"dead-tree", 1000},
+      {"stone-rock", 150},
+
+   },
+   ["sand-dark"] = {
+      {"dead-tree", 1000},
+      {"dry-tree", 1000},
+      {"dry-hairy-tree", 1000},
+      {"stone-rock", 150},
+
+   },
    ["stone-path"] = {},
-   ["water"] = {},
-   ["water-green"] = {},
    ["out-of-map"] = {},
 }
 
