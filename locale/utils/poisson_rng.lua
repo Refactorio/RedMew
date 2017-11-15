@@ -1,3 +1,5 @@
+--Author: Valansch
+
 local function generate_pmf_chart(l)
  chart = {[0] = math.exp(-l)}
  for k=1,(l*2 + 1) do
@@ -15,13 +17,14 @@ local function generate_poisson_set(l, n) --n defines the resolution
    table.insert(set,x)
   end
  end
+ set._n = #set
  return set
 end
 
 global.poisson_set = {}
-function poison_rng_next(l)
+function poisson_rng_next(l)
   if not global.poisson_set[l] then
     global.poisson_set[l] = generate_poisson_set(l, 1000)
   end
- return global.poisson_set[l][math.random(1000)]
+ return global.poisson_set[l][math.random(global.poisson_set[l]._n)]
 end
