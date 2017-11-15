@@ -52,7 +52,7 @@ MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.GoT"
 --ores--
 --require "locale.gen_ores.neko_crazy_ores"
 --require "locale.gen_ores.fluffy_rainbows"
---require "locale.gen_ores.rso.rso_control"
+require "locale.gen_ores.rso.rso_control"
 --require "locale.gen_ores.harmonic_gen"
 
 --everything else. You may use more than one of these, but beware they might not be compatible
@@ -87,11 +87,11 @@ local on_chunk_generated = function(event)
 		end
 	else
 		run_combined_module(event)
-		for _,v in pairs(miscs) do
-			v.on_chunk_generated(event)
-		end
 		if run_ores_module ~= nil then
 			run_ores_module(event)
+		end
+		for _,v in pairs(miscs) do
+			v.on_chunk_generated(event)
 		end
 	end
 end

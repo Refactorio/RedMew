@@ -16,7 +16,7 @@ function run_ores_module_setup()
       ["stone"] = 0.25
    }
    -- 1-100% chance of sprinkling any individual ore
-   sprinkle_factor = 10
+   sprinkle_factor = 20
 
    -- Sets the buffer distance before ores are scrambled
    starting_buffer = 125
