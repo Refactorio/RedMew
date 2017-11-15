@@ -216,7 +216,7 @@ function check_decorative(tile, x, y)
    for _,e in ipairs(options) do
       name = e[1]
       high_roll = e[2]
-      if poison_rng_next(high_roll / 2 ) == 1 then
+      if poisson_rng_next(high_roll / 2 ) == 1 then
          table.insert(tile_decoratives, {name=name, amount=1, position={x,y}})
       end
    end
@@ -323,13 +323,12 @@ function check_entities(tile, x, y)
    for _,e in ipairs(options) do
       name = e[1]
       high_roll = e[2]
-      if poison_rng_next( high_roll / 2 ) == 1 then
+      if poisson_rng_next( high_roll / 2 ) == 1 then
          table.insert(tile_entity_list, {name=name, position={x,y}})
       end
    end
 
    return tile_entity_list
-
 end
 
 function run_combined_module(event)
