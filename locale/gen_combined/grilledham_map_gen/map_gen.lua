@@ -1,4 +1,6 @@
 require("locale.gen_combined.grilledham_map_gen.builders")
+require("locale.gen_shared.poisson")
+
 local Thread = require "locale.utils.Thread"
 
 
@@ -214,7 +216,7 @@ function check_decorative(tile, x, y)
    for _,e in ipairs(options) do
       name = e[1]
       high_roll = e[2]
-      if math.random(1, high_roll) == 1 then
+      if poison_rng_next(high_roll / 2 ) == 1 then
          table.insert(tile_decoratives, {name=name, amount=1, position={x,y}})
       end
    end
@@ -321,7 +323,7 @@ function check_entities(tile, x, y)
    for _,e in ipairs(options) do
       name = e[1]
       high_roll = e[2]
-      if math.random(1, high_roll) == 1 then
+      if poison_rng_next( high_roll / 2 ) == 1 then
          table.insert(tile_entity_list, {name=name, position={x,y}})
       end
    end
