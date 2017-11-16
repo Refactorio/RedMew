@@ -1,5 +1,5 @@
 require("locale.gen_combined.grilledham_map_gen.builders")
-require("locale.utils.poisson")
+require("locale.utils.poisson_rng")
 
 local Thread = require "locale.utils.Thread"
 
