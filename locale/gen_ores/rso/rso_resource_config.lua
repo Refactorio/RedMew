@@ -15,7 +15,7 @@ local function fillVanillaConfig()
         -- resource provided at starting location
         -- probability: 1 = 100% chance to be in starting area
         --              0 = resource is not in starting area
-        starting={richness=16000, size=25, probability=1},
+        starting={richness=20000, size=35, probability=1},
 
         multi_resource_chance=0.20, -- absolute value
         multi_resource={
