@@ -524,6 +524,22 @@ function remove_global_event(name)
 	end
 end
 
+
+local command_calls = {}
+local _add_command = commands.add_command
+local function run_custom_command(command)
+	local status, err = pcall(command_calls[command.name])
+	if err then
+		log(err)
+	end
+end
+
+commands.add_command = function(name, description, target)
+	command_calls[name] = target
+	_add_command(name,description,run_custom_command)
+end
+
+
 Event.register(-2, function()
 	for i,v in pairs(global.scenario.custom_functions) do
 		Event.register(v.event, v.func)
