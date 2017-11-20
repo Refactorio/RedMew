@@ -59,6 +59,7 @@ function spawn_market(cmd)
 
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="discharge-defense-remote"}}
   market.add_market_item{price={{"raw-fish", 30}}, offer={type="give-item", item="small-plane"}}
+  market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="wood"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="rail", count=2}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-signal"}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-chain-signal"}}
@@ -85,7 +86,7 @@ function spawn_market(cmd)
   market.add_market_item{price={{"raw-fish", 100}}, offer={type="give-item", item="loader"}}
   market.add_market_item{price={{"raw-fish", 175}}, offer={type="give-item", item="fast-loader"}}
   market.add_market_item{price={{"raw-fish", 250}}, offer={type="give-item", item="express-loader"}}
-  market.add_market_item{price={{"raw-fish", 1000}}, offer={type="give-item", item="belt-immunity-equipment"}}
+  market.add_market_item{price={{"raw-fish", 500}}, offer={type="give-item", item="belt-immunity-equipment"}}
   market.add_market_item{price={{"raw-fish", 100}}, offer={type="give-item", item="night-vision-equipment"}}
   market.add_market_item{price={{"raw-fish", 200}}, offer={type="give-item", item="modular-armor"}}
   market.add_market_item{price={{"raw-fish", 500}}, offer={type="give-item", item="power-armor"}}
@@ -94,7 +95,7 @@ function spawn_market(cmd)
   market.add_market_item{price={{"raw-fish", 50}}, offer={type="give-item", item="solar-panel-equipment", count=1}}
   market.add_market_item{price={{"raw-fish", 50}}, offer={type="give-item", item="battery-equipment", count=1}}
   market.add_market_item{price={{"raw-fish", 750}}, offer={type="give-item", item="battery-mk2-equipment", count=1}}
-  market.add_market_item{price={{"raw-fish", 2000}}, offer={type="give-item", item="fusion-reactor-equipment", count=1}}
+  market.add_market_item{price={{"raw-fish", 1000}}, offer={type="give-item", item="fusion-reactor-equipment", count=1}}
   market.add_market_item{price={{"raw-fish", 100}}, offer={type="give-item", item="exoskeleton-equipment"}}
 
 end
@@ -189,7 +190,7 @@ local function fish_drop_entity_died(event)
          give_fish_cause = true
       end
       if event.entity.type == "unit" then
-         fish_amount = 1
+         fish_amount = 3
          fish_chance = 1
          give_fish_unit = true
       end
@@ -200,11 +201,11 @@ local function fish_drop_entity_died(event)
       end
       if event.entity.type == "turret" then
          if ( event.entity.name == "small-worm-turret" ) then
-            fish_amount = 10
+            fish_amount = 5
          elseif ( event.entity.name == "medium-worm-turret" ) then
-            fish_amount = 20
+            fish_amount = 10
          elseif ( event.entity.name == "big-worm-turret" ) then
-            fish_amount = 30
+            fish_amount = 15
          end
 
          fish_chance = 100
@@ -293,6 +294,36 @@ local function boost_player_runningspeed(player)
   end
 end
 
+local function reset_player_miningspeed(player)
+  player.character_mining_speed_modifier = global.character_mining_speed_modifier[player.index].pre_mining_boost_modifier
+  global.player_mining_boost_records[player.index] = nil
+end
+
+local function boost_player_miningspeed(player)
+  if global.player_mining_boost_records == nil then global.player_mining_boost_records = {} end
+
+  if global.player_mining_boost_records[player.index] == nil then
+    global.player_mining_boost_records[player.index] = {
+      start_tick = game.tick,
+      pre_mining_boost_modifier = player.character_mining_speed_modifier,
+      boost_lvl = 0
+    }
+  end
+  local boost_msg = {
+    [1] = "%s is going on a tree harvest!",
+    [2] = "In search of a sharper axe, %s got a lv.2 mining boost!",
+    [3] = "Wood fiend, %s, has picked up a massive chain saw and is awarded a lv.3 mining boost!",
+    [4] = "Better learn to control that saw, %s, chopped off their legs. Oops."
+  }
+  global.player_mining_boost_records[player.index].boost_lvl = 1 + global.player_mining_boost_records[player.index].boost_lvl
+  player.character_mining_speed_modifier = 1 + player.character_mining_speed_modifier
+  game.print(string.format(boost_msg[global.player_mining_boost_records[player.index].boost_lvl], player.name))
+  if global.player_mining_boost_records[player.index].boost_lvl >= 4 then
+    reset_player_miningspeed(player)
+    player.character.die()
+  end
+end
+
 local function market_item_purchased(event)
 
 	local player = game.players[event.player_index]
@@ -303,9 +334,14 @@ local function market_item_purchased(event)
    fish_cost = market_item.price[1].amount * event.count
    global.fish_market_fish_spent[event.player_index] = global.fish_market_fish_spent[event.player_index] + fish_cost
 
-	if event.offer_index == 1 then -- exoskeleton-equipment
+   if event.offer_index == 1 then -- exoskeleton-equipment
 		player.get_inventory(defines.inventory.player_main).remove({name="exoskeleton-equipment", count=event.count})
 		boost_player_runningspeed(player)
+	end
+
+   if event.offer_index == 3 then -- exoskeleton-equipment
+		player.get_inventory(defines.inventory.player_main).remove({name="wood", count=event.count})
+		boost_player_miningspeed(player)
 	end
 
 	if event.offer_index == 2 then
@@ -362,14 +398,21 @@ if not global.pet_command_rotation then global.pet_command_rotation = 1 end
 function fish_market_on_180_ticks()
 
   if game.tick % 900 == 0 then
-  	if global.player_speed_boost_records then
-  		for k,v in pairs(global.player_speed_boost_records) do
-  		  if game.tick - v.start_tick > 3000 then
-  			reset_player_runningspeed(game.players[k])
-  		  end
-  		end
-  	end
-  end
+     if global.player_speed_boost_records then
+   		for k,v in pairs(global.player_speed_boost_records) do
+   		  if game.tick - v.start_tick > 3000 then
+   			reset_player_runningspeed(game.players[k])
+   		  end
+   		end
+   	end
+      if global.player_mining_boost_records then
+         for k,v in pairs(global.player_mining_boost_records) do
+            if game.tick - v.start_tick > 6000 then
+               reset_player_miningspeed(game.players[k])
+            end
+         end
+      end
+   end
 
   if global.player_pets then
   	for _, pets in pairs(global.player_pets) do
@@ -427,7 +470,7 @@ function fish_built_entity (event)
 end
 
 function fish_player_crafted_item(event)
-   local x = math.random(1,5)
+   local x = math.random(1,50)
    if x == 1 then
       fish_earned(event, 1)
    end
