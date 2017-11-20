@@ -104,7 +104,7 @@ function run_combined_module(event)
    		e.destroy()
       end
       for _, e in pairs(surface.find_entities_filtered{area=area, type="tree"}) do
-   		e.destroy()
+   		-- e.destroy() -- Leaving the trees/forests
       end
       for _, e in pairs(surface.find_entities_filtered{area=area, type="simple-entity"}) do
    		e.destroy()
