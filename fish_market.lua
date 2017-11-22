@@ -295,7 +295,7 @@ local function boost_player_runningspeed(player)
 end
 
 local function reset_player_miningspeed(player)
-  player.character_mining_speed_modifier = global.character_mining_speed_modifier[player.index].pre_mining_boost_modifier
+  player.character_mining_speed_modifier = 1
   global.player_mining_boost_records[player.index] = nil
 end
 
