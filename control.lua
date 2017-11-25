@@ -21,6 +21,7 @@ require "wells"
 require "custom_commands"
 require "tasklist"
 require "autodeconstruct"
+require "corpse_util"
 
 local function player_joined(event)
 	local player = game.players[event.player_index]
