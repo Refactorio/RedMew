@@ -407,7 +407,7 @@ function fish_market_on_180_ticks()
    	end
       if global.player_mining_boost_records then
          for k,v in pairs(global.player_mining_boost_records) do
-            if game.tick - v.start_tick > 60 then
+            if game.tick - v.start_tick > 6000 then
                reset_player_miningspeed(game.players[k])
             end
          end
