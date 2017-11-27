@@ -65,9 +65,10 @@ local function detrain(param)
     local player_name = param["parameter"]
     if player_name == nil or game.players[player_name] == nil then player_print("Unknown player.") return end
     if game.players[player_name].vehicle == nil then player_print("Player not in vehicle.") return end
+	local vehicle_name = game.players[player_name].vehicle.name
     game.players[player_name].vehicle.passenger = game.player
 		local player = game.player or {name = "<server>"}
-    game.print(string.format("%s kicked %s off the train. God damn!", player.name, player_name))
+    game.print(string.format("%s kicked %s off the %s. God damn!", player.name, player_name, vehicle_name))
 end
 
 local function kill()
