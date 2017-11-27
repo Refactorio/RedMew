@@ -15,6 +15,7 @@ local function mark_corpse(event)
 end
 
 local function remove_corpse_marks()
+	if game.tick % 60 ~= 0 then return end
 	local tags = global.corpse_util.tags
 	local size = #tags
 	for i = size, 1, -1 do
