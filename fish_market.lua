@@ -295,7 +295,7 @@ local function boost_player_runningspeed(player)
 end
 
 local function reset_player_miningspeed(player)
-  player.character_mining_speed_modifier = 1
+  player.character_mining_speed_modifier = global.player_mining_boost_records[player.index].pre_mining_boost_modifier
   global.player_mining_boost_records[player.index] = nil
 end
 
@@ -335,7 +335,7 @@ local function market_item_purchased(event)
    global.fish_market_fish_spent[event.player_index] = global.fish_market_fish_spent[event.player_index] + fish_cost
 
    if event.offer_index == 1 then -- exoskeleton-equipment
-		player.get_inventory(defines.inventory.player_main).remove({name="exoskeleton-equipment", count=event.count})
+		player.get_inventory(defines.inventory.player_main).remove({name="discharge-defense-remote", count=event.count})
 		boost_player_runningspeed(player)
 	end
 
