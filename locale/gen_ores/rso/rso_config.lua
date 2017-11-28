@@ -1,6 +1,6 @@
 rso_debug_enabled = false
 
-region_size = 4     -- alternative mean to control how further away resources would be, default - 256 tiles or 8 chunks
+region_size = 6     -- alternative mean to control how further away resources would be, default - 256 tiles or 8 chunks
 				    -- each region is region_size*region_size chunks
 				    -- each chunk is 32*32 tiles
 
