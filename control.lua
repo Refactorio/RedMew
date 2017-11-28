@@ -27,7 +27,7 @@ local function player_joined(event)
 	player.insert { name = "raw-fish", count = 4 }
 	player.insert { name = "iron-gear-wheel", count = 8 }
 	player.insert { name = "iron-plate", count = 16 }
-	player.print("Welcome to our Server. You can join our Discord at: discord.me/redmew")
+	player.print("Welcome to our Server. You can join our Discord at: redmew.com/discord")
 	player.print("And remember.. Keep Calm And Spaghetti!")
 end
 
@@ -54,10 +54,10 @@ function hodor(event)
 			end
 		end
 	end
-	if message:match("discord") then 
+	if message:match("discord") then
 		if game.player then
 			game.player.print("Did you ask about our discord server?")
-			game.player.print("You can find it here: www.discord.me/redmew")
+			game.player.print("You can find it here: redmew/discord")
 		end
 	end
 end
