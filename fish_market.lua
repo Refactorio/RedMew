@@ -476,7 +476,7 @@ function fish_player_crafted_item(event)
    end
 end
 
-Event.register(defines.events.on_preplayer_mined_item, preplayer_mined_item)
+Event.register(defines.events.on_pre_player_mined_item, preplayer_mined_item)
 Event.register(defines.events.on_entity_died, fish_drop_entity_died)
 Event.register(defines.events.on_market_item_purchased, market_item_purchased)
 Event.register(defines.events.on_built_entity, fish_built_entity)
