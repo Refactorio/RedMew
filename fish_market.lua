@@ -137,7 +137,7 @@ local function fish_earned(event, amount)
    fish_earned_index( event.player_index, amount )
 end
 
-local function preplayer_mined_item(event)
+local function pre_player_mined_item(event)
 
 --	game.print(event.entity.name)
 --	game.print(event.entity.type)
@@ -151,19 +151,11 @@ local function preplayer_mined_item(event)
 	end
 --]]
 
-	if event.entity.name == "stone-rock" then
-			fish_earned(event, 10)
-	end
+   if event.entity.type == "simple-entity" then -- Cheap check for rock, may have other side effects
+         fish_earned(event, 10)
+   end
 
-	if event.entity.name == "red-desert-rock-huge-01" then
-			fish_earned(event, 20)
-	end
-
-	if event.entity.name == "red-desert-rock-big-01" then
-			fish_earned(event, 10)
-	end
-
-	if event.entity.type == "tree" then
+   if event.entity.type == "tree" then
 		local x = math.random(1,4)
 		if x == 1 then
 			fish_earned(event, 4)
@@ -476,7 +468,7 @@ function fish_player_crafted_item(event)
    end
 end
 
-Event.register(defines.events.on_pre_player_mined_item, preplayer_mined_item)
+Event.register(defines.events.on_pre_player_mined_item, pre_player_mined_item)
 Event.register(defines.events.on_entity_died, fish_drop_entity_died)
 Event.register(defines.events.on_market_item_purchased, market_item_purchased)
 Event.register(defines.events.on_built_entity, fish_built_entity)
