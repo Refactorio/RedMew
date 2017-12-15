@@ -20,10 +20,9 @@ end
 
 local function tasklist_show(player)
 
-   player.gui.left.direction = "horizontal"
    local frame = player.gui.left.add { type = "frame", name = "tasklist-panel", direction = "vertical" }
 
-   frame.add { type = "table", name = "tasklist_panel_table", colspan = 1 }
+   frame.add { type = "table", name = "tasklist_panel_table", column_count = 1 }
 
    local tasklist_panel_table = frame.tasklist_panel_table
 
@@ -60,7 +59,7 @@ local function tasklist_show(player)
       tasklist_label.style.font_color = {r = 0.55, g = 0.55, b = 0.55}
    end
 
-   frame.add { type = "table", name = "tasklist_panel_button_table", colspan = 3 }
+   frame.add { type = "table", name = "tasklist_panel_button_table", column_count = 3 }
    local tasklist_panel_button_table = frame.tasklist_panel_button_table
 
    global.tasklist_panel_creation_time[player.index] = game.tick
@@ -119,7 +118,7 @@ end
 
 local function tasklist_assembler(player)
    local frame = player.gui.left.add { type = "frame", name = "tasklist-assembler", caption = "" }
-   local frame_table = frame.add { type = "table", name = "table_tasklist_assembler", colspan = 2 }
+   local frame_table = frame.add { type = "table", name = "table_tasklist_assembler", column_count = 2 }
    frame_table.add { type = "label", caption = "Task #1:" }
    frame_table.add { type = "textfield", name = "textfield_task_1", text = global.tasklist_items[1],  }
    frame_table["textfield_task_1"].style.minimal_width = 450

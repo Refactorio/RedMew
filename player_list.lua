@@ -182,11 +182,9 @@ local function get_sorted_list(sort_by)
 end
 
 local function player_list_show(player, sort_by)
-
 	local frame = player.gui.left["player-list-panel"]
 	if frame then frame.destroy() end
 
-	player.gui.left.direction = "horizontal"
 	local frame = player.gui.left.add { type = "frame", name = "player-list-panel", direction = "vertical" }
 	frame.style.minimal_width = 650
 	frame.style.top_padding = 8
@@ -195,7 +193,7 @@ local function player_list_show(player, sort_by)
 	frame.style.bottom_padding = 8
 
 
-	local player_list_panel_header_table = frame.add { type = "table", name = "player_list_panel_header_table", colspan = 7 }
+	local player_list_panel_header_table = frame.add { type = "table", name = "player_list_panel_header_table", column_count = 7 }
 
 	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_1", caption = "    " .. #game.connected_players }
 	label.style.font = "default-game"
@@ -206,7 +204,6 @@ local function player_list_show(player, sort_by)
 	if sort_by == "name_asc" then str = symbol_asc .. " " end
 	if sort_by == "name_desc" then str = symbol_desc .. " " end
 	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_2", caption = str .. "Players online"  }
-	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
 	label.style.minimal_width = 160
 	label.style.maximal_width = 160
@@ -215,7 +212,6 @@ local function player_list_show(player, sort_by)
 	if sort_by == "time_played_asc" then str = symbol_asc .. " " end
 	if sort_by == "time_played_desc" then str = symbol_desc .. " " end
 	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_3", caption = str .. "Time" }
-	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
 	label.style.minimal_width = 130
 	label.style.maximal_width = 130
@@ -225,7 +221,6 @@ local function player_list_show(player, sort_by)
 	if sort_by == "distance_asc" then str = symbol_asc .. " " end
 	if sort_by == "distance_desc" then str = symbol_desc .. " " end
 	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_4", caption = str .. "Walked" }
-	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
 	label.style.minimal_width = 100
 	label.style.maximal_width = 100
@@ -234,7 +229,6 @@ local function player_list_show(player, sort_by)
 	if sort_by == "fish_asc" then str = symbol_asc .. " " end
 	if sort_by == "fish_desc" then str = symbol_desc .. " " end
 	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_fish", caption = str .. "Fish" }
-	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
 	label.style.minimal_width = 80
 	label.style.maximal_width = 80
@@ -243,7 +237,6 @@ local function player_list_show(player, sort_by)
 	if sort_by == "deaths_asc" then str = symbol_asc .. " " end
 	if sort_by == "deaths_desc" then str = symbol_desc .. " " end
 	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_deaths", caption = str .. "Deaths" }
-	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
 	label.style.minimal_width = 80
 	label.style.maximal_width = 80
@@ -252,7 +245,6 @@ local function player_list_show(player, sort_by)
 	if sort_by == "pokes_asc" then str = symbol_asc .. " " end
 	if sort_by == "pokes_desc" then str = symbol_desc .. " " end
 	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_5", caption = str .. "Poke" }
-	label.style.font = "default-listbox"
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
 	label.style.minimal_width = 35
 
@@ -260,7 +252,7 @@ local function player_list_show(player, sort_by)
 	player_list_panel_table.style.maximal_height = 650
 
 
-	player_list_panel_table = player_list_panel_table.add { type = "table", name = "player_list_panel_table", colspan = 7 }
+	player_list_panel_table = player_list_panel_table.add { type = "table", name = "player_list_panel_table", column_count = 7 }
 
 	local player_list = get_sorted_list(sort_by)
 

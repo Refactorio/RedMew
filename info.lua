@@ -32,15 +32,13 @@ And this is what you ought to know:
   Paypal: paypal.me/jsuesse
 ]===]
 
-	player.gui.left.direction = "horizontal"
 	local frame = player.gui.left.add { type = "frame", name = "info_panel"}
 	frame.style.top_padding = 20
 	frame.style.left_padding = 20
 	frame.style.right_padding = 20
 	frame.style.bottom_padding = 20
-	local info_table = frame.add { type = "table", colspan = 1, name = "info_table" }
+	local info_table = frame.add { type = "table", column_count = 1, name = "info_table" }
 	local headline_label = info_table.add { type = "label", name = "headline_label", caption = "redmew fishy info" }
-	headline_label.style.font = "default-listbox"
 	headline_label.style.font_color = { r=0.98, g=0.66, b=0.22}
 
 
@@ -53,10 +51,9 @@ And this is what you ought to know:
 	text_box.style.left_padding = 5
 	text_box.style.bottom_padding = 5
 
-	local info_table_2 = info_table.add { type = "table", colspan = 2, name = "info_table" }
+	local info_table_2 = info_table.add { type = "table", column_count = 2, name = "info_table" }
 	info_table_2.add { type = "label", caption = "                                                                         " }
 	local close_button = info_table_2.add { type = "button", caption = "CLOSE", name = "info_close_button"  }
-	close_button.style.font = "default-listbox"
 end
 
 

@@ -20,10 +20,9 @@ end
 
 local function poll_show(player)
 
-	player.gui.left.direction = "horizontal"
 	local frame = player.gui.left.add { type = "frame", name = "poll-panel", direction = "vertical" }
 
-	frame.add { type = "table", name = "poll_panel_table", colspan = 2 }
+	frame.add { type = "table", name = "poll_panel_table", column_count = 2 }
 
 	local poll_panel_table = frame.poll_panel_table
 
@@ -68,12 +67,11 @@ local function poll_show(player)
 			answer_label.style.font = "default"
 
 			local answerbutton = poll_panel_table.add  { type = "button", caption = global.poll_button_votes[y], name = "answer_button_" .. z }
-			answerbutton.style.font = "default-listbox"
 		end
 		y = y + 1
 	end
 
-	frame.add { type = "table", name = "poll_panel_button_table", colspan = 3 }
+	frame.add { type = "table", name = "poll_panel_button_table", column_count = 3 }
 	local poll_panel_button_table = frame.poll_panel_button_table
 	poll_panel_button_table.add { type = "button", caption = "New Poll", name = "new_poll_assembler_button" }
 
@@ -187,7 +185,7 @@ end
 
 local function poll_assembler(player)
 	local frame = player.gui.left.add { type = "frame", name = "poll-assembler", caption = "" }
-	local frame_table = frame.add { type = "table", name = "table_poll_assembler", colspan = 2 }
+	local frame_table = frame.add { type = "table", name = "table_poll_assembler", column_count = 2 }
 	frame_table.add { type = "label", caption = "Question:" }
 	frame_table.add { type = "textfield", name = "textfield_question", text = "" }
 	frame_table.add { type = "label", caption = "Answer #1:" }

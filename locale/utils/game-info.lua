@@ -22,9 +22,9 @@ local FRAME_TABS = {
 
 -- Static Content
 local CONTENT = {
-					rules = {""}, 
-					comm = {""}, 
-					resources = {""}, 
+					rules = {""},
+					comm = {""},
+					resources = {""},
 					about = {""}
 				}
 
@@ -158,21 +158,21 @@ end
 -- @param container - gui element to add to
 function draw_players(container)
     GUI.clear_element(container) -- Clear the current info before adding new
-    
+
     local table_name = "tbl_readme_players"
     container.add {type = "label", name = "lbl_player_tile", caption = "=== ALL TIME PLAYERS ==="}
-    container.add {type = "table", name = table_name, colspan = 2}
+    container.add {type = "table", name = table_name, column_count = 2}
     container[table_name].style.minimal_width = 500
     container[table_name].style.maximal_width = 500
     container[table_name].add {type = "label", name = "lbl_hours", caption = "Time (h:m)"}
     container[table_name].add {type = "label", name = "lbl_name", caption = "Name"}
-    
+
     -- Copy player list into local list
     local player_list = {}
     for i, player in pairs(game.players) do
         table.insert(player_list, {name = player.name, online_time = player.online_time})
     end
-    
+
     -- Sort players based on time played
     table.sort(
         player_list,
@@ -180,7 +180,7 @@ function draw_players(container)
             return a.online_time > b.online_time
         end
     )
-    
+
     -- Add in gui list
     for i, player in pairs(player_list) do
         local total_min = Time.tick_to_min(player.online_time)

@@ -32,7 +32,7 @@ local function create_band_gui(event)
 	local player = game.players[event.player_index]
 	global.band_last_change[event.player_index] = game.tick
   if player.gui.top.band_toggle_btn == nil then
-    local button = player.gui.top.add { name = "band_toggle_btn", type = "sprite-button", caption = "Tag", style = "dialog_button_style" }
+    local button = player.gui.top.add { name = "band_toggle_btn", type = "sprite-button", caption = "Tag" }
     button.style.font = "default-bold"
     button.style.minimal_height = 38
     button.style.minimal_width = 38
@@ -123,7 +123,6 @@ end
 -- dev_icons(ctrl + click): show icon-choose buttons
 -- dev_addfakes(alt + click): add random number of player names w/ color
 expand_band_gui = function(player, dev_icons, dev_addfakes, right_click)
-	player.gui.left.direction = "horizontal"
   local frame = player.gui.left["band_panel"]
   if (frame) then
     frame.destroy()
@@ -189,14 +188,13 @@ expand_band_gui = function(player, dev_icons, dev_addfakes, right_click)
 
   local button--reusable variable :D
   local frame = player.gui.left.add { type = "frame", direction = "vertical", name = "band_panel", caption = "Choose your role:"}
-  	frame.style.font = "default-listbox"
 	frame.style.font_color = { r=0.98, g=0.66, b=0.22}
 
   if dev_icons then
     local choose
     local chooselist = frame.add { type = "flow", direction = "horizontal" }
     -- ["signal"] = {type = "virtual", name = "signal-A"}
-    for itype, ivalue in pairs({["item"] = "green-wire", ["entity"] = "medium-spitter", ["tile"] = "grass"}) do
+    for itype, ivalue in pairs({["item"] = "green-wire", ["entity"] = "medium-spitter", ["tile"] = "concrete"}) do
       choose = chooselist.add { type = "choose-elem-button", elem_type = itype, [itype] = ivalue, name = "help_item_icon_choose_"..itype }
       choose.style.minimal_height = 36
       choose.style.minimal_width = 36
@@ -212,7 +210,7 @@ expand_band_gui = function(player, dev_icons, dev_addfakes, right_click)
   scroll.style.minimal_width = 250
   scroll.style.bottom_padding = 10
 
-  local table_roles = scroll.add{type = "table", name = "table_roles", colspan = 2}
+  local table_roles = scroll.add{type = "table", name = "table_roles", column_count = 2}
   table_roles.style.horizontal_spacing = 15
   table_roles.style.vertical_spacing = 4
 
@@ -227,17 +225,19 @@ expand_band_gui = function(player, dev_icons, dev_addfakes, right_click)
 
     local role_line = table_roles.add { type = "flow", direction = "horizontal" }
 
-    button = role_line.add { type = "sprite-button", sprite = get_random_from_table(role_icons), name = "band_role_"..role, style = "recipe_slot_button_style"}
+    button = role_line.add { type = "sprite-button", sprite = get_random_from_table(role_icons), name = "band_role_"..role}
     button.style.top_padding = 4
-    button.style.left_padding = 0
-    button.style.right_padding = 0
+    button.style.left_padding = 4
+    button.style.right_padding = 4
     button.style.bottom_padding = 4
+    button.style.width = 40
+    button.style.height = 40
     if show_role_tooltip and role_icons.tooltip then
       button.tooltip = get_random_from_table( role_icons.tooltip )
     end
 
     local role_cap_line = role_line.add { type = "flow", name = "role_cap_line", direction = "horizontal" }
-    role_cap_line.style.max_on_row = 1
+--    role_cap_line.style.max_on_row = 1
 
     local role_label = role_cap_line.add { type = "label", caption = role, single_line = true}
     -- role_label.style.minimal_width = 0
@@ -255,7 +255,7 @@ expand_band_gui = function(player, dev_icons, dev_addfakes, right_click)
     subgui_update_role_counter(role_cap_line, #players_by_role[role])
 
     local list_players = table_roles.add { type = "flow", direction = "horizontal" }
-    list_players.style.max_on_row = 3
+--    list_players.style.max_on_row = 3
     list_players.style.top_padding = 0
     list_players.style.bottom_padding = 7
 
