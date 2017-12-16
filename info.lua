@@ -25,8 +25,7 @@ And this is what you ought to know:
 - Don't argue with other players for silly things.
 - No political, racist, or misogynistic content.
 - If you suspect you desync, restart the game.
-- Join our growing community on discord.me/redmew
-- Post server pics (or didn't happen): redmew.reddit.com
+- Join our growing community on redmew.com/discord
 - Contribute to our Hookers & Blow Fund with:
   Bitcoin: 18PferSFbkwsYai8sLnWKzrr8YXQ1bBqNg
   Paypal: paypal.me/jsuesse
