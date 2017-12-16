@@ -15,4 +15,4 @@ local function on_tick()
   end
 end
 
-Event.register(defines.events.on_tick, on_tick)
+--Event.register(defines.events.on_tick, on_tick)

@@ -70,4 +70,4 @@ end
 
 Event.register(defines.events.on_player_ammo_inventory_changed, ammo_changed)
 Event.register(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
-Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
+--Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
