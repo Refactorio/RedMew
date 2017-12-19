@@ -3,7 +3,7 @@ Hello there script explorer!
 
 With this you can add a "Fish Market" to your World
 You can earn fish by killing alot of biters or by mining wood, ores, rocks.
-To spawn the market, do "/c market()" in your chat ingame as the games host.
+To spawn the market, do "/market" in your chat ingame as the games host.
 It will spawn a few tiles north of the current position where your character is.
 
 ---MewMew---
@@ -17,49 +17,27 @@ make pet faster
 make pet follow you moar
 --]]
 
-function market()
-  game.player.print("This command moved to /market.")
-end
-
 function spawn_market(cmd)
   if not game.player or not game.player.admin then
     cant_run(cmd.name)
     return
   end
-  local radius = 10
   local surface = game.player.surface
   -- clear trees and landfill in start area
   local start_area = {left_top = {-20, -20}, right_bottom = {20, 20}}
-  for _, e in pairs(surface.find_entities_filtered{area=start_area, type="tree"}) do
-    --e.destroy()
-  end
-  for i = -radius, radius, 1 do
-    for j = -radius, radius, 1 do
-      if (surface.get_tile(i,j).collides_with("water-tile")) then
-        --surface.set_tiles{{name = "grass", position = {i,j}}}
-      end
-    end
-  end
 
   local player = game.player
 
   local market_location = {x = player.position.x, y = player.position.y}
   market_location.y = market_location.y - 4
 
-  -- create water around market
-  local waterTiles = {}
-  for i = -4, 4 do
-    for j = -4, 4 do
-        --table.insert(waterTiles, {name = "water-green", position={market_location.x + i, market_location.y + j}})
-    end
-  end
-  surface.set_tiles(waterTiles)
   local market = surface.create_entity{name="market", position=market_location, force=force}
   market.destructible = false
 
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="discharge-defense-remote"}}
   market.add_market_item{price={{"raw-fish", 30}}, offer={type="give-item", item="small-plane"}}
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="wood"}}
+  market.add_market_item{price={{"raw-fish", 250}}, offer={type="give-item", item="artillery-targeting-remote"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="rail", count=2}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-signal"}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-chain-signal"}}
@@ -138,18 +116,6 @@ local function fish_earned(event, amount)
 end
 
 local function pre_player_mined_item(event)
-
---	game.print(event.entity.name)
---	game.print(event.entity.type)
-
---[[
-	if event.entity.type == "resource" then
-		local x = math.random(1,2)
-		if x == 1 then
-			fish_earned(event, 1)
-		end
-	end
---]]
 
    if event.entity.type == "simple-entity" then -- Cheap check for rock, may have other side effects
          fish_earned(event, 10)
@@ -318,71 +284,88 @@ end
 
 local function market_item_purchased(event)
 
-	local player = game.players[event.player_index]
+  local player = game.players[event.player_index]
 
-   -- cost
-   market_items = event.market.get_market_items()
-   market_item = market_items[event.offer_index]
-   fish_cost = market_item.price[1].amount * event.count
-   global.fish_market_fish_spent[event.player_index] = global.fish_market_fish_spent[event.player_index] + fish_cost
+  -- cost
+  market_items = event.market.get_market_items()
+  market_item = market_items[event.offer_index]
+  fish_cost = market_item.price[1].amount * event.count
+  global.fish_market_fish_spent[event.player_index] = global.fish_market_fish_spent[event.player_index] + fish_cost
 
-   if event.offer_index == 1 then -- exoskeleton-equipment
-		player.get_inventory(defines.inventory.player_main).remove({name="discharge-defense-remote", count=event.count})
-		boost_player_runningspeed(player)
-	end
+  if event.offer_index == 4 then
+    if not allowed_to_nuke(player) then  
+      player.remove_item{name = "artillery-targeting-remote", count = 100}
+      player.insert{name="iron-gear-wheel", count = 100}
+      game.print(string.format("%s tried to by an artillery-targeting-remote, but got ripped of and only got some gears.", player.name))
+    end
+  else
+  --to reenable buffs and pets remove this else block
+    if event.offer_index < 4 then 
 
-   if event.offer_index == 3 then -- exoskeleton-equipment
-		player.get_inventory(defines.inventory.player_main).remove({name="wood", count=event.count})
-		boost_player_miningspeed(player)
-	end
+      local fish_amount = 10
+      if event.offer_index == 2 then fish_amount = 30 end
+      player.insert{name="raw-fish", count = fish_amount}
+      player.remove_item{name="small-plane", count = 100}
+      player.remove_item{name="discharge-defense-remote", count = 100}--nobody useds that anyways
+      player.remove_item{name="wood", count = event.count}
+      player.print("This item is currently disabled due to desync concerns. Please don't hurt us :(")
+    end
 
-	if event.offer_index == 2 then
-		player.get_inventory(defines.inventory.player_main).remove({name="small-plane", count=event.count})
-		local chance = 4
-		local x = math.random(1,3)
-		if x < 3 then
-			local x = math.random(1,chance)
-			if x < chance then
-				rolled_pet = "small-biter"
-			else
-				local x = math.random(1,chance)
-				if x < chance then
-					rolled_pet = "medium-biter"
-				else
-					local x = math.random(1,chance)
-					if x < chance then
-						rolled_pet = "big-biter"
-					else
-						rolled_pet = "behemoth-biter"
-					end
-				end
-			end
-		else
-			local x = math.random(1,chance)
-			if x < chance then
-				rolled_pet = "small-spitter"
-			else
-				local x = math.random(1,chance)
-				if x < chance then
-					rolled_pet = "medium-spitter"
-				else
-					local x = math.random(1,chance)
-					if x < chance then
-						rolled_pet = "big-spitter"
-					else
-						rolled_pet = "behemoth-spitter"
-					end
-				end
-			end
-		end
-		local str = player.name
-		str = str .. " bought his very own pet "
-		str = str .. rolled_pet
-		str = str .. " at the fish market!!"
-		game.print(str)
-		pet(event.player_index, rolled_pet)
-	end
+    return     
+  end
+  if event.offer_index == 1 then -- discharge-defense-remote
+    player.remove_item({name="discharge-defense-remote", count=event.count})
+    boost_player_runningspeed(player) --disabled due to on_tick being disabled
+  end
 
+  if event.offer_index == 3 then -- exoskeleton-equipment
+    player.remove_item({name="wood", count=event.count})
+    boost_player_miningspeed(player)
+  end
+
+  if event.offer_index == 2 then
+    player.remove_item({name="small-plane", count=event.count})
+    local chance = 4
+    local x = math.random(1,3)
+    if x < 3 then
+      local x = math.random(1,chance)
+      if x < chance then
+        rolled_pet = "small-biter"
+      else
+        local x = math.random(1,chance)
+        if x < chance then
+          rolled_pet = "medium-biter"
+        else
+          local x = math.random(1,chance)
+          if x < chance then
+            rolled_pet = "big-biter"
+          else
+            rolled_pet = "behemoth-biter"
+          end
+        end
+      end
+    else
+      local x = math.random(1,chance)
+      if x < chance then
+        rolled_pet = "small-spitter"
+      else
+        local x = math.random(1,chance)
+        if x < chance then
+          rolled_pet = "medium-spitter"
+        else
+          local x = math.random(1,chance)
+          if x < chance then
+            rolled_pet = "big-spitter"
+          else
+            rolled_pet = "behemoth-spitter"
+          end
+        end
+      end
+    end
+    local str = string.format("%s bought his very own pet %s at the fish market!!", player.name, rolled_pet)
+    game.print(str)
+    pet(event.player_index, rolled_pet)
+  end
 end
 
 if not global.pet_command_rotation then global.pet_command_rotation = 1 end
@@ -434,33 +417,6 @@ function fish_market_on_180_ticks()
   end
 end
 
-function fish_built_entity (event)
-   entity = event.created_entity
-   if entity.type == "entity-ghost" then
-      -- No reward for ghosts / bps
-      return
-   end
-
-   -- player_index = event.player_index
---[[   if entity.type == "furnace" then
-      local x = math.random(1,5)
-		if x == 1 then
-			fish_earned(event, 5)
-		end
-   elseif entity.type == "assembling-machine" then
-      local x = math.random(1,5)
-		if x == 1 then
-			fish_earned(event, 5)
-		end
-   elseif entity.type == "mining-drill" then
-      local x = math.random(1,5)
-      if x == 1 then
-         fish_earned(event, 5)
-      end
-   end
---]]
-end
-
 function fish_player_crafted_item(event)
    local x = math.random(1,50)
    if x == 1 then
@@ -471,5 +427,4 @@ end
 Event.register(defines.events.on_pre_player_mined_item, pre_player_mined_item)
 Event.register(defines.events.on_entity_died, fish_drop_entity_died)
 Event.register(defines.events.on_market_item_purchased, market_item_purchased)
-Event.register(defines.events.on_built_entity, fish_built_entity)
 Event.register(defines.events.on_player_crafted_item, fish_player_crafted_item)
