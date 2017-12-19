@@ -30,4 +30,4 @@ local function init_player_position(event)
   end
 end
 
-Event.register(defines.events.on_player_joined_game, init_player_position)
+-- Event.register(defines.events.on_player_joined_game, init_player_position)

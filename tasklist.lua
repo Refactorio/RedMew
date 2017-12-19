@@ -20,16 +20,14 @@ end
 
 local function tasklist_show(player)
 
-   player.gui.left.direction = "horizontal"
    local frame = player.gui.left.add { type = "frame", name = "tasklist-panel", direction = "vertical" }
 
-   frame.add { type = "table", name = "tasklist_panel_table", colspan = 1 }
+   frame.add { type = "table", name = "tasklist_panel_table", column_count = 1 }
 
    local tasklist_panel_table = frame.tasklist_panel_table
 
    tasklist_panel_table.add { type = "label", caption = "Task List:", single_line = false, name = "tasklist_title"}
    local tasklist_label = tasklist_panel_table["tasklist_title"]
-   tasklist_label.style.maximal_width = 208
    tasklist_label.style.minimal_width = 208
    tasklist_label.style.maximal_height = 165
    tasklist_label.style.font = "default"
@@ -43,7 +41,6 @@ local function tasklist_show(player)
 
          tasklist_panel_table.add { type = "label", caption = counter .. ". " .. global.tasklist_items[y], single_line = false, name = "tasklist_item_label_" .. z}
          local tasklist_label = tasklist_panel_table["tasklist_item_label_" .. z]
-         tasklist_label.style.maximal_width = 208
          tasklist_label.style.minimal_width = 208
          tasklist_label.style.maximal_height = 165
          tasklist_label.style.font = "default"
@@ -53,14 +50,13 @@ local function tasklist_show(player)
    if global.tasklist_author ~= nil then
       tasklist_panel_table.add { type = "label", caption = "Updated by: " .. global.tasklist_author, single_line = false, name = "tasklist_author"}
       local tasklist_label = tasklist_panel_table["tasklist_author"]
-      tasklist_label.style.maximal_width = 208
       tasklist_label.style.minimal_width = 208
       tasklist_label.style.maximal_height = 165
       tasklist_label.style.font = "default"
       tasklist_label.style.font_color = {r = 0.55, g = 0.55, b = 0.55}
    end
 
-   frame.add { type = "table", name = "tasklist_panel_button_table", colspan = 3 }
+   frame.add { type = "table", name = "tasklist_panel_button_table", column_count = 3 }
    local tasklist_panel_button_table = frame.tasklist_panel_button_table
 
    global.tasklist_panel_creation_time[player.index] = game.tick
@@ -119,7 +115,7 @@ end
 
 local function tasklist_assembler(player)
    local frame = player.gui.left.add { type = "frame", name = "tasklist-assembler", caption = "" }
-   local frame_table = frame.add { type = "table", name = "table_tasklist_assembler", colspan = 2 }
+   local frame_table = frame.add { type = "table", name = "table_tasklist_assembler", column_count = 2 }
    frame_table.add { type = "label", caption = "Task #1:" }
    frame_table.add { type = "textfield", name = "textfield_task_1", text = global.tasklist_items[1],  }
    frame_table["textfield_task_1"].style.minimal_width = 450
@@ -153,11 +149,6 @@ function tasklist_sync_for_new_joining_player(event)
    local player = game.players[event.player_index]
 
    global.autoshow_tasklist_for_player[player.name] = true
-
-   local frame = player.gui.left["tasklist-panel"]
-   if (frame == nil) then
-      tasklist_show(player)
-   end
 end
 
 local function on_gui_click(event)
