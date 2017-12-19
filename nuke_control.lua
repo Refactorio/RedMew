@@ -1,6 +1,6 @@
 
 
-local function allowed_to_nuke(player)
+function allowed_to_nuke(player)
   return player.admin or is_mod(player.name) or is_regular(player.name) or ((player.online_time / 216000) > global.scenario.config.nuke_min_time_hours)
 end
 
@@ -68,6 +68,14 @@ local function on_player_mined_item(event)
   log_on_player_mined_entity("nuke_control.on_player_mined_item: exit", event)
 end
 
+local function on_research_finished(event)
+  if event.research.name == "artillery" then
+    game.print("Griefers are why we can't have nice things. Artillery targeting remote disabled.")
+    game.forces.player.recipes["artillery-targeting-remote"].enabled = false
+  end
+end
+
 Event.register(defines.events.on_player_ammo_inventory_changed, ammo_changed)
 Event.register(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
 --Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
+Event.register(defines.events.on_research_finished, on_research_finished)
