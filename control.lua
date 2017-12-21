@@ -22,6 +22,7 @@ require "custom_commands"
 require "tasklist"
 require "autodeconstruct"
 require "corpse_util"
+require "reactor_meltdown"
 
 local function player_joined(event)
 	local player = game.players[event.player_index]
