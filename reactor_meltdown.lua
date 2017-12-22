@@ -10,8 +10,9 @@ local wasteland_duration_seconds = 300
 
 local function entity_destroyed(event)
   if event.entity.name == "nuclear-reactor" then
+    local reactor = event.entity
     if event.entity.temperature > 700 then
-      event.entity.surface.create_entity{name="atomic-rocket", position=event.entity.position, target=event.entity, speed=1}
+      reactor.surface.create_entity{name="atomic-rocket", position=reactor.position, target=reactor, speed=1}
       spawn_wasteland(reactor.surface, reactor.position)
       global.wastelands[reactor.position.x .. "/" .. reactor.position.y] = {position = reactor.position, surface_id = reactor.surface.index, creation_time = game.tick}
     end
@@ -61,7 +62,7 @@ local function check_reactors()
           game.print(string.format("Warning! Reactor at %s°C", math.floor(reactor.temperature)))
           last_reactor_warning = game.tick
         end
-        if reactor.temperature > 800 then
+        if reactor.temperature == 1000 then
           reactor.health = reactor.health - 120
           if reactor.health == 0 and (not global.wastelands[reactor.position.x .. "/" .. reactor.position.y]) then
             reactor.surface.create_entity{name="atomic-rocket", position=reactor.position, target=reactor, speed=1}
