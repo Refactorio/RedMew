@@ -1,5 +1,5 @@
 --Reactors melt down if:
---temperature is at 1000°C and health is 0 or they are picked up
+--temperature is at 1000°C and health is 0 or reactor is picked up
 --
 --a reactors loses 2 damage per second at 1000°C
 
@@ -63,12 +63,12 @@ local function check_reactors()
           last_reactor_warning = game.tick
         end
         if reactor.temperature == 1000 then
-          reactor.health = reactor.health - 120
-          if reactor.health == 0 and (not global.wastelands[reactor.position.x .. "/" .. reactor.position.y]) then
-            reactor.surface.create_entity{name="atomic-rocket", position=reactor.position, target=reactor, speed=1}
-            spawn_wasteland(reactor.surface, reactor.position)
-            global.wastelands[reactor.position.x .. "/" .. reactor.position.y] = {position = reactor.position, surface_id = reactor.surface.index, creation_time = game.tick}
-          end
+          reactor.surface.create_entity{name="atomic-rocket", position=reactor.position, target=reactor, speed=1}
+          spawn_wasteland(reactor.surface, reactor.position)
+          global.wastelands[reactor.position.x .. "/" .. reactor.position.y] = {position = reactor.position, surface_id = reactor.surface.index, creation_time = game.tick}
+          table.remove(global.reactors, i)
+        else
+          reactor.health = 500 - (reactor.temperature - 800) * 2.5
         end
       else
         table.remove(global.reactors, i)
@@ -81,7 +81,9 @@ end
 local function check_wastelands()
   for index,wl in pairs(global.wastelands) do
     local age = game.tick - wl.creation_time
-    if age % 900 == 0 then 
+    wl.last_checked = wl.last_checked or 0
+    if (game.tick - wl.last_checked) > 899 then 
+      wl.last_checked = game.tick
       spawn_wasteland(game.surfaces[wl.surface_id], wl.position)
       if age > wasteland_duration_seconds * 60 - 1 then 
         global.wastelands[index] = nil
