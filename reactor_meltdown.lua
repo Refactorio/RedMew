@@ -4,7 +4,6 @@
 --a reactors loses 2 damage per second at 1000°C
 
 global.wastelands = {}
-global.last_reactor_warning = 0
 global.reactors = {}
 local wasteland_duration_seconds = 300
 
@@ -53,16 +52,23 @@ function spawn_wasteland(surface, position)
 
 end
 
+local function alert(reactor)
+  for _,p in pairs(game.players) do
+    p.add_custom_alert(reactor, {type="item", name="nuclear-reactor"}, string.format("Reactor at %s°C", reactor.temperature), true)
+  end
+end
+
 local function check_reactors()
   for _,surface in pairs(game.surfaces) do
-    local last_reactor_warning = global.last_reactor_warning
     for i,reactor in pairs(global.reactors) do
       if reactor.valid then
-        if reactor.temperature > 800 and game.tick - global.last_reactor_warning > 900 then
-          game.print(string.format("Warning! Reactor at %s°C", math.floor(reactor.temperature)))
-          last_reactor_warning = game.tick
+        if reactor.temperature > 800 then
+          alert(reactor)
         end
         if reactor.temperature == 1000 then
+          reactor.force = "enemy"
+          reactor.destructible = false
+          reactor.health = 0
           reactor.surface.create_entity{name="atomic-rocket", position=reactor.position, target=reactor, speed=1}
           spawn_wasteland(reactor.surface, reactor.position)
           global.wastelands[reactor.position.x .. "/" .. reactor.position.y] = {position = reactor.position, surface_id = reactor.surface.index, creation_time = game.tick}
