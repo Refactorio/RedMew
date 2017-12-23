@@ -57,20 +57,6 @@ local function teleport_location(cmd)
     game.player.teleport(pos)
 end
 
-local function detrain(param)
-    if game.player and not (game.player.admin or is_mod(game.player.name)) then
-        cant_run(param.name)
-        return
-    end
-    local player_name = param["parameter"]
-    if player_name == nil or game.players[player_name] == nil then player_print("Unknown player.") return end
-    if game.players[player_name].vehicle == nil then player_print("Player not in vehicle.") return end
-	local vehicle_name = game.players[player_name].vehicle.name
-    game.players[player_name].vehicle.passenger = game.player
-		local player = game.player or {name = "<server>"}
-    game.print(string.format("%s kicked %s off the %s. God damn!", player.name, player_name, vehicle_name))
-end
-
 local function kill()
   if game.player then
     game.player.character.die()
@@ -489,7 +475,6 @@ local function zoom(cmd)
 end
 
 commands.add_command("kill", "Will kill you.", kill)
-commands.add_command("detrain", "<player> - Kicks the player off a train. (Admins and moderators)", detrain)
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
 commands.add_command("invoke", "<player> - Teleports the player to you. (Admins and moderators)", invoke)
 commands.add_command("tppos", "Teleports you to a selected entity. (Admins only)", teleport_location)
