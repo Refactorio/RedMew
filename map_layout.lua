@@ -18,6 +18,7 @@ in this file and your run_*type*_module(event) function will be called.
 -- Need to copy the file you want from the _locale folder to this one for it to be included
 -- only get what you need, otherwise the save file is too big!
 
+--MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.template"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mobius_strip"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.antfarm"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.creation_of_adam"
