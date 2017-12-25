@@ -71,88 +71,52 @@ local function walkabout(cmd)
   end
   local params = {}
   if cmd.parameter == nil then
-      game.print("Walkabout failed.")
-      return
-    end
-  for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
-  local player_name = params[1]
-  local distance = ""
-  local duration = 60
-  if #params == 2  then
-    distance = params[2]
-  elseif #params == 3 then
-    distance = params[2] .. " " .. params[3]
-    if distance ~= "very far" then
-      distance = params[2]
-      if tonumber(params[3]) == nil then
-        player_print(params[3] .. " is not a number.")
-        return
-      else
-        duration = tonumber(params[3])
-      end
-    end
-  elseif #params == 4 then
-    distance = params[2] .. " " .. params[3]
-    if tonumber(params[4]) == nil then
-      player_print(params[4] .. " is not a number.")
-      return
-    else
-      duration = tonumber(params[4])
-    end
-  end
-  if duration < 15 then duration = 15 end
-  if distance == nil or distance == "" then
-    distance = math.random(5000, 10000)
-  end
-
-  if tonumber(distance) ~= nil then
-  elseif distance == "close" then
-    distance = math.random(3000, 7000)
-  elseif distance == "far" then
-    distance = math.random(7000, 11000)
-  elseif distance == "very far" then
-    distance = math.random(11000, 15000)
-  else
-    game.print("Walkabout failed.")
+    player_print("Walkabout failed.")
     return
   end
+  for param in string.gmatch(cmd.parameter, "%S+") do table.insert(params, param) end
+  local player_name = params[1]
+  local duration = 60
+  if #params > 2 then
+    player_print("Walkabout failed, check /help walkabout.")
+    return
+  elseif #params == 2 and tonumber(params[2]) == nil then
+    player_print(params[2] .. " is not a number.")
+    return
+  elseif #params == 2 and tonumber(params[2]) then
+    duration = tonumber(params[2])
+  end
+  if duration < 15 then duration = 15 end
 
-  local x = 1
-  local y = 1
   local player = game.players[player_name]
   if player == nil or global.walking[player_name:lower()] then
     player_print(player_name .. " could not go on a walkabout.")
     return
   end
-  global.walking[player_name:lower()] = true
-  local distance_max = distance * 1.05
-  local distance_min = distance * 0.95
-  distance_max = round(distance_max, 0)
-  distance_min = round(distance_min, 0)
 
-  x = math.random(distance_min, distance_max)
-  if 1 == math.random(1, 2) then
-    x = x * -1
-  end
-  y = math.random(distance_min, distance_max)
-  if 1 == math.random(1, 2) then
-    y = y * -1
-  end
-  if 1 == math.random(1, 2) then
-    z = distance_max * -1
-    x = math.random(z, distance_max)
-  else
-    z = distance_max * -1
-    y = math.random(z, distance_max)
+  local chunks = {}
+  for chunk in player.surface.get_chunks() do 
+    table.insert(chunks, chunk)
   end
 
-  local pos = {x, y}
-  game.print(player_name .. " went on a walkabout, to find himself.")
-  Thread.set_timeout(duration, return_player, {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}})
-  player.character = nil
-  player.create_character()
-  player.teleport(player.surface.find_non_colliding_position("player", pos, 100, 1))
-  player.force = "enemy"
+  local chunk = chunks[math.random(#chunks)]
+  if not chunk then
+    return
+  end
+  local pos = {x=chunk.x * 32, y=chunk.y * 32}  
+  local non_colliding_pos = player.surface.find_non_colliding_position("player", pos, 100, 1)
+  
+  if non_colliding_pos then
+    game.print(player_name .. " went on a walkabout, to find himself.")
+    Thread.set_timeout(duration, return_player, {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}})
+    player.character = nil
+    player.create_character()
+    player.teleport(non_colliding_pos)
+    player.force = "enemy"
+    global.walking[player_name:lower()] = true
+  else 
+    player_print("Walkabout failed: count find non colliding position")
+  end
 end
 
 local function return_player(args)
