@@ -54,7 +54,7 @@ end
 
 local function alert(reactor)
   for _,p in pairs(game.players) do
-    p.add_custom_alert(reactor, {type="item", name="nuclear-reactor"}, string.format("Reactor at %s°C", reactor.temperature), true)
+    p.add_custom_alert(reactor, {type="item", name="nuclear-reactor"}, string.format("Reactor at %s°C", math.floor(reactor.temperature)), true)
   end
 end
 
