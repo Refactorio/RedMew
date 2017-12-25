@@ -58,7 +58,7 @@ local function teleport_location(cmd)
 end
 
 local function kill()
-  if game.player then
+  if game.player and game.player.character then
     game.player.character.die()
   end
 end
