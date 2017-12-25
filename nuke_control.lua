@@ -76,14 +76,16 @@ end
 
 global.players_warned = {}
 local function on_capsule_used(event)
+  if event.item.name:find("capsule") then return nil end
   local player = game.players[event.player_index]
   if (not allowed_to_nuke(player)) then
     local area = {{event.position.x-5, event.position.y-5}, {event.position.x+5, event.position.y+5}}
     local count = player.surface.count_entities_filtered{force=player.force, area=area}
     if count > 4 then
       if global.players_warned[event.player_index] then
-        game.ban_player(player, string.format("Automagically banned because: damaged %i entities with %s. If you want to contest this ban please visit redmew.com/discord", count, event.item.name))
+        game.ban_player(player, string.format("Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.", count, event.item.name))
       else
+        game.print("kick")
         global.players_warned[event.player_index] = true
         game.kick_player(player, string.format("Damaged %i entities with %s -Antigrief", count, event.item.name))
       end
