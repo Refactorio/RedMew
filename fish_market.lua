@@ -37,7 +37,6 @@ function spawn_market(cmd)
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="discharge-defense-remote"}}
   market.add_market_item{price={{"raw-fish", 30}}, offer={type="give-item", item="small-plane"}}
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="wood"}}
-  market.add_market_item{price={{"raw-fish", 250}}, offer={type="give-item", item="artillery-targeting-remote"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="rail", count=2}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-signal"}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-chain-signal"}}
@@ -292,14 +291,7 @@ local function market_item_purchased(event)
   fish_cost = market_item.price[1].amount * event.count
   global.fish_market_fish_spent[event.player_index] = global.fish_market_fish_spent[event.player_index] + fish_cost
 
-  if event.offer_index == 4 then
-    if not allowed_to_nuke(player) then  
-      player.remove_item{name = "artillery-targeting-remote", count = 100}
-      player.insert{name="iron-gear-wheel", count = 100}
-      game.print(string.format("%s tried to by an artillery-targeting-remote, but got ripped of and only got some gears.", player.name))
-    end
-  else
-  --to reenable buffs and pets remove this else block
+  --to reenable buffs and pets remove this block:
     if event.offer_index < 4 then 
 
       local fish_amount = 10
@@ -312,7 +304,8 @@ local function market_item_purchased(event)
     end
 
     return     
-  end
+  --upto here
+
   if event.offer_index == 1 then -- discharge-defense-remote
     player.remove_item({name="discharge-defense-remote", count=event.count})
     boost_player_runningspeed(player) --disabled due to on_tick being disabled
