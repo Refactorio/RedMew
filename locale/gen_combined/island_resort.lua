@@ -126,10 +126,10 @@ function run_island( params )
         --Placement of Island Tiles
 
         if noise_island_oil_and_uranium > 0.53 then
-          tile_to_insert = "red-desert-0"
+          tile_to_insert = "red-desert-1"
         end
         if noise_island_oil_and_uranium < -0.53 then
-          tile_to_insert = "red-desert-0-dark"
+          tile_to_insert = "red-desert-0"
         end
 
         if noise_island_stone_and_coal > 0.47 then
@@ -167,14 +167,14 @@ function run_island( params )
           if tile_to_insert == "sand-3" then
             tree = "dry-hairy-tree"
           end
-          if tile_to_insert == "red-desert-0" then
+          if tile_to_insert == "red-desert-1" then
             tree = "dry-tree"
           end
-          if tile_to_insert == "red-desert-0-dark" then
+          if tile_to_insert == "red-desert-0" then
             if math.random(1,3) == 1 then
-              tree = "red-desert-0-rock-huge-01"
+              tree = "red-desert-rock-huge-01"
             else
-              tree = "red-desert-0-rock-big-01"
+              tree = "red-desert-rock-big-01"
             end
           end
           if math.random(1,8) == 1 then
@@ -219,19 +219,19 @@ function run_island( params )
           if tile_to_insert == "sand-3" then
             decorative = "green-asterisk"
           end
-          if tile_to_insert == "red-desert-0" then
+          if tile_to_insert == "red-desert-1" then
             decorative = "red-asterisk"
           end
-          if tile_to_insert == "red-desert-0-dark" then
+          if tile_to_insert == "red-desert-0" then
             decorative = "red-asterisk"
           end
           if math.random(1,5) == 1 then
             table.insert(global.island_decoratives_hold, {name=decorative, position={pos_x,pos_y}, amount=1})
           end
         end
-        if tile_to_insert == "red-desert-0-dark" then
+        if tile_to_insert == "red-desert-0" then
           if math.random(1,50) == 1 then
-            table.insert(global.island_decoratives_hold, {name="red-desert-0-rock-medium", position={pos_x,pos_y}, amount=1})
+            table.insert(global.island_decoratives_hold, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})
           end
         end
       end
@@ -274,7 +274,7 @@ function run_island( params )
           end
         end
 
-        if tile_to_insert == "red-desert-0" or tile_to_insert == "red-desert-0-dark" then
+        if tile_to_insert == "red-desert-1" or tile_to_insert == "red-desert-0" then
           if noise_island_oil_and_uranium > 0.55 and noise_island_resource > 0.25 then
             if surface.can_place_entity {name="crude-oil", position={pos_x,pos_y}} then
               if math.random(1,60) == 1 then

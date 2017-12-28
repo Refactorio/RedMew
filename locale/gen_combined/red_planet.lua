@@ -352,7 +352,7 @@ function run_combined_module(event)
 			local place_tree_number
 				
 			if noise_terrain_1 < 8 + terrain_smoothing + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
-				 tile_to_insert = "red-desert"
+				 tile_to_insert = "red-desert-1"
 				if noise_water_1 + noise_water_2 + noise_sand-1 > -10 and noise_water_1 + noise_water_2 + noise_sand-1 < 25 and noise_terrain_1 < -52 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 + noise_terrain_5 then 	
 					tile_to_insert = "sand-1"
 					place_tree_number = math.random(3,#tree_to_place)		
@@ -442,7 +442,7 @@ function run_combined_module(event)
 					end
 				end						
 			else										
-				tile_to_insert = "red-desert-dark"					
+				tile_to_insert = "red-desert-0"
 			end	
 			if resource_entity_placed == false and noise_resources_coal_and_uranium + noise_resources < -72 and noise_terrain_1 > 65 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
 				if surface.can_place_entity {name="uranium-ore", position={pos_x,pos_y}} then														
