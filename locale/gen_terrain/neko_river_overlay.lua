@@ -29,7 +29,7 @@ function run_terrain_module(event)
 
 			if tile.name ~= "out-of-map" then
 
-				--local tile_to_insert = "grass-medium"
+				--local tile_to_insert = "grass-3"
 
 				local wiggle = 50 + perlin:noise((x*0.005),(y*0.005),global.terrain_seed_A + 71) * 60
 				local terrain_A = perlin:noise((x*0.005),(y*0.005),global.terrain_seed_A + 19) * wiggle	--For determining where water is

@@ -487,3 +487,4 @@ function apply_effect(builder, func)
         return tile, entity
     end
 end
+

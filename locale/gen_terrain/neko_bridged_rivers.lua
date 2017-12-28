@@ -41,7 +41,7 @@ function run_terrain_module(event)
 
 			if tile.name ~= "out-of-map" then
 
-				local tile_to_insert = "grass-medium"
+				local tile_to_insert = "grass-3"
 
 				local wiggle = 50 + perlin:noise((x*0.005),(y*0.005),global.terrain_seed_A + 71) * 60
 				local terrain_A = perlin:noise((x*0.005),(y*0.005),global.terrain_seed_A + 19) * wiggle	--For determining where water is
@@ -67,7 +67,7 @@ function run_terrain_module(event)
 						--table.insert(tileswater, {name = "water", position = {x+1,y+1}})
 
 					else
-						if terrain_D >= 20 then tile_to_insert = "sand" end
+						if terrain_D >= 20 then tile_to_insert = "sand-1" end
 					end
 				elseif terrain_sqr > 70 then
 					wiggle = 100 + perlin:noise((x*0.01),(y*0.01),global.terrain_seed_B + 41) * 60
@@ -106,9 +106,9 @@ function run_terrain_module(event)
 					if terrain_D < 20 then
 
 
-						if terrain_C < 4 then	--we set grass around near forest areas
+						if terrain_C < 4 then	--we set grass-1 around near forest areas
 
-							tile_to_insert = "grass"
+							tile_to_insert = "grass-1"
 
 							if terrain_C < -20 and math.random(1,3) == 1 then	--dense trees
 								local treenum = math.random(3,7)
@@ -126,7 +126,7 @@ function run_terrain_module(event)
 						end
 					else
 						if terrain_D < 30 then
-							tile_to_insert = "sand"
+							tile_to_insert = "sand-1"
 
 							if terrain_C < -20 and math.random(1,7) == 1 then	--dense trees
 								local treenum = math.random(1,3)
@@ -141,7 +141,7 @@ function run_terrain_module(event)
 							end
 
 						else
-							tile_to_insert = "sand-dark"
+							tile_to_insert = "sand-3"
 							--if terrain_C > 40 and math.random(1,200) == 1 and surface.can_place_entity {name="crude-oil", position={pos_x,pos_y}} then
 							--	surface.create_entity {name="crude-oil", position={pos_x,pos_y}, amount = math.random(20000,60000) +distance_bonus* 2000 }
 							--end
@@ -150,17 +150,17 @@ function run_terrain_module(event)
 
 					end
 
-					if math.floor(terrain_D) % 5 == 1 and math.random(1,70) == 1 and surface.can_place_entity {name="stone-rock", position={x,y}} then
-						surface.create_entity {name="stone-rock", position={x,y}}
+					if math.floor(terrain_D) % 5 == 1 and math.random(1,70) == 1 and surface.can_place_entity {name="rock-big", position={x,y}} then
+						surface.create_entity {name="rock-big", position={x,y}}
 					end
 
 				else
 
 					if terrain_D >= 20 then
 						if terrain_D < 30 then
-							tile_to_insert = "sand"
+							tile_to_insert = "sand-1"
 						else
-							tile_to_insert = "sand-dark"
+							tile_to_insert = "sand-3"
 						end
 					end
 				end

@@ -288,7 +288,7 @@ function run_combined_module(event)
 	local entities = surface.find_entities(area)
 	for _, entity in pairs(entities) do
 		if entity.type == "resource" then
-			--table.insert(resource_tiles, {name = "sand-dark", position = entity.position})
+			--table.insert(resource_tiles, {name = "sand-3", position = entity.position})
 			special_tiles = false
 		end
 		if entity.type == "simple-entity" or entity.type == "tree" then
@@ -304,7 +304,7 @@ function run_combined_module(event)
 			local pos_y = event.area.left_top.y + y
 			local pos = {x = pos_x,y = pos_y}					
 			local tile = surface.get_tile(pos_x,pos_y)														
-			local tile_to_insert = "sand"			
+			local tile_to_insert = "sand-1"			
 			local entity_placed = false
 			
 			local seed_increment_number = 10000
@@ -338,7 +338,7 @@ function run_combined_module(event)
 			end			
 			
 			if noise_trees > 0.4 then
-				tile_to_insert = "sand-dark"
+				tile_to_insert = "sand-3"
 			end
 			if noise_borg_defense > 0.4 then
 				tile_to_insert = "concrete"
@@ -411,7 +411,7 @@ function run_combined_module(event)
 				tile_to_insert = "stone-path"
 			end
 			
-			if noise_trees > 0.4 and tile_to_insert == "sand-dark" then				
+			if noise_trees > 0.4 and tile_to_insert == "sand-3" then				
 				if math.random(1,20) == 1 then
 					if event.surface.can_place_entity {name="dry-tree", position={pos_x,pos_y}} then
 						event.surface.create_entity {name="dry-tree", position={pos_x,pos_y}}
@@ -446,10 +446,10 @@ function run_combined_module(event)
 			end
 			
 			if noise_trees < -0.5 then
-				if tile_to_insert == "sand-dark" or tile_to_insert == "sand" then
+				if tile_to_insert == "sand-3" or tile_to_insert == "sand-1" then
 					if math.random(1,15) == 1 then
-						if event.surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
-							event.surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
+						if event.surface.can_place_entity {name="rock-big", position={pos_x,pos_y}} then
+							event.surface.create_entity {name="rock-big", position={pos_x,pos_y}}
 						end
 					end
 				end

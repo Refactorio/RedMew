@@ -90,6 +90,6 @@ local pattern =
 local map = grid_pattern_builder(pattern, 2, 2, 480,480)
 map = choose(mediumn_dot, start, map)
 
-map = change_map_gen_collision_tile(map,"water-tile", "grass")
+map = change_map_gen_collision_tile(map,"water-tile", "grass-1")
 
 return map

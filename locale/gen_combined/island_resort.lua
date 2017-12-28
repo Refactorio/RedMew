@@ -19,7 +19,9 @@ function run_combined_module(event)
       -- run_island( {area = event.area, surface = event.surface, x = x})
  	end
    Thread.queue_action("run_island_place_tiles", {surface = event.surface})
+   Thread.queue_action("run_chart_update", {area = event.area, surface = event.surface})
 end
+
 
 global.island_tiles_hold = {}
 global.island_decoratives_hold = {}
@@ -35,6 +37,15 @@ function run_island_place_tiles(params)
    for _,deco in pairs(global.island_decoratives_hold) do
      surface.create_decoratives{check_collision=false, decoratives={deco}}
    end
+end
+
+function run_chart_update(params)
+   local x = params.area.left_top.x / 32
+   local y = params.area.left_top.y / 32
+      if game.forces.player.is_chunk_charted(params.surface, {x,y} ) then
+         -- Don't use full area, otherwise adjacent chunks get charted
+         game.forces.player.chart(params.surface, {{  params.area.left_top.x,  params.area.left_top.y}, { params.area.left_top.x+30,  params.area.left_top.y+30} } )
+      end
 end
 
 function run_island( params )
@@ -108,31 +119,31 @@ function run_island( params )
       local b = pos_x * pos_x
       local tile_distance_to_center = a + b
       if tile_distance_to_center + noise_island_starting <= radsquare then
-          tile_to_insert = "grass"
+          tile_to_insert = "grass-1"
       end
 
       if tile_distance_to_center + noise_island_starting > radsquare + 20000 then
         --Placement of Island Tiles
 
         if noise_island_oil_and_uranium > 0.53 then
-          tile_to_insert = "red-desert"
+          tile_to_insert = "red-desert-1"
         end
         if noise_island_oil_and_uranium < -0.53 then
-          tile_to_insert = "red-desert-dark"
+          tile_to_insert = "red-desert-0"
         end
 
         if noise_island_stone_and_coal > 0.47 then
-          tile_to_insert = "grass-medium"
+          tile_to_insert = "grass-3"
         end
         if noise_island_stone_and_coal < -0.47 then
-          tile_to_insert = "grass-dry"
+          tile_to_insert = "grass-2"
         end
 
         if noise_island_iron_and_copper > 0.47 then
-          tile_to_insert = "sand"
+          tile_to_insert = "sand-1"
         end
         if noise_island_iron_and_copper < -0.47 then
-          tile_to_insert = "sand-dark"
+          tile_to_insert = "sand-3"
         end
 
       end
@@ -141,29 +152,29 @@ function run_island( params )
       if tile_to_insert ~= "water" then
         if noise_trees > 0.1 then
           local tree = "tree-01"
-          if tile_to_insert == "grass" then
+          if tile_to_insert == "grass-1" then
             tree = "tree-05"
           end
-          if tile_to_insert == "grass-dry" then
+          if tile_to_insert == "grass-2" then
             tree = "tree-02"
           end
-          if tile_to_insert == "grass-medium" then
+          if tile_to_insert == "grass-3" then
             tree = "tree-04"
           end
-          if tile_to_insert == "sand" then
+          if tile_to_insert == "sand-1" then
             tree = "tree-07"
           end
-          if tile_to_insert == "sand-dark" then
+          if tile_to_insert == "sand-3" then
             tree = "dry-hairy-tree"
           end
-          if tile_to_insert == "red-desert" then
+          if tile_to_insert == "red-desert-1" then
             tree = "dry-tree"
           end
-          if tile_to_insert == "red-desert-dark" then
+          if tile_to_insert == "red-desert-0" then
             if math.random(1,3) == 1 then
-              tree = "red-desert-rock-huge-01"
+              tree = "sand-rock-big"
             else
-              tree = "red-desert-rock-big-01"
+              tree = "sand-rock-big"
             end
           end
           if math.random(1,8) == 1 then
@@ -174,17 +185,17 @@ function run_island( params )
         end
       end
 
-      if tile_to_insert == "sand" or tile_to_insert == "sand-dark" then
+      if tile_to_insert == "sand-1" or tile_to_insert == "sand-3" then
         if math.random(1,200) == 1 then
-            if surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
-                surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
+            if surface.can_place_entity {name="rock-big", position={pos_x,pos_y}} then
+                surface.create_entity {name="rock-big", position={pos_x,pos_y}}
             end
         end
       end
-      if tile_to_insert == "grass" or tile_to_insert == "grass-dry" or tile_to_insert == "grass-medium" then
+      if tile_to_insert == "grass-1" or tile_to_insert == "grass-2" or tile_to_insert == "grass-3" then
         if math.random(1,2000) == 1 then
-            if surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
-                surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
+            if surface.can_place_entity {name="rock-big", position={pos_x,pos_y}} then
+                surface.create_entity {name="rock-big", position={pos_x,pos_y}}
             end
         end
       end
@@ -192,35 +203,35 @@ function run_island( params )
       --Placement of Decoratives
       if tile_to_insert ~= "water" then
         if noise_decoratives > 0.3 then
-          local decorative = "green-carpet-grass"
-          if tile_to_insert == "grass" then
+          local decorative = "green-carpet-grass-1"
+          if tile_to_insert == "grass-1" then
             decorative = "green-pita"
           end
-          if tile_to_insert == "grass-dry" then
+          if tile_to_insert == "grass-2" then
             decorative = "green-pita"
           end
-          if tile_to_insert == "grass-medium" then
+          if tile_to_insert == "grass-3" then
             decorative = "green-pita"
           end
-          if tile_to_insert == "sand" then
+          if tile_to_insert == "sand-1" then
             decorative = "green-asterisk"
           end
-          if tile_to_insert == "sand-dark" then
+          if tile_to_insert == "sand-3" then
             decorative = "green-asterisk"
           end
-          if tile_to_insert == "red-desert" then
+          if tile_to_insert == "red-desert-1" then
             decorative = "red-asterisk"
           end
-          if tile_to_insert == "red-desert-dark" then
+          if tile_to_insert == "red-desert-0" then
             decorative = "red-asterisk"
           end
           if math.random(1,5) == 1 then
             table.insert(global.island_decoratives_hold, {name=decorative, position={pos_x,pos_y}, amount=1})
           end
         end
-        if tile_to_insert == "red-desert-dark" then
+        if tile_to_insert == "red-desert-0" then
           if math.random(1,50) == 1 then
-            table.insert(global.island_decoratives_hold, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})
+            table.insert(global.island_decoratives_hold, {name="rock-medium", position={pos_x,pos_y}, amount=1})
           end
         end
       end
@@ -237,7 +248,7 @@ function run_island( params )
         local noise_resource_amount_modifier = perlin:noise(((pos_x+seed)/200),((pos_y+seed)/200),0)
         local resource_amount = 1 + ((500 + (500*noise_resource_amount_modifier*0.2)) * resource_amount_distance_multiplicator)
 
-        if tile_to_insert == "sand" or tile_to_insert == "sand-dark" then
+        if tile_to_insert == "sand-1" or tile_to_insert == "sand-3" then
           if noise_island_iron_and_copper > 0.5 and noise_island_resource > 0.2 then
             if surface.can_place_entity {name="iron-ore", position={pos_x,pos_y}} then
               surface.create_entity {name="iron-ore", position={pos_x,pos_y}, amount=resource_amount}
@@ -250,7 +261,7 @@ function run_island( params )
           end
         end
 
-        if tile_to_insert == "grass-medium" or tile_to_insert == "grass-dry" then
+        if tile_to_insert == "grass-3" or tile_to_insert == "grass-2" then
           if noise_island_stone_and_coal > 0.5 and noise_island_resource > 0.2 then
             if surface.can_place_entity {name="stone", position={pos_x,pos_y}} then
               surface.create_entity {name="stone", position={pos_x,pos_y}, amount=resource_amount*1.5}
@@ -263,7 +274,7 @@ function run_island( params )
           end
         end
 
-        if tile_to_insert == "red-desert" or tile_to_insert == "red-desert-dark" then
+        if tile_to_insert == "red-desert-1" or tile_to_insert == "red-desert-0" then
           if noise_island_oil_and_uranium > 0.55 and noise_island_resource > 0.25 then
             if surface.can_place_entity {name="crude-oil", position={pos_x,pos_y}} then
               if math.random(1,60) == 1 then

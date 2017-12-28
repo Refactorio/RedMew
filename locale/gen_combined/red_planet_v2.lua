@@ -192,9 +192,9 @@ function run_planet( params )
 		local place_tree_number
 
 		if noise_terrain_1 < 8 + terrain_smoothing + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
-			tile_to_insert = "red-desert"
+			tile_to_insert = "red-desert-1"
 			if noise_water_1 + noise_water_2 + noise_sand > -10 and noise_water_1 + noise_water_2 + noise_sand < 25 and noise_terrain_1 < -52 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 + noise_terrain_5 then
-				tile_to_insert = "sand"
+				tile_to_insert = "sand-1"
 				place_tree_number = math.random(3,#tree_to_place)
 			else
 				place_tree_number = math.random(1,(#tree_to_place - 3))
@@ -213,9 +213,6 @@ function run_planet( params )
 				if noise_water_1 + noise_water_2 < 2 or noise_water_1 + noise_water_2 > 13 then
 					if math.random(1,15) == 1 then
 						table.insert(global.planet_decoratives_hold, {name="green-carpet-grass", position={pos_x,pos_y}, amount=1})
-					end
-					if math.random(1,15) == 1 then
-						table.insert(global.planet_decoratives_hold, {name="brown-cane-cluster", position={pos_x,pos_y}, amount=1})
 					end
 				end
 			end
@@ -267,22 +264,22 @@ function run_planet( params )
 			if tile_to_insert ~= "water" then
 				if noise_terrain_1 < 8 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 and noise_terrain_1 > -5 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
 					if math.random(1,180) == 1 then
-						table.insert(global.planet_decoratives_hold, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})
+						table.insert(global.planet_decoratives_hold, {name="rock-medium", position={pos_x,pos_y}, amount=1})
 					end
 					if math.random(1,80) == 1 then
-						table.insert(global.planet_decoratives_hold, {name="red-desert-rock-tiny", position={pos_x,pos_y}, amount=1})
+						table.insert(global.planet_decoratives_hold, {name="sand-rock-small", position={pos_x,pos_y}, amount=1})
 					end
 				else
 					if math.random(1,1500) == 1 then
-						table.insert(global.planet_decoratives_hold, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})
+						table.insert(global.planet_decoratives_hold, {name="rock-medium", position={pos_x,pos_y}, amount=1})
 					end
 					if math.random(1,180) == 1 then
-						table.insert(global.planet_decoratives_hold, {name="red-desert-rock-tiny", position={pos_x,pos_y}, amount=1})
+						table.insert(global.planet_decoratives_hold, {name="sand-rock-small", position={pos_x,pos_y}, amount=1})
 					end
 				end
 			end
 		else
-			tile_to_insert = "red-desert-dark"
+			tile_to_insert = "red-desert-0"
 		end
 		if resource_entity_placed == false and noise_resources_coal_and_uranium + noise_resources < -72 and noise_terrain_1 > 65 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
 			if surface.can_place_entity {name="uranium-ore", position={pos_x,pos_y}} then
@@ -326,12 +323,12 @@ function run_planet( params )
 		if resource_entity_placed == false and noise_red_desert_rocks_1 + noise_red_desert_rocks_2 + noise_red_desert_rocks_3 > 20 and noise_red_desert_rocks_1 + noise_red_desert_rocks_2 < 60 and noise_terrain_1 > 7 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
 			if math.random(1,3) == 1 then
 				if math.random(1,3) == 1 then
-					if surface.can_place_entity {name="red-desert-rock-huge-01", position={pos_x,pos_y}} then
-						surface.create_entity {name="red-desert-rock-huge-01", position={pos_x,pos_y}}
+					if surface.can_place_entity {name="sand-rock-big", position={pos_x,pos_y}} then
+						surface.create_entity {name="sand-rock-big", position={pos_x,pos_y}}
 					end
 				else
-					if surface.can_place_entity {name="red-desert-rock-big-01", position={pos_x,pos_y}} then
-						surface.create_entity {name="red-desert-rock-big-01", position={pos_x,pos_y}}
+					if surface.can_place_entity {name="sand-rock-big", position={pos_x,pos_y}} then
+						surface.create_entity {name="sand-rock-big", position={pos_x,pos_y}}
 					end
 				end
 			end
@@ -339,15 +336,15 @@ function run_planet( params )
 
 		if noise_red_desert_rocks_1 + noise_red_desert_rocks_2 + noise_red_desert_rocks_3 + noise_terrain_4 >= 10 and noise_red_desert_rocks_1 + noise_red_desert_rocks_2 + noise_red_desert_rocks_3 < 20 and noise_terrain_1 > 7 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
 			if math.random(1,5) == 1 then
-				table.insert(global.planet_decoratives_hold, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})
+				table.insert(global.planet_decoratives_hold, {name="rock-medium", position={pos_x,pos_y}, amount=1})
 			end
 		else
-			if tile_to_insert ~= "water" and tile_to_insert ~= "sand" then
+			if tile_to_insert ~= "water" and tile_to_insert ~= "sand-1" then
 				if math.random(1,15) == 1 then
-					table.insert(global.planet_decoratives_hold, {name="red-desert-rock-small", position={pos_x,pos_y}, amount=1})
+					table.insert(global.planet_decoratives_hold, {name="sand-rock-small", position={pos_x,pos_y}, amount=1})
 				else
 					if math.random(1,8) == 1 then
-						table.insert(global.planet_decoratives_hold, {name="red-desert-rock-tiny", position={pos_x,pos_y}, amount=1})
+						table.insert(global.planet_decoratives_hold, {name="sand-rock-small", position={pos_x,pos_y}, amount=1})
 					end
 				end
 			end

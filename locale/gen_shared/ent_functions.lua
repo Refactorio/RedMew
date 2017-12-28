@@ -245,9 +245,9 @@ function create_rock_cluster(pos, amount)
 	entity.pos = pos		
 	for i = 1, amount, 1 do
 		if 1 == math.random(1,3) then
-			entity.name = "red-desert-rock-huge-01"
+			entity.name = "sand-rock-big"
 		else
-			entity.name = "red-desert-rock-big-01"
+			entity.name = "sand-rock-big"
 		end	
 		local b, e = auto_place_entity_around_target(entity, scan_radius, mode)
 		if b == true then
@@ -531,5 +531,5 @@ function create_tile_cluster(tilename,position,amount)
 		end
 		if b == false then return false,x,y end
 		if i >= amount then return true,x,y end
-	end		
+	end
 end
