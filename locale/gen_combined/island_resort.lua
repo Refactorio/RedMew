@@ -19,7 +19,9 @@ function run_combined_module(event)
       -- run_island( {area = event.area, surface = event.surface, x = x})
  	end
    Thread.queue_action("run_island_place_tiles", {surface = event.surface})
+   Thread.queue_action("run_chart_update", {area = event.area, surface = event.surface}
 end
+
 
 global.island_tiles_hold = {}
 global.island_decoratives_hold = {}
@@ -35,6 +37,15 @@ function run_island_place_tiles(params)
    for _,deco in pairs(global.island_decoratives_hold) do
      surface.create_decoratives{check_collision=false, decoratives={deco}}
    end
+end
+
+function run_chart_update(params)
+   local x = params.area.left_top.x / 32
+   local y = params.area.left_top.y / 32
+      if game.forces.player.is_chunk_charted(params.surface, {x,y} ) then
+         -- Don't use full area, otherwise adjacent chunks get charted
+         game.forces.player.chart(params.surface, {{  params.area.left_top.x,  params.area.left_top.y}, { params.area.left_top.x+30,  params.area.left_top.y+30} } )
+      end
 end
 
 function run_island( params )
