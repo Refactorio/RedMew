@@ -287,8 +287,8 @@ function run_combined_module(event)
 			local noise_terrain_5 = perlin:noise(((pos_x+seed)/5),((pos_y+seed)/5),0)					
 			noise_terrain_5 = noise_terrain_5 * 4
 			seed = seed + seed_increment_number
-			local noise_sand = perlin:noise(((pos_x+seed)/18),((pos_y+seed)/18),0)					
-			noise_sand = noise_sand * 10
+			local noise_sand-1 = perlin:noise(((pos_x+seed)/18),((pos_y+seed)/18),0)					
+			noise_sand-1 = noise_sand-1 * 10
 			
 			--DECORATIVES
 			seed = seed + seed_increment_number
@@ -353,8 +353,8 @@ function run_combined_module(event)
 				
 			if noise_terrain_1 < 8 + terrain_smoothing + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
 				 tile_to_insert = "red-desert"
-				if noise_water_1 + noise_water_2 + noise_sand > -10 and noise_water_1 + noise_water_2 + noise_sand < 25 and noise_terrain_1 < -52 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 + noise_terrain_5 then 	
-					tile_to_insert = "sand"
+				if noise_water_1 + noise_water_2 + noise_sand-1 > -10 and noise_water_1 + noise_water_2 + noise_sand-1 < 25 and noise_terrain_1 < -52 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 + noise_terrain_5 then 	
+					tile_to_insert = "sand-1"
 					place_tree_number = math.random(3,#tree_to_place)		
 				else 
 					place_tree_number = math.random(1,(#tree_to_place - 3))
@@ -372,7 +372,7 @@ function run_combined_module(event)
 					table.insert(tiles, {name = tile_to_insert, position = {pos_x,a}})	
 					if noise_water_1 + noise_water_2 < 2 or noise_water_1 + noise_water_2 > 13 then
 						if math.random(1,15) == 1 then
-							table.insert(decoratives, {name="green-carpet-grass", position={pos_x,pos_y}, amount=1})	
+							table.insert(decoratives, {name="green-carpet-grass-1", position={pos_x,pos_y}, amount=1})	
 						end
 						if math.random(1,15) == 1 then
 							table.insert(decoratives, {name="brown-cane-cluster", position={pos_x,pos_y}, amount=1})	
@@ -383,12 +383,12 @@ function run_combined_module(event)
 				if tile_to_insert ~= "water" then
 					if noise_water_1 + noise_water_2 > 16 and noise_water_1 + noise_water_2 < 25 and noise_terrain_1 < -55 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 + noise_terrain_5 then
 						if math.random(1,35) == 1 then
-							table.insert(decoratives, {name="brown-carpet-grass", position={pos_x,pos_y}, amount=1})	
+							table.insert(decoratives, {name="brown-carpet-grass-1", position={pos_x,pos_y}, amount=1})	
 						end																	
 					end
 					if noise_water_1 + noise_water_2 > -10 and noise_water_1 + noise_water_2 < -1 and noise_terrain_1 < -55 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 + noise_terrain_5 then
 						if math.random(1,35) == 1 then
-							table.insert(decoratives, {name="brown-carpet-grass", position={pos_x,pos_y}, amount=1})	
+							table.insert(decoratives, {name="brown-carpet-grass-1", position={pos_x,pos_y}, amount=1})	
 						end																	
 					end
 					if noise_decoratives_1 > 0.5 and noise_decoratives_1 <= 0.8 then
@@ -502,7 +502,7 @@ function run_combined_module(event)
 					table.insert(decoratives, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})							
 				end
 			else
-				if tile_to_insert ~= "water" and tile_to_insert ~= "sand" then
+				if tile_to_insert ~= "water" and tile_to_insert ~= "sand-1" then
 					if math.random(1,15) == 1 then
 						table.insert(decoratives, {name="red-desert-rock-small", position={pos_x,pos_y}, amount=1})
 					else

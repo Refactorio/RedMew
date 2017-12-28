@@ -307,7 +307,7 @@ function run_borg( params )
 		local pos_y = area.left_top.y + y
 		local pos = {x = pos_x,y = pos_y}
 		local tile = surface.get_tile(pos_x,pos_y)
-		local tile_to_insert = "sand"
+		local tile_to_insert = "sand-1"
 		local entity_placed = false
 
 		local seed_increment_number = 10000
@@ -349,7 +349,7 @@ function run_borg( params )
 		end
 
 		if noise_trees > 0.17 then
-			tile_to_insert = "sand-dark"
+			tile_to_insert = "sand-3"
 		end
 		if noise_borg_defense > 0.4 then
 			tile_to_insert = "concrete"
@@ -399,7 +399,7 @@ function run_borg( params )
 		end
 
 
-		if noise_trees > 0.2 and tile_to_insert == "sand-dark" then
+		if noise_trees > 0.2 and tile_to_insert == "sand-3" then
 			if math.random(1,15) == 1 then
 				if math.random(1,5) == 1 then
 					if surface.can_place_entity {name="dry-hairy-tree", position={pos_x,pos_y}} then
@@ -450,7 +450,7 @@ function run_borg( params )
 		end
 
 		if noise_trees < -0.5 then
-			if tile_to_insert == "sand-dark" or tile_to_insert == "sand" then
+			if tile_to_insert == "sand-3" or tile_to_insert == "sand-1" then
 				if math.random(1,15) == 1 then
 					if surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
 						surface.create_entity {name="stone-rock", position={pos_x,pos_y}}

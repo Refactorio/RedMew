@@ -322,10 +322,10 @@ function run_swamp_entities(params)
 		local tile = surface.get_tile(pos_x,pos_y)
 		local tile_to_insert = tile
 		local entity_placed = false
-									-- or tile.name == "grass-dry"
+									-- or tile.name == "grass-2"
 		--if tile.name ~= "water" and tile.name ~= "deepwater" and tile.name ~= "water-green" then
 		if tile.name ~= "water-green" then
-			table.insert(global.swamp_tiles_hold, {name = "grass", position = {pos_x,pos_y}})
+			table.insert(global.swamp_tiles_hold, {name = "grass-1", position = {pos_x,pos_y}})
 
 			local entity_list = {}
 			table.insert(entity_list, {name="big-ship-wreck-1", pos={pos_x,pos_y},chance = 65000, health="random"})
@@ -434,18 +434,18 @@ function run_swamp_cleanup(params)
 			local tile = surface.get_tile(pos_x, pos_y)
 			local decal_has_been_placed = false
 
-			if tile.name == "grass" then
+			if tile.name == "grass-1" then
 				if decal_has_been_placed == false then
 					local r = math.random(1,3)
 					if r == 1 then
-						table.insert(decoratives, {name="green-carpet-grass", position={pos_x,pos_y}, amount=1})
+						table.insert(decoratives, {name="green-carpet-grass-1", position={pos_x,pos_y}, amount=1})
 						decal_has_been_placed = false
 					end
 				end
 				if decal_has_been_placed == false then
 					local r = math.random(1,7)
 					if r == 1 then
-						table.insert(decoratives, {name="green-hairy-grass", position={pos_x,pos_y}, amount=1})
+						table.insert(decoratives, {name="green-hairy-grass-1", position={pos_x,pos_y}, amount=1})
 						decal_has_been_placed = false
 					end
 				end
@@ -466,7 +466,7 @@ function run_swamp_cleanup(params)
 				if decal_has_been_placed == false then
 					local r = math.random(1,12)
 					if r == 1 then
-						table.insert(decoratives, {name="green-small-grass", position={pos_x,pos_y}, amount=1})
+						table.insert(decoratives, {name="green-small-grass-1", position={pos_x,pos_y}, amount=1})
 						decal_has_been_placed = false
 					end
 				end
@@ -483,14 +483,14 @@ function run_swamp_cleanup(params)
 				if decal_has_been_placed == false then
 					local r = math.random(1,18)
 					if r == 1 then
-						table.insert(decoratives, {name="green-carpet-grass", position={pos_x,pos_y}, amount=1})
+						table.insert(decoratives, {name="green-carpet-grass-1", position={pos_x,pos_y}, amount=1})
 						decal_has_been_placed = false
 					end
 				end
 				if decal_has_been_placed == false then
 					local r = math.random(1,950)
 					if r == 1 then
-						table.insert(decoratives, {name="green-small-grass", position={pos_x,pos_y}, amount=1})
+						table.insert(decoratives, {name="green-small-grass-1", position={pos_x,pos_y}, amount=1})
 						decal_has_been_placed = false
 					end
 				end

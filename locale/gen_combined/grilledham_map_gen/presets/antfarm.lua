@@ -12,6 +12,6 @@ map = translate(map, -12, 2)
 map = scale(map, scale_factor, scale_factor)
 
 --map = change_tile(map, false, "water")
---map = change_map_gen_collision_tile(map, "water-tile", "grass")
+--map = change_map_gen_collision_tile(map, "water-tile", "grass-1")
 
 return map

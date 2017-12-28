@@ -125,15 +125,15 @@ local decorative_options = {
    ["concrete"] = {},
    ["deepwater"] = {},
    ["deepwater-green"] = {
-      {"brown-carpet-grass", 100},
+      {"brown-carpet-grass-1", 100},
       {"brown-cane-cluster", 500},
    },
-   ["dirt"] = {
-      {"brown-carpet-grass", 100},
+   ["dirt-3"] = {
+      {"brown-carpet-grass-1", 100},
       {"brown-cane-cluster", 200},
       {"red-desert-rock-tiny", 150},
    },
-   ["dirt-dark"] = {
+   ["dirt-6"] = {
       {"red-desert-rock-tiny", 150},
       {"red-asterisk", 45},
       {"red-desert-bush", 12},
@@ -141,41 +141,41 @@ local decorative_options = {
 
 
    },
-   ["grass"] = {
-      {"green-carpet-grass", 3},
-      {"green-hairy-grass", 7},
+   ["grass-1"] = {
+      {"green-carpet-grass-1", 3},
+      {"green-hairy-grass-1", 7},
       {"green-bush-mini", 10},
       {"green-pita", 6},
-      {"green-small-grass", 12},
+      {"green-small-grass-1", 12},
       {"green-asterisk", 25},
       {"green-bush-mini", 7},
       {"garballo", 20},
    },
-   ["grass-medium"] = {
-      {"green-carpet-grass", 12},
-      {"green-hairy-grass", 28},
+   ["grass-3"] = {
+      {"green-carpet-grass-1", 12},
+      {"green-hairy-grass-1", 28},
       {"green-bush-mini", 40},
       {"green-pita", 24},
-      {"green-small-grass", 48},
+      {"green-small-grass-1", 48},
       {"green-asterisk", 100},
       {"green-bush-mini", 28},
    },
-   ["grass-dry"] = {
-      {"green-hairy-grass", 56},
+   ["grass-2"] = {
+      {"green-hairy-grass-1", 56},
       {"green-bush-mini", 80},
       {"green-pita", 48},
-      {"green-small-grass", 96},
+      {"green-small-grass-1", 96},
       {"green-asterisk", 200},
       {"green-bush-mini", 56},
       {"brown-cane-cluster", 100},
-      {"brown-carpet-grass", 100},
+      {"brown-carpet-grass-1", 100},
    },
    ["hazard-concrete-left"] = {},
    ["hazard-concrete-right"] = {},
    ["lab-dark-1"] = {},
    ["lab-dark-2"] = {},
    ["red-desert"] = {
-      {"brown-carpet-grass", 35},
+      {"brown-carpet-grass-1", 35},
       {"orange-coral-mini", 45},
       {"red-asterisk", 45},
       {"red-desert-bush", 12},
@@ -184,7 +184,7 @@ local decorative_options = {
       {"red-desert-rock-tiny", 30},
    },
    ["red-desert-dark"] = {
-      {"brown-carpet-grass", 70},
+      {"brown-carpet-grass-1", 70},
       {"orange-coral-mini", 90},
       {"red-asterisk", 90},
       {"red-desert-bush", 35},
@@ -192,14 +192,14 @@ local decorative_options = {
       {"red-desert-rock-small", 200},
       {"red-desert-rock-tiny", 150},
    },
-   ["sand"] = {
-      {"brown-carpet-grass", 35},
+   ["sand-1"] = {
+      {"brown-carpet-grass-1", 35},
       {"orange-coral-mini", 45},
       {"red-asterisk", 45},
       {"brown-asterisk", 45},
    },
-   ["sand-dark"] = {
-      {"brown-carpet-grass", 35},
+   ["sand-3"] = {
+      {"brown-carpet-grass-1", 35},
       {"orange-coral-mini", 45},
       {"brown-asterisk", 45},
    },
@@ -230,20 +230,20 @@ local entity_options = {
    ["deepwater-green"] = {},
    ["water"] = {},
    ["water-green"] = {},
-   ["dirt"] = {
+   ["dirt-3"] = {
       {"tree-01", 500},
       {"tree-06", 300},
       {"tree-07", 800},
       {"tree-09", 2000},
       {"stone-rock", 400},
    },
-   ["dirt-dark"] = {
+   ["dirt-6"] = {
       {"tree-06", 150},
       {"tree-07", 400},
       {"tree-09", 1000},
       {"stone-rock", 300},
    },
-   ["grass"] = {
+   ["grass-1"] = {
       {"tree-01", 150},
       {"tree-04", 400},
       {"tree-06", 400},
@@ -252,7 +252,7 @@ local entity_options = {
       {"stone-rock", 400},
       {"green-coral", 10000},
    },
-   ["grass-medium"] = {
+   ["grass-3"] = {
       {"tree-02", 400},
       {"tree-03", 400},
       {"tree-04", 800},
@@ -262,7 +262,7 @@ local entity_options = {
       {"tree-09", 2000},
       {"stone-rock", 400},
    },
-   ["grass-dry"] = {
+   ["grass-2"] = {
       {"tree-04", 800},
       {"tree-06", 300},
       {"tree-07", 400},
@@ -298,14 +298,14 @@ local entity_options = {
       {"red-desert-rock-huge-01", 400},
       {"red-desert-rock-huge-02", 400},
    },
-   ["sand"] = {
+   ["sand-1"] = {
       {"dry-tree", 1000},
       {"dry-hairy-tree", 1000},
       {"dead-tree", 1000},
       {"stone-rock", 150},
 
    },
-   ["sand-dark"] = {
+   ["sand-3"] = {
       {"dead-tree", 1000},
       {"dry-tree", 1000},
       {"dry-hairy-tree", 1000},
