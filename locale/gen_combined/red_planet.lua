@@ -287,8 +287,8 @@ function run_combined_module(event)
 			local noise_terrain_5 = perlin:noise(((pos_x+seed)/5),((pos_y+seed)/5),0)					
 			noise_terrain_5 = noise_terrain_5 * 4
 			seed = seed + seed_increment_number
-			local noise_sand-1 = perlin:noise(((pos_x+seed)/18),((pos_y+seed)/18),0)					
-			noise_sand-1 = noise_sand-1 * 10
+			local noise_sand = perlin:noise(((pos_x+seed)/18),((pos_y+seed)/18),0)					
+			noise_sand = noise_sand * 10
 			
 			--DECORATIVES
 			seed = seed + seed_increment_number
