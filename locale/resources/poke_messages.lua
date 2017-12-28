@@ -272,4 +272,10 @@ return
     "the Spanish Inquisition",
     "an addiction to Cracktorio",
     "a broken mirror",
+    "a dismembered hooker",
+    "a popped balloon",
+    "a hipster breakfast",
+    "a nintendo cartridge",
+    "a generic greething card",
+    "an empty bottle of barbiturics",
 }
