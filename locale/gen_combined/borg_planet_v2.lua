@@ -452,8 +452,8 @@ function run_borg( params )
 		if noise_trees < -0.5 then
 			if tile_to_insert == "sand-3" or tile_to_insert == "sand-1" then
 				if math.random(1,15) == 1 then
-					if surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
-						surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
+					if surface.can_place_entity {name="rock-big", position={pos_x,pos_y}} then
+						surface.create_entity {name="rock-big", position={pos_x,pos_y}}
 					end
 				end
 			end

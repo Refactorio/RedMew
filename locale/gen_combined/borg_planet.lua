@@ -448,8 +448,8 @@ function run_combined_module(event)
 			if noise_trees < -0.5 then
 				if tile_to_insert == "sand-3" or tile_to_insert == "sand-1" then
 					if math.random(1,15) == 1 then
-						if event.surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
-							event.surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
+						if event.surface.can_place_entity {name="rock-big", position={pos_x,pos_y}} then
+							event.surface.create_entity {name="rock-big", position={pos_x,pos_y}}
 						end
 					end
 				end

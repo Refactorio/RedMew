@@ -150,8 +150,8 @@ function run_terrain_module(event)
 
 					end
 
-					if math.floor(terrain_D) % 5 == 1 and math.random(1,70) == 1 and surface.can_place_entity {name="stone-rock", position={x,y}} then
-						surface.create_entity {name="stone-rock", position={x,y}}
+					if math.floor(terrain_D) % 5 == 1 and math.random(1,70) == 1 and surface.can_place_entity {name="rock-big", position={x,y}} then
+						surface.create_entity {name="rock-big", position={x,y}}
 					end
 
 				else

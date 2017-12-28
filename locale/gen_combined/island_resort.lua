@@ -187,15 +187,15 @@ function run_island( params )
 
       if tile_to_insert == "sand-1" or tile_to_insert == "sand-3" then
         if math.random(1,200) == 1 then
-            if surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
-                surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
+            if surface.can_place_entity {name="rock-big", position={pos_x,pos_y}} then
+                surface.create_entity {name="rock-big", position={pos_x,pos_y}}
             end
         end
       end
       if tile_to_insert == "grass-1" or tile_to_insert == "grass-2" or tile_to_insert == "grass-3" then
         if math.random(1,2000) == 1 then
-            if surface.can_place_entity {name="stone-rock", position={pos_x,pos_y}} then
-                surface.create_entity {name="stone-rock", position={pos_x,pos_y}}
+            if surface.can_place_entity {name="rock-big", position={pos_x,pos_y}} then
+                surface.create_entity {name="rock-big", position={pos_x,pos_y}}
             end
         end
       end

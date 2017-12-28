@@ -235,13 +235,13 @@ local entity_options = {
       {"tree-06", 300},
       {"tree-07", 800},
       {"tree-09", 2000},
-      {"stone-rock", 400},
+      {"rock-big", 400},
    },
    ["dirt-6"] = {
       {"tree-06", 150},
       {"tree-07", 400},
       {"tree-09", 1000},
-      {"stone-rock", 300},
+      {"rock-big", 300},
    },
    ["grass-1"] = {
       {"tree-01", 150},
@@ -249,7 +249,7 @@ local entity_options = {
       {"tree-06", 400},
       {"tree-07", 400},
       {"tree-09", 1000},
-      {"stone-rock", 400},
+      {"rock-big", 400},
       {"green-coral", 10000},
    },
    ["grass-3"] = {
@@ -260,7 +260,7 @@ local entity_options = {
       {"tree-07", 800},
       {"tree-08", 400},
       {"tree-09", 2000},
-      {"stone-rock", 400},
+      {"rock-big", 400},
    },
    ["grass-2"] = {
       {"tree-04", 800},
@@ -268,7 +268,7 @@ local entity_options = {
       {"tree-07", 400},
       {"tree-09", 1000},
       {"dry-tree", 1000},
-      {"stone-rock", 200},
+      {"rock-big", 200},
    },
    ["hazard-concrete-left"] = {},
    ["hazard-concrete-right"] = {},
@@ -302,14 +302,14 @@ local entity_options = {
       {"dry-tree", 1000},
       {"dry-hairy-tree", 1000},
       {"dead-tree", 1000},
-      {"stone-rock", 150},
+      {"rock-big", 150},
 
    },
    ["sand-3"] = {
       {"dead-tree", 1000},
       {"dry-tree", 1000},
       {"dry-hairy-tree", 1000},
-      {"stone-rock", 150},
+      {"rock-big", 150},
 
    },
    ["stone-path"] = {},
