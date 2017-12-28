@@ -353,7 +353,7 @@ function run_combined_module(event)
 				
 			if noise_terrain_1 < 8 + terrain_smoothing + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
 				 tile_to_insert = "red-desert-1"
-				if noise_water_1 + noise_water_2 + noise_sand-1 > -10 and noise_water_1 + noise_water_2 + noise_sand-1 < 25 and noise_terrain_1 < -52 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 + noise_terrain_5 then 	
+				if noise_water_1 + noise_water_2 + noise_sand > -10 and noise_water_1 + noise_water_2 + noise_sand < 25 and noise_terrain_1 < -52 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 + noise_terrain_5 then
 					tile_to_insert = "sand-1"
 					place_tree_number = math.random(3,#tree_to_place)		
 				else 
