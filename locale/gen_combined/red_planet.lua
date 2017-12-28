@@ -383,12 +383,12 @@ function run_combined_module(event)
 				if tile_to_insert ~= "water" then
 					if noise_water_1 + noise_water_2 > 16 and noise_water_1 + noise_water_2 < 25 and noise_terrain_1 < -55 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 + noise_terrain_5 then
 						if math.random(1,35) == 1 then
-							table.insert(decoratives, {name="brown-carpet-grass-1", position={pos_x,pos_y}, amount=1})	
+							table.insert(decoratives, {name="brown-carpet-grass", position={pos_x,pos_y}, amount=1})	
 						end																	
 					end
 					if noise_water_1 + noise_water_2 > -10 and noise_water_1 + noise_water_2 < -1 and noise_terrain_1 < -55 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 + noise_terrain_5 then
 						if math.random(1,35) == 1 then
-							table.insert(decoratives, {name="brown-carpet-grass-1", position={pos_x,pos_y}, amount=1})	
+							table.insert(decoratives, {name="brown-carpet-grass", position={pos_x,pos_y}, amount=1})	
 						end																	
 					end
 					if noise_decoratives_1 > 0.5 and noise_decoratives_1 <= 0.8 then
@@ -427,17 +427,17 @@ function run_combined_module(event)
 				if tile_to_insert ~= "water" then	
 					if noise_terrain_1 < 8 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 and noise_terrain_1 > -5 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
 						if math.random(1,45) == 1 then
-							table.insert(decoratives, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})
+							table.insert(decoratives, {name="rock-medium", position={pos_x,pos_y}, amount=1})
 						end
 						if math.random(1,20) == 1 then
-							table.insert(decoratives, {name="red-desert-rock-tiny", position={pos_x,pos_y}, amount=1})
+							table.insert(decoratives, {name="sand-rock-small", position={pos_x,pos_y}, amount=1})
 						end
 					else
 						if math.random(1,375) == 1 then
-							table.insert(decoratives, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})
+							table.insert(decoratives, {name="rock-medium", position={pos_x,pos_y}, amount=1})
 						end
 						if math.random(1,45) == 1 then
-							table.insert(decoratives, {name="red-desert-rock-tiny", position={pos_x,pos_y}, amount=1})
+							table.insert(decoratives, {name="sand-rock-small", position={pos_x,pos_y}, amount=1})
 						end
 					end
 				end						
@@ -486,12 +486,12 @@ function run_combined_module(event)
 			if resource_entity_placed == false and noise_red_desert_rocks_1 + noise_red_desert_rocks_2 + noise_red_desert_rocks_3 > 20 and noise_red_desert_rocks_1 + noise_red_desert_rocks_2 < 60 and noise_terrain_1 > 7 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
 				if math.random(1,3) == 1 then
 					if math.random(1,3) == 1 then
-						if surface.can_place_entity {name="red-desert-rock-huge-01", position={pos_x,pos_y}} then														
-							surface.create_entity {name="red-desert-rock-huge-01", position={pos_x,pos_y}}
+						if surface.can_place_entity {name="sand-rock-big", position={pos_x,pos_y}} then														
+							surface.create_entity {name="sand-rock-big", position={pos_x,pos_y}}
 						end
 					else
-						if surface.can_place_entity {name="red-desert-rock-big-01", position={pos_x,pos_y}} then														
-							surface.create_entity {name="red-desert-rock-big-01", position={pos_x,pos_y}}
+						if surface.can_place_entity {name="sand-rock-big", position={pos_x,pos_y}} then														
+							surface.create_entity {name="sand-rock-big", position={pos_x,pos_y}}
 						end
 					end
 				end
@@ -499,15 +499,15 @@ function run_combined_module(event)
 						
 			if noise_red_desert_rocks_1 + noise_red_desert_rocks_2 + noise_red_desert_rocks_3 + noise_terrain_4 >= 10 and noise_red_desert_rocks_1 + noise_red_desert_rocks_2 + noise_red_desert_rocks_3 < 20 and noise_terrain_1 > 7 + noise_terrain_2 + noise_terrain_3 + noise_terrain_4 then
 				if math.random(1,5) == 1 then
-					table.insert(decoratives, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})							
+					table.insert(decoratives, {name="rock-medium", position={pos_x,pos_y}, amount=1})							
 				end
 			else
 				if tile_to_insert ~= "water" and tile_to_insert ~= "sand-1" then
 					if math.random(1,15) == 1 then
-						table.insert(decoratives, {name="red-desert-rock-small", position={pos_x,pos_y}, amount=1})
+						table.insert(decoratives, {name="sand-rock-small", position={pos_x,pos_y}, amount=1})
 					else
 						if math.random(1,8) == 1 then
-							table.insert(decoratives, {name="red-desert-rock-tiny", position={pos_x,pos_y}, amount=1})
+							table.insert(decoratives, {name="sand-rock-small", position={pos_x,pos_y}, amount=1})
 						end
 					end
 				end

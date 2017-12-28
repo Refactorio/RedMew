@@ -172,9 +172,9 @@ function run_island( params )
           end
           if tile_to_insert == "red-desert-0" then
             if math.random(1,3) == 1 then
-              tree = "red-desert-rock-huge-01"
+              tree = "sand-rock-big"
             else
-              tree = "red-desert-rock-big-01"
+              tree = "sand-rock-big"
             end
           end
           if math.random(1,8) == 1 then
@@ -231,7 +231,7 @@ function run_island( params )
         end
         if tile_to_insert == "red-desert-0" then
           if math.random(1,50) == 1 then
-            table.insert(global.island_decoratives_hold, {name="red-desert-rock-medium", position={pos_x,pos_y}, amount=1})
+            table.insert(global.island_decoratives_hold, {name="rock-medium", position={pos_x,pos_y}, amount=1})
           end
         end
       end
