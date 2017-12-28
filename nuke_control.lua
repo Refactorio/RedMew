@@ -3,7 +3,7 @@
 function allowed_to_nuke(player)
   if type(player) == "table" then
   return player.admin or is_mod(player.name) or is_regular(player.name) or ((player.online_time / 216000) > global.scenario.config.nuke_min_time_hours)
-  elseif type(player) == "number" or type(player) == string then
+  elseif type(player) == "number" then
     return allowed_to_nuke(game.players[player])
   end
 end
