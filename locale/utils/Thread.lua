@@ -24,7 +24,8 @@ local function on_tick()
     if global.actions_queue[1] then
         global.actions_queue_n = global.actions_queue_n - 1
        local callback = global.actions_queue[1]
-       pcall(_G[callback.action], callback.params)
+       local _, err = pcall(_G[callback.action], callback.params)
+       if err then log(err) end
        table.remove(global.actions_queue, 1)
     end
   end
