@@ -74,9 +74,19 @@ local function on_player_mined_item(event)
   log_on_player_mined_entity("nuke_control.on_player_mined_item: exit", event)
 end
 
+local function item_not_sanctioned(item)
+  local name = item.name
+  return (
+     name:find("capsule") or 
+     name == "cliff-explosives" or 
+     name == "raw-fish" or 
+     name == "discharge-defense-remote"
+  )
+end
+
 global.players_warned = {}
 local function on_capsule_used(event)
-  if event.item.name:find("capsule") then return nil end
+  if item_not_sanctioned(event.item) then return nil end
   local player = game.players[event.player_index]
   if (not allowed_to_nuke(player)) then
     local area = {{event.position.x-5, event.position.y-5}, {event.position.x+5, event.position.y+5}}
@@ -85,7 +95,6 @@ local function on_capsule_used(event)
       if global.players_warned[event.player_index] then
         game.ban_player(player, string.format("Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.", count, event.item.name))
       else
-        game.print("kick")
         global.players_warned[event.player_index] = true
         game.kick_player(player, string.format("Damaged %i entities with %s -Antigrief", count, event.item.name))
       end
