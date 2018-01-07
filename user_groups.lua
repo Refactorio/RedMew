@@ -1,7 +1,7 @@
 function update_group(position)
 	local file = position .. ".lua"
 	game.write_file(file, "{", false, 0)
-	local group = global.position]
+	local group = global[position]
 	local line = ""
 	for player_name,_ in pairs(group) do
 		line = string.format('["%s"] = "",\n', player_name)
