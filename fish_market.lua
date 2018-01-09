@@ -291,21 +291,6 @@ local function market_item_purchased(event)
   fish_cost = market_item.price[1].amount * event.count
   global.fish_market_fish_spent[event.player_index] = global.fish_market_fish_spent[event.player_index] + fish_cost
 
-  --to reenable buffs and pets remove this block:
-    if event.offer_index < 4 then 
-
-      local fish_amount = 10
-      if event.offer_index == 2 then fish_amount = 30 end
-      player.insert{name="raw-fish", count = fish_amount}
-      player.remove_item{name="small-plane", count = 100}
-      player.remove_item{name="discharge-defense-remote", count = 100}--nobody useds that anyways
-      player.remove_item{name="wood", count = event.count}
-      player.print("This item is currently disabled due to desync concerns. Please don't hurt us :(")
-    end
-
-    return     
-  --upto here
-
   if event.offer_index == 1 then -- discharge-defense-remote
     player.remove_item({name="discharge-defense-remote", count=event.count})
     boost_player_runningspeed(player) --disabled due to on_tick being disabled
