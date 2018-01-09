@@ -90,7 +90,11 @@ local function on_capsule_used(event)
   local player = game.players[event.player_index]
   if (not allowed_to_nuke(player)) then
     local area = {{event.position.x-5, event.position.y-5}, {event.position.x+5, event.position.y+5}}
-    local count = player.surface.count_entities_filtered{force=player.force, area=area}
+    local count = 0
+    local entities = player.surface.find_entities_filtered{force=player.force, area=area}
+    for _,e in pairs(entities) do 
+      if e.name ~= "entity-ghost" then count = count + 1 end 
+    end
     if count > 4 then
       if global.players_warned[event.player_index] then
         game.ban_player(player, string.format("Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.", count, event.item.name))
