@@ -21,12 +21,25 @@ global.next_async_callback_time = -1
 global.actions_queue_n = 0
 local function on_tick()
   for action = 1, get_actions_per_tick() do
-    if global.actions_queue[1] then
+    if global.actions_queue[1] then      
+      local callback = global.actions_queue[1]      
+      function call(params) 
+        return _G[callback.action](params) 
+      end
+      local success, result = pcall(call, callback.params) -- result is error if not success else result is a boolean for if the action should stay in the queue.
+      if not success then 
+        log(result) 
         global.actions_queue_n = global.actions_queue_n - 1
-       local callback = global.actions_queue[1]
-       local _, err = pcall(_G[callback.action], callback.params)
-       if err then log(err) end
-       table.remove(global.actions_queue, 1)
+        table.remove(global.actions_queue, 1)      
+      elseif not result then      
+        global.actions_queue_n = global.actions_queue_n - 1
+        table.remove(global.actions_queue, 1)
+
+      -- I'm not sure how and when global values are serialized it may be necessary to re-insert the callback into the global table to update it.
+      --else
+        --global.callbacks[1] = callback
+        
+      end
     end
   end
   if game.tick == global.next_async_callback_time then
