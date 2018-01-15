@@ -3,85 +3,114 @@ require("locale.utils.poisson_rng")
 
 local Thread = require "locale.utils.Thread"
 
+map_gen_rows_per_tick = map_gen_rows_per_tick or 4
+map_gen_rows_per_tick = math.min(32, math.max(1, map_gen_rows_per_tick))
 
-function run_init(params)
-   global._tiles_hold = {}
-   global._decoratives_hold = {}
-   global._entities_hold = {}
-end
+local function do_row(row, data)  
+  local y = data.top_y + row
+  local top_x = data.top_x
 
-function run_place_tiles(params)
-	local surface = params.surface
-   surface.set_tiles(global._tiles_hold, true)
-end
+  for x = top_x, top_x + 31 do
 
-function run_place_items(params)
-	local surface = params.surface
-   for _,deco in pairs(global._decoratives_hold) do
-     surface.create_decoratives{check_collision=false, decoratives={deco}}
-   end
-   for _, entity in ipairs(global._entities_hold) do
-      if surface.can_place_entity {name=entity.name, position=entity.position} then
-         surface.create_entity {name=entity.name, position=entity.position}
+    -- local coords need to be 'centered' to allow for correct rotation and scaling.
+    local tile, entity = MAP_GEN(x + 0.5, y + 0.5, x, y)
+
+    if type(tile) == "boolean" and not tile then
+      table.insert(data.tiles, {name = "out-of-map", position = {x, y}})
+    elseif type(tile) == "string" then
+      table.insert(data.tiles, {name = tile, position = {x, y}})
+
+      if tile == "water" or tile == "deepwater" or tile == "water-green" or  tile == "deepwater-green" then
+        local a = x + 1
+        table.insert(data.tiles, {name = tile, position = {a, y}})
+        local a =row + 1
+        table.insert(data.tiles, {name = tile, position = {x, a}})
+        local a = x - 1
+        table.insert(data.tiles, {name = tile, position = {a, y}})
+        local a =row - 1
+        table.insert(data.tiles, {name = tile, position = {x, a}})
       end
-   end
-end
+    end
 
-function run_calc_items(params)
-   local top_x = params.top_x
-   local top_y = params.top_y
-
-   for y = top_y, top_y + 31 do
-      for x = top_x, top_x + 31 do
-
-         -- local coords need to be 'centered' to allow for correct rotation and scaling.
-         local tile, entity = MAP_GEN(x + 0.5, y + 0.5, x, y)
-
-         if type(tile) == "boolean" and not tile then
-            table.insert( global._tiles_hold, {name = "out-of-map", position = {x, y}} )
-         elseif type(tile) == "string" then
-            table.insert( global._tiles_hold, {name = tile, position = {x, y}} )
-
-            if tile == "water" or tile == "deepwater" or tile == "water-green" or  tile == "deepwater-green" then
-              local a = x + 1
-              table.insert(global._tiles_hold, {name = tile, position = {a,y}})
-              local a = y + 1
-              table.insert(global._tiles_hold, {name = tile, position = {x,a}})
-              local a = x - 1
-              table.insert(global._tiles_hold, {name = tile, position = {a,y}})
-              local a = y - 1
-              table.insert(global._tiles_hold, {name = tile, position = {x,a}})
-            end
-
-            if map_gen_decoratives then
-               tile_decoratives = check_decorative(tile, x, y)
-               for _,tbl in ipairs(tile_decoratives) do
-                  table.insert(global._decoratives_hold, tbl)
-               end
-
-
-               tile_entities = check_entities(tile, x, y)
-               for _,entity in ipairs(tile_entities) do
-                  table.insert(global._entities_hold, entity)
-               end
-            end
-         end
-
-         if entity then
-            table.insert(global._entities_hold, entity)
-         end
-
+    if map_gen_decoratives then
+      tile_decoratives = check_decorative(tile, x, y)
+      for _,tbl in ipairs(tile_decoratives) do
+        table.insert(data.decoratives, tbl)
       end
-   end
+
+      tile_entities = check_entities(tile, x, y)
+      for _,entity in ipairs(tile_entities) do
+        table.insert(data.entities, entity)
+      end
+    end    
+
+    if entity then
+      table.insert(data.entities, entity)
+    end 
+  end
 end
 
-function run_chart_update(params)
+local function do_place_tiles(data)  
+  data.surface.set_tiles(data.tiles, true)
+end
+
+local function do_place_decoratives(data)
+  if not map_gen_decoratives then return end
+
+  for _, e in pairs(surface.find_entities_filtered{area=area, type="decorative"}) do
+    e.destroy()
+  end
+  for _, e in pairs(surface.find_entities_filtered{area=area, type="simple-entity"}) do
+    e.destroy()
+  end 
+
+  local surface = data.surface
+  for _,d in pairs(data.decoratives) do
+    surface.create_decoratives{check_collision=false, decoratives={d}}
+  end
+end
+
+local function do_place_entities(data)
+  local surface = data.surface
+  for _, e in ipairs(data.entities) do
+    if surface.can_place_entity(e) then
+      surface.create_entity(e)
+    end
+  end
+end
+
+local function run_chart_update(params)
 	local x = params.area.left_top.x / 32
 	local y = params.area.left_top.y / 32
 	if game.forces.player.is_chunk_charted(params.surface, {x,y} ) then
 		-- Don't use full area, otherwise adjacent chunks get charted
 		game.forces.player.chart(params.surface, {{  params.area.left_top.x,  params.area.left_top.y}, { params.area.left_top.x+30,  params.area.left_top.y+30} } )
 	end
+end
+
+function map_gen_action(data)
+  local state = data.state
+  if state < 32 then
+    local count = 1
+    repeat 
+      do_row(state, data)
+      state = state + 1
+      count = count + 1
+    until state == 32 or count >= map_gen_rows_per_tick
+    data.state = state
+    return true
+  elseif state == 32 then
+    do_place_tiles(data)
+    data.state = 33
+    return true
+  elseif state == 33 then
+    do_place_decoratives(data)
+    data.state = 34
+    return true
+  elseif state == 34 then
+    do_place_entities(data)
+    return false  
+  end
 end
 
 function run_combined_module(event)
@@ -93,32 +122,19 @@ function run_combined_module(event)
 
    local area = event.area
    local surface = event.surface
-   MAP_GEN_SURFACE = surface
+   MAP_GEN_SURFACE = surface 
 
-
-   local top_x = area.left_top.x
-   local top_y = area.left_top.y
-
-   if map_gen_decoratives then
-      for _, e in pairs(surface.find_entities_filtered{area=area, type="decorative"}) do
-   		e.destroy()
-      end
-      for _, e in pairs(surface.find_entities_filtered{area=area, type="tree"}) do
-   		-- e.destroy() -- Leaving the trees/forests
-      end
-      for _, e in pairs(surface.find_entities_filtered{area=area, type="simple-entity"}) do
-   		e.destroy()
-      end
-   end
-
-   Thread.queue_action("run_init", {} )
-
-   Thread.queue_action("run_calc_items", {surface = event.surface, top_x = top_x, top_y = top_y})
-
-   Thread.queue_action("run_place_tiles", {surface = event.surface})
-   Thread.queue_action("run_place_items", {surface = event.surface})
-   Thread.queue_action("run_chart_update", {area = event.area, surface = event.surface} )
-
+   local data = 
+   {
+      state = 0,
+      top_x = area.left_top.x,
+      top_y = area.left_top.y  ,
+      surface = surface,
+      tiles = {},
+      entities = {},
+      decoratives = {}      
+   }
+   Thread.queue_action("map_gen_action", data)
 end
 
 local decorative_options = {
@@ -209,7 +225,7 @@ local decorative_options = {
    ["out-of-map"] = {},
 }
 
-function check_decorative(tile, x, y)
+local function check_decorative(tile, x, y)
    local options = decorative_options[tile]
    local tile_decoratives = {}
 
