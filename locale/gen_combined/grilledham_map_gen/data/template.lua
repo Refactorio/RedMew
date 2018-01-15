@@ -1,4 +1,4 @@
--- data is pairs of (tile number, count) the tile numbers are store in tile_map in builders.lua.
+-- data is pairs of (tile number, count) the tile numbers are stored in tile_map in builders.lua.
 
 return {
 height = 185,
