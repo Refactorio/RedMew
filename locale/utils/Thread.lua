@@ -33,12 +33,7 @@ local function on_tick()
         table.remove(global.actions_queue, 1)      
       elseif not result then      
         global.actions_queue_n = global.actions_queue_n - 1
-        table.remove(global.actions_queue, 1)
-
-      -- I'm not sure how and when global values are serialized it may be necessary to re-insert the callback into the global table to update it.
-      --else
-        --global.callbacks[1] = callback
-        
+        table.remove(global.actions_queue, 1)        
       end
     end
   end
