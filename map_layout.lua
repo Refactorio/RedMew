@@ -33,7 +33,7 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.turkey"
 --require "locale.grilledham_map_gen.presets.UK"
 --MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.north_america"
-MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.lines_and_balls"
+--MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.lines_and_balls"
 
 --shapes--
 --require "locale.gen_shape.left"
