@@ -1,11 +1,6 @@
 require("locale.gen_combined.grilledham_map_gen.builders")
 require("locale.utils.poisson_rng")
 
-local Thread = require "locale.utils.Thread"
-
-map_gen_rows_per_tick = map_gen_rows_per_tick or 4
-map_gen_rows_per_tick = math.min(32, math.max(1, map_gen_rows_per_tick))
-
 local function do_row(row, data)  
   local y = data.top_y + row
   local top_x = data.top_x
@@ -79,40 +74,6 @@ local function do_place_entities(data)
   end
 end
 
-local function run_chart_update(params)
-	local x = params.area.left_top.x / 32
-	local y = params.area.left_top.y / 32
-	if game.forces.player.is_chunk_charted(params.surface, {x,y} ) then
-		-- Don't use full area, otherwise adjacent chunks get charted
-		game.forces.player.chart(params.surface, {{  params.area.left_top.x,  params.area.left_top.y}, { params.area.left_top.x+30,  params.area.left_top.y+30} } )
-	end
-end
-
-function map_gen_action(data)
-  local state = data.state
-  if state < 32 then
-    local count = 1
-    repeat 
-      do_row(state, data)
-      state = state + 1
-      count = count + 1
-    until state == 32 or count >= map_gen_rows_per_tick
-    data.state = state
-    return true
-  elseif state == 32 then
-    do_place_tiles(data)
-    data.state = 33
-    return true
-  elseif state == 33 then
-    do_place_decoratives(data)
-    data.state = 34
-    return true
-  elseif state == 34 then
-    do_place_entities(data)
-    return false  
-  end
-end
-
 function run_combined_module(event)
 
    if MAP_GEN == nil then
@@ -122,19 +83,26 @@ function run_combined_module(event)
 
    local area = event.area
    local surface = event.surface
-   MAP_GEN_SURFACE = surface 
+   MAP_GEN_SURFACE = surface
 
    local data = 
-   {
-      state = 0,
+   {     
       top_x = area.left_top.x,
-      top_y = area.left_top.y  ,
+      top_y = area.left_top.y ,
       surface = surface,
       tiles = {},
       entities = {},
       decoratives = {}      
    }
-   Thread.queue_action("map_gen_action", data)
+
+   for row = 0, 31 do
+    do_row(row, data)
+   end
+
+   do_place_tiles(data)
+   do_place_decoratives(data)
+   do_place_entities(data)
+
 end
 
 local decorative_options = {
