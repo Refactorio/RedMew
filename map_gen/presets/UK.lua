@@ -1,4 +1,4 @@
-require "map_gen.combined.grilledham_map_gen.builders"
+require "map_gen.shared.builders"
 
 local pic = require "map_gen.data.presets.UK"
 local pic = decompress(pic)

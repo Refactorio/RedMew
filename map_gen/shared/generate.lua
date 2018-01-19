@@ -1,4 +1,4 @@
-require("map_gen.combined.grilledham_map_gen.builders")
+require("map_gen.shared.builders")
 require("utils.poisson_rng")
 
 local Thread = require "utils.Thread"

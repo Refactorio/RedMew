@@ -1,5 +1,5 @@
 require "map_gen.shared.generate"
-require "map_gen.combined.grilledham_map_gen.builders"
+require "map_gen.shared.builders"
 map_gen_decoratives = true
 local pic = require "map_gen.data.presets.GoT"
 local pic = decompress(pic)
