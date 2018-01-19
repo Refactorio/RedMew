@@ -14,10 +14,6 @@ in this file and your run_*type*_module(event) function will be called.
 --require "map_gen.combined.dagobah_swamp"
 --require "map_gen.combined.UK"
 
---grilledham's map gen
--- Need to copy the file you want from the _locale folder to this one for it to be included
--- only get what you need, otherwise the save file is too big!
-
 --MAP_GEN = require "map_gen.presets.template"
 --MAP_GEN = require "map_gen.presets.mobius_strip"
 --MAP_GEN = require "map_gen.presets.antfarm"

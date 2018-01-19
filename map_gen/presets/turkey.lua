@@ -1,7 +1,7 @@
 require "map_gen.shared.generate"
 
 map_gen_decoratives = true
-local pic = require "map_gen.data.turkey"
+local pic = require "map_gen.data.presets.turkey"
 local pic = decompress(pic)
 
 local shape = picture_builder(pic)

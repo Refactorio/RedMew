@@ -1,7 +1,7 @@
 require "map_gen.shared.generate"
 require "map_gen.combined.grilledham_map_gen.builders"
 
-local pic = require "map_gen.data.color_mona_lisa"
+local pic = require "map_gen.data.presets.color_mona_lisa"
 
 local shape = picture_builder(pic.data, pic.width, pic.height)
 shape = translate(shape, 10, -96)

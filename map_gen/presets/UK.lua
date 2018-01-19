@@ -1,6 +1,6 @@
 require "map_gen.combined.grilledham_map_gen.builders"
 
-local pic = require "map_gen.data.UK"
+local pic = require "map_gen.data.presets.UK"
 local pic = decompress(pic)
 local map = picture_builder(pic)
 

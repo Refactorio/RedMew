@@ -5,7 +5,7 @@ map_gen_rows_per_tick = 4 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
-local pic = require "map_gen.data.template"
+local pic = require "map_gen.data.presets.template"
 local pic = decompress(pic)
 local map = picture_builder(pic)
 
