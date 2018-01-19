@@ -4,7 +4,7 @@ require "map_gen.shared.builders"
 local pic = require "map_gen.data.presets.antfarm"
 
 local scale_factor = 12
-local shape = picture_builder(pic.data, pic.width, pic.height)
+local shape = picture_builder(pic)
 shape = invert(shape)
 
 local map = single_pattern_builder(shape, pic.width, pic.height)

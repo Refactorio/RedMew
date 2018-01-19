@@ -4,7 +4,7 @@ require "map_gen.shared.builders"
 local pic = require "map_gen.data.presets.creation_of_adam2"
 
 local scale_factor = 3
-local shape = picture_builder(pic.data, pic.width, pic.height)
+local shape = picture_builder(pic)
 shape = scale(shape, scale_factor, scale_factor)
 
 local pattern =
