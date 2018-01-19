@@ -1,1 +1,0 @@
--- This folder should remain blank in the repo, copy the specific file you need from the _locale folder
