@@ -5,7 +5,7 @@ map_gen_rows_per_tick = 4 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gencombined.grilledham_map_gen.map_gen_not_threaded"
 require "map_gencombined.grilledham_map_gen.map_gen"
 
-local pic = require "map_gencombined.grilledham_map_gen.data.template"
+local pic = require "map_gendata.template"
 local pic = decompress(pic)
 local map = picture_builder(pic)
 

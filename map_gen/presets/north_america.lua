@@ -1,6 +1,6 @@
 require "map_gencombined.grilledham_map_gen.map_gen"
 map_gen_decoratives = true
-local pic = require "map_gencombined.grilledham_map_gen.data.north_america"
+local pic = require "map_gendata.north_america"
 local pic = decompress(pic)
 local map = picture_builder(pic)
 

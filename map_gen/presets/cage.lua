@@ -1,7 +1,7 @@
 require "map_gencombined.grilledham_map_gen.map_gen"
 require "map_gencombined.grilledham_map_gen.builders"
 
-local pic = require "map_gencombined.grilledham_map_gen.data.cage"
+local pic = require "map_gendata.cage"
 
 local shape = picture_builder(pic.data, pic.width, pic.height)
 shape = translate(shape, 10, -96)
