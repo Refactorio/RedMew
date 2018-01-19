@@ -1,6 +1,6 @@
 --Author: MewMew
 require "locale.gen_shared.perlin_noise"
-local Thread = require "locale.utils.Thread"
+local Thread = require "utils.Thread"
 
 local radius = 129
 local radsquare = radius*radius

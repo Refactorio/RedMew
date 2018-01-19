@@ -1,4 +1,4 @@
-local Thread = require "locale.utils.Thread"
+local Thread = require "utils.Thread"
 
 local mines_factor = 4
 

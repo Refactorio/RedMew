@@ -1,4 +1,4 @@
-local Thread = require "locale.utils.Thread"
+local Thread = require "utils.Thread"
 
 local worms_per_chunk = 50
 local small_worm_spawn_distance = 100

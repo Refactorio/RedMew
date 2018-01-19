@@ -1,5 +1,5 @@
 require("locale.gen_combined.grilledham_map_gen.builders")
-require("locale.utils.poisson_rng")
+require("utils.poisson_rng")
 
 local function do_row(row, data)  
   local y = data.top_y + row

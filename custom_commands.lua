@@ -1,5 +1,5 @@
-local Thread = require "locale.utils.Thread"
-require "locale.utils.event"
+local Thread = require "utils.Thread"
+require "utils.event"
 
 function player_print(str)
   if game.player then

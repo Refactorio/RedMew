@@ -1,7 +1,7 @@
 require("locale.gen_combined.grilledham_map_gen.builders")
-require("locale.utils.poisson_rng")
+require("utils.poisson_rng")
 
-local Thread = require "locale.utils.Thread"
+local Thread = require "utils.Thread"
 
 map_gen_rows_per_tick = map_gen_rows_per_tick or 4
 map_gen_rows_per_tick = math.min(32, math.max(1, map_gen_rows_per_tick))
