@@ -1,5 +1,5 @@
-require "map_gencombined.grilledham_map_gen.map_gen"
-require "map_gencombined.grilledham_map_gen.builders"
+require "map_gen.shared.generate"
+require "map_gen.combined.grilledham_map_gen.builders"
 
 local function no_resources(x, y, world_x, world_y, tile, entity)
     local surface = MAP_GEN_SURFACE

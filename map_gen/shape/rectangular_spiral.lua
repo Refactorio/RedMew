@@ -1,5 +1,5 @@
-require "map_genshared.compass"
-require "map_genshared.chunk_utils"
+require "map_gen.shared.compass"
+require "map_gen.shared.chunk_utils"
 
 local compass = Compass.new()
 local pixels={}

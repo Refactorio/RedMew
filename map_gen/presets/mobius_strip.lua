@@ -1,5 +1,5 @@
-require "map_gencombined.grilledham_map_gen.map_gen"
-require "map_gencombined.grilledham_map_gen.builders"
+require "map_gen.shared.generate"
+require "map_gen.combined.grilledham_map_gen.builders"
 
 local inner_circle = invert(circle_builder(48))
 local outer_circle = circle_builder(64)

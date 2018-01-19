@@ -2,10 +2,10 @@ map_gen_decoratives = false -- Generate our own decoratives
 map_gen_rows_per_tick = 4 -- Inclusive integer between 1 and 32. Used for map_gen_threaded, higher numbers will generate map quicker but cause more lag.
 
 -- Recommend to use map_gen, but map_gen_not_threaded may be useful for testing / debugging.
---require "map_gencombined.grilledham_map_gen.map_gen_not_threaded"
-require "map_gencombined.grilledham_map_gen.map_gen"
+--require "map_gen.shared.generate_not_threaded"
+require "map_gen.shared.generate"
 
-local pic = require "map_gendata.template"
+local pic = require "map_gen.data.template"
 local pic = decompress(pic)
 local map = picture_builder(pic)
 

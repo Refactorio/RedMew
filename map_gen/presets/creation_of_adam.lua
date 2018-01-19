@@ -1,7 +1,7 @@
-require "map_gencombined.grilledham_map_gen.map_gen"
-require "map_gencombined.grilledham_map_gen.builders"
+require "map_gen.shared.generate"
+require "map_gen.combined.grilledham_map_gen.builders"
 
-local pic = require "map_gendata.creation_of_adam2"
+local pic = require "map_gen.data.creation_of_adam2"
 
 local scale_factor = 3
 local shape = picture_builder(pic.data, pic.width, pic.height)

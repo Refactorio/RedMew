@@ -1,5 +1,5 @@
 --Author: MewMew
-require "map_genshared.perlin_noise"
+require "map_gen.shared.perlin_noise"
 local Thread = require "utils.Thread"
 
 local radius = 129

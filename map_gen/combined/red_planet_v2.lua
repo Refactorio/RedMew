@@ -3,7 +3,7 @@
 -- !! ATTENTION !!
 -- Use water only in starting area as map setting!!!
 
-require "map_genshared.perlin_noise"
+require "map_gen.shared.perlin_noise"
 local Thread = require "utils.Thread"
 
 wreck_item_pool = {}

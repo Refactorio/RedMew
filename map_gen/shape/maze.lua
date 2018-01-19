@@ -1,4 +1,4 @@
-require "map_genshared.chunk_utils"
+require "map_gen.shared.chunk_utils"
 
 local wall_thickness = 1
 local cell_size = 3 --must be an uneven number

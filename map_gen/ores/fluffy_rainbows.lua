@@ -1,6 +1,6 @@
 --Author: MewMew
 
-require "map_genshared.perlin_noise"
+require "map_gen.shared.perlin_noise"
 
 function run_combined_module(event)
   if not global.perlin_noise_seed then global.perlin_noise_seed = math.random(1000,1000000) end

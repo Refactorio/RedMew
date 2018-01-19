@@ -1,4 +1,4 @@
-require "map_genshared.perlin_noise"
+require "map_gen.shared.perlin_noise"
 
 local random_ores = {"iron-ore","coal","copper-ore","stone","uranium-ore"}
 local random_dense = {1.15,0.8,1,0.9, 0.5}	--ore density reference

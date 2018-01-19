@@ -1,6 +1,6 @@
 --Author: MewMew
 
-require "map_genshared.perlin_noise"
+require "map_gen.shared.perlin_noise"
 
 function run_combined_module(event)
   if not global.resource_cluster_truck then global.resource_cluster_truck = 1 end

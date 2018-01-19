@@ -1,4 +1,4 @@
-require "map_genshared.perlin_noise"
+require "map_gen.shared.perlin_noise"
 
 -- list of {x, y, ore_type, size, richness, rng_seed}
 local ctrs = {

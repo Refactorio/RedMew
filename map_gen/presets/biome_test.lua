@@ -1,8 +1,8 @@
-require "map_gencombined.grilledham_map_gen.map_gen"
+require "map_gen.shared.generate"
 
 map_gen_decoratives = true
 
-local pic = require "map_gendata.biome_test"
+local pic = require "map_gen.data.biome_test"
 
 local shape = picture_builder(pic)
 

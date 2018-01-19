@@ -1,5 +1,5 @@
 
-require "map_genshared.perlin_noise"
+require "map_gen.shared.perlin_noise"
 
 local tree_to_place = {"dry-tree","dry-hairy-tree","tree-06","tree-06","tree-01","tree-02","tree-03"}
 
