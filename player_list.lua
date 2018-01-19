@@ -19,7 +19,7 @@ make it sorted by time played
 local symbol_asc = "▲"
 local symbol_desc = "▼"
 
-local pokemessages = require "locale.resources.poke_messages"
+local pokemessages = require "resources.poke_messages"
 
 local function on_player_joined_game(event)
 	local player = game.players[event.player_index]
