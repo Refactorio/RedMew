@@ -7,69 +7,65 @@ in this file and your run_*type*_module(event) function will be called.
 
 
 --combined--
---require "locale.gen_combined.island_resort"
---require "locale.gen_combined.red_planet_v2"
---require "locale.gen_combined.borg_planet_v2"
---require "locale.gen_combined.dimentions"
---require "locale.gen_combined.dagobah_swamp"
---require "locale.gen_combined.UK"
+--require "map_gen.combined.island_resort"
+--require "map_gen.combined.red_planet_v2"
+--require "map_gen.combined.borg_planet_v2"
+--require "map_gen.combined.dimensions"
+--require "map_gen.combined.dagobah_swamp"
+--require "map_gen.combined.UK"
 
---grilledham's map gen
--- Need to copy the file you want from the _locale folder to this one for it to be included
--- only get what you need, otherwise the save file is too big!
-
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.template"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mobius_strip"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.antfarm"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.creation_of_adam"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.manhattan"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.mona_lisa"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.connected_dots"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.cage"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.maori"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.goat"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.biome_test"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.GoT"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.turkey"
+--MAP_GEN = require "map_gen.presets.template"
+--MAP_GEN = require "map_gen.presets.mobius_strip"
+--MAP_GEN = require "map_gen.presets.antfarm"
+--MAP_GEN = require "map_gen.presets.creation_of_adam"
+--MAP_GEN = require "map_gen.presets.manhattan"
+--MAP_GEN = require "map_gen.presets.mona_lisa"
+--MAP_GEN = require "map_gen.presets.connected_dots"
+--MAP_GEN = require "map_gen.presets.cage"
+--MAP_GEN = require "map_gen.presets.maori"
+--MAP_GEN = require "map_gen.presets.goat"
+--MAP_GEN = require "map_gen.presets.biome_test"
+--MAP_GEN = require "map_gen.presets.GoT"
+--MAP_GEN = require "map_gen.presets.turkey"
 --require "locale.grilledham_map_gen.presets.UK"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.north_america"
---MAP_GEN = require "locale.gen_combined.grilledham_map_gen.presets.lines_and_balls"
+--MAP_GEN = require "map_gen.presets.north_america"
+--MAP_GEN = require "map_gen.presets.lines_and_balls"
 
 --shapes--
---require "locale.gen_shape.left"
---require "locale.gen_shape.right"
---require "locale.gen_shape.up"
---require "locale.gen_shape.maze"
---require "locale.gen_shape.spiral"
---require "locale.gen_shape.threaded_spirals"
---require "locale.gen_shape.spiral_tri"
---require "locale.gen_shape.spiral2"
---require "locale.gen_shape.donut"
---require "locale.gen_shape.rectangular_spiral"
---require "locale.gen_shape.lattice"
---require "locale.gen_shape.infinite_mazes"
---require "locale.gen_shape.x_shape"
---require "locale.gen_shape.pacman"
+--require "map_gen.shape.left"
+--require "map_gen.shape.right"
+--require "map_gen.shape.up"
+--require "map_gen.shape.maze"
+--require "map_gen.shape.spiral"
+--require "map_gen.shape.threaded_spirals"
+--require "map_gen.shape.spiral_tri"
+--require "map_gen.shape.spiral2"
+--require "map_gen.shape.donut"
+--require "map_gen.shape.rectangular_spiral"
+--require "map_gen.shape.lattice"
+--require "map_gen.shape.infinite_mazes"
+--require "map_gen.shape.x_shape"
+--require "map_gen.shape.pacman"
 
 --terrain--
---require "locale.gen_terrain.neko_bridged_rivers"
---require "locale.gen_terrain.neko_river_overlay"
---require "locale.gen_terrain.worms"
---require "locale.gen_terrain.mines"
+--require "map_gen.terrain.neko_bridged_rivers"
+--require "map_gen.terrain.neko_river_overlay"
+--require "map_gen.terrain.worms"
+--require "map_gen.terrain.mines"
 
 --ores--
---require "locale.gen_ores.neko_crazy_ores"
---require "locale.gen_ores.fluffy_rainbows"
---require "locale.gen_ores.rso.rso_control"
---require "locale.gen_ores.harmonic_gen"
+--require "map_gen.ores.neko_crazy_ores"
+--require "map_gen.ores.fluffy_rainbows"
+--require "map_gen.ores.rso.rso_control"
+--require "map_gen.ores.harmonic_gen"
 
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
---miscs[1] = require "locale.gen_misc.rail_grid"
---require "locale.gen_misc.rusky_pvp"
---table.insert(miscs, require("locale.gen_misc.wreck_items"))
---table.insert(miscs, require("locale.gen_misc.tris_chunk_grid"))
---table.insert(miscs, require("locale.gen_ores.glitter_ores"))
+--miscs[1] = require "map_gen.misc.rail_grid"
+--require "map_gen.misc.rusky_pvp"
+--table.insert(miscs, require("map_gen.misc.wreck_items"))
+--table.insert(miscs, require("map_gen.misc.tris_chunk_grid"))
+--table.insert(miscs, require("map_gen.ores.glitter_ores"))
 
 local on_chunk_generated = function(event)
 	if run_combined_module == nil then
