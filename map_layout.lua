@@ -14,22 +14,26 @@ in this file and your run_*type*_module(event) function will be called.
 --require "map_gen.combined.dagobah_swamp"
 --require "map_gen.combined.UK"
 
---MAP_GEN = require "map_gen.presets.template"
---MAP_GEN = require "map_gen.presets.mobius_strip"
---MAP_GEN = require "map_gen.presets.antfarm"
---MAP_GEN = require "map_gen.presets.creation_of_adam"
---MAP_GEN = require "map_gen.presets.manhattan"
---MAP_GEN = require "map_gen.presets.mona_lisa"
---MAP_GEN = require "map_gen.presets.connected_dots"
---MAP_GEN = require "map_gen.presets.cage"
---MAP_GEN = require "map_gen.presets.maori"
---MAP_GEN = require "map_gen.presets.goat"
---MAP_GEN = require "map_gen.presets.biome_test"
---MAP_GEN = require "map_gen.presets.GoT"
---MAP_GEN = require "map_gen.presets.turkey"
+--grilledham's map gen
+-- Need to copy the file you want from the _locale folder to this one for it to be included
+-- only get what you need, otherwise the save file is too big!
+
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.template"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.mobius_strip"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.antfarm"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.creation_of_adam"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.manhattan"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.mona_lisa"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.connected_dots"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.cage"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.maori"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.goat"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.biome_test"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.GoT"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.turkey"
 --require "locale.grilledham_map_gen.presets.UK"
---MAP_GEN = require "map_gen.presets.north_america"
---MAP_GEN = require "map_gen.presets.lines_and_balls"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.north_america"
+--MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.lines_and_balls"
 
 --shapes--
 --require "map_gen.shape.left"
@@ -68,35 +72,20 @@ miscs = {}
 --table.insert(miscs, require("map_gen.ores.glitter_ores"))
 
 local on_chunk_generated = function(event)
-	if run_combined_module == nil then
-		if run_shape_module ~= nil then
-			if run_shape_module(event) then
-				if run_terrain_module ~= nil then
-					run_terrain_module(event)
-				end
-				if run_ores_module ~= nil then
-					run_ores_module(event)
-				end
-			end
-		else
-			if run_terrain_module ~= nil then
-				run_terrain_module(event)
-			end
-			if run_ores_module ~= nil then
-				run_ores_module(event)
-			end
-		end
-		for _,v in pairs(miscs) do
-			v.on_chunk_generated(event)
-		end
-	else
+	if run_combined_module ~= nil then
 		run_combined_module(event)
-		if run_ores_module ~= nil then
-			run_ores_module(event)
-		end
-		for _,v in pairs(miscs) do
-			v.on_chunk_generated(event)
-		end
+	end
+	if run_shape_module ~= nil then
+		run_shape_module(event)
+	end
+	if run_terrain_module ~= nil then
+		run_terrain_module(event)
+	end
+	if run_ores_module ~= nil then
+		run_ores_module(event)
+	end
+	for _,v in pairs(miscs) do
+		v.on_chunk_generated(event)
 	end
 end
 
