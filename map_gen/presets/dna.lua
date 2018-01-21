@@ -6,8 +6,8 @@ map_gen_decoratives = false -- Generate our own decoratives
 map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_gen_threaded, higher numbers will generate map quicker but cause more lag.
 
 -- Recommend to use generate, but generate_not_threaded may be useful for testing / debugging.
---require "map_gen.shared.generate_not_threaded"
-require "map_gen.shared.generate"
+require "map_gen.shared.generate_not_threaded"
+--require "map_gen.shared.generate"
 
 local ball_r = 16
 local big_circle = circle_builder(ball_r)
@@ -64,6 +64,7 @@ for i = 1, count - 1 do
     
     local c = lines_circle
     c = builder_with_resource(c, resources[i])
+    c = change_map_gen_collision_tile(c,"water-tile", "grass-1")
     local c = translate(c, x, 0)    
 
     table.insert(lines, c)
@@ -96,11 +97,11 @@ map = rotate(map, degrees(45))
 
 local start_circle =  circle_builder(0.3 * ball_r)
 
-local iron = builder_with_resource(start_circle, resource_module_builder(scale(start_circle,0.5,0.5), "iron-ore", value(0, 700)))
-local copper = builder_with_resource(start_circle, resource_module_builder(scale(start_circle,0.5,0.5), "copper-ore", value(0, 500)))
-local stone = builder_with_resource(start_circle, resource_module_builder(scale(start_circle,0.5,0.5), "stone", value(0, 250)))
-local oil = builder_with_resource(start_circle, resource_module_builder(scale(start_circle,0.1,0.1), "crude-oil", value(0, 40000)))
-local coal = builder_with_resource(start_circle, resource_module_builder(scale(start_circle,0.5,0.5), "coal", value(0, 800)))
+local iron = builder_with_resource(scale(start_circle,0.5,0.5), resource_module_builder(full_builder, "iron-ore", value(0, 700)))
+local copper = builder_with_resource(scale(start_circle,0.5,0.5), resource_module_builder(full_builder, "copper-ore", value(0, 500)))
+local stone = builder_with_resource(scale(start_circle,0.5,0.5), resource_module_builder(full_builder, "stone", value(0, 250)))
+local oil = builder_with_resource(scale(start_circle,0.1,0.1), resource_module_builder(full_builder, "crude-oil", value(0, 40000)))
+local coal = builder_with_resource(scale(start_circle,0.5,0.5), resource_module_builder(full_builder, "coal", value(0, 800)))
 
 local start = compound_or
 {
@@ -109,8 +110,10 @@ local start = compound_or
     translate(stone, -9, 0),
     translate(oil, 9, 9),
     translate(coal, 9, 0),
-    big_circle
+    
 }
+start = change_map_gen_collision_tile(start,"water-tile", "grass-1")
+start = compound_or{start, big_circle}
 
 map = choose(big_circle, start, map)
 
