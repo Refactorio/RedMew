@@ -19,7 +19,7 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "map_gen.presets.web" --unfinished
 --MAP_GEN = require "map_gen.presets.rings_and_boxes" --unfinished
 --MAP_GEN = require "map_gen.presets.ring_of_balls" --unfinished
-MAP_GEN = require "map_gen.presets.dna"
+--MAP_GEN = require "map_gen.presets.dna"
 --MAP_GEN = require "map_gen.presets.lines_and_balls"
 --MAP_GEN = require "map_gen.presets.mobius_strip"
 --MAP_GEN = require "map_gen.presets.antfarm"
@@ -34,6 +34,7 @@ MAP_GEN = require "map_gen.presets.dna"
 --MAP_GEN = require "map_gen.presets.GoT"
 --MAP_GEN = require "map_gen.presets.turkey"
 --MAP_GEN = require "map_gen.presets.north_america"
+--MAP_GEN = require "map_gen.presets.UK"
 
 --shapes--
 --require "map_gen.shape.left"
@@ -65,8 +66,8 @@ MAP_GEN = require "map_gen.presets.dna"
 
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
---miscs[1] = require "map_gen.misc.rail_grid"
 --require "map_gen.misc.rusky_pvp"
+--table.insert(miscs, require("map_gen.misc.rail_grid")) -- used for map_gen.presets.UK
 --table.insert(miscs, require("map_gen.misc.wreck_items"))
 --table.insert(miscs, require("map_gen.misc.tris_chunk_grid"))
 --table.insert(miscs, require("map_gen.ores.glitter_ores"))
