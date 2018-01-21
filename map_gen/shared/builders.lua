@@ -28,9 +28,27 @@ end
 
 function rectangle_builder(width, height)
     width = width / 2
-    height = height / 2
+    if height then
+        height = height / 2
+    else
+        height = width
+    end    
     return function (x, y)
         return x > -width and x <= width and y > -height and y <= height
+    end
+end
+
+function line_x_builder(thickness)
+    thickness = thickness / 2
+    return function(x, y)
+        return y > - thickness and y <= thickness
+    end
+end
+
+function line_y_builder(thickness)
+    thickness = thickness / 2
+    return function(x, y)
+        return x > - thickness and x <= thickness
     end
 end
 
@@ -398,11 +416,40 @@ function single_pattern_builder(shape, width, height)
 
     shape = shape or empty_builder
     local half_width  = width / 2
-    local half_height = height / 2
+    local half_height
+    if height then
+        half_height = height / 2
+    else
+        half_height = half_width
+    end
 
     return function (local_x, local_y, world_x, world_y)
         local_y = ((local_y + half_height) % height) - half_height
         local_x = ((local_x + half_width) % width) - half_width
+
+        return shape(local_x, local_y, world_x, world_y)
+    end
+end
+
+function single_x_pattern_builder(shape, width)
+
+    shape = shape or empty_builder
+    local half_width  = width / 2    
+
+    return function (local_x, local_y, world_x, world_y)        
+        local_x = ((local_x + half_width) % width) - half_width
+
+        return shape(local_x, local_y, world_x, world_y)
+    end
+end
+
+function single_y_pattern_builder(shape, height)
+
+    shape = shape or empty_builder    
+    local half_height = height / 2
+
+    return function (local_x, local_y, world_x, world_y)
+        local_y = ((local_y + half_height) % height) - half_height        
 
         return shape(local_x, local_y, world_x, world_y)
     end
@@ -428,7 +475,16 @@ function grid_pattern_builder(pattern, columns, rows, width, height)
     end
 end
 
+function segment_pattern_builder(pattern)
+    local count = #pattern
 
+    return function(local_x, local_y, world_x, world_y)
+        local angle = math.atan2(-local_y , local_x)
+        local index = math.floor(angle / tau * count) % count + 1
+        local shape =  pattern[index] or empty_builder
+        return shape(local_x, local_y, world_x, world_y)
+    end
+end
 
 -- tile converters
 
