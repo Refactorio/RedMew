@@ -5,7 +5,6 @@ If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
 
-
 --combined--
 --require "map_gen.combined.island_resort"
 --require "map_gen.combined.red_planet_v2"
@@ -13,27 +12,28 @@ in this file and your run_*type*_module(event) function will be called.
 --require "map_gen.combined.dimensions"
 --require "map_gen.combined.dagobah_swamp"
 --require "map_gen.combined.UK"
+--require "map_gen.combined.meteor_strike" --unfinished
 
---grilledham's map gen
--- Need to copy the file you want from the _locale folder to this one for it to be included
--- only get what you need, otherwise the save file is too big!
-
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.template"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.mobius_strip"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.antfarm"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.creation_of_adam"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.manhattan"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.mona_lisa"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.connected_dots"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.cage"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.maori"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.goat"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.biome_test"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.GoT"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.turkey"
---require "locale.grilledham_map_gen.presets.UK"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.north_america"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.lines_and_balls"
+--presets--
+--MAP_GEN = require "map_gen.presets.template"
+--MAP_GEN = require "map_gen.presets.web" --unfinished
+--MAP_GEN = require "map_gen.presets.rings_and_boxes" --unfinished
+--MAP_GEN = require "map_gen.presets.ring_of_balls" --unfinished
+MAP_GEN = require "map_gen.presets.dna"
+--MAP_GEN = require "map_gen.presets.lines_and_balls"
+--MAP_GEN = require "map_gen.presets.mobius_strip"
+--MAP_GEN = require "map_gen.presets.antfarm"
+--MAP_GEN = require "map_gen.presets.creation_of_adam"
+--MAP_GEN = require "map_gen.presets.manhattan"
+--MAP_GEN = require "map_gen.presets.mona_lisa"
+--MAP_GEN = require "map_gen.presets.connected_dots"
+--MAP_GEN = require "map_gen.presets.cage"
+--MAP_GEN = require "map_gen.presets.maori"
+--MAP_GEN = require "map_gen.presets.goat"
+--MAP_GEN = require "map_gen.presets.biome_test"
+--MAP_GEN = require "map_gen.presets.GoT"
+--MAP_GEN = require "map_gen.presets.turkey"
+--MAP_GEN = require "map_gen.presets.north_america"
 
 --shapes--
 --require "map_gen.shape.left"
