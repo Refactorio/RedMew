@@ -77,3 +77,47 @@ table.get = function (t, index)
   end
   error("Index out of bounds", 2)
 end
+
+--[[
+  Returns the index where t[index] == target. 
+  If there is no such index, returns a negative vaule such that bit32.bnot(value) is 
+  the index that the vaule should be inserted to keep the list ordered.
+  t must be a list in ascending order for the return value to be valid. 
+
+  Usage example:
+  local t = {1,3,5,7,9}
+  local x = 5
+  local index = table.binary_search(t, x) 
+  if index < 0 then    
+    game.print("value not found, smallest index where t[index] > x is: " .. bit32.bnot(index)) 
+  else
+    game.print("value found at index: " .. index)
+  end  
+]]
+table.binary_search = function(t, target)
+  --For some reason bit32.bnot doesn't return negative numbers so I'm using ~x = -1 - x instead.
+    assert_argument_valid(t)
+    assert_argument_valid(target, "number")
+  
+    local lower = 1
+    local upper = #t
+    
+    if upper == 0 then
+      return -2 -- ~1
+    end
+  
+    repeat 
+      local mid = math.floor( (lower + upper) / 2 )
+      local value = t[mid]
+      if value == target then
+        return mid
+      elseif value < target then
+        lower = mid + 1
+      else
+        upper = mid - 1
+      end  
+    until lower > upper
+  
+    return -1 - lower -- ~lower
+  
+  end
