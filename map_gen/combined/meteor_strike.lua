@@ -1,5 +1,5 @@
-require "locale.gen_shared.perlin_noise"
-local Thread = require "locale.utils.Thread"
+require "map_gen.shared.perlin_noise"
+local Thread = require "utils.Thread"
 
 local block_size = 1 -- in tiles
 local start_size = 64 -- in blocks
