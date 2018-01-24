@@ -1,6 +1,6 @@
 --Author: Valansch
 
-local wrech_items_module = require "map_genmisc.wreck_items"
+local wrech_items_module = require "map_gen.misc.wreck_items"
 
 local resource_types = {"copper-ore", "iron-ore", "coal", "stone", "uranium-ore", "crude-oil"}
 
