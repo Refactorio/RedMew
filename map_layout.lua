@@ -11,7 +11,6 @@ in this file and your run_*type*_module(event) function will be called.
 --require "map_gen.combined.borg_planet_v2"
 --require "map_gen.combined.dimensions"
 --require "map_gen.combined.dagobah_swamp"
---require "map_gen.combined.UK"
 --require "map_gen.combined.meteor_strike" --unfinished
 
 --presets--
@@ -27,14 +26,23 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "map_gen.presets.manhattan"
 --MAP_GEN = require "map_gen.presets.mona_lisa"
 --MAP_GEN = require "map_gen.presets.connected_dots"
---MAP_GEN = require "map_gen.presets.cage"
 --MAP_GEN = require "map_gen.presets.maori"
 --MAP_GEN = require "map_gen.presets.goat"
---MAP_GEN = require "map_gen.presets.biome_test"
 --MAP_GEN = require "map_gen.presets.GoT"
---MAP_GEN = require "map_gen.presets.turkey"
---MAP_GEN = require "map_gen.presets.north_america"
+--MAP_GEN = require "map_gen.presets.turkey" -- needs to be rebuilt from missing source image.
+--MAP_GEN = require "map_gen.presets.north_america" -- needs to be rebuilt from missing source image.
 --MAP_GEN = require "map_gen.presets.UK"
+--MAP_GEN = require "map_gen.presets.goats_on_goats"
+--MAP_GEN = require "map_gen.presets.grid_islands"
+--MAP_GEN = require "map_gen.presets.crosses"
+--MAP_GEN = require "map_gen.presets.crosses3"
+--MAP_GEN = require "map_gen.presets.broken_web"
+--MAP_GEN = require "map_gen.presets.misc_stuff"
+--MAP_GEN = require "map_gen.presets.lines"
+--MAP_GEN = require "map_gen.presets.dickbutt"
+--MAP_GEN = require "map_gen.presets.void_gears"
+--MAP_GEN = require "map_gen.presets.gears"
+--MAP_GEN = require "map_gen.presets.factorio_logo"
 
 --shapes--
 --require "map_gen.shape.left"
