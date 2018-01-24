@@ -14,17 +14,6 @@ local function do_row(row, data)
       table.insert(data.tiles, {name = "out-of-map", position = {x, y}})
     elseif type(tile) == "string" then
       table.insert(data.tiles, {name = tile, position = {x, y}})
-
-      if tile == "water" or tile == "deepwater" or tile == "water-green" or  tile == "deepwater-green" then
-        local a = x + 1
-        table.insert(data.tiles, {name = tile, position = {a, y}})
-        local a =row + 1
-        table.insert(data.tiles, {name = tile, position = {x, a}})
-        local a = x - 1
-        table.insert(data.tiles, {name = tile, position = {a, y}})
-        local a =row - 1
-        table.insert(data.tiles, {name = tile, position = {x, a}})
-      end
     end
 
     if map_gen_decoratives then
