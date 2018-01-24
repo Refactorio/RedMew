@@ -5,7 +5,8 @@ map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
-local pic = require "map_gen.data.presets.color_mona_lisa"
+local pic = require "map_gen.data.presets.mona_lisa"
+pic = decompress(pic)
 
 local shape = picture_builder(pic)
 shape = translate(shape, 10, -96)

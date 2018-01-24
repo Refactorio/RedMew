@@ -5,15 +5,12 @@ map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
-local pic = require "map_gen.data.presets.antfarm"
+local pic = require "map_gen.data.presets.crosses"
 pic = decompress(pic)
 
-local scale_factor = 12
 local shape = picture_builder(pic)
---shape = invert(shape)
-
 local map = single_pattern_builder(shape, pic.width, pic.height)
-map = translate(map, -12, 2)
-map = scale(map, scale_factor, scale_factor)
+map = translate(map, 10, -4)
+map = scale(map, 12, 12)
 
 return map

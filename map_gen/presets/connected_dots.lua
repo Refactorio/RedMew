@@ -46,9 +46,9 @@ arms = change_tile(arms, true, "water")
 local arms2 = rotate(arms, degrees(45))
 
 local shape = compound_or{ translate(arms2,480,0), translate(arms2, -480, 0), mediumn_dot, arms }
---shape = apply_effect(shape, no_resources)
-shape = apply_effect(shape, less_resources)
---shape = apply_effect(shape, no_enemies)
+shape = apply_effect(shape, no_resources)
+--shape = apply_effect(shape, less_resources)
+shape = apply_effect(shape, no_enemies)
 
 
 local shape2 = compound_and{ big_dot, invert(small_dot) }
@@ -83,7 +83,9 @@ oil = translate(oil, 0,-96)
 oil = rotate(oil, degrees(288))
 oil = resource_module_builder(oil, "crude-oil", function(x,y) return 60000 end)
 
-start = builder_with_resource(start, compound_or{iron, copper, stone, coal, oil})
+start = builder_with_resource(mediumn_dot, compound_or{iron, copper, stone, coal, oil})
+
+start = apply_effect(start, no_resources)
 
 local pattern =
 {

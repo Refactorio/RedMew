@@ -6,12 +6,16 @@ map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_ge
 require "map_gen.shared.generate"
 
 local pic = require "map_gen.data.presets.maori"
+pic= decompress(pic)
 
 local shape = picture_builder(pic)
-shape = translate(shape, 10, -96)
-shape = scale(shape,2,2)
---shape = rotate(shape, degrees(0))
+shape = invert(shape)
+local crop = rectangle_builder(pic.width, pic.height)
+shape = compound_and{shape, crop}
 
--- shape = change_tile(shape, false, "deepwater")
+local map = single_pattern_builder(shape, pic.width, pic.height)
 
-return shape
+map = translate(map, 10, -96)
+map = scale(map,12,12)
+
+return map
