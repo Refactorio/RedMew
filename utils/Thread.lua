@@ -4,6 +4,7 @@
 -- github: https://github.com/Valansch/RedMew
 -- ======================================================= --
 
+local Queue = require "utils.Queue"
 
 local Thread = {}
 
@@ -18,22 +19,21 @@ end
 
 global.callbacks = {}
 global.next_async_callback_time = -1
-global.actions_queue_n = 0
+global.actions_queue =  global.actions_queue or Queue.new()
 local function on_tick()
-  for action = 1, get_actions_per_tick() do
-    if global.actions_queue[1] then      
-      local callback = global.actions_queue[1]      
+  local queue = global.actions_queue
+  for i = 1, get_actions_per_tick() do
+    local action = Queue.peek(queue)
+    if action ~= nil then                
       function call(params) 
-        return _G[callback.action](params) 
+        return _G[action.action](params) 
       end
-      local success, result = pcall(call, callback.params) -- result is error if not success else result is a boolean for if the action should stay in the queue.
+      local success, result = pcall(call, action.params) -- result is error if not success else result is a boolean for if the action should stay in the queue.
       if not success then 
         log(result) 
-        global.actions_queue_n = global.actions_queue_n - 1
-        table.remove(global.actions_queue, 1)      
+        Queue.pop(queue)     
       elseif not result then      
-        global.actions_queue_n = global.actions_queue_n - 1
-        table.remove(global.actions_queue, 1)        
+        Queue.pop(queue)       
       end
     end
   end
@@ -52,9 +52,9 @@ local function on_tick()
   end
 end
 
-function get_actions_per_tick(count)
-  --Assert actions_queue_n > -1
-  local apt = math.floor(math.log10(global.actions_queue_n + 1))
+function get_actions_per_tick()  
+  local size = Queue.size(global.actions_queue)
+  local apt = math.floor(math.log10(size + 1))
   if apt < 1 then
     return 1
   else
@@ -76,10 +76,10 @@ function Thread.set_timeout(sec, callback, params)
   Thread.set_timeout_in_ticks(60 * sec, callback, params)
 end
 
-global.actions_queue = {}
-function Thread.queue_action(action, params)
-  global.actions_queue_n = global.actions_queue_n + 1
-  table.insert(global.actions_queue, {action = action, params = params})
+
+function Thread.queue_action(action, params)  
+  local queue = global.actions_queue
+  Queue.push(queue, {action = action, params = params})
 end
 
 Event.register(defines.events.on_tick, on_tick)
