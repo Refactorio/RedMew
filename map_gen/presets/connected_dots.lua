@@ -1,5 +1,9 @@
+map_gen_decoratives = false -- Generate our own decoratives
+map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_gen_threaded, higher numbers will generate map quicker but cause more lag.
+
+-- Recommend to use generate, but generate_not_threaded may be useful for testing / debugging.
+--require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
-require "map_gen.shared.builders"
 
 local function no_resources(x, y, world_x, world_y, tile, entity)
     local surface = MAP_GEN_SURFACE
@@ -42,9 +46,9 @@ arms = change_tile(arms, true, "water")
 local arms2 = rotate(arms, degrees(45))
 
 local shape = compound_or{ translate(arms2,480,0), translate(arms2, -480, 0), mediumn_dot, arms }
---shape = apply_effect(shape, no_resources)
-shape = apply_effect(shape, less_resources)
---shape = apply_effect(shape, no_enemies)
+shape = apply_effect(shape, no_resources)
+--shape = apply_effect(shape, less_resources)
+shape = apply_effect(shape, no_enemies)
 
 
 local shape2 = compound_and{ big_dot, invert(small_dot) }
@@ -79,7 +83,9 @@ oil = translate(oil, 0,-96)
 oil = rotate(oil, degrees(288))
 oil = resource_module_builder(oil, "crude-oil", function(x,y) return 60000 end)
 
-start = builder_with_resource(start, compound_or{iron, copper, stone, coal, oil})
+start = builder_with_resource(mediumn_dot, compound_or{iron, copper, stone, coal, oil})
+
+start = apply_effect(start, no_resources)
 
 local pattern =
 {

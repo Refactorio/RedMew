@@ -1,4 +1,9 @@
-require "map_gen.shared.builders"
+map_gen_decoratives = false -- Generate our own decoratives
+map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_gen_threaded, higher numbers will generate map quicker but cause more lag.
+
+-- Recommend to use generate, but generate_not_threaded may be useful for testing / debugging.
+--require "map_gen.shared.generate_not_threaded"
+require "map_gen.shared.generate"
 
 local pic = require "map_gen.data.presets.UK"
 local pic = decompress(pic)
@@ -13,42 +18,4 @@ map = translate(map, 0, 10)
 -- this sets the tile outside the bounds of the map to deepwater, remove this and it will be void.
 map = change_tile(map, false, "deepwater")
 
-function run_combined_module(event)
-    local area = event.area
-	local surface = event.surface
-    MAP_GEN_SURFACE = surface
-	local tiles = {}
-	local entities = {}
-
-    local top_x = area.left_top.x
-    local top_y = area.left_top.y
-
-    -- place tiles over the edge of chunks to reduce tile artefacts on chunk boundaries.
-    for y = top_y - 1, top_y + 32 do
-        for x = top_x - 1, top_x + 32 do
-
-            -- local coords need to be 'centered' to allow for correct rotation and scaling.
-            local tile, entity = map(x + 0.5, y + 0.5, x, y)
-
-            if type(tile) == "boolean" and not tile then
-                table.insert( tiles, {name = "out-of-map", position = {x, y}} )
-            elseif type(tile) == "string" then
-                table.insert( tiles, {name = tile, position = {x, y}} )
-            end
-
-            if entity then
-                table.insert(entities, entity)
-            end
-        end
-    end
-
-    -- set tiles.
-    surface.set_tiles(tiles, true)
-
-    -- set entities
-    for _, v in ipairs(entities) do
-		if surface.can_place_entity(v) then
-			surface.create_entity(v)
-		end
-	end
-end
+return map

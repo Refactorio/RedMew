@@ -5,35 +5,44 @@ If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
 
-
 --combined--
 --require "map_gen.combined.island_resort"
 --require "map_gen.combined.red_planet_v2"
 --require "map_gen.combined.borg_planet_v2"
 --require "map_gen.combined.dimensions"
 --require "map_gen.combined.dagobah_swamp"
---require "map_gen.combined.UK"
+--require "map_gen.combined.meteor_strike" --unfinished
 
---grilledham's map gen
--- Need to copy the file you want from the _locale folder to this one for it to be included
--- only get what you need, otherwise the save file is too big!
-
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.template"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.mobius_strip"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.antfarm"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.creation_of_adam"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.manhattan"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.mona_lisa"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.connected_dots"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.cage"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.maori"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.goat"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.biome_test"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.GoT"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.turkey"
---require "locale.grilledham_map_gen.presets.UK"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.north_america"
---MAP_GEN = require "map_gen.combined.grilledham_map_gen.presets.lines_and_balls"
+--presets--
+--MAP_GEN = require "map_gen.presets.template"
+--MAP_GEN = require "map_gen.presets.web" --unfinished
+--MAP_GEN = require "map_gen.presets.rings_and_boxes" --unfinished
+--MAP_GEN = require "map_gen.presets.ring_of_balls" --unfinished
+--MAP_GEN = require "map_gen.presets.dna"
+--MAP_GEN = require "map_gen.presets.lines_and_balls"
+--MAP_GEN = require "map_gen.presets.mobius_strip"
+--MAP_GEN = require "map_gen.presets.antfarm"
+--MAP_GEN = require "map_gen.presets.creation_of_adam"
+--MAP_GEN = require "map_gen.presets.manhattan"
+--MAP_GEN = require "map_gen.presets.mona_lisa"
+--MAP_GEN = require "map_gen.presets.connected_dots"
+--MAP_GEN = require "map_gen.presets.maori"
+--MAP_GEN = require "map_gen.presets.goat"
+--MAP_GEN = require "map_gen.presets.GoT"
+--MAP_GEN = require "map_gen.presets.turkey" -- needs to be rebuilt from missing source image.
+--MAP_GEN = require "map_gen.presets.north_america" -- needs to be rebuilt from missing source image.
+--MAP_GEN = require "map_gen.presets.UK"
+--MAP_GEN = require "map_gen.presets.goats_on_goats"
+--MAP_GEN = require "map_gen.presets.grid_islands"
+--MAP_GEN = require "map_gen.presets.crosses"
+--MAP_GEN = require "map_gen.presets.crosses3"
+--MAP_GEN = require "map_gen.presets.broken_web"
+--MAP_GEN = require "map_gen.presets.misc_stuff"
+--MAP_GEN = require "map_gen.presets.lines"
+--MAP_GEN = require "map_gen.presets.dickbutt"
+--MAP_GEN = require "map_gen.presets.void_gears"
+--MAP_GEN = require "map_gen.presets.gears"
+--MAP_GEN = require "map_gen.presets.factorio_logo"
 
 --shapes--
 --require "map_gen.shape.left"
@@ -65,8 +74,8 @@ in this file and your run_*type*_module(event) function will be called.
 
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
---miscs[1] = require "map_gen.misc.rail_grid"
 --require "map_gen.misc.rusky_pvp"
+--table.insert(miscs, require("map_gen.misc.rail_grid")) -- used for map_gen.presets.UK
 --table.insert(miscs, require("map_gen.misc.wreck_items"))
 --table.insert(miscs, require("map_gen.misc.tris_chunk_grid"))
 --table.insert(miscs, require("map_gen.ores.glitter_ores"))

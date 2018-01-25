@@ -28,9 +28,27 @@ end
 
 function rectangle_builder(width, height)
     width = width / 2
-    height = height / 2
+    if height then
+        height = height / 2
+    else
+        height = width
+    end    
     return function (x, y)
         return x > -width and x <= width and y > -height and y <= height
+    end
+end
+
+function line_x_builder(thickness)
+    thickness = thickness / 2
+    return function(x, y)
+        return y > - thickness and y <= thickness
+    end
+end
+
+function line_y_builder(thickness)
+    thickness = thickness / 2
+    return function(x, y)
+        return x > - thickness and x <= thickness
     end
 end
 
@@ -90,17 +108,18 @@ local tile_map =
     [19] = "hazard-concrete-right",
     [20] = "lab-dark-1",
     [21] = "lab-dark-2",
-    [22] = "out-of-map",
-    [23] = "red-desert-0",
-    [24] = "red-desert-1",
-    [25] = "red-desert-2",
-    [26] = "red-desert-3",
-    [27] = "sand-1",
-    [28] = "sand-2",
-    [29] = "sand-3",
-    [30] = "stone-path",
-    [31] = "water-green",
-    [32] = "water"
+    [22] = "lab-white",
+    [23] = "out-of-map",
+    [24] = "red-desert-0",
+    [25] = "red-desert-1",
+    [26] = "red-desert-2",
+    [27] = "red-desert-3",
+    [28] = "sand-1",
+    [29] = "sand-2",
+    [30] = "sand-3",
+    [31] = "stone-path",
+    [32] = "water-green",
+    [33] = "water",
 }
 
 function decompress(pic)
@@ -398,11 +417,40 @@ function single_pattern_builder(shape, width, height)
 
     shape = shape or empty_builder
     local half_width  = width / 2
-    local half_height = height / 2
+    local half_height
+    if height then
+        half_height = height / 2
+    else
+        half_height = half_width
+    end
 
     return function (local_x, local_y, world_x, world_y)
         local_y = ((local_y + half_height) % height) - half_height
         local_x = ((local_x + half_width) % width) - half_width
+
+        return shape(local_x, local_y, world_x, world_y)
+    end
+end
+
+function single_x_pattern_builder(shape, width)
+
+    shape = shape or empty_builder
+    local half_width  = width / 2    
+
+    return function (local_x, local_y, world_x, world_y)        
+        local_x = ((local_x + half_width) % width) - half_width
+
+        return shape(local_x, local_y, world_x, world_y)
+    end
+end
+
+function single_y_pattern_builder(shape, height)
+
+    shape = shape or empty_builder    
+    local half_height = height / 2
+
+    return function (local_x, local_y, world_x, world_y)
+        local_y = ((local_y + half_height) % height) - half_height        
 
         return shape(local_x, local_y, world_x, world_y)
     end
@@ -428,7 +476,16 @@ function grid_pattern_builder(pattern, columns, rows, width, height)
     end
 end
 
+function segment_pattern_builder(pattern)
+    local count = #pattern
 
+    return function(local_x, local_y, world_x, world_y)
+        local angle = math.atan2(-local_y , local_x)
+        local index = math.floor(angle / tau * count) % count + 1
+        local shape =  pattern[index] or empty_builder
+        return shape(local_x, local_y, world_x, world_y)
+    end
+end
 
 -- tile converters
 
