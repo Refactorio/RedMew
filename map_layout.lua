@@ -6,7 +6,7 @@ in this file and your run_*type*_module(event) function will be called.
 --]]
 
 --combined--
-require "map_gen.combined.island_resort"
+--require "map_gen.combined.island_resort"
 --require "map_gen.combined.red_planet_v2"
 --require "map_gen.combined.borg_planet_v2"
 --require "map_gen.combined.dimensions"
