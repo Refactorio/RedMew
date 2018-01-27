@@ -5,58 +5,21 @@ local Task = require "utils.Task"
 local radius = 129
 local radsquare = radius*radius
 
-function run_combined_module(event)
-  local entities = event.surface.find_entities(event.area)
+local function do_clear_entites(data)
+  local entities = data.surface.find_entities(data.area)
   for _, entity in pairs(entities) do
     if entity.type == "simple-entity" or entity.type == "resource" or entity.type == "tree" then
       entity.destroy()
     end
   end
-
-  Task.queue_task("run_island_init", {} )
-  for x = 0, 31, 1 do
- 		Task.queue_task("run_island", {area = event.area, surface = event.surface, x = x})
-      -- run_island( {area = event.area, surface = event.surface, x = x})
- 	end
-   Task.queue_task("run_island_place_tiles", {surface = event.surface})
-   Task.queue_task("run_chart_update", {area = event.area, surface = event.surface})
 end
 
+local function do_column(column, data)
+	local area = data.area
+	local surface = data.surface	
+	local pos_x = area.left_top.x + column
 
-global.island_tiles_hold = {}
-global.island_decoratives_hold = {}
-
-function run_island_init(params)
-   global.island_tiles_hold = {}
-   global.island_decoratives_hold = {}
-end
-
-function run_island_place_tiles(params)
-	local surface = params.surface
-   surface.set_tiles(global.island_tiles_hold)
-   for _,deco in pairs(global.island_decoratives_hold) do
-     surface.create_decoratives{check_collision=false, decoratives={deco}}
-   end
-end
-
-function run_chart_update(params)
-   local x = params.area.left_top.x / 32
-   local y = params.area.left_top.y / 32
-      if game.forces.player.is_chunk_charted(params.surface, {x,y} ) then
-         -- Don't use full area, otherwise adjacent chunks get charted
-         game.forces.player.chart(params.surface, {{  params.area.left_top.x,  params.area.left_top.y}, { params.area.left_top.x+30,  params.area.left_top.y+30} } )
-      end
-end
-
-function run_island( params )
-	local area = params.area
-	local surface = params.surface
-
-	local x = params.x
-	local pos_x = area.left_top.x + x
-
-   for y = 0, 31, 1 do
-      local pos_y = area.left_top.y + y
+   for pos_y = area.left_top.y, area.left_top.y + 31 do      
       local seed = surface.map_gen_settings.seed
       local seed_increment = 10000
 
@@ -226,12 +189,12 @@ function run_island( params )
             decorative = "red-asterisk"
           end
           if math.random(1,5) == 1 then
-            table.insert(global.island_decoratives_hold, {name=decorative, position={pos_x,pos_y}, amount=1})
+            table.insert(data.decoratives, {name=decorative, position={pos_x,pos_y}, amount=1})
           end
         end
         if tile_to_insert == "red-desert-0" then
           if math.random(1,50) == 1 then
-            table.insert(global.island_decoratives_hold, {name="rock-medium", position={pos_x,pos_y}, amount=1})
+            table.insert(data.decoratives, {name="rock-medium", position={pos_x,pos_y}, amount=1})
           end
         end
       end
@@ -317,20 +280,57 @@ function run_island( params )
             end
           end
         end
-      end
+      end      
 
-      if tile_to_insert == "water" then
-        local a = pos_x + 1
-        table.insert(global.island_tiles_hold, {name = tile_to_insert, position = {a,pos_y}})
-        local a = pos_y + 1
-        table.insert(global.island_tiles_hold, {name = tile_to_insert, position = {pos_x,a}})
-        local a = pos_x - 1
-        table.insert(global.island_tiles_hold, {name = tile_to_insert, position = {a,pos_y}})
-        local a = pos_y - 1
-        table.insert(global.island_tiles_hold, {name = tile_to_insert, position = {pos_x,a}})
-      end
-
-      table.insert(global.island_tiles_hold, {name = tile_to_insert, position = {pos_x,pos_y}})
+      table.insert(data.tiles, {name = tile_to_insert, position = {pos_x,pos_y}})
+      
   end
 
+end
+
+local function do_place_tiles(data)
+	local surface = data.surface
+   surface.set_tiles(data.tiles)
+   for _,deco in pairs(data.decoratives) do
+     surface.create_decoratives{check_collision=false, decoratives={deco}}
+   end
+end
+
+local function do_chart_update(data)
+   local x = data.area.left_top.x / 32
+   local y = data.area.left_top.y / 32
+      if game.forces.player.is_chunk_charted(data.surface, {x,y} ) then
+         -- Don't use full area, otherwise adjacent chunks get charted
+         game.forces.player.chart(data.surface, {{  data.area.left_top.x,  data.area.left_top.y}, { data.area.left_top.x+30,  data.area.left_top.y+30} } )
+      end
+end
+
+function do_island_resort(data)
+  local state = data.state
+
+  if state == -1 then
+    do_clear_entites(data)
+    data.state = 0
+    return true
+  elseif state < 32 then
+    do_column(state, data)
+    data.state = state + 1
+    return true
+  elseif state == 32 then
+    do_place_tiles(data)
+    do_chart_update(data)
+    return false
+  end
+end
+
+function run_combined_module(event)
+  local data =
+  {
+    state = - 1,
+    surface = event.surface,
+    area = event.area,
+    tiles = {},
+    decoratives = {}
+  }
+  Task.queue_task("do_island_resort", data )
 end
