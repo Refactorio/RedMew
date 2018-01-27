@@ -1,6 +1,6 @@
 --Author: MewMew
 require "map_gen.shared.perlin_noise"
-local Thread = require "utils.Thread"
+local Task = require "utils.Task"
 
 local radius = 129
 local radsquare = radius*radius
@@ -13,13 +13,13 @@ function run_combined_module(event)
     end
   end
 
-  Thread.queue_action("run_island_init", {} )
+  Task.queue_task("run_island_init", {} )
   for x = 0, 31, 1 do
- 		Thread.queue_action("run_island", {area = event.area, surface = event.surface, x = x})
+ 		Task.queue_task("run_island", {area = event.area, surface = event.surface, x = x})
       -- run_island( {area = event.area, surface = event.surface, x = x})
  	end
-   Thread.queue_action("run_island_place_tiles", {surface = event.surface})
-   Thread.queue_action("run_chart_update", {area = event.area, surface = event.surface})
+   Task.queue_task("run_island_place_tiles", {surface = event.surface})
+   Task.queue_task("run_chart_update", {area = event.area, surface = event.surface})
 end
 
 

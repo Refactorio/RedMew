@@ -1,7 +1,7 @@
 require("map_gen.shared.builders")
 require("utils.poisson_rng")
 
-local Thread = require "utils.Thread"
+local Task = require "utils.Task"
 
 map_gen_rows_per_tick = map_gen_rows_per_tick or 4
 map_gen_rows_per_tick = math.min(32, math.max(1, map_gen_rows_per_tick))
@@ -123,7 +123,7 @@ function run_combined_module(event)
       entities = {},
       decoratives = {}      
    }
-   Thread.queue_action("map_gen_action", data)
+   Task.queue_task("map_gen_action", data)
 end
 
 local decorative_options = {

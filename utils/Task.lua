@@ -1,12 +1,12 @@
 -- Threading simulation module
--- Thread.sleep()
+-- Task.sleep()
 -- @author Valansch
 -- github: https://github.com/Valansch/RedMew
 -- ======================================================= --
 
 local Queue = require "utils.Queue"
 
-local Thread = {}
+local Task = {}
 
 local function set_new_next_async_callback_time()
   global.next_async_callback_time = global.callbacks[1].time
@@ -19,16 +19,13 @@ end
 
 global.callbacks = {}
 global.next_async_callback_time = -1
-global.actions_queue =  global.actions_queue or Queue.new()
+global.task_queue =  global.task_queue or Queue.new()
 local function on_tick()
-  local queue = global.actions_queue
-  for i = 1, get_actions_per_tick() do
-    local action = Queue.peek(queue)
-    if action ~= nil then                
-      function call(params) 
-        return _G[action.action](params) 
-      end
-      local success, result = pcall(call, action.params) -- result is error if not success else result is a boolean for if the action should stay in the queue.
+  local queue = global.task_queue
+  for i = 1, get_task_per_tick() do
+    local task = Queue.peek(queue)
+    if task ~= nil then                       
+      local success, result = pcall(_G[task.func_name], task.params) -- result is error if not success else result is a boolean for if the task should stay in the queue.
       if not success then 
         log(result) 
         Queue.pop(queue)     
@@ -52,8 +49,8 @@ local function on_tick()
   end
 end
 
-function get_actions_per_tick()  
-  local size = Queue.size(global.actions_queue)
+function get_task_per_tick()  
+  local size = Queue.size(global.task_queue)
   local apt = math.floor(math.log10(size + 1))
   if apt < 1 then
     return 1
@@ -62,7 +59,7 @@ function get_actions_per_tick()
   end
 end
 
-function Thread.set_timeout_in_ticks(ticks, callback, params)
+function Task.set_timeout_in_ticks(ticks, callback, params)
   local time = game.tick + ticks
   if global.next_async_callback_time == -1 or global.next_async_callback_time > time then
     global.next_async_callback_time = time
@@ -72,16 +69,16 @@ function Thread.set_timeout_in_ticks(ticks, callback, params)
   table.insert(global.callbacks, {time = time, callback = callback, params = params})
 end
 
-function Thread.set_timeout(sec, callback, params)
-  Thread.set_timeout_in_ticks(60 * sec, callback, params)
+function Task.set_timeout(sec, callback, params)
+  Task.set_timeout_in_ticks(60 * sec, callback, params)
 end
 
 
-function Thread.queue_action(action, params)  
-  local queue = global.actions_queue
-  Queue.push(queue, {action = action, params = params})
+function Task.queue_task(func_name, params)  
+  local queue = global.task_queue
+  Queue.push(queue, {func_name = func_name, params = params})
 end
 
 Event.register(defines.events.on_tick, on_tick)
 
-return Thread
+return Task

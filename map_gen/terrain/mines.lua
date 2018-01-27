@@ -1,4 +1,4 @@
-local Thread = require "utils.Thread"
+local Task = require "utils.Task"
 
 local mines_factor = 4
 
@@ -20,7 +20,7 @@ function run_terrain_module(event)
   local distance = math.sqrt(event.area.left_top.x*event.area.left_top.x+event.area.left_top.y*event.area.left_top.y)
   if distance > 100 then
     for i = 0, 31 do
-      Thread.queue_action("spawn_row", {x = event.area.left_top.x, y = event.area.left_top.y + i, distance = distance})
+      Task.queue_task("spawn_row", {x = event.area.left_top.x, y = event.area.left_top.y + i, distance = distance})
     end
   end
 end

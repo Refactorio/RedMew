@@ -1,4 +1,4 @@
-local Thread = require "utils.Thread"
+local Task = require "utils.Task"
 require "utils.event"
 
 function player_print(str)
@@ -108,7 +108,7 @@ local function walkabout(cmd)
   
   if non_colliding_pos then
     game.print(player_name .. " went on a walkabout, to find himself.")
-    Thread.set_timeout(duration, return_player, {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}})
+    Task.set_timeout(duration, return_player, {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}})
     player.character = nil
     player.create_character()
     player.teleport(non_colliding_pos)
@@ -389,7 +389,7 @@ local function tempban(cmd)
   if group then
     group.add_player(params[1])
     if not tonumber(cmd.parameter) then
-      Thread.set_timeout(
+      Task.set_timeout(
         60 * tonumber(params[2]),
         function(param)
           game.print(param.name .. " is out of timeout.")
@@ -424,7 +424,7 @@ local function spyshot(cmd)
         end
         game.take_screenshot{by_player = spy, position = pos, show_gui = false, show_entity_info = true, resolution = {1920, 1080}, anti_alias = true, zoom = 0.5, path ="spyshot.png"}
         game.players[spy].print("You just took a screenshot!")
-        Thread.set_timeout(2, custom_commands_replace_ghosts, {ghosts = pseudo_ghosts, surface_index = game.players[player_name].surface.index}) --delay replacements for the screenshot to render
+        Task.set_timeout(2, custom_commands_replace_ghosts, {ghosts = pseudo_ghosts, surface_index = game.players[player_name].surface.index}) --delay replacements for the screenshot to render
         return
       end
     end
