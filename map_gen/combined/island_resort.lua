@@ -332,5 +332,5 @@ function run_combined_module(event)
     tiles = {},
     decoratives = {}
   }
-  Task.queue_task("do_island_resort", data )
+  Task.queue_task("do_island_resort", data, 34)
 end
