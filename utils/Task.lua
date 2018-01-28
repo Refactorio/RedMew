@@ -20,6 +20,7 @@ end
 global.callbacks = {}
 global.next_async_callback_time = -1
 global.task_queue =  global.task_queue or Queue.new()
+global.total_task_weight = 0
 local function on_tick()
   local queue = global.task_queue
   for i = 1, get_task_per_tick() do
@@ -28,9 +29,11 @@ local function on_tick()
       local success, result = pcall(_G[task.func_name], task.params) -- result is error if not success else result is a boolean for if the task should stay in the queue.
       if not success then 
         log(result) 
-        Queue.pop(queue)     
+        Queue.pop(queue)
+        global.total_task_weight = global.total_task_weight - task.weight     
       elseif not result then      
-        Queue.pop(queue)       
+        Queue.pop(queue)
+        global.total_task_weight = global.total_task_weight - task.weight       
       end
     end
   end
@@ -50,7 +53,7 @@ local function on_tick()
 end
 
 function get_task_per_tick()  
-  local size = Queue.size(global.task_queue)
+  local size = global.total_task_weight
   local apt = math.floor(math.log10(size + 1))
   if apt < 1 then
     return 1
@@ -74,9 +77,10 @@ function Task.set_timeout(sec, callback, params)
 end
 
 
-function Task.queue_task(func_name, params)  
-  local queue = global.task_queue
-  Queue.push(queue, {func_name = func_name, params = params})
+function Task.queue_task(func_name, params, weight)
+  weight = weight or 1
+  global.total_task_weight = global.total_task_weight + weight
+  Queue.push(global.task_queue, {func_name = func_name, params = params, weight = weight})
 end
 
 Event.register(defines.events.on_tick, on_tick)
