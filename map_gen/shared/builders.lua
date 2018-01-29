@@ -537,6 +537,27 @@ function change_map_gen_collision_tile(builder, collides, new_tile)
     end
 end
 
+function spawn_fish(builder, spawn_rate)
+    return function (local_x, local_y, world_x, world_y )
+        local tile, entity = builder(local_x, local_y, world_x, world_y)
+        if type(tile) == "string" then
+            if tile == "water" or tile == "deepwater" or tile == "water-green" or tile == "deepwater-green" then
+                if spawn_rate >= math.random() then                    
+                    entity = {name = "fish", position = {world_x, world_y}}                                  
+                end            
+            end
+        elseif tile then
+            local gen_tile = MAP_GEN_SURFACE.get_tile(world_x, world_y)
+            if gen_tile == "water" or gen_tile == "deep-water" or gen_tile == "water-green" or gen_tile == "deepwater-green" then
+                if spawn_rate >= math.random() then
+                    entity = {name = "fish", position = {world_x, world_y}}
+                end            
+            end
+        end
+        return tile, entity
+    end
+end
+
 function apply_effect(builder, func)
     return function(local_x, local_y, world_x, world_y)
         local tile, entity = builder(local_x, local_y, world_x, world_y)
