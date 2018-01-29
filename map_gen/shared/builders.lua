@@ -548,7 +548,7 @@ function spawn_fish(builder, spawn_rate)
             end
         elseif tile then
             local gen_tile = MAP_GEN_SURFACE.get_tile(world_x, world_y)
-            if gen_tile == "water" or gen_tile == "deep-water" or gen_tile == "water-green" or gen_tile == "deepwater-green" then
+            if gen_tile == "water" or gen_tile == "deepwater" or gen_tile == "water-green" or gen_tile == "deepwater-green" then
                 if spawn_rate >= math.random() then
                     entity = {name = "fish", position = {world_x, world_y}}
                 end            
