@@ -5,22 +5,20 @@
 -- ======================================================= --
 
 local Queue = require "utils.Queue"
+local PriorityQueue = require "utils.PriorityQueue"
 
 local Task = {}
 
-local function set_new_next_async_callback_time()
-  global.next_async_callback_time = global.callbacks[1].time
-  for index, callback in pairs(global.callbacks) do
-    if callback.time < global.next_async_callback_time then
-      global.next_async_callback_time = callback.time
-    end
-  end
+global.callbacks = global.callbacks or PriorityQueue.new()
+global.next_async_callback_time = -1
+global.task_queue = global.task_queue or Queue.new()
+global.total_task_weight = 0
+global.task_queue_speed = 1
+
+local function comp(a, b)
+  return a.time < b.time
 end
 
-global.callbacks = {}
-global.next_async_callback_time = -1
-global.task_queue =  global.task_queue or Queue.new()
-global.total_task_weight = 0
 local function on_tick()
   local queue = global.task_queue
   for i = 1, get_task_per_tick() do
@@ -37,24 +35,22 @@ local function on_tick()
       end
     end
   end
-  if game.tick == global.next_async_callback_time then
-    for index, callback in pairs(global.callbacks) do
-      if game.tick == callback.time then
-        pcall(callback.callback, callback.params)
-        table.remove(global.callbacks, index)
-        if #global.callbacks == 0 then
-          global.next_async_callback_time = -1
-        else
-          set_new_next_async_callback_time()
-        end
-      end
-    end
-  end
+
+  local callbacks = global.callbacks
+  local callback = PriorityQueue.peek(callbacks)
+  while callback ~= nil and game.tick >= callback.time do
+    local success, error = pcall(_G[callback.func_name], callback.params)
+    if not success then      
+      log(error)
+    end    
+    PriorityQueue.pop(callbacks, comp)    
+    callback = PriorityQueue.peek(callbacks)
+  end  
 end
 
 function get_task_per_tick()  
   local size = global.total_task_weight
-  local apt = math.floor(math.log10(size + 1))
+  local apt = math.floor(math.log10(size + 1)) * global.task_queue_speed
   if apt < 1 then
     return 1
   else
@@ -62,20 +58,15 @@ function get_task_per_tick()
   end
 end
 
-function Task.set_timeout_in_ticks(ticks, callback, params)
-  local time = game.tick + ticks
-  if global.next_async_callback_time == -1 or global.next_async_callback_time > time then
-    global.next_async_callback_time = time
-  end
-  if #global.callbacks == 0 then
-  end
-  table.insert(global.callbacks, {time = time, callback = callback, params = params})
+function Task.set_timeout_in_ticks(ticks, func_name, params)
+  local time = game.tick + ticks  
+  local callback = {time = time, func_name = func_name, params = params}
+  PriorityQueue.push(global.callbacks, callback, comp)
 end
 
-function Task.set_timeout(sec, callback, params)
-  Task.set_timeout_in_ticks(60 * sec, callback, params)
+function Task.set_timeout(sec, func_name, params)
+  Task.set_timeout_in_ticks(60 * sec, func_name, params)
 end
-
 
 function Task.queue_task(func_name, params, weight)
   weight = weight or 1
