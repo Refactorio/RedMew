@@ -108,7 +108,7 @@ local function walkabout(cmd)
   
   if non_colliding_pos then
     game.print(player_name .. " went on a walkabout, to find himself.")
-    Task.set_timeout(duration, return_player, {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}})
+    Task.set_timeout(duration, "custom_commands_return_player", {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}})
     player.character = nil
     player.create_character()
     player.teleport(non_colliding_pos)
@@ -119,7 +119,7 @@ local function walkabout(cmd)
   end
 end
 
-local function return_player(args)
+function custom_commands_return_player(args)
   global.walking[args.player.name:lower()] = false
   args.player.character.destroy()
   local character = args.player.surface.find_entity('player', args.position)
@@ -365,6 +365,11 @@ local function get_group()
   return group
 end
 
+function custom_commands_untempban(param)
+  game.print(param.name .. " is out of timeout.")
+  game.permissions.get_group("Default").add_player(param.name)
+end
+
 local function tempban(cmd)
   if (not game.player) or not (game.player.admin or is_mod(game.player.name)) then
     cant_run(cmd.name)
@@ -389,14 +394,7 @@ local function tempban(cmd)
   if group then
     group.add_player(params[1])
     if not tonumber(cmd.parameter) then
-      Task.set_timeout(
-        60 * tonumber(params[2]),
-        function(param)
-          game.print(param.name .. " is out of timeout.")
-          game.permissions.get_group("Default").add_player(param.name)
-        end,
-        {name = params[1]}
-      )
+      Task.set_timeout(60 * tonumber(params[2]), "custom_commands_untempban", {name = params[1]})
     end
   end
 end
@@ -424,7 +422,7 @@ local function spyshot(cmd)
         end
         game.take_screenshot{by_player = spy, position = pos, show_gui = false, show_entity_info = true, resolution = {1920, 1080}, anti_alias = true, zoom = 0.5, path ="spyshot.png"}
         game.players[spy].print("You just took a screenshot!")
-        Task.set_timeout(2, custom_commands_replace_ghosts, {ghosts = pseudo_ghosts, surface_index = game.players[player_name].surface.index}) --delay replacements for the screenshot to render
+        Task.set_timeout(2, "custom_commands_replace_ghosts", {ghosts = pseudo_ghosts, surface_index = game.players[player_name].surface.index}) --delay replacements for the screenshot to render
         return
       end
     end
