@@ -23,6 +23,7 @@ require "tasklist"
 require "autodeconstruct"
 require "corpse_util"
 require "reactor_meltdown"
+require "server_api"
 
 local function player_joined(event)
 	local player = game.players[event.player_index]
