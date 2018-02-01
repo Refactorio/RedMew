@@ -7,7 +7,7 @@ function update_group(position)
 		line = string.format('["%s"] = "",\n', player_name)
 		game.write_file(file, line, true, 0)
 	end
-	game.write_file(file, "}", true)
+	game.write_file(file, "}", true, 0)
 end
 
 function get_actor()
