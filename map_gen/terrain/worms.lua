@@ -1,4 +1,4 @@
-local Thread = require "utils.Thread"
+local Task = require "utils.Task"
 
 local worms_per_chunk = 50
 local small_worm_spawn_distance = 100
@@ -28,7 +28,7 @@ function run_terrain_module(event)
     if distance > medium_worm_spawn_distance then lvl = 2 end
     if distance > big_worm_spawn_distance then lvl = 3 end
     for i = 1, worms_per_chunk do
-      Thread.queue_action("spawn_worm", {x = top_left.x + math.random(0, 31), y = top_left.y + math.random(0, 31), lvl = lvl})
+      Task.queue_task("spawn_worm", {x = top_left.x + math.random(0, 31), y = top_left.y + math.random(0, 31), lvl = lvl})
     end
   end
 end

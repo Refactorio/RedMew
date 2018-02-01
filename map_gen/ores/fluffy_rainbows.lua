@@ -1,7 +1,7 @@
 --Author: MewMew / (Threaded by Valansch)
 
 require "map_gen.shared.perlin_noise"
-local Thread = require "utils.Thread"
+local Task = require "utils.Task"
 
 --SETTINGS:
 local width_modifier = 0.8
@@ -60,5 +60,5 @@ function run_combined_module(event)
     local distance = math.sqrt(event.area.left_top.x * event.area.left_top.x + event.area.left_top.y * event.area.left_top.y)
     local amount_distance_multiplicator = (((distance + 1) / 75) / 75) + 1
 
-    Thread.queue_action("fluffy_rainbows_task", {surface = event.surface, y = 0, area = event.area, amount_distance_multiplicator = amount_distance_multiplicator, seed = seed})
+    Task.queue_task("fluffy_rainbows_task", {surface = event.surface, y = 0, area = event.area, amount_distance_multiplicator = amount_distance_multiplicator, seed = seed})
 end

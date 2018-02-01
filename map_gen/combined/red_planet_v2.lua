@@ -4,7 +4,7 @@
 -- Use water only in starting area as map setting!!!
 
 require "map_gen.shared.perlin_noise"
-local Thread = require "utils.Thread"
+local Task = require "utils.Task"
 
 wreck_item_pool = {}
 	wreck_item_pool = {{name="iron-gear-wheel", count=32},{name="iron-plate", count=64},{name="rocket-control-unit", count=1} ,{name="coal", count=4},{name="rocket-launcher", count=1},{name="rocket", count=32},{name="copper-cable", count=128},{name="land-mine", count=64},{name="railgun", count=1},{name="railgun-dart", count=128},{name="fast-inserter", count=8},{name="stack-filter-inserter", count=2},{name="belt-immunity-equipment", count=1},{name="fusion-reactor-equipment", count=1},{name="electric-engine-unit", count=8},{name="exoskeleton-equipment", count=1},{name="rocket-fuel", count=10},{name="used-up-uranium-fuel-cell", count=3},{name="uranium-fuel-cell", count=2}}
@@ -46,14 +46,14 @@ function run_combined_module(event)
 		end
 	end
 
-   Thread.queue_action("run_planet_init", {} )
+   Task.queue_task("run_planet_init", {} )
   --run_planet_init()
   for x = 0, 31, 1 do
- 		Thread.queue_action("run_planet", {area = event.area, surface = event.surface, x = x})
+ 		Task.queue_task("run_planet", {area = event.area, surface = event.surface, x = x})
       --run_planet( {area = event.area, surface = event.surface, x = x})
  	end
 	--run_planet_place_tiles( {surface = event.surface} )
-   Thread.queue_action("run_planet_place_tiles", {surface = event.surface})
+   Task.queue_task("run_planet_place_tiles", {surface = event.surface})
 
 end
 

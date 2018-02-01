@@ -1,7 +1,7 @@
 require("map_gen.shared.builders")
 require("utils.poisson_rng")
 
-local Thread = require "utils.Thread"
+local Task = require "utils.Task"
 
 map_gen_rows_per_tick = map_gen_rows_per_tick or 4
 map_gen_rows_per_tick = math.min(32, math.max(1, map_gen_rows_per_tick))
@@ -79,14 +79,9 @@ end
 
 function map_gen_action(data)
   local state = data.state
-  if state < 32 then
-    local count = 1
-    repeat 
-      do_row(state, data)
-      state = state + 1
-      count = count + 1
-    until state == 32 or count >= map_gen_rows_per_tick
-    data.state = state
+  if state < 32 then    
+    do_row(state, data)
+    data.state = state + 1
     return true
   elseif state == 32 then
     do_place_tiles(data)
@@ -123,7 +118,7 @@ function run_combined_module(event)
       entities = {},
       decoratives = {}      
    }
-   Thread.queue_action("map_gen_action", data)
+   Task.queue_task("map_gen_action", data, 35)
 end
 
 local decorative_options = {
