@@ -5,7 +5,7 @@ function update_group(position)
 	local line = ""
 	for player_name,_ in pairs(group) do
 		line = string.format('["%s"] = "",\n', player_name)
-		game.write_file(file, line, true)
+		game.write_file(file, line, true, 0)
 	end
 	game.write_file(file, "}", true)
 end
