@@ -48,14 +48,16 @@ local function on_tick()
   end  
 end
 
+global.tpt = global.task_queue_speed
 function get_task_per_tick()  
-  local size = global.total_task_weight
-  local apt = math.floor(math.log10(size + 1)) * global.task_queue_speed
-  if apt < 1 then
-    return 1
-  else
-    return apt
+  if game.tick % 300 == 0 then
+    local size = global.total_task_weight
+    global.tpt = math.floor(math.log10(size + 1)) * global.task_queue_speed
+    if global.tpt < 1 then
+      global.tpt = 1
+    end
   end
+  return global.tpt
 end
 
 function Task.set_timeout_in_ticks(ticks, func_name, params)
