@@ -1,9 +1,11 @@
+--This file is used by the discord bot to access ingame information
+--If you launch this scenario standalone, you don't need this file
+
 function bot_command_players(filename)
-    game.write_file(filename, string.format("Online players (%d):",#game.connected_players), false,0)
-    local online_players = #game.connected_players
-    for _,p in pairs(online_players) do
-      game.write_file(filename, p.name, true,0)
-    end
+  game.write_file(filename, string.format("Online players (%d):", #game.connected_players), false,0)
+  for _,p in pairs(#game.connected_players) do
+    game.write_file(filename, p.name, true,0)
+  end
 end
 
 function bot_command_time(filename)
