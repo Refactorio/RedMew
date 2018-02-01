@@ -6,6 +6,6 @@ function bot_command_players(filename)
     end
 end
 
-function bot_command_time()
-  game.print(math.floor(game.tick / 60))
+function bot_command_time(filename)
+  game.write_file(filename, string.format("Time since server start (%d):"),#math.floor(game.tick / 60)
 end
