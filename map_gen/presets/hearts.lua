@@ -1,6 +1,6 @@
 -- Recommend to use generate, but generate_not_threaded may be useful for testing / debugging.
-require "map_gen.shared.generate_not_threaded"
---require "map_gen.shared.generate"
+--require "map_gen.shared.generate_not_threaded"
+require "map_gen.shared.generate"
 
 local circle = circle_builder(16)
 local square = rectangle_builder(30)
@@ -13,9 +13,10 @@ heart = translate(heart, 0, -10)
 heart = scale(heart, 51/60, 1)
 local hearts = grow(heart, heart, 52, 0.5)
 
-local line = line_y_builder(4)
+local line = line_y_builder(2)
 
-map = compound_or{line, hearts}
---map = scale(map, 6, 6)
+local map = compound_or{line, hearts}
+map = translate(map, 0, 16)
+map = scale(map, 12,12)
 
 return map
