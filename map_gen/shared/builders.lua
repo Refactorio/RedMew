@@ -305,6 +305,61 @@ function linear_grow(shape, size)
     end
 end
 
+function grow(in_shape, out_shape, size, offset)
+    local half_size = size / 2
+    return function(local_x, local_y, world_x, world_y)
+        local tx = math.ceil(math.abs(local_x) / half_size)
+        local ty = math.ceil(math.abs(local_y) / half_size)
+        local t = math.max(tx, ty)        
+
+        local tile, entity
+
+        for i = t, 3 * t do
+            local out_t = 1 / (i - offset)
+            local in_t = 1 / i
+            
+            tile = out_shape(out_t * local_x, out_t * local_y, world_x, world_y)
+            if tile then
+                return false
+            end
+
+            tile, entity = in_shape(in_t * local_x, in_t * local_y, world_x, world_y)
+            if tile then
+                return tile, entity
+            end
+        end
+
+        return false
+
+        --[[ local out_t = 1 / (t - offset)
+        local in_t = 1 / t
+        tile = out_shape(out_t * local_x, out_t * local_y, world_x, world_y)
+        if tile then
+            return false
+        end     
+        
+        --return in_shape(in_t * local_x, in_t * local_y, world_x, world_y)
+
+        tile, entity = in_shape(in_t * local_x, in_t * local_y, world_x, world_y)
+        if tile then
+            return tile, entity
+        end        
+
+        out_t = 1 / (t + 1 - offset)
+        in_t = 1 / (t + 1)
+        tile = out_shape(out_t * local_x, out_t * local_y, world_x, world_y)
+        if tile then
+            return false
+        end        
+        tile, entity = in_shape(in_t * local_x, in_t * local_y, world_x, world_y)
+        if tile then
+            return tile, entity        
+        end
+
+        return false ]]
+    end    
+end
+
 function project(shape, size, r)
     local ln_r = math.log(r)
     local r2 = 1 / (r - 1)
@@ -429,6 +484,29 @@ function single_pattern_builder(shape, width, height)
         local_x = ((local_x + half_width) % width) - half_width
 
         return shape(local_x, local_y, world_x, world_y)
+    end
+end
+
+function single_pattern_overlap_builder(shape, width, height)
+
+    shape = shape or empty_builder
+    local half_width  = width / 2
+    local half_height
+    if height then
+        half_height = height / 2
+    else
+        half_height = half_width
+    end
+
+    return function (local_x, local_y, world_x, world_y)
+        local_y = ((local_y + half_height) % height) - half_height
+        local_x = ((local_x + half_width) % width) - half_width
+
+        return shape(local_x, local_y, world_x, world_y) 
+        or shape(local_x + width, local_y, world_x, world_y) 
+        or shape(local_x - width, local_y, world_x, world_y)
+        or shape(local_x, local_y + height, world_x, world_y)
+        or shape(local_x, local_y - height, world_x, world_y)
     end
 end
 
