@@ -314,7 +314,7 @@ function grow(in_shape, out_shape, size, offset)
 
         local tile, entity
 
-        for i = t, 3 * t do
+        for i = t, 2.5 * t, 1 do
             local out_t = 1 / (i - offset)
             local in_t = 1 / i
             
