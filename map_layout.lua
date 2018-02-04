@@ -44,6 +44,8 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "map_gen.presets.gears"
 --MAP_GEN = require "map_gen.presets.factorio_logo"
 --MAP_GEN = require "map_gen.presets.factorio_logo2"
+MAP_GEN = require "map_gen.presets.hearts"
+--MAP_GEN = require "map_gen.presets.woman"
 
 --shapes--
 --require "map_gen.shape.left"
