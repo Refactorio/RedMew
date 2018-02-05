@@ -12,3 +12,5 @@ map = translate(map, 135, -65)
 --map = change_tile(map, false, "deepwater")
 
 --map = scale(map, 2, 2)
+
+return map
