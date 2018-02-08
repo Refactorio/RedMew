@@ -77,13 +77,24 @@ end
 local function item_not_sanctioned(item)
   local name = item.name
   return (
-     name:find("capsule") or 
-     name == "cliff-explosives" or 
-     name == "raw-fish" or 
-     name == "discharge-defense-remote"
+    name:find("capsule") or 
+    name == "cliff-explosives" or 
+    name == "raw-fish" or 
+    name == "discharge-defense-remote"
   )
 end
 
+local function entity_allowed_to_bomb(e)
+  local name = entity.name
+  return (
+    name:find("turret") or
+    name:find("rail") or
+    name.find("ghost") or
+    name == "player" or
+    name == "stone-wall" or
+    entity.type == "electric-pole"
+  )
+end
 global.players_warned = {}
 local function on_capsule_used(event)
   if item_not_sanctioned(event.item) then return nil end
@@ -93,9 +104,9 @@ local function on_capsule_used(event)
     local count = 0
     local entities = player.surface.find_entities_filtered{force=player.force, area=area}
     for _,e in pairs(entities) do 
-      if e.name ~= "entity-ghost" then count = count + 1 end 
+      if not entity_allowed_to_bomb(e) then count = count + 1 end 
     end
-    if count > 4 then
+    if count > 8 then
       if global.players_warned[event.player_index] then
         game.ban_player(player, string.format("Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.", count, event.item.name))
       else
