@@ -32,6 +32,7 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "map_gen.presets.turkey" -- needs to be rebuilt from missing source image.
 --MAP_GEN = require "map_gen.presets.north_america" -- needs to be rebuilt from missing source image.
 --MAP_GEN = require "map_gen.presets.UK"
+--MAP_GEN = require "map_gen.presets.venice"
 --MAP_GEN = require "map_gen.presets.goats_on_goats"
 --MAP_GEN = require "map_gen.presets.grid_islands"
 --MAP_GEN = require "map_gen.presets.crosses"
@@ -45,8 +46,8 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "map_gen.presets.factorio_logo"
 --MAP_GEN = require "map_gen.presets.factorio_logo2"
 --MAP_GEN = require "map_gen.presets.hearts"
---MAP_GEN = require "map_gen.presets.woman"
-MAP_GEN = require "map_gen.presets.fractal_balls"
+--MAP_GEN = require "map_gen.presets.women"
+--MAP_GEN = require "map_gen.presets.fractal_balls"
 
 --shapes--
 --require "map_gen.shape.left"
