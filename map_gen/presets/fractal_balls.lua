@@ -2,66 +2,20 @@
 require "map_gen.shared.generate_not_threaded"
 --require "map_gen.shared.generate"
 
---[[ 
-local arm1 = translate(rectangle_builder(2, 8), 0, -11.5)
-local arm2 = translate(rectangle_builder(12, 2), 0, 24)
-
-local inner = circle_builder(30)
-local outer = circle_builder(32)
-local ring = compound_and{outer, invert(inner)}
-
-map = compound_or{map, ring}
-
-local arms = compound_or{arm1, arm2}
-arms = translate(arms, 0, -16)
-arms = compound_or
-{
-    arms, 
-    rotate(arms, degrees(120)),
-    rotate(arms, degrees(-120))
-}
-local frame = compound_or{arms, ring}
-
-local function make_ball(shape, sf, rot)
-    local s1 = translate(shape, 0, -16 * sf)
-    local shape = compound_or
-    {
-        s1, 
-        rotate(s1, degrees(120)),
-        rotate(s1, degrees(-120)),
-        scale(frame, sf, sf)
-    }
-    shape = rotate(shape, degrees(rot))
-
-    local bound = scale(outer, sf, sf)
-
-    return choose(bound, shape, empty_builder)
+local function value(base, mult)
+    return function(x, y) 
+        return mult * (math.abs(x) + math.abs(y)) + base
+    end
 end
 
-local ratio = 4
-local map = circle_builder(8)
-local total_sf = 1
---local spawn = 0
---local spawn_factor = 2
-local total_rot = -0
-for i = 1, 6 do
-    total_rot = total_rot + 180
-    map = make_ball(map, total_sf, total_rot)    
-    total_sf = ratio * total_sf
-    --spawn = spawn + ratio ^ spawn_factor
-    --spawn_factor = spawn_factor + 1
+local function no_resources(x, y, world_x, world_y, tile, entity)
+    local surface = MAP_GEN_SURFACE
+    for _, e in ipairs(surface.find_entities_filtered({ type = "resource", area = {{world_x, world_y  }, {world_x + 1, world_y + 1 } } })) do
+        e.destroy()
+    end
+
+    return tile, entity
 end
-
---map = rotate(map, degrees(-total_rot))
---map = translate(map, 0, spawn)
-map = translate(map, 0, 11568)
-
-
---map = scale(map, 8, 8)
-map = scale(map, .25, .25)
-
-return map 
-]]
 
 local arm1 = translate(rectangle_builder(2, 3), 0, -5)
 local arm2 = translate(rectangle_builder(6, 2), 0, 22)
@@ -82,7 +36,71 @@ arms = compound_or
 }
 local frame = compound_or{arms, ring}
 
-local function make_ball(shape, sf, rot)
+local ball = circle_builder(8)
+
+local iron = resource_module_builder(circle_builder(6), "iron-ore", value(1000, 1))
+local copper = resource_module_builder(circle_builder(6), "copper-ore", value(800, 0.8))
+local stone = resource_module_builder(circle_builder(4), "stone", value(500, .5))
+local coal = resource_module_builder(circle_builder(6), "coal", value(600, 0.6))
+local uranium = resource_module_builder(circle_builder(4), "uranium-ore", value(400, 1))
+local oil = resource_module_builder(throttle_world_xy(circle_builder(6), 1, 4, 1, 4), "crude-oil", value(100000, 50))
+
+local iron_ball = change_map_gen_collision_tile(builder_with_resource(ball, iron),"water-tile", "grass-1")
+local copper_ball = change_map_gen_collision_tile(builder_with_resource(ball, copper),"water-tile", "grass-1")
+local stone_ball = change_map_gen_collision_tile(builder_with_resource(ball, stone),"water-tile", "grass-1")
+local coal_ball = change_map_gen_collision_tile(builder_with_resource(ball, coal),"water-tile", "grass-1")
+local uranium_ball = change_map_gen_collision_tile(builder_with_resource(ball, uranium),"water-tile", "grass-1")
+local oil_ball = change_map_gen_collision_tile(builder_with_resource(ball, oil),"water-tile", "grass-1")
+
+local balls1 = compound_or
+{
+    translate(iron_ball, 0, -12),
+    rotate(translate(copper_ball, 0, -12), degrees(120)),
+    rotate(translate(coal_ball, 0, -12), degrees(-120)),  
+    frame
+}
+--shape = rotate(shape, degrees(rot))
+balls1 = rotate(balls1, degrees(180))
+balls1 = choose(outer, balls1, empty_builder)
+balls1 = translate(balls1, 0, -36)
+
+local balls2 = compound_or
+{
+    translate(iron_ball, 0, -12),
+    rotate(translate(copper_ball, 0, -12), degrees(120)),
+    rotate(translate(stone_ball, 0, -12), degrees(-120)),  
+    frame
+}
+balls2 = rotate(balls2, degrees(180))
+balls2  = choose(outer, balls2, empty_builder)
+balls2 = translate(balls2, 0, -36)
+balls2 = rotate(balls2, degrees(120))
+
+local balls3 = compound_or
+{
+    translate(iron_ball, 0, -12),
+    rotate(translate(uranium_ball, 0, -12), degrees(120)),
+    rotate(translate(oil_ball, 0, -12), degrees(-120)),  
+    frame
+}
+balls3 = rotate(balls3, degrees(180))
+balls3  = choose(outer, balls3, empty_builder)
+balls3 = translate(balls3, 0, -36)
+balls3 = rotate(balls3, degrees(-120))
+
+
+local balls4 = compound_or
+{
+    balls1,
+    balls2,
+    balls3,
+    scale(frame, 3, 3)
+}
+balls4 = rotate(balls4, degrees(180))
+balls4 = apply_effect(balls4, no_resources)
+balls4 = choose(scale(outer, 3, 3), balls4, empty_builder)
+
+local function make_ball(shape, sf)
     local s1 = translate(shape, 0, -12 * sf)
     local shape = compound_or
     {
@@ -91,7 +109,7 @@ local function make_ball(shape, sf, rot)
         rotate(s1, degrees(-120)),
         scale(frame, sf, sf)
     }
-    shape = rotate(shape, degrees(rot))
+    shape = rotate(shape, degrees(180))
 
     local bound = scale(outer, sf, sf)
 
@@ -99,16 +117,14 @@ local function make_ball(shape, sf, rot)
 end
 
 local ratio = 24 / 8 
-local map = circle_builder(8)
-local total_sf = 1
-local total_rot = -180
-for i = 1, 8 do
-    total_rot = total_rot + 180
-    map = make_ball(map, total_sf, total_rot)    
+local map = balls4
+local total_sf = 1 * ratio * ratio
+for i = 1, 6 do    
+    map = make_ball(map, total_sf)    
     total_sf = ratio * total_sf
 end
 
-map = translate(map, 0, -31488)
---map = scale(map, 8, 8)
+map = translate(map, 0, -19680)
+map = scale(map, 1.5, 1.5)
 
 return map
