@@ -1,6 +1,6 @@
 -- Recommend to use generate, but generate_not_threaded may be useful for testing / debugging.
-require "map_gen.shared.generate_not_threaded"
---require "map_gen.shared.generate"
+--require "map_gen.shared.generate_not_threaded"
+require "map_gen.shared.generate"
 
 local function value(base, mult)
     return function(x, y) 
