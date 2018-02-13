@@ -280,6 +280,26 @@ function throttle_xy(builder, x_in, x_size, y_in, y_size)
     end
 end
 
+function throttle_xy(builder, x_in, x_size, y_in, y_size)
+    return function(x, y, world_x, world_y)
+        if x % x_size < x_in and y % y_size < y_in then
+            return builder(x, y, world_x, world_y)
+        else
+            return false
+        end
+    end
+end
+
+function throttle_world_xy(builder, x_in, x_size, y_in, y_size)
+    return function(x, y, world_x, world_y)
+        if world_x % x_size < x_in and world_y % y_size < y_in then
+            return builder(x, y, world_x, world_y)
+        else
+            return false
+        end
+    end
+end
+
 function choose(condition, true_shape, false_shape)
     return function(local_x, local_y, world_x, world_y)
         if condition(local_x, local_y, world_x, world_y) then
