@@ -24,7 +24,7 @@ require "autodeconstruct"
 require "corpse_util"
 require "reactor_meltdown"
 require "server_api"
-
+require "npc"
 local function player_joined(event)
 	local player = game.players[event.player_index]
 	player.insert { name = "raw-fish", count = 4 }
