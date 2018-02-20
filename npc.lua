@@ -2,7 +2,8 @@ global.npcs = {}
 
 local npc_default_items = {
 {name = "submachine-gun"},
-{name = "uranium-rounds-magazine", count = 200}
+{name = "piercing-rounds-magazine", count = 200},
+{name = "light-armor"}
 }
 
 local Npc = {}
@@ -29,12 +30,12 @@ Npc.new = function(surface, position, force, items)
 		end
 	end
 
-	npc.attack = function(self, entity, beserk)
-		local beserk = beserk or false
+	npc.attack = function(self, entity, berserk)
 		if self.character.valid then
 			npc.target = entity
+			npc.berserk = berserk or false
 			if entity.valid then
-				npc.character.shooting_state = {state = 1, position = entity.position, beserk = beserk}
+				npc.character.shooting_state = {state = 1, position = entity.position}
 			end
 		end
 	end
@@ -75,7 +76,7 @@ local function on_tick()
 			if n.target then
 				if n.target.valid then
 					local dis = distance(n.character, n.target)
-					if n.beserk then
+					if n.berserk then	
 						n.character.shooting_state = {state = 1, position = n.target.position}
 					else
 						n.character.shooting_state = {state = 1, position = n.character.position}
@@ -94,7 +95,7 @@ local function on_tick()
 				if dis > 5 then
 					direction = get_direction(n.character, {position = n.dest}) --follow.lua
 					n.character.walking_state = {walking = true, direction = direction}
-					n.character.shooting_state = {state = 1, n.character.position}
+					n.character.shooting_state = {state = 1, position = n.dest}
 				else
 					n.character.walking_state = {walking = false, direction = 0}
 					n:stop()
@@ -104,14 +105,43 @@ local function on_tick()
 			table.remove(global.npcs, i)
 		end
 	end
+
+	if (game.tick - 200) % 850 == 0 then
+		for _,n in pairs(global.npcs) do
+			if n.character.valid then n.character.destroy() end
+		end
+		test_npcs()
+		test_npcs()
+		test_npcs()
+		test_npcs()		
+		local items = {
+			{name = "rocket-launcher"},
+			{name = "rocket", count = 200},
+			{name = "heavy-armor"}
+		}
+		test_npcs(items, true)
+		test_npcs(items, true)
+		local items = {
+			{name = "flamethrower"},
+			{name = "flamethrower-ammo", count = 200},
+			{name = "heavy-armor"}
+		}
+		test_npcs(items, true)
+		local items = {
+			{name = "combat-shotgun"},
+			{name = "piercing-shotgun-shell", count = 200},
+			{name = "heavy-armor"}
+		}	
+		test_npcs(items, true)
+	end
 end
 
 
-function test_npcs()
-	local f = spawn_npc(game.surfaces[1], {math.random(-30,30),math.random(-30,30)}, "player")
-	local s = spawn_npc(game.surfaces[1], {math.random(-30,30),math.random(-30,30)})
-	s:attack(f.character)
-	f:attack(s.character)
+function test_npcs(items, berserk)
+	local f = spawn_npc(game.surfaces[1], {math.random(-50,-30),math.random(-10,10)}, "player", items)
+	local s = spawn_npc(game.surfaces[1], {math.random(30,50),math.random(-10,10)}, "enemy", items)
+	s:attack(f.character, berserk)
+	f:attack(s.character, berserk)
 end
 
 Event.register(defines.events.on_tick, on_tick)
