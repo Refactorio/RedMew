@@ -40,7 +40,7 @@ local function value(mult,base)
 end
 
 local oil_shape = circle_builder(0.16 * ball_r)
-oil_shape = throttle_xy(oil_shape, 1, 2, 1, 2)
+oil_shape = throttle_world_xy(oil_shape, 1, 4, 1, 4)
 
 local resources =
 {
