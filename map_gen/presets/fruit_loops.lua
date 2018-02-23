@@ -29,7 +29,7 @@ local ores =
         {resource_type = "copper-ore", value = value(100, 0.4)},
         {resource_type = "stone", value = value(100, 0.2)},
         {resource_type = "coal", value = value(100, 0.1)},
-        {resource_type = "uranium-ore", value = value(50, 1)},
+        {resource_type = "uranium-ore", value = value(50, 0.1)},
         {resource_type = "crude-oil", value = value(10000, 50)},
     }
 
@@ -101,7 +101,7 @@ local loops =
     }
 
 local Random = require "map_gen.shared.random"
-random = Random.new(seed1, seed2)
+local random = Random.new(seed1, seed2)
 
 local total_weights = {}
 local t = 0
@@ -151,5 +151,4 @@ map = shape_or_else(map, sea)
 
 --map = translate(map, -32, 0)
 --map = scale(map, 1, 1)
-
 return map
