@@ -1,10 +1,9 @@
-
 -- helpers
 
 tau = 2 * math.pi
 deg_to_rad = tau / 360
 function degrees(angle)
-    return  angle * deg_to_rad
+    return angle * deg_to_rad
 end
 
 -- shape builders
@@ -21,7 +20,7 @@ function path_builder(thickness, optional_thickness_height)
     local width = thickness / 2
     local thickness2 = optional_thickness_height or thickness
     local height = thickness2 / 2
-	return function(x, y)
+    return function(x, y)
         return (x > -width and x <= width) or (y > -height and y <= height)
     end
 end
@@ -32,8 +31,8 @@ function rectangle_builder(width, height)
         height = height / 2
     else
         height = width
-    end    
-    return function (x, y)
+    end
+    return function(x, y)
         return x > -width and x <= width and y > -height and y <= height
     end
 end
@@ -41,21 +40,21 @@ end
 function line_x_builder(thickness)
     thickness = thickness / 2
     return function(x, y)
-        return y > - thickness and y <= thickness
+        return y > -thickness and y <= thickness
     end
 end
 
 function line_y_builder(thickness)
     thickness = thickness / 2
     return function(x, y)
-        return x > - thickness and x <= thickness
+        return x > -thickness and x <= thickness
     end
 end
 
 function square_diamond_builder(size)
     size = size / 2
-    return function (x, y)
-        return  math.abs(x) + math.abs(y) <= size
+    return function(x, y)
+        return math.abs(x) + math.abs(y) <= size
     end
 end
 
@@ -63,7 +62,7 @@ local rot = math.sqrt(2) / 2 -- 45 degree rotation.
 function rectangle_diamond_builder(width, height)
     width = width / 2
     height = height / 2
-    return function (x, y)
+    return function(x, y)
         local rot_x = rot * (x - y)
         local rot_y = rot * (x + y)
         return math.abs(rot_x) < width and math.abs(rot_y) < height
@@ -72,21 +71,20 @@ end
 
 function circle_builder(radius)
     local rr = radius * radius
-    return function (x, y)
-        return  x * x + y * y < rr
+    return function(x, y)
+        return x * x + y * y < rr
     end
 end
 
 function oval_builder(x_radius, y_radius)
     local x_rr = x_radius * x_radius
     local y_rr = y_radius * y_radius
-    return function (x, y)
-        return  ((x * x) / x_rr + (y * y) / y_rr) < 1
+    return function(x, y)
+        return ((x * x) / x_rr + (y * y) / y_rr) < 1
     end
 end
 
-local tile_map =
-{
+local tile_map = {
     [1] = false,
     [2] = true,
     [3] = "concrete",
@@ -119,7 +117,7 @@ local tile_map =
     [30] = "sand-3",
     [31] = "stone-path",
     [32] = "water-green",
-    [33] = "water",
+    [33] = "water"
 }
 
 function decompress(pic)
@@ -162,7 +160,7 @@ function picture_builder(pic)
         local x2 = x + half_width
         local y2 = y + half_height
 
-        if y2 > 0 and y2 <= height and x2 > 0 and x2 <= width  then
+        if y2 > 0 and y2 <= height and x2 > 0 and x2 <= width then
             local pixel = data[y2][x2]
             return pixel
         else
@@ -174,60 +172,62 @@ end
 -- transforms and shape helpers
 
 function translate(builder, x_offset, y_offset)
-    return function(x, y, world_x, world_y)
-        return builder(x - x_offset, y - y_offset, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
+        return builder(x - x_offset, y - y_offset, world_x, world_y, surface)
     end
 end
 
 function scale(builder, x_scale, y_scale)
     x_scale = 1 / x_scale
     y_scale = 1 / y_scale
-    return function(x, y, world_x, world_y)
-        return builder(x * x_scale, y * y_scale, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
+        return builder(x * x_scale, y * y_scale, world_x, world_y, surface)
     end
 end
 
 function rotate(builder, angle)
     local qx = math.cos(angle)
     local qy = math.sin(angle)
-    return function(x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
         local rot_x = qx * x - qy * y
         local rot_y = qy * x + qx * y
-        return builder(rot_x, rot_y, world_x, world_y)
+        return builder(rot_x, rot_y, world_x, world_y, surface)
     end
 end
 
 function scale_rotate_translate(builder, x_scale, y_scale, angle, x_offset, y_offset)
     local transform = translate(rotate(scale(builder, x_scale, y_scale), angle), x_offset, y_offset)
-    return function(x, y, world_x, world_y)
-        return transform(x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
+        return transform(x, y, world_x, world_y, surface)
     end
 end
 
 function flip_x(builder)
-    return function(x, y, world_x, world_y)
-        return builder(-x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
+        return builder(-x, y, world_x, world_y, surface)
     end
 end
 
 function flip_y(builder)
-    return function(x, y, world_x, world_y)
-        return builder(x, -y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
+        return builder(x, -y, world_x, world_y, surface)
     end
 end
 
 function flip_xy(builder)
-    return function(x, y, world_x, world_y)
-        return builder(-x, -y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
+        return builder(-x, -y, world_x, world_y, surface)
     end
 end
 
 -- For resource_module_builder it will return the first success.
 function compound_or(builders)
-    return function(x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
         for _, v in ipairs(builders) do
-            local tile, entity = v(x, y, world_x, world_y)
-            if tile then return tile, entity end
+            local tile, entity = v(x, y, world_x, world_y, surface)
+            if tile then
+                return tile, entity
+            end
         end
         return false
     end
@@ -235,25 +235,27 @@ end
 
 -- Wont work correctly with resource_module_builder becasues I don't know which one to return.
 function compound_and(builders)
-    return function(x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
         for _, v in ipairs(builders) do
-            if not v(x, y, world_x, world_y) then return false end
+            if not v(x, y, world_x, world_y, surface) then
+                return false
+            end
         end
         return true
     end
 end
 
 function invert(builder)
-    return function(x, y, world_x, world_y)
-        local tile, entity = builder(x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
+        local tile, entity = builder(x, y, world_x, world_y, surface)
         return not tile, entity
     end
 end
 
 function throttle_x(builder, x_in, x_size)
-    return function(x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
         if x % x_size < x_in then
-            return builder(x, y, world_x, world_y)
+            return builder(x, y, world_x, world_y, surface)
         else
             return false
         end
@@ -261,9 +263,9 @@ function throttle_x(builder, x_in, x_size)
 end
 
 function throttle_y(builder, y_in, y_size)
-    return function(x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
         if y % y_size < y_in then
-            return builder(x, y, world_x, world_y)
+            return builder(x, y, world_x, world_y, surface)
         else
             return false
         end
@@ -271,9 +273,9 @@ function throttle_y(builder, y_in, y_size)
 end
 
 function throttle_xy(builder, x_in, x_size, y_in, y_size)
-    return function(x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
         if x % x_size < x_in and y % y_size < y_in then
-            return builder(x, y, world_x, world_y)
+            return builder(x, y, world_x, world_y, surface)
         else
             return false
         end
@@ -281,9 +283,9 @@ function throttle_xy(builder, x_in, x_size, y_in, y_size)
 end
 
 function throttle_xy(builder, x_in, x_size, y_in, y_size)
-    return function(x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
         if x % x_size < x_in and y % y_size < y_in then
-            return builder(x, y, world_x, world_y)
+            return builder(x, y, world_x, world_y, surface)
         else
             return false
         end
@@ -291,9 +293,9 @@ function throttle_xy(builder, x_in, x_size, y_in, y_size)
 end
 
 function throttle_world_xy(builder, x_in, x_size, y_in, y_size)
-    return function(x, y, world_x, world_y)
+    return function(x, y, world_x, world_y, surface)
         if world_x % x_size < x_in and world_y % y_size < y_in then
-            return builder(x, y, world_x, world_y)
+            return builder(x, y, world_x, world_y, surface)
         else
             return false
         end
@@ -301,83 +303,56 @@ function throttle_world_xy(builder, x_in, x_size, y_in, y_size)
 end
 
 function choose(condition, true_shape, false_shape)
-    return function(local_x, local_y, world_x, world_y)
-        if condition(local_x, local_y, world_x, world_y) then
-            return true_shape(local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
+        if condition(local_x, local_y, world_x, world_y, surface) then
+            return true_shape(local_x, local_y, world_x, world_y, surface)
         else
-            return false_shape(local_x, local_y, world_x, world_y)
+            return false_shape(local_x, local_y, world_x, world_y, surface)
         end
     end
 end
 
 function linear_grow(shape, size)
     local half_size = size / 2
-    return function (local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
         local t = math.ceil((local_y / size) + 0.5)
         local n = math.ceil((math.sqrt(8 * t + 1) - 1) / 2)
         local t_upper = n * (n + 1) * 0.5
         local t_lower = t_upper - n
 
-       local y = (local_y - size * (t_lower + n / 2 - 0.5)) / n
+        local y = (local_y - size * (t_lower + n / 2 - 0.5)) / n
         local x = local_x / n
 
-        return shape(x, y, world_x, world_y)
+        return shape(x, y, world_x, world_y, surface)
     end
 end
 
 function grow(in_shape, out_shape, size, offset)
     local half_size = size / 2
-    return function(local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
         local tx = math.ceil(math.abs(local_x) / half_size)
         local ty = math.ceil(math.abs(local_y) / half_size)
-        local t = math.max(tx, ty)        
+        local t = math.max(tx, ty)
 
         local tile, entity
 
         for i = t, 2.5 * t, 1 do
             local out_t = 1 / (i - offset)
             local in_t = 1 / i
-            
-            tile = out_shape(out_t * local_x, out_t * local_y, world_x, world_y)
+
+            tile = out_shape(out_t * local_x, out_t * local_y, world_x, world_y, surface)
             if tile then
                 return false
             end
 
-            tile, entity = in_shape(in_t * local_x, in_t * local_y, world_x, world_y)
+            tile, entity = in_shape(in_t * local_x, in_t * local_y, world_x, world_y, surface)
             if tile then
                 return tile, entity
             end
         end
 
         return false
-
-        --[[ local out_t = 1 / (t - offset)
-        local in_t = 1 / t
-        tile = out_shape(out_t * local_x, out_t * local_y, world_x, world_y)
-        if tile then
-            return false
-        end     
-        
-        --return in_shape(in_t * local_x, in_t * local_y, world_x, world_y)
-
-        tile, entity = in_shape(in_t * local_x, in_t * local_y, world_x, world_y)
-        if tile then
-            return tile, entity
-        end        
-
-        out_t = 1 / (t + 1 - offset)
-        in_t = 1 / (t + 1)
-        tile = out_shape(out_t * local_x, out_t * local_y, world_x, world_y)
-        if tile then
-            return false
-        end        
-        tile, entity = in_shape(in_t * local_x, in_t * local_y, world_x, world_y)
-        if tile then
-            return tile, entity        
-        end
-
-        return false ]]
-    end    
+    end
 end
 
 function project(shape, size, r)
@@ -385,20 +360,20 @@ function project(shape, size, r)
     local r2 = 1 / (r - 1)
     local a = 1 / size
 
-    return function(local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
         local offset = 0.5 * size
-        local sn = math.ceil(local_y  + offset)
+        local sn = math.ceil(local_y + offset)
 
-        local n = math.ceil(math.log((r-1) * sn * a + 1) / ln_r - 1)
+        local n = math.ceil(math.log((r - 1) * sn * a + 1) / ln_r - 1)
         local rn = r ^ n
         local rn2 = 1 / rn
         local c = size * rn
 
         local sn_upper = size * (r ^ (n + 1) - 1) * r2
         local x = local_x * rn2
-        local y = (local_y - (sn_upper - 0.5 * c  ) + offset ) * rn2
+        local y = (local_y - (sn_upper - 0.5 * c) + offset) * rn2
 
-        return shape(x, y, world_x, world_y)
+        return shape(x, y, world_x, world_y, surface)
     end
 end
 
@@ -408,23 +383,22 @@ function project_overlap(shape, size, r)
     local a = 1 / size
     local offset = 0.5 * size
 
-    return function(local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
+        local sn = math.ceil(local_y + offset)
 
-        local sn = math.ceil(local_y  + offset)
-
-        local n = math.ceil(math.log((r-1) * sn * a + 1) / ln_r - 1)
+        local n = math.ceil(math.log((r - 1) * sn * a + 1) / ln_r - 1)
         local rn = r ^ n
         local rn2 = 1 / rn
         local c = size * rn
 
         local sn_upper = size * (r ^ (n + 1) - 1) * r2
         local x = local_x * rn2
-        local y = (local_y - (sn_upper - 0.5 * c  ) + offset ) * rn2
+        local y = (local_y - (sn_upper - 0.5 * c) + offset) * rn2
 
         local tile
         local entity
 
-        tile, entity = shape(x, y, world_x, world_y)
+        tile, entity = shape(x, y, world_x, world_y, surface)
         if tile then
             return tile, entity
         end
@@ -436,10 +410,12 @@ function project_overlap(shape, size, r)
 
         local sn_upper_above = sn_upper - c
         local x_above = local_x * rn2_above
-        local y_above = (local_y - (sn_upper_above - 0.5 * c_above  ) + offset ) * rn2_above
+        local y_above = (local_y - (sn_upper_above - 0.5 * c_above) + offset) * rn2_above
 
-        tile, entity = shape(x_above, y_above, world_x, world_y)
-        if tile then return tile, entity end
+        tile, entity = shape(x_above, y_above, world_x, world_y, surface)
+        if tile then
+            return tile, entity
+        end
 
         local n_below = n + 1
         local rn_below = rn * r
@@ -448,10 +424,9 @@ function project_overlap(shape, size, r)
 
         local sn_upper_below = sn_upper + c_below
         local x_below = local_x * rn2_below
-        local y_below = (local_y - (sn_upper_below - 0.5 * c_below  ) + offset ) * rn2_below
+        local y_below = (local_y - (sn_upper_below - 0.5 * c_below) + offset) * rn2_below
 
-        return shape(x_below, y_below, world_x, world_y)
-
+        return shape(x_below, y_below, world_x, world_y, surface)
     end
 end
 
@@ -459,11 +434,12 @@ end
 
 -- builder is the shape of the ore patch.
 function resource_module_builder(builder, resource_type, amount_function)
-    amount_function = amount_function or function(a, b) return 603 end
-    return function(x, y, world_x, world_y)
-        if builder(x, y, world_x, world_y) then
-            return
-            {
+    amount_function = amount_function or function(a, b)
+            return 603
+        end
+    return function(x, y, world_x, world_y, surface)
+        if builder(x, y, world_x, world_y, surface) then
+            return {
                 name = resource_type,
                 position = {world_x, world_y},
                 amount = amount_function(world_x, world_y)
@@ -475,10 +451,10 @@ function resource_module_builder(builder, resource_type, amount_function)
 end
 
 function builder_with_resource(land_builder, resource_module)
-    return function (x, y, world_x, world_y)
-        local tile = land_builder(x, y)
+    return function(x, y, world_x, world_y, surface)
+        local tile = land_builder(x, y, world_x, world_y, surface)
         if tile then
-            local entity = resource_module(x, y ,world_x, world_y)
+            local entity = resource_module(x, y, world_x, world_y, surface)
             return tile, entity
         else
             return false
@@ -489,9 +465,8 @@ end
 -- pattern builders.
 
 function single_pattern_builder(shape, width, height)
-
     shape = shape or empty_builder
-    local half_width  = width / 2
+    local half_width = width / 2
     local half_height
     if height then
         half_height = height / 2
@@ -499,18 +474,17 @@ function single_pattern_builder(shape, width, height)
         half_height = half_width
     end
 
-    return function (local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
         local_y = ((local_y + half_height) % height) - half_height
         local_x = ((local_x + half_width) % width) - half_width
 
-        return shape(local_x, local_y, world_x, world_y)
+        return shape(local_x, local_y, world_x, world_y, surface)
     end
 end
 
 function single_pattern_overlap_builder(shape, width, height)
-
     shape = shape or empty_builder
-    local half_width  = width / 2
+    local half_width = width / 2
     local half_height
     if height then
         half_height = height / 2
@@ -518,48 +492,45 @@ function single_pattern_overlap_builder(shape, width, height)
         half_height = half_width
     end
 
-    return function (local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
         local_y = ((local_y + half_height) % height) - half_height
         local_x = ((local_x + half_width) % width) - half_width
 
-        return shape(local_x, local_y, world_x, world_y) 
-        or shape(local_x + width, local_y, world_x, world_y) 
-        or shape(local_x - width, local_y, world_x, world_y)
-        or shape(local_x, local_y + height, world_x, world_y)
-        or shape(local_x, local_y - height, world_x, world_y)
+        return shape(local_x, local_y, world_x, world_y, surface) or
+            shape(local_x + width, local_y, world_x, world_y, surface) or
+            shape(local_x - width, local_y, world_x, world_y, surface) or
+            shape(local_x, local_y + height, world_x, world_y, surface) or
+            shape(local_x, local_y - height, world_x, world_y, surface)
     end
 end
 
 function single_x_pattern_builder(shape, width)
-
     shape = shape or empty_builder
-    local half_width  = width / 2    
+    local half_width = width / 2
 
-    return function (local_x, local_y, world_x, world_y)        
+    return function(local_x, local_y, world_x, world_y, surface)
         local_x = ((local_x + half_width) % width) - half_width
 
-        return shape(local_x, local_y, world_x, world_y)
+        return shape(local_x, local_y, world_x, world_y, surface)
     end
 end
 
 function single_y_pattern_builder(shape, height)
-
-    shape = shape or empty_builder    
+    shape = shape or empty_builder
     local half_height = height / 2
 
-    return function (local_x, local_y, world_x, world_y)
-        local_y = ((local_y + half_height) % height) - half_height        
+    return function(local_x, local_y, world_x, world_y, surface)
+        local_y = ((local_y + half_height) % height) - half_height
 
-        return shape(local_x, local_y, world_x, world_y)
+        return shape(local_x, local_y, world_x, world_y, surface)
     end
 end
 
 function grid_pattern_builder(pattern, columns, rows, width, height)
-
-    local half_width  = width / 2
+    local half_width = width / 2
     local half_height = height / 2
 
-    return function (local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
         local local_y2 = ((local_y + half_height) % height) - half_height
         local row_pos = math.floor(local_y / height + 0.5)
         local row_i = row_pos % rows + 1
@@ -570,26 +541,26 @@ function grid_pattern_builder(pattern, columns, rows, width, height)
         local col_i = col_pos % columns + 1
 
         local shape = row[col_i] or empty_builder
-        return shape(local_x2, local_y2, world_x, world_y)
+        return shape(local_x2, local_y2, world_x, world_y, surface)
     end
 end
 
 function segment_pattern_builder(pattern)
     local count = #pattern
 
-    return function(local_x, local_y, world_x, world_y)
-        local angle = math.atan2(-local_y , local_x)
+    return function(local_x, local_y, world_x, world_y, surface)
+        local angle = math.atan2(-local_y, local_x)
         local index = math.floor(angle / tau * count) % count + 1
-        local shape =  pattern[index] or empty_builder
-        return shape(local_x, local_y, world_x, world_y)
+        local shape = pattern[index] or empty_builder
+        return shape(local_x, local_y, world_x, world_y, surface)
     end
 end
 
 -- tile converters
 
 function change_tile(builder, old_tile, new_tile)
-    return function (local_x, local_y, world_x, world_y )
-        local tile, entity = builder(local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
+        local tile, entity = builder(local_x, local_y, world_x, world_y, surface)
         if tile == old_tile then
             tile = new_tile
         end
@@ -598,8 +569,8 @@ function change_tile(builder, old_tile, new_tile)
 end
 
 function change_collision_tile(builder, collides, new_tile)
-    return function (local_x, local_y, world_x, world_y )
-        local tile, entity = builder(local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
+        local tile, entity = builder(local_x, local_y, world_x, world_y, surface)
         if tile.collides_with(collides) then
             tile = new_tile
         end
@@ -609,10 +580,10 @@ end
 
 -- only changes tiles made by the factorio map generator.
 function change_map_gen_tile(builder, old_tile, new_tile)
-    return function (local_x, local_y, world_x, world_y )
-        local tile, entity = builder(local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
+        local tile, entity = builder(local_x, local_y, world_x, world_y, surface)
         if type(tile) == "boolean" and tile then
-            local gen_tile = MAP_GEN_SURFACE.get_tile(world_x, world_y).name
+            local gen_tile = surface.get_tile(world_x, world_y).name
             if old_tile == gen_tile then
                 tile = new_tile
             end
@@ -623,10 +594,10 @@ end
 
 -- only changes tiles made by the factorio map generator.
 function change_map_gen_collision_tile(builder, collides, new_tile)
-    return function (local_x, local_y, world_x, world_y )
-        local tile, entity = builder(local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
+        local tile, entity = builder(local_x, local_y, world_x, world_y, surface)
         if type(tile) == "boolean" and tile then
-            local gen_tile = MAP_GEN_SURFACE.get_tile(world_x, world_y)
+            local gen_tile = surface.get_tile(world_x, world_y)
             if gen_tile.collides_with(collides) then
                 tile = new_tile
             end
@@ -636,20 +607,17 @@ function change_map_gen_collision_tile(builder, collides, new_tile)
 end
 
 function spawn_fish(builder, spawn_rate)
-    return function (local_x, local_y, world_x, world_y )
-        local tile, entity = builder(local_x, local_y, world_x, world_y)
+    return function(local_x, local_y, world_x, world_y, surface)
+        local tile, entity = builder(local_x, local_y, world_x, world_y, surface)
         if type(tile) == "string" then
             if tile == "water" or tile == "deepwater" or tile == "water-green" or tile == "deepwater-green" then
-                if spawn_rate >= math.random() then                    
-                    entity = {name = "fish", position = {world_x, world_y}}                                  
-                end            
-            end
-        elseif tile then
-            local gen_tile = MAP_GEN_SURFACE.get_tile(world_x, world_y)
-            if gen_tile == "water" or gen_tile == "deepwater" or gen_tile == "water-green" or gen_tile == "deepwater-green" then
                 if spawn_rate >= math.random() then
                     entity = {name = "fish", position = {world_x, world_y}}
-                end            
+                end
+            end
+        elseif tile then
+            if surface.get_tile(world_x, world_y).collides_with("water-tile") and spawn_rate >= math.random() then
+                entity = {name = "fish", position = {world_x, world_y}}
             end
         end
         return tile, entity
@@ -657,10 +625,9 @@ function spawn_fish(builder, spawn_rate)
 end
 
 function apply_effect(builder, func)
-    return function(local_x, local_y, world_x, world_y)
-        local tile, entity = builder(local_x, local_y, world_x, world_y)
-        tile, entity = func(local_x, local_y, world_x, world_y, tile, entity)
+    return function(local_x, local_y, world_x, world_y, surface)
+        local tile, entity = builder(local_x, local_y, world_x, world_y, surface)
+        tile, entity = func(local_x, local_y, world_x, world_y, tile, entity, surface)
         return tile, entity
     end
 end
-
