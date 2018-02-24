@@ -1,5 +1,7 @@
 --[[
 This map uses custom ore gen. When generating the map, under the resource settings tab use Size = 'None' for all resources.
+This map removes and adds it's own water, in terrain settings use water frequency = very low and water size = only in starting area.
+This map has isolated areas, it's recommend turning biters to peaceful to reduce stress on the pathfinder.
 ]]
 map_gen_decoratives = false -- Generate our own decoratives
 map_gen_rows_per_tick = 4 -- Inclusive integer between 1 and 32. Used for map_gen_threaded, higher numbers will generate map quicker but cause more lag.
@@ -33,12 +35,12 @@ local ores =
         {resource_type = "crude-oil", value = value(10000, 50)},
     }
 
-local iron = resource_module_builder(ring, ores[1].resource_type, ores[1].value)
-local copper = resource_module_builder(ring, ores[2].resource_type, ores[2].value)
-local stone = resource_module_builder(ring, ores[3].resource_type, ores[3].value)
-local coal = resource_module_builder(ring, ores[4].resource_type, ores[4].value)
-local uranium = resource_module_builder(ring, ores[5].resource_type, ores[5].value)
-local oil = resource_module_builder(throttle_world_xy(ring, 1, 4, 1, 4), ores[6].resource_type, ores[6].value)
+local iron = resource_module_builder(full_builder, ores[1].resource_type, ores[1].value)
+local copper = resource_module_builder(full_builder, ores[2].resource_type, ores[2].value)
+local stone = resource_module_builder(full_builder, ores[3].resource_type, ores[3].value)
+local coal = resource_module_builder(full_builder, ores[4].resource_type, ores[4].value)
+local uranium = resource_module_builder(full_builder, ores[5].resource_type, ores[5].value)
+local oil = resource_module_builder(throttle_world_xy(full_builder, 1, 4, 1, 4), ores[6].resource_type, ores[6].value)
 
 local function striped(x, y, world_x, world_y, surface)
     local t = (world_x + world_y) % 4 + 1
@@ -65,7 +67,7 @@ end
 
 local segmented = segment_pattern_builder({iron, copper, stone, coal})
 
-local tree = spawn_entity(throttle_world_xy(ring, 1, 3, 1, 3), "tree-01")
+local tree = spawn_entity(throttle_world_xy(full_builder, 1, 3, 1, 3), "tree-01")
 
 local start_iron = resource_module_builder(ring, ores[1].resource_type, value(500, 0.5))
 local start_copper = resource_module_builder(ring, ores[2].resource_type, value(400, 0.5))
@@ -140,7 +142,7 @@ for c = 1, p_cols do
     end
 end
 
-local map = grid_pattern_overlap_builder(pattern, 9, 9, 128, 128)
+local map = grid_pattern_overlap_builder(pattern, p_cols, p_rows, 128, 128)
 
 map = change_map_gen_collision_tile(map, "water-tile", "grass-1")
 
