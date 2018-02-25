@@ -1,4 +1,7 @@
 --Author: Valansch
+
+local Task = require "utils.Task"
+
 local function is_depleted(drill)
   local position = drill.position
   local area = {}
@@ -16,13 +19,20 @@ local function is_depleted(drill)
   return count == 0
 end
 
+function autodeconstruct_order_deconstruction(drill)
+  drill.order_deconstruction(drill.force)
+end
+
 local function mark_if_depleted(drill)
   if is_depleted(drill) then
-    drill.order_deconstruction(drill.force)
+    Task.set_timeout_in_ticks(5, "autodeconstruct_order_deconstruction", drill)
   end
 end
 
 local function on_resource_depleted(event)
+  if event.entity.name == "uranium-ore" then
+    return
+  end
   local area = {{event.entity.position.x-1, event.entity.position.y-1}, {event.entity.position.x+1, event.entity.position.y + 1}}
   local drills = event.entity.surface.find_entities_filtered{area = area, type="mining-drill"}
   for _,drill in pairs(drills) do
