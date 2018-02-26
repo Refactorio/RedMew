@@ -19,7 +19,7 @@ local function entity_destroyed(event)
 end
 
 function spawn_wasteland(surface, position)
-    local positions = { 
+    local positions = {
       {0, 0},
       {0, 12},
       {0, -12},
@@ -88,10 +88,10 @@ local function check_wastelands()
   for index,wl in pairs(global.wastelands) do
     local age = game.tick - wl.creation_time
     wl.last_checked = wl.last_checked or 0
-    if (game.tick - wl.last_checked) > 899 then 
+    if (game.tick - wl.last_checked) > 899 then
       wl.last_checked = game.tick
       spawn_wasteland(game.surfaces[wl.surface_id], wl.position)
-      if age > wasteland_duration_seconds * 60 - 1 then 
+      if age > wasteland_duration_seconds * 60 - 1 then
         global.wastelands[index] = nil
         reactors = game.surfaces[wl.surface_id].find_entities_filtered{position = wl.position, name = "nuclear-reactor"}
         if reactors[1] then reactors[1].destroy() end
@@ -100,8 +100,9 @@ local function check_wastelands()
   end
 end
 
+global.reactors_enabled = true
 local function on_tick()
-  if (game.tick + 7) % 60 == 0 then 
+  if global.reactors_enabled then
     check_wastelands()
     check_reactors()
   end
@@ -113,7 +114,7 @@ local function entity_build(event)
   end
 end
 
-Event.register(defines.events.on_tick, on_tick)
+script.on_nth_tick(67, on_tick)
 Event.register(defines.events.on_player_mined_entity, entity_destroyed)
 Event.register(defines.events.on_robot_mined_entity, entity_destroyed)
 Event.register(defines.events.on_entity_died, entity_destroyed)

@@ -94,7 +94,7 @@ local function walkabout(cmd)
     return
   end
   local chunks = {}
-  for chunk in player.surface.get_chunks() do 
+  for chunk in player.surface.get_chunks() do
     table.insert(chunks, chunk)
   end
 
@@ -102,9 +102,9 @@ local function walkabout(cmd)
   if not chunk then
     return
   end
-  local pos = {x=chunk.x * 32, y=chunk.y * 32}  
+  local pos = {x=chunk.x * 32, y=chunk.y * 32}
   local non_colliding_pos = player.surface.find_non_colliding_position("player", pos, 100, 1)
-  
+
   if non_colliding_pos then
     game.print(player_name .. " went on a walkabout, to find himself.")
     Task.set_timeout(duration, "custom_commands_return_player", {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}})
@@ -113,7 +113,7 @@ local function walkabout(cmd)
     player.teleport(non_colliding_pos)
     player.force = "enemy"
     global.walking[player_name:lower()] = true
-  else 
+  else
     player_print("Walkabout failed: count find non colliding position")
   end
 end
@@ -435,6 +435,29 @@ local function zoom(cmd)
   end
 end
 
+local function pool()
+  if game.player and game.player.admin then
+    local t = {} p = game.player.position
+    for x = p.x - 3, p.x + 3 do
+      for y = p.y + 2, p.y + 7 do
+        table.insert(t, {name="water", position={x,y}})
+      end
+    end
+    game.player.surface.set_tiles(t)
+    game.player.surface.create_entity{name = "fish", position = {p.x + 0.5, p.y + 5}}
+  end
+end
+
+local function reactor_toggle()
+  if not game.player or game.player.admin then
+    global.reactors_enabled = not global.reactors_enabled
+    if global.reactors_enabled then
+      game.print("Reactor meltdown activated.")
+    else
+      game.print("Reactor meltdown deactivated.")
+    end
+  end
+end
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
 commands.add_command("invoke", "<player> - Teleports the player to you. (Admins and moderators)", invoke)
@@ -455,3 +478,7 @@ commands.add_command("forcetoggle", "Toggles the players force between player an
 commands.add_command("tempban", "<player> <minutes> Temporarily bans a player (Admins and moderators)", tempban)
 commands.add_command("spyshot", "<player> Sends a screenshot of player to discord. (If a host is online. If no host is online, you can become one yourself. Ask on discord :))", spyshot)
 commands.add_command("zoom", "<number> Sets your zoom.", zoom)
+commands.add_command("all-tech", "researches all technologies", function() if game.player and game.player.admin then game.player.force.research_all_technologies() end end)
+commands.add_command("hax", "Toggles your hax", function() if game.player and game.player.admin then game.player.cheat_mode = not game.player.cheat_mode  end end)
+commands.add_command("pool",  "Spawns a pool", pool)
+commands.add_command("meltdown",  "Toggles if reactors blow up", reactor_toggle)

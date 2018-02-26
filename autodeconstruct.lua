@@ -23,6 +23,7 @@ local function mark_if_depleted(drill)
 end
 
 local function on_resource_depleted(event)
+  if event.entity.name == "uranium-ore" then return nil end
   local area = {{event.entity.position.x-1, event.entity.position.y-1}, {event.entity.position.x+1, event.entity.position.y + 1}}
   local drills = event.entity.surface.find_entities_filtered{area = area, type="mining-drill"}
   for _,drill in pairs(drills) do
