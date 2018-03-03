@@ -1,9 +1,15 @@
+--[[
+This map uses custom ore gen. When generating the map, under the resource settings tab use Size = 'None' for all resources.
+This map removes and adds it's own water, in terrain settings use water frequency = very low and water size = only in starting area.
+This map has isolated areas, it's recommend turning biters to peaceful to reduce stress on the pathfinder.
+]]
 map_gen_decoratives = false -- Generate our own decoratives
 map_gen_rows_per_tick = 4 -- Inclusive integer between 1 and 32. Used for map_gen_threaded, higher numbers will generate map quicker but cause more lag.
 
 -- Recommend to use generate, but generate_not_threaded may be useful for testing / debugging.
-require "map_gen.shared.generate_not_threaded"
---require "map_gen.shared.generate"
+--require "map_gen.shared.generate_not_threaded"
+require "map_gen.shared.generate"
+
 -- change these to change the pattern.
 local seed1 = 1234
 local seed2 = 5678
@@ -34,7 +40,6 @@ local stone = resource_module_builder(cap, ores[3].resource_type, ores[3].value)
 local coal = resource_module_builder(cap, ores[4].resource_type, ores[4].value)
 local uranium = resource_module_builder(cap, ores[5].resource_type, ores[5].value)
 local oil = resource_module_builder(throttle_world_xy(cap, 1, 8, 1, 8), ores[6].resource_type, ores[6].value)
-
 
 local iron_fish = builder_with_resource(fish, iron)
 local copper_fish = builder_with_resource(fish, copper)
@@ -107,8 +112,8 @@ local pic = decompress(pic)
 local fish_bw = picture_builder(pic)
 fish_bw = scale(fish_bw, 0.25, 0.25)
 
-local start_copper  = rotate(fish_bw, degrees(180))
-local start_stone = rotate(fish_bw, degrees(90)) 
+local start_copper = rotate(fish_bw, degrees(180))
+local start_stone = rotate(fish_bw, degrees(90))
 local start_coal = rotate(fish_bw, degrees(-90))
 
 local start_iron = translate(fish_bw, -32, 0)
@@ -117,7 +122,7 @@ start_stone = translate(start_stone, 0, 32)
 start_coal = translate(start_coal, 0, -32)
 
 start_iron = resource_module_builder(start_iron, ores[1].resource_type, value(1000, 0.5))
-start_copper = resource_module_builder(start_copper, ores[2].resource_type, value(1000, 0.5))
+start_copper = resource_module_builder(start_copper, ores[2].resource_type, value(800, 0.5))
 start_stone = resource_module_builder(start_stone, ores[3].resource_type, value(600, 0.5))
 start_coal = resource_module_builder(start_coal, ores[4].resource_type, value(600, 0.5))
 local start = builder_with_resource(start, compound_or{start_iron, start_copper, start_stone, start_coal})
