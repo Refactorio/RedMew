@@ -125,7 +125,15 @@ start_iron = resource_module_builder(start_iron, ores[1].resource_type, value(10
 start_copper = resource_module_builder(start_copper, ores[2].resource_type, value(800, 0.5))
 start_stone = resource_module_builder(start_stone, ores[3].resource_type, value(600, 0.5))
 start_coal = resource_module_builder(start_coal, ores[4].resource_type, value(600, 0.5))
-local start = builder_with_resource(start, compound_or{start_iron, start_copper, start_stone, start_coal})
+
+local start_oil = translate(rectangle_builder(1, 1), -44, 74)
+start_oil = resource_module_builder(start_oil, ores[6].resource_type, value(100000, 0))
+
+local worms = rectangle_builder(150, 72)
+worms = translate(worms, 0, -210)
+worms = spawn_entity(worms, "big-worm-turret")
+
+local start = builder_with_resource(start, compound_or{start_iron, start_copper, start_stone, start_coal, start_oil, worms})
 
 map = shape_or_else(start, map)
 
