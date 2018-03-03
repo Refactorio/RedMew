@@ -49,6 +49,7 @@ in this file and your run_*type*_module(event) function will be called.
 --MAP_GEN = require "map_gen.presets.women"
 --MAP_GEN = require "map_gen.presets.fractal_balls"
 --MAP_GEN = require "map_gen.presets.fruit_loops"
+--MAP_GEN = require "map_gen.presets.fish_islands"
 
 --shapes--
 --require "map_gen.shape.left"
