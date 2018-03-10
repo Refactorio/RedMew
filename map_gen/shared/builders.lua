@@ -6,12 +6,18 @@ function degrees(angle)
 end
 
 -- shape builders
-function empty_builder(x, y)
+function empty_builder()
     return false
 end
 
-function full_builder(x, y)
+function full_builder()
     return true
+end
+
+function tile_builder(tile)
+    return function()
+        return tile;
+    end
 end
 
 function path_builder(thickness, optional_thickness_height)
@@ -570,6 +576,7 @@ function grid_pattern_overlap_builder(pattern, columns, rows, width, height)
         local tile, entity = shape(local_x2, local_y2, world_x, world_y, surface)
         if tile then return tile, entity end
         
+        -- edges
         local col_i_left = (col_pos - 1) % columns + 1
         shape = row[col_i_left] or empty_builder
         tile, entity = shape(local_x2 + width, local_y2, world_x, world_y, surface)
@@ -591,6 +598,67 @@ function grid_pattern_overlap_builder(pattern, columns, rows, width, height)
         shape = row_down[col_i]
         tile, entity = shape(local_x2, local_y2 - height, world_x, world_y, surface)
         if tile then return tile, entity end
+    end
+end
+
+function grid_pattern_full_overlap_builder(pattern, columns, rows, width, height)
+    local half_width = width / 2
+    local half_height = height / 2
+    
+    return function(local_x, local_y, world_x, world_y, surface)
+        local local_y2 = ((local_y + half_height) % height) - half_height
+        local row_pos = math.floor(local_y / height + 0.5)
+        local row_i = row_pos % rows + 1
+        local row = pattern[row_i] or {}
+        
+        local local_x2 = ((local_x + half_width) % width) - half_width
+        local col_pos = math.floor(local_x / width + 0.5)
+        local col_i = col_pos % columns + 1
+        
+        local shape = row[col_i] or empty_builder
+        
+        local tile, entity = shape(local_x2, local_y2, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        -- edges
+        local col_i_left = (col_pos - 1) % columns + 1
+        shape = row[col_i_left] or empty_builder
+        tile, entity = shape(local_x2 + width, local_y2, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        local col_i_right = (col_pos + 1) % columns + 1
+        shape = row[col_i_right] or empty_builder
+        tile, entity = shape(local_x2 - width, local_y2, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        local row_i_up = (row_pos - 1) % rows + 1
+        local row_up = pattern[row_i_up] or {}
+        shape = row_up[col_i]
+        tile, entity = shape(local_x2, local_y2 + height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        local row_i_down = (row_pos + 1) % rows + 1
+        local row_down = pattern[row_i_down] or {}
+        shape = row_down[col_i]
+        tile, entity = shape(local_x2, local_y2 - height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        -- corners
+        shape = row_up[col_i_left] or empty_builder
+        tile, entity = shape(local_x2 + width, local_y2 + height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row_up[col_i_right] or empty_builder
+        tile, entity = shape(local_x2 - width, local_y2 + height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row_down[col_i_left]
+        tile, entity = shape(local_x2 + width, local_y2 - height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row_down[col_i_right]
+        tile, entity = shape(local_x2 - width, local_y2 - height, world_x, world_y, surface)
+        if tile then return tile, entity end    
     end
 end
 
@@ -687,5 +755,17 @@ function apply_effect(builder, func)
         local tile, entity = builder(local_x, local_y, world_x, world_y, surface)
         tile, entity = func(local_x, local_y, world_x, world_y, tile, entity, surface)
         return tile, entity
+    end
+end
+
+function manhattan_ore_value(base, mult)
+    return function(x, y)
+        return mult * (math.abs(x) + math.abs(y)) + base
+    end
+end
+
+function euclidean_ore_value(base, mult)
+    return function(x, y)
+        return mult * math.sqrt(x * x + y * y) + base
     end
 end
