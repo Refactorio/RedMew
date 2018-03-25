@@ -6,7 +6,7 @@ To use our scenario download it [here](https://github.com/Valansch/RedMew/archiv
 
 ## Generating maps
 
-  There are 3 ways to generate maps using out scenario: Vanilla, FactorioMapConverter and Custom Maps.
+  There are 3 ways to generate maps using our scenario: Vanilla, FactorioMapConverter and Custom Maps.
   
 ### Vanilla
   Just start the scenario from the scenario menu and you are ready to go.
