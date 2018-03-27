@@ -447,9 +447,7 @@ end
 -- ore generation.
 -- builder is the shape of the ore patch.
 function resource_module_builder(builder, resource_type, amount_function)
-    amount_function = amount_function or function(a, b)
-        return 603
-    end
+    amount_function = amount_function or function(a, b) return 603 end
     return function(x, y, world_x, world_y, surface)
         if builder(x, y, world_x, world_y, surface) then
             return {
@@ -589,15 +587,14 @@ function grid_pattern_overlap_builder(pattern, columns, rows, width, height)
         
         local row_i_up = (row_pos - 1) % rows + 1
         local row_up = pattern[row_i_up] or {}
-        shape = row_up[col_i]
+        shape = row_up[col_i] or empty_builder
         tile, entity = shape(local_x2, local_y2 + height, world_x, world_y, surface)
         if tile then return tile, entity end
         
         local row_i_down = (row_pos + 1) % rows + 1
         local row_down = pattern[row_i_down] or {}
-        shape = row_down[col_i]
-        tile, entity = shape(local_x2, local_y2 - height, world_x, world_y, surface)
-        if tile then return tile, entity end
+        shape = row_down[col_i] or empty_builder
+        return shape(local_x2, local_y2 - height, world_x, world_y, surface)
     end
 end
 
@@ -615,50 +612,49 @@ function grid_pattern_full_overlap_builder(pattern, columns, rows, width, height
         local col_pos = math.floor(local_x / width + 0.5)
         local col_i = col_pos % columns + 1
         
-        local shape = row[col_i] or empty_builder
-        
-        local tile, entity = shape(local_x2, local_y2, world_x, world_y, surface)
-        if tile then return tile, entity end
-        
-        -- edges
-        local col_i_left = (col_pos - 1) % columns + 1
-        shape = row[col_i_left] or empty_builder
-        tile, entity = shape(local_x2 + width, local_y2, world_x, world_y, surface)
-        if tile then return tile, entity end
-        
-        local col_i_right = (col_pos + 1) % columns + 1
-        shape = row[col_i_right] or empty_builder
-        tile, entity = shape(local_x2 - width, local_y2, world_x, world_y, surface)
-        if tile then return tile, entity end
-        
         local row_i_up = (row_pos - 1) % rows + 1
         local row_up = pattern[row_i_up] or {}
-        shape = row_up[col_i]
-        tile, entity = shape(local_x2, local_y2 + height, world_x, world_y, surface)
-        if tile then return tile, entity end
-        
         local row_i_down = (row_pos + 1) % rows + 1
         local row_down = pattern[row_i_down] or {}
-        shape = row_down[col_i]
-        tile, entity = shape(local_x2, local_y2 - height, world_x, world_y, surface)
+        
+        local col_i_left = (col_pos - 1) % columns + 1
+        local col_i_right = (col_pos + 1) % columns + 1
+        
+        -- start from top left, move left to right then down
+        local shape = row_up[col_i_left] or empty_builder
+        local tile, entity = shape(local_x2 + width, local_y2 + height, world_x, world_y, surface)
         if tile then return tile, entity end
         
-        -- corners
-        shape = row_up[col_i_left] or empty_builder
-        tile, entity = shape(local_x2 + width, local_y2 + height, world_x, world_y, surface)
+        shape = row_up[col_i] or empty_builder
+        tile, entity = shape(local_x2, local_y2 + height, world_x, world_y, surface)
         if tile then return tile, entity end
         
         shape = row_up[col_i_right] or empty_builder
         tile, entity = shape(local_x2 - width, local_y2 + height, world_x, world_y, surface)
         if tile then return tile, entity end
         
-        shape = row_down[col_i_left]
+        shape = row[col_i_left] or empty_builder
+        tile, entity = shape(local_x2 + width, local_y2, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        local shape = row[col_i] or empty_builder
+        tile, entity = shape(local_x2, local_y2, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row[col_i_right] or empty_builder
+        tile, entity = shape(local_x2 - width, local_y2, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row_down[col_i_left] or empty_builder
         tile, entity = shape(local_x2 + width, local_y2 - height, world_x, world_y, surface)
         if tile then return tile, entity end
         
-        shape = row_down[col_i_right]
-        tile, entity = shape(local_x2 - width, local_y2 - height, world_x, world_y, surface)
-        if tile then return tile, entity end    
+        shape = row_down[col_i] or empty_builder
+        tile, entity = shape(local_x2, local_y2 - height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row_down[col_i_right] or empty_builder
+        return shape(local_x2 - width, local_y2 - height, world_x, world_y, surface)
     end
 end
 
@@ -670,6 +666,148 @@ function segment_pattern_builder(pattern)
         local index = math.floor(angle / tau * count) % count + 1
         local shape = pattern[index] or empty_builder
         return shape(local_x, local_y, world_x, world_y, surface)
+    end
+end
+
+function pyramid_builder(pattern, columns, rows, width, height)
+    local half_width = width / 2
+    local half_height = height / 2
+    
+    return function(local_x, local_y, world_x, world_y, surface)
+        local local_y2 = ((local_y + half_height) % height) - half_height
+        local row_pos = math.floor(local_y / height + 0.5)
+        local row_i = row_pos % rows + 1
+        local row = pattern[row_i] or {}
+        
+        if row_pos % 2 ~= 0 then
+            local_x = local_x - half_width
+        end
+        
+        local local_x2 = ((local_x + half_width) % width) - half_width
+        local col_pos = math.floor(local_x / width + 0.5)
+        local col_i = col_pos % columns + 1
+        
+        if col_pos > row_pos / 2 or -col_pos > (row_pos + 1) / 2 then
+            return false
+        end
+        
+        local shape = row[col_i] or empty_builder
+        return shape(local_x2, local_y2, world_x, world_y, surface)
+    
+    end
+end
+
+function pyramid_inner_overlap_builder(pattern, columns, rows, width, height)
+    local half_width = width / 2
+    local half_height = height / 2
+    
+    return function(local_x, local_y, world_x, world_y, surface)
+        local local_y2 = ((local_y + half_height) % height) - half_height
+        local row_pos = math.floor(local_y / height + 0.5)
+        local row_i = row_pos % rows + 1
+        local row = pattern[row_i] or {}
+        
+        local x_odd
+        local x_even
+        if row_pos % 2 == 0 then
+            x_even = local_x
+            x_odd = local_x - half_width
+        else
+            x_even = local_x - half_width
+            x_odd = local_x
+            local_x = local_x - half_width
+        end        
+        
+        x_even = ((x_even + half_width) % width) - half_width
+        x_odd = ((x_odd + half_width) % width) - half_width
+
+        
+        
+        local col_pos = math.floor(local_x / width + 0.5)
+
+        local offset = 1
+        local offset_odd = 0
+        if (col_pos % 2) == (row_pos % 2) then
+            offset = 0
+            offset_odd = 1
+        end
+
+
+        local col_i = (col_pos - offset) % columns + 1
+        local col_i_odd = (col_pos - offset_odd) % columns + 1
+        
+        if col_pos > row_pos / 2 or -col_pos > (row_pos + 1) / 2 then
+            return false
+        end
+        
+        local row_i_up = (row_pos - 1) % rows + 1
+        local row_up = pattern[row_i_up] or {}
+        local row_i_down = (row_pos + 1) % rows + 1
+        local row_down = pattern[row_i_down] or {}
+        
+        local col_i_left = (col_pos - 1) % columns + 1
+        local col_i_right = (col_pos + 1) % columns + 1
+        
+        local col_i_left2 = (col_pos - 2) % columns + 1
+        local col_i_right2 = (col_pos + 0) % columns + 1
+        
+        -- start from top left, move left to right then down
+        local shape = row_up[col_i_left] or empty_builder
+        local tile, entity = shape(x_even + width, local_y2 + height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row_up[col_i_odd] or empty_builder
+        tile, entity = shape(x_odd, local_y2 + height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row_up[col_i_right] or empty_builder
+        tile, entity = shape(x_even - width, local_y2 + height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row[col_i_left] or empty_builder
+        tile, entity = shape(x_even + width, local_y2, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        local shape = row[col_i] or empty_builder
+        tile, entity = shape(x_even, local_y2, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row[col_i_right] or empty_builder
+        tile, entity = shape(x_even - width, local_y2, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row_down[col_i_left] or empty_builder
+        tile, entity = shape(x_even + width, local_y2 - height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row_down[col_i_odd] or empty_builder
+        tile, entity = shape(x_odd, local_y2 - height, world_x, world_y, surface)
+        if tile then return tile, entity end
+        
+        shape = row_down[col_i_right] or empty_builder
+        return shape(x_even - width, local_y2 - height, world_x, world_y, surface)
+    end
+end
+
+function grid_pattern_offset_builder(pattern, columns, rows, width, height)
+    local half_width = width / 2
+    local half_height = height / 2
+    
+    return function(local_x, local_y, world_x, world_y, surface)
+        local local_y2 = ((local_y + half_height) % height) - half_height
+        local row_pos = math.floor(local_y / height + 0.5)
+        local row_i = row_pos % rows + 1
+        local row = pattern[row_i] or {}
+        
+        local local_x2 = ((local_x + half_width) % width) - half_width
+        local col_pos = math.floor(local_x / width + 0.5)
+        local col_i = col_pos % columns + 1
+        
+        local local_y2 = local_y2 + height * math.floor((row_pos + 1) / rows)
+        local local_x2 = local_x2 + width * math.floor((col_pos + 1) / columns)
+        
+        local shape = row[col_i] or empty_builder
+        return shape(local_x2, local_y2, world_x, world_y, surface)
     end
 end
 

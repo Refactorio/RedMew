@@ -9,7 +9,7 @@ local function do_row(row, data)
         -- local coords need to be 'centered' to allow for correct rotation and scaling.
         local tile, entity = MAP_GEN(x + 0.5, y + 0.5, x, y, data.surface)
 
-        if type(tile) == "boolean" and not tile then
+        if not tile then
             table.insert(data.tiles, {name = "out-of-map", position = {x, y}})
         elseif type(tile) == "string" then
             table.insert(data.tiles, {name = tile, position = {x, y}})
@@ -87,7 +87,7 @@ function run_combined_module(event)
 
     do_place_tiles(data)
     do_place_decoratives(data)
-    do_place_entities(data)
+    do_place_entities(data)    
 end
 
 local decorative_options = {
