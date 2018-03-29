@@ -88,6 +88,20 @@ function oval_builder(x_radius, y_radius)
     end
 end
 
+function sine_fill_builder(width, height)
+    width_inv = tau / width
+    height_inv = -2 / height
+    return function(x, y)
+        local x2 = x * width_inv
+        local y2 = y * height_inv
+        if y <= 0 then
+            return y2 < math.sin(x2)
+        else
+            return y2 > math.sin(x2)
+        end        
+    end
+end
+
 local tile_map = {
     [1] = false,
     [2] = true,
