@@ -142,7 +142,7 @@ for c = 1, p_cols do
     end
 end
 
-local map = grid_pattern_overlap_builder(pattern, p_cols, p_rows, 128, 128)
+local map = grid_pattern_full_overlap_builder(pattern, p_cols, p_rows, 128, 128)
 
 map = change_map_gen_collision_tile(map, "water-tile", "grass-1")
 

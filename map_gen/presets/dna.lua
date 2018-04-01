@@ -74,10 +74,6 @@ lines = compound_or(lines)
 
 local dna = compound_or{lines, ribben, flip_y(ribben)}
 
-
-
-
-
 local widith = offset_x * count
 dna = translate(dna, -widith/ 2, 0)
 local map = single_x_pattern_builder(dna, widith)
@@ -93,6 +89,14 @@ local map = compound_or{dna1, dna2, dna3}
  ]]
 
 map = translate(map, -widith/2, 0)
+
+local sea = sine_fill_builder(512, 208)
+sea = compound_or{line_x_builder(2), sea, flip_y(sea)}
+sea = change_tile(sea, true, "water")
+sea = spawn_fish(sea, 0.005)
+
+map = compound_or{map, sea}
+
 map = rotate(map, degrees(45))
 
 local start_circle =  circle_builder(0.3 * ball_r)
@@ -112,11 +116,13 @@ local start = compound_or
     translate(coal, 9, 0),
     
 }
-start = change_map_gen_collision_tile(start,"water-tile", "grass-1")
+--start = change_map_gen_collision_tile(start,"water-tile", "grass-1")
 start = compound_or{start, big_circle}
 
 map = choose(big_circle, start, map)
+map = change_map_gen_collision_tile(map, "water-tile", "grass-1")
 
 map = scale(map, 6, 6)
+
 return map
 
