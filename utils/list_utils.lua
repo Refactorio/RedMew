@@ -79,6 +79,23 @@ table.get = function (t, index)
 end
 
 --[[
+  returns a new array with each value = mapper(old_value).
+]]
+table.map_value = function (t, mapper)
+  assert_argument_valid(t)
+  assert_argument_valid(mapper, "function")
+
+  local result = {}
+
+  for i, v in ipairs(t) do
+    result[i] = mapper(v)
+  end
+
+  return result
+
+end
+
+--[[
   Returns the index where t[index] == target. 
   If there is no such index, returns a negative vaule such that bit32.bnot(value) is 
   the index that the vaule should be inserted to keep the list ordered.
