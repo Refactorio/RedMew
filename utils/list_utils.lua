@@ -78,6 +78,9 @@ table.get = function (t, index)
   error("Index out of bounds", 2)
 end
 
+--[[
+  returns a new array with each value = mapper(old_value).
+]]
 table.map_value = function (t, mapper)
   assert_argument_valid(t)
   assert_argument_valid(mapper, "function")
