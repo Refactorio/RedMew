@@ -158,9 +158,9 @@ end
 
 local function tp_to_target(player, event)
     local data = global.player_spy_data
-    local target_index = data.targets[player.index]
+    local target_index = data.targets[player.index]    
     
-    if target_index == player_index then
+    if target_index == player.index then
         return
     end
     
