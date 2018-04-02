@@ -1,8 +1,7 @@
 global.player_spy_data =
     {
         watchers = {}, -- map of target to watcher[]
-        targets = {}, -- map of watcher to target
-        player_list = {}-- map of list selection index to {player index, player name}
+        targets = {}, -- map of watcher to target        
     }
 
 local main_button_name = "player_spy_main_button"
@@ -17,43 +16,34 @@ local minimap_name = "player_spy_minimap"
 local minimap_zoom_in_name = "player_spy_minimap_zoom_in"
 local minimap_zoom_out_name = "player_spy_minimap_zoom_out"
 
-local function create_player_list_items()
-    local list = {}
-    for i, p in pairs(game.players) do
-        table.insert(list, {index = i, name = p.name})
-    end
-    
-    return list
-end
-
-local function add_watcher(target, watcher)
+local function add_watcher(target, watcher)     
     local data = global.player_spy_data
     local target_watchers = data.watchers[target]
     
-    if not target_watchers then
+    if not target_watchers then        
         target_watchers = {watcher}
-        data.watchers[target] = target_watchers
-    else
+        data.watchers[target] = target_watchers        
+    else        
         table.insert(target_watchers, watcher)
     end
     
-    data.targets[watcher] = target
+    data.targets[watcher] = target    
 end
 
-local function remove_watcher(watcher)
+local function remove_watcher(watcher)    
     local data = global.player_spy_data
     local target = data.targets[watcher]
-    if target == nil then
+    if target == nil then        
         return
     end
     
     data.targets[watcher] = nil
     local watchers = data.watchers[target]
-    if not watchers then
+    if not watchers then        
         return
     end
     
-    table.remove_element(watchers, watcher)
+    table.remove_element(watchers, watcher)    
 end
 
 local function create_main_button(player, event)
@@ -79,8 +69,7 @@ local function create_main_frame(player, event)
     
     local list = panel.add{type = "drop-down", name = list_name}
     
-    local player_list = create_player_list_items()
-    data.player_list = player_list
+    local player_list = game.connected_players     
     local names = table.map_value(player_list, function(v) return v.name end)
     
     local position = {0, 0}
@@ -118,7 +107,22 @@ local function remove_main_frame(player, event)
     local main_frame = player.gui.left[main_frame_name]
     if main_frame then
         main_frame.destroy()
-        remove_watcher(event.player.index)
+        remove_watcher(player.index)
+    end
+end
+
+local function update_player_list(event)
+    local data = global.player_spy_data
+
+    local player_list = game.connected_players
+    local names = table.map_value(player_list, function(v) return v.name end)
+
+    for i, p in ipairs(game.connected_players) do
+        local frame = p.gui.left[main_frame_name]
+        if frame then
+            local list = get_list(p)
+            list.items = names
+        end
     end
 end
 
@@ -129,6 +133,11 @@ local function player_joined(event)
     end
     
     create_main_button(player, event)
+    update_player_list(event)
+end
+
+local function player_left(event)
+    update_player_list(event)    
 end
 
 local function get_camera(player)
@@ -144,7 +153,7 @@ local function get_tp_button(player)
 end
 
 local function get_list(player)
-    return player.gui.left[main_frame][panel_name][list_name]
+    return player.gui.left[main_frame_name][panel_name][list_name]
 end
 
 local function tp_to_target(player, event)
@@ -161,7 +170,8 @@ local function tp_to_target(player, event)
         return
     end
     
-    player.teleport(target.position)
+    local pos = target.surface.find_non_colliding_position("player", target.position, 0, 1)
+    player.teleport(pos, target.surface)
 end
 
 local function gui_click(event)
@@ -198,7 +208,7 @@ end
 
 local function gui_selection_state_changed(event)
     local data = global.player_spy_data
-    local name = event.name
+    local name = event.element.name
     if name ~= list_name then
         return
     end
@@ -206,14 +216,14 @@ local function gui_selection_state_changed(event)
     local index = event.player_index
     local player = game.players[index]
     
-    if not player then
+    if not player then        
         return
     end
     
-    remove_watcher(index)
+    remove_watcher(index)    
     
-    local list = get_list(player)
-    local target = data.player_list[list.selected_index].index
+    local list = get_list(player)      
+    local target = game.connected_players[list.selected_index].index     
     add_watcher(target, index)
     
     local target_player = game.players[target]
@@ -254,6 +264,7 @@ local function player_moved(event)
 end
 
 Event.register(defines.events.on_player_joined_game, player_joined)
+Event.register(defines.events.on_player_left_game, player_left)
 Event.register(defines.events.on_gui_click, gui_click)
 Event.register(defines.events.on_gui_selection_state_changed, gui_selection_state_changed)
 Event.register(defines.events.on_player_changed_position, player_moved)
