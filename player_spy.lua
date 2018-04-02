@@ -1,10 +1,9 @@
-local data =
+global.player_spy_data =
     {
         watchers = {}, -- map of target to watcher[]
         targets = {}, -- map of watcher to target
         player_list = {}-- map of list selection index to {player index, player name}
     }
-global.player_spy_data = data
 
 local main_button_name = "player_spy_main_button"
 local main_frame_name = "player_spy_main_frame"
@@ -28,6 +27,7 @@ local function create_player_list_items()
 end
 
 local function add_watcher(target, watcher)
+    local data = global.player_spy_data
     local target_watchers = data.watchers[target]
     
     if not target_watchers then
@@ -41,6 +41,7 @@ local function add_watcher(target, watcher)
 end
 
 local function remove_watcher(watcher)
+    local data = global.player_spy_data
     local target = data.targets[watcher]
     if target == nil then
         return
@@ -69,6 +70,7 @@ local function create_main_button(player, event)
 end
 
 local function create_main_frame(player, event)
+    local data = global.player_spy_data
     local left = player.gui.left
     
     local main_frame = left.add{type = "frame", name = main_frame_name, direction = "vertical", caption = "Player Spy"}
@@ -146,6 +148,7 @@ local function get_list(player)
 end
 
 local function tp_to_target(player, event)
+    local data = global.player_spy_data
     local target_index = data.targets[player.index]
     
     if target_index == player_index then
@@ -194,6 +197,7 @@ local function gui_click(event)
 end
 
 local function gui_selection_state_changed(event)
+    local data = global.player_spy_data
     local name = event.name
     if name ~= list_name then
         return
@@ -223,6 +227,7 @@ local function gui_selection_state_changed(event)
 end
 
 local function player_moved(event)
+    local data = global.player_spy_data
     local target = game.players[event.player_index]
     if not target then
         return
@@ -233,13 +238,13 @@ local function player_moved(event)
         return
     end
     
-    for _, watcher in ipairs(watchers) do
+    for _, watcher in ipairs(watchers) do        
         local player = game.players[watcher]
         if player then
             local camera = get_camera(player)
             local minimap = get_minimap(player)
             
-            if camera and minimap then                
+            if camera and minimap then
                 local pos = {target.position.x, target.position.y}
                 camera.position = pos
                 minimap.position = pos
