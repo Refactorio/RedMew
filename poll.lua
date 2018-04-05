@@ -127,7 +127,7 @@ local function poll(player)
 
 	local x = 1
 
-	while (game.players[x] ~= nil) do
+	while game.players[x] do
 
 		local player = game.players[x]
 
@@ -137,7 +137,7 @@ local function poll(player)
 				frame.destroy()
 		end
 
-		if (global.autoshow_polls_for_player[player.name] == true) then
+		if global.autoshow_polls_for_player[player.name] then
 			poll_show(player)
 		end
 
@@ -268,7 +268,8 @@ local function on_gui_click(event)
 		end
 
 		if (name == "auto_show_polls_checkbox") then
-			global.autoshow_polls_for_player[player.name] = event.element.state
+			global.autoshow_polls_for_player[player.name] = not global.autoshow_polls_for_player[player.name]
+			game.print(global.autoshow_polls_for_player[player.name])
 		end
 
 		if global.poll_voted[event.player_index] == nil then
