@@ -35,7 +35,7 @@ function spawn_market(cmd)
   market.destructible = false
 
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="discharge-defense-remote"}}
-  market.add_market_item{price={{"raw-fish", 30}}, offer={type="give-item", item="small-plane"}}
+  --market.add_market_item{price={{"raw-fish", 30}}, offer={type="give-item", item="small-plane"}}
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="wood"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="rail", count=2}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-signal"}}
@@ -195,7 +195,7 @@ local function fish_drop_entity_died(event)
 end
 
 
-function pet(player, entity_name)
+local function pet(player, entity_name)
 	if not player then
 		player = game.connected_players[1]
 	else
@@ -296,11 +296,12 @@ local function market_item_purchased(event)
     boost_player_runningspeed(player) --disabled due to on_tick being disabled
   end
 
-  if event.offer_index == 3 then -- exoskeleton-equipment
+  if event.offer_index == 2 then -- exoskeleton-equipment
     player.remove_item({name="wood", count=event.count})
     boost_player_miningspeed(player)
   end
 
+  --[[
   if event.offer_index == 2 then
     player.remove_item({name="small-plane", count=event.count})
     local chance = 4
@@ -344,6 +345,7 @@ local function market_item_purchased(event)
     game.print(str)
     pet(event.player_index, rolled_pet)
   end
+  --]]
 end
 
 if not global.pet_command_rotation then global.pet_command_rotation = 1 end
