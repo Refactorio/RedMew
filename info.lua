@@ -9,6 +9,9 @@ local function create_info_button(event)
 		button.style.left_padding = 4
 		button.style.right_padding = 4
 		button.style.bottom_padding = 2
+		button.style.vertically_stretchable = true
+		button.style.vertically_squashable = true
+		button.style.vertical_spacing = 0
 	end
 end
 

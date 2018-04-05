@@ -348,7 +348,7 @@ end
 
 if not global.pet_command_rotation then global.pet_command_rotation = 1 end
 
-function fish_market_on_180_ticks()
+function on_180_ticks()
 
   if game.tick % 900 == 0 then
      if global.player_speed_boost_records then
@@ -402,6 +402,8 @@ function fish_player_crafted_item(event)
    end
 end
 
+
+script.on_nth_tick(180, on_180_ticks)
 Event.register(defines.events.on_pre_player_mined_item, pre_player_mined_item)
 Event.register(defines.events.on_entity_died, fish_drop_entity_died)
 Event.register(defines.events.on_market_item_purchased, market_item_purchased)
