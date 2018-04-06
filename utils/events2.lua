@@ -1,47 +1,65 @@
 local Event = {}
 
-local events = {}
-local handlers = {}
-global.handler_next_id = 1
+local on_init_event_name = -1
+local on_load_event_name = -2
 
-local function get_handler_id(handler)
-    local id = handlers[handler]
-    if id then
-        return id
+local event_handlers = {}-- map of event_name to handlers[]
+local on_nth_tick_event_handlers = {}-- map of tick to handlers[]
+
+local function on_event(event)
+    local handlers = event_handlers[event.name]
+    
+    for _, handler in ipairs(handlers) do
+        handler(event)
+    end
+end
+
+local function on_nth_tick_event(event)
+    local handlers = on_nth_tick_event_handlers[event.nth_tick]
+    
+    for _, handler in ipairs(handlers) do
+        handler(event)
+    end
+end
+
+function Event.add(event_name, handler)
+    local handlers = event_handlers[event_name]
+    if not handlers then
+        event_handlers[event_name] = {handler}
+        script.on_event(event_name, on_event)
     else
-        id = global.handler_next_id
-        handlers[id] = handler
-        
-        global.handler_next_id = id + 1
-        return id
+        table.insert(handlers, handler)
     end
 end
 
-local function add(event_id, handler)
-    local handler_id = get_handler_id(handler)
-    
-    local handlers = events[event_id]
+function Event.on_init(handler)
+    local handlers = event_handlers[on_init_event_name]
     if not handlers then
-        handlers = {}
-        events[event_id] = handlers
-        script.on_event(event_id, on_event)
+        event_handlers[on_init_event_name] = {handler}
+        script.on_init(on_event)
+    else
+        table.insert(handlers, handler)
     end
-    
-    table.insert(handlers, handler_id)
 end
 
-local function remove(event_id, handler)
-    local handler_id = get_handler_id(handler)
-   
-    local handlers = events[event_id]
+function Event.on_load(handler)
+    local handlers = event_handlers[on_load_event_name]
     if not handlers then
-        return
+        event_handlers[on_load_event_name] = {handler}
+        script.on_load(on_event)
+    else
+        table.insert(handlers, handler)
     end
-
-    table.remove_element(handlers, handler_id)
-
-
 end
 
+function Event.on_nth_tick(tick, handler)
+    local handlers = on_nth_tick_event_handlers[tick]
+    if not handlers then
+        event_handlers[tick] = {handler}
+        script.on_nth_tick(tick, on_nth_tick_event)
+    else
+        table.insert(handlers, handler)
+    end
+end
 
 return Event
