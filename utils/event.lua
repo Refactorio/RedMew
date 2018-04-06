@@ -30,7 +30,7 @@ local function on_event(event)
     call_handlers(handlers, event)
 end
 
-local function on_inti()
+local function on_init()
     local handlers = event_handlers[init_event_name]
     call_handlers(handlers)
 end
@@ -59,7 +59,7 @@ function Event.on_init(handler)
     local handlers = event_handlers[init_event_name]
     if not handlers then
         event_handlers[init_event_name] = {handler}
-        script.on_init(on_inti)
+        script.on_init(on_init)
     else
         table.insert(handlers, handler)
     end
