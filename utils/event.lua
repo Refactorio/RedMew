@@ -2,8 +2,8 @@ local Event = {}
 
 local debug_mode = false
 
-local on_init_event_name = -1
-local on_load_event_name = -2
+local init_event_name = -1
+local load_event_name = -2
 
 local event_handlers = {}-- map of event_name to handlers[]
 local on_nth_tick_event_handlers = {}-- map of nth_tick to handlers[]
@@ -29,12 +29,12 @@ local function on_event(event)
 end
 
 local function on_inti()
-    local handlers = event_handlers[on_init_event_name]
+    local handlers = event_handlers[init_event_name]
     call_handlers(handlers)
 end
 
 local function on_load()
-    local handlers = event_handlers[on_load_event_name]
+    local handlers = event_handlers[load_event_name]
     call_handlers(handlers)
 end
 
@@ -54,9 +54,9 @@ function Event.add(event_name, handler)
 end
 
 function Event.on_init(handler)
-    local handlers = event_handlers[on_init_event_name]
+    local handlers = event_handlers[init_event_name]
     if not handlers then
-        event_handlers[on_init_event_name] = {handler}
+        event_handlers[init_event_name] = {handler}
         script.on_init(on_inti)
     else
         table.insert(handlers, handler)
@@ -64,9 +64,9 @@ function Event.on_init(handler)
 end
 
 function Event.on_load(handler)
-    local handlers = event_handlers[on_load_event_name]
+    local handlers = event_handlers[load_event_name]
     if not handlers then
-        event_handlers[on_load_event_name] = {handler}
+        event_handlers[load_event_name] = {handler}
         script.on_load(on_load)
     else
         table.insert(handlers, handler)
