@@ -1,4 +1,4 @@
-local Token
+local Token = {}
 
 local tokens = {}
 
