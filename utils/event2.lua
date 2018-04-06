@@ -1,25 +1,36 @@
 local Event = {}
 
+local debug_mode = false
+
 local on_init_event_name = -1
 local on_load_event_name = -2
 
 local event_handlers = {}-- map of event_name to handlers[]
 local on_nth_tick_event_handlers = {}-- map of tick to handlers[]
 
+local function call_handlers(handlers, event)
+    if debug_mode then
+        for _, handler in ipairs(handlers) do
+            handler(event)
+        end
+    else
+        for _, handler in ipairs(handlers) do
+            local success, error = pcall(handler, event)
+            if not success then
+                log(error)
+            end
+        end
+    end
+end
+
 local function on_event(event)
     local handlers = event_handlers[event.name]
-    
-    for _, handler in ipairs(handlers) do
-        handler(event)
-    end
+    call_handlers(handlers, event)
 end
 
 local function on_nth_tick_event(event)
     local handlers = on_nth_tick_event_handlers[event.nth_tick]
-    
-    for _, handler in ipairs(handlers) do
-        handler(event)
-    end
+    call_handlers(handlers, event)
 end
 
 function Event.add(event_name, handler)
