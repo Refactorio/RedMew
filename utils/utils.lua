@@ -3,6 +3,8 @@
 -- define debug_status to 1 or nil in the control.lua, before statement require("utils")
 -- define also debug_file and debug_mod_name
 
+local Event = require "utils.event"
+
 colors = {
 	white = { r = 1, g = 1, b = 1 },
 	black = { r = 0, g = 0, b = 0 },
@@ -494,7 +496,7 @@ function print_admins(msg)
 		end
 	end
 end
-
+--[[ 
 function check_name(function_name)
 	for i,v in pairs(global.scenario.custom_functions) do
 		if v.name == function_name:lower() then
@@ -511,7 +513,7 @@ function add_global_event(event, func, name)
 	if not name then p("Missing name parameter") return end
 	if check_name(name) then p("Function name \""..name.."\" already in use.") return end
 	table.insert(global.scenario.custom_functions, {event = event, name = name, func = func})
-	Event.register(event, func)
+	Event.add(event, func)
 end
 
 function remove_global_event(name)
@@ -524,8 +526,9 @@ function remove_global_event(name)
 	end
 end
 
-Event.register(-2, function()
+Event.add(-2, function()
 	for i,v in pairs(global.scenario.custom_functions) do
-		Event.register(v.event, v.func)
+		Event.add(v.event, v.func)
 	end
 end)
+ ]]

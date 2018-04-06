@@ -1,4 +1,6 @@
-Event.register(-1,function()
+local Event = require "utils.event"
+
+Event.on_init(function()
   
   global.players = {}
   
@@ -9,7 +11,7 @@ Event.register(-1,function()
 
 end)
 
-Event.register(defines.events.on_player_created, function(event)
+Event.add(defines.events.on_player_created, function(event)
   local player = game.players[event.player_index]
   --player.print("Info: PVP server mod 'Bearded Snails' (c) byte");
   guiNewPlayer(player.gui.left);
@@ -27,7 +29,7 @@ Event.register(defines.events.on_player_created, function(event)
   player.force.chart(player.surface, {{player.position.x - 200, player.position.y - 200}, {player.position.x + 200, player.position.y + 200}})
 end)
 
-Event.register(defines.events.on_player_respawned, function(event)
+Event.add(defines.events.on_player_respawned, function(event)
   local player = game.players[event.player_index]
   
   player.insert{name="heavy-armor", count=1}
@@ -38,7 +40,7 @@ Event.register(defines.events.on_player_respawned, function(event)
   player.character.character_running_speed_modifier = 0.5
 end)
 
-Event.register(defines.events.on_rocket_launched, function(event)
+Event.add(defines.events.on_rocket_launched, function(event)
   local force = event.rocket.force
   if event.rocket.get_item_count("satellite") > 0 then
     if global.satellite_sent == nil then
@@ -66,7 +68,7 @@ Event.register(defines.events.on_rocket_launched, function(event)
   end
 end)
 
-Event.register(defines.events.on_gui_click, function(event)
+Event.add(defines.events.on_gui_click, function(event)
   local player = game.players[event.player_index]
   local gui = player.gui.left;
 

@@ -2,7 +2,7 @@
 -- Version 0.1.6
 -- https://github.com/Befzz/factorio_random/tree/master/scenarios/befzz_test
 
--- Requires event.lua to work ( https://github.com/3RaGaming/utils )
+local Event = require "utils.event"
 
 -- SETTINGS
 local option_band_change_interval = 60 * 3 -- in ticks
@@ -411,6 +411,6 @@ local function on_gui_elem_changed(event)
 
 end
 
-Event.register(defines.events.on_gui_elem_changed, on_gui_elem_changed)
-Event.register(defines.events.on_gui_click, on_gui_click)
-Event.register(defines.events.on_player_joined_game, create_band_gui)
+Event.add(defines.events.on_gui_elem_changed, on_gui_elem_changed)
+Event.add(defines.events.on_gui_click, on_gui_click)
+Event.add(defines.events.on_player_joined_game, create_band_gui)

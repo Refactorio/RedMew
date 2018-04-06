@@ -1,4 +1,7 @@
 --Author: Valansch
+
+local Event = require "utils.event"
+
 local function is_depleted(drill)
   local position = drill.position
   local area = {}
@@ -33,4 +36,4 @@ local function on_resource_depleted(event)
   end
 end
 
-Event.register(defines.events.on_resource_depleted, on_resource_depleted)
+Event.add(defines.events.on_resource_depleted, on_resource_depleted)

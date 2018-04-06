@@ -1,4 +1,5 @@
 local Task = require "utils.Task"
+local Event = require "utils.event"
 
 local mines_factor = 4
 
@@ -30,4 +31,4 @@ local death_messages = {"Went exploring, and didn't bring a minesweeping kit.","
 local function player_died()
   game.print(death_messages[math.random(1, #death_messages)])
 end
-Event.register(defines.events.on_player_died, player_died)
+Event.add(defines.events.on_player_died, player_died)

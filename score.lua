@@ -1,3 +1,5 @@
+local Event = require "utils.event"
+
 if not global.score_rockets_launched then global.score_rockets_launched = 0 end
 
 local function create_score_gui(event)
@@ -92,7 +94,7 @@ end
 
 
 
-Event.register(defines.events.on_entity_died, refresh_score)
-Event.register(defines.events.on_gui_click, on_gui_click)
-Event.register(defines.events.on_player_joined_game, create_score_gui)
-Event.register(defines.events.on_rocket_launched, rocket_launched)
+Event.add(defines.events.on_entity_died, refresh_score)
+Event.add(defines.events.on_gui_click, on_gui_click)
+Event.add(defines.events.on_player_joined_game, create_score_gui)
+Event.add(defines.events.on_rocket_launched, rocket_launched)

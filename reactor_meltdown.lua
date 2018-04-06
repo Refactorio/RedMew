@@ -3,6 +3,8 @@
 --
 --a reactors loses 2 damage per second at 1000°C
 
+local Event = require "utils.event"
+
 global.wastelands = {}
 global.reactors = {}
 local wasteland_duration_seconds = 300
@@ -114,9 +116,9 @@ local function entity_build(event)
   end
 end
 
-script.on_nth_tick(67, on_tick)
-Event.register(defines.events.on_player_mined_entity, entity_destroyed)
-Event.register(defines.events.on_robot_mined_entity, entity_destroyed)
-Event.register(defines.events.on_entity_died, entity_destroyed)
-Event.register(defines.events.on_built_entity, entity_build)
-Event.register(defines.events.on_robot_built_entity, entity_build)
+Event.on_nth_tick(60, on_tick)
+Event.add(defines.events.on_player_mined_entity, entity_destroyed)
+Event.add(defines.events.on_robot_mined_entity, entity_destroyed)
+Event.add(defines.events.on_entity_died, entity_destroyed)
+Event.add(defines.events.on_built_entity, entity_build)
+Event.add(defines.events.on_robot_built_entity, entity_build)

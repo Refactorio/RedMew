@@ -3,6 +3,8 @@
 -- by MewMew -- with some help from RedLabel, Klonan, Morcup, BrainClot
 ----------------------------------------------------------------------------------------------------------------------------------------
 
+local Event = require "utils.event"
+
 local function create_poll_gui(event)
 	local player = game.players[event.player_index]
 
@@ -317,6 +319,6 @@ function poll_on_second()
 	end
 end
 
-Event.register(defines.events.on_gui_click, on_gui_click)
-Event.register(defines.events.on_player_joined_game, create_poll_gui)
-Event.register(defines.events.on_player_joined_game, poll_sync_for_new_joining_player)
+Event.add(defines.events.on_gui_click, on_gui_click)
+Event.add(defines.events.on_player_joined_game, create_poll_gui)
+Event.add(defines.events.on_player_joined_game, poll_sync_for_new_joining_player)

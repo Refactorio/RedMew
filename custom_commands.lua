@@ -1,5 +1,5 @@
 local Task = require "utils.Task"
-require "utils.event"
+local Event = require "utils.event"
 
 function player_print(str)
   if game.player then
@@ -256,7 +256,7 @@ local function built_entity(event)
   end
 end
 
-Event.register(defines.events.on_built_entity, built_entity)
+Event.add(defines.events.on_built_entity, built_entity)
 
 local function toggle_tp_mode(cmd)
   if not game.player or not (game.player.admin or is_mod(game.player.name)) then

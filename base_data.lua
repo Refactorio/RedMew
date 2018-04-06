@@ -1,3 +1,5 @@
+local Event = require "utils.event"
+
 if not global.score_biter_total_kills then global.score_biter_total_kills = 0 end
 
 local function biter_kill_counter(event)	
@@ -6,4 +8,4 @@ local function biter_kill_counter(event)
 	end		
 end
 
-Event.register(defines.events.on_entity_died, biter_kill_counter)
+Event.add(defines.events.on_entity_died, biter_kill_counter)

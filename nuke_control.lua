@@ -1,4 +1,4 @@
-
+local Event = require "utils.event"
 
 function allowed_to_nuke(player)
   if type(player) == "table" then
@@ -117,8 +117,8 @@ local function on_capsule_used(event)
   end
 end
 
-Event.register(defines.events.on_player_ammo_inventory_changed, ammo_changed)
-Event.register(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
---Event.register(defines.events.on_player_mined_entity, on_player_mined_item)
-Event.register(defines.events.on_player_used_capsule, on_capsule_used)
+Event.add(defines.events.on_player_ammo_inventory_changed, ammo_changed)
+Event.add(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
+--Event.add(defines.events.on_player_mined_entity, on_player_mined_item)
+Event.add(defines.events.on_player_used_capsule, on_capsule_used)
 

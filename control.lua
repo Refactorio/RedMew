@@ -1,5 +1,4 @@
 require "util"
-require "utils.event"
 require "config"
 require "utils.utils"
 require "utils.list_utils"
@@ -23,6 +22,7 @@ require "tasklist"
 require "autodeconstruct"
 require "corpse_util"
 require "reactor_meltdown"
+local Event = require "utils.event"
 
 local function player_joined(event)
 	local player = game.players[event.player_index]
@@ -64,5 +64,5 @@ function hodor(event)
 	end
 end
 
-Event.register(defines.events.on_player_created, player_joined)
-Event.register(defines.events.on_console_chat, hodor)
+Event.add(defines.events.on_player_created, player_joined)
+Event.add(defines.events.on_console_chat, hodor)

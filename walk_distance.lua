@@ -1,3 +1,5 @@
+local Event = require "utils.event"
+
 function walk_distance_on_second()
   local last_positions = global.scenario.variables.player_positions
   local d_x = 0
@@ -30,4 +32,4 @@ local function init_player_position(event)
   end
 end
 
--- Event.register(defines.events.on_player_joined_game, init_player_position)
+-- Event.add(defines.events.on_player_joined_game, init_player_position)
