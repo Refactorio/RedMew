@@ -16,6 +16,8 @@ things to do (maybe)
 make it sorted by time played
 --]]
 
+local Event = require "utils.event"
+
 local symbol_asc = "▲"
 local symbol_desc = "▼"
 
@@ -412,6 +414,6 @@ local function player_list_on_player_died(event)
 end
 
 
-Event.register(defines.events.on_player_joined_game, on_player_joined_game)
-Event.register(defines.events.on_gui_click, on_gui_click)
-Event.register(defines.events.on_player_died, player_list_on_player_died)
+Event.add(defines.events.on_player_joined_game, on_player_joined_game)
+Event.add(defines.events.on_gui_click, on_gui_click)
+Event.add(defines.events.on_player_died, player_list_on_player_died)

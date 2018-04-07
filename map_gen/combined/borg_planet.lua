@@ -1,6 +1,7 @@
 --Author: MewMew
 -- !! ATTENTION !! 
 -- Use water only in starting area as map setting!!!
+local Event = require "utils.event"
 require "map_gen.shared.perlin_noise"
 
 wreck_item_pool = {}
@@ -485,4 +486,4 @@ local function on_tick()
 end
 
 
-Event.register(defines.events.on_tick, on_tick)  --]]
+Event.add(defines.events.on_tick, on_tick)  --]]

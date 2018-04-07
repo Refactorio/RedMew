@@ -1,3 +1,5 @@
+local Event = require "utils.event"
+
 local function player_built_entity(event)
 
 	if event.created_entity.name == "train-stop" then
@@ -13,5 +15,5 @@ local function player_built_entity(event)
 	
 end
 
-Event.register(defines.events.on_built_entity, player_built_entity)
-Event.register(defines.events.on_robot_built_entity, player_built_entity)
+Event.add(defines.events.on_built_entity, player_built_entity)
+Event.add(defines.events.on_robot_built_entity, player_built_entity)

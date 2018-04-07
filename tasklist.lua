@@ -3,6 +3,8 @@
 -- based on MewMew's Poll
 ----------------------------------------------------------------------------------------------------------------------------------------
 
+local Event = require "utils.event"
+
 local function create_tasklist_gui(event)
    local player = game.players[event.player_index]
 
@@ -199,6 +201,6 @@ local function on_gui_click(event)
    end
 end
 
-Event.register(defines.events.on_gui_click, on_gui_click)
-Event.register(defines.events.on_player_joined_game, create_tasklist_gui)
-Event.register(defines.events.on_player_joined_game, tasklist_sync_for_new_joining_player)
+Event.add(defines.events.on_gui_click, on_gui_click)
+Event.add(defines.events.on_player_joined_game, create_tasklist_gui)
+Event.add(defines.events.on_player_joined_game, tasklist_sync_for_new_joining_player)

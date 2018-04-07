@@ -5,6 +5,8 @@ If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
 
+local Event = require "utils.event"
+
 --combined--
 --require "map_gen.combined.island_resort"
 --require "map_gen.combined.red_planet_v2"
@@ -107,4 +109,4 @@ local on_chunk_generated = function(event)
 	end
 end
 
-Event.register(defines.events.on_chunk_generated, on_chunk_generated)
+Event.add(defines.events.on_chunk_generated, on_chunk_generated)

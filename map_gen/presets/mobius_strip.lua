@@ -1,3 +1,5 @@
+local Event = require "utils.event"
+
 map_gen_decoratives = false -- Generate our own decoratives
 map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_gen_threaded, higher numbers will generate map quicker but cause more lag.
 
@@ -37,7 +39,7 @@ local function research_finished(event)
     end
 end
 
-Event.register(defines.events.on_research_finished, research_finished)
+Event.add(defines.events.on_research_finished, research_finished)
 
 local function max_axis_distance(world_x, world_y, target_x, target_y)
     local x = math.abs(world_x - target_x)

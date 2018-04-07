@@ -17,6 +17,8 @@ make pet faster
 make pet follow you moar
 --]]
 
+local Event = require "utils.event"
+
 function spawn_market(cmd)
   if not game.player or not game.player.admin then
     cant_run(cmd.name)
@@ -402,7 +404,7 @@ function fish_player_crafted_item(event)
    end
 end
 
-Event.register(defines.events.on_pre_player_mined_item, pre_player_mined_item)
-Event.register(defines.events.on_entity_died, fish_drop_entity_died)
-Event.register(defines.events.on_market_item_purchased, market_item_purchased)
-Event.register(defines.events.on_player_crafted_item, fish_player_crafted_item)
+Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
+Event.add(defines.events.on_entity_died, fish_drop_entity_died)
+Event.add(defines.events.on_market_item_purchased, market_item_purchased)
+Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)

@@ -6,6 +6,7 @@
 
 local Queue = require "utils.Queue"
 local PriorityQueue = require "utils.PriorityQueue"
+local Event = require "utils.event"
 
 local Task = {}
 
@@ -76,6 +77,6 @@ function Task.queue_task(func_name, params, weight)
   Queue.push(global.task_queue, {func_name = func_name, params = params, weight = weight})
 end
 
-Event.register(defines.events.on_tick, on_tick)
+Event.add(defines.events.on_tick, on_tick)
 
 return Task

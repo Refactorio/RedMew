@@ -1,3 +1,5 @@
+local Event = require "utils.event"
+
 local ttl = 15*60*60
 local function on_init()
 	global.corpse_util = {}
@@ -28,6 +30,6 @@ local function remove_corpse_marks()
 	end
 end
 
-Event.register(-1, on_init)
-Event.register(defines.events.on_player_died, mark_corpse)
-Event.register(defines.events.on_tick, remove_corpse_marks)
+Event.on_init(on_init)
+Event.add(defines.events.on_player_died, mark_corpse)
+Event.add(defines.events.on_tick, remove_corpse_marks)

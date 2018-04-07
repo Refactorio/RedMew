@@ -1,3 +1,5 @@
+local Event = require "utils.event"
+
 local function on_tick()
   walk_on_tick()
   if game.tick % 60 == 0 then
@@ -15,4 +17,4 @@ local function on_tick()
   end
 end
 
-Event.register(defines.events.on_tick, on_tick)
+Event.add(defines.events.on_tick, on_tick)

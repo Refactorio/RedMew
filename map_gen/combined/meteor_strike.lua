@@ -1,5 +1,6 @@
 require "map_gen.shared.perlin_noise"
 local Task = require "utils.Task"
+local Event = require "utils.event"
 
 local block_size = 1 -- in tiles
 local start_size = 64 -- in blocks
@@ -171,4 +172,4 @@ local function on_tick()
     end
 end
 
-Event.register(defines.events.on_tick, on_tick)
+Event.add(defines.events.on_tick, on_tick)

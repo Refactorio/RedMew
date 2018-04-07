@@ -1,3 +1,5 @@
+local Event = require "utils.event"
+
 mymodule = {}
 
 local function rot_pos(pos, rot)
@@ -68,7 +70,7 @@ local function on_init()
 	connect_line({  4,  21}, { 15,  21})
 end
 
-Event.register(-1, on_init)
+Event.on_init(on_init)
 
 local function build_intersection(type, origin, rot)
   local surface = game.surfaces[1]
