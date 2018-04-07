@@ -129,7 +129,7 @@ local function poll(player)
 
 	local x = 1
 
-	while (game.players[x] ~= nil) do
+	while game.players[x] do
 
 		local player = game.players[x]
 
@@ -139,7 +139,7 @@ local function poll(player)
 				frame.destroy()
 		end
 
-		if (global.autoshow_polls_for_player[player.name] == true) then
+		if global.autoshow_polls_for_player[player.name] then
 			poll_show(player)
 		end
 
@@ -270,7 +270,8 @@ local function on_gui_click(event)
 		end
 
 		if (name == "auto_show_polls_checkbox") then
-			global.autoshow_polls_for_player[player.name] = event.element.state
+			global.autoshow_polls_for_player[player.name] = not global.autoshow_polls_for_player[player.name]
+			game.print(global.autoshow_polls_for_player[player.name])
 		end
 
 		if global.poll_voted[event.player_index] == nil then
@@ -296,7 +297,7 @@ local function on_gui_click(event)
 		end
 end
 
-function poll_on_second()
+function on_second()
 	for _, player in pairs(game.connected_players) do
 		if global.poll_panel_creation_time then
 			if global.poll_panel_creation_time[player.index] then
@@ -319,6 +320,7 @@ function poll_on_second()
 	end
 end
 
+Event.on_nth_tick(61, on_second)
 Event.add(defines.events.on_gui_click, on_gui_click)
 Event.add(defines.events.on_player_joined_game, create_poll_gui)
 Event.add(defines.events.on_player_joined_game, poll_sync_for_new_joining_player)
