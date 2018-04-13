@@ -11,6 +11,6 @@ map = single_pattern_builder(map, pic.width-1, pic.height-1)
 map = translate(map, 86, 0)
 
 -- uncomment the line below to change the size of the map scale(x, y)
---map = scale(map, 2, 2)
+map = scale(map, 1.5, 1.5)
 
 return map
