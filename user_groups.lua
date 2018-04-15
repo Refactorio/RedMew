@@ -1,3 +1,6 @@
+global.mods = {}
+global.regualrs = {}
+
 function update_group(position)
 	local file = position .. ".lua"
 	game.write_file(file, "{", false, 0)
