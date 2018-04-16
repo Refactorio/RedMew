@@ -111,6 +111,9 @@ local function on_tick()
 end
 
 local function entity_build(event)
+  if not event.created_entity.valid then
+    return
+  end
   if event.created_entity.name == "nuclear-reactor" then
     table.insert(global.reactors, event.created_entity)
   end
