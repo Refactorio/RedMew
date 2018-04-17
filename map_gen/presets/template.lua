@@ -9,6 +9,9 @@ local pic = require "map_gen.data.presets.template"
 local pic = decompress(pic)
 local map = picture_builder(pic)
 
+-- this builds the map by duplicating the pic in every direction
+-- map = single_pattern_builder(map, pic.width-1, pic.height-1)
+
 -- this changes the size of the map
 --map = scale(map, 2, 2)
 
