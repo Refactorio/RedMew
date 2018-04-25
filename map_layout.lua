@@ -54,6 +54,10 @@ local Event = require "utils.event"
 --MAP_GEN = require "map_gen.presets.fish_islands"
 --MAP_GEN = require "map_gen.presets.ContraSpiral"
 --MAP_GEN = require "map_gen.presets.cookies"
+--MAP_GEN = require "map_gen.presets.plus"
+MAP_GEN = require "map_gen.presets.honeycomb"
+
+
 
 --shapes--
 --require "map_gen.shape.left"

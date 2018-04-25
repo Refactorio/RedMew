@@ -5,12 +5,12 @@ map_gen_rows_per_tick = 4 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
-local pic = require "map_gen.data.presets.template"
+local pic = require "map_gen.data.presets.honeycomb"
 local pic = decompress(pic)
 local map = picture_builder(pic)
 
 -- this builds the map by duplicating the pic in every direction
--- map = single_pattern_builder(map, pic.width-1, pic.height-1)
+map = single_pattern_builder(map, pic.width-1, pic.height-1)
 
 -- this changes the size of the map
 --map = scale(map, 2, 2)
