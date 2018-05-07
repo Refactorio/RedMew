@@ -19,6 +19,7 @@ require "tasklist"
 require "autodeconstruct"
 require "corpse_util"
 require "reactor_meltdown"
+require "bot"
 local Event = require "utils.event"
 
 local function player_joined(event)
