@@ -1,5 +1,5 @@
 global.mods = {}
-global.regualrs = {}
+global.regulars = {}
 
 function update_group(position)
 	local file = position .. ".lua"
