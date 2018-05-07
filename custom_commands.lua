@@ -458,6 +458,17 @@ local function reactor_toggle()
     end
   end
 end
+
+local old_add_command = commands.add_command
+commands.add_command = function(name, desc, func)
+  old_add_command(name, desc, function(cmd)
+    local success, error = pcall(func, cmd)
+    if not success then
+        log(error)
+    end
+  end)
+end
+
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
 commands.add_command("invoke", "<player> - Teleports the player to you. (Admins and moderators)", invoke)
