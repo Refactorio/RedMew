@@ -8,12 +8,12 @@ local function value(base, mult)
     end
 end
 
-local function no_resources(x, y, world_x, world_y, tile, entity, surface)    
+local function no_resources(x, y, world_x, world_y, tile,  surface)    
     for _, e in ipairs(surface.find_entities_filtered({ type = "resource", area = {{world_x, world_y  }, {world_x + 1, world_y + 1 } } })) do
         e.destroy()
     end
 
-    return tile, entity
+    return tile
 end
 
 local arm1 = translate(rectangle_builder(2, 3), 0, -5)

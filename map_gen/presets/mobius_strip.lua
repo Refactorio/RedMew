@@ -54,7 +54,7 @@ end
 
 local init = false
 local safe_distance = 480
-local function effect(x, y, world_x, world_y, tile, entity, surface)
+local function effect(x, y, world_x, world_y, tile,  surface)
     
     if not init then
         init = true
@@ -107,7 +107,7 @@ local function effect(x, y, world_x, world_y, tile, entity, surface)
     end
     
     --]]
-    return tile, entity
+    return tile
 end
 
 map = apply_effect(map, effect)

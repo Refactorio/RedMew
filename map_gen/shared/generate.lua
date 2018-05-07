@@ -7,33 +7,39 @@ map_gen_rows_per_tick = map_gen_rows_per_tick or 4
 map_gen_rows_per_tick = math.min(32, math.max(1, map_gen_rows_per_tick))
 
 local function do_row(row, data)
-    local y = data.top_y + row
-    local top_x = data.top_x
-    
-    for x = top_x, top_x + 31 do
-        -- local coords need to be 'centered' to allow for correct rotation and scaling.
-        local tile, entity = MAP_GEN(x + 0.5, y + 0.5, x, y, data.surface)
-        
+    local function do_tile(tile, x, y)
         if not tile then
             table.insert(data.tiles, {name = "out-of-map", position = {x, y}})
         elseif type(tile) == "string" then
             table.insert(data.tiles, {name = tile, position = {x, y}})
         end
-        
-        if map_gen_decoratives then
-            tile_decoratives = check_decorative(tile, x, y)
-            for _, tbl in ipairs(tile_decoratives) do
-                table.insert(data.decoratives, tbl)
+    end
+
+    local y = data.top_y + row
+    local top_x = data.top_x
+
+    for x = top_x, top_x + 31 do
+        -- local coords need to be 'centered' to allow for correct rotation and scaling.
+        local tile = MAP_GEN(x + 0.5, y + 0.5, x, y, data.surface)
+
+        if type(tile) == "table" then
+            do_tile(tile.tile, x, y)
+
+            local entities = tile.entities
+            if entities then
+                for _, entity in ipairs(entities) do
+                    table.insert(data.entities, entity)
+                end
             end
-            
-            tile_entities = check_entities(tile, x, y)
-            for _, entity in ipairs(tile_entities) do
-                table.insert(data.entities, entity)
+
+            local decoratives = tile.decoratives
+            if decoratives then
+                for _, decorative in ipairs(decoratives) do
+                    table.insert(data.decoratives, decorative)
+                end
             end
-        end
-        
-        if entity then
-            table.insert(data.entities, entity)
+        else
+            do_tile(tile, x, y)
         end
     end
 end
@@ -46,17 +52,17 @@ local function do_place_decoratives(data)
     if not map_gen_decoratives then
         return
     end
-    
-    for _, e in pairs(surface.find_entities_filtered{area = area, type = "decorative"}) do
+
+    for _, e in pairs(surface.find_entities_filtered {area = area, type = "decorative"}) do
         e.destroy()
     end
-    for _, e in pairs(surface.find_entities_filtered{area = area, type = "simple-entity"}) do
+    for _, e in pairs(surface.find_entities_filtered {area = area, type = "simple-entity"}) do
         e.destroy()
     end
-    
+
     local surface = data.surface
     for _, d in pairs(data.decoratives) do
-        surface.create_decoratives{check_collision = false, decoratives = {d}}
+        surface.create_decoratives {check_collision = false, decoratives = {d}}
     end
 end
 
@@ -69,9 +75,9 @@ local function do_place_entities(data)
     end
 end
 
-local function run_chart_update(data)    
-    local x = data.top_x /32
-    local y = data.top_y /32
+local function run_chart_update(data)
+    local x = data.top_x / 32
+    local y = data.top_y / 32
     if game.forces.player.is_chunk_charted(data.surface, {x, y}) then
         -- Don't use full area, otherwise adjacent chunks get charted
         game.forces.player.chart(
@@ -80,7 +86,7 @@ local function run_chart_update(data)
                 {data.top_x, data.top_y},
                 {data.top_x + 1, data.top_y + 1}
             }
-    )
+        )
     end
 end
 
@@ -113,9 +119,9 @@ function run_combined_module(event)
         game.print("MAP_GEN not set")
         return
     end
-    
+
     local area = event.area
-    
+
     local data = {
         state = 0,
         top_x = area.left_top.x,
@@ -217,7 +223,7 @@ local decorative_options = {
 local function check_decorative(tile, x, y)
     local options = decorative_options[tile]
     local tile_decoratives = {}
-    
+
     for _, e in ipairs(options) do
         name = e[1]
         high_roll = e[2]
@@ -225,7 +231,7 @@ local function check_decorative(tile, x, y)
             table.insert(tile_decoratives, {name = name, amount = 1, position = {x, y}})
         end
     end
-    
+
     return tile_decoratives
 end
 
@@ -322,7 +328,7 @@ local entity_options = {
 function check_entities(tile, x, y)
     local options = entity_options[tile]
     local tile_entity_list = {}
-    
+
     for _, e in ipairs(options) do
         name = e[1]
         high_roll = e[2]
@@ -330,6 +336,6 @@ function check_entities(tile, x, y)
             table.insert(tile_entity_list, {name = name, position = {x, y}})
         end
     end
-    
+
     return tile_entity_list
 end

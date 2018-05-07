@@ -50,12 +50,13 @@ local Event = require "utils.event"
 --MAP_GEN = require "map_gen.presets.hearts"
 --MAP_GEN = require "map_gen.presets.women"
 --MAP_GEN = require "map_gen.presets.fractal_balls"
---MAP_GEN = require "map_gen.presets.fruit_loops"
+MAP_GEN = require "map_gen.presets.fruit_loops"
 --MAP_GEN = require "map_gen.presets.fish_islands"
 --MAP_GEN = require "map_gen.presets.ContraSpiral"
 --MAP_GEN = require "map_gen.presets.cookies"
 --MAP_GEN = require "map_gen.presets.plus"
-MAP_GEN = require "map_gen.presets.honeycomb"
+--MAP_GEN = require "map_gen.presets.honeycomb"
+--MAP_GEN = require "map_gen.presets.test"
 
 
 
