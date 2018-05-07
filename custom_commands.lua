@@ -463,7 +463,7 @@ local old_add_command = commands.add_command
 commands.add_command = function(name, desc, func)
   old_add_command(name, desc, function(cmd)
     local success, error = pcall(func, cmd)
-    if not suc then
+    if not success then
         log(err)
     end
   end)
