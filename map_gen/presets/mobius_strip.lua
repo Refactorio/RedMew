@@ -7,29 +7,31 @@ map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
-local inner_circle = invert(circle_builder(48))
-local outer_circle = circle_builder(64)
-local square = invert(rectangle_builder(1000, 1000))
-square = rotate(square, degrees(45))
-square = translate(square, math.sqrt(2) * 500, 0)
+local b = require "map_gen.shared.builders"
 
-local circle = compound_and({inner_circle, outer_circle, square})
+local inner_circle = b.invert(b.circle(48))
+local outer_circle = b.circle(64)
+local square = b.invert(b.rectangle(1000, 1000))
+square = b.rotate(square, degrees(45))
+square = b.translate(square, math.sqrt(2) * 500, 0)
 
-local line1 = rectangle_builder(77, 16)
-line1 = rotate(line1, degrees(45))
-line1 = translate(line1, 66.5, 12.6875)
+local circle = b.all({inner_circle, outer_circle, square})
 
-local line2 = rectangle_builder(45, 16)
-local line2 = rotate(line2, degrees(-45))
-line2 = translate(line2, 55.5, -23.6875)
+local line1 = b.rectangle(77, 16)
+line1 = b.rotate(line1, degrees(45))
+line1 = b.translate(line1, 66.5, 12.6875)
 
---line2 =change_tile(line2, true, "water")
-local half = compound_or({line2, line1, circle})
+local line2 = b.rectangle(45, 16)
+local line2 = b.rotate(line2, degrees(-45))
+line2 = b.translate(line2, 55.5, -23.6875)
 
-half = translate(half, -79.1875, 0)
-local map = compound_or({half, flip_xy(half)})
+--line2 =b.change_tile(line2, true, "water")
+local half = b.any({line2, line1, circle})
 
-map = scale(map, 11, 11)
+half = b.translate(half, -79.1875, 0)
+local map = b.any({half, b.flip_xy(half)})
+
+map = b.scale(map, 11, 11)
 
 
 local function research_finished(event)
@@ -110,7 +112,7 @@ local function effect(x, y, world, tile)
     return tile
 end
 
-map = apply_effect(map, effect)
+map = b.apply_effect(map, effect)
 
 require "spawn_control"
 add_spawn("left", -88, -88)

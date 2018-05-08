@@ -5,6 +5,8 @@ map_gen_rows_per_tick = 4 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
+local b = require "map_gen.shared.builders"
+
 local seed1 = 666
 local seed2 = 999
 
@@ -16,20 +18,20 @@ local Random = require "map_gen.shared.random"
 local random = Random.new(seed1, seed2)
 
 local pic = require "map_gen.data.presets.cookie"
-local pic = decompress(pic)
-local cookie1 = picture_builder(pic)
-local cookie = scale(cookie1, 0.1, 0.1)
+local pic = b.decompress(pic)
+local cookie1 = b.picture(pic)
+local cookie = b.scale(cookie1, 0.1, 0.1)
 
-local ore_shape = circle_builder(1.5)
+local ore_shape = b.circle(1.5)
 
 local ores = {
-    {resource_module_builder(ore_shape, "iron-ore", value), 24},
-    {resource_module_builder(ore_shape, "copper-ore", value), 12},
-    {resource_module_builder(ore_shape, "stone", value), 4},
-    {resource_module_builder(ore_shape, "coal", value), 8},
-    {resource_module_builder(ore_shape, "uranium-ore", value), 1},
-    {resource_module_builder(circle_builder(1), "crude-oil", manhattan_ore_value(250000, 250)), 3},
---{empty_builder, 10}
+    {b.resource(ore_shape, "iron-ore", value), 24},
+    {b.resource(ore_shape, "copper-ore", value), 12},
+    {b.resource(ore_shape, "stone", value), 4},
+    {b.resource(ore_shape, "coal", value), 8},
+    {b.resource(ore_shape, "uranium-ore", value), 1},
+    {b.resource(b.circle(1), "crude-oil", b.manhattan_value(250000, 250)), 3},
+--{b.empty_shape, 10}
 }
 
 local total_weights = {}
@@ -48,7 +50,7 @@ local function makeChips()
     end
     
     local shape = ores[index][1]
-    if shape == empty_builder then
+    if shape == b.empty_shape then
         return nil
     end
     
@@ -57,7 +59,7 @@ local function makeChips()
         local x_offset = random:next_int(-20, 20)
         local y_offset = random:next_int(-20, 20)
         
-        local shape2 = translate(shape, x_offset, y_offset)
+        local shape2 = b.translate(shape, x_offset, y_offset)
         
         table.insert(chips, shape2)
     end
@@ -77,7 +79,7 @@ for c = 1, p_cols do
         
         local shape
         if chips then
-            shape = builder_with_resource(cookie, compound_or(chips))
+            shape = b.apply_entity(cookie, b.any(chips))
         else
             shape = cookie
         end
@@ -87,16 +89,16 @@ for c = 1, p_cols do
         local x_offset = random:next_int(-8, 8)
         local y_offset = random:next_int(-8, 8)
         
-        shape = rotate(shape, degrees(angle))
-        shape = scale(shape, s, s * 0.75)
-        shape = translate(shape, x_offset, y_offset)
+        shape = b.rotate(shape, degrees(angle))
+        shape = b.scale(shape, s, s * 0.75)
+        shape = b.translate(shape, x_offset, y_offset)
         
         table.insert(row, shape)
     end
 end
 
-local cookies = grid_pattern_full_overlap_builder(pattern, p_cols, p_rows, 64 * 1.25, 41 * 1.25 * 0.5)
-cookies = flip_y(cookies)
+local cookies = b.grid_pattern_full_overlap(pattern, p_cols, p_rows, 64 * 1.25, 41 * 1.25 * 0.5)
+cookies = b.flip_y(cookies)
 
 local tablecloth = {
     height = 2,
@@ -106,11 +108,11 @@ local tablecloth = {
         {"water", "deepwater", }
     }
 }
-local tablecloth = picture_builder(tablecloth)
-tablecloth = single_pattern_builder(tablecloth, 2, 2)
-tablecloth = scale(tablecloth, 42, 42)
-tablecloth = spawn_fish(tablecloth, 0.005)
+local tablecloth = b.picture(tablecloth)
+tablecloth = b.single_pattern(tablecloth, 2, 2)
+tablecloth = b.scale(tablecloth, 42, 42)
+tablecloth = b.fish(tablecloth, 0.005)
 
-map = shape_or_else(cookies, tablecloth)
+map = b.if_else(cookies, tablecloth)
 
 return map

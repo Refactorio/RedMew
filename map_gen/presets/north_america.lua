@@ -5,17 +5,19 @@ map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
+local b = require "map_gen.shared.builders"
+
 local pic = require "map_gen.data.presets.north_america"
-local pic = decompress(pic)
-local map = picture_builder(pic)
+local pic = b.decompress(pic)
+local map = b.picture(pic)
 
 -- this changes the size of the map
-map = scale(map, 2, 2)
+map = b.scale(map, 2, 2)
 
 -- this moves the map, effectively changing the spawn point.
- map = translate(map, 0, -200)
+ map = b.translate(map, 0, -200)
 
 -- this sets the tile outside the bounds of the map to deepwater, remove this and it will be void.
-map = change_tile(map, false, "deepwater")
+map = b.change_tile(map, false, "deepwater")
 
 return map

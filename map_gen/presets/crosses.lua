@@ -5,12 +5,14 @@ map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
-local pic = require "map_gen.data.presets.crosses"
-pic = decompress(pic)
+local b = require "map_gen.shared.builders"
 
-local shape = picture_builder(pic)
-local map = single_pattern_builder(shape, pic.width, pic.height)
-map = translate(map, 10, -4)
-map = scale(map, 12, 12)
+local pic = require "map_gen.data.presets.crosses"
+pic = b.decompress(pic)
+
+local shape = b.picture(pic)
+local map = b.single_pattern(shape, pic.width, pic.height)
+map = b.translate(map, 10, -4)
+map = b.scale(map, 12, 12)
 
 return map

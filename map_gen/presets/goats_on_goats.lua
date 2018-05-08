@@ -5,15 +5,17 @@ map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
-local pic = require "map_gen.data.presets.goat"
-local pic = decompress(pic)
-    
-local goat1 = picture_builder(pic)   
-goat1 = invert(goat1)
-local crop = rectangle_builder(pic.width, pic.height)
-goat1 = compound_and{goat1, crop}
+local b = require "map_gen.shared.builders"
 
-local floor = translate(rectangle_builder(pic.width, 32), 0 , (pic.height / 2) + 12)
+local pic = require "map_gen.data.presets.goat"
+local pic = b.decompress(pic)
+    
+local goat1 = b.picture(pic)   
+goat1 = b.invert(goat1)
+local crop = b.rectangle(pic.width, pic.height)
+goat1 = b.all{goat1, crop}
+
+local floor = b.translate(b.rectangle(pic.width, 32), 0 , (pic.height / 2) + 12)
 
 local goats = { floor, goat1 }
 
@@ -24,14 +26,14 @@ local t = 0
 for i = 1, 5 do
     s = s * sf
     t = t + (s * tf * pic.height)
-    local goat = translate(scale(goat1, s, s), 0, -t)
+    local goat = b.translate(b.scale(goat1, s, s), 0, -t)
     table.insert( goats, goat )        
 end
 
-local ceiling = translate(rectangle_builder(pic.width, 32), 0 , -t - 32)
+local ceiling = b.translate(b.rectangle(pic.width, 32), 0 , -t - 32)
 table.insert( goats, ceiling )  
 
-local shape = translate(compound_or(goats), 0, (t / 2) - 60)
+local shape = b.translate(b.any(goats), 0, (t / 2) - 60)
 
 -- for custom goat ores
 --[[
@@ -45,20 +47,20 @@ local function rot(table)
     return copy
 end
 
-local patch = flip_x(goat1)
---patch = throttle_xy(patch, 1, 2, 1 ,2)
-local iron_patch = resource_module_builder(scale(patch,0.12,0.12), "iron-ore", function(x,y) return 500 end)
-local copper_patch = resource_module_builder(scale(patch,0.12,0.12), "copper-ore", function(x,y) return 500 end)
-local coal_patch = resource_module_builder(scale(patch,0.12,0.12), "coal", function(x,y) return 500 end)
-local stone_patch = resource_module_builder(scale(patch,0.12,0.12), "stone", function(x,y) return 500 end)
-local uraniumn_patch = resource_module_builder(scale(patch,0.12,0.12), "uraniumn-ore", function(x,y) return 500 end)
-local oil_patch = resource_module_builder(scale(patch,0.12,0.12), "crude-oil", function(x,y) return 500 end)
-local patch1 = translate(scale(patch,0.2,0.2),0,170)
-local patch2 = translate(scale(patch,0.15,0.15),0,25)
-local patch3 = translate(scale(patch,0.12,0.12),0,-88)
-local patch4 = translate(scale(patch,0.1,0.1),0,-173)
-local patch5 = translate(scale(patch,0.08,0.08),0,-238)
-local patch6 = translate(scale(patch,0.04,0.04),0,-282)
+local patch = b.flip_x(goat1)
+--patch = b.throttle_xy(patch, 1, 2, 1 ,2)
+local iron_patch = b.resource(b.scale(patch,0.12,0.12), "iron-ore", function(x,y) return 500 end)
+local copper_patch = b.resource(b.scale(patch,0.12,0.12), "copper-ore", function(x,y) return 500 end)
+local coal_patch = b.resource(b.scale(patch,0.12,0.12), "coal", function(x,y) return 500 end)
+local stone_patch = b.resource(b.scale(patch,0.12,0.12), "stone", function(x,y) return 500 end)
+local uraniumn_patch = b.resource(b.scale(patch,0.12,0.12), "uraniumn-ore", function(x,y) return 500 end)
+local oil_patch = b.resource(b.scale(patch,0.12,0.12), "crude-oil", function(x,y) return 500 end)
+local patch1 = b.translate(b.scale(patch,0.2,0.2),0,170)
+local patch2 = b.translate(b.scale(patch,0.15,0.15),0,25)
+local patch3 = b.translate(b.scale(patch,0.12,0.12),0,-88)
+local patch4 = b.translate(b.scale(patch,0.1,0.1),0,-173)
+local patch5 = b.translate(b.scale(patch,0.08,0.08),0,-238)
+local patch6 = b.translate(b.scale(patch,0.04,0.04),0,-282)
 local patch_table = { patch1, patch2, patch3, patch4, patch5, patch6 }
 local function do_nothing(builder, x, y) return builder(x, y) end
 local function throttle(builder, x, y)         
@@ -101,16 +103,16 @@ local function res_builder(x, y, world_x, world_y)
         end
     end
 end
---local patches = compound_or(patch_table)
---local iron = resource_module_builder(patches,"iron-ore", function(x,y) return 400 end)
---local iron_goat = builder_with_resource(shape, iron)
-local res_goat = builder_with_resource(shape, res_builder)
+--local patches = b.any(patch_table)
+--local iron = b.resource(patches,"iron-ore", function(x,y) return 400 end)
+--local iron_goat = b.apply_entity(shape, iron)
+local res_goat = b.apply_entity(shape, res_builder)
 shape = res_goat
 --]]
 
-local shape2 = flip_x(shape)
-local shape3 = flip_y(shape)
-local shape4 = flip_y(shape2)    
+local shape2 = b.flip_x(shape)
+local shape3 = b.flip_y(shape)
+local shape4 = b.flip_y(shape2)    
 
 local pattern =
 {
@@ -118,7 +120,7 @@ local pattern =
     {shape3, shape4},
 }  
 
-local map = grid_pattern_builder(pattern, 2, 2, pic.width, pic.height + t - 105)
-map = change_map_gen_collision_tile(map,"water-tile", "water-green")
+local map = b.grid_pattern(pattern, 2, 2, pic.width, pic.height + t - 105)
+map = b.change_map_gen_collision_tile(map,"water-tile", "water-green")
 
 return map

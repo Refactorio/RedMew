@@ -2,15 +2,17 @@
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
+local b = require "map_gen.shared.builders"
+
 local pic = require "map_gen.data.presets.woman"
-local pic = decompress(pic)
-local shape = picture_builder(pic)
+local pic = b.decompress(pic)
+local shape = b.picture(pic)
 
-local map = single_pattern_overlap_builder(shape, pic.width - 50, pic.height - 120)
+local map = b.single_pattern_overlap(shape, pic.width - 50, pic.height - 120)
 
-map = translate(map, 135, -65)
---map = change_tile(map, false, "deepwater")
+map = b.translate(map, 135, -65)
+--map = b.change_tile(map, false, "deepwater")
 
---map = scale(map, 2, 2)
+--map = b.scale(map, 2, 2)
 
 return map

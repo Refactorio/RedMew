@@ -10,6 +10,8 @@ map_gen_rows_per_tick = 4 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
+local b = require "map_gen.shared.builders"
+
 -- change these to change the pattern.
 local seed1 = 9999
 local seed2 = 6666
@@ -20,10 +22,10 @@ local function value(base, mult)
     end
 end
 
-local big_circle = circle_builder(48)
-local small_circle = circle_builder(24)
+local big_circle = b.circle(48)
+local small_circle = b.circle(24)
 
-local ring = compound_and{big_circle, invert(small_circle)}
+local ring = b.all{big_circle, b.invert(small_circle)}
 
 local ores =
     {
@@ -35,12 +37,12 @@ local ores =
         {resource_type = "crude-oil", value = value(10000, 50)},
     }
 
-local iron = resource_module_builder(full_builder, ores[1].resource_type, ores[1].value)
-local copper = resource_module_builder(full_builder, ores[2].resource_type, ores[2].value)
-local stone = resource_module_builder(full_builder, ores[3].resource_type, ores[3].value)
-local coal = resource_module_builder(full_builder, ores[4].resource_type, ores[4].value)
-local uranium = resource_module_builder(full_builder, ores[5].resource_type, ores[5].value)
-local oil = resource_module_builder(throttle_world_xy(full_builder, 1, 4, 1, 4), ores[6].resource_type, ores[6].value)
+local iron = b.resource(b.full_shape, ores[1].resource_type, ores[1].value)
+local copper = b.resource(b.full_shape, ores[2].resource_type, ores[2].value)
+local stone = b.resource(b.full_shape, ores[3].resource_type, ores[3].value)
+local coal = b.resource(b.full_shape, ores[4].resource_type, ores[4].value)
+local uranium = b.resource(b.full_shape, ores[5].resource_type, ores[5].value)
+local oil = b.resource(b.throttle_world_xy(b.full_shape, 1, 4, 1, 4), ores[6].resource_type, ores[6].value)
 
 local function striped(x, y, world_x, world_y, surface)
     local t = (world_x + world_y) % 4 + 1
@@ -65,28 +67,28 @@ local function sprinkle(x, y, world_x, world_y, surface)
     }
 end
 
-local segmented = segment_pattern_builder({iron, copper, stone, coal})
+local segmented = b.segment_pattern({iron, copper, stone, coal})
 
-local tree = spawn_entity(throttle_world_xy(full_builder, 1, 3, 1, 3), "tree-01")
+local tree = b.entity(b.throttle_world_xy(b.full_shape, 1, 3, 1, 3), "tree-01")
 
-local start_iron = resource_module_builder(ring, ores[1].resource_type, value(500, 0.5))
-local start_copper = resource_module_builder(ring, ores[2].resource_type, value(400, 0.5))
-local start_stone = resource_module_builder(ring, ores[3].resource_type, value(300, 0.5))
-local start_coal = resource_module_builder(ring, ores[4].resource_type, value(300, 0.5))
-local start_segmented = segment_pattern_builder({start_iron, start_copper, start_stone, start_coal})
-local start_tree = spawn_entity(throttle_world_xy(small_circle, 1, 3, 1, 3), "tree-01")
+local start_iron = b.resource(ring, ores[1].resource_type, value(500, 0.5))
+local start_copper = b.resource(ring, ores[2].resource_type, value(400, 0.5))
+local start_stone = b.resource(ring, ores[3].resource_type, value(300, 0.5))
+local start_coal = b.resource(ring, ores[4].resource_type, value(300, 0.5))
+local start_segmented = b.segment_pattern({start_iron, start_copper, start_stone, start_coal})
+local start_tree = b.entity(b.throttle_world_xy(small_circle, 1, 3, 1, 3), "tree-01")
 
-local iron_loop = builder_with_resource(ring, iron)
-local copper_loop = builder_with_resource(ring, copper)
-local stone_loop = builder_with_resource(ring, stone)
-local coal_loop = builder_with_resource(ring, coal)
-local uranium_loop = builder_with_resource(ring, uranium)
-local oil_loop = builder_with_resource(ring, oil)
-local striped_loop = builder_with_resource(ring, striped)
-local sprinkle_loop = builder_with_resource(ring, sprinkle)
-local segmented_loop = builder_with_resource(ring, segmented)
-local tree_loop = builder_with_resource(ring, tree)
-local start_loop = builder_with_resource(big_circle, compound_or{start_segmented, start_tree})
+local iron_loop = b.apply_entity(ring, iron)
+local copper_loop = b.apply_entity(ring, copper)
+local stone_loop = b.apply_entity(ring, stone)
+local coal_loop = b.apply_entity(ring, coal)
+local uranium_loop = b.apply_entity(ring, uranium)
+local oil_loop = b.apply_entity(ring, oil)
+local striped_loop = b.apply_entity(ring, striped)
+local sprinkle_loop = b.apply_entity(ring, sprinkle)
+local segmented_loop = b.apply_entity(ring, segmented)
+local tree_loop = b.apply_entity(ring, tree)
+local start_loop = b.apply_entity(big_circle, b.any{start_segmented, start_tree})
 
 local loops =
     {
@@ -135,22 +137,22 @@ for c = 1, p_cols do
             local x = random:next_int(-32, 32)
             local y = random:next_int(-32, 32)
             
-            shape = translate(shape, x, y)
+            shape = b.translate(shape, x, y)
             
             table.insert(row, shape)
         end
     end
 end
 
-local map = grid_pattern_full_overlap_builder(pattern, p_cols, p_rows, 128, 128)
+local map = b.grid_pattern_full_overlap(pattern, p_cols, p_rows, 128, 128)
 
-map = change_map_gen_collision_tile(map, "water-tile", "grass-1")
+map = b.change_map_gen_collision_tile(map, "water-tile", "grass-1")
 
-local sea = change_tile(full_builder, true, "water")
-local sea = spawn_fish(sea, 0.025)
+local sea = b.change_tile(b.full_shape, true, "water")
+local sea = b.fish(sea, 0.025)
 
-map = shape_or_else(map, sea)
+map = b.if_else(map, sea)
 
---map = translate(map, -32, 0)
---map = scale(map, 1, 1)
+--map = b.translate(map, -32, 0)
+--map = b.scale(map, 1, 1)
 return map

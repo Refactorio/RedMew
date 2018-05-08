@@ -12,18 +12,20 @@ map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
-local pic = require "map_gen.data.presets.factorio_logo2"
-local pic = decompress(pic)
+local b = require "map_gen.shared.builders"
 
-local shape = picture_builder(pic)
-shape = scale(shape, scale_factor, scale_factor)
+local pic = require "map_gen.data.presets.factorio_logo2"
+local pic = b.decompress(pic)
+
+local shape = b.picture(pic)
+shape = b.scale(shape, scale_factor, scale_factor)
 
 local pattern_width = scale_factor * pic.width + island_distance_x
 local pattern_height = scale_factor * pic.height + island_distance_y
-shape = single_pattern_builder(shape, pattern_width, pattern_height)
+shape = b.single_pattern(shape, pattern_width, pattern_height)
 
-shape = change_tile(shape, false, "water")
+shape = b.change_tile(shape, false, "water")
 
-shape = spawn_fish(shape, 0.008)
+shape = b.fish(shape, 0.008)
 
 return shape

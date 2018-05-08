@@ -1,13 +1,18 @@
 require "map_gen.shared.generate"
 
-local land = rectangle_builder(32,16)
+local b = require "map_gen.shared.builders"
+
+local land = b.rectangle(32,16)
 
 
-local circle = circle_builder(4)
-local patch = resource_module_builder(circle, "iron-ore")
+local circle = b.circle(4)
+local patch = b.resource(b.circle(8), "iron-ore")
 
-local tree = spawn_entity(circle, "tree-01")
+local tree = b.entity(circle, "tree-01")
 
-local shape = builder_with_resource(land, patch)
+--[[ local shape = b.apply_entity(land, patch)
+shape = b.apply_entity(shape, tree) ]]
+
+local shape = apply_entities(land, {patch, tree})
 
 return shape

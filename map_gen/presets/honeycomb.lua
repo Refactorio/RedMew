@@ -5,20 +5,22 @@ map_gen_rows_per_tick = 4 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
+local b = require "map_gen.shared.builders"
+
 local pic = require "map_gen.data.presets.honeycomb"
-local pic = decompress(pic)
-local map = picture_builder(pic)
+local pic = b.decompress(pic)
+local map = b.picture(pic)
 
 -- this builds the map by duplicating the pic in every direction
-map = single_pattern_builder(map, pic.width-1, pic.height-1)
+map = b.single_pattern(map, pic.width-1, pic.height-1)
 
 -- this changes the size of the map
---map = scale(map, 2, 2)
+--map = b.scale(map, 2, 2)
 
 -- this moves the map, effectively changing the spawn point.
---map = translate(map, 0, -200)
+--map = b.translate(map, 0, -200)
 
 -- this sets the tile outside the bounds of the map to deepwater, remove this and it will be void.
---map = change_tile(map, false, "deepwater")
+--map = b.change_tile(map, false, "deepwater")
 
 return map

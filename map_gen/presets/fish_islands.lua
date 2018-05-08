@@ -10,17 +10,19 @@ map_gen_rows_per_tick = 4 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
+local b = require "map_gen.shared.builders"
+
 -- change these to change the pattern.
 local seed1 = 1234
 local seed2 = 5678
 
-local value = manhattan_ore_value
+local value = b.manhattan_value
 
 local pic = require "map_gen.data.presets.fish"
-local pic = decompress(pic)
-local fish = picture_builder(pic)
+local pic = b.decompress(pic)
+local fish = b.picture(pic)
 
-fish = change_tile(fish, "water", false)
+fish = b.change_tile(fish, "water", false)
 
 local ores =
     {
@@ -32,21 +34,21 @@ local ores =
         {resource_type = "crude-oil", value = value(50000, 250)},
     }
 
-local cap = translate(rectangle_builder(48, 48), 100, 0)
+local cap = b.translate(b.rectangle(48, 48), 100, 0)
 
-local iron = resource_module_builder(cap, ores[1].resource_type, ores[1].value)
-local copper = resource_module_builder(cap, ores[2].resource_type, ores[2].value)
-local stone = resource_module_builder(cap, ores[3].resource_type, ores[3].value)
-local coal = resource_module_builder(cap, ores[4].resource_type, ores[4].value)
-local uranium = resource_module_builder(cap, ores[5].resource_type, ores[5].value)
-local oil = resource_module_builder(throttle_world_xy(cap, 1, 8, 1, 8), ores[6].resource_type, ores[6].value)
+local iron = b.resource(cap, ores[1].resource_type, ores[1].value)
+local copper = b.resource(cap, ores[2].resource_type, ores[2].value)
+local stone = b.resource(cap, ores[3].resource_type, ores[3].value)
+local coal = b.resource(cap, ores[4].resource_type, ores[4].value)
+local uranium = b.resource(cap, ores[5].resource_type, ores[5].value)
+local oil = b.resource(b.throttle_world_xy(cap, 1, 8, 1, 8), ores[6].resource_type, ores[6].value)
 
-local iron_fish = builder_with_resource(fish, iron)
-local copper_fish = builder_with_resource(fish, copper)
-local stone_fish = builder_with_resource(fish, stone)
-local coal_fish = builder_with_resource(fish, coal)
-local uranium_fish = builder_with_resource(fish, uranium)
-local oil_fish = builder_with_resource(fish, oil)
+local iron_fish = b.apply_entity(fish, iron)
+local copper_fish = b.apply_entity(fish, copper)
+local stone_fish = b.apply_entity(fish, stone)
+local coal_fish = b.apply_entity(fish, coal)
+local uranium_fish = b.apply_entity(fish, uranium)
+local oil_fish = b.apply_entity(fish, oil)
 
 local fishes =
     {
@@ -77,7 +79,7 @@ for c = 1, p_cols do
     table.insert(pattern, row)
     for r = 1, p_rows do
         if (r <= 1) and (c <= 2 or c > p_cols - 1) then
-            table.insert(row, empty_builder)
+            table.insert(row, b.empty_shape)
         else
             local i = random:next_int(1, t)
             
@@ -92,57 +94,57 @@ for c = 1, p_cols do
             local y = random:next_int(-48, 48)
             local r = random:next() * tau
             
-            shape = rotate(shape, r)
-            shape = translate(shape, x, y)
+            shape = b.rotate(shape, r)
+            shape = b.translate(shape, x, y)
             
             table.insert(row, shape)
         end
     end
 end
 
-local map = grid_pattern_full_overlap_builder(pattern, p_cols, p_rows, 215, 215)
+local map = b.grid_pattern_full_overlap(pattern, p_cols, p_rows, 215, 215)
 
 local start = require "map_gen.data.presets.soy_sauce"
-start = decompress(start)
-start = picture_builder(start)
-start = change_tile(start, "water", false)
+start = b.decompress(start)
+start = b.picture(start)
+start = b.change_tile(start, "water", false)
 
 local pic = require "map_gen.data.presets.fish_black_and_white"
-local pic = decompress(pic)
-local fish_bw = picture_builder(pic)
-fish_bw = scale(fish_bw, 0.25, 0.25)
+local pic = b.decompress(pic)
+local fish_bw = b.picture(pic)
+fish_bw = b.scale(fish_bw, 0.25, 0.25)
 
-local start_copper = rotate(fish_bw, degrees(180))
-local start_stone = rotate(fish_bw, degrees(90))
-local start_coal = rotate(fish_bw, degrees(-90))
+local start_copper = b.rotate(fish_bw, degrees(180))
+local start_stone = b.rotate(fish_bw, degrees(90))
+local start_coal = b.rotate(fish_bw, degrees(-90))
 
-local start_iron = translate(fish_bw, -32, 0)
-start_copper = translate(start_copper, 32, 0)
-start_stone = translate(start_stone, 0, 32)
-start_coal = translate(start_coal, 0, -32)
+local start_iron = b.translate(fish_bw, -32, 0)
+start_copper = b.translate(start_copper, 32, 0)
+start_stone = b.translate(start_stone, 0, 32)
+start_coal = b.translate(start_coal, 0, -32)
 
-start_iron = resource_module_builder(start_iron, ores[1].resource_type, value(1000, 0.5))
-start_copper = resource_module_builder(start_copper, ores[2].resource_type, value(800, 0.5))
-start_stone = resource_module_builder(start_stone, ores[3].resource_type, value(600, 0.5))
-start_coal = resource_module_builder(start_coal, ores[4].resource_type, value(600, 0.5))
+start_iron = b.resource(start_iron, ores[1].resource_type, value(1000, 0.5))
+start_copper = b.resource(start_copper, ores[2].resource_type, value(800, 0.5))
+start_stone = b.resource(start_stone, ores[3].resource_type, value(600, 0.5))
+start_coal = b.resource(start_coal, ores[4].resource_type, value(600, 0.5))
 
-local start_oil = translate(rectangle_builder(1, 1), -44, 74)
-start_oil = resource_module_builder(start_oil, ores[6].resource_type, value(100000, 0))
+local start_oil = b.translate(b.rectangle(1, 1), -44, 74)
+start_oil = b.resource(start_oil, ores[6].resource_type, value(100000, 0))
 
-local worms = rectangle_builder(150, 72)
-worms = translate(worms, 0, -210)
-worms = spawn_entity(worms, "big-worm-turret")
+local worms = b.rectangle(150, 72)
+worms = b.translate(worms, 0, -210)
+worms = b.entity(worms, "big-worm-turret")
 
-local start = builder_with_resource(start, compound_or{start_iron, start_copper, start_stone, start_coal, start_oil, worms})
+local start = b.apply_entity(start, b.any{start_iron, start_copper, start_stone, start_coal, start_oil, worms})
 
-map = shape_or_else(start, map)
+map = b.if_else(start, map)
 
-map = change_map_gen_collision_tile(map, "water-tile", "grass-1")
+map = b.change_map_gen_collision_tile(map, "water-tile", "grass-1")
 
-local sea = tile_builder("water")
-local sea = spawn_fish(sea, 0.025)
+local sea = b.tile("water")
+local sea = b.fish(sea, 0.025)
 
-map = shape_or_else(map, sea)
+map = b.if_else(map, sea)
 
---map = scale(map, 2, 2)
+--map = b.scale(map, 2, 2)
 return map

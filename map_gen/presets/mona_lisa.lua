@@ -5,14 +5,16 @@ map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
+local b = require "map_gen.shared.builders"
+
 local pic = require "map_gen.data.presets.mona_lisa"
-pic = decompress(pic)
+pic = b.decompress(pic)
 
-local shape = picture_builder(pic)
-shape = translate(shape, 10, -96)
-shape = scale(shape,2,2)
---shape = rotate(shape, degrees(0))
+local shape = b.picture(pic)
+shape = b.translate(shape, 10, -96)
+shape = b.scale(shape,2,2)
+--shape = b.rotate(shape, degrees(0))
 
--- shape = change_tile(shape, false, "deepwater")
+-- shape = b.change_tile(shape, false, "deepwater")
 
 return shape

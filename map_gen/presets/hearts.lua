@@ -2,21 +2,23 @@
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
-local circle = circle_builder(16)
-local square = rectangle_builder(30)
-square = rotate(square, degrees(45))
+local b = require "map_gen.shared.builders"
 
-local heart = compound_or{translate(circle, -14, 0), translate(circle, 14, 0), translate(square, 0, 14)}
---local hollow_heart = compound_and{invert(heart), scale(heart, 2, 2)}
+local circle = b.circle(16)
+local square = b.rectangle(30)
+square = b.rotate(square, degrees(45))
 
-heart = translate(heart, 0, -10)
-heart = scale(heart, 51/60, 1)
-local hearts = grow(heart, heart, 52, 0.5)
+local heart = b.any{b.translate(circle, -14, 0), b.translate(circle, 14, 0), b.translate(square, 0, 14)}
+--local hollow_heart = b.all{b.invert(heart), b.scale(heart, 2, 2)}
 
-local line = line_y_builder(2)
+heart = b.translate(heart, 0, -10)
+heart = b.scale(heart, 51/60, 1)
+local hearts = b.grow(heart, heart, 52, 0.5)
 
-local map = compound_or{line, hearts}
-map = translate(map, 0, 16)
-map = scale(map, 12,12)
+local line = b.line_y(2)
+
+local map = b.any{line, hearts}
+map = b.translate(map, 0, 16)
+map = b.scale(map, 12,12)
 
 return map
