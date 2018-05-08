@@ -18,9 +18,13 @@ local function do_row(row, data)
     local y = data.top_y + row
     local top_x = data.top_x
 
+    data.y = y    
+
     for x = top_x, top_x + 31 do
+        data.x = x
+
         -- local coords need to be 'centered' to allow for correct rotation and scaling.
-        local tile = MAP_GEN(x + 0.5, y + 0.5, x, y, data.surface)
+        local tile = MAP_GEN(x + 0.5, y + 0.5, data)
 
         if type(tile) == "table" then
             do_tile(tile.tile, x, y)

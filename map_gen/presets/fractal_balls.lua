@@ -8,8 +8,8 @@ local function value(base, mult)
     end
 end
 
-local function no_resources(x, y, world_x, world_y, tile,  surface)    
-    for _, e in ipairs(surface.find_entities_filtered({ type = "resource", area = {{world_x, world_y  }, {world_x + 1, world_y + 1 } } })) do
+local function no_resources(x, y, world, tile)    
+    for _, e in ipairs(world.surface.find_entities_filtered({ type = "resource", area = {{world.x, world.y  }, {world.x + 1, world.y + 1 } } })) do
         e.destroy()
     end
 

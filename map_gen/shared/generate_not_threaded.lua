@@ -2,33 +2,43 @@ require("map_gen.shared.builders")
 require("utils.poisson_rng")
 
 local function do_row(row, data)
-    local y = data.top_y + row
-    local top_x = data.top_x
-
-    for x = top_x, top_x + 31 do
-        -- local coords need to be 'centered' to allow for correct rotation and scaling.
-        local tile, entity = MAP_GEN(x + 0.5, y + 0.5, x, y, data.surface)
-
+    local function do_tile(tile, x, y)
         if not tile then
             table.insert(data.tiles, {name = "out-of-map", position = {x, y}})
         elseif type(tile) == "string" then
             table.insert(data.tiles, {name = tile, position = {x, y}})
         end
+    end
 
-        if map_gen_decoratives then
-            tile_decoratives = check_decorative(tile, x, y)
-            for _, tbl in ipairs(tile_decoratives) do
-                table.insert(data.decoratives, tbl)
+    local y = data.top_y + row
+    local top_x = data.top_x
+
+    data.y = y
+
+    for x = top_x, top_x + 31 do
+        data.x = x
+
+        -- local coords need to be 'centered' to allow for correct rotation and scaling.
+        local tile, entity = MAP_GEN(x + 0.5, y + 0.5, data)
+
+        if type(tile) == "table" then
+            do_tile(tile.tile, x, y)
+
+            local entities = tile.entities
+            if entities then
+                for _, entity in ipairs(entities) do
+                    table.insert(data.entities, entity)
+                end
             end
 
-            tile_entities = check_entities(tile, x, y)
-            for _, entity in ipairs(tile_entities) do
-                table.insert(data.entities, entity)
+            local decoratives = tile.decoratives
+            if decoratives then
+                for _, decorative in ipairs(decoratives) do
+                    table.insert(data.decoratives, decorative)
+                end
             end
-        end
-
-        if entity then
-            table.insert(data.entities, entity)
+        else
+            do_tile(tile, x, y)
         end
     end
 end

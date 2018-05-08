@@ -5,16 +5,16 @@ map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_ge
 --require "map_gen.shared.generate_not_threaded"
 require "map_gen.shared.generate"
 
-local function no_resources(x, y, world_x, world_y, tile,  surface)
-    for _, e in ipairs(surface.find_entities_filtered({type = "resource", area = {{world_x, world_y}, {world_x + 1, world_y + 1}}})) do
+local function no_resources(x, y, world, tile)
+    for _, e in ipairs(world.surface.find_entities_filtered({type = "resource", area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
         e.destroy()
     end
     
     return tile
 end
 
-local function less_resources(x, y, world_x, world_y, tile,  surface)
-    for _, e in ipairs(surface.find_entities_filtered({type = "resource", area = {{world_x, world_y}, {world_x + 1, world_y + 1}}})) do
+local function less_resources(x, y, world, tile)
+    for _, e in ipairs(world.surface.find_entities_filtered({type = "resource", area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
         if e.name == "crude-oil" then
             -- e.amount = .995 * e.amount
             else
@@ -25,8 +25,8 @@ local function less_resources(x, y, world_x, world_y, tile,  surface)
     return tile
 end
 
-local function no_enemies(x, y, world_x, world_y, tile,  surface)
-    for _, e in ipairs(surface.find_entities_filtered({force = "enemy", position = {world_x, world_y}})) do
+local function no_enemies(x, y, world, tile)
+    for _, e in ipairs(world.surface.find_entities_filtered({force = "enemy", position = {world.x, world.y}})) do
         e.destroy()
     end
     

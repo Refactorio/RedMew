@@ -54,19 +54,19 @@ end
 
 local init = false
 local safe_distance = 480
-local function effect(x, y, world_x, world_y, tile,  surface)
+local function effect(x, y, world, tile)
     
     if not init then
         init = true
-        game.forces["player"].chart(surface, {{-32, -32}, {31, 31}})
+        game.forces["player"].chart(world.surface, {{-32, -32}, {31, 31}})
     end
     
-    if world_x == 0 and world_y == 0 then
-        for _, e in ipairs(surface.find_entities({{-5, -5}, {5, 5}})) do
+    if world.x == 0 and world.y == 0 then
+        for _, e in ipairs(world.surface.find_entities({{-5, -5}, {5, 5}})) do
             e.destroy()
         end
         
-        local e = surface.create_entity({name = "rocket-silo", position = {0, 0}, force = "player"})
+        local e = world.surface.create_entity({name = "rocket-silo", position = {0, 0}, force = "player"})
         e.destructible = false
         e.minable = false
     end
