@@ -2,13 +2,6 @@
 This map uses custom ore gen. When generating the map, under the resource settings tab use Size = 'None' for all resources.
 ]]
 
-map_gen_decoratives = false -- Generate our own decoratives
-map_gen_rows_per_tick = 8 -- Inclusive integer between 1 and 32. Used for map_gen_threaded, higher numbers will generate map quicker but cause more lag.
-
--- Recommend to use generate, but generate_not_threaded may be useful for testing / debugging.
---require "map_gen.shared.generate_not_threaded"
-require "map_gen.shared.generate"
-
 local b = require "map_gen.shared.builders"
 
 local ball_r = 16

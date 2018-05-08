@@ -1,7 +1,3 @@
--- Recommend to use generate, but generate_not_threaded may be useful for testing / debugging.
-require "map_gen.shared.generate_not_threaded"
---require "map_gen.shared.generate"
-
 local b = require "map_gen.shared.builders"
 
 local pic = require "map_gen.data.presets.plus" --or whatever you called it in data->presets

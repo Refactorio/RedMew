@@ -1,5 +1,3 @@
-require "map_gen.shared.generate"
-
 local b = require "map_gen.shared.builders"
 
 local land = b.rectangle(32,16)

@@ -3,8 +3,7 @@ require("utils.poisson_rng")
 
 local Task = require "utils.Task"
 
-map_gen_rows_per_tick = map_gen_rows_per_tick or 4
-map_gen_rows_per_tick = math.min(32, math.max(1, map_gen_rows_per_tick))
+local shape
 
 local function do_row(row, data)
     local function do_tile(tile, x, y)
@@ -24,7 +23,7 @@ local function do_row(row, data)
         data.x = x
 
         -- local coords need to be 'centered' to allow for correct rotation and scaling.
-        local tile = MAP_GEN(x + 0.5, y + 0.5, data)
+        local tile = shape(x + 0.5, y + 0.5, data)
 
         if type(tile) == "table" then
             do_tile(tile.tile, x, y)
@@ -118,12 +117,7 @@ function map_gen_action(data)
     end
 end
 
-function run_combined_module(event)
-    if MAP_GEN == nil then
-        game.print("MAP_GEN not set")
-        return
-    end
-
+local function on_chunk(event)
     local area = event.area
 
     local data = {
@@ -329,7 +323,7 @@ local entity_options = {
     ["out-of-map"] = {}
 }
 
-function check_entities(tile, x, y)
+local function check_entities(tile, x, y)
     local options = entity_options[tile]
     local tile_entity_list = {}
 
@@ -343,3 +337,10 @@ function check_entities(tile, x, y)
 
     return tile_entity_list
 end
+
+local function init(s)
+    shape = s
+    return on_chunk
+end
+
+return init

@@ -16,50 +16,49 @@ local Event = require "utils.event"
 --require "map_gen.combined.meteor_strike" --unfinished
 
 --presets--
---MAP_GEN = require "map_gen.presets.template"
---MAP_GEN = require "map_gen.presets.web" --unfinished
---MAP_GEN = require "map_gen.presets.rings_and_boxes" --unfinished
---MAP_GEN = require "map_gen.presets.ring_of_balls" --unfinished
---MAP_GEN = require "map_gen.presets.dna"
---MAP_GEN = require "map_gen.presets.lines_and_balls"
---MAP_GEN = require "map_gen.presets.mobius_strip"
---MAP_GEN = require "map_gen.presets.antfarm"
---MAP_GEN = require "map_gen.presets.creation_of_adam"
---MAP_GEN = require "map_gen.presets.manhattan"
---MAP_GEN = require "map_gen.presets.mona_lisa"
---MAP_GEN = require "map_gen.presets.connected_dots"
---MAP_GEN = require "map_gen.presets.maori"
---MAP_GEN = require "map_gen.presets.goat"
---MAP_GEN = require "map_gen.presets.GoT"
---MAP_GEN = require "map_gen.presets.turkey" -- needs to be rebuilt from missing source image.
---MAP_GEN = require "map_gen.presets.north_america" -- needs to be rebuilt from missing source image.
---MAP_GEN = require "map_gen.presets.UK"
---MAP_GEN = require "map_gen.presets.venice"
---MAP_GEN = require "map_gen.presets.goats_on_goats"
---MAP_GEN = require "map_gen.presets.grid_islands"
---MAP_GEN = require "map_gen.presets.crosses"
---MAP_GEN = require "map_gen.presets.crosses3"
---MAP_GEN = require "map_gen.presets.broken_web"
---MAP_GEN = require "map_gen.presets.misc_stuff"
---MAP_GEN = require "map_gen.presets.lines"
---MAP_GEN = require "map_gen.presets.dickbutt"
---MAP_GEN = require "map_gen.presets.void_gears"
---MAP_GEN = require "map_gen.presets.gears"
---MAP_GEN = require "map_gen.presets.factorio_logo"
---MAP_GEN = require "map_gen.presets.factorio_logo2"
---MAP_GEN = require "map_gen.presets.hearts"
---MAP_GEN = require "map_gen.presets.women"
---MAP_GEN = require "map_gen.presets.fractal_balls"
---MAP_GEN = require "map_gen.presets.fruit_loops"
---MAP_GEN = require "map_gen.presets.fish_islands"
---MAP_GEN = require "map_gen.presets.ContraSpiral"
---MAP_GEN = require "map_gen.presets.cookies"
---MAP_GEN = require "map_gen.presets.plus"
---MAP_GEN = require "map_gen.presets.honeycomb"
---MAP_GEN = require "map_gen.presets.line_and_trees"
---MAP_GEN = require "map_gen.presets.test"
-
-
+local shape = nil
+--shape = require "map_gen.presets.template"
+--shape = require "map_gen.presets.web" --unfinished
+--shape = require "map_gen.presets.rings_and_boxes" --unfinished
+--shape = require "map_gen.presets.ring_of_balls" --unfinished
+--shape = require "map_gen.presets.dna"
+--shape = require "map_gen.presets.lines_and_balls"
+--shape = require "map_gen.presets.mobius_strip"
+--shape = require "map_gen.presets.antfarm"
+--shape = require "map_gen.presets.creation_of_adam"
+--shape = require "map_gen.presets.manhattan"
+--shape = require "map_gen.presets.mona_lisa"
+--shape = require "map_gen.presets.connected_dots"
+--shape = require "map_gen.presets.maori"
+--shape = require "map_gen.presets.goat"
+--shape = require "map_gen.presets.GoT"
+--shape = require "map_gen.presets.turkey" -- needs to be rebuilt from missing source image.
+--shape = require "map_gen.presets.north_america" -- needs to be rebuilt from missing source image.
+--shape = require "map_gen.presets.UK"
+--shape = require "map_gen.presets.venice"
+--shape = require "map_gen.presets.goats_on_goats"
+--shape = require "map_gen.presets.grid_islands"
+--shape = require "map_gen.presets.crosses"
+--shape = require "map_gen.presets.crosses3"
+--shape = require "map_gen.presets.broken_web"
+--shape = require "map_gen.presets.misc_stuff"
+--shape = require "map_gen.presets.lines"
+--shape = require "map_gen.presets.dickbutt"
+--shape = require "map_gen.presets.void_gears"
+--shape = require "map_gen.presets.gears"
+--shape = require "map_gen.presets.factorio_logo"
+--shape = require "map_gen.presets.factorio_logo2"
+--shape = require "map_gen.presets.hearts"
+--shape = require "map_gen.presets.women"
+--shape = require "map_gen.presets.fractal_balls"
+--shape = require "map_gen.presets.fruit_loops"
+--shape = require "map_gen.presets.fish_islands"
+--shape = require "map_gen.presets.ContraSpiral"
+--shape = require "map_gen.presets.cookies"
+--shape = require "map_gen.presets.plus"
+--shape = require "map_gen.presets.honeycomb"
+--shape = require "map_gen.presets.line_and_trees"
+--shape = require "map_gen.presets.test"
 
 --shapes--
 --require "map_gen.shape.left"
@@ -97,7 +96,15 @@ miscs = {}
 --table.insert(miscs, require("map_gen.misc.tris_chunk_grid"))
 --table.insert(miscs, require("map_gen.ores.glitter_ores"))
 
-local on_chunk_generated = function(event)
+if shape then
+	local gen = require "map_gen.shared.generate"
+	--local gen = require "map_gen.shared.generate_not_threaded"
+
+	gen = gen(shape)
+	Event.add(defines.events.on_chunk_generated, gen)
+end
+
+--[[ local on_chunk_generated = function(event)
 	if run_combined_module ~= nil then
 		run_combined_module(event)
 	end
@@ -115,4 +122,4 @@ local on_chunk_generated = function(event)
 	end
 end
 
-Event.add(defines.events.on_chunk_generated, on_chunk_generated)
+Event.add(defines.events.on_chunk_generated, on_chunk_generated) ]]

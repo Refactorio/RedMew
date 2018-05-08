@@ -1,6 +1,8 @@
 require("map_gen.shared.builders")
 require("utils.poisson_rng")
 
+local shape
+
 local function do_row(row, data)
     local function do_tile(tile, x, y)
         if not tile then
@@ -19,7 +21,7 @@ local function do_row(row, data)
         data.x = x
 
         -- local coords need to be 'centered' to allow for correct rotation and scaling.
-        local tile, entity = MAP_GEN(x + 0.5, y + 0.5, data)
+        local tile, entity = shape(x + 0.5, y + 0.5, data)
 
         if type(tile) == "table" then
             do_tile(tile.tile, x, y)
@@ -74,12 +76,7 @@ local function do_place_entities(data)
     end
 end
 
-function run_combined_module(event)
-    if MAP_GEN == nil then
-        game.print("MAP_GEN not set")
-        return
-    end
-
+local function on_chunk(event)
     local area = event.area   
 
     local data = {
@@ -291,7 +288,7 @@ local entity_options = {
     ["out-of-map"] = {}
 }
 
-function check_entities(tile, x, y)
+local function check_entities(tile, x, y)
     local options = entity_options[tile]
     local tile_entity_list = {}
 
@@ -305,3 +302,10 @@ function check_entities(tile, x, y)
 
     return tile_entity_list
 end
+
+local function init(s)
+    shape = s
+    return on_chunk
+end
+
+return init
