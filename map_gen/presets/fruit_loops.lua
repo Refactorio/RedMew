@@ -38,26 +38,26 @@ local coal = b.resource(b.full_shape, ores[4].resource_type, ores[4].value)
 local uranium = b.resource(b.full_shape, ores[5].resource_type, ores[5].value)
 local oil = b.resource(b.throttle_world_xy(b.full_shape, 1, 4, 1, 4), ores[6].resource_type, ores[6].value)
 
-local function striped(x, y, world_x, world_y, surface)
-    local t = (world_x + world_y) % 4 + 1
+local function striped(x, y, world)
+    local t = (world.x + world.y) % 4 + 1
     local ore = ores[t]
     
     return {
         name = ore.resource_type,
-        position = {world_x, world_y},
-        amount = ore.value(world_x, world_y)
+        position = {world.x, world.y},
+        amount = ore.value(world.x, world.y)
     }
 end
 
-local function sprinkle(x, y, world_x, world_y, surface)
+local function sprinkle(x, y, world)
     
     local t = math.random(1, 4)
     local ore = ores[t]
     
     return {
         name = ore.resource_type,
-        position = {world_x, world_y},
-        amount = ore.value(world_x, world_y)
+        position = {world.x, world.y},
+        amount = ore.value(world.x, world.y)
     }
 end
 
