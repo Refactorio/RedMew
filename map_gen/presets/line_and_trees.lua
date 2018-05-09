@@ -1,3 +1,5 @@
+local b = require "map_gen.shared.builders"
+
 local seed1 = 420420
 local seed2 = 696969
 
@@ -8,17 +10,17 @@ local line2 = b.translate(b.rectangle(8, 42), 0, -34)
 local ball_shape = b.any{ball, line1, line2}
 
 local value = b.manhattan_value
-local ore_shape = b.circle(6)
-local oil_shape = b.throttle_world_xy(b.circle(4), 1, 4, 1, 4)
+local ore_shape = b.circle(4)
+local oil_shape = b.throttle_world_xy(b.circle(2.67), 1, 4, 1, 4)
 
 local ores = {
-    {b.resource(ore_shape, "iron-ore", value(250, 1)), 24},
-    {b.resource(ore_shape, "copper-ore", value(200, 0.8)), 12},
-    {b.resource(ore_shape, "stone", value(200, 0.4)), 4},
-    {b.resource(ore_shape, "coal", value(400, 0.4)), 8},
-    {b.resource(b.circle(3), "uranium-ore", value(100, 0.4)), 1},
-    {b.resource(oil_shape, "crude-oil", value(125000, 125)), 4},
---{b.empty, 52}
+    {b.resource(ore_shape, "iron-ore", value(1500, 1.5)), 24},
+    {b.resource(ore_shape, "copper-ore", value(1200, 1.2)), 12},
+    {b.resource(ore_shape, "stone", value(1200, 0.6)), 4},
+    {b.resource(ore_shape, "coal", value(1200, 0.6)), 8},
+    {b.resource(b.circle(2), "uranium-ore", value(450, 0.6)), 1},
+    {b.resource(oil_shape, "crude-oil", value(375000, 188)), 4},
+--{b.empty_shape, 52}
 }
 
 local total_weights = {}
@@ -114,6 +116,7 @@ map = b.any{start_circle, map}
 
 map = b.change_map_gen_collision_tile(map, "water-tile", "grass-1")
 
+map = b.rotate(map, degrees(90))
 map = b.scale(map, 3, 3)
 
 return map
