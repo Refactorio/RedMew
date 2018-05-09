@@ -273,10 +273,71 @@ function Builders.all(shapes)
     end
 end
 
+function Builders.combine(shapes)
+    return function(x, y, world)
+        local function combine_table(tile, index)
+            local i, s = next(shapes, index)
+            while i do
+                local t = s(x, y, world)
+                if type(t) == "table" then
+                    if not tile.tile then
+                        tile.tile = t.tile
+                    end
+
+                    local es = t.entities
+                    if es then
+                        for _, e in ipairs(es) do
+                            add_entity(tile, e)
+                        end
+                    end
+                else
+                    if not tile.tile then
+                        tile.tile = t
+                    end
+                end
+
+                i, s = next(shapes, i)                
+            end
+
+            return tile
+        end
+
+        local tile = false
+
+        local i, s = next(shapes, nil)
+        while i do
+            local t = s(x, y, world)
+            if not tile then
+                tile = t
+            elseif type(t) == "table" then
+                t.tile = tile
+                return combine_table(t, i)
+            end
+
+            if type(tile) == "table" then
+                return combine_table(tile, i)
+            end
+
+            i, s = next(shapes, i)
+        end
+
+        return tile
+    end
+end
+
+function Builders.subtract(shape, minus_shape)
+    return function(x, y, world)
+        if minus_shape(x, y, world) then
+            return false
+        else
+            return shape(x, y, world)
+        end
+    end
+end
+
 function Builders.invert(shape)
     return function(x, y, world)
-        local tile = shape(x, y, world)
-        return not tile
+        return not shape(x, y, world)
     end
 end
 
@@ -450,8 +511,15 @@ function Builders.project_overlap(shape, size, r)
     end
 end
 
--- ore generation.
--- builder is the shape of the ore patch.
+-- Entity generation
+function Builders.entity(shape, name)
+    return function(x, y, world)
+        if shape(x, y, world) then
+            return {name = name, position = {world.x, world.y}}
+        end
+    end
+end
+
 function Builders.resource(shape, resource_type, amount_function)
     amount_function = amount_function or function(a, b)
             return 404
@@ -1002,14 +1070,6 @@ function Builders.fish(shape, spawn_rate)
         end
 
         return tile
-    end
-end
-
-function Builders.entity(shape, name)
-    return function(x, y, world)
-        if shape(x, y, world) then
-            return {name = name, position = {world.x, world.y}}
-        end
     end
 end
 
