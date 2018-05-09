@@ -11,6 +11,6 @@ local tree = b.entity(circle, "tree-01")
 --[[ local shape = b.apply_entity(land, patch)
 shape = b.apply_entity(shape, tree) ]]
 
-local shape = apply_entities(land, {patch, tree})
+local shape = b.apply_entities(land, {patch, tree})
 
 return shape
