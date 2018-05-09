@@ -3,76 +3,54 @@
 -- creates a LARGE amount of extra copper from the start. Also a 4:1 ratio for stone is quite heavy.
 -- Suggest modifying the sprinkle_factor out of 100% to make for a less game about warehousing ore,
 -- to one about picking patches that are mostly the preferred ore, along with a % of the wrong ores.
-glitter_debug = false
-glitter_ore_module = {}
 
-function run_ores_module_setup()
+-- Sets the buffer distance before ores are scrambled
+local starting_distance = 125
 
-   ore_mix = {}
-   ore_ratios = {
-      ["iron-ore"] = 1.0,
-      ["coal"] = 0.5,
-      ["copper-ore"] = 1,
-      ["stone"] = 0.25
-   }
-   -- 1-100% chance of sprinkling any individual ore
-   sprinkle_factor = 20
+-- 1-100% chance of sprinkling any individual ore
+local sprinkle_factor = 20
 
-   -- Sets the buffer distance before ores are scrambled
-   starting_buffer = 125
+local ore_ratios = {
+  ["iron-ore"] = 1.0,
+  ["coal"] = 0.5,
+  ["copper-ore"] = 1,
+  ["stone"] = 0.25
+}
 
-   ore_mix_max = 0
-   -- Prime the array
-   for a,b in pairs(ore_ratios) do
-      for i=1,(b*1000) do
-         ore_mix_max = ore_mix_max + 1
-         ore_mix[ore_mix_max] = a
-      end
-   end
+starting_distance = starting_distance ^ 2
+
+local ore_mix = {}
+local ore_mix_max = 0
+-- Prime the array
+for a, b in pairs(ore_ratios) do
+  for i = 1, (b * 1000) do
+    ore_mix_max = ore_mix_max + 1
+    ore_mix[ore_mix_max] = a
+  end
 end
 
-run_ores_module_setup()
+return function(x, y, world)
+  local d = world.x * world.x + world.y * world.y
+  if d <= starting_distance then
+    return nil
+  end
 
---generate ores for entire chunk
-function glitter_ore_module.on_chunk_generated(event)
-	local area = event.area
-	local surface = event.surface
+  local pos = {world.x + 0.5, world.y + 0.5}
+  local entities = world.surface.find_entities_filtered {position = pos, type = "resource"}
 
-	if glitter_debug then
-      game.print("Glitter ore: chunk generation")
-   end
+  for _, entity in ipairs(entities) do
+    if ore_ratios[entity.name] ~= nil then
+      if sprinkle_factor == 100 or math.random(100) <= sprinkle_factor then
+        local amount_old = entity.amount
 
-   local chunk_mid = {(area.left_top.x + area.right_bottom.x) / 2, (area.left_top.y + area.right_bottom.y) / 2}
-   local distance = math.sqrt(chunk_mid[1] * chunk_mid[1] + chunk_mid[2] * chunk_mid[2])
-   if distance > starting_buffer then
-      local entities = surface.find_entities_filtered{type="resource", area=area}
+        entity.destroy()
 
-       for _, entity in ipairs(entities) do
-         if ore_ratios[entity.name] ~= nil then
-            -- Roll to sprinkle_factor
-            if sprinkle_factor < 100 then
-               sprinkle_random = math.random(1,100)
-               should_sprinkle = sprinkle_random <= sprinkle_factor
-            else
-               should_sprinkle = true
-            end
-            if should_sprinkle then
-               local new_name = nil
-
-               --- Use the ratios to randomly select an ore
-               new_ore_random = math.random(1,ore_mix_max)
-               new_name = ore_mix[new_ore_random]
-
-               local position_old = entity.position
-               local amount_old = entity.amount
-
-               local surface = entity.surface
-               entity.destroy()
-               local new_entity = surface.create_entity{name = new_name, position = position_old, force="neutral", amount=amount_old}
-            end
-         end
+        return {
+          name = ore_mix[math.random(ore_mix_max)],
+          position = pos,
+          amount = amount_old
+        }
       end
     end
+  end
 end
-
-return glitter_ore_module
