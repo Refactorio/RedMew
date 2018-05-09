@@ -4,8 +4,8 @@ You may choose up to one of each type shapes, terrain, ores and misc or one of t
 If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
-
 local Event = require "utils.event"
+local b = require "map_gen.shared.builders"
 
 --combined--
 --require "map_gen.combined.island_resort"
@@ -79,8 +79,7 @@ local shape = nil
 --terrain--
 --require "map_gen.terrain.neko_bridged_rivers"
 --require "map_gen.terrain.neko_river_overlay"
---require "map_gen.terrain.worms"
---require "map_gen.terrain.mines"
+
 
 --ores--
 --require "map_gen.ores.neko_crazy_ores"
@@ -88,17 +87,29 @@ local shape = nil
 --require "map_gen.ores.rso.rso_control"
 --require "map_gen.ores.harmonic_gen"
 
+-- modules that only return max one entity per tile
+local entity_modules = {
+	--require "map_gen.ores.glitter_ores",
+	--require "map_gen.terrain.mines",
+	--require "map_gen.terrain.worms",
+}
+
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
 --require "map_gen.misc.rusky_pvp"
 --table.insert(miscs, require("map_gen.misc.rail_grid")) -- used for map_gen.presets.UK
 --table.insert(miscs, require("map_gen.misc.wreck_items"))
 --table.insert(miscs, require("map_gen.misc.tris_chunk_grid"))
---table.insert(miscs, require("map_gen.ores.glitter_ores"))
+
+if #entity_modules > 0 then
+	shape = shape or b.full_shape
+
+	shape = b.apply_entities(shape, entity_modules)
+end
 
 if shape then
-	local gen = require "map_gen.shared.generate"
-	--local gen = require "map_gen.shared.generate_not_threaded"
+	--local gen = require "map_gen.shared.generate"
+	local gen = require "map_gen.shared.generate_not_threaded"
 
 	gen = gen(shape)
 	Event.add(defines.events.on_chunk_generated, gen)
