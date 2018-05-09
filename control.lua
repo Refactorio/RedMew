@@ -1,4 +1,3 @@
-require "util"
 require "config"
 require "utils.utils"
 require "utils.list_utils"
@@ -20,7 +19,7 @@ require "tasklist"
 require "autodeconstruct"
 require "corpse_util"
 require "reactor_meltdown"
---require "screenshot"
+require "bot"
 local Event = require "utils.event"
 
 local function player_joined(event)
