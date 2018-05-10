@@ -93,6 +93,7 @@ local entity_modules = {
 	--require "map_gen.ores.neko_crazy_ores",
 	--require "map_gen.ores.fluffy_rainbows",
 	--require "map_gen.ores.harmonic_gen",	
+	--require "map_gen.ores.resource_clustertruck"
 }
 
 local terrain_modules ={
@@ -119,8 +120,8 @@ if #terrain_modules > 0 then
 end
 
 if shape then
-	--local gen = require "map_gen.shared.generate"
-	local gen = require "map_gen.shared.generate_not_threaded"
+	local gen = require "map_gen.shared.generate"
+	--local gen = require "map_gen.shared.generate_not_threaded"
 
 	gen = gen(shape)
 	Event.add(defines.events.on_chunk_generated, gen)
