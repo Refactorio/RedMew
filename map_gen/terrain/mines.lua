@@ -39,9 +39,8 @@ local function player_died()
 end
 Event.add(defines.events.on_player_died, player_died)
 
-return function(x, y, world)
-  local x, y = world.x, world.y
-  local distance = math.sqrt(x * x + y * y)
+return function(x, y, world)  
+  local distance = math.sqrt(world.x * world.x + world.y * world.y)
 
   if distance <= 100 then
     return nil
@@ -50,6 +49,6 @@ return function(x, y, world)
   local magic_number = math.floor(mines_factor / distance) + 1
 
   if math.random(1, magic_number) == 1 then
-    return {name = "land-mine", position = {x, y}, force = "enemy"}
+    return {name = "land-mine", force = "enemy"}
   end
 end

@@ -46,8 +46,7 @@ return function(x, y, world)
         entity.destroy()
 
         return {
-          name = ore_mix[math.random(ore_mix_max)],
-          position = pos,
+          name = ore_mix[math.random(ore_mix_max)],          
           amount = amount_old
         }
       end

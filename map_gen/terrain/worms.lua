@@ -10,8 +10,7 @@ local worm_names = {"small-worm-turret", "medium-worm-turret", "big-worm-turret"
 local chance = worms_per_chunk / (32 * 32)
 
 return function(x, y, world)
-  local x, y = world.x, world.y
-  local distance = math.sqrt(x * x + y * y)
+  local distance = math.sqrt(world.x * world.x + world.y * world.y)
 
   if distance > small_worm_spawn_distance - 32 then
     local lvl = 1
@@ -23,7 +22,7 @@ return function(x, y, world)
     end
     if math.random() < chance then
       local worm_id = math.random(1, lvl)
-      return {name = worm_names[worm_id], position = {x, y}}
+      return {name = worm_names[worm_id]}
     end
   end
 end

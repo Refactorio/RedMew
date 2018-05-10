@@ -61,50 +61,61 @@ local shape = nil
 --shape = require "map_gen.presets.test"
 
 --shapes--
---require "map_gen.shape.left"
---require "map_gen.shape.right"
---require "map_gen.shape.up"
+--shape = require "map_gen.shape.left"
+--shape = require "map_gen.shape.right"
+--shape = require "map_gen.shape.up"
 --require "map_gen.shape.maze"
---require "map_gen.shape.spiral"
---require "map_gen.shape.threaded_spirals"
---require "map_gen.shape.spiral_tri"
---require "map_gen.shape.spiral2"
---require "map_gen.shape.donut"
---require "map_gen.shape.rectangular_spiral"
---require "map_gen.shape.lattice"
+--shape = require "map_gen.shape.spiral"
+--shape = require "map_gen.shape.threaded_spirals"
+--shape = require "map_gen.shape.spiral_tri"
+--shape = require "map_gen.shape.spiral2"
+--shape = require "map_gen.shape.donut"
+--shape = require "map_gen.shape.rectangular_spiral"
+--shape = require "map_gen.shape.lattice"
 --require "map_gen.shape.infinite_mazes"
---require "map_gen.shape.x_shape"
---require "map_gen.shape.pacman"
+--shape = require "map_gen.shape.x_shape"
+--shape = require "map_gen.shape.pacman"
 
 --terrain--
 --require "map_gen.terrain.neko_bridged_rivers"
 --require "map_gen.terrain.neko_river_overlay"
 
-
 --ores--
---require "map_gen.ores.neko_crazy_ores"
---require "map_gen.ores.fluffy_rainbows"
 --require "map_gen.ores.rso.rso_control"
---require "map_gen.ores.harmonic_gen"
+
 
 -- modules that only return max one entity per tile
 local entity_modules = {
 	--require "map_gen.ores.glitter_ores",
 	--require "map_gen.terrain.mines",
 	--require "map_gen.terrain.worms",
+	--require "map_gen.misc.wreck_items",
+	--require "map_gen.ores.neko_crazy_ores",
+	--require "map_gen.ores.fluffy_rainbows",
+	--require "map_gen.ores.harmonic_gen",	
+}
+
+local terrain_modules ={
+	--require "map_gen.misc.tris_chunk_grid",		
 }
 
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
 --require "map_gen.misc.rusky_pvp"
 --table.insert(miscs, require("map_gen.misc.rail_grid")) -- used for map_gen.presets.UK
---table.insert(miscs, require("map_gen.misc.wreck_items"))
---table.insert(miscs, require("map_gen.misc.tris_chunk_grid"))
 
 if #entity_modules > 0 then
 	shape = shape or b.full_shape
 
 	shape = b.apply_entities(shape, entity_modules)
+end
+
+if #terrain_modules > 0 then
+	shape = shape or b.full_shape
+
+	for _, m in ipairs(terrain_modules) do
+		shape = b.overlay_tile_land(shape, m)
+	end
 end
 
 if shape then
