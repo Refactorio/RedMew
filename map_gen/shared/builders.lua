@@ -213,8 +213,11 @@ function Builders.translate(shape, x_offset, y_offset)
 end
 
 function Builders.scale(shape, x_scale, y_scale)
+    y_scale = y_scale or x_scale
+
     x_scale = 1 / x_scale
     y_scale = 1 / y_scale
+
     return function(x, y, world)
         return shape(x * x_scale, y * y_scale, world)
     end
@@ -296,7 +299,7 @@ function Builders.combine(shapes)
                     end
                 end
 
-                i, s = next(shapes, i)                
+                i, s = next(shapes, i)
             end
 
             return tile
@@ -515,7 +518,7 @@ end
 function Builders.entity(shape, name)
     return function(x, y, world)
         if shape(x, y, world) then
-            return {name = name, position = {world.x, world.y}}
+            return {name = name}
         end
     end
 end
@@ -528,7 +531,6 @@ function Builders.resource(shape, resource_type, amount_function)
         if shape(x, y, world) then
             return {
                 name = resource_type,
-                position = {world.x, world.y},
                 amount = amount_function(world.x, world.y)
             }
         end
@@ -1031,6 +1033,40 @@ function Builders.change_map_gen_collision_tile(shape, collides, new_tile)
     end
 end
 
+local bad_tiles = {
+    ["out-of-map"] = true,
+    ["water"] = true,
+    ["deepwater"] = true,
+    ["water-green"] = true,
+    ["deepwater-green"] = true
+}
+
+function Builders.overlay_tile_land(shape, tile_shape)
+    return function(x, y, world)
+        local function handle_tile(tile)
+            if type(tile) == "boolean" then
+                return tile and not world.surface.get_tile(world.x, world.y).collides_with("water-tile")
+            else
+                return not bad_tiles[tile]
+            end
+        end
+
+        local tile = shape(x, y, world)
+
+        if type(tile) == "table" then
+            if handle_tile(tile.tile) then
+                tile.tile = tile_shape(x, y, world) or tile.tile
+            end
+        else
+            if handle_tile(tile) then
+                tile = tile_shape(x, y, world) or tile
+            end
+        end
+
+        return tile
+    end
+end
+
 local water_tiles = {
     ["water"] = true,
     ["deepwater"] = true,
@@ -1043,11 +1079,11 @@ function Builders.fish(shape, spawn_rate)
         local function handle_tile(tile)
             if type(tile) == "string" then
                 if water_tiles[tile] and spawn_rate >= math.random() then
-                    return {name = "fish", position = {world.x, world.y}}
+                    return {name = "fish"}
                 end
             elseif tile then
                 if world.surface.get_tile(world.x, world.y).collides_with("water-tile") and spawn_rate >= math.random() then
-                    return {name = "fish", position = {world.x, world.y}}
+                    return {name = "fish"}
                 end
             end
         end
