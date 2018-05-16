@@ -84,7 +84,7 @@ local function item_not_sanctioned(item)
   )
 end
 
-local function entity_allowed_to_bomb(e)
+local function entity_allowed_to_bomb(entity)
   local name = entity.name
   return (
     name:find("turret") or
