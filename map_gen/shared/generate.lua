@@ -1,14 +1,15 @@
-local Task = require "utils.Task"
-local Token = require "utils.global_token"
+local Task = require 'utils.Task'
+local Token = require 'utils.global_token'
+local Event = require 'utils.event'
 
 local shape
-local place_decoratives = true
+local regen_decoratives
 
 local function do_row(row, data)
     local function do_tile(tile, pos)
         if not tile then
-            table.insert(data.tiles, {name = "out-of-map", position = pos})
-        elseif type(tile) == "string" then
+            table.insert(data.tiles, {name = 'out-of-map', position = pos})
+        elseif type(tile) == 'string' then
             table.insert(data.tiles, {name = tile, position = pos})
         end
     end
@@ -25,7 +26,13 @@ local function do_row(row, data)
         -- local coords need to be 'centered' to allow for correct rotation and scaling.
         local tile = shape(x + 0.5, y + 0.5, data)
 
-        if type(tile) == "table" then            
+        if type(tile) == 'table' then
+            --[[ local decoratives = tile.decoratives
+            if decoratives then
+                for _, decorative in ipairs(decoratives) do
+                    table.insert(data.decoratives, decorative)
+                end
+            end ]]
             do_tile(tile.tile, pos)
 
             local entities = tile.entities
@@ -37,13 +44,6 @@ local function do_row(row, data)
                     table.insert(data.entities, entity)
                 end
             end
-
-            --[[ local decoratives = tile.decoratives
-            if decoratives then
-                for _, decorative in ipairs(decoratives) do
-                    table.insert(data.decoratives, decorative)
-                end
-            end ]]
         else
             do_tile(tile, pos)
         end
@@ -55,29 +55,27 @@ local function do_place_tiles(data)
 end
 
 local decoratives = {
-    "brown-asterisk",
-    "brown-carpet-grass",
-    "brown-fluff",
-    "brown-fluff-dry",
-    "brown-hairy-grass",
-    "garballo",
-    "garballo-mini-dry",
-    "green-asterisk",
-    "green-bush-mini",
-    "green-carpet-grass",
-    "green-hairy-grass",
-    "green-pita",
-    "green-pita-mini",
-    "green-small-grass",
-    "red-asterisk"
+    'brown-asterisk',
+    'brown-carpet-grass',
+    'brown-fluff',
+    'brown-fluff-dry',
+    'brown-hairy-grass',
+    'garballo',
+    'garballo-mini-dry',
+    'green-asterisk',
+    'green-bush-mini',
+    'green-carpet-grass',
+    'green-hairy-grass',
+    'green-pita',
+    'green-pita-mini',
+    'green-small-grass',
+    'red-asterisk'
 }
 
 local function do_place_decoratives(data)
-    if not place_decoratives then
-        return
+    if regen_decoratives then
+        data.surface.regenerate_decorative(decoratives, {{data.top_x / 32, data.top_y / 32}})
     end
-
-    data.surface.regenerate_decorative(decoratives, {{data.top_x / 32, data.top_y / 32}})
 end
 
 local function do_place_entities(data)
@@ -144,12 +142,14 @@ local function on_chunk(event)
         entities = {},
         decoratives = {}
     }
-    Task.queue_task("map_gen_action", data, 36)
+    Task.queue_task('map_gen_action', data, 36)
 end
 
-local function init(s)
-    shape = s
-    return on_chunk
+local function init(args)
+    shape = args.shape
+    regen_decoratives = args.regen_decoratives or false
+
+    Event.add(defines.events.on_chunk_generated, on_chunk)
 end
 
 return init

@@ -92,18 +92,20 @@ local entity_modules = {
 	--require "map_gen.misc.wreck_items",
 	--require "map_gen.ores.neko_crazy_ores",
 	--require "map_gen.ores.fluffy_rainbows",
-	--require "map_gen.ores.harmonic_gen",	
+	--require "map_gen.ores.harmonic_gen",
 	--require "map_gen.ores.resource_clustertruck"
 }
 
 local terrain_modules ={
-	--require "map_gen.misc.tris_chunk_grid",		
+	--require "map_gen.misc.tris_chunk_grid",
 }
 
 --everything else. You may use more than one of these, but beware they might not be compatible
 miscs = {}
 --require "map_gen.misc.rusky_pvp"
 --table.insert(miscs, require("map_gen.misc.rail_grid")) -- used for map_gen.presets.UK
+
+local regen_decoratives = false
 
 if #entity_modules > 0 then
 	shape = shape or b.full_shape
@@ -120,11 +122,8 @@ if #terrain_modules > 0 then
 end
 
 if shape then
-	local gen = require "map_gen.shared.generate"
-	--local gen = require "map_gen.shared.generate_not_threaded"
-
-	gen = gen(shape)
-	Event.add(defines.events.on_chunk_generated, gen)
+	require ("map_gen.shared.generate")({shape = shape, regen_decoratives = regen_decoratives})
+	--require ("map_gen.shared.generate_not_threaded")({shape = shape, regen_decoratives = regen_decoratives})
 end
 
 --[[ local on_chunk_generated = function(event)
