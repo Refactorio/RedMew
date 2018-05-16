@@ -448,17 +448,6 @@ local function pool()
   end
 end
 
-local function reactor_toggle()
-  if not game.player or game.player.admin then
-    global.reactors_enabled = not global.reactors_enabled
-    if global.reactors_enabled then
-      game.print("Reactor meltdown activated.")
-    else
-      game.print("Reactor meltdown deactivated.")
-    end
-  end
-end
-
 local old_add_command = commands.add_command
 commands.add_command = function(name, desc, func)
   old_add_command(name, desc, function(cmd)
@@ -491,4 +480,3 @@ commands.add_command("zoom", "<number> Sets your zoom.", zoom)
 commands.add_command("all-tech", "researches all technologies", function() if game.player and game.player.admin then game.player.force.research_all_technologies() end end)
 commands.add_command("hax", "Toggles your hax", function() if game.player and game.player.admin then game.player.cheat_mode = not game.player.cheat_mode  end end)
 commands.add_command("pool",  "Spawns a pool", pool)
-commands.add_command("meltdown",  "Toggles if reactors blow up", reactor_toggle)

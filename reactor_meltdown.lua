@@ -5,22 +5,25 @@
 
 local Event = require "utils.event"
 
+global.reactors_enabled = false
 global.wastelands = {}
 global.reactors = {}
 local wasteland_duration_seconds = 300
 
 local function entity_destroyed(event)
-  if event.entity.name == "nuclear-reactor" then
-    local reactor = event.entity
-    if event.entity.temperature > 700 then
-      reactor.surface.create_entity{name="atomic-rocket", position=reactor.position, target=reactor, speed=1}
-      spawn_wasteland(reactor.surface, reactor.position)
-      global.wastelands[reactor.position.x .. "/" .. reactor.position.y] = {position = reactor.position, surface_id = reactor.surface.index, creation_time = game.tick}
-    end
+  if not global.reactors_enabled or not event.entity.valid or not event.entity.name == "nuclear-reactor" then
+    return
+  end
+
+  local reactor = event.entity
+  if reactor.temperature > 700 then
+    reactor.surface.create_entity{name="atomic-rocket", position=reactor.position, target=reactor, speed=1}
+    spawn_wasteland(reactor.surface, reactor.position)
+    global.wastelands[reactor.position.x .. "/" .. reactor.position.y] = {position = reactor.position, surface_id = reactor.surface.index, creation_time = game.tick}
   end
 end
 
-function spawn_wasteland(surface, position)
+local function spawn_wasteland(surface, position)
     local positions = {
       {0, 0},
       {0, 12},
@@ -102,7 +105,6 @@ local function check_wastelands()
   end
 end
 
-global.reactors_enabled = true
 local function on_tick()
   if global.reactors_enabled then
     check_wastelands()
@@ -118,6 +120,19 @@ local function entity_build(event)
     table.insert(global.reactors, event.created_entity)
   end
 end
+
+local function reactor_toggle()
+  if not game.player or game.player.admin then
+    global.reactors_enabled = not global.reactors_enabled
+    if global.reactors_enabled then
+      game.print("Reactor meltdown activated.")
+    else
+      game.print("Reactor meltdown deactivated.")
+    end
+  end
+end
+
+commands.add_command("meltdown",  "Toggles if reactors blow up", reactor_toggle)
 
 Event.on_nth_tick(60, on_tick)
 Event.add(defines.events.on_player_mined_entity, entity_destroyed)
