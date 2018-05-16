@@ -6,7 +6,7 @@ function degrees(angle)
 end
 
 local function add_entity(tile, entity)
-    if type(tile) == "table" then
+    if type(tile) == 'table' then
         if tile.entities then
             table.insert(tile.entities, entity)
         else
@@ -62,14 +62,14 @@ end
 
 function Builders.line_x(thickness)
     thickness = thickness / 2
-    return function(x, y)
+    return function(_, y)
         return y > -thickness and y <= thickness
     end
 end
 
 function Builders.line_y(thickness)
     thickness = thickness / 2
-    return function(x, y)
+    return function(x, _)
         return x > -thickness and x <= thickness
     end
 end
@@ -108,8 +108,8 @@ function Builders.oval(x_radius, y_radius)
 end
 
 function Builders.sine_fill(width, height)
-    width_inv = tau / width
-    height_inv = -2 / height
+    local width_inv = tau / width
+    local height_inv = -2 / height
     return function(x, y)
         local x2 = x * width_inv
         local y2 = y * height_inv
@@ -124,37 +124,37 @@ end
 local tile_map = {
     [1] = false,
     [2] = true,
-    [3] = "concrete",
-    [4] = "deepwater-green",
-    [5] = "deepwater",
-    [6] = "dirt-1",
-    [7] = "dirt-2",
-    [8] = "dirt-3",
-    [9] = "dirt-4",
-    [10] = "dirt-5",
-    [11] = "dirt-6",
-    [12] = "dirt-7",
-    [13] = "dry-dirt",
-    [14] = "grass-1",
-    [15] = "grass-2",
-    [16] = "grass-3",
-    [17] = "grass-4",
-    [18] = "hazard-concrete-left",
-    [19] = "hazard-concrete-right",
-    [20] = "lab-dark-1",
-    [21] = "lab-dark-2",
-    [22] = "lab-white",
-    [23] = "out-of-map",
-    [24] = "red-desert-0",
-    [25] = "red-desert-1",
-    [26] = "red-desert-2",
-    [27] = "red-desert-3",
-    [28] = "sand-1",
-    [29] = "sand-2",
-    [30] = "sand-3",
-    [31] = "stone-path",
-    [32] = "water-green",
-    [33] = "water"
+    [3] = 'concrete',
+    [4] = 'deepwater-green',
+    [5] = 'deepwater',
+    [6] = 'dirt-1',
+    [7] = 'dirt-2',
+    [8] = 'dirt-3',
+    [9] = 'dirt-4',
+    [10] = 'dirt-5',
+    [11] = 'dirt-6',
+    [12] = 'dirt-7',
+    [13] = 'dry-dirt',
+    [14] = 'grass-1',
+    [15] = 'grass-2',
+    [16] = 'grass-3',
+    [17] = 'grass-4',
+    [18] = 'hazard-concrete-left',
+    [19] = 'hazard-concrete-right',
+    [20] = 'lab-dark-1',
+    [21] = 'lab-dark-2',
+    [22] = 'lab-white',
+    [23] = 'out-of-map',
+    [24] = 'red-desert-0',
+    [25] = 'red-desert-1',
+    [26] = 'red-desert-2',
+    [27] = 'red-desert-3',
+    [28] = 'sand-1',
+    [29] = 'sand-2',
+    [30] = 'sand-3',
+    [31] = 'stone-path',
+    [32] = 'water-green',
+    [33] = 'water'
 }
 
 function Builders.decompress(pic)
@@ -173,7 +173,7 @@ function Builders.decompress(pic)
             local pixel = tile_map[row[index]]
             local count = row[index + 1]
 
-            for i = 1, count do
+            for _ = 1, count do
                 u_row[x] = pixel
                 x = x + 1
             end
@@ -282,7 +282,7 @@ function Builders.combine(shapes)
             local i, s = next(shapes, index)
             while i do
                 local t = s(x, y, world)
-                if type(t) == "table" then
+                if type(t) == 'table' then
                     if not tile.tile then
                         tile.tile = t.tile
                     end
@@ -312,12 +312,12 @@ function Builders.combine(shapes)
             local t = s(x, y, world)
             if not tile then
                 tile = t
-            elseif type(t) == "table" then
+            elseif type(t) == 'table' then
                 t.tile = tile
                 return combine_table(t, i)
             end
 
-            if type(tile) == "table" then
+            if type(tile) == 'table' then
                 return combine_table(tile, i)
             end
 
@@ -401,15 +401,14 @@ function Builders.if_else(shape, else_shape)
 end
 
 function Builders.linear_grow(shape, size)
-    local half_size = size / 2
     return function(x, y, world)
         local t = math.ceil((y / size) + 0.5)
         local n = math.ceil((math.sqrt(8 * t + 1) - 1) / 2)
         local t_upper = n * (n + 1) * 0.5
         local t_lower = t_upper - n
 
-        local y = (y - size * (t_lower + n / 2 - 0.5)) / n
-        local x = x / n
+        y = (y - size * (t_lower + n / 2 - 0.5)) / n
+        x = x / n
 
         return shape(x, y, world)
     end
@@ -455,8 +454,8 @@ function Builders.project(shape, size, r)
         local c = size * rn
 
         local sn_upper = size * (r ^ (n + 1) - 1) * r2
-        local x = x * rn2
-        local y = (y - (sn_upper - 0.5 * c) + offset) * rn2
+        x = x * rn2
+        y = (y - (sn_upper - 0.5 * c) + offset) * rn2
 
         return shape(x, y, world)
     end
@@ -477,8 +476,8 @@ function Builders.project_overlap(shape, size, r)
         local c = size * rn
 
         local sn_upper = size * (r ^ (n + 1) - 1) * r2
-        local x = x * rn2
-        local y = (y - (sn_upper - 0.5 * c) + offset) * rn2
+        x = x * rn2
+        y = (y - (sn_upper - 0.5 * c) + offset) * rn2
 
         local tile
 
@@ -487,7 +486,6 @@ function Builders.project_overlap(shape, size, r)
             return tile
         end
 
-        local n_above = n - 1
         local rn_above = rn / r
         local rn2_above = 1 / rn_above
         local c_above = size * rn_above
@@ -501,7 +499,6 @@ function Builders.project_overlap(shape, size, r)
             return tile
         end
 
-        local n_below = n + 1
         local rn_below = rn * r
         local rn2_below = 1 / rn_below
         local c_below = size * rn_below
@@ -524,7 +521,7 @@ function Builders.entity(shape, name)
 end
 
 function Builders.resource(shape, resource_type, amount_function)
-    amount_function = amount_function or function(a, b)
+    amount_function = amount_function or function()
             return 404
         end
     return function(x, y, world)
@@ -575,7 +572,7 @@ end
 
 -- pattern builders.
 function Builders.single_pattern(shape, width, height)
-    shape = shape or Builder.empty_shape
+    shape = shape or Builders.empty_shape
     local half_width = width / 2
     local half_height
     if height then
@@ -593,7 +590,7 @@ function Builders.single_pattern(shape, width, height)
 end
 
 function Builders.single_pattern_overlap(shape, width, height)
-    shape = shape or Builder.empty_shape
+    shape = shape or Builders.empty_shape
     local half_width = width / 2
     local half_height
     if height then
@@ -613,7 +610,7 @@ function Builders.single_pattern_overlap(shape, width, height)
 end
 
 function Builders.single_x_pattern(shape, width)
-    shape = shape or Builder.empty_shape
+    shape = shape or Builders.empty_shape
     local half_width = width / 2
 
     return function(x, y, world)
@@ -624,7 +621,7 @@ function Builders.single_x_pattern(shape, width)
 end
 
 function Builders.single_y_pattern(shape, height)
-    shape = shape or Builder.empty_shape
+    shape = shape or Builders.empty_shape
     local half_height = height / 2
 
     return function(x, y, world)
@@ -648,7 +645,7 @@ function Builders.grid_pattern(pattern, columns, rows, width, height)
         local col_pos = math.floor(x / width + 0.5)
         local col_i = col_pos % columns + 1
 
-        local shape = row[col_i] or Builder.empty_shape
+        local shape = row[col_i] or Builders.empty_shape
         return shape(x2, y2, world)
     end
 end
@@ -667,7 +664,7 @@ function Builders.grid_pattern_overlap(pattern, columns, rows, width, height)
         local col_pos = math.floor(x / width + 0.5)
         local col_i = col_pos % columns + 1
 
-        local shape = row[col_i] or Builder.empty_shape
+        local shape = row[col_i] or Builders.empty_shape
 
         local tile = shape(x2, y2, world)
         if tile then
@@ -676,14 +673,14 @@ function Builders.grid_pattern_overlap(pattern, columns, rows, width, height)
 
         -- edges
         local col_i_left = (col_pos - 1) % columns + 1
-        shape = row[col_i_left] or Builder.empty_shape
+        shape = row[col_i_left] or Builders.empty_shape
         tile = shape(x2 + width, y2, world)
         if tile then
             return tile
         end
 
         local col_i_right = (col_pos + 1) % columns + 1
-        shape = row[col_i_right] or Builder.empty_shape
+        shape = row[col_i_right] or Builders.empty_shape
         tile = shape(x2 - width, y2, world)
         if tile then
             return tile
@@ -691,7 +688,7 @@ function Builders.grid_pattern_overlap(pattern, columns, rows, width, height)
 
         local row_i_up = (row_pos - 1) % rows + 1
         local row_up = pattern[row_i_up] or {}
-        shape = row_up[col_i] or Builder.empty_shape
+        shape = row_up[col_i] or Builders.empty_shape
         tile = shape(x2, y2 + height, world)
         if tile then
             return tile
@@ -699,7 +696,7 @@ function Builders.grid_pattern_overlap(pattern, columns, rows, width, height)
 
         local row_i_down = (row_pos + 1) % rows + 1
         local row_down = pattern[row_i_down] or {}
-        shape = row_down[col_i] or Builder.empty_shape
+        shape = row_down[col_i] or Builders.empty_shape
         return shape(x2, y2 - height, world)
     end
 end
@@ -727,55 +724,55 @@ function Builders.grid_pattern_full_overlap(pattern, columns, rows, width, heigh
         local col_i_right = (col_pos + 1) % columns + 1
 
         -- start from top left, move left to right then down
-        local shape = row_up[col_i_left] or Builder.empty_shape
+        local shape = row_up[col_i_left] or Builders.empty_shape
         local tile = shape(x2 + width, y2 + height, world)
         if tile then
             return tile
         end
 
-        shape = row_up[col_i] or Builder.empty_shape
+        shape = row_up[col_i] or Builders.empty_shape
         tile = shape(x2, y2 + height, world)
         if tile then
             return tile
         end
 
-        shape = row_up[col_i_right] or Builder.empty_shape
+        shape = row_up[col_i_right] or Builders.empty_shape
         tile = shape(x2 - width, y2 + height, world)
         if tile then
             return tile
         end
 
-        shape = row[col_i_left] or Builder.empty_shape
+        shape = row[col_i_left] or Builders.empty_shape
         tile = shape(x2 + width, y2, world)
         if tile then
             return tile
         end
 
-        local shape = row[col_i] or Builder.empty_shape
+        shape = row[col_i] or Builders.empty_shape
         tile = shape(x2, y2, world)
         if tile then
             return tile
         end
 
-        shape = row[col_i_right] or Builder.empty_shape
+        shape = row[col_i_right] or Builders.empty_shape
         tile = shape(x2 - width, y2, world)
         if tile then
             return tile
         end
 
-        shape = row_down[col_i_left] or Builder.empty_shape
+        shape = row_down[col_i_left] or Builders.empty_shape
         tile = shape(x2 + width, y2 - height, world)
         if tile then
             return tile
         end
 
-        shape = row_down[col_i] or Builder.empty_shape
+        shape = row_down[col_i] or Builders.empty_shape
         tile = shape(x2, y2 - height, world)
         if tile then
             return tile
         end
 
-        shape = row_down[col_i_right] or Builder.empty_shape
+        shape = row_down[col_i_right] or Builders.empty_shape
         return shape(x2 - width, y2 - height, world)
     end
 end
@@ -786,7 +783,7 @@ function Builders.segment_pattern(pattern)
     return function(x, y, world)
         local angle = math.atan2(-y, x)
         local index = math.floor(angle / tau * count) % count + 1
-        local shape = pattern[index] or Builder.empty_shape
+        local shape = pattern[index] or Builders.empty_shape
         return shape(x, y, world)
     end
 end
@@ -813,7 +810,7 @@ function Builders.pyramid_pattern(pattern, columns, rows, width, height)
             return false
         end
 
-        local shape = row[col_i] or Builder.empty_shape
+        local shape = row[col_i] or Builders.empty_shape
         return shape(x2, y2, world)
     end
 end
@@ -866,59 +863,56 @@ function Builders.pyramid_pattern_inner_overlap(pattern, columns, rows, width, h
         local col_i_left = (col_pos - 1) % columns + 1
         local col_i_right = (col_pos + 1) % columns + 1
 
-        local col_i_left2 = (col_pos - 2) % columns + 1
-        local col_i_right2 = (col_pos + 0) % columns + 1
-
         -- start from top left, move left to right then down
-        local shape = row_up[col_i_left] or Builder.empty_shape
+        local shape = row_up[col_i_left] or Builders.empty_shape
         local tile = shape(x_even + width, y2 + height, world)
         if tile then
             return tile
         end
 
-        shape = row_up[col_i_odd] or Builder.empty_shape
+        shape = row_up[col_i_odd] or Builders.empty_shape
         tile = shape(x_odd, y2 + height, world)
         if tile then
             return tile
         end
 
-        shape = row_up[col_i_right] or Builder.empty_shape
+        shape = row_up[col_i_right] or Builders.empty_shape
         tile = shape(x_even - width, y2 + height, world)
         if tile then
             return tile
         end
 
-        shape = row[col_i_left] or Builder.empty_shape
+        shape = row[col_i_left] or Builders.empty_shape
         tile = shape(x_even + width, y2, world)
         if tile then
             return tile
         end
 
-        local shape = row[col_i] or Builder.empty_shape
+        shape = row[col_i] or Builders.empty_shape
         tile = shape(x_even, y2, world)
         if tile then
             return tile
         end
 
-        shape = row[col_i_right] or Builder.empty_shape
+        shape = row[col_i_right] or Builders.empty_shape
         tile = shape(x_even - width, y2, world)
         if tile then
             return tile
         end
 
-        shape = row_down[col_i_left] or Builder.empty_shape
+        shape = row_down[col_i_left] or Builders.empty_shape
         tile = shape(x_even + width, y2 - height, world)
         if tile then
             return tile
         end
 
-        shape = row_down[col_i_odd] or Builder.empty_shape
+        shape = row_down[col_i_odd] or Builders.empty_shape
         tile = shape(x_odd, y2 - height, world)
         if tile then
             return tile
         end
 
-        shape = row_down[col_i_right] or Builder.empty_shape
+        shape = row_down[col_i_right] or Builders.empty_shape
         return shape(x_even - width, y2 - height, world)
     end
 end
@@ -937,10 +931,10 @@ function Builders.grid_pattern_offset(pattern, columns, rows, width, height)
         local col_pos = math.floor(x / width + 0.5)
         local col_i = col_pos % columns + 1
 
-        local y2 = y2 + height * math.floor((row_pos + 1) / rows)
-        local x2 = x2 + width * math.floor((col_pos + 1) / columns)
+        y2 = y2 + height * math.floor((row_pos + 1) / rows)
+        x2 = x2 + width * math.floor((col_pos + 1) / columns)
 
-        local shape = row[col_i] or Builder.empty_shape
+        local shape = row[col_i] or Builders.empty_shape
         return shape(x2, y2, world)
     end
 end
@@ -950,7 +944,7 @@ function Builders.change_tile(shape, old_tile, new_tile)
     return function(x, y, world)
         local tile = shape(x, y, world)
 
-        if type(tile) == "table" then
+        if type(tile) == 'table' then
             if tile.tile == old_tile then
                 tile.tile = new_tile
             end
@@ -968,7 +962,7 @@ function Builders.change_collision_tile(shape, collides, new_tile)
     return function(x, y, world)
         local tile = shape(x, y, world)
 
-        if type(tile) == "table" then
+        if type(tile) == 'table' then
             if tile.tile.collides_with(collides) then
                 tile.tile = new_tile
                 return tile
@@ -987,7 +981,7 @@ end
 function Builders.change_map_gen_tile(shape, old_tile, new_tile)
     return function(x, y, world)
         local function handle_tile(tile)
-            if type(tile) == "boolean" and tile then
+            if type(tile) == 'boolean' and tile then
                 local gen_tile = world.surface.get_tile(world.x, world.y).name
                 if gen_tile == old_tile then
                     return new_tile
@@ -998,7 +992,7 @@ function Builders.change_map_gen_tile(shape, old_tile, new_tile)
 
         local tile = shape(x, y, world)
 
-        if type(tile) == "table" then
+        if type(tile) == 'table' then
             tile.tile = handle_tile(tile.tile)
         else
             tile = handle_tile(tile)
@@ -1012,7 +1006,7 @@ end
 function Builders.change_map_gen_collision_tile(shape, collides, new_tile)
     return function(x, y, world)
         local function handle_tile(tile)
-            if type(tile) == "boolean" and tile then
+            if type(tile) == 'boolean' and tile then
                 local gen_tile = world.surface.get_tile(world.x, world.y)
                 if gen_tile.collides_with(collides) then
                     return new_tile
@@ -1023,7 +1017,7 @@ function Builders.change_map_gen_collision_tile(shape, collides, new_tile)
 
         local tile = shape(x, y, world)
 
-        if type(tile) == "table" then
+        if type(tile) == 'table' then
             tile.tile = handle_tile(tile.tile)
         else
             tile = handle_tile(tile)
@@ -1034,18 +1028,18 @@ function Builders.change_map_gen_collision_tile(shape, collides, new_tile)
 end
 
 local bad_tiles = {
-    ["out-of-map"] = true,
-    ["water"] = true,
-    ["deepwater"] = true,
-    ["water-green"] = true,
-    ["deepwater-green"] = true
+    ['out-of-map'] = true,
+    ['water'] = true,
+    ['deepwater'] = true,
+    ['water-green'] = true,
+    ['deepwater-green'] = true
 }
 
 function Builders.overlay_tile_land(shape, tile_shape)
     return function(x, y, world)
         local function handle_tile(tile)
-            if type(tile) == "boolean" then
-                return tile and not world.surface.get_tile(world.x, world.y).collides_with("water-tile")
+            if type(tile) == 'boolean' then
+                return tile and not world.surface.get_tile(world.x, world.y).collides_with('water-tile')
             else
                 return not bad_tiles[tile]
             end
@@ -1053,7 +1047,7 @@ function Builders.overlay_tile_land(shape, tile_shape)
 
         local tile = shape(x, y, world)
 
-        if type(tile) == "table" then
+        if type(tile) == 'table' then
             if handle_tile(tile.tile) then
                 tile.tile = tile_shape(x, y, world) or tile.tile
             end
@@ -1068,29 +1062,29 @@ function Builders.overlay_tile_land(shape, tile_shape)
 end
 
 local water_tiles = {
-    ["water"] = true,
-    ["deepwater"] = true,
-    ["water-green"] = true,
-    ["deepwater-green"] = true
+    ['water'] = true,
+    ['deepwater'] = true,
+    ['water-green'] = true,
+    ['deepwater-green'] = true
 }
 
 function Builders.fish(shape, spawn_rate)
     return function(x, y, world)
         local function handle_tile(tile)
-            if type(tile) == "string" then
+            if type(tile) == 'string' then
                 if water_tiles[tile] and spawn_rate >= math.random() then
-                    return {name = "fish"}
+                    return {name = 'fish'}
                 end
             elseif tile then
-                if world.surface.get_tile(world.x, world.y).collides_with("water-tile") and spawn_rate >= math.random() then
-                    return {name = "fish"}
+                if world.surface.get_tile(world.x, world.y).collides_with('water-tile') and spawn_rate >= math.random() then
+                    return {name = 'fish'}
                 end
             end
         end
 
         local tile = shape(x, y, world)
 
-        if type(tile) == "table" then
+        if type(tile) == 'table' then
             local entity = handle_tile(tile.tile)
             if entity then
                 add_entity(tile, entity)
