@@ -43,7 +43,7 @@ local function striped(_, _, world)
     return {
         name = ore.resource_type,
         position = {world.x, world.y},
-        amount = ore.value(world.x, world.y)
+        amount = 3 * ore.value(world.x, world.y)
     }
 end
 
@@ -54,7 +54,7 @@ local function sprinkle(_, _, world)
     return {
         name = ore.resource_type,
         position = {world.x, world.y},
-        amount = ore.value(world.x, world.y)
+        amount = 3 * ore.value(world.x, world.y)
     }
 end
 
