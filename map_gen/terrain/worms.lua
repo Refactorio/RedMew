@@ -1,5 +1,3 @@
-local Task = require "utils.Task"
-
 local worms_per_chunk = 50
 local small_worm_spawn_distance = 100
 local medium_worm_spawn_distance = 150
