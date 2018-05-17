@@ -520,6 +520,14 @@ function Builders.entity(shape, name)
     end
 end
 
+function Builders.entity_func(shape, func)
+    return function(x, y, world)
+        if shape(x, y, world) then
+            return func(x, y, world)
+        end
+    end
+end
+
 function Builders.resource(shape, resource_type, amount_function)
     amount_function = amount_function or function()
             return 404
