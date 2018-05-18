@@ -194,12 +194,17 @@ local function toggle_main_frame(player)
 end
 
 local function gui_click(event)
+    local element = event.element
+    if not element or not element.valid then
+        return
+    end
+
     local player = game.players[event.player_index]
     if not player or not player.valid then
         return
     end
 
-    local name = event.element.name
+    local name = element.name
     if name == main_button_name then
         toggle_main_frame(player)
     elseif name == flip_h_button_name then
