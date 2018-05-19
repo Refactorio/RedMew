@@ -19,7 +19,7 @@ make pet follow you moar
 
 local Event = require "utils.event"
 
-function spawn_market(cmd)
+local function spawn_market(cmd)
   if not game.player or not game.player.admin then
     cant_run(cmd.name)
     return
@@ -352,7 +352,7 @@ end
 
 if not global.pet_command_rotation then global.pet_command_rotation = 1 end
 
-function on_180_ticks()
+local function on_180_ticks()
 
   if game.tick % 900 == 0 then
      if global.player_speed_boost_records then
@@ -399,12 +399,14 @@ function on_180_ticks()
   end
 end
 
-function fish_player_crafted_item(event)
+local function fish_player_crafted_item(event)
    local x = math.random(1,50)
    if x == 1 then
       fish_earned(event, 1)
    end
 end
+
+commands.add_command("market", 'Places a fish market near you.  (Admins only)', spawn_market)
 
 Event.on_nth_tick(180, on_180_ticks)
 Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)

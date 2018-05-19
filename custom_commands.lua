@@ -463,7 +463,6 @@ commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admin
 commands.add_command("invoke", "<player> - Teleports the player to you. (Admins and moderators)", invoke)
 commands.add_command("tppos", "Teleports you to a selected entity. (Admins only)", teleport_location)
 commands.add_command("walkabout", '<player> <duration> - Send someone on a walk.  (Admins and moderators)', walkabout)
-commands.add_command("market", 'Places a fish market near you.  (Admins only)', spawn_market)
 commands.add_command("regulars", 'Prints a list of game regulars.', print_regulars)
 commands.add_command("regular", '<promote, demote>, <player> Change regular status of a player. (Admins and moderators)', regular)
 commands.add_command("mods", 'Prints a list of game mods.', print_mods)
