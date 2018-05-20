@@ -7,8 +7,10 @@ local load_event_name = -2
 
 local control_stage = true
 
-local event_handlers = {}-- map of event_name to handlers[]
-local on_nth_tick_event_handlers = {}-- map of nth_tick to handlers[]
+-- map of event_name to handlers[]
+local event_handlers = {}
+-- map of nth_tick to handlers[]
+local on_nth_tick_event_handlers = {}
 
 local function call_handlers(handlers, event)
     if debug_mode then
@@ -85,19 +87,19 @@ function Event.on_nth_tick(tick, handler)
     end
 end
 
-local Token = require "utils.global_token"
+local Token = require 'utils.global_token'
 global.event_tokens = {}
 
 function Event.add_removable(event_name, token)
     local event_tokens = global.event_tokens
-    
+
     local tokens = event_tokens[event_name]
     if not tokens then
         event_tokens[event_name] = {token}
     else
         table.insert(tokens, token)
     end
-    
+
     if not control_stage then
         local handler = Token.get(token)
         Event.add(event_name, handler)
@@ -115,29 +117,29 @@ end
 
 function Event.remove_removable(event_name, token)
     local event_tokens = global.event_tokens
-    
+
     local tokens = event_tokens[event_name]
-    
+
     if not tokens then
         return
     end
-    
+
     local handler = Token.get(token)
     local handlers = event_handlers[event_name]
-    
+
     remove(tokens, token)
     remove(handlers, handler)
-    
+
     if #handlers == 0 then
         script.on_event(event_name, nil)
     end
 end
 
 local function add_token_handlers()
-	control_stage = false
+    control_stage = false
 
     local event_tokens = global.event_tokens
-    
+
     for event_name, tokens in pairs(event_tokens) do
         for _, token in ipairs(tokens) do
             local handler = Token.get(token)
