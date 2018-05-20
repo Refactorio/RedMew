@@ -2,15 +2,14 @@ local Token = {}
 
 local tokens = {}
 
-local counter = 1
+local counter = 0
 
 function Token.register(var)
-    local c = counter
+    counter = counter + 1
 
-    tokens[c] = var
-    counter = c + 1
+    tokens[counter] = var
 
-    return c
+    return counter
 end
 
 function Token.get(token_id)
@@ -29,6 +28,14 @@ end
 
 function Token.get_global(token_id)
     return global.tokens[token_id]
+end
+
+local uid_counter = 0
+
+function Token.uid()
+    uid_counter = uid_counter + 1
+
+    return uid_counter
 end
 
 return Token

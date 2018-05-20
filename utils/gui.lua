@@ -1,0 +1,74 @@
+local Token = require 'utils.global_token'
+local Event = require 'utils.event'
+
+local Gui = {}
+
+global.Gui_data = {}
+
+local click_handlers
+
+function Gui.uid_name()
+    return tostring(Token.uid())
+end
+
+-- Associates data with the LuaGuiElement. If data is nil then removes the data
+function Gui.set_data(element, data)
+    global.Gui_data[element.player_index .. ',' .. element.index] = data
+end
+
+-- Gets the Associated data with this LuaGuiElement if any.
+function Gui.get_data(element)
+    return global.Gui_data[element.player_index .. ',' .. element.index]
+end
+
+-- Removes data associated with LuaGuiElement and its children recursivly.
+function Gui.remove_data_recursivly(element)
+    Gui.set_data(element, nil)
+
+    local children = element.children
+
+    if not children then
+        return
+    end
+
+    for _, child in ipairs(children) do
+        if child.valid then
+            Gui.remove_data_recursivly(child)
+        end
+    end
+end
+
+local function on_click(event)
+    local element = event.element
+    if not element or not element.valid then
+        return
+    end
+
+    local player = game.players[event.player_index]
+    if not player or not player.valid then
+        return
+    end
+    event.player = player
+
+    local handler = click_handlers[element.name]
+    if not handler then
+        return
+    end
+
+    handler(event)
+end
+
+-- Register a handler for the on_gui_click event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+function Gui.on_click(element_name, handler)
+    if not click_handlers then
+        click_handlers = {}
+        Event.add(defines.events.on_gui_click, on_click)
+    end
+
+    click_handlers[element_name] = handler
+end
+
+return Gui
