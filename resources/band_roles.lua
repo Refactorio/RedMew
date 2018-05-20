@@ -3,8 +3,8 @@
 
 return {
     ['Trooper'] = {
-        path = 'item/tank',
-        tooltip = {
+        paths = {'item/tank'},
+        tooltips = {
             'Incoming!!!',
             "If the facts don't fit the theory, change the facts.",
             'I suppose it is tempting, if the only tool you have is a hammer, to treat everything as if it were a nail.',
@@ -15,11 +15,13 @@ return {
         }
     },
     ['Mining'] = {
-        --"item/steel-axe",
-        path = 'item/iron-axe',
-        -- "item/iron-ore",
-        -- "item/copper-ore",
-        tooltip = {
+        paths = {
+            'item/iron-axe',
+            'item/steel-axe',
+            'item/iron-ore',
+            'item/copper-ore'
+        },
+        tooltips = {
             'Mine or not to mine',
             'The nation behaves well if it treats the natural resources as assets which\n it must turn over to the next generation increased, and not impaired, in value.'
         },
@@ -29,12 +31,11 @@ return {
         }
     },
     ['Smelting'] = {
-        --"item/assembling-machine-1",
-        path = 'item/steel-furnace',
-        --"item/assembling-machine-3",
-        --"item/inserter",
-        --"item/stack-inserter",
-        tooltip = {
+        paths = {
+            'item/stone-furnace',
+            'item/steel-furnace'
+        },
+        tooltips = {
             'Mirrors are ice which do not melt: what melts are those who admire themselves in them.',
             "It's as certain that as long as fossil fuels are the cheapest energy, we will just keep burning them."
         },
@@ -43,12 +44,12 @@ return {
         }
     },
     ['Production'] = {
-        --'item/assembling-machine-1',
-        path = 'item/assembling-machine-2',
-        --'item/assembling-machine-3',
-        --"item/inserter",
-        --"item/stack-inserter",
-        tooltip = {
+        paths = {
+            'item/assembling-machine-1',
+            'item/assembling-machine-2',
+            'item/assembling-machine-3'
+        },
+        tooltips = {
             "When every physical and mental resources is focused, one's power to solve a problem multiplies tremendously.",
             'The production of too many useful things results in too many useless people. ',
             'Everything must be made as simple as possible. But not simpler.'
@@ -58,14 +59,16 @@ return {
         }
     },
     ['Science'] = {
-        path = 'item/science-pack-1',
-        --'item/science-pack-2',
-        --'item/science-pack-3',
-        --'item/military-science-pack',
-        --'item/production-science-pack',
-        --'item/high-tech-science-pack',
-        --'item/space-science-pack',
-        tooltip = {
+        paths = {
+            'item/science-pack-1',
+            'item/science-pack-2',
+            'item/science-pack-3',
+            'item/military-science-pack',
+            'item/production-science-pack',
+            'item/high-tech-science-pack',
+            'item/space-science-pack'
+        },
+        tooltips = {
             'Science without religion is lame, religion without science is blind',
             'If we knew what it was we were doing, it would not be called research, would it?',
             'Somewhere, something incredible is waiting to be known.',
@@ -76,11 +79,13 @@ return {
         }
     },
     ['Wizard'] = {
-        --'item/green-wire',
-        --'item/red-wire',
-        path = 'item/arithmetic-combinator',
-        --'item/decider-combinator',
-        tooltip = {
+        paths = {
+            'item/arithmetic-combinator',
+            'item/green-wire',
+            'item/red-wire',
+            'item/decider-combinator'
+        },
+        tooltips = {
             "Without mathematics, there's nothing you can do. Everything around you is mathematics. Everything around you is numbers.",
             'Pure mathematics is, in its way, the poetry of logical ideas.',
             'God used beautiful mathematics in creating the world.',
@@ -94,13 +99,15 @@ return {
         }
     },
     ['Trains'] = {
-        --"entity/curved-rail",
-        --"item/cargo-wagon",
-        --"item/fluid-wagon",
-        path = 'item/locomotive',
-        --"item/rail-signal",
-        --"item/rail",
-        tooltip = {
+        paths = {
+            'item/locomotive',
+            'entity/curved-rail',
+            'item/cargo-wagon',
+            'item/fluid-wagon',
+            'item/rail-signal',
+            'item/rail'
+        },
+        tooltips = {
             'Ch, ch, choooo!',
             'The only way of catching a train I have ever discovered is to miss the train before. ',
             "If a trainstation is where the train stops, what's a workstation...?"
@@ -111,18 +118,14 @@ return {
         }
     },
     ['Oil'] = {
-        --"item/storage-tank",
-        --"item/pipe-to-ground",
-        --"item/oil-refinery",
-        --"item/chemical-plant",
-        path = 'item/pumpjack',
-        --'fluid/crude-oil',
-        --"fluid/heavy-oil",
-        --"fluid/light-oil",
-        --"fluid/petroleum-gas",
-        --"fluid/lubricant",
-        --"fluid/sulfuric-acid",
-        tooltip = {
+        paths = {
+            'item/pumpjack',
+            'item/storage-tank',
+            'item/oil-refinery',
+            'item/chemical-plant',
+            'fluid/crude-oil'
+        },
+        tooltips = {
             "We're running out of oil!",
             'Black gold',
             "Naturally occurring, yellow-to-black liquid found in geological formations beneath the Earth's surface, which is commonly refined into various types of fuels.",
@@ -135,15 +138,8 @@ return {
         }
     },
     ['Powah!'] = {
-        --'item/steam-turbine',
-        --"item/nuclear-reactor",
-        --"item/heat-exchanger",
-        path = 'item/steam-engine',
-        --'item/solar-panel',
-        --'item/accumulator',
-        --"item/boiler",
-        --"fluid/steam",
-        tooltip = {
+        paths = {'item/steam-engine', 'item/nuclear-reactor', 'item/solar-panel'},
+        tooltips = {
             'I ve Got The power!',
             'Power Overwhelming!!!111',
             'Its Over 9000!!!',
@@ -156,11 +152,8 @@ return {
         }
     },
     ['Spaceman'] = {
-        path = 'item/rocket-silo',
-        --'item/rocket-control-unit',
-        --'item/satellite',
-        --'item/rocket-fuel',
-        tooltip = {
+        paths = {'item/rocket-silo', 'item/rocket-fuel'},
+        tooltips = {
             "That's one small step for a man, one giant leap for mankind.",
             "The sky is the limit only for those who aren't afraid to fly!",
             'Apocalyptic explosions, dead reactors, terrorists, mass murder, death-slugs, and now a blindness plague. This is a terrible planet. We should not have come here.',
@@ -172,8 +165,8 @@ return {
         }
     },
     ['Cat'] = {
-        path = 'item/raw-fish',
-        tooltip = {
+        paths = {'item/raw-fish'},
+        tooltips = {
             '=^.^=',
             'Meow',
             "In a cat's eye, all things belong to cats.",
@@ -187,11 +180,13 @@ return {
         }
     },
     ['Dog'] = {
-        path = 'entity/small-biter',
-        --'entity/medium-biter',
-        --'entity/big-biter',
-        --'entity/behemoth-biter',
-        tooltip = {
+        paths = {
+            'entity/small-biter',
+            'entity/medium-biter',
+            'entity/big-biter',
+            'entity/behemoth-biter'
+        },
+        tooltips = {
             'Not a cat',
             'Friend',
             "It's not the size of the dog in the fight, it's the size of the fight in the dog.",

@@ -16,9 +16,12 @@ Event.on_load(
 )
 
 local function change_player_tag(player, band_name)
-    local tag_name = '[' .. band_name .. ']'
-
     local old_tag = player.tag
+    if band_name == '' and old_tag == '' then
+        return false
+    end
+
+    local tag_name = '[' .. band_name .. ']'
     if old_tag == tag_name then
         return false
     end
@@ -73,7 +76,7 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'button', caption = 'tag'}
+    player.gui.top.add {name = main_button_name, type = 'sprite-button', caption = 'tag'}
 end
 
 local function draw_main_frame(player)
@@ -100,7 +103,11 @@ local function draw_main_frame(player)
 
         local row = scroll_pane.add {type = 'flow', direction = 'horizontal'}
 
-        local button = row.add {type = 'sprite-button', name = band_button_name, sprite = band_data.path}
+        local path = band_data.paths[math.random(#band_data.paths)]
+        local tooltip = band_data.tooltips[math.random(#band_data.tooltips)]
+
+        local button = row.add {type = 'sprite-button', name = band_button_name, sprite = path}
+        button.tooltip = tooltip
 
         Gui.set_data(button, band_name)
 
@@ -143,6 +150,18 @@ local function redraw_main_frame()
     end
 end
 
+local function redraw_main_button(player, path)
+    local main_button = player.gui.top[main_button_name]
+
+    if path == '' then
+        main_button.sprite = 'utility/pump_cannot_connect_icon'
+        main_button.caption = 'tag'
+    else
+        main_button.caption = ''
+        main_button.sprite = path
+    end
+end
+
 local function toggle(event)
     local left = event.player.gui.left
     local main_frame = left[main_frame_name]
@@ -161,9 +180,11 @@ Gui.on_click(
     band_button_name,
     function(event)
         local tag = Gui.get_data(event.element)
+        local path = event.element.sprite
 
         if change_player_tag(event.player, tag) then
             redraw_main_frame()
+            redraw_main_button(event.player, path)
         end
     end
 )
@@ -173,6 +194,7 @@ Gui.on_click(
     function(event)
         if change_player_tag(event.player, '') then
             redraw_main_frame()
+            redraw_main_button(event.player, '')
         end
     end
 )
