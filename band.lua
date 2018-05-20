@@ -1,416 +1,66 @@
--- Give players the option to set their preferred role as a tag
--- Version 0.1.6
--- https://github.com/Befzz/factorio_random/tree/master/scenarios/befzz_test
+local Event = require 'utils.event'
+local Gui = require 'utils.gui'
+local Token = require 'utils.global_token'
 
-local Event = require "utils.event"
+local player_tags = {}
+local player_tags_token = Token.register_global(player_tags)
 
--- SETTINGS
-local option_band_change_interval = 60 * 3 -- in ticks
-if not global.band_last_change then global.band_last_change = {} end
+Event.on_load(
+    function()
+        player_tags = Token.get_global(player_tags_token)
+    end
+)
 
-local band_roles = require "resources.band_roles"
-local to_print, roles = band_roles.to_print, band_roles.roles
+local main_button_name = Gui.uid_name()
+local main_frame_name = Gui.uid_name()
+local clear_button_name = Gui.uid_name()
 
-do
-  local i = 1
-  for _, roledata in pairs(roles) do
-    roledata.index = i
-    i = i + 1
-  end
+local function player_joined(event)
+    local player = game.players[event.player_index]
+    if not player or not player.valid then
+        return
+    end
+
+    if player.gui.top[main_button_name] ~= nil then
+        return
+    end
+
+    player.gui.top.add {name = main_button_name, type = 'button', caption = 'tag'}
 end
 
-local custom_roles = {}
+local function toggle(event)
+    local left = event.player.gui.left
+    local main_frame = left[main_frame_name]
 
-local expand_band_gui
-
-
--- store current role
-local local_role
-
-local function create_band_gui(event)
-	local player = game.players[event.player_index]
-	global.band_last_change[event.player_index] = game.tick
-  if player.gui.top.band_toggle_btn == nil then
-    local button = player.gui.top.add { name = "band_toggle_btn", type = "sprite-button", caption = "Tag" }
-    button.style.font = "default-bold"
-    button.style.minimal_height = 38
-    button.style.minimal_width = 38
-    button.style.top_padding = 2
-    button.style.left_padding = 4
-    button.style.right_padding = 4
-    button.style.bottom_padding = 2
-
-    -- expand_band_gui(player)
-  end
-end
-
-
--- Make a list of random names with roles
-local function test_fake_players( t )
-  local limit =  math.random(20,120)
-
-  local roles_ind = {}
-  for role in pairs(roles) do
-    table.insert( roles_ind, role)
-  end
-
-  for i = 1,limit do
-    local rolei = math.random(1, #roles_ind)
-    local role = roles_ind[rolei]
-
-    table.insert(t[role],
-      {
-        "Fake#" .. (tostring(math.random())):sub(3,-math.random(1,10)),
-        {
-          r=math.random(),
-          g=math.random(),
-          b=math.random()
-        }
-      }
-    )
-  end
-end
-
-local function get_random_from_table(tbl)
-  return tbl[math.random(1,#tbl)]
-end
-
-local function subgui_update_role_counter(gui_parent, count_diff)
-  local count_label
-  if gui_parent["role_counter"] then
-    count_label = gui_parent["role_counter"]
-  else
-    count_label = gui_parent.add {type = "label", caption = 0, name = "role_counter", single_line = false}
-    count_label.style.font = "default-small-bold"
-    count_label.style.maximal_height = 10
-    count_label.style.top_padding = 0
-    count_label.style.left_padding = 0
-    count_label.style.right_padding = 0
-    count_label.style.bottom_padding = 0
-    count_label.style.font_color = {r=.55,g=.55,b=.55}
-  end
-
-  local new_count = tonumber(count_label.caption) + count_diff
-  count_label.caption = new_count
-  if new_count == 0 then
-    count_label.style.visible = false
-  else
-    count_label.style.visible = true
-  end
-end
-
-local function subgui_add_player_label(gui_parent, pname, pcolor)
-  local color_k = 0.6
-
-  local name_label = gui_parent.add {type = "label", name = "list_players_"..pname, caption = pname, want_ellipsis = true, single_line = false}
-  name_label.style.font = "default"
-  name_label.style.top_padding = 0
-  name_label.style.right_padding = 4
-  name_label.style.left_padding = 2
-  name_label.style.bottom_padding = 0
-  name_label.style.maximal_height = 11
-  name_label.style.minimal_height = 11
-  name_label.style.maximal_width = 120
-  name_label.style.minimal_width = 120
-  name_label.style.font_color = {
-   r = .4 + pcolor.r * color_k,
-   g = .4 + pcolor.g * color_k,
-   b = .4 + pcolor.b * color_k,
-  }
-end
-
--- dev_icons(ctrl + click): show icon-choose buttons
--- dev_addfakes(alt + click): add random number of player names w/ color
-expand_band_gui = function(player, dev_icons, dev_addfakes, right_click)
-  local frame = player.gui.left["band_panel"]
-  if (frame) then
-    frame.destroy()
-
-    if player.gui.center["textfield_item_icon_frame"] then
-      player.gui.center["textfield_item_icon_frame"].destroy()
-    end
-    if player.tag ~= "" then
-      player.gui.top.band_toggle_btn.tooltip = "Tag: "..player.tag.."\n Right Click to show offline players with tags."
-      if player.admin then
-        player.gui.top.band_toggle_btn.tooltip = player.gui.top.band_toggle_btn.tooltip.."\n CTRL + Click to explore icons.\n ALT + Click to add fake names"
-      end
-    end
-    return
-  end
-
-  local player_role = player.tag:sub(2,-2)
-  -- Will be filled: { roleN = {{name,color},...} , ...}
-  local players_by_role = {}
-
-
-  for role in pairs(roles) do
-    players_by_role[role] = {}
-  end
-
-  for _,role in pairs(custom_roles) do
-    roles[role] = nil
-  end
-  for _,cplayer in pairs(game.players) do
-    local role = cplayer.tag:sub(2,-2)
-    if role ~= "" and roles[role] == nil then
-      players_by_role[role] = {}
-      table.insert(custom_roles, role)
-      roles[role] = {"item/iron-stick",tooltip = {"I'm sure he does something"},verbs = {"enlarged"}}
-    end
-  end
-
-  if right_click then
-    for _, oplayer in pairs(game.players) do
-      local prole = oplayer.tag:sub(2,-2)
-      if prole ~= "" then
-        if oplayer.connected then
-          table.insert( players_by_role[prole], {oplayer.name, oplayer.color})
-        else
-          table.insert( players_by_role[prole], {oplayer.name, {r=0,g=0,b=0}})
-        end
-      end
-    end
-  else
-    for _, oplayer in pairs(game.connected_players) do
-      local prole = oplayer.tag:sub(2,-2)
-      if prole ~= "" then
-          table.insert( players_by_role[prole], {oplayer.name, oplayer.color})
-      end
-    end
-  end
-
-  if dev_addfakes then
-    test_fake_players(players_by_role)
-  end
-
-  player.gui.top.band_toggle_btn.tooltip = ""
-
-  local button--reusable variable :D
-  local frame = player.gui.left.add { type = "frame", direction = "vertical", name = "band_panel", caption = "Choose your role:"}
-	frame.style.font_color = { r=0.98, g=0.66, b=0.22}
-
-  if dev_icons then
-    local choose
-    local chooselist = frame.add { type = "flow", direction = "horizontal" }
-    -- ["signal"] = {type = "virtual", name = "signal-A"}
-    for itype, ivalue in pairs({["item"] = "green-wire", ["entity"] = "medium-spitter", ["tile"] = "concrete"}) do
-      choose = chooselist.add { type = "choose-elem-button", elem_type = itype, [itype] = ivalue, name = "help_item_icon_choose_"..itype }
-      choose.style.minimal_height = 36
-      choose.style.minimal_width = 36
-      choose.style.top_padding = 2
-      choose.style.left_padding = 2
-      choose.style.right_padding = 2
-      choose.style.bottom_padding = 2
-    end
-  end
-
-  local scroll = frame.add{type = "scroll-pane", name = "scroll", horizontal_scroll_policy = "never", vertical_scroll_policy = "auto"}
-  scroll.style.maximal_height = 600
-  scroll.style.minimal_width = 250
-  scroll.style.bottom_padding = 10
-
-  local table_roles = scroll.add{type = "table", name = "table_roles", column_count = 2}
-  table_roles.style.horizontal_spacing = 15
-  table_roles.style.vertical_spacing = 4
-
-
-  local name_label
-  local pname
-  local pcolor
-
-  local show_role_tooltip = math.random() > .5
-
-  for role, role_icons in pairs(roles) do
-
-    local role_line = table_roles.add { type = "flow", direction = "horizontal" }
-
-    button = role_line.add { type = "sprite-button", sprite = get_random_from_table(role_icons), name = "band_role_"..role}
-    button.style.top_padding = 4
-    button.style.left_padding = 4
-    button.style.right_padding = 4
-    button.style.bottom_padding = 4
-    button.style.width = 40
-    button.style.height = 40
-    if show_role_tooltip and role_icons.tooltip then
-      button.tooltip = get_random_from_table( role_icons.tooltip )
-    end
-
-    local role_cap_line = role_line.add { type = "flow", name = "role_cap_line", direction = "horizontal" }
---    role_cap_line.style.max_on_row = 1
-
-    local role_label = role_cap_line.add { type = "label", caption = role, single_line = true}
-    -- role_label.style.minimal_width = 0
-    role_label.style.minimal_height = 0
-    role_label.style.maximal_height = 12
-    role_label.style.top_padding = 0
-    role_label.style.left_padding = 0
-    role_label.style.right_padding = 0
-    role_label.style.bottom_padding = 0
-    role_label.style.font = "default-bold"
-    if role == player_role then
-      role_label.style.font_color = {r=.7,g=1,b=.7}
-    end
-
-    subgui_update_role_counter(role_cap_line, #players_by_role[role])
-
-    local list_players = table_roles.add { type = "flow", direction = "horizontal" }
---    list_players.style.max_on_row = 3
-    list_players.style.top_padding = 0
-    list_players.style.bottom_padding = 7
-
-    if players_by_role[role] then
-      for _,pdata in pairs(players_by_role[role]) do
-        pname = pdata[1]
-        pcolor = pdata[2]
-        subgui_add_player_label(list_players, pname, pcolor)
-      end
-    end
-  end
-
-  local close_btn_flow = frame.add { type = "flow", direction = "horizontal" }
-  button = close_btn_flow.add { type = "button", caption = "Close", name = "band_close" }
-  button.style.font = "default-bold"
-  button.style.minimal_width = 80
-  button.style.maximal_height = 26
-  button.style.top_padding = 0
-  button.style.left_padding = 2
-  button.style.right_padding = 2
-  button.style.bottom_padding = 0
-
-  button = close_btn_flow.add { type = "button", caption = "Clear tag", name = "band_clear" }
-  button.style.font = "default-bold"
-  button.style.font_color = {r=1, g=.7, b=.7}
-  button.style.minimal_width = 80
-  button.style.maximal_height = 28
-  button.style.top_padding = 0
-  button.style.left_padding = 2
-  button.style.right_padding = 2
-  button.style.bottom_padding = 0
-end
-
-local function print_role_change(name, role)
-  local str = nil
-  if role then
-    if roles[role].verbs and math.random() > 0.7 then
-      str = (get_random_from_table(to_print))
+    if main_frame then
+        Gui.remove_data_recursivly(main_frame)
+        main_frame.destroy()
     else
-      str = ("[%band] squad has `" .. get_random_from_table(roles[role].verbs) .. "` with %name.")
-    end
-    str = str:gsub('%%band', role)
-  --[[elseif local_role then
-    str = "%name is not in a squad anymore"
-    if math.random() > .9 then
-      str = str .. " (["..local_role.."] squad will miss you)."
-    end]]--
-  end
+        main_frame =
+            left.add {type = 'frame', name = main_frame_name, caption = 'Choose your tag', direction = 'vertical'}
 
-  if str then
-    str = str:gsub('%%name', name)
-    game.print(str)
-  end
+        main_frame.style.maximal_height = 500
+
+        local scroll_pane =
+            main_frame.add {type = 'scroll-pane', direction = 'vertical', vertical_scroll_policy = 'always'}
+
+        scroll_pane.style.right_padding = 0
+
+        for _ = 1, 100 do
+            local row = scroll_pane.add {type = 'flow', direction = 'horizontal'}
+
+            local button = row.add {type = 'button', caption = 'role'}
+            local list = row.add {type = 'label'}
+
+            list.style.minimal_width = 100
+        end
+
+        local flow = main_frame.add {type = 'flow'}
+        flow.add {type = 'button', name = main_button_name, caption = 'close'}
+        flow.add {type = 'button', name = clear_button_name, caption = 'clear tag'}
+    end
 end
 
--- messy (bcs WIP)
-local function update_player_role(player, role)
+Gui.on_click(main_button_name, toggle)
 
-	global.update_player_name = player
-	global.update_player_role_name = role
-
-  if global.update_player_role_name then
-    global.update_player_name.tag = "[" .. global.update_player_role_name .. "]"
-  else
-    global.update_player_name.tag = ""
-  end
-
-  print_role_change(global.update_player_name.name, global.update_player_role_name)
-  expand_band_gui(player)
-  expand_band_gui(player)
-
-  local_role = role
-end
-
-local function on_gui_click(event)
-  if not (event and event.element and event.element.valid) then return end
-  local player = game.players[event.element.player_index]
-  local name = event.element.name
-
-  if (name == "band_toggle_btn") then
-    --player, dev_icons, dev_addfakes
-    expand_band_gui(player,
-      player.admin and event.control,
-      player.admin and event.alt,
-      event.button == defines.mouse_button_type.right)
-  end
-
-  if (name == "band_close") then
-    expand_band_gui(player)
-    return
-  end
-
-  if (name == "band_clear") then
-
-    update_player_role(player, nil)
-
-    player.gui.top.band_toggle_btn.caption = "Tag"
-    player.gui.top.band_toggle_btn.tooltip = ""
-    player.gui.top.band_toggle_btn.sprite = ""
-    return
-  end
-
-  --role button clicked
-  if name:find("band_role_") == 1 then
-    if not player.admin and event.tick - global.band_last_change[event.player_index] < option_band_change_interval then
-      player.print("Too fast! Please wait... " .. math.floor(1+(global.band_last_change[event.player_index] + option_band_change_interval - event.tick)/60).." s.")
-      return
-    end
-    local _,role_ind_start = name:find("band_role_")
-    local name_role = name:sub(role_ind_start + 1)
-
-    if player.tag:find(name_role) then
-      -- current tag = new tag
-      return
-    end
-
-    for role, role_icons in pairs(roles) do
-      if (name_role == role) then
-        global.band_last_change[event.player_index] = event.tick
-
-        player.gui.top.band_toggle_btn.caption = ""
-        player.gui.top.band_toggle_btn.sprite = event.element.sprite  --get_random_from_table(role_icons)
-
-        update_player_role(player, role)
-        -- expand_band_gui(player)
-      end
-    end
-  end
-end
-
---handle choose-item button
-local function on_gui_elem_changed(event)
-  if not (event and event.element and event.element.valid) then return end
-  local player = game.players[event.element.player_index]
-  local name = event.element.name
-  if name:find("help_item_icon_choose") then
-    if player.gui.center["textfield_item_icon_frame"] then
-      player.gui.center["textfield_item_icon_frame"].destroy()
-    end
-    if event.element.elem_type and event.element.elem_value then
-      local frame = player.gui.center.add{ type = "frame", name = "textfield_item_icon_frame", caption = "SpritePath"}
-      frame.style.minimal_width = 310
-      local textfield
-      -- if type(event.element.elem_value ) == 'table' then
-        -- textfield = frame.add { name = "textfield_item_icon", type = "textfield", text = "virtual-signal/" .. event.element.elem_value.name }
-      -- else
-        textfield = frame.add { name = "textfield_item_icon", type = "textfield", text = event.element.elem_type .. "/" .. event.element.elem_value }
-      -- end
-
-      --buggy
-      textfield.style.minimal_width = 300
-    end
-  end
-
-end
-
-Event.add(defines.events.on_gui_elem_changed, on_gui_elem_changed)
-Event.add(defines.events.on_gui_click, on_gui_click)
-Event.add(defines.events.on_player_joined_game, create_band_gui)
+Event.add(defines.events.on_player_joined_game, player_joined)
