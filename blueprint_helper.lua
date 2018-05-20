@@ -1,6 +1,7 @@
 -- Soft mod version of Blueprint Flipper and Turner https://mods.factorio.com/mods/Marthen/Blueprint_Flip_Turn
 
 local Event = require 'utils.event'
+local Gui = require 'utils.gui'
 
 local function getBlueprintCursorStack(player)
     local cursor = player.cursor_stack
@@ -16,8 +17,8 @@ end
 local function flip_v(player)
     local cursor = getBlueprintCursorStack(player)
     if cursor then
-        if cursor.get_blueprint_entities() ~= nil then
-            local ents = cursor.get_blueprint_entities()
+        local ents = cursor.get_blueprint_entities()
+        if ents then
             for i = 1, #ents do
                 local dir = ents[i].direction or 0
                 if ents[i].name == 'curved-rail' then
@@ -76,8 +77,8 @@ end
 local function flip_h(player)
     local cursor = getBlueprintCursorStack(player)
     if cursor then
-        if cursor.get_blueprint_entities() ~= nil then
-            local ents = cursor.get_blueprint_entities()
+        local ents = cursor.get_blueprint_entities()
+        if ents then
             for i = 1, #ents do
                 local dir = ents[i].direction or 0
                 if ents[i].name == 'curved-rail' then
@@ -133,10 +134,59 @@ local function flip_h(player)
     end
 end
 
-local main_button_name = 'blueprint_helper_main_button'
-local main_frame_name = 'blueprint_helper_main_frame'
-local flip_h_button_name = 'blueprint_helper_flip_h_button'
-local flip_v_button_name = 'blueprint_helper_flip_v_button'
+local function valid_filter(entity_name)
+    local prototype = game.entity_prototypes[entity_name]
+
+    if not prototype then
+        return false
+    end
+
+    -- 'not-blueprintable' doesn't seem to work - grilledham 2018.05.20
+    return prototype.has_flag('player-creation') and not prototype.has_flag('placeable-off-grid')
+end
+
+local function convert(player, data)
+    local cursor = getBlueprintCursorStack(player)
+    if not cursor then
+        return
+    end
+
+    local entities = cursor.get_blueprint_entities()
+    if not entities then
+        return
+    end
+
+    local filters = {}
+    for _, filter in pairs(data) do
+        local from = filter.from.elem_value
+        local to = filter.to.elem_value
+
+        if from and to then
+            if valid_filter(from) and valid_filter(to) then
+                filters[from] = to
+            else
+                player.print('invalid filter: ' .. from .. ' => ' .. to)
+            end
+        end
+    end
+
+    for _, e in ipairs(entities) do
+        local to_name = filters[e.name]
+        if to_name then
+            e.name = to_name
+        end
+    end
+
+    cursor.set_blueprint_entities(entities)
+end
+
+-- Gui implementation.
+
+local main_button_name = Gui.uid_name()
+local main_frame_name = Gui.uid_name()
+local flip_h_button_name = Gui.uid_name()
+local flip_v_button_name = Gui.uid_name()
+local convert_button_name = Gui.uid_name()
 
 local function player_joined(event)
     local player = game.players[event.player_index]
@@ -148,21 +198,15 @@ local function player_joined(event)
         return
     end
 
-    local button = player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'item/blueprint'}
-    button.style.font = 'default-bold'
-    button.style.minimal_height = 38
-    button.style.minimal_width = 38
-    button.style.top_padding = 2
-    button.style.left_padding = 4
-    button.style.right_padding = 4
-    button.style.bottom_padding = 2
+    player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'item/blueprint'}
 end
 
-local function toggle_main_frame(player)
-    local left = player.gui.left
+local function toggle(event)
+    local left = event.player.gui.left
 
     local main_frame = left[main_frame_name]
     if main_frame and main_frame.valid then
+        Gui.remove_data_recursivly(main_frame)
         main_frame.destroy()
     else
         main_frame =
@@ -172,47 +216,97 @@ local function toggle_main_frame(player)
             direction = 'vertical',
             caption = 'Blueprint Helper'
         }
-        main_frame.add {
+        local scroll_pane =
+            main_frame.add {type = 'scroll-pane', direction = 'vertical', vertical_scroll_policy = 'auto'}
+        scroll_pane.style.maximal_height = 500
+
+        -- Flipper.
+
+        local flipper_frame = scroll_pane.add {type = 'frame', caption = 'Flipper', direction = 'vertical'}
+
+        flipper_frame.add {
             type = 'label',
             caption = 'With blueprint in cursor click on button below to flip blueprint.'
         }
-        main_frame.add {
+        flipper_frame.add {
             type = 'label',
             caption = 'Obviously this wont work correctly with refineries or chemical plants.'
         }
-        main_frame.add {
+        flipper_frame.add {
             type = 'button',
             name = flip_h_button_name,
             caption = 'Flip Horizontal'
         }
-        main_frame.add {
+        flipper_frame.add {
             type = 'button',
             name = flip_v_button_name,
             caption = 'Flip Vertical'
         }
+
+        -- Converter.
+
+        local filter_frame = scroll_pane.add {type = 'frame', caption = 'Entity Converter', direction = 'vertical'}
+
+        filter_frame.add {type = 'label', caption = 'Set filters then with blueprint in cursor click convert'}
+
+        local filter_table = filter_frame.add {type = 'table', column_count = 13}
+
+        local filters = {}
+
+        for _ = 1, 3 do
+            for _ = 1, 3 do
+                local filler = filter_table.add {type = 'label'}
+                filler.style.minimal_width = 16
+
+                local from_filter =
+                    filter_table.add {
+                    type = 'choose-elem-button',
+                    elem_type = 'entity'
+                }
+                filter_table.add {type = 'label', caption = '=>'}
+
+                local to_filter =
+                    filter_table.add {
+                    type = 'choose-elem-button',
+                    elem_type = 'entity'
+                }
+
+                table.insert(filters, {from = from_filter, to = to_filter})
+            end
+
+            local filler = filter_table.add {type = 'label'}
+            filler.style.minimal_width = 16
+        end
+
+        local filter_button = filter_frame.add {type = 'button', name = convert_button_name, caption = 'convert'}
+        Gui.set_data(filter_button, filters)
+
+        main_frame.add {type = 'button', name = main_button_name, caption = 'close'}
     end
 end
 
-local function gui_click(event)
-    local element = event.element
-    if not element or not element.valid then
-        return
-    end
+Gui.on_click(main_button_name, toggle)
 
-    local player = game.players[event.player_index]
-    if not player or not player.valid then
-        return
+Gui.on_click(
+    flip_h_button_name,
+    function(event)
+        flip_h(event.player)
     end
+)
 
-    local name = element.name
-    if name == main_button_name then
-        toggle_main_frame(player)
-    elseif name == flip_h_button_name then
-        flip_h(player)
-    elseif name == flip_v_button_name then
-        flip_v(player)
+Gui.on_click(
+    flip_v_button_name,
+    function(event)
+        flip_v(event.player)
     end
-end
+)
+
+Gui.on_click(
+    convert_button_name,
+    function(event)
+        local data = Gui.get_data(event.element)
+        convert(event.player, data)
+    end
+)
 
 Event.add(defines.events.on_player_joined_game, player_joined)
-Event.add(defines.events.on_gui_click, gui_click)
