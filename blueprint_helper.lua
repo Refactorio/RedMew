@@ -247,7 +247,7 @@ local function toggle(event)
 
         local filter_frame = scroll_pane.add {type = 'frame', caption = 'Entity Converter', direction = 'vertical'}
 
-        filter_frame.add {type = 'label', caption = 'Set filters then with blueprint in cursor click convert'}
+        filter_frame.add {type = 'label', caption = 'Set filters then with blueprint in cursor click convert.'}
 
         local filter_table = filter_frame.add {type = 'table', column_count = 13}
 
