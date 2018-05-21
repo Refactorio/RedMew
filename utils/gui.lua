@@ -73,6 +73,7 @@ function Gui.on_click(element_name, handler)
 end
 
 local function on_close(event)
+    -- element is only set on the envent for custom gui elements.
     local element = event.element
     if not element or not element.valid then
         return

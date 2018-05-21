@@ -134,16 +134,6 @@ local function flip_h(player)
     end
 end
 
---[[ local function valid_filter(entity_name)
-    local prototype = game.entity_prototypes[entity_name]
-
-    if not prototype then
-        return false
-    end
-
-    -- 'not-blueprintable' doesn't seem to work - grilledham 2018.05.20
-    return prototype.has_flag('player-creation') and not prototype.has_flag('placeable-off-grid')
-end ]]
 local function convert(player, data)
     local cursor = getBlueprintCursorStack(player)
     if not cursor then
@@ -174,8 +164,6 @@ local function convert(player, data)
 
     cursor.set_blueprint_entities(entities)
 end
-
--- Gui implementation.
 
 local valid_filters = {
     'wooden-chest',
@@ -258,6 +246,8 @@ local valid_filters = {
     'rocket-silo'
 }
 
+-- Gui implementation.
+
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 local flip_h_button_name = Gui.uid_name()
@@ -269,6 +259,7 @@ local filter_element_name = Gui.uid_name()
 local filters_table_name = Gui.uid_name()
 local filter_table_close_button_name = Gui.uid_name()
 local filter_table_clear_name = Gui.uid_name()
+local clear_all_filters_name = Gui.uid_name()
 
 local function player_joined(event)
     local player = game.players[event.player_index]
@@ -285,7 +276,7 @@ end
 
 local function draw_filters_table(event)
     local center = event.player.gui.center
-    local frame = center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = 'Set filter'}
+    local frame = center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = 'Set Filter'}
 
     local t = frame.add {type = 'table', column_count = 8}
     t.style.horizontal_spacing = 0
@@ -300,10 +291,10 @@ local function draw_filters_table(event)
 
     local flow = frame.add {type = 'flow'}
 
-    local close = flow.add {type = 'button', name = filter_table_close_button_name, caption = 'close'}
+    local close = flow.add {type = 'button', name = filter_table_close_button_name, caption = 'Close'}
     Gui.set_data(close, frame)
 
-    local clear = flow.add {type = 'button', name = filter_table_clear_name, caption = 'clear filter'}
+    local clear = flow.add {type = 'button', name = filter_table_clear_name, caption = 'Clear Filter'}
     Gui.set_data(clear, frame)
 
     event.player.opened = frame
@@ -336,7 +327,7 @@ local function toggle(event)
 
         flipper_frame.add {
             type = 'label',
-            caption = 'With blueprint in cursor click on button below to flip blueprint.'
+            caption = 'Place blueprint on buttons below to flip blueprint.'
         }
         flipper_frame.add {
             type = 'label',
@@ -360,7 +351,11 @@ local function toggle(event)
 
         local filter_frame = scroll_pane.add {type = 'frame', caption = 'Entity Converter', direction = 'vertical'}
 
-        filter_frame.add {type = 'label', caption = 'Set filters then with blueprint in cursor click convert.'}
+        filter_frame.add {
+            type = 'label',
+            -- The empty space is a hacky way to line this frame up with the above frame.
+            caption = 'Set filters then place blueprint on convert button to apply filters.          '
+        }
 
         local filter_table = filter_frame.add {type = 'table', column_count = 13}
 
@@ -378,7 +373,7 @@ local function toggle(event)
                 }
                 from_filter.style = 'slot_button'
 
-                filter_table.add {type = 'label', caption = '=>'}
+                filter_table.add {type = 'label', caption = '→'}
 
                 local to_filter =
                     filter_table.add({type = 'flow'}).add {
@@ -394,10 +389,17 @@ local function toggle(event)
             filler.style.minimal_width = 16
         end
 
-        local filter_button = filter_frame.add {type = 'button', name = convert_button_name, caption = 'convert'}
+        local converter_buttons_flow = filter_frame.add {type = 'flow'}
+
+        local clear_button =
+            converter_buttons_flow.add {type = 'button', name = clear_all_filters_name, caption = 'Clear Filters'}
+        Gui.set_data(clear_button, filters)
+
+        local filter_button =
+            converter_buttons_flow.add {type = 'button', name = convert_button_name, caption = 'Convert'}
         Gui.set_data(filter_button, filters)
 
-        main_frame.add {type = 'button', name = main_button_name, caption = 'close'}
+        main_frame.add {type = 'button', name = main_button_name, caption = 'Close'}
     end
 end
 
@@ -466,6 +468,23 @@ Gui.on_click(
 
         Gui.remove_data_recursivly(frame)
         frame.destroy()
+    end
+)
+
+Gui.on_click(
+    clear_all_filters_name,
+    function(event)
+        local filters = Gui.get_data(event.element)
+
+        for _, filter in ipairs(filters) do
+            local from = filter.from
+            local to = filter.to
+
+            from.sprite = 'utility/pump_cannot_connect_icon'
+            from.tooltip = ''
+            to.sprite = 'utility/pump_cannot_connect_icon'
+            to.tooltip = ''
+        end
     end
 )
 
