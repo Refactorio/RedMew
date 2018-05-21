@@ -6,6 +6,7 @@ local Gui = {}
 global.Gui_data = {}
 
 local click_handlers
+local close_handlers
 
 function Gui.uid_name()
     return tostring(Token.uid())
@@ -69,6 +70,39 @@ function Gui.on_click(element_name, handler)
     end
 
     click_handlers[element_name] = handler
+end
+
+local function on_close(event)
+    local element = event.element
+    if not element or not element.valid then
+        return
+    end
+
+    local player = game.players[event.player_index]
+    if not player or not player.valid then
+        return
+    end
+    event.player = player
+
+    local handler = close_handlers[element.name]
+    if not handler then
+        return
+    end
+
+    handler(event)
+end
+
+-- Register a handler for the on_gui_closed event for a custom LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+function Gui.on_custom_close(element_name, handler)
+    if not close_handlers then
+        close_handlers = {}
+        Event.add(defines.events.on_gui_closed, on_close)
+    end
+
+    close_handlers[element_name] = handler
 end
 
 return Gui

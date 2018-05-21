@@ -134,7 +134,7 @@ local function flip_h(player)
     end
 end
 
-local function valid_filter(entity_name)
+--[[ local function valid_filter(entity_name)
     local prototype = game.entity_prototypes[entity_name]
 
     if not prototype then
@@ -143,8 +143,7 @@ local function valid_filter(entity_name)
 
     -- 'not-blueprintable' doesn't seem to work - grilledham 2018.05.20
     return prototype.has_flag('player-creation') and not prototype.has_flag('placeable-off-grid')
-end
-
+end ]]
 local function convert(player, data)
     local cursor = getBlueprintCursorStack(player)
     if not cursor then
@@ -158,15 +157,11 @@ local function convert(player, data)
 
     local filters = {}
     for _, filter in pairs(data) do
-        local from = filter.from.elem_value
-        local to = filter.to.elem_value
+        local from = filter.from.tooltip
+        local to = filter.to.tooltip
 
-        if from and to then
-            if valid_filter(from) and valid_filter(to) then
-                filters[from] = to
-            else
-                player.print('invalid filter: ' .. from .. ' => ' .. to)
-            end
+        if from ~= '' and to ~= '' then
+            filters[from] = to
         end
     end
 
@@ -182,11 +177,98 @@ end
 
 -- Gui implementation.
 
+local valid_filters = {
+    'wooden-chest',
+    'iron-chest',
+    'steel-chest',
+    'storage-tank',
+    'transport-belt',
+    'fast-transport-belt',
+    'express-transport-belt',
+    'underground-belt',
+    'fast-underground-belt',
+    'express-underground-belt',
+    'splitter',
+    'fast-splitter',
+    'express-splitter',
+    'loader',
+    'fast-loader',
+    'express-loader',
+    'burner-inserter',
+    'inserter',
+    'long-handed-inserter',
+    'fast-inserter',
+    'filter-inserter',
+    'stack-inserter',
+    'stack-filter-inserter',
+    'small-electric-pole',
+    'medium-electric-pole',
+    'big-electric-pole',
+    'substation',
+    'pipe',
+    'pipe-to-ground',
+    'pump',
+    'curved-rail',
+    'straight-rail',
+    'train-stop',
+    'rail-signal',
+    'rail-chain-signal',
+    'logistic-chest-active-provider',
+    'logistic-chest-passive-provider',
+    'logistic-chest-storage',
+    'logistic-chest-buffer',
+    'logistic-chest-requester',
+    'roboport',
+    'small-lamp',
+    'arithmetic-combinator',
+    'decider-combinator',
+    'constant-combinator',
+    'power-switch',
+    'programmable-speaker',
+    'boiler',
+    'steam-engine',
+    'steam-turbine',
+    'solar-panel',
+    'accumulator',
+    'nuclear-reactor',
+    'heat-exchanger',
+    'heat-pipe',
+    'burner-mining-drill',
+    'electric-mining-drill',
+    'offshore-pump',
+    'pumpjack',
+    'stone-furnace',
+    'steel-furnace',
+    'electric-furnace',
+    'assembling-machine-1',
+    'assembling-machine-2',
+    'assembling-machine-3',
+    'oil-refinery',
+    'chemical-plant',
+    'centrifuge',
+    'lab',
+    'beacon',
+    'stone-wall',
+    'gate',
+    'gun-turret',
+    'laser-turret',
+    'flamethrower-turret',
+    'artillery-turret',
+    'radar',
+    'rocket-silo'
+}
+
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 local flip_h_button_name = Gui.uid_name()
 local flip_v_button_name = Gui.uid_name()
 local convert_button_name = Gui.uid_name()
+
+local filter_button_name = Gui.uid_name()
+local filter_element_name = Gui.uid_name()
+local filters_table_name = Gui.uid_name()
+local filter_table_close_button_name = Gui.uid_name()
+local filter_table_clear_name = Gui.uid_name()
 
 local function player_joined(event)
     local player = game.players[event.player_index]
@@ -199,6 +281,34 @@ local function player_joined(event)
     end
 
     player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'item/blueprint'}
+end
+
+local function draw_filters_table(event)
+    local center = event.player.gui.center
+    local frame = center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = 'Set filter'}
+
+    local t = frame.add {type = 'table', column_count = 8}
+    t.style.horizontal_spacing = 0
+    t.style.vertical_spacing = 0
+
+    for _, v in ipairs(valid_filters) do
+        local flow = t.add {type = 'flow'}
+        local b = flow.add {type = 'sprite-button', name = filter_element_name, sprite = 'entity/' .. v, tooltip = v}
+        Gui.set_data(b, frame)
+        b.style = 'slot_button'
+    end
+
+    local flow = frame.add {type = 'flow'}
+
+    local close = flow.add {type = 'button', name = filter_table_close_button_name, caption = 'close'}
+    Gui.set_data(close, frame)
+
+    local clear = flow.add {type = 'button', name = filter_table_clear_name, caption = 'clear filter'}
+    Gui.set_data(clear, frame)
+
+    event.player.opened = frame
+
+    Gui.set_data(frame, event.element)
 end
 
 local function toggle(event)
@@ -232,12 +342,15 @@ local function toggle(event)
             type = 'label',
             caption = 'Obviously this wont work correctly with refineries or chemical plants.'
         }
-        flipper_frame.add {
+
+        local flow = flipper_frame.add {type = 'flow'}
+
+        flow.add {
             type = 'button',
             name = flip_h_button_name,
             caption = 'Flip Horizontal'
         }
-        flipper_frame.add {
+        flow.add {
             type = 'button',
             name = flip_v_button_name,
             caption = 'Flip Vertical'
@@ -259,17 +372,20 @@ local function toggle(event)
                 filler.style.minimal_width = 16
 
                 local from_filter =
-                    filter_table.add {
-                    type = 'choose-elem-button',
-                    elem_type = 'entity'
+                    filter_table.add({type = 'flow'}).add {
+                    type = 'sprite-button',
+                    name = filter_button_name
                 }
+                from_filter.style = 'slot_button'
+
                 filter_table.add {type = 'label', caption = '=>'}
 
                 local to_filter =
-                    filter_table.add {
-                    type = 'choose-elem-button',
-                    elem_type = 'entity'
+                    filter_table.add({type = 'flow'}).add {
+                    type = 'sprite-button',
+                    name = filter_button_name
                 }
+                to_filter.style = 'slot_button'
 
                 table.insert(filters, {from = from_filter, to = to_filter})
             end
@@ -302,10 +418,71 @@ Gui.on_click(
 )
 
 Gui.on_click(
+    filter_button_name,
+    function(event)
+        if event.button == defines.mouse_button_type.right then
+            local element = event.element
+            element.sprite = 'utility/pump_cannot_connect_icon'
+            element.tooltip = ''
+        else
+            draw_filters_table(event)
+        end
+    end
+)
+
+Gui.on_click(
+    filter_element_name,
+    function(event)
+        local element = event.element
+        local frame = Gui.get_data(element)
+        local filter_button = Gui.get_data(frame)
+
+        filter_button.sprite = element.sprite
+        filter_button.tooltip = element.tooltip
+
+        Gui.remove_data_recursivly(frame)
+        frame.destroy()
+    end
+)
+
+Gui.on_click(
+    filter_table_close_button_name,
+    function(event)
+        local frame = Gui.get_data(event.element)
+
+        Gui.remove_data_recursivly(frame)
+        frame.destroy()
+    end
+)
+
+Gui.on_click(
+    filter_table_clear_name,
+    function(event)
+        local frame = Gui.get_data(event.element)
+        local filter_button = Gui.get_data(frame)
+
+        filter_button.sprite = 'utility/pump_cannot_connect_icon'
+        filter_button.tooltip = ''
+
+        Gui.remove_data_recursivly(frame)
+        frame.destroy()
+    end
+)
+
+Gui.on_click(
     convert_button_name,
     function(event)
         local data = Gui.get_data(event.element)
         convert(event.player, data)
+    end
+)
+
+Gui.on_custom_close(
+    filters_table_name,
+    function(event)
+        local element = event.element
+        Gui.remove_data_recursivly(element)
+        element.destroy()
     end
 )
 
