@@ -257,5 +257,12 @@ return {
     ['rlidwka'] = true,
     ['simonflapse'] = true,
     ['kidflash'] = true,
-    ['the_squid'] = true
+    ['the_squid'] = true,
+    ['dimava'] = true,
+    ['ralp'] = true,
+    ['damian0816'] = true,
+    ['chukles'] = true,
+    ['frissi'] = true,
+    ['df1229'] = true,
+    ['actitishypoleucos'] = true
 }
