@@ -214,7 +214,7 @@ return
     "all the effort it takes to press a button in a video game",
     "a genuine fake Rolex watch",
     "the last digit of Pi",
-    "the 0.16 patch notes",
+    "the 0.17 patch notes",
     "a chest full of landfill",
     "a Comcast call centre",
     "a 3-10-3 train",
