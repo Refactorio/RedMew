@@ -293,7 +293,7 @@ local function draw_filters_table(event)
 
     local frame = center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = 'Set Filter'}
 
-    local t = frame.add {type = 'table', column_count = 8}
+    local t = frame.add {type = 'table', column_count = 10}
     t.style.horizontal_spacing = 0
     t.style.vertical_spacing = 0
 
@@ -318,13 +318,13 @@ local function draw_filters_table(event)
 end
 
 local function toggle(event)
-    local p_filters = player_filters[event.player.index]
+    local p_filters = player_filters[event.player_index]
     if not p_filters then
         p_filters = {}
         for i = 1, 9 do
             p_filters[i] = {from = '', to = ''}
         end
-        player_filters[event.player.index] = p_filters
+        player_filters[event.player_index] = p_filters
     end
 
     local left = event.player.gui.left

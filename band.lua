@@ -66,6 +66,8 @@ local main_frame_name = Gui.uid_name()
 local band_button_name = Gui.uid_name()
 local clear_button_name = Gui.uid_name()
 
+local main_frame_content_name = Gui.uid_name()
+
 local function player_joined(event)
     local player = game.players[event.player_index]
     if not player or not player.valid then
@@ -79,17 +81,7 @@ local function player_joined(event)
     player.gui.top.add {name = main_button_name, type = 'sprite-button', caption = 'tag'}
 end
 
-local function draw_main_frame(player)
-    local left = player.gui.left
-    local main_frame =
-        left.add {type = 'frame', name = main_frame_name, caption = 'Choose your tag', direction = 'vertical'}
-
-    main_frame.style.maximal_height = 500
-
-    local scroll_pane = main_frame.add {type = 'scroll-pane', direction = 'vertical', vertical_scroll_policy = 'always'}
-
-    scroll_pane.style.right_padding = 0
-
+local function draw_main_frame_content(parent)
     for band_name, band_data in pairs(band_roles) do
         local tag_name = '[' .. band_name .. ']'
         local players = player_tags[tag_name]
@@ -101,18 +93,23 @@ local function draw_main_frame(player)
             size = ' (' .. size .. ')'
         end
 
-        local row = scroll_pane.add {type = 'flow', direction = 'horizontal'}
+        local row = parent.add {type = 'flow', direction = 'horizontal'}
+        row.style.top_padding = 0
+        row.style.bottom_padding = 0
 
         local path = band_data.paths[math.random(#band_data.paths)]
         local tooltip = band_data.tooltips[math.random(#band_data.tooltips)]
 
         local button = row.add {type = 'sprite-button', name = band_button_name, sprite = path}
         button.tooltip = tooltip
+        button.style.top_padding = 0
+        button.style.bottom_padding = 0
+        button.style.maximal_height = 32
 
         Gui.set_data(button, band_name)
 
         local role_label = row.add {type = 'label', caption = band_name .. size}
-        role_label.style.top_padding = 8
+        role_label.style.top_padding = 4
         role_label.style.minimal_width = 120
 
         local list = row.add {type = 'flow', direction = 'horizontal'}
@@ -132,20 +129,43 @@ local function draw_main_frame(player)
 
         list.style.minimal_width = 100
     end
+end
+
+local function draw_main_frame(player)
+    local left = player.gui.left
+    local main_frame =
+        left.add {type = 'frame', name = main_frame_name, caption = 'Choose your tag', direction = 'vertical'}
+
+    main_frame.style.maximal_height = 500
+    main_frame.style.maximal_width = 500
+
+    local scroll_pane =
+        main_frame.add {
+        type = 'scroll-pane',
+        name = main_frame_content_name,
+        direction = 'vertical',
+        vertical_scroll_policy = 'always'
+    }
+
+    scroll_pane.style.right_padding = 0
+
+    draw_main_frame_content(scroll_pane)
 
     local flow = main_frame.add {type = 'flow'}
-    flow.add {type = 'button', name = main_button_name, caption = 'close'}
-    flow.add {type = 'button', name = clear_button_name, caption = 'clear tag'}
+    flow.add {type = 'button', name = main_button_name, caption = 'Close'}
+    flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
 end
 
 local function redraw_main_frame()
     for _, p in ipairs(game.connected_players) do
         local main_frame = p.gui.left[main_frame_name]
         if main_frame then
-            Gui.remove_data_recursivly(main_frame)
-            main_frame.destroy()
+            local content = main_frame[main_frame_content_name]
 
-            draw_main_frame(p)
+            Gui.remove_data_recursivly(content)
+            content.clear()
+
+            draw_main_frame_content(content)
         end
     end
 end
