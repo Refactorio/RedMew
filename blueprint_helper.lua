@@ -1,6 +1,7 @@
 -- Soft mod version of Blueprint Flipper and Turner https://mods.factorio.com/mods/Marthen/Blueprint_Flip_Turn
 
 local Event = require 'utils.event'
+local Token = require 'utils.global_token'
 local Gui = require 'utils.gui'
 
 local function getBlueprintCursorStack(player)
@@ -248,6 +249,15 @@ local valid_filters = {
 
 -- Gui implementation.
 
+local player_filters = {}
+local player_filters_token = Token.register_global(player_filters)
+
+Event.on_load(
+    function()
+        player_filters = Token.get_global(player_filters_token)
+    end
+)
+
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 local flip_h_button_name = Gui.uid_name()
@@ -308,10 +318,26 @@ local function draw_filters_table(event)
 end
 
 local function toggle(event)
-    local left = event.player.gui.left
+    local p_filters = player_filters[event.player.index]
+    if not p_filters then
+        p_filters = {}
+        for i = 1, 9 do
+            p_filters[i] = {from = '', to = ''}
+        end
+        player_filters[event.player.index] = p_filters
+    end
 
+    local left = event.player.gui.left
     local main_frame = left[main_frame_name]
+
     if main_frame and main_frame.valid then
+        local filters = Gui.get_data(main_frame)
+
+        for i, f in pairs(filters) do
+            p_filters[i].from = f.from.tooltip
+            p_filters[i].to = f.to.tooltip
+        end
+
         Gui.remove_data_recursivly(main_frame)
         main_frame.destroy()
     else
@@ -362,36 +388,38 @@ local function toggle(event)
             caption = 'Set filters then place blueprint on convert button to apply filters.          '
         }
 
-        local filter_table = filter_frame.add {type = 'table', column_count = 13}
+        local filter_table = filter_frame.add {type = 'table', column_count = 12}
 
         local filters = {}
 
-        for _ = 1, 3 do
-            for _ = 1, 3 do
-                local filler = filter_table.add {type = 'label'}
-                filler.style.minimal_width = 16
-
-                local from_filter =
-                    filter_table.add({type = 'flow'}).add {
-                    type = 'sprite-button',
-                    name = filter_button_name
-                }
-                from_filter.style = 'slot_button'
-
-                filter_table.add {type = 'label', caption = '→'}
-
-                local to_filter =
-                    filter_table.add({type = 'flow'}).add {
-                    type = 'sprite-button',
-                    name = filter_button_name
-                }
-                to_filter.style = 'slot_button'
-
-                table.insert(filters, {from = from_filter, to = to_filter})
-            end
-
+        for i = 1, 9 do
             local filler = filter_table.add {type = 'label'}
             filler.style.minimal_width = 16
+
+            local from_tooltip = p_filters[i].from
+            local to_tooltip = p_filters[i].to
+
+            local from_filter =
+                filter_table.add({type = 'flow'}).add {
+                type = 'sprite-button',
+                name = filter_button_name,
+                tooltip = from_tooltip,
+                sprite = from_tooltip ~= '' and 'entity/' .. from_tooltip or nil
+            }
+            from_filter.style = 'slot_button'
+
+            filter_table.add {type = 'label', caption = '→'}
+
+            local to_filter =
+                filter_table.add({type = 'flow'}).add {
+                type = 'sprite-button',
+                name = filter_button_name,
+                tooltip = to_tooltip,
+                sprite = to_tooltip ~= '' and 'entity/' .. to_tooltip or nil
+            }
+            to_filter.style = 'slot_button'
+
+            table.insert(filters, {from = from_filter, to = to_filter})
         end
 
         local converter_buttons_flow = filter_frame.add {type = 'flow'}
@@ -405,6 +433,7 @@ local function toggle(event)
         Gui.set_data(filter_button, filters)
 
         main_frame.add {type = 'button', name = main_button_name, caption = 'Close'}
+        Gui.set_data(main_frame, filters)
     end
 end
 
