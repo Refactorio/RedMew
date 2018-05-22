@@ -9,7 +9,13 @@ local click_handlers
 local close_handlers
 
 function Gui.uid_name()
-    return tostring(Token.uid())
+    if _DEBUG then
+        -- https://stackoverflow.com/questions/48402876/getting-current-file-name-in-lua
+        local filename = debug.getinfo(2, 'S').source:match('^.+/(.+)$'):sub(1, -5)
+        return filename .. ',' .. Token.uid()
+    else
+        return tostring(Token.uid())
+    end
 end
 
 -- Associates data with the LuaGuiElement. If data is nil then removes the data

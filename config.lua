@@ -1,3 +1,5 @@
+_DEBUG = false
+
 global.scenario = {}
 global.spys = {"valansch", "air20"}
 global.scenario.variables = {}

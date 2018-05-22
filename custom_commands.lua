@@ -448,14 +448,16 @@ local function pool()
   end
 end
 
-local old_add_command = commands.add_command
-commands.add_command = function(name, desc, func)
-  old_add_command(name, desc, function(cmd)
-    local success, error = pcall(func, cmd)
-    if not success then
-        log(error)
-    end
-  end)
+if not _DEBUG then
+  local old_add_command = commands.add_command
+  commands.add_command = function(name, desc, func)
+    old_add_command(name, desc, function(cmd)
+      local success, error = pcall(func, cmd)
+      if not success then
+          log(error)
+      end
+    end)
+  end
 end
 
 commands.add_command("kill", "Will kill you.", kill)
@@ -468,7 +470,7 @@ commands.add_command("regular", '<promote, demote>, <player> Change regular stat
 commands.add_command("mods", 'Prints a list of game mods.', print_mods)
 commands.add_command("mod", '<promote, demote>, <player> Changes moderator status of a player. (Admins only)', mod)
 commands.add_command("afk", 'Shows how long players have been afk.', afk)
-commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
+--commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
 commands.add_command("follow", '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
 commands.add_command("unfollow", 'stops following a player.', unfollow)
 commands.add_command("tpmode", "Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)", toggle_tp_mode)

@@ -1,7 +1,5 @@
 local Event = {}
 
-local debug_mode = false
-
 local init_event_name = -1
 local load_event_name = -2
 
@@ -13,7 +11,7 @@ local event_handlers = {}
 local on_nth_tick_event_handlers = {}
 
 local function call_handlers(handlers, event)
-    if debug_mode then
+    if _DEBUG then
         for _, handler in ipairs(handlers) do
             handler(event)
         end
