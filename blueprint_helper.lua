@@ -276,6 +276,11 @@ end
 
 local function draw_filters_table(event)
     local center = event.player.gui.center
+
+    if center[filters_table_name] then
+        return
+    end
+
     local frame = center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = 'Set Filter'}
 
     local t = frame.add {type = 'table', column_count = 8}
