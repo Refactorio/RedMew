@@ -1,5 +1,6 @@
 local Task = require "utils.Task"
 local Event = require "utils.event"
+local UserGroups = require "user_groups"
 
 function player_print(str)
   if game.player then
@@ -14,7 +15,7 @@ function cant_run(name)
 end
 
 local function invoke(cmd)
-    if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+    if not game.player or not (game.player.admin or UserGroups.is_mod(game.player.name)) then
         cant_run(cmd.name)
         return
     end
@@ -29,7 +30,7 @@ local function invoke(cmd)
 end
 
 local function teleport_player(cmd)
-    if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+    if not game.player or not (game.player.admin or UserGroups.is_mod(game.player.name)) then
         cant_run(cmd.name)
         return
     end
@@ -45,7 +46,7 @@ local function teleport_player(cmd)
 end
 
 local function teleport_location(cmd)
-    if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+    if not game.player or not (game.player.admin or UserGroups.is_mod(game.player.name)) then
         cant_run(cmd.name)
         return
     end
@@ -65,7 +66,7 @@ end
 
 global.walking = {}
 local function walkabout(cmd)
-  if not ((not game.player) or game.player.admin or is_mod(game.player.name)) then
+  if not ((not game.player) or game.player.admin or UserGroups.is_mod(game.player.name)) then
       cant_run(cmd.name)
       return
   end
@@ -133,7 +134,7 @@ function custom_commands_return_player(args)
 end
 
 local function regular(cmd)
-  if not ((not game.player) or game.player.admin or is_mod(game.player.name)) then
+  if not ((not game.player) or game.player.admin or UserGroups.is_mod(game.player.name)) then
       cant_run(cmd.name)
       return
   end
@@ -148,9 +149,9 @@ local function regular(cmd)
     player_print("Command failed. Usage: /regular <promote, demote>, <player>")
     return
   elseif (params[1] == "promote") then
-    add_regular(params[2])
+    UserGroups.add_regular(params[2])
   elseif (params[1] == "demote") then
-    remove_regular(params[2])
+    UserGroups.remove_regular(params[2])
   else
       player_print("Command failed. Usage: /regular <promote, demote>, <player>")
   end
@@ -172,9 +173,9 @@ local function mod(cmd)
     player_print("Command failed. Usage: /mod <promote, demote>, <player>")
     return
   elseif (params[1] == "promote") then
-    add_mod(params[2])
+    UserGroups.add_mod(params[2])
   elseif (params[1] == "demote") then
-    remove_mod(params[2])
+    UserGroups.remove_mod(params[2])
   else
       player_print("Command failed. Usage: /mod <promote, demote>, <player>")
   end
@@ -259,7 +260,7 @@ end
 Event.add(defines.events.on_built_entity, built_entity)
 
 local function toggle_tp_mode(cmd)
-  if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+  if not game.player or not (game.player.admin or UserGroups.is_mod(game.player.name)) then
     cant_run(cmd.name)
     return
   end
@@ -279,7 +280,7 @@ end
 global.old_force = {}
 global.force_toggle_init = true
 local function forcetoggle(cmd)
-   if not game.player or not (game.player.admin or is_mod(game.player.name)) or (not game.player.character) then
+   if not game.player or not (game.player.admin or UserGroups.is_mod(game.player.name)) or (not game.player.character) then
       cant_run(cmd.name)
       return
    end
@@ -370,7 +371,7 @@ function custom_commands_untempban(param)
 end
 
 local function tempban(cmd)
-  if (not game.player) or not (game.player.admin or is_mod(game.player.name)) then
+  if (not game.player) or not (game.player.admin or UserGroups.is_mod(game.player.name)) then
     cant_run(cmd.name)
     return
   end
@@ -389,7 +390,11 @@ local function tempban(cmd)
     return
   end
   local group = get_group()
-  game.print(get_actor() .. " put " .. params[1] .. " in timeout for " .. params[2] .. " minutes.")
+
+
+
+
+  game.print(UserGroups.get_actor() .. " put " .. params[1] .. " in timeout for " .. params[2] .. " minutes.")
   if group then
     group.add_player(params[1])
     if not tonumber(cmd.parameter) then
@@ -464,9 +469,9 @@ commands.add_command("invoke", "<player> - Teleports the player to you. (Admins 
 commands.add_command("tppos", "Teleports you to a selected entity. (Admins only)", teleport_location)
 commands.add_command("walkabout", '<player> <duration> - Send someone on a walk.  (Admins and moderators)', walkabout)
 commands.add_command("market", 'Places a fish market near you.  (Admins only)', spawn_market)
-commands.add_command("regulars", 'Prints a list of game regulars.', print_regulars)
+commands.add_command("regulars", 'Prints a list of game regulars.', UserGroups.print_regulars)
 commands.add_command("regular", '<promote, demote>, <player> Change regular status of a player. (Admins and moderators)', regular)
-commands.add_command("mods", 'Prints a list of game mods.', print_mods)
+commands.add_command("mods", 'Prints a list of game mods.', UserGroups.print_mods)
 commands.add_command("mod", '<promote, demote>, <player> Changes moderator status of a player. (Admins only)', mod)
 commands.add_command("afk", 'Shows how long players have been afk.', afk)
 commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
