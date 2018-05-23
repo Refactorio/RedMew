@@ -1,3 +1,5 @@
+local Event = require "utils.event"
+
 local function create_info_button(event)
 	local player = game.players[event.player_index]
 
@@ -9,6 +11,9 @@ local function create_info_button(event)
 		button.style.left_padding = 4
 		button.style.right_padding = 4
 		button.style.bottom_padding = 2
+		button.style.vertically_stretchable = true
+		button.style.vertically_squashable = true
+		--button.style.vertical_spacing = 0 -- this line logs an error when run.
 	end
 end
 
@@ -78,5 +83,5 @@ local function on_gui_click(event)
 end
 
 
-Event.register(defines.events.on_gui_click, on_gui_click)
-Event.register(defines.events.on_player_joined_game, create_info_button)
+Event.add(defines.events.on_gui_click, on_gui_click)
+Event.add(defines.events.on_player_joined_game, create_info_button)

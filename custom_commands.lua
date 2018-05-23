@@ -1,5 +1,5 @@
-local Thread = require "locale.utils.Thread"
-require "locale/utils/event"
+local Task = require "utils.Task"
+local Event = require "utils.event"
 
 function player_print(str)
   if game.player then
@@ -89,13 +89,12 @@ local function walkabout(cmd)
   if duration < 15 then duration = 15 end
 
   local player = game.players[player_name]
-  if player == nil or global.walking[player_name:lower()] then
+  if type(player) ~= "table" or global.walking[player_name:lower()] then
     player_print(player_name .. " could not go on a walkabout.")
     return
   end
-
   local chunks = {}
-  for chunk in player.surface.get_chunks() do 
+  for chunk in player.surface.get_chunks() do
     table.insert(chunks, chunk)
   end
 
@@ -103,23 +102,23 @@ local function walkabout(cmd)
   if not chunk then
     return
   end
-  local pos = {x=chunk.x * 32, y=chunk.y * 32}  
+  local pos = {x=chunk.x * 32, y=chunk.y * 32}
   local non_colliding_pos = player.surface.find_non_colliding_position("player", pos, 100, 1)
-  
+
   if non_colliding_pos then
     game.print(player_name .. " went on a walkabout, to find himself.")
-    Thread.set_timeout(duration, return_player, {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}})
+    Task.set_timeout(duration, "custom_commands_return_player", {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}})
     player.character = nil
     player.create_character()
     player.teleport(non_colliding_pos)
     player.force = "enemy"
     global.walking[player_name:lower()] = true
-  else 
+  else
     player_print("Walkabout failed: count find non colliding position")
   end
 end
 
-local function return_player(args)
+function custom_commands_return_player(args)
   global.walking[args.player.name:lower()] = false
   args.player.character.destroy()
   local character = args.player.surface.find_entity('player', args.position)
@@ -257,7 +256,7 @@ local function built_entity(event)
   end
 end
 
-Event.register(defines.events.on_built_entity, built_entity)
+Event.add(defines.events.on_built_entity, built_entity)
 
 local function toggle_tp_mode(cmd)
   if not game.player or not (game.player.admin or is_mod(game.player.name)) then
@@ -280,7 +279,7 @@ end
 global.old_force = {}
 global.force_toggle_init = true
 local function forcetoggle(cmd)
-   if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+   if not game.player or not (game.player.admin or is_mod(game.player.name)) or (not game.player.character) then
       cant_run(cmd.name)
       return
    end
@@ -365,6 +364,11 @@ local function get_group()
   return group
 end
 
+function custom_commands_untempban(param)
+  game.print(param.name .. " is out of timeout.")
+  game.permissions.get_group("Default").add_player(param.name)
+end
+
 local function tempban(cmd)
   if (not game.player) or not (game.player.admin or is_mod(game.player.name)) then
     cant_run(cmd.name)
@@ -389,14 +393,7 @@ local function tempban(cmd)
   if group then
     group.add_player(params[1])
     if not tonumber(cmd.parameter) then
-      Thread.set_timeout(
-        60 * tonumber(params[2]),
-        function(param)
-          game.print(param.name .. " is out of timeout.")
-          game.permissions.get_group("Default").add_player(param.name)
-        end,
-        {name = params[1]}
-      )
+      Task.set_timeout(60 * tonumber(params[2]), "custom_commands_untempban", {name = params[1]})
     end
   end
 end
@@ -424,7 +421,7 @@ local function spyshot(cmd)
         end
         game.take_screenshot{by_player = spy, position = pos, show_gui = false, show_entity_info = true, resolution = {1920, 1080}, anti_alias = true, zoom = 0.5, path ="spyshot.png"}
         game.players[spy].print("You just took a screenshot!")
-        Thread.set_timeout(2, custom_commands_replace_ghosts, {ghosts = pseudo_ghosts, surface_index = game.players[player_name].surface.index}) --delay replacements for the screenshot to render
+        Task.set_timeout(2, "custom_commands_replace_ghosts", {ghosts = pseudo_ghosts, surface_index = game.players[player_name].surface.index}) --delay replacements for the screenshot to render
         return
       end
     end
@@ -438,23 +435,49 @@ local function zoom(cmd)
   end
 end
 
+local function pool()
+  if game.player and game.player.admin then
+    local t = {} p = game.player.position
+    for x = p.x - 3, p.x + 3 do
+      for y = p.y + 2, p.y + 7 do
+        table.insert(t, {name="water", position={x,y}})
+      end
+    end
+    game.player.surface.set_tiles(t)
+    game.player.surface.create_entity{name = "fish", position = {p.x + 0.5, p.y + 5}}
+  end
+end
+
+if not _DEBUG then
+  local old_add_command = commands.add_command
+  commands.add_command = function(name, desc, func)
+    old_add_command(name, desc, function(cmd)
+      local success, error = pcall(func, cmd)
+      if not success then
+          log(error)
+      end
+    end)
+  end
+end
+
 commands.add_command("kill", "Will kill you.", kill)
 commands.add_command("tpplayer", "<player> - Teleports you to the player. (Admins and moderators)", teleport_player)
 commands.add_command("invoke", "<player> - Teleports the player to you. (Admins and moderators)", invoke)
 commands.add_command("tppos", "Teleports you to a selected entity. (Admins only)", teleport_location)
-commands.add_command("walkabout", '<player> <"close", "far", "very far", number> <duration> - Send someone on a walk.  (Admins and moderators)', walkabout)
-commands.add_command("market", 'Places a fish market near you.  (Admins only)', spawn_market)
+commands.add_command("walkabout", '<player> <duration> - Send someone on a walk.  (Admins and moderators)', walkabout)
 commands.add_command("regulars", 'Prints a list of game regulars.', print_regulars)
 commands.add_command("regular", '<promote, demote>, <player> Change regular status of a player. (Admins and moderators)', regular)
 commands.add_command("mods", 'Prints a list of game mods.', print_mods)
 commands.add_command("mod", '<promote, demote>, <player> Changes moderator status of a player. (Admins only)', mod)
 commands.add_command("afk", 'Shows how long players have been afk.', afk)
-commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
+--commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
 commands.add_command("follow", '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
 commands.add_command("unfollow", 'stops following a player.', unfollow)
-commands.add_command("well", '<item> <items per second> Spawns an item well. (Admins only)', well_command)
 commands.add_command("tpmode", "Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)", toggle_tp_mode)
 commands.add_command("forcetoggle", "Toggles the players force between player and enemy (Admins and moderators)", forcetoggle)
 commands.add_command("tempban", "<player> <minutes> Temporarily bans a player (Admins and moderators)", tempban)
 commands.add_command("spyshot", "<player> Sends a screenshot of player to discord. (If a host is online. If no host is online, you can become one yourself. Ask on discord :))", spyshot)
 commands.add_command("zoom", "<number> Sets your zoom.", zoom)
+commands.add_command("all-tech", "researches all technologies", function() if game.player and game.player.admin then game.player.force.research_all_technologies() end end)
+commands.add_command("hax", "Toggles your hax", function() if game.player and game.player.admin then game.player.cheat_mode = not game.player.cheat_mode  end end)
+commands.add_command("pool",  "Spawns a pool", pool)

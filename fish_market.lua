@@ -17,7 +17,9 @@ make pet faster
 make pet follow you moar
 --]]
 
-function spawn_market(cmd)
+local Event = require "utils.event"
+
+local function spawn_market(cmd)
   if not game.player or not game.player.admin then
     cant_run(cmd.name)
     return
@@ -35,7 +37,7 @@ function spawn_market(cmd)
   market.destructible = false
 
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="discharge-defense-remote"}}
-  market.add_market_item{price={{"raw-fish", 30}}, offer={type="give-item", item="small-plane"}}
+  --market.add_market_item{price={{"raw-fish", 30}}, offer={type="give-item", item="small-plane"}}
   market.add_market_item{price={{"raw-fish", 10}}, offer={type="give-item", item="wood"}}
   market.add_market_item{price={{"raw-fish", 1}}, offer={type="give-item", item="rail", count=2}}
   market.add_market_item{price={{"raw-fish", 2}}, offer={type="give-item", item="rail-signal"}}
@@ -195,7 +197,7 @@ local function fish_drop_entity_died(event)
 end
 
 
-function pet(player, entity_name)
+local function pet(player, entity_name)
 	if not player then
 		player = game.connected_players[1]
 	else
@@ -296,11 +298,12 @@ local function market_item_purchased(event)
     boost_player_runningspeed(player) --disabled due to on_tick being disabled
   end
 
-  if event.offer_index == 3 then -- exoskeleton-equipment
+  if event.offer_index == 2 then -- exoskeleton-equipment
     player.remove_item({name="wood", count=event.count})
     boost_player_miningspeed(player)
   end
 
+  --[[
   if event.offer_index == 2 then
     player.remove_item({name="small-plane", count=event.count})
     local chance = 4
@@ -344,11 +347,12 @@ local function market_item_purchased(event)
     game.print(str)
     pet(event.player_index, rolled_pet)
   end
+  --]]
 end
 
 if not global.pet_command_rotation then global.pet_command_rotation = 1 end
 
-function fish_market_on_180_ticks()
+local function on_180_ticks()
 
   if game.tick % 900 == 0 then
      if global.player_speed_boost_records then
@@ -395,14 +399,18 @@ function fish_market_on_180_ticks()
   end
 end
 
-function fish_player_crafted_item(event)
+local function fish_player_crafted_item(event)
    local x = math.random(1,50)
    if x == 1 then
       fish_earned(event, 1)
    end
 end
 
-Event.register(defines.events.on_pre_player_mined_item, pre_player_mined_item)
-Event.register(defines.events.on_entity_died, fish_drop_entity_died)
-Event.register(defines.events.on_market_item_purchased, market_item_purchased)
-Event.register(defines.events.on_player_crafted_item, fish_player_crafted_item)
+commands.add_command("market", 'Places a fish market near you.  (Admins only)', spawn_market)
+
+Event.on_nth_tick(180, on_180_ticks)
+Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
+Event.add(defines.events.on_entity_died, fish_drop_entity_died)
+Event.add(defines.events.on_market_item_purchased, market_item_purchased)
+Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
+

@@ -3,23 +3,28 @@
 --
 --a reactors loses 2 damage per second at 1000°C
 
+local Event = require "utils.event"
+
+global.reactors_enabled = false
 global.wastelands = {}
 global.reactors = {}
 local wasteland_duration_seconds = 300
 
 local function entity_destroyed(event)
-  if event.entity.name == "nuclear-reactor" then
-    local reactor = event.entity
-    if event.entity.temperature > 700 then
-      reactor.surface.create_entity{name="atomic-rocket", position=reactor.position, target=reactor, speed=1}
-      spawn_wasteland(reactor.surface, reactor.position)
-      global.wastelands[reactor.position.x .. "/" .. reactor.position.y] = {position = reactor.position, surface_id = reactor.surface.index, creation_time = game.tick}
-    end
+  if not global.reactors_enabled or not event.entity.valid or not event.entity.name == "nuclear-reactor" then
+    return
+  end
+
+  local reactor = event.entity
+  if reactor.temperature > 700 then
+    reactor.surface.create_entity{name="atomic-rocket", position=reactor.position, target=reactor, speed=1}
+    spawn_wasteland(reactor.surface, reactor.position)
+    global.wastelands[reactor.position.x .. "/" .. reactor.position.y] = {position = reactor.position, surface_id = reactor.surface.index, creation_time = game.tick}
   end
 end
 
-function spawn_wasteland(surface, position)
-    local positions = { 
+local function spawn_wasteland(surface, position)
+    local positions = {
       {0, 0},
       {0, 12},
       {0, -12},
@@ -88,10 +93,10 @@ local function check_wastelands()
   for index,wl in pairs(global.wastelands) do
     local age = game.tick - wl.creation_time
     wl.last_checked = wl.last_checked or 0
-    if (game.tick - wl.last_checked) > 899 then 
+    if (game.tick - wl.last_checked) > 899 then
       wl.last_checked = game.tick
       spawn_wasteland(game.surfaces[wl.surface_id], wl.position)
-      if age > wasteland_duration_seconds * 60 - 1 then 
+      if age > wasteland_duration_seconds * 60 - 1 then
         global.wastelands[index] = nil
         reactors = game.surfaces[wl.surface_id].find_entities_filtered{position = wl.position, name = "nuclear-reactor"}
         if reactors[1] then reactors[1].destroy() end
@@ -101,21 +106,37 @@ local function check_wastelands()
 end
 
 local function on_tick()
-  if (game.tick + 7) % 60 == 0 then 
+  if global.reactors_enabled then
     check_wastelands()
     check_reactors()
   end
 end
 
 local function entity_build(event)
+  if not event.created_entity.valid then
+    return
+  end
   if event.created_entity.name == "nuclear-reactor" then
     table.insert(global.reactors, event.created_entity)
   end
 end
 
-Event.register(defines.events.on_tick, on_tick)
-Event.register(defines.events.on_player_mined_entity, entity_destroyed)
-Event.register(defines.events.on_robot_mined_entity, entity_destroyed)
-Event.register(defines.events.on_entity_died, entity_destroyed)
-Event.register(defines.events.on_built_entity, entity_build)
-Event.register(defines.events.on_robot_built_entity, entity_build)
+local function reactor_toggle()
+  if not game.player or game.player.admin then
+    global.reactors_enabled = not global.reactors_enabled
+    if global.reactors_enabled then
+      game.print("Reactor meltdown activated.")
+    else
+      game.print("Reactor meltdown deactivated.")
+    end
+  end
+end
+
+commands.add_command("meltdown",  "Toggles if reactors blow up", reactor_toggle)
+
+Event.on_nth_tick(60, on_tick)
+Event.add(defines.events.on_player_mined_entity, entity_destroyed)
+Event.add(defines.events.on_robot_mined_entity, entity_destroyed)
+Event.add(defines.events.on_entity_died, entity_destroyed)
+Event.add(defines.events.on_built_entity, entity_build)
+Event.add(defines.events.on_robot_built_entity, entity_build)

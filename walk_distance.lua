@@ -1,4 +1,5 @@
-function walk_distance_on_second()
+local Event = require "utils.event"
+function on_second()
   local last_positions = global.scenario.variables.player_positions
   local d_x = 0
   local d_y = 0
@@ -7,7 +8,7 @@ function walk_distance_on_second()
       if last_positions[v.name] then
         d_x = last_positions[v.name].x - v.position.x
         d_y = last_positions[v.name].y - v.position.y
-        global.scenario.variables.player_walk_distances[v.name] = global.scenario.variables.player_walk_distances[v.name] + math.sqrt(d_x*d_x + d_y*d_y)
+        global.player_walk_distances[v.name] = global.player_walk_distances[v.name] + math.sqrt(d_x*d_x + d_y*d_y)
         global.scenario.variables.player_positions[v.name] = v.position
       end
     end
@@ -25,9 +26,10 @@ end
 local function init_player_position(event)
   local player = game.players[event.player_index]
   global.scenario.variables.player_positions[player.name] = player.position
-  if not global.scenario.variables.player_walk_distances[player.name] then
-    global.scenario.variables.player_walk_distances[player.name] = 0
+  if not global.player_walk_distances[player.name] then
+    global.player_walk_distances[player.name] = 0
   end
 end
 
--- Event.register(defines.events.on_player_joined_game, init_player_position)
+Event.on_nth_tick(62, on_second)
+Event.add(defines.events.on_player_joined_game, init_player_position)

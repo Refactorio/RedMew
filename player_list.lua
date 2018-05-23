@@ -16,10 +16,12 @@ things to do (maybe)
 make it sorted by time played
 --]]
 
+local Event = require "utils.event"
+
 local symbol_asc = "▲"
 local symbol_desc = "▼"
 
-local pokemessages = require "locale.resources.poke_messages"
+local pokemessages = require "resources.poke_messages"
 
 local function on_player_joined_game(event)
 	local player = game.players[event.player_index]
@@ -144,8 +146,8 @@ local function get_sorted_list(sort_by)
 					player_list[i2] = a
 				end
 			end
-			--[[if sort_by == "distance_asc" then
-				if global.scenario.variables.player_walk_distances[player_list[i].name] > global.scenario.variables.player_walk_distances[player_list[i2].name] then
+			if sort_by == "distance_asc" then
+				if global.player_walk_distances[player_list[i].name] > global.player_walk_distances[player_list[i2].name] then
 					local a = player_list[i]
 					local b = player_list[i2]
 					player_list[i] = b
@@ -153,14 +155,13 @@ local function get_sorted_list(sort_by)
 				end
 			end
 			if sort_by == "distance_desc" then
-				if global.scenario.variables.player_walk_distances[player_list[i].name] < global.scenario.variables.player_walk_distances[player_list[i2].name] then
+				if global.player_walk_distances[player_list[i].name] < global.player_walk_distances[player_list[i2].name] then
 					local a = player_list[i]
 					local b = player_list[i2]
 					player_list[i] = b
 					player_list[i2] = a
 				end
 			end
-			]]--
 			if sort_by == "name_asc" then
 				if player_list[i].name > player_list[i2].name then
 					local a = player_list[i]
@@ -187,14 +188,14 @@ local function player_list_show(player, sort_by)
 	if frame then frame.destroy() end
 
 	local frame = player.gui.left.add { type = "frame", name = "player-list-panel", direction = "vertical" }
-	frame.style.minimal_width = 650
+	frame.style.minimal_width = 700
 	frame.style.top_padding = 8
 	frame.style.left_padding = 8
 	frame.style.right_padding = 8
 	frame.style.bottom_padding = 8
 
 
-	local player_list_panel_header_table = frame.add { type = "table", name = "player_list_panel_header_table", column_count = 6 }
+	local player_list_panel_header_table = frame.add { type = "table", name = "player_list_panel_header_table", column_count = 7 }
 
 	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_1", caption = "    " .. #game.connected_players }
 	label.style.font = "default-game"
@@ -218,14 +219,14 @@ local function player_list_show(player, sort_by)
 	label.style.maximal_width = 130
 
 
---[[	str = ""
+  str = ""
 	if sort_by == "distance_asc" then str = symbol_asc .. " " end
 	if sort_by == "distance_desc" then str = symbol_desc .. " " end
 	local label = player_list_panel_header_table.add { type = "label", name = "player_list_panel_header_4", caption = str .. "Walked" }
 	label.style.font_color = { r=0.98, g=0.66, b=0.22}
 	label.style.minimal_width = 100
 	label.style.maximal_width = 100
---]]
+
 	str = ""
 	if sort_by == "fish_asc" then str = symbol_asc .. " " end
 	if sort_by == "fish_desc" then str = symbol_desc .. " " end
@@ -253,7 +254,7 @@ local function player_list_show(player, sort_by)
 	player_list_panel_table.style.maximal_height = 650
 
 
-	player_list_panel_table = player_list_panel_table.add { type = "table", name = "player_list_panel_table", column_count = 6 }
+	player_list_panel_table = player_list_panel_table.add { type = "table", name = "player_list_panel_table", column_count = 7 }
 
 	local player_list = get_sorted_list(sort_by)
 
@@ -276,10 +277,10 @@ local function player_list_show(player, sort_by)
 		label.style.minimal_width = 130
 		label.style.maximal_width = 130
 
---[[	local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_distance_" .. i, caption = round(global.scenario.variables.player_walk_distances[player_list[i].name]/1000, 1) .. " km" }
+    local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_distance_" .. i, caption = round(global.player_walk_distances[player_list[i].name]/1000, 1) .. " km" }
 		label.style.minimal_width = 100
 		label.style.maximal_width = 100
---]]
+
 		local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_fish" .. i, caption = global.fish_market_fish_caught[player_list[i].player_index] .. " / " .. global.fish_market_fish_spent[player_list[i].player_index] }
 		label.style.minimal_width = 80
 		label.style.maximal_width = 80
@@ -374,7 +375,7 @@ local function on_gui_click(event)
 
 end
 
-function player_list_on_12_seconds()
+function on_12_seconds()
 	for _,player in pairs(game.connected_players) do
 		if player.gui.left["player-list-panel"] then
 			local sort_method
@@ -412,6 +413,7 @@ local function player_list_on_player_died(event)
 end
 
 
-Event.register(defines.events.on_player_joined_game, on_player_joined_game)
-Event.register(defines.events.on_gui_click, on_gui_click)
-Event.register(defines.events.on_player_died, player_list_on_player_died)
+Event.on_nth_tick(720, on_12_seconds)
+Event.add(defines.events.on_player_joined_game, on_player_joined_game)
+Event.add(defines.events.on_gui_click, on_gui_click)
+Event.add(defines.events.on_player_died, player_list_on_player_died)
