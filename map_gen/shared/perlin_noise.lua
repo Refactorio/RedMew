@@ -3,7 +3,7 @@
     http://flafla2.github.io/2014/08/09/perlinnoise.html
 ]]--
 
-perlin = {}
+local perlin = {}
 perlin.p = {}
 
 -- Hash lookup table as defined by Ken Perlin
@@ -125,3 +125,5 @@ end
 function perlin.lerp(t, a, b)
     return a + t * (b - a)
 end
+
+return perlin
