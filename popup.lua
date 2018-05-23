@@ -24,6 +24,7 @@ local function show_popup(player, message)
     label_flow.style.bottom_padding = 32
     label_flow.style.left_padding = 32
     label_flow.style.right_padding = 32
+
     local label = label_flow.add {type = 'label', caption = message}
     label.style.single_line = false
     label.style.font = 'default-large-bold'
