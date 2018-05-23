@@ -35,8 +35,6 @@ local function show_popup(player, message)
 
     local ok_button = ok_button_flow.add {type = 'button', name = close_name, caption = 'OK'}
     Gui.set_data(ok_button, frame)
-
-    player.opened = frame
 end
 
 Gui.on_click(
