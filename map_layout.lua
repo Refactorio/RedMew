@@ -7,8 +7,10 @@ in this file and your run_*type*_module(event) function will be called.
 local Event = require "utils.event"
 local b = require "map_gen.shared.builders"
 
+local shape = nil
+
 --combined--
---require "map_gen.combined.island_resort"
+--shape = require "map_gen.combined.island_resort"
 --require "map_gen.combined.red_planet_v2"
 --require "map_gen.combined.borg_planet_v2"
 --require "map_gen.combined.dimensions"
@@ -16,7 +18,6 @@ local b = require "map_gen.shared.builders"
 --require "map_gen.combined.meteor_strike" --unfinished
 
 --presets--
-local shape = nil
 --shape = require "map_gen.presets.template"
 --shape = require "map_gen.presets.web" --unfinished
 --shape = require "map_gen.presets.rings_and_boxes" --unfinished
@@ -121,7 +122,7 @@ if #terrain_modules > 0 then
 	end
 end
 
-if shape then
+if shape then	
 	require ("map_gen.shared.generate")({shape = shape, regen_decoratives = regen_decoratives})
 	--require ("map_gen.shared.generate_not_threaded")({shape = shape, regen_decoratives = regen_decoratives})
 end
