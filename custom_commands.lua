@@ -15,7 +15,7 @@ function cant_run(name)
 end
 
 local function invoke(cmd)
-    if not game.player or not game.player.admin then
+    if not (game.player and game.player.admin) then
         cant_run(cmd.name)
         return
     end
@@ -30,7 +30,7 @@ local function invoke(cmd)
 end
 
 local function teleport_player(cmd)
-    if not game.player or not game.player.admin then
+    if not (game.player and game.player.admin) then
         cant_run(cmd.name)
         return
     end
@@ -46,7 +46,7 @@ local function teleport_player(cmd)
 end
 
 local function teleport_location(cmd)
-    if not game.player or not game.player.admin then
+    if not (game.player and game.player.admin) then
         cant_run(cmd.name)
         return
     end
@@ -66,7 +66,7 @@ end
 
 global.walking = {}
 local function walkabout(cmd)
-  if not ((not game.player) game.player.admin then
+  if game.player and not game.player.admin then
       cant_run(cmd.name)
       return
   end
@@ -134,7 +134,7 @@ function custom_commands_return_player(args)
 end
 
 local function regular(cmd)
-  if not ((not game.player) or game.player.admin then
+  if game.player and not game.player.admin then
       cant_run(cmd.name)
       return
   end
@@ -236,7 +236,7 @@ end
 Event.add(defines.events.on_built_entity, built_entity)
 
 local function toggle_tp_mode(cmd)
-  if not game.player or not (game.player.admin or UserGroups.is_mod(game.player.name)) then
+  if not (game.player and (game.player.admin or UserGroups.is_mod(game.player.name))) then
     cant_run(cmd.name)
     return
   end
@@ -256,7 +256,7 @@ end
 global.old_force = {}
 global.force_toggle_init = true
 local function forcetoggle(cmd)
-   if not game.player or not game.player.admin or (not game.player.character) then
+   if not (game.player and game.player.admin and game.player.character) then
       cant_run(cmd.name)
       return
    end
@@ -366,9 +366,6 @@ local function tempban(cmd)
     return
   end
   local group = get_group()
-
-
-
 
   game.print(UserGroups.get_actor() .. " put " .. params[1] .. " in timeout for " .. params[2] .. " minutes.")
   if group then

@@ -1,9 +1,9 @@
-global.regualrs = {}
+global.regulars = {}
 local Event = require "utils.event"
 
 local Module = {}
 
-local function update_group(position)
+local function update_file()
 	local file = position .. ".lua"
 	game.write_file(file, "{", false, 0)
 	local group = global[position]
@@ -25,13 +25,14 @@ local is_regular = function(player_name)
 end
 
 Module.add_regular = function(player_name)
-		local actor = get_actor()
+    local actor = get_actor()
     if is_regular(player_name) then player_print(player_name .. " is already a regular.")
     else
         if game.players[player_name] then
+            player_name = game.players[player_name].name
             game.print(actor .. " promoted " .. player_name .. " to regular.")
             global.regulars[player_name] = true
-            update_group("regulars")
+            update_file()
         else
             player_print(player_name .. " does not exist.")
         end
@@ -39,10 +40,14 @@ Module.add_regular = function(player_name)
 end
 
 Module.remove_regular = function(player_name)
-	local actor = get_actor()
-	if is_regular(player_name) then game.print(player_name .. " was demoted from regular by " .. actor .. ".") end
+    local actor = get_actor()
+    if game.players[player_name] then
+        player_name = game.players[player_name].name
+        if is_regular(player_name) then game.print(player_name .. " was demoted from regular by " .. actor .. ".") end
 	global.regulars[player_name] = nil
-	update_group("regulars")
+	global.regulars[player_name:lower()] = nil --backwards compatible
+	update_file()
+    end
 end
 
 Module.print_regulars = function()
@@ -56,12 +61,8 @@ Event.add(defines.events.on_player_joined_game, function(event)
 	if global.regulars[correctCaseName:lower()] and not global.regulars[correctCaseName] then
 		global.regulars[correctCaseName:lower()] = nil
 		global.regulars[correctCaseName] = true
-		update_group("regulars")
+		update_file()
 	end
-end)
-
-Event.add(-1, function()
-	if not global.regulars then global.regulars = {} end
 end)
 
 return Module
