@@ -55,5 +55,5 @@ return function(x, y, world)
         do_resource('copper-ore', x, y, world, noise_terrain, 0.075, 0.05, seed) or
         do_resource('stone', x, y, world, noise_terrain, 0.05, 0.04, seed) or
         do_resource('coal', x, y, world, noise_terrain, 0.04, 0.03, seed) or
-        do_resource('uranium-ore', x, y, world, noise_terrain, 0.03, 0.02, seed)
+        do_resource('uranium-ore', x, y, world, noise_terrain, 0.02, 0.01, seed)
 end
