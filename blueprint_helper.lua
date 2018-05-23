@@ -356,14 +356,13 @@ local function toggle(event)
 
         local flipper_frame = scroll_pane.add {type = 'frame', caption = 'Flipper', direction = 'vertical'}
 
-        flipper_frame.add {
+        local label =
+            flipper_frame.add {
             type = 'label',
-            caption = 'Place blueprint on buttons below to flip blueprint.'
+            caption = 'Place blueprint on buttons below to flip blueprint.\n' ..
+                'Obviously this wont work correctly with refineries or chemical plants.'
         }
-        flipper_frame.add {
-            type = 'label',
-            caption = 'Obviously this wont work correctly with refineries or chemical plants.'
-        }
+        label.style.single_line = false
 
         local flow = flipper_frame.add {type = 'flow'}
 
