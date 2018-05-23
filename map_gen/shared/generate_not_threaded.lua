@@ -26,12 +26,6 @@ local function do_row(row, data)
         local tile = shape(x + 0.5, y + 0.5, data)
 
         if type(tile) == 'table' then
-            --[[ local decoratives = tile.decoratives
-            if decoratives then
-                for _, decorative in ipairs(decoratives) do
-                    table.insert(data.decoratives, decorative)
-                end
-            end ]]
             do_tile(tile.tile, pos)
 
             local entities = tile.entities
@@ -41,6 +35,13 @@ local function do_row(row, data)
                         entity.position = pos
                     end
                     table.insert(data.entities, entity)
+                end
+            end
+
+            local decoratives = tile.decoratives
+            if decoratives then
+                for _, decorative in ipairs(decoratives) do
+                    table.insert(data.decoratives, decorative)
                 end
             end
         else
@@ -74,6 +75,11 @@ local decoratives = {
 local function do_place_decoratives(data)
     if regen_decoratives then
         data.surface.regenerate_decorative(decoratives, {{data.top_x / 32, data.top_y / 32}})
+    end
+
+    local dec = data.decoratives
+    if dec then
+        data.surface.create_decoratives({check_collision = true, decoratives = dec})
     end
 end
 

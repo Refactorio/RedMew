@@ -8,6 +8,7 @@ return function(x, y, world)
     local surface = world.surface
 
     local entities = {}
+    local decoratives = {}
 
     local seed = surface.map_gen_settings.seed
     local seed_increment = 10000
@@ -149,7 +150,7 @@ return function(x, y, world)
     end
 
     --Placement of Decoratives
-    --[[ if tile_to_insert ~= 'water' then
+    if tile_to_insert ~= 'water' then
         if noise_decoratives > 0.3 then
             local decorative = 'green-carpet-grass-1'
             if tile_to_insert == 'grass-1' then
@@ -174,31 +175,18 @@ return function(x, y, world)
                 decorative = 'red-asterisk'
             end
             if math.random(1, 5) == 1 then
-                table.insert(data.decoratives, {name = decorative, position = {x, y}, amount = 1})
+                table.insert(decoratives, {name = decorative, position = {x, y}, amount = 1})
             end
         end
         if tile_to_insert == 'red-desert-0' then
             if math.random(1, 50) == 1 then
-                table.insert(data.decoratives, {name = 'rock-medium', position = {x, y}, amount = 1})
+                table.insert(decoratives, {name = 'rock-medium', position = {x, y}, amount = 1})
             end
         end
-    end ]]
+    end
+
     --Placement of Island Resources
     if tile_to_insert ~= 'water' then
-        --[[ local a = x
-        local b = y
-        local c = 1
-        if area.right_bottom.x < 0 then
-            a = area.right_bottom.x * -1
-        end
-        if area.right_bottom.y < 0 then
-            b = area.right_bottom.y * -1
-        end
-        if a > b then
-            c = a
-        else
-            c = b
-		end ]]
         local c = math.max(math.abs(world.x), math.abs(world.y))
 
         local resource_amount_distance_multiplicator = (((c + 1) / 75) / 75) + 1
@@ -266,5 +254,5 @@ return function(x, y, world)
         end
     end
 
-    return {tile = tile_to_insert, entities = entities}
+    return {tile = tile_to_insert, entities = entities, decoratives = decoratives}
 end
