@@ -23,6 +23,7 @@ require 'band'
 require 'tasklist'
 require 'blueprint_helper'
 require 'score'
+require 'popup'
 
 local Event = require 'utils.event'
 
