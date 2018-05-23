@@ -1,4 +1,5 @@
 local Event = require 'utils.event'
+local Task = require 'utils.Task'
 
 local function on_init()
     global.corpse_util_corpses = {}
@@ -44,14 +45,13 @@ local function player_died(event)
     global.corpse_util_corpses[position.x .. ',' .. position.y] = tag
 end
 
-local function remove_tag(entity)
-    if not entity or not entity.valid then
-        return
-    end
+local function remove_tag(position)
+    local pos = position.x .. ',' .. position.y
 
-    local pos = entity.position
-    local tag = global.corpse_util_corpses[pos.x .. ',' .. pos.y]
-    global.corpse_util_corpses[entity] = nil
+    local tag = global.corpse_util_corpses[pos]
+    if tag then
+        global.corpse_util_corpses[pos] = nil
+    end
 
     if not tag or not tag.valid then
         return
@@ -63,13 +63,25 @@ end
 local function corpse_expired(event)
     local entity = event.corpse
 
-    remove_tag(entity)
+    if entity and entity.valid then
+        remove_tag(entity.position)
+    end
+end
+
+function corpse_util_mined_entity(data)
+    if not data.entity.valid then
+        remove_tag(data.position)
+    end
 end
 
 local function mined_entity(event)
     local entity = event.entity
 
-    remove_tag(entity)
+    if entity and entity.valid and entity.name == 'character-corpse' then
+        -- The corpse may be mined but not removed (if player doesn't have inventory space)
+        -- so we wait one tick to see if the corpse is gone.
+        Task.set_timeout_in_ticks(1, 'corpse_util_mined_entity', {entity = entity, position = entity.position})
+    end
 end
 
 Event.on_init(on_init)
