@@ -8,7 +8,7 @@ local Event = require "utils.event"
 local b = require "map_gen.shared.builders"
 
 local shape = nil
-local tiles_per_tick = 16
+local tiles_per_tick = 32
 
 --combined--
 --shape = require "map_gen.combined.island_resort"

@@ -153,48 +153,25 @@ local function run_chart_update(data)
     end
 end
 
-function map_gen_action(data)
-    local state = data.state
+local function map_gen_action(data)
+    local state = data.y
+
     if state < 32 then
-        do_row(state, data)
-        data.state = state + 1
-        return true
-    elseif state == 32 then
-        do_place_tiles(data)
-        data.state = 33
-        return true
-    elseif state == 33 then
-        do_place_entities(data)
-        data.state = 34
-        return true
-    elseif state == 34 then
-        do_place_decoratives(data)
-        data.state = 35
-        return true
-    elseif state == 35 then
-        run_chart_update(data)
-        return false
-    end
-end
-
-function map_gen_action_slow(data)
-    local y = data.y
-
-    if y < 32 then
         local count = tiles_per_tick
 
-        y = y + data.top_y
-        local x = data.x + data.top_x
+        local y = state + data.top_y
+        local x = data.x
+
+        local max_x = data.top_x + 32
 
         data.y = y
-        data.x = x
 
         repeat
             count = count - 1
             do_tile(y, x, data)
 
             x = x + 1
-            if x == data.top_x + 32 then
+            if x == max_x then
                 y = y + 1
                 if y == data.top_y + 32 then
                     break
@@ -206,35 +183,34 @@ function map_gen_action_slow(data)
             data.x = x
         until count == 0
 
-        data.x = x - data.top_x
         data.y = y - data.top_y
-
         return true
-    elseif y == 32 then
+    elseif state == 32 then
         do_place_tiles(data)
         data.y = 33
         return true
-    elseif y == 33 then
+    elseif state == 33 then
         do_place_entities(data)
         data.y = 34
         return true
-    elseif y == 34 then
+    elseif state == 34 then
         do_place_decoratives(data)
         data.y = 35
         return true
-    elseif y == 35 then
+    elseif state == 35 then
         run_chart_update(data)
         return false
     end
 end
 
+local map_gen_action_token = Token.register(map_gen_action)
+
 local function on_chunk(event)
     local area = event.area
 
     local data = {
-        --state = 0,
         y = 0,
-        x = 0,
+        x = area.left_top.x,
         area = area,
         top_x = area.left_top.x,
         top_y = area.left_top.y,
@@ -243,8 +219,8 @@ local function on_chunk(event)
         entities = {},
         decoratives = {}
     }
-    --Task.queue_task('map_gen_action', data, 36)
-    Task.queue_task('map_gen_action_slow', data, total_calls)
+
+    Task.queue_task(map_gen_action_token, data, total_calls)
 end
 
 local function init(args)
