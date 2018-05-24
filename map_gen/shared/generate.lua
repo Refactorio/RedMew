@@ -120,7 +120,7 @@ local function do_place_decoratives(data)
     end
 
     local dec = data.decoratives
-    if dec then
+    if #dec > 0 then
         data.surface.create_decoratives({check_collision = true, decoratives = dec})
     end
 end
