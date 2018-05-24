@@ -8,6 +8,7 @@ local Event = require "utils.event"
 local b = require "map_gen.shared.builders"
 
 local shape = nil
+local tiles_per_tick = 16
 
 --combined--
 --shape = require "map_gen.combined.island_resort"
@@ -22,7 +23,7 @@ local shape = nil
 --shape = require "map_gen.presets.web" --unfinished
 --shape = require "map_gen.presets.rings_and_boxes" --unfinished
 --shape = require "map_gen.presets.ring_of_balls" --unfinished
---shape = require "map_gen.presets.dna"
+shape = require "map_gen.presets.dna"
 --shape = require "map_gen.presets.lines_and_balls"
 --shape = require "map_gen.presets.mobius_strip"
 --shape = require "map_gen.presets.antfarm"
@@ -123,7 +124,7 @@ if #terrain_modules > 0 then
 end
 
 if shape then	
-	require ("map_gen.shared.generate")({shape = shape, regen_decoratives = regen_decoratives})
+	require ("map_gen.shared.generate")({shape = shape, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
 	--require ("map_gen.shared.generate_not_threaded")({shape = shape, regen_decoratives = regen_decoratives})
 end
 

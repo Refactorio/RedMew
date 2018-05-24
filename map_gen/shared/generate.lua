@@ -3,7 +3,10 @@ local Token = require 'utils.global_token'
 local Event = require 'utils.event'
 
 local shape
+local tiles_per_tick
 local regen_decoratives
+
+local total_calls
 
 local function do_row(row, data)
     local function do_tile(tile, pos)
@@ -21,7 +24,7 @@ local function do_row(row, data)
 
     for x = top_x, top_x + 31 do
         data.x = x
-        local pos = {data.x, data.y}
+        local pos = {x, y}
 
         -- local coords need to be 'centered' to allow for correct rotation and scaling.
         local tile = shape(x + 0.5, y + 0.5, data)
@@ -48,6 +51,44 @@ local function do_row(row, data)
         else
             do_tile(tile, pos)
         end
+    end
+end
+
+local function do_tile(y, x, data)
+    local function do_tile_inner(tile, pos)
+        if not tile then
+            table.insert(data.tiles, {name = 'out-of-map', position = pos})
+        elseif type(tile) == 'string' then
+            table.insert(data.tiles, {name = tile, position = pos})
+        end
+    end
+
+    local pos = {x, y}
+
+    -- local coords need to be 'centered' to allow for correct rotation and scaling.
+    local tile = shape(x + 0.5, y + 0.5, data)
+
+    if type(tile) == 'table' then
+        do_tile_inner(tile.tile, pos)
+
+        local entities = tile.entities
+        if entities then
+            for _, entity in ipairs(entities) do
+                if not entity.position then
+                    entity.position = pos
+                end
+                table.insert(data.entities, entity)
+            end
+        end
+
+        local decoratives = tile.decoratives
+        if decoratives then
+            for _, decorative in ipairs(decoratives) do
+                table.insert(data.decoratives, decorative)
+            end
+        end
+    else
+        do_tile_inner(tile, pos)
     end
 end
 
@@ -136,11 +177,65 @@ function map_gen_action(data)
     end
 end
 
+function map_gen_action_slow(data)
+    local y = data.y
+
+    if y < 32 then
+        local count = tiles_per_tick
+
+        y = y + data.top_y
+        local x = data.x + data.top_x
+
+        data.y = y
+        data.x = x
+
+        repeat
+            count = count - 1
+            do_tile(y, x, data)
+
+            x = x + 1
+            if x == data.top_x + 32 then
+                y = y + 1
+                if y == data.top_y + 32 then
+                    break
+                end
+                x = data.top_x
+                data.y = y
+            end
+
+            data.x = x
+        until count == 0
+
+        data.x = x - data.top_x
+        data.y = y - data.top_y
+
+        return true
+    elseif y == 32 then
+        do_place_tiles(data)
+        data.y = 33
+        return true
+    elseif y == 33 then
+        do_place_entities(data)
+        data.y = 34
+        return true
+    elseif y == 34 then
+        do_place_decoratives(data)
+        data.y = 35
+        return true
+    elseif y == 35 then
+        run_chart_update(data)
+        return false
+    end
+end
+
 local function on_chunk(event)
     local area = event.area
 
     local data = {
-        state = 0,
+        --state = 0,
+        y = 0,
+        x = 0,
+        area = area,
         top_x = area.left_top.x,
         top_y = area.left_top.y,
         surface = event.surface,
@@ -148,12 +243,16 @@ local function on_chunk(event)
         entities = {},
         decoratives = {}
     }
-    Task.queue_task('map_gen_action', data, 36)
+    --Task.queue_task('map_gen_action', data, 36)
+    Task.queue_task('map_gen_action_slow', data, total_calls)
 end
 
 local function init(args)
     shape = args.shape
+    tiles_per_tick = args.tiles_per_tick or 32
     regen_decoratives = args.regen_decoratives or false
+
+    total_calls = math.ceil(1024 / tiles_per_tick) + 4
 
     Event.add(defines.events.on_chunk_generated, on_chunk)
 end
