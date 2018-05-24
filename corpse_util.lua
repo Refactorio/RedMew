@@ -1,5 +1,6 @@
 local Event = require 'utils.event'
 local Task = require 'utils.Task'
+local Token = require 'utils.global_token'
 
 local function on_init()
     global.corpse_util_corpses = {}
@@ -68,11 +69,14 @@ local function corpse_expired(event)
     end
 end
 
-function corpse_util_mined_entity(data)
-    if not data.entity.valid then
-        remove_tag(data.position)
+local corpse_util_mined_entity =
+    Token.register(
+    function(data)
+        if not data.entity.valid then
+            remove_tag(data.position)
+        end
     end
-end
+)
 
 local function mined_entity(event)
     local entity = event.entity
@@ -80,7 +84,7 @@ local function mined_entity(event)
     if entity and entity.valid and entity.name == 'character-corpse' then
         -- The corpse may be mined but not removed (if player doesn't have inventory space)
         -- so we wait one tick to see if the corpse is gone.
-        Task.set_timeout_in_ticks(1, 'corpse_util_mined_entity', {entity = entity, position = entity.position})
+        Task.set_timeout_in_ticks(1, corpse_util_mined_entity, {entity = entity, position = entity.position})
     end
 end
 

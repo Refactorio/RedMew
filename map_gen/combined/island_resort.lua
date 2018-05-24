@@ -4,8 +4,22 @@ local perlin = require 'map_gen.shared.perlin_noise'
 local radius = 129
 local radsquare = radius * radius
 
+local clear_types = {'simple-entity', 'resource', 'tree'}
+
+local function do_clear_entities(world)
+    local entities = world.surface.find_entities_filtered({area = world.area, type = clear_types})
+    for _, entity in ipairs(entities) do
+        entity.destroy()
+    end
+end
+
 return function(x, y, world)
     local surface = world.surface
+
+    if not world.island_resort_cleared then
+        world.island_resort_cleared = true
+        do_clear_entities(world)
+    end
 
     local entities = {}
     local decoratives = {}

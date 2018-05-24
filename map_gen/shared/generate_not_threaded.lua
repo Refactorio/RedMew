@@ -78,7 +78,7 @@ local function do_place_decoratives(data)
     end
 
     local dec = data.decoratives
-    if dec then
+    if #dec > 0 then
         data.surface.create_decoratives({check_collision = true, decoratives = dec})
     end
 end
@@ -100,6 +100,7 @@ local function on_chunk(event)
     local area = event.area
 
     local data = {
+        area = area,
         top_x = area.left_top.x,
         top_y = area.left_top.y,
         surface = event.surface,
