@@ -100,6 +100,7 @@ local function on_chunk(event)
     local area = event.area
 
     local data = {
+        area = area,
         top_x = area.left_top.x,
         top_y = area.left_top.y,
         surface = event.surface,
