@@ -71,7 +71,7 @@ local function popup_update(cmd)
         return
     end
 
-    local message = 'Server updating to ' .. cmd.parameter .. ', back in one minute.'
+    local message = '\nServer updating to ' .. cmd.parameter .. ', back in one minute.'
 
     for _, p in ipairs(game.connected_players) do
         show_popup(p, message)
