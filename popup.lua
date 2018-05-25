@@ -4,6 +4,7 @@ local close_name = Gui.uid_name()
 
 local function show_popup(player, message)
     local frame = player.gui.center.add {type = 'frame', direction = 'vertical'}
+    frame.style.minimal_width = 300
 
     local close_button_flow = frame.add {type = 'flow'}
     close_button_flow.style.horizontally_stretchable = true
@@ -24,6 +25,8 @@ local function show_popup(player, message)
     label_flow.style.bottom_padding = 32
     label_flow.style.left_padding = 32
     label_flow.style.right_padding = 32
+    label_flow.style.align = 'center'
+    label_flow.style.horizontally_stretchable = true
 
     local label = label_flow.add {type = 'label', caption = message}
     label.style.single_line = false
