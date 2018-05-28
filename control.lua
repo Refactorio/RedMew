@@ -60,6 +60,7 @@ global.naughty_words_enabled = true
 global.naughty_words = {
     ['ass'] = true,
     ['bugger'] = true,
+    ['christ'] = true,
     ['crikey'] = true,
     ['darn'] = true,
     ['dam'] = true,

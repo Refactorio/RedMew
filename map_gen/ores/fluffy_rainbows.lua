@@ -14,7 +14,8 @@ local ore_base_amounts = {
 }
 
 local function init()
-    global.perlin_noise_seed = math.random(1000, 1000000)
+    global.perlin_noise_seed = game.surfaces[1].map_gen_settings.seed
+    -- math.random(1000, 1000000)
 end
 
 Event.on_init(init)
@@ -38,12 +39,12 @@ return function(x, y, world)
         world.amount_distance_multiplicator = amount_distance_multiplicator
     end
 
-    local entities = world.surface.find_entities_filtered {position = {world.x + 0.5, world.y + 0.5}, type = 'resource'}
+    --[[ local entities = world.surface.find_entities_filtered {position = {world.x + 0.5, world.y + 0.5}, type = 'resource'}
     for _, e in ipairs(entities) do
         if e.name ~= 'crude-oil' then
             e.destroy()
         end
-    end
+    end ]]
 
     local seed = global.perlin_noise_seed
 
@@ -51,9 +52,9 @@ return function(x, y, world)
     local noise_terrain_2 = perlin:noise(((x + seed) / 50), ((y + seed) / 50), 0)
     local noise_terrain = noise_terrain_1 + (noise_terrain_2 * 0.01)
 
-    return do_resource('iron-ore', x, y, world, noise_terrain, 0.1, 0.075, seed) or
-        do_resource('copper-ore', x, y, world, noise_terrain, 0.075, 0.05, seed) or
-        do_resource('stone', x, y, world, noise_terrain, 0.05, 0.04, seed) or
-        do_resource('coal', x, y, world, noise_terrain, 0.04, 0.03, seed) or
+    return do_resource('iron-ore', x, y, world, noise_terrain, 0.11, 0.085, seed) or
+        do_resource('copper-ore', x, y, world, noise_terrain, 0.085, 0.06, seed) or
+        do_resource('stone', x, y, world, noise_terrain, 0.06, 0.05, seed) or
+        do_resource('coal', x, y, world, noise_terrain, 0.05, 0.03, seed) or
         do_resource('uranium-ore', x, y, world, noise_terrain, 0.02, 0.01, seed)
 end

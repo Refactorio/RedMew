@@ -264,5 +264,18 @@ return {
     ['chukles'] = true,
     ['frissi'] = true,
     ['df1229'] = true,
-    ['actitishypoleucos'] = true
+    ['actitishypoleucos'] = true,
+    ['angus100'] = true,
+    ['morgan3rd'] = true,
+    ['kyte'] = true,
+    ['olexn'] = true,
+    ['acolyteofcthulu'] = true,
+    ['mariocraft2001'] = true,
+    ['krul'] = true,
+    ['b4x'] = true,
+    ['firebunnie'] = true,
+    ['derdu'] = true,
+    ['nibu'] = true,
+    ['artman40'] = true,
+    ['junhinhow'] = true
 }
