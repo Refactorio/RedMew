@@ -8,7 +8,7 @@ in this file and your run_*type*_module(event) function will be called.
 local b = require 'map_gen.shared.builders'
 
 local shape = nil
-local regen_decoratives = true
+local regen_decoratives = false
 local tiles_per_tick = 32
 
 --combined--
@@ -29,7 +29,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.mobius_strip"
 --shape = require "map_gen.presets.antfarm"
 --shape = require "map_gen.presets.creation_of_adam"
-shape = require "map_gen.presets.creation_of_adam2"
+--shape = require "map_gen.presets.creation_of_adam2"
 --shape = require "map_gen.presets.manhattan"
 --shape = require "map_gen.presets.mona_lisa"
 --shape = require "map_gen.presets.connected_dots"
@@ -74,7 +74,7 @@ shape = require "map_gen.presets.creation_of_adam2"
 --shape = require "map_gen.shape.spiral_tri"
 --shape = require "map_gen.shape.spiral2"
 --shape = require "map_gen.shape.donut"
---shape = require "map_gen.shape.rectangular_spiral"
+--shape = b.rectangular_spiral(128)
 --shape = require "map_gen.shape.lattice"
 --require "map_gen.shape.infinite_mazes"
 --shape = require "map_gen.shape.x_shape"

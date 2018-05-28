@@ -121,6 +121,24 @@ function Builders.sine_fill(width, height)
     end
 end
 
+function Builders.rectangular_spiral(x_size, optional_y_size)
+    optional_y_size = optional_y_size or x_size
+
+    x_size = 1 / x_size
+    optional_y_size = 1 / optional_y_size
+    return function(x, y)
+        x, y = x * x_size, y * optional_y_size
+        x, y = math.floor(x + 0.5), math.floor(y + 0.5)
+        local a = -math.max(math.abs(x), math.abs(y))
+
+        if a % 2 == 0 then
+            return y ~= a or x == a
+        else
+            return y == a and x ~= a
+        end
+    end
+end
+
 local tile_map = {
     [1] = false,
     [2] = true,
