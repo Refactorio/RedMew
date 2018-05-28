@@ -270,8 +270,7 @@ local function on_gui_click(event)
 		end
 
 		if (name == "auto_show_polls_checkbox") then
-			global.autoshow_polls_for_player[player.name] = not global.autoshow_polls_for_player[player.name]
-			game.print(global.autoshow_polls_for_player[player.name])
+			global.autoshow_polls_for_player[player.name] = not global.autoshow_polls_for_player[player.name]			
 		end
 
 		if global.poll_voted[event.player_index] == nil then
