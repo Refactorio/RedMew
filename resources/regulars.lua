@@ -277,5 +277,18 @@ return {
     ['derdu'] = true,
     ['nibu'] = true,
     ['artman40'] = true,
-    ['junhinhow'] = true
+    ['junhinhow'] = true,
+    ['ireasonless1'] = true,
+    ['grufe'] = true,
+    ['patton1918'] = true,
+    ['redlabel'] = true,
+    ['crusher_sut'] = true,
+    ['leon55'] = true,
+    ['thelaughingcheese'] = true,
+    ['maximuskylus'] = true,
+    ['nbituk'] = true,
+    ['mh'] = true,
+    ['vintageaura'] = true,
+    ['wurzeltroll42'] = true,
+    ['esperiom'] = true
 }
