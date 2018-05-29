@@ -378,7 +378,7 @@ Gui.on_click(
 
         redraw_main_frame()
 
-        game.print(event.player.name .. ' has delete the ' .. tag_name .. ' tag group')
+        game.print(event.player.name .. ' has deleted the ' .. tag_name .. ' tag group')
     end
 )
 
