@@ -8,7 +8,7 @@ in this file and your run_*type*_module(event) function will be called.
 local b = require 'map_gen.shared.builders'
 
 local shape = nil
-local regen_decoratives = true
+local regen_decoratives = false
 local tiles_per_tick = 32
 
 --combined--
@@ -124,6 +124,6 @@ if #terrain_modules > 0 then
 end
 
 if shape then
-    --require('map_gen.shared.generate')({shape = shape, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-	require ("map_gen.shared.generate_not_threaded")({shape = shape, regen_decoratives = regen_decoratives})
+    require('map_gen.shared.generate')({shape = shape, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
+	--require ("map_gen.shared.generate_not_threaded")({shape = shape, regen_decoratives = regen_decoratives})
 end
