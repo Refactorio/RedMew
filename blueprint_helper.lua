@@ -15,137 +15,121 @@ local function getBlueprintCursorStack(player)
     return nil
 end
 
-local function flip_v(player)
-    local cursor = getBlueprintCursorStack(player)
-    if cursor then
-        local ents = cursor.get_blueprint_entities()
-        if ents then
-            for i = 1, #ents do
-                local dir = ents[i].direction or 0
-                if ents[i].name == 'curved-rail' then
-                    ents[i].direction = (13 - dir) % 8
-                elseif ents[i].name == 'storage-tank' then
-                    if ents[i].direction == 2 or ents[i].direction == 6 then
-                        ents[i].direction = 4
-                    else
-                        ents[i].direction = 2
-                    end
-                elseif ents[i].name == 'rail-signal' or ents[i].name == 'rail-chain-signal' then
-                    if dir == 1 then
-                        ents[i].direction = 7
-                    elseif dir == 2 then
-                        ents[i].direction = 6
-                    elseif dir == 3 then
-                        ents[i].direction = 5
-                    elseif dir == 5 then
-                        ents[i].direction = 3
-                    elseif dir == 6 then
-                        ents[i].direction = 2
-                    elseif dir == 7 then
-                        ents[i].direction = 1
-                    end
-                elseif ents[i].name == 'train-stop' then
-                    if dir == 2 then
-                        ents[i].direction = 6
-                    elseif dir == 6 then
-                        ents[i].direction = 2
-                    end
+local function flip_v(cursor)
+    local ents = cursor.get_blueprint_entities()
+    if ents then
+        for i = 1, #ents do
+            local dir = ents[i].direction or 0
+            if ents[i].name == 'curved-rail' then
+                ents[i].direction = (13 - dir) % 8
+            elseif ents[i].name == 'storage-tank' then
+                if ents[i].direction == 2 or ents[i].direction == 6 then
+                    ents[i].direction = 4
                 else
-                    ents[i].direction = (12 - dir) % 8
+                    ents[i].direction = 2
                 end
-                ents[i].position.y = -ents[i].position.y
-                if ents[i].drop_position then
-                    ents[i].drop_position.y = -ents[i].drop_position.y
+            elseif ents[i].name == 'rail-signal' or ents[i].name == 'rail-chain-signal' then
+                if dir == 1 then
+                    ents[i].direction = 7
+                elseif dir == 2 then
+                    ents[i].direction = 6
+                elseif dir == 3 then
+                    ents[i].direction = 5
+                elseif dir == 5 then
+                    ents[i].direction = 3
+                elseif dir == 6 then
+                    ents[i].direction = 2
+                elseif dir == 7 then
+                    ents[i].direction = 1
                 end
-                if ents[i].pickup_position then
-                    ents[i].pickup_position.y = -ents[i].pickup_position.y
+            elseif ents[i].name == 'train-stop' then
+                if dir == 2 then
+                    ents[i].direction = 6
+                elseif dir == 6 then
+                    ents[i].direction = 2
                 end
-            end
-            cursor.set_blueprint_entities(ents)
-        end
-        if cursor.get_blueprint_tiles() ~= nil then
-            local ents = cursor.get_blueprint_tiles()
-            for i = 1, #ents do
-                local dir = ents[i].direction or 0
+            else
                 ents[i].direction = (12 - dir) % 8
-                ents[i].position.y = -ents[i].position.y
             end
-            cursor.set_blueprint_tiles(ents)
+            ents[i].position.y = -ents[i].position.y
+            if ents[i].drop_position then
+                ents[i].drop_position.y = -ents[i].drop_position.y
+            end
+            if ents[i].pickup_position then
+                ents[i].pickup_position.y = -ents[i].pickup_position.y
+            end
         end
+        cursor.set_blueprint_entities(ents)
+    end
+    if cursor.get_blueprint_tiles() ~= nil then
+        local ents = cursor.get_blueprint_tiles()
+        for i = 1, #ents do
+            local dir = ents[i].direction or 0
+            ents[i].direction = (12 - dir) % 8
+            ents[i].position.y = -ents[i].position.y
+        end
+        cursor.set_blueprint_tiles(ents)
     end
 end
 
-local function flip_h(player)
-    local cursor = getBlueprintCursorStack(player)
-    if cursor then
-        local ents = cursor.get_blueprint_entities()
-        if ents then
-            for i = 1, #ents do
-                local dir = ents[i].direction or 0
-                if ents[i].name == 'curved-rail' then
-                    ents[i].direction = (9 - dir) % 8
-                elseif ents[i].name == 'storage-tank' then
-                    if ents[i].direction == 2 or ents[i].direction == 6 then
-                        ents[i].direction = 4
-                    else
-                        ents[i].direction = 2
-                    end
-                elseif ents[i].name == 'rail-signal' or ents[i].name == 'rail-chain-signal' then
-                    if dir == 0 then
-                        ents[i].direction = 4
-                    elseif dir == 1 then
-                        ents[i].direction = 3
-                    elseif dir == 3 then
-                        ents[i].direction = 1
-                    elseif dir == 4 then
-                        ents[i].direction = 0
-                    elseif dir == 5 then
-                        ents[i].direction = 7
-                    elseif dir == 7 then
-                        ents[i].direction = 5
-                    end
-                elseif ents[i].name == 'train-stop' then
-                    if dir == 0 then
-                        ents[i].direction = 4
-                    elseif dir == 4 then
-                        ents[i].direction = 0
-                    end
+local function flip_h(cursor)
+    local ents = cursor.get_blueprint_entities()
+    if ents then
+        for i = 1, #ents do
+            local dir = ents[i].direction or 0
+            if ents[i].name == 'curved-rail' then
+                ents[i].direction = (9 - dir) % 8
+            elseif ents[i].name == 'storage-tank' then
+                if ents[i].direction == 2 or ents[i].direction == 6 then
+                    ents[i].direction = 4
                 else
-                    ents[i].direction = (16 - dir) % 8
+                    ents[i].direction = 2
                 end
-                ents[i].position.x = -ents[i].position.x
-                if ents[i].drop_position then
-                    ents[i].drop_position.x = -ents[i].drop_position.x
+            elseif ents[i].name == 'rail-signal' or ents[i].name == 'rail-chain-signal' then
+                if dir == 0 then
+                    ents[i].direction = 4
+                elseif dir == 1 then
+                    ents[i].direction = 3
+                elseif dir == 3 then
+                    ents[i].direction = 1
+                elseif dir == 4 then
+                    ents[i].direction = 0
+                elseif dir == 5 then
+                    ents[i].direction = 7
+                elseif dir == 7 then
+                    ents[i].direction = 5
                 end
-                if ents[i].pickup_position then
-                    ents[i].pickup_position.x = -ents[i].pickup_position.x
+            elseif ents[i].name == 'train-stop' then
+                if dir == 0 then
+                    ents[i].direction = 4
+                elseif dir == 4 then
+                    ents[i].direction = 0
                 end
-            end
-            cursor.set_blueprint_entities(ents)
-        end
-        if cursor.get_blueprint_tiles() ~= nil then
-            local ents = cursor.get_blueprint_tiles()
-            for i = 1, #ents do
-                local dir = ents[i].direction or 0
+            else
                 ents[i].direction = (16 - dir) % 8
-                ents[i].position.x = -ents[i].position.x
             end
-            cursor.set_blueprint_tiles(ents)
+            ents[i].position.x = -ents[i].position.x
+            if ents[i].drop_position then
+                ents[i].drop_position.x = -ents[i].drop_position.x
+            end
+            if ents[i].pickup_position then
+                ents[i].pickup_position.x = -ents[i].pickup_position.x
+            end
         end
+        cursor.set_blueprint_entities(ents)
+    end
+    if cursor.get_blueprint_tiles() ~= nil then
+        local ents = cursor.get_blueprint_tiles()
+        for i = 1, #ents do
+            local dir = ents[i].direction or 0
+            ents[i].direction = (16 - dir) % 8
+            ents[i].position.x = -ents[i].position.x
+        end
+        cursor.set_blueprint_tiles(ents)
     end
 end
 
-local function convert(player, data)
-    local cursor = getBlueprintCursorStack(player)
-    if not cursor then
-        return
-    end
-
-    local entities = cursor.get_blueprint_entities()
-    if not entities then
-        return
-    end
-
+local function build_filters(data)
     local filters = {}
     for _, filter in pairs(data) do
         local from = filter.from.tooltip
@@ -154,6 +138,15 @@ local function convert(player, data)
         if from ~= '' and to ~= '' then
             filters[from] = to
         end
+    end
+
+    return filters
+end
+
+local function convert(cursor, filters)
+    local entities = cursor.get_blueprint_entities()
+    if not entities then
+        return
     end
 
     for _, e in ipairs(entities) do
@@ -369,12 +362,12 @@ local function toggle(event)
         flow.add {
             type = 'button',
             name = flip_h_button_name,
-            caption = 'Flip Horizontal'
+            caption = 'Flip Horizontal ⇄'
         }
         flow.add {
             type = 'button',
             name = flip_v_button_name,
-            caption = 'Flip Vertical'
+            caption = 'Flip Vertical ⇵'
         }
 
         -- Converter.
@@ -441,14 +434,28 @@ Gui.on_click(main_button_name, toggle)
 Gui.on_click(
     flip_h_button_name,
     function(event)
-        flip_h(event.player)
+        local player = event.player
+
+        local cursor = getBlueprintCursorStack(player)
+        if cursor then
+            flip_h(cursor)
+        else
+            player.print('Click the button with a blueprint or blueprint book.')
+        end
     end
 )
 
 Gui.on_click(
     flip_v_button_name,
     function(event)
-        flip_v(event.player)
+        local player = event.player
+
+        local cursor = getBlueprintCursorStack(player)
+        if cursor then
+            flip_v(cursor)
+        else
+            player.print('Click the button with a blueprint or blueprint book.')
+        end
     end
 )
 
@@ -524,8 +531,21 @@ Gui.on_click(
 Gui.on_click(
     convert_button_name,
     function(event)
+        local player = event.player
+
+        local cursor = getBlueprintCursorStack(player)
+        if not cursor then
+            player.print('Click the button with a blueprint or blueprint book.')
+        end
+
         local data = Gui.get_data(event.element)
-        convert(event.player, data)
+        local filters = build_filters(data)
+
+        if next(filters) == nil then
+            player.print('No filters have been set')
+        end
+
+        convert(cursor, filters)
     end
 )
 
