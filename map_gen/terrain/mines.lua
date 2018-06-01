@@ -1,54 +1,60 @@
-local Event = require "utils.event"
+local Event = require 'utils.event'
 
-local mines_factor = 4
+local mines_factor = 1
 
 --Do not change this:
 mines_factor = 16384 / mines_factor
 
 local death_messages = {
-  "Went exploring, and didn't bring a minesweeping kit.",
-  "Wandered off, and found that it really is dangerous to go alone.",
-  "Found that minesweeper in factorio gives no hints.",
-  "And they were only one day away from retirement",
-  "Is too old for this s$%t",
-  "Ponders the question, 'How might I avoid mines in the future'",
-  "Exploded with rage",
-  "Thought it was clear, found it was not.",
-  "Thought it was clear, was wrong.",
-  "Paved the way for expansion!",
-  "Sacrificed their body to the greater factory expansion",
-  "No longer wonders why nobody else has built here",
-  "Just wants to watch the respawn timer window",
-  "Like life, mines are unfair, next time bring a helmet",
-  "Should’ve thrown a grenade before stepping over there",
-  "Is farming the death counter",
-  "Fertilized the soil",
-  "Found no man's land, also found it applies to them.",
-  "Curses the map maker",
-  "does not look forward to the death march back to retreive items",
-  "Wont be going for a walk again",
-  "Really wants a map.",
-  "Forgot his xray goggles",
-  "Rather Forgot to bring x-ray goggles",
-  "Learned that the biters defend their territory",
-  "Mines 1, Ninja skills 0."
+    "went exploring, and didn't bring a minesweeping kit.",
+    'wandered off, and found that it really is dangerous to go alone.',
+    'found that minesweeper in factorio gives no hints.',
+    'died, and they were only one day away from retirement',
+    'is too old for this s$%t',
+    "ponders the question, 'How might I avoid mines in the future'",
+    'exploded with rage',
+    'thought it was clear, found it was not.',
+    'thought it was clear, was wrong.',
+    'paved the way for expansion!',
+    'sacrificed their body to the greater factory expansion',
+    'no longer wonders why nobody else has built here',
+    'just wants to watch the respawn timer window',
+    'like life, mines are unfair, next time bring a helmet',
+    'should’ve thrown a grenade before stepping over there',
+    'is farming the death counter',
+    'fertilized the soil',
+    "found no man's land, also found it applies to them.",
+    'curses the map maker',
+    'does not look forward to the death march back to retreive items',
+    'wont be going for a walk again',
+    'really wants a map.',
+    'forgot their xray goggles',
+    'rather Forgot to bring x-ray goggles',
+    'learned that the biters defend their territory',
+    'mines 1, Ninja skills 0.'
 }
 
-local function player_died()
-  game.print(death_messages[math.random(1, #death_messages)])
+local function player_died(event)
+    local player = game.players[event.player_index]
+    if not player or not player.valid then
+        return
+    end
+
+    local message = player.name .. ' ' .. death_messages[math.random(1, #death_messages)]
+    game.print(message)
 end
 Event.add(defines.events.on_player_died, player_died)
 
-return function(x, y, world)  
-  local distance = math.sqrt(world.x * world.x + world.y * world.y)
+return function(x, y)
+    local distance = math.sqrt(x * x + y * y)
 
-  if distance <= 100 then
-    return nil
-  end
+    if distance <= 100 then
+        return nil
+    end
 
-  local magic_number = math.floor(mines_factor / distance) + 1
+    local chance = math.floor(mines_factor / distance) + 1
 
-  if math.random(1, magic_number) == 1 then
-    return {name = "land-mine", force = "enemy"}
-  end
+    if math.random(chance) == 1 then
+        return {name = 'land-mine', force = 'enemy'}
+    end
 end
