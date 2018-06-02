@@ -496,3 +496,8 @@ function print_admins(msg)
 		end
 	end
 end
+
+function get_actor()
+	if game.player then return game.player.name end
+	return "<server>"
+end
