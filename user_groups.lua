@@ -1,5 +1,6 @@
 global.regulars = {}
 local Event = require "utils.event"
+local Utils = require "utils.utils"
 
 local Module = {}
 
@@ -21,7 +22,7 @@ Module.is_regular = function(player_name)
 end
 
 Module.add_regular = function(player_name)
-    local actor = get_actor()
+    local actor = Utils.get_actor()
     if Module.is_regular(player_name) then player_print(player_name .. " is already a regular.")
     else
         if game.players[player_name] then
@@ -36,7 +37,7 @@ Module.add_regular = function(player_name)
 end
 
 Module.remove_regular = function(player_name)
-    local actor = get_actor()
+    local actor = Utils.get_actor()
     if game.players[player_name] then
         player_name = game.players[player_name].name
         if Module.is_regular(player_name) then game.print(player_name .. " was demoted from regular by " .. actor .. ".") end

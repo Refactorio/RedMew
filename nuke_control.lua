@@ -1,5 +1,6 @@
 local Event = require "utils.event"
 local UserGroups = require "user_groups"
+local Utils = require "utils.utils"
 
 function allowed_to_nuke(player)
   if type(player) == "table" then
@@ -25,13 +26,13 @@ local function on_player_deconstructed_area(event)
     local nukes = player.remove_item({name="deconstruction-planner", count=1000})
 
     --Make them think they arent noticed
-    print_except(player.name .. " tried to deconstruct something, but instead deconstructed himself.", player)
+    Utils.print_except(player.name .. " tried to deconstruct something, but instead deconstructed himself.", player)
     player.print("Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.")
 
     player.character.health = 0
     local entities = player.surface.find_entities_filtered{area = event.area, force = player.force}
     if #entities > 1000 then
-      print_admins("Warning! " .. player.name .. " just tried to deconstruct " .. tostring(#entities) .. " entities!")
+      Utils.print_admins("Warning! " .. player.name .. " just tried to deconstruct " .. tostring(#entities) .. " entities!")
     end
     for _,entity in pairs(entities) do
       if entity.valid and entity.to_be_deconstructed(game.players[event.player_index].force) then
