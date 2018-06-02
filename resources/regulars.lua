@@ -290,5 +290,14 @@ return {
     ['mh'] = true,
     ['vintageaura'] = true,
     ['wurzeltroll42'] = true,
-    ['esperiom'] = true
+    ['esperiom'] = true,
+    ['standaardstefan'] = true,
+    ['mauerstein10'] = true,
+    ['vengefulpm'] = true,
+    ['skilledspacepolice'] = true,
+    ['the_ledgendary'] = true,
+    ['capitansky'] = true,
+    ['barnaba'] = true,
+    ['drlloyd1337'] = true,
+    ['twinotter'] = true
 }

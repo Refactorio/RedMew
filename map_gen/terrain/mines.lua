@@ -48,7 +48,7 @@ Event.add(defines.events.on_player_died, player_died)
 return function(x, y)
     local distance = math.sqrt(x * x + y * y)
 
-    if distance <= 100 then
+    if distance <= 210 then
         return nil
     end
 

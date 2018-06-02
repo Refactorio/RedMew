@@ -48,7 +48,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.misc_stuff"
 --shape = require "map_gen.presets.lines"
 --shape = require "map_gen.presets.dickbutt"
---shape = require "map_gen.presets.void_gears"
+shape = require "map_gen.presets.void_gears"
 --shape = require "map_gen.presets.gears"
 --shape = require "map_gen.presets.factorio_logo"
 --shape = require "map_gen.presets.factorio_logo2"
@@ -90,10 +90,12 @@ local tiles_per_tick = 32
 
 -- modules that only return max one entity per tile
 local entity_modules = {
-	--require "map_gen.ores.glitter_ores",
-	--require "map_gen.terrain.mines",
+	require "map_gen.misc.loot_items",
+	require "map_gen.terrain.mines",
+	require "map_gen.terrain.deathworld",
+	--require "map_gen.ores.glitter_ores",	
 	--require "map_gen.terrain.worms",
-	--require "map_gen.misc.wreck_items",
+	--require "map_gen.misc.wreck_items",	
 	--require "map_gen.ores.neko_crazy_ores",
 	--require "map_gen.ores.fluffy_rainbows",
 	--require "map_gen.ores.harmonic_gen",
@@ -124,6 +126,6 @@ if #terrain_modules > 0 then
 end
 
 if shape then
-    require('map_gen.shared.generate')({shape = shape, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-	--require ("map_gen.shared.generate_not_threaded")({shape = shape, regen_decoratives = regen_decoratives})
+    --require('map_gen.shared.generate')({shape = shape, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
+	require ("map_gen.shared.generate_not_threaded")({shape = shape, regen_decoratives = regen_decoratives})
 end

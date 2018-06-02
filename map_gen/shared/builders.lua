@@ -26,11 +26,15 @@ local Builders = {}
 
 -- shape builders
 function Builders.empty_shape()
-    return nil
+    return false
 end
 
 function Builders.full_shape()
     return true
+end
+
+function Builders.no_entity()
+    return nil
 end
 
 function Builders.tile(tile)
