@@ -26,7 +26,7 @@ local function on_player_deconstructed_area(event)
     local nukes = player.remove_item({name="deconstruction-planner", count=1000})
 
     --Make them think they arent noticed
-    Utils.print_except(player.name .. " tried to deconstruct something, but instead deconstructed himself.", player)
+    Utils.print_except(player.name .. " tried to deconstruct something, but instead deconstructed themself.", player)
     player.print("Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.")
 
     player.character.health = 0

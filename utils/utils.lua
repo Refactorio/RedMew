@@ -1,5 +1,3 @@
-local Event = require "utils.event"
-
 local Module = {}
 
 Module.distance = function(pos1, pos2)
@@ -34,3 +32,9 @@ Module.get_actor = function()
 	if game.player then return game.player.name end
 	return "<server>"
 end
+
+Module.cast_bool = function(var)
+  if var then return true else return false
+end
+
+return Module

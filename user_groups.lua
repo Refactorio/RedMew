@@ -18,7 +18,7 @@ end
 
 
 Module.is_regular = function(player_name)
-	return false or global.regulars[player_name] or global.regulars[player_name:lower()] --to make it backwards compatible
+	return Utils.cast_bool(global.regulars[player_name] or global.regulars[player_name:lower()]) --to make it backwards compatible
 end
 
 Module.add_regular = function(player_name)
