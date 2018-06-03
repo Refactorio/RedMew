@@ -4,29 +4,25 @@ local Event = require "utils.event"
 local Module = {}
 
 local function update_file()
-	local file = position .. ".lua"
+	local file = "regulars.lua"
 	game.write_file(file, "{", false, 0)
-	local group = global[position]
 	local line = ""
-	for player_name,_ in pairs(group) do
+	for player_name,_ in pairs(global.regulars) do
 		line = string.format('["%s"] = "",\n', player_name)
 		game.write_file(file, line, true, 0)
 	end
 	game.write_file(file, "}", true, 0)
 end
 
-Module.get_actor = function()
-	if game.player then return game.player.name end
-	return "<server>"
-end
 
-local is_regular = function(player_name)
-	return cast_bool(global.regulars[player_name] or global.regulars[player_name:lower()]) --to make it backwards compatible
+
+Module.is_regular = function(player_name)
+	return false or global.regulars[player_name] or global.regulars[player_name:lower()] --to make it backwards compatible
 end
 
 Module.add_regular = function(player_name)
     local actor = get_actor()
-    if is_regular(player_name) then player_print(player_name .. " is already a regular.")
+    if Module.is_regular(player_name) then player_print(player_name .. " is already a regular.")
     else
         if game.players[player_name] then
             player_name = game.players[player_name].name
@@ -43,7 +39,7 @@ Module.remove_regular = function(player_name)
     local actor = get_actor()
     if game.players[player_name] then
         player_name = game.players[player_name].name
-        if is_regular(player_name) then game.print(player_name .. " was demoted from regular by " .. actor .. ".") end
+        if Module.is_regular(player_name) then game.print(player_name .. " was demoted from regular by " .. actor .. ".") end
 	global.regulars[player_name] = nil
 	global.regulars[player_name:lower()] = nil --backwards compatible
 	update_file()

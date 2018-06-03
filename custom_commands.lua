@@ -236,7 +236,7 @@ end
 Event.add(defines.events.on_built_entity, built_entity)
 
 local function toggle_tp_mode(cmd)
-  if not (game.player and (game.player.admin or UserGroups.is_mod(game.player.name))) then
+  if not (game.player and game.player.admin) then
     cant_run(cmd.name)
     return
   end
@@ -367,7 +367,7 @@ local function tempban(cmd)
   end
   local group = get_group()
 
-  game.print(UserGroups.get_actor() .. " put " .. params[1] .. " in timeout for " .. params[2] .. " minutes.")
+  game.print(get_actor() .. " put " .. params[1] .. " in timeout for " .. params[2] .. " minutes.")
   if group then
     group.add_player(params[1])
     if not tonumber(cmd.parameter) then
