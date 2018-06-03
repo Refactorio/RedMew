@@ -352,8 +352,9 @@ local function toggle(event)
         local label =
             flipper_frame.add {
             type = 'label',
-            caption = 'Place blueprint on buttons below to flip blueprint.\n' ..
-                'Obviously this wont work correctly with refineries or chemical plants.'
+            caption = [[
+Place blueprint on buttons below to flip blueprint.
+Obviously this wont work correctly with refineries or chemical plants.]]
         }
         label.style.single_line = false
 
