@@ -14,7 +14,7 @@ require 'fish_market'
 require 'reactor_meltdown'
 require 'map_layout'
 require 'bot'
-
+require 'antigrief'
 -- GUIs the order determines the order they appear at the top.
 require 'info'
 require 'player_list'
