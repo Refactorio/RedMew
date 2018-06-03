@@ -10,6 +10,7 @@ require 'walk_distance'
 require 'follow'
 require 'autodeconstruct'
 require 'corpse_util'
+require 'infinite_storage_chest'
 require 'fish_market'
 require 'reactor_meltdown'
 require 'map_layout'
@@ -140,9 +141,23 @@ Event.add(defines.events.on_console_chat, hodor)
 Event.add(
     defines.events.on_player_joined_game,
     function(event)
-        local gui = game.players[event.player_index].gui
+        local player = game.players[event.player_index]
+        if not player or not player.valid then
+            return
+        end
 
+        if player.name == 'grilledham' then
+            -- pink
+            player.color = {r = 0.9290000202716064, g = 0.3860000739097595, b = 0.51399999856948853, a = 0.5}
+            player.chat_color = {r = 1, g = 0.51999998092651367, b = 0.63300001621246338, a = 0.5}
+        end
+
+        local gui = player.gui
         gui.top.style = 'slot_table_spacing_horizontal_flow'
         gui.left.style = 'slot_table_spacing_vertical_flow'
+
+        --[[ player.insert {name = 'infinity-chest', count = 10}
+        player.insert {name = 'electric-energy-interface', count = 10}
+        player.cheat_mode = true ]]
     end
 )
