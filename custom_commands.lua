@@ -1,6 +1,7 @@
 local Task = require "utils.Task"
 local Event = require "utils.event"
 local UserGroups = require "user_groups"
+local Utils = require "utils.utils"
 
 function player_print(str)
   if game.player then
@@ -367,7 +368,7 @@ local function tempban(cmd)
   end
   local group = get_group()
 
-  game.print(get_actor() .. " put " .. params[1] .. " in timeout for " .. params[2] .. " minutes.")
+  game.print(Utils.get_actor() .. " put " .. params[1] .. " in timeout for " .. params[2] .. " minutes.")
   if group then
     group.add_player(params[1])
     if not tonumber(cmd.parameter) then

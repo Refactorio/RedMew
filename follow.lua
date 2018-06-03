@@ -1,5 +1,6 @@
 global.follows = {}
 global.follows.n_entries = 0
+local Utils = require "utils.utils"
 
 function get_direction(follower, target)
   local delta_x = target.position.x - follower.position.x
@@ -37,18 +38,13 @@ function get_direction(follower, target)
   end
 end
 
-local function distance(player_1, player_2)
-  local d_x = player_1.position.x - player_2.position.x
-  local d_y = player_1.position.y - player_2.position.y
-  return math.sqrt(d_x*d_x + d_y * d_y)
-end
 function walk_on_tick()
   if global.follows.n_entries > 0 then
     for k,v in pairs(global.follows) do
       local follower = game.players[k]
       local target = game.players[v]
       if follower ~= nil and target ~= nil then
-        local d = distance(follower, target)
+        local d = Utils.distance(follower, target)
         if follower.connected and target.connected and d < 32 then
           if d > 5 then
             direction = get_direction(follower, target)
