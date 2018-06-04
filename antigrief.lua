@@ -1,12 +1,11 @@
 local Event = require "utils.event"
-
+local Utils = require "utils.utils"
 
 Event.on_init(function()
   global.ag_surface=game.create_surface("antigrief",{autoplace_controls={coal={frequency="normal",richness="normal",size="none"},["copper-ore"]={frequency="normal",richness="normal",size="none"},["crude-oil"]={frequency="normal",richness="normal",size="none"},desert={frequency="normal",richness="normal",size="none"},dirt={frequency="normal",richness="normal",size="none"},["enemy-base"]={frequency="normal",richness="normal",size="none"},grass={frequency="normal",richness="normal",size="very-high"},["iron-ore"]={frequency="normal",richness="normal",size="none"},sand={frequency="normal",richness="normal",size="none"},stone={frequency="normal",richness="normal",size="none"},trees={frequency="normal",richness="normal",size="none"},["uranium-ore"]={frequency="normal",richness="normal",size="none"}},cliff_settings={cliff_elevation_0=1024,cliff_elevation_interval=10,name="cliff"},height=2000000,peaceful_mode=false,seed=3461559752,starting_area="very-low",starting_points={{x=0,y=0}},terrain_segmentation="normal",water="none",width=2000000})
   global.ag_surface.always_day = true
 
 end)
-
 
 local function place_entity_on_surface(entity, surface, replace, player)
   local new_entity = nil
@@ -72,6 +71,18 @@ Module.undo = function(player)
   local player = player
   if type(player) == "nil" or type(player) == "string" then return --No support for strings!
   elseif type(player) == "number" then player = game.players[player] end
+
+  --Remove all items from all surfaces that player placed an entity
+  for _,surface in pairs(game.surfaces) do
+    if surface ~= global.ag_surface then
+      for _,e in pairs(surface.find_entities_filtered{force = player.force.name}) do
+        if e.last_user == player then
+          e.destroy()
+        end
+      end
+    end
+  end
+
   for _,e in pairs(global.ag_surface.find_entities_filtered{}) do
     if e.last_user == player then
       --Place removed entity IF no collision is detected
@@ -87,15 +98,6 @@ Module.undo = function(player)
       end
     end
   end
-
-  --Remove all items from all surfaces that player placed an entity
-  for _,surface in pairs(game.surfaces) do
-    for _,e in pairs(global.ag_surface.find_entities_filtered{force = player.force}) do
-      if e.last_user == player then
-        e.destroy()
-      end
-    end
-  end
 end
 
 Module.antigrief_surface_tp = function()
@@ -106,6 +108,10 @@ Module.antigrief_surface_tp = function()
       game.player.teleport(game.player.position, global.ag_surface)
     end
   end
+end
+
+Module.count_removed_entities = function(player)
+  return #Utils.find_entities_by_last_user(player, global.ag_surface)
 end
 
 return Module

@@ -473,13 +473,23 @@ local function pool()
     end
 end
 
+global.undo_warned_players = {}
 local function undo(cmd)
   if (not game.player) or not game.player.admin then
     cant_run(cmd.name)
     return
   end
-  --warning
   if cmd.parameter and game.players[cmd.parameter] then
+    if not global.undo_warned_players[game.player.index] then
+      global.undo_warned_players[game.player.index] = true
+      game.player.print(
+        string.format("Warning! You are about to remove %s entities and restore %s entities.",
+        #Utils.find_entities_by_last_user(game.players[cmd.parameter], game.surfaces.nauvis),
+        Antigrief.count_removed_entities(game.players[cmd.parameter]))
+      )
+      game.player.print("To execute the command please run it again.")
+      return
+    end
     Antigrief.undo(game.players[cmd.parameter])
     game.print(string.format("Undoing everything %s did...", cmd.parameter))
   else
@@ -532,4 +542,4 @@ commands.add_command('all-tech', 'researches all technologies', function() if ga
 commands.add_command('hax', 'Toggles your hax', function() if game.player and game.player.admin then game.player.cheat_mode = not game.player.cheat_mode end end)
 commands.add_command('pool', 'Spawns a pool', pool)
 commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
-commands.add_command('antigrief_surface', 'move you to the antigrief surface or back', antigrief_surface_tp)
+commands.add_command('antigrief_surface', 'moves you to the antigrief surface or back (Admins only)', antigrief_surface_tp)
