@@ -4,6 +4,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 local Event = require "utils.event"
+local UserGroups = require "user_groups"
 
 local function create_tasklist_gui(event)
    local player = game.players[event.player_index]
@@ -63,7 +64,7 @@ local function tasklist_show(player)
 
    global.tasklist_panel_creation_time[player.index] = game.tick
 
-   if is_regular( player.name ) or is_mod( player.name ) or player.admin then
+   if player.admin or UserGroups.is_regular(player.name)  then
       tasklist_panel_button_table.add { type = "button", caption = "New Tasks", name = "new_tasklist_assembler_button" }
       tasklist_panel_button_table.new_tasklist_assembler_button.style.font = "default-bold"
       tasklist_panel_button_table.new_tasklist_assembler_button.style.minimal_height = 38
