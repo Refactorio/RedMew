@@ -1,89 +1,63 @@
 global.regulars = require "resources.regulars"
-global.mods = require "resources.mods"
+local Event = require "utils.event"
+local Utils = require "utils.utils"
 
-function update_group(position)
-	local file = position .. ".lua"
+local Module = {}
+
+local function update_file()
+	local file = "regulars.lua"
 	game.write_file(file, "{", false, 0)
-	local group = global[position]
 	local line = ""
-	for player_name, _ in pairs(group) do
+	for player_name,_ in pairs(global.regulars) do
 		line = string.format('["%s"] = true,\n', player_name)
 		game.write_file(file, line, true, 0)
 	end
 	game.write_file(file, "}", true, 0)
 end
 
-function get_actor()
-	if game.player then
-		return game.player.name
-	end
-	return "<server>"
+Module.is_regular = function(player_name)
+	return Utils.cast_bool(global.regulars[player_name] or global.regulars[player_name:lower()]) --to make it backwards compatible
+end
+Module.add_regular = function(player_name)
+    local actor = Utils.get_actor()
+    if Module.is_regular(player_name) then player_print(player_name .. " is already a regular.")
+    else
+        if game.players[player_name] then
+            player_name = game.players[player_name].name
+            game.print(actor .. " promoted " .. player_name .. " to regular.")
+            global.regulars[player_name] = true
+            update_file()
+        else
+            player_print(player_name .. " does not exist.")
+        end
+    end
 end
 
-function is_mod(player_name)
-	return global.mods[player_name:lower()]
-end
-
-function is_regular(player_name)
-	return global.regulars[player_name:lower()]
-end
-
-function add_regular(player_name)
-	local actor = get_actor()
-	if is_regular(player_name) then
-		player_print(player_name .. " is already a regular.")
-	else
-		if game.players[player_name] then
-			game.print(actor .. " promoted " .. player_name .. " to regular.")
-			global.regulars[player_name:lower()] = ""
-			update_group("regulars")
-		else
-			player_print(player_name .. " does not exist.")
-		end
-	end
-end
-
-function add_mod(player_name)
-	local actor = get_actor()
-	if is_mod(player_name) then
-		player_print(player_name .. " is already a moderator.")
-	else
-		if game.players[player_name] then
-			game.print(actor .. " promoted " .. player_name .. " to moderator.")
-			global.mods[player_name:lower()] = ""
-			update_group("mods")
-		else
-			player_print(player_name .. " does not exist.")
-		end
-	end
-end
-
-function remove_regular(player_name)
-	local actor = get_actor()
-	if is_regular(player_name) then
-		game.print(player_name .. " was demoted from regular by " .. actor .. ".")
-	end
+Module.remove_regular = function(player_name)
+    local actor = Utils.get_actor()
+    if game.players[player_name] then
+        player_name = game.players[player_name].name
+        if Module.is_regular(player_name) then game.print(player_name .. " was demoted from regular by " .. actor .. ".") end
 	global.regulars[player_name] = nil
-	update_group("regulars")
+	global.regulars[player_name:lower()] = nil --backwards compatible
+	update_file()
+    end
 end
 
-function remove_mod(player_name)
-	local actor = get_actor()
-	if is_mod(player_name) then
-		game.print(player_name .. " was demoted from mod by " .. actor .. ".")
-	end
-	global.mods[player_name] = nil
-	update_group("mods")
-end
-
-function print_regulars()
-	for k, _ in pairs(global.regulars) do
+Module.print_regulars = function()
+	for k,_ in pairs(global.regulars) do
 		player_print(k)
 	end
 end
 
-function print_mods()
-	for k, _ in pairs(global.mods) do
-		player_print(k)
+
+Event.add(defines.events.on_player_joined_game, function(event)
+  local correctCaseName = game.players[event.player_index].name
+	if global.regulars[correctCaseName:lower()] and not global.regulars[correctCaseName] then
+		global.regulars[correctCaseName:lower()] = nil
+		global.regulars[correctCaseName] = true
+		update_file()
 	end
-end
+end)
+
+return Module

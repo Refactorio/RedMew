@@ -39,35 +39,31 @@ Event.add(defines.events.on_research_finished, research_finished)
 local function max_axis_distance(world_x, world_y, target_x, target_y)
     local x = math.abs(world_x - target_x)
     local y = math.abs(world_y - target_y)
-    
-    return math.max(x, y)
-end
 
-local function distance(world_x, world_y, target_x, target_y)
-    return math.abs(world_x - target_x) + math.abs(world_y - target_y)
+    return math.max(x, y)
 end
 
 local init = false
 local safe_distance = 480
-local function effect(x, y, world, tile)
-    
+local function effect(x, y, world_x, world_y, tile, entity, surface)
+
     if not init then
         init = true
         game.forces["player"].chart(world.surface, {{-32, -32}, {31, 31}})
     end
-    
+
     if world.x == 0 and world.y == 0 then
         for _, e in ipairs(world.surface.find_entities({{-5, -5}, {5, 5}})) do
             e.destroy()
         end
-        
+
         local e = world.surface.create_entity({name = "rocket-silo", position = {0, 0}, force = "player"})
         e.destructible = false
         e.minable = false
     end
-    
+
     --[[
-    
+
     if max_axis_distance(world_x, world_y, -2144, 0) < safe_distance then
     for _, e in ipairs(surface.find_entities_filtered({ force = "enemy", position = { world_x, world_y } } )) do
     e.destroy()
@@ -77,12 +73,12 @@ local function effect(x, y, world, tile)
     e.destroy()
     end
     end
-    
+
     for _, e in ipairs(surface.find_entities_filtered({ type = "resource", area = {{world_x, world_y  }, {world_x + 1, world_y + 1 } } })) do -- I want to use position but for some reason it doesn't seem to work for ores.
     local dist1 = distance(world_x, world_y, -2144, 0)
     local dist2 = distance(world_x, world_y, 2144, 0)
     local amount = math.min(dist1, dist2)
-    
+
     local name = e.name
     if name == "iron-ore" then
     amount = 800 + 0.4 * amount
@@ -97,12 +93,25 @@ local function effect(x, y, world, tile)
     elseif name == "crude-oil" then
     amount = 50000 + 50 * amount
     end
-    
+
     e.amount = amount
     end
-    
+
     --]]
     return tile
+=======
+
+    if world_x == 0 and world_y == 0 then
+        for _, e in ipairs(surface.find_entities({{-5, -5}, {5, 5}})) do
+            e.destroy()
+        end
+
+        local e = surface.create_entity({name = "rocket-silo", position = {0, 0}, force = "player"})
+        e.destructible = false
+        e.minable = false
+    end
+    return tile, entity
+>>>>>>> develop
 end
 
 map = b.apply_effect(map, effect)
