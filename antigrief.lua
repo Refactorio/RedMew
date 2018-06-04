@@ -4,26 +4,28 @@ local Event = require "utils.event"
 Event.on_init(function()
   global.ag_surface = game.create_surface("antigrief", {  autoplace_controls = {    coal = {      frequency = "normal",      richness = "normal",      size = "none"    },    ["copper-ore"] = {      frequency = "normal",      richness = "normal",      size = "none"    },    ["crude-oil"] = {      frequency = "normal",      richness = "normal",      size = "none"    },    desert = {      frequency = "normal",      richness = "normal",      size = "none"    },    dirt = {      frequency = "normal",      richness = "normal",      size = "none"    },    ["enemy-base"] = {      frequency = "normal",      richness = "normal",      size = "none"    },    grass = {      frequency = "normal",      richness = "normal",      size = "very-high"    },    ["iron-ore"] = {      frequency = "normal",      richness = "normal",      size = "none"    },    sand = {      frequency = "normal",      richness = "normal",      size = "none"    },    stone = {      frequency = "normal",      richness = "normal",      size = "none"    },    trees = {      frequency = "normal",      richness = "normal",      size = "none"    },    ["uranium-ore"] = {      frequency = "normal",      richness = "normal",      size = "none"    }  },  cliff_settings = {    cliff_elevation_0 = 1024,    cliff_elevation_interval = 10,    name = "cliff"  },  height = 2000000,  peaceful_mode = false,  seed = 3461559752,  starting_area = "very-low",  starting_points = {    {      x = 0,      y = 0    }  },  terrain_segmentation = "normal",  water = "none",  width = 2000000})
   global.ag_surface.always_day = true
- 
+
 end)
 
 local function place_entity_on_surface(entity, surface, replace, player)
+  local new_entity = nil
   if replace then
     for _,e in pairs(surface.find_entities_filtered{position = entity.position}) do
       e.destroy()
     end
-    local new_entity = surface.create_entity{name = entity.name, position = entity.position, force = entity.force, direction = entity.direction}
+    new_entity = surface.create_entity{name = entity.name, position = entity.position, force = entity.force, direction = entity.direction}
     if player then
     	new_entity.last_user = player
     end
   else
-    if surface.count_entities_filtered{position = entity.position} == 0 then 
-      local new_entity = surface.create_entity{name = entity.name, position = entity.position, force = entity.force, direction = entity.direction}
-      if player then 
+    if surface.count_entities_filtered{position = entity.position} == 0 then
+      new_entity = surface.create_entity{name = entity.name, position = entity.position, force = entity.force, direction = entity.direction}
+      if player then
         new_entity.last_user = player
       end
-    end  
+    end
   end
+  return new_entity
 end
 
 Event.add(defines.events.on_chunk_generated, function(event)
@@ -43,16 +45,27 @@ Event.add(defines.events.on_chunk_generated, function(event)
   end
 end)
 
---on_entity_settings_pasted
-
-
-
-Event.add(defines.events.on_robot_pre_mined, function(event) 
+Event.add(defines.events.on_robot_pre_mined, function(event)
   if event.entity.force.name == "player" and event.entity.last_user then
-    place_entity_on_surface(event.entity, true, global.ag_surface, event.entity.last_user) 
+    place_entity_on_surface(event.entity, global.ag_surface, true, event.entity.last_user)
   end
 end)
 
+Event.add(defines.events.on_entity_died, function(event)
+  --is a player on the same force as the destroyed object
+  if event.entity and event.entity.force.name == "player" and event.cause and
+    event.cause.force == event.entity.force and event.cause.type == "player" then
+      local new_entity = place_entity_on_surface(event.entity, global.ag_surface, true, event.cause.player)
+      if new_entity and event.entity.type == "container" then
+        local items = event.entity.get_inventory(defines.inventory.chest).get_contents()
+        if items then
+          for item, n in pairs(items) do
+            new_entity.insert{name = item, count = n}
+          end
+        end
+      end
+  end
+end)
 Event.add(defines.events.on_player_mined_entity, function(event)
   place_entity_on_surface(event.entity, global.ag_surface, true, event.player_index)
 end)
@@ -63,14 +76,12 @@ Module.undo = function(player)
   if type(player) == "nil" or type(player) == "string" then return end --No support for strings!
   for _,e in pairs(global.ag_surface.find_entities_filtered{}) do
     if e.last_user == player  or e.last_user.index == player then
-      place_entity_on_surface(e, game.surfaces.nauvis, false) 
+      place_entity_on_surface(e, game.surfaces.nauvis, false)
       for _,f in pairs(global.ag_surface.find_entities_filtered{position = e.position}) do
       	f.destroy()
       end
     end
   end
 end
-
-Foo = Module
 
 return Module
