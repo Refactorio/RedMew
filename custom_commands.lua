@@ -134,7 +134,7 @@ local function walkabout(cmd)
         game.print(player_name .. ' went on a walkabout, to find himself.')
         Task.set_timeout(
             duration,
-            'custom_commands_return_player',
+            custom_commands_return_player,
             {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}}
         )
         player.character = nil
@@ -186,30 +186,6 @@ local function afk()
             time = time .. math.floor(v.afk_time / 60) % 60 .. ' seconds.'
             player_print(v.name .. ' has been afk for' .. time)
         end
-    end
-end
-
-local function tag(cmd)
-    if game.player and not game.player.admin then
-        cant_run(cmd.name)
-        return
-    end
-    if cmd.parameter ~= nil then
-        local params = {}
-        for param in string.gmatch(cmd.parameter, '%S+') do
-            table.insert(params, param)
-        end
-        if #params < 2 then
-            player_print('Usage: <player> <tag> Sets a players tag.')
-        elseif game.players[params[1]] == nil then
-            player_print('Player does not exist.')
-        else
-            local tag = string.sub(cmd.parameter, params[1]:len() + 2)
-            game.players[params[1]].tag = '[' .. tag .. ']'
-            game.print(params[1] .. ' joined [' .. tag .. '].')
-        end
-    else
-        player_print('Usage: /tag <player> <tag> Sets a players tag.')
     end
 end
 
@@ -291,7 +267,7 @@ local function forcetoggle(cmd)
     local slot_counts = game.player.character.request_slot_count
     if game.player.character.request_slot_count > 0 then
         for i = 1, slot_counts do
-            slot = game.player.character.get_request_slot(i)
+            local slot = game.player.character.get_request_slot(i)
             if slot ~= nil then
                 table.insert(slots, slot)
             end
@@ -312,41 +288,7 @@ local function forcetoggle(cmd)
         end
     else
         --Put roboports into inventory
-        inv = game.player.get_inventory(defines.inventory.player_armor)
-        if inv[1].valid_for_read then
-            local name = inv[1].name
-            if name:match('power') or name:match('modular') then
-                local equips = inv[1].grid.equipment
-                for _, equip in pairs(equips) do
-                    if
-                        equip.name == 'personal-roboport-equipment' or equip.name == 'personal-roboport-mk2-equipment' or
-                            equip.name == 'personal-laser-defense-equipment'
-                     then
-                        if game.player.insert {name = equip.name} == 0 then
-                            game.player.surface.spill_item_stack(game.player.position, {name = equip.name})
-                        end
-                        inv[1].grid.take(equip)
-                    end
-                end
-            end
-        end
-    end
-
-    if game.player.force.name == 'enemy' then
-        local old_force = global.old_force[game.player.name]
-        if not old_force then
-            game.player.force = 'player'
-            game.player.print("You're are now on the player force.")
-        else
-            if game.forces[old_force] then
-                game.player.force = old_force
-            else
-                game.player.force = 'player'
-            end
-        end
-    else
-        --Put roboports into inventory
-        inv = game.player.get_inventory(defines.inventory.player_armor)
+        local inv = game.player.get_inventory(defines.inventory.player_armor)
         if inv[1].valid_for_read then
             local name = inv[1].name
             if name:match('power') or name:match('modular') then
@@ -371,13 +313,43 @@ local function forcetoggle(cmd)
     game.player.print('You are now on the ' .. game.player.force.name .. ' force.')
 
     -- Attempt to rebuild the request slots
-    slot_counts = game.player.character.request_slot_count
     if game.player.character.request_slot_count > 0 then
         for _, slot in ipairs(slots) do
             game.player.character.set_request_slot(slot, _)
         end
     end
 end
+
+local function get_group()
+    local group = game.permissions.get_group('Banned')
+    if not group then
+        game.permissions.create_group('Banned')
+        group = game.permissions.get_group('Banned')
+        if group then
+            for i = 2, 174 do
+                group.set_allows_action(i, false)
+            end
+        else
+            game.print(
+                'This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).'
+            )
+        end
+    end
+    return group
+end
+
+function custom_commands_untempban(param)
+    game.print(param.name .. ' is out of timeout.')
+    game.permissions.get_group('Default').add_player(param.name)
+end
+
+local custom_commands_untempban =
+    Token.register(
+    function(param)
+        game.print(param.name .. ' is out of timeout.')
+        game.permissions.get_group('Default').add_player(param.name)
+    end
+)
 
 local function tempban(cmd)
     if (not game.player) or not game.player.admin then
@@ -403,45 +375,6 @@ local function tempban(cmd)
     local group = get_group()
 
     game.print(Utils.get_actor() .. ' put ' .. params[1] .. ' in timeout for ' .. params[2] .. ' minutes.')
-    if group then
-        group.add_player(params[1])
-        if not tonumber(cmd.parameter) then
-            Task.set_timeout(60 * tonumber(params[2]), 'custom_commands_untempban', {name = params[1]})
-        end
-    end
-end
-
-local custom_commands_untempban =
-    Token.register(
-    function(param)
-        game.print(param.name .. ' is out of timeout.')
-        game.permissions.get_group('Default').add_player(param.name)
-    end
-)
-
-local function tempban(cmd)
-    if (not game.player) or not (game.player.admin or is_mod(game.player.name)) then
-        cant_run(cmd.name)
-        return
-    end
-    if cmd.parameter == nil then
-        player_print('Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.')
-        return
-    end
-    local params = {}
-    for param in string.gmatch(cmd.parameter, '%S+') do
-        table.insert(params, param)
-    end
-    if #params < 2 or not tonumber(params[2]) then
-        player_print('Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.')
-        return
-    end
-    if not game.players[params[1]] then
-        player_print("Player doesn't exist.")
-        return
-    end
-    local group = get_group()
-    game.print(get_actor() .. ' put ' .. params[1] .. ' in timeout for ' .. params[2] .. ' minutes.')
     if group then
         group.add_player(params[1])
         if not tonumber(cmd.parameter) then
@@ -477,12 +410,12 @@ local function spyshot(cmd)
         for _, spy in pairs(global.spys) do
             if game.players[spy] and game.players[spy].connected then
                 local pos = game.players[player_name].position
-                pseudo_ghosts = {}
+                local pseudo_ghosts = {}
                 for _, ghost in pairs(
                     game.players[player_name].surface.find_entities_filtered {
                         area = {{pos.x - 60, pos.y - 35}, {pos.x + 60, pos.y + 35}},
                         name = 'entity-ghost',
-                        force = enemy
+                        force = 'enemy'
                     }
                 ) do
                     local pseudo_ghost = {
@@ -528,7 +461,7 @@ end
 local function pool()
     if game.player and game.player.admin then
         local t = {}
-        p = game.player.position
+        local p = game.player.position
         for x = p.x - 3, p.x + 3 do
             for y = p.y + 2, p.y + 7 do
                 table.insert(t, {name = 'water', position = {x, y}})
