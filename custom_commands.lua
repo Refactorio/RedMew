@@ -1,6 +1,8 @@
 local Task = require 'utils.Task'
 local Event = require 'utils.event'
 local Token = require 'utils.global_token'
+local UserGroups = require 'user_groups'
+local Utils = require 'utils.utils'
 
 function player_print(str)
     if game.player then
@@ -15,7 +17,7 @@ function cant_run(name)
 end
 
 local function invoke(cmd)
-    if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+    if not (game.player and game.player.admin) then
         cant_run(cmd.name)
         return
     end
@@ -30,7 +32,7 @@ local function invoke(cmd)
 end
 
 local function teleport_player(cmd)
-    if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+    if not (game.player and game.player.admin) then
         cant_run(cmd.name)
         return
     end
@@ -46,7 +48,7 @@ local function teleport_player(cmd)
 end
 
 local function teleport_location(cmd)
-    if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+    if not (game.player and game.player.admin) then
         cant_run(cmd.name)
         return
     end
@@ -84,7 +86,7 @@ local custom_commands_return_player =
 )
 
 local function walkabout(cmd)
-    if not ((not game.player) or game.player.admin or is_mod(game.player.name)) then
+    if game.player and not game.player.admin then
         cant_run(cmd.name)
         return
     end
@@ -146,39 +148,13 @@ local function walkabout(cmd)
 end
 
 local function regular(cmd)
-    if not ((not game.player) or game.player.admin or is_mod(game.player.name)) then
-        cant_run(cmd.name)
-        return
-    end
-
-    if cmd.parameter == nil then
-        player_print('Command failed. Usage: /regular <promote, demote>, <player>')
-        return
-    end
-    local params = {}
-    for param in string.gmatch(cmd.parameter, '%S+') do
-        table.insert(params, param)
-    end
-    if params[2] == nil then
-        player_print('Command failed. Usage: /regular <promote, demote>, <player>')
-        return
-    elseif (params[1] == 'promote') then
-        add_regular(params[2])
-    elseif (params[1] == 'demote') then
-        remove_regular(params[2])
-    else
-        player_print('Command failed. Usage: /regular <promote, demote>, <player>')
-    end
-end
-
-local function mod(cmd)
     if game.player and not game.player.admin then
         cant_run(cmd.name)
         return
     end
 
     if cmd.parameter == nil then
-        player_print('Command failed. Usage: /mod <promote, demote>, <player>')
+        player_print('Command failed. Usage: /regular <promote, demote>, <player>')
         return
     end
     local params = {}
@@ -186,14 +162,14 @@ local function mod(cmd)
         table.insert(params, param)
     end
     if params[2] == nil then
-        player_print('Command failed. Usage: /mod <promote, demote>, <player>')
+        player_print('Command failed. Usage: /regular <promote, demote>, <player>')
         return
     elseif (params[1] == 'promote') then
-        add_mod(params[2])
+        UserGroups.add_regular(params[2])
     elseif (params[1] == 'demote') then
-        remove_mod(params[2])
+        UserGroups.remove_regular(params[2])
     else
-        player_print('Command failed. Usage: /mod <promote, demote>, <player>')
+        player_print('Command failed. Usage: /regular <promote, demote>, <player>')
     end
 end
 
@@ -210,30 +186,6 @@ local function afk()
             time = time .. math.floor(v.afk_time / 60) % 60 .. ' seconds.'
             player_print(v.name .. ' has been afk for' .. time)
         end
-    end
-end
-
-local function tag(cmd)
-    if game.player and not game.player.admin then
-        cant_run(cmd.name)
-        return
-    end
-    if cmd.parameter ~= nil then
-        local params = {}
-        for param in string.gmatch(cmd.parameter, '%S+') do
-            table.insert(params, param)
-        end
-        if #params < 2 then
-            player_print('Usage: <player> <tag> Sets a players tag.')
-        elseif game.players[params[1]] == nil then
-            player_print('Player does not exist.')
-        else
-            local tag = string.sub(cmd.parameter, params[1]:len() + 2)
-            game.players[params[1]].tag = '[' .. tag .. ']'
-            game.print(params[1] .. ' joined [' .. tag .. '].')
-        end
-    else
-        player_print('Usage: /tag <player> <tag> Sets a players tag.')
     end
 end
 
@@ -268,7 +220,7 @@ local function built_entity(event)
     if global.tp_players[index] then
         local entity = event.created_entity
 
-        if entity.type ~= 'entity-ghost' then
+        if not entity or not entity.valid or entity.type ~= 'entity-ghost' then
             return
         end
 
@@ -280,7 +232,7 @@ end
 Event.add(defines.events.on_built_entity, built_entity)
 
 local function toggle_tp_mode(cmd)
-    if not game.player or not (game.player.admin or is_mod(game.player.name)) then
+    if not (game.player and game.player.admin) then
         cant_run(cmd.name)
         return
     end
@@ -300,7 +252,7 @@ end
 global.old_force = {}
 global.force_toggle_init = true
 local function forcetoggle(cmd)
-    if not game.player or not (game.player.admin or is_mod(game.player.name)) or (not game.player.character) then
+    if not (game.player and game.player.admin and game.player.character) then
         cant_run(cmd.name)
         return
     end
@@ -315,7 +267,7 @@ local function forcetoggle(cmd)
     local slot_counts = game.player.character.request_slot_count
     if game.player.character.request_slot_count > 0 then
         for i = 1, slot_counts do
-            slot = game.player.character.get_request_slot(i)
+            local slot = game.player.character.get_request_slot(i)
             if slot ~= nil then
                 table.insert(slots, slot)
             end
@@ -336,7 +288,7 @@ local function forcetoggle(cmd)
         end
     else
         --Put roboports into inventory
-        inv = game.player.get_inventory(defines.inventory.player_armor)
+        local inv = game.player.get_inventory(defines.inventory.player_armor)
         if inv[1].valid_for_read then
             local name = inv[1].name
             if name:match('power') or name:match('modular') then
@@ -361,7 +313,6 @@ local function forcetoggle(cmd)
     game.player.print('You are now on the ' .. game.player.force.name .. ' force.')
 
     -- Attempt to rebuild the request slots
-    slot_counts = game.player.character.request_slot_count
     if game.player.character.request_slot_count > 0 then
         for _, slot in ipairs(slots) do
             game.player.character.set_request_slot(slot, _)
@@ -387,6 +338,11 @@ local function get_group()
     return group
 end
 
+function custom_commands_untempban(param)
+    game.print(param.name .. ' is out of timeout.')
+    game.permissions.get_group('Default').add_player(param.name)
+end
+
 local custom_commands_untempban =
     Token.register(
     function(param)
@@ -396,7 +352,7 @@ local custom_commands_untempban =
 )
 
 local function tempban(cmd)
-    if (not game.player) or not (game.player.admin or is_mod(game.player.name)) then
+    if (not game.player) or not game.player.admin then
         cant_run(cmd.name)
         return
     end
@@ -417,7 +373,8 @@ local function tempban(cmd)
         return
     end
     local group = get_group()
-    game.print(get_actor() .. ' put ' .. params[1] .. ' in timeout for ' .. params[2] .. ' minutes.')
+
+    game.print(Utils.get_actor() .. ' put ' .. params[1] .. ' in timeout for ' .. params[2] .. ' minutes.')
     if group then
         group.add_player(params[1])
         if not tonumber(cmd.parameter) then
@@ -453,12 +410,12 @@ local function spyshot(cmd)
         for _, spy in pairs(global.spys) do
             if game.players[spy] and game.players[spy].connected then
                 local pos = game.players[player_name].position
-                pseudo_ghosts = {}
+                local pseudo_ghosts = {}
                 for _, ghost in pairs(
                     game.players[player_name].surface.find_entities_filtered {
                         area = {{pos.x - 60, pos.y - 35}, {pos.x + 60, pos.y + 35}},
                         name = 'entity-ghost',
-                        force = enemy
+                        force = 'enemy'
                     }
                 ) do
                     local pseudo_ghost = {
@@ -504,7 +461,7 @@ end
 local function pool()
     if game.player and game.player.admin then
         local t = {}
-        p = game.player.position
+        local p = game.player.position
         for x = p.x - 3, p.x + 3 do
             for y = p.y + 2, p.y + 7 do
                 table.insert(t, {name = 'water', position = {x, y}})
@@ -533,59 +490,20 @@ if not _DEBUG then
 end
 
 commands.add_command('kill', 'Will kill you.', kill)
-commands.add_command('tpplayer', '<player> - Teleports you to the player. (Admins and moderators)', teleport_player)
-commands.add_command('invoke', '<player> - Teleports the player to you. (Admins and moderators)', invoke)
+commands.add_command('tpplayer', '<player> - Teleports you to the player. (Admins only)', teleport_player)
+commands.add_command('invoke', '<player> - Teleports the player to you. (Admins only)', invoke)
 commands.add_command('tppos', 'Teleports you to a selected entity. (Admins only)', teleport_location)
-commands.add_command('walkabout', '<player> <duration> - Send someone on a walk.  (Admins and moderators)', walkabout)
-commands.add_command('regulars', 'Prints a list of game regulars.', print_regulars)
-commands.add_command(
-    'regular',
-    '<promote, demote>, <player> Change regular status of a player. (Admins and moderators)',
-    regular
-)
-commands.add_command('mods', 'Prints a list of game mods.', print_mods)
-commands.add_command('mod', '<promote, demote>, <player> Changes moderator status of a player. (Admins only)', mod)
+commands.add_command('walkabout', '<player> <duration> - Send someone on a walk.  (Admins only)', walkabout)
+commands.add_command('regulars', 'Prints a list of game regulars.', UserGroups.print_regulars)
+commands.add_command('regular', '<promote, demote>, <player> Change regular status of a player. (Admins only)', regular)
 commands.add_command('afk', 'Shows how long players have been afk.', afk)
---commands.add_command("tag", '<player> <tag> Sets a players tag. (Admins only)', tag)
-commands.add_command(
-    'follow',
-    '<player> makes you follow the player. Use /unfollow to stop following a player.',
-    follow
-)
+commands.add_command('follow', '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
 commands.add_command('unfollow', 'stops following a player.', unfollow)
-commands.add_command(
-    'tpmode',
-    'Toggles tp mode. When on place a ghost entity to teleport there (Admins and moderators)',
-    toggle_tp_mode
-)
-commands.add_command(
-    'forcetoggle',
-    'Toggles the players force between player and enemy (Admins and moderators)',
-    forcetoggle
-)
-commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins and moderators)', tempban)
-commands.add_command(
-    'spyshot',
-    '<player> Sends a screenshot of player to discord. (If a host is online. If no host is online, you can become one yourself. Ask on discord :))',
-    spyshot
-)
+commands.add_command('tpmode', 'Toggles tp mode. When on place a ghost entity to teleport there (Admins only)', toggle_tp_mode)
+commands.add_command('forcetoggle', 'Toggles the players force between player and enemy (Admins only)', forcetoggle)
+commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
+commands.add_command('spyshot', '<player> Sends a screenshot of player to discord. (If a host is online. If no host is online, you can become one yourself. Ask on discord :))', spyshot)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
-commands.add_command(
-    'all-tech',
-    'researches all technologies',
-    function()
-        if game.player and game.player.admin then
-            game.player.force.research_all_technologies()
-        end
-    end
-)
-commands.add_command(
-    'hax',
-    'Toggles your hax',
-    function()
-        if game.player and game.player.admin then
-            game.player.cheat_mode = not game.player.cheat_mode
-        end
-    end
-)
+commands.add_command('all-tech', 'researches all technologies', function() if game.player and game.player.admin then game.player.force.research_all_technologies() end end)
+commands.add_command('hax', 'Toggles your hax', function() if game.player and game.player.admin then game.player.cheat_mode = not game.player.cheat_mode end end)
 commands.add_command('pool', 'Spawns a pool', pool)

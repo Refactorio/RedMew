@@ -1,6 +1,6 @@
-local Event = require "utils.event"
+local Event = require 'utils.event'
 
-local b = require "map_gen.shared.builders"
+local b = require 'map_gen.shared.builders'
 
 local inner_circle = b.invert(b.circle(48))
 local outer_circle = b.circle(64)
@@ -26,11 +26,10 @@ local map = b.any({half, b.flip_xy(half)})
 
 map = b.scale(map, 11, 11)
 
-
 local function research_finished(event)
     local tech = event.research.name
-    if tech == "rocket-silo" then
-        game.forces["player"].recipes["rocket-silo"].enabled = false
+    if tech == 'rocket-silo' then
+        game.forces['player'].recipes['rocket-silo'].enabled = false
     end
 end
 
@@ -39,7 +38,7 @@ Event.add(defines.events.on_research_finished, research_finished)
 local function max_axis_distance(world_x, world_y, target_x, target_y)
     local x = math.abs(world_x - target_x)
     local y = math.abs(world_y - target_y)
-    
+
     return math.max(x, y)
 end
 
@@ -50,22 +49,21 @@ end
 local init = false
 local safe_distance = 480
 local function effect(x, y, world, tile)
-    
     if not init then
         init = true
-        game.forces["player"].chart(world.surface, {{-32, -32}, {31, 31}})
+        game.forces['player'].chart(world.surface, {{-32, -32}, {31, 31}})
     end
-    
+
     if world.x == 0 and world.y == 0 then
         for _, e in ipairs(world.surface.find_entities({{-5, -5}, {5, 5}})) do
             e.destroy()
         end
-        
-        local e = world.surface.create_entity({name = "rocket-silo", position = {0, 0}, force = "player"})
+
+        local e = world.surface.create_entity({name = 'rocket-silo', position = {0, 0}, force = 'player'})
         e.destructible = false
         e.minable = false
     end
-    
+
     --[[
     
     if max_axis_distance(world_x, world_y, -2144, 0) < safe_distance then
@@ -107,8 +105,8 @@ end
 
 map = b.apply_effect(map, effect)
 
-require "spawn_control"
-add_spawn("left", -88, -88)
-add_spawn("right", 88, 88)
+require 'spawn_control'
+add_spawn('left', -88, -88)
+add_spawn('right', 88, 88)
 
 return map

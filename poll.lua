@@ -35,7 +35,7 @@ local function poll_show(player)
 			local x = game.tick
 			x = ((x / 60) / 60) / 60
 			x = global.score_total_polls_created / x
-			x = round(x, 0)
+			x = math.round(x)
 			str = str .. "                   (Polls/hour: "
 			str = str .. x
 			str = str .. ")"
@@ -304,7 +304,7 @@ function on_second()
 				if frame then
 					local y = (game.tick - global.poll_panel_creation_time[player.index]) / 60
 					local y = global.poll_duration_in_seconds - y
-					y = round(y, 0)
+					y = math.round(y)
 					if y <= 0 then
 						frame.destroy()
 						global.poll_panel_creation_time[player.index] = nil

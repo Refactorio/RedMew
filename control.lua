@@ -121,7 +121,7 @@ local function hodor(event)
 
     if message:match('discord') then
         player.print('Did you ask about our discord server?')
-        player.print('You can find it here: redmew/discord')
+        player.print('You can find it here: redmew.com/discord')
     end
 
     if global.naughty_words_enabled then
