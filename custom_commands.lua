@@ -3,6 +3,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
+local Antigrief = require 'antigrief'
 
 function player_print(str)
     if game.player then
@@ -472,6 +473,28 @@ local function pool()
     end
 end
 
+local function undo(cmd)
+  if (not game.player) or not game.player.admin then
+    cant_run(cmd.name)
+    return
+  end
+  --warning
+  if cmd.parameter and game.players[cmd.parameter] then
+    Antigrief.undo(game.players[cmd.parameter])
+    game.print(string.format("Undoing everything %s did...", cmd.parameter))
+  else
+    player_print("Usage: /undo <player>")
+  end
+end
+
+local function antigrief_surface_tp()
+  if (not game.player) or not game.player.admin then
+      cant_run(cmd.name)
+      return
+  end
+  Antigrief.antigrief_surface_tp()
+end
+
 if not _DEBUG then
     local old_add_command = commands.add_command
     commands.add_command =
@@ -483,6 +506,7 @@ if not _DEBUG then
                 local success, error = pcall(func, cmd)
                 if not success then
                     log(error)
+                    player_print(error)
                 end
             end
         )
@@ -507,3 +531,5 @@ commands.add_command('zoom', '<number> Sets your zoom.', zoom)
 commands.add_command('all-tech', 'researches all technologies', function() if game.player and game.player.admin then game.player.force.research_all_technologies() end end)
 commands.add_command('hax', 'Toggles your hax', function() if game.player and game.player.admin then game.player.cheat_mode = not game.player.cheat_mode end end)
 commands.add_command('pool', 'Spawns a pool', pool)
+commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
+commands.add_command('antigrief_surface', 'move you to the antigrief surface or back', antigrief_surface_tp)
