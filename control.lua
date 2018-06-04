@@ -23,6 +23,7 @@ require 'band'
 require 'tasklist'
 require 'blueprint_helper'
 require 'score'
+require 'popup'
 
 local Event = require 'utils.event'
 
@@ -55,7 +56,50 @@ for _, w in pairs(hodor_messages) do
     message_weight_sum = message_weight_sum + w[2]
 end
 
-function hodor(event)
+global.naughty_words_enabled = true
+global.naughty_words = {
+    ['ass'] = true,
+    ['bugger'] = true,
+    ['butt'] = true,
+    ['bum'] = true,
+    ['bummer'] = true,
+    ['christ'] = true,
+    ['crikey'] = true,
+    ['darn'] = true,
+    ['dam'] = true,
+    ['damn'] = true,
+    ['dang'] = true,
+    ['dagnabit'] = true,
+    ['dagnabbit'] = true,
+    ['drat'] = true,
+    ['fart'] = true,
+    ['feck'] = true,
+    ['frack'] = true,
+    ['freaking'] = true,
+    ['frick'] = true,
+    ['gay'] = true,
+    ['gee'] = true,
+    ['geez'] = true,
+    ['git'] = true,
+    ['god'] = true,
+    ['golly'] = true,
+    ['gosh'] = true,
+    ['heavens'] = true,
+    ['heck'] = true,
+    ['hell'] = true,
+    ['holy'] = true,
+    ['jerk'] = true,
+    ['jesus'] = true,
+    ['petes'] = true,
+    ["pete's"] = true,
+    ['poo'] = true,
+    ['satan'] = true,
+    ['willy'] = true,
+    ['wee'] = true,
+    ['yikes'] = true
+}
+
+local function hodor(event)
     local message = event.message:lower()
     if message:match('hodor') then
         local index = math.random(1, message_weight_sum)
@@ -64,14 +108,28 @@ function hodor(event)
             message_weight_sum = message_weight_sum + m[2]
             if message_weight_sum >= index then
                 game.print('Hodor: ' .. m[1])
-                return
+                break
             end
         end
     end
+
+    local player = game.players[event.player_index]
+    if not player or not player.valid then
+        return
+    end
+
     if message:match('discord') then
-        if game.player then
-            game.player.print('Did you ask about our discord server?')
-            game.player.print('You can find it here: redmew/discord')
+        player.print('Did you ask about our discord server?')
+        player.print('You can find it here: redmew.com/discord')
+    end
+
+    if global.naughty_words_enabled then
+        local naughty_words = global.naughty_words
+        for word in message:gmatch('%S+') do
+            if naughty_words[word] then
+                game.print(player.name .. ' this is a Christian Factorio server, no swearing please!')
+                break
+            end
         end
     end
 end

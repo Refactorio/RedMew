@@ -4,19 +4,22 @@ You may choose up to one of each type shapes, terrain, ores and misc or one of t
 If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
-local Event = require "utils.event"
-local b = require "map_gen.shared.builders"
+
+local b = require 'map_gen.shared.builders'
+
+local shape = nil
+local regen_decoratives = false
+local tiles_per_tick = 32
 
 --combined--
---require "map_gen.combined.island_resort"
+--shape = require "map_gen.combined.island_resort"
 --require "map_gen.combined.red_planet_v2"
---require "map_gen.combined.borg_planet_v2"
+--shape = require 'map_gen.combined.borg_planet_v2'
 --require "map_gen.combined.dimensions"
 --require "map_gen.combined.dagobah_swamp"
 --require "map_gen.combined.meteor_strike" --unfinished
 
 --presets--
-local shape = nil
 --shape = require "map_gen.presets.template"
 --shape = require "map_gen.presets.web" --unfinished
 --shape = require "map_gen.presets.rings_and_boxes" --unfinished
@@ -26,6 +29,7 @@ local shape = nil
 --shape = require "map_gen.presets.mobius_strip"
 --shape = require "map_gen.presets.antfarm"
 --shape = require "map_gen.presets.creation_of_adam"
+--shape = require "map_gen.presets.creation_of_adam2"
 --shape = require "map_gen.presets.manhattan"
 --shape = require "map_gen.presets.mona_lisa"
 --shape = require "map_gen.presets.connected_dots"
@@ -58,6 +62,7 @@ local shape = nil
 --shape = require "map_gen.presets.plus"
 --shape = require "map_gen.presets.honeycomb"
 --shape = require "map_gen.presets.line_and_trees"
+--shape = require "map_gen.presets.square_spiral"
 --shape = require "map_gen.presets.test"
 
 --shapes--
@@ -70,7 +75,7 @@ local shape = nil
 --shape = require "map_gen.shape.spiral_tri"
 --shape = require "map_gen.shape.spiral2"
 --shape = require "map_gen.shape.donut"
---shape = require "map_gen.shape.rectangular_spiral"
+--shape = b.rectangular_spiral(128)
 --shape = require "map_gen.shape.lattice"
 --require "map_gen.shape.infinite_mazes"
 --shape = require "map_gen.shape.x_shape"
@@ -83,20 +88,21 @@ local shape = nil
 --ores--
 --require "map_gen.ores.rso.rso_control"
 
-
 -- modules that only return max one entity per tile
 local entity_modules = {
-	--require "map_gen.ores.glitter_ores",
+	--require "map_gen.misc.loot_items",
 	--require "map_gen.terrain.mines",
+	--require "map_gen.terrain.deathworld",
+	--require "map_gen.ores.glitter_ores",	
 	--require "map_gen.terrain.worms",
-	--require "map_gen.misc.wreck_items",
+	--require "map_gen.misc.wreck_items",	
 	--require "map_gen.ores.neko_crazy_ores",
 	--require "map_gen.ores.fluffy_rainbows",
 	--require "map_gen.ores.harmonic_gen",
 	--require "map_gen.ores.resource_clustertruck"
 }
 
-local terrain_modules ={
+local terrain_modules = {
 	--require "map_gen.misc.tris_chunk_grid",
 }
 
@@ -105,43 +111,21 @@ miscs = {}
 --require "map_gen.misc.rusky_pvp"
 --table.insert(miscs, require("map_gen.misc.rail_grid")) -- used for map_gen.presets.UK
 
-local regen_decoratives = false
-
 if #entity_modules > 0 then
-	shape = shape or b.full_shape
+    shape = shape or b.full_shape
 
-	shape = b.apply_entities(shape, entity_modules)
+    shape = b.apply_entities(shape, entity_modules)
 end
 
 if #terrain_modules > 0 then
-	shape = shape or b.full_shape
+    shape = shape or b.full_shape
 
-	for _, m in ipairs(terrain_modules) do
-		shape = b.overlay_tile_land(shape, m)
-	end
+    for _, m in ipairs(terrain_modules) do
+        shape = b.overlay_tile_land(shape, m)
+    end
 end
 
 if shape then
-	require ("map_gen.shared.generate")({shape = shape, regen_decoratives = regen_decoratives})
+    require('map_gen.shared.generate')({shape = shape, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
 	--require ("map_gen.shared.generate_not_threaded")({shape = shape, regen_decoratives = regen_decoratives})
 end
-
---[[ local on_chunk_generated = function(event)
-	if run_combined_module ~= nil then
-		run_combined_module(event)
-	end
-	if run_shape_module ~= nil then
-		run_shape_module(event)
-	end
-	if run_terrain_module ~= nil then
-		run_terrain_module(event)
-	end
-	if run_ores_module ~= nil then
-		run_ores_module(event)
-	end
-	for _,v in pairs(miscs) do
-		v.on_chunk_generated(event)
-	end
-end
-
-Event.add(defines.events.on_chunk_generated, on_chunk_generated) ]]

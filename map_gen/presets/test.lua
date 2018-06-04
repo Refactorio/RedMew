@@ -1,35 +1,62 @@
 local b = require 'map_gen.shared.builders'
-local gb = require 'map_gen.shared.global_builders'
-local Token = require('utils.global_token')
 
-local tiles = {
-    'grass-1',
-    'concrete',
-    'dirt-1',
-    'stone-path',
-    'lab-dark-1',
-    'lab-white'
+local tile_map = {
+    [1] = false,
+    [2] = true,
+    [3] = 'concrete',
+    [4] = 'deepwater-green',
+    [5] = 'deepwater',
+    [6] = 'dirt-1',
+    [7] = 'dirt-2',
+    [8] = 'dirt-3',
+    [9] = 'dirt-4',
+    [10] = 'dirt-5',
+    [11] = 'dirt-6',
+    [12] = 'dirt-7',
+    [13] = 'dry-dirt',
+    [14] = 'grass-1',
+    [15] = 'grass-2',
+    [16] = 'grass-3',
+    [17] = 'grass-4',
+    [18] = 'hazard-concrete-left',
+    [19] = 'hazard-concrete-right',
+    [20] = 'lab-dark-1',
+    [21] = 'lab-dark-2',
+    [22] = 'lab-white',
+    [23] = 'out-of-map',
+    [24] = 'red-desert-0',
+    [25] = 'red-desert-1',
+    [26] = 'red-desert-2',
+    [27] = 'red-desert-3',
+    [28] = 'sand-1',
+    [29] = 'sand-2',
+    [30] = 'sand-3',
+    [31] = 'stone-path',
+    [32] = 'water-green',
+    [33] = 'water'
 }
 
-local shapes = {
-    gb.pack(require('map_gen.presets.fruit_loops')),
-    gb.pack(require('map_gen.presets.creation_of_adam'))
-}
+local data = {}
 
-local function pattern_func()
-    local i = math.random(#shapes)
-    --return gb.tile(tiles[i])
-    return shapes[i]
+for count = 1, 33 do
+    local r = count % 10
+
+    local row
+    if r == 1 then
+        row = {}
+        table.insert(data, row)
+    else
+        row = data[#data]
+    end
+
+    row[#row + 1] = tile_map[count]
 end
 
-local pt = Token.register(pattern_func)
+local tiles = {}
+tiles.width = 10
+tiles.height = 4
+tiles.data = data
 
-local shape = gb.grid_pattern_endless({}, 128, 128, pt)
+local pic = b.picture(tiles)
 
-shape = gb.unpack(shape)
-
---shape = b.rotate(shape, math.rad(45))
-
---return shape
-
-return b.rotate(require('map_gen.presets.creation_of_adam'), math.rad(45))
+return b.scale(pic, 4)
