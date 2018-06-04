@@ -277,7 +277,7 @@ local function player_list_show(player, sort_by)
 		label.style.minimal_width = 130
 		label.style.maximal_width = 130
 
-    local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_distance_" .. i, caption = round(global.player_walk_distances[player_list[i].name]/1000, 1) .. " km" }
+    	local label = player_list_panel_table.add { type = "label", name = "player_list_panel_player_distance_" .. i, caption = math.round(global.player_walk_distances[player_list[i].name]/1000, 1) .. " km" }
 		label.style.minimal_width = 100
 		label.style.maximal_width = 100
 

@@ -3,6 +3,7 @@
 require("rso_config")
 require("util")
 require("rso_resource_config")
+local Utils = require "utils.utils"
 
 local MB=require "metaball"
 local drand = require 'drand'
@@ -28,13 +29,9 @@ local sin = math.sin
 local pi = math.pi
 local max = math.max
 
-local function round(value)
-   return math.floor(value + 0.5)
-end
-
 local function rso_debug(str)
    if rso_debug_enabled then
-      if ( type(str) == "table") then
+      if (type(str) == "table") then
          game.players[1].print(serpent.dump(str))
       else
          game.players[1].print(str)
@@ -381,7 +378,7 @@ local function spawn_resource_ore(surface, rname, pos, size, richness, startingA
       local dev_x, dev_y = pos.x, pos.y
       x = rgen:random(-dev, dev)+dev_x
       y = rgen:random(-dev, dev)+dev_y
-      if p_balls[#p_balls] and distance(p_balls[#p_balls], {x=x, y=y}) < MIN_BALL_DISTANCE then
+      if p_balls[#p_balls] and Utils.distance(p_balls[#p_balls], {x=x, y=y}) < MIN_BALL_DISTANCE then
          local new_angle = bearing(p_balls[#p_balls], {x=x, y=y})
          rso_debug("Move ball old xy @ "..x..","..y)
          x=(cos(new_angle)*MIN_BALL_DISTANCE) + x
@@ -761,8 +758,8 @@ local function spawn_starting_resources( surface, index )
 end
 
 local function modifyMinMax(value, mod)
-   value.min = round( value.min * mod )
-   value.max = round( value.max * mod )
+   value.min = math.round( value.min * mod )
+   value.max = math.round( value.max * mod )
 end
 
 local function prebuild_config_data(surface)
@@ -818,7 +815,7 @@ local function prebuild_config_data(surface)
                   res_conf.absolute_probability = res_conf.absolute_probability * allotmentMod
                   rso_debug("Entity chance modified to "..res_conf.absolute_probability)
                else
-                  res_conf.allotment = round( res_conf.allotment * allotmentMod )
+                  res_conf.allotment = math.round( res_conf.allotment * allotmentMod )
                end
             end
 
@@ -830,7 +827,7 @@ local function prebuild_config_data(surface)
                modifyMinMax(res_conf.size, sizeMod)
 
                if res_conf.starting then
-                  res_conf.starting.size = round( res_conf.starting.size * sizeMod )
+                  res_conf.starting.size = math.round( res_conf.starting.size * sizeMod )
                end
 
                if isEntity then
@@ -843,13 +840,13 @@ local function prebuild_config_data(surface)
 
             if richnessMod then
                if type == "resource-ore" then
-                  res_conf.richness = round( res_conf.richness * richnessMod )
+                  res_conf.richness = math.round( res_conf.richness * richnessMod )
                elseif type == "resource-liquid" then
                   modifyMinMax(res_conf.richness, richnessMod)
                end
 
                if res_conf.starting then
-                  res_conf.starting.richness = round( res_conf.starting.richness * richnessMod )
+                  res_conf.starting.richness = math.round( res_conf.starting.richness * richnessMod )
                end
             end
          end
@@ -1018,7 +1015,7 @@ local function roll_region(c_x, c_y)
          if v.absolute_probability then
             local prob_factor = 1
             if v.probability_distance_factor then
-               prob_factor = math.min(v.max_probability_distance_factor, v.probability_distance_factor^distance({x=0,y=0},{x=r_x,y=r_y}))
+               prob_factor = math.min(v.max_probability_distance_factor, v.probability_distance_factor^Utils.distance({x=0,y=0},{x=r_x,y=r_y}))
             end
             local abs_roll = rgen:random()
             if abs_roll<v.absolute_probability*prob_factor then
@@ -1074,7 +1071,7 @@ local function roll_chunk(surface, c_x, c_y)
          local deep = res_con[2]
          local r_config = config[resource]
          if r_config and r_config.valid then
-            local dist = distance({x=0,y=0},{x=r_x,y=r_y})
+            local dist = Utils.distance({x=0,y=0},{x=r_x,y=r_y})
             local sizeFactor = dist^size_distance_factor
             if r_config.type=="resource-ore" then
                local richFactor = dist^richness_distance_factor
