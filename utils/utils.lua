@@ -34,7 +34,7 @@ Module.get_actor = function()
 end
 
 Module.cast_bool = function(var)
-  if var then return true else return false
+  if var then return true else return false end
 end
 
 return Module
