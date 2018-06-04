@@ -51,9 +51,7 @@ local function player_joined_game(event)
     
     spawn_name = get_min_count_spawn_name()    
 
-    if not spawn_name then                
-        return
-    end   
+    if not spawn_name then return end   
 
     local spawn = global.spawns[spawn_name]
     global.player_spawns[index] = spawn_name
@@ -68,9 +66,7 @@ local function player_left_game(event)
     local spawn_name = global.player_spawns[index]
     local spawn = global.spawns[spawn_name]
 
-    if not spawn then
-        return
-    end
+    if not spawn then return end
 
     local count = spawn.count
     spawn.count = count - 1
@@ -81,9 +77,7 @@ local function player_respawned(event)
     local spawn_name = global.player_spawns[index]
     local spawn = global.spawns[spawn_name]    
 
-    if not spawn then        
-        return
-    end
+    if not spawn then return end
     
     game.players[index].teleport(spawn)   
 end
@@ -142,9 +136,7 @@ end
 
 local function print_spawns()
     local str = ""
-    for name, spawn in pairs(global.spawns) do
-        str = str .. name .. ": (" .. spawn.x .. ", " .. spawn.y .. "), player count = " .. spawn.count .. "\n\r"
-    end
+    for name, spawn in pairs(global.spawns) do str = str .. name .. ": (" .. spawn.x .. ", " .. spawn.y .. "), player count = " .. spawn.count .. "\n\r" end
 
     game.player.print(str)
 end
@@ -166,9 +158,7 @@ local function print_players_for_spawn(target_spawn_name)
         end
     end
 
-    if str == "" then
-        str = "no players"
-    end
+    if str == "" then str = "no players" end
     game.player.print(str)
 end
 
@@ -189,11 +179,7 @@ local function tp_spawn_command(cmd)
         table.insert( ps,p )
     end
 
-    if #ps == 1 then
-        tp_spawn(game.player.name, ps[1])
-    else
-        tp_spawn(ps[1], ps[2])    
-    end
+    if #ps == 1 then tp_spawn(game.player.name, ps[1]) else tp_spawn(ps[1], ps[2]) end
 end
 
 function change_spawn_command(cmd)
@@ -209,9 +195,7 @@ function change_spawn_command(cmd)
     end
 
     local ps ={}
-    for p in params:gmatch("%S+") do
-        table.insert( ps,p )
-    end
+    for p in params:gmatch("%S+") do table.insert( ps,p ) end
 
     change_spawn(ps[1], ps[2]) 
 end
@@ -238,9 +222,7 @@ local function print_players_for_spawn_command(cmd)
     end
 
     local ps ={}
-    for p in params:gmatch("%S+") do
-        table.insert( ps,p )
-    end
+    for p in params:gmatch("%S+") do table.insert( ps,p ) end
 
     print_players_for_spawn(ps[1])
 end
