@@ -299,5 +299,11 @@ return {
     ['capitansky'] = true,
     ['barnaba'] = true,
     ['drlloyd1337'] = true,
-    ['twinotter'] = true
+    ['twinotter'] = true,
+    ['zaen'] = true,
+    ['jbev2'] = true,
+    ['wadiyatalkinabeet'] = true,
+    ['builder101'] = true,
+    ['brftjx'] = true,
+    ['baronting'] = true
 }
