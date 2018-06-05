@@ -152,7 +152,7 @@ Module.undo = function(player)
 
         local player = Utils.ternary(new_entity.last_user, new_entity.last_user, game.player)
         local event = {created_entity = new_entity, player_index = player.index, stack = {}}
-        --script.raise_event(defines.events.on_built_entity, event)
+        script.raise_event(defines.events.on_built_entity, event)
 
         if e.type == "container" then
           local items = e.get_inventory(defines.inventory.chest).get_contents()
