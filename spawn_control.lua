@@ -136,9 +136,9 @@ end
 
 local function print_spawns()
     local str = ""
-    for name, spawn in pairs(global.spawns) do str = str .. name .. ": (" .. spawn.x .. ", " .. spawn.y .. "), player count = " .. spawn.count .. "\n\r" end
-
-    game.player.print(str)
+    for name, spawn in pairs(global.spawns) do
+        game.player.print(string.format("%s: (%d, %d), player count = %d", name, spawn.x, spawn.y, spawn.count))
+    end
 end
 
 local function print_players_for_spawn(target_spawn_name)
