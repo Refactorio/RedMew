@@ -145,7 +145,7 @@ local function entity_build(event)
     if not event.created_entity.valid then
         return
     end
-    if event.created_entity.name == 'nuclear-reactor' then
+    if event.created_entity.name == 'nuclear-reactor' and event.created_entity.surface.name ~= "antigrief" then
         table.insert(global.reactors, event.created_entity)
     end
 end
