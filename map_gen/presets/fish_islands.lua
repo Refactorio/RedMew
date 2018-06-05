@@ -3,8 +3,7 @@ This map uses custom ore gen. When generating the map, under the resource settin
 This map removes and adds it's own water, in terrain settings use water frequency = very low and water size = only in starting area.
 This map has isolated areas, it's recommend turning biters to peaceful to reduce stress on the pathfinder.
 ]]
-
-local b = require "map_gen.shared.builders"
+local b = require 'map_gen.shared.builders'
 
 -- change these to change the pattern.
 local seed1 = 1234
@@ -12,21 +11,20 @@ local seed2 = 5678
 
 local value = b.manhattan_value
 
-local pic = require "map_gen.data.presets.fish"
-local pic = b.decompress(pic)
+local pic = require 'map_gen.data.presets.fish'
+pic = b.decompress(pic)
 local fish = b.picture(pic)
 
-fish = b.change_tile(fish, "water", false)
+fish = b.change_tile(fish, 'water', false)
 
-local ores =
-    {
-        {resource_type = "iron-ore", value = value(250, 1)},
-        {resource_type = "copper-ore", value = value(200, 0.8)},
-        {resource_type = "stone", value = value(200, 0.4)},
-        {resource_type = "coal", value = value(400, 0.4)},
-        {resource_type = "uranium-ore", value = value(50, 0.2)},
-        {resource_type = "crude-oil", value = value(50000, 250)},
-    }
+local ores = {
+    {resource_type = 'iron-ore', value = value(250, 2)},
+    {resource_type = 'copper-ore', value = value(200, 1.5)},
+    {resource_type = 'stone', value = value(200, 0.8)},
+    {resource_type = 'coal', value = value(400, 0.8)},
+    {resource_type = 'uranium-ore', value = value(50, 0.2)},
+    {resource_type = 'crude-oil', value = value(50000, 350)}
+}
 
 local cap = b.translate(b.rectangle(48, 48), 100, 0)
 
@@ -37,24 +35,50 @@ local coal = b.resource(cap, ores[4].resource_type, ores[4].value)
 local uranium = b.resource(cap, ores[5].resource_type, ores[5].value)
 local oil = b.resource(b.throttle_world_xy(cap, 1, 8, 1, 8), ores[6].resource_type, ores[6].value)
 
-local iron_fish = b.apply_entity(fish, iron)
-local copper_fish = b.apply_entity(fish, copper)
-local stone_fish = b.apply_entity(fish, stone)
-local coal_fish = b.apply_entity(fish, coal)
-local uranium_fish = b.apply_entity(fish, uranium)
-local oil_fish = b.apply_entity(fish, oil)
+local worm_names = {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret'}
+local factor = 1 / (1024 * 16)
+local max_chance = 1 / 2
+local function worms(x, y, world)
+    if not cap(x, y) then
+        return nil
+    end
 
-local fishes =
-    {
-        {iron_fish, 24},
-        {copper_fish, 12},
-        {stone_fish, 6},
-        {coal_fish, 6},
-        {uranium_fish, 1},
-        {oil_fish, 4},
-    }
+    local d = math.sqrt(world.x * world.x + world.y * world.y)
 
-local Random = require "map_gen.shared.random"
+    local lvl
+    if d < 192 then
+        lvl = 1
+    elseif d < 384 then
+        lvl = 2
+    else
+        lvl = 3
+    end
+
+    local chance = math.min(max_chance, d * factor)
+
+    if math.random() < chance then
+        local worm_id = math.random(1, lvl)
+        return {name = worm_names[worm_id]}
+    end
+end
+
+local iron_fish = b.apply_entities(fish, {iron, worms})
+local copper_fish = b.apply_entities(fish, {copper, worms})
+local stone_fish = b.apply_entities(fish, {stone, worms})
+local coal_fish = b.apply_entities(fish, {coal, worms})
+local uranium_fish = b.apply_entities(fish, {uranium, worms})
+local oil_fish = b.apply_entities(fish, {oil, worms})
+
+local fishes = {
+    {iron_fish, 24},
+    {copper_fish, 12},
+    {stone_fish, 6},
+    {coal_fish, 6},
+    {uranium_fish, 1},
+    {oil_fish, 4}
+}
+
+local Random = require 'map_gen.shared.random'
 local random = Random.new(seed1, seed2)
 
 local total_weights = {}
@@ -76,21 +100,21 @@ for c = 1, p_cols do
             table.insert(row, b.empty_shape)
         else
             local i = random:next_int(1, t)
-            
+
             local index = table.binary_search(total_weights, i)
             if (index < 0) then
                 index = bit32.bnot(index)
             end
-            
+
             local shape = fishes[index][1]
-            
+
             local x = random:next_int(-48, 48)
             local y = random:next_int(-48, 48)
-            local r = random:next() * tau
-            
-            shape = b.rotate(shape, r)
+            local angle = random:next() * tau
+
+            shape = b.rotate(shape, angle)
             shape = b.translate(shape, x, y)
-            
+
             table.insert(row, shape)
         end
     end
@@ -98,12 +122,12 @@ end
 
 local map = b.grid_pattern_full_overlap(pattern, p_cols, p_rows, 215, 215)
 
-local start = require "map_gen.data.presets.soy_sauce"
+local start = require 'map_gen.data.presets.soy_sauce'
 start = b.decompress(start)
 start = b.picture(start)
-start = b.change_tile(start, "water", false)
+start = b.change_tile(start, 'water', false)
 
-local pic = require "map_gen.data.presets.fish_black_and_white"
+local pic = require 'map_gen.data.presets.fish_black_and_white'
 local pic = b.decompress(pic)
 local fish_bw = b.picture(pic)
 fish_bw = b.scale(fish_bw, 0.25, 0.25)
@@ -125,18 +149,29 @@ start_coal = b.resource(start_coal, ores[4].resource_type, value(600, 0.5))
 local start_oil = b.translate(b.rectangle(1, 1), -44, 74)
 start_oil = b.resource(start_oil, ores[6].resource_type, value(100000, 0))
 
-local worms = b.rectangle(150, 72)
-worms = b.translate(worms, 0, -210)
-worms = b.entity(worms, "big-worm-turret")
+local worms_area = b.rectangle(150, 72)
+worms_area = b.translate(worms_area, 0, -210)
 
-local start = b.apply_entity(start, b.any{start_iron, start_copper, start_stone, start_coal, start_oil, worms})
+local function worms_top(x, y, world)
+    if worms_area(x, y) then
+        local entities = world.surface.find_entities {{world.x, world.y}, {world.x + 1, world.y + 1}}
+        for _, e in ipairs(entities) do
+            e.destroy()
+        end
+        return {name = 'big-worm-turret'}
+    end
+end
+
+--worms = b.entity(worms, 'big-worm-turret')
+
+local start = b.apply_entity(start, b.any {start_iron, start_copper, start_stone, start_coal, start_oil, worms_top})
 
 map = b.if_else(start, map)
 
-map = b.change_map_gen_collision_tile(map, "water-tile", "grass-1")
+map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 
-local sea = b.tile("water")
-local sea = b.fish(sea, 0.025)
+local sea = b.tile('water')
+local sea = b.fish(sea, 0.0025)
 
 map = b.if_else(map, sea)
 
