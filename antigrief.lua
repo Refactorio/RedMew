@@ -52,12 +52,6 @@ Event.add(defines.events.on_chunk_generated, function(event)
   end
 end)
 
-Event.add(defines.events.on_robot_pre_mined, function(event)
-  --The bot isnt the culprit! The last user is! They marked it for deconstruction!
-  event.player_index = Utils.ternary(event.last_user, entity.last_user.index)
-  on_entity_changed(event)
-end)
-
 local function get_position_str(pos)
   return string.format("%d|%d", pos.x, pos.y)
 end
@@ -65,14 +59,20 @@ end
 local function on_entity_changed(event)
   local entity = event.entity or event.destination
   local player = game.players[event.player_index]
-  if player.admin then x=2 end --Freebees for admins
-  if true or entity.last_user ~= player and entity.force == player.force then --commented out to be able to debug
+  if player.admin then return end --Freebees for admins
+  if entity.last_user ~= player and entity.force == player.force then --commented out to be able to debug
     place_entity_on_surface(entity, global.ag_surface, true, event.player_index)
   end
   if entity.last_user then
     global.original_last_users_by_ent_pos[get_position_str(entity.position)] = entity.last_user.index
   end
 end
+
+Event.add(defines.events.on_robot_pre_mined, function(event)
+  --The bot isnt the culprit! The last user is! They marked it for deconstruction!
+  event.player_index = Utils.ternary(event.entity.last_user, event.entity.last_user.index)
+  on_entity_changed(event)
+end)
 
 local function get_pre_rotate_direction(entity)
   --Some entities have 8 rotation steps and some have 4. So a mathmatical reverse is not possible
@@ -86,8 +86,9 @@ Event.add(defines.events.on_player_rotated_entity, function(event)
   local entity = event.entity
   --Mock entity us used because the api doesnt support pre_player_rotated entity.
   --The mocked entity has the entity state before rotation
+  --We also dont know who rotated it and dont want the griefers name there so we set it to 1
   local mock_entity = {name = entity.name, position = entity.position, mock = true,
-    last_user = entity.last_user, force = entity.force, direction = get_pre_rotate_direction(entity)}
+    last_user = game.players[1], force = entity.force, direction = get_pre_rotate_direction(entity)}
   event.entity = mock_entity
   on_entity_changed(event)
 end)
@@ -141,13 +142,21 @@ Module.undo = function(player)
       local last_user = global.original_last_users_by_ent_pos[get_position_str(e.position)]
       local new_entity = place_entity_on_surface(e, game.surfaces.nauvis, false, last_user)
       --Transfere items
-      if new_entity and e.type == "container" then
-        local items = e.get_inventory(defines.inventory.chest).get_contents()
-        if items then
-          for item, n in pairs(items) do
-            new_entity.insert{name = item, count = n}
+      if new_entity then
+
+        local player = Utils.ternary(new_entity.last_user, new_entity.last_user, game.player)
+        local event = {created_entity = new_entity, player_index = player.index, stack = {}}
+        script.raise_event(defines.events.on_built_entity, event)
+
+        if e.type == "container" then
+          local items = e.get_inventory(defines.inventory.chest).get_contents()
+          if items then
+            for item, n in pairs(items) do
+              new_entity.insert{name = item, count = n}
+            end
           end
         end
+        e.destroy() --destory entity only if a new entity was created
       end
     end
   end
@@ -168,5 +177,3 @@ Module.count_removed_entities = function(player)
 end
 
 return Module
-
---TODO: Remove items from antigrief surface, override orientation, cause build event
