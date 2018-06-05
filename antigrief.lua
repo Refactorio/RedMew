@@ -20,7 +20,7 @@ local function place_entity_on_surface(entity, surface, replace, player)
       e.destroy()
     end
   end
-  local entities_to_be_replaced =  surface.find_entities_filtered{position = entity.position}
+  local entities_to_be_replaced = surface.find_entities_filtered{position = entity.position}
   if (replace or #entities_to_be_replaced == 0 or entities_to_be_replaced[1].type == entity.type) then
     new_entity = surface.create_entity{name = entity.name, position = entity.position, force = entity.force, direction = entity.direction}
     if new_entity then
@@ -84,13 +84,19 @@ end
 
 Event.add(defines.events.on_player_rotated_entity, function(event)
   local entity = event.entity
-  --Mock entity us used because the api doesnt support pre_player_rotated entity.
-  --The mocked entity has the entity state before rotation
-  --We also dont know who rotated it and dont want the griefers name there so we set it to 1
-  local mock_entity = {name = entity.name, position = entity.position, mock = true,
-    last_user = game.players[1], force = entity.force, direction = get_pre_rotate_direction(entity)}
-  event.entity = mock_entity
-  on_entity_changed(event)
+
+  local ag_entities = global.ag_surface.find_entities_filtered{position = entity.position}
+  --If a player has rotated twice we want to preserve the original state.
+  if #ag_entities == 0 or not ag_entities[1].last_user or ag_entities[1].last_user ~= entity.last_user then
+
+    --Mock entity us used because the api doesnt support pre_player_rotated entity.
+    --The mocked entity has the entity state before rotation
+    --We also dont know who rotated it and dont want the griefers name there so we set it to 1
+    local mock_entity = {name = entity.name, position = entity.position, mock = true,
+      last_user = game.players[1], force = entity.force, direction = get_pre_rotate_direction(entity)}
+    event.entity = mock_entity
+    on_entity_changed(event)
+  end
 end)
 Event.add(defines.events.on_pre_entity_settings_pasted, on_entity_changed)
 
@@ -146,7 +152,7 @@ Module.undo = function(player)
 
         local player = Utils.ternary(new_entity.last_user, new_entity.last_user, game.player)
         local event = {created_entity = new_entity, player_index = player.index, stack = {}}
-        script.raise_event(defines.events.on_built_entity, event)
+        --script.raise_event(defines.events.on_built_entity, event)
 
         if e.type == "container" then
           local items = e.get_inventory(defines.inventory.chest).get_contents()
