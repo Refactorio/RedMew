@@ -59,5 +59,9 @@ Module.find_entities_by_last_user = function(player, surface, filters)
 		end
 	end
 	return entities
- end
+end
+
+Module.ternary = function(c, t, f)
+	if c then return t else return f end
+end
 return Module
