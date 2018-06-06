@@ -4,7 +4,7 @@ local Utils = require "utils.utils"
 global.original_last_users_by_ent_pos = {}
 
 Event.on_init(function()
-  global.ag_surface=game.create_surface("antigrief",{autoplace_controls={coal={frequency="normal",richness="normal",size="none"},["copper-ore"]={frequency="normal",richness="normal",size="none"},["crude-oil"]={frequency="normal",richness="normal",size="none"},desert={frequency="normal",richness="normal",size="none"},dirt={frequency="normal",richness="normal",size="none"},["enemy-base"]={frequency="normal",richness="normal",size="none"},grass={frequency="normal",richness="normal",size="very-high"},["iron-ore"]={frequency="normal",richness="normal",size="none"},sand={frequency="normal",richness="normal",size="none"},stone={frequency="normal",richness="normal",size="none"},trees={frequency="normal",richness="normal",size="none"},["uranium-ore"]={frequency="normal",richness="normal",size="none"}},cliff_settings={cliff_elevation_0=1024,cliff_elevation_interval=10,name="cliff"},height=2000000,peaceful_mode=false,seed=3461559752,starting_area="very-low",starting_points={{x=0,y=0}},terrain_segmentation="normal",water="none",width=2000000})
+  global.ag_surface=game.create_surface("antigrief",{autoplace_controls={coal={frequency="normal",richness="normal",size="none"},["copper-ore"]={frequency="normal",richness="normal",size="none"},["crude-oil"]={frequency="normal",richness="normal",size="none"},desert={frequency="normal",richness="normal",size="none"},dirt={frequency="normal",richness="normal",size="none"},["enemy-base"]={frequency="normal",richness="normal",size="none"},grass={frequency="normal",richness="normal",size="none"},["iron-ore"]={frequency="normal",richness="normal",size="none"},sand={frequency="normal",richness="normal",size="none"},stone={frequency="normal",richness="normal",size="none"},trees={frequency="normal",richness="normal",size="none"},["uranium-ore"]={frequency="normal",richness="normal",size="none"}},cliff_settings={cliff_elevation_0=1024,cliff_elevation_interval=10,name="cliff"},height=2000000,peaceful_mode=false,seed=3461559752,starting_area="very-low",starting_points={{x=0,y=0}},terrain_segmentation="normal",water="normal",width=2000000})
   global.ag_surface.always_day = true
 
 end)
@@ -37,14 +37,9 @@ end
 
 Event.add(defines.events.on_chunk_generated, function(event)
   if event.surface.name == "antigrief" then
-    for _,e in pairs(event.surface.find_entities_filtered{area = event.area, force = "neutral"}) do
-      if e.type ~= "player" then
-        e.destroy()
-      end
-    end
     local tiles = {}
-    for x = event.area.left_top.x, event.area.right_bottom.x do
-      for y = event.area.left_top.y, event.area.right_bottom.y do
+    for x = event.area.left_top.x, event.area.right_bottom.x - 1 do
+      for y = event.area.left_top.y, event.area.right_bottom.y - 1 do
         table.insert(tiles,{name="lab-dark-2", position = {x,y}})
       end
     end
@@ -70,8 +65,10 @@ end
 
 Event.add(defines.events.on_robot_pre_mined, function(event)
   --The bot isnt the culprit! The last user is! They marked it for deconstruction!
-  event.player_index = Utils.ternary(event.entity.last_user, event.entity.last_user.index)
-  on_entity_changed(event)
+  if event.entity.valid and event.entity.last_user then
+     event.player_index = event.entity.last_user.index
+     on_entity_changed(event)
+  end
 end)
 
 local function get_pre_rotate_direction(entity)
@@ -84,6 +81,8 @@ end
 
 Event.add(defines.events.on_player_rotated_entity, function(event)
   local entity = event.entity
+
+  if not entity.valid then return end
 
   local ag_entities = global.ag_surface.find_entities_filtered{position = entity.position}
   --If a player has rotated twice we want to preserve the original state.
@@ -102,17 +101,17 @@ Event.add(defines.events.on_pre_entity_settings_pasted, on_entity_changed)
 
 Event.add(defines.events.on_entity_died, function(event)
   --is a player on the same force as the destroyed object
-  if event.entity and event.entity.force.name == "player" and event.cause and
+  if event.entity and event.entity.valid and event.entity.force.name == "player" and event.cause and
     event.cause.force == event.entity.force and event.cause.type == "player" then
-      local new_entity = place_entity_on_surface(event.entity, global.ag_surface, true, event.cause.player)
-      if new_entity and event.entity.type == "container" then
-        local items = event.entity.get_inventory(defines.inventory.chest).get_contents()
-        if items then
-          for item, n in pairs(items) do
-            new_entity.insert{name = item, count = n}
-          end
+    local new_entity = place_entity_on_surface(event.entity, global.ag_surface, true, event.cause.player)
+    if new_entity and event.entity.type == "container" then
+    local items = event.entity.get_inventory(defines.inventory.chest).get_contents()
+      if items then
+        for item, n in pairs(items) do
+          new_entity.insert{name = item, count = n}
         end
       end
+    end
   end
 end)
 
@@ -120,14 +119,13 @@ Event.add(defines.events.on_player_mined_entity, on_entity_changed)
 
 Event.add(defines.events.on_marked_for_deconstruction, function(event)
   global.original_last_users_by_ent_pos[get_position_str(event.entity.position)] =
-    event.entity.last_user.index
+    Utils.ternary(event.entity.last_user, event.entity.last_user.index)
 end)
 
 
 local Module = {}
 
 Module.undo = function(player)
-  local player = player
   if type(player) == "nil" or type(player) == "string" then return --No support for strings!
   elseif type(player) == "number" then player = game.players[player] end
 
