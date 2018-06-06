@@ -10,12 +10,12 @@ Event.on_init(function()
 end)
 
 local function is_mocked(entity)
-   return pcall(function() return entity.mock end)
+   return rawget(entity, 'mock')
 end
 
 local function place_entity_on_surface(entity, surface, replace, player)
   local new_entity = nil
-  for _,e in pairs(surface.find_entities_filtered{position = entity.position}) do
+  for _,e in ipairs(surface.find_entities_filtered{position = entity.position}) do
     if replace or e.type == "entity-ghost" then
       e.destroy()
     end
@@ -54,7 +54,7 @@ end
 local function on_entity_changed(event)
   local entity = event.entity or event.destination
   local player = game.players[event.player_index]
-  if player.admin then return end --Freebees for admins
+  if player.admin or not entity.valid then return end --Freebees for admins
   if entity.last_user ~= player and entity.force == player.force then --commented out to be able to debug
     place_entity_on_surface(entity, global.ag_surface, true, event.player_index)
   end
@@ -132,7 +132,7 @@ Module.undo = function(player)
   --Remove all items from all surfaces that player placed an entity on
   for _,surface in pairs(game.surfaces) do
     if surface ~= global.ag_surface then
-      for _,e in pairs(surface.find_entities_filtered{force = player.force.name}) do
+      for _,e in ipairs(surface.find_entities_filtered{force = player.force.name}) do
         if e.last_user == player then
           e.destroy()
         end
@@ -140,7 +140,7 @@ Module.undo = function(player)
     end
   end
 
-  for _,e in pairs(global.ag_surface.find_entities_filtered{}) do
+  for _,e in ipairs(global.ag_surface.find_entities_filtered{}) do
     if e.last_user == player then
       --Place removed entity IF no collision is detected
       local last_user = global.original_last_users_by_ent_pos[get_position_str(e.position)]
