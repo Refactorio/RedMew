@@ -480,8 +480,8 @@ local function undo(cmd)
     return
   end
   if cmd.parameter and game.players[cmd.parameter] then
-    if not global.undo_warned_players[game.player.index] then
-      global.undo_warned_players[game.player.index] = true
+    if not global.undo_warned_players[game.player.index] or global.undo_warned_players[game.player.index] ~= game.players[cmd.parameter].index then
+      global.undo_warned_players[game.player.index] = game.players[cmd.parameter].index
       game.player.print(
         string.format("Warning! You are about to remove %s entities and restore %s entities.",
         #Utils.find_entities_by_last_user(game.players[cmd.parameter], game.surfaces.nauvis),
@@ -492,6 +492,7 @@ local function undo(cmd)
     end
     Antigrief.undo(game.players[cmd.parameter])
     game.print(string.format("Undoing everything %s did...", cmd.parameter))
+    global.undo_warned_players[game.player.index] = nil
   else
     player_print("Usage: /undo <player>")
   end
