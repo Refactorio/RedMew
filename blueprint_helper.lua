@@ -537,6 +537,7 @@ Gui.on_click(
         local cursor = getBlueprintCursorStack(player)
         if not cursor then
             player.print('Click the button with a blueprint or blueprint book.')
+            return
         end
 
         local data = Gui.get_data(event.element)
