@@ -55,7 +55,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.hearts"
 --shape = require "map_gen.presets.women"
 --shape = require "map_gen.presets.fractal_balls"
---shape = require "map_gen.presets.fruit_loops"
+shape = require "map_gen.presets.fruit_loops"
 --shape = require "map_gen.presets.fish_islands"
 --shape = require "map_gen.presets.ContraSpiral"
 --shape = require "map_gen.presets.cookies"
@@ -126,6 +126,10 @@ if #terrain_modules > 0 then
 end
 
 if shape then
-    require('map_gen.shared.generate')({shape = shape, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-	--require ("map_gen.shared.generate_not_threaded")({shape = shape, regen_decoratives = regen_decoratives})
+	local surfaces = {
+		['nauvis'] = shape,		
+	}
+
+    require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
+	--require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end
