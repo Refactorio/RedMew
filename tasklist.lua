@@ -87,14 +87,11 @@ local function tasklist(player)
    global.tasklist_items[3] = frame.textfield_task_3.text
    global.tasklist_items[4] = frame.textfield_task_4.text
    global.tasklist_items[5] = frame.textfield_task_5.text
-   if (global.tasklist_items[5] .. global.tasklist_items[4] .. global.tasklist_items[3] .. global.tasklist_items[2] .. global.tasklist_items[1] == "") then
-      return
-   end
+   if (global.tasklist_items[5] .. global.tasklist_items[4] .. global.tasklist_items[3] .. global.tasklist_items[2] .. global.tasklist_items[1] == "") then return end
 
    global.tasklist_author = player.name
 
-   local msg = player.name
-   msg = msg .. " has created an updated tasklist!"
+   local msg = player.name .. " has created an updated tasklist!"
 
    local frame = player.gui.left["tasklist-assembler"]
    frame.destroy()
@@ -103,14 +100,9 @@ local function tasklist(player)
 
       local frame = player.gui.left["tasklist-panel"]
 
-      if (frame) then
-         frame.destroy()
-      end
+      if (frame) then frame.destroy() end
 
-      if (global.autoshow_tasklist_for_player[player.name] == true) then
-         tasklist_show(player)
-      end
-
+      if (global.autoshow_tasklist_for_player[player.name] == true) then tasklist_show(player) end
    end
 
    game.print(msg)
@@ -161,45 +153,27 @@ local function on_gui_click(event)
 
    if (name == "tasklist") then
       local frame = player.gui.left["tasklist-panel"]
-      if (frame) then
-         frame.destroy()
-      else
-         tasklist_show(player)
-      end
+      if (frame) then frame.destroy() else tasklist_show(player) end
 
       local frame = player.gui.left["tasklist-assembler"]
-      if (frame) then
-      frame.destroy()
-      end
+      if (frame) then frame.destroy() end
    end
 
    if (name == "new_tasklist_assembler_button") then
       local frame = player.gui.left["tasklist-assembler"]
-      if (frame) then
-         frame.destroy()
-      else
-         tasklist_assembler(player)
-      end
+      if (frame) then frame.destroy() else tasklist_assembler(player) end
    end
 
-   if (name == "create_new_tasklist_button") then
-      tasklist(player)
-   end
+   if (name == "create_new_tasklist_button") then tasklist(player) end
 
    if (name == "tasklist_hide_button") then
       local frame = player.gui.left["tasklist-panel"]
-      if (frame) then
-         frame.destroy()
-      end
+      if (frame) then frame.destroy() end
       local frame = player.gui.left["tasklist-assembler"]
-      if (frame) then
-         frame.destroy()
-      end
+      if (frame) then frame.destroy() end
    end
 
-   if (name == "auto_show_tasklist_checkbox") then
-      global.autoshow_tasklist_for_player[player.name] = event.element.state
-   end
+   if (name == "auto_show_tasklist_checkbox") then global.autoshow_tasklist_for_player[player.name] = event.element.state end
 end
 
 Event.add(defines.events.on_gui_click, on_gui_click)
