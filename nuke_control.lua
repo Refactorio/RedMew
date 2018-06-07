@@ -82,8 +82,19 @@ local function entity_allowed_to_bomb(entity)
 end
 global.players_warned = {}
 local function on_capsule_used(event)
-  if item_not_sanctioned(event.item) then return nil end
+  local item = event.item
   local player = game.players[event.player_index]
+
+  if not player or not player.valid then
+    return
+  end
+
+  if item.name == 'artillery-targeting-remote' then
+    player.surface.create_entity{name = 'flying-text', text = player.name, color = player.color, position = event.position}
+  end
+
+  if item_not_sanctioned(item) then return end
+  
   if (not allowed_to_nuke(player)) then
     local area = {{event.position.x-5, event.position.y-5}, {event.position.x+5, event.position.y+5}}
     local count = 0
