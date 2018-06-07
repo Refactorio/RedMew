@@ -57,8 +57,8 @@ local function on_entity_changed(event)
   if global.ag_disabled then return end
   local entity = event.entity or event.destination
   local player = game.players[event.player_index]
-  --if player.admin or not entity.valid then return end --Freebees for admins
-  if --[[entity.last_user ~= player and]] entity.force == player.force then --commented out to be able to debug
+  if player.admin or not entity.valid then return end --Freebees for admins
+  if entity.last_user ~= player and entity.force == player.force then --commented out to be able to debug
     place_entity_on_surface(entity, global.ag_surface, true, event.player_index)
   end
   if entity.last_user then
