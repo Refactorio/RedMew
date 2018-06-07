@@ -16,6 +16,15 @@ local function ammo_changed(event)
   local nukes = player.remove_item({name="atomic-bomb", count=1000})
   if nukes > 0 then
     game.print(player.name .. " tried to use a nuke, but instead dropped it on his foot.")
+
+    local character = player.character
+    if character and character.valid then
+      for _,p in ipairs(game.connected_players) do
+        if p ~= player then
+          p.add_custom_alert(character, {type = 'item', name = 'atomic-bomb'}, player.name, true)
+        end
+      end
+    end
     player.character.health = 0
   end
 end
@@ -23,13 +32,22 @@ end
 local function on_player_deconstructed_area(event)
   local player = game.players[event.player_index]
     if allowed_to_nuke(player) then return end
-    local nukes = player.remove_item({name="deconstruction-planner", count=1000})
+    player.remove_item({name="deconstruction-planner", count=1000})
 
     --Make them think they arent noticed
     Utils.print_except(player.name .. " tried to deconstruct something, but instead deconstructed themself.", player)
     player.print("Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.")
 
-    player.character.health = 0
+    local character = player.character
+    if character and character.valid then
+      for _,p in ipairs(game.connected_players) do
+        if p ~= player then
+          p.add_custom_alert(character, {type = 'item', name = 'deconstruction-planner'}, player.name, true)
+        end
+      end
+    end
+    character.health = 0
+
     local entities = player.surface.find_entities_filtered{area = event.area, force = player.force}
     if #entities > 1000 then
       Utils.print_admins("Warning! " .. player.name .. " just tried to deconstruct " .. tostring(#entities) .. " entities!")
