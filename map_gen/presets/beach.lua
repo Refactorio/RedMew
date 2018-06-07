@@ -15,10 +15,10 @@ sand_shape = b.change_tile(sand_shape, true, 'sand-1')
 local value = b.manhattan_value
 
 local ores = {
-    {b.resource(b.full_shape, 'iron-ore', value(250, 1)), 6},
-    {b.resource(b.full_shape, 'copper-ore', value(250, 1)), 4},
-    {b.resource(b.full_shape, 'stone', value(250, 1)), 1},
-    {b.resource(b.full_shape, 'coal', value(250, 1)), 1}
+    {b.resource(b.full_shape, 'iron-ore', value(125, 0.5)), 6},
+    {b.resource(b.full_shape, 'copper-ore', value(125, 0.5)), 4},
+    {b.resource(b.full_shape, 'stone', value(125, 0.5)), 1},
+    {b.resource(b.full_shape, 'coal', value(125, 0.5)), 1}
 }
 
 uranium_ore = b.resource(b.full_shape, 'uranium-ore', value(50, 0.25))

@@ -68,9 +68,8 @@ local function do_item(name, count, inv, storage)
         end
 
         diff = math.min(prev, -diff)
-
-        new_amount = prev - diff
-        inv.insert({name = name, count = diff})
+        local inserted = inv.insert({name = name, count = diff})
+        new_amount = prev - inserted
     end
 
     if new_amount == 0 then
