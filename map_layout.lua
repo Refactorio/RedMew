@@ -8,7 +8,7 @@ in this file and your run_*type*_module(event) function will be called.
 local b = require 'map_gen.shared.builders'
 
 local shape = nil
-local regen_decoratives = false
+local regen_decoratives = true
 local tiles_per_tick = 32
 
 --combined--
@@ -55,7 +55,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.hearts"
 --shape = require "map_gen.presets.women"
 --shape = require "map_gen.presets.fractal_balls"
-shape = require "map_gen.presets.fruit_loops"
+--shape = require "map_gen.presets.fruit_loops"
 --shape = require "map_gen.presets.fish_islands"
 --shape = require "map_gen.presets.ContraSpiral"
 --shape = require "map_gen.presets.cookies"
@@ -63,6 +63,7 @@ shape = require "map_gen.presets.fruit_loops"
 --shape = require "map_gen.presets.honeycomb"
 --shape = require "map_gen.presets.line_and_trees"
 --shape = require "map_gen.presets.square_spiral"
+shape = require "map_gen.presets.beach"
 --shape = require "map_gen.presets.test"
 
 --shapes--
@@ -130,6 +131,20 @@ if shape then
 		['nauvis'] = shape,		
 	}
 
-    require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-	--require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
+    --require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
+	require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end
+
+Event.add(
+    defines.events.on_player_built_tile,
+    function(event)
+        if event.item.name == 'landfill' then
+            local tiles = event.tiles
+            for i = 1, #tiles do
+                tiles[i].name = 'sand-1'
+            end
+            local surface = game.surfaces[event.surface_index]
+            surface.set_tiles(tiles)
+        end
+    end
+)
