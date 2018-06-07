@@ -136,7 +136,7 @@ local random = Random.new(seed1, seed2)
 
 local total_weights = {}
 local t = 0
-for _, v in pairs(loops) do
+for _, v in ipairs(loops) do
     t = t + v[2]
     table.insert(total_weights, t)
 end
