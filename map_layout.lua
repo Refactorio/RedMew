@@ -128,13 +128,14 @@ end
 
 if shape then
 	local surfaces = {
-		['nauvis'] = shape,		
+		['nauvis'] = shape,
 	}
 
-    --require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-	require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
+    require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
+	--require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end
 
+local Event = require 'utils.event'
 Event.add(
     defines.events.on_player_built_tile,
     function(event)

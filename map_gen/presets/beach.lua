@@ -80,4 +80,6 @@ local map = b.any {b.translate(water_shape, 64, -32), sand_shape, grass}
 
 map = b.choose(bounds, map, b.empty_shape)
 
+map = b.translate(map, 0, -64)
+
 return map

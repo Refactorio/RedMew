@@ -212,3 +212,6 @@ Gui.on_custom_close(
         event.element.destroy()
     end
 )
+
+local market_items = require 'resources.market_items'
+table.insert(market_items, {price = {{'raw-fish', 100}}, offer = {type = 'give-item', item = 'infinity-chest'}})
