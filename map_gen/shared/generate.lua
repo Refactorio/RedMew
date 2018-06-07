@@ -82,9 +82,9 @@ end
 local function do_place_entities(data)
     local surface = data.surface
     for _, e in ipairs(data.entities) do
-        if surface.can_place_entity(e) then
+        if e.always_place or surface.can_place_entity(e) then
             local entity = surface.create_entity(e)
-            if e.callback then
+            if entity and e.callback then
                 local callback = Token.get(e.callback)
                 callback(entity)
             end
