@@ -522,6 +522,33 @@ local function antigrief_surface_tp()
     Antigrief.antigrief_surface_tp()
 end
 
+local function find_player(cmd)
+    local player = game.player
+    if not player then
+        return
+    end
+
+    local name = cmd.parameter
+    if not name then
+        player.print('Usage: /find-player <player>')
+        return
+    end
+
+    local target = game.players[name]
+    if not target then
+        player.print('player ' .. name .. ' not found')
+        return
+    end
+
+    target = target.character
+    if not target or not target.valid then
+        player.print('player ' .. name .. ' does not have a character')
+        return
+    end
+
+    player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, player.name, true)
+end
+
 if not _DEBUG then
     local old_add_command = commands.add_command
     commands.add_command =
@@ -592,3 +619,4 @@ commands.add_command(
     'moves you to the antigrief surface or back (Admins only)',
     antigrief_surface_tp
 )
+commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)
