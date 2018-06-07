@@ -320,7 +320,8 @@ local function toggle(event)
         player_filters[event.player_index] = p_filters
     end
 
-    local left = event.player.gui.left
+    local player = event.player
+    local left = player.gui.left
     local main_frame = left[main_frame_name]
 
     if main_frame and main_frame.valid then
@@ -333,6 +334,14 @@ local function toggle(event)
 
         Gui.remove_data_recursivly(main_frame)
         main_frame.destroy()
+
+        if player.opened_gui_type == defines.gui_type.custom then
+            local opened = player.opened
+            if opened and opened.valid and opened.name == filters_table_name then
+                Gui.remove_data_recursivly(opened)
+                opened.destroy()
+            end
+        end
     else
         main_frame =
             left.add {
@@ -480,8 +489,10 @@ Gui.on_click(
         local frame = Gui.get_data(element)
         local filter_button = Gui.get_data(frame)
 
-        filter_button.sprite = element.sprite
-        filter_button.tooltip = element.tooltip
+        if filter_button and filter_button.valid then
+            filter_button.sprite = element.sprite
+            filter_button.tooltip = element.tooltip
+        end
 
         Gui.remove_data_recursivly(frame)
         frame.destroy()

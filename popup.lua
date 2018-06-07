@@ -65,9 +65,9 @@ Gui.on_click(
 )
 
 local function popup(cmd)
-    local player = game.players[cmd.player_index]
+    local player = game.player
     if player and not player.admin then
-        player.print("You don't have permission to run this command")
+        cant_run(cmd.name)
         return
     end
 
@@ -79,9 +79,9 @@ local function popup(cmd)
 end
 
 local function popup_update(cmd)
-    local player = game.players[cmd.player_index]
+    local player = game.player
     if player and not player.admin then
-        player.print("You don't have permission to run this command")
+        cant_run(cmd.name)
         return
     end
 

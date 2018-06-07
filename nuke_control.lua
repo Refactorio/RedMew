@@ -56,7 +56,7 @@ local function entity_allowed_to_bomb(entity)
   return (
     name:find("turret") or
     name:find("rail") or
-    name.find("ghost") or
+    name:find("ghost") or
     name == "player" or
     name == "stone-wall" or
     entity.type == "electric-pole"
