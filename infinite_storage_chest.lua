@@ -41,7 +41,8 @@ end
 local function get_stack_size(name)
     local proto = game.item_prototypes[name]
     if not proto then
-        game.print('item prototype not found')
+        log('item prototype ' .. name .. ' not found')
+        return 1
     end
 
     return proto.stack_size
@@ -80,18 +81,16 @@ local function do_item(name, count, inv, storage)
 end
 
 local function tick()
-    local current = chests_data.next
-    chests_data.next = next(chests, current)
+    local chest
+    chests_data.next, chest = next(chests, chests_data.next)
 
-    if not current then
+    if not chest then
         return
     end
 
-    local chest = chests[current]
-
     local entity = chest.entity
     if not entity or not entity.valid then
-        chests[current] = nil
+        chests[chests_data.next] = nil
     else
         local storage = chest.storage
         local inv = entity.get_inventory(1) --defines.inventory.chest
@@ -122,7 +121,8 @@ local function create_chest_gui_content(frame, player, chest)
             sprite = 'item/' .. name,
             number = number,
             tooltip = name,
-            style = 'slot_button'
+            --style = 'slot_button'
+            enabled = false
         }
     end
 
@@ -133,7 +133,8 @@ local function create_chest_gui_content(frame, player, chest)
                 sprite = 'item/' .. name,
                 number = count,
                 tooltip = name,
-                style = 'slot_button'
+                --style = 'slot_button'
+                enabled = false
             }
         end
     end
@@ -202,7 +203,7 @@ Event.add(defines.events.on_built_entity, built_entity)
 Event.add(defines.events.on_robot_built_entity, built_entity)
 Event.add(defines.events.on_player_mined_entity, mined_entity)
 Event.add(defines.events.on_robot_mined_entity, mined_entity)
-Event.on_nth_tick(1, tick)
+Event.add(defines.events.on_tick, tick)
 Event.add(defines.events.on_gui_opened, gui_opened)
 
 Gui.on_custom_close(
