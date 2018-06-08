@@ -54,8 +54,8 @@ local function generate_nihil(event)
     end
   end
   local tiles = {}
-  for x = event.area.left_top.x, event.area.right_bottom.x do
-    for y = event.area.left_top.y, event.area.right_bottom.y do
+  for x = event.area.left_top.x, event.area.right_bottom.x -1 do
+    for y = event.area.left_top.y, event.area.right_bottom.y - 1 do
       table.insert(tiles,{name="lab-dark-1", position = {x,y}})
     end
   end

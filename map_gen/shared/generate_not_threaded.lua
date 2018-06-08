@@ -1,10 +1,10 @@
 local Token = require 'utils.global_token'
 local Event = require 'utils.event'
 
-local shape
 local regen_decoratives
+local surfaces
 
-local function do_row(row, data)
+local function do_row(row, data, shape)
     local function do_tile(tile, pos)
         if not tile then
             table.insert(data.tiles, {name = 'out-of-map', position = pos})
@@ -86,9 +86,9 @@ end
 local function do_place_entities(data)
     local surface = data.surface
     for _, e in ipairs(data.entities) do
-        if surface.can_place_entity(e) then
+        if e.always_place or surface.can_place_entity(e) then
             local entity = surface.create_entity(e)
-            if e.callback then
+            if entity and e.callback then
                 local callback = Token.get(e.callback)
                 callback(entity)
             end
@@ -97,20 +97,27 @@ local function do_place_entities(data)
 end
 
 local function on_chunk(event)
+    local surface = event.surface
+    local shape = surfaces[surface.name]
+
+    if not shape then
+        return
+    end
+
     local area = event.area
 
     local data = {
         area = area,
         top_x = area.left_top.x,
         top_y = area.left_top.y,
-        surface = event.surface,
+        surface = surface,
         tiles = {},
         entities = {},
         decoratives = {}
     }
 
     for row = 0, 31 do
-        do_row(row, data)
+        do_row(row, data, shape)
     end
 
     do_place_tiles(data)
@@ -119,8 +126,8 @@ local function on_chunk(event)
 end
 
 local function init(args)
-    shape = args.shape
     regen_decoratives = args.regen_decoratives
+    surfaces = args.surfaces or {}
 
     Event.add(defines.events.on_chunk_generated, on_chunk)
 end

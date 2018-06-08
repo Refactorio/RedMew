@@ -16,6 +16,15 @@ local function ammo_changed(event)
   local nukes = player.remove_item({name="atomic-bomb", count=1000})
   if nukes > 0 then
     game.print(player.name .. " tried to use a nuke, but instead dropped it on his foot.")
+
+    local character = player.character
+    if character and character.valid then
+      for _,p in ipairs(game.connected_players) do
+        if p ~= player then
+          p.add_custom_alert(character, {type = 'item', name = 'atomic-bomb'}, player.name, true)
+        end
+      end
+    end
     player.character.health = 0
   end
 end
@@ -23,13 +32,22 @@ end
 local function on_player_deconstructed_area(event)
   local player = game.players[event.player_index]
     if allowed_to_nuke(player) then return end
-    local nukes = player.remove_item({name="deconstruction-planner", count=1000})
+    player.remove_item({name="deconstruction-planner", count=1000})
 
     --Make them think they arent noticed
     Utils.print_except(player.name .. " tried to deconstruct something, but instead deconstructed themself.", player)
     player.print("Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.")
 
-    player.character.health = 0
+    local character = player.character
+    if character and character.valid then
+      for _,p in ipairs(game.connected_players) do
+        if p ~= player then
+          p.add_custom_alert(character, {type = 'item', name = 'deconstruction-planner'}, player.name, true)
+        end
+      end
+    end
+    character.health = 0
+
     local entities = player.surface.find_entities_filtered{area = event.area, force = player.force}
     if #entities > 1000 then
       Utils.print_admins("Warning! " .. player.name .. " just tried to deconstruct " .. tostring(#entities) .. " entities!")
@@ -56,7 +74,7 @@ local function entity_allowed_to_bomb(entity)
   return (
     name:find("turret") or
     name:find("rail") or
-    name.find("ghost") or
+    name:find("ghost") or
     name == "player" or
     name == "stone-wall" or
     entity.type == "electric-pole"
@@ -64,8 +82,19 @@ local function entity_allowed_to_bomb(entity)
 end
 global.players_warned = {}
 local function on_capsule_used(event)
-  if item_not_sanctioned(event.item) then return nil end
+  local item = event.item
   local player = game.players[event.player_index]
+
+  if not player or not player.valid then
+    return
+  end
+
+  if item.name == 'artillery-targeting-remote' then
+    player.surface.create_entity{name = 'flying-text', text = player.name, color = player.color, position = event.position}
+  end
+
+  if item_not_sanctioned(item) then return end
+  
   if (not allowed_to_nuke(player)) then
     local area = {{event.position.x-5, event.position.y-5}, {event.position.x+5, event.position.y+5}}
     local count = 0

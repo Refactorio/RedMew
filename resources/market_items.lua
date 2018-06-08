@@ -34,7 +34,7 @@ return {
     {price = {{'raw-fish', 100}}, offer = {type = 'give-item', item = 'artillery-shell'}},
     {price = {{'raw-fish', 1}}, offer = {type = 'give-item', item = 'land-mine'}},
     {price = {{'raw-fish', 5}}, offer = {type = 'give-item', item = 'grenade'}},
-    {price = {{'raw-fish', 25}}, offer = {type = 'give-item', item = 'cluster-grenade'}},
+    {price = {{'raw-fish', 35}}, offer = {type = 'give-item', item = 'cluster-grenade'}},
     {price = {{'raw-fish', 5}}, offer = {type = 'give-item', item = 'defender-capsule'}},
     {price = {{'raw-fish', 15}}, offer = {type = 'give-item', item = 'distractor-capsule'}},
     {price = {{'raw-fish', 75}}, offer = {type = 'give-item', item = 'destroyer-capsule'}},

@@ -1,6 +1,7 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Token = require 'utils.global_token'
+local UserGroups = require 'user_groups'
 
 local band_roles = require 'resources.band_roles'
 local band_roles_token = Token.register_global(band_roles)
@@ -200,7 +201,7 @@ local function draw_main_frame(player)
     flow.add {type = 'button', name = main_button_name, caption = 'Close'}
     flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
 
-    if player.admin or is_regular(player.name) then
+    if player.admin or UserGroups.is_regular(player.name) then
         flow.add {type = 'button', name = create_tag_button_name, caption = 'Create Tag'}
     end
 end

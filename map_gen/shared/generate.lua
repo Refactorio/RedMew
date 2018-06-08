@@ -2,59 +2,13 @@ local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
 local Event = require 'utils.event'
 
-local shape
 local tiles_per_tick
 local regen_decoratives
+local surfaces
 
 local total_calls
 
-local function do_row(row, data)
-    local function do_tile(tile, pos)
-        if not tile then
-            table.insert(data.tiles, {name = 'out-of-map', position = pos})
-        elseif type(tile) == 'string' then
-            table.insert(data.tiles, {name = tile, position = pos})
-        end
-    end
-
-    local y = data.top_y + row
-    local top_x = data.top_x
-
-    data.y = y
-
-    for x = top_x, top_x + 31 do
-        data.x = x
-        local pos = {x, y}
-
-        -- local coords need to be 'centered' to allow for correct rotation and scaling.
-        local tile = shape(x + 0.5, y + 0.5, data)
-
-        if type(tile) == 'table' then
-            do_tile(tile.tile, pos)
-
-            local entities = tile.entities
-            if entities then
-                for _, entity in ipairs(entities) do
-                    if not entity.position then
-                        entity.position = pos
-                    end
-                    table.insert(data.entities, entity)
-                end
-            end
-
-            local decoratives = tile.decoratives
-            if decoratives then
-                for _, decorative in ipairs(decoratives) do
-                    table.insert(data.decoratives, decorative)
-                end
-            end
-        else
-            do_tile(tile, pos)
-        end
-    end
-end
-
-local function do_tile(y, x, data)
+local function do_tile(y, x, data, shape)
     local function do_tile_inner(tile, pos)
         if not tile then
             table.insert(data.tiles, {name = 'out-of-map', position = pos})
@@ -128,9 +82,9 @@ end
 local function do_place_entities(data)
     local surface = data.surface
     for _, e in ipairs(data.entities) do
-        if surface.can_place_entity(e) then
+        if e.always_place or surface.can_place_entity(e) then
             local entity = surface.create_entity(e)
-            if e.callback then
+            if entity and e.callback then
                 local callback = Token.get(e.callback)
                 callback(entity)
             end
@@ -157,6 +111,11 @@ local function map_gen_action(data)
     local state = data.y
 
     if state < 32 then
+        local shape = surfaces[data.surface.name]
+        if shape == nil then
+            return false
+        end
+
         local count = tiles_per_tick
 
         local y = state + data.top_y
@@ -168,7 +127,7 @@ local function map_gen_action(data)
 
         repeat
             count = count - 1
-            do_tile(y, x, data)
+            do_tile(y, x, data, shape)
 
             x = x + 1
             if x == max_x then
@@ -206,6 +165,13 @@ end
 local map_gen_action_token = Token.register(map_gen_action)
 
 local function on_chunk(event)
+    local surface = event.surface
+    local shape = surfaces[surface.name]
+
+    if not shape then
+        return
+    end
+
     local area = event.area
 
     local data = {
@@ -214,7 +180,7 @@ local function on_chunk(event)
         area = area,
         top_x = area.left_top.x,
         top_y = area.left_top.y,
-        surface = event.surface,
+        surface = surface,
         tiles = {},
         entities = {},
         decoratives = {}
@@ -224,9 +190,9 @@ local function on_chunk(event)
 end
 
 local function init(args)
-    shape = args.shape
     tiles_per_tick = args.tiles_per_tick or 32
     regen_decoratives = args.regen_decoratives or false
+    surfaces = args.surfaces or {}
 
     total_calls = math.ceil(1024 / tiles_per_tick) + 4
 
