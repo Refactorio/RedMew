@@ -63,7 +63,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.honeycomb"
 --shape = require "map_gen.presets.line_and_trees"
 --shape = require "map_gen.presets.square_spiral"
-shape = require "map_gen.presets.beach"
+--shape = require "map_gen.presets.beach"
 --shape = require "map_gen.presets.test"
 
 --shapes--
@@ -111,7 +111,7 @@ local terrain_modules = {
 miscs = {}
 --require "map_gen.misc.rusky_pvp"
 --table.insert(miscs, require("map_gen.misc.rail_grid")) -- used for map_gen.presets.UK
-require ('map_gen.misc.change_landfill_tile')('sand-1')
+--require ('map_gen.misc.change_landfill_tile')('sand-1')
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
