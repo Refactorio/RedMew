@@ -79,7 +79,7 @@ local function draw_filters_table(event)
         return
     end
 
-    local frame = center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = 'Set Filter'}
+    local frame = center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = 'Palette'}
 
     local t = frame.add {type = 'table', column_count = 10}
     t.style.horizontal_spacing = 0
@@ -122,7 +122,7 @@ local function toggle(event)
         main_frame.add {
             type = 'label',
             -- The empty space is a hacky way to line this frame up with the above frame.
-            caption = 'Choose a pain brush, that will replace stone brick'
+            caption = 'Choose a replacement tile for ref. hazard concrete'
         }
 
         local tooltip = global.paint_brushes_by_player[event.player_index] or ""
@@ -147,6 +147,7 @@ Gui.on_click(
     filter_button_name,
     function(event)
         if event.button == defines.mouse_button_type.right then
+            global.paint_brushes_by_player[event.player_index] = nil
             local element = event.element
             element.sprite = 'utility/pump_cannot_connect_icon'
             element.tooltip = ''
