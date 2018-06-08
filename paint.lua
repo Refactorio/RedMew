@@ -1,7 +1,7 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 
-local brush_tool = "refined-hazard-concrete"
+local brush_tool = 'refined-hazard-concrete'
 
 local valid_filters = {
     'dirt-1',
@@ -26,37 +26,48 @@ local valid_filters = {
     'sand-1',
     'sand-2',
     'sand-3',
-    'tutorial-grid',
-    'water',
-    'water-green',
-    'deepwater',
-    'deepwater-green'
+    'tutorial-grid'
 }
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 
 local filter_button_name = Gui.uid_name()
+local filter_clear_name = Gui.uid_name()
 local filter_element_name = Gui.uid_name()
 local filters_table_name = Gui.uid_name()
 local filter_table_close_button_name = Gui.uid_name()
 
-
 global.paint_brushes_by_player = {}
 local function player_build_tile(event)
-  if game.players[event.player_index].gui.left[main_frame_name] and
-    event.item.name == brush_tool and
-    global.paint_brushes_by_player[event.player_index]
-  then
-      tiles = {}
-      for _,old_tile_and_pos in pairs(event.tiles) do
-          table.insert(tiles, {name=global.paint_brushes_by_player[event.player_index], position = old_tile_and_pos.position})
-          if old_tile_and_pos.old_tile.name == global.paint_brushes_by_player[event.player_index] then
-            game.players[event.player_index].insert{name = event.item.name}
-          end
-      end
-      game.surfaces[event.surface_index].set_tiles(tiles)
-  end
+    if event.item.name ~= brush_tool then
+        return
+    end
+
+    local replace_tile = global.paint_brushes_by_player[event.player_index]
+    if not replace_tile then
+        return
+    end
+
+    local player = game.players[event.player_index]
+    if not player.gui.left[main_frame_name] then
+        return
+    end
+
+    local tiles = event.tiles
+    local count = 0
+    for _, tile_data in ipairs(tiles) do
+        tile_data.name = replace_tile
+        if tile_data.old_tile.name == replace_tile then
+            count = count + 1
+        end
+    end
+
+    game.surfaces[event.surface_index].set_tiles(tiles)
+
+    if count > 0 then
+        player.insert {name = brush_tool, count = count}
+    end
 end
 
 local function player_joined(event)
@@ -86,12 +97,10 @@ local function draw_filters_table(event)
     t.style.vertical_spacing = 0
 
     for _, v in ipairs(valid_filters) do
-        if not v:match("water") or event.player.admin then
-            local flow = t.add {type = 'flow'}
-            local b = flow.add {type = 'sprite-button', name = filter_element_name, sprite = 'tile/' .. v, tooltip = v}
-            Gui.set_data(b, frame)
-            b.style = 'slot_button'
-        end
+        local flow = t.add {type = 'flow'}
+        local b = flow.add {type = 'sprite-button', name = filter_element_name, sprite = 'tile/' .. v, tooltip = v}
+        Gui.set_data(b, frame)
+        b.style = 'slot_button'
     end
 
     local flow = frame.add {type = 'flow'}
@@ -121,23 +130,26 @@ local function toggle(event)
         }
         main_frame.add {
             type = 'label',
-            -- The empty space is a hacky way to line this frame up with the above frame.
-            caption = 'Choose a replacement tile for ref. hazard concrete'
+            caption = 'Choose a replacement tile for Refined hazard concrete'
         }
 
-        local tooltip = global.paint_brushes_by_player[event.player_index] or ""
+        local tooltip = global.paint_brushes_by_player[event.player_index] or ''
 
         local brush =
-          main_frame.add({type = 'flow'}).add {
+            main_frame.add({type = 'flow'}).add {
             type = 'sprite-button',
             name = filter_button_name,
             tooltip = tooltip,
             sprite = tooltip ~= '' and 'tile/' .. tooltip or nil
-          }
+        }
         brush.style = 'slot_button'
 
-        main_frame.add {type = 'button', name = main_button_name, caption = 'Close'}
-        Gui.set_data(main_frame, filters)
+        local buttons_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
+
+        buttons_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
+
+        local clear_bursh = buttons_flow.add {type = 'button', name = filter_clear_name, caption = 'Clear Brush'}
+        Gui.set_data(clear_bursh, brush)
     end
 end
 
@@ -158,13 +170,25 @@ Gui.on_click(
 )
 
 Gui.on_click(
+    filter_clear_name,
+    function(event)
+        local brush = Gui.get_data(event.element)
+
+        brush.sprite = 'utility/pump_cannot_connect_icon'
+        brush.tooltip = ''
+
+        global.paint_brushes_by_player[event.player_index] = nil
+    end
+)
+
+Gui.on_click(
     filter_element_name,
     function(event)
         local element = event.element
         local frame = Gui.get_data(element)
         local filter_button = Gui.get_data(frame)
 
-        global.paint_brushes_by_player[event.player_index] = element.sprite:sub(6)
+        global.paint_brushes_by_player[event.player_index] = element.tooltip
         filter_button.sprite = element.sprite
         filter_button.tooltip = element.tooltip
 
