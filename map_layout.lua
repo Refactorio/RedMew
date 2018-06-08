@@ -111,6 +111,7 @@ local terrain_modules = {
 miscs = {}
 --require "map_gen.misc.rusky_pvp"
 --table.insert(miscs, require("map_gen.misc.rail_grid")) -- used for map_gen.presets.UK
+require ('map_gen.misc.change_landfill_tile')('sand-1')
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
@@ -134,18 +135,3 @@ if shape then
     require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
 	--require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end
-
-local Event = require 'utils.event'
-Event.add(
-    defines.events.on_player_built_tile,
-    function(event)
-        if event.item.name == 'landfill' then
-            local tiles = event.tiles
-            for i = 1, #tiles do
-                tiles[i].name = 'sand-1'
-            end
-            local surface = game.surfaces[event.surface_index]
-            surface.set_tiles(tiles)
-        end
-    end
-)
