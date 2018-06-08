@@ -22,6 +22,7 @@ require 'poll'
 require 'band'
 require 'tasklist'
 require 'blueprint_helper'
+require 'paint'
 require 'score'
 require 'popup'
 

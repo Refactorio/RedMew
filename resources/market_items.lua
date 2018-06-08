@@ -36,7 +36,7 @@ return {
     {price = {{'raw-fish', 5}}, offer = {type = 'give-item', item = 'grenade'}},
     {price = {{'raw-fish', 35}}, offer = {type = 'give-item', item = 'cluster-grenade'}},
     {price = {{'raw-fish', 5}}, offer = {type = 'give-item', item = 'defender-capsule'}},
-    {price = {{'raw-fish', 15}}, offer = {type = 'give-item', item = 'distractor-capsule'}},
+    --{price = {{'raw-fish', 15}}, offer = {type = 'give-item', item = 'distractor-capsule'}}, Removed so we dont have 51 items and they are useless anyways
     {price = {{'raw-fish', 75}}, offer = {type = 'give-item', item = 'destroyer-capsule'}},
     {price = {{'raw-fish', 25}}, offer = {type = 'give-item', item = 'poison-capsule'}},
     {price = {{'raw-fish', 25}}, offer = {type = 'give-item', item = 'slowdown-capsule'}},
@@ -54,5 +54,6 @@ return {
     {price = {{'raw-fish', 250}}, offer = {type = 'give-item', item = 'personal-roboport-equipment'}},
     {price = {{'raw-fish', 25}}, offer = {type = 'give-item', item = 'construction-robot'}},
     {price = {{'raw-fish', 250}}, offer = {type = 'give-item', item = 'energy-shield-equipment'}},
-    {price = {{'raw-fish', 250}}, offer = {type = 'give-item', item = 'personal-laser-defense-equipment'}}
+    {price = {{'raw-fish', 250}}, offer = {type = 'give-item', item = 'personal-laser-defense-equipment'}},
+    {price = {{'raw-fish', 1}}, offer = {type = 'give-item', item = 'refined-hazard-concrete'}}
 }
