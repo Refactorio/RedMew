@@ -125,8 +125,9 @@ Event.add(defines.events.on_player_mined_entity, on_entity_changed)
 
 Event.add(defines.events.on_marked_for_deconstruction, function(event)
   if global.ag_disabled then return end
+  
   global.original_last_users_by_ent_pos[get_position_str(event.entity.position)] =
-    Utils.ternary(event.entity.last_user, event.entity.last_user.index)
+    event.entity.last_user and event.entity.last_user.index
 end)
 
 
