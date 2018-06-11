@@ -1,7 +1,6 @@
 local Event = require "utils.event"
 local Utils = require "utils.utils"
 
-global.ag_disabled = false
 global.original_last_users_by_ent_pos = {}
 
 Event.on_init(function()
@@ -37,8 +36,7 @@ local function place_entity_on_surface(entity, surface, replace, player)
 end
 
 Event.add(defines.events.on_chunk_generated, function(event)
-  if global.ag_disabled then return end
-  if event.surface.name == "antigrief" then
+   if event.surface.name == "antigrief" then
     local tiles = {}
     for x = event.area.left_top.x, event.area.right_bottom.x - 1 do
       for y = event.area.left_top.y, event.area.right_bottom.y - 1 do
@@ -53,8 +51,7 @@ local function get_position_str(pos)
   return string.format("%d|%d", pos.x, pos.y)
 end
 
-local function on_entity_changed(event)
-  if global.ag_disabled then return end
+local function on_entity_changed(event)  
   local entity = event.entity or event.destination
   local player = game.players[event.player_index]
   if player.admin or not entity.valid then return end --Freebees for admins
@@ -66,8 +63,7 @@ local function on_entity_changed(event)
   end
 end
 
-Event.add(defines.events.on_robot_pre_mined, function(event)
-  if global.ag_disabled then return end
+Event.add(defines.events.on_robot_pre_mined, function(event)  
   --The bot isnt the culprit! The last user is! They marked it for deconstruction!
   if event.entity.valid and event.entity.last_user then
      event.player_index = event.entity.last_user.index
@@ -83,8 +79,7 @@ local function get_pre_rotate_direction(entity)
   return direction
 end
 
-Event.add(defines.events.on_player_rotated_entity, function(event)
-  if global.ag_disabled then return end
+Event.add(defines.events.on_player_rotated_entity, function(event)  
   local entity = event.entity
 
   if not entity.valid then return end
@@ -104,8 +99,7 @@ Event.add(defines.events.on_player_rotated_entity, function(event)
 end)
 Event.add(defines.events.on_pre_entity_settings_pasted, on_entity_changed)
 
-Event.add(defines.events.on_entity_died, function(event)
-  if global.ag_disabled then return end
+Event.add(defines.events.on_entity_died, function(event)  
   --is a player on the same force as the destroyed object
   if event.entity and event.entity.valid and event.entity.force.name == "player" and event.cause and
     event.cause.force == event.entity.force and event.cause.type == "player" then
@@ -124,10 +118,9 @@ end)
 Event.add(defines.events.on_player_mined_entity, on_entity_changed)
 
 Event.add(defines.events.on_marked_for_deconstruction, function(event)
-  if global.ag_disabled then return end
-  
-  global.original_last_users_by_ent_pos[get_position_str(event.entity.position)] =
-    event.entity.last_user and event.entity.last_user.index
+  if event.entity.last_user then 
+    global.original_last_users_by_ent_pos[get_position_str(event.entity.position)] = event.entity.last_user.index
+  end
 end)
 
 
