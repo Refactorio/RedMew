@@ -3,31 +3,45 @@ local Gui = require 'utils.gui'
 local close_name = Gui.uid_name()
 
 local function show_popup(player, message)
-    local frame = player.gui.center.add {type = 'frame', direction = 'vertical'}
+    local frame = player.gui.center.add {type = 'frame', direction = 'vertical', style = 'captionless_frame'}
     frame.style.minimal_width = 300
 
-    local close_button_flow = frame.add {type = 'flow'}
-    close_button_flow.style.horizontally_stretchable = true
-    close_button_flow.style.align = 'right'
+    local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
-    local close_button = close_button_flow.add {type = 'button', name = close_name, caption = 'X'}
-    Gui.set_data(close_button, frame)
-
-    local title_flow = frame.add {type = 'flow'}
+    local title_flow = top_flow.add {type = 'flow'}
     title_flow.style.align = 'center'
+    title_flow.style.left_padding = 32
+    title_flow.style.top_padding = 8
     title_flow.style.horizontally_stretchable = true
 
     local title = title_flow.add {type = 'label', caption = 'Attention!'}
     title.style.font = 'default-large-bold'
 
-    local label_flow = frame.add {type = 'flow'}
-    label_flow.style.top_padding = 32
-    label_flow.style.bottom_padding = 32
-    label_flow.style.left_padding = 32
-    label_flow.style.right_padding = 32
-    label_flow.style.align = 'center'
-    label_flow.style.horizontally_stretchable = true
+    local close_button_flow = top_flow.add {type = 'flow'}
+    close_button_flow.style.align = 'right'
 
+    local close_button = close_button_flow.add {type = 'button', name = close_name, caption = 'X'}
+    Gui.set_data(close_button, frame)
+
+    local content_flow = frame.add {type = 'flow', direction = 'horizontal'}
+    content_flow.style.top_padding = 16
+    content_flow.style.bottom_padding = 16
+    content_flow.style.left_padding = 24
+    content_flow.style.right_padding = 24
+    content_flow.style.horizontally_stretchable = true
+
+    local sprite_flow = content_flow.add {type = 'flow'}
+    sprite_flow.style.vertical_align = 'center'
+    sprite_flow.style.vertically_stretchable = true
+
+    sprite_flow.add {type = 'sprite', sprite = 'utility/warning_icon'}
+
+    local label_flow = content_flow.add {type = 'flow'}
+    label_flow.style.align = 'left'
+    label_flow.style.top_padding = 10
+    label_flow.style.left_padding = 24
+
+    label_flow.style.horizontally_stretchable = true
     local label = label_flow.add {type = 'label', caption = message}
     label.style.single_line = false
     label.style.font = 'default-large-bold'
@@ -51,9 +65,9 @@ Gui.on_click(
 )
 
 local function popup(cmd)
-    local player = game.players[cmd.player_index]
+    local player = game.player
     if player and not player.admin then
-        player.print("You don't have permission to run this command")
+        cant_run(cmd.name)
         return
     end
 
@@ -65,9 +79,9 @@ local function popup(cmd)
 end
 
 local function popup_update(cmd)
-    local player = game.players[cmd.player_index]
+    local player = game.player
     if player and not player.admin then
-        player.print("You don't have permission to run this command")
+        cant_run(cmd.name)
         return
     end
 

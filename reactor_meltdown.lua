@@ -10,24 +10,6 @@ global.wastelands = {}
 global.reactors = {}
 local wasteland_duration_seconds = 300
 
-local function entity_destroyed(event)
-    if not global.reactors_enabled or not event.entity.valid or event.entity.name ~= 'nuclear-reactor' then
-        return
-    end
-
-    local reactor = event.entity
-
-    if reactor.temperature > 700 then
-        reactor.surface.create_entity {name = 'atomic-rocket', position = reactor.position, target = reactor, speed = 1}
-        spawn_wasteland(reactor.surface, reactor.position)
-        global.wastelands[reactor.position.x .. '/' .. reactor.position.y] = {
-            position = reactor.position,
-            surface_id = reactor.surface.index,
-            creation_time = game.tick
-        }
-    end
-end
-
 local function spawn_wasteland(surface, position)
     local positions = {
         {0, 0},
@@ -62,6 +44,24 @@ local function spawn_wasteland(surface, position)
             position = position,
             target = {position.x + rel_position[1], position.y + rel_position[2]},
             speed = 0.4
+        }
+    end
+end
+
+local function entity_destroyed(event)
+    if not global.reactors_enabled or not event.entity.valid or event.entity.name ~= 'nuclear-reactor' then
+        return
+    end
+
+    local reactor = event.entity
+
+    if reactor.temperature > 700 then
+        reactor.surface.create_entity {name = 'atomic-rocket', position = reactor.position, target = reactor, speed = 1}
+        spawn_wasteland(reactor.surface, reactor.position)
+        global.wastelands[reactor.position.x .. '/' .. reactor.position.y] = {
+            position = reactor.position,
+            surface_id = reactor.surface.index,
+            creation_time = game.tick
         }
     end
 end

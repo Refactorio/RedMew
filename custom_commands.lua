@@ -72,16 +72,24 @@ global.walking = {}
 local custom_commands_return_player =
     Token.register(
     function(args)
-        global.walking[args.player.name:lower()] = false
-        args.player.character.destroy()
-        local character = args.player.surface.find_entity('player', args.position)
-        if character ~= nil and character.valid then
-            args.player.character = character
-        else
-            args.player.create_character()
+        local player = args.player
+        if not player.valid then
+            return
         end
-        args.player.force = args.force
-        args.player.teleport(args.position)
+
+        global.walking[player.index] = false
+        player.character.destroy()
+
+        local character = args.character
+        if character ~= nil and character.valid then
+            player.character = character
+        else
+            player.create_character()
+            player.teleport(args.position)
+        end
+
+        player.force = args.force
+
         game.print(args.player.name .. ' came back from his walkabout.')
     end
 )
@@ -93,7 +101,7 @@ local function walkabout(cmd)
     end
     local params = {}
     if cmd.parameter == nil then
-        player_print('Walkabout failed.')
+        player_print('Walkabout failed, check /help walkabout.')
         return
     end
     for param in string.gmatch(cmd.parameter, '%S+') do
@@ -115,7 +123,7 @@ local function walkabout(cmd)
     end
 
     local player = game.players[player_name]
-    if type(player) ~= 'table' or global.walking[player_name:lower()] then
+    if player == nil or not player.valid or global.walking[player.index] then
         player_print(player_name .. ' could not go on a walkabout.')
         return
     end
@@ -124,25 +132,28 @@ local function walkabout(cmd)
         table.insert(chunks, chunk)
     end
 
-    local chunk = chunks[math.random(#chunks)]
-    if not chunk then
-        return
-    end
+    local surface = player.surface
+    local chunk = surface.get_random_chunk()
     local pos = {x = chunk.x * 32, y = chunk.y * 32}
-    local non_colliding_pos = player.surface.find_non_colliding_position('player', pos, 100, 1)
+    local non_colliding_pos = surface.find_non_colliding_position('player', pos, 100, 1)
 
     if non_colliding_pos then
         game.print(player_name .. ' went on a walkabout, to find himself.')
         Task.set_timeout(
             duration,
             custom_commands_return_player,
-            {player = player, force = player.force, position = {x = player.position.x, y = player.position.y}}
+            {
+                player = player,
+                force = player.force,
+                position = {x = player.position.x, y = player.position.y},
+                character = player.character
+            }
         )
         player.character = nil
         player.create_character()
         player.teleport(non_colliding_pos)
-        player.force = 'enemy'
-        global.walking[player_name:lower()] = true
+        player.force = 'neutral'
+        global.walking[player.index] = true
     else
         player_print('Walkabout failed: count find non colliding position')
     end
@@ -475,35 +486,67 @@ end
 
 global.undo_warned_players = {}
 local function undo(cmd)
-  if (not game.player) or not game.player.admin then
-    cant_run(cmd.name)
-    return
-  end
-  if cmd.parameter and game.players[cmd.parameter] then
-    if not global.undo_warned_players[game.player.index] or global.undo_warned_players[game.player.index] ~= game.players[cmd.parameter].index then
-      global.undo_warned_players[game.player.index] = game.players[cmd.parameter].index
-      game.player.print(
-        string.format("Warning! You are about to remove %s entities and restore %s entities.",
-        #Utils.find_entities_by_last_user(game.players[cmd.parameter], game.surfaces.nauvis),
-        Antigrief.count_removed_entities(game.players[cmd.parameter]))
-      )
-      game.player.print("To execute the command please run it again.")
-      return
+    if (not game.player) or not game.player.admin then
+        cant_run(cmd.name)
+        return
     end
-    Antigrief.undo(game.players[cmd.parameter])
-    game.print(string.format("Undoing everything %s did...", cmd.parameter))
-    global.undo_warned_players[game.player.index] = nil
-  else
-    player_print("Usage: /undo <player>")
-  end
+    if cmd.parameter and game.players[cmd.parameter] then
+        if
+            not global.undo_warned_players[game.player.index] or
+                global.undo_warned_players[game.player.index] ~= game.players[cmd.parameter].index
+         then
+            global.undo_warned_players[game.player.index] = game.players[cmd.parameter].index
+            game.player.print(
+                string.format(
+                    'Warning! You are about to remove %s entities and restore %s entities.',
+                    #Utils.find_entities_by_last_user(game.players[cmd.parameter], game.surfaces.nauvis),
+                    Antigrief.count_removed_entities(game.players[cmd.parameter])
+                )
+            )
+            game.player.print('To execute the command please run it again.')
+            return
+        end
+        Antigrief.undo(game.players[cmd.parameter])
+        game.print(string.format('Undoing everything %s did...', cmd.parameter))
+        global.undo_warned_players[game.player.index] = nil
+    else
+        player_print('Usage: /undo <player>')
+    end
 end
 
 local function antigrief_surface_tp()
-  if (not game.player) or not game.player.admin then
-      cant_run(cmd.name)
-      return
-  end
-  Antigrief.antigrief_surface_tp()
+    if (not game.player) or not game.player.admin then
+        cant_run(cmd.name)
+        return
+    end
+    Antigrief.antigrief_surface_tp()
+end
+
+local function find_player(cmd)
+    local player = game.player
+    if not player then
+        return
+    end
+
+    local name = cmd.parameter
+    if not name then
+        player.print('Usage: /find-player <player>')
+        return
+    end
+
+    local target = game.players[name]
+    if not target then
+        player.print('player ' .. name .. ' not found')
+        return
+    end
+
+    target = target.character
+    if not target or not target.valid then
+        player.print('player ' .. name .. ' does not have a character')
+        return
+    end
+
+    player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, player.name, true)
 end
 
 if not _DEBUG then
@@ -532,15 +575,48 @@ commands.add_command('walkabout', '<player> <duration> - Send someone on a walk.
 commands.add_command('regulars', 'Prints a list of game regulars.', UserGroups.print_regulars)
 commands.add_command('regular', '<promote, demote>, <player> Change regular status of a player. (Admins only)', regular)
 commands.add_command('afk', 'Shows how long players have been afk.', afk)
-commands.add_command('follow', '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
+commands.add_command(
+    'follow',
+    '<player> makes you follow the player. Use /unfollow to stop following a player.',
+    follow
+)
 commands.add_command('unfollow', 'stops following a player.', unfollow)
-commands.add_command('tpmode', 'Toggles tp mode. When on place a ghost entity to teleport there (Admins only)', toggle_tp_mode)
+commands.add_command(
+    'tpmode',
+    'Toggles tp mode. When on place a ghost entity to teleport there (Admins only)',
+    toggle_tp_mode
+)
 commands.add_command('forcetoggle', 'Toggles the players force between player and enemy (Admins only)', forcetoggle)
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
-commands.add_command('spyshot', '<player> Sends a screenshot of player to discord. (If a host is online. If no host is online, you can become one yourself. Ask on discord :))', spyshot)
+commands.add_command(
+    'spyshot',
+    '<player> Sends a screenshot of player to discord. (If a host is online. If no host is online, you can become one yourself. Ask on discord :))',
+    spyshot
+)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
-commands.add_command('all-tech', 'researches all technologies', function() if game.player and game.player.admin then game.player.force.research_all_technologies() end end)
-commands.add_command('hax', 'Toggles your hax', function() if game.player and game.player.admin then game.player.cheat_mode = not game.player.cheat_mode end end)
+commands.add_command(
+    'all-tech',
+    'researches all technologies',
+    function()
+        if game.player and game.player.admin then
+            game.player.force.research_all_technologies()
+        end
+    end
+)
+commands.add_command(
+    'hax',
+    'Toggles your hax',
+    function()
+        if game.player and game.player.admin then
+            game.player.cheat_mode = not game.player.cheat_mode
+        end
+    end
+)
 commands.add_command('pool', 'Spawns a pool', pool)
 commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
-commands.add_command('antigrief_surface', 'moves you to the antigrief surface or back (Admins only)', antigrief_surface_tp)
+commands.add_command(
+    'antigrief_surface',
+    'moves you to the antigrief surface or back (Admins only)',
+    antigrief_surface_tp
+)
+commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)

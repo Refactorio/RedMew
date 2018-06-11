@@ -317,6 +317,7 @@ local function on_gui_click(event)
 			else
 				player_list_show(player,"time_played_desc")
 			end
+			return
 		end
 
 		if (name == "player_list_panel_header_2") then
@@ -325,6 +326,7 @@ local function on_gui_click(event)
 			else
 				player_list_show(player,"name_desc")
 			end
+			return
 		end
 		if (name == "player_list_panel_header_3") then
 			if string.find(event.element.caption, symbol_desc) then
@@ -332,6 +334,7 @@ local function on_gui_click(event)
 			else
 				player_list_show(player,"time_played_desc")
 			end
+			return
 		end
 		if (name == "player_list_panel_header_4") then
 			if string.find(event.element.caption, symbol_desc) then
@@ -339,6 +342,7 @@ local function on_gui_click(event)
 			else
 				player_list_show(player,"distance_desc")
 			end
+			return
 		end
 		if (name == "player_list_panel_header_5") then
 			if string.find(event.element.caption, symbol_desc) then
@@ -346,6 +350,7 @@ local function on_gui_click(event)
 			else
 				player_list_show(player,"pokes_desc")
 			end
+			return
 		end
 		--Poke other players
 	if event.element.type == "button" then
