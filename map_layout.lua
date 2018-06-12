@@ -8,7 +8,7 @@ in this file and your run_*type*_module(event) function will be called.
 local b = require 'map_gen.shared.builders'
 
 local shape = nil
-local regen_decoratives = true
+local regen_decoratives = false
 local tiles_per_tick = 32
 
 --combined--
@@ -64,6 +64,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.line_and_trees"
 --shape = require "map_gen.presets.square_spiral"
 --shape = require "map_gen.presets.beach"
+--shape = require "map_gen.presets.factory"
 --shape = require "map_gen.presets.test"
 
 --shapes--
