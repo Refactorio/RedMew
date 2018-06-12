@@ -14,7 +14,7 @@ local function harmonic(x, y)
     local max = -1
     local richness = 0
     for i, e in ipairs(ctrs) do
-        local noise = perlin:noise(x / 32, y / 32, ctrs[i][6])
+        local noise = perlin.noise(x / 32, y / 32, ctrs[i][6])
         local h_coeff =
             1 /
             (1 +

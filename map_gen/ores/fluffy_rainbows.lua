@@ -22,7 +22,7 @@ Event.on_init(init)
 
 local function do_resource(name, x, y, world, noise_terrain, noise_band_high, noise_band_low, seed)
     if noise_terrain > -noise_band_high * width_modifier and noise_terrain <= -noise_band_low * width_modifier then
-        local noise_resource_amount_modifier = perlin:noise(((x + seed) / 200), ((y + seed) / 200), 0)
+        local noise_resource_amount_modifier = perlin.noise(((x + seed) / 200), ((y + seed) / 200), 0)
         local resource_amount =
             1 +
             ((ore_base_amounts[name] + (ore_base_amounts[name] * noise_resource_amount_modifier * 0.2)) *
@@ -48,8 +48,8 @@ return function(x, y, world)
 
     local seed = global.perlin_noise_seed
 
-    local noise_terrain_1 = perlin:noise(((x + seed) / 350), ((y + seed) / 350), 0)
-    local noise_terrain_2 = perlin:noise(((x + seed) / 50), ((y + seed) / 50), 0)
+    local noise_terrain_1 = perlin.noise(((x + seed) / 350), ((y + seed) / 350), 0)
+    local noise_terrain_2 = perlin.noise(((x + seed) / 50), ((y + seed) / 50), 0)
     local noise_terrain = noise_terrain_1 + (noise_terrain_2 * 0.01)
 
     return do_resource('iron-ore', x, y, world, noise_terrain, 0.11, 0.085, seed) or

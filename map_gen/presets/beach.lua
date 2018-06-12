@@ -16,8 +16,8 @@ end)
 
 
 local function sand_shape(x, y)
-    local wiggle = 1 + math.abs(perlin:noise((x * noise_variance), (y * noise_variance), global.beach_perlin_seed_A + 17) * noise_level / 50)
-    return y < perlin:noise(x * noise_variance / 2, y * noise_variance / 2, global.beach_perlin_seed_A) * noise_level * wiggle
+    local wiggle = 1 + math.abs(perlin.noise((x * noise_variance), (y * noise_variance), global.beach_perlin_seed_A + 17) * noise_level / 50)
+    return y < perlin.noise(x * noise_variance / 2, y * noise_variance / 2, global.beach_perlin_seed_A) * noise_level * wiggle
 end
 
 sand_shape = b.change_tile(sand_shape, true, 'sand-1')
@@ -63,8 +63,8 @@ local water_width = 64
 local water_width_inv = tau / water_width
 
 local function water_shape(x, y)
-    local wiggle = 1 + math.abs(perlin:noise((x * noise_variance), (y * noise_variance), global.beach_perlin_seed_B + 17) * noise_level / 50)
-    return y < perlin:noise(x * noise_variance, y * noise_variance, global.beach_perlin_seed_B) * noise_level * wiggle
+    local wiggle = 1 + math.abs(perlin.noise((x * noise_variance), (y * noise_variance), global.beach_perlin_seed_B + 17) * noise_level / 50)
+    return y < perlin.noise(x * noise_variance, y * noise_variance, global.beach_perlin_seed_B) * noise_level * wiggle
 end
 
 water_shape = b.change_tile(water_shape, true, 'water')

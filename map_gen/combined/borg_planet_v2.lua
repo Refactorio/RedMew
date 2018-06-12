@@ -102,23 +102,23 @@ return function(x, y, world)
     local seed_increment_number = 10000
     local seed = surface.map_gen_settings.seed
 
-    local noise_borg_defense_1 = perlin:noise(((world.x + seed) / 100), ((world.y + seed) / 100), 0)
+    local noise_borg_defense_1 = perlin.noise(((world.x + seed) / 100), ((world.y + seed) / 100), 0)
     seed = seed + seed_increment_number
-    local noise_borg_defense_2 = perlin:noise(((world.x + seed) / 20), ((world.y + seed) / 20), 0)
+    local noise_borg_defense_2 = perlin.noise(((world.x + seed) / 20), ((world.y + seed) / 20), 0)
     seed = seed + seed_increment_number
     local noise_borg_defense = noise_borg_defense_1 + noise_borg_defense_2 * 0.15
 
-    local noise_trees_1 = perlin:noise(((world.x + seed) / 50), ((world.y + seed) / 50), 0)
+    local noise_trees_1 = perlin.noise(((world.x + seed) / 50), ((world.y + seed) / 50), 0)
     seed = seed + seed_increment_number
-    local noise_trees_2 = perlin:noise(((world.x + seed) / 15), ((world.y + seed) / 15), 0)
+    local noise_trees_2 = perlin.noise(((world.x + seed) / 15), ((world.y + seed) / 15), 0)
     seed = seed + seed_increment_number
     local noise_trees = noise_trees_1 + noise_trees_2 * 0.3
 
-    local noise_walls_1 = perlin:noise(((world.x + seed) / 150), ((world.y + seed) / 150), 0)
+    local noise_walls_1 = perlin.noise(((world.x + seed) / 150), ((world.y + seed) / 150), 0)
     seed = seed + seed_increment_number
-    local noise_walls_2 = perlin:noise(((world.x + seed) / 50), ((world.y + seed) / 50), 0)
+    local noise_walls_2 = perlin.noise(((world.x + seed) / 50), ((world.y + seed) / 50), 0)
     seed = seed + seed_increment_number
-    local noise_walls_3 = perlin:noise(((world.x + seed) / 20), ((world.y + seed) / 20), 0)
+    local noise_walls_3 = perlin.noise(((world.x + seed) / 20), ((world.y + seed) / 20), 0)
     seed = seed + seed_increment_number
     local noise_walls = noise_walls_1 + noise_walls_2 * 0.1 + noise_walls_3 * 0.03
 
@@ -208,23 +208,23 @@ return function(x, y, world)
         table.insert(entities, {name = 'rock-big'})
     end
 
-    local noise_water_1 = perlin:noise(((world.x + seed) / 200), ((world.y + seed) / 200), 0)
+    local noise_water_1 = perlin.noise(((world.x + seed) / 200), ((world.y + seed) / 200), 0)
     seed = seed + seed_increment_number
-    local noise_water_2 = perlin:noise(((world.x + seed) / 100), ((world.y + seed) / 100), 0)
+    local noise_water_2 = perlin.noise(((world.x + seed) / 100), ((world.y + seed) / 100), 0)
     seed = seed + seed_increment_number
-    local noise_water_3 = perlin:noise(((world.x + seed) / 25), ((world.y + seed) / 25), 0)
+    local noise_water_3 = perlin.noise(((world.x + seed) / 25), ((world.y + seed) / 25), 0)
     seed = seed + seed_increment_number
-    local noise_water_4 = perlin:noise(((world.x + seed) / 10), ((world.y + seed) / 10), 0)
+    local noise_water_4 = perlin.noise(((world.x + seed) / 10), ((world.y + seed) / 10), 0)
     seed = seed + seed_increment_number
     local noise_water = noise_water_1 + noise_water_2 + noise_water_3 * 0.07 + noise_water_4 * 0.07
 
-    noise_water_1 = perlin:noise(((world.x + seed) / 200), ((world.y + seed) / 200), 0)
+    noise_water_1 = perlin.noise(((world.x + seed) / 200), ((world.y + seed) / 200), 0)
     seed = seed + seed_increment_number
-    noise_water_2 = perlin:noise(((world.x + seed) / 100), ((world.y + seed) / 100), 0)
+    noise_water_2 = perlin.noise(((world.x + seed) / 100), ((world.y + seed) / 100), 0)
     seed = seed + seed_increment_number
-    noise_water_3 = perlin:noise(((world.x + seed) / 25), ((world.y + seed) / 25), 0)
+    noise_water_3 = perlin.noise(((world.x + seed) / 25), ((world.y + seed) / 25), 0)
     seed = seed + seed_increment_number
-    noise_water_4 = perlin:noise(((world.x + seed) / 10), ((world.y + seed) / 10), 0)
+    noise_water_4 = perlin.noise(((world.x + seed) / 10), ((world.y + seed) / 10), 0)
     seed = seed + seed_increment_number
     noise_water_2 = noise_water_1 + noise_water_2 + noise_water_3 * 0.07 + noise_water_4 * 0.07
 
@@ -254,9 +254,9 @@ return function(x, y, world)
         end
     end
 
-    local noise_decoratives_1 = perlin:noise(((world.x + seed) / 50), ((world.y + seed) / 50), 0)
+    local noise_decoratives_1 = perlin.noise(((world.x + seed) / 50), ((world.y + seed) / 50), 0)
     seed = seed + seed_increment_number
-    local noise_decoratives_2 = perlin:noise(((world.x + seed) / 15), ((world.y + seed) / 15), 0)
+    local noise_decoratives_2 = perlin.noise(((world.x + seed) / 15), ((world.y + seed) / 15), 0)
     local noise_decoratives = noise_decoratives_1 + noise_decoratives_2 * 0.3
 
     local decoratives

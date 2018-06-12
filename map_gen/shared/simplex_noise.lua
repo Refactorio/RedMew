@@ -1,6 +1,7 @@
 --from https://github.com/thenumbernine/lua-simplexnoise/blob/master/2d.lua
 --Mostly as a test, does not give same results as perlin but is designed to give patterns all the same
-local bit = bit32 or require 'bit'
+
+local Simplex = {}
 
 -- 2D simplex noise
 
@@ -23,9 +24,9 @@ local  p = {151,160,137,91,90,15,
 	251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
 	49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
 	138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180}
-local perm = {} 
+local perm = {}
 for i=0,511 do
-	perm[i+1] = p[bit.band(i, 255) + 1]
+	perm[i+1] = p[bit32.band(i, 255) + 1]
 end
 
 local function dot(g, ...)
@@ -37,7 +38,7 @@ local function dot(g, ...)
 	return sum
 end
 
-function simplex_2d(xin, yin,seed)
+function Simplex.d2(xin, yin,seed)
 	xin = xin + seed
 	yin = yin + seed
 	local n0, n1, n2	-- Noise contributions from the three corners
@@ -70,8 +71,8 @@ function simplex_2d(xin, yin,seed)
 	local x2 = x0 - 1 + 2 * G2 -- Offsets for last corner in (x,y) unskewed coords
 	local y2 = y0 - 1 + 2 * G2
 	-- Work out the hashed gradient indices of the three simplex corners
-	local ii = bit.band(i, 255)
-	local jj = bit.band(j, 255)
+	local ii = bit32.band(i, 255)
+	local jj = bit32.band(j, 255)
 	local gi0 = perm[ii + perm[jj+1]+1] % 12
 	local gi1 = perm[ii + i1 + perm[jj + j1+1]+1] % 12
 	local gi2 = perm[ii + 1 + perm[jj + 1+1]+1] % 12
@@ -101,3 +102,5 @@ function simplex_2d(xin, yin,seed)
 	-- The result is scaled to return values in the interval [-1,1].
 	return 70.0 * (n0 + n1 + n2)
 end
+
+return Simplex

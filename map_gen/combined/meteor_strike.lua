@@ -43,7 +43,7 @@ local function init_blocks()
 end
 
 local function get_resource(x, y)
-    local value = perlin:noise(x / 16, y / 16)
+    local value = perlin.noise(x / 16, y / 16)
     value = value + 1
     value = value * 500
 
@@ -63,7 +63,7 @@ local function get_resource(x, y)
         return nil
     end
 
-    value = perlin:noise(y / 64, x / 64)
+    value = perlin.noise(y / 64, x / 64)
     value = value + 1
     value = value * 500
 
