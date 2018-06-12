@@ -10,7 +10,7 @@ require 'walk_distance'
 require 'follow'
 require 'autodeconstruct'
 require 'corpse_util'
-require 'infinite_storage_chest'
+--require 'infinite_storage_chest'
 require 'fish_market'
 require 'reactor_meltdown'
 require 'map_layout'
@@ -155,9 +155,5 @@ Event.add(
         local gui = player.gui
         gui.top.style = 'slot_table_spacing_horizontal_flow'
         gui.left.style = 'slot_table_spacing_vertical_flow'
-
-        --[[ player.insert {name = 'infinity-chest', count = 10}
-        player.insert {name = 'electric-energy-interface', count = 10}
-        player.cheat_mode = true ]]
     end
 )

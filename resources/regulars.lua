@@ -305,5 +305,16 @@ return {
     ['wadiyatalkinabeet'] = true,
     ['builder101'] = true,
     ['brftjx'] = true,
-    ['baronting'] = true
+    ['baronting'] = true,
+    ['Haribo112'] = true,
+    ['ZjosH'] = true,
+    ['NbITUK'] = true,
+    ['heardofsnails'] = true,
+    ['JinNJuice'] = true,
+    ['VERBUGA'] = true,
+    ['dmaonk'] = true,
+    ['Drlloyd1337'] = true,
+    ['rhobes'] = true,
+    ['cpenguinred'] = true,
+    ['SimonFlapse'] = true
 }
