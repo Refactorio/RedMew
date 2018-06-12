@@ -349,10 +349,10 @@ function run_swamp_river(params)
 
     for y = 0, 31, 1 do
         local pos_y = area.left_top.y + y
-        local noise_terrain_1 = perlin:noise(((pos_x + seed) / 150), ((pos_y + seed) / 150), 0)
-        local noise_terrain_2 = perlin:noise(((pos_x + seed) / 75), ((pos_y + seed) / 75), 0)
-        local noise_terrain_3 = perlin:noise(((pos_x + seed) / 50), ((pos_y + seed) / 50), 0)
-        local noise_terrain_4 = perlin:noise(((pos_x + seed) / 7), ((pos_y + seed) / 7), 0)
+        local noise_terrain_1 = perlin.noise(((pos_x + seed) / 150), ((pos_y + seed) / 150), 0)
+        local noise_terrain_2 = perlin.noise(((pos_x + seed) / 75), ((pos_y + seed) / 75), 0)
+        local noise_terrain_3 = perlin.noise(((pos_x + seed) / 50), ((pos_y + seed) / 50), 0)
+        local noise_terrain_4 = perlin.noise(((pos_x + seed) / 7), ((pos_y + seed) / 7), 0)
         local noise_terrain =
             noise_terrain_1 + (noise_terrain_2 * 0.2) + (noise_terrain_3 * 0.1) + (noise_terrain_4 * 0.02)
         local tile_to_insert

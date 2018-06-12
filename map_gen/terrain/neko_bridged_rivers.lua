@@ -1,4 +1,5 @@
 local perlin = require 'map_gen.shared.perlin_noise'
+local simplex = require 'map_gen.shared.simplex_noise'
 
 local tree_to_place = {'dry-tree', 'dry-hairy-tree', 'tree-06', 'tree-06', 'tree-01', 'tree-02', 'tree-03'}
 
@@ -45,20 +46,20 @@ function run_terrain_module(event)
             if tile.name ~= 'out-of-map' then
                 local tile_to_insert = 'grass-3'
 
-                local wiggle = 50 + perlin:noise((x * 0.005), (y * 0.005), global.terrain_seed_A + 71) * 60
-                local terrain_A = perlin:noise((x * 0.005), (y * 0.005), global.terrain_seed_A + 19) * wiggle --For determining where water is
+                local wiggle = 50 + perlin.noise((x * 0.005), (y * 0.005), global.terrain_seed_A + 71) * 60
+                local terrain_A = perlin.noise((x * 0.005), (y * 0.005), global.terrain_seed_A + 19) * wiggle --For determining where water is
                 local terrain_sqr = terrain_A * terrain_A --we can use this again to mess with other layers as well
-                local terrain_D = 10 + perlin:noise((x * 0.001), (y * 0.001), global.terrain_seed_A + 5) * wiggle --terrain layer
+                local terrain_D = 10 + perlin.noise((x * 0.001), (y * 0.001), global.terrain_seed_A + 5) * wiggle --terrain layer
 
-                --local wiggle = 50 + simplex_2d((x*0.005),(y*0.005),global.terrain_seed_A + 71) * 60
-                --local terrain_A = simplex_2d((x*0.005),(y*0.005),global.terrain_seed_A + 19) * wiggle	--For determining where water is
+                --local wiggle = 50 + Simplex.d2((x*0.005),(y*0.005),global.terrain_seed_A + 71) * 60
+                --local terrain_A = Simplex.d2((x*0.005),(y*0.005),global.terrain_seed_A + 19) * wiggle	--For determining where water is
                 --local terrain_sqr = terrain_A * terrain_A	--we can use this again to mess with other layers as well
-                --local terrain_D = 10 + simplex_2d((x*0.001),(y*0.001),global.terrain_seed_A + 5) * wiggle	--terrain layer
+                --local terrain_D = 10 + Simplex.d2((x*0.001),(y*0.001),global.terrain_seed_A + 5) * wiggle	--terrain layer
 
                 if terrain_sqr < 50 then --Main water areas
                     --local deep = (terrain_sqr < 20) and true or false
-                    terrain_A = perlin:noise((x * 0.01), (y * 0.01), global.terrain_seed_A + 31) * 90 + (wiggle * -0.2) --we only gen this when we consider placing water
-                    --terrain_A = simplex_2d((x*0.01),(y*0.01),global.terrain_seed_A + 31) * 90 + (wiggle * -0.2)	--we only gen this when we consider placing water
+                    terrain_A = perlin.noise((x * 0.01), (y * 0.01), global.terrain_seed_A + 31) * 90 + (wiggle * -0.2) --we only gen this when we consider placing water
+                    --terrain_A = Simplex.d2((x*0.01),(y*0.01),global.terrain_seed_A + 31) * 90 + (wiggle * -0.2)	--we only gen this when we consider placing water
 
                     if terrain_A * terrain_A > 40 then --creates random bridges over the water by overlapping with another noise layer
                         --table.insert(tileswater, {name = "water", position = {x,y}})
@@ -72,11 +73,11 @@ function run_terrain_module(event)
                         end
                     end
                 elseif terrain_sqr > 70 then
-                    wiggle = 100 + perlin:noise((x * 0.01), (y * 0.01), global.terrain_seed_B + 41) * 60
-                    local terrain_C = perlin:noise((x * 0.02), (y * 0.02), global.terrain_seed_A + 13) * wiggle --tree layer
+                    wiggle = 100 + perlin.noise((x * 0.01), (y * 0.01), global.terrain_seed_B + 41) * 60
+                    local terrain_C = perlin.noise((x * 0.02), (y * 0.02), global.terrain_seed_A + 13) * wiggle --tree layer
 
-                    --wiggle = 100 + simplex_2d((x*0.01),(y*0.01),global.terrain_seed_B + 41) * 60
-                    --local terrain_C = simplex_2d((x*0.02),(y*0.02),global.terrain_seed_A + 13) * wiggle	--tree layer
+                    --wiggle = 100 + Simplex.d2((x*0.01),(y*0.01),global.terrain_seed_B + 41) * 60
+                    --local terrain_C = Simplex.d2((x*0.02),(y*0.02),global.terrain_seed_A + 13) * wiggle	--tree layer
 
                     --if surface.can_place_entity {name="stone", position={x,y}} then
                     --	surface.create_entity {name="stone", position={x,y}, amount=math.floor(terrain_sqr)}
@@ -102,7 +103,7 @@ function run_terrain_module(event)
                     --	end
                     --end
 
-                    --wiggle = 100 + perlin:noise((pos_x*0.02),(pos_y*0.02),global.terrain_seed_B + 71) * 60
+                    --wiggle = 100 + perlin.noise((pos_x*0.02),(pos_y*0.02),global.terrain_seed_B + 71) * 60
 
                     if terrain_D < 20 then
                         if terrain_C < 4 then --we set grass-1 around near forest areas

@@ -28,58 +28,58 @@ return function(x, y, world)
     local seed_increment = 10000
 
     seed = seed + seed_increment
-    local noise_island_starting_1 = perlin:noise(((x + seed) / 30), ((y + seed) / 30), 0)
+    local noise_island_starting_1 = perlin.noise(((x + seed) / 30), ((y + seed) / 30), 0)
     seed = seed + seed_increment
-    local noise_island_starting_2 = perlin:noise(((x + seed) / 10), ((y + seed) / 10), 0)
+    local noise_island_starting_2 = perlin.noise(((x + seed) / 10), ((y + seed) / 10), 0)
     seed = seed + seed_increment
     local noise_island_starting = noise_island_starting_1 + (noise_island_starting_2 * 0.3)
     noise_island_starting = noise_island_starting * 8000
 
     seed = seed + seed_increment
-    local noise_island_iron_and_copper_1 = perlin:noise(((x + seed) / 300), ((y + seed) / 300), 0)
+    local noise_island_iron_and_copper_1 = perlin.noise(((x + seed) / 300), ((y + seed) / 300), 0)
     seed = seed + seed_increment
-    local noise_island_iron_and_copper_2 = perlin:noise(((x + seed) / 40), ((y + seed) / 40), 0)
+    local noise_island_iron_and_copper_2 = perlin.noise(((x + seed) / 40), ((y + seed) / 40), 0)
     seed = seed + seed_increment
-    local noise_island_iron_and_copper_3 = perlin:noise(((x + seed) / 10), ((y + seed) / 10), 0)
+    local noise_island_iron_and_copper_3 = perlin.noise(((x + seed) / 10), ((y + seed) / 10), 0)
     local noise_island_iron_and_copper =
         noise_island_iron_and_copper_1 + (noise_island_iron_and_copper_2 * 0.1) +
         (noise_island_iron_and_copper_3 * 0.05)
 
     seed = seed + seed_increment
-    local noise_island_stone_and_coal_1 = perlin:noise(((x + seed) / 300), ((y + seed) / 300), 0)
+    local noise_island_stone_and_coal_1 = perlin.noise(((x + seed) / 300), ((y + seed) / 300), 0)
     seed = seed + seed_increment
-    local noise_island_stone_and_coal_2 = perlin:noise(((x + seed) / 40), ((y + seed) / 40), 0)
+    local noise_island_stone_and_coal_2 = perlin.noise(((x + seed) / 40), ((y + seed) / 40), 0)
     seed = seed + seed_increment
-    local noise_island_stone_and_coal_3 = perlin:noise(((x + seed) / 10), ((y + seed) / 10), 0)
+    local noise_island_stone_and_coal_3 = perlin.noise(((x + seed) / 10), ((y + seed) / 10), 0)
     local noise_island_stone_and_coal =
         noise_island_stone_and_coal_1 + (noise_island_stone_and_coal_2 * 0.1) + (noise_island_stone_and_coal_3 * 0.05)
 
     seed = seed + seed_increment
-    local noise_island_oil_and_uranium_1 = perlin:noise(((x + seed) / 300), ((y + seed) / 300), 0)
+    local noise_island_oil_and_uranium_1 = perlin.noise(((x + seed) / 300), ((y + seed) / 300), 0)
     seed = seed + seed_increment
-    local noise_island_oil_and_uranium_2 = perlin:noise(((x + seed) / 40), ((y + seed) / 40), 0)
+    local noise_island_oil_and_uranium_2 = perlin.noise(((x + seed) / 40), ((y + seed) / 40), 0)
     seed = seed + seed_increment
-    local noise_island_oil_and_uranium_3 = perlin:noise(((x + seed) / 10), ((y + seed) / 10), 0)
+    local noise_island_oil_and_uranium_3 = perlin.noise(((x + seed) / 10), ((y + seed) / 10), 0)
     local noise_island_oil_and_uranium =
         noise_island_oil_and_uranium_1 + (noise_island_oil_and_uranium_2 * 0.1) +
         (noise_island_oil_and_uranium_3 * 0.05)
 
     seed = seed + seed_increment
-    local noise_island_resource = perlin:noise(((x + seed) / 60), ((y + seed) / 60), 0)
+    local noise_island_resource = perlin.noise(((x + seed) / 60), ((y + seed) / 60), 0)
     seed = seed + seed_increment
-    local noise_island_resource_2 = perlin:noise(((x + seed) / 10), ((y + seed) / 10), 0)
+    local noise_island_resource_2 = perlin.noise(((x + seed) / 10), ((y + seed) / 10), 0)
     noise_island_resource = noise_island_resource + noise_island_resource_2 * 0.15
 
     seed = seed + seed_increment
-    local noise_trees_1 = perlin:noise(((x + seed) / 30), ((y + seed) / 30), 0)
+    local noise_trees_1 = perlin.noise(((x + seed) / 30), ((y + seed) / 30), 0)
     seed = seed + seed_increment
-    local noise_trees_2 = perlin:noise(((x + seed) / 10), ((y + seed) / 10), 0)
+    local noise_trees_2 = perlin.noise(((x + seed) / 10), ((y + seed) / 10), 0)
     local noise_trees = noise_trees_1 + noise_trees_2 * 0.5
 
     seed = seed + seed_increment
-    local noise_decoratives_1 = perlin:noise(((x + seed) / 50), ((y + seed) / 50), 0)
+    local noise_decoratives_1 = perlin.noise(((x + seed) / 50), ((y + seed) / 50), 0)
     seed = seed + seed_increment
-    local noise_decoratives_2 = perlin:noise(((x + seed) / 10), ((y + seed) / 10), 0)
+    local noise_decoratives_2 = perlin.noise(((x + seed) / 10), ((y + seed) / 10), 0)
     local noise_decoratives = noise_decoratives_1 + noise_decoratives_2 * 0.5
 
     local tile_to_insert = 'water'
@@ -204,7 +204,7 @@ return function(x, y, world)
         local c = math.max(math.abs(world.x), math.abs(world.y))
 
         local resource_amount_distance_multiplicator = (((c + 1) / 75) / 75) + 1
-        local noise_resource_amount_modifier = perlin:noise(((world.x + seed) / 200), ((world.y + seed) / 200), 0)
+        local noise_resource_amount_modifier = perlin.noise(((world.x + seed) / 200), ((world.y + seed) / 200), 0)
         local resource_amount =
             1 + ((500 + (500 * noise_resource_amount_modifier * 0.2)) * resource_amount_distance_multiplicator)
 

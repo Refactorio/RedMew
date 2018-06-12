@@ -25,11 +25,11 @@ return function(x, y, world)
 
     local distance_bonus = 200 + math.sqrt(world.x * world.x + world.y * world.y) * 0.2
 
-    local wiggle = 100 + perlin:noise((x * 0.005), (y * 0.005), global.ores_seed_A + 41) * 60
-    local Ores_A = perlin:noise((x * 0.01), (y * 0.01), global.ores_seed_B + 57) * wiggle
+    local wiggle = 100 + perlin.noise((x * 0.005), (y * 0.005), global.ores_seed_A + 41) * 60
+    local Ores_A = perlin.noise((x * 0.01), (y * 0.01), global.ores_seed_B + 57) * wiggle
 
     if Ores_A > 35 then --we place ores
-        local Ores_B = perlin:noise((x * 0.02), (y * 0.02), global.ores_seed_B + 13) * wiggle
+        local Ores_B = perlin.noise((x * 0.02), (y * 0.02), global.ores_seed_B + 13) * wiggle
         local a = 5
         --
         if Ores_A < 76 then

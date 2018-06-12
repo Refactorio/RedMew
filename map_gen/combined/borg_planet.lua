@@ -385,15 +385,15 @@ function run_combined_module(event)
             local seed_increment_number = 10000
             local seed = global.perlin_noise_seed
 
-            local noise_borg_defense_1 = perlin:noise(((pos_x + seed) / 100), ((pos_y + seed) / 100), 0)
+            local noise_borg_defense_1 = perlin.noise(((pos_x + seed) / 100), ((pos_y + seed) / 100), 0)
             seed = seed + seed_increment_number
-            local noise_borg_defense_2 = perlin:noise(((pos_x + seed) / 20), ((pos_y + seed) / 20), 0)
+            local noise_borg_defense_2 = perlin.noise(((pos_x + seed) / 20), ((pos_y + seed) / 20), 0)
             seed = seed + seed_increment_number
             local noise_borg_defense = noise_borg_defense_1 + noise_borg_defense_2 * 0.15
 
-            local noise_trees_1 = perlin:noise(((pos_x + seed) / 50), ((pos_y + seed) / 50), 0)
+            local noise_trees_1 = perlin.noise(((pos_x + seed) / 50), ((pos_y + seed) / 50), 0)
             seed = seed + seed_increment_number
-            local noise_trees_2 = perlin:noise(((pos_x + seed) / 15), ((pos_y + seed) / 15), 0)
+            local noise_trees_2 = perlin.noise(((pos_x + seed) / 15), ((pos_y + seed) / 15), 0)
             seed = seed + seed_increment_number
             local noise_trees = noise_trees_1 + noise_trees_2 * 0.3
 
@@ -465,11 +465,11 @@ function run_combined_module(event)
                 end
             end
 
-            local noise_walls_1 = perlin:noise(((pos_x + seed) / 200), ((pos_y + seed) / 200), 0)
+            local noise_walls_1 = perlin.noise(((pos_x + seed) / 200), ((pos_y + seed) / 200), 0)
             seed = seed + seed_increment_number
-            local noise_walls_2 = perlin:noise(((pos_x + seed) / 100), ((pos_y + seed) / 100), 0)
+            local noise_walls_2 = perlin.noise(((pos_x + seed) / 100), ((pos_y + seed) / 100), 0)
             seed = seed + seed_increment_number
-            local noise_walls_3 = perlin:noise(((pos_x + seed) / 25), ((pos_y + seed) / 25), 0)
+            local noise_walls_3 = perlin.noise(((pos_x + seed) / 25), ((pos_y + seed) / 25), 0)
             seed = seed + seed_increment_number
             local noise_walls = noise_walls_1 + noise_walls_2 + noise_walls_3 * 0.05
 
