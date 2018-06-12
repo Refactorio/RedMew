@@ -1,13 +1,23 @@
 local b = require 'map_gen.shared.builders'
+local perlin = require 'map_gen.shared.perlin_noise'
+local Event = require "utils.event"
 
 local sand_width = 64
 local sand_width_inv = tau / sand_width
 
+--perlin options
+local noise_variance = 0.05 --The lower this number the smoother the curve is gonna be
+local noise_level = 25 --Factor for the magnitude of the curve
+
+Event.on_init(function()
+    global.beach_perlin_seed_A = math.random(1,10000)
+    global.beach_perlin_seed_B = math.random(1,10000)
+end)
+
+
 local function sand_shape(x, y)
-    local h = 6 * math.sin(0.9 * x * sand_width_inv)
-    h = h + 3 * math.sin(0.7 * x * sand_width_inv)
-    h = h + math.sin(0.33 * x * sand_width_inv)
-    return y < h
+    local wiggle = 1 + math.abs(perlin:noise((x * noise_variance), (y * noise_variance), global.beach_perlin_seed_A + 17) * noise_level / 50)
+    return y < perlin:noise(x * noise_variance / 2, y * noise_variance / 2, global.beach_perlin_seed_A) * noise_level * wiggle
 end
 
 sand_shape = b.change_tile(sand_shape, true, 'sand-1')
@@ -53,10 +63,8 @@ local water_width = 64
 local water_width_inv = tau / water_width
 
 local function water_shape(x, y)
-    local h = 6 * math.sin(1.1 * x * water_width_inv)
-    h = h + 3 * math.sin(0.74 * x * water_width_inv)
-    h = h + math.sin(0.3 * x * water_width_inv)
-    return y < h
+    local wiggle = 1 + math.abs(perlin:noise((x * noise_variance), (y * noise_variance), global.beach_perlin_seed_B + 17) * noise_level / 50)
+    return y < perlin:noise(x * noise_variance, y * noise_variance, global.beach_perlin_seed_B) * noise_level * wiggle
 end
 
 water_shape = b.change_tile(water_shape, true, 'water')
