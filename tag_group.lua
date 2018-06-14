@@ -219,7 +219,7 @@ local function draw_main_frame(player)
         name = notify_checkbox_name,
         caption = 'Notify me when tag groups change.',
         state = not no_notify_players[player.index],
-        tooltip = ''
+        tooltip = 'Receive a message when a player enters or leaves a tag group or when a tag group is created, edited or deleted'
     }
 
     local bottom_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
