@@ -57,7 +57,7 @@ for _, w in pairs(hodor_messages) do
     message_weight_sum = message_weight_sum + w[2]
 end
 
-global.naughty_words_enabled = true
+global.naughty_words_enabled = false
 global.naughty_words = {
     ['ass'] = true,
     ['bugger'] = true,
