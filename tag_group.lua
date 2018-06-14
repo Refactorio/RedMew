@@ -7,16 +7,26 @@ local deafult_verb = 'expanded'
 
 local tag_groups = require 'resources.tag_groups'
 local player_tags = {}
+local no_notify_players = {}
 
 Global.register(
-    {tag_groups = tag_groups, player_tags = player_tags},
+    {tag_groups = tag_groups, player_tags = player_tags, no_notify_players = no_notify_players},
     function(data)
         tag_groups = data.tag_groups
         player_tags = data.player_tags
+        no_notify_players = no_notify_players
     end
 )
 
-local function change_player_tag(player, tag_name)
+local function notify_players(message)
+    for _, p in ipairs(game.connected_players) do
+        if p.valid and not no_notify_players[p.index] then
+            p.print(message)
+        end
+    end
+end
+
+local function change_player_tag(player, tag_name, silent)
     local old_tag = player.tag
     if tag_name == '' and old_tag == '' then
         return false
@@ -36,11 +46,14 @@ local function change_player_tag(player, tag_name)
 
     if tag_name == '' then
         player.tag = ''
+        if not silent then
+            notify_players(player.name .. ' has left the ' .. old_tag .. ' squad')
+        end
         return true
     end
 
-    local band = tag_groups[tag_name]
-    if not band then
+    local tag_data = tag_groups[tag_name]
+    if not tag_data then
         return false
     end
 
@@ -54,10 +67,11 @@ local function change_player_tag(player, tag_name)
 
     player.tag = tag
 
-    local verb = band.verb or deafult_verb
+    local verb = tag_data.verb or deafult_verb
 
-    game.print(tag .. ' squad has `' .. verb .. '` with ' .. player.name)
-
+    if not silent then
+        notify_players(tag .. ' squad has `' .. verb .. '` with ' .. player.name)
+    end
     return true
 end
 
@@ -89,11 +103,12 @@ end
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 local main_frame_content_name = Gui.uid_name()
-local band_button_name = Gui.uid_name()
-local band_label_name = Gui.uid_name()
+local tag_button_name = Gui.uid_name()
+local tag_label_name = Gui.uid_name()
 local clear_button_name = Gui.uid_name()
 local create_tag_button_name = Gui.uid_name()
 local edit_tag_button_name = Gui.uid_name()
+local notify_checkbox_name = Gui.uid_name()
 
 local create_tag_frame_name = Gui.uid_name()
 local create_tag_choose_icon_name = Gui.uid_name()
@@ -117,40 +132,48 @@ end
 
 local function draw_main_frame_content(parent)
     local player = parent.gui.player
+    local grid = parent.add {type = 'table', column_count = 1}
+    grid.style.vertical_spacing = 0
 
-    for tag_name, band_data in pairs(tag_groups) do
+    for tag_name, tag_data in pairs(tag_groups) do
         local tag = '[' .. tag_name .. ']'
         local players = player_tags[tag]
 
         local size = get_size(players)
-        local path = band_data.path
-        local tooltip = tag_name
+        local path = tag_data.path
 
-        local row = parent.add {type = 'flow', direction = 'horizontal'}
-        row.style.top_padding = 0
-        row.style.bottom_padding = 0
+        local row = grid.add {type = 'table', column_count = 4}
+        row.style.horizontal_spacing = 0
 
-        if player.admin then
-            local delete_button =
-                row.add {type = 'sprite-button', name = edit_tag_button_name, sprite = 'utility/rename_icon_normal'}
-            delete_button.tooltip = 'Edit tag group'
-            delete_button.style.top_padding = 0
-            delete_button.style.bottom_padding = 0
-            delete_button.style.maximal_height = 32
-            Gui.set_data(delete_button, tag_name)
+        if player.admin or UserGroups.is_regular(player.name) then
+            local edit_button =
+                row.add {
+                type = 'sprite-button',
+                name = edit_tag_button_name,
+                sprite = 'utility/rename_icon_normal',
+                tooltip = 'Edit tag group'
+            }
+            edit_button.style.top_padding = 0
+            edit_button.style.bottom_padding = 0
+            edit_button.style.maximal_height = 32
+            Gui.set_data(edit_button, tag_name)
         end
 
-        local button = row.add {type = 'sprite-button', name = band_button_name, sprite = path}
-        button.tooltip = tooltip
-        button.style.top_padding = 0
-        button.style.bottom_padding = 0
-        button.style.maximal_height = 32
-        Gui.set_data(button, tag_name)
+        local tag_button =
+            row.add {
+            type = 'sprite-button',
+            name = tag_button_name,
+            sprite = path,
+            tooltip = tag_name
+        }
 
-        local role_label = row.add {type = 'label', name = band_label_name, caption = tag_name .. size}
-        role_label.style.top_padding = 4
-        role_label.style.minimal_width = 120
-        Gui.set_data(role_label, {tag_name = tag_name, path = path})
+        tag_button.style.maximal_height = 32
+        Gui.set_data(tag_button, tag_name)
+
+        local tag_label = row.add {type = 'label', name = tag_label_name, caption = tag_name .. size}
+        tag_label.style.left_padding = 4
+        tag_label.style.minimal_width = 120
+        Gui.set_data(tag_label, {tag_name = tag_name, path = path})
 
         local list = row.add {type = 'flow', direction = 'horizontal'}
 
@@ -191,17 +214,34 @@ local function draw_main_frame(player)
 
     draw_main_frame_content(scroll_pane)
 
-    local flow = main_frame.add {type = 'flow'}
-    flow.add {type = 'button', name = main_button_name, caption = 'Close'}
-    flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
+    main_frame.add {
+        type = 'checkbox',
+        name = notify_checkbox_name,
+        caption = 'Notify me when tag groups change.',
+        state = not no_notify_players[player.index],
+        tooltip = ''
+    }
+
+    local bottom_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
+
+    local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
+    left_flow.style.align = 'left'
+    left_flow.style.horizontally_stretchable = true
+
+    left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
+
+    local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
+    right_flow.style.align = 'right'
+
+    right_flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
 
     if player.admin or UserGroups.is_regular(player.name) then
-        flow.add {type = 'button', name = create_tag_button_name, caption = 'Create Tag'}
+        right_flow.add {type = 'button', name = create_tag_button_name, caption = 'Create Tag'}
     end
 end
 
 local function redraw_main_frame()
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.players) do
         local main_frame = p.gui.left[main_frame_name]
         if main_frame and main_frame.valid then
             local content = main_frame[main_frame_content_name]
@@ -209,7 +249,9 @@ local function redraw_main_frame()
             Gui.remove_data_recursivly(content)
             content.clear()
 
-            draw_main_frame_content(content)
+            if p.connected then
+                draw_main_frame_content(content)
+            end
         end
     end
 end
@@ -217,7 +259,7 @@ end
 local function redraw_main_button(player, path)
     local main_button = player.gui.top[main_button_name]
 
-    if path == '' then
+    if path == '' or path == nil then
         main_button.sprite = 'utility/pump_cannot_connect_icon'
         main_button.caption = 'tag'
     else
@@ -261,6 +303,10 @@ local function draw_create_tag_frame(event, tag_data)
 
         if path and path ~= '' then
             spirte_type, path = path:match('([^/]+)/([^/]+)')
+            if spirte_type == 'virtual-signal' then
+                spirte_type = 'signal'
+                path = {type = 'virtual', name = path}
+            end
         else
             spirte_type = choices[1]
             path = nil
@@ -276,7 +322,8 @@ local function draw_create_tag_frame(event, tag_data)
         confirm_caption = 'Create'
     end
 
-    local center = event.player.gui.center
+    local player = event.player
+    local center = player.gui.center
 
     local frame = center[create_tag_frame_name]
     if frame then
@@ -332,47 +379,46 @@ local function draw_create_tag_frame(event, tag_data)
 
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
-    local left_flow = bottom_flow.add{type = 'flow', direction = 'horizontal'}
+    local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
     left_flow.style.align = 'left'
+    left_flow.style.horizontally_stretchable = true
 
-    local right_flow = bottom_flow.add{type = 'flow', direction = 'horizontal'}
-    right_flow.style.horizontally_stretchable  = true
-    right_flow.style.align = 'right'
-
-    local confirm_button = left_flow.add {type = 'button', name = confirm_create_tag_name, caption = confirm_caption}
-    Gui.set_data(confirm_button, frame)
-
-    Gui.set_data(
-        frame,
-        {
-            focus = focus,
-            choose = choose,
-            icons_flow = icons_flow,
-            name = name_field,
-            verb = verb_field,
-            tag_data = tag_data
-        }
-    )
-
-    if tag_data then
-        left_flow.add {type = 'button', name = delete_tag_name, caption = 'Delete'}
-    end
-
-    local close_button = right_flow.add {type = 'button', name = close_create_tag_name, caption = 'Close'}
+    local close_button = left_flow.add {type = 'button', name = close_create_tag_name, caption = 'Close'}
     Gui.set_data(close_button, frame)
 
-    event.player.opened = frame
+    local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
+    right_flow.style.align = 'right'
+
+    if tag_data then
+        local delete_button = right_flow.add {type = 'button', name = delete_tag_name, caption = 'Delete'}
+        Gui.set_data(delete_button, frame)
+    end
+
+    local confirm_button = right_flow.add {type = 'button', name = confirm_create_tag_name, caption = confirm_caption}
+    Gui.set_data(confirm_button, frame)
+
+    local data = {
+        focus = focus,
+        choose = choose,
+        icons_flow = icons_flow,
+        name = name_field,
+        verb = verb_field,
+        tag_data = tag_data
+    }
+    Gui.set_data(frame, data)
+
+    player.opened = frame
 end
 
 Gui.on_click(main_button_name, toggle)
 
 Gui.on_click(
-    band_button_name,
+    tag_button_name,
     function(event)
-        local tag = Gui.get_data(event.element)
+        local tag_name = Gui.get_data(event.element)
         local path = event.element.sprite
 
-        if change_player_tag(event.player, tag) then
+        if change_player_tag(event.player, tag_name) then
             redraw_main_frame()
             redraw_main_button(event.player, path)
         end
@@ -380,23 +426,29 @@ Gui.on_click(
 )
 
 Gui.on_click(
-    band_label_name,
+    tag_label_name,
     function(event)
         local data = Gui.get_data(event.element)
-        local tag = data.band_name
+        local tag_name = data.tag_name
         local path = data.path
 
-        if change_player_tag(event.player, tag) then
+        if change_player_tag(event.player, tag_name) then
             redraw_main_frame()
             redraw_main_button(event.player, path)
         end
     end
 )
 
---[[ Gui.on_click(
-    edit_tag_button_name,
+Gui.on_click(
+    delete_tag_name,
     function(event)
-        local tag_name = Gui.get_data(event.element)
+        local frame = Gui.get_data(event.element)
+        local data = Gui.get_data(frame)
+        local tag_data = data.tag_data
+        local tag_name = tag_data.name
+
+        Gui.remove_data_recursivly(frame)
+        frame.destroy()
 
         if not tag_groups[tag_name] then
             event.player.print("Sorry, Tag name '" .. tag_name .. "' not found.")
@@ -406,7 +458,7 @@ Gui.on_click(
         local tag = '[' .. tag_name .. ']'
 
         for _, player in pairs(game.players) do
-            if player.tag == tag then
+            if player.valid and player.tag == tag then
                 change_player_tag(player, '')
 
                 if player.connected then
@@ -419,9 +471,10 @@ Gui.on_click(
 
         redraw_main_frame()
 
-        game.print(event.player.name .. ' has deleted the ' .. tag_name .. ' tag group')
+        notify_players(event.player.name .. ' has deleted the ' .. tag_name .. ' tag group')
     end
-) ]]
+)
+
 Gui.on_click(
     edit_tag_button_name,
     function(event)
@@ -436,6 +489,23 @@ Gui.on_click(
         tag_data.name = tag_name
 
         draw_create_tag_frame(event, tag_data)
+    end
+)
+
+Gui.on_click(
+    notify_checkbox_name,
+    function(event)
+        local player_index = event.player_index
+        local checkbox = event.element
+
+        local new_state
+        if checkbox.state then
+            new_state = nil
+        else
+            new_state = true
+        end
+
+        no_notify_players[player_index] = new_state
     end
 )
 
@@ -483,16 +553,17 @@ Gui.on_click(
         local player = event.player
         local frame = Gui.get_data(event.element)
         local data = Gui.get_data(frame)
+        local old_tag_data = data.tag_data
 
-        local name = data.name.text
+        local tag_name = data.name.text
 
-        if name == '' then
+        if tag_name == '' then
             player.print('Sorry, the tag needs a name')
             return
         end
 
-        if tag_groups[name] then
-            player.print('Sorry, tag ' .. data.name .. ' is already in use.')
+        if not old_tag_data and tag_groups[tag_name] then
+            player.print('Sorry, tag ' .. tag_name .. ' is already in use.')
             return
         end
 
@@ -518,20 +589,48 @@ Gui.on_click(
             verb = deafult_verb
         end
 
-        local band_role = {
-            path = path,
-            verb = verb,
-            tooltip = name
-        }
-
-        tag_groups[name] = band_role
-
-        redraw_main_frame()
-
         Gui.remove_data_recursivly(frame)
         frame.destroy()
 
-        game.print(player.name .. ' has made a new tag group called ' .. name)
+        local tag_data = {
+            path = path,
+            verb = verb
+        }
+        tag_groups[tag_name] = tag_data
+
+        local message
+        if old_tag_data then
+            local old_name = old_tag_data.name
+            if old_name == tag_name and old_tag_data.path == path and old_tag_data.verb == verb then
+                return
+            end
+
+            if old_name ~= tag_name then
+                message = player.name .. ' has edited the ' .. tag_name .. ' (formerly ' .. old_name .. ') tag group'
+
+                local old_tag = '[' .. old_name .. ']'
+
+                for _, p in pairs(game.players) do
+                    if p.valid and p.tag == old_tag then
+                        change_player_tag(p, tag_name, true)
+
+                        if p.connected then
+                            redraw_main_button(player, '')
+                        end
+                    end
+                end
+
+                tag_groups[old_name] = nil
+            else
+                message = player.name .. ' has edited the ' .. tag_name .. ' tag group'
+            end
+        else
+            message = player.name .. ' has made a new tag group called ' .. tag_name
+        end
+
+        redraw_main_frame()
+
+        notify_players(message)
     end
 )
 
@@ -600,4 +699,4 @@ local function tag_command(cmd)
     end
 end
 
-commands.add_command('tag', '<player> <tag> Sets a players tag. (Admins only)', tag_command)
+commands.add_command('tag', "<player> <tag> Sets a player's tag. (Admins only)", tag_command)
