@@ -14,7 +14,7 @@ Global.register(
     function(data)
         tag_groups = data.tag_groups
         player_tags = data.player_tags
-        no_notify_players = no_notify_players
+        no_notify_players = data.no_notify_players
     end
 )
 
