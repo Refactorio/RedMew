@@ -28,11 +28,11 @@ And this is what you ought to know:
 - Please be nice and don't grief. Or else.. ;)
 - Admins: Don't abuse. Don't fight other Admins.
 - Don't argue with other players for silly things.
-- No political, racist, or misogynistic content.
+- No political, racist, or hateful content.
 - If you suspect you desync, restart the game.
 - Join our growing community on redmew.com/discord
-- Contribute to our Hookers & Blow Fund with:
-  Bitcoin: 18PferSFbkwsYai8sLnWKzrr8YXQ1bBqNg
+- Contribute to our server fund at:
+  Patreon: redmew.com/patreon
   Paypal: paypal.me/jsuesse
 ]===]
 
