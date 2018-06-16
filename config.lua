@@ -1,4 +1,4 @@
-_DEBUG = true
+_DEBUG = false
 
 global.scenario = {}
 global.spys = {"valansch", "air20"}

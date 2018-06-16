@@ -57,10 +57,10 @@ return {
     {price = {{'raw-fish', 350}}, offer = {type = 'give-item', item = 'personal-laser-defense-equipment'}},
     {price = {{'raw-fish', 1}}, offer = {type = 'give-item', item = 'refined-hazard-concrete'}},
 
-    {price = {{'raw-fish', 5}}, offer = {type = 'give-item', item = 'science-pack-1'}},
+    --[[ {price = {{'raw-fish', 5}}, offer = {type = 'give-item', item = 'science-pack-1'}},
     {price = {{'raw-fish', 10}}, offer = {type = 'give-item', item = 'science-pack-2'}},
     {price = {{'raw-fish', 15}}, offer = {type = 'give-item', item = 'science-pack-3'}},
     {price = {{'raw-fish', 15}}, offer = {type = 'give-item', item = 'military-science-pack'}},
     {price = {{'raw-fish', 20}}, offer = {type = 'give-item', item = 'production-science-pack'}},
-    {price = {{'raw-fish', 25}}, offer = {type = 'give-item', item = 'high-tech-science-pack'}},
+    {price = {{'raw-fish', 25}}, offer = {type = 'give-item', item = 'high-tech-science-pack'}}, ]]
 }
