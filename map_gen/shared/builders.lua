@@ -483,6 +483,38 @@ function Builders.project(shape, size, r)
     end
 end
 
+function Builders.project_pattern(pattern, size, r, columns, rows)
+    local ln_r = math.log(r)
+    local r2 = 1 / (r - 1)
+    local a = 1 / size
+    local half_size = size / 2
+
+    return function(x, y, world)
+        local offset = 0.5 * size
+        local sn = math.ceil(y + offset)
+
+        local n = math.ceil(math.log((r - 1) * sn * a + 1) / ln_r - 1)
+        local rn = r ^ n
+        local rn2 = 1 / rn
+        local c = size * rn
+
+        local sn_upper = size * (r ^ (n + 1) - 1) * r2
+        x = x * rn2
+        y = (y - (sn_upper - 0.5 * c) + offset) * rn2
+
+        local row_i = n % rows + 1
+        local row = pattern[row_i]
+
+        local x2 = ((x + half_size) % size) - half_size
+        local col_pos = math.floor(x / size + 0.5)
+        local col_i = col_pos % columns + 1
+
+        local shape = row[col_i]
+
+        return shape(x2, y, world)
+    end
+end
+
 function Builders.project_overlap(shape, size, r)
     local ln_r = math.log(r)
     local r2 = 1 / (r - 1)

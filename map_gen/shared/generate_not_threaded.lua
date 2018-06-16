@@ -90,7 +90,7 @@ local function do_place_entities(data)
             local entity = surface.create_entity(e)
             if entity and e.callback then
                 local callback = Token.get(e.callback)
-                callback(entity)
+                callback(entity, e.data)
             end
         end
     end
