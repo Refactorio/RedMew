@@ -65,6 +65,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.square_spiral"
 --shape = require "map_gen.presets.beach"
 --shape = require "map_gen.presets.factory"
+shape = require "map_gen.presets.bermuda_triangle"
 --shape = require "map_gen.presets.test"
 
 --shapes--
@@ -133,6 +134,6 @@ if shape then
 		['nauvis'] = shape,
 	}
 
-    require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-	--require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
+    --require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
+	require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end

@@ -145,14 +145,14 @@ local function pre_player_mined_item(event)
 end
 
 local entity_drop_amount = {
-    ['small-biter'] = {low = -62, high = 1},
+ --[[['small-biter'] = {low = -62, high = 1},
     ['small-spitter'] = {low = -62, high = 1},
     ['medium-biter'] = {low = -14, high = 1},
     ['medium-spitter'] = {low = -14, high = 1},
     ['big-biter'] = {low = -2, high = 1},
     ['big-spitter'] = {low = -2, high = 1},
     ['behemoth-biter'] = {low = 1, high = 1},
-    ['behemoth-spitter'] = {low = 1, high = 1},
+    ['behemoth-spitter'] = {low = 1, high = 1}, ]]
     ['biter-spawner'] = {low = 5, high = 15},
     ['spitter-spawner'] = {low = 5, high = 15},
     ['small-worm-turret'] = {low = 2, high = 8},
