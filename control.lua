@@ -19,7 +19,7 @@ require 'bot'
 require 'info'
 require 'player_list'
 require 'poll'
-require 'band'
+require 'tag_group'
 require 'tasklist'
 require 'blueprint_helper'
 require 'paint'
@@ -137,7 +137,6 @@ end
 
 Event.add(defines.events.on_player_created, player_joined)
 Event.add(defines.events.on_console_chat, hodor)
-
 Event.add(
     defines.events.on_player_joined_game,
     function(event)
@@ -154,6 +153,6 @@ Event.add(
 
         local gui = player.gui
         gui.top.style = 'slot_table_spacing_horizontal_flow'
-        gui.left.style = 'slot_table_spacing_vertical_flow'
+        gui.left.style = 'slot_table_spacing_vertical_flow'      
     end
 )
