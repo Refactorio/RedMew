@@ -2,11 +2,25 @@ local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Token = require 'utils.global_token'
+local Global = require 'utils.global'
+
+local generator
+
+Global.register_init(
+    {},
+    function(tbl)
+        tbl.generator = game.create_random_generator()
+    end,
+    function(tbl)
+        generator = tbl.generator
+    end
+)
 
 -- change these to change the pattern.
 local seed1 = 6000
 local seed2 = 12000
 local perlin_seed = 420420
+local loot_seed = 7
 
 local function square(x, y)
     return x > 0 and y > 0
@@ -184,9 +198,11 @@ end
 local callback =
     Token.register(
     function(entity, data)
-        local count = math.random(3, 8)
+        local power = data.power
+        generator.re_seed(data.seed)
+        local count = generator(3, 8)
         for _ = 1, count do
-            local i = math.random() ^ data * t
+            local i = generator() ^ power * t
 
             local index = table.binary_search(total_weights, i)
             if (index < 0) then
@@ -202,7 +218,9 @@ local callback =
 
 local loot_power = 500
 local function loot(x, y)
-    if math.random(4096) ~= 1 then
+    local seed = bit32.band(x * 374761393 + y * 668265263 + loot_seed, 4294967295)
+    generator.re_seed(seed)
+    if generator(4096) ~= 1 then
         return nil
     end
 
@@ -219,7 +237,12 @@ local function loot(x, y)
     end
 
     -- neutral stops the biters attacking them.
-    local entity = {name = name, force = 'neutral', callback = callback, data = loot_power / d}
+    local entity = {
+        name = name,
+        force = 'neutral',
+        callback = callback,
+        data = {power = loot_power / d, seed = generator(4294967295)}
+    }
 
     return entity
 end
@@ -277,9 +300,9 @@ local function enemy(x, y, world)
     end
 end
 
-map = b.apply_entity(map, ore_shape)
+--map = b.apply_entity(map, ore_shape)
 map = b.apply_entity(map, loot)
-map = b.apply_entity(map, enemy)
+--map = b.apply_entity(map, enemy)
 
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 

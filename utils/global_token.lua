@@ -30,6 +30,10 @@ function Token.get_global(token_id)
     return global.tokens[token_id]
 end
 
+function Token.set_global(token_id, var)
+    global.tokens[token_id] = var
+end
+
 local uid_counter = 0
 
 function Token.uid()
