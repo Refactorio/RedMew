@@ -31,8 +31,8 @@ And this is what you ought to know:
 - No political, racist, or hateful content.
 - If you suspect you desync, restart the game.
 - Join our growing community on redmew.com/discord
-- Contribute to our server fund at:
-  Patreon: redmew.com/patreon
+- Contribute to our hooker and blow fund at:
+  Patreon: patreon.com/redmew
   Paypal: paypal.me/jsuesse
 ]===]
 
