@@ -17,9 +17,9 @@ Global.register_init(
 )
 
 -- change these to change the pattern.
-local seed1 = 6000
-local seed2 = 12000
-local perlin_seed = 420420
+local ore_seed1 = 6000
+local ore_seed2 = 12000
+local enemy_seed = 420420
 local loot_seed = 7
 
 local function square(x, y)
@@ -83,7 +83,7 @@ local ores = {
     {transform = empty_transform, weight = 100}
 }
 
-local random = Random.new(seed1, seed2)
+local random = Random.new(ore_seed1, ore_seed2)
 
 local total_weights = {}
 local t = 0
@@ -266,7 +266,7 @@ local function enemy(x, y, world)
     threshold = math.max(threshold, -0.125)
 
     x, y = x * sf, y * sf
-    if Perlin.noise(x, y, perlin_seed) > threshold then
+    if Perlin.noise(x, y, enemy_seed) > threshold then
         if math.random(8) == 1 then
             local lvl
             if d < 400 then
@@ -300,9 +300,9 @@ local function enemy(x, y, world)
     end
 end
 
---map = b.apply_entity(map, ore_shape)
+map = b.apply_entity(map, ore_shape)
 map = b.apply_entity(map, loot)
---map = b.apply_entity(map, enemy)
+map = b.apply_entity(map, enemy)
 
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 
