@@ -78,7 +78,11 @@ local custom_commands_return_player =
         end
 
         global.walking[player.index] = false
-        player.character.destroy()
+
+        local walkabout_character = player.character
+        if walkabout_character and walkabout_character.valid then
+            walkabout_character.destroy()
+        end
 
         local character = args.character
         if character ~= nil and character.valid then

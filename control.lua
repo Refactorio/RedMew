@@ -114,6 +114,13 @@ local function hodor(event)
         end
     end
 
+    -- player_index is nil if the message came from the server,
+    -- and indexing game.players with nil is apparently an error.
+    local player_index = event.player_index
+    if not player_index then
+        return
+    end
+
     local player = game.players[event.player_index]
     if not player or not player.valid then
         return
