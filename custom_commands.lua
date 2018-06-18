@@ -137,6 +137,11 @@ local function walkabout(cmd)
     local pos = {x = chunk.x * 32, y = chunk.y * 32}
     local non_colliding_pos = surface.find_non_colliding_position('player', pos, 100, 1)
 
+    local character = player.character
+    if character and character.valid then
+        character.walking_state = {walking = false}
+    end
+
     if non_colliding_pos then
         game.print(player_name .. ' went on a walkabout, to find himself.')
         Task.set_timeout(
@@ -146,7 +151,7 @@ local function walkabout(cmd)
                 player = player,
                 force = player.force,
                 position = {x = player.position.x, y = player.position.y},
-                character = player.character
+                character = character
             }
         )
         player.character = nil
