@@ -71,7 +71,13 @@ local function popup(cmd)
         return
     end
 
-    local message = cmd.parameter:gsub('\\n', '\n')
+    local message = cmd.parameter
+    if not message then
+        player_print('Usage: /popup <message>')
+        return
+    end
+
+    message = message:gsub('\\n', '\n')
 
     for _, p in ipairs(game.connected_players) do
         show_popup(p, message)
