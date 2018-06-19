@@ -33,11 +33,14 @@ local notify_checkbox_name = Gui.uid_name()
 
 local poll_view_back_name = Gui.uid_name()
 local poll_view_forward_name = Gui.uid_name()
+local poll_view_edit_name = Gui.uid_name()
 local poll_view_vote_name = Gui.uid_name()
 
 local create_poll_frame_name = Gui.uid_name()
 local create_poll_label_name = Gui.uid_name()
 local create_poll_textfield_name = Gui.uid_name()
+local create_poll_add_answer_name = Gui.uid_name()
+local create_poll_delete_answer_name = Gui.uid_name()
 local create_poll_close_name = Gui.uid_name()
 local create_poll_clear_name = Gui.uid_name()
 local create_poll_confirm_name = Gui.uid_name()
@@ -204,6 +207,28 @@ local function add_answer_field(data)
     Gui.set_data(textfield, data)
 end
 
+local function draw_create_poll_content(data)
+    local grid = scroll_pane.add {type = 'table', column_count = 2}
+
+    local question_label =
+        grid.add({type = 'flow'}).add {type = 'label', name = create_poll_label_name, caption = 'Question:'}
+    local question_textfield = grid.add({type = 'flow'}).add {type = 'textfield'}
+    question_textfield.style.width = 200
+
+    Gui.set_data(question_label, question_textfield)
+
+    local data = {
+        frame = frame,
+        grid = grid,
+        question = question_textfield,
+        answers = {}
+    }
+
+    for _ = 1, 3 do
+        add_answer_field(data)
+    end
+end
+
 local function draw_create_poll_frame(event)
     local left = event.player.gui.left
 
@@ -214,19 +239,10 @@ local function draw_create_poll_frame(event)
     else
         frame = left.add {type = 'frame', name = create_poll_frame_name, caption = 'New Poll', direction = 'vertical'}
 
-        local scroll_pane = frame.add {type = 'scroll-pane', direction = 'vertical', vertical_scroll_policy = 'always'}
-        scroll_pane.style.maximal_height = 400
-        scroll_pane.style.maximal_width = 300
-
-        local grid = scroll_pane.add {type = 'table', column_count = 2}
-        --grid.style.horizontally_stretchable = true
-
-        local question_label =
-            grid.add({type = 'flow'}).add {type = 'label', name = create_poll_label_name, caption = 'Question:'}
-        local question_textfield = grid.add({type = 'flow'}).add {type = 'textfield'}
-        question_textfield.style.width = 200
-
-        Gui.set_data(question_label, question_textfield)
+        local create_poll_content =
+            frame.add {type = 'scroll-pane', direction = 'vertical', vertical_scroll_policy = 'always'}
+        create_poll_content.style.maximal_height = 400
+        create_poll_content.style.maximal_width = 300
 
         local data = {
             frame = frame,
@@ -234,10 +250,6 @@ local function draw_create_poll_frame(event)
             question = question_textfield,
             answers = {}
         }
-
-        for _ = 1, 30 do
-            add_answer_field(data)
-        end
 
         local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
@@ -342,15 +354,15 @@ local function vote(event)
 
     local voters = poll.voters
 
-    local previous_vote = voters[player_index]
-    if previous_vote and previous_vote == vote_index then
+    local previous_vote_index = voters[player_index]
+    if previous_vote_index == vote_index then
         return
     end
 
     local answers = poll.answers
 
-    if previous_vote then
-        local answer_data = answers[previous_vote]
+    if previous_vote_index then
+        local answer_data = answers[previous_vote_index]
         answer_data.voted_count = answer_data.voted_count - 1
     end
 
