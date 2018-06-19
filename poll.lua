@@ -3,6 +3,9 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local UserGroup = require 'user_groups'
 
+local normal_color = {r = 1, g = 1, b = 1}
+local focus_color = {r = 1, g = 0.55, b = 0.1}
+
 local polls = {}
 local no_notify_players = {}
 local player_poll_data = {}
@@ -65,19 +68,26 @@ local function redraw_poll_viewer_content(data)
         return
     end
 
-	local question_label = poll_viewer_content.add {type = 'label', caption = poll.question}
-	
+    local question_label = poll_viewer_content.add {type = 'label', caption = poll.question}
+    question_label.style.height = 32
+    question_label.style.font_color = focus_color
+    question_label.style.font = 'default-listbox'
 
     local grid = poll_viewer_content.add {type = 'table', column_count = 2}
 
     local vote_buttons = {}
     for i, a in ipairs(poll.answers) do
-        local label = grid.add {type = 'label', caption = a.text}
-        label.style.horizontally_stretchable = true
         local vote_button =
             grid.add({type = 'flow'}).add {type = 'button', name = poll_view_vote_name, caption = a.voted_count}
+        vote_button.style.height = 24
+        vote_button.style.font = 'default-small'
+        vote_button.style.top_padding = 0
+        vote_button.style.bottom_padding = 0
         Gui.set_data(vote_button, {vote_index = i, data = data})
         vote_buttons[i] = vote_button
+
+        local label = grid.add {type = 'label', caption = a.text}
+        label.style.height = 24
     end
 
     data.vote_buttons = vote_buttons
@@ -113,8 +123,8 @@ local function draw_main_frame(left, player)
     local poll_index_label = poll_viewer_top_flow.add {type = 'label'}
 
     local poll_viewer_content = frame.add {type = 'scroll-pane'}
-    poll_viewer_content.style.maximal_height = 500
-    poll_viewer_content.style.maximal_width = 400
+    poll_viewer_content.style.maximal_height = 400
+    poll_viewer_content.style.width = 300
 
     local poll_index = player_poll_index[player.index] or #polls
 
@@ -186,7 +196,7 @@ local function add_answer_field(data)
         caption = 'Answer #' .. count .. ':'
     }
     local textfield = grid.add({type = 'flow'}).add {type = 'textfield', name = create_poll_textfield_name}
-    textfield.style.width = 600
+    textfield.style.width = 200
 
     Gui.set_data(label, textfield)
     answers[count] = textfield
@@ -205,16 +215,16 @@ local function draw_create_poll_frame(event)
         frame = left.add {type = 'frame', name = create_poll_frame_name, caption = 'New Poll', direction = 'vertical'}
 
         local scroll_pane = frame.add {type = 'scroll-pane', direction = 'vertical', vertical_scroll_policy = 'always'}
-        scroll_pane.style.maximal_height = 500
-        scroll_pane.style.maximal_width = 400
+        scroll_pane.style.maximal_height = 400
+        scroll_pane.style.maximal_width = 300
 
         local grid = scroll_pane.add {type = 'table', column_count = 2}
-        grid.style.horizontally_stretchable = true
+        --grid.style.horizontally_stretchable = true
 
         local question_label =
             grid.add({type = 'flow'}).add {type = 'label', name = create_poll_label_name, caption = 'Question:'}
         local question_textfield = grid.add({type = 'flow'}).add {type = 'textfield'}
-        question_textfield.style.width = 600
+        question_textfield.style.width = 200
 
         Gui.set_data(question_label, question_textfield)
 
@@ -225,7 +235,7 @@ local function draw_create_poll_frame(event)
             answers = {}
         }
 
-        for _ = 1, 3 do
+        for _ = 1, 30 do
             add_answer_field(data)
         end
 
