@@ -38,7 +38,8 @@ local poll_view_vote_name = Gui.uid_name()
 
 local create_poll_frame_name = Gui.uid_name()
 local create_poll_label_name = Gui.uid_name()
-local create_poll_textfield_name = Gui.uid_name()
+local create_poll_question_name = Gui.uid_name()
+local create_poll_answer_name = Gui.uid_name()
 local create_poll_add_answer_name = Gui.uid_name()
 local create_poll_delete_answer_name = Gui.uid_name()
 local create_poll_close_name = Gui.uid_name()
@@ -71,6 +72,28 @@ local function redraw_poll_viewer_content(data)
         return
     end
 
+    local answers = poll.answers
+    local voters = poll.voters
+
+    local tooltips = {}
+    for i = 1, #answers do
+        tooltips[i] = {}
+    end
+
+    for player_index, vote_index in pairs(voters) do
+        local player = game.players[player_index]
+        table.insert(tooltips[vote_index], player.name)
+    end
+
+    for i = 1, #tooltips do
+        local t = tooltips[i]
+        if #t == 0 then
+            tooltips[i] = ''
+        else
+            tooltips[i] = table.concat(t, ', ')
+        end
+    end
+
     local question_label = poll_viewer_content.add {type = 'label', caption = poll.question}
     question_label.style.height = 32
     question_label.style.font_color = focus_color
@@ -79,9 +102,15 @@ local function redraw_poll_viewer_content(data)
     local grid = poll_viewer_content.add {type = 'table', column_count = 2}
 
     local vote_buttons = {}
-    for i, a in ipairs(poll.answers) do
+    for i, a in ipairs(answers) do
         local vote_button =
             grid.add({type = 'flow'}).add {type = 'button', name = poll_view_vote_name, caption = a.voted_count}
+
+        local tooltip = tooltips[i]
+        if tooltip ~= '' then
+            vote_button.tooltip = tooltip
+        end
+
         vote_button.style.height = 24
         vote_button.style.font = 'default-small'
         vote_button.style.top_padding = 0
@@ -187,89 +216,111 @@ local function toggle(event)
     end
 end
 
-local function add_answer_field(data)
+local function redraw_create_poll_content(data)
     local grid = data.grid
     local answers = data.answers
-    local count = #answers + 1
 
-    local label =
-        grid.add({type = 'flow'}).add {
-        type = 'label',
-        name = create_poll_label_name,
-        caption = 'Answer #' .. count .. ':'
-    }
-    local textfield = grid.add({type = 'flow'}).add {type = 'textfield', name = create_poll_textfield_name}
-    textfield.style.width = 200
+    Gui.remove_data_recursivly(grid)
+    grid.clear()
 
-    Gui.set_data(label, textfield)
-    answers[count] = textfield
-
-    Gui.set_data(textfield, data)
-end
-
-local function draw_create_poll_content(data)
-    local grid = scroll_pane.add {type = 'table', column_count = 2}
-
+    grid.add {type = 'flow'}
     local question_label =
         grid.add({type = 'flow'}).add {type = 'label', name = create_poll_label_name, caption = 'Question:'}
-    local question_textfield = grid.add({type = 'flow'}).add {type = 'textfield'}
+
+    local question_textfield =
+        grid.add({type = 'flow'}).add {type = 'textfield', name = create_poll_question_name, text = data.question}
     question_textfield.style.width = 200
 
     Gui.set_data(question_label, question_textfield)
+    Gui.set_data(question_textfield, data)
+
+    for count, text in ipairs(answers) do
+        local delete_flow = grid.add {type = 'flow'}
+
+        local delete_button
+        if count ~= 1 then
+            delete_button =
+                delete_flow.add {
+                type = 'sprite-button',
+                name = create_poll_delete_answer_name,
+                sprite = 'utility/remove',
+                tooltip = 'Delete answer field.'
+            }
+            delete_button.style.height = 26
+            delete_button.style.width = 26
+        end
+
+        local label_flow = grid.add {type = 'flow'}
+        local label =
+            label_flow.add {
+            type = 'label',
+            name = create_poll_label_name,
+            caption = 'Answer #' .. count .. ':'
+        }
+
+        local textfield_flow = grid.add {type = 'flow'}
+
+        local textfield = textfield_flow.add {type = 'textfield', name = create_poll_answer_name, text = text}
+        textfield.style.width = 200
+        Gui.set_data(textfield, {answers = answers, count = count})
+
+        if delete_button then
+            Gui.set_data(delete_button, {data = data, count = count})
+        end
+
+        Gui.set_data(label, textfield)
+    end
+end
+
+local function draw_create_poll_frame(parent, previous_data)
+    local question
+    local answers
+    if previous_data then
+        question = previous_data.question
+        answers = previous_data.answers
+    end
+    question = question or ''
+    answers = answers or {'', '', ''}
+
+    local frame =
+        parent.add {type = 'frame', name = create_poll_frame_name, caption = 'New Poll', direction = 'vertical'}
+
+    local scroll_pane = frame.add {type = 'scroll-pane', vertical_scroll_policy = 'always'}
+    scroll_pane.style.maximal_height = 400
+    scroll_pane.style.maximal_width = 300
+
+    local grid = scroll_pane.add {type = 'table', column_count = 3}
 
     local data = {
         frame = frame,
         grid = grid,
-        question = question_textfield,
-        answers = {}
+        question = question,
+        answers = answers
     }
 
-    for _ = 1, 3 do
-        add_answer_field(data)
-    end
-end
+    redraw_create_poll_content(data)
 
-local function draw_create_poll_frame(event)
-    local left = event.player.gui.left
+    local add_answer_button =
+        scroll_pane.add {type = 'button', name = create_poll_add_answer_name, caption = 'Add Answer'}
+    Gui.set_data(add_answer_button, data)
 
-    local frame = left[create_poll_frame_name]
-    if frame and frame.valid then
-        Gui.remove_data_recursivly(frame)
-        frame.destroy()
-    else
-        frame = left.add {type = 'frame', name = create_poll_frame_name, caption = 'New Poll', direction = 'vertical'}
+    local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
-        local create_poll_content =
-            frame.add {type = 'scroll-pane', direction = 'vertical', vertical_scroll_policy = 'always'}
-        create_poll_content.style.maximal_height = 400
-        create_poll_content.style.maximal_width = 300
+    local left_flow = bottom_flow.add {type = 'flow'}
+    left_flow.style.align = 'left'
+    left_flow.style.horizontally_stretchable = true
 
-        local data = {
-            frame = frame,
-            grid = grid,
-            question = question_textfield,
-            answers = {}
-        }
+    local close_button = left_flow.add {type = 'button', name = create_poll_close_name, caption = 'Close'}
+    Gui.set_data(close_button, frame)
 
-        local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
+    local clear_button = left_flow.add {type = 'button', name = create_poll_clear_name, caption = 'Clear'}
+    Gui.set_data(clear_button, data)
 
-        local left_flow = bottom_flow.add {type = 'flow'}
-        left_flow.style.align = 'left'
-        left_flow.style.horizontally_stretchable = true
+    local right_flow = bottom_flow.add {type = 'flow'}
+    right_flow.style.align = 'right'
 
-        local close_button = left_flow.add {type = 'button', name = create_poll_close_name, caption = 'Close'}
-        Gui.set_data(close_button, frame)
-
-        local clear_button = left_flow.add {type = 'button', name = create_poll_clear_name, caption = 'Clear'}
-        Gui.set_data(clear_button, data)
-
-        local right_flow = bottom_flow.add {type = 'flow'}
-        right_flow.style.align = 'right'
-
-        local confirm_button =
-            right_flow.add {type = 'button', name = create_poll_confirm_name, caption = 'Create Poll'}
-        Gui.set_data(confirm_button, data)
-    end
+    local confirm_button = right_flow.add {type = 'button', name = create_poll_confirm_name, caption = 'Create Poll'}
+    Gui.set_data(confirm_button, data)
 end
 
 local function show_new_poll(poll_index)
@@ -290,7 +341,7 @@ local function create_poll(event)
     local data = Gui.get_data(event.element)
 
     local frame = data.frame
-    local question = data.question.text
+    local question = data.question
 
     if not question:find('%S') then
         event.player.print('Sorry, the poll needs a question.')
@@ -299,9 +350,8 @@ local function create_poll(event)
 
     local answers = {}
     for _, a in ipairs(data.answers) do
-        local s = a.text
-        if s:find('%S') then
-            table.insert(answers, {text = s, voted_count = 0})
+        if a:find('%S') then
+            table.insert(answers, {text = a, voted_count = 0})
         end
     end
 
@@ -377,13 +427,66 @@ Event.add(defines.events.on_player_joined_game, player_joined)
 
 Gui.on_click(main_button_name, toggle)
 
-Gui.on_click(create_poll_button_name, draw_create_poll_frame)
+Gui.on_click(
+    create_poll_button_name,
+    function(event)
+        local left = event.player.gui.left
+        local frame = left[create_poll_frame_name]
+        if frame and frame.valid then
+            Gui.remove_data_recursivly(frame)
+            frame.destroy()
+        else
+            draw_create_poll_frame(left)
+        end
+    end
+)
+
+Gui.on_click(
+    create_poll_delete_answer_name,
+    function(event)
+        local button_data = Gui.get_data(event.element)
+        local data = button_data.data
+
+        table.remove(data.answers, button_data.count)
+        redraw_create_poll_content(data)
+    end
+)
 
 Gui.on_click(
     create_poll_label_name,
     function(event)
         local textfield = Gui.get_data(event.element)
         textfield.focus()
+    end
+)
+
+Gui.on_text_changed(
+    create_poll_question_name,
+    function(event)
+        local textfield = event.element
+        local data = Gui.get_data(textfield)
+
+        data.question = textfield.text
+    end
+)
+
+Gui.on_text_changed(
+    create_poll_answer_name,
+    function(event)
+        local textfield = event.element
+        local data = Gui.get_data(textfield)
+
+        data.answers[data.count] = textfield.text
+    end
+)
+
+Gui.on_click(
+    create_poll_add_answer_name,
+    function(event)
+        local data = Gui.get_data(event.element)
+
+        table.insert(data.answers, '')
+        redraw_create_poll_content(data)
     end
 )
 
@@ -403,11 +506,13 @@ Gui.on_click(
     function(event)
         local data = Gui.get_data(event.element)
 
-        data.question.text = ''
-
-        for _, answer in ipairs(data.answers) do
-            answer.text = ''
+        data.question = ''
+        local answers = data.answers
+        for i = 1, #answers do
+            answers[i] = ''
         end
+
+        redraw_create_poll_content(data)
     end
 )
 
