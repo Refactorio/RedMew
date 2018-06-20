@@ -6,6 +6,7 @@ local Gui = {}
 global.Gui_data = {}
 
 local click_handlers
+local text_changed_handlers
 local close_handlers
 
 function Gui.uid_name()
@@ -78,8 +79,41 @@ function Gui.on_click(element_name, handler)
     click_handlers[element_name] = handler
 end
 
+local function on_text_changed(event)
+    local element = event.element
+    if not element or not element.valid then
+        return
+    end
+
+    local player = game.players[event.player_index]
+    if not player or not player.valid then
+        return
+    end
+    event.player = player
+
+    local handler = text_changed_handlers[element.name]
+    if not handler then
+        return
+    end
+
+    handler(event)
+end
+
+-- Register a handler for the on_gui_text_changed event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+function Gui.on_text_changed(element_name, handler)
+    if not text_changed_handlers then
+        text_changed_handlers = {}
+        Event.add(defines.events.on_gui_text_changed, on_text_changed)
+    end
+
+    text_changed_handlers[element_name] = handler
+end
+
 local function on_close(event)
-    -- element is only set on the envent for custom gui elements.
+    -- element is only set on the event for custom gui elements.
     local element = event.element
     if not element or not element.valid then
         return
