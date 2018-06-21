@@ -4,6 +4,9 @@ local Event = require 'utils.event'
 local UserGroup = require 'user_groups'
 
 local default_poll_duration = 300 * 60
+local duration_step = 5
+local tick_duration_step = duration_step * 60
+local inv_tick_duration_step = 1 / tick_duration_step
 
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
@@ -315,12 +318,12 @@ local function update_duration(slider)
 
     value = math.floor(value)
 
-    slider_data.data.duration = value * 60
+    slider_data.data.duration = value * tick_duration_step
 
     if value == 0 then
         label.caption = 'Endless Poll.'
     else
-        label.caption = value .. ' seconds.'
+        label.caption = value * duration_step .. ' seconds.'
     end
 end
 
@@ -344,12 +347,12 @@ local function redraw_create_poll_content(data)
         type = 'slider',
         name = create_poll_duration_name,
         minimum_value = 0,
-        maximum_value = 3600,
-        value = math.ceil(data.duration / 60)
+        maximum_value = 720,
+        value = math.floor(data.duration * inv_tick_duration_step)
     }
     duration_slider.style.width = 100
 
-    local duration_label = duration_flow.add {type = 'label', caption = '300 seconds'}
+    local duration_label = duration_flow.add {type = 'label'}
 
     Gui.set_data(duration_slider, {duration_label = duration_label, data = data})
 
