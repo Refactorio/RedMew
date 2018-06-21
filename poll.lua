@@ -53,7 +53,9 @@ local create_poll_add_answer_name = Gui.uid_name()
 local create_poll_delete_answer_name = Gui.uid_name()
 local create_poll_close_name = Gui.uid_name()
 local create_poll_clear_name = Gui.uid_name()
+local create_poll_edit_name = Gui.uid_name()
 local create_poll_confirm_name = Gui.uid_name()
+local create_poll_delete_name = Gui.uid_name()
 
 local function poll_id()
     local count = polls_counter[1] + 1
@@ -369,7 +371,7 @@ local function redraw_create_poll_content(data)
     Gui.set_data(question_label, question_textfield)
     Gui.set_data(question_textfield, data)
 
-    for count, text in ipairs(answers) do
+    for count, answer in ipairs(answers) do
         local delete_flow = grid.add {type = 'flow'}
 
         local delete_button
@@ -398,7 +400,7 @@ local function redraw_create_poll_content(data)
 
         local textfield_flow = grid.add {type = 'flow'}
 
-        local textfield = textfield_flow.add {type = 'textfield', name = create_poll_answer_name, text = text}
+        local textfield = textfield_flow.add {type = 'textfield', name = create_poll_answer_name, text = answer.text}
         textfield.style.width = 200
         Gui.set_data(textfield, {answers = answers, count = count})
 
@@ -414,17 +416,34 @@ local function draw_create_poll_frame(parent, previous_data)
     local question
     local answers
     local duration
+    local title_text
+    local confirm_text
+    local confirm_name
     if previous_data then
         question = previous_data.question
-        answers = previous_data.answers
+
+        answers = {}
+        for i, a in ipairs(previous_data.answers) do
+            answers[i] = {text = a.text, source = a}
+        end
+
         duration = previous_data.duration
+
+        title_text = 'Edit Poll'
+        confirm_text = 'Edit Poll'
+        confirm_name = create_poll_edit_name
+    else
+        question = ''
+        answers = {{text = ''}, {text = ''}, {text = ''}}
+        duration = default_poll_duration
+
+        title_text = 'New Poll'
+        confirm_text = 'Create Poll'
+        confirm_name = create_poll_confirm_name
     end
-    question = question or ''
-    answers = answers or {'', '', ''}
-    duration = duration or default_poll_duration
 
     local frame =
-        parent.add {type = 'frame', name = create_poll_frame_name, caption = 'New Poll', direction = 'vertical'}
+        parent.add {type = 'frame', name = create_poll_frame_name, caption = title_text, direction = 'vertical'}
 
     local scroll_pane = frame.add {type = 'scroll-pane', vertical_scroll_policy = 'always'}
     scroll_pane.style.maximal_height = 250
@@ -437,7 +456,8 @@ local function draw_create_poll_frame(parent, previous_data)
         grid = grid,
         question = question,
         answers = answers,
-        duration = duration
+        duration = duration,
+        previous_data = previous_data
     }
 
     redraw_create_poll_content(data)
@@ -461,7 +481,12 @@ local function draw_create_poll_frame(parent, previous_data)
     local right_flow = bottom_flow.add {type = 'flow'}
     right_flow.style.align = 'right'
 
-    local confirm_button = right_flow.add {type = 'button', name = create_poll_confirm_name, caption = 'Create Poll'}
+    if previous_data then
+        local delete_button = right_flow.add {type = 'button', name = create_poll_delete_name, caption = 'Delete'}
+        Gui.set_data(delete_button, data)
+    end
+
+    local confirm_button = right_flow.add {type = 'button', name = confirm_name, caption = confirm_text}
     Gui.set_data(confirm_button, data)
 end
 
@@ -470,7 +495,9 @@ local function show_new_poll(poll_data)
         local left = p.gui.left
         local frame = left[main_frame_name]
         if not no_notify_players[p.index] then
-            p.print(poll_data.created_by.name .. ' has created a new Poll: ' .. poll_data.question)
+            p.print(
+                poll_data.created_by.name .. ' has created a new Poll #' .. poll_data.id .. ': ' .. poll_data.question
+            )
 
             if frame and frame.valid then
                 local data = Gui.get_data(frame)
@@ -501,8 +528,9 @@ local function create_poll(event)
 
     local answers = {}
     for _, a in ipairs(data.answers) do
-        if a:find('%S') then
-            table.insert(answers, {text = a, voted_count = 0})
+        local text = a.text
+        if text:find('%S') then
+            table.insert(answers, {text = text, voted_count = 0})
         end
     end
 
@@ -663,6 +691,25 @@ Gui.on_click(
     end
 )
 
+Gui.on_click(
+    poll_view_edit_name,
+    function(event)
+        local left = event.player.gui.left
+        local frame = left[create_poll_frame_name]
+
+        if frame and frame.valid then
+            Gui.remove_data_recursivly(frame)
+            frame.destroy()
+        end
+
+        local main_frame = left[main_frame_name]
+        local frame_data = Gui.get_data(main_frame)
+        local poll = polls[frame_data.poll_index]
+
+        draw_create_poll_frame(left, poll)
+    end
+)
+
 Gui.on_value_changed(
     create_poll_duration_name,
     function(event)
@@ -705,7 +752,7 @@ Gui.on_text_changed(
         local textfield = event.element
         local data = Gui.get_data(textfield)
 
-        data.answers[data.count] = textfield.text
+        data.answers[data.count].text = textfield.text
     end
 )
 
@@ -714,7 +761,7 @@ Gui.on_click(
     function(event)
         local data = Gui.get_data(event.element)
 
-        table.insert(data.answers, '')
+        table.insert(data.answers, {text = ''})
         redraw_create_poll_content(data)
     end
 )
@@ -738,7 +785,7 @@ Gui.on_click(
         data.question = ''
         local answers = data.answers
         for i = 1, #answers do
-            answers[i] = ''
+            answers[i].text = ''
         end
 
         redraw_create_poll_content(data)
@@ -746,6 +793,118 @@ Gui.on_click(
 )
 
 Gui.on_click(create_poll_confirm_name, create_poll)
+
+Gui.on_click(
+    create_poll_delete_name,
+    function(event)
+        local data = Gui.get_data(event.element)
+        local frame = data.frame
+        local poll = data.previous_data
+
+        Gui.remove_data_recursivly(frame)
+        frame.destroy()
+
+        local removed_index
+        for i, p in ipairs(polls) do
+            if p == poll then
+                table.remove(polls, i)
+                removed_index = i
+                break
+            end
+        end
+
+        if not removed_index then
+            return
+        end
+
+        local message = event.player.name .. ' has deleted Poll #' .. poll.id .. ': ' .. poll.question
+
+        for _, p in ipairs(game.connected_players) do
+            if not no_notify_players[p.index] then
+                p.print(message)
+            end
+
+            local main_frame = p.gui.left[main_frame_name]
+            if main_frame and main_frame.valid then
+                local main_frame_data = Gui.get_data(main_frame)
+                local poll_index = main_frame_data.poll_index
+
+                if removed_index >= poll_index then
+                    main_frame_data.poll_index = poll_index - 1
+                end
+
+                update_poll_viewer(main_frame_data)
+            end
+        end
+    end
+)
+
+Gui.on_click(
+    create_poll_edit_name,
+    function(event)
+        local player = event.player
+        local data = Gui.get_data(event.element)
+        local frame = data.frame
+        local poll = data.previous_data
+
+        local new_question = data.question
+        if not new_question:find('%S') then
+            player.print('Sorry, the poll needs a question.')
+            return
+        end
+
+        local new_answer_set = {}
+        for i, a in ipairs(data.answers) do
+            if a.text:find('%S') then
+                new_answer_set[a.source] = i
+            end
+        end
+
+        if not next(new_answer_set) then
+            player.print('Sorry, the poll needs at least one answer.')
+            return
+        end
+
+        poll.question = new_question
+
+        Gui.remove_data_recursivly(frame)
+        frame.destroy()
+
+        local deleted_answers = {}
+        for i, a in ipairs(poll.answers) do
+            if not new_answer_set[a] then
+                deleted_answers[i] = true
+            end
+        end
+
+        local offset = 0
+
+        local old_answers = poll.answers
+        local new_answers = {}
+        for i, a in ipairs(data.answers) do
+            local text = a.text
+            if text:find('%S') then
+                table.insert(new_answers, a.source)
+            else
+            end
+        end
+
+        poll.edited_by[event.player_index] = true
+        local message = event.player.name .. ' has edited Poll #' .. poll.id .. ': ' .. poll.question
+
+        for _, p in ipairs(game.connected_players) do
+            if not no_notify_players[p.index] then
+                p.print(message)
+            end
+
+            local main_frame = p.gui.left[main_frame_name]
+            if main_frame and main_frame.valid then
+                local main_frame_data = Gui.get_data(main_frame)
+                update_poll_viewer(main_frame_data)
+            end
+        end
+    end
+)
 
 Gui.on_click(
     notify_checkbox_name,
