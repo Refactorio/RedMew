@@ -3,6 +3,8 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local UserGroup = require 'user_groups'
 
+local default_poll_duration = 300 * 60
+
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
 
@@ -40,6 +42,7 @@ local poll_view_vote_name = Gui.uid_name()
 local poll_view_edit_name = Gui.uid_name()
 
 local create_poll_frame_name = Gui.uid_name()
+local create_poll_duration_name = Gui.uid_name()
 local create_poll_label_name = Gui.uid_name()
 local create_poll_question_name = Gui.uid_name()
 local create_poll_answer_name = Gui.uid_name()
@@ -55,42 +58,21 @@ local function poll_id()
     return count
 end
 
-local function player_joined(event)
-    local player = game.players[event.player_index]
-    if not player or not player.valid then
-        return
-    end
-
-    if player.gui.top[main_button_name] ~= nil then
-        return
-    end
-
-    player.gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'item/programmable-speaker'}
-end
-
-local function set_remaining_time(data)
-    local remaining_time_label = data.remaining_time_label
-    if not remaining_time_label then
-        return
-    end
-
-    local poll = polls[data.poll_index]
-    if not poll then
-        return
-    end
-
+local function do_remaining_time(poll, remaining_time_label)
     local end_tick = poll.end_tick
     if end_tick == -1 then
-        remaining_time_label.caption = 'Endless Poll'
+        remaining_time_label.caption = 'Endless Poll.'
+        return true
+    end
+
+    local ticks = end_tick - game.tick
+    if ticks < 0 then
+        remaining_time_label.caption = 'Poll Finished.'
+        return false
     else
-        local start_tick = poll.start_tick
-        local ticks = end_tick - start_tick
-        if ticks <= 0 then
-            remaining_time_label.caption = 'Poll Finished'
-        else
-            local time = ticks / 60
-            remaining_time_label.caption = 'Remaining Time: ' .. time
-        end
+        local time = math.ceil(ticks / 60)
+        remaining_time_label.caption = 'Remaining Time: ' .. time
+        return true
     end
 end
 
@@ -140,12 +122,12 @@ local function redraw_poll_viewer_content(data)
     end
 
     local top_flow = poll_viewer_content.add {type = 'flow', direction = 'horizontal'}
-
     top_flow.add {type = 'label', caption = 'Poll #' .. poll.id .. created_by_text}
-    local remaining_time_label = top_flow.add {type = 'label'}
+
+    local remaining_time_label = poll_viewer_content.add {type = 'label'}
     data.remaining_time_label = remaining_time_label
 
-    set_remaining_time(data)
+    local poll_enabled = do_remaining_time(poll, remaining_time_label)
 
     local question_flow = poll_viewer_content.add {type = 'table', column_count = 2}
 
@@ -174,7 +156,12 @@ local function redraw_poll_viewer_content(data)
     local vote_buttons = {}
     for i, a in ipairs(answers) do
         local vote_button =
-            grid.add({type = 'flow'}).add {type = 'button', name = poll_view_vote_name, caption = a.voted_count}
+            grid.add({type = 'flow'}).add {
+            type = 'button',
+            name = poll_view_vote_name,
+            caption = a.voted_count,
+            enabled = poll_enabled
+        }
 
         local tooltip = tooltips[i]
         if tooltip ~= '' then
@@ -277,7 +264,7 @@ local function draw_main_frame(left, player)
         name = notify_checkbox_name,
         caption = 'Notify me about polls.',
         state = not no_notify_players[player.index],
-        tooltip = 'Receive a message when new polls are created.'
+        tooltip = 'Receive a message when new polls are created and popup the poll.'
     }
 
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
@@ -293,6 +280,13 @@ local function draw_main_frame(left, player)
 
     if player.admin or UserGroup.is_regular(player.name) then
         right_flow.add {type = 'button', name = create_poll_button_name, caption = 'Create Poll'}
+    else
+        right_flow.add {
+            type = 'button',
+            caption = 'Create Poll',
+            enabled = false,
+            tooltip = 'Sorry, you need to be a regular to create polls.'
+        }
     end
 end
 
@@ -314,6 +308,22 @@ local function toggle(event)
     end
 end
 
+local function update_duration(slider)
+    local slider_data = Gui.get_data(slider)
+    local label = slider_data.duration_label
+    local value = slider.slider_value
+
+    value = math.floor(value)
+
+    slider_data.data.duration = value * 60
+
+    if value == 0 then
+        label.caption = 'Endless Poll.'
+    else
+        label.caption = value .. ' seconds.'
+    end
+end
+
 local function redraw_create_poll_content(data)
     local grid = data.grid
     local answers = data.answers
@@ -322,12 +332,36 @@ local function redraw_create_poll_content(data)
     grid.clear()
 
     grid.add {type = 'flow'}
+    grid.add {
+        type = 'label',
+        caption = 'Duration:',
+        tooltip = 'Pro tip: Use mouse wheel or arrow keys for more fine control.'
+    }
+
+    local duration_flow = grid.add {type = 'flow', direction = 'horizontal'}
+    local duration_slider =
+        duration_flow.add {
+        type = 'slider',
+        name = create_poll_duration_name,
+        minimum_value = 0,
+        maximum_value = 3600,
+        value = math.ceil(data.duration / 60)
+    }
+    duration_slider.style.width = 100
+
+    local duration_label = duration_flow.add {type = 'label', caption = '300 seconds'}
+
+    Gui.set_data(duration_slider, {duration_label = duration_label, data = data})
+
+    update_duration(duration_slider)
+
+    grid.add {type = 'flow'}
     local question_label =
         grid.add({type = 'flow'}).add {type = 'label', name = create_poll_label_name, caption = 'Question:'}
 
     local question_textfield =
         grid.add({type = 'flow'}).add {type = 'textfield', name = create_poll_question_name, text = data.question}
-    question_textfield.style.width = 200
+    question_textfield.style.width = 180
 
     Gui.set_data(question_label, question_textfield)
     Gui.set_data(question_textfield, data)
@@ -376,12 +410,15 @@ end
 local function draw_create_poll_frame(parent, previous_data)
     local question
     local answers
+    local duration
     if previous_data then
         question = previous_data.question
         answers = previous_data.answers
+        duration = previous_data.duration
     end
     question = question or ''
     answers = answers or {'', '', ''}
+    duration = duration or default_poll_duration
 
     local frame =
         parent.add {type = 'frame', name = create_poll_frame_name, caption = 'New Poll', direction = 'vertical'}
@@ -396,7 +433,8 @@ local function draw_create_poll_frame(parent, previous_data)
         frame = frame,
         grid = grid,
         question = question,
-        answers = answers
+        answers = answers,
+        duration = duration
     }
 
     redraw_create_poll_content(data)
@@ -424,14 +462,23 @@ local function draw_create_poll_frame(parent, previous_data)
     Gui.set_data(confirm_button, data)
 end
 
-local function show_new_poll(poll_index)
+local function show_new_poll(poll_data)
     for _, p in ipairs(game.connected_players) do
-        if p.valid then
-            local frame = p.gui.left[main_frame_name]
+        local left = p.gui.left
+        local frame = left[main_frame_name]
+        if not no_notify_players[p.index] then
+            p.print(poll_data.created_by.name .. ' has created a new Poll: ' .. poll_data.question)
+
             if frame and frame.valid then
                 local data = Gui.get_data(frame)
-                data.poll_index = poll_index
-
+                data.poll_index = #polls
+                update_poll_viewer(data)
+            else
+                draw_main_frame(left, p)
+            end
+        else
+            if frame and frame.valid then
+                local data = Gui.get_data(frame)
                 update_poll_viewer(data)
             end
         end
@@ -462,37 +509,33 @@ local function create_poll(event)
     end
 
     local tick = game.tick
-    local duration = 3 * 60 * 60
+    local duration = data.duration
+    local end_tick
+
+    if duration == 0 then
+        end_tick = -1
+    else
+        end_tick = tick + duration
+    end
+
     local poll_data = {
         id = poll_id(),
         question = question,
         answers = answers,
         voters = {},
         start_tick = tick,
-        end_tick = tick + duration,
+        end_tick = end_tick,
+        duration = duration,
         created_by = event.player,
         edited_by = {}
     }
 
     table.insert(polls, poll_data)
 
-    show_new_poll(#polls)
+    show_new_poll(poll_data)
 
     Gui.remove_data_recursivly(frame)
     frame.destroy()
-end
-
-local function update_votes(poll_index)
-    for _, p in ipairs(game.connected_players) do
-        local frame = p.gui.left[main_frame_name]
-        if frame and frame.valid then
-            local data = Gui.get_data(frame)
-
-            if data.poll_index == poll_index then
-                redraw_poll_viewer_content(data)
-            end
-        end
-    end
 end
 
 local function update_vote(answers, voters, vote_index, direction)
@@ -561,7 +604,45 @@ local function vote(event)
     end
 end
 
+local function player_joined(event)
+    local player = game.players[event.player_index]
+    if not player or not player.valid then
+        return
+    end
+
+    local gui = player.gui
+    if gui.top[main_button_name] ~= nil then
+        local frame = gui.left[main_frame_name]
+        if frame and frame.valid then
+            local data = Gui.get_data(frame)
+            update_poll_viewer(data)
+        end
+    else
+        gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'item/programmable-speaker'}
+    end
+end
+
+local function tick()
+    for _, p in ipairs(game.connected_players) do
+        local frame = p.gui.left[main_frame_name]
+        if frame and frame.valid then
+            local data = Gui.get_data(frame)
+            local poll = polls[data.poll_index]
+            if poll then
+                local poll_enabled = do_remaining_time(poll, data.remaining_time_label)
+
+                if not poll_enabled then
+                    for _, v in ipairs(data.vote_buttons) do
+                        v.enabled = poll_enabled
+                    end
+                end
+            end
+        end
+    end
+end
+
 Event.add(defines.events.on_player_joined_game, player_joined)
+Event.on_nth_tick(60, tick)
 
 Gui.on_click(main_button_name, toggle)
 
@@ -576,6 +657,13 @@ Gui.on_click(
         else
             draw_create_poll_frame(left)
         end
+    end
+)
+
+Gui.on_value_changed(
+    create_poll_duration_name,
+    function(event)
+        update_duration(event.element)
     end
 )
 
@@ -673,36 +761,57 @@ Gui.on_click(
     end
 )
 
-local function get_direction_count(event)
+local function do_direction(event, sign)
+    local count
     if event.shift then
-        return 1000000
+        count = 1000000
+    else
+        local button = event.button
+        if button == defines.mouse_button_type.right then
+            count = 5
+        else
+            count = 1
+        end
     end
 
-    local button = event.button
-    game.print(button)
-    if button == defines.mouse_button_type.right then
-        return 5
-    else
-        return 1
-    end
+    count = count * sign
+
+    local data = Gui.get_data(event.element)
+    data.poll_index = data.poll_index + count
+    update_poll_viewer(data)
 end
 
 Gui.on_click(
     poll_view_back_name,
     function(event)
-        local data = Gui.get_data(event.element)
-        data.poll_index = data.poll_index - get_direction_count(event)
-        update_poll_viewer(data)
+        do_direction(event, -1)
     end
 )
 
 Gui.on_click(
     poll_view_forward_name,
     function(event)
-        local data = Gui.get_data(event.element)
-        data.poll_index = data.poll_index + get_direction_count(event)
-        update_poll_viewer(data)
+        do_direction(event, 1)
     end
 )
 
 Gui.on_click(poll_view_vote_name, vote)
+
+--[[ function poll()
+    local duration = 60 * 60
+    local poll_data = {
+        id = poll_id(),
+        question = 'question',
+        answers = {{text = 'a1', voted_count = 0}, {text = 'a2', voted_count = 0}, {text = 'a3', voted_count = 0}},
+        voters = {},
+        start_tick = game.tick,
+        end_tick = game.tick + duration,
+        duration = duration,
+        created_by = game.player,
+        edited_by = {}
+    }
+
+    table.insert(polls, poll_data)
+
+    show_new_poll(poll_data)
+end ]]
