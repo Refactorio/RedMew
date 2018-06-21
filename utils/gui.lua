@@ -5,10 +5,6 @@ local Gui = {}
 
 global.Gui_data = {}
 
-local click_handlers
-local text_changed_handlers
-local close_handlers
-
 function Gui.uid_name()
     if _DEBUG then
         -- https://stackoverflow.com/questions/48402876/getting-current-file-name-in-lua
@@ -46,104 +42,79 @@ function Gui.remove_data_recursivly(element)
     end
 end
 
-local function on_click(event)
-    local element = event.element
-    if not element or not element.valid then
-        return
+local function handler_factory(event_id)
+    local handlers
+
+    local function on_event(event)
+        local element = event.element
+        if not element or not element.valid then
+            return
+        end
+
+        local handler = handlers[element.name]
+        if not handler then
+            return
+        end
+
+        local player = game.players[event.player_index]
+        if not player or not player.valid then
+            return
+        end
+        event.player = player
+
+        handler(event)
     end
 
-    local player = game.players[event.player_index]
-    if not player or not player.valid then
-        return
-    end
-    event.player = player
+    return function(element_name, handler)
+        if not handlers then
+            handlers = {}
+            Event.add(event_id, on_event)
+        end
 
-    local handler = click_handlers[element.name]
-    if not handler then
-        return
+        handlers[element_name] = handler
     end
-
-    handler(event)
 end
+
+-- Register a handler for the on_gui_checked_state_changed event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_checked_state_changed = handler_factory(defines.events.on_gui_checked_state_changed)
 
 -- Register a handler for the on_gui_click event for LuaGuiElements with element_name.
 -- Can only have one handler per element name.
 -- Guarantees that the element and the player are valid when calling the handler.
 -- Adds a player field to the event table.
-function Gui.on_click(element_name, handler)
-    if not click_handlers then
-        click_handlers = {}
-        Event.add(defines.events.on_gui_click, on_click)
-    end
-
-    click_handlers[element_name] = handler
-end
-
-local function on_text_changed(event)
-    local element = event.element
-    if not element or not element.valid then
-        return
-    end
-
-    local player = game.players[event.player_index]
-    if not player or not player.valid then
-        return
-    end
-    event.player = player
-
-    local handler = text_changed_handlers[element.name]
-    if not handler then
-        return
-    end
-
-    handler(event)
-end
-
--- Register a handler for the on_gui_text_changed event for LuaGuiElements with element_name.
--- Can only have one handler per element name.
--- Guarantees that the element and the player are valid when calling the handler.
--- Adds a player field to the event table.
-function Gui.on_text_changed(element_name, handler)
-    if not text_changed_handlers then
-        text_changed_handlers = {}
-        Event.add(defines.events.on_gui_text_changed, on_text_changed)
-    end
-
-    text_changed_handlers[element_name] = handler
-end
-
-local function on_close(event)
-    -- element is only set on the event for custom gui elements.
-    local element = event.element
-    if not element or not element.valid then
-        return
-    end
-
-    local player = game.players[event.player_index]
-    if not player or not player.valid then
-        return
-    end
-    event.player = player
-
-    local handler = close_handlers[element.name]
-    if not handler then
-        return
-    end
-
-    handler(event)
-end
+Gui.on_click = handler_factory(defines.events.on_gui_click)
 
 -- Register a handler for the on_gui_closed event for a custom LuaGuiElements with element_name.
 -- Can only have one handler per element name.
 -- Guarantees that the element and the player are valid when calling the handler.
 -- Adds a player field to the event table.
-function Gui.on_custom_close(element_name, handler)
-    if not close_handlers then
-        close_handlers = {}
-        Event.add(defines.events.on_gui_closed, on_close)
-    end
+Gui.on_custom_close = handler_factory(defines.events.on_gui_closed)
 
-    close_handlers[element_name] = handler
-end
+-- Register a handler for the on_gui_elem_changed event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_elem_changed = handler_factory(defines.events.on_gui_elem_changed)
+
+-- Register a handler for the on_gui_selection_state_changed event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_selection_state_changed = handler_factory(defines.events.on_gui_selection_state_changed)
+
+-- Register a handler for the on_gui_text_changed event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_text_changed = handler_factory(defines.events.on_gui_text_changed)
+
+-- Register a handler for the on_gui_value_changed event for LuaGuiElements with element_name.
+-- Can only have one handler per element name.
+-- Guarantees that the element and the player are valid when calling the handler.
+-- Adds a player field to the event table.
+Gui.on_value_changed = handler_factory(defines.events.on_gui_value_changed)
 
 return Gui
