@@ -7,6 +7,7 @@ local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
 
 local polls = {}
+local polls_counter = {0}
 local no_notify_players = {}
 local player_poll_data = {}
 local player_poll_index = {}
@@ -14,12 +15,14 @@ local player_poll_index = {}
 Global.register(
     {
         polls = polls,
+        polls_counter = polls_counter,
         no_notify_players = no_notify_players,
         player_poll_data = player_poll_data,
         player_poll_index = player_poll_index
     },
     function(tbl)
         polls = tbl.polls
+        polls_counter = tbl.polls_counter
         no_notify_players = tbl.no_notify_players
         player_poll_data = tbl.player_poll_data
         player_poll_index = tbl.player_poll_index
@@ -33,8 +36,8 @@ local notify_checkbox_name = Gui.uid_name()
 
 local poll_view_back_name = Gui.uid_name()
 local poll_view_forward_name = Gui.uid_name()
-local poll_view_edit_name = Gui.uid_name()
 local poll_view_vote_name = Gui.uid_name()
+local poll_view_edit_name = Gui.uid_name()
 
 local create_poll_frame_name = Gui.uid_name()
 local create_poll_label_name = Gui.uid_name()
@@ -45,6 +48,12 @@ local create_poll_delete_answer_name = Gui.uid_name()
 local create_poll_close_name = Gui.uid_name()
 local create_poll_clear_name = Gui.uid_name()
 local create_poll_confirm_name = Gui.uid_name()
+
+local function poll_id()
+    local count = polls_counter[1] + 1
+    polls_counter[1] = count
+    return count
+end
 
 local function player_joined(event)
     local player = game.players[event.player_index]
@@ -59,10 +68,38 @@ local function player_joined(event)
     player.gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'item/programmable-speaker'}
 end
 
+local function set_remaining_time(data)
+    local remaining_time_label = data.remaining_time_label
+    if not remaining_time_label then
+        return
+    end
+
+    local poll = polls[data.poll_index]
+    if not poll then
+        return
+    end
+
+    local end_tick = poll.end_tick
+    if end_tick == -1 then
+        remaining_time_label.caption = 'Endless Poll'
+    else
+        local start_tick = poll.start_tick
+        local ticks = end_tick - start_tick
+        if ticks <= 0 then
+            remaining_time_label.caption = 'Poll Finished'
+        else
+            local time = ticks / 60
+            remaining_time_label.caption = 'Remaining Time: ' .. time
+        end
+    end
+end
+
 local function redraw_poll_viewer_content(data)
     local poll_viewer_content = data.poll_viewer_content
     local poll_index = data.poll_index
+    local player = poll_viewer_content.gui.player
 
+    data.remaining_time_label = nil
     data.vote_buttons = nil
     Gui.remove_data_recursivly(poll_viewer_content)
     poll_viewer_content.clear()
@@ -81,8 +118,8 @@ local function redraw_poll_viewer_content(data)
     end
 
     for player_index, vote_index in pairs(voters) do
-        local player = game.players[player_index]
-        table.insert(tooltips[vote_index], player.name)
+        local p = game.players[player_index]
+        table.insert(tooltips[vote_index], p.name)
     end
 
     for i = 1, #tooltips do
@@ -94,13 +131,46 @@ local function redraw_poll_viewer_content(data)
         end
     end
 
-    local question_label = poll_viewer_content.add {type = 'label', caption = poll.question}
+    local created_by_player = poll.created_by
+    local created_by_text
+    if created_by_player and created_by_player.valid then
+        created_by_text = ' Created by ' .. created_by_player.name
+    else
+        created_by_text = ''
+    end
+
+    local top_flow = poll_viewer_content.add {type = 'flow', direction = 'horizontal'}
+
+    top_flow.add {type = 'label', caption = 'Poll #' .. poll.id .. created_by_text}
+    local remaining_time_label = top_flow.add {type = 'label'}
+    data.remaining_time_label = remaining_time_label
+
+    set_remaining_time(data)
+
+    local question_flow = poll_viewer_content.add {type = 'table', column_count = 2}
+
+    if player.admin or UserGroup.is_regular(player.name) then
+        local edit_button =
+            question_flow.add {
+            type = 'sprite-button',
+            name = poll_view_edit_name,
+            sprite = 'utility/rename_icon_normal',
+            tooltip = 'Edit Poll.'
+        }
+
+        local edit_button_style = edit_button.style
+        edit_button_style.width = 26
+        edit_button_style.height = 26
+    end
+
+    local question_label = question_flow.add {type = 'label', caption = poll.question}
     question_label.style.height = 32
     question_label.style.font_color = focus_color
     question_label.style.font = 'default-listbox'
 
     local grid = poll_viewer_content.add {type = 'table', column_count = 2}
 
+    local voted_index = voters[player.index]
     local vote_buttons = {}
     for i, a in ipairs(answers) do
         local vote_button =
@@ -115,6 +185,11 @@ local function redraw_poll_viewer_content(data)
         vote_button.style.font = 'default-small'
         vote_button.style.top_padding = 0
         vote_button.style.bottom_padding = 0
+
+        if voted_index == i then
+            vote_button.style.font_color = focus_color
+        end
+
         Gui.set_data(vote_button, {vote_index = i, data = data})
         vote_buttons[i] = vote_button
 
@@ -131,7 +206,13 @@ local function update_poll_viewer(data)
     local poll_index_label = data.poll_index_label
     local poll_index = data.poll_index
 
-    poll_index = math.clamp(poll_index, 0, #polls)
+    if #polls == 0 then
+        poll_index = 0
+    else
+        poll_index = math.clamp(poll_index, 1, #polls)
+    end
+
+    data.poll_index = poll_index
 
     if poll_index == 0 then
         poll_index_label.caption = 'No Polls'
@@ -145,17 +226,34 @@ local function update_poll_viewer(data)
     redraw_poll_viewer_content(data)
 end
 
+local function apply_direction_button_style(button)
+    local button_style = button.style
+    button_style.width = 24
+    button_style.height = 24
+    button_style.top_padding = 0
+    button_style.bottom_padding = 0
+    button_style.left_padding = 0
+    button_style.right_padding = 0
+    button_style.font = 'default-listbox'
+end
+
 local function draw_main_frame(left, player)
     local frame = left.add {type = 'frame', name = main_frame_name, caption = 'Polls', direction = 'vertical'}
 
-    local poll_viewer_top_flow = frame.add {type = 'flow', direction = 'horizontal'}
+    local poll_viewer_top_flow = frame.add {type = 'table', column_count = 3}
+    poll_viewer_top_flow.style.horizontal_spacing = 0
 
-    local back_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_back_name, caption = '<'}
-    local forward_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_forward_name, caption = '>'}
+    local back_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_back_name, caption = '◀'}
+    apply_direction_button_style(back_button)
+
+    local forward_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_forward_name, caption = '▶'}
+    apply_direction_button_style(forward_button)
+
     local poll_index_label = poll_viewer_top_flow.add {type = 'label'}
+    poll_index_label.style.left_padding = 8
 
     local poll_viewer_content = frame.add {type = 'scroll-pane'}
-    poll_viewer_content.style.maximal_height = 400
+    poll_viewer_content.style.maximal_height = 250
     poll_viewer_content.style.width = 300
 
     local poll_index = player_poll_index[player.index] or #polls
@@ -174,6 +272,14 @@ local function draw_main_frame(left, player)
 
     update_poll_viewer(data)
 
+    frame.add {
+        type = 'checkbox',
+        name = notify_checkbox_name,
+        caption = 'Notify me about polls.',
+        state = not no_notify_players[player.index],
+        tooltip = 'Receive a message when new polls are created.'
+    }
+
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow'}
@@ -188,14 +294,6 @@ local function draw_main_frame(left, player)
     if player.admin or UserGroup.is_regular(player.name) then
         right_flow.add {type = 'button', name = create_poll_button_name, caption = 'Create Poll'}
     end
-
-    right_flow.add {
-        type = 'checkbox',
-        name = notify_checkbox_name,
-        caption = 'Show Polls',
-        state = not no_notify_players[player.index],
-        tooltip = 'Notify me when new polls are created'
-    }
 end
 
 local function toggle(event)
@@ -248,6 +346,9 @@ local function redraw_create_poll_content(data)
             }
             delete_button.style.height = 26
             delete_button.style.width = 26
+        else
+            delete_flow.style.height = 26
+            delete_flow.style.width = 26
         end
 
         local label_flow = grid.add {type = 'flow'}
@@ -286,7 +387,7 @@ local function draw_create_poll_frame(parent, previous_data)
         parent.add {type = 'frame', name = create_poll_frame_name, caption = 'New Poll', direction = 'vertical'}
 
     local scroll_pane = frame.add {type = 'scroll-pane', vertical_scroll_policy = 'always'}
-    scroll_pane.style.maximal_height = 400
+    scroll_pane.style.maximal_height = 250
     scroll_pane.style.maximal_width = 300
 
     local grid = scroll_pane.add {type = 'table', column_count = 3}
@@ -363,6 +464,7 @@ local function create_poll(event)
     local tick = game.tick
     local duration = 3 * 60 * 60
     local poll_data = {
+        id = poll_id(),
         question = question,
         answers = answers,
         voters = {},
@@ -393,13 +495,28 @@ local function update_votes(poll_index)
     end
 end
 
+local function update_vote(answers, voters, vote_index, direction)
+    local answer_data = answers[vote_index]
+    local count = answer_data.voted_count + direction
+    answer_data.voted_count = count
+
+    local tooltip = {}
+    for pi, vi in pairs(voters) do
+        if vi == vote_index then
+            local player = game.players[pi]
+            table.insert(tooltip, player.name)
+        end
+    end
+
+    return tostring(count), table.concat(tooltip, ', ')
+end
+
 local function vote(event)
     local player_index = event.player_index
     local voted_button = event.element
     local button_data = Gui.get_data(voted_button)
     local vote_index = button_data.vote_index
-    local data = button_data.data
-    local poll_index = data.poll_index
+    local poll_index = button_data.data.poll_index
     local poll = polls[poll_index]
 
     local voters = poll.voters
@@ -409,18 +526,39 @@ local function vote(event)
         return
     end
 
-    local answers = poll.answers
-
-    if previous_vote_index then
-        local answer_data = answers[previous_vote_index]
-        answer_data.voted_count = answer_data.voted_count - 1
-    end
-
-    local answer_data = answers[vote_index]
-    answer_data.voted_count = answer_data.voted_count + 1
     voters[player_index] = vote_index
 
-    update_votes(poll_index)
+    local answers = poll.answers
+
+    local previous_vote_button_count
+    local previous_vote_button_tooltip
+    if previous_vote_index then
+        previous_vote_button_count, previous_vote_button_tooltip = update_vote(answers, voters, previous_vote_index, -1)
+    end
+
+    local vote_button_count, vote_button_tooltip = update_vote(answers, voters, vote_index, 1)
+
+    for _, p in ipairs(game.connected_players) do
+        local frame = p.gui.left[main_frame_name]
+        if frame and frame.valid then
+            local data = Gui.get_data(frame)
+
+            if data.poll_index == poll_index then
+                local vote_buttons = data.vote_buttons
+                if previous_vote_index then
+                    local vote_button = vote_buttons[previous_vote_index]
+                    vote_button.caption = previous_vote_button_count
+                    vote_button.tooltip = previous_vote_button_tooltip
+                    vote_button.style.font_color = normal_color
+                end
+
+                local vote_button = vote_buttons[vote_index]
+                vote_button.caption = vote_button_count
+                vote_button.tooltip = vote_button_tooltip
+                vote_button.style.font_color = focus_color
+            end
+        end
+    end
 end
 
 Event.add(defines.events.on_player_joined_game, player_joined)
@@ -535,11 +673,25 @@ Gui.on_click(
     end
 )
 
+local function get_direction_count(event)
+    if event.shift then
+        return 1000000
+    end
+
+    local button = event.button
+    game.print(button)
+    if button == defines.mouse_button_type.right then
+        return 5
+    else
+        return 1
+    end
+end
+
 Gui.on_click(
     poll_view_back_name,
     function(event)
         local data = Gui.get_data(event.element)
-        data.poll_index = data.poll_index - 1
+        data.poll_index = data.poll_index - get_direction_count(event)
         update_poll_viewer(data)
     end
 )
@@ -548,7 +700,7 @@ Gui.on_click(
     poll_view_forward_name,
     function(event)
         local data = Gui.get_data(event.element)
-        data.poll_index = data.poll_index + 1
+        data.poll_index = data.poll_index + get_direction_count(event)
         update_poll_viewer(data)
     end
 )
