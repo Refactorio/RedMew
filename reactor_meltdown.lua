@@ -121,7 +121,7 @@ local function check_wastelands()
             spawn_wasteland(game.surfaces[wl.surface_id], wl.position)
             if age > wasteland_duration_seconds * 60 - 1 then
                 global.wastelands[index] = nil
-                reactors =
+                local reactors =
                     game.surfaces[wl.surface_id].find_entities_filtered {
                     position = wl.position,
                     name = 'nuclear-reactor'
