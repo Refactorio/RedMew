@@ -569,7 +569,8 @@ if not _DEBUG then
                 local success, error = pcall(func, cmd)
                 if not success then
                     log(error)
-                    player_print(error)
+                    --player_print(error) -- This casues desyncs
+                    player_print('Sorry there was an error running '.. cmd.name)
                 end
             end
         )
