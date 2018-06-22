@@ -14,23 +14,23 @@ local focus_color = {r = 1, g = 0.55, b = 0.1}
 local polls = {}
 local polls_counter = {0}
 local no_notify_players = {}
-local player_poll_data = {}
 local player_poll_index = {}
+local player_create_poll_data = {}
 
 Global.register(
     {
         polls = polls,
         polls_counter = polls_counter,
         no_notify_players = no_notify_players,
-        player_poll_data = player_poll_data,
-        player_poll_index = player_poll_index
+        player_poll_index = player_poll_index,
+        player_create_poll_data = player_create_poll_data
     },
     function(tbl)
         polls = tbl.polls
         polls_counter = tbl.polls_counter
         no_notify_players = tbl.no_notify_players
-        player_poll_data = tbl.player_poll_data
         player_poll_index = tbl.player_poll_index
+        player_create_poll_data = tbl.player_create_poll_data
     end
 )
 
@@ -100,21 +100,20 @@ local function redraw_poll_viewer_content(data)
     local voters = poll.voters
 
     local tooltips = {}
-    for i = 1, #answers do
-        tooltips[i] = {}
+    for _, a in ipairs(answers) do
+        tooltips[a] = {}
     end
 
-    for player_index, vote_index in pairs(voters) do
+    for player_index, answer in pairs(voters) do
         local p = game.players[player_index]
-        table.insert(tooltips[vote_index], p.name)
+        table.insert(tooltips[answer], p.name)
     end
 
-    for i = 1, #tooltips do
-        local t = tooltips[i]
+    for a, t in pairs(tooltips) do
         if #t == 0 then
-            tooltips[i] = ''
+            tooltips[a] = ''
         else
-            tooltips[i] = table.concat(t, ', ')
+            tooltips[a] = table.concat(t, ', ')
         end
     end
 
@@ -128,6 +127,21 @@ local function redraw_poll_viewer_content(data)
 
     local top_flow = poll_viewer_content.add {type = 'flow', direction = 'horizontal'}
     top_flow.add {type = 'label', caption = 'Poll #' .. poll.id .. created_by_text}
+
+    local edited_by_players = poll.edited_by
+    if next(edited_by_players) then
+        local edit_names = {}
+        for pi, _ in pairs(edited_by_players) do
+            local p = game.players[pi]
+            if p and p.valid then
+                table.insert(edit_names, p.name)
+            end
+        end
+
+        local edit_text = 'Edited by ' .. table.concat(edit_names, ', ')
+
+        top_flow.add {type = 'label', caption = edit_text}
+    end
 
     local remaining_time_label = poll_viewer_content.add {type = 'label'}
     data.remaining_time_label = remaining_time_label
@@ -157,7 +171,7 @@ local function redraw_poll_viewer_content(data)
 
     local grid = poll_viewer_content.add {type = 'table', column_count = 2}
 
-    local voted_index = voters[player.index]
+    local answer = voters[player.index]
     local vote_buttons = {}
     for i, a in ipairs(answers) do
         local vote_button =
@@ -168,7 +182,7 @@ local function redraw_poll_viewer_content(data)
             enabled = poll_enabled
         }
 
-        local tooltip = tooltips[i]
+        local tooltip = tooltips[a]
         if tooltip ~= '' then
             vote_button.tooltip = tooltip
         end
@@ -178,11 +192,11 @@ local function redraw_poll_viewer_content(data)
         vote_button.style.top_padding = 0
         vote_button.style.bottom_padding = 0
 
-        if voted_index == i then
+        if answer == a then
             vote_button.style.font_color = focus_color
         end
 
-        Gui.set_data(vote_button, {vote_index = i, data = data})
+        Gui.set_data(vote_button, {answer = a, data = data})
         vote_buttons[i] = vote_button
 
         local label = grid.add {type = 'label', caption = a.text}
@@ -295,19 +309,35 @@ local function draw_main_frame(left, player)
     end
 end
 
+local function remove_create_poll_frame(create_poll_frame, player_index)
+    local data = Gui.get_data(create_poll_frame)
+
+    player_create_poll_data[player_index] = data
+
+    Gui.remove_data_recursivly(create_poll_frame)
+    create_poll_frame.destroy()
+end
+
+local function remove_main_frame(main_frame, left, player)
+    local player_index = player.index
+    local data = Gui.get_data(main_frame)
+    player_poll_index[player_index] = data.poll_index
+
+    Gui.remove_data_recursivly(main_frame)
+    main_frame.destroy()
+
+    local create_poll_frame = left[create_poll_frame_name]
+    if create_poll_frame and create_poll_frame.valid then
+        remove_create_poll_frame(create_poll_frame, player_index)
+    end
+end
+
 local function toggle(event)
     local left = event.player.gui.left
     local main_frame = left[main_frame_name]
 
     if main_frame then
-        Gui.remove_data_recursivly(main_frame)
-        main_frame.destroy()
-
-        local create_poll_frame = left[create_poll_frame_name]
-        if create_poll_frame and create_poll_frame.valid then
-            Gui.remove_data_recursivly(create_poll_frame)
-            create_poll_frame.destroy()
-        end
+        remove_main_frame(main_frame, left, event.player)
     else
         draw_main_frame(left, event.player)
     end
@@ -353,6 +383,8 @@ local function redraw_create_poll_content(data)
         value = math.floor(data.duration * inv_tick_duration_step)
     }
     duration_slider.style.width = 100
+
+    data.duration_slider = duration_slider
 
     local duration_label = duration_flow.add {type = 'label'}
 
@@ -412,7 +444,10 @@ local function redraw_create_poll_content(data)
     end
 end
 
-local function draw_create_poll_frame(parent, previous_data)
+local function draw_create_poll_frame(parent, player, previous_data)
+    previous_data = previous_data or player_create_poll_data[player.index]
+
+    local edit_mode
     local question
     local answers
     local duration
@@ -420,6 +455,8 @@ local function draw_create_poll_frame(parent, previous_data)
     local confirm_text
     local confirm_name
     if previous_data then
+        edit_mode = previous_data.edit_mode
+
         question = previous_data.question
 
         answers = {}
@@ -428,15 +465,17 @@ local function draw_create_poll_frame(parent, previous_data)
         end
 
         duration = previous_data.duration
-
-        title_text = 'Edit Poll'
-        confirm_text = 'Edit Poll'
-        confirm_name = create_poll_edit_name
     else
         question = ''
         answers = {{text = ''}, {text = ''}, {text = ''}}
         duration = default_poll_duration
+    end
 
+    if edit_mode then
+        title_text = 'Edit Poll #' .. previous_data.id
+        confirm_text = 'Edit Poll'
+        confirm_name = create_poll_edit_name
+    else
         title_text = 'New Poll'
         confirm_text = 'Create Poll'
         confirm_name = create_poll_confirm_name
@@ -460,6 +499,8 @@ local function draw_create_poll_frame(parent, previous_data)
         previous_data = previous_data
     }
 
+    Gui.set_data(frame, data)
+
     redraw_create_poll_content(data)
 
     local add_answer_button =
@@ -481,7 +522,7 @@ local function draw_create_poll_frame(parent, previous_data)
     local right_flow = bottom_flow.add {type = 'flow'}
     right_flow.style.align = 'right'
 
-    if previous_data then
+    if edit_mode then
         local delete_button = right_flow.add {type = 'button', name = create_poll_delete_name, caption = 'Delete'}
         Gui.set_data(delete_button, data)
     end
@@ -494,7 +535,12 @@ local function show_new_poll(poll_data)
     for _, p in ipairs(game.connected_players) do
         local left = p.gui.left
         local frame = left[main_frame_name]
-        if not no_notify_players[p.index] then
+        if no_notify_players[p.index] then
+            if frame and frame.valid then
+                local data = Gui.get_data(frame)
+                update_poll_viewer(data)
+            end
+        else
             p.print(
                 poll_data.created_by.name .. ' has created a new Poll #' .. poll_data.id .. ': ' .. poll_data.question
             )
@@ -505,11 +551,6 @@ local function show_new_poll(poll_data)
                 update_poll_viewer(data)
             else
                 draw_main_frame(left, p)
-            end
-        else
-            if frame and frame.valid then
-                local data = Gui.get_data(frame)
-                update_poll_viewer(data)
             end
         end
     end
@@ -527,10 +568,10 @@ local function create_poll(event)
     end
 
     local answers = {}
-    for _, a in ipairs(data.answers) do
+    for i, a in ipairs(data.answers) do
         local text = a.text
         if text:find('%S') then
-            table.insert(answers, {text = text, voted_count = 0})
+            table.insert(answers, {text = text, index = i, voted_count = 0})
         end
     end
 
@@ -569,14 +610,13 @@ local function create_poll(event)
     frame.destroy()
 end
 
-local function update_vote(answers, voters, vote_index, direction)
-    local answer_data = answers[vote_index]
-    local count = answer_data.voted_count + direction
-    answer_data.voted_count = count
+local function update_vote(voters, answer, direction)
+    local count = answer.voted_count + direction
+    answer.voted_count = count
 
     local tooltip = {}
-    for pi, vi in pairs(voters) do
-        if vi == vote_index then
+    for pi, a in pairs(voters) do
+        if a == answer then
             local player = game.players[pi]
             table.insert(tooltip, player.name)
         end
@@ -589,28 +629,31 @@ local function vote(event)
     local player_index = event.player_index
     local voted_button = event.element
     local button_data = Gui.get_data(voted_button)
-    local vote_index = button_data.vote_index
+    local answer = button_data.answer
+
     local poll_index = button_data.data.poll_index
     local poll = polls[poll_index]
 
     local voters = poll.voters
 
-    local previous_vote_index = voters[player_index]
-    if previous_vote_index == vote_index then
+    local previous_vote_answer = voters[player_index]
+    if previous_vote_answer == answer then
         return
     end
 
-    voters[player_index] = vote_index
+    local vote_index = answer.index
 
-    local answers = poll.answers
+    voters[player_index] = answer
 
     local previous_vote_button_count
     local previous_vote_button_tooltip
-    if previous_vote_index then
-        previous_vote_button_count, previous_vote_button_tooltip = update_vote(answers, voters, previous_vote_index, -1)
+    local previous_vote_index
+    if previous_vote_answer then
+        previous_vote_button_count, previous_vote_button_tooltip = update_vote(voters, previous_vote_answer, -1)
+        previous_vote_index = previous_vote_answer.index
     end
 
-    local vote_button_count, vote_button_tooltip = update_vote(answers, voters, vote_index, 1)
+    local vote_button_count, vote_button_tooltip = update_vote(voters, answer, 1)
 
     for _, p in ipairs(game.connected_players) do
         local frame = p.gui.left[main_frame_name]
@@ -619,7 +662,7 @@ local function vote(event)
 
             if data.poll_index == poll_index then
                 local vote_buttons = data.vote_buttons
-                if previous_vote_index then
+                if previous_vote_answer then
                     local vote_button = vote_buttons[previous_vote_index]
                     vote_button.caption = previous_vote_button_count
                     vote_button.tooltip = previous_vote_button_tooltip
@@ -680,13 +723,13 @@ Gui.on_click(main_button_name, toggle)
 Gui.on_click(
     create_poll_button_name,
     function(event)
-        local left = event.player.gui.left
+        local player = event.player
+        local left = player.gui.left
         local frame = left[create_poll_frame_name]
         if frame and frame.valid then
-            Gui.remove_data_recursivly(frame)
-            frame.destroy()
+            remove_create_poll_frame(frame, player.index)
         else
-            draw_create_poll_frame(left)
+            draw_create_poll_frame(left, player)
         end
     end
 )
@@ -694,7 +737,8 @@ Gui.on_click(
 Gui.on_click(
     poll_view_edit_name,
     function(event)
-        local left = event.player.gui.left
+        local player = event.player
+        local left = player.gui.left
         local frame = left[create_poll_frame_name]
 
         if frame and frame.valid then
@@ -706,7 +750,8 @@ Gui.on_click(
         local frame_data = Gui.get_data(main_frame)
         local poll = polls[frame_data.poll_index]
 
-        draw_create_poll_frame(left, poll)
+        poll.edit_mode = true
+        draw_create_poll_frame(left, player, poll)
     end
 )
 
@@ -769,11 +814,8 @@ Gui.on_click(
 Gui.on_click(
     create_poll_close_name,
     function(event)
-        local element = event.element
-        local frame = Gui.get_data(element)
-
-        Gui.remove_data_recursivly(frame)
-        frame.destroy()
+        local frame = Gui.get_data(event.element)
+        remove_create_poll_frame(frame, event.player_index)
     end
 )
 
@@ -782,7 +824,12 @@ Gui.on_click(
     function(event)
         local data = Gui.get_data(event.element)
 
+        local slider = data.duration_slider
+        slider.slider_value = math.floor(default_poll_duration * inv_tick_duration_step)
+        update_duration(slider)
+
         data.question = ''
+
         local answers = data.answers
         for i = 1, #answers do
             answers[i].text = ''
@@ -854,53 +901,63 @@ Gui.on_click(
         end
 
         local new_answer_set = {}
+        local new_answers = {}
         for i, a in ipairs(data.answers) do
             if a.text:find('%S') then
-                new_answer_set[a.source] = i
+                local source = a.source
+                if source then
+                    new_answer_set[source] = a
+                    source.text = a.text
+                    source.index = i
+                    table.insert(new_answers, source)
+                else
+                    table.insert(new_answers, {text = a.text, index = i, voted_count = 0})
+                end
             end
         end
 
-        if not next(new_answer_set) then
+        if not next(new_answers) then
             player.print('Sorry, the poll needs at least one answer.')
             return
         end
 
-        poll.question = new_question
-
         Gui.remove_data_recursivly(frame)
         frame.destroy()
 
-        local deleted_answers = {}
-        for i, a in ipairs(poll.answers) do
-            if not new_answer_set[a] then
-                deleted_answers[i] = true
-            end
-        end
-
-        local offset = 0
-
         local old_answers = poll.answers
-        local new_answers = {}
-        for i, a in ipairs(data.answers) do
-            local text = a.text
-            if text:find('%S') then
-                table.insert(new_answers, a.source)
-            else
+        local voters = poll.voters
+        for _, a in ipairs(old_answers) do
+            if not new_answer_set[a] then
+                for pi, a2 in pairs(voters) do
+                    if a == a2 then
+                        voters[pi] = nil
+                    end
+                end
             end
         end
 
+        poll.question = new_question
+        poll.answers = new_answers
         poll.edited_by[event.player_index] = true
+
         local message = event.player.name .. ' has edited Poll #' .. poll.id .. ': ' .. poll.question
 
         for _, p in ipairs(game.connected_players) do
-            if not no_notify_players[p.index] then
-                p.print(message)
-            end
-
             local main_frame = p.gui.left[main_frame_name]
-            if main_frame and main_frame.valid then
-                local main_frame_data = Gui.get_data(main_frame)
-                update_poll_viewer(main_frame_data)
+
+            if no_notify_players[p.index] then
+                if main_frame and main_frame.valid then
+                    local main_frame_data = Gui.get_data(main_frame)
+                    update_poll_viewer(main_frame_data)
+                end
+            else
+                p.print(message)
+                if main_frame and main_frame.valid then
+                    local main_frame_data = Gui.get_data(main_frame)
+                    update_poll_viewer(main_frame_data)
+                else
+                    draw_main_frame(p.gui.left, p)
+                end
             end
         end
     end
