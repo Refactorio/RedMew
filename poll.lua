@@ -3,8 +3,11 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local UserGroup = require 'user_groups'
 
-local default_poll_duration = 300 * 60
-local duration_step = 5
+local default_poll_duration = 300 * 60 -- in ticks
+local duration_max = 3600 -- in seconds
+local duration_step = 15 -- in seconds
+
+local duration_slider_max = duration_max / duration_step
 local tick_duration_step = duration_step * 60
 local inv_tick_duration_step = 1 / tick_duration_step
 
@@ -312,6 +315,7 @@ end
 local function remove_create_poll_frame(create_poll_frame, player_index)
     local data = Gui.get_data(create_poll_frame)
 
+    data.edit_mode = nil
     player_create_poll_data[player_index] = data
 
     Gui.remove_data_recursivly(create_poll_frame)
@@ -379,7 +383,7 @@ local function redraw_create_poll_content(data)
         type = 'slider',
         name = create_poll_duration_name,
         minimum_value = 0,
-        maximum_value = 720,
+        maximum_value = duration_slider_max,
         value = math.floor(data.duration * inv_tick_duration_step)
     }
     duration_slider.style.width = 100
@@ -398,16 +402,17 @@ local function redraw_create_poll_content(data)
 
     local question_textfield =
         grid.add({type = 'flow'}).add {type = 'textfield', name = create_poll_question_name, text = data.question}
-    question_textfield.style.width = 180
+    question_textfield.style.width = 400
 
     Gui.set_data(question_label, question_textfield)
     Gui.set_data(question_textfield, data)
 
+    local edit_mode = data.edit_mode
     for count, answer in ipairs(answers) do
         local delete_flow = grid.add {type = 'flow'}
 
         local delete_button
-        if count ~= 1 then
+        if edit_mode or count ~= 1 then
             delete_button =
                 delete_flow.add {
                 type = 'sprite-button',
@@ -433,7 +438,7 @@ local function redraw_create_poll_content(data)
         local textfield_flow = grid.add {type = 'flow'}
 
         local textfield = textfield_flow.add {type = 'textfield', name = create_poll_answer_name, text = answer.text}
-        textfield.style.width = 200
+        textfield.style.width = 400
         Gui.set_data(textfield, {answers = answers, count = count})
 
         if delete_button then
@@ -496,7 +501,8 @@ local function draw_create_poll_frame(parent, player, previous_data)
         question = question,
         answers = answers,
         duration = duration,
-        previous_data = previous_data
+        previous_data = previous_data,
+        edit_mode = edit_mode
     }
 
     Gui.set_data(frame, data)
@@ -557,6 +563,7 @@ local function show_new_poll(poll_data)
 end
 
 local function create_poll(event)
+    local player = event.player
     local data = Gui.get_data(event.element)
 
     local frame = data.frame
@@ -568,17 +575,20 @@ local function create_poll(event)
     end
 
     local answers = {}
-    for i, a in ipairs(data.answers) do
+    for _, a in ipairs(data.answers) do
         local text = a.text
         if text:find('%S') then
-            table.insert(answers, {text = text, index = i, voted_count = 0})
+            local index = #answers + 1
+            answers[index] = {text = text, index = index, voted_count = 0}
         end
     end
 
     if #answers < 1 then
-        event.player.print('Sorry, the poll needs at least one answer.')
+        player.print('Sorry, the poll needs at least one answer.')
         return
     end
+
+    player_create_poll_data[player.index] = nil
 
     local tick = game.tick
     local duration = data.duration
@@ -902,16 +912,17 @@ Gui.on_click(
 
         local new_answer_set = {}
         local new_answers = {}
-        for i, a in ipairs(data.answers) do
+        for _, a in ipairs(data.answers) do
             if a.text:find('%S') then
                 local source = a.source
+                local index = #new_answers + 1
                 if source then
                     new_answer_set[source] = a
                     source.text = a.text
-                    source.index = i
-                    table.insert(new_answers, source)
+                    source.index = index
+                    new_answers[index] = source
                 else
-                    table.insert(new_answers, {text = a.text, index = i, voted_count = 0})
+                    new_answers[index] = {text = a.text, index = index, voted_count = 0}
                 end
             end
         end
