@@ -854,12 +854,15 @@ Gui.on_click(create_poll_confirm_name, create_poll)
 Gui.on_click(
     create_poll_delete_name,
     function(event)
+        local player = event.player
         local data = Gui.get_data(event.element)
         local frame = data.frame
         local poll = data.previous_data
 
         Gui.remove_data_recursivly(frame)
         frame.destroy()
+
+        player_create_poll_data[player.index] = nil
 
         local removed_index
         for i, p in ipairs(polls) do
@@ -874,7 +877,7 @@ Gui.on_click(
             return
         end
 
-        local message = event.player.name .. ' has deleted Poll #' .. poll.id .. ': ' .. poll.question
+        local message = player.name .. ' has deleted Poll #' .. poll.id .. ': ' .. poll.question
 
         for _, p in ipairs(game.connected_players) do
             if not no_notify_players[p.index] then
@@ -935,6 +938,8 @@ Gui.on_click(
         Gui.remove_data_recursivly(frame)
         frame.destroy()
 
+        player_create_poll_data[player.index] = nil
+
         local old_answers = poll.answers
         local voters = poll.voters
         for _, a in ipairs(old_answers) do
@@ -950,6 +955,20 @@ Gui.on_click(
         poll.question = new_question
         poll.answers = new_answers
         poll.edited_by[event.player_index] = true
+
+        local start_tick = game.tick
+        local duration = data.duration
+        local end_tick
+
+        if duration == 0 then
+            end_tick = -1
+        else
+            end_tick = start_tick + duration
+        end
+
+        poll.start_tick = start_tick
+        poll.end_tick = end_tick
+        poll.duration = duration
 
         local message = event.player.name .. ' has edited Poll #' .. poll.id .. ': ' .. poll.question
 
