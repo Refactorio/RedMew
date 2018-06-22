@@ -121,7 +121,7 @@ local function check_wastelands()
             spawn_wasteland(game.surfaces[wl.surface_id], wl.position)
             if age > wasteland_duration_seconds * 60 - 1 then
                 global.wastelands[index] = nil
-                reactors =
+                local reactors =
                     game.surfaces[wl.surface_id].find_entities_filtered {
                     position = wl.position,
                     name = 'nuclear-reactor'
@@ -161,7 +161,16 @@ local function reactor_toggle()
     end
 end
 
+local function is_meltdown()
+    if global.reactors_enabled then
+        player_print('Reactor metldown is enabled.')
+    else
+        player_print('Reactor metldown is disabled.')
+    end
+end
+
 commands.add_command('meltdown', 'Toggles if reactors blow up', reactor_toggle)
+commands.add_command('is-meltdown', 'Prints if meltdown is enabled', is_meltdown)
 
 Event.on_nth_tick(60, on_tick)
 Event.add(defines.events.on_player_mined_entity, entity_destroyed)

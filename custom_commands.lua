@@ -78,7 +78,11 @@ local custom_commands_return_player =
         end
 
         global.walking[player.index] = false
-        player.character.destroy()
+
+        local walkabout_character = player.character
+        if walkabout_character and walkabout_character.valid then
+            walkabout_character.destroy()
+        end
 
         local character = args.character
         if character ~= nil and character.valid then
@@ -137,6 +141,11 @@ local function walkabout(cmd)
     local pos = {x = chunk.x * 32, y = chunk.y * 32}
     local non_colliding_pos = surface.find_non_colliding_position('player', pos, 100, 1)
 
+    local character = player.character
+    if character and character.valid then
+        character.walking_state = {walking = false}
+    end
+
     if non_colliding_pos then
         game.print(player_name .. ' went on a walkabout, to find himself.')
         Task.set_timeout(
@@ -146,7 +155,7 @@ local function walkabout(cmd)
                 player = player,
                 force = player.force,
                 position = {x = player.position.x, y = player.position.y},
-                character = player.character
+                character = character
             }
         )
         player.character = nil
@@ -560,7 +569,8 @@ if not _DEBUG then
                 local success, error = pcall(func, cmd)
                 if not success then
                     log(error)
-                    player_print(error)
+                    --player_print(error) -- This casues desyncs
+                    player_print('Sorry there was an error running '.. cmd.name)
                 end
             end
         )
