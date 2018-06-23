@@ -9,7 +9,7 @@ function player_print(str)
     if game.player then
         game.player.print(str)
     else
-        log(str)
+        print(str)
     end
 end
 
@@ -164,7 +164,7 @@ local function walkabout(cmd)
         player.force = 'neutral'
         global.walking[player.index] = true
     else
-        player_print('Walkabout failed: count find non colliding position')
+        player_print('Walkabout failed: could not find non colliding position')
     end
 end
 
@@ -570,7 +570,7 @@ if not _DEBUG then
                 if not success then
                     log(error)
                     --player_print(error) -- This casues desyncs
-                    player_print('Sorry there was an error running '.. cmd.name)
+                    player_print('Sorry there was an error running ' .. cmd.name)
                 end
             end
         )
