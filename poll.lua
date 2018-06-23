@@ -1,7 +1,7 @@
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
-local UserGroup = require 'user_groups'
+local UserGroups = require 'user_groups'
 
 local default_poll_duration = 300 * 60 -- in ticks
 local duration_max = 3600 -- in seconds
@@ -64,6 +64,27 @@ local function poll_id()
     local count = polls_counter[1] + 1
     polls_counter[1] = count
     return count
+end
+
+local function apply_direction_button_style(button)
+    local button_style = button.style
+    button_style.width = 24
+    button_style.height = 24
+    button_style.top_padding = 0
+    button_style.bottom_padding = 0
+    button_style.left_padding = 0
+    button_style.right_padding = 0
+    button_style.font = 'default-listbox'
+end
+
+local function apply_button_style(button)
+    local button_style = button.style
+    button_style.font = 'default-bold'
+    button_style.height = 26
+    button_style.top_padding = 0
+    button_style.bottom_padding = 0
+    button_style.left_padding = 2
+    button_style.right_padding = 2
 end
 
 local function do_remaining_time(poll, remaining_time_label)
@@ -153,7 +174,7 @@ local function redraw_poll_viewer_content(data)
 
     local question_flow = poll_viewer_content.add {type = 'table', column_count = 2}
 
-    if player.admin or UserGroup.is_regular(player.name) then
+    if player.admin or UserGroups.is_regular(player.name) then
         local edit_button =
             question_flow.add {
             type = 'sprite-button',
@@ -235,19 +256,9 @@ local function update_poll_viewer(data)
     redraw_poll_viewer_content(data)
 end
 
-local function apply_direction_button_style(button)
-    local button_style = button.style
-    button_style.width = 24
-    button_style.height = 24
-    button_style.top_padding = 0
-    button_style.bottom_padding = 0
-    button_style.left_padding = 0
-    button_style.right_padding = 0
-    button_style.font = 'default-listbox'
-end
-
 local function draw_main_frame(left, player)
     local frame = left.add {type = 'frame', name = main_frame_name, caption = 'Polls', direction = 'vertical'}
+    frame.style.maximal_width = 320
 
     local poll_viewer_top_flow = frame.add {type = 'table', column_count = 3}
     poll_viewer_top_flow.style.horizontal_spacing = 0
@@ -295,20 +306,25 @@ local function draw_main_frame(left, player)
     left_flow.style.align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
+    local close_button = left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
+    apply_button_style(close_button)
 
     local right_flow = bottom_flow.add {type = 'flow'}
     right_flow.style.align = 'right'
 
-    if player.admin or UserGroup.is_regular(player.name) then
-        right_flow.add {type = 'button', name = create_poll_button_name, caption = 'Create Poll'}
+    if player.admin or UserGroups.is_regular(player.name) then
+        local create_poll_button =
+            right_flow.add {type = 'button', name = create_poll_button_name, caption = 'Create Poll'}
+        apply_button_style(create_poll_button)
     else
-        right_flow.add {
+        local create_poll_button =
+            right_flow.add {
             type = 'button',
             caption = 'Create Poll',
             enabled = false,
             tooltip = 'Sorry, you need to be a regular to create polls.'
         }
+        apply_button_style(create_poll_button)
     end
 end
 
@@ -488,6 +504,7 @@ local function draw_create_poll_frame(parent, player, previous_data)
 
     local frame =
         parent.add {type = 'frame', name = create_poll_frame_name, caption = title_text, direction = 'vertical'}
+    frame.style.maximal_width = 320
 
     local scroll_pane = frame.add {type = 'scroll-pane', vertical_scroll_policy = 'always'}
     scroll_pane.style.maximal_height = 250
@@ -510,7 +527,12 @@ local function draw_create_poll_frame(parent, player, previous_data)
     redraw_create_poll_content(data)
 
     local add_answer_button =
-        scroll_pane.add {type = 'button', name = create_poll_add_answer_name, caption = 'Add Answer'}
+        scroll_pane.add {
+        type = 'button',
+        name = create_poll_add_answer_name,
+        caption = 'Add Answer'
+    }
+    apply_button_style(add_answer_button)
     Gui.set_data(add_answer_button, data)
 
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
@@ -520,9 +542,11 @@ local function draw_create_poll_frame(parent, player, previous_data)
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = create_poll_close_name, caption = 'Close'}
+    apply_button_style(close_button)
     Gui.set_data(close_button, frame)
 
     local clear_button = left_flow.add {type = 'button', name = create_poll_clear_name, caption = 'Clear'}
+    apply_button_style(clear_button)
     Gui.set_data(clear_button, data)
 
     local right_flow = bottom_flow.add {type = 'flow'}
@@ -530,10 +554,12 @@ local function draw_create_poll_frame(parent, player, previous_data)
 
     if edit_mode then
         local delete_button = right_flow.add {type = 'button', name = create_poll_delete_name, caption = 'Delete'}
+        apply_button_style(delete_button)
         Gui.set_data(delete_button, data)
     end
 
     local confirm_button = right_flow.add {type = 'button', name = confirm_name, caption = confirm_text}
+    apply_button_style(confirm_button)
     Gui.set_data(confirm_button, data)
 end
 
@@ -556,6 +582,7 @@ local function show_new_poll(poll_data)
                 data.poll_index = #polls
                 update_poll_viewer(data)
             else
+                player_poll_index[p.index] = nil
                 draw_main_frame(left, p)
             end
         end
@@ -676,13 +703,19 @@ local function vote(event)
                     local vote_button = vote_buttons[previous_vote_index]
                     vote_button.caption = previous_vote_button_count
                     vote_button.tooltip = previous_vote_button_tooltip
-                    vote_button.style.font_color = normal_color
+
+                    if p.index == player_index then
+                        vote_button.style.font_color = normal_color
+                    end
                 end
 
                 local vote_button = vote_buttons[vote_index]
                 vote_button.caption = vote_button_count
                 vote_button.tooltip = vote_button_tooltip
-                vote_button.style.font_color = focus_color
+
+                if p.index == player_index then
+                    vote_button.style.font_color = focus_color
+                end
             end
         end
     end
@@ -1046,21 +1079,171 @@ Gui.on_click(
 
 Gui.on_click(poll_view_vote_name, vote)
 
---[[ function poll()
-    local duration = 60 * 60
+local Class = {}
+
+function Class.validate(data)
+    if type(data) ~= 'table' then
+        return false, 'argument must be of type table'
+    end
+
+    local question = data.question
+    if type(question) ~= 'string' or question == '' then
+        return false, 'field question must be a non empty string.'
+    end
+
+    local answers = data.answers
+    if type(answers) ~= 'table' then
+        return false, 'answers field must be an array.'
+    end
+
+    if #answers == 0 then
+        return false, 'answer array must contain at least one entry.'
+    end
+
+    for _, a in ipairs(answers) do
+        if type(a) ~= 'string' then
+            return false, 'answers must be of type string.'
+        end
+    end
+
+    local duration = data.duration
+    local duration_type = type(duration)
+    if duration_type == 'number' then
+        if duration < 0 then
+            return false, 'duration cannot be negative, set duration to 0 for endless poll.'
+        end
+    elseif duration_type ~= 'nil' then
+        return false, 'duration must be of type number or nil'
+    end
+
+    return true
+end
+
+function Class.poll(data)
+    local suc, error = Class.validate(data)
+    if not suc then
+        return false, error
+    end
+
+    local answers = {}
+    for index, a in ipairs(data.answers) do
+        if a ~= '' then
+            table.insert(answers, {text = a, index = index, voted_count = 0})
+        end
+    end
+
+    local duration = data.duration
+    if duration then
+        duration = duration * 60
+    else
+        duration = default_poll_duration
+    end
+
+    local start_tick = game.tick
+    local end_tick
+    if duration == 0 then
+        end_tick = -1
+    else
+        end_tick = start_tick + duration
+    end
+
+    local id = poll_id()
+
     local poll_data = {
-        id = poll_id(),
-        question = 'question',
-        answers = {{text = 'a1', voted_count = 0}, {text = 'a2', voted_count = 0}, {text = 'a3', voted_count = 0}},
+        id = id,
+        question = data.question,
+        answers = answers,
         voters = {},
-        start_tick = game.tick,
-        end_tick = game.tick + duration,
+        start_tick = start_tick,
+        end_tick = end_tick,
         duration = duration,
-        created_by = game.player,
+        created_by = game.player or {name = '<server>', valid = true},
         edited_by = {}
     }
 
     table.insert(polls, poll_data)
 
     show_new_poll(poll_data)
-end ]]
+
+    return true, id
+end
+
+function Class.poll_result(id)
+    if type(id) ~= 'number' then
+        return 'poll-id must be a number'
+    end
+
+    for _, poll_data in ipairs(polls) do
+        if poll_data.id == id then
+            local result = {'Question: ', poll_data.question, ' Answers: '}
+            local answers = poll_data.answers
+            local answers_count = #answers
+            for i, a in ipairs(answers) do
+                table.insert(result, '( [')
+                table.insert(result, a.voted_count)
+                table.insert(result, '] - ')
+                table.insert(result, a.text)
+                table.insert(result, ' )')
+                if i ~= answers_count then
+                    table.insert(result, ', ')
+                end
+            end
+
+            return table.concat(result)
+        end
+    end
+
+    return 'poll #' .. id .. ' not found'
+end
+
+local function poll_command(cmd)
+    local player = game.player
+    if player and not (player.admin or UserGroups.is_regular(player.name)) then
+        cant_run(cmd.name)
+    end
+
+    local param = cmd.parameter
+
+    if not param then
+        player_print('Usage: /poll <{question = "question", answers = {"answer 1", answer 2}, <duration = 300 | nil>}>')
+        return
+    end
+
+    param = 'return ' .. param
+
+    local suc, result = pcall(loadstring, param)
+    if not suc then
+        player_print(result)
+        return
+    end
+
+    suc, result = Class.poll(result())
+    if not suc then
+        player_print(error)
+    else
+        player_print('Poll #' .. result .. ' successfully created.')
+    end
+end
+
+local function poll_result_command(cmd)
+    local param = cmd.parameter
+    if not param then
+        player_print('Usage: /poll-result <poll#>')
+        return
+    end
+
+    local id = tonumber(param)
+    local result = Class.poll_result(id)
+
+    player_print(result)
+end
+
+commands.add_command(
+    'poll',
+    '<{question = "question", answers = {"answer 1", answer 2}, duration = 300 | nil}> - Creates a new poll (Admin and regulars only).',
+    poll_command
+)
+
+commands.add_command('poll-result', '<poll#> - prints the result for the poll.', poll_result_command)
+
+return Class
