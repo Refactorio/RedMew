@@ -157,9 +157,17 @@ chest_gui_content_callback =
             return
         end
 
+        local entity = data.chest.entity
+        if not entity.valid then
+            player.opened = nil
+            opened.destroy()
+            return
+        end
+
         if not player.connected then
             player.opened = nil
             opened.destroy()
+            return
         end
 
         opened.clear()
