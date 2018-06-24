@@ -17,12 +17,12 @@ end
 
 -- Associates data with the LuaGuiElement. If data is nil then removes the data
 function Gui.set_data(element, data)
-    global.Gui_data[element.player_index .. ',' .. element.index] = data
+    global.Gui_data[element.player_index * 0x100000000 + element.index] = data
 end
 
 -- Gets the Associated data with this LuaGuiElement if any.
 function Gui.get_data(element)
-    return global.Gui_data[element.player_index .. ',' .. element.index]
+    return global.Gui_data[element.player_index * 0x100000000 + element.index]
 end
 
 -- Removes data associated with LuaGuiElement and its children recursivly.
