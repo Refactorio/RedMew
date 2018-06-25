@@ -1,17 +1,19 @@
 local Global = require 'utils.global'
 
-local resource_rate = 768
-local seed = 1234
+local resource_rate = 768 -- Number of tiles per resouce on average.
 
+local seed = nil -- Set to number to force seed.
 local generator
 
 Global.register_init(
     {},
     function(tbl)
         tbl.generator = game.create_random_generator()
+        tbl.seed = seed or game.surfaces[1].map_gen_settings.seed
     end,
     function(tbl)
         generator = tbl.generator
+        seed = tbl.seed
     end
 )
 
