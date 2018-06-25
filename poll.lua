@@ -1211,15 +1211,15 @@ local function poll_command(cmd)
 
     param = 'return ' .. param
 
-    local suc, result = loadstring(param)
-    if not suc then
-        player_print(result)
+    local func, error = loadstring(param)
+    if not func then
+        player_print(error)
         return
     end
 
-    suc, result = Class.poll(result())
+    local suc, result = Class.poll(func())
     if not suc then
-        player_print(error)
+        player_print(result)
     else
         player_print('Poll #' .. result .. ' successfully created.')
     end
