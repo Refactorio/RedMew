@@ -107,10 +107,10 @@ end
 
 local function redraw_poll_viewer_content(data)
     local poll_viewer_content = data.poll_viewer_content
+    local remaining_time_label = data.remaining_time_label
     local poll_index = data.poll_index
     local player = poll_viewer_content.gui.player
 
-    data.remaining_time_label = nil
     data.vote_buttons = nil
     Gui.remove_data_recursivly(poll_viewer_content)
     poll_viewer_content.clear()
@@ -167,9 +167,6 @@ local function redraw_poll_viewer_content(data)
         top_flow.add {type = 'label', caption = edit_text}
     end
 
-    local remaining_time_label = poll_viewer_content.add {type = 'label'}
-    data.remaining_time_label = remaining_time_label
-
     local poll_enabled = do_remaining_time(poll, remaining_time_label)
 
     local question_flow = poll_viewer_content.add {type = 'table', column_count = 2}
@@ -198,8 +195,9 @@ local function redraw_poll_viewer_content(data)
     local answer = voters[player.index]
     local vote_buttons = {}
     for i, a in ipairs(answers) do
+        local vote_button_flow = grid.add {type = 'flow'}
         local vote_button =
-            grid.add({type = 'flow'}).add {
+            vote_button_flow.add {
             type = 'button',
             name = poll_view_vote_name,
             caption = a.voted_count,
@@ -211,13 +209,18 @@ local function redraw_poll_viewer_content(data)
             vote_button.tooltip = tooltip
         end
 
-        vote_button.style.height = 24
-        vote_button.style.font = 'default-small'
-        vote_button.style.top_padding = 0
-        vote_button.style.bottom_padding = 0
+        local vote_button_style = vote_button.style
+        vote_button_style.height = 24
+        vote_button_style.width = 26
+        vote_button_style.font = 'default-small'
+        vote_button_style.top_padding = 0
+        vote_button_style.bottom_padding = 0
+        vote_button_style.left_padding = 0
+        vote_button_style.right_padding = 0
 
         if answer == a then
-            vote_button.style.font_color = focus_color
+            vote_button_style.font_color = focus_color
+            vote_button_style.disabled_font_color = focus_color
         end
 
         Gui.set_data(vote_button, {answer = a, data = data})
@@ -260,7 +263,7 @@ local function draw_main_frame(left, player)
     local frame = left.add {type = 'frame', name = main_frame_name, caption = 'Polls', direction = 'vertical'}
     frame.style.maximal_width = 320
 
-    local poll_viewer_top_flow = frame.add {type = 'table', column_count = 3}
+    local poll_viewer_top_flow = frame.add {type = 'table', column_count = 5}
     poll_viewer_top_flow.style.horizontal_spacing = 0
 
     local back_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_back_name, caption = '◀'}
@@ -271,6 +274,11 @@ local function draw_main_frame(left, player)
 
     local poll_index_label = poll_viewer_top_flow.add {type = 'label'}
     poll_index_label.style.left_padding = 8
+
+    local spacer = poll_viewer_top_flow.add {type = 'flow'}
+    spacer.style.horizontally_stretchable = true
+
+    local remaining_time_label = poll_viewer_top_flow.add {type = 'label'}
 
     local poll_viewer_content = frame.add {type = 'scroll-pane'}
     poll_viewer_content.style.maximal_height = 250
@@ -283,6 +291,7 @@ local function draw_main_frame(left, player)
         forward_button = forward_button,
         poll_index_label = poll_index_label,
         poll_viewer_content = poll_viewer_content,
+        remaining_time_label = remaining_time_label,
         poll_index = poll_index
     }
 
@@ -705,7 +714,9 @@ local function vote(event)
                     vote_button.tooltip = previous_vote_button_tooltip
 
                     if p.index == player_index then
-                        vote_button.style.font_color = normal_color
+                        local vote_button_style = vote_button.style
+                        vote_button_style.font_color = normal_color
+                        vote_button_style.disabled_font_color = normal_color
                     end
                 end
 
@@ -714,7 +725,9 @@ local function vote(event)
                 vote_button.tooltip = vote_button_tooltip
 
                 if p.index == player_index then
-                    vote_button.style.font_color = focus_color
+                    local vote_button_style = vote_button.style
+                    vote_button_style.font_color = focus_color
+                    vote_button_style.disabled_font_color = focus_color
                 end
             end
         end
@@ -1046,7 +1059,7 @@ Gui.on_click(
 local function do_direction(event, sign)
     local count
     if event.shift then
-        count = 1000000
+        count = #polls
     else
         local button = event.button
         if button == defines.mouse_button_type.right then
