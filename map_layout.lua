@@ -103,6 +103,7 @@ local entity_modules = {
 	--require "map_gen.ores.fluffy_rainbows",
 	--require "map_gen.ores.harmonic_gen",
 	--require "map_gen.ores.resource_clustertruck"
+	--require "map_gen.ores.tiny_ores"
 }
 
 local terrain_modules = {
