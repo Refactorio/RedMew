@@ -164,7 +164,7 @@ local function redraw_poll_viewer_content(data)
 
         local edit_text = 'Edited by ' .. table.concat(edit_names, ', ')
 
-        top_flow.add {type = 'label', caption = edit_text}
+        top_flow.add {type = 'label', caption = edit_text, tooltip = edit_text}
     end
 
     local poll_enabled = do_remaining_time(poll, remaining_time_label)
@@ -1114,8 +1114,8 @@ function Class.validate(data)
     end
 
     for _, a in ipairs(answers) do
-        if type(a) ~= 'string' then
-            return false, 'answers must be of type string.'
+        if type(a) ~= 'string' or a == '' then
+            return false, 'answers must be a non empty string.'
         end
     end
 
@@ -1218,7 +1218,7 @@ local function poll_command(cmd)
     local param = cmd.parameter
 
     if not param then
-        player_print('Usage: /poll <{question = "question", answers = {"answer 1", answer 2}, <duration = 300 | nil>}>')
+        player_print('Usage: /poll <{question = "question", answers = {"answer 1", "answer 2"}, duration = 300 | nil}>')
         return
     end
 
@@ -1253,7 +1253,7 @@ end
 
 commands.add_command(
     'poll',
-    '<{question = "question", answers = {"answer 1", answer 2}, duration = 300 | nil}> - Creates a new poll (Admin and regulars only).',
+    '<{question = "question", answers = {"answer 1", "answer 2"}, duration = 300 | nil}> - Creates a new poll (Admin and regulars only).',
     poll_command
 )
 
