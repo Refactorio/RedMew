@@ -1211,7 +1211,7 @@ local function poll_command(cmd)
 
     param = 'return ' .. param
 
-    local suc, result = pcall(loadstring, param)
+    local suc, result = loadstring(param)
     if not suc then
         player_print(result)
         return
