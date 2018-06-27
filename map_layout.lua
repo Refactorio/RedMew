@@ -66,6 +66,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.beach"
 --shape = require "map_gen.presets.factory"
 --shape = require "map_gen.presets.triangle_of_death"
+--shape = require "map_gen.presets.world_map"
 --shape = require "map_gen.presets.test"
 
 --shapes--
