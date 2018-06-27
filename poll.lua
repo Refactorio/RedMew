@@ -150,19 +150,21 @@ local function redraw_poll_viewer_content(data)
     end
 
     local top_flow = poll_viewer_content.add {type = 'flow', direction = 'horizontal'}
-    top_flow.add {type = 'label', caption = 'Poll #' .. poll.id .. created_by_text}
+    top_flow.add {type = 'label', caption = table.concat {'Poll #', poll.id, created_by_text}}
 
     local edited_by_players = poll.edited_by
     if next(edited_by_players) then
-        local edit_names = {}
+        local edit_names = {'Edited by '}
         for pi, _ in pairs(edited_by_players) do
             local p = game.players[pi]
             if p and p.valid then
                 table.insert(edit_names, p.name)
+                table.insert(edit_names, ', ')
             end
         end
 
-        local edit_text = 'Edited by ' .. table.concat(edit_names, ', ')
+        table.remove(edit_names)
+        local edit_text = table.concat(edit_names, ', ')
 
         top_flow.add {type = 'label', caption = edit_text, tooltip = edit_text}
     end
@@ -250,7 +252,7 @@ local function update_poll_viewer(data)
     if poll_index == 0 then
         poll_index_label.caption = 'No Polls'
     else
-        poll_index_label.caption = 'Poll ' .. poll_index .. ' / ' .. #polls
+        poll_index_label.caption = table.concat {'Poll ', poll_index, ' / ', #polls}
     end
 
     back_button.enabled = poll_index > 1
@@ -457,7 +459,7 @@ local function redraw_create_poll_content(data)
             label_flow.add {
             type = 'label',
             name = create_poll_label_name,
-            caption = 'Answer #' .. count .. ':'
+            caption = table.concat {'Answer #', count, ':'}
         }
 
         local textfield_flow = grid.add {type = 'flow'}
@@ -573,6 +575,9 @@ local function draw_create_poll_frame(parent, player, previous_data)
 end
 
 local function show_new_poll(poll_data)
+    local message =
+        table.concat {poll_data.created_by.name, ' has created a new Poll #', poll_data.id, ': ', poll_data.question}
+
     for _, p in ipairs(game.connected_players) do
         local left = p.gui.left
         local frame = left[main_frame_name]
@@ -582,9 +587,7 @@ local function show_new_poll(poll_data)
                 update_poll_viewer(data)
             end
         else
-            p.print(
-                poll_data.created_by.name .. ' has created a new Poll #' .. poll_data.id .. ': ' .. poll_data.question
-            )
+            p.print(message)
 
             if frame and frame.valid then
                 local data = Gui.get_data(frame)
@@ -923,7 +926,7 @@ Gui.on_click(
             return
         end
 
-        local message = player.name .. ' has deleted Poll #' .. poll.id .. ': ' .. poll.question
+        local message = table.concat {player.name, ' has deleted Poll #', poll.id, ': ', poll.question}
 
         for _, p in ipairs(game.connected_players) do
             if not no_notify_players[p.index] then
@@ -984,7 +987,9 @@ Gui.on_click(
         Gui.remove_data_recursivly(frame)
         frame.destroy()
 
-        player_create_poll_data[player.index] = nil
+        local player_index = player.index
+
+        player_create_poll_data[player_index] = nil
 
         local old_answers = poll.answers
         local voters = poll.voters
@@ -1000,7 +1005,7 @@ Gui.on_click(
 
         poll.question = new_question
         poll.answers = new_answers
-        poll.edited_by[event.player_index] = true
+        poll.edited_by[player_index] = true
 
         local start_tick = game.tick
         local duration = data.duration
@@ -1016,7 +1021,20 @@ Gui.on_click(
         poll.end_tick = end_tick
         poll.duration = duration
 
-        local message = event.player.name .. ' has edited Poll #' .. poll.id .. ': ' .. poll.question
+        local poll_index
+        for i, p in ipairs(polls) do
+            if poll == p then
+                poll_index = i
+                break
+            end
+        end
+
+        if not poll_index then
+            table.insert(polls, poll)
+            poll_index = #polls
+        end
+
+        local message = table.concat {player.name, ' has edited Poll #', poll.id, ': ', poll.question}
 
         for _, p in ipairs(game.connected_players) do
             local main_frame = p.gui.left[main_frame_name]
@@ -1030,6 +1048,7 @@ Gui.on_click(
                 p.print(message)
                 if main_frame and main_frame.valid then
                     local main_frame_data = Gui.get_data(main_frame)
+                    main_frame_data.poll_index = poll_index
                     update_poll_viewer(main_frame_data)
                 else
                     draw_main_frame(p.gui.left, p)
@@ -1206,7 +1225,7 @@ function Class.poll_result(id)
         end
     end
 
-    return 'poll #' .. id .. ' not found'
+    return table.concat {'poll #', id, ' not found'}
 end
 
 local function poll_command(cmd)
@@ -1234,7 +1253,7 @@ local function poll_command(cmd)
     if not suc then
         player_print(result)
     else
-        player_print('Poll #' .. result .. ' successfully created.')
+        player_print(table.concat {'Poll #', result, ' successfully created.'})
     end
 end
 
