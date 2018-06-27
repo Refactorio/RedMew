@@ -19,6 +19,7 @@ make pet follow you moar
 local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local Task = require 'utils.Task'
+local PlayerStats = require 'player_stats'
 
 local market_items = require 'resources.market_items'
 
@@ -103,37 +104,26 @@ local fish_market_bonus_message = {
 
 local total_fish_market_bonus_messages = #fish_market_bonus_message
 
-if not global.fish_market_fish_caught then
-    global.fish_market_fish_caught = {}
-end
-if not global.fish_market_fish_spent then
-    global.fish_market_fish_spent = {}
-end
-
-local function fish_earned_index(player_index, amount)
-    local player = game.players[player_index]
-    player.insert {name = 'raw-fish', count = amount}
-
-    if global.fish_market_fish_caught[player_index] then
-        global.fish_market_fish_caught[player_index] = global.fish_market_fish_caught[player_index] + amount
-    else
-        global.fish_market_fish_caught[player_index] = amount
-    end
-
-    local x = global.fish_market_fish_caught[player_index] % 70
-    if x == 0 then
-        local z = math.random(1, total_fish_market_bonus_messages)
-        player.print(fish_market_bonus_message[z])
-    end
-end
-
 local function fish_earned(event, amount)
-    fish_earned_index(event.player_index, amount)
+    local player_index = event.player_index
+
+    local fish = PlayerStats.get_fish_earned(player_index)
+    fish = fish + amount
+    PlayerStats.set_fish_earned(player_index, fish)
+
+    if fish % 70 == 0 then
+        local player = game.players[player_index]
+        if player and player.valid then
+            local message = fish_market_bonus_message[math.random(total_fish_market_bonus_messages)]
+            player.print(message)
+        end
+    end
 end
 
 local function pre_player_mined_item(event)
     if event.entity.type == 'simple-entity' then -- Cheap check for rock, may have other side effects
         fish_earned(event, 10)
+        return
     end
 
     if event.entity.type == 'tree' then
@@ -145,7 +135,7 @@ local function pre_player_mined_item(event)
 end
 
 local entity_drop_amount = {
- --[[['small-biter'] = {low = -62, high = 1},
+    --[[['small-biter'] = {low = -62, high = 1},
     ['small-spitter'] = {low = -62, high = 1},
     ['medium-biter'] = {low = -14, high = 1},
     ['medium-spitter'] = {low = -14, high = 1},
@@ -291,7 +281,8 @@ local function market_item_purchased(event)
     -- cost
     local market_item = market.get_market_items()[offer_index]
     local fish_cost = market_item.price[1].amount * event.count
-    global.fish_market_fish_spent[player_index] = global.fish_market_fish_spent[player_index] + fish_cost
+
+    PlayerStats.change_fish_spent(player_index, fish_cost)
 
     if event.offer_index == 1 then -- Temporary speed bonus
         local player = game.players[player_index]
