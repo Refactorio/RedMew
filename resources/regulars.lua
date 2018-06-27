@@ -253,7 +253,6 @@ return {
     ['sovietdefender'] = true,
     ['spacecat-chan'] = true,
     ['spatbee'] = true,
-    ['standaardstefan'] = true,
     ['stat0x00'] = true,
     ['steponitnicejob'] = true,
     ['stig219'] = true,
@@ -265,7 +264,6 @@ return {
     ['terarink'] = true,
     ['terradus'] = true,
     ['terz42'] = true,
-    ['tezwo'] = true,
     ['thadius856'] = true,
     ['the_ledgendary'] = true,
     ['the_squid'] = true,
@@ -348,5 +346,9 @@ return {
     ['dazonker'] = true,
     ['andrewy2k'] = true,
     ['DarkRedman'] = true,
-    ['Builder101'] = true
+    ['Builder101'] = true,
+    ['StandaardStefan'] = true,
+    ['Liutio'] = true,
+    ['actorpuss'] = true,
+    ['TeZwo'] = true
 }
