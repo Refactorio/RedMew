@@ -59,7 +59,7 @@ end
 
 function Gui.destroy(element)
     Gui.remove_data_recursivly(element)
-    element.destory()
+    element.destroy()
 end
 
 function Gui.clear(element)
