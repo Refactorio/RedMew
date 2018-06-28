@@ -5,12 +5,26 @@ local UserGroups = require 'user_groups'
 local PlayerStats = require 'player_stats'
 
 local poke_messages = require 'resources.poke_messages'
+local player_sprites = require 'resources.player_sprites'
 
 local poke_cooldown_time = 240 -- in ticks.
+local sprite_time_step = 54000 -- in ticks
 local symbol_asc = ' ▲'
 local symbol_desc = ' ▼'
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
+local rank_colors = {
+    {r = 1, g = 1, b = 1}, -- Guest
+    {r = 0.155, g = 0.540, b = 0.898}, -- Regular
+    {r = 0.093, g = 0.768, b = 0.172} -- Admin
+}
+
+local inv_sprite_time_step = 1 / sprite_time_step
+local rank_names = {
+    'Guest',
+    'Regular',
+    'Admin'
+}
 
 local player_poke_cooldown = {}
 local player_pokes = {}
@@ -34,8 +48,9 @@ Global.register(
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
+local notify_checkbox_name = Gui.uid_name()
 
---local heading_table_name = Gui.uid_name()
+local sprite_heading_name = Gui.uid_name()
 local player_name_heading_name = Gui.uid_name()
 local time_heading_name = Gui.uid_name()
 local rank_heading_name = Gui.uid_name()
@@ -44,7 +59,7 @@ local fish_heading_name = Gui.uid_name()
 local deaths_heading_name = Gui.uid_name()
 local poke_name_heading_name = Gui.uid_name()
 
---local cell_table_name = Gui.uid_name()
+local sprite_cell_name = Gui.uid_name()
 local player_name_cell_name = Gui.uid_name()
 local time_cell_name = Gui.uid_name()
 local rank_cell_name = Gui.uid_name()
@@ -94,6 +109,16 @@ local function format_distance(tiles)
     return math.round(tiles * 0.001, 1) .. ' km'
 end
 
+local function get_rank_level(player)
+    if player.admin then
+        return 3
+    elseif UserGroups.is_regular(player.name) then
+        return 2
+    else
+        return 1
+    end
+end
+
 local function do_poke_spam_protection(player, poke_player_index)
     if player.admin then
         return true
@@ -116,6 +141,39 @@ local function apply_heading_style(style)
 end
 
 local column_builders = {
+    [sprite_heading_name] = {
+        create_data = function(player)
+            local ticks = player.online_time
+            local level = math.ceil(ticks * inv_sprite_time_step)
+            level = math.min(level, #player_sprites)
+
+            return level
+        end,
+        sort = function(a, b)
+            return a > b
+        end,
+        draw_heading = function(parent)
+            local label = parent.add {type = 'label', name = sprite_heading_name, caption = ' '}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 32
+
+            return label
+        end,
+        draw_cell = function(parent, cell_data)
+            local label =
+                parent.add {
+                type = 'sprite',
+                name = sprite_cell_name,
+                sprite = player_sprites[cell_data]
+            }
+            local label_style = label.style
+            label_style.align = 'center'
+            label_style.width = 32
+
+            return label
+        end
+    },
     [player_name_heading_name] = {
         create_data = function(player)
             return player
@@ -127,23 +185,25 @@ local column_builders = {
             local label = parent.add {type = 'label', name = player_name_heading_name, caption = 'Name'}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 100
+            label_style.width = 150
 
             return label
         end,
-        draw_cell = function(parent, cell_data, data)
+        draw_cell = function(parent, cell_data)
             local color = cell_data.color
             lighten_color(color)
+            local name = cell_data.name
             local label =
                 parent.add {
                 type = 'label',
                 name = player_name_cell_name,
-                caption = cell_data.name
+                caption = name,
+                tooltip = name
             }
             local label_style = label.style
             label_style.font_color = color
-            label_style.align = 'center'
-            label_style.width = 100
+            label_style.align = 'left'
+            label_style.width = 150
 
             return label
         end
@@ -159,25 +219,23 @@ local column_builders = {
             local label = parent.add {type = 'label', name = time_heading_name, caption = 'Time'}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 100
+            label_style.width = 125
 
             return label
         end,
-        draw_cell = function(parent, cell_data, data)
+        draw_cell = function(parent, cell_data)
             local text = format_time(cell_data)
 
             local label = parent.add {type = 'label', name = time_cell_name, caption = text}
             local label_style = label.style
-            label_style.align = 'center'
-            label_style.width = 100
+            label_style.align = 'left'
+            label_style.width = 125
 
             return label
         end
     },
     [rank_heading_name] = {
-        create_data = function(player)
-            return UserGroups.get_rank(player)
-        end,
+        create_data = get_rank_level,
         sort = function(a, b)
             return a > b
         end,
@@ -185,15 +243,16 @@ local column_builders = {
             local label = parent.add {type = 'label', name = rank_heading_name, caption = 'Rank'}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 100
+            label_style.width = 50
 
             return label
         end,
-        draw_cell = function(parent, cell_data, data)
-            local label = parent.add {type = 'label', name = rank_cell_name, caption = cell_data}
+        draw_cell = function(parent, cell_data)
+            local label = parent.add {type = 'label', name = rank_cell_name, caption = rank_names[cell_data]}
             local label_style = label.style
             label_style.align = 'center'
-            label_style.width = 100
+            label_style.font_color = rank_colors[cell_data]
+            label_style.width = 50
 
             return label
         end
@@ -209,17 +268,17 @@ local column_builders = {
             local label = parent.add {type = 'label', name = distance_heading_name, caption = 'Distance'}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 100
+            label_style.width = 70
 
             return label
         end,
-        draw_cell = function(parent, cell_data, data)
+        draw_cell = function(parent, cell_data)
             local text = format_distance(cell_data)
 
             local label = parent.add {type = 'label', name = distance_cell_name, caption = text}
             local label_style = label.style
             label_style.align = 'center'
-            label_style.width = 100
+            label_style.width = 70
 
             return label
         end
@@ -244,17 +303,17 @@ local column_builders = {
             local label = parent.add {type = 'label', name = fish_heading_name, caption = 'Fish'}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 100
+            label_style.width = 80
 
             return label
         end,
-        draw_cell = function(parent, cell_data, data)
-            local text = table.concat({cell_data.fish_earnt, ' / ', cell_data.fish_spent})
+        draw_cell = function(parent, cell_data)
+            local text = table.concat({cell_data.fish_earnt, '/', cell_data.fish_spent})
 
             local label = parent.add {type = 'label', name = fish_cell_name, caption = text}
             local label_style = label.style
             label_style.align = 'center'
-            label_style.width = 100
+            label_style.width = 80
 
             return label
         end
@@ -274,11 +333,11 @@ local column_builders = {
             local label = parent.add {type = 'label', name = deaths_heading_name, caption = 'Deaths'}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 100
+            label_style.width = 60
 
             return label
         end,
-        draw_cell = function(parent, cell_data, data)
+        draw_cell = function(parent, cell_data)
             local tooltip = {}
             for name, count in pairs(cell_data.causes) do
                 table.insert(tooltip, name)
@@ -293,7 +352,7 @@ local column_builders = {
                 parent.add {type = 'label', name = deaths_cell_name, caption = cell_data.count, tooltip = tooltip}
             local label_style = label.style
             label_style.align = 'center'
-            label_style.width = 100
+            label_style.width = 60
 
             return label
         end
@@ -305,15 +364,19 @@ local column_builders = {
         sort = function(a, b)
             return a.poke_count > b.poke_count
         end,
-        draw_heading = function(parent)
+        draw_heading = function(parent, data)
             local label = parent.add {type = 'label', name = poke_name_heading_name, caption = 'Poke'}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 64
+            label_style.width = 60
+
+            data.poke_buttons = {}
 
             return label
         end,
         draw_cell = function(parent, cell_data, data)
+            local player = cell_data.player
+
             local parent_style = parent.style
             parent_style.width = 64
             parent_style.align = 'center'
@@ -329,7 +392,9 @@ local column_builders = {
             label_style.left_padding = 0
             label_style.right_padding = 0
 
-            Gui.set_data(label, {data = data, player = cell_data.player})
+            data.poke_buttons[player.index] = label
+
+            Gui.set_data(label, {data = data, player = player})
 
             return label
         end
@@ -339,6 +404,7 @@ local column_builders = {
 local function get_default_player_settings()
     return {
         columns = {
+            sprite_heading_name,
             player_name_heading_name,
             time_heading_name,
             rank_heading_name,
@@ -347,8 +413,19 @@ local function get_default_player_settings()
             deaths_heading_name,
             poke_name_heading_name
         },
-        sort = -2
+        sort = -3
     }
+end
+
+local function redraw_title(data)
+    local frame = data.frame
+
+    local online_count = #game.connected_players
+    local total_count = PlayerStats.get_total_player_count()
+
+    local title = table.concat {'Player list - Online: ', online_count, ' Total: ' .. total_count}
+
+    frame.caption = title
 end
 
 local function redraw_headings(data)
@@ -370,7 +447,7 @@ local function redraw_headings(data)
     local heading_table = heading_table_flow.add {type = 'table', column_count = #columns}
 
     for i, c in ipairs(settings.columns) do
-        local heading = column_builders[c].draw_heading(heading_table)
+        local heading = column_builders[c].draw_heading(heading_table, data)
 
         if i == sort_column then
             heading.caption = heading.caption .. sort_symbol
@@ -427,28 +504,43 @@ local function redraw_cells(data)
 end
 
 local function draw_main_frame(left, player)
-    local frame = left.add {type = 'frame', name = main_frame_name, caption = 'Player list', direction = 'vertical'}
+    local player_index = player.index
+    local frame = left.add {type = 'frame', name = main_frame_name, direction = 'vertical'}
 
     local heading_table_flow = frame.add {type = 'flow'}
 
     local cell_table_scroll_pane = frame.add {type = 'scroll-pane'}
-    cell_table_scroll_pane.style.maximal_height = 600
+    cell_table_scroll_pane.style.maximal_height = 400
+
+    frame.add {
+        type = 'checkbox',
+        name = notify_checkbox_name,
+        state = not no_notify_players[player_index],
+        caption = 'Notify me when pokes happen.',
+        tooltip = 'Receive a message when a player pokes another player.'
+    }
 
     frame.add {type = 'button', name = main_button_name, caption = 'Close'}
 
+    local settings = player_settings[player_index] or get_default_player_settings()
     local data = {
+        frame = frame,
         heading_table_flow = heading_table_flow,
         cell_table_scroll_pane = cell_table_scroll_pane,
-        settings = get_default_player_settings()
+        settings = settings
     }
 
+    redraw_title(data)
     redraw_headings(data)
     redraw_cells(data)
 
     Gui.set_data(frame, data)
 end
 
-local function remove_main_frame(frame)
+local function remove_main_frame(frame, player)
+    local frame_data = Gui.get_data(frame)
+    player_settings[player.index] = frame_data.settings
+
     Gui.destroy(frame)
 end
 
@@ -458,9 +550,20 @@ local function toggle(event)
     local main_frame = left[main_frame_name]
 
     if main_frame then
-        remove_main_frame(main_frame)
+        remove_main_frame(main_frame, player)
     else
         draw_main_frame(left, player)
+    end
+end
+
+local function tick()
+    for _, p in ipairs(game.connected_players) do
+        local frame = p.gui.left[main_frame_name]
+
+        if frame and frame.valid then
+            local data = Gui.get_data(frame)
+            redraw_cells(data)
+        end
     end
 end
 
@@ -477,29 +580,51 @@ local function player_joined(event)
         top.add {type = 'sprite-button', name = main_button_name, sprite = 'entity/player'}
     end
 
-    local frame = gui.left[main_frame_name]
-
-    if frame and frame.valid then
-        local data = Gui.get_data(frame)
-        redraw_cells(data)
-    end
-end
-
-local function tick()
     for _, p in ipairs(game.connected_players) do
         local frame = p.gui.left[main_frame_name]
 
         if frame and frame.valid then
             local data = Gui.get_data(frame)
+            redraw_title(data)
             redraw_cells(data)
         end
     end
 end
 
-Event.add(defines.events.on_player_joined_game, player_joined)
+local function player_left()
+    for _, p in ipairs(game.connected_players) do
+        local frame = p.gui.left[main_frame_name]
+
+        if frame and frame.valid then
+            local data = Gui.get_data(frame)
+            redraw_title(data)
+            redraw_cells(data)
+        end
+    end
+end
+
 Event.on_nth_tick(1800, tick)
+Event.add(defines.events.on_player_joined_game, player_joined)
+Event.add(defines.events.on_player_left_game, player_left)
 
 Gui.on_click(main_button_name, toggle)
+
+Gui.on_click(
+    notify_checkbox_name,
+    function(event)
+        local player_index = event.player_index
+        local checkbox = event.element
+
+        local new_state
+        if checkbox.state then
+            new_state = nil
+        else
+            new_state = true
+        end
+
+        no_notify_players[player_index] = new_state
+    end
+)
 
 local function headings_click(event)
     local heading_data = Gui.get_data(event.element)
@@ -553,16 +678,21 @@ Gui.on_click(
             local frame = p.gui.left[main_frame_name]
             if frame and frame.valid then
                 local frame_data = Gui.get_data(frame)
-                local settings = frame_data.settings
+                local poke_bottons = frame_data.poke_buttons
 
-                local columns = settings.columns
-                local sort = settings.sort
+                if poke_bottons then
+                    local settings = frame_data.settings
 
-                local sorted_column = columns[math.abs(sort)]
-                if sorted_column == poke_name_heading_name then
-                    redraw_cells(frame_data)
-                else
-                    element.caption = count
+                    local columns = settings.columns
+                    local sort = settings.sort
+
+                    local sorted_column = columns[math.abs(sort)]
+                    if sorted_column == poke_name_heading_name then
+                        redraw_cells(frame_data)
+                    else
+                        local poke_button = poke_bottons[p.index]
+                        poke_button.caption = count
+                    end
                 end
             end
 

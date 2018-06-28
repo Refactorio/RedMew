@@ -6,6 +6,7 @@ local player_walk_distances = {}
 local player_fish_earned = {}
 local player_fish_spent = {}
 local player_deaths = {}
+local total_players = {0}
 
 Global.register(
     {
@@ -13,7 +14,8 @@ Global.register(
         player_walk_distances = player_walk_distances,
         player_fish_earned = player_fish_earned,
         player_fish_spent = player_fish_spent,
-        player_deaths = player_deaths
+        player_deaths = player_deaths,
+        total_players = total_players
     },
     function(tbl)
         player_last_position = tbl.player_last_position
@@ -21,6 +23,7 @@ Global.register(
         player_fish_earned = tbl.player_fish_earned
         player_fish_spent = tbl.player_fish_spent
         player_deaths = tbl.player_deaths
+        total_players = tbl.total_players
     end
 )
 
@@ -32,6 +35,7 @@ local function player_created(event)
     player_fish_earned[index] = 0
     player_fish_spent[index] = 0
     player_deaths[index] = {causes = {}, count = 0}
+    total_players[1] = total_players[1] + 1
 end
 
 local function get_cause_name(cause)
@@ -119,6 +123,10 @@ end
 -- Returns a dictionary of casue_name -> count
 function Public.get_all_death_counts_by_casue(player_index)
     return player_deaths[player_index].causes or {}
+end
+
+function Public.get_total_player_count()
+    return total_players[1]
 end
 
 return Public
