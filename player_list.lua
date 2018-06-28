@@ -4,8 +4,10 @@ local Gui = require 'utils.gui'
 local UserGroups = require 'user_groups'
 local PlayerStats = require 'player_stats'
 
-local symbol_asc = '▲'
-local symbol_desc = '▼'
+local symbol_asc = ' ▲'
+local symbol_desc = ' ▼'
+local normal_color = {r = 1, g = 1, b = 1}
+local focus_color = {r = 1, g = 0.55, b = 0.1}
 
 local player_poke_cooldown = {}
 local player_pokes = {}
@@ -45,6 +47,7 @@ local function lighten_color(color)
     color.r = color.r * 0.6 + 0.4
     color.g = color.g * 0.6 + 0.4
     color.b = color.b * 0.6 + 0.4
+    color.a = 1
 end
 
 local minutes_to_ticks = 60 * 60
@@ -81,6 +84,12 @@ local function format_distance(tiles)
     return math.round(tiles * 0.001, 1) .. ' km'
 end
 
+local function apply_heading_style(style)
+    style.font_color = focus_color
+    style.font = 'default-bold'
+    style.align = 'center'
+end
+
 local column_builders = {
     [player_name_heading_name] = {
         create_data = function(player)
@@ -90,16 +99,28 @@ local column_builders = {
             return a.name > b.name
         end,
         draw_heading = function(parent)
-            return parent.add {type = 'label', name = player_name_heading_name, caption = 'Name'}
+            local label = parent.add {type = 'label', name = player_name_heading_name, caption = 'Name'}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 100
+
+            return label
         end,
         draw_cell = function(parent, cell_data, data)
-            local color = lighten_color(cell_data.color)
-            return parent.add {
+            local color = cell_data.color
+            lighten_color(color)
+            local label =
+                parent.add {
                 type = 'label',
                 name = player_name_cell_name,
-                caption = cell_data.name,
-                font_color = color
+                caption = cell_data.name
             }
+            local label_style = label.style
+            label_style.font_color = color
+            label_style.align = 'center'
+            label_style.width = 100
+
+            return label
         end
     },
     [time_heading_name] = {
@@ -110,11 +131,22 @@ local column_builders = {
             return a > b
         end,
         draw_heading = function(parent)
-            return parent.add {type = 'label', name = time_heading_name, caption = 'Time'}
+            local label = parent.add {type = 'label', name = time_heading_name, caption = 'Time'}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 100
+
+            return label
         end,
         draw_cell = function(parent, cell_data, data)
             local text = format_time(cell_data)
-            return parent.add {type = 'label', name = time_cell_name, caption = text}
+
+            local label = parent.add {type = 'label', name = time_cell_name, caption = text}
+            local label_style = label.style
+            label_style.align = 'center'
+            label_style.width = 100
+
+            return label
         end
     },
     [rank_heading_name] = {
@@ -125,10 +157,20 @@ local column_builders = {
             return a > b
         end,
         draw_heading = function(parent)
-            return parent.add {type = 'label', name = rank_heading_name, caption = 'Rank'}
+            local label = parent.add {type = 'label', name = rank_heading_name, caption = 'Rank'}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 100
+
+            return label
         end,
         draw_cell = function(parent, cell_data, data)
-            return parent.add {type = 'label', name = rank_cell_name, caption = cell_data}
+            local label = parent.add {type = 'label', name = rank_cell_name, caption = cell_data}
+            local label_style = label.style
+            label_style.align = 'center'
+            label_style.width = 100
+
+            return label
         end
     },
     [distance_heading_name] = {
@@ -139,11 +181,22 @@ local column_builders = {
             return a > b
         end,
         draw_heading = function(parent)
-            return parent.add {type = 'label', name = distance_heading_name, caption = 'Distance'}
+            local label = parent.add {type = 'label', name = distance_heading_name, caption = 'Distance'}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 100
+
+            return label
         end,
         draw_cell = function(parent, cell_data, data)
             local text = format_distance(cell_data)
-            return parent.add {type = 'label', name = distance_cell_name, caption = text}
+
+            local label = parent.add {type = 'label', name = distance_cell_name, caption = text}
+            local label_style = label.style
+            label_style.align = 'center'
+            label_style.width = 100
+
+            return label
         end
     },
     [fish_heading_name] = {
@@ -155,20 +208,30 @@ local column_builders = {
             }
         end,
         sort = function(a, b)
-            if a.fish_earnt > b.fish_earnt then
-                return true
-            elseif a.fish_earnt < b.fish_earnt then
-                return false
-            else
+            local a_fish_earned, b_fish_earned = a.fish_earned, b.fish_earned
+            if a_fish_earned == b_fish_earned then
                 return a.fish_spent > b.fish_spent
+            else
+                return a_fish_earned > b_fish_earned
             end
         end,
         draw_heading = function(parent)
-            return parent.add {type = 'label', name = fish_heading_name, caption = 'Fish'}
+            local label = parent.add {type = 'label', name = fish_heading_name, caption = 'Fish'}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 100
+
+            return label
         end,
         draw_cell = function(parent, cell_data, data)
             local text = table.concat({cell_data.fish_earnt, ' / ', cell_data.fish_spent})
-            return parent.add {type = 'label', name = fish_cell_name, caption = text}
+
+            local label = parent.add {type = 'label', name = fish_cell_name, caption = text}
+            local label_style = label.style
+            label_style.align = 'center'
+            label_style.width = 100
+
+            return label
         end
     },
     [deaths_heading_name] = {
@@ -183,7 +246,12 @@ local column_builders = {
             return a.count > b.count
         end,
         draw_heading = function(parent)
-            return parent.add {type = 'label', name = deaths_cell_name, caption = 'Deaths'}
+            local label = parent.add {type = 'label', name = deaths_cell_name, caption = 'Deaths'}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 100
+
+            return label
         end,
         draw_cell = function(parent, cell_data, data)
             local tooltip = {}
@@ -196,7 +264,13 @@ local column_builders = {
             table.remove(tooltip)
             tooltip = table.concat(tooltip)
 
-            return parent.add {type = 'label', name = deaths_cell_name, caption = cell_data.count, tooltip = tooltip}
+            local label =
+                parent.add {type = 'label', name = deaths_cell_name, caption = cell_data.count, tooltip = tooltip}
+            local label_style = label.style
+            label_style.align = 'center'
+            label_style.width = 100
+
+            return label
         end
     },
     [poke_name_heading_name] = {
@@ -207,10 +281,20 @@ local column_builders = {
             return a > b
         end,
         draw_heading = function(parent)
-            return parent.add {type = 'label', name = poke_name_heading_name, caption = 'Poke'}
+            local label = parent.add {type = 'label', name = poke_name_heading_name, caption = 'Poke'}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 100
+
+            return label
         end,
         draw_cell = function(parent, cell_data, data)
-            return parent.add {type = 'button', name = poke_cell_name, caption = cell_data}
+            local label = parent.add {type = 'button', name = poke_cell_name, caption = cell_data}
+            local label_style = label.style
+            label_style.align = 'center'
+            label_style.width = 100
+
+            return label
         end
     }
 }
@@ -231,14 +315,28 @@ local default_player_settings = {
 local function redraw_headings(data)
     local settings = data.settings
     local columns = settings.columns
+    local sort = settings.sort
+    local sort_column = math.abs(sort)
+
+    local sort_symbol
+    if sort > 0 then
+        sort_symbol = symbol_asc
+    else
+        sort_symbol = symbol_desc
+    end
 
     local heading_table_flow = data.heading_table_flow
     Gui.clear(heading_table_flow)
 
     local heading_table = heading_table_flow.add {type = 'table', column_count = #columns}
 
-    for _, c in ipairs(settings.columns) do
+    for i, c in ipairs(settings.columns) do
         local heading = column_builders[c].draw_heading(heading_table)
+
+        if i == sort_column then
+            heading.caption = heading.caption .. sort_symbol
+        end
+
         Gui.set_data(heading, data)
     end
 end
@@ -246,6 +344,21 @@ end
 local function redraw_cells(data)
     local settings = data.settings
     local columns = settings.columns
+    local sort = settings.sort
+    local sort_column = math.abs(sort)
+    local column_name = columns[sort_column]
+    local column_sort = column_builders[column_name].sort
+
+    local comp
+    if sort > 0 then
+        comp = function(a, b)
+            return column_sort(a[sort_column], b[sort_column])
+        end
+    else
+        comp = function(a, b)
+            return column_sort(b[sort_column], a[sort_column])
+        end
+    end
 
     local cell_table_scroll_pane = data.cell_table_scroll_pane
     Gui.clear(cell_table_scroll_pane)
@@ -264,11 +377,12 @@ local function redraw_cells(data)
         table.insert(list_data, row)
     end
 
-    -- sort data
+    table.sort(list_data, comp)
 
     for _, row in ipairs(list_data) do
         for c_i, c in ipairs(columns) do
-            column_builders[c].draw_cell(grid, row[c_i])
+            local flow = grid.add {type = 'flow'}
+            column_builders[c].draw_cell(flow, row[c_i], data)
         end
     end
 end

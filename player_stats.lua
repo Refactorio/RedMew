@@ -1,7 +1,7 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 
-local last_player_positions = {}
+local player_last_position = {}
 local player_walk_distances = {}
 local player_fish_earned = {}
 local player_fish_spent = {}
@@ -9,14 +9,14 @@ local player_deaths = {}
 
 Global.register(
     {
-        last_player_positions = last_player_positions,
+        player_last_position = player_last_position,
         player_walk_distances = player_walk_distances,
         player_fish_earned = player_fish_earned,
         player_fish_spent = player_fish_spent,
         player_deaths = player_deaths
     },
     function(tbl)
-        last_player_positions = tbl.last_player_positions
+        player_last_position = tbl.player_last_position
         player_walk_distances = tbl.player_walk_distances
         player_fish_earned = tbl.player_fish_earned
         player_fish_spent = tbl.player_fish_spent
@@ -27,7 +27,7 @@ Global.register(
 local function player_created(event)
     local index = event.player_index
 
-    last_player_positions[index] = game.players[index].position
+    player_last_position[index] = game.players[index].position
     player_walk_distances[index] = 0
     player_fish_earned[index] = 0
     player_fish_spent[index] = 0
@@ -38,11 +38,9 @@ local function get_cause_name(cause)
     if cause then
         local name = cause.name
         if name == 'player' then
-            local player = cause.associated_player
+            local player = cause.player
             if player and player.valid then
                 return player.name
-            else
-                return 'Suicide'
             end
         else
             return name
@@ -68,14 +66,14 @@ local function tick()
     for _, p in ipairs(game.connected_players) do
         if (p.afk_time < 30 or p.walking_state.walking) and p.vehicle == nil then
             local index = p.index
-            local last_pos = last_player_positions[index]
+            local last_pos = player_last_position[index]
             local pos = p.position
 
             local d_x = last_pos.x - pos.x
             local d_y = last_pos.y - pos.y
 
             player_walk_distances[index] = player_walk_distances[index] + math.sqrt(d_x * d_x + d_y * d_y)
-            last_player_positions[index] = pos
+            player_last_position[index] = pos
         end
     end
 end
