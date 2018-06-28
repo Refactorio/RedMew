@@ -66,6 +66,15 @@ local function player_died(event)
     causes[cause] = cause_count + 1
 end
 
+local function picked_up_item(event)
+    local stack = event.item_stack
+
+    if stack.name == 'raw-fish' then
+        local player_index = event.player_index
+        player_fish_earned[player_index] = player_fish_earned[player_index] + stack.count
+    end
+end
+
 local function tick()
     for _, p in ipairs(game.connected_players) do
         if (p.afk_time < 30 or p.walking_state.walking) and p.vehicle == nil then
@@ -84,6 +93,7 @@ end
 
 Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_died, player_died)
+Event.add(defines.events.on_picked_up_item, picked_up_item)
 Event.on_nth_tick(62, tick)
 
 local Public = {}

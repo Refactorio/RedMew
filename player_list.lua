@@ -287,7 +287,7 @@ local column_builders = {
         create_data = function(player)
             local index = player.index
             return {
-                fish_earnt = PlayerStats.get_fish_earned(index),
+                fish_earned = PlayerStats.get_fish_earned(index),
                 fish_spent = PlayerStats.get_fish_spent(index)
             }
         end,
@@ -300,7 +300,13 @@ local column_builders = {
             end
         end,
         draw_heading = function(parent)
-            local label = parent.add {type = 'label', name = fish_heading_name, caption = 'Fish'}
+            local label =
+                parent.add {
+                type = 'label',
+                name = fish_heading_name,
+                caption = 'Fish',
+                tooltip = 'Fish earned / spent.'
+            }
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 80
@@ -308,7 +314,7 @@ local column_builders = {
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local text = table.concat({cell_data.fish_earnt, '/', cell_data.fish_spent})
+            local text = table.concat({cell_data.fish_earned, '/', cell_data.fish_spent})
 
             local label = parent.add {type = 'label', name = fish_cell_name, caption = text}
             local label_style = label.style
