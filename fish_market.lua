@@ -208,7 +208,7 @@ local function reset_player_runningspeed(player)
     global.player_speed_boost_records[player.index] = nil
 end
 
-local function boost_player_runningspeed(player)
+local function boost_player_runningspeed(player, market)
     if global.player_speed_boost_records == nil then
         global.player_speed_boost_records = {}
     end
@@ -232,7 +232,7 @@ local function boost_player_runningspeed(player)
     game.print(string.format(boost_msg[global.player_speed_boost_records[player.index].boost_lvl], player.name))
     if global.player_speed_boost_records[player.index].boost_lvl >= 4 then
         reset_player_runningspeed(player)
-        player.character.die()
+        player.character.die(player.force, market)
     end
 end
 
@@ -241,7 +241,7 @@ local function reset_player_miningspeed(player)
     global.player_mining_boost_records[player.index] = nil
 end
 
-local function boost_player_miningspeed(player)
+local function boost_player_miningspeed(player, market)
     if global.player_mining_boost_records == nil then
         global.player_mining_boost_records = {}
     end
@@ -265,7 +265,7 @@ local function boost_player_miningspeed(player)
     game.print(string.format(boost_msg[global.player_mining_boost_records[player.index].boost_lvl], player.name))
     if global.player_mining_boost_records[player.index].boost_lvl >= 4 then
         reset_player_miningspeed(player)
-        player.character.die()
+        player.character.die(player.force, market)
     end
 end
 
@@ -286,12 +286,12 @@ local function market_item_purchased(event)
 
     if event.offer_index == 1 then -- Temporary speed bonus
         local player = game.players[player_index]
-        boost_player_runningspeed(player)
+        boost_player_runningspeed(player, market)
     end
 
     if event.offer_index == 2 then -- Temporary mining bonus
         local player = game.players[player_index]
-        boost_player_miningspeed(player)
+        boost_player_miningspeed(player, market)
     end
 
     --[[
