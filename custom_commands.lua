@@ -61,9 +61,56 @@ local function teleport_location(cmd)
     game.player.teleport(pos)
 end
 
-local function kill()
-    if game.player and game.player.character then
-        game.player.character.die()
+local function do_fish_kill(player)
+    local c = player.character
+    if not c then
+        return false
+    end
+
+    local e = player.surface.create_entity {name = 'fish', position = player.position}
+    c.die(player.force, e)
+
+    return true
+end
+
+local function kill(cmd)
+    local player = game.player
+    local param = cmd.parameter
+    local target
+    if param then
+        target = game.players[param]
+        if not target then
+            player_print(table.concat {"Sorry, player '", param, "' was not found."})
+            return
+        end
+    end
+
+    if not target and player then
+        if not do_fish_kill(player) then
+            player_print("Sorry, you don't have a character to kill.")
+        end
+    elseif player then
+        if target == player then
+            if not do_fish_kill(player) then
+                player_print("Sorry, you don't have a character to kill.")
+            end
+        elseif target and player.admin then
+            if not do_fish_kill(player) then
+                player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
+            end
+        else
+            player_print("Sorry you don't have permission to use the kill command on other players.")
+        end
+    elseif target then
+        if not do_fish_kill(target) then
+            player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
+        end
+    else
+        if param then
+            player_print(table.concat {"Sorry, player '", param, "' was not found."})
+        else
+            player_print('Usage: /kill <player>')
+        end
     end
 end
 
