@@ -5,14 +5,15 @@ local Utils = require 'utils.utils'
 local Module = {}
 
 local function update_file()
-    local file = 'regulars.lua'
-    game.write_file(file, '{', false, 0)
-    local line = ''
+    local data = {'{\n'}
     for player_name, _ in pairs(global.regulars) do
-        line = string.format('["%s"] = true,\n', player_name)
-        game.write_file(file, line, true, 0)
+        table.insert(data, '["')
+        table.insert(data, player_name)
+        table.insert(data, '"] = true,\n')
     end
-    game.write_file(file, '}', true, 0)
+    table.insert(data, '}')
+
+    game.write_file('regulars.lua', table.concat(data), false, 0)
 end
 
 Module.is_regular =
