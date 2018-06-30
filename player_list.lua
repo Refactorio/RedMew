@@ -40,7 +40,7 @@ Global.register(
     },
     function(tbl)
         player_poke_cooldown = tbl.player_poke_cooldown
-        player_pokes = player_pokes
+        player_pokes = tbl.player_pokes
         player_settings = tbl.player_settings
         no_notify_players = tbl.no_notify_players
     end
