@@ -696,7 +696,7 @@ Gui.on_click(
                     if sorted_column == poke_name_heading_name then
                         redraw_cells(frame_data)
                     else
-                        local poke_button = poke_bottons[p.index]
+                        local poke_button = poke_bottons[poke_player_index]
                         poke_button.caption = count
                     end
                 end
