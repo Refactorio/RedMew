@@ -144,7 +144,7 @@ local column_builders = {
     [sprite_heading_name] = {
         create_data = function(player)
             local ticks = player.online_time
-            local level = math.ceil(ticks * inv_sprite_time_step)
+            local level = math.floor(ticks * inv_sprite_time_step) + 1
             level = math.min(level, #player_sprites)
 
             return level
