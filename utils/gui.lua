@@ -42,6 +42,31 @@ function Gui.remove_data_recursivly(element)
     end
 end
 
+function Gui.remove_children_data(element)
+    local children = element.children
+
+    if not children then
+        return
+    end
+
+    for _, child in ipairs(children) do
+        if child.valid then
+            Gui.set_data(child, nil)
+            Gui.remove_children_data(child)
+        end
+    end
+end
+
+function Gui.destroy(element)
+    Gui.remove_data_recursivly(element)
+    element.destroy()
+end
+
+function Gui.clear(element)
+    Gui.remove_children_data(element)
+    element.clear()
+end
+
 local function handler_factory(event_id)
     local handlers
 
