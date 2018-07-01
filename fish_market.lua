@@ -106,13 +106,22 @@ local total_fish_market_bonus_messages = #fish_market_bonus_message
 
 local function fish_earned(event, amount)
     local player_index = event.player_index
+    local player = game.players[player_index]
+
+    local stack = {name = 'raw-fish', count = amount}
+    local inserted = player.insert(stack)
+
+    local diff = amount - inserted
+    if diff > 0 then
+        stack.count = diff
+        player.surface.spill_item_stack(player.position, stack, true)
+    end
 
     local fish = PlayerStats.get_fish_earned(player_index)
     fish = fish + amount
     PlayerStats.set_fish_earned(player_index, fish)
 
     if fish % 70 == 0 then
-        local player = game.players[player_index]
         if player and player.valid then
             local message = fish_market_bonus_message[math.random(total_fish_market_bonus_messages)]
             player.print(message)
