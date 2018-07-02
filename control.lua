@@ -159,6 +159,23 @@ Event.add(
 
         local gui = player.gui
         gui.top.style = 'slot_table_spacing_horizontal_flow'
-        gui.left.style = 'slot_table_spacing_vertical_flow'      
+        gui.left.style = 'slot_table_spacing_vertical_flow'
+    end
+)
+
+Event.add(
+    defines.events.on_console_command,
+    function(event)
+        local command = event.command
+        if command == 'c' or command == 'command' or command == 'silent-command' or command == 'hax' then
+            local player = game.players[event.player_index]
+            if player then
+                player = player.name
+            else
+                player = '<server>'
+            end
+            local s = table.concat {'[Command] ', player, ' /', command, ' ', event.parameters}
+            log(s)
+        end
     end
 )
