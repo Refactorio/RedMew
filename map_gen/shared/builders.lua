@@ -693,6 +693,32 @@ function Builders.single_y_pattern(shape, height)
     end
 end
 
+function Builders.grid_x_pattern(pattern, columns, width)
+    local half_width = width / 2
+
+    return function(x, y, world)
+        local x2 = ((x + half_width) % width) - half_width
+        local columns_pos = math.floor(x / width + 0.5)
+        local column_i = columns_pos % columns + 1
+        local shape = pattern[column_i] or Builders.empty_shape
+
+        return shape(x2, y, world)
+    end
+end
+
+function Builders.grid_y_pattern(pattern, rows, height)
+    local half_height = height / 2
+
+    return function(x, y, world)
+        local y2 = ((y + half_height) % height) - half_height
+        local row_pos = math.floor(y / height + 0.5)
+        local row_i = row_pos % rows + 1
+        local shape = pattern[row_i] or Builders.empty_shape
+
+        return shape(x, y2, world)
+    end
+end
+
 function Builders.grid_pattern(pattern, columns, rows, width, height)
     local half_width = width / 2
     local half_height = height / 2
