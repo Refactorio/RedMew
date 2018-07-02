@@ -164,7 +164,7 @@ local function redraw_poll_viewer_content(data)
         end
 
         table.remove(edit_names)
-        local edit_text = table.concat(edit_names, ', ')
+        local edit_text = table.concat(edit_names)
 
         top_flow.add {type = 'label', caption = edit_text, tooltip = edit_text}
     end

@@ -61,7 +61,7 @@ local function teleport_location(cmd)
     game.player.teleport(pos)
 end
 
-local function do_fish_kill(player)
+local function do_fish_kill(player, suicide)
     local c = player.character
     if not c then
         return false
@@ -69,6 +69,11 @@ local function do_fish_kill(player)
 
     local e = player.surface.create_entity {name = 'fish', position = player.position}
     c.die(player.force, e)
+
+    -- Don't want people killing themselves for free fish.
+    if suicide then
+        e.destroy()
+    end
 
     return true
 end
@@ -86,12 +91,12 @@ local function kill(cmd)
     end
 
     if not target and player then
-        if not do_fish_kill(player) then
+        if not do_fish_kill(player, true) then
             player_print("Sorry, you don't have a character to kill.")
         end
     elseif player then
         if target == player then
-            if not do_fish_kill(player) then
+            if not do_fish_kill(player, true) then
                 player_print("Sorry, you don't have a character to kill.")
             end
         elseif target and player.admin then

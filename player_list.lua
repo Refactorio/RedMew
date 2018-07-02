@@ -40,7 +40,7 @@ Global.register(
     },
     function(tbl)
         player_poke_cooldown = tbl.player_poke_cooldown
-        player_pokes = player_pokes
+        player_pokes = tbl.player_pokes
         player_settings = tbl.player_settings
         no_notify_players = tbl.no_notify_players
     end
@@ -144,13 +144,13 @@ local column_builders = {
     [sprite_heading_name] = {
         create_data = function(player)
             local ticks = player.online_time
-            local level = math.ceil(ticks * inv_sprite_time_step)
+            local level = math.floor(ticks * inv_sprite_time_step) + 1
             level = math.min(level, #player_sprites)
 
             return level
         end,
         sort = function(a, b)
-            return a > b
+            return a < b
         end,
         draw_heading = function(parent)
             local label = parent.add {type = 'label', name = sprite_heading_name, caption = ' '}
@@ -179,7 +179,7 @@ local column_builders = {
             return player
         end,
         sort = function(a, b)
-            return a.name > b.name
+            return a.name:lower() < b.name:lower()
         end,
         draw_heading = function(parent)
             local label = parent.add {type = 'label', name = player_name_heading_name, caption = 'Name'}
@@ -213,7 +213,7 @@ local column_builders = {
             return player.online_time
         end,
         sort = function(a, b)
-            return a > b
+            return a < b
         end,
         draw_heading = function(parent)
             local label = parent.add {type = 'label', name = time_heading_name, caption = 'Time'}
@@ -237,7 +237,7 @@ local column_builders = {
     [rank_heading_name] = {
         create_data = get_rank_level,
         sort = function(a, b)
-            return a > b
+            return a < b
         end,
         draw_heading = function(parent)
             local label = parent.add {type = 'label', name = rank_heading_name, caption = 'Rank'}
@@ -262,7 +262,7 @@ local column_builders = {
             return PlayerStats.get_walk_distance(player.index)
         end,
         sort = function(a, b)
-            return a > b
+            return a < b
         end,
         draw_heading = function(parent)
             local label = parent.add {type = 'label', name = distance_heading_name, caption = 'Distance'}
@@ -294,9 +294,9 @@ local column_builders = {
         sort = function(a, b)
             local a_fish_earned, b_fish_earned = a.fish_earned, b.fish_earned
             if a_fish_earned == b_fish_earned then
-                return a.fish_spent > b.fish_spent
+                return a.fish_spent < b.fish_spent
             else
-                return a_fish_earned > b_fish_earned
+                return a_fish_earned < b_fish_earned
             end
         end,
         draw_heading = function(parent)
@@ -333,7 +333,7 @@ local column_builders = {
             }
         end,
         sort = function(a, b)
-            return a.count > b.count
+            return a.count < b.count
         end,
         draw_heading = function(parent)
             local label = parent.add {type = 'label', name = deaths_heading_name, caption = 'Deaths'}
@@ -368,7 +368,7 @@ local column_builders = {
             return {poke_count = player_pokes[player.index] or 0, player = player}
         end,
         sort = function(a, b)
-            return a.poke_count > b.poke_count
+            return a.poke_count < b.poke_count
         end,
         draw_heading = function(parent, data)
             local label = parent.add {type = 'label', name = poke_name_heading_name, caption = 'Poke'}
@@ -696,7 +696,7 @@ Gui.on_click(
                     if sorted_column == poke_name_heading_name then
                         redraw_cells(frame_data)
                     else
-                        local poke_button = poke_bottons[p.index]
+                        local poke_button = poke_bottons[poke_player_index]
                         poke_button.caption = count
                     end
                 end
