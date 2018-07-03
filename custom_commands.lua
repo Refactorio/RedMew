@@ -100,7 +100,7 @@ local function kill(cmd)
                 player_print("Sorry, you don't have a character to kill.")
             end
         elseif target and player.admin then
-            if not do_fish_kill(player) then
+            if not do_fish_kill(target) then
                 player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
             end
         else
