@@ -168,13 +168,14 @@ Event.add(
     function(event)
         local command = event.command
         if command == 'c' or command == 'command' or command == 'silent-command' or command == 'hax' then
-            local player = game.players[event.player_index]
-            if player then
-                player = player.name
+            local p_index = event.player_index
+            local name
+            if p_index then
+                name = game.players[event.player_index].name
             else
-                player = '<server>'
+                name = '<server>'
             end
-            local s = table.concat {'[Command] ', player, ' /', command, ' ', event.parameters}
+            local s = table.concat {'[Command] ', name, ' /', command, ' ', event.parameters}
             log(s)
         end
     end
