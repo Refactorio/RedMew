@@ -5,4 +5,6 @@ local map = b.picture(pic)
 
 map = b.single_x_pattern(map, pic.width)
 
+map = b.translate(map, -369, 46)
+
 return map
