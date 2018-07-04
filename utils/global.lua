@@ -1,7 +1,7 @@
 local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 
-Global = {}
+local Global = {}
 
 local load_data = {}
 local init_data = {}
