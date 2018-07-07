@@ -938,7 +938,7 @@ Gui.on_click(
                 local main_frame_data = Gui.get_data(main_frame)
                 local poll_index = main_frame_data.poll_index
 
-                if removed_index >= poll_index then
+                if removed_index < poll_index then
                     main_frame_data.poll_index = poll_index - 1
                 end
 
