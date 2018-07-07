@@ -67,7 +67,8 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.factory"
 --shape = require "map_gen.presets.triangle_of_death"
 --shape = require "map_gen.presets.world_map"
-shape = require "map_gen.presets.lines_and_squares"
+--shape = require "map_gen.presets.lines_and_squares"
+--shape = require "map_gen.presets.spiral_of_spirals"
 --shape = require "map_gen.presets.test"
 
 --shapes--
@@ -137,6 +138,6 @@ if shape then
 		['nauvis'] = shape,
 	}
 
-    --require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-	require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
+    require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
+	--require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end

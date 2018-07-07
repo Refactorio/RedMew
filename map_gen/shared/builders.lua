@@ -865,6 +865,88 @@ function Builders.grid_pattern_full_overlap(pattern, columns, rows, width, heigh
     end
 end
 
+local function is_spiral(x, y)
+    local a = -math.max(math.abs(x), math.abs(y))
+
+    if a % 2 == 0 then
+        return y ~= a or x == a
+    else
+        return y == a and x ~= a
+    end
+end
+
+function Builders.single_spiral_pattern(shape, width, height)
+    local inv_width = 1 / width
+    local inv_height = 1 / height
+    return function(x, y, world)
+        local x1 = math.floor(x * inv_width + 0.5)
+        local y1 = math.floor(y * inv_height + 0.5)
+
+        if is_spiral(x1, y1) then
+            x1 = x - x1 * width
+            y1 = y - y1 * height
+            return shape(x1, y1, world)
+        else
+            return false
+        end
+    end
+end
+
+local function rotate_0(x, y)
+    return x, y
+end
+
+local function rotate_90(x, y)
+    return y, -x
+end
+
+local function rotate_180(x, y)
+    return -x, -y
+end
+
+local function rotate_270(x, y)
+    return -y, x
+end
+
+local function spiral_rotation(x, y)
+    local a = -math.max(math.abs(x), math.abs(y))
+
+    if a % 2 == 0 then
+        if y ~= a or x == a then
+            if x == a then
+                return rotate_0
+            elseif y >= x then
+                return rotate_270
+            else
+                return rotate_180
+            end
+        end
+    else
+        if y == a and x ~= a then
+            return rotate_90
+        end
+    end
+end
+
+function Builders.single_spiral_rotate_pattern(shape, width, height)
+    local inv_width = 1 / width
+    local inv_height = 1 / height
+    return function(x, y, world)
+        local x1 = math.floor(x * inv_width + 0.5)
+        local y1 = math.floor(y * inv_height + 0.5)
+
+        local t = spiral_rotation(x1, y1)
+        if t then
+            x1 = x - x1 * width
+            y1 = y - y1 * height
+            x1, y1 = t(x1, y1)
+            return shape(x1, y1, world)
+        else
+            return false
+        end
+    end
+end
+
 function Builders.segment_pattern(pattern)
     local count = #pattern
 
