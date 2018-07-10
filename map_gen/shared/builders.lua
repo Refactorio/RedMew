@@ -928,9 +928,11 @@ local function spiral_rotation(x, y)
     end
 end
 
-function Builders.single_spiral_rotate_pattern(shape, width, height)
+function Builders.single_spiral_rotate_pattern(shape, width, optional_height)
+    optional_height = optional_height or width
+
     local inv_width = 1 / width
-    local inv_height = 1 / height
+    local inv_height = 1 / optional_height
     return function(x, y, world)
         local x1 = math.floor(x * inv_width + 0.5)
         local y1 = math.floor(y * inv_height + 0.5)
@@ -938,7 +940,7 @@ function Builders.single_spiral_rotate_pattern(shape, width, height)
         local t = spiral_rotation(x1, y1)
         if t then
             x1 = x - x1 * width
-            y1 = y - y1 * height
+            y1 = y - y1 * optional_height
             x1, y1 = t(x1, y1)
             return shape(x1, y1, world)
         else
