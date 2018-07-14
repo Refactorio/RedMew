@@ -1,5 +1,6 @@
 local Random = require 'map_gen.shared.random'
 local Token = require 'utils.global_token'
+local b = require 'map_gen.shared.builders'
 
 local direction_bit_mask = 0xc0000000
 local section_bit_mask = 0x30000000
@@ -25,9 +26,17 @@ local wall_east_inner = 0x60000001
 local wall_south_inner = 0xa0000001
 local wall_west_inner = 0xe0000001
 
+local part_size = 6
+local inv_part_size = 1 / part_size
+
 local function get_direction(part)
     local dir = bit32.band(part, direction_bit_mask)
     return bit32.rshift(dir, direction_bit_shift - 1)
+end
+
+local function get_4_way_direction(part)
+    local dir = bit32.band(part, direction_bit_mask)
+    return bit32.rshift(dir, direction_bit_shift)
 end
 
 local function get_section(part)
@@ -91,7 +100,7 @@ local function do_walls(self, blocks, outpost_variance, outpost_min_step)
         elseif pv == -1 then
             blocks[i] = wall_north_outer
         else
-            blocks[i] = wall_north_inner
+            blocks[i] = wall_east_inner
         end
 
         x = x + 1
@@ -110,7 +119,7 @@ local function do_walls(self, blocks, outpost_variance, outpost_min_step)
                 pv = 0
             elseif y < ty then
                 pv = 1
-                blocks[i] = wall_north_outer
+                blocks[i] = wall_east_outer
                 y = y + 1
                 i = i + size
                 while y < ty do
@@ -143,7 +152,7 @@ local function do_walls(self, blocks, outpost_variance, outpost_min_step)
         if pv == 0 then
             blocks[i] = wall_east_straight
         elseif pv == -1 then
-            blocks[i] = wall_east_inner
+            blocks[i] = wall_south_inner
         else
             blocks[i] = wall_east_outer
         end
@@ -174,7 +183,7 @@ local function do_walls(self, blocks, outpost_variance, outpost_min_step)
                 end
             else
                 pv = -1
-                blocks[i] = wall_east_outer
+                blocks[i] = wall_south_outer
                 x = x - 1
                 i = i - 1
                 while x > tx do
@@ -198,7 +207,7 @@ local function do_walls(self, blocks, outpost_variance, outpost_min_step)
         if pv == 0 then
             blocks[i] = wall_south_straight
         elseif pv == -1 then
-            blocks[i] = wall_south_inner
+            blocks[i] = wall_west_inner
         else
             blocks[i] = wall_south_outer
         end
@@ -229,7 +238,7 @@ local function do_walls(self, blocks, outpost_variance, outpost_min_step)
                 end
             else
                 pv = -1
-                blocks[i] = wall_south_outer
+                blocks[i] = wall_west_outer
                 y = y - 1
                 i = i - size
                 while y > ty do
@@ -255,7 +264,7 @@ local function do_walls(self, blocks, outpost_variance, outpost_min_step)
         elseif pv == -1 then
             blocks[i] = wall_west_outer
         else
-            blocks[i] = wall_west_inner
+            blocks[i] = wall_north_inner
         end
 
         y = y - 1
@@ -316,7 +325,7 @@ local function do_walls(self, blocks, outpost_variance, outpost_min_step)
         pv = 0
     elseif x < start_x then
         pv = 1
-        blocks[i] = wall_west_outer
+        blocks[i] = wall_north_outer
         x = x + 1
         i = i + 1
         while x < start_x do
@@ -341,7 +350,7 @@ local function do_walls(self, blocks, outpost_variance, outpost_min_step)
     elseif pv == -1 then
         blocks[i] = wall_west_outer
     else
-        blocks[i] = wall_west_inner
+        blocks[i] = wall_north_inner
     end
 
     y = y - 1
@@ -483,53 +492,132 @@ local callback =
     end
 )
 
-function Public:do_outpost(outpost_blocks, outpost_variance, outpost_min_step, max_level)
+local function outpost_shape(templates, blocks)
+    local walls = templates[1] or {}
+    local size = blocks.size
+
+    return function(x, y)
+        x, y = math.floor(x), math.floor(y)
+        local x2, y2 = math.floor(x * inv_part_size), math.floor(y * inv_part_size)
+        if x2 < 1 or x2 > size or y2 < 1 or y2 > size then
+            return true
+        end
+
+        local block = blocks[(y2 - 1) * size + x2]
+        if not block then
+            return true
+        end
+
+        local level = get_level(block)
+
+        local x3, y3 = x - x2 * part_size + 1, y - y2 * part_size + 1
+
+        local i = (y3 - 1) * part_size + x3
+
+        if level == 1 then
+            local section = get_section(block)
+
+            local dir = get_4_way_direction(block)
+            local lookup = dir + 1
+
+            local wall = walls[section + 1]
+
+            if not wall then
+                return true
+            end
+
+            local entry = wall[lookup][i]
+
+            if not entry then
+                return true
+            end
+
+            local tile = entry.tile or true
+            local entity = entry.entity
+
+            if entity then
+                local e_dir = (dir * 2 + (entry.direction or 0)) % 8
+                return {tile = tile, entities = {{name = entity.name, direction = e_dir}}}
+            end
+
+            return tile
+        else
+            local template = templates[level]
+            if not template then
+                return true
+            end
+
+            local entry = template[i]
+            if not entry then
+                return
+            end
+
+            local entity = entry.entity
+            local tile = entry.tile or true
+            if entity then
+                return {tile = tile, entities = {{name = entity.name, direction = entity.direction}}}
+            end
+            return tile
+        end
+    end
+end
+
+function Public:do_outpost(outpost_blocks, outpost_variance, outpost_min_step, max_level, templates)
     local blocks = {size = outpost_blocks}
 
     do_walls(self, blocks, outpost_variance, outpost_min_step)
     fill(blocks)
     do_levels(blocks, max_level)
 
-    local size = blocks.size
+    return outpost_shape(templates, blocks)
+end
 
-    return function(x, y)
-        x, y = math.floor(x), math.floor(y)
-        if x < 1 or x > size or y < 1 or y > size then
-            return
+function Public.make_4_way(data)
+    local north = {}
+    local east = {}
+    local south = {}
+    local west = {}
+    local res = {north, east, south, west}
+
+    for i, entry in pairs(data) do
+        local y = math.ceil(i * inv_part_size)
+        local x = i - (y - 1) * part_size
+
+        local e = entry.entity
+        local offset = e.offset
+
+        local x2, x3, x4, y2, y3, y4
+
+        x2 = part_size - y + 1
+        y2 = x
+        x3 = part_size - x + 1
+        y3 = part_size - y + 1
+        x4 = y
+        y4 = part_size - x + 1
+
+        local i2 = (y2 - 1) * part_size + x2
+        local i3 = (y3 - 1) * part_size + x3
+        local i4 = (y4 - 1) * part_size + x4
+
+        if offset == 3 then
+            i = i + 7
+            i2 = i2 + 6
+            i4 = i4 + 1
+        elseif offset == 1 then
+            i = i + 1
+            i4 = i4 + 1
+        elseif offset == 2 then
+            i = i + 6
+            i2 = i2 + 6
         end
 
-        local part = blocks[(y - 1) * blocks.size + x]
-
-        if part then
-            local direction = get_direction(part)
-            local section = get_section(part)
-            local level = get_level(part)
-
-            local name
-            if level == 2 then
-                name = 'wooden-chest'
-            elseif level == 3 then
-                name = 'iron-chest'
-            elseif level == 4 then
-                name = 'steel-chest'
-            elseif level > 4 then
-                name = 'pipe'
-            elseif level < 1 then
-                name = 'small-electric-pole'
-            else
-                if section == section_straight then
-                    name = 'stone-wall'
-                elseif section == section_outer_corner then
-                    name = 'inserter'
-                elseif section == section_inner_corner then
-                    name = 'transport-belt'
-                else
-                    name = 'pipe'
-                end
-            end
-            return {name = name, force = 'player', direction = direction, callback = callback}
-        end
+        north[i] = entry
+        east[i2] = entry
+        south[i3] = entry
+        west[i4] = entry
     end
+
+    return res
 end
 
 return Public

@@ -159,6 +159,17 @@ Event.add(
 
         local gui = player.gui
         gui.top.style = 'slot_table_spacing_horizontal_flow'
-        gui.left.style = 'slot_table_spacing_vertical_flow'      
+        gui.left.style = 'slot_table_spacing_vertical_flow'
     end
 )
+
+local direction_bit_mask = 0xc0000000
+local section_bit_mask = 0x30000000
+local level_bit_mask = 0x0fffffff
+local direction_bit_shift = 30
+local section_bit_shift = 28
+
+function get_direction(part)
+    local dir = bit32.band(part, direction_bit_mask)
+    return bit32.rshift(dir, direction_bit_shift - 1)
+end
