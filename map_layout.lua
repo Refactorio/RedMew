@@ -69,6 +69,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.world_map"
 --shape = require "map_gen.presets.lines_and_squares"
 --shape = require "map_gen.presets.spiral_of_spirals"
+--shape = require "map_gen.presets.dino_island"
 --shape = require "map_gen.presets.test"
 
 --shapes--
