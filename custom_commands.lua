@@ -3,7 +3,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
-local Antigrief = require 'antigrief'
+--local Antigrief = require 'antigrief'
 
 function player_print(str)
     if game.player then
@@ -545,7 +545,7 @@ local function pool()
     end
 end
 
-global.undo_warned_players = {}
+--[[ global.undo_warned_players = {}
 local function undo(cmd)
     if (not game.player) or not game.player.admin then
         cant_run(cmd.name)
@@ -581,7 +581,7 @@ local function antigrief_surface_tp()
         return
     end
     Antigrief.antigrief_surface_tp()
-end
+end ]]
 
 local function find_player(cmd)
     local player = game.player
@@ -675,10 +675,10 @@ commands.add_command(
     end
 )
 commands.add_command('pool', 'Spawns a pool', pool)
-commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
+--[[ commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
 commands.add_command(
     'antigrief_surface',
     'moves you to the antigrief surface or back (Admins only)',
     antigrief_surface_tp
-)
+) ]]
 commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)

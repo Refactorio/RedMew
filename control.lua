@@ -163,6 +163,24 @@ Event.add(
     end
 )
 
+Event.add(
+    defines.events.on_console_command,
+    function(event)
+        local command = event.command
+        if command == 'c' or command == 'command' or command == 'silent-command' or command == 'hax' then
+            local p_index = event.player_index
+            local name
+            if p_index then
+                name = game.players[event.player_index].name
+            else
+                name = '<server>'
+            end
+            local s = table.concat {'[Command] ', name, ' /', command, ' ', event.parameters}
+            log(s)
+        end
+    end
+)
+
 local direction_bit_mask = 0xc0000000
 local section_bit_mask = 0x30000000
 local level_bit_mask = 0x0fffffff
