@@ -10,7 +10,7 @@ require 'follow'
 require 'autodeconstruct'
 require 'corpse_util'
 --require 'infinite_storage_chest'
-require 'fish_market'
+--require 'fish_market'
 require 'reactor_meltdown'
 require 'map_layout'
 require 'bot'
@@ -180,14 +180,3 @@ Event.add(
         end
     end
 )
-
-local direction_bit_mask = 0xc0000000
-local section_bit_mask = 0x30000000
-local level_bit_mask = 0x0fffffff
-local direction_bit_shift = 30
-local section_bit_shift = 28
-
-function get_direction(part)
-    local dir = bit32.band(part, direction_bit_mask)
-    return bit32.rshift(dir, direction_bit_shift - 1)
-end

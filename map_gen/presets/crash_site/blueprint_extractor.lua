@@ -28,9 +28,9 @@ local function get_mins(entities, tiles)
     return min_x, min_y
 end
 
-local function output(result)
-    local str = {}
-    table.insert(str, 'return {\n')
+local function output(result, prepend)
+    local str = {prepend}
+    table.insert(str, '{\n')
 
     for i, entry in pairs(result) do
         table.insert(str, '[')
@@ -130,7 +130,7 @@ function extract1(size)
 
         entry.tile = e
     end
-    output(result)
+    output(result, 'return')
 end
 
 function extract4(size)
@@ -193,5 +193,5 @@ function extract4(size)
 
         entry.tile = e
     end
-    output(result)
+    output(result, 'ob.make_4_way')
 end
