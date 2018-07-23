@@ -478,15 +478,10 @@ local function fill(blocks)
 end
 
 local function do_levels(blocks, max_level)
-    if max_level < 3 then
-        return
-    end
-
     local size = blocks.size
-
     local level = 2
 
-    repeat
+    while level < max_level do
         local next_level = level + 1
 
         for y = 1, size do
@@ -518,7 +513,7 @@ local function do_levels(blocks, max_level)
         end
 
         level = level + 1
-    until level == max_level
+    end
 
     local levels = {}
     blocks.levels = levels
@@ -572,36 +567,37 @@ local function get_template(random, templates, templates_count, counts)
     return template
 end
 
-local function make_blocks(self, blocks, templates)
+local function make_blocks(self, blocks, template)
     local random = self.random
 
     local levels = blocks.levels
     local wall_level = levels[1]
 
-    local walls = templates[1]
+    local walls = template.walls
     local wall_template_count = #walls
     for _, i in ipairs(wall_level) do
         local ti = random:next_int(1, wall_template_count)
-        local template = walls[ti]
+        local block = walls[ti]
 
-        if template == Public.empty_template then
+        if block == Public.empty_template then
             blocks[i] = nil
         else
-            local block = blocks[i]
+            local block_data = blocks[i]
 
-            local section = get_section(block)
-            local dir = get_4_way_direction(block)
+            local section = get_section(block_data)
+            local dir = get_4_way_direction(block_data)
 
-            local new_block = template[section + 1][dir + 1]
+            local new_block = block[section + 1][dir + 1]
             blocks[i] = new_block
         end
     end
 
     local counts = {}
+    local bases = template.bases
 
     for l = 2, #levels do
         local level = levels[l]
-        local base_templates = templates[l]
+        local base_templates = bases[l - 1]
 
         if base_templates then
             local base_template_count = #base_templates
@@ -612,8 +608,7 @@ local function make_blocks(self, blocks, templates)
 
                 fast_remove(level, index)
 
-                local template = get_template(random, base_templates, base_template_count, counts)
-                blocks[i] = template
+                blocks[i] = get_template(random, base_templates, base_template_count, counts)
             end
         else
             for _, i in ipairs(level) do
@@ -693,13 +688,14 @@ local function to_shape(blocks)
     end
 end
 
-function Public:do_outpost(outpost_blocks, outpost_variance, outpost_min_step, max_level, templates)
-    local blocks = {size = outpost_blocks}
+function Public:do_outpost(template)
+    local settings = template.settings
+    local blocks = {size = settings.blocks}
 
-    do_walls(self, blocks, outpost_variance, outpost_min_step)
+    do_walls(self, blocks, settings.variance, settings.min_step)
     fill(blocks)
-    do_levels(blocks, max_level)
-    make_blocks(self, blocks, templates)
+    do_levels(blocks, settings.max_level)
+    make_blocks(self, blocks, template)
 
     return to_shape(blocks)
 end
@@ -977,8 +973,8 @@ Public.magic_item_crafting_callback =
     Token.register(
     function(entity, data)
         entity.minable = false
-        entity.operable = false
         entity.destructible = false
+        entity.operable = false
 
         local recipe = data.recipe
         if recipe then
@@ -1120,5 +1116,11 @@ end
 
 Event.add(defines.events.on_tick, tick)
 Event.add(defines.events.on_entity_died, remove_power_source)
+
+Event.on_init(
+    function()
+        game.forces.neutral.recipes['steel-plate'].enabled = true
+    end
+)
 
 return Public

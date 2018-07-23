@@ -6,8 +6,7 @@ return {
         factory = {
             callback = ob.magic_item_crafting_callback,
             data = {
-                --furance_item = 'coin',
-                output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'coin'}
+                output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'iron-plate'}
             }
         },
         [15] = {entity = {name = 'electric-furnace', callback = 'factory'}}

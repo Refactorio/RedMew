@@ -18,7 +18,7 @@ local loot_callback =
     end
 )
 
-level2 =
+local level2 =
     ob.make_1_way {
     force = 'neutral',
     loot = {callback = loot_callback},
@@ -107,7 +107,7 @@ return {
             }
         },
         max_count = 1,
-        fallback = level2,
+        fallback = level3,
         [15] = {entity = {name = 'market', callback = 'market'}}
     }
 }

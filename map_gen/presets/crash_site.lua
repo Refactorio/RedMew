@@ -62,13 +62,28 @@ local templates = {
     --{base_templates.test[1]}
 }
 
+local small_gear_factory = require 'map_gen.presets.crash_site.outpost_data.small_gear_factory'
+local medium_gear_factory = require 'map_gen.presets.crash_site.outpost_data.medium_gear_factory'
+local big_gear_factory = require 'map_gen.presets.crash_site.outpost_data.big_gear_factory'
+
+local small_iron_plate_factory = require 'map_gen.presets.crash_site.outpost_data.small_iron_plate_factory'
+local medium_iron_plate_factory = require 'map_gen.presets.crash_site.outpost_data.medium_iron_plate_factory'
+local big_iron_plate_factory = require 'map_gen.presets.crash_site.outpost_data.big_iron_plate_factory'
+
+local small_circuit_factory = require 'map_gen.presets.crash_site.outpost_data.small_circuit_factory'
+local medium_circuit_factory = require 'map_gen.presets.crash_site.outpost_data.medium_circuit_factory'
+local big_circuit_factory = require 'map_gen.presets.crash_site.outpost_data.big_circuit_factory'
+
+local stage1 = {
+    {}
+}
+
 local pattern = {}
 for r = 1, 100 do
     local row = {}
     pattern[r] = row
     for c = 1, 100 do
-        row[c] =
-            outpost_builder:do_outpost(outpost_blocks, outpost_variance, outpost_min_step, outpost_max_level, templates)
+        row[c] = outpost_builder:do_outpost(big_circuit_factory)
     end
 end
 
