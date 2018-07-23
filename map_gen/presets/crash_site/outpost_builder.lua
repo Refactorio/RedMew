@@ -86,6 +86,17 @@ local function get_block(tbl, x, y)
     return tbl[(y - 1) * size + x] or 0
 end
 
+local function fast_remove(tbl, index)
+    local count = #tbl
+    if index > count then
+        return
+    elseif index < count then
+        tbl[index] = tbl[count]
+    end
+
+    tbl[count] = nil
+end
+
 local Public = {}
 Public.__index = Public
 
@@ -529,6 +540,38 @@ local function do_levels(blocks, max_level)
     end
 end
 
+local function get_template(random, templates, templates_count, counts)
+    local template
+    if templates_count == 0 then
+        return nil
+    elseif templates_count == 1 then
+        template = templates[1]
+    else
+        local ti = random:next_int(1, templates_count)
+        template = templates[ti]
+    end
+
+    if template == Public.empty_template then
+        return nil
+    end
+
+    local count = counts[template] or 0
+    local max_count = template.max_count
+
+    while count == max_count do
+        template = template.fallback
+        if template == nil then
+            return nil
+        end
+        count = counts[template] or 0
+        max_count = template.max_count
+    end
+
+    counts[template] = count + 1
+
+    return template
+end
+
 local function make_blocks(self, blocks, templates)
     local random = self.random
 
@@ -554,6 +597,8 @@ local function make_blocks(self, blocks, templates)
         end
     end
 
+    local counts = {}
+
     for l = 2, #levels do
         local level = levels[l]
         local base_templates = templates[l]
@@ -561,22 +606,14 @@ local function make_blocks(self, blocks, templates)
         if base_templates then
             local base_template_count = #base_templates
 
-            for _, i in ipairs(level) do
-                local template
-                if base_template_count == 0 then
-                    template = nil
-                elseif base_template_count == 1 then
-                    template = base_templates[1]
-                else
-                    local ti = random:next_int(1, base_template_count)
-                    template = base_templates[ti]
-                end
+            while #level > 0 do
+                local index = random:next_int(1, #level)
+                local i = level[index]
 
-                if template == Public.empty_template then
-                    blocks[i] = nil
-                else
-                    blocks[i] = template
-                end
+                fast_remove(level, index)
+
+                local template = get_template(random, base_templates, base_template_count, counts)
+                blocks[i] = template
             end
         else
             for _, i in ipairs(level) do
@@ -586,12 +623,14 @@ local function make_blocks(self, blocks, templates)
     end
 end
 
+local remove_entity_types = {'tree', 'simple-entity'}
+
 local function to_shape(blocks)
     local size = blocks.size
     local t_size = size * part_size
     local half_t_size = t_size * 0.5
 
-    return function(x, y)
+    return function(x, y, world)
         x, y = math.floor(x + half_t_size), math.floor(y + half_t_size)
         if x < 0 or y < 0 or x >= t_size or y >= t_size then
             return true
@@ -602,6 +641,18 @@ local function to_shape(blocks)
         local template = blocks[y2 * size + x2 + 1]
         if not template then
             return true
+        end
+
+        local wx, wy = world.x, world.y
+        for _, e in ipairs(
+            world.surface.find_entities_filtered(
+                {
+                    area = {{wx, wy}, {wx + 1, wy + 1}},
+                    type = remove_entity_types
+                }
+            )
+        ) do
+            e.destroy()
         end
 
         local x3, y3 = x - x2 * part_size, y - y2 * part_size
@@ -632,7 +683,8 @@ local function to_shape(blocks)
                         direction = entity.direction,
                         force = template.force,
                         callback = callback,
-                        data = data
+                        data = data,
+                        always_place = true
                     }
                 }
             }
@@ -656,22 +708,13 @@ function Public.to_shape(blocks)
     return to_shape(blocks)
 end
 
-local function change_direction(entry, new_dir)
-    local e = entry.entity
-    if not e then
-        return entry
-    end
-
+local function change_direction(entity, new_dir)
     local copy = {}
-    copy.tile = entry.tile
 
-    local ce = {}
-
-    copy.entity = ce
-    for k, v in pairs(e) do
-        ce[k] = v
+    for k, v in pairs(entity) do
+        copy[k] = v
     end
-    ce.direction = new_dir
+    copy.direction = new_dir
 
     return copy
 end
@@ -679,6 +722,25 @@ end
 function Public.make_1_way(data)
     data.__index = data
     return data
+end
+
+local function set_tile(tbl, index, tile)
+    local entry = tbl[index]
+    if entry then
+        entry.tile = tile
+    else
+        tbl[index] = {tile = tile}
+    end
+end
+
+local function set_entity(tbl, index, entity)
+    local entry = tbl[index]
+
+    if entry then
+        entry.entity = entity
+    else
+        tbl[index] = {entity = entity}
+    end
 end
 
 function Public.make_4_way(data)
@@ -697,9 +759,6 @@ function Public.make_4_way(data)
             local y = math.ceil(i * inv_part_size)
             local x = i - (y - 1) * part_size
 
-            local e = entry.entity or {}
-            local offset = e.offset
-
             local x2 = part_size - y + 1
             local y2 = x
             local x3 = part_size - x + 1
@@ -711,24 +770,41 @@ function Public.make_4_way(data)
             local i3 = (y3 - 1) * part_size + x3
             local i4 = (y4 - 1) * part_size + x4
 
-            if offset == 3 then
-                i = i + 7
-                i2 = i2 + 6
-                i4 = i4 + 1
-            elseif offset == 1 then
-                i = i + 1
-                i4 = i4 + 1
-            elseif offset == 2 then
-                i = i + 6
-                i2 = i2 + 6
+            local tile = entry.tile
+            if tile then
+                set_tile(north, i, tile)
+                set_tile(east, i2, tile)
+                set_tile(south, i3, tile)
+                set_tile(west, i4, tile)
             end
 
-            local dir = e.direction or 0
+            local entity = entry.entity
 
-            north[i] = entry
-            east[i2] = change_direction(entry, (dir + 2) % 8)
-            south[i3] = change_direction(entry, (dir + 4) % 8)
-            west[i4] = change_direction(entry, (dir + 6) % 8)
+            if entity then
+                local offset = entity.offset
+
+                if offset == 3 then
+                    i = i + 7
+                    i2 = i2 + 6
+                    i4 = i4 + 1
+                elseif offset == 1 then
+                    i = i + 1
+                    i4 = i4 + 1
+                elseif offset == 2 then
+                    i = i + 6
+                    i2 = i2 + 6
+                else
+                    i = i
+                    i2 = i2
+                end
+
+                local dir = entity.direction or 0
+
+                set_entity(north, i, entity)
+                set_entity(east, i2, change_direction(entity, (dir + 2) % 8))
+                set_entity(south, i3, change_direction(entity, (dir + 4) % 8))
+                set_entity(west, i4, change_direction(entity, (dir + 6) % 8))
+            end
         end
     end
 
@@ -774,17 +850,6 @@ function Public.extend_walls(data, tbl)
         Public.extend_4_way(data[2], tbl),
         Public.extend_4_way(data[3], tbl)
     }
-end
-
-local function fast_remove(tbl, index)
-    local count = #tbl
-    if index > count then
-        return
-    elseif index < count then
-        tbl[index] = tbl[count]
-    end
-
-    tbl[count] = nil
 end
 
 local function do_refill_turrets()
@@ -927,7 +992,8 @@ Public.magic_item_crafting_callback =
         end
 
         local p = entity.position
-        local distance = math.sqrt(p.x * p.x + p.y * p.y)
+        local x, y = p.x, p.y
+        local distance = math.sqrt(x * x + y * y)
 
         local output = data.output
         if #output == 0 then
@@ -958,6 +1024,10 @@ local function remove_power_source(event)
     end
 
     local number = entity.unit_number
+    if not number then
+        return
+    end
+
     local ps = power_sources[number]
     power_sources[number] = nil
 
@@ -966,12 +1036,87 @@ local function remove_power_source(event)
     end
 end
 
+Public.market_set_items_callback =
+    Token.register(
+    function(entity, data)
+        if not entity.valid then
+            return
+        end
+
+        entity.destructible = false
+
+        local p = entity.position
+        local x, y = p.x, p.y
+        local d = math.sqrt(x * x + y * y)
+
+        for _, item in ipairs(data) do
+            local price = item.price
+            local df = item.distance_factor or 0
+            local min_price = item.min_price or 1
+
+            local count = price - d * df
+            count = math.max(count, min_price)
+
+            entity.add_market_item({price = {{item.name, count}}, offer = item.offer})
+        end
+    end
+)
+
 Public.firearm_magazine_ammo = {name = 'firearm-magazine', count = 200}
 Public.piercing_rounds_magazine_ammo = {name = 'piercing-rounds-magazine', count = 200}
 Public.uranium_rounds_magazine_ammo = {name = 'uranium-rounds-magazine', count = 200}
 Public.light_oil_ammo = {name = 'light-oil', amount = 100}
 
 Public.laser_turrent_power_source = {buffer_size = 2400000, power_production = 40000}
+
+function Public.prepare_weighted_loot(loot)
+    local total = 0
+    local weights = {}
+
+    for _, v in ipairs(loot) do
+        total = total + v.weight
+        table.insert(weights, total)
+    end
+
+    weights.total = total
+
+    return weights
+end
+
+function Public.do_random_loot(entity, weights, loot)
+    if not entity.valid then
+        return
+    end
+
+    entity.operable = false
+    entity.destructible = false
+
+    local i = math.random() * weights.total
+
+    local index = table.binary_search(weights, i)
+    if (index < 0) then
+        index = bit32.bnot(index)
+    end
+
+    local stack = loot[index].stack
+    if not stack then
+        return
+    end
+
+    local df = stack.distance_factor
+    local count
+    if df then
+        local p = entity.position
+        local x, y = p.x, p.y
+        local d = math.sqrt(x * x + y * y)
+
+        count = stack.count + d * df
+    else
+        count = stack.count
+    end
+
+    entity.insert {name = stack.name, count = count}
+end
 
 Event.add(defines.events.on_tick, tick)
 Event.add(defines.events.on_entity_died, remove_power_source)

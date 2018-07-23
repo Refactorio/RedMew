@@ -19,7 +19,9 @@ local outpost_builder = OutpostBuilder.new(outpost_seed)
 local walls = require 'map_gen.presets.crash_site.outpost_data.walls'
 local thin_walls = require 'map_gen.presets.crash_site.outpost_data.thin_walls'
 
+local light_gun_turrets = require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets'
 local medium_gun_turrets = require 'map_gen.presets.crash_site.outpost_data.medium_gun_turrets'
+local heavy_gun_turrets = require 'map_gen.presets.crash_site.outpost_data.heavy_gun_turrets'
 local light_flame_turrets = require 'map_gen.presets.crash_site.outpost_data.light_flame_turrets'
 local laser_turrets = require 'map_gen.presets.crash_site.outpost_data.light_laser_turrets'
 local small_worm_turrets = require 'map_gen.presets.crash_site.outpost_data.small_worm_turrets'
@@ -52,8 +54,11 @@ local base_templates = {
 }
 
 local templates = {
-    {medium_gun_turrets, light_flame_turrets, laser_turrets, small_worm_turrets},
-    {gear_factory[1]}
+    {medium_gun_turrets_player},
+    {gear_factory[1]},
+    {gear_factory[2]},
+    {gear_factory[3]}
+    --{gear_factory[2]}
     --{base_templates.test[1]}
 }
 
@@ -77,12 +82,13 @@ local outpost =
     {
         size = 2,
         laser_turrets_player[1][1],
-        iron_plate_factory[1]
+        gear_factory[1],
+        gear_factory[2]
     }
 )
 
 local map = b.change_tile(outposts, true, 'grass-1')
 
 --return b.full_shape
---return map
-return outpost
+return map
+--return outpost

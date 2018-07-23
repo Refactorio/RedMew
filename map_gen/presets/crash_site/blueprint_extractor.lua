@@ -130,7 +130,7 @@ function extract1(size)
 
         entry.tile = e
     end
-    output(result, 'return')
+    output(result, 'ob.make_1_way')
 end
 
 function extract4(size)
@@ -179,8 +179,8 @@ function extract4(size)
         entry.entity = e
     end
 
-    for _, e in ipairs(ts) do
-        local p = e.position
+    for _, t in ipairs(ts) do
+        local p = t.position
         local x, y = p.x + min_x, p.y + min_y
         x, y = math.ceil(x), math.ceil(y)
         local i = (y - 1) * size + x
@@ -191,7 +191,7 @@ function extract4(size)
             result[i] = entry
         end
 
-        entry.tile = e
+        entry.tile = t
     end
     output(result, 'ob.make_4_way')
 end
