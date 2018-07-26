@@ -1,46 +1,11 @@
 local ob = require 'map_gen.presets.crash_site.outpost_builder'
-
 local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 500, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'iron-plate', count = 200, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'copper-cable', count = 300, distance_factor = 3 / 4}, weight = 5},
-    {stack = {name = 'electronic-circuit', count = 400, distance_factor = 1}, weight = 5},
-    {stack = {name = 'advanced-circuit', count = 200, distance_factor = 1 / 10}, weight = 1}
-}
-
-local factory = {
-    callback = ob.magic_item_crafting_callback,
-    data = {
-        recipe = 'electronic-circuit',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'electronic-circuit'}
-    }
-}
-
-local market = {
-    callback = ob.market_set_items_callback,
-    data = {
-        {
-            name = 'copper-cable',
-            price = 0.25,
-            distance_factor = 0.005 / 32,
-            min_price = 0.025
-        },
-        {
-            name = 'electronic-circuit',
-            price = 1,
-            distance_factor = 0.005 / 32,
-            min_price = 0.05
-        },
-        {
-            name = 'advanced-circuit',
-            price = 10,
-            distance_factor = 0.005 / 32,
-            min_price = 0.5
-        }
-    }
+    {stack = {name = 'science-pack-1', count = 50, distance_factor = 1 / 10}, weight = 5},
+    {stack = {name = 'science-pack-2', count = 25, distance_factor = 1 / 10}, weight = 5}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -52,6 +17,46 @@ local loot_callback =
     end
 )
 
+local factory = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        recipe = 'science-pack-1',
+        output = {min_rate = 0.1 / 60, distance_factor = 1 / 60 / 1000, item = 'science-pack-1'}
+    }
+}
+
+local factory_b = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        recipe = 'science-pack-2',
+        output = {min_rate = 0.1 / 60, distance_factor = 1 / 60 / 1000, item = 'science-pack-2'}
+    }
+}
+
+local market = {
+    callback = ob.market_set_items_callback,
+    data = {
+        {
+            name = 'science-pack-1',
+            price = 10,
+            distance_factor = 0.005 / 32,
+            min_price = 1
+        },
+        {
+            name = 'science-pack-2',
+            price = 20,
+            distance_factor = 0.005 / 32,
+            min_price = 2
+        },
+        {
+            name = 'military-science-pack',
+            price = 40,
+            distance_factor = 0.005 / 32,
+            min_price = 4
+        }
+    }
+}
+
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.small_factory'
 
 local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})
@@ -60,6 +65,14 @@ local level3 =
     base_factory[2],
     {
         factory = factory,
+        fallback = level2
+    }
+)
+local level3b =
+    ob.extend_1_way(
+    base_factory[2],
+    {
+        factory = factory_b,
         fallback = level2
     }
 )
@@ -82,6 +95,6 @@ return {
         require 'map_gen.presets.crash_site.outpost_data.light_laser_turrets'
     },
     bases = {
-        {level4, level2}
+        {level4, level3b, level2}
     }
 }

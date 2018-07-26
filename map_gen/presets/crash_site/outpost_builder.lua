@@ -786,13 +786,10 @@ function Public.make_4_way(data)
                     i4 = i4 + 1
                 elseif offset == 1 then
                     i = i + 1
-                    i4 = i4 + 1
+                    i2 = i2 + 6
                 elseif offset == 2 then
                     i = i + 6
-                    i2 = i2 + 6
-                else
-                    i = i
-                    i2 = i2
+                    i4 = i4 + 1
                 end
 
                 local dir = entity.direction or 0
@@ -1065,6 +1062,7 @@ Public.market_set_items_callback =
 Public.firearm_magazine_ammo = {name = 'firearm-magazine', count = 200}
 Public.piercing_rounds_magazine_ammo = {name = 'piercing-rounds-magazine', count = 200}
 Public.uranium_rounds_magazine_ammo = {name = 'uranium-rounds-magazine', count = 200}
+Public.artillery_shell_ammo = {name = 'artillery-shell', count = 15}
 Public.light_oil_ammo = {name = 'light-oil', amount = 100}
 
 Public.laser_turrent_power_source = {buffer_size = 2400000, power_production = 40000}

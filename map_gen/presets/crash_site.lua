@@ -45,17 +45,33 @@ local half_grid_size = grid_size * 0.5
 
 local et = OutpostBuilder.empty_template
 
-local small_gear_factory = require 'map_gen.presets.crash_site.outpost_data.small_gear_factory'
-local medium_gear_factory = require 'map_gen.presets.crash_site.outpost_data.medium_gear_factory'
-local big_gear_factory = require 'map_gen.presets.crash_site.outpost_data.big_gear_factory'
-
 local small_iron_plate_factory = require 'map_gen.presets.crash_site.outpost_data.small_iron_plate_factory'
 local medium_iron_plate_factory = require 'map_gen.presets.crash_site.outpost_data.medium_iron_plate_factory'
 local big_iron_plate_factory = require 'map_gen.presets.crash_site.outpost_data.big_iron_plate_factory'
 
+local small_copper_plate_factory = require 'map_gen.presets.crash_site.outpost_data.small_copper_plate_factory'
+local medium_copper_plate_factory = require 'map_gen.presets.crash_site.outpost_data.medium_copper_plate_factory'
+local big_copper_plate_factory = require 'map_gen.presets.crash_site.outpost_data.big_copper_plate_factory'
+
+local small_gear_factory = require 'map_gen.presets.crash_site.outpost_data.small_gear_factory'
+local medium_gear_factory = require 'map_gen.presets.crash_site.outpost_data.medium_gear_factory'
+local big_gear_factory = require 'map_gen.presets.crash_site.outpost_data.big_gear_factory'
+
 local small_circuit_factory = require 'map_gen.presets.crash_site.outpost_data.small_circuit_factory'
 local medium_circuit_factory = require 'map_gen.presets.crash_site.outpost_data.medium_circuit_factory'
 local big_circuit_factory = require 'map_gen.presets.crash_site.outpost_data.big_circuit_factory'
+
+local small_engine_factory = require 'map_gen.presets.crash_site.outpost_data.small_engine_factory'
+local medium_engine_factory = require 'map_gen.presets.crash_site.outpost_data.medium_engine_factory'
+local big_engine_factory = require 'map_gen.presets.crash_site.outpost_data.big_engine_factory'
+
+local small_ammo_factory = require 'map_gen.presets.crash_site.outpost_data.small_ammo_factory'
+local medium_ammo_factory = require 'map_gen.presets.crash_site.outpost_data.medium_ammo_factory'
+local big_ammo_factory = require 'map_gen.presets.crash_site.outpost_data.big_ammo_factory'
+
+local small_science_factory = require 'map_gen.presets.crash_site.outpost_data.small_science_factory'
+local medium_science_factory = require 'map_gen.presets.crash_site.outpost_data.medium_science_factory'
+local big_science_factory = require 'map_gen.presets.crash_site.outpost_data.big_science_factory'
 
 local stage1 = {
     {}
@@ -66,7 +82,7 @@ for r = 1, 100 do
     local row = {}
     pattern[r] = row
     for c = 1, 100 do
-        row[c] = outpost_builder:do_outpost(small_circuit_factory)
+        row[c] = outpost_builder:do_outpost(medium_ammo_factory)
     end
 end
 
@@ -102,7 +118,6 @@ local market = {
 --[[ for i = 4, 1000 do
     market.data[i] = market.data[1]
 end ]]
-
 local outpost =
     outpost_builder.to_shape(
     {
@@ -117,5 +132,5 @@ local outpost =
 local map = b.change_tile(outposts, true, 'grass-1')
 
 --return b.full_shape
---return map
-return outpost
+return map
+--return outpost

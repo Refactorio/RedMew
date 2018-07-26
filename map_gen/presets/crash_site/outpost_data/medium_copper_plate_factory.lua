@@ -2,11 +2,11 @@ local ob = require 'map_gen.presets.crash_site.outpost_builder'
 local Token = require 'utils.global_token'
 
 local loot = {
-    {weight = 10},
-    {stack = {name = 'coin', count = 5000, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'iron-plate', count = 2500, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'steel-plate', count = 1000, distance_factor = 1 / 5}, weight = 1},
-    {stack = {name = 'iron-gear-wheel', count = 4000, distance_factor = 1}, weight = 5}
+    {weight = 5},
+    {stack = {name = 'coin', count = 750, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'copper-ore', count = 2400}, weight = 8},
+    {stack = {name = 'copper-cable', count = 750, distance_factor = 1 / 2}, weight = 2},
+    {stack = {name = 'copper-plate', count = 750, distance_factor = 1 / 5}, weight = 10}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -21,8 +21,8 @@ local loot_callback =
 local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'iron-gear-wheel',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'iron-gear-wheel'}
+        furance_item = 'copper-ore',
+        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 100, item = 'copper-plate'}
     }
 }
 
@@ -30,27 +30,21 @@ local market = {
     callback = ob.market_set_items_callback,
     data = {
         {
-            name = 'iron-gear-wheel',
-            price = 0.5,
+            name = 'copper-cable',
+            price = 0.12,
             distance_factor = 0.005 / 32,
-            min_price = 0.025
+            min_price = 0.012
         },
         {
-            name = 'iron-plate',
-            price = 0.4,
+            name = 'copper-plate',
+            price = 0.3,
             distance_factor = 0.005 / 32,
-            min_price = 0.02
-        },
-        {
-            name = 'steel-plate',
-            price = 2,
-            distance_factor = 0.005 / 32,
-            min_price = 0.125
+            min_price = 0.03
         }
     }
 }
 
-local base_factory = require 'map_gen.presets.crash_site.outpost_data.big_factory'
+local base_factory = require 'map_gen.presets.crash_site.outpost_data.medium_furance'
 
 local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})
 local level3 =
@@ -61,6 +55,7 @@ local level3 =
         fallback = level2
     }
 )
+
 local level4 =
     ob.extend_1_way(
     base_factory[3],
@@ -71,13 +66,13 @@ local level4 =
 )
 return {
     settings = {
-        blocks = 9,
+        blocks = 7,
         variance = 3,
         min_step = 2,
         max_level = 2
     },
     walls = {
-        require 'map_gen.presets.crash_site.outpost_data.heavy_gun_turrets'
+        require 'map_gen.presets.crash_site.outpost_data.medium_gun_turrets'
     },
     bases = {
         {level4, level2}

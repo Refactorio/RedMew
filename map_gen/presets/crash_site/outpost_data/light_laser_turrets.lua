@@ -2,6 +2,7 @@ local ob = require 'map_gen.presets.crash_site.outpost_builder'
 
 return {
     ob.make_4_way {
+        turret = {callback = ob.power_source_callback, data = ob.laser_turrent_power_source},
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {entity = {name = 'stone-wall'}},
@@ -22,7 +23,7 @@ return {
         [18] = {tile = 'concrete'},
         [19] = {tile = 'hazard-concrete-left'},
         [20] = {tile = 'concrete'},
-        [21] = {entity = {name = 'laser-turret', offset = 3}, tile = 'hazard-concrete-left'},
+        [21] = {entity = {name = 'laser-turret', callback = 'turret', offset = 3}, tile = 'hazard-concrete-left'},
         [22] = {tile = 'concrete'},
         [23] = {tile = 'hazard-concrete-left'},
         [24] = {tile = 'concrete'},
@@ -40,6 +41,7 @@ return {
         [36] = {tile = 'concrete'}
     },
     ob.make_4_way {
+        turret = {callback = ob.power_source_callback, data = ob.laser_turrent_power_source},
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {entity = {name = 'stone-wall'}},
@@ -61,7 +63,7 @@ return {
         [19] = {entity = {name = 'stone-wall'}},
         [20] = {entity = {name = 'stone-wall'}},
         [21] = {tile = 'hazard-concrete-left'},
-        [22] = {entity = {name = 'laser-turret', offset = 3}, tile = 'concrete'},
+        [22] = {entity = {name = 'laser-turret', callback = 'turret', offset = 3}, tile = 'concrete'},
         [23] = {tile = 'hazard-concrete-left'},
         [24] = {tile = 'concrete'},
         [25] = {entity = {name = 'stone-wall'}},
@@ -78,6 +80,7 @@ return {
         [36] = {entity = {name = 'medium-electric-pole'}, tile = 'concrete'}
     },
     ob.make_4_way {
+        turret = {callback = ob.power_source_callback, data = ob.laser_turrent_power_source},
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {tile = 'concrete'},
@@ -99,7 +102,7 @@ return {
         [19] = {tile = 'hazard-concrete-left'},
         [20] = {tile = 'concrete'},
         [21] = {tile = 'hazard-concrete-left'},
-        [22] = {entity = {name = 'laser-turret', offset = 3}, tile = 'concrete'},
+        [22] = {entity = {name = 'laser-turret', callback = 'turret', offset = 3}, tile = 'concrete'},
         [23] = {tile = 'hazard-concrete-left'},
         [24] = {tile = 'concrete'},
         [25] = {tile = 'concrete'},

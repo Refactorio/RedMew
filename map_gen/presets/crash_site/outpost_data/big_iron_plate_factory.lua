@@ -18,193 +18,81 @@ local loot_callback =
     end
 )
 
-local level2 =
-    ob.make_1_way {
-    force = 'neutral',
-    loot = {callback = loot_callback},
-    [1] = {tile = 'refined-concrete'},
-    [2] = {tile = 'refined-concrete'},
-    [3] = {tile = 'refined-concrete'},
-    [4] = {tile = 'refined-concrete'},
-    [5] = {tile = 'refined-concrete'},
-    [6] = {tile = 'refined-concrete'},
-    [7] = {tile = 'refined-concrete'},
-    [8] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [9] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [10] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [11] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [12] = {tile = 'refined-concrete'},
-    [13] = {tile = 'refined-concrete'},
-    [14] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [15] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [16] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [17] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [18] = {tile = 'refined-concrete'},
-    [19] = {tile = 'refined-concrete'},
-    [20] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [21] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [22] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [23] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [24] = {tile = 'refined-concrete'},
-    [25] = {tile = 'refined-concrete'},
-    [26] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [27] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [28] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [29] = {entity = {name = 'steel-chest', callback = 'loot'}, tile = 'refined-concrete'},
-    [30] = {tile = 'refined-concrete'},
-    [31] = {tile = 'refined-concrete'},
-    [32] = {tile = 'refined-concrete'},
-    [33] = {tile = 'refined-concrete'},
-    [34] = {tile = 'refined-concrete'},
-    [35] = {tile = 'refined-concrete'},
-    [36] = {tile = 'refined-concrete'}
+local factory = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        furance_item = {name = 'iron-ore', count = 100},
+        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 100, item = 'iron-plate'}
+    }
 }
 
-local level3 =
-    ob.make_1_way {
-    force = 'neutral',
-    factory = {
-        callback = ob.magic_item_crafting_callback,
-        data = {
-            furance_item = 'iron-ore',
-            output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 100, item = 'iron-plate'}
-        }
-    },
-    max_count = 9,
-    fallback = level2,
-    [1] = {tile = 'refined-concrete'},
-    [2] = {tile = 'refined-concrete'},
-    [3] = {tile = 'refined-concrete'},
-    [4] = {tile = 'refined-concrete'},
-    [5] = {tile = 'refined-concrete'},
-    [6] = {tile = 'refined-concrete'},
-    [7] = {tile = 'refined-concrete'},
-    [8] = {tile = 'refined-concrete'},
-    [9] = {tile = 'refined-concrete'},
-    [10] = {tile = 'refined-concrete'},
-    [11] = {tile = 'refined-concrete'},
-    [12] = {tile = 'refined-concrete'},
-    [13] = {tile = 'refined-concrete'},
-    [14] = {tile = 'refined-concrete'},
-    [15] = {entity = {name = 'electric-furnace', callback = 'factory'}, tile = 'refined-concrete'},
-    [16] = {tile = 'refined-concrete'},
-    [17] = {tile = 'refined-concrete'},
-    [18] = {tile = 'refined-concrete'},
-    [19] = {tile = 'refined-concrete'},
-    [20] = {tile = 'refined-concrete'},
-    [21] = {tile = 'refined-concrete'},
-    [22] = {tile = 'refined-concrete'},
-    [23] = {tile = 'refined-concrete'},
-    [24] = {tile = 'refined-concrete'},
-    [25] = {tile = 'refined-concrete'},
-    [26] = {tile = 'refined-concrete'},
-    [27] = {tile = 'refined-concrete'},
-    [28] = {tile = 'refined-concrete'},
-    [29] = {tile = 'refined-concrete'},
-    [30] = {tile = 'refined-concrete'},
-    [31] = {tile = 'refined-concrete'},
-    [32] = {tile = 'refined-concrete'},
-    [33] = {tile = 'refined-concrete'},
-    [34] = {tile = 'refined-concrete'},
-    [35] = {tile = 'refined-concrete'},
-    [36] = {tile = 'refined-concrete'}
+local factory_b = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        furance_item = {name = 'iron-plate', count = 100},
+        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 100, item = 'steel-plate'}
+    }
 }
+
+local market = {
+    callback = ob.market_set_items_callback,
+    data = {
+        {
+            name = 'iron-plate',
+            price = 0.3,
+            distance_factor = 0.005 / 32,
+            min_price = 0.03
+        },
+        {
+            name = 'steel-plate',
+            price = 1.5,
+            distance_factor = 0.005 / 32,
+            min_price = 0.15
+        }
+    }
+}
+
+local base_factory = require 'map_gen.presets.crash_site.outpost_data.medium_furance'
+
+local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})
+local level3 =
+    ob.extend_1_way(
+    base_factory[2],
+    {
+        factory = factory,
+        fallback = level2
+    }
+)
 
 local level3b =
     ob.extend_1_way(
-    level3,
+    base_factory[2],
     {
-        factory = {
-            callback = ob.magic_item_crafting_callback,
-            data = {
-                furance_item = {name = 'iron-plate', count = 100},
-                output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 100, item = 'steel-plate'}
-            }
-        }
+        factory = factory_b,
+        fallback = level2
     }
 )
 
 local level4 =
-    ob.make_1_way {
-    force = 'neutral',
-    market = {
-        callback = ob.market_set_items_callback,
-        data = {
-            {
-                offer = {type = 'give-item', item = 'iron-plate', count = 100},
-                name = 'coin',
-                price = 60,
-                distance_factor = 1 / 32,
-                min_price = 6
-            },
-            {
-                offer = {type = 'give-item', item = 'steel-plate', count = 100},
-                name = 'coin',
-                price = 300,
-                distance_factor = 1 / 32,
-                min_price = 30
-            }
-        }
-    },
-    max_count = 1,
-    fallback = level3,
-    [1] = {tile = 'refined-concrete'},
-    [2] = {tile = 'refined-concrete'},
-    [3] = {tile = 'refined-concrete'},
-    [4] = {tile = 'refined-concrete'},
-    [5] = {tile = 'refined-concrete'},
-    [6] = {tile = 'refined-concrete'},
-    [7] = {tile = 'refined-concrete'},
-    [8] = {tile = 'refined-concrete'},
-    [9] = {tile = 'refined-concrete'},
-    [10] = {tile = 'refined-concrete'},
-    [11] = {tile = 'refined-concrete'},
-    [12] = {tile = 'refined-concrete'},
-    [13] = {tile = 'refined-concrete'},
-    [14] = {tile = 'refined-concrete'},
-    [15] = {entity = {name = 'market', callback = 'market'}},
-    [16] = {tile = 'refined-concrete'},
-    [17] = {tile = 'refined-concrete'},
-    [18] = {tile = 'refined-concrete'},
-    [19] = {tile = 'refined-concrete'},
-    [20] = {tile = 'refined-concrete'},
-    [21] = {tile = 'refined-concrete'},
-    [22] = {tile = 'refined-concrete'},
-    [23] = {tile = 'refined-concrete'},
-    [24] = {tile = 'refined-concrete'},
-    [25] = {tile = 'refined-concrete'},
-    [26] = {tile = 'refined-concrete'},
-    [27] = {tile = 'refined-concrete'},
-    [28] = {tile = 'refined-concrete'},
-    [29] = {tile = 'refined-concrete'},
-    [30] = {tile = 'refined-concrete'},
-    [31] = {tile = 'refined-concrete'},
-    [32] = {tile = 'refined-concrete'},
-    [33] = {tile = 'refined-concrete'},
-    [34] = {tile = 'refined-concrete'},
-    [35] = {tile = 'refined-concrete'},
-    [36] = {tile = 'refined-concrete'}
-}
-
-local level4b =
     ob.extend_1_way(
-    level4,
+    base_factory[3],
     {
+        market = market,
         fallback = level3b
     }
 )
-
 return {
     settings = {
         blocks = 9,
         variance = 3,
         min_step = 2,
-        max_level = 2
+        max_level = 3
     },
     walls = {
         require 'map_gen.presets.crash_site.outpost_data.heavy_gun_turrets'
     },
     bases = {
-        {level4, level4b, level2}
+        {level2, level3},
+        {level4}
     }
 }

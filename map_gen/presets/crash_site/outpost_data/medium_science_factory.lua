@@ -1,60 +1,13 @@
 local ob = require 'map_gen.presets.crash_site.outpost_builder'
-
 local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 750, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'copper-cable', count = 300, distance_factor = 3 / 4}, weight = 5},
-    {stack = {name = 'electronic-circuit', count = 400, distance_factor = 1}, weight = 5},
-    {stack = {name = 'advanced-circuit', count = 200, distance_factor = 1}, weight = 5},
-    {stack = {name = 'processing-unit', count = 200, distance_factor = 1 / 10}, weight = 1}
-}
-
-local factory = {
-    callback = ob.magic_item_crafting_callback,
-    data = {
-        recipe = 'electronic-circuit',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'electronic-circuit'}
-    }
-}
-
-local factory_b = {
-    callback = ob.magic_item_crafting_callback,
-    data = {
-        recipe = 'advanced-circuit',
-        output = {min_rate = 1 / 600, distance_factor = 1 / 600 / 100, item = 'advanced-circuit'}
-    }
-}
-
-local market = {
-    callback = ob.market_set_items_callback,
-    data = {
-        {
-            name = 'copper-cable',
-            price = 0.25,
-            distance_factor = 0.005 / 32,
-            min_price = 0.025
-        },
-        {
-            name= 'electronic-circuit',
-            price = 1,
-            distance_factor = 0.005 / 32,
-            min_price = 0.05
-        },
-        {
-            name= 'advanced-circuit',
-            price = 4,
-            distance_factor = 0.005 / 32,
-            min_price = 0.2
-        },
-        {
-            name = 'processing-unit',
-            price = 40,
-            distance_factor = 0.005 / 32,
-            min_price = 0.8
-        }
-    }
+    {stack = {name = 'science-pack-1', count = 100, distance_factor = 1 / 10}, weight = 5},
+    {stack = {name = 'science-pack-2', count = 50, distance_factor = 1 / 10}, weight = 5},
+    {stack = {name = 'military-science-pack', count = 25, distance_factor = 1 / 10}, weight = 5},
+    {stack = {name = 'science-pack-3', count = 25, distance_factor = 1 / 10}, weight = 5}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -65,6 +18,52 @@ local loot_callback =
         ob.do_random_loot(chest, weights, loot)
     end
 )
+
+local factory = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        recipe = 'military-science-pack',
+        output = {min_rate = 0.1 / 60, distance_factor = 1 / 60 / 1000, item = 'military-science-pack'}
+    }
+}
+
+local factory_b = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        recipe = 'science-pack-3',
+        output = {min_rate = 0.1 / 60, distance_factor = 1 / 60 / 1000, item = 'science-pack-3'}
+    }
+}
+
+local market = {
+    callback = ob.market_set_items_callback,
+    data = {
+        {
+            name = 'science-pack-1',
+            price = 10,
+            distance_factor = 0.005 / 32,
+            min_price = 1
+        },
+        {
+            name = 'science-pack-2',
+            price = 20,
+            distance_factor = 0.005 / 32,
+            min_price = 2
+        },
+        {
+            name = 'military-science-pack',
+            price = 40,
+            distance_factor = 0.005 / 32,
+            min_price = 4
+        },
+        {
+            name = 'science-pack-3',
+            price = 60,
+            distance_factor = 0.005 / 32,
+            min_price = 4
+        }
+    }
+}
 
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.medium_factory'
 
@@ -77,12 +76,12 @@ local level3 =
         fallback = level2
     }
 )
-local level3_b =
+local level3b =
     ob.extend_1_way(
     base_factory[2],
     {
         factory = factory_b,
-        fallback = level3
+        fallback = level2
     }
 )
 local level4 =
@@ -90,10 +89,9 @@ local level4 =
     base_factory[3],
     {
         market = market,
-        fallback = level3_b
+        fallback = level3
     }
 )
-
 return {
     settings = {
         blocks = 7,
@@ -105,6 +103,6 @@ return {
         require 'map_gen.presets.crash_site.outpost_data.medium_laser_turrets'
     },
     bases = {
-        {level4, level3, level2}
+        {level4, level3b, level2}
     }
 }
