@@ -3,6 +3,7 @@ local Token = require 'utils.global_token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Task = require 'utils.Task'
+local Market = require 'map_gen.presets.crash_site.market'
 
 local b = require 'map_gen.shared.builders'
 
@@ -1045,7 +1046,8 @@ Public.market_set_items_callback =
         local x, y = p.x, p.y
         local d = math.sqrt(x * x + y * y)
 
-        for _, item in ipairs(data) do
+        local market_data = {}
+        for i, item in ipairs(data) do
             local price = item.price
             local df = item.distance_factor or 0
             local min_price = item.min_price or 1
@@ -1053,8 +1055,10 @@ Public.market_set_items_callback =
             local count = price - d * df
             count = math.max(count, min_price)
 
-            entity.add_market_item({price = {{item.name, count}}, offer = item.offer})
+            market_data[i] = {name = item.name, price = count}
         end
+
+        Market.add_market(entity.position, market_data)
     end
 )
 

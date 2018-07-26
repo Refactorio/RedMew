@@ -23,25 +23,22 @@ local market = {
     callback = ob.market_set_items_callback,
     data = {
         {
-            offer = {type = 'give-item', item = 'copper-cable', count = 200},
-            name = 'coin',
-            price = 50,
-            distance_factor = 1 / 32,
-            min_price = 5
+            name = 'copper-cable',
+            price = 50 / 200,
+            distance_factor = 1 / 200 / 32,
+            min_price = 5 / 200
         },
         {
-            offer = {type = 'give-item', item = 'electronic-circuit', count = 200},
-            name = 'coin',
-            price = 200,
-            distance_factor = 1 / 32,
-            min_price = 10
+            name = 'electronic-circuit',
+            price = 200 / 200,
+            distance_factor = 1 / 200 / 32,
+            min_price = 10 / 200
         },
         {
-            offer = {type = 'give-item', item = 'advanced-circuit', count = 200},
-            name = 'coin',
-            price = 2000,
-            distance_factor = 1 / 32,
-            min_price = 100
+            name = 'advanced-circuit',
+            price = 2000 / 200,
+            distance_factor = 1 / 200 / 32,
+            min_price = 100 / 200
         }
     }
 }

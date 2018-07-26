@@ -45,23 +45,6 @@ local half_grid_size = grid_size * 0.5
 
 local et = OutpostBuilder.empty_template
 
-local base_templates = {
-    test = {
-        {[22] = {entity = {name = 'stone-furnace'}}},
-        {[22] = {entity = {name = 'assembling-machine-2'}}},
-        {[22] = {entity = {name = 'oil-refinery'}}}
-    }
-}
-
-local templates = {
-    {medium_gun_turrets_player},
-    {gear_factory[1]},
-    {gear_factory[2]},
-    {gear_factory[3]}
-    --{gear_factory[2]}
-    --{base_templates.test[1]}
-}
-
 local small_gear_factory = require 'map_gen.presets.crash_site.outpost_data.small_gear_factory'
 local medium_gear_factory = require 'map_gen.presets.crash_site.outpost_data.medium_gear_factory'
 local big_gear_factory = require 'map_gen.presets.crash_site.outpost_data.big_gear_factory'
@@ -83,7 +66,7 @@ for r = 1, 100 do
     local row = {}
     pattern[r] = row
     for c = 1, 100 do
-        row[c] = outpost_builder:do_outpost(big_circuit_factory)
+        row[c] = outpost_builder:do_outpost(small_circuit_factory)
     end
 end
 
@@ -92,18 +75,47 @@ outposts = b.if_else(outposts, b.full_shape)
 
 local thin_walls_player = OutpostBuilder.extend_walls(thin_walls, {force = 'player'})
 
+local market = {
+    callback = outpost_builder.market_set_items_callback,
+    data = {
+        {
+            name = 'copper-cable',
+            price = 50 / 200,
+            distance_factor = 1 / 200 / 32,
+            min_price = 5 / 200
+        },
+        {
+            name = 'electronic-circuit',
+            price = 200 / 200,
+            distance_factor = 1 / 200 / 32,
+            min_price = 10 / 200
+        },
+        {
+            name = 'advanced-circuit',
+            price = 2000 / 200,
+            distance_factor = 1 / 200 / 32,
+            min_price = 100 / 200
+        }
+    }
+}
+
+--[[ for i = 4, 1000 do
+    market.data[i] = market.data[1]
+end ]]
+
 local outpost =
     outpost_builder.to_shape(
     {
-        size = 2,
-        laser_turrets_player[1][1],
-        gear_factory[1],
-        gear_factory[2]
+        size = 1,
+        {
+            market = market,
+            [15] = {entity = {name = 'market', callback = 'market'}}
+        }
     }
 )
 
 local map = b.change_tile(outposts, true, 'grass-1')
 
 --return b.full_shape
-return map
---return outpost
+--return map
+return outpost
