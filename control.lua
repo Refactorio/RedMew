@@ -180,3 +180,41 @@ Event.add(
         end
     end
 )
+
+global.cheated_items = {}
+
+Event.add(
+    defines.events.on_player_crafted_item,
+    function(event)
+        local pi = event.player_index
+        local p = game.players[pi]
+
+        if not p or not p.valid or not p.cheat_mode then
+            return
+        end
+
+        local cheat_items = global.cheated_items
+
+        local data = cheat_items[pi]
+        if not data then
+            data = {}
+            cheat_items[pi] = data
+        end
+
+        local stack = event.item_stack
+        local name = stack.name
+        local count = data[name] or 0
+        data[name] = stack.count + count
+    end
+)
+
+function print_cheated_items()
+    local res = {}
+    local players = game.players
+
+    for pi, data in pairs(global.cheated_items) do
+        res[players[pi].name] = data
+    end
+
+    game.player.print(serpent.block(res))
+end
