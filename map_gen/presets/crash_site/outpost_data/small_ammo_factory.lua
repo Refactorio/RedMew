@@ -95,9 +95,9 @@ local market = {
         },
         {
             name = 'cluster-grenade',
-            price = 60,
+            price = 100,
             distance_factor = 0.005 / 32,
-            min_price = 6
+            min_price = 10
         },
         {
             name = 'poison-capsule',

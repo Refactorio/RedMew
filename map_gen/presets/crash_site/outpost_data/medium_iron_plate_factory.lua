@@ -78,18 +78,10 @@ local level4 =
     base_factory[3],
     {
         market = market,
-        fallback = level3
-    }
-)
-
-local level4b =
-    ob.extend_1_way(
-    base_factory[3],
-    {
-        market = market,
         fallback = level3b
     }
 )
+
 return {
     settings = {
         blocks = 7,
@@ -101,6 +93,6 @@ return {
         require 'map_gen.presets.crash_site.outpost_data.medium_gun_turrets'
     },
     bases = {
-        {level4, level4, level4b, level2}
+        {level4, level3, level2}
     }
 }

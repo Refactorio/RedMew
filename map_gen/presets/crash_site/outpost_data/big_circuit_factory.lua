@@ -8,7 +8,8 @@ local loot = {
     {stack = {name = 'copper-cable', count = 300, distance_factor = 3 / 4}, weight = 5},
     {stack = {name = 'electronic-circuit', count = 800, distance_factor = 1}, weight = 5},
     {stack = {name = 'advanced-circuit', count = 400, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'processing-unit', count = 200, distance_factor = 1 / 4}, weight = 5}
+    {stack = {name = 'processing-unit', count = 200, distance_factor = 1 / 4}, weight = 5},
+    {stack = {name = 'rocket-control-unit', count = 30, distance_factor = 1 / 20}, weight = 2}
 }
 
 local factory = {
@@ -31,7 +32,15 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'processing-unit',
-        output = {min_rate = 1 / 600, distance_factor = 1 / 600 / 100, item = 'processing-unit'}
+        output = {min_rate = 0.25 / 60, distance_factor = 1 / 60 / 100, item = 'processing-unit'}
+    }
+}
+
+local factory_d = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        recipe = 'rocket-control-unit',
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'rocket-control-unit'}
     }
 }
 
@@ -61,6 +70,12 @@ local market = {
             price = 16,
             distance_factor = 0.005 / 32,
             min_price = 0.8
+        },
+        {
+            name = 'rocket-control-unit',
+            price = 35,
+            distance_factor = 0.005 / 32,
+            min_price = 3.5
         }
     }
 }
@@ -98,7 +113,17 @@ local level3_c =
     base_factory[2],
     {
         factory = factory_c,
-        fallback = level3_b
+        fallback = level3_b,
+        max_count = 4
+    }
+)
+local level3_d =
+    ob.extend_1_way(
+    base_factory[2],
+    {
+        factory = factory_d,
+        fallback = level3_c,
+        max_count = 1
     }
 )
 local level4 =
@@ -106,7 +131,7 @@ local level4 =
     base_factory[3],
     {
         market = market,
-        fallback = level3_c
+        fallback = level3_d
     }
 )
 
@@ -115,12 +140,13 @@ return {
         blocks = 9,
         variance = 3,
         min_step = 2,
-        max_level = 2
+        max_level = 3
     },
     walls = {
         require 'map_gen.presets.crash_site.outpost_data.heavy_laser_turrets'
     },
     bases = {
-        {level4, level2}
+        {level3_c, level2},
+        {level4}
     }
 }

@@ -29,11 +29,11 @@ local Event = require 'utils.event'
 
 local function player_joined(event)
     local player = game.players[event.player_index]
-    player.insert {name = 'raw-fish', count = 4}
+    player.insert {name = 'coin', count = 10}
     player.insert {name = 'iron-gear-wheel', count = 8}
     player.insert {name = 'iron-plate', count = 16}
     player.print('Welcome to our Server. You can join our Discord at: redmew.com/discord')
-    player.print('And remember.. Keep Calm And Spaghetti!')
+    player.print('And remember.. Keep Calm And Spaghetti!')    
 end
 
 function walkabout(player_name, distance)

@@ -6,7 +6,9 @@ local loot = {
     {stack = {name = 'coin', count = 2500, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'iron-ore', count = 2400}, weight = 2},
     {stack = {name = 'iron-plate', count = 1500, distance_factor = 1 / 2}, weight = 10},
-    {stack = {name = 'steel-plate', count = 1000, distance_factor = 1 / 5}, weight = 8}
+    {stack = {name = 'steel-plate', count = 1000, distance_factor = 1 / 5}, weight = 8},
+    {stack = {name = 'steel-plate', count = 1000, distance_factor = 1 / 5}, weight = 8},
+    {stack = {name = 'low-density-structure', count = 30, distance_factor = 1 / 20}, weight = 2}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -34,6 +36,14 @@ local factory_b = {
     }
 }
 
+local factory_c = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        recipe = 'low-density-structure',
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'low-density-structure'}
+    }
+}
+
 local market = {
     callback = ob.market_set_items_callback,
     data = {
@@ -48,11 +58,18 @@ local market = {
             price = 1.5,
             distance_factor = 0.005 / 32,
             min_price = 0.15
+        },
+        {
+            name = 'low-density-structure',
+            price = 25,
+            distance_factor = 0.005 / 32,
+            min_price = 2.5
         }
     }
 }
 
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.medium_furance'
+local base_factory2 = require 'map_gen.presets.crash_site.outpost_data.big_factory'
 
 local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})
 local level3 =
@@ -73,12 +90,22 @@ local level3b =
     }
 )
 
+local level3c =
+    ob.extend_1_way(
+    base_factory2[2],
+    {
+        factory = factory_c,
+        fallback = level3b,
+        max_count = 1
+    }
+)
+
 local level4 =
     ob.extend_1_way(
     base_factory[3],
     {
         market = market,
-        fallback = level3b
+        fallback = level3c
     }
 )
 return {

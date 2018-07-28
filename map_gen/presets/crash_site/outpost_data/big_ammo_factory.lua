@@ -3,20 +3,14 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
-    {stack = {name = 'coin', count = 750, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'piercing-rounds-magazine', count = 500, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'uranium-rounds-magazine', count = 300, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'piercing-shotgun-shell', count = 200, distance_factor = 1 / 4}, weight = 2},
-    {stack = {name = 'grenade', count = 100, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'land-mine', count = 400, distance_factor = 1}, weight = 1},
-    {stack = {name = 'rocket', count = 200, distance_factor = 1 / 32}, weight = 2},
-    {stack = {name = 'explosive-rocket', count = 200, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'cannon-shell', count = 200, distance_factor = 1 / 32}, weight = 2},
-    {stack = {name = 'explosive-cannon-shell', count = 200, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'cluster-grenade', count = 100, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'poison-capsule', count = 100, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'slowdown-capsule', count = 100, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'destroyer-capsule', count = 20, distance_factor = 1 / 32}, weight = 1}
+    {stack = {name = 'coin', count = 2500, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'uranium-rounds-magazine', count = 600, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'piercing-shotgun-shell', count = 600, distance_factor = 1 / 4}, weight = 1},
+    {stack = {name = 'cluster-grenade', count = 200, distance_factor = 1 / 8}, weight = 2},
+    {stack = {name = 'explosive-rocket', count = 200, distance_factor = 1 / 8}, weight = 5},
+    {stack = {name = 'explosive-cannon-shell', count = 200, distance_factor = 1 / 8}, weight = 5},
+    {stack = {name = 'explosive-uranium-cannon-shell', count = 200, distance_factor = 1 / 8}, weight = 2},
+    {stack = {name = 'destroyer-capsule', count = 100, distance_factor = 1 / 16}, weight = 2}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -31,24 +25,24 @@ local loot_callback =
 local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'piercing-rounds-magazine',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'piercing-rounds-magazine'}
+        recipe = 'uranium-rounds-magazine',
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'uranium-rounds-magazine'}
     }
 }
 
 local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'cannon-shell',
-        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 60 / 100, item = 'cannon-shell'}
+        recipe = 'explosive-rocket',
+        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 60 / 100, item = 'explosive-rocket'}
     }
 }
 
 local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'uranium-rounds-magazine',
-        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 60 / 100, item = 'uranium-rounds-magazine'}
+        recipe = 'explosive-uranium-cannon-shell',
+        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 60 / 100, item = 'explosive-uranium-cannon-shell'}
     }
 }
 
@@ -117,9 +111,9 @@ local market = {
         },
         {
             name = 'cluster-grenade',
-            price = 60,
+            price = 100,
             distance_factor = 0.005 / 32,
-            min_price = 6
+            min_price = 10
         },
         {
             name = 'poison-capsule',
@@ -146,10 +140,28 @@ local market = {
             min_price = 12
         },
         {
+            name = 'explosive-uranium-cannon-shell',
+            price = 160,
+            distance_factor = 0.005 / 32,
+            min_price = 16
+        },
+        {
             name = 'destroyer-capsule',
             price = 80,
             distance_factor = 0.005 / 32,
             min_price = 8
+        },
+        {
+            name = 'vehicle-machine-gun',
+            price = 1000
+        },
+        {
+            name = 'tank-cannon',
+            price = 500
+        },
+        {
+            name = 'artillery-wagon-cannon',
+            price = 2000
         }
     }
 }
@@ -162,7 +174,26 @@ local level3 =
     base_factory[2],
     {
         factory = factory,
-        fallback = level2
+        fallback = level2,
+        max_count = 6
+    }
+)
+local level3b =
+    ob.extend_1_way(
+    base_factory[2],
+    {
+        factory = factory_b,
+        fallback = level3,
+        max_count = 2
+    }
+)
+local level3c =
+    ob.extend_1_way(
+    base_factory[2],
+    {
+        factory = factory_c,
+        fallback = level3b,
+        max_count = 2
     }
 )
 local level4 =
@@ -170,7 +201,7 @@ local level4 =
     base_factory[3],
     {
         market = market,
-        fallback = level3
+        fallback = level3c
     }
 )
 

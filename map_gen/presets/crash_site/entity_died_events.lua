@@ -73,7 +73,7 @@ local spawn_worm =
 )
 
 local function get_level()
-    local ef = game.forces.player.evolution_factor
+    local ef = game.forces.enemy.evolution_factor
     return math.floor(ef * 4) + 1
 end
 

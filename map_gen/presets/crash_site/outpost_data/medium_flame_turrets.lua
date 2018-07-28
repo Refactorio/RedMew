@@ -2,7 +2,8 @@ local ob = require 'map_gen.presets.crash_site.outpost_builder'
 
 return {
     ob.make_4_way {
-        turret = {callback = ob.refill_liquid_turret_callback, data = ob.light_oil_ammo},
+        flame_turret = {callback = ob.refill_liquid_turret_callback, data = ob.light_oil_ammo},
+        turret = {callback = ob.refill_turret_callback, data = ob.piercing_rounds_magazine_ammo},
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {entity = {name = 'stone-wall'}},
@@ -23,15 +24,15 @@ return {
         [18] = {tile = 'hazard-concrete-left'},
         [19] = {tile = 'concrete'},
         [20] = {tile = 'concrete'},
-        [21] = {entity = {name = 'gun-turret', offset = 3}, tile = 'concrete'},
+        [21] = {entity = {name = 'gun-turret', callback = 'turret', offset = 3}, tile = 'concrete'},
         [22] = {tile = 'concrete'},
         [23] = {tile = 'concrete'},
         [24] = {tile = 'concrete'},
-        [25] = {entity = {name = 'flamethrower-turret', callback = 'turret', offset = 1}, tile = 'concrete'},
+        [25] = {entity = {name = 'flamethrower-turret', callback = 'flame_turret', offset = 1}, tile = 'concrete'},
         [26] = {tile = 'concrete'},
         [27] = {tile = 'concrete'},
         [28] = {tile = 'concrete'},
-        [29] = {entity = {name = 'flamethrower-turret', callback = 'turret', offset = 1}, tile = 'concrete'},
+        [29] = {entity = {name = 'flamethrower-turret', callback = 'flame_turret', offset = 1}, tile = 'concrete'},
         [30] = {tile = 'concrete'},
         [31] = {tile = 'concrete'},
         [32] = {tile = 'concrete'},
@@ -41,7 +42,8 @@ return {
         [36] = {tile = 'concrete'}
     },
     ob.make_4_way {
-        turret = {callback = ob.refill_liquid_turret_callback, data = ob.light_oil_ammo},
+        flame_turret = {callback = ob.refill_liquid_turret_callback, data = ob.light_oil_ammo},
+        turret = {callback = ob.refill_turret_callback, data = ob.piercing_rounds_magazine_ammo},
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {entity = {name = 'stone-wall'}},
@@ -56,9 +58,12 @@ return {
         [12] = {tile = 'hazard-concrete-left'},
         [13] = {entity = {name = 'stone-wall'}},
         [14] = {entity = {name = 'stone-wall'}},
-        [15] = {entity = {name = 'gun-turret', offset = 3}, tile = 'hazard-concrete-left'},
+        [15] = {entity = {name = 'gun-turret', callback = 'turret', offset = 3}, tile = 'hazard-concrete-left'},
         [16] = {tile = 'hazard-concrete-left'},
-        [17] = {entity = {name = 'flamethrower-turret', callback = 'turret', offset = 1}, tile = 'hazard-concrete-left'},
+        [17] = {
+            entity = {name = 'flamethrower-turret', callback = 'flame_turret', offset = 1},
+            tile = 'hazard-concrete-left'
+        },
         [18] = {tile = 'hazard-concrete-left'},
         [19] = {entity = {name = 'stone-wall'}},
         [20] = {entity = {name = 'stone-wall'}},
@@ -69,11 +74,11 @@ return {
         [25] = {entity = {name = 'stone-wall'}},
         [26] = {tile = 'hazard-concrete-left'},
         [27] = {
-            entity = {name = 'flamethrower-turret', callback = 'turret', direction = 6, offset = 2},
+            entity = {name = 'flamethrower-turret', callback = 'flame_turret', direction = 6, offset = 2},
             tile = 'hazard-concrete-left'
         },
         [28] = {tile = 'hazard-concrete-left'},
-        [29] = {entity = {name = 'gun-turret', offset = 3}, tile = 'concrete'},
+        [29] = {entity = {name = 'gun-turret', callback = 'turret', offset = 3}, tile = 'concrete'},
         [30] = {tile = 'concrete'},
         [31] = {entity = {name = 'stone-wall'}},
         [32] = {tile = 'hazard-concrete-left'},
@@ -83,7 +88,8 @@ return {
         [36] = {tile = 'concrete'}
     },
     ob.make_4_way {
-        turret = {callback = ob.refill_liquid_turret_callback, data = ob.light_oil_ammo},
+        flame_turret = {callback = ob.refill_liquid_turret_callback, data = ob.light_oil_ammo},
+        turret = {callback = ob.refill_turret_callback, data = ob.piercing_rounds_magazine_ammo},
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {tile = 'hazard-concrete-left'},
@@ -95,7 +101,7 @@ return {
         [9] = {tile = 'hazard-concrete-left'},
         [10] = {tile = 'concrete'},
         [11] = {
-            entity = {name = 'flamethrower-turret', callback = 'turret', direction = 6, offset = 2},
+            entity = {name = 'flamethrower-turret', callback = 'flame_turret', direction = 6, offset = 2},
             tile = 'concrete'
         },
         [12] = {tile = 'concrete'},
@@ -108,11 +114,11 @@ return {
         [19] = {tile = 'concrete'},
         [20] = {tile = 'concrete'},
         [21] = {tile = 'concrete'},
-        [22] = {entity = {name = 'gun-turret', offset = 3}, tile = 'concrete'},
+        [22] = {entity = {name = 'gun-turret', callback = 'turret', offset = 3}, tile = 'concrete'},
         [23] = {tile = 'concrete'},
         [24] = {tile = 'concrete'},
         [25] = {tile = 'concrete'},
-        [26] = {entity = {name = 'flamethrower-turret', callback = 'turret', offset = 1}, tile = 'concrete'},
+        [26] = {entity = {name = 'flamethrower-turret', callback = 'flame_turret', offset = 1}, tile = 'concrete'},
         [27] = {tile = 'concrete'},
         [28] = {tile = 'concrete'},
         [29] = {tile = 'concrete'},

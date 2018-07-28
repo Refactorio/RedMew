@@ -103,8 +103,8 @@ Public.__index = Public
 
 Public.empty_template = {}
 
-function Public.new(seed)
-    local obj = {random = Random.new(seed, seed * 2)}
+function Public.new(random)
+    local obj = {random = random}
 
     return setmetatable(obj, Public)
 end
@@ -629,14 +629,14 @@ local function to_shape(blocks)
     return function(x, y, world)
         x, y = math.floor(x + half_t_size), math.floor(y + half_t_size)
         if x < 0 or y < 0 or x >= t_size or y >= t_size then
-            return true
+            return false
         end
 
         local x2, y2 = math.floor(x * inv_part_size), math.floor(y * inv_part_size)
 
         local template = blocks[y2 * size + x2 + 1]
         if not template then
-            return true
+            return false
         end
 
         local wx, wy = world.x, world.y
@@ -657,7 +657,7 @@ local function to_shape(blocks)
 
         local entry = template[i]
         if not entry then
-            return true
+            return false
         end
 
         local entity = entry.entity
@@ -998,7 +998,9 @@ Public.magic_item_crafting_callback =
             end
         end
 
-        Task.set_timeout_in_ticks(1, set_inactive_token, entity)
+        if not data.keep_active then
+            Task.set_timeout_in_ticks(2, set_inactive_token, entity) -- causes problems with refineries.
+        end
     end
 )
 
@@ -1114,6 +1116,41 @@ function Public.do_random_loot(entity, weights, loot)
     end
 
     entity.insert {name = stack.name, count = count}
+end
+
+function Public.do_random_fluid_loot(entity, weights, loot)
+    if not entity.valid then
+        return
+    end
+
+    entity.operable = false
+    entity.destructible = false
+
+    local i = math.random() * weights.total
+
+    local index = table.binary_search(weights, i)
+    if (index < 0) then
+        index = bit32.bnot(index)
+    end
+
+    local stack = loot[index].stack
+    if not stack then
+        return
+    end
+
+    local df = stack.distance_factor
+    local count
+    if df then
+        local p = entity.position
+        local x, y = p.x, p.y
+        local d = math.sqrt(x * x + y * y)
+
+        count = stack.count + d * df
+    else
+        count = stack.count
+    end
+
+    entity.fluidbox[1] = {name = stack.name, amount = count}
 end
 
 Event.add(defines.events.on_tick, tick)
