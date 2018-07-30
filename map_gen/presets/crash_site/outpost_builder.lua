@@ -318,7 +318,8 @@ local function do_walls(self, blocks, outpost_variance, outpost_min_step)
                 pv = 0
             elseif x < tx then
                 pv = 1
-                blocks[i] = wall_west_outer
+                --blocks[i] = wall_west_outer
+                blocks[i] = wall_north_outer
                 x = x + 1
                 i = i + 1
                 while x < tx do

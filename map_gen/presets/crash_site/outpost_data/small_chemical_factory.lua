@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
-    {stack = {name = 'coin', count = 500, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'coal', count = 1000, distance_factor = 1}, weight = 2},
     {stack = {name = 'sulfur', count = 500, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'plastic-bar', count = 500, distance_factor = 1 / 2}, weight = 5}
@@ -22,7 +22,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'sulfur',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'sulfur'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'sulfur'}
     }
 }
 
@@ -30,7 +30,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'plastic-bar',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'plastic-bar'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'plastic-bar'}
     }
 }
 
@@ -40,25 +40,25 @@ local market = {
         {
             name = 'coal',
             price = 0.25,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.125 / 512,
             min_price = 0.025
         },
         {
             name = 'sulfur',
             price = 2,
-            distance_factor = 0.005 / 32,
+            distance_factor = 1 / 512,
             min_price = 0.2
         },
         {
             name = 'plastic-bar',
             price = 2,
-            distance_factor = 0.005 / 32,
+            distance_factor = 1 / 512,
             min_price = 0.2
         },
         {
             name = 'solid-fuel',
             price = 1,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.5 / 512,
             min_price = 0.1
         }
     }

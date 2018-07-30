@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 5},
-    {stack = {name = 'coin', count = 2500, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 250, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'engine-unit', count = 500, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'electric-engine-unit', count = 250, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'rail', count = 500, distance_factor = 1}, weight = 1},
@@ -26,7 +26,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'engine-unit',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'engine-unit'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'engine-unit'}
     }
 }
 
@@ -34,7 +34,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'electric-engine-unit',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'engine-unit'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'electric-engine-unit'}
     }
 }
 
@@ -44,49 +44,49 @@ local market = {
         {
             name = 'engine-unit',
             price = 4,
-            distance_factor = 0.005 / 32,
+            distance_factor = 2 / 512,
             min_price = 0.4
         },
         {
             name = 'electric-engine-unit',
             price = 8,
-            distance_factor = 0.005 / 32,
+            distance_factor = 4 / 512,
             min_price = 0.8
         },
         {
             name = 'car',
             price = 50,
-            distance_factor = 0.005 / 32,
+            distance_factor = 25 / 512,
             min_price = 40
         },
         {
             name = 'rail',
             price = 1,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.5 / 512,
             min_price = 0.1
         },
         {
             name = 'tank',
             price = 1000,
-            distance_factor = 0.005 / 32,
+            distance_factor = 500 / 512,
             min_price = 250
         },
         {
             name = 'locomotive',
             price = 100,
-            distance_factor = 0.005 / 32,
+            distance_factor = 50 / 512,
             min_price = 40
         },
         {
             name = 'cargo-wagon',
             price = 20,
-            distance_factor = 0.005 / 32,
+            distance_factor = 10 / 512,
             min_price = 10
         },
         {
             name = 'fluid-wagon',
             price = 40,
-            distance_factor = 0.005 / 32,
+            distance_factor = 20 / 512,
             min_price = 20
         }
     }

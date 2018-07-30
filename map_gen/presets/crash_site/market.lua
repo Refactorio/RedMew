@@ -100,6 +100,9 @@ local function draw_market_frame(player, market_items)
     count_slider.style.width = 100
     count_text.style.width = 60
 
+    local quantity_label = count_flow.add {type = 'label', caption = 'Quantity'}
+    quantity_label.style.font = 'default-bold'
+
     data.slider = count_slider
     data.text = count_text
 

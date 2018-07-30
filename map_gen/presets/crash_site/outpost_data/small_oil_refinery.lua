@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
-    {stack = {name = 'coin', count = 500, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'crude-oil-barrel', count = 100, distance_factor = 1 / 20}, weight = 2},
     {stack = {name = 'heavy-oil-barrel', count = 100, distance_factor = 1 / 20}, weight = 2},
     {stack = {name = 'light-oil-barrel', count = 100, distance_factor = 1 / 20}, weight = 2},
@@ -41,9 +41,9 @@ local factory = {
         recipe = 'basic-oil-processing',
         keep_active = true,
         output = {
-            {min_rate = 3 / 60, distance_factor = 3 / 60 / 100, item = 'heavy-oil', fluidbox_index = 2},
-            {min_rate = 3 / 60, distance_factor = 3 / 60 / 100, item = 'light-oil', fluidbox_index = 3},
-            {min_rate = 4 / 60, distance_factor = 4 / 60 / 100, item = 'petroleum-gas', fluidbox_index = 4}
+            {min_rate = 15 / 60, distance_factor = 15 / 60 / 512, item = 'heavy-oil', fluidbox_index = 2},
+            {min_rate = 15 / 60, distance_factor = 15 / 60 / 512, item = 'light-oil', fluidbox_index = 3},
+            {min_rate = 20 / 60, distance_factor = 20 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 4}
         }
     }
 }
@@ -54,38 +54,38 @@ local market = {
         {
             name = 'crude-oil-barrel',
             price = 10,
-            distance_factor = 0.005 / 32,
+            distance_factor = 5 / 512,
             min_price = 1
         },
         {
             name = 'heavy-oil-barrel',
             price = 15,
-            distance_factor = 0.005 / 32,
-            min_price = 1
+            distance_factor = 7.5 / 512,
+            min_price = 1.5
         },
         {
             name = 'light-oil-barrel',
             price = 20,
-            distance_factor = 0.005 / 32,
-            min_price = 1
+            distance_factor = 10 / 512,
+            min_price = 2
         },
         {
             name = 'petroleum-gas-barrel',
             price = 25,
-            distance_factor = 0.005 / 32,
-            min_price = 1
+            distance_factor = 12.5 / 512,
+            min_price = 2.5
         },
         {
             name = 'lubricant-barrel',
             price = 15,
-            distance_factor = 0.005 / 32,
-            min_price = 1
+            distance_factor = 7.5 / 512,
+            min_price = 1.5
         },
         {
             name = 'sulfuric-acid-barrel',
             price = 40,
-            distance_factor = 0.005 / 32,
-            min_price = 1
+            distance_factor = 20 / 512,
+            min_price = 4
         }
     }
 }

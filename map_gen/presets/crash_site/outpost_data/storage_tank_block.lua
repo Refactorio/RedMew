@@ -1,6 +1,7 @@
 local ob = require 'map_gen.presets.crash_site.outpost_builder'
 
-return ob.make_1_way{
+return ob.make_1_way {
+    force = 'neutral',
     [1] = {tile = 'concrete'},
     [2] = {tile = 'concrete'},
     [3] = {tile = 'concrete'},
@@ -8,10 +9,10 @@ return ob.make_1_way{
     [5] = {tile = 'concrete'},
     [6] = {tile = 'concrete'},
     [7] = {tile = 'concrete'},
-    [8] = {entity = {name = 'storage-tank', callback  ='tank'}, tile = 'concrete'},
+    [8] = {entity = {name = 'storage-tank', callback = 'tank'}, tile = 'concrete'},
     [9] = {tile = 'concrete'},
     [10] = {tile = 'concrete'},
-    [11] = {entity = {name = 'storage-tank', callback  ='tank'}, tile = 'concrete'},
+    [11] = {entity = {name = 'storage-tank', callback = 'tank'}, tile = 'concrete'},
     [12] = {tile = 'concrete'},
     [13] = {tile = 'concrete'},
     [14] = {tile = 'concrete'},
@@ -26,10 +27,10 @@ return ob.make_1_way{
     [23] = {tile = 'concrete'},
     [24] = {tile = 'concrete'},
     [25] = {tile = 'concrete'},
-    [26] = {entity = {name = 'storage-tank', callback  ='tank'}, tile = 'concrete'},
+    [26] = {entity = {name = 'storage-tank', callback = 'tank'}, tile = 'concrete'},
     [27] = {tile = 'concrete'},
     [28] = {tile = 'concrete'},
-    [29] = {entity = {name = 'storage-tank', callback  ='tank'}, tile = 'concrete'},
+    [29] = {entity = {name = 'storage-tank', callback = 'tank'}, tile = 'concrete'},
     [30] = {tile = 'concrete'},
     [31] = {tile = 'concrete'},
     [32] = {tile = 'concrete'},
@@ -37,4 +38,4 @@ return ob.make_1_way{
     [34] = {tile = 'concrete'},
     [35] = {tile = 'concrete'},
     [36] = {tile = 'concrete'}
-    }
+}

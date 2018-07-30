@@ -83,7 +83,7 @@ local spawn_units =
         local surface = data.surface
         local name = data.name
         local position = data.position
-        for _ = 1, 3 do
+        for _ = 1, 5 do
             local p = surface.find_non_colliding_position(name, position, 8, 1)
             if p then
                 surface.create_entity {name = name, position = p}
@@ -123,7 +123,7 @@ Event.add(
         local spawn = entity_spawn_map[name]
 
         if spawn then
-            if math.random(5) == 1 then
+            if math.random() <= 0.25 then
                 Task.set_timeout_in_ticks(
                     1,
                     spawn_worm,

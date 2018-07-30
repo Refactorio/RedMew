@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 5},
-    {stack = {name = 'coin', count = 750, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 75, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'iron-ore', count = 2400}, weight = 8},
     {stack = {name = 'iron-plate', count = 750, distance_factor = 1 / 2}, weight = 10},
     {stack = {name = 'steel-plate', count = 500, distance_factor = 1 / 5}, weight = 4}
@@ -22,7 +22,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         furance_item = 'iron-ore',
-        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 100, item = 'iron-plate'}
+        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 512, item = 'iron-plate'}
     }
 }
 
@@ -30,7 +30,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         furance_item = {name = 'iron-plate', count = 100},
-        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 100, item = 'steel-plate'}
+        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 512, item = 'steel-plate'}
     }
 }
 
@@ -40,13 +40,13 @@ local market = {
         {
             name = 'iron-plate',
             price = 0.3,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.15 / 512,
             min_price = 0.03
         },
         {
             name = 'steel-plate',
             price = 1.5,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.75 / 512,
             min_price = 0.15
         }
     }

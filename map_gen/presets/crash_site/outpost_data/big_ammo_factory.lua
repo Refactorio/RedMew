@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
-    {stack = {name = 'coin', count = 2500, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 250, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'uranium-rounds-magazine', count = 600, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'piercing-shotgun-shell', count = 600, distance_factor = 1 / 4}, weight = 1},
     {stack = {name = 'cluster-grenade', count = 200, distance_factor = 1 / 8}, weight = 2},
@@ -26,7 +26,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'uranium-rounds-magazine',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'uranium-rounds-magazine'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'uranium-rounds-magazine'}
     }
 }
 
@@ -34,7 +34,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'explosive-rocket',
-        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 60 / 100, item = 'explosive-rocket'}
+        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 3 / 60 / 512, item = 'explosive-rocket'}
     }
 }
 
@@ -42,7 +42,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'explosive-uranium-cannon-shell',
-        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 60 / 100, item = 'explosive-uranium-cannon-shell'}
+        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 3 / 60 / 512, item = 'explosive-uranium-cannon-shell'}
     }
 }
 
@@ -52,103 +52,103 @@ local market = {
         {
             name = 'firearm-magazine',
             price = 1,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.5 / 512,
             min_price = 0.1
         },
         {
             name = 'piercing-rounds-magazine',
             price = 3,
-            distance_factor = 0.005 / 32,
+            distance_factor = 1.5 / 512,
             min_price = 0.3
         },
         {
             name = 'uranium-rounds-magazine',
             price = 9,
-            distance_factor = 0.005 / 32,
+            distance_factor = 4.5 / 512,
             min_price = 0.9
         },
         {
             name = 'shotgun-shell',
             price = 2,
-            distance_factor = 0.005 / 32,
+            distance_factor = 1 / 512,
             min_price = 0.2
         },
         {
             name = 'piercing-shotgun-shell',
             price = 6,
-            distance_factor = 0.005 / 32,
+            distance_factor = 3 / 512,
             min_price = 0.6
         },
         {
             name = 'grenade',
             price = 10,
-            distance_factor = 0.005 / 32,
+            distance_factor = 5 / 512,
             min_price = 1
         },
         {
             name = 'land-mine',
             price = 1,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.5 / 512,
             min_price = 0.1
         },
         {
             name = 'rocket',
             price = 20,
-            distance_factor = 0.005 / 32,
+            distance_factor = 10 / 512,
             min_price = 2
         },
         {
             name = 'explosive-rocket',
             price = 40,
-            distance_factor = 0.005 / 32,
+            distance_factor = 20 / 512,
             min_price = 4
         },
         {
             name = 'rocket-launcher',
             price = 250,
-            distance_factor = 0.005 / 32,
+            distance_factor = 125 / 512,
             min_price = 125
         },
         {
             name = 'cluster-grenade',
             price = 100,
-            distance_factor = 0.005 / 32,
+            distance_factor = 50 / 512,
             min_price = 10
         },
         {
             name = 'poison-capsule',
             price = 60,
-            distance_factor = 0.005 / 32,
+            distance_factor = 30 / 512,
             min_price = 6
         },
         {
             name = 'slowdown-capsule',
             price = 60,
-            distance_factor = 0.005 / 32,
+            distance_factor = 60 / 512,
             min_price = 6
         },
         {
             name = 'cannon-shell',
             price = 60,
-            distance_factor = 0.005 / 32,
+            distance_factor = 60 / 512,
             min_price = 6
         },
         {
             name = 'explosive-cannon-shell',
             price = 120,
-            distance_factor = 0.005 / 32,
+            distance_factor = 120 / 512,
             min_price = 12
         },
         {
             name = 'explosive-uranium-cannon-shell',
             price = 160,
-            distance_factor = 0.005 / 32,
+            distance_factor = 80 / 512,
             min_price = 16
         },
         {
             name = 'destroyer-capsule',
             price = 80,
-            distance_factor = 0.005 / 32,
+            distance_factor = 40 / 512,
             min_price = 8
         },
         {

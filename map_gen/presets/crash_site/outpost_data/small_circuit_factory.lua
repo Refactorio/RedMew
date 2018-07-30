@@ -4,7 +4,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
-    {stack = {name = 'coin', count = 500, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'iron-plate', count = 200, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'copper-cable', count = 300, distance_factor = 3 / 4}, weight = 5},
     {stack = {name = 'electronic-circuit', count = 400, distance_factor = 1}, weight = 5},
@@ -15,7 +15,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'electronic-circuit',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'electronic-circuit'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'electronic-circuit'}
     }
 }
 
@@ -25,20 +25,20 @@ local market = {
         {
             name = 'copper-cable',
             price = 0.25,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.125 / 512,
             min_price = 0.025
         },
         {
             name = 'electronic-circuit',
             price = 1,
-            distance_factor = 0.005 / 32,
-            min_price = 0.05
+            distance_factor = 0.5 / 512,
+            min_price = 0.1
         },
         {
             name = 'advanced-circuit',
             price = 10,
-            distance_factor = 0.005 / 32,
-            min_price = 0.5
+            distance_factor = 5 / 512,
+            min_price = 1
         }
     }
 }

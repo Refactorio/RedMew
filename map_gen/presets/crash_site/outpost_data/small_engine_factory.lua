@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 5},
-    {stack = {name = 'coin', count = 500, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'engine-unit', count = 100, distance_factor = 1 / 2}, weight = 10},
     {stack = {name = 'electric-engine-unit', count = 50, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'car', count = 1, distance_factor = 1 / 128}, weight = 2},
@@ -23,7 +23,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'engine-unit',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'engine-unit'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'engine-unit'}
     }
 }
 
@@ -33,25 +33,25 @@ local market = {
         {
             name = 'engine-unit',
             price = 4,
-            distance_factor = 0.005 / 32,
+            distance_factor = 2 / 512,
             min_price = 0.4
         },
         {
             name = 'electric-engine-unit',
             price = 8,
-            distance_factor = 0.005 / 32,
+            distance_factor = 4 / 512,
             min_price = 0.8
         },
         {
             name = 'car',
             price = 50,
-            distance_factor = 0.005 / 32,
+            distance_factor = 25 / 512,
             min_price = 40
         },
         {
             name = 'rail',
             price = 1,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.5 / 512,
             min_price = 0.1
         }
     }

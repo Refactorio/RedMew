@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
-    {stack = {name = 'coin', count = 500, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'firearm-magazine', count = 500, distance_factor = 1}, weight = 5},
     {stack = {name = 'piercing-rounds-magazine', count = 300, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'shotgun-shell', count = 200, distance_factor = 1 / 4}, weight = 2},
@@ -28,7 +28,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'firearm-magazine',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'firearm-magazine'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'firearm-magazine'}
     }
 }
 
@@ -36,7 +36,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'piercing-rounds-magazine',
-        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 60 / 100, item = 'piercing-rounds-magazine'}
+        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 3 / 60 / 512, item = 'piercing-rounds-magazine'}
     }
 }
 
@@ -44,7 +44,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'grenade',
-        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 60 / 100, item = 'grenade'}
+        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 3 / 60 / 512, item = 'grenade'}
     }
 }
 
@@ -54,55 +54,55 @@ local market = {
         {
             name = 'firearm-magazine',
             price = 1,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.5 / 512,
             min_price = 0.1
         },
         {
             name = 'piercing-rounds-magazine',
             price = 3,
-            distance_factor = 0.005 / 32,
+            distance_factor = 1.5 / 512,
             min_price = 0.3
         },
         {
             name = 'shotgun-shell',
             price = 2,
-            distance_factor = 0.005 / 32,
+            distance_factor = 1 / 512,
             min_price = 0.2
         },
         {
             name = 'grenade',
             price = 10,
-            distance_factor = 0.005 / 32,
+            distance_factor = 5 / 512,
             min_price = 1
         },
         {
             name = 'land-mine',
             price = 1,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.5 / 512,
             min_price = 0.1
         },
         {
             name = 'rocket',
             price = 20,
-            distance_factor = 0.005 / 32,
+            distance_factor = 10 / 512,
             min_price = 2
         },
         {
             name = 'rocket-launcher',
             price = 250,
-            distance_factor = 0.005 / 32,
+            distance_factor = 125 / 512,
             min_price = 125
         },
         {
             name = 'cluster-grenade',
             price = 100,
-            distance_factor = 0.005 / 32,
+            distance_factor = 50 / 512,
             min_price = 10
         },
         {
             name = 'poison-capsule',
             price = 60,
-            distance_factor = 0.005 / 32,
+            distance_factor = 30 / 512,
             min_price = 6
         }
     }

@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
-    {stack = {name = 'coin', count = 500, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'science-pack-1', count = 50, distance_factor = 1 / 10}, weight = 5},
     {stack = {name = 'science-pack-2', count = 25, distance_factor = 1 / 10}, weight = 5}
 }
@@ -21,7 +21,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'science-pack-1',
-        output = {min_rate = 0.1 / 60, distance_factor = 1 / 60 / 1000, item = 'science-pack-1'}
+        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'science-pack-1'}
     }
 }
 
@@ -29,7 +29,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'science-pack-2',
-        output = {min_rate = 0.1 / 60, distance_factor = 1 / 60 / 1000, item = 'science-pack-2'}
+        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'science-pack-2'}
     }
 }
 
@@ -39,19 +39,19 @@ local market = {
         {
             name = 'science-pack-1',
             price = 10,
-            distance_factor = 0.005 / 32,
+            distance_factor = 5 / 512,
             min_price = 1
         },
         {
             name = 'science-pack-2',
             price = 20,
-            distance_factor = 0.005 / 32,
+            distance_factor = 10 / 512,
             min_price = 2
         },
         {
             name = 'military-science-pack',
             price = 40,
-            distance_factor = 0.005 / 32,
+            distance_factor = 20 / 512,
             min_price = 4
         }
     }

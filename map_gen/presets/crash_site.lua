@@ -6,9 +6,11 @@ local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
 local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
+local Perlin = require 'map_gen.shared.perlin_noise'
 
-local outpost_seed = 1000
-local ore_seed = 1000
+local outpost_seed = 2000
+local ore_seed = 3000
+local enemy_seed = 420420
 
 local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
 
@@ -276,22 +278,56 @@ local worms = {
     'big-worm-turret'
 }
 
-local max_chance = 1 / 64
+local max_spawner_chance = 1 / 128
+local spawner_chance_factor = 1 / (128 * 512)
+local max_worm_chance = 1 / 32
+local worm_chance_factor = 1 / (32 * 512)
 
-local function enemy(_, _, world)
-    local x, y = world.x, world.y
-    local d = math.sqrt(x * x + y * y)
+local scale_factor = 1 / 32
 
-    local chance = (d - 128) / 50000
-    chance = math.min(chance, max_chance)
+local function enemy(x, y, world)
+    local wx, wy = world.x, world.y
+    local d = math.sqrt(wx * wx + wy * wy)
 
-    if math.random() < chance then
-        if math.random() < 0.25 then
-            local lvl = math.floor(d / 256) + 1
-            lvl = math.min(lvl, 3)
-            return {name = worms[lvl]}
-        else
+    --[[ if Perlin.noise(x * scale_factor, y * scale_factor, enemy_seed) < 0 then
+        return nil
+    end ]]
+    local spawner_chance = d - 128
+
+    if spawner_chance > 0 then
+        spawner_chance = spawner_chance * spawner_chance_factor
+        spawner_chance = math.min(spawner_chance, max_spawner_chance)
+
+        if math.random() < spawner_chance then
             return {name = spawners[math.random(2)]}
+        end
+    end
+
+    local worm_chance = d - 128
+
+    if worm_chance > 0 then
+        worm_chance = worm_chance * worm_chance_factor
+        worm_chance = math.min(worm_chance, max_worm_chance)
+
+        if math.random() < worm_chance then
+            if d < 256 then
+                return {name = 'small-worm-turret'}
+            else
+                local max_lvl
+                local min_lvl
+                if d < 512 then
+                    max_lvl = 2
+                    min_lvl = 1
+                else
+                    max_lvl = 3
+                    min_lvl = 2
+                end
+                local lvl = math.random() ^ (384 / d) * max_lvl
+                lvl = math.ceil(lvl)
+                --local lvl = math.floor(d / 256) + 1
+                lvl = math.clamp(lvl, min_lvl, 3)
+                return {name = worms[lvl]}
+            end
         end
     end
 end
@@ -389,12 +425,12 @@ local market = {
         {name = 'coal', price = 1.25},
         {name = 'raw-fish', price = 4},
         {name = 'firearm-magazine', price = 5},
-        {name = 'science-pack-1', price = 50},
-        {name = 'science-pack-2', price = 100},
-        {name = 'military-science-pack', price = 200},
-        {name = 'science-pack-3', price = 300},
-        {name = 'production-science-pack', price = 600},
-        {name = 'high-tech-science-pack', price = 900}
+        {name = 'science-pack-1', price = 20},
+        {name = 'science-pack-2', price = 40},
+        {name = 'military-science-pack', price = 80},
+        {name = 'science-pack-3', price = 120},
+        {name = 'production-science-pack', price = 240},
+        {name = 'high-tech-science-pack', price = 360}
     }
 }
 
@@ -423,6 +459,9 @@ spawn_shape = b.change_tile(spawn_shape, false, 'stone-path')
 
 map = b.choose(b.rectangle(16, 16), spawn_shape, map)
 
+--return outpost_builder:do_outpost(big_engine_factory)
+
 --return b.full_shape
+
 return map
 --return b.apply_entity(b.full_shape, ore_grid)

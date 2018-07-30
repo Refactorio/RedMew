@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
-    {stack = {name = 'coin', count = 2500, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 250, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'solid-fuel', count = 1000, distance_factor = 1}, weight = 2},
     {stack = {name = 'sulfur', count = 1000, distance_factor = 1 / 2}, weight = 1},
     {stack = {name = 'plastic-bar', count = 1000, distance_factor = 1 / 2}, weight = 5},
@@ -25,7 +25,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'plastic-bar',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'plastic-bar'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'plastic-bar'}
     }
 }
 
@@ -33,14 +33,14 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'sulfuric-acid',
-        output = {min_rate = 20 / 60, distance_factor = 10 / 60 / 100, item = 'sulfuric-acid', fluidbox_index = 2}
+        output = {min_rate = 20 / 60, distance_factor = 20 / 60 / 512, item = 'sulfuric-acid', fluidbox_index = 2}
     }
 }
 local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'rocket-fuel',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'rocket-fuel'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'rocket-fuel'}
     }
 }
 
@@ -50,43 +50,43 @@ local market = {
         {
             name = 'coal',
             price = 0.25,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.125 / 512,
             min_price = 0.025
         },
         {
             name = 'sulfur',
             price = 2,
-            distance_factor = 0.005 / 32,
+            distance_factor = 1 / 512,
             min_price = 0.2
         },
         {
             name = 'plastic-bar',
             price = 2,
-            distance_factor = 0.005 / 32,
+            distance_factor = 1 / 512,
             min_price = 0.2
         },
         {
             name = 'solid-fuel',
             price = 1,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.5 / 512,
             min_price = 0.1
         },
         {
             name = 'battery',
             price = 3,
-            distance_factor = 0.005 / 32,
+            distance_factor = 1.5 / 512,
             min_price = 0.3
         },
         {
             name = 'explosives',
             price = 3,
-            distance_factor = 0.005 / 32,
+            distance_factor = 1.5 / 512,
             min_price = 0.3
         },
         {
             name = 'rocket-fuel',
             price = 10,
-            distance_factor = 0.005 / 32,
+            distance_factor = 5 / 512,
             min_price = 1
         }
     }

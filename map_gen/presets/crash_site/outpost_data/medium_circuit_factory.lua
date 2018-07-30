@@ -4,7 +4,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
-    {stack = {name = 'coin', count = 750, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 75, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'copper-cable', count = 300, distance_factor = 3 / 4}, weight = 5},
     {stack = {name = 'electronic-circuit', count = 400, distance_factor = 1}, weight = 5},
     {stack = {name = 'advanced-circuit', count = 200, distance_factor = 1}, weight = 5},
@@ -15,7 +15,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'electronic-circuit',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 100, item = 'electronic-circuit'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'electronic-circuit'}
     }
 }
 
@@ -23,7 +23,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'advanced-circuit',
-        output = {min_rate = 1 / 600, distance_factor = 1 / 600 / 100, item = 'advanced-circuit'}
+        output = {min_rate = 1 / 600, distance_factor = 1 / 600 / 512, item = 'advanced-circuit'}
     }
 }
 
@@ -33,25 +33,25 @@ local market = {
         {
             name = 'copper-cable',
             price = 0.25,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.125 / 512,
             min_price = 0.025
         },
         {
             name= 'electronic-circuit',
             price = 1,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.5 / 512,
             min_price = 0.05
         },
         {
             name= 'advanced-circuit',
             price = 4,
-            distance_factor = 0.005 / 32,
+            distance_factor = 2 / 512,
             min_price = 0.2
         },
         {
             name = 'processing-unit',
             price = 40,
-            distance_factor = 0.005 / 32,
+            distance_factor = 20 / 512,
             min_price = 0.8
         }
     }

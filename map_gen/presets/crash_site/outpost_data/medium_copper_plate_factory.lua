@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 5},
-    {stack = {name = 'coin', count = 750, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'coin', count = 75, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'copper-ore', count = 2400}, weight = 8},
     {stack = {name = 'copper-cable', count = 750, distance_factor = 1 / 2}, weight = 2},
     {stack = {name = 'copper-plate', count = 750, distance_factor = 1 / 5}, weight = 10}
@@ -22,7 +22,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         furance_item = 'copper-ore',
-        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 100, item = 'copper-plate'}
+        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 512, item = 'copper-plate'}
     }
 }
 
@@ -32,13 +32,13 @@ local market = {
         {
             name = 'copper-cable',
             price = 0.12,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.06 / 512,
             min_price = 0.012
         },
         {
             name = 'copper-plate',
             price = 0.3,
-            distance_factor = 0.005 / 32,
+            distance_factor = 0.15 / 512,
             min_price = 0.03
         }
     }

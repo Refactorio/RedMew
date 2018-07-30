@@ -415,7 +415,7 @@ local function get_default_player_settings()
             time_heading_name,
             rank_heading_name,
             distance_heading_name,
-            fish_heading_name,
+            --fish_heading_name,
             deaths_heading_name,
             poke_name_heading_name
         },
