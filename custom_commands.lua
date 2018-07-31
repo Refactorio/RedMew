@@ -322,77 +322,6 @@ local function toggle_tp_mode(cmd)
     end
 end
 
-global.old_force = {}
-global.force_toggle_init = true
-local function forcetoggle(cmd)
-    if not (game.player and game.player.admin and game.player.character) then
-        cant_run(cmd.name)
-        return
-    end
-
-    if global.force_toggle_init then
-        game.forces.enemy.research_all_technologies() --avoids losing logstics slot configuration
-        global.force_toggle_init = false
-    end
-
-    -- save the logistics slots
-    local slots = {}
-    local slot_counts = game.player.character.request_slot_count
-    if game.player.character.request_slot_count > 0 then
-        for i = 1, slot_counts do
-            local slot = game.player.character.get_request_slot(i)
-            if slot ~= nil then
-                table.insert(slots, slot)
-            end
-        end
-    end
-
-    if game.player.force.name == 'enemy' then
-        local old_force = global.old_force[game.player.name]
-        if not old_force then
-            game.player.force = 'player'
-            game.player.print("You're are now on the player force.")
-        else
-            if game.forces[old_force] then
-                game.player.force = old_force
-            else
-                game.player.force = 'player'
-            end
-        end
-    else
-        --Put roboports into inventory
-        local inv = game.player.get_inventory(defines.inventory.player_armor)
-        if inv[1].valid_for_read then
-            local name = inv[1].name
-            if name:match('power') or name:match('modular') then
-                local equips = inv[1].grid.equipment
-                for _, equip in pairs(equips) do
-                    if
-                        equip.name == 'personal-roboport-equipment' or equip.name == 'personal-roboport-mk2-equipment' or
-                            equip.name == 'personal-laser-defense-equipment'
-                     then
-                        if game.player.insert {name = equip.name} == 0 then
-                            game.player.surface.spill_item_stack(game.player.position, {name = equip.name})
-                        end
-                        inv[1].grid.take(equip)
-                    end
-                end
-            end
-        end
-
-        global.old_force[game.player.name] = game.player.force.name
-        game.player.force = 'enemy'
-    end
-    game.player.print('You are now on the ' .. game.player.force.name .. ' force.')
-
-    -- Attempt to rebuild the request slots
-    if game.player.character.request_slot_count > 0 then
-        for _, slot in ipairs(slots) do
-            game.player.character.set_request_slot(slot, _)
-        end
-    end
-end
-
 local function get_group()
     local group = game.permissions.get_group('Banned')
     if not group then
@@ -648,7 +577,7 @@ commands.add_command(
     'Toggles tp mode. When on place a ghost entity to teleport there (Admins only)',
     toggle_tp_mode
 )
-commands.add_command('forcetoggle', 'Toggles the players force between player and enemy (Admins only)', forcetoggle)
+
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
 commands.add_command(
     'spyshot',

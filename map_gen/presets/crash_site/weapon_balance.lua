@@ -1,10 +1,10 @@
-local Global = require 'utils.global'
+--local Global = require 'utils.global'
 local Event = require 'utils.event'
 
 local player_ammo_starting_modifiers = {
     ['artillery-shell'] = -0.75,
     ['biological'] = -0.5,
-    ['bullet'] = -0.5,
+    ['bullet'] = -0.25,
     ['cannon-shell'] = -0.75,
     ['capsule'] = -0.5,
     ['combat-robot-beam'] = -0.5,
@@ -18,6 +18,31 @@ local player_ammo_starting_modifiers = {
     ['railgun'] = 0,
     ['rocket'] = -0.5,
     ['shotgun-shell'] = -0.5
+}
+
+local player_ammo_research_modifiers = {
+    ['artillery-shell'] = -0.75,
+    ['biological'] = -0.5,
+    ['bullet'] = -0.5,
+    ['cannon-shell'] = -0.75,
+    ['capsule'] = -0.5,
+    ['combat-robot-beam'] = -0.5,
+    ['combat-robot-laser'] = -0.5,
+    ['electric'] = -0.6,
+    ['flamethrower'] = -0.75,
+    ['grenade'] = -0.5,
+    ['landmine'] = -0.5,
+    ['laser-turret'] = -0.75,
+    ['melee'] = -0.5,
+    ['railgun'] = -0.5,
+    ['rocket'] = -0.5,
+    ['shotgun-shell'] = -0.5
+}
+
+local player_turrets_research_modifiers = {
+    ['gun-turret'] = -0.65,
+    --['laser-turret'] = -0.75,
+    ['flamethrower-turret'] = -0.75
 }
 
 local enemy_ammo_starting_modifiers = {
@@ -58,30 +83,7 @@ local enemy_ammo_evolution_modifiers = {
     --['shotgun-shell'] = 1
 }
 
-local player_ammo_research_modifiers = {
-    ['artillery-shell'] = -0.75,
-    ['biological'] = -0.5,
-    ['bullet'] = -0.5,
-    ['cannon-shell'] = -0.75,
-    ['capsule'] = -0.5,
-    ['combat-robot-beam'] = -0.5,
-    ['combat-robot-laser'] = -0.5,
-    ['electric'] = -0.6,
-    ['flamethrower'] = -0.75,
-    ['grenade'] = -0.5,
-    ['landmine'] = -0.5,
-    ['laser-turret'] = -0.75,
-    ['melee'] = -0.5,
-    ['railgun'] = -0.5,
-    ['rocket'] = -0.5,
-    ['shotgun-shell'] = -0.5
-}
 
-local player_turrets_research_modifiers = {
-    ['gun-turret'] = -0.65,
-    --['laser-turret'] = -0.75,
-    ['flamethrower-turret'] = -0.75
-}
 
 local function init_weapon_damage()
     local forces = game.forces

@@ -54,6 +54,7 @@ local big_chemical_factory = require 'map_gen.presets.crash_site.outpost_data.bi
 
 local stage1 = {
     small_iron_plate_factory,
+    small_iron_plate_factory,
     small_copper_plate_factory,
     small_gear_factory,
     small_circuit_factory,
@@ -278,8 +279,8 @@ local worms = {
     'big-worm-turret'
 }
 
-local max_spawner_chance = 1 / 128
-local spawner_chance_factor = 1 / (128 * 512)
+local max_spawner_chance = 1 / 160
+local spawner_chance_factor = 1 / (160 * 512)
 local max_worm_chance = 1 / 32
 local worm_chance_factor = 1 / (32 * 512)
 
@@ -303,7 +304,7 @@ local function enemy(x, y, world)
         end
     end
 
-    local worm_chance = d - 128
+    local worm_chance = d - 144
 
     if worm_chance > 0 then
         worm_chance = worm_chance * worm_chance_factor
@@ -404,7 +405,7 @@ for r = 1, 50 do
 end
 
 local ore_grid = b.grid_pattern_full_overlap(ore_pattern, 50, 50, 64, 64)
-ore_grid = b.choose(b.rectangle(196), b.no_entity, ore_grid)
+ore_grid = b.choose(b.rectangle(138), b.no_entity, ore_grid)
 
 local map = b.if_else(outposts, enemy_shape)
 --map = b.change_tile(map, true, 'grass-1')
