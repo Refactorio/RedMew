@@ -213,6 +213,8 @@ end
 pattern[5][5] = start_outpost
 
 local outpost_offset = 64
+local grid_size = 200
+local half_total_size = grid_size * 0.5 * 8
 
 for r = 4, 7 do
     local row = pattern[r]
@@ -262,8 +264,7 @@ for r = 1, 10 do
     end
 end
 
-local grid_size = 200
-local half_total_size = grid_size * 0.5 * 8
+
 
 local outposts = b.grid_pattern(pattern, 10, 10, grid_size, grid_size)
 --outposts = b.if_else(outposts, b.full_shape)
