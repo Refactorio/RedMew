@@ -84,7 +84,6 @@ return {
     ['chessindustries'] = true,
     ['chukles'] = true,
     ['circit'] = true,
-    ['claude47'] = true,
     ['cogito123'] = true,
     ['collin08'] = true,
     ['coogan'] = true,
@@ -520,5 +519,13 @@ return {
     ['SnowDrifter'] = true,
     ['brockmasters'] = true,
     ['monkee'] = true,
-    ['blacksunshine693'] = true
+    ['blacksunshine693'] = true,
+    ['Claude47'] = true,
+    ['Winged_Shade'] = true,
+    ['NWABroseidon'] = true,
+    ['Lusquifer'] = true,
+    ['Cruelcoder'] = true,
+    ['Unrealrules'] = true,
+    ['Lithidoria'] = true,
+    ['LordElmi'] = true
 }

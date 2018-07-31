@@ -8,8 +8,8 @@ local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local Perlin = require 'map_gen.shared.perlin_noise'
 
-local outpost_seed = 2000
-local ore_seed = 3000
+local outpost_seed = 7000
+local ore_seed = 9000
 local enemy_seed = 420420
 
 local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
@@ -292,7 +292,7 @@ local function enemy(x, y, world)
     --[[ if Perlin.noise(x * scale_factor, y * scale_factor, enemy_seed) < 0 then
         return nil
     end ]]
-    local spawner_chance = d - 128
+    local spawner_chance = d - 144
 
     if spawner_chance > 0 then
         spawner_chance = spawner_chance * spawner_chance_factor

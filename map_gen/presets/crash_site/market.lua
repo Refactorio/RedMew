@@ -152,6 +152,26 @@ Gui.on_custom_close(
     end
 )
 
+Event.add(
+    defines.events.on_player_died,
+    function(event)
+        local player = game.players[event.player_index or 0]
+
+        if not player or not player.valid then
+            return
+        end
+
+        local element = player.gui.center
+
+        if element and element.valid then
+            element = element[market_frame_name]
+            if element and element.valid then
+                Gui.destroy(element)
+            end
+        end
+    end
+)
+
 Gui.on_value_changed(
     count_slider_name,
     function(event)
