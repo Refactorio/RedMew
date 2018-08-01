@@ -1,6 +1,7 @@
 local Gui = require 'utils.gui'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
+local PlayerStats = require 'player_stats'
 
 local Public = {}
 
@@ -243,6 +244,7 @@ Gui.on_click(
             else
                 player.remove_item {name = 'coin', count = cost}
                 do_coin_label(player, data.coin_label)
+                PlayerStats.change_coin_spent(player.index, cost)
             end
         end
     end

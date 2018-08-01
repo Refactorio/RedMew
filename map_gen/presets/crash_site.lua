@@ -8,8 +8,8 @@ local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local Perlin = require 'map_gen.shared.perlin_noise'
 
-local outpost_seed = 7000
-local ore_seed = 9000
+local outpost_seed = 20000
+local ore_seed = 14000
 local enemy_seed = 420420
 
 local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
@@ -24,6 +24,10 @@ local small_copper_plate_factory = require 'map_gen.presets.crash_site.outpost_d
 local medium_copper_plate_factory = require 'map_gen.presets.crash_site.outpost_data.medium_copper_plate_factory'
 local big_copper_plate_factory = require 'map_gen.presets.crash_site.outpost_data.big_copper_plate_factory'
 
+local small_stone_factory = require 'map_gen.presets.crash_site.outpost_data.small_stone_factory'
+local medium_stone_factory = require 'map_gen.presets.crash_site.outpost_data.medium_stone_factory'
+local big_stone_factory = require 'map_gen.presets.crash_site.outpost_data.big_stone_factory'
+
 local small_gear_factory = require 'map_gen.presets.crash_site.outpost_data.small_gear_factory'
 local medium_gear_factory = require 'map_gen.presets.crash_site.outpost_data.medium_gear_factory'
 local big_gear_factory = require 'map_gen.presets.crash_site.outpost_data.big_gear_factory'
@@ -32,13 +36,13 @@ local small_circuit_factory = require 'map_gen.presets.crash_site.outpost_data.s
 local medium_circuit_factory = require 'map_gen.presets.crash_site.outpost_data.medium_circuit_factory'
 local big_circuit_factory = require 'map_gen.presets.crash_site.outpost_data.big_circuit_factory'
 
-local small_engine_factory = require 'map_gen.presets.crash_site.outpost_data.small_engine_factory'
-local medium_engine_factory = require 'map_gen.presets.crash_site.outpost_data.medium_engine_factory'
-local big_engine_factory = require 'map_gen.presets.crash_site.outpost_data.big_engine_factory'
-
 local small_ammo_factory = require 'map_gen.presets.crash_site.outpost_data.small_ammo_factory'
 local medium_ammo_factory = require 'map_gen.presets.crash_site.outpost_data.medium_ammo_factory'
 local big_ammo_factory = require 'map_gen.presets.crash_site.outpost_data.big_ammo_factory'
+
+local small_weapon_factory = require 'map_gen.presets.crash_site.outpost_data.small_weapon_factory'
+local medium_weapon_factory = require 'map_gen.presets.crash_site.outpost_data.medium_weapon_factory'
+local big_weapon_factory = require 'map_gen.presets.crash_site.outpost_data.big_weapon_factory'
 
 local small_science_factory = require 'map_gen.presets.crash_site.outpost_data.small_science_factory'
 local medium_science_factory = require 'map_gen.presets.crash_site.outpost_data.medium_science_factory'
@@ -52,14 +56,18 @@ local small_chemical_factory = require 'map_gen.presets.crash_site.outpost_data.
 local medium_chemical_factory = require 'map_gen.presets.crash_site.outpost_data.medium_chemical_factory'
 local big_chemical_factory = require 'map_gen.presets.crash_site.outpost_data.big_chemical_factory'
 
+--[[ local small_power_factory = require 'map_gen.presets.crash_site.outpost_data.small_power_factory'
+local medium_power_factory = require 'map_gen.presets.crash_site.outpost_data.medium_power_factory'
+local big_power_factory = require 'map_gen.presets.crash_site.outpost_data.big_power_factory' ]]
 local stage1 = {
     small_iron_plate_factory,
     small_iron_plate_factory,
     small_copper_plate_factory,
+    small_stone_factory,
     small_gear_factory,
     small_circuit_factory,
-    small_engine_factory,
     small_ammo_factory,
+    small_weapon_factory,
     small_science_factory,
     small_oil_refinery,
     small_chemical_factory
@@ -68,10 +76,11 @@ local stage1 = {
 local stage2 = {
     medium_iron_plate_factory,
     medium_copper_plate_factory,
+    medium_stone_factory,
     medium_gear_factory,
     medium_circuit_factory,
-    medium_engine_factory,
     medium_ammo_factory,
+    medium_weapon_factory,
     medium_science_factory,
     medium_oil_refinery,
     medium_chemical_factory
@@ -80,10 +89,11 @@ local stage2 = {
 local stage3 = {
     big_iron_plate_factory,
     big_copper_plate_factory,
+    big_stone_factory,
     big_gear_factory,
     big_circuit_factory,
-    big_engine_factory,
     big_ammo_factory,
+    big_weapon_factory,
     big_science_factory,
     big_oil_refinery,
     big_chemical_factory
@@ -171,7 +181,7 @@ local start_stone_patch =
     b.translate(start_patch, 32, 32),
     'stone',
     function()
-        return 600
+        return 900
     end
 )
 local start_coal_patch =
@@ -212,9 +222,11 @@ end
 
 pattern[5][5] = start_outpost
 
-local outpost_offset = 64
-local grid_size = 200
-local half_total_size = grid_size * 0.5 * 8
+local outpost_offset = 59
+local grid_block_size = 190
+local grid_number_of_blocks = 10
+
+local half_total_size = grid_block_size * 0.5 * 8
 
 for r = 4, 7 do
     local row = pattern[r]
@@ -248,9 +260,9 @@ for r = 3, 8 do
     end
 end
 
-for r = 1, 10 do
+for r = 1, grid_number_of_blocks do
     local row = pattern[r]
-    for c = 1, 10 do
+    for c = 1, grid_number_of_blocks do
         if not row[c] then
             local template = stage3_iter()
             local shape = outpost_builder:do_outpost(template)
@@ -264,9 +276,7 @@ for r = 1, 10 do
     end
 end
 
-
-
-local outposts = b.grid_pattern(pattern, 10, 10, grid_size, grid_size)
+local outposts = b.grid_pattern(pattern, 10, 10, grid_block_size, grid_block_size)
 --outposts = b.if_else(outposts, b.full_shape)
 
 local spawners = {
@@ -280,8 +290,8 @@ local worms = {
     'big-worm-turret'
 }
 
-local max_spawner_chance = 1 / 160
-local spawner_chance_factor = 1 / (160 * 512)
+local max_spawner_chance = 1 / 256
+local spawner_chance_factor = 1 / (256 * 512)
 local max_worm_chance = 1 / 32
 local worm_chance_factor = 1 / (32 * 512)
 
@@ -294,7 +304,7 @@ local function enemy(x, y, world)
     --[[ if Perlin.noise(x * scale_factor, y * scale_factor, enemy_seed) < 0 then
         return nil
     end ]]
-    local spawner_chance = d - 144
+    local spawner_chance = d - 128
 
     if spawner_chance > 0 then
         spawner_chance = spawner_chance * spawner_chance_factor
@@ -305,7 +315,7 @@ local function enemy(x, y, world)
         end
     end
 
-    local worm_chance = d - 144
+    local worm_chance = d - 128
 
     if worm_chance > 0 then
         worm_chance = worm_chance * worm_chance_factor
@@ -461,9 +471,14 @@ spawn_shape = b.change_tile(spawn_shape, false, 'stone-path')
 
 map = b.choose(b.rectangle(16, 16), spawn_shape, map)
 
---return outpost_builder:do_outpost(big_engine_factory)
+local bounds = b.rectangle(grid_block_size * (grid_number_of_blocks - 1))
+map = b.choose(bounds, map, b.empty_shape)
+
+--return outpost_builder:do_outpost(small_power_factory)
 
 --return b.full_shape
 
 return map
+--return spawn_shape
 --return b.apply_entity(b.full_shape, ore_grid)
+--/c game.player.character = nil

@@ -3,8 +3,8 @@ local Global = require 'utils.global'
 
 local player_last_position = {}
 local player_walk_distances = {}
-local player_fish_earned = {}
-local player_fish_spent = {}
+local player_coin_earned = {}
+local player_coin_spent = {}
 local player_deaths = {}
 local total_players = {0}
 
@@ -12,16 +12,16 @@ Global.register(
     {
         player_last_position = player_last_position,
         player_walk_distances = player_walk_distances,
-        player_fish_earned = player_fish_earned,
-        player_fish_spent = player_fish_spent,
+        player_coin_earned = player_coin_earned,
+        player_coin_spent = player_coin_spent,
         player_deaths = player_deaths,
         total_players = total_players
     },
     function(tbl)
         player_last_position = tbl.player_last_position
         player_walk_distances = tbl.player_walk_distances
-        player_fish_earned = tbl.player_fish_earned
-        player_fish_spent = tbl.player_fish_spent
+        player_coin_earned = tbl.player_coin_earned
+        player_coin_spent = tbl.player_coin_spent
         player_deaths = tbl.player_deaths
         total_players = tbl.total_players
     end
@@ -32,8 +32,8 @@ local function player_created(event)
 
     player_last_position[index] = game.players[index].position
     player_walk_distances[index] = 0
-    player_fish_earned[index] = 0
-    player_fish_spent[index] = 0
+    player_coin_earned[index] = 0
+    player_coin_spent[index] = 0
     player_deaths[index] = {causes = {}, count = 0}
     total_players[1] = total_players[1] + 1
 end
@@ -69,9 +69,9 @@ end
 local function picked_up_item(event)
     local stack = event.item_stack
 
-    if stack.name == 'raw-fish' then
+    if stack.name == 'coin' then
         local player_index = event.player_index
-        player_fish_earned[player_index] = player_fish_earned[player_index] + stack.count
+        player_coin_earned[player_index] = player_coin_earned[player_index] + stack.count
     end
 end
 
@@ -102,28 +102,28 @@ function Public.get_walk_distance(player_index)
     return player_walk_distances[player_index]
 end
 
-function Public.get_fish_earned(player_index)
-    return player_fish_earned[player_index]
+function Public.get_coin_earned(player_index)
+    return player_coin_earned[player_index]
 end
 
-function Public.set_fish_earned(player_index, value)
-    player_fish_earned[player_index] = value
+function Public.set_coin_earned(player_index, value)
+    player_coin_earned[player_index] = value
 end
 
-function Public.change_fish_earned(player_index, amount)
-    player_fish_earned[player_index] = player_fish_earned[player_index] + amount
+function Public.change_coin_earned(player_index, amount)
+    player_coin_earned[player_index] = player_coin_earned[player_index] + amount
 end
 
-function Public.get_fish_spent(player_index)
-    return player_fish_spent[player_index]
+function Public.get_coin_spent(player_index)
+    return player_coin_spent[player_index]
 end
 
-function Public.set_fish_spent(player_index, value)
-    player_fish_spent[player_index] = value
+function Public.set_coin_spent(player_index, value)
+    player_coin_spent[player_index] = value
 end
 
-function Public.change_fish_spent(player_index, amount)
-    player_fish_spent[player_index] = player_fish_spent[player_index] + amount
+function Public.change_coin_spent(player_index, amount)
+    player_coin_spent[player_index] = player_coin_spent[player_index] + amount
 end
 
 function Public.get_death_count(player_index)

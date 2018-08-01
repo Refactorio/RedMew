@@ -55,7 +55,7 @@ local player_name_heading_name = Gui.uid_name()
 local time_heading_name = Gui.uid_name()
 local rank_heading_name = Gui.uid_name()
 local distance_heading_name = Gui.uid_name()
-local fish_heading_name = Gui.uid_name()
+local coin_heading_name = Gui.uid_name()
 local deaths_heading_name = Gui.uid_name()
 local poke_name_heading_name = Gui.uid_name()
 
@@ -64,7 +64,7 @@ local player_name_cell_name = Gui.uid_name()
 local time_cell_name = Gui.uid_name()
 local rank_cell_name = Gui.uid_name()
 local distance_cell_name = Gui.uid_name()
-local fish_cell_name = Gui.uid_name()
+local coin_cell_name = Gui.uid_name()
 local deaths_cell_name = Gui.uid_name()
 local poke_cell_name = Gui.uid_name()
 
@@ -283,29 +283,29 @@ local column_builders = {
             return label
         end
     },
-    [fish_heading_name] = {
+    [coin_heading_name] = {
         create_data = function(player)
             local index = player.index
             return {
-                fish_earned = PlayerStats.get_fish_earned(index),
-                fish_spent = PlayerStats.get_fish_spent(index)
+                coin_earned = PlayerStats.get_coin_earned(index),
+                coin_spent = PlayerStats.get_coin_spent(index)
             }
         end,
         sort = function(a, b)
-            local a_fish_earned, b_fish_earned = a.fish_earned, b.fish_earned
-            if a_fish_earned == b_fish_earned then
-                return a.fish_spent < b.fish_spent
+            local a_coin_earned, b_coin_earned = a.coin_earned, b.coin_earned
+            if a_coin_earned == b_coin_earned then
+                return a.coin_spent < b.coin_spent
             else
-                return a_fish_earned < b_fish_earned
+                return a_coin_earned < b_coin_earned
             end
         end,
         draw_heading = function(parent)
             local label =
                 parent.add {
                 type = 'label',
-                name = fish_heading_name,
-                caption = 'Fish',
-                tooltip = 'Fish earned / spent.'
+                name = coin_heading_name,
+                caption = 'Coins',
+                tooltip = 'Coins earned / spent.'
             }
             local label_style = label.style
             apply_heading_style(label_style)
@@ -314,9 +314,9 @@ local column_builders = {
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local text = table.concat({cell_data.fish_earned, '/', cell_data.fish_spent})
+            local text = table.concat({cell_data.coin_earned, '/', cell_data.coin_spent})
 
-            local label = parent.add {type = 'label', name = fish_cell_name, caption = text}
+            local label = parent.add {type = 'label', name = coin_cell_name, caption = text}
             local label_style = label.style
             label_style.align = 'center'
             label_style.width = 80
@@ -415,7 +415,7 @@ local function get_default_player_settings()
             time_heading_name,
             rank_heading_name,
             distance_heading_name,
-            --fish_heading_name,
+            coin_heading_name,
             deaths_heading_name,
             poke_name_heading_name
         },

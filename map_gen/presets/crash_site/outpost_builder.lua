@@ -4,6 +4,7 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Task = require 'utils.Task'
 local Market = require 'map_gen.presets.crash_site.market'
+local PlayerStats = require 'player_stats'
 
 local b = require 'map_gen.shared.builders'
 
@@ -945,6 +946,22 @@ Public.power_source_callback =
     end
 )
 
+Public.power_source_player_callback =
+    Token.register(
+    function(entity, data)
+        local power_source =
+            entity.surface.create_entity {name = 'hidden-electric-energy-interface', position = entity.position}
+        power_source.electric_buffer_size = data.buffer_size
+        power_source.power_production = data.power_production
+
+        power_sources[entity.unit_number] = power_source
+
+        entity.minable = false
+        entity.operable = false
+        entity.destructible = false
+    end
+)
+
 local function add_magic_crafter_output(entity, output, distance)
     local rate = output.min_rate + output.distance_factor * distance
     table.insert(
@@ -1049,13 +1066,16 @@ Public.market_set_items_callback =
         local market_data = {}
         for i, item in ipairs(data) do
             local price = item.price
-            local df = item.distance_factor or 0
-            local min_price = item.min_price or 1
 
-            local count = price - d * df
-            count = math.max(count, min_price)
+            local df = item.distance_factor
+            if df then
+                local min_price = item.min_price or 1
 
-            market_data[i] = {name = item.name, price = count}
+                price = item.price - d * df
+                price = math.max(price, min_price)
+            end
+
+            market_data[i] = {name = item.name, price = price}
         end
 
         Market.add_market(entity.position, market_data)
@@ -1154,6 +1174,13 @@ function Public.do_random_fluid_loot(entity, weights, loot)
     entity.fluidbox[1] = {name = stack.name, amount = count}
 end
 
+local function coin_mined(event)
+    local stack = event.item_stack
+    if stack.name == 'coin' then
+        PlayerStats.change_coin_earned(event.player_index, stack.count)
+    end
+end
+
 Event.add(defines.events.on_tick, tick)
 Event.add(defines.events.on_entity_died, remove_power_source)
 
@@ -1162,5 +1189,7 @@ Event.on_init(
         game.forces.neutral.recipes['steel-plate'].enabled = true
     end
 )
+
+Event.add(defines.events.on_player_mined_item, coin_mined)
 
 return Public

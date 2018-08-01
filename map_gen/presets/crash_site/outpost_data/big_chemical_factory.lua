@@ -9,7 +9,9 @@ local loot = {
     {stack = {name = 'plastic-bar', count = 1000, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'battery', count = 1200, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'explosives', count = 800, distance_factor = 1 / 2}, weight = 2},
-    {stack = {name = 'rocket-fuel', count = 30, distance_factor = 1 / 20}, weight = 1}
+    {stack = {name = 'rocket-fuel', count = 30, distance_factor = 1 / 20}, weight = 1},
+    {stack = {name = 'poison-capsule', count = 500, distance_factor = 1 / 4}, weight = 2},
+    {stack = {name = 'slowdown-capsule', count = 500, distance_factor = 1 / 4}, weight = 1}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -88,6 +90,18 @@ local market = {
             price = 10,
             distance_factor = 5 / 512,
             min_price = 1
+        },
+        {
+            name = 'poison-capsule',
+            price = 15,
+            distance_factor = 7.5 / 512,
+            min_price = 1.5
+        },
+        {
+            name = 'slowdown-capsule',
+            price = 15,
+            distance_factor = 7.5 / 512,
+            min_price = 1.5
         }
     }
 }

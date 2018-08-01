@@ -3,16 +3,15 @@ local Token = require 'utils.global_token'
 
 local loot = {
     {weight = 10},
-    {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
+    {stack = {name = 'coin', count = 100, distance_factor = 1 / 8}, weight = 5},
     {stack = {name = 'firearm-magazine', count = 500, distance_factor = 1}, weight = 5},
-    {stack = {name = 'piercing-rounds-magazine', count = 300, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'shotgun-shell', count = 200, distance_factor = 1 / 4}, weight = 2},
-    {stack = {name = 'grenade', count = 100, distance_factor = 1 / 8}, weight = 3},
-    {stack = {name = 'land-mine', count = 400, distance_factor = 1}, weight = 2},
+    {stack = {name = 'piercing-rounds-magazine', count = 250, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'shotgun-shell', count = 200, distance_factor = 1 / 4}, weight = 1},
+    {stack = {name = 'grenade', count = 100, distance_factor = 1 / 8}, weight = 1},
+    {stack = {name = 'land-mine', count = 400, distance_factor = 1}, weight = 1},
     {stack = {name = 'rocket', count = 50, distance_factor = 1 / 32}, weight = 1},
     {stack = {name = 'cannon-shell', count = 50, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'cluster-grenade', count = 10, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'poison-capsule', count = 10, distance_factor = 1 / 32}, weight = 1}
+    {stack = {name = 'cluster-grenade', count = 10, distance_factor = 1 / 32}, weight = 1}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -36,15 +35,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'piercing-rounds-magazine',
-        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 3 / 60 / 512, item = 'piercing-rounds-magazine'}
-    }
-}
-
-local factory_c = {
-    callback = ob.magic_item_crafting_callback,
-    data = {
-        recipe = 'grenade',
-        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 3 / 60 / 512, item = 'grenade'}
+        output = {min_rate = 1 / 2 / 60, distance_factor = 1 / 2 / 60 / 512, item = 'piercing-rounds-magazine'}
     }
 }
 
@@ -82,28 +73,10 @@ local market = {
             min_price = 0.1
         },
         {
-            name = 'rocket',
-            price = 20,
-            distance_factor = 10 / 512,
-            min_price = 2
-        },
-        {
-            name = 'rocket-launcher',
-            price = 250,
-            distance_factor = 125 / 512,
-            min_price = 125
-        },
-        {
             name = 'cluster-grenade',
             price = 100,
             distance_factor = 50 / 512,
             min_price = 10
-        },
-        {
-            name = 'poison-capsule',
-            price = 60,
-            distance_factor = 30 / 512,
-            min_price = 6
         }
     }
 }
@@ -128,21 +101,13 @@ local level3b =
         max_count = 2
     }
 )
-local level3c =
-    ob.extend_1_way(
-    base_factory[2],
-    {
-        factory = factory_c,
-        fallback = level3b,
-        max_count = 1
-    }
-)
+
 local level4 =
     ob.extend_1_way(
     base_factory[3],
     {
         market = market,
-        fallback = level3c
+        fallback = level3b
     }
 )
 return {

@@ -23,7 +23,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'military-science-pack',
-        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'military-science-pack'}
+        output = {min_rate = 0.25 / 60, distance_factor = 0.25 / 60 / 512, item = 'military-science-pack'}
     }
 }
 
@@ -31,7 +31,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'science-pack-3',
-        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'science-pack-3'}
+        output = {min_rate = 0.25 / 60, distance_factor = 0.25 / 60 / 512, item = 'science-pack-3'}
     }
 }
 
