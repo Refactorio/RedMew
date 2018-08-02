@@ -2,19 +2,19 @@ local ob = require 'map_gen.presets.crash_site.outpost_builder'
 local Token = require 'utils.global_token'
 
 local loot = {
-    {weight = 3},
+    {weight = 5},
     {stack = {name = 'coin', count = 500, distance_factor = 1 / 8}, weight = 3},
-    {stack = {name = 'raw-fish', count = 1000, distance_factor = 1}, weight = 1},
-    {stack = {name = 'explosive-rocket', count = 1000, distance_factor = 1}, weight = 1},
-    {stack = {name = 'laser-turret', count = 500, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'cluster-grenade', count = 1000, distance_factor = 1}, weight = 1},
-    {stack = {name = 'destroyer-capsule', count = 250, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'power-armor-mk2', count = 5, distance_factor = 1 / 128}, weight = 1},
-    {stack = {name = 'fusion-reactor-equipment', count = 25, distance_factor = 1 / 128}, weight = 1},
-    {stack = {name = 'battery-mk2-equipment', count = 25, distance_factor = 1 / 128}, weight = 1},
-    {stack = {name = 'energy-shield-mk2-equipment', count = 10, distance_factor = 1 / 64}, weight = 1},
-    {stack = {name = 'exoskeleton-equipment', count = 10, distance_factor = 1 / 64}, weight = 1},
-    {stack = {name = 'personal-laser-defense-equipment', count = 10, distance_factor = 1 / 64}, weight = 1}
+    {stack = {name = 'raw-fish', count = 250, distance_factor = 1}, weight = 1},
+    {stack = {name = 'explosive-rocket', count = 500, distance_factor = 1}, weight = 1},
+    {stack = {name = 'laser-turret', count = 50, distance_factor = 1 / 8}, weight = 1},
+    {stack = {name = 'cluster-grenade', count = 250, distance_factor = 1}, weight = 1},
+    {stack = {name = 'destroyer-capsule', count = 50, distance_factor = 1 / 8}, weight = 1},
+    {stack = {name = 'power-armor-mk2', count = 5, distance_factor = 1 / 256}, weight = 1},
+    {stack = {name = 'fusion-reactor-equipment', count = 5, distance_factor = 1 / 256}, weight = 1},
+    {stack = {name = 'battery-mk2-equipment', count = 5, distance_factor = 1 / 128}, weight = 1},
+    {stack = {name = 'energy-shield-mk2-equipment', count = 5, distance_factor = 1 / 64}, weight = 1},
+    {stack = {name = 'exoskeleton-equipment', count = 5, distance_factor = 1 / 64}, weight = 1},
+    {stack = {name = 'personal-laser-defense-equipment', count = 5, distance_factor = 1 / 64}, weight = 1}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -30,7 +30,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'destroyer-capsule',
-        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'destroyer-capsule'}
+        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'destroyer-capsule'}
     }
 }
 
@@ -38,7 +38,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'laser-turret',
-        output = {min_rate = 0.2 / 60, distance_factor = 0.2 / 60 / 512, item = 'laser-turret'}
+        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'laser-turret'}
     }
 }
 
@@ -189,15 +189,15 @@ local market = {
         },
         {
             name = 'vehicle-machine-gun',
-            price = 1000
+            price = 2000
         },
         {
             name = 'tank-cannon',
-            price = 500
+            price = 1000
         },
         {
             name = 'artillery-wagon-cannon',
-            price = 2000
+            price = 4000
         },
         {
             name = 'gun-turret',
@@ -220,7 +220,7 @@ local market = {
     }
 }
 
-local base_factory = require 'map_gen.presets.crash_site.outpost_data.small_factory'
+local base_factory = require 'map_gen.presets.crash_site.outpost_data.big_factory'
 
 local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})
 local level3 =
@@ -262,7 +262,7 @@ return {
         blocks = 11,
         variance = 3,
         min_step = 2,
-        max_level = 5
+        max_level = 4
     },
     walls = {
         require 'map_gen.presets.crash_site.outpost_data.heavy_gun_turrets',
@@ -272,7 +272,6 @@ return {
     bases = {
         {require 'map_gen.presets.crash_site.outpost_data.laser_block'},
         {level2},
-        {level4},
         {artillery}
     }
 }

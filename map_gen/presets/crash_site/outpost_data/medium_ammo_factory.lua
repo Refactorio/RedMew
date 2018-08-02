@@ -5,7 +5,7 @@ local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 150, distance_factor = 1 / 8}, weight = 5},
     {stack = {name = 'piercing-rounds-magazine', count = 500, distance_factor = 1}, weight = 5},
-    {stack = {name = 'uranium-rounds-magazine', count = 250, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'uranium-rounds-magazine', count = 100, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'grenade', count = 200, distance_factor = 1 / 8}, weight = 1},
     {stack = {name = 'land-mine', count = 400, distance_factor = 1}, weight = 1},
     {stack = {name = 'cannon-shell', count = 200, distance_factor = 1 / 32}, weight = 2},
@@ -26,7 +26,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'piercing-rounds-magazine',
-        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 512, item = 'piercing-rounds-magazine'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'piercing-rounds-magazine'}
     }
 }
 
@@ -42,7 +42,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'uranium-rounds-magazine',
-        output = {min_rate = 1 / 2 / 60, distance_factor = 1 / 2 / 60 / 512, item = 'uranium-rounds-magazine'}
+        output = {min_rate = 1 / 4 / 60, distance_factor = 1 / 4 / 60 / 512, item = 'uranium-rounds-magazine'}
     }
 }
 
@@ -127,7 +127,7 @@ local level3c =
     {
         factory = factory_c,
         fallback = level3,
-        max_count = 2
+        max_count = 1
     }
 )
 local level4 =

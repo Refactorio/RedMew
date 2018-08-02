@@ -56,6 +56,13 @@ local spitters = {
     'behemoth-spitter'
 }
 
+local turret_evolution_factor = {
+    ['gun-turret'] = 0.002,
+    ['laser-turret'] = 0.004,
+    ['flamethrower-turret'] = 0.003,
+    ['artillery-turret'] = 0.008
+}
+
 local spawn_worm =
     Token.register(
     function(data)
@@ -145,6 +152,16 @@ Event.add(
                     spawn_units,
                     {surface = entity.surface, name = unit, position = entity.position}
                 )
+            end
+        end
+
+        local factor = turret_evolution_factor[name]
+        if factor then
+            local force = entity.force
+            if force.name == 'enemy' then
+                local old = force.evolution_factor
+                local new = old + (1 - old) * factor
+                force.evolution_factor = math.min(new, 1)
             end
         end
     end

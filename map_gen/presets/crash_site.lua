@@ -8,8 +8,8 @@ local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local Perlin = require 'map_gen.shared.perlin_noise'
 
-local outpost_seed = 20000
-local ore_seed = 14000
+local outpost_seed = 28000
+local ore_seed = 27000
 local enemy_seed = 420420
 
 local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
@@ -61,13 +61,10 @@ local medium_power_factory = require 'map_gen.presets.crash_site.outpost_data.me
 local big_power_factory = require 'map_gen.presets.crash_site.outpost_data.big_power_factory' ]]
 local stage1 = {
     small_iron_plate_factory,
-    small_iron_plate_factory,
     small_copper_plate_factory,
     small_stone_factory,
     small_gear_factory,
     small_circuit_factory,
-    small_ammo_factory,
-    small_weapon_factory,
     small_science_factory,
     small_oil_refinery,
     small_chemical_factory
@@ -79,8 +76,10 @@ local stage2 = {
     medium_stone_factory,
     medium_gear_factory,
     medium_circuit_factory,
-    medium_ammo_factory,
-    medium_weapon_factory,
+    small_ammo_factory,
+    small_ammo_factory,
+    small_weapon_factory,
+    small_science_factory,
     medium_science_factory,
     medium_oil_refinery,
     medium_chemical_factory
@@ -92,7 +91,25 @@ local stage3 = {
     big_stone_factory,
     big_gear_factory,
     big_circuit_factory,
+    medium_ammo_factory,
+    medium_ammo_factory,
+    medium_weapon_factory,
+    medium_science_factory,
+    big_science_factory,
+    big_oil_refinery,
+    big_chemical_factory
+}
+
+local stage4 = {
+    big_iron_plate_factory,
+    big_copper_plate_factory,
+    big_gear_factory,
+    big_circuit_factory,
     big_ammo_factory,
+    big_ammo_factory,
+    big_ammo_factory,
+    big_weapon_factory,
+    big_weapon_factory,
     big_weapon_factory,
     big_science_factory,
     big_oil_refinery,
@@ -132,6 +149,7 @@ end
 local stage1_iter = itertor_builder(stage1, outpost_random)
 local stage2_iter = itertor_builder(stage2, outpost_random)
 local stage3_iter = itertor_builder(stage3, outpost_random)
+local stage4_iter = itertor_builder(stage4, outpost_random)
 
 local thin_walls = require 'map_gen.presets.crash_site.outpost_data.thin_walls'
 
@@ -224,13 +242,13 @@ pattern[5][5] = start_outpost
 
 local outpost_offset = 59
 local grid_block_size = 190
-local grid_number_of_blocks = 10
+local grid_number_of_blocks = 9
 
 local half_total_size = grid_block_size * 0.5 * 8
 
-for r = 4, 7 do
+for r = 4, 6 do
     local row = pattern[r]
-    for c = 4, 7 do
+    for c = 4, 6 do
         if not row[c] then
             local template = stage1_iter()
             local shape = outpost_builder:do_outpost(template)
@@ -244,11 +262,27 @@ for r = 4, 7 do
     end
 end
 
-for r = 3, 8 do
+for r = 3, 7 do
     local row = pattern[r]
-    for c = 3, 8 do
+    for c = 3, 7 do
         if not row[c] then
             local template = stage2_iter()
+            local shape = outpost_builder:do_outpost(template)
+
+            local x = outpost_random:next_int(-outpost_offset, outpost_offset)
+            local y = outpost_random:next_int(-outpost_offset, outpost_offset)
+            shape = b.translate(shape, x, y)
+
+            row[c] = shape
+        end
+    end
+end
+
+for r = 2, 8 do
+    local row = pattern[r]
+    for c = 2, 8 do
+        if not row[c] then
+            local template = stage3_iter()
             local shape = outpost_builder:do_outpost(template)
 
             local x = outpost_random:next_int(-outpost_offset, outpost_offset)
@@ -264,7 +298,7 @@ for r = 1, grid_number_of_blocks do
     local row = pattern[r]
     for c = 1, grid_number_of_blocks do
         if not row[c] then
-            local template = stage3_iter()
+            local template = stage4_iter()
             local shape = outpost_builder:do_outpost(template)
 
             local x = outpost_random:next_int(-outpost_offset, outpost_offset)
@@ -471,7 +505,7 @@ spawn_shape = b.change_tile(spawn_shape, false, 'stone-path')
 
 map = b.choose(b.rectangle(16, 16), spawn_shape, map)
 
-local bounds = b.rectangle(grid_block_size * (grid_number_of_blocks - 1))
+local bounds = b.rectangle(grid_block_size * grid_number_of_blocks)
 map = b.choose(bounds, map, b.empty_shape)
 
 --return outpost_builder:do_outpost(small_power_factory)

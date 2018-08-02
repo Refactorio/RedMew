@@ -90,9 +90,9 @@ local market = {
         },
         {
             name = 'tank',
-            price = 250,
-            distance_factor = 125 / 512,
-            min_price = 25
+            price = 500,
+            distance_factor = 250 / 512,
+            min_price = 50
         },
         {
             name = 'locomotive',

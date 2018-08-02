@@ -25,7 +25,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'production-science-pack',
-        output = {min_rate = 0.25 / 60, distance_factor = 0.25 / 60 / 512, item = 'production-science-pack'}
+        output = {min_rate = 0.125 / 60, distance_factor = 0.125 / 60 / 512, item = 'production-science-pack'}
     }
 }
 
@@ -33,7 +33,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'high-tech-science-pack',
-        output = {min_rate = 0.25 / 60, distance_factor = 0.25 / 60 / 512, item = 'high-tech-science-pack'}
+        output = {min_rate = 0.125 / 60, distance_factor = 0.125 / 60 / 512, item = 'high-tech-science-pack'}
     }
 }
 
@@ -87,7 +87,8 @@ local level3 =
     base_factory[2],
     {
         factory = factory,
-        fallback = level2
+        fallback = level2,
+        max_count = 3
     }
 )
 local level3b =
@@ -95,7 +96,8 @@ local level3b =
     base_factory[2],
     {
         factory = factory_b,
-        fallback = level2
+        fallback = level2,
+        max_count = 3
     }
 )
 local level4 =

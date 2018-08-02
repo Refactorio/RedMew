@@ -541,5 +541,20 @@ return {
     ['Askiph'] = true,
     ['undefinable'] = true,
     ['snapboogie'] = true,
-    ['Wesoly1234'] = true
+    ['Wesoly1234'] = true,
+    ['benzoni'] = true,
+    ['Verlioka'] = true,
+    ['Ran_Mw'] = true,
+    ['SPARKZ102'] = true,
+    ['slowcrazy54'] = true,
+    ['adam1285'] = true,
+    ['Breadnought'] = true,
+    ['Bluev0'] = true,
+    ['LeCobalt'] = true,
+    ['Lavacreeper2000'] = true,
+    ['manowscar1990'] = true,
+    ['Cytrox'] = true,
+    ['arty714'] = true,
+    ['DrkgoonXV'] = true,
+    ['Roxmuhr'] = true
 }

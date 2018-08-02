@@ -5,7 +5,7 @@ local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 100, distance_factor = 1 / 8}, weight = 5},
     {stack = {name = 'firearm-magazine', count = 500, distance_factor = 1}, weight = 5},
-    {stack = {name = 'piercing-rounds-magazine', count = 250, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'piercing-rounds-magazine', count = 150, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'shotgun-shell', count = 200, distance_factor = 1 / 4}, weight = 1},
     {stack = {name = 'grenade', count = 100, distance_factor = 1 / 8}, weight = 1},
     {stack = {name = 'land-mine', count = 400, distance_factor = 1}, weight = 1},
@@ -35,7 +35,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'piercing-rounds-magazine',
-        output = {min_rate = 1 / 2 / 60, distance_factor = 1 / 2 / 60 / 512, item = 'piercing-rounds-magazine'}
+        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 3 / 60 / 512, item = 'piercing-rounds-magazine'}
     }
 }
 

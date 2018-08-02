@@ -5,21 +5,21 @@ local loot = {
     {weight = 5},
     {stack = {name = 'coin', count = 100, distance_factor = 1 / 8}, weight = 3},
     {stack = {name = 'raw-fish', count = 50, distance_factor = 1 / 16}, weight = 1},
-    {stack = {name = 'combat-shotgun', count = 5, distance_factor = 1 / 128}, weight = 1},
+    {stack = {name = 'combat-shotgun', count = 3, distance_factor = 1 / 128}, weight = 1},
     {stack = {name = 'shotgun-shell', count = 200, distance_factor = 1 / 8}, weight = 1},
     {stack = {name = 'piercing-shotgun-shell', count = 50, distance_factor = 1 / 8}, weight = 1},
     {stack = {name = 'flamethrower', count = 5, distance_factor = 1 / 128}, weight = 1},
     {stack = {name = 'flamethrower-ammo', count = 50, distance_factor = 1 / 8}, weight = 1},
     {stack = {name = 'rocket-launcher', count = 5, distance_factor = 1 / 128}, weight = 1},
     {stack = {name = 'rocket', count = 50, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'gun-turret', count = 50, distance_factor = 1 / 16}, weight = 1},
-    {stack = {name = 'flamethrower-turret', count = 50, distance_factor = 1 / 16}, weight = 1},
+    {stack = {name = 'gun-turret', count = 25, distance_factor = 1 / 16}, weight = 1},
+    {stack = {name = 'flamethrower-turret', count = 15, distance_factor = 1 / 16}, weight = 1},
     {stack = {name = 'grenade', count = 100, distance_factor = 1 / 8}, weight = 1},
     {stack = {name = 'cluster-grenade', count = 10, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'modular-armor', count = 5, distance_factor = 1 / 128}, weight = 1},
-    {stack = {name = 'solar-panel-equipment', count = 25, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'battery-equipment', count = 5, distance_factor = 1 / 128}, weight = 1},
-    {stack = {name = 'energy-shield-equipment', count = 10, distance_factor = 1 / 64}, weight = 1}
+    {stack = {name = 'modular-armor', count = 3, distance_factor = 1 / 128}, weight = 1},
+    {stack = {name = 'solar-panel-equipment', count = 12, distance_factor = 1 / 32}, weight = 1},
+    {stack = {name = 'battery-equipment', count = 4, distance_factor = 1 / 128}, weight = 1},
+    {stack = {name = 'energy-shield-equipment', count = 6, distance_factor = 1 / 64}, weight = 1}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -35,7 +35,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'piercing-shotgun-shell',
-        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'piercing-shotgun-shell'}
+        output = {min_rate = 0.25 / 60, distance_factor = 0.25 / 60 / 512, item = 'piercing-shotgun-shell'}
     }
 }
 
@@ -51,7 +51,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'gun-turret',
-        output = {min_rate = 0.2 / 60, distance_factor = 0.2 / 60 / 512, item = 'gun-turret'}
+        output = {min_rate = 0.1 / 60, distance_factor = 0.1 / 60 / 512, item = 'gun-turret'}
     }
 }
 
@@ -184,7 +184,7 @@ local level3c =
     {
         factory = factory_c,
         fallback = level3b,
-        max_count = 4
+        max_count = 2
     }
 )
 local level4 =

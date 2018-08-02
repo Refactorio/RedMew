@@ -4,7 +4,8 @@ local Token = require 'utils.global_token'
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 500, distance_factor = 1 / 8}, weight = 5},
-    {stack = {name = 'uranium-rounds-magazine', count = 2000, distance_factor = 1}, weight = 5},
+    {stack = {name = 'piercing-rounds-magazine', count = 100, distance_factor = 1}, weight = 5},
+    {stack = {name = 'uranium-rounds-magazine', count = 500, distance_factor = 1}, weight = 5},
     {stack = {name = 'cluster-grenade', count = 200, distance_factor = 1 / 8}, weight = 2},
     {stack = {name = 'explosive-cannon-shell', count = 200, distance_factor = 1 / 8}, weight = 5},
     {stack = {name = 'explosive-uranium-cannon-shell', count = 200, distance_factor = 1 / 8}, weight = 2}
@@ -22,12 +23,20 @@ local loot_callback =
 local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'uranium-rounds-magazine',
-        output = {min_rate = 2 / 60, distance_factor = 2 / 60 / 512, item = 'uranium-rounds-magazine'}
+        recipe = 'piercing-rounds-magazine',
+        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 512, item = 'piercing-rounds-magazine'}
     }
 }
 
 local factory_b = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        recipe = 'uranium-rounds-magazine',
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'uranium-rounds-magazine'}
+    }
+}
+
+local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'explosive-uranium-cannon-shell',
@@ -94,15 +103,15 @@ local market = {
         },
         {
             name = 'vehicle-machine-gun',
-            price = 1000
+            price = 2000
         },
         {
             name = 'tank-cannon',
-            price = 500
+            price = 1000
         },
         {
             name = 'artillery-wagon-cannon',
-            price = 2000
+            price = 4000
         }
     }
 }
@@ -116,7 +125,7 @@ local level3 =
     {
         factory = factory,
         fallback = level2,
-        max_count = 6
+        max_count = 4
     }
 )
 local level3b =
@@ -125,6 +134,15 @@ local level3b =
     {
         factory = factory_b,
         fallback = level3,
+        max_count = 4
+    }
+)
+local level3c =
+    ob.extend_1_way(
+    base_factory[2],
+    {
+        factory = factory_b,
+        fallback = level3b,
         max_count = 2
     }
 )
@@ -149,7 +167,7 @@ return {
         blocks = 11,
         variance = 3,
         min_step = 2,
-        max_level = 5
+        max_level = 4
     },
     walls = {
         require 'map_gen.presets.crash_site.outpost_data.heavy_gun_turrets',
@@ -159,7 +177,6 @@ return {
     bases = {
         {require 'map_gen.presets.crash_site.outpost_data.laser_block'},
         {level2},
-        {level4},
         {artillery}
     }
 }

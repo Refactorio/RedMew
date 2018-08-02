@@ -79,12 +79,6 @@ local market = {
             min_price = 40
         },
         {
-            name = 'tank',
-            price = 500,
-            distance_factor = 250 / 512,
-            min_price = 250
-        },
-        {
             name = 'rail',
             price = 1,
             distance_factor = 0.5 / 512,
