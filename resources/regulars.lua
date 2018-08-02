@@ -52,7 +52,6 @@ return {
     ['apolomir'] = true,
     ['argetlam_elda'] = true,
     ['arnietom'] = true,
-    ['asddsa76'] = true,
     ['assemblystorm'] = true,
     ['b4x'] = true,
     ['ballbuster'] = true,
@@ -556,5 +555,8 @@ return {
     ['Cytrox'] = true,
     ['arty714'] = true,
     ['DrkgoonXV'] = true,
-    ['Roxmuhr'] = true
+    ['Roxmuhr'] = true,
+    ['Asddsa76'] = true,
+    ['bunny232'] = true,
+    ['D_Riv'] = true
 }
