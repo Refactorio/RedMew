@@ -23,7 +23,7 @@ local player_ammo_starting_modifiers = {
 local player_ammo_research_modifiers = {
     ['artillery-shell'] = -0.75,
     ['biological'] = -0.5,
-    ['bullet'] = -0.5,
+    ['bullet'] = -0.35,
     ['cannon-shell'] = -0.75,
     ['capsule'] = -0.5,
     ['combat-robot-beam'] = -0.5,
@@ -40,7 +40,7 @@ local player_ammo_research_modifiers = {
 }
 
 local player_turrets_research_modifiers = {
-    ['gun-turret'] = -0.65,
+    ['gun-turret'] = -0.5,
     --['laser-turret'] = -0.75,
     ['flamethrower-turret'] = -0.75
 }

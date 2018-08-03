@@ -558,5 +558,12 @@ return {
     ['Roxmuhr'] = true,
     ['Asddsa76'] = true,
     ['bunny232'] = true,
-    ['D_Riv'] = true
+    ['D_Riv'] = true,
+    ['anonymous12123'] = true,
+    ['AmarthZ'] = true,
+    ['numberoverzero'] = true,
+    ['maxim67899'] = true,
+    ['sklipnoty'] = true,
+    ['ThatTallNerd'] = true,
+    ['Presbo'] = true
 }

@@ -33,8 +33,8 @@ local factory = {
 local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'cannon-shell',
-        output = {min_rate = 1 / 2 / 60, distance_factor = 1 / 2 / 60 / 512, item = 'cannon-shell'}
+        recipe = 'explosive-cannon-shell',
+        output = {min_rate = 1 / 2 / 60, distance_factor = 1 / 2 / 60 / 512, item = 'explosive-cannon-shell'}
     }
 }
 
@@ -42,7 +42,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'uranium-rounds-magazine',
-        output = {min_rate = 1 / 4 / 60, distance_factor = 1 / 4 / 60 / 512, item = 'uranium-rounds-magazine'}
+        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'uranium-rounds-magazine'}
     }
 }
 
@@ -109,7 +109,7 @@ local level3 =
     {
         factory = factory,
         fallback = level2,
-        max_count = 4
+        max_count = 5
     }
 )
 local level3b =
@@ -118,7 +118,7 @@ local level3b =
     {
         factory = factory_b,
         fallback = level3,
-        max_count = 2
+        max_count = 1
     }
 )
 local level3c =

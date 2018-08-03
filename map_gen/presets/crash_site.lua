@@ -8,8 +8,8 @@ local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local Perlin = require 'map_gen.shared.perlin_noise'
 
-local outpost_seed = 30000
-local ore_seed = 31000
+local outpost_seed = 40000
+local ore_seed = 46000
 local enemy_seed = 420420
 
 local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
@@ -56,19 +56,9 @@ local small_chemical_factory = require 'map_gen.presets.crash_site.outpost_data.
 local medium_chemical_factory = require 'map_gen.presets.crash_site.outpost_data.medium_chemical_factory'
 local big_chemical_factory = require 'map_gen.presets.crash_site.outpost_data.big_chemical_factory'
 
---[[ local small_power_factory = require 'map_gen.presets.crash_site.outpost_data.small_power_factory'
+local small_power_factory = require 'map_gen.presets.crash_site.outpost_data.small_power_factory'
 local medium_power_factory = require 'map_gen.presets.crash_site.outpost_data.medium_power_factory'
-local big_power_factory = require 'map_gen.presets.crash_site.outpost_data.big_power_factory' ]]
---[[ local stage1 = {
-    small_iron_plate_factory,
-    small_copper_plate_factory,
-    small_stone_factory,
-    small_gear_factory,
-    small_circuit_factory,
-    small_science_factory,
-    small_oil_refinery,
-    small_chemical_factory
-} ]]
+local big_power_factory = require 'map_gen.presets.crash_site.outpost_data.big_power_factory'
 
 local stage1a = {
     small_iron_plate_factory,
@@ -88,7 +78,19 @@ local stage1b = {
     small_circuit_factory,
     small_science_factory,
     small_oil_refinery,
-    small_chemical_factory
+    small_chemical_factory,
+    small_power_factory
+}
+
+local stage1b_pos = {
+    {4, 4},
+    {4, 6},
+    {6, 4},
+    {6, 6},
+    {3, 5},
+    {5, 3},
+    {5, 7},
+    {7, 5}
 }
 
 local stage2 = {
@@ -103,7 +105,27 @@ local stage2 = {
     small_science_factory,
     medium_science_factory,
     medium_oil_refinery,
-    medium_chemical_factory
+    medium_chemical_factory,
+    medium_power_factory
+}
+
+local stage2_pos = {
+    {2, 5},
+    {5, 2},
+    {5, 8},
+    {8, 5},
+    {3, 3},
+    {3, 4},
+    {3, 6},
+    {3, 7},
+    {4, 3},
+    {4, 7},
+    {6, 3},
+    {6, 7},
+    {7, 3},
+    {7, 4},
+    {7, 6},
+    {7, 7}
 }
 
 local stage3 = {
@@ -118,7 +140,8 @@ local stage3 = {
     medium_science_factory,
     big_science_factory,
     big_oil_refinery,
-    big_chemical_factory
+    big_chemical_factory,
+    big_power_factory
 }
 
 local stage4 = {
@@ -285,36 +308,34 @@ for _, pos in ipairs(stage1a_pos) do
     row[c] = shape
 end
 
-for r = 4, 6 do
+for _, pos in ipairs(stage1b_pos) do
+    local r, c = pos[1], pos[2]
+
     local row = pattern[r]
-    for c = 4, 6 do
-        if not row[c] then
-            local template = stage1b_iter()
-            local shape = outpost_builder:do_outpost(template)
 
-            local x = outpost_random:next_int(-outpost_offset, outpost_offset)
-            local y = outpost_random:next_int(-outpost_offset, outpost_offset)
-            shape = b.translate(shape, x, y)
+    local template = stage1b_iter()
+    local shape = outpost_builder:do_outpost(template)
 
-            row[c] = shape
-        end
-    end
+    local x = outpost_random:next_int(-outpost_offset, outpost_offset)
+    local y = outpost_random:next_int(-outpost_offset, outpost_offset)
+    shape = b.translate(shape, x, y)
+
+    row[c] = shape
 end
 
-for r = 3, 7 do
+for _, pos in ipairs(stage2_pos) do
+    local r, c = pos[1], pos[2]
+
     local row = pattern[r]
-    for c = 3, 7 do
-        if not row[c] then
-            local template = stage2_iter()
-            local shape = outpost_builder:do_outpost(template)
 
-            local x = outpost_random:next_int(-outpost_offset, outpost_offset)
-            local y = outpost_random:next_int(-outpost_offset, outpost_offset)
-            shape = b.translate(shape, x, y)
+    local template = stage2_iter()
+    local shape = outpost_builder:do_outpost(template)
 
-            row[c] = shape
-        end
-    end
+    local x = outpost_random:next_int(-outpost_offset, outpost_offset)
+    local y = outpost_random:next_int(-outpost_offset, outpost_offset)
+    shape = b.translate(shape, x, y)
+
+    row[c] = shape
 end
 
 for r = 2, 8 do
@@ -547,7 +568,7 @@ map = b.choose(b.rectangle(16, 16), spawn_shape, map)
 local bounds = b.rectangle(grid_block_size * grid_number_of_blocks)
 map = b.choose(bounds, map, b.empty_shape)
 
---return outpost_builder:do_outpost(small_power_factory)
+--return outpost_builder:do_outpost(big_power_factory)
 
 --return b.full_shape
 

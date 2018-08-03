@@ -35,7 +35,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'piercing-rounds-magazine',
-        output = {min_rate = 1 / 3 / 60, distance_factor = 1 / 3 / 60 / 512, item = 'piercing-rounds-magazine'}
+        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'piercing-rounds-magazine'}
     }
 }
 

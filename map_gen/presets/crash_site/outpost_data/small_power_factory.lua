@@ -23,6 +23,21 @@ local loot_callback =
     end
 )
 
+local factory = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'coal'}
+    }
+}
+
+local factory_b = {
+    callback = ob.magic_item_crafting_callback,
+    data = {
+        recipe = 'solid-fuel-from-light-oil',
+        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'solid-fuel'}
+    }
+}
+
 local market = {
     callback = ob.market_set_items_callback,
     data = {
@@ -77,17 +92,27 @@ local market = {
     }
 }
 
-local base_factory = require 'map_gen.presets.crash_site.outpost_data.small_factory'
-local power_factory = require 'map_gen.presets.crash_site.outpost_data.steam_engine_block'
+local base_factory = require 'map_gen.presets.crash_site.outpost_data.small_furance'
+local base_factory2 = require 'map_gen.presets.crash_site.outpost_data.small_chemical_plant'
 
 local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})
 local level3 =
     ob.extend_1_way(
-    power_factory,
+    base_factory[2],
     {
-        power = power,
+        factory = factory,
         fallback = level2,
-        max_count = 4
+        max_count = 2
+    }
+)
+
+local level3b =
+    ob.extend_1_way(
+    base_factory2[2],
+    {
+        factory = factory_b,
+        fallback = level3,
+        max_count = 2
     }
 )
 
@@ -96,7 +121,7 @@ local level4 =
     base_factory[3],
     {
         market = market,
-        fallback = level3
+        fallback = level3b
     }
 )
 return {
@@ -107,9 +132,7 @@ return {
         max_level = 2
     },
     walls = {
-        --require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets',
-        --require 'map_gen.presets.crash_site.outpost_data.light_laser_turrets'
-        require 'map_gen.presets.crash_site.outpost_data.walls'
+        require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets'
     },
     bases = {
         {level4, level2}

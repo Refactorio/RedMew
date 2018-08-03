@@ -141,7 +141,7 @@ local level3c =
     ob.extend_1_way(
     base_factory[2],
     {
-        factory = factory_b,
+        factory = factory_c,
         fallback = level3b,
         max_count = 2
     }
@@ -152,7 +152,7 @@ local level4 =
     base_factory[3],
     {
         market = market,
-        fallback = level3b
+        fallback = level3c
     }
 )
 
