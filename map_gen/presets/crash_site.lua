@@ -8,8 +8,8 @@ local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local Perlin = require 'map_gen.shared.perlin_noise'
 
-local outpost_seed = 40000
-local ore_seed = 46000
+local outpost_seed = 44000
+local ore_seed = 51000
 local enemy_seed = 420420
 
 local outpost_random = Random.new(outpost_seed, outpost_seed * 2)

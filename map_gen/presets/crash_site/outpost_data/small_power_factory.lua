@@ -6,12 +6,12 @@ local loot = {
     {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'coal', count = 1000, distance_factor = 1}, weight = 5},
     {stack = {name = 'solid-fuel', count = 500, distance_factor = 1}, weight = 5},
-    {stack = {name = 'boiler', count = 25, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'steam-engine', count = 50, distance_factor = 1 / 5}, weight = 5},
-    {stack = {name = 'offshore-pump', count = 5, distance_factor = 1}, weight = 5},
+    {stack = {name = 'boiler', count = 25, distance_factor = 1 / 64}, weight = 5},
+    {stack = {name = 'steam-engine', count = 50, distance_factor = 1 / 32}, weight = 5},
+    {stack = {name = 'offshore-pump', count = 5, distance_factor = 1 / 128}, weight = 5},
     {stack = {name = 'pipe', count = 200, distance_factor = 1}, weight = 5},
     {stack = {name = 'pipe-to-ground', count = 50, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'medium-electric-pole', count = 50, distance_factor = 1 / 2}, weight = 5}
+    {stack = {name = 'medium-electric-pole', count = 50, distance_factor = 1 / 4}, weight = 5}
 }
 
 local weights = ob.prepare_weighted_loot(loot)

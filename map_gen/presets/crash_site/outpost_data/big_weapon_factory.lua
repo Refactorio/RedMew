@@ -188,7 +188,7 @@ local market = {
             min_price = 10
         },
         {
-            name = 'vehicle-machine-gun',
+            name = 'tank-machine-gun',
             price = 2000
         },
         {
