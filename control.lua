@@ -189,8 +189,8 @@ Event.add(
         end
         
         if player.name == 'plague006' then
-            -- black player, aquamarine text
-            player.color = {r = 0, g = 0, b = 0, a = 0.5}
+            -- cyan player, aquamarine text
+            player.color = {r = 64, g = 224, b = 208, a = 0.5}
             player.chat_color = {r = 175, g = 238, b = 238, a = 0.5}
         end
         
