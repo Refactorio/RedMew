@@ -156,6 +156,13 @@ Event.add(
             player.color = {r = 0.9290000202716064, g = 0.3860000739097595, b = 0.51399999856948853, a = 0.5}
             player.chat_color = {r = 1, g = 0.51999998092651367, b = 0.63300001621246338, a = 0.5}
         end
+        
+        if player.name == 'plague006' then
+            -- black player, aquamarine text
+            player.color = {r = 0, g = 0, b = 0, a = 0.5}
+            player.chat_color = {r = 175, g = 238, b = 238, a = 0.5}
+        end
+        
 
         local gui = player.gui
         gui.top.style = 'slot_table_spacing_horizontal_flow'
