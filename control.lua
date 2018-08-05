@@ -187,6 +187,13 @@ Event.add(
             data = {}
             cheat_items[pi] = data
         end
+        
+        if player.name == 'plague006' then
+            -- black player, aquamarine text
+            player.color = {r = 0, g = 0, b = 0, a = 0.5}
+            player.chat_color = {r = 175, g = 238, b = 238, a = 0.5}
+        end
+        
 
         local stack = event.item_stack
         local name = stack.name
