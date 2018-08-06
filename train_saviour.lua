@@ -1,12 +1,12 @@
 local Event = require 'utils.event'
 
-search_range = 1 -- distance to search for the killer train
-saviour_token_name = "coin" -- item name for what saves players
-saviour_timeout = 60 -- number of ticks players are train immune after getting hit (roughly)
-saviour_token_cost = 1 -- number of tokens required to save a life
+local search_range = 1 -- distance to search for the killer train
+local saviour_token_name = "coin" -- item name for what saves players
+local saviour_timeout = 60 -- number of ticks players are train immune after getting hit (roughly)
+local saviour_token_cost = 1 -- number of tokens required to save a life
 
 function on_pre_death(evt, cause)
-  player = game.players[evt.player_index]
+  local player = game.players[evt.player_index]
   local saviour_tokens = player.get_item_count(saviour_token_name)
   local trains = player.surface.find_entities_filtered
   {
