@@ -682,8 +682,6 @@ local function unjail_player(cmd)
   end
 end
 
-
-_DEBUG = true
 if not _DEBUG then
     local old_add_command = commands.add_command
     commands.add_command =
