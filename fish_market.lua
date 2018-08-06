@@ -24,25 +24,32 @@ local PlayerStats = require 'player_stats'
 local market_items = require 'resources.market_items'
 
 local function spawn_market(cmd)
-    if not game.player or not game.player.admin then
+    local player = game.player
+    if not player or not player.admin then
         cant_run(cmd.name)
         return
     end
-    local surface = game.player.surface
-    -- clear trees and landfill in start area
-    local start_area = {left_top = {-20, -20}, right_bottom = {20, 20}}
+    local surface = player.surface
+    local force = player.force
 
-    local player = game.player
+    local pos = player.position
+    pos.y = pos.y - 4
 
-    local market_location = {x = player.position.x, y = player.position.y}
-    market_location.y = market_location.y - 4
-
-    local market = surface.create_entity {name = 'market', position = market_location, force = force}
+    local market = surface.create_entity {name = 'market', position = pos}
     market.destructible = false
 
     for _, item in ipairs(market_items) do
         market.add_market_item(item)
     end
+
+    force.add_chart_tag(
+        surface,
+        {
+            icon = {type = 'item', name = 'coin'},
+            position = pos,
+            text = ' Market'
+        }
+    )
 end
 
 local fish_market_bonus_message = {
@@ -108,7 +115,7 @@ local function fish_earned(event, amount)
     local player_index = event.player_index
     local player = game.players[player_index]
 
-    local stack = {name = 'raw-fish', count = amount}
+    local stack = {name = 'coin', count = amount}
     local inserted = player.insert(stack)
 
     local diff = amount - inserted
@@ -117,9 +124,9 @@ local function fish_earned(event, amount)
         player.surface.spill_item_stack(player.position, stack, true)
     end
 
-    local fish = PlayerStats.get_fish_earned(player_index)
+    local fish = PlayerStats.get_coin_earned(player_index)
     fish = fish + amount
-    PlayerStats.set_fish_earned(player_index, fish)
+    PlayerStats.set_coin_earned(player_index, fish)
 
     if fish % 70 == 0 then
         if player and player.valid then
@@ -162,7 +169,7 @@ local entity_drop_amount = {
 local spill_items =
     Token.register(
     function(data)
-        local stack = {name = 'raw-fish', count = data.count}
+        local stack = {name = 'coin', count = data.count}
         data.surface.spill_item_stack(data.position, stack, true)
     end
 )
@@ -291,7 +298,7 @@ local function market_item_purchased(event)
     local market_item = market.get_market_items()[offer_index]
     local fish_cost = market_item.price[1].amount * event.count
 
-    PlayerStats.change_fish_spent(player_index, fish_cost)
+    PlayerStats.change_coin_spent(player_index, fish_cost)
 
     if event.offer_index == 1 then -- Temporary speed bonus
         local player = game.players[player_index]
