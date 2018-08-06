@@ -1294,4 +1294,18 @@ function Builders.euclidean_value(base, mult)
     end
 end
 
+function Builders.prepare_weighted_array(array)
+    local total = 0
+    local weights = {}
+
+    for _, v in ipairs(array) do
+        total = total + v.weight
+        table.insert(weights, total)
+    end
+
+    weights.total = total
+
+    return weights
+end
+
 return Builders

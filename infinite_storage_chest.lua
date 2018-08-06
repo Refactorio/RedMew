@@ -22,9 +22,7 @@ local function built_entity(event)
         return
     end
 
-    local pos = entity.position
-
-    chests[pos.x .. ',' .. pos.y] = {entity = entity, storage = {}}
+    chests[entity.unit_number] = {entity = entity, storage = {}}
 end
 
 local function mined_entity(event)
@@ -33,9 +31,7 @@ local function mined_entity(event)
         return
     end
 
-    local pos = entity.position
-
-    chests[pos.x .. ',' .. pos.y] = nil
+    chests[entity.unit_number] = nil
 end
 
 local function get_stack_size(name)
@@ -187,8 +183,7 @@ local function gui_opened(event)
         return
     end
 
-    local pos = entity.position
-    local chest = chests[pos.x .. ',' .. pos.y]
+    local chest = chests[entity.unit_number]
 
     if not chest then
         return
@@ -214,6 +209,26 @@ Event.add(defines.events.on_robot_mined_entity, mined_entity)
 Event.add(defines.events.on_tick, tick)
 Event.add(defines.events.on_gui_opened, gui_opened)
 
+Event.add(
+    defines.events.on_player_died,
+    function(event)
+        local player = game.players[event.player_index or 0]
+
+        if not player or not player.valid then
+            return
+        end
+
+        local element = player.gui.center
+
+        if element and element.valid then
+            element = element[chest_gui_frame_name]
+            if element and element.valid then
+                element.destroy()
+            end
+        end
+    end
+)
+
 Gui.on_custom_close(
     chest_gui_frame_name,
     function(event)
@@ -222,4 +237,4 @@ Gui.on_custom_close(
 )
 
 local market_items = require 'resources.market_items'
-table.insert(market_items, {price = {{'raw-fish', 100}}, offer = {type = 'give-item', item = 'infinity-chest'}})
+table.insert(market_items, {price = {{'coin', 100}}, offer = {type = 'give-item', item = 'infinity-chest'}})
