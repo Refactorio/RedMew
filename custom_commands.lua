@@ -605,6 +605,83 @@ local function find_player(cmd)
     player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, player.name, true)
 end
 
+local function jail_player(cmd)
+  -- Set the name of the jail permission group
+  local jail_name = "Jail"
+  local permission_group = nil
+  -- Check if the player can run the command
+  if game.player and not game.player.admin then
+      cant_run(cmd.name)
+      return
+  end
+  -- Check if the target is valid
+  local target = cmd['parameter']
+  if target == nil or game.players[target] == nil then
+      player_print('Unknown player.')
+      return
+  end
+  -- Check if the permission group exists, if it doesn't, create it.
+  if game.permissions.groups then
+      permission_group = game.permissions.get_group(jail_name)
+	end
+  if not permission_group then
+      permission_group = game.permissions.create_group(jail_name)
+      permission_group = game.permissions.get_group(jail_name)
+  end
+  -- Set all permissions to disabled
+  for action_name, action_number in pairs(defines.input_action) do
+      permission_group.set_allows_action(defines.input_action[action_name], false)
+	end
+  -- Enable writing to console to allow a person to speak
+  permission_group.set_allows_action(defines.input_action["write_to_console"], true)
+  -- Add player to jail group
+  permission_group.add_player(target)
+  -- Check that it worked
+  if game.players[target].permission_group == permission_group then
+      -- Let admin know it worked, let target know what's going on.
+      game.player.print(target .. " has been jailed. They have been advised of this.")
+      game.players[target].print("You have been placed in jail by a server admin. The only action you can currently perform is chatting. Please respond to inquiries from the admin.")
+  else
+      -- Let admin know it didn't work.
+      game.player.print("Something went wrong in the jailing of " .. target .. ". You can still change their group via /permissions.")
+  end
+end
+
+local function unjail_player(cmd)
+  local default_group = "Default"
+  local permission_group = nil
+  -- Check if the player can run the command
+  if game.player and not game.player.admin then
+      cant_run(cmd.name)
+      return
+  end
+  -- Check if the target is valid (copied from the invoke command)
+  local target = cmd['parameter']
+  if target == nil or game.players[target] == nil then
+      player_print('Unknown player.')
+      return
+  end
+  -- Check if the permission group exists, if it doesn't, create it.
+  if game.permissions.groups then
+      permission_group = game.permissions.get_group(default_group)
+	end
+  if not permission_group then
+      permission_group = game.permissions.create_group(default_group)
+      permission_group = game.permissions.get_group(default_group)
+  end
+  -- Move player
+  game.permissions.get_group(default_group).add_player(target)
+  -- Check that it worked
+  if game.players[target].permission_group == permission_group then
+      -- Let admin know it worked, let target know what's going on.
+      game.player.print(target .. " has been returned to the default group. They have been advised of this.")
+      game.players[target].print("Your ability to perform actions has been restored")
+  else
+      -- Let admin know it didn't work.
+      game.player.print("Something went wrong in the unjailing of " .. target .. ". You can still change their group via /permissions and inform them.")
+  end
+end
+
 if not _DEBUG then
     local old_add_command = commands.add_command
     commands.add_command =
@@ -677,3 +754,5 @@ commands.add_command(
     antigrief_surface_tp
 )
 commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)
+commands.add_command('jail', '<player> disables all actions a player can perform except chatting. (Admins only)', jail_player)
+commands.add_command('unjail', '<player> restores ability for a player to perform actions. (Admins only)', unjail_player)
