@@ -581,7 +581,6 @@ local function jail_player(cmd)
     end
     -- Enable writing to console to allow a person to speak
     permission_group.set_allows_action(defines.input_action.write_to_console, true)
-    permission_group.set_allows_action(defines.input_action.edit_permission_group, true)
 
     -- Add player to jail group
     permission_group.add_player(target_player)
