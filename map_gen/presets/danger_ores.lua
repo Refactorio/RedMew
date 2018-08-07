@@ -31,8 +31,8 @@ Global.register_init(
 
 local value = b.euclidean_value
 
-local oil_shape = b.throttle_world_xy(b.full_shape, 1, 4, 1, 4)
-local oil_resource = b.resource(oil_shape, 'crude-oil', value(100000, 50))
+local oil_shape = b.throttle_world_xy(b.full_shape, 1, 8, 1, 8)
+local oil_resource = b.resource(oil_shape, 'crude-oil', value(150000, 100))
 
 local uranium_resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1))
 
@@ -107,7 +107,7 @@ local worms = {
 }
 
 local max_worm_chance = 1 / 384
-local worm_chance_factor = 1 / (384 * 512)
+local worm_chance_factor = 1 / (192 * 512)
 
 local function enemy(_, _, world)
     local wx, wy = world.x, world.y
