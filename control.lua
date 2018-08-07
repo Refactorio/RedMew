@@ -14,6 +14,7 @@ require 'fish_market'
 require 'reactor_meltdown'
 require 'map_layout'
 require 'bot'
+require 'player_colors'
 -- GUIs the order determines the order they appear at the top.
 require 'info'
 require 'player_list'
@@ -27,17 +28,22 @@ require 'popup'
 
 local Event = require 'utils.event'
 
-local function player_joined(event)
+local function player_created(event)
     local player = game.players[event.player_index]
+
+    if not player or not player.valid then
+        return
+    end
+
     player.insert {name = 'coin', count = 10}
     player.insert {name = 'iron-gear-wheel', count = 8}
     player.insert {name = 'iron-plate', count = 16}
     player.print('Welcome to our Server. You can join our Discord at: redmew.com/discord')
-    player.print('And remember.. Keep Calm And Spaghetti!')    
-end
+    player.print('And remember.. Keep Calm And Spaghetti!')
 
-function walkabout(player_name, distance)
-    game.player.print('This command moved to /walkabout.')
+    local gui = player.gui
+    gui.top.style = 'slot_table_spacing_horizontal_flow'
+    gui.left.style = 'slot_table_spacing_vertical_flow'
 end
 
 local hodor_messages = {
@@ -141,27 +147,8 @@ local function hodor(event)
     end
 end
 
-Event.add(defines.events.on_player_created, player_joined)
+Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_console_chat, hodor)
-Event.add(
-    defines.events.on_player_joined_game,
-    function(event)
-        local player = game.players[event.player_index]
-        if not player or not player.valid then
-            return
-        end
-
-        if player.name == 'grilledham' then
-            -- pink
-            player.color = {r = 0.9290000202716064, g = 0.3860000739097595, b = 0.51399999856948853, a = 0.5}
-            player.chat_color = {r = 1, g = 0.51999998092651367, b = 0.63300001621246338, a = 0.5}
-        end
-
-        local gui = player.gui
-        gui.top.style = 'slot_table_spacing_horizontal_flow'
-        gui.left.style = 'slot_table_spacing_vertical_flow'
-    end
-)
 
 Event.add(
     defines.events.on_console_command,
