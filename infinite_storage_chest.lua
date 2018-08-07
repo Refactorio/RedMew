@@ -15,6 +15,7 @@ Event.on_load(
 )
 
 local chest_gui_frame_name = Gui.uid_name()
+local chest_content_table_name = Gui.uid_name()
 
 local function built_entity(event)
     local entity = event.created_entity
@@ -108,7 +109,13 @@ local function create_chest_gui_content(frame, player, chest)
     local storage = chest.storage
     local inv = chest.entity.get_inventory(1).get_contents()
 
-    local grid = frame.add {type = 'table', column_count = 10, style = 'slot_table'}
+    local grid = frame[chest_content_table_name]
+
+    if grid then
+        grid.clear()
+    else
+        grid = frame.add {type = 'table', name = chest_content_table_name, column_count = 10, style = 'slot_table'}
+    end
 
     for name, count in pairs(storage) do
         local number = count + (inv[name] or 0)
@@ -166,7 +173,6 @@ chest_gui_content_callback =
             return
         end
 
-        opened.clear()
         create_chest_gui_content(opened, player, data.chest)
 
         Task.set_timeout_in_ticks(60, chest_gui_content_callback, data)
@@ -195,7 +201,22 @@ local function gui_opened(event)
     end
 
     local frame =
-        player.gui.center.add {type = 'frame', name = chest_gui_frame_name, caption = 'Infinite Storage Chest'}
+        player.gui.center.add {
+        type = 'frame',
+        name = chest_gui_frame_name,
+        caption = 'Infinite Storage Chest',
+        direction = 'vertical'
+    }
+
+    local text =
+        frame.add {
+        type = 'label',
+        caption = 'This chest stores unlimited quantity of items (up to 48 different item types).\nThe chest is best used with an inserter to add / remove items.\nIf the chest is mined or destroyed the items are lost.\nYou can buy the chest at the market for 100 coins.'
+    }
+    text.style.single_line = false
+
+    local content_header = frame.add {type = 'label', caption = 'Content'}
+    content_header.style.font = 'default-listbox'
 
     create_chest_gui_content(frame, player, chest)
 
