@@ -653,10 +653,19 @@ commands.add_command(
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
 commands.add_command(
     'all-tech',
-    'researches all technologies',
-    function()
-        if game.player and game.player.admin then
-            game.player.force.research_all_technologies()
+    'researches all technologies (Admins only)',
+    function(cmd)
+        local confirm = cmd.parameter
+        local player = game.player
+        if player and player.admin and player.force ~= game.forces['player'] then
+            player.force.research_all_technologies()
+        elseif player and player.admin and player.force == game.forces['player'] and confirm == 'true' then
+            player.force.research_all_technologies()
+            game.print('The player force has been granted all technologies by ' .. player.name)
+        elseif player and player.admin and player.force == game.forces['player'] and confirm ~= 'true' then   
+            player.print('This will give the player force all research. If you\'re sure you want to do this run /all-tech true')
+        else
+        player.print('You cannot run this command.')
         end
     end
 )
