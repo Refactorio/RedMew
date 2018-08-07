@@ -72,6 +72,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.crash_site"
 --shape = require "map_gen.presets.dino_island"
 --shape  = require "map_gen.presets.toxic_jungle"
+--shape  = require "map_gen.presets.danger_ores"
 --shape = require "map_gen.presets.test"
 
 --shapes--
@@ -121,6 +122,7 @@ miscs = {}
 --require "map_gen.misc.rusky_pvp"
 --table.insert(miscs, require("map_gen.misc.rail_grid")) -- used for map_gen.presets.UK
 --require ('map_gen.misc.change_landfill_tile')('sand-1')
+--require ('map_gen.misc.danger_ore_banned_entities')
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
