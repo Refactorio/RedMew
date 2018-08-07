@@ -1,6 +1,6 @@
 local Event = require 'utils.event'
 
-local allowed_entites = {
+global.allowed_entites = {
     ['transport-belt'] = true,
     ['fast-transport-belt'] = true,
     ['express-transport-belt'] = true,
@@ -13,7 +13,7 @@ local allowed_entites = {
     ['substation'] = true,
     ['electric-mining-drill'] = true,
     ['burner-mining-drill'] = true,
-    ['pumpjack'] = true,
+    ['pumpjack'] = true
 }
 
 Event.add(
@@ -31,7 +31,7 @@ Event.add(
             ghost = true
         end
 
-        if allowed_entites[name] then
+        if global.allowed_entites[name] then
             return
         end
 
