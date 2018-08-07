@@ -119,15 +119,15 @@ local function get_rank_level(player)
     end
 end
 
-local function do_poke_spam_protection(player, poke_player_index)
+local function do_poke_spam_protection(player)
     if player.admin then
         return true
     end
 
-    local tick = player_poke_cooldown[poke_player_index] or 0
+    local tick = player_poke_cooldown[player.index] or 0
 
     if tick < game.tick then
-        player_poke_cooldown[poke_player_index] = game.tick + poke_cooldown_time
+        player_poke_cooldown[player.index] = game.tick + poke_cooldown_time
         return true
     else
         return false
@@ -670,7 +670,7 @@ Gui.on_click(
         end
 
         local poke_player_index = poke_player.index
-        if not do_poke_spam_protection(player, poke_player_index) then
+        if not do_poke_spam_protection(player) then
             return
         end
 
