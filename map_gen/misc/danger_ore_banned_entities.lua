@@ -35,8 +35,14 @@ Event.add(
             return
         end
 
-        local surface = entity.surface
-        local count = surface.count_entities_filtered {area = entity.bounding_box, type = 'resource', limit = 1}
+        -- Some entities have a bounding_box area of zero, eg robots.
+        local area = entity.bounding_box
+        local left_top, right_bottom = area.left_top, area.right_bottom
+        if left_top.x == right_bottom.x and left_top.y == right_bottom.y then
+            return
+        end
+
+        local count = entity.surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
 
         if count == 0 then
             return
@@ -49,7 +55,7 @@ Event.add(
 
         entity.destroy()
         if not ghost then
-            p.insert {name = name}
+            p.insert(event.stack)
         end
     end
 )
