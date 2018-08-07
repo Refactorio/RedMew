@@ -570,12 +570,18 @@ local function jail_player(cmd)
         permission_group = permissions.create_group(jail_name)
     end
 
+    if target_player.permission_group == permission_group then
+        player_print('The player ' .. target .. ' is already in Jail.')
+        return
+    end
+
     -- Set all permissions to disabled
     for action_name, _ in pairs(defines.input_action) do
         permission_group.set_allows_action(defines.input_action[action_name], false)
     end
     -- Enable writing to console to allow a person to speak
     permission_group.set_allows_action(defines.input_action.write_to_console, true)
+    permission_group.set_allows_action(defines.input_action.edit_permission_group, true)
 
     -- Add player to jail group
     permission_group.add_player(target_player)
@@ -622,6 +628,12 @@ local function unjail_player(cmd)
     local permission_group = permissions.get_group(default_group)
     if not permission_group then
         permission_group = permissions.create_group(default_group)
+    end
+
+    local jail_permission_group = permissions.get_group('Jail')
+    if (not jail_permission_group) or target_player.permission_group ~= jail_permission_group then
+        player_print('The player ' .. target .. ' is already not in Jail.')
+        return
     end
 
     -- Move player
