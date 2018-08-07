@@ -511,7 +511,6 @@ local function antigrief_surface_tp()
     end
     Antigrief.antigrief_surface_tp()
 end ]]
-
 local function find_player(cmd)
     local player = game.player
     if not player then
@@ -537,6 +536,109 @@ local function find_player(cmd)
     end
 
     player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, player.name, true)
+end
+
+local function jail_player(cmd)
+    -- Set the name of the jail permission group
+    local jail_name = 'Jail'
+
+    local player = game.player
+    -- Check if the player can run the command
+    if player and not player.admin then
+        cant_run(cmd.name)
+        return
+    end
+    -- Check if the target is valid
+    local target = cmd['parameter']
+    if target == nil then
+        player_print('Usage: /jail <player>')
+        return
+    end
+
+    local target_player = game.players[target]
+
+    if not target_player then
+        player_print('Unknown player.')
+        return
+    end
+
+    local permissions = game.permissions
+
+    -- Check if the permission group exists, if it doesn't, create it.
+    local permission_group = permissions.get_group(jail_name)
+    if not permission_group then
+        permission_group = permissions.create_group(jail_name)
+    end
+
+    -- Set all permissions to disabled
+    for action_name, _ in pairs(defines.input_action) do
+        permission_group.set_allows_action(defines.input_action[action_name], false)
+    end
+    -- Enable writing to console to allow a person to speak
+    permission_group.set_allows_action(defines.input_action.write_to_console, true)
+
+    -- Add player to jail group
+    permission_group.add_player(target_player)
+
+    -- Check that it worked
+    if target_player.permission_group == permission_group then
+        -- Let admin know it worked, let target know what's going on.
+        player_print(target .. ' has been jailed. They have been advised of this.')
+        target_player.print(
+            'You have been placed in jail by a server admin. The only action you can currently perform is chatting. Please respond to inquiries from the admin.'
+        )
+    else
+        -- Let admin know it didn't work.
+        player_print(
+            'Something went wrong in the jailing of ' ..
+                target .. '. You can still change their group via /permissions.'
+        )
+    end
+end
+local function unjail_player(cmd)
+    local default_group = 'Default'
+    local player = game.player
+    -- Check if the player can run the command
+    if player and not player.admin then
+        cant_run(cmd.name)
+        return
+    end
+    -- Check if the target is valid (copied from the invoke command)
+    local target = cmd['parameter']
+    if target == nil then
+        player_print('Usage: /unjail <player>')
+        return
+    end
+
+    local target_player = game.players[target]
+    if not target_player then
+        player_print('Unknown player.')
+        return
+    end
+
+    local permissions = game.permissions
+
+    -- Check if the permission group exists, if it doesn't, create it.
+    local permission_group = permissions.get_group(default_group)
+    if not permission_group then
+        permission_group = permissions.create_group(default_group)
+    end
+
+    -- Move player
+    permission_group.add_player(target)
+
+    -- Check that it worked
+    if target_player.permission_group == permission_group then
+        -- Let admin know it worked, let target know what's going on.
+        player_print(target .. ' has been returned to the default group. They have been advised of this.')
+        target_player.print('Your ability to perform actions has been restored')
+    else
+        -- Let admin know it didn't work.
+        player_print(
+            'Something went wrong in the unjailing of ' ..
+                target .. '. You can still change their group via /permissions and inform them.'
+        )
+    end
 end
 
 if not _DEBUG then
@@ -611,3 +713,13 @@ commands.add_command(
     antigrief_surface_tp
 ) ]]
 commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)
+commands.add_command(
+    'jail',
+    '<player> disables all actions a player can perform except chatting. (Admins only)',
+    jail_player
+)
+commands.add_command(
+    'unjail',
+    '<player> restores ability for a player to perform actions. (Admins only)',
+    unjail_player
+)
