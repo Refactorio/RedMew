@@ -1,7 +1,6 @@
 _DEBUG = false
 
 global.scenario = {}
-global.spys = {'valansch', 'air20'}
 global.scenario.variables = {}
 global.scenario.variables.player_positions = {}
 global.player_walk_distances = {}

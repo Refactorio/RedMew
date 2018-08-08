@@ -403,57 +403,6 @@ local custom_commands_replace_ghosts =
     end
 )
 
-local function spyshot(cmd)
-    if not cmd then
-        return 0
-    end
-    local player_name = cmd.parameter
-    if player_name and game.players[player_name] then
-        for _, spy in pairs(global.spys) do
-            if game.players[spy] and game.players[spy].connected then
-                local pos = game.players[player_name].position
-                local pseudo_ghosts = {}
-                for _, ghost in pairs(
-                    game.players[player_name].surface.find_entities_filtered {
-                        area = {{pos.x - 60, pos.y - 35}, {pos.x + 60, pos.y + 35}},
-                        name = 'entity-ghost',
-                        force = 'enemy'
-                    }
-                ) do
-                    local pseudo_ghost = {
-                        position = ghost.position,
-                        ghost_name = ghost.ghost_name,
-                        expires = false,
-                        force = 'enemy',
-                        direction = ghost.direction,
-                        last_user = ghost.last_user
-                    }
-                    table.insert(pseudo_ghosts, pseudo_ghost)
-                    ghost.destroy()
-                end
-                game.take_screenshot {
-                    by_player = spy,
-                    position = pos,
-                    show_gui = false,
-                    show_entity_info = true,
-                    resolution = {1920, 1080},
-                    anti_alias = true,
-                    zoom = 0.5,
-                    path = 'spyshot.png'
-                }
-                game.players[spy].print('You just took a screenshot!')
-                Task.set_timeout(
-                    2,
-                    custom_commands_replace_ghosts,
-                    {ghosts = pseudo_ghosts, surface_index = game.players[player_name].surface.index}
-                ) --delay replacements for the screenshot to render
-                return
-            end
-        end
-        player_print('No spy online!')
-    end
-end
-
 local function zoom(cmd)
     if game.player and cmd and cmd.parameter and tonumber(cmd.parameter) then
         game.player.zoom = tonumber(cmd.parameter)
@@ -601,6 +550,7 @@ local function jail_player(cmd)
         )
     end
 end
+
 local function unjail_player(cmd)
     local default_group = 'Default'
     local player = game.player
@@ -693,11 +643,6 @@ commands.add_command(
 )
 
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
-commands.add_command(
-    'spyshot',
-    '<player> Sends a screenshot of player to discord. (If a host is online. If no host is online, you can become one yourself. Ask on discord :))',
-    spyshot
-)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
 commands.add_command(
     'all-tech',
