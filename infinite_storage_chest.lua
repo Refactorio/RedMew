@@ -1,16 +1,17 @@
 local Event = require 'utils.event'
-local Gui = require 'utils.gui'
 local Token = require 'utils.global_token'
+local Gui = require 'utils.gui'
 local Task = require 'utils.Task'
+local Global = require 'utils.global'
 
 local chests = {}
-local chests_data = {chests = chests}
-local chests_data_token = Token.register_global(chests_data)
+local chests_next = {}
 
-Event.on_load(
-    function()
-        chests_data = Token.get_global(chests_data_token)
-        chests = chests_data.chests
+Global.register(
+    {chests = chests, chests_next = chests_next},
+    function(tbl)
+        chests = tbl.chests
+        chests_next = tbl.chests_next
     end
 )
 
@@ -24,15 +25,6 @@ local function built_entity(event)
     end
 
     chests[entity.unit_number] = {entity = entity, storage = {}}
-end
-
-local function mined_entity(event)
-    local entity = event.entity
-    if not entity or not entity.valid or entity.name ~= 'infinity-chest' then
-        return
-    end
-
-    chests[entity.unit_number] = nil
 end
 
 local function get_stack_size(name)
@@ -78,18 +70,19 @@ local function do_item(name, count, inv, storage)
 end
 
 local function tick()
-    local chest
-    chests_data.next, chest = next(chests, chests_data.next)
+    local chest_id, chest_data = next(chests, chests_next[1])
 
-    if not chest then
+    chests_next[1] = chest_id
+
+    if not chest_id then
         return
     end
 
-    local entity = chest.entity
+    local entity = chest_data.entity
     if not entity or not entity.valid then
-        chests[chests_data.next] = nil
+        chests[chest_id] = nil
     else
-        local storage = chest.storage
+        local storage = chest_data.storage
         local inv = entity.get_inventory(1) --defines.inventory.chest
         local contents = inv.get_contents()
 
@@ -225,8 +218,6 @@ end
 
 Event.add(defines.events.on_built_entity, built_entity)
 Event.add(defines.events.on_robot_built_entity, built_entity)
-Event.add(defines.events.on_player_mined_entity, mined_entity)
-Event.add(defines.events.on_robot_mined_entity, mined_entity)
 Event.add(defines.events.on_tick, tick)
 Event.add(defines.events.on_gui_opened, gui_opened)
 
