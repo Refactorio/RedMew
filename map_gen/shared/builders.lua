@@ -693,6 +693,32 @@ function Builders.single_y_pattern(shape, height)
     end
 end
 
+function Builders.grid_x_pattern(pattern, columns, width)
+    local half_width = width / 2
+
+    return function(x, y, world)
+        local x2 = ((x + half_width) % width) - half_width
+        local columns_pos = math.floor(x / width + 0.5)
+        local column_i = columns_pos % columns + 1
+        local shape = pattern[column_i] or Builders.empty_shape
+
+        return shape(x2, y, world)
+    end
+end
+
+function Builders.grid_y_pattern(pattern, rows, height)
+    local half_height = height / 2
+
+    return function(x, y, world)
+        local y2 = ((y + half_height) % height) - half_height
+        local row_pos = math.floor(y / height + 0.5)
+        local row_i = row_pos % rows + 1
+        local shape = pattern[row_i] or Builders.empty_shape
+
+        return shape(x, y2, world)
+    end
+end
+
 function Builders.grid_pattern(pattern, columns, rows, width, height)
     local half_width = width / 2
     local half_height = height / 2
@@ -836,6 +862,90 @@ function Builders.grid_pattern_full_overlap(pattern, columns, rows, width, heigh
 
         shape = row_down[col_i_right] or Builders.empty_shape
         return shape(x2 - width, y2 - height, world)
+    end
+end
+
+local function is_spiral(x, y)
+    local a = -math.max(math.abs(x), math.abs(y))
+
+    if a % 2 == 0 then
+        return y ~= a or x == a
+    else
+        return y == a and x ~= a
+    end
+end
+
+function Builders.single_spiral_pattern(shape, width, height)
+    local inv_width = 1 / width
+    local inv_height = 1 / height
+    return function(x, y, world)
+        local x1 = math.floor(x * inv_width + 0.5)
+        local y1 = math.floor(y * inv_height + 0.5)
+
+        if is_spiral(x1, y1) then
+            x1 = x - x1 * width
+            y1 = y - y1 * height
+            return shape(x1, y1, world)
+        else
+            return false
+        end
+    end
+end
+
+local function rotate_0(x, y)
+    return x, y
+end
+
+local function rotate_90(x, y)
+    return y, -x
+end
+
+local function rotate_180(x, y)
+    return -x, -y
+end
+
+local function rotate_270(x, y)
+    return -y, x
+end
+
+local function spiral_rotation(x, y)
+    local a = -math.max(math.abs(x), math.abs(y))
+
+    if a % 2 == 0 then
+        if y ~= a or x == a then
+            if x == a then
+                return rotate_0
+            elseif y >= x then
+                return rotate_270
+            else
+                return rotate_180
+            end
+        end
+    else
+        if y == a and x ~= a then
+            return rotate_90
+        end
+    end
+end
+
+function Builders.single_spiral_rotate_pattern(shape, width, optional_height)
+    optional_height = optional_height or width
+
+    local inv_width = 1 / width
+    local inv_height = 1 / optional_height
+    return function(x, y, world)
+        local x1 = math.floor(x * inv_width + 0.5)
+        local y1 = math.floor(y * inv_height + 0.5)
+
+        local t = spiral_rotation(x1, y1)
+        if t then
+            x1 = x - x1 * width
+            y1 = y - y1 * optional_height
+            x1, y1 = t(x1, y1)
+            return shape(x1, y1, world)
+        else
+            return false
+        end
     end
 end
 
@@ -1182,6 +1292,20 @@ function Builders.euclidean_value(base, mult)
     return function(x, y)
         return mult * math.sqrt(x * x + y * y) + base
     end
+end
+
+function Builders.prepare_weighted_array(array)
+    local total = 0
+    local weights = {}
+
+    for _, v in ipairs(array) do
+        total = total + v.weight
+        table.insert(weights, total)
+    end
+
+    weights.total = total
+
+    return weights
 end
 
 return Builders

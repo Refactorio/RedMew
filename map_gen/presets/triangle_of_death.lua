@@ -3,24 +3,77 @@ local Random = require 'map_gen.shared.random'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Token = require 'utils.global_token'
 local Global = require 'utils.global'
+local Event = require 'utils.event'
+
+-- change these to change the pattern.
+local ore_seed1 = 10000
+local ore_seed2 = 20000
+local enemy_seed = 420420
+local loot_seed = 7
 
 local generator
+
+local ammos = {
+    'artillery-shell',
+    'biological',
+    'bullet',
+    'cannon-shell',
+    'capsule',
+    'combat-robot-beam',
+    'combat-robot-laser',
+    'electric',
+    'flamethrower',
+    'grenade',
+    'landmine',
+    'laser-turret',
+    'melee',
+    'railgun',
+    'rocket',
+    'shotgun-shell'
+}
+
+local function init_weapon_damage()
+    local p_force = game.forces.player
+
+    for _, a in ipairs(ammos) do
+        p_force.set_ammo_damage_modifier(a, -0.5)
+    end
+end
+
+Event.add(
+    defines.events.on_research_finished,
+    function(event)
+        local p_force = game.forces.player
+        local r = event.research
+
+        for _, e in ipairs(r.effects) do
+            local t = e.type
+
+            if t == 'ammo-damage' then
+                local m = e.modifier
+                local category = e.ammo_category
+                local current_m = p_force.get_ammo_damage_modifier(category)
+                p_force.set_ammo_damage_modifier(category, current_m - 0.5 * m)
+            elseif t == 'turret-attack' then
+                local m = e.modifier
+                local category = e.turret_id
+                local current_m = p_force.get_turret_attack_modifier(category)
+                p_force.set_turret_attack_modifier(category, current_m - 0.5 * m)
+            end
+        end
+    end
+)
 
 Global.register_init(
     {},
     function(tbl)
         tbl.generator = game.create_random_generator()
+        init_weapon_damage()
     end,
     function(tbl)
         generator = tbl.generator
     end
 )
-
--- change these to change the pattern.
-local ore_seed1 = 6000
-local ore_seed2 = 12000
-local enemy_seed = 420420
-local loot_seed = 7
 
 local function square(x, y)
     return x > 0 and y > 0
@@ -116,8 +169,8 @@ for _ = 1, p_rows do
     end
 end
 
-local ore_shape = b.project_pattern(pattern, 96, 1.1, 50, 50)
-ore_shape = b.scale(ore_shape, 0.2)
+local ore_shape = b.project_pattern(pattern, 96, 1.0625, 50, 50)
+ore_shape = b.scale(ore_shape, 0.15)
 
 local start_ore = icons[2]
 local start_iron = b.resource(start_ore, 'iron-ore', value(600, 0))
@@ -128,7 +181,7 @@ local start_stone = b.resource(start_ore, 'stone', value(900, 0))
 start_ore = b.segment_pattern({start_coal, start_stone, start_copper, start_iron})
 start_ore = b.translate(start_ore, 0, 64)
 
-ore_shape = b.choose(b.rectangle(224, 224), start_ore, ore_shape)
+ore_shape = b.choose(b.rectangle(188, 188), start_ore, ore_shape)
 
 local item_pool = {
     {name = 'firearm-magazine', count = 200, weight = 1250},
@@ -254,7 +307,7 @@ local max_chance = 1 / 8
 
 local scale_factor = 32
 local sf = 1 / scale_factor
-local m = 1.125 / 1000
+local m = 1 / 1000
 local function enemy(x, y, world)
     local d = math.sqrt(world.x * world.x + world.y * world.y)
 
@@ -263,7 +316,7 @@ local function enemy(x, y, world)
     end
 
     local threshold = 1 - d * m
-    threshold = math.max(threshold, -0.125)
+    threshold = math.max(threshold, 0.25) -- -0.125)
 
     x, y = x * sf, y * sf
     if Perlin.noise(x, y, enemy_seed) > threshold then

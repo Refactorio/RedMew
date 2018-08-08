@@ -6,15 +6,15 @@ require 'custom_commands'
 require 'base_data'
 require 'train_station_names'
 require 'nuke_control'
-require 'walk_distance'
 require 'follow'
 require 'autodeconstruct'
 require 'corpse_util'
---require 'infinite_storage_chest'
+require 'infinite_storage_chest'
 require 'fish_market'
 require 'reactor_meltdown'
 require 'map_layout'
 require 'bot'
+require 'player_colors'
 -- GUIs the order determines the order they appear at the top.
 require 'info'
 require 'player_list'
@@ -28,17 +28,22 @@ require 'popup'
 
 local Event = require 'utils.event'
 
-local function player_joined(event)
+local function player_created(event)
     local player = game.players[event.player_index]
-    player.insert {name = 'raw-fish', count = 4}
+
+    if not player or not player.valid then
+        return
+    end
+
+    player.insert {name = 'coin', count = 10}
     player.insert {name = 'iron-gear-wheel', count = 8}
     player.insert {name = 'iron-plate', count = 16}
     player.print('Welcome to our Server. You can join our Discord at: redmew.com/discord')
     player.print('And remember.. Keep Calm And Spaghetti!')
-end
 
-function walkabout(player_name, distance)
-    game.player.print('This command moved to /walkabout.')
+    local gui = player.gui
+    gui.top.style = 'slot_table_spacing_horizontal_flow'
+    gui.left.style = 'slot_table_spacing_vertical_flow'
 end
 
 local hodor_messages = {
@@ -114,6 +119,13 @@ local function hodor(event)
         end
     end
 
+    -- player_index is nil if the message came from the server,
+    -- and indexing game.players with nil is apparently an error.
+    local player_index = event.player_index
+    if not player_index then
+        return
+    end
+
     local player = game.players[event.player_index]
     if not player or not player.valid then
         return
@@ -135,24 +147,61 @@ local function hodor(event)
     end
 end
 
-Event.add(defines.events.on_player_created, player_joined)
+Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_console_chat, hodor)
+
 Event.add(
-    defines.events.on_player_joined_game,
+    defines.events.on_console_command,
     function(event)
-        local player = game.players[event.player_index]
-        if not player or not player.valid then
+        local command = event.command
+        if command == 'c' or command == 'command' or command == 'silent-command' or command == 'hax' then
+            local p_index = event.player_index
+            local name
+            if p_index then
+                name = game.players[event.player_index].name
+            else
+                name = '<server>'
+            end
+            local s = table.concat {'[Command] ', name, ' /', command, ' ', event.parameters}
+            log(s)
+        end
+    end
+)
+
+global.cheated_items = {}
+
+Event.add(
+    defines.events.on_player_crafted_item,
+    function(event)
+        local pi = event.player_index
+        local p = game.players[pi]
+
+        if not p or not p.valid or not p.cheat_mode then
             return
         end
 
-        if player.name == 'grilledham' then
-            -- pink
-            player.color = {r = 0.9290000202716064, g = 0.3860000739097595, b = 0.51399999856948853, a = 0.5}
-            player.chat_color = {r = 1, g = 0.51999998092651367, b = 0.63300001621246338, a = 0.5}
+        local cheat_items = global.cheated_items
+
+        local data = cheat_items[pi]
+        if not data then
+            data = {}
+            cheat_items[pi] = data
         end
 
-        local gui = player.gui
-        gui.top.style = 'slot_table_spacing_horizontal_flow'
-        gui.left.style = 'slot_table_spacing_vertical_flow'      
+        local stack = event.item_stack
+        local name = stack.name
+        local count = data[name] or 0
+        data[name] = stack.count + count
     end
 )
+
+function print_cheated_items()
+    local res = {}
+    local players = game.players
+
+    for pi, data in pairs(global.cheated_items) do
+        res[players[pi].name] = data
+    end
+
+    game.player.print(serpent.block(res))
+end

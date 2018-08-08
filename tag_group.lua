@@ -201,15 +201,16 @@ local function draw_main_frame(player)
 
     main_frame.style.maximal_height = 500
     main_frame.style.maximal_width = 500
+    main_frame.style.minimal_width = 320
 
     local scroll_pane =
         main_frame.add {
         type = 'scroll-pane',
         name = main_frame_content_name,
-        direction = 'vertical',
         vertical_scroll_policy = 'always'
     }
 
+    scroll_pane.style.horizontally_stretchable = true
     scroll_pane.style.right_padding = 0
 
     draw_main_frame_content(scroll_pane)

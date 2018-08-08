@@ -1,20 +1,22 @@
 local Event = require 'utils.event'
-local Gui = require 'utils.gui'
 local Token = require 'utils.global_token'
+local Gui = require 'utils.gui'
 local Task = require 'utils.Task'
+local Global = require 'utils.global'
 
 local chests = {}
-local chests_data = {chests = chests}
-local chests_data_token = Token.register_global(chests_data)
+local chests_next = {}
 
-Event.on_load(
-    function()
-        chests_data = Token.get_global(chests_data_token)
-        chests = chests_data.chests
+Global.register(
+    {chests = chests, chests_next = chests_next},
+    function(tbl)
+        chests = tbl.chests
+        chests_next = tbl.chests_next
     end
 )
 
 local chest_gui_frame_name = Gui.uid_name()
+local chest_content_table_name = Gui.uid_name()
 
 local function built_entity(event)
     local entity = event.created_entity
@@ -22,20 +24,7 @@ local function built_entity(event)
         return
     end
 
-    local pos = entity.position
-
-    chests[pos.x .. ',' .. pos.y] = {entity = entity, storage = {}}
-end
-
-local function mined_entity(event)
-    local entity = event.entity
-    if not entity or not entity.valid or entity.name ~= 'infinity-chest' then
-        return
-    end
-
-    local pos = entity.position
-
-    chests[pos.x .. ',' .. pos.y] = nil
+    chests[entity.unit_number] = {entity = entity, storage = {}}
 end
 
 local function get_stack_size(name)
@@ -81,18 +70,19 @@ local function do_item(name, count, inv, storage)
 end
 
 local function tick()
-    local chest
-    chests_data.next, chest = next(chests, chests_data.next)
+    local chest_id, chest_data = next(chests, chests_next[1])
 
-    if not chest then
+    chests_next[1] = chest_id
+
+    if not chest_id then
         return
     end
 
-    local entity = chest.entity
+    local entity = chest_data.entity
     if not entity or not entity.valid then
-        chests[chests_data.next] = nil
+        chests[chest_id] = nil
     else
-        local storage = chest.storage
+        local storage = chest_data.storage
         local inv = entity.get_inventory(1) --defines.inventory.chest
         local contents = inv.get_contents()
 
@@ -112,7 +102,13 @@ local function create_chest_gui_content(frame, player, chest)
     local storage = chest.storage
     local inv = chest.entity.get_inventory(1).get_contents()
 
-    local grid = frame.add {type = 'table', column_count = 10, style = 'slot_table'}
+    local grid = frame[chest_content_table_name]
+
+    if grid then
+        grid.clear()
+    else
+        grid = frame.add {type = 'table', name = chest_content_table_name, column_count = 10, style = 'slot_table'}
+    end
 
     for name, count in pairs(storage) do
         local number = count + (inv[name] or 0)
@@ -157,12 +153,19 @@ chest_gui_content_callback =
             return
         end
 
+        local entity = data.chest.entity
+        if not entity.valid then
+            player.opened = nil
+            opened.destroy()
+            return
+        end
+
         if not player.connected then
             player.opened = nil
             opened.destroy()
+            return
         end
 
-        opened.clear()
         create_chest_gui_content(opened, player, data.chest)
 
         Task.set_timeout_in_ticks(60, chest_gui_content_callback, data)
@@ -179,8 +182,7 @@ local function gui_opened(event)
         return
     end
 
-    local pos = entity.position
-    local chest = chests[pos.x .. ',' .. pos.y]
+    local chest = chests[entity.unit_number]
 
     if not chest then
         return
@@ -192,7 +194,22 @@ local function gui_opened(event)
     end
 
     local frame =
-        player.gui.center.add {type = 'frame', name = chest_gui_frame_name, caption = 'Infinite Storage Chest'}
+        player.gui.center.add {
+        type = 'frame',
+        name = chest_gui_frame_name,
+        caption = 'Infinite Storage Chest',
+        direction = 'vertical'
+    }
+
+    local text =
+        frame.add {
+        type = 'label',
+        caption = 'This chest stores unlimited quantity of items (up to 48 different item types).\nThe chest is best used with an inserter to add / remove items.\nIf the chest is mined or destroyed the items are lost.\nYou can buy the chest at the market for 100 coins.'
+    }
+    text.style.single_line = false
+
+    local content_header = frame.add {type = 'label', caption = 'Content'}
+    content_header.style.font = 'default-listbox'
 
     create_chest_gui_content(frame, player, chest)
 
@@ -201,10 +218,28 @@ end
 
 Event.add(defines.events.on_built_entity, built_entity)
 Event.add(defines.events.on_robot_built_entity, built_entity)
-Event.add(defines.events.on_player_mined_entity, mined_entity)
-Event.add(defines.events.on_robot_mined_entity, mined_entity)
 Event.add(defines.events.on_tick, tick)
 Event.add(defines.events.on_gui_opened, gui_opened)
+
+Event.add(
+    defines.events.on_player_died,
+    function(event)
+        local player = game.players[event.player_index or 0]
+
+        if not player or not player.valid then
+            return
+        end
+
+        local element = player.gui.center
+
+        if element and element.valid then
+            element = element[chest_gui_frame_name]
+            if element and element.valid then
+                element.destroy()
+            end
+        end
+    end
+)
 
 Gui.on_custom_close(
     chest_gui_frame_name,
@@ -214,4 +249,4 @@ Gui.on_custom_close(
 )
 
 local market_items = require 'resources.market_items'
-table.insert(market_items, {price = {{'raw-fish', 100}}, offer = {type = 'give-item', item = 'infinity-chest'}})
+table.insert(market_items, {price = {{'coin', 100}}, offer = {type = 'give-item', item = 'infinity-chest'}})

@@ -1,23 +1,32 @@
 local b = require 'map_gen.shared.builders'
 local perlin = require 'map_gen.shared.perlin_noise'
-local Event = require "utils.event"
+local Event = require 'utils.event'
 
-local sand_width = 64
+local sand_width = 512
 local sand_width_inv = tau / sand_width
+local water_width = 233
+local water_width_inv = tau / water_width
 
 --perlin options
-local noise_variance = 0.05 --The lower this number the smoother the curve is gonna be
-local noise_level = 25 --Factor for the magnitude of the curve
+local noise_variance = 0.025 --The lower this number the smoother the curve is gonna be
+local noise_level = 15 --Factor for the magnitude of the curve
 
-Event.on_init(function()
-    global.beach_perlin_seed_A = math.random(1,10000)
-    global.beach_perlin_seed_B = math.random(1,10000)
-end)
+local sand_nosie_level = noise_level * 0.9
+local water_noise_level = noise_level * 1.35
 
+local perlin_seed_1 = 123456
+local perlin_seed_2 = 654321
 
 local function sand_shape(x, y)
-    local wiggle = 1 + math.abs(perlin.noise((x * noise_variance), (y * noise_variance), global.beach_perlin_seed_A + 17) * noise_level / 50)
-    return y < perlin.noise(x * noise_variance / 2, y * noise_variance / 2, global.beach_perlin_seed_A) * noise_level * wiggle
+    local p = perlin.noise(x * noise_variance, y * noise_variance, perlin_seed_1) * sand_nosie_level
+    p = p + math.sin(x * sand_width_inv) * 15
+    return p > y
+end
+
+local function water_shape(x, y)
+    local p = perlin.noise(x * noise_variance, y * noise_variance, perlin_seed_2) * water_noise_level
+    p = p + math.sin(x * water_width_inv + 179) * 15
+    return p > y
 end
 
 sand_shape = b.change_tile(sand_shape, true, 'sand-1')
@@ -41,6 +50,10 @@ for _, v in ipairs(ores) do
 end
 
 local function do_ores(x, y, world)
+    if x > -4 and x < 5 then
+        return ores[4][1](x, y, world)
+    end
+
     if (x > 512 or x < -512) and (math.floor(x / 32) % 16 == 0) then
         return uranium_ore(x, y, world)
     else
@@ -59,14 +72,6 @@ end
 
 sand_shape = b.apply_entity(sand_shape, do_ores)
 
-local water_width = 64
-local water_width_inv = tau / water_width
-
-local function water_shape(x, y)
-    local wiggle = 1 + math.abs(perlin.noise((x * noise_variance), (y * noise_variance), global.beach_perlin_seed_B + 17) * noise_level / 50)
-    return y < perlin.noise(x * noise_variance, y * noise_variance, global.beach_perlin_seed_B) * noise_level * wiggle
-end
-
 water_shape = b.change_tile(water_shape, true, 'water')
 
 local oil = b.resource(b.full_shape, 'crude-oil', value(500000, 2500))
@@ -82,9 +87,11 @@ water_shape = b.apply_entity(water_shape, do_oil)
 
 grass = b.tile('grass-1')
 
-local bounds = b.line_x(320)
+local bounds = b.line_x(384)
 
-local map = b.any {b.translate(water_shape, 64, -32), sand_shape, grass}
+local map = b.any {b.translate(water_shape, 64, -48), sand_shape, grass}
+
+map = b.fish(map, 0.0025)
 
 map = b.choose(bounds, map, b.empty_shape)
 

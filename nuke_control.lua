@@ -48,7 +48,13 @@ local function on_player_deconstructed_area(event)
     end
     character.health = 0
 
-    local entities = player.surface.find_entities_filtered{area = event.area, force = player.force}
+    local area = event.area
+    local left_top, right_bottom = area.left_top, area.right_bottom
+    if left_top.x == right_bottom.x and left_top.y == right_bottom.y then
+      return
+    end
+    
+    local entities = player.surface.find_entities_filtered{area = area, force = player.force}
     if #entities > 1000 then
       Utils.print_admins("Warning! " .. player.name .. " just tried to deconstruct " .. tostring(#entities) .. " entities!")
     end

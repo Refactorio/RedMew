@@ -3,13 +3,13 @@ local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
-local Antigrief = require 'antigrief'
+--local Antigrief = require 'antigrief'
 
 function player_print(str)
     if game.player then
         game.player.print(str)
     else
-        log(str)
+        print(str)
     end
 end
 
@@ -61,9 +61,61 @@ local function teleport_location(cmd)
     game.player.teleport(pos)
 end
 
-local function kill()
-    if game.player and game.player.character then
-        game.player.character.die()
+local function do_fish_kill(player, suicide)
+    local c = player.character
+    if not c then
+        return false
+    end
+
+    local e = player.surface.create_entity {name = 'fish', position = player.position}
+    c.die(player.force, e)
+
+    -- Don't want people killing themselves for free fish.
+    if suicide then
+        e.destroy()
+    end
+
+    return true
+end
+
+local function kill(cmd)
+    local player = game.player
+    local param = cmd.parameter
+    local target
+    if param then
+        target = game.players[param]
+        if not target then
+            player_print(table.concat {"Sorry, player '", param, "' was not found."})
+            return
+        end
+    end
+
+    if not target and player then
+        if not do_fish_kill(player, true) then
+            player_print("Sorry, you don't have a character to kill.")
+        end
+    elseif player then
+        if target == player then
+            if not do_fish_kill(player, true) then
+                player_print("Sorry, you don't have a character to kill.")
+            end
+        elseif target and player.admin then
+            if not do_fish_kill(target) then
+                player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
+            end
+        else
+            player_print("Sorry you don't have permission to use the kill command on other players.")
+        end
+    elseif target then
+        if not do_fish_kill(target) then
+            player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
+        end
+    else
+        if param then
+            player_print(table.concat {"Sorry, player '", param, "' was not found."})
+        else
+            player_print('Usage: /kill <player>')
+        end
     end
 end
 
@@ -78,7 +130,11 @@ local custom_commands_return_player =
         end
 
         global.walking[player.index] = false
-        player.character.destroy()
+
+        local walkabout_character = player.character
+        if walkabout_character and walkabout_character.valid then
+            walkabout_character.destroy()
+        end
 
         local character = args.character
         if character ~= nil and character.valid then
@@ -137,6 +193,11 @@ local function walkabout(cmd)
     local pos = {x = chunk.x * 32, y = chunk.y * 32}
     local non_colliding_pos = surface.find_non_colliding_position('player', pos, 100, 1)
 
+    local character = player.character
+    if character and character.valid then
+        character.walking_state = {walking = false}
+    end
+
     if non_colliding_pos then
         game.print(player_name .. ' went on a walkabout, to find himself.')
         Task.set_timeout(
@@ -146,7 +207,7 @@ local function walkabout(cmd)
                 player = player,
                 force = player.force,
                 position = {x = player.position.x, y = player.position.y},
-                character = player.character
+                character = character
             }
         )
         player.character = nil
@@ -155,7 +216,7 @@ local function walkabout(cmd)
         player.force = 'neutral'
         global.walking[player.index] = true
     else
-        player_print('Walkabout failed: count find non colliding position')
+        player_print('Walkabout failed: could not find non colliding position')
     end
 end
 
@@ -258,77 +319,6 @@ local function toggle_tp_mode(cmd)
     else
         global.tp_players[index] = true
         player_print('tp mode is now on - place a ghost entity to teleport there.')
-    end
-end
-
-global.old_force = {}
-global.force_toggle_init = true
-local function forcetoggle(cmd)
-    if not (game.player and game.player.admin and game.player.character) then
-        cant_run(cmd.name)
-        return
-    end
-
-    if global.force_toggle_init then
-        game.forces.enemy.research_all_technologies() --avoids losing logstics slot configuration
-        global.force_toggle_init = false
-    end
-
-    -- save the logistics slots
-    local slots = {}
-    local slot_counts = game.player.character.request_slot_count
-    if game.player.character.request_slot_count > 0 then
-        for i = 1, slot_counts do
-            local slot = game.player.character.get_request_slot(i)
-            if slot ~= nil then
-                table.insert(slots, slot)
-            end
-        end
-    end
-
-    if game.player.force.name == 'enemy' then
-        local old_force = global.old_force[game.player.name]
-        if not old_force then
-            game.player.force = 'player'
-            game.player.print("You're are now on the player force.")
-        else
-            if game.forces[old_force] then
-                game.player.force = old_force
-            else
-                game.player.force = 'player'
-            end
-        end
-    else
-        --Put roboports into inventory
-        local inv = game.player.get_inventory(defines.inventory.player_armor)
-        if inv[1].valid_for_read then
-            local name = inv[1].name
-            if name:match('power') or name:match('modular') then
-                local equips = inv[1].grid.equipment
-                for _, equip in pairs(equips) do
-                    if
-                        equip.name == 'personal-roboport-equipment' or equip.name == 'personal-roboport-mk2-equipment' or
-                            equip.name == 'personal-laser-defense-equipment'
-                     then
-                        if game.player.insert {name = equip.name} == 0 then
-                            game.player.surface.spill_item_stack(game.player.position, {name = equip.name})
-                        end
-                        inv[1].grid.take(equip)
-                    end
-                end
-            end
-        end
-
-        global.old_force[game.player.name] = game.player.force.name
-        game.player.force = 'enemy'
-    end
-    game.player.print('You are now on the ' .. game.player.force.name .. ' force.')
-
-    -- Attempt to rebuild the request slots
-    if game.player.character.request_slot_count > 0 then
-        for _, slot in ipairs(slots) do
-            game.player.character.set_request_slot(slot, _)
-        end
     end
 end
 
@@ -484,7 +474,7 @@ local function pool()
     end
 end
 
-global.undo_warned_players = {}
+--[[ global.undo_warned_players = {}
 local function undo(cmd)
     if (not game.player) or not game.player.admin then
         cant_run(cmd.name)
@@ -520,8 +510,7 @@ local function antigrief_surface_tp()
         return
     end
     Antigrief.antigrief_surface_tp()
-end
-
+end ]]
 local function find_player(cmd)
     local player = game.player
     if not player then
@@ -549,6 +538,121 @@ local function find_player(cmd)
     player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, player.name, true)
 end
 
+local function jail_player(cmd)
+    -- Set the name of the jail permission group
+    local jail_name = 'Jail'
+
+    local player = game.player
+    -- Check if the player can run the command
+    if player and not player.admin then
+        cant_run(cmd.name)
+        return
+    end
+    -- Check if the target is valid
+    local target = cmd['parameter']
+    if target == nil then
+        player_print('Usage: /jail <player>')
+        return
+    end
+
+    local target_player = game.players[target]
+
+    if not target_player then
+        player_print('Unknown player.')
+        return
+    end
+
+    local permissions = game.permissions
+
+    -- Check if the permission group exists, if it doesn't, create it.
+    local permission_group = permissions.get_group(jail_name)
+    if not permission_group then
+        permission_group = permissions.create_group(jail_name)
+    end
+
+    if target_player.permission_group == permission_group then
+        player_print('The player ' .. target .. ' is already in Jail.')
+        return
+    end
+
+    -- Set all permissions to disabled
+    for action_name, _ in pairs(defines.input_action) do
+        permission_group.set_allows_action(defines.input_action[action_name], false)
+    end
+    -- Enable writing to console to allow a person to speak
+    permission_group.set_allows_action(defines.input_action.write_to_console, true)
+    permission_group.set_allows_action(defines.input_action.edit_permission_group, true)
+
+    -- Add player to jail group
+    permission_group.add_player(target_player)
+
+    -- Check that it worked
+    if target_player.permission_group == permission_group then
+        -- Let admin know it worked, let target know what's going on.
+        player_print(target .. ' has been jailed. They have been advised of this.')
+        target_player.print(
+            'You have been placed in jail by a server admin. The only action you can currently perform is chatting. Please respond to inquiries from the admin.'
+        )
+    else
+        -- Let admin know it didn't work.
+        player_print(
+            'Something went wrong in the jailing of ' ..
+                target .. '. You can still change their group via /permissions.'
+        )
+    end
+end
+local function unjail_player(cmd)
+    local default_group = 'Default'
+    local player = game.player
+    -- Check if the player can run the command
+    if player and not player.admin then
+        cant_run(cmd.name)
+        return
+    end
+    -- Check if the target is valid (copied from the invoke command)
+    local target = cmd['parameter']
+    if target == nil then
+        player_print('Usage: /unjail <player>')
+        return
+    end
+
+    local target_player = game.players[target]
+    if not target_player then
+        player_print('Unknown player.')
+        return
+    end
+
+    local permissions = game.permissions
+
+    -- Check if the permission group exists, if it doesn't, create it.
+    local permission_group = permissions.get_group(default_group)
+    if not permission_group then
+        permission_group = permissions.create_group(default_group)
+    end
+
+    local jail_permission_group = permissions.get_group('Jail')
+    if (not jail_permission_group) or target_player.permission_group ~= jail_permission_group then
+        player_print('The player ' .. target .. ' is already not in Jail.')
+        return
+    end
+
+    -- Move player
+    permission_group.add_player(target)
+
+    -- Check that it worked
+    if target_player.permission_group == permission_group then
+        -- Let admin know it worked, let target know what's going on.
+        player_print(target .. ' has been returned to the default group. They have been advised of this.')
+        target_player.print('Your ability to perform actions has been restored')
+    else
+        -- Let admin know it didn't work.
+        player_print(
+            'Something went wrong in the unjailing of ' ..
+                target .. '. You can still change their group via /permissions and inform them.'
+        )
+    end
+end
+
 if not _DEBUG then
     local old_add_command = commands.add_command
     commands.add_command =
@@ -560,7 +664,8 @@ if not _DEBUG then
                 local success, error = pcall(func, cmd)
                 if not success then
                     log(error)
-                    player_print(error)
+                    --player_print(error) -- This casues desyncs
+                    player_print('Sorry there was an error running ' .. cmd.name)
                 end
             end
         )
@@ -586,7 +691,7 @@ commands.add_command(
     'Toggles tp mode. When on place a ghost entity to teleport there (Admins only)',
     toggle_tp_mode
 )
-commands.add_command('forcetoggle', 'Toggles the players force between player and enemy (Admins only)', forcetoggle)
+
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
 commands.add_command(
     'spyshot',
@@ -613,10 +718,20 @@ commands.add_command(
     end
 )
 commands.add_command('pool', 'Spawns a pool', pool)
-commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
+--[[ commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
 commands.add_command(
     'antigrief_surface',
     'moves you to the antigrief surface or back (Admins only)',
     antigrief_surface_tp
-)
+) ]]
 commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)
+commands.add_command(
+    'jail',
+    '<player> disables all actions a player can perform except chatting. (Admins only)',
+    jail_player
+)
+commands.add_command(
+    'unjail',
+    '<player> restores ability for a player to perform actions. (Admins only)',
+    unjail_player
+)

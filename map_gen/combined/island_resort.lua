@@ -1,8 +1,11 @@
 --Author: MewMew
 local perlin = require 'map_gen.shared.perlin_noise'
+local b = require 'map_gen.shared.builders'
 
 local radius = 129
 local radsquare = radius * radius
+
+local start_seed = 1234567
 
 local clear_types = {'simple-entity', 'resource', 'tree'}
 
@@ -13,9 +16,7 @@ local function do_clear_entities(world)
     end
 end
 
-return function(x, y, world)
-    local surface = world.surface
-
+function map(x, y, world)
     if not world.island_resort_cleared then
         world.island_resort_cleared = true
         do_clear_entities(world)
@@ -24,7 +25,7 @@ return function(x, y, world)
     local entities = {}
     local decoratives = {}
 
-    local seed = surface.map_gen_settings.seed
+    local seed = start_seed
     local seed_increment = 10000
 
     seed = seed + seed_increment
@@ -270,3 +271,5 @@ return function(x, y, world)
 
     return {tile = tile_to_insert, entities = entities, decoratives = decoratives}
 end
+
+return b.fish(map, 0.0025)
