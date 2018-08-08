@@ -25,6 +25,11 @@ Event.add(
         end
 
         local name = entity.name
+
+        if name == 'tile-ghost' then
+            return
+        end
+
         local ghost = false
         if name == 'entity-ghost' then
             name = entity.ghost_name
