@@ -603,6 +603,27 @@ local function unjail_player(cmd)
     end
 end
 
+local function all_tech(cmd)
+    if game.player and game.player.admin then
+game.print('entering 1')
+        local confirm = cmd.parameter
+        local player = game.player
+        if player.force ~= game.forces['player'] then
+            player.force.research_all_technologies()
+            game.player.print('Your force has been granted all technologies')
+        elseif player.force == game.forces['player'] and (confirm == 'true' or game.tick < 108000 or _DEBUG == true) then  -- tick 108,000=30 mins
+            player.force.research_all_technologies()
+            game.print('The player force has been granted all technologies by ' .. player.name)
+        elseif player.force == game.forces['player'] and confirm ~= 'true' then   
+            player.print('This will give the player force all research. If you\'re sure you want to do this run /all-tech true')
+        end
+game.print('exiting 1')
+    else
+        cant_run(cmd.name)
+        return
+    end
+end
+
 if not _DEBUG then
     local old_add_command = commands.add_command
     commands.add_command =
@@ -644,15 +665,7 @@ commands.add_command(
 
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
-commands.add_command(
-    'all-tech',
-    'researches all technologies',
-    function()
-        if game.player and game.player.admin then
-            game.player.force.research_all_technologies()
-        end
-    end
-)
+commands.add_command('all-tech', 'researches all technologies (Admins only)', all_tech)
 commands.add_command(
     'hax',
     'Toggles your hax',
