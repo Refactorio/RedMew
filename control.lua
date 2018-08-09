@@ -38,7 +38,7 @@ local function player_created(event)
     player.insert {name = 'coin', count = 10}
     player.insert {name = 'iron-gear-wheel', count = 8}
     player.insert {name = 'iron-plate', count = 16}
-    player.print('Welcome to our Server. You can join our Discord at: redmew.com/discord')
+    player.print('Welcome to our Server. You can join our Discord at: redmew.com/discord or check out our patreon at patron.com/redmew')
     player.print('And remember.. Keep Calm And Spaghetti!')
 
     local gui = player.gui
@@ -131,9 +131,13 @@ local function hodor(event)
         return
     end
 
-    if message:match('discord') then
+    if message:match('discord') and not game.player.admin then
         player.print('Did you ask about our discord server?')
         player.print('You can find it here: redmew.com/discord')
+    end
+    if message:match('patreon') and not game.player.admin then
+        player.print('Did you ask about our patreon?')
+        player.print('You can find it here: patreon.com/redmew')
     end
 
     if global.naughty_words_enabled then
