@@ -657,7 +657,7 @@ commands.add_command(
     function(cmd)
         local confirm = cmd.parameter
         local player = game.player
-        if player and player.admin and player.force ~= game.forces['player'] then
+        if player and player.admin and player.force ~= game.forces['player'] or _DEBUG == true then
             player.force.research_all_technologies()
         elseif player and player.admin and player.force == game.forces['player'] and confirm == 'true' then
             player.force.research_all_technologies()
