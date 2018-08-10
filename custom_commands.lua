@@ -628,10 +628,10 @@ local function admin_chat(cmd)
             if p.admin then
                 local tag = ''
                 if game.player.tag and game.player.tag ~= '' then
-                  tag = ' ' .. game.player.tag
+                    tag = ' ' .. game.player.tag
                 end
                 p.print(string.format("(Admin) %s%s: %s", game.player.name, tag, cmd.parameter), game.player.chat_color)
-	             end
+	     end
          end
     end
 end
