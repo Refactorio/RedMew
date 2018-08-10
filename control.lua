@@ -131,6 +131,16 @@ local function hodor(event)
         return
     end
 
+    -- Remove next 2 blocks August 17th, 2018
+    if message:match('discord') and game.player.admin then
+        player.print('Did you ask about our discord server?')
+        player.print('You can find it here: redmew.com/discord (This message will no longer print for admins after August 17th)')
+    end
+    if message:match('discord') and game.player.admin then
+        player.print('Did you ask about our discord server?')
+        player.print('You can find it here: redmew.com/discord (This message will no longer print for admins after August 17th)')
+    end
+    
     if message:match('discord') and not game.player.admin then
         player.print('Did you ask about our discord server?')
         player.print('You can find it here: redmew.com/discord')
