@@ -655,7 +655,7 @@ local function report(cmd)
                 Utils.alert(
                     p, 
                     {
-                        "User Repiort", 
+                        "User Report", 
                         "Offender: " .. params[1], 
                         "Message: " .. string.sub(cmd.parameter, string.len(params[1]) + 2)
                     }
