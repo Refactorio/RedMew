@@ -57,6 +57,9 @@ return {
     {price = {{'coin', 350}}, offer = {type = 'give-item', item = 'energy-shield-equipment'}},
     {price = {{'coin', 350}}, offer = {type = 'give-item', item = 'personal-laser-defense-equipment'}},
     {price = {{'coin', 1}}, offer = {type = 'give-item', item = 'refined-hazard-concrete'}},
+    {price = {{'coin', 75}}, offer = {type = 'give-item', item = 'loader'}},
+    {price = {{'coin', 150}}, offer = {type = 'give-item', item = 'fast-loader'}},
+    {price = {{'coin', 225}}, offer = {type = 'give-item', item = 'express-loader'}},
 
     --[[ {price = {{'coin', 5}}, offer = {type = 'give-item', item = 'science-pack-1'}},
     {price = {{'coin', 10}}, offer = {type = 'give-item', item = 'science-pack-2'}},
