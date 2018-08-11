@@ -125,14 +125,14 @@ local pages = {
             label2_flow_style.horizontally_stretchable = true
             local label2 = label2_flow.add {type = 'label', caption = 'Contribute to our servers at'}
 
-            local contribute2_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            local contribute2_flow_style = contribute2_flow.style
-            contribute2_flow_style.align = 'center'
-            contribute2_flow_style.horizontally_stretchable = true
+            local contribute1_flow = parent.add {type = 'flow', direction = 'horizontal'}
+            local contribute1_flow_style = contribute1_flow.style
+            contribute1_flow_style.align = 'center'
+            contribute1_flow_style.horizontally_stretchable = true
 
-            local contribute2_label = contribute2_flow.add {type = 'label', caption = 'Patreon:'}
-            local contribute2_textbox = contribute2_flow.add {type = 'text-box', text = 'patreon.com/redmew '}
-            contribute2_textbox.read_only = true
+            local contribute1_label = contribute1_flow.add {type = 'label', caption = 'Patreon:'}
+            local contribute1_textbox = contribute1_flow.add {type = 'text-box', text = 'patreon.com/redmew '}
+            contribute1_textbox.read_only = true
 
             local contribute2_flow = parent.add {type = 'flow', direction = 'horizontal'}
             local contribute2_flow_style = contribute2_flow.style
@@ -247,7 +247,7 @@ local pages = {
                 player_list_flow.add {
                 type = 'label',
                 caption = [[
-				This lists all players on the server and shows some stats. You can sort the list by clicking on the column tab_button.
+				This lists all players on the server and shows some stats. You can sort the list by clicking on the column header.
 			]]
             }
             player_list_label.style.single_line = false
@@ -426,7 +426,7 @@ local pages = {
                 label1_flow.add {
                 type = 'label',
                 caption = [[
-                    
+
 We also host a modded server.
 
 Check out the modded channel on our discord for details.]]
