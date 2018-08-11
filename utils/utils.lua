@@ -90,6 +90,58 @@ Module.find_entities_by_last_user =
     return entities
 end
 
+local Gui = require("utils.gui")
+local alert_frame_name = Gui.uid_name()
+local alert_close_button_name = Gui.uid_name()
+function Module.alert(player, lines)
+    if type(lines) == string then 
+        lines = {lines}
+    end
+    local center = player.gui.center
+    local alert_frame = center[alert_frame_name]
+    if alert_frame and alert_frame.valid then
+        Gui.remove_data_recursivly(alert_frame)
+        alert_frame.destroy()
+    end
+    alert_frame =
+        center.add {
+        type = 'frame',
+        name = alert_frame_name,
+        direction = 'vertical',
+        caption = 'Alert'
+    }
+    alert_frame.style.maximal_width = 500
+    player.opened = alert_frame
+    for _,line in pairs(lines) do
+        local frame = alert_frame.add {
+            type = 'label',
+            caption = line
+        }
+       frame.style.single_line = false
+    end
+   alert_frame.add {type = 'button', name = alert_close_button_name, caption = 'Close'} 
+
+end
+
+Gui.on_custom_close(
+    alert_frame_name,
+    function(event)   
+        Gui.remove_data_recursivly(event.element)
+        event.element.destroy()
+    end
+)
+
+Gui.on_click(
+    alert_close_button_name,
+    function(event) 
+        Gui.remove_data_recursivly(event.element)
+        event.element.parent.destroy()
+    end
+)
+
+
+
+
 Module.ternary = function(c, t, f)
     if c then
         return t
