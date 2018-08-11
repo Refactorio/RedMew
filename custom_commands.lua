@@ -657,7 +657,8 @@ local function report(cmd)
                     {
                         "User Report", 
                         "Offender: " .. params[1], 
-                        "Message: " .. string.sub(cmd.parameter, string.len(params[1]) + 2)
+                        "Message: " .. string.sub(cmd.parameter, string.len(params[1]) + 2),
+                        "Reported by: " .. game.player.name
                     }
                 )
 	    end
