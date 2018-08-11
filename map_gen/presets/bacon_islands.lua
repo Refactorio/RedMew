@@ -156,5 +156,6 @@ local ore_grid = b.grid_pattern_full_overlap(ore_pattern, 50, 50, 96, 96)
 ore_grid = b.translate(ore_grid, -50, 64)
 
 map = b.apply_entity(map, ore_grid)
+map = b.fish(map, 0.0025)
 
 return map
