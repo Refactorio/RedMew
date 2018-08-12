@@ -24,7 +24,7 @@ By default this section is blank as it's supposed to be filled out on a per map 
 (If you're seeing this message, ping the admin team to get a description added for
 this map)]],
     [map_extra_info_key] = 'This map has no extra infomation',
-    [new_info_key] = 'Nothing is new. The wrold is at peace'
+    [new_info_key] = 'Nothing is new. The world is at peace'
 }
 
 Global.register(
@@ -145,7 +145,8 @@ local pages = {
 Redmew is community for players of all skill levels committed to pushing the limits of Factorio
 Multiplayer through custom scripts and crazy map designs.
 
-Our Objective is to have as much fun as possible and we hope you will too.
+We are a friendly bunch, our objective is to have as much fun as possible and we hope you
+will too.
 ]]
             )
 
@@ -156,18 +157,25 @@ Check out our discord for new map info and to suggest new maps / ideas.]])
             local discord_textbox_flow_style = discord_textbox_flow.style
             discord_textbox_flow_style.align = 'center'
             discord_textbox_flow_style.horizontally_stretchable = true
-            discord_textbox_flow.add {type = 'label', caption = 'Discord: '}
+            discord_textbox_flow.add({type = 'label', caption = 'Discord: '}).style.font = 'default-bold'
             local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'redmew.com/discord '}
             discord_textbox.read_only = true
-
-            centered_label(parent, 'Contribute to our servers at')
+            centered_label(parent, 'Contribute to our Patreon to receive special perks and help maintain our servers.')
             local patreon_flow = parent.add {type = 'flow', direction = 'horizontal'}
             local patreon_flow_style = patreon_flow.style
             patreon_flow_style.align = 'center'
             patreon_flow_style.horizontally_stretchable = true
-            patreon_flow.add {type = 'label', caption = 'Patreon:'}
+            patreon_flow.add({type = 'label', caption = 'Patreon:'}).style.font = 'default-bold'
             local patreon_textbox = patreon_flow.add {type = 'text-box', text = 'patreon.com/redmew '}
             patreon_textbox.read_only = true
+            centered_label(parent, 'Download our maps, start and finish state, from our website.')
+            local save_textbox_flow = parent.add {type = 'flow'}
+            local save_textbox_flow_style = save_textbox_flow.style
+            save_textbox_flow_style.align = 'center'
+            save_textbox_flow_style.horizontally_stretchable = true
+            save_textbox_flow.add({type = 'label', caption = 'Saves: '}).style.font = 'default-bold'
+            local save_textbox = save_textbox_flow.add {type = 'text-box', text = 'http://www.redmew.com/saves/ '}
+            save_textbox.read_only = true
 
             parent.add({type = 'flow'}).style.height = 24
 
@@ -193,15 +201,9 @@ This can be changed in options -> controls -> "toggle lua console".
             centered_label(
                 parent,
                 [[
-Have fun and play nice. Do your best not to disrupt the game for others.
+Have fun and play nice. Remember we are all just here to have fun so let’s keep it that way.
 
-Try to avoid arguments with other players. Not every fight is worth having.
-
-Personal attacks will not be tolerated.
-
-Always listen to admins - if they make a decision, it is final.
-
-No political or hateful content.
+No hateful content or personal attacks.
 
 If you suspect someone is griefing, notify the admin team by using /report.]]
             )
@@ -244,7 +246,8 @@ If you suspect someone is griefing, notify the admin team by using /report.]]
                 caption = [[
 We have a basic rank system to prevent griefing. You can't use nukes or the
 deconstruction planner if you are a guest. If you play for a couple of hours an
-admin will promote you to regular.]]
+admin will promote you to regular. You may also ask an admin for a promotion if
+you're working on a project which requires it.]]
             }
             local ranks_label_style = ranks_label.style
             ranks_label_style.single_line = false
@@ -282,8 +285,9 @@ map-specific (usually landfill) and will rotate in and out from time to time.]]
                 grid.add {
                 type = 'label',
                 caption = [[
-This lists all players on the server and shows some stats. You can sort the list by
-clicking on the column header.]]
+Lists all players on the server and shows some stats. You can sort the list by
+clicking on the column headers. You can also poke people, which throws a random
+noun in the chat.]]
             }
             player_list_label.style.single_line = false
 
@@ -294,9 +298,9 @@ clicking on the column header.]]
                 grid.add {
                 type = 'label',
                 caption = [[
-Polls help players communicate. Want to improve someone’s build, make a poll to
-check everyone is ok with that. Not sure what our next objective should be,
-why not make a poll. You need to be a regular to make new polls.]]
+Polls help players get consensus for major actions. Want to improve an important
+build? Make a poll to check everyone is ok with that. You need to be a regular
+to make new polls.]]
             }
             poll_label.style.single_line = false
 
@@ -462,7 +466,7 @@ Our donators will receive special perks.]]
             patreon_flow_style.align = 'center'
             patreon_flow_style.horizontally_stretchable = true
 
-            patreon_flow.add {type = 'label', caption = 'Patreon:'}
+            patreon_flow.add({type = 'label', caption = 'Patreon:'}).style.font = 'default-bold'
             local patreon_textbox = patreon_flow.add {type = 'text-box', text = 'patreon.com/redmew '}
             patreon_textbox.read_only = true
 
@@ -477,7 +481,7 @@ Suggest new maps / features and see what we are working on by joining our discor
             discord_flow_style.align = 'center'
             discord_flow_style.horizontally_stretchable = true
 
-            discord_flow.add {type = 'label', caption = 'Discord:'}
+            discord_flow.add({type = 'label', caption = 'Discord:'}).style.font = 'default-bold'
             local discord_textbox = discord_flow.add {type = 'text-box', text = 'redmew.com/discord '}
             discord_textbox.read_only = true
         end
@@ -504,7 +508,7 @@ Check out the modded channel on our discord for details.]]
             discord_flow_style.align = 'center'
             discord_flow_style.horizontally_stretchable = true
 
-            discord_flow.add {type = 'label', caption = 'Discord:'}
+            discord_flow.add({type = 'label', caption = 'Discord:'}).style.font = 'default-bold'
             local discord_textbox = discord_flow.add {type = 'text-box', text = 'redmew.com/discord '}
             discord_textbox.read_only = true
         end
