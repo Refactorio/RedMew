@@ -11,21 +11,30 @@ local rank_colors = {
     {r = 0.093, g = 0.768, b = 0.172} -- Admin
 }
 
+local map_name_key = 1
+local map_description_key = 2
+local map_extra_info_key = 3
+local new_info_key = 4
+
 local welcomed_players = {}
-local map_info = {
-    ['name'] = 'This Map has no name',
-    ['description'] = 'This map has no description',
-    ['extra'] = 'This map has no extra infomation'
+local editable_info = {
+    [map_name_key] = 'This Map has no name',
+    [map_description_key] = [[
+By default this section is blank as it's supposed to be filled out on a per map basis.
+(If you're seeing this message, ping the admin team to get a description added for
+this map)]],
+    [map_extra_info_key] = 'This map has no extra infomation',
+    [new_info_key] = 'Nothing is new. The wrold is at peace'
 }
 
 Global.register(
     {
         welcomed_players = welcomed_players,
-        map_info = map_info
+        editable_info = editable_info
     },
     function(tbl)
         welcomed_players = tbl.welcomed_players
-        map_info = tbl.map_info
+        editable_info = tbl.editable_info
     end
 )
 
@@ -81,6 +90,35 @@ local function line_bar(parent)
     style.horizontally_stretchable = true
 end
 
+local function centered_label(parent, string)
+    local flow = parent.add {type = 'flow'}
+    local flow_style = flow.style
+    flow_style.align = 'center'
+    flow_style.horizontally_stretchable = true
+
+    local label = flow.add {type = 'label', caption = string}
+    local label_style = label.style
+    label_style.align = 'center'
+    label_style.single_line = false
+
+    return label
+end
+
+local function header_label(parent, string)
+    local flow = parent.add {type = 'flow'}
+    local flow_style = flow.style
+    flow_style.align = 'center'
+    flow_style.horizontally_stretchable = true
+
+    local label = flow.add {type = 'label', caption = string}
+    local label_style = label.style
+    label_style.align = 'center'
+    label_style.single_line = false
+    label_style.font = 'default-frame'
+
+    return label
+end
+
 local pages = {
     {
         tab_button = function(parent, player)
@@ -88,60 +126,60 @@ local pages = {
             return button
         end,
         content = function(parent, player)
-            local top_flow = parent.add {type = 'flow'}
-            local top_flow_style = top_flow.style
-            top_flow_style.align = 'center'
-            top_flow_style.horizontally_stretchable = true
+            local parent_style = parent.style
+            parent_style.right_padding = 2
 
-            local top_label = top_flow.add {type = 'label', caption = 'Welcome to the Redmew Server!'}
-            local top_label_style = top_label.style
-            top_label_style.font = 'default-frame'
-
-            local label1 =
+            parent =
                 parent.add {
-                type = 'label',
-                caption = [[
-				Redmew is community for players of all skill levels committed to pushing the limits of Factorio Multiplayer through custom scripts and crazy map designs.
-				
-				Our Objective is to have as much fun as possible.
-
-				Check out our discord for new map info and to suggest new maps / ideas]]
+                type = 'scroll-pane',
+                vertical_scroll_policy = 'auto-and-reserve-space',
+                horizontal_scroll_policy = 'never'
             }
-            local label1_style = label1.style
-            label1_style.single_line = false
-            label1_style.align = 'center'
+            parent_style = parent.style
+            parent_style.vertically_stretchable = true
 
+            header_label(parent, 'Welcome to the Redmew Server!')
+            centered_label(
+                parent,
+                [[
+Redmew is community for players of all skill levels committed to pushing the limits of Factorio
+Multiplayer through custom scripts and crazy map designs.
+
+Our Objective is to have as much fun as possible and we hope you will too.
+]]
+            )
+
+            header_label(parent, 'Useful Links')
+            centered_label(parent, [[
+Check out our discord for new map info and to suggest new maps / ideas.]])
             local discord_textbox_flow = parent.add {type = 'flow'}
             local discord_textbox_flow_style = discord_textbox_flow.style
             discord_textbox_flow_style.align = 'center'
             discord_textbox_flow_style.horizontally_stretchable = true
-
+            discord_textbox_flow.add {type = 'label', caption = 'Discord: '}
             local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'redmew.com/discord '}
             discord_textbox.read_only = true
 
-            local label2_flow = parent.add {type = 'flow'}
-            local label2_flow_style = label2_flow.style
-            label2_flow_style.align = 'center'
-            label2_flow_style.horizontally_stretchable = true
-            local label2 = label2_flow.add {type = 'label', caption = 'Contribute to our servers at'}
+            centered_label(parent, 'Contribute to our servers at')
+            local patreon_flow = parent.add {type = 'flow', direction = 'horizontal'}
+            local patreon_flow_style = patreon_flow.style
+            patreon_flow_style.align = 'center'
+            patreon_flow_style.horizontally_stretchable = true
+            patreon_flow.add {type = 'label', caption = 'Patreon:'}
+            local patreon_textbox = patreon_flow.add {type = 'text-box', text = 'patreon.com/redmew '}
+            patreon_textbox.read_only = true
 
-            local contribute1_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            local contribute1_flow_style = contribute1_flow.style
-            contribute1_flow_style.align = 'center'
-            contribute1_flow_style.horizontally_stretchable = true
+            parent.add({type = 'flow'}).style.height = 24
 
-            local contribute1_label = contribute1_flow.add {type = 'label', caption = 'Patreon:'}
-            local contribute1_textbox = contribute1_flow.add {type = 'text-box', text = 'patreon.com/redmew '}
-            contribute1_textbox.read_only = true
-
-            local contribute2_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            local contribute2_flow_style = contribute2_flow.style
-            contribute2_flow_style.align = 'center'
-            contribute2_flow_style.horizontally_stretchable = true
-
-            local contribute2_label = contribute2_flow.add {type = 'label', caption = 'Paypal:'}
-            local contribute2_textbox = contribute2_flow.add {type = 'text-box', text = 'paypal.me/jsuesse '}
-            contribute2_textbox.read_only = true
+            header_label(parent, 'How To Chat')
+            centered_label(
+                parent,
+                [[
+To chat with other players, press the "grave" key on your keyboard. It is below the ESC key on
+English keyboards and looks like ~ or `
+This can be changed in options -> controls -> "toggle lua console".
+]]
+            )
         end
     },
     {
@@ -150,38 +188,23 @@ local pages = {
             return button
         end,
         content = function(parent, player)
-            local top_flow = parent.add {type = 'flow'}
-            local top_flow_style = top_flow.style
-            top_flow_style.align = 'center'
-            top_flow_style.horizontally_stretchable = true
+            header_label(parent, 'Rules')
 
-            local top_label = top_flow.add {type = 'label', caption = 'Rules'}
-            local top_label_style = top_label.style
-            top_label_style.font = 'default-frame'
+            centered_label(
+                parent,
+                [[
+Have fun and play nice. Do your best not to disrupt the game for others.
 
-            local label1_flow = parent.add {type = 'flow'}
-            local label1_flow_style = label1_flow.style
-            label1_flow_style.align = 'center'
-            label1_flow_style.horizontally_stretchable = true
+Try to avoid arguments with other players. Not every fight is worth having.
 
-            local label1 =
-                label1_flow.add {
-                type = 'label',
-                caption = [[
+Personal attacks will not be tolerated.
 
-				Have fun and play nice.
+Always listen to admins - if they make a decision, it is final.
 
-				Don't talk about Fight club.
+No political or hateful content.
 
-				Don't talk about rule 2.
-
-				If this is your first night, then  you have to fight.
-			]]
-            }
-
-            local label1_style = label1.style
-            label1_style.single_line = false
-            label1_style.align = 'center'
+If you suspect someone is griefing, notify the admin team by using /report.]]
+            )
         end
     },
     {
@@ -202,30 +225,31 @@ local pages = {
             parent_style = parent.style
             parent_style.vertically_stretchable = true
 
-            local top_flow = parent.add {type = 'flow'}
-            local top_flow_style = top_flow.style
-            top_flow_style.align = 'center'
-            top_flow_style.horizontally_stretchable = true
+            header_label(parent, 'Soft Mods and Server Plugins')
 
-            local top_label = top_flow.add {type = 'label', caption = 'Soft Mods and Server Plugins'}
-            local top_label_style = top_label.style
-            top_label_style.font = 'default-frame'
+            local grid = parent.add {type = 'table', column_count = 3}
+            local grid_style = grid.style
+            grid_style.vertical_spacing = 24
+            grid_style.horizontal_spacing = 8
+            grid_style.top_padding = 8
+            grid_style.bottom_padding = 16
 
-            local ranks_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            local ranks = ranks_flow.add {type = 'label', caption = '  Ranks'}
+            grid.add {type = 'label'}
+            local ranks = grid.add {type = 'label', caption = 'Ranks'}
             ranks.style.font = 'default-listbox'
+            local ranks_flow = grid.add {type = 'flow', direction = 'vertical'}
             local ranks_label =
                 ranks_flow.add {
                 type = 'label',
                 caption = [[
-				We have a basic rank system to prevent griefing. You can't use nukes or the deconstruction planner if you are a guest. If you play for a couple of hours an admin will promote you to regular.	]]
+We have a basic rank system to prevent griefing. You can't use nukes or the
+deconstruction planner if you are a guest. If you play for a couple of hours an
+admin will promote you to regular.]]
             }
             local ranks_label_style = ranks_label.style
             ranks_label_style.single_line = false
-
-            local player_rank_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            player_rank_flow.add {type = 'label', caption = '                     Your rank is:'}
-
+            local player_rank_flow = ranks_flow.add {type = 'flow', direction = 'horizontal'}
+            player_rank_flow.add {type = 'label', caption = 'Your rank is:'}
             if player.admin then
                 local label = player_rank_flow.add {type = 'label', caption = 'Admin'}
                 label.style.font_color = rank_colors[3]
@@ -237,99 +261,96 @@ local pages = {
                 label.style.font_color = rank_colors[1]
             end
 
-            local player_list_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            player_list_flow.add {type = 'sprite', sprite = 'entity/player'}
-
-            local player_list = player_list_flow.add {type = 'label', caption = 'Player list'}
-            player_list.style.font = 'default-listbox'
-
-            local player_list_label =
-                player_list_flow.add {
+            grid.add {type = 'sprite', sprite = 'entity/market'}
+            local market = grid.add {type = 'label', caption = 'Market'}
+            market.style.font = 'default-listbox'
+            local market_label =
+                grid.add {
                 type = 'label',
                 caption = [[
-				This lists all players on the server and shows some stats. You can sort the list by clicking on the column header.
-			]]
+On most maps you will find a market near spawn where you can use coins to
+make purchases. Coins are acquired by chopping trees, hand crafting items and
+destroying biter nests. Most items in the market are constant but some are
+map-specific (usually landfill) and will rotate in and out from time to time.]]
+            }
+            market_label.style.single_line = false
+
+            grid.add {type = 'sprite', sprite = 'entity/player'}
+            local player_list = grid.add {type = 'label', caption = 'Player list'}
+            player_list.style.font = 'default-listbox'
+            local player_list_label =
+                grid.add {
+                type = 'label',
+                caption = [[
+This lists all players on the server and shows some stats. You can sort the list by
+clicking on the column header.]]
             }
             player_list_label.style.single_line = false
 
-            local poll_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            poll_flow.add {type = 'sprite', sprite = 'item/programmable-speaker'}
-
-            local poll = poll_flow.add {type = 'label', caption = 'Polls'}
+            grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
+            local poll = grid.add {type = 'label', caption = 'Polls'}
             poll.style.font = 'default-listbox'
-
             local poll_label =
-                poll_flow.add {
+                grid.add {
                 type = 'label',
                 caption = [[
-					Polls help players communicate. Want to improve someone’s build, make a poll to check everyone is ok with that. Not sure what our next objective should be, why not make a poll. You need to be a regular to make new polls.
-			]]
+Polls help players communicate. Want to improve someone’s build, make a poll to
+check everyone is ok with that. Not sure what our next objective should be,
+why not make a poll. You need to be a regular to make new polls.]]
             }
             poll_label.style.single_line = false
 
-            local tag_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            local tag_button = tag_flow.add {type = 'label', caption = 'tag'}
+            local tag_button = grid.add {type = 'label', caption = 'tag'}
             local tag_button_style = tag_button.style
             tag_button_style.font = 'default-listbox'
             tag_button_style.font_color = {r = 0, g = 0, b = 0}
-
-            local tag = tag_flow.add {type = 'label', caption = 'Tags'}
+            local tag = grid.add {type = 'label', caption = 'Tags'}
             tag.style.font = 'default-listbox'
-
             local tag_label =
-                tag_flow.add {
+                grid.add {
                 type = 'label',
                 caption = [[
-					You can assign yourself a role with tags to let other players know what you are doing. Or just use the tag as decoration. Regulars can create new custom tags, be sure to show off your creatively. 
-			]]
+You can assign yourself a role with tags to let other players know what you are
+doing. Or just use the tag as decoration. Regulars can create new custom tags,
+be sure to show off your creatively.]]
             }
             tag_label.style.single_line = false
 
-            local task_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            task_flow.add {type = 'sprite', sprite = 'item/discharge-defense-remote'}
-
-            local task = task_flow.add {type = 'label', caption = 'Tasks'}
+            grid.add {type = 'sprite', sprite = 'item/discharge-defense-remote'}
+            local task = grid.add {type = 'label', caption = 'Tasks'}
             task.style.font = 'default-listbox'
-
             local task_label =
-                task_flow.add {
+                grid.add {
                 type = 'label',
                 caption = [[
-					Not sure what you should be working on, why not look at the tasks and see what needs doing. Regulars can add new tasks.
-			]]
+Not sure what you should be working on, why not look at the tasks and see what
+needs doing. Regulars can add new tasks.]]
             }
             task_label.style.single_line = false
 
-            local blueprint_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            blueprint_flow.add {type = 'sprite', sprite = 'item/blueprint'}
-
-            local blueprint = blueprint_flow.add {type = 'label', caption = 'Blueprint\nhelper'}
+            grid.add {type = 'sprite', sprite = 'item/blueprint'}
+            local blueprint = grid.add {type = 'label', caption = 'Blueprint\nhelper'}
             local blueprint_style = blueprint.style
             blueprint_style.font = 'default-listbox'
             blueprint_style.single_line = false
             blueprint_style.width = 64
-
             local blueprint_label =
-                blueprint_flow.add {
+                grid.add {
                 type = 'label',
                 caption = [[
-					The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you converter the entities used in the blueprint e.g. turn yellow belts into red belts
-			]]
+The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you
+converter the entities used in the blueprint e.g. turn yellow belts into red belts.]]
             }
             blueprint_label.style.single_line = false
 
-            local score_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            score_flow.add {type = 'sprite', sprite = 'item/rocket-silo'}
-
-            local score = score_flow.add {type = 'label', caption = 'Score'}
+            grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
+            local score = grid.add {type = 'label', caption = 'Score'}
             score.style.font = 'default-listbox'
-
             local score_label =
-                score_flow.add {
+                grid.add {
                 type = 'label',
                 caption = [[
-					Shows number of rockets launched and biters liberated.
-			]]
+Shows number of rockets launched and biters liberated.]]
             }
             score_label.style.single_line = false
         end
@@ -341,7 +362,7 @@ local pages = {
         end,
         content = function(parent, player)
             local read_only = not player.admin
-            local text_width = 430
+            local text_width = 480
 
             local top_flow = parent.add {type = 'flow'}
             local top_flow_style = top_flow.style
@@ -356,12 +377,12 @@ local pages = {
             local grid_style = grid.style
             grid_style.horizontally_stretchable = true
 
-            local map_name_label = grid.add {type = 'label', caption = 'Map name: '}
+            grid.add {type = 'label', caption = 'Map name: '}
             local map_name_textbox =
                 grid.add({type = 'flow'}).add {
                 type = 'text-box',
                 name = editable_textbox_name,
-                text = map_info['name']
+                text = editable_info[map_name_key]
             }
             map_name_textbox.read_only = read_only
 
@@ -369,14 +390,14 @@ local pages = {
             map_name_textbox_style.width = text_width
             map_name_textbox_style.maximal_height = 27
 
-            Gui.set_data(map_name_textbox, 'name')
+            Gui.set_data(map_name_textbox, map_name_key)
 
-            local map_description_label = grid.add {type = 'label', caption = 'Map description: '}
+            grid.add {type = 'label', caption = 'Map description: '}
             local map_description_textbox =
                 grid.add({type = 'flow'}).add {
                 type = 'text-box',
                 name = editable_textbox_name,
-                text = map_info['description']
+                text = editable_info[map_description_key]
             }
             map_description_textbox.read_only = read_only
 
@@ -384,22 +405,81 @@ local pages = {
             map_description_textbox_style.width = text_width
             map_description_textbox_style.maximal_height = 72
 
-            Gui.set_data(map_description_textbox, 'description')
+            Gui.set_data(map_description_textbox, map_description_key)
 
-            local map_extra_info_label = grid.add {type = 'label', caption = 'Extra Info: '}
+            grid.add {type = 'label', caption = 'Extra Info: '}
             local map_extra_info_textbox =
                 grid.add({type = 'flow'}).add {
                 type = 'text-box',
                 name = editable_textbox_name,
-                text = map_info['extra']
+                text = editable_info[map_extra_info_key]
             }
             map_extra_info_textbox.read_only = read_only
 
             local map_extra_info_textbox_style = map_extra_info_textbox.style
             map_extra_info_textbox_style.width = text_width
-            map_extra_info_textbox_style.height = 240
+            map_extra_info_textbox_style.height = 210
 
-            Gui.set_data(map_extra_info_textbox, 'extra')
+            Gui.set_data(map_extra_info_textbox, map_extra_info_key)
+        end
+    },
+    {
+        tab_button = function(parent, player)
+            local button = parent.add {type = 'button', name = tab_button_name, caption = "What's New"}
+            return button
+        end,
+        content = function(parent, player)
+            local read_only = not player.admin
+
+            header_label(parent, 'New Scenario Features')
+
+            local new_info_flow = parent.add {type = 'flow'}
+            new_info_flow.style.align = 'center'
+
+            local new_info_textbox =
+                new_info_flow.add {
+                type = 'text-box',
+                name = editable_textbox_name,
+                text = editable_info[new_info_key]
+            }
+            new_info_textbox.read_only = read_only
+
+            local new_info_textbox_style = new_info_textbox.style
+            new_info_textbox_style.width = 590
+            new_info_textbox_style.height = 150
+
+            Gui.set_data(new_info_textbox, new_info_key)
+
+            centered_label(
+                parent,
+                [[
+Help us maintain the servers and develop new features by contributing to our Patreon.
+Our donators will receive special perks.]]
+            )
+
+            local patreon_flow = parent.add {type = 'flow', direction = 'horizontal'}
+            local patreon_flow_style = patreon_flow.style
+            patreon_flow_style.align = 'center'
+            patreon_flow_style.horizontally_stretchable = true
+
+            patreon_flow.add {type = 'label', caption = 'Patreon:'}
+            local patreon_textbox = patreon_flow.add {type = 'text-box', text = 'patreon.com/redmew '}
+            patreon_textbox.read_only = true
+
+            centered_label(
+                parent,
+                [[
+Suggest new maps / features and see what we are working on by joining our discord.]]
+            )
+
+            local discord_flow = parent.add {type = 'flow', direction = 'horizontal'}
+            local discord_flow_style = discord_flow.style
+            discord_flow_style.align = 'center'
+            discord_flow_style.horizontally_stretchable = true
+
+            discord_flow.add {type = 'label', caption = 'Discord:'}
+            local discord_textbox = discord_flow.add {type = 'text-box', text = 'redmew.com/discord '}
+            discord_textbox.read_only = true
         end
     },
     {
@@ -408,39 +488,24 @@ local pages = {
             return button
         end,
         content = function(parent, player)
-            local top_flow = parent.add {type = 'flow'}
-            local top_flow_style = top_flow.style
-            top_flow_style.align = 'center'
-            top_flow_style.horizontally_stretchable = true
+            header_label(parent, 'Other Servers')
 
-            local top_label = top_flow.add {type = 'label', caption = 'Other Servers'}
-            local top_label_style = top_label.style
-            top_label_style.font = 'default-frame'
-
-            local label1_flow = parent.add {type = 'flow'}
-            local label1_flow_style = label1_flow.style
-            label1_flow_style.horizontally_stretchable = true
-            label1_flow_style.align = 'center'
-
-            local label1 =
-                label1_flow.add {
-                type = 'label',
-                caption = [[
+            centered_label(
+                parent,
+                [[
 
 We also host a modded server.
 
 Check out the modded channel on our discord for details.]]
-            }
-            local label1_style = label1.style
-            label1_style.single_line = false
-            label1_style.align = 'center'
+            )
 
-            local discord_textbox_flow = parent.add {type = 'flow'}
-            local discord_textbox_flow_style = discord_textbox_flow.style
-            discord_textbox_flow_style.align = 'center'
-            discord_textbox_flow_style.horizontally_stretchable = true
+            local discord_flow = parent.add {type = 'flow', direction = 'horizontal'}
+            local discord_flow_style = discord_flow.style
+            discord_flow_style.align = 'center'
+            discord_flow_style.horizontally_stretchable = true
 
-            local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'redmew.com/discord '}
+            discord_flow.add {type = 'label', caption = 'Discord:'}
+            local discord_textbox = discord_flow.add {type = 'text-box', text = 'redmew.com/discord '}
             discord_textbox.read_only = true
         end
     }
@@ -450,7 +515,7 @@ local function draw_main_frame(center, player)
     local frame = center.add {type = 'frame', name = main_frame_name, direction = 'vertical'}
     local frame_style = frame.style
     frame_style.height = 600
-    frame_style.width = 600
+    frame_style.width = 650
     frame_style.left_padding = 16
     frame_style.right_padding = 16
     frame_style.top_padding = 16
@@ -526,7 +591,7 @@ local function draw_main_frame(center, player)
     bottom_flow_style.top_padding = 8
     bottom_flow_style.horizontally_stretchable = true
 
-    local close_button = bottom_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
+    bottom_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
 
     player.opened = frame
 end
@@ -552,7 +617,7 @@ local function player_created(event)
 
     local gui = player.gui
 
-    local button = gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'utility/questionmark'}
+    gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'utility/questionmark'}
 
     if player.admin or UserGroups.is_regular(player.name) or welcomed_players[player.index] then
         return
@@ -602,7 +667,7 @@ Gui.on_text_changed(
         local textbox = event.element
         local key = Gui.get_data(textbox)
 
-        map_info[key] = textbox.text
+        editable_info[key] = textbox.text
     end
 )
 
