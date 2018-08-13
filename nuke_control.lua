@@ -53,7 +53,7 @@ local function on_player_deconstructed_area(event)
     if left_top.x == right_bottom.x and left_top.y == right_bottom.y then
       return
     end
-    
+
     local entities = player.surface.find_entities_filtered{area = area, force = player.force}
     if #entities > 1000 then
       Utils.print_admins("Warning! " .. player.name .. " just tried to deconstruct " .. tostring(#entities) .. " entities!")
@@ -75,16 +75,34 @@ local function item_not_sanctioned(item)
   )
 end
 
+global.entities_allowed_to_bomb = {
+  ["stone-wall"] = true,
+  ["transport-belt"] = true,
+  ["fast-transport-belt"] = true,
+  ["express-transport-belt"] = true,
+  ["construction-robot"] = true,
+  ["player"] = true,
+  ["gun-turret"] = true,
+  ["laser-turret"] = true,
+  ["flamethrower-turret"] = true,
+  ["rail"] = true,
+  ["rail-chain-signal"] = true,
+  ["rail-signal"] = true,
+  ["tile-ghost"] = true,
+  ["entity-ghost"] = true,
+  ["gate"] = true,
+  ["electric-pole"] = true,
+  ["small-electric-pole"] = true,
+  ["medium-electric-pole"] = true,
+  ["big-electric-pole"] = true,
+  ["logistic-robot"] = true,
+  ["defender"] = true,
+  ["destroyer"] = true,
+  ["distractor"] = true
+}
+
 local function entity_allowed_to_bomb(entity)
-  local name = entity.name
-  return (
-    name:find("turret") or
-    name:find("rail") or
-    name:find("ghost") or
-    name == "player" or
-    name == "stone-wall" or
-    entity.type == "electric-pole"
-  )
+  return global.entities_allowed_to_bomb[entity.name]
 end
 global.players_warned = {}
 local function on_capsule_used(event)
@@ -100,7 +118,7 @@ local function on_capsule_used(event)
   end
 
   if item_not_sanctioned(item) then return end
-  
+
   if (not allowed_to_nuke(player)) then
     local area = {{event.position.x-5, event.position.y-5}, {event.position.x+5, event.position.y+5}}
     local count = 0
