@@ -4,6 +4,7 @@ local Gui = require 'utils.gui'
 local UserGroups = require 'user_groups'
 local PlayerStats = require 'player_stats'
 local Utils = require 'utils.utils'
+local Report = require 'report'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
@@ -17,6 +18,7 @@ local focus_color = {r = 1, g = 0.55, b = 0.1}
 local rank_colors = {
     {r = 1, g = 1, b = 1}, -- Guest
     {r = 0.155, g = 0.540, b = 0.898}, -- Regular
+    {r = 172.6, g = 70.2, b = 215.8}, -- Donator {r = 152, g = 24, b = 206}
     {r = 0.093, g = 0.768, b = 0.172} -- Admin
 }
 
@@ -24,6 +26,7 @@ local inv_sprite_time_step = 1 / sprite_time_step
 local rank_names = {
     'Guest',
     'Regular',
+    'Donator',
     'Admin'
 }
 
@@ -59,6 +62,7 @@ local distance_heading_name = Gui.uid_name()
 local coin_heading_name = Gui.uid_name()
 local deaths_heading_name = Gui.uid_name()
 local poke_name_heading_name = Gui.uid_name()
+local report_heading_name = Gui.uid_name()
 
 local sprite_cell_name = Gui.uid_name()
 local player_name_cell_name = Gui.uid_name()
@@ -83,12 +87,17 @@ end
 
 local function get_rank_level(player)
     if player.admin then
-        return 3
-    elseif UserGroups.is_regular(player.name) then
-        return 2
-    else
-        return 1
+        return 4
     end
+
+    local name = player.name
+    if UserGroups.is_donator(name) then
+        return 3
+    elseif UserGroups.is_regular(name) then
+        return 2
+    end
+
+    return 1
 end
 
 local function do_poke_spam_protection(player)
@@ -376,6 +385,54 @@ local column_builders = {
 
             return label
         end
+    },
+    [report_heading_name] = {
+        create_data = function(player)
+            return player
+        end,
+        sort = function(a, b)
+            return a.name:lower() < b.name:lower()
+        end,
+        draw_heading = function(parent, data)
+            local label =
+                parent.add {
+                type = 'label',
+                name = report_heading_name,
+                caption = 'Report',
+                tooltip = 'Report player to the admin team for griefing or breaking the rules.'
+            }
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 58
+
+            return label
+        end,
+        draw_cell = function(parent, cell_data, data)
+            local parent_style = parent.style
+            parent_style.width = 58
+            parent_style.align = 'center'
+
+            local label =
+                parent.add {
+                type = 'sprite-button',
+                name = report_cell_name,
+                sprite = 'utility/force_editor_icon',
+                tooltip = 'Report ' .. cell_data.name
+            }
+            local label_style = label.style
+            label_style.align = 'center'
+            label_style.minimal_width = 32
+            label_style.height = 24
+            label_style.font = 'default-bold'
+            label_style.top_padding = 0
+            label_style.bottom_padding = 0
+            label_style.left_padding = 0
+            label_style.right_padding = 0
+
+            Gui.set_data(label, cell_data)
+
+            return label
+        end
     }
 }
 
@@ -389,7 +446,8 @@ local function get_default_player_settings()
             distance_heading_name,
             coin_heading_name,
             deaths_heading_name,
-            poke_name_heading_name
+            poke_name_heading_name,
+            report_heading_name
         },
         sort = -3
     }
@@ -678,5 +736,17 @@ Gui.on_click(
                 p.print(message)
             end
         end
+    end
+)
+
+Gui.on_click(
+    report_cell_name,
+    function(event)
+        local reporting_player = event.player
+        local reported_player = Gui.get_data(event.element)
+
+        -- test code.
+        game.print(reporting_player.name .. ' has reported ' .. reported_player.name)
+        --Report.spawn_reporting_popup (reporting_player, reported_player)
     end
 )

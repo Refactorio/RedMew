@@ -9,7 +9,7 @@ require 'nuke_control'
 require 'follow'
 require 'autodeconstruct'
 require 'corpse_util'
-require 'infinite_storage_chest'
+--require 'infinite_storage_chest'
 require 'fish_market'
 require 'reactor_meltdown'
 require 'map_layout'
@@ -170,8 +170,39 @@ Event.add(
     end
 )
 
-global.cheated_items = {}
+local minutes_to_ticks = 60 * 60
+local hours_to_ticks = 60 * 60 * 60
+local ticks_to_minutes = 1 / minutes_to_ticks
+local ticks_to_hours = 1 / hours_to_ticks
 
+local function format_time(ticks)
+    local result = {}
+
+    local hours = math.floor(ticks * ticks_to_hours)
+    if hours > 0 then
+        ticks = ticks - hours * hours_to_ticks
+        table.insert(result, hours)
+        if hours == 1 then
+            table.insert(result, 'hour')
+        else
+            table.insert(result, 'hours')
+        end
+    end
+
+    local minutes = math.floor(ticks * ticks_to_minutes)
+    table.insert(result, minutes)
+    if minutes == 1 then
+        table.insert(result, 'minute')
+    else
+        table.insert(result, 'minutes')
+    end
+
+    return table.concat(result, ' ')
+end
+
+
+global.cheated_items = {}
+global.cheated_items_by_timestamp = {}
 Event.add(
     defines.events.on_player_crafted_item,
     function(event)
@@ -189,18 +220,13 @@ Event.add(
             data = {}
             cheat_items[pi] = data
         end
-        
-        if player.name == 'plague006' then
-            -- cyan player, aquamarine text
-            player.color = {r = 64, g = 224, b = 208, a = 0.5}
-            player.chat_color = {r = 175, g = 238, b = 238, a = 0.5}
-        end
-        
 
         local stack = event.item_stack
         local name = stack.name
-        local count = data[name] or 0
-        data[name] = stack.count + count
+        local user_item_record = data[name] or {count = 0}
+        local count = user_item_record.count
+        local time = user_item_record["time"] or format_time(game.tick)
+        data[name] = {count = stack.count + count, time = time}
     end
 )
 
