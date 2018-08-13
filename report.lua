@@ -1,3 +1,5 @@
+local Module = {}
+
 local Gui = require("utils.gui")
 local Utils = require("utils.utils");
 local report_frame_name = Gui.uid_name()
@@ -113,6 +115,11 @@ Gui.on_click(
     end
 )
 
+Module.spawn_report_popup = function(reporting_player, reported_player)
+
+
+end
+
 local function report_cmd(cmd)
     if game.player then
         local params = {}
@@ -139,3 +146,5 @@ commands.add_command('showreports', 'Shows user reports (Admins only)',
         end
     end
 )
+
+return Module
