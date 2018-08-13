@@ -39,6 +39,7 @@ local function player_created(event)
     player.insert {name = 'iron-gear-wheel', count = 8}
     player.insert {name = 'iron-plate', count = 16}
     player.print('Welcome to our Server. You can join our Discord at: redmew.com/discord')
+    player.print('Click the question mark in the top left corner for server infomation and map details.')
     player.print('And remember.. Keep Calm And Spaghetti!')
 
     local gui = player.gui
