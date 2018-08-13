@@ -636,39 +636,6 @@ local function admin_chat(cmd)
     end
 end
 
-local function report(cmd)
-    if game.player then 
-        local params = {}
-        for param in string.gmatch(cmd.parameter, '%S+') do
-            table.insert(params, param)
-        end
-        if #params < 2 then
-            game.player.print("Please enter then name of the offender and the reason for the report.") 
-            return nil
-        end
-        if not game.players[params[1]] then 
-            game.player.print(params[1] .. " does not exist.")
-            return nil
-        end
-        for _,p in pairs(game.players) do
-            if p.admin then
-                Utils.alert(
-                    p, 
-                    {
-                        "User Report", 
-                        "Offender: " .. params[1], 
-                        "Message: " .. string.sub(cmd.parameter, string.len(params[1]) + 2),
-                        "Reported by: " .. game.player.name
-                    }
-                )
-	    end
-        end
-    end
-end
-
-
-
-
 commands.add_command('kill', 'Will kill you.', kill)
 commands.add_command('tpplayer', '<player> - Teleports you to the player. (Admins only)', teleport_player)
 commands.add_command('invoke', '<player> - Teleports the player to you. (Admins only)', invoke)
@@ -728,4 +695,3 @@ commands.add_command(
     unjail_player
 )
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
-commands.add_command('report', '<griefer-name> <message> Reports a user to admins', report)
