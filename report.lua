@@ -6,6 +6,7 @@ local report_frame_name = Gui.uid_name()
 local report_close_button_name = Gui.uid_name()
 local report_tab_button_name = Gui.uid_name()
 local report_body_name = Gui.uid_name()
+
 global.reports = {}
 global.player_report_data = {}
 
@@ -41,28 +42,27 @@ local function show_reports(player)
         player.opened.destroy()
     end
   
-  
-    report_frame =
-        center.add {
-            type = 'frame',
-            name = report_frame_name,
-            direction = 'vertical',
-            caption = 'User reports'
-        }
-        report_frame.style.maximal_width = 700
-        player.opened = report_frame
-
-    local scroll_pane = report_frame.add{type = "scroll-pane", horizontal_scroll_policy = "auto-and-reserve-space", vertical_scroll_policy="never"}
-    local tab_flow = scroll_pane.add{type="flow"}
-    for k,report in pairs(reports) do
-        local button_cell = tab_flow.add{type="flow", caption="reportuid" .. k}
-        button_cell.add {
-            type="button", 
-            name=report_tab_button_name, 
-            caption = game.players[report.reporting_player_index].name
-        }
+    local report_frame = center.add {
+        type = 'frame',
+        name = report_frame_name,
+        direction = 'vertical',
+        caption = 'User reports'
+    }
+    report_frame.style.maximal_width = 700
+    player.opened = report_frame
+    
+    if #reports > 1 then
+        local scroll_pane = report_frame.add{type = "scroll-pane", horizontal_scroll_policy = "auto-and-reserve-space", vertical_scroll_policy="never"}
+        local tab_flow = scroll_pane.add{type="flow"}
+        for k,report in pairs(reports) do
+            local button_cell = tab_flow.add{type="flow", caption="reportuid" .. k}
+            button_cell.add {
+                type="button", 
+                name=report_tab_button_name, 
+                caption = game.players[report.reporting_player_index].name
+            }
         end
-
+    end
     local report_body = report_frame.add {type = "scroll-pane", name = report_body_name, horizontal_scroll_policy = "never", vertical_scroll_policy="never"}
     report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close'}
 
@@ -99,7 +99,7 @@ Gui.on_custom_close(
 Gui.on_click(
     report_close_button_name,
     function(event)
-        Gui.remove_data_recursivly(event.element)
+        Gui.remove_data_recursivly(event.element.parent)
         event.element.parent.destroy()
     end
 )
@@ -115,10 +115,75 @@ Gui.on_click(
     end
 )
 
-Module.spawn_report_popup = function(reporting_player, reported_player)
 
+local reporting_popup_name = Gui.uid_name()
+local reporting_cancel_button_name = Gui.uid_name()
+local reporting_submit_button_name = Gui.uid_name()
+local reporting_input_name = Gui.uid_name()
+
+spawn_reporting_popup = function(player, reported_player)
+
+    local center = player.gui.center
+    if player.opened then --Destroy whatever is open
+        Gui.remove_data_recursivly(player.opened)
+        player.opened.destroy()
+    end
+  
+    local reporting_popup = center.add {
+        type = 'frame',
+        name = reporting_popup_name,
+        direction = 'vertical',
+        caption = 'Report player ' .. reported_player.name
+    }
+    Gui.set_data(reporting_popup, {reported_player_index = reported_player.index})
+
+    reporting_popup.style.maximal_width = 500
+    player.opened = reporting_popup
+    reporting_popup.add {
+        type = 'label',
+        caption = 'Report message:'
+    }
+    local input = reporting_popup.add {type = 'text-box', name=reporting_input_name}
+    input.style.width = 400 
+    input.style.height = 85
+    local button_flow = reporting_popup.add {type = "flow"}
+    submit_button = button_flow.add {type = "button", name = reporting_submit_button_name, caption="Submit"}
+    button_flow.add {type = "button", name = reporting_cancel_button_name, caption="Cancel"}
 
 end
+
+Gui.on_custom_close(
+    reporting_popup_name,
+    function(event) 
+        Gui.remove_data_recursivly(event.element)
+        event.element.destroy()
+    end
+)
+
+Gui.on_click(
+    reporting_cancel_button_name,
+    function(event)
+        local frame = event.element.parent.parent
+        Gui.remove_data_recursivly(frame)
+        frame.destroy()
+    end
+)
+
+Gui.on_click(
+    reporting_submit_button_name,
+    function(event)
+        local frame = event.element.parent.parent
+        local msg = frame[reporting_input_name].text
+        local data = Gui.get_data(frame)
+        local reported_player_index = data["reported_player_index"]
+        
+        Gui.remove_data_recursivly(frame)
+        frame.destroy()
+        report(event.player, game.players[reported_player_index], msg)
+        
+        event.player.print("Sucessfully reported " .. game.players[reported_player_index].name)
+    end
+)
 
 local function report_cmd(cmd)
     if game.player then
