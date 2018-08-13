@@ -121,7 +121,7 @@ local reporting_cancel_button_name = Gui.uid_name()
 local reporting_submit_button_name = Gui.uid_name()
 local reporting_input_name = Gui.uid_name()
 
-spawn_reporting_popup = function(player, reported_player)
+Module.spawn_reporting_popup = function(player, reported_player)
 
     local center = player.gui.center
     if player.opened then --Destroy whatever is open
@@ -185,25 +185,6 @@ Gui.on_click(
     end
 )
 
-local function report_cmd(cmd)
-    if game.player then
-        local params = {}
-        for param in string.gmatch(cmd.parameter, '%S+') do
-            table.insert(params, param)
-        end
-        if #params < 2 then
-            game.player.print("Please enter then name of the offender and the reason for the report.")
-            return nil
-        end
-        if not game.players[params[1]] then
-            game.player.print(params[1] .. " does not exist.")
-            return nil
-        end
-        report(game.player, game.players[params[1]], string.sub(cmd.parameter, string.len(params[1]) + 2))
-    end
-end
-
-commands.add_command('report', '<griefer-name> <message> Reports a user to admins', report_cmd)
 commands.add_command('showreports', 'Shows user reports (Admins only)', 
 	function(event) 
 		if game.player and game.player.admin then 

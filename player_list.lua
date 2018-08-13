@@ -745,8 +745,6 @@ Gui.on_click(
         local reporting_player = event.player
         local reported_player = Gui.get_data(event.element)
 
-        -- test code.
-        game.print(reporting_player.name .. ' has reported ' .. reported_player.name)
-        --Report.spawn_reporting_popup (reporting_player, reported_player)
+        Report.spawn_reporting_popup (reporting_player, reported_player)
     end
 )
