@@ -90,58 +90,6 @@ Module.find_entities_by_last_user =
     return entities
 end
 
-local Gui = require("utils.gui")
-local alert_frame_name = Gui.uid_name()
-local alert_close_button_name = Gui.uid_name()
-function Module.alert(player, lines)
-    if type(lines) == string then 
-        lines = {lines}
-    end
-    local center = player.gui.center
-    local alert_frame = center[alert_frame_name]
-    if alert_frame and alert_frame.valid then
-        Gui.remove_data_recursivly(alert_frame)
-        alert_frame.destroy()
-    end
-    alert_frame =
-        center.add {
-        type = 'frame',
-        name = alert_frame_name,
-        direction = 'vertical',
-        caption = 'Alert'
-    }
-    alert_frame.style.maximal_width = 500
-    player.opened = alert_frame
-    for _,line in pairs(lines) do
-        local frame = alert_frame.add {
-            type = 'label',
-            caption = line
-        }
-       frame.style.single_line = false
-    end
-   alert_frame.add {type = 'button', name = alert_close_button_name, caption = 'Close'} 
-
-end
-
-Gui.on_custom_close(
-    alert_frame_name,
-    function(event)   
-        Gui.remove_data_recursivly(event.element)
-        event.element.destroy()
-    end
-)
-
-Gui.on_click(
-    alert_close_button_name,
-    function(event) 
-        Gui.remove_data_recursivly(event.element)
-        event.element.parent.destroy()
-    end
-)
-
-
-
-
 Module.ternary = function(c, t, f)
     if c then
         return t
@@ -149,4 +97,35 @@ Module.ternary = function(c, t, f)
         return f
     end
 end
+
+
+local minutes_to_ticks = 60 * 60
+local hours_to_ticks = 60 * 60 * 60
+local ticks_to_minutes = 1 / minutes_to_ticks
+local ticks_to_hours = 1 / hours_to_ticks
+Module.format_time = function(ticks)
+    local result = {}
+
+    local hours = math.floor(ticks * ticks_to_hours)
+    if hours > 0 then
+        ticks = ticks - hours * hours_to_ticks
+        table.insert(result, hours)
+        if hours == 1 then
+            table.insert(result, 'hour')
+        else
+            table.insert(result, 'hours')
+        end
+    end
+
+    local minutes = math.floor(ticks * ticks_to_minutes)
+    table.insert(result, minutes)
+    if minutes == 1 then
+        table.insert(result, 'minute')
+    else
+        table.insert(result, 'minutes')
+    end
+
+    return table.concat(result, ' ')
+end
+
 return Module

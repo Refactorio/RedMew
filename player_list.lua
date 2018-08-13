@@ -3,6 +3,7 @@ local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local UserGroups = require 'user_groups'
 local PlayerStats = require 'player_stats'
+local Utils = require 'utils.utils'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
@@ -73,36 +74,6 @@ local function lighten_color(color)
     color.g = color.g * 0.6 + 0.4
     color.b = color.b * 0.6 + 0.4
     color.a = 1
-end
-
-local minutes_to_ticks = 60 * 60
-local hours_to_ticks = 60 * 60 * 60
-local ticks_to_minutes = 1 / minutes_to_ticks
-local ticks_to_hours = 1 / hours_to_ticks
-
-local function format_time(ticks)
-    local result = {}
-
-    local hours = math.floor(ticks * ticks_to_hours)
-    if hours > 0 then
-        ticks = ticks - hours * hours_to_ticks
-        table.insert(result, hours)
-        if hours == 1 then
-            table.insert(result, 'hour')
-        else
-            table.insert(result, 'hours')
-        end
-    end
-
-    local minutes = math.floor(ticks * ticks_to_minutes)
-    table.insert(result, minutes)
-    if minutes == 1 then
-        table.insert(result, 'minute')
-    else
-        table.insert(result, 'minutes')
-    end
-
-    return table.concat(result, ' ')
 end
 
 local function format_distance(tiles)
@@ -224,7 +195,7 @@ local column_builders = {
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local text = format_time(cell_data)
+            local text = Utils.format_time(cell_data)
 
             local label = parent.add {type = 'label', name = time_cell_name, caption = text}
             local label_style = label.style
@@ -660,6 +631,7 @@ end
 Gui.on_click(
     poke_cell_name,
     function(event)
+	game.print(serpent.dump(event.element.parent.type))
         local element = event.element
         local button_data = Gui.get_data(element)
         local poke_player = button_data.player
