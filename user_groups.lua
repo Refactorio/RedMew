@@ -1,4 +1,5 @@
 global.regulars = require 'resources.regulars'
+global.donators = require 'resources.donators'
 local Event = require 'utils.event'
 local Utils = require 'utils.utils'
 
@@ -64,6 +65,10 @@ function Module.get_rank(player)
     else
         return 'Guest'
     end
+end
+
+function Module.is_donator(player_name)
+    return global.donators[player_name]
 end
 
 Event.add(

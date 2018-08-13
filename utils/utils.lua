@@ -97,4 +97,35 @@ Module.ternary = function(c, t, f)
         return f
     end
 end
+
+
+local minutes_to_ticks = 60 * 60
+local hours_to_ticks = 60 * 60 * 60
+local ticks_to_minutes = 1 / minutes_to_ticks
+local ticks_to_hours = 1 / hours_to_ticks
+Module.format_time = function(ticks)
+    local result = {}
+
+    local hours = math.floor(ticks * ticks_to_hours)
+    if hours > 0 then
+        ticks = ticks - hours * hours_to_ticks
+        table.insert(result, hours)
+        if hours == 1 then
+            table.insert(result, 'hour')
+        else
+            table.insert(result, 'hours')
+        end
+    end
+
+    local minutes = math.floor(ticks * ticks_to_minutes)
+    table.insert(result, minutes)
+    if minutes == 1 then
+        table.insert(result, 'minute')
+    else
+        table.insert(result, 'minutes')
+    end
+
+    return table.concat(result, ' ')
+end
+
 return Module
