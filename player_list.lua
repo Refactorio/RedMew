@@ -394,16 +394,22 @@ local column_builders = {
             return a.name:lower() < b.name:lower()
         end,
         draw_heading = function(parent, data)
-            local label = parent.add {type = 'label', name = report_heading_name, caption = 'Report'}
+            local label =
+                parent.add {
+                type = 'label',
+                name = report_heading_name,
+                caption = 'Report',
+                tooltip = 'Report player to the admin team for griefing or breaking the rules.'
+            }
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 60
+            label_style.width = 58
 
             return label
         end,
         draw_cell = function(parent, cell_data, data)
             local parent_style = parent.style
-            parent_style.width = 48
+            parent_style.width = 58
             parent_style.align = 'center'
 
             local label =
@@ -411,7 +417,7 @@ local column_builders = {
                 type = 'sprite-button',
                 name = report_cell_name,
                 sprite = 'utility/force_editor_icon',
-                tooltip = 'Report Player'
+                tooltip = 'Report ' .. cell_data.name
             }
             local label_style = label.style
             label_style.align = 'center'
