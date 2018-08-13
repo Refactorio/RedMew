@@ -68,6 +68,7 @@ local distance_cell_name = Gui.uid_name()
 local coin_cell_name = Gui.uid_name()
 local deaths_cell_name = Gui.uid_name()
 local poke_cell_name = Gui.uid_name()
+local report_cell_name = Gui.uid_name()
 
 local function lighten_color(color)
     color.r = color.r * 0.6 + 0.4
@@ -631,7 +632,6 @@ end
 Gui.on_click(
     poke_cell_name,
     function(event)
-	game.print(serpent.dump(event.element.parent.type))
         local element = event.element
         local button_data = Gui.get_data(element)
         local poke_player = button_data.player
