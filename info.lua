@@ -26,12 +26,13 @@ Hi stranger, I'm a fish..
 And this is what you ought to know:
 
 - Please be nice and don't grief. Or else.. ;)
-- Admins: Don't abuse. Don't fight other Admins.
+- If you suspect griefing, whisper an admin.
 - Don't argue with other players for silly things.
+- If arguing, do not make the arguments personal.
 - No political, racist, or hateful content.
 - If you suspect you desync, restart the game.
-- Join our growing community on redmew.com/discord
-- Contribute to our Hookers & Blow fund at:
+- Join our discord at redmew.com/discord
+- Supporting the server costs:
   Patreon: patreon.com/redmew
   Paypal: paypal.me/jsuesse
 ]===]
