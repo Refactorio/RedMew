@@ -25,6 +25,8 @@ require 'blueprint_helper'
 require 'paint'
 require 'score'
 require 'popup'
+require 'report'
+
 
 local Event = require 'utils.event'
 
