@@ -125,6 +125,20 @@ function Builders.sine_fill(width, height)
     end
 end
 
+function Builders.sine_wave(width, height, thickness)
+    local width_inv = tau / width
+    local height_inv = 2 / height
+    thickness = thickness * 0.5
+    return function(x, y)
+        local x2 = x * width_inv
+        local y2 = math.sin(x2)
+        y = y * height_inv
+        local d = math.abs(y2 - y)
+
+        return d < thickness
+    end
+end
+
 function Builders.rectangular_spiral(x_size, optional_y_size)
     optional_y_size = optional_y_size or x_size
 

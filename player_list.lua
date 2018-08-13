@@ -17,6 +17,7 @@ local focus_color = {r = 1, g = 0.55, b = 0.1}
 local rank_colors = {
     {r = 1, g = 1, b = 1}, -- Guest
     {r = 0.155, g = 0.540, b = 0.898}, -- Regular
+    {r = 172.6, g = 70.2, b = 215.8}, -- Donator {r = 152, g = 24, b = 206}
     {r = 0.093, g = 0.768, b = 0.172} -- Admin
 }
 
@@ -24,6 +25,7 @@ local inv_sprite_time_step = 1 / sprite_time_step
 local rank_names = {
     'Guest',
     'Regular',
+    'Donator',
     'Admin'
 }
 
@@ -83,12 +85,17 @@ end
 
 local function get_rank_level(player)
     if player.admin then
-        return 3
-    elseif UserGroups.is_regular(player.name) then
-        return 2
-    else
-        return 1
+        return 4
     end
+
+    local name = player.name
+    if UserGroups.is_donator(name) then
+        return 3
+    elseif UserGroups.is_regular(name) then
+        return 2
+    end
+
+    return 1
 end
 
 local function do_poke_spam_protection(player)
