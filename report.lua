@@ -26,7 +26,9 @@ local function draw_report(parent, report_id)
     end
 
     parent.add {type="label", caption="Offender: " .. reported_player_name} 
-    local msg_label = parent.add {type="label", caption="Message: " .. message}
+    local msg_label_pane = parent.add {type="scroll-pane", vertical_scroll_policy = "auto-and-reserve-space", horizontal_scroll_policy="never"}
+    msg_label_pane.style.maximal_height = 400
+    local msg_label = msg_label_pane.add {type="label", caption="Message: " .. message}
     msg_label.style.single_line = false
     msg_label.style.maximal_width = 680
     parent.add {type="label", caption=string.format("Time: %s (%s ago)", time, time_ago)} 
@@ -142,7 +144,7 @@ Module.spawn_reporting_popup = function(player, reported_player)
     reporting_popup.add {
         type = 'label',
         caption = 'Report message:'
-    }
+    } 
     local input = reporting_popup.add {type = 'text-box', name=reporting_input_name}
     input.style.width = 400 
     input.style.height = 85
