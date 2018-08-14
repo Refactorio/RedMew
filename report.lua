@@ -20,10 +20,7 @@ local function draw_report(parent, report_id)
     local time_ago = Utils.format_time(game.tick - report.tick)
 
     local message = report.message
-    for _,child in pairs(parent.children) do
-        Gui.remove_data_recursivly(child)
-        child.destroy() 
-    end
+    Gui.clear(parent)
 
     parent.add {type="label", caption="Offender: " .. reported_player_name} 
     local msg_label_pane = parent.add {type="scroll-pane", vertical_scroll_policy = "auto-and-reserve-space", horizontal_scroll_policy="never"}
@@ -38,11 +35,7 @@ end
 local function show_reports(player)
     local reports = global.reports or {}
 
-    local center = player.gui.center
-    if player.opened then --Destroy whatever is open
-        Gui.remove_data_recursivly(player.opened)
-        player.opened.destroy()
-    end
+    local center = player.gui.center    
   
     local report_frame = center.add {
         type = 'frame',
@@ -68,7 +61,9 @@ local function show_reports(player)
     local report_body = report_frame.add {type = "scroll-pane", name = report_body_name, horizontal_scroll_policy = "never", vertical_scroll_policy="never"}
     report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close'}
 
-    draw_report(report_body, #reports)
+    if #reports > 0 then
+        draw_report(report_body, #reports)
+    end
 end
 
 local function report(reporting_player, reported_player, message)
@@ -125,11 +120,7 @@ local reporting_input_name = Gui.uid_name()
 
 Module.spawn_reporting_popup = function(player, reported_player)
 
-    local center = player.gui.center
-    if player.opened then --Destroy whatever is open
-        Gui.remove_data_recursivly(player.opened)
-        player.opened.destroy()
-    end
+    local center = player.gui.center    
   
     local reporting_popup = center.add {
         type = 'frame',
