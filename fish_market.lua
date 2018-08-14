@@ -245,11 +245,15 @@ local function boost_player_runningspeed(player, market)
     global.player_speed_boost_records[player.index].boost_lvl =
         1 + global.player_speed_boost_records[player.index].boost_lvl
     player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
-    game.print(string.format(boost_msg[global.player_speed_boost_records[player.index].boost_lvl], player.name))
+
     if global.player_speed_boost_records[player.index].boost_lvl >= 4 then
         reset_player_runningspeed(player)
         player.character.die(player.force, market)
+        game.print(string.format(boost_msg[global.player_speed_boost_records[player.index].boost_lvl], player.name))
+        return
     end
+
+    player.print(string.format(boost_msg[global.player_speed_boost_records[player.index].boost_lvl], player.name))
 end
 
 local function reset_player_miningspeed(player)
@@ -278,11 +282,15 @@ local function boost_player_miningspeed(player, market)
     global.player_mining_boost_records[player.index].boost_lvl =
         1 + global.player_mining_boost_records[player.index].boost_lvl
     player.character_mining_speed_modifier = 1 + player.character_mining_speed_modifier
-    game.print(string.format(boost_msg[global.player_mining_boost_records[player.index].boost_lvl], player.name))
+
     if global.player_mining_boost_records[player.index].boost_lvl >= 4 then
         reset_player_miningspeed(player)
         player.character.die(player.force, market)
+        game.print(string.format(boost_msg[global.player_mining_boost_records[player.index].boost_lvl], player.name))
+        return
     end
+
+    player.print(string.format(boost_msg[global.player_mining_boost_records[player.index].boost_lvl], player.name))
 end
 
 local function market_item_purchased(event)
