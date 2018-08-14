@@ -205,7 +205,8 @@ Have fun and play nice. Remember we are all just here to have fun so let’s kee
 
 No hateful content or personal attacks.
 
-If you suspect someone is griefing, notify the admin team by using /report.]]
+If you suspect someone is griefing, notify the admin team by using /report or by clicking the report button
+next to the player in the player list.]]
             )
         end
     },
