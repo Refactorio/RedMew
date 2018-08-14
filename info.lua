@@ -8,6 +8,7 @@ local focus_color = {r = 1, g = 0.55, b = 0.1}
 local rank_colors = {
     {r = 1, g = 1, b = 1}, -- Guest
     {r = 0.155, g = 0.540, b = 0.898}, -- Regular
+    {r = 172.6, g = 70.2, b = 215.8}, -- Donator
     {r = 0.093, g = 0.768, b = 0.172} -- Admin
 }
 
@@ -205,7 +206,8 @@ Have fun and play nice. Remember we are all just here to have fun so let’s kee
 
 No hateful content or personal attacks.
 
-If you suspect someone is griefing, notify the admin team by using /report.]]
+If you suspect someone is griefing, notify the admin team by using /report or by clicking the report
+button next to the player in the player list.]]
             )
         end
     },
@@ -255,6 +257,9 @@ you're working on a project which requires it.]]
             player_rank_flow.add {type = 'label', caption = 'Your rank is:'}
             if player.admin then
                 local label = player_rank_flow.add {type = 'label', caption = 'Admin'}
+                label.style.font_color = rank_colors[4]
+            elseif UserGroups.is_donator(player.name) then
+                local label = player_rank_flow.add {type = 'label', caption = 'Donator'}
                 label.style.font_color = rank_colors[3]
             elseif UserGroups.is_regular(player.name) then
                 local label = player_rank_flow.add {type = 'label', caption = 'Regular'}
@@ -568,6 +573,11 @@ local function draw_main_frame(center, player)
     for index, page in ipairs(pages) do
         local button_flow = tab_flow.add {type = 'flow'}
         local button = page.tab_button(button_flow, player)
+
+        local button_style = button.style
+        button_style.left_padding = 3
+        button_style.right_padding = 3
+
         Gui.set_data(button, {index = index, data = data})
 
         tab_buttons[index] = button

@@ -12,6 +12,7 @@ require 'corpse_util'
 --require 'infinite_storage_chest'
 require 'fish_market'
 require 'reactor_meltdown'
+require 'train_saviour'
 require 'map_layout'
 require 'bot'
 require 'player_colors'
@@ -25,7 +26,6 @@ require 'blueprint_helper'
 require 'paint'
 require 'score'
 require 'popup'
-
 
 local Event = require 'utils.event'
 
@@ -200,7 +200,6 @@ local function format_time(ticks)
     return table.concat(result, ' ')
 end
 
-
 global.cheated_items = {}
 global.cheated_items_by_timestamp = {}
 Event.add(
@@ -225,7 +224,7 @@ Event.add(
         local name = stack.name
         local user_item_record = data[name] or {count = 0}
         local count = user_item_record.count
-        local time = user_item_record["time"] or format_time(game.tick)
+        local time = user_item_record['time'] or format_time(game.tick)
         data[name] = {count = stack.count + count, time = time}
     end
 )
