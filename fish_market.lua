@@ -247,9 +247,9 @@ local function boost_player_runningspeed(player, market)
     player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
 
     if global.player_speed_boost_records[player.index].boost_lvl >= 4 then
+        game.print(string.format(boost_msg[global.player_speed_boost_records[player.index].boost_lvl], player.name))
         reset_player_runningspeed(player)
         player.character.die(player.force, market)
-        game.print(string.format(boost_msg[global.player_speed_boost_records[player.index].boost_lvl], player.name))
         return
     end
 
@@ -284,9 +284,9 @@ local function boost_player_miningspeed(player, market)
     player.character_mining_speed_modifier = 1 + player.character_mining_speed_modifier
 
     if global.player_mining_boost_records[player.index].boost_lvl >= 4 then
+        game.print(string.format(boost_msg[global.player_mining_boost_records[player.index].boost_lvl], player.name))
         reset_player_miningspeed(player)
         player.character.die(player.force, market)
-        game.print(string.format(boost_msg[global.player_mining_boost_records[player.index].boost_lvl], player.name))
         return
     end
 
