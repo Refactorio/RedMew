@@ -568,6 +568,11 @@ local function draw_main_frame(center, player)
     for index, page in ipairs(pages) do
         local button_flow = tab_flow.add {type = 'flow'}
         local button = page.tab_button(button_flow, player)
+
+        local button_style = button.style
+        button_style.left_padding = 3
+        button_style.right_padding = 3
+
         Gui.set_data(button, {index = index, data = data})
 
         tab_buttons[index] = button
