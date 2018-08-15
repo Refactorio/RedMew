@@ -14,6 +14,10 @@ global.player_report_data = {}
 
 local function draw_report(parent, report_id)
     local report = global.reports[report_id]
+    if report_id == 0 or not report then
+        parent.add {type = "label", caption="No reports yet."}
+        return
+    end
     local reported_player_name = game.players[report.reported_player_index].name
     local reporting_player_name = game.players[report.reporting_player_index].name
     local time = Utils.format_time(report.tick)
@@ -54,16 +58,14 @@ local function show_reports(player)
             button_cell.add {
                 type="button", 
                 name=report_tab_button_name, 
-                caption = game.players[report.reporting_player_index].name
+                caption = game.players[report.reported_player_index].name
             }
         end
     end
     local report_body = report_frame.add {type = "scroll-pane", name = report_body_name, horizontal_scroll_policy = "never", vertical_scroll_policy="never"}
     report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close'}
-
-    if #reports > 0 then
-        draw_report(report_body, #reports)
-    end
+ 
+    draw_report(report_body, #reports)
 end
 
 local function report(reporting_player, reported_player, message)
