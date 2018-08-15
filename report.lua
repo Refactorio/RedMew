@@ -39,12 +39,15 @@ end
 Module.show_reports = function(player)
     local reports = global.reports or {}
 
-    local center = player.gui.center    
-  
-    if center[report_frame_name] then 
-        Gui.clear(center)
+    local center = player.gui.center
+
+    local report_frame = center[report_frame_name]
+    if report_frame and report_frame.valid then 
+        Gui.remove_data_recursivly(report_frame)
+        Gui.destroy(report_frame)
     end
-    local report_frame = center.add {
+    
+    report_frame = center.add {
         type = 'frame',
         name = report_frame_name,
         direction = 'vertical',
@@ -127,11 +130,12 @@ Module.spawn_reporting_popup = function(player, reported_player)
 
     local center = player.gui.center    
   
-
-    if center[reporting_popup_name] then 
-        Gui.clear(center)
+    local reporting_popup = center[reporting_popup_name]
+    if reporting_popup and reporting_popup.valid then 
+        Gui.remove_data_recursivly(reporting_popup)
+        Gui.destroy(reporting_popup)
     end
-    local reporting_popup = center.add {
+    reporting_popup = center.add {
         type = 'frame',
         name = reporting_popup_name,
         direction = 'vertical',
