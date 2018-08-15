@@ -43,7 +43,6 @@ Module.show_reports = function(player)
 
     local report_frame = center[report_frame_name]
     if report_frame and report_frame.valid then 
-        Gui.remove_data_recursivly(report_frame)
         Gui.destroy(report_frame)
     end
     
@@ -96,16 +95,14 @@ end
 Gui.on_custom_close(
     report_frame_name,
     function(event)
-        Gui.remove_data_recursivly(event.element)
-        event.element.destroy()
+        Gui.destroy(event.element)
     end
 )
 
 Gui.on_click(
     report_close_button_name,
     function(event)
-        Gui.remove_data_recursivly(event.element.parent)
-        event.element.parent.destroy()
+        Gui.destroy(event.element.parent)
     end
 )
 
@@ -132,7 +129,6 @@ Module.spawn_reporting_popup = function(player, reported_player)
   
     local reporting_popup = center[reporting_popup_name]
     if reporting_popup and reporting_popup.valid then 
-        Gui.remove_data_recursivly(reporting_popup)
         Gui.destroy(reporting_popup)
     end
     reporting_popup = center.add {
@@ -161,8 +157,7 @@ end
 Gui.on_custom_close(
     reporting_popup_name,
     function(event) 
-        Gui.remove_data_recursivly(event.element)
-        event.element.destroy()
+        Gui.destroy(event.element)
     end
 )
 
@@ -170,8 +165,7 @@ Gui.on_click(
     reporting_cancel_button_name,
     function(event)
         local frame = event.element.parent.parent
-        Gui.remove_data_recursivly(frame)
-        frame.destroy()
+        Gui.destroy(frame)
     end
 )
 
@@ -183,8 +177,7 @@ Gui.on_click(
         local data = Gui.get_data(frame)
         local reported_player_index = data["reported_player_index"]
         
-        Gui.remove_data_recursivly(frame)
-        frame.destroy()
+        Gui.destroy(frame)
         report(event.player, game.players[reported_player_index], msg)
         
         event.player.print("Sucessfully reported " .. game.players[reported_player_index].name)
