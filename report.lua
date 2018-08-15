@@ -41,6 +41,9 @@ Module.show_reports = function(player)
 
     local center = player.gui.center    
   
+    if center[report_frame_name] then 
+        Gui.clear(center)
+    end
     local report_frame = center.add {
         type = 'frame',
         name = report_frame_name,
@@ -124,6 +127,10 @@ Module.spawn_reporting_popup = function(player, reported_player)
 
     local center = player.gui.center    
   
+
+    if center[reporting_popup_name] then 
+        Gui.clear(center)
+    end
     local reporting_popup = center.add {
         type = 'frame',
         name = reporting_popup_name,
