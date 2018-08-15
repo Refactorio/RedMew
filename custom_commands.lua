@@ -698,8 +698,8 @@ commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)',
 
 local Report = require('report')
 commands.add_command('showreports', 'Shows user reports (Admins only)', 
-	function(event) 
-		if game.player and game.player.admin then 
+    function(event) 
+        if game.player and game.player.admin then 
             Report.show_reports(game.players[event.player_index]) 
         end
     end
