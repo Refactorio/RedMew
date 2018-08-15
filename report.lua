@@ -36,7 +36,7 @@ local function draw_report(parent, report_id)
     parent.add {type="label", caption="Reported by: " .. reporting_player_name}
 end
 
-local function show_reports(player)
+Module.show_reports = function(player)
     local reports = global.reports or {}
 
     local center = player.gui.center    
@@ -74,14 +74,14 @@ local function report(reporting_player, reported_player, message)
     local notified = false
     for _,p in pairs(game.players) do
         if p.admin and p.connected then
-            show_reports(p)
+            Module.show_reports(p)
             if p.afk_time < 3600 then notified = true end
         end
     end
     if not notified then
         for _,p in pairs(game.players) do
             if p.admin then
-                show_reports(p) 
+                Module.show_reports(p) 
             end
         end
     end
@@ -177,14 +177,6 @@ Gui.on_click(
         report(event.player, game.players[reported_player_index], msg)
         
         event.player.print("Sucessfully reported " .. game.players[reported_player_index].name)
-    end
-)
-
-commands.add_command('showreports', 'Shows user reports (Admins only)', 
-	function(event) 
-		if game.player and game.player.admin then 
-            show_reports(game.players[event.player_index]) 
-        end
     end
 )
 
