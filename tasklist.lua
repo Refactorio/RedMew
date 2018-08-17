@@ -136,6 +136,26 @@ local function get_task_updated_by_message()
     }
 end
 
+local function get_task_label_tooltip(task, game_tick)
+    local tooltip = {'Created by ', task.created_by.name}
+
+    local edited_by = task.edited_by
+    if edited_by then
+        table.insert(tooltip, ' Edited by ')
+        for _, p in pairs(edited_by) do
+            table.insert(tooltip, p.name)
+            table.insert(tooltip, ', ')
+        end
+        table.remove(tooltip)
+    end
+
+    table.insert(tooltip, ' (')
+    table.insert(tooltip, Utils.format_time(game_tick - task.tick))
+    table.insert(tooltip, ' ago)')
+
+    return table.concat(tooltip)
+end
+
 local function apply_direction_button_style(button)
     local button_style = button.style
     button_style.width = 26
@@ -182,11 +202,14 @@ local function update_volunteer_button(button, task)
     end
 end
 
-local function redraw_tasks(data)
+local function redraw_tasks(data, enabled)
     local parent = data.tasks_content
     Gui.clear(parent)
+
     local volunteer_buttons = {}
+    local task_labels = {}
     data.volunteer_buttons = volunteer_buttons
+    data.task_labels = task_labels
 
     local task_count = #tasks
     if task_count == 0 then
@@ -194,14 +217,34 @@ local function redraw_tasks(data)
         return
     end
 
+    local delete_button_tooltip
+    local edit_button_tooltip
+    local up_button_tooltip
+    local down_button_tooltip
+    if enabled then
+        delete_button_tooltip = 'Delete task.'
+        edit_button_tooltip = 'Edit task.'
+        up_button_tooltip = 'Move the task up, right click moves 5 spaces, shift click moves the task to the top.'
+        down_button_tooltip =
+            'Move the task down, right click moves 5 spaces, shift click moves the task to the bottom.'
+    else
+        delete_button_tooltip = 'Sorry, you have to be a regular to delete tasks.'
+        edit_button_tooltip = 'Sorry, you have to be a regular to edit tasks.'
+        up_button_tooltip = 'Sorry, you have to be a regualr to move tasks.'
+        down_button_tooltip = 'Sorry, you have to be a regualr to move tasks.'
+    end
+
+    local game_tick = game.tick
+
     for task_index, task in ipairs(tasks) do
         local delete_button =
             parent.add({type = 'flow'}).add {
             type = 'sprite-button',
             name = delete_task_button_name,
             sprite = 'utility/remove',
-            tooltip = 'Delete task.'
+            tooltip = delete_button_tooltip
         }
+        delete_button.enabled = enabled
         apply_button_style(delete_button)
         Gui.set_data(delete_button, task_index)
 
@@ -210,8 +253,9 @@ local function redraw_tasks(data)
             type = 'sprite-button',
             name = edit_task_button_name,
             sprite = 'utility/rename_icon_normal',
-            tooltip = 'Edit task.'
+            tooltip = edit_button_tooltip
         }
+        edit_button.enabled = enabled
         apply_button_style(edit_button)
         Gui.set_data(edit_button, task)
 
@@ -220,9 +264,9 @@ local function redraw_tasks(data)
             type = 'button',
             name = move_task_up_button_name,
             caption = '▲',
-            tooltip = 'Move the task up, right click moves 5 spaces, shift click moves the task to the top.'
+            tooltip = up_button_tooltip
         }
-        up_button.enabled = task_index ~= 1
+        up_button.enabled = enabled and task_index ~= 1
         apply_direction_button_style(up_button)
         Gui.set_data(up_button, task_index)
         local down_button =
@@ -230,9 +274,9 @@ local function redraw_tasks(data)
             type = 'button',
             name = move_task_down_button_name,
             caption = '▼',
-            tooltip = 'Move the task down, right click moves 5 spaces, shift click moves the task to the bottom.'
+            tooltip = down_button_tooltip
         }
-        down_button.enabled = task_index ~= task_count
+        down_button.enabled = enabled and task_index ~= task_count
         apply_direction_button_style(down_button)
         Gui.set_data(down_button, task_index)
 
@@ -251,13 +295,32 @@ local function redraw_tasks(data)
 
         volunteer_buttons[task] = volunteer_button
 
-        local label = parent.add {type = 'label', caption = table.concat {'#', task.task_id, ' ', task.name}}
+        local label =
+            parent.add {
+            type = 'label',
+            caption = table.concat {'#', task.task_id, ' ', task.name},
+            tooltip = get_task_label_tooltip(task, game_tick)
+        }
         label.style.left_padding = 4
+
+        task_labels[task_index] = label
     end
 end
 
-local function draw_main_frame(left)
+local function draw_main_frame(left, player)
+    local enabled = player.admin or UserGroups.is_regular(player.name)
+
     local data = {}
+
+    local edit_announcments_button_tooltip
+    local add_task_button_tooltip
+    if enabled then
+        edit_announcments_button_tooltip = 'Edit announcments.'
+        add_task_button_tooltip = 'Create a new task.'
+    else
+        edit_announcments_button_tooltip = 'Sorry, you need to a regular to edit announcments.'
+        add_task_button_tooltip = 'Sorry, you need to be a regular to create a new tasks.'
+    end
 
     local frame = left.add {type = 'frame', name = main_frame_name, direction = 'vertical'}
     Gui.set_data(frame, data)
@@ -269,8 +332,9 @@ local function draw_main_frame(left)
         type = 'sprite-button',
         name = announcements_edit_button_name,
         sprite = 'utility/rename_icon_normal',
-        tooltip = 'Edit announcments.'
+        tooltip = edit_announcments_button_tooltip
     }
+    edit_announcments_button.enabled = enabled
     apply_button_style(edit_announcments_button)
 
     local announcements_header = announcements_header_flow.add {type = 'label', caption = 'Announcements'}
@@ -288,7 +352,7 @@ local function draw_main_frame(left)
     announcements_textbox.read_only = true
     announcements_textbox.word_wrap = true
     local announcements_textbox_style = announcements_textbox.style
-    announcements_textbox_style.width = 400
+    announcements_textbox_style.width = 450
     announcements_textbox_style.height = 100
 
     data.announcements_textbox = announcements_textbox
@@ -301,8 +365,9 @@ local function draw_main_frame(left)
         type = 'sprite-button',
         name = add_task_button_name,
         sprite = 'utility/add',
-        tooltip = 'Create new task.'
+        tooltip = add_task_button_tooltip
     }
+    add_task_button.enabled = enabled
     apply_button_style(add_task_button)
 
     local tasks_header = tasks_header_flow.add {type = 'label', caption = 'Tasks'}
@@ -319,7 +384,7 @@ local function draw_main_frame(left)
 
     local tasks_scroll_pane = frame.add {type = 'scroll-pane', direction = 'vertical'}
     local tasks_scroll_pane_style = tasks_scroll_pane.style
-    tasks_scroll_pane_style.width = 400
+    tasks_scroll_pane_style.width = 450
     tasks_scroll_pane_style.maximal_height = 250
 
     local tasks_content = tasks_scroll_pane.add {type = 'table', column_count = 6}
@@ -328,7 +393,7 @@ local function draw_main_frame(left)
     tasks_content_style.vertical_spacing = 0
     data.tasks_content = tasks_content
 
-    redraw_tasks(data)
+    redraw_tasks(data, enabled)
 
     frame.add {
         type = 'checkbox',
@@ -341,7 +406,8 @@ local function draw_main_frame(left)
 end
 
 local function toggle(event)
-    local left = event.player.gui.left
+    local player = event.player
+    local left = player.gui.left
     local frame = left[main_frame_name]
     if frame and frame.valid then
         Gui.destroy(frame)
@@ -354,7 +420,7 @@ local function toggle(event)
             Gui.destroy(frame)
         end
     else
-        draw_main_frame(left)
+        draw_main_frame(left, player)
     end
 end
 
@@ -427,7 +493,7 @@ local function update_announcements(player)
             label.caption = last_edit_message
             label.tooltip = last_edit_message
         elseif notify then
-            draw_main_frame(left)
+            draw_main_frame(left, p)
         end
     end
 end
@@ -468,9 +534,10 @@ local function create_new_tasks(task_name, player)
             local frame_data = Gui.get_data(frame)
             frame_data.tasks_updated_label.caption = update_message
 
-            redraw_tasks(frame_data)
+            local enabled = p.admin or UserGroups.is_regular(p.name)
+            redraw_tasks(frame_data, enabled)
         elseif notify then
-            draw_main_frame(left)
+            draw_main_frame(left, p)
         end
 
         if notify then
@@ -498,10 +565,11 @@ local function draw_create_task_frame(left, previous_task)
 
     local frame =
         left.add {type = 'frame', name = create_task_frame_name, caption = frame_caption, direction = 'vertical'}
+    frame.style.width = 470
 
     local textbox = frame.add {type = 'text-box', text = text}
     local textbox_style = textbox.style
-    textbox_style.width = 400
+    textbox_style.width = 450
 
     local bottom_flow = frame.add {type = 'flow'}
 
@@ -536,15 +604,16 @@ local function player_created(event)
         label.caption = last_edit_message
         label.tooltip = last_edit_message
 
-        redraw_tasks(data)
+        local enabled = player.admin or UserGroups.is_regular(player.name)
+        redraw_tasks(data, enabled)
     end
 
     local tasks_for_player = player_tasks[player.index]
     if tasks_for_player and next(tasks_for_player) then
         for _, p in game.connected_players do
-            local frame = p.gui.left[main_frame_name]
-            if frame and frame.valid then
-                local data = Gui.get_data(frame)
+            local main_frame = p.gui.left[main_frame_name]
+            if main_frame then
+                local data = Gui.get_data(main_frame)
                 local volunteer_buttons = data.volunteer_buttons
 
                 for t, _ in pairs(tasks_for_player) do
@@ -570,8 +639,27 @@ local function player_left(event)
     end
 end
 
+local function on_tick()
+    for _, p in ipairs(game.connected_players) do
+        local left = p.gui.left
+        local frame = left[main_frame_name]
+
+        if frame then
+            local data = Gui.get_data(frame)
+            data.tasks_updated_label.caption = get_task_updated_by_message()
+            data.announcements_updated_label.caption = get_announcements_updated_by_message()
+
+            local game_tick = game.tick
+            for task_index, label in ipairs(data.task_labels) do
+                label.tooltip = get_task_label_tooltip(tasks[task_index], game_tick)
+            end
+        end
+    end
+end
+
 Event.add(defines.events.on_player_joined_game, player_created)
 Event.add(defines.events.on_player_left_game, player_left)
+Event.on_nth_tick(3600, on_tick)
 
 Gui.on_click(main_button_name, toggle)
 
@@ -595,6 +683,7 @@ Gui.on_click(
             caption = 'Edit Announcements',
             direction = 'vertical'
         }
+        frame.style.width = 470
 
         Gui.set_data(frame, data)
 
@@ -606,7 +695,7 @@ Gui.on_click(
             frame.add {type = 'text-box', name = edit_announcements_textbox_name, text = announcements.edit_text}
         textbox.word_wrap = true
         local textbox_style = textbox.style
-        textbox_style.width = 400
+        textbox_style.width = 450
         textbox_style.height = 100
 
         data.textbox = textbox
@@ -731,9 +820,10 @@ Gui.on_click(
             local frame = left[main_frame_name]
             if frame and frame.valid then
                 local data = Gui.get_data(frame)
-                redraw_tasks(data)
+                local enabled = p.admin or UserGroups.is_regular(p.name)
+                redraw_tasks(data, enabled)
             elseif notify then
-                draw_main_frame(left)
+                draw_main_frame(left, p)
             end
 
             if notify then
@@ -785,7 +875,8 @@ local function do_direction(event, sign)
         local frame = p.gui.left[main_frame_name]
         if frame and frame.valid then
             local data = Gui.get_data(frame)
-            redraw_tasks(data)
+            local enabled = p.admin or UserGroups.is_regular(p.name)
+            redraw_tasks(data, enabled)
         end
     end
 end
@@ -877,13 +968,20 @@ Gui.on_click(
     function(event)
         local data = Gui.get_data(event.element)
 
-        local frame = data.frame
+        local player = event.player
         local textbox = data.textbox
         local task_name = textbox.text
 
+        if task_name == '' then
+            player.print('Sorry, tasks cannot be empty.')
+            return
+        end
+
+        local frame = data.frame
+
         Gui.destroy(frame)
 
-        create_new_tasks(task_name, event.player)
+        create_new_tasks(task_name, player)
     end
 )
 
@@ -892,14 +990,37 @@ Gui.on_click(
     function(event)
         local data = Gui.get_data(event.element)
 
-        local frame = data.frame
+        local player = event.player
         local textbox = data.textbox
         local name = textbox.text
+
+        if name == '' then
+            player.print('Sorry, tasks cannot be empty.')
+            return
+        end
+
+        local frame = data.frame
         local task = data.previous_task
 
         Gui.destroy(frame)
 
+        if task.name == name then
+            return
+        end
+
+        local tick = game.tick
+
         task.name = name
+        local edited_by = task.edited_by
+        if not edited_by then
+            edited_by = {}
+            task.edited_by = edited_by
+        end
+        edited_by[player.index] = player
+        task.tick = tick
+
+        last_task_update_data.player = player
+        last_task_update_data.time = tick
 
         local task_index
         for i, t in ipairs(tasks) do
@@ -922,6 +1043,8 @@ Gui.on_click(
             name
         }
 
+        local update_message = get_task_updated_by_message()
+
         for pi, p in ipairs(game.connected_players) do
             local notify = not no_notify_players[pi]
             local left = p.gui.left
@@ -929,9 +1052,12 @@ Gui.on_click(
 
             if main_frame then
                 local main_frame_data = Gui.get_data(main_frame)
-                redraw_tasks(main_frame_data)
+
+                main_frame_data.tasks_updated_label.caption = update_message
+                local enabled = p.admin or UserGroups.is_regular(p.name)
+                redraw_tasks(main_frame_data, enabled)
             elseif notify then
-                draw_main_frame(left)
+                draw_main_frame(left, p)
             end
 
             if notify then
