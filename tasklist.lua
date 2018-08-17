@@ -4,6 +4,17 @@ local Global = require 'utils.global'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
 
+local normal_color = {r = 1, g = 1, b = 1}
+local focus_color = {r = 1, g = 0.55, b = 0.1}
+
+local server_player = {
+    valid = true,
+    index = 0,
+    name = '<server>',
+    admin = true,
+    print = print
+}
+
 local init_announcements = 'There are no announcements.'
 local announcements = {
     text = init_announcements,
@@ -14,18 +25,20 @@ local announcements = {
     last_update_time = nil
 }
 local tasks = {}
-
+local tasks_counter = {0}
 local no_notify_players = {}
 
 Global.register(
     {
         announcements = announcements,
         tasks = tasks,
+        tasks_counter = tasks_counter,
         no_notify_announcements_players = no_notify_players
     },
     function(tbl)
         announcements = tbl.announcements
         tasks = tbl.tasks
+        tasks_counter = tbl.tasks_counter
         no_notify_players = tbl.no_notify_announcements_players
     end
 )
@@ -33,6 +46,12 @@ Global.register(
 local main_frame_name = Gui.uid_name()
 local main_button_name = Gui.uid_name()
 local announcements_edit_button_name = Gui.uid_name()
+local add_task_button_name = Gui.uid_name()
+local edit_task_button_name = Gui.uid_name()
+local delete_task_button_name = Gui.uid_name()
+local move_task_up_button_name = Gui.uid_name()
+local move_task_down_button_name = Gui.uid_name()
+local volunteer_task_button_name = Gui.uid_name()
 local notify_checkbox_name = Gui.uid_name()
 
 local edit_announcements_frame_name = Gui.uid_name()
@@ -41,6 +60,18 @@ local edit_close_button_name = Gui.uid_name()
 local edit_clear_button_name = Gui.uid_name()
 local edit_reset_button_name = Gui.uid_name()
 local edit_confirm_button_name = Gui.uid_name()
+
+local create_task_frame_name = Gui.uid_name()
+local create_task_close_button_name = Gui.uid_name()
+local create_task_clear_button_name = Gui.uid_name()
+local create_task_confirm_button_name = Gui.uid_name()
+local create_task_edit_button_name = Gui.uid_name()
+
+local function get_task_id()
+    local count = tasks_counter[1] + 1
+    tasks_counter[1] = count
+    return count
+end
 
 local function get_announcements_updated_by_message()
     local player = announcements.last_update_player
@@ -80,10 +111,108 @@ local function get_editing_players_message(players)
     return table.concat(message)
 end
 
+local function apply_direction_button_style(button)
+    local button_style = button.style
+    button_style.width = 26
+    button_style.height = 26
+    button_style.top_padding = 0
+    button_style.bottom_padding = 0
+    button_style.left_padding = 0
+    button_style.right_padding = 0
+    button_style.font = 'default-listbox'
+end
+
+local function apply_button_style(button)
+    local style = button.style
+    style.width = 26
+    style.height = 26
+end
+
+local function update_volunteer_button(button, task)
+    local volunteers = task.volunteers
+
+    local tooltip = {}
+    local count = 0
+
+    for _, p in pairs(volunteers) do
+        table.insert(tooltip, p.name)
+        count = count + 1
+    end
+
+    button.caption = count
+    button.tooltip = table.concat(tooltip, ', ')
+
+    if volunteers[button.player_index] then
+        button.style.font_color = focus_color
+    else
+        button.style.font_color = normal_color
+    end
+end
+
+local function redraw_tasks(parent)
+    Gui.clear(parent)
+
+    if #tasks == 0 then
+        parent.add {type = 'label', caption = 'There are no Tasks.'}
+        return
+    end
+
+    for task_index, task in ipairs(tasks) do
+        local delete_button =
+            parent.add({type = 'flow'}).add {
+            type = 'sprite-button',
+            name = delete_task_button_name,
+            sprite = 'utility/remove',
+            tooltip = 'Delete task.'
+        }
+        apply_button_style(delete_button)
+        Gui.set_data(delete_button, task_index)
+
+        local edit_button =
+            parent.add({type = 'flow'}).add {
+            type = 'sprite-button',
+            name = edit_task_button_name,
+            sprite = 'utility/rename_icon_normal',
+            tooltip = 'Edit task.'
+        }
+        apply_button_style(edit_button)
+        Gui.set_data(edit_button, task)
+
+        local up_button =
+            parent.add({type = 'flow'}).add {type = 'button', name = move_task_up_button_name, caption = '▲'}
+        apply_direction_button_style(up_button)
+        Gui.set_data(up_button, task_index)
+        local down_button =
+            parent.add({type = 'flow'}).add {type = 'button', name = move_task_down_button_name, caption = '▼'}
+        apply_direction_button_style(down_button)
+        Gui.set_data(down_button, task_index)
+
+        local label = parent.add {type = 'label', caption = task.name}
+        label.style.left_padding = 8
+
+        local volunteer_button_flow = parent.add {type = 'flow'}
+        local volunteer_button_flow_style = volunteer_button_flow.style
+        volunteer_button_flow_style.horizontally_stretchable = true
+        volunteer_button_flow_style.align = 'right'
+
+        local volunteer_button = volunteer_button_flow.add {type = 'button', name = volunteer_task_button_name}
+        local volunteer_button_style = volunteer_button.style
+        volunteer_button_style.font = 'default-small'
+        volunteer_button_style.height = 24
+        volunteer_button_style.width = 26
+        volunteer_button_style.top_padding = 0
+        volunteer_button_style.bottom_padding = 0
+        volunteer_button_style.left_padding = 0
+        volunteer_button_style.right_padding = 0
+        Gui.set_data(volunteer_button, task)
+        update_volunteer_button(volunteer_button, task)
+    end
+end
+
 local function draw_main_frame(left)
     local data = {}
 
-    local frame = left.add {type = 'frame', name = main_frame_name, caption = 'Tasks', direction = 'vertical'}
+    local frame = left.add {type = 'frame', name = main_frame_name, direction = 'vertical'}
     Gui.set_data(frame, data)
 
     local announcements_header_flow = frame.add {type = 'flow'}
@@ -114,11 +243,30 @@ local function draw_main_frame(left)
     announcements_textbox.read_only = true
     announcements_textbox.word_wrap = true
     local announcements_textbox_style = announcements_textbox.style
-    announcements_textbox_style.width = 500
+    announcements_textbox_style.width = 400
     announcements_textbox_style.height = 100
 
     data.announcements_textbox = announcements_textbox
     data.announcements_updated_label = announcements_updated_label
+
+    local tasks_header_flow = frame.add {type = 'flow'}
+    local tasks_header = tasks_header_flow.add {type = 'label', caption = 'Tasks'}
+    tasks_header.style.font = 'default-listbox'
+
+    local tasks_scroll_pane = frame.add {type = 'scroll-pane', direction = 'vertical'}
+    local tasks_scroll_pane_style = tasks_scroll_pane.style
+    tasks_scroll_pane_style.minimal_width = 400
+    tasks_scroll_pane_style.maximal_height = 300
+
+    local tasks_content = tasks_scroll_pane.add {type = 'table', column_count = 6}
+    local tasks_content_style = tasks_content.style
+    tasks_content_style.horizontal_spacing = 0
+    tasks_content_style.vertical_spacing = 0
+    data.tasks_content = tasks_content
+
+    redraw_tasks(tasks_content)
+
+    frame.add {type = 'button', name = add_task_button_name, caption = 'New Task'}
 
     frame.add {
         type = 'checkbox',
@@ -135,12 +283,21 @@ local function toggle(event)
     local frame = left[main_frame_name]
     if frame and frame.valid then
         Gui.destroy(frame)
+        frame = left[edit_announcements_frame_name]
+        if frame and frame.valid then
+            Gui.destroy(frame)
+        end
+        frame = left[create_task_frame_name]
+        if frame and frame.valid then
+            Gui.destroy(frame)
+        end
     else
         draw_main_frame(left)
     end
 end
 
 local function update_edit_announcements_textbox(text, player)
+    local player_index = player.index
     announcements.edit_text = text
     announcements.last_edit_player = player
     local editing_players = announcements.editing_players
@@ -148,8 +305,10 @@ local function update_edit_announcements_textbox(text, player)
     local last_edit_message = get_edit_announcements_last_player_message()
     local editing_players_message = get_editing_players_message(editing_players)
 
-    for _, data in pairs(editing_players) do
-        data.textbox.text = text
+    for pi, data in pairs(editing_players) do
+        if pi ~= player_index then
+            data.textbox.text = text
+        end
 
         local last_edit_label = data.last_edit_player_label
         last_edit_label.caption = last_edit_message
@@ -207,6 +366,46 @@ local function update_announcements(player)
             label.tooltip = last_edit_message
         elseif notify then
             draw_main_frame(left)
+        end
+    end
+end
+
+local function create_new_tasks(task_name, player)
+    local task_id = get_task_id()
+    local task = {
+        task_id = task_id,
+        created_by = player,
+        edited_by = nil,
+        tick = game.tick,
+        name = task_name,
+        volunteers = {}
+    }
+
+    table.insert(tasks, task)
+
+    local message =
+        table.concat {
+        player.name,
+        ' has create a new task #',
+        task_id,
+        ' - ',
+        task_name
+    }
+
+    for pi, p in ipairs(game.connected_players) do
+        local notify = not no_notify_players[pi]
+        local left = p.gui.left
+        local frame = left[main_frame_name]
+        if frame and frame.valid then
+            local frame_data = Gui.get_data(frame)
+            local tasks_content = frame_data.tasks_content
+            redraw_tasks(tasks_content)
+        elseif notify then
+            draw_main_frame(left)
+        end
+
+        if notify then
+            p.print(message)
         end
     end
 end
@@ -285,7 +484,7 @@ Gui.on_click(
             frame.add {type = 'text-box', name = edit_announcements_textbox_name, text = announcements.edit_text}
         textbox.word_wrap = true
         local textbox_style = textbox.style
-        textbox_style.width = 500
+        textbox_style.width = 400
         textbox_style.height = 100
 
         data.textbox = textbox
@@ -293,12 +492,14 @@ Gui.on_click(
         local bottom_flow = frame.add {type = 'flow'}
 
         local close_button = bottom_flow.add {type = 'button', name = edit_close_button_name, caption = 'Close'}
-        bottom_flow.add {type = 'button', name = edit_clear_button_name, caption = 'Clear'}
-        bottom_flow.add {type = 'button', name = edit_reset_button_name, caption = 'Reset'}
+        local clear_button = bottom_flow.add {type = 'button', name = edit_clear_button_name, caption = 'Clear'}
+        local reset_button = bottom_flow.add {type = 'button', name = edit_reset_button_name, caption = 'Reset'}
         bottom_flow.add({type = 'flow'}).style.horizontally_stretchable = true
         local confirm_button = bottom_flow.add {type = 'button', name = edit_confirm_button_name, caption = 'Confirm'}
 
         Gui.set_data(close_button, frame)
+        Gui.set_data(clear_button, textbox)
+        Gui.set_data(reset_button, textbox)
         Gui.set_data(confirm_button, frame)
 
         announcements.editing_players[player.index] = {
@@ -341,14 +542,20 @@ Gui.on_click(
 Gui.on_click(
     edit_clear_button_name,
     function(event)
-        update_edit_announcements_textbox('', event.player)
+        local text = ''
+        local textbox = Gui.get_data(event.element)
+        textbox.text = text
+        update_edit_announcements_textbox(text, event.player)
     end
 )
 
 Gui.on_click(
     edit_reset_button_name,
     function(event)
-        update_edit_announcements_textbox(announcements.text, event.player)
+        local text = announcements.text
+        local textbox = Gui.get_data(event.element)
+        textbox.text = text
+        update_edit_announcements_textbox(text, event.player)
     end
 )
 
@@ -370,5 +577,92 @@ Gui.on_text_changed(
         local text = textbox.text
 
         update_edit_announcements_textbox(text, event.player)
+    end
+)
+
+Gui.on_click(
+    add_task_button_name,
+    function(event)
+        local player = event.player
+        local left = player.gui.left
+        local frame = left[create_task_frame_name]
+
+        if frame then
+            return
+        end
+
+        frame = left.add {type = 'frame', name = create_task_frame_name, caption = 'New Task', direction = 'vertical'}
+
+        local textbox = frame.add {type = 'text-box'}
+        local textbox_style = textbox.style
+        textbox_style.width = 400
+
+        local bottom_flow = frame.add {type = 'flow'}
+
+        local close_button = bottom_flow.add {type = 'button', name = create_task_close_button_name, caption = 'Close'}
+        Gui.set_data(close_button, frame)
+        local clear_button = bottom_flow.add {type = 'button', name = create_task_clear_button_name, caption = 'Clear'}
+        Gui.set_data(clear_button, textbox)
+        bottom_flow.add({type = 'flow'}).style.horizontally_stretchable = true
+        local confirm_button =
+            bottom_flow.add {type = 'button', name = create_task_confirm_button_name, caption = 'Create Task'}
+        Gui.set_data(confirm_button, {frame = frame, textbox = textbox})
+    end
+)
+
+Gui.on_click(
+    create_task_close_button_name,
+    function(event)
+        local frame = Gui.get_data(event.element)
+        Gui.destroy(frame)
+    end
+)
+
+Gui.on_click(
+    create_task_clear_button_name,
+    function(event)
+        local textbox = Gui.get_data(event.element)
+        textbox.text = ''
+    end
+)
+
+Gui.on_click(
+    create_task_confirm_button_name,
+    function(event)
+        local data = Gui.get_data(event.element)
+
+        local frame = data.frame
+        local textbox = data.textbox
+        local task_name = textbox.text
+
+        Gui.destroy(frame)
+
+        create_new_tasks(task_name, event.player)
+    end
+)
+
+commands.add_command(
+    'task',
+    '<task> - Creates a new task (Admins and regulars only).',
+    function(cmd)
+        local player = game.player
+
+        if player then
+            if not player.admin or not UserGroups.is_regular(player.name) then
+                cant_run(cmd.name)
+                return
+            end
+        else
+            player = server_player
+        end
+
+        local task_name = cmd.parameter
+
+        if not task_name or task_name == '' then
+            player.print('Usage: /task <task>')
+            return
+        end
+
+        create_new_tasks(task_name, player)
     end
 )
