@@ -25,6 +25,7 @@ local announcements = {
     last_update_time = nil
 }
 local tasks = {}
+local player_tasks = {}
 local tasks_counter = {0}
 local no_notify_players = {}
 
@@ -32,12 +33,14 @@ Global.register(
     {
         announcements = announcements,
         tasks = tasks,
+        player_tasks = player_tasks,
         tasks_counter = tasks_counter,
         no_notify_announcements_players = no_notify_players
     },
     function(tbl)
         announcements = tbl.announcements
         tasks = tbl.tasks
+        player_tasks = tbl.player_tasks
         tasks_counter = tbl.tasks_counter
         no_notify_players = tbl.no_notify_announcements_players
     end
@@ -131,16 +134,24 @@ end
 local function update_volunteer_button(button, task)
     local volunteers = task.volunteers
 
-    local tooltip = {}
+    local tooltip = {'Volunteers: '}
     local count = 0
 
     for _, p in pairs(volunteers) do
-        table.insert(tooltip, p.name)
-        count = count + 1
+        if p.connected then
+            table.insert(tooltip, p.name)
+            table.insert(tooltip, ', ')
+            count = count + 1
+        end
     end
+    table.remove(tooltip)
 
     button.caption = count
-    button.tooltip = table.concat(tooltip, ', ')
+    if count == 0 then
+        button.tooltip = 'No volunteers'
+    else
+        button.tooltip = table.concat(tooltip)
+    end
 
     if volunteers[button.player_index] then
         button.style.font_color = focus_color
@@ -149,10 +160,14 @@ local function update_volunteer_button(button, task)
     end
 end
 
-local function redraw_tasks(parent)
+local function redraw_tasks(data)
+    local parent = data.tasks_content
     Gui.clear(parent)
+    local volunteer_buttons = {}
+    data.volunteer_buttons = volunteer_buttons
 
-    if #tasks == 0 then
+    local task_count = #tasks
+    if task_count == 0 then
         parent.add {type = 'label', caption = 'There are no Tasks.'}
         return
     end
@@ -179,26 +194,34 @@ local function redraw_tasks(parent)
         Gui.set_data(edit_button, task)
 
         local up_button =
-            parent.add({type = 'flow'}).add {type = 'button', name = move_task_up_button_name, caption = '▲'}
+            parent.add({type = 'flow'}).add {
+            type = 'button',
+            name = move_task_up_button_name,
+            caption = '▲',
+            tooltip = 'Move the task up, right click moves 5 spaces, shift click moves the task to the top.'
+        }
+        up_button.enabled = task_index ~= 1
         apply_direction_button_style(up_button)
         Gui.set_data(up_button, task_index)
         local down_button =
-            parent.add({type = 'flow'}).add {type = 'button', name = move_task_down_button_name, caption = '▼'}
+            parent.add({type = 'flow'}).add {
+            type = 'button',
+            name = move_task_down_button_name,
+            caption = '▼',
+            tooltip = 'Move the task down, right click moves 5 spaces, shift click moves the task to the bottom.'
+        }
+        down_button.enabled = task_index ~= task_count
         apply_direction_button_style(down_button)
         Gui.set_data(down_button, task_index)
 
-        local label = parent.add {type = 'label', caption = task.name}
-        label.style.left_padding = 8
-
         local volunteer_button_flow = parent.add {type = 'flow'}
-        local volunteer_button_flow_style = volunteer_button_flow.style
+        --[[ local volunteer_button_flow_style = volunteer_button_flow.style
         volunteer_button_flow_style.horizontally_stretchable = true
-        volunteer_button_flow_style.align = 'right'
-
+        volunteer_button_flow_style.align = 'right' ]]
         local volunteer_button = volunteer_button_flow.add {type = 'button', name = volunteer_task_button_name}
         local volunteer_button_style = volunteer_button.style
         volunteer_button_style.font = 'default-small'
-        volunteer_button_style.height = 24
+        volunteer_button_style.height = 26
         volunteer_button_style.width = 26
         volunteer_button_style.top_padding = 0
         volunteer_button_style.bottom_padding = 0
@@ -206,6 +229,11 @@ local function redraw_tasks(parent)
         volunteer_button_style.right_padding = 0
         Gui.set_data(volunteer_button, task)
         update_volunteer_button(volunteer_button, task)
+
+        volunteer_buttons[task] = volunteer_button
+
+        local label = parent.add {type = 'label', caption = table.concat {'#', task.task_id, ' ', task.name}}
+        label.style.left_padding = 4
     end
 end
 
@@ -255,8 +283,8 @@ local function draw_main_frame(left)
 
     local tasks_scroll_pane = frame.add {type = 'scroll-pane', direction = 'vertical'}
     local tasks_scroll_pane_style = tasks_scroll_pane.style
-    tasks_scroll_pane_style.minimal_width = 400
-    tasks_scroll_pane_style.maximal_height = 300
+    tasks_scroll_pane_style.width = 400
+    tasks_scroll_pane_style.maximal_height = 250
 
     local tasks_content = tasks_scroll_pane.add {type = 'table', column_count = 6}
     local tasks_content_style = tasks_content.style
@@ -264,7 +292,7 @@ local function draw_main_frame(left)
     tasks_content_style.vertical_spacing = 0
     data.tasks_content = tasks_content
 
-    redraw_tasks(tasks_content)
+    redraw_tasks(data)
 
     frame.add {type = 'button', name = add_task_button_name, caption = 'New Task'}
 
@@ -398,8 +426,7 @@ local function create_new_tasks(task_name, player)
         local frame = left[main_frame_name]
         if frame and frame.valid then
             local frame_data = Gui.get_data(frame)
-            local tasks_content = frame_data.tasks_content
-            redraw_tasks(tasks_content)
+            redraw_tasks(frame_data)
         elseif notify then
             draw_main_frame(left)
         end
@@ -430,6 +457,23 @@ local function player_created(event)
         local label = data.announcements_updated_label
         label.caption = last_edit_message
         label.tooltip = last_edit_message
+
+        redraw_tasks(data)
+    end
+
+    local tasks_for_player = player_tasks[player.index]
+    if tasks_for_player and next(tasks_for_player) then
+        for _, p in game.connected_players do
+            local frame = p.gui.left[main_frame_name]
+            if frame and frame.valid then
+                local data = Gui.get_data(frame)
+                local volunteer_buttons = data.volunteer_buttons
+
+                for t, _ in pairs(tasks_for_player) do
+                    update_volunteer_button(volunteer_buttons[t], t)
+                end
+            end
+        end
     end
 
     local top = gui.top
@@ -581,6 +625,131 @@ Gui.on_text_changed(
 )
 
 Gui.on_click(
+    delete_task_button_name,
+    function(event)
+        local task_index = Gui.get_data(event.element)
+
+        local task = table.remove(tasks, task_index)
+
+        local message =
+            table.concat {
+            event.player.name,
+            ' has deleted task #',
+            task.task_id,
+            ' - ',
+            task.name
+        }
+
+        for pi, _ in pairs(task.volunteers) do
+            local tasks_for_player = player_tasks[pi]
+            if tasks_for_player then
+                tasks_for_player[task] = nil
+            end
+        end
+
+        for pi, p in ipairs(game.connected_players) do
+            local notify = not no_notify_players[pi]
+            local left = p.gui.left
+            local frame = left[main_frame_name]
+            if frame and frame.valid then
+                local data = Gui.get_data(frame)
+                redraw_tasks(data)
+            elseif notify then
+                draw_main_frame(left)
+            end
+
+            if notify then
+                p.print(message)
+            end
+        end
+    end
+)
+
+local function do_direction(event, sign)
+    local count
+    if event.shift then
+        count = #tasks
+    else
+        local button = event.button
+        if button == defines.mouse_button_type.right then
+            count = 5
+        else
+            count = 1
+        end
+    end
+
+    count = count * sign
+
+    local old_index = Gui.get_data(event.element)
+
+    local new_index = old_index + count
+    new_index = math.clamp(new_index, 1, #tasks)
+
+    local task = table.remove(tasks, old_index)
+    table.insert(tasks, new_index, task)
+
+    for _, p in ipairs(game.connected_players) do
+        local frame = p.gui.left[main_frame_name]
+        if frame and frame.valid then
+            local data = Gui.get_data(frame)
+            redraw_tasks(data)
+        end
+    end
+end
+
+Gui.on_click(
+    move_task_up_button_name,
+    function(event)
+        do_direction(event, -1)
+    end
+)
+
+Gui.on_click(
+    move_task_down_button_name,
+    function(event)
+        do_direction(event, 1)
+    end
+)
+
+Gui.on_click(
+    volunteer_task_button_name,
+    function(event)
+        local button = event.element
+        local task = Gui.get_data(button)
+
+        local player_index = event.player_index
+        local volunteers = task.volunteers
+
+        if volunteers[player_index] then
+            volunteers[player_index] = nil
+
+            local tasks_for_player = player_tasks[player_index]
+            tasks_for_player[task] = nil
+        else
+            volunteers[player_index] = event.player
+
+            local tasks_for_player = player_tasks[player_index]
+            if not tasks_for_player then
+                tasks_for_player = {}
+                player_tasks[player_index] = tasks_for_player
+            end
+
+            tasks_for_player[task] = true
+        end
+
+        for _, p in ipairs(game.connected_players) do
+            local frame = p.gui.left[main_frame_name]
+            if frame and frame.valid then
+                local data = Gui.get_data(frame)
+                local volunteer_buttons = data.volunteer_buttons
+
+                update_volunteer_button(volunteer_buttons[task], task)
+            end
+        end
+    end
+)
+
+Gui.on_click(
     add_task_button_name,
     function(event)
         local player = event.player
@@ -648,7 +817,7 @@ commands.add_command(
         local player = game.player
 
         if player then
-            if not player.admin or not UserGroups.is_regular(player.name) then
+            if not player.admin and not UserGroups.is_regular(player.name) then
                 cant_run(cmd.name)
                 return
             end
