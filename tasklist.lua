@@ -476,8 +476,8 @@ local function update_announcements(player)
     local last_edit_message = get_announcements_updated_by_message()
     local update_message = 'The announcements have been updated by ' .. player.name
 
-    for pi, p in ipairs(game.connected_players) do
-        local notify = not no_notify_players[pi]
+    for _, p in ipairs(game.connected_players) do
+        local notify = not no_notify_players[p.index]
 
         if notify then
             p.print(update_message)
@@ -526,8 +526,8 @@ local function create_new_tasks(task_name, player)
         task_name
     }
 
-    for pi, p in ipairs(game.connected_players) do
-        local notify = not no_notify_players[pi]
+    for _, p in ipairs(game.connected_players) do
+        local notify = not no_notify_players[p.index]
         local left = p.gui.left
         local frame = left[main_frame_name]
         if frame and frame.valid then
@@ -567,7 +567,7 @@ local function draw_create_task_frame(left, previous_task)
         left.add {type = 'frame', name = create_task_frame_name, caption = frame_caption, direction = 'vertical'}
     frame.style.width = 470
 
-    local textbox = frame.add {type = 'text-box', text = text}
+    local textbox = frame.add {type = 'textfield', text = text}
     local textbox_style = textbox.style
     textbox_style.width = 450
 
@@ -814,8 +814,8 @@ Gui.on_click(
             end
         end
 
-        for pi, p in ipairs(game.connected_players) do
-            local notify = not no_notify_players[pi]
+        for _, p in ipairs(game.connected_players) do
+            local notify = not no_notify_players[p.index]
             local left = p.gui.left
             local frame = left[main_frame_name]
             if frame and frame.valid then
@@ -1045,8 +1045,8 @@ Gui.on_click(
 
         local update_message = get_task_updated_by_message()
 
-        for pi, p in ipairs(game.connected_players) do
-            local notify = not no_notify_players[pi]
+        for _, p in ipairs(game.connected_players) do
+            local notify = not no_notify_players[p.index]
             local left = p.gui.left
             local main_frame = left[main_frame_name]
 
