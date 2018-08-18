@@ -14,6 +14,10 @@ global.player_report_data = {}
 
 local function draw_report(parent, report_id)
     local report = global.reports[report_id]
+    if report_id == 0 or not report then
+        parent.add {type = "label", caption="No reports yet."}
+        return
+    end
     local reported_player_name = game.players[report.reported_player_index].name
     local reporting_player_name = game.players[report.reporting_player_index].name
     local time = Utils.format_time(report.tick)
@@ -32,12 +36,17 @@ local function draw_report(parent, report_id)
     parent.add {type="label", caption="Reported by: " .. reporting_player_name}
 end
 
-local function show_reports(player)
+Module.show_reports = function(player)
     local reports = global.reports or {}
 
-    local center = player.gui.center    
-  
-    local report_frame = center.add {
+    local center = player.gui.center
+
+    local report_frame = center[report_frame_name]
+    if report_frame and report_frame.valid then 
+        Gui.destroy(report_frame)
+    end
+    
+    report_frame = center.add {
         type = 'frame',
         name = report_frame_name,
         direction = 'vertical',
@@ -54,16 +63,14 @@ local function show_reports(player)
             button_cell.add {
                 type="button", 
                 name=report_tab_button_name, 
-                caption = game.players[report.reporting_player_index].name
+                caption = game.players[report.reported_player_index].name
             }
         end
     end
     local report_body = report_frame.add {type = "scroll-pane", name = report_body_name, horizontal_scroll_policy = "never", vertical_scroll_policy="never"}
     report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close'}
-
-    if #reports > 0 then
-        draw_report(report_body, #reports)
-    end
+ 
+    draw_report(report_body, #reports)
 end
 
 local function report(reporting_player, reported_player, message)
@@ -72,14 +79,14 @@ local function report(reporting_player, reported_player, message)
     local notified = false
     for _,p in pairs(game.players) do
         if p.admin and p.connected then
-            show_reports(p)
+            Module.show_reports(p)
             if p.afk_time < 3600 then notified = true end
         end
     end
     if not notified then
         for _,p in pairs(game.players) do
             if p.admin then
-                show_reports(p) 
+                Module.show_reports(p) 
             end
         end
     end
@@ -88,16 +95,14 @@ end
 Gui.on_custom_close(
     report_frame_name,
     function(event)
-        Gui.remove_data_recursivly(event.element)
-        event.element.destroy()
+        Gui.destroy(event.element)
     end
 )
 
 Gui.on_click(
     report_close_button_name,
     function(event)
-        Gui.remove_data_recursivly(event.element.parent)
-        event.element.parent.destroy()
+        Gui.destroy(event.element.parent)
     end
 )
 
@@ -122,7 +127,11 @@ Module.spawn_reporting_popup = function(player, reported_player)
 
     local center = player.gui.center    
   
-    local reporting_popup = center.add {
+    local reporting_popup = center[reporting_popup_name]
+    if reporting_popup and reporting_popup.valid then 
+        Gui.destroy(reporting_popup)
+    end
+    reporting_popup = center.add {
         type = 'frame',
         name = reporting_popup_name,
         direction = 'vertical',
@@ -148,8 +157,7 @@ end
 Gui.on_custom_close(
     reporting_popup_name,
     function(event) 
-        Gui.remove_data_recursivly(event.element)
-        event.element.destroy()
+        Gui.destroy(event.element)
     end
 )
 
@@ -157,8 +165,7 @@ Gui.on_click(
     reporting_cancel_button_name,
     function(event)
         local frame = event.element.parent.parent
-        Gui.remove_data_recursivly(frame)
-        frame.destroy()
+        Gui.destroy(frame)
     end
 )
 
@@ -170,19 +177,10 @@ Gui.on_click(
         local data = Gui.get_data(frame)
         local reported_player_index = data["reported_player_index"]
         
-        Gui.remove_data_recursivly(frame)
-        frame.destroy()
+        Gui.destroy(frame)
         report(event.player, game.players[reported_player_index], msg)
         
         event.player.print("Sucessfully reported " .. game.players[reported_player_index].name)
-    end
-)
-
-commands.add_command('showreports', 'Shows user reports (Admins only)', 
-	function(event) 
-		if game.player and game.player.admin then 
-            show_reports(game.players[event.player_index]) 
-        end
     end
 )
 
