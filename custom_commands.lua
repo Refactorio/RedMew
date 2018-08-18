@@ -484,7 +484,7 @@ local function find_player(cmd)
         return
     end
 
-    player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, player.name, true)
+    player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, name, true)
 end
 
 local function jail_player(cmd)
