@@ -73,7 +73,7 @@ Module.show_reports = function(player)
     draw_report(report_body, #reports)
 end
 
-local function report(reporting_player, reported_player, message)
+function Module.report(reporting_player, reported_player, message)
     table.insert(global.reports, {reporting_player_index = reporting_player.index, reported_player_index = reported_player.index, message = message, tick = game.tick})
 
     local notified = false
@@ -149,7 +149,7 @@ Module.spawn_reporting_popup = function(player, reported_player)
     input.style.width = 400 
     input.style.height = 85
     local button_flow = reporting_popup.add {type = "flow"}
-    submit_button = button_flow.add {type = "button", name = reporting_submit_button_name, caption="Submit"}
+    local submit_button = button_flow.add {type = "button", name = reporting_submit_button_name, caption="Submit"}
     button_flow.add {type = "button", name = reporting_cancel_button_name, caption="Cancel"}
 
 end
@@ -178,7 +178,7 @@ Gui.on_click(
         local reported_player_index = data["reported_player_index"]
         
         Gui.destroy(frame)
-        report(event.player, game.players[reported_player_index], msg)
+        Module.report(event.player, game.players[reported_player_index], msg)
         
         event.player.print("Sucessfully reported " .. game.players[reported_player_index].name)
     end

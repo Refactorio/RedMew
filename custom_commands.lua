@@ -624,14 +624,14 @@ end
 
 local function admin_chat(cmd)
     if not game.player or game.player.admin then --admins AND server
-        for _,p in pairs(game.players) do
+        for _, p in pairs(game.players) do
             if p.admin then
                 local tag = ''
                 if game.player.tag and game.player.tag ~= '' then
                     tag = ' ' .. game.player.tag
                 end
-                p.print(string.format("(Admin) %s%s: %s", game.player.name, tag, cmd.parameter), game.player.chat_color)
-	    end
+                p.print(string.format('(Admin) %s%s: %s', game.player.name, tag, cmd.parameter), game.player.chat_color)
+            end
         end
     end
 end
@@ -697,10 +697,37 @@ commands.add_command(
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
 
 local Report = require('report')
-commands.add_command('showreports', 'Shows user reports (Admins only)', 
-    function(event) 
-        if game.player and game.player.admin then 
-            Report.show_reports(game.players[event.player_index]) 
+
+local function report(cmd)
+    local reporting_player = game.player
+    if reporting_player then
+        local params = {}
+        for param in string.gmatch(cmd.parameter, '%S+') do
+            table.insert(params, param)
+        end
+        if #params < 2 then
+            reporting_player.print('Please enter then name of the offender and the reason for the report.')
+            return nil
+        end
+        local reported_player_name = params[1] or ''
+        local reported_player = game.players[reported_player_name]
+
+        if not reported_player then
+            reporting_player.print(reported_player_name .. ' does not exist.')
+            return nil
+        end
+        Report.report(reporting_player, reported_player, string.sub(cmd.parameter, string.len(params[1]) + 2))
+    end
+end
+
+commands.add_command('report', '<griefer-name> <message> Reports a user to admins', report)
+
+commands.add_command(
+    'showreports',
+    'Shows user reports (Admins only)',
+    function(event)
+        if game.player and game.player.admin then
+            Report.show_reports(game.players[event.player_index])
         end
     end
 )
