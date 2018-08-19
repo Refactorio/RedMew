@@ -226,6 +226,9 @@ Event.add(
         local count = user_item_record.count
         local time = user_item_record['time'] or format_time(game.tick)
         data[name] = {count = stack.count + count, time = time}
+        
+        p.remove_item(stack)
+        p.surface.spill_item_stack(p.position, stack)
     end
 )
 
