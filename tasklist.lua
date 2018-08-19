@@ -610,7 +610,7 @@ local function player_created(event)
 
     local tasks_for_player = player_tasks[player.index]
     if tasks_for_player and next(tasks_for_player) then
-        for _, p in game.connected_players do
+        for _, p in ipairs(game.connected_players) do
             local main_frame = p.gui.left[main_frame_name]
             if main_frame then
                 local data = Gui.get_data(main_frame)
