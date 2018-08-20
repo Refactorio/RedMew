@@ -325,7 +325,7 @@ be sure to show off your creatively.]]
             }
             tag_label.style.single_line = false
 
-            grid.add {type = 'sprite', sprite = 'item/discharge-defense-remote'}
+            grid.add {type = 'sprite', sprite = 'item/repair-pack'}
             local task = grid.add {type = 'label', caption = 'Tasks'}
             task.style.font = 'default-listbox'
             local task_label =
