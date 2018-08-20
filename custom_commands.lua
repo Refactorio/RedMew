@@ -605,7 +605,6 @@ end
 
 local function all_tech(cmd)
     if game.player and game.player.admin then
-game.print('entering 1')
         local confirm = cmd.parameter
         local player = game.player
         if player.force ~= game.forces['player'] then
@@ -617,7 +616,6 @@ game.print('entering 1')
         elseif player.force == game.forces['player'] and confirm ~= 'true' then   
             player.print('This will give the player force all research. If you\'re sure you want to do this run /all-tech true')
         end
-game.print('exiting 1')
     else
         cant_run(cmd.name)
         return
