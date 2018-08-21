@@ -21,7 +21,8 @@ local Token = require 'utils.global_token'
 local Task = require 'utils.Task'
 local PlayerStats = require 'player_stats'
 
-local market_items = require 'resources.market_items'
+local Market_items = require 'resources.market_items'
+local market_item = Market_items.market_item
 
 local function spawn_market(cmd)
     local player = game.player
@@ -38,14 +39,14 @@ local function spawn_market(cmd)
     local market = surface.create_entity {name = 'market', position = pos}
     market.destructible = false
 
-    for _, item in ipairs(market_items) do
+    for _, item in ipairs(Market_items) do
         market.add_market_item(item)
     end
 
     force.add_chart_tag(
         surface,
         {
-            icon = {type = 'item', name = 'coin'},
+            icon = {type = 'item', name = market_item},
             position = pos,
             text = ' Market'
         }
@@ -115,7 +116,7 @@ local function fish_earned(event, amount)
     local player_index = event.player_index
     local player = game.players[player_index]
 
-    local stack = {name = 'coin', count = amount}
+    local stack = {name = market_item, count = amount}
     local inserted = player.insert(stack)
 
     local diff = amount - inserted
@@ -169,7 +170,7 @@ local entity_drop_amount = {
 local spill_items =
     Token.register(
     function(data)
-        local stack = {name = 'coin', count = data.count}
+        local stack = {name = market_item, count = data.count}
         data.surface.spill_item_stack(data.position, stack, true)
     end
 )

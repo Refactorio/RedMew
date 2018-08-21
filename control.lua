@@ -36,7 +36,7 @@ local function player_created(event)
         return
     end
 
-    player.insert {name = 'coin', count = 10}
+    player.insert {name = MARKET_ITEM, count = 10}
     player.insert {name = 'iron-gear-wheel', count = 8}
     player.insert {name = 'iron-plate', count = 16}
     player.print('Welcome to our Server. You can join our Discord at: redmew.com/discord')

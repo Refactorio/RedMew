@@ -5,7 +5,7 @@ local Global = require 'utils.global'
 local saviour_token_name = 'small-plane' -- item name for what saves players
 local saviour_timeout = 180 -- number of ticks players are train immune after getting hit (roughly)
 
-table.insert(Market_items, {price = {{'coin', 100}}, offer = {type = 'give-item', item = saviour_token_name}})
+table.insert(Market_items, {price = {{Market_items.market_item, 100}}, offer = {type = 'give-item', item = saviour_token_name}})
 
 local remove_stack = {name = saviour_token_name, count = 1}
 
