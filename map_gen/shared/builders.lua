@@ -1,6 +1,7 @@
 -- helpers
 tau = 2 * math.pi
 deg_to_rad = tau / 360
+local inv_pi = 1 / math.pi
 function degrees(angle)
     return angle * deg_to_rad
 end
@@ -154,6 +155,18 @@ function Builders.rectangular_spiral(x_size, optional_y_size)
         else
             return y == a and x ~= a
         end
+    end
+end
+
+function Builders.circular_spiral(out_thickness, total_thickness)
+    local half_total_thickness = total_thickness * 0.5
+    return function(x, y)
+        local d = math.sqrt(x * x + y * y)
+
+        local angle = 1 + inv_pi * math.atan2(x, y)
+        local offset = d + (angle * half_total_thickness)
+
+        return offset % total_thickness >= out_thickness
     end
 end
 

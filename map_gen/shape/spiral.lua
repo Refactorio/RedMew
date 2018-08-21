@@ -1,16 +1,16 @@
-return function(x, y, world)
-	local distance = math.sqrt(x * x + y * y)
-	if distance > 128 then
-		local angle = 180 + math.deg(math.atan2(x, y))
+local thickness = 72 -- change this to change the spiral thickness.
 
-		local offset = distance
-		if angle ~= 0 then
-			offset = offset + angle / 3.75
-		end
-		--if angle ~= 0 then offset = offset + angle /1.33333333 end
+local inv_pi = 1 / math.pi
+local thickness2 = thickness * 2
 
-		return offset % 96 >= 48
-	end
+return function(x, y)
+    local d = math.sqrt(x * x + y * y)
+    if d < 128 then
+        return true
+    end
 
-	return true
+    local angle = 1 + inv_pi * math.atan2(x, y)
+    local offset = d + (angle * thickness)
+
+    return offset % thickness2 >= thickness
 end
