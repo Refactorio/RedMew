@@ -170,6 +170,19 @@ function Builders.circular_spiral(out_thickness, total_thickness)
     end
 end
 
+function Builders.circular_spiral_n_threads(in_thickness, total_thickness, n_threads)
+    local out_thickness = total_thickness - in_thickness
+    local half_total_thickness = total_thickness * 0.5 * n_threads
+    return function(x, y)
+        local d = math.sqrt(x * x + y * y)
+
+        local angle = 1 + inv_pi * math.atan2(x, y)
+        local offset = d + (angle * half_total_thickness)
+
+        return offset % total_thickness >= out_thickness
+    end
+end
+
 local tile_map = {
     [1] = false,
     [2] = true,
