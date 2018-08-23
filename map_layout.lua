@@ -6,6 +6,7 @@ in this file and your run_*type*_module(event) function will be called.
 --]]
 
 local b = require 'map_gen.shared.builders'
+local Perlin = require 'map_gen.shared.perlin_noise'
 
 local shape = nil
 local regen_decoratives = false

