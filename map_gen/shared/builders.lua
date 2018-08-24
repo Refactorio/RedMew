@@ -159,7 +159,6 @@ function Builders.rectangular_spiral(x_size, optional_y_size)
 end
 
 function Builders.circular_spiral(in_thickness, total_thickness)
-    local out_thickness = total_thickness - in_thickness
     local half_total_thickness = total_thickness * 0.5
     return function(x, y)
         local d = math.sqrt(x * x + y * y)
@@ -167,12 +166,11 @@ function Builders.circular_spiral(in_thickness, total_thickness)
         local angle = 1 + inv_pi * math.atan2(x, y)
         local offset = d + (angle * half_total_thickness)
 
-        return offset % total_thickness >= out_thickness
+        return offset % total_thickness < in_thickness
     end
 end
 
 function Builders.circular_spiral_grow(in_thickness, total_thickness, grow_factor)
-    local out_thickness = total_thickness - in_thickness
     local half_total_thickness = total_thickness * 0.5
     local inv_grow_factor = 1 / grow_factor
     return function(x, y)
@@ -180,18 +178,17 @@ function Builders.circular_spiral_grow(in_thickness, total_thickness, grow_facto
 
         local factor = (d * inv_grow_factor) + 1
         local total_thickness2 = total_thickness * factor
-        local out_thickness2 = out_thickness * factor
+        local in_thickness2 = in_thickness * factor
         local half_total_thickness2 = half_total_thickness * factor
 
         local angle = 1 + inv_pi * math.atan2(x, y)
         local offset = d + (angle * half_total_thickness2)
 
-        return offset % total_thickness2 >= out_thickness2
+        return offset % total_thickness2 < in_thickness2
     end
 end
 
 function Builders.circular_spiral_n_threads(in_thickness, total_thickness, n_threads)
-    local out_thickness = total_thickness - in_thickness
     local half_total_thickness = total_thickness * 0.5 * n_threads
     return function(x, y)
         local d = math.sqrt(x * x + y * y)
@@ -199,12 +196,11 @@ function Builders.circular_spiral_n_threads(in_thickness, total_thickness, n_thr
         local angle = 1 + inv_pi * math.atan2(x, y)
         local offset = d + (angle * half_total_thickness)
 
-        return offset % total_thickness >= out_thickness
+        return offset % total_thickness < in_thickness
     end
 end
 
 function Builders.circular_spiral_grow_n_threads(in_thickness, total_thickness, grow_factor, n_threads)
-    local out_thickness = total_thickness - in_thickness
     local half_total_thickness = total_thickness * 0.5 * n_threads
     local inv_grow_factor = 1 / grow_factor
     return function(x, y)
@@ -212,13 +208,13 @@ function Builders.circular_spiral_grow_n_threads(in_thickness, total_thickness, 
 
         local factor = (d * inv_grow_factor) + 1
         local total_thickness2 = total_thickness * factor
-        local out_thickness2 = out_thickness * factor
+        local in_thickness2 = in_thickness * factor
         local half_total_thickness2 = half_total_thickness * factor
 
         local angle = 1 + inv_pi * math.atan2(x, y)
         local offset = d + (angle * half_total_thickness2)
 
-        return offset % total_thickness2 >= out_thickness2
+        return offset % total_thickness2 < in_thickness2
     end
 end
 
@@ -1025,6 +1021,65 @@ function Builders.single_spiral_rotate_pattern(shape, width, optional_height)
         else
             return false
         end
+    end
+end
+
+function Builders.circular_spiral_pattern(in_thickness, total_thickness, pattern)
+    local n_threads = #pattern
+    total_thickness = total_thickness * n_threads
+    local half_total_thickness = total_thickness * 0.5
+    local delta = total_thickness / n_threads
+    return function(x, y, world)
+        local d = math.sqrt(x * x + y * y)
+
+        local angle = 1 + inv_pi * math.atan2(x, y)
+
+        local offset = d + (angle * half_total_thickness)
+        if offset % total_thickness < in_thickness then
+            return pattern[1](x, y, world)
+        end
+
+        for i = 2, n_threads do
+            offset = offset + delta
+            if offset % total_thickness < in_thickness then
+                return pattern[i](x, y, world)
+            end
+        end
+
+        return false
+    end
+end
+
+function Builders.circular_spiral_grow_pattern(in_thickness, total_thickness, grow_factor, pattern)
+    local n_threads = #pattern
+    total_thickness = total_thickness * n_threads
+    local half_total_thickness = total_thickness * 0.5
+    local inv_grow_factor = 1 / grow_factor
+    local delta = total_thickness / n_threads
+    return function(x, y, world)
+        local d = math.sqrt(x * x + y * y)
+
+        local factor = (d * inv_grow_factor) + 1
+        local total_thickness2 = total_thickness * factor
+        local in_thickness2 = in_thickness * factor
+        local half_total_thickness2 = half_total_thickness * factor
+        local delta2 = delta * factor
+
+        local angle = 1 + inv_pi * math.atan2(x, y)
+
+        local offset = d + (angle * half_total_thickness2)
+        if offset % total_thickness2 < in_thickness2 then
+            return pattern[1](x, y, world)
+        end
+
+        for i = 2, n_threads do
+            offset = offset + delta2
+            if offset % total_thickness2 < in_thickness2 then
+                return pattern[i](x, y, world)
+            end
+        end
+
+        return false
     end
 end
 
