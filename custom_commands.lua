@@ -603,22 +603,13 @@ local function unjail_player(cmd)
     end
 end
 
-local function all_tech(cmd)
-    if game.player and game.player.admin then
-        local confirm = cmd.parameter
+local function all_tech()
+    if game.player and _DEBUG then
         local player = game.player
-        if player.force ~= game.forces['player'] then
-            player.force.research_all_technologies()
-            game.player.print('Your force has been granted all technologies')
-        elseif player.force == game.forces['player'] and (confirm == 'true' or game.tick < 108000 or _DEBUG == true) then  -- tick 108,000=30 mins
-            player.force.research_all_technologies()
-            game.print('The player force has been granted all technologies by ' .. player.name)
-        elseif player.force == game.forces['player'] and confirm ~= 'true' then   
-            player.print('This will give the player force all research. If you\'re sure you want to do this run /all-tech true')
-        end
+        player.force.research_all_technologies()
+        player_print('Your force has been granted all technologies')
     else
-        cant_run(cmd.name)
-        return
+        player_print('This command is only available in debug mode')
     end
 end
 
@@ -663,10 +654,10 @@ commands.add_command(
 
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
-commands.add_command('all-tech', 'researches all technologies (Admins only)', all_tech)
+commands.add_command('all-tech', 'researches all technologies (debug only)', all_tech)
 commands.add_command(
     'hax',
-    'Toggles your hax',
+    'Toggles your hax (makes recipes cost nothing)',
     function()
         if game.player and game.player.admin then
             game.player.cheat_mode = not game.player.cheat_mode
