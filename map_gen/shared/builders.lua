@@ -158,7 +158,8 @@ function Builders.rectangular_spiral(x_size, optional_y_size)
     end
 end
 
-function Builders.circular_spiral(out_thickness, total_thickness)
+function Builders.circular_spiral(in_thickness, total_thickness)
+    local out_thickness = total_thickness - in_thickness
     local half_total_thickness = total_thickness * 0.5
     return function(x, y)
         local d = math.sqrt(x * x + y * y)
@@ -167,6 +168,25 @@ function Builders.circular_spiral(out_thickness, total_thickness)
         local offset = d + (angle * half_total_thickness)
 
         return offset % total_thickness >= out_thickness
+    end
+end
+
+function Builders.circular_spiral_grow(in_thickness, total_thickness, grow_factor)
+    local out_thickness = total_thickness - in_thickness
+    local half_total_thickness = total_thickness * 0.5
+    local inv_grow_factor = 1 / grow_factor
+    return function(x, y)
+        local d = math.sqrt(x * x + y * y)
+
+        local factor = (d * inv_grow_factor) + 1
+        local total_thickness2 = total_thickness * factor
+        local out_thickness2 = out_thickness * factor
+        local half_total_thickness2 = half_total_thickness * factor
+
+        local angle = 1 + inv_pi * math.atan2(x, y)
+        local offset = d + (angle * half_total_thickness2)
+
+        return offset % total_thickness2 >= out_thickness2
     end
 end
 
@@ -180,6 +200,25 @@ function Builders.circular_spiral_n_threads(in_thickness, total_thickness, n_thr
         local offset = d + (angle * half_total_thickness)
 
         return offset % total_thickness >= out_thickness
+    end
+end
+
+function Builders.circular_spiral_grow_n_threads(in_thickness, total_thickness, grow_factor, n_threads)
+    local out_thickness = total_thickness - in_thickness
+    local half_total_thickness = total_thickness * 0.5 * n_threads
+    local inv_grow_factor = 1 / grow_factor
+    return function(x, y)
+        local d = math.sqrt(x * x + y * y)
+
+        local factor = (d * inv_grow_factor) + 1
+        local total_thickness2 = total_thickness * factor
+        local out_thickness2 = out_thickness * factor
+        local half_total_thickness2 = half_total_thickness * factor
+
+        local angle = 1 + inv_pi * math.atan2(x, y)
+        local offset = d + (angle * half_total_thickness2)
+
+        return offset % total_thickness2 >= out_thickness2
     end
 end
 
