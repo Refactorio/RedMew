@@ -178,6 +178,16 @@ Check out our discord for new map info and to suggest new maps / ideas.]])
             local save_textbox = save_textbox_flow.add {type = 'text-box', text = 'http://www.redmew.com/saves/ '}
             save_textbox.read_only = true
 
+            centered_label(parent, 'View our past maps as a Google Map.')
+            local maps_textbox_flow = parent.add {type = 'flow'}
+            local maps_textbox_flow_style = maps_textbox_flow.style
+            maps_textbox_flow_style.align = 'center'
+            maps_textbox_flow_style.horizontally_stretchable = true
+            maps_textbox_flow.add({type = 'label', caption = 'Maps: '}).style.font = 'default-bold'
+            local maps_textbox =
+                maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
+            maps_textbox.read_only = true
+
             parent.add({type = 'flow'}).style.height = 24
 
             header_label(parent, 'How To Chat')
