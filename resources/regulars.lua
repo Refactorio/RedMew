@@ -41,7 +41,6 @@ return {
     ['_Joe_'] = true,
     ['aalexx'] = true,
     ['acolyteofcthulu'] = true,
-    ['actitishypoleucos'] = true,
     ['adidas'] = true,
     ['adlmr'] = true,
     ['adobewallhacks'] = true,
@@ -706,5 +705,16 @@ return {
     ['warriordragon25'] = true,
     ['mph703'] = true,
     ['cqd123123'] = true,
-    ['benitomakefactory'] = true
+    ['benitomakefactory'] = true,
+    ['Stokmeister'] = true,
+    ['zookham'] = true,
+    ['Albombe'] = true,
+    ['Kushlord'] = true,
+    ['ActitisHypoleucos'] = true,
+    ['strutter18'] = true,
+    ['Minifinger'] = true,
+    ['Hurley93'] = true,
+    ['henrycn1997'] = true,
+    ['iop77'] = true,
+    ['Hayse'] = true
 }
