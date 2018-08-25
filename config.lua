@@ -1,5 +1,5 @@
 _DEBUG = false
-MARKET_ITEM = 'raw-fish'
+MARKET_ITEM = 'coin'
 
 global.scenario = {}
 global.scenario.variables = {}

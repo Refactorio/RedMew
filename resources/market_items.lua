@@ -10,7 +10,19 @@ return {
         price = {{market_item, 10}},
         offer = {type = 'nothing', effect_description = 'Temporary mining bonus - Price 10  ' .. market_item}
     },
-    --[[ {price = {{market_item, 2}}, offer = {type = 'give-item', item = 'raw-fish'}},
+    {price = {{market_item, 2}}, offer = {type = 'give-item', item = 'raw-fish'}},
+    {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'rail', count = 2}},
+    {price = {{market_item, 2}}, offer = {type = 'give-item', item = 'rail-signal'}},
+    {price = {{market_item, 2}}, offer = {type = 'give-item', item = 'rail-chain-signal'}},
+    {price = {{market_item, 15}}, offer = {type = 'give-item', item = 'train-stop'}},
+    {price = {{market_item, 75}}, offer = {type = 'give-item', item = 'locomotive'}},
+    {price = {{market_item, 30}}, offer = {type = 'give-item', item = 'cargo-wagon'}},
+    {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'red-wire', count = 2}},
+    {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'green-wire', count = 2}},
+    {price = {{market_item, 3}}, offer = {type = 'give-item', item = 'decider-combinator'}},
+    {price = {{market_item, 3}}, offer = {type = 'give-item', item = 'arithmetic-combinator'}},
+    {price = {{market_item, 3}}, offer = {type = 'give-item', item = 'constant-combinator'}},
+    {price = {{market_item, 7}}, offer = {type = 'give-item', item = 'programmable-speaker'}},    
     {price = {{market_item, 15}}, offer = {type = 'give-item', item = 'steel-axe'}},
     {price = {{market_item, 15}}, offer = {type = 'give-item', item = 'submachine-gun'}},
     {price = {{market_item, 15}}, offer = {type = 'give-item', item = 'shotgun'}},
@@ -58,11 +70,11 @@ return {
     {price = {{market_item, 250}}, offer = {type = 'give-item', item = 'personal-roboport-equipment'}},
     {price = {{market_item, 25}}, offer = {type = 'give-item', item = 'construction-robot'}},
     {price = {{market_item, 350}}, offer = {type = 'give-item', item = 'energy-shield-equipment'}},
-    {price = {{market_item, 350}}, offer = {type = 'give-item', item = 'personal-laser-defense-equipment'}},
+    {price = {{market_item, 750}}, offer = {type = 'give-item', item = 'personal-laser-defense-equipment'}},
     {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'refined-hazard-concrete'}},
     {price = {{market_item, 75}}, offer = {type = 'give-item', item = 'loader'}},
     {price = {{market_item, 150}}, offer = {type = 'give-item', item = 'fast-loader'}},
-    {price = {{market_item, 225}}, offer = {type = 'give-item', item = 'express-loader'}} ]]
+    {price = {{market_item, 225}}, offer = {type = 'give-item', item = 'express-loader'}}
     --[[ {price = {{market_item, 5}}, offer = {type = 'give-item', item = 'science-pack-1'}},
     {price = {{market_item, 10}}, offer = {type = 'give-item', item = 'science-pack-2'}},
     {price = {{market_item, 15}}, offer = {type = 'give-item', item = 'science-pack-3'}},
@@ -70,19 +82,8 @@ return {
     {price = {{market_item, 20}}, offer = {type = 'give-item', item = 'production-science-pack'}},
     {price = {{market_item, 25}}, offer = {type = 'give-item', item = 'high-tech-science-pack'}}, ]]
 
-    {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'rail', count = 2}},
-    {price = {{market_item, 2}}, offer = {type = 'give-item', item = 'rail-signal'}},
-    {price = {{market_item, 2}}, offer = {type = 'give-item', item = 'rail-chain-signal'}},
-    {price = {{market_item, 15}}, offer = {type = 'give-item', item = 'train-stop'}},
-    {price = {{market_item, 75}}, offer = {type = 'give-item', item = 'locomotive'}},
-    {price = {{market_item, 30}}, offer = {type = 'give-item', item = 'cargo-wagon'}},
-    {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'red-wire', count = 2}},
-    {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'green-wire', count = 2}},
-    {price = {{market_item, 3}}, offer = {type = 'give-item', item = 'decider-combinator'}},
-    {price = {{market_item, 3}}, offer = {type = 'give-item', item = 'arithmetic-combinator'}},
-    {price = {{market_item, 3}}, offer = {type = 'give-item', item = 'constant-combinator'}},
-    {price = {{market_item, 7}}, offer = {type = 'give-item', item = 'programmable-speaker'}},
-    {price = {{market_item, 3}}, offer = {type = 'give-item', item = 'piercing-rounds-magazine'}},
+    
+    --[[ {price = {{market_item, 3}}, offer = {type = 'give-item', item = 'piercing-rounds-magazine'}},
     {price = {{market_item, 2}}, offer = {type = 'give-item', item = 'grenade'}},
     {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'land-mine'}},
     {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'solid-fuel'}},
@@ -106,5 +107,5 @@ return {
     {price = {{market_item, 50}}, offer = {type = 'give-item', item = 'battery-equipment', count = 1}},
     {price = {{market_item, 750}}, offer = {type = 'give-item', item = 'battery-mk2-equipment', count = 1}},
     {price = {{market_item, 1000}}, offer = {type = 'give-item', item = 'fusion-reactor-equipment', count = 1}},
-    {price = {{market_item, 100}}, offer = {type = 'give-item', item = 'exoskeleton-equipment'}}
+    {price = {{market_item, 100}}, offer = {type = 'give-item', item = 'exoskeleton-equipment'}} ]]
 }
