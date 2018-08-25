@@ -77,6 +77,7 @@ local tiles_per_tick = 32
 --shape  = require "map_gen.presets.danger_ores"
 --shape  = require "map_gen.presets.bacon_islands"
 --shape = require "map_gen.presets.spiral"
+--shape = require "map_gen.presets.hub_spiral"
 --shape = require "map_gen.presets.test"
 
 --shapes--

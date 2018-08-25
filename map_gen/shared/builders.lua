@@ -657,7 +657,7 @@ function Builders.entity_func(shape, func)
     end
 end
 
-function Builders.resource(shape, resource_type, amount_function)
+function Builders.resource(shape, resource_type, amount_function, always_place)
     amount_function = amount_function or function()
             return 404
         end
@@ -665,7 +665,8 @@ function Builders.resource(shape, resource_type, amount_function)
         if shape(x, y, world) then
             return {
                 name = resource_type,
-                amount = amount_function(world.x, world.y)
+                amount = amount_function(world.x, world.y),
+                always_place = always_place
             }
         end
     end
@@ -1425,6 +1426,13 @@ end
 function Builders.euclidean_value(base, mult)
     return function(x, y)
         return mult * math.sqrt(x * x + y * y) + base
+    end
+end
+
+function Builders.exponential_value(base, mult, pow)
+    return function(x, y)
+        local d = math.sqrt(x * x + y * y)
+        return base + mult * d ^ pow
     end
 end
 
