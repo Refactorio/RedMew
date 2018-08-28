@@ -6,6 +6,8 @@ function degrees(angle)
     return angle * deg_to_rad
 end
 
+local Builders = {}
+
 local function add_entity(tile, entity)
     if type(tile) == 'table' then
         if tile.entities then
@@ -23,7 +25,9 @@ local function add_entity(tile, entity)
     return tile
 end
 
-local Builders = {}
+function Builders.add_entity(tile, entity)
+    return add_entity(tile, entity)
+end
 
 -- shape builders
 function Builders.empty_shape()
