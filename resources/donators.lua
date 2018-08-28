@@ -1,6 +1,6 @@
 return {
     ['robertkruijt'] = true,
-    ['aldldl'] = true
-    ['Geostyx'] = true
+    ['aldldl'] = true,
+    ['Geostyx'] = true,
     ['Everyone'] = true
 }
