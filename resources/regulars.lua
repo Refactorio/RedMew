@@ -717,4 +717,6 @@ return {
     ['henrycn1997'] = true,
     ['iop77'] = true,
     ['Hayse'] = true
+    ['Geostyx'] = true
+    ['Everyone'] = true
 }
