@@ -126,7 +126,7 @@ miscs = {}
 --require ('map_gen.misc.change_landfill_tile')('sand-1')
 --require ('map_gen.misc.danger_ore_banned_entities')
 --require ('map_gen.misc.restrict_landfill_tile')({['water'] = true})
-require "map_gen.ores.rso.rso_control"
+--require "map_gen.ores.rso.rso_control"
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
