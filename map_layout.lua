@@ -100,9 +100,6 @@ local tiles_per_tick = 32
 --require "map_gen.terrain.neko_bridged_rivers"
 --require "map_gen.terrain.neko_river_overlay"
 
---ores--
---require "map_gen.ores.rso.rso_control"
-
 -- modules that only return max one entity per tile
 local entity_modules = {
 	--require "map_gen.misc.loot_items",
@@ -129,6 +126,7 @@ miscs = {}
 --require ('map_gen.misc.change_landfill_tile')('sand-1')
 --require ('map_gen.misc.danger_ore_banned_entities')
 --require ('map_gen.misc.restrict_landfill_tile')({['water'] = true})
+--require "map_gen.ores.rso.rso_control"
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
