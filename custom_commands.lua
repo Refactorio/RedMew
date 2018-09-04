@@ -636,6 +636,19 @@ local function admin_chat(cmd)
     end
 end
 
+local function show_rail_block()
+    local player = game.player
+    if not player then
+        return
+    end
+
+    local vs = player.game_view_settings
+    local show = not vs.show_rail_block_visualisation
+    vs.show_rail_block_visualisation = show
+
+    player.print('show_rail_block_visualisation set to ' .. tostring(show))
+end
+
 commands.add_command('kill', 'Will kill you.', kill)
 commands.add_command('tpplayer', '<player> - Teleports you to the player. (Admins only)', teleport_player)
 commands.add_command('invoke', '<player> - Teleports the player to you. (Admins only)', invoke)
@@ -731,3 +744,5 @@ commands.add_command(
         end
     end
 )
+
+commands.add_command('show-rail-block', 'Toggles rail block visualisation', show_rail_block)
