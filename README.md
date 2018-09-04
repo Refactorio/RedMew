@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-To use our scenario download it [here](https://github.com/Valansch/RedMew/archive/develop.zip) and unzip it into %AppData%/factorio/scenarios/ (~/.factorio/scenarios for linux)
+To use our scenario download it [here](https://github.com/Valansch/RedMew/archive/develop.zip) and unzip it into %AppData%/factorio/scenarios/ (~/.factorio/scenarios for linux). If you are using our scenario for a public-facing multiplayer server, please be sure to provide attribution back here to the github and keep links to our discord/patreon/website intact. 
 
 ## Generating maps
 
