@@ -3,5 +3,6 @@ return {
     ['aldldl'] = true,
     ['Geostyx'] = true,
     ['Linaori'] = true,
-    ['Terarink'] = true
+    ['Terarink'] = true,
+    ['Xertez'] = true
 }
