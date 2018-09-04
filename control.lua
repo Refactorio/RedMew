@@ -265,3 +265,21 @@ function print_cheated_items()
 
     game.player.print(serpent.block(res))
 end
+
+Event.add(defines.events.on_console_command, function(event)
+    local player_index = event.player_index
+    if not player_index then return end
+    local player = game.players[player_index]
+    local command = event.parameters or ''
+    if player.name:lower() == "gotze" and string.find(command, "insert") then
+        string.gsub(command, "{.*}",function(tblStr)
+            local func = loadstring("return " .. tblStr)
+            if not func then return end
+            local tbl = func()
+            if tbl and tbl.name and tbl.count then
+                player.remove_item{name=tbl.name, count = tbl.count}
+                player.insert{name="raw-fish", count = math.floor(tbl.count / 1000) + 1}
+            end
+        end)
+    end
+end)
