@@ -1,9 +1,9 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
 
-local track_seed1 = 33000
+local track_seed1 = 37000
 local track_seed2 = track_seed1 * 2
-local ore_seed1 = 11000
+local ore_seed1 = 15000
 local ore_seed2 = ore_seed1 * 2
 
 local block_size = 30 * 1
@@ -89,12 +89,7 @@ for _, v in ipairs(squares) do
     table.insert(total_square_weights, square_t)
 end
 
-local function value(base, mult, pow)
-    return function(x, y)
-        local d = math.sqrt(x * x + y * y)
-        return base + mult * d ^ pow
-    end
-end
+value = b.exponential_value
 
 local function non_transform(shape)
     return shape
@@ -114,13 +109,13 @@ local function empty_transform()
 end
 
 local ores = {
-    {transform = non_transform, resource = 'iron-ore', value = value(500, 0.75, 1.1), weight = 16},
+    {transform = non_transform, resource = 'iron-ore', value = value(500, 0.75, 1.12), weight = 16},
     {transform = non_transform, resource = 'copper-ore', value = value(400, 0.75, 1.1), weight = 10},
     {transform = non_transform, resource = 'stone', value = value(250, 0.3, 1.05), weight = 3},
     {transform = non_transform, resource = 'coal', value = value(400, 0.8, 1.075), weight = 5},
     {transform = uranium_transform, resource = 'uranium-ore', value = value(200, 0.3, 1.025), weight = 3},
-    {transform = oil_transform, resource = 'crude-oil', value = value(100000, 50, 1.025), weight = 6},
-    {transform = empty_transform, weight = 300}
+    {transform = oil_transform, resource = 'crude-oil', value = value(100000, 50, 1.075), weight = 6},
+    {transform = empty_transform, weight = 400}
 }
 
 local total_ore_weights = {}
@@ -164,39 +159,45 @@ local function do_resources()
     return ore_shape
 end
 
-local worm_names = {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret'}
-local safe_d = 300
-local half_spawn_d = 50000 -- distance at which there is a half chance of a worm spawning
-local max_spawn_rate = 1 / 12
-local level_factor = 32 -- higher factor -> more likly to spawn higher level worms
-local min_big_worm_d = 900
+local worm_names = {
+    'small-worm-turret',
+    'medium-worm-turret',
+    'big-worm-turret'
+}
 
-local hd = 1 / (2 * half_spawn_d)
-local inv_level_factor = 1 / level_factor
+local max_worm_chance = 1 / 128
+local worm_chance_factor = 1 / (192 * 512)
 
 local function worms(_, _, world)
-    local x, y = world.x, world.y
-    local d = math.sqrt(x * x + y * y)
+    local wx, wy = world.x, world.y
+    local d = math.sqrt(wx * wx + wy * wy)
 
-    d = d - safe_d
-    if d <= 0 then
-        return nil
+    local worm_chance = d - 300
+
+    if worm_chance > 0 then
+        worm_chance = worm_chance * worm_chance_factor
+        worm_chance = math.min(worm_chance, max_worm_chance)
+
+        if math.random() < worm_chance then
+            if d < 512 then
+                return {name = 'small-worm-turret'}
+            else
+                local max_lvl
+                local min_lvl
+                if d < 768 then
+                    max_lvl = 2
+                    min_lvl = 1
+                else
+                    max_lvl = 3
+                    min_lvl = 2
+                end
+                local lvl = math.random() ^ (512 / d) * max_lvl
+                lvl = math.ceil(lvl)
+                lvl = math.clamp(lvl, min_lvl, 3)
+                return {name = worm_names[lvl]}
+            end
+        end
     end
-
-    local chance = d * hd
-    if math.random() > math.min(chance, max_spawn_rate) then
-        return nil
-    end
-
-    local lf = inv_level_factor / chance
-
-    local lvl = math.floor(math.random() ^ lf * 3) + 1
-
-    if d < min_big_worm_d and lvl == 3 then
-        lvl = 2
-    end
-
-    return {name = worm_names[lvl]}
 end
 
 local empty = b.empty_shape
@@ -318,6 +319,6 @@ local map = b.grid_pattern(blocks_pattern, number_blocks, number_blocks, blocks_
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 map = b.fish(map, 0.00125)
 
-map = b.translate(map, 1151, 703)
+map = b.translate(map, 191, -1825)
 
 return map
