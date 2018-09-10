@@ -444,7 +444,7 @@ local function get_default_player_settings()
             time_heading_name,
             rank_heading_name,
             distance_heading_name,
-            coin_heading_name,
+            --coin_heading_name,
             deaths_heading_name,
             poke_name_heading_name,
             report_heading_name

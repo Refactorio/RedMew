@@ -19,12 +19,22 @@ local new_info_key = 4
 
 local welcomed_players = {}
 local editable_info = {
-    [map_name_key] = 'This Map has no name',
+    [map_name_key] = 'Cave Miner',
     [map_description_key] = [[
-By default this section is blank as it's supposed to be filled out on a per map basis.
-(If you're seeing this message, ping the admin team to get a description added for
-this map)]],
-    [map_extra_info_key] = 'This map has no extra infomation',
+Diggy Diggy Hole.
+]],
+    [map_extra_info_key] = [[
+Delve deep for greater treasures, but also face increased dangers.
+
+Mining productivity research, will overhaul your whole mining equipment,
+reinforcing your pickaxe as well as increasing the size of your backpack.
+
+Darkness is a hazard in the mines, stay near your lamps.
+
+Breaking rocks is exhausting work and will make you hungry.
+So don´t forget to eat some fish once in a while to stay well fed.
+But be careful, eating too much might have it´s consequences too...
+]],
     [new_info_key] = 'Nothing is new. The world is at peace'
 }
 

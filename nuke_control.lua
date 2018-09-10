@@ -128,10 +128,10 @@ local function on_capsule_used(event)
     end
     if count > 8 then
       if global.players_warned[event.player_index] then
-        game.ban_player(player, string.format("Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.", count, event.item.name))
+        --game.ban_player(player, string.format("Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.", count, event.item.name))
       else
         global.players_warned[event.player_index] = true
-        game.kick_player(player, string.format("Damaged %i entities with %s -Antigrief", count, event.item.name))
+        --game.print(player, string.format("Damaged %i entities with %s -Antigrief", count, event.item.name))
       end
     end
   end

@@ -7,11 +7,11 @@ require 'base_data'
 require 'train_station_names'
 require 'nuke_control'
 require 'follow'
-require 'autodeconstruct'
+--require 'autodeconstruct'
 require 'corpse_util'
 --require 'infinite_storage_chest'
-require 'fish_market'
-require 'reactor_meltdown'
+--require 'fish_market'
+--require 'reactor_meltdown'
 require 'train_saviour'
 require 'map_gen.shared.perlin_noise'
 require 'map_layout'
@@ -24,9 +24,10 @@ require 'poll'
 require 'tag_group'
 require 'tasklist'
 require 'blueprint_helper'
-require 'paint'
+--require 'paint'
 require 'score'
 require 'popup'
+require 'cave_miner'
 
 local Event = require 'utils.event'
 
@@ -37,12 +38,12 @@ local function player_created(event)
         return
     end
 
-    player.insert {name = MARKET_ITEM, count = 10}
-    player.insert {name = 'iron-gear-wheel', count = 8}
-    player.insert {name = 'iron-plate', count = 16}
+    --player.insert {name = MARKET_ITEM, count = 10}
+    --player.insert {name = 'iron-gear-wheel', count = 8}
+    --player.insert {name = 'iron-plate', count = 16}
     player.print('Welcome to our Server. You can join our Discord at: redmew.com/discord')
-    player.print('Click the question mark in the top left corner for server infomation and map details.')
-    player.print('And remember.. Keep Calm And Spaghetti!')
+    --player.print('Click the question mark in the top left corner for server infomation and map details.')
+    --player.print('And remember.. Keep Calm And Spaghetti!')
 
     local gui = player.gui
     gui.top.style = 'slot_table_spacing_horizontal_flow'
@@ -213,7 +214,7 @@ local remove_token =
         local p = data.player
         local stack = data.stack
 
-        local removed = p.remove_item(stack)
+        --local removed = p.remove_item(stack)
 
         if removed > 0 then
             stack.count = removed
