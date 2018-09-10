@@ -1,11 +1,17 @@
 local Event = require 'utils.event'
 local Market_items = require 'resources.market_items'
 local Global = require 'utils.global'
+local Donators = require 'resources.donators'
+local UserGroups = require 'user_groups'
+local train_perk_flag = Donators.donator_perk_flags.train
 
 local saviour_token_name = 'small-plane' -- item name for what saves players
 local saviour_timeout = 180 -- number of ticks players are train immune after getting hit (roughly)
 
-table.insert(Market_items, {price = {{Market_items.market_item, 100}}, offer = {type = 'give-item', item = saviour_token_name}})
+table.insert(
+    Market_items,
+    {price = {{Market_items.market_item, 100}}, offer = {type = 'give-item', item = saviour_token_name}}
+)
 
 local remove_stack = {name = saviour_token_name, count = 1}
 
@@ -58,6 +64,17 @@ local function on_pre_death(event)
         return
     end
 
+    local player_name = player.name
+
+    if UserGroups.is_donator_perk(player_name, train_perk_flag) then
+        saved_players[player_index] = game_tick
+        save_player(player)
+
+        game.print(player_name .. ' has been saved from a train death as a perk of donating to the server.')
+
+        return
+    end
+
     local saviour_tokens = player.get_item_count(saviour_token_name)
     if saviour_tokens < 1 then
         return
@@ -70,7 +87,7 @@ local function on_pre_death(event)
 
     game.print(
         table.concat {
-            player.name,
+            player_name,
             ' has been saved from a train death. Their ',
             saviour_token_name,
             ' survival item has be used up.'

@@ -1,6 +1,7 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
+local Donators = require 'resources.donators'
 local UserGroups = require 'user_groups'
 local PlayerStats = require 'player_stats'
 local Utils = require 'utils.utils'
@@ -23,6 +24,7 @@ local rank_colors = {
 }
 
 local inv_sprite_time_step = 1 / sprite_time_step
+local rank_perk_flag = Donators.donator_perk_flags.rank
 local rank_names = {
     'Guest',
     'Regular',
@@ -91,7 +93,7 @@ local function get_rank_level(player)
     end
 
     local name = player.name
-    if UserGroups.is_donator(name) then
+    if UserGroups.is_donator_perk(name, rank_perk_flag) then
         return 3
     elseif UserGroups.is_regular(name) then
         return 2
@@ -745,6 +747,6 @@ Gui.on_click(
         local reporting_player = event.player
         local reported_player = Gui.get_data(event.element)
 
-        Report.spawn_reporting_popup (reporting_player, reported_player)
+        Report.spawn_reporting_popup(reporting_player, reported_player)
     end
 )

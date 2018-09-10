@@ -1,5 +1,6 @@
 global.regulars = require 'resources.regulars'
-global.donators = require 'resources.donators'
+local Donators = require 'resources.donators'
+global.donators = Donators.donators
 local Event = require 'utils.event'
 local Utils = require 'utils.utils'
 
@@ -69,6 +70,15 @@ end
 
 function Module.is_donator(player_name)
     return global.donators[player_name]
+end
+
+function Module.is_donator_perk(player_name, perk)
+    local d = global.donators[player_name]
+    if not d then
+        return false
+    end
+
+    return bit32.band(d, perk) == perk
 end
 
 Event.add(
