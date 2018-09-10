@@ -72,13 +72,13 @@ function Module.is_donator(player_name)
     return global.donators[player_name]
 end
 
-function Module.is_donator_perk(player_name, perk)
+function Module.player_has_donator_perk(player_name, perk_flag)
     local d = global.donators[player_name]
     if not d then
         return false
     end
 
-    return bit32.band(d, perk) == perk
+    return bit32.band(d, perk_flag) == perk_flag
 end
 
 Event.add(

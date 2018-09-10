@@ -93,7 +93,7 @@ local function get_rank_level(player)
     end
 
     local name = player.name
-    if UserGroups.is_donator_perk(name, rank_perk_flag) then
+    if UserGroups.player_has_donator_perk(name, rank_perk_flag) then
         return 3
     elseif UserGroups.is_regular(name) then
         return 2
