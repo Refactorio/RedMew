@@ -833,5 +833,15 @@ return {
     ['dmcdouga'] = true,
     ['motorsteak'] = true,
     ['ultrajer'] = true,
-    ['zenys19'] = true
+    ['zenys19'] = true,
+    ['soni'] = true,
+    ['cyberdomus'] = true,
+    ['AFD'] = true,
+    ['morokko'] = true,
+    ['cko6o4ku'] = true,
+    ['Tamika'] = true,
+    ['22144418'] = true,
+    ['Genoone'] = true,
+    ['wengPC'] = true,
+    ['nizzy'] = true
 }
