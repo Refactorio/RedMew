@@ -17,6 +17,10 @@ local simplex_noise = require 'map_gen.shared.simplex_noise'
 local Event = require 'utils.event'
 local market_items = require "cave_miner_market_items"
 
+if global.scenario and global.config and global.config.player_list then 
+    global.scenario.config.player_list.enable_coin_col = nil
+end
+
 local function create_cave_miner_button(player)
 	local button = player.gui.top.add({ type = "sprite-button", name = "caver_miner_stats_toggle_button", sprite = "item/iron-axe" })
 	button.style.minimal_height = 38
