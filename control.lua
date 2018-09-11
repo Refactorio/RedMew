@@ -27,7 +27,6 @@ require 'blueprint_helper'
 require 'paint'
 require 'score'
 require 'popup'
-require 'cave_miner'
 
 local Event = require 'utils.event'
 
