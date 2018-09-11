@@ -24,6 +24,9 @@ if global.scenario and global.config then
     if global.scenario.config.fish_market then
         global.scenario.config.fish_market.enable = nil
     end 
+    if global.scenario.config.paint then
+        global.scenario.config.paint.enable = nil
+    end 
 end
 
 local function create_cave_miner_button(player)
