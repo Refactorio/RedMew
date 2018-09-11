@@ -15,7 +15,7 @@ random game events // earthquake, biters, rock treasure, messages
 
 local simplex_noise = require 'map_gen.shared.simplex_noise'
 local Event = require 'utils.event'
-local market_items = require "cave_miner_market_items"
+local market_items = require "map_gen.combined.cave_miner.market_items"
 
 if global.scenario and global.config then
     if global.config.player_list then 
