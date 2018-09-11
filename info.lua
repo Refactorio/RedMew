@@ -19,22 +19,12 @@ local new_info_key = 4
 
 local welcomed_players = {}
 local editable_info = {
-    [map_name_key] = 'Cave Miner',
+    [map_name_key] = 'This Map has no name',
     [map_description_key] = [[
-Diggy Diggy Hole.
-]],
-    [map_extra_info_key] = [[
-Delve deep for greater treasures, but also face increased dangers.
-
-Mining productivity research, will overhaul your whole mining equipment,
-reinforcing your pickaxe as well as increasing the size of your backpack.
-
-Darkness is a hazard in the mines, stay near your lamps.
-
-Breaking rocks is exhausting work and will make you hungry.
-So don´t forget to eat some fish once in a while to stay well fed.
-But be careful, eating too much might have it´s consequences too...
-]],
+By default this section is blank as it's supposed to be filled out on a per map basis.
+(If you're seeing this message, ping the admin team to get a description added for
+this map)]],
+    [map_extra_info_key] = 'This map has no extra infomation',
     [new_info_key] = 'Nothing is new. The world is at peace'
 }
 
@@ -711,3 +701,39 @@ Gui.on_custom_close(
         Gui.destroy(event.element)
     end
 )
+
+local Public = {}
+
+function Public.get_map_name() 
+    return editable_info[map_name_key]
+end
+
+function Public.set_map_name(value)
+    editable_info[map_name_key] = value
+end
+
+function Public.get_map_description() 
+    return editable_info[map_description_key]
+end
+
+function Public.set_map_description(value)
+    editable_info[map_description_key] = value
+end
+
+function Public.get_map_extra_info() 
+    return editable_info[map_extra_info_key]
+end
+
+function Public.set_map_extra_info(value)
+    editable_info[map_extra_info_key] = value
+end
+
+function Public.get_new_info() 
+    return editable_info[new_info_key]
+end
+
+function Public.set_new_info(value)
+    editable_info[new_info_key] = value
+end
+
+return Public

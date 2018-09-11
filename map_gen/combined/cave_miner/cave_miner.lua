@@ -17,6 +17,27 @@ local simplex_noise = require 'map_gen.shared.simplex_noise'
 local Event = require 'utils.event'
 local market_items = require "map_gen.combined.cave_miner.market_items"
 
+
+local Info = require 'info'
+
+Info.set_map_name('Cave Miner')
+Info.set_map_description([[
+Diggy Diggy Hole.
+]])
+Info.set_map_extra_info([[
+Delve deep for greater treasures, but also face increased dangers.
+
+Mining productivity research, will overhaul your whole mining equipment,
+reinforcing your pickaxe as well as increasing the size of your backpack.
+
+Darkness is a hazard in the mines, stay near your lamps.
+
+Breaking rocks is exhausting work and will make you hungry.
+So don´t forget to eat some fish once in a while to stay well fed.
+But be careful, eating too much might have it´s consequences too...
+]])
+
+
 if global.scenario and global.config then
     if global.config.player_list then 
         global.scenario.config.player_list.enable_coin_col = nil
