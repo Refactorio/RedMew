@@ -38,8 +38,8 @@ But be careful, eating too much might have it´s consequences too...
 ]])
 
 
-if global.scenario and global.config then
-    if global.config.player_list then 
+if global.scenario and global.scenario.config then
+    if global.scenario.config.player_list then 
         global.scenario.config.player_list.enable_coin_col = nil
     end
     if global.scenario.config.fish_market then

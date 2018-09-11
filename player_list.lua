@@ -449,8 +449,8 @@ local function get_default_player_settings()
         columns[6] = coin_heading_name
         offset = 7
     end
-    columns[offset] =  deaths_heading_name,
-    columns[offset + 1] = poke_name_heading_name,
+    columns[offset] =  deaths_heading_name
+    columns[offset + 1] = poke_name_heading_name
     columns[offset + 2] = report_heading_name
     return {
         columns = columns,
