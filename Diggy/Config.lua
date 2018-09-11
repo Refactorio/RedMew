@@ -9,7 +9,7 @@ local Config = {
     cheats = true,
 
     -- initial starting position size, values higher than 30 might break
-    starting_size = 7,
+    starting_size = 5,
 
     -- the daytime value used for cave lighting
     daytime = 0.5,
@@ -36,14 +36,9 @@ local Config = {
             enabled = true,
             register = require 'Diggy.Feature.DiggyCaveCollapse'.register,
             initialize = require 'Diggy.Feature.DiggyCaveCollapse'.initialize,
-            out_of_map_support_beam_range = 14,
             support_beam_entities = {
-                {name = "stone-wall", range = 10},
-                {name = "stone-brick", range = 1},
-                {name = "concrete", range = 2},
-                {name = "hazard-concrete", range = 2},
-                {name = "refined-concrete", range = 3},
-                {name = "refined-hazard-concrete", range = 3},
+                {name = 'stone-wall', strength = 7},
+                {name = 'sand-rock-big', strength = 5},
             },
         },
         RefreshMap = {

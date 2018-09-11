@@ -1,4 +1,5 @@
 -- dependencies
+local Inspect = require 'Diggy.Inspect'
 
 -- this
 local Debug = {}
@@ -23,14 +24,17 @@ function Debug.disable_cheats()
     cheats = true
 end
 
+local message_count = 0
+
 --[[--
     Shows the given message if _DEBUG == true.
 
     @param message string
 ]]
 function Debug.print(message)
+    message_count = message_count + 1
     if (debug) then
-        game.print(message)
+        game.print('[' .. message_count .. '] ' .. message)
     end
 end
 
@@ -42,6 +46,15 @@ end
 function Debug.cheat(callback)
     if (cheats) then
         callback()
+    end
+end
+
+--[[--
+    Inspects T and prints it.
+]]
+function Debug.inspect(T)
+    if (debug) then
+        game.print(Inspect.inspect(T))
     end
 end
 

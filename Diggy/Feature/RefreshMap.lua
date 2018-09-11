@@ -25,9 +25,10 @@ function RefreshMap.register(config)
                 if (target_x < 1 and target_y < 1 and target_x > -2 and target_y > -2) then
                     tile = 'lab-dark-1'
                 end
+
                 table.insert(tiles, {
                     name = tile,
-                    position = {target_x, target_y}
+                    position = {x = target_x, y = target_y}
                 })
             end
         end

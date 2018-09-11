@@ -16,11 +16,11 @@ local Mask = {}
 --[[--
     Applies a blur filter.
 
-    @param x_start number, center point
-    @param y_start number, center point
-    @param factor relative strengh of the entity to withstand the pressure
+    @param x_start number center point
+    @param y_start number center point
+    @param factor number relative strength of the entity to withstand the pressure
         factor < 0 if entity is placed
-        factor > 0 if entity is removed number
+        factor > 0 if entity is removed
     @param callback function to execute on each tile within the mask callback(x, y, value)
 ]]
 function Mask.blur(x_start, y_start, factor, callback)

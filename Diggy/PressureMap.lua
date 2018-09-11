@@ -107,9 +107,11 @@ function PressureMap.add(surface, position, fraction)
 
     local pressure_map = get_pressure_map(surface)
 
-    fraction = add_fraction(pressure_map, position, fraction)
+    local new = add_fraction(pressure_map, position, fraction)
+    require 'Diggy.Debug'.print(position.x .. ',' .. position.y .. ' :: ' .. fraction .. ' --> ' .. new)
 
-    if (fraction >= 1 ) then
+    if (new >= 1 ) then
+        require 'Diggy.Debug'.print(position.x .. ',' .. position.y .. ' :: ADDING TO BUFFER ' .. new)
         table.insert(pressure_map.maxed_values_buffer, position)
     end
 end

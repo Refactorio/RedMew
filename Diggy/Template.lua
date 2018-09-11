@@ -2,7 +2,11 @@
 local Template = {}
 
 Template.events = {
-    on_entity_placed = script.generate_event_name()
+    --[[--
+        When an entity is placed via the template function.
+         - event.entity LuaEntity
+    ]]
+    on_placed_entity = script.generate_event_name(),
 }
 
 --[[--
@@ -23,9 +27,11 @@ function Template.insert(surface, tiles, entities)
     surface.set_tiles(tiles)
 
     for _, entity in pairs(entities) do
-        surface.create_entity(entity)
-
-        script.raise_event(Template.events.on_entity_placed, {entity = entity})
+        entity = surface.create_entity(entity)
+        if (nil == entity) then
+            error('Failed creating entity ' .. entity.name .. ' on surface.')
+        end
+        script.raise_event(Template.events.on_placed_entity, {entity = entity})
     end
 end
 

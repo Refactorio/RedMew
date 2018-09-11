@@ -48,8 +48,8 @@ local function diggy_hole(entity, temporary_inventory)
     local out_of_map_found = Scanner.scan_around_position(entity.surface, entity.position, 'out-of-map');
 
     for _, position in pairs(out_of_map_found) do
-        table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = {position.x, position.y}})
-        table.insert(rocks, {name = 'sand-rock-big', position = {position.x, position.y}})
+        table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = {x = position.x, y = position.y}})
+        table.insert(rocks, {name = 'sand-rock-big', position = {x = position.x, y = position.y}})
     end
 
     Template.insert(entity.surface, tiles, rocks)
