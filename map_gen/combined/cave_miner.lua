@@ -27,6 +27,10 @@ if global.scenario and global.config then
     if global.scenario.config.paint then
         global.scenario.config.paint.enable = nil
     end 
+    if global.scenario.nuke_control then
+        global.scenario.nuke_control.enable_autokick = nil
+        global.scenario.nuke_control.enable_autoban = nil
+    end 
 end
 
 local function create_cave_miner_button(player)
