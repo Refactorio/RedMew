@@ -843,5 +843,12 @@ return {
     ['22144418'] = true,
     ['Genoone'] = true,
     ['wengPC'] = true,
-    ['nizzy'] = true
+    ['nizzy'] = true,
+    ['nadarith'] = true,
+    ['SLQ'] = true,
+    ['Shanchan'] = true,
+    ['Hempy'] = true,
+    ['Zonezero'] = true,
+    ['wotwotvodka'] = true,
+    ['Turboknot'] = true
 }
