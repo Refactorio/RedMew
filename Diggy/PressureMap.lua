@@ -3,8 +3,10 @@
 -- this
 local PressureMap = {}
 
+global.pressure_map_storage = {}
+
 -- private state
-local pressure_map_storage = {}
+local pressure_map_storage = global.pressure_map_storage
 
 --[[--
     Adds a fraction to a given location on the pressure_map. Returns the new
