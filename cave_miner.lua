@@ -17,8 +17,13 @@ local simplex_noise = require 'map_gen.shared.simplex_noise'
 local Event = require 'utils.event'
 local market_items = require "cave_miner_market_items"
 
-if global.scenario and global.config and global.config.player_list then 
-    global.scenario.config.player_list.enable_coin_col = nil
+if global.scenario and global.config then
+    if global.config.player_list then 
+        global.scenario.config.player_list.enable_coin_col = nil
+    end
+    if global.scenario.config.fish_market then
+        global.scenario.config.fish_market.enable = nil
+    end 
 end
 
 local function create_cave_miner_button(player)

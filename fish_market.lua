@@ -30,6 +30,11 @@ local function spawn_market(cmd)
         cant_run(cmd.name)
         return
     end
+
+    if not global.scenario.config.fish_market.enable then 
+        game.player.print("Cannot spawn market. Market is disabled in the scenario config.")
+        return
+    end
     local surface = player.surface
     local force = player.force
 
