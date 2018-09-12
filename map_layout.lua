@@ -19,7 +19,7 @@ local tiles_per_tick = 32
 --require "map_gen.combined.dimensions"
 --require "map_gen.combined.dagobah_swamp"
 --require "map_gen.combined.meteor_strike" --unfinished
-require 'map_gen.combined.cave_miner.cave_miner'
+--require 'map_gen.combined.cave_miner.cave_miner'
 
 
 --presets--
@@ -107,9 +107,9 @@ local entity_modules = {
 	--require "map_gen.misc.loot_items",
 	--require "map_gen.terrain.mines",
 	--require "map_gen.terrain.deathworld",
-	--require "map_gen.ores.glitter_ores",	
+	--require "map_gen.ores.glitter_ores",
 	--require "map_gen.terrain.worms",
-	--require "map_gen.misc.wreck_items",	
+	--require "map_gen.misc.wreck_items",
 	--require "map_gen.ores.neko_crazy_ores",
 	--require "map_gen.ores.fluffy_rainbows",
 	--require "map_gen.ores.harmonic_gen",
