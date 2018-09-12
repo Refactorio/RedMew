@@ -36,13 +36,7 @@ end
     @return number the strength this entity supports the cave
 ]]
 local function get_entity_strength(config, entity)
-    for _, support_entity in pairs(config.features.DiggyCaveCollapse.support_beam_entities) do
-        if (support_entity.name == entity.name) then
-            return support_entity.strength
-        end
-    end
-
-    return 0
+    return config.features.DiggyCaveCollapse.support_beam_entities[entity.name] or 0
 end
 
 --[[--
@@ -51,10 +45,12 @@ end
     @param config Table {@see Diggy.Config}.
 ]]
 function DiggyCaveCollapse.register(config)
-    Event.add(defines.events.on_robot_built_entity, function(event)
-        local strength = get_entity_strength(config, event.created_entity)
+    local support_beam_entities = config.features.DiggyCaveCollapse.support_beam_entities;
 
-        if (0 == strength) then
+    Event.add(defines.events.on_robot_built_entity, function(event)
+        local strength = support_beam_entities[event.created_entity.name]
+
+        if (not strength) then
             return
         end
 
@@ -65,9 +61,9 @@ function DiggyCaveCollapse.register(config)
     end)
 
     Event.add(defines.events.on_built_entity, function(event)
-        local strength = get_entity_strength(config, event.created_entity)
+        local strength = support_beam_entities[event.created_entity.name]
 
-        if (0 == strength) then
+        if (not strength) then
             return
         end
 
@@ -78,9 +74,9 @@ function DiggyCaveCollapse.register(config)
     end)
 
     Event.add(Template.events.on_placed_entity, function(event)
-        local strength = get_entity_strength(config, event.entity)
+        local strength = support_beam_entities[event.entity.name]
 
-        if (0 == strength) then
+        if (not strength) then
             return
         end
 
@@ -91,9 +87,9 @@ function DiggyCaveCollapse.register(config)
     end)
 
     Event.add(defines.events.on_entity_died, function(event)
-        local strength = get_entity_strength(config, event.entity)
+        local strength = support_beam_entities[event.entity.name]
 
-        if (0 == strength) then
+        if (not strength) then
             return
         end
 
@@ -104,9 +100,9 @@ function DiggyCaveCollapse.register(config)
     end)
 
     Event.add(defines.events.on_player_mined_entity, function(event)
-        local strength = get_entity_strength(config, event.entity)
+        local strength = support_beam_entities[event.entity.name]
 
-        if (0 == strength) then
+        if (not strength) then
             return
         end
 
