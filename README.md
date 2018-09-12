@@ -15,7 +15,7 @@ To use our scenario download it [here](https://github.com/Valansch/RedMew/archiv
 
   We have many premade map modules that you can combine to create a unique map.
   
-  Checkout [map_gen/data/map_previews](https://github.com/Valansch/RedMew/tree/develop/map_gen/data/map_previews) to view all our modules.
+  Checkout [map_gen/data/map_previews](https://github.com/Valansch/RedMew/tree/develop/map_gen/data/.map_previews) to view all our modules.
   You can select and activate a module by removing the "--" infront of the module in the map_layout.lua file.
 
   You can mix as many modules as you want, as long as they logically fit together. 
