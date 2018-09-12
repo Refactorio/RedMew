@@ -1,12 +1,30 @@
 -- dependencies
+local Event = require 'utils.event'
 
 -- this
 local PressureMap = {}
 
+-- main block
 global.pressure_map_storage = {}
+local defaultValue = 1
+local _mt_y = { __index=function(tbl,key) tbl[key] = defaultValue return tbl[key] end}
+local _mt_x = {__index=function(tbl,key) tbl[key] = setmetatable({},_mt_y) return rawget(tbl,key) end}
 
--- private state
-local pressure_map_storage = global.pressure_map_storage
+local function set_metatables() 
+    for _,map in pairs(global.pressure_map_storage) do
+        for _,quad in pairs(map) do
+            setmetatable(quad,_mt_x)
+            for _,stbl in pairs(quad) do
+                setmetatable(stbl,_mt_y)
+            end
+        end
+    end
+end
+
+
+Event.on_init(set_metatables)
+Event.on_load(set_metatables)
+
 
 --[[--
     Adds a fraction to a given location on the pressure_map. Returns the new
@@ -18,7 +36,8 @@ local pressure_map_storage = global.pressure_map_storage
 
     @return number sum of old fraction + new fraction
 ]]
-local function add_fraction(pressure_map, position, fraction)
+function add_fraction(pressure_map, position, fraction)
+
     local map
     if position.x >= 0 then
         if position.y >= 0 then
@@ -34,16 +53,7 @@ local function add_fraction(pressure_map, position, fraction)
         end
     end
 
-    if (not map[position.x]) then
-        map[position.x] = {[position.y] = fraction}
-        return fraction
-    end
-
-    if (not map[position.x][position.y]) then
-        map[position.x][position.y] = fraction
-        return fraction
-    end
-
+    --magic meta tables!
     local value = map[position.x][position.y] + fraction
 
     map[position.x][position.y] = value
@@ -58,24 +68,25 @@ end
     @return Table with maxed_values_buffer, quadrant1, quadrant2, quadrant3 and quadrant4
 ]]
 local function get_pressure_map(surface)
-    if (nil == pressure_map_storage[surface.name]) then
-        pressure_map_storage[surface.name] = {
-            -- contains all coordinates that are at max pressure until cleared.
-            maxed_values_buffer = {},
+    if not global.pressure_map_storage[surface.index] then
 
-            -- map with coordinates, stored as [x][y] = fraction.
-            quadrant1 = {},
-            quadrant2 = {},
-            quadrant3 = {},
-            quadrant4 = {},
-        }
+      global.pressure_map_storage[surface.index] = {}
+
+      local map = global.pressure_map_storage[surface.index]
+
+      map.quadrant1 = setmetatable({},_mt_x)
+      map.quadrant2 = setmetatable({},_mt_x)
+      map.quadrant3 = setmetatable({},_mt_x)
+      map.quadrant4 = setmetatable({},_mt_x)
+
+      map.maxed_values_buffer = {}
     end
 
-    return pressure_map_storage[surface.name]
+    return global.pressure_map_storage[surface.index]
 end
 
 function PressureMap.process_maxed_values_buffer(surface, callback)
-    if ('table' ~= type(surface) or nil == surface.name) then
+    if ('table' ~= type(surface) or not surface.name) then
         error('PressureMap.process_maxed_values_buffer argument #1 expects a LuaSurface, ' .. type(surface) .. ' given.')
     end
     if ('function' ~= type(callback)) then
