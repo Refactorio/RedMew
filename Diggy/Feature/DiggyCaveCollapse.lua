@@ -19,14 +19,28 @@ local DiggyCaveCollapse = {}
     @param strength positive increases pressure, negative decreases pressure
 ]]
 local function update_pressure_map(surface, position, strength)
-    require 'Diggy.Debug'.print(position.x .. ',' .. position.y .. ' :: update_pressure_map')
     Mask.blur(position.x, position.y, strength, function (x, y, fraction)
         PressureMap.add(surface, {x = x, y = y}, fraction)
     end)
 
-    PressureMap.process_maxed_values_buffer(surface, function (position)
-        require 'Diggy.Debug'.print('Cave collapsed at: ' .. position.x .. ',' .. position.y)
-        Template.insert(surface, {{name = 'lab-dark-2', position = position}})
+    PressureMap.process_maxed_values_buffer(surface, function (positions)
+        local entities = {}
+        local tiles = {}
+
+        for _, position in pairs(positions) do
+            local center = {x = position.x, y = position.y}
+            local north = {x = position.x, y = position.y - 1}
+            local east = {x = position.x + 1, y = position.y}
+            local south = {x = position.x, y = position.y + 1}
+            local west = {x = position.x - 1, y = position.y}
+            entities[north.x .. ',' .. north.y] = {position = north, name = 'sand-rock-big'}
+            entities[east.x .. ',' .. east.y] = {position = east, name = 'sand-rock-big'}
+            entities[south.x .. ',' .. south.y] = {position = south, name = 'sand-rock-big'}
+            entities[west.x .. ',' .. west.y] = {position = west, name = 'sand-rock-big'}
+            tiles[center.x .. ',' .. center.y] = {position = center, name = 'out-of-map'}
+        end
+
+        Template.insert(surface, tiles, entities)
     end)
 end
 

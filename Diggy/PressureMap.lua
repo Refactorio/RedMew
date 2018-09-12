@@ -93,13 +93,16 @@ function PressureMap.process_maxed_values_buffer(surface, callback)
         error('PressureMap.process_maxed_values_buffer argument #2 expects a callback function, ' .. type(callback) .. ' given.')
     end
 
-    local buffer = get_pressure_map(surface).maxed_values_buffer
-
-    for _, position in pairs(buffer) do
-        callback({x = position.x, y = position.y})
+    local buffer = {}
+    local map = get_pressure_map(surface)
+    for _, position in pairs(map.maxed_values_buffer) do
+        table.insert(buffer, position)
     end
 
-    buffer = {}
+    -- empty before callback to avoid recursion
+    map.maxed_values_buffer = {}
+
+    callback(buffer)
 end
 
 --[[--
@@ -113,16 +116,14 @@ function PressureMap.add(surface, position, fraction)
     end
 
     if ('table' ~= type(position) or nil == position.x or nil == position.y) then
-        error('PressureMap.set argument #2 expects a position with x and y, ' .. type(surface) .. ' given.')
+        error('PressureMap.set argument #2 expects a position with x and y, ' .. type(position) .. ' given.')
     end
 
     local pressure_map = get_pressure_map(surface)
 
     local new = add_fraction(pressure_map, position, fraction)
-    require 'Diggy.Debug'.print(position.x .. ',' .. position.y .. ' :: ' .. fraction .. ' --> ' .. new)
 
     if (new >= 1 ) then
-        require 'Diggy.Debug'.print(position.x .. ',' .. position.y .. ' :: ADDING TO BUFFER ' .. new)
         table.insert(pressure_map.maxed_values_buffer, position)
     end
 end

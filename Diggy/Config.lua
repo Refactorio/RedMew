@@ -37,8 +37,8 @@ local Config = {
             register = require 'Diggy.Feature.DiggyCaveCollapse'.register,
             initialize = require 'Diggy.Feature.DiggyCaveCollapse'.initialize,
             support_beam_entities = {
-                ['stone-wall'] = 0.6,
-                ['sand-rock-big'] = 0.6,
+                ['stone-wall'] = 1,
+                ['sand-rock-big'] = 1,
             },
         },
         RefreshMap = {

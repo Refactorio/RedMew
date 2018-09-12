@@ -20,17 +20,20 @@ Template.events = {
     @param entities table of entities as required by create_entity
 ]]
 function Template.insert(surface, tiles, entities)
-    if (nil == entities) then
-        entities = {}
-    end
-
     surface.set_tiles(tiles)
 
+    local created_entities = {}
+
     for _, entity in pairs(entities) do
-        entity = surface.create_entity(entity)
-        if (nil == entity) then
+        created_entity = surface.create_entity(entity)
+        if (nil == created_entity) then
             error('Failed creating entity ' .. entity.name .. ' on surface.')
         end
+
+        table.insert(created_entities, created_entity)
+    end
+
+    for _, entity in pairs(created_entities) do
         script.raise_event(Template.events.on_placed_entity, {entity = entity})
     end
 end
