@@ -31,15 +31,6 @@ local function update_pressure_map(surface, position, strength)
 end
 
 --[[--
-    @param config Table {@see Diggy.Config}.
-    @param entity LuaEntity
-    @return number the strength this entity supports the cave
-]]
-local function get_entity_strength(config, entity)
-    return config.features.DiggyCaveCollapse.support_beam_entities[entity.name] or 0
-end
-
---[[--
     Registers all event handlers.]
 
     @param config Table {@see Diggy.Config}.
