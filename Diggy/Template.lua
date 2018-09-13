@@ -43,7 +43,7 @@ function Template.insert(surface, tiles, entities)
         end
 
         if (new_is_void and not current_is_void) then
-            table.insert(void_added, {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position})
+            table.insert(void_added, {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}})
         end
     end
 
