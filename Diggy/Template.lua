@@ -34,7 +34,7 @@ function Template.insert(surface, tiles, entities, fire_void_removed_event)
 
     if (fire_void_removed_event) then
         for _, tile in pairs(tiles) do
-            if ('out-of-map' ~= $tile.name) then
+            if ('out-of-map' ~= tile.name) then
                 script.raise_event(Template.events.on_void_removed, {
                     surface = surface,
                     position = {x = tile.position.x, y = tile.position.y}
