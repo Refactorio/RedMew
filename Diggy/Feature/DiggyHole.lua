@@ -11,19 +11,6 @@ local Template = require 'Diggy.Template'
 -- this
 local DiggyHole = {}
 
--- list of all possible events to subscribe to
-DiggyHole.events = {
-    --[[--
-        Triggers when an 'out-of-map' tile is replaced by a rock in
-        DiggyHole.diggy_hole.
-
-        Can be fired for each position replaced. It's recommended to avoid
-        performance heavy listeners. Off-load them into a queue processed on
-        ticks.
-    ]]
-    on_out_of_map_removed = script.generate_event_name(),
-}
-
 --[[--
     Triggers a diggy diggy hole for a given sand-rock-big.
 
@@ -52,14 +39,7 @@ local function diggy_hole(entity, temporary_inventory)
         table.insert(rocks, {name = 'sand-rock-big', position = {x = position.x, y = position.y}})
     end
 
-    Template.insert(entity.surface, tiles, rocks)
-
-    for _, position in pairs(out_of_map_found) do
-        script.raise_event(DiggyHole.events.on_out_of_map_removed, {
-            surface = entity.surface,
-            position = {x = position.x, y = position.y}
-        })
-    end
+    Template.insert(entity.surface, tiles, rocks, true)
 end
 
 --[[--

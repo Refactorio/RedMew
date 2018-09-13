@@ -33,7 +33,7 @@ function StartingZone.register(config)
             end
         end)
 
-        Template.insert(event.surface, tiles, rocks)
+        Template.insert(event.surface, tiles, rocks, true)
 
         Event.remove_removable(defines.events.on_chunk_generated, callback_token)
     end

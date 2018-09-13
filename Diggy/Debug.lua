@@ -39,6 +39,20 @@ function Debug.print(message)
 end
 
 --[[--
+    Shows the given message if _DEBUG == true for a given position.
+
+    @param x number
+    @param y number
+    @param message string
+]]
+function Debug.printPosition(x, y, message)
+    message_count = message_count + 1
+    if (debug) then
+        game.print('[' .. message_count .. '] {x=' .. x .. ', y=' .. y .. '} ' .. message)
+    end
+end
+
+--[[--
     Executes the given callback if _DIGGY_CHEATS == true.
 
     @param callback function
@@ -51,6 +65,8 @@ end
 
 --[[--
     Inspects T and prints it.
+
+    @param T any
 ]]
 function Debug.inspect(T)
     if (debug) then

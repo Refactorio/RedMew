@@ -7,6 +7,16 @@ Template.events = {
          - event.entity LuaEntity
     ]]
     on_placed_entity = script.generate_event_name(),
+
+    --[[--
+        Triggers when an 'out-of-map' tile is replaced by a rock in
+        DiggyHole.diggy_hole.
+
+        Can be fired for each position replaced. It's recommended to avoid
+        performance heavy listeners. Off-load them into a queue processed on
+        ticks.
+    ]]
+    on_void_removed = script.generate_event_name(),
 }
 
 --[[--
@@ -19,8 +29,19 @@ Template.events = {
     @param tiles table of tiles as required by set_tiles
     @param entities table of entities as required by create_entity
 ]]
-function Template.insert(surface, tiles, entities)
+function Template.insert(surface, tiles, entities, fire_void_removed_event)
     surface.set_tiles(tiles)
+
+    if (fire_void_removed_event) then
+        for _, tile in pairs(tiles) do
+            if ('out-of-map' ~= $tile.name) then
+                script.raise_event(Template.events.on_void_removed, {
+                    surface = surface,
+                    position = {x = tile.position.x, y = tile.position.y}
+                })
+            end
+        end
+    end
 
     local created_entities = {}
 

@@ -28,19 +28,22 @@ local function update_pressure_map(surface, position, strength)
         local tiles = {}
 
         for _, position in pairs(positions) do
-            local center = {x = position.x, y = position.y}
-            local north = {x = position.x, y = position.y - 1}
-            local east = {x = position.x + 1, y = position.y}
-            local south = {x = position.x, y = position.y + 1}
-            local west = {x = position.x - 1, y = position.y}
-            entities[north.x .. ',' .. north.y] = {position = north, name = 'sand-rock-big'}
-            entities[east.x .. ',' .. east.y] = {position = east, name = 'sand-rock-big'}
-            entities[south.x .. ',' .. south.y] = {position = south, name = 'sand-rock-big'}
-            entities[west.x .. ',' .. west.y] = {position = west, name = 'sand-rock-big'}
-            tiles[center.x .. ',' .. center.y] = {position = center, name = 'out-of-map'}
+            table.insert(entities, {position = {x = position.x, y = position.y - 1}, name = 'sand-rock-big'})
+            table.insert(entities, {position = {x = position.x + 1, y = position.y}, name = 'sand-rock-big'})
+            table.insert(entities, {position = {x = position.x, y = position.y + 1}, name = 'sand-rock-big'})
+            table.insert(entities, {position = {x = position.x - 1, y = position.y}, name = 'sand-rock-big'})
+            table.insert(tiles, {position = {x = position.x, y = position.y}, name = 'out-of-map'})
         end
 
-        Template.insert(surface, tiles, entities)
+        for _, new_spawn in pairs({entities, tiles}) do
+            for _, tile in pairs(new_spawn) do
+                for _, entity in pairs(surface.find_entities_filtered({position = tile.position})) do
+                    entity.destroy()
+                end
+            end
+        end
+
+        Template.insert(surface, tiles, entities, false)
     end)
 end
 
