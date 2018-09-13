@@ -850,5 +850,17 @@ return {
     ['Hempy'] = true,
     ['Zonezero'] = true,
     ['wotwotvodka'] = true,
-    ['Turboknot'] = true
+    ['Turboknot'] = true,
+    ['SteamEngine'] = true,
+    ['chrisisthebe'] = true,
+    ['JohnBosch'] = true,
+    ['sivael'] = true,
+    ['DarthLeahcim'] = true,
+    ['acul009'] = true,
+    ['moqart'] = true,
+    ['morbus69'] = true,
+    ['steelhero'] = true,
+    ['Achskelmos'] = true,
+    ['Lucasuper32'] = true,
+    ['sid123'] = true
 }
