@@ -1,8 +1,9 @@
 -- this
 local Mask = {}
 
-
+  local sigma_modifier = 1
    local blurFilters = {}
+   blurFilters[3] = {{0,0,0},{0,1,0},{0,0,0}}
    blurFilters[5] = {
         {0.003765,    0.015019,    0.023792,    0.015019,    0.003765},
         {0.015019,    0.059912,    0.094907,    0.059912,    0.015019},
@@ -21,7 +22,6 @@ local Mask = {}
     }
     local n = 7;
 
-
 --[[--
     Applies a blur filter.
 
@@ -33,6 +33,8 @@ local Mask = {}
     @param callback function to execute on each tile within the mask callback(x, y, value)
 ]]
 function Mask.blur(x_start, y_start, factor, callback)
+    x_start = math.floor(x_start)
+    y_start = math.floor(y_start)
     local filter = blurFilters[n]
     local offset = - math.floor(n / 2) - 1 --move matrix over x_start|y_start and adjust for 1 index
     for x = 1, n do

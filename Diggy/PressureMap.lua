@@ -3,14 +3,15 @@ local Event = require 'utils.event'
 
 -- this
 local PressureMap = {}
+local epsilon = 0.01
 
 -- main block
 global.pressure_map_storage = {}
-local defaultValue = 1
+local defaultValue = 0
 local _mt_y = { __index=function(tbl,key) tbl[key] = defaultValue return tbl[key] end}
 local _mt_x = {__index=function(tbl,key) tbl[key] = setmetatable({},_mt_y) return rawget(tbl,key) end}
 
-local function set_metatables() 
+local function set_metatables()
     for _,map in pairs(global.pressure_map_storage) do
         for _,quad in pairs(map) do
             setmetatable(quad,_mt_x)
@@ -123,7 +124,7 @@ function PressureMap.add(surface, position, fraction)
 
     local new = add_fraction(pressure_map, position, fraction)
 
-    if (new >= 1 ) then
+    if (new >= 1 - epsilon) then
         table.insert(pressure_map.maxed_values_buffer, position)
     end
 end

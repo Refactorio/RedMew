@@ -39,6 +39,7 @@ local Config = {
             support_beam_entities = {
                 ['stone-wall'] = 1,
                 ['sand-rock-big'] = 1,
+                ['out-of-map'] = 1
             },
         },
         RefreshMap = {

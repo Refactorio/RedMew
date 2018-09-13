@@ -71,6 +71,7 @@ function DiggyCaveCollapse.register(config)
     Event.add(defines.events.on_built_entity, function(event)
         local strength = support_beam_entities[event.created_entity.name]
 
+
         if (not strength) then
             return
         end
@@ -83,6 +84,7 @@ function DiggyCaveCollapse.register(config)
 
     Event.add(Template.events.on_placed_entity, function(event)
         local strength = support_beam_entities[event.entity.name]
+
 
         if (not strength) then
             return
@@ -118,6 +120,24 @@ function DiggyCaveCollapse.register(config)
             x = event.entity.position.x,
             y = event.entity.position.y,
         }, strength)
+    end)
+
+    Event.add(Template.events.on_void_removed, function(event)
+        local strength = support_beam_entities['out-of-map']
+
+        update_pressure_map(event.surface, {
+            x = event.old_tile.position.x,
+            y = event.old_tile.position.y,
+        }, strength)
+    end)
+
+    Event.add(Template.events.on_void_added, function(event)
+        local strength = support_beam_entities['out-of-map']
+
+        update_pressure_map(event.surface, {
+            x = event.old_tile.position.x,
+            y = event.old_tile.position.y,
+        }, -1  * strength)
     end)
 end
 

@@ -33,7 +33,7 @@ function RefreshMap.register(config)
             end
         end
 
-        Template.insert(event.surface, tiles, {}, false)
+        event.surface.set_tiles(tiles)
     end)
 end
 
