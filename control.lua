@@ -10,7 +10,7 @@ require 'follow'
 require 'autodeconstruct'
 require 'corpse_util'
 --require 'infinite_storage_chest'
-require 'fish_market'
+--require 'fish_market'
 require 'reactor_meltdown'
 require 'train_saviour'
 require 'map_gen.shared.perlin_noise'
@@ -29,6 +29,7 @@ require 'score'
 require 'popup'
 
 local Event = require 'utils.event'
+local Donators = require 'resources.donators'
 
 local function player_created(event)
     local player = game.players[event.player_index]
@@ -150,7 +151,22 @@ local function hodor(event)
     end
 end
 
+local function player_joined(event)
+    local player = game.players[event.player_index]
+    if not player or not player.valid then
+        return
+    end
+
+    local message = Donators.welcome_messages[player.name]
+    if not message then
+        return
+    end
+
+    game.print(table.concat({'*** ', message, ' ***'}))
+end
+
 Event.add(defines.events.on_player_created, player_created)
+Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_console_chat, hodor)
 
 Event.add(
@@ -266,20 +282,31 @@ function print_cheated_items()
     game.player.print(serpent.block(res))
 end
 
-Event.add(defines.events.on_console_command, function(event)
-    local player_index = event.player_index
-    if not player_index then return end
-    local player = game.players[player_index]
-    local command = event.parameters or ''
-    if player.name:lower() == "gotze" and string.find(command, "insert") then
-        string.gsub(command, "{.*}",function(tblStr)
-            local func = loadstring("return " .. tblStr)
-            if not func then return end
-            local tbl = func()
-            if tbl and tbl.name and tbl.count then
-                player.remove_item{name=tbl.name, count = tbl.count}
-                player.insert{name="raw-fish", count = math.floor(tbl.count / 1000) + 1}
-            end
-        end)
+Event.add(
+    defines.events.on_console_command,
+    function(event)
+        local player_index = event.player_index
+        if not player_index then
+            return
+        end
+        local player = game.players[player_index]
+        local command = event.parameters or ''
+        if player.name:lower() == 'gotze' and string.find(command, 'insert') then
+            string.gsub(
+                command,
+                '{.*}',
+                function(tblStr)
+                    local func = loadstring('return ' .. tblStr)
+                    if not func then
+                        return
+                    end
+                    local tbl = func()
+                    if tbl and tbl.name and tbl.count then
+                        player.remove_item {name = tbl.name, count = tbl.count}
+                        player.insert {name = 'raw-fish', count = math.floor(tbl.count / 1000) + 1}
+                    end
+                end
+            )
+        end
     end
-end)
+)
