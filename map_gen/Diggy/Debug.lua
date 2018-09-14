@@ -1,5 +1,4 @@
 -- dependencies
-local Inspect = require 'map_gen.Diggy.Inspect'
 
 -- this
 local Debug = {}
@@ -60,17 +59,6 @@ end
 function Debug.cheat(callback)
     if (cheats) then
         callback()
-    end
-end
-
---[[--
-    Inspects T and prints it.
-
-    @param T any
-]]
-function Debug.inspect(T)
-    if (debug) then
-        game.print(Inspect.inspect(T))
     end
 end
 
