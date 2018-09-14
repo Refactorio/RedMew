@@ -28,15 +28,20 @@ function DiggyTilePressure.register(config)
         if g < 0 then g = 0 end
         if g > 1 then g = 1 end
 
-        local text = math.floor(1000 * event.value) / 1000       
+        local text = math.floor(100 * event.value) / 100   
         local color = { r = r, g = g, b = 0}
         
         local e = event.surface.find_entity("flying-text", event.position)
         
         if e then
-            e.text = text
-            e.color = color 
+            if text == 0 then 
+                e.destroy()
+            else
+                e.text = text
+                e.color = color
+            end
         else 
+            if text == 0 then return end
             local e = event.surface.create_entity{
                 name ="flying-text",
                 color = color,
