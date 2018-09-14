@@ -15,10 +15,16 @@ local SetupPlayer = {}
 function SetupPlayer.register(config)
     Event.add(defines.events.on_player_created, function (event)
         local player = game.players[event.player_index]
-        Debug.cheat(function()
-            player.force.manual_mining_speed_modifier = 1000
-        end)
+
+        for _, item in pairs(config.features.SetupPlayer.starting_items) do
+            player.insert(item)
+        end
+
         player.teleport({x = 0, y = 0})
+
+        Debug.cheat(function()
+            player.force.manual_mining_speed_modifier = config.features.SetupPlayer.cheats.manual_mining_speed_modifier
+        end)
     end)
 end
 

@@ -65,6 +65,10 @@ function Template.insert(surface, tiles, entities)
             error('Failed creating entity ' .. entity.name .. ' on surface.')
         end
 
+        if ('sand-rock-big' == created_entity.name) then
+            created_entity.destructible = false
+        end
+
         table.insert(created_entities, created_entity)
     end
 

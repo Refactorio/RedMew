@@ -1,4 +1,4 @@
-_DEBUG = true
+_DEBUG = false
 MARKET_ITEM = 'coin'
 
 global.scenario = {}

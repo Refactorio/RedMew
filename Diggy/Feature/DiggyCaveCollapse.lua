@@ -38,7 +38,8 @@ local function update_pressure_map(surface, position, strength)
         for _, new_spawn in pairs({entities, tiles}) do
             for _, tile in pairs(new_spawn) do
                 for _, entity in pairs(surface.find_entities_filtered({position = tile.position})) do
-                    entity.destroy()
+                    pcall(function() entity.die() end)
+                    pcall(function() entity.destroy() end)
                 end
             end
         end

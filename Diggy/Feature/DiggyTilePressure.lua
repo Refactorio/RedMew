@@ -10,8 +10,6 @@ local PressureMap = require 'Diggy.PressureMap'
 -- this
 local DiggyTilePressure = {}
 
-
-
 --[[--
     Registers all event handlers.]
 
@@ -19,8 +17,6 @@ local DiggyTilePressure = {}
 ]]
 function DiggyTilePressure.register(config)
     Event.add(PressureMap.events.on_pressure_changed, function(event)
-      
-
         local r = event.value
         local g = 1 - event.value
         if r < 0 then r = 0 end
@@ -31,25 +27,30 @@ function DiggyTilePressure.register(config)
         local text = math.floor(100 * event.value) / 100   
         local color = { r = r, g = g, b = 0}
         
-        local e = event.surface.find_entity("flying-text", event.position)
+        local text_entity = event.surface.find_entity('flying-text', event.position)
         
-        if e then
-            if text == 0 then 
-                e.destroy()
-            else
-                e.text = text
-                e.color = color
+        if text_entity then
+            if text == 0 then
+                text_entity.destroy()
+                return
             end
-        else 
-            if text == 0 then return end
-            local e = event.surface.create_entity{
-                name ="flying-text",
-                color = color,
-                text = text,
-                position = event.position
-            }
-            e.active = false
+
+            text_entity.text = text
+            text_entity.color = color
+
+            return
         end
+
+        if (text == 0) then
+            return
+        end
+
+        event.surface.create_entity{
+            name = 'flying-text',
+            color = color,
+            text = text,
+            position = event.position
+        }.active = false
     end)
 end
 
