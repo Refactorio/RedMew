@@ -63,7 +63,9 @@ function Mask.blur(x_start, y_start, factor, callback)
         for y = 1, n do
             cell = filter[x][y]
             value = factor * cell
-            callback(x_start + x + offset, y_start + y + offset, value)
+            if math.abs(value) > 0.001 then
+                callback(x_start + x + offset, y_start + y + offset, value)
+            end
         end
     end
 end

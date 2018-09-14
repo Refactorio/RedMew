@@ -27,6 +27,11 @@ local Config = {
             register = require 'Diggy.Feature.SetupPlayer'.register,
             initialize = require 'Diggy.Feature.SetupPlayer'.initialize,
         },
+        DiggyTilePressure = {
+            enabled = true,
+            register = require 'Diggy.Feature.DiggyTilePressure'.register,
+            initialize = require 'Diggy.Feature.DiggyTilePressure'.initialize,
+        },
         DiggyHole = {
             enabled = true,
             register = require 'Diggy.Feature.DiggyHole'.register,

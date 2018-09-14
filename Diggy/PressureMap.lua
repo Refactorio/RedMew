@@ -27,6 +27,14 @@ Event.on_init(set_metatables)
 Event.on_load(set_metatables)
 
 
+PressureMap.events = {
+    --[[--
+        When an pressure changes 
+         - position LuaPosition 
+    ]]
+    on_pressure_changed = script.generate_event_name()
+}
+
 --[[--
     Adds a fraction to a given location on the pressure_map. Returns the new
     fraction value of that position.
@@ -59,8 +67,11 @@ function add_fraction(pressure_map, position, fraction)
 
     map[position.x][position.y] = value
 
+    script.raise_event(PressureMap.events.on_pressure_changed, {old_value = value - fraction, value = value, position = position}) 
+
     return value
 end
+
 
 --[[--
     Creates a new pressure map if it doesn't exist yet and returns it.
@@ -85,6 +96,7 @@ local function get_pressure_map(surface)
 
     return global.pressure_map_storage[surface.index]
 end
+
 
 function PressureMap.process_maxed_values_buffer(surface, callback)
     if ('table' ~= type(surface) or not surface.name) then
