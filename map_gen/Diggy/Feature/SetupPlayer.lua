@@ -4,7 +4,7 @@
 
 -- dependencies
 local Event = require 'utils.event'
-local Debug = require 'Diggy.Debug'
+local Debug = require 'map_gen.Diggy.Debug'
 
 -- this
 local SetupPlayer = {}

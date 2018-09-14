@@ -5,8 +5,8 @@
 -- dependencies
 local Event = require 'utils.event'
 local Token = require 'utils.global_token'
-local Mask = require 'Diggy.Mask'
-local Template = require 'Diggy.Template'
+local Mask = require 'map_gen.Diggy.Mask'
+local Template = require 'map_gen.Diggy.Template'
 
 -- this
 local StartingZone = {}

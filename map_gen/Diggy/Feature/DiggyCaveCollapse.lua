@@ -6,9 +6,9 @@
 require 'utils.list_utils'
 
 local Event = require 'utils.event'
-local Template = require 'Diggy.Template'
-local Mask = require 'Diggy.Mask'
-local PressureMap = require 'Diggy.PressureMap'
+local Template = require 'map_gen.Diggy.Template'
+local Mask = require 'map_gen.Diggy.Mask'
+local PressureMap = require 'map_gen.Diggy.PressureMap'
 
 -- this
 local DiggyCaveCollapse = {}

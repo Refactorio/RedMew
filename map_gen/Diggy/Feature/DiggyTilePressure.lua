@@ -5,7 +5,7 @@
 -- dependencies
 
 local Event = require 'utils.event'
-local PressureMap = require 'Diggy.PressureMap'
+local PressureMap = require 'map_gen.Diggy.PressureMap'
 
 -- this
 local DiggyTilePressure = {}

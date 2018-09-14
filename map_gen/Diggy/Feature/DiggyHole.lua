@@ -5,8 +5,8 @@
 
 -- dependencies
 local Event = require 'utils.event'
-local Scanner = require 'Diggy.Scanner'
-local Template = require 'Diggy.Template'
+local Scanner = require 'map_gen.Diggy.Scanner'
+local Template = require 'map_gen.Diggy.Template'
 
 -- this
 local DiggyHole = {}

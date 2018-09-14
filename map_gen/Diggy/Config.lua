@@ -13,8 +13,8 @@ local Config = {
     features = {
         StartingZone = {
             enabled = true,
-            register = require 'Diggy.Feature.StartingZone'.register,
-            initialize = require 'Diggy.Feature.StartingZone'.initialize,
+            register = require 'map_gen.Diggy.Feature.StartingZone'.register,
+            initialize = require 'map_gen.Diggy.Feature.StartingZone'.initialize,
 
             -- initial starting position size, values higher than 30 might break
             starting_size = 8,
@@ -24,8 +24,8 @@ local Config = {
         },
         SetupPlayer = {
             enabled = true,
-            register = require 'Diggy.Feature.SetupPlayer'.register,
-            initialize = require 'Diggy.Feature.SetupPlayer'.initialize,
+            register = require 'map_gen.Diggy.Feature.SetupPlayer'.register,
+            initialize = require 'map_gen.Diggy.Feature.SetupPlayer'.initialize,
             starting_items = {
                 {name = 'steel-axe', count = 2},
                 {name = 'submachine-gun', count = 1},
@@ -38,19 +38,19 @@ local Config = {
             },
         },
         DiggyTilePressure = {
-            enabled = true,
-            register = require 'Diggy.Feature.DiggyTilePressure'.register,
-            initialize = require 'Diggy.Feature.DiggyTilePressure'.initialize,
+            enabled = false,
+            register = require 'map_gen.Diggy.Feature.DiggyTilePressure'.register,
+            initialize = require 'map_gen.Diggy.Feature.DiggyTilePressure'.initialize,
         },
         DiggyHole = {
             enabled = true,
-            register = require 'Diggy.Feature.DiggyHole'.register,
-            initialize = require 'Diggy.Feature.DiggyHole'.initialize,
+            register = require 'map_gen.Diggy.Feature.DiggyHole'.register,
+            initialize = require 'map_gen.Diggy.Feature.DiggyHole'.initialize,
         },
         DiggyCaveCollapse = {
             enabled = true,
-            register = require 'Diggy.Feature.DiggyCaveCollapse'.register,
-            initialize = require 'Diggy.Feature.DiggyCaveCollapse'.initialize,
+            register = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'.register,
+            initialize = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'.initialize,
             support_beam_entities = {
                 ['stone-wall'] = 1,
                 ['sand-rock-big'] = 1,
@@ -59,13 +59,13 @@ local Config = {
         },
         RefreshMap = {
             enabled = true,
-            register = require 'Diggy.Feature.RefreshMap'.register,
-            initialize = require 'Diggy.Feature.RefreshMap'.initialize,
+            register = require 'map_gen.Diggy.Feature.RefreshMap'.register,
+            initialize = require 'map_gen.Diggy.Feature.RefreshMap'.initialize,
         },
         SimpleRoomGenerator = {
             enabled = true,
-            register = require 'Diggy.Feature.SimpleRoomGenerator'.register,
-            initialize = require 'Diggy.Feature.SimpleRoomGenerator'.initialize,
+            register = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.register,
+            initialize = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.initialize,
         },
     },
 }

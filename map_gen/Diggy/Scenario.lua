@@ -1,7 +1,7 @@
 -- dependencies
 local Event = require 'utils.event'
-local Config = require 'Diggy.Config'
-local Debug = require 'Diggy.Debug'
+local Config = require 'map_gen.Diggy.Config'
+local Debug = require 'map_gen.Diggy.Debug'
 
 require 'utils.list_utils'
 require 'utils.utils'

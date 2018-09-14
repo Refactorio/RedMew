@@ -1,5 +1,5 @@
 -- dependencies
-local Inspect = require 'Diggy.Inspect'
+local Inspect = require 'map_gen.Diggy.Inspect'
 
 -- this
 local Debug = {}
