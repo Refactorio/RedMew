@@ -8,8 +8,8 @@ local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local Perlin = require 'map_gen.shared.perlin_noise'
 
-local outpost_seed = 52000
-local ore_seed = 61000
+local outpost_seed = 70000
+local ore_seed = 71000
 local enemy_seed = 420420
 
 local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
@@ -536,7 +536,8 @@ local market = {
         {name = 'military-science-pack', price = 80},
         {name = 'science-pack-3', price = 120},
         {name = 'production-science-pack', price = 240},
-        {name = 'high-tech-science-pack', price = 360}
+        {name = 'high-tech-science-pack', price = 360},
+        {name = 'small-plane', price = 100}
     }
 }
 
