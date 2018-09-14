@@ -1,5 +1,5 @@
 --[[-- info
-    Provides the ability to collapse caves when digging.
+    Provides the ability to show pressure values on the map.
 ]]
 
 -- dependencies
@@ -20,23 +20,31 @@ local DiggyTilePressure = {}
 function DiggyTilePressure.register(config)
     Event.add(PressureMap.events.on_pressure_changed, function(event)
       
-        local e = game.surfaces['nauvis'].find_entity("flying-text", event.position)
-        if e then   e.destroy() end
-        
+
         local r = event.value
         local g = 1 - event.value
         if r < 0 then r = 0 end
         if r > 1 then r = 1 end
         if g < 0 then g = 0 end
         if g > 1 then g = 1 end
+
+        local text = math.floor(1000 * event.value) / 1000       
+        local color = { r = r, g = g, b = 0}
         
-        local e = game.surfaces['nauvis'].create_entity{
-            name="flying-text",
-            color={ r = g, g = g, b = 0},
-            text=math.floor(100 * event.value) / 100,    
-            position= event.position
-        } 
-        e.active = false
+        local e = event.surface.find_entity("flying-text", event.position)
+        
+        if e then
+            e.text = text
+            e.color = color 
+        else 
+            local e = event.surface.create_entity{
+                name ="flying-text",
+                color = color,
+                text = text,
+                position = event.position
+            }
+            e.active = false
+        end
     end)
 end
 
