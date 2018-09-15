@@ -701,3 +701,39 @@ Gui.on_custom_close(
         Gui.destroy(event.element)
     end
 )
+
+local Public = {}
+
+function Public.get_map_name() 
+    return editable_info[map_name_key]
+end
+
+function Public.set_map_name(value)
+    editable_info[map_name_key] = value
+end
+
+function Public.get_map_description() 
+    return editable_info[map_description_key]
+end
+
+function Public.set_map_description(value)
+    editable_info[map_description_key] = value
+end
+
+function Public.get_map_extra_info() 
+    return editable_info[map_extra_info_key]
+end
+
+function Public.set_map_extra_info(value)
+    editable_info[map_extra_info_key] = value
+end
+
+function Public.get_new_info() 
+    return editable_info[new_info_key]
+end
+
+function Public.set_new_info(value)
+    editable_info[new_info_key] = value
+end
+
+return Public
