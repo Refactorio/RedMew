@@ -30,6 +30,7 @@ local function spawn_market(cmd)
         cant_run(cmd.name)
         return
     end
+
     local surface = player.surface
     local force = player.force
 
@@ -447,10 +448,17 @@ local function fish_player_crafted_item(event)
     end
 end
 
-commands.add_command('market', 'Places a fish market near you.  (Admins only)', spawn_market)
+local function on_init()
 
-Event.on_nth_tick(180, on_180_ticks)
-Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
-Event.add(defines.events.on_entity_died, fish_drop_entity_died)
-Event.add(defines.events.on_market_item_purchased, market_item_purchased)
-Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
+  if global.scenario.config.fish_market.enable then
+    commands.add_command('market', 'Places a fish market near you.  (Admins only)', spawn_market)
+
+    Event.on_nth_tick(180, on_180_ticks)
+    Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
+    Event.add(defines.events.on_entity_died, fish_drop_entity_died)
+    Event.add(defines.events.on_market_item_purchased, market_item_purchased)
+    Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
+  end
+end
+Event.on_init(init)
+Event.on_load(init)
