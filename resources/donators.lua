@@ -15,11 +15,7 @@ Module.donators = {
     ['Terarink'] = d.rank + d.train,
     ['Xertez'] = d.rank,
     ['Chevalier1200'] = d.rank + d.train,
-<<<<<<< HEAD
     ['DraugTheWhopper'] = d.rank + d.train
-=======
-    ['DraugTheWhopper'] = d.rank
->>>>>>> 563e85019404023681e9ca2ddf8b33eb37a1ff1d
 }
 
 Module.welcome_messages = {
