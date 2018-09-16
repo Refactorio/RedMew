@@ -12,6 +12,10 @@ local player_colors = {
     ['Linaori'] = {
         color = {r = 0.485, g = 0.111, b = 0.659, a = 0.5},
         chat_color = {r = 0.821, g = 0.444, b = 0.998, a = 0.5}
+    },
+    ['Jayefuu'] = {
+        color = {r = 0.559, g = 0.761, b = 0.157, a = 0.5},
+        chat_color = {r = 0.708, g = 0.996, b = 0.134, a = 0.5}
     }
 }
 
