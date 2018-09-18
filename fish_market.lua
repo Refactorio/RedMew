@@ -448,7 +448,7 @@ local function fish_player_crafted_item(event)
     end
 end
 
-local function on_init()
+local function init()
 
   if global.scenario.config.fish_market.enable then
     commands.add_command('market', 'Places a fish market near you.  (Admins only)', spawn_market)
