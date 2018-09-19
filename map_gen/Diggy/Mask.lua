@@ -49,7 +49,7 @@ local Mask = {}
 
     @param x_start number center point
     @param y_start number center point
-    @param factor number relative strength of the entity to withstand the pressure
+    @param factor number relative strength of the entity to withstand the stress
         factor < 0 if entity is placed
         factor > 0 if entity is removed
     @param callback function to execute on each tile within the mask callback(x, y, value)

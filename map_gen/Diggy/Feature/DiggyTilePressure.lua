@@ -1,22 +1,22 @@
 --[[-- info
-    Provides the ability to show pressure values on the map.
+    Provides the ability to show stress values on the map.
 ]]
 
 -- dependencies
 
 local Event = require 'utils.event'
-local PressureMap = require 'map_gen.Diggy.PressureMap'
+local StressMap = require 'map_gen.Diggy.StressMap'
 
 -- this
-local DiggyTilePressure = {}
+local DiggyTileStress = {}
 
 --[[--
     Registers all event handlers.]
 
     @param config Table {@see Diggy.Config}.
 ]]
-function DiggyTilePressure.register(config)
-    Event.add(PressureMap.events.on_pressure_changed, function(event)
+function DiggyTileStress.register(config)
+    Event.add(StressMap.events.on_stress_changed, function(event)
         local r = event.value
         local g = 1 - event.value
         if r < 0 then r = 0 end
@@ -59,8 +59,8 @@ end
 
     @param config Table {@see Diggy.Config}.
 ]]
-function DiggyTilePressure.initialize(config)
+function DiggyTileStress.initialize(config)
 
 end
 
-return DiggyTilePressure
+return DiggyTileStress

@@ -29,7 +29,7 @@ Event.on_load(set_metatables)
 
 PressureMap.events = {
     --[[--
-        When an pressure changes 
+        When pressure at certain position changes 
          - position LuaPosition
          - value Number
          - old_value Number
@@ -71,8 +71,8 @@ function add_fraction(pressure_map, position, fraction)
     map[position.x][position.y] = value
 
     local surface = game.surfaces[pressure_map.surface_index]
-    
-    script.raise_event(PressureMap.events.on_pressure_changed, {old_value = value - fraction, value = value, position = position, surface = surface}) 
+
+    script.raise_event(PressureMap.events.on_pressure_changed, {old_value = value - fraction, value = value, position = position, surface = surface})
 
     return value
 end

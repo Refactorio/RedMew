@@ -37,10 +37,10 @@ local Config = {
                 manual_mining_speed_modifier = 10,
             },
         },
-        DiggyTilePressure = {
+        DiggyTileStress = {
             enabled = false,
-            register = require 'map_gen.Diggy.Feature.DiggyTilePressure'.register,
-            initialize = require 'map_gen.Diggy.Feature.DiggyTilePressure'.initialize,
+            register = require 'map_gen.Diggy.Feature.DiggyTileStress'.register,
+            initialize = require 'map_gen.Diggy.Feature.DiggyTileStress'.initialize,
         },
         DiggyHole = {
             enabled = true,

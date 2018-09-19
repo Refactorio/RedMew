@@ -8,7 +8,7 @@ require 'utils.list_utils'
 local Event = require 'utils.event'
 local Template = require 'map_gen.Diggy.Template'
 local Mask = require 'map_gen.Diggy.Mask'
-local PressureMap = require 'map_gen.Diggy.PressureMap'
+local StressMap = require 'map_gen.Diggy.StressMap'
 
 -- this
 local DiggyCaveCollapse = {}
@@ -16,14 +16,14 @@ local DiggyCaveCollapse = {}
 --[[--
     @param surface LuaSurface
     @param position Position with x and y
-    @param strength positive increases pressure, negative decreases pressure
+    @param strength positive increases stress, negative decreases stress
 ]]
-local function update_pressure_map(surface, position, strength)
+local function update_stress_map(surface, position, strength)
     Mask.blur(position.x, position.y, strength, function (x, y, fraction)
-        PressureMap.add(surface, {x = x, y = y}, fraction)
+        StressMap.add(surface, {x = x, y = y}, fraction)
     end)
 
-    PressureMap.process_maxed_values_buffer(surface, function (positions)
+    StressMap.process_maxed_values_buffer(surface, function (positions)
         local entities = {}
         local tiles = {}
 
@@ -63,7 +63,7 @@ function DiggyCaveCollapse.register(config)
             return
         end
 
-        update_pressure_map(event.created_entity.surface, {
+        update_stress_map(event.created_entity.surface, {
             x = event.created_entity.position.x,
             y = event.created_entity.position.y,
         }, -1 * strength)
@@ -77,7 +77,7 @@ function DiggyCaveCollapse.register(config)
             return
         end
 
-        update_pressure_map(event.created_entity.surface, {
+        update_stress_map(event.created_entity.surface, {
             x = event.created_entity.position.x,
             y = event.created_entity.position.y,
         }, -1 * strength)
@@ -91,7 +91,7 @@ function DiggyCaveCollapse.register(config)
             return
         end
 
-        update_pressure_map(event.entity.surface, {
+        update_stress_map(event.entity.surface, {
             x = event.entity.position.x,
             y = event.entity.position.y,
         }, -1 * strength)
@@ -104,7 +104,7 @@ function DiggyCaveCollapse.register(config)
             return
         end
 
-        update_pressure_map(event.entity.surface, {
+        update_stress_map(event.entity.surface, {
             x = event.entity.position.x,
             y = event.entity.position.y,
         }, strength)
@@ -117,7 +117,7 @@ function DiggyCaveCollapse.register(config)
             return
         end
 
-        update_pressure_map(event.entity.surface, {
+        update_stress_map(event.entity.surface, {
             x = event.entity.position.x,
             y = event.entity.position.y,
         }, strength)
@@ -126,7 +126,7 @@ function DiggyCaveCollapse.register(config)
     Event.add(Template.events.on_void_removed, function(event)
         local strength = support_beam_entities['out-of-map']
 
-        update_pressure_map(event.surface, {
+        update_stress_map(event.surface, {
             x = event.old_tile.position.x,
             y = event.old_tile.position.y,
         }, strength)
@@ -135,7 +135,7 @@ function DiggyCaveCollapse.register(config)
     Event.add(Template.events.on_void_added, function(event)
         local strength = support_beam_entities['out-of-map']
 
-        update_pressure_map(event.surface, {
+        update_stress_map(event.surface, {
             x = event.old_tile.position.x,
             y = event.old_tile.position.y,
         }, -1  * strength)
