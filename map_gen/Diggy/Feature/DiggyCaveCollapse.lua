@@ -10,13 +10,13 @@ local Template = require 'map_gen.Diggy.Template'
 local Mask = require 'map_gen.Diggy.Mask'
 local StressMap = require 'map_gen.Diggy.StressMap'
 local Debug = require'map_gen.Diggy.Debug'
+local Task = require 'utils.Task'
+local Token = require 'utils.global_token'
 
 -- this
 local DiggyCaveCollapse = {}
 
-global.DiggyCaveCollapse = {}
-global.DiggyCaveCollapse.triggers = {}
-
+local config = {}
 
 DiggyCaveCollapse.events = {
     --[[--
@@ -62,9 +62,8 @@ end
 local function update_stress_map(surface, position, strength)
     local  max_value
     Mask.blur(position.x, position.y, strength, function (x, y, fraction)
-        max_value = StressMap.add(surface, {x = x, y = y}, fraction)
+        max_value = max_value or StressMap.add(surface, {x = x, y = y}, fraction)
     end)
-
 
     if max_value then
         script.raise_event(DiggyCaveCollapse.events.on_collapse_triggered, {surface = surface, position = position})
@@ -74,7 +73,7 @@ end
 local function collapse(surface, position)
   local positions = {}
 
-  Mask.blur(position.x, position.y, 10, function(x,y, value)
+  Mask.blur(position.x, position.y, config.collapse_threshold_total_strength, function(x,y, value)
       StressMap.check_stress_in_threshold(surface, {x=x,y=y}, value, function(_, position)
           table.insert(positions, position)
       end)
@@ -84,18 +83,26 @@ local function collapse(surface, position)
     Template.insert(surface, tiles, entities)
 end
 
+local on_collapse_timeout_finished = Token.register(function(params)
+    collapse(params.surface, params.position)
+end)
+
 
 --[[--
     Registers all event handlers.]
 
-    @param config Table {@see Diggy.Config}.
+    @param cnf Table {@see Diggy.Config}.
 ]]
-function DiggyCaveCollapse.register(config)
+function DiggyCaveCollapse.register(cnf)
+    config = cnf
     local support_beam_entities = config.features.DiggyCaveCollapse.support_beam_entities;
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, function(event)
-        -- TODO: Add time delay here
-        collapse(event.surface,  event.position)
+
+        local x = event.position.x
+        local y = event.position.y
+
+        Task.set_timeout(config.collapse_delay, on_collapse_timeout_finished, {surface = event.surface, position = event.position, position_squared = {x=x*x, y = y*y}})
     end)
 
     Event.add(defines.events.on_robot_built_entity, function(event)
