@@ -48,7 +48,7 @@ StressMap.events = {
 
     @return number sum of old fraction + new fraction
 ]]
-function add_fraction(stress_map, position, fraction)
+local function add_fraction(stress_map, position, fraction)
 
     local x = position.x
     local y = position.y
@@ -71,7 +71,6 @@ function add_fraction(stress_map, position, fraction)
     local surface = game.surfaces[stress_map.surface_index]
 
     script.raise_event(StressMap.events.on_stress_changed, {old_value = value - fraction, value = value, position = position, surface = surface})
-
     return value
 end
 
@@ -80,7 +79,7 @@ end
     Creates a new stress map if it doesn't exist yet and returns it.
 
     @param surface LuaSurface
-    @return Table with maxed_values_buffer, [1,2,3,4] containing the quadrants
+    @return Table  [1,2,3,4] containing the quadrants
 ]]
 local function get_stress_map(surface)
     if not global.stress_map_storage[surface.index] then
@@ -95,46 +94,25 @@ local function get_stress_map(surface)
       map[4] = setmetatable({},_mt_x)
 
       map["surface_index"] = surface.index
-
-      map.maxed_values_buffer = {}
     end
 
     return global.stress_map_storage[surface.index]
 end
 
 
-function StressMap.process_maxed_values_buffer(surface, callback)
-    if ('table' ~= type(surface) or not surface.name) then
-        error('StressMap.process_maxed_values_buffer argument #1 expects a LuaSurface, ' .. type(surface) .. ' given.')
-    end
-    if ('function' ~= type(callback)) then
-        error('StressMap.process_maxed_values_buffer argument #2 expects a callback function, ' .. type(callback) .. ' given.')
-    end
-
-    local buffer = {}
-    local map = get_stress_map(surface)
-    for _, position in pairs(map.maxed_values_buffer) do
-        table.insert(buffer, position)
-    end
-
-    -- empty before callback to avoid recursion
-    map.maxed_values_buffer = {}
-
-    callback(buffer)
-end
-
 --[[--
     @param surface LuaSurface
     @param position Position with x and y
     @param number fraction to add to the given position on the surface increase or decreasing stress
+    @return boolean
 ]]
 function StressMap.add(surface, position, fraction)
     if ('table' ~= type(surface) or nil == surface.name) then
-        error('StressMap.set argument #1 expects a LuaSurface, ' .. type(surface) .. ' given.')
+        error('StressMap.add argument #1 expects a LuaSurface, ' .. type(surface) .. ' given.')
     end
 
     if ('table' ~= type(position) or nil == position.x or nil == position.y) then
-        error('StressMap.set argument #2 expects a position with x and y, ' .. type(position) .. ' given.')
+        error('StressMap.add argument #2 expects a position with x and y, ' .. type(position) .. ' given.')
     end
 
     local stress_map = get_stress_map(surface)
@@ -142,8 +120,40 @@ function StressMap.add(surface, position, fraction)
     local new = add_fraction(stress_map, position, fraction)
 
     if (new >= 1 - epsilon) then
-        table.insert(stress_map.maxed_values_buffer, position)
+        return true
     end
 end
+
+--[[--
+    Checks whether a tile's pressure is within a given threshold and calls the handler if not.
+    @param surface LuaSurface
+    @param position Position with x and y
+    @param number threshold
+    @param callback
+
+]]
+function StressMap.check_stress_in_threshold(surface, position, threshold, callback)
+    if ('table' ~= type(surface) or nil == surface.name) then
+        error('StressMap.check_stress_in_threshold argument #1 expects a LuaSurface, ' .. type(surface) .. ' given.')
+    end
+
+    if ('table' ~= type(position) or nil == position.x or nil == position.y) then
+        error('StressMap.check_stress_in_threshold argument #2 expects a position with x and y, ' .. type(position) .. ' given.')
+    end
+
+    if 'number' ~= type(threshold) then
+        error('StressMap.check_stress_in_threshold argument #3 expects a number, ' .. type(threshold) .. ' given.')
+    end
+
+    local stress_map = get_stress_map(surface)
+
+    local value = add_fraction(stress_map, position, 0)
+
+    if (value >= 1 - epsilon - threshold) then
+        callback(surface, position)
+    end
+end
+
+
 
 return StressMap
