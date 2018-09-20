@@ -31,6 +31,7 @@ local message_count = 0
     @param message string
 ]]
 function Debug.print(message)
+    if type(message) ~= 'string' and type(message) ~= 'number' then message = type(message) end
     message_count = message_count + 1
     if (debug) then
         game.print('[' .. message_count .. '] ' .. message)
@@ -44,10 +45,12 @@ end
     @param y number
     @param message string
 ]]
-function Debug.printPosition(x, y, message)
+function Debug.printPosition(position, message)
+    message = message or ''
+    if type(message) ~= 'string' and type(message) ~= 'number' then message = type(message) end
     message_count = message_count + 1
     if (debug) then
-        game.print('[' .. message_count .. '] {x=' .. x .. ', y=' .. y .. '} ' .. message)
+        game.print('[' .. message_count .. '] {x=' .. position.x .. ', y=' .. position.y .. '} ' .. message)
     end
 end
 
