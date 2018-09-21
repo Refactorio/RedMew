@@ -34,7 +34,7 @@ local Config = {
                 {name = 'stone-wall', count = 10},
             },
             cheats = {
-                manual_mining_speed_modifier = 10,
+                manual_mining_speed_modifier = 50,
             },
         },
         DiggyTileStress = {
@@ -52,12 +52,15 @@ local Config = {
             register = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'.register,
             initialize = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'.initialize,
             collapse_delay = 2, --seconds
-            collapse_threshold_total_streng = 20, --The threshold that will be applied to all neighbors on a collapse via a mask
+            collapse_threshold_total_strength = 20, --The threshold that will be applied to all neighbors on a collapse via a mask
             support_beam_entities = {
                 ['stone-wall'] = 1,
                 ['sand-rock-big'] = 1,
                 ['out-of-map'] = 1,
             },
+            cracking_sounds = {
+              "CRACK"
+            }
         },
         RefreshMap = {
             enabled = true,

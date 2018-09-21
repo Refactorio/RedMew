@@ -88,21 +88,44 @@ local on_collapse_timeout_finished = Token.register(function(params)
 end)
 
 
+function spawn_cracking_sound_text(surface, position)
+    local text = config.cracking_sounds[math.random(1, #config.cracking_sounds)]
+
+    local color = {
+        r= 1,
+        g= math.random(1, 100) / 100,
+        b=0
+    }
+
+    for i = 1, #text do
+      local x_offset = (i - #text / 2 - 1) / 3
+      local char = text:sub(i,i)
+      surface.create_entity{
+          name = 'flying-text',
+          color = color,
+          text = char ,
+          position = {x = position.x +  x_offset, y = position.y -  ((i + 1) % 2) / 4}
+      }.active = true
+    end
+end
+
 --[[--
     Registers all event handlers.]
 
-    @param cnf Table {@see Diggy.Config}.
+    @param global_config Table {@see Diggy.Config}.
 ]]
-function DiggyCaveCollapse.register(cnf)
-    config = cnf
-    local support_beam_entities = config.features.DiggyCaveCollapse.support_beam_entities;
+function DiggyCaveCollapse.register(global_config)
+    config = global_config.features.DiggyCaveCollapse
+    local support_beam_entities = config.support_beam_entities;
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, function(event)
 
         local x = event.position.x
         local y = event.position.y
 
-        Task.set_timeout(config.collapse_delay, on_collapse_timeout_finished, {surface = event.surface, position = event.position, position_squared = {x=x*x, y = y*y}})
+        spawn_cracking_sound_text(event.surface, event.position)
+
+        Task.set_timeout(config.collapse_delay, on_collapse_timeout_finished, {surface = event.surface, position = event.position})
     end)
 
     Event.add(defines.events.on_robot_built_entity, function(event)
