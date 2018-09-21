@@ -28,6 +28,9 @@ require 'paint'
 require 'score'
 require 'popup'
 
+Server = require 'server'
+ServerCommands = require 'server_commands'
+
 local Event = require 'utils.event'
 local Donators = require 'resources.donators'
 
@@ -308,5 +311,19 @@ Event.add(
                 end
             )
         end
+    end
+)
+
+Event.add(
+    defines.events.on_research_started,
+    function(event)
+        Server.to_discord_raw('**Research ' .. event.research.name .. ' started.**')
+    end
+)
+
+Event.add(
+    defines.events.on_research_finished,
+    function(event)
+        Server.to_discord_raw('**Research ' .. event.research.name .. ' finished.**')
     end
 )
