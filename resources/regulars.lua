@@ -945,5 +945,13 @@ return {
     ['Cretlin'] = true,
     ['niko8'] = true,
     ['neuro666'] = true,
-    ['kreeg'] = true
+    ['kreeg'] = true,
+    ['Jimbogab'] = true,
+    ['Medival3'] = true,
+    ['willzcn'] = true,
+    ['uranopa3'] = true,
+    ['JSONROY'] = true,
+    ['o12eMaRkAbLeo'] = true,
+    ['VanHate'] = true,
+    ['RichardMNixon'] = true
 }
