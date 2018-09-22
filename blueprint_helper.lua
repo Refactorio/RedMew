@@ -3,6 +3,7 @@
 local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local Gui = require 'utils.gui'
+local Game = require 'utils.game'
 
 local function getBlueprintCursorStack(player)
     local cursor = player.cursor_stack

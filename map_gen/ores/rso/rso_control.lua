@@ -4,6 +4,7 @@ require("rso_config")
 require("util")
 require("rso_resource_config")
 local Utils = require "utils.utils"
+local Game = require 'utils.game'
 
 local MB=require "metaball"
 local drand = require 'drand'

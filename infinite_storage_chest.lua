@@ -3,6 +3,7 @@ local Token = require 'utils.global_token'
 local Gui = require 'utils.gui'
 local Task = require 'utils.Task'
 local Global = require 'utils.global'
+local Game = require 'utils.game'
 
 local chests = {}
 local chests_next = {}

@@ -1,4 +1,5 @@
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 
 local function player_built_entity(event)
     local entity = event.created_entity

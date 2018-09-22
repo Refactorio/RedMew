@@ -1,4 +1,5 @@
 local Event = require "utils.event"
+local Game = require 'utils.game'
 
 global.player_spawns = {} -- player_index to spawn_name
 global.spawns = {} -- spawn_name to x, y, player_online_count

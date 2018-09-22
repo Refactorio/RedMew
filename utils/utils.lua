@@ -1,4 +1,5 @@
 local Module = {}
+local Game = require 'utils.game'
 
 Module.distance = function(pos1, pos2)
     local dx = pos2.x - pos1.x
@@ -23,7 +24,7 @@ function math.clamp(num, min, max)
 end
 
 Module.print_except = function(msg, player)
-    for _, p in pairs(Game.players) do
+    for _, p in pairs(game.players) do
         if p.connected and p ~= player then
             p.print(msg)
         end
@@ -31,7 +32,7 @@ Module.print_except = function(msg, player)
 end
 
 Module.print_admins = function(msg)
-    for _, p in pairs(Game.players) do
+    for _, p in pairs(game.players) do
         if p.connected and p.admin then
             p.print(msg)
         end

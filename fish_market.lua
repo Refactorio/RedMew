@@ -20,6 +20,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local Task = require 'utils.Task'
 local PlayerStats = require 'player_stats'
+local Game = require 'utils.game'
 
 local Market_items = require 'resources.market_items'
 local market_item = Market_items.market_item

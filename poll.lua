@@ -2,6 +2,7 @@ local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local UserGroups = require 'user_groups'
+local Game = require 'utils.game'
 
 local default_poll_duration = 300 * 60 -- in ticks
 local duration_max = 3600 -- in seconds

@@ -1,7 +1,9 @@
 require 'config'
 require 'utils.utils'
 require 'utils.list_utils'
-require 'game'
+
+local Game = require 'utils.game'
+
 require 'user_groups'
 require 'custom_commands'
 require 'base_data'
@@ -28,6 +30,7 @@ require 'blueprint_helper'
 require 'paint'
 require 'score'
 require 'popup'
+
 
 local Event = require 'utils.event'
 local Donators = require 'resources.donators'

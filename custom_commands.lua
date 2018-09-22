@@ -3,6 +3,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
+local Game = require 'utils.game'
 --local Antigrief = require 'antigrief'
 
 function player_print(str)
@@ -247,7 +248,7 @@ local function regular(cmd)
 end
 
 local function afk()
-    for _, v in pairs(Game.players) do
+    for _, v in pairs(game.players) do
         if v.afk_time > 300 then
             local time = ' '
             if v.afk_time > 21600 then
@@ -624,7 +625,7 @@ end
 
 local function admin_chat(cmd)
     if not game.player or game.player.admin then --admins AND server
-        for _, p in pairs(Game.players) do
+        for _, p in pairs(game.players) do
             if p.admin then
                 local tag = ''
                 if game.player.tag and game.player.tag ~= '' then

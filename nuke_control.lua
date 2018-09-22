@@ -1,6 +1,7 @@
 local Event = require "utils.event"
 local UserGroups = require "user_groups"
 local Utils = require "utils.utils"
+local Game = require 'utils.game'
 
 function allowed_to_nuke(player)
   if type(player) == "table" then

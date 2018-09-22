@@ -2,6 +2,7 @@ local Module = {}
 
 local Gui = require("utils.gui")
 local Utils = require("utils.utils");
+local Game = require 'utils.game'
 local report_frame_name = Gui.uid_name()
 local report_close_button_name = Gui.uid_name()
 local report_tab_button_name = Gui.uid_name()
@@ -77,14 +78,14 @@ function Module.report(reporting_player, reported_player, message)
     table.insert(global.reports, {reporting_player_index = reporting_player.index, reported_player_index = reported_player.index, message = message, tick = game.tick})
 
     local notified = false
-    for _,p in pairs(Game.players) do
+    for _,p in pairs(game.players) do
         if p.admin and p.connected then
             Module.show_reports(p)
             if p.afk_time < 3600 then notified = true end
         end
     end
     if not notified then
-        for _,p in pairs(Game.players) do
+        for _,p in pairs(game.players) do
             if p.admin then
                 Module.show_reports(p) 
             end

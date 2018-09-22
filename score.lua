@@ -1,4 +1,5 @@
 local Event = require "utils.event"
+local Game = require 'utils.game'
 
 if not global.score_rockets_launched then global.score_rockets_launched = 0 end
 

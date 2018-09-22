@@ -3,6 +3,7 @@ local Donators = require 'resources.donators'
 global.donators = Donators.donators
 local Event = require 'utils.event'
 local Utils = require 'utils.utils'
+local Game = require 'utils.game'
 
 local Module = {}
 

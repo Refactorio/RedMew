@@ -1,4 +1,5 @@
 local Event = require "utils.event"
+local Game = require 'utils.game'
 
 Event.add(defines.events.on_player_died, function (event)
 	local player = event.player_index

@@ -1,4 +1,5 @@
 local Event = require "utils.event"
+local Game = require 'utils.game'
 
 Event.on_init(function()
   

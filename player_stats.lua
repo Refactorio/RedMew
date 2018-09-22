@@ -1,5 +1,6 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
+local Game = require 'utils.game'
 
 local player_last_position = {}
 local player_walk_distances = {}

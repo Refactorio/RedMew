@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
+local Game = require 'utils.game'
 
 local player_corpses = {}
 

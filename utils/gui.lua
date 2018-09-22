@@ -1,5 +1,6 @@
 local Token = require 'utils.global_token'
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 
 local Gui = {}
 

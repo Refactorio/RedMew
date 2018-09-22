@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local UserGroups = require 'user_groups'
+local Game = require 'utils.game'
 
 local deafult_verb = 'expanded'
 
@@ -242,7 +243,7 @@ local function draw_main_frame(player)
 end
 
 local function redraw_main_frame()
-    for _, p in pairs(Game.players) do
+    for _, p in pairs(game.players) do
         local main_frame = p.gui.left[main_frame_name]
         if main_frame and main_frame.valid then
             local content = main_frame[main_frame_content_name]
@@ -458,7 +459,7 @@ Gui.on_click(
 
         local tag = '[' .. tag_name .. ']'
 
-        for _, player in pairs(Game.players) do
+        for _, player in pairs(game.players) do
             if player.valid and player.tag == tag then
                 change_player_tag(player, '')
 
@@ -611,7 +612,7 @@ Gui.on_click(
 
                 local old_tag = '[' .. old_name .. ']'
 
-                for _, p in pairs(Game.players) do
+                for _, p in pairs(game.players) do
                     if p.valid and p.tag == old_tag then
                         change_player_tag(p, tag_name, true)
 
