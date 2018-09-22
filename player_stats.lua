@@ -30,7 +30,7 @@ Global.register(
 local function player_created(event)
     local index = event.player_index
 
-    player_last_position[index] = game.players[index].position
+    player_last_position[index] = Game.players[index].position
     player_walk_distances[index] = 0
     player_coin_earned[index] = 0
     player_coin_spent[index] = 0

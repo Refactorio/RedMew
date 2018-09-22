@@ -473,7 +473,7 @@ end
 
 local function on_player_joined_game(event)
 	local surface = game.surfaces[1]
-	local player = game.players[event.player_index]
+	local player = Game.players[event.player_index]
 	if not global.cave_miner_init_done then
 		local p = surface.find_non_colliding_position("player", {0,-40}, 10, 1)
 		game.forces["player"].set_spawn_position(p,surface)
@@ -765,7 +765,7 @@ local function on_tick(event)
 				if game.forces.map_pregen.is_chunk_charted(game.surfaces[1], {40,40}) then
 					game.print("Map generation done!", { r=0.22, g=0.99, b=0.99})
 
-					game.players[1].force = game.forces["player"]
+					Game.players[1].force = game.forces["player"]
 					global.map_pregeneration_is_active = nil
 				end
 			end
@@ -774,7 +774,7 @@ end
 
 local function on_marked_for_deconstruction(event)
 	if event.entity.name == "rock-huge" or event.entity.name == "rock-big" or event.entity.name == "sand-rock-big" then
-		event.entity.cancel_deconstruction(game.players[event.player_index].force.name)
+		event.entity.cancel_deconstruction(Game.players[event.player_index].force.name)
 	end
 end
 
@@ -790,7 +790,7 @@ local function pre_player_mined_item(event)
 	end
 
 	if event.entity.name == "rock-huge" or event.entity.name == "rock-big" or event.entity.name == "sand-rock-big" then
-		local player = game.players[event.player_index]
+		local player = Game.players[event.player_index]
 		local rock_position = {x = event.entity.position.x, y = event.entity.position.y}
 		event.entity.destroy()
 		local tile_distance_to_center = math.sqrt(rock_position.x^2 + rock_position.y^2)
@@ -873,7 +873,7 @@ local function on_player_mined_entity(event)
 	end
 	if event.entity.name == "fish" then
 		if math.random(1,2) == 1 then
-			local player = game.players[event.player_index]
+			local player = Game.players[event.player_index]
 			local health = player.character.health
 			player.character.damage(math.random(50,150),"enemy")
 			if not player.character then
@@ -920,7 +920,7 @@ local function on_entity_damaged(event)
 end
 
 local function on_player_respawned(event)
-	local player = game.players[event.player_index]
+	local player = Game.players[event.player_index]
 	player.character.disable_flashlight()
 	global.player_hunger[player.name] = global.player_hunger_spawn_value
 	hunger_update(player, 0)
@@ -936,7 +936,7 @@ end
 local function on_gui_click(event)
 	if not (event and event.element and event.element.valid) then return end
 
-	local player = game.players[event.element.player_index]
+	local player = Game.players[event.element.player_index]
 	local name = event.element.name
 	local frame = player.gui.top["caver_miner_stats_frame"]
 
@@ -951,7 +951,7 @@ end
 
 local function on_player_used_capsule(event)
 	if event.item.name == "raw-fish" then
-		local player = game.players[event.player_index]
+		local player = Game.players[event.player_index]
 		hunger_update(player, global.player_hunger_fish_food_value)
 		player.play_sound{path="utility/armor_insert", volume_modifier=1}
 		refresh_gui()
@@ -961,7 +961,7 @@ end
 function map_pregen()
 	local radius = 1280
 	if not game.forces.map_pregen then game.create_force("map_pregen") end
-	game.players[1].force = game.forces["map_pregen"]
+	Game.players[1].force = game.forces["map_pregen"]
 	game.forces.map_pregen.chart(game.surfaces[1],{{x = -1 * radius, y = -1 * radius}, {x = radius, y = radius}})
 	global.map_pregeneration_is_active = true
 end

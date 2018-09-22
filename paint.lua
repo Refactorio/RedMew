@@ -52,7 +52,7 @@ local function player_build_tile(event)
         return
     end
 
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
     if not player.gui.left[main_frame_name] then
         return
     end
@@ -77,7 +77,7 @@ local function player_joined(event)
     if not global.scenario.config.paint.enable then 
         return 
     end
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
     if not player or not player.valid then
         return
     end

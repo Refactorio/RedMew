@@ -53,7 +53,7 @@ Event.add(
             return
         end
 
-        local p = game.players[event.player_index]
+        local p = Game.players[event.player_index]
         if not p or not p.valid then
             return
         end

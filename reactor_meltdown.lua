@@ -67,7 +67,7 @@ local function entity_destroyed(event)
 end
 
 local function alert(reactor)
-    for _, p in pairs(game.players) do
+    for _, p in pairs(Game.players) do
         p.add_custom_alert(
             reactor,
             {type = 'item', name = 'nuclear-reactor'},

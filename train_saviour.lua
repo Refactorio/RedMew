@@ -52,7 +52,7 @@ local function on_pre_death(event)
     end
 
     local player_index = event.player_index
-    local player = game.players[player_index]
+    local player = Game.players[player_index]
     if not player or not player.valid then
         return
     end

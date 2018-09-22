@@ -29,7 +29,7 @@ Event.add(
         local surface = game.surfaces[event.surface_index]
         surface.set_tiles(new_tiles)
 
-        local player = game.players[event.player_index]
+        local player = Game.players[event.player_index]
         player.insert {name = item_name, count = count}
     end
 )

@@ -633,7 +633,7 @@ local function toggle(event)
 end
 
 local function player_created(event)
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
 
     if not player or not player.valid then
         return

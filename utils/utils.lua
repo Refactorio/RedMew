@@ -23,7 +23,7 @@ function math.clamp(num, min, max)
 end
 
 Module.print_except = function(msg, player)
-    for _, p in pairs(game.players) do
+    for _, p in pairs(Game.players) do
         if p.connected and p ~= player then
             p.print(msg)
         end
@@ -31,7 +31,7 @@ Module.print_except = function(msg, player)
 end
 
 Module.print_admins = function(msg)
-    for _, p in pairs(game.players) do
+    for _, p in pairs(Game.players) do
         if p.connected and p.admin then
             p.print(msg)
         end
@@ -79,7 +79,7 @@ Module.find_entities_by_last_user =
         surface = game.surfaces[surface]
     end
     if type(player) == 'number' then
-        player = game.players[player]
+        player = Game.players[player]
     end
     filters.force = player.force.name
     for _, e in pairs(surface.find_entities_filtered(filters)) do

@@ -27,8 +27,8 @@ Module.add_regular = function(player_name)
     if Module.is_regular(player_name) then
         player_print(player_name .. ' is already a regular.')
     else
-        if game.players[player_name] then
-            player_name = game.players[player_name].name
+        if Game.players[player_name] then
+            player_name = Game.players[player_name].name
             game.print(actor .. ' promoted ' .. player_name .. ' to regular.')
             global.regulars[player_name] = true
             update_file()
@@ -41,8 +41,8 @@ end
 Module.remove_regular =
     function(player_name)
     local actor = Utils.get_actor()
-    if game.players[player_name] then
-        player_name = game.players[player_name].name
+    if Game.players[player_name] then
+        player_name = Game.players[player_name].name
         if Module.is_regular(player_name) then
             game.print(player_name .. ' was demoted from regular by ' .. actor .. '.')
         end
@@ -84,7 +84,7 @@ end
 Event.add(
     defines.events.on_player_joined_game,
     function(event)
-        local correctCaseName = game.players[event.player_index].name
+        local correctCaseName = Game.players[event.player_index].name
         if global.regulars[correctCaseName:lower()] and not global.regulars[correctCaseName] then
             global.regulars[correctCaseName:lower()] = nil
             global.regulars[correctCaseName] = true

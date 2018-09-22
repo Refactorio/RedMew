@@ -1,6 +1,7 @@
 require 'config'
 require 'utils.utils'
 require 'utils.list_utils'
+require 'game'
 require 'user_groups'
 require 'custom_commands'
 require 'base_data'
@@ -32,7 +33,7 @@ local Event = require 'utils.event'
 local Donators = require 'resources.donators'
 
 local function player_created(event)
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
 
     if not player or not player.valid then
         return
@@ -124,13 +125,13 @@ local function hodor(event)
     end
 
     -- player_index is nil if the message came from the server,
-    -- and indexing game.players with nil is apparently an error.
+    -- and indexing Game.players with nil is apparently an error.
     local player_index = event.player_index
     if not player_index then
         return
     end
 
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
     if not player or not player.valid then
         return
     end
@@ -152,7 +153,7 @@ local function hodor(event)
 end
 
 local function player_joined(event)
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
     if not player or not player.valid then
         return
     end
@@ -177,7 +178,7 @@ Event.add(
             local p_index = event.player_index
             local name
             if p_index then
-                name = game.players[event.player_index].name
+                name = Game.players[event.player_index].name
             else
                 name = '<server>'
             end
@@ -242,7 +243,7 @@ Event.add(
     defines.events.on_player_crafted_item,
     function(event)
         local pi = event.player_index
-        local p = game.players[pi]
+        local p = Game.players[pi]
 
         if not p or not p.valid or not p.cheat_mode then
             return
@@ -273,7 +274,7 @@ Event.add(
 
 function print_cheated_items()
     local res = {}
-    local players = game.players
+    local players = Game.players
 
     for pi, data in pairs(global.cheated_items) do
         res[players[pi].name] = data
@@ -289,7 +290,7 @@ Event.add(
         if not player_index then
             return
         end
-        local player = game.players[player_index]
+        local player = Game.players[player_index]
         local command = event.parameters or ''
         if player.name:lower() == 'gotze' and string.find(command, 'insert') then
             string.gsub(

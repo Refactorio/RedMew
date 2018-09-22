@@ -14,7 +14,7 @@ Global.register(
 
 local function player_died(event)
     local player_index = event.player_index
-    local player = game.players[player_index]
+    local player = Game.players[player_index]
 
     if not player or not player.valid then
         return

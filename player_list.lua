@@ -611,7 +611,7 @@ local function tick()
 end
 
 local function player_joined(event)
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
     if not player or not player.valid then
         return
     end

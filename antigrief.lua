@@ -53,7 +53,7 @@ end
 
 local function on_entity_changed(event)  
   local entity = event.entity or event.destination
-  local player = game.players[event.player_index]
+  local player = Game.players[event.player_index]
   if player.admin or not entity.valid then return end --Freebees for admins
   if entity.last_user ~= player and entity.force == player.force then --commented out to be able to debug
     place_entity_on_surface(entity, global.ag_surface, true, event.player_index)
@@ -92,7 +92,7 @@ Event.add(defines.events.on_player_rotated_entity, function(event)
     --The mocked entity has the entity state before rotation
     --We also dont know who rotated it and dont want the griefers name there so we set it to 1
     local mock_entity = {name = entity.name, position = entity.position, mock = true,
-      last_user = game.players[1], force = entity.force, direction = get_pre_rotate_direction(entity)}
+      last_user = Game.players[1], force = entity.force, direction = get_pre_rotate_direction(entity)}
     event.entity = mock_entity
     on_entity_changed(event)
   end
@@ -128,7 +128,7 @@ local Module = {}
 
 Module.undo = function(player)
   if type(player) == "nil" or type(player) == "string" then return --No support for strings!
-  elseif type(player) == "number" then player = game.players[player] end
+  elseif type(player) == "number" then player = Game.players[player] end
 
   --Remove all items from all surfaces that player placed an entity on
   for _,surface in pairs(game.surfaces) do
