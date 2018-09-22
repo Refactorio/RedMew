@@ -1298,7 +1298,7 @@ local function poll_command(cmd)
     if not suc then
         player_print(result)
     else
-        player_print(table.concat {'Poll #', result, ' successfully created.'})
+        player_print(table.concat {'[POLL] ','Poll #', result, ' successfully created.'})
     end
 end
 
