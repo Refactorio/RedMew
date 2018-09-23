@@ -33,9 +33,9 @@ local max = math.max
 local function rso_debug(str)
    if rso_debug_enabled then
       if (type(str) == "table") then
-         Game.players[1].print(serpent.dump(str))
+         Game.get_player_by_index(1).print(serpent.dump(str))
       else
-         Game.players[1].print(str)
+         Game.get_player_by_index(1).print(str)
       end
    end
 end
@@ -1137,26 +1137,26 @@ function RSO_init()
       initDone = true
 
       if surface.map_gen_settings.autoplace_controls["iron-ore"].size ~= "none" then
-         Game.players[1].print("RSO WARNING - VANILLA iron-ore GEN IS NOT DISABLED!")
+         Game.get_player_by_index(1).print("RSO WARNING - VANILLA iron-ore GEN IS NOT DISABLED!")
       end
       if surface.map_gen_settings.autoplace_controls["copper-ore"].size ~= "none" then
-         Game.players[1].print("RSO WARNING - VANILLA copper-ore GEN IS NOT DISABLED!")
+         Game.get_player_by_index(1).print("RSO WARNING - VANILLA copper-ore GEN IS NOT DISABLED!")
       end
       if surface.map_gen_settings.autoplace_controls["uranium-ore"].size ~= "none" then
-         Game.players[1].print("RSO WARNING - VANILLA uranium-ore GEN IS NOT DISABLED!")
+         Game.get_player_by_index(1).print("RSO WARNING - VANILLA uranium-ore GEN IS NOT DISABLED!")
       end
       if surface.map_gen_settings.autoplace_controls["crude-oil"].size ~= "none" then
-         Game.players[1].print("RSO WARNING - VANILLA crude-oil GEN IS NOT DISABLED!")
+         Game.get_player_by_index(1).print("RSO WARNING - VANILLA crude-oil GEN IS NOT DISABLED!")
       end
       if surface.map_gen_settings.autoplace_controls["enemy-base"].size ~= "none" then
          -- Not a problem, as this  RSO does not gen biters
---         Game.players[1].print("RSO WARNING - VANILLA enemy-base GEN IS NOT DISABLED!")
+--         Game.get_player_by_index(1).print("RSO WARNING - VANILLA enemy-base GEN IS NOT DISABLED!")
       end
       if surface.map_gen_settings.autoplace_controls["stone"].size ~= "none" then
-         Game.players[1].print("RSO WARNING - VANILLA stone GEN IS NOT DISABLED!")
+         Game.get_player_by_index(1).print("RSO WARNING - VANILLA stone GEN IS NOT DISABLED!")
       end
       if surface.map_gen_settings.autoplace_controls["coal"].size ~= "none" then
-         Game.players[1].print("RSO WARNING - VANILLA coal GEN IS NOT DISABLED!")
+         Game.get_player_by_index(1).print("RSO WARNING - VANILLA coal GEN IS NOT DISABLED!")
       end
    end
 

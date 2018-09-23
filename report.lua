@@ -19,8 +19,8 @@ local function draw_report(parent, report_id)
         parent.add {type = "label", caption="No reports yet."}
         return
     end
-    local reported_player_name = Game.players[report.reported_player_index].name
-    local reporting_player_name = Game.players[report.reporting_player_index].name
+    local reported_player_name = Game.get_player_by_index(report.reported_player_index).name
+    local reporting_player_name = Game.get_player_by_index(report.reporting_player_index).name
     local time = Utils.format_time(report.tick)
     local time_ago = Utils.format_time(game.tick - report.tick)
 
@@ -64,7 +64,7 @@ Module.show_reports = function(player)
             button_cell.add {
                 type="button", 
                 name=report_tab_button_name, 
-                caption = Game.players[report.reported_player_index].name
+                caption = Game.get_player_by_index(report.reported_player_index).name
             }
         end
     end
@@ -179,9 +179,9 @@ Gui.on_click(
         local reported_player_index = data["reported_player_index"]
         
         Gui.destroy(frame)
-        Module.report(event.player, Game.players[reported_player_index], msg)
+        Module.report(event.player, Game.get_player_by_index(reported_player_index), msg)
         
-        event.player.print("Sucessfully reported " .. Game.players[reported_player_index].name)
+        event.player.print("Sucessfully reported " .. Game.get_player_by_index(reported_player_index).name)
     end
 )
 

@@ -112,7 +112,7 @@ local function get_editing_players_message(players)
     local message = {'Editing players: '}
 
     for pi, _ in pairs(players) do
-        local name = Game.players[pi].name
+        local name = Game.get_player_by_index(pi).name
         table.insert(message, name)
         table.insert(message, ', ')
     end
@@ -585,7 +585,7 @@ local function draw_create_task_frame(left, previous_task)
 end
 
 local function player_created(event)
-    local player = Game.players[event.player_index]
+    local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -631,7 +631,7 @@ local function player_created(event)
 end
 
 local function player_left(event)
-    local player = Game.players[event.player_index]
+    local player = Game.get_player_by_index(event.player_index)
     local left = player.gui.left
 
     local frame = left[edit_announcements_frame_name]

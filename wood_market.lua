@@ -161,12 +161,12 @@ local function market_item_purchased(event)
     PlayerStats.change_fish_spent(player_index, cost)
 
     if event.offer_index == 1 then -- Temporary speed bonus
-        local player = Game.players[player_index]
+        local player = Game.get_player_by_index(player_index)
         boost_player_runningspeed(player, market)
     end
 
     if event.offer_index == 2 then -- Temporary mining bonus
-        local player = Game.players[player_index]
+        local player = Game.get_player_by_index(player_index)
         boost_player_miningspeed(player, market)
     end
 end
@@ -180,14 +180,14 @@ local function on_180_ticks()
         if global.player_speed_boost_records then
             for k, v in pairs(global.player_speed_boost_records) do
                 if game.tick - v.start_tick > 3000 then
-                    reset_player_runningspeed(Game.players[k])
+                    reset_player_runningspeed(Game.get_player_by_index(k))
                 end
             end
         end
         if global.player_mining_boost_records then
             for k, v in pairs(global.player_mining_boost_records) do
                 if game.tick - v.start_tick > 6000 then
-                    reset_player_miningspeed(Game.players[k])
+                    reset_player_miningspeed(Game.get_player_by_index(k))
                 end
             end
         end

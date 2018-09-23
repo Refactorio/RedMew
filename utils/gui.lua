@@ -82,7 +82,7 @@ local function handler_factory(event_id)
             return
         end
 
-        local player = Game.players[event.player_index]
+        local player = Game.get_player_by_index(event.player_index)
         if not player or not player.valid then
             return
         end

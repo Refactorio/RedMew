@@ -119,7 +119,7 @@ local function gui_opened(event)
         return
     end
 
-    local player = Game.players[event.player_index]
+    local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -157,7 +157,7 @@ Gui.on_custom_close(
 Event.add(
     defines.events.on_player_died,
     function(event)
-        local player = Game.players[event.player_index or 0]
+        local player = Game.get_player_by_index(event.player_index or 0)
 
         if not player or not player.valid then
             return

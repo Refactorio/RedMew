@@ -27,7 +27,7 @@ local player_colors = {
 Event.add(
     defines.events.on_player_created,
     function(event)
-        local player = Game.players[event.player_index]
+        local player = Game.get_player_by_index(event.player_index)
         if not player or not player.valid then
             return
         end

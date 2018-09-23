@@ -56,7 +56,7 @@ local function player_joined_game(event)
 
     local spawn = global.spawns[spawn_name]
     global.player_spawns[index] = spawn_name
-    Game.players[index].teleport(spawn)  
+    Game.get_player_by_index(index).teleport(spawn)  
     
     local count = spawn.count
     spawn.count = count + 1
@@ -80,11 +80,11 @@ local function player_respawned(event)
 
     if not spawn then return end
     
-    Game.players[index].teleport(spawn)   
+    Game.get_player_by_index(index).teleport(spawn)   
 end
 
 local function tp_spawn(player_name, spawn_name)
-    local player = Game.players[player_name]
+    local player = Game.get_player_by_index(player_name)
     if not player then
         player_name = player_name or ""
         game.player.print("player " .. player_name .. " does not exist.")
@@ -110,7 +110,7 @@ local function change_spawn(player_name, spawn_name)
         return
     end
 
-    local player = Game.players[player_name]
+    local player = Game.get_player_by_index(player_name)
 
     if not player then
         player_name = player_name or ""
@@ -152,7 +152,7 @@ local function print_players_for_spawn(target_spawn_name)
     str = ""
     for index, spawn_name in pairs(global.player_spawns) do
         if target_spawn_name == spawn_name then
-            local player = Game.players[index]
+            local player = Game.get_player_by_index(index)
             if player.connected then
                 str = str .. player.name .. ", "
             end
