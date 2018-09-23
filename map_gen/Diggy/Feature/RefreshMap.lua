@@ -4,7 +4,6 @@
 
 -- dependencies
 local Event = require 'utils.event'
-local Template = require 'map_gen.Diggy.Template'
 
 -- this
 local RefreshMap = {}

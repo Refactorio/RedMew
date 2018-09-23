@@ -34,7 +34,7 @@ local Config = {
                 {name = 'stone-wall', count = 10},
             },
             cheats = {
-                manual_mining_speed_modifier = 50,
+                manual_mining_speed_modifier = 1000,
             },
         },
         DiggyTileStress = {
@@ -68,9 +68,74 @@ local Config = {
             initialize = require 'map_gen.Diggy.Feature.RefreshMap'.initialize,
         },
         SimpleRoomGenerator = {
-            enabled = true,
+            enabled = false,
             register = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.register,
             initialize = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.initialize,
+        },
+        ScatteredResources = {
+            enabled = true,
+            register = require 'map_gen.Diggy.Feature.ScatteredResources'.register,
+            initialize = require 'map_gen.Diggy.Feature.ScatteredResources'.initialize,
+
+            -- percentage of resource added to the sum. 100 tiles means
+            -- 10% more resources with a distance_richness_modifier of 10
+            -- 20% more resources with a distance_richness_modifier of 5
+            distance_richness_modifier = 5,
+
+            -- defines the increased chance of spawning resources
+            -- calculated_probability = resource_probability + ((distance / distance_probability_modifier) / 100)
+            distance_probability_modifier = 2,
+
+            -- increases the amount of oil * oil_value_modifier
+            oil_value_modifier = 500,
+
+            -- percentage of chance that resources will spawn after mining
+            resource_probability = 0.3,
+
+            -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
+            max_resource_probability = 0.7,
+
+            -- chances per resource of spawning, sum must be 1.00
+            resource_chances = {
+                ['coal']        = 0.20,
+                ['copper-ore']  = 0.29,
+                ['iron-ore']    = 0.26,
+                ['stone']       = 0.14,
+                ['uranium-ore'] = 0.02,
+                ['crude-oil']   = 0.02,
+                ['tree']        = 0.07,
+            },
+
+            -- minimum distance from the spawn point required before it spawns
+            minimum_resource_distance = {
+                ['coal']        = 10,
+                ['copper-ore']  = 12,
+                ['iron-ore']    = 12,
+                ['stone']       = 12,
+                ['uranium-ore'] = 20,
+                ['crude-oil']   = 20,
+                ['tree']        = 0,
+            },
+
+            -- defines the chance of which resource_richness_value to spawn, sum must be 1.00
+            resource_richness_probability = {
+                ['scarce']     = 0.33,
+                ['low']        = 0.25,
+                ['sufficient'] = 0.19,
+                ['good']       = 0.14,
+                ['plenty']     = 0.07,
+                ['jackpot']    = 0.02,
+            },
+
+            -- defines the min and max range of ores to spawn
+            resource_richness_values = {
+                ['scarce']     = {1, 200},
+                ['low']        = {201, 400},
+                ['sufficient'] = {401, 750},
+                ['good']       = {751, 1200},
+                ['plenty']     = {1201, 2000},
+                ['jackpot']    = {2001, 5000},
+            },
         },
     },
 }

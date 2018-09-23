@@ -10,11 +10,15 @@ Template.events = {
 
     --[[--
         Triggers when an 'out-of-map' tile is placed on something else.
+
+        {surface, old_tile={name, position={x, y}}}
     ]]
     on_void_added = script.generate_event_name(),
 
     --[[--
         Triggers when an 'out-of-map' tile is replaced by something else.
+
+        {surface, old_tile={name, position={x, y}}}
     ]]
     on_void_removed = script.generate_event_name(),
 }
