@@ -25,17 +25,19 @@ local function set_name(player, name, set_real_name)
 end
 
 Event.add(defines.events.on_player_created, function(event)
+  local player = Game.get_player_by_index(event.player_index)
   local new_name
   repeat
     new_name = tostring(math.random(10000000, 100000000))
   until not game.players[new_name]
-    if not global.anonymous.real_names[event.player_index] then
-      local player = Game.get_player_by_index(event.player_index)
       set_name(player, new_name, true)
-    end
 end)
 
 Event.add(defines.events.on_player_joined_game, function(event)
+  local player = Game.get_player_by_index(event.player_index)
+  if global.anonymous.offline_names[event.player_index] then
+    player.name = global.anonymous.offline_names[event.player_index]
+  end
   local previous_player
   local first_player_name
   for index, player in pairs(game.players) do
@@ -54,6 +56,14 @@ Event.add(defines.events.on_player_joined_game, function(event)
   set_name(previous_player, first_player_name)
 end)
 
+global.anonymous.offline_names = global.anonymous.offline_names or {}
+Event.add(defines.events.on_pre_player_left_game, function(event)
+    local player = Game.get_player_by_index(event.player_index)
+    global.anonymous.offline_names[event.player_index] = player.name
+    player.name = global.anonymous.real_names[event.player_index]
+end)
+
+
 Event.add(defines.events.on_console_command, function(event)
   if event.command == "ban" and event.parameters then
     local name = ""
@@ -69,8 +79,11 @@ Event.add(defines.events.on_console_command, function(event)
     end
     local player = game.players[name]
     if player and global.anonymous.real_names[player.index] then
-      game.print("Banned: " .. global.anonymous.real_names[player.index])
-      game.ban(global.anonymous.real_names[player.index], reason)
+      game.unban_player(player)
+      global.anonymous.offline_names[player.index] = player.name
+      player.name = global.anonymous.real_names[player.index]
+      game.print("Banned: " .. player.name )
+      game.ban_player(player, reason)
     end
   end
 end)
@@ -96,3 +109,8 @@ commands.add_command('whois', '<playername> Reveals the true identy of a player 
     player_print("Could not find " .. cmd.parameter)
   end
 end)
+
+if global.scenario and global.scenario.config and global.scenario.config.nuke_control then
+  global.scenario.config.nuke_control.enable_autokick = true
+  global.scenario.config.nuke_control.enable_autoban = true
+end
