@@ -3,6 +3,7 @@ local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
+local Game = require 'utils.game'
 
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
@@ -111,7 +112,7 @@ local function get_editing_players_message(players)
     local message = {'Editing players: '}
 
     for pi, _ in pairs(players) do
-        local name = game.players[pi].name
+        local name = Game.players[pi].name
         table.insert(message, name)
         table.insert(message, ', ')
     end
@@ -584,7 +585,7 @@ local function draw_create_task_frame(left, previous_task)
 end
 
 local function player_created(event)
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
     if not player or not player.valid then
         return
     end
@@ -630,7 +631,7 @@ local function player_created(event)
 end
 
 local function player_left(event)
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
     local left = player.gui.left
 
     local frame = left[edit_announcements_frame_name]

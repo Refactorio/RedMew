@@ -2,6 +2,7 @@ local Gui = require 'utils.gui'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local PlayerStats = require 'player_stats'
+local Game = require 'utils.game'
 
 local Public = {}
 
@@ -118,7 +119,7 @@ local function gui_opened(event)
         return
     end
 
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
     if not player or not player.valid then
         return
     end
@@ -156,7 +157,7 @@ Gui.on_custom_close(
 Event.add(
     defines.events.on_player_died,
     function(event)
-        local player = game.players[event.player_index or 0]
+        local player = Game.players[event.player_index or 0]
 
         if not player or not player.valid then
             return

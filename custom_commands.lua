@@ -3,6 +3,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
+local Game = require 'utils.game'
 --local Antigrief = require 'antigrief'
 
 function player_print(str)
@@ -23,12 +24,12 @@ local function invoke(cmd)
         return
     end
     local target = cmd['parameter']
-    if target == nil or game.players[target] == nil then
+    if target == nil or Game.players[target] == nil then
         player_print('Unknown player.')
         return
     end
     local pos = game.player.surface.find_non_colliding_position('player', game.player.position, 0, 1)
-    game.players[target].teleport({pos.x, pos.y}, game.player.surface)
+    Game.players[target].teleport({pos.x, pos.y}, game.player.surface)
     game.print(target .. ', get your ass over here!')
 end
 
@@ -38,12 +39,12 @@ local function teleport_player(cmd)
         return
     end
     local target = cmd['parameter']
-    if target == nil or game.players[target] == nil then
+    if target == nil or Game.players[target] == nil then
         player_print('Unknown player.')
         return
     end
-    local surface = game.players[target].surface
-    local pos = surface.find_non_colliding_position('player', game.players[target].position, 0, 1)
+    local surface = Game.players[target].surface
+    local pos = surface.find_non_colliding_position('player', Game.players[target].position, 0, 1)
     game.player.teleport(pos, surface)
     game.print(target .. "! watcha doin'?!")
 end
@@ -83,7 +84,7 @@ local function kill(cmd)
     local param = cmd.parameter
     local target
     if param then
-        target = game.players[param]
+        target = Game.players[param]
         if not target then
             player_print(table.concat {"Sorry, player '", param, "' was not found."})
             return
@@ -178,7 +179,7 @@ local function walkabout(cmd)
         duration = 15
     end
 
-    local player = game.players[player_name]
+    local player = Game.players[player_name]
     if player == nil or not player.valid or global.walking[player.index] then
         player_print(player_name .. ' could not go on a walkabout.')
         return
@@ -267,7 +268,7 @@ local function follow(cmd)
         log("<Server can't do that.")
         return
     end
-    if cmd.parameter ~= nil and game.players[cmd.parameter] ~= nil then
+    if cmd.parameter ~= nil and Game.players[cmd.parameter] ~= nil then
         global.follows[game.player.name] = cmd.parameter
         global.follows.n_entries = global.follows.n_entries + 1
     else
@@ -297,7 +298,7 @@ local function built_entity(event)
             return
         end
 
-        game.players[index].teleport(entity.position)
+        Game.players[index].teleport(entity.position)
         entity.destroy()
     end
 end
@@ -370,7 +371,7 @@ local function tempban(cmd)
         player_print('Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.')
         return
     end
-    if not game.players[params[1]] then
+    if not Game.players[params[1]] then
         player_print("Player doesn't exist.")
         return
     end
@@ -429,23 +430,23 @@ local function undo(cmd)
         cant_run(cmd.name)
         return
     end
-    if cmd.parameter and game.players[cmd.parameter] then
+    if cmd.parameter and Game.players[cmd.parameter] then
         if
             not global.undo_warned_players[game.player.index] or
-                global.undo_warned_players[game.player.index] ~= game.players[cmd.parameter].index
+                global.undo_warned_players[game.player.index] ~= Game.players[cmd.parameter].index
          then
-            global.undo_warned_players[game.player.index] = game.players[cmd.parameter].index
+            global.undo_warned_players[game.player.index] = Game.players[cmd.parameter].index
             game.player.print(
                 string.format(
                     'Warning! You are about to remove %s entities and restore %s entities.',
-                    #Utils.find_entities_by_last_user(game.players[cmd.parameter], game.surfaces.nauvis),
-                    Antigrief.count_removed_entities(game.players[cmd.parameter])
+                    #Utils.find_entities_by_last_user(Game.players[cmd.parameter], game.surfaces.nauvis),
+                    Antigrief.count_removed_entities(Game.players[cmd.parameter])
                 )
             )
             game.player.print('To execute the command please run it again.')
             return
         end
-        Antigrief.undo(game.players[cmd.parameter])
+        Antigrief.undo(Game.players[cmd.parameter])
         game.print(string.format('Undoing everything %s did...', cmd.parameter))
         global.undo_warned_players[game.player.index] = nil
     else
@@ -472,7 +473,7 @@ local function find_player(cmd)
         return
     end
 
-    local target = game.players[name]
+    local target = Game.players[name]
     if not target then
         player.print('player ' .. name .. ' not found')
         return
@@ -504,7 +505,7 @@ local function jail_player(cmd)
         return
     end
 
-    local target_player = game.players[target]
+    local target_player = Game.players[target]
 
     if not target_player then
         player_print('Unknown player.')
@@ -566,7 +567,7 @@ local function unjail_player(cmd)
         return
     end
 
-    local target_player = game.players[target]
+    local target_player = Game.players[target]
     if not target_player then
         player_print('Unknown player.')
         return
@@ -723,7 +724,7 @@ local function report(cmd)
             return nil
         end
         local reported_player_name = params[1] or ''
-        local reported_player = game.players[reported_player_name]
+        local reported_player = Game.players[reported_player_name]
 
         if not reported_player then
             reporting_player.print(reported_player_name .. ' does not exist.')
@@ -740,7 +741,7 @@ commands.add_command(
     'Shows user reports (Admins only)',
     function(event)
         if game.player and game.player.admin then
-            Report.show_reports(game.players[event.player_index])
+            Report.show_reports(Game.players[event.player_index])
         end
     end
 )

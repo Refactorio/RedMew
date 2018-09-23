@@ -3,6 +3,7 @@ local Market_items = require 'resources.market_items'
 local Global = require 'utils.global'
 local Donators = require 'resources.donators'
 local UserGroups = require 'user_groups'
+local Game = require 'utils.game'
 local train_perk_flag = Donators.donator_perk_flags.train
 
 local saviour_token_name = 'small-plane' -- item name for what saves players
@@ -52,7 +53,7 @@ local function on_pre_death(event)
     end
 
     local player_index = event.player_index
-    local player = game.players[player_index]
+    local player = Game.players[player_index]
     if not player or not player.valid then
         return
     end

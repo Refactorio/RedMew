@@ -1,4 +1,5 @@
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 
 local mines_factor = 1
 
@@ -35,7 +36,7 @@ local death_messages = {
 }
 
 local function player_died(event)
-    local player = game.players[event.player_index]
+    local player = Game.players[event.player_index]
     if not player or not player.valid then
         return
     end
