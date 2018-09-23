@@ -54,7 +54,7 @@ Event.add(
             return
         end
 
-        local p = Game.players[event.player_index]
+        local p = Game.get_player_by_index(event.player_index)
         if not p or not p.valid then
             return
         end

@@ -42,8 +42,8 @@ end
 function walk_on_tick()
   if global.follows.n_entries > 0 then
     for k,v in pairs(global.follows) do
-      local follower = Game.players[k]
-      local target = Game.players[v]
+      local follower = game.playesr[k]
+      local target = game.players[v]
       if follower ~= nil and target ~= nil then
         local d = Utils.distance(follower, target)
         if follower.connected and target.connected and d < 32 then

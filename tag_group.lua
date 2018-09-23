@@ -87,7 +87,7 @@ local function get_size(players, show_offline)
         size = table.size(players)
     else
         for pi, _ in pairs(players) do
-            local player = Game.players[pi]
+            local player = Game.get_player_by_index(pi)
             if player and player.valid and player.connected then
                 size = size + 1
             end
@@ -119,7 +119,7 @@ local delete_tag_name = Gui.uid_name()
 local close_create_tag_name = Gui.uid_name()
 
 local function player_joined(event)
-    local player = Game.players[event.player_index]
+    local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -180,11 +180,11 @@ local function draw_main_frame_content(parent)
 
         if players then
             for k, _ in pairs(players) do
-                local p = Game.players[k]
+                local p = Game.get_player_by_index(k)
                 if p and p.valid and p.connected then
                     local color = {r = 0.4 + 0.6 * p.color.r, g = 0.4 + 0.6 * p.color.g, b = 0.4 + 0.6 * p.color.b}
 
-                    local label = list.add {type = 'label', caption = Game.players[k].name}
+                    local label = list.add {type = 'label', caption = Game.get_player_by_index(k).name}
                     label.style.top_padding = 8
                     label.style.font_color = color
                 end
@@ -679,7 +679,7 @@ local function tag_command(cmd)
         return
     end
 
-    local target_player = Game.players[params[1]]
+    local target_player = game.players[params[1]]
 
     if target_player == nil or not target_player.valid then
         player_print('Player does not exist.')
