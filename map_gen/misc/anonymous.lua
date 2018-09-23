@@ -29,8 +29,10 @@ Event.add(defines.events.on_player_created, function(event)
   repeat
     new_name = tostring(math.random(10000000, 100000000))
   until not game.players[new_name]
-    local player = Game.get_player_by_index(event.player_index)
-    set_name(player, new_name, true)
+    if not global.anonymous.real_names[event.player_index] then
+      local player = Game.get_player_by_index(event.player_index)
+      set_name(player, new_name, true)
+    end
 end)
 
 Event.add(defines.events.on_player_joined_game, function(event)
@@ -67,6 +69,7 @@ Event.add(defines.events.on_console_command, function(event)
     end
     local player = game.players[name]
     if player and global.anonymous.real_names[player.index] then
+      game.print("Banned: " .. global.anonymous.real_names[player.index])
       game.ban(global.anonymous.real_names[player.index], reason)
     end
   end
