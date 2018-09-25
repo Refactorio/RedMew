@@ -27,7 +27,6 @@ DiggyCaveCollapse.events = {
     on_collapse_triggered = script.generate_event_name()
 }
 
-
 local function create_collapse_template(positions, surface)
     local entities = {}
     local tiles = {}
@@ -117,6 +116,12 @@ end
 function DiggyCaveCollapse.register(global_config)
     config = global_config.features.DiggyCaveCollapse
     local support_beam_entities = config.support_beam_entities;
+
+    if (config.enable_stress_grid) then
+        Event.add(StressMap.events.on_stress_changed, function(event)
+            Debug.print_grid_value(event.value, event.surface, event.position)
+        end)
+    end
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, function(event)
         spawn_cracking_sound_text(event.surface, event.position)

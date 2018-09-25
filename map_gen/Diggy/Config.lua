@@ -37,11 +37,6 @@ local Config = {
                 manual_mining_speed_modifier = 1000,
             },
         },
-        DiggyTileStress = {
-            enabled = false,
-            register = require 'map_gen.Diggy.Feature.DiggyTileStress'.register,
-            initialize = require 'map_gen.Diggy.Feature.DiggyTileStress'.initialize,
-        },
         DiggyHole = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.DiggyHole'.register,
@@ -51,11 +46,17 @@ local Config = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'.register,
             initialize = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'.initialize,
+
+            -- adds per tile what the current stress is
+            enable_stress_grid = false,
+
             -- delay in seconds before the cave collapses
             collapse_delay_min = 1.5,
             collapse_delay_max = 3,
+
             -- the threshold that will be applied to all neighbors on a collapse via a mask
             collapse_threshold_total_strength = 20,
+
             support_beam_entities = {
                 ['stone-wall'] = 1,
                 ['sand-rock-big'] = 1,
@@ -71,9 +72,13 @@ local Config = {
             initialize = require 'map_gen.Diggy.Feature.RefreshMap'.initialize,
         },
         SimpleRoomGenerator = {
-            enabled = false,
+            enabled = true,
             register = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.register,
             initialize = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.initialize,
+            noise_variance = 0.025,
+
+            -- adds per tile what the current noise is
+            enable_noise_grid = false,
         },
         ScatteredResources = {
             enabled = true,
