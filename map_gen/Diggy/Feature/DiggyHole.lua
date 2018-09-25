@@ -53,6 +53,11 @@ function DiggyHole.register(config)
     Event.add(defines.events.on_player_mined_entity, function (event)
         diggy_hole(event.entity, event.buffer)
     end)
+    Event.add(defines.events.on_marked_for_deconstruction, function (event)
+        if ('sand-rock-big' == event.entity.name) then
+            event.entity.cancel_deconstruction(game.players[event.player_index].force)
+        end
+    end)
 end
 
 --[[--
