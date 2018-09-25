@@ -1,4 +1,4 @@
-global.regulars = require 'resources.regulars'
+global.regulars = {}--require 'resources.regulars'
 local Donators = require 'resources.donators'
 global.donators = Donators.donators
 local Event = require 'utils.event'

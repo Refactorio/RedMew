@@ -15,7 +15,6 @@ require 'reactor_meltdown'
 require 'train_saviour'
 require 'map_gen.shared.perlin_noise'
 require 'map_layout'
-require 'bot'
 require 'player_colors'
 -- GUIs the order determines the order they appear at the top.
 require 'info'
@@ -320,10 +319,10 @@ Event.add(
         Server.to_discord_raw('**Research ' .. event.research.name .. ' started.**')
     end
 )
-
+local Server = require 'server'
 Event.add(
     defines.events.on_research_finished,
     function(event)
-        Server.to_discord_raw('**Research ' .. event.research.name .. ' finished.**')
+        Server.to_discord_raw('**Research ' .. event.research.name .. ' finished.**')        
     end
 )
