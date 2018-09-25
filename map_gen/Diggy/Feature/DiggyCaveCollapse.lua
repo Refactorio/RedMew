@@ -119,13 +119,13 @@ function DiggyCaveCollapse.register(global_config)
     local support_beam_entities = config.support_beam_entities;
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, function(event)
-
-        local x = event.position.x
-        local y = event.position.y
-
         spawn_cracking_sound_text(event.surface, event.position)
 
-        Task.set_timeout(config.collapse_delay, on_collapse_timeout_finished, {surface = event.surface, position = event.position})
+        Task.set_timeout(
+            math.random(config.collapse_delay_min, config.collapse_delay_max),
+            on_collapse_timeout_finished,
+            {surface = event.surface, position = event.position}
+        )
     end)
 
     Event.add(defines.events.on_robot_built_entity, function(event)

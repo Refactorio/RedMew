@@ -51,15 +51,18 @@ local Config = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'.register,
             initialize = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'.initialize,
-            collapse_delay = 2, --seconds
-            collapse_threshold_total_strength = 20, --The threshold that will be applied to all neighbors on a collapse via a mask
+            -- delay in seconds before the cave collapses
+            collapse_delay_min = 1.5,
+            collapse_delay_max = 3,
+            -- the threshold that will be applied to all neighbors on a collapse via a mask
+            collapse_threshold_total_strength = 20,
             support_beam_entities = {
                 ['stone-wall'] = 1,
                 ['sand-rock-big'] = 1,
                 ['out-of-map'] = 1,
             },
             cracking_sounds = {
-              "CRACK"
+              'CRACK',
             }
         },
         RefreshMap = {
@@ -87,10 +90,10 @@ local Config = {
             distance_probability_modifier = 2,
 
             -- increases the amount of oil * oil_value_modifier
-            oil_value_modifier = 500,
+            oil_value_modifier = 700,
 
             -- percentage of chance that resources will spawn after mining
-            resource_probability = 0.3,
+            resource_probability = 0.2,
 
             -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
             max_resource_probability = 0.7,
@@ -100,9 +103,9 @@ local Config = {
                 ['coal']        = 0.20,
                 ['copper-ore']  = 0.29,
                 ['iron-ore']    = 0.26,
-                ['stone']       = 0.14,
+                ['stone']       = 0.15,
                 ['uranium-ore'] = 0.02,
-                ['crude-oil']   = 0.02,
+                ['crude-oil']   = 0.01,
                 ['tree']        = 0.07,
             },
 
@@ -111,9 +114,9 @@ local Config = {
                 ['coal']        = 10,
                 ['copper-ore']  = 12,
                 ['iron-ore']    = 12,
-                ['stone']       = 12,
-                ['uranium-ore'] = 20,
-                ['crude-oil']   = 20,
+                ['stone']       = 8,
+                ['uranium-ore'] = 60,
+                ['crude-oil']   = 35,
                 ['tree']        = 0,
             },
 
