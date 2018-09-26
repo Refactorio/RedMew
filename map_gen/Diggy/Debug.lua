@@ -83,6 +83,10 @@ function Debug.print_grid_value(value, surface, position)
     local text = math.floor(100 * value) / 100
     local color = { r = r, g = g, b = 0}
 
+    if (0 == text) then
+        text = '0.00'
+    end
+
     local text_entity = surface.find_entity('flying-text', position)
 
     if text_entity then

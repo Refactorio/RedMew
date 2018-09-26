@@ -6,7 +6,9 @@
 local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local Mask = require 'map_gen.Diggy.Mask'
+local StressMap = require 'map_gen.Diggy.StressMap'
 local Template = require 'map_gen.Diggy.Template'
+local Debug = require 'map_gen.Diggy.Debug'
 
 -- this
 local StartingZone = {}
@@ -36,10 +38,20 @@ function StartingZone.register(config)
         local rocks = {}
 
         Mask.circle(0, 0, config.features.StartingZone.starting_size, function(x, y, tile_distance_to_center)
-            table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = {x = x, y = y}})
+            if (tile_distance_to_center > math.floor(config.features.StartingZone.starting_size / 2)) then
+                table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = {x = x, y = y}})
+            else
+                table.insert(tiles, {name = 'stone-path', position = {x = x, y = y}})
+            end
 
             if (tile_distance_to_center > config.features.StartingZone.starting_size - 2) then
                 table.insert(rocks, {name = 'sand-rock-big', position = {x = x, y = y}})
+            end
+
+            if (tile_distance_to_center > math.floor(config.features.StartingZone.starting_size / 10)) then
+                Mask.blur(x, y, -0.3, function (x, y, fraction)
+                    StressMap.add(event.surface, {x = x, y = y}, fraction)
+                end)
             end
         end)
 

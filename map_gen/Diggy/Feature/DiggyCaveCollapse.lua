@@ -59,7 +59,7 @@ end
     @param strength positive increases stress, negative decreases stress
 ]]
 local function update_stress_map(surface, position, strength)
-    local  max_value
+    local max_value
     Mask.blur(position.x, position.y, strength, function (x, y, fraction)
         max_value = max_value or StressMap.add(surface, {x = x, y = y}, fraction)
     end)
@@ -73,7 +73,7 @@ local function collapse(surface, position)
   local positions = {}
 
   Mask.blur(position.x, position.y, config.collapse_threshold_total_strength, function(x,y, value)
-      StressMap.check_stress_in_threshold(surface, {x=x,y=y}, value, function(_, position)
+      StressMap.check_stress_in_threshold(surface, {x = x, y = y}, value, function(_, position)
           table.insert(positions, position)
       end)
 
@@ -91,19 +91,19 @@ function spawn_cracking_sound_text(surface, position)
     local text = config.cracking_sounds[math.random(1, #config.cracking_sounds)]
 
     local color = {
-        r= 1,
-        g= math.random(1, 100) / 100,
-        b=0
+        r = 1,
+        g = math.random(1, 100) / 100,
+        b = 0
     }
 
     for i = 1, #text do
       local x_offset = (i - #text / 2 - 1) / 3
-      local char = text:sub(i,i)
+      local char = text:sub(i, i)
       surface.create_entity{
           name = 'flying-text',
           color = color,
           text = char ,
-          position = {x = position.x +  x_offset, y = position.y -  ((i + 1) % 2) / 4}
+          position = {x = position.x +  x_offset, y = position.y - ((i + 1) % 2) / 4}
       }.active = true
     end
 end
@@ -140,10 +140,7 @@ function DiggyCaveCollapse.register(global_config)
             return
         end
 
-        update_stress_map(event.created_entity.surface, {
-            x = event.created_entity.position.x,
-            y = event.created_entity.position.y,
-        }, -1 * strength)
+        update_stress_map(event.created_entity.surface, event.created_entity.position, -1 * strength)
     end)
 
     Event.add(defines.events.on_robot_built_tile, function(event)
@@ -154,10 +151,7 @@ function DiggyCaveCollapse.register(global_config)
         end
 
         for _, tile in pairs(event.tiles) do
-            update_stress_map(event.robot.surface, {
-                x = tile.position.x,
-                y = tile.position.y,
-            }, -1 * strength)
+            update_stress_map(event.robot.surface, tile.position, -1 * strength)
         end
     end)
 
@@ -169,10 +163,8 @@ function DiggyCaveCollapse.register(global_config)
         end
 
         for _, tile in pairs(event.tiles) do
-            update_stress_map(game.surfaces[event.surface_index], {
-                x = tile.position.x,
-                y = tile.position.y,
-            }, -1 * strength)
+            Debug.print(event.item.name)
+            update_stress_map(game.surfaces[event.surface_index], tile.position, -1 * strength)
         end
     end)
 
@@ -181,10 +173,7 @@ function DiggyCaveCollapse.register(global_config)
             local strength = support_beam_entities[tile.old_tile.name]
 
             if (strength) then
-                update_stress_map(event.robot.surface, {
-                    x = tile.position.x,
-                    y = tile.position.y,
-                }, strength)
+                update_stress_map(event.robot.surface, tile.position, strength)
             end
         end
     end)
@@ -194,10 +183,7 @@ function DiggyCaveCollapse.register(global_config)
             local strength = support_beam_entities[tile.old_tile.name]
 
             if (strength) then
-                update_stress_map(game.surfaces[event.surface_index], {
-                    x = tile.position.x,
-                    y = tile.position.y,
-                }, strength)
+                update_stress_map(game.surfaces[event.surface_index], tile.position, strength)
             end
         end
     end)
@@ -209,10 +195,7 @@ function DiggyCaveCollapse.register(global_config)
             return
         end
 
-        update_stress_map(event.entity.surface, {
-            x = event.entity.position.x,
-            y = event.entity.position.y,
-        }, strength)
+        update_stress_map(event.entity.surface, event.entity.position, strength)
     end)
 
     Event.add(defines.events.on_built_entity, function(event)
@@ -222,10 +205,7 @@ function DiggyCaveCollapse.register(global_config)
             return
         end
 
-        update_stress_map(event.created_entity.surface, {
-            x = event.created_entity.position.x,
-            y = event.created_entity.position.y,
-        }, -1 * strength)
+        update_stress_map(event.created_entity.surface, event.created_entity.position, -1 * strength)
     end)
 
     Event.add(Template.events.on_placed_entity, function(event)
@@ -235,10 +215,7 @@ function DiggyCaveCollapse.register(global_config)
             return
         end
 
-        update_stress_map(event.entity.surface, {
-            x = event.entity.position.x,
-            y = event.entity.position.y,
-        }, -1 * strength)
+        update_stress_map(event.entity.surface, event.entity.position, -1 * strength)
     end)
 
     Event.add(defines.events.on_entity_died, function(event)
@@ -248,10 +225,7 @@ function DiggyCaveCollapse.register(global_config)
             return
         end
 
-        update_stress_map(event.entity.surface, {
-            x = event.entity.position.x,
-            y = event.entity.position.y,
-        }, strength)
+        update_stress_map(event.entity.surface, event.entity.position, strength)
     end)
 
     Event.add(defines.events.on_player_mined_entity, function(event)
@@ -261,28 +235,19 @@ function DiggyCaveCollapse.register(global_config)
             return
         end
 
-        update_stress_map(event.entity.surface, {
-            x = event.entity.position.x,
-            y = event.entity.position.y,
-        }, strength)
+        update_stress_map(event.entity.surface, event.entity.position, strength)
     end)
 
     Event.add(Template.events.on_void_removed, function(event)
         local strength = support_beam_entities['out-of-map']
 
-        update_stress_map(event.surface, {
-            x = event.old_tile.position.x,
-            y = event.old_tile.position.y,
-        }, strength)
+        update_stress_map(event.surface, event.old_tile.position, strength)
     end)
 
     Event.add(Template.events.on_void_added, function(event)
         local strength = support_beam_entities['out-of-map']
 
-        update_stress_map(event.surface, {
-            x = event.old_tile.position.x,
-            y = event.old_tile.position.y,
-        }, -1  * strength)
+        update_stress_map(event.surface, event.old_tile.position, -1  * strength)
     end)
 end
 
