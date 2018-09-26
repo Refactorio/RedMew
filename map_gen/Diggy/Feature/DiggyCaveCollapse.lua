@@ -161,12 +161,40 @@ function DiggyCaveCollapse.register(global_config)
         end
     end)
 
+    Event.add(defines.events.on_player_built_tile, function(event)
+        local strength = support_beam_entities[event.item.name]
+
+        if (not strength) then
+            return
+        end
+
+        for _, tile in pairs(event.tiles) do
+            update_stress_map(game.surfaces[event.surface_index], {
+                x = tile.position.x,
+                y = tile.position.y,
+            }, -1 * strength)
+        end
+    end)
+
     Event.add(defines.events.on_robot_mined_tile, function(event)
         for _, tile in pairs(event.tiles) do
-            local strength = support_beam_entities[tile.name]
+            local strength = support_beam_entities[tile.old_tile.name]
 
             if (strength) then
                 update_stress_map(event.robot.surface, {
+                    x = tile.position.x,
+                    y = tile.position.y,
+                }, strength)
+            end
+        end
+    end)
+
+    Event.add(defines.events.on_player_mined_tile, function(event)
+        for _, tile in pairs(event.tiles) do
+            local strength = support_beam_entities[tile.old_tile.name]
+
+            if (strength) then
+                update_stress_map(game.surfaces[event.surface_index], {
                     x = tile.position.x,
                     y = tile.position.y,
                 }, strength)

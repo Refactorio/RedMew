@@ -61,6 +61,13 @@ local Config = {
                 ['stone-wall'] = 1,
                 ['sand-rock-big'] = 1,
                 ['out-of-map'] = 1,
+                ['stone-path'] = 0.1,
+                ['concrete'] = 0.2,
+                ['hazard-concrete-left'] = 0.2,
+                ['hazard-concrete-right'] = 0.2,
+                ['refined-concrete'] = 0.3,
+                ['refined-hazard-concrete-left'] = 0.3,
+                ['refined-hazard-concrete-right'] = 0.3,
             },
             cracking_sounds = {
               'CRACK',
@@ -75,7 +82,9 @@ local Config = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.register,
             initialize = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.initialize,
-            noise_variance = 0.025,
+
+            -- value between 0 and 1, higher value means stronger variance between coordinates
+            noise_variance = 0.3,
 
             -- adds per tile what the current noise is
             enable_noise_grid = false,
