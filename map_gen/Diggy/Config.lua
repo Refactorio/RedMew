@@ -58,7 +58,7 @@ local Config = {
             collapse_delay_max = 3,
 
             -- the threshold that will be applied to all neighbors on a collapse via a mask
-            collapse_threshold_total_strength = 20,
+            collapse_threshold_total_strength = 15,
 
             support_beam_entities = {
                 ['stone-wall'] = 1,

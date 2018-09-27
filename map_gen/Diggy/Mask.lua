@@ -1,15 +1,15 @@
 -- this
 local Mask = {}
 
-   local blurFilters = {}
-   blurFilters[5] = {
+   local gaussBlurKernel = {}
+   gaussBlurKernel[5] = {
         {0.003765,    0.015019,    0.023792,    0.015019,    0.003765},
         {0.015019,    0.059912,    0.094907,    0.059912,    0.015019},
         {0.023792,    0.094907,    0.150342,    0.094907,    0.023792},
         {0.015019,    0.059912,    0.094907,    0.059912,    0.015019},
         {0.003765,    0.015019,    0.023792,    0.015019,    0.003765}
     }
-    blurFilters[7] = {
+    gaussBlurKernel[7] = {
       {0.0015, 0.00438, 0.008328, 0.010317, 0.008328, 0.00438, 0.0015},
       {0.00438, 0.012788, 0.024314, 0.03012, 0.024314, 0.012788, 0.00438},
       {0.008328, 0.024314, 0.046228, 0.057266, 0.046228, 0.024314, 0.008328},
@@ -18,7 +18,7 @@ local Mask = {}
       {0.00438, 0.012788, 0.024314, 0.03012, 0.024314, 0.012788, 0.00438},
       {0.0015, 0.00438, 0.008328, 0.010317, 0.008328, 0.00438, 0.0015}
     }
-    blurFilters[9] = {
+    gaussBlurKernel[9] = {
       {0.000814, 0.001918, 0.003538, 0.005108, 0.005774, 0.005108, 0.003538, 0.001918, 0.000814},
       {0.001918, 0.00452, 0.008338, 0.012038, 0.013605, 0.012038, 0.008338, 0.00452, 0.001918},
       {0.003538, 0.008338, 0.015378, 0.022203, 0.025094, 0.022203, 0.015378, 0.008338, 0.003538},
@@ -29,7 +29,7 @@ local Mask = {}
       {0.001918, 0.00452, 0.008338, 0.012038, 0.013605, 0.012038, 0.008338, 0.00452, 0.001918},
       {0.000814, 0.001918, 0.003538, 0.005108, 0.005774, 0.005108, 0.003538, 0.001918, 0.000814}
     }
-    blurFilters[11] = {
+    gaussBlurKernel[11] = {
       {0.000395, 0.000853, 0.001552, 0.002381, 0.003078, 0.003353, 0.003078, 0.002381, 0.001552, 0.000853, 0.000395},
       {0.000853, 0.001842, 0.003353, 0.005143, 0.006648, 0.007242, 0.006648, 0.005143, 0.003353, 0.001842, 0.000853},
       {0.001552, 0.003353, 0.006103, 0.009361, 0.012101, 0.013182, 0.012101, 0.009361, 0.006103, 0.003353, 0.001552},
@@ -43,6 +43,54 @@ local Mask = {}
       {0.000395, 0.000853, 0.001552, 0.002381, 0.003078, 0.003353, 0.003078, 0.002381, 0.001552, 0.000853, 0.000395}
   }
     local n = 11;
+    local radius =  math.floor(n / 2)
+    local middle = radius + 1
+    local circle_blur_sum = 0
+
+    local circleBlurKernel = {}
+
+
+    function init()
+        local sum = 0
+        local edge_middle_distance = math.sqrt(2)  * (n - middle)
+        for x = 1, n do
+          circleBlurKernel[x] = {}
+            for y = 1, n do
+              local distance = math.sqrt((x - middle) * (x - middle) + (y - middle) * (y - middle))
+              if distance <= radius then
+                sum = sum + 1
+                circleBlurKernel[x][y] = 1
+              else
+                  local edge_distance = edge_middle_distance - distance
+                  local normalized_value = edge_distance / (edge_middle_distance - radius)
+                  sum = sum + normalized_value
+                  circleBlurKernel[x][y] = normalized_value
+              end
+            end
+        end
+
+        for x = 1, n do
+            for y = 1, n do
+                circleBlurKernel[x][y] = circleBlurKernel[x][y] / sum
+            end
+        end
+
+        sum = 0
+        for x = 1,n do
+            for y = 1, n do
+              local distance = math.sqrt((x - middle) * (x - middle) + (y - middle) * (y - middle))
+              if distance <= radius then
+                sum = sum + (radius - distance) / radius + 0.1
+              end
+            end
+        end
+        circle_blur_sum = sum
+
+    end
+
+
+    init()
+
 
 --[[--
     Applies a blur filter.
@@ -57,7 +105,7 @@ local Mask = {}
 function Mask.blur(x_start, y_start, factor, callback)
     x_start = math.floor(x_start)
     y_start = math.floor(y_start)
-    local filter = blurFilters[n]
+    local filter = gaussBlurKernel[n]
     local offset = - math.floor(n / 2) - 1 --move matrix over x_start|y_start and adjust for 1 index
     for x = 1, n do
         for y = 1, n do
@@ -70,6 +118,60 @@ function Mask.blur(x_start, y_start, factor, callback)
     end
 end
 
+--[[--
+    Applies a circular blur
+    All values outside the circle are proportional to the distance to the center.
+    The circle radius is math.floor(n / 2)
+    The sum of all values is 1
+
+    @param x_start number center point
+    @param y_start number center point
+    @param factor the factor to multiply the cell value with (value = cell_value * factor)
+    @param callback function to execute on each tile within the mask callback(x, y, value)
+]]
+function Mask.circle_blur(x_start, y_start, factor, callback)
+    x_start = math.floor(x_start)
+    y_start = math.floor(y_start)
+    local offset = - math.floor(n / 2) - 1 --move matrix over x_start|y_start and adjust for 1 index
+    for x = 1,n do
+        for y = 1, n do
+            local distance = math.sqrt((x - middle) * (x - middle) + (y - middle) * (y - middle))
+            if distance <= radius then
+              local value = (radius - distance) / radius / circle_blur_sum * factor
+              callback(x_start + x + offset, y_start + y + offset, value)
+            end
+        end
+    end
+end
+
+
+
+--[[--
+    Applies a circular box blur
+    All values withing the radius of the filters are equal. All values outside the circle are proportional to the distance to the circle.
+    The circle radius is math.floor(n / 2)
+    The sum of all values is 1
+
+    @param x_start number center point
+    @param y_start number center point
+    @param factor the factor to multiply the cell value with (value = cell_value * factor)
+    @param callback function to execute on each tile within the mask callback(x, y, value)
+]]
+function Mask.box_blur(x_start, y_start, factor, callback)
+    x_start = math.floor(x_start)
+    y_start = math.floor(y_start)
+    local filter = circleBlurKernel
+    local offset = - math.floor(n / 2) - 1 --move matrix over x_start|y_start and adjust for 1 index
+    for x = 1, n do
+        for y = 1, n do
+            cell = filter[x][y]
+            value = factor * cell
+            if math.abs(value) > 0.001 then
+                callback(x_start + x + offset, y_start + y + offset, value)
+            end
+        end
+    end
+end
 
 
 --[[--

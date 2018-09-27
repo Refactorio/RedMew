@@ -72,7 +72,7 @@ end
 local function collapse(surface, position)
   local positions = {}
 
-  Mask.blur(position.x, position.y, config.collapse_threshold_total_strength, function(x,y, value)
+  Mask.circle_blur(position.x, position.y, config.collapse_threshold_total_strength, function(x,y, value)
       StressMap.check_stress_in_threshold(surface, {x = x, y = y}, value, function(_, position)
           table.insert(positions, position)
       end)
