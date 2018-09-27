@@ -18,6 +18,7 @@ local StartingZone = {}
 ]]
 function StartingZone.register(config)
     local callback_token
+    local starting_zone_size = config.features.StartingZone.starting_size
 
     local function on_chunk_generated(event)
         local start_point_area = {{-1, -1}, {0, 0}}
@@ -37,18 +38,18 @@ function StartingZone.register(config)
         local tiles = {}
         local rocks = {}
 
-        Mask.circle(0, 0, config.features.StartingZone.starting_size, function(x, y, tile_distance_to_center)
-            if (tile_distance_to_center > math.floor(config.features.StartingZone.starting_size / 2)) then
+        Mask.circle(0, 0, starting_zone_size, function(x, y, tile_distance_to_center)
+            if (tile_distance_to_center > math.floor(starting_zone_size / 2)) then
                 table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = {x = x, y = y}})
             else
                 table.insert(tiles, {name = 'stone-path', position = {x = x, y = y}})
             end
 
-            if (tile_distance_to_center > config.features.StartingZone.starting_size - 2) then
+            if (tile_distance_to_center > starting_zone_size - 2) then
                 table.insert(rocks, {name = 'sand-rock-big', position = {x = x, y = y}})
             end
 
-            if (tile_distance_to_center > math.floor(config.features.StartingZone.starting_size / 10)) then
+            if (tile_distance_to_center > math.floor(starting_zone_size / 10)) then
                 Mask.blur(x, y, -0.3, function (x, y, fraction)
                     StressMap.add(event.surface, {x = x, y = y}, fraction)
                 end)

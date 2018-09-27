@@ -7,6 +7,7 @@
 local Event = require 'utils.event'
 local Scanner = require 'map_gen.Diggy.Scanner'
 local Template = require 'map_gen.Diggy.Template'
+local Debug = require 'map_gen.Diggy.Debug'
 
 -- this
 local DiggyHole = {}
@@ -56,7 +57,9 @@ local artificial_tiles = {
 --[[--
     Registers all event handlers.
 ]]
-function DiggyHole.register(config)
+function DiggyHole.register(cfg)
+    local config = cfg.features.DiggyHole
+
     Event.add(defines.events.on_entity_died, function (event)
         diggy_hole(event.entity)
     end)
@@ -93,6 +96,11 @@ function DiggyHole.register(config)
         end
 
         Template.insert(game.surfaces[event.surface_index], tiles, {})
+    end)
+
+    Event.add(defines.events.on_research_finished, function(event)
+        local player = game.forces.player
+        player.manual_mining_speed_modifier = player.mining_drill_productivity_bonus * config.mining_speed_productivity_multiplier / 2
     end)
 end
 

@@ -41,6 +41,9 @@ local Config = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.DiggyHole'.register,
             initialize = require 'map_gen.Diggy.Feature.DiggyHole'.initialize,
+
+            -- percentage * mining productivity level gets added to mining speed
+            mining_speed_productivity_multiplier = 15,
         },
         DiggyCaveCollapse = {
             enabled = true,
