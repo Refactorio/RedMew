@@ -1,20 +1,11 @@
-local tau = 2 * math.pi
-local half_pi = math.pi / 2
+local _sin = math.sin
+local _cos = math.cos
 
 math.sin = function(x)
-  local sign = 1
-  x = (x / tau * 360) % 360
-  if x < 0 then 
-    x = - x
-    sign = - sign
-  end
-  if x > 180 then sign = - sign end
-  x = x % 180
-  if x == 0 then return 0 end
-  local a = x * (180 - x)
-  return sign * 4 * a / (40500 - a)
+     return math.floor(_sin(x) * 10000000 + 0.5) / 10000000
 end
 
+
 math.cos = function(x)
-   return math.sin(x + half_pi)
+     return math.floor(_cos(x) * 10000000 + 0.5) / 10000000
 end
