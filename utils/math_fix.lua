@@ -1,9 +1,9 @@
-local _sin = math.sin
-local _cos = math.cos
+local tau = 2 * math.pi
+local half_pi = math.pi / 2
 
 math.sin = function(x)
   local sign = 1
-  x = x % 360
+  x = (x / tau * 360) % 360
   if x < 0 then 
     x = - x
     sign = - sign
@@ -16,5 +16,5 @@ math.sin = function(x)
 end
 
 math.cos = function(x)
-   return math.sin(x + 90)
+   return math.sin(x + half_pi)
 end
