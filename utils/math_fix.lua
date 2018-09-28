@@ -11,8 +11,8 @@ math.sin = function(x)
   if x > 180 then sign = - sign end
   x = x % 180
   if x == 0 then return 0 end
-  local a = (x * (180 - x)
-  return sign * 4 * a / (40500 - a))
+  local a = x * (180 - x)
+  return sign * 4 * a / (40500 - a)
 end
 
 math.cos = function(x)
