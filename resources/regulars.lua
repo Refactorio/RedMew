@@ -973,5 +973,7 @@ return {
     ['skudd3r'] = true,
     ['Ingenieur_quoi'] = true,
     ['SumBeam'] = true,
-    ['ScienceLion'] = true
+    ['ScienceLion'] = true,
+    ['dimash'] = true,
+    ['TNT_MAN1111'] = true
 }
