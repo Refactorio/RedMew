@@ -972,5 +972,6 @@ return {
     ['Martox111'] = true,
     ['skudd3r'] = true,
     ['Ingenieur_quoi'] = true,
-    ['SumBeam'] = true
+    ['SumBeam'] = true,
+    ['ScienceLion'] = true
 }
