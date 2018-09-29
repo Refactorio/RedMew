@@ -74,14 +74,23 @@ end
 ]]
 function Debug.print_grid_value(value, surface, position)
     local r = value
-    local g = 1 - value
-    if r < 0 then r = 0 end
-    if r > 1 then r = 1 end
-    if g < 0 then g = 0 end
-    if g > 1 then g = 1 end
+    local g = 1 - math.abs(value)
+    local b = value
 
+    if (r > 0) then
+        r = 0
+    end
+
+    if (b < 0) then
+        b = 0
+    end
+
+    r = math.abs(r)
+
+    local color = { r = r, g = g, b = b}
+
+    -- round at precision of 2
     local text = math.floor(100 * value) / 100
-    local color = { r = r, g = g, b = 0}
 
     if (0 == text) then
         text = '0.00'
