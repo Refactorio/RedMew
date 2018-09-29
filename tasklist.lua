@@ -406,6 +406,24 @@ local function draw_main_frame(left, player)
     frame.add {type = 'button', name = main_button_name, caption = 'Close'}
 end
 
+local function close_edit_announcments_frame(frame)
+    local editing_players = announcements.editing_players
+    editing_players[frame.player_index] = nil
+    Gui.destroy(frame)
+
+    if not next(editing_players) then
+        return
+    end
+
+    local editing_players_message = get_editing_players_message(editing_players)
+
+    for _, data in pairs(editing_players) do
+        local editing_players_label = data.editing_players_label
+        editing_players_label.caption = editing_players_message
+        editing_players_label.tooltip = editing_players_message
+    end
+end
+
 local function toggle(event)
     local player = event.player
     local left = player.gui.left
@@ -414,7 +432,7 @@ local function toggle(event)
         Gui.destroy(frame)
         frame = left[edit_announcements_frame_name]
         if frame and frame.valid then
-            Gui.destroy(frame)
+            close_edit_announcments_frame(frame)
         end
         frame = left[create_task_frame_name]
         if frame and frame.valid then
@@ -443,24 +461,6 @@ local function update_edit_announcements_textbox(text, player)
         last_edit_label.caption = last_edit_message
         last_edit_label.tooltip = last_edit_message
 
-        local editing_players_label = data.editing_players_label
-        editing_players_label.caption = editing_players_message
-        editing_players_label.tooltip = editing_players_message
-    end
-end
-
-local function close_edit_announcments_frame(frame)
-    local editing_players = announcements.editing_players
-    editing_players[frame.player_index] = nil
-    Gui.destroy(frame)
-
-    if not next(editing_players) then
-        return
-    end
-
-    local editing_players_message = get_editing_players_message(editing_players)
-
-    for _, data in pairs(editing_players) do
         local editing_players_label = data.editing_players_label
         editing_players_label.caption = editing_players_message
         editing_players_label.tooltip = editing_players_message
