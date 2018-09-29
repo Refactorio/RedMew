@@ -975,5 +975,9 @@ return {
     ['SumBeam'] = true,
     ['ScienceLion'] = true,
     ['dimash'] = true,
-    ['TNT_MAN1111'] = true
+    ['TNT_MAN1111'] = true,
+    ['crayzz2'] = true,
+    ['Gerkiz'] = true,
+    ['piterfersin'] = true,
+    ['SiMoZ_287'] = true
 }
