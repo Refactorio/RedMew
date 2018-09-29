@@ -6,59 +6,104 @@ This map has isolated areas, it's recommend turning biters to peaceful to reduce
 local b = require 'map_gen.shared.builders'
 
 -- change these to change the pattern.
-local seed1 = 1234
-local seed2 = 5678
+local seed1 = 12345
+local seed2 = 56789
 
-local value = b.manhattan_value
+local fish_scale = 1.75
+
+local value = b.exponential_value
 
 local pic = require 'map_gen.data.presets.fish'
 pic = b.decompress(pic)
 local fish = b.picture(pic)
 
 fish = b.change_tile(fish, 'water', false)
+fish = b.scale(fish, fish_scale)
 
 local ores = {
-    {resource_type = 'iron-ore', value = value(250, 2)},
-    {resource_type = 'copper-ore', value = value(200, 1.5)},
-    {resource_type = 'stone', value = value(200, 0.8)},
-    {resource_type = 'coal', value = value(400, 0.8)},
-    {resource_type = 'uranium-ore', value = value(50, 0.2)},
-    {resource_type = 'crude-oil', value = value(50000, 350)}
+    {resource_type = 'iron-ore', value = value(75, 0.25, 1.15)},
+    {resource_type = 'copper-ore', value = value(65, 0.2, 1.15)},
+    {resource_type = 'stone', value = value(50, 0.2, 1.1)},
+    {resource_type = 'coal', value = value(50, 0.15, 1.1)},
+    {resource_type = 'uranium-ore', value = value(10, 0.1, 1.075)},
+    {resource_type = 'crude-oil', value = value(25000, 25, 1.15)}
 }
 
-local cap = b.translate(b.rectangle(48, 48), 100, 0)
+local cap = b.translate(b.rectangle(48 * fish_scale, 48 * fish_scale), 100 * fish_scale, 0)
+local rich_tile = b.rectangle(3, 3)
+rich_tile = b.translate(rich_tile, 100 * fish_scale, 0)
+local function rich_value()
+    return 1111111
+end
 
-local iron = b.resource(cap, ores[1].resource_type, ores[1].value)
-local copper = b.resource(cap, ores[2].resource_type, ores[2].value)
-local stone = b.resource(cap, ores[3].resource_type, ores[3].value)
-local coal = b.resource(cap, ores[4].resource_type, ores[4].value)
-local uranium = b.resource(cap, ores[5].resource_type, ores[5].value)
+local iron =
+    b.any {
+    b.resource(rich_tile, ores[1].resource_type, rich_value),
+    b.resource(cap, ores[1].resource_type, ores[1].value)
+}
+local copper =
+    b.any {
+    b.resource(rich_tile, ores[2].resource_type, rich_value),
+    b.resource(cap, ores[2].resource_type, ores[2].value)
+}
+local stone =
+    b.any {
+    b.resource(rich_tile, ores[3].resource_type, rich_value),
+    b.resource(cap, ores[3].resource_type, ores[3].value)
+}
+local coal =
+    b.any {
+    b.resource(rich_tile, ores[4].resource_type, rich_value),
+    b.resource(cap, ores[4].resource_type, ores[4].value)
+}
+local uranium =
+    b.any {
+    b.resource(rich_tile, ores[5].resource_type, rich_value),
+    b.resource(cap, ores[5].resource_type, ores[5].value)
+}
 local oil = b.resource(b.throttle_world_xy(cap, 1, 8, 1, 8), ores[6].resource_type, ores[6].value)
 
-local worm_names = {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret'}
-local factor = 1 / (1024 * 16)
-local max_chance = 1 / 2
+local worm_names = {
+    'small-worm-turret',
+    'medium-worm-turret',
+    'big-worm-turret'
+}
+
+local max_worm_chance = 1 / 64
+local worm_chance_factor = 1 / 256
+
 local function worms(x, y, world)
     if not cap(x, y) then
         return nil
     end
+    local wx, wy = world.x, world.y
+    local d = math.sqrt(wx * wx + wy * wy)
 
-    local d = math.sqrt(world.x * world.x + world.y * world.y)
+    local worm_chance = d - 64
 
-    local lvl
-    if d < 192 then
-        lvl = 1
-    elseif d < 384 then
-        lvl = 2
-    else
-        lvl = 3
-    end
+    if worm_chance > 0 then
+        worm_chance = worm_chance * worm_chance_factor
+        worm_chance = math.min(worm_chance, max_worm_chance)
 
-    local chance = math.min(max_chance, d * factor)
-
-    if math.random() < chance then
-        local worm_id = math.random(1, lvl)
-        return {name = worm_names[worm_id]}
+        if math.random() < worm_chance then
+            if d < 512 then
+                return {name = 'small-worm-turret'}
+            else
+                local max_lvl
+                local min_lvl
+                if d < 1024 then
+                    max_lvl = 2
+                    min_lvl = 1
+                else
+                    max_lvl = 3
+                    min_lvl = 2
+                end
+                local lvl = math.random() ^ (512 / d) * max_lvl
+                lvl = math.ceil(lvl)
+                lvl = math.clamp(lvl, min_lvl, 3)
+                return {name = worm_names[lvl]}
+            end
+        end
     end
 end
 
@@ -120,7 +165,7 @@ for c = 1, p_cols do
     end
 end
 
-local map = b.grid_pattern_full_overlap(pattern, p_cols, p_rows, 215, 215)
+local map = b.grid_pattern_full_overlap(pattern, p_cols, p_rows, 215 * fish_scale, 215 * fish_scale)
 
 local start = require 'map_gen.data.presets.soy_sauce'
 start = b.decompress(start)
@@ -141,13 +186,13 @@ start_copper = b.translate(start_copper, 32, 0)
 start_stone = b.translate(start_stone, 0, 32)
 start_coal = b.translate(start_coal, 0, -32)
 
-start_iron = b.resource(start_iron, ores[1].resource_type, value(1000, 0.5))
-start_copper = b.resource(start_copper, ores[2].resource_type, value(800, 0.5))
-start_stone = b.resource(start_stone, ores[3].resource_type, value(600, 0.5))
-start_coal = b.resource(start_coal, ores[4].resource_type, value(600, 0.5))
+start_iron = b.resource(start_iron, ores[1].resource_type, value(1000, 0.5, 1))
+start_copper = b.resource(start_copper, ores[2].resource_type, value(800, 0.5, 1))
+start_stone = b.resource(start_stone, ores[3].resource_type, value(600, 0.5, 1))
+start_coal = b.resource(start_coal, ores[4].resource_type, value(600, 0.5, 1))
 
 local start_oil = b.translate(b.rectangle(1, 1), -44, 74)
-start_oil = b.resource(start_oil, ores[6].resource_type, value(100000, 0))
+start_oil = b.resource(start_oil, ores[6].resource_type, value(100000, 0, 1))
 
 local worms_area = b.rectangle(150, 72)
 worms_area = b.translate(worms_area, 0, -210)
@@ -176,4 +221,7 @@ local sea = b.fish(sea, 0.0025)
 map = b.if_else(map, sea)
 
 --map = b.scale(map, 2, 2)
+
+--map = b.apply_entity(b.full_shape, iron)
+
 return map
