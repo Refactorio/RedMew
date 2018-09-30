@@ -7,9 +7,46 @@ local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
 local Debug = require'map_gen.Diggy.Debug'
+local Task = require 'utils.Task'
+local Token = require 'utils.global_token'
 
 -- this
 local SimpleRoomGenerator = {}
+
+local function get_first_player()
+    for _, player in pairs(game.players) do
+        return player
+    end
+end
+
+local do_spawn_tile = Token.register(function(params)
+    Template.insert(params.surface, {params.tile}, {})
+end)
+
+local do_mine = Token.register(function(params)
+    local sand_rocks = params.surface.find_entities_filtered({position = params.position, name = 'sand-rock-big'})
+
+    for _, rock in pairs(sand_rocks) do
+        -- dangerous due to inventory, be cautious!
+        get_first_player().mine_entity(rock, true)
+    end
+end)
+
+local function handle_noise(name, surface, position)
+    Task.set_timeout_in_ticks(1, do_mine, {surface = surface, position = position})
+
+    if ('water' == name) then
+        -- water is lower because for some odd reason it doesn't always want to mine it properly
+        Task.set_timeout_in_ticks(5, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
+        return
+    end
+
+    if ('dirt' == name) then
+        return
+    end
+
+    error('No noise handled for type \'' .. name .. '\'')
+end
 
 --[[--
     Registers all event handlers.
@@ -23,7 +60,20 @@ function SimpleRoomGenerator.register(cfg)
     end
 
     Event.add(Template.events.on_void_removed, function (event)
-        local noise = get_noise(event.surface, event.old_tile.position.x, event.old_tile.position.y)
+        local position = event.old_tile.position
+        local distance = math.floor(math.sqrt(position.x^2 + position.y^2))
+
+        if (distance < config.water_minimum_distance) then
+            return
+        end
+
+        local noise = get_noise(event.surface, position.x, position.y)
+
+        for _, noise_range in pairs(config.room_noise_ranges) do
+            if (noise >= noise_range.min and noise <= noise_range.max) then
+                handle_noise(noise_range.name, event.surface, position)
+            end
+        end
     end)
 
     if (config.enable_noise_grid) then

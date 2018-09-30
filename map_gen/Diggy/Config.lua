@@ -88,10 +88,17 @@ local Config = {
             initialize = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.initialize,
 
             -- value between 0 and 1, higher value means stronger variance between coordinates
-            noise_variance = 0.3,
+            noise_variance = 0.086,
 
             -- adds per tile what the current noise is
-            enable_noise_grid = false,
+            enable_noise_grid = true,
+
+            -- minimum distance and noise range required for water to spawn
+            water_minimum_distance = 9,
+            room_noise_ranges = {
+                {name = 'water', min = -1, max = -0.55},
+                {name = 'dirt', min = -0.54, max = -0.36},
+            },
         },
         ScatteredResources = {
             enabled = true,
