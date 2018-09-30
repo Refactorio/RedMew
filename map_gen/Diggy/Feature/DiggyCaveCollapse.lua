@@ -163,7 +163,6 @@ function DiggyCaveCollapse.register(global_config)
         end
 
         for _, tile in pairs(event.tiles) do
-            Debug.print(event.item.name)
             update_stress_map(game.surfaces[event.surface_index], tile.position, -1 * strength)
         end
     end)
