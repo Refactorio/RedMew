@@ -46,9 +46,9 @@ local function create_collapse_template(positions, surface)
         end
     end
     for key,entity in pairs(entities) do
-      if not entity.valid then
-        entities[key] = nil
-      end
+        if not entity.valid then
+            entities[key] = nil
+        end
     end
     return tiles, entities
 end
@@ -60,7 +60,7 @@ end
 ]]
 local function update_stress_map(surface, position, strength)
     local max_value
-    Mask.blur(position.x, position.y, strength, function (x, y, fraction)
+    Mask.box_blur(position.x, position.y, strength, function (x, y, fraction)
         max_value = max_value or StressMap.add(surface, {x = x, y = y}, fraction)
     end)
 
@@ -70,12 +70,12 @@ local function update_stress_map(surface, position, strength)
 end
 
 local function collapse(surface, position)
-  local positions = {}
+    local positions = {}
 
-  Mask.circle_blur(position.x, position.y, config.collapse_threshold_total_strength, function(x,y, value)
-      StressMap.check_stress_in_threshold(surface, {x = x, y = y}, value, function(_, position)
-          table.insert(positions, position)
-      end)
+    Mask.box_blur(position.x, position.y, config.collapse_threshold_total_strength, function(x, y, value)
+        StressMap.check_stress_in_threshold(surface, {x = x, y = y}, value, function(_, position)
+            table.insert(positions, position)
+        end)
 
     end)
     local tiles, entities = create_collapse_template(positions, surface)

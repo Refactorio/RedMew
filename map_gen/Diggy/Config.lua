@@ -51,7 +51,7 @@ local Config = {
             initialize = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'.initialize,
 
             -- adds per tile what the current stress is
-            enable_stress_grid = false,
+            enable_stress_grid = true,
 
             -- delay in seconds before the cave collapses
             collapse_delay_min = 1.5,
@@ -88,16 +88,16 @@ local Config = {
             initialize = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.initialize,
 
             -- value between 0 and 1, higher value means stronger variance between coordinates
-            noise_variance = 0.086,
+            noise_variance = 0.09,
 
             -- adds per tile what the current noise is
-            enable_noise_grid = true,
+            enable_noise_grid = false,
 
             -- minimum distance and noise range required for water to spawn
             water_minimum_distance = 9,
             room_noise_ranges = {
-                {name = 'water', min = -1, max = -0.55},
-                {name = 'dirt', min = -0.54, max = -0.36},
+                {name = 'water', min = -1, max = -0.52},
+                {name = 'dirt', min = -0.51, max = -0.4},
             },
         },
         ScatteredResources = {
