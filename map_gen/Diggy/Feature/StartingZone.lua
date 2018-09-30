@@ -24,15 +24,13 @@ function StartingZone.register(config)
         local start_point_area = {{-1, -1}, {0, 0}}
 
         -- hack to figure out whether the important chunks are generated via Diggy.Feature.RefreshMap.
-        if (4 ~= #event.surface.find_tiles_filtered({start_point_area, name='lab-dark-1'})) then
+        if (4 ~= event.surface.count_tiles_filtered({start_point_area, name='lab-dark-1'})) then
             return
         end
 
         -- ensure a clean starting point
-        for _, entity in pairs(event.surface.find_entities(start_point_area)) do
-            if (entity.type ~= 'player') then
-                entity.destroy()
-            end
+        for _, entity in pairs(event.surface.find_entities_filtered({area = start_point_area, type = 'resource'})) do
+            entity.destroy()
         end
 
         local tiles = {}

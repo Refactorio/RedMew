@@ -40,7 +40,7 @@ local function diggy_hole(entity, temporary_inventory)
         table.insert(rocks, {name = 'sand-rock-big', position = {x = position.x, y = position.y}})
     end
 
-    Template.insert(entity.surface, tiles, rocks, true)
+    Template.insert(entity.surface, tiles, rocks)
 end
 
 local artificial_tiles = {
