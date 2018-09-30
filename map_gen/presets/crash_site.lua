@@ -579,6 +579,8 @@ Global.register_init(
         local seed = game.surfaces[1].map_gen_settings.seed
         tbl.outpost_seed = outpost_seed or seed
         tbl.ore_seed = ore_seed or seed
+
+        global.scenario.config.fish_market.enable = false
     end,
     function(tbl)
         outpost_seed = tbl.outpost_seed
