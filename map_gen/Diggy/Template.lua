@@ -107,7 +107,6 @@ local function insert_action(data)
     else
         return insert_next_entities(data)
     end
-
 end
 
 local insert_token = Token.register(insert_action)
@@ -139,7 +138,16 @@ function Template.insert(surface, tiles, entities)
         entities = entities
     }
 
-    Task.queue_task(insert_token, data, total_calls)
+    local continue = true
+    for i=1,4 do
+      continue = insert_action(data)
+      if not continue  then
+          return
+      end
+    end
+    if continue then
+        Task.queue_task(insert_token, data, total_calls - 4)
+    end
 end
 
 return Template
