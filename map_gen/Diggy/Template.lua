@@ -1,5 +1,7 @@
+-- dependencies
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
+local Debug = require 'map_gen.Diggy.Debug'
 
 -- this
 local Template = {}
@@ -148,6 +150,41 @@ function Template.insert(surface, tiles, entities)
     end
     if continue then
         Task.queue_task(insert_token, data, total_calls - 4)
+    end
+end
+
+--[[--
+    Designed to spawn aliens, uses find_non_colliding_position.
+
+    @see LuaSurface.entity
+
+    @param surface LuaSurface to put the tiles and entities on
+    @param units table of entities as required by create_entity
+]]
+function Template.units(surface, units)
+    for _, entity in pairs(units) do
+        local position = surface.find_non_colliding_position(entity.name, entity.position, 2, 1)
+
+        if (nil ~= position) then
+            entity.position = position
+            surface.create_entity(entity)
+        else
+            Debug.print('Failed to spawn \'' .. entity.name .. '\' at \'' .. serpent.line(entity.position) .. '\'')
+        end
+    end
+end
+
+--[[--
+    Designed to spawn resources.
+
+    @see LuaSurface.entity
+
+    @param surface LuaSurface to put the tiles and entities on
+    @param resources table of entities as required by create_entity
+]]
+function Template.resources(surface, resources)
+    for _, entity in pairs(resources) do
+        surface.create_entity(entity)
     end
 end
 
