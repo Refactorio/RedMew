@@ -15,7 +15,7 @@ function Public.regular_promote(name)
     global.regulars[name] = true
 end
 
-function Public.regular.demote(name)
+function Public.regular_demote(name)
     global.regulars[name] = nil
 end
 
