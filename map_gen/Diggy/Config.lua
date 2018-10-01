@@ -51,7 +51,7 @@ local Config = {
             initialize = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'.initialize,
 
             -- adds per tile what the current stress is
-            enable_stress_grid = true,
+            enable_stress_grid = false,
 
             -- delay in seconds before the cave collapses
             collapse_delay_min = 1.5,
@@ -94,10 +94,10 @@ local Config = {
             enable_noise_grid = false,
 
             -- minimum distance and noise range required for water to spawn
-            water_minimum_distance = 9,
+            room_noise_minimum_distance = 9,
             room_noise_ranges = {
                 {name = 'water', min = -1, max = -0.52},
-                {name = 'dirt', min = -0.51, max = -0.4},
+                {name = 'dirt', min = -0.51, max = -0.35},
             },
         },
         ScatteredResources = {
@@ -122,6 +122,12 @@ local Config = {
 
             -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
             max_resource_probability = 0.7,
+
+            -- minimum distance from spawn before aliens can spawn
+            alien_minimum_distance = 12,
+
+            -- chance of spawning aliens when mining
+            alien_probability = 0.07,
 
             -- chances per resource of spawning, sum must be 1.00
             resource_chances = {

@@ -4,6 +4,8 @@
 
 -- dependencies
 local Event = require 'utils.event'
+local AlienSpawner = require 'map_gen.Diggy.AlienSpawner'
+local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 
 -- this
@@ -24,7 +26,7 @@ local function get_name_by_random(collection)
         end
     end
 
-    error('Current \'' .. current .. '\' should be higher or equal to random \'' .. random .. '\'')
+    Debug.print('Current \'' .. current .. '\' should be higher or equal to random \'' .. random .. '\'')
 end
 
 local function spawn_resource(config, surface, x, y, distance)
@@ -54,13 +56,28 @@ local function spawn_resource(config, surface, x, y, distance)
         amount = amount * config.oil_value_modifier
     end
 
-    Template.insert(surface, {}, {{name = resource_name, position = {x = x, y = y}, amount = amount}})
+    local position = {x = x, y = y}
+
+    Template.resources(surface, {{name = resource_name, position = position, amount = amount}})
+
+    if (distance > config.alien_minimum_distance and config.alien_probability > math.random()) then
+        local biter_table = AlienSpawner.getBiterValues(game.forces.enemy.evolution_factor)
+        local spitter_table = AlienSpawner.getSpitterValues(game.forces.enemy.evolution_factor)
+
+        Template.units(surface, {
+            {name = get_name_by_random(biter_table), position = position, force = game.forces.enemy, amount = math.random(1, 2)},
+            {name = get_name_by_random(spitter_table), position = position, force = game.forces.enemy, amount = math.random(1, 2)},
+        })
+    end
+
+    Template.insert(surface, {}, entities)
 end
 
 --[[--
     Registers all event handlers.
 ]]
-function ScatteredResources.register(config)
+function ScatteredResources.register(cfg)
+    local config = cfg.features.ScatteredResources
     function sum(t)
         local sum = 0
         for _, v in pairs(t) do
@@ -70,12 +87,12 @@ function ScatteredResources.register(config)
         return sum
     end
 
-    local resource_sum = sum(config.features.ScatteredResources.resource_chances)
+    local resource_sum = sum(config.resource_chances)
     if (1 ~= resource_sum) then
         error('Expected a sum of 1.00, got \'' .. resource_sum .. '\' for config.feature.ScatteredResources.resource_chances.')
     end
 
-    local richness_sum = sum(config.features.ScatteredResources.resource_richness_probability)
+    local richness_sum = sum(config.resource_richness_probability)
     if (1 ~= richness_sum) then
         error('Expected a sum of 1.00, got \'' .. richness_sum .. '\' for config.feature.ScatteredResources.resource_richness_probability.')
     end
@@ -88,10 +105,8 @@ function ScatteredResources.register(config)
         local x = event.old_tile.position.x
         local y = event.old_tile.position.y
 
-        local feature_config = config.features.ScatteredResources;
-
         local distance = math.floor(math.sqrt(x^2 + y^2))
-        local calculated_probability = feature_config.resource_probability + ((distance / feature_config.distance_probability_modifier) / 100)
+        local calculated_probability = config.resource_probability + ((distance / config.distance_probability_modifier) / 100)
         local probability = 0.7
 
         if (calculated_probability < probability) then
@@ -99,7 +114,7 @@ function ScatteredResources.register(config)
         end
 
         if (probability > math.random()) then
-            spawn_resource(feature_config, event.surface, x, y, distance)
+            spawn_resource(config, event.surface, x, y, distance)
         end
     end)
 end
