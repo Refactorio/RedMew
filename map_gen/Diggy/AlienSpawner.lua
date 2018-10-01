@@ -8,20 +8,25 @@
 -- this
 local AlienSpawner = {}
 
+global.alien_spawner_cache = {
+    biters = {},
+    spitters = {},
+}
+
 -- values are in the form {evolution, weight}
 local biters = {
-    {'Small Biter',     {{0.0, 0.3}, {0.6, 0.0}}},
-    {'Medium Biter',    {{0.2, 0.0}, {0.6, 0.3}, {0.7, 0.1}}},
-    {'Big Biter',       {{0.5, 0.0}, {1.0, 0.4}}},
-    {'Behemoth Biter',  {{0.9, 0.0}, {1.0, 0.3}}},
+    {'small-biter',     {{0.0, 0.3}, {0.6, 0.0}}},
+    {'medium-biter',    {{0.2, 0.0}, {0.6, 0.3}, {0.7, 0.1}}},
+    {'big-biter',       {{0.5, 0.0}, {1.0, 0.4}}},
+    {'behemoth-biter',  {{0.9, 0.0}, {1.0, 0.3}}},
 }
 
 local spitters = {
-    {'Small Biter',       {{0.0, 0.3}, {0.35, 0.0}}},
-    {'Small Spitter',     {{0.25, 0.0}, {0.5, 0.3}, {0.7, 0.0}}},
-    {'Medium Spitter',    {{0.4, 0.0}, {0.7, 0.3}, {0.9, 0.1}}},
-    {'Big Spitter',       {{0.5, 0.0}, {1.0, 0.4}}},
-    {'Behemoth Spitter',  {{0.9, 0.0}, {1.0, 0.3}}},
+    {'small-biter',       {{0.0, 0.3}, {0.35, 0.0}}},
+    {'small-spitter',     {{0.25, 0.0}, {0.5, 0.3}, {0.7, 0.0}}},
+    {'medium-spitter',    {{0.4, 0.0}, {0.7, 0.3}, {0.9, 0.1}}},
+    {'big-spitter',       {{0.5, 0.0}, {1.0, 0.4}}},
+    {'behemoth-spitter',  {{0.9, 0.0}, {1.0, 0.3}}},
 }
 
 local function lerp(low, high, pos)
@@ -69,11 +74,21 @@ local function get_values(map, evo)
 end
 
 function AlienSpawner.getBiterValues(evolution)
-    return get_values(biters, evolution)
+    local evolution_cache_key = evolution * 100
+    if (nil == global.alien_spawner_cache.biters[evolution_cache_key]) then
+        global.alien_spawner_cache.biters[evolution_cache_key] = get_values(biters, evolution)
+    end
+
+    return global.alien_spawner_cache.biters[evolution_cache_key]
 end
 
 function AlienSpawner.getSpitterValues(evolution)
-    return get_values(spitters, evolution)
+    local evolution_cache_key = evolution * 100
+    if (nil == global.alien_spawner_cache.spitters[evolution_cache_key]) then
+        global.alien_spawner_cache.biters[evolution_cache_key] = get_values(spitters, evolution)
+    end
+
+    return global.alien_spawner_cache.biters[evolution_cache_key]
 end
 
 return AlienSpawner
