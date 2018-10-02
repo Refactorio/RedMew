@@ -979,5 +979,21 @@ return {
     ['crayzz2'] = true,
     ['Gerkiz'] = true,
     ['piterfersin'] = true,
-    ['SiMoZ_287'] = true
+    ['SiMoZ_287'] = true,
+    ['SSeltmann'] = true,
+    ['AbsoluteZeroIs0K'] = true,
+    ['jufacto'] = true,
+    ['okan009'] = true,
+    ['CounterfeitThe'] = true,
+    ['TZsec'] = true,
+    ['jamesh92'] = true,
+    ['Flameoguy'] = true,
+    ['Toledini'] = true,
+    ['alnmike'] = true,
+    ['Krzys132'] = true,
+    ['jrz126'] = true,
+    ['Rothguard'] = true,
+    ['Rascher'] = true,
+    ['XeoXius'] = true,
+    ['InphinitePhractals'] = true
 }
