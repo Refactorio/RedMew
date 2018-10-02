@@ -32,7 +32,6 @@ require 'paint'
 require 'score'
 require 'popup'
 
-
 local Event = require 'utils.event'
 local Donators = require 'resources.donators'
 
@@ -167,7 +166,7 @@ local function player_joined(event)
         return
     end
 
-    game.print(table.concat({'*** ', message, ' ***'}))
+    game.print(table.concat({'*** ', message, ' ***'}), player.chat_color)
 end
 
 Event.add(defines.events.on_player_created, player_created)
