@@ -1,7 +1,7 @@
 require 'config'
 require 'utils.utils'
 require 'utils.list_utils'
-require 'utils.math_fix'
+require 'utils.math'
 
 local Game = require 'utils.game'
 
