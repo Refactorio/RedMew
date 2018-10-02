@@ -21,7 +21,7 @@ Global.register_init(
 local function value(base, mult, pow)
     return function(x, y)
         local d_sq = x * x + y * y
-        return base + mult * d ^ (pow / 2)
+        return base + mult * d_sq ^ (pow / 2)
     end
 end
 
