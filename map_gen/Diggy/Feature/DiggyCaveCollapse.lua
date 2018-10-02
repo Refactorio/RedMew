@@ -60,7 +60,7 @@ end
 ]]
 local function update_stress_map(surface, position, strength)
     local max_value
-    Mask.box_blur(position.x, position.y, strength, function (x, y, fraction)
+    Mask.disc_blur(position.x, position.y, strength, function (x, y, fraction)
         max_value = max_value or StressMap.add(surface, {x = x, y = y}, fraction)
     end)
 
@@ -72,7 +72,7 @@ end
 local function collapse(surface, position)
     local positions = {}
 
-    Mask.box_blur(position.x, position.y, config.collapse_threshold_total_strength, function(x, y, value)
+    Mask.disc_blur(position.x, position.y, config.collapse_threshold_total_strength, function(x, y, value)
         StressMap.check_stress_in_threshold(surface, {x = x, y = y}, value, function(_, position)
             table.insert(positions, position)
         end)
@@ -255,8 +255,15 @@ end
 
     @param config Table {@see Diggy.Config}.
 ]]
-function DiggyCaveCollapse.initialize(config)
+function DiggyCaveCollapse.initialize(global_config)
+    config = global_config.features.DiggyCaveCollapse
+    local support_beam_entities = config.support_beam_entities;
 
+    if (config.enable_mask_debug) then
+        Mask.disc_blur(0, 0, 1, function (x, y, fraction)
+            Debug.print_grid_value(fraction, game.surfaces.nauvis, {x=x, y=y})
+        end)
+    end
 end
 
 return DiggyCaveCollapse

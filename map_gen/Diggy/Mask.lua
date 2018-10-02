@@ -1,3 +1,6 @@
+
+local Debug = require'map_gen.Diggy.Debug'
+
 -- this
 local Mask = {}
 
@@ -44,53 +47,38 @@ local Mask = {}
   }
     local n = 9;
     local radius =  math.floor(n / 2)
-    local middle = radius + 1
-    local circle_blur_sum = 0
+    local radius_sq = (radius + 0.2) * (radius + 0.2)
+    local center_radius_sq = radius_sq / 9
+    local disc_radius_sq = radius_sq * 4 / 9
 
-    local circleBlurKernel = {}
+    local middle = radius + 1
+    local disc_blur_sum = 0
+    local points_in_circle = 0
+
+    local center_value
+    local disc_value
+    local ring_value
 
 
     function init()
-        local sum = 0
-        local edge_middle_distance = math.sqrt(2)  * (n - middle)
-        for x = 1, n do
-          circleBlurKernel[x] = {}
-            for y = 1, n do
-              local distance = math.sqrt((x - middle) * (x - middle) + (y - middle) * (y - middle))
-              if distance <= radius then
-                sum = sum + 1
-                circleBlurKernel[x][y] = 1
-              else
-                  local edge_distance = edge_middle_distance - distance
-                  local normalized_value = edge_distance / (edge_middle_distance - radius)
-                  sum = sum + normalized_value
-                  circleBlurKernel[x][y] = normalized_value
-              end
+        for x = -radius, radius do
+            for y = -radius, radius do
+                local distance_sq = x * x + y * y
+                if distance_sq <= center_radius_sq then
+                    disc_blur_sum = disc_blur_sum + 1
+                elseif distance_sq <= disc_radius_sq then
+                    disc_blur_sum = disc_blur_sum + 2 /3
+                elseif distance_sq <= radius_sq then
+                    disc_blur_sum = disc_blur_sum + 1/3
+                end
             end
         end
-
-        for x = 1, n do
-            for y = 1, n do
-                circleBlurKernel[x][y] = circleBlurKernel[x][y] / sum
-            end
-        end
-
-        sum = 0
-        for x = 1,n do
-            for y = 1, n do
-              local distance = math.sqrt((x - middle) * (x - middle) + (y - middle) * (y - middle))
-              if distance <= radius then
-                sum = sum + (radius - distance) / radius + 0.1
-              end
-            end
-        end
-        circle_blur_sum = sum
-
+        center_value = 1 / disc_blur_sum
+        ring_value = center_value / 3
+        disc_value = ring_value * 2
     end
 
-
     init()
-
 
 --[[--
     Applies a blur filter.
@@ -119,9 +107,12 @@ function Mask.blur(x_start, y_start, factor, callback)
 end
 
 --[[--
-    Applies a circular blur
-    All values outside the circle are proportional to the distance to the center.
-    The circle radius is math.floor(n / 2)
+    Applies a blur
+    Applies the disc in 3 discs: center, (middle) disc and (outer) ring.
+    The relative weights for tiles in a disc are:
+    center: 3/3
+    disc: 2/3
+    ring: 1/3
     The sum of all values is 1
 
     @param x_start number center point
@@ -129,49 +120,27 @@ end
     @param factor the factor to multiply the cell value with (value = cell_value * factor)
     @param callback function to execute on each tile within the mask callback(x, y, value)
 ]]
-function Mask.circle_blur(x_start, y_start, factor, callback)
-    x_start = math.floor(x_start)
-    y_start = math.floor(y_start)
-    local offset = - math.floor(n / 2) - 1 --move matrix over x_start|y_start and adjust for 1 index
-    for x = 1,n do
-        for y = 1, n do
-            local distance = math.sqrt((x - middle) * (x - middle) + (y - middle) * (y - middle))
-            if distance <= radius then
-              local value = (radius - distance) / radius / circle_blur_sum * factor
-              callback(x_start + x + offset, y_start + y + offset, value)
+    function Mask.disc_blur(x_start, y_start, factor, callback)
+        x_start = math.floor(x_start)
+        y_start = math.floor(y_start)
+          for x = -radius, radius do
+              for y = -radius, radius do
+                  local value = 0
+                  local distance_sq = x * x + y * y
+                  if distance_sq <= center_radius_sq then
+
+                    value = center_value
+                  elseif distance_sq <= disc_radius_sq then
+                    value = disc_value
+                  elseif distance_sq <= radius_sq then
+                    value = ring_value
+                  end
+                  if math.abs(value) > 0.001 then
+                      callback(x_start + x, y_start + y, value * factor)
+                  end
             end
         end
     end
-end
-
-
-
---[[--
-    Applies a circular box blur
-    All values withing the radius of the filters are equal. All values outside the circle are proportional to the distance to the circle.
-    The circle radius is math.floor(n / 2)
-    The sum of all values is 1
-
-    @param x_start number center point
-    @param y_start number center point
-    @param factor the factor to multiply the cell value with (value = cell_value * factor)
-    @param callback function to execute on each tile within the mask callback(x, y, value)
-]]
-function Mask.box_blur(x_start, y_start, factor, callback)
-    x_start = math.floor(x_start)
-    y_start = math.floor(y_start)
-    local filter = circleBlurKernel
-    local offset = - math.floor(n / 2) - 1 --move matrix over x_start|y_start and adjust for 1 index
-    for x = 1, n do
-        for y = 1, n do
-            cell = filter[x][y]
-            value = factor * cell
-            if math.abs(value) > 0.001 then
-                callback(x_start + x + offset, y_start + y + offset, value)
-            end
-        end
-    end
-end
 
 
 --[[--
@@ -185,7 +154,7 @@ end
 function Mask.circle(x_start, y_start, diameter, callback)
     for x = (diameter * -1), diameter, 1 do
         for y = (diameter * -1), diameter, 1 do
-            local tile_distance_to_center = math.floor(math.sqrt(x^2 + y^2))
+            local tile_distance_to_center = math.floor(math.sqrt(x^2 + y^2)) --needed in callback
 
             if (tile_distance_to_center < diameter) then
                 callback(x + x_start, y + y_start, tile_distance_to_center, diameter)

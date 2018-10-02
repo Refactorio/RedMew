@@ -53,6 +53,9 @@ local Config = {
             -- adds per tile what the current stress is
             enable_stress_grid = false,
 
+            -- shows the mask on spawn
+            enable_mask_debug = false,
+
             -- delay in seconds before the cave collapses
             collapse_delay_min = 1.5,
             collapse_delay_max = 3,

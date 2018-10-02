@@ -35,6 +35,7 @@ function Debug.print(message)
     message_count = message_count + 1
     if (debug) then
         game.print('[' .. message_count .. '] ' .. tostring(message))
+        log('[' .. message_count .. '] ' .. tostring(message))
     end
 end
 
