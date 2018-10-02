@@ -10,5 +10,6 @@ math.cos = function(x)
 end
 
 math.sqrt2 = math.sqrt(2)
+math.inv_sqrt2 = 1 / math.sqrt2
 
 return math
