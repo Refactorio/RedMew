@@ -55,8 +55,13 @@ end
 --[[--
     Registers all event handlers.
 ]]
+
+local room_noise_minimum_distance_sq
+
 function SimpleRoomGenerator.register(cfg)
     local config = cfg.features.SimpleRoomGenerator
+
+    room_noise_minimum_distance_sq = config.room_noise_minimum_distance * config.room_noise_minimum_distance
 
     local function get_noise(surface, x, y)
         local seed = surface.map_gen_settings.seed + surface.index
@@ -65,9 +70,9 @@ function SimpleRoomGenerator.register(cfg)
 
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.old_tile.position
-        local distance = math.floor(math.sqrt(position.x^2 + position.y^2))
+        local distance_sq = position.x^2 + position.y^2
 
-        if (distance < config.room_noise_minimum_distance) then
+        if (distance_sq <= room_noise_minimum_distance_sq) then
             return
         end
 
@@ -97,7 +102,6 @@ end
     @param config Table {@see Diggy.Config}.
 ]]
 function SimpleRoomGenerator.initialize(config)
-
 end
 
 return SimpleRoomGenerator
