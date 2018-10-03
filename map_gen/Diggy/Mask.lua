@@ -45,40 +45,53 @@ local Mask = {}
       {0.000853, 0.001842, 0.003353, 0.005143, 0.006648, 0.007242, 0.006648, 0.005143, 0.003353, 0.001842, 0.000853},
       {0.000395, 0.000853, 0.001552, 0.002381, 0.003078, 0.003353, 0.003078, 0.002381, 0.001552, 0.000853, 0.000395}
   }
-    local n = 9;
-    local radius =  math.floor(n / 2)
-    local radius_sq = (radius + 0.2) * (radius + 0.2)
-    local center_radius_sq = radius_sq / 9
-    local disc_radius_sq = radius_sq * 4 / 9
+    local n
+    local radius
+    local radius_sq
+    local center_radius_sq
+    local disc_radius_sq
 
-    local middle = radius + 1
+    local center_weight
+    local disc_weight
+    local ring_weight
+
     local disc_blur_sum = 0
-    local points_in_circle = 0
 
     local center_value
     local disc_value
     local ring_value
 
 
-    function init()
+    function Mask.init(config)
+        n = config.mask_size
+
+        ring_weight = config.mask_relative_ring_weights[1]
+        disc_weight = config.mask_relative_ring_weights[2]
+        center_weight = config.mask_relative_ring_weights[3]
+
+        radius =  math.floor(n / 2)
+        radius_sq = (radius + 0.2) * (radius + 0.2)
+        center_radius_sq = radius_sq / 9
+        disc_radius_sq = radius_sq * 4 / 9
+
+
         for x = -radius, radius do
             for y = -radius, radius do
                 local distance_sq = x * x + y * y
                 if distance_sq <= center_radius_sq then
-                    disc_blur_sum = disc_blur_sum + 1
+                    disc_blur_sum = disc_blur_sum + center_weight
                 elseif distance_sq <= disc_radius_sq then
-                    disc_blur_sum = disc_blur_sum + 2 /3
+                    disc_blur_sum = disc_blur_sum + disc_weight
                 elseif distance_sq <= radius_sq then
-                    disc_blur_sum = disc_blur_sum + 1/3
+                    disc_blur_sum = disc_blur_sum + ring_weight
                 end
             end
         end
-        center_value = 1 / disc_blur_sum
-        ring_value = center_value / 3
-        disc_value = ring_value * 2
+        center_value = center_weight / disc_blur_sum
+        disc_value = disc_weight / disc_blur_sum
+        ring_value = ring_weight / disc_blur_sum
     end
 
-    init()
 
 --[[--
     Applies a blur filter.

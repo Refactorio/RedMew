@@ -56,6 +56,12 @@ local Config = {
             -- shows the mask on spawn
             enable_mask_debug = false,
 
+            --the size of the mask used
+            mask_size = 9,
+
+            --how much the mask will effect tiles in the different rings of the mask
+            mask_relative_ring_weights = {2,3,4},
+
             -- delay in seconds before the cave collapses
             collapse_delay_min = 1.5,
             collapse_delay_max = 3,

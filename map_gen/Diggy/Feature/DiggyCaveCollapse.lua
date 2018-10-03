@@ -259,9 +259,10 @@ end
 function DiggyCaveCollapse.initialize(global_config)
     config = global_config.features.DiggyCaveCollapse
 
+    Mask.init(config)
     if (config.enable_mask_debug) then
         local surface = game.surfaces.nauvis
-        Mask.disc_blur(0, 0, 1, function (x, y, fraction)
+        Mask.disc_blur(0, 0, 10, function (x, y, fraction)
             Debug.print_grid_value(fraction, surface, {x=x, y=y})
         end)
     end
