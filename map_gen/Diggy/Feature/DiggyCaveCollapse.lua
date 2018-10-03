@@ -161,9 +161,9 @@ function DiggyCaveCollapse.register(global_config)
         if (not strength) then
             return
         end
-
+        local surface = game.surfaces[event.surface_index]
         for _, tile in pairs(event.tiles) do
-            update_stress_map(game.surfaces[event.surface_index], tile.position, -1 * strength)
+            update_stress_map(surface, tile.position, -1 * strength)
         end
     end)
 
@@ -178,11 +178,12 @@ function DiggyCaveCollapse.register(global_config)
     end)
 
     Event.add(defines.events.on_player_mined_tile, function(event)
+        local surface = game.surfaces[event.surface_index]
         for _, tile in pairs(event.tiles) do
             local strength = support_beam_entities[tile.old_tile.name]
 
             if (strength) then
-                update_stress_map(game.surfaces[event.surface_index], tile.position, strength)
+                update_stress_map(surface, tile.position, strength)
             end
         end
     end)
@@ -257,11 +258,11 @@ end
 ]]
 function DiggyCaveCollapse.initialize(global_config)
     config = global_config.features.DiggyCaveCollapse
-    local support_beam_entities = config.support_beam_entities;
 
     if (config.enable_mask_debug) then
+        local surface = game.surfaces.nauvis
         Mask.disc_blur(0, 0, 1, function (x, y, fraction)
-            Debug.print_grid_value(fraction, game.surfaces.nauvis, {x=x, y=y})
+            Debug.print_grid_value(fraction, surface, {x=x, y=y})
         end)
     end
 end
