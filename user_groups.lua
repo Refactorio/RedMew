@@ -1,10 +1,10 @@
 local Event = require 'utils.event'
 local Utils = require 'utils.utils'
 local Server = require 'server'
---local Donators = require 'resources.donators'
+local Donators = require 'resources.donators'
 
 global.regulars = {}
-global.donators = {}
+global.donators = Donators.donators
 global.donator_welcome_messages = {}
 local Game = require 'utils.game'
 
@@ -118,9 +118,32 @@ function Module.get_donator_welcome_message(player_name)
     return global.donator_welcome_messages[player_name]
 end
 
+function Module.set_donator(player_name, perks)
+    global.donators[player_name] = perks
+    Server.donator_set(player_name, perks)
+end
+
 function Module.sync_donators(donators, messages)
     global.donators = donators
     global.donator_welcome_messages = messages
+end
+
+function Module.server_set_donator(player_name, perks)
+    global.donators[player_name] = perks
+end
+
+function Module.print_donators()
+    local result = {}
+    for k, v in pairs(global.donators) do
+        table.insert(result, k)
+        table.insert(result, ' : ')
+        table.insert(result, v)
+        table.insert(result, ', ')
+    end
+    table.remove(result)
+
+    result = table.concat(result)
+    game.print(result)
 end
 
 Event.add(

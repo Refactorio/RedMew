@@ -247,6 +247,45 @@ local function regular(cmd)
     end
 end
 
+local function donator(cmd)
+    local player = game.player
+    if player and not player.admin then
+        cant_run(cmd.name)
+        return
+    end
+
+    if cmd.parameter == nil then
+        player_print('Command failed. Usage: /donator <player> <perks>')
+        return
+    end
+
+    local params = {}
+    for param in string.gmatch(cmd.parameter, '%S+') do
+        table.insert(params, param)
+    end
+    if params[2] == nil then
+        player_print('Command failed. Usage: /donator <player> <perks>')
+        return
+    end
+
+    local perks = params[2]
+    if perks == 'nil' then
+        perks = nil
+    end
+
+    if (tonumber(perks) == nil and perks ~= nil) then
+        player_print("Command failed. perks must be number or the string 'nil' to remove donator.")
+        return
+    end
+
+    local target = params[1]
+
+    UserGroups.set_donator(target, perks)
+
+    local message = table.concat {'Player ', target, ' donator perks set to ', perks}
+    player_print(message)
+end
+
 local function afk()
     for _, v in pairs(game.players) do
         if v.afk_time > 300 then
@@ -657,6 +696,8 @@ commands.add_command('tppos', 'Teleports you to a selected entity. (Admins only)
 commands.add_command('walkabout', '<player> <duration> - Send someone on a walk.  (Admins only)', walkabout)
 commands.add_command('regulars', 'Prints a list of game regulars.', UserGroups.print_regulars)
 commands.add_command('regular', '<promote, demote>, <player> Change regular status of a player. (Admins only)', regular)
+commands.add_command('donator', '<player> <perks> Change donator perks for a player. (Admins only)', donator)
+commands.add_command('donators', 'Prints a list of game donators and thier perks.', UserGroups.print_donators)
 commands.add_command('afk', 'Shows how long players have been afk.', afk)
 commands.add_command(
     'follow',
