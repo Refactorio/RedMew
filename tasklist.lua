@@ -3,6 +3,7 @@ local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
+local Game = require 'utils.game'
 
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
@@ -111,7 +112,7 @@ local function get_editing_players_message(players)
     local message = {'Editing players: '}
 
     for pi, _ in pairs(players) do
-        local name = game.players[pi].name
+        local name = Game.get_player_by_index(pi).name
         table.insert(message, name)
         table.insert(message, ', ')
     end
@@ -405,6 +406,24 @@ local function draw_main_frame(left, player)
     frame.add {type = 'button', name = main_button_name, caption = 'Close'}
 end
 
+local function close_edit_announcments_frame(frame)
+    local editing_players = announcements.editing_players
+    editing_players[frame.player_index] = nil
+    Gui.destroy(frame)
+
+    if not next(editing_players) then
+        return
+    end
+
+    local editing_players_message = get_editing_players_message(editing_players)
+
+    for _, data in pairs(editing_players) do
+        local editing_players_label = data.editing_players_label
+        editing_players_label.caption = editing_players_message
+        editing_players_label.tooltip = editing_players_message
+    end
+end
+
 local function toggle(event)
     local player = event.player
     local left = player.gui.left
@@ -413,7 +432,7 @@ local function toggle(event)
         Gui.destroy(frame)
         frame = left[edit_announcements_frame_name]
         if frame and frame.valid then
-            Gui.destroy(frame)
+            close_edit_announcments_frame(frame)
         end
         frame = left[create_task_frame_name]
         if frame and frame.valid then
@@ -442,24 +461,6 @@ local function update_edit_announcements_textbox(text, player)
         last_edit_label.caption = last_edit_message
         last_edit_label.tooltip = last_edit_message
 
-        local editing_players_label = data.editing_players_label
-        editing_players_label.caption = editing_players_message
-        editing_players_label.tooltip = editing_players_message
-    end
-end
-
-local function close_edit_announcments_frame(frame)
-    local editing_players = announcements.editing_players
-    editing_players[frame.player_index] = nil
-    Gui.destroy(frame)
-
-    if not next(editing_players) then
-        return
-    end
-
-    local editing_players_message = get_editing_players_message(editing_players)
-
-    for _, data in pairs(editing_players) do
         local editing_players_label = data.editing_players_label
         editing_players_label.caption = editing_players_message
         editing_players_label.tooltip = editing_players_message
@@ -584,7 +585,7 @@ local function draw_create_task_frame(left, previous_task)
 end
 
 local function player_created(event)
-    local player = game.players[event.player_index]
+    local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -630,7 +631,7 @@ local function player_created(event)
 end
 
 local function player_left(event)
-    local player = game.players[event.player_index]
+    local player = Game.get_player_by_index(event.player_index)
     local left = player.gui.left
 
     local frame = left[edit_announcements_frame_name]

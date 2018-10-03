@@ -1,5 +1,6 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
+local Game = require 'utils.game'
 
 local player_last_position = {}
 local player_walk_distances = {}
@@ -30,7 +31,7 @@ Global.register(
 local function player_created(event)
     local index = event.player_index
 
-    player_last_position[index] = game.players[index].position
+    player_last_position[index] = Game.get_player_by_index(index).position
     player_walk_distances[index] = 0
     player_coin_earned[index] = 0
     player_coin_spent[index] = 0

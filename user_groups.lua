@@ -6,6 +6,7 @@ local Server = require 'server'
 global.regulars = {}
 global.donators = {}
 global.donator_welcome_messages = {}
+local Game = require 'utils.game'
 
 local Module = {}
 
@@ -125,7 +126,7 @@ end
 Event.add(
     defines.events.on_player_joined_game,
     function(event)
-        local correctCaseName = game.players[event.player_index].name
+        local correctCaseName = Game.get_player_by_index(event.player_index).name
         if global.regulars[correctCaseName:lower()] and not global.regulars[correctCaseName] then
             global.regulars[correctCaseName:lower()] = nil
             global.regulars[correctCaseName] = true

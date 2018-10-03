@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
+local Game = require 'utils.game'
 
 local player_corpses = {}
 
@@ -14,7 +15,7 @@ Global.register(
 
 local function player_died(event)
     local player_index = event.player_index
-    local player = game.players[player_index]
+    local player = Game.get_player_by_index(player_index)
 
     if not player or not player.valid then
         return

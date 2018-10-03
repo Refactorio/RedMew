@@ -1,4 +1,5 @@
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 
 local player_colors = {
     ['grilledham'] = {
@@ -26,7 +27,7 @@ local player_colors = {
 Event.add(
     defines.events.on_player_created,
     function(event)
-        local player = game.players[event.player_index]
+        local player = Game.get_player_by_index(event.player_index)
         if not player or not player.valid then
             return
         end

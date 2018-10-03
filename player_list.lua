@@ -6,6 +6,7 @@ local UserGroups = require 'user_groups'
 local PlayerStats = require 'player_stats'
 local Utils = require 'utils.utils'
 local Report = require 'report'
+local Game = require 'utils.game'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
@@ -611,7 +612,7 @@ local function tick()
 end
 
 local function player_joined(event)
-    local player = game.players[event.player_index]
+    local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
     end

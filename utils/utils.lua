@@ -1,4 +1,5 @@
 local Module = {}
+local Game = require 'utils.game'
 
 Module.distance = function(pos1, pos2)
     local dx = pos2.x - pos1.x
@@ -79,7 +80,7 @@ Module.find_entities_by_last_user =
         surface = game.surfaces[surface]
     end
     if type(player) == 'number' then
-        player = game.players[player]
+        player = Game.get_player_by_index(player)
     end
     filters.force = player.force.name
     for _, e in pairs(surface.find_entities_filtered(filters)) do

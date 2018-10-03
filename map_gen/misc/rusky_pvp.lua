@@ -1,4 +1,5 @@
 local Event = require "utils.event"
+local Game = require 'utils.game'
 
 Event.on_init(function()
   
@@ -12,7 +13,7 @@ Event.on_init(function()
 end)
 
 Event.add(defines.events.on_player_created, function(event)
-  local player = game.players[event.player_index]
+  local player = Game.get_player_by_index(event.player_index)
   --player.print("Info: PVP server mod 'Bearded Snails' (c) byte");
   guiNewPlayer(player.gui.left);
   printNewPlayer(player);
@@ -30,7 +31,7 @@ Event.add(defines.events.on_player_created, function(event)
 end)
 
 Event.add(defines.events.on_player_respawned, function(event)
-  local player = game.players[event.player_index]
+  local player = Game.get_player_by_index(event.player_index)
   
   player.insert{name="heavy-armor", count=1}
   player.insert{name="pistol", count=1}
@@ -69,7 +70,7 @@ Event.add(defines.events.on_rocket_launched, function(event)
 end)
 
 Event.add(defines.events.on_gui_click, function(event)
-  local player = game.players[event.player_index]
+  local player = Game.get_player_by_index(event.player_index)
   local gui = player.gui.left;
 
   if player.force == game.forces.player and event.element.name == "new_button" then
@@ -91,7 +92,7 @@ Event.add(defines.events.on_gui_click, function(event)
   elseif event.element.name == "inv_button" then
     local name = gui.own_force.inv_name.text;
     if name ~= nil and validPlayer(name) then
-      local iplayer = game.players[name];
+      local iplayer = Game.get_player_by_index(name);
       local igui = iplayer.gui.left;
       
       iplayer.force = player.force;
@@ -142,7 +143,7 @@ function dist(position1, position2)
 end
 
 function validPlayer(name)
-  if name ~= nil and game.players[name] ~= nil and game.players[name].force == game.forces.player then
+  if name ~= nil and Game.get_player_by_index(name) ~= nil and Game.get_player_by_index(name).force == game.forces.player then
     return true;
   end
   return false;

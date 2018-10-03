@@ -3,6 +3,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
+local Game = require 'utils.game'
 --local Antigrief = require 'antigrief'
 
 function player_print(str)
@@ -297,7 +298,7 @@ local function built_entity(event)
             return
         end
 
-        game.players[index].teleport(entity.position)
+        Game.get_player_by_index(index).teleport(entity.position)
         entity.destroy()
     end
 end
@@ -740,7 +741,7 @@ commands.add_command(
     'Shows user reports (Admins only)',
     function(event)
         if game.player and game.player.admin then
-            Report.show_reports(game.players[event.player_index])
+            Report.show_reports(Game.get_player_by_index(event.player_index))
         end
     end
 )

@@ -1,9 +1,10 @@
 local Event = require "utils.event"
+local Game = require 'utils.game'
 
 if not global.score_rockets_launched then global.score_rockets_launched = 0 end
 
 local function create_score_gui(event)
-	local player = game.players[event.player_index]
+	local player = Game.get_player_by_index(event.player_index)
 
 	if player.gui.top.score == nil then
 		local button = player.gui.top.add({ type = "sprite-button", name = "score", sprite = "item/rocket-silo" })
@@ -18,8 +19,8 @@ end
 
 function refresh_score()
 	local x = 1
-	while (game.players[x] ~= nil) do
-		local player = game.players[x]
+	while (Game.get_player_by_index(x) ~= nil) do
+		local player = Game.get_player_by_index(x)
 		local frame = player.gui.top["score_panel"]
 
 		if (frame) then
@@ -72,7 +73,7 @@ end
 local function on_gui_click(event)
 	if not (event and event.element and event.element.valid) then return end
 
-	local player = game.players[event.element.player_index]
+	local player = Game.get_player_by_index(event.element.player_index)
 	local name = event.element.name
 	local frame = player.gui.top["score_panel"]
 

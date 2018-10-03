@@ -1,17 +1,18 @@
 local Event = require "utils.event"
 local UserGroups = require "user_groups"
 local Utils = require "utils.utils"
+local Game = require 'utils.game'
 
 function allowed_to_nuke(player)
   if type(player) == "table" then
   return player.admin or UserGroups.is_regular(player.name) or ((player.online_time / 216000) > global.scenario.config.nuke_control.nuke_min_time_hours)
   elseif type(player) == "number" then
-    return allowed_to_nuke(game.players[player])
+    return allowed_to_nuke(Game.get_player_by_index(player))
   end
 end
 
 local function ammo_changed(event)
-  local player = game.players[event.player_index]
+  local player = Game.get_player_by_index(event.player_index)
     if allowed_to_nuke(player) then return end
   local nukes = player.remove_item({name="atomic-bomb", count=1000})
   if nukes > 0 then
@@ -30,7 +31,7 @@ local function ammo_changed(event)
 end
 
 local function on_player_deconstructed_area(event)
-  local player = game.players[event.player_index]
+  local player = Game.get_player_by_index(event.player_index)
     if allowed_to_nuke(player) then return end
     player.remove_item({name="deconstruction-planner", count=1000})
 
@@ -59,8 +60,8 @@ local function on_player_deconstructed_area(event)
       Utils.print_admins("Warning! " .. player.name .. " just tried to deconstruct " .. tostring(#entities) .. " entities!")
     end
     for _,entity in pairs(entities) do
-      if entity.valid and entity.to_be_deconstructed(game.players[event.player_index].force) then
-        entity.cancel_deconstruction(game.players[event.player_index].force)
+      if entity.valid and entity.to_be_deconstructed(Game.get_player_by_index(event.player_index).force) then
+        entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
       end
     end
 end
@@ -107,7 +108,7 @@ end
 global.players_warned = {}
 local function on_capsule_used(event)
   local item = event.item
-  local player = game.players[event.player_index]
+  local player = Game.get_player_by_index(event.player_index)
 
   if not player or not player.valid or 
     (global.scenario.config.nuke_control.enable_autokick and global.scenario.config.nuke_control.enable_autoban) then

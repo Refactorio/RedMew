@@ -1,5 +1,6 @@
 local Token = require 'utils.global_token'
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 
 local Gui = {}
 
@@ -81,7 +82,7 @@ local function handler_factory(event_id)
             return
         end
 
-        local player = game.players[event.player_index]
+        local player = Game.get_player_by_index(event.player_index)
         if not player or not player.valid then
             return
         end

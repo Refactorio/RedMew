@@ -1,5 +1,6 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
+local Game = require 'utils.game'
 
 local brush_tool = 'refined-hazard-concrete'
 
@@ -52,7 +53,7 @@ local function player_build_tile(event)
         return
     end
 
-    local player = game.players[event.player_index]
+    local player = Game.get_player_by_index(event.player_index)
     if not player.gui.left[main_frame_name] then
         return
     end
@@ -77,7 +78,7 @@ local function player_joined(event)
     if not global.scenario.config.paint.enable then 
         return 
     end
-    local player = game.players[event.player_index]
+    local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
     end

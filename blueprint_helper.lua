@@ -3,6 +3,7 @@
 local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local Gui = require 'utils.gui'
+local Game = require 'utils.game'
 
 local function getBlueprintCursorStack(player)
     local cursor = player.cursor_stack
@@ -265,7 +266,7 @@ local filter_table_clear_name = Gui.uid_name()
 local clear_all_filters_name = Gui.uid_name()
 
 local function player_joined(event)
-    local player = game.players[event.player_index]
+    local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
     end

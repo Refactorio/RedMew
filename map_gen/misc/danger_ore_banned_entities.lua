@@ -1,4 +1,5 @@
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 
 global.allowed_entites = {
     ['transport-belt'] = true,
@@ -53,7 +54,7 @@ Event.add(
             return
         end
 
-        local p = game.players[event.player_index]
+        local p = Game.get_player_by_index(event.player_index)
         if not p or not p.valid then
             return
         end

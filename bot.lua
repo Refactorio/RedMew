@@ -1,30 +1,31 @@
 local Event = require "utils.event"
+local Game = require 'utils.game'
 
 Event.add(defines.events.on_player_died, function (event)
 	local player = event.player_index
-	if game.players[player].name ~= nil then
-		print("PLAYER$die," .. player .. "," .. game.players[player].name .. "," .. game.players[player].force.name)
+	if Game.get_player_by_index(player).name ~= nil then
+		print("PLAYER$die," .. player .. "," .. Game.get_player_by_index(player).name .. "," .. Game.get_player_by_index(player).force.name)
 	end
 end)
 
 Event.add(defines.events.on_player_respawned, function (event)
 	local player = event.player_index
-	if game.players[player].name ~= nil then
-		print("PLAYER$respawn," .. player .. "," .. game.players[player].name .. "," .. game.players[player].force.name)
+	if Game.get_player_by_index(player).name ~= nil then
+		print("PLAYER$respawn," .. player .. "," .. Game.get_player_by_index(player).name .. "," .. Game.get_player_by_index(player).force.name)
 	end
 end)
 
 Event.add(defines.events.on_player_joined_game, function (event)
 	local player = event.player_index
-	if game.players[player].name ~= nil then
-		print("PLAYER$join," .. player .. "," .. game.players[player].name .. "," .. game.players[player].force.name)
+	if Game.get_player_by_index(player).name ~= nil then
+		print("PLAYER$join," .. player .. "," .. Game.get_player_by_index(player).name .. "," .. Game.get_player_by_index(player).force.name)
 	end
 end)
 
 Event.add(defines.events.on_player_left_game, function (event)
 	local player = event.player_index
-	if game.players[player].name ~= nil then
-		print("PLAYER$leave," .. player .. "," .. game.players[player].name .. "," .. game.players[player].force.name)
+	if Game.get_player_by_index(player).name ~= nil then
+		print("PLAYER$leave," .. player .. "," .. Game.get_player_by_index(player).name .. "," .. Game.get_player_by_index(player).force.name)
 	end
 end)
 
