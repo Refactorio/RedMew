@@ -6,7 +6,7 @@
 -- dependencies
 
 -- this
-local AlienSpawner = {}
+local AlienEvolutionProgress = {}
 
 global.alien_spawner_cache = {
     biters = {},
@@ -73,7 +73,21 @@ local function get_values(map, evo)
     return result;
 end
 
-function AlienSpawner.getBiterValues(evolution)
+local function get_name_by_random(collection)
+    local random = math.random()
+    local current = 0
+
+    for name, probability in pairs(collection) do
+        current = current + probability
+        if (current >= random) then
+            return name
+        end
+    end
+
+    Debug.print('AlienEvolutionProgress.get_name_by_random: Current \'' .. current .. '\' should be higher or equal to random \'' .. random .. '\'')
+end
+
+function AlienEvolutionProgress.getBiterValues(evolution)
     local evolution_cache_key = evolution * 100
     if (nil == global.alien_spawner_cache.biters[evolution_cache_key]) then
         global.alien_spawner_cache.biters[evolution_cache_key] = get_values(biters, evolution)
@@ -82,7 +96,7 @@ function AlienSpawner.getBiterValues(evolution)
     return global.alien_spawner_cache.biters[evolution_cache_key]
 end
 
-function AlienSpawner.getSpitterValues(evolution)
+function AlienEvolutionProgress.getSpitterValues(evolution)
     local evolution_cache_key = evolution * 100
     if (nil == global.alien_spawner_cache.spitters[evolution_cache_key]) then
         global.alien_spawner_cache.biters[evolution_cache_key] = get_values(spitters, evolution)
@@ -91,4 +105,36 @@ function AlienSpawner.getSpitterValues(evolution)
     return global.alien_spawner_cache.biters[evolution_cache_key]
 end
 
-return AlienSpawner
+function AlienEvolutionProgress.getBitersByEvolution(total_biters, evolution)
+    local biters_calculated = {}
+    local map = AlienEvolutionProgress.getBiterValues(evolution)
+
+    for i = 1, total_biters do
+        local random = get_name_by_random(map)
+        if (nil == biters_calculated[random]) then
+            biters_calculated[random] = 1
+        else
+            biters_calculated[random] = biters_calculated[random] + 1
+        end
+    end
+
+    return biters_calculated
+end
+
+function AlienEvolutionProgress.getSpittersByEvolution(total_spitters, evolution)
+    local spitters_calculated = {}
+    local map = AlienEvolutionProgress.getSpitterValues(evolution)
+
+    for i = 1, total_spitters do
+        local random = get_name_by_random(map)
+        if (nil == spitters_calculated[random]) then
+            spitters_calculated[random] = 1
+        else
+            spitters_calculated[random] = spitters_calculated[random] + 1
+        end
+    end
+
+    return spitters_calculated
+end
+
+return AlienEvolutionProgress

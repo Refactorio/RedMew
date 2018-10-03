@@ -160,10 +160,12 @@ end
 
     @param surface LuaSurface to put the tiles and entities on
     @param units table of entities as required by create_entity
+    @param non_colliding_distance int amount of tiles to scan around original position in case it's already taken
 ]]
-function Template.units(surface, units)
+function Template.units(surface, units, non_colliding_distance)
+    non_colliding_distance = non_colliding_distance or 1
     for _, entity in pairs(units) do
-        local position = surface.find_non_colliding_position(entity.name, entity.position, 2, 1)
+        local position = surface.find_non_colliding_position(entity.name, entity.position, non_colliding_distance, 1)
 
         if (nil ~= position) then
             entity.position = position

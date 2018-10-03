@@ -4,7 +4,6 @@
 
 -- dependencies
 local Event = require 'utils.event'
-local AlienSpawner = require 'map_gen.Diggy.AlienSpawner'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 
@@ -59,17 +58,6 @@ local function spawn_resource(config, surface, x, y, distance)
     local position = {x = x, y = y}
 
     Template.resources(surface, {{name = resource_name, position = position, amount = amount}})
-
-    if (distance > config.alien_minimum_distance and config.alien_probability > math.random()) then
-        local biter_table = AlienSpawner.getBiterValues(game.forces.enemy.evolution_factor)
-        local spitter_table = AlienSpawner.getSpitterValues(game.forces.enemy.evolution_factor)
-
-        Template.units(surface, {
-            {name = get_name_by_random(biter_table), position = position, force = game.forces.enemy, amount = math.random(1, 2)},
-            {name = get_name_by_random(spitter_table), position = position, force = game.forces.enemy, amount = math.random(1, 2)},
-        })
-    end
-
     Template.insert(surface, {}, entities)
 end
 

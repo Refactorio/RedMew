@@ -126,12 +126,6 @@ local Config = {
             -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
             max_resource_probability = 0.7,
 
-            -- minimum distance from spawn before aliens can spawn
-            alien_minimum_distance = 12,
-
-            -- chance of spawning aliens when mining
-            alien_probability = 0.07,
-
             -- chances per resource of spawning, sum must be 1.00
             resource_chances = {
                 ['coal']        = 0.20,
@@ -174,6 +168,17 @@ local Config = {
                 ['jackpot']    = {2001, 5000},
             },
         },
+        AlienSpawner = {
+            enabled = true,
+            register = require 'map_gen.Diggy.Feature.AlienSpawner'.register,
+            initialize = require 'map_gen.Diggy.Feature.AlienSpawner'.initialize,
+
+            -- minimum distance from spawn before aliens can spawn
+            alien_minimum_distance = 20,
+
+            -- chance of spawning aliens when mining
+            alien_probability = 0.07,
+        }
     },
 }
 
