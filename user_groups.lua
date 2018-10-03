@@ -1,8 +1,11 @@
-global.regulars = {}--require 'resources.regulars'
-local Donators = require 'resources.donators'
-global.donators = Donators.donators
 local Event = require 'utils.event'
 local Utils = require 'utils.utils'
+local Server = require 'server'
+--local Donators = require 'resources.donators'
+
+global.regulars = {}
+global.donators = {}
+global.donator_welcome_messages = {}
 
 local Module = {}
 
@@ -22,9 +25,11 @@ Module.is_regular =
     function(player_name)
     return Utils.cast_bool(global.regulars[player_name] or global.regulars[player_name:lower()]) --to make it backwards compatible
 end
-Module.add_regular = function(player_name)
+
+Module.add_regular =
+    function(player_name)
     local actor = Utils.get_actor()
-    if Module.is_regular(player_name) then
+    --[[ if Module.is_regular(player_name) then
         player_print(player_name .. ' is already a regular.')
     else
         if game.players[player_name] then
@@ -35,13 +40,16 @@ Module.add_regular = function(player_name)
         else
             player_print(player_name .. ' does not exist.')
         end
-    end
+    end ]]
+    global.regulars[player_name] = true
+    game.print(actor .. ' promoted ' .. player_name .. ' to regular.')
+    Server.regular_promote(player_name, actor)
 end
 
 Module.remove_regular =
     function(player_name)
     local actor = Utils.get_actor()
-    if game.players[player_name] then
+    --[[ if game.players[player_name] then
         player_name = game.players[player_name].name
         if Module.is_regular(player_name) then
             game.print(player_name .. ' was demoted from regular by ' .. actor .. '.')
@@ -49,13 +57,37 @@ Module.remove_regular =
         global.regulars[player_name] = nil
         global.regulars[player_name:lower()] = nil --backwards compatible
         update_file()
+    end ]]
+    global.regulars[player_name] = nil
+    game.print(player_name .. ' was demoted from regular by ' .. actor .. '.')
+    Server.regular_deomote(player_name, actor)
+end
+
+function Module.server_add_regular(player_name)
+    global.regulars[player_name] = true
+end
+
+function Module.server_remove_regular(player_name)
+    global.regulars[player_name] = nil
+end
+
+function Module.sync_regulars(names)
+    local r = {}
+    for _, name in ipairs(names) do
+        r[name] = true
     end
+
+    global.regulars = r
 end
 
 Module.print_regulars = function()
+    local result = {}
     for k, _ in pairs(global.regulars) do
-        player_print(k)
+        table.insert(result, k)
     end
+
+    result = table.concat(result, ', ')
+    game.print(result)
 end
 
 function Module.get_rank(player)
@@ -79,6 +111,15 @@ function Module.player_has_donator_perk(player_name, perk_flag)
     end
 
     return bit32.band(d, perk_flag) == perk_flag
+end
+
+function Module.get_donator_welcome_message(player_name)
+    return global.donator_welcome_messages[player_name]
+end
+
+function Module.sync_donators(donators, messages)
+    global.donators = donators
+    global.donator_welcome_messages = messages
 end
 
 Event.add(

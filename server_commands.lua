@@ -3,20 +3,12 @@ local UserGroups = require 'user_groups'
 
 local Public = {}
 
-function Public.get_poll_result(id)
-    Poll.send_poll_result_to_discord(id)
-end
+Public.get_poll_result = Poll.send_poll_result_to_discord
 
-function Public.regular_sync(names)
-    global.regulars = names
-end
+Public.regular_sync = UserGroups.sync_regulars
 
-function Public.regular_promote(name)
-    global.regulars[name] = true
-end
+Public.regular_promote = UserGroups.server_add_regular
 
-function Public.regular_demote(name)
-    global.regulars[name] = nil
-end
+Public.regular_demote = UserGroups.server_remove_regular
 
 return Public

@@ -1,7 +1,7 @@
 require 'config'
 require 'utils.utils'
 require 'utils.list_utils'
-require 'user_groups'
+local UserGroups = require 'user_groups'
 require 'custom_commands'
 require 'base_data'
 require 'train_station_names'
@@ -159,7 +159,7 @@ local function player_joined(event)
         return
     end
 
-    local message = Donators.welcome_messages[player.name]
+    local message = UserGroups.get_donator_welcome_message(player.name)
     if not message then
         return
     end
@@ -323,6 +323,6 @@ local Server = require 'server'
 Event.add(
     defines.events.on_research_finished,
     function(event)
-        Server.to_discord_raw('**Research ' .. event.research.name .. ' finished.**')        
+        Server.to_discord_raw('**Research ' .. event.research.name .. ' finished.**')
     end
 )
