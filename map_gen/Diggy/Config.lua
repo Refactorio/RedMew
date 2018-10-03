@@ -139,12 +139,12 @@ local Config = {
 
             -- minimum distance from the spawn point required before it spawns
             minimum_resource_distance = {
-                ['coal']        = 10,
-                ['copper-ore']  = 12,
-                ['iron-ore']    = 12,
-                ['stone']       = 8,
-                ['uranium-ore'] = 60,
-                ['crude-oil']   = 35,
+                ['coal']        = 12,
+                ['copper-ore']  = 14,
+                ['iron-ore']    = 14,
+                ['stone']       = 10,
+                ['uranium-ore'] = 80,
+                ['crude-oil']   = 55,
                 ['tree']        = 0,
             },
 
@@ -174,7 +174,7 @@ local Config = {
             initialize = require 'map_gen.Diggy.Feature.AlienSpawner'.initialize,
 
             -- minimum distance from spawn before aliens can spawn
-            alien_minimum_distance = 20,
+            alien_minimum_distance = 35,
 
             -- chance of spawning aliens when mining
             alien_probability = 0.07,
