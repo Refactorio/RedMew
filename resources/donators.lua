@@ -25,7 +25,8 @@ Module.donators = {
 Module.welcome_messages = {
     ['Linaori'] = 'I present to you Linaori of house Refactorio, Lady of the Void, Remover of Spaghetti, Queen of the Endless Nauvis, Breaker of Biters and Mother of Code!',
     ['Valansch'] = 'Welcome Valansch, <insert custom welcome message here>.',
-    ['der-dave.com'] = "Dave doesn't want a welcome message."
+    ['der-dave.com'] = 'Dave doesn\'t want a welcome message.',
+    ['robertkruijt'] = 'The general of the army has arived!'
 }
 
 return Module
