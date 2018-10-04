@@ -2,6 +2,7 @@
 This map uses custom ore gen. When generating the map, under the resource settings tab use Size = 'None' for all resources.
 ]]
 local b = require 'map_gen.shared.builders'
+local math = require "utils.math"
 
 local ball_r = 16
 local big_circle = b.circle(ball_r)
