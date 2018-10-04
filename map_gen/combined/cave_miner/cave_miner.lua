@@ -13,8 +13,11 @@ treasure chests get better with distance
 random game events // earthquake, biters, rock treasure, messages
 ]]--
 
+
+
 local simplex_noise = require 'map_gen.shared.simplex_noise'
 local Event = require 'utils.event'
+local math = require 'utils.math'
 local market_items = require "map_gen.combined.cave_miner.market_items"
 local Game = require 'utils.game'
 

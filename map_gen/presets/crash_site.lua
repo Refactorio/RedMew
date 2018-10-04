@@ -6,6 +6,7 @@ local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
 local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
+local math = require "utils.math"
 
 -- leave seeds nil to have them filled in based on teh map seed.
 local outpost_seed = nil --91000

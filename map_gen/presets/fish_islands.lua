@@ -4,6 +4,7 @@ This map removes and adds it's own water, in terrain settings use water frequenc
 This map has isolated areas, it's recommend turning biters to peaceful to reduce stress on the pathfinder.
 ]]
 local b = require 'map_gen.shared.builders'
+local math = require "utils.math"
 
 -- change these to change the pattern.
 local seed1 = 12345
