@@ -41,9 +41,6 @@ local Config = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.DiggyHole'.register,
             initialize = require 'map_gen.Diggy.Feature.DiggyHole'.initialize,
-
-            -- percentage * mining productivity level gets added to mining speed
-            mining_speed_productivity_multiplier = 15,
         },
         DiggyCaveCollapse = {
             enabled = true,
@@ -107,6 +104,8 @@ local Config = {
             room_noise_ranges = {
                 {name = 'water', min = -1, max = -0.52},
                 {name = 'dirt', min = -0.51, max = -0.35},
+                {name = 'water', min = 0.52, max = 1},
+                {name = 'dirt', min = 0.35, max = 0.51},
             },
         },
         ScatteredResources = {
@@ -124,13 +123,13 @@ local Config = {
             distance_probability_modifier = 2,
 
             -- increases the amount of oil * oil_value_modifier
-            oil_value_modifier = 700,
+            oil_value_modifier = 650,
 
             -- percentage of chance that resources will spawn after mining
-            resource_probability = 0.2,
+            resource_probability = 0.15,
 
             -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
-            max_resource_probability = 0.7,
+            max_resource_probability = 0.45,
 
             -- chances per resource of spawning, sum must be 1.00
             resource_chances = {
@@ -145,22 +144,22 @@ local Config = {
 
             -- minimum distance from the spawn point required before it spawns
             minimum_resource_distance = {
-                ['coal']        = 12,
-                ['copper-ore']  = 14,
-                ['iron-ore']    = 14,
-                ['stone']       = 10,
-                ['uranium-ore'] = 80,
-                ['crude-oil']   = 55,
+                ['coal']        = 16,
+                ['copper-ore']  = 18,
+                ['iron-ore']    = 18,
+                ['stone']       = 15,
+                ['uranium-ore'] = 86,
+                ['crude-oil']   = 57,
                 ['tree']        = 0,
             },
 
             -- defines the chance of which resource_richness_value to spawn, sum must be 1.00
             resource_richness_probability = {
-                ['scarce']     = 0.33,
-                ['low']        = 0.25,
-                ['sufficient'] = 0.19,
-                ['good']       = 0.14,
-                ['plenty']     = 0.07,
+                ['scarce']     = 0.40,
+                ['low']        = 0.28,
+                ['sufficient'] = 0.16,
+                ['good']       = 0.10,
+                ['plenty']     = 0.04,
                 ['jackpot']    = 0.02,
             },
 
@@ -184,7 +183,18 @@ local Config = {
 
             -- chance of spawning aliens when mining
             alien_probability = 0.07,
-        }
+        },
+        MiningEfficiency = {
+            enabled = true,
+            register = require 'map_gen.Diggy.Feature.MiningEfficiency'.register,
+            initialize = require 'map_gen.Diggy.Feature.MiningEfficiency'.initialize,
+
+            -- percentage * mining productivity level gets added to mining speed
+            mining_speed_productivity_multiplier = 15,
+
+            -- standard mining speed
+            default_mining_speed = 0.4,
+        },
     },
 }
 

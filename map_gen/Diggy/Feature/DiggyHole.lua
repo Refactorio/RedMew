@@ -97,11 +97,6 @@ function DiggyHole.register(cfg)
 
         Template.insert(game.surfaces[event.surface_index], tiles, {})
     end)
-
-    Event.add(defines.events.on_research_finished, function(event)
-        local player = game.forces.player
-        player.manual_mining_speed_modifier = player.mining_drill_productivity_bonus * config.mining_speed_productivity_multiplier / 2
-    end)
 end
 
 --[[--

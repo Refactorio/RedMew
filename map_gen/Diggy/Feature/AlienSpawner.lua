@@ -9,7 +9,7 @@ local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 
 -- this
-local ScatteredResources = {}
+local AlienSpawner = {}
 
 local function spawn_alien(surface, x, y)
     local enemy_force = game.forces.enemy
@@ -32,7 +32,7 @@ end
 --[[--
     Registers all event handlers.
 ]]
-function ScatteredResources.register(cfg)
+function AlienSpawner.register(cfg)
     local config = cfg.features.AlienSpawner
     local alien_minimum_distance_square = config.alien_minimum_distance ^ 2
 
@@ -53,8 +53,8 @@ end
 
     @param config Table {@see Diggy.Config}.
 ]]
-function ScatteredResources.initialize(config)
+function AlienSpawner.initialize(config)
 
 end
 
-return ScatteredResources
+return AlienSpawner
