@@ -181,4 +181,28 @@ function Template.resources(surface, resources)
     end
 end
 
+--[[--
+    Designed to spawn a market.
+
+    @param surface LuaSurface
+    @param position Position
+    @param force LuaForce
+    @param currency_item string
+    @param market_items Table
+]]
+function Template.market(surface, position, force, currency_item, market_inventory)
+    local market = surface.create_entity({name = 'market', position = position})
+    market.destructible = false
+
+    for _, item in ipairs(market_inventory) do
+        market.add_market_item(item)
+    end
+
+    force.add_chart_tag(surface, {
+        icon = {type = 'item', name = currency_item},
+        text = ' Market',
+        position = position,
+    })
+end
+
 return Template

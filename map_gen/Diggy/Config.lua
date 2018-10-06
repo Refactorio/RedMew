@@ -27,10 +27,7 @@ local Config = {
             register = require 'map_gen.Diggy.Feature.SetupPlayer'.register,
             initialize = require 'map_gen.Diggy.Feature.SetupPlayer'.initialize,
             starting_items = {
-                {name = 'steel-axe', count = 2},
-                {name = 'submachine-gun', count = 1},
-                {name = 'light-armor', count = 1},
-                {name = 'firearm-magazine', count = 25},
+                {name = 'iron-axe', count = 1},
                 {name = 'stone-wall', count = 10},
             },
             cheats = {
@@ -134,13 +131,12 @@ local Config = {
 
             -- chances per resource of spawning, sum must be 1.00
             resource_chances = {
-                ['coal']        = 0.20,
-                ['copper-ore']  = 0.29,
+                ['coal']        = 0.21,
+                ['copper-ore']  = 0.30,
                 ['iron-ore']    = 0.26,
-                ['stone']       = 0.15,
+                ['stone']       = 0.20,
                 ['uranium-ore'] = 0.02,
                 ['crude-oil']   = 0.01,
-                ['tree']        = 0.07,
             },
 
             -- minimum distance from the spawn point required before it spawns
@@ -151,7 +147,6 @@ local Config = {
                 ['stone']       = 15,
                 ['uranium-ore'] = 86,
                 ['crude-oil']   = 57,
-                ['tree']        = 0,
             },
 
             -- defines the chance of which resource_richness_value to spawn, sum must be 1.00
@@ -195,6 +190,28 @@ local Config = {
 
             -- standard mining speed
             default_mining_speed = 0.4,
+        },
+        MarketExchange = {
+            enabled = true,
+            register = require 'map_gen.Diggy.Feature.MarketExchange'.register,
+            initialize = require 'map_gen.Diggy.Feature.MarketExchange'.initialize,
+
+            stone_to_surface_amount = 50,
+            currency_item = 'stone',
+
+            -- price in currency_item
+            -- item_name to give
+            -- bulk (defaults to {1}) to add bulk options
+            market_inventory = {
+                {price = 250, item_name = 'small-electric-pole', bulk = {1, 10}},
+                {price = 100, item_name = 'raw-fish'},
+                {price = 400, item_name = 'steel-axe'},
+                {price = 30, item_name = 'stone-brick'},
+                {price = 250, item_name = 'stone-wall'},
+                {price = 1500, item_name = 'submachine-gun'},
+                {price = 125, item_name = 'firearm-magazine', bulk = {1, 10}},
+                {price = 1500, item_name = 'light-armor'},
+            },
         },
     },
 }

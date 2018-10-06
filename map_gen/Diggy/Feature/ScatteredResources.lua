@@ -35,21 +35,8 @@ local function spawn_resource(config, surface, x, y, distance)
         return
     end
 
-    local amount
-
-    if ('tree' == resource_name) then
-        local trees = {
-            'dead-dry-hairy-tree',
-            'dead-grey-trunk',
-            'dead-tree-desert',
-        }
-
-        resource_name = trees[math.random(1, 3)]
-        amount = 1
-    else
-        local min_max = config.resource_richness_values[get_name_by_random(config.resource_richness_probability)]
-        amount = math.ceil(math.random(min_max[1], min_max[2]) * (1 + ((distance / config.distance_richness_modifier) / 100)))
-    end
+    local min_max = config.resource_richness_values[get_name_by_random(config.resource_richness_probability)]
+    local amount = math.ceil(math.random(min_max[1], min_max[2]) * (1 + ((distance / config.distance_richness_modifier) / 100)))
 
     if ('crude-oil' == resource_name) then
         amount = amount * config.oil_value_modifier
@@ -58,7 +45,6 @@ local function spawn_resource(config, surface, x, y, distance)
     local position = {x = x, y = y}
 
     Template.resources(surface, {{name = resource_name, position = position, amount = amount}})
-    Template.insert(surface, {}, entities)
 end
 
 --[[--
