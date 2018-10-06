@@ -995,5 +995,8 @@ return {
     ['Rothguard'] = true,
     ['Rascher'] = true,
     ['XeoXius'] = true,
-    ['InphinitePhractals'] = true
+    ['InphinitePhractals'] = true,
+    ['Breadface'] = true,
+    ['safariursis'] = true,
+    ['Marucan'] = true
 }
