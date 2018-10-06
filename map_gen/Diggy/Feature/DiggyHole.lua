@@ -18,16 +18,10 @@ local DiggyHole = {}
     Will return true even if the tile behind it is immune.
 
     @param entity LuaEntity
-    @param temporary_inventory LuaInventory
 ]]
-local function diggy_hole(entity, temporary_inventory)
+local function diggy_hole(entity)
     if (entity.name ~= 'sand-rock-big') then
         return
-    end
-
-    -- prevent the mined ore from reaching the inventory
-    if (nil ~= temporary_inventory) then
-        temporary_inventory.clear()
     end
 
     local tiles = {}
@@ -52,20 +46,19 @@ local artificial_tiles = {
     ['refined-concrete'] = true,
     ['refined-hazard-concrete-left'] = true,
     ['refined-hazard-concrete-right'] = true,
+    ['deepwater-green'] = true,
 }
 
 --[[--
     Registers all event handlers.
 ]]
 function DiggyHole.register(cfg)
-    local config = cfg.features.DiggyHole
-
     Event.add(defines.events.on_entity_died, function (event)
         diggy_hole(event.entity)
     end)
 
     Event.add(defines.events.on_player_mined_entity, function (event)
-        diggy_hole(event.entity, event.buffer)
+        diggy_hole(event.entity)
     end)
 
     Event.add(defines.events.on_marked_for_deconstruction, function (event)

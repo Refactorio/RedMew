@@ -13,12 +13,6 @@ local Token = require 'utils.global_token'
 -- this
 local SimpleRoomGenerator = {}
 
-local function get_first_player()
-    for _, player in pairs(game.players) do
-        return player
-    end
-end
-
 local do_spawn_tile = Token.register(function(params)
     Template.insert(params.surface, {params.tile}, {})
 end)
@@ -26,13 +20,13 @@ end)
 local do_mine = Token.register(function(params)
     local sand_rocks = params.surface.find_entities_filtered({position = params.position, name = 'sand-rock-big'})
 
-    for _, rock in pairs(sand_rocks) do
-        -- dangerous due to inventory, be cautious!
-        get_first_player().mine_entity(rock, true)
-    end
-
     if (0 == #sand_rocks) then
         Debug.printPosition(params.position, 'missing rock when trying to mine.')
+        return
+    end
+
+    for _, rock in pairs(sand_rocks) do
+        rock.die()
     end
 end)
 

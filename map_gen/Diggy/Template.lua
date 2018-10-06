@@ -31,11 +31,6 @@ Template.events = {
     on_void_removed = script.generate_event_name(),
 }
 
-local function min(a,b)
-    if a < b then return a end
-    return b
-end
-
 local function insert_next_tiles(data)
     local void_removed = {}
     local void_added = {}
@@ -83,10 +78,6 @@ local function insert_next_entities(data)
             created_entity = surface.create_entity(entity)
             if (nil == created_entity) then
                 error('Failed creating entity ' .. entity.name .. ' on surface.')
-            end
-
-            if ('sand-rock-big' == created_entity.name) then
-                created_entity.destructible = false
             end
 
             table.insert(created_entities, created_entity)

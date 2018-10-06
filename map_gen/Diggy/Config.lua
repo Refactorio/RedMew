@@ -78,6 +78,7 @@ local Config = {
                 ['refined-concrete'] = 0.1,
                 ['refined-hazard-concrete-left'] = 0.15,
                 ['refined-hazard-concrete-right'] = 0.15,
+                ['deepwater-green'] = 0.2,
             },
             cracking_sounds = {
               'CRACK',
@@ -94,7 +95,7 @@ local Config = {
             initialize = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.initialize,
 
             -- value between 0 and 1, higher value means stronger variance between coordinates
-            noise_variance = 0.09,
+            noise_variance = 0.089,
 
             -- adds per tile what the current noise is
             enable_noise_grid = false,
@@ -103,9 +104,9 @@ local Config = {
             room_noise_minimum_distance = 9,
             room_noise_ranges = {
                 {name = 'water', min = -1, max = -0.52},
-                {name = 'dirt', min = -0.51, max = -0.35},
+                {name = 'dirt', min = -0.51, max = -0.33},
                 {name = 'water', min = 0.52, max = 1},
-                {name = 'dirt', min = 0.35, max = 0.51},
+                {name = 'dirt', min = 0.33, max = 0.51},
             },
         },
         ScatteredResources = {
