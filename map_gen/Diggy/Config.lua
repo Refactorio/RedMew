@@ -49,25 +49,25 @@ local Config = {
             mask_relative_ring_weights = {2,3,4},
 
             -- delay in seconds before the cave collapses
-            collapse_delay_min = 1.5,
-            collapse_delay_max = 3,
+            collapse_delay = 2.5,
 
             -- the threshold that will be applied to all neighbors on a collapse via a mask
             collapse_threshold_total_strength = 15,
 
             support_beam_entities = {
-                ['stone-wall'] = 1,
-                ['sand-rock-big'] = 1,
+                ['market'] = 9,
+                ['stone-wall'] = 2.5,
+                ['sand-rock-big'] = 2,
                 ['out-of-map'] = 1,
-                ['stone-brick'] = 0.05,
-                ['stone-path'] = 0.05,
-                ['concrete'] = 0.1,
-                ['hazard-concrete-left'] = 0.1,
-                ['hazard-concrete-right'] = 0.1,
-                ['refined-concrete'] = 0.1,
+                ['stone-brick'] = 0.07,
+                ['stone-path'] = 0.07,
+                ['concrete'] = 0.11,
+                ['hazard-concrete-left'] = 0.11,
+                ['hazard-concrete-right'] = 0.11,
+                ['refined-concrete'] = 0.15,
                 ['refined-hazard-concrete-left'] = 0.15,
                 ['refined-hazard-concrete-right'] = 0.15,
-                ['deepwater-green'] = 0.2,
+                ['deepwater-green'] = 0.7,
             },
             cracking_sounds = {
               'CRACK',

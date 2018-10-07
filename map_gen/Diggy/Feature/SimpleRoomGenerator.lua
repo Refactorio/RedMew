@@ -34,8 +34,8 @@ local function handle_noise(name, surface, position)
     Task.set_timeout_in_ticks(1, do_mine, {surface = surface, position = position})
 
     if ('water' == name) then
-        -- water is lower because for some odd reason it doesn't always want to mine it properly
-        Task.set_timeout_in_ticks(5, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
+        -- water is slower because for some odd reason it doesn't always want to mine it properly
+        Task.set_timeout_in_ticks(3, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
         return
     end
 
@@ -52,9 +52,7 @@ end
 
 local room_noise_minimum_distance_sq
 
-function SimpleRoomGenerator.register(cfg)
-    local config = cfg.features.SimpleRoomGenerator
-
+function SimpleRoomGenerator.register(config)
     room_noise_minimum_distance_sq = config.room_noise_minimum_distance * config.room_noise_minimum_distance
 
     local function get_noise(surface, x, y)
@@ -88,6 +86,10 @@ function SimpleRoomGenerator.register(cfg)
             end
         end)
     end
+end
+
+function SimpleRoomGenerator.get_extra_map_info(config)
+    return 'Simple Room Generator, digging around might open rooms!'
 end
 
 return SimpleRoomGenerator

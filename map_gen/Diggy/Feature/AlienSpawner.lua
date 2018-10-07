@@ -32,8 +32,7 @@ end
 --[[--
     Registers all event handlers.
 ]]
-function AlienSpawner.register(cfg)
-    local config = cfg.features.AlienSpawner
+function AlienSpawner.register(config)
     local alien_minimum_distance_square = config.alien_minimum_distance ^ 2
 
     Event.add(Template.events.on_void_removed, function(event)
@@ -46,6 +45,12 @@ function AlienSpawner.register(cfg)
 
         spawn_alien(event.surface, x, y)
     end)
+end
+
+function AlienSpawner.get_extra_map_info(config)
+    return [[Alien Spawner, aliens might spawn when mining!
+Spawn chance: ]] .. (config.alien_probability * 100) .. [[%
+Minimum spawn distance: ]] .. config.alien_minimum_distance .. ' tiles'
 end
 
 return AlienSpawner

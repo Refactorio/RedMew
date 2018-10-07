@@ -104,7 +104,7 @@ local function create_collapse_template(positions, surface)
     return tiles, entities
 end
 
-local function collapse(args, surface, position)
+local function collapse(args)
     local position = args.position
     local surface = args.surface
     local positions = {}
@@ -169,13 +169,17 @@ local function on_collapse_triggered(event)
       end
 end
 
-local function on_built_tile(event)
-    local strength = support_beam_entities[event.item.name]
+local function on_built_tile(surface, new_tile, tiles)
+    local new_tile_strength = support_beam_entities[new_tile.name]
 
-    if strength then
-        local surface = game.surfaces[event.surface_index]
-        for _, tile in pairs(event.tiles) do
-            stress_map_blur_add(surface, tile.position, -1 * strength)
+    for _, tile in pairs(tiles) do
+        if new_tile_strength then
+            stress_map_blur_add(surface, tile.position, -1 * new_tile_strength, 'on_built_tile')
+        end
+
+        local old_tile_strength = support_beam_entities[tile.old_tile.name]
+        if (old_tile_strength) then
+            stress_map_blur_add(surface, tile.position, old_tile_strength, 'on_built_tile')
         end
     end
 end
@@ -276,14 +280,18 @@ end
 
     @param global_config Table {@see Diggy.Config}.
 ]]
-function DiggyCaveCollapse.register(global_config)
-    config = global_config.features.DiggyCaveCollapse
+function DiggyCaveCollapse.register(cfg)
+    config = cfg
     support_beam_entities = config.support_beam_entities
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
     Event.add(defines.events.on_robot_built_entity, on_built_entity)
-    Event.add(defines.events.on_robot_built_tile, on_built_tile)
-    Event.add(defines.events.on_player_built_tile, on_built_tile)
+    Event.add(defines.events.on_robot_built_tile, function (event)
+        on_built_tile(event.robot.surface, event.item, event.tiles)
+    end)
+    Event.add(defines.events.on_player_built_tile, function (event)
+        on_built_tile(game.surfaces[event.surface_index], event.item, event.tiles)
+    end)
     Event.add(defines.events.on_robot_mined_tile, on_robot_mined_tile)
     Event.add(defines.events.on_player_mined_tile, on_player_mined_tile)
     Event.add(defines.events.on_robot_mined_entity, on_mined_entity)
@@ -582,6 +590,11 @@ mask_disc_blur = function(x_start, y_start, factor, callback)
             end
         end
     end
+end
+
+function DiggyCaveCollapse.get_extra_map_info(config)
+    return [[Alien Spawner, aliens might spawn when mining!
+Place stone walls, stone paths and (refined) concrete to reinforce the mine. If you see cracks appear, run!]]
 end
 
 return DiggyCaveCollapse

@@ -215,6 +215,8 @@ function Template.market(surface, position, force, currency_item, market_invento
         text = ' Market',
         position = position,
     })
+
+    script.raise_event(Template.events.on_placed_entity, {entity = market})
 end
 
 return Template
