@@ -67,7 +67,6 @@ local Config = {
                 ['refined-concrete'] = 0.15,
                 ['refined-hazard-concrete-left'] = 0.15,
                 ['refined-hazard-concrete-right'] = 0.15,
-                ['deepwater-green'] = 0.7,
             },
             cracking_sounds = {
               'CRACK',
