@@ -162,7 +162,7 @@ local function on_collapse_triggered(event)
       else
           spawn_cracking_sound_text(event.surface, position)
           Task.set_timeout(
-              math.random(config.collapse_delay_min * 10, config.collapse_delay_max * 10) / 10,
+              config.collapse_delay,
               on_collapse_timeout_finished,
               {surface = event.surface, position = position}
           )
