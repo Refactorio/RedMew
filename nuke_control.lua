@@ -143,7 +143,15 @@ local function on_capsule_used(event)
   end
 end
 
+local function on_player_joined(event)
+  local player = game.players[event.player_index]
+  if string.match(player.name,"^[Ili1|]+$") then
+    game.ban_player(player) --No reason given, to not give them any hints to change their name
+  end
+end
+
 Event.add(defines.events.on_player_ammo_inventory_changed, ammo_changed)
+Event.add(defines.events.on_player_joined_game, on_player_joined)
 Event.add(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
 --Event.add(defines.events.on_player_mined_entity, on_player_mined_item)
 Event.add(defines.events.on_player_used_capsule, on_capsule_used)

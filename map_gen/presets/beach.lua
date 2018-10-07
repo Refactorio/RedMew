@@ -91,7 +91,7 @@ sand_shape = b.apply_entity(sand_shape, do_ores)
 
 water_shape = b.change_tile(water_shape, true, 'water')
 
-local oil = b.resource(b.full_shape, 'crude-oil', value(500000, 2500))
+local oil = b.resource(b.full_shape, 'crude-oil', value(300000, 2000))
 local function do_oil(x, y, world)
     if math.random(16384) == 1 then
         local e = oil(x, y, world)
