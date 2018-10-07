@@ -21,10 +21,7 @@ local new_info_key = 4
 local welcomed_players = {}
 local editable_info = {
     [map_name_key] = 'This Map has no name',
-    [map_description_key] = [[
-By default this section is blank as it's supposed to be filled out on a per map basis.
-(If you're seeing this message, ping the admin team to get a description added for
-this map)]],
+    [map_description_key] = "By default this section is blank as it's supposed to be filled out on a per map basis. (If you're seeing this message, ping the admin team to get a description added for this map)",
     [map_extra_info_key] = 'This map has no extra infomation',
     [new_info_key] = 'Nothing is new. The world is at peace'
 }
@@ -405,6 +402,7 @@ Shows number of rockets launched and biters liberated.]]
                 text = editable_info[map_name_key]
             }
             map_name_textbox.read_only = read_only
+            map_name_textbox.word_wrap = true
 
             local map_name_textbox_style = map_name_textbox.style
             map_name_textbox_style.width = text_width
@@ -420,6 +418,7 @@ Shows number of rockets launched and biters liberated.]]
                 text = editable_info[map_description_key]
             }
             map_description_textbox.read_only = read_only
+            map_description_textbox.word_wrap = true
 
             local map_description_textbox_style = map_description_textbox.style
             map_description_textbox_style.width = text_width
@@ -435,6 +434,7 @@ Shows number of rockets launched and biters liberated.]]
                 text = editable_info[map_extra_info_key]
             }
             map_extra_info_textbox.read_only = read_only
+            map_extra_info_textbox.word_wrap = true
 
             local map_extra_info_textbox_style = map_extra_info_textbox.style
             map_extra_info_textbox_style.width = text_width
@@ -705,7 +705,7 @@ Gui.on_custom_close(
 
 local Public = {}
 
-function Public.get_map_name() 
+function Public.get_map_name()
     return editable_info[map_name_key]
 end
 
@@ -713,7 +713,7 @@ function Public.set_map_name(value)
     editable_info[map_name_key] = value
 end
 
-function Public.get_map_description() 
+function Public.get_map_description()
     return editable_info[map_description_key]
 end
 
@@ -721,7 +721,7 @@ function Public.set_map_description(value)
     editable_info[map_description_key] = value
 end
 
-function Public.get_map_extra_info() 
+function Public.get_map_extra_info()
     return editable_info[map_extra_info_key]
 end
 
@@ -729,7 +729,7 @@ function Public.set_map_extra_info(value)
     editable_info[map_extra_info_key] = value
 end
 
-function Public.get_new_info() 
+function Public.get_new_info()
     return editable_info[new_info_key]
 end
 
