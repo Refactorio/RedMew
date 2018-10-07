@@ -52,7 +52,7 @@ local artificial_tiles = {
 --[[--
     Registers all event handlers.
 ]]
-function DiggyHole.register(cfg)
+function DiggyHole.register(config)
     Event.add(defines.events.on_entity_died, function (event)
         diggy_hole(event.entity)
     end)

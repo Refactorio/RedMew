@@ -19,9 +19,7 @@ global.MarketExchange = {
 --[[--
     Registers all event handlers.
 ]]
-function MarketExchange.register(cfg)
-    local config = cfg.features.MarketExchange
-
+function MarketExchange.register(config)
     local market_items = {
         {price = {{config.currency_item, 50}}, offer = {type = 'nothing', effect_description = 'Send ' .. config.stone_to_surface_amount .. ' stone to the surface'}},
     }
@@ -41,7 +39,7 @@ function MarketExchange.register(cfg)
     end)
 
     Event.on_init(function()
-        Task.set_timeout_in_ticks(360, on_market_timeout_finished, {
+        Task.set_timeout_in_ticks(60, on_market_timeout_finished, {
             currency_item = config.currency_item,
             market_items = market_items,
         })
@@ -55,6 +53,10 @@ function MarketExchange.register(cfg)
 
         global.MarketExchange.stone_sent_to_surface = global.MarketExchange.stone_sent_to_surface + config.stone_to_surface_amount
     end)
+end
+
+function MarketExchange.get_extra_map_info(config)
+    return 'Market Exchange, trade your stone or send it to the surface'
 end
 
 return MarketExchange

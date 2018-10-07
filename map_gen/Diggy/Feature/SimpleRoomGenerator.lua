@@ -52,9 +52,7 @@ end
 
 local room_noise_minimum_distance_sq
 
-function SimpleRoomGenerator.register(cfg)
-    local config = cfg.features.SimpleRoomGenerator
-
+function SimpleRoomGenerator.register(config)
     room_noise_minimum_distance_sq = config.room_noise_minimum_distance * config.room_noise_minimum_distance
 
     local function get_noise(surface, x, y)
@@ -88,6 +86,10 @@ function SimpleRoomGenerator.register(cfg)
             end
         end)
     end
+end
+
+function SimpleRoomGenerator.get_extra_map_info(config)
+    return 'Simple Room Generator, digging around might open rooms!'
 end
 
 return SimpleRoomGenerator

@@ -50,8 +50,7 @@ end
 --[[--
     Registers all event handlers.
 ]]
-function ScatteredResources.register(cfg)
-    local config = cfg.features.ScatteredResources
+function ScatteredResources.register(config)
     function sum(t)
         local sum = 0
         for _, v in pairs(t) do
@@ -93,6 +92,11 @@ function ScatteredResources.register(cfg)
     end)
 
     global.ScatteredResources.can_spawn_resources = true
+end
+
+function ScatteredResources.get_extra_map_info(config)
+    return [[Scattered Resources, resources are everywhere!
+Scans of the mine have shown greater amounts of resources to be deeper in the mine]]
 end
 
 return ScatteredResources

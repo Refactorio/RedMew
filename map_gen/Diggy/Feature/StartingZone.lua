@@ -18,7 +18,7 @@ local daytime
 ]]
 function StartingZone.register(config)
     local callback_token
-    local starting_zone_size = config.features.StartingZone.starting_size
+    local starting_zone_size = config.starting_size
 
     local function on_chunk_generated(event)
         local start_point_area = {{-1, -1}, {0, 0}}
@@ -68,7 +68,7 @@ function StartingZone.register(config)
 
     Event.add_removable(defines.events.on_chunk_generated, callback_token)
 
-    daytime = config.features.StartingZone.daytime
+    daytime = config.daytime
 end
 
 Event.on_init(

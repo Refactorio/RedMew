@@ -66,17 +66,16 @@ function Scenario.register(debug)
                 error('Feature ' .. feature_name .. ' did not define a register function.')
             end
 
-            feature.register(Config)
+            feature.register(feature_data)
 
-            if ('function' == type(feature.extra_map_info)) then
-                extra_map_info = extra_map_info .. '\n' .. feature.extra_map_info(Config)
+            if ('function' == type(feature.get_extra_map_info)) then
+                extra_map_info = extra_map_info .. feature.get_extra_map_info(feature_data) .. '\n\n'
             end
         end
     )
 
     ScenarioInfo.set_map_name('Diggy')
     ScenarioInfo.set_map_description('Dig your way through!')
-    -- Be careful though, the cave might collapse!\nUse stone walls, stone path and concrete to reinforce the cave.
     ScenarioInfo.set_map_extra_info(extra_map_info)
 
     scenario_registered = true

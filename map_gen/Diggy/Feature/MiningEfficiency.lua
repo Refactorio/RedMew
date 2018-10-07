@@ -35,9 +35,7 @@ end
 --[[--
     Registers all event handlers.
 ]]
-function MiningEfficiency.register(cfg)
-    local config = cfg.features.MiningEfficiency
-
+function MiningEfficiency.register(config)
     global.MiningEfficiency.default_mining_speed = config.default_mining_speed
 
     Event.add(
@@ -51,6 +49,11 @@ function MiningEfficiency.register(cfg)
             update_mining_speed(player_force)
         end
     )
+end
+
+function MiningEfficiency.get_extra_map_info(config)
+    return [[Mining Efficiency, increase your mining efficiency by researching mining productivity!
+Efficiency increase per level: ]] .. config.mining_speed_productivity_multiplier .. '%'
 end
 
 Event.on_init(

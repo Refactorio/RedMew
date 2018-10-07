@@ -93,7 +93,7 @@ local function create_collapse_template(positions, surface)
     return tiles, entities
 end
 
-local function collapse(args, surface, position)
+local function collapse(args)
     local position = args.position
     local surface = args.surface
     local positions = {}
@@ -228,8 +228,8 @@ end
 
     @param global_config Table {@see Diggy.Config}.
 ]]
-function DiggyCaveCollapse.register(global_config)
-    config = global_config.features.DiggyCaveCollapse
+function DiggyCaveCollapse.register(cfg)
+    config = cfg
     support_beam_entities = config.support_beam_entities
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
@@ -548,6 +548,11 @@ mask_disc_blur = function(x_start, y_start, factor, callback)
             end
         end
     end
+end
+
+function DiggyCaveCollapse.get_extra_map_info(config)
+    return [[Alien Spawner, aliens might spawn when mining!
+Place stone walls, stone paths and (refined) concrete to reinforce the mine. If you see cracks appear, run!]]
 end
 
 return DiggyCaveCollapse
