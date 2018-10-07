@@ -49,6 +49,31 @@ local artificial_tiles = {
     ['deepwater-green'] = true,
 }
 
+local function on_mined_tile(surface, tiles)
+    local new_tiles = {}
+
+    for _, tile in pairs(tiles) do
+        if (artificial_tiles[tile.old_tile.name]) then
+            table.insert(new_tiles, { name = 'dirt-' .. math.random(1, 7), position = tile.position})
+        end
+    end
+
+    Template.insert(surface, new_tiles, {})
+end
+
+local function on_built_tile(surface, item, old_tile_and_positions)
+    if ('landfill' ~= item.name) then
+        return
+    end
+
+    local tiles = {}
+    for _, tile in pairs(old_tile_and_positions) do
+        table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = tile.position})
+    end
+
+    Template.insert(surface, tiles)
+end
+
 --[[--
     Registers all event handlers.
 ]]
@@ -68,27 +93,19 @@ function DiggyHole.register(config)
     end)
 
     Event.add(defines.events.on_robot_mined_tile, function(event)
-        local tiles = {}
-
-        for _, tile in pairs(event.tiles) do
-            if (artificial_tiles[tile.old_tile.name]) then
-                table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = tile.position})
-            end
-        end
-
-        Template.insert(event.robot.surface, tiles, {})
+        on_mined_tile(event.robot.surface, event.tiles)
     end)
 
     Event.add(defines.events.on_player_mined_tile, function(event)
-        local tiles = {}
+        on_mined_tile(game.surfaces[event.surface_index], event.tiles)
+    end)
 
-        for _, tile in pairs(event.tiles) do
-            if (artificial_tiles[tile.old_tile.name]) then
-                table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = tile.position})
-            end
-        end
+    Event.add(defines.events.on_robot_built_tile, function (event)
+        on_built_tile(event.robot.surface, item, tiles)
+    end)
 
-        Template.insert(game.surfaces[event.surface_index], tiles, {})
+    Event.add(defines.events.on_player_built_tile, function (event)
+        on_built_tile(game.surfaces[event.surface_index], event.item, event.tiles)
     end)
 end
 

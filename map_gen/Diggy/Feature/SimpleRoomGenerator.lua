@@ -34,8 +34,8 @@ local function handle_noise(name, surface, position)
     Task.set_timeout_in_ticks(1, do_mine, {surface = surface, position = position})
 
     if ('water' == name) then
-        -- water is lower because for some odd reason it doesn't always want to mine it properly
-        Task.set_timeout_in_ticks(5, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
+        -- water is slower because for some odd reason it doesn't always want to mine it properly
+        Task.set_timeout_in_ticks(3, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
         return
     end
 

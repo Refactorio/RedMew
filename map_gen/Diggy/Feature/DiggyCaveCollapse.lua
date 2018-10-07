@@ -32,10 +32,10 @@ local disc_value = 0
 local ring_value = 0
 
 local enable_stress_grid = 0
-local stress_map_blur_add = nil
-local mask_disc_blur = nil
-local stress_map_check_stress_in_threshold = nil
-local support_beam_entities = nil
+local stress_map_blur_add
+local mask_disc_blur
+local stress_map_check_stress_in_threshold
+local support_beam_entities
 
 DiggyCaveCollapse.events = {
     --[[--
@@ -142,19 +142,23 @@ end
 local function on_collapse_triggered(event)
     spawn_cracking_sound_text(event.surface, event.position)
     Task.set_timeout(
-        math.random(config.collapse_delay_min * 10, config.collapse_delay_max * 10) / 10,
+        config.collapse_delay,
         on_collapse_timeout_finished,
         {surface = event.surface, position = event.position}
     )
 end
 
-local function on_built_tile(event)
-    local strength = support_beam_entities[event.item.name]
+local function on_built_tile(surface, new_tile, tiles)
+    local new_tile_strength = support_beam_entities[new_tile.name]
 
-    if strength then
-        local surface = game.surfaces[event.surface_index]
-        for _, tile in pairs(event.tiles) do
-            stress_map_blur_add(surface, tile.position, -1 * strength, 'on_built_tile')
+    for _, tile in pairs(tiles) do
+        if new_tile_strength then
+            stress_map_blur_add(surface, tile.position, -1 * new_tile_strength, 'on_built_tile')
+        end
+
+        local old_tile_strength = support_beam_entities[tile.old_tile.name]
+        if (old_tile_strength) then
+            stress_map_blur_add(surface, tile.position, old_tile_strength, 'on_built_tile')
         end
     end
 end
@@ -234,8 +238,12 @@ function DiggyCaveCollapse.register(cfg)
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
     Event.add(defines.events.on_robot_built_entity, on_built_entity)
-    Event.add(defines.events.on_robot_built_tile, on_built_tile)
-    Event.add(defines.events.on_player_built_tile, on_built_tile)
+    Event.add(defines.events.on_robot_built_tile, function (event)
+        on_built_tile(event.robot.surface, event.item, event.tiles)
+    end)
+    Event.add(defines.events.on_player_built_tile, function (event)
+        on_built_tile(game.surfaces[event.surface_index], event.item, event.tiles)
+    end)
     Event.add(defines.events.on_robot_mined_tile, on_robot_mined_tile)
     Event.add(defines.events.on_player_mined_tile, on_player_mined_tile)
     Event.add(defines.events.on_robot_mined_entity, on_mined_entity)
@@ -265,7 +273,7 @@ end
 --
 --STRESS MAP
 --
-local stress_threshold_causing_collapse = 0.9
+local stress_threshold_causing_collapse = 0.91
 
 -- main block
 global.stress_map_storage = {}
