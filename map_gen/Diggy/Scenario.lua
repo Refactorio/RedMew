@@ -2,6 +2,7 @@
 local Config = require 'map_gen.Diggy.Config'
 local Debug = require 'map_gen.Diggy.Debug'
 local ScenarioInfo = require 'info'
+local Event = require 'utils.event'
 
 require 'utils.list_utils'
 require 'utils.utils'
@@ -60,16 +61,20 @@ function Scenario.register(debug)
     local extra_map_info = ''
 
     each_enabled_feature(
-        function(feature_name, feature_data)
+        function(feature_name, feature_config)
             local feature = require ('map_gen.Diggy.Feature.' .. feature_name)
             if ('function' ~= type(feature.register)) then
                 error('Feature ' .. feature_name .. ' did not define a register function.')
             end
 
-            feature.register(feature_data)
+            feature.register(feature_config)
 
             if ('function' == type(feature.get_extra_map_info)) then
-                extra_map_info = extra_map_info .. feature.get_extra_map_info(feature_data) .. '\n\n'
+                extra_map_info = extra_map_info .. feature.get_extra_map_info(feature_config) .. '\n\n'
+            end
+
+            if ('function' == type(feature.on_init)) then
+                Event.on_init(feature.on_init)
             end
         end
     )

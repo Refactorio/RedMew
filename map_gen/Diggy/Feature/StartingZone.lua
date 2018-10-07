@@ -71,13 +71,12 @@ function StartingZone.register(config)
     daytime = config.daytime
 end
 
-Event.on_init(
-    function()
-        local surface = game.surfaces.nauvis
+function StartingZone.on_init()
+    local surface = game.surfaces.nauvis
 
-        surface.daytime = daytime
-        surface.freeze_daytime = 1
-    end
-)
+    surface.daytime = daytime
+    surface.freeze_daytime = 1
+end
+
 
 return StartingZone

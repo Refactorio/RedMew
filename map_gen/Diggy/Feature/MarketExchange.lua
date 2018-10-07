@@ -16,6 +16,8 @@ global.MarketExchange = {
     stone_sent_to_surface = 0,
 }
 
+local on_init;
+
 --[[--
     Registers all event handlers.
 ]]
@@ -35,15 +37,18 @@ function MarketExchange.register(config)
     end
 
     local on_market_timeout_finished = Token.register(function(params)
-        Template.market(game.surfaces.nauvis, {x = 0, y = -5}, game.forces.player, params.currency_item, params.market_items)
+        Template.market(params.surface, params.position, params.player_force, params.currency_item, params.market_items)
     end)
 
-    Event.on_init(function()
+    on_init = function()
         Task.set_timeout_in_ticks(60, on_market_timeout_finished, {
+            surface = game.surfaces.nauvis,
+            position = {x = 0, y = -5},
+            player_force = game.forces.player,
             currency_item = config.currency_item,
             market_items = market_items,
         })
-    end)
+    end
 
 
     Event.add(defines.events.on_market_item_purchased, function (event)
@@ -57,6 +62,14 @@ end
 
 function MarketExchange.get_extra_map_info(config)
     return 'Market Exchange, trade your stone or send it to the surface'
+end
+
+function MarketExchange.on_init()
+    if ('function' ~= type(on_init)) then
+        error('Expected local on_init in MarketExchange to have a function assigned.')
+    end
+
+    on_init()
 end
 
 return MarketExchange

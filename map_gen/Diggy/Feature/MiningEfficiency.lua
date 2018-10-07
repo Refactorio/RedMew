@@ -56,10 +56,8 @@ function MiningEfficiency.get_extra_map_info(config)
 Efficiency increase per level: ]] .. config.mining_speed_productivity_multiplier .. '%'
 end
 
-Event.on_init(
-    function()
-        update_mining_speed(game.forces.player)
-    end
-)
+function MiningEfficiency.on_init()
+    update_mining_speed(game.forces.player)
+end
 
 return MiningEfficiency
