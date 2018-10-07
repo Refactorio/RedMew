@@ -35,7 +35,7 @@ local function handle_noise(name, surface, position)
 
     if ('water' == name) then
         -- water is slower because for some odd reason it doesn't always want to mine it properly
-        Task.set_timeout_in_ticks(3, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
+        Task.set_timeout_in_ticks(4, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
         return
     end
 
