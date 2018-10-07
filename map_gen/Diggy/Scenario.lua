@@ -1,6 +1,7 @@
 -- dependencies
 local Config = require 'map_gen.Diggy.Config'
 local Debug = require 'map_gen.Diggy.Debug'
+local ScenarioInfo = require 'info'
 
 require 'utils.list_utils'
 require 'utils.utils'
@@ -56,15 +57,27 @@ function Scenario.register(debug)
         Debug.enable_cheats()
     end
 
+    local extra_map_info = ''
+
     each_enabled_feature(
         function(feature_name, feature_data)
-            if ('function' ~= type(feature_data.register)) then
+            local feature = require ('map_gen.Diggy.Feature.' .. feature_name)
+            if ('function' ~= type(feature.register)) then
                 error('Feature ' .. feature_name .. ' did not define a register function.')
             end
 
-            feature_data.register(Config)
+            feature.register(Config)
+
+            if ('function' == type(feature.extra_map_info)) then
+                extra_map_info = extra_map_info .. '\n' .. feature.extra_map_info(Config)
+            end
         end
     )
+
+    ScenarioInfo.set_map_name('Diggy')
+    ScenarioInfo.set_map_description('Dig your way through!')
+    -- Be careful though, the cave might collapse!\nUse stone walls, stone path and concrete to reinforce the cave.
+    ScenarioInfo.set_map_extra_info(extra_map_info)
 
     scenario_registered = true
 end
