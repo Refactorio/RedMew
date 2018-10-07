@@ -7,7 +7,7 @@ local Debug = require 'map_gen.Diggy.Debug'
 local Template = {}
 
 local tiles_per_call = 5 --how many tiles are inserted with each call of insert_action
-local entities_per_call = 5  --how many entities are inserted with each call of insert_action
+local entities_per_call = 5 --how many entities are inserted with each call of insert_action
 
 Template.events = {
     --[[--
@@ -37,23 +37,32 @@ local function insert_next_tiles(data)
     local surface = data.surface
     local tiles = {}
 
-    pcall(function() --use pcall to assure tile_iterator is always incremented, to avoid endless loops
-        for i = data.tile_iterator, math.min(data.tile_iterator + tiles_per_call - 1, data.tiles_n)   do
-            local new_tile = data.tiles[i]
-            table.insert(tiles, new_tile)
-            local current_tile = surface.get_tile(new_tile.position.x, new_tile.position.y)
-            local current_is_void = current_tile.name == 'out-of-map'
-            local new_is_void = new_tile.name == 'out-of-map'
+    pcall(
+        function()
+            --use pcall to assure tile_iterator is always incremented, to avoid endless loops
+            for i = data.tile_iterator, math.min(data.tile_iterator + tiles_per_call - 1, data.tiles_n) do
+                local new_tile = data.tiles[i]
+                table.insert(tiles, new_tile)
+                local current_tile = surface.get_tile(new_tile.position.x, new_tile.position.y)
+                local current_is_void = current_tile.name == 'out-of-map'
+                local new_is_void = new_tile.name == 'out-of-map'
 
-            if (current_is_void and not new_is_void) then
-                table.insert(void_removed, {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}})
-            end
+                if (current_is_void and not new_is_void) then
+                    table.insert(
+                        void_removed,
+                        {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}}
+                    )
+                end
 
-            if (new_is_void and not current_is_void) then
-                table.insert(void_added, {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}})
+                if (new_is_void and not current_is_void) then
+                    table.insert(
+                        void_added,
+                        {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}}
+                    )
+                end
             end
         end
-    end)
+    )
 
     data.tile_iterator = data.tile_iterator + tiles_per_call
 
@@ -72,17 +81,20 @@ local function insert_next_entities(data)
     local created_entities = {}
     local surface = data.surface
 
-    pcall(function() --use pcall to assure tile_iterator is always incremented, to avoid endless loops
-        for i = data.entity_iterator, math.min(data.entity_iterator + entities_per_call - 1, data.entities_n)   do
-            local entity = data.entities[i]
-            created_entity = surface.create_entity(entity)
-            if (nil == created_entity) then
-                error('Failed creating entity ' .. entity.name .. ' on surface.')
-            end
+    pcall(
+        function()
+            --use pcall to assure tile_iterator is always incremented, to avoid endless loops
+            for i = data.entity_iterator, math.min(data.entity_iterator + entities_per_call - 1, data.entities_n) do
+                local entity = data.entities[i]
+                local created_entity = surface.create_entity(entity)
+                if (nil == created_entity) then
+                    error('Failed creating entity ' .. entity.name .. ' on surface.')
+                end
 
-            table.insert(created_entities, created_entity)
+                table.insert(created_entities, created_entity)
+            end
         end
-    end)
+    )
 
     data.entity_iterator = data.entity_iterator + entities_per_call
 
@@ -133,11 +145,11 @@ function Template.insert(surface, tiles, entities)
     }
 
     local continue = true
-    for i=1,4 do
-      continue = insert_action(data)
-      if not continue  then
-          return
-      end
+    for i = 1, 4 do
+        continue = insert_action(data)
+        if not continue then
+            return
+        end
     end
     if continue then
         Task.queue_task(insert_token, data, total_calls - 4)
@@ -162,7 +174,7 @@ function Template.units(surface, units, non_colliding_distance)
             entity.position = position
             surface.create_entity(entity)
         else
-            Debug.print('Failed to spawn \'' .. entity.name .. '\' at \'' .. serpent.line(entity.position) .. '\'')
+            Debug.print("Failed to spawn '" .. entity.name .. "' at '" .. serpent.line(entity.position) .. "'")
         end
     end
 end

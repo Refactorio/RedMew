@@ -91,14 +91,7 @@ function ScatteredResources.register(cfg)
             spawn_resource(config, event.surface, x, y, distance)
         end
     end)
-end
 
---[[--
-    Initializes the Feature.
-
-    @param config Table {@see Diggy.Config}.
-]]
-function ScatteredResources.initialize(config)
     global.ScatteredResources.can_spawn_resources = true
 end
 

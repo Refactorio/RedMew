@@ -84,12 +84,10 @@ local Config = {
         RefreshMap = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.RefreshMap'.register,
-            initialize = require 'map_gen.Diggy.Feature.RefreshMap'.initialize,
         },
         SimpleRoomGenerator = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.register,
-            initialize = require 'map_gen.Diggy.Feature.SimpleRoomGenerator'.initialize,
 
             -- value between 0 and 1, higher value means stronger variance between coordinates
             noise_variance = 0.089,
@@ -109,7 +107,6 @@ local Config = {
         ScatteredResources = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.ScatteredResources'.register,
-            initialize = require 'map_gen.Diggy.Feature.ScatteredResources'.initialize,
 
             -- percentage of resource added to the sum. 100 tiles means
             -- 10% more resources with a distance_richness_modifier of 10
@@ -172,7 +169,6 @@ local Config = {
         AlienSpawner = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.AlienSpawner'.register,
-            initialize = require 'map_gen.Diggy.Feature.AlienSpawner'.initialize,
 
             -- minimum distance from spawn before aliens can spawn
             alien_minimum_distance = 35,
@@ -183,7 +179,6 @@ local Config = {
         MiningEfficiency = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.MiningEfficiency'.register,
-            initialize = require 'map_gen.Diggy.Feature.MiningEfficiency'.initialize,
 
             -- percentage * mining productivity level gets added to mining speed
             mining_speed_productivity_multiplier = 15,
@@ -194,7 +189,6 @@ local Config = {
         MarketExchange = {
             enabled = true,
             register = require 'map_gen.Diggy.Feature.MarketExchange'.register,
-            initialize = require 'map_gen.Diggy.Feature.MarketExchange'.initialize,
 
             stone_to_surface_amount = 50,
             currency_item = 'stone',

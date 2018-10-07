@@ -92,13 +92,4 @@ function DiggyHole.register(cfg)
     end)
 end
 
---[[--
-    Initializes the Feature.
-
-    @param config Table {@see Diggy.Config}.
-]]
-function DiggyHole.initialize(config)
-
-end
-
 return DiggyHole

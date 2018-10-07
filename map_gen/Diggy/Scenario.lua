@@ -1,5 +1,4 @@
 -- dependencies
-local Event = require 'utils.event'
 local Config = require 'map_gen.Diggy.Config'
 local Debug = require 'map_gen.Diggy.Debug'
 
@@ -11,8 +10,6 @@ local Scenario = {}
 
 -- private state
 local scenario_registered = false
-local scenario_initialized = false
-
 
 --[[--
     Allows calling a callback for each enabled feature.
@@ -47,53 +44,29 @@ function Scenario.register(debug)
         return
     end
 
-    -- using the on_player_created to initialize all the features
-    Event.add(defines.events.on_player_created, function (event)
-        if ('boolean' == type(debug)) then
-            Config.Debug = debug
-        end
-
-        if (Config.debug) then
-            Debug.enable_debug()
-        end
-
-        if (Config.cheats) then
-            Debug.enable_cheats()
-        end
-
-        Scenario.initialize(Config)
-    end)
-
-    each_enabled_feature(function(feature_name, feature_data)
-        if ('function' ~= type(feature_data.register)) then
-            error('Feature ' .. feature_name .. ' did not define a register function.')
-        end
-
-        feature_data.register(Config)
-    end)
-
-    scenario_registered = true
-end
-
---[[--
-    Initializes the starting position.
-
-    @param config Table {@see Diggy.Config}.
-]]
-function Scenario.initialize(config)
-    if scenario_initialized then
-        return
+    if ('boolean' == type(debug)) then
+        Config.Debug = debug
     end
 
-    each_enabled_feature(function(feature_name, feature_data)
-        if ('function' ~= type(feature_data.initialize)) then
-            error('Feature ' .. feature_name .. ' did not define an initialize function.')
+    if (Config.debug) then
+        Debug.enable_debug()
+    end
+
+    if (Config.cheats) then
+        Debug.enable_cheats()
+    end
+
+    each_enabled_feature(
+        function(feature_name, feature_data)
+            if ('function' ~= type(feature_data.register)) then
+                error('Feature ' .. feature_name .. ' did not define a register function.')
+            end
+
+            feature_data.register(Config)
         end
+    )
 
-        feature_data.initialize(config)
-    end)
-
-    scenario_initialized = true
+    scenario_registered = true
 end
 
 return Scenario

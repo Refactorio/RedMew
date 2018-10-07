@@ -28,13 +28,4 @@ function SetupPlayer.register(config)
     end)
 end
 
---[[--
-    Initializes the Feature.
-
-    @param config Table {@see Diggy.Config}.
-]]
-function SetupPlayer.initialize(config)
-
-end
-
 return SetupPlayer

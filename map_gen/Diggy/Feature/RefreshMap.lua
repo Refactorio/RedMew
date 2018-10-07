@@ -36,13 +36,4 @@ function RefreshMap.register(config)
     end)
 end
 
---[[--
-    Initializes the Feature.
-
-    @param config Table {@see Diggy.Config}.
-]]
-function RefreshMap.initialize(config)
-
-end
-
 return RefreshMap

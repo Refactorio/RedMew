@@ -20,7 +20,7 @@ local tiles_per_tick = 32
 --require "map_gen.combined.dagobah_swamp"
 --require "map_gen.combined.meteor_strike" --unfinished
 --require 'map_gen.combined.cave_miner.cave_miner'
---require "map_gen.combined.diggy"
+require "map_gen.combined.diggy"
 
 
 --presets--

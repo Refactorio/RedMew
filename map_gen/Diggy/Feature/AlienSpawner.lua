@@ -48,13 +48,4 @@ function AlienSpawner.register(cfg)
     end)
 end
 
---[[--
-    Initializes the Feature.
-
-    @param config Table {@see Diggy.Config}.
-]]
-function AlienSpawner.initialize(config)
-
-end
-
 return AlienSpawner

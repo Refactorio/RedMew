@@ -90,12 +90,4 @@ function SimpleRoomGenerator.register(cfg)
     end
 end
 
---[[--
-    Initializes the Feature.
-
-    @param config Table {@see Diggy.Config}.
-]]
-function SimpleRoomGenerator.initialize(config)
-end
-
 return SimpleRoomGenerator
