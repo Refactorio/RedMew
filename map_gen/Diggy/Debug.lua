@@ -36,7 +36,6 @@ function Debug.print(message)
     if (debug) then
         game.print('[' .. global.message_count .. '] ' .. tostring(message))
         log('[' .. global.message_count .. '] ' .. tostring(message))
-        game.write_file("desync", '[' .. global.message_count .. '] ' .. tostring(message) .. '\n', true)
     end
 end
 

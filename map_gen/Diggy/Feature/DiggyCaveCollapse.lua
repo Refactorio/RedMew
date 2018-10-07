@@ -36,6 +36,17 @@ local stress_map_blur_add = nil
 local mask_disc_blur = nil
 local stress_map_check_stress_in_threshold = nil
 local support_beam_entities = nil
+local on_surface_created = nil
+
+local stress_threshold_causing_collapse = 0.9
+
+global.stress_map_storage = {}
+local stress_map_storage = global.stress_map_storage
+
+global.new_tile_map = {}
+local new_tile_map = global.new_tile_map
+
+local defaultValue = 0
 
 DiggyCaveCollapse.events = {
     --[[--
@@ -97,9 +108,10 @@ local function collapse(args, surface, position)
     local position = args.position
     local surface = args.surface
     local positions = {}
+    local tiles = {}
+    local entities = nil
     mask_disc_blur(
-        position.x,
-        position.y,
+        position.x,  position.y,
         config.collapse_threshold_total_strength,
         function(x, y, value)
             stress_map_check_stress_in_threshold(
@@ -112,7 +124,7 @@ local function collapse(args, surface, position)
             )
         end
     )
-    local tiles, entities = create_collapse_template(positions, surface)
+    tiles, entities = create_collapse_template(positions, surface)
     Template.insert(surface, tiles, entities)
 end
 
@@ -140,12 +152,21 @@ local function spawn_cracking_sound_text(surface, position)
 end
 
 local function on_collapse_triggered(event)
-    spawn_cracking_sound_text(event.surface, event.position)
-    Task.set_timeout(
-        math.random(config.collapse_delay_min * 10, config.collapse_delay_max * 10) / 10,
-        on_collapse_timeout_finished,
-        {surface = event.surface, position = event.position}
-    )
+      local position = event.position
+      local x = position.x
+      local y = position.y
+
+      local x_t = new_tile_map[x]
+      if x_t and x_t[y] then
+          Template.insert(event.surface, {}, {{position = position, name = 'sand-rock-big'}})
+      else
+          spawn_cracking_sound_text(event.surface, position)
+          Task.set_timeout(
+              math.random(config.collapse_delay_min * 10, config.collapse_delay_max * 10) / 10,
+              on_collapse_timeout_finished,
+              {surface = event.surface, position = position}
+          )
+      end
 end
 
 local function on_built_tile(event)
@@ -154,7 +175,7 @@ local function on_built_tile(event)
     if strength then
         local surface = game.surfaces[event.surface_index]
         for _, tile in pairs(event.tiles) do
-            stress_map_blur_add(surface, tile.position, -1 * strength, 'on_built_tile')
+            stress_map_blur_add(surface, tile.position, -1 * strength)
         end
     end
 end
@@ -163,7 +184,7 @@ local function on_robot_mined_tile(event)
     for _, tile in pairs(event.tiles) do
         local strength = support_beam_entities[tile.old_tile.name]
         if strength then
-            stress_map_blur_add(event.robot.surface, tile.position, strength, 'on_robot_mined_tile')
+            stress_map_blur_add(event.robot.surface, tile.position, strength)
         end
     end
 end
@@ -174,7 +195,7 @@ local function on_player_mined_tile(event)
         local strength = support_beam_entities[tile.old_tile.name]
 
         if strength then
-            stress_map_blur_add(surface, tile.position, strength, 'on_player_mined_tile')
+            stress_map_blur_add(surface, tile.position, strength)
         end
     end
 end
@@ -183,7 +204,7 @@ local function on_mined_entity(event)
     local strength = support_beam_entities[event.entity.name]
 
     if strength then
-        stress_map_blur_add(event.entity.surface, event.entity.position, strength, 'on_mined_entity')
+        stress_map_blur_add(event.entity.surface, event.entity.position, strength)
     end
 end
 
@@ -204,22 +225,49 @@ local function on_placed_entity(event)
     local strength = support_beam_entities[event.entity.name]
 
     if strength then
-        stress_map_blur_add(event.entity.surface, event.entity.position, -1 * strength, 'on_placed_entity')
+        stress_map_blur_add(event.entity.surface, event.entity.position, -1 * strength)
     end
 end
+
+
+local on_new_tile_timeout_finished = Token.register(function(args)
+    local x_t = new_tile_map[args.x]
+    if x_t then
+       x_t[args.y] = nil --reset new tile status. This tile can cause a chain collapse now
+    end
+end)
 
 local function on_void_removed(event)
     local strength = support_beam_entities['out-of-map']
 
+    local position =  event.old_tile.position
     if strength then
-        stress_map_blur_add(event.surface, event.old_tile.position, strength, 'on_void_removed')
+        stress_map_blur_add(event.surface, position, strength)
     end
+
+    local x = position.x
+    local y = position.y
+
+    --To avoid room collapse:
+    local x_t = new_tile_map[x]
+    if x_t then
+        x_t[y] = true
+    else
+        x_t = {
+            [y] = true
+        }
+        new_tile_map[x] = x_t
+    end
+    Task.set_timeout(3,
+            on_new_tile_timeout_finished,
+            {x = x, y = y}
+        )
 end
 
 local function on_void_added(event)
     local strength = support_beam_entities['out-of-map']
     if strength then
-        stress_map_blur_add(event.surface, event.old_tile.position, -1 * strength, 'on_void_added')
+        stress_map_blur_add(event.surface, event.old_tile.position, -1 * strength)
     end
 end
 
@@ -245,17 +293,16 @@ function DiggyCaveCollapse.register(global_config)
     Event.add(defines.events.on_player_mined_entity, on_mined_entity)
     Event.add(Template.events.on_void_removed, on_void_removed)
     Event.add(Template.events.on_void_added, on_void_added)
+    Event.add(defines.events.on_surface_created, on_surface_created)
 
     enable_stress_grid = config.enable_stress_grid
+
+    on_surface_created({surface_index = 1})
 
     mask_init(config)
     if (config.enable_mask_debug) then
         local surface = game.surfaces.nauvis
-        mask_disc_blur(
-                0,
-                0,
-                10,
-                function(x, y, fraction)
+        mask_disc_blur(0, 0, 10,  function(x, y, fraction)
                     Debug.print_grid_value(fraction, surface, {x = x, y = y})
                 end
         )
@@ -265,18 +312,11 @@ end
 --
 --STRESS MAP
 --
-local stress_threshold_causing_collapse = 0.9
-
--- main block
-global.stress_map_storage = {}
-
-local defaultValue = 0
-
 --[[--
     Adds a fraction to a given location on the stress_map. Returns the new
     fraction value of that position.
 
-    @param stress_map Table of {@see get_stress_map}
+    @param stress_map Table of {x,y}
     @param position Table with x and y
     @param number fraction
 
@@ -378,6 +418,18 @@ local function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
     return value
 end
 
+
+on_surface_created = function(event)
+    stress_map_storage[event.surface_index] = {}
+
+    local map = stress_map_storage[event.surface_index]
+
+    map['surface_index'] = event.surface_index
+    map[1] = {}
+    map[2] = {}
+    map[3] = {}
+    map[4] = {}
+end
 --[[--
     Creates a new stress map if it doesn't exist yet and returns it.
 
@@ -385,19 +437,7 @@ end
     @return Table  [1,2,3,4] containing the quadrants
 ]]
 local function get_stress_map(surface)
-    if not global.stress_map_storage[surface.index] then
-        global.stress_map_storage[surface.index] = {}
-
-        local map = global.stress_map_storage[surface.index]
-
-        map['surface_index'] = surface.index
-        map[1] = {}
-        map[2] = {}
-        map[3] = {}
-        map[4] = {}
-    end
-
-    return global.stress_map_storage[surface.index]
+    return
 end
 
 --[[--
@@ -409,7 +449,7 @@ end
 
 ]]
 stress_map_check_stress_in_threshold = function(surface, position, threshold, callback)
-    local stress_map = get_stress_map(surface)
+    local stress_map = stress_map_storage[surface.index]
     local value = add_fraction(stress_map, position.x, position.y, 0)
 
     if (value >= stress_threshold_causing_collapse - threshold) then
@@ -417,18 +457,14 @@ stress_map_check_stress_in_threshold = function(surface, position, threshold, ca
     end
 end
 
-stress_map_blur_add = function(surface, position, factor, caller)
-    if global.disable_cave_collapse then
-        return
-    end
-
-    caller = caller or 'unknown'
-
-    --Debug.print(caller .. ' before')
+stress_map_blur_add = function(surface, position, factor)
     local x_start = math.floor(position.x)
     local y_start = math.floor(position.y)
 
-    local stress_map = get_stress_map(game.surfaces[1])
+    local stress_map = stress_map_storage[surface.index]
+    if not stress_map then
+        return
+    end
 
     if radius > math.abs(x_start) or radius > math.abs(y_start) then
         for x = -radius, radius do
@@ -448,7 +484,6 @@ stress_map_blur_add = function(surface, position, factor, caller)
             end
         end
     else
-        --ALL VALUES IN SAME QUADRANT SO WE CAN OPTIMIZE THIS!
         local quadrant = 1
         if x_start < 0 then
             quadrant = quadrant + 1
@@ -476,7 +511,6 @@ stress_map_blur_add = function(surface, position, factor, caller)
             end
         end
     end
-    --Debug.print(caller .. ' after')
 end
 
 DiggyCaveCollapse.stress_map_blur_add = stress_map_blur_add
