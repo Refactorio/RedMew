@@ -40,6 +40,9 @@ local on_surface_created = nil
 
 local stress_threshold_causing_collapse = 0.9
 
+global.deconstruction_alert_message_shown = {}
+local deconstruction_alert_message_shown = global.deconstruction_alert_message_shown
+
 global.stress_map_storage = {}
 local stress_map_storage = global.stress_map_storage
 
@@ -297,6 +300,20 @@ function DiggyCaveCollapse.register(cfg)
         end
     end)
 
+    Event.add(defines.events.on_pre_player_mined_item, function(event)
+        if (nil ~= deconstruction_alert_message_shown[event.player_index]) then
+            return
+        end
+
+        if (nil ~= support_beam_entities[event.entity.name]) then
+            require 'popup'.player(
+                game.players[event.player_index],
+                'Mining entities such as walls, stone paths, concrete and rocks, can cause a cave-in, be careful miner!'
+            )
+            deconstruction_alert_message_shown[event.player_index] = true
+        end
+    end)
+
     enable_stress_grid = config.enable_stress_grid
 
     on_surface_created({surface_index = 1})
@@ -305,9 +322,8 @@ function DiggyCaveCollapse.register(cfg)
     if (config.enable_mask_debug) then
         local surface = game.surfaces.nauvis
         mask_disc_blur(0, 0, 10,  function(x, y, fraction)
-                    Debug.print_grid_value(fraction, surface, {x = x, y = y})
-                end
-        )
+            Debug.print_grid_value(fraction, surface, {x = x, y = y})
+        end)
     end
 end
 
