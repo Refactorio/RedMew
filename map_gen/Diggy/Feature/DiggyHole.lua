@@ -85,12 +85,6 @@ function DiggyHole.register(config)
         diggy_hole(event.entity)
     end)
 
-    Event.add(defines.events.on_marked_for_deconstruction, function (event)
-        if ('sand-rock-big' == event.entity.name) then
-            event.entity.cancel_deconstruction(game.players[event.player_index].force)
-        end
-    end)
-
     Event.add(defines.events.on_robot_mined_tile, function(event)
         on_mined_tile(event.robot.surface, event.tiles)
     end)

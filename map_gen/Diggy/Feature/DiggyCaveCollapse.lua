@@ -291,6 +291,12 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(Template.events.on_void_added, on_void_added)
     Event.add(defines.events.on_surface_created, on_surface_created)
 
+    Event.add(defines.events.on_marked_for_deconstruction, function (event)
+        if (nil ~= support_beam_entities[event.entity.name]) then
+            event.entity.cancel_deconstruction(game.players[event.player_index].force)
+        end
+    end)
+
     enable_stress_grid = config.enable_stress_grid
 
     on_surface_created({surface_index = 1})
@@ -425,15 +431,6 @@ on_surface_created = function(event)
     map[2] = {}
     map[3] = {}
     map[4] = {}
-end
---[[--
-    Creates a new stress map if it doesn't exist yet and returns it.
-
-    @param surface LuaSurface
-    @return Table  [1,2,3,4] containing the quadrants
-]]
-local function get_stress_map(surface)
-    return
 end
 
 --[[--
