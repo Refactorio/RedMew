@@ -46,7 +46,6 @@ local artificial_tiles = {
     ['refined-concrete'] = true,
     ['refined-hazard-concrete-left'] = true,
     ['refined-hazard-concrete-right'] = true,
-    ['deepwater-green'] = true,
 }
 
 local function on_mined_tile(surface, tiles)

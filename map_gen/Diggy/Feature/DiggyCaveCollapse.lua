@@ -87,16 +87,7 @@ local function create_collapse_template(positions, surface)
     for _, new_spawn in pairs({entities, tiles}) do
         for _, tile in pairs(new_spawn) do
             for _, entity in pairs(surface.find_entities_filtered({position = tile.position})) do
-                pcall(
-                    function()
-                        entity.die()
-                    end
-                )
-                pcall(
-                    function()
-                        entity.destroy()
-                    end
-                )
+                pcall(function() entity.die() end)
             end
         end
     end
@@ -262,10 +253,7 @@ local function on_void_removed(event)
         }
         new_tile_map[x] = x_t
     end
-    Task.set_timeout(3,
-            on_new_tile_timeout_finished,
-            {x = x, y = y}
-        )
+    Task.set_timeout(3, on_new_tile_timeout_finished, {x = x, y = y})
 end
 
 local function on_void_added(event)
