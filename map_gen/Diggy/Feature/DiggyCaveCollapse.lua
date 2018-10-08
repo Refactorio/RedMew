@@ -40,6 +40,9 @@ local on_surface_created = nil
 
 local stress_threshold_causing_collapse = 0.9
 
+global.deconstruction_alert_message_shown = {}
+local deconstruction_alert_message_shown = global.deconstruction_alert_message_shown
+
 global.stress_map_storage = {}
 local stress_map_storage = global.stress_map_storage
 
@@ -87,16 +90,7 @@ local function create_collapse_template(positions, surface)
     for _, new_spawn in pairs({entities, tiles}) do
         for _, tile in pairs(new_spawn) do
             for _, entity in pairs(surface.find_entities_filtered({position = tile.position})) do
-                pcall(
-                    function()
-                        entity.die()
-                    end
-                )
-                pcall(
-                    function()
-                        entity.destroy()
-                    end
-                )
+                pcall(function() entity.die() end)
             end
         end
     end
@@ -262,10 +256,7 @@ local function on_void_removed(event)
         }
         new_tile_map[x] = x_t
     end
-    Task.set_timeout(3,
-            on_new_tile_timeout_finished,
-            {x = x, y = y}
-        )
+    Task.set_timeout(3, on_new_tile_timeout_finished, {x = x, y = y})
 end
 
 local function on_void_added(event)
@@ -303,6 +294,26 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(Template.events.on_void_added, on_void_added)
     Event.add(defines.events.on_surface_created, on_surface_created)
 
+    Event.add(defines.events.on_marked_for_deconstruction, function (event)
+        if (nil ~= support_beam_entities[event.entity.name]) then
+            event.entity.cancel_deconstruction(game.players[event.player_index].force)
+        end
+    end)
+
+    Event.add(defines.events.on_pre_player_mined_item, function(event)
+        if (nil ~= deconstruction_alert_message_shown[event.player_index]) then
+            return
+        end
+
+        if (nil ~= support_beam_entities[event.entity.name]) then
+            require 'popup'.player(
+                game.players[event.player_index],
+                'Mining entities such as walls, stone paths, concrete and rocks, can cause a cave-in, be careful miner!'
+            )
+            deconstruction_alert_message_shown[event.player_index] = true
+        end
+    end)
+
     enable_stress_grid = config.enable_stress_grid
 
     on_surface_created({surface_index = 1})
@@ -311,9 +322,8 @@ function DiggyCaveCollapse.register(cfg)
     if (config.enable_mask_debug) then
         local surface = game.surfaces.nauvis
         mask_disc_blur(0, 0, 10,  function(x, y, fraction)
-                    Debug.print_grid_value(fraction, surface, {x = x, y = y})
-                end
-        )
+            Debug.print_grid_value(fraction, surface, {x = x, y = y})
+        end)
     end
 end
 
@@ -437,15 +447,6 @@ on_surface_created = function(event)
     map[2] = {index = 2}
     map[3] = {index = 3}
     map[4] = {index = 4}
-end
---[[--
-    Creates a new stress map if it doesn't exist yet and returns it.
-
-    @param surface LuaSurface
-    @return Table  [1,2,3,4] containing the quadrants
-]]
-local function get_stress_map(surface)
-    return
 end
 
 --[[--

@@ -13,6 +13,9 @@ local Token = require 'utils.global_token'
 -- this
 local SimpleRoomGenerator = {}
 
+global.noise_used_map = {}
+local noise_used_map = global.noise_used_map
+
 local do_spawn_tile = Token.register(function(params)
     Template.insert(params.surface, {params.tile}, {})
 end)
@@ -35,7 +38,7 @@ local function handle_noise(name, surface, position)
 
     if ('water' == name) then
         -- water is slower because for some odd reason it doesn't always want to mine it properly
-        Task.set_timeout_in_ticks(3, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
+        Task.set_timeout_in_ticks(4, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
         return
     end
 
@@ -62,6 +65,18 @@ function SimpleRoomGenerator.register(config)
 
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.old_tile.position
+        local x = position.x
+        local y = position.y
+
+        if (nil == noise_used_map[x]) then
+            noise_used_map[x] = {y = true}
+        elseif (nil == noise_used_map[x][y]) then
+            noise_used_map[x][y] = true
+        else
+            -- already used up noise at that point
+            return
+        end
+
         local distance_sq = position.x^2 + position.y^2
 
         if (distance_sq <= room_noise_minimum_distance_sq) then

@@ -98,9 +98,79 @@ local function popup_update(cmd)
     end
 end
 
+local function popup_player(cmd)
+    local player = game.player
+    if player and not player.admin then
+        cant_run(cmd.name)
+        return
+    end
+
+    local message = cmd.parameter
+    if not message then
+        player_print('Usage: /popup <player> <message>')
+        return
+    end
+
+    local start_index, end_index = message:find(' ')
+    if not start_index then
+        player_print('Usage: /popup <player> <message>')
+        return
+    end
+
+    local target_name = message:sub(1, start_index - 1)
+    local target = game.players[target_name]
+    if not target then
+        player_print('Player ' .. target_name .. ' not found.')
+        return
+    end
+
+    message = message:sub(end_index, #message):gsub('\\n', '\n')
+
+    show_popup(target, message)
+end
+
 commands.add_command('popup', '<message> - Shows a popup to all connected players (Admins only)', popup)
+
 commands.add_command(
     'popup-update',
     '<version> - Shows an update popup to all connected players (Admins only)',
     popup_update
 )
+
+commands.add_command('popup-player', '<player> <message> - Shows a popup to the players (Admins only)', popup_player)
+
+local Public = {}
+
+--[[--
+    Shows a popup dialog.
+
+    @param player LuaPlayer
+    @param message string
+]]
+function Public.player(player, message)
+    show_popup(player, message)
+end
+
+--[[--
+    Shows a popup dialog to all connected players.
+
+    @param message string
+]]
+function Public.all_online(message)
+    for _, p in ipairs(game.connected_players) do
+        show_popup(p, message)
+    end
+end
+
+--[[--
+    Shows a popup dialog to all players.
+
+    @param message string
+]]
+function Public.all(message)
+    for _, p in pairs(game.players) do
+        show_popup(p, message)
+    end
+end
+
+return Public

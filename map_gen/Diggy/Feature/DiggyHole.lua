@@ -46,7 +46,6 @@ local artificial_tiles = {
     ['refined-concrete'] = true,
     ['refined-hazard-concrete-left'] = true,
     ['refined-hazard-concrete-right'] = true,
-    ['deepwater-green'] = true,
 }
 
 local function on_mined_tile(surface, tiles)
@@ -84,12 +83,6 @@ function DiggyHole.register(config)
 
     Event.add(defines.events.on_player_mined_entity, function (event)
         diggy_hole(event.entity)
-    end)
-
-    Event.add(defines.events.on_marked_for_deconstruction, function (event)
-        if ('sand-rock-big' == event.entity.name) then
-            event.entity.cancel_deconstruction(game.players[event.player_index].force)
-        end
     end)
 
     Event.add(defines.events.on_robot_mined_tile, function(event)

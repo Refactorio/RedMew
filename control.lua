@@ -42,7 +42,9 @@ local function player_created(event)
         return
     end
 
-    player.insert {name = MARKET_ITEM, count = 10}
+    if (global.scenario.config.fish_market.enable) then
+        player.insert {name = MARKET_ITEM, count = 10}
+    end
     player.insert {name = 'iron-gear-wheel', count = 8}
     player.insert {name = 'iron-plate', count = 16}
     player.print('Welcome to our Server. You can join our Discord at: redmew.com/discord')
