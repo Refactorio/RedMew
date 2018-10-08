@@ -330,7 +330,7 @@ end
 
     @return number sum of old fraction + new fraction
 ]]
-local function add_fraction(stress_map, x, y, fraction)
+function add_fraction(stress_map, x, y, fraction)
     local quadrant = 1
     if x < 0 then
         quadrant = quadrant + 1
@@ -383,13 +383,11 @@ local function add_fraction(stress_map, x, y, fraction)
     return value
 end
 
-local function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
-    local quad_t = stress_map[quadrant]
-
-    local x_t = quad_t[x]
+function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
+    local x_t = quadrant[x]
     if not x_t then
         x_t = {}
-        quad_t[x] = x_t
+        quadrant[x] = x_t
     end
 
     local value = x_t[y]
@@ -402,10 +400,11 @@ local function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
     x_t[y] = value
 
     if (value > stress_threshold_causing_collapse) then
-        if quadrant > 2 then
+        local index = quadrant.index
+        if index > 2 then
             y = -y
         end
-        if quadrant % 2 == 0 then
+        if index % 2 == 0 then
             x = -x
         end
         script.raise_event(
@@ -415,10 +414,11 @@ local function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
     end
     if (enable_stress_grid) then
         local surface = game.surfaces[stress_map.surface_index]
-        if quadrant > 2 then
+        local index = quadrant.index
+        if index > 2 then
             y = -y
         end
-        if quadrant % 2 == 0 then
+        if index % 2 == 0 then
             x = -x
         end
         Debug.print_grid_value(value, surface, {x = x, y = y})
@@ -433,10 +433,10 @@ on_surface_created = function(event)
     local map = stress_map_storage[event.surface_index]
 
     map['surface_index'] = event.surface_index
-    map[1] = {}
-    map[2] = {}
-    map[3] = {}
-    map[4] = {}
+    map[1] = {index = 1}
+    map[2] = {index = 2}
+    map[3] = {index = 3}
+    map[4] = {index = 4}
 end
 --[[--
     Creates a new stress map if it doesn't exist yet and returns it.
@@ -492,16 +492,16 @@ stress_map_blur_add = function(surface, position, factor)
             end
         end
     else
-        local quadrant = 1
+        local quadrant_n = 1
         if x_start < 0 then
-            quadrant = quadrant + 1
+            quadrant_n = quadrant_n + 1
             x_start = -x_start
         end
         if y_start < 0 then
-            quadrant = quadrant + 2
+            quadrant_n = quadrant_n + 2
             y_start = -y_start
         end
-
+        local quadrant = stress_map[quadrant_n]
         for x = -radius, radius do
             for y = -radius, radius do
                 local value = 0
