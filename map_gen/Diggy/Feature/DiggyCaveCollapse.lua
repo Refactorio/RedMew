@@ -90,7 +90,16 @@ local function create_collapse_template(positions, surface)
     for _, new_spawn in pairs({entities, tiles}) do
         for _, tile in pairs(new_spawn) do
             for _, entity in pairs(surface.find_entities_filtered({position = tile.position})) do
-                pcall(function() entity.die() end)
+                pcall(function()
+                    local strength = support_beam_entities[entity.name]
+                    local position = entity.position
+                    local surface = entity.surface
+
+                    entity.die()
+                    if strength then
+                        stress_map_blur_add(surface, position, strength)
+                    end
+                end)
             end
         end
     end
