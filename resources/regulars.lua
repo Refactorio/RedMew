@@ -998,5 +998,12 @@ return {
     ['InphinitePhractals'] = true,
     ['Breadface'] = true,
     ['safariursis'] = true,
-    ['Marucan'] = true
+    ['Marucan'] = true,
+    ['rykstar'] = true,
+    ['CommanderFrog'] = true,
+    ['SchniSchnaSchnuck'] = true,
+    ['Ronin114'] = true,
+    ['masoudd'] = true,
+    ['powder12321'] = true,
+    ['KipenKnos'] = true
 }
