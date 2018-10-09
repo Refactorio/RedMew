@@ -4,6 +4,7 @@ local Global = require 'utils.global'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
 local Game = require 'utils.game'
+local math = require "utils.math"
 
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}

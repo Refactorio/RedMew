@@ -63,24 +63,26 @@ local function sprinkle(shape)
     end
 end
 
+
 local function radial(shape, radius)
-    local stone_r = radius * 0.55
-    local coal_r = radius * 0.65
-    local copper_r = radius * 0.8
+    local radius_sq = radius * radius
+    local stone_r_sq = radius * 0.3025 -- radius * 0.55
+    local coal_r_sq = radius * 0.4225 -- radius * 0.65
+    local copper_r_sq = radius * 0.64 -- radius * 0.8
 
     return function(x, y, world)
         if not shape(x, y) then
             return nil
         end
 
-        local d = math.sqrt(x * x + y * y)
+        local d_sq = x * x + y * y
 
         local ore
-        if d < stone_r then
+        if d_sq < stone_r_sq then
             ore = ores[4]
-        elseif d < coal_r then
+        elseif d_sq < coal_r_sq then
             ore = ores[3]
-        elseif d < copper_r then
+        elseif d_sq < copper_r_sq then
             ore = ores[2]
         else
             ore = ores[1]

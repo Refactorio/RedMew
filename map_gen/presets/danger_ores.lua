@@ -1,6 +1,7 @@
 local b = require 'map_gen.shared.builders'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
+local math = require "utils.math"
 
 local oil_seed
 local uranium_seed

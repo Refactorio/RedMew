@@ -9,6 +9,7 @@ end
 Event.on_init(init)
 
 local radius = 10
+local radius_sq = radius * radius
 
 return function(x, y, world)
 	local entities = world.surface.find_entities_filtered {position = {world.x + 0.5, world.y + 0.5}, type = "resource"}
@@ -38,9 +39,9 @@ return function(x, y, world)
 
 	local x = world.x - world.top_x - 16
 	local y = world.y - world.top_y - 16
-	local d = math.sqrt(x * x + y * y)
+	local d_sq = x * x + y * y
 
-	if d < radius then
+	if d_sq < radius_sq then
 		local ore_spawn = world.ore_spawn
 		local resource_amount = world.resource_amount
 
@@ -49,9 +50,9 @@ return function(x, y, world)
 			amount = world.oil_amount
 		else
 			amount = resource_amount
-			if d < radius / 2 then
+			if d_sq < radius_sq / 4 then
 				amount = resource_amount * 1.5
-			elseif d < radius / 3 then
+			elseif d_sq < radius_sq / 9 then
 				amount = resource_amount * 2
 			end
 		end
