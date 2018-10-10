@@ -163,33 +163,68 @@ local Config = {
             -- chance of spawning aliens when mining
             alien_probability = 0.07,
         },
-        MiningEfficiency = {
-            enabled = true,
-
-            -- percentage * mining productivity level gets added to mining speed
-            mining_speed_productivity_multiplier = 15,
-
-            -- standard mining speed
-            default_mining_speed = 0.4,
-        },
         MarketExchange = {
             enabled = true,
 
+            -- percentage * mining productivity level gets added to mining speed
+            mining_speed_productivity_multiplier = 10,
+
+            -- market config
+            market_spawn_position = {x = 0, y = 4},
             stone_to_surface_amount = 50,
             currency_item = 'stone',
 
             -- price in currency_item
             -- item_name to give
-            -- bulk (defaults to {1}) to add bulk options
-            market_inventory = {
-                {price = 75, item_name = 'small-electric-pole', bulk = {1, 10}},
-                {price = 75, item_name = 'raw-fish'},
-                {price = 175, item_name = 'steel-axe'},
-                {price = 25, item_name = 'stone-brick'},
-                {price = 125, item_name = 'stone-wall'},
-                {price = 1000, item_name = 'submachine-gun'},
-                {price = 100, item_name = 'firearm-magazine', bulk = {1, 10}},
-                {price = 650, item_name = 'light-armor'},
+            unlockables = {
+                {stone = 50, type = 'buff', prototype = {name = 'mining_speed', value = 10}},
+                {stone = 50, type = 'buff', prototype = {name = 'inventory_slot', value = 3}},
+                {stone = 50, type = 'market', prototype = {price = 50, item_name = 'raw-fish'}},
+                {stone = 50, type = 'market', prototype = {price = 175, item_name = 'steel-axe'}},
+
+                {stone = 250, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 250, type = 'buff', prototype = {name = 'inventory_slot', value = 2}},
+                {stone = 250, type = 'market', prototype = {price = 50, item_name = 'small-electric-pole'}},
+                {stone = 250, type = 'market', prototype = {price = 50, item_name = 'small-lamp'}},
+                {stone = 250, type = 'market', prototype = {price = 25, item_name = 'stone-brick'}},
+                {stone = 250, type = 'market', prototype = {price = 125, item_name = 'stone-wall'}},
+
+                {stone = 450, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 450, type = 'buff', prototype = {name = 'inventory_slot', value = 2}},
+                {stone = 450, type = 'market', prototype = {price = 1000, item_name = 'submachine-gun'}},
+                {stone = 450, type = 'market', prototype = {price = 100, item_name = 'firearm-magazine'}},
+                {stone = 450, type = 'market', prototype = {price = 500, item_name = 'light-armor'}},
+
+                {stone = 750, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 750, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 1250, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 1250, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 1750, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 1750, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 2500, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 2500, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 4000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 4000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 6500, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 6500, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 8000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 8000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+
+                {stone = 10000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 10000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 10000, type = 'market', prototype = {price = 175, item_name = 'piercing-rounds-magazine'}},
+                {stone = 10000, type = 'market', prototype = {price = 750, item_name = 'heavy-armor'}},
+
+                {stone = 15000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 15000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 25000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 25000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+
+                {stone = 35000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 35000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 35000, type = 'market', prototype = {price = 1500, item_name = 'modular-armor'}},
+
+                {stone = 50000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
             },
         },
     },
