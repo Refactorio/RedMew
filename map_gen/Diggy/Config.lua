@@ -16,9 +16,6 @@ local Config = {
 
             -- initial starting position size, values higher than 30 might break
             starting_size = 8,
-
-            -- the daytime value used for cave lighting
-            daytime = 0.5,
         },
         SetupPlayer = {
             enabled = true,

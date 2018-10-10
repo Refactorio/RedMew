@@ -9,6 +9,7 @@ local Template = require 'map_gen.Diggy.Template'
 local Debug = require 'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
+local Global = require 'utils.global'
 
 -- this
 local DiggyCaveCollapse = {}
@@ -32,22 +33,27 @@ local disc_value = 0
 local ring_value = 0
 
 local enable_stress_grid = 0
-local stress_map_blur_add = nil
-local mask_disc_blur = nil
-local stress_map_check_stress_in_threshold = nil
-local support_beam_entities = nil
-local on_surface_created = nil
+local stress_map_blur_add
+local mask_disc_blur
+local stress_map_check_stress_in_threshold
+local support_beam_entities
+local on_surface_created
 
 local stress_threshold_causing_collapse = 0.9
 
-global.deconstruction_alert_message_shown = {}
-local deconstruction_alert_message_shown = global.deconstruction_alert_message_shown
+local deconstruction_alert_message_shown = {}
+local stress_map_storage = {}
+local new_tile_map = {}
 
-global.stress_map_storage = {}
-local stress_map_storage = global.stress_map_storage
-
-global.new_tile_map = {}
-local new_tile_map = global.new_tile_map
+Global.register({
+    new_tile_map = new_tile_map,
+    stress_map_storage = stress_map_storage,
+    deconstruction_alert_message_shown = deconstruction_alert_message_shown,
+}, function(tbl)
+    new_tile_map = tbl.new_tile_map
+    stress_map_storage = tbl.stress_map_storage
+    deconstruction_alert_message_shown = tbl.deconstruction_alert_message_shown
+end)
 
 local defaultValue = 0
 

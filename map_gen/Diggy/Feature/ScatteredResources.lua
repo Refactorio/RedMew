@@ -10,10 +10,6 @@ local Template = require 'map_gen.Diggy.Template'
 -- this
 local ScatteredResources = {}
 
-global.ScatteredResources = {
-    can_spawn_resources = false
-}
-
 local function get_name_by_random(collection)
     local random = math.random()
     local current = 0
@@ -71,10 +67,6 @@ function ScatteredResources.register(config)
     end
 
     Event.add(Template.events.on_void_removed, function(event)
-        if (not global.ScatteredResources.can_spawn_resources) then
-            return
-        end
-
         local x = event.old_tile.position.x
         local y = event.old_tile.position.y
 
@@ -90,8 +82,6 @@ function ScatteredResources.register(config)
             spawn_resource(config, event.surface, x, y, distance)
         end
     end)
-
-    global.ScatteredResources.can_spawn_resources = true
 end
 
 function ScatteredResources.get_extra_map_info(config)

@@ -9,28 +9,38 @@ local Task = require 'utils.Task'
 local Gui = require 'utils.gui'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
+local Global = require 'utils.global'
 
 -- this
 local MarketExchange = {}
 
-local config
-global.MarketExchange = {
-    first_time_market_item = {},
+local config = {}
+
+local stone_tracker = {
+    first_time_market_item = nil,
     stone_sent_to_surface = 0,
     previous_stone_sent_to_surface = 0,
-    mining_efficiency = {
-        active_modifier = 0,
-        research_modifier = 0,
-        market_modifier = 0,
-    },
-    inventory_slots = {
-        active_modifier = 0,
-        research_modifier = 0,
-        market_modifier = 0,
-    },
 }
-local mining_efficiency = global.MarketExchange.mining_efficiency
-local inventory_slots = global.MarketExchange.inventory_slots
+local mining_efficiency = {
+    active_modifier = 0,
+    research_modifier = 0,
+    market_modifier = 0,
+}
+local inventory_slots = {
+    active_modifier = 0,
+    research_modifier = 0,
+    market_modifier = 0,
+}
+
+Global.register({
+    stone_tracker = stone_tracker,
+    mining_efficiency = mining_efficiency,
+    inventory_slots = inventory_slots,
+}, function(tbl)
+    stone_tracker = tbl.stone_tracker
+    mining_efficiency = tbl.mining_efficiency
+    inventory_slots = tbl.inventory_slots
+end)
 
 local on_market_timeout_finished = Token.register(function(params)
     Template.market(params.surface, params.position, params.player_force, params.currency_item, {})
@@ -68,17 +78,16 @@ local function update_inventory_slots(force)
 end
 
 local function update_market_contents(market)
-    local market_exchange = global.MarketExchange
     local should_update_mining_speed = false
     local should_update_inventory_slots = false
 
-    if (nil ~= market_exchange.first_time_market_item) then
-        market.add_market_item(market_exchange.first_time_market_item)
-        market_exchange.first_time_market_item = nil
+    if (nil ~= stone_tracker.first_time_market_item) then
+        market.add_market_item(stone_tracker.first_time_market_item)
+        stone_tracker.first_time_market_item = nil
     end
 
     for _, unlockable in pairs(config.unlockables) do
-        local is_in_range = unlockable.stone > market_exchange.previous_stone_sent_to_surface and unlockable.stone <= market_exchange.stone_sent_to_surface
+        local is_in_range = unlockable.stone > stone_tracker.previous_stone_sent_to_surface and unlockable.stone <= stone_tracker.stone_sent_to_surface
 
         -- only add the item to the market if it's between the old and new stone range
         if (is_in_range and unlockable.type == 'market') then
@@ -130,9 +139,8 @@ local function on_market_item_purchased(event)
         return
     end
 
-    local market_exchange = global.MarketExchange
-    market_exchange.previous_stone_sent_to_surface = market_exchange.stone_sent_to_surface
-    market_exchange.stone_sent_to_surface = market_exchange.stone_sent_to_surface + (config.stone_to_surface_amount * event.count)
+    stone_tracker.previous_stone_sent_to_surface = stone_tracker.stone_sent_to_surface
+    stone_tracker.stone_sent_to_surface = stone_tracker.stone_sent_to_surface + (config.stone_to_surface_amount * event.count)
 
     update_market_contents(event.market)
 end
@@ -151,7 +159,7 @@ end
 function MarketExchange.register(cfg)
     config = cfg
 
-    global.MarketExchange.first_time_market_item = {
+    stone_tracker.first_time_market_item = {
         price = {{config.currency_item, 50}},
         offer = {type = 'nothing', effect_description = 'Send ' .. config.stone_to_surface_amount .. ' stone to the surface'}
     }

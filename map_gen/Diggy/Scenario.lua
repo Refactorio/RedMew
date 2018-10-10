@@ -11,7 +11,7 @@ require 'utils.utils'
 local Scenario = {}
 
 -- private state
-local scenario_registered = false
+global.diggy_scenario_registered = false
 
 --[[--
     Allows calling a callback for each enabled feature.
@@ -41,8 +41,8 @@ end
     Register the events required to initialize the scenario.
 ]]
 function Scenario.register(debug)
-    if scenario_registered then
-        error('Cannot register the scenario multiple times.')
+    if global.diggy_scenario_registered then
+        error('Cannot register the Diggy scenario multiple times.')
         return
     end
 
@@ -86,7 +86,7 @@ function Scenario.register(debug)
     ScenarioInfo.set_map_description('Dig your way through!')
     ScenarioInfo.set_map_extra_info(extra_map_info)
 
-    scenario_registered = true
+    global.diggy_scenario_registered = true
 end
 
 return Scenario

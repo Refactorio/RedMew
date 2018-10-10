@@ -11,8 +11,6 @@ local DiggyCaveCollapse = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'
 -- this
 local StartingZone = {}
 
-local daytime
-
 --[[--
     Registers all event handlers.
 ]]
@@ -67,14 +65,12 @@ function StartingZone.register(config)
     callback_token = Token.register(on_chunk_generated)
 
     Event.add_removable(defines.events.on_chunk_generated, callback_token)
-
-    daytime = config.daytime
 end
 
 function StartingZone.on_init()
     local surface = game.surfaces.nauvis
 
-    surface.daytime = daytime
+    surface.daytime = 0.5
     surface.freeze_daytime = 1
 end
 
