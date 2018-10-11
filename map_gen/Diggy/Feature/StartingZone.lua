@@ -24,14 +24,15 @@ function StartingZone.register(config)
 
     local function on_chunk_generated(event)
         local start_point_area = {{-1, -1}, {0, 0}}
+        local surface = event.surface
 
         -- hack to figure out whether the important chunks are generated via Diggy.Feature.RefreshMap.
-        if (4 ~= event.surface.count_tiles_filtered({start_point_area, name = 'lab-dark-1'})) then
+        if (4 ~= surface.count_tiles_filtered({start_point_area, name = 'lab-dark-1'})) then
             return
         end
 
         -- ensure a clean starting point
-        for _, entity in pairs(event.surface.find_entities_filtered({area = start_point_area, type = 'resource'})) do
+        for _, entity in pairs(surface.find_entities_filtered({area = start_point_area, type = 'resource'})) do
             entity.destroy()
         end
 
@@ -55,7 +56,7 @@ function StartingZone.register(config)
 
                     -- hack to avoid starting area from collapsing
                     if (distance > floor(starting_zone_size / 10)) then
-                        DiggyCaveCollapse.stress_map_blur_add(event.surface, {x = x, y = y}, -0.3)
+                        DiggyCaveCollapse.stress_map_blur_add(surface, {x = x, y = y}, -0.3)
                     end
                 end
             end

@@ -87,20 +87,24 @@ function SimpleRoomGenerator.register(config)
             return
         end
 
-        local noise = get_noise(event.surface, position.x, position.y)
+        local surface = event.surface
+        local noise = get_noise(surface, position.x, position.y)
 
         for _, noise_range in pairs(config.room_noise_ranges) do
             if (noise >= noise_range.min and noise <= noise_range.max) then
-                handle_noise(noise_range.name, event.surface, position)
+                handle_noise(noise_range.name, surface, position)
             end
         end
     end)
 
     if (config.enable_noise_grid) then
         Event.add(defines.events.on_chunk_generated, function (event)
-            for x = event.area.left_top.x, event.area.left_top.x + 31 do
-                for y = event.area.left_top.y, event.area.left_top.y + 31 do
-                    Debug.print_grid_value(get_noise(event.surface, x, y), event.surface, {x = x, y = y})
+            local surface = event.surface
+            local area = event.area
+
+            for x = area.left_top.x, area.left_top.x + 31 do
+                for y = area.left_top.y, area.left_top.y + 31 do
+                    Debug.print_grid_value(get_noise(surface, x, y), surface, {x = x, y = y})
                 end
             end
         end)
