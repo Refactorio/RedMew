@@ -2,6 +2,9 @@
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
 local Debug = require 'map_gen.Diggy.Debug'
+local insert = table.insert
+local min = math.min
+local ceil = math.ceil
 
 -- this
 local Template = {}
@@ -40,22 +43,22 @@ local function insert_next_tiles(data)
     pcall(
         function()
             --use pcall to assure tile_iterator is always incremented, to avoid endless loops
-            for i = data.tile_iterator, math.min(data.tile_iterator + tiles_per_call - 1, data.tiles_n) do
+            for i = data.tile_iterator, min(data.tile_iterator + tiles_per_call - 1, data.tiles_n) do
                 local new_tile = data.tiles[i]
-                table.insert(tiles, new_tile)
+                insert(tiles, new_tile)
                 local current_tile = surface.get_tile(new_tile.position.x, new_tile.position.y)
                 local current_is_void = current_tile.name == 'out-of-map'
                 local new_is_void = new_tile.name == 'out-of-map'
 
                 if (current_is_void and not new_is_void) then
-                    table.insert(
+                    insert(
                         void_removed,
                         {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}}
                     )
                 end
 
                 if (new_is_void and not current_is_void) then
-                    table.insert(
+                    insert(
                         void_added,
                         {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}}
                     )
@@ -84,14 +87,14 @@ local function insert_next_entities(data)
     pcall(
         function()
             --use pcall to assure tile_iterator is always incremented, to avoid endless loops
-            for i = data.entity_iterator, math.min(data.entity_iterator + entities_per_call - 1, data.entities_n) do
+            for i = data.entity_iterator, min(data.entity_iterator + entities_per_call - 1, data.entities_n) do
                 local entity = data.entities[i]
                 local created_entity = surface.create_entity(entity)
                 if (nil == created_entity) then
                     error('Failed creating entity ' .. entity.name .. ' on surface.')
                 end
 
-                table.insert(created_entities, created_entity)
+                insert(created_entities, created_entity)
             end
         end
     )
@@ -133,7 +136,7 @@ function Template.insert(surface, tiles, entities)
 
     local tiles_n = #tiles
     local entities_n = #entities
-    local total_calls = math.ceil(tiles_n / tiles_per_call) + (entities_n / entities_per_call)
+    local total_calls = ceil(tiles_n / tiles_per_call) + (entities_n / entities_per_call)
     local data = {
         tiles_n = tiles_n,
         tile_iterator = 1,

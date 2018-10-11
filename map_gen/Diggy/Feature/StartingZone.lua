@@ -7,6 +7,10 @@ local Token = require 'utils.global_token'
 local Template = require 'map_gen.Diggy.Template'
 local Debug = require 'map_gen.Diggy.Debug'
 local DiggyCaveCollapse = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'
+local insert = table.insert
+local random = math.random
+local sqrt = math.sqrt
+local floor = math.floor
 
 -- this
 local StartingZone = {}
@@ -36,21 +40,21 @@ function StartingZone.register(config)
 
         for x = -starting_zone_size, starting_zone_size do
             for y = -starting_zone_size, starting_zone_size do
-                local distance = math.floor(math.sqrt(x * x + y * y))
+                local distance = floor(sqrt(x * x + y * y))
 
                 if (distance < starting_zone_size) then
-                    if (distance > math.floor(starting_zone_size / 2)) then
-                        table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = {x = x, y = y}})
+                    if (distance > floor(starting_zone_size / 2)) then
+                        insert(tiles, {name = 'dirt-' .. random(1, 7), position = {x = x, y = y}})
                     else
-                        table.insert(tiles, {name = 'stone-path', position = {x = x, y = y}})
+                        insert(tiles, {name = 'stone-path', position = {x = x, y = y}})
                     end
 
                     if (distance > starting_zone_size - 2) then
-                        table.insert(rocks, {name = 'sand-rock-big', position = {x = x, y = y}})
+                        insert(rocks, {name = 'sand-rock-big', position = {x = x, y = y}})
                     end
 
                     -- hack to avoid starting area from collapsing
-                    if (distance > math.floor(starting_zone_size / 10)) then
+                    if (distance > floor(starting_zone_size / 10)) then
                         DiggyCaveCollapse.stress_map_blur_add(event.surface, {x = x, y = y}, -0.3)
                     end
                 end

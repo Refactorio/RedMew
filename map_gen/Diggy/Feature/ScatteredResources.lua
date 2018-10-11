@@ -6,22 +6,26 @@
 local Event = require 'utils.event'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
+local random = math.random
+local sqrt = math.sqrt
+local ceil = math.ceil
+local floor = math.floor
 
 -- this
 local ScatteredResources = {}
 
 local function get_name_by_random(collection)
-    local random = math.random()
+    local pre_calculated = random()
     local current = 0
 
     for name, probability in pairs(collection) do
         current = current + probability
-        if (current >= random) then
+        if (current >= pre_calculated) then
             return name
         end
     end
 
-    Debug.print('Current \'' .. current .. '\' should be higher or equal to random \'' .. random .. '\'')
+    Debug.print('Current \'' .. current .. '\' should be higher or equal to random \'' .. pre_calculated .. '\'')
 end
 
 local function spawn_resource(config, surface, x, y, distance)
@@ -32,7 +36,7 @@ local function spawn_resource(config, surface, x, y, distance)
     end
 
     local min_max = config.resource_richness_values[get_name_by_random(config.resource_richness_probability)]
-    local amount = math.ceil(math.random(min_max[1], min_max[2]) * (1 + ((distance / config.distance_richness_modifier) / 100)))
+    local amount = ceil(random(min_max[1], min_max[2]) * (1 + ((distance / config.distance_richness_modifier) / 100)))
 
     if ('crude-oil' == resource_name) then
         amount = amount * config.oil_value_modifier
@@ -70,7 +74,7 @@ function ScatteredResources.register(config)
         local x = event.old_tile.position.x
         local y = event.old_tile.position.y
 
-        local distance = math.floor(math.sqrt(x^2 + y^2))
+        local distance = floor(sqrt(x^2 + y^2))
         local calculated_probability = config.resource_probability + ((distance / config.distance_probability_modifier) / 100)
         local probability = 0.7
 
@@ -78,7 +82,7 @@ function ScatteredResources.register(config)
             probability = calculated_probability
         end
 
-        if (probability > math.random()) then
+        if (probability > random()) then
             spawn_resource(config, event.surface, x, y, distance)
         end
     end)

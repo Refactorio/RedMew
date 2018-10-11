@@ -1,4 +1,8 @@
 -- dependencies
+local min = math.min
+local max = math.max
+local floor = math.floor
+local abs = math.abs
 
 -- this
 local Debug = {}
@@ -74,9 +78,9 @@ end
     @param position Position {x, y}
 ]]
 function Debug.print_grid_value(value, surface, position)
-    value = math.max(-1, math.min(1, value))
+    value = max(-1, min(1, value))
     local r = value
-    local g = 1 - math.abs(value)
+    local g = 1 - abs(value)
     local b = value
 
     if (r > 0) then
@@ -87,12 +91,12 @@ function Debug.print_grid_value(value, surface, position)
         b = 0
     end
 
-    r = math.abs(r)
+    r = abs(r)
 
     local color = { r = r, g = g, b = b}
 
     -- round at precision of 2
-    local text = math.floor(100 * value) / 100
+    local text = floor(100 * value) / 100
 
     if (0 == text) then
         text = '0.00'

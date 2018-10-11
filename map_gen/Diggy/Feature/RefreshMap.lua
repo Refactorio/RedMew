@@ -4,6 +4,7 @@
 
 -- dependencies
 local Event = require 'utils.event'
+local insert = table.insert
 
 -- this
 local RefreshMap = {}
@@ -25,7 +26,7 @@ function RefreshMap.register(config)
                     tile = 'lab-dark-1'
                 end
 
-                table.insert(tiles, {
+                insert(tiles, {
                     name = tile,
                     position = {x = target_x, y = target_y}
                 })

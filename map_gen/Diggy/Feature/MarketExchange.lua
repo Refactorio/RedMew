@@ -47,7 +47,7 @@ local on_market_timeout_finished = Token.register(function(params)
 end)
 
 local function on_init()
-    Task.set_timeout_in_ticks(60, on_market_timeout_finished, {
+    Task.set_timeout_in_ticks(50, on_market_timeout_finished, {
         surface = game.surfaces.nauvis,
         position = config.market_spawn_position,
         player_force = game.forces.player,

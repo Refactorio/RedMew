@@ -10,6 +10,10 @@ local Debug = require 'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
 local Global = require 'utils.global'
+local insert = table.insert
+local random = math.random
+local floor = math.floor
+local abs = math.abs
 
 -- this
 local DiggyCaveCollapse = {}
@@ -73,22 +77,22 @@ local function create_collapse_template(positions, surface)
     for _, position in pairs(positions) do
         map[position.x] = map[position.x] or {}
         map[position.x][position.y] = map[position.x][position.y] or true
-        table.insert(tiles, {position = {x = position.x, y = position.y}, name = 'out-of-map'})
+        insert(tiles, {position = {x = position.x, y = position.y}, name = 'out-of-map'})
     end
 
     for x, y_tbl in pairs(map) do
         for y, _ in pairs(y_tbl) do
             if not map[x] or not map[x][y - 1] then
-                table.insert(entities, {position = {x = x, y = y - 1}, name = 'sand-rock-big'})
+                insert(entities, {position = {x = x, y = y - 1}, name = 'sand-rock-big'})
             end
             if not map[x] or not map[x][y + 1] then
-                table.insert(entities, {position = {x = x, y = y + 1}, name = 'sand-rock-big'})
+                insert(entities, {position = {x = x, y = y + 1}, name = 'sand-rock-big'})
             end
             if not map[x - 1] or not map[x - 1][y] then
-                table.insert(entities, {position = {x = x - 1, y = y}, name = 'sand-rock-big'})
+                insert(entities, {position = {x = x - 1, y = y}, name = 'sand-rock-big'})
             end
             if not map[x + 1] or not map[x + 1][y] then
-                table.insert(entities, {position = {x = x + 1, y = y}, name = 'sand-rock-big'})
+                insert(entities, {position = {x = x + 1, y = y}, name = 'sand-rock-big'})
             end
         end
     end
@@ -128,7 +132,7 @@ local function collapse(args)
                 {x = x, y = y},
                 value,
                 function(_, position)
-                    table.insert(positions, position)
+                    insert(positions, position)
                 end
             )
         end
@@ -140,11 +144,11 @@ end
 local on_collapse_timeout_finished = Token.register(collapse)
 
 local function spawn_cracking_sound_text(surface, position)
-    local text = config.cracking_sounds[math.random(1, #config.cracking_sounds)]
+    local text = config.cracking_sounds[random(1, #config.cracking_sounds)]
 
     local color = {
         r = 1,
-        g = math.random(1, 100) / 100,
+        g = random(1, 100) / 100,
         b = 0
     }
 
@@ -482,15 +486,15 @@ stress_map_check_stress_in_threshold = function(surface, position, threshold, ca
 end
 
 stress_map_blur_add = function(surface, position, factor)
-    local x_start = math.floor(position.x)
-    local y_start = math.floor(position.y)
+    local x_start = floor(position.x)
+    local y_start = floor(position.y)
 
     local stress_map = stress_map_storage[surface.index]
     if not stress_map then
         return
     end
 
-    if radius > math.abs(x_start) or radius > math.abs(y_start) then
+    if radius > abs(x_start) or radius > abs(y_start) then
         for x = -radius, radius do
             for y = -radius, radius do
                 local value = 0
@@ -502,7 +506,7 @@ stress_map_blur_add = function(surface, position, factor)
                 elseif distance_sq <= radius_sq then
                     value = ring_value
                 end
-                if math.abs(value) > 0.001 then
+                if abs(value) > 0.001 then
                     add_fraction(stress_map, x + x_start, y + y_start, value * factor)
                 end
             end
@@ -529,7 +533,7 @@ stress_map_blur_add = function(surface, position, factor)
                 elseif distance_sq <= radius_sq then
                     value = ring_value
                 end
-                if math.abs(value) > 0.001 then
+                if abs(value) > 0.001 then
                     add_fraction_by_quadrant(stress_map, x + x_start, y + y_start, value * factor, quadrant)
                 end
             end
@@ -550,7 +554,7 @@ function mask_init(config)
     disc_weight = config.mask_relative_ring_weights[2]
     center_weight = config.mask_relative_ring_weights[3]
 
-    radius = math.floor(n / 2)
+    radius = floor(n / 2)
 
     radius_sq = (radius + 0.2) * (radius + 0.2)
     center_radius_sq = radius_sq / 9
@@ -588,8 +592,8 @@ end
     @param callback function to execute on each tile within the mask callback(x, y, value)
 ]]
 mask_disc_blur = function(x_start, y_start, factor, callback)
-    x_start = math.floor(x_start)
-    y_start = math.floor(y_start)
+    x_start = floor(x_start)
+    y_start = floor(y_start)
     for x = -radius, radius do
         for y = -radius, radius do
             local value = 0
@@ -601,7 +605,7 @@ mask_disc_blur = function(x_start, y_start, factor, callback)
             elseif distance_sq <= radius_sq then
                 value = ring_value
             end
-            if math.abs(value) > 0.001 then
+            if abs(value) > 0.001 then
                 callback(x_start + x, y_start + y, value * factor)
             end
         end

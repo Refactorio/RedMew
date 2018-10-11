@@ -9,12 +9,18 @@ local Event = require 'utils.event'
 local Debug = require'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
+local Global = require 'utils.global'
 
 -- this
 local SimpleRoomGenerator = {}
 
-global.noise_used_map = {}
-local noise_used_map = global.noise_used_map
+local noise_used_map = {}
+
+Global.register({
+    noise_used_map_map = noise_used_map,
+}, function(tbl)
+    noise_used_map = tbl.noise_used_map
+end)
 
 local do_spawn_tile = Token.register(function(params)
     Template.insert(params.surface, {params.tile}, {})
@@ -53,10 +59,8 @@ end
     Registers all event handlers.
 ]]
 
-local room_noise_minimum_distance_sq
-
 function SimpleRoomGenerator.register(config)
-    room_noise_minimum_distance_sq = config.room_noise_minimum_distance * config.room_noise_minimum_distance
+    local room_noise_minimum_distance_sq = config.room_noise_minimum_distance * config.room_noise_minimum_distance
 
     local function get_noise(surface, x, y)
         local seed = surface.map_gen_settings.seed + surface.index

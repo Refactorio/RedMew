@@ -8,6 +8,8 @@ local Event = require 'utils.event'
 local Scanner = require 'map_gen.Diggy.Scanner'
 local Template = require 'map_gen.Diggy.Template'
 local Debug = require 'map_gen.Diggy.Debug'
+local insert = table.insert
+local random = math.random
 
 -- this
 local DiggyHole = {}
@@ -30,8 +32,8 @@ local function diggy_hole(entity)
     local out_of_map_found = Scanner.scan_around_position(entity.surface, entity.position, 'out-of-map');
 
     for _, position in pairs(out_of_map_found) do
-        table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = {x = position.x, y = position.y}})
-        table.insert(rocks, {name = 'sand-rock-big', position = {x = position.x, y = position.y}})
+        insert(tiles, {name = 'dirt-' .. random(1, 7), position = {x = position.x, y = position.y}})
+        insert(rocks, {name = 'sand-rock-big', position = {x = position.x, y = position.y}})
     end
 
     Template.insert(entity.surface, tiles, rocks)
@@ -53,7 +55,7 @@ local function on_mined_tile(surface, tiles)
 
     for _, tile in pairs(tiles) do
         if (artificial_tiles[tile.old_tile.name]) then
-            table.insert(new_tiles, { name = 'dirt-' .. math.random(1, 7), position = tile.position})
+            insert(new_tiles, { name = 'dirt-' .. random(1, 7), position = tile.position})
         end
     end
 
@@ -67,7 +69,7 @@ local function on_built_tile(surface, item, old_tile_and_positions)
 
     local tiles = {}
     for _, tile in pairs(old_tile_and_positions) do
-        table.insert(tiles, {name = 'dirt-' .. math.random(1, 7), position = tile.position})
+        insert(tiles, {name = 'dirt-' .. random(1, 7), position = tile.position})
     end
 
     Template.insert(surface, tiles)

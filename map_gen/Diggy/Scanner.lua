@@ -1,4 +1,5 @@
 -- dependencies
+local insert = table.insert
 
 -- this
 local Scanner = {}
@@ -16,22 +17,22 @@ function Scanner.scan_around_position(surface, position, tile_search)
 
     -- north
     if (tile_search == surface.get_tile(position.x, position.y - 1).name) then
-        table.insert(tile_found, { x = position.x, y = position.y - 1})
+        insert(tile_found, { x = position.x, y = position.y - 1})
     end
 
     -- east
     if (tile_search == surface.get_tile(position.x + 1, position.y).name) then
-        table.insert(tile_found, { x = position.x + 1, y = position.y})
+        insert(tile_found, { x = position.x + 1, y = position.y})
     end
 
     -- south
     if (tile_search == surface.get_tile(position.x, position.y + 1).name) then
-        table.insert(tile_found, { x = position.x, y = position.y + 1})
+        insert(tile_found, { x = position.x, y = position.y + 1})
     end
 
     -- west
     if (tile_search == surface.get_tile(position.x - 1, position.y).name) then
-        table.insert(tile_found, { x = position.x - 1, y = position.y})
+        insert(tile_found, { x = position.x - 1, y = position.y})
     end
 
     return tile_found;

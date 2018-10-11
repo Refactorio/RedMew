@@ -5,19 +5,20 @@
 
 -- dependencies
 local Global = require 'utils.global'
+local random = math.random
 
 -- this
 local AlienEvolutionProgress = {}
 
-local biter_cache = {}
-local spitter_cache = {}
+local alien_cache = {
+    biters = {},
+    spitters = {},
+}
 
 Global.register({
-    biter_cache = biter_cache,
-    spitter_cache_slots = spitter_cache,
+    alien_cache = alien_cache,
 }, function(tbl)
-    biter_cache = tbl.biter_cache
-    spitter_cache = tbl.spitter_cache
+    alien_cache = tbl.alien_cache
 end)
 
 -- values are in the form {evolution, weight}
@@ -81,37 +82,37 @@ local function get_values(map, evo)
 end
 
 local function get_name_by_random(collection)
-    local random = math.random()
+    local pre_calculated = random()
     local current = 0
 
     for name, probability in pairs(collection) do
         current = current + probability
-        if (current >= random) then
+        if (current >= pre_calculated) then
             return name
         end
     end
 
-    Debug.print('AlienEvolutionProgress.get_name_by_random: Current \'' .. current .. '\' should be higher or equal to random \'' .. random .. '\'')
+    Debug.print('AlienEvolutionProgress.get_name_by_random: Current \'' .. current .. '\' should be higher or equal to random \'' .. pre_calculated .. '\'')
 end
 
 function AlienEvolutionProgress.getBiterValues(evolution)
     local evolution_cache_key = evolution * 100
 
-    if (nil == biter_cache[evolution_cache_key]) then
-        biter_cache[evolution_cache_key] = get_values(biters, evolution)
+    if (nil == alien_cache.biters[evolution_cache_key]) then
+        alien_cache.biters[evolution_cache_key] = get_values(biters, evolution)
     end
 
-    return biter_cache[evolution_cache_key]
+    return alien_cache.biters[evolution_cache_key]
 end
 
 function AlienEvolutionProgress.getSpitterValues(evolution)
     local evolution_cache_key = evolution * 100
 
-    if (nil == spitter_cache[evolution_cache_key]) then
-        spitter_cache[evolution_cache_key] = get_values(spitters, evolution)
+    if (nil == alien_cache.spitters[evolution_cache_key]) then
+        alien_cache.spitters[evolution_cache_key] = get_values(spitters, evolution)
     end
 
-    return spitter_cache[evolution_cache_key]
+    return alien_cache.spitters[evolution_cache_key]
 end
 
 function AlienEvolutionProgress.getBitersByEvolution(total_biters, evolution)

@@ -10,7 +10,6 @@ require 'utils.utils'
 -- this
 local Scenario = {}
 
--- private state
 global.diggy_scenario_registered = false
 
 --[[--
