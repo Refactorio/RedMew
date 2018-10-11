@@ -28,15 +28,16 @@ local function diggy_hole(entity)
 
     local tiles = {}
     local rocks = {}
+    local surface = entity.surface
 
-    local out_of_map_found = Scanner.scan_around_position(entity.surface, entity.position, 'out-of-map');
+    local out_of_map_found = Scanner.scan_around_position(surface, entity.position, 'out-of-map');
 
     for _, position in pairs(out_of_map_found) do
-        insert(tiles, {name = 'dirt-' .. random(1, 7), position = {x = position.x, y = position.y}})
-        insert(rocks, {name = 'sand-rock-big', position = {x = position.x, y = position.y}})
+        insert(tiles, {name = 'dirt-' .. random(1, 7), position = position})
+        insert(rocks, {name = 'sand-rock-big', position = position})
     end
 
-    Template.insert(entity.surface, tiles, rocks)
+    Template.insert(surface, tiles, rocks)
 end
 
 local artificial_tiles = {

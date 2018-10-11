@@ -5,6 +5,7 @@ local Debug = require 'map_gen.Diggy.Debug'
 local insert = table.insert
 local min = math.min
 local ceil = math.ceil
+local raise_event = script.raise_event
 
 -- this
 local Template = {}
@@ -38,6 +39,7 @@ local function insert_next_tiles(data)
     local void_removed = {}
     local void_added = {}
     local surface = data.surface
+    local get_tile = surface.get_tile
     local tiles = {}
 
     pcall(
@@ -46,7 +48,7 @@ local function insert_next_tiles(data)
             for i = data.tile_iterator, min(data.tile_iterator + tiles_per_call - 1, data.tiles_n) do
                 local new_tile = data.tiles[i]
                 insert(tiles, new_tile)
-                local current_tile = surface.get_tile(new_tile.position.x, new_tile.position.y)
+                local current_tile = get_tile(new_tile.position.x, new_tile.position.y)
                 local current_is_void = current_tile.name == 'out-of-map'
                 local new_is_void = new_tile.name == 'out-of-map'
 
@@ -72,24 +74,25 @@ local function insert_next_tiles(data)
     surface.set_tiles(tiles)
 
     for _, event in pairs(void_removed) do
-        script.raise_event(Template.events.on_void_removed, event)
+        raise_event(Template.events.on_void_removed, event)
     end
 
     for _, event in pairs(void_added) do
-        script.raise_event(Template.events.on_void_added, event)
+        raise_event(Template.events.on_void_added, event)
     end
 end
 
 local function insert_next_entities(data)
     local created_entities = {}
     local surface = data.surface
+    local create_entity = surface.create_entity
 
     pcall(
         function()
             --use pcall to assure tile_iterator is always incremented, to avoid endless loops
             for i = data.entity_iterator, min(data.entity_iterator + entities_per_call - 1, data.entities_n) do
                 local entity = data.entities[i]
-                local created_entity = surface.create_entity(entity)
+                local created_entity = create_entity(entity)
                 if (nil == created_entity) then
                     error('Failed creating entity ' .. entity.name .. ' on surface.')
                 end
@@ -102,7 +105,7 @@ local function insert_next_entities(data)
     data.entity_iterator = data.entity_iterator + entities_per_call
 
     for _, entity in pairs(created_entities) do
-        script.raise_event(Template.events.on_placed_entity, {entity = entity})
+        raise_event(Template.events.on_placed_entity, {entity = entity})
     end
 
     return data.entity_iterator <= data.entities_n
@@ -130,7 +133,6 @@ local insert_token = Token.register(insert_action)
     @param entities table of entities as required by create_entity
 ]]
 function Template.insert(surface, tiles, entities)
-
     tiles = tiles or {}
     entities = entities or {}
 
@@ -154,6 +156,7 @@ function Template.insert(surface, tiles, entities)
             return
         end
     end
+
     if continue then
         Task.queue_task(insert_token, data, total_calls - 4)
     end
@@ -170,14 +173,17 @@ end
 ]]
 function Template.units(surface, units, non_colliding_distance)
     non_colliding_distance = non_colliding_distance or 1
+    local create_entity = surface.create_entity
+    local find_non_colliding_position = surface.find_non_colliding_position
+
     for _, entity in pairs(units) do
-        local position = surface.find_non_colliding_position(entity.name, entity.position, non_colliding_distance, 1)
+        local position = find_non_colliding_position(entity.name, entity.position, non_colliding_distance, 1)
 
         if (nil ~= position) then
             entity.position = position
-            surface.create_entity(entity)
+            create_entity(entity)
         else
-            Debug.print("Failed to spawn '" .. entity.name .. "' at '" .. serpent.line(entity.position) .. "'")
+            Debug.printPosition(entity.position, "Failed to spawn '" .. entity.name .. "'")
         end
     end
 end
@@ -191,8 +197,9 @@ end
     @param resources table of entities as required by create_entity
 ]]
 function Template.resources(surface, resources)
+    local create_entity = surface.create_entity
     for _, entity in pairs(resources) do
-        surface.create_entity(entity)
+        create_entity(entity)
     end
 end
 
@@ -207,10 +214,11 @@ end
 ]]
 function Template.market(surface, position, force, currency_item, market_inventory)
     local market = surface.create_entity({name = 'market', position = position})
+    local add_market_item = market.add_market_item
     market.destructible = false
 
     for _, item in ipairs(market_inventory) do
-        market.add_market_item(item)
+        add_market_item(item)
     end
 
     force.add_chart_tag(surface, {
@@ -219,7 +227,7 @@ function Template.market(surface, position, force, currency_item, market_invento
         position = position,
     })
 
-    script.raise_event(Template.events.on_placed_entity, {entity = market})
+    raise_event(Template.events.on_placed_entity, {entity = market})
 end
 
 return Template

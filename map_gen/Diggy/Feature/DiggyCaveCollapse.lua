@@ -75,9 +75,11 @@ local function create_collapse_template(positions, surface)
     local tiles = {}
     local map = {}
     for _, position in pairs(positions) do
-        map[position.x] = map[position.x] or {}
-        map[position.x][position.y] = map[position.x][position.y] or true
-        insert(tiles, {position = {x = position.x, y = position.y}, name = 'out-of-map'})
+        local x = position.x
+        local y = position.y
+        map[x] = map[x] or {}
+        map[x][y] = map[x][y] or true
+        insert(tiles, {position = {x = x, y = y}, name = 'out-of-map'})
     end
 
     for x, y_tbl in pairs(map) do
@@ -97,13 +99,14 @@ local function create_collapse_template(positions, surface)
         end
     end
 
+    local find_entities_filtered = surface.find_entities_filtered
+
     for _, new_spawn in pairs({entities, tiles}) do
         for _, tile in pairs(new_spawn) do
-            for _, entity in pairs(surface.find_entities_filtered({position = tile.position})) do
+            for _, entity in pairs(find_entities_filtered({position = tile.position})) do
                 pcall(function()
                     local strength = support_beam_entities[entity.name]
                     local position = entity.position
-                    local surface = entity.surface
 
                     entity.die()
                     if strength then
@@ -165,21 +168,22 @@ local function spawn_cracking_sound_text(surface, position)
 end
 
 local function on_collapse_triggered(event)
-      local position = event.position
-      local x = position.x
-      local y = position.y
+    local surface = event.surface
+    local position = event.position
+    local x = position.x
+    local y = position.y
 
-      local x_t = new_tile_map[x]
-      if x_t and x_t[y] then
-          Template.insert(event.surface, {}, {{position = position, name = 'sand-rock-big'}})
-      else
-          spawn_cracking_sound_text(event.surface, position)
-          Task.set_timeout(
-              config.collapse_delay,
-              on_collapse_timeout_finished,
-              {surface = event.surface, position = position}
-          )
-      end
+    local x_t = new_tile_map[x]
+    if x_t and x_t[y] then
+        Template.insert(surface, {}, {{position = position, name = 'sand-rock-big'}})
+        return
+    end
+    spawn_cracking_sound_text(surface, position)
+    Task.set_timeout(
+        config.collapse_delay,
+        on_collapse_timeout_finished,
+        {surface = surface, position = position}
+    )
 end
 
 local function on_built_tile(surface, new_tile, tiles)
@@ -187,21 +191,23 @@ local function on_built_tile(surface, new_tile, tiles)
 
     for _, tile in pairs(tiles) do
         if new_tile_strength then
-            stress_map_blur_add(surface, tile.position, -1 * new_tile_strength, 'on_built_tile')
+            stress_map_blur_add(surface, tile.position, -1 * new_tile_strength)
         end
 
         local old_tile_strength = support_beam_entities[tile.old_tile.name]
         if (old_tile_strength) then
-            stress_map_blur_add(surface, tile.position, old_tile_strength, 'on_built_tile')
+            stress_map_blur_add(surface, tile.position, old_tile_strength)
         end
     end
 end
 
 local function on_robot_mined_tile(event)
+    local surface
     for _, tile in pairs(event.tiles) do
         local strength = support_beam_entities[tile.old_tile.name]
         if strength then
-            stress_map_blur_add(event.robot.surface, tile.position, strength)
+            surface = surface or event.robot.surface
+            stress_map_blur_add(surface, tile.position, strength)
         end
     end
 end
@@ -218,23 +224,20 @@ local function on_player_mined_tile(event)
 end
 
 local function on_mined_entity(event)
-    local strength = support_beam_entities[event.entity.name]
+    local entity = event.entity
+    local strength = support_beam_entities[entity.name]
 
     if strength then
-        stress_map_blur_add(event.entity.surface, event.entity.position, strength)
+        stress_map_blur_add(entity.surface, entity.position, strength)
     end
 end
 
 local function on_built_entity(event)
-    local strength = support_beam_entities[event.created_entity.name]
+    local entity = event.created_entity
+    local strength = support_beam_entities[entity.name]
 
     if strength then
-        stress_map_blur_add(
-            event.created_entity.surface,
-            event.created_entity.position,
-            -1 * strength,
-            'on_built_entity'
-        )
+        stress_map_blur_add(entity.surface, entity.position, -1 * strength)
     end
 end
 

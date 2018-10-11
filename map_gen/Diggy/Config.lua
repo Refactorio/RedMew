@@ -43,7 +43,7 @@ local Config = {
             mask_size = 9,
 
             --how much the mask will effect tiles in the different rings of the mask
-            mask_relative_ring_weights = {2,3,4},
+            mask_relative_ring_weights = {2, 3, 4},
 
             -- delay in seconds before the cave collapses
             collapse_delay = 2.5,
