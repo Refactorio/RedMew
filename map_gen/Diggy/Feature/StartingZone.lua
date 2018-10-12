@@ -23,7 +23,7 @@ function StartingZone.register(config)
     local starting_zone_size = config.starting_size
 
     local function on_chunk_generated(event)
-        local start_point_area = {{-1, -1}, {0, 0}}
+        local start_point_area = {{-0.9, -0.9}, {0.9, 0.9}}
         local surface = event.surface
 
         -- hack to figure out whether the important chunks are generated via Diggy.Feature.RefreshMap.

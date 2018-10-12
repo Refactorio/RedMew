@@ -125,7 +125,7 @@ local function collapse(args)
     local surface = args.surface
     local positions = {}
     local tiles = {}
-    local entities = nil
+    local entities
     mask_disc_blur(
         position.x,  position.y,
         config.collapse_threshold_total_strength,
@@ -330,7 +330,7 @@ function DiggyCaveCollapse.register(cfg)
         if (nil ~= support_beam_entities[event.entity.name]) then
             require 'popup'.player(
                 game.players[event.player_index],
-                'Mining entities such as walls, stone paths, concrete and rocks, can cause a cave-in, be careful miner!'
+                'Mining entities such as walls, stone paths, concrete \nand rocks, can cause a cave-in, be careful miner!'
             )
             deconstruction_alert_message_shown[event.player_index] = true
         end
@@ -477,7 +477,6 @@ end
     @param position Position with x and y
     @param number threshold
     @param callback
-
 ]]
 stress_map_check_stress_in_threshold = function(surface, position, threshold, callback)
     local stress_map = stress_map_storage[surface.index]

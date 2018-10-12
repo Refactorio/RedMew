@@ -5,6 +5,7 @@
 -- dependencies
 local Event = require 'utils.event'
 local Debug = require 'map_gen.Diggy.Debug'
+local math_random = math.random
 
 -- this
 local SetupPlayer = {}
@@ -20,7 +21,7 @@ function SetupPlayer.register(config)
             player.insert(item)
         end
 
-        player.teleport({x = 0, y = 0})
+        player.teleport({x = math_random(-4, 4) / 10, y = math_random(-4, 4) / 10})
 
         Debug.cheat(function()
             player.force.manual_mining_speed_modifier = config.cheats.manual_mining_speed_modifier

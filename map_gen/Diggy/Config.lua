@@ -3,10 +3,10 @@
 -- this
 local Config = {
     -- enable debug mode, shows extra messages
-    debug = true,
+    debug = false,
 
     -- allow cheats. Example: by default the player will have X mining speed
-    cheats = true,
+    cheats = false,
 
     -- a list of features to register and enable
     -- to disable a feature, change the flag
@@ -205,19 +205,38 @@ local Config = {
 
                 {stone = 10000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 10000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
-                {stone = 10000, type = 'market', prototype = {price = 100, name = 'piercing-rounds-magazine'}},
                 {stone = 10000, type = 'market', prototype = {price = 750, name = 'heavy-armor'}},
 
-                {stone = 15000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 15000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 15000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
-                {stone = 25000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 25000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 25000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
 
-                {stone = 35000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
+                {stone = 35000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 35000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 35000, type = 'market', prototype = {price = 100, name = 'piercing-rounds-magazine'}},
                 {stone = 35000, type = 'market', prototype = {price = 1500, name = 'modular-armor'}},
 
+                {stone = 50000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 50000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+
+                {stone = 75000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 75000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+
+                {stone = 100000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 100000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+
+                {stone = 125000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 150000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 175000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 200000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 225000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 250000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 275000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 300000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 350000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 400000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 500000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
             },
         },
     },
