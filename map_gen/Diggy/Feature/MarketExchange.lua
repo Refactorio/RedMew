@@ -125,29 +125,6 @@ local function on_research_finished(event)
     update_mining_speed(force)
 end
 
-local function on_market_item_purchased(event)
-    if (1 ~= event.offer_index) then
-        return
-    end
-
-    stone_tracker.previous_stone_sent_to_surface = stone_tracker.stone_sent_to_surface
-    stone_tracker.stone_sent_to_surface = stone_tracker.stone_sent_to_surface + (config.stone_to_surface_amount * event.count)
-
-    update_market_contents(event.market)
-end
-
-local function on_placed_entity(event)
-    if ('market' ~= event.entity.name) then
-        return
-    end
-
-    update_market_contents(event.entity)
-end
-
-function MarketExchange.get_extra_map_info(config)
-    return 'Market Exchange, trade your stone or send it to the surface'
-end
-
 local function redraw_title(data)
     data.frame.caption = stone_tracker.stone_sent_to_surface .. ' stone sent to the surface'
 end
@@ -179,6 +156,37 @@ local function redraw_list(data)
             label.style.font_color = {r = 0.5, g = 0.5, b = 0.5}
         end
     end
+end
+
+local function on_market_item_purchased(event)
+    if (1 ~= event.offer_index) then
+        return
+    end
+
+    stone_tracker.previous_stone_sent_to_surface = stone_tracker.stone_sent_to_surface
+    stone_tracker.stone_sent_to_surface = stone_tracker.stone_sent_to_surface + (config.stone_to_surface_amount * event.count)
+
+    update_market_contents(event.market)
+
+    local frame = game.players[event.player_index].gui.center['Diggy.MarketExchange.Frame']
+
+    if frame and frame.valid then
+        local data = Gui.get_data(frame)
+        redraw_title(data)
+        redraw_list(data)
+    end
+end
+
+local function on_placed_entity(event)
+    if ('market' ~= event.entity.name) then
+        return
+    end
+
+    update_market_contents(event.entity)
+end
+
+function MarketExchange.get_extra_map_info(config)
+    return 'Market Exchange, trade your stone or send it to the surface'
 end
 
 local function toggle(event)

@@ -76,7 +76,7 @@ local Config = {
             enabled = true,
 
             -- value between 0 and 1, higher value means stronger variance between coordinates
-            noise_variance = 0.089,
+            noise_variance = 0.066,
 
             -- adds per tile what the current noise is
             enable_noise_grid = false,
@@ -84,10 +84,8 @@ local Config = {
             -- minimum distance and noise range required for water to spawn
             room_noise_minimum_distance = 9,
             room_noise_ranges = {
-                {name = 'water', min = -1, max = -0.52},
-                {name = 'dirt', min = -0.51, max = -0.33},
-                {name = 'water', min = 0.52, max = 1},
-                {name = 'dirt', min = 0.33, max = 0.51},
+                {name = 'water', min = 0.54, max = 1},
+                {name = 'dirt', min = 0.39, max = 0.53},
             },
         },
         ScatteredResources = {
@@ -186,8 +184,8 @@ local Config = {
 
                 {stone = 450, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 450, type = 'buff', prototype = {name = 'inventory_slot', value = 2}},
-                {stone = 450, type = 'market', prototype = {price = 1000, name = 'submachine-gun'}},
-                {stone = 450, type = 'market', prototype = {price = 100, name = 'firearm-magazine'}},
+                {stone = 450, type = 'market', prototype = {price = 850, name = 'submachine-gun'}},
+                {stone = 450, type = 'market', prototype = {price = 50, name = 'firearm-magazine'}},
                 {stone = 450, type = 'market', prototype = {price = 500, name = 'light-armor'}},
 
                 {stone = 750, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
@@ -207,7 +205,7 @@ local Config = {
 
                 {stone = 10000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 10000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
-                {stone = 10000, type = 'market', prototype = {price = 175, name = 'piercing-rounds-magazine'}},
+                {stone = 10000, type = 'market', prototype = {price = 100, name = 'piercing-rounds-magazine'}},
                 {stone = 10000, type = 'market', prototype = {price = 750, name = 'heavy-armor'}},
 
                 {stone = 15000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},

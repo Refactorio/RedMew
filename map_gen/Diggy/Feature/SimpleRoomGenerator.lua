@@ -17,7 +17,7 @@ local SimpleRoomGenerator = {}
 local noise_used_map = {}
 
 Global.register({
-    noise_used_map_map = noise_used_map,
+    noise_used_map = noise_used_map,
 }, function(tbl)
     noise_used_map = tbl.noise_used_map
 end)
