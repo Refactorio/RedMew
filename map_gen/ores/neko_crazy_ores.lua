@@ -17,8 +17,8 @@ end
 Event.on_init(run_ores_module_setup)
 
 return function(x, y, world)
-    local d = math.sqrt(world.x * world.x + world.y * world.y)
-    if d < 96 then
+    local d_sq = world.x * world.x + world.y * world.y
+    if d_sq < 9216 then
         return
     end
 

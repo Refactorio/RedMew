@@ -1,3 +1,5 @@
+local math = require "utils.math"
+
 -- helpers
 tau = 2 * math.pi
 deg_to_rad = tau / 360
@@ -1435,8 +1437,8 @@ end
 
 function Builders.exponential_value(base, mult, pow)
     return function(x, y)
-        local d = math.sqrt(x * x + y * y)
-        return base + mult * d ^ pow
+        local d_sq = x * x + y * y
+        return base + mult * d_sq ^ (pow / 2)
     end
 end
 

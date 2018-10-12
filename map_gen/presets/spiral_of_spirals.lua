@@ -16,8 +16,8 @@ map = b.scale(map, 64)
 
 local function value(base, mult, pow)
     return function(x, y)
-        local d = math.sqrt(x * x + y * y)
-        return base + mult * d ^ pow
+        local d_sq = x * x + y * y
+        return base + mult * d_sq ^ (pow / 2) --d ^ pow
     end
 end
 

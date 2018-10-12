@@ -82,9 +82,9 @@ return function(x, y)
         return nil
     end
 
-    local d = math.sqrt(x * x + y * y)
+    local d_sq = x * x + y * y
     local name
-    if d < 200 then
+    if d_sq < 40000 then
         name = 'car'
     else
         if math.random(10) == 1 then
