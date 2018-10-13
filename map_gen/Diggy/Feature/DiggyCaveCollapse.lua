@@ -43,7 +43,7 @@ local stress_map_check_stress_in_threshold
 local support_beam_entities
 local on_surface_created
 
-local stress_threshold_causing_collapse = 0.9
+local stress_threshold_causing_collapse = 0.91
 
 local deconstruction_alert_message_shown = {}
 local stress_map_storage = {}
@@ -345,8 +345,14 @@ function DiggyCaveCollapse.register(cfg)
 
         if (nil ~= support_beam_entities[event.entity.name]) then
             require 'popup'.player(
-                game.players[event.player_index],
-                'Mining entities such as walls, stone paths, concrete \nand rocks, can cause a cave-in, be careful miner!'
+                game.players[event.player_index],[[
+Mining entities such as walls, stone paths, concrete
+and rocks, can cause a cave-in, be careful miner!
+
+Foreman's advice: Place a wall every 4th tile to
+prevent a cave-in. Use stone paths and concrete
+to reinforce it further.
+]]
             )
             deconstruction_alert_message_shown[event.player_index] = true
         end
