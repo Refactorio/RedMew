@@ -48,15 +48,22 @@ local stress_threshold_causing_collapse = 0.91
 local deconstruction_alert_message_shown = {}
 local stress_map_storage = {}
 local new_tile_map = {}
+local collapse_positions_storage = {}
+local cave_collapse_disabled = nil
+
 
 Global.register({
     new_tile_map = new_tile_map,
     stress_map_storage = stress_map_storage,
     deconstruction_alert_message_shown = deconstruction_alert_message_shown,
+    collapse_positions_storage = collapse_positions_storage,
+    cave_collapse_disabled = cave_collapse_disabled,
 }, function(tbl)
     new_tile_map = tbl.new_tile_map
     stress_map_storage = tbl.stress_map_storage
     deconstruction_alert_message_shown = tbl.deconstruction_alert_message_shown
+    collapse_positions_storage = tbl.collapse_positions_storage
+    cave_collapse_disabled = tbl.cave_collapse_disabled
 end)
 
 local defaultValue = 0
@@ -168,6 +175,9 @@ local function spawn_cracking_sound_text(surface, position)
 end
 
 local function on_collapse_triggered(event)
+
+    if cave_collapse_disabled then return end --kill switch
+
     local surface = event.surface
     local position = event.position
     local x = position.x
@@ -353,6 +363,19 @@ to reinforce it further.
             Debug.print_grid_value(fraction, surface, {x = x, y = y})
         end)
     end
+
+    commands.add_command('toggle-cave-collapse', 'Toggles cave collapse (admins only).', function()
+      pcall(function() --better safe than sorry
+          if not game.player or game.player.admin then
+              cave_collapse_disabled = not cave_collapse_disabled
+              if cave_collapse_disabled then
+                  game.print("Cave collapse: Disabled.")
+              else
+                  game.print("Cave collapse: Enabled.")
+              end
+          end
+      end)
+    end)
 end
 
 --
@@ -396,7 +419,7 @@ function add_fraction(stress_map, x, y, fraction)
 
     x_t[y] = value
 
-    if (value > stress_threshold_causing_collapse) then
+    if (value > stress_threshold_causing_collapse and fraction > 0) then
         if quadrant > 2 then
             y = -y
         end
@@ -437,7 +460,7 @@ function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
 
     x_t[y] = value
 
-    if (value > stress_threshold_causing_collapse) then
+    if (value > stress_threshold_causing_collapse and fraction > 0) then
         local index = quadrant.index
         if index > 2 then
             y = -y
