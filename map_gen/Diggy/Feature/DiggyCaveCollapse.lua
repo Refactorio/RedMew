@@ -43,7 +43,7 @@ local stress_map_check_stress_in_threshold
 local support_beam_entities
 local on_surface_created
 
-local stress_threshold_causing_collapse = 0.91
+local stress_threshold_causing_collapse = 1
 
 local deconstruction_alert_message_shown = {}
 local stress_map_storage = {}
@@ -133,9 +133,10 @@ local function collapse(args)
     local positions = {}
     local tiles = {}
     local entities
+    local strength = config.collapse_threshold_total_strength
     mask_disc_blur(
         position.x,  position.y,
-        config.collapse_threshold_total_strength,
+        strength,
         function(x, y, value)
             stress_map_check_stress_in_threshold(
                 surface,
@@ -419,7 +420,7 @@ function add_fraction(stress_map, x, y, fraction)
 
     x_t[y] = value
 
-    if (value > stress_threshold_causing_collapse and fraction > 0) then
+    if (fraction > 0 and value > stress_threshold_causing_collapse) then
         if quadrant > 2 then
             y = -y
         end
@@ -460,7 +461,7 @@ function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
 
     x_t[y] = value
 
-    if (value > stress_threshold_causing_collapse and fraction > 0) then
+    if (fraction > 0 and value > stress_threshold_causing_collapse) then
         local index = quadrant.index
         if index > 2 then
             y = -y

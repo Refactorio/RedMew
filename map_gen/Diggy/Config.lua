@@ -49,24 +49,25 @@ local Config = {
             collapse_delay = 2.5,
 
             -- the threshold that will be applied to all neighbors on a collapse via a mask
-            collapse_threshold_total_strength = 15,
+            collapse_threshold_total_strength = 16,
 
             support_beam_entities = {
-                ['market'] = 9,
-                ['stone-wall'] = 3,
-                ['sand-rock-big'] = 2,
-                ['out-of-map'] = 1,
-                ['stone-brick'] = 0.05,
-                ['stone-path'] = 0.05,
-                ['concrete'] = 0.10,
-                ['hazard-concrete-left'] = 0.10,
-                ['hazard-concrete-right'] = 0.10,
-                ['refined-concrete'] = 0.13,
-                ['refined-hazard-concrete-left'] = 0.13,
-                ['refined-hazard-concrete-right'] = 0.13,
+                ['market'] = 10,
+                ['stone-wall'] = 3.3,
+                ['sand-rock-big'] = 2.2,
+                ['out-of-map'] = 1.1,
+                ['stone-brick'] = 0.055,
+                ['stone-path'] = 0.055,
+                ['concrete'] = 0.33,
+                ['hazard-concrete-left'] = 0.33,
+                ['hazard-concrete-right'] = 0.33,
+                ['refined-concrete'] = 0.77,
+                ['refined-hazard-concrete-left'] = 0.77,
+                ['refined-hazard-concrete-right'] = 0.77,
             },
             cracking_sounds = {
               'CRACK',
+              'KRRRR',
             }
         },
         RefreshMap = {
@@ -150,7 +151,7 @@ local Config = {
             },
         },
         AlienSpawner = {
-            enabled = true,
+            enabled = false,
 
             -- minimum distance from spawn before aliens can spawn
             alien_minimum_distance = 35,
