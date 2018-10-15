@@ -265,13 +265,6 @@ local function on_void_removed(event)
     Task.set_timeout(3, on_new_tile_timeout_finished, {x = x, y = y})
 end
 
-local function on_void_added(event)
-    local strength = support_beam_entities['out-of-map']
-    if strength then
-        stress_map_add(event.surface, event.old_tile.position, -1 * strength)
-    end
-end
-
 --[[--
     Registers all event handlers.]
 
@@ -297,7 +290,6 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(defines.events.on_entity_died, on_mined_entity)
     Event.add(defines.events.on_player_mined_entity, on_mined_entity)
     Event.add(Template.events.on_void_removed, on_void_removed)
-    Event.add(Template.events.on_void_added, on_void_added)
     Event.add(defines.events.on_surface_created, on_surface_created)
 
     Event.add(defines.events.on_marked_for_deconstruction, function (event)
