@@ -79,60 +79,32 @@ DiggyCaveCollapse.events = {
 
 local function create_collapse_template(positions, surface)
     local entities = {}
-    local tiles = {}
-    local map = {}
-    for _, position in pairs(positions) do
-        local x = position.x
-        local y = position.y
-        map[x] = map[x] or {}
-        map[x][y] = map[x][y] or true
-        insert(tiles, {position = {x = x, y = y}, name = 'out-of-map'})
-    end
-
-    for x, y_tbl in pairs(map) do
-        for y, _ in pairs(y_tbl) do
-            if not map[x] or not map[x][y - 1] then
-                insert(entities, {position = {x = x, y = y - 1}, name = 'sand-rock-big'})
-            end
-            if not map[x] or not map[x][y + 1] then
-                insert(entities, {position = {x = x, y = y + 1}, name = 'sand-rock-big'})
-            end
-            if not map[x - 1] or not map[x - 1][y] then
-                insert(entities, {position = {x = x - 1, y = y}, name = 'sand-rock-big'})
-            end
-            if not map[x + 1] or not map[x + 1][y] then
-                insert(entities, {position = {x = x + 1, y = y}, name = 'sand-rock-big'})
-            end
-        end
-    end
 
     local find_entities_filtered = surface.find_entities_filtered
 
-    for _, new_spawn in pairs({entities, tiles}) do
-        for _, tile in pairs(new_spawn) do
-            for _, entity in pairs(find_entities_filtered({position = tile.position})) do
-                pcall(function()
-                    local strength = support_beam_entities[entity.name]
-                    local position = entity.position
+    for _, position in pairs(positions) do
+        local x = position.x
+        local y = position.y
+        insert(entities, {position = {x = x, y = y}, name = 'sand-rock-big'})
 
-                    entity.die()
-                    if strength then
-                        stress_map_blur_add(surface, position, strength)
-                    end
-                end)
-            end
+        for _, entity in pairs(find_entities_filtered({position = position})) do
+            pcall(function()
+                local strength = support_beam_entities[entity.name]
+                local position = entity.position
+                entity.die()
+                if strength then
+                    stress_map_blur_add(surface, position, strength)
+                end
+            end)
         end
     end
-
-    return tiles, entities
+    return entities
 end
 
 local function collapse(args)
     local position = args.position
     local surface = args.surface
     local positions = {}
-    local tiles = {}
-    local entities
     local strength = config.collapse_threshold_total_strength
     mask_disc_blur(
         position.x,  position.y,
@@ -148,8 +120,8 @@ local function collapse(args)
             )
         end
     )
-    tiles, entities = create_collapse_template(positions, surface)
-    Template.insert(surface, tiles, entities)
+    local entities = create_collapse_template(positions, surface)
+    Template.insert(surface, {}, entities)
 end
 
 local on_collapse_timeout_finished = Token.register(collapse)
