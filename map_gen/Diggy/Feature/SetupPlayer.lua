@@ -5,10 +5,14 @@
 -- dependencies
 local Event = require 'utils.event'
 local Debug = require 'map_gen.Diggy.Debug'
-local math_random = math.random
 
 -- this
 local SetupPlayer = {}
+
+global.SetupPlayer = {
+    first_player_spawned = false,
+}
+
 
 --[[--
     Registers all event handlers.
@@ -16,12 +20,21 @@ local SetupPlayer = {}
 function SetupPlayer.register(config)
     Event.add(defines.events.on_player_created, function (event)
         local player = game.players[event.player_index]
+        local position = {0, 0}
+        local surface = player.surface
 
         for _, item in pairs(config.starting_items) do
             player.insert(item)
         end
 
-        player.teleport({x = math_random(-4, 4) / 10, y = math_random(-4, 4) / 10})
+        if (global.SetupPlayer.first_player_spawned) then
+            position = surface.find_non_colliding_position('player', position, 3, 0.1)
+        else
+            global.SetupPlayer.first_player_spawned = true
+        end
+
+        player.force.set_spawn_position(position, surface)
+        player.teleport(position)
 
         Debug.cheat(function()
             player.force.manual_mining_speed_modifier = config.cheats.manual_mining_speed_modifier
