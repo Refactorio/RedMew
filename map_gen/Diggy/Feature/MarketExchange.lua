@@ -82,16 +82,23 @@ local function update_market_contents(market)
 
         -- only add the item to the market if it's between the old and new stone range
         if (is_in_range and unlockable.type == 'market') then
+            local name = unlockable.prototype.name
+            local price = unlockable.prototype.price
+            game.print('Mining Foreman: New wares at the market! Come get your ' .. name .. ' for only ' .. price .. ' ' .. config.currency_item .. '!')
             market.add_market_item({
-                price = {{config.currency_item, unlockable.prototype.price}},
-                offer = {type = 'give-item', item = unlockable.prototype.name, count = 1}
+                price = {{config.currency_item, price}},
+                offer = {type = 'give-item', item = name, count = 1}
             })
         elseif (is_in_range and unlockable.type == 'buff' and unlockable.prototype.name == 'mining_speed') then
+            local value = unlockable.prototype.value
+            game.print('Mining Foreman: Increased mining speed by ' .. value .. '%!')
             should_update_mining_speed = true
-            mining_efficiency.market_modifier = mining_efficiency.market_modifier + (unlockable.prototype.value / 100)
+            mining_efficiency.market_modifier = mining_efficiency.market_modifier + (value / 100)
         elseif (is_in_range and unlockable.type == 'buff' and unlockable.prototype.name == 'inventory_slot') then
+            local value = unlockable.prototype.value
+            game.print('Mining Foreman: Increased inventory slots by ' .. value .. '!')
             should_update_inventory_slots = true
-            inventory_slots.market_modifier = inventory_slots.market_modifier + unlockable.prototype.value
+            inventory_slots.market_modifier = inventory_slots.market_modifier + value
         end
     end
 
