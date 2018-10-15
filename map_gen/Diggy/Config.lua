@@ -39,6 +39,9 @@ local Config = {
             -- shows the mask on spawn
             enable_mask_debug = false,
 
+            -- enables commands like /test-tile-support-range
+            enable_debug_commands = true,
+
             --the size of the mask used
             mask_size = 9,
 

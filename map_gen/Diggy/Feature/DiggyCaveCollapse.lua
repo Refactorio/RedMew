@@ -337,6 +337,46 @@ to reinforce it further.
         end)
     end
 
+
+    if config.enable_debug_commands then
+        commands.add_command('test-tile-support-range', '<tilename> <range> creates a square of tiles with length <range>. It is spawned one <range> north of the player.', function(cmd)
+                local params = {}
+                for param in string.gmatch(cmd.parameter, '%S+') do
+                    table.insert(params, param)
+                end
+
+                local tilename = params[1]
+                local range = tonumber(params[2])
+
+                local position = {x = math.floor(game.player.position.x), y = math.floor(game.player.position.y) - 2 * range}
+                local surface = game.player.surface
+                local tiles = {}
+                for x = position.x, position.x + range - 1 do
+                    for y = position.y, position.y + range - 1 do
+                        insert(tiles, {position = {x = x, y = y}, name = tilename})
+
+                        local strength = support_beam_entities[tilename]
+                        if strength then
+                            stress_map_blur_add(surface, {x=x,y=y}, - strength)
+                        end
+                        for _, entity in pairs(surface.find_entities_filtered({position = {x=x,y=y}})) do
+                            pcall(function()
+                                    local strength = support_beam_entities[entity.name]
+                                    local position = entity.position
+                                    entity.die()
+                                    if strength then
+                                        stress_map_blur_add(surface, position, strength)
+                                    end
+                                end
+                            )
+                        end
+                    end
+                end
+                Template.insert(surface, tiles, {})
+            end
+        )
+     end
+
     commands.add_command('toggle-cave-collapse', 'Toggles cave collapse (admins only).', function()
       pcall(function() --better safe than sorry
           if not game.player or game.player.admin then
