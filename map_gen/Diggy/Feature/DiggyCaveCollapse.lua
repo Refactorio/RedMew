@@ -85,17 +85,21 @@ local function create_collapse_template(positions, surface)
     for _, position in pairs(positions) do
         local x = position.x
         local y = position.y
-        insert(entities, {position = {x = x, y = y}, name = 'sand-rock-big'})
+        local do_insert = true
 
         for _, entity in pairs(find_entities_filtered({position = position})) do
             pcall(function()
                 local strength = support_beam_entities[entity.name]
-                local position = entity.position
-                entity.die()
                 if strength then
-                    stress_map_add(surface, position, strength)
+                    do_insert = false
+                else
+                    local position = entity.position
+                    entity.die()
                 end
             end)
+        end
+        if do_insert then
+        insert(entities, {position = {x = x, y = y}, name = 'sand-rock-big'})
         end
     end
     return entities
