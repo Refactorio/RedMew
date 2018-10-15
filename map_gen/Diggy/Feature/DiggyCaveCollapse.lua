@@ -43,7 +43,7 @@ local stress_map_check_stress_in_threshold
 local support_beam_entities
 local on_surface_created
 
-local stress_threshold_causing_collapse = 1
+local stress_threshold_causing_collapse = 0.91
 
 local deconstruction_alert_message_shown = {}
 local stress_map_storage = {}
