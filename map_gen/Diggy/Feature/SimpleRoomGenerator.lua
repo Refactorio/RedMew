@@ -14,14 +14,6 @@ local Global = require 'utils.global'
 -- this
 local SimpleRoomGenerator = {}
 
-local noise_used_map = {}
-
-Global.register({
-    noise_used_map = noise_used_map,
-}, function(tbl)
-    noise_used_map = tbl.noise_used_map
-end)
-
 local do_spawn_tile = Token.register(function(params)
     Template.insert(params.surface, {params.tile}, {})
 end)
@@ -72,23 +64,14 @@ function SimpleRoomGenerator.register(config)
         local x = position.x
         local y = position.y
 
-        if (nil == noise_used_map[x]) then
-            noise_used_map[x] = {y = true}
-        elseif (nil == noise_used_map[x][y]) then
-            noise_used_map[x][y] = true
-        else
-            -- already used up noise at that point
-            return
-        end
-
-        local distance_sq = position.x^2 + position.y^2
+        local distance_sq = x^2 + y^2
 
         if (distance_sq <= room_noise_minimum_distance_sq) then
             return
         end
 
         local surface = event.surface
-        local noise = get_noise(surface, position.x, position.y)
+        local noise = get_noise(surface, x, y)
 
         for _, noise_range in pairs(config.room_noise_ranges) do
             if (noise >= noise_range.min and noise <= noise_range.max) then
