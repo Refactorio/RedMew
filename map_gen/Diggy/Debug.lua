@@ -78,9 +78,9 @@ end
     @param position Position {x, y}
 ]]
 function Debug.print_grid_value(value, surface, position)
-    local r = max(1, value)
-    local g = 1 - abs(value)
-    local b = min(1, value)
+    local r = max(1, value) / 4
+    local g = 1 - abs(value) / 4
+    local b = min(1, value) / 4
 
     if (r > 0) then
         r = 0

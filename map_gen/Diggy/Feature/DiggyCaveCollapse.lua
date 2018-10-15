@@ -43,7 +43,7 @@ local stress_map_check_stress_in_threshold
 local support_beam_entities
 local on_surface_created
 
-local stress_threshold_causing_collapse = 0.91
+local stress_threshold_causing_collapse = 3.64
 
 local deconstruction_alert_message_shown = {}
 local stress_map_storage = {}
@@ -402,6 +402,8 @@ end
     @return number sum of old fraction + new fraction
 ]]
 function add_fraction(stress_map, x, y, fraction)
+    x = 2 * floor(x / 2)
+    y = 2 * floor(y / 2)
     local quadrant = 1
     if x < 0 then
         quadrant = quadrant + 1
@@ -455,6 +457,8 @@ function add_fraction(stress_map, x, y, fraction)
 end
 
 function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
+    x = 2 * floor(x / 2)
+    y = 2 * floor(y / 2)
     local x_t = quadrant[x]
     if not x_t then
         x_t = {}

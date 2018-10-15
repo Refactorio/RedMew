@@ -25,6 +25,7 @@ local Config = {
             },
             cheats = {
                 manual_mining_speed_modifier = 1000,
+                character_inventory_slots_bonus = 1000,
             },
         },
         DiggyHole = {
