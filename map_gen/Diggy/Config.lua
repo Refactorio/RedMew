@@ -98,29 +98,29 @@ local Config = {
             -- percentage of resource added to the sum. 100 tiles means
             -- 10% more resources with a distance_richness_modifier of 10
             -- 20% more resources with a distance_richness_modifier of 5
-            distance_richness_modifier = 5,
+            distance_richness_modifier = 6,
 
             -- defines the increased chance of spawning resources
             -- calculated_probability = resource_probability + ((distance / distance_probability_modifier) / 100)
-            distance_probability_modifier = 2,
+            distance_probability_modifier = 1.5,
 
             -- increases the amount of oil * oil_value_modifier
-            oil_value_modifier = 650,
+            oil_value_modifier = 750,
 
             -- percentage of chance that resources will spawn after mining
-            resource_probability = 0.15,
+            resource_probability = 0.1,
 
             -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
-            max_resource_probability = 0.45,
+            max_resource_probability = 0.4,
 
             -- chances per resource of spawning, sum must be 1.00
             resource_chances = {
-                ['coal']        = 0.21,
-                ['copper-ore']  = 0.30,
-                ['iron-ore']    = 0.26,
-                ['stone']       = 0.20,
-                ['uranium-ore'] = 0.02,
-                ['crude-oil']   = 0.01,
+                ['coal']        = 0.171,
+                ['copper-ore']  = 0.221,
+                ['iron-ore']    = 0.381,
+                ['stone']       = 0.201,
+                ['uranium-ore'] = 0.021,
+                ['crude-oil']   = 0.005,
             },
 
             -- minimum distance from the spawn point required before it spawns
@@ -154,10 +154,10 @@ local Config = {
             },
         },
         AlienSpawner = {
-            enabled = false,
+            enabled = true,
 
             -- minimum distance from spawn before aliens can spawn
-            alien_minimum_distance = 35,
+            alien_minimum_distance = 40,
 
             -- chance of spawning aliens when mining
             alien_probability = 0.07,
@@ -169,7 +169,7 @@ local Config = {
             mining_speed_productivity_multiplier = 10,
 
             -- market config
-            market_spawn_position = {x = 0, y = 4},
+            market_spawn_position = {x = 0, y = 3},
             stone_to_surface_amount = 50,
             currency_item = 'stone',
 
