@@ -37,13 +37,13 @@ local disc_value = 0
 local ring_value = 0
 
 local enable_stress_grid = 0
-local stress_map_blur_add
+local stress_map_add
 local mask_disc_blur
 local stress_map_check_stress_in_threshold
 local support_beam_entities
 local on_surface_created
 
-local stress_threshold_causing_collapse = 1
+local stress_threshold_causing_collapse = 0.91
 
 local deconstruction_alert_message_shown = {}
 local stress_map_storage = {}
@@ -79,60 +79,32 @@ DiggyCaveCollapse.events = {
 
 local function create_collapse_template(positions, surface)
     local entities = {}
-    local tiles = {}
-    local map = {}
-    for _, position in pairs(positions) do
-        local x = position.x
-        local y = position.y
-        map[x] = map[x] or {}
-        map[x][y] = map[x][y] or true
-        insert(tiles, {position = {x = x, y = y}, name = 'out-of-map'})
-    end
-
-    for x, y_tbl in pairs(map) do
-        for y, _ in pairs(y_tbl) do
-            if not map[x] or not map[x][y - 1] then
-                insert(entities, {position = {x = x, y = y - 1}, name = 'sand-rock-big'})
-            end
-            if not map[x] or not map[x][y + 1] then
-                insert(entities, {position = {x = x, y = y + 1}, name = 'sand-rock-big'})
-            end
-            if not map[x - 1] or not map[x - 1][y] then
-                insert(entities, {position = {x = x - 1, y = y}, name = 'sand-rock-big'})
-            end
-            if not map[x + 1] or not map[x + 1][y] then
-                insert(entities, {position = {x = x + 1, y = y}, name = 'sand-rock-big'})
-            end
-        end
-    end
 
     local find_entities_filtered = surface.find_entities_filtered
 
-    for _, new_spawn in pairs({entities, tiles}) do
-        for _, tile in pairs(new_spawn) do
-            for _, entity in pairs(find_entities_filtered({position = tile.position})) do
-                pcall(function()
-                    local strength = support_beam_entities[entity.name]
-                    local position = entity.position
+    for _, position in pairs(positions) do
+        local x = position.x
+        local y = position.y
+        insert(entities, {position = {x = x, y = y}, name = 'sand-rock-big'})
 
-                    entity.die()
-                    if strength then
-                        stress_map_blur_add(surface, position, strength)
-                    end
-                end)
-            end
+        for _, entity in pairs(find_entities_filtered({position = position})) do
+            pcall(function()
+                local strength = support_beam_entities[entity.name]
+                local position = entity.position
+                entity.die()
+                if strength then
+                    stress_map_add(surface, position, strength)
+                end
+            end)
         end
     end
-
-    return tiles, entities
+    return entities
 end
 
 local function collapse(args)
     local position = args.position
     local surface = args.surface
     local positions = {}
-    local tiles = {}
-    local entities
     local strength = config.collapse_threshold_total_strength
     mask_disc_blur(
         position.x,  position.y,
@@ -148,8 +120,8 @@ local function collapse(args)
             )
         end
     )
-    tiles, entities = create_collapse_template(positions, surface)
-    Template.insert(surface, tiles, entities)
+    local entities = create_collapse_template(positions, surface)
+    Template.insert(surface, {}, entities)
 end
 
 local on_collapse_timeout_finished = Token.register(collapse)
@@ -200,14 +172,15 @@ end
 local function on_built_tile(surface, new_tile, tiles)
     local new_tile_strength = support_beam_entities[new_tile.name]
 
+
     for _, tile in pairs(tiles) do
         if new_tile_strength then
-            stress_map_blur_add(surface, tile.position, -1 * new_tile_strength)
+            stress_map_add(surface, tile.position, -1 * new_tile_strength, true)
         end
 
         local old_tile_strength = support_beam_entities[tile.old_tile.name]
         if (old_tile_strength) then
-            stress_map_blur_add(surface, tile.position, old_tile_strength)
+            stress_map_add(surface, tile.position, old_tile_strength, true)
         end
     end
 end
@@ -218,7 +191,7 @@ local function on_robot_mined_tile(event)
         local strength = support_beam_entities[tile.old_tile.name]
         if strength then
             surface = surface or event.robot.surface
-            stress_map_blur_add(surface, tile.position, strength)
+            stress_map_add(surface, tile.position, strength, true)
         end
     end
 end
@@ -229,7 +202,7 @@ local function on_player_mined_tile(event)
         local strength = support_beam_entities[tile.old_tile.name]
 
         if strength then
-            stress_map_blur_add(surface, tile.position, strength)
+            stress_map_add(surface, tile.position, strength, true)
         end
     end
 end
@@ -239,7 +212,7 @@ local function on_mined_entity(event)
     local strength = support_beam_entities[entity.name]
 
     if strength then
-        stress_map_blur_add(entity.surface, entity.position, strength)
+        stress_map_add(entity.surface, entity.position, strength)
     end
 end
 
@@ -248,7 +221,7 @@ local function on_built_entity(event)
     local strength = support_beam_entities[entity.name]
 
     if strength then
-        stress_map_blur_add(entity.surface, entity.position, -1 * strength)
+        stress_map_add(entity.surface, entity.position, -1 * strength)
     end
 end
 
@@ -256,7 +229,7 @@ local function on_placed_entity(event)
     local strength = support_beam_entities[event.entity.name]
 
     if strength then
-        stress_map_blur_add(event.entity.surface, event.entity.position, -1 * strength)
+        stress_map_add(event.entity.surface, event.entity.position, -1 * strength)
     end
 end
 
@@ -273,7 +246,7 @@ local function on_void_removed(event)
 
     local position =  event.old_tile.position
     if strength then
-        stress_map_blur_add(event.surface, position, strength)
+        stress_map_add(event.surface, position, strength)
     end
 
     local x = position.x
@@ -290,13 +263,6 @@ local function on_void_removed(event)
         new_tile_map[x] = x_t
     end
     Task.set_timeout(3, on_new_tile_timeout_finished, {x = x, y = y})
-end
-
-local function on_void_added(event)
-    local strength = support_beam_entities['out-of-map']
-    if strength then
-        stress_map_blur_add(event.surface, event.old_tile.position, -1 * strength)
-    end
 end
 
 --[[--
@@ -324,7 +290,6 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(defines.events.on_entity_died, on_mined_entity)
     Event.add(defines.events.on_player_mined_entity, on_mined_entity)
     Event.add(Template.events.on_void_removed, on_void_removed)
-    Event.add(Template.events.on_void_added, on_void_added)
     Event.add(defines.events.on_surface_created, on_surface_created)
 
     Event.add(defines.events.on_marked_for_deconstruction, function (event)
@@ -364,6 +329,46 @@ to reinforce it further.
             Debug.print_grid_value(fraction, surface, {x = x, y = y})
         end)
     end
+
+
+    if config.enable_debug_commands then
+        commands.add_command('test-tile-support-range', '<tilename> <range> creates a square of tiles with length <range>. It is spawned one <range> north of the player.', function(cmd)
+                local params = {}
+                for param in string.gmatch(cmd.parameter, '%S+') do
+                    table.insert(params, param)
+                end
+
+                local tilename = params[1]
+                local range = tonumber(params[2])
+
+                local position = {x = math.floor(game.player.position.x), y = math.floor(game.player.position.y) - 2 * range}
+                local surface = game.player.surface
+                local tiles = {}
+                for x = position.x, position.x + range - 1 do
+                    for y = position.y, position.y + range - 1 do
+                        insert(tiles, {position = {x = x, y = y}, name = tilename})
+
+                        local strength = support_beam_entities[tilename]
+                        if strength then
+                            stress_map_add(surface, {x =x, y=y}, - strength)
+                        end
+                        for _, entity in pairs(surface.find_entities_filtered({position = {x=x,y=y}})) do
+                            pcall(function()
+                                    local strength = support_beam_entities[entity.name]
+                                    local position = entity.position
+                                    entity.die()
+                                    if strength then
+                                        stress_map_add(surface, position, strength)
+                                    end
+                                end
+                            )
+                        end
+                    end
+                end
+                Template.insert(surface, tiles, {})
+            end
+        )
+     end
 
     commands.add_command('toggle-cave-collapse', 'Toggles cave collapse (admins only).', function()
       pcall(function() --better safe than sorry
@@ -517,12 +522,17 @@ stress_map_check_stress_in_threshold = function(surface, position, threshold, ca
     end
 end
 
-stress_map_blur_add = function(surface, position, factor)
+stress_map_add = function(surface, position, factor, no_blur)
     local x_start = floor(position.x)
     local y_start = floor(position.y)
 
     local stress_map = stress_map_storage[surface.index]
     if not stress_map then
+        return
+    end
+
+    if no_blur then
+        add_fraction(stress_map, x_start, y_start, factor)
         return
     end
 
@@ -573,7 +583,7 @@ stress_map_blur_add = function(surface, position, factor)
     end
 end
 
-DiggyCaveCollapse.stress_map_blur_add = stress_map_blur_add
+DiggyCaveCollapse.stress_map_add = stress_map_add
 
 --
 -- MASK

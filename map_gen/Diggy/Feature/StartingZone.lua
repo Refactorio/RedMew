@@ -56,7 +56,7 @@ function StartingZone.register(config)
 
                     -- hack to avoid starting area from collapsing
                     if (distance > floor(starting_zone_size / 10)) then
-                        DiggyCaveCollapse.stress_map_blur_add(surface, {x = x, y = y}, -0.3)
+                        DiggyCaveCollapse.stress_map_add(surface, {x = x, y = y}, -0.3)
                     end
                 end
             end

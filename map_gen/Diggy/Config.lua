@@ -39,6 +39,9 @@ local Config = {
             -- shows the mask on spawn
             enable_mask_debug = false,
 
+            -- enables commands like /test-tile-support-range
+            enable_debug_commands = true,
+
             --the size of the mask used
             mask_size = 9,
 
@@ -52,18 +55,18 @@ local Config = {
             collapse_threshold_total_strength = 16,
 
             support_beam_entities = {
-                ['market'] = 10,
-                ['stone-wall'] = 3.3,
-                ['sand-rock-big'] = 2.2,
-                ['out-of-map'] = 1.1,
-                ['stone-brick'] = 0.055,
-                ['stone-path'] = 0.055,
-                ['concrete'] = 0.33,
-                ['hazard-concrete-left'] = 0.33,
-                ['hazard-concrete-right'] = 0.33,
-                ['refined-concrete'] = 0.77,
-                ['refined-hazard-concrete-left'] = 0.77,
-                ['refined-hazard-concrete-right'] = 0.77,
+                ['market'] = 9,
+                ['stone-wall'] = 3,
+                ['sand-rock-big'] = 2,
+                ['out-of-map'] = 1,
+                ['stone-brick'] = 0.01,
+                ['stone-path'] = 0.01,
+                ['concrete'] = 0.02,
+                ['hazard-concrete-left'] = 0.02,
+                ['hazard-concrete-right'] = 0.02,
+                ['refined-concrete'] = 0.03,
+                ['refined-hazard-concrete-left'] = 0.03,
+                ['refined-hazard-concrete-right'] = 0.03,
             },
             cracking_sounds = {
               'CRACK',

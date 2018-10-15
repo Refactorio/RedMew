@@ -21,13 +21,6 @@ Template.events = {
     on_placed_entity = script.generate_event_name(),
 
     --[[--
-        Triggers when an 'out-of-map' tile is placed on something else.
-
-        {surface, old_tile={name, position={x, y}}}
-    ]]
-    on_void_added = script.generate_event_name(),
-
-    --[[--
         Triggers when an 'out-of-map' tile is replaced by something else.
 
         {surface, old_tile={name, position={x, y}}}
@@ -37,7 +30,6 @@ Template.events = {
 
 local function insert_next_tiles(data)
     local void_removed = {}
-    local void_added = {}
     local surface = data.surface
     local get_tile = surface.get_tile
     local tiles = {}
@@ -58,13 +50,6 @@ local function insert_next_tiles(data)
                         {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}}
                     )
                 end
-
-                if (new_is_void and not current_is_void) then
-                    insert(
-                        void_added,
-                        {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}}
-                    )
-                end
             end
         end
     )
@@ -75,10 +60,6 @@ local function insert_next_tiles(data)
 
     for _, event in pairs(void_removed) do
         raise_event(Template.events.on_void_removed, event)
-    end
-
-    for _, event in pairs(void_added) do
-        raise_event(Template.events.on_void_added, event)
     end
 end
 
