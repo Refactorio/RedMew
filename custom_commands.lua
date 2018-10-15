@@ -604,12 +604,9 @@ local function unjail_player(cmd)
 end
 
 local function all_tech()
-    if game.player and _DEBUG then
-        local player = game.player
-        player.force.research_all_technologies()
+    if game.player
+        game.player.force.research_all_technologies()
         player_print('Your force has been granted all technologies')
-    else
-        player_print('This command is only available in debug mode')
     end
 end
 
@@ -654,7 +651,9 @@ commands.add_command(
 
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
-commands.add_command('all-tech', 'researches all technologies (debug only)', all_tech)
+if _DEBUG then
+    commands.add_command('all-tech', 'researches all technologies (debug only)', all_tech)
+end
 commands.add_command(
     'hax',
     'Toggles your hax (makes recipes cost nothing)',
