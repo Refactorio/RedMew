@@ -81,7 +81,24 @@ end
 ]]
 function DiggyHole.register(config)
     Event.add(defines.events.on_entity_died, function (event)
-        diggy_hole(event.entity)
+        local entity = event.entity
+        diggy_hole(entity)
+
+        local position = entity.position
+        local surface = entity.surface
+
+        -- fixes massive frame drops when too much stone is spilled
+        local stones = surface.find_entities_filtered({
+            area = {{position.x - 1, position.y - 1}, {position.x + 1, position.y + 1}},
+            limit = 20,
+            type = 'item-entity',
+            name = 'item-on-ground',
+        })
+        for _, stone in ipairs(stones) do
+            if (stone.stack.name == 'stone') then
+                stone.destroy()
+            end
+        end
     end)
 
     Event.add(defines.events.on_player_mined_entity, function (event)
