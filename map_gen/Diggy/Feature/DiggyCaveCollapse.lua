@@ -37,7 +37,7 @@ local disc_value = 0
 local ring_value = 0
 
 local enable_stress_grid = 0
-local stress_map_blur_add
+local stress_map_add
 local mask_disc_blur
 local stress_map_check_stress_in_threshold
 local support_beam_entities
@@ -93,7 +93,7 @@ local function create_collapse_template(positions, surface)
                 local position = entity.position
                 entity.die()
                 if strength then
-                    stress_map_blur_add(surface, position, strength)
+                    stress_map_add(surface, position, strength)
                 end
             end)
         end
@@ -172,14 +172,15 @@ end
 local function on_built_tile(surface, new_tile, tiles)
     local new_tile_strength = support_beam_entities[new_tile.name]
 
+
     for _, tile in pairs(tiles) do
         if new_tile_strength then
-            stress_map_blur_add(surface, tile.position, -1 * new_tile_strength)
+            stress_map_add(surface, tile.position, -1 * new_tile_strength, true)
         end
 
         local old_tile_strength = support_beam_entities[tile.old_tile.name]
         if (old_tile_strength) then
-            stress_map_blur_add(surface, tile.position, old_tile_strength)
+            stress_map_add(surface, tile.position, old_tile_strength, true)
         end
     end
 end
@@ -190,7 +191,7 @@ local function on_robot_mined_tile(event)
         local strength = support_beam_entities[tile.old_tile.name]
         if strength then
             surface = surface or event.robot.surface
-            stress_map_blur_add(surface, tile.position, strength)
+            stress_map_add(surface, tile.position, strength, true)
         end
     end
 end
@@ -201,7 +202,7 @@ local function on_player_mined_tile(event)
         local strength = support_beam_entities[tile.old_tile.name]
 
         if strength then
-            stress_map_blur_add(surface, tile.position, strength)
+            stress_map_add(surface, tile.position, strength, true)
         end
     end
 end
@@ -211,7 +212,7 @@ local function on_mined_entity(event)
     local strength = support_beam_entities[entity.name]
 
     if strength then
-        stress_map_blur_add(entity.surface, entity.position, strength)
+        stress_map_add(entity.surface, entity.position, strength)
     end
 end
 
@@ -220,7 +221,7 @@ local function on_built_entity(event)
     local strength = support_beam_entities[entity.name]
 
     if strength then
-        stress_map_blur_add(entity.surface, entity.position, -1 * strength)
+        stress_map_add(entity.surface, entity.position, -1 * strength)
     end
 end
 
@@ -228,7 +229,7 @@ local function on_placed_entity(event)
     local strength = support_beam_entities[event.entity.name]
 
     if strength then
-        stress_map_blur_add(event.entity.surface, event.entity.position, -1 * strength)
+        stress_map_add(event.entity.surface, event.entity.position, -1 * strength)
     end
 end
 
@@ -245,7 +246,7 @@ local function on_void_removed(event)
 
     local position =  event.old_tile.position
     if strength then
-        stress_map_blur_add(event.surface, position, strength)
+        stress_map_add(event.surface, position, strength)
     end
 
     local x = position.x
@@ -267,7 +268,7 @@ end
 local function on_void_added(event)
     local strength = support_beam_entities['out-of-map']
     if strength then
-        stress_map_blur_add(event.surface, event.old_tile.position, -1 * strength)
+        stress_map_add(event.surface, event.old_tile.position, -1 * strength)
     end
 end
 
@@ -357,7 +358,7 @@ to reinforce it further.
 
                         local strength = support_beam_entities[tilename]
                         if strength then
-                            stress_map_blur_add(surface, {x=x,y=y}, - strength)
+                            stress_map_add(surface, {x =x, y=y}, - strength)
                         end
                         for _, entity in pairs(surface.find_entities_filtered({position = {x=x,y=y}})) do
                             pcall(function()
@@ -365,7 +366,7 @@ to reinforce it further.
                                     local position = entity.position
                                     entity.die()
                                     if strength then
-                                        stress_map_blur_add(surface, position, strength)
+                                        stress_map_add(surface, position, strength)
                                     end
                                 end
                             )
@@ -529,12 +530,17 @@ stress_map_check_stress_in_threshold = function(surface, position, threshold, ca
     end
 end
 
-stress_map_blur_add = function(surface, position, factor)
+stress_map_add = function(surface, position, factor, no_blur)
     local x_start = floor(position.x)
     local y_start = floor(position.y)
 
     local stress_map = stress_map_storage[surface.index]
     if not stress_map then
+        return
+    end
+
+    if no_blur then
+        add_fraction(stress_map, x_start, y_start, factor)
         return
     end
 
@@ -585,7 +591,7 @@ stress_map_blur_add = function(surface, position, factor)
     end
 end
 
-DiggyCaveCollapse.stress_map_blur_add = stress_map_blur_add
+DiggyCaveCollapse.stress_map_add = stress_map_add
 
 --
 -- MASK
