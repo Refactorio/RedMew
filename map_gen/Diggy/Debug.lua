@@ -90,6 +90,10 @@ function Debug.print_grid_value(value, surface, position)
         b = 0
     end
 
+    if (g < 0) then
+        g = 0
+    end
+
     r = abs(r)
 
     local color = { r = r, g = g, b = b}
