@@ -533,9 +533,21 @@ local function jail_player(cmd)
     permission_group.set_allows_action(defines.input_action.write_to_console, true)
     permission_group.set_allows_action(defines.input_action.edit_permission_group, true)
 
+    -- Kick player out of vehicle
+	target_player.driving=false
     -- Add player to jail group
-    permission_group.add_player(target_player)
-
+	permission_group.add_player(target_player)
+	-- Check if a player is shooting while jailed, if they are, remove the weapon in their active gun slot. 
+	if target_player.shooting_state.state ~= 0 then
+		-- Use a while loop because if a player has guns in inventory they will auto-refill the slot.
+		while target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index].valid_for_read do
+			target_player.remove_item(target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index])
+		end
+		target_player.print(
+            'Your active weapon has been removed because you were shooting while jailed. Your gun will *not* be returned to you in the event of being unjailed.'
+        )
+	end
+	
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
@@ -589,6 +601,8 @@ local function unjail_player(cmd)
 
     -- Move player
     permission_group.add_player(target)
+	-- Set player to a non-shooting state (solves a niche case where players jailed while shooting will be locked into a shooting state)
+	target_player.shooting_state.state = 0
 
     -- Check that it worked
     if target_player.permission_group == permission_group then
