@@ -537,7 +537,7 @@ local function jail_player(cmd)
 	target_player.driving=false
     -- Add player to jail group
 	permission_group.add_player(target_player)
-	-- Check if a player is shooting while jailed, if they are, remove the weapon in their active gun slot. 
+	-- Check if a player is shooting while jailed, if they are, remove the weapon in their active gun slot.
 	if target_player.shooting_state.state ~= 0 then
 		-- Use a while loop because if a player has guns in inventory they will auto-refill the slot.
 		while target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index].valid_for_read do
@@ -547,7 +547,7 @@ local function jail_player(cmd)
             'Your active weapon has been removed because you were shooting while jailed. Your gun will *not* be returned to you in the event of being unjailed.'
         )
 	end
-	
+
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
@@ -619,7 +619,7 @@ local function unjail_player(cmd)
 end
 
 local function all_tech()
-    if game.player
+    if game.player then
         game.player.force.research_all_technologies()
         player_print('Your force has been granted all technologies')
     end
