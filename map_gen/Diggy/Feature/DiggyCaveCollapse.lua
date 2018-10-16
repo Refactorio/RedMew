@@ -354,11 +354,15 @@ to reinforce it further.
                 local tilename = params[1]
                 local range = tonumber(params[2])
 
-                local position = {x = math.floor(game.player.position.x), y = math.floor(game.player.position.y) - 2 * range}
+                local position = {x = math.floor(game.player.position.x), y = math.floor(game.player.position.y) - 5 * range - 1}
                 local surface = game.player.surface
                 local tiles = {}
-                for x = position.x, position.x + range - 1 do
-                    for y = position.y, position.y + range - 1 do
+                local entities = {}
+                for x = position.x, position.x + range * 5 do
+                    for y = position.y, position.y + range  * 5 do
+                        if y % range + x % range == 0 then
+                            insert(entities,{name = "stone-wall", position = {x=x,y=y}})
+                        end
                         insert(tiles, {position = {x = x, y = y}, name = tilename})
 
                         local strength = support_beam_entities[tilename]
@@ -378,7 +382,7 @@ to reinforce it further.
                         end
                     end
                 end
-                Template.insert(surface, tiles, {})
+                Template.insert(surface, tiles, entities)
             end
         )
      end
