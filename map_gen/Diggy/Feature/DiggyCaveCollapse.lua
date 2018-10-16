@@ -43,7 +43,7 @@ local stress_map_check_stress_in_threshold
 local support_beam_entities
 local on_surface_created
 
-local stress_threshold_causing_collapse = 0.91
+local stress_threshold_causing_collapse = 3.64
 
 local deconstruction_alert_message_shown = {}
 local stress_map_storage = {}
@@ -85,17 +85,21 @@ local function create_collapse_template(positions, surface)
     for _, position in pairs(positions) do
         local x = position.x
         local y = position.y
-        insert(entities, {position = {x = x, y = y}, name = 'sand-rock-big'})
+        local do_insert = true
 
         for _, entity in pairs(find_entities_filtered({position = position})) do
             pcall(function()
                 local strength = support_beam_entities[entity.name]
-                local position = entity.position
-                entity.die()
                 if strength then
-                    stress_map_add(surface, position, strength)
+                    do_insert = false
+                else
+                    local position = entity.position
+                    entity.die()
                 end
             end)
+        end
+        if do_insert then
+            insert(entities, {position = {x = x, y = y}, name = 'sand-rock-big'})
         end
     end
     return entities
@@ -398,6 +402,8 @@ end
     @return number sum of old fraction + new fraction
 ]]
 function add_fraction(stress_map, x, y, fraction)
+    x = 2 * floor(x / 2)
+    y = 2 * floor(y / 2)
     local quadrant = 1
     if x < 0 then
         quadrant = quadrant + 1
@@ -445,12 +451,14 @@ function add_fraction(stress_map, x, y, fraction)
         if quadrant % 2 == 0 then
             x = -x
         end
-        Debug.print_grid_value(value, surface, {x = x, y = y})
+        Debug.print_grid_value(value, surface, {x = x, y = y}, 4, 0.5)
     end
     return value
 end
 
 function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
+    x = 2 * floor(x / 2)
+    y = 2 * floor(y / 2)
     local x_t = quadrant[x]
     if not x_t then
         x_t = {}
@@ -488,7 +496,7 @@ function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
         if index % 2 == 0 then
             x = -x
         end
-        Debug.print_grid_value(value, surface, {x = x, y = y})
+        Debug.print_grid_value(value, surface, {x = x, y = y}, 4, 0.5)
     end
     return value
 end

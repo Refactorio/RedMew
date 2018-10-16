@@ -25,6 +25,7 @@ local Config = {
             },
             cheats = {
                 manual_mining_speed_modifier = 1000,
+                character_inventory_slots_bonus = 1000,
             },
         },
         DiggyHole = {
@@ -40,7 +41,7 @@ local Config = {
             enable_mask_debug = false,
 
             -- enables commands like /test-tile-support-range
-            enable_debug_commands = true,
+            enable_debug_commands = false,
 
             --the size of the mask used
             mask_size = 9,
