@@ -122,4 +122,8 @@ function DiggyHole.register(config)
     end)
 end
 
+function DiggyHole.on_init()
+    game.forces.player.technologies['landfill'].enabled = false
+end
+
 return DiggyHole
