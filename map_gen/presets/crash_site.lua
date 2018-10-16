@@ -393,12 +393,12 @@ local function init()
 
     local function enemy(x, y, world)
         local wx, wy = world.x, world.y
-        local d_sq = wx * wx + wy * wy
+        local d = math.sqrt(wx * wx + wy * wy)
 
         --[[ if Perlin.noise(x * scale_factor, y * scale_factor, enemy_seed) < 0 then
         return nil
     end ]]
-        local spawner_chance = d_sq - 16384 --d - 128
+        local spawner_chance = d - 128
 
         if spawner_chance > 0 then
             spawner_chance = spawner_chance * spawner_chance_factor
@@ -409,26 +409,26 @@ local function init()
             end
         end
 
-        local worm_chance = d_sq - 16384 --d - 128
+        local worm_chance = d - 128
 
         if worm_chance > 0 then
             worm_chance = worm_chance * worm_chance_factor
             worm_chance = math.min(worm_chance, max_worm_chance)
 
             if math.random() < worm_chance then
-                if d_sq < 65536 then --d < 256
+                if d < 256 then
                     return {name = 'small-worm-turret'}
                 else
                     local max_lvl
                     local min_lvl
-                    if d_sq < 262144 then --d < 512
+                    if d < 512 then
                         max_lvl = 2
                         min_lvl = 1
                     else
                         max_lvl = 3
                         min_lvl = 2
                     end
-                    local lvl = math.random() ^ (147456 / d_sq) * max_lvl --384 / d
+                    local lvl = math.random() ^ (384 / d) * max_lvl
                     lvl = math.ceil(lvl)
                     --local lvl = math.floor(d / 256) + 1
                     lvl = math.clamp(lvl, min_lvl, 3)
@@ -487,7 +487,7 @@ local function init()
         ore_pattern[r] = row
         for c = 1, 50 do
             local i = random_ore:next_int(1, ore_t)
-            index = table.binary_search(total_ore_weights, i)
+            local index = table.binary_search(total_ore_weights, i)
             if (index < 0) then
                 index = bit32.bnot(index)
             end
