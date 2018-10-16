@@ -77,10 +77,13 @@ end
     @param surface LuaSurface
     @param position Position {x, y}
 ]]
-function Debug.print_grid_value(value, surface, position)
-    local r = max(1, value) / 4
-    local g = 1 - abs(value) / 4
-    local b = min(1, value) / 4
+function Debug.print_grid_value(value, surface, position, scale, offset)
+    local scale = scale or 1
+    local offset = offset or 0
+    local position = {x = position.x + offset, y = position.y + offset}
+    local r = max(1, value) / scale
+    local g = 1 - abs(value) / scale
+    local b = min(1, value) / scale
 
     if (r > 0) then
         r = 0

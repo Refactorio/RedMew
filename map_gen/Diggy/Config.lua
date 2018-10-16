@@ -41,7 +41,7 @@ local Config = {
             enable_mask_debug = false,
 
             -- enables commands like /test-tile-support-range
-            enable_debug_commands = true,
+            enable_debug_commands = false,
 
             --the size of the mask used
             mask_size = 9,

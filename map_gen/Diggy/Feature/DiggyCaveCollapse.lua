@@ -99,7 +99,7 @@ local function create_collapse_template(positions, surface)
             end)
         end
         if do_insert then
-        insert(entities, {position = {x = x, y = y}, name = 'sand-rock-big'})
+            insert(entities, {position = {x = x, y = y}, name = 'sand-rock-big'})
         end
     end
     return entities
@@ -451,7 +451,7 @@ function add_fraction(stress_map, x, y, fraction)
         if quadrant % 2 == 0 then
             x = -x
         end
-        Debug.print_grid_value(value, surface, {x = x, y = y})
+        Debug.print_grid_value(value, surface, {x = x, y = y}, 4, 0.5)
     end
     return value
 end
@@ -496,7 +496,7 @@ function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
         if index % 2 == 0 then
             x = -x
         end
-        Debug.print_grid_value(value, surface, {x = x, y = y})
+        Debug.print_grid_value(value, surface, {x = x, y = y}, 4, 0.5)
     end
     return value
 end
