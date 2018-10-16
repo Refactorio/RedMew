@@ -105,11 +105,20 @@ local function create_collapse_template(positions, surface)
     return entities
 end
 
+local function create_collapse_alert(surface, position)
+    local target = surface.create_entity{position = position, name = "sand-rock-big"}
+    for _,player in pairs(game.connected_players) do
+        player.add_custom_alert(target, {type="item", name="stone"}, "Cave collapsed!", true)
+    end
+    target.destroy()
+end
+
 local function collapse(args)
     local position = args.position
     local surface = args.surface
     local positions = {}
     local strength = config.collapse_threshold_total_strength
+    create_collapse_alert(surface, position)
     mask_disc_blur(
         position.x,  position.y,
         strength,
