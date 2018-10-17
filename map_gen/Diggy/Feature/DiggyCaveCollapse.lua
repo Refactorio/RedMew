@@ -22,6 +22,7 @@ local config = {}
 
 local n = 9
 local radius = 0
+local radius_plus_2 = 0
 local radius_sq = 0
 local center_radius_sq = 0
 local disc_radius_sq = 0
@@ -557,7 +558,7 @@ stress_map_add = function(surface, position, factor, no_blur)
         return
     end
 
-    if radius > abs(x_start) or radius > abs(y_start) then
+    if radius_plus_2 > abs(x_start) or radius_plus_2 > abs(y_start) then
         for x = -radius, radius do
             for y = -radius, radius do
                 local value = 0
@@ -618,6 +619,7 @@ function mask_init(config)
     center_weight = config.mask_relative_ring_weights[3]
 
     radius = floor(n / 2)
+    radius_plus_2 = radius + 2
 
     radius_sq = (radius + 0.2) * (radius + 0.2)
     center_radius_sq = radius_sq / 9
