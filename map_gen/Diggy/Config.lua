@@ -173,14 +173,24 @@ local Config = {
             stone_to_surface_amount = 50,
             currency_item = 'stone',
 
+            -- locations where chests will be automatically cleared from currency_item
+            void_chest_tiles = {
+                {x = -1, y = 5}, {x = 0, y = 5}, {x = 1, y = 5},
+            },
+
+            -- every x ticks it will clear y currency_item
+            void_chest_frequency = 300,
+
             unlockables = {
                 {stone = 50, type = 'buff', prototype = {name = 'mining_speed', value = 10}},
                 {stone = 50, type = 'buff', prototype = {name = 'inventory_slot', value = 3}},
                 {stone = 50, type = 'market', prototype = {price = 50, name = 'raw-fish'}},
                 {stone = 50, type = 'market', prototype = {price = 175, name = 'steel-axe'}},
+                {stone = 50, type = 'buff', prototype = {name = 'stone_automation', value = 10}},
 
                 {stone = 250, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 250, type = 'buff', prototype = {name = 'inventory_slot', value = 2}},
+                {stone = 250, type = 'buff', prototype = {name = 'stone_automation', value = 5}},
                 {stone = 250, type = 'market', prototype = {price = 50, name = 'small-electric-pole'}},
                 {stone = 250, type = 'market', prototype = {price = 50, name = 'small-lamp'}},
                 {stone = 250, type = 'market', prototype = {price = 25, name = 'stone-brick'}},
@@ -188,99 +198,148 @@ local Config = {
 
                 {stone = 450, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 450, type = 'buff', prototype = {name = 'inventory_slot', value = 2}},
+                {stone = 450, type = 'buff', prototype = {name = 'stone_automation', value = 5}},
                 {stone = 450, type = 'market', prototype = {price = 850, name = 'submachine-gun'}},
                 {stone = 450, type = 'market', prototype = {price = 50, name = 'firearm-magazine'}},
                 {stone = 450, type = 'market', prototype = {price = 500, name = 'light-armor'}},
 
                 {stone = 750, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 750, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 750, type = 'buff', prototype = {name = 'stone_automation', value = 5}},
+
                 {stone = 1250, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 1250, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 1250, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 1750, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 1750, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 1750, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 2500, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 2500, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 2500, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 4000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 4000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 4000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 6500, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 6500, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 6500, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 8000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 8000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 8000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 10000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 10000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 10000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
                 {stone = 10000, type = 'market', prototype = {price = 750, name = 'heavy-armor'}},
 
                 {stone = 15000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 15000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
                 {stone = 25000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 25000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
                 {stone = 25000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
 
                 {stone = 35000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 35000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 35000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
                 {stone = 35000, type = 'market', prototype = {price = 100, name = 'piercing-rounds-magazine'}},
                 {stone = 35000, type = 'market', prototype = {price = 1500, name = 'modular-armor'}},
 
                 {stone = 50000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 50000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 50000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 75000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 75000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 75000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 100000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 100000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 100000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 125000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 125000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 125000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 150000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 150000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 150000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 175000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 175000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 175000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 200000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 200000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 200000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 225000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 225000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 225000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 250000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 250000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 250000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 275000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 275000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 275000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 300000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 300000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 300000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 350000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 350000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 2500, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 400000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 400000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 400000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 500000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 500000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 500000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 600000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 600000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 600000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 700000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 700000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 700000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
 
                 {stone = 800000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
                 {stone = 800000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
+                {stone = 800000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
                 {stone = 800000, type = 'market', prototype = {price = 250, name = 'uranium-rounds-magazine'}},
 
                 {stone = 900000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 900000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 1000000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 1000000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 1250000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 1250000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 1500000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 1500000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 1750000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 1750000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 2000000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 2000000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 2500000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 2500000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+
                 {stone = 3000000, type = 'buff', prototype = {name = 'mining_speed', value = 2}},
+                {stone = 3000000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
             },
         },
     },
