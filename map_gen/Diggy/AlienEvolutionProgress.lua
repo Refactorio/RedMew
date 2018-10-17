@@ -6,13 +6,20 @@
 -- dependencies
 local Global = require 'utils.global'
 local random = math.random
+local round = math.round
 
 -- this
 local AlienEvolutionProgress = {}
 
 local alien_cache = {
-    biters = {},
-    spitters = {},
+    biters = {
+        evolution = -1,
+        cache = {},
+    },
+    spitters = {
+        evolution = -1,
+        cache = {},
+    },
 }
 
 Global.register({
@@ -96,23 +103,25 @@ local function get_name_by_random(collection)
 end
 
 function AlienEvolutionProgress.getBiterValues(evolution)
-    local evolution_cache_key = evolution * 100
+    local evolution_value = round(evolution * 100)
 
-    if (nil == alien_cache.biters[evolution_cache_key]) then
-        alien_cache.biters[evolution_cache_key] = get_values(biters, evolution)
+    if (alien_cache.biters.evolution < evolution_value) then
+        alien_cache.biters.evolution = evolution_value
+        alien_cache.biters.cache = get_values(biters, evolution)
     end
 
-    return alien_cache.biters[evolution_cache_key]
+    return alien_cache.biters.cache
 end
 
 function AlienEvolutionProgress.getSpitterValues(evolution)
-    local evolution_cache_key = evolution * 100
+    local evolution_value = round(evolution * 100)
 
-    if (nil == alien_cache.spitters[evolution_cache_key]) then
-        alien_cache.spitters[evolution_cache_key] = get_values(spitters, evolution)
+    if (alien_cache.spitters.evolution < evolution_value) then
+        alien_cache.spitters.evolution = evolution_value
+        alien_cache.spitters.cache = get_values(spitters, evolution)
     end
 
-    return alien_cache.spitters[evolution_cache_key]
+    return alien_cache.spitters.cache
 end
 
 function AlienEvolutionProgress.getBitersByEvolution(total_biters, evolution)
