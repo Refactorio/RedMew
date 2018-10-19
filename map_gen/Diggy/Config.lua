@@ -179,7 +179,7 @@ local Config = {
             },
 
             -- every x ticks it will clear y currency_item
-            void_chest_frequency = 300,
+            void_chest_frequency = 307,
 
             unlockables = {
                 {stone = 50, type = 'buff', prototype = {name = 'mining_speed', value = 10}},
