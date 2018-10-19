@@ -39,24 +39,28 @@ function StartingZone.register(config)
         local tiles = {}
         local rocks = {}
 
+        local dirt_range = floor(starting_zone_size / 2)
+        local rock_range = starting_zone_size - 2
+        local stress_hack = floor(starting_zone_size / 10)
+
         for x = -starting_zone_size, starting_zone_size do
             for y = -starting_zone_size, starting_zone_size do
                 local distance = floor(sqrt(x * x + y * y))
 
                 if (distance < starting_zone_size) then
-                    if (distance > floor(starting_zone_size / 2)) then
+                    if (distance > dirt_range) then
                         insert(tiles, {name = 'dirt-' .. random(1, 7), position = {x = x, y = y}})
                     else
                         insert(tiles, {name = 'stone-path', position = {x = x, y = y}})
                     end
 
-                    if (distance > starting_zone_size - 2) then
+                    if (distance > rock_range) then
                         insert(rocks, {name = 'sand-rock-big', position = {x = x, y = y}})
                     end
 
                     -- hack to avoid starting area from collapsing
-                    if (distance > floor(starting_zone_size / 10)) then
-                        DiggyCaveCollapse.stress_map_add(surface, {x = x, y = y}, -0.3)
+                    if (distance > stress_hack) then
+                        DiggyCaveCollapse.stress_map_add(surface, {x = x, y = y}, -0.5)
                     end
                 end
             end
