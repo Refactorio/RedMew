@@ -22,7 +22,6 @@ local config = {}
 
 local n = 9
 local radius = 0
-local radius_plus_2 = 0
 local radius_sq = 0
 local center_radius_sq = 0
 local disc_radius_sq = 0
@@ -418,22 +417,11 @@ end
 function add_fraction(stress_map, x, y, fraction)
     x = 2 * floor(x / 2)
     y = 2 * floor(y / 2)
-    local quadrant = 1
-    if x < 0 then
-        quadrant = quadrant + 1
-        x = -x
-    end
-    if y < 0 then
-        quadrant = quadrant + 2
-        y = -y
-    end
 
-    local quad_t = stress_map[quadrant]
-
-    local x_t = quad_t[x]
+    local x_t = stress_map[x]
     if not x_t then
         x_t = {}
-        quad_t[x] = x_t
+        stress_map[x] = x_t
     end
 
     local value = x_t[y]
@@ -446,12 +434,6 @@ function add_fraction(stress_map, x, y, fraction)
     x_t[y] = value
 
     if (fraction > 0 and value > stress_threshold_causing_collapse) then
-        if quadrant > 2 then
-            y = -y
-        end
-        if quadrant % 2 == 0 then
-            x = -x
-        end
         script.raise_event(
             DiggyCaveCollapse.events.on_collapse_triggered,
             {surface = game.surfaces[stress_map.surface_index], position = {x = x, y = y}}
@@ -459,62 +441,10 @@ function add_fraction(stress_map, x, y, fraction)
     end
     if (enable_stress_grid) then
         local surface = game.surfaces[stress_map.surface_index]
-        if quadrant > 2 then
-            y = -y
-        end
-        if quadrant % 2 == 0 then
-            x = -x
-        end
         Debug.print_grid_value(value, surface, {x = x, y = y}, 4, 0.5)
     end
     return value
 end
-
-function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
-    x = 2 * floor(x / 2)
-    y = 2 * floor(y / 2)
-    local x_t = quadrant[x]
-    if not x_t then
-        x_t = {}
-        quadrant[x] = x_t
-    end
-
-    local value = x_t[y]
-    if not value then
-        value = defaultValue
-    end
-
-    value = value + fraction
-
-    x_t[y] = value
-
-    if (fraction > 0 and value > stress_threshold_causing_collapse) then
-        local index = quadrant.index
-        if index > 2 then
-            y = -y
-        end
-        if index % 2 == 0 then
-            x = -x
-        end
-        script.raise_event(
-            DiggyCaveCollapse.events.on_collapse_triggered,
-            {surface = game.surfaces[stress_map.surface_index], position = {x = x, y = y}}
-        )
-    end
-    if (enable_stress_grid) then
-        local surface = game.surfaces[stress_map.surface_index]
-        local index = quadrant.index
-        if index > 2 then
-            y = -y
-        end
-        if index % 2 == 0 then
-            x = -x
-        end
-        Debug.print_grid_value(value, surface, {x = x, y = y}, 4, 0.5)
-    end
-    return value
-end
-
 
 on_surface_created = function(event)
     stress_map_storage[event.surface_index] = {}
@@ -557,49 +487,19 @@ stress_map_add = function(surface, position, factor, no_blur)
         add_fraction(stress_map, x_start, y_start, factor)
         return
     end
-
-    if radius_plus_2 > abs(x_start) or radius_plus_2 > abs(y_start) then
-        for x = -radius, radius do
-            for y = -radius, radius do
-                local value = 0
-                local distance_sq = x * x + y * y
-                if distance_sq <= center_radius_sq then
-                    value = center_value
-                elseif distance_sq <= disc_radius_sq then
-                    value = disc_value
-                elseif distance_sq <= radius_sq then
-                    value = ring_value
-                end
-                if abs(value) > 0.001 then
-                    add_fraction(stress_map, x + x_start, y + y_start, value * factor)
-                end
+    for x = -radius, radius do
+        for y = -radius, radius do
+            local value = 0
+            local distance_sq = x * x + y * y
+            if distance_sq <= center_radius_sq then
+                value = center_value
+            elseif distance_sq <= disc_radius_sq then
+                value = disc_value
+            elseif distance_sq <= radius_sq then
+                value = ring_value
             end
-        end
-    else
-        local quadrant_n = 1
-        if x_start < 0 then
-            quadrant_n = quadrant_n + 1
-            x_start = -x_start
-        end
-        if y_start < 0 then
-            quadrant_n = quadrant_n + 2
-            y_start = -y_start
-        end
-        local quadrant = stress_map[quadrant_n]
-        for x = -radius, radius do
-            for y = -radius, radius do
-                local value = 0
-                local distance_sq = x * x + y * y
-                if distance_sq <= center_radius_sq then
-                    value = center_value
-                elseif distance_sq <= disc_radius_sq then
-                    value = disc_value
-                elseif distance_sq <= radius_sq then
-                    value = ring_value
-                end
-                if abs(value) > 0.001 then
-                    add_fraction_by_quadrant(stress_map, x + x_start, y + y_start, value * factor, quadrant)
-                end
+            if abs(value) > 0.001 then
+                add_fraction(stress_map, x + x_start, y + y_start, value * factor)
             end
         end
     end
@@ -619,7 +519,6 @@ function mask_init(config)
     center_weight = config.mask_relative_ring_weights[3]
 
     radius = floor(n / 2)
-    radius_plus_2 = radius + 2
 
     radius_sq = (radius + 0.2) * (radius + 0.2)
     center_radius_sq = radius_sq / 9
