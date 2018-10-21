@@ -343,7 +343,7 @@ function MarketExchange.register(cfg)
     Event.on_nth_tick(config.void_chest_frequency, function ()
         local send_to_surface = 0
         local find_entities_filtered = game.surfaces.nauvis.find_entities_filtered
-        local chests = find_entities_filtered({area = area, type = {'container', 'logistics-container'}})
+        local chests = find_entities_filtered({area = area, type = {'container', 'logistic-container'}})
         local to_fetch = stone_collecting.active_modifier
 
         for _, chest in pairs(chests) do
