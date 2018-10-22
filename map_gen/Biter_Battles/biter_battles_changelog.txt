@@ -1,0 +1,126 @@
+0.30
+join team message fixed
+map gen settings are now script internal, no need to set them in menu
+lobby timer increase when a player leaves the game and there were only two players
+
+0.29
+added view players button
+
+0.28
+regenerating decoratives, spawn fixes
+
+0.27
+map gen stutter fixes
+more fish added
+
+0.25
+added market
+
+0.24
+spawners pop out different things scaling to evolution
+
+0.23
+big cluster attacks now come from more different directions
+nests get tougher with increased evolution
+tooltips added
+
+0.22
+biters won´t attack spawn artillery anymore
+
+0.21
+added spawn artillery
+small fixes
+
+0.20
+chat sharing to and for spectator and player force
+added landfill history variable
+added random water ponds
+
+0.19
+fixed spectator dropping items
+lobby timer fix
+added ore layout from nekobaron
+
+0.18
+lag fixes
+added tiny spawn oil
+
+0.17
+more precise spying
+
+0.16
+natural center river look
+slightly reduced mixed ore size
+
+0.15
+"lobby" added to give players a more fair start
+conveyor belt nerf
+
+0.14
+mixed ore patches added
+added another water pond
+
+0.13
+spectator fixes and improvements
+player spawn fix
+
+0.12
+spectator mode
+spending fish now stacks
+player listing added
+
+0.11
+scenario update
+
+0.10
+biters now fragment
+biters now gain damage scaling with rage
+
+0.09
+attack speed modifier and others added
+biter attack balls
+
+0.08
+more spy fish duration
+added tooltips
+changed print messages
+message on player death 
+
+0.07
+Improved biter searching
+Added spawn water pond
+Added fish
+
+0.06
+Spy fish range increases with game time
+Rocket launch triggers massive attack on enemy team
+Added Landfill
+
+0.05
+Removed items from players in spawn.
+Another GUI refresh
+Improved biter attacks
+added silo ore layout
+
+0.04
+Biter rage is now a diminishing return calculation.
+Team balancing measures.
+Removed shared team chat.
+
+0.03
+Changed message colors
+Gui Fixes
+Improved player spawn
+Added spy fish.
+Added silo grief prevention
+Added drone anti cheese
+
+0.02
+Added shared team chat
+
+0.01
+Nerfed chat spam. (Minor food spendings only show up for the feeding player.)
+Fixed faulty nerf calculation.
+Balanced the nerf values with big bonus increases for higher tech tier foods.
+Fixed bad player spawn.
+Biter attacks improved and fixed.
