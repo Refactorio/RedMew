@@ -1,3 +1,7 @@
+0.31
+micro optimizations
+integrated into redmew
+
 0.30
 join team message fixed
 map gen settings are now script internal, no need to set them in menu
