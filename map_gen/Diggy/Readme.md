@@ -22,6 +22,7 @@ Diggy is a custom scenario. You start out with nothing but a market, your pick-a
 there's not a lot of space and the mine is unstable!
 
 Gameplay: https://www.youtube.com/watch?v=J3lheDK-6Cw
+
 Timelapse video: https://www.youtube.com/watch?v=4cRsx-wl_fk (By Namelesshunter Gaming)
 
 #### Scenario Information
