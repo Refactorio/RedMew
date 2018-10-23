@@ -1,2 +1,2 @@
 -- author mewmew
-require 'map_gen.Biter_Battles.biter_battles'
+require 'map_gen.combined.Biter_Battles.biter_battles'

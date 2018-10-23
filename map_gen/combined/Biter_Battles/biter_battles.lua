@@ -5,7 +5,7 @@ To do(maybe):
 flamethrower things
 ]]--
 
-local biter_battles_terrain = require 'map_gen.Biter_Battles.biter_battles_terrain'
+local biter_battles_terrain = require 'map_gen.combined.Biter_Battles.biter_battles_terrain'
 local Event = require 'utils.event'
 
 local round = math.round
