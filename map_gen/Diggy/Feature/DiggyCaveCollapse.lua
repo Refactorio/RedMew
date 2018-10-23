@@ -43,7 +43,7 @@ local stress_map_check_stress_in_threshold
 local support_beam_entities
 local on_surface_created
 
-local stress_threshold_causing_collapse = 3.64
+local stress_threshold_causing_collapse = 3.57
 
 local deconstruction_alert_message_shown = {}
 local stress_map_storage = {}
@@ -105,11 +105,20 @@ local function create_collapse_template(positions, surface)
     return entities
 end
 
+local function create_collapse_alert(surface, position)
+    local target = surface.create_entity{position = position, name = "sand-rock-big"}
+    for _,player in pairs(game.connected_players) do
+        player.add_custom_alert(target, {type="item", name="stone"}, "Cave collapsed!", true)
+    end
+    target.destroy()
+end
+
 local function collapse(args)
     local position = args.position
     local surface = args.surface
     local positions = {}
     local strength = config.collapse_threshold_total_strength
+    create_collapse_alert(surface, position)
     mask_disc_blur(
         position.x,  position.y,
         strength,
@@ -345,11 +354,15 @@ to reinforce it further.
                 local tilename = params[1]
                 local range = tonumber(params[2])
 
-                local position = {x = math.floor(game.player.position.x), y = math.floor(game.player.position.y) - 2 * range}
+                local position = {x = math.floor(game.player.position.x), y = math.floor(game.player.position.y) - 5 * range - 1}
                 local surface = game.player.surface
                 local tiles = {}
-                for x = position.x, position.x + range - 1 do
-                    for y = position.y, position.y + range - 1 do
+                local entities = {}
+                for x = position.x, position.x + range * 5 do
+                    for y = position.y, position.y + range  * 5 do
+                        if y % range + x % range == 0 then
+                            insert(entities,{name = "stone-wall", position = {x=x,y=y}})
+                        end
                         insert(tiles, {position = {x = x, y = y}, name = tilename})
 
                         local strength = support_beam_entities[tilename]
@@ -369,7 +382,7 @@ to reinforce it further.
                         end
                     end
                 end
-                Template.insert(surface, tiles, {})
+                Template.insert(surface, tiles, entities)
             end
         )
      end
@@ -404,22 +417,11 @@ end
 function add_fraction(stress_map, x, y, fraction)
     x = 2 * floor(x / 2)
     y = 2 * floor(y / 2)
-    local quadrant = 1
-    if x < 0 then
-        quadrant = quadrant + 1
-        x = -x
-    end
-    if y < 0 then
-        quadrant = quadrant + 2
-        y = -y
-    end
 
-    local quad_t = stress_map[quadrant]
-
-    local x_t = quad_t[x]
+    local x_t = stress_map[x]
     if not x_t then
         x_t = {}
-        quad_t[x] = x_t
+        stress_map[x] = x_t
     end
 
     local value = x_t[y]
@@ -432,12 +434,6 @@ function add_fraction(stress_map, x, y, fraction)
     x_t[y] = value
 
     if (fraction > 0 and value > stress_threshold_causing_collapse) then
-        if quadrant > 2 then
-            y = -y
-        end
-        if quadrant % 2 == 0 then
-            x = -x
-        end
         script.raise_event(
             DiggyCaveCollapse.events.on_collapse_triggered,
             {surface = game.surfaces[stress_map.surface_index], position = {x = x, y = y}}
@@ -445,62 +441,10 @@ function add_fraction(stress_map, x, y, fraction)
     end
     if (enable_stress_grid) then
         local surface = game.surfaces[stress_map.surface_index]
-        if quadrant > 2 then
-            y = -y
-        end
-        if quadrant % 2 == 0 then
-            x = -x
-        end
         Debug.print_grid_value(value, surface, {x = x, y = y}, 4, 0.5)
     end
     return value
 end
-
-function add_fraction_by_quadrant(stress_map, x, y, fraction, quadrant)
-    x = 2 * floor(x / 2)
-    y = 2 * floor(y / 2)
-    local x_t = quadrant[x]
-    if not x_t then
-        x_t = {}
-        quadrant[x] = x_t
-    end
-
-    local value = x_t[y]
-    if not value then
-        value = defaultValue
-    end
-
-    value = value + fraction
-
-    x_t[y] = value
-
-    if (fraction > 0 and value > stress_threshold_causing_collapse) then
-        local index = quadrant.index
-        if index > 2 then
-            y = -y
-        end
-        if index % 2 == 0 then
-            x = -x
-        end
-        script.raise_event(
-            DiggyCaveCollapse.events.on_collapse_triggered,
-            {surface = game.surfaces[stress_map.surface_index], position = {x = x, y = y}}
-        )
-    end
-    if (enable_stress_grid) then
-        local surface = game.surfaces[stress_map.surface_index]
-        local index = quadrant.index
-        if index > 2 then
-            y = -y
-        end
-        if index % 2 == 0 then
-            x = -x
-        end
-        Debug.print_grid_value(value, surface, {x = x, y = y}, 4, 0.5)
-    end
-    return value
-end
-
 
 on_surface_created = function(event)
     stress_map_storage[event.surface_index] = {}
@@ -543,49 +487,19 @@ stress_map_add = function(surface, position, factor, no_blur)
         add_fraction(stress_map, x_start, y_start, factor)
         return
     end
-
-    if radius > abs(x_start) or radius > abs(y_start) then
-        for x = -radius, radius do
-            for y = -radius, radius do
-                local value = 0
-                local distance_sq = x * x + y * y
-                if distance_sq <= center_radius_sq then
-                    value = center_value
-                elseif distance_sq <= disc_radius_sq then
-                    value = disc_value
-                elseif distance_sq <= radius_sq then
-                    value = ring_value
-                end
-                if abs(value) > 0.001 then
-                    add_fraction(stress_map, x + x_start, y + y_start, value * factor)
-                end
+    for x = -radius, radius do
+        for y = -radius, radius do
+            local value = 0
+            local distance_sq = x * x + y * y
+            if distance_sq <= center_radius_sq then
+                value = center_value
+            elseif distance_sq <= disc_radius_sq then
+                value = disc_value
+            elseif distance_sq <= radius_sq then
+                value = ring_value
             end
-        end
-    else
-        local quadrant_n = 1
-        if x_start < 0 then
-            quadrant_n = quadrant_n + 1
-            x_start = -x_start
-        end
-        if y_start < 0 then
-            quadrant_n = quadrant_n + 2
-            y_start = -y_start
-        end
-        local quadrant = stress_map[quadrant_n]
-        for x = -radius, radius do
-            for y = -radius, radius do
-                local value = 0
-                local distance_sq = x * x + y * y
-                if distance_sq <= center_radius_sq then
-                    value = center_value
-                elseif distance_sq <= disc_radius_sq then
-                    value = disc_value
-                elseif distance_sq <= radius_sq then
-                    value = ring_value
-                end
-                if abs(value) > 0.001 then
-                    add_fraction_by_quadrant(stress_map, x + x_start, y + y_start, value * factor, quadrant)
-                end
+            if abs(value) > 0.001 then
+                add_fraction(stress_map, x + x_start, y + y_start, value * factor)
             end
         end
     end

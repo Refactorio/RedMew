@@ -78,9 +78,9 @@ end
     @param position Position {x, y}
 ]]
 function Debug.print_grid_value(value, surface, position, scale, offset)
-    local scale = scale or 1
-    local offset = offset or 0
-    local position = {x = position.x + offset, y = position.y + offset}
+    scale = scale or 1
+    offset = offset or 0
+    position = {x = position.x + offset, y = position.y + offset}
     local r = max(1, value) / scale
     local g = 1 - abs(value) / scale
     local b = min(1, value) / scale
