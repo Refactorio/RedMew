@@ -21,6 +21,9 @@ Diggy is a custom scenario. You start out with nothing but a market, your pick-a
 [deep, deep in the mine](https://www.youtube.com/watch?v=ov5pxaIbJlM). The goal is to launch a rocket, but be careful,
 there's not a lot of space and the mine is unstable!
 
+Gameplay: https://www.youtube.com/watch?v=J3lheDK-6Cw
+Timelapse video: https://www.youtube.com/watch?v=4cRsx-wl_fk (By Namelesshunter Gaming)
+
 #### Scenario Information
 The idea of Diggy is similar to vanilla, except that it greatly changes how to build your factory. As you're in a cave,
 each rock you dig, each support entity you remove and every tile you mine, can cause a collapse. You can use walls,
