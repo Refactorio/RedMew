@@ -42,8 +42,13 @@ make it 6.
 Download the zip file from https://github.com/Valansch/RedMew/archive/develop.zip
 
 ##### Step 2
-On Windows: extract the the zip file into `%appdata%\Factorio\Scenarios\Diggy`, 
-make sure it's called Diggy and there's a `control.lua` in the root of that directory.
+- **Windows**: extract the the zip file into `%appdata%\Factorio\Scenarios\Diggy`
+- **Linux**: extract the the zip file into `~/Library/Application Support/factorio/Scenarios/Diggy`
+- **MacOS**: extract the the zip file into `~/.factorio/Scenarios/Diggy`
+
+Make sure it's called Diggy and there's a `control.lua` in the root of that directory.
+
+> _Note_: these locations are based on the default configuration [defined by factorio](https://wiki.factorio.com/Application_directory). If your installation is not default, you have to find your scenarios directory in another way.
 
 ##### Step 3
 Open `map_layout.lua` in that directory and look for `--require "map_gen.combined.diggy"`.
