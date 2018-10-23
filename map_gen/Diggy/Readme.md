@@ -61,7 +61,7 @@ In factorio start either a local or online game via Scenarios. Select `Diggy` un
 > _Note:_ Downloading the latest version might not always be a functional version, please consult on discord for a
 working version if this is the case.
 
-### Advanced
+##### Step 5 (optional)
 Diggy is designed to work for at least 15 players online, working together. It's advised to change the configuration
 to adjust the difficulty for your needs. You can find the config in `map_gen/Diggy/Config.lua`. Most options should be
 well-explained. For Single-player it's recommend to enable cheats with modified values. You can change the starting
