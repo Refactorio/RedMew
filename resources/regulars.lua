@@ -1024,5 +1024,9 @@ return {
     ['HappyPills'] = true,
     ['A-l-a-n'] = true,
     ['shadewolf'] = true,
-    ['rellec'] = true
+    ['rellec'] = true,
+    ['shoo_be_doo'] = true,
+    ['MovingMike'] = true,
+    ['slantedSunlight'] = true,
+    ['LymBAOBEI'] = true
 }
