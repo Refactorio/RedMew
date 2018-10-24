@@ -11,7 +11,7 @@ local biter_battles_terrain = {}
 local function on_chunk_generated(event)
     if not global.noise_seed then global.noise_seed = random(1,5000000) end
 
-    local surface = game.surfaces["surface"]
+    local surface = game.surfaces.battle_surface
     if not surface then return end
 
     local horizontal_border_width = global.horizontal_border_width
@@ -145,7 +145,7 @@ end
 
 function biter_battles_terrain.generate_spawn_water_pond()
     local x = 1
-    local surface = game.surfaces["surface"]
+    local surface = game.surfaces.battle_surface
     local find_non_colliding_position = surface.find_non_colliding_position
     local create_entity = surface.create_entity
     local get_tile = surface.get_tile
@@ -199,7 +199,7 @@ function biter_battles_terrain.generate_spawn_water_pond()
 end
 
 function biter_battles_terrain.clear_spawn_ores()
-    local surface = game.surfaces["surface"]
+    local surface = game.surfaces.battle_surface
     local find_entities = surface.find_entities
     for x = -200,200,1 do
         for y = -200,200,1 do
@@ -217,7 +217,7 @@ function biter_battles_terrain.clear_spawn_ores()
 end
 
 function biter_battles_terrain.generate_market()
-    local surface = game.surfaces["surface"]
+    local surface = game.surfaces.battle_surface
     local find_non_colliding_position = surface.find_non_colliding_position
     local create_entity = surface.create_entity
     local find_entities = surface.find_entities
@@ -253,7 +253,7 @@ function biter_battles_terrain.generate_market()
 end
 
 function biter_battles_terrain.generate_spawn_ores(ore_layout)
-    local surface = game.surfaces["surface"]
+    local surface = game.surfaces.battle_surface
     local find_entities = surface.find_entities
     local set_tiles = surface.set_tiles
     local create_entity = surface.create_entity

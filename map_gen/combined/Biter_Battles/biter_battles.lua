@@ -54,7 +54,7 @@ end
 
 local function create_biter_battle_sprite_button(player)
     local top_gui = player.gui.top
-    if top_gui.biter_battle_toggle_menu_button == nil then
+    if not top_gui.biter_battle_toggle_menu_button then
         local button = top_gui.add { name = "biter_battle_toggle_menu_button", type = "sprite-button", sprite = "entity/behemoth-spitter" }
         button.style.font = "default-bold"
         button.style.minimal_height = 38
@@ -66,22 +66,94 @@ local function create_biter_battle_sprite_button(player)
     end
 end
 
+local function create_join_button(frame, team)
+    local team_name = team.name
+    local caption = "JOIN " .. team_name:upper()
+    local font_color = { r=0.98, g=0.0, b=0.0}
+    if global.game_lobby_active then
+        local time_seconds = round( (global.game_lobby_timeout - game.tick) / 60,0)
+        font_color = { r=0.7, g=0.7, b=0.7}
+        caption = string.format("%s (waiting for players... %s)", caption, time_seconds)
+    end
+    local tbl = frame.add  { type = "table", column_count = 4 }
+    for _, player in pairs(team.connected_players) do
+        local color = {}
+        color = player.color
+        color.r = color.r * 0.6 + 0.4
+        color.g = color.g * 0.6 + 0.4
+        color.b = color.b * 0.6 + 0.4
+        color.a = 1
+        local label = tbl.add  { type = "label", caption = player.name }
+        label.style.font_color = color
+    end
+    local button = frame.add  { type = "button", name = "join_"  ..  team.name .. "_button", caption = caption }
+    button.style.font = "default-frame"
+    button.style.font_color = font_color
+    button.style.minimal_width = 320
+end
+
+local function create_team_info_labels(frame, team, player_index, show_info)
+    local tbl = frame.add { type = "table", column_count = 3 }
+    local team_name = team.name
+    local capital_team_name = team_name:gsub("^%l", string.upper)
+    local team_name_label = tbl.add  { type = "label", caption = "Team " .. capital_team_name}
+    team_name_label.style.font = "default-bold"
+    team_name_label.style.font_color = { r=0.98, g=0.66, b=0.22}
+    tbl.add  { type = "label", caption = "  -  "}
+    local player_n_label = tbl.add  { type = "label", caption = #team.connected_players .. " Players "}
+    player_n_label.style.font_color = { r=0.22, g=0.88, b=0.22}
+
+    if show_info then
+        if global.biter_battle_view_players[player_index]  then
+            local tbl = frame.add  { type = "table", column_count = 4 }
+            for _, p in pairs(team.connected_players) do
+                game.print(p.name)
+                local color = {}
+                color = p.color
+                color.r = color.r * 0.6 + 0.4
+                color.g = color.g * 0.6 + 0.4
+                color.b = color.b * 0.6 + 0.4
+                color.a = 1
+                local label = tbl.add  { type = "label", caption = p.name }
+                label.style.font_color = color
+            end
+        end
+
+        local tbl = frame.add { type = "table", column_count = 4 }
+        local nerf_label = tbl.add  { type = "label", caption = "Nerf: "}
+        nerf_label.tooltip = "Damage nerf of the team."
+        nerf_label.style.minimal_width = 25
+        local nerf_amount_label = tbl.add  { type = "label", caption = round(global.team_nerf[team_name]*100,1) .. " "}
+        nerf_amount_label.style.minimal_width = 40
+        nerf_amount_label.style.font_color = { r=0.90, g=0.1, b=0.1}
+        nerf_amount_label.style.font = "default-bold"
+        local rage_label = tbl.add  { type = "label", caption = " Biter Rage: "}
+        rage_label.style.minimal_width = 25
+        rage_label.tooltip = "Increases damage and the amount of angry biters."
+        local rage_amount_label = tbl.add  { type = "label", caption = round(global.biter_rage[team_name], 0)}
+        rage_amount_label.style.font_color = { r=0.90, g=0.1, b=0.1}
+        rage_amount_label.style.font = "default-bold"
+        rage_amount_label.style.minimal_width = 25
+    end
+end
+
 local function create_biter_battle_menu(player)
     local left_gui = player.gui.left
     if global.rocket_silo_destroyed then
         local frame = left_gui.add { type = "frame", name = "victory_popup", direction = "vertical" }
-        local c = frame.add { type = "label", caption = global.rocket_silo_destroyed , single_line = false, name = "victory_caption" }
-        c.style.font = "default-frame"
-        c.style.font_color = { r=0.98, g=0.66, b=0.22}
-        c.style.top_padding = 10
-        c.style.left_padding = 20
-        c.style.right_padding = 20
+        local label = frame.add { type = "label", caption = global.rocket_silo_destroyed , single_line = false, name = "victory_caption" }
+        label.style.font = "default-frame"
+        label.style.font_color = { r=0.98, g=0.66, b=0.22}
+        label.style.top_padding = 10
+        label.style.left_padding = 20
+        label.style.right_padding = 20
         c.style.bottom_padding = 10
         return
     end
 
     local force_name = player.force.name
     local player_name = player.name
+    local player_index = player.index
     local frame = left_gui.add { type = "frame", name = "biter_battle_menu", direction = "vertical" }
 
     if force_name == "north" or force_name == "south" then
@@ -106,144 +178,22 @@ local function create_biter_battle_menu(player)
         frame.add  { type = "label", caption = "--------------------------------------------------"}
     end
 
-    --frame.add  { type = "label", caption = "--------------------------"}
-
-    local t = frame.add { type = "table", column_count = 3 }
-    local l = t.add  { type = "label", caption = "Team North"}
-    l.style.font = "default-bold"
-    l.style.font_color = { r=0.98, g=0.66, b=0.22}
-    local l = t.add  { type = "label", caption = "  -  "}
-    local l = t.add  { type = "label", caption = #north_team.connected_players .. " Players "}
-    l.style.font_color = { r=0.22, g=0.88, b=0.22}
-
-    if force_name ~= "player" then
-        if global.biter_battle_view_players[player_name] == true then
-            local t = frame.add  { type = "table", column_count = 4 }
-            for _, p in pairs(north_team.connected_players) do
-                local color = {}
-                color = p.color
-                color.r = color.r * 0.6 + 0.4
-                color.g = color.g * 0.6 + 0.4
-                color.b = color.b * 0.6 + 0.4
-                color.a = 1
-                local l = t.add  { type = "label", caption = p.name }
-                l.style.font_color = color
-            end
-        end
-
-        local t = frame.add { type = "table", column_count = 4 }
-        local l = t.add  { type = "label", caption = "Nerf: "}
-        l.style.minimal_width = 25
-        l.tooltip = "Damage nerf of the team."
-        local l = t.add  { type = "label", caption = round(global.team_nerf["north"]*100,1) .. " "}
-        l.style.minimal_width = 40
-        l.style.font_color = { r=0.90, g=0.1, b=0.1}
-        l.style.font = "default-bold"
-        local l = t.add  { type = "label", caption = " Biter Rage: "}
-        l.style.minimal_width = 25
-        l.tooltip = "Increases damage and the amount of angry biters."
-        local l = t.add  { type = "label", caption = round(global.biter_rage["north"],0)}
-        l.style.font_color = { r=0.90, g=0.1, b=0.1}
-        l.style.font = "default-bold"
-        l.style.minimal_width = 25
-    end
+    create_team_info_labels(frame, north_team, player_index, force_name ~= "player")
 
     if force_name == "player" then
-        local c = "JOIN NORTH"
-        local font_color = { r=0.98, g=0.0, b=0.0}
-        if global.game_lobby_active then
-            font_color = { r=0.7, g=0.7, b=0.7}
-            c = c .. " (waiting for players...  "
-            c = c .. round((global.game_lobby_timeout - game.tick)/60,0)
-            c = c .. ")"
-        end
-        local t = frame.add  { type = "table", column_count = 4 }
-        for _, p in pairs(north_team.connected_players) do
-            local color = {}
-            color = p.color
-            color.r = color.r * 0.6 + 0.4
-            color.g = color.g * 0.6 + 0.4
-            color.b = color.b * 0.6 + 0.4
-            color.a = 1
-            local l = t.add  { type = "label", caption = p.name }
-            l.style.font_color = color
-        end
-        local b = frame.add  { type = "button", name = "join_north_button", caption = c }
-        b.style.font = "default-frame"
-        b.style.font_color = font_color
-        b.style.minimal_width = 320
+        create_join_button(frame, north_team)
         frame.add  { type = "label", caption = "--------------------------------------------------"}
     else
         frame.add  { type = "label", caption = "--------------------------"}
     end
 
-    local t = frame.add { type = "table", column_count = 3 }
-    local l = t.add  { type = "label", caption = "Team South"}
-    l.style.font = "default-bold"
-    l.style.font_color = { r=0.98, g=0.66, b=0.22}
-    local l = t.add  { type = "label", caption = "  -  "}
-    local l = t.add  { type = "label", caption = #south_team.connected_players .. " Players "}
-    l.style.font_color = { r=0.22, g=0.88, b=0.22}
-
-    if force_name ~= "player" then
-        if global.biter_battle_view_players[player_name] == true then
-            local t = frame.add  { type = "table", column_count = 4 }
-            for _, p in pairs(south_team.connected_players) do
-                local color = {}
-                color = p.color
-                color.r = color.r * 0.6 + 0.4
-                color.g = color.g * 0.6 + 0.4
-                color.b = color.b * 0.6 + 0.4
-                color.a = 1
-                local l = t.add  { type = "label", caption = p.name }
-                l.style.font_color = color
-            end
-        end
-
-        local t = frame.add { type = "table", column_count = 4 }
-        local l = t.add  { type = "label", caption = "Nerf: "}
-        l.tooltip = "Damage nerf of the team."
-        l.style.minimal_width = 25
-        local l = t.add  { type = "label", caption = round(global.team_nerf["south"]*100,1) .. " "}
-        l.style.minimal_width = 40
-        l.style.font_color = { r=0.90, g=0.1, b=0.1}
-        l.style.font = "default-bold"
-        local l = t.add  { type = "label", caption = " Biter Rage: "}
-        l.style.minimal_width = 25
-        l.tooltip = "Increases damage and the amount of angry biters."
-        local l = t.add  { type = "label", caption = round(global.biter_rage["south"],0)}
-        l.style.font_color = { r=0.90, g=0.1, b=0.1}
-        l.style.font = "default-bold"
-        l.style.minimal_width = 25
-    end
+    create_team_info_labels(frame, south_team, player_index, force_name ~= "player")
 
     if force_name == "player" then
-        local c = "JOIN SOUTH"
-        local font_color = { r=0.98, g=0.0, b=0.0}
-        if global.game_lobby_active then
-            font_color = { r=0.7, g=0.7, b=0.7}
-            c = c .. " (waiting for players...  "
-            c = c .. round((global.game_lobby_timeout - game.tick)/60,0)
-            c = c .. ")"
-        end
-        local t = frame.add  { type = "table", column_count = 4 }
-        for _, p in pairs(south_team.connected_players) do
-            local color = {}
-            color = p.color
-            color.r = color.r * 0.6 + 0.4
-            color.g = color.g * 0.6 + 0.4
-            color.b = color.b * 0.6 + 0.4
-            color.a = 1
-            local l = t.add  { type = "label", caption = p.name }
-            l.style.font_color = color
-        end
-        local b = frame.add  { type = "button", name = "join_south_button", caption = c }
-        b.style.font = "default-frame"
-        b.style.font_color = font_color
-        b.style.minimal_width = 320
+        create_join_button(frame, south_team)
     end
 
-    if global.team_chosen[player_name] then
+    if global.team_chosen[player_index] then
         local t = frame.add  { type = "table", column_count = 2 }
         if force_name == "spectator" then
             local b = t.add  { type = "button", name = "biter_battle_leave_spectate", caption = "Leave spectating" }
@@ -263,7 +213,7 @@ local function create_biter_battle_menu(player)
             b.style.bottom_padding = 1
         end
 
-        if global.biter_battle_view_players[player_name] == true then
+        if global.biter_battle_view_players[player_index]  then
             local b = t.add  { type = "button", name = "biter_battle_hide_players", caption = "Hide players" }
             b.style.font = "default-bold"
             b.style.font_color = { r=0.98, g=0.66, b=0.22}
@@ -295,31 +245,34 @@ end
 
 local function join_team(player, team)
     local player_name = player.name
+    local player_index = player.index
     local enemy_team = "south"
-    if team == "south" then enemy_team = "north" end
+    if team == "south" then
+        enemy_team = "north"
+    end
 
     if team == "north" or team == "south" then
-        if #game.forces[team].connected_players > #game.forces[enemy_team].connected_players and global.team_chosen[player_name] == nil then
+        if #game.forces[team].connected_players > #game.forces[enemy_team].connected_players and not global.team_chosen[player_index] then
             player.print("Team " .. team .. " has too many players currently.", { r=0.98, g=0.66, b=0.22})
         else
             player.teleport(battle_surface.find_non_colliding_position("player", game.forces[team].get_spawn_position(battle_surface), 3, 1))
             player.force=game.forces[team]
-            if global.team_chosen[player_name] then
+            if global.team_chosen[player_index] then
                 local p = game.permissions.get_group("Default")
                 p.add_player(player_name)
                 game.print("Team " .. player.force.name .. " player " .. player_name .. " is no longer spectating.", { r=0.98, g=0.66, b=0.22})
             else
                 game.print(player_name .. " has joined team " .. player.force.name .. "!", { r=0.98, g=0.66, b=0.22})
-                local i = player.get_inventory(defines.inventory.player_main)
-                i.clear()
-                local i = player.get_inventory(defines.inventory.player_quickbar)
-                i.clear()
+                local main_inventory = player.get_inventory(defines.inventory.player_main)
+                main_inventory.clear()
+                local quick_bar = player.get_inventory(defines.inventory.player_quickbar)
+                quick_bar.clear()
                 player.insert {name = 'pistol', count = 1}
                 player.insert {name = 'raw-fish', count = 3}
                 player.insert {name = 'firearm-magazine', count = 16}
                 player.insert {name = 'iron-gear-wheel', count = 4}
                 player.insert {name = 'iron-plate', count = 8}
-                global.team_chosen[player_name] = team
+                global.team_chosen[player_index] = team
             end
         end
     end
@@ -486,17 +439,17 @@ local function on_player_joined_game(event)
     if player.online_time < 5 and battle_surface.is_chunk_generated({0,0}) then
         player.teleport(battle_surface.find_non_colliding_position("player", {0,0}, 2, 1), battle_surface)
     else
-        if not global.team_chosen[player.name] then player.teleport({0,0}, battle_surface) end
+        if not global.team_chosen[player.index] then player.teleport({0,0}, battle_surface) end
     end
 
-    global.biter_battle_view_players[player.name] = false
+    global.biter_battle_view_players[player.index] = false
     create_biter_battle_sprite_button(player)
     create_biter_battle_menu(player)
     refresh_gui()
 end
 
 local function on_player_left_game(event)
-    if game.connected_players == 1 and global.game_lobby_active == true then
+    if game.connected_players == 1 and global.game_lobby_active  then
         global.game_lobby_timeout = game.tick + 599940
     end
     refresh_gui()
@@ -525,7 +478,8 @@ local function spy_fish(player)
         player.print(round((global.spy_fish_timeout[force_name] - game.tick)/60, 0) .. " seconds of enemy vision left.",{ r=0.98, g=0.66, b=0.22})
     else
         get_border_cords(enemy_team, player.surface)
-        game.print(player.name .. " sent a fish to spy on " .. enemy_team .. " team!",{ r=0.98, g=0.66, b=0.22})
+        local msg = string.format("%s sent a  fish to spy on %s team!", player.name, enemy_team)
+        game.print(msg,{ r=0.98, g=0.66, b=0.22})
         global.spy_fish_timeout[force_name] = game.tick + duration_per_unit
     end
 end
@@ -548,29 +502,24 @@ local function feed_the_biters(food_type, player)
     end
 
     if food_amount == 0 then
-        local str = "You have no " .. global.food_names[food_type]
-        str = str ..  " flask in your inventory."
-        player.print(str,{ r=0.98, g=0.66, b=0.22})
+        local msg = string.format("You have no %s flask in your inventory.", global.food_names[food_type])
+        player.print(msg,{ r=0.98, g=0.66, b=0.22})
     else
+        local print
+        local feeder
+        local flask_s = "flasks"
         if food_amount >= 20 then
-            local str = player.name .. " fed "
-            str = str .. food_amount
-            str = str .. " flasks of "
-            str = str .. global.food_names[food_type]
-            str = str .. " juice to team "
-            str = str .. enemy_team_name
-            str = str .. "´s biters!"
-            game.print(str, { r=0.98, g=0.66, b=0.22})
+            feeder = player.name
+            print = game.print
         else
-            local str = "You fed "
-            str = str .. food_amount
-            str = str .. " flask"
-            if food_amount > 1 then str = str .. "s" end
-            str = str .. " of "
-            str = str .. global.food_names[food_type]
-            str = str .. " juice to the enemy team´s biters."
-            player.print(str, { r=0.98, g=0.66, b=0.22})
+            if food_amount == 1 then
+                flask_s = "flask"
+            end
+            feeder = "You"
+            print = player.print
         end
+        local msg = string.format("%s fed %s %s of %s juice to team %s´s biters!", feeder, food_amount, flask_s, global.food_names[food_type], enemy_team_name)
+        print(msg, { r=0.98, g=0.66, b=0.22})
     end
 
     local nerf_gain = 0
@@ -678,18 +627,18 @@ local function on_gui_click(event)
     if (name == "biter_battle_leave_spectate") then
         local game_tick = game.tick
         if game_tick - global.spectator_spam_protection[player.name] > 1800 then
-            join_team(player, global.team_chosen[player.name])
+            join_team(player, global.team_chosen[player.index])
         elseif game_tick - global.spectator_spam_protection[player.name] < 1800 then
             player.print("Not ready to return to your team yet. Please wait " .. 30-(round((game_tick - global.spectator_spam_protection[player.name])/60,0)) .. " seconds.", { r=0.98, g=0.66, b=0.22})
         end
     end
 
     if (name == "biter_battle_hide_players") then
-        global.biter_battle_view_players[player.name] = false
+        global.biter_battle_view_players[player.index] = false
         refresh_gui()
     end
     if (name == "biter_battle_view_players") then
-        global.biter_battle_view_players[player.name] = true
+        global.biter_battle_view_players[player.index] = true
         refresh_gui()
     end
 
@@ -697,7 +646,7 @@ local function on_gui_click(event)
         local game_lobby_active = global.game_lobby_active
         if game_lobby_active == false then
             join_team(player, "north")
-        elseif player.admin == true then
+        elseif player.admin  then
             join_team(player, "north")
             game.print("Lobby disabled, admin override.", { r=0.98, g=0.66, b=0.22})
             global.game_lobby_active = false
@@ -710,7 +659,7 @@ local function on_gui_click(event)
         local game_lobby_active = global.game_lobby_active
         if game_lobby_active == false then
             join_team(player, "south")
-        elseif player.admin == true then
+        elseif player.admin  then
             join_team(player, "south")
             game.print("Lobby disabled, admin override.", { r=0.98, g=0.66, b=0.22})
             global.game_lobby_active = false
@@ -1080,23 +1029,6 @@ end
 
 local function on_tick(event)
     local game_tick = game.tick
-    --[[
-    if global.rocket_silo_destroyed then
-        if not global.game_restart_timer_completed then
-            if global.game_restart_timeout then
-                if game_tick % 600 == 0 and global.game_restart_timeout - game_tick > 0 and global.game_restart_timeout - game_tick < 3800 then
-                    game.print("Map will restart in " .. floor((global.game_restart_timeout - game_tick) / 60) .. " seconds!",{ r=0.22, g=0.88, b=0.22})
-                end
-            else
-                global.game_restart_timeout = game_tick + 4600
-            end
-            if global.game_restart_timeout-game_tick < 0 then
-                global.game_restart_timer_completed = true
-                game.write_file("commandPipe", ":loadscenario --force", false, 0)
-            end
-        end
-    end
-    ]]--
     local south_fish_timeout = global.spy_fish_timeout["south"]
     if south_fish_timeout then
         if (south_fish_timeout - game_tick) % 300 == 0 then
@@ -1293,8 +1225,7 @@ local function on_player_built_tile(event)
     local tiles = {}
     for _, t in pairs(placed_tiles) do
         if t.old_tile.name == "deepwater" and t.position.y <= global.horizontal_border_width*2 and t.position.y >= global.horizontal_border_width*-1*2 then
-            local str = "Team " .. player.force.name
-            str = str .. "´s landfill vanished into the depths of the marianna trench."
+            local str = string.format("Team %s´s landfill vanished into the depths of the marianna trench.", player.force.name)
             game.print(str,{ r=0.98, g=0.66, b=0.22})
 
             insert(tiles, {name = "deepwater", position = t.position})
@@ -1307,14 +1238,14 @@ local function on_player_died(event)
     if not event.cause then return end
 
     local player = game.players[event.player_index]
-    local str = " "
+    local force_name = player.force.name
+    local message = string.format("%s(%s) was killed by %s", player.name, force_name, event.cause.name)
 
-    if event.cause.name then str = " by " .. event.cause.name end
-    if player.force.name == "north" then
-        south_team.print(player.name .. "(north) was killed" .. str, { r=0.99, g=0.0, b=0.0})
+    if player.force == north_team then
+        south_team.print(message, { r=0.99, g=0.0, b=0.0})
     end
-    if player.force.name == "south" then
-        north_team.print(player.name .. "(south) was killed" .. str, { r=0.99, g=0.0, b=0.0})
+    if player.force == south_team then
+        north_team.print(message, { r=0.99, g=0.0, b=0.0})
     end
 end
 
