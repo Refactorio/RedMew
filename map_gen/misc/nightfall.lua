@@ -31,6 +31,7 @@ local state
 local lastattack
 local c_index
 local random = math.random
+local insert = table.insert
 
 local function biter_attack()
     local maxindex = #bases
@@ -93,7 +94,7 @@ local function find_bases()
             local chunkcoord = chunklist[i]
             if (game.surfaces[1].count_entities_filtered{area={{chunkcoord.x-16, chunkcoord.y-16},{chunkcoord.x+16, chunkcoord.y+16}},
                     type = "unit-spawner"}) > 0 then                    
-                table.insert(bases,chunkcoord)
+                insert(bases,chunkcoord)
             end
         end
     end
@@ -117,7 +118,7 @@ local function on_chunk_generated(event)
         local coords = event.area.left_top
         chunk.x = coords.x+16
         chunk.y = coords.y+16
-        table.insert(chunklist, chunk)
+        insert(chunklist, chunk)
     end
 end
 
