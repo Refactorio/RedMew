@@ -33,6 +33,7 @@ local c_index
 local random = math.random
 local insert = table.insert
 local get_pollution = game.surfaces[1].get_pollution
+local count_entities_filtered = game.surfaces[1].count_entities_filtered
 
 local function biter_attack()
     local maxindex = #bases
@@ -93,7 +94,7 @@ local function find_bases()
         end
         if get_pollution(chunklist[i]) > 0.1 then
             local chunkcoord = chunklist[i]
-            if (game.surfaces[1].count_entities_filtered{area={{chunkcoord.x-16, chunkcoord.y-16},{chunkcoord.x+16, chunkcoord.y+16}},
+            if (count_entities_filtered{area={{chunkcoord.x-16, chunkcoord.y-16},{chunkcoord.x+16, chunkcoord.y+16}},
                     type = "unit-spawner"}) > 0 then                    
                 insert(bases,chunkcoord)
             end
