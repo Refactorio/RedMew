@@ -1,7 +1,6 @@
 --[[
 Softmod rewrite of https://mods.factorio.com/mod/Nightfall written by Yehn and used under the MIT license
 
-----
 Copyright 2018 Yehn
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -17,7 +16,7 @@ TODO: Look into triggering existing unit groups to attack in unison with the gro
 
 local Event = require 'utils.event'
 --basic interval for checks
-local timeinterval = 2700 --2700 is 45 seconds at 60 UPS
+local timeinterval = 2689 --2700 is ~45 seconds at 60 UPS
 --how many chunks to process in a tick
 local processchunk = 5
 
