@@ -30,6 +30,7 @@ local chunklist
 local state
 local lastattack
 local c_index
+local random = math.random
 
 local function biter_attack()
     local maxindex = #bases
@@ -40,7 +41,7 @@ local function biter_attack()
             state = IDLE
             break
         end
-        if math.random() < surface.darkness then
+        if random() < surface.darkness then
             local base = bases[i]
             local group=surface.create_unit_group{position=base}
             for _, biter in ipairs(surface.find_enemy_units(base, 16)) do
@@ -72,7 +73,7 @@ local function shuffle_table( t )
     local j
     
     for i = iterations, 2, -1 do
-        j = math.random(i)
+        j = random(i)
         t[i], t[j] = t[j], t[i]
     end
 end
@@ -125,7 +126,7 @@ local function on_tick(event)
         if game.surfaces[1].darkness > 0.5
             and state == IDLE
             and event.tick >= lastattack + timeinterval
-            and math.random() > 0.5
+            and random() > 0.5
         then
             --  Search for bases, then attack
             state = BASE_SEARCH
