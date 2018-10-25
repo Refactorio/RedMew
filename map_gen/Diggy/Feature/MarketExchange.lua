@@ -186,35 +186,145 @@ local function redraw_title(data)
     data.frame.caption = stone_tracker.stone_sent_to_surface .. ' ' .. config.currency_item .. ' sent to the surface'
 end
 
-local function redraw_list(data)
+local function get_data(unlocks, stone, type)
+    local result = {}
+
+    for _, data in pairs(unlocks) do
+        if data.stone == stone and data.type == type then
+            table.insert(result, data)
+        end
+    end
+
+    return result
+end
+
+local tag_label_stone = Gui.uid_name()
+local tag_label_buff = Gui.uid_name()
+local tag_label_item = Gui.uid_name()
+
+local function apply_heading_style(style)
+    style.font = 'default-bold'
+    style.align = 'center'
+end
+
+local function redraw_heading(data)
+    local frame = data.market_scroll_pane
+    Gui.clear(frame)
+
+    local heading_table = frame.add {type = 'table', column_count = 3}
+
+    local label = heading_table.add {type = 'label', name = tag_label_stone, caption = 'Name'}
+    local label_style = label.style
+    apply_heading_style(label_style)
+    label_style.width = 90
+
+    local label = heading_table.add {type = 'label', name = tag_label_buff, caption = 'Buff'}
+    local label_style = label.style
+    apply_heading_style(label_style)
+    label_style.width = 200
+
+    local label = heading_table.add {type = 'label', name = tag_label_item, caption = 'Item'}
+    local label_style = label.style
+    apply_heading_style(label_style)
+    label_style.width = 200
+end
+
+local function redraw_table(data)
+
     local market_scroll_pane = data.market_scroll_pane
     Gui.clear(market_scroll_pane)
 
-    local add = market_scroll_pane.add
+    local buffs = {}
+    local items = {}
+    local lastStone = 0
+    local nbrRows = 0
+    local row = {}
 
-    for _, unlockable in pairs(config.unlockables) do
-        local is_unlocked = unlockable.stone <= stone_tracker.stone_sent_to_surface
-        local message
-        -- only add the item to the market if it's between the old and new stone range
-        if (unlockable.type == 'market') then
-            message = 'Market item: ' .. unlockable.prototype.name
-        elseif (unlockable.type == 'buff' and unlockable.prototype.name == 'mining_speed') then
-            message = 'Manual mining speed: +' .. unlockable.prototype.value .. '%'
-        elseif (unlockable.type == 'buff' and unlockable.prototype.name == 'inventory_slot') then
-            message = 'Inventory slot: +' .. unlockable.prototype.value
-        elseif (unlockable.type == 'buff' and unlockable.prototype.name == 'stone_automation') then
-            message = 'Automate stone to surface: +' .. unlockable.prototype.value
-        else
-            Debug.print('failed getting a message for: ' .. serpent.line(unlockable))
+    -- create table headings
+    redraw_heading(data)
+
+    -- create table
+    for i = 1, #config.unlockables do
+
+        if config.unlockables[i].stone ~= lastStone then
+
+            -- get items and buffs for each stone value
+            buffs = get_data(config.unlockables, config.unlockables[i].stone, 'buff')
+            items = get_data(config.unlockables, config.unlockables[i].stone, 'market')
+
+            -- get number of rows
+            if #buffs < #items then
+                nbrRows = #items
+            else
+                nbrRows = #buffs
+            end
+
+            -- loop through buffs and items for number of rows
+            -- testing here: http://tpcg.io/TX3zsj
+            for j = 1, nbrRows do
+                local result = {}
+                if buffs[j] ~= nil then
+                    result[1] = buffs[j].stone
+                else
+                    result[1] = items[j].stone
+                end
+                if buffs[j] ~= nil then
+                    if buffs[j].prototype.name == 'mining_speed' then
+                        result[2] = '+ '.. buffs[j].prototype.value .. '% mining speed'
+                    end
+                    if buffs[j].prototype.name == 'inventory_slot' then
+                        if buffs[j].prototype.value > 1 then
+                            result[2] = '+ '.. buffs[j].prototype.value .. ' inventory slots'
+                        else
+                            result[2] = '+ '.. buffs[j].prototype.value .. ' inventory slot'
+                        end
+                    end
+                    if buffs[j].prototype.name == 'stone_automation' then
+                        if buffs[j].prototype.value > 1 then
+                            result[2] = '+ '.. buffs[j].prototype.value .. ' stones automatically sent'
+                        else
+                            result[2] = '+ '.. buffs[j].prototype.value .. ' stone automatically sent'
+                        end
+                    end
+                else
+                    result[2] = ''
+                end
+                if items[j] ~= nil then
+                    result[3] = '+ '.. items[j].prototype.name
+                else
+                    result[3] = ''
+                end
+
+                table.insert(row, result)
+            end
         end
 
-        message = unlockable.stone .. ' stone: ' .. message
+        -- save lastStone
+        lastStone = config.unlockables[i].stone
+    end
 
-        local label = add({type = 'label', caption = message})
+    -- print table
+    for _, unlockable in pairs(row) do
+        local is_unlocked = unlockable[1] <= stone_tracker.stone_sent_to_surface
+        local list = market_scroll_pane.add {type = 'table', column_count = 3 }
+
+        local tag_stone = list.add {type = 'label', name = tag_label_stone, caption = unlockable[1]}
+        tag_stone.style.minimal_width = 90
+
+        local tag_buffs = list.add {type = 'label', name = tag_label_buff, caption = unlockable[2]}
+        tag_buffs.style.minimal_width = 200
+
+        local tag_items = list.add {type = 'label', name = tag_label_item, caption = unlockable[3]}
+        tag_items.style.minimal_width = 200
+
         if (is_unlocked) then
-            label.style.font_color = {r = 1, g = 1, b = 1}
+            tag_stone.style.font_color = {r = 1, g = 1, b = 1 }
+            tag_buffs.style.font_color = {r = 1, g = 1, b = 1 }
+            tag_items.style.font_color = {r = 1, g = 1, b = 1 }
         else
-            label.style.font_color = {r = 0.5, g = 0.5, b = 0.5}
+            tag_stone.style.font_color = {r = 0.5, g = 0.5, b = 0.5 }
+            tag_buffs.style.font_color = {r = 0.5, g = 0.5, b = 0.5 }
+            tag_items.style.font_color = {r = 0.5, g = 0.5, b = 0.5 }
         end
     end
 end
@@ -269,7 +379,7 @@ local function toggle(event)
     }
 
     redraw_title(data)
-    redraw_list(data)
+    redraw_table(data)
 
     Gui.set_data(frame, data)
 
