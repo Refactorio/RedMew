@@ -26,7 +26,7 @@ Start the scenario from the scenario menu and you are ready to go. Additionally 
 There are many pre-made map modules that can be combined to create a unique map.
 
 Map module previews can be found in [map_gen/data/.map_previews](../map_gen/data/.map_previews). You can select and
-activate a module by removing the `--` in front of the require in (`map_layout.lua`)[../map_layout.lua].
+activate a module by removing the `--` in front of the require in [`map_layout.lua`](../map_layout.lua).
 
 You can mix as many modules as you want, as long as they logically fit together.
 
