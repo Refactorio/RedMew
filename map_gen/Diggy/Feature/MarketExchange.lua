@@ -11,6 +11,7 @@ local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Global = require 'utils.global'
 local insert = table.insert
+local max = math.max
 
 -- this
 local MarketExchange = {}
@@ -196,7 +197,7 @@ local function get_data(unlocks, stone, type)
 
     for _, data in pairs(unlocks) do
         if data.stone == stone and data.type == type then
-            table.insert(result, data)
+            insert(result, data)
         end
     end
 
@@ -241,12 +242,12 @@ local function redraw_progressbar(data)
     progressbar.style.width = 540
 
     -- get highest amount of stone
-    local nbrUnloackables = #config.unlockables
-    local highestStone = config.unlockables[nbrUnloackables].stone
+    local number_of_unlockables = #config.unlockables
+    local highest_amount = config.unlockables[number_of_unlockables].stone
     -- calc % of stones sent
-    local stoneSent = stone_tracker.stone_sent_to_surface / highestStone
+    local stone_sent = stone_tracker.stone_sent_to_surface / highest_amount
 
-    progressbar.value = stoneSent
+    progressbar.value = stone_sent
 end
 
 local function redraw_table(data)
@@ -256,8 +257,8 @@ local function redraw_table(data)
 
     local buffs = {}
     local items = {}
-    local lastStone = 0
-    local nbrRows = 0
+    local last_stone = 0
+    local number_of_rows = 0
     local row = {}
 
     redraw_progressbar(data)
@@ -268,22 +269,17 @@ local function redraw_table(data)
     -- create table
     for i = 1, #config.unlockables do
 
-        if config.unlockables[i].stone ~= lastStone then
+        if config.unlockables[i].stone ~= last_stone then
 
             -- get items and buffs for each stone value
             buffs = get_data(config.unlockables, config.unlockables[i].stone, 'buff')
             items = get_data(config.unlockables, config.unlockables[i].stone, 'market')
 
             -- get number of rows
-            if #buffs < #items then
-                nbrRows = #items
-            else
-                nbrRows = #buffs
-            end
+            number_of_rows = max(#buffs, #items)
 
             -- loop through buffs and items for number of rows
-            -- testing here: http://tpcg.io/TX3zsj
-            for j = 1, nbrRows do
+            for j = 1, number_of_rows do
                 local result = {}
 
                 -- 1st column
@@ -305,11 +301,7 @@ local function redraw_table(data)
                         end
                     end
                     if buffs[j].prototype.name == 'stone_automation' then
-                        if buffs[j].prototype.value > 1 then
-                            result[2] = '+ '.. buffs[j].prototype.value .. ' stones automatically sent'
-                        else
-                            result[2] = '+ '.. buffs[j].prototype.value .. ' stone automatically sent'
-                        end
+                        result[2] = '+ '.. buffs[j].prototype.value .. ' stones automatically sent'
                     end
                 else
                     result[2] = ''
@@ -322,23 +314,23 @@ local function redraw_table(data)
                 end
                 -- indicator to stop print stone number
                 if j > 1 then
-                    result[4] = 'true'
+                    result[4] = true
                 else
-                    result[4] = 'false'
+                    result[4] = false
                 end
                 -- indicator to draw horizontal line
-                if j == nbrRows then
-                    result[5] = 'true'
+                if j == number_of_rows then
+                    result[5] = true
                 else
-                    result[5] = 'false'
+                    result[5] = false
                 end
 
-                table.insert(row, result)
+                insert(row, result)
             end
         end
 
         -- save lastStone
-        lastStone = config.unlockables[i].stone
+        last_stone = config.unlockables[i].stone
     end
 
     -- print table
@@ -350,7 +342,7 @@ local function redraw_table(data)
         list.style.horizontal_spacing = 16
 
         local caption = ''
-        if unlockable[4] ~= 'true' then
+        if unlockable[4] ~= true then
             caption = comma_value(unlockable[1])
         else
             caption = ''
@@ -365,7 +357,7 @@ local function redraw_table(data)
         tag_items.style.minimal_width = 200
 
         -- draw horizontal line
-        if unlockable[5] == 'true' then
+        if unlockable[5] == true then
             list.draw_horizontal_line_after_headers = true
         end
 
