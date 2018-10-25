@@ -17,5 +17,9 @@ To join a RedMew Factorio server, follow the following steps in Factorio:
 ## Documentation
 You can find an overview of [the documentation in the docs directory](/docs/Index.md)
 
+## Contributing
+If you wish to contribute, don't hesitate to make a Pull Request or open an issue. When in doubt, you can always ask
+on [Discord](http://redmew.com/discord).
+
 ## License
 The RedMew codebase is licensed under the [GPL3 License](LICENSE).
