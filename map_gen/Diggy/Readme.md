@@ -43,8 +43,8 @@ Download the zip file from https://github.com/Valansch/RedMew/archive/develop.zi
 
 ##### Step 2
 - **Windows**: extract the the zip file into `%appdata%\Factorio\Scenarios\Diggy`
-- **Linux**: extract the the zip file into `~/Library/Application Support/factorio/Scenarios/Diggy`
-- **MacOS**: extract the the zip file into `~/.factorio/Scenarios/Diggy`
+- **MacOS**: extract the the zip file into `~/Library/Application Support/factorio/Scenarios/Diggy`
+- **Linux**: extract the the zip file into `~/.factorio/scenarios/Diggy`
 
 Make sure it's called Diggy and there's a `control.lua` in the root of that directory.
 
