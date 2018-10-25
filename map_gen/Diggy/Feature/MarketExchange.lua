@@ -182,8 +182,13 @@ local function on_research_finished(event)
     update_stone_collecting()
 end
 
+local function comma_value(n) -- credit http://richard.warburton.it
+    local left,num,right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
+    return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+end
+
 local function redraw_title(data)
-    data.frame.caption = stone_tracker.stone_sent_to_surface .. ' ' .. config.currency_item .. ' sent to the surface'
+    data.frame.caption = comma_value(stone_tracker.stone_sent_to_surface) .. ' ' .. config.currency_item .. ' sent to the surface'
 end
 
 local function get_data(unlocks, stone, type)
@@ -208,7 +213,7 @@ local function apply_heading_style(style)
 end
 
 local function redraw_heading(data)
-    local frame = data.market_scroll_pane
+    local frame = data.market_list_heading
     Gui.clear(frame)
 
     local heading_table = frame.add {type = 'table', column_count = 3}
@@ -229,6 +234,21 @@ local function redraw_heading(data)
     label_style.width = 200
 end
 
+local function redraw_progressbar(data)
+    local progressbar = data.market_progressbar
+    Gui.clear(progressbar)
+
+    progressbar.style.width = 540
+
+    -- get highest amount of stone
+    local nbrUnloackables = #config.unlockables
+    local highestStone = config.unlockables[nbrUnloackables].stone
+    -- calc % of stones sent
+    local stoneSent = stone_tracker.stone_sent_to_surface / highestStone
+
+    progressbar.value = stoneSent
+end
+
 local function redraw_table(data)
 
     local market_scroll_pane = data.market_scroll_pane
@@ -239,6 +259,8 @@ local function redraw_table(data)
     local lastStone = 0
     local nbrRows = 0
     local row = {}
+
+    redraw_progressbar(data)
 
     -- create table headings
     redraw_heading(data)
@@ -263,11 +285,14 @@ local function redraw_table(data)
             -- testing here: http://tpcg.io/TX3zsj
             for j = 1, nbrRows do
                 local result = {}
+
+                -- 1st column
                 if buffs[j] ~= nil then
                     result[1] = buffs[j].stone
                 else
                     result[1] = items[j].stone
                 end
+                -- 2nd column
                 if buffs[j] ~= nil then
                     if buffs[j].prototype.name == 'mining_speed' then
                         result[2] = '+ '.. buffs[j].prototype.value .. '% mining speed'
@@ -289,10 +314,23 @@ local function redraw_table(data)
                 else
                     result[2] = ''
                 end
+                -- 3rd column
                 if items[j] ~= nil then
-                    result[3] = '+ '.. items[j].prototype.name
+                    result[3] = '+ ' .. items[j].prototype.name
                 else
                     result[3] = ''
+                end
+                -- indicator to stop print stone number
+                if j > 1 then
+                    result[4] = 'true'
+                else
+                    result[4] = 'false'
+                end
+                -- indicator to draw horizontal line
+                if j == nbrRows then
+                    result[5] = 'true'
+                else
+                    result[5] = 'false'
                 end
 
                 table.insert(row, result)
@@ -306,9 +344,18 @@ local function redraw_table(data)
     -- print table
     for _, unlockable in pairs(row) do
         local is_unlocked = unlockable[1] <= stone_tracker.stone_sent_to_surface
+
         local list = market_scroll_pane.add {type = 'table', column_count = 3 }
 
-        local tag_stone = list.add {type = 'label', name = tag_label_stone, caption = unlockable[1]}
+        list.style.horizontal_spacing = 16
+
+        local caption = ''
+        if unlockable[4] ~= 'true' then
+            caption = comma_value(unlockable[1])
+        else
+            caption = ''
+        end
+        local tag_stone = list.add {type = 'label', name = tag_label_stone, caption = caption}
         tag_stone.style.minimal_width = 90
 
         local tag_buffs = list.add {type = 'label', name = tag_label_buff, caption = unlockable[2]}
@@ -316,6 +363,11 @@ local function redraw_table(data)
 
         local tag_items = list.add {type = 'label', name = tag_label_item, caption = unlockable[3]}
         tag_items.style.minimal_width = 200
+
+        -- draw horizontal line
+        if unlockable[5] == 'true' then
+            list.draw_horizontal_line_after_headers = true
+        end
 
         if (is_unlocked) then
             tag_stone.style.font_color = {r = 1, g = 1, b = 1 }
@@ -368,6 +420,10 @@ local function toggle(event)
 
     frame = center.add({name = 'Diggy.MarketExchange.Frame', type = 'frame', direction = 'vertical'})
 
+    local market_progressbar = frame.add({type = 'progressbar', tooltip = '% stones sent'})
+
+    local market_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
+
     local market_scroll_pane = frame.add({type = 'scroll-pane'})
     market_scroll_pane.style.maximal_height = 400
 
@@ -375,6 +431,8 @@ local function toggle(event)
 
     local data = {
         frame = frame,
+        market_progressbar = market_progressbar,
+        market_list_heading = market_list_heading,
         market_scroll_pane = market_scroll_pane,
     }
 
