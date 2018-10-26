@@ -32,8 +32,6 @@ local lastattack
 local c_index
 local random = math.random
 local insert = table.insert
-local get_pollution = game.surfaces[1].get_pollution
-local count_entities_filtered = game.surfaces[1].count_entities_filtered
 
 local function biter_attack()
     local maxindex = #bases
@@ -56,7 +54,7 @@ local function biter_attack()
                 --autonomous groups will attack polluted areas independently
                 group.set_autonomous()
                 if _DEBUG then
-                    game.surfaces[1].print("sending biters")
+                    game.print("sending biters")
                 end
                 --group.set_command{ type=defines.command.attack_area, destination=game.players[1].position, radius=200, distraction=defines.distraction.by_anything }
             end
@@ -82,6 +80,8 @@ local function shuffle_table( t )
 end
 
 local function find_bases()
+    local get_pollution = game.surfaces[1].get_pollution
+    local count_entities_filtered = game.surfaces[1].count_entities_filtered
     if c_index == 1 then
         bases = {}
     end
@@ -106,7 +106,7 @@ local function find_bases()
         c_index = 1
         shuffle_table(bases)
         if _DEBUG then
-            game.surfaces[1].print("bases added: " .. tostring(#bases))
+            game.print("bases added: " .. tostring(#bases))
         end
     end
 end
@@ -124,20 +124,7 @@ local function on_chunk_generated(event)
     end
 end
 
-local function on_tick(event)
-    if event.tick % timeinterval == 0 then
-        if game.surfaces[1].darkness > 0.5
-            and state == IDLE
-            and event.tick >= lastattack + timeinterval
-            and random() > 0.5
-        then
-            --  Search for bases, then attack
-            state = BASE_SEARCH
-            if _DEBUG then
-                game.surfaces[1].print("entering attack mode") --for debug
-            end
-        end
-    end
+local function on_tick()
     if state == BASE_SEARCH then
         -- This is called every tick while in this state
         -- But only a small amount of work is done per call.
@@ -145,6 +132,20 @@ local function on_tick(event)
         find_bases()
     elseif state == ATTACKING then
         biter_attack()
+    end
+end
+
+local function on_interval()
+    if game.surfaces[1].darkness > 0.5
+        and state == IDLE
+        and game.tick >= lastattack + timeinterval
+        and random() > 0.5
+    then
+        --  Search for bases, then attack
+        state = BASE_SEARCH
+        if _DEBUG then
+            game.surfaces[1].print("entering attack mode") --for debug
+        end
     end
 end
 
@@ -159,4 +160,5 @@ end
 
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)
 Event.add(defines.events.on_tick, on_tick)
+Event.on_nth_tick(timeinterval, on_interval)
 Event.on_init(on_init)
