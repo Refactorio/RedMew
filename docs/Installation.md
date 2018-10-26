@@ -20,7 +20,7 @@ There are 3 ways to generate maps using our scenario: Vanilla, FactorioMapConver
 
 ### Vanilla
 Start the scenario from the scenario menu and you are ready to go. Additionally you can turn features on or off via
-(`control.lua`)[../control.lua] if desired.
+[`control.lua`](../control.lua) if desired.
 
 ### Custom Maps
 There are many pre-made map modules that can be combined to create a unique map.
