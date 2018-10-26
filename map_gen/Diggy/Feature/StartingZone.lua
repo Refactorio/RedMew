@@ -24,6 +24,7 @@ function StartingZone.register(config)
 
     local function on_chunk_generated(event)
         local start_point_area = {{-0.9, -0.9}, {0.9, 0.9}}
+        local start_point_cleanup = {{-0.9, -0.9}, {1.9, 1.9}}
         local surface = event.surface
 
         -- hack to figure out whether the important chunks are generated via Diggy.Feature.RefreshMap.
@@ -32,7 +33,7 @@ function StartingZone.register(config)
         end
 
         -- ensure a clean starting point
-        for _, entity in pairs(surface.find_entities_filtered({area = start_point_area, type = 'resource'})) do
+        for _, entity in pairs(surface.find_entities_filtered({area = start_point_cleanup, type = 'resource'})) do
             entity.destroy()
         end
 
@@ -81,6 +82,8 @@ function StartingZone.on_init()
 
     surface.daytime = 0.5
     surface.freeze_daytime = 1
+    -- base factorio =                pollution_factor = 0.000015
+    game.map_settings.enemy_evolution.pollution_factor = 0.000002
 end
 
 

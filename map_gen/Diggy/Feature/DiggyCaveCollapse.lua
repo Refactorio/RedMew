@@ -148,15 +148,17 @@ local function spawn_cracking_sound_text(surface, position)
         b = 0
     }
 
+    local create_entity = surface.create_entity
+
     for i = 1, #text do
         local x_offset = (i - #text / 2 - 1) / 3
         local char = text:sub(i, i)
-        surface.create_entity {
-                name = 'flying-text',
-                color = color,
-                text = char,
-                position = {x = position.x + x_offset, y = position.y - ((i + 1) % 2) / 4}
-            }.active = true
+        create_entity {
+            name = 'flying-text',
+            color = color,
+            text = char,
+            position = {x = position.x + x_offset, y = position.y - ((i + 1) % 2) / 4}
+        }.active = true
     end
 end
 
@@ -184,7 +186,6 @@ end
 
 local function on_built_tile(surface, new_tile, tiles)
     local new_tile_strength = support_beam_entities[new_tile.name]
-
 
     for _, tile in pairs(tiles) do
         if new_tile_strength then
@@ -414,7 +415,7 @@ end
 
     @return number sum of old fraction + new fraction
 ]]
-function add_fraction(stress_map, x, y, fraction)
+local function add_fraction(stress_map, x, y, fraction)
     x = 2 * floor(x / 2)
     y = 2 * floor(y / 2)
 

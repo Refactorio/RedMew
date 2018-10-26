@@ -76,7 +76,7 @@ function ScatteredResources.register(config)
 
         local distance = floor(sqrt(x^2 + y^2))
         local calculated_probability = config.resource_probability + ((distance / config.distance_probability_modifier) / 100)
-        local probability = 0.7
+        local probability = config.max_resource_probability
 
         if (calculated_probability < probability) then
             probability = calculated_probability

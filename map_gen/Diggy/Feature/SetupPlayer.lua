@@ -39,6 +39,7 @@ function SetupPlayer.register(config)
         Debug.cheat(function()
             player.force.manual_mining_speed_modifier = config.cheats.manual_mining_speed_modifier
             player.force.character_inventory_slots_bonus = config.cheats.character_inventory_slots_bonus
+            player.character_running_speed_modifier = config.cheats.character_running_speed_modifier
         end)
     end)
 end
