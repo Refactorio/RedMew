@@ -14,12 +14,6 @@ local ceil = math.ceil
 local floor = math.floor
 local insert = table.insert
 
-local enemy_force
-local north_team
-local south_team
-
-local battle_surface
-
 local function get_border_cords(enemy_team, surface)
     local area = {{-1000, -1000}, {1000, -10}}
     if enemy_team == "south" then area = {{-1000, 10}, {1000, 1000}} end
@@ -178,19 +172,19 @@ local function create_biter_battle_menu(player)
         frame.add  { type = "label", caption = "--------------------------------------------------"}
     end
 
-    create_team_info_labels(frame, north_team, player_index, force_name ~= "player")
+    create_team_info_labels(frame, global.north_team, player_index, force_name ~= "player")
 
     if force_name == "player" then
-        create_join_button(frame, north_team)
+        create_join_button(frame, global.north_team)
         frame.add  { type = "label", caption = "--------------------------------------------------"}
     else
         frame.add  { type = "label", caption = "--------------------------"}
     end
 
-    create_team_info_labels(frame, south_team, player_index, force_name ~= "player")
+    create_team_info_labels(frame, global.south_team, player_index, force_name ~= "player")
 
     if force_name == "player" then
-        create_join_button(frame, south_team)
+        create_join_button(frame, global.south_team)
     end
 
     if global.team_chosen[player_index] then
@@ -255,7 +249,7 @@ local function join_team(player, team)
         if #game.forces[team].connected_players > #game.forces[enemy_team].connected_players and not global.team_chosen[player_index] then
             player.print("Team " .. team .. " has too many players currently.", { r=0.98, g=0.66, b=0.22})
         else
-            player.teleport(battle_surface.find_non_colliding_position("player", game.forces[team].get_spawn_position(battle_surface), 3, 1))
+            player.teleport(global.battle_surface.find_non_colliding_position("player", game.forces[team].get_spawn_position(global.battle_surface), 3, 1))
             player.force=game.forces[team]
             if global.team_chosen[player_index] then
                 local p = game.permissions.get_group("Default")
@@ -278,7 +272,7 @@ local function join_team(player, team)
     end
 
     if team == "spectator" then
-        player.teleport(battle_surface.find_non_colliding_position("player", {0,0}, 2, 1))
+        player.teleport(global.battle_surface.find_non_colliding_position("player", {0,0}, 2, 1))
         player.force=game.forces[team]
         game.print(player_name .. " is spectating.", { r=0.98, g=0.66, b=0.22})
         local permission_group = game.permissions.get_group("spectator")
@@ -306,140 +300,25 @@ end
 local function reveal_team(f)
     local m = 32
     if f == "north" then
-        south_team.chart(battle_surface, {{x = global.force_area[f].x_top-m, y = global.force_area[f].y_top-m}, {x = global.force_area[f].x_bot+m, y = global.force_area[f].y_bot+m}})
+        global.south_team.chart(global.battle_surface, {{x = global.force_area[f].x_top-m, y = global.force_area[f].y_top-m}, {x = global.force_area[f].x_bot+m, y = global.force_area[f].y_bot+m}})
     else
-        north_team.chart(battle_surface, {{x = global.force_area[f].x_top-m, y = global.force_area[f].y_top-m}, {x = global.force_area[f].x_bot+m, y = global.force_area[f].y_bot+m}})
+        global.north_team.chart(global.battle_surface, {{x = global.force_area[f].x_top-m, y = global.force_area[f].y_top-m}, {x = global.force_area[f].x_bot+m, y = global.force_area[f].y_bot+m}})
     end
 end
 
 local function on_player_joined_game(event)
     local player = game.players[event.player_index]
     if not global.horizontal_border_width then global.horizontal_border_width = 16 end
-    if not global.biter_battles_init_done then
-        local map_gen_settings = {}
-        map_gen_settings.water = "none"
-        map_gen_settings.cliff_settings = {cliff_elevation_interval = 18, cliff_elevation_0 = 18}
-        map_gen_settings.autoplace_controls = {
-            ["coal"] = {frequency = "normal", size = "normal", richness = "normal"},
-            ["stone"] = {frequency = "normal", size = "normal", richness = "normal"},
-            ["copper-ore"] = {frequency = "high", size = "very-big", richness = "normal"},
-            ["iron-ore"] = {frequency = "high", size = "very-big", richness = "normal"},
-            ["crude-oil"] = {frequency = "very-high", size = "very-big", richness = "good"},
-            ["trees"] = {frequency = "normal", size = "small", richness = "normal"},
-            ["enemy-base"] = {frequency = "normal", size = "very-big", richness = "good"}
-        }
-        battle_surface = game.create_surface("battle_surface", map_gen_settings)
+    game.forces['player'].set_spawn_position({0,0},global.battle_surface)
 
-        game.map_settings.enemy_evolution.time_factor = 0.000005
-        game.map_settings.enemy_evolution.destroy_factor = 0.004
-        game.map_settings.enemy_evolution.pollution_factor = 0.000025
-        game.map_settings.enemy_expansion.enabled = true
-        game.map_settings.enemy_expansion.min_expansion_cooldown = 14400
-        game.map_settings.enemy_expansion.max_expansion_cooldown = 72000
-
-        local create_force = game.create_force
-        enemy_force = game.forces.enemy
-        north_team = create_force("north")
-        south_team = create_force("south")
-        local spectator_team = create_force("spectator")
-
-        --game.create_force("map_pregen")
-        global.game_lobby_active = true
-        global.game_lobby_timeout = 599940
-        global.biter_battle_view_players = {}
-        global.spectator_spam_protection = {}
-        global.force_area = {}
-
-        north_team.technologies["artillery-shell-range-1"].enabled = false
-        south_team.technologies["artillery-shell-range-1"].enabled = false
-        north_team.technologies["artillery-shell-speed-1"].enabled = false
-        south_team.technologies["artillery-shell-speed-1"].enabled = false
-        north_team.technologies["atomic-bomb"].enabled = false
-        south_team.technologies["atomic-bomb"].enabled = false
-        game.forces["spectator"].technologies["toolbelt"].researched=true
-
-        global.team_chosen = {}
-        global.team_nerf = {
-            ["north"] = 0,
-            ["south"] = 0,
-        }
-        global.biter_rage = {
-            ["north"] = 0,
-            ["south"] = 0,
-        }
-        global.biter_fragmentation = {
-            [1] = {"medium-biter","small-biter",3,5},
-            [2] = {"big-biter","medium-biter",2,2},
-            [3] = {"behemoth-biter","big-biter",2,2},
-        }
-        global.biter_building_inhabitants = {
-            [1] = {{"small-biter",8,16}},
-            [2] = {{"small-biter",12,24}},
-            [3] = {{"small-biter",8,16},{"medium-biter",1,2}},
-            [4] = {{"small-biter",4,8},{"medium-biter",4,8}},
-            [5] = {{"small-biter",3,5},{"medium-biter",8,12}},
-            [6] = {{"small-biter",3,5},{"medium-biter",5,7},{"big-biter",1,2}},
-            [7] = {{"medium-biter",6,8},{"big-biter",3,5}},
-            [8] = {{"medium-biter",2,4},{"big-biter",6,8}},
-            [9] = {{"medium-biter",2,3},{"big-biter",7,9}},
-            [10] = {{"big-biter",4,8},{"behemoth-biter",3,4}},
-        }
-
-        north_team.set_turret_attack_modifier("flamethrower-turret", -0.75)
-        south_team.set_turret_attack_modifier("flamethrower-turret", -0.75)
-        north_team.set_ammo_damage_modifier("artillery-shell", -0.95)
-        south_team.set_ammo_damage_modifier("artillery-shell", -0.95)
-        north_team.set_ammo_damage_modifier("shotgun-shell", 0.5)
-        south_team.set_ammo_damage_modifier("shotgun-shell", 0.5)
-
-        global.food_names = {
-            ["science-pack-1"] = "red science",
-            ["science-pack-2"] = "green science",
-            ["military-science-pack"] = "military science",
-            ["science-pack-3"] = "blue science",
-            ["production-science-pack"] = "production science",
-            ["high-tech-science-pack"] = "high tech science",
-            ["space-science-pack"] = "space science",
-        }
-
-        global.food_values = {
-            ["science-pack-1"] = 0.00000100,
-            ["science-pack-2"] = 0.00000292,
-            ["military-science-pack"] = 0.00001950,
-            ["science-pack-3"] = 0.00003792,
-            ["production-science-pack"] = 0.00008000,
-            ["high-tech-science-pack"] = 0.00021000,
-            ["space-science-pack"] = 0.00042000,
-        }
-
-        global.spy_fish_timeout = {}
-
-        north_team.set_cease_fire('player', true)
-        north_team.set_friend('spectator', true)
-        north_team.share_chart = true
-        north_team.set_spawn_position({0,-26},battle_surface)
-
-        south_team.set_cease_fire('player', true)
-        south_team.set_friend('spectator', true)
-        south_team.share_chart = true
-        south_team.set_spawn_position({0,26},battle_surface)
-
-        spectator_team.set_spawn_position({0,0},battle_surface)
-        spectator_team.set_friend('north', true)
-        spectator_team.set_friend('south', true)
-
-        game.forces['player'].set_spawn_position({0,0},battle_surface)
-
-        global.biter_battles_init_done = true
-    end
     if global.game_lobby_active then
         if #game.connected_players > 1 then global.game_lobby_timeout = game.tick + 9000 end
     end
 
-    if player.online_time < 5 and battle_surface.is_chunk_generated({0,0}) then
-        player.teleport(battle_surface.find_non_colliding_position("player", {0,0}, 2, 1), battle_surface)
+    if player.online_time < 5 and global.battle_surface.is_chunk_generated({0,0}) then
+        player.teleport(global.battle_surface.find_non_colliding_position("player", {0,0}, 2, 1), global.battle_surface)
     else
-        if not global.team_chosen[player.index] then player.teleport({0,0}, battle_surface) end
+        if not global.team_chosen[player.index] then player.teleport({0,0}, global.battle_surface) end
     end
 
     global.biter_battle_view_players[player.index] = false
@@ -680,7 +559,7 @@ local function on_entity_died(event)
         end
     end
     if event.entity.name == "medium-biter" then
-        local conveyor = battle_surface.find_entities_filtered{area={{event.entity.position.x-1,event.entity.position.y-1},{event.entity.position.x+1,event.entity.position.y+1}}, name={"transport-belt", "fast-transport-belt", "express-transport-belt"}, limit=1}
+        local conveyor = global.battle_surface.find_entities_filtered{area={{event.entity.position.x-1,event.entity.position.y-1},{event.entity.position.x+1,event.entity.position.y+1}}, name={"transport-belt", "fast-transport-belt", "express-transport-belt"}, limit=1}
         if conveyor[1] then
             conveyor[1].health = conveyor[1].health - 57
             if conveyor[1].health <= 0 then conveyor[1].die("enemy") end
@@ -689,8 +568,8 @@ local function on_entity_died(event)
     for _, fragment in pairs(global.biter_fragmentation) do
         if event.entity.name == fragment[1] then
             for x=1,random(fragment[3],fragment[4]),1 do
-                local p = battle_surface.find_non_colliding_position(fragment[2] , event.entity.position, 2, 1)
-                if p then battle_surface.create_entity {name=fragment[2], position=p} end
+                local p = global.battle_surface.find_non_colliding_position(fragment[2] , event.entity.position, 2, 1)
+                if p then global.battle_surface.create_entity {name=fragment[2], position=p} end
                 p = nil
             end
             return
@@ -698,11 +577,11 @@ local function on_entity_died(event)
     end
 
     if event.entity.name == "biter-spawner" or event.entity.name == "spitter-spawner" then
-        local e = ceil(enemy_force.evolution_factor*10, 0)
+        local e = ceil(global.enemy_force.evolution_factor*10, 0)
         for _, t in pairs (global.biter_building_inhabitants[e]) do
             for x = 1, random(t[2],t[3]), 1 do
-                local p = battle_surface.find_non_colliding_position(t[1] , event.entity.position, 6, 1)
-                if p then battle_surface.create_entity {name=t[1], position=p} end
+                local p = global.battle_surface.find_non_colliding_position(t[1] , event.entity.position, 6, 1)
+                if p then global.battle_surface.create_entity {name=t[1], position=p} end
             end
         end
     end
@@ -718,7 +597,7 @@ local function get_valid_biters(requested_amount, y_modifier, pos_x, pos_y, radi
     if not radius_inc then radius_inc = 100 end
 
     for radius = radius_inc,2000,radius_inc do
-        biters_found = battle_surface.find_enemy_units({pos_x,pos_y}, radius, "player")
+        biters_found = global.battle_surface.find_enemy_units({pos_x,pos_y}, radius, "player")
         local x = 1
         if y_modifier == -1 then
             for _, biter in pairs(biters_found) do
@@ -749,7 +628,7 @@ end
 
 local function biter_attack_silo(team, requested_amount, mode)
     if not requested_amount or not team then return end
-    local count_entities_filtered = battle_surface.count_entities_filtered
+    local count_entities_filtered = global.battle_surface.count_entities_filtered
     local attack_target = global.biter_attack_main_target[team]
     local attack_area = defines.command.attack_area
     local by_enemy = defines.distraction.by_enemy
@@ -1013,7 +892,7 @@ local function biter_attack_silo(team, requested_amount, mode)
                 game.players[1].print("water found, doing alternate spread attack")
             end
         else
-            local biter_attack_group = battle_surface.create_unit_group({position={gathering_point_x,gathering_point_y}})
+            local biter_attack_group = global.battle_surface.create_unit_group({position={gathering_point_x,gathering_point_y}})
             for _, biter in pairs(biters_selected_for_attack) do
                 biter_attack_group.add_member(biter)
             end
@@ -1071,7 +950,7 @@ local function on_tick(event)
     end
     if not global.terrain_init_done then
         if game_tick == 240 then
-            local create_entity = battle_surface.create_entity
+            local create_entity = global.battle_surface.create_entity
             local silos = {
                 ["north"] = create_entity {name="rocket-silo", position={0,(global.horizontal_border_width*3.8)*-1}, force="north"},
                 ["south"] = create_entity {name="rocket-silo", position={0,global.horizontal_border_width*3.8}, force="south"},
@@ -1092,13 +971,13 @@ local function on_tick(event)
             biter_battles_terrain.generate_market()
             global.terrain_init_done = true
 
-            battle_surface.regenerate_decorative()
-            battle_surface.regenerate_entity({"tree-01", "tree-02","tree-03","tree-04","tree-05","tree-06","tree-07","tree-08","tree-09","dead-dry-hairy-tree","dead-grey-trunk","dead-tree-desert","dry-hairy-tree","dry-tree","rock-big","rock-huge"})
-            local entities = battle_surface.find_entities({{-10,-10},{10,10}})
+            global.battle_surface.regenerate_decorative()
+            global.battle_surface.regenerate_entity({"tree-01", "tree-02","tree-03","tree-04","tree-05","tree-06","tree-07","tree-08","tree-09","dead-dry-hairy-tree","dead-grey-trunk","dead-tree-desert","dry-hairy-tree","dry-tree","rock-big","rock-huge"})
+            local entities = global.battle_surface.find_entities({{-10,-10},{10,10}})
             for _, e in pairs(entities) do
                 if e.type == "simple-entity" or e.type == "resource" or e.type == "tree" then e.destroy() end
             end
-            battle_surface.destroy_decoratives({{-10,-10},{10,10}})
+            global.battle_surface.destroy_decoratives({{-10,-10},{10,10}})
             game.print("Spawn generation done.")
         end
     end
@@ -1158,7 +1037,7 @@ local function on_entity_damaged(event)
         if entity.health - event.final_damage_amount <= 0 then
             entity.die(force_name)
          end
-        entity.health = entity.health + event.final_damage_amount * (enemy_force.evolution_factor * 0.8)
+        entity.health = entity.health + event.final_damage_amount * (global.enemy_force.evolution_factor * 0.8)
         return
     end
 
@@ -1179,7 +1058,7 @@ local function on_robot_built_entity(event)
         local x = event.created_entity.position.x
         local y = event.created_entity.position.y
         event.created_entity.die("south")
-        search_for_ghost = battle_surface.find_entities({{x, y}, {x+1, y+1}})
+        search_for_ghost = global.battle_surface.find_entities({{x, y}, {x+1, y+1}})
         for _, e in pairs(search_for_ghost) do
             if e.type == "entity-ghost" then e.time_to_live = 1 end
         end
@@ -1190,7 +1069,7 @@ local function on_robot_built_entity(event)
         local x = event.created_entity.position.x
         local y = event.created_entity.position.y
         event.created_entity.die("north")
-        search_for_ghost = battle_surface.find_entities({{x, y}, {x+1, y+1}})
+        search_for_ghost = global.battle_surface.find_entities({{x, y}, {x+1, y+1}})
         for _, e in pairs(search_for_ghost) do
             if e.type == "entity-ghost" then e.time_to_live = 1 end
         end
@@ -1231,7 +1110,7 @@ local function on_player_built_tile(event)
             insert(tiles, {name = "deepwater", position = t.position})
         end
     end
-    battle_surface.set_tiles(tiles)
+    global.battle_surface.set_tiles(tiles)
 end
 
 local function on_player_died(event)
@@ -1241,14 +1120,129 @@ local function on_player_died(event)
     local force_name = player.force.name
     local message = string.format("%s(%s) was killed by %s", player.name, force_name, event.cause.name)
 
-    if player.force == north_team then
-        south_team.print(message, { r=0.99, g=0.0, b=0.0})
+    if player.force == global.north_team then
+        global.south_team.print(message, { r=0.99, g=0.0, b=0.0})
     end
-    if player.force == south_team then
-        north_team.print(message, { r=0.99, g=0.0, b=0.0})
+    if player.force == global.south_team then
+        global.north_team.print(message, { r=0.99, g=0.0, b=0.0})
     end
 end
 
+local function on_init()
+  local map_gen_settings = {}
+  map_gen_settings.water = "none"
+  map_gen_settings.cliff_settings = {cliff_elevation_interval = 18, cliff_elevation_0 = 18}
+  map_gen_settings.autoplace_controls = {
+      ["coal"] = {frequency = "normal", size = "normal", richness = "normal"},
+      ["stone"] = {frequency = "normal", size = "normal", richness = "normal"},
+      ["copper-ore"] = {frequency = "high", size = "very-big", richness = "normal"},
+      ["iron-ore"] = {frequency = "high", size = "very-big", richness = "normal"},
+      ["crude-oil"] = {frequency = "very-high", size = "very-big", richness = "good"},
+      ["trees"] = {frequency = "normal", size = "small", richness = "normal"},
+      ["enemy-base"] = {frequency = "normal", size = "very-big", richness = "good"}
+  }
+  global.battle_surface = game.create_surface("battle_surface", map_gen_settings)
+
+  game.map_settings.enemy_evolution.time_factor = 0.000005
+  game.map_settings.enemy_evolution.destroy_factor = 0.004
+  game.map_settings.enemy_evolution.pollution_factor = 0.000025
+  game.map_settings.enemy_expansion.enabled = true
+  game.map_settings.enemy_expansion.min_expansion_cooldown = 14400
+  game.map_settings.enemy_expansion.max_expansion_cooldown = 72000
+
+  local create_force = game.create_force
+  global.enemy_force = game.forces.enemy
+  global.north_team = create_force("north")
+  global.south_team = create_force("south")
+  local spectator_team = create_force("spectator")
+
+  --game.create_force("map_pregen")
+  global.game_lobby_active = true
+  global.game_lobby_timeout = 599940
+  global.biter_battle_view_players = {}
+  global.spectator_spam_protection = {}
+  global.force_area = {}
+
+  global.north_team.technologies["artillery-shell-range-1"].enabled = false
+  global.south_team.technologies["artillery-shell-range-1"].enabled = false
+  global.north_team.technologies["artillery-shell-speed-1"].enabled = false
+  global.south_team.technologies["artillery-shell-speed-1"].enabled = false
+  global.north_team.technologies["atomic-bomb"].enabled = false
+  global.south_team.technologies["atomic-bomb"].enabled = false
+  game.forces["spectator"].technologies["toolbelt"].researched=true
+
+  global.team_chosen = {}
+  global.team_nerf = {
+      ["north"] = 0,
+      ["south"] = 0,
+  }
+  global.biter_rage = {
+      ["north"] = 0,
+      ["south"] = 0,
+  }
+  global.biter_fragmentation = {
+      [1] = {"medium-biter","small-biter",3,5},
+      [2] = {"big-biter","medium-biter",2,2},
+      [3] = {"behemoth-biter","big-biter",2,2},
+  }
+  global.biter_building_inhabitants = {
+      [1] = {{"small-biter",8,16}},
+      [2] = {{"small-biter",12,24}},
+      [3] = {{"small-biter",8,16},{"medium-biter",1,2}},
+      [4] = {{"small-biter",4,8},{"medium-biter",4,8}},
+      [5] = {{"small-biter",3,5},{"medium-biter",8,12}},
+      [6] = {{"small-biter",3,5},{"medium-biter",5,7},{"big-biter",1,2}},
+      [7] = {{"medium-biter",6,8},{"big-biter",3,5}},
+      [8] = {{"medium-biter",2,4},{"big-biter",6,8}},
+      [9] = {{"medium-biter",2,3},{"big-biter",7,9}},
+      [10] = {{"big-biter",4,8},{"behemoth-biter",3,4}},
+  }
+
+  global.north_team.set_turret_attack_modifier("flamethrower-turret", -0.75)
+  global.south_team.set_turret_attack_modifier("flamethrower-turret", -0.75)
+  global.north_team.set_ammo_damage_modifier("artillery-shell", -0.95)
+  global.south_team.set_ammo_damage_modifier("artillery-shell", -0.95)
+  global.north_team.set_ammo_damage_modifier("shotgun-shell", 0.5)
+  global.south_team.set_ammo_damage_modifier("shotgun-shell", 0.5)
+
+  global.food_names = {
+      ["science-pack-1"] = "red science",
+      ["science-pack-2"] = "green science",
+      ["military-science-pack"] = "military science",
+      ["science-pack-3"] = "blue science",
+      ["production-science-pack"] = "production science",
+      ["high-tech-science-pack"] = "high tech science",
+      ["space-science-pack"] = "space science",
+  }
+
+  global.food_values = {
+      ["science-pack-1"] = 0.00000100,
+      ["science-pack-2"] = 0.00000292,
+      ["military-science-pack"] = 0.00001950,
+      ["science-pack-3"] = 0.00003792,
+      ["production-science-pack"] = 0.00008000,
+      ["high-tech-science-pack"] = 0.00021000,
+      ["space-science-pack"] = 0.00042000,
+  }
+
+  global.spy_fish_timeout = {}
+
+  global.north_team.set_cease_fire('player', true)
+  global.north_team.set_friend('spectator', true)
+  global.north_team.share_chart = true
+  global.north_team.set_spawn_position({0,-26},global.battle_surface)
+
+  global.south_team.set_cease_fire('player', true)
+  global.south_team.set_friend('spectator', true)
+  global.south_team.share_chart = true
+  global.south_team.set_spawn_position({0,26},global.battle_surface)
+
+  spectator_team.set_spawn_position({0,0},global.battle_surface)
+  spectator_team.set_friend('north', true)
+  spectator_team.set_friend('south', true)
+end
+
+Event.on_init(on_init)
 Event.add(defines.events.on_player_died, on_player_died)
 Event.add(defines.events.on_built_entity, on_built_entity)
 Event.add(defines.events.on_player_built_tile, on_player_built_tile)
