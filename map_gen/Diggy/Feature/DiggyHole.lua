@@ -63,19 +63,6 @@ local function on_mined_tile(surface, tiles)
     Template.insert(surface, new_tiles, {})
 end
 
-local function on_built_tile(surface, item, old_tile_and_positions)
-    if ('landfill' ~= item.name) then
-        return
-    end
-
-    local tiles = {}
-    for _, tile in pairs(old_tile_and_positions) do
-        insert(tiles, {name = 'dirt-' .. random(1, 7), position = tile.position})
-    end
-
-    Template.insert(surface, tiles)
-end
-
 --[[--
     Registers all event handlers.
 ]]
@@ -113,13 +100,37 @@ function DiggyHole.register(config)
         on_mined_tile(game.surfaces[event.surface_index], event.tiles)
     end)
 
-    Event.add(defines.events.on_robot_built_tile, function (event)
-        on_built_tile(event.robot.surface, item, tiles)
-    end)
+    if config.enable_debug_commands then
+        commands.add_command('clear-void', '<left top x> <left top y> <width> <height> <surface index> triggers Template.insert for the given area.', function(cmd)
+            local params = {}
+            local args = cmd.parameter or ''
+            for param in string.gmatch(args, '%S+') do
+                table.insert(params, param)
+            end
 
-    Event.add(defines.events.on_player_built_tile, function (event)
-        on_built_tile(game.surfaces[event.surface_index], event.item, event.tiles)
-    end)
+            if (#params ~= 5) then
+                game.player.print('/clear-void requires exactly 5 arguments: <left top x> <left top y> <width> <height> <surface index>')
+                return
+            end
+
+            local left_top_x = tonumber(params[1])
+            local left_top_y = tonumber(params[2])
+            local width = tonumber(params[3])
+            local height = tonumber(params[4])
+            local surface_index = params[5]
+            local tiles = {}
+            local entities = {}
+
+            for x = 0, width do
+                for y = 0, height do
+                    insert(tiles, {name = 'dirt-' .. random(1, 7), position = {x = x + left_top_x, y = y + left_top_y}})
+                end
+            end
+
+            Template.insert(game.surfaces[surface_index], tiles, entities)
+        end
+        )
+    end
 end
 
 function DiggyHole.on_init()
