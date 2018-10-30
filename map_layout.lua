@@ -133,6 +133,7 @@ miscs = {}
 --require ('map_gen.misc.restrict_landfill_tile')({['water'] = true})
 --require "map_gen.ores.rso.rso_control"
 --require 'map_gen.misc.nightfall'
+--require 'map_gen.misc.creep_spread'
 --require 'map_gen.misc.car_body'
 
 if #entity_modules > 0 then
