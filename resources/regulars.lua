@@ -106,7 +106,6 @@ return {
     ['fana13'] = true,
     ['fish'] = true,
     ['flowild'] = true,
-    ['forge36'] = true,
     ['franc_ist'] = true,
     ['fremiamagus'] = true,
     ['frissi'] = true,
@@ -185,7 +184,6 @@ return {
     ['pilypas'] = true,
     ['pirion'] = true,
     ['procrastinator_diedz'] = true,
-    ['pyroguy'] = true,
     ['radianraze'] = true,
     ['rafaelvalim'] = true,
     ['rascher'] = true,
@@ -197,7 +195,6 @@ return {
     ['rikkert'] = true,
     ['rlidwka'] = true,
     ['rododendro'] = true,
-    ['roghurricane'] = true,
     ['rorror'] = true,
     ['rulerofdabacon'] = true,
     ['saltlands'] = true,
@@ -1028,5 +1025,13 @@ return {
     ['shoo_be_doo'] = true,
     ['MovingMike'] = true,
     ['slantedSunlight'] = true,
-    ['LymBAOBEI'] = true
+    ['LymBAOBEI'] = true,
+    ['Forge36'] = true,
+    ['RoGHurricane'] = true,
+    ['Pyroguy'] = true,
+    ['Xeter'] = true,
+    ['Sebast8714'] = true,
+    ['AurelienG'] = true,
+    ['tronas10'] = true,
+    ['Crivvens'] = true
 }
