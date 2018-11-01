@@ -163,9 +163,9 @@ end
 
 local function is_meltdown()
     if global.reactors_enabled then
-        player_print('Reactor metldown is enabled.')
+        player_print('Reactor meltdown is enabled.')
     else
-        player_print('Reactor metldown is disabled.')
+        player_print('Reactor meltdown is disabled.')
     end
 end
 
