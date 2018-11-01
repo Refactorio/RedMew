@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 Biters in polluted areas become more aggressive at night.
 TODO: Look into triggering existing unit groups to attack in unison with the groups we generate.
 ]]--
-
 local Event = require 'utils.event'
 --basic interval for checks
 local timeinterval = 2689 --2700 is ~45 seconds at 60 UPS
@@ -25,25 +24,20 @@ local IDLE = 1
 local BASE_SEARCH = 2
 local ATTACKING = 3
 
-local bases
-local chunklist
-local state
-local lastattack
-local c_index
 local random = math.random
 local insert = table.insert
 
 local function biter_attack()
-    local maxindex = #bases
+    local maxindex = #global.bases
     local surface = game.surfaces[1]
-    for i=c_index, c_index+processchunk, 1 do
+    for i=global.c_index, global.c_index+processchunk, 1 do
         if i > maxindex then
             -- we're done here
-            state = IDLE
+            global.state = IDLE
             break
         end
         if random() < surface.darkness then
-            local base = bases[i]
+            local base = global.bases[i]
             local group=surface.create_unit_group{position=base}
             for _, biter in ipairs(surface.find_enemy_units(base, 16)) do
                 group.add_member(biter)
@@ -60,11 +54,11 @@ local function biter_attack()
             end
         end
     end
-    c_index = c_index + processchunk
+    global.c_index = global.c_index + processchunk
     --Reset if we're moving to the next state.
-    if state == IDLE then
-        c_index = 1
-        lastattack = game.tick
+    if global.state == IDLE then
+        global.c_index = 1
+        global.lastattack = game.tick
     end
 end
 
@@ -82,31 +76,31 @@ end
 local function find_bases()
     local get_pollution = game.surfaces[1].get_pollution
     local count_entities_filtered = game.surfaces[1].count_entities_filtered
-    if c_index == 1 then
-        bases = {}
+    if global.c_index == 1 then
+        global.bases = {}
     end
-    local maxindex = #chunklist
-    for i=c_index, c_index+processchunk, 1 do
+    local maxindex = #global.chunklist
+    for i=global.c_index, global.c_index+processchunk, 1 do
         if i > maxindex then
             -- we're done with the search
-            state = ATTACKING
+            global.state = ATTACKING
             break
         end
-        if get_pollution(chunklist[i]) > 0.1 then
-            local chunkcoord = chunklist[i]
+        if get_pollution(global.chunklist[i]) > 0.1 then
+            local chunkcoord = global.chunklist[i]
             if (count_entities_filtered{area={{chunkcoord.x-16, chunkcoord.y-16},{chunkcoord.x+16, chunkcoord.y+16}},
                     type = "unit-spawner"}) > 0 then                    
-                insert(bases,chunkcoord)
+                insert(global.bases,chunkcoord)
             end
         end
     end
-    c_index = c_index + processchunk
+    global.c_index = global.c_index + processchunk
     --Reset if we're moving to the next state.
-    if state == ATTACKING then
-        c_index = 1
-        shuffle_table(bases)
+    if global.state == ATTACKING then
+        global.c_index = 1
+        shuffle_table(global.bases)
         if _DEBUG then
-            game.print("bases added: " .. tostring(#bases))
+            game.print("bases added: " .. tostring(#global.bases))
         end
     end
 end
@@ -120,29 +114,29 @@ local function on_chunk_generated(event)
         local coords = event.area.left_top
         chunk.x = coords.x+16
         chunk.y = coords.y+16
-        insert(chunklist, chunk)
+        insert(global.chunklist, chunk)
     end
 end
 
 local function on_tick()
-    if state == BASE_SEARCH then
+    if global.state == BASE_SEARCH then
         -- This is called every tick while in this state
         -- But only a small amount of work is done per call.
         -- State will change when it's finished.
         find_bases()
-    elseif state == ATTACKING then
+    elseif global.state == ATTACKING then
         biter_attack()
     end
 end
 
 local function on_interval()
     if game.surfaces[1].darkness > 0.5
-        and state == IDLE
-        and game.tick >= lastattack + timeinterval
+        and global.state == IDLE
+        and game.tick >= global.lastattack + timeinterval
         and random() > 0.5
     then
         --  Search for bases, then attack
-        state = BASE_SEARCH
+        global.state = BASE_SEARCH
         if _DEBUG then
             game.surfaces[1].print("entering attack mode") --for debug
         end
@@ -150,12 +144,12 @@ local function on_interval()
 end
 
 local function on_init()
-    bases = {}
-    chunklist = {}
-    state = IDLE
-    --prevents attacks from happening too often
-    lastattack = 0
-    c_index=1
+	global.bases = {}
+	global.chunklist = {}
+	global.state = IDLE
+	--prevents attacks from happening too often
+	global.lastattack = 0
+	global.c_index=1
 end
 
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)
