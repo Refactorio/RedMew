@@ -91,7 +91,7 @@ local function on_pre_death(event)
             player_name,
             ' has been saved from a train death. Their ',
             saviour_token_name,
-            ' survival item has be used up.'
+            ' survival item has been consumed.'
         }
     )
 end
