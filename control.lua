@@ -255,7 +255,7 @@ Event.add(
 
 function print_cheated_items()
     local res = {}
-    local players = Game.players
+    local players = game.players
 
     for pi, data in pairs(global.cheated_items) do
         res[players[pi].name] = data
