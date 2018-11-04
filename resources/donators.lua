@@ -18,7 +18,7 @@ Module.donators = {
     ['DraugTheWhopper'] = d.rank + d.train,
     ['der-dave.com'] = d.rank + d.train,
     ['Jayefuu'] = d.rank,
-    ['Chromaddict'] = d.rank,
+    ['chromaddict'] = d.rank,
     ['Valansch'] = d.rank
 }
 
