@@ -11,8 +11,8 @@ local player_colors = {
         chat_color = {r = 175, g = 238, b = 238, a = 0.5}
     },
     ['Linaori'] = {
-        color = {r = 0.485, g = 0.111, b = 0.659, a = 0.5},
-        chat_color = {r = 0.821, g = 0.444, b = 0.998, a = 0.5}
+        color = {r = 255, g = 255, b = 0, a = 0.5},
+        chat_color = {r = 255, g = 255, b = 0, a = 0.5}
     },
     ['Jayefuu'] = {
         color = {r = 0.559, g = 0.761, b = 0.157, a = 0.5},
