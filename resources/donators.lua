@@ -18,15 +18,17 @@ Module.donators = {
     ['DraugTheWhopper'] = d.rank + d.train,
     ['der-dave.com'] = d.rank + d.train,
     ['Jayefuu'] = d.rank,
-    ['chromaddict'] = d.rank,
-    ['Valansch'] = d.rank
+    ['Valansch'] = d.rank,
+    ['plague006'] = d.rank,
+    ['chromaddict'] = d.rank    
 }
 
 Module.welcome_messages = {
     ['Linaori'] = 'I present to you Linaori of house Refactorio, Lady of the Void, Remover of Spaghetti, Queen of the Endless Nauvis, Breaker of Biters and Mother of Code!',
     ['Valansch'] = 'Welcome Valansch, <insert custom welcome message here>.',
     ['der-dave.com'] = 'Dave doesn\'t want a welcome message.',
-    ['robertkruijt'] = 'The general of the army has arived!'
+    ['robertkruijt'] = 'The general of the army has arived!',
+    ['plague006'] = 'plague wrote this dumb message you have to read. If you want your own dumb on-join message be sure to donate on Patreon!'
 }
 
 return Module
