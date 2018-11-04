@@ -226,24 +226,6 @@ end
 global.cheated_items = {}
 global.cheated_items_by_timestamp = {}
 
-local Token = require 'utils.global_token'
-local Task = require 'utils.Task'
-
-local remove_token =
-    Token.register(
-    function(data)
-        local p = data.player
-        local stack = data.stack
-
-        local removed = p.remove_item(stack)
-
-        if removed > 0 then
-            stack.count = removed
-            p.surface.spill_item_stack(p.position, stack)
-        end
-    end
-)
-
 Event.add(
     defines.events.on_player_crafted_item,
     function(event)
@@ -268,12 +250,6 @@ Event.add(
         local count = user_item_record.count
         local time = user_item_record['time'] or format_time(game.tick)
         data[name] = {count = stack.count + count, time = time}
-
-        if _DEBUG then
-            return
-        end
-
-        Task.set_timeout_in_ticks(1, remove_token, {player = p, stack = stack})
     end
 )
 
