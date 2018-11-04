@@ -18,9 +18,9 @@ Module.donators = {
     ['DraugTheWhopper'] = d.rank + d.train,
     ['der-dave.com'] = d.rank + d.train,
     ['Jayefuu'] = d.rank,
-    ['Chromaddict'] = d.rank,
     ['Valansch'] = d.rank,
-    ['plague006'] = d.rank
+    ['plague006'] = d.rank,
+    ['chromaddict'] = d.rank    
 }
 
 Module.welcome_messages = {
