@@ -101,7 +101,6 @@ local function create_team_info_labels(frame, team, player_index, show_info)
         if global.biter_battle_view_players[player_index]  then
             local tbl = frame.add  { type = "table", column_count = 4 }
             for _, p in pairs(team.connected_players) do
-                game.print(p.name)
                 local color = {}
                 color = p.color
                 color.r = color.r * 0.6 + 0.4
