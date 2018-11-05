@@ -1011,8 +1011,8 @@ local function on_console_chat(event)
         game.forces.player.print(message, color)
     else
         for name, force in pairs(game.forces) do
-            if index ~= player_force_name then
-                force.print(msg, color)
+            if name ~= player_force_name then
+                force.print(message, color)
             end
         end
     end
