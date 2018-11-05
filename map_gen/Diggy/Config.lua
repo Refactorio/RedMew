@@ -11,12 +11,15 @@ local Config = {
     -- a list of features to register and enable
     -- to disable a feature, change the flag
     features = {
+        -- creates a starting zone
         StartingZone = {
             enabled = true,
 
-            -- initial starting position size, values higher than 30 might break
+            -- initial starting position size, higher values are not recommended
             starting_size = 8,
         },
+
+        -- controls setting up the players
         SetupPlayer = {
             enabled = true,
             starting_items = {
@@ -29,12 +32,16 @@ local Config = {
                 character_running_speed_modifier = 2,
             },
         },
+
+        -- core feature
         DiggyHole = {
             enabled = true,
 
             -- enables commands like /clear-void
             enable_debug_commands = false,
         },
+
+        -- adds the ability to collapse caves
         DiggyCaveCollapse = {
             enabled = true,
 
@@ -78,9 +85,13 @@ local Config = {
               'R U N',
             }
         },
+
+        -- replaces the chunks with void
         RefreshMap = {
             enabled = true,
         },
+
+        -- automatically opens areas
         SimpleRoomGenerator = {
             enabled = true,
 
@@ -97,8 +108,26 @@ local Config = {
                 {name = 'dirt', min = 0.39, max = 0.53},
             },
         },
+
+        -- responsible for resource spawning
         ScatteredResources = {
             enabled = true,
+
+            -- creates clusters of ore with higher yields and frequency instead of evenly scattered ore
+            -- lowers max resource max_resource_probability to 50% of the original value
+            cluster_mode = true,
+
+            -- value between 0 and 1, higher value means stronger variance between coordinates
+            noise_variance = 0.04,
+
+            -- a value between 0 and 1 that triggers the spawning of resource based on noise
+            noise_resource_threshold = 0.36,
+
+            -- raw multiplier for ore content in cluster mode
+            cluster_yield_multiplier = 2.3,
+
+            -- adds per tile what the current noise is
+            enable_noise_grid = false,
 
             -- percentage of resource added to the sum. 100 tiles means
             -- 10% more resources with a distance_richness_modifier of 10
@@ -158,6 +187,8 @@ local Config = {
                 ['jackpot']    = {2001, 5000},
             },
         },
+
+        -- controls the alien spawning mechanic
         AlienSpawner = {
             enabled = true,
 
@@ -167,6 +198,8 @@ local Config = {
             -- chance of spawning aliens when mining
             alien_probability = 0.07,
         },
+
+        -- controls the market and buffs
         MarketExchange = {
             enabled = true,
 

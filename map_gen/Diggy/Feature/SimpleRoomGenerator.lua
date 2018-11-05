@@ -9,7 +9,6 @@ local Event = require 'utils.event'
 local Debug = require'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
-local Global = require 'utils.global'
 
 -- this
 local SimpleRoomGenerator = {}
@@ -55,7 +54,7 @@ function SimpleRoomGenerator.register(config)
     local room_noise_minimum_distance_sq = config.room_noise_minimum_distance * config.room_noise_minimum_distance
 
     local function get_noise(surface, x, y)
-        local seed = surface.map_gen_settings.seed + surface.index
+        local seed = surface.map_gen_settings.seed + surface.index + 200
         return Perlin.noise(x * config.noise_variance, y * config.noise_variance, seed)
     end
 
