@@ -140,7 +140,7 @@ local function create_biter_battle_menu(player)
         label.style.top_padding = 10
         label.style.left_padding = 20
         label.style.right_padding = 20
-        c.style.bottom_padding = 10
+        label.style.bottom_padding = 10
         return
     end
 
@@ -862,7 +862,7 @@ local function biter_attack_silo(team, requested_amount, mode)
         end
 
         --alternate attack if there is water
-        local t = count_tiles_filtered{area={{gathering_point_x - 8, gathering_point_y - 8}, {gathering_point_x + 8, gathering_point_y + 8}}, name={"deepwater","water", "water-green"}}
+        local t = global.battle_surface.count_tiles_filtered{area={{gathering_point_x - 8, gathering_point_y - 8}, {gathering_point_x + 8, gathering_point_y + 8}}, name={"deepwater","water", "water-green"}}
         if t > 8 then
             if random(1,2) == 1 then
                 local command = {type=attack_area, destination=attack_target, radius=12, distraction=by_enemy}
@@ -1013,10 +1013,12 @@ local function on_entity_damaged(event)
     local force_name = event.force.name
     local entity_name = entity.name
 
-    --biter rage damage modifier
+    --biter rage damage modifier    
     if force_name == "enemy" then
-        local additional_damage = event.final_damage_amount  * round((global.biter_rage[entity_force_name]/3)/100, 2)
-        entity.health = entity.health - additional_damage
+    	if global.biter_rage[entity_force_name] then
+            local additional_damage = event.final_damage_amount  * round((global.biter_rage[entity_force_name]/3)/100, 2)
+            entity.health = entity.health - additional_damage
+        end
         return
     end
 
@@ -1154,6 +1156,8 @@ local function on_init()
   global.south_team.technologies["artillery-shell-range-1"].enabled = false
   global.north_team.technologies["artillery-shell-speed-1"].enabled = false
   global.south_team.technologies["artillery-shell-speed-1"].enabled = false
+  global.north_team.technologies["artillery"].enabled = false	
+  global.south_team.technologies["artillery"].enabled = false	
   global.north_team.technologies["atomic-bomb"].enabled = false
   global.south_team.technologies["atomic-bomb"].enabled = false
   game.forces["spectator"].technologies["toolbelt"].researched=true
