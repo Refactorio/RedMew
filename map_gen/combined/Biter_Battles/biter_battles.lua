@@ -371,13 +371,7 @@ local function feed_the_biters(food_type, player)
     if player_force_name == "south" then enemy_team_name = "north" end
     if player_force_name == "north" then enemy_team_name = "south" end
 
-    local main_inventory = player.get_main_inventory()
-    local food_amount = main_inventory.remove(food_type)
-    local get_item_count = main_inventory.get_item_count
-    local remove = main_inventory.remove(food_type)
-    while get_item_count(food_type) ~= 0 do
-        food_amount = food_amount + remove(food_type)
-    end
+    local food_amount = player.remove_item{name = food_type, count = 100000}
 
     if food_amount == 0 then
         local msg = string.format("You have no %s flask in your inventory.", global.food_names[food_type])
@@ -487,13 +481,7 @@ local function on_gui_click(event)
             create_biter_battle_menu(player)
         end
     end
-    if (name == "science-pack-1") then feed_the_biters(name,player) end
-    if (name == "science-pack-2") then feed_the_biters(name,player) end
-    if (name == "military-science-pack") then feed_the_biters(name,player) end
-    if (name == "science-pack-3") then feed_the_biters(name,player) end
-    if (name == "production-science-pack") then feed_the_biters(name,player) end
-    if (name == "high-tech-science-pack") then feed_the_biters(name,player) end
-    if (name == "space-science-pack") then feed_the_biters(name,player) end
+    if name:find("pack") then feed_the_biters(name,player) end
     if (name == "raw-fish") then spy_fish(player) end
     if (name == "biter_battle_spectate") then
         if player.position.y < 100 and player.position.y > -100 and player.position.x < 100 and player.position.x > -100 then
