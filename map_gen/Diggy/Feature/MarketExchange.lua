@@ -262,7 +262,7 @@ local function redraw_progressbar(data)
 
     local overall_descr = flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Overall', caption = 'Overall progress:'})
     apply_heading_style(overall_descr.style)
-    local overall_progressbar = flow.add({type = 'progressbar', tooltip = stone_sent * 100 .. '% stones sent'})
+    local overall_progressbar = flow.add({type = 'progressbar', tooltip = stone_sent * 100 .. '% stone sent'})
     overall_progressbar.style.width = 540
     overall_progressbar.value = stone_sent
 
@@ -446,7 +446,6 @@ local function toggle(event)
 
     frame = center.add({name = 'Diggy.MarketExchange.Frame', type = 'frame', direction = 'vertical'})
 
-    --local market_progressbar = frame.add({type = 'progressbar', tooltip = '% stones sent'})
     local market_progressbars = frame.add({type = 'flow', direction = 'vertical'})
 
     local market_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
