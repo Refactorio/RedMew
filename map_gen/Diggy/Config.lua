@@ -267,6 +267,7 @@ local Config = {
                 {stone = 100000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 100000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
                 {stone = 100000, type = 'buff', prototype = {name = 'stone_automation', value = 2}},
+                {stone = 100000, type = 'market', prototype = {price = 1000, name = 'landfill'}},
 
                 {stone = 125000, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 125000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
