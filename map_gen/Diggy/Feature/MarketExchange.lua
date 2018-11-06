@@ -167,7 +167,7 @@ end
 local function on_research_finished(event)
     local force = game.forces.player
     local current_modifier = mining_efficiency.research_modifier
-    local new_modifier = force.mining_drill_productivity_bonus * config.mining_speed_productivity_multiplier / 2
+    local new_modifier = force.mining_drill_productivity_bonus * config.mining_speed_productivity_multiplier * 0.5
 
     if (current_modifier == new_modifier) then
         -- something else was researched
@@ -236,16 +236,10 @@ local function redraw_heading(data)
     local frame = data.market_list_heading
     Gui.clear(frame)
 
-    local heading_table = frame.add {type = 'table', column_count = 3}
-
-    local label = heading_table.add {type = 'label', name = tag_label_stone, caption = 'Name'}
-    apply_heading_style(label.style, 90)
-
-    local label = heading_table.add {type = 'label', name = tag_label_buff, caption = 'Buff'}
-    apply_heading_style(label.style, 200)
-
-    local label = heading_table.add {type = 'label', name = tag_label_item, caption = 'Item'}
-    apply_heading_style(label.style, 200)
+    local heading_table = frame.add({type = 'table', column_count = 3})
+    apply_heading_style(heading_table.add({type = 'label', name = tag_label_stone, caption = 'Name'}).style, 90)
+    apply_heading_style(heading_table.add({type = 'label', name = tag_label_buff, caption = 'Buff'}).style, 200)
+    apply_heading_style(heading_table.add({type = 'label', name = tag_label_item, caption = 'Item'}).style, 200)
 end
 
 local function redraw_progressbar(data)
@@ -260,8 +254,7 @@ local function redraw_progressbar(data)
     -- calc % of stones sent
     local stone_sent = stone_tracker.stone_sent_to_surface / highest_amount
 
-    local overall_descr = flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Overall', caption = 'Overall progress:'})
-    apply_heading_style(overall_descr.style)
+    apply_heading_style(flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Overall', caption = 'Overall progress:'}).style)
     local overall_progressbar = flow.add({type = 'progressbar', tooltip = stone_sent * 100 .. '% stone sent'})
     overall_progressbar.style.width = 540
     overall_progressbar.value = stone_sent
@@ -276,15 +269,13 @@ local function redraw_progressbar(data)
     local sent = stone_tracker.stone_sent_to_surface - act_stone
     local percentage = sent / range
 
-    local level_descr = flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'})
-    apply_heading_style(level_descr.style)
+    apply_heading_style(flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
     local level_progressbar = flow.add({type = 'progressbar', tooltip = percentage * 100 .. '% stone to next level'})
     level_progressbar.style.width = 540
     level_progressbar.value = percentage
 end
 
 local function redraw_table(data)
-
     local market_scroll_pane = data.market_scroll_pane
     Gui.clear(market_scroll_pane)
 
@@ -302,7 +293,6 @@ local function redraw_table(data)
 
     -- create table
     for i = 1, #config.unlockables do
-
         if config.unlockables[i].stone ~= last_stone then
 
             -- get items and buffs for each stone value
@@ -370,7 +360,6 @@ local function redraw_table(data)
     -- print table
     for _, unlockable in pairs(row) do
         local is_unlocked = unlockable[1] <= stone_tracker.stone_sent_to_surface
-
         local list = market_scroll_pane.add {type = 'table', column_count = 3 }
 
         list.style.horizontal_spacing = 16
@@ -447,7 +436,6 @@ local function toggle(event)
     frame = center.add({name = 'Diggy.MarketExchange.Frame', type = 'frame', direction = 'vertical'})
 
     local market_progressbars = frame.add({type = 'flow', direction = 'vertical'})
-
     local market_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
 
     local market_scroll_pane = frame.add({type = 'scroll-pane'})

@@ -144,7 +144,7 @@ local function spawn_cracking_sound_text(surface, position)
 
     local color = {
         r = 1,
-        g = random(1, 100) / 100,
+        g = random(1, 100) * 0.01,
         b = 0
     }
 
@@ -157,7 +157,7 @@ local function spawn_cracking_sound_text(surface, position)
             name = 'flying-text',
             color = color,
             text = char,
-            position = {x = position.x + x_offset, y = position.y - ((i + 1) % 2) / 4}
+            position = {x = position.x + x_offset, y = position.y - ((i + 1) % 2) * 0.25}
         }.active = true
     end
 end
@@ -416,8 +416,8 @@ end
     @return number sum of old fraction + new fraction
 ]]
 local function add_fraction(stress_map, x, y, fraction)
-    x = 2 * floor(x / 2)
-    y = 2 * floor(y / 2)
+    x = 2 * floor(x * 0.5)
+    y = 2 * floor(y * 0.5)
 
     local x_t = stress_map[x]
     if not x_t then
@@ -519,7 +519,7 @@ function mask_init(config)
     disc_weight = config.mask_relative_ring_weights[2]
     center_weight = config.mask_relative_ring_weights[3]
 
-    radius = floor(n / 2)
+    radius = floor(n * 0.5)
 
     radius_sq = (radius + 0.2) * (radius + 0.2)
     center_radius_sq = radius_sq / 9

@@ -4,6 +4,7 @@
 
 -- dependencies
 local Event = require 'utils.event'
+local Global = require 'utils.global'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
@@ -14,6 +15,14 @@ local floor = math.floor
 
 -- this
 local ScatteredResources = {}
+
+local seed
+
+Global.register({
+    seed = seed,
+}, function(tbl)
+    seed = tbl.seed
+end)
 
 local function get_name_by_random(collection)
     local pre_calculated = random()
@@ -66,7 +75,7 @@ function ScatteredResources.register(config)
     end
 
     local function get_noise(surface, x, y)
-        local seed = surface.map_gen_settings.seed + surface.index + 100
+        seed = seed or surface.map_gen_settings.seed + surface.index + 200
         return Perlin.noise(x * config.noise_variance, y * config.noise_variance, seed)
     end
 
