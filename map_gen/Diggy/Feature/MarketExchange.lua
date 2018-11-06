@@ -10,6 +10,7 @@ local Gui = require 'utils.gui'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Global = require 'utils.global'
+local Game = require 'utils.game'
 local insert = table.insert
 local max = math.max
 
@@ -412,7 +413,10 @@ local function on_market_item_purchased(event)
         return
     end
 
-    send_stone_to_surface(config.stone_to_surface_amount * event.count)
+    local sum = config.stone_to_surface_amount * event.count
+    Game.print_player_floating_text(event.player_index, '-' .. sum .. ' stone', {r = 0.6, g = 0.55, b = 0.42})
+
+    send_stone_to_surface(sum)
     update_market_contents(event.market)
 end
 
@@ -471,7 +475,7 @@ local function toggle(event)
 end
 
 local function on_player_created(event)
-    game.players[event.player_index].gui.top.add({
+    Game.get_player_by_index(event.player_index).gui.top.add({
         name = 'Diggy.MarketExchange.Button',
         type = 'sprite-button',
         sprite = 'item/stone',
@@ -533,10 +537,13 @@ function MarketExchange.register(cfg)
     end
 
     local area = {{x_min, y_min}, {x_max + 1, y_max + 1}}
+    local message_x = (x_max + x_min) * 0.5
+    local message_y = (y_max + y_min) * 0.5
 
     Event.on_nth_tick(config.void_chest_frequency, function ()
         local send_to_surface = 0
-        local find_entities_filtered = game.surfaces.nauvis.find_entities_filtered
+        local surface = game.surfaces.nauvis
+        local find_entities_filtered = surface.find_entities_filtered
         local chests = find_entities_filtered({area = area, type = {'container', 'logistic-container'}})
         local to_fetch = stone_collecting.active_modifier
 
@@ -556,6 +563,16 @@ function MarketExchange.register(cfg)
         end
 
         if (send_to_surface == 0) then
+            if (0 == to_fetch) then
+                return
+            end
+
+            local message = 'Missing chests below market'
+            if (#chests > 0) then
+                message = 'No stone in chests found'
+            end
+
+            Game.print_floating_text(surface, {x = message_x, y = message_y}, message, { r = 220, g = 100, b = 50})
             return
         end
 
@@ -565,6 +582,10 @@ function MarketExchange.register(cfg)
             Debug.printPosition(config.market_spawn_position, 'Unable to find a market')
             return
         end
+
+        local message = send_to_surface .. ' stone sent to the surface'
+
+        Game.print_floating_text(surface, {x = message_x, y = message_y}, message, { r = 0.6, g = 0.55, b = 0.42})
 
         send_stone_to_surface(send_to_surface)
         update_market_contents(markets[1])
