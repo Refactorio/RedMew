@@ -1,11 +1,7 @@
 local math = require "utils.math"
 
 -- helpers
-local deg_to_rad = math.tau / 360
 local inv_pi = 1 / math.pi
-function degrees(angle)
-    return angle * deg_to_rad
-end
 
 local Builders = {}
 

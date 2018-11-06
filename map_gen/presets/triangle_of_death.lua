@@ -4,6 +4,7 @@ local Perlin = require 'map_gen.shared.perlin_noise'
 local Token = require 'utils.global_token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
+local degrees = require "utils.math".degrees
 
 -- change these to change the pattern.
 local ore_seed1 = 30000

@@ -1,4 +1,5 @@
 local b = require 'map_gen.shared.builders'
+local degrees = require "utils.math".degrees
 
 local function value(base, mult)
     return function(x, y)

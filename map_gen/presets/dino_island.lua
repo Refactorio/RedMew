@@ -1,6 +1,7 @@
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
-local Radnom = require 'map_gen.shared.random'
+local Random = require 'map_gen.shared.random'
+local degrees = require "utils.math".degrees
 
 local seed = 1000
 
@@ -70,7 +71,7 @@ local land_dino_count = 8
 local ore_dino_start = 9
 local ore_dino_end = #dinos
 
-local random = Radnom.new(seed, seed * 2)
+local random = Random.new(seed, seed * 2)
 
 local land_pattern = {}
 for r = 1, 50 do

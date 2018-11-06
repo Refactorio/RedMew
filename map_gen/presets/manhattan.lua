@@ -1,5 +1,5 @@
 local b = require "map_gen.shared.builders"
-
+local degrees = require "utils.math".degrees
 local pic = require "map_gen.data.presets.manhattan"
 pic = b.decompress(pic)
 

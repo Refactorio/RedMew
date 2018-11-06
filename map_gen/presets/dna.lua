@@ -3,6 +3,7 @@ This map uses custom ore gen. When generating the map, under the resource settin
 ]]
 local b = require 'map_gen.shared.builders'
 local math = require "utils.math"
+local degrees = math.degrees
 
 local ball_r = 16
 local big_circle = b.circle(ball_r)

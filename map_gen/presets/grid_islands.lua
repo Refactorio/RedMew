@@ -3,6 +3,7 @@ This map uses custom ore gen. When generating the map, under the resource settin
 ]]
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
+local degrees = require "utils.math".degrees
 local ore_seed1 = 1000
 local ore_seed2 = ore_seed1 * 2
 

@@ -1,4 +1,5 @@
 local b = require "map_gen.shared.builders"
+local degrees = require "utils.math".degrees
 
 local seed1 = 420420
 local seed2 = 696969
@@ -41,43 +42,43 @@ local function make_tree()
         return x > -32 and y < 32
     end
     local pattern = {}
-    
+
     for r = 1, p_rows do
         local row = {}
         table.insert(pattern, row)
         for c = 1, p_cols do
             local i = random:next_int(1, t)
-            
+
             local index = table.binary_search(total_weights, i)
             if (index < 0) then
                 index = bit32.bnot(index)
             end
-            
+
             local shape = ores[index][1]
-            
+
             shape = b.apply_entity(ball_shape, shape)
             shape = b.translate(shape, -16, 16)
-            
+
             table.insert(row, shape)
         end
     end
-    
+
     local tree = b.grid_pattern_overlap(pattern, p_cols, p_rows, 64, 64)
-    
+
     local sea = b.tile("water")
     sea = b.fish(sea, 0.005)
-    
+
     tree = b.if_else(tree, sea)
-    
+
     tree = b.choose(crop, tree, b.empty_shape)
     tree = b.translate(tree, 16, -16)
-    
+
     local line = b.rectangle(36, 8)
     line = b.rotate(line, degrees(45))
     line = b.translate(line, -23, 23)
-    
+
     tree = b.any{line, tree}
-    
+
     return tree
 end
 

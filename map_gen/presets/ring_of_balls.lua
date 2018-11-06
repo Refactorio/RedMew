@@ -1,4 +1,5 @@
 local b = require "map_gen.shared.builders"
+local degrees = require "utils.math".degrees
 
 local ball = b.circle(16)
 
@@ -59,9 +60,9 @@ local list = { head, body }
 for i = 1, (count / 2) - 1 do
     local shape = b.rotate(leg, degrees(i * angle))
     table.insert( list, shape )
-end  
+end
 
-local spider = b.any(list) 
+local spider = b.any(list)
 spider = b.scale(spider,.75,.75)
 
 --map = b.any{map, spider}
