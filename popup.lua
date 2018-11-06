@@ -1,6 +1,9 @@
 local Gui = require 'utils.gui'
+local Utils = require "utils.utils"
+local Game = require "utils.game"
 
 local close_name = Gui.uid_name()
+
 
 local function show_popup(player, message)
     local frame = player.gui.center.add {type = 'frame', direction = 'vertical', style = 'captionless_frame'}
@@ -67,13 +70,13 @@ Gui.on_click(
 local function popup(cmd)
     local player = game.player
     if player and not player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
 
     local message = cmd.parameter
     if not message then
-        player_print('Usage: /popup <message>')
+        Game.player_print('Usage: /popup <message>')
         return
     end
 
@@ -87,7 +90,7 @@ end
 local function popup_update(cmd)
     local player = game.player
     if player and not player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
 
@@ -101,26 +104,26 @@ end
 local function popup_player(cmd)
     local player = game.player
     if player and not player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
 
     local message = cmd.parameter
     if not message then
-        player_print('Usage: /popup <player> <message>')
+        Game.player_print('Usage: /popup <player> <message>')
         return
     end
 
     local start_index, end_index = message:find(' ')
     if not start_index then
-        player_print('Usage: /popup <player> <message>')
+        Game.player_print('Usage: /popup <player> <message>')
         return
     end
 
     local target_name = message:sub(1, start_index - 1)
     local target = game.players[target_name]
     if not target then
-        player_print('Player ' .. target_name .. ' not found.')
+        Game.player_print('Player ' .. target_name .. ' not found.')
         return
     end
 

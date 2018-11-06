@@ -4,6 +4,7 @@
 --a reactors loses 2 damage per second at 1000°C
 
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 
 global.reactors_enabled = false
 global.wastelands = {}
@@ -163,9 +164,9 @@ end
 
 local function is_meltdown()
     if global.reactors_enabled then
-        player_print('Reactor meltdown is enabled.')
+        Game.player_print('Reactor meltdown is enabled.')
     else
-        player_print('Reactor meltdown is disabled.')
+        Game.player_print('Reactor meltdown is disabled.')
     end
 end
 

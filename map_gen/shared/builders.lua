@@ -1,8 +1,7 @@
 local math = require "utils.math"
 
 -- helpers
-tau = 2 * math.pi
-deg_to_rad = tau / 360
+local deg_to_rad = math.tau / 360
 local inv_pi = 1 / math.pi
 function degrees(angle)
     return angle * deg_to_rad
@@ -118,6 +117,7 @@ function Builders.oval(x_radius, y_radius)
     end
 end
 
+local tau = math.tau
 function Builders.sine_fill(width, height)
     local width_inv = tau / width
     local height_inv = -2 / height

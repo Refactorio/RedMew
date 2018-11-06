@@ -156,7 +156,7 @@ for c = 1, p_cols do
 
             local x = random:next_int(-48, 48)
             local y = random:next_int(-48, 48)
-            local angle = random:next() * tau
+            local angle = random:next() * math.tau
 
             shape = b.rotate(shape, angle)
             shape = b.translate(shape, x, y)

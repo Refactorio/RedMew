@@ -3,6 +3,7 @@ local Token = require 'utils.global_token'
 local Task = require 'utils.Task'
 local PlayerStats = require 'player_stats'
 local Game = require 'utils.game'
+local Utils = require "utils.utils"
 
 local market_items = require 'resources.market_items'
 
@@ -19,7 +20,7 @@ table.insert(market_items, {price = {{'raw-wood', 4}}, offer = {type = 'give-ite
 
 local function spawn_market(cmd)
     if not game.player or not game.player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
     local surface = game.player.surface

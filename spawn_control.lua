@@ -1,5 +1,6 @@
 local Event = require "utils.event"
 local Game = require 'utils.game'
+local Utils = require "utils.utils"
 
 global.player_spawns = {} -- player_index to spawn_name
 global.spawns = {} -- spawn_name to x, y, player_online_count
@@ -19,7 +20,7 @@ function add_spawn(name, x, y)
         game.print("y must be a number")
         return
     end
-    
+
     global.spawns[name] = { x = x, y = y, count = 0}
 end
 
@@ -31,7 +32,7 @@ local function get_min_count_spawn_name()
         local count = t.count
         if min > count then
             min = count
-            min_spawn = name            
+            min_spawn = name
         end
     end
 
@@ -40,8 +41,8 @@ end
 
 local function player_joined_game(event)
     local index = event.player_index
-    local spawn_name = global.player_spawns[index] 
-    
+    local spawn_name = global.player_spawns[index]
+
     -- player already has a spawn.
     if spawn_name then
         local spawn = global.spawns[spawn_name]
@@ -49,15 +50,15 @@ local function player_joined_game(event)
         spawn.count = count + 1
         return
     end
-    
-    spawn_name = get_min_count_spawn_name()    
 
-    if not spawn_name then return end   
+    spawn_name = get_min_count_spawn_name()
+
+    if not spawn_name then return end
 
     local spawn = global.spawns[spawn_name]
     global.player_spawns[index] = spawn_name
-    Game.get_player_by_index(index).teleport(spawn)  
-    
+    Game.get_player_by_index(index).teleport(spawn)
+
     local count = spawn.count
     spawn.count = count + 1
 end
@@ -76,11 +77,11 @@ end
 local function player_respawned(event)
     local index = event.player_index
     local spawn_name = global.player_spawns[index]
-    local spawn = global.spawns[spawn_name]    
+    local spawn = global.spawns[spawn_name]
 
     if not spawn then return end
-    
-    Game.get_player_by_index(index).teleport(spawn)   
+
+    Game.get_player_by_index(index).teleport(spawn)
 end
 
 local function tp_spawn(player_name, spawn_name)
@@ -96,8 +97,8 @@ local function tp_spawn(player_name, spawn_name)
         spawn_name = spawn_name or ""
         game.player.print("spawn " .. spawn_name .. " does not exist.")
         return
-    end    
-    
+    end
+
     player.teleport(spawn)
 end
 
@@ -165,7 +166,7 @@ end
 
 local function tp_spawn_command(cmd)
     if not game.player.admin then
-      cant_run(cmd.name)
+      Utils.cant_run(cmd.name)
       return
     end
 
@@ -185,7 +186,7 @@ end
 
 function change_spawn_command(cmd)
     if not game.player.admin then
-      cant_run(cmd.name)
+      Utils.cant_run(cmd.name)
       return
     end
 
@@ -198,12 +199,12 @@ function change_spawn_command(cmd)
     local ps ={}
     for p in params:gmatch("%S+") do table.insert( ps,p ) end
 
-    change_spawn(ps[1], ps[2]) 
+    change_spawn(ps[1], ps[2])
 end
 
 local function print_spawns_command(cmd)
     if not game.player.admin then
-      cant_run(cmd.name)
+      Utils.cant_run(cmd.name)
       return
     end
 
@@ -212,7 +213,7 @@ end
 
 local function print_players_for_spawn_command(cmd)
     if not game.player.admin then
-      cant_run(cmd.name)
+      Utils.cant_run(cmd.name)
       return
     end
 

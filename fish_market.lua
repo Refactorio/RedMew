@@ -21,6 +21,7 @@ local Token = require 'utils.global_token'
 local Task = require 'utils.Task'
 local PlayerStats = require 'player_stats'
 local Game = require 'utils.game'
+local Utils = require 'utils.utils'
 
 local Market_items = require 'resources.market_items'
 local market_item = Market_items.market_item
@@ -28,7 +29,7 @@ local market_item = Market_items.market_item
 local function spawn_market(cmd)
     local player = game.player
     if not player or not player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
 
