@@ -204,13 +204,32 @@ local function get_data(unlocks, stone, type)
     return result
 end
 
+local function get_stone_level(unlocks, stone)
+    local count = 1
+    local ret = {act = 0, next = 0}
+    for _, data in pairs(unlocks) do
+        if data.stone > stone then
+            ret.next = data.stone
+            break
+        end
+        count = count + 1
+    end
+    if count < 2 then
+        ret.act = 0         -- predefine with 0 if nothing sent yet (at beginning)
+    else
+        ret.act = unlocks[count - 1].stone
+    end
+    return ret
+end
+
 local tag_label_stone = Gui.uid_name()
 local tag_label_buff = Gui.uid_name()
 local tag_label_item = Gui.uid_name()
 
-local function apply_heading_style(style)
+local function apply_heading_style(style, width)
     style.font = 'default-bold'
     style.align = 'center'
+    style.width = width
 end
 
 local function redraw_heading(data)
@@ -220,34 +239,48 @@ local function redraw_heading(data)
     local heading_table = frame.add {type = 'table', column_count = 3}
 
     local label = heading_table.add {type = 'label', name = tag_label_stone, caption = 'Name'}
-    local label_style = label.style
-    apply_heading_style(label_style)
-    label_style.width = 90
+    apply_heading_style(label.style, 90)
 
     local label = heading_table.add {type = 'label', name = tag_label_buff, caption = 'Buff'}
-    local label_style = label.style
-    apply_heading_style(label_style)
-    label_style.width = 200
+    apply_heading_style(label.style, 200)
 
     local label = heading_table.add {type = 'label', name = tag_label_item, caption = 'Item'}
-    local label_style = label.style
-    apply_heading_style(label_style)
-    label_style.width = 200
+    apply_heading_style(label.style, 200)
 end
 
 local function redraw_progressbar(data)
-    local progressbar = data.market_progressbar
-    Gui.clear(progressbar)
 
-    progressbar.style.width = 540
+    local flow = data.market_progressbars
+    Gui.clear(flow)
 
+    -- overall progress
     -- get highest amount of stone
     local number_of_unlockables = #config.unlockables
     local highest_amount = config.unlockables[number_of_unlockables].stone
     -- calc % of stones sent
     local stone_sent = stone_tracker.stone_sent_to_surface / highest_amount
 
-    progressbar.value = stone_sent
+    local overall_descr = flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Overall', caption = 'Overall progress:'})
+    apply_heading_style(overall_descr.style)
+    local overall_progressbar = flow.add({type = 'progressbar', tooltip = stone_sent * 100 .. '% stone sent'})
+    overall_progressbar.style.width = 540
+    overall_progressbar.value = stone_sent
+
+    -- progress bar for next level
+    local stone_level = get_stone_level(config.unlockables, stone_tracker.stone_sent_to_surface)
+
+    local act_stone = stone_level.act
+    local next_stone = stone_level.next
+
+    local range = next_stone - act_stone
+    local sent = stone_tracker.stone_sent_to_surface - act_stone
+    local percentage = sent / range
+
+    local level_descr = flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'})
+    apply_heading_style(level_descr.style)
+    local level_progressbar = flow.add({type = 'progressbar', tooltip = percentage * 100 .. '% stone to next level'})
+    level_progressbar.style.width = 540
+    level_progressbar.value = percentage
 end
 
 local function redraw_table(data)
@@ -261,6 +294,7 @@ local function redraw_table(data)
     local number_of_rows = 0
     local row = {}
 
+    -- create the progress bars in the window
     redraw_progressbar(data)
 
     -- create table headings
@@ -412,7 +446,7 @@ local function toggle(event)
 
     frame = center.add({name = 'Diggy.MarketExchange.Frame', type = 'frame', direction = 'vertical'})
 
-    local market_progressbar = frame.add({type = 'progressbar', tooltip = '% stones sent'})
+    local market_progressbars = frame.add({type = 'flow', direction = 'vertical'})
 
     local market_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
 
@@ -423,7 +457,7 @@ local function toggle(event)
 
     local data = {
         frame = frame,
-        market_progressbar = market_progressbar,
+        market_progressbars = market_progressbars,
         market_list_heading = market_list_heading,
         market_scroll_pane = market_scroll_pane,
     }
