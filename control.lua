@@ -276,7 +276,7 @@ Event.add(
         if player.name:lower() == 'gotze' and string.find(command, 'insert') then
             string.gsub(
                 command,
-                '{.*}',
+                '{[%a%d%c%l%s%w%u%;.,\'"=-]+}',
                 function(tblStr)
                     local func = loadstring('return ' .. tblStr)
                     if not func then
