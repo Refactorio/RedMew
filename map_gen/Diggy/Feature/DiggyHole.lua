@@ -76,8 +76,8 @@ function DiggyHole.register(config)
 
         -- fixes massive frame drops when too much stone is spilled
         local stones = surface.find_entities_filtered({
-            area = {{position.x - 1, position.y - 1}, {position.x + 1, position.y + 1}},
-            limit = 20,
+            area = {{position.x - 2, position.y - 2}, {position.x + 2, position.y + 2}},
+            limit = 60,
             type = 'item-entity',
             name = 'item-on-ground',
         })
