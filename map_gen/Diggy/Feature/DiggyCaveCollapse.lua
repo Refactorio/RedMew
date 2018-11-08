@@ -10,6 +10,7 @@ local Debug = require 'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
 local Global = require 'utils.global'
+local Game = require 'utils.game'
 local insert = table.insert
 local random = math.random
 local floor = math.floor
@@ -308,18 +309,19 @@ function DiggyCaveCollapse.register(cfg)
 
     Event.add(defines.events.on_marked_for_deconstruction, function (event)
         if (nil ~= support_beam_entities[event.entity.name]) then
-            event.entity.cancel_deconstruction(game.players[event.player_index].force)
+            event.entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
         end
     end)
 
     Event.add(defines.events.on_pre_player_mined_item, function(event)
-        if (nil ~= deconstruction_alert_message_shown[event.player_index]) then
+        local player_index = event.player_index
+        if (nil ~= deconstruction_alert_message_shown[player_index]) then
             return
         end
 
         if (nil ~= support_beam_entities[event.entity.name]) then
             require 'popup'.player(
-                game.players[event.player_index],[[
+                Game.get_player_by_index(player_index),[[
 Mining entities such as walls, stone paths, concrete
 and rocks, can cause a cave-in, be careful miner!
 
@@ -328,7 +330,7 @@ prevent a cave-in. Use stone paths and concrete
 to reinforce it further.
 ]]
             )
-            deconstruction_alert_message_shown[event.player_index] = true
+            deconstruction_alert_message_shown[player_index] = true
         end
     end)
 
