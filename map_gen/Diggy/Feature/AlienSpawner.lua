@@ -43,7 +43,7 @@ function AlienSpawner.register(config)
         local x = event.old_tile.position.x
         local y = event.old_tile.position.y
 
-        if (x^2 + y^2 < alien_minimum_distance_square or config.alien_probability < random()) then
+        if (x * x + y * y < alien_minimum_distance_square or config.alien_probability < random()) then
             return
         end
 
