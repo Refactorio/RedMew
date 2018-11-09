@@ -17,7 +17,7 @@ local function create_score_gui(event)
 	end
 end
 
-function refresh_score()
+local function refresh_score()
 	local x = 1
 	while (Game.get_player_by_index(x) ~= nil) do
 		local player = Game.get_player_by_index(x)

@@ -26,7 +26,7 @@ end
 Module.add_regular = function(player_name)
     local actor = Utils.get_actor()
     if Module.is_regular(player_name) then
-        player_print(player_name .. ' is already a regular.')
+        Game.player_print(player_name .. ' is already a regular.')
     else
         if game.players[player_name] then
             player_name = game.players[player_name].name
@@ -34,7 +34,7 @@ Module.add_regular = function(player_name)
             global.regulars[player_name] = true
             update_file()
         else
-            player_print(player_name .. ' does not exist.')
+            Game.player_print(player_name .. ' does not exist.')
         end
     end
 end
@@ -55,7 +55,7 @@ end
 
 Module.print_regulars = function()
     for k, _ in pairs(global.regulars) do
-        player_print(k)
+        Game.player_print(k)
     end
 end
 

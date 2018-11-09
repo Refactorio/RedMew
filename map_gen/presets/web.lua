@@ -1,4 +1,5 @@
 local b = require "map_gen.shared.builders"
+local degrees = require "utils.math".degrees
 
 local stripe_thickness = 24
 local stripe_distance = 384
@@ -35,9 +36,9 @@ local list = { head, body }
 for i = 1, (count / 2) - 1 do
     local shape = b.rotate(leg, degrees(i * angle))
     table.insert( list, shape )
-end  
+end
 
-local spider = b.any(list) 
+local spider = b.any(list)
 spider = b.scale(spider,2,2)
 
 local e = b.empty_shape

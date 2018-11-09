@@ -1,4 +1,5 @@
 local b = require "map_gen.shared.builders"
+local degrees = require "utils.math".degrees
 
 local seed1 = 666
 local seed2 = 999
@@ -36,27 +37,27 @@ end
 
 local function makeChips()
     local n = random:next_int(1, t)
-    
+
     local index = table.binary_search(total_weights, n)
     if (index < 0) then
         index = bit32.bnot(index)
     end
-    
+
     local shape = ores[index][1]
     if shape == b.empty_shape then
         return nil
     end
-    
+
     local chips = {}
     for i = 1, 6 do
         local x_offset = random:next_int(-20, 20)
         local y_offset = random:next_int(-20, 20)
-        
+
         local shape2 = b.translate(shape, x_offset, y_offset)
-        
+
         table.insert(chips, shape2)
     end
-    
+
     return chips
 end
 
@@ -69,23 +70,23 @@ for c = 1, p_cols do
     table.insert(pattern, row)
     for r = 1, p_rows do
         local chips = makeChips()
-        
+
         local shape
         if chips then
             shape = b.apply_entity(cookie, b.any(chips))
         else
             shape = cookie
         end
-        
+
         local angle = random:next_int(-30, 30)
         local s = random:next() * .25 + 1
         local x_offset = random:next_int(-8, 8)
         local y_offset = random:next_int(-8, 8)
-        
+
         shape = b.rotate(shape, degrees(angle))
         shape = b.scale(shape, s, s * 0.75)
         shape = b.translate(shape, x_offset, y_offset)
-        
+
         table.insert(row, shape)
     end
 end

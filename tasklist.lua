@@ -1077,7 +1077,7 @@ commands.add_command(
 
         if player then
             if not player.admin and not UserGroups.is_regular(player.name) then
-                cant_run(cmd.name)
+                Utils.cant_run(cmd.name)
                 return
             end
         else

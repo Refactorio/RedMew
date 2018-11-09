@@ -113,4 +113,8 @@ Module.format_time = function(ticks)
     return table.concat(result, ' ')
 end
 
+Module.cant_run = function(name)
+    Game.player_print("Can't run command (" .. name .. ') - insufficient permission.')
+end
+
 return Module

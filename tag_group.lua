@@ -3,6 +3,7 @@ local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local UserGroups = require 'user_groups'
 local Game = require 'utils.game'
+local Utils = require "utils.utils"
 
 local deafult_verb = 'expanded'
 
@@ -660,12 +661,12 @@ Event.add(defines.events.on_player_joined_game, player_joined)
 local function tag_command(cmd)
     local player = game.player
     if player and not player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
 
     if cmd.parameter == nil then
-        player_print('Usage: /tag <player> <tag> Sets a players tag.')
+        Game.player_print('Usage: /tag <player> <tag> Sets a players tag.')
         return
     end
 
@@ -675,14 +676,14 @@ local function tag_command(cmd)
     end
 
     if #params < 2 then
-        player_print('Usage: <player> <tag> Sets a players tag.')
+        Game.player_print('Usage: <player> <tag> Sets a players tag.')
         return
     end
 
     local target_player = game.players[params[1]]
 
     if target_player == nil or not target_player.valid then
-        player_print('Player does not exist.')
+        Game.player_print('Player does not exist.')
         return
     end
 
@@ -690,14 +691,14 @@ local function tag_command(cmd)
     local tag = tag_groups[tag_name]
 
     if tag == nil then
-        player_print("Tag '" .. tag_name .. "' does not exist. Create the tag first by clicking Tag -> Create Tag.")
+        Game.player_print("Tag '" .. tag_name .. "' does not exist. Create the tag first by clicking Tag -> Create Tag.")
         return
     end
 
     if change_player_tag(target_player, tag_name) then
         redraw_main_frame()
     else
-        player_print(target_player.name .. ' already has ' .. tag_name .. ' tag')
+        Game.player_print(target_player.name .. ' already has ' .. tag_name .. ' tag')
     end
 end
 

@@ -2,11 +2,12 @@ local b = require 'map_gen.shared.builders'
 local perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
+local math = require 'utils.math'
 
 local sand_width = 512
-local sand_width_inv = tau / sand_width
+local sand_width_inv = math.tau / sand_width
 local water_width = 233
-local water_width_inv = tau / water_width
+local water_width_inv = math.tau / water_width
 
 --perlin options
 local noise_variance = 0.025 --The lower this number the smoother the curve is gonna be

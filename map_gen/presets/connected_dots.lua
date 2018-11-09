@@ -8,6 +8,7 @@ local ore_blocks = 100
 local ore_block_size = 32
 
 local random_ore = Random.new(ore_seed1, ore_seed2)
+local degrees = math.degrees
 
 local function no_enemies(x, y, world, tile)
     for _, e in ipairs(world.surface.find_entities_filtered({force = 'enemy', position = {world.x, world.y}})) do

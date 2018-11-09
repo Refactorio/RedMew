@@ -3,7 +3,7 @@ global.follows.n_entries = 0
 local Utils = require "utils.utils"
 local Game = require 'utils.game'
 
-function get_direction(follower, target)
+local function get_direction(follower, target)
   local delta_x = target.position.x - follower.position.x
   local delta_y = follower.position.y - target.position.y --reversed x axis
   local a = delta_y/delta_x
@@ -39,7 +39,7 @@ function get_direction(follower, target)
   end
 end
 
-function walk_on_tick()
+local function walk_on_tick()
   if global.follows.n_entries > 0 then
     for k,v in pairs(global.follows) do
       local follower = game.playesr[k]

@@ -4,6 +4,7 @@ local Event = require 'utils.event'
 local UserGroups = require 'user_groups'
 local Game = require 'utils.game'
 local math = require "utils.math"
+local Utils = require "utils.utils"
 
 local default_poll_duration = 300 * 60 -- in ticks
 local duration_max = 3600 -- in seconds
@@ -1233,13 +1234,13 @@ end
 local function poll_command(cmd)
     local player = game.player
     if player and not (player.admin or UserGroups.is_regular(player.name)) then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
     end
 
     local param = cmd.parameter
 
     if not param then
-        player_print('Usage: /poll <{question = "question", answers = {"answer 1", "answer 2"}, duration = 300 | nil}>')
+        Utils.player_print('Usage: /poll <{question = "question", answers = {"answer 1", "answer 2"}, duration = 300 | nil}>')
         return
     end
 
@@ -1247,29 +1248,29 @@ local function poll_command(cmd)
 
     local func, error = loadstring(param)
     if not func then
-        player_print(error)
+        Utils.player_print(error)
         return
     end
 
     local suc, result = Class.poll(func())
     if not suc then
-        player_print(result)
+        Utils.player_print(result)
     else
-        player_print(table.concat {'Poll #', result, ' successfully created.'})
+        Utils.player_print(table.concat {'Poll #', result, ' successfully created.'})
     end
 end
 
 local function poll_result_command(cmd)
     local param = cmd.parameter
     if not param then
-        player_print('Usage: /poll-result <poll#>')
+        Utils.player_print('Usage: /poll-result <poll#>')
         return
     end
 
     local id = tonumber(param)
     local result = Class.poll_result(id)
 
-    player_print(result)
+    Utils.player_print(result)
 end
 
 commands.add_command(

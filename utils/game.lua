@@ -40,6 +40,13 @@ function Game.get_player_by_index(index)
     end
 end
 
+function Game.player_print(str)
+    if game.player then
+        game.player.print(str)
+    else
+        print(str)
+    end
+
 --[[
     @param Position String to display at
     @param text String to display

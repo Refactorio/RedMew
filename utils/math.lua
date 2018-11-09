@@ -1,6 +1,10 @@
 local _sin = math.sin
 local _cos = math.cos
 
+math.sqrt2 = math.sqrt(2)
+math.inv_sqrt2 = 1 / math.sqrt2
+math.tau = 2 * math.pi
+
 math.sin = function(x)
      return math.floor(_sin(x) * 10000000 + 0.5) / 10000000
 end
@@ -25,8 +29,9 @@ math.clamp = function(num, min, max)
     end
 end
 
-
-math.sqrt2 = math.sqrt(2)
-math.inv_sqrt2 = 1 / math.sqrt2
+local deg_to_rad = math.tau / 360
+math.degrees = function(angle)
+    return angle * deg_to_rad
+end
 
 return math

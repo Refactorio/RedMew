@@ -205,8 +205,4 @@ local sea = b.change_tile(b.full_shape, true, 'water')
 sea = b.fish(sea, 0.00125)
 
 map = b.if_else(map, sea)
-
---map = b.translate(map, -32, 0)
---map = b.scale(map, 1, 1)
---map = b.rotate(map, degrees(45))
 return map

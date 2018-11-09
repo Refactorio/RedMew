@@ -6,26 +6,14 @@ local Utils = require 'utils.utils'
 local Game = require 'utils.game'
 --local Antigrief = require 'antigrief'
 
-function player_print(str)
-    if game.player then
-        game.player.print(str)
-    else
-        print(str)
-    end
-end
-
-function cant_run(name)
-    player_print("Can't run command (" .. name .. ') - insufficient permission.')
-end
-
 local function invoke(cmd)
     if not (game.player and game.player.admin) then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
     local target = cmd['parameter']
     if target == nil or game.players[target] == nil then
-        player_print('Unknown player.')
+        Game.player_print('Unknown player.')
         return
     end
     local pos = game.player.surface.find_non_colliding_position('player', game.player.position, 0, 1)
@@ -35,12 +23,12 @@ end
 
 local function teleport_player(cmd)
     if not (game.player and game.player.admin) then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
     local target = cmd['parameter']
     if target == nil or game.players[target] == nil then
-        player_print('Unknown player.')
+        Game.player_print('Unknown player.')
         return
     end
     local surface = game.players[target].surface
@@ -51,11 +39,11 @@ end
 
 local function teleport_location(cmd)
     if not (game.player and game.player.admin) then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
     if game.player.selected == nil then
-        player_print('Nothing selected.')
+        Game.player_print('Nothing selected.')
         return
     end
     local pos = game.player.surface.find_non_colliding_position('player', game.player.selected.position, 0, 1)
@@ -86,36 +74,36 @@ local function kill(cmd)
     if param then
         target = game.players[param]
         if not target then
-            player_print(table.concat {"Sorry, player '", param, "' was not found."})
+            Game.player_print(table.concat {"Sorry, player '", param, "' was not found."})
             return
         end
     end
 
     if not target and player then
         if not do_fish_kill(player, true) then
-            player_print("Sorry, you don't have a character to kill.")
+            Game.player_print("Sorry, you don't have a character to kill.")
         end
     elseif player then
         if target == player then
             if not do_fish_kill(player, true) then
-                player_print("Sorry, you don't have a character to kill.")
+                Game.player_print("Sorry, you don't have a character to kill.")
             end
         elseif target and player.admin then
             if not do_fish_kill(target) then
-                player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
+                Game.player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
             end
         else
-            player_print("Sorry you don't have permission to use the kill command on other players.")
+            Game.player_print("Sorry you don't have permission to use the kill command on other players.")
         end
     elseif target then
         if not do_fish_kill(target) then
-            player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
+            Game.player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
         end
     else
         if param then
-            player_print(table.concat {"Sorry, player '", param, "' was not found."})
+            Game.player_print(table.concat {"Sorry, player '", param, "' was not found."})
         else
-            player_print('Usage: /kill <player>')
+            Game.player_print('Usage: /kill <player>')
         end
     end
 end
@@ -153,12 +141,12 @@ local custom_commands_return_player =
 
 local function walkabout(cmd)
     if game.player and not game.player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
     local params = {}
     if cmd.parameter == nil then
-        player_print('Walkabout failed, check /help walkabout.')
+        Game.player_print('Walkabout failed, check /help walkabout.')
         return
     end
     for param in string.gmatch(cmd.parameter, '%S+') do
@@ -167,10 +155,10 @@ local function walkabout(cmd)
     local player_name = params[1]
     local duration = 60
     if #params > 2 then
-        player_print('Walkabout failed, check /help walkabout.')
+        Game.player_print('Walkabout failed, check /help walkabout.')
         return
     elseif #params == 2 and tonumber(params[2]) == nil then
-        player_print(params[2] .. ' is not a number.')
+        Game.player_print(params[2] .. ' is not a number.')
         return
     elseif #params == 2 and tonumber(params[2]) then
         duration = tonumber(params[2])
@@ -181,7 +169,7 @@ local function walkabout(cmd)
 
     local player = game.players[player_name]
     if player == nil or not player.valid or global.walking[player.index] then
-        player_print(player_name .. ' could not go on a walkabout.')
+        Game.player_print(player_name .. ' could not go on a walkabout.')
         return
     end
     local chunks = {}
@@ -217,18 +205,18 @@ local function walkabout(cmd)
         player.force = 'neutral'
         global.walking[player.index] = true
     else
-        player_print('Walkabout failed: could not find non colliding position')
+        Game.player_print('Walkabout failed: could not find non colliding position')
     end
 end
 
 local function regular(cmd)
     if game.player and not game.player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
 
     if cmd.parameter == nil then
-        player_print('Command failed. Usage: /regular <promote, demote>, <player>')
+        Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
         return
     end
     local params = {}
@@ -236,14 +224,14 @@ local function regular(cmd)
         table.insert(params, param)
     end
     if params[2] == nil then
-        player_print('Command failed. Usage: /regular <promote, demote>, <player>')
+        Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
         return
     elseif (params[1] == 'promote') then
         UserGroups.add_regular(params[2])
     elseif (params[1] == 'demote') then
         UserGroups.remove_regular(params[2])
     else
-        player_print('Command failed. Usage: /regular <promote, demote>, <player>')
+        Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
     end
 end
 
@@ -258,7 +246,7 @@ local function afk()
                 time = time .. math.floor(v.afk_time / 3600) % 60 .. ' minutes and '
             end
             time = time .. math.floor(v.afk_time / 60) % 60 .. ' seconds.'
-            player_print(v.name .. ' has been afk for' .. time)
+            Game.player_print(v.name .. ' has been afk for' .. time)
         end
     end
 end
@@ -272,7 +260,7 @@ local function follow(cmd)
         global.follows[game.player.name] = cmd.parameter
         global.follows.n_entries = global.follows.n_entries + 1
     else
-        player_print('Usage: /follow <player> makes you follow the player. Use /unfollow to stop following a player.')
+        Game.player_print('Usage: /follow <player> makes you follow the player. Use /unfollow to stop following a player.')
     end
 end
 
@@ -307,7 +295,7 @@ Event.add(defines.events.on_built_entity, built_entity)
 
 local function toggle_tp_mode(cmd)
     if not (game.player and game.player.admin) then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
 
@@ -316,10 +304,10 @@ local function toggle_tp_mode(cmd)
 
     if toggled then
         global.tp_players[index] = nil
-        player_print('tp mode is now off')
+        Game.player_print('tp mode is now off')
     else
         global.tp_players[index] = true
-        player_print('tp mode is now on - place a ghost entity to teleport there.')
+        Game.player_print('tp mode is now on - place a ghost entity to teleport there.')
     end
 end
 
@@ -341,11 +329,6 @@ local function get_group()
     return group
 end
 
-function custom_commands_untempban(param)
-    game.print(param.name .. ' is out of timeout.')
-    game.permissions.get_group('Default').add_player(param.name)
-end
-
 local custom_commands_untempban =
     Token.register(
     function(param)
@@ -356,11 +339,11 @@ local custom_commands_untempban =
 
 local function tempban(cmd)
     if (not game.player) or not game.player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
     if cmd.parameter == nil then
-        player_print('Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.')
+        Game.player_print('Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.')
         return
     end
     local params = {}
@@ -368,11 +351,11 @@ local function tempban(cmd)
         table.insert(params, param)
     end
     if #params < 2 or not tonumber(params[2]) then
-        player_print('Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.')
+        Game.player_print('Tempban failed. Usage: /tempban <player> <minutes> Temporarily bans a player.')
         return
     end
     if not game.players[params[1]] then
-        player_print("Player doesn't exist.")
+        Game.player_print("Player doesn't exist.")
         return
     end
     local group = get_group()
@@ -427,7 +410,7 @@ end
 --[[ global.undo_warned_players = {}
 local function undo(cmd)
     if (not game.player) or not game.player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
     if cmd.parameter and game.players[cmd.parameter] then
@@ -450,13 +433,13 @@ local function undo(cmd)
         game.print(string.format('Undoing everything %s did...', cmd.parameter))
         global.undo_warned_players[game.player.index] = nil
     else
-        player_print('Usage: /undo <player>')
+        Game.player_print('Usage: /undo <player>')
     end
 end
 
 local function antigrief_surface_tp()
     if (not game.player) or not game.player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
     Antigrief.antigrief_surface_tp()
@@ -495,20 +478,20 @@ local function jail_player(cmd)
     local player = game.player
     -- Check if the player can run the command
     if player and not player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
     -- Check if the target is valid
     local target = cmd['parameter']
     if target == nil then
-        player_print('Usage: /jail <player>')
+        Game.player_print('Usage: /jail <player>')
         return
     end
 
     local target_player = game.players[target]
 
     if not target_player then
-        player_print('Unknown player.')
+        Game.player_print('Unknown player.')
         return
     end
 
@@ -521,7 +504,7 @@ local function jail_player(cmd)
     end
 
     if target_player.permission_group == permission_group then
-        player_print('The player ' .. target .. ' is already in Jail.')
+        Game.player_print('The player ' .. target .. ' is already in Jail.')
         return
     end
 
@@ -551,13 +534,13 @@ local function jail_player(cmd)
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
-        player_print(target .. ' has been jailed. They have been advised of this.')
+        Game.player_print(target .. ' has been jailed. They have been advised of this.')
         target_player.print(
             'You have been placed in jail by a server admin. The only action you can currently perform is chatting. Please respond to inquiries from the admin.'
         )
     else
         -- Let admin know it didn't work.
-        player_print(
+        Game.player_print(
             'Something went wrong in the jailing of ' ..
                 target .. '. You can still change their group via /permissions.'
         )
@@ -569,19 +552,19 @@ local function unjail_player(cmd)
     local player = game.player
     -- Check if the player can run the command
     if player and not player.admin then
-        cant_run(cmd.name)
+        Utils.cant_run(cmd.name)
         return
     end
     -- Check if the target is valid (copied from the invoke command)
     local target = cmd['parameter']
     if target == nil then
-        player_print('Usage: /unjail <player>')
+        Game.player_print('Usage: /unjail <player>')
         return
     end
 
     local target_player = game.players[target]
     if not target_player then
-        player_print('Unknown player.')
+        Game.player_print('Unknown player.')
         return
     end
 
@@ -595,7 +578,7 @@ local function unjail_player(cmd)
 
     local jail_permission_group = permissions.get_group('Jail')
     if (not jail_permission_group) or target_player.permission_group ~= jail_permission_group then
-        player_print('The player ' .. target .. ' is already not in Jail.')
+        Game.player_print('The player ' .. target .. ' is already not in Jail.')
         return
     end
 
@@ -607,11 +590,11 @@ local function unjail_player(cmd)
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
-        player_print(target .. ' has been returned to the default group. They have been advised of this.')
+        Game.player_print(target .. ' has been returned to the default group. They have been advised of this.')
         target_player.print('Your ability to perform actions has been restored')
     else
         -- Let admin know it didn't work.
-        player_print(
+        Game.player_print(
             'Something went wrong in the unjailing of ' ..
                 target .. '. You can still change their group via /permissions and inform them.'
         )
@@ -621,7 +604,7 @@ end
 local function all_tech()
     if game.player then
         game.player.force.research_all_technologies()
-        player_print('Your force has been granted all technologies')
+        Game.player_print('Your force has been granted all technologies')
     end
 end
 
@@ -636,8 +619,7 @@ if not _DEBUG then
                 local success, error = pcall(func, cmd)
                 if not success then
                     log(error)
-                    --player_print(error) -- This casues desyncs
-                    player_print('Sorry there was an error running ' .. cmd.name)
+                    Game.player_print('Sorry there was an error running ' .. cmd.name)
                 end
             end
         )
