@@ -10,6 +10,7 @@ local Gui = require 'utils.gui'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Global = require 'utils.global'
+local Game = require 'utils.game'
 local insert = table.insert
 local max = math.max
 
@@ -167,7 +168,7 @@ end
 local function on_research_finished(event)
     local force = game.forces.player
     local current_modifier = mining_efficiency.research_modifier
-    local new_modifier = force.mining_drill_productivity_bonus * config.mining_speed_productivity_multiplier / 2
+    local new_modifier = force.mining_drill_productivity_bonus * config.mining_speed_productivity_multiplier * 0.5
 
     if (current_modifier == new_modifier) then
         -- something else was researched
@@ -236,16 +237,10 @@ local function redraw_heading(data)
     local frame = data.market_list_heading
     Gui.clear(frame)
 
-    local heading_table = frame.add {type = 'table', column_count = 3}
-
-    local label = heading_table.add {type = 'label', name = tag_label_stone, caption = 'Name'}
-    apply_heading_style(label.style, 90)
-
-    local label = heading_table.add {type = 'label', name = tag_label_buff, caption = 'Buff'}
-    apply_heading_style(label.style, 200)
-
-    local label = heading_table.add {type = 'label', name = tag_label_item, caption = 'Item'}
-    apply_heading_style(label.style, 200)
+    local heading_table = frame.add({type = 'table', column_count = 3})
+    apply_heading_style(heading_table.add({type = 'label', name = tag_label_stone, caption = 'Name'}).style, 90)
+    apply_heading_style(heading_table.add({type = 'label', name = tag_label_buff, caption = 'Buff'}).style, 200)
+    apply_heading_style(heading_table.add({type = 'label', name = tag_label_item, caption = 'Item'}).style, 200)
 end
 
 local function redraw_progressbar(data)
@@ -260,8 +255,7 @@ local function redraw_progressbar(data)
     -- calc % of stones sent
     local stone_sent = stone_tracker.stone_sent_to_surface / highest_amount
 
-    local overall_descr = flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Overall', caption = 'Overall progress:'})
-    apply_heading_style(overall_descr.style)
+    apply_heading_style(flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Overall', caption = 'Overall progress:'}).style)
     local overall_progressbar = flow.add({type = 'progressbar', tooltip = stone_sent * 100 .. '% stone sent'})
     overall_progressbar.style.width = 540
     overall_progressbar.value = stone_sent
@@ -276,15 +270,13 @@ local function redraw_progressbar(data)
     local sent = stone_tracker.stone_sent_to_surface - act_stone
     local percentage = sent / range
 
-    local level_descr = flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'})
-    apply_heading_style(level_descr.style)
+    apply_heading_style(flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
     local level_progressbar = flow.add({type = 'progressbar', tooltip = percentage * 100 .. '% stone to next level'})
     level_progressbar.style.width = 540
     level_progressbar.value = percentage
 end
 
 local function redraw_table(data)
-
     local market_scroll_pane = data.market_scroll_pane
     Gui.clear(market_scroll_pane)
 
@@ -302,7 +294,6 @@ local function redraw_table(data)
 
     -- create table
     for i = 1, #config.unlockables do
-
         if config.unlockables[i].stone ~= last_stone then
 
             -- get items and buffs for each stone value
@@ -370,7 +361,6 @@ local function redraw_table(data)
     -- print table
     for _, unlockable in pairs(row) do
         local is_unlocked = unlockable[1] <= stone_tracker.stone_sent_to_surface
-
         local list = market_scroll_pane.add {type = 'table', column_count = 3 }
 
         list.style.horizontal_spacing = 16
@@ -412,7 +402,10 @@ local function on_market_item_purchased(event)
         return
     end
 
-    send_stone_to_surface(config.stone_to_surface_amount * event.count)
+    local sum = config.stone_to_surface_amount * event.count
+    Game.print_player_floating_text(event.player_index, '-' .. sum .. ' stone', {r = 0.6, g = 0.55, b = 0.42})
+
+    send_stone_to_surface(sum)
     update_market_contents(event.market)
 end
 
@@ -447,7 +440,6 @@ local function toggle(event)
     frame = center.add({name = 'Diggy.MarketExchange.Frame', type = 'frame', direction = 'vertical'})
 
     local market_progressbars = frame.add({type = 'flow', direction = 'vertical'})
-
     local market_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
 
     local market_scroll_pane = frame.add({type = 'scroll-pane'})
@@ -471,7 +463,7 @@ local function toggle(event)
 end
 
 local function on_player_created(event)
-    game.players[event.player_index].gui.top.add({
+    Game.get_player_by_index(event.player_index).gui.top.add({
         name = 'Diggy.MarketExchange.Button',
         type = 'sprite-button',
         sprite = 'item/stone',
@@ -533,10 +525,13 @@ function MarketExchange.register(cfg)
     end
 
     local area = {{x_min, y_min}, {x_max + 1, y_max + 1}}
+    local message_x = (x_max + x_min) * 0.5
+    local message_y = (y_max + y_min) * 0.5
 
     Event.on_nth_tick(config.void_chest_frequency, function ()
         local send_to_surface = 0
-        local find_entities_filtered = game.surfaces.nauvis.find_entities_filtered
+        local surface = game.surfaces.nauvis
+        local find_entities_filtered = surface.find_entities_filtered
         local chests = find_entities_filtered({area = area, type = {'container', 'logistic-container'}})
         local to_fetch = stone_collecting.active_modifier
 
@@ -556,6 +551,16 @@ function MarketExchange.register(cfg)
         end
 
         if (send_to_surface == 0) then
+            if (0 == to_fetch) then
+                return
+            end
+
+            local message = 'Missing chests below market'
+            if (#chests > 0) then
+                message = 'No stone in chests found'
+            end
+
+            Game.print_floating_text(surface, {x = message_x, y = message_y}, message, { r = 220, g = 100, b = 50})
             return
         end
 
@@ -565,6 +570,10 @@ function MarketExchange.register(cfg)
             Debug.printPosition(config.market_spawn_position, 'Unable to find a market')
             return
         end
+
+        local message = send_to_surface .. ' stone sent to the surface'
+
+        Game.print_floating_text(surface, {x = message_x, y = message_y}, message, { r = 0.6, g = 0.55, b = 0.42})
 
         send_stone_to_surface(send_to_surface)
         update_market_contents(markets[1])

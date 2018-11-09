@@ -1,4 +1,5 @@
 local Global = require 'utils.global'
+local random = math.random
 
 local Game = {}
 
@@ -45,6 +46,44 @@ function Game.player_print(str)
     else
         print(str)
     end
+
+--[[
+    @param Position String to display at
+    @param text String to display
+    @param color table in {r = 0~1, g = 0~1, b = 0~1}, defaults to white.
+    @param surface LuaSurface
+
+    @return the created entity
+]]
+function Game.print_floating_text(surface, position, text, color)
+    color = color or {r = 1, g = 1, b = 1}
+
+    return surface.create_entity {
+        name = 'tutorial-flying-text',
+        color = color,
+        text = text,
+        position = position,
+    }
+end
+
+--[[
+    Creates a floating text entity at the player location with the specified color in {r, g, b} format.
+
+    Example: "+10 iron" or "-10 coins"
+
+    @param text String to display
+    @param color table in {r = 0~1, g = 0~1, b = 0~1}, defaults to white.
+
+    @return the created entity
+]]
+function Game.print_player_floating_text(player_index, text, color)
+    local player = Game.get_player_by_index(player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    local position = player.position
+    return Game.print_floating_text(player.surface, {x = position.x, y = position.y - 1.5}, text, color)
 end
 
 return Game

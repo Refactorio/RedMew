@@ -5,6 +5,7 @@
 -- dependencies
 local Event = require 'utils.event'
 local Debug = require 'map_gen.Diggy.Debug'
+local Game = require 'utils.game'
 
 -- this
 local SetupPlayer = {}
@@ -13,13 +14,12 @@ global.SetupPlayer = {
     first_player_spawned = false,
 }
 
-
 --[[--
     Registers all event handlers.
 ]]
 function SetupPlayer.register(config)
     Event.add(defines.events.on_player_created, function (event)
-        local player = game.players[event.player_index]
+        local player = Game.get_player_by_index(event.player_index)
         local position = {0, 0}
         local surface = player.surface
 

@@ -10,6 +10,7 @@ local Debug = require 'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
 local Global = require 'utils.global'
+local Game = require 'utils.game'
 local insert = table.insert
 local random = math.random
 local floor = math.floor
@@ -144,7 +145,7 @@ local function spawn_cracking_sound_text(surface, position)
 
     local color = {
         r = 1,
-        g = random(1, 100) / 100,
+        g = random(1, 100) * 0.01,
         b = 0
     }
 
@@ -157,7 +158,7 @@ local function spawn_cracking_sound_text(surface, position)
             name = 'flying-text',
             color = color,
             text = char,
-            position = {x = position.x + x_offset, y = position.y - ((i + 1) % 2) / 4}
+            position = {x = position.x + x_offset, y = position.y - ((i + 1) % 2) * 0.25}
         }.active = true
     end
 end
@@ -308,18 +309,19 @@ function DiggyCaveCollapse.register(cfg)
 
     Event.add(defines.events.on_marked_for_deconstruction, function (event)
         if (nil ~= support_beam_entities[event.entity.name]) then
-            event.entity.cancel_deconstruction(game.players[event.player_index].force)
+            event.entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
         end
     end)
 
     Event.add(defines.events.on_pre_player_mined_item, function(event)
-        if (nil ~= deconstruction_alert_message_shown[event.player_index]) then
+        local player_index = event.player_index
+        if (nil ~= deconstruction_alert_message_shown[player_index]) then
             return
         end
 
         if (nil ~= support_beam_entities[event.entity.name]) then
             require 'popup'.player(
-                game.players[event.player_index],[[
+                Game.get_player_by_index(player_index),[[
 Mining entities such as walls, stone paths, concrete
 and rocks, can cause a cave-in, be careful miner!
 
@@ -328,7 +330,7 @@ prevent a cave-in. Use stone paths and concrete
 to reinforce it further.
 ]]
             )
-            deconstruction_alert_message_shown[event.player_index] = true
+            deconstruction_alert_message_shown[player_index] = true
         end
     end)
 
@@ -416,8 +418,8 @@ end
     @return number sum of old fraction + new fraction
 ]]
 local function add_fraction(stress_map, x, y, fraction)
-    x = 2 * floor(x / 2)
-    y = 2 * floor(y / 2)
+    x = 2 * floor(x * 0.5)
+    y = 2 * floor(y * 0.5)
 
     local x_t = stress_map[x]
     if not x_t then
@@ -519,7 +521,7 @@ function mask_init(config)
     disc_weight = config.mask_relative_ring_weights[2]
     center_weight = config.mask_relative_ring_weights[3]
 
-    radius = floor(n / 2)
+    radius = floor(n * 0.5)
 
     radius_sq = (radius + 0.2) * (radius + 0.2)
     center_radius_sq = radius_sq / 9
