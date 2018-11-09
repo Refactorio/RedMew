@@ -46,6 +46,7 @@ function Game.player_print(str)
     else
         print(str)
     end
+end
 
 --[[
     @param Position String to display at
