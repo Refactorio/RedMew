@@ -21,6 +21,10 @@ local player_colors = {
     ['robertkruijt'] = {
         color = {r = 0.275, g = 0.755, b = 0.712, a = 0.5},
         chat_color = {r = 0.335, g = 0.918, b = 0.866, a = 0.5}
+    },
+    ['der-dave.com'] = {
+        color = {r = 255, g = 162, b = 0, a = 0.5},
+        chat_color = {r = 255, g = 162, b = 0, a = 0.5}
     }
 }
 
