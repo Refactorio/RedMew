@@ -82,8 +82,6 @@ function StartingZone.on_init()
 
     surface.daytime = 0.5
     surface.freeze_daytime = 1
-    -- base factorio =                pollution_factor = 0.000015
-    game.map_settings.enemy_evolution.pollution_factor = 0.000002
 end
 
 
