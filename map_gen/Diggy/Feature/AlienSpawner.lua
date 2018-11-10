@@ -38,7 +38,7 @@ function AlienSpawner.register(config)
     local alien_minimum_distance_square = config.alien_minimum_distance ^ 2
 
     Event.add(Template.events.on_void_removed, function(event)
-        game.forces.enemy.evolution_factor = game.forces.enemy.evolution_factor + 0.0000008
+        game.forces.enemy.evolution_factor = game.forces.enemy.evolution_factor + 0.0000012
 
         local x = event.old_tile.position.x
         local y = event.old_tile.position.y
@@ -55,6 +55,11 @@ function AlienSpawner.get_extra_map_info(config)
     return [[Alien Spawner, aliens might spawn when mining!
 Spawn chance: ]] .. (config.alien_probability * 100) .. [[%
 Minimum spawn distance: ]] .. config.alien_minimum_distance .. ' tiles'
+end
+
+function AlienSpawner.on_init()
+	-- base factorio =                pollution_factor = 0.000015
+    game.map_settings.enemy_evolution.pollution_factor = 0.000004
 end
 
 return AlienSpawner
