@@ -82,14 +82,14 @@ function ScatteredResources.register(config)
     end
 
     Event.add(Template.events.on_void_removed, function(event)
-        local x = event.old_tile.position.x
-        local y = event.old_tile.position.y
+        local x = event.position.x
+        local y = event.position.y
         local surface = event.surface
 
         local distance = floor(sqrt(x * x + y * y))
 
         if (config.cluster_mode and get_noise(surface, x, y) > config.noise_resource_threshold) then
-            spawn_resource(config, event.surface, x, y, distance)
+            spawn_resource(config, surface, x, y, distance)
             return
         end
 
@@ -106,7 +106,7 @@ function ScatteredResources.register(config)
         end
 
         if (probability > random()) then
-            spawn_resource(config, event.surface, x, y, distance)
+            spawn_resource(config, surface, x, y, distance)
         end
     end)
 

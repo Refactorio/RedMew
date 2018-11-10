@@ -12,6 +12,7 @@ local Config = {
     -- to disable a feature, change the flag
     features = {
         -- creates a starting zone
+        -- creates a starting zone
         StartingZone = {
             enabled = true,
 
@@ -83,6 +84,40 @@ local Config = {
               'CRACK',
               'KRRRR',
               'R U N',
+            }
+        },
+
+        -- Adds the ability to drop coins and track how many are sent into space
+        ArtefactHunting = {
+            enabled = true,
+
+            -- value between 0 and 1, higher value means stronger variance between coordinates
+            noise_variance = 0.75,
+
+            -- minimum noise value to spawn a treasure chest, works best with a very high noise variance,
+            -- otherwise you risk spawning a lot of chests together
+            treasure_chest_noise_threshold = 0.69,
+
+            -- minimum distance from spawn where a chest can spawn
+            minimal_treasure_chest_distance = 25,
+
+            -- Shows the chest locations, only use when debugging
+            display_chest_locations = false,
+
+            treasure_chest_raffle = {
+                ['coin'] = {chance = 1.00, min = 20, max = 200},
+                ['stone'] = {chance = 0.50, min = 25, max = 75},
+                ['copper-ore'] = {chance = 0.25, min = 30, max = 60},
+                ['copper-plate'] = {chance = 0.10, min = 12, max = 25},
+                ['iron-ore'] = {chance = 0.20, min = 10, max = 55},
+                ['iron-plate'] = {chance = 0.10, min = 5, max = 25},
+                ['steel-plate'] = {chance = 0.05, min = 3, max = 14},
+                ['steel-furnace'] = {chance = 0.02, min = 1, max = 1},
+                ['steam-engine'] = {chance = 0.02, min = 1, max = 1},
+                ['coal'] = {chance = 0.40, min = 30, max = 55},
+                ['concrete'] = {chance = 0.14, min = 10, max = 50},
+                ['stone-brick'] = {chance = 0.14, min = 25, max = 75},
+                ['stone-wall'] = {chance = 0.50, min = 1, max = 3},
             }
         },
 

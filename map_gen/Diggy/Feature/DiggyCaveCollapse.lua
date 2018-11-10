@@ -6,6 +6,7 @@ require 'utils.list_utils'
 
 local Event = require 'utils.event'
 local Template = require 'map_gen.Diggy.Template'
+local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Debug = require 'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
@@ -50,8 +51,7 @@ local deconstruction_alert_message_shown = {}
 local stress_map_storage = {}
 local new_tile_map = {}
 local collapse_positions_storage = {}
-local cave_collapse_disabled = nil
-
+local cave_collapse_disabled
 
 Global.register({
     new_tile_map = new_tile_map,
@@ -94,7 +94,6 @@ local function create_collapse_template(positions, surface)
                 if strength then
                     do_insert = false
                 else
-                    local position = entity.position
                     entity.die()
                 end
             end)
@@ -136,6 +135,7 @@ local function collapse(args)
     )
     local entities = create_collapse_template(positions, surface)
     Template.insert(surface, {}, entities)
+    ScoreTable.increment('Cave collapse')
 end
 
 local on_collapse_timeout_finished = Token.register(collapse)
@@ -164,7 +164,6 @@ local function spawn_cracking_sound_text(surface, position)
 end
 
 local function on_collapse_triggered(event)
-
     if cave_collapse_disabled then return end --kill switch
 
     local surface = event.surface
@@ -259,7 +258,7 @@ end)
 local function on_void_removed(event)
     local strength = support_beam_entities['out-of-map']
 
-    local position =  event.old_tile.position
+    local position = event.position
     if strength then
         stress_map_add(event.surface, position, strength)
     end
@@ -288,6 +287,8 @@ end
 function DiggyCaveCollapse.register(cfg)
     config = cfg
     support_beam_entities = config.support_beam_entities
+
+    ScoreTable.reset('Cave collapse')
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
     Event.add(defines.events.on_robot_built_entity, on_built_entity)

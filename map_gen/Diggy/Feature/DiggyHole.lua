@@ -7,6 +7,7 @@
 local Event = require 'utils.event'
 local Scanner = require 'map_gen.Diggy.Scanner'
 local Template = require 'map_gen.Diggy.Template'
+local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Debug = require 'map_gen.Diggy.Debug'
 local insert = table.insert
 local random = math.random
@@ -67,6 +68,8 @@ end
     Registers all event handlers.
 ]]
 function DiggyHole.register(config)
+    ScoreTable.reset('Void removed')
+
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
         diggy_hole(entity)
@@ -98,6 +101,10 @@ function DiggyHole.register(config)
 
     Event.add(defines.events.on_player_mined_tile, function(event)
         on_mined_tile(game.surfaces[event.surface_index], event.tiles)
+    end)
+
+    Event.add(Template.events.on_void_removed, function ()
+        ScoreTable.increment('Void removed')
     end)
 
     if config.enable_debug_commands then

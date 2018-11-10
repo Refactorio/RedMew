@@ -185,8 +185,8 @@ local function on_research_finished(event)
 end
 
 local function comma_value(n) -- credit http://richard.warburton.it
-    local left,num,right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
-    return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+    local left,num,right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
+    return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
 end
 
 local function redraw_title(data)

@@ -60,7 +60,7 @@ function Debug.printPosition(position, message)
 end
 
 --[[--
-    Executes the given callback if _DIGGY_CHEATS == true.
+    Executes the given callback if cheating is enabled.
 
     @param callback function
 ]]
@@ -78,34 +78,40 @@ end
     @param position Position {x, y}
 ]]
 function Debug.print_grid_value(value, surface, position, scale, offset)
-    scale = scale or 1
-    offset = offset or 0
-    position = {x = position.x + offset, y = position.y + offset}
-    local r = max(1, value) / scale
-    local g = 1 - abs(value) / scale
-    local b = min(1, value) / scale
+    local is_string = type(value) == 'string'
+    local color = {r = 1, g = 1, b = 1}
+    text = value
 
-    if (r > 0) then
-        r = 0
-    end
+    if not is_string then
+        scale = scale or 1
+        offset = offset or 0
+        position = {x = position.x + offset, y = position.y + offset}
+        local r = max(1, value) / scale
+        local g = 1 - abs(value) / scale
+        local b = min(1, value) / scale
 
-    if (b < 0) then
-        b = 0
-    end
+        if (r > 0) then
+            r = 0
+        end
 
-    if (g < 0) then
-        g = 0
-    end
+        if (b < 0) then
+            b = 0
+        end
 
-    r = abs(r)
+        if (g < 0) then
+            g = 0
+        end
 
-    local color = { r = r, g = g, b = b}
+        r = abs(r)
 
-    -- round at precision of 2
-    local text = floor(100 * value) / 100
+        color = { r = r, g = g, b = b}
 
-    if (0 == text) then
-        text = '0.00'
+        -- round at precision of 2
+        local text = floor(100 * value) * 0.01
+
+        if (0 == text) then
+            text = '0.00'
+        end
     end
 
     local text_entity = surface.find_entity('flying-text', position)
@@ -113,7 +119,6 @@ function Debug.print_grid_value(value, surface, position, scale, offset)
     if text_entity then
         text_entity.text = text
         text_entity.color = color
-
         return
     end
 

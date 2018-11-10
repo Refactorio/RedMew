@@ -49,7 +49,6 @@ end
 --[[--
     Registers all event handlers.
 ]]
-
 function SimpleRoomGenerator.register(config)
     local room_noise_minimum_distance_sq = config.room_noise_minimum_distance * config.room_noise_minimum_distance
 
@@ -60,7 +59,7 @@ function SimpleRoomGenerator.register(config)
     end
 
     Event.add(Template.events.on_void_removed, function (event)
-        local position = event.old_tile.position
+        local position = event.position
         local x = position.x
         local y = position.y
 
