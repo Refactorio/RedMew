@@ -974,6 +974,23 @@ local function on_tick(event)
         end
         refresh_gui()
     end
+
+	if global.rocket_silo_destroyed then
+		if not global.game_restart_timer_completed then
+			if global.game_restart_timeout then
+				if game.tick % 600 == 0 and global.game_restart_timeout - game.tick > 0 and global.game_restart_timeout - game.tick < 3800 then
+					game.print("Map will restart in " .. math.floor((global.game_restart_timeout - game.tick) / 60) .. " seconds!",{ r=0.22, g=0.88, b=0.22})
+				end
+			else
+				global.game_restart_timeout = game.tick + 4600				
+			end
+			if global.game_restart_timeout-game.tick < 0 then
+				global.game_restart_timer_completed = true
+				game.write_file("commandPipe", ":loadscenario --force", false, 0)
+			end
+		end
+	end
+	
 end
 
 ----------share chat with player and spectator force-------------------
