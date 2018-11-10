@@ -127,7 +127,7 @@ local terrain_modules = {
 --everything else. You may use more than one of these, but beware they might not be compatible
 --require "map_gen.misc.rusky_pvp"
 --require("map_gen.misc.rail_grid") -- used for map_gen.presets.UK
---require ('map_gen.misc.change_landfill_tile')('sand-1')
+--require ('map_gen.misc.change_landfill_tile'){'sand-1'}
 --require ('map_gen.misc.danger_ore_banned_entities')
 --require ('map_gen.misc.restrict_landfill_tile')({['water'] = true})
 --require "map_gen.ores.rso.rso_control"
