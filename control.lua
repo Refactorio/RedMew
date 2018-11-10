@@ -20,7 +20,7 @@ require 'train_saviour'
 require 'map_gen.shared.perlin_noise'
 require 'map_layout'
 require 'bot'
-require 'player_colors'
+require 'player_color'
 -- GUIs the order determines the order they appear at the top.
 require 'info'
 require 'player_list'

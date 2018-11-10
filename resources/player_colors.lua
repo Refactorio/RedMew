@@ -1,7 +1,4 @@
-local Event = require 'utils.event'
-local Game = require 'utils.game'
-
-local player_colors = {
+return {
     ['grilledham'] = {
         color = {r = 0.9290000202716064, g = 0.3860000739097595, b = 0.51399999856948853, a = 0.5},
         chat_color = {r = 1, g = 0.51999998092651367, b = 0.63300001621246338, a = 0.5}
@@ -25,23 +22,13 @@ local player_colors = {
     ['der-dave.com'] = {
         color = {r = 255, g = 162, b = 0, a = 0.5},
         chat_color = {r = 255, g = 162, b = 0, a = 0.5}
+    },
+    ['chromaddict'] = {
+        color = {r = 0, g = 1, b = 1, a = 0.5},
+        chat_color = {r = 0, g = 1, b = 1, a = 0.5}
+    },
+    ['shoghicp'] = {
+        color = { a = 0, b = 0.50980395078659058, g = 0, r = 0.29411765933036804 },
+        chat_color = { a = 0, b = 0.50980395078659058, g = 0, r = 0.29411765933036804 }
     }
 }
-
-Event.add(
-    defines.events.on_player_created,
-    function(event)
-        local player = Game.get_player_by_index(event.player_index)
-        if not player or not player.valid then
-            return
-        end
-
-        local color_data = player_colors[player.name]
-        if not color_data then
-            return
-        end
-
-        player.color = color_data.color
-        player.chat_color = color_data.chat_color or color_data.color
-    end
-)
