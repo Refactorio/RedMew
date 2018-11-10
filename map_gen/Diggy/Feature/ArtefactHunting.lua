@@ -5,6 +5,7 @@
 -- dependencies
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
@@ -18,6 +19,8 @@ local ArtefactHunting = {}
     Registers all event handlers.
 ]]
 function ArtefactHunting.register(config)
+    ScoreTable.reset('Artefacts sent to space')
+
     local seed
     local function get_noise(surface, x, y)
         seed = seed or surface.map_gen_settings.seed + surface.index + 300
@@ -25,6 +28,14 @@ function ArtefactHunting.register(config)
     end
 
     local distance_required = config.minimal_treasure_chest_distance * config.minimal_treasure_chest_distance
+
+    Event.add(defines.events.on_rocket_launched, function (event)
+        local coins = event.rocket.get_inventory(defines.inventory.rocket).get_item_count('coin')
+        if coins > 0 then
+            local sum = ScoreTable.add('Artefacts sent to space', coins)
+            game.print('sent ' .. coins .. ' artefacts into space! The space station is now holding ' .. sum .. ' artefacts.')
+        end
+    end)
 
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.position

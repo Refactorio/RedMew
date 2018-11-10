@@ -12,7 +12,6 @@ local Config = {
     -- to disable a feature, change the flag
     features = {
         -- creates a starting zone
-        -- creates a starting zone
         StartingZone = {
             enabled = true,
 
