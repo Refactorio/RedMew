@@ -314,7 +314,7 @@ function DiggyCaveCollapse.register(cfg)
         end
     end)
 
-    Event.add(defines.events.on_pre_player_mined_item, function(event)
+    Event.add(defines.events.on_pre_player_mined_item, function (event)
         local player_index = event.player_index
         if (nil ~= deconstruction_alert_message_shown[player_index]) then
             return
@@ -450,7 +450,7 @@ local function add_fraction(stress_map, x, y, fraction)
     return value
 end
 
-on_surface_created = function(event)
+on_surface_created = function (event)
     stress_map_storage[event.surface_index] = {}
 
     local map = stress_map_storage[event.surface_index]

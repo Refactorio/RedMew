@@ -37,7 +37,7 @@ end
 function AlienSpawner.register(config)
     local alien_minimum_distance_square = config.alien_minimum_distance ^ 2
 
-    Event.add(Template.events.on_void_removed, function(event)
+    Event.add(Template.events.on_void_removed, function (event)
         game.forces.enemy.evolution_factor = game.forces.enemy.evolution_factor + 0.0000012
 
         local x = event.position.x

@@ -95,11 +95,11 @@ function DiggyHole.register(config)
         diggy_hole(event.entity)
     end)
 
-    Event.add(defines.events.on_robot_mined_tile, function(event)
+    Event.add(defines.events.on_robot_mined_tile, function (event)
         on_mined_tile(event.robot.surface, event.tiles)
     end)
 
-    Event.add(defines.events.on_player_mined_tile, function(event)
+    Event.add(defines.events.on_player_mined_tile, function (event)
         on_mined_tile(game.surfaces[event.surface_index], event.tiles)
     end)
 

@@ -81,7 +81,7 @@ function ScatteredResources.register(config)
         error('Expected a sum of 1.00, got \'' .. richness_sum .. '\' for config.feature.ScatteredResources.resource_richness_probability.')
     end
 
-    Event.add(Template.events.on_void_removed, function(event)
+    Event.add(Template.events.on_void_removed, function (event)
         local x = event.position.x
         local y = event.position.y
         local surface = event.surface

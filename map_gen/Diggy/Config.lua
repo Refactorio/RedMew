@@ -31,6 +31,11 @@ local Config = {
                 manual_mining_speed_modifier = 1000,
                 character_inventory_slots_bonus = 1000,
                 character_running_speed_modifier = 2,
+                starting_items = {
+                    {name = 'modular-armor', count = 1},
+                    {name = 'submachine-gun', count = 1},
+                    {name = 'uranium-rounds-magazine', count = 200},
+                },
             },
         },
 
@@ -101,11 +106,16 @@ local Config = {
             -- minimum distance from spawn where a chest can spawn
             minimal_treasure_chest_distance = 25,
 
+            -- chances to receive a coin when mining
+            mining_artefact_chance = 0.10,
+            mining_artefact_amount = {min = 1, max = 4},
+
             -- Shows the chest locations, only use when debugging
             display_chest_locations = false,
 
             treasure_chest_raffle = {
-                ['coin'] = {chance = 1.00, min = 20, max = 200},
+                ['coin'] = {chance = 1.00, min = 20, max = 255},
+                ['steel-axe'] = {chance = 0.55, min = 1, max = 2},
                 ['stone'] = {chance = 0.50, min = 25, max = 75},
                 ['copper-ore'] = {chance = 0.25, min = 30, max = 60},
                 ['copper-plate'] = {chance = 0.10, min = 12, max = 25},

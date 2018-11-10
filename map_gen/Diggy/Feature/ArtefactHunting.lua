@@ -4,11 +4,12 @@
 
 -- dependencies
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
-local insert = table.insert
 local random = math.random
+local ceil = math.ceil
 
 -- this
 local ArtefactHunting = {}
@@ -25,7 +26,7 @@ function ArtefactHunting.register(config)
 
     local distance_required = config.minimal_treasure_chest_distance * config.minimal_treasure_chest_distance
 
-    Event.add(Template.events.on_void_removed, function(event)
+    Event.add(Template.events.on_void_removed, function (event)
         local position = event.position
         local x = position.x
         local y = position.y
@@ -51,6 +52,81 @@ function ArtefactHunting.register(config)
                 chest.insert({name = name, count = random(prototype.min, prototype.max)})
             end
         end
+    end)
+
+    local modifiers = {
+        ['small-biter'] = 1,
+        ['small-spitter'] = 1,
+        ['medium-biter'] = 2,
+        ['medium-spitter'] = 2,
+        ['big-biter'] = 4,
+        ['big-spitter'] = 4,
+        ['behemoth-biter'] = 6,
+        ['behemoth-spitter'] = 6,
+    }
+
+    local function picked_up_coins(player_index, count)
+        local text
+        if count == 1 then
+            text = '+1 coin'
+        else
+            text = '+' .. count ..' coins'
+        end
+
+        Game.print_player_floating_text(player_index, text, {r = 255, g = 215, b = 0})
+    end
+
+    Event.add(defines.events.on_entity_died, function (event)
+        local entity = event.entity
+        local force = entity.force
+
+        if force.name ~= 'enemy' then
+            return
+        end
+
+        local cause = event.cause
+
+        if not cause or cause.type ~= 'player' or not cause.valid then
+            return
+        end
+
+        local modifier = modifiers[entity.name] or 1
+        local evolution_multiplier = force.evolution_factor * 11
+        local count = random(
+            ceil(2 * evolution_multiplier * 0.1),
+            ceil(5 * (evolution_multiplier * evolution_multiplier + modifier) * 0.1)
+        )
+
+        entity.surface.create_entity({
+            name = 'item-on-ground',
+            position = entity.position,
+            stack = {name = 'coin', count = count}
+        })
+    end)
+
+    Event.add(defines.events.on_picked_up_item, function (event)
+        local stack = event.item_stack
+        if stack.name ~= 'coin' then
+            return
+        end
+
+        picked_up_coins(event.player_index, stack.count)
+    end)
+
+    Event.add(defines.events.on_pre_player_mined_item, function (event)
+        if event.entity.type ~= 'simple-entity' then
+            return
+        end
+
+        if random() > config.mining_artefact_chance then
+            return
+        end
+
+        local count = random(config.mining_artefact_amount.min, config.mining_artefact_amount.max)
+        local player_index = event.player_index
+
+        Game.get_player_by_index(player_index).insert({name = 'coin', count = count})
+        picked_up_coins(player_index, count)
     end)
 
     if (config.display_chest_locations) then

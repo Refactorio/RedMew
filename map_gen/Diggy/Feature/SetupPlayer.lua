@@ -20,11 +20,12 @@ global.SetupPlayer = {
 function SetupPlayer.register(config)
     Event.add(defines.events.on_player_created, function (event)
         local player = Game.get_player_by_index(event.player_index)
+        local player_insert = player.insert
         local position = {0, 0}
         local surface = player.surface
 
         for _, item in pairs(config.starting_items) do
-            player.insert(item)
+            player_insert(item)
         end
 
         if (global.SetupPlayer.first_player_spawned) then
@@ -37,9 +38,14 @@ function SetupPlayer.register(config)
         player.teleport(position)
 
         Debug.cheat(function()
-            player.force.manual_mining_speed_modifier = config.cheats.manual_mining_speed_modifier
-            player.force.character_inventory_slots_bonus = config.cheats.character_inventory_slots_bonus
-            player.character_running_speed_modifier = config.cheats.character_running_speed_modifier
+            local cheats = config.cheats
+            player.force.manual_mining_speed_modifier = cheats.manual_mining_speed_modifier
+            player.force.character_inventory_slots_bonus = cheats.character_inventory_slots_bonus
+            player.force.character_running_speed_modifier = cheats.character_running_speed_modifier
+
+            for _, item in pairs(cheats.starting_items) do
+                player_insert(item)
+            end
         end)
     end)
 end
