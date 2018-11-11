@@ -21,7 +21,7 @@ local do_mine = Token.register(function(params)
     local sand_rocks = params.surface.find_entities_filtered({position = params.position, name = 'sand-rock-big'})
 
     if (0 == #sand_rocks) then
-        Debug.printPosition(params.position, 'missing rock when trying to mine.')
+        Debug.print_position(params.position, 'missing rock when trying to mine.')
         return
     end
 
@@ -86,7 +86,7 @@ function SimpleRoomGenerator.register(config)
 
             for x = area.left_top.x, area.left_top.x + 31 do
                 for y = area.left_top.y, area.left_top.y + 31 do
-                    Debug.print_grid_value(get_noise(surface, x, y), surface, {x = x, y = y})
+                    Debug.print_grid_value(get_noise(surface, x, y), surface, {x = x, y = y}, nil, nil, true)
                 end
             end
         end)

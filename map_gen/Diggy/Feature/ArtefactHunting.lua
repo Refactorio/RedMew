@@ -140,7 +140,7 @@ function ArtefactHunting.register(config)
                 local sq_x = x * x
                 for y = area.left_top.y, area.left_top.y + 31 do
                     if sq_x + y * y >= distance_required and get_noise(surface, x, y) >= config.treasure_chest_noise_threshold then
-                        Debug.print_grid_value('chest', surface, {x = x, y = y})
+                        Debug.print_grid_value('chest', surface, {x = x, y = y}, nil, nil, true)
                     end
                 end
             end

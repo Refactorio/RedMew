@@ -161,7 +161,7 @@ function Template.units(surface, units, non_colliding_distance)
             entity.position = position
             create_entity(entity)
         else
-            Debug.printPosition(entity.position, "Failed to spawn '" .. entity.name .. "'")
+            Debug.print_position(entity.position, "Failed to spawn '" .. entity.name .. "'")
         end
     end
 end

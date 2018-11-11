@@ -118,7 +118,7 @@ function ScatteredResources.register(config)
 
             for x = area.left_top.x, area.left_top.x + 31 do
                 for y = area.left_top.y, area.left_top.y + 31 do
-                    Debug.print_grid_value(get_noise(surface, x, y), surface, {x = x, y = y})
+                    Debug.print_grid_value(get_noise(surface, x, y), surface, {x = x, y = y}, nil, nil, true)
                 end
             end
         end)

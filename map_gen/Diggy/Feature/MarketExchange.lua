@@ -567,7 +567,7 @@ function MarketExchange.register(cfg)
         local markets = find_entities_filtered({name = 'market', position = config.market_spawn_position, limit = 1})
 
         if (#markets == 0) then
-            Debug.printPosition(config.market_spawn_position, 'Unable to find a market')
+            Debug.print_position(config.market_spawn_position, 'Unable to find a market')
             return
         end
 
