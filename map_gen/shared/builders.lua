@@ -1277,6 +1277,8 @@ local path_tiles = {
     ['refined-hazard-concrete-right'] = true
 }
 
+Builders.path_tiles = path_tiles
+
 function Builders.set_hidden_tile(shape, hidden_tile)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -1290,8 +1292,6 @@ function Builders.set_hidden_tile(shape, hidden_tile)
         return tile
     end
 end
-
-
 
 local collision_map = {
     ['concrete'] = 'ground-tile',
