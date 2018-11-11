@@ -47,6 +47,8 @@ Event.add(
         local count = user_item_record.count
         local time = user_item_record['time'] or Utils.format_time(game.tick)
         data[name] = {count = stack.count + count, time = time}
+        local s = table.concat {'[Cheated item] ', p.name, ' - ', stack.count, ' x ', name}
+        log(s)
     end
 )
 
