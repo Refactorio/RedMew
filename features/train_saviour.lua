@@ -2,7 +2,7 @@ local Event = require 'utils.event'
 local Market_items = require 'resources.market_items'
 local Global = require 'utils.global'
 local Donators = require 'resources.donators'
-local UserGroups = require 'user_groups'
+local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
 local train_perk_flag = Donators.donator_perk_flags.train
 

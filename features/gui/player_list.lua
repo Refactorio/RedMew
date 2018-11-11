@@ -2,10 +2,10 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Donators = require 'resources.donators'
-local UserGroups = require 'user_groups'
-local PlayerStats = require 'player_stats'
+local UserGroups = require 'features.user_groups'
+local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.utils'
-local Report = require 'report'
+local Report = require 'features.report'
 local Game = require 'utils.game'
 local name = require "utils.math"
 

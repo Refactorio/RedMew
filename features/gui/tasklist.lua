@@ -1,7 +1,7 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
-local UserGroups = require 'user_groups'
+local UserGroups = require 'features.user_groups'
 local Utils = require 'utils.utils'
 local Game = require 'utils.game'
 local math = require "utils.math"
