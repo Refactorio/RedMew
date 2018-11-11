@@ -65,16 +65,7 @@ function ArtefactHunting.register(config)
         end
     end)
 
-    local modifiers = {
-        ['small-biter'] = 1,
-        ['small-spitter'] = 1,
-        ['medium-biter'] = 2,
-        ['medium-spitter'] = 2,
-        ['big-biter'] = 4,
-        ['big-spitter'] = 4,
-        ['behemoth-biter'] = 6,
-        ['behemoth-spitter'] = 6,
-    }
+    local modifiers = config.alien_coin_modifiers
 
     local function picked_up_coins(player_index, count)
         local text

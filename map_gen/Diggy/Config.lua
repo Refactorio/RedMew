@@ -109,6 +109,19 @@ local Config = {
             mining_artefact_chance = 0.10,
             mining_artefact_amount = {min = 1, max = 4},
 
+            -- lets you set the coin modifiers for aliens
+            -- the modifier value increases the upper random limit that biters can drop
+            alien_coin_modifiers = {
+                ['small-biter'] = 1,
+                ['small-spitter'] = 1,
+                ['medium-biter'] = 2,
+                ['medium-spitter'] = 2,
+                ['big-biter'] = 4,
+                ['big-spitter'] = 4,
+                ['behemoth-biter'] = 6,
+                ['behemoth-spitter'] = 6,
+            },
+
             -- Shows the chest locations, only use when debugging
             display_chest_locations = false,
 
