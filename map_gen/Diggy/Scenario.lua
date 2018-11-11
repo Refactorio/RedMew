@@ -46,7 +46,9 @@ function Scenario.register(debug)
     end
 
     global.scenario.config.player_list.enable_coin_col = false
-    global.scenario.config.fish_market.enable = false
+    if global.scenario.config then
+        global.scenario.config.fish_market.enable = nil
+    end
 
     if ('boolean' == type(debug)) then
         Config.Debug = debug
