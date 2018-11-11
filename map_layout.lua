@@ -96,7 +96,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.shape.spiral2"
 --shape = require "map_gen.shape.donut"
 --shape = b.rectangular_spiral(128)
---shape = require "map_gen.shape.lattice"
+--shape = require "map_gen.shape.diagonal_lattice"
 --require "map_gen.shape.infinite_mazes"
 --shape = require "map_gen.shape.x_shape"
 --shape = require "map_gen.shape.pacman"
