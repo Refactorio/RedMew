@@ -77,12 +77,5 @@ function StartingZone.register(config)
     Event.add_removable(defines.events.on_chunk_generated, callback_token)
 end
 
-function StartingZone.on_init()
-    local surface = game.surfaces.nauvis
-
-    surface.daytime = 0.5
-    surface.freeze_daytime = 1
-end
-
 
 return StartingZone
