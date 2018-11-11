@@ -4,6 +4,7 @@ require 'utils.list_utils'
 require 'utils.math'
 
 local Game = require 'utils.game'
+local Event = require 'utils.event'
 
 require 'user_groups'
 require 'custom_commands'
@@ -31,8 +32,8 @@ require 'blueprint_helper'
 require 'paint'
 require 'score'
 require 'popup'
+require 'features.free_item_logging'
 
-local Event = require 'utils.event'
 local Donators = require 'resources.donators'
 
 local function player_created(event)
@@ -179,120 +180,3 @@ Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_console_chat, hodor)
 
-Event.add(
-    defines.events.on_console_command,
-    function(event)
-        local command = event.command
-        if command == 'c' or command == 'command' or command == 'silent-command' or command == 'hax' then
-            local p_index = event.player_index
-            local name
-            if p_index then
-                name = Game.get_player_by_index(event.player_index).name
-            else
-                name = '<server>'
-            end
-            local s = table.concat {'[Command] ', name, ' /', command, ' ', event.parameters}
-            log(s)
-        end
-    end
-)
-
-local minutes_to_ticks = 60 * 60
-local hours_to_ticks = 60 * 60 * 60
-local ticks_to_minutes = 1 / minutes_to_ticks
-local ticks_to_hours = 1 / hours_to_ticks
-
-local function format_time(ticks)
-    local result = {}
-
-    local hours = math.floor(ticks * ticks_to_hours)
-    if hours > 0 then
-        ticks = ticks - hours * hours_to_ticks
-        table.insert(result, hours)
-        if hours == 1 then
-            table.insert(result, 'hour')
-        else
-            table.insert(result, 'hours')
-        end
-    end
-
-    local minutes = math.floor(ticks * ticks_to_minutes)
-    table.insert(result, minutes)
-    if minutes == 1 then
-        table.insert(result, 'minute')
-    else
-        table.insert(result, 'minutes')
-    end
-
-    return table.concat(result, ' ')
-end
-
-global.cheated_items = {}
-global.cheated_items_by_timestamp = {}
-
-Event.add(
-    defines.events.on_player_crafted_item,
-    function(event)
-        local pi = event.player_index
-        local p = Game.get_player_by_index(pi)
-
-        if not p or not p.valid or not p.cheat_mode then
-            return
-        end
-
-        local cheat_items = global.cheated_items
-
-        local data = cheat_items[pi]
-        if not data then
-            data = {}
-            cheat_items[pi] = data
-        end
-
-        local stack = event.item_stack
-        local name = stack.name
-        local user_item_record = data[name] or {count = 0}
-        local count = user_item_record.count
-        local time = user_item_record['time'] or format_time(game.tick)
-        data[name] = {count = stack.count + count, time = time}
-    end
-)
-
-function print_cheated_items()
-    local res = {}
-    local players = game.players
-
-    for pi, data in pairs(global.cheated_items) do
-        res[players[pi].name] = data
-    end
-
-    game.player.print(serpent.block(res))
-end
-
-Event.add(
-    defines.events.on_console_command,
-    function(event)
-        local player_index = event.player_index
-        if not player_index then
-            return
-        end
-        local player = Game.get_player_by_index(player_index)
-        local command = event.parameters or ''
-        if player.name:lower() == 'gotze' and string.find(command, 'insert') then
-            string.gsub(
-                command,
-                '{[%a%d%c%l%s%w%u%;.,\'"=-]+}',
-                function(tblStr)
-                    local func = loadstring('return ' .. tblStr)
-                    if not func then
-                        return
-                    end
-                    local tbl = func()
-                    if tbl and tbl.name and tbl.count then
-                        player.remove_item {name = tbl.name, count = tbl.count}
-                        player.insert {name = 'raw-fish', count = math.floor(tbl.count / 1000) + 1}
-                    end
-                end
-            )
-        end
-    end
-)
