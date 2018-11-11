@@ -6,8 +6,9 @@ local Game = require 'utils.game'
 local report_frame_name = Gui.uid_name()
 local report_close_button_name = Gui.uid_name()
 local report_tab_button_name = Gui.uid_name()
+local jail_offender_button_name = Gui.uid_name()
 local report_body_name = Gui.uid_name()
-
+local current_reported_player_name
 global.reports = {}
 global.player_report_data = {}
 
@@ -23,6 +24,7 @@ local function draw_report(parent, report_id)
     local reporting_player_name = Game.get_player_by_index(report.reporting_player_index).name
     local time = Utils.format_time(report.tick)
     local time_ago = Utils.format_time(game.tick - report.tick)
+    current_reported_player_name = reported_player_name
 
     local message = report.message
     Gui.clear(parent)
@@ -31,6 +33,13 @@ local function draw_report(parent, report_id)
     local msg_label_pane = parent.add {type="scroll-pane", vertical_scroll_policy = "auto-and-reserve-space", horizontal_scroll_policy="never"}
     msg_label_pane.style.maximal_height = 400
     local msg_label = msg_label_pane.add {type="label", caption="Message: " .. message}
+	  local jail_offender_button = parent.add {type = 'button', name = jail_offender_button_name, caption = 'Jail ' .. reported_player_name}
+    jail_offender_button.style.height = 24
+    jail_offender_button.style.font = 'default-small'
+    jail_offender_button.style.top_padding = 0
+    jail_offender_button.style.bottom_padding = 0
+    jail_offender_button.style.left_padding = 0
+    jail_offender_button.style.right_padding = 0
     msg_label.style.single_line = false
     msg_label.style.maximal_width = 680
     parent.add {type="label", caption=string.format("Time: %s (%s ago)", time, time_ago)} 
@@ -93,6 +102,65 @@ function Module.report(reporting_player, reported_player, message)
     end
 end
 
+function Module.jail(player, target)
+	-- Set the name of the jail permission group
+    local jail_name = 'Jail'
+    local target_player = game.players[target]
+
+    if not target_player then
+        player.print('Unknown player.')
+        return
+    end
+
+    local permissions = game.permissions
+
+    -- Check if the permission group exists, if it doesn't, create it.
+    local permission_group = permissions.get_group(jail_name)
+    if not permission_group then
+        permission_group = permissions.create_group(jail_name)
+    end
+
+    if target_player.permission_group == permission_group then
+        player.print('The player ' .. target .. ' is already in Jail.')
+        return
+    end
+
+    -- Set all permissions to disabled
+    for action_name, _ in pairs(defines.input_action) do
+        permission_group.set_allows_action(defines.input_action[action_name], false)
+    end
+    -- Enable writing to console to allow a person to speak
+    permission_group.set_allows_action(defines.input_action.write_to_console, true)
+    permission_group.set_allows_action(defines.input_action.edit_permission_group, true)
+
+    -- Kick player out of vehicle
+	target_player.driving=false
+    -- Add player to jail group
+	permission_group.add_player(target_player)
+	-- Check if a player is shooting while jailed, if they are, remove the weapon in their active gun slot.
+	if target_player.shooting_state.state ~= 0 then
+		-- Use a while loop because if a player has guns in inventory they will auto-refill the slot.
+		while target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index].valid_for_read do
+			target_player.remove_item(target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index])
+		end
+		target_player.print('Your active weapon has been removed because you were shooting while jailed. Your gun will *not* be returned to you in the event of being unjailed.'
+        )
+	end
+
+    -- Check that it worked
+    if target_player.permission_group == permission_group then
+        -- Let admin know it worked, let target know what's going on.
+        player.print(target .. ' has been jailed. They have been advised of this.')
+        target_player.print('You have been placed in jail by a server admin. The only action you can currently perform is chatting. Please respond to inquiries from the admin.'
+        )
+    else
+        -- Let admin know it didn't work.
+        player.print('Something went wrong in the jailing of ' ..
+              target .. '. You can still change their group via /permissions.'
+        )
+    end
+end
+
 Gui.on_custom_close(
     report_frame_name,
     function(event)
@@ -106,6 +174,13 @@ Gui.on_click(
         Gui.destroy(event.element.parent)
     end
 )
+
+Gui.on_click(
+    jail_offender_button_name,
+    function(event)
+      Module.jail(event.player, string.sub(event.element.caption, 6))
+    end
+)        
 
 Gui.on_click(
     report_tab_button_name,

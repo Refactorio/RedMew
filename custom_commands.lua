@@ -4,6 +4,7 @@ local Token = require 'utils.global_token'
 local UserGroups = require 'user_groups'
 local Utils = require 'utils.utils'
 local Game = require 'utils.game'
+local Report = require('report')
 --local Antigrief = require 'antigrief'
 
 local function invoke(cmd)
@@ -472,8 +473,6 @@ local function find_player(cmd)
 end
 
 local function jail_player(cmd)
-    -- Set the name of the jail permission group
-    local jail_name = 'Jail'
 
     local player = game.player
     -- Check if the player can run the command
@@ -488,63 +487,7 @@ local function jail_player(cmd)
         return
     end
 
-    local target_player = game.players[target]
-
-    if not target_player then
-        Game.player_print('Unknown player.')
-        return
-    end
-
-    local permissions = game.permissions
-
-    -- Check if the permission group exists, if it doesn't, create it.
-    local permission_group = permissions.get_group(jail_name)
-    if not permission_group then
-        permission_group = permissions.create_group(jail_name)
-    end
-
-    if target_player.permission_group == permission_group then
-        Game.player_print('The player ' .. target .. ' is already in Jail.')
-        return
-    end
-
-    -- Set all permissions to disabled
-    for action_name, _ in pairs(defines.input_action) do
-        permission_group.set_allows_action(defines.input_action[action_name], false)
-    end
-    -- Enable writing to console to allow a person to speak
-    permission_group.set_allows_action(defines.input_action.write_to_console, true)
-    permission_group.set_allows_action(defines.input_action.edit_permission_group, true)
-
-    -- Kick player out of vehicle
-	target_player.driving=false
-    -- Add player to jail group
-	permission_group.add_player(target_player)
-	-- Check if a player is shooting while jailed, if they are, remove the weapon in their active gun slot.
-	if target_player.shooting_state.state ~= 0 then
-		-- Use a while loop because if a player has guns in inventory they will auto-refill the slot.
-		while target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index].valid_for_read do
-			target_player.remove_item(target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index])
-		end
-		target_player.print(
-            'Your active weapon has been removed because you were shooting while jailed. Your gun will *not* be returned to you in the event of being unjailed.'
-        )
-	end
-
-    -- Check that it worked
-    if target_player.permission_group == permission_group then
-        -- Let admin know it worked, let target know what's going on.
-        Game.player_print(target .. ' has been jailed. They have been advised of this.')
-        target_player.print(
-            'You have been placed in jail by a server admin. The only action you can currently perform is chatting. Please respond to inquiries from the admin.'
-        )
-    else
-        -- Let admin know it didn't work.
-        Game.player_print(
-            'Something went wrong in the jailing of ' ..
-                target .. '. You can still change their group via /permissions.'
-        )
-    end
+    Report.jail(player, cmd['parameter'])
 end
 
 local function unjail_player(cmd)
@@ -707,7 +650,6 @@ commands.add_command(
 )
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
 
-local Report = require('report')
 
 local function report(cmd)
     local reporting_player = game.player
