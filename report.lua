@@ -177,7 +177,7 @@ Gui.on_click(
 Gui.on_click(
     jail_offender_button_name,
     function(event)
-      Module.jail(event.player, string.sub(event.element.caption, 6))
+        Module.jail(event.player, string.sub(event.element.caption, 6))
     end
 )        
 
