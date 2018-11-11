@@ -27,13 +27,13 @@ satellites
 end
 
 local function on_research_finished(event)
-    local force = game.forces.player
+    local force = event.research.force
     force.recipes["solar-panel-equipment"].enabled=false
 end
 
 function NightTime.register(config)
-        Event.add(defines.events.on_built_entity, on_built_entity)
-        Event.add(defines.events.on_research_finished, on_research_finished)
+    Event.add(defines.events.on_built_entity, on_built_entity)
+    Event.add(defines.events.on_research_finished, on_research_finished)
 end
 
 function NightTime.on_init()
