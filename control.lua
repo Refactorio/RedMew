@@ -1,39 +1,51 @@
+-- Libraries. Removing these will likely lead to game crashes
 require 'config'
 require 'utils.utils'
 require 'utils.list_utils'
 require 'utils.math'
 
 local Game = require 'utils.game'
-
-require 'user_groups'
-require 'custom_commands'
-require 'base_data'
-require 'train_station_names'
-require 'nuke_control'
-require 'follow'
-require 'autodeconstruct'
-require 'corpse_util'
---require 'infinite_storage_chest'
---require 'fish_market'
-require 'reactor_meltdown'
-require 'train_saviour'
-require 'map_gen.shared.perlin_noise'
-require 'map_layout'
-require 'bot'
-require 'player_colors'
--- GUIs the order determines the order they appear at the top.
-require 'info'
-require 'player_list'
-require 'poll'
-require 'tag_group'
-require 'tasklist'
-require 'blueprint_helper'
-require 'paint'
-require 'score'
-require 'popup'
-
 local Event = require 'utils.event'
 local Donators = require 'resources.donators'
+
+require 'map_gen.shared.perlin_noise'
+require 'map_layout'
+
+
+-- Specific to RedMew hosts, can be disabled safely if not hosting on RedMew servers
+require 'features.bot'
+
+-- Library modules which, if missing, will cause other feature modules to fail
+require 'features.base_data'
+require 'features.follow'
+require 'features.user_groups'
+
+-- Feature modules, each can be disabled
+require 'features.autodeconstruct'
+require 'features.corpse_util'
+--require 'features.fish_market'
+--require 'features.infinite_storage_chest'
+require 'features.nuke_control'
+require 'features.player_colors'
+require 'features.reactor_meltdown'
+require 'features.train_saviour'
+require 'features.train_station_names'
+
+-- Contains various commands for users and admins alike
+require 'features.custom_commands'
+
+-- GUIs the order determines the order they appear from left to right.
+-- These can be safely disabled. Some map presets will add GUI modules themselves.
+require 'features.gui.info'
+require 'features.gui.player_list'
+require 'features.gui.poll'
+require 'features.gui.tag_group'
+require 'features.gui.tasklist'
+require 'features.gui.blueprint_helper'
+require 'features.gui.paint'
+require 'features.gui.score'
+require 'features.gui.popup'
+
 
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)

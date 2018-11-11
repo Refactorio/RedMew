@@ -320,7 +320,7 @@ function DiggyCaveCollapse.register(cfg)
         end
 
         if (nil ~= support_beam_entities[event.entity.name]) then
-            require 'popup'.player(
+            require 'features.gui.popup'.player(
                 Game.get_player_by_index(player_index),[[
 Mining entities such as walls, stone paths, concrete
 and rocks, can cause a cave-in, be careful miner!

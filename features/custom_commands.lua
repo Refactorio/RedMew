@@ -1,10 +1,10 @@
 local Task = require 'utils.Task'
 local Event = require 'utils.event'
 local Token = require 'utils.global_token'
-local UserGroups = require 'user_groups'
+local UserGroups = require 'features.user_groups'
 local Utils = require 'utils.utils'
 local Game = require 'utils.game'
---local Antigrief = require 'antigrief'
+--local Antigrief = require 'features.antigrief'
 
 local function invoke(cmd)
     if not (game.player and game.player.admin) then
@@ -707,7 +707,7 @@ commands.add_command(
 )
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
 
-local Report = require('report')
+local Report = require('features.report')
 
 local function report(cmd)
     local reporting_player = game.player

@@ -1,7 +1,7 @@
 -- dependencies
 local Config = require 'map_gen.Diggy.Config'
 local Debug = require 'map_gen.Diggy.Debug'
-local ScenarioInfo = require 'info'
+local ScenarioInfo = require 'features.gui.info'
 local Event = require 'utils.event'
 
 require 'utils.list_utils'

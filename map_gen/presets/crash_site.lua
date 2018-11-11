@@ -8,7 +8,7 @@ local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local math = require "utils.math"
 local degrees = math.degrees
-local ScenarioInfo = require 'info'
+local ScenarioInfo = require 'features.gui.info'
 
 -- Comment out this block if you're getting scenario info from another source.
 ScenarioInfo.set_map_name('Crashsite')

@@ -1,7 +1,7 @@
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
-local UserGroups = require 'user_groups'
+local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
 
 local normal_color = {r = 1, g = 1, b = 1}
