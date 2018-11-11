@@ -20,7 +20,7 @@ local function no_resources(x, y, world, tile)
 end
 
 -- bot_islands_flag true if you want to add islands of ores only reachable by robots
-local bot_islands_flag = false;
+local bot_islands_flag = true
 
 local arm1 = b.translate(b.rectangle(2, 3), 0, -5)
 local arm2 = b.translate(b.rectangle(6, 2), 0, 22)
