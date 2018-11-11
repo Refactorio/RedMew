@@ -23,8 +23,8 @@ Module.donators = {
     ['chromaddict'] = d.rank,
     ['InphinitePhractals'] = d.rank + d.train,
     ['shoghicp'] = d.rank + d.train,
-    ['DuelleuD:'] = d.rank + d.train,
-    ['henrycn1997:'] = d.rank + d.train
+    ['DuelleuD'] = d.rank + d.train,
+    ['henrycn1997'] = d.rank + d.train
 }
 
 Module.welcome_messages = {
