@@ -4,6 +4,9 @@ require 'utils.utils'
 require 'utils.list_utils'
 require 'utils.math'
 
+local Game = require 'utils.game'
+local Event = require 'utils.event'
+
 require 'map_gen.shared.perlin_noise'
 require 'map_layout'
 
@@ -17,15 +20,17 @@ require 'features.user_groups'
 
 -- Feature modules, each can be disabled
 require 'features.autodeconstruct'
+require 'features.chat_triggers'
 require 'features.corpse_util'
---require 'features.fish_market'
+require 'features.donator_messages'
+require 'features.fish_market'
+require 'features.free_item_logging'
 --require 'features.infinite_storage_chest'
 require 'features.nuke_control'
 require 'features.player_colors'
 require 'features.reactor_meltdown'
 require 'features.train_saviour'
 require 'features.train_station_names'
-require 'features.chat_triggers'
 
 -- Contains various commands for users and admins alike
 require 'features.custom_commands'
@@ -41,11 +46,7 @@ require 'features.gui.blueprint_helper'
 require 'features.gui.paint'
 require 'features.gui.score'
 require 'features.gui.popup'
-require 'features.donator_messages'
-require 'features.free_item_logging'
 
-local Game = require 'utils.game'
-local Event = require 'utils.event'
 
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
