@@ -31,9 +31,9 @@ require 'blueprint_helper'
 require 'paint'
 require 'score'
 require 'popup'
+require 'features.donator_messages'
 
 local Event = require 'utils.event'
-local Donators = require 'resources.donators'
 
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
@@ -161,22 +161,8 @@ local function hodor(event)
     end
 end
 
-local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
-    if not player or not player.valid then
-        return
-    end
-
-    local message = Donators.welcome_messages[player.name]
-    if not message then
-        return
-    end
-
-    game.print(table.concat({'*** ', message, ' ***'}), player.chat_color)
-end
 
 Event.add(defines.events.on_player_created, player_created)
-Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_console_chat, hodor)
 
 Event.add(
