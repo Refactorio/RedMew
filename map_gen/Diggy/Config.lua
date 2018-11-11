@@ -127,7 +127,7 @@ local Config = {
                 ['behemoth-spitter'] = 6,
             },
 
-            -- Shows the chest locations, only use when debugging
+            -- shows the chest locations, only use when debugging
             display_chest_locations = false,
 
             treasure_chest_raffle = {
@@ -160,8 +160,8 @@ local Config = {
             -- value between 0 and 1, higher value means stronger variance between coordinates
             noise_variance = 0.066,
 
-            -- adds per tile what the current noise is
-            enable_noise_grid = false,
+            -- shows where rooms are located
+            display_room_locations = false,
 
             -- minimum distance and noise range required for water to spawn
             room_noise_minimum_distance = 9,
@@ -183,25 +183,27 @@ local Config = {
             noise_variance = 0.04,
 
             -- a value between 0 and 1 that triggers the spawning of resource based on noise
-            noise_resource_threshold = 0.36,
+            noise_resource_threshold = 0.40,
 
             -- raw multiplier for ore content in cluster mode
-            cluster_yield_multiplier = 2.3,
+            cluster_yield_multiplier = 1.7,
 
-            -- adds per tile what the current noise is
-            enable_noise_grid = false,
+            -- shows where resources are located
+            display_resource_fields = false,
 
             -- percentage of resource added to the sum. 100 tiles means
             -- 10% more resources with a distance_richness_modifier of 10
             -- 20% more resources with a distance_richness_modifier of 5
-            distance_richness_modifier = 6,
+            distance_richness_modifier = 7,
 
             -- defines the increased chance of spawning resources
             -- calculated_probability = resource_probability + ((distance / distance_probability_modifier) / 100)
             distance_probability_modifier = 10,
 
-            -- increases the amount of oil * oil_value_modifier
-            oil_value_modifier = 750,
+            -- increases the amount of liquids that need pumping
+            liquid_value_modifiers = {
+                ['crude-oil'] = 750,
+            },
 
             -- min percentage of chance that resources will spawn after mining
             resource_probability = 0.01,
@@ -284,14 +286,14 @@ local Config = {
             unlockables = {
                 {stone = 50, type = 'buff', prototype = {name = 'mining_speed', value = 10}},
                 {stone = 50, type = 'buff', prototype = {name = 'inventory_slot', value = 3}},
+                {stone = 50, type = 'buff', prototype = {name = 'stone_automation', value = 10}},
+                {stone = 50, type = 'market', prototype = {price = 25, name = 'raw-wood'}},
                 {stone = 50, type = 'market', prototype = {price = 50, name = 'raw-fish'}},
                 {stone = 50, type = 'market', prototype = {price = 175, name = 'steel-axe'}},
-                {stone = 50, type = 'buff', prototype = {name = 'stone_automation', value = 10}},
 
                 {stone = 250, type = 'buff', prototype = {name = 'mining_speed', value = 5}},
                 {stone = 250, type = 'buff', prototype = {name = 'inventory_slot', value = 2}},
                 {stone = 250, type = 'buff', prototype = {name = 'stone_automation', value = 5}},
-                {stone = 250, type = 'market', prototype = {price = 50, name = 'small-electric-pole'}},
                 {stone = 250, type = 'market', prototype = {price = 50, name = 'small-lamp'}},
                 {stone = 250, type = 'market', prototype = {price = 25, name = 'stone-brick'}},
                 {stone = 250, type = 'market', prototype = {price = 125, name = 'stone-wall'}},
