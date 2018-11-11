@@ -89,6 +89,8 @@ function Module.report(reporting_player, reported_player, message)
     local notified = false
     for _,p in pairs(game.players) do
         if p.admin and p.connected then
+            p.play_sound{path='utility/tutorial_notice', volume_modifier = 1}
+            --p.print("Did you hear that too? " .. tostring(game.is_valid_sound_path('utility/wire_connect_pole'))) --Debugging the sound_path
             Module.show_reports(p)
             if p.afk_time < 3600 then notified = true end
         end
