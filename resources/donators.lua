@@ -21,7 +21,8 @@ Module.donators = {
     ['Valansch'] = d.rank,
     ['plague006'] = d.rank,
     ['chromaddict'] = d.rank,
-    ['InphinitePhractals'] = d.rank + d.train
+    ['InphinitePhractals'] = d.rank + d.train,
+    ['henrycn1997'] = d.rank + d.train
 }
 
 Module.welcome_messages = {
