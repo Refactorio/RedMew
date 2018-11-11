@@ -18,6 +18,11 @@ local Config = {
             -- initial starting position size, higher values are not recommended
             starting_size = 8,
         },
+        
+        -- controls the Daylight (Default diggy: enabled = true)
+        NightTime = {
+            enabled = true, -- true = No Daylight, false = Day/night circle (Solar panels work)
+        },
 
         -- controls setting up the players
         SetupPlayer = {
