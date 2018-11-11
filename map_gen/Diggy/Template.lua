@@ -45,10 +45,7 @@ local function insert_next_tiles(data)
                 local new_is_void = new_tile.name == 'out-of-map'
 
                 if (current_is_void and not new_is_void) then
-                    insert(
-                        void_removed,
-                        {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}}
-                    )
+                    insert(void_removed, {surface = surface, position = current_tile.position})
                 end
             end
         end
@@ -164,7 +161,7 @@ function Template.units(surface, units, non_colliding_distance)
             entity.position = position
             create_entity(entity)
         else
-            Debug.printPosition(entity.position, "Failed to spawn '" .. entity.name .. "'")
+            Debug.print_position(entity.position, "Failed to spawn '" .. entity.name .. "'")
         end
     end
 end

@@ -81,15 +81,16 @@ function ScatteredResources.register(config)
         error('Expected a sum of 1.00, got \'' .. richness_sum .. '\' for config.feature.ScatteredResources.resource_richness_probability.')
     end
 
-    Event.add(Template.events.on_void_removed, function(event)
-        local x = event.old_tile.position.x
-        local y = event.old_tile.position.y
+    Event.add(Template.events.on_void_removed, function (event)
+        local position = event.position
+        local x = position.x
+        local y = position.y
         local surface = event.surface
 
         local distance = floor(sqrt(x * x + y * y))
 
         if (config.cluster_mode and get_noise(surface, x, y) > config.noise_resource_threshold) then
-            spawn_resource(config, event.surface, x, y, distance)
+            spawn_resource(config, surface, x, y, distance)
             return
         end
 
@@ -106,7 +107,7 @@ function ScatteredResources.register(config)
         end
 
         if (probability > random()) then
-            spawn_resource(config, event.surface, x, y, distance)
+            spawn_resource(config, surface, x, y, distance)
         end
     end)
 
@@ -117,7 +118,7 @@ function ScatteredResources.register(config)
 
             for x = area.left_top.x, area.left_top.x + 31 do
                 for y = area.left_top.y, area.left_top.y + 31 do
-                    Debug.print_grid_value(get_noise(surface, x, y), surface, {x = x, y = y})
+                    Debug.print_grid_value(get_noise(surface, x, y), surface, {x = x, y = y}, nil, nil, true)
                 end
             end
         end)

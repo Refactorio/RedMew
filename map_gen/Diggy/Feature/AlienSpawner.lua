@@ -37,11 +37,12 @@ end
 function AlienSpawner.register(config)
     local alien_minimum_distance_square = config.alien_minimum_distance ^ 2
 
-    Event.add(Template.events.on_void_removed, function(event)
+    Event.add(Template.events.on_void_removed, function (event)
         game.forces.enemy.evolution_factor = game.forces.enemy.evolution_factor + 0.0000012
 
-        local x = event.old_tile.position.x
-        local y = event.old_tile.position.y
+        local position = event.position
+        local x = position.x
+        local y = position.y
 
         if (x * x + y * y < alien_minimum_distance_square or config.alien_probability < random()) then
             return

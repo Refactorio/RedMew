@@ -185,8 +185,8 @@ local function on_research_finished(event)
 end
 
 local function comma_value(n) -- credit http://richard.warburton.it
-    local left,num,right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
-    return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+    local left,num,right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
+    return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
 end
 
 local function redraw_title(data)
@@ -567,7 +567,7 @@ function MarketExchange.register(cfg)
         local markets = find_entities_filtered({name = 'market', position = config.market_spawn_position, limit = 1})
 
         if (#markets == 0) then
-            Debug.printPosition(config.market_spawn_position, 'Unable to find a market')
+            Debug.print_position(config.market_spawn_position, 'Unable to find a market')
             return
         end
 
