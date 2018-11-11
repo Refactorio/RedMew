@@ -82,8 +82,9 @@ function ScatteredResources.register(config)
     end
 
     Event.add(Template.events.on_void_removed, function (event)
-        local x = event.position.x
-        local y = event.position.y
+        local position = event.position
+        local x = position.x
+        local y = position.y
         local surface = event.surface
 
         local distance = floor(sqrt(x * x + y * y))
