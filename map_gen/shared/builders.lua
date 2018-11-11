@@ -1,4 +1,4 @@
-local math = require "utils.math"
+local math = require 'utils.math'
 
 -- helpers
 local inv_pi = 1 / math.pi
@@ -1267,17 +1267,80 @@ function Builders.change_tile(shape, old_tile, new_tile)
     end
 end
 
+local path_tiles = {
+    ['concrete'] = true,
+    ['hazard-concrete-left'] = true,
+    ['hazard-concrete-right'] = true,
+    ['stone-path'] = true,
+    ['refined-concrete'] = true,
+    ['refined-hazard-concrete-left'] = true,
+    ['refined-hazard-concrete-right'] = true
+}
+
+function Builders.set_hidden_tile(shape, hidden_tile)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if type(tile) == 'table' and path_tiles[tile.tile] then
+            tile.hidden_tile = hidden_tile
+        elseif path_tiles[tile] then
+            tile = {tile = tile, hidden_tile = hidden_tile}
+        end
+
+        return tile
+    end
+end
+
+
+
+local collision_map = {
+    ['concrete'] = 'ground-tile',
+    ['deepwater-green'] = 'water-tile',
+    ['deepwater'] = 'water-tile',
+    ['dirt-1'] = 'ground-tile',
+    ['dirt-2'] = 'ground-tile',
+    ['dirt-3'] = 'ground-tile',
+    ['dirt-4'] = 'ground-tile',
+    ['dirt-5'] = 'ground-tile',
+    ['dirt-6'] = 'ground-tile',
+    ['dirt-7'] = 'ground-tile',
+    ['dry-dirt'] = 'ground-tile',
+    ['grass-1'] = 'ground-tile',
+    ['grass-2'] = 'ground-tile',
+    ['grass-3'] = 'ground-tile',
+    ['grass-4'] = 'ground-tile',
+    ['hazard-concrete-left'] = 'ground-tile',
+    ['hazard-concrete-right'] = 'ground-tile',
+    ['lab-dark-1'] = 'ground-tile',
+    ['lab-dark-2'] = 'ground-tile',
+    ['lab-white'] = 'ground-tile',
+    ['out-of-map'] = false,
+    ['red-desert-0'] = 'ground-tile',
+    ['red-desert-1'] = 'ground-tile',
+    ['red-desert-2'] = 'ground-tile',
+    ['red-desert-3'] = 'ground-tile',
+    ['sand-1'] = 'ground-tile',
+    ['sand-2'] = 'ground-tile',
+    ['sand-3'] = 'ground-tile',
+    ['stone-path'] = 'ground-tile',
+    ['water-green'] = 'water-tile',
+    ['water'] = 'water-tile',
+    ['refined-concrete'] = 'ground-tile',
+    ['refined-hazard-concrete-left'] = 'ground-tile',
+    ['refined-hazard-concrete-right'] = 'ground-tile'
+}
+
 function Builders.change_collision_tile(shape, collides, new_tile)
     return function(x, y, world)
         local tile = shape(x, y, world)
 
         if type(tile) == 'table' then
-            if tile.tile.collides_with(collides) then
+            if collision_map[tile.tile] == collides then
                 tile.tile = new_tile
                 return tile
             end
         else
-            if tile.collides_with(collides) then
+            if collision_map[tile] == collides then
                 return new_tile
             end
         end
@@ -1311,6 +1374,27 @@ function Builders.change_map_gen_tile(shape, old_tile, new_tile)
     end
 end
 
+function Builders.change_map_gen_hidden_tile(shape, old_tile, hidden_tile)
+    return function(x, y, world)
+        local function is_collides()
+            local gen_tile = world.surface.get_tile(world.x, world.y)
+            return gen_tile.name == old_tile
+        end
+
+        local tile = shape(x, y, world)
+
+        if type(tile) == 'table' then            
+            if path_tiles[tile.tile] and is_collides() then
+                tile.hidden_tile = hidden_tile
+            end
+        elseif path_tiles[tile] and is_collides() then
+            tile = {tile = tile, hidden_tile = hidden_tile}
+        end
+
+        return tile
+    end
+end
+
 -- only changes tiles made by the factorio map generator.
 function Builders.change_map_gen_collision_tile(shape, collides, new_tile)
     return function(x, y, world)
@@ -1330,6 +1414,27 @@ function Builders.change_map_gen_collision_tile(shape, collides, new_tile)
             tile.tile = handle_tile(tile.tile)
         else
             tile = handle_tile(tile)
+        end
+
+        return tile
+    end
+end
+
+function Builders.change_map_gen_collision_hidden_tile(shape, collides, hidden_tile)
+    return function(x, y, world)
+        local function is_collides()
+            local gen_tile = world.surface.get_tile(world.x, world.y)
+            return gen_tile.collides_with(collides)
+        end
+
+        local tile = shape(x, y, world)
+
+        if type(tile) == 'table' then
+            if path_tiles[tile.tile] and is_collides() then
+                tile.hidden_tile = hidden_tile
+            end
+        elseif path_tiles[tile] and is_collides() then
+            tile = {tile = tile, hidden_tile = hidden_tile}
         end
 
         return tile
