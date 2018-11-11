@@ -28,7 +28,7 @@ local function spawn_alien(surface, x, y)
         insert(units, {name = name, position = position, force = enemy_force, amount = amount})
     end
 
-    Template.units(surface, units, 3)
+    Template.units(surface, units, 1.5, 'small-biter')
 end
 
 --[[--
