@@ -16,10 +16,10 @@ local hodor_messages = {
 }
 
 local auto_responses = {
-    {trigger = 'discord', response1 = 'Did you ask about our discord server?', response2 = 'You can find it here: redmew.com/discord'},
-    {trigger = 'patreon', response1 = 'Did you ask about our patreon?', response2 = 'You can find it here: patreon.com/redmew'},
-    {trigger = 'donate', response1 = 'Did you ask about donating to the server?', response2 = 'You can find our patreon here: patreon.com/redmew'},
-    {trigger = 'grief', response1 = 'To report a griefer please use the /report function.', response2 = 'If no admins are online use #moderation-requests on the discord and make sure the @mention the appropriate role.'}
+    {trigger = 'discord', responses = {'Did you ask about our discord server?', 'You can find it here: redmew.com/discord'}},
+    {trigger = 'patreon', responses = {'Did you ask about our patreon?', 'You can find it here: patreon.com/redmew'}},
+    {trigger = 'donate', responses = {'Did you ask about donating to the server?', 'You can find our patreon here: patreon.com/redmew'}},
+    {trigger = 'grief', responses = {'To report a griefer please use the /report function.', 'If no admins are online use #moderation-requests on the discord and make sure the @mention the appropriate role.'}}
 }
 
 global.naughty_words_enabled = false
@@ -99,9 +99,8 @@ local function hodor(event)
     if not player.admin then
         for _, r in pairs(auto_responses) do
             if message:match(r.trigger) then
-                player.print(r.response1)
-                if r.response2 then
-                    player.print(r.response2)
+                for _, response in pairs(r.responses) do
+                    player.print(response)
                 end
             end
         end
