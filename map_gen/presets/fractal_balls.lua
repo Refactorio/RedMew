@@ -19,6 +19,9 @@ local function no_resources(x, y, world, tile)
     return tile
 end
 
+-- bot_islands_flag true if you want to add islands of ores only reachable by robots
+local bot_islands_flag = true
+
 local arm1 = b.translate(b.rectangle(2, 3), 0, -5)
 local arm2 = b.translate(b.rectangle(6, 2), 0, 22)
 
@@ -104,6 +107,17 @@ local balls4 =
     b.scale(frame, 3, 3)
 }
 balls4 = b.rotate(balls4, degrees(180))
+
+if bot_islands_flag == true then
+	balls4 = b.any{
+		balls4,
+		b.translate(iron_ball, 0, 0),
+		b.rotate(b.translate(coal_ball, 0, -40),degrees(120)),
+		b.rotate(b.translate(iron_ball, 0, -40),degrees(-120)),
+		b.translate(copper_ball, 0, -40),
+	}
+end
+
 balls4 = b.apply_effect(balls4, no_resources)
 balls4 = b.choose(b.scale(outer, 3, 3), balls4, b.empty_shape)
 
