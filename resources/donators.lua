@@ -12,7 +12,6 @@ Module.donators = {
     ['aldldl'] = d.rank,
     ['Geostyx'] = d.rank,
     ['Linaori'] = d.rank,
-    ['Terarink'] = d.rank + d.train,
     ['Xertez'] = d.rank,
     ['Chevalier1200'] = d.rank + d.train,
     ['DraugTheWhopper'] = d.rank + d.train,
