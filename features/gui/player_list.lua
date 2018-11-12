@@ -7,7 +7,6 @@ local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.utils'
 local Report = require 'features.report'
 local Game = require 'utils.game'
-local name = require "utils.math"
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
