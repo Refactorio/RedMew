@@ -19,11 +19,12 @@ local map_extra_info_key = 3
 local new_info_key = 4
 
 local welcomed_players = {}
+
 local editable_info = {
-    [map_name_key] = 'This Map has no name',
-    [map_description_key] = "By default this section is blank as it's supposed to be filled out on a per map basis. (If you're seeing this message, ping the admin team to get a description added for this map)",
-    [map_extra_info_key] = 'This map has no extra infomation',
-    [new_info_key] = 'Nothing is new. The world is at peace'
+    [map_name_key] = global.scenario.config.map_name_key,
+    [map_description_key] = global.scenario.config.map_description_key,
+    [map_extra_info_key] = global.scenario.config.map_extra_info_key,
+    [new_info_key] = global.scenario.config.new_info_key
 }
 
 Global.register(
