@@ -490,6 +490,15 @@ local Config = {
                 {stone = 10000000, type = 'buff', prototype = {name = 'inventory_slot', value = 1}},
             },
         },
+
+
+        --Tracks players causing collapses
+        Antigrief = {
+            enabled = true,
+            autojail = true,
+            allowed_collapses_per_hour = 3
+        }
+
     },
 }
 

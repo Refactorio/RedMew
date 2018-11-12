@@ -20,16 +20,19 @@ local function draw_report(parent, report_id)
         parent.add {type = "label", caption="No reports yet."}
         return
     end
-    
+
     local reported_player_name = Game.get_player_by_index(report.reported_player_index).name
-    local reporting_player_name = Game.get_player_by_index(report.reporting_player_index).name
+    local reporting_player_name = "<script>"
+    if report.reporting_player_index then
+      reporting_player_name = Game.get_player_by_index(report.reporting_player_index).name
+    end
     local time = Utils.format_time(report.tick)
-    local time_ago = Utils.format_time(game.tick - report.tick) 
-    
+    local time_ago = Utils.format_time(game.tick - report.tick)
+
     local message = report.message
     Gui.clear(parent)
-    
-    parent.add {type="label", caption="Offender: " .. reported_player_name} 
+
+    parent.add {type="label", caption="Offender: " .. reported_player_name}
     local msg_label_pane = parent.add {type="scroll-pane", vertical_scroll_policy = "auto-and-reserve-space", horizontal_scroll_policy="never"}
     msg_label_pane.style.maximal_height = 400
     local msg_label = msg_label_pane.add {type="label", caption="Message: " .. message}
@@ -42,7 +45,7 @@ local function draw_report(parent, report_id)
     jail_offender_button.style.right_padding = 0
     msg_label.style.single_line = false
     msg_label.style.maximal_width = 680
-    parent.add {type="label", caption=string.format("Time: %s (%s ago)", time, time_ago)} 
+    parent.add {type="label", caption=string.format("Time: %s (%s ago)", time, time_ago)}
     parent.add {type="label", caption="Reported by: " .. reporting_player_name}
 end
 
@@ -64,27 +67,31 @@ Module.show_reports = function(player)
     }
     report_frame.style.maximal_width = 700
     player.opened = report_frame
-    
+
     if #reports > 1 then
         local scroll_pane = report_frame.add{type = "scroll-pane", horizontal_scroll_policy = "auto-and-reserve-space", vertical_scroll_policy="never"}
         local tab_flow = scroll_pane.add{type="flow"}
         for k,report in pairs(reports) do
             local button_cell = tab_flow.add{type="flow", caption="reportuid" .. k}
             button_cell.add {
-                type="button", 
-                name=report_tab_button_name, 
+                type="button",
+                name=report_tab_button_name,
                 caption = Game.get_player_by_index(report.reported_player_index).name
             }
         end
     end
     local report_body = report_frame.add {type = "scroll-pane", name = report_body_name, horizontal_scroll_policy = "never", vertical_scroll_policy="never"}
     report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close'}
- 
+
     draw_report(report_body, #reports)
 end
 
 function Module.report(reporting_player, reported_player, message)
-    table.insert(global.reports, {reporting_player_index = reporting_player.index, reported_player_index = reported_player.index, message = message, tick = game.tick})
+    local player_index
+    if reporting_player then
+        player_index = reporting_player.index
+    end
+    table.insert(global.reports, {reporting_player_index = reporting_player, reported_player_index = reported_player.index, message = message, tick = game.tick})
 
     local notified = false
     for _,p in pairs(game.players) do
@@ -98,35 +105,41 @@ function Module.report(reporting_player, reported_player, message)
     if not notified then
         for _,p in pairs(game.players) do
             if p.admin then
-                Module.show_reports(p) 
+                Module.show_reports(p)
             end
         end
     end
 end
 
-function Module.jail(player, target)
+function Module.jail(target_player, player)
     -- Set the name of the jail permission group
     local jail_name = 'Jail'
-    local target_player = game.players[target]
-    
+
+    local print
+    if player then
+        print = player.print
+    else
+        print = log
+    end
+
     if not target_player then
-        player.print('Unknown player.')
+        print('Unknown player.')
         return
     end
-    
+
     local permissions = game.permissions
-    
+
     -- Check if the permission group exists, if it doesn't, create it.
     local permission_group = permissions.get_group(jail_name)
     if not permission_group then
         permission_group = permissions.create_group(jail_name)
     end
-    
+
     if target_player.permission_group == permission_group then
-        player.print('The player ' .. target .. ' is already in Jail.')
+        print('The player ' .. target_player.name .. ' is already in Jail.')
         return
     end
-    
+
     -- Set all permissions to disabled
     for action_name, _ in pairs(defines.input_action) do
         permission_group.set_allows_action(defines.input_action[action_name], false)
@@ -148,15 +161,15 @@ function Module.jail(player, target)
         end
         target_player.print('Your active weapon has been removed because you were shooting while jailed. Your gun will *not* be returned to you in the event of being unjailed.')
     end
-    
+
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
-        player.print(target .. ' has been jailed. They have been advised of this.')
+        print(target_player.name .. ' has been jailed. They have been advised of this.')
         target_player.print('You have been placed in jail by a server admin. The only action you can currently perform is chatting. Please respond to inquiries from the admin.')
     else
         -- Let admin know it didn't work.
-        player.print('Something went wrong in the jailing of ' .. target .. '. You can still change their group via /permissions.')
+        print('Something went wrong in the jailing of ' .. target_player.name .. '. You can still change their group via /permissions.')
     end
 end
 
@@ -177,9 +190,11 @@ Gui.on_click(
 Gui.on_click(
     jail_offender_button_name,
     function(event)
-        Module.jail(event.player, string.sub(event.element.caption, 6))
+        local target_name = string.sub(event.element.caption, 6)
+        local target = game.players[target_name]
+        Module.jail(target, event.player)
     end
-)        
+)
 
 Gui.on_click(
     report_tab_button_name,
