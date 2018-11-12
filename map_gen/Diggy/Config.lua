@@ -286,7 +286,7 @@ local Config = {
                 {prototype = {name = 'mining_speed', value = 5}},
                 {prototype = {name = 'inventory_slot', value = 1}},
                 {prototype = {name = 'stone_automation', value = 3}},
-            }
+            },
         },
     },
 }
