@@ -288,6 +288,28 @@ function DiggyCaveCollapse.register(cfg)
     config = cfg
     support_beam_entities = config.support_beam_entities
 
+    if support_beam_entities['stone-path'] then
+        support_beam_entities['stone-brick'] = support_beam_entities['stone-path']
+    else
+        support_beam_entities['stone-brick'] = nil
+    end
+
+    if support_beam_entities['hazard-concrete'] then
+        support_beam_entities['hazard-concrete-left'] = support_beam_entities['hazard-concrete']
+        support_beam_entities['hazard-concrete-right'] = support_beam_entities['hazard-concrete']
+    else
+        support_beam_entities['hazard-concrete-left'] = nil
+        support_beam_entities['hazard-concrete-right'] = nil
+    end
+
+    if support_beam_entities['refined-hazard-concrete'] then
+        support_beam_entities['refined-hazard-concrete-left'] = support_beam_entities['refined-hazard-concrete']
+        support_beam_entities['refined-hazard-concrete-right'] = support_beam_entities['refined-hazard-concrete']
+    else
+        support_beam_entities['refined-hazard-concrete-left'] = nil
+        support_beam_entities['refined-hazard-concrete-right'] = nil
+    end
+
     ScoreTable.reset('Cave collapse')
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
