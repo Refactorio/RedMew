@@ -247,7 +247,6 @@ local tag_label_item = Gui.uid_name()
 
 local function apply_heading_style(style, width)
     style.font = 'default-bold'
-    --style.align = 'center'
     style.width = width
 end
 
@@ -259,7 +258,6 @@ local function redraw_heading(data, header)
     local heading_table = frame.add({type = 'table', column_count = 2})
     apply_heading_style(heading_table.add({type = 'label', name = tag_label_stone, caption = 'Requirement'}).style, 100)
     apply_heading_style(heading_table.add({type = 'label', name = tag_label_buff, caption = header_caption}).style, 220)
-    --apply_heading_style(heading_table.add({type = 'label', name = tag_label_item, caption = 'Item'}).style, 200)
 end
 
 local function redraw_progressbar(data)
@@ -277,7 +275,7 @@ local function redraw_progressbar(data)
     local sent = stone_tracker.stone_sent_to_surface - act_stone
     local percentage = (math.floor((sent / range)*10^4))/10^4
 
-    apply_heading_style(flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
+    apply_heading_style(flow.add({type = 'label', tooltip = 'Current at level ' .. stone_tracker.current_level, name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
     local level_progressbar = flow.add({type = 'progressbar', tooltip = percentage * 100 .. '% stone to next level'})
     level_progressbar.style.width = 350
     level_progressbar.value = percentage

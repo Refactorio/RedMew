@@ -1,5 +1,4 @@
 -- dependencies
-local MarketUnlockables = require 'map_gen.Diggy.Feature.MarketUnlockables'
 
 -- this
 local Config = {
@@ -281,7 +280,31 @@ local Config = {
             -- every x ticks it will clear y currency_item
             void_chest_frequency = 307,
             
-            unlockables = MarketUnlockables.initalize_unlockables(), --Define new items in MarketUnlockables.lua
+            -- add or remove a table entry to add or remove a unlockable item from the mall.
+            -- format: {unlock_at_level, price, prototype_name},
+            unlockables = require('map_gen.Diggy.Feature.MarketUnlockables').initalize_unlockables(
+                {
+                    {1, 50, 'raw-fish'}, -- unlocks at level 1, price is 50 and the prototype name for fish is raw-fish.
+                    {1, 50, 'steel-axe'},
+                    {1, 20, 'raw-wood'},
+                    {2, 50, 'small-lamp'},
+                    {2, 25, 'stone-brick'},
+                    {2, 125, 'stone-wall'},
+                    {3, 850, 'submachine-gun'},
+                    {3, 850, 'shotgun'},
+                    {3, 50, 'firearm-magazine'},
+                    {3, 50, 'shotgun-shell'},
+                    {3, 500, 'light-armor'},
+                    {11, 750, 'heavy-armor'},
+                    {13, 100, 'piercing-rounds-magazine'},
+                    {13, 100, 'piercing-shotgun-shell'},
+                    {13, 1500, 'modular-armor'},
+                    {16, 1000, 'landfill'},
+                    {30, 250, 'uranium-rounds-magazine'},
+                    {30, 1000, 'combat-shotgun'},
+                }
+            ),
+            
             buffs = { --Define new buffs here
                 {prototype = {name = 'mining_speed', value = 5}},
                 {prototype = {name = 'inventory_slot', value = 1}},
