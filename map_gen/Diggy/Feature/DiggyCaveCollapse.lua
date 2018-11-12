@@ -6,6 +6,7 @@ require 'utils.list_utils'
 
 local Event = require 'utils.event'
 local Template = require 'map_gen.Diggy.Template'
+local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Debug = require 'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
@@ -50,8 +51,7 @@ local deconstruction_alert_message_shown = {}
 local stress_map_storage = {}
 local new_tile_map = {}
 local collapse_positions_storage = {}
-local cave_collapse_disabled = nil
-
+local cave_collapse_disabled
 
 Global.register({
     new_tile_map = new_tile_map,
@@ -94,7 +94,6 @@ local function create_collapse_template(positions, surface)
                 if strength then
                     do_insert = false
                 else
-                    local position = entity.position
                     entity.die()
                 end
             end)
@@ -136,6 +135,7 @@ local function collapse(args)
     )
     local entities = create_collapse_template(positions, surface)
     Template.insert(surface, {}, entities)
+    ScoreTable.increment('Cave collapse')
 end
 
 local on_collapse_timeout_finished = Token.register(collapse)
@@ -164,7 +164,6 @@ local function spawn_cracking_sound_text(surface, position)
 end
 
 local function on_collapse_triggered(event)
-
     if cave_collapse_disabled then return end --kill switch
 
     local surface = event.surface
@@ -259,7 +258,7 @@ end)
 local function on_void_removed(event)
     local strength = support_beam_entities['out-of-map']
 
-    local position =  event.old_tile.position
+    local position = event.position
     if strength then
         stress_map_add(event.surface, position, strength)
     end
@@ -289,6 +288,30 @@ function DiggyCaveCollapse.register(cfg)
     config = cfg
     support_beam_entities = config.support_beam_entities
 
+    if support_beam_entities['stone-path'] then
+        support_beam_entities['stone-brick'] = support_beam_entities['stone-path']
+    else
+        support_beam_entities['stone-brick'] = nil
+    end
+
+    if support_beam_entities['hazard-concrete'] then
+        support_beam_entities['hazard-concrete-left'] = support_beam_entities['hazard-concrete']
+        support_beam_entities['hazard-concrete-right'] = support_beam_entities['hazard-concrete']
+    else
+        support_beam_entities['hazard-concrete-left'] = nil
+        support_beam_entities['hazard-concrete-right'] = nil
+    end
+
+    if support_beam_entities['refined-hazard-concrete'] then
+        support_beam_entities['refined-hazard-concrete-left'] = support_beam_entities['refined-hazard-concrete']
+        support_beam_entities['refined-hazard-concrete-right'] = support_beam_entities['refined-hazard-concrete']
+    else
+        support_beam_entities['refined-hazard-concrete-left'] = nil
+        support_beam_entities['refined-hazard-concrete-right'] = nil
+    end
+
+    ScoreTable.reset('Cave collapse')
+
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
     Event.add(defines.events.on_robot_built_entity, on_built_entity)
     Event.add(defines.events.on_robot_built_tile, function (event)
@@ -313,14 +336,14 @@ function DiggyCaveCollapse.register(cfg)
         end
     end)
 
-    Event.add(defines.events.on_pre_player_mined_item, function(event)
+    Event.add(defines.events.on_pre_player_mined_item, function (event)
         local player_index = event.player_index
         if (nil ~= deconstruction_alert_message_shown[player_index]) then
             return
         end
 
         if (nil ~= support_beam_entities[event.entity.name]) then
-            require 'popup'.player(
+            require 'features.gui.popup'.player(
                 Game.get_player_by_index(player_index),[[
 Mining entities such as walls, stone paths, concrete
 and rocks, can cause a cave-in, be careful miner!
@@ -449,7 +472,7 @@ local function add_fraction(stress_map, x, y, fraction)
     return value
 end
 
-on_surface_created = function(event)
+on_surface_created = function (event)
     stress_map_storage[event.surface_index] = {}
 
     local map = stress_map_storage[event.surface_index]

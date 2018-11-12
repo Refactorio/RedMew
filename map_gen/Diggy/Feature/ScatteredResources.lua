@@ -29,33 +29,47 @@ local function get_name_by_random(collection)
     Debug.print('Current \'' .. current .. '\' should be higher or equal to random \'' .. pre_calculated .. '\'')
 end
 
-local function spawn_resource(config, surface, x, y, distance)
-    local resource_name = get_name_by_random(config.resource_chances)
-
-    if (config.minimum_resource_distance[resource_name] > distance) then
-        return
-    end
-
-    local min_max = config.resource_richness_values[get_name_by_random(config.resource_richness_probability)]
-    local amount = ceil(random(min_max[1], min_max[2]) * (1 + ((distance / config.distance_richness_modifier) * 0.01)))
-
-    if ('crude-oil' == resource_name) then
-        amount = amount * config.oil_value_modifier
-    end
-
-    if (config.cluster_mode) then
-        amount = amount * config.cluster_yield_multiplier
-    end
-
-    local position = {x = x, y = y}
-
-    Template.resources(surface, {{name = resource_name, position = position, amount = amount}})
-end
-
 --[[--
     Registers all event handlers.
 ]]
 function ScatteredResources.register(config)
+    local noise_resource_threshold = config.noise_resource_threshold
+    local noise_variance = config.noise_variance
+    local cluster_mode = config.cluster_mode
+    local distance_probability_modifier = config.distance_probability_modifier
+    local resource_probability = config.resource_probability
+    local max_resource_probability = config.max_resource_probability
+    local resource_chances = config.resource_chances
+    local resource_richness_probability = config.resource_richness_probability
+    local distance_richness_modifier = config.distance_richness_modifier
+    local liquid_value_modifiers = config.liquid_value_modifiers
+    local resource_richness_values = config.resource_richness_values
+    local minimum_resource_distance = config.minimum_resource_distance
+    local cluster_yield_multiplier = config.cluster_yield_multiplier
+
+    local function spawn_resource(surface, x, y, distance)
+        local resource_name = get_name_by_random(resource_chances)
+
+        if (minimum_resource_distance[resource_name] > distance) then
+            return
+        end
+
+        local min_max = resource_richness_values[get_name_by_random(resource_richness_probability)]
+        local amount = ceil(random(min_max[1], min_max[2]) * (1 + ((distance / distance_richness_modifier) * 0.01)))
+
+        if liquid_value_modifiers[name] then
+            amount = amount * modifier
+        end
+
+        if (cluster_mode) then
+            amount = amount * cluster_yield_multiplier
+        end
+
+        local position = {x = x, y = y}
+
+        Template.resources(surface, {{name = resource_name, position = position, amount = amount}})
+    end
+
     function sum(t)
         local sum = 0
         for _, v in pairs(t) do
@@ -68,7 +82,7 @@ function ScatteredResources.register(config)
     local seed
     local function get_noise(surface, x, y)
         seed = seed or surface.map_gen_settings.seed + surface.index + 200
-        return Perlin.noise(x * config.noise_variance, y * config.noise_variance, seed)
+        return Perlin.noise(x * noise_variance, y * noise_variance, seed)
     end
 
     local resource_sum = sum(config.resource_chances)
@@ -81,43 +95,46 @@ function ScatteredResources.register(config)
         error('Expected a sum of 1.00, got \'' .. richness_sum .. '\' for config.feature.ScatteredResources.resource_richness_probability.')
     end
 
-    Event.add(Template.events.on_void_removed, function(event)
-        local x = event.old_tile.position.x
-        local y = event.old_tile.position.y
+    Event.add(Template.events.on_void_removed, function (event)
+        local position = event.position
+        local x = position.x
+        local y = position.y
         local surface = event.surface
 
         local distance = floor(sqrt(x * x + y * y))
 
-        if (config.cluster_mode and get_noise(surface, x, y) > config.noise_resource_threshold) then
-            spawn_resource(config, event.surface, x, y, distance)
+        if (cluster_mode and get_noise(surface, x, y) > noise_resource_threshold) then
+            spawn_resource(surface, x, y, distance)
             return
         end
 
-        local calculated_probability = config.resource_probability + ((distance / config.distance_probability_modifier) * 0.01)
-        local probability = config.max_resource_probability
+        local calculated_probability = resource_probability + ((distance / distance_probability_modifier) * 0.01)
+        local probability = max_resource_probability
 
         if (calculated_probability < probability) then
             probability = calculated_probability
         end
 
         -- cluster mode reduces the max probability to reduce max spread
-        if (config.cluster_mode) then
+        if (cluster_mode) then
             probability = probability * 0.5
         end
 
         if (probability > random()) then
-            spawn_resource(config, event.surface, x, y, distance)
+            spawn_resource(surface, x, y, distance)
         end
     end)
 
-    if (config.enable_noise_grid) then
+    if (config.display_resource_fields) then
         Event.add(defines.events.on_chunk_generated, function (event)
             local surface = event.surface
             local area = event.area
 
             for x = area.left_top.x, area.left_top.x + 31 do
                 for y = area.left_top.y, area.left_top.y + 31 do
-                    Debug.print_grid_value(get_noise(surface, x, y), surface, {x = x, y = y})
+                    if get_noise(surface, x, y) >= noise_resource_threshold then
+                        Debug.print_grid_value('ore', surface, {x = x, y = y}, nil, nil, true)
+                    end
                 end
             end
         end)

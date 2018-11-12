@@ -1,5 +1,5 @@
 local Event = require "utils.event"
-local UserGroups = require "user_groups"
+local UserGroups = require "features.user_groups"
 local Utils = require "utils.utils"
 local Game = require 'utils.game'
 

@@ -105,7 +105,7 @@ end
 
 map = b.apply_effect(map, effect)
 
-require 'spawn_control'
+require 'features.spawn_control'
 add_spawn('left', -88, -88)
 add_spawn('right', 88, 88)
 

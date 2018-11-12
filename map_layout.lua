@@ -77,11 +77,13 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.spiral_of_spirals"
 --shape = require "map_gen.presets.crash_site"
 --shape = require "map_gen.presets.dino_island"
---shape  = require "map_gen.presets.toxic_jungle"
---shape  = require "map_gen.presets.danger_ores"
---shape  = require "map_gen.presets.bacon_islands"
+--shape = require "map_gen.presets.toxic_jungle"
+--shape = require "map_gen.presets.danger_ores"
+--shape = require "map_gen.presets.bacon_islands"
 --shape = require "map_gen.presets.spiral"
 --shape = require "map_gen.presets.hub_spiral"
+--shape = require "map_gen.presets.diagonal_ribbon"
+--shape = require "map_gen.presets.creepy"
 --shape = require "map_gen.presets.vanilla"
 --shape = require "map_gen.presets.test"
 
@@ -96,7 +98,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.shape.spiral2"
 --shape = require "map_gen.shape.donut"
 --shape = b.rectangular_spiral(128)
---shape = require "map_gen.shape.lattice"
+--shape = require "map_gen.shape.diagonal_lattice"
 --require "map_gen.shape.infinite_mazes"
 --shape = require "map_gen.shape.x_shape"
 --shape = require "map_gen.shape.pacman"
@@ -132,6 +134,7 @@ local terrain_modules = {
 --require ('map_gen.misc.restrict_landfill_tile')({['water'] = true})
 --require "map_gen.ores.rso.rso_control"
 --require 'map_gen.misc.nightfall'
+--require 'map_gen.misc.creep_spread'
 --require 'map_gen.misc.car_body'
 
 if #entity_modules > 0 then

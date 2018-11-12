@@ -45,10 +45,7 @@ local function insert_next_tiles(data)
                 local new_is_void = new_tile.name == 'out-of-map'
 
                 if (current_is_void and not new_is_void) then
-                    insert(
-                        void_removed,
-                        {surface = surface, old_tile = {name = current_tile.name, position = current_tile.position}}
-                    )
+                    insert(void_removed, {surface = surface, position = current_tile.position})
                 end
             end
         end
@@ -151,20 +148,27 @@ end
     @param surface LuaSurface to put the tiles and entities on
     @param units table of entities as required by create_entity
     @param non_colliding_distance int amount of tiles to scan around original position in case it's already taken
+    @param generic_unit_name_for_spawn_size String allows setting a custom unit name for spawn size, will overwrite the actual
 ]]
-function Template.units(surface, units, non_colliding_distance)
+function Template.units(surface, units, non_colliding_distance, generic_unit_name_for_spawn_size)
     non_colliding_distance = non_colliding_distance or 1
+    generic_unit_name_for_spawn_size = generic_unit_name_for_spawn_size or 'player'
+
     local create_entity = surface.create_entity
-    local find_non_colliding_position = surface.find_non_colliding_position
+    local position
 
     for _, entity in pairs(units) do
-        local position = find_non_colliding_position(entity.name, entity.position, non_colliding_distance, 1)
+        position = position or surface.find_non_colliding_position(
+            generic_unit_name_for_spawn_size,
+            entity.position, non_colliding_distance,
+            0.5
+        )
 
         if (nil ~= position) then
             entity.position = position
             create_entity(entity)
-        else
-            Debug.printPosition(entity.position, "Failed to spawn '" .. entity.name .. "'")
+        elseif (nil == create_entity(entity)) then
+            Debug.print_position(entity.position, "Failed to spawn '" .. entity.name .. "'")
         end
     end
 end
@@ -190,10 +194,9 @@ end
     @param surface LuaSurface
     @param position Position
     @param force LuaForce
-    @param currency_item string
     @param market_items Table
 ]]
-function Template.market(surface, position, force, currency_item, market_inventory)
+function Template.market(surface, position, force, market_inventory)
     local market = surface.create_entity({name = 'market', position = position})
     local add_market_item = market.add_market_item
     market.destructible = false
@@ -203,8 +206,7 @@ function Template.market(surface, position, force, currency_item, market_invento
     end
 
     force.add_chart_tag(surface, {
-        icon = {type = 'item', name = currency_item},
-        text = ' Market',
+        text = 'Market',
         position = position,
     })
 

@@ -4,7 +4,7 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Task = require 'utils.Task'
 local Market = require 'map_gen.presets.crash_site.market'
-local PlayerStats = require 'player_stats'
+local PlayerStats = require 'features.player_stats'
 
 local b = require 'map_gen.shared.builders'
 
@@ -691,6 +691,29 @@ local function to_shape(blocks)
     end
 end
 
+local path_tiles = b.path_tiles
+
+local function collides(world)
+    local gen_tile = world.surface.get_tile(world.x, world.y)
+    return gen_tile.collides_with('water-tile')
+end
+
+local function set_hidden_tiles(shape)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if type(tile) == 'table' then
+            if path_tiles[tile.tile] and collides(world) then
+                tile.hidden_tile = 'grass-1'
+            end
+        elseif path_tiles[tile] and collides(world) then
+            tile = {tile = tile, hidden_tile = 'grass-1'}
+        end
+
+        return tile
+    end
+end
+
 function Public:do_outpost(template)
     local settings = template.settings
     local blocks = {size = settings.blocks}
@@ -700,7 +723,8 @@ function Public:do_outpost(template)
     do_levels(blocks, settings.max_level)
     make_blocks(self, blocks, template)
 
-    return to_shape(blocks)
+    local shape = to_shape(blocks)
+    return set_hidden_tiles(shape)
 end
 
 function Public.to_shape(blocks)

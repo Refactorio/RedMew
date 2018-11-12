@@ -30,7 +30,7 @@ end
 global.message_count = 0
 
 --[[--
-    Shows the given message if _DEBUG == true.
+    Shows the given message if debug is enabled.
 
     @param message string
 ]]
@@ -44,13 +44,22 @@ function Debug.print(message)
 end
 
 --[[--
+    Shows the given message with serpent enabled, if debug is enabled.
+
+    @param message string
+]]
+function Debug.print_serpent(message)
+    Debug.print(serpent.line(message))
+end
+
+--[[--
     Shows the given message if _DEBUG == true for a given position.
 
     @param x number
     @param y number
     @param message string
 ]]
-function Debug.printPosition(position, message)
+function Debug.print_position(position, message)
     message = message or ''
     if type(message) ~= 'string' and type(message) ~= 'number'  and type(message) ~= 'boolean' then message = type(message) end
     global.message_count = global.message_count + 1
@@ -60,7 +69,7 @@ function Debug.printPosition(position, message)
 end
 
 --[[--
-    Executes the given callback if _DIGGY_CHEATS == true.
+    Executes the given callback if cheating is enabled.
 
     @param callback function
 ]]
@@ -76,45 +85,59 @@ end
     @param value between -1 and 1
     @param surface LuaSurface
     @param position Position {x, y}
+    @param scale float
+    @param offset float
+    @param immutable bool if immutable, only set, never do a surface lookup, values never change
 ]]
-function Debug.print_grid_value(value, surface, position, scale, offset)
-    scale = scale or 1
-    offset = offset or 0
-    position = {x = position.x + offset, y = position.y + offset}
-    local r = max(1, value) / scale
-    local g = 1 - abs(value) / scale
-    local b = min(1, value) / scale
+function Debug.print_grid_value(value, surface, position, scale, offset, immutable)
+    local is_string = type(value) == 'string'
+    local color = {r = 1, g = 1, b = 1}
+    text = value
 
-    if (r > 0) then
-        r = 0
+    if type(immutable) ~= 'boolean' then
+        immutable = false
     end
 
-    if (b < 0) then
-        b = 0
+    if not is_string then
+        scale = scale or 1
+        offset = offset or 0
+        position = {x = position.x + offset, y = position.y + offset}
+        local r = max(1, value) / scale
+        local g = 1 - abs(value) / scale
+        local b = min(1, value) / scale
+
+        if (r > 0) then
+            r = 0
+        end
+
+        if (b < 0) then
+            b = 0
+        end
+
+        if (g < 0) then
+            g = 0
+        end
+
+        r = abs(r)
+
+        color = { r = r, g = g, b = b}
+
+        -- round at precision of 2
+        text = floor(100 * value) * 0.01
+
+        if (0 == text) then
+            text = '0.00'
+        end
     end
 
-    if (g < 0) then
-        g = 0
-    end
+    if not immutable then
+        local text_entity = surface.find_entity('flying-text', position)
 
-    r = abs(r)
-
-    local color = { r = r, g = g, b = b}
-
-    -- round at precision of 2
-    local text = floor(100 * value) / 100
-
-    if (0 == text) then
-        text = '0.00'
-    end
-
-    local text_entity = surface.find_entity('flying-text', position)
-
-    if text_entity then
-        text_entity.text = text
-        text_entity.color = color
-
-        return
+        if text_entity then
+            text_entity.text = text
+            text_entity.color = color
+            return
+        end
     end
 
     surface.create_entity{

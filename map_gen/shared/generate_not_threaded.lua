@@ -1,15 +1,17 @@
 local Token = require 'utils.global_token'
 local Event = require 'utils.event'
 
+local insert = table.insert
+
 local regen_decoratives
 local surfaces
 
 local function do_row(row, data, shape)
     local function do_tile(tile, pos)
         if not tile then
-            table.insert(data.tiles, {name = 'out-of-map', position = pos})
+            insert(data.tiles, {name = 'out-of-map', position = pos})
         elseif type(tile) == 'string' then
-            table.insert(data.tiles, {name = tile, position = pos})
+            insert(data.tiles, {name = tile, position = pos})
         end
     end
 
@@ -28,20 +30,25 @@ local function do_row(row, data, shape)
         if type(tile) == 'table' then
             do_tile(tile.tile, pos)
 
+            local hidden_tile = tile.hidden_tile
+            if hidden_tile then
+                insert(data.hidden_tiles, {tile = hidden_tile, position = pos})
+            end
+
             local entities = tile.entities
             if entities then
                 for _, entity in ipairs(entities) do
                     if not entity.position then
                         entity.position = pos
                     end
-                    table.insert(data.entities, entity)
+                    insert(data.entities, entity)
                 end
             end
 
             local decoratives = tile.decoratives
             if decoratives then
                 for _, decorative in ipairs(decoratives) do
-                    table.insert(data.decoratives, decorative)
+                    insert(data.decoratives, decorative)
                 end
             end
         else
@@ -52,6 +59,13 @@ end
 
 local function do_place_tiles(data)
     data.surface.set_tiles(data.tiles, true)
+end
+
+local function do_place_hidden_tiles(data)
+    local surface = data.surface
+    for _, t in ipairs(data.hidden_tiles) do
+        surface.set_hidden_tile(t.position, t.tile)
+    end
 end
 
 local decoratives = {
@@ -112,6 +126,7 @@ local function on_chunk(event)
         top_y = area.left_top.y,
         surface = surface,
         tiles = {},
+        hidden_tiles = {},
         entities = {},
         decoratives = {}
     }
@@ -121,6 +136,7 @@ local function on_chunk(event)
     end
 
     do_place_tiles(data)
+    do_place_hidden_tiles(data)
     do_place_entities(data)
     do_place_decoratives(data)
 end

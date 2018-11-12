@@ -1,7 +1,7 @@
 -- dependencies
 local Config = require 'map_gen.Diggy.Config'
 local Debug = require 'map_gen.Diggy.Debug'
-local ScenarioInfo = require 'info'
+local ScenarioInfo = require 'features.gui.info'
 local Event = require 'utils.event'
 
 require 'utils.list_utils'
@@ -46,7 +46,9 @@ function Scenario.register(debug)
     end
 
     global.scenario.config.player_list.enable_coin_col = false
-    global.scenario.config.fish_market.enable = false
+    if global.scenario.config then
+        global.scenario.config.fish_market.enable = nil
+    end
 
     if ('boolean' == type(debug)) then
         Config.Debug = debug

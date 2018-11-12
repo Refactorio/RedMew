@@ -21,7 +21,7 @@ local do_mine = Token.register(function(params)
     local sand_rocks = params.surface.find_entities_filtered({position = params.position, name = 'sand-rock-big'})
 
     if (0 == #sand_rocks) then
-        Debug.printPosition(params.position, 'missing rock when trying to mine.')
+        Debug.print_position(params.position, 'missing rock when trying to mine.')
         return
     end
 
@@ -49,7 +49,6 @@ end
 --[[--
     Registers all event handlers.
 ]]
-
 function SimpleRoomGenerator.register(config)
     local room_noise_minimum_distance_sq = config.room_noise_minimum_distance * config.room_noise_minimum_distance
 
@@ -60,7 +59,7 @@ function SimpleRoomGenerator.register(config)
     end
 
     Event.add(Template.events.on_void_removed, function (event)
-        local position = event.old_tile.position
+        local position = event.position
         local x = position.x
         local y = position.y
 
@@ -80,14 +79,19 @@ function SimpleRoomGenerator.register(config)
         end
     end)
 
-    if (config.enable_noise_grid) then
+    if (config.display_room_locations) then
         Event.add(defines.events.on_chunk_generated, function (event)
             local surface = event.surface
             local area = event.area
 
             for x = area.left_top.x, area.left_top.x + 31 do
                 for y = area.left_top.y, area.left_top.y + 31 do
-                    Debug.print_grid_value(get_noise(surface, x, y), surface, {x = x, y = y})
+                    for _, noise_range in pairs(config.room_noise_ranges) do
+                        local noise = get_noise(surface, x, y)
+                        if (noise >= noise_range.min and noise <= noise_range.max) then
+                            Debug.print_grid_value(noise_range.name, surface, {x = x, y = y}, nil, nil, true)
+                        end
+                    end
                 end
             end
         end)

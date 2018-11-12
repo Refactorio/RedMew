@@ -62,7 +62,7 @@ local function send_stone_to_surface(total)
 end
 
 local on_market_timeout_finished = Token.register(function(params)
-    Template.market(params.surface, params.position, params.player_force, params.currency_item, {})
+    Template.market(params.surface, params.position, params.player_force, {})
 
     local tiles = {}
     for _, position in pairs(params.void_chest_tiles) do
@@ -203,8 +203,8 @@ local function on_research_finished(event)
 end
 
 local function comma_value(n) -- credit http://richard.warburton.it
-    local left,num,right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
-    return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+    local left,num,right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
+    return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
 end
 
 local function redraw_title(data)
@@ -461,7 +461,7 @@ local function on_placed_entity(event)
 
     market.add_market_item({
         price = {{config.currency_item, 50}},
-        offer = {type = 'nothing', effect_description = 'Send ' .. config.stone_to_surface_amount .. ' ' .. config.currency_item .. ' to the surface'}
+        offer = {type = 'nothing', effect_description = 'Send ' .. config.stone_to_surface_amount .. ' ' .. config.currency_item .. ' to the surface. To see the overall progress and rewards, click the market button in the menu.'}
     })
 
     update_market_contents(market)
@@ -520,7 +520,7 @@ local function on_player_created(event)
     Game.get_player_by_index(event.player_index).gui.top.add({
         name = 'Diggy.MarketExchange.Button',
         type = 'sprite-button',
-        sprite = 'item/stone',
+        sprite = 'entity/market',
     })
 end
 
@@ -534,7 +534,6 @@ function MarketExchange.on_init()
         surface = game.surfaces.nauvis,
         position = config.market_spawn_position,
         player_force = game.forces.player,
-        currency_item = config.currency_item,
         void_chest_tiles = config.void_chest_tiles,
     })
 
@@ -621,7 +620,7 @@ function MarketExchange.register(cfg)
         local markets = find_entities_filtered({name = 'market', position = config.market_spawn_position, limit = 1})
 
         if (#markets == 0) then
-            Debug.printPosition(config.market_spawn_position, 'Unable to find a market')
+            Debug.print_position(config.market_spawn_position, 'Unable to find a market')
             return
         end
 
