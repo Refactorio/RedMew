@@ -32,7 +32,7 @@ Module.welcome_messages = {
     ['der-dave.com'] = "Dave doesn't want a welcome message.",
     ['robertkruijt'] = 'The general of the army has arived!',
     ['plague006'] = 'plague wrote this dumb message you have to read. If you want your own dumb on-join message be sure to donate on Patreon!',
-    ['shoghicp'] = 'Need more servers!
+    ['shoghicp'] = 'Need more servers!',
     ['aldldl'] = 'ALo\'s Here'
 }
 
