@@ -10,7 +10,7 @@ local play_area_width = 100 -- The approximate width of the play area
 local oob_tile = 'out-of-map' -- The tiles that make up the out of bounds/world border. Recommended are out-of-map or water.
 
 local oob_width = 233
-local oob_width_inv = tau / oob_width
+local oob_width_inv = math.tau / oob_width
 
 -- Perlin options
 local noise_variance = 0.020 --The lower this number the smoother the curve is gonna be
