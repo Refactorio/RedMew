@@ -57,8 +57,8 @@ function ScatteredResources.register(config)
         local min_max = resource_richness_values[get_name_by_random(resource_richness_probability)]
         local amount = ceil(random(min_max[1], min_max[2]) * (1 + ((distance / distance_richness_modifier) * 0.01)))
 
-        if liquid_value_modifiers[name] then
-            amount = amount * modifier
+        if liquid_value_modifiers[resource_name] then
+            amount = amount * liquid_value_modifiers[resource_name]
         end
 
         if (cluster_mode) then
