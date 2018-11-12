@@ -22,6 +22,7 @@ local config = {}
 local stone_tracker = {
     stone_sent_to_surface = 0,
     previous_stone_sent_to_surface = 0,
+    current_level = 0,
 }
 
 local stone_collecting = {
@@ -104,6 +105,8 @@ local function update_stone_collecting()
     stone_collecting.initial_value = old_modifier + stone_collecting.active_modifier
 end
 
+
+--Handles the updating of market items when unlocked, also handles the buffs
 local function update_market_contents(market)
     if (stone_tracker.previous_stone_sent_to_surface == stone_tracker.stone_sent_to_surface) then
         return
@@ -113,10 +116,15 @@ local function update_market_contents(market)
     local should_update_inventory_slots = false
     local should_update_stone_collecting = false
     local add_market_item
+    local old_level = stone_tracker.current_level
     local print = game.print
 
     for _, unlockable in pairs(config.unlockables) do
         local is_in_range = unlockable.stone > stone_tracker.previous_stone_sent_to_surface and unlockable.stone <= stone_tracker.stone_sent_to_surface
+        
+        if (is_in_range and stone_tracker.current_level == old_level) then
+            stone_tracker.current_level = stone_tracker.current_level + 1
+        end
 
         -- only add the item to the market if it's between the old and new stone range
         if (is_in_range and unlockable.type == 'market') then
@@ -130,24 +138,34 @@ local function update_market_contents(market)
                 price = {{config.currency_item, price}},
                 offer = {type = 'give-item', item = name, count = 1}
             })
-        elseif (is_in_range and unlockable.type == 'buff' and unlockable.prototype.name == 'mining_speed') then
-            local value = unlockable.prototype.value
-            print('Mining Foreman: Increased mining speed by ' .. value .. '%!')
-            should_update_mining_speed = true
-            mining_efficiency.market_modifier = mining_efficiency.market_modifier + (value / 100)
-        elseif (is_in_range and unlockable.type == 'buff' and unlockable.prototype.name == 'inventory_slot') then
-            local value = unlockable.prototype.value
-            print('Mining Foreman: Increased inventory slots by ' .. value .. '!')
-            should_update_inventory_slots = true
-            inventory_slots.market_modifier = inventory_slots.market_modifier + value
-        elseif (is_in_range and unlockable.type == 'buff' and unlockable.prototype.name == 'stone_automation') then
-            local value = unlockable.prototype.value
-            print('Mining Foreman: sending stone to the surface automatically is now increased by ' .. value .. '!')
-            should_update_stone_collecting = true
-            stone_collecting.market_modifier = stone_collecting.market_modifier + value
         end
     end
-
+    
+    if (old_level < stone_tracker.current_level) then
+        for _, buffs in pairs(config.buffs) do
+            if (buffs.prototype.name == 'mining_speed') then
+                local value = buffs.prototype.value
+                print('Mining Foreman: Increased mining speed by ' .. value .. '%!')
+                should_update_mining_speed = true
+                mining_efficiency.market_modifier = mining_efficiency.market_modifier + (value / 100)
+            elseif (buffs.prototype.name == 'inventory_slot') then
+                local value = buffs.prototype.value
+                print('Mining Foreman: Increased inventory slots by ' .. value .. '!')
+                should_update_inventory_slots = true
+                inventory_slots.market_modifier = inventory_slots.market_modifier + value
+            elseif (buffs.prototype.name == 'stone_automation') then
+                local value = buffs.prototype.value
+                if (stone_tracker.current_level == 1) then
+                    print('Mining Foreman: We can now automatically send stone to the surface from a chest below the market!')
+                else
+                    print('Mining Foreman: We can now automatically send ' .. value .. ' more stones!')
+                end
+                should_update_stone_collecting = true
+                stone_collecting.market_modifier = stone_collecting.market_modifier + value
+            end
+        end
+    end
+    
     local force
 
     if (should_update_mining_speed) then
@@ -229,36 +247,25 @@ local tag_label_item = Gui.uid_name()
 
 local function apply_heading_style(style, width)
     style.font = 'default-bold'
-    style.align = 'center'
+    --style.align = 'center'
     style.width = width
 end
 
-local function redraw_heading(data)
-    local frame = data.market_list_heading
+local function redraw_heading(data, header)
+    local frame = (header == 1) and data.market_list_heading or data.buff_list_heading
+    local header_caption = (header == 1) and 'Reward Item' or 'Reward Buff'
     Gui.clear(frame)
 
-    local heading_table = frame.add({type = 'table', column_count = 3})
-    apply_heading_style(heading_table.add({type = 'label', name = tag_label_stone, caption = 'Name'}).style, 90)
-    apply_heading_style(heading_table.add({type = 'label', name = tag_label_buff, caption = 'Buff'}).style, 200)
-    apply_heading_style(heading_table.add({type = 'label', name = tag_label_item, caption = 'Item'}).style, 200)
+    local heading_table = frame.add({type = 'table', column_count = 2})
+    apply_heading_style(heading_table.add({type = 'label', name = tag_label_stone, caption = 'Requirement'}).style, 100)
+    apply_heading_style(heading_table.add({type = 'label', name = tag_label_buff, caption = header_caption}).style, 220)
+    --apply_heading_style(heading_table.add({type = 'label', name = tag_label_item, caption = 'Item'}).style, 200)
 end
 
 local function redraw_progressbar(data)
 
     local flow = data.market_progressbars
     Gui.clear(flow)
-
-    -- overall progress
-    -- get highest amount of stone
-    local number_of_unlockables = #config.unlockables
-    local highest_amount = config.unlockables[number_of_unlockables].stone
-    -- calc % of stones sent
-    local stone_sent = stone_tracker.stone_sent_to_surface / highest_amount
-
-    apply_heading_style(flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Overall', caption = 'Overall progress:'}).style)
-    local overall_progressbar = flow.add({type = 'progressbar', tooltip = stone_sent * 100 .. '% stone sent'})
-    overall_progressbar.style.width = 540
-    overall_progressbar.value = stone_sent
 
     -- progress bar for next level
     local stone_level = get_stone_level(config.unlockables, stone_tracker.stone_sent_to_surface)
@@ -268,11 +275,11 @@ local function redraw_progressbar(data)
 
     local range = next_stone - act_stone
     local sent = stone_tracker.stone_sent_to_surface - act_stone
-    local percentage = sent / range
+    local percentage = (math.floor((sent / range)*10^4))/10^4
 
     apply_heading_style(flow.add({type = 'label', name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
     local level_progressbar = flow.add({type = 'progressbar', tooltip = percentage * 100 .. '% stone to next level'})
-    level_progressbar.style.width = 540
+    level_progressbar.style.width = 350
     level_progressbar.value = percentage
 end
 
@@ -290,7 +297,7 @@ local function redraw_table(data)
     redraw_progressbar(data)
 
     -- create table headings
-    redraw_heading(data)
+    redraw_heading(data, 1)
 
     -- create table
     for i = 1, #config.unlockables do
@@ -308,29 +315,8 @@ local function redraw_table(data)
                 local result = {}
 
                 -- 1st column
-                if buffs[j] ~= nil then
-                    result[1] = buffs[j].stone
-                else
-                    result[1] = items[j].stone
-                end
-                -- 2nd column
-                if buffs[j] ~= nil then
-                    if buffs[j].prototype.name == 'mining_speed' then
-                        result[2] = '+ '.. buffs[j].prototype.value .. '% mining speed'
-                    end
-                    if buffs[j].prototype.name == 'inventory_slot' then
-                        if buffs[j].prototype.value > 1 then
-                            result[2] = '+ '.. buffs[j].prototype.value .. ' inventory slots'
-                        else
-                            result[2] = '+ '.. buffs[j].prototype.value .. ' inventory slot'
-                        end
-                    end
-                    if buffs[j].prototype.name == 'stone_automation' then
-                        result[2] = '+ '.. buffs[j].prototype.value .. ' stones automatically sent'
-                    end
-                else
-                    result[2] = ''
-                end
+                result[6] = items[j].stone
+                result[1] = 'Level ' ..items[j].level
                 -- 3rd column
                 if items[j] ~= nil then
                     result[3] = '+ ' .. items[j].prototype.name
@@ -360,25 +346,22 @@ local function redraw_table(data)
 
     -- print table
     for _, unlockable in pairs(row) do
-        local is_unlocked = unlockable[1] <= stone_tracker.stone_sent_to_surface
-        local list = market_scroll_pane.add {type = 'table', column_count = 3 }
+        local is_unlocked = unlockable[6] <= stone_tracker.stone_sent_to_surface
+        local list = market_scroll_pane.add {type = 'table', column_count = 2 }
 
         list.style.horizontal_spacing = 16
 
         local caption = ''
         if unlockable[4] ~= true then
-            caption = comma_value(unlockable[1])
+            caption = unlockable[1]
         else
             caption = ''
         end
         local tag_stone = list.add {type = 'label', name = tag_label_stone, caption = caption}
-        tag_stone.style.minimal_width = 90
-
-        local tag_buffs = list.add {type = 'label', name = tag_label_buff, caption = unlockable[2]}
-        tag_buffs.style.minimal_width = 200
+        tag_stone.style.minimal_width = 100
 
         local tag_items = list.add {type = 'label', name = tag_label_item, caption = unlockable[3]}
-        tag_items.style.minimal_width = 200
+        tag_items.style.minimal_width = 220
 
         -- draw horizontal line
         if unlockable[5] == true then
@@ -387,13 +370,74 @@ local function redraw_table(data)
 
         if (is_unlocked) then
             tag_stone.style.font_color = {r = 1, g = 1, b = 1 }
-            tag_buffs.style.font_color = {r = 1, g = 1, b = 1 }
             tag_items.style.font_color = {r = 1, g = 1, b = 1 }
         else
             tag_stone.style.font_color = {r = 0.5, g = 0.5, b = 0.5 }
-            tag_buffs.style.font_color = {r = 0.5, g = 0.5, b = 0.5 }
             tag_items.style.font_color = {r = 0.5, g = 0.5, b = 0.5 }
         end
+    end
+end
+
+local function redraw_buff(data) --! Almost equals to the redraw_table() function !
+    local buff_scroll_pane = data.buff_scroll_pane
+    Gui.clear(buff_scroll_pane)
+
+    local buffs = {}
+    local number_of_rows = 0
+    local row = {}
+    
+    for i = 1, #config.buffs do
+        -- get items and buffs for each stone value
+        buffs = config.buffs
+        
+        local result = {}
+
+        -- 1st column
+        result[1] = 'All levels'
+
+        -- 2nd column
+        if buffs[i].prototype.name == 'mining_speed' then
+            result[2] = '+ '.. buffs[i].prototype.value .. '% mining speed'
+        elseif buffs[i].prototype.name == 'inventory_slot' then
+            if buffs[i].prototype.value > 1 then
+                result[2] = '+ '.. buffs[i].prototype.value .. ' inventory slots'
+            else
+                result[2] = '+ '.. buffs[i].prototype.value .. ' inventory slot'
+            end
+        elseif buffs[i].prototype.name == 'stone_automation' then
+            result[2] = '+ '.. buffs[i].prototype.value .. ' stones automatically sent'
+        else
+            result[2] = 'Description missing: unknown buff. Please contact admin'
+        end
+        
+        -- 3rd column
+        result[3] = ''
+        -- indicator to stop print level number
+        if i > 1 then
+            result[4] = true
+        else
+            result[4] = false
+        end
+        insert(row, result)
+    end    
+    for _, unlockable in pairs(row) do
+        local list = buff_scroll_pane.add {type = 'table', column_count = 2 }
+        list.style.horizontal_spacing = 16
+
+        local caption = ''
+        if unlockable[4] ~= true then
+            caption = unlockable[1]
+        else
+            caption = ''
+        end
+        local tag_stone = list.add {type = 'label', name = buff_tag_label_stone, caption = caption}
+        tag_stone.style.minimal_width = 100
+
+        local tag_buffs = list.add {type = 'label', name = buff_tag_label_buff, caption = unlockable[2]}
+        tag_buffs.style.minimal_width = 220
+
+        tag_stone.style.font_color = {r = 1, g = 1, b = 1 }
+        tag_buffs.style.font_color = {r = 1, g = 1, b = 1 }
     end
 end
 
@@ -443,7 +487,12 @@ local function toggle(event)
     local market_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
 
     local market_scroll_pane = frame.add({type = 'scroll-pane'})
-    market_scroll_pane.style.maximal_height = 400
+    market_scroll_pane.style.maximal_height = 300
+    
+    local buff_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
+    
+    local buff_scroll_pane = frame.add({type = 'scroll-pane'})
+    buff_scroll_pane.style.maximal_height = 100
 
     frame.add({ type = 'button', name = 'Diggy.MarketExchange.Button', caption = 'Close'})
 
@@ -452,10 +501,15 @@ local function toggle(event)
         market_progressbars = market_progressbars,
         market_list_heading = market_list_heading,
         market_scroll_pane = market_scroll_pane,
+        buff_list_heading = buff_list_heading,
+        buff_scroll_pane = buff_scroll_pane,
     }
 
     redraw_title(data)
     redraw_table(data)
+    
+    redraw_heading(data, 2)
+    redraw_buff(data)
 
     Gui.set_data(frame, data)
 
