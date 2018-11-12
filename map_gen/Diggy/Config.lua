@@ -83,11 +83,8 @@ local Config = {
                 ['out-of-map'] = 1,
                 ['stone-path'] = 0.03,
                 ['concrete'] = 0.04,
-                ['hazard-concrete-left'] = 0.04,
-                ['hazard-concrete-right'] = 0.04,
+                ['hazard-concrete'] = 0.04,
                 ['refined-concrete'] = 0.06,
-                ['refined-hazard-concrete-left'] = 0.06,
-                ['refined-hazard-concrete-right'] = 0.06,
             },
             cracking_sounds = {
               'CRACK',
