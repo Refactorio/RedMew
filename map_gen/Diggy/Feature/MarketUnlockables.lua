@@ -43,7 +43,7 @@ function MarketUnlockables.initalize_unlockables(items)
     
     -- handles the unlockables from Config.lua in map_gen.Diggy
     for _, item in pairs(items) do
-        MarketUnlockables.add(item[1], item[2], item[3])
+        MarketUnlockables.add(item.level, item.price, item.name)
     end
     
       for lvl, v in pairs(marked_prototype_items) do
