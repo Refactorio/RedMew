@@ -102,23 +102,23 @@ function Debug.print_grid_value(value, surface, position, scale, offset, immutab
         scale = scale or 1
         offset = offset or 0
         position = {x = position.x + offset, y = position.y + offset}
-        local r = max(1, value) / scale
-        local g = 1 - abs(value) / scale
-        local b = min(1, value) / scale
+		local collapse_stress = 3.57
+		local collapse_amount = value / collapse_stress
 
-        if (r > 0) then
-            r = 0
-        end
-
-        if (b < 0) then
-            b = 0
-        end
-
-        if (g < 0) then
-            g = 0
-        end
-
-        r = abs(r)
+        local r = 0
+        local g = 1
+        local b = 0
+		
+		if (collapse_amount > 0) then
+			r = collapse_amount
+			g = 1 - collapse_amount
+		end
+		
+		if (collapse_amount > 1) then
+			r = 1
+			g = 1
+			b = 1
+		end
 
         color = { r = r, g = g, b = b}
 
