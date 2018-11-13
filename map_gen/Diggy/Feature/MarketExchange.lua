@@ -127,7 +127,7 @@ local function update_market_contents(market)
         
         if (is_in_range and stone_tracker.current_level == old_level) then
             while (calculate_level(stone_tracker.current_level) < stone_tracker.stone_sent_to_surface) do
-                if (calculate_level(stone_tracker.current_level+1) < stone_tracker.stone_sent_to_surface) then
+                if (calculate_level(stone_tracker.current_level+1) <= stone_tracker.stone_sent_to_surface) then
                     stone_tracker.current_level = stone_tracker.current_level + 1
                 else
                     break
