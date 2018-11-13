@@ -1520,6 +1520,11 @@ end
 function Builders.apply_effect(shape, func)
     return function(x, y, world)
         local tile = shape(x, y, world)
+
+        if not tile then
+            return tile
+        end
+
         return func(x, y, world, tile)
     end
 end
