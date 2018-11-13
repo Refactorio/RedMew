@@ -207,15 +207,15 @@ local Config = {
 
             -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
             max_resource_probability = 0.30,
-
-            -- chances per resource of spawning, sum must be 1.00
-            resource_chances = {
-                ['coal']        = 0.16,
-                ['copper-ore']  = 0.215,
-                ['iron-ore']    = 0.389,
-                ['stone']       = 0.212,
-                ['uranium-ore'] = 0.021,
-                ['crude-oil']   = 0.003,
+			
+            -- weights per resource of spawning 
+            resource_weights = {
+                ['coal']        = 160,
+                ['copper-ore']  = 215,
+                ['iron-ore']    = 389,
+                ['stone']       = 212,
+                ['uranium-ore'] =  21,
+                ['crude-oil']   =   3,
             },
 
             -- minimum distance from the spawn point required before it spawns
@@ -227,15 +227,15 @@ local Config = {
                 ['uranium-ore'] = 86,
                 ['crude-oil']   = 57,
             },
-
-            -- defines the chance of which resource_richness_value to spawn, sum must be 1.00
-            resource_richness_probability = {
-                ['scarce']     = 0.44,
-                ['low']        = 0.35,
-                ['sufficient'] = 0.164,
-                ['good']       = 0.03,
-                ['plenty']     = 0.01,
-                ['jackpot']    = 0.006,
+			
+            -- defines the weights of which resource_richness_value to spawn
+            resource_richness_weights = {
+                ['scarce']     = 440,
+                ['low']        = 350,
+                ['sufficient'] = 164,
+                ['good']       =  30,
+                ['plenty']     =  10,
+                ['jackpot']    =   6,
             },
 
             -- defines the min and max range of ores to spawn
