@@ -11,6 +11,8 @@ local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
+local MarketUnlockables = require 'map_gen.Diggy.MarketUnlockables'
+local calculate_level = MarketUnlockables.calculate_level
 local insert = table.insert
 local max = math.max
 
@@ -120,10 +122,17 @@ local function update_market_contents(market)
     local print = game.print
 
     for _, unlockable in pairs(config.unlockables) do
-        local is_in_range = unlockable.stone > stone_tracker.previous_stone_sent_to_surface and unlockable.stone <= stone_tracker.stone_sent_to_surface
+        local stone_unlock = calculate_level(unlockable.level)
+        local is_in_range = stone_unlock > stone_tracker.previous_stone_sent_to_surface and stone_unlock <= stone_tracker.stone_sent_to_surface
         
         if (is_in_range and stone_tracker.current_level == old_level) then
-            stone_tracker.current_level = stone_tracker.current_level + 1
+            while (calculate_level(stone_tracker.current_level) < stone_tracker.stone_sent_to_surface) do
+                if (calculate_level(stone_tracker.current_level+1) < stone_tracker.stone_sent_to_surface) then
+                    stone_tracker.current_level = stone_tracker.current_level + 1
+                else
+                    break
+                end
+            end
         end
 
         -- only add the item to the market if it's between the old and new stone range
@@ -215,30 +224,12 @@ local function get_data(unlocks, stone, type)
     local result = {}
 
     for _, data in pairs(unlocks) do
-        if data.stone == stone and data.type == type then
+        if calculate_level(data.level) == stone and data.type == type then
             insert(result, data)
         end
     end
 
     return result
-end
-
-local function get_stone_level(unlocks, stone)
-    local count = 1
-    local ret = {act = 0, next = 0}
-    for _, data in pairs(unlocks) do
-        if data.stone > stone then
-            ret.next = data.stone
-            break
-        end
-        count = count + 1
-    end
-    if count < 2 then
-        ret.act = 0         -- predefine with 0 if nothing sent yet (at beginning)
-    else
-        ret.act = unlocks[count - 1].stone
-    end
-    return ret
 end
 
 local tag_label_stone = Gui.uid_name()
@@ -251,8 +242,9 @@ local function apply_heading_style(style, width)
 end
 
 local function redraw_heading(data, header)
-    local frame = (header == 1) and data.market_list_heading or data.buff_list_heading
-    local header_caption = (header == 1) and 'Reward Item' or 'Reward Buff'
+    local head_condition = (header == 1)
+    local frame = (head_condition) and data.market_list_heading or data.buff_list_heading
+    local header_caption = (head_condition) and 'Reward Item' or 'Reward Buff'
     Gui.clear(frame)
 
     local heading_table = frame.add({type = 'table', column_count = 2})
@@ -266,16 +258,15 @@ local function redraw_progressbar(data)
     Gui.clear(flow)
 
     -- progress bar for next level
-    local stone_level = get_stone_level(config.unlockables, stone_tracker.stone_sent_to_surface)
-
-    local act_stone = stone_level.act
-    local next_stone = stone_level.next
+    local act_stone = (stone_tracker.current_level ~= 0) and calculate_level(stone_tracker.current_level) or 0
+    local next_stone = calculate_level(stone_tracker.current_level+1)
 
     local range = next_stone - act_stone
     local sent = stone_tracker.stone_sent_to_surface - act_stone
-    local percentage = (math.floor((sent / range)*10^4))/10^4
+    local percentage = (math.floor((sent / range)*1000))*0.001
+    percentage = (percentage < 0) and (percentage*-1) or percentage
 
-    apply_heading_style(flow.add({type = 'label', tooltip = 'Current at level ' .. stone_tracker.current_level, name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
+    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. stone_tracker.current_level .. '\nNext level at: ' .. comma_value(next_stone) ..'\nRemaining stone: ' .. comma_value(range - sent), name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
     local level_progressbar = flow.add({type = 'progressbar', tooltip = percentage * 100 .. '% stone to next level'})
     level_progressbar.style.width = 350
     level_progressbar.value = percentage
@@ -299,11 +290,10 @@ local function redraw_table(data)
 
     -- create table
     for i = 1, #config.unlockables do
-        if config.unlockables[i].stone ~= last_stone then
+        if calculate_level(config.unlockables[i].level) ~= last_stone then
 
             -- get items and buffs for each stone value
-            buffs = get_data(config.unlockables, config.unlockables[i].stone, 'buff')
-            items = get_data(config.unlockables, config.unlockables[i].stone, 'market')
+            items = get_data(config.unlockables, calculate_level(config.unlockables[i].level), 'market')
 
             -- get number of rows
             number_of_rows = max(#buffs, #items)
@@ -311,13 +301,15 @@ local function redraw_table(data)
             -- loop through buffs and items for number of rows
             for j = 1, number_of_rows do
                 local result = {}
+                local item = items[j]
+                local level = item.level
 
                 -- 1st column
-                result[6] = items[j].stone
-                result[1] = 'Level ' ..items[j].level
+                result[6] = calculate_level(level)
+                result[1] = 'Level ' ..level
                 -- 3rd column
                 if items[j] ~= nil then
-                    result[3] = '+ ' .. items[j].prototype.name
+                    result[3] = '+ ' .. item.prototype.name
                 else
                     result[3] = ''
                 end
@@ -339,7 +331,7 @@ local function redraw_table(data)
         end
 
         -- save lastStone
-        last_stone = config.unlockables[i].stone
+        last_stone = calculate_level(config.unlockables[i].level)
     end
 
     -- print table
