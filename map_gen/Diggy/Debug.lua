@@ -114,7 +114,7 @@ function Debug.print_grid_value(value, surface, position, scale, offset, immutab
 			g = 1 - collapse_amount
 		end
 		
-		if (collapse_amount > 1) then
+		if (collapse_amount >= 1) then
 			r = 1
 			g = 1
 			b = 1
