@@ -85,6 +85,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.diagonal_ribbon"
 --shape = require "map_gen.presets.creepy"
 --shape = require "map_gen.presets.vanilla"
+--shape = require "map_gen.presets.maltease_crossings"
 --shape = require "map_gen.presets.test"
 
 --shapes--

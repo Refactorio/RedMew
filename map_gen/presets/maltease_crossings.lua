@@ -3,6 +3,7 @@
 
 local b = require 'map_gen.shared.builders'
 local math = require "utils.math"
+local degrees = math.rad
 
 local function value(base, mult, pow)
     return function(x, y)
