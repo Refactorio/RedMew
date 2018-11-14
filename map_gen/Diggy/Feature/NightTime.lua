@@ -13,7 +13,7 @@ local NightTime = {}
 
 --- Event handler for on_built_entity
 -- checks if player placed a solar-panel and displays a popup
--- @param event the on_built_entity event
+-- @param event table containing the on_built_entity event specific attributes
 --
 local function on_built_entity(event)
     local player = Game.get_player_by_index(event.player_index)
@@ -35,7 +35,7 @@ end
 --- Event handler for on_reasearch_finished
 -- sets the force, which the research belongs to, recipe for solar-panel-equipment
 -- to false, to prevent wastefully crafting. The technology is needed for furter progression
--- @param event the on_research_finished event
+-- @param event table containing the on_research_finished event specific attributes
 --
 local function on_research_finished(event)
     local force = event.research.force
