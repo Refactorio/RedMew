@@ -19,6 +19,11 @@ local function truncate(precision, formula)
     return number, numberlen
 end
 
+--- Handles the level requirement to stone sent. Calculates based on a forumla one number corresponding to that levels cost
+-- You can configure this in Diggy.Config.lua under features.MarketExhange
+-- @param level integer of a level
+-- @returns integer of cost corresponding to the level based on a calculation
+--
 function MarketUnlockables.calculate_level(level) -- all configurable variables must be integers.
     local b = floor(Config.difficulity_scale) or 25 -- Default 25 <-- Controls how much stone is needed.
     local start_value = floor(Config.start_stone) or 50 -- The start value/the first level cost
