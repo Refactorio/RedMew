@@ -78,8 +78,8 @@ Module.show_reports = function(player)
         end
     end
     local report_body = report_frame.add {type = "scroll-pane", name = report_body_name, horizontal_scroll_policy = "never", vertical_scroll_policy="never"}
-    report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close'}
- 
+    report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close' }
+
     draw_report(report_body, #reports)
 end
 
@@ -148,7 +148,7 @@ function Module.jail(player, target)
         player.print('The player ' .. target .. ' is already in Jail.')
         return
     end
-    
+
     -- Set all permissions to disabled
     for action_name, _ in pairs(defines.input_action) do
         permission_group.set_allows_action(defines.input_action[action_name], false)
@@ -157,7 +157,6 @@ function Module.jail(player, target)
     permission_group.set_allows_action(defines.input_action.write_to_console, true)
     permission_group.set_allows_action(defines.input_action.edit_permission_group, true)
 
-    
     -- Kick player out of vehicle
     target_player.driving=false
     -- Add player to jail group
@@ -168,14 +167,16 @@ function Module.jail(player, target)
         while target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index].valid_for_read do
             target_player.remove_item(target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index])
         end
-        target_player.print('Your active weapon has been removed because you were shooting while jailed. Your gun will *not* be returned to you in the event of being unjailed.')
+        target_player.print('Your active weapon has been removed because you were shooting while jailed.')
+        target_player.print('Your gun will *not* be returned to you.')
     end
-    
+
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
         player.print(target .. ' has been jailed. They have been advised of this.')
-        target_player.print('You have been placed in jail by a server admin. The only action you can currently perform is chatting. Please respond to inquiries from the admin.')
+        target_player.print('You have been placed in jail by a server admin. The only action avaliable to you is chatting.')
+        target_player.print('Please resond to inquiries from the admins.')
     else
         -- Let admin know it didn't work.
         player.print('Something went wrong in the jailing of ' .. target .. '. You can still change their group via /permissions.')
@@ -201,7 +202,7 @@ Gui.on_click(
     function(event)
         Module.jail(event.player, string.sub(event.element.caption, 6))
     end
-)        
+)
 
 Gui.on_click(
     report_tab_button_name,
@@ -222,7 +223,7 @@ local reporting_input_name = Gui.uid_name()
 
 Module.spawn_reporting_popup = function(player, reported_player)
 
-    local center = player.gui.center    
+    local center = player.gui.center
   
     local reporting_popup = center[reporting_popup_name]
     if reporting_popup and reporting_popup.valid then 
@@ -241,14 +242,13 @@ Module.spawn_reporting_popup = function(player, reported_player)
     reporting_popup.add {
         type = 'label',
         caption = 'Report message:'
-    } 
+    }
     local input = reporting_popup.add {type = 'text-box', name=reporting_input_name}
     input.style.width = 400 
     input.style.height = 85
     local button_flow = reporting_popup.add {type = "flow"}
     button_flow.add {type = "button", name = reporting_submit_button_name, caption="Submit"}
     button_flow.add {type = "button", name = reporting_cancel_button_name, caption="Cancel"}
-
 end
 
 Gui.on_custom_close(
