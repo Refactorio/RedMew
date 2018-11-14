@@ -224,7 +224,7 @@ Module.spawn_reporting_popup = function(player, reported_player)
     input.style.width = 400 
     input.style.height = 85
     local button_flow = reporting_popup.add {type = "flow"}
-    local submit_button = button_flow.add {type = "button", name = reporting_submit_button_name, caption="Submit"}
+    button_flow.add {type = "button", name = reporting_submit_button_name, caption="Submit"}
     button_flow.add {type = "button", name = reporting_cancel_button_name, caption="Cancel"}
 
 end
