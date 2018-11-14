@@ -8,7 +8,6 @@ Module.donator_perk_flags = {
 local d = Module.donator_perk_flags
 
 Module.donators = {
-    ['robertkruijt'] = d.rank + d.train,
     ['aldldl'] = d.rank,
     ['Geostyx'] = d.rank,
     ['Linaori'] = d.rank,
@@ -23,14 +22,14 @@ Module.donators = {
     ['InphinitePhractals'] = d.rank + d.train,
     ['shoghicp'] = d.rank + d.train,
     ['DuelleuD'] = d.rank + d.train,
-    ['henrycn1997'] = d.rank + d.train
+    ['henrycn1997'] = d.rank + d.train,
+    ['Raiguard'] = d.rank + d.train
 }
 
 Module.welcome_messages = {
     ['Linaori'] = 'I present to you Linaori of house Refactorio, Lady of the Void, Remover of Spaghetti, Queen of the Endless Nauvis, Breaker of Biters and Mother of Code!',
     ['Valansch'] = 'Welcome Valansch, <insert custom welcome message here>.',
     ['der-dave.com'] = "Dave doesn't want a welcome message.",
-    ['robertkruijt'] = 'The general of the army has arived!',
     ['plague006'] = 'plague wrote this dumb message you have to read. If you want your own dumb on-join message be sure to donate on Patreon!',
     ['shoghicp'] = 'Need more servers!',
     ['aldldl'] = 'ALo\'s Here'
