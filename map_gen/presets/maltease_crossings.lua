@@ -12,7 +12,7 @@ local function value(base, mult, pow)
     end
 end
 
-local function no_trees(x, y, world, tile)
+local function no_trees(world, tile)
     if not tile then
         return
     end
@@ -26,7 +26,7 @@ local function no_trees(x, y, world, tile)
     return tile
 end
 
-local function no_resources(x, y, world, tile)
+local function no_resources(world, tile)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
@@ -44,10 +44,10 @@ local tiles_half = (starting_area) * 0.5
 
 local function maltese_cross(x,y)
 	--Create maltese shape
-	
+
 	local abs_x = math.abs(x)
 	local abs_y = math.abs(y)
-	
+
 	return not (abs_x > (tiles_half+(abs_y*gradient)) and abs_y > (tiles_half+(abs_x*gradient)))
 end
 
@@ -55,7 +55,7 @@ end
 local water_line =
         b.any {
         b.rectangle(10,8)
-    }	
+    }
 water_line = b.change_tile(water_line, true, 'water')
 
 local waters = b.single_y_pattern(water_line, 9)
@@ -63,8 +63,7 @@ local bounds = b.rectangle(10, starting_area+1)
 waters = b.choose(bounds, waters, b.empty_shape)
 waters = b.translate(waters,34,0)
 
-water_pattern = 
-	b.any{
+local water_pattern = b.any{
 	    waters,
 	    b.rotate(waters,degrees(90)),
 	    b.rotate(waters,degrees(180)),
@@ -83,7 +82,7 @@ local starting_stone = b.resource(starting_patch, 'stone',  value(1100, 0.75, 1.
 local null = b.no_entity
 local starting_resources = b.segment_pattern({null,starting_coal,null,starting_copper,null,starting_stone,null,starting_iron})
 starting_resources = b.rotate(starting_resources, degrees(45/2))
-starting_circle = b.circle(14)
+-- starting_circle = b.circle(14)
 
 -- ore generation
 local patch = b.circle(20)
@@ -95,7 +94,7 @@ local oil = b.resource(b.throttle_world_xy(small_patch,1,4,1,4), 'crude-oil', va
 local coal = b.resource(patch, 'coal',  value(100, 0.75, 1.1))
 local uranium = b.resource(small_patch, 'uranium-ore', value(200, 0.75, 1.1))
 
-local pattern1 = 
+local pattern1 =
 {
     {stone, oil,stone},
     {stone, oil, oil},
@@ -103,7 +102,7 @@ local pattern1 =
 }
 local stone_arm = b.grid_pattern(pattern1, 3, 3,  220,220)
 
-local pattern2 = 
+local pattern2 =
 {
     {coal, coal, coal},
     {coal, coal, coal},
@@ -112,14 +111,13 @@ local pattern2 =
 local coal_arm = b.grid_pattern(pattern2, 3, 3,  220, 220)
 local iron = b.resource(patches, 'iron-ore', value(500, 0.8, 1.075))
 local copper = b.resource(patches, 'copper-ore',  value(400, 0.75, 1.1))
-local null = b.no_entity
 
 local resources = b.segment_pattern({null,coal_arm,null,copper,null,stone_arm,null,iron})
 resources = b.rotate(resources, degrees(45/2))
 
 -- worm islands
-worm_island = b.rectangle(20,300)
-worm_island_end = b.circle(10)
+local worm_island = b.rectangle(20,300)
+local worm_island_end = b.circle(10)
 worm_island = b.any{
 	worm_island_end,
 	b.translate(worm_island,0,-150),
@@ -127,11 +125,14 @@ worm_island = b.any{
 }
 worm_island = b.change_tile(worm_island, true, 'grass-1')
 
+--[[
 local worm_names = {
     'small-worm-turret',
     'medium-worm-turret',
     'big-worm-turret'
 }
+]]--
+
 local max_worm_chance = 64 / 128
 local worm_chance_factor = 1 --/ (192 * 512)
 local function worms(_, _, world)
@@ -151,7 +152,7 @@ end
 worm_island = b.apply_entity(worm_island, worms)
 worm_island = b.apply_effect(worm_island, no_trees)
 
-worm_islands = b.any{
+local worm_islands = b.any{
 	b.rotate(b.translate(worm_island,0,-110),degrees(45)),
 	b.rotate(b.translate(worm_island,0,-110),degrees(45+90)),
 	b.rotate(b.translate(worm_island,0,-110),degrees(45+180)),
@@ -172,6 +173,6 @@ maltese_cross = b.apply_entity(maltese_cross, resources)        -- adds our cust
 local sea = b.change_tile(b.full_shape, true, 'water')          -- turn the void to water
 sea = b.fish(sea, 0.00125)                                      -- feesh!
 local map = b.any{worm_islands, start_area, maltese_cross, sea} -- combine everything
-map = b.apply_effect(map, no_resources)                         -- removes vanilla ores  
+map = b.apply_effect(map, no_resources)                         -- removes vanilla ores
 
 return map
