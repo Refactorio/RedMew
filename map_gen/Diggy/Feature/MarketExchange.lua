@@ -149,7 +149,9 @@ local function update_market_contents(market)
             })
         end
     end
-    
+
+    MarketExchange.update_gui()
+
     if (old_level < stone_tracker.current_level) then
         for _, buffs in pairs(config.buffs) do
             if (buffs.prototype.name == 'mining_speed') then
@@ -502,7 +504,7 @@ local function toggle(event)
     redraw_buff(data)
 
     Gui.set_data(frame, data)
-    
+
 end
 
 local function on_player_created(event)
@@ -517,6 +519,18 @@ Gui.on_click('Diggy.MarketExchange.Button', toggle)
 Gui.on_custom_close('Diggy.MarketExchange.Frame', function (event)
     event.element.destroy()
 end)
+
+function MarketExchange.update_gui()
+    for _, p in ipairs(game.connected_players) do
+        local frame = p.gui.left['Diggy.MarketExchange.Frame']
+
+        if frame and frame.valid then
+            local data = {player = p}
+            toggle(data)
+            toggle(data)
+        end
+    end
+end
 
 function MarketExchange.on_init()
     Task.set_timeout_in_ticks(50, on_market_timeout_finished, {
