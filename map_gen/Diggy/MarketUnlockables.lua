@@ -9,8 +9,14 @@ local floor = math.floor
 local ceil = math.ceil
 local log10 = math.log10
 
-local function truncate(precision, formula)
-    local number = formula
+--- Handles a truncation of numbers to create simple large numbers
+-- eg. 1593251 could become 1590000 with precision 3
+-- number larger than 10 million will have an precision of +1
+-- @param precision number of the precision wanted (number of significant digits)
+-- @param precise_number number that needs to be truncated/simplified
+--
+local function truncate(precision, precise_number)
+    local number = precise_number
     local numberlen = floor(log10(number)+1)
     precision = (numberlen >= 8) and (precision+1) or precision
     local exponent = numberlen-precision
@@ -21,8 +27,8 @@ end
 
 --- Handles the level requirement to stone sent. Calculates based on a forumla one number corresponding to that levels cost
 -- You can configure this in Diggy.Config.lua under features.MarketExhange
--- @param level integer of a level
--- @returns integer of cost corresponding to the level based on a calculation
+-- @param level number of a level
+-- @returns number of cost corresponding to the level based on a calculation
 --
 function MarketUnlockables.calculate_level(level) -- all configurable variables must be integers.
     local b = floor(Config.difficulity_scale) or 25 -- Default 25 <-- Controls how much stone is needed.
