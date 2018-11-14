@@ -15,18 +15,19 @@ local floor = math.floor
 -- this
 local ScatteredResources = {}
 
-local function get_name_by_random(collection)
+local function get_name_by_weight(collection, sum)
     local pre_calculated = random()
     local current = 0
-
-    for name, probability in pairs(collection) do
-        current = current + probability
-        if (current >= pre_calculated) then
+    local target = pre_calculated * sum
+    
+    for name, weight in pairs(collection) do
+        current = current + weight
+        if (current >= target) then
             return name
         end
     end
 
-    Debug.print('Current \'' .. current .. '\' should be higher or equal to random \'' .. pre_calculated .. '\'')
+    Debug.print('Current \'' .. current .. '\' should be higher or equal to random \'' .. target .. '\'')
 end
 
 --[[--
@@ -39,22 +40,31 @@ function ScatteredResources.register(config)
     local distance_probability_modifier = config.distance_probability_modifier
     local resource_probability = config.resource_probability
     local max_resource_probability = config.max_resource_probability
-    local resource_chances = config.resource_chances
-    local resource_richness_probability = config.resource_richness_probability
+    local resource_weights = config.resource_weights
+    local resource_richness_weights = config.resource_richness_weights
     local distance_richness_modifier = config.distance_richness_modifier
     local liquid_value_modifiers = config.liquid_value_modifiers
     local resource_richness_values = config.resource_richness_values
     local minimum_resource_distance = config.minimum_resource_distance
     local cluster_yield_multiplier = config.cluster_yield_multiplier
+    
+    local resource_weights_sum = 0
+    for _, weight in pairs(resource_weights) do
+        resource_weights_sum = resource_weights_sum + weight
+    end
+    local resource_richness_weights_sum = 0
+    for _, weight in pairs(resource_richness_weights) do
+        resource_richness_weights_sum = resource_richness_weights_sum + weight
+    end
 
     local function spawn_resource(surface, x, y, distance)
-        local resource_name = get_name_by_random(resource_chances)
+        local resource_name = get_name_by_weight(resource_weights, resource_weights_sum)
 
         if (minimum_resource_distance[resource_name] > distance) then
             return
         end
 
-        local min_max = resource_richness_values[get_name_by_random(resource_richness_probability)]
+        local min_max = resource_richness_values[get_name_by_weight(resource_richness_weights, resource_richness_weights_sum)]
         local amount = ceil(random(min_max[1], min_max[2]) * (1 + ((distance / distance_richness_modifier) * 0.01)))
 
         if liquid_value_modifiers[resource_name] then
@@ -70,29 +80,10 @@ function ScatteredResources.register(config)
         Template.resources(surface, {{name = resource_name, position = position, amount = amount}})
     end
 
-    function sum(t)
-        local sum = 0
-        for _, v in pairs(t) do
-            sum = sum + v
-        end
-
-        return sum
-    end
-
     local seed
     local function get_noise(surface, x, y)
         seed = seed or surface.map_gen_settings.seed + surface.index + 200
         return Perlin.noise(x * noise_variance, y * noise_variance, seed)
-    end
-
-    local resource_sum = sum(config.resource_chances)
-    if (1 ~= resource_sum) then
-        error('Expected a sum of 1.00, got \'' .. resource_sum .. '\' for config.feature.ScatteredResources.resource_chances.')
-    end
-
-    local richness_sum = sum(config.resource_richness_probability)
-    if (1 ~= richness_sum) then
-        error('Expected a sum of 1.00, got \'' .. richness_sum .. '\' for config.feature.ScatteredResources.resource_richness_probability.')
     end
 
     Event.add(Template.events.on_void_removed, function (event)
