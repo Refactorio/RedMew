@@ -104,6 +104,28 @@ function Module.report(reporting_player, reported_player, message)
     end
 end
 
+function Module.cmd_report(cmd)
+    local reporting_player = game.player
+    if reporting_player then
+        local params = {}
+        for param in string.gmatch(cmd.parameter, '%S+') do
+            table.insert(params, param)
+        end
+        if #params < 2 then
+            reporting_player.print('Please enter then name of the offender and the reason for the report.')
+            return nil
+        end
+        local reported_player_name = params[1] or ''
+        local reported_player = game.players[reported_player_name]
+
+        if not reported_player then
+            reporting_player.print(reported_player_name .. ' does not exist.')
+            return nil
+        end
+        Module.report(reporting_player, reported_player, string.sub(cmd.parameter, string.len(params[1]) + 2))
+    end
+end
+
 function Module.jail(player, target)
     -- Set the name of the jail permission group
     local jail_name = 'Jail'
