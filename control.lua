@@ -59,8 +59,8 @@ local function player_created(event)
         player.insert {name = MARKET_ITEM, count = 10}
     end
     player.insert {name = 'iron-gear-wheel', count = 8}
-    player.insert {name = 'iron-plate', count = 16 }
-    
+    player.insert {name = 'iron-plate', count = 16}
+
     player.print('Trouble chatting? Change the keybinding in:')
     player.print('Options -> Controls -> Toggle Lua console')
 
