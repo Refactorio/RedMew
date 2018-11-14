@@ -427,6 +427,12 @@ function Builders.combine(shapes)
     end
 end
 
+function Builders.add(shape1, shape2)
+    return function(x, y, world)
+        return shape1(x, y, world) or shape2(x, y, world)
+    end
+end
+
 function Builders.subtract(shape, minus_shape)
     return function(x, y, world)
         if minus_shape(x, y, world) then
@@ -765,6 +771,20 @@ function Builders.single_y_pattern(shape, height)
     local half_height = height / 2
 
     return function(x, y, world)
+        y = ((y + half_height) % height) - half_height
+
+        return shape(x, y, world)
+    end
+end
+
+function Builders.single_grid_pattern(shape, width, height)
+    shape = shape or Builders.empty_shape
+
+    local half_width = width / 2
+    local half_height = height / 2
+
+    return function(x, y, world)
+        x = ((x + half_width) % width) - half_width
         y = ((y + half_height) % height) - half_height
 
         return shape(x, y, world)
@@ -1383,7 +1403,7 @@ function Builders.change_map_gen_hidden_tile(shape, old_tile, hidden_tile)
 
         local tile = shape(x, y, world)
 
-        if type(tile) == 'table' then            
+        if type(tile) == 'table' then
             if path_tiles[tile.tile] and is_collides() then
                 tile.hidden_tile = hidden_tile
             end
