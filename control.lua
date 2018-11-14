@@ -37,7 +37,7 @@ require 'features.custom_commands'
 
 -- GUIs the order determines the order they appear from left to right.
 -- These can be safely disabled. Some map presets will add GUI modules themselves.
-require 'features.gui.info'
+local info = require 'features.gui.info'
 require 'features.gui.player_list'
 require 'features.gui.poll'
 require 'features.gui.tag_group'
@@ -59,14 +59,17 @@ local function player_created(event)
         player.insert {name = MARKET_ITEM, count = 10}
     end
     player.insert {name = 'iron-gear-wheel', count = 8}
-    player.insert {name = 'iron-plate', count = 16}
-    player.print('Welcome to our Server. You can join our Discord at: redmew.com/discord')
-    player.print('Click the question mark in the top left corner for server infomation and map details.')
-    player.print('And remember.. Keep Calm And Spaghetti!')
+    player.insert {name = 'iron-plate', count = 16 }
+    
+    player.print('Trouble chatting? Change the keybinding in:')
+    player.print('Options -> Controls -> Toggle Lua console')
 
     local gui = player.gui
     gui.top.style = 'slot_table_spacing_horizontal_flow'
     gui.left.style = 'slot_table_spacing_vertical_flow'
+    if info ~= nil then
+        info.show_info({player = player})
+    end
 end
 
 Event.add(defines.events.on_player_created, player_created)
