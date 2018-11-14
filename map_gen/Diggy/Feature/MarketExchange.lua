@@ -463,15 +463,15 @@ end
 
 local function toggle(event)
     local player = event.player
-    local center = player.gui.center
-    local frame = center['Diggy.MarketExchange.Frame']
+    local left = player.gui.left
+    local frame = left['Diggy.MarketExchange.Frame']
 
     if (frame) then
         Gui.destroy(frame)
         return
     end
 
-    frame = center.add({name = 'Diggy.MarketExchange.Frame', type = 'frame', direction = 'vertical'})
+    frame = left.add({name = 'Diggy.MarketExchange.Frame', type = 'frame', direction = 'vertical'})
 
     local market_progressbars = frame.add({type = 'flow', direction = 'vertical'})
     local market_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
@@ -502,8 +502,7 @@ local function toggle(event)
     redraw_buff(data)
 
     Gui.set_data(frame, data)
-
-    player.opened = frame
+    
 end
 
 local function on_player_created(event)
