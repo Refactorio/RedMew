@@ -207,15 +207,15 @@ local Config = {
 
             -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
             max_resource_probability = 0.30,
-
-            -- chances per resource of spawning, sum must be 1.00
-            resource_chances = {
-                ['coal']        = 0.16,
-                ['copper-ore']  = 0.215,
-                ['iron-ore']    = 0.389,
-                ['stone']       = 0.212,
-                ['uranium-ore'] = 0.021,
-                ['crude-oil']   = 0.003,
+			
+            -- weights per resource of spawning 
+            resource_weights = {
+                ['coal']        = 160,
+                ['copper-ore']  = 215,
+                ['iron-ore']    = 389,
+                ['stone']       = 212,
+                ['uranium-ore'] =  21,
+                ['crude-oil']   =   3,
             },
 
             -- minimum distance from the spawn point required before it spawns
@@ -227,15 +227,15 @@ local Config = {
                 ['uranium-ore'] = 86,
                 ['crude-oil']   = 57,
             },
-
-            -- defines the chance of which resource_richness_value to spawn, sum must be 1.00
-            resource_richness_probability = {
-                ['scarce']     = 0.44,
-                ['low']        = 0.35,
-                ['sufficient'] = 0.164,
-                ['good']       = 0.03,
-                ['plenty']     = 0.01,
-                ['jackpot']    = 0.006,
+			
+            -- defines the weights of which resource_richness_value to spawn
+            resource_richness_weights = {
+                ['scarce']     = 440,
+                ['low']        = 350,
+                ['sufficient'] = 164,
+                ['good']       =  30,
+                ['plenty']     =  10,
+                ['jackpot']    =   6,
             },
 
             -- defines the min and max range of ores to spawn
@@ -279,7 +279,7 @@ local Config = {
 
             -- every x ticks it will clear y currency_item
             void_chest_frequency = 307,
-            
+
             -- add or remove a table entry to add or remove a unlockable item from the mall.
             -- format: {unlock_at_level, price, prototype_name},
             unlockables = require('map_gen.Diggy.FormatMarketItems').initalize_unlockables(
@@ -304,13 +304,13 @@ local Config = {
                     {level = 30, price = 1000, name = 'combat-shotgun'},
                 }
             ),
-            
+
             buffs = { --Define new buffs here
                 {prototype = {name = 'mining_speed', value = 5}},
                 {prototype = {name = 'inventory_slot', value = 1}},
                 {prototype = {name = 'stone_automation', value = 3}},
             },
-            
+
             -- controls the formula for calculating level up costs in stone sent to surface
             difficulity_scale = 25, -- Diggy default 25. Higher increases difficulity, lower decreases (Only affects the stone requirement/cost to level up) (Only integers has been tested succesful)
             start_stone = 50, -- Diggy default 50. This sets the price for the first level.
