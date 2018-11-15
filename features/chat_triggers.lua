@@ -121,14 +121,14 @@ local function hodor(event)
         end
     end
 
-    -- Gives a sound notification to a mentioned player using @[player-name]
+    -- Gives a sound notification to a mentioned player using #[player-name]
     if global.mention_enabled then
         local missing_player_string
         local not_found = 0
-        for word in event.message:gmatch('@%S+') do
+        for word in event.message:gmatch('#%S+') do
             local cannot_mention = {}
             for _, p in ipairs(game.connected_players) do
-                if '@'..p.name == word then
+                if '#'..p.name == word then
                     if p.name == player.name then
                         player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
                         break;
