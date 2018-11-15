@@ -23,7 +23,7 @@ Module.donators = {
     ['shoghicp'] = d.rank + d.train,
     ['DuelleuD'] = d.rank + d.train,
     ['henrycn1997'] = d.rank + d.train,
-    ['Raiguard'] = d.rank + d.train
+    ['Raiguard'] = d.rank + d.train,
 }
 
 Module.welcome_messages = {
@@ -32,7 +32,8 @@ Module.welcome_messages = {
     ['der-dave.com'] = "Dave doesn't want a welcome message.",
     ['plague006'] = 'plague wrote this dumb message you have to read. If you want your own dumb on-join message be sure to donate on Patreon!',
     ['shoghicp'] = 'Need more servers!',
-    ['aldldl'] = 'ALo\'s Here'
+    ['aldldl'] = 'ALo\'s Here',
+    ['Raiguard'] = 'I am... was... God. The one you call \'The Almighty\'. The creator of Factories. But now, I am dead. The Biters killed me. I am sorry.',
 }
 
 return Module
