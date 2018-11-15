@@ -9,6 +9,8 @@ local report_close_button_name = Gui.uid_name()
 local report_tab_button_name = Gui.uid_name()
 local jail_offender_button_name = Gui.uid_name()
 local report_body_name = Gui.uid_name()
+local prefix = '------------------NOTICE-------------------'
+local prefix_e = '--------------------------------------------'
 
 global.reports = {}
 global.player_report_data = {}
@@ -167,16 +169,20 @@ function Module.jail(player, target)
         while target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index].valid_for_read do
             target_player.remove_item(target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index])
         end
+        target_player.print(prefix)
         target_player.print('Your active weapon has been removed because you were shooting while jailed.')
         target_player.print('Your gun will *not* be returned to you.')
+        target_player.print(prefix_e)
     end
 
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
         player.print(target .. ' has been jailed. They have been advised of this.')
+        target_player.print(prefix)
         target_player.print('You have been placed in jail by a server admin. The only action avaliable to you is chatting.')
-        target_player.print('Please resond to inquiries from the admins.', {r = 1, g = 1, b = 0, a = 1})
+        target_player.print('Please respond to inquiries from the admins.', {r = 1, g = 1, b = 0, a = 1})
+        target_player.print(prefix_e)
     else
         -- Let admin know it didn't work.
         player.print('Something went wrong in the jailing of ' .. target .. '. You can still change their group via /permissions.')
@@ -227,7 +233,9 @@ function Module.unjail_player(cmd)
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
         Game.player_print(target .. ' has been returned to the default group. They have been advised of this.')
+        target_player.print(prefix)
         target_player.print('Your ability to perform actions has been restored', {r = 0, g = 1, b = 0, a = 1})
+        target_player.print(prefix_e)
     else
         -- Let admin know it didn't work.
         Game.player_print(
@@ -327,11 +335,13 @@ Gui.on_click(
         local msg = frame[reporting_input_name].text
         local data = Gui.get_data(frame)
         local reported_player_index = data["reported_player_index"]
-        
+        local print = event.player.print
+
         Gui.destroy(frame)
         Module.report(event.player, Game.get_player_by_index(reported_player_index), msg)
-        
-        event.player.print("Sucessfully reported " .. Game.get_player_by_index(reported_player_index).name)
+        print(prefix)
+        print("You have successfully reported the player: " .. Game.get_player_by_index(reported_player_index).name)
+        print(prefix_e)
     end
 )
 
