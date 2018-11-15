@@ -35,7 +35,7 @@ require 'features.custom_commands'
 
 -- GUIs the order determines the order they appear from left to right.
 -- These can be safely disabled. Some map presets will add GUI modules themselves.
-require 'features.gui.info'
+local info = require 'features.gui.info'
 require 'features.gui.player_list'
 require 'features.gui.poll'
 require 'features.gui.tag_group'
@@ -44,5 +44,3 @@ require 'features.gui.blueprint_helper'
 require 'features.gui.paint'
 require 'features.gui.score'
 require 'features.gui.popup'
-
-

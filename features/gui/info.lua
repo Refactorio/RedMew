@@ -706,6 +706,10 @@ Gui.on_custom_close(
 
 local Public = {}
 
+function Public.show_info(player)
+    toggle(player)
+end
+
 function Public.get_map_name()
     return editable_info[map_name_key]
 end
