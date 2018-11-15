@@ -118,17 +118,18 @@ local function update_market_contents(market)
     local should_update_inventory_slots = false
     local should_update_stone_collecting = false
     local add_market_item
-    local old_level = stone_tracker.current_level
+    local current_level = stone_tracker.current_level
+    local old_level = current_level
     local print = game.print
 
     for _, unlockable in pairs(config.unlockables) do
         local stone_unlock = calculate_level(unlockable.level)
         local is_in_range = stone_unlock > stone_tracker.previous_stone_sent_to_surface and stone_unlock <= stone_tracker.stone_sent_to_surface
-        
-        if (is_in_range and stone_tracker.current_level == old_level) then
-            while (calculate_level(stone_tracker.current_level) < stone_tracker.stone_sent_to_surface) do
-                if (calculate_level(stone_tracker.current_level+1) <= stone_tracker.stone_sent_to_surface) then
-                    stone_tracker.current_level = stone_tracker.current_level + 1
+
+        if (current_level == old_level) then
+            while (calculate_level(current_level) < stone_tracker.stone_sent_to_surface) do
+                if (calculate_level(current_level+1) <= stone_tracker.stone_sent_to_surface) then
+                    current_level = current_level + 1
                 else
                     break
                 end
@@ -152,7 +153,7 @@ local function update_market_contents(market)
 
     MarketExchange.update_gui()
 
-    if (old_level < stone_tracker.current_level) then
+    if (old_level < current_level) then
         for _, buffs in pairs(config.buffs) do
             if (buffs.prototype.name == 'mining_speed') then
                 local value = buffs.prototype.value
@@ -166,7 +167,7 @@ local function update_market_contents(market)
                 inventory_slots.market_modifier = inventory_slots.market_modifier + value
             elseif (buffs.prototype.name == 'stone_automation') then
                 local value = buffs.prototype.value
-                if (stone_tracker.current_level == 1) then
+                if (current_level == 1) then
                     print('Mining Foreman: We can now automatically send stone to the surface from a chest below the market!')
                 else
                     print('Mining Foreman: We can now automatically send ' .. value .. ' more stones!')
