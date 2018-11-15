@@ -1,7 +1,6 @@
 global.regulars = require 'resources.regulars'
 local Donators = require 'resources.donators'
 global.donators = Donators.donators
-global.admins = require 'resources.admins'
 local Event = require 'utils.event'
 local Utils = require 'utils.utils'
 local Game = require 'utils.game'
