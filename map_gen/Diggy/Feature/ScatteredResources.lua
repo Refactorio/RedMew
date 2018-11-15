@@ -7,6 +7,7 @@ local Event = require 'utils.event'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
+local Simplex = require 'map_gen.shared.simplex_noise'
 local random = math.random
 local sqrt = math.sqrt
 local ceil = math.ceil
@@ -34,6 +35,24 @@ end
     Registers all event handlers.
 ]]
 function ScatteredResources.register(config)
+
+    -- source of noise for resource generation
+    -- index determines offset
+    -- '-1' is reserved for cluster mode
+    -- compound clusters use as many indexes as needed > 1
+    local base_seed
+    local function seeded_noise(surface, x, y, index, cluster_variance, noise_type)
+        base_seed = base_seed or surface.map_gen_settings.seed + surface.index + 400
+        noise_type = noise_type or "perlin"
+        if noise_type == "perlin" then
+            return Perlin.noise(x * cluster_variance, y * cluster_variance, base_seed + 200 * index)
+        elseif noise_type == "simplex" then
+            return Simplex.d2(x * cluster_variance, y * cluster_variance, base_seed + 200 * index)
+        end
+    end
+    
+    -- cluster and scattered spawning
+
     local noise_resource_threshold = config.noise_resource_threshold
     local noise_variance = config.noise_variance
     local cluster_mode = config.cluster_mode
@@ -80,22 +99,87 @@ function ScatteredResources.register(config)
         Template.resources(surface, {{name = resource_name, position = position, amount = amount}})
     end
 
-    local seed
-    local function get_noise(surface, x, y)
-        seed = seed or surface.map_gen_settings.seed + surface.index + 200
-        return Perlin.noise(x * noise_variance, y * noise_variance, seed)
+    -- compound cluster spawning
+    
+    local cc_mode = config.compound_cluster_mode
+    local cc_richness_weights = config.compound_cluster_richness_weights
+    local cc_richness_values = config.compound_cluster_richness_values
+    local cc_type_scalar = config.compound_cluster_type_scalar
+    local cc_clusters = config.compound_clusters
+    
+    local cc_richness_weights_sum = 0
+    for _, weight in pairs(cc_richness_weights) do
+        cc_richness_weights_sum = cc_richness_weights_sum + weight
     end
+    local cc_cluster_count = 0
+    for _, cluster in ipairs(cc_clusters) do
+        cc_cluster_count = cc_cluster_count + 1
+        cluster.weights_sum = 0
+        for _, weight in pairs(cluster.weights) do
+            cluster.weights_sum = cluster.weights_sum + weight
+        end
+    end
+    
+    local function spawn_compound_cluser_resource(surface, x, y, cluster_index, cluster)
+        local distance = sqrt(x * x + y * y)
+        local resource_name = get_name_by_weight(cluster.weights, cluster.weights_sum)
+        if resource_name == 'skip' then
+            return false
+        end
+        if cluster.distances[resource_name] then
+            if distance < cluster.distances[resource_name] then
+                return false
+            end
+        end
+    
+        local range = cc_richness_values[get_name_by_weight(cc_richness_weights, cc_richness_weights_sum)]
+        local amount = random(range[1], range[2])
+        amount = amount * (1 + ((distance / cluster.distance_richness) * 0.01))
+        
+        if cc_type_scalar[resource_name] then 
+            amount = amount * cc_type_scalar[resource_name]
+        end
 
+        Template.resources(surface, {{name = resource_name, position = {x = x, y = y}, amount = floor(amount)}})
+        return true
+    end
+    
+    local function spawn_compound_clusters(surface, x, y, distance)
+        for index,cluster in ipairs(cc_clusters) do
+            if distance >= cluster.min_distance then
+                if seeded_noise(surface, x, y, index, cluster.variance,
+                        cluster.noise or 'perlin') >= cluster.threshold then
+                    if spawn_compound_cluser_resource(surface, x, y, index, cluster) then
+                        return true -- resource spawned
+                    end
+                end
+            end
+        end
+        return false -- nothing spawned
+    end
+    
+    -- event registration
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.position
         local x = position.x
         local y = position.y
         local surface = event.surface
 
-        local distance = floor(sqrt(x * x + y * y))
+        local distance = sqrt(x * x + y * y)
+        
+        if cc_mode then
+            if (spawn_compound_clusters(surface, x, y, distance)) then
+                return
+            end
+        end
+        distance = floor(distance)
 
-        if (cluster_mode and get_noise(surface, x, y) > noise_resource_threshold) then
+        if (cluster_mode and seeded_noise(surface, x, y, -1, noise_variance) > noise_resource_threshold) then
             spawn_resource(surface, x, y, distance)
+            return
+        end
+        
+        if not scattered_mode then
             return
         end
 
@@ -123,8 +207,26 @@ function ScatteredResources.register(config)
 
             for x = area.left_top.x, area.left_top.x + 31 do
                 for y = area.left_top.y, area.left_top.y + 31 do
-                    if get_noise(surface, x, y) >= noise_resource_threshold then
+                    if seeded_noise(surface, x, y, -1, noise_variance) >= noise_resource_threshold then
                         Debug.print_grid_value('ore', surface, {x = x, y = y}, nil, nil, true)
+                    end
+                end
+            end
+        end)
+    end
+    
+    if (config.display_compound_ore_locations) then
+        Event.add(defines.events.on_chunk_generated, function (event)
+            local surface = event.surface
+            local area = event.area
+
+            for x = area.left_top.x, area.left_top.x + 31 do
+                for y = area.left_top.y, area.left_top.y + 31 do
+                    for index,cluster in ipairs(cc_clusters) do
+                        if seeded_noise(surface, x, y, index, cluster.variance,
+                        cluster.noise or 'perlin') >= cluster.threshold then
+                            Debug.print_grid_value('o' .. index, surface, {x = x, y = y}, nil, nil, true)
+                        end
                     end
                 end
             end
