@@ -175,6 +175,16 @@ function Debug.print_colored_grid_value(value, surface, position, scale, offset,
     local u_color = under_bound or color
     local o_color = over_bound or color
     
+    if (color_value < 0) then
+        color = u_color
+    elseif (color_value > 1) then
+        color = o_color
+    else
+        color = { r = color.r + color_value * d_color.r,
+                  g = color.g + color_value * d_color.g,
+                  b = color.b + color_value * d_color.b }
+    end
+    
     text = value
 
     if type(immutable) ~= 'boolean' then
@@ -184,16 +194,6 @@ function Debug.print_colored_grid_value(value, surface, position, scale, offset,
     if not is_string then
         offset = offset or 0
         position = {x = position.x + offset, y = position.y + offset}
-        
-        if (color_value < 0) then
-            color = u_color
-        elseif (color_value > 1) then
-            color = o_color
-        else
-            color = { r = color.r + color_value * delta_color.r,
-                      g = color.g + color_value * delta_color.g,
-                      b = color.b + color_value * delta_color.b }
-        end
 
         -- round at precision of 2
         text = floor(100 * value) * 0.01
