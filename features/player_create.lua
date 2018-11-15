@@ -9,13 +9,6 @@ local function player_created(event)
         return
     end
 
-    if global.scenario.config.admin_check == true then
-        if UserGroups.is_admin(player.name) then
-            player.admin = true
-            log(player.name .. " promoted to admin via control.")
-        end
-    end
-
     if (global.scenario.config.fish_market.enable) then
         player.insert {name = MARKET_ITEM, count = 10}
     end
