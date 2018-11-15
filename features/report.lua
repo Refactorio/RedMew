@@ -9,6 +9,8 @@ local report_close_button_name = Gui.uid_name()
 local report_tab_button_name = Gui.uid_name()
 local jail_offender_button_name = Gui.uid_name()
 local report_body_name = Gui.uid_name()
+local prefix = '------------------NOTICE-------------------'
+local prefix_e = '--------------------------------------------'
 
 global.reports = {}
 global.player_report_data = {}
@@ -78,8 +80,8 @@ Module.show_reports = function(player)
         end
     end
     local report_body = report_frame.add {type = "scroll-pane", name = report_body_name, horizontal_scroll_policy = "never", vertical_scroll_policy="never"}
-    report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close'}
- 
+    report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close' }
+
     draw_report(report_body, #reports)
 end
 
@@ -104,6 +106,28 @@ function Module.report(reporting_player, reported_player, message)
     end
 end
 
+function Module.cmd_report(cmd)
+    local reporting_player = game.player
+    if reporting_player then
+        local params = {}
+        for param in string.gmatch(cmd.parameter, '%S+') do
+            table.insert(params, param)
+        end
+        if #params < 2 then
+            reporting_player.print('Please enter then name of the offender and the reason for the report.')
+            return nil
+        end
+        local reported_player_name = params[1] or ''
+        local reported_player = game.players[reported_player_name]
+
+        if not reported_player then
+            reporting_player.print(reported_player_name .. ' does not exist.')
+            return nil
+        end
+        Module.report(reporting_player, reported_player, string.sub(cmd.parameter, string.len(params[1]) + 2))
+    end
+end
+
 function Module.jail(player, target)
     -- Set the name of the jail permission group
     local jail_name = 'Jail'
@@ -123,10 +147,10 @@ function Module.jail(player, target)
     end
     
     if target_player.permission_group == permission_group then
-        player.print('The player ' .. target .. ' is already in Jail.')
+        player.print('The player ' .. target .. ' is already in jail.')
         return
     end
-    
+
     -- Set all permissions to disabled
     for action_name, _ in pairs(defines.input_action) do
         permission_group.set_allows_action(defines.input_action[action_name], false)
@@ -135,7 +159,6 @@ function Module.jail(player, target)
     permission_group.set_allows_action(defines.input_action.write_to_console, true)
     permission_group.set_allows_action(defines.input_action.edit_permission_group, true)
 
-    
     -- Kick player out of vehicle
     target_player.driving=false
     -- Add player to jail group
@@ -146,17 +169,79 @@ function Module.jail(player, target)
         while target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index].valid_for_read do
             target_player.remove_item(target_player.get_inventory(defines.inventory.player_guns)[target_player.character.selected_gun_index])
         end
-        target_player.print('Your active weapon has been removed because you were shooting while jailed. Your gun will *not* be returned to you in the event of being unjailed.')
+        target_player.print(prefix)
+        target_player.print('Your active weapon has been removed because you were shooting while jailed.')
+        target_player.print('Your gun will *not* be returned to you.')
+        target_player.print(prefix_e)
     end
-    
+
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
         player.print(target .. ' has been jailed. They have been advised of this.')
-        target_player.print('You have been placed in jail by a server admin. The only action you can currently perform is chatting. Please respond to inquiries from the admin.')
+        target_player.print(prefix)
+        target_player.print('You have been placed in jail by a server admin. The only action avaliable to you is chatting.')
+        target_player.print('Please respond to inquiries from the admins.', {r = 1, g = 1, b = 0, a = 1})
+        target_player.print(prefix_e)
     else
         -- Let admin know it didn't work.
         player.print('Something went wrong in the jailing of ' .. target .. '. You can still change their group via /permissions.')
+    end
+end
+
+function Module.unjail_player(cmd)
+    local default_group = 'Default'
+    local player = game.player
+    -- Check if the player can run the command
+    if player and not player.admin then
+        Utils.cant_run(cmd.name)
+        return
+    end
+    -- Check if the target is valid (copied from the invoke command)
+    local target = cmd['parameter']
+    if target == nil then
+        Game.player_print('Usage: /unjail <player>')
+        return
+    end
+
+    local target_player = game.players[target]
+    if not target_player then
+        Game.player_print('Unknown player.')
+        return
+    end
+
+    local permissions = game.permissions
+
+    -- Check if the permission group exists, if it doesn't, create it.
+    local permission_group = permissions.get_group(default_group)
+    if not permission_group then
+        permission_group = permissions.create_group(default_group)
+    end
+
+    local jail_permission_group = permissions.get_group('Jail')
+    if (not jail_permission_group) or target_player.permission_group ~= jail_permission_group then
+        Game.player_print('The player ' .. target .. ' is already not in Jail.')
+        return
+    end
+
+    -- Move player
+    permission_group.add_player(target)
+    -- Set player to a non-shooting state (solves a niche case where players jailed while shooting will be locked into a shooting state)
+    target_player.shooting_state.state = 0
+
+    -- Check that it worked
+    if target_player.permission_group == permission_group then
+        -- Let admin know it worked, let target know what's going on.
+        Game.player_print(target .. ' has been returned to the default group. They have been advised of this.')
+        target_player.print(prefix)
+        target_player.print('Your ability to perform actions has been restored', {r = 0, g = 1, b = 0, a = 1})
+        target_player.print(prefix_e)
+    else
+        -- Let admin know it didn't work.
+        Game.player_print(
+            'Something went wrong in the unjailing of ' ..
+                    target .. '. You can still change their group via /permissions and inform them.'
+        )
     end
 end
 
@@ -179,7 +264,7 @@ Gui.on_click(
     function(event)
         Module.jail(event.player, string.sub(event.element.caption, 6))
     end
-)        
+)
 
 Gui.on_click(
     report_tab_button_name,
@@ -200,7 +285,7 @@ local reporting_input_name = Gui.uid_name()
 
 Module.spawn_reporting_popup = function(player, reported_player)
 
-    local center = player.gui.center    
+    local center = player.gui.center
   
     local reporting_popup = center[reporting_popup_name]
     if reporting_popup and reporting_popup.valid then 
@@ -219,14 +304,13 @@ Module.spawn_reporting_popup = function(player, reported_player)
     reporting_popup.add {
         type = 'label',
         caption = 'Report message:'
-    } 
+    }
     local input = reporting_popup.add {type = 'text-box', name=reporting_input_name}
     input.style.width = 400 
     input.style.height = 85
     local button_flow = reporting_popup.add {type = "flow"}
     button_flow.add {type = "button", name = reporting_submit_button_name, caption="Submit"}
     button_flow.add {type = "button", name = reporting_cancel_button_name, caption="Cancel"}
-
 end
 
 Gui.on_custom_close(
@@ -251,11 +335,13 @@ Gui.on_click(
         local msg = frame[reporting_input_name].text
         local data = Gui.get_data(frame)
         local reported_player_index = data["reported_player_index"]
-        
+        local print = event.player.print
+
         Gui.destroy(frame)
         Module.report(event.player, Game.get_player_by_index(reported_player_index), msg)
-        
-        event.player.print("Sucessfully reported " .. Game.get_player_by_index(reported_player_index).name)
+        print(prefix)
+        print("You have successfully reported the player: " .. Game.get_player_by_index(reported_player_index).name)
+        print(prefix_e)
     end
 )
 

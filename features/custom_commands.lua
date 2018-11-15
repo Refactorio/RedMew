@@ -491,60 +491,6 @@ local function jail_player(cmd)
     Report.jail(player, cmd['parameter'])
 end
 
-local function unjail_player(cmd)
-    local default_group = 'Default'
-    local player = game.player
-    -- Check if the player can run the command
-    if player and not player.admin then
-        Utils.cant_run(cmd.name)
-        return
-    end
-    -- Check if the target is valid (copied from the invoke command)
-    local target = cmd['parameter']
-    if target == nil then
-        Game.player_print('Usage: /unjail <player>')
-        return
-    end
-
-    local target_player = game.players[target]
-    if not target_player then
-        Game.player_print('Unknown player.')
-        return
-    end
-
-    local permissions = game.permissions
-
-    -- Check if the permission group exists, if it doesn't, create it.
-    local permission_group = permissions.get_group(default_group)
-    if not permission_group then
-        permission_group = permissions.create_group(default_group)
-    end
-
-    local jail_permission_group = permissions.get_group('Jail')
-    if (not jail_permission_group) or target_player.permission_group ~= jail_permission_group then
-        Game.player_print('The player ' .. target .. ' is already not in Jail.')
-        return
-    end
-
-    -- Move player
-    permission_group.add_player(target)
-	-- Set player to a non-shooting state (solves a niche case where players jailed while shooting will be locked into a shooting state)
-	target_player.shooting_state.state = 0
-
-    -- Check that it worked
-    if target_player.permission_group == permission_group then
-        -- Let admin know it worked, let target know what's going on.
-        Game.player_print(target .. ' has been returned to the default group. They have been advised of this.')
-        target_player.print('Your ability to perform actions has been restored')
-    else
-        -- Let admin know it didn't work.
-        Game.player_print(
-            'Something went wrong in the unjailing of ' ..
-                target .. '. You can still change their group via /permissions and inform them.'
-        )
-    end
-end
-
 local function all_tech()
     if game.player then
         game.player.force.research_all_technologies()
@@ -647,34 +593,11 @@ commands.add_command(
 commands.add_command(
     'unjail',
     '<player> restores ability for a player to perform actions. (Admins only)',
-    unjail_player
+    Report.unjail_player
 )
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
 
-
-local function report(cmd)
-    local reporting_player = game.player
-    if reporting_player then
-        local params = {}
-        for param in string.gmatch(cmd.parameter, '%S+') do
-            table.insert(params, param)
-        end
-        if #params < 2 then
-            reporting_player.print('Please enter then name of the offender and the reason for the report.')
-            return nil
-        end
-        local reported_player_name = params[1] or ''
-        local reported_player = game.players[reported_player_name]
-
-        if not reported_player then
-            reporting_player.print(reported_player_name .. ' does not exist.')
-            return nil
-        end
-        Report.report(reporting_player, reported_player, string.sub(cmd.parameter, string.len(params[1]) + 2))
-    end
-end
-
-commands.add_command('report', '<griefer-name> <message> Reports a user to admins', report)
+commands.add_command('report', '<griefer-name> <message> Reports a user to admins', Report.cmd_report)
 
 commands.add_command(
     'showreports',
