@@ -20,11 +20,6 @@ local function update_file()
     game.write_file('regulars.lua', table.concat(data), false, 0)
 end
 
-Module.is_admin =
-    function(player_name)
-    return Utils.cast_bool(global.admins[player_name] or global.admins[player_name:lower()]) --to make it backwards compatible?
-end
-
 Module.is_regular =
     function(player_name)
     return Utils.cast_bool(global.regulars[player_name] or global.regulars[player_name:lower()]) --to make it backwards compatible
