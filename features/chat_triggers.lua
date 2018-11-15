@@ -134,11 +134,9 @@ local function hodor(event)
 
             local cannot_mention = {}
             for _, p in ipairs(game.connected_players) do
-                if admin_call then
-                    if p.admin then
-                        p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned #admin!', {r = 1, g = 1, b = 0, a = 1})
-                        p.play_sound{path='utility/new_objective', volume_modifier = 1 }
-                    end
+                if admin_call and p.admin then
+                    p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned #admin!', {r = 1, g = 1, b = 0, a = 1})
+                    p.play_sound{path='utility/new_objective', volume_modifier = 1 }
                 end
 
                 if not admin_call and '#'..p.name == word then
