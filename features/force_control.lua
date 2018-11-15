@@ -3,7 +3,6 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local raise_event = script.raise_event
 local max = math.max
-local insert = table.insert
 
 -- this, things that can be done run-time
 local ForceControl = {}
@@ -44,63 +43,6 @@ local function assert_type(expected_type, given, variable_reference_message)
     end
 end
 
----Register a reward that checks if a reward should be given if the level
----matches the callback. If so, it will apply the if_level_criteria_matches
----callback.
----
----@param level_matches function function(number level_reached)
----@param callback function function(number level_reached, LuaForce force)
-function ForceControlBuilder.register(level_matches, callback)
-    assert_type('function', level_matches, 'level_matches of function ForceControl.register_reward')
-    assert_type('function', callback, 'callback of function ForceControlBuilder.register')
-
-    Event.add(ForceControl.events.on_level_up, function (event)
-        local level = event.level_reached
-        if level_matches(level) then
-            callback(level, event.force)
-        end
-    end)
-end
-
----Register a reward which triggers when the given level is reached.
----
----@param level number
----@param callback function function(number level_reached, LuaForce force)
-function ForceControlBuilder.register_on_single_level(level, callback)
-    assert_type('number', level, 'level of function ForceControl.register_reward_on_single_level')
-    assert_type('function', callback, 'callback of function ForceControlBuilder.register_on_single_level')
-
-    ForceControlBuilder.register(function (level_reached)
-        return level == level_reached
-    end, callback)
-end
-
----Always returns true
-local function always_true()
-    return true
-end
-
----Register a reward that triggers for every level.
----
----@param callback function function(number level_reached, LuaForce force)
-function ForceControlBuilder.register_on_every_level(callback)
-    assert_type('function', callback, 'callback of function ForceControlBuilder.register_on_every_level')
-
-    ForceControlBuilder.register(always_true, callback)
-end
-
----Register the config and initialize the feature.
----@param level_up_formula function
-function ForceControl.register(level_up_formula)
-    if next_level_cap_calculator.execute then
-        error('Can only register one force control.')
-    end
-
-    next_level_cap_calculator.execute = level_up_formula
-
-    return ForceControlBuilder
-end
-
 ---Returns a valid force based on the lua force or name given.
 ---@param lua_force_or_name LuaForce|string
 local function get_valid_force(lua_force_or_name)
@@ -124,13 +66,93 @@ local function get_valid_force(lua_force_or_name)
     return lua_force_or_name
 end
 
+---Register a reward that checks if a reward should be given if the level
+---matches the callback. If so, it will apply the if_level_criteria_matches
+---callback.
+---
+---@param level_matches function function(number level_reached)
+---@param callback function function(number level_reached, LuaForce force)
+---@param lua_force_name string|nil only register for this force (optional)
+function ForceControlBuilder.register(level_matches, callback, lua_force_name)
+    if game then
+       error('You can only register level up callbacks before the game is initialized')
+    end
+    assert_type('function', level_matches, 'level_matches of function ForceControl.register_reward')
+    assert_type('function', callback, 'callback of function ForceControlBuilder.register')
+
+    local function on_level_up(event)
+        local level = event.level_reached
+        if level_matches(level, event.force) then
+            callback(level, event.force)
+        end
+    end
+
+    if not lua_force_name then
+        Event.add(ForceControl.events.on_level_up, on_level_up)
+        return
+    end
+
+    Event.add(ForceControl.events.on_level_up, function (event)
+        local force = get_valid_force(lua_force_name)
+        if not force then
+            error('Can only register a lua force name for ForceControlBuilder.register')
+        end
+        if force ~= event.force then
+            return
+        end
+
+        on_level_up(event)
+    end)
+end
+
+---Register a reward which triggers when the given level is reached.
+---
+---@param level number
+---@param callback function function(number level_reached, LuaForce force)
+---@param lua_force_name string|nil only register for this force (optional)
+function ForceControlBuilder.register_on_single_level(level, callback, lua_force_name)
+    assert_type('number', level, 'level of function ForceControl.register_reward_on_single_level')
+    assert_type('function', callback, 'callback of function ForceControlBuilder.register_on_single_level')
+
+    ForceControlBuilder.register(function (level_reached)
+        return level == level_reached
+    end, callback, lua_force_name)
+end
+
+---Always returns true
+local function always_true()
+    return true
+end
+
+---Register a reward that triggers for every level.
+---
+---@param callback function function(number level_reached, LuaForce force)
+---@param lua_force_name string|nil only register for this force (optional)
+function ForceControlBuilder.register_on_every_level(callback, lua_force_name)
+    assert_type('function', callback, 'callback of function ForceControlBuilder.register_on_every_level')
+
+    ForceControlBuilder.register(always_true, callback, lua_force_name)
+end
+
+---Register the config and initialize the feature.
+---@param level_up_formula function
+function ForceControl.register(level_up_formula)
+    if next_level_cap_calculator.execute then
+        error('Can only register one force control.')
+    end
+
+    next_level_cap_calculator.execute = level_up_formula
+
+    return ForceControlBuilder
+end
+
 ---Registers a new force to participate.
----@param force LuaForce|string
-function ForceControl.register_force(force)
+---@param lua_force_or_name LuaForce|string
+function ForceControl.register_force(lua_force_or_name)
     if not next_level_cap_calculator.execute then
         error('Can only register a force when the config has been initialized via ForceControl.register(config_table).')
     end
-    force = get_valid_force(force)
+    local force = get_valid_force(lua_force_or_name)
     if not force then
         error('Can only register a LuaForce for ForceControl')
     end
