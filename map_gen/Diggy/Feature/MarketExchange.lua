@@ -149,7 +149,9 @@ local function update_market_contents(market)
             })
         end
     end
-    
+
+    MarketExchange.update_gui()
+
     if (old_level < stone_tracker.current_level) then
         for _, buffs in pairs(config.buffs) do
             if (buffs.prototype.name == 'mining_speed') then
@@ -463,15 +465,15 @@ end
 
 local function toggle(event)
     local player = event.player
-    local center = player.gui.center
-    local frame = center['Diggy.MarketExchange.Frame']
+    local left = player.gui.left
+    local frame = left['Diggy.MarketExchange.Frame']
 
     if (frame) then
         Gui.destroy(frame)
         return
     end
 
-    frame = center.add({name = 'Diggy.MarketExchange.Frame', type = 'frame', direction = 'vertical'})
+    frame = left.add({name = 'Diggy.MarketExchange.Frame', type = 'frame', direction = 'vertical'})
 
     local market_progressbars = frame.add({type = 'flow', direction = 'vertical'})
     local market_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
@@ -503,7 +505,6 @@ local function toggle(event)
 
     Gui.set_data(frame, data)
 
-    player.opened = frame
 end
 
 local function on_player_created(event)
@@ -518,6 +519,18 @@ Gui.on_click('Diggy.MarketExchange.Button', toggle)
 Gui.on_custom_close('Diggy.MarketExchange.Frame', function (event)
     event.element.destroy()
 end)
+
+function MarketExchange.update_gui()
+    for _, p in ipairs(game.connected_players) do
+        local frame = p.gui.left['Diggy.MarketExchange.Frame']
+
+        if frame and frame.valid then
+            local data = {player = p}
+            toggle(data)
+            toggle(data)
+        end
+    end
+end
 
 function MarketExchange.on_init()
     Task.set_timeout_in_ticks(50, on_market_timeout_finished, {
