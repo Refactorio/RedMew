@@ -4,9 +4,6 @@ require 'utils.utils'
 require 'utils.list_utils'
 require 'utils.math'
 
-local Game = require 'utils.game'
-local Event = require 'utils.event'
-
 require 'map_gen.shared.perlin_noise'
 require 'map_layout'
 
@@ -16,6 +13,7 @@ require 'features.bot'
 -- Library modules which, if missing, will cause other feature modules to fail
 require 'features.base_data'
 require 'features.follow'
+require 'features.player_create'
 require 'features.user_groups'
 
 -- Feature modules, each can be disabled
@@ -46,30 +44,3 @@ require 'features.gui.blueprint_helper'
 require 'features.gui.paint'
 require 'features.gui.score'
 require 'features.gui.popup'
-
-
-local function player_created(event)
-    local player = Game.get_player_by_index(event.player_index)
-
-    if not player or not player.valid then
-        return
-    end
-
-    if (global.scenario.config.fish_market.enable) then
-        player.insert {name = MARKET_ITEM, count = 10}
-    end
-    player.insert {name = 'iron-gear-wheel', count = 8}
-    player.insert {name = 'iron-plate', count = 16}
-
-    player.print('Trouble chatting? Change the keybinding in:')
-    player.print('Options -> Controls -> Toggle Lua console')
-
-    local gui = player.gui
-    gui.top.style = 'slot_table_spacing_horizontal_flow'
-    gui.left.style = 'slot_table_spacing_vertical_flow'
-    if info ~= nil then
-        info.show_info({player = player})
-    end
-end
-
-Event.add(defines.events.on_player_created, player_created)
