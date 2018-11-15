@@ -3,6 +3,10 @@
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 
+local prefix = '## - '
+
+global.mention_enabled = true
+
 local hodor_messages = {
     {'Hodor.', 16},
     {'Hodor?', 16},
@@ -72,6 +76,7 @@ end
 
 local function hodor(event)
     local message = event.message:lower()
+
     if message:match('hodor') then
         local index = math.random(1, message_weight_sum)
         local message_weight_sum = 0
@@ -86,12 +91,12 @@ local function hodor(event)
 
     -- player_index is nil if the message came from the server,
     -- and indexing Game.players with nil is apparently an error.
+    local player = Game.get_player_by_index(event.player_index)
     local player_index = event.player_index
     if not player_index then
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -112,6 +117,54 @@ local function hodor(event)
             if naughty_words[word] then
                 game.print(player.name .. ' this is a Christian Factorio server, no swearing please!')
                 break
+            end
+        end
+    end
+
+    -- Gives a sound notification to a mentioned player using #[player-name]
+    if global.mention_enabled then
+        local missing_player_string
+        local not_found = 0
+        local admin_call = false
+        for word in event.message:gmatch('#%S+') do
+            local lower_word = word:lower()
+            if lower_word == '#admin' or lower_word == '#moderator' then
+                admin_call = true
+            end
+
+            local cannot_mention = {}
+            for _, p in ipairs(game.connected_players) do
+                if admin_call and p.admin then
+                    p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned #admin!', {r = 1, g = 1, b = 0, a = 1})
+                    p.play_sound{path='utility/new_objective', volume_modifier = 1 }
+                end
+
+                if not admin_call and '#'..p.name == word then
+                    if p.name == player.name then
+                        player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
+                        break;
+                    end
+                    p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned you!', {r = 1, g = 1, b = 0, a = 1})
+                    p.play_sound{path='utility/new_objective', volume_modifier = 1 }
+                    if _DEBUG then
+                        player.print(prefix..'Successful mentioned '..p.name, {r = 0, g = 1, b = 0, a = 1})
+                    end
+                elseif not admin_call then
+                    not_found = not_found + 1
+                    table.insert(cannot_mention, (word .. ', '))
+                end
+            end
+            for _, pname in ipairs(cannot_mention) do
+                missing_player_string = missing_player_string~=nil and missing_player_string .. pname or pname
+            end
+            admin_call = false
+        end
+        if missing_player_string ~= nil then
+            missing_player_string = string.sub(missing_player_string, 1, (string.len(missing_player_string)-2))
+            if not_found > 1 then
+                player.print(prefix..'Players not found: ' .. missing_player_string, {r = 1, g = 1, b = 0, a = 1})
+            else
+                player.print(prefix..'Player not found: ' .. missing_player_string, {r = 1, g = 1, b = 0, a = 1})
             end
         end
     end
