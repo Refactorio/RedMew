@@ -1,7 +1,6 @@
 global.regulars = require 'resources.regulars'
 local Donators = require 'resources.donators'
 global.donators = Donators.donators
-global.admins = require 'resources.admins'
 local Event = require 'utils.event'
 local Utils = require 'utils.utils'
 local Game = require 'utils.game'
@@ -18,11 +17,6 @@ local function update_file()
     table.insert(data, '}')
 
     game.write_file('regulars.lua', table.concat(data), false, 0)
-end
-
-Module.is_admin =
-    function(player_name)
-    return Utils.cast_bool(global.admins[player_name] or global.admins[player_name:lower()]) --to make it backwards compatible?
 end
 
 Module.is_regular =
