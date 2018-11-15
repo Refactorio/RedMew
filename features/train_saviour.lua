@@ -11,7 +11,7 @@ local saviour_timeout = 180 -- number of ticks players are train immune after ge
 
 table.insert(
     Market_items,
-    {price = {{Market_items.market_item, 100}}, offer = {type = 'give-item', item = saviour_token_name}}
+    {price = {{Market_items.market_item, 100}}, offer = {type = 'nothing', effect_description = 'Train immunity (Single usage) \nSaves you from a train collition \n\nPrice: 100 '..Market_items.market_item..'s'}}
 )
 
 local remove_stack = {name = saviour_token_name, count = 1}

@@ -4,11 +4,11 @@ return {
     market_item = market_item,
     {
         price = {{market_item, 10}},
-        offer = {type = 'nothing', effect_description = 'Temporary speed bonus - Price 10  ' .. market_item}
+        offer = {type = 'nothing', effect_description = 'Temporary speed bonus \n\nPrice: 10  ' .. market_item..'s'}
     },
     {
         price = {{market_item, 10}},
-        offer = {type = 'nothing', effect_description = 'Temporary mining bonus - Price 10  ' .. market_item}
+        offer = {type = 'nothing', effect_description = 'Temporary mining bonus \n\nPrice: 10  ' .. market_item..'s'}
     },
     {price = {{market_item, 2}}, offer = {type = 'give-item', item = 'raw-fish'}},
     {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'rail', count = 2}},
