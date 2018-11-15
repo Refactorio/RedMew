@@ -467,7 +467,9 @@ local function add_fraction(stress_map, x, y, fraction)
     end
     if (enable_stress_grid) then
         local surface = game.surfaces[stress_map.surface_index]
-        Debug.print_grid_value(value, surface, {x = x, y = y}, 4, 0.5)
+        Debug.print_colored_grid_value(value, surface, {x = x, y = y}, 4, 0.5, false,
+            value / stress_threshold_causing_collapse,  {r = 0, g = 1, b = 0}, {r = 1, g = -1, b = 0},
+            {r = 0, g = 1, b = 0}, {r = 1, g = 1, b = 1})
     end
     return value
 end
