@@ -125,10 +125,23 @@ local function hodor(event)
     if global.mention_enabled then
         local missing_player_string
         local not_found = 0
+        local admin_call = false
         for word in event.message:gmatch('#%S+') do
+            local lower_word = word:lower()
+            if lower_word == '#admin' or lower_word == '#moderator' then
+                admin_call = true
+            end
+
             local cannot_mention = {}
             for _, p in ipairs(game.connected_players) do
-                if '#'..p.name == word then
+                if admin_call then
+                    if p.admin then
+                        p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned #admin!', {r = 1, g = 1, b = 0, a = 1})
+                        p.play_sound{path='utility/new_objective', volume_modifier = 1 }
+                    end
+                end
+
+                if not admin_call and '#'..p.name == word then
                     if p.name == player.name then
                         player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
                         break;
@@ -138,7 +151,7 @@ local function hodor(event)
                     if _DEBUG then
                         player.print(prefix..'Successful mentioned '..p.name, {r = 0, g = 1, b = 0, a = 1})
                     end
-                else
+                elseif not admin_call then
                     not_found = not_found + 1
                     table.insert(cannot_mention, (word .. ', '))
                 end
@@ -146,6 +159,7 @@ local function hodor(event)
             for _, pname in ipairs(cannot_mention) do
                 missing_player_string = missing_player_string~=nil and missing_player_string .. pname or pname
             end
+            admin_call = false
         end
         if missing_player_string ~= nil then
             missing_player_string = string.sub(missing_player_string, 1, (string.len(missing_player_string)-2))
