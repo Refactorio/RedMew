@@ -7,6 +7,7 @@ require 'utils.list_utils'
 local Event = require 'utils.event'
 local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
+local ArtefactHunting = require 'map_gen.Diggy.Feature.ArtefactHunting'
 local Debug = require 'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
@@ -136,6 +137,7 @@ local function collapse(args)
     local entities = create_collapse_template(positions, surface)
     Template.insert(surface, {}, entities)
     ScoreTable.increment('Cave collapse')
+    ArtefactHunting.update_gui()
 end
 
 local on_collapse_timeout_finished = Token.register(collapse)

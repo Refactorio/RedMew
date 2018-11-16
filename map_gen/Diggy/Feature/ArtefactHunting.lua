@@ -42,7 +42,7 @@ end
 
 local function toggle(event)
     local player = event.player
-    local center = player.gui.center
+    local center = player.gui.left
     local frame = center['Diggy.ArtefactHunting.Frame']
 
     if (frame) then
@@ -65,8 +65,6 @@ local function toggle(event)
     redraw_table(data)
 
     Gui.set_data(frame, data)
-
-    player.opened = frame
 end
 
 local function on_player_created(event)
@@ -81,6 +79,18 @@ Gui.on_click('Diggy.ArtefactHunting.Button', toggle)
 Gui.on_custom_close('Diggy.ArtefactHunting.Frame', function (event)
     event.element.destroy()
 end)
+
+function ArtefactHunting.update_gui()
+    for _, p in ipairs(game.connected_players) do
+        local frame = p.gui.left['Diggy.ArtefactHunting.Frame']
+
+        if frame and frame.valid then
+            local data = {player = p}
+            toggle(data)
+            toggle(data)        -- double cause toggle() close the windi if its opened
+        end
+    end
+end
 
 --[[--
     Registers all event handlers.
@@ -103,6 +113,7 @@ function ArtefactHunting.register(config)
         if coins > 0 then
             local sum = ScoreTable.add('Artefacts sent to space', coins)
             game.print('sent ' .. coins .. ' artefacts into space! The space station is now holding ' .. sum .. ' artefacts.')
+            ArtefactHunting.update_gui()
         end
     end)
 
@@ -147,6 +158,7 @@ function ArtefactHunting.register(config)
         end
 
         Game.print_player_floating_text(player_index, text, {r = 255, g = 215, b = 0})
+        ArtefactHunting.update_gui()
     end
 
     ScoreTable.reset('Collected coins')
