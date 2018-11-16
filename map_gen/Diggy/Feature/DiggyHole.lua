@@ -8,6 +8,7 @@ local Event = require 'utils.event'
 local Scanner = require 'map_gen.Diggy.Scanner'
 local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
+local ArtefactHunting = require 'map_gen.Diggy.Feature.ArtefactHunting'
 local Debug = require 'map_gen.Diggy.Debug'
 local insert = table.insert
 local random = math.random
@@ -105,6 +106,7 @@ function DiggyHole.register(config)
 
     Event.add(Template.events.on_void_removed, function ()
         ScoreTable.increment('Void removed')
+        ArtefactHunting.update_gui()
     end)
 
     if config.enable_debug_commands then
