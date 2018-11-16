@@ -45,8 +45,12 @@ local function toggle(event)
     local center = player.gui.left
     local frame = center['Diggy.ArtefactHunting.Frame']
 
-    if (frame) then
+    if (frame and event.trigger == nil) then
         Gui.destroy(frame)
+        return
+    elseif (frame) then
+        local data = Gui.get_data(frame)
+        redraw_table(data)
         return
     end
 
@@ -85,9 +89,8 @@ function ArtefactHunting.update_gui()
         local frame = p.gui.left['Diggy.ArtefactHunting.Frame']
 
         if frame and frame.valid then
-            local data = {player = p}
+            local data = {player = p, trigger = 'update_gui'}
             toggle(data)
-            toggle(data)        -- double cause toggle() close the windi if its opened
         end
     end
 end

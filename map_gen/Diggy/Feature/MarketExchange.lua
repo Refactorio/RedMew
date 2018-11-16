@@ -464,8 +464,14 @@ local function toggle(event)
     local left = player.gui.left
     local frame = left['Diggy.MarketExchange.Frame']
 
-    if (frame) then
+    if (frame and event.trigger == nil) then
         Gui.destroy(frame)
+        return
+    elseif (frame) then
+        local data = Gui.get_data(frame)
+        redraw_title(data)
+        redraw_progressbar(data)
+        redraw_table(data)
         return
     end
 
@@ -521,9 +527,9 @@ function MarketExchange.update_gui()
         local frame = p.gui.left['Diggy.MarketExchange.Frame']
 
         if frame and frame.valid then
-            local data = {player = p}
+            local data = {player = p, trigger = 'update_gui'}
             toggle(data)
-            toggle(data)
+            --toggle(data)
         end
     end
 end
