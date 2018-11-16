@@ -4,6 +4,8 @@ For bruteforce usage, not efficient nor fast
 
 Force scales to from inf to 1 at R
 --]]--
+
+local math = require "utils.math"
 local _M = {}
 local sqrt = math.sqrt
 local cos = math.cos
@@ -28,7 +30,7 @@ function MetaBall:force(x, y)
   return (self.radius / force)^self.goo
 end
 
---Ellipse 
+--Ellipse
 local MetaEllipse  = {x=0, y=0, radius=0, angle=0, x_scale=1, y_scale=1, type="MetaEllipse"}
 MetaEllipse.__index = MetaEllipse
 _M.MetaEllipse=MetaEllipse
@@ -45,7 +47,7 @@ end
 
 function MetaEllipse:force(x, y)
   --Calculate force at point x y
-  local force = sqrt( (( (x - self.x)*self.cosa + (y - self.y)*self.sina )^2)/(self.x_scale) + 
+  local force = sqrt( (( (x - self.x)*self.cosa + (y - self.y)*self.sina )^2)/(self.x_scale) +
                       (( (y - self.y)*self.cosa - (x - self.x)*self.sina )^2)/(self.y_scale) )
   if force == 0 then return zero_value end
   return (self.radius / force)^self.goo
@@ -68,8 +70,8 @@ end
 
 function MetaSquare:force(x, y)
   --Calculate force at point x y
-  local force = ( abs( (x - self.x)*self.cosa + (y - self.y)*self.sina )/self.x_scale + 
-				  abs( (y - self.y)*self.cosa - (x - self.x)*self.sina )/self.y_scale ) 
+  local force = ( abs( (x - self.x)*self.cosa + (y - self.y)*self.sina )/self.x_scale +
+				  abs( (y - self.y)*self.cosa - (x - self.x)*self.sina )/self.y_scale )
   if force == 0 then return zero_value end
   return (self.radius / force)^self.goo
 end
@@ -94,11 +96,11 @@ end
 
 function MetaDonut:force(x, y)
   --Calculate force at point x y
-  local force = abs(self.radius - sqrt( (( (x - self.x)*self.cosa + (y - self.y)*self.sina )^2)/(self.x_scale) + 
+  local force = abs(self.radius - sqrt( (( (x - self.x)*self.cosa + (y - self.y)*self.sina )^2)/(self.x_scale) +
                                          (( (y - self.y)*self.cosa - (x - self.x)*self.sina )^2)/(self.y_scale) ))
   if force == 0 then return zero_value end
   return (self.radius2 / force)^self.goo
-  
+
 end
 
 return _M

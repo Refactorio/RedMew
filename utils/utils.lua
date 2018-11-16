@@ -7,22 +7,6 @@ Module.distance = function(pos1, pos2)
     return math.sqrt(dx * dx + dy * dy)
 end
 
--- rounds number (num) to certain number of decimal places (idp)
-math.round = function(num, idp)
-    local mult = 10 ^ (idp or 0)
-    return math.floor(num * mult + 0.5) / mult
-end
-
-function math.clamp(num, min, max)
-    if num < min then
-        return min
-    elseif num > max then
-        return max
-    else
-        return num
-    end
-end
-
 Module.print_except = function(msg, player)
     for _, p in pairs(game.players) do
         if p.connected and p ~= player then
@@ -127,6 +111,10 @@ Module.format_time = function(ticks)
     end
 
     return table.concat(result, ' ')
+end
+
+Module.cant_run = function(name)
+    Game.player_print("Can't run command (" .. name .. ') - insufficient permission.')
 end
 
 return Module

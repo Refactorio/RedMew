@@ -4,6 +4,8 @@ This map removes and adds it's own water, in terrain settings use water frequenc
 This map has isolated areas, it's recommend turning biters to peaceful to reduce stress on the pathfinder.
 ]]
 local b = require 'map_gen.shared.builders'
+local math = require "utils.math"
+local degrees = math.degrees
 
 -- change these to change the pattern.
 local seed1 = 12345
@@ -155,7 +157,7 @@ for c = 1, p_cols do
 
             local x = random:next_int(-48, 48)
             local y = random:next_int(-48, 48)
-            local angle = random:next() * tau
+            local angle = random:next() * math.tau
 
             shape = b.rotate(shape, angle)
             shape = b.translate(shape, x, y)

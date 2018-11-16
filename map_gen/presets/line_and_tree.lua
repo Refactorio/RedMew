@@ -1,4 +1,5 @@
 local b = require 'map_gen.shared.builders'
+local degrees = require "utils.math".degrees
 
 local ore_seed = 4000
 
@@ -18,8 +19,8 @@ local ball_shape = b.any {ball, line1, line2}
 
 local function value(base, mult, pow)
     return function(x, y)
-        local d = math.sqrt(x * x + y * y)
-        return base + mult * d ^ pow
+        local d_sq = x * x + y * y
+        return base + mult * d_sq ^ ( pow / 2 ) -- d ^ pow
     end
 end
 local ore_shape = b.circle(5)

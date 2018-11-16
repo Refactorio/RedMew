@@ -1,8 +1,9 @@
 local Gui = require 'utils.gui'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local PlayerStats = require 'player_stats'
+local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
+local math = require "utils.math"
 
 local Public = {}
 

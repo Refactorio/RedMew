@@ -4,6 +4,7 @@ This map removes and adds it's own water, in terrain settings use water frequenc
 This map has isolated areas, it's recommend turning biters to peaceful to reduce stress on the pathfinder.
 ]]
 local b = require 'map_gen.shared.builders'
+local math = require "utils.math"
 
 -- change these to change the pattern.
 local seed1 = 17000
@@ -11,8 +12,8 @@ local seed2 = seed1 * 2
 
 local function value(base, mult, pow)
     return function(x, y)
-        local d = math.sqrt(x * x + y * y)
-        return base + mult * d ^ pow
+        local d_sq = x * x + y * y
+        return base + mult * d_sq ^ (pow / 2) -- d ^ pow
     end
 end
 
@@ -204,8 +205,4 @@ local sea = b.change_tile(b.full_shape, true, 'water')
 sea = b.fish(sea, 0.00125)
 
 map = b.if_else(map, sea)
-
---map = b.translate(map, -32, 0)
---map = b.scale(map, 1, 1)
---map = b.rotate(map, degrees(45))
 return map

@@ -1,5 +1,7 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
+local math = require "utils.math"
+local degrees = require math.degrees
 
 local seed1 = 17000
 local seed2 = seed1 * 2
@@ -97,8 +99,6 @@ end
 
 local map_ores = do_resources()
 
-local root2 = math.sqrt(2)
-
 local big_circle = b.circle(150)
 local small_circle = b.circle(140)
 local crop = b.rectangle(300, 150)
@@ -121,8 +121,9 @@ local function h_arc()
     return b.any {arc, ball1, ball2, ball3, arm1, arm2, arm3}
 end
 
+local div_100_sqrt2 = 100 / math.sqrt2
 local function v_arc()
-    local circle = b.circle(100 / root2)
+    local circle = b.circle(div_100_sqrt2)
     circle = b.apply_entity(circle, map_ores)
     local ball1 = b.translate(circle, -0, 385)
     local ball2 = b.translate(circle, -460, 345)
@@ -140,7 +141,7 @@ arc1 = b.single_pattern(arc1, 1380, 1380)
 local arc2 = v_arc()
 arc2 = b.single_pattern(arc2, 1380, 1380)
 arc2 = b.rotate(arc2, degrees(45))
-arc2 = b.scale(arc2, root2, root2)
+arc2 = b.scale(arc2, math.sqrt2, math.sqrt2)
 arc2 = b.translate(arc2, -165, -688)
 
 local map = b.any {arc1, arc2}

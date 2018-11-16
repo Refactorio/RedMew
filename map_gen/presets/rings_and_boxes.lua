@@ -1,4 +1,5 @@
 local b = require "map_gen.shared.builders"
+local degrees = require "utils.math".degrees
 
 local small_circle = b.circle(16)
 local big_circle = b.circle(18)

@@ -6,6 +6,16 @@ local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
 local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
+local math = require 'utils.math'
+local degrees = math.degrees
+local ScenarioInfo = require 'features.gui.info'
+
+-- Comment out this block if you're getting scenario info from another source.
+ScenarioInfo.set_map_name('Crashsite')
+ScenarioInfo.set_map_description('Capture outposts and defend against the biters.')
+ScenarioInfo.set_map_extra_info(
+    '- Outposts have enemy turrets defending them.\n- Outposts have loot and provide a steady stream of resources.\n- Outpost markets with different resources and at prices.\n- Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.\n- Biters have more health and deal more damage.'
+)
 
 -- leave seeds nil to have them filled in based on teh map seed.
 local outpost_seed = nil --91000
@@ -200,28 +210,8 @@ local function init()
     local stage4_iter = itertor_builder(stage4, outpost_random)
 
     local start_outpost = outpost_builder:do_outpost(thin_walls)
-
-    local function remove_water(shape)
-        return function(x, y, world)
-            local tile = shape(x, y, world)
-
-            if type(tile) == 'table' then
-                local gen_tile = world.surface.get_tile(world.x, world.y)
-                if gen_tile.collides_with('water-tile') then
-                    tile.tile = 'grass-1'
-                end
-            else
-                local gen_tile = world.surface.get_tile(world.x, world.y)
-                if gen_tile.collides_with('water-tile') then
-                    tile = 'grass-1'
-                end
-            end
-
-            return tile
-        end
-    end
-
-    start_outpost = remove_water(start_outpost)
+    start_outpost = b.change_tile(start_outpost, false, true)
+    start_outpost = b.change_map_gen_collision_tile(start_outpost, 'water-tile', 'grass-1')
 
     local start_patch = b.circle(10)
     local start_iron_patch =
@@ -442,8 +432,8 @@ local function init()
     local ores_patch = b.circle(16)
     local function value(base, mult, pow)
         return function(x, y)
-            local d = math.sqrt(x * x + y * y)
-            return base + mult * d ^ pow
+            local d_sq = x * x + y * y
+            return base + mult * d_sq ^ (pow / 2) -- d^pow
         end
     end
 
@@ -486,7 +476,7 @@ local function init()
         ore_pattern[r] = row
         for c = 1, 50 do
             local i = random_ore:next_int(1, ore_t)
-            index = table.binary_search(total_ore_weights, i)
+            local index = table.binary_search(total_ore_weights, i)
             if (index < 0) then
                 index = bit32.bnot(index)
             end

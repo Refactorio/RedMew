@@ -2,11 +2,12 @@ local b = require 'map_gen.shared.builders'
 local perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
+local math = require 'utils.math'
 
 local sand_width = 512
-local sand_width_inv = tau / sand_width
+local sand_width_inv = math.tau / sand_width
 local water_width = 233
-local water_width_inv = tau / water_width
+local water_width_inv = math.tau / water_width
 
 --perlin options
 local noise_variance = 0.025 --The lower this number the smoother the curve is gonna be
@@ -91,7 +92,7 @@ sand_shape = b.apply_entity(sand_shape, do_ores)
 
 water_shape = b.change_tile(water_shape, true, 'water')
 
-local oil = b.resource(b.full_shape, 'crude-oil', value(500000, 2500))
+local oil = b.resource(b.full_shape, 'crude-oil', value(300000, 2000))
 local function do_oil(x, y, world)
     if math.random(16384) == 1 then
         local e = oil(x, y, world)

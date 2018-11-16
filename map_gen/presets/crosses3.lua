@@ -3,6 +3,7 @@ local b = require "map_gen.shared.builders"
 local scale_factor = 64
 
 local pic = require "map_gen.data.presets.crosses3"
+local degrees = require "utils.math".degrees
 pic = b.decompress(pic)
 
 local shape = b.picture(pic)

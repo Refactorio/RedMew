@@ -5,6 +5,7 @@ require("util")
 require("rso_resource_config")
 local Utils = require "utils.utils"
 local Game = require 'utils.game'
+local math = require 'utils.math'
 
 local MB=require "metaball"
 local drand = require 'drand'
@@ -1167,11 +1168,11 @@ local Event = require 'utils.event'
 local function run_ores_module(event) -- AKA RSO_ChunkGenerated(event)
       local c_x = event.area.left_top.x
       local c_y = event.area.left_top.y
-  
+
       RSO_init()
-  
+
       roll_region(c_x, c_y)
       roll_chunk(event.surface, c_x, c_y)
   end
-  
+
 Event.add(defines.events.on_chunk_generated, run_ores_module)

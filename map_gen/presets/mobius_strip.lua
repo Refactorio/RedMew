@@ -1,5 +1,5 @@
 local Event = require 'utils.event'
-
+local degrees = require "utils.math".degrees
 local b = require 'map_gen.shared.builders'
 
 local inner_circle = b.invert(b.circle(48))
@@ -65,7 +65,7 @@ local function effect(x, y, world, tile)
     end
 
     --[[
-    
+
     if max_axis_distance(world_x, world_y, -2144, 0) < safe_distance then
     for _, e in ipairs(surface.find_entities_filtered({ force = "enemy", position = { world_x, world_y } } )) do
     e.destroy()
@@ -75,12 +75,12 @@ local function effect(x, y, world, tile)
     e.destroy()
     end
     end
-    
+
     for _, e in ipairs(surface.find_entities_filtered({ type = "resource", area = {{world_x, world_y  }, {world_x + 1, world_y + 1 } } })) do -- I want to use position but for some reason it doesn't seem to work for ores.
     local dist1 = distance(world_x, world_y, -2144, 0)
     local dist2 = distance(world_x, world_y, 2144, 0)
     local amount = math.min(dist1, dist2)
-    
+
     local name = e.name
     if name == "iron-ore" then
     amount = 800 + 0.4 * amount
@@ -95,17 +95,17 @@ local function effect(x, y, world, tile)
     elseif name == "crude-oil" then
     amount = 50000 + 50 * amount
     end
-    
+
     e.amount = amount
     end
-    
+
     --]]
     return tile
 end
 
 map = b.apply_effect(map, effect)
 
-require 'spawn_control'
+require 'features.spawn_control'
 add_spawn('left', -88, -88)
 add_spawn('right', 88, 88)
 

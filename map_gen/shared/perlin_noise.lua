@@ -57,7 +57,7 @@ function Perlin.noise(x, y, z)
     y = y or 0
     z = z or 0
 
-    -- This prevents integer inputs returning 0, which casues 'straight line' artifacts.
+    -- This prevents integer inputs returning 0, which causes 'straight line' artifacts.
     x = x - 0.55077056353912
     y = y - 0.131357755512
     z = z - 0.20474238274619

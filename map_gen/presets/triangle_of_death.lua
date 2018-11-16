@@ -4,6 +4,7 @@ local Perlin = require 'map_gen.shared.perlin_noise'
 local Token = require 'utils.global_token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
+local degrees = require "utils.math".degrees
 
 -- change these to change the pattern.
 local ore_seed1 = 30000
@@ -277,9 +278,9 @@ local function loot(x, y)
         return nil
     end
 
-    local d = math.sqrt(x * x + y * y)
+    local d_sq = x * x + y * y
     local name
-    if d < 600 then
+    if d_sq < 360000 then --d < 600
         name = 'car'
     else
         if math.random(5) == 1 then
