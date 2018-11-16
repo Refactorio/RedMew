@@ -100,6 +100,7 @@ end
 ]]
 function ArtefactHunting.register(config)
     Event.add(defines.events.on_player_created, on_player_created)
+    Event.on_nth_tick(61, ArtefactHunting.update_gui)
 
     ScoreTable.reset('Coins sent to space')
 
