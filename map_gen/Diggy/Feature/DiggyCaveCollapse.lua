@@ -137,7 +137,6 @@ local function collapse(args)
     local entities = create_collapse_template(positions, surface)
     Template.insert(surface, {}, entities)
     ScoreTable.increment('Cave collapse')
-    ArtefactHunting.update_gui()
 end
 
 local on_collapse_timeout_finished = Token.register(collapse)

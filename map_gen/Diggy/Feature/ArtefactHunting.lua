@@ -1,5 +1,5 @@
 --[[-- info
-    Provides the ability to collect artefacts and send them to space.
+    Provides the ability to collect coins and send them to space.
 ]]
 
 -- dependencies
@@ -98,7 +98,7 @@ end
 function ArtefactHunting.register(config)
     Event.add(defines.events.on_player_created, on_player_created)
 
-    ScoreTable.reset('Artefacts sent to space')
+    ScoreTable.reset('Coins sent to space')
 
     local seed
     local function get_noise(surface, x, y)
@@ -111,9 +111,8 @@ function ArtefactHunting.register(config)
     Event.add(defines.events.on_rocket_launched, function (event)
         local coins = event.rocket.get_inventory(defines.inventory.rocket).get_item_count('coin')
         if coins > 0 then
-            local sum = ScoreTable.add('Artefacts sent to space', coins)
-            game.print('sent ' .. coins .. ' artefacts into space! The space station is now holding ' .. sum .. ' artefacts.')
-            ArtefactHunting.update_gui()
+            local sum = ScoreTable.add('Coins sent to space', coins)
+            game.print('sent ' .. coins .. ' coins into space! The space station is now holding ' .. sum .. ' coins.')
         end
     end)
 
@@ -158,7 +157,6 @@ function ArtefactHunting.register(config)
         end
 
         Game.print_player_floating_text(player_index, text, {r = 255, g = 215, b = 0})
-        ArtefactHunting.update_gui()
     end
 
     ScoreTable.reset('Collected coins')

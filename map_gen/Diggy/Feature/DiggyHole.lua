@@ -106,7 +106,6 @@ function DiggyHole.register(config)
 
     Event.add(Template.events.on_void_removed, function ()
         ScoreTable.increment('Void removed')
-        ArtefactHunting.update_gui()
     end)
 
     if config.enable_debug_commands then
