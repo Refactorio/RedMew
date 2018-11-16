@@ -199,7 +199,8 @@ local Config = {
             -- increases the amount of resources by flat multiplication to initial amount
             -- highly suggested to use for fluids so their yield is reasonable
             resource_type_scalar = {
-                ['crude-oil'] = 750,
+                ['crude-oil'] = 1500,
+				['uranium-ore'] = 1.25,
             },
             
             -- ==============
@@ -207,14 +208,14 @@ local Config = {
             -- ==============
             
             -- shows the ore locations, only use when debugging (compound_cluster_mode)
-            display_ore_clusters = true,
+            display_ore_clusters = false,
             
             -- =======================
             -- Scattered mode settings
             -- =======================
             
             -- creates scattered ore (single tiles) at random locations
-            scattered_mode = true,
+            scattered_mode = false,
             
             -- defines the increased chance of spawning resources
             -- calculated_probability = resource_probability + ((distance / scattered_distance_probability_modifier) / 100)
@@ -306,7 +307,7 @@ local Config = {
                 -- start the next line with 3 dashes to enable default single cluster mode
                 --   or with 2 dashes to disable it
                 
-                ---[[ Single clusters
+                --[[ Single clusters
                 {
                     yield=1.0,
                     min_distance=30,
@@ -339,7 +340,7 @@ local Config = {
                 -- start the next line with 3 dashes to enable default tendril mode
                 --   or with 2 dashes to disable it
                 
-                --[[ Tendril clusters
+                ---[[ Tendril clusters
                 { -- tendril default large
                     yield=1.5,
                     min_distance=30,
