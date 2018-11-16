@@ -1,5 +1,5 @@
-local Poll = require 'poll'
-local UserGroups = require 'user_groups'
+local Poll = require 'features.gui.poll'
+local UserGroups = require 'features.user_groups'
 
 local Public = {}
 
