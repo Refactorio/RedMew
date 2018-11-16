@@ -35,4 +35,8 @@ return {
         color = {r = 0, g = 0, b = 0, a = 0.5},
         chat_color = {r = 0, g = 127, b = 0, a = 0.5}
     },
+    ['Raiguard'] = {
+        color = {r = 35, g = 140, b = 130, a = 0.5},
+        chat_color = {r = 35, g = 140, b = 130, a = 0.5}
+    }
 }

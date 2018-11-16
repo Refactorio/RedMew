@@ -1,5 +1,13 @@
--- Inspired/copied from Beach.
+--[[
+Inspired/copied from Beach/Double beach by GrilledHam
+Creates a diagonal, wavy ribbon world with only tiles. Vanilla ore and biter generation are unaffected.
 
+Post-mortum analysis after 2018-11-15 run:
+Exchange string used was: >>>eNptUT1IAzEY/T7T01pFCnYRVBy6VkQdFKQXQXAQR6FuXnupHLR3ctcO6qCDgoMiiIsudhXBzUFcBEEUFKpObhUXB0VF0EWoSZv0SvFB3r18L/l+cgBhGAIAQtoDKcfIBIgWSjkLC8yNOS7ju9aUmzdZzLGE1Wwyj7k5QkjAtCrfELNZdjGWNDymEaLNu4bn8XDQch1bZgh4hm3ymOblHFsEtJzLmDjVlncN28pn5UHA5tHP4upaL4hVXoGBclksroq8RbE4EJAHFLRUxkqnAVYnAPrGEXE5cjz5tLSrY9Xvp1J8yEjiTEZK61IkjqTYuJCCHiixosQ2xaEKvnRfVGvleGZZJEh9UTXXhIm49XZS+LksxvH38PN+Ojmno9UzMx3Ov8e52SKmaqrR/p7AqZoAVM6SLq1HHW9vBF511MSNiCA6wul8igCGO7gqbHLq6wbVWlyliVBMV/CtJnlW4kFvnCNKcUwk7xV0JahSsNYZSjlLq0aX7/Krg1Bf3vSHu1YVL+pKN/QQVT0M039GaIhE6x4+JOqYNXohtSb4CxZb1I7/WwI+PvSdROfdH4nTkzI=<<<
+With seed: 2963296099
+The players expanded the base easily and had too much access to resources. The biter frequency should be increased and the ore richness and/or size decreased.
+There was a lot of space in the North-South direction for building, so play_area_width should be turned down significantly.
+]]--
 local b = require 'map_gen.shared.builders'
 local perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
