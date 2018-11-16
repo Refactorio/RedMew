@@ -2,6 +2,7 @@ local Game = require 'utils.game'
 local Event = require 'utils.event'
 
 local info = require 'features.gui.info'
+local join_msgs = require 'resources.join_messages'
 
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
@@ -16,8 +17,10 @@ local function player_created(event)
     player.insert {name = 'iron-gear-wheel', count = 8}
     player.insert {name = 'iron-plate', count = 16}
 
-    player.print('Trouble chatting? Change the keybinding in:')
-    player.print('Options -> Controls -> Toggle Lua console')
+    player.print('Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord')
+    player.print('Click the question mark in the top left corner for server infomation and map details.')
+
+    game.print(table.get_random_weighted(join_msgs, 1, 2))
 
     local gui = player.gui
     gui.top.style = 'slot_table_spacing_horizontal_flow'
