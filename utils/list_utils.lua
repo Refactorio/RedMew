@@ -85,7 +85,12 @@ table.get_random = function(this_table)
     return this_table[math.random(#this_table)]
 end
 
--- Chooses a random entry from a weighted table
+--- Chooses a random entry from a weighted table
+-- @param weight_table a table of tables with items and their weights
+-- @param item_index the index of the items
+-- @param weight_index the index of the weights
+-- @returns a random item with weighting
+-- @see features.chat_triggers.hodor
 table.get_random_weighted = function(weighted_table, item_index, weight_index)
   local total_weight = 0
 
