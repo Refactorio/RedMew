@@ -98,8 +98,7 @@ table.get_random_weighted = function(weighted_table, item_index, weight_index)
   for _, w in pairs(weighted_table) do
       weight_sum = weight_sum + w[weight_index]
       if weight_sum >= index then
-          local string = w[item_index]
-          return string
+          return w[item_index]
       end
   end
 end
