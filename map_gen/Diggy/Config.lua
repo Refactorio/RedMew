@@ -172,49 +172,9 @@ local Config = {
         ScatteredResources = {
             enabled = true,
             
-            -- ==============
-            -- Debug settings
-            -- ==============
-            
-            -- shows the ore locations, only use when debugging (cluster mode)
-            display_resource_fields = false,
-            
-            -- shows the ore locations, only use when debugging (compound_cluster_mode)
-            display_compound_ore_locations = false,
-            
-            -- ===========================================================
-            -- These settings affects both scattered_mode and cluster_mode
-            -- ===========================================================
-            
-            -- percentage of resource added to the sum. 100 tiles means
-            -- 10% more resources with a distance_richness_modifier of 10
-            -- 20% more resources with a distance_richness_modifier of 5
-            distance_richness_modifier = 7,
-            
-            -- increases the amount of liquids that need pumping
-            liquid_value_modifiers = {
-                ['crude-oil'] = 750,
-            },
-
-            -- weights per resource of spawning 
-            resource_weights = {
-                ['coal']        = 160,
-                ['copper-ore']  = 215,
-                ['iron-ore']    = 389,
-                ['stone']       = 212,
-                ['uranium-ore'] =  21,
-                ['crude-oil']   =   3,
-            },
-
-            -- minimum distance from the spawn point required before it spawns
-            minimum_resource_distance = {
-                ['coal']        = 16,
-                ['copper-ore']  = 18,
-                ['iron-ore']    = 18,
-                ['stone']       = 15,
-                ['uranium-ore'] = 86,
-                ['crude-oil']   = 57,
-            },
+            -- determines how distance is measured
+            distance = function (x, y) return math.abs(x) + math.abs(y) end, 
+            --distance = function (x, y) return math.sqrt(x * x + y * y) end,
             
             -- defines the weights of which resource_richness_value to spawn
             resource_richness_weights = {
@@ -236,6 +196,19 @@ local Config = {
                 ['jackpot']    = {2001, 5000},
             },
             
+            -- increases the amount of resources by flat multiplication to initial amount
+            -- highly suggested to use for fluids so their yield is reasonable
+            resource_type_scalar = {
+                ['crude-oil'] = 750,
+            },
+            
+            -- ==============
+            -- Debug settings
+            -- ==============
+            
+            -- shows the ore locations, only use when debugging (compound_cluster_mode)
+            display_ore_clusters = true,
+            
             -- =======================
             -- Scattered mode settings
             -- =======================
@@ -244,60 +217,53 @@ local Config = {
             scattered_mode = true,
             
             -- defines the increased chance of spawning resources
-            -- calculated_probability = resource_probability + ((distance / distance_probability_modifier) / 100)
-            distance_probability_modifier = 10,
+            -- calculated_probability = resource_probability + ((distance / scattered_distance_probability_modifier) / 100)
+            -- this means the chance increases by 1% every DISTANCE tiles up to the max_probability
+            scattered_distance_probability_modifier = 10,
             
             -- min percentage of chance that resources will spawn after mining
-            resource_probability = 0.01,
+            scattered_min_probability = 0.01,
 
-            -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
-            max_resource_probability = 0.30,
+            -- max chance of spawning resources based on resource_probability + calculated scattered_distance_probability_modifier
+            scattered_max_probability = 0.10,
             
-            -- =====================
-            -- Cluster mode settings
-            -- =====================
+            -- percentage of resource added to the sum. 100 tiles means
+            -- 10% more resources with a distance_richness_modifier of 10
+            -- 20% more resources with a distance_richness_modifier of 5
+            scattered_distance_richness_modifier = 7,
+            
+            -- multiplies probability only if cluster mode is enabled
+            scattered_cluster_probability_multiplier = 0.5,
+            
+            -- multiplies yield only if cluster mode is enabled
+            scattered_cluster_yield_multiplier = 1.7,
+            
+            -- weights per resource of spawning 
+            scattered_resource_weights = {
+                ['coal']        = 160,
+                ['copper-ore']  = 215,
+                ['iron-ore']    = 389,
+                ['stone']       = 212,
+                ['uranium-ore'] =  21,
+                ['crude-oil']   =   3,
+            },
 
-            -- creates clusters of ore with higher yields and frequency instead of evenly scattered ore
-            -- lowers max resource max_resource_probability to 50% of the original value
-            cluster_mode = true,
-
-            -- value between -1 and 1, higher value means stronger variance between coordinates
-            -- (this means smaller, more frequent ore patches)
-            noise_variance = 0.04,
-
-            -- a value between 0 and 1 that triggers the spawning of resource based on noise
-            -- (lower values have larger patches, 0 means ~50% of the map is ore)
-            noise_resource_threshold = 0.40,
-
-            -- raw multiplier for ore content in cluster mode
-            cluster_yield_multiplier = 1.7,
+            -- minimum distance from the spawn point required before it spawns
+            scattered_minimum_resource_distance = {
+                ['coal']        = 16,
+                ['copper-ore']  = 18,
+                ['iron-ore']    = 18,
+                ['stone']       = 15,
+                ['uranium-ore'] = 86,
+                ['crude-oil']   = 57,
+            },
             
             -- ==============================
             -- Compound cluster mode settings
             -- ==============================
             
             -- creates compound clusters of ores defined by a layered ore-gen
-            compound_cluster_mode = false,
-            
-            -- defines the weights of which resource_richness_value range to spawn
-            compound_cluster_richness_weights = {
-                ['scarce']     = 440,
-                ['low']        = 350,
-                ['sufficient'] = 164,
-                ['good']       =  30,
-                ['plenty']     =  10,
-                ['jackpot']    =   6,
-            },
-
-            -- defines the min and max range of base quantity for ores to spawn
-            compound_cluster_richness_values = {
-                ['scarce']     = {1, 200},
-                ['low']        = {201, 400},
-                ['sufficient'] = {401, 750},
-                ['good']       = {751, 1200},
-                ['plenty']     = {1201, 2000},
-                ['jackpot']    = {2001, 5000},
-            },
+            cluster_mode = true,
             
             -- in compound cluster mode, final ore quantities are generated by the following procedure:
             --   iterate through each cluster checking the following conditions
@@ -309,29 +275,49 @@ local Config = {
             --       if distance < distances[resource_type], check the next cluster
             --     a range of values is selected from richness_values based on richness_weights
             --     base_amount = a random value from within the selected range of values
-            --     amount is adjusted by 1 + 0.01*(distance / distance_richness)
+            --     amount is multiplied by cluster yield
+            --     amount is multiplied by 1 + 0.01*(distance / distance_richness)
             --       this means every distance_richness tiles, the quantity increases by 1%
             --     if the resource_type has an entry in the type_scalar
             --       then the amount is multiplied by the scalar
             --     the resource is then generated and no further clusters are checked
             
-            -- increases the amount of ore by flat multiplication to initial amount
-            -- highly suggested to use for fluids so their yield is reasonable
-            compound_cluster_type_scalar = {
-                ['crude-oil'] = 750,
-            },
             
             -- defines all ore patches to be generated. Add as many clusters as 
             -- needed. Clusters listed first have a higher placement priority over
             -- the latter clusters
-            compound_clusters = {
-            
-                {variance=0.04,
-                    threshold=0.40,
-                    yield=1.7,
+            --
+            -- noise types:
+            --   cluster: same as vanilla factorio generation
+            --   skip: skips this cluster
+            --   connected_tendril: long ribbons of ore
+            --   fragmented_tendril: long ribbons of ore that occur when inside another
+            --       region of ribbons
+            --
+            -- noise source types and configurations
+            --   perlin: same as vanilla factorio generation
+            --     variance: increase to make patches closer together and smaller
+            --         note that this is the inverse of the cluster_mode variance
+            --     threshold: increase to shrink size of patches
+            --   simplex: similar to perlin
+            --   zero: does nothing with this source
+            --   one: adds the weight directly to the noise calculation
+            clusters = {
+                -- start the next line with 3 dashes to enable default single cluster mode
+                --   or with 2 dashes to disable it
+                
+                ---[[ Single clusters
+                {
+                    yield=1.0,
                     min_distance=30,
                     distance_richness=7,
-                    noise="perlin",
+                    noise_settings = {
+                        type = "cluster",
+                        threshold = 0.40,
+                        sources = {
+                            {variance=25, weight = 1, offset = 000, type="perlin"},
+                        }
+                    },
                     weights = {
                         ['coal']        = 160,
                         ['copper-ore']  = 215,
@@ -348,23 +334,240 @@ local Config = {
                         ['uranium-ore'] = 86,
                         ['crude-oil']   = 57,
                     }, },
-                    
-            --  {    variance=0.04,
-            --      threshold=0.40,
-            --      yield=1.7,
-            --      min_distance=18,
-            --      distance_richness=7,
-            --      noise="perlin",
-            --      weights = {
-            --          ['copper-ore']  = 1,
-            --          ['iron-ore']    = 2,
-			--          ['skip']        = 2,
-            --      },
-            --      distances = {
-            --      }, },
-            
+                --]]
+                
+                -- start the next line with 3 dashes to enable default tendril mode
+                --   or with 2 dashes to disable it
+                
+                --[[ Tendril clusters
+                { -- tendril default large
+                    yield=1.5,
+                    min_distance=30,
+                    distance_richness=7,
+                    noise_settings = {
+                        type = "connected_tendril",
+                        threshold = 0.05,   
+                        sources = {
+                            {variance=350*2, weight = 1.000, offset = 000, type="simplex"},
+                            {variance=200*2, weight = 0.350, offset = 150, type="simplex"},
+                            {variance=050*2, weight = 0.050, offset = 300, type="simplex"},
+                            {variance=020*2, weight = 0.015, offset = 450, type="simplex"},
+                        }
+                    },
+                    weights = {
+                        ['coal']        = 160,
+                        ['copper-ore']  = 215,
+                        ['iron-ore']    = 389,
+                        ['stone']       = 212,
+                        ['uranium-ore'] =  21,
+                    },
+                    distances = {
+                        ['coal']        = 16,
+                        ['copper-ore']  = 18,
+                        ['iron-ore']    = 18,
+                        ['stone']       = 15,
+                        ['uranium-ore'] = 86,
+                    }, },
+                { -- tendril default small
+                    yield=1.0,
+                    min_distance=30,
+                    distance_richness=7,
+                    noise_settings = {
+                        type = "connected_tendril",
+                        threshold = 0.05,
+                        sources = {
+                            {variance=120, weight = 1.000, offset = 000, type="simplex"},
+                            {variance=060, weight = 0.300, offset = 150, type="simplex"},
+                            {variance=040, weight = 0.200, offset = 300, type="simplex"},
+                            {variance=020, weight = 0.090, offset = 450, type="simplex"},
+                        }
+                    },
+                    weights = {
+                        ['coal']        = 160,
+                        ['copper-ore']  = 215,
+                        ['iron-ore']    = 389,
+                        ['stone']       = 212,
+                        ['uranium-ore'] =  21,
+                    },
+                    distances = {
+                        ['coal']        = 16,
+                        ['copper-ore']  = 18,
+                        ['iron-ore']    = 18,
+                        ['stone']       = 15,
+                        ['uranium-ore'] = 86,
+                    },
                 },
-            
+                { -- tendril default fragments
+                    yield=1.0,
+                    min_distance=30,
+                    distance_richness=7,
+                    noise_settings = {
+                        --type = "fragmented_tendril",
+                        type = 'skip',
+                        threshold = 0.05,
+                        discriminator_threshold = 0.4,
+                        sources = {
+                            {variance=050, weight = 1.000, offset = 600, type="simplex"},
+                            {variance=030, weight = 0.500, offset = 750, type="simplex"},
+                            {variance=020, weight = 0.250, offset = 900, type="simplex"},
+                            {variance=010, weight = 0.100, offset =1050, type="simplex"},
+                        },
+                        discriminator = {
+                            {variance=120, weight = 1.000, offset = 000, type="simplex"},
+                            {variance=060, weight = 0.300, offset = 150, type="simplex"},
+                            {variance=040, weight = 0.200, offset = 300, type="simplex"},
+                            {variance=020, weight = 0.090, offset = 450, type="simplex"},
+                        },
+                    },
+                    weights = {
+                        ['coal']        = 160,
+                        ['copper-ore']  = 215,
+                        ['iron-ore']    = 389,
+                        ['stone']       = 212,
+                        ['uranium-ore'] =  21,
+                    },
+                    distances = {
+                        ['coal']        = 16,
+                        ['copper-ore']  = 18,
+                        ['iron-ore']    = 18,
+                        ['stone']       = 15,
+                        ['uranium-ore'] = 86,
+                    },
+                },
+                { -- tendril default fragments coal
+                    yield=0.25,
+                    min_distance=30,
+                    distance_richness=7,
+                    noise_settings = {
+                        type = "fragmented_tendril",
+                        threshold = 0.05,
+                        discriminator_threshold = 0.4,
+                        sources = {
+                            {variance=050, weight = 1.000, offset = 600, type="simplex"},
+                            {variance=030, weight = 0.500, offset = 750, type="simplex"},
+                            {variance=020, weight = 0.250, offset = 900, type="simplex"},
+                            {variance=010, weight = 0.100, offset =1050, type="simplex"},
+                        },
+                        discriminator = {
+                            {variance=120, weight = 1.000, offset = 000, type="simplex"},
+                            {variance=060, weight = 0.300, offset = 150, type="simplex"},
+                            {variance=040, weight = 0.200, offset = 300, type="simplex"},
+                            {variance=020, weight = 0.090, offset = 450, type="simplex"},
+                        },
+                    },
+                    weights = {
+                        ['coal']        = 1,
+                    },
+                    distances = {
+                        ['coal']        = 16,
+                    },
+                },
+                { -- tendril default fragments iron
+                    yield=0.25,
+                    min_distance=30,
+                    distance_richness=7,
+                    noise_settings = {
+                        type = "fragmented_tendril",
+                        threshold = 0.05,
+                        discriminator_threshold = 0.4,
+                        sources = {
+                            {variance=050, weight = 1.000, offset = 600, type="simplex"},
+                            {variance=030, weight = 0.500, offset = 750, type="simplex"},
+                            {variance=020, weight = 0.250, offset = 900, type="simplex"},
+                            {variance=010, weight = 0.100, offset =1050, type="simplex"},
+                        },
+                        discriminator = {
+                            {variance=120, weight = 1.000, offset = 000, type="simplex"},
+                            {variance=060, weight = 0.300, offset = 150, type="simplex"},
+                            {variance=040, weight = 0.200, offset = 300, type="simplex"},
+                            {variance=020, weight = 0.090, offset = 450, type="simplex"},
+                        },
+                    },
+                    weights = {
+                        ['iron-ore']    = 389,
+                    },
+                    distances = {
+                        ['coal']        = 16,
+                        ['iron-ore']    = 18,
+                    },
+                },
+                { -- tendril default fragments copper
+                    yield=0.25,
+                    min_distance=30,
+                    distance_richness=7,
+                    noise_settings = {
+                        type = "fragmented_tendril",
+                        threshold = 0.05,
+                        discriminator_threshold = 0.4,
+                        sources = {
+                            {variance=050, weight = 1.000, offset = 600, type="simplex"},
+                            {variance=030, weight = 0.500, offset = 750, type="simplex"},
+                            {variance=020, weight = 0.250, offset = 900, type="simplex"},
+                            {variance=010, weight = 0.100, offset =1050, type="simplex"},
+                        },
+                        discriminator = {
+                            {variance=120, weight = 1.000, offset = 000, type="simplex"},
+                            {variance=060, weight = 0.300, offset = 150, type="simplex"},
+                            {variance=040, weight = 0.200, offset = 300, type="simplex"},
+                            {variance=020, weight = 0.090, offset = 450, type="simplex"},
+                        },
+                    },
+                    weights = {
+                        ['copper-ore']  = 215,
+                    },
+                    distances = {
+                        ['copper-ore']  = 18,
+                    },
+                },
+                { -- tendril default fragments stone
+                    yield=0.25,
+                    min_distance=30,
+                    distance_richness=7,
+                    noise_settings = {
+                        type = "fragmented_tendril",
+                        threshold = 0.05,
+                        discriminator_threshold = 0.4,
+                        sources = {
+                            {variance=050, weight = 1.000, offset = 600, type="simplex"},
+                            {variance=030, weight = 0.500, offset = 750, type="simplex"},
+                            {variance=020, weight = 0.250, offset = 900, type="simplex"},
+                            {variance=010, weight = 0.100, offset =1050, type="simplex"},
+                        },
+                        discriminator = {
+                            {variance=120, weight = 1.000, offset = 000, type="simplex"},
+                            {variance=060, weight = 0.300, offset = 150, type="simplex"},
+                            {variance=040, weight = 0.200, offset = 300, type="simplex"},
+                            {variance=020, weight = 0.090, offset = 450, type="simplex"},
+                        },
+                    },
+                    weights = {
+                        ['stone']       = 1,
+                    },
+                    distances = {
+                        ['stone']       = 15,
+                    },
+                },
+                { -- crude oil
+                    yield=1.7,
+                    min_distance=57,
+                    distance_richness=7,
+                    noise_settings = {
+                        type = "cluster",
+                        threshold = 0.40,
+                        sources = {
+                            {variance=25, weight = 1, offset = 000, type="perlin"},
+                        },
+                    },
+                    weights = {
+                        ['skip']        = 997,
+                        ['crude-oil']   =   3,
+                    },
+                    distances = {
+                        ['crude-oil']   = 57,
+                    },
+                },
+                --]]
+            },
         },
 
         -- controls the alien spawning mechanic
