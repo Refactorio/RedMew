@@ -15,6 +15,7 @@ local MarketUnlockables = require 'map_gen.Diggy.MarketUnlockables'
 local calculate_level = MarketUnlockables.calculate_level
 local insert = table.insert
 local max = math.max
+local utils = require 'utils.utils'
 
 -- this
 local MarketExchange = {}
@@ -213,13 +214,8 @@ local function on_research_finished(event)
     update_stone_collecting()
 end
 
-local function comma_value(n) -- credit http://richard.warburton.it
-    local left,num,right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
-    return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
-end
-
 local function redraw_title(data)
-    data.frame.caption = comma_value(stone_tracker.stone_sent_to_surface) .. ' ' .. config.currency_item .. ' sent to the surface'
+    data.frame.caption = utils.comma_value(stone_tracker.stone_sent_to_surface) .. ' ' .. config.currency_item .. ' sent to the surface'
 end
 
 local function get_data(unlocks, stone, type)
@@ -268,7 +264,7 @@ local function redraw_progressbar(data)
     local percentage = (math.floor((sent / range)*1000))*0.001
     percentage = (percentage < 0) and (percentage*-1) or percentage
 
-    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. stone_tracker.current_level .. '\nNext level at: ' .. comma_value(next_stone) ..'\nRemaining stone: ' .. comma_value(range - sent), name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
+    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. stone_tracker.current_level .. '\nNext level at: ' .. utils.comma_value(next_stone) ..'\nRemaining stone: ' .. utils.comma_value(range - sent), name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
     local level_progressbar = flow.add({type = 'progressbar', tooltip = percentage * 100 .. '% stone to next level'})
     level_progressbar.style.width = 350
     level_progressbar.value = percentage
