@@ -27,7 +27,7 @@ end
 -- @field price number of the price in the configured currency_item to buy the item in the market
 -- @field name string of the factorio prototype-name for the entity to be unlocked
 --
-function FormatMarketItems.initalize_unlockables(items)
+function FormatMarketItems.initialize_unlockables(items)
     local unlockables = {}
     for _, item in ipairs(items) do
         add(item.level, item.price, item.name)
