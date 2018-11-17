@@ -96,7 +96,10 @@ function ScatteredResources.register(config)
     
     -- compound cluster spawning
     local c_mode = config.cluster_mode
-    local c_clusters = config.clusters
+    local c_clusters = require(config.cluster_file_location)
+    if ('table' ~= type(c_clusters)) then
+        error('cluster_file_location invalid')
+    end
     local c_count = 0
     for _, cluster in ipairs(c_clusters) do
         c_count = c_count + 1
