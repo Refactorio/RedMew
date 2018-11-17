@@ -57,10 +57,10 @@ Module.show_reports = function(player)
     local center = player.gui.center
 
     local report_frame = center[report_frame_name]
-    if report_frame and report_frame.valid then 
+    if report_frame and report_frame.valid then
         Gui.destroy(report_frame)
     end
-    
+
     report_frame = center.add {
         type = 'frame',
         name = report_frame_name,
@@ -194,7 +194,7 @@ function Module.jail(target_player, player)
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
-        print(target .. ' has been jailed. They have been advised of this.')
+        print(target_player.name .. ' has been jailed. They have been advised of this.')
         target_player.print(prefix)
         target_player.print('You have been placed in jail by ' .. jailed_by .. '. The only action avaliable to you is chatting.')
         target_player.print('Please respond to inquiries from the admins.', {r = 1, g = 1, b = 0, a = 1})
@@ -303,9 +303,9 @@ local reporting_input_name = Gui.uid_name()
 Module.spawn_reporting_popup = function(player, reported_player)
 
     local center = player.gui.center
-  
+
     local reporting_popup = center[reporting_popup_name]
-    if reporting_popup and reporting_popup.valid then 
+    if reporting_popup and reporting_popup.valid then
         Gui.destroy(reporting_popup)
     end
     reporting_popup = center.add {
@@ -323,7 +323,7 @@ Module.spawn_reporting_popup = function(player, reported_player)
         caption = 'Report message:'
     }
     local input = reporting_popup.add {type = 'text-box', name=reporting_input_name}
-    input.style.width = 400 
+    input.style.width = 400
     input.style.height = 85
     local button_flow = reporting_popup.add {type = "flow"}
     button_flow.add {type = "button", name = reporting_submit_button_name, caption="Submit"}
@@ -332,7 +332,7 @@ end
 
 Gui.on_custom_close(
     reporting_popup_name,
-    function(event) 
+    function(event)
         Gui.destroy(event.element)
     end
 )
