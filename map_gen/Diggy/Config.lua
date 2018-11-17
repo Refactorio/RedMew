@@ -496,7 +496,7 @@ local Config = {
         Antigrief = {
             enabled = true,
             autojail = true,
-            allowed_collapses_per_hour = 3
+            allowed_collapses_first_hour = 4
         }
 
     },

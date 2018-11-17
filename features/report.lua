@@ -116,9 +116,12 @@ function Module.jail(target_player, player)
     local jail_name = 'Jail'
 
     local print
+    local jailed_by
     if player then
+        jailed_by = "a server admin"
         print = player.print
     else
+        jailed_by = "script for causing too many collapses"
         print = log
     end
 
@@ -166,7 +169,7 @@ function Module.jail(target_player, player)
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
         print(target_player.name .. ' has been jailed. They have been advised of this.')
-        target_player.print('You have been placed in jail by a server admin. The only action you can currently perform is chatting. Please respond to inquiries from the admin.')
+        target_player.print('You have been placed in jail by ' .. jailed_by .. '. The only action you can currently perform is chatting. Please respond to inquiries from the admin.')
     else
         -- Let admin know it didn't work.
         print('Something went wrong in the jailing of ' .. target_player.name .. '. You can still change their group via /permissions.')
