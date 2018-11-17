@@ -142,12 +142,21 @@ local function update_market_contents(market)
 
             local name = unlockable.prototype.name
             local price = unlockable.prototype.price
-            print('Mining Foreman: New wares at the market! Come get your ' .. name .. ' for only ' .. price .. ' ' .. config.currency_item .. '!')
+            print(type(price))
+            if type(price) == 'number' then
+                print('Mining Foreman: New wares at the market! Come get your ' .. name .. ' for only ' .. price .. ' ' .. config.currency_item .. '!')
+                add_market_item({
+                    price = {{config.currency_item, price}},
+                    offer = {type = 'give-item', item = name, count = 1}
+                })
+            elseif type(price) == 'table' then
+                print('Mining Foreman: New wares at the market! Come get your ' .. name .. '!')
+                add_market_item({
+                    price = price,
+                    offer = {type = 'give-item', item = name, count = 1}
+                })
+            end
 
-            add_market_item({
-                price = {{config.currency_item, price}},
-                offer = {type = 'give-item', item = name, count = 1}
-            })
         end
     end
 

@@ -80,6 +80,7 @@ local Config = {
                 ['market'] = 9,
                 ['stone-wall'] = 3,
                 ['sand-rock-big'] = 2,
+                ['rock-huge'] = 2.5,
                 ['out-of-map'] = 1,
                 ['stone-path'] = 0.03,
                 ['concrete'] = 0.04,
@@ -167,67 +168,15 @@ local Config = {
                 {name = 'dirt', min = 0.39, max = 0.53},
             },
         },
-
+    
         -- responsible for resource spawning
         ScatteredResources = {
             enabled = true,
-
-            -- creates clusters of ore with higher yields and frequency instead of evenly scattered ore
-            -- lowers max resource max_resource_probability to 50% of the original value
-            cluster_mode = true,
-
-            -- value between 0 and 1, higher value means stronger variance between coordinates
-            noise_variance = 0.04,
-
-            -- a value between 0 and 1 that triggers the spawning of resource based on noise
-            noise_resource_threshold = 0.40,
-
-            -- raw multiplier for ore content in cluster mode
-            cluster_yield_multiplier = 1.7,
-
-            -- shows where resources are located
-            display_resource_fields = false,
-
-            -- percentage of resource added to the sum. 100 tiles means
-            -- 10% more resources with a distance_richness_modifier of 10
-            -- 20% more resources with a distance_richness_modifier of 5
-            distance_richness_modifier = 7,
-
-            -- defines the increased chance of spawning resources
-            -- calculated_probability = resource_probability + ((distance / distance_probability_modifier) / 100)
-            distance_probability_modifier = 10,
-
-            -- increases the amount of liquids that need pumping
-            liquid_value_modifiers = {
-                ['crude-oil'] = 750,
-            },
-
-            -- min percentage of chance that resources will spawn after mining
-            resource_probability = 0.01,
-
-            -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
-            max_resource_probability = 0.30,
-			
-            -- weights per resource of spawning 
-            resource_weights = {
-                ['coal']        = 160,
-                ['copper-ore']  = 215,
-                ['iron-ore']    = 389,
-                ['stone']       = 212,
-                ['uranium-ore'] =  21,
-                ['crude-oil']   =   3,
-            },
-
-            -- minimum distance from the spawn point required before it spawns
-            minimum_resource_distance = {
-                ['coal']        = 16,
-                ['copper-ore']  = 18,
-                ['iron-ore']    = 18,
-                ['stone']       = 15,
-                ['uranium-ore'] = 86,
-                ['crude-oil']   = 57,
-            },
-			
+            
+            -- determines how distance is measured
+            distance = function (x, y) return math.abs(x) + math.abs(y) end, 
+            --distance = function (x, y) return math.sqrt(x * x + y * y) end,
+            
             -- defines the weights of which resource_richness_value to spawn
             resource_richness_weights = {
                 ['scarce']     = 440,
@@ -247,6 +196,81 @@ local Config = {
                 ['plenty']     = {1201, 2000},
                 ['jackpot']    = {2001, 5000},
             },
+            
+            -- increases the amount of resources by flat multiplication to initial amount
+            -- highly suggested to use for fluids so their yield is reasonable
+            resource_type_scalar = {
+                ['crude-oil'] = 1500,
+                ['uranium-ore'] = 1.25,
+            },
+            
+            -- ==============
+            -- Debug settings
+            -- ==============
+            
+            -- shows the ore locations, only use when debugging (compound_cluster_mode)
+            display_ore_clusters = false,
+            
+            -- =======================
+            -- Scattered mode settings
+            -- =======================
+            
+            -- creates scattered ore (single tiles) at random locations
+            scattered_mode = false,
+            
+            -- defines the increased chance of spawning resources
+            -- calculated_probability = resource_probability + ((distance / scattered_distance_probability_modifier) / 100)
+            -- this means the chance increases by 1% every DISTANCE tiles up to the max_probability
+            scattered_distance_probability_modifier = 10,
+            
+            -- min percentage of chance that resources will spawn after mining
+            scattered_min_probability = 0.01,
+
+            -- max chance of spawning resources based on resource_probability + calculated scattered_distance_probability_modifier
+            scattered_max_probability = 0.10,
+            
+            -- percentage of resource added to the sum. 100 tiles means
+            -- 10% more resources with a distance_richness_modifier of 10
+            -- 20% more resources with a distance_richness_modifier of 5
+            scattered_distance_richness_modifier = 7,
+            
+            -- multiplies probability only if cluster mode is enabled
+            scattered_cluster_probability_multiplier = 0.5,
+            
+            -- multiplies yield only if cluster mode is enabled
+            scattered_cluster_yield_multiplier = 1.7,
+            
+            -- weights per resource of spawning 
+            scattered_resource_weights = {
+                ['coal']        = 160,
+                ['copper-ore']  = 215,
+                ['iron-ore']    = 389,
+                ['stone']       = 212,
+                ['uranium-ore'] =  21,
+                ['crude-oil']   =   3,
+            },
+
+            -- minimum distance from the spawn point required before it spawns
+            scattered_minimum_resource_distance = {
+                ['coal']        = 16,
+                ['copper-ore']  = 18,
+                ['iron-ore']    = 18,
+                ['stone']       = 15,
+                ['uranium-ore'] = 86,
+                ['crude-oil']   = 57,
+            },
+            
+            -- ==============================
+            -- Compound cluster mode settings
+            -- ==============================
+            
+            -- creates compound clusters of ores defined by a layered ore-gen
+            cluster_mode = true,
+            
+            -- location of file to find the cluster definition file
+            cluster_file_location = 'map_gen.Diggy.Orepattern.Tendrils',
+            --cluster_file_location = 'map_gen.Diggy.Orepattern.Clusters',
+            
         },
 
         -- controls the alien spawning mechanic
@@ -284,27 +308,38 @@ local Config = {
             -- format: {unlock_at_level, price, prototype_name},
             unlockables = require('map_gen.Diggy.FormatMarketItems').initialize_unlockables(
                 {
-                    {level = 1, price = 50, name = 'raw-fish'},
-                    {level = 1, price = 50, name = 'steel-axe'},
-                    {level = 1, price = 20, name = 'raw-wood'},
-                    {level = 2, price = 50, name = 'small-lamp'},
-                    {level = 2, price = 25, name = 'stone-brick'},
-                    {level = 2, price = 125, name = 'stone-wall'},
-                    {level = 3, price = 850, name = 'submachine-gun'},
-                    {level = 3, price = 850, name = 'shotgun'},
-                    {level = 3, price = 50, name = 'firearm-magazine'},
-                    {level = 3, price = 50, name = 'shotgun-shell'},
-                    {level = 3, price = 500, name = 'light-armor'},
-                    {level = 11, price = 750, name = 'heavy-armor'},
-                    {level = 13, price = 100, name = 'piercing-rounds-magazine'},
-                    {level = 13, price = 100, name = 'piercing-shotgun-shell'},
-                    {level = 13, price = 1500, name = 'modular-armor'},
-                    {level = 16, price = 1000, name = 'landfill'},
-                    {level = 30, price = 250, name = 'uranium-rounds-magazine'},
-                    {level = 30, price = 1000, name = 'combat-shotgun'},
+                    {level = 1, price = 50, name = 'raw-wood'},
+                    {level = 2, price = 20, name = 'raw-fish'},
+                    {level = 3, price = 50, name = 'stone-brick'},
+                    {level = 5, price = 125, name = 'stone-wall'},
+                    {level = 7, price = 25, name = 'small-lamp'},
+                    {level = 9, price = 50, name = 'firearm-magazine'},
+                    {level = 9, price = 250, name = 'pistol'},
+                    {level = 11, price = 850, name = 'shotgun'},
+                    {level = 11, price = 50, name = 'shotgun-shell'},
+                    {level = 14, price = 500, name = 'light-armor'},
+                    {level = 16, price = 850, name = 'submachine-gun'},
+                    {level = 16, price = 50, name = 'steel-axe'},
+                    {level = 19, price = 100, name = 'piercing-rounds-magazine'},
+                    {level = 19, price = 100, name = 'piercing-shotgun-shell'},
+                    {level = 21, price = 750, name = 'heavy-armor'},
+                    {level = 25, price = 1500, name = 'modular-armor'},
+                    {level = 25, price = 1000, name = 'landfill'},
+                    {level = 28, price = {{"stone", 900}, {"coin", 25}}, name = 'personal-roboport-equipment'},
+                    {level = 28, price = {{"stone", 250}, {"coin", 10}}, name = 'construction-robot'},
+                    {level = 32, price = {{"stone", 2500}, {"coin", 100}}, name = 'power-armor'},
+                    {level = 34, price = {{"stone", 150}, {"coin", 10}}, name = 'battery-equipment'},
+                    {level = 33, price = {{"stone", 2000}, {"coin", 75}}, name = 'fusion-reactor-equipment'},
+                    {level = 36, price = {{"stone", 750}, {"coin", 20}}, name = 'energy-shield-equipment'},
+                    {level = 42, price = 1000, name = 'combat-shotgun'},
+                    {level = 46, price = 250, name = 'uranium-rounds-magazine'},
+                    {level = 58, price = {{"stone", 1500}, {"coin", 25}}, name = 'rocket-launcher'},
+                    {level = 58, price = {{"stone", 500}, {"coin", 5}}, name = 'rocket'},
+                    {level = 66, price = {{"stone", 1000}, {"coin", 10}}, name = 'explosive-rocket'},
+                    {level = 73, price = {{"stone", 1000}, {"coin", 200}}, name = 'satellite'},
+                    {level = 100, price = {{"stone", 5000}, {"coin", 9999}}, name = 'atomic-bomb'},
                 }
             ),
-
             buffs = { --Define new buffs here
                 {prototype = {name = 'mining_speed', value = 5}},
                 {prototype = {name = 'inventory_slot', value = 1}},
