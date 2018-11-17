@@ -54,10 +54,26 @@ to adjust the difficulty for your needs. You can find the config in `map_gen/Dig
 well-explained. For Single-player it's recommend to enable cheats with modified values. You can change the starting
 items and some pre-defined cheat values (if cheats are enabled) under the `SetupPlayer` config item.
 
-You can turn off certain features if you wish.
- - DiggyCaveCollapse, disable this feature if you wish to play without collapses.
- - SimpleRoomGenerator, disable this if you want to play without room generation. _**WARNING:** this is the mechanic
- that spawns water._
- - AlienSpawner, disable this if you wish to disable spawning biters and spitters when mining.
- - ScatteredResources, used to tweak random resource spawning.
- - MarketExchange, regulates all the market related features.
+## Configuring Diggy
+
+### Changing or Disabling Biter Spawning
+You can find the biter spawning feature in the config file under `AlienSpawner`. If you don't want biters to spawn
+according to the Diggy scenario, turn this feature off completely.
+
+### Disabling Collapses
+While one of the core features, it can also be fun to play without. To turn off collapses completely, you can turn off
+this feature under `DiggyCaveCollapse`. If you experience performance issues while digging, you can turn off this
+feature as well as it can be quite heavy.
+
+### Configuring Resource Spawning
+At the moment, Diggy is not yet using any of the build-in mechanics to spawn resources and you will have to manually add
+them. The resource spawning mechanism is quite complex, so don't hesitate to us how to configure it on Discord. Most
+basic configuration can be found under `ScatteredResources`. To customize the resource weights, you have to configure
+those specifics in the `map_gen/Diggy/Orepattern` directory. Resources are defined with a weight, meaning you can add
+your own resources (for example bobs or angels) with a value and the scenario will automatically calculate the proper
+spawn chances.
+
+### Adding Market Items
+Items can be configured by adding the desired item under the `MarketExchange` configuration. You only have to define a
+level at which it unlocks, a price or prices in case it can cost more, and what the item prototype is. For a list of
+items, you can look up each possible item on the [Factorio raw data page](https://wiki.factorio.com/Data.raw#item).

@@ -340,14 +340,15 @@ local Config = {
                     {level = 100, price = {{"stone", 5000}, {"coin", 9999}}, name = 'atomic-bomb'},
                 }
             ),
-            buffs = { --Define new buffs here
+
+            buffs = { --Define new buffs here, they are handed out for each level
                 {prototype = {name = 'mining_speed', value = 5}},
                 {prototype = {name = 'inventory_slot', value = 1}},
                 {prototype = {name = 'stone_automation', value = 3}},
             },
 
             -- controls the formula for calculating level up costs in stone sent to surface
-            difficulty_scale = 25, -- Diggy default 25. Higher increases difficulity, lower decreases (Only affects the stone requirement/cost to level up) (Only integers has been tested succesful)
+            difficulty_scale = 25, -- Diggy default 25. Higher increases difficulty, lower decreases (Only affects the stone requirement/cost to level up) (Only integers has been tested succesful)
             start_stone = 50, -- Diggy default 50. This sets the price for the first level.
             cost_precision = 2, -- Diggy default 2. This sets the precision of the stone requirements to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
         },
