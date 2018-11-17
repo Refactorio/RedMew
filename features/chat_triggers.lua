@@ -118,8 +118,8 @@ local function hodor(event)
                 break;
             end
             for _, p in ipairs(game.connected_players) do
+                word = (lower_trimmed_word == 'admin' or lower_trimmed_word == 'moderator') and trimmed_word or word
                 if admin_call and p.admin then
-                    word = (lower_trimmed_word == 'admin' or lower_trimmed_word == 'moderator') and trimmed_word or word
                     p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned '..word..'!', {r = 1, g = 1, b = 0, a = 1})
                     p.play_sound{path='utility/new_objective', volume_modifier = 1 }
                     success = true
