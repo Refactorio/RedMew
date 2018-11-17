@@ -5,6 +5,10 @@ local Event = require 'utils.event'
 require 'utils.list_utils'
 local Hodor = require 'resources.hodor_messages'
 
+local prefix = '## - '
+
+global.mention_enabled = true
+
 local auto_replies = {
     ['discord'] = {'Did you ask about our discord server?', 'You can find it here: redmew.com/discord'},
     ['patreon'] = {'Did you ask about our patreon?', 'You can find it here: patreon.com/redmew'},
@@ -109,15 +113,19 @@ local function hodor(event)
             if lower_word == 'admin' or lower_word == 'moderator' or lower_trimmed_word == 'admin' or lower_trimmed_word == 'moderator' then
                 admin_call = true
             end
-
+            print(string.sub(word, 0, 1))
+            if not admin_call and string.sub(word, 0, 1) ~= '#' then
+                break;
+            end
             for _, p in ipairs(game.connected_players) do
                 if admin_call and p.admin then
+                    word = (lower_trimmed_word == 'admin' or lower_trimmed_word == 'moderator') and trimmed_word or word
                     p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned '..word..'!', {r = 1, g = 1, b = 0, a = 1})
                     p.play_sound{path='utility/new_objective', volume_modifier = 1 }
                     success = true
                 end
 
-                if not admin_call and (p.name == word or p.name == trimmed_word) then
+                if not admin_call and ('#'..p.name == word or '#'..p.name == trimmed_word) then
                     if p.name == player.name then
                         if _DEBUG then
                             player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
@@ -134,22 +142,25 @@ local function hodor(event)
                     break;
                 end
             end
-            --[[if not success then
+            if not success then
+                if admin_call then
+                    word = 'no '.. word .. 's online!'
+                end
                 not_found = not_found + 1
                 table.insert(cannot_mention, (word .. ', '))
-            end]]
+            end
         end
-        --[[for _, pname in ipairs(cannot_mention) do
+        for _, pname in ipairs(cannot_mention) do
             missing_player_string = missing_player_string~=nil and missing_player_string .. pname or pname
-        end]]
-        --[[if missing_player_string ~= nil then
+        end
+        if missing_player_string ~= nil then
             missing_player_string = string.sub(missing_player_string, 1, (string.len(missing_player_string)-2))
             if not_found > 1 then
                 player.print(prefix..'Players not found: ' .. missing_player_string, {r = 1, g = 1, b = 0, a = 1})
             else
                 player.print(prefix..'Player not found: ' .. missing_player_string, {r = 1, g = 1, b = 0, a = 1})
             end
-        end ]]
+        end
     end
 end
 
