@@ -12,15 +12,14 @@ local Debug = require 'map_gen.Diggy.Debug'
 local insert = table.insert
 local random = math.random
 
---BT's additions
-local Config = require 'map_gen.Diggy.Config'
+-- todo remove this dependency
+local ResourceConfig = require 'map_gen.Diggy.Config'.features.ScatteredResources
 
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Simplex = require 'map_gen.shared.simplex_noise'
 
 local sqrt = math.sqrt
 local ceil = math.ceil
-local floor = math.floor
 
 -- this
 local DiggyHole = {}
@@ -57,16 +56,12 @@ local function diggy_hole(entity)
     local tiles = {}
     local rocks = {}
     local surface = entity.surface
-
-    local out_of_map_found = Scanner.scan_around_position(surface, entity.position, 'out-of-map');
-
     local position = entity.position
     local x = position.x
     local y = position.y
-    local surface = entity.surface
 
-
-    local distance = Config.features.ScatteredResources.distance(x, y)
+    local out_of_map_found = Scanner.scan_around_position(surface, position, 'out-of-map');
+    local distance = ResourceConfig.distance(x, y)
 
     -- source of noise for resource generation
     -- index determines offset
@@ -97,42 +92,25 @@ local function diggy_hole(entity)
         return noise
     end
 
---        local c_clusters = Config.features.ScatteredResources.clusters
---        local c_mode = Config.features.ScatteredResources.cluster_mode
-    
     -- global config values
-    
-    local resource_richness_weights = Config.features.ScatteredResources.resource_richness_weights
+    local resource_richness_weights = ResourceConfig.resource_richness_weights
     local resource_richness_weights_sum = 0
     for _, weight in pairs(resource_richness_weights) do
         resource_richness_weights_sum = resource_richness_weights_sum + weight
     end
-    local resource_richness_values = Config.features.ScatteredResources.resource_richness_values
-    local resource_type_scalar = Config.features.ScatteredResources.resource_type_scalar
+    local resource_richness_values = ResourceConfig.resource_richness_values
+    local resource_type_scalar = ResourceConfig.resource_type_scalar
     
-    -- scattered config values
-    local s_mode = Config.features.ScatteredResources.scattered_mode
-    local s_dist_mod = Config.features.ScatteredResources.scattered_distance_probability_modifier
-    local s_min_prob = Config.features.ScatteredResources.scattered_min_probability
-    local s_max_prob = Config.features.ScatteredResources.scattered_max_probability
-    local s_dist_richness = Config.features.ScatteredResources.scattered_distance_richness_modifier
-    local s_cluster_prob = Config.features.ScatteredResources.scattered_cluster_probability_multiplier
-    local s_cluster_mult = Config.features.ScatteredResources.scattered_cluster_yield_multiplier
-    
-    local s_resource_weights = Config.features.ScatteredResources.scattered_resource_weights
+    local s_resource_weights = ResourceConfig.scattered_resource_weights
     local s_resource_weights_sum = 0
     for _, weight in pairs(s_resource_weights) do
         s_resource_weights_sum = s_resource_weights_sum + weight
     end
-    local s_min_dist = Config.features.ScatteredResources.scattered_minimum_resource_distance
 
-    -- cluster config values
-    local cluster_mode = Config.features.ScatteredResources.cluster_mode
-    
     -- compound cluster spawning
-    local c_mode = Config.features.ScatteredResources.cluster_mode
+    local c_mode = ResourceConfig.cluster_mode
 --    local c_clusters = Config.features.ScatteredResources.clusters
-    local c_clusters = require(Config.features.ScatteredResources.cluster_file_location)
+    local c_clusters = require(ResourceConfig.cluster_file_location)
     if ('table' ~= type(c_clusters)) then
         error('cluster_file_location invalid')
     end
@@ -147,20 +125,20 @@ local function diggy_hole(entity)
     end
 
     local function spawn_cluster_resource(surface, x, y, cluster_index, cluster)
-        local distance = sqrt(x * x + y * y)
+        local cluster_distance = sqrt(x * x + y * y)
         local resource_name = get_name_by_weight(cluster.weights, cluster.weights_sum)
         if resource_name == 'skip' then
             return false
         end
         if cluster.distances[resource_name] then
-            if distance < cluster.distances[resource_name] then
+            if cluster_distance < cluster.distances[resource_name] then
                 return false
             end
         end
     
         local range = resource_richness_values[get_name_by_weight(resource_richness_weights, resource_richness_weights_sum)]
         local amount = random(range[1], range[2])
-        amount = amount * (1 + ((distance / cluster.distance_richness) * 0.01))
+        amount = amount * (1 + ((cluster_distance / cluster.distance_richness) * 0.01))
         amount = amount * cluster.yield
         
         if resource_type_scalar[resource_name] then 
