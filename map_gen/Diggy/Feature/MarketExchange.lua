@@ -142,7 +142,6 @@ local function update_market_contents(market)
 
             local name = unlockable.prototype.name
             local price = unlockable.prototype.price
-            print(type(price))
             if type(price) == 'number' then
                 print('Mining Foreman: New wares at the market! Come get your ' .. name .. ' for only ' .. price .. ' ' .. config.currency_item .. '!')
                 add_market_item({
