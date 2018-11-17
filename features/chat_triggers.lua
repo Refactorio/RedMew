@@ -126,12 +126,13 @@ local function hodor(event)
         local missing_player_string
         local not_found = 0
         local cannot_mention = {}
-        for word in event.message:gmatch('#%S+') do
+        for word in event.message:gmatch('%S+') do
             local lower_word = word:lower()
             local trimmed_word = string.sub(word, 0, string.len(word)-1)
+            local lower_trimmed_word = string.sub(lower_word, 0, string.len(lower_word)-1)
             local success = false
             local admin_call = false
-            if lower_word == '#admin' or lower_word == '#moderator' then
+            if lower_word == 'admin' or lower_word == 'moderator' or lower_trimmed_word == 'admin' or lower_trimmed_word == 'moderator' then
                 admin_call = true
             end
 
@@ -142,9 +143,11 @@ local function hodor(event)
                     success = true
                 end
 
-                if not admin_call and ('#'..p.name == word or '#'..p.name == trimmed_word) then
+                if not admin_call and (p.name == word or p.name == trimmed_word) then
                     if p.name == player.name then
-                        player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
+                        if _DEBUG then
+                            player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
+                        end
                         success = true
                         break;
                     end
@@ -154,24 +157,25 @@ local function hodor(event)
                     if _DEBUG then
                         player.print(prefix..'Successful mentioned '..p.name, {r = 0, g = 1, b = 0, a = 1})
                     end
+                    break;
                 end
             end
-            if not success then
+            --[[if not success then
                 not_found = not_found + 1
                 table.insert(cannot_mention, (word .. ', '))
-            end
+            end]]
         end
-        for _, pname in ipairs(cannot_mention) do
+        --[[for _, pname in ipairs(cannot_mention) do
             missing_player_string = missing_player_string~=nil and missing_player_string .. pname or pname
-        end
-        if missing_player_string ~= nil then
+        end]]
+        --[[if missing_player_string ~= nil then
             missing_player_string = string.sub(missing_player_string, 1, (string.len(missing_player_string)-2))
             if not_found > 1 then
                 player.print(prefix..'Players not found: ' .. missing_player_string, {r = 1, g = 1, b = 0, a = 1})
             else
                 player.print(prefix..'Player not found: ' .. missing_player_string, {r = 1, g = 1, b = 0, a = 1})
             end
-        end
+        end ]]
     end
 end
 
