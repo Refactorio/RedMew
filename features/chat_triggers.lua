@@ -128,6 +128,7 @@ local function hodor(event)
         local cannot_mention = {}
         for word in event.message:gmatch('#%S+') do
             local lower_word = word:lower()
+            local trimmed_word = string.sub(word, 0, string.len(word)-1)
             local success = false
             local admin_call = false
             if lower_word == '#admin' or lower_word == '#moderator' then
@@ -141,7 +142,7 @@ local function hodor(event)
                     success = true
                 end
 
-                if not admin_call and '#'..p.name == word then
+                if not admin_call and ('#'..p.name == word or '#'..p.name == trimmed_word) then
                     if p.name == player.name then
                         player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
                         success = true
