@@ -24,7 +24,7 @@
 return {
     { -- tendril default large
         yield=1.5,
-        min_distance=30,
+        min_distance=40,
         distance_richness=7,
         color={r=255/255, g=0/255, b=255/255},
         noise_settings = {
@@ -53,7 +53,7 @@ return {
         }, },
     { -- tendril default small
         yield=1.0,
-        min_distance=30,
+        min_distance=25,
         distance_richness=7,
         color={r=255/255, g=255/255, b=0/255},
         noise_settings = {
@@ -83,7 +83,7 @@ return {
     },
     { -- tendril default fragments coal
         yield=0.25,
-        min_distance=30,
+        min_distance=10,
         distance_richness=7,
         color={r=0/255, g=0/255, b=0/255},
         noise_settings = {
@@ -112,7 +112,7 @@ return {
     },
     { -- tendril default fragments iron
         yield=0.25,
-        min_distance=30,
+        min_distance=10,
         distance_richness=7,
         color={r=0/255, g=140/255, b=255/255},
         noise_settings = {
@@ -136,13 +136,12 @@ return {
             ['iron-ore']    = 389,
         },
         distances = {
-            ['coal']        = 16,
             ['iron-ore']    = 18,
         },
     },
     { -- tendril default fragments copper
         yield=0.25,
-        min_distance=30,
+        min_distance=10,
         distance_richness=7,
         color={r=255/255, g=55/255, b=0/255},
         noise_settings = {
@@ -171,7 +170,7 @@ return {
     },
     { -- tendril default fragments stone
         yield=0.25,
-        min_distance=30,
+        min_distance=10,
         distance_richness=7,
         color={r=100/255, g=100/255, b=100/255},
         noise_settings = {
