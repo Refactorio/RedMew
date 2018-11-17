@@ -15,6 +15,7 @@ local function on_chunk_generated(event)
     if not surface then return end
 
     local horizontal_border_width = global.horizontal_border_width
+    if not horizontal_border_width then return end    
     local noise_seed = global.noise_seed
     local can_place_entity = surface.can_place_entity
     local create_entity = surface.create_entity

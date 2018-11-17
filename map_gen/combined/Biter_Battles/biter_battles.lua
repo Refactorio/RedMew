@@ -248,7 +248,11 @@ local function join_team(player, team)
         if #game.forces[team].connected_players > #game.forces[enemy_team].connected_players and not global.team_chosen[player_index] then
             player.print("Team " .. team .. " has too many players currently.", { r=0.98, g=0.66, b=0.22})
         else
-            player.teleport(global.battle_surface.find_non_colliding_position("player", game.forces[team].get_spawn_position(global.battle_surface), 3, 1))
+	    local pos = global.battle_surface.find_non_colliding_position("player", game.forces[team].get_spawn_position(global.battle_surface), 10, 1)
+	    if not pos then
+		pos =  game.forces[team].get_spawn_position(global.battle_surface)
+	    end
+            player.teleport(pos)
             player.force=game.forces[team]
             if global.team_chosen[player_index] then
                 local p = game.permissions.get_group("Default")
@@ -347,11 +351,11 @@ local function spy_fish(player)
     end
 
     local x = quick_bar.remove({ name="raw-fish", count=1})
-    if x == 0 then main_inventory.remove({ name="raw-fish", count=1}) end
+    if x and x == 0 then main_inventory.remove({ name="raw-fish", count=1}) end
     local enemy_team = "south"
     local force_name = player.force.name
     if force_name == "south" then enemy_team = "north" end
-    if global.spy_fish_timeout[force_name] then
+    if global.spy_fish_timeout[force_name] > game.tick then
         global.spy_fish_timeout[force_name] = global.spy_fish_timeout[force_name] + duration_per_unit
         player.print(round((global.spy_fish_timeout[force_name] - game.tick)/60, 0) .. " seconds of enemy vision left.",{ r=0.98, g=0.66, b=0.22})
     else
@@ -1042,6 +1046,7 @@ local function on_entity_damaged(event)
     if entity_name == "biter-spawner" or entity_name == "spitter-spawner" then
         if entity.health - event.final_damage_amount <= 0 then
             entity.die(force_name)
+            return
          end
         entity.health = entity.health + event.final_damage_amount * (global.enemy_force.evolution_factor * 0.8)
         return
