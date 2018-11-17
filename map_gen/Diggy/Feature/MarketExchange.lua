@@ -122,19 +122,14 @@ local function update_market_contents(market)
     local old_level = stone_tracker.current_level
     local print = game.print
 
+            
+    if (calculate_level(stone_tracker.current_level+1) <= stone_tracker.stone_sent_to_surface) then
+        stone_tracker.current_level = stone_tracker.current_level + 1
+    end
+            
     for _, unlockable in pairs(config.unlockables) do
         local stone_unlock = calculate_level(unlockable.level)
         local is_in_range = stone_unlock > stone_tracker.previous_stone_sent_to_surface and stone_unlock <= stone_tracker.stone_sent_to_surface
-
-        if (stone_tracker.current_level == old_level) then
-            while (calculate_level(stone_tracker.current_level) < stone_tracker.stone_sent_to_surface) do
-                if (calculate_level(stone_tracker.current_level+1) <= stone_tracker.stone_sent_to_surface) then
-                    stone_tracker.current_level = stone_tracker.current_level + 1
-                else
-                    break
-                end
-            end
-        end
 
         -- only add the item to the market if it's between the old and new stone range
         if (is_in_range and unlockable.type == 'market') then
