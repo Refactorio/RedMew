@@ -2,22 +2,8 @@
 
 local Game = require 'utils.game'
 local Event = require 'utils.event'
-
-local prefix = '## - '
-
-global.mention_enabled = true
-
-local hodor_messages = {
-    {'Hodor.', 16},
-    {'Hodor?', 16},
-    {'Hodor!', 16},
-    {'Hodor! Hodor! Hodor! Hodor!', 4},
-    {'Hodor :(', 4},
-    {'Hodor :)', 4},
-    {'HOOOODOOOR!', 4},
-    {'( ͡° ͜ʖ ͡°)', 1},
-    {'☉ ‿ ⚆', 1}
-}
+require 'utils.list_utils'
+local Hodor = require 'resources.hodor_messages'
 
 local auto_replies = {
     ['discord'] = {'Did you ask about our discord server?', 'You can find it here: redmew.com/discord'},
@@ -69,24 +55,12 @@ global.naughty_words = {
     ['yikes'] = true
 }
 
-local message_weight_sum = 0
-for _, w in pairs(hodor_messages) do
-    message_weight_sum = message_weight_sum + w[2]
-end
-
 local function hodor(event)
     local message = event.message:lower()
 
     if message:match('hodor') then
-        local index = math.random(1, message_weight_sum)
-        local message_weight_sum = 0
-        for _, m in pairs(hodor_messages) do
-            message_weight_sum = message_weight_sum + m[2]
-            if message_weight_sum >= index then
-                game.print('Hodor: ' .. m[1])
-                break
-            end
-        end
+
+        game.print('Hodor: ' .. table.get_random_weighted(Hodor, 1, 2))
     end
 
     -- player_index is nil if the message came from the server,
@@ -100,7 +74,7 @@ local function hodor(event)
     if not player or not player.valid then
         return
     end
-    
+
     if not player.admin then
         for trigger, replies in pairs(auto_replies) do
             if message:match(trigger) then

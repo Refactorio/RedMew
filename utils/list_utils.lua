@@ -1,3 +1,5 @@
+-- Functions that perform actions on tables
+
 local function assert_argument_valid(a, arg_type)
   arg_type = arg_type or "table"
   if type(a) ~= arg_type then
@@ -78,35 +80,63 @@ table.get = function (t, index)
   error("Index out of bounds", 2)
 end
 
+-- Chooses a random entry from a table
+table.get_random = function(this_table)
+    return this_table[math.random(#this_table)]
+end
+
+--- Chooses a random entry from a weighted table
+-- @param weight_table a table of tables with items and their weights
+-- @param item_index the index of the items
+-- @param weight_index the index of the weights
+-- @returns a random item with weighting
+-- @see features.chat_triggers.hodor
+table.get_random_weighted = function(weighted_table, item_index, weight_index)
+  local total_weight = 0
+
+  for _, w in pairs(weighted_table) do
+      total_weight = total_weight + w[weight_index]
+  end
+
+  local index = math.random(total_weight)
+  local weight_sum = 0
+  for _, w in pairs(weighted_table) do
+      weight_sum = weight_sum + w[weight_index]
+      if weight_sum >= index then
+          return w[item_index]
+      end
+  end
+end
+
 --[[
-  Returns the index where t[index] == target. 
-  If there is no such index, returns a negative vaule such that bit32.bnot(value) is 
+  Returns the index where t[index] == target.
+  If there is no such index, returns a negative vaule such that bit32.bnot(value) is
   the index that the vaule should be inserted to keep the list ordered.
-  t must be a list in ascending order for the return value to be valid. 
+  t must be a list in ascending order for the return value to be valid.
 
   Usage example:
   local t = {1,3,5,7,9}
   local x = 5
-  local index = table.binary_search(t, x) 
-  if index < 0 then    
-    game.print("value not found, smallest index where t[index] > x is: " .. bit32.bnot(index)) 
+  local index = table.binary_search(t, x)
+  if index < 0 then
+    game.print("value not found, smallest index where t[index] > x is: " .. bit32.bnot(index))
   else
     game.print("value found at index: " .. index)
-  end  
+  end
 ]]
 table.binary_search = function(t, target)
   --For some reason bit32.bnot doesn't return negative numbers so I'm using ~x = -1 - x instead.
     assert_argument_valid(t)
     assert_argument_valid(target, "number")
-  
+
     local lower = 1
     local upper = #t
-    
+
     if upper == 0 then
       return -2 -- ~1
     end
-  
-    repeat 
+
+    repeat
       local mid = math.floor( (lower + upper) / 2 )
       local value = t[mid]
       if value == target then
@@ -115,9 +145,9 @@ table.binary_search = function(t, target)
         lower = mid + 1
       else
         upper = mid - 1
-      end  
+      end
     until lower > upper
-  
+
     return -1 - lower -- ~lower
-  
+
   end
