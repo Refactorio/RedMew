@@ -486,7 +486,7 @@ Shows number of rockets launched and biters liberated.]]
 
             local new_info_textbox_style = new_info_textbox.style
             new_info_textbox_style.width = 590
-            new_info_textbox_style.height = 150
+            new_info_textbox_style.height = 300
 
             Gui.set_data(new_info_textbox, new_info_key)
         end
