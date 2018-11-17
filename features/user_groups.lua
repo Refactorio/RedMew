@@ -30,6 +30,7 @@ end
 Module.add_regular =
     function(player_name)
     local actor = Utils.get_actor()
+    --[[
     if Module.is_regular(player_name) then
         Game.player_print(player_name .. ' is already a regular.')
     else

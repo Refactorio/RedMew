@@ -17,6 +17,7 @@ local discord_admin_embed_raw_tag = '[DISCORD-ADMIN-EMBED-RAW]'
 local regular_promote_tag = '[REGULAR-PROMOTE]'
 local regular_deomote_tag = '[REGULAR-DEOMOTE]'
 local donator_set_tag = '[DONATOR-SET]'
+local start_scenario_tag = '[START-SCENARIO]'
 
 Public.raw_print = raw_print
 
@@ -75,6 +76,16 @@ function Public.donator_set(target, perks)
     perks = perks or 'nil'
 
     local message = table.concat {donator_set_tag, target, ' ', perks}
+
+    raw_print(message)
+end
+
+function Public.start_scenario(scenario_name)
+    local message = start_scenario_tag
+
+    if type(scenario_name) == 'string' then
+        message = message .. scenario_name
+    end
 
     raw_print(message)
 end
