@@ -316,7 +316,6 @@ local Config = {
                     {level = 100, price = {{"stone", 5000}, {"coin", 9999}}, name = 'atomic-bomb'},
                 }
             ),
---mk1 power armour, lasers, batteries, roboports, sheilds, maybe mk2
             buffs = { --Define new buffs here
                 {prototype = {name = 'mining_speed', value = 5}},
                 {prototype = {name = 'inventory_slot', value = 1}},
