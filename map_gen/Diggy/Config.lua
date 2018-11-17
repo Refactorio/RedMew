@@ -200,7 +200,7 @@ local Config = {
             -- highly suggested to use for fluids so their yield is reasonable
             resource_type_scalar = {
                 ['crude-oil'] = 1500,
-				['uranium-ore'] = 1.25,
+                ['uranium-ore'] = 1.25,
             },
             
             -- ==============
@@ -345,6 +345,7 @@ local Config = {
                     yield=1.5,
                     min_distance=30,
                     distance_richness=7,
+                    color={r=255/255, g=0/255, b=255/255},
                     noise_settings = {
                         type = "connected_tendril",
                         threshold = 0.05,   
@@ -373,6 +374,7 @@ local Config = {
                     yield=1.0,
                     min_distance=30,
                     distance_richness=7,
+                    color={r=255/255, g=255/255, b=0/255},
                     noise_settings = {
                         type = "connected_tendril",
                         threshold = 0.05,
@@ -398,47 +400,11 @@ local Config = {
                         ['uranium-ore'] = 86,
                     },
                 },
-                { -- tendril default fragments
-                    yield=1.0,
-                    min_distance=30,
-                    distance_richness=7,
-                    noise_settings = {
-                        --type = "fragmented_tendril",
-                        type = 'skip',
-                        threshold = 0.05,
-                        discriminator_threshold = 0.4,
-                        sources = {
-                            {variance=050, weight = 1.000, offset = 600, type="simplex"},
-                            {variance=030, weight = 0.500, offset = 750, type="simplex"},
-                            {variance=020, weight = 0.250, offset = 900, type="simplex"},
-                            {variance=010, weight = 0.100, offset =1050, type="simplex"},
-                        },
-                        discriminator = {
-                            {variance=120, weight = 1.000, offset = 000, type="simplex"},
-                            {variance=060, weight = 0.300, offset = 150, type="simplex"},
-                            {variance=040, weight = 0.200, offset = 300, type="simplex"},
-                            {variance=020, weight = 0.090, offset = 450, type="simplex"},
-                        },
-                    },
-                    weights = {
-                        ['coal']        = 160,
-                        ['copper-ore']  = 215,
-                        ['iron-ore']    = 389,
-                        ['stone']       = 212,
-                        ['uranium-ore'] =  21,
-                    },
-                    distances = {
-                        ['coal']        = 16,
-                        ['copper-ore']  = 18,
-                        ['iron-ore']    = 18,
-                        ['stone']       = 15,
-                        ['uranium-ore'] = 86,
-                    },
-                },
                 { -- tendril default fragments coal
                     yield=0.25,
                     min_distance=30,
                     distance_richness=7,
+                    color={r=0/255, g=0/255, b=0/255},
                     noise_settings = {
                         type = "fragmented_tendril",
                         threshold = 0.05,
@@ -467,6 +433,7 @@ local Config = {
                     yield=0.25,
                     min_distance=30,
                     distance_richness=7,
+                    color={r=0/255, g=140/255, b=255/255},
                     noise_settings = {
                         type = "fragmented_tendril",
                         threshold = 0.05,
@@ -496,6 +463,7 @@ local Config = {
                     yield=0.25,
                     min_distance=30,
                     distance_richness=7,
+                    color={r=255/255, g=55/255, b=0/255},
                     noise_settings = {
                         type = "fragmented_tendril",
                         threshold = 0.05,
@@ -524,6 +492,7 @@ local Config = {
                     yield=0.25,
                     min_distance=30,
                     distance_richness=7,
+                    color={r=100/255, g=100/255, b=100/255},
                     noise_settings = {
                         type = "fragmented_tendril",
                         threshold = 0.05,
@@ -552,6 +521,7 @@ local Config = {
                     yield=1.7,
                     min_distance=57,
                     distance_richness=7,
+                    color={r=0/255, g=255/255, b=255/255},
                     noise_settings = {
                         type = "cluster",
                         threshold = 0.40,

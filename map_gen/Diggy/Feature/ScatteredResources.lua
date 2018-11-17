@@ -101,6 +101,16 @@ function ScatteredResources.register(config)
     for _, cluster in ipairs(c_clusters) do
         c_count = c_count + 1
         cluster.weights_sum = 0
+        -- ensure the cluster colors are valid otherwise it fails silently
+        -- and breaks things elsewhere
+        if cluster.color then
+            local c = cluster.color
+            if (not c.r) or (not c.g) or (not c.b) then
+                cluster.color = nil
+            elseif c.r < 0 or c.r > 1 or c.g < 0 or c.g > 1 or c.b < 0 or c.b > 1 then
+                cluster.color = nil
+            end
+        end
         for _, weight in pairs(cluster.weights) do
             cluster.weights_sum = cluster.weights_sum + weight
         end
@@ -215,7 +225,7 @@ function ScatteredResources.register(config)
                         if cluster.noise_settings.type == "connected_tendril" then
                             local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                             if -1 * cluster.noise_settings.threshold < noise and noise < cluster.noise_settings.threshold then
-                                color[index] = color[index] or {r=random(), g=random(), b=random()}
+                                color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
                                 Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, nil, true, 0, color[index])
                             end
                         elseif cluster.noise_settings.type == "fragmented_tendril" then
@@ -224,13 +234,13 @@ function ScatteredResources.register(config)
                             if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold 
                                     and -1 * cluster.noise_settings.discriminator_threshold < noise2
                                     and noise2 < cluster.noise_settings.discriminator_threshold then
-                                color[index] = color[index] or {r=random(), g=random(), b=random()}
+                                color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
                                 Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, nil, true, 0, color[index])
                             end
                         elseif cluster.noise_settings.type ~= 'skip' then
                             local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                             if noise >= cluster.noise_settings.threshold then
-                                color[index] = color[index] or {r=random(), g=random(), b=random()}
+                                color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
                                 Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, nil, true, 0, color[index])
                             end
                         end
