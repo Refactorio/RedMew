@@ -46,6 +46,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.venice"
 --shape = require "map_gen.presets.goats_on_goats"
 --shape = require "map_gen.presets.grid_islands"
+--shape = require "map_gen.presets.grid_islands_rotated"
 --shape = require "map_gen.presets.crosses"
 --shape = require "map_gen.presets.crosses3"
 --shape = require "map_gen.presets.broken_web"
