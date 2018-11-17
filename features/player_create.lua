@@ -19,8 +19,7 @@ local function player_created(event)
 
     player.print('Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord')
     player.print('Click the question mark in the top left corner for server infomation and map details.')
-
-    game.print(table.get_random_weighted(join_msgs, 1, 2))
+    player.print(table.get_random_weighted(join_msgs, 1, 2))
 
     local gui = player.gui
     gui.top.style = 'slot_table_spacing_horizontal_flow'
