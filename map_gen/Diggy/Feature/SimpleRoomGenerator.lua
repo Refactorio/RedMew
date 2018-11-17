@@ -18,7 +18,7 @@ local do_spawn_tile = Token.register(function(params)
 end)
 
 local do_mine = Token.register(function(params)
-    local sand_rocks = params.surface.find_entities_filtered({position = params.position, name = 'sand-rock-big'})
+    local sand_rocks = params.surface.find_entities_filtered({position = params.position, name = {'sand-rock-big','rock-huge'}})
 
     if (0 == #sand_rocks) then
         Debug.print_position(params.position, 'missing rock when trying to mine.')

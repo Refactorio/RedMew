@@ -80,6 +80,7 @@ local Config = {
                 ['market'] = 9,
                 ['stone-wall'] = 3,
                 ['sand-rock-big'] = 2,
+                ['rock-huge'] = 2.5,
                 ['out-of-map'] = 1,
                 ['stone-path'] = 0.03,
                 ['concrete'] = 0.04,
