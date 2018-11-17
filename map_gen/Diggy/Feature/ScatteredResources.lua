@@ -7,6 +7,7 @@ local Event = require 'utils.event'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
+local Simplex = require 'map_gen.shared.simplex_noise'
 local random = math.random
 local sqrt = math.sqrt
 local ceil = math.ceil
@@ -34,97 +35,218 @@ end
     Registers all event handlers.
 ]]
 function ScatteredResources.register(config)
-    local noise_resource_threshold = config.noise_resource_threshold
-    local noise_variance = config.noise_variance
-    local cluster_mode = config.cluster_mode
-    local distance_probability_modifier = config.distance_probability_modifier
-    local resource_probability = config.resource_probability
-    local max_resource_probability = config.max_resource_probability
-    local resource_weights = config.resource_weights
-    local resource_richness_weights = config.resource_richness_weights
-    local distance_richness_modifier = config.distance_richness_modifier
-    local liquid_value_modifiers = config.liquid_value_modifiers
-    local resource_richness_values = config.resource_richness_values
-    local minimum_resource_distance = config.minimum_resource_distance
-    local cluster_yield_multiplier = config.cluster_yield_multiplier
-    
-    local resource_weights_sum = 0
-    for _, weight in pairs(resource_weights) do
-        resource_weights_sum = resource_weights_sum + weight
+
+    -- source of noise for resource generation
+    -- index determines offset
+    -- '-1' is reserved for cluster mode
+    -- compound clusters use as many indexes as needed > 1
+    local base_seed
+    local function seeded_noise(surface, x, y, index, sources)
+        base_seed = base_seed or surface.map_gen_settings.seed + surface.index + 4000
+        local noise = 0
+        for _, settings in ipairs(sources) do
+            settings.type = settings.type or 'perlin'
+            settings.offset = settings.offset or 0
+            if settings.type == 'zero' then
+                noise = noise + 0
+            elseif settings.type == 'one' then
+                noise = noise + settings.weight * 1
+            elseif settings.type == 'perlin' then
+                noise = noise + settings.weight * Perlin.noise(x/settings.variance, y/settings.variance,
+                            base_seed + 2000*index + settings.offset)
+            elseif settings.type == 'simplex' then
+                noise = noise + settings.weight * Simplex.d2(x/settings.variance, y/settings.variance,
+                            base_seed + 2000*index + settings.offset)
+            else
+                Debug.print('noise type \'' .. settings.type .. '\' not recognized')
+            end
+            
+        end
+        return noise
     end
+    
+    -- global config values
+    
+    local resource_richness_weights = config.resource_richness_weights
     local resource_richness_weights_sum = 0
     for _, weight in pairs(resource_richness_weights) do
         resource_richness_weights_sum = resource_richness_weights_sum + weight
     end
-
-    local function spawn_resource(surface, x, y, distance)
-        local resource_name = get_name_by_weight(resource_weights, resource_weights_sum)
-
-        if (minimum_resource_distance[resource_name] > distance) then
-            return
-        end
-
-        local min_max = resource_richness_values[get_name_by_weight(resource_richness_weights, resource_richness_weights_sum)]
-        local amount = ceil(random(min_max[1], min_max[2]) * (1 + ((distance / distance_richness_modifier) * 0.01)))
-
-        if liquid_value_modifiers[resource_name] then
-            amount = amount * liquid_value_modifiers[resource_name]
-        end
-
-        if (cluster_mode) then
-            amount = amount * cluster_yield_multiplier
-        end
-
-        local position = {x = x, y = y}
-
-        Template.resources(surface, {{name = resource_name, position = position, amount = amount}})
+    local resource_richness_values = config.resource_richness_values
+    local resource_type_scalar = config.resource_type_scalar
+    
+    -- scattered config values
+    local s_mode = config.scattered_mode
+    local s_dist_mod = config.scattered_distance_probability_modifier
+    local s_min_prob = config.scattered_min_probability
+    local s_max_prob = config.scattered_max_probability
+    local s_dist_richness = config.scattered_distance_richness_modifier
+    local s_cluster_prob = config.scattered_cluster_probability_multiplier
+    local s_cluster_mult = config.scattered_cluster_yield_multiplier
+    
+    local s_resource_weights = config.scattered_resource_weights
+    local s_resource_weights_sum = 0
+    for _, weight in pairs(s_resource_weights) do
+        s_resource_weights_sum = s_resource_weights_sum + weight
     end
+    local s_min_dist = config.scattered_minimum_resource_distance
 
-    local seed
-    local function get_noise(surface, x, y)
-        seed = seed or surface.map_gen_settings.seed + surface.index + 200
-        return Perlin.noise(x * noise_variance, y * noise_variance, seed)
+    -- cluster config values
+    local cluster_mode = config.cluster_mode
+    
+    -- compound cluster spawning
+    local c_mode = config.cluster_mode
+    local c_clusters = require(config.cluster_file_location)
+    if ('table' ~= type(c_clusters)) then
+        error('cluster_file_location invalid')
     end
+    local c_count = 0
+    for _, cluster in ipairs(c_clusters) do
+        c_count = c_count + 1
+        cluster.weights_sum = 0
+        -- ensure the cluster colors are valid otherwise it fails silently
+        -- and breaks things elsewhere
+        if cluster.color then
+            local c = cluster.color
+            if (not c.r) or (not c.g) or (not c.b) then
+                cluster.color = nil
+            elseif c.r < 0 or c.r > 1 or c.g < 0 or c.g > 1 or c.b < 0 or c.b > 1 then
+                cluster.color = nil
+            end
+        end
+        for _, weight in pairs(cluster.weights) do
+            cluster.weights_sum = cluster.weights_sum + weight
+        end
+    end
+    
+    local function spawn_cluster_resource(surface, x, y, cluster_index, cluster)
+        local distance = sqrt(x * x + y * y)
+        local resource_name = get_name_by_weight(cluster.weights, cluster.weights_sum)
+        if resource_name == 'skip' then
+            return false
+        end
+        if cluster.distances[resource_name] then
+            if distance < cluster.distances[resource_name] then
+                return false
+            end
+        end
+    
+        local range = resource_richness_values[get_name_by_weight(resource_richness_weights, resource_richness_weights_sum)]
+        local amount = random(range[1], range[2])
+        amount = amount * (1 + ((distance / cluster.distance_richness) * 0.01))
+        amount = amount * cluster.yield
+        
+        if resource_type_scalar[resource_name] then 
+            amount = amount * resource_type_scalar[resource_name]
+        end
 
+        Template.resources(surface, {{name = resource_name, position = {x = x, y = y}, amount = ceil(amount)}})
+        return true
+    end
+    
+    -- event registration
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.position
         local x = position.x
         local y = position.y
         local surface = event.surface
 
-        local distance = floor(sqrt(x * x + y * y))
-
-        if (cluster_mode and get_noise(surface, x, y) > noise_resource_threshold) then
-            spawn_resource(surface, x, y, distance)
-            return
+        local distance = config.distance(x, y)
+        
+        if c_mode then
+            for index,cluster in ipairs(c_clusters) do
+                if distance >= cluster.min_distance and cluster.noise_settings.type ~= 'skip' then
+                    if cluster.noise_settings.type == "connected_tendril" then
+                        local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
+                        if -1 * cluster.noise_settings.threshold < noise and noise < cluster.noise_settings.threshold then
+                            if spawn_cluster_resource(surface, x, y, index, cluster) then
+                                return -- resource spawned
+                            end
+                        end
+                    elseif cluster.noise_settings.type == "fragmented_tendril" then
+                        local noise1 = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
+                        local noise2 = seeded_noise(surface, x, y, index, cluster.noise_settings.discriminator)
+                        if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold 
+                                and -1 * cluster.noise_settings.discriminator_threshold < noise2
+                                and noise2 < cluster.noise_settings.discriminator_threshold then
+                            if spawn_cluster_resource(surface, x, y, index, cluster) then
+                                return -- resource spawned
+                            end
+                        end
+                    else
+                        local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
+                        if noise >= cluster.noise_settings.threshold then
+                            if spawn_cluster_resource(surface, x, y, index, cluster) then
+                                return -- resource spawned
+                            end
+                        end
+                    end
+                end
+            end
         end
+        
+        if s_mode then
+            local probability = math.min(s_max_prob, s_min_prob + 0.01 * (distance / s_dist_mod))
 
-        local calculated_probability = resource_probability + ((distance / distance_probability_modifier) * 0.01)
-        local probability = max_resource_probability
+            if (cluster_mode) then
+                probability = probability * s_cluster_prob
+            end
 
-        if (calculated_probability < probability) then
-            probability = calculated_probability
-        end
+            if (probability > random()) then
+                -- spawn single resource point for scatter mode
+                local resource_name = get_name_by_weight(s_resource_weights, s_resource_weights_sum)            
+                if resource_name == 'skip' or s_min_dist[resource_name] > distance then
+                    return
+                end
 
-        -- cluster mode reduces the max probability to reduce max spread
-        if (cluster_mode) then
-            probability = probability * 0.5
-        end
+                local range = resource_richness_values[get_name_by_weight(resource_richness_weights, resource_richness_weights_sum)]
+                local amount = random(range[1], range[2])
+                amount = amount * (1 + ((distance / s_dist_richness) * 0.01))
 
-        if (probability > random()) then
-            spawn_resource(surface, x, y, distance)
+                if resource_type_scalar[resource_name] then
+                    amount = amount * resource_type_scalar[resource_name]
+                end
+
+                if (cluster_mode) then
+                    amount = amount * s_cluster_mult
+                end
+                
+                Template.resources(surface, {{name = resource_name, position={x=x,y=y}, amount = ceil(amount)}})
+            end
         end
     end)
-
-    if (config.display_resource_fields) then
+    
+    if (config.display_ore_clusters) then
+        local color = {}
         Event.add(defines.events.on_chunk_generated, function (event)
             local surface = event.surface
             local area = event.area
 
             for x = area.left_top.x, area.left_top.x + 31 do
                 for y = area.left_top.y, area.left_top.y + 31 do
-                    if get_noise(surface, x, y) >= noise_resource_threshold then
-                        Debug.print_grid_value('ore', surface, {x = x, y = y}, nil, nil, true)
+                    for index,cluster in ipairs(c_clusters) do
+                        if cluster.noise_settings.type == "connected_tendril" then
+                            local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
+                            if -1 * cluster.noise_settings.threshold < noise and noise < cluster.noise_settings.threshold then
+                                color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
+                                Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, nil, true, 0, color[index])
+                            end
+                        elseif cluster.noise_settings.type == "fragmented_tendril" then
+                            local noise1 = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
+                            local noise2 = seeded_noise(surface, x, y, index, cluster.noise_settings.discriminator)
+                            if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold 
+                                    and -1 * cluster.noise_settings.discriminator_threshold < noise2
+                                    and noise2 < cluster.noise_settings.discriminator_threshold then
+                                color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
+                                Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, nil, true, 0, color[index])
+                            end
+                        elseif cluster.noise_settings.type ~= 'skip' then
+                            local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
+                            if noise >= cluster.noise_settings.threshold then
+                                color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
+                                Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, nil, true, 0, color[index])
+                            end
+                        end
                     end
                 end
             end

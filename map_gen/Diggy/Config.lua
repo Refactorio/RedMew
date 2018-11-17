@@ -167,67 +167,15 @@ local Config = {
                 {name = 'dirt', min = 0.39, max = 0.53},
             },
         },
-
+    
         -- responsible for resource spawning
         ScatteredResources = {
             enabled = true,
-
-            -- creates clusters of ore with higher yields and frequency instead of evenly scattered ore
-            -- lowers max resource max_resource_probability to 50% of the original value
-            cluster_mode = true,
-
-            -- value between 0 and 1, higher value means stronger variance between coordinates
-            noise_variance = 0.04,
-
-            -- a value between 0 and 1 that triggers the spawning of resource based on noise
-            noise_resource_threshold = 0.40,
-
-            -- raw multiplier for ore content in cluster mode
-            cluster_yield_multiplier = 1.7,
-
-            -- shows where resources are located
-            display_resource_fields = false,
-
-            -- percentage of resource added to the sum. 100 tiles means
-            -- 10% more resources with a distance_richness_modifier of 10
-            -- 20% more resources with a distance_richness_modifier of 5
-            distance_richness_modifier = 7,
-
-            -- defines the increased chance of spawning resources
-            -- calculated_probability = resource_probability + ((distance / distance_probability_modifier) / 100)
-            distance_probability_modifier = 10,
-
-            -- increases the amount of liquids that need pumping
-            liquid_value_modifiers = {
-                ['crude-oil'] = 750,
-            },
-
-            -- min percentage of chance that resources will spawn after mining
-            resource_probability = 0.01,
-
-            -- max chance of spawning resources based on resource_probability + calculated distance_probability_modifier
-            max_resource_probability = 0.30,
-			
-            -- weights per resource of spawning 
-            resource_weights = {
-                ['coal']        = 160,
-                ['copper-ore']  = 215,
-                ['iron-ore']    = 389,
-                ['stone']       = 212,
-                ['uranium-ore'] =  21,
-                ['crude-oil']   =   3,
-            },
-
-            -- minimum distance from the spawn point required before it spawns
-            minimum_resource_distance = {
-                ['coal']        = 16,
-                ['copper-ore']  = 18,
-                ['iron-ore']    = 18,
-                ['stone']       = 15,
-                ['uranium-ore'] = 86,
-                ['crude-oil']   = 57,
-            },
-			
+            
+            -- determines how distance is measured
+            distance = function (x, y) return math.abs(x) + math.abs(y) end, 
+            --distance = function (x, y) return math.sqrt(x * x + y * y) end,
+            
             -- defines the weights of which resource_richness_value to spawn
             resource_richness_weights = {
                 ['scarce']     = 440,
@@ -247,6 +195,81 @@ local Config = {
                 ['plenty']     = {1201, 2000},
                 ['jackpot']    = {2001, 5000},
             },
+            
+            -- increases the amount of resources by flat multiplication to initial amount
+            -- highly suggested to use for fluids so their yield is reasonable
+            resource_type_scalar = {
+                ['crude-oil'] = 1500,
+                ['uranium-ore'] = 1.25,
+            },
+            
+            -- ==============
+            -- Debug settings
+            -- ==============
+            
+            -- shows the ore locations, only use when debugging (compound_cluster_mode)
+            display_ore_clusters = false,
+            
+            -- =======================
+            -- Scattered mode settings
+            -- =======================
+            
+            -- creates scattered ore (single tiles) at random locations
+            scattered_mode = false,
+            
+            -- defines the increased chance of spawning resources
+            -- calculated_probability = resource_probability + ((distance / scattered_distance_probability_modifier) / 100)
+            -- this means the chance increases by 1% every DISTANCE tiles up to the max_probability
+            scattered_distance_probability_modifier = 10,
+            
+            -- min percentage of chance that resources will spawn after mining
+            scattered_min_probability = 0.01,
+
+            -- max chance of spawning resources based on resource_probability + calculated scattered_distance_probability_modifier
+            scattered_max_probability = 0.10,
+            
+            -- percentage of resource added to the sum. 100 tiles means
+            -- 10% more resources with a distance_richness_modifier of 10
+            -- 20% more resources with a distance_richness_modifier of 5
+            scattered_distance_richness_modifier = 7,
+            
+            -- multiplies probability only if cluster mode is enabled
+            scattered_cluster_probability_multiplier = 0.5,
+            
+            -- multiplies yield only if cluster mode is enabled
+            scattered_cluster_yield_multiplier = 1.7,
+            
+            -- weights per resource of spawning 
+            scattered_resource_weights = {
+                ['coal']        = 160,
+                ['copper-ore']  = 215,
+                ['iron-ore']    = 389,
+                ['stone']       = 212,
+                ['uranium-ore'] =  21,
+                ['crude-oil']   =   3,
+            },
+
+            -- minimum distance from the spawn point required before it spawns
+            scattered_minimum_resource_distance = {
+                ['coal']        = 16,
+                ['copper-ore']  = 18,
+                ['iron-ore']    = 18,
+                ['stone']       = 15,
+                ['uranium-ore'] = 86,
+                ['crude-oil']   = 57,
+            },
+            
+            -- ==============================
+            -- Compound cluster mode settings
+            -- ==============================
+            
+            -- creates compound clusters of ores defined by a layered ore-gen
+            cluster_mode = true,
+            
+            -- location of file to find the cluster definition file
+            cluster_file_location = 'map_gen.Diggy.Orepattern.Tendrils',
+            --cluster_file_location = 'map_gen.Diggy.Orepattern.Clusters',
+            
         },
 
         -- controls the alien spawning mechanic
