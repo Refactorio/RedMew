@@ -93,13 +93,12 @@ function Module.report(reporting_player, reported_player, message)
     if reporting_player then
         player_index = reporting_player.index
     end
-    table.insert(global.reports, {reporting_player_index = reporting_player, reported_player_index = reported_player.index, message = message, tick = game.tick})
+    table.insert(global.reports, {reporting_player_index = player_index, reported_player_index = reported_player.index, message = message, tick = game.tick})
 
     local notified = false
     for _,p in pairs(game.players) do
         if p.admin and p.connected then
             p.play_sound{path='utility/tutorial_notice', volume_modifier = 1}
-            --p.print("Did you hear that too? " .. tostring(game.is_valid_sound_path('utility/wire_connect_pole'))) --Debugging the sound_path
             Module.show_reports(p)
             if p.afk_time < 3600 then notified = true end
         end
@@ -163,7 +162,7 @@ function Module.jail(target_player, player)
     end
 
     if target_player.permission_group == permission_group then
-        print('The player ' .. target_player.name .. ' is already in jail.')
+        print('Player ' .. target_player.name .. ' is already in jail.')
         return
     end
 
@@ -194,7 +193,7 @@ function Module.jail(target_player, player)
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
-        print(target .. ' has been jailed. They have been advised of this.')
+        print(target_player.name .. ' has been jailed. They have been advised of this.')
         target_player.print(prefix)
         target_player.print('You have been placed in jail by ' .. jailed_by .. '. The only action avaliable to you is chatting.')
         target_player.print('Please respond to inquiries from the admins.', {r = 1, g = 1, b = 0, a = 1})
