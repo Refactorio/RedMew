@@ -33,22 +33,22 @@ local DiggyHole = {}
     @param entity LuaEntity
 ]]
 local function diggy_hole(entity)
---[BT's additions, copied from ScatteredResources.lua
-local function get_name_by_weight(collection, sum)
-    local pre_calculated = random()
-    local current = 0
-    local target = pre_calculated * sum
-    
-    for name, weight in pairs(collection) do
-        current = current + weight
-        if (current >= target) then
-            return name
+    --[BT's additions, copied from ScatteredResources.lua
+    local function get_name_by_weight(collection, sum)
+        local pre_calculated = random()
+        local current = 0
+        local target = pre_calculated * sum
+        
+        for name, weight in pairs(collection) do
+            current = current + weight
+            if (current >= target) then
+                return name
+            end
         end
-    end
 
-    Debug.print('Current \'' .. current .. '\' should be higher or equal to random \'' .. target .. '\'')
-end
---]
+        Debug.print('Current \'' .. current .. '\' should be higher or equal to random \'' .. target .. '\'')
+    end
+    --]
 
     if ((entity.name ~= 'sand-rock-big') and (entity.name ~= 'rock-huge')) then
         return
@@ -60,13 +60,13 @@ end
 
     local out_of_map_found = Scanner.scan_around_position(surface, entity.position, 'out-of-map');
 
-        local position = entity.position
-        local x = position.x
-        local y = position.y
-        local surface = entity.surface
+    local position = entity.position
+    local x = position.x
+    local y = position.y
+    local surface = entity.surface
 
 
-        local distance = Config.features.ScatteredResources.distance(x, y)
+    local distance = Config.features.ScatteredResources.distance(x, y)
 
     -- source of noise for resource generation
     -- index determines offset
