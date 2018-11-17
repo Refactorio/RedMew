@@ -487,8 +487,8 @@ local function jail_player(cmd)
         Game.player_print('Usage: /jail <player>')
         return
     end
-
-    Report.jail(player, cmd['parameter'])
+    local target = game.players[cmd['parameter']]
+    Report.jail(target, player)
 end
 
 local function all_tech()
