@@ -18,9 +18,6 @@ local ResourceConfig = require 'map_gen.Diggy.Config'.features.ScatteredResource
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Simplex = require 'map_gen.shared.simplex_noise'
 
-local sqrt = math.sqrt
-local ceil = math.ceil
-
 -- this
 local DiggyHole = {}
 
@@ -32,23 +29,6 @@ local DiggyHole = {}
     @param entity LuaEntity
 ]]
 local function diggy_hole(entity)
-    --[BT's additions, copied from ScatteredResources.lua
-    local function get_name_by_weight(collection, sum)
-        local pre_calculated = random()
-        local current = 0
-        local target = pre_calculated * sum
-        
-        for name, weight in pairs(collection) do
-            current = current + weight
-            if (current >= target) then
-                return name
-            end
-        end
-
-        Debug.print('Current \'' .. current .. '\' should be higher or equal to random \'' .. target .. '\'')
-    end
-    --]
-
     if ((entity.name ~= 'sand-rock-big') and (entity.name ~= 'rock-huge')) then
         return
     end
@@ -98,9 +78,7 @@ local function diggy_hole(entity)
     for _, weight in pairs(resource_richness_weights) do
         resource_richness_weights_sum = resource_richness_weights_sum + weight
     end
-    local resource_richness_values = ResourceConfig.resource_richness_values
-    local resource_type_scalar = ResourceConfig.resource_type_scalar
-    
+
     local s_resource_weights = ResourceConfig.scattered_resource_weights
     local s_resource_weights_sum = 0
     for _, weight in pairs(s_resource_weights) do
@@ -211,24 +189,7 @@ function DiggyHole.register(config)
     ScoreTable.reset('Void removed')
 
     Event.add(defines.events.on_entity_died, function (event)
-        local entity = event.entity
-        diggy_hole(entity)
-
-        local position = entity.position
-        local surface = entity.surface
-
-        -- fixes massive frame drops when too much stone is spilled
-        local stones = surface.find_entities_filtered({
-            area = {{position.x - 2, position.y - 2}, {position.x + 2, position.y + 2}},
-            limit = 60,
-            type = 'item-entity',
-            name = 'item-on-ground',
-        })
-        for _, stone in ipairs(stones) do
-            if (stone.stack.name == 'stone') then
-                stone.destroy()
-            end
-        end
+        diggy_hole(event.entity)
     end)
 
     Event.add(defines.events.on_player_mined_entity, function (event)
