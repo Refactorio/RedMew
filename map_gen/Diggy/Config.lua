@@ -308,7 +308,8 @@ local Config = {
             -- format: {unlock_at_level, price, prototype_name},
             unlockables = require('map_gen.Diggy.FormatMarketItems').initialize_unlockables(
                 {
-                    {level = 1, price = 50, name = 'raw-wood'},
+                    {level = 1, price = 50, name = 'iron-axe'},
+                    {level = 2, price = 50, name = 'raw-wood'},
                     {level = 2, price = 20, name = 'raw-fish'},
                     {level = 3, price = 50, name = 'stone-brick'},
                     {level = 5, price = 125, name = 'stone-wall'},
