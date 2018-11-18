@@ -131,7 +131,8 @@ function clean_on_join(event)
     local index = player.index
     if global.walking[index] then
         global.walking[index] = false
-        for _, s in pairs (global.walking_storage) do
+        local walking_storage = global.walking_storage
+        for _, s in pairs (walking_storage) do
             if s.index == index then
 
                 local walkabout_character = player.character
