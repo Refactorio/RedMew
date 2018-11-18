@@ -6,15 +6,15 @@ Event.add(
     defines.events.on_console_command,
     function(event)
         local command = event.command
-        if command == 'c' or command == 'command' or command == 'silent-command' or command == 'hax' then
-            local p_index = event.player_index
-            local name
-            if p_index then
-                name = Game.get_player_by_index(event.player_index).name
-            else
-                name = '<server>'
-            end
-            local s = table.concat {'[Command] ', name, ' /', command, ' ', event.parameters}
+        local p_index = event.player_index
+        local actor
+        if p_index then
+            actor = Game.get_player_by_index(event.player_index)
+        else
+            actor = {['admin'] = true, ['name'] = '<server>'}
+        end
+        if actor.admin and command ~= 'color' then --lazy approach, will not fix as this will be handle by the command wrapper
+            local s = table.concat {'[Command] ', actor.name, ' /', command, ' ', event.parameters}
             log(s)
         end
     end
