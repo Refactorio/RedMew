@@ -25,6 +25,8 @@ local Utils = require 'utils.utils'
 
 local Market_items = require 'resources.market_items'
 local market_item = Market_items.market_item
+local fish_market_bonus_message = require 'resources.fish_messages'
+local total_fish_market_bonus_messages = #fish_market_bonus_message
 
 local function spawn_market(cmd)
     local player = game.player
@@ -55,65 +57,6 @@ local function spawn_market(cmd)
         }
     )
 end
-
-local fish_market_bonus_message = {
-    'Why don’t fish like basketball? Cause they’re afraid of the net',
-    'What do you get when you cross a banker with a fish? A Loan shark!',
-    'How do you make an Octupus laugh? With ten-tickles',
-    'What do you call a fish that needs help with his or her vocals? Autotuna',
-    'What is the difference between a piano and a fish? You can tune a piano but you cannot tuna fish.',
-    'What did the blind man say when he passed the fish market? Good morning ladies.',
-    'Did you hear about the goldfish who went bankrupt? Now he’s a bronze fish.',
-    'What happens when you put nutella on salmon? You get salmonella',
-    'What do you call a fish with no eyes?…Fsh',
-    'What kind of money do fishermen make?…Net profits',
-    'What do you get if you cross a salmon, a bird’s leg and a hand?…Birdsthigh fish fingers',
-    'Why is a fish easy to weigh?…Because it has its own scales',
-    'Why are gold fish orange?…The water makes them rusty',
-    'What was the Tsar of Russia’s favorite fish?…Tsardines',
-    'Why did the dog jump into the sea?…He wanted to chase the catfish',
-    'Which fish dresses the best?…The Swordfish – It always looks sharp',
-    'What do you get if you cross an abbot with a trout?…Monkfish',
-    'What do you call a big fish who makes you an offer you can’t refuse?…The Codfather',
-    'Why is a swordfish’s nose 11 inches long?…If it were 12 inches long it would be a foot',
-    'What do you get if you cross a trout with an apartment?…A flat fish',
-    'Why are fish no good at tennis?…They don’t like to get too close to the net',
-    'How do the fish get to school?…By octobus',
-    'What fish make the best sandwich?…A peanut butter and jellyfish',
-    'Man: Can I have a fly rod and reel for my son?…Fishing Shop Owner: Sorry sir we don’t do trades',
-    'Where do fish keep their money?…In the river bank',
-    'Why do fish like arcade games?…Because they are finball wizards',
-    'What is a mermaid?…A deep-she fish',
-    'What do you get if you cross a whale with rotten fish?…Moby Sick',
-    'Why didn’t the lobster share his toys?…He was too shellfish',
-    'What do fish use to make telephone calls?…a Shell phone',
-    'Why don’t fish make very good tennis balls?…They keep getting caught in the net',
-    'Electric eels and electric rays have enough electricity to kill a horse.',
-    'Most fish have taste buds all over their body.',
-    'Most brands of lipstick contain fish scales.',
-    'A fish does not add new scales as it grows, but the scales it has increase in size. In this way, growth rings are formed and the rings reveal the age of a fish.',
-    'An inflated porcupine fish can reach a diameter of up to 35 inches. It puffs up by swallowing water and then storing it in its stomach.',
-    'Most fish cannot swim backwards. Those that can are mainly members of one of the eel families.',
-    'The fastest fish is the sailfish. It can swim as fast as a car travels on the highway.',
-    'Some desert pupfish can live in hot springs that reach temperatures greater than 113° F.',
-    'Anableps, four-eyed fish, can see above and below water at the same time.',
-    'Catfish have over 27,000 taste buds. Humans have around 7,000.',
-    'One hagfish can make enough slime in one minute to fill a bucket.',
-    'A female sunfish can lay 300 million eggs each year.',
-    'Fish feel pain and suffer stress just like mammals and birds.',
-    'The Dwarf Seahorse is so slow you can’t see it move',
-    'Some fish are as small as a grain of rice',
-    "There's a species of fish called 'Slippery Dick'",
-    'Herrings communicate through farts.',
-    'One Puffer Fish contains enough poison to kill 30 medium-biters.',
-    'When Anglerfish mate, they melt into each other and share their bodies forever.',
-    "A koi fish named 'Hanako' lived for 225 years.",
-    "What did the fish say when he posted bail? I'm off the hook!",
-    'There was a sale at the fish market today. I went to see what was the catch.',
-    'There are over 25,000 identified species of fish on the earth.'
-}
-
-local total_fish_market_bonus_messages = #fish_market_bonus_message
 
 local function fish_earned(event, amount)
     local player_index = event.player_index
@@ -196,6 +139,7 @@ local function fish_drop_entity_died(event)
     end
 end
 
+--[[
 local function pet(player, entity_name)
     if not player then
         player = game.connected_players[1]
@@ -222,6 +166,7 @@ local function pet(player, entity_name)
     global.player_pets[x].owner = player.index
     global.player_pets[x].id = x
 end
+]]--
 
 local function reset_player_runningspeed(player)
     player.character_running_speed_modifier = global.player_speed_boost_records[player.index].pre_boost_modifier
@@ -384,19 +329,27 @@ local function on_180_ticks()
         if global.player_speed_boost_records then
             for k, v in pairs(global.player_speed_boost_records) do
                 if game.tick - v.start_tick > 3000 then
-                    reset_player_runningspeed(Game.get_player_by_index(k))
+                    local player = Game.get_player_by_index(k)
+                    if player.connected and player.character then
+                        reset_player_runningspeed(player)
+                    end
                 end
             end
         end
+
         if global.player_mining_boost_records then
             for k, v in pairs(global.player_mining_boost_records) do
                 if game.tick - v.start_tick > 6000 then
-                    reset_player_miningspeed(Game.get_player_by_index(k))
+                    local player = Game.get_player_by_index(k)
+                    if player.connected and player.character then
+                        reset_player_miningspeed(player)
+                    end
                 end
             end
         end
     end
 
+    --[[
     if global.player_pets then
         for _, pets in pairs(global.player_pets) do
             local player = game.players[pets.owner]
@@ -447,6 +400,7 @@ local function on_180_ticks()
         end
         global.pet_command_rotation = global.pet_command_rotation + 1
     end
+    ]]--
 end
 
 local function fish_player_crafted_item(event)
@@ -457,16 +411,16 @@ local function fish_player_crafted_item(event)
 end
 
 local function init()
+    if global.scenario.config.fish_market.enable then
+        commands.add_command('market', 'Places a fish market near you.  (Admins only)', spawn_market)
 
-  if global.scenario.config.fish_market.enable then
-    commands.add_command('market', 'Places a fish market near you.  (Admins only)', spawn_market)
-
-    Event.on_nth_tick(180, on_180_ticks)
-    Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
-    Event.add(defines.events.on_entity_died, fish_drop_entity_died)
-    Event.add(defines.events.on_market_item_purchased, market_item_purchased)
-    Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
-  end
+        Event.on_nth_tick(180, on_180_ticks)
+        Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
+        Event.add(defines.events.on_entity_died, fish_drop_entity_died)
+        Event.add(defines.events.on_market_item_purchased, market_item_purchased)
+        Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
+    end
 end
+
 Event.on_init(init)
 Event.on_load(init)
