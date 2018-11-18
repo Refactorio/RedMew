@@ -47,7 +47,8 @@ local function trigger_inventory_warning(player)
     local count = full_inventory_mining_cache[player_index]
     if not count then
         full_inventory_mining_cache[player_index] = 1
-        require 'features.gui.popup'.player(player, full_inventory_message)
+        player.print('## - ' .. full_inventory_message, {r = 1, g = 1, b = 0, a = 1})
+        player.play_sound{path='utility/new_objective', volume_modifier = 1 }
         return
     end
 
