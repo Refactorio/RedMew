@@ -117,4 +117,9 @@ Module.cant_run = function(name)
     Game.player_print("Can't run command (" .. name .. ') - insufficient permission.')
 end
 
+Module.comma_value = function(n) -- credit http://richard.warburton.it
+    local left,num,right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
+    return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
+end
+
 return Module

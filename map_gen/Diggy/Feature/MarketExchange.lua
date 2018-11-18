@@ -15,6 +15,7 @@ local MarketUnlockables = require 'map_gen.Diggy.MarketUnlockables'
 local calculate_level = MarketUnlockables.calculate_level
 local insert = table.insert
 local max = math.max
+local utils = require 'utils.utils'
 
 -- this
 local MarketExchange = {}
@@ -121,19 +122,14 @@ local function update_market_contents(market)
     local old_level = stone_tracker.current_level
     local print = game.print
 
+            
+    if (calculate_level(stone_tracker.current_level+1) <= stone_tracker.stone_sent_to_surface) then
+        stone_tracker.current_level = stone_tracker.current_level + 1
+    end
+            
     for _, unlockable in pairs(config.unlockables) do
         local stone_unlock = calculate_level(unlockable.level)
         local is_in_range = stone_unlock > stone_tracker.previous_stone_sent_to_surface and stone_unlock <= stone_tracker.stone_sent_to_surface
-
-        if (stone_tracker.current_level == old_level) then
-            while (calculate_level(stone_tracker.current_level) < stone_tracker.stone_sent_to_surface) do
-                if (calculate_level(stone_tracker.current_level+1) <= stone_tracker.stone_sent_to_surface) then
-                    stone_tracker.current_level = stone_tracker.current_level + 1
-                else
-                    break
-                end
-            end
-        end
 
         -- only add the item to the market if it's between the old and new stone range
         if (is_in_range and unlockable.type == 'market') then
@@ -141,12 +137,20 @@ local function update_market_contents(market)
 
             local name = unlockable.prototype.name
             local price = unlockable.prototype.price
-            print('Mining Foreman: New wares at the market! Come get your ' .. name .. ' for only ' .. price .. ' ' .. config.currency_item .. '!')
+            if type(price) == 'number' then
+                print('Mining Foreman: New wares at the market! Come get your ' .. name .. ' for only ' .. price .. ' ' .. config.currency_item .. '!')
+                add_market_item({
+                    price = {{config.currency_item, price}},
+                    offer = {type = 'give-item', item = name, count = 1}
+                })
+            elseif type(price) == 'table' then
+                print('Mining Foreman: New wares at the market! Come get your ' .. name .. '!')
+                add_market_item({
+                    price = price,
+                    offer = {type = 'give-item', item = name, count = 1}
+                })
+            end
 
-            add_market_item({
-                price = {{config.currency_item, price}},
-                offer = {type = 'give-item', item = name, count = 1}
-            })
         end
     end
 
@@ -213,13 +217,8 @@ local function on_research_finished(event)
     update_stone_collecting()
 end
 
-local function comma_value(n) -- credit http://richard.warburton.it
-    local left,num,right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
-    return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
-end
-
 local function redraw_title(data)
-    data.frame.caption = comma_value(stone_tracker.stone_sent_to_surface) .. ' ' .. config.currency_item .. ' sent to the surface'
+    data.frame.caption = utils.comma_value(stone_tracker.stone_sent_to_surface) .. ' ' .. config.currency_item .. ' sent to the surface'
 end
 
 local function get_data(unlocks, stone, type)
@@ -268,7 +267,7 @@ local function redraw_progressbar(data)
     local percentage = (math.floor((sent / range)*1000))*0.001
     percentage = (percentage < 0) and (percentage*-1) or percentage
 
-    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. stone_tracker.current_level .. '\nNext level at: ' .. comma_value(next_stone) ..'\nRemaining stone: ' .. comma_value(range - sent), name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
+    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. stone_tracker.current_level .. '\nNext level at: ' .. utils.comma_value(next_stone) ..'\nRemaining stone: ' .. utils.comma_value(range - sent), name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
     local level_progressbar = flow.add({type = 'progressbar', tooltip = percentage * 100 .. '% stone to next level'})
     level_progressbar.style.width = 350
     level_progressbar.value = percentage
@@ -468,8 +467,14 @@ local function toggle(event)
     local left = player.gui.left
     local frame = left['Diggy.MarketExchange.Frame']
 
-    if (frame) then
+    if (frame and event.trigger == nil) then
         Gui.destroy(frame)
+        return
+    elseif (frame) then
+        local data = Gui.get_data(frame)
+        redraw_title(data)
+        redraw_progressbar(data)
+        redraw_table(data)
         return
     end
 
@@ -525,9 +530,9 @@ function MarketExchange.update_gui()
         local frame = p.gui.left['Diggy.MarketExchange.Frame']
 
         if frame and frame.valid then
-            local data = {player = p}
+            local data = {player = p, trigger = 'update_gui'}
             toggle(data)
-            toggle(data)
+            --toggle(data)
         end
     end
 end

@@ -142,17 +142,28 @@ local pages = {
             centered_label(
                 parent,
                 [[
-Redmew is community for players of all skill levels committed to pushing the limits of Factorio
-Multiplayer through custom scripts and crazy map designs.
+Redmew is community for players of all skill levels committed to pushing the limits of Factorio Multiplayer through custom scripts and crazy map designs.
 
-We are a friendly bunch, our objective is to have as much fun as possible and we hope you
-will too.
-]]
+We are a friendly bunch, our objective is to have as much fun as possible and we hope you will too.
+                ]]
             )
 
+
+
+            header_label(parent, 'How To Chat')
+            centered_label(
+                parent,
+                [[
+To chat with other players, press the "grave" key on your keyboard.
+It is below the ESC key on English keyboards and looks like ~ or `
+This can be changed in options -> controls -> "toggle lua console".
+                ]]
+            )
+
+
+
             header_label(parent, 'Useful Links')
-            centered_label(parent, [[
-Check out our discord for new map info and to suggest new maps / ideas.]])
+            centered_label(parent, [[Check out our discord for new map info and to suggest new maps / ideas.]])
             local discord_textbox_flow = parent.add {type = 'flow'}
             local discord_textbox_flow_style = discord_textbox_flow.style
             discord_textbox_flow_style.align = 'center'
@@ -189,15 +200,6 @@ Check out our discord for new map info and to suggest new maps / ideas.]])
 
             parent.add({type = 'flow'}).style.height = 24
 
-            header_label(parent, 'How To Chat')
-            centered_label(
-                parent,
-                [[
-To chat with other players, press the "grave" key on your keyboard. It is below the ESC key on
-English keyboards and looks like ~ or `
-This can be changed in options -> controls -> "toggle lua console".
-]]
-            )
         end
     },
     {
@@ -215,162 +217,9 @@ Have fun and play nice. Remember we are all just here to have fun so let’s kee
 
 No hateful content or personal attacks.
 
-If you suspect someone is griefing, notify the admin team by using /report or by clicking the report
-button next to the player in the player list.]]
+If you suspect someone is griefing, notify the admin team by using /report or by clicking the report button next to the player in the player list.
+                ]]
             )
-        end
-    },
-    {
-        tab_button = function(parent, player)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = 'Scenario Mods'}
-            return button
-        end,
-        content = function(parent, player)
-            local parent_style = parent.style
-            parent_style.right_padding = 2
-
-            parent =
-                parent.add {
-                type = 'scroll-pane',
-                vertical_scroll_policy = 'auto-and-reserve-space',
-                horizontal_scroll_policy = 'never'
-            }
-            parent_style = parent.style
-            parent_style.vertically_stretchable = true
-
-            header_label(parent, 'Soft Mods and Server Plugins')
-
-            local grid = parent.add {type = 'table', column_count = 3}
-            local grid_style = grid.style
-            grid_style.vertical_spacing = 24
-            grid_style.horizontal_spacing = 8
-            grid_style.top_padding = 8
-            grid_style.bottom_padding = 16
-
-            grid.add {type = 'label'}
-            local ranks = grid.add {type = 'label', caption = 'Ranks'}
-            ranks.style.font = 'default-listbox'
-            local ranks_flow = grid.add {type = 'flow', direction = 'vertical'}
-            local ranks_label =
-                ranks_flow.add {
-                type = 'label',
-                caption = [[
-We have a basic rank system to prevent griefing. You can't use nukes or the
-deconstruction planner if you are a guest. If you play for a couple of hours an
-admin will promote you to regular. You may also ask an admin for a promotion if
-you're working on a project which requires it.]]
-            }
-            local ranks_label_style = ranks_label.style
-            ranks_label_style.single_line = false
-            local player_rank_flow = ranks_flow.add {type = 'flow', direction = 'horizontal'}
-            player_rank_flow.add {type = 'label', caption = 'Your rank is:'}
-            if player.admin then
-                local label = player_rank_flow.add {type = 'label', caption = 'Admin'}
-                label.style.font_color = rank_colors[4]
-            elseif UserGroups.is_donator(player.name) then
-                local label = player_rank_flow.add {type = 'label', caption = 'Donator'}
-                label.style.font_color = rank_colors[3]
-            elseif UserGroups.is_regular(player.name) then
-                local label = player_rank_flow.add {type = 'label', caption = 'Regular'}
-                label.style.font_color = rank_colors[2]
-            else
-                local label = player_rank_flow.add {type = 'label', caption = 'Guest'}
-                label.style.font_color = rank_colors[1]
-            end
-
-            grid.add {type = 'sprite', sprite = 'entity/market'}
-            local market = grid.add {type = 'label', caption = 'Market'}
-            market.style.font = 'default-listbox'
-            local market_label =
-                grid.add {
-                type = 'label',
-                caption = [[
-On most maps you will find a market near spawn where you can use coins to
-make purchases. Coins are acquired by chopping trees, hand crafting items and
-destroying biter nests. Most items in the market are constant but some are
-map-specific (usually landfill) and will rotate in and out from time to time.]]
-            }
-            market_label.style.single_line = false
-
-            grid.add {type = 'sprite', sprite = 'entity/player'}
-            local player_list = grid.add {type = 'label', caption = 'Player list'}
-            player_list.style.font = 'default-listbox'
-            local player_list_label =
-                grid.add {
-                type = 'label',
-                caption = [[
-Lists all players on the server and shows some stats. You can sort the list by
-clicking on the column headers. You can also poke people, which throws a random
-noun in the chat.]]
-            }
-            player_list_label.style.single_line = false
-
-            grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
-            local poll = grid.add {type = 'label', caption = 'Polls'}
-            poll.style.font = 'default-listbox'
-            local poll_label =
-                grid.add {
-                type = 'label',
-                caption = [[
-Polls help players get consensus for major actions. Want to improve an important
-build? Make a poll to check everyone is ok with that. You need to be a regular
-to make new polls.]]
-            }
-            poll_label.style.single_line = false
-
-            local tag_button = grid.add {type = 'label', caption = 'tag'}
-            local tag_button_style = tag_button.style
-            tag_button_style.font = 'default-listbox'
-            tag_button_style.font_color = {r = 0, g = 0, b = 0}
-            local tag = grid.add {type = 'label', caption = 'Tags'}
-            tag.style.font = 'default-listbox'
-            local tag_label =
-                grid.add {
-                type = 'label',
-                caption = [[
-You can assign yourself a role with tags to let other players know what you are
-doing. Or just use the tag as decoration. Regulars can create new custom tags,
-be sure to show off your creatively.]]
-            }
-            tag_label.style.single_line = false
-
-            grid.add {type = 'sprite', sprite = 'item/repair-pack'}
-            local task = grid.add {type = 'label', caption = 'Tasks'}
-            task.style.font = 'default-listbox'
-            local task_label =
-                grid.add {
-                type = 'label',
-                caption = [[
-Not sure what you should be working on, why not look at the tasks and see what
-needs doing. Regulars can add new tasks.]]
-            }
-            task_label.style.single_line = false
-
-            grid.add {type = 'sprite', sprite = 'item/blueprint'}
-            local blueprint = grid.add {type = 'label', caption = 'Blueprint\nhelper'}
-            local blueprint_style = blueprint.style
-            blueprint_style.font = 'default-listbox'
-            blueprint_style.single_line = false
-            blueprint_style.width = 64
-            local blueprint_label =
-                grid.add {
-                type = 'label',
-                caption = [[
-The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you
-converter the entities used in the blueprint e.g. turn yellow belts into red belts.]]
-            }
-            blueprint_label.style.single_line = false
-
-            grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
-            local score = grid.add {type = 'label', caption = 'Score'}
-            score.style.font = 'default-listbox'
-            local score_label =
-                grid.add {
-                type = 'label',
-                caption = [[
-Shows number of rockets launched and biters liberated.]]
-            }
-            score_label.style.single_line = false
         end
     },
     {
@@ -446,13 +295,183 @@ Shows number of rockets launched and biters liberated.]]
     },
     {
         tab_button = function(parent, player)
+            local button = parent.add {type = 'button', name = tab_button_name, caption = 'Scenario Mods'}
+            return button
+        end,
+        content = function(parent, player)
+            local parent_style = parent.style
+            parent_style.right_padding = 2
+
+            parent =
+                parent.add {
+                type = 'scroll-pane',
+                vertical_scroll_policy = 'auto-and-reserve-space',
+                horizontal_scroll_policy = 'never'
+            }
+            parent_style = parent.style
+            parent_style.vertically_stretchable = true
+
+            header_label(parent, 'Soft Mods and Server Plugins')
+
+            local grid = parent.add {type = 'table', column_count = 3}
+            local grid_style = grid.style
+            grid_style.vertical_spacing = 24
+            grid_style.horizontal_spacing = 8
+            grid_style.top_padding = 8
+            grid_style.bottom_padding = 16
+
+            grid.add {type = 'label'}
+            local ranks = grid.add {type = 'label', caption = 'Ranks'}
+            ranks.style.font = 'default-listbox'
+            local ranks_flow = grid.add {type = 'flow', direction = 'vertical'}
+            local ranks_label =
+                ranks_flow.add {
+                type = 'label',
+                caption = [[
+We have a basic rank system to prevent griefing. You can't use nukes or the
+deconstruction planner if you are a guest. If you play for a couple of hours an
+admin will promote you to regular. You may also ask an admin for a promotion if
+you're working on a project which requires it.]]
+            }
+            local ranks_label_style = ranks_label.style
+            ranks_label_style.single_line = false
+            local player_rank_flow = ranks_flow.add {type = 'flow', direction = 'horizontal'}
+            player_rank_flow.add {type = 'label', caption = 'Your rank is:'}
+            if player.admin then
+                local label = player_rank_flow.add {type = 'label', caption = 'Admin'}
+                label.style.font_color = rank_colors[4]
+            elseif UserGroups.is_donator(player.name) then
+                local label = player_rank_flow.add {type = 'label', caption = 'Donator'}
+                label.style.font_color = rank_colors[3]
+            elseif UserGroups.is_regular(player.name) then
+                local label = player_rank_flow.add {type = 'label', caption = 'Regular'}
+                label.style.font_color = rank_colors[2]
+            else
+                local label = player_rank_flow.add {type = 'label', caption = 'Guest'}
+                label.style.font_color = rank_colors[1]
+            end
+
+            grid.add {type = 'sprite', sprite = 'entity/market'}
+            local market = grid.add {type = 'label', caption = 'Market'}
+            market.style.font = 'default-listbox'
+            local market_label =
+                grid.add {
+                type = 'label',
+                caption = [[
+On most maps you will find a market near spawn where you can use coins to
+make purchases. Coins are acquired by chopping trees, hand crafting items and
+destroying biter nests. Most items in the market are constant but some are
+map-specific (usually landfill) and will rotate in and out from time to time.]]
+            }
+            market_label.style.single_line = false
+
+            grid.add {type = 'sprite', sprite = 'item/small-plane'}
+            local train_savior = grid.add {type = 'label', caption = 'Train\nsavior'}
+            local train_savior_style = train_savior.style
+            train_savior_style.font = 'default-listbox'
+            train_savior_style.single_line = false
+            local train_savior_label =
+                grid.add {
+                type = 'label',
+                caption = [[
+Trains are a factorio players' worst enemy. If you have at least one small plane
+in your inventory and would be killed by a train, your life will be spared
+but you will lose a small plane. You can get planes from the market.
+                ]]
+            }
+            train_savior_label.style.single_line = false
+
+            grid.add {type = 'sprite', sprite = 'entity/player'}
+            local player_list = grid.add {type = 'label', caption = 'Player\nlist'}
+            player_list.style.font = 'default-listbox'
+            player_list.style.single_line = false
+            local player_list_label =
+                grid.add {
+                type = 'label',
+                caption = [[
+Lists all players on the server and shows some stats. You can sort the list by
+clicking on the column headers. You can also poke people, which throws a random
+noun in the chat.]]
+            }
+            player_list_label.style.single_line = false
+
+            grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
+            local poll = grid.add {type = 'label', caption = 'Polls'}
+            poll.style.font = 'default-listbox'
+            local poll_label =
+                grid.add {
+                type = 'label',
+                caption = [[
+Polls help players get consensus for major actions. Want to improve an important
+build? Make a poll to check everyone is ok with that. You need to be a regular
+to make new polls.]]
+            }
+            poll_label.style.single_line = false
+
+            local tag_button = grid.add {type = 'label', caption = 'tag'}
+            local tag_button_style = tag_button.style
+            tag_button_style.font = 'default-listbox'
+            tag_button_style.font_color = {r = 0, g = 0, b = 0}
+            local tag = grid.add {type = 'label', caption = 'Tags'}
+            tag.style.font = 'default-listbox'
+            local tag_label =
+                grid.add {
+                type = 'label',
+                caption = [[
+You can assign yourself a role with tags to let other players know what you are
+doing. Or just use the tag as decoration. Regulars can create new custom tags,
+be sure to show off your creatively.]]
+            }
+            tag_label.style.single_line = false
+
+            grid.add {type = 'sprite', sprite = 'item/repair-pack'}
+            local task = grid.add {type = 'label', caption = 'Tasks'}
+            task.style.font = 'default-listbox'
+            local task_label =
+                grid.add {
+                type = 'label',
+                caption = [[
+Not sure what you should be working on, why not look at the tasks and see what
+needs doing. Regulars can add new tasks.]]
+            }
+            task_label.style.single_line = false
+
+            grid.add {type = 'sprite', sprite = 'item/blueprint'}
+            local blueprint = grid.add {type = 'label', caption = 'BP\nhelper'}
+            local blueprint_style = blueprint.style
+            blueprint_style.font = 'default-listbox'
+            blueprint_style.single_line = false
+            blueprint_style.width = 55
+            local blueprint_label =
+                grid.add {
+                type = 'label',
+                caption = [[
+The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you
+converter the entities used in the blueprint e.g. turn yellow belts into red belts.]]
+            }
+            blueprint_label.style.single_line = false
+
+            grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
+            local score = grid.add {type = 'label', caption = 'Score'}
+            score.style.font = 'default-listbox'
+            local score_label =
+                grid.add {
+                type = 'label',
+                caption = [[
+Shows number of rockets launched and biters liberated.]]
+            }
+            score_label.style.single_line = false
+        end
+    },
+    {
+        tab_button = function(parent, player)
             local button = parent.add {type = 'button', name = tab_button_name, caption = "What's New"}
             return button
         end,
         content = function(parent, player)
             local read_only = not player.admin
 
-            header_label(parent, 'New Scenario Features')
+            header_label(parent, 'New Features')
 
             local new_info_flow = parent.add {type = 'flow'}
             new_info_flow.style.align = 'center'
@@ -467,67 +486,9 @@ Shows number of rockets launched and biters liberated.]]
 
             local new_info_textbox_style = new_info_textbox.style
             new_info_textbox_style.width = 590
-            new_info_textbox_style.height = 150
+            new_info_textbox_style.height = 300
 
             Gui.set_data(new_info_textbox, new_info_key)
-
-            centered_label(
-                parent,
-                [[
-Help us maintain the servers and develop new features by contributing to our Patreon.
-Our donators will receive special perks.]]
-            )
-
-            local patreon_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            local patreon_flow_style = patreon_flow.style
-            patreon_flow_style.align = 'center'
-            patreon_flow_style.horizontally_stretchable = true
-
-            patreon_flow.add({type = 'label', caption = 'Patreon:'}).style.font = 'default-bold'
-            local patreon_textbox = patreon_flow.add {type = 'text-box', text = 'patreon.com/redmew '}
-            patreon_textbox.read_only = true
-
-            centered_label(
-                parent,
-                [[
-Suggest new maps / features and see what we are working on by joining our discord.]]
-            )
-
-            local discord_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            local discord_flow_style = discord_flow.style
-            discord_flow_style.align = 'center'
-            discord_flow_style.horizontally_stretchable = true
-
-            discord_flow.add({type = 'label', caption = 'Discord:'}).style.font = 'default-bold'
-            local discord_textbox = discord_flow.add {type = 'text-box', text = 'redmew.com/discord '}
-            discord_textbox.read_only = true
-        end
-    },
-    {
-        tab_button = function(parent, player)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = 'Other Servers'}
-            return button
-        end,
-        content = function(parent, player)
-            header_label(parent, 'Other Servers')
-
-            centered_label(
-                parent,
-                [[
-
-We also host a modded server.
-
-Check out the modded channel on our discord for details.]]
-            )
-
-            local discord_flow = parent.add {type = 'flow', direction = 'horizontal'}
-            local discord_flow_style = discord_flow.style
-            discord_flow_style.align = 'center'
-            discord_flow_style.horizontally_stretchable = true
-
-            discord_flow.add({type = 'label', caption = 'Discord:'}).style.font = 'default-bold'
-            local discord_textbox = discord_flow.add {type = 'text-box', text = 'redmew.com/discord '}
-            discord_textbox.read_only = true
         end
     }
 }

@@ -64,4 +64,21 @@ function ScoreTable.all()
     return scores
 end
 
+--[[--
+    Returns all keys of table scores.
+
+    @return table {[string] = name of key}
+]]
+function ScoreTable.all_keys()
+    local keyset = {}
+    local n = 0
+
+    for k, v in pairs(scores) do
+        n = n + 1
+        keyset[n] = k
+    end
+
+    return keyset
+end
+
 return ScoreTable
