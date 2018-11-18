@@ -47,7 +47,7 @@ local on_surface_created
 
 local stress_threshold_causing_collapse = 3.57
 
-local deconstruction_alert_message_shown = {}
+local show_deconstruction_alert_message = {}
 local stress_map_storage = {}
 local new_tile_map = {}
 local collapse_positions_storage = {}
@@ -55,12 +55,12 @@ local collapse_positions_storage = {}
 Global.register({
     new_tile_map = new_tile_map,
     stress_map_storage = stress_map_storage,
-    deconstruction_alert_message_shown = deconstruction_alert_message_shown,
+    deconstruction_alert_message_shown = show_deconstruction_alert_message,
     collapse_positions_storage = collapse_positions_storage,
 }, function(tbl)
     new_tile_map = tbl.new_tile_map
     stress_map_storage = tbl.stress_map_storage
-    deconstruction_alert_message_shown = tbl.deconstruction_alert_message_shown
+    show_deconstruction_alert_message = tbl.deconstruction_alert_message_shown
     collapse_positions_storage = tbl.collapse_positions_storage
 end)
 
@@ -365,9 +365,13 @@ function DiggyCaveCollapse.register(cfg)
         end
     end)
 
+    Event.add(defines.events.on_player_created, function (event)
+        show_deconstruction_alert_message[event.player_index] = true
+    end)
+
     Event.add(defines.events.on_pre_player_mined_item, function (event)
         local player_index = event.player_index
-        if (nil ~= deconstruction_alert_message_shown[player_index]) then
+        if not show_deconstruction_alert_message[player_index] then
             return
         end
 
@@ -382,7 +386,7 @@ prevent a cave-in. Use stone paths and concrete
 to reinforce it further.
 ]]
             )
-            deconstruction_alert_message_shown[player_index] = true
+            show_deconstruction_alert_message[player_index] = nil
         end
     end)
 
