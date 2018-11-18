@@ -179,6 +179,9 @@ function Module.jail(target_player, player)
     permission_group.set_allows_action(defines.input_action.write_to_console, true)
     permission_group.set_allows_action(defines.input_action.edit_permission_group, true)
 
+    -- Add player to jail group
+    permission_group.add_player(target_player)
+
     -- Kick player out of vehicle
     target_player.driving=false
 
@@ -190,9 +193,6 @@ function Module.jail(target_player, player)
     if target_player.walking_state.walking == true then -- Stop them walking while jailed
         target_player.walking_state = {walking = false, direction = defines.direction.north}
     end
-
-    -- Add player to jail group
-    permission_group.add_player(target_player)
 
     -- Check that it worked
     if target_player.permission_group == permission_group then
