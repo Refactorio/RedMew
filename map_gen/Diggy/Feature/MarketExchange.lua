@@ -162,16 +162,15 @@ local function update_market_contents(market)
         else
             print(prefix..'We have reached level ' .. stone_tracker.current_level .. '!')
         end
-        print('Mining Foreman: New wares at the market! Come get your ' .. name .. '!')
         for _, buffs in pairs(config.buffs) do
             if (buffs.prototype.name == 'mining_speed') then
                 local value = buffs.prototype.value
-                print('Mining Foreman: Increased mining speed by ' .. value .. '%!')
+                if _DEBUG then print('Mining Foreman: Increased mining speed by ' .. value .. '%!') end
                 should_update_mining_speed = true
                 mining_efficiency.market_modifier = mining_efficiency.market_modifier + (value / 100)
             elseif (buffs.prototype.name == 'inventory_slot') then
                 local value = buffs.prototype.value
-                print('Mining Foreman: Increased inventory slots by ' .. value .. '!')
+                if _DEBUG then print('Mining Foreman: Increased inventory slots by ' .. value .. '!') end
                 should_update_inventory_slots = true
                 inventory_slots.market_modifier = inventory_slots.market_modifier + value
             elseif (buffs.prototype.name == 'stone_automation') then
@@ -179,7 +178,7 @@ local function update_market_contents(market)
                 if (stone_tracker.current_level == 1) then
                     print('Mining Foreman: We can now automatically send stone to the surface from a chest below the market!')
                 else
-                    print('Mining Foreman: We can now automatically send ' .. value .. ' more stones!')
+                    if _DEBUG then print('Mining Foreman: We can now automatically send ' .. value .. ' more stones!') end
                 end
                 should_update_stone_collecting = true
                 stone_collecting.market_modifier = stone_collecting.market_modifier + value
