@@ -518,12 +518,12 @@ local function jail_player(cmd)
         return
     end
     -- Check if the target is valid
-    local target = cmd['parameter']
-    if target == nil then
+    local target_name = cmd['parameter']
+    if not target_name then
         Game.player_print('Usage: /jail <player>')
         return
     end
-    local target = game.players[cmd['parameter']]
+    local target = game.players[target_name]
     Report.jail(target, player)
 end
 
