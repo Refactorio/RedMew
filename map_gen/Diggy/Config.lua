@@ -47,6 +47,10 @@ local Config = {
         DiggyHole = {
             enabled = true,
 
+            -- displays a warning when a player continues digging with a full inventory
+            -- primarily used for multiplayer, can be disabled without consequences
+            enable_digging_warning = true,
+
             -- enables commands like /clear-void
             enable_debug_commands = false,
         },
