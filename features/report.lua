@@ -187,8 +187,8 @@ function Module.jail(target_player, player)
         target_player.shooting_state.state = {state = defines.shooting.not_shooting, position = {0,0}}
     end
 
-    if jail_target.walking_state.walking == true then -- Stop them walking while jailed
-        jail_target.walking_state = {walking = false, direction = defines.direction.north}
+    if target_player.walking_state.walking == true then -- Stop them walking while jailed
+        target_player.walking_state = {walking = false, direction = defines.direction.north}
     end
 
     -- Add player to jail group
