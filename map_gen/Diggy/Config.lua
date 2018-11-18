@@ -18,7 +18,7 @@ local Config = {
             -- initial starting position size, higher values are not recommended
             starting_size = 8,
         },
-
+        
         -- controls the Daylight (Default diggy: enabled = true)
         NightTime = {
             enabled = true, -- true = No Daylight, false = Day/night circle (Solar panels work)
@@ -168,15 +168,15 @@ local Config = {
                 {name = 'dirt', min = 0.39, max = 0.53},
             },
         },
-
+    
         -- responsible for resource spawning
         ScatteredResources = {
             enabled = true,
-
+            
             -- determines how distance is measured
-            distance = function (x, y) return math.abs(x) + math.abs(y) end,
+            distance = function (x, y) return math.abs(x) + math.abs(y) end, 
             --distance = function (x, y) return math.sqrt(x * x + y * y) end,
-
+            
             -- defines the weights of which resource_richness_value to spawn
             resource_richness_weights = {
                 ['scarce']     = 440,
@@ -196,51 +196,51 @@ local Config = {
                 ['plenty']     = {1201, 2000},
                 ['jackpot']    = {2001, 5000},
             },
-
+            
             -- increases the amount of resources by flat multiplication to initial amount
             -- highly suggested to use for fluids so their yield is reasonable
             resource_type_scalar = {
                 ['crude-oil'] = 1500,
                 ['uranium-ore'] = 1.25,
             },
-
+            
             -- ==============
             -- Debug settings
             -- ==============
-
+            
             -- shows the ore locations, only use when debugging (compound_cluster_mode)
             display_ore_clusters = false,
-
+            
             -- =======================
             -- Scattered mode settings
             -- =======================
-
+            
             -- creates scattered ore (single tiles) at random locations
             scattered_mode = false,
-
+            
             -- defines the increased chance of spawning resources
             -- calculated_probability = resource_probability + ((distance / scattered_distance_probability_modifier) / 100)
             -- this means the chance increases by 1% every DISTANCE tiles up to the max_probability
             scattered_distance_probability_modifier = 10,
-
+            
             -- min percentage of chance that resources will spawn after mining
             scattered_min_probability = 0.01,
 
             -- max chance of spawning resources based on resource_probability + calculated scattered_distance_probability_modifier
             scattered_max_probability = 0.10,
-
+            
             -- percentage of resource added to the sum. 100 tiles means
             -- 10% more resources with a distance_richness_modifier of 10
             -- 20% more resources with a distance_richness_modifier of 5
             scattered_distance_richness_modifier = 7,
-
+            
             -- multiplies probability only if cluster mode is enabled
             scattered_cluster_probability_multiplier = 0.5,
-
+            
             -- multiplies yield only if cluster mode is enabled
             scattered_cluster_yield_multiplier = 1.7,
-
-            -- weights per resource of spawning
+            
+            -- weights per resource of spawning 
             scattered_resource_weights = {
                 ['coal']        = 160,
                 ['copper-ore']  = 215,
@@ -259,18 +259,18 @@ local Config = {
                 ['uranium-ore'] = 86,
                 ['crude-oil']   = 57,
             },
-
+            
             -- ==============================
             -- Compound cluster mode settings
             -- ==============================
-
+            
             -- creates compound clusters of ores defined by a layered ore-gen
             cluster_mode = true,
-
+            
             -- location of file to find the cluster definition file
             cluster_file_location = 'map_gen.Diggy.Orepattern.Tendrils',
             --cluster_file_location = 'map_gen.Diggy.Orepattern.Clusters',
-
+            
         },
 
         -- controls the alien spawning mechanic
@@ -353,6 +353,15 @@ local Config = {
             start_stone = 50, -- Diggy default 50. This sets the price for the first level.
             cost_precision = 2, -- Diggy default 2. This sets the precision of the stone requirements to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
         },
+
+
+        --Tracks players causing collapses
+        Antigrief = {
+            enabled = true,
+            autojail = true,
+            allowed_collapses_first_hour = 4
+        }
+
     },
 }
 
