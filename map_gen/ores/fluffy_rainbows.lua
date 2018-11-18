@@ -45,7 +45,6 @@ return function(x, y, world)
             e.destroy()
         end
     end ]]
-
     local seed = global.perlin_noise_seed
 
     local noise_terrain_1 = perlin.noise(((x + seed) / 350), ((y + seed) / 350), 0)

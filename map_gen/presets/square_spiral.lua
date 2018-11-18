@@ -81,14 +81,42 @@ local spiral = b.rectangular_spiral(96)
 
 local map = b.apply_entity(spiral, patches)
 
-local start_iron = b.resource(b.full_shape, 'stone', function() return 800 end)
-local start_copper = b.resource(b.full_shape, 'coal', function() return 400 end)
-local start_stone = b.resource(b.full_shape, 'copper-ore', function() return 800 end)
-local start_coal = b.resource(b.full_shape, 'iron-ore', function() return 1600 end)
+local start_iron =
+    b.resource(
+    b.full_shape,
+    'stone',
+    function()
+        return 800
+    end
+)
+local start_copper =
+    b.resource(
+    b.full_shape,
+    'coal',
+    function()
+        return 400
+    end
+)
+local start_stone =
+    b.resource(
+    b.full_shape,
+    'copper-ore',
+    function()
+        return 800
+    end
+)
+local start_coal =
+    b.resource(
+    b.full_shape,
+    'iron-ore',
+    function()
+        return 1600
+    end
+)
 local start_spiral = b.segment_pattern({start_iron, start_copper, start_stone, start_coal})
 
 start_spiral = b.apply_entity(patch, start_spiral)
-start_spiral = b.any{start_spiral, b.full_shape}
+start_spiral = b.any {start_spiral, b.full_shape}
 start_spiral = b.translate(start_spiral, 0, -5)
 
 map = b.choose(b.rectangle(96), start_spiral, map)

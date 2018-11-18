@@ -373,12 +373,12 @@ Obviously this wont work correctly with refineries or chemical plants.]]
         flow.add {
             type = 'button',
             name = flip_h_button_name,
-            caption = 'Flip Horizontal ⇄'
+            caption = 'Flip Horizontal â‡„'
         }
         flow.add {
             type = 'button',
             name = flip_v_button_name,
-            caption = 'Flip Vertical ⇵'
+            caption = 'Flip Vertical â‡µ'
         }
 
         -- Converter.
@@ -411,7 +411,7 @@ Obviously this wont work correctly with refineries or chemical plants.]]
             }
             from_filter.style = 'slot_button'
 
-            filter_table.add {type = 'label', caption = '→'}
+            filter_table.add {type = 'label', caption = 'â†’'}
 
             local to_filter =
                 filter_table.add({type = 'flow'}).add {

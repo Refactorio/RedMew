@@ -1,6 +1,6 @@
-local b = require "map_gen.shared.builders"
+local b = require 'map_gen.shared.builders'
 
-local pic = require "map_gen.data.presets.UK"
+local pic = require 'map_gen.data.presets.UK'
 local pic = b.decompress(pic)
 local map = b.picture(pic)
 
@@ -11,6 +11,6 @@ map = b.scale(map, 2, 2)
 map = b.translate(map, 0, 10)
 
 -- this sets the tile outside the bounds of the map to deepwater, remove this and it will be void.
-map = b.change_tile(map, false, "deepwater")
+map = b.change_tile(map, false, 'deepwater')
 
 return map

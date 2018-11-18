@@ -3,8 +3,8 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
-local math = require "utils.math"
-local Utils = require "utils.utils"
+local math = require 'utils.math'
+local Utils = require 'utils.utils'
 
 local default_poll_duration = 300 * 60 -- in ticks
 local duration_max = 3600 -- in seconds
@@ -271,10 +271,10 @@ local function draw_main_frame(left, player)
     local poll_viewer_top_flow = frame.add {type = 'table', column_count = 5}
     poll_viewer_top_flow.style.horizontal_spacing = 0
 
-    local back_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_back_name, caption = '◀'}
+    local back_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_back_name, caption = 'â—€'}
     apply_direction_button_style(back_button)
 
-    local forward_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_forward_name, caption = '▶'}
+    local forward_button = poll_viewer_top_flow.add {type = 'button', name = poll_view_forward_name, caption = 'â–¶'}
     apply_direction_button_style(forward_button)
 
     local poll_index_label = poll_viewer_top_flow.add {type = 'label'}
@@ -1240,7 +1240,9 @@ local function poll_command(cmd)
     local param = cmd.parameter
 
     if not param then
-        Utils.player_print('Usage: /poll <{question = "question", answers = {"answer 1", "answer 2"}, duration = 300 | nil}>')
+        Utils.player_print(
+            'Usage: /poll <{question = "question", answers = {"answer 1", "answer 2"}, duration = 300 | nil}>'
+        )
         return
     end
 

@@ -1,6 +1,6 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
-local math = require "utils.math"
+local math = require 'utils.math'
 
 local track_seed1 = 37000
 local track_seed2 = track_seed1 * 2

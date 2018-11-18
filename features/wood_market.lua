@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 local Task = require 'utils.Task'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
-local Utils = require "utils.utils"
+local Utils = require 'utils.utils'
 
 local market_items = require 'resources.market_items'
 

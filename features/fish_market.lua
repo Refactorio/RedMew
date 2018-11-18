@@ -325,7 +325,7 @@ local function market_item_purchased(event)
     if event.offer_index == 3 then -- train saviour item
         local player = Game.get_player_by_index(player_index)
         local train_savior_item = Market_items[offer_index].item
-        player.insert{name=train_savior_item, count=event.count}
+        player.insert {name = train_savior_item, count = event.count}
     end
 
     --[[
@@ -457,16 +457,15 @@ local function fish_player_crafted_item(event)
 end
 
 local function init()
+    if global.scenario.config.fish_market.enable then
+        commands.add_command('market', 'Places a fish market near you.  (Admins only)', spawn_market)
 
-  if global.scenario.config.fish_market.enable then
-    commands.add_command('market', 'Places a fish market near you.  (Admins only)', spawn_market)
-
-    Event.on_nth_tick(180, on_180_ticks)
-    Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
-    Event.add(defines.events.on_entity_died, fish_drop_entity_died)
-    Event.add(defines.events.on_market_item_purchased, market_item_purchased)
-    Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
-  end
+        Event.on_nth_tick(180, on_180_ticks)
+        Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
+        Event.add(defines.events.on_entity_died, fish_drop_entity_died)
+        Event.add(defines.events.on_market_item_purchased, market_item_purchased)
+        Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
+    end
 end
 Event.on_init(init)
 Event.on_load(init)

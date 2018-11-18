@@ -8,7 +8,6 @@ local Report = require 'features.report'
 
 --local Antigrief = require 'features.antigrief'
 
-
 --- Takes a target and teleports them to player. (admin only)
 local function invoke(cmd)
     if not (game.player and game.player.admin) then
@@ -41,7 +40,7 @@ local function teleport_player(cmd)
     local pos = surface.find_non_colliding_position('player', game.players[target].position, 0, 1)
     game.player.teleport(pos, surface)
     game.print(target .. "! watcha doin'?!")
-    game.player.print("You have teleported to" .. game.players[target].name)
+    game.player.print('You have teleported to' .. game.players[target].name)
     Utils.log_command(game.player.name, cmd.name, cmd.parameter)
 end
 
@@ -282,7 +281,9 @@ local function follow(cmd)
         global.follows[game.player.name] = cmd.parameter
         global.follows.n_entries = global.follows.n_entries + 1
     else
-        Game.player_print('Usage: /follow <player> makes you follow the player. Use /unfollow to stop following a player.')
+        Game.player_print(
+            'Usage: /follow <player> makes you follow the player. Use /unfollow to stop following a player.'
+        )
     end
 end
 
@@ -479,7 +480,6 @@ local function antigrief_surface_tp()
     end
     Antigrief.antigrief_surface_tp()
 end ]]
-
 --- Creates an alert for the player at the location of their target
 local function find_player(cmd)
     local player = game.player
@@ -510,7 +510,6 @@ end
 
 --- Places a target in jail (a permissions group which is unable to act aside from chatting)(admin only)
 local function jail_player(cmd)
-
     local player = game.player
     -- Check if the player can run the command
     if player and not player.admin then
@@ -607,7 +606,6 @@ commands.add_command(
     end
 )
 
-
 commands.add_command('kill', 'Will kill you.', kill)
 commands.add_command('tpplayer', '<player> - Teleports you to the player. (Admins only)', teleport_player)
 commands.add_command('invoke', '<player> - Teleports the player to you. (Admins only)', invoke)
@@ -616,19 +614,34 @@ commands.add_command('walkabout', '<player> <duration> - Send someone on a walk.
 commands.add_command('regulars', 'Prints a list of game regulars.', UserGroups.print_regulars)
 commands.add_command('regular', '<promote, demote>, <player> Change regular status of a player. (Admins only)', regular)
 commands.add_command('afk', 'Shows how long players have been afk.', afk)
-commands.add_command('follow', '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
+commands.add_command(
+    'follow',
+    '<player> makes you follow the player. Use /unfollow to stop following a player.',
+    follow
+)
 commands.add_command('unfollow', 'stops following a player.', unfollow)
-commands.add_command('tpmode', 'Toggles tp mode. When on place a ghost entity to teleport there (Admins only)', toggle_tp_mode)
+commands.add_command(
+    'tpmode',
+    'Toggles tp mode. When on place a ghost entity to teleport there (Admins only)',
+    toggle_tp_mode
+)
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
 commands.add_command('pool', 'Spawns a pool', pool)
 commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)
-commands.add_command('jail', '<player> disables all actions a player can perform except chatting. (Admins only)', jail_player)
-commands.add_command('unjail', '<player> restores ability for a player to perform actions. (Admins only)', Report.unjail_player)
+commands.add_command(
+    'jail',
+    '<player> disables all actions a player can perform except chatting. (Admins only)',
+    jail_player
+)
+commands.add_command(
+    'unjail',
+    '<player> restores ability for a player to perform actions. (Admins only)',
+    Report.unjail_player
+)
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
 commands.add_command('report', '<griefer-name> <message> Reports a user to admins', Report.cmd_report)
 commands.add_command('show-rail-block', 'Toggles rail block visualisation', show_rail_block)
-
 
 --[[ commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
 commands.add_command(

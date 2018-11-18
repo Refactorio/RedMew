@@ -2,7 +2,6 @@
     Provides the ability to "mine" through out-of-map tiles by destroying or
     mining rocks next to it.
 ]]
-
 -- dependencies
 local Event = require 'utils.event'
 local Global = require 'utils.global'
@@ -26,11 +25,14 @@ local DiggyHole = {}
 -- keeps track of the amount of times per player when they mined with a full inventory in a row
 local full_inventory_mining_cache = {}
 
-Global.register({
-    full_inventory_mining_cache = full_inventory_mining_cache,
-}, function (tbl)
-    full_inventory_mining_cache = tbl.full_inventory_mining_cache
-end)
+Global.register(
+    {
+        full_inventory_mining_cache = full_inventory_mining_cache
+    },
+    function(tbl)
+        full_inventory_mining_cache = tbl.full_inventory_mining_cache
+    end
+)
 
 local function reset_player_full_inventory_cache(player)
     if not full_inventory_mining_cache[player.index] then
@@ -48,7 +50,7 @@ local function trigger_inventory_warning(player)
     if not count then
         full_inventory_mining_cache[player_index] = 1
         player.print('## - ' .. full_inventory_message, {r = 1, g = 1, b = 0, a = 1})
-        player.play_sound{path='utility/new_objective', volume_modifier = 1 }
+        player.play_sound {path = 'utility/new_objective', volume_modifier = 1}
         return
     end
 
@@ -78,7 +80,7 @@ local function diggy_hole(entity)
     local x = position.x
     local y = position.y
 
-    local out_of_map_found = Scanner.scan_around_position(surface, position, 'out-of-map');
+    local out_of_map_found = Scanner.scan_around_position(surface, position, 'out-of-map')
     local distance = ResourceConfig.distance(x, y)
 
     -- source of noise for resource generation
@@ -97,15 +99,26 @@ local function diggy_hole(entity)
             elseif settings.type == 'one' then
                 noise = noise + settings.weight * 1
             elseif settings.type == 'perlin' then
-                noise = noise + settings.weight * Perlin.noise(x/settings.variance, y/settings.variance,
-                            base_seed + 2000*index + settings.offset)
+                noise =
+                    noise +
+                    settings.weight *
+                        Perlin.noise(
+                            x / settings.variance,
+                            y / settings.variance,
+                            base_seed + 2000 * index + settings.offset
+                        )
             elseif settings.type == 'simplex' then
-                noise = noise + settings.weight * Simplex.d2(x/settings.variance, y/settings.variance,
-                            base_seed + 2000*index + settings.offset)
+                noise =
+                    noise +
+                    settings.weight *
+                        Simplex.d2(
+                            x / settings.variance,
+                            y / settings.variance,
+                            base_seed + 2000 * index + settings.offset
+                        )
             else
-                Debug.print('noise type \'' .. settings.type .. '\' not recognized')
+                Debug.print("noise type '" .. settings.type .. "' not recognized")
             end
-            
         end
         return noise
     end
@@ -125,12 +138,12 @@ local function diggy_hole(entity)
 
     -- compound cluster spawning
     local c_mode = ResourceConfig.cluster_mode
---    local c_clusters = Config.features.ScatteredResources.clusters
+    --    local c_clusters = Config.features.ScatteredResources.clusters
     local c_clusters = require(ResourceConfig.cluster_file_location)
     if ('table' ~= type(c_clusters)) then
         error('cluster_file_location invalid')
     end
-    
+
     local c_count = 0
     for _, cluster in ipairs(c_clusters) do
         c_count = c_count + 1
@@ -142,22 +155,23 @@ local function diggy_hole(entity)
 
     local function spawn_cluster_resource(surface, x, y, cluster_index, cluster)
         for name, weight in pairs(cluster.weights) do
-            if name == 'skip' then return false end
+            if name == 'skip' then
+                return false
+            end
         end
         return true
     end
 
-        local huge_rock_inserted = false
+    local huge_rock_inserted = false
     for _, position in pairs(out_of_map_found) do
         insert(tiles, {name = 'dirt-' .. random(1, 7), position = position})
---        if (random() > 0.50) then
---        insert(rocks, {name = 'rock-huge', position = position})
-
+        --        if (random() > 0.50) then
+        --        insert(rocks, {name = 'rock-huge', position = position})
 
         if c_mode then
-            for index,cluster in ipairs(c_clusters) do
+            for index, cluster in ipairs(c_clusters) do
                 if distance >= cluster.min_distance and cluster.noise_settings.type ~= 'skip' then
-                    if cluster.noise_settings.type == "connected_tendril" then
+                    if cluster.noise_settings.type == 'connected_tendril' then
                         local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                         if -1 * cluster.noise_settings.threshold < noise and noise < cluster.noise_settings.threshold then
                             if spawn_cluster_resource(surface, x, y, index, cluster) then
@@ -165,12 +179,14 @@ local function diggy_hole(entity)
                                 huge_rock_inserted = true
                             end
                         end
-                    elseif cluster.noise_settings.type == "fragmented_tendril" then
+                    elseif cluster.noise_settings.type == 'fragmented_tendril' then
                         local noise1 = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                         local noise2 = seeded_noise(surface, x, y, index, cluster.noise_settings.discriminator)
-                        if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold 
-                                and -1 * cluster.noise_settings.discriminator_threshold < noise2
-                                and noise2 < cluster.noise_settings.discriminator_threshold then
+                        if
+                            -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold and
+                                -1 * cluster.noise_settings.discriminator_threshold < noise2 and
+                                noise2 < cluster.noise_settings.discriminator_threshold
+                         then
                             if spawn_cluster_resource(surface, x, y, index, cluster) then
                                 insert(rocks, {name = 'rock-huge', position = position})
                                 huge_rock_inserted = true
@@ -188,9 +204,9 @@ local function diggy_hole(entity)
                 end
             end
         end
-    
-    if (huge_rock_inserted == false) then
-        insert(rocks, {name = 'sand-rock-big', position = position})
+
+        if (huge_rock_inserted == false) then
+            insert(rocks, {name = 'sand-rock-big', position = position})
         end
     end
 
@@ -205,7 +221,7 @@ local artificial_tiles = {
     ['hazard-concrete-right'] = true,
     ['refined-concrete'] = true,
     ['refined-hazard-concrete-left'] = true,
-    ['refined-hazard-concrete-right'] = true,
+    ['refined-hazard-concrete-right'] = true
 }
 
 local function on_mined_tile(surface, tiles)
@@ -213,7 +229,7 @@ local function on_mined_tile(surface, tiles)
 
     for _, tile in pairs(tiles) do
         if (artificial_tiles[tile.old_tile.name]) then
-            insert(new_tiles, { name = 'dirt-' .. random(1, 7), position = tile.position})
+            insert(new_tiles, {name = 'dirt-' .. random(1, 7), position = tile.position})
         end
     end
 
@@ -226,76 +242,99 @@ end
 function DiggyHole.register(config)
     ScoreTable.reset('Void removed')
 
-    Event.add(defines.events.on_entity_died, function (event)
-        diggy_hole(event.entity)
-    end)
+    Event.add(
+        defines.events.on_entity_died,
+        function(event)
+            diggy_hole(event.entity)
+        end
+    )
 
     local enable_digging_warning = config.enable_digging_warning
 
-    Event.add(defines.events.on_player_mined_entity, function (event)
-        local entity = event.entity
-        local name = entity.name
+    Event.add(
+        defines.events.on_player_mined_entity,
+        function(event)
+            local entity = event.entity
+            local name = entity.name
 
-        if name == 'sand-rock-big' or name == 'rock-huge' then
-            event.buffer.remove({name = 'coal', count = 100})
+            if name == 'sand-rock-big' or name == 'rock-huge' then
+                event.buffer.remove({name = 'coal', count = 100})
 
-            -- this logic can be replaced once we've fully replaced the stone to surface functionality
-            if enable_digging_warning then
-                local player = Game.get_player_by_index(event.player_index)
-                if player and player.valid then
-                    if player.get_main_inventory().can_insert({name = 'stone'}) then
-                        reset_player_full_inventory_cache(player)
-                    else
-                        trigger_inventory_warning(player)
+                -- this logic can be replaced once we've fully replaced the stone to surface functionality
+                if enable_digging_warning then
+                    local player = Game.get_player_by_index(event.player_index)
+                    if player and player.valid then
+                        if player.get_main_inventory().can_insert({name = 'stone'}) then
+                            reset_player_full_inventory_cache(player)
+                        else
+                            trigger_inventory_warning(player)
+                        end
                     end
                 end
             end
+
+            diggy_hole(entity)
         end
+    )
 
-        diggy_hole(entity)
-    end)
+    Event.add(
+        defines.events.on_robot_mined_tile,
+        function(event)
+            on_mined_tile(event.robot.surface, event.tiles)
+        end
+    )
 
-    Event.add(defines.events.on_robot_mined_tile, function (event)
-        on_mined_tile(event.robot.surface, event.tiles)
-    end)
+    Event.add(
+        defines.events.on_player_mined_tile,
+        function(event)
+            on_mined_tile(game.surfaces[event.surface_index], event.tiles)
+        end
+    )
 
-    Event.add(defines.events.on_player_mined_tile, function (event)
-        on_mined_tile(game.surfaces[event.surface_index], event.tiles)
-    end)
-
-    Event.add(Template.events.on_void_removed, function ()
-        ScoreTable.increment('Void removed')
-    end)
+    Event.add(
+        Template.events.on_void_removed,
+        function()
+            ScoreTable.increment('Void removed')
+        end
+    )
 
     if config.enable_debug_commands then
-        commands.add_command('clear-void', '<left top x> <left top y> <width> <height> <surface index> triggers Template.insert for the given area.', function(cmd)
-            local params = {}
-            local args = cmd.parameter or ''
-            for param in string.gmatch(args, '%S+') do
-                table.insert(params, param)
-            end
-
-            if (#params ~= 5) then
-                game.player.print('/clear-void requires exactly 5 arguments: <left top x> <left top y> <width> <height> <surface index>')
-                return
-            end
-
-            local left_top_x = tonumber(params[1])
-            local left_top_y = tonumber(params[2])
-            local width = tonumber(params[3])
-            local height = tonumber(params[4])
-            local surface_index = params[5]
-            local tiles = {}
-            local entities = {}
-
-            for x = 0, width do
-                for y = 0, height do
-                    insert(tiles, {name = 'dirt-' .. random(1, 7), position = {x = x + left_top_x, y = y + left_top_y}})
+        commands.add_command(
+            'clear-void',
+            '<left top x> <left top y> <width> <height> <surface index> triggers Template.insert for the given area.',
+            function(cmd)
+                local params = {}
+                local args = cmd.parameter or ''
+                for param in string.gmatch(args, '%S+') do
+                    table.insert(params, param)
                 end
-            end
 
-            Template.insert(game.surfaces[surface_index], tiles, entities)
-        end
+                if (#params ~= 5) then
+                    game.player.print(
+                        '/clear-void requires exactly 5 arguments: <left top x> <left top y> <width> <height> <surface index>'
+                    )
+                    return
+                end
+
+                local left_top_x = tonumber(params[1])
+                local left_top_y = tonumber(params[2])
+                local width = tonumber(params[3])
+                local height = tonumber(params[4])
+                local surface_index = params[5]
+                local tiles = {}
+                local entities = {}
+
+                for x = 0, width do
+                    for y = 0, height do
+                        insert(
+                            tiles,
+                            {name = 'dirt-' .. random(1, 7), position = {x = x + left_top_x, y = y + left_top_y}}
+                        )
+                    end
+                end
+
+                Template.insert(game.surfaces[surface_index], tiles, entities)
+            end
         )
     end
 end

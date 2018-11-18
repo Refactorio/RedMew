@@ -1,30 +1,30 @@
-local b = require "map_gen.shared.builders"
+local b = require 'map_gen.shared.builders'
 
-local pic = require "map_gen.data.presets.goat"
+local pic = require 'map_gen.data.presets.goat'
 local pic = b.decompress(pic)
-    
-local goat1 = b.picture(pic)   
+
+local goat1 = b.picture(pic)
 goat1 = b.invert(goat1)
 local crop = b.rectangle(pic.width, pic.height)
-goat1 = b.all{goat1, crop}
+goat1 = b.all {goat1, crop}
 
-local floor = b.translate(b.rectangle(pic.width, 32), 0 , (pic.height / 2) + 12)
+local floor = b.translate(b.rectangle(pic.width, 32), 0, (pic.height / 2) + 12)
 
-local goats = { floor, goat1 }
+local goats = {floor, goat1}
 
-local sf = 0.75    
+local sf = 0.75
 local tf = 0.7
 local s = 1
-local t = 0    
+local t = 0
 for i = 1, 5 do
     s = s * sf
     t = t + (s * tf * pic.height)
     local goat = b.translate(b.scale(goat1, s, s), 0, -t)
-    table.insert( goats, goat )        
+    table.insert(goats, goat)
 end
 
-local ceiling = b.translate(b.rectangle(pic.width, 32), 0 , -t - 32)
-table.insert( goats, ceiling )  
+local ceiling = b.translate(b.rectangle(pic.width, 32), 0, -t - 32)
+table.insert(goats, ceiling)
 
 local shape = b.translate(b.any(goats), 0, (t / 2) - 60)
 
@@ -102,18 +102,16 @@ end
 local res_goat = b.apply_entity(shape, res_builder)
 shape = res_goat
 --]]
-
 local shape2 = b.flip_x(shape)
 local shape3 = b.flip_y(shape)
-local shape4 = b.flip_y(shape2)    
+local shape4 = b.flip_y(shape2)
 
-local pattern =
-{
+local pattern = {
     {shape, shape2},
-    {shape3, shape4},
-}  
+    {shape3, shape4}
+}
 
 local map = b.grid_pattern(pattern, 2, 2, pic.width, pic.height + t - 105)
-map = b.change_map_gen_collision_tile(map,"water-tile", "water-green")
+map = b.change_map_gen_collision_tile(map, 'water-tile', 'water-green')
 
 return map

@@ -148,8 +148,6 @@ We are a friendly bunch, our objective is to have as much fun as possible and we
                 ]]
             )
 
-
-
             header_label(parent, 'How To Chat')
             centered_label(
                 parent,
@@ -159,8 +157,6 @@ It is below the ESC key on English keyboards and looks like ~ or `
 This can be changed in options -> controls -> "toggle lua console".
                 ]]
             )
-
-
 
             header_label(parent, 'Useful Links')
             centered_label(parent, [[Check out our discord for new map info and to suggest new maps / ideas.]])
@@ -199,7 +195,6 @@ This can be changed in options -> controls -> "toggle lua console".
             maps_textbox.read_only = true
 
             parent.add({type = 'flow'}).style.height = 24
-
         end
     },
     {
@@ -213,7 +208,7 @@ This can be changed in options -> controls -> "toggle lua console".
             centered_label(
                 parent,
                 [[
-Have fun and play nice. Remember we are all just here to have fun so let’s keep it that way.
+Have fun and play nice. Remember we are all just here to have fun so letâ€™s keep it that way.
 
 No hateful content or personal attacks.
 
@@ -446,7 +441,7 @@ needs doing. Regulars can add new tasks.]]
                 grid.add {
                 type = 'label',
                 caption = [[
-The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you
+The Blueprint helperâ„¢ lets you flip blueprints horizontally or vertically and lets you
 converter the entities used in the blueprint e.g. turn yellow belts into red belts.]]
             }
             blueprint_label.style.single_line = false

@@ -3,7 +3,6 @@
 -- @module NightTime
 --
 
-
 -- dependencies
 local Event = require 'utils.event'
 local Game = require 'utils.game'
@@ -20,7 +19,8 @@ local function on_built_entity(event)
     local entity = event.created_entity
     if (entity.name == 'solar-panel') then
         require 'features.gui.popup'.player(
-            player,[[
+            player,
+            [[
 Placing solar panels underground does not seem
 to have an effect on power production!
 Studies show, that the same applies to the portable version!
@@ -39,7 +39,7 @@ end
 --
 local function on_research_finished(event)
     local force = event.research.force
-    force.recipes["solar-panel-equipment"].enabled=false
+    force.recipes['solar-panel-equipment'].enabled = false
 end
 
 --- Setup of on_built_entity and on_research_finished events

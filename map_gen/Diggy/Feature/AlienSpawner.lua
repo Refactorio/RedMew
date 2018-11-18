@@ -1,7 +1,6 @@
 --[[-- info
     Provides the ability to spawn aliens.
 ]]
-
 -- dependencies
 local Event = require 'utils.event'
 local AlienEvolutionProgress = require 'map_gen.Diggy.AlienEvolutionProgress'
@@ -37,29 +36,33 @@ end
 function AlienSpawner.register(config)
     local alien_minimum_distance_square = config.alien_minimum_distance ^ 2
 
-    Event.add(Template.events.on_void_removed, function (event)
-        game.forces.enemy.evolution_factor = game.forces.enemy.evolution_factor + 0.0000012
+    Event.add(
+        Template.events.on_void_removed,
+        function(event)
+            game.forces.enemy.evolution_factor = game.forces.enemy.evolution_factor + 0.0000012
 
-        local position = event.position
-        local x = position.x
-        local y = position.y
+            local position = event.position
+            local x = position.x
+            local y = position.y
 
-        if (x * x + y * y < alien_minimum_distance_square or config.alien_probability < random()) then
-            return
+            if (x * x + y * y < alien_minimum_distance_square or config.alien_probability < random()) then
+                return
+            end
+
+            spawn_alien(event.surface, x, y)
         end
-
-        spawn_alien(event.surface, x, y)
-    end)
+    )
 end
 
 function AlienSpawner.get_extra_map_info(config)
     return [[Alien Spawner, aliens might spawn when mining!
-Spawn chance: ]] .. (config.alien_probability * 100) .. [[%
+Spawn chance: ]] ..
+        (config.alien_probability * 100) .. [[%
 Minimum spawn distance: ]] .. config.alien_minimum_distance .. ' tiles'
 end
 
 function AlienSpawner.on_init()
-	-- base factorio =                pollution_factor = 0.000015
+    -- base factorio =                pollution_factor = 0.000015
     game.map_settings.enemy_evolution.pollution_factor = 0.000004
 end
 

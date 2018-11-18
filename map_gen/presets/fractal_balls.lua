@@ -1,5 +1,5 @@
 local b = require 'map_gen.shared.builders'
-local degrees = require "utils.math".degrees
+local degrees = require 'utils.math'.degrees
 
 local function value(base, mult)
     return function(x, y)
@@ -109,13 +109,14 @@ local balls4 =
 balls4 = b.rotate(balls4, degrees(180))
 
 if bot_islands_flag == true then
-	balls4 = b.any{
-		balls4,
-		b.translate(iron_ball, 0, 0),
-		b.rotate(b.translate(coal_ball, 0, -40),degrees(120)),
-		b.rotate(b.translate(iron_ball, 0, -40),degrees(-120)),
-		b.translate(copper_ball, 0, -40),
-	}
+    balls4 =
+        b.any {
+        balls4,
+        b.translate(iron_ball, 0, 0),
+        b.rotate(b.translate(coal_ball, 0, -40), degrees(120)),
+        b.rotate(b.translate(iron_ball, 0, -40), degrees(-120)),
+        b.translate(copper_ball, 0, -40)
+    }
 end
 
 balls4 = b.apply_effect(balls4, no_resources)

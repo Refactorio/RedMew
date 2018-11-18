@@ -66,7 +66,7 @@ function Scenario.register(debug)
 
     each_enabled_feature(
         function(feature_name, feature_config)
-            local feature = require ('map_gen.Diggy.Feature.' .. feature_name)
+            local feature = require('map_gen.Diggy.Feature.' .. feature_name)
             if ('function' ~= type(feature.register)) then
                 error('Feature ' .. feature_name .. ' did not define a register function.')
             end
@@ -83,8 +83,8 @@ function Scenario.register(debug)
         end
     )
 
-    local landfill_tiles = {'dirt-1','dirt-2','dirt-3','dirt-4','dirt-5','dirt-6','dirt-7'}
-    require ('map_gen.misc.change_landfill_tile')(landfill_tiles)
+    local landfill_tiles = {'dirt-1', 'dirt-2', 'dirt-3', 'dirt-4', 'dirt-5', 'dirt-6', 'dirt-7'}
+    require('map_gen.misc.change_landfill_tile')(landfill_tiles)
 
     ScenarioInfo.set_map_name('Diggy')
     ScenarioInfo.set_map_description('Dig your way through!')

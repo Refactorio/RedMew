@@ -4,7 +4,7 @@ local Global = require 'utils.global'
 local UserGroups = require 'features.user_groups'
 local Utils = require 'utils.utils'
 local Game = require 'utils.game'
-local math = require "utils.math"
+local math = require 'utils.math'
 
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
@@ -265,7 +265,7 @@ local function redraw_tasks(data, enabled)
             parent.add({type = 'flow'}).add {
             type = 'button',
             name = move_task_up_button_name,
-            caption = '▲',
+            caption = 'â–²',
             tooltip = up_button_tooltip
         }
         up_button.enabled = enabled and task_index ~= 1
@@ -275,7 +275,7 @@ local function redraw_tasks(data, enabled)
             parent.add({type = 'flow'}).add {
             type = 'button',
             name = move_task_down_button_name,
-            caption = '▼',
+            caption = 'â–¼',
             tooltip = down_button_tooltip
         }
         down_button.enabled = enabled and task_index ~= task_count

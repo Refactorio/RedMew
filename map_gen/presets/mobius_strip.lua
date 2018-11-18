@@ -1,5 +1,5 @@
 local Event = require 'utils.event'
-local degrees = require "utils.math".degrees
+local degrees = require 'utils.math'.degrees
 local b = require 'map_gen.shared.builders'
 
 local inner_circle = b.invert(b.circle(48))

@@ -47,3 +47,4 @@ local function on_resource_depleted(event)
 end
 
 Event.add(defines.events.on_resource_depleted, on_resource_depleted)
+Event.add(defines.events.on_resource_depleted, on_resource_depleted)

@@ -13,8 +13,8 @@ local player_sprites = require 'resources.player_sprites'
 
 local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
-local symbol_asc = ' ▲'
-local symbol_desc = ' ▼'
+local symbol_asc = ' â–²'
+local symbol_desc = ' â–¼'
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
 local rank_colors = {
@@ -441,18 +441,18 @@ local column_builders = {
 
 local function get_default_player_settings()
     columns = {
-            sprite_heading_name,
-            player_name_heading_name,
-            time_heading_name,
-            rank_heading_name,
-            distance_heading_name
+        sprite_heading_name,
+        player_name_heading_name,
+        time_heading_name,
+        rank_heading_name,
+        distance_heading_name
     }
     local offset = 6
     if global.scenario.config.player_list.enable_coin_col then
         columns[6] = coin_heading_name
         offset = 7
     end
-    columns[offset] =  deaths_heading_name
+    columns[offset] = deaths_heading_name
     columns[offset + 1] = poke_name_heading_name
     columns[offset + 2] = report_heading_name
     return {

@@ -14,23 +14,20 @@ local function no_resources(x, y, world, tile)
     ) do
         e.destroy()
     end
-	for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
-        )
+    for _, e in ipairs(
+        world.surface.find_entities_filtered({type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})
     ) do
         e.destroy()
     end
-	for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {type = 'rock', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
-        )
+    for _, e in ipairs(
+        world.surface.find_entities_filtered({type = 'rock', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})
     ) do
         e.destroy()
     end
 
     return tile
 end
+ --
 
 --[[local function no_trees(x, y, world, tile)
     for _, e in ipairs(
@@ -42,17 +39,15 @@ end
     end
 
     return tile
-end]]--
-
--- create a square on which to place each ore
-local square = b.rectangle(12,12)
+end]] -- create a square on which to place each ore
+local square = b.rectangle(12, 12)
 square = b.change_tile(square, true, 'concrete')
 
 -- set the ore weights and sizes
-local iron = b.resource(b.rectangle(12,12), 'iron-ore', value(200, 1))
-local copper = b.resource(b.rectangle(12,12), 'copper-ore', value(150, 0.8))
-local stone = b.resource(b.rectangle(12,12), 'stone', value(100, .5))
-local coal = b.resource(b.rectangle(12,12), 'coal', value(100, 0.6))
+local iron = b.resource(b.rectangle(12, 12), 'iron-ore', value(200, 1))
+local copper = b.resource(b.rectangle(12, 12), 'copper-ore', value(150, 0.8))
+local stone = b.resource(b.rectangle(12, 12), 'stone', value(100, .5))
+local coal = b.resource(b.rectangle(12, 12), 'coal', value(100, 0.6))
 
 -- place each ore on the square
 local iron_sq = b.apply_entity(square, iron)
@@ -62,13 +57,13 @@ local coal_sq = b.apply_entity(square, coal)
 
 -- create starting water square and change the type to water
 local water_start =
-        b.any {
-        b.rectangle(12, 12)
-    }
+    b.any {
+    b.rectangle(12, 12)
+}
 water_start = b.change_tile(water_start, true, 'water')
 
 -- create the large concrete square
-local concrete_square =  b.rectangle(80, 80)
+local concrete_square = b.rectangle(80, 80)
 concrete_square = b.change_tile(concrete_square, true, 'concrete')
 
 -- create the start area using the ore, water and concrete squares
@@ -84,7 +79,6 @@ local start_area =
 }
 start_area = b.apply_effect(start_area, no_resources)
 --start_area = b.apply_effect(start_area, no_trees)
-
 
 local map = start_area
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')

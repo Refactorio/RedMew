@@ -1,12 +1,11 @@
 --[[-- info
     Provides the ability to make a simple room with contents
 ]]
-
 -- dependencies
 local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
-local Debug = require'map_gen.Diggy.Debug'
+local Debug = require 'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
 local raise_event = script.raise_event
@@ -14,31 +13,41 @@ local raise_event = script.raise_event
 -- this
 local SimpleRoomGenerator = {}
 
-local do_spawn_tile = Token.register(function(params)
-    Template.insert(params.surface, {params.tile}, {})
-end)
-
-local do_mine = Token.register(function(params)
-    local surface = params.surface
-    local position = params.position
-    local rocks = surface.find_entities_filtered({ position = position, name = { 'sand-rock-big', 'rock-huge'}})
-
-    if (0 == #rocks) then
-        return
+local do_spawn_tile =
+    Token.register(
+    function(params)
+        Template.insert(params.surface, {params.tile}, {})
     end
+)
 
-    for _, rock in pairs(rocks) do
-        raise_event(defines.events.on_entity_died, {entity = rock})
-        rock.destroy()
+local do_mine =
+    Token.register(
+    function(params)
+        local surface = params.surface
+        local position = params.position
+        local rocks = surface.find_entities_filtered({position = position, name = {'sand-rock-big', 'rock-huge'}})
+
+        if (0 == #rocks) then
+            return
+        end
+
+        for _, rock in pairs(rocks) do
+            raise_event(defines.events.on_entity_died, {entity = rock})
+            rock.destroy()
+        end
     end
-end)
+)
 
 local function handle_noise(name, surface, position)
     Task.set_timeout_in_ticks(1, do_mine, {surface = surface, position = position})
 
     if ('water' == name) then
         -- water is slower because for some odd reason it doesn't always want to mine it properly
-        Task.set_timeout_in_ticks(4, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
+        Task.set_timeout_in_ticks(
+            4,
+            do_spawn_tile,
+            {surface = surface, tile = {name = 'deepwater-green', position = position}}
+        )
         return
     end
 
@@ -46,7 +55,7 @@ local function handle_noise(name, surface, position)
         return
     end
 
-    error('No noise handled for type \'' .. name .. '\'')
+    error("No noise handled for type '" .. name .. "'")
 end
 
 --[[--
@@ -61,43 +70,49 @@ function SimpleRoomGenerator.register(config)
         return Perlin.noise(x * config.noise_variance, y * config.noise_variance, seed)
     end
 
-    Event.add(Template.events.on_void_removed, function (event)
-        local position = event.position
-        local x = position.x
-        local y = position.y
+    Event.add(
+        Template.events.on_void_removed,
+        function(event)
+            local position = event.position
+            local x = position.x
+            local y = position.y
 
-        local distance_sq = x * x + y * y
+            local distance_sq = x * x + y * y
 
-        if (distance_sq <= room_noise_minimum_distance_sq) then
-            return
-        end
+            if (distance_sq <= room_noise_minimum_distance_sq) then
+                return
+            end
 
-        local surface = event.surface
-        local noise = get_noise(surface, x, y)
+            local surface = event.surface
+            local noise = get_noise(surface, x, y)
 
-        for _, noise_range in pairs(config.room_noise_ranges) do
-            if (noise >= noise_range.min and noise <= noise_range.max) then
-                handle_noise(noise_range.name, surface, position)
+            for _, noise_range in pairs(config.room_noise_ranges) do
+                if (noise >= noise_range.min and noise <= noise_range.max) then
+                    handle_noise(noise_range.name, surface, position)
+                end
             end
         end
-    end)
+    )
 
     if (config.display_room_locations) then
-        Event.add(defines.events.on_chunk_generated, function (event)
-            local surface = event.surface
-            local area = event.area
+        Event.add(
+            defines.events.on_chunk_generated,
+            function(event)
+                local surface = event.surface
+                local area = event.area
 
-            for x = area.left_top.x, area.left_top.x + 31 do
-                for y = area.left_top.y, area.left_top.y + 31 do
-                    for _, noise_range in pairs(config.room_noise_ranges) do
-                        local noise = get_noise(surface, x, y)
-                        if (noise >= noise_range.min and noise <= noise_range.max) then
-                            Debug.print_grid_value(noise_range.name, surface, {x = x, y = y}, nil, nil, true)
+                for x = area.left_top.x, area.left_top.x + 31 do
+                    for y = area.left_top.y, area.left_top.y + 31 do
+                        for _, noise_range in pairs(config.room_noise_ranges) do
+                            local noise = get_noise(surface, x, y)
+                            if (noise >= noise_range.min and noise <= noise_range.max) then
+                                Debug.print_grid_value(noise_range.name, surface, {x = x, y = y}, nil, nil, true)
+                            end
                         end
                     end
                 end
             end
-        end)
+        )
     end
 end
 

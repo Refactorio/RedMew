@@ -1,6 +1,6 @@
-local b = require "map_gen.shared.builders"
+local b = require 'map_gen.shared.builders'
 
-local pic = require "map_gen.data.presets.crosses"
+local pic = require 'map_gen.data.presets.crosses'
 pic = b.decompress(pic)
 
 local shape = b.picture(pic)

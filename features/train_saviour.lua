@@ -10,8 +10,21 @@ local saviour_token_name = 'small-plane' -- item name for what saves players
 local saviour_timeout = 180 -- number of ticks players are train immune after getting hit (roughly)
 
 table.insert(
-    Market_items, 3,
-    {price = {{Market_items.market_item, 100}}, offer = {type = 'nothing', effect_description = 'Train Immunity (+1 ' .. saviour_token_name .. ')\nEach ' .. saviour_token_name .. ' in your inventory will save you\nfrom being killed by a train once\n\nPrice: 100 '..Market_items.market_item..'s'}, item = saviour_token_name}
+    Market_items,
+    3,
+    {
+        price = {{Market_items.market_item, 100}},
+        offer = {
+            type = 'nothing',
+            effect_description = 'Train Immunity (+1 ' ..
+                saviour_token_name ..
+                    ')\nEach ' ..
+                        saviour_token_name ..
+                            ' in your inventory will save you\nfrom being killed by a train once\n\nPrice: 100 ' ..
+                                Market_items.market_item .. 's'
+        },
+        item = saviour_token_name
+    }
 )
 
 local remove_stack = {name = saviour_token_name, count = 1}

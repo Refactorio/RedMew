@@ -1,5 +1,5 @@
-local b = require "map_gen.shared.builders"
-local degrees = require "utils.math".degrees
+local b = require 'map_gen.shared.builders'
+local degrees = require 'utils.math'.degrees
 
 local seed1 = 420420
 local seed2 = 696969
@@ -8,20 +8,20 @@ local ball = b.circle(16)
 local line1 = b.translate(b.rectangle(42, 8), 34, 0)
 local line2 = b.translate(b.rectangle(8, 42), 0, -34)
 
-local ball_shape = b.any{ball, line1, line2}
+local ball_shape = b.any {ball, line1, line2}
 
 local value = b.manhattan_value
 local ore_shape = b.circle(4)
 local oil_shape = b.throttle_world_xy(b.circle(2.67), 1, 4, 1, 4)
 
 local ores = {
-    {b.resource(ore_shape, "iron-ore", value(1500, 1.5)), 24},
-    {b.resource(ore_shape, "copper-ore", value(1200, 1.2)), 12},
-    {b.resource(ore_shape, "stone", value(1200, 0.6)), 4},
-    {b.resource(ore_shape, "coal", value(1200, 0.6)), 8},
-    {b.resource(b.circle(2), "uranium-ore", value(450, 0.6)), 1},
-    {b.resource(oil_shape, "crude-oil", value(375000, 188)), 4},
---{b.empty_shape, 52}
+    {b.resource(ore_shape, 'iron-ore', value(1500, 1.5)), 24},
+    {b.resource(ore_shape, 'copper-ore', value(1200, 1.2)), 12},
+    {b.resource(ore_shape, 'stone', value(1200, 0.6)), 4},
+    {b.resource(ore_shape, 'coal', value(1200, 0.6)), 8},
+    {b.resource(b.circle(2), 'uranium-ore', value(450, 0.6)), 1},
+    {b.resource(oil_shape, 'crude-oil', value(375000, 188)), 4}
+    --{b.empty_shape, 52}
 }
 
 local total_weights = {}
@@ -31,7 +31,7 @@ for _, v in pairs(ores) do
     table.insert(total_weights, t)
 end
 
-local Random = require "map_gen.shared.random"
+local Random = require 'map_gen.shared.random'
 local random = Random.new(seed1, seed2)
 
 local p_cols = 50
@@ -65,7 +65,7 @@ local function make_tree()
 
     local tree = b.grid_pattern_overlap(pattern, p_cols, p_rows, 64, 64)
 
-    local sea = b.tile("water")
+    local sea = b.tile('water')
     sea = b.fish(sea, 0.005)
 
     tree = b.if_else(tree, sea)
@@ -77,7 +77,7 @@ local function make_tree()
     line = b.rotate(line, degrees(45))
     line = b.translate(line, -23, 23)
 
-    tree = b.any{line, tree}
+    tree = b.any {line, tree}
 
     return tree
 end
@@ -100,22 +100,22 @@ local function outer_strip(x, y)
     return y > -96 and (x > -thickness and x <= thickness)
 end
 
-local water_band = b.change_tile(outer_strip, true, "water")
+local water_band = b.change_tile(outer_strip, true, 'water')
 
-local map = b.any{tree_top, tree_right, tree_left, strip, water_band}
+local map = b.any {tree_top, tree_right, tree_left, strip, water_band}
 
-local start_iron = b.resource(b.full_shape, "iron-ore", value(400,0))
-local start_copper = b.resource(b.full_shape, "copper-ore", value(250,0))
-local start_coal = b.resource(b.full_shape, "coal", value(300,0))
-local start_stone = b.resource(b.full_shape, "stone", value(125,0))
+local start_iron = b.resource(b.full_shape, 'iron-ore', value(400, 0))
+local start_copper = b.resource(b.full_shape, 'copper-ore', value(250, 0))
+local start_coal = b.resource(b.full_shape, 'coal', value(300, 0))
+local start_stone = b.resource(b.full_shape, 'stone', value(125, 0))
 
 local start_circle = b.circle(16)
-start_circle = b.apply_entity(start_circle, b.segment_pattern{start_iron, start_copper, start_coal, start_stone})
+start_circle = b.apply_entity(start_circle, b.segment_pattern {start_iron, start_copper, start_coal, start_stone})
 start_circle = b.translate(start_circle, 0, -32)
 
-map = b.any{start_circle, map}
+map = b.any {start_circle, map}
 
-map = b.change_map_gen_collision_tile(map, "water-tile", "grass-1")
+map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 
 map = b.rotate(map, degrees(90))
 map = b.scale(map, 3, 3)

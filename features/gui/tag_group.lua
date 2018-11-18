@@ -3,7 +3,7 @@ local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
-local Utils = require "utils.utils"
+local Utils = require 'utils.utils'
 
 local deafult_verb = 'expanded'
 
@@ -691,7 +691,9 @@ local function tag_command(cmd)
     local tag = tag_groups[tag_name]
 
     if tag == nil then
-        Game.player_print("Tag '" .. tag_name .. "' does not exist. Create the tag first by clicking Tag -> Create Tag.")
+        Game.player_print(
+            "Tag '" .. tag_name .. "' does not exist. Create the tag first by clicking Tag -> Create Tag."
+        )
         return
     end
 

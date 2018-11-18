@@ -29,8 +29,8 @@ Module.print_admins = function(msg, source)
             chat_color = source.chat_color
         end
     else
-        source_name = "Server"
-        chat_color = {r=255, g=255, b=255}
+        source_name = 'Server'
+        chat_color = {r = 255, g = 255, b = 255}
     end
     for _, p in pairs(game.connected_players) do
         if p.admin then
@@ -99,7 +99,6 @@ Module.ternary = function(c, t, f)
     end
 end
 
-
 local minutes_to_ticks = 60 * 60
 local hours_to_ticks = 60 * 60 * 60
 local ticks_to_minutes = 1 / minutes_to_ticks
@@ -150,7 +149,7 @@ Module.log_command = function(user, command, parameters)
 end
 
 Module.comma_value = function(n) -- credit http://richard.warburton.it
-    local left,num,right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
+    local left, num, right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
     return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
 end
 

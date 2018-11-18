@@ -1,5 +1,5 @@
 local b = require 'map_gen.shared.builders'
-local math = require "utils.math"
+local math = require 'utils.math'
 
 local value = b.exponential_value
 

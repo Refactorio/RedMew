@@ -52,17 +52,20 @@ local stress_map_storage = {}
 local new_tile_map = {}
 local collapse_positions_storage = {}
 
-Global.register({
-    new_tile_map = new_tile_map,
-    stress_map_storage = stress_map_storage,
-    deconstruction_alert_message_shown = show_deconstruction_alert_message,
-    collapse_positions_storage = collapse_positions_storage,
-}, function(tbl)
-    new_tile_map = tbl.new_tile_map
-    stress_map_storage = tbl.stress_map_storage
-    show_deconstruction_alert_message = tbl.deconstruction_alert_message_shown
-    collapse_positions_storage = tbl.collapse_positions_storage
-end)
+Global.register(
+    {
+        new_tile_map = new_tile_map,
+        stress_map_storage = stress_map_storage,
+        deconstruction_alert_message_shown = show_deconstruction_alert_message,
+        collapse_positions_storage = collapse_positions_storage
+    },
+    function(tbl)
+        new_tile_map = tbl.new_tile_map
+        stress_map_storage = tbl.stress_map_storage
+        show_deconstruction_alert_message = tbl.deconstruction_alert_message_shown
+        collapse_positions_storage = tbl.collapse_positions_storage
+    end
+)
 
 local defaultValue = 0
 
@@ -74,7 +77,6 @@ DiggyCaveCollapse.events = {
          - player_index Number (index of player that caused the collapse)
     ]]
     on_collapse_triggered = script.generate_event_name(),
-
     --[[--
         After a collapse
          - position LuaPosition
@@ -94,15 +96,17 @@ local function create_collapse_template(positions, surface)
         local y = position.y
         local do_insert = true
 
-        for _, entity in pairs(find_entities_filtered{area = {{x, y}, {x + 1, y + 1}}}) do
-            pcall(function()
-                local strength = support_beam_entities[entity.name]
-                if strength then
-                    do_insert = false
-                else
-                    entity.die()
+        for _, entity in pairs(find_entities_filtered {area = {{x, y}, {x + 1, y + 1}}}) do
+            pcall(
+                function()
+                    local strength = support_beam_entities[entity.name]
+                    if strength then
+                        do_insert = false
+                    else
+                        entity.die()
+                    end
                 end
-            end)
+            )
         end
         if do_insert then
             insert(entities, {position = {x = x, y = y}, name = 'sand-rock-big'})
@@ -112,9 +116,9 @@ local function create_collapse_template(positions, surface)
 end
 
 local function create_collapse_alert(surface, position)
-    local target = surface.create_entity{position = position, name = "sand-rock-big"}
-    for _,player in pairs(game.connected_players) do
-        player.add_custom_alert(target, {type="item", name="stone"}, "Cave collapsed!", true)
+    local target = surface.create_entity {position = position, name = 'sand-rock-big'}
+    for _, player in pairs(game.connected_players) do
+        player.add_custom_alert(target, {type = 'item', name = 'stone'}, 'Cave collapsed!', true)
     end
     target.destroy()
 end
@@ -127,7 +131,8 @@ local function collapse(args)
     local player_index = args.player_index
     create_collapse_alert(surface, position)
     mask_disc_blur(
-        position.x,  position.y,
+        position.x,
+        position.y,
         strength,
         function(x, y, value)
             stress_map_check_stress_in_threshold(
@@ -164,16 +169,18 @@ local function spawn_cracking_sound_text(surface, position)
         local x_offset = (i - #text / 2 - 1) / 3
         local char = text:sub(i, i)
         create_entity {
-            name = 'flying-text',
-            color = color,
-            text = char,
-            position = {x = position.x + x_offset, y = position.y - ((i + 1) % 2) * 0.25}
-        }.active = true
+                name = 'flying-text',
+                color = color,
+                text = char,
+                position = {x = position.x + x_offset, y = position.y - ((i + 1) % 2) * 0.25}
+            }.active = true
     end
 end
 
 local function on_collapse_triggered(event)
-    if global.cave_collapse_disabled then return end --kill switch
+    if global.cave_collapse_disabled then
+        return
+    end --kill switch
 
     local surface = event.surface
     local position = event.position
@@ -186,11 +193,7 @@ local function on_collapse_triggered(event)
         return
     end
     spawn_cracking_sound_text(surface, position)
-    Task.set_timeout(
-        config.collapse_delay,
-        on_collapse_timeout_finished,
-        event
-    )
+    Task.set_timeout(config.collapse_delay, on_collapse_timeout_finished, event)
 end
 
 local function on_built_tile(surface, new_tile, tiles)
@@ -245,7 +248,13 @@ local function on_mined_entity(event)
     local name = entity.name
     local strength = support_beam_entities[name]
     if strength then
-        stress_map_add(entity.surface, entity.position, strength, false, (not (name == "sand-rock-big" or name == "rock-huge")) and event.player_index)
+        stress_map_add(
+            entity.surface,
+            entity.position,
+            strength,
+            false,
+            (not (name == 'sand-rock-big' or name == 'rock-huge')) and event.player_index
+        )
     end
 end
 
@@ -255,7 +264,13 @@ local function on_entity_died(event)
     local strength = support_beam_entities[name]
     if strength then
         local cause = event.cause or {}
-        stress_map_add(entity.surface, entity.position, strength, false, (not (name == "sand-rock-big" or name == "rock-huge")) and cause.index)
+        stress_map_add(
+            entity.surface,
+            entity.position,
+            strength,
+            false,
+            (not (name == 'sand-rock-big' or name == 'rock-huge')) and cause.index
+        )
     end
 end
 
@@ -276,13 +291,15 @@ local function on_placed_entity(event)
     end
 end
 
-
-local on_new_tile_timeout_finished = Token.register(function(args)
-    local x_t = new_tile_map[args.x]
-    if x_t then
-       x_t[args.y] = nil --reset new tile status. This tile can cause a chain collapse now
+local on_new_tile_timeout_finished =
+    Token.register(
+    function(args)
+        local x_t = new_tile_map[args.x]
+        if x_t then
+            x_t[args.y] = nil --reset new tile status. This tile can cause a chain collapse now
+        end
     end
-end)
+)
 
 local function on_void_removed(event)
     local strength = support_beam_entities['out-of-map']
@@ -343,12 +360,18 @@ function DiggyCaveCollapse.register(cfg)
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
     Event.add(defines.events.on_robot_built_entity, on_built_entity)
-    Event.add(defines.events.on_robot_built_tile, function (event)
-        on_built_tile(event.robot.surface, event.item, event.tiles)
-    end)
-    Event.add(defines.events.on_player_built_tile, function (event)
-        on_built_tile(game.surfaces[event.surface_index], event.item, event.tiles)
-    end)
+    Event.add(
+        defines.events.on_robot_built_tile,
+        function(event)
+            on_built_tile(event.robot.surface, event.item, event.tiles)
+        end
+    )
+    Event.add(
+        defines.events.on_player_built_tile,
+        function(event)
+            on_built_tile(game.surfaces[event.surface_index], event.item, event.tiles)
+        end
+    )
     Event.add(defines.events.on_robot_mined_tile, on_robot_mined_tile)
     Event.add(defines.events.on_player_mined_tile, on_player_mined_tile)
     Event.add(defines.events.on_robot_mined_entity, on_robot_mined_entity)
@@ -359,25 +382,34 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(Template.events.on_void_removed, on_void_removed)
     Event.add(defines.events.on_surface_created, on_surface_created)
 
-    Event.add(defines.events.on_marked_for_deconstruction, function (event)
-        if (nil ~= support_beam_entities[event.entity.name]) then
-            event.entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
+    Event.add(
+        defines.events.on_marked_for_deconstruction,
+        function(event)
+            if (nil ~= support_beam_entities[event.entity.name]) then
+                event.entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
+            end
         end
-    end)
+    )
 
-    Event.add(defines.events.on_player_created, function (event)
-        show_deconstruction_alert_message[event.player_index] = true
-    end)
-
-    Event.add(defines.events.on_pre_player_mined_item, function (event)
-        local player_index = event.player_index
-        if not show_deconstruction_alert_message[player_index] then
-            return
+    Event.add(
+        defines.events.on_player_created,
+        function(event)
+            show_deconstruction_alert_message[event.player_index] = true
         end
+    )
 
-        if (nil ~= support_beam_entities[event.entity.name]) then
-            require 'features.gui.popup'.player(
-                Game.get_player_by_index(player_index),[[
+    Event.add(
+        defines.events.on_pre_player_mined_item,
+        function(event)
+            local player_index = event.player_index
+            if not show_deconstruction_alert_message[player_index] then
+                return
+            end
+
+            if (nil ~= support_beam_entities[event.entity.name]) then
+                require 'features.gui.popup'.player(
+                    Game.get_player_by_index(player_index),
+                    [[
 Mining entities such as walls, stone paths, concrete
 and rocks, can cause a cave-in, be careful miner!
 
@@ -385,10 +417,11 @@ Foreman's advice: Place a wall every 4th tile to
 prevent a cave-in. Use stone paths and concrete
 to reinforce it further.
 ]]
-            )
-            show_deconstruction_alert_message[player_index] = nil
+                )
+                show_deconstruction_alert_message[player_index] = nil
+            end
         end
-    end)
+    )
 
     enable_stress_grid = config.enable_stress_grid
 
@@ -397,14 +430,21 @@ to reinforce it further.
     mask_init(config)
     if (config.enable_mask_debug) then
         local surface = game.surfaces.nauvis
-        mask_disc_blur(0, 0, 10,  function(x, y, fraction)
-            Debug.print_grid_value(fraction, surface, {x = x, y = y})
-        end)
+        mask_disc_blur(
+            0,
+            0,
+            10,
+            function(x, y, fraction)
+                Debug.print_grid_value(fraction, surface, {x = x, y = y})
+            end
+        )
     end
 
-
     if config.enable_debug_commands then
-        commands.add_command('test-tile-support-range', '<tilename> <range> creates a square of tiles with length <range>. It is spawned one <range> north of the player.', function(cmd)
+        commands.add_command(
+            'test-tile-support-range',
+            '<tilename> <range> creates a square of tiles with length <range>. It is spawned one <range> north of the player.',
+            function(cmd)
                 local params = {}
                 for param in string.gmatch(cmd.parameter, '%S+') do
                     table.insert(params, param)
@@ -413,23 +453,27 @@ to reinforce it further.
                 local tilename = params[1]
                 local range = tonumber(params[2])
 
-                local position = {x = math.floor(game.player.position.x), y = math.floor(game.player.position.y) - 5 * range - 1}
+                local position = {
+                    x = math.floor(game.player.position.x),
+                    y = math.floor(game.player.position.y) - 5 * range - 1
+                }
                 local surface = game.player.surface
                 local tiles = {}
                 local entities = {}
                 for x = position.x, position.x + range * 5 do
-                    for y = position.y, position.y + range  * 5 do
+                    for y = position.y, position.y + range * 5 do
                         if y % range + x % range == 0 then
-                            insert(entities,{name = "stone-wall", position = {x=x,y=y}})
+                            insert(entities, {name = 'stone-wall', position = {x = x, y = y}})
                         end
                         insert(tiles, {position = {x = x, y = y}, name = tilename})
 
                         local strength = support_beam_entities[tilename]
                         if strength then
-                            stress_map_add(surface, {x =x, y=y}, - strength)
+                            stress_map_add(surface, {x = x, y = y}, -strength)
                         end
-                        for _, entity in pairs(surface.find_entities_filtered({position = {x=x,y=y}})) do
-                            pcall(function()
+                        for _, entity in pairs(surface.find_entities_filtered({position = {x = x, y = y}})) do
+                            pcall(
+                                function()
                                     local strength = support_beam_entities[entity.name]
                                     local position = entity.position
                                     entity.die()
@@ -444,20 +488,27 @@ to reinforce it further.
                 Template.insert(surface, tiles, entities)
             end
         )
-     end
+    end
 
-    commands.add_command('toggle-cave-collapse', 'Toggles cave collapse (admins only).', function()
-      pcall(function() --better safe than sorry
-          if not game.player or game.player.admin then
-              cave_collapse_disabled = not cave_collapse_disabled
-              if cave_collapse_disabled then
-                  game.print("Cave collapse: Disabled.")
-              else
-                  game.print("Cave collapse: Enabled.")
-              end
-          end
-      end)
-    end)
+    commands.add_command(
+        'toggle-cave-collapse',
+        'Toggles cave collapse (admins only).',
+        function()
+            pcall(
+                function()
+                    --better safe than sorry
+                    if not game.player or game.player.admin then
+                        cave_collapse_disabled = not cave_collapse_disabled
+                        if cave_collapse_disabled then
+                            game.print('Cave collapse: Disabled.')
+                        else
+                            game.print('Cave collapse: Enabled.')
+                        end
+                    end
+                end
+            )
+        end
+    )
 end
 
 --
@@ -500,14 +551,24 @@ local function add_fraction(stress_map, x, y, fraction, player_index)
     end
     if (enable_stress_grid) then
         local surface = game.surfaces[stress_map.surface_index]
-        Debug.print_colored_grid_value(value, surface, {x = x, y = y}, 4, 0.5, false,
-            value / stress_threshold_causing_collapse,  {r = 0, g = 1, b = 0}, {r = 1, g = -1, b = 0},
-            {r = 0, g = 1, b = 0}, {r = 1, g = 1, b = 1})
+        Debug.print_colored_grid_value(
+            value,
+            surface,
+            {x = x, y = y},
+            4,
+            0.5,
+            false,
+            value / stress_threshold_causing_collapse,
+            {r = 0, g = 1, b = 0},
+            {r = 1, g = -1, b = 0},
+            {r = 0, g = 1, b = 0},
+            {r = 1, g = 1, b = 1}
+        )
     end
     return value
 end
 
-on_surface_created = function (event)
+on_surface_created = function(event)
     stress_map_storage[event.surface_index] = {}
 
     local map = stress_map_storage[event.surface_index]

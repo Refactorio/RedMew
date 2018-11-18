@@ -12,7 +12,7 @@ to build, and any creep_expansion_tiles will be overtaken by creep_retraction_ti
 no initial pollution cloud.
 
 Todo: make the expansion less "blocky"/constrained to chunk borders
-]]--
+]] --
 
 local Event = require 'utils.event'
 local Game = require 'utils.game'
@@ -29,7 +29,7 @@ local death_recap_timer = 1200 --  20 secs
 local player_pos_check_time = 300 --  5 secs
 
 -- force that is restricted to the creep
-local creep_force = "player"
+local creep_force = 'player'
 
 -- the 3 chunk states are: 0% creep tiles and unpolluted, 100% creep and polluted, unknown or transitional creep state
 local NOT_CREEP = 1
@@ -59,7 +59,6 @@ local creep_retraction_tiles = {
     'sand-2',
     'sand-3'
 }
-
 
 -- which tiles players can build on/count as creep
 local creep_tiles = {
@@ -100,7 +99,7 @@ local creep_expandable_tiles = {
 }
 
 -- list of all tiles currently in the game (0.16.51)
-local all_tiles ={
+local all_tiles = {
     'concrete',
     'deepwater',
     'deepwater-green',
@@ -139,19 +138,24 @@ local all_tiles ={
 }
 
 local function get_tiles(tile_filter)
-    tiles = find_tiles_filtered({area={{chunkcoord.x-16, chunkcoord.y-16},{chunkcoord.x+16, chunkcoord.y+16}},
-                name = creep_expandable_tiles})
+    tiles =
+        find_tiles_filtered(
+        {
+            area = {{chunkcoord.x - 16, chunkcoord.y - 16}, {chunkcoord.x + 16, chunkcoord.y + 16}},
+            name = creep_expandable_tiles
+        }
+    )
     return tiles
 end
 
 local function convert_tiles(tile_table, tiles)
     local set_tiles = game.surfaces[1].set_tiles
     local tile_set = {}
-    local target_tile = tile_table[random(1,#tile_table)]
+    local target_tile = tile_table[random(1, #tile_table)]
     -- convert the LuaTiles table into a new one we can edit
     for _, tiledata in ipairs(tiles) do
         if random() < random_factor then
-            tile_set[#tile_set+1] = {name = target_tile, position = tiledata.position}
+            tile_set[#tile_set + 1] = {name = target_tile, position = tiledata.position}
         end
     end
     -- change the tiles to the target_tile
@@ -162,8 +166,11 @@ local function check_chunk_for_entities(chunk)
     local find_entities_filtered = game.surfaces[1].find_entities_filtered
     local entities_found
     entities_found = {}
-    entities_found = find_entities_filtered{area = {{chunk.x-16, chunk.y-16},{chunk.x+16, chunk.y+16}},
-        force = creep_force}
+    entities_found =
+        find_entities_filtered {
+        area = {{chunk.x - 16, chunk.y - 16}, {chunk.x + 16, chunk.y + 16}},
+        force = creep_force
+    }
     for _, entity in ipairs(entities_found) do
         kill_invalid_builds(entity, false)
     end
@@ -181,27 +188,32 @@ local function change_creep_state(state, i)
     if state == 1 then
         tiles_to_find = creep_expandable_tiles
         tiles_to_set = creep_expansion_tiles
-        debug_message = "Creep expanding"
+        debug_message = 'Creep expanding'
         chunk_end_state = FULL_CREEP
         chunk_transition_state = CREEP_EXPANDING
     elseif state == 2 then
         tiles_to_find = creep_tiles
         tiles_to_set = creep_retraction_tiles
-        debug_message = "Creep retracting"
+        debug_message = 'Creep retracting'
         chunk_end_state = NOT_CREEP
         chunk_transition_state = CREEP_RETRACTION
     end
-    
+
     global.chunklist[i].is_creep = chunk_transition_state
     local chunklist = global.chunklist
     local chunkcoord = chunklist[i]
     local tiles = {}
     -- check to see if there are any tiles to act on
-    tiles = find_tiles_filtered({area={{chunkcoord.x-16, chunkcoord.y-16},{chunkcoord.x+16, chunkcoord.y+16}},
-        name = tiles_to_find})
+    tiles =
+        find_tiles_filtered(
+        {
+            area = {{chunkcoord.x - 16, chunkcoord.y - 16}, {chunkcoord.x + 16, chunkcoord.y + 16}},
+            name = tiles_to_find
+        }
+    )
     if (#tiles > 0) then
-        convert_tiles(tiles_to_set, tiles)
         --if _DEBUG then game.print(debug_message) end
+        convert_tiles(tiles_to_set, tiles)
     else
         -- if there are 0 tiles to convert, they're either fully creep or fully non-creep
         global.chunklist[i].is_creep = chunk_end_state
@@ -214,11 +226,11 @@ end
 
 local function on_tick()
     local get_pollution = game.surfaces[1].get_pollution
-    
+
     -- localize globals
     local chunklist = global.chunklist
     local maxindex = #chunklist
-    for i=global.c_index, global.c_index+processchunk, 1 do
+    for i = global.c_index, global.c_index + processchunk, 1 do
         if i > maxindex then
             -- we've iterated through all chunks
             global.c_index = 1
@@ -245,14 +257,14 @@ local function make_constrast_tiles_table()
     local retraction_tiles = creep_retraction_tiles
     -- table of tiles we want to keep (water and void)
     local unremovable_tiles = {
-    'deepwater',
-    'deepwater-green',
-    'out-of-map',    
-    'water',
-    'water-green'
+        'deepwater',
+        'deepwater-green',
+        'out-of-map',
+        'water',
+        'water-green'
     }
     local omit = 0
-    
+
     -- create a list of all non-creep tiles for the purpose of filtering in kill_invalid_builds
     for _, contrast_tile in ipairs(all_tiles) do
         for _, retraction_tile in ipairs(retraction_tiles) do
@@ -265,7 +277,7 @@ local function make_constrast_tiles_table()
                 omit = 1
             end
         end
-        
+
         if omit == 1 then
             omit = 0
         else
@@ -279,8 +291,8 @@ local function on_chunk_generated(event)
     if event.surface == game.surfaces[1] then
         local chunk = {}
         local coords = event.area.left_top
-        chunk.x = coords.x+16
-        chunk.y = coords.y+16
+        chunk.x = coords.x + 16
+        chunk.y = coords.y + 16
         chunk.is_creep = CREEP_UNKNOWN
         insert(global.chunklist, chunk)
     end
@@ -300,28 +312,30 @@ function kill_invalid_builds(entity, from_build_event)
         return
     end
     -- Some entities have no bounding box area.  Not sure which.
-    if entity.bounding_box.left_top.x == entity.bounding_box.right_bottom.x or entity.bounding_box.left_top.y == entity.bounding_box.right_bottom.y then
+    if
+        entity.bounding_box.left_top.x == entity.bounding_box.right_bottom.x or
+            entity.bounding_box.left_top.y == entity.bounding_box.right_bottom.y
+     then
         return
     end
     -- don't kill trains
-    if entity.type == "locomotive"
-    or entity.type == "fluid-wagon"
-    or entity.type == "cargo-wagon"
-    or entity.type == "artillery-wagon "
-    then
+    if
+        entity.type == 'locomotive' or entity.type == 'fluid-wagon' or entity.type == 'cargo-wagon' or
+            entity.type == 'artillery-wagon '
+     then
         return
     end
     local last_user = entity.last_user
     local unacceptable_tiles = global.unacceptable_tiles
     local ceil = math.ceil
     local floor = math.floor
-    
+
     -- expand the bounding box to enclose full tiles rather than the subtile size most bounding boxes are
     local bounding_box = {
         {floor(entity.bounding_box.left_top.x), floor(entity.bounding_box.left_top.y)},
         {ceil(entity.bounding_box.right_bottom.x), ceil(entity.bounding_box.right_bottom.y)}
     }
-    local tiles = entity.surface.count_tiles_filtered{name = unacceptable_tiles, area = bounding_box, limit = 1}
+    local tiles = entity.surface.count_tiles_filtered {name = unacceptable_tiles, area = bounding_box, limit = 1}
     if tiles > 0 then
         --Need to turn off ghosts left by dead buildings so construction bots won't keep placing buildings and having them blow up.
         local force = entity.force
@@ -331,19 +345,19 @@ function kill_invalid_builds(entity, from_build_event)
         force.ghost_time_to_live = ttl
         global.death_count = global.death_count + 1
         if from_build_event and last_user then
-            last_user.print("You may only build on the creep!")
+            last_user.print('You may only build on the creep!')
         end
     end
 end
 
 local function print_death_toll()
     if global.death_count > 1 then
-        game.print(global.death_count .. " buildings have died outside of the creep recently.")
+        game.print(global.death_count .. ' buildings have died outside of the creep recently.')
         global.death_count = 0
     end
 end
 
-local function kill_on_built (event)
+local function kill_on_built(event)
     local entity = event.created_entity
     kill_invalid_builds(entity, true)
 end
@@ -352,40 +366,54 @@ local function apply_creep_effects_on_players()
     --Penalize players for not being on creep by slowing their movement
     local radius = 10 --not actually a radius
     local unacceptable_tiles = global.unacceptable_tiles
-    
+
     for _, p in ipairs(game.connected_players) do
         if not p.character then --Spectator or admin
             return
         end
-        local count = p.surface.count_tiles_filtered{name=unacceptable_tiles, area={{p.position.x-radius, p.position.y-radius}, {p.position.x+radius, p.position.y+radius}}}
-        if count == (radius * 2)^2 * 1 then
+        local count =
+            p.surface.count_tiles_filtered {
+            name = unacceptable_tiles,
+            area = {{p.position.x - radius, p.position.y - radius}, {p.position.x + radius, p.position.y + radius}}
+        }
+        if count == (radius * 2) ^ 2 * 1 then
             if p.vehicle then
                 return
             else
-                p.surface.create_entity{name="acid-projectile-purple", target=p.character, position=p.character.position, speed=10}
+                p.surface.create_entity {
+                    name = 'acid-projectile-purple',
+                    target = p.character,
+                    position = p.character.position,
+                    speed = 10
+                }
                 p.character.health = p.character.health - 20
-                p.print("You are taking damage from being too far from the creep.")
+                p.print('You are taking damage from being too far from the creep.')
             end
             p.character_running_speed_modifier = 0
-            if _DEBUG then game.print("Speed modifier 0 and damage") end
-        elseif count > (radius * 2)^2 * 0.8 then
-        
+            if _DEBUG then
+                game.print('Speed modifier 0 and damage')
+            end
+        elseif count > (radius * 2) ^ 2 * 0.8 then
             p.character_running_speed_modifier = 0
-            if _DEBUG then game.print("Speed modifier 0") end
+            if _DEBUG then
+                game.print('Speed modifier 0')
+            end
         else
             p.character_running_speed_modifier = 0.2
-            if _DEBUG then game.print("Speed modifier 0.2") end
+            if _DEBUG then
+                game.print('Speed modifier 0.2')
+            end
         end
     end
 end
 
 local function on_init()
     global.chunklist = {}
-    global.c_index=1
+    global.c_index = 1
     global.unacceptable_tiles = {}
     global.death_count = 0
     local omit = 0
-    
+
     -- create a list of all non-creep tiles for the purpose of filtering in kill_invalid_builds
     for _, all_tile in ipairs(all_tiles) do
         for _, creep_tile in ipairs(creep_tiles) do
@@ -393,7 +421,7 @@ local function on_init()
                 omit = 1
             end
         end
-        
+
         if omit == 1 then
             omit = 0
         else
@@ -412,22 +440,22 @@ Event.on_nth_tick(player_pos_check_time, apply_creep_effects_on_players)
 
 -- a couple little debug command to generate and clear pollution to test things without having to mess with world gen
 if _DEBUG then
-commands.add_command(
-    'cloud',
-    'Use your vape rig to create a pollution cloud around you',
-    function()
-        if game.player then
-            game.player.surface.pollute(game.player.position, 10000)
+    commands.add_command(
+        'cloud',
+        'Use your vape rig to create a pollution cloud around you',
+        function()
+            if game.player then
+                game.player.surface.pollute(game.player.position, 10000)
+            end
         end
-    end
-)
-commands.add_command(
-    'clean',
-    'Use your vacuum to suck up the pollution cloud around you',
-    function()
-        if game.player then
-            game.player.surface.clear_pollution()
+    )
+    commands.add_command(
+        'clean',
+        'Use your vacuum to suck up the pollution cloud around you',
+        function()
+            if game.player then
+                game.player.surface.clear_pollution()
+            end
         end
-    end
-)
+    )
 end

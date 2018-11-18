@@ -1,6 +1,6 @@
-local b = require "map_gen.shared.builders"
+local b = require 'map_gen.shared.builders'
 
-local pic = require "map_gen.data.presets.antfarm"
+local pic = require 'map_gen.data.presets.antfarm'
 pic = b.decompress(pic)
 
 local scale_factor = 12

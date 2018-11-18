@@ -83,8 +83,6 @@ local enemy_ammo_evolution_modifiers = {
     --['shotgun-shell'] = 1
 }
 
-
-
 local function init_weapon_damage()
     local forces = game.forces
     local p_force = forces.player

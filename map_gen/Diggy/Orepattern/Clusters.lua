@@ -1,5 +1,4 @@
-
--- defines all ore patches to be generated. Add as many clusters as 
+-- defines all ore patches to be generated. Add as many clusters as
 -- needed. Clusters listed first have a higher placement priority over
 -- the latter clusters
 --
@@ -22,30 +21,31 @@
 --   one: adds the weight directly to the noise calculation
 clusters = {
     {
-        yield=1.0,
-        min_distance=30,
-        distance_richness=7,
+        yield = 1.0,
+        min_distance = 30,
+        distance_richness = 7,
         noise_settings = {
-            type = "cluster",
+            type = 'cluster',
             threshold = 0.40,
             sources = {
-                {variance=25, weight = 1, offset = 000, type="perlin"},
+                {variance = 25, weight = 1, offset = 000, type = 'perlin'}
             }
         },
         weights = {
-            ['coal']        = 160,
-            ['copper-ore']  = 215,
-            ['iron-ore']    = 389,
-            ['stone']       = 212,
-            ['uranium-ore'] =  21,
-            ['crude-oil']   =   3,
+            ['coal'] = 160,
+            ['copper-ore'] = 215,
+            ['iron-ore'] = 389,
+            ['stone'] = 212,
+            ['uranium-ore'] = 21,
+            ['crude-oil'] = 3
         },
         distances = {
-            ['coal']        = 16,
-            ['copper-ore']  = 18,
-            ['iron-ore']    = 18,
-            ['stone']       = 15,
+            ['coal'] = 16,
+            ['copper-ore'] = 18,
+            ['iron-ore'] = 18,
+            ['stone'] = 15,
             ['uranium-ore'] = 86,
-            ['crude-oil']   = 57,
-        }, },
+            ['crude-oil'] = 57
+        }
+    }
 }

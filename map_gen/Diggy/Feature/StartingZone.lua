@@ -77,5 +77,4 @@ function StartingZone.register(config)
     Event.add_removable(defines.events.on_chunk_generated, callback_token)
 end
 
-
 return StartingZone

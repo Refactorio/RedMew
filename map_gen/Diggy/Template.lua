@@ -19,13 +19,12 @@ Template.events = {
          - event.entity LuaEntity
     ]]
     on_placed_entity = script.generate_event_name(),
-
     --[[--
         Triggers when an 'out-of-map' tile is replaced by something else.
 
         {surface, old_tile={name, position={x, y}}}
     ]]
-    on_void_removed = script.generate_event_name(),
+    on_void_removed = script.generate_event_name()
 }
 
 local function insert_next_tiles(data)
@@ -158,11 +157,14 @@ function Template.units(surface, units, non_colliding_distance, generic_unit_nam
     local position
 
     for _, entity in pairs(units) do
-        position = position or surface.find_non_colliding_position(
-            generic_unit_name_for_spawn_size,
-            entity.position, non_colliding_distance,
-            0.5
-        )
+        position =
+            position or
+            surface.find_non_colliding_position(
+                generic_unit_name_for_spawn_size,
+                entity.position,
+                non_colliding_distance,
+                0.5
+            )
 
         if (nil ~= position) then
             entity.position = position
@@ -205,10 +207,13 @@ function Template.market(surface, position, force, market_inventory)
         add_market_item(item)
     end
 
-    force.add_chart_tag(surface, {
-        text = 'Market',
-        position = position,
-    })
+    force.add_chart_tag(
+        surface,
+        {
+            text = 'Market',
+            position = position
+        }
+    )
 
     raise_event(Template.events.on_placed_entity, {entity = market})
 end

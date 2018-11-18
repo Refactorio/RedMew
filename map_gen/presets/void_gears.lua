@@ -63,7 +63,6 @@ local function sprinkle(shape)
     end
 end
 
-
 local function radial(shape, radius)
     local radius_sq = radius * radius
     local stone_r_sq = radius * 0.3025 -- radius * 0.55
@@ -187,7 +186,7 @@ local function do_patches(patches, offset)
     return pattern
 end
 
-big_patches = do_patches(big_patches, 96 )
+big_patches = do_patches(big_patches, 96)
 big_patches = b.grid_pattern_full_overlap(big_patches, p_cols, p_rows, 192, 192)
 
 medium_patches = do_patches(medium_patches, 64)
@@ -199,10 +198,38 @@ small_patches = b.grid_pattern_full_overlap(small_patches, p_cols, p_rows, 64, 6
 --map = b.apply_entity(map, small_patches)
 map = b.apply_entities(map, {big_patches, medium_patches, small_patches})
 
-local start_stone = b.resource(gear_big, 'stone', function() return 400 end)
-local start_coal = b.resource(gear_big, 'coal', function() return 800 end)
-local start_copper = b.resource(gear_big, 'copper-ore', function() return 800 end)
-local start_iron = b.resource(gear_big, 'iron-ore', function() return 1600 end)
+local start_stone =
+    b.resource(
+    gear_big,
+    'stone',
+    function()
+        return 400
+    end
+)
+local start_coal =
+    b.resource(
+    gear_big,
+    'coal',
+    function()
+        return 800
+    end
+)
+local start_copper =
+    b.resource(
+    gear_big,
+    'copper-ore',
+    function()
+        return 800
+    end
+)
+local start_iron =
+    b.resource(
+    gear_big,
+    'iron-ore',
+    function()
+        return 1600
+    end
+)
 local start_segmented = b.segment_pattern({start_stone, start_coal, start_copper, start_iron})
 local start_gear = b.apply_entity(gear_big, start_segmented)
 

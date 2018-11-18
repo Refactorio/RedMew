@@ -1,4 +1,4 @@
--- Map by grilledham, modified by Jayefuu 
+-- Map by grilledham, modified by Jayefuu
 -- This map uses custom ore gen. When generating the map, under the resource settings tab use Size = 'None' for all resources.
 -- This variation on grid_islands.lua has 1) Greater island separation 2) 4 not 2 rail tracks 3) Whole map rotated 45 degrees
 
@@ -13,7 +13,7 @@ local Random = require 'map_gen.shared.random'
 local ore_seed1 = 1000
 local ore_seed2 = ore_seed1 * 2
 local island_separation = 350
-local math = require "utils.math"
+local math = require 'utils.math'
 local degrees = math.rad
 
 local track = {
@@ -26,7 +26,7 @@ local track = {
 
 h_track = b.any(track)
 h_track = b.single_x_pattern(h_track, 15)
-v_track = b.rotate(h_track,degrees(90))
+v_track = b.rotate(h_track, degrees(90))
 
 local square = b.rectangle(190, 190)
 local circle = b.circle(80)
@@ -49,7 +49,7 @@ local ore_spider = b.scale(spider, 0.125, 0.125)
 local function value(base, mult, pow)
     return function(x, y)
         local d_sq = x * x + y * y
-        return base + mult * d_sq ^ ( pow / 2 ) -- d ^ pow
+        return base + mult * d_sq ^ (pow / 2) -- d ^ pow
     end
 end
 
@@ -165,6 +165,6 @@ sea = b.fish(sea, 0.0025)
 map = b.any {map, paths, sea}
 
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
-map = b.rotate(map,degrees(45))
+map = b.rotate(map, degrees(45))
 
 return map

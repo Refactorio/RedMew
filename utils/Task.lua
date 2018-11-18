@@ -1,8 +1,8 @@
--- Threading simulation module
--- Task.sleep()
--- @author Valansch
--- github: https://github.com/Valansch/RedMew
--- ======================================================= --
+--- Threading simulation module
+--- Task.sleep()
+--- @author Valansch
+--- github: https://github.com/Valansch/RedMew
+--- ======================================================= --
 
 local Queue = require 'utils.Queue'
 local PriorityQueue = require 'utils.PriorityQueue'

@@ -4,11 +4,19 @@ return {
     market_item = market_item,
     {
         price = {{market_item, 10}},
-        offer = {type = 'nothing', effect_description = 'Temporary speed bonus \nIncreases running speed by one level \nfor a short period \n\nPrice: 10  ' .. market_item..'s'}
+        offer = {
+            type = 'nothing',
+            effect_description = 'Temporary speed bonus \nIncreases running speed by one level \nfor a short period \n\nPrice: 10  ' ..
+                market_item .. 's'
+        }
     },
     {
         price = {{market_item, 10}},
-        offer = {type = 'nothing', effect_description = 'Temporary mining bonus \nIncreases manual mining speed by one level \nfor a short period \n\nPrice: 10  ' .. market_item..'s'}
+        offer = {
+            type = 'nothing',
+            effect_description = 'Temporary mining bonus \nIncreases manual mining speed by one level \nfor a short period \n\nPrice: 10  ' ..
+                market_item .. 's'
+        }
     },
     {price = {{market_item, 2}}, offer = {type = 'give-item', item = 'raw-fish'}},
     {price = {{market_item, 1}}, offer = {type = 'give-item', item = 'rail', count = 2}},
@@ -81,7 +89,6 @@ return {
     {price = {{market_item, 15}}, offer = {type = 'give-item', item = 'military-science-pack'}},
     {price = {{market_item, 20}}, offer = {type = 'give-item', item = 'production-science-pack'}},
     {price = {{market_item, 25}}, offer = {type = 'give-item', item = 'high-tech-science-pack'}}, ]]
-
 
     --[[ {price = {{market_item, 3}}, offer = {type = 'give-item', item = 'piercing-rounds-magazine'}},
     {price = {{market_item, 2}}, offer = {type = 'give-item', item = 'grenade'}},

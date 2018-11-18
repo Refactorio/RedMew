@@ -1,5 +1,5 @@
-local b = require "map_gen.shared.builders"
-local degrees = require "utils.math".degrees
+local b = require 'map_gen.shared.builders'
+local degrees = require 'utils.math'.degrees
 
 local seed1 = 666
 local seed2 = 999
@@ -8,10 +8,10 @@ local function value(a, b)
     return 1000000
 end
 
-local Random = require "map_gen.shared.random"
+local Random = require 'map_gen.shared.random'
 local random = Random.new(seed1, seed2)
 
-local pic = require "map_gen.data.presets.cookie"
+local pic = require 'map_gen.data.presets.cookie'
 local pic = b.decompress(pic)
 local cookie1 = b.picture(pic)
 local cookie = b.scale(cookie1, 0.1, 0.1)
@@ -19,13 +19,13 @@ local cookie = b.scale(cookie1, 0.1, 0.1)
 local ore_shape = b.circle(1.5)
 
 local ores = {
-    {b.resource(ore_shape, "iron-ore", value), 24},
-    {b.resource(ore_shape, "copper-ore", value), 12},
-    {b.resource(ore_shape, "stone", value), 4},
-    {b.resource(ore_shape, "coal", value), 8},
-    {b.resource(ore_shape, "uranium-ore", value), 1},
-    {b.resource(b.circle(1), "crude-oil", b.manhattan_value(250000, 250)), 3},
---{b.empty_shape, 10}
+    {b.resource(ore_shape, 'iron-ore', value), 24},
+    {b.resource(ore_shape, 'copper-ore', value), 12},
+    {b.resource(ore_shape, 'stone', value), 4},
+    {b.resource(ore_shape, 'coal', value), 8},
+    {b.resource(ore_shape, 'uranium-ore', value), 1},
+    {b.resource(b.circle(1), 'crude-oil', b.manhattan_value(250000, 250)), 3}
+    --{b.empty_shape, 10}
 }
 
 local total_weights = {}
@@ -98,8 +98,8 @@ local tablecloth = {
     height = 2,
     width = 2,
     data = {
-        {"concrete", "water"},
-        {"water", "deepwater", }
+        {'concrete', 'water'},
+        {'water', 'deepwater'}
     }
 }
 local tablecloth = b.picture(tablecloth)

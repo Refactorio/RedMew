@@ -1,6 +1,6 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
-local degrees = require "utils.math".degrees
+local degrees = require 'utils.math'.degrees
 
 local ore_seed = 3000
 

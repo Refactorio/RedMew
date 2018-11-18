@@ -35,7 +35,9 @@ global.message_count = 0
     @param message string
 ]]
 function Debug.print(message)
-    if type(message) ~= 'string' and type(message) ~= 'number'  and type(message) ~= 'boolean' then message = type(message) end
+    if type(message) ~= 'string' and type(message) ~= 'number' and type(message) ~= 'boolean' then
+        message = type(message)
+    end
     global.message_count = global.message_count + 1
     if (debug) then
         game.print('[' .. global.message_count .. '] ' .. tostring(message))
@@ -61,10 +63,14 @@ end
 ]]
 function Debug.print_position(position, message)
     message = message or ''
-    if type(message) ~= 'string' and type(message) ~= 'number'  and type(message) ~= 'boolean' then message = type(message) end
+    if type(message) ~= 'string' and type(message) ~= 'number' and type(message) ~= 'boolean' then
+        message = type(message)
+    end
     global.message_count = global.message_count + 1
     if (debug) then
-        game.print('[' .. global.message_count .. '] {x=' .. position.x .. ', y=' .. position.y .. '} ' .. tostring(message))
+        game.print(
+            '[' .. global.message_count .. '] {x=' .. position.x .. ', y=' .. position.y .. '} ' .. tostring(message)
+        )
     end
 end
 
@@ -97,7 +103,7 @@ function Debug.print_grid_value(value, surface, position, scale, offset, immutab
     if type(immutable) ~= 'boolean' then
         immutable = false
     end
-    
+
     if not is_string then
         scale = scale or 1
         offset = offset or 0
@@ -120,7 +126,7 @@ function Debug.print_grid_value(value, surface, position, scale, offset, immutab
 
         r = abs(r)
 
-        color = { r = r, g = g, b = b}
+        color = {r = r, g = g, b = b}
 
         -- round at precision of 2
         text = floor(100 * value) * 0.01
@@ -140,12 +146,12 @@ function Debug.print_grid_value(value, surface, position, scale, offset, immutab
         end
     end
 
-    surface.create_entity{
-        name = 'flying-text',
-        color = color,
-        text = text,
-        position = position
-    }.active = false
+    surface.create_entity {
+            name = 'flying-text',
+            color = color,
+            text = text,
+            position = position
+        }.active = false
 end
 
 --[[--
@@ -166,25 +172,37 @@ end
     @param under_bound {r,g,b} The color to be used if color_value < 0
     @param over_bound {r,g,b} The color to be used if color_value > 1
 ]]
-function Debug.print_colored_grid_value(value, surface, position, scale, offset, immutable,
-        color_value, base_color, delta_color, under_bound, over_bound)
+function Debug.print_colored_grid_value(
+    value,
+    surface,
+    position,
+    scale,
+    offset,
+    immutable,
+    color_value,
+    base_color,
+    delta_color,
+    under_bound,
+    over_bound)
     local is_string = type(value) == 'string'
     -- default values:
     local color = base_color or {r = 1, g = 1, b = 1}
     local d_color = delta_color or {r = 0, g = 0, b = 0}
     local u_color = under_bound or color
     local o_color = over_bound or color
-    
+
     if (color_value < 0) then
         color = u_color
     elseif (color_value > 1) then
         color = o_color
     else
-        color = { r = color.r + color_value * d_color.r,
-                  g = color.g + color_value * d_color.g,
-                  b = color.b + color_value * d_color.b }
+        color = {
+            r = color.r + color_value * d_color.r,
+            g = color.g + color_value * d_color.g,
+            b = color.b + color_value * d_color.b
+        }
     end
-    
+
     text = value
 
     if type(immutable) ~= 'boolean' then
@@ -213,12 +231,12 @@ function Debug.print_colored_grid_value(value, surface, position, scale, offset,
         end
     end
 
-    surface.create_entity{
-        name = 'flying-text',
-        color = color,
-        text = text,
-        position = position
-    }.active = false
+    surface.create_entity {
+            name = 'flying-text',
+            color = color,
+            text = text,
+            position = position
+        }.active = false
 end
 
 return Debug

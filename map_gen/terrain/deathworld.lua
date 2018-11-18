@@ -1,7 +1,7 @@
 local worm_names = {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret'}
 local spawner_names = {'biter-spawner', 'spitter-spawner'}
 local factor = 8 / (1024 * 32)
-local max_chance = 1/8
+local max_chance = 1 / 8
 return function(_, _, world)
     local d = math.sqrt(world.x * world.x + world.y * world.y)
 

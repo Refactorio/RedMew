@@ -1,7 +1,7 @@
 local b = require 'map_gen.shared.builders'
 
 local beach = require 'map_gen.presets.beach'
-local degrees = require "utils.math".degrees
+local degrees = require 'utils.math'.degrees
 
 local start_pound = b.circle(6)
 start_pound = b.translate(start_pound, 0, -16)

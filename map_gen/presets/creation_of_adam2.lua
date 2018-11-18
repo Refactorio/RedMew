@@ -1,7 +1,7 @@
 local b = require 'map_gen.shared.builders'
 
 local pic = require 'map_gen.data.presets.creation_of_adam2'
-local degrees = require "utils.math".degrees
+local degrees = require 'utils.math'.degrees
 --local pic = require "map_gen.data.presets.sistine_chapel_ceiling"
 
 pic = b.decompress(pic)

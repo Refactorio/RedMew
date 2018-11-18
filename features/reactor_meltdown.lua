@@ -1,7 +1,7 @@
 --Reactors melt down if:
---temperature is at 1000°C and health is 0 or reactor is picked up
+--temperature is at 1000Â°C and health is 0 or reactor is picked up
 --
---a reactors loses 2 damage per second at 1000°C
+--a reactors loses 2 damage per second at 1000Â°C
 
 local Event = require 'utils.event'
 local Game = require 'utils.game'
@@ -72,7 +72,7 @@ local function alert(reactor)
         p.add_custom_alert(
             reactor,
             {type = 'item', name = 'nuclear-reactor'},
-            string.format('Reactor at %s°C', math.floor(reactor.temperature)),
+            string.format('Reactor at %sÂ°C', math.floor(reactor.temperature)),
             true
         )
     end
@@ -146,7 +146,7 @@ local function entity_build(event)
     if not event.created_entity.valid then
         return
     end
-    if event.created_entity.name == 'nuclear-reactor' and event.created_entity.surface.name ~= "antigrief" then
+    if event.created_entity.name == 'nuclear-reactor' and event.created_entity.surface.name ~= 'antigrief' then
         table.insert(global.reactors, event.created_entity)
     end
 end

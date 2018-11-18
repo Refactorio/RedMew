@@ -36,7 +36,7 @@ function Scanner.scan_around_position(surface, position, tile_search)
         insert(tile_found, {x = position.x - 1, y = position.y})
     end
 
-    return tile_found;
+    return tile_found
 end
 
 return Scanner

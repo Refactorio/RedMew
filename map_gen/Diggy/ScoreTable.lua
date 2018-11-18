@@ -6,11 +6,14 @@ local ScoreTable = {}
 
 local scores = {}
 
-Global.register({
-    scores = scores,
-}, function (tbl)
-    scores = tbl.scores
-end)
+Global.register(
+    {
+        scores = scores
+    },
+    function(tbl)
+        scores = tbl.scores
+    end
+)
 
 --[[--
     Resets the score 0 for the given name

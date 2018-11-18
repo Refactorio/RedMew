@@ -1,9 +1,8 @@
 local Gui = require 'utils.gui'
-local Utils = require "utils.utils"
-local Game = require "utils.game"
+local Utils = require 'utils.utils'
+local Game = require 'utils.game'
 
 local close_name = Gui.uid_name()
-
 
 local function show_popup(player, message)
     local frame = player.gui.center.add {type = 'frame', direction = 'vertical', style = 'captionless_frame'}
