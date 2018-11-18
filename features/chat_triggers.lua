@@ -105,14 +105,13 @@ local function hodor(event)
         local not_found = 0
         local cannot_mention = {}
         for word in event.message:gmatch('%S+') do
-            local lower_word = word:lower()
+            local word = word:lower()
             local trimmed_word = string.sub(word, 0, string.len(word)-1)
-            local lower_trimmed_word = string.sub(lower_word, 0, string.len(lower_word)-1)
             local first_char = string.sub(word, 0, 1)
             local last_char = string.sub(word, string.len(word))
             local success = false
             local admin_call = false
-            if lower_word == 'admin' or lower_word == 'moderator' or lower_trimmed_word == 'admin' or lower_trimmed_word == 'moderator' then
+            if word == 'admin' or word == 'moderator' or trimmed_word == 'admin' or trimmed_word == 'moderator' then
                 admin_call = true
             elseif (first_char ~= '#' and last_char ~= '#') and (first_char ~= '@' and last_char ~= '@') then
                 success = true
@@ -123,13 +122,13 @@ local function hodor(event)
                     local word_back_trim = trimmed_word
                     local word_front_back_trim = string.sub(word_front_trim, 0, string.len(word_front_trim)-1)
                     local word_back_double_trim = string.sub(word_back_trim, 0, string.len(word_back_trim)-1)
-                    word = (lower_trimmed_word == 'admin' or lower_trimmed_word == 'moderator') and trimmed_word or word
+                    word = (trimmed_word == 'admin' or trimmed_word == 'moderator') and trimmed_word or word
                     if admin_call and p.admin then
                         p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned '..word..'!', {r = 1, g = 1, b = 0, a = 1})
                         p.play_sound{path='utility/new_objective', volume_modifier = 1 }
                         success = true
                     end
-                    if not admin_call and (p.name == word_front_trim or p.name == word_back_trim or  p.name == word_back_double_trim or p.name == word_front_back_trim) then
+                    if not admin_call and (p.name:lower() == word_front_trim or p.name:lower() == word_back_trim or  p.name:lower() == word_back_double_trim or p.name:lower() == word_front_back_trim) then
                         if p.name == player.name then
                             if _DEBUG then
                                 player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
