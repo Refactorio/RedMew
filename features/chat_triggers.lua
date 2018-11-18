@@ -99,47 +99,51 @@ local function hodor(event)
         end
     end
 
-    -- Gives a sound notification to a mentioned player using #[player-name]
+    -- Gives a sound notification to a mentioned player using #[player-name], [player-name]#, @[player-name], [player-name]@ or to admins with moderator or admin without prefix or postfix
     if global.mention_enabled then
         local missing_player_string
         local not_found = 0
         local cannot_mention = {}
         for word in event.message:gmatch('%S+') do
-            local lower_word = word:lower()
+            local word = word:lower()
             local trimmed_word = string.sub(word, 0, string.len(word)-1)
-            local lower_trimmed_word = string.sub(lower_word, 0, string.len(lower_word)-1)
+            local first_char = string.sub(word, 0, 1)
+            local last_char = string.sub(word, string.len(word))
             local success = false
             local admin_call = false
-            if lower_word == 'admin' or lower_word == 'moderator' or lower_trimmed_word == 'admin' or lower_trimmed_word == 'moderator' then
+            if word == 'admin' or word == 'moderator' or trimmed_word == 'admin' or trimmed_word == 'moderator' then
                 admin_call = true
+            elseif (first_char ~= '#' and last_char ~= '#') and (first_char ~= '@' and last_char ~= '@') then
+                success = true
             end
-            print(string.sub(word, 0, 1))
-            if not admin_call and string.sub(word, 0, 1) ~= '#' then
-                break;
-            end
-            for _, p in ipairs(game.connected_players) do
-                word = (lower_trimmed_word == 'admin' or lower_trimmed_word == 'moderator') and trimmed_word or word
-                if admin_call and p.admin then
-                    p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned '..word..'!', {r = 1, g = 1, b = 0, a = 1})
-                    p.play_sound{path='utility/new_objective', volume_modifier = 1 }
-                    success = true
-                end
-
-                if not admin_call and ('#'..p.name == word or '#'..p.name == trimmed_word) then
-                    if p.name == player.name then
-                        if _DEBUG then
-                            player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
-                        end
+            if not success then
+                for _, p in ipairs(game.connected_players) do
+                    local word_front_trim = string.sub(word, 2, string.len(word))
+                    local word_back_trim = trimmed_word
+                    local word_front_back_trim = string.sub(word_front_trim, 0, string.len(word_front_trim)-1)
+                    local word_back_double_trim = string.sub(word_back_trim, 0, string.len(word_back_trim)-1)
+                    word = (trimmed_word == 'admin' or trimmed_word == 'moderator') and trimmed_word or word
+                    if admin_call and p.admin then
+                        p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned '..word..'!', {r = 1, g = 1, b = 0, a = 1})
+                        p.play_sound{path='utility/new_objective', volume_modifier = 1 }
                         success = true
+                    end
+                    if not admin_call and (p.name:lower() == word_front_trim or p.name:lower() == word_back_trim or  p.name:lower() == word_back_double_trim or p.name:lower() == word_front_back_trim) then
+                        if p.name == player.name then
+                            if _DEBUG then
+                                player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
+                            end
+                            success = true
+                            break;
+                        end
+                        p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned you!', {r = 1, g = 1, b = 0, a = 1})
+                        p.play_sound{path='utility/new_objective', volume_modifier = 1 }
+                        success = true
+                        if _DEBUG then
+                            player.print(prefix..'Successful mentioned '..p.name, {r = 0, g = 1, b = 0, a = 1})
+                        end
                         break;
                     end
-                    p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned you!', {r = 1, g = 1, b = 0, a = 1})
-                    p.play_sound{path='utility/new_objective', volume_modifier = 1 }
-                    success = true
-                    if _DEBUG then
-                        player.print(prefix..'Successful mentioned '..p.name, {r = 0, g = 1, b = 0, a = 1})
-                    end
-                    break;
                 end
             end
             if not success then
@@ -163,5 +167,6 @@ local function hodor(event)
         end
     end
 end
+
 
 Event.add(defines.events.on_console_chat, hodor)
