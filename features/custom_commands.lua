@@ -483,7 +483,7 @@ local function jail_player(cmd)
     end
     -- Check if the target is valid
     local target_name = cmd['parameter']
-    if not target then
+    if not target_name then
         Game.player_print('Usage: /jail <player>')
         return
     end
