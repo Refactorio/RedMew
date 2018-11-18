@@ -148,6 +148,7 @@ function Module.jail(target_player, player)
         print = player.print
     else
         jailed_by = "script for causing too many collapses"
+        player.name = 'server'
         print = log
     end
 
@@ -210,7 +211,7 @@ function Module.unjail_player(cmd)
         Utils.cant_run(cmd.name)
         return
     elseif not player then
-        player = 'Server'
+        player.name = 'Server'
     end
     -- Check if the target is valid (copied from the invoke command)
     local target = cmd['parameter']
