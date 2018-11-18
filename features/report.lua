@@ -181,16 +181,18 @@ function Module.jail(target_player, player)
 
     -- Kick player out of vehicle
     target_player.driving=false
-    -- Add player to jail group
-    permission_group.add_player(target_player)
+
     -- If a player is shooting when they're jailed they can't stop shooting, so we change their shooting state
     if target_player.shooting_state.state ~= 0 then
         target_player.shooting_state.state = {state = defines.shooting.not_shooting, position = {0,0}}
     end
 
-    if jail_target.walking_state.walking == true -- Stop them walking while jailed
-    jail_target.walking_state = {walking = false, direction = defines.direction.north}
+    if jail_target.walking_state.walking == true then -- Stop them walking while jailed
+        jail_target.walking_state = {walking = false, direction = defines.direction.north}
     end
+
+    -- Add player to jail group
+    permission_group.add_player(target_player)
 
     -- Check that it worked
     if target_player.permission_group == permission_group then
