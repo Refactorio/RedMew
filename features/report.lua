@@ -188,6 +188,10 @@ function Module.jail(target_player, player)
         target_player.shooting_state.state = {state = defines.shooting.not_shooting, position = {0,0}}
     end
 
+    if jail_target.walking_state.walking == true -- Stop them walking while jailed
+    jail_target.walking_state = {walking = false, direction = defines.direction.north}
+    end
+
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
