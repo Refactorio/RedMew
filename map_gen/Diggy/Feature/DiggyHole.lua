@@ -241,7 +241,7 @@ function DiggyHole.register(config)
         end
 
         if entity.health == 0 then
-            raise_event(defines.events.on_entity_died, {entity = entity})
+            raise_event(defines.events.on_entity_died, {entity = entity, cause = event.cause, force = event.force})
             entity.destroy()
         end
     end)
