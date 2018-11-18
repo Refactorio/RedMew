@@ -125,27 +125,9 @@ local function diggy_hole(entity)
     end
 
     local function spawn_cluster_resource(surface, x, y, cluster_index, cluster)
-        local cluster_distance = sqrt(x * x + y * y)
-        local resource_name = get_name_by_weight(cluster.weights, cluster.weights_sum)
-        if resource_name == 'skip' then
-            return false
+        for name, weight in pairs(cluster.weights) do
+            if name == 'skip' then return false end
         end
-        if cluster.distances[resource_name] then
-            if cluster_distance < cluster.distances[resource_name] then
-                return false
-            end
-        end
-    
-        local range = resource_richness_values[get_name_by_weight(resource_richness_weights, resource_richness_weights_sum)]
-        local amount = random(range[1], range[2])
-        amount = amount * (1 + ((cluster_distance / cluster.distance_richness) * 0.01))
-        amount = amount * cluster.yield
-        
-        if resource_type_scalar[resource_name] then 
-            amount = amount * resource_type_scalar[resource_name]
-        end
-
-        Template.resources(surface, {{name = resource_name, position = {x = x, y = y}, amount = ceil(amount)}})
         return true
     end
 
