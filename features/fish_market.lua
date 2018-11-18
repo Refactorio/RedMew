@@ -325,7 +325,7 @@ local function market_item_purchased(event)
     if event.offer_index == 3 then -- train saviour item
         local player = Game.get_player_by_index(player_index)
         local train_savior_item = Market_items[offer_index].item
-        player.insert{name=train_savior_item, count=1}
+        player.insert{name=train_savior_item, count=event.count}
     end
 
     --[[
