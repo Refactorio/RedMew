@@ -5,6 +5,8 @@
 
 -- dependencies
 local Event = require 'utils.event'
+local Global = require 'utils.global'
+local Game = require 'utils.game'
 local Scanner = require 'map_gen.Diggy.Scanner'
 local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
@@ -20,6 +22,41 @@ local Simplex = require 'map_gen.shared.simplex_noise'
 
 -- this
 local DiggyHole = {}
+
+-- keeps track of the amount of times per player when they mined with a full inventory in a row
+local full_inventory_mining_cache = {}
+
+Global.register({
+    full_inventory_mining_cache = full_inventory_mining_cache,
+}, function (tbl)
+    full_inventory_mining_cache = tbl.full_inventory_mining_cache
+end)
+
+local function reset_player_full_inventory_cache(player)
+    if not full_inventory_mining_cache[player.index] then
+        return
+    end
+
+    full_inventory_mining_cache[player.index] = nil
+end
+
+local full_inventory_message = 'Miner, you have a full inventory!\n\nMake sure to empty it before you continue digging.'
+
+local function trigger_inventory_warning(player)
+    local player_index = player.index
+    local count = full_inventory_mining_cache[player_index]
+    if not count then
+        full_inventory_mining_cache[player_index] = 1
+        require 'features.gui.popup'.player(player, full_inventory_message)
+        return
+    end
+
+    full_inventory_mining_cache[player_index] = count + 1
+
+    if count % 5 == 0 then
+        require 'features.gui.popup'.player(player, full_inventory_message)
+    end
+end
 
 --[[--
     Triggers a diggy diggy hole for a given sand-rock-big or rock-huge.
@@ -192,8 +229,29 @@ function DiggyHole.register(config)
         diggy_hole(event.entity)
     end)
 
+    local enable_digging_warning = config.enable_digging_warning
+
     Event.add(defines.events.on_player_mined_entity, function (event)
-        diggy_hole(event.entity)
+        local entity = event.entity
+        local name = entity.name
+
+        if name == 'sand-rock-big' or name == 'rock-huge' then
+            event.buffer.remove({name = 'coal', count = 100})
+
+            -- this logic can be replaced once we've fully replaced the stone to surface functionality
+            if enable_digging_warning then
+                local player = Game.get_player_by_index(event.player_index)
+                if player and player.valid then
+                    if player.get_main_inventory().can_insert({name = 'stone'}) then
+                        reset_player_full_inventory_cache(player)
+                    else
+                        trigger_inventory_warning(player)
+                    end
+                end
+            end
+        end
+
+        diggy_hole(entity)
     end)
 
     Event.add(defines.events.on_robot_mined_tile, function (event)
