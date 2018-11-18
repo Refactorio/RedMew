@@ -9,12 +9,12 @@ local report_close_button_name = Gui.uid_name()
 local report_tab_button_name = Gui.uid_name()
 local jail_offender_button_name = Gui.uid_name()
 local report_body_name = Gui.uid_name()
+local jail_name = 'Jail'
 local prefix = '------------------NOTICE-------------------'
 local prefix_e = '--------------------------------------------'
 
 global.reports = {}
 global.player_report_data = {}
-
 
 local function draw_report(parent, report_id)
     local report = global.reports[report_id]
@@ -34,11 +34,14 @@ local function draw_report(parent, report_id)
     local message = report.message
     Gui.clear(parent)
 
+    local permission_group = game.permissions.get_group(jail_name)
+    local jail_offender_button_caption = (Game.get_player_by_index(report.reported_player_index).permission_group == permission_group) and 'Unjail '  .. reported_player_name or 'Jail '  .. reported_player_name
+
     parent.add {type="label", caption="Offender: " .. reported_player_name}
     local msg_label_pane = parent.add {type="scroll-pane", vertical_scroll_policy = "auto-and-reserve-space", horizontal_scroll_policy="never"}
     msg_label_pane.style.maximal_height = 400
     local msg_label = msg_label_pane.add {type="label", caption="Message: " .. message}
-    local jail_offender_button = parent.add {type = 'button', name = jail_offender_button_name, caption = 'Jail ' .. reported_player_name}
+    local jail_offender_button = parent.add {type = 'button', name = jail_offender_button_name, caption = jail_offender_button_caption}
     jail_offender_button.style.height = 24
     jail_offender_button.style.font = 'default-small'
     jail_offender_button.style.top_padding = 0
@@ -137,7 +140,6 @@ end
 -- Places a target in jail as long as player is admin or server
 function Module.jail(target_player, player)
     -- Set the name of the jail permission group
-    local jail_name = 'Jail'
 
     local print
     local jailed_by
@@ -145,7 +147,8 @@ function Module.jail(target_player, player)
         jailed_by = "a server admin"
         print = player.print
     else
-        jailed_by = "script for causing too many collapses"
+        player = {name = 'server'}
+        jailed_by = "the server"
         print = log
     end
 
@@ -160,6 +163,11 @@ function Module.jail(target_player, player)
     local permission_group = permissions.get_group(jail_name)
     if not permission_group then
         permission_group = permissions.create_group(jail_name)
+
+        -- Set all permissions to disabled
+        for action_name, _ in pairs(defines.input_action) do
+            permission_group.set_allows_action(defines.input_action[action_name], false)
+        end
     end
 
     if target_player.permission_group == permission_group then
@@ -167,31 +175,33 @@ function Module.jail(target_player, player)
         return
     end
 
-    -- Set all permissions to disabled
-    for action_name, _ in pairs(defines.input_action) do
-        permission_group.set_allows_action(defines.input_action[action_name], false)
-    end
     -- Enable writing to console to allow a person to speak
     permission_group.set_allows_action(defines.input_action.write_to_console, true)
     permission_group.set_allows_action(defines.input_action.edit_permission_group, true)
 
     -- Kick player out of vehicle
     target_player.driving=false
-    -- Add player to jail group
-    permission_group.add_player(target_player)
+
     -- If a player is shooting when they're jailed they can't stop shooting, so we change their shooting state
     if target_player.shooting_state.state ~= 0 then
         target_player.shooting_state.state = {state = defines.shooting.not_shooting, position = {0,0}}
     end
 
+    if target_player.walking_state.walking == true then -- Stop them walking while jailed
+        target_player.walking_state = {walking = false, direction = defines.direction.north}
+    end
+
+    -- Add player to jail group
+    permission_group.add_player(target_player)
+
     -- Check that it worked
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
-        print(target_player.name .. ' has been jailed. They have been advised of this.')
         target_player.print(prefix)
         target_player.print('You have been placed in jail by ' .. jailed_by .. '. The only action avaliable to you is chatting.')
         target_player.print('Please respond to inquiries from the admins.', {r = 1, g = 1, b = 0, a = 1})
-        Utils.print_admins(target_player.name .. 'has been jailed by' .. player.name)
+        target_player.print(prefix_e)
+        Utils.print_admins(target_player.name .. ' has been jailed by ' .. player.name)
         Utils.log_command(player, 'jail', target_player.name)
     else
         -- Let admin know it didn't work.
@@ -201,11 +211,13 @@ end
 
 function Module.unjail_player(cmd)
     local default_group = 'Default'
-    local player = game.player
+    local player = game.player ~= nil and game.player or cmd['player']
     -- Check if the player can run the command
     if player and not player.admin then
         Utils.cant_run(cmd.name)
         return
+    elseif not player then
+        player = {name = 'server'}
     end
     -- Check if the target is valid (copied from the invoke command)
     local target = cmd['parameter']
@@ -246,6 +258,8 @@ function Module.unjail_player(cmd)
         target_player.print(prefix)
         target_player.print('Your ability to perform actions has been restored', {r = 0, g = 1, b = 0, a = 1})
         target_player.print(prefix_e)
+        Utils.print_admins(target_player.name .. ' has been set free by ' .. player.name)
+        Utils.log_command(player, 'unjail', target_player.name)
     else
         -- Let admin know it didn't work.
         Game.player_print(
@@ -274,7 +288,14 @@ Gui.on_click(
     function(event)
         local target_name = string.sub(event.element.caption, 6)
         local target = game.players[target_name]
-        Module.jail(target, event.player)
+        if target then
+            Module.jail(target, event.player)
+        else
+            target_name = string.sub(event.element.caption, 8)
+            Module.unjail_player({['parameter'] = target_name, ['player'] = event.player})
+        end
+        Module.show_reports(event.player)
+        Module.show_reports(event.player) -- Double toggle, first destroy then draw.
     end
 )
 
