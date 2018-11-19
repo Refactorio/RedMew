@@ -52,4 +52,14 @@ local function say_hello()
 end
 ```
 
+* When creating a table over multiple lines, include a trailing comma after the last item.
+
+```lua
+myTable ={
+    'item1',
+    'item2',
+    'item3',
+}
+```
+
 [1]:[http://keplerproject.github.io/luadoc/manual.htm]
