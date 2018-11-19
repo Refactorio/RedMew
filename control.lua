@@ -29,13 +29,14 @@ require 'features.nuke_control'
 require 'features.player_colors'
 require 'features.reactor_meltdown'
 require 'features.train_station_names'
+require 'features.walkabout'
 
 -- Contains various commands for users and admins alike
 require 'features.custom_commands'
 
 -- GUIs the order determines the order they appear from left to right.
 -- These can be safely disabled. Some map presets will add GUI modules themselves.
-local info = require 'features.gui.info'
+require 'features.gui.info'
 require 'features.gui.player_list'
 require 'features.gui.poll'
 require 'features.gui.tag_group'
