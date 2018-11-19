@@ -23,7 +23,7 @@ Module.print_admins = function(msg, source)
     if source then
         if type(source) == 'string' then
             source_name = source
-            chat_colot = game.players[source].chat_color
+            chat_color = game.players[source].chat_color
         else
             source_name = source.name
             chat_color = source.chat_color
