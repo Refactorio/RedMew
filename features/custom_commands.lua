@@ -618,34 +618,7 @@ local function show_rail_block()
     player.print('show_rail_block_visualisation set to ' .. tostring(show))
 end
 
-<<<<<<< HEAD
-commands.add_command('kill', 'Will kill you.', kill)
-commands.add_command('tpplayer', '<player> - Teleports you to the player. (Admins only)', teleport_player)
-commands.add_command('invoke', '<player> - Teleports the player to you. (Admins only)', invoke)
-commands.add_command('tppos', 'Teleports you to a selected entity. (Admins only)', teleport_location)
-commands.add_command('walkabout', '<player> <duration> - Send someone on a walk.  (Admins only)', walkabout)
-commands.add_command('regulars', 'Prints a list of game regulars.', UserGroups.print_regulars)
-commands.add_command('regular', '<promote, demote>, <player> Change regular status of a player. (Admins only)', regular)
-commands.add_command('donator', '<player> <perks> Change donator perks for a player. (Admins only)', donator)
-commands.add_command('donators', 'Prints a list of game donators and thier perks.', UserGroups.print_donators)
-commands.add_command('afk', 'Shows how long players have been afk.', afk)
-commands.add_command(
-    'follow',
-    '<player> makes you follow the player. Use /unfollow to stop following a player.',
-    follow
-)
-commands.add_command('unfollow', 'stops following a player.', unfollow)
-commands.add_command(
-    'tpmode',
-    'Toggles tp mode. When on place a ghost entity to teleport there (Admins only)',
-    toggle_tp_mode
-)
-
-commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
-commands.add_command('zoom', '<number> Sets your zoom.', zoom)
-=======
 --- Add all commands to command list
->>>>>>> 5a60a55a645c1ad7a28650367fe5ec9ef3e5c1e8
 if _DEBUG then
     commands.add_command('all-tech', 'researches all technologies (debug only)', all_tech)
 end
