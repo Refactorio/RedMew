@@ -15,10 +15,10 @@ local custom_commands_return_player =
     Token.register(
     function(args)
         local player = args.player
-        local index = player.index
         if not player.valid then
             return
         end
+        local index = player.index
         -- If walking is false it means they got cleaned by clean_on_join
         if global.walking[index] == false then
             return
