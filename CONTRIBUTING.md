@@ -44,5 +44,5 @@ Some ideas:
 
 * write a new section on some aspect of RedMew that no one else has properly described
 
-[1]:https://github.com/Valansch/RedMew/issues
+[1]:https://github.com/Refactorio/RedMew/issues
 [2]:http://redmew.com/discord
