@@ -36,7 +36,7 @@ local Config = {
                 character_inventory_slots_bonus = 1000,
                 character_running_speed_modifier = 2,
                 starting_items = {
-                    {name = 'modular-armor', count = 1},
+                    {name = 'power-armor-mk2', count = 1},
                     {name = 'submachine-gun', count = 1},
                     {name = 'uranium-rounds-magazine', count = 200},
                 },
