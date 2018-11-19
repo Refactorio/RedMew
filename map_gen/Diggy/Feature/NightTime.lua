@@ -19,7 +19,7 @@ local function on_built_entity(event)
     local player = Game.get_player_by_index(event.player_index)
     local entity = event.created_entity
     if (entity.name == 'solar-panel') then
-        require 'popup'.player(
+        require 'features.gui.popup'.player(
             player,[[
 Placing solar panels underground does not seem
 to have an effect on power production!

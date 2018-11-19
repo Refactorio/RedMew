@@ -47,24 +47,21 @@ local on_surface_created
 
 local stress_threshold_causing_collapse = 3.57
 
-local deconstruction_alert_message_shown = {}
+local show_deconstruction_alert_message = {}
 local stress_map_storage = {}
 local new_tile_map = {}
 local collapse_positions_storage = {}
-local cave_collapse_disabled
 
 Global.register({
     new_tile_map = new_tile_map,
     stress_map_storage = stress_map_storage,
-    deconstruction_alert_message_shown = deconstruction_alert_message_shown,
+    deconstruction_alert_message_shown = show_deconstruction_alert_message,
     collapse_positions_storage = collapse_positions_storage,
-    cave_collapse_disabled = cave_collapse_disabled,
 }, function(tbl)
     new_tile_map = tbl.new_tile_map
     stress_map_storage = tbl.stress_map_storage
-    deconstruction_alert_message_shown = tbl.deconstruction_alert_message_shown
+    show_deconstruction_alert_message = tbl.deconstruction_alert_message_shown
     collapse_positions_storage = tbl.collapse_positions_storage
-    cave_collapse_disabled = tbl.cave_collapse_disabled
 end)
 
 local defaultValue = 0
@@ -74,8 +71,17 @@ DiggyCaveCollapse.events = {
         When stress at certain position is above the collapse threshold
          - position LuaPosition
          - surface LuaSurface
+         - player_index Number (index of player that caused the collapse)
     ]]
-    on_collapse_triggered = script.generate_event_name()
+    on_collapse_triggered = script.generate_event_name(),
+
+    --[[--
+        After a collapse
+         - position LuaPosition
+         - surface LuaSurface
+         - player_index Number (index of player that caused the collapse)
+    ]]
+    on_collapse = script.generate_event_name()
 }
 
 local function create_collapse_template(positions, surface)
@@ -118,6 +124,7 @@ local function collapse(args)
     local surface = args.surface
     local positions = {}
     local strength = config.collapse_threshold_total_strength
+    local player_index = args.player_index
     create_collapse_alert(surface, position)
     mask_disc_blur(
         position.x,  position.y,
@@ -135,6 +142,8 @@ local function collapse(args)
     )
     local entities = create_collapse_template(positions, surface)
     Template.insert(surface, {}, entities)
+
+    script.raise_event(DiggyCaveCollapse.events.on_collapse, args)
     ScoreTable.increment('Cave collapse')
 end
 
@@ -164,7 +173,7 @@ local function spawn_cracking_sound_text(surface, position)
 end
 
 local function on_collapse_triggered(event)
-    if cave_collapse_disabled then return end --kill switch
+    if global.cave_collapse_disabled then return end --kill switch
 
     local surface = event.surface
     local position = event.position
@@ -180,7 +189,7 @@ local function on_collapse_triggered(event)
     Task.set_timeout(
         config.collapse_delay,
         on_collapse_timeout_finished,
-        {surface = surface, position = position}
+        event
     )
 end
 
@@ -199,6 +208,7 @@ local function on_built_tile(surface, new_tile, tiles)
     end
 end
 
+--It is impossible to track which player marked the tile for deconstruction
 local function on_robot_mined_tile(event)
     local surface
     for _, tile in pairs(event.tiles) do
@@ -216,17 +226,36 @@ local function on_player_mined_tile(event)
         local strength = support_beam_entities[tile.old_tile.name]
 
         if strength then
-            stress_map_add(surface, tile.position, strength, true)
+            stress_map_add(surface, tile.position, strength, true, event.player_index)
         end
+    end
+end
+
+local function on_robot_mined_entity(event)
+    local entity = event.entity
+    local strength = support_beam_entities[entity.name]
+
+    if strength then
+        stress_map_add(entity.surface, entity.position, strength, false, entity.last_user.index)
     end
 end
 
 local function on_mined_entity(event)
     local entity = event.entity
-    local strength = support_beam_entities[entity.name]
-
+    local name = entity.name
+    local strength = support_beam_entities[name]
     if strength then
-        stress_map_add(entity.surface, entity.position, strength)
+        stress_map_add(entity.surface, entity.position, strength, false, (not (name == "sand-rock-big" or name == "rock-huge")) and event.player_index)
+    end
+end
+
+local function on_entity_died(event)
+    local entity = event.entity
+    local name = entity.name
+    local strength = support_beam_entities[name]
+    if strength then
+        local cause = event.cause or {}
+        stress_map_add(entity.surface, entity.position, strength, false, (not (name == "sand-rock-big" or name == "rock-huge")) and cause.index)
     end
 end
 
@@ -322,10 +351,10 @@ function DiggyCaveCollapse.register(cfg)
     end)
     Event.add(defines.events.on_robot_mined_tile, on_robot_mined_tile)
     Event.add(defines.events.on_player_mined_tile, on_player_mined_tile)
-    Event.add(defines.events.on_robot_mined_entity, on_mined_entity)
+    Event.add(defines.events.on_robot_mined_entity, on_robot_mined_entity)
     Event.add(defines.events.on_built_entity, on_built_entity)
     Event.add(Template.events.on_placed_entity, on_placed_entity)
-    Event.add(defines.events.on_entity_died, on_mined_entity)
+    Event.add(defines.events.on_entity_died, on_entity_died)
     Event.add(defines.events.on_player_mined_entity, on_mined_entity)
     Event.add(Template.events.on_void_removed, on_void_removed)
     Event.add(defines.events.on_surface_created, on_surface_created)
@@ -336,9 +365,13 @@ function DiggyCaveCollapse.register(cfg)
         end
     end)
 
+    Event.add(defines.events.on_player_created, function (event)
+        show_deconstruction_alert_message[event.player_index] = true
+    end)
+
     Event.add(defines.events.on_pre_player_mined_item, function (event)
         local player_index = event.player_index
-        if (nil ~= deconstruction_alert_message_shown[player_index]) then
+        if not show_deconstruction_alert_message[player_index] then
             return
         end
 
@@ -353,7 +386,7 @@ prevent a cave-in. Use stone paths and concrete
 to reinforce it further.
 ]]
             )
-            deconstruction_alert_message_shown[player_index] = true
+            show_deconstruction_alert_message[player_index] = nil
         end
     end)
 
@@ -440,7 +473,7 @@ end
 
     @return number sum of old fraction + new fraction
 ]]
-local function add_fraction(stress_map, x, y, fraction)
+local function add_fraction(stress_map, x, y, fraction, player_index)
     x = 2 * floor(x * 0.5)
     y = 2 * floor(y * 0.5)
 
@@ -462,7 +495,7 @@ local function add_fraction(stress_map, x, y, fraction)
     if (fraction > 0 and value > stress_threshold_causing_collapse) then
         script.raise_event(
             DiggyCaveCollapse.events.on_collapse_triggered,
-            {surface = game.surfaces[stress_map.surface_index], position = {x = x, y = y}}
+            {surface = game.surfaces[stress_map.surface_index], position = {x = x, y = y}, player_index = player_index}
         )
     end
     if (enable_stress_grid) then
@@ -502,7 +535,7 @@ stress_map_check_stress_in_threshold = function(surface, position, threshold, ca
     end
 end
 
-stress_map_add = function(surface, position, factor, no_blur)
+stress_map_add = function(surface, position, factor, no_blur, player_index)
     local x_start = floor(position.x)
     local y_start = floor(position.y)
 
@@ -512,9 +545,10 @@ stress_map_add = function(surface, position, factor, no_blur)
     end
 
     if no_blur then
-        add_fraction(stress_map, x_start, y_start, factor)
+        add_fraction(stress_map, x_start, y_start, factor, player_index)
         return
     end
+
     for x = -radius, radius do
         for y = -radius, radius do
             local value = 0
@@ -527,7 +561,7 @@ stress_map_add = function(surface, position, factor, no_blur)
                 value = ring_value
             end
             if abs(value) > 0.001 then
-                add_fraction(stress_map, x + x_start, y + y_start, value * factor)
+                add_fraction(stress_map, x + x_start, y + y_start, value * factor, player_index)
             end
         end
     end

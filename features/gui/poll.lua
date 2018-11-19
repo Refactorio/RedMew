@@ -1284,7 +1284,7 @@ local function poll_command(cmd)
     local param = cmd.parameter
 
     if not param then
-        Utils.player_print('Usage: /poll <{question = "question", answers = {"answer 1", "answer 2"}, duration = 300 | nil}>')
+        Game.player_print('Usage: /poll <{question = "question", answers = {"answer 1", "answer 2"}, duration = 300 | nil}>')
         return
     end
 
@@ -1292,29 +1292,29 @@ local function poll_command(cmd)
 
     local func, error = loadstring(param)
     if not func then
-        Utils.player_print(error)
+        Game.player_print(error)
         return
     end
 
     local suc, result = Class.poll(func())
     if not suc then
-        Utils.player_print(result)
+        Game.player_print(result)
     else
-        Utils.player_print(table.concat {'[POLL] ','Poll #', result, ' successfully created.'})        
+        Game.player_print(table.concat {'Poll #', result, ' successfully created.'})
     end
 end
 
 local function poll_result_command(cmd)
     local param = cmd.parameter
     if not param then
-        Utils.player_print('Usage: /poll-result <poll#>')
+        Game.player_print('Usage: /poll-result <poll#>')
         return
     end
 
     local id = tonumber(param)
     local result = Class.poll_result(id)
 
-    Utils.player_print(result)
+    Game.player_print(result)
 end
 
 function Class.send_poll_result_to_discord(id)

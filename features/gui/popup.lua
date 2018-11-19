@@ -67,6 +67,7 @@ Gui.on_click(
     end
 )
 
+-- Creates a popup dialog for all players
 local function popup(cmd)
     local player = game.player
     if player and not player.admin then
@@ -85,8 +86,13 @@ local function popup(cmd)
     for _, p in ipairs(game.connected_players) do
         show_popup(p, message)
     end
+
+    player.print('Popup sent')
+    Utils.print_admins(player.name .. ' sent a popup to all players', false)
+    Utils.log_command(game.player.name, cmd.name, cmd.parameter)
 end
 
+-- Creates a popup dialog for all players, specifically for the server upgrading factorio versions
 local function popup_update(cmd)
     local player = game.player
     if player and not player.admin then
@@ -99,8 +105,13 @@ local function popup_update(cmd)
     for _, p in ipairs(game.connected_players) do
         show_popup(p, message)
     end
+
+    player.print('Popup sent')
+    Utils.print_admins(player.name .. ' sent a popup to all players', false)
+    Utils.log_command(game.player.name, cmd.name, message)
 end
 
+-- Creates a popup dialog for the specifically targetted player
 local function popup_player(cmd)
     local player = game.player
     if player and not player.admin then
@@ -130,6 +141,9 @@ local function popup_player(cmd)
     message = message:sub(end_index, #message):gsub('\\n', '\n')
 
     show_popup(target, message)
+
+    player.print('Popup sent')
+    Utils.log_command(game.player.name, cmd.name, cmd.parameter)
 end
 
 commands.add_command('popup', '<message> - Shows a popup to all connected players (Admins only)', popup)

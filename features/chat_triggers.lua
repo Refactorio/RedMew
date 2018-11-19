@@ -2,22 +2,12 @@
 
 local Game = require 'utils.game'
 local Event = require 'utils.event'
+require 'utils.list_utils'
+local Hodor = require 'resources.hodor_messages'
 
 local prefix = '## - '
 
 global.mention_enabled = true
-
-local hodor_messages = {
-    {'Hodor.', 16},
-    {'Hodor?', 16},
-    {'Hodor!', 16},
-    {'Hodor! Hodor! Hodor! Hodor!', 4},
-    {'Hodor :(', 4},
-    {'Hodor :)', 4},
-    {'HOOOODOOOR!', 4},
-    {'( ͡° ͜ʖ ͡°)', 1},
-    {'☉ ‿ ⚆', 1}
-}
 
 local auto_replies = {
     ['discord'] = {'Did you ask about our discord server?', 'You can find it here: redmew.com/discord'},
@@ -69,24 +59,12 @@ global.naughty_words = {
     ['yikes'] = true
 }
 
-local message_weight_sum = 0
-for _, w in pairs(hodor_messages) do
-    message_weight_sum = message_weight_sum + w[2]
-end
-
 local function hodor(event)
     local message = event.message:lower()
 
     if message:match('hodor') then
-        local index = math.random(1, message_weight_sum)
-        local message_weight_sum = 0
-        for _, m in pairs(hodor_messages) do
-            message_weight_sum = message_weight_sum + m[2]
-            if message_weight_sum >= index then
-                game.print('Hodor: ' .. m[1])
-                break
-            end
-        end
+
+        game.print('Hodor: ' .. table.get_random_weighted(Hodor, 1, 2))
     end
 
     -- player_index is nil if the message came from the server,
@@ -100,7 +78,7 @@ local function hodor(event)
     if not player or not player.valid then
         return
     end
-    
+
     if not player.admin then
         for trigger, replies in pairs(auto_replies) do
             if message:match(trigger) then
@@ -121,43 +99,63 @@ local function hodor(event)
         end
     end
 
-    -- Gives a sound notification to a mentioned player using #[player-name]
+    -- Gives a sound notification to a mentioned player using #[player-name], [player-name]#, @[player-name], [player-name]@ or to admins with moderator or admin without prefix or postfix
     if global.mention_enabled then
         local missing_player_string
         local not_found = 0
-        local admin_call = false
-        for word in event.message:gmatch('#%S+') do
-            local lower_word = word:lower()
-            if lower_word == '#admin' or lower_word == '#moderator' then
+        local cannot_mention = {}
+        for word in event.message:gmatch('%S+') do
+            local word = word:lower()
+            local trimmed_word = string.sub(word, 0, string.len(word)-1)
+            local first_char = string.sub(word, 0, 1)
+            local last_char = string.sub(word, string.len(word))
+            local success = false
+            local admin_call = false
+            if word == 'admin' or word == 'moderator' or trimmed_word == 'admin' or trimmed_word == 'moderator' then
                 admin_call = true
+            elseif (first_char ~= '#' and last_char ~= '#') and (first_char ~= '@' and last_char ~= '@') then
+                success = true
             end
-
-            local cannot_mention = {}
-            for _, p in ipairs(game.connected_players) do
-                if admin_call and p.admin then
-                    p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned #admin!', {r = 1, g = 1, b = 0, a = 1})
-                    p.play_sound{path='utility/new_objective', volume_modifier = 1 }
-                end
-
-                if not admin_call and '#'..p.name == word then
-                    if p.name == player.name then
-                        player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
+            if not success then
+                for _, p in ipairs(game.connected_players) do
+                    local word_front_trim = string.sub(word, 2, string.len(word))
+                    local word_back_trim = trimmed_word
+                    local word_front_back_trim = string.sub(word_front_trim, 0, string.len(word_front_trim)-1)
+                    local word_back_double_trim = string.sub(word_back_trim, 0, string.len(word_back_trim)-1)
+                    word = (trimmed_word == 'admin' or trimmed_word == 'moderator') and trimmed_word or word
+                    if admin_call and p.admin then
+                        p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned '..word..'!', {r = 1, g = 1, b = 0, a = 1})
+                        p.play_sound{path='utility/new_objective', volume_modifier = 1 }
+                        success = true
+                    end
+                    if not admin_call and (p.name:lower() == word_front_trim or p.name:lower() == word_back_trim or  p.name:lower() == word_back_double_trim or p.name:lower() == word_front_back_trim) then
+                        if p.name == player.name then
+                            if _DEBUG then
+                                player.print(prefix..'Can\'t mention yourself!', {r = 1, g = 0, b = 0, a = 1})
+                            end
+                            success = true
+                            break;
+                        end
+                        p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned you!', {r = 1, g = 1, b = 0, a = 1})
+                        p.play_sound{path='utility/new_objective', volume_modifier = 1 }
+                        success = true
+                        if _DEBUG then
+                            player.print(prefix..'Successful mentioned '..p.name, {r = 0, g = 1, b = 0, a = 1})
+                        end
                         break;
                     end
-                    p.print(prefix..Game.get_player_by_index(event.player_index).name..' mentioned you!', {r = 1, g = 1, b = 0, a = 1})
-                    p.play_sound{path='utility/new_objective', volume_modifier = 1 }
-                    if _DEBUG then
-                        player.print(prefix..'Successful mentioned '..p.name, {r = 0, g = 1, b = 0, a = 1})
-                    end
-                elseif not admin_call then
-                    not_found = not_found + 1
-                    table.insert(cannot_mention, (word .. ', '))
                 end
             end
-            for _, pname in ipairs(cannot_mention) do
-                missing_player_string = missing_player_string~=nil and missing_player_string .. pname or pname
+            if not success then
+                if admin_call then
+                    word = 'no '.. word .. 's online!'
+                end
+                not_found = not_found + 1
+                table.insert(cannot_mention, (word .. ', '))
             end
-            admin_call = false
+        end
+        for _, pname in ipairs(cannot_mention) do
+            missing_player_string = missing_player_string~=nil and missing_player_string .. pname or pname
         end
         if missing_player_string ~= nil then
             missing_player_string = string.sub(missing_player_string, 1, (string.len(missing_player_string)-2))
@@ -169,5 +167,6 @@ local function hodor(event)
         end
     end
 end
+
 
 Event.add(defines.events.on_console_chat, hodor)

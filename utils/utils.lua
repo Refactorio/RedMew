@@ -1,5 +1,6 @@
 local Module = {}
 local Game = require 'utils.game'
+local prefix = '## - '
 
 Module.distance = function(pos1, pos2)
     local dx = pos2.x - pos1.x
@@ -15,10 +16,25 @@ Module.print_except = function(msg, player)
     end
 end
 
-Module.print_admins = function(msg)
-    for _, p in pairs(game.players) do
-        if p.connected and p.admin then
-            p.print(msg)
+-- Takes a LuaPlayer or string as source
+Module.print_admins = function(msg, source)
+    local source_name
+    local chat_color
+    if source then
+        if type(source) == 'string' then
+            source_name = source
+            chat_color = game.players[source].chat_color
+        else
+            source_name = source.name
+            chat_color = source.chat_color
+        end
+    else
+        source_name = "Server"
+        chat_color = {r=255, g=255, b=255}
+    end
+    for _, p in pairs(game.connected_players) do
+        if p.admin then
+            p.print(string.format('%s(ADMIN) %s: %s', prefix, source_name, msg), chat_color)
         end
     end
 end
@@ -115,6 +131,27 @@ end
 
 Module.cant_run = function(name)
     Game.player_print("Can't run command (" .. name .. ') - insufficient permission.')
+end
+
+Module.log_command = function(user, command, parameters)
+    local name
+
+    -- We can use a LuaPlayer or a string (ex. "Server").
+    if type(user) == 'string' then
+        name = user
+    else
+        name = user.name
+    end
+    local action = table.concat {'[Admin-Command] ', name, ' used: ', command}
+    if parameters then
+        action = table.concat {'[Admin-Command] ', name, ' used: ', command, ' ', parameters}
+    end
+    log(action)
+end
+
+Module.comma_value = function(n) -- credit http://richard.warburton.it
+    local left,num,right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
+    return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
 end
 
 return Module

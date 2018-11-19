@@ -752,7 +752,10 @@ Gui.on_click(
     function(event)
         local reporting_player = event.player
         local reported_player = Gui.get_data(event.element)
-
-        Report.spawn_reporting_popup(reporting_player, reported_player)
+        if reporting_player.admin then
+            Report.jail(reported_player, reporting_player)
+        else
+            Report.spawn_reporting_popup(reporting_player, reported_player)
+        end
     end
 )

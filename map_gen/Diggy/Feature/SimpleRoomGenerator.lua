@@ -9,6 +9,7 @@ local Event = require 'utils.event'
 local Debug = require'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
 local Token = require 'utils.global_token'
+local raise_event = script.raise_event
 
 -- this
 local SimpleRoomGenerator = {}
@@ -18,15 +19,17 @@ local do_spawn_tile = Token.register(function(params)
 end)
 
 local do_mine = Token.register(function(params)
-    local sand_rocks = params.surface.find_entities_filtered({position = params.position, name = 'sand-rock-big'})
+    local surface = params.surface
+    local position = params.position
+    local rocks = surface.find_entities_filtered({ position = position, name = { 'sand-rock-big', 'rock-huge'}})
 
-    if (0 == #sand_rocks) then
-        Debug.print_position(params.position, 'missing rock when trying to mine.')
+    if (0 == #rocks) then
         return
     end
 
-    for _, rock in pairs(sand_rocks) do
-        rock.die()
+    for _, rock in pairs(rocks) do
+        raise_event(defines.events.on_entity_died, {entity = rock})
+        rock.destroy()
     end
 end)
 
