@@ -160,7 +160,7 @@ function ForceControl.register_force(lua_force_or_name)
     forces[force.name] = {
         current_experience = 0,
         current_level = 0,
-        experience_level_up_cap = next_level_cap_calculator.execute(0),
+        experience_level_up_cap = next_level_cap_calculator.execute(1),
     }
 end
 
@@ -255,6 +255,20 @@ function ForceControl.get_force_data(lua_force_or_name)
         experience_level_up_cap = force_config.experience_level_up_cap,
         experience_percentage = (force_config.current_experience / force_config.experience_level_up_cap) * 100,
     }
+end
+
+function ForceControl.get_formatted_force_data(lua_force_or_name)
+    local force = get_valid_force(lua_force_or_name)
+    if not force then
+        return
+    end
+
+    local force_config = forces[force.name]
+    if not force_config then
+        return
+    end
+
+    return 'Current experience: ' .. force_config.current_experience .. ' Current level: ' .. force_config.current_level .. ' Next level at: ' .. force_config.experience_level_up_cap .. ' Percentage to level up: ' .. ((force_config.current_experience / force_config.experience_level_up_cap) * 100)
 end
 
 return ForceControl
