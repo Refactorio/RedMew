@@ -236,14 +236,16 @@ function DiggyHole.register(config)
         local entity = event.entity
         local name = entity.name
 
+        if entity.health ~= 0 then
+            return
+        end
+
         if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
             return
         end
 
-        if entity.health == 0 then
-            raise_event(defines.events.on_entity_died, {entity = entity, cause = event.cause, force = event.force})
-            entity.destroy()
-        end
+        raise_event(defines.events.on_entity_died, {entity = entity, cause = event.cause, force = event.force})
+        entity.destroy()
     end)
 
     local enable_digging_warning = config.enable_digging_warning

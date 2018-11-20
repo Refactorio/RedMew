@@ -20,6 +20,7 @@ local raise_event = script.raise_event
 local AlienSpawner = {}
 
 local alien_size_chart = {}
+
 Global.register_init({
     alien_size_chart = alien_size_chart,
 }, function(tbl)
@@ -38,6 +39,8 @@ end)
 ---Triggers mining at the collision_box of the alien, to free it
 local do_alien_mining = Token.register(function(params)
     local surface = params.surface
+    local create_entity = surface.create_entity
+    local find_non_colliding_position = surface.find_non_colliding_position
     local find_entities_filtered = surface.find_entities_filtered
 
     for _, area in ipairs(params.positions_to_mine) do
@@ -52,6 +55,16 @@ local do_alien_mining = Token.register(function(params)
             rock.destroy()
         end
     end
+
+    for _, prototype in ipairs(params.locations_to_spawn) do
+        -- amount is not used for aliens prototypes, it just carries along in the params
+        local amount = prototype.amount
+        while amount > 0 do
+            prototype.position = find_non_colliding_position(prototype.name, prototype.position, 2, 0.4) or prototype.position
+            create_entity(prototype)
+            amount = amount - 1
+        end
+    end
 end)
 
 ---Spawns aliens given the parameters.
@@ -62,10 +75,9 @@ end)
 ---@param y number
 local function spawn_aliens(aliens, force, surface, x, y)
     local position = {x = x, y = y}
-    local create_entity = surface.create_entity
     local count_tiles_filtered = surface.count_tiles_filtered
     local areas_to_mine = {}
-    local first_spawn_to_mine
+    local locations_to_spawn = {}
 
     for name, amount in pairs(aliens) do
         local size_data = alien_size_chart[name]
@@ -106,15 +118,8 @@ local function spawn_aliens(aliens, force, surface, x, y)
 
             -- can't spawn properly if void is present
             if count_tiles_filtered({area = offset_area, name = 'out-of-map'}) == 0 then
-                local spawned_position = {x = x_center, y = y_center}
-
-                -- it's still in the middle of rocks, but away from void and most likely near the player
-                create_entity({name = name, position = {x = x_center, y = y_center}, force = force, amount = amount})
-                if not first_spawn_to_mine then
-                    first_spawn_to_mine = spawned_position
-                end
-
                 insert(areas_to_mine, offset_area)
+                insert(locations_to_spawn, {name = name, position = {x = x_center, y = y_center}, force = force, amount = amount})
                 break
             end
         end
@@ -122,8 +127,12 @@ local function spawn_aliens(aliens, force, surface, x, y)
 
     -- can't do mining in the same tick as it would invalidate the rock just mined and there
     -- is no way to distinguish them as multiple can occupy the same position
-    if #areas_to_mine > 0 then
-        Task.set_timeout_in_ticks(1, do_alien_mining, {surface = surface, positions_to_mine = areas_to_mine})
+    if #locations_to_spawn > 0 then
+        Task.set_timeout_in_ticks(1, do_alien_mining, {
+            surface = surface,
+            positions_to_mine = areas_to_mine,
+            locations_to_spawn = locations_to_spawn,
+        })
     end
 end
 
@@ -132,8 +141,48 @@ end
 ]]
 function AlienSpawner.register(config)
     local alien_minimum_distance_square = config.alien_minimum_distance ^ 2
-
     local alien_probability = config.alien_probability
+    local hail_hydra = config.hail_hydra
+
+    if hail_hydra then
+        Event.add(defines.events.on_entity_died, function (event)
+            local entity = event.entity
+            local name = entity.name
+
+            local force
+            local position
+            local surface
+            local create_entity
+            local find_non_colliding_position
+
+            for alien, hydras in pairs(hail_hydra) do
+                if name == alien then
+                    for hydra_spawn, amount in pairs(hydras) do
+                        local extra_chance = amount % 1
+                        if extra_chance > 0 then
+                            if random() <= extra_chance then
+                                amount = ceil(amount)
+                            else
+                                amount = floor(amount)
+                            end
+                        end
+
+                        while amount > 0 do
+                            force = force or entity.force
+                            position = position or entity.position
+                            surface = surface or entity.surface
+                            create_entity = create_entity or surface.create_entity
+                            find_non_colliding_position = find_non_colliding_position or surface.find_non_colliding_position
+                            position = find_non_colliding_position(hydra_spawn, position, 2, 0.4) or position
+                            create_entity({name = hydra_spawn, force = force, position = position})
+                            amount = amount - 1
+                        end
+                    end
+                    break
+                end
+            end
+        end)
+    end
 
     Event.add(Template.events.on_void_removed, function (event)
         local force = game.forces.enemy
