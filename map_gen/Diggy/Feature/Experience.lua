@@ -42,7 +42,6 @@ end)
 
 local Config = {}
 local floor = math.floor
---local force = 'player'
 local XP_text = ' XP'
 
 function Experience.update_mining_speed(force, level_up)
@@ -101,12 +100,9 @@ local function on_player_mined_entity(event)
     local player_index = event.player_index
     local force = Game.get_player_by_index(player_index).force
     local text = ''
-    local exp = 0
-    if entity.name == 'sand-rock-big' then
-        exp = 5
-        text = '+' .. exp .. XP_text
-    elseif entity.name == 'rock-huge' then
-        exp = 10
+    local exp
+    if entity.name == 'sand-rock-big' or entity.name == 'rock-huge' then
+        exp = Config.XP['' .. entity.name]
         text = '+' .. exp .. XP_text
     else
         return
@@ -122,23 +118,8 @@ local function on_research_finished(event)
     local force = research.force
     local award_xp = 0
     for _, ingredient in pairs(research.research_unit_ingredients) do
-        local reward = 0
         local name = ingredient.name
-        if name == 'science-pack-1' then
-            reward = 1
-        elseif name == 'science-pack-2' then
-            reward = 2
-        elseif name == 'science-pack-3' then
-            reward = 5
-        elseif name == 'military-science-pack' then
-            reward = 4
-        elseif name == 'production-science-pack' then
-            reward = 12
-        elseif name == 'high-tech-science-pack' then
-            reward = 25
-        elseif name == 'space-science-pack' then
-            reward = 5
-        end
+        local reward = Config.XP[''..name]
         award_xp = award_xp + reward
     end
     local exp = award_xp * research.research_unit_count
@@ -161,12 +142,12 @@ local function on_research_finished(event)
     mining_efficiency.research_modifier = new_modifier
     inventory_slots.research_modifier = force.mining_drill_productivity_bonus * 50 -- 1 per level
 
-    Experience.update_inventory_slots(force, false)
-    Experience.update_mining_speed(force, false)
+    Experience.update_inventory_slots(force, 0)
+    Experience.update_mining_speed(force, 0)
 end
 
 local function on_rocket_launched(event)
-    local exp = 5000
+    local exp = Config.XP['rocket_launch']
     local force = event.force
     local text = 'Rocket launched! +'.. exp .. XP_text
     for _, p in pairs(game.connected_players) do
@@ -176,23 +157,23 @@ local function on_rocket_launched(event)
     ForceControl.add_experience(force, exp)
 end
 
-local function on_player_died(event)
-    local force = event.force
-    ForceControl.remove_experience(force, 50)
+local function on_player_respawned(event)
     local player = Game.get_player_by_index(event.player_index)
+    local force = player.force
 
     ForceControl.get_force_data(force)
-
-    local exp = ForceControl.get_force_data(force).total_experience*0.005
+    local exp = ForceControl.get_force_data(force).total_experience * Config.XP['death-penalty']
     exp = (exp < 50) and 50 or exp
-    local text = player.name..' died! -50'..XP_text
+    local text = player.name..' died! ' .. exp .. XP_text
     for _, p in pairs(game.connected_players) do
-        player_index = p.index
-        Game.print_player_floating_text_position(player_index, text, {r = 255, g = 0, b = 0},-1, -0.5)
+        Game.print_player_floating_text_position(p.index, text, {r = 255, g = 0, b = 0},-1, -0.5)
     end
     ForceControl.remove_experience(force, exp)
 end
 
+function Experience.get_buffs()
+    return Config.buffs
+end
 
 function Experience.register(cfg)
     Config = cfg
@@ -214,20 +195,24 @@ function Experience.register(cfg)
         Experience.update_inventory_slots(force, level_reached)
         Experience.update_mining_speed(force, level_reached)
         Experience.update_health_bonus(force, level_reached)
+        local MarketExchange = require 'map_gen.Diggy.Feature.MarketExchange'
+        local market = MarketExchange.get_market()
+        MarketExchange.update_market_contents(market, force)
+        MarketExchange.update_gui()
     end)
 
     -- Events
     Event.add(defines.events.on_player_mined_entity, on_player_mined_entity)
     Event.add(defines.events.on_research_finished, on_research_finished)
     Event.add(defines.events.on_rocket_launched, on_rocket_launched)
-    Event.add(defines.events.on_player_respawned, on_player_died)
+    Event.add(defines.events.on_player_respawned, on_player_respawned)
 
 end
 
 function Experience.on_init()
     local force = game.forces.player
     ForceControl.register_force(force)
-    log(force.name)
+    log('Diggy: Registered the force:' ..force.name)
 end
 
 return Experience

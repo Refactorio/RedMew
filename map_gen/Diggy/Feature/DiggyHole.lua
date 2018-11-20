@@ -238,6 +238,7 @@ function DiggyHole.register(config)
 
         if name == 'sand-rock-big' or name == 'rock-huge' then
             event.buffer.remove({name = 'coal', count = 100})
+            event.buffer.remove({name = 'stone', count = 100})
 
             -- this logic can be replaced once we've fully replaced the stone to surface functionality
             if enable_digging_warning then
