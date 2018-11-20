@@ -154,7 +154,7 @@ end
 
 if shape then
     local surfaces = {
-        ['nauvis'] = shape
+        ['nauvis'] = shape,
     }
 
     require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
