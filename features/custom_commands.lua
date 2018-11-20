@@ -516,6 +516,7 @@ commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (A
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
 commands.add_command('pool', 'Spawns a pool', pool)
 commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)
+commands.add_command('find', '<player> shows an alert on the map where the player is located', find_player)
 commands.add_command('jail', '<player> disables all actions a player can perform except chatting. (Admins only)', jail_player)
 commands.add_command('unjail', '<player> restores ability for a player to perform actions. (Admins only)', Report.unjail_player)
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
