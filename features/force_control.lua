@@ -82,8 +82,9 @@ function ForceControlBuilder.register(level_matches, callback, lua_force_name)
 
     local function on_level_up(event)
         local level = event.level_reached
-        if level_matches(level, event.force) then
-            callback(level, event.force)
+        local force = get_valid_force(event.force)
+        if level_matches(level, force) then
+            callback(level, force)
         end
     end
 
@@ -159,8 +160,9 @@ function ForceControl.register_force(lua_force_or_name)
 
     forces[force.name] = {
         current_experience = 0,
+        total_experience = 0,
         current_level = 0,
-        experience_level_up_cap = next_level_cap_calculator.execute(1),
+        experience_level_up_cap = next_level_cap_calculator.execute(0),
     }
 end
 
@@ -190,8 +192,9 @@ function ForceControl.remove_experience(lua_force_or_name, experience)
     if not force_config then
         return
     end
-
+    local backup_current_experience = force_config.current_experience
     force_config.current_experience = max(0, force_config.current_experience - experience)
+    force_config.total_experience = (force_config.current_experience == 0) and force_config.total_experience - backup_current_experience or max(0, force_config.total_experience - experience)
 end
 
 ---Adds experience to a force.
@@ -214,6 +217,7 @@ function ForceControl.add_experience(lua_force_or_name, experience)
 
     local new_experience = force_config.current_experience + experience
     local experience_level_up_cap = force_config.experience_level_up_cap
+    force_config.total_experience = force_config.total_experience + experience
 
     if (new_experience < experience_level_up_cap) then
         force_config.current_experience = new_experience
@@ -251,6 +255,7 @@ function ForceControl.get_force_data(lua_force_or_name)
 
     return {
         current_experience = force_config.current_experience,
+        total_experience = force_config.total_experience,
         current_level = force_config.current_level,
         experience_level_up_cap = force_config.experience_level_up_cap,
         experience_percentage = (force_config.current_experience / force_config.experience_level_up_cap) * 100,
@@ -258,17 +263,12 @@ function ForceControl.get_force_data(lua_force_or_name)
 end
 
 function ForceControl.get_formatted_force_data(lua_force_or_name)
-    local force = get_valid_force(lua_force_or_name)
-    if not force then
-        return
-    end
-
-    local force_config = forces[force.name]
+    local force_config = ForceControl.get_force_data(lua_force_or_name)
     if not force_config then
         return
     end
 
-    return 'Current experience: ' .. force_config.current_experience .. ' Current level: ' .. force_config.current_level .. ' Next level at: ' .. force_config.experience_level_up_cap .. ' Percentage to level up: ' .. ((force_config.current_experience / force_config.experience_level_up_cap) * 100)
+    return 'Current experience: ' .. force_config.current_experience .. ' Total experience: ' .. force_config.total_experience .. ' Current level: ' .. force_config.current_level .. ' Next level at: ' .. force_config.experience_level_up_cap .. ' Percentage to level up: ' .. force_config.experience_percentage .. '%'
 end
 
 return ForceControl

@@ -372,7 +372,16 @@ local Config = {
             difficulty_scale = 25, -- Diggy default 25. Higher increases difficulty, lower decreases (Only affects the stone requirement/cost to level up) (Only integers has been tested succesful)
             start_stone = 50, -- Diggy default 50. This sets the price for the first level.
             cost_precision = 2, -- Diggy default 2. This sets the precision of the stone requirements to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
-        }
+
+            -- percentage * mining productivity level gets added to mining speed
+            mining_speed_productivity_multiplier = 5,
+
+            buffs = { --Define new buffs here, they are handed out for each level.
+                ['mining_speed'] = {value = 5},
+                ['inventory_slot'] = {value = 1},
+                ['health_bonus'] = {value = 2.5, double_level = 5},
+            },
+        },
 
     },
 }

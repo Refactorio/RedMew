@@ -69,7 +69,6 @@ end
 
 --[[
     Creates a floating text entity at the player location with the specified color in {r, g, b} format.
-
     Example: "+10 iron" or "-10 coins"
 
     @param text String to display
@@ -77,14 +76,19 @@ end
 
     @return the created entity
 ]]
-function Game.print_player_floating_text(player_index, text, color)
+
+function Game.print_player_floating_text_position(player_index, text, color, x_offset, y_offset)
     local player = Game.get_player_by_index(player_index)
     if not player or not player.valid then
         return
     end
 
     local position = player.position
-    return Game.print_floating_text(player.surface, {x = position.x, y = position.y - 1.5}, text, color)
+    return Game.print_floating_text(player.surface, {x = position.x + x_offset, y = position.y + y_offset}, text, color)
+end
+
+function Game.print_player_floating_text(player_index, text, color)
+    Game.print_player_floating_text_position(player_index, text, color, 0, -1.5)
 end
 
 return Game
