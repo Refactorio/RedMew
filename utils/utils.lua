@@ -73,17 +73,15 @@ Module.find_entities_by_last_user =
         return
     end
     local entities = {}
-    local surface = surface
-    local player = player
-    local filters = filters or {}
+    local filter = filters or {}
     if type(surface) == 'number' then
         surface = game.surfaces[surface]
     end
     if type(player) == 'number' then
         player = Game.get_player_by_index(player)
     end
-    filters.force = player.force.name
-    for _, e in pairs(surface.find_entities_filtered(filters)) do
+    filter.force = player.force.name
+    for _, e in pairs(surface.find_entities_filtered(filter)) do
         if e.last_user == player then
             table.insert(entities, e)
         end

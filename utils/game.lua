@@ -1,5 +1,4 @@
 local Global = require 'utils.global'
-local random = math.random
 
 local Game = {}
 
@@ -63,7 +62,7 @@ function Game.print_floating_text(surface, position, text, color)
         name = 'tutorial-flying-text',
         color = color,
         text = text,
-        position = position,
+        position = position
     }
 end
 

@@ -32,7 +32,7 @@ end
 table.size = function(t)
   assert_argument_valid(t)
   local size = 0
-  for _,_ in pairs(t) do size = size + 1 end
+  for _ in pairs(t) do size = size + 1 end
   return size
 end
 
@@ -57,7 +57,7 @@ table.set = function (t, index, element)
   assert_argument_valid(t)
   assert_argument_valid(index, "number")
   local i = 1
-  for k,v in pairs(t) do
+  for k in pairs(t) do
     if i == index then
       t[k] = element
       return nil
@@ -71,7 +71,7 @@ table.get = function (t, index)
   assert_argument_valid(t)
   assert_argument_valid(index, "number")
   local i = 1
-  for k,v in pairs(t) do
+  for k in pairs(t) do
     if i == index then
       return t[k]
     end
