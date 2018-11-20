@@ -4,7 +4,7 @@ local Global = require 'utils.global'
 local UserGroups = require 'features.user_groups'
 local Utils = require 'utils.utils'
 local Game = require 'utils.game'
-local math = require "utils.math"
+local math = require 'utils.math'
 
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
@@ -227,8 +227,7 @@ local function redraw_tasks(data, enabled)
         delete_button_tooltip = 'Delete task.'
         edit_button_tooltip = 'Edit task.'
         up_button_tooltip = 'Move the task up, right click moves 5 spaces, shift click moves the task to the top.'
-        down_button_tooltip =
-            'Move the task down, right click moves 5 spaces, shift click moves the task to the bottom.'
+        down_button_tooltip = 'Move the task down, right click moves 5 spaces, shift click moves the task to the bottom.'
     else
         delete_button_tooltip = 'Sorry, you have to be a regular to delete tasks.'
         edit_button_tooltip = 'Sorry, you have to be a regular to edit tasks.'
@@ -565,8 +564,7 @@ local function draw_create_task_frame(left, previous_task)
         confirm_button_caption = 'Create Task'
     end
 
-    local frame =
-        left.add {type = 'frame', name = create_task_frame_name, caption = frame_caption, direction = 'vertical'}
+    local frame = left.add {type = 'frame', name = create_task_frame_name, caption = frame_caption, direction = 'vertical'}
     frame.style.width = 470
 
     local textbox = frame.add {type = 'textfield', text = text}
@@ -580,8 +578,7 @@ local function draw_create_task_frame(left, previous_task)
     local clear_button = bottom_flow.add {type = 'button', name = create_task_clear_button_name, caption = 'Clear'}
     Gui.set_data(clear_button, textbox)
     bottom_flow.add({type = 'flow'}).style.horizontally_stretchable = true
-    local confirm_button =
-        bottom_flow.add {type = 'button', name = confirm_button_name, caption = confirm_button_caption}
+    local confirm_button = bottom_flow.add {type = 'button', name = confirm_button_name, caption = confirm_button_caption}
     Gui.set_data(confirm_button, {frame = frame, textbox = textbox, previous_task = previous_task})
 end
 
@@ -693,8 +690,7 @@ Gui.on_click(
         local last_edit_player_label = top_flow.add {type = 'label'}
         local editing_players_label = top_flow.add {type = 'label'}
 
-        local textbox =
-            frame.add {type = 'text-box', name = edit_announcements_textbox_name, text = announcements.edit_text}
+        local textbox = frame.add {type = 'text-box', name = edit_announcements_textbox_name, text = announcements.edit_text}
         textbox.word_wrap = true
         local textbox_style = textbox.style
         textbox_style.width = 450
