@@ -8,7 +8,6 @@ local Report = require 'features.report'
 
 --local Antigrief = require 'features.antigrief'
 
-
 --- Takes a target and teleports them to player. (admin only)
 local function invoke(cmd)
     if not (game.player and game.player.admin) then
@@ -407,7 +406,6 @@ end
 
 --- Places a target in jail (a permissions group which is unable to act aside from chatting)(admin only)
 local function jail_player(cmd)
-
     local player = game.player
     -- Check if the player can run the command
     if player and not player.admin then
@@ -504,7 +502,6 @@ commands.add_command(
     end
 )
 
-
 commands.add_command('kill', 'Will kill you.', kill)
 commands.add_command('tpplayer', '<player> - Teleports you to the player. (Admins only)', teleport_player)
 commands.add_command('invoke', '<player> - Teleports the player to you. (Admins only)', invoke)
@@ -524,7 +521,6 @@ commands.add_command('unjail', '<player> restores ability for a player to perfor
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
 commands.add_command('report', '<griefer-name> <message> Reports a user to admins', Report.cmd_report)
 commands.add_command('show-rail-block', 'Toggles rail block visualisation', show_rail_block)
-
 
 --[[ commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
 commands.add_command(

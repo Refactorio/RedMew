@@ -250,7 +250,4 @@ Gui.on_custom_close(
 )
 
 local market_items = require 'resources.market_items'
-table.insert(
-    market_items,
-    {price = {{market_items.market_item, 100}}, offer = {type = 'give-item', item = 'infinity-chest'}}
-)
+table.insert(market_items, {price = {{market_items.market_item, 100}}, offer = {type = 'give-item', item = 'infinity-chest'}})
