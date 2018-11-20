@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - [Diggy] Stones killed by damage no longer spill. #395
 
 ### Internal
+- [Core] Cleanup of code formatting. #413 #415 #414 #412 #411
+- [Core] Establishment of a style guide. #396 
 
 ## v1.0.0
 
