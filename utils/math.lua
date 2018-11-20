@@ -6,11 +6,11 @@ math.inv_sqrt2 = 1 / math.sqrt2
 math.tau = 2 * math.pi
 
 math.sin = function(x)
-     return math.floor(_sin(x) * 10000000 + 0.5) / 10000000
+    return math.floor(_sin(x) * 10000000 + 0.5) / 10000000
 end
 
 math.cos = function(x)
-     return math.floor(_cos(x) * 10000000 + 0.5) / 10000000
+    return math.floor(_cos(x) * 10000000 + 0.5) / 10000000
 end
 
 -- rounds number (num) to certain number of decimal places (idp)
