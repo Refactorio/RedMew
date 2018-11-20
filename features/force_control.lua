@@ -82,9 +82,8 @@ function ForceControlBuilder.register(level_matches, callback, lua_force_name)
 
     local function on_level_up(event)
         local level = event.level_reached
-        local force = get_valid_force(event.force)
-        if level_matches(level, force) then
-            callback(level, force)
+        if level_matches(level, event.force) then
+            callback(level, event.force)
         end
     end
 

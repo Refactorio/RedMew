@@ -212,7 +212,6 @@ end
 function Experience.on_init()
     local force = game.forces.player
     ForceControl.register_force(force)
-    log('Diggy: Registered the force:' ..force.name)
 end
 
 return Experience
