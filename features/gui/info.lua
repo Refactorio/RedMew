@@ -199,7 +199,6 @@ This can be changed in options -> controls -> "toggle lua console".
             maps_textbox.read_only = true
 
             parent.add({type = 'flow'}).style.height = 24
-
         end
     },
     {
