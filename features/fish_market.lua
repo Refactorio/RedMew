@@ -138,6 +138,7 @@ local function fish_drop_entity_died(event)
         Task.set_timeout_in_ticks(1, spill_items, {count = count, surface = entity.surface, position = entity.position})
     end
 end
+ --
 
 --[[
 local function pet(player, entity_name)
@@ -191,8 +192,7 @@ local function boost_player_runningspeed(player, market)
         [3] = 'Kungfu Master %s defended the village and was awarded a lv.3 speed boost!',
         [4] = 'Travelled at the speed of light. %s saw a blackhole. Oops.'
     }
-    global.player_speed_boost_records[player.index].boost_lvl =
-        1 + global.player_speed_boost_records[player.index].boost_lvl
+    global.player_speed_boost_records[player.index].boost_lvl = 1 + global.player_speed_boost_records[player.index].boost_lvl
     player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
 
     if global.player_speed_boost_records[player.index].boost_lvl >= 4 then
@@ -228,8 +228,7 @@ local function boost_player_miningspeed(player, market)
         [3] = 'Wood fiend, %s, has picked up a massive chain saw and is awarded a lv.3 mining boost!',
         [4] = 'Better learn to control that saw, %s, chopped off their legs. Oops.'
     }
-    global.player_mining_boost_records[player.index].boost_lvl =
-        1 + global.player_mining_boost_records[player.index].boost_lvl
+    global.player_mining_boost_records[player.index].boost_lvl = 1 + global.player_mining_boost_records[player.index].boost_lvl
     player.character_mining_speed_modifier = 1 + player.character_mining_speed_modifier
 
     if global.player_mining_boost_records[player.index].boost_lvl >= 4 then
@@ -270,7 +269,7 @@ local function market_item_purchased(event)
     if event.offer_index == 3 then -- train saviour item
         local player = Game.get_player_by_index(player_index)
         local train_savior_item = Market_items[offer_index].item
-        player.insert{name=train_savior_item, count=event.count}
+        player.insert {name = train_savior_item, count = event.count}
     end
 
     --[[

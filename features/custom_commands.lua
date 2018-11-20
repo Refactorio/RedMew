@@ -8,7 +8,6 @@ local Report = require 'features.report'
 
 --local Antigrief = require 'features.antigrief'
 
-
 --- Takes a target and teleports them to player. (admin only)
 local function invoke(cmd)
     if not (game.player and game.player.admin) then
@@ -41,7 +40,7 @@ local function teleport_player(cmd)
     local pos = surface.find_non_colliding_position('player', game.players[target].position, 0, 1)
     game.player.teleport(pos, surface)
     game.print(target .. "! watcha doin'?!")
-    game.player.print("You have teleported to" .. game.players[target].name)
+    game.player.print('You have teleported to ' .. game.players[target].name)
     Utils.log_command(game.player.name, cmd.name, cmd.parameter)
 end
 
@@ -249,9 +248,7 @@ local function get_group()
                 group.set_allows_action(i, false)
             end
         else
-            game.print(
-                'This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).'
-            )
+            game.print('This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).')
         end
     end
     return group
@@ -326,7 +323,7 @@ local function zoom(cmd)
 end
 
 --- Creates a rectangle of water below an admin
-local function pool()
+local function pool(cmd)
     if game.player and game.player.admin then
         local t = {}
         local p = game.player.position
@@ -409,7 +406,6 @@ end
 
 --- Places a target in jail (a permissions group which is unable to act aside from chatting)(admin only)
 local function jail_player(cmd)
-
     local player = game.player
     -- Check if the player can run the command
     if player and not player.admin then
@@ -506,7 +502,6 @@ commands.add_command(
     end
 )
 
-
 commands.add_command('kill', 'Will kill you.', kill)
 commands.add_command('tpplayer', '<player> - Teleports you to the player. (Admins only)', teleport_player)
 commands.add_command('invoke', '<player> - Teleports the player to you. (Admins only)', invoke)
@@ -526,7 +521,6 @@ commands.add_command('unjail', '<player> restores ability for a player to perfor
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
 commands.add_command('report', '<griefer-name> <message> Reports a user to admins', Report.cmd_report)
 commands.add_command('show-rail-block', 'Toggles rail block visualisation', show_rail_block)
-
 
 --[[ commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
 commands.add_command(

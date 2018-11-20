@@ -12,7 +12,7 @@ require 'features.bot'
 
 -- Library modules which, if missing, will cause other feature modules to fail
 require 'features.base_data'
-require 'features.follow'
+--require 'features.follow' -- Nothing currently uses anything inside follow
 require 'features.player_create'
 require 'features.user_groups'
 

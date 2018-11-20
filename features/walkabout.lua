@@ -1,7 +1,7 @@
-local global ={}
+local global = {}
 local Task = require 'utils.Task'
-local Game = require "utils.game"
-local Event = require "utils.event"
+local Game = require 'utils.game'
+local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local Utils = require 'utils.utils'
 
@@ -126,15 +126,14 @@ end
 
 --- Cleans the walkabout status off players who disconnected during walkabout.
 -- Restores their original force, character, and position.
-function clean_on_join(event)
+local function clean_on_join(event)
     local player = Game.get_player_by_index(event.player_index)
     local index = player.index
     if global.walking[index] then
         global.walking[index] = false
         local walking_storage = global.walking_storage
-        for _, s in pairs (walking_storage) do
+        for _, s in pairs(walking_storage) do
             if s.index == index then
-
                 local walkabout_character = player.character
                 if walkabout_character and walkabout_character.valid then
                     walkabout_character.destroy()
