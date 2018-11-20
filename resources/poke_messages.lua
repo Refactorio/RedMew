@@ -1,5 +1,4 @@
-return 
-{
+return {
     "a stick",
     "a leaf",
     "a moldy carrot",
@@ -134,7 +133,7 @@ return
     "a copy of META MEME HUMOR for Dummies",
     "an abandoned not-so-young-anymore puppy",
     "one of those useless items advertised on TV",
-    "a genetic blueprint of a Japanese teen idol", 
+    "a genetic blueprint of a Japanese teen idol",
     "yesterday’s jam",
     "non-stick honey",
     "gluten-free gluten",
