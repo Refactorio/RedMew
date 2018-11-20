@@ -1,4 +1,4 @@
-return{
+return {
     'Why don’t fish like basketball? Cause they’re afraid of the net',
     'What do you get when you cross a banker with a fish? A Loan shark!',
     'How do you make an Octupus laugh? With ten-tickles',

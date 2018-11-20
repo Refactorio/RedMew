@@ -5,5 +5,5 @@ return {
     {'Press F to pay respects and loot their items', 10},
     {'Stick and move, stick and move', 10},
     {'Fly like a butterfly, sting like a bee', 10},
-    {'These are not the bots you\'re looking for', 10}
+    {"These are not the bots you're looking for", 10}
 }
