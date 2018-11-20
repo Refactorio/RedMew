@@ -13,6 +13,7 @@ local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Debug = require 'map_gen.Diggy.Debug'
 local insert = table.insert
 local random = math.random
+local raise_event = script.raise_event
 
 -- todo remove this dependency
 local ResourceConfig = require 'map_gen.Diggy.Config'.features.ScatteredResources
@@ -67,7 +68,8 @@ end
     @param entity LuaEntity
 ]]
 local function diggy_hole(entity)
-    if ((entity.name ~= 'sand-rock-big') and (entity.name ~= 'rock-huge')) then
+    local name = entity.name
+    if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
         return
     end
 
@@ -228,6 +230,20 @@ function DiggyHole.register(config)
 
     Event.add(defines.events.on_entity_died, function (event)
         diggy_hole(event.entity)
+    end)
+
+    Event.add(defines.events.on_entity_damaged, function (event)
+        local entity = event.entity
+        local name = entity.name
+
+        if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
+            return
+        end
+
+        if entity.health == 0 then
+            raise_event(defines.events.on_entity_died, {entity = entity, cause = event.cause, force = event.force})
+            entity.destroy()
+        end
     end)
 
     local enable_digging_warning = config.enable_digging_warning
