@@ -126,7 +126,7 @@ end
 
 --- Cleans the walkabout status off players who disconnected during walkabout.
 -- Restores their original force, character, and position.
-function clean_on_join(event)
+local function clean_on_join(event)
     local player = Game.get_player_by_index(event.player_index)
     local index = player.index
     if global.walking[index] then

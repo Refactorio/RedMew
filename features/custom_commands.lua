@@ -41,7 +41,7 @@ local function teleport_player(cmd)
     local pos = surface.find_non_colliding_position('player', game.players[target].position, 0, 1)
     game.player.teleport(pos, surface)
     game.print(target .. "! watcha doin'?!")
-    game.player.print("You have teleported to" .. game.players[target].name)
+    game.player.print('You have teleported to ' .. game.players[target].name)
     Utils.log_command(game.player.name, cmd.name, cmd.parameter)
 end
 
@@ -249,9 +249,7 @@ local function get_group()
                 group.set_allows_action(i, false)
             end
         else
-            game.print(
-                'This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).'
-            )
+            game.print('This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).')
         end
     end
     return group
@@ -326,7 +324,7 @@ local function zoom(cmd)
 end
 
 --- Creates a rectangle of water below an admin
-local function pool()
+local function pool(cmd)
     if game.player and game.player.admin then
         local t = {}
         local p = game.player.position

@@ -1,11 +1,12 @@
 local Event = require "utils.event"
 local Game = require 'utils.game'
 local Utils = require "utils.utils"
+local Module = {}
 
 global.player_spawns = {} -- player_index to spawn_name
 global.spawns = {} -- spawn_name to x, y, player_online_count
 
-function add_spawn(name, x, y)
+Module.add_spawn = function(name, x, y)
     if type(name) ~= "string" then
         game.print("name must be a string")
         return
@@ -137,7 +138,6 @@ local function change_spawn(player_name, spawn_name)
 end
 
 local function print_spawns()
-    local str = ""
     for name, spawn in pairs(global.spawns) do
         game.player.print(string.format("%s: (%d, %d), player count = %d", name, spawn.x, spawn.y, spawn.count))
     end
@@ -150,7 +150,7 @@ local function print_players_for_spawn(target_spawn_name)
         return
     end
 
-    str = ""
+    local str = ""
     for index, spawn_name in pairs(global.player_spawns) do
         if target_spawn_name == spawn_name then
             local player = Game.get_player_by_index(index)
@@ -184,7 +184,7 @@ local function tp_spawn_command(cmd)
     if #ps == 1 then tp_spawn(game.player.name, ps[1]) else tp_spawn(ps[1], ps[2]) end
 end
 
-function change_spawn_command(cmd)
+local function change_spawn_command(cmd)
     if not game.player.admin then
       Utils.cant_run(cmd.name)
       return
@@ -237,3 +237,5 @@ commands.add_command("tpspawn", "<player> <spawn_name> teleports a player to the
 commands.add_command("changespawn", "<player> <spawn_name> changes the spawn point for a player (Admins only)", change_spawn_command)
 commands.add_command("printspawns", "prints info on all spawn points (Admins only)", print_spawns_command)
 commands.add_command("printplayersforspawn", "<spawn_name> prints all the connected players for a spawn (Admins only)", print_players_for_spawn_command)
+
+return Module
