@@ -35,6 +35,7 @@ end, function(tbl)
     alien_size_chart = tbl.alien_size_chart
 end)
 
+---Triggers mining at the collision_box of the alien, to free it
 local do_alien_mining = Token.register(function(params)
     local surface = params.surface
     local find_entities_filtered = surface.find_entities_filtered
@@ -53,6 +54,12 @@ local do_alien_mining = Token.register(function(params)
     end
 end)
 
+---Spawns aliens given the parameters.
+---@param aliens table index is the name, value is the amount of biters to spawn
+---@param force LuaForce of the biters
+---@param surface LuaSurface to spawn on
+---@param x number
+---@param y number
 local function spawn_aliens(aliens, force, surface, x, y)
     local position = {x = x, y = y}
     local create_entity = surface.create_entity
