@@ -24,13 +24,14 @@ local MarketExchange = {}
 local config = {}
 local diggy_market
 
---Unused?
 local on_market_timeout_finished = Token.register(function(params)
     Template.market(params.surface, params.position, params.player_force, {})
 end)
 
---NEEDS CONVERTING
---Handles the updating of market items when unlocked
+---Updates market content with new items if they are to be unlocked
+---Primarily used by the force control system at every level up
+---@param market LuaEntity The market to be updated
+---@param force LuaForce the force which the unlocking requirement should be based of
 function MarketExchange.update_market_contents(market, force)
     local add_market_item
     local item_unlocked = false
@@ -59,8 +60,6 @@ function MarketExchange.update_market_contents(market, force)
 
         end
     end
-
-    --MarketExchange.update_gui()
 end
 
 local function redraw_title(data)
@@ -68,7 +67,6 @@ local function redraw_title(data)
     data.frame.caption = utils.comma_value(force_data.total_experience) .. ' total experience earned!'
 end
 
---Unused?
 local function get_data(unlocks, stone, type)
     local result = {}
 
@@ -267,6 +265,8 @@ local function redraw_buff(data) --! Almost equals to the redraw_table() functio
     end
 end
 
+---Interface for force control system to access the primary market
+---@return LuaEntity the primary market (The one at spawn)
 function MarketExchange.get_market()
     return diggy_market
 end
@@ -346,6 +346,7 @@ Gui.on_custom_close('Diggy.MarketExchange.Frame', function (event)
     event.element.destroy()
 end)
 
+---Updates the market progress gui for every player that has it open
 function MarketExchange.update_gui()
     for _, p in ipairs(game.connected_players) do
         local frame = p.gui.left['Diggy.MarketExchange.Frame']
@@ -371,6 +372,7 @@ end
 function MarketExchange.register(cfg)
     config = cfg
 
+    --Events
     Event.add(defines.events.on_research_finished, on_research_finished)
     Event.add(defines.events.on_market_item_purchased, on_market_item_purchased)
     Event.add(Template.events.on_placed_entity, on_placed_entity)

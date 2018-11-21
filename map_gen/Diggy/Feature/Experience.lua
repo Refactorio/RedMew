@@ -44,7 +44,11 @@ local Config = {}
 local floor = math.floor
 local XP_text = ' XP'
 
+---Updates a forces manual mining speed modifier. By removing active modifiers and re-adding
+---@param force LuaForce the force of which will be updated
+---@param level_up number a level if updating as part of a level up (optional)
 function Experience.update_mining_speed(force, level_up)
+    local level_up = level_up ~= nil and level_up or 0
     local buff = Config.buffs['mining_speed']
     if level_up > 0 and buff ~= nil then
         local value = (buff.double_level ~= nil and level_up%buff.double_level == 0) and buff.value*2 or buff.value
@@ -60,7 +64,11 @@ function Experience.update_mining_speed(force, level_up)
     force.manual_mining_speed_modifier = old_modifier + mining_efficiency.active_modifier
 end
 
+---Updates a forces inventory slots. By removing active modifiers and re-adding
+---@param force LuaForce the force of which will be updated
+---@param level_up number a level if updating as part of a level up (optional)
 function Experience.update_inventory_slots(force, level_up)
+    local level_up = level_up ~= nil and level_up or 0
     local buff = Config.buffs['inventory_slot']
     if level_up > 0 and buff ~= nil then
         local value = (buff.double_level ~= nil and level_up%buff.double_level == 0) and buff.value*2 or buff.value
@@ -77,7 +85,11 @@ function Experience.update_inventory_slots(force, level_up)
     force.character_inventory_slots_bonus = old_modifier + inventory_slots.active_modifier
 end
 
+---Updates a forces inventory slots. By removing active modifiers and re-adding
+---@param force LuaForce the force of which will be updated
+---@param level_up number a level if updating as part of a level up (optional)
 function Experience.update_health_bonus(force, level_up)
+    local level_up = level_up ~= nil and level_up or 0
     local buff = Config.buffs['health_bonus']
     if level_up > 0 and buff ~= nil then
         local value = (buff.double_level ~= nil and level_up%buff.double_level == 0) and buff.value*2 or buff.value
@@ -94,8 +106,12 @@ function Experience.update_health_bonus(force, level_up)
     force.character_health_bonus = old_modifier + health_bonus.active_modifier
 end
 
+-- declaration of variables to prevent table lookups @see Experience.register
 local sand_rock_xp
 local rock_huge_xp
+
+---Awards experience when a rock has been mined
+---@param event LuaEvent
 local function on_player_mined_entity(event)
     local entity = event.entity
     local player_index = event.player_index
@@ -115,6 +131,8 @@ local function on_player_mined_entity(event)
     Debug.print(ForceControl.get_formatted_force_data(force))
 end
 
+---Awards experience when a research has finished, based on ingredient cost of research
+---@param event LuaEvent
 local function on_research_finished(event)
     local research = event.research
     local force = research.force
@@ -148,6 +166,8 @@ local function on_research_finished(event)
     Experience.update_mining_speed(force, 0)
 end
 
+---Awards experience when a rocket has been launched
+---@param event LuaEvent
 local function on_rocket_launched(event)
     local exp = Config.XP['rocket_launch']
     local force = event.force
@@ -159,6 +179,8 @@ local function on_rocket_launched(event)
     ForceControl.add_experience(force, exp)
 end
 
+---Awards experience when a player kills an enemy, based on type of enemy
+---@param event LuaEvent
 local function on_entity_died (event)
     local entity = event.entity
     local force = entity.force
@@ -181,6 +203,8 @@ local function on_entity_died (event)
     ForceControl.add_experience(force, exp)
 end
 
+---Deducts experience when a player respawns, based on a percentage of total experience
+---@param event LuaEvent
 local function on_player_respawned(event)
     local player = Game.get_player_by_index(event.player_index)
     local force = player.force
@@ -191,10 +215,17 @@ local function on_player_respawned(event)
     end
 end
 
+---Get list of defined buffs
+---@return table with the same format as in the Diggy Config
+---@see Diggy.Config.features.Experience.Buffs
 function Experience.get_buffs()
     return Config.buffs
 end
 
+---Get experiment requirement for a given level
+---Primarily used for the market GUI to display total experience required to unlock a specific item
+---@param level number a number specifying the level
+---@return number required total experience to reach supplied level
 function Experience.calculate_level_xp(level)
     local b = floor(Config.difficulty_scale) or 25 -- Default 25 <-- Controls how much stone is needed.
     local start_value = floor(Config.start_stone) or 50 -- The start value/the first level cost
@@ -206,6 +237,7 @@ function Experience.register(cfg)
     local b = floor(Config.difficulty_scale) or 25 -- Default 25 <-- Controls how much stone is needed.
     local start_value = floor(Config.start_stone) or 50 -- The start value/the first level cost
 
+    --Adds the function on how to calculate level caps (When to level up)
     ForceControl_builder = ForceControl.register(function (level_reached)
         if level_reached ~= 0 then
             return b*((level_reached+1)^3)+(start_value-b) - (b*((level_reached)^3)+(start_value-b))
@@ -214,6 +246,7 @@ function Experience.register(cfg)
         end
     end)
 
+    --Adds a function that'll be executed at every level up
     ForceControl_builder.register_on_every_level(function (level_reached, force)
         force.print('Leved up to ' .. level_reached .. '!')
         force.play_sound{path='utility/new_objective', volume_modifier = 1 }
@@ -240,6 +273,7 @@ function Experience.register(cfg)
 end
 
 function Experience.on_init()
+    --Adds the 'player' force to participate in the force control system.
     local force = game.forces.player
     ForceControl.register_force(force)
 end
