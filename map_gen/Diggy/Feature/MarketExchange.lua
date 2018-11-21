@@ -107,7 +107,7 @@ local function redraw_progressbar(data)
     apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) ..' xp\nRemaining xp: ' .. utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
     local level_progressbar = flow.add({type = 'progressbar', tooltip = force_data.experience_percentage .. '% xp to next level'})
     level_progressbar.style.width = 350
-    level_progressbar.value = force_data.experience_percentage/100
+    level_progressbar.value = force_data.experience_percentage * 0.01
 end
 
 local function redraw_table(data)
@@ -364,6 +364,8 @@ function MarketExchange.on_init()
         position = config.market_spawn_position,
         player_force = game.forces.player,
     })
+
+
 end
 
 --[[--
@@ -373,8 +375,6 @@ function MarketExchange.register(cfg)
     config = cfg
 
     --Events
-    Event.add(defines.events.on_research_finished, on_research_finished)
-    Event.add(defines.events.on_market_item_purchased, on_market_item_purchased)
     Event.add(Template.events.on_placed_entity, on_placed_entity)
     Event.add(defines.events.on_player_created, on_player_created)
     Event.on_nth_tick(61, MarketExchange.update_gui)

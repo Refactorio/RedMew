@@ -2,6 +2,7 @@
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local raise_event = script.raise_event
+local ceil = math.ceil
 local max = math.max
 
 -- this, things that can be done run-time
@@ -206,9 +207,9 @@ function ForceControl.remove_experience(lua_force_or_name, experience)
     force_config.total_experience = (force_config.current_experience == 0) and force_config.total_experience - backup_current_experience or max(0, force_config.total_experience - experience)
 end
 
----Removes experience from a force, based on a percentage of the total experience
+---Removes experience from a force, based on a percentage of the total obtained experience
 ---@param lua_force_or_name LuaForce|string
----@param percentage number percentage of total experience to remove
+---@param percentage number percentage of total obtained experience to remove
 ---@param min_experience number minimum amount of experience to remove (optional)
 ---@return number the experience being removed
 ---@see ForceControl.remove_experience
@@ -222,7 +223,6 @@ function ForceControl.remove_experience_percentage(lua_force_or_name, percentage
     if not force_config then
         return
     end
-    local ceil = math.ceil
 
     local penalty = force_config.total_experience * percentage
     penalty = (penalty >= min_experience) and ceil(penalty) or ceil(min_experience)

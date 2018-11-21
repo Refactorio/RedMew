@@ -52,7 +52,7 @@ function Experience.update_mining_speed(force, level_up)
     local buff = Config.buffs['mining_speed']
     if level_up > 0 and buff ~= nil then
         local value = (buff.double_level ~= nil and level_up%buff.double_level == 0) and buff.value*2 or buff.value
-        mining_efficiency.level_modifier = mining_efficiency.level_modifier + (value / 100)
+        mining_efficiency.level_modifier = mining_efficiency.level_modifier + (value * 0.01)
     end
     -- remove the current buff
     local old_modifier = force.manual_mining_speed_modifier - mining_efficiency.active_modifier
@@ -137,6 +137,10 @@ local function on_research_finished(event)
     local research = event.research
     local force = research.force
     local award_xp = 0
+
+    --Disables atomic-bombs every research
+    force.recipes["atomic-bomb"].enabled=false
+
     for _, ingredient in pairs(research.research_unit_ingredients) do
         local name = ingredient.name
         local reward = Config.XP[''..name]
@@ -164,6 +168,8 @@ local function on_research_finished(event)
 
     Experience.update_inventory_slots(force, 0)
     Experience.update_mining_speed(force, 0)
+
+    game.forces.player.technologies['landfill'].enabled = false
 end
 
 ---Awards experience when a rocket has been launched
