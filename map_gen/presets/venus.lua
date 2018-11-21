@@ -1,3 +1,6 @@
+-- todo: remove all trees, plant trees in starting area/add wood to market, add market
+-- market.add_market_item(item{price = {{market_item, 2}}, offer = {type = 'give-item', item = 'raw-wood'}})
+
 local b = require 'map_gen.shared.builders'
 
 local function value(base, mult)
@@ -6,7 +9,7 @@ local function value(base, mult)
     end
 end
 
-local function no_resources(x, y, world, tile)
+local function no_resources(_, _, world, tile)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
@@ -46,7 +49,7 @@ end]]--
 
 -- create a square on which to place each ore
 local square = b.rectangle(12,12)
-square = b.change_tile(square, true, 'concrete')
+square = b.change_tile(square, true, 'lab-dark-2')
 
 -- set the ore weights and sizes
 local iron = b.resource(b.rectangle(12,12), 'iron-ore', value(200, 1))
@@ -67,11 +70,11 @@ local water_start =
     }
 water_start = b.change_tile(water_start, true, 'water')
 
--- create the large concrete square
-local concrete_square =  b.rectangle(80, 80)
-concrete_square = b.change_tile(concrete_square, true, 'concrete')
+-- create the large safe square
+local safe_square =  b.rectangle(80, 80)
+safe_square = b.change_tile(safe_square, true, 'lab-dark-2')
 
--- create the start area using the ore, water and concrete squares
+-- create the start area using the ore, water and safe squares
 local ore_distance = 24
 local start_area =
     b.any {
@@ -80,7 +83,7 @@ local start_area =
     b.translate(stone_sq, ore_distance, -ore_distance),
     b.translate(coal_sq, ore_distance, ore_distance),
     water_start,
-    concrete_square
+    safe_square
 }
 start_area = b.apply_effect(start_area, no_resources)
 --start_area = b.apply_effect(start_area, no_trees)
