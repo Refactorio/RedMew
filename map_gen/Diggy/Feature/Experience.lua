@@ -94,19 +94,21 @@ function Experience.update_health_bonus(force, level_up)
     force.character_health_bonus = old_modifier + health_bonus.active_modifier
 end
 
-
+local sand_rock_xp
+local rock_huge_xp
 local function on_player_mined_entity(event)
     local entity = event.entity
     local player_index = event.player_index
     local force = Game.get_player_by_index(player_index).force
-    local text = ''
     local exp
-    if entity.name == 'sand-rock-big' or entity.name == 'rock-huge' then
-        exp = Config.XP['' .. entity.name]
-        text = '+' .. exp .. XP_text
+    if entity.name == 'sand-rock-big' then
+        exp = sand_rock_xp
+    elseif entity.name == 'rock-huge' then
+        exp = rock_huge_xp
     else
         return
     end
+    local text = '+' .. exp .. XP_text
     Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},0, -0.5)
     ForceControl.add_experience(force, exp)
 
@@ -182,15 +184,11 @@ end
 local function on_player_respawned(event)
     local player = Game.get_player_by_index(event.player_index)
     local force = player.force
-
-    ForceControl.get_force_data(force)
-    local exp = ForceControl.get_force_data(force).total_experience * Config.XP['death-penalty']
-    exp = (exp < 50) and 50 or exp
+    local exp = ForceControl.remove_experience_percentage(force, Config.XP['death-penalty'], 50)
     local text = player.name..' died! ' .. exp .. XP_text
     for _, p in pairs(game.connected_players) do
         Game.print_player_floating_text_position(p.index, text, {r = 255, g = 0, b = 0},-1, -0.5)
     end
-    ForceControl.remove_experience(force, exp)
 end
 
 function Experience.get_buffs()
@@ -236,6 +234,9 @@ function Experience.register(cfg)
     Event.add(defines.events.on_player_respawned, on_player_respawned)
     Event.add(defines.events.on_entity_died, on_entity_died)
 
+    -- Prevents table lookup thousands of times
+    sand_rock_xp = Config.XP['sand-rock-big']
+    rock_huge_xp = Config.XP['rock-huge']
 end
 
 function Experience.on_init()

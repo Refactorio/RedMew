@@ -186,7 +186,7 @@ end
 
 ---Removes experience from a force. Won't cause de-level nor go below 0.
 ---@param lua_force_or_name LuaForce|string
----@param experience number amount of experience to add
+---@param experience number amount of experience to remove
 function ForceControl.remove_experience(lua_force_or_name, experience)
     assert_type('number', experience, 'Argument experience of function ForceControl.remove_experience')
 
@@ -204,6 +204,30 @@ function ForceControl.remove_experience(lua_force_or_name, experience)
     local backup_current_experience = force_config.current_experience
     force_config.current_experience = max(0, force_config.current_experience - experience)
     force_config.total_experience = (force_config.current_experience == 0) and force_config.total_experience - backup_current_experience or max(0, force_config.total_experience - experience)
+end
+
+---Removes experience from a force, based on a percentage of the total experience
+---@param lua_force_or_name LuaForce|string
+---@param percentage number percentage of total experience to remove
+---@param min_experience number minimum amount of experience to remove (optional)
+---@return number the experience being removed
+---@see ForceControl.remove_experience
+function ForceControl.remove_experience_percentage(lua_force_or_name, percentage, min_experience)
+    local min_experience = min_experience ~= nil and min_experience or 0
+    local force = get_valid_force(lua_force_or_name)
+    if not force then
+        return
+    end
+    local force_config = forces[force.name]
+    if not force_config then
+        return
+    end
+    local ceil = math.ceil
+
+    local penalty = force_config.total_experience * percentage
+    penalty = (penalty >= min_experience) and ceil(penalty) or ceil(min_experience)
+    ForceControl.remove_experience(lua_force_or_name, penalty)
+    return penalty
 end
 
 ---Adds experience to a force.
