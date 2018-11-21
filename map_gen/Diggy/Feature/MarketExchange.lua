@@ -15,6 +15,7 @@ local insert = table.insert
 local force_control = require 'features.force_control'
 local Experience = require 'map_gen.Diggy.Feature.Experience'
 local max = math.max
+local floor = math.floor
 local utils = require 'utils.utils'
 local prefix = '## - '
 
@@ -105,7 +106,7 @@ local function redraw_progressbar(data)
     Gui.clear(flow)
 
     apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) ..' xp\nRemaining xp: ' .. utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
-    local level_progressbar = flow.add({type = 'progressbar', tooltip = force_data.experience_percentage .. '% xp to next level'})
+    local level_progressbar = flow.add({type = 'progressbar', tooltip = floor(force_data.experience_percentage*100)*0.01 .. '% xp to next level'})
     level_progressbar.style.width = 350
     level_progressbar.value = force_data.experience_percentage * 0.01
 end

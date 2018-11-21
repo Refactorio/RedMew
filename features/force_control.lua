@@ -206,8 +206,7 @@ function ForceControl.remove_experience(lua_force_or_name, experience)
     local backup_current_experience = force_config.current_experience
     force_config.current_experience = max(0, force_config.current_experience - experience)
     force_config.total_experience = (force_config.current_experience == 0) and force_config.total_experience - backup_current_experience or max(0, force_config.total_experience - experience)
-    game.print('Helping Simon: '.. (force_config.current_experience - backup_current_experience * -1))
-    return (force_config.current_experience - backup_current_experience) * -1
+    return  backup_current_experience - force_config.current_experience
 end
 
 ---Removes experience from a force, based on a percentage of the total obtained experience
