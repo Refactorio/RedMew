@@ -35,7 +35,7 @@ end)
 function MarketExchange.update_market_contents(market, force)
     local add_market_item
     local item_unlocked = false
-            
+
     for _, unlockable in pairs(config.unlockables) do
         local is_in_range = force_control.get_force_data(force).current_level == unlockable.level
 
@@ -233,7 +233,7 @@ local function redraw_buff(data) --! Almost equals to the redraw_table() functio
         else
             result[2] = 'Description missing: unknown buff. Please contact admin'
         end
-        
+
         -- 3rd column
         result[3] = ''
         -- indicator to stop print level number
@@ -243,7 +243,7 @@ local function redraw_buff(data) --! Almost equals to the redraw_table() functio
             result[4] = false
         end
         insert(row, result)
-    end    
+    end
     for _, unlockable in pairs(row) do
         local list = buff_scroll_pane.add {type = 'table', column_count = 2 }
         list.style.horizontal_spacing = 16
@@ -306,9 +306,9 @@ local function toggle(event)
 
     local market_scroll_pane = frame.add({type = 'scroll-pane'})
     market_scroll_pane.style.maximal_height = 300
-    
+
     local buff_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
-    
+
     local buff_scroll_pane = frame.add({type = 'scroll-pane'})
     buff_scroll_pane.style.maximal_height = 100
 
@@ -325,7 +325,7 @@ local function toggle(event)
 
     redraw_title(data)
     redraw_table(data)
-    
+
     redraw_heading(data, 2)
     redraw_buff(data)
 

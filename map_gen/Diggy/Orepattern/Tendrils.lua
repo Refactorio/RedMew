@@ -1,5 +1,5 @@
 
--- defines all ore patches to be generated. Add as many clusters as 
+-- defines all ore patches to be generated. Add as many clusters as
 -- needed. Clusters listed first have a higher placement priority over
 -- the latter clusters
 --
@@ -29,7 +29,7 @@ return {
         color={r=255/255, g=0/255, b=255/255},
         noise_settings = {
             type = "connected_tendril",
-            threshold = 0.05,   
+            threshold = 0.05,
             sources = {
                 {variance=350*2, weight = 1.000, offset = 000, type="simplex"},
                 {variance=200*2, weight = 0.350, offset = 150, type="simplex"},

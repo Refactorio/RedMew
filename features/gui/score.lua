@@ -28,7 +28,7 @@ local function refresh_score()
         if (frame) then
             frame.score_table.label_rockets_launched.caption = 'Rockets launched: ' .. global.score_rockets_launched
             frame.score_table.label_biters_killed.caption = 'Biters liberated: ' .. global.score_biter_total_kills
-        --				frame.score_table.label_score_polls_created.caption = "Polls created: " .. global.score_total_polls_created
+        --              frame.score_table.label_score_polls_created.caption = "Polls created: " .. global.score_total_polls_created
         end
         x = x + 1
     end
@@ -56,16 +56,16 @@ local function score_show(player)
     label.style.left_padding = 4
     label.style.right_padding = 4
     --[[
-	if global.score_total_polls_created then
-		score_table.add { type = "label", caption = "|"}
+    if global.score_total_polls_created then
+        score_table.add { type = "label", caption = "|"}
 
-		local label = score_table.add { type = "label", caption = "", name = "label_score_polls_created" }
-		label.style.font = "default-bold"
-		label.style.font_color = { r=0.80, g=0.80, b=0.80}
-		label.style.top_padding = 2
-		label.style.left_padding = 4
-		label.style.right_padding = 4
-	end
+        local label = score_table.add { type = "label", caption = "", name = "label_score_polls_created" }
+        label.style.font = "default-bold"
+        label.style.font_color = { r=0.80, g=0.80, b=0.80}
+        label.style.top_padding = 2
+        label.style.left_padding = 4
+        label.style.right_padding = 4
+    end
 --]]
     refresh_score()
 end

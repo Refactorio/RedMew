@@ -14,14 +14,14 @@ local function no_resources(x, y, world, tile)
     ) do
         e.destroy()
     end
-	for _, e in ipairs(
+    for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
         )
     ) do
         e.destroy()
     end
-	for _, e in ipairs(
+    for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'rock', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
         )

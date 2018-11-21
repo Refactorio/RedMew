@@ -11,11 +11,11 @@ local image_grid = starting_grid.image_grid
 local mult = 1 / grid_scale
 
 return function(x, y)
-	x = x * mult - 20
-	y = y * mult - 21
-	x = math.floor(x) % grid_width + 1
-	y = math.floor(y) % grid_height + 1
+    x = x * mult - 20
+    y = y * mult - 21
+    x = math.floor(x) % grid_width + 1
+    y = math.floor(y) % grid_height + 1
 
-	local pixel = image_grid[y][x]
-	return pixel == 1	
+    local pixel = image_grid[y][x]
+    return pixel == 1
 end
