@@ -138,9 +138,6 @@ local function on_research_finished(event)
     local force = research.force
     local award_xp = 0
 
-    --Disables atomic-bombs every research
-    force.recipes["atomic-bomb"].enabled=false
-
     for _, ingredient in pairs(research.research_unit_ingredients) do
         local name = ingredient.name
         local reward = Config.XP[''..name]

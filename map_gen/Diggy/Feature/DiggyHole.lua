@@ -285,6 +285,7 @@ end
 
 function DiggyHole.on_init()
     game.forces.player.technologies['landfill'].enabled = false
+    game.forces.player.technologies['atomic-bomb'].enabled = false
 end
 
 return DiggyHole

@@ -188,6 +188,7 @@ end
 ---Removes experience from a force. Won't cause de-level nor go below 0.
 ---@param lua_force_or_name LuaForce|string
 ---@param experience number amount of experience to remove
+---@return number the experience being removed
 function ForceControl.remove_experience(lua_force_or_name, experience)
     assert_type('number', experience, 'Argument experience of function ForceControl.remove_experience')
 
@@ -205,6 +206,8 @@ function ForceControl.remove_experience(lua_force_or_name, experience)
     local backup_current_experience = force_config.current_experience
     force_config.current_experience = max(0, force_config.current_experience - experience)
     force_config.total_experience = (force_config.current_experience == 0) and force_config.total_experience - backup_current_experience or max(0, force_config.total_experience - experience)
+    game.print('Helping Simon: '.. (force_config.current_experience - backup_current_experience * -1))
+    return (force_config.current_experience - backup_current_experience) * -1
 end
 
 ---Removes experience from a force, based on a percentage of the total obtained experience
@@ -226,8 +229,7 @@ function ForceControl.remove_experience_percentage(lua_force_or_name, percentage
 
     local penalty = force_config.total_experience * percentage
     penalty = (penalty >= min_experience) and ceil(penalty) or ceil(min_experience)
-    ForceControl.remove_experience(lua_force_or_name, penalty)
-    return penalty
+    return ForceControl.remove_experience(lua_force_or_name, penalty)
 end
 
 ---Adds experience to a force.
