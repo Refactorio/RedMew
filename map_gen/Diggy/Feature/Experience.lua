@@ -171,7 +171,8 @@ local function on_entity_died (event)
     if not cause or cause.type ~= 'player' or not cause.valid then
         return
     end
-    exp = 10
+    local modifier = require 'map_gen.Diggy.Config'.features.ArtefactHunting.alien_coin_modifiers
+    exp = Config.XP['enemy_killed'] * modifier[entity.name]
     local text = 'Killed ' .. entity.name .. '! +' .. exp .. XP_text
     player_index = cause.player.index
     Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
@@ -194,6 +195,12 @@ end
 
 function Experience.get_buffs()
     return Config.buffs
+end
+
+function Experience.calculate_level_xp(level)
+    local b = floor(Config.difficulty_scale) or 25 -- Default 25 <-- Controls how much stone is needed.
+    local start_value = floor(Config.start_stone) or 50 -- The start value/the first level cost
+    return b*((level)^3)+(start_value-b)
 end
 
 function Experience.register(cfg)

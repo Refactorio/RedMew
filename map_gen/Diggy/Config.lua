@@ -369,7 +369,7 @@ local Config = {
             XP = {
               ['sand-rock-big']             = 5,
               ['rock-huge']                 = 10,
-              ['rocket_launch']             = 5000, -- XP reward for a single rocket launch
+              ['rocket_launch']             = 5000,     -- XP reward for a single rocket launch
               ['science-pack-1']            = 1,
               ['science-pack-2']            = 2,
               ['science-pack-3']            = 5,
@@ -377,7 +377,8 @@ local Config = {
               ['production-science-pack']   = 12,
               ['high-tech-science-pack']    = 25,
               ['space-science-pack']        = 5,
-              ['death-penalty']             = 0.005, -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.005 which equals 0.5%)
+              ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters. This value is multiplied by the alien_coin_modifiers from ArtefactHunting
+              ['death-penalty']             = 0.005,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.005 which equals 0.5%)
             },
 
             buffs = { --Define new buffs here, they are handed out for each level.

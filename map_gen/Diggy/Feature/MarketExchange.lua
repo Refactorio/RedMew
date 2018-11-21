@@ -13,6 +13,7 @@ local Global = require 'utils.global'
 local Game = require 'utils.game'
 local insert = table.insert
 local force_control = require 'features.force_control'
+local Experience = require 'map_gen.Diggy.Feature.Experience'
 local max = math.max
 local utils = require 'utils.utils'
 local prefix = '## - '
@@ -105,8 +106,8 @@ local function redraw_progressbar(data)
     local flow = data.market_progressbars
     Gui.clear(flow)
 
-    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. utils.comma_value(force_data.experience_level_up_cap) ..'\nRemaining stone: ' .. utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
-    local level_progressbar = flow.add({type = 'progressbar', tooltip = force_data.experience_percentage .. '% stone to next level'})
+    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) ..' xp\nRemaining xp: ' .. utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.MarketExchange.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
+    local level_progressbar = flow.add({type = 'progressbar', tooltip = force_data.experience_percentage .. '% xp to next level'})
     level_progressbar.style.width = 350
     level_progressbar.value = force_data.experience_percentage/100
 end
@@ -185,7 +186,7 @@ local function redraw_table(data)
         else
             caption = ''
         end
-        local tag_stone = list.add {type = 'label', name = tag_label_stone, caption = caption}
+        local tag_stone = list.add {type = 'label', name = tag_label_stone, caption = caption, tooltip = 'XP: ' .. utils.comma_value(Experience.calculate_level_xp(unlockable[1]))}
         tag_stone.style.minimal_width = 100
 
         local tag_items = list.add {type = 'label', name = tag_label_item, caption = unlockable[3]}
@@ -210,7 +211,7 @@ local function redraw_buff(data) --! Almost equals to the redraw_table() functio
     local buff_scroll_pane = data.buff_scroll_pane
     Gui.clear(buff_scroll_pane)
 
-    local buffs = require 'map_gen.Diggy.Feature.Experience'.get_buffs()
+    local buffs = Experience.get_buffs()
     local row = {}
     local i = 0
     for k, v in pairs(buffs) do
