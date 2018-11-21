@@ -191,7 +191,7 @@ local function change_creep_state(state, i)
         chunk_end_state = NOT_CREEP
         chunk_transition_state = CREEP_RETRACTION
     end
-    
+
     global.chunklist[i].is_creep = chunk_transition_state
     local chunklist = global.chunklist
     local chunkcoord = chunklist[i]
@@ -214,7 +214,7 @@ end
 
 local function on_tick()
     local get_pollution = game.surfaces[1].get_pollution
-    
+
     -- localize globals
     local chunklist = global.chunklist
     local maxindex = #chunklist
@@ -247,12 +247,12 @@ local function make_constrast_tiles_table()
     local unremovable_tiles = {
     'deepwater',
     'deepwater-green',
-    'out-of-map',    
+    'out-of-map',
     'water',
     'water-green'
     }
     local omit = 0
-    
+
     -- create a list of all non-creep tiles for the purpose of filtering in kill_invalid_builds
     for _, contrast_tile in ipairs(all_tiles) do
         for _, retraction_tile in ipairs(retraction_tiles) do
@@ -265,7 +265,7 @@ local function make_constrast_tiles_table()
                 omit = 1
             end
         end
-        
+
         if omit == 1 then
             omit = 0
         else
@@ -315,7 +315,7 @@ function kill_invalid_builds(entity, from_build_event)
     local unacceptable_tiles = global.unacceptable_tiles
     local ceil = math.ceil
     local floor = math.floor
-    
+
     -- expand the bounding box to enclose full tiles rather than the subtile size most bounding boxes are
     local bounding_box = {
         {floor(entity.bounding_box.left_top.x), floor(entity.bounding_box.left_top.y)},
@@ -352,7 +352,7 @@ local function apply_creep_effects_on_players()
     --Penalize players for not being on creep by slowing their movement
     local radius = 10 --not actually a radius
     local unacceptable_tiles = global.unacceptable_tiles
-    
+
     for _, p in ipairs(game.connected_players) do
         if not p.character then --Spectator or admin
             return
@@ -369,7 +369,7 @@ local function apply_creep_effects_on_players()
             p.character_running_speed_modifier = 0
             if _DEBUG then game.print("Speed modifier 0 and damage") end
         elseif count > (radius * 2)^2 * 0.8 then
-        
+
             p.character_running_speed_modifier = 0
             if _DEBUG then game.print("Speed modifier 0") end
         else
@@ -385,7 +385,7 @@ local function on_init()
     global.unacceptable_tiles = {}
     global.death_count = 0
     local omit = 0
-    
+
     -- create a list of all non-creep tiles for the purpose of filtering in kill_invalid_builds
     for _, all_tile in ipairs(all_tiles) do
         for _, creep_tile in ipairs(creep_tiles) do
@@ -393,7 +393,7 @@ local function on_init()
                 omit = 1
             end
         end
-        
+
         if omit == 1 then
             omit = 0
         else

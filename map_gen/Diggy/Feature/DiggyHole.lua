@@ -107,7 +107,7 @@ local function diggy_hole(entity)
             else
                 Debug.print('noise type \'' .. settings.type .. '\' not recognized')
             end
-            
+
         end
         return noise
     end
@@ -132,7 +132,7 @@ local function diggy_hole(entity)
     if ('table' ~= type(c_clusters)) then
         error('cluster_file_location invalid')
     end
-    
+
     local c_count = 0
     for _, cluster in ipairs(c_clusters) do
         c_count = c_count + 1
@@ -170,7 +170,7 @@ local function diggy_hole(entity)
                     elseif cluster.noise_settings.type == "fragmented_tendril" then
                         local noise1 = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                         local noise2 = seeded_noise(surface, x, y, index, cluster.noise_settings.discriminator)
-                        if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold 
+                        if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold
                                 and -1 * cluster.noise_settings.discriminator_threshold < noise2
                                 and noise2 < cluster.noise_settings.discriminator_threshold then
                             if spawn_cluster_resource(surface, x, y, index, cluster) then
@@ -190,7 +190,7 @@ local function diggy_hole(entity)
                 end
             end
         end
-    
+
     if (huge_rock_inserted == false) then
         insert(rocks, {name = 'sand-rock-big', position = position})
         end

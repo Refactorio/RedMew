@@ -1,4 +1,4 @@
---[[ 
+--[[
     This map removes and adds it's own water, in terrain settings use water frequency = very low and water size = only in starting area.
  ]]
 

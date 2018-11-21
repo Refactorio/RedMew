@@ -11,8 +11,8 @@ local donut_low = x_offset ^ 2
 local donut_high = (x_offset + donut_width) ^ 2
 
 return function(x, y, world)
-	local x_off = x - donut_radius
-	local distance = x_off ^ 2 + y ^ 2 -- we dont bother to get sqr of it, because we just want the cubed answer to compare to donut_low/high
+    local x_off = x - donut_radius
+    local distance = x_off ^ 2 + y ^ 2 -- we dont bother to get sqr of it, because we just want the cubed answer to compare to donut_low/high
 
-	return not (distance > donut_high or distance < donut_low)
+    return not (distance > donut_high or distance < donut_low)
 end
