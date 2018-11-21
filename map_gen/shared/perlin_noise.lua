@@ -77,7 +77,7 @@ function Perlin.noise(x, y, z)
     local v = fade(y)
     local w = fade(z)
 
-    -- Hash all 8 unit cube coordinates surrounding input coordinate    
+    -- Hash all 8 unit cube coordinates surrounding input coordinate
     local A, AA, AB, AAA, ABA, AAB, ABB, B, BA, BB, BAA, BBA, BAB, BBB
     A   = p[xi  ] + yi
     AA  = p[A   ] + zi
