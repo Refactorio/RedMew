@@ -9,7 +9,7 @@ local ForceControl = {}
 ForceControl.events = {
     --- triggered when the force levels up
     --- uses event = {level_reached = number, force = LuaForce}
-    on_level_up = script.generate_event_name(),
+    on_level_up = script.generate_event_name()
 }
 
 -- the builder, can only be accessed through ForceControl.register() and should be avoided used run-time
@@ -20,16 +20,19 @@ local forces = {}
 
 -- the table holding the function that calculates the experience to next level
 local next_level_cap_calculator = {
-    execute = nil,
+    execute = nil
 }
 
-Global.register({
-    forces = forces,
-    next_level_cap_calculator = next_level_cap_calculator,
-}, function (tbl)
-    forces = tbl.forces
-    next_level_cap_calculator = tbl.next_level_cap_calculator
-end)
+Global.register(
+    {
+        forces = forces,
+        next_level_cap_calculator = next_level_cap_calculator
+    },
+    function(tbl)
+        forces = tbl.forces
+        next_level_cap_calculator = tbl.next_level_cap_calculator
+    end
+)
 
 ---Asserts if a given variable is of the expected type using type().
 ---
@@ -39,7 +42,7 @@ end)
 local function assert_type(expected_type, given, variable_reference_message)
     local given_type = type(given)
     if given_type ~= expected_type then
-        error('Argument ' .. variable_reference_message .. ' must be of type \'' .. expected_type .. '\', given \'' .. given_type .. '\'')
+        error('Argument ' .. variable_reference_message .. " must be of type '" .. expected_type .. "', given '" .. given_type .. "'")
     end
 end
 
@@ -75,7 +78,7 @@ end
 ---@param lua_force_name string|nil only register for this force (optional)
 function ForceControlBuilder.register(level_matches, callback, lua_force_name)
     if game then
-       error('You can only register level up callbacks before the game is initialized')
+        error('You can only register level up callbacks before the game is initialized')
     end
     assert_type('function', level_matches, 'level_matches of function ForceControl.register_reward')
     assert_type('function', callback, 'callback of function ForceControlBuilder.register')
@@ -92,17 +95,20 @@ function ForceControlBuilder.register(level_matches, callback, lua_force_name)
         return
     end
 
-    Event.add(ForceControl.events.on_level_up, function (event)
-        local force = get_valid_force(lua_force_name)
-        if not force then
-            error('Can only register a lua force name for ForceControlBuilder.register')
-        end
-        if force ~= event.force then
-            return
-        end
+    Event.add(
+        ForceControl.events.on_level_up,
+        function(event)
+            local force = get_valid_force(lua_force_name)
+            if not force then
+                error('Can only register a lua force name for ForceControlBuilder.register')
+            end
+            if force ~= event.force then
+                return
+            end
 
-        on_level_up(event)
-    end)
+            on_level_up(event)
+        end
+    )
 end
 
 ---Register a reward which triggers when the given level is reached.
@@ -114,9 +120,13 @@ function ForceControlBuilder.register_on_single_level(level, callback, lua_force
     assert_type('number', level, 'level of function ForceControl.register_reward_on_single_level')
     assert_type('function', callback, 'callback of function ForceControlBuilder.register_on_single_level')
 
-    ForceControlBuilder.register(function (level_reached)
-        return level == level_reached
-    end, callback, lua_force_name)
+    ForceControlBuilder.register(
+        function(level_reached)
+            return level == level_reached
+        end,
+        callback,
+        lua_force_name
+    )
 end
 
 ---Always returns true
@@ -161,7 +171,7 @@ function ForceControl.register_force(lua_force_or_name)
         current_experience = 0,
         total_experience = 0,
         current_level = 0,
-        experience_level_up_cap = next_level_cap_calculator.execute(0),
+        experience_level_up_cap = next_level_cap_calculator.execute(0)
     }
 end
 
@@ -257,7 +267,7 @@ function ForceControl.get_force_data(lua_force_or_name)
         total_experience = force_config.total_experience,
         current_level = force_config.current_level,
         experience_level_up_cap = force_config.experience_level_up_cap,
-        experience_percentage = (force_config.current_experience / force_config.experience_level_up_cap) * 100,
+        experience_percentage = (force_config.current_experience / force_config.experience_level_up_cap) * 100
     }
 end
 

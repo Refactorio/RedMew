@@ -43,11 +43,7 @@ local function player_died(event)
 
     local text = player.name .. "'s corpse"
     local position = entity.position
-    local tag =
-        player.force.add_chart_tag(
-        player.surface,
-        {icon = {type = 'item', name = 'power-armor-mk2'}, position = position, text = text}
-    )
+    local tag = player.force.add_chart_tag(player.surface, {icon = {type = 'item', name = 'power-armor-mk2'}, position = position, text = text})
 
     if not tag then
         return

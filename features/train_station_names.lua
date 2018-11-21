@@ -3,7 +3,9 @@ local Game = require 'utils.game'
 
 local function player_built_entity(event)
     local entity = event.created_entity
-    if not entity or not entity.valid then return end
+    if not entity or not entity.valid then
+        return
+    end
 
     if entity.name == 'train-stop' then
         local y = math.random(1, 3)

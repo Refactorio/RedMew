@@ -104,8 +104,8 @@ local function hodor(event)
         local missing_player_string
         local not_found = 0
         local cannot_mention = {}
-        for word in event.message:gmatch('%S+') do
-            local word = word:lower()
+        for w in event.message:gmatch('%S+') do
+            local word = w:lower()
             local trimmed_word = string.sub(word, 0, string.len(word)-1)
             local first_char = string.sub(word, 0, 1)
             local last_char = string.sub(word, string.len(word))

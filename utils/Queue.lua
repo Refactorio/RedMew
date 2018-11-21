@@ -1,7 +1,7 @@
 local Queue = {}
 
 function Queue.new()
-    local queue = {_head = 0, _tail = 0}        
+    local queue = {_head = 0, _tail = 0}
     return queue
 end
 

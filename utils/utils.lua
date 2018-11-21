@@ -23,14 +23,14 @@ Module.print_admins = function(msg, source)
     if source then
         if type(source) == 'string' then
             source_name = source
-            chat_colot = game.players[source].chat_color
+            chat_color = game.players[source].chat_color
         else
             source_name = source.name
             chat_color = source.chat_color
         end
     else
-        source_name = "Server"
-        chat_color = {r=255, g=255, b=255}
+        source_name = 'Server'
+        chat_color = {r = 255, g = 255, b = 255}
     end
     for _, p in pairs(game.connected_players) do
         if p.admin then
@@ -54,36 +54,25 @@ Module.cast_bool = function(var)
     end
 end
 
-Module.find_entities_by_last_user =
-    function(player, surface, filters)
+Module.find_entities_by_last_user = function(player, surface, filters)
     if type(player) == 'string' or not player then
-        error(
-            "bad argument #1 to '" ..
-                debug.getinfo(1, 'n').name .. "' (number or LuaPlayer expected, got " .. type(player) .. ')',
-            1
-        )
+        error("bad argument #1 to '" .. debug.getinfo(1, 'n').name .. "' (number or LuaPlayer expected, got " .. type(player) .. ')', 1)
         return
     end
     if type(surface) ~= 'table' and type(surface) ~= 'number' then
-        error(
-            "bad argument #2 to '" ..
-                debug.getinfo(1, 'n').name .. "' (number or LuaSurface expected, got " .. type(surface) .. ')',
-            1
-        )
+        error("bad argument #2 to '" .. debug.getinfo(1, 'n').name .. "' (number or LuaSurface expected, got " .. type(surface) .. ')', 1)
         return
     end
     local entities = {}
-    local surface = surface
-    local player = player
-    local filters = filters or {}
+    local filter = filters or {}
     if type(surface) == 'number' then
         surface = game.surfaces[surface]
     end
     if type(player) == 'number' then
         player = Game.get_player_by_index(player)
     end
-    filters.force = player.force.name
-    for _, e in pairs(surface.find_entities_filtered(filters)) do
+    filter.force = player.force.name
+    for _, e in pairs(surface.find_entities_filtered(filter)) do
         if e.last_user == player then
             table.insert(entities, e)
         end
@@ -98,7 +87,6 @@ Module.ternary = function(c, t, f)
         return f
     end
 end
-
 
 local minutes_to_ticks = 60 * 60
 local hours_to_ticks = 60 * 60 * 60
@@ -150,7 +138,7 @@ Module.log_command = function(user, command, parameters)
 end
 
 Module.comma_value = function(n) -- credit http://richard.warburton.it
-    local left,num,right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
+    local left, num, right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
     return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
 end
 
