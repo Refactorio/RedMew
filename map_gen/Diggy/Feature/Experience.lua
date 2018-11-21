@@ -157,6 +157,27 @@ local function on_rocket_launched(event)
     ForceControl.add_experience(force, exp)
 end
 
+local function on_entity_died (event)
+    local entity = event.entity
+    local force = entity.force
+    local exp = 0
+
+    if force.name ~= 'enemy' then
+        return
+    end
+
+    local cause = event.cause
+
+    if not cause or cause.type ~= 'player' or not cause.valid then
+        return
+    end
+    exp = 10
+    local text = 'Killed ' .. entity.name .. '! +' .. exp .. XP_text
+    player_index = cause.player.index
+    Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
+    ForceControl.add_experience(force, exp)
+end
+
 local function on_player_respawned(event)
     local player = Game.get_player_by_index(event.player_index)
     local force = player.force
@@ -206,6 +227,7 @@ function Experience.register(cfg)
     Event.add(defines.events.on_research_finished, on_research_finished)
     Event.add(defines.events.on_rocket_launched, on_rocket_launched)
     Event.add(defines.events.on_player_respawned, on_player_respawned)
+    Event.add(defines.events.on_entity_died, on_entity_died)
 
 end
 
