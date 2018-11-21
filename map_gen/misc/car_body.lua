@@ -1,29 +1,28 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 
-local drivers_group = "Drivers"
+local drivers_group = 'Drivers'
 
 local function transfer_body(player)
     -- Remove the player from their character and place them in a car.
     local surface = player.surface
     local force = player.force
     local pos = force.get_spawn_position(surface)
-    
+
     -- Choose a random direction for the car to face
-    local dir = math.random (0,7)
-    
+    local dir = math.random(0, 7)
+
     -- Remove the players' character
     if player.character then
         player.character.destroy()
     end
-    
+
     --Find a place for a car, place a car, and place fuel+ammo in it
     local car_pos = surface.find_non_colliding_position('car', pos, 0, 3)
     local car = surface.create_entity {name = 'car', position = car_pos, direction = dir, force = force}
-    car.insert({name="coal", count=50})
-    car.insert({name="firearm-magazine", count=10})
+    car.insert({name = 'coal', count = 50})
+    car.insert({name = 'firearm-magazine', count = 10})
     car.set_driver(player)
-    
 end
 
 local function player_created(event)
@@ -42,16 +41,16 @@ local function player_created(event)
         -- Disable leaving a vehicle
         permission_group.set_allows_action(defines.input_action.toggle_driving, false)
     end
-    
+
     -- Add player to drivers group
-	permission_group.add_player(player)
+    permission_group.add_player(player)
 
     -- Put the new player into a car.
     transfer_body(player)
-    
+
     -- Disable the god mode spotlight.
     player.disable_flashlight()
-    
+
     -- Welcome message to the player.
     player.print('As though a dream, you find yourself without a body and instead as a sentient car. Strange...')
 end
