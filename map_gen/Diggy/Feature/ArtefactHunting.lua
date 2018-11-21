@@ -165,25 +165,21 @@ function ArtefactHunting.register(config)
 
     ScoreTable.reset('Collected coins')
 
+    local alien_coin_drop_chance = config.alien_coin_drop_chance
+
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
         local force = entity.force
 
-        if force.name ~= 'enemy' then
-            return
-        end
-
-        local cause = event.cause
-
-        if not cause or cause.type ~= 'player' or not cause.valid then
+        if force.name ~= 'enemy' or random() > alien_coin_drop_chance then
             return
         end
 
         local modifier = modifiers[entity.name] or 1
-        local evolution_multiplier = force.evolution_factor * 11
+        local evolution_multiplier = force.evolution_factor
         local count = random(
-            ceil(2 * evolution_multiplier * 0.1),
-            ceil(5 * (evolution_multiplier * evolution_multiplier + modifier) * 0.1)
+            ceil(2 * evolution_multiplier * modifier),
+            ceil(5 * evolution_multiplier * modifier)
         )
 
         entity.surface.create_entity({
@@ -207,11 +203,11 @@ function ArtefactHunting.register(config)
             return
         end
 
-        if random() > config.mining_artefact_chance then
+        if random() > config.mining_coin_chance then
             return
         end
 
-        local count = random(config.mining_artefact_amount.min, config.mining_artefact_amount.max)
+        local count = random(config.mining_coin_amount.min, config.mining_coin_amount.max)
         local player_index = event.player_index
 
         Game.get_player_by_index(player_index).insert({name = 'coin', count = count})
