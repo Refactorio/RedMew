@@ -59,7 +59,7 @@ Minimum spawn distance: ]] .. config.alien_minimum_distance .. ' tiles'
 end
 
 function AlienSpawner.on_init()
-	-- base factorio =                pollution_factor = 0.000015
+    -- base factorio =                pollution_factor = 0.000015
     game.map_settings.enemy_evolution.pollution_factor = 0.000004
 end
 

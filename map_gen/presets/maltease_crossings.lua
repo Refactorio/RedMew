@@ -43,12 +43,12 @@ local gradient = 0.05
 local tiles_half = (starting_area) * 0.5
 
 local function maltese_cross(x,y)
-	--Create maltese shape
+    --Create maltese shape
 
-	local abs_x = math.abs(x)
-	local abs_y = math.abs(y)
+    local abs_x = math.abs(x)
+    local abs_y = math.abs(y)
 
-	return not (abs_x > (tiles_half+(abs_y*gradient)) and abs_y > (tiles_half+(abs_x*gradient)))
+    return not (abs_x > (tiles_half+(abs_y*gradient)) and abs_y > (tiles_half+(abs_x*gradient)))
 end
 
 -- create water crossings and pattern
@@ -64,10 +64,10 @@ waters = b.choose(bounds, waters, b.empty_shape)
 waters = b.translate(waters,34,0)
 
 local water_pattern = b.any{
-	    waters,
-	    b.rotate(waters,degrees(90)),
-	    b.rotate(waters,degrees(180)),
-	    b.rotate(waters,degrees(270))
+        waters,
+        b.rotate(waters,degrees(90)),
+        b.rotate(waters,degrees(180)),
+        b.rotate(waters,degrees(270))
     }
 
 -- create the starting area as a grass square
@@ -119,9 +119,9 @@ resources = b.rotate(resources, degrees(45/2))
 local worm_island = b.rectangle(20,300)
 local worm_island_end = b.circle(10)
 worm_island = b.any{
-	worm_island_end,
-	b.translate(worm_island,0,-150),
-	b.translate(worm_island_end,0,-300)
+    worm_island_end,
+    b.translate(worm_island,0,-150),
+    b.translate(worm_island_end,0,-300)
 }
 worm_island = b.change_tile(worm_island, true, 'grass-1')
 
@@ -153,10 +153,10 @@ worm_island = b.apply_entity(worm_island, worms)
 worm_island = b.apply_effect(worm_island, no_trees)
 
 local worm_islands = b.any{
-	b.rotate(b.translate(worm_island,0,-110),degrees(45)),
-	b.rotate(b.translate(worm_island,0,-110),degrees(45+90)),
-	b.rotate(b.translate(worm_island,0,-110),degrees(45+180)),
-	b.rotate(b.translate(worm_island,0,-110),degrees(45+270))
+    b.rotate(b.translate(worm_island,0,-110),degrees(45)),
+    b.rotate(b.translate(worm_island,0,-110),degrees(45+90)),
+    b.rotate(b.translate(worm_island,0,-110),degrees(45+180)),
+    b.rotate(b.translate(worm_island,0,-110),degrees(45+270))
 }
 
 -- create the start area using the water and grass square

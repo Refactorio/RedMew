@@ -110,21 +110,21 @@ local tiles_per_tick = 32
 
 -- modules that only return max one entity per tile
 local entity_modules = {
-	--require "map_gen.misc.loot_items",
-	--require "map_gen.terrain.mines",
-	--require "map_gen.terrain.deathworld",
-	--require "map_gen.ores.glitter_ores",
-	--require "map_gen.terrain.worms",
-	--require "map_gen.misc.wreck_items",
-	--require "map_gen.ores.neko_crazy_ores",
-	--require "map_gen.ores.fluffy_rainbows",
-	--require "map_gen.ores.harmonic_gen",
-	--require "map_gen.ores.resource_clustertruck"
-	--require "map_gen.ores.tiny_ores"
+    --require "map_gen.misc.loot_items",
+    --require "map_gen.terrain.mines",
+    --require "map_gen.terrain.deathworld",
+    --require "map_gen.ores.glitter_ores",
+    --require "map_gen.terrain.worms",
+    --require "map_gen.misc.wreck_items",
+    --require "map_gen.ores.neko_crazy_ores",
+    --require "map_gen.ores.fluffy_rainbows",
+    --require "map_gen.ores.harmonic_gen",
+    --require "map_gen.ores.resource_clustertruck"
+    --require "map_gen.ores.tiny_ores"
 }
 
 local terrain_modules = {
-	--require "map_gen.misc.tris_chunk_grid",
+    --require "map_gen.misc.tris_chunk_grid",
 }
 
 --everything else. You may use more than one of these, but beware they might not be compatible
@@ -158,5 +158,5 @@ if shape then
     }
 
     require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-	--require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
+    --require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end

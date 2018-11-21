@@ -13,7 +13,7 @@ local loot = {
     {stack = {name = 'flamethrower-turret', count = 25, distance_factor = 1 / 16}, weight = 1},
     {stack = {name = 'cluster-grenade', count = 50, distance_factor = 1 / 32}, weight = 1},
     {stack = {name = 'power-armor', count = 3, distance_factor = 1 / 128}, weight = 1},
-    {stack = {name = 'solar-panel-equipment', count = 25, distance_factor = 1 / 32}, weight = 1},    
+    {stack = {name = 'solar-panel-equipment', count = 25, distance_factor = 1 / 32}, weight = 1},
     {stack = {name = 'battery-equipment', count = 25, distance_factor = 1 / 128}, weight = 1},
     {stack = {name = 'battery-mk2-equipment', count = 1, distance_factor = 1 / 128}, weight = 1},
     {stack = {name = 'energy-shield-equipment', count = 10, distance_factor = 1 / 64}, weight = 1},
