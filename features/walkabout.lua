@@ -1,4 +1,3 @@
-local global = {}
 local Task = require 'utils.Task'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
