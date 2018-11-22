@@ -32,6 +32,7 @@ Module.print_admins = function(msg, source)
         source_name = 'Server'
         chat_color = {r = 255, g = 255, b = 255}
     end
+    print(string.format('%s(ADMIN) %s: %s', prefix, source_name, msg)) -- to the server
     for _, p in pairs(game.connected_players) do
         if p.admin then
             p.print(string.format('%s(ADMIN) %s: %s', prefix, source_name, msg), chat_color)
