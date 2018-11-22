@@ -44,6 +44,18 @@ local Config = {}
 local floor = math.floor
 local XP_text = ' XP'
 
+local level_up_formula = (function (level_reached)
+    local floor = math.floor
+    local Config = require 'map_gen.Diggy.Config'.features.Experience
+    local local_b = floor(Config.difficulty_scale)
+    local local_start_value = floor(Config.start_stone)
+    if level_reached ~= 0 then
+        return local_b*((level_reached+1)^3)+(local_start_value-local_b) - (local_b*((level_reached)^3)+(local_start_value-local_b))
+    else
+        return local_b*((level_reached+1)^3)+(local_start_value-local_b)
+    end
+end)
+
 ---Updates a forces manual mining speed modifier. By removing active modifiers and re-adding
 ---@param force LuaForce the force of which will be updated
 ---@param level_up number a level if updating as part of a level up (optional)
@@ -212,7 +224,7 @@ local function on_player_respawned(event)
     local player = Game.get_player_by_index(event.player_index)
     local force = player.force
     local exp = ForceControl.remove_experience_percentage(force, Config.XP['death-penalty'], 50)
-    local text = player.name..' died! ' .. exp .. XP_text
+    local text = player.name..' died! -' .. exp .. XP_text
     for _, p in pairs(game.connected_players) do
         Game.print_player_floating_text_position(p.index, text, {r = 255, g = 0, b = 0},-1, -0.5)
     end
@@ -225,29 +237,30 @@ function Experience.get_buffs()
     return Config.buffs
 end
 
+local level_table = {}
 ---Get experiment requirement for a given level
 ---Primarily used for the market GUI to display total experience required to unlock a specific item
 ---@param level number a number specifying the level
 ---@return number required total experience to reach supplied level
 function Experience.calculate_level_xp(level)
-    local b = floor(Config.difficulty_scale) or 25 -- Default 25 <-- Controls how much stone is needed.
-    local start_value = floor(Config.start_stone) or 50 -- The start value/the first level cost
-    return b*((level)^3)+(start_value-b)
+        if level_table[level] == nil then
+            local value
+            if level == 1 then
+                value = level_up_formula(level-1)
+            else
+                value = level_up_formula(level-1)+Experience.calculate_level_xp(level-1)
+            end
+            table.insert(level_table, level, value)
+            game.print('doing '.. level)
+        end
+    return level_table[level]
 end
 
 function Experience.register(cfg)
     Config = cfg
-    local b = floor(Config.difficulty_scale) or 25 -- Default 25 <-- Controls how much stone is needed.
-    local start_value = floor(Config.start_stone) or 50 -- The start value/the first level cost
 
     --Adds the function on how to calculate level caps (When to level up)
-    ForceControl_builder = ForceControl.register(function (level_reached)
-        if level_reached ~= 0 then
-            return b*((level_reached+1)^3)+(start_value-b) - (b*((level_reached)^3)+(start_value-b))
-        else
-            return b*((level_reached+1)^3)+(start_value-b)
-        end
-    end)
+    ForceControl_builder = ForceControl.register(level_up_formula)
 
     --Adds a function that'll be executed at every level up
     ForceControl_builder.register_on_every_level(function (level_reached, force)
