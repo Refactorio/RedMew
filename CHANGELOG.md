@@ -8,10 +8,13 @@ All notable changes to this project will be documented in this file.
 
 ### Bugfixes
 - [Diggy] Stones killed by damage no longer spill. #395
+- [Core] Fix /kill non-functional if walkabout is disabled. Fix walkabout giving from variable definition. #425
+- [Core] Fix null reference in chat_triggers #431
 
 ### Internal
 - [Core] Cleanup of code formatting. #413 #415 #414 #412 #411
-- [Core] Establishment of a style guide. #396 
+- [Core] Establishment of a style guide. #396
+- [GitHub] Add stickler_ci #435
 
 ## v1.0.0
 

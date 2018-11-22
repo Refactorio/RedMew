@@ -7,6 +7,9 @@ local function assert_argument_valid(a, arg_type)
     end
 end
 
+--- Removes a specific element from a table
+-- @param t table to search
+-- @param element to search for
 table.remove_element = function(t, element)
     assert_argument_valid(t)
     for k, v in pairs(t) do
@@ -38,6 +41,10 @@ table.size = function(t)
     return size
 end
 
+--- Checks if a table contains an element
+-- @param t table to search
+-- @param e element to search for
+-- @returns the index of an element or -1
 table.index_of = function(t, e)
     assert_argument_valid(t)
     local i = 1
@@ -50,6 +57,10 @@ table.index_of = function(t, e)
     return -1
 end
 
+--- Checks if a table contains an element
+-- @param t table to search
+-- @param e element to search for
+-- @returns true or false
 table.contains = function(t, e)
     assert_argument_valid(t)
     return table.index_of(t, e) > -1
@@ -82,7 +93,7 @@ table.get = function(t, index)
     error('Index out of bounds', 2)
 end
 
--- Chooses a random entry from a table
+--- Chooses a random entry from a table
 table.get_random = function(this_table)
     return this_table[math.random(#this_table)]
 end
