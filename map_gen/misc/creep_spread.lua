@@ -11,7 +11,7 @@ This module does not create an initial world state, so you will not have a guara
 to build, and any creep_expansion_tiles will be overtaken by creep_retraction_tiles as there is
 no initial pollution cloud.
 
-Todo: make the expansion less "blocky"/constrained to chunk borders
+Todo: maketh the expansion less "blocky"/constrained to chunk borders
 ]]--
 
 local Event = require 'utils.event'
