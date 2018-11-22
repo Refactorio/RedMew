@@ -23,7 +23,6 @@ local prefix = '## - '
 local MarketExchange = {}
 
 local config = {}
-local diggy_market
 
 local on_market_timeout_finished = Token.register(function(params)
     Template.market(params.surface, params.position, params.player_force, {})
@@ -269,7 +268,15 @@ end
 ---Interface for force control system to access the primary market
 ---@return LuaEntity the primary market (The one at spawn)
 function MarketExchange.get_market()
-    return diggy_market
+
+    local markets = game.surfaces.nauvis.find_entities_filtered({name = 'market', position = config.market_spawn_position, limit = 1})
+
+    if (#markets == 0) then
+        Debug.print_position(config.market_spawn_position, 'Unable to find a market')
+        return
+    end
+
+    return markets[1]
 end
 
 local function on_placed_entity(event)
@@ -277,7 +284,6 @@ local function on_placed_entity(event)
     if 'market' ~= market.name then
         return
     end
-    diggy_market = market
 end
 
 function MarketExchange.get_extra_map_info(config)
