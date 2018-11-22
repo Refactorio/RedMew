@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - [Core] Cleanup of code formatting. #413 #415 #414 #412 #411
 - [Core] Establishment of a style guide. #396
 - [GitHub] Add stickler_ci #435
+- [Core] Add server print on admin_prints (#430) 
 
 ## v1.0.0
 
