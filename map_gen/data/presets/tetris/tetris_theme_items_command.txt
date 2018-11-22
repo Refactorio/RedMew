@@ -1,0 +1,39 @@
+Run the following upon startup to give bots, armor and items to place the tetris theme tune blueprint.
+
+Use command /tpmode to teleport to the island to set it up.
+
+This will give you the items you need:
+/silent-command	local player = game.player
+player.insert{name="power-armor-mk2", count = 1}
+local p_armor = player.get_inventory(5)[1].grid
+	p_armor.put({name = "fusion-reactor-equipment"})
+	p_armor.put({name = "fusion-reactor-equipment"})
+	p_armor.put({name = "fusion-reactor-equipment"})
+	p_armor.put({name = "exoskeleton-equipment"})
+	p_armor.put({name = "exoskeleton-equipment"})
+	p_armor.put({name = "exoskeleton-equipment"})
+	p_armor.put({name = "exoskeleton-equipment"})
+	p_armor.put({name = "energy-shield-mk2-equipment"})
+	p_armor.put({name = "energy-shield-mk2-equipment"})
+	p_armor.put({name = "personal-roboport-mk2-equipment"})
+	p_armor.put({name = "night-vision-equipment"})
+	p_armor.put({name = "battery-mk2-equipment"})
+	p_armor.put({name = "battery-mk2-equipment"})
+player.insert{name="decider-combinator", count = 143}
+player.insert{name="constant-combinator", count = 143}
+player.insert{name="programmable-speaker", count = 16}
+player.insert{name="arithmetic-combinator", count = 4}
+player.insert{name="substation", count = 4}
+player.insert{name="solar-panel", count = 15}
+player.insert{name="accumulator", count = 12}
+
+This will make them non-griefable if you're standing in the centre of the music island:
+/c
+local pos = game.player.position
+local area = {{pos.x - 40, pos.y - 80}, {pos.x + 40, pos.y + 80}}
+for _, e in pairs(game.player.surface.find_entities_filtered {area = area, force = 'player'}) do
+    e.minable = false
+    e.destructible = false
+end
+
+
