@@ -52,7 +52,9 @@ local function name_player(player)
 
     table.insert(global.silly_names, name)
     global.silly_names.count = global.silly_names.count + 1
-    game.print(player.name .. ' will now be known as: ' .. name)
+    local str = player.name .. ' will now be known as: ' .. name
+    game.print(str)
+    Utils.print_admins(str .. ' (ID: ' .. player.index .. ')', false)
     player.name = name
 end
 
