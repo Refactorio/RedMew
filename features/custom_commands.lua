@@ -88,7 +88,7 @@ local function kill(cmd)
     end
 
     if global.walking then
-        if (player and global.walking[player.index] == true) or global.walking[target.index] == true then
+        if (player and global.walking[player.index]) or global.walking[target.index] then
             Game.player_print("A player on walkabout cannot be killed by a mere fish, don't waste your efforts.")
             return
         end
