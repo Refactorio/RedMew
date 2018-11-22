@@ -28,7 +28,7 @@ require 'features.free_item_logging'
 require 'features.nuke_control'
 require 'features.player_colors'
 require 'features.reactor_meltdown'
-require 'features.silly_player_names'
+--require 'features.silly_player_names'
 require 'features.train_station_names'
 require 'features.walkabout'
 
