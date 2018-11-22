@@ -14,10 +14,10 @@ no initial pollution cloud.
 Todo: make the expansion less "blocky"/constrained to chunk borders
 ]]--
 
-local Event = require 'utils.event'
-local Game = require 'utils.game'
-local random = math.random
-local insert = table.insert
+locals Event = require 'utils.event'
+locals Game = require 'utils.game'
+locals random = math.random
+locals insert = table.insert
 
 --how many chunks to process in a tick
 local processchunk = 5
