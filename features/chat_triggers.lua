@@ -63,18 +63,17 @@ local function hodor(event)
     local message = event.message:lower()
 
     if message:match('hodor') then
-
         game.print('Hodor: ' .. table.get_random_weighted(Hodor, 1, 2))
     end
 
     -- player_index is nil if the message came from the server,
     -- and indexing Game.players with nil is apparently an error.
-    local player = Game.get_player_by_index(event.player_index)
     local player_index = event.player_index
     if not player_index then
         return
     end
 
+    local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
     end
