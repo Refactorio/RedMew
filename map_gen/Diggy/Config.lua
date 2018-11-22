@@ -389,7 +389,7 @@ local Config = {
             enabled = true,
             -- controls the formula for calculating level up costs in stone sent to surface
             difficulty_scale = 25, -- Diggy default 25. Higher increases difficulty, lower decreases (Only affects the stone requirement/cost to level up) (Only integers has been tested successful)
-            start_stone = 50, -- Diggy default 50. This sets the price for the first level.
+            first_lvl_xp = 500, -- Diggy default 50. This sets the price for the first level.
             cost_precision = 2, -- Diggy default 2. This sets the precision of the stone requirements to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
 
             -- percentage * mining productivity level gets added to mining speed

@@ -19,19 +19,15 @@ local ForceControlBuilder = {}
 -- all force data being monitored
 local forces = {}
 
--- the table holding the function that calculates the experience to next level
-local next_level_cap_calculator = {
-    execute = nil
-}
+-- the function that calculates the experience to next level
+local calculate_next_level_cap = nil
 
 Global.register(
     {
         forces = forces,
-        next_level_cap_calculator = next_level_cap_calculator
     },
     function(tbl)
         forces = tbl.forces
-        next_level_cap_calculator = tbl.next_level_cap_calculator
     end
 )
 
@@ -148,11 +144,11 @@ end
 ---Register the config and initialize the feature.
 ---@param level_up_formula function
 function ForceControl.register(level_up_formula)
-    if next_level_cap_calculator.execute then
+    if calculate_next_level_cap then
         error('Can only register one force control.')
     end
 
-    next_level_cap_calculator.execute = level_up_formula
+    calculate_next_level_cap = level_up_formula
 
     return ForceControlBuilder
 end
@@ -160,7 +156,7 @@ end
 ---Registers a new force to participate.
 ---@param lua_force_or_name LuaForce|string
 function ForceControl.register_force(lua_force_or_name)
-    if not next_level_cap_calculator.execute then
+    if not calculate_next_level_cap then
         error('Can only register a force when the config has been initialized via ForceControl.register(config_table).')
     end
     local force = get_valid_force(lua_force_or_name)
@@ -172,13 +168,13 @@ function ForceControl.register_force(lua_force_or_name)
         current_experience = 0,
         total_experience = 0,
         current_level = 0,
-        experience_level_up_cap = next_level_cap_calculator.execute(0)
+        experience_level_up_cap = calculate_next_level_cap(0)
     }
 end
 
 ---Returns the ForceControlBuilder.
 function ForceControl.get_force_control_builder()
-    if not next_level_cap_calculator.execute then
+    if not calculate_next_level_cap then
         error('Can only get the force control builder when the config has been initialized via ForceControl.register(config_table).')
     end
 
@@ -262,7 +258,7 @@ function ForceControl.add_experience(lua_force_or_name, experience)
     local new_level = force_config.current_level + 1
     force_config.current_level = new_level
     force_config.current_experience = 0
-    force_config.experience_level_up_cap = next_level_cap_calculator.execute(new_level)
+    force_config.experience_level_up_cap = calculate_next_level_cap(new_level)
 
     raise_event(ForceControl.events.on_level_up, {level_reached = new_level, force = force})
 
@@ -302,7 +298,16 @@ function ForceControl.get_formatted_force_data(lua_force_or_name)
         return
     end
 
-    return 'Current experience: ' .. force_config.current_experience .. ' Total experience: ' .. force_config.total_experience .. ' Current level: ' .. force_config.current_level .. ' Next level at: ' .. force_config.experience_level_up_cap .. ' Percentage to level up: ' .. force_config.experience_percentage .. '%'
+    local result =  
+        string.format(
+            'Current experience: %d Total experience: %d Current level: %d  Next level at: %d Percentage to level up: %d%%',
+            force_config.current_experience,
+            force_config.total_experience,
+            force_config.current_level,
+            force_config.experience_level_up_cap,
+            math.floor(force_config.experience_percentage * 100) / 100
+        )
+    return result
 end
 
 return ForceControl
