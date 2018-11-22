@@ -251,7 +251,6 @@ function Experience.calculate_level_xp(level)
                 value = level_up_formula(level-1)+Experience.calculate_level_xp(level-1)
             end
             table.insert(level_table, level, value)
-            game.print('doing '.. level)
         end
     return level_table[level]
 end
