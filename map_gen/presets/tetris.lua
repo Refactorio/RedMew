@@ -316,7 +316,7 @@ local start_patch = b.rectangle(t_width * 0.8)
 local start_resources = b.any({start_iron_patch, start_copper_patch, start_stone_patch, start_coal_patch})
 local tet_O_start = b.apply_entity(tet_O, start_resources)
 
-starting_area = b.any{
+local starting_area = b.any{
     b.translate(tet_I,t_width,-t_width*2),
     b.translate(tet_O_start,t_width*2,-t_width),
     b.translate(tet_T,-t_width,-t_width),

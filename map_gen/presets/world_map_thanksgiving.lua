@@ -4,11 +4,6 @@
 
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
-local Perlin = require 'map_gen.shared.perlin_noise'
-local Token = require 'utils.global_token'
-local Global = require 'utils.global'
-local Event = require 'utils.event'
-local degrees = require "utils.math".degrees
 local ore_seed = 3000
 
 local function no_resources(x, y, world, tile)
@@ -32,14 +27,12 @@ turkey = b.invert(turkey)
 local bounds = b.rectangle(pic.width, pic.height)
 turkey = b.all{bounds, turkey}
 
-local pig = b.picture(require 'map_gen.data.presets.pig')
+
 local ham = b.picture(require 'map_gen.data.presets.ham')
 
-pig = b.scale(pig, 64 / 320) --0.2
+
 ham = b.scale(ham, 64 / 127) --0.5
 turkey = b.scale(turkey,0.2)
-
-
 
 local ores_patch = b.circle(16)
 local function value(base, mult, pow)
@@ -97,7 +90,7 @@ for r = 1, 50 do
         end
 
         local i = random_ore:next_int(1, ore_t)
-        index = table.binary_search(total_ore_weights, i)
+        local index = table.binary_search(total_ore_weights, i)
         if (index < 0) then
             index = bit32.bnot(index)
         end
