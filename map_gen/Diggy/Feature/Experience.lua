@@ -197,6 +197,7 @@ end
 ---Awards experience when a player kills an enemy, based on type of enemy
 ---@param event LuaEvent
 local function on_entity_died (event)
+    local entity = event.entity
     local force = entity.force
 
     if force.name ~= 'enemy' then
@@ -208,7 +209,6 @@ local function on_entity_died (event)
     if not cause or cause.type ~= 'player' or not cause.valid then
         return
     end
-    local entity = event.entity
     local exp = 0
     exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
     local text = string_format('Killed %s! + %d XP', entity.name, exp)
