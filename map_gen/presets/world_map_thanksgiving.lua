@@ -34,7 +34,6 @@ local ham = b.picture(require 'map_gen.data.presets.ham')
 ham = b.scale(ham, 64 / 127) --0.5
 turkey = b.scale(turkey,0.2)
 
-local ores_patch = b.circle(16)
 local function value(base, mult, pow)
     return function(x, y)
         local d = math.sqrt(x * x + y * y)

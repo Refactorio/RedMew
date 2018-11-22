@@ -35,7 +35,7 @@ local function no_resources(x, y, world, tile)
 end
 
 local names = {
-    'biter-spawner', 
+    'biter-spawner',
     'spitter-spawner'
 }
 
@@ -217,10 +217,10 @@ for _, v in pairs(ores) do
     table.insert(total_weights, t)
 end
 
-local p_cols = 50
-local p_rows = 50
+p_cols = 50
+p_rows = 50
 
-local pattern = {}
+pattern = {}
 
 for _ = 1, p_rows do
     local row = {}
@@ -325,7 +325,7 @@ local starting_area = b.any{
 }
 
 tetriminos_shape = b.any{tetriminos_shape, starting_area}
-local ores = b.grid_pattern_overlap(pattern, p_cols, p_rows, t_width, t_width)
+ores = b.grid_pattern_overlap(pattern, p_cols, p_rows, t_width, t_width)
 ores = b.translate(ores, t_h_width, t_h_width)
 
 tetriminos_shape = b.apply_entity(tetriminos_shape, ores)           -- add ores to tetriminoes
