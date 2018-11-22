@@ -13,7 +13,8 @@ All notable changes to this project will be documented in this file.
 
 ### Internal
 - [Core] Cleanup of code formatting. #413 #415 #414 #412 #411
-- [Core] Establishment of a style guide. #396 
+- [Core] Establishment of a style guide. #396
+- [GitHub] Add stickler_ci #435
 
 ## v1.0.0
 
