@@ -17,7 +17,7 @@ local function create_name(words_table)
     adverb = table.get_random(words_table.adverbs)
     adjective = table.get_random(words_table.adjectives)
     noun = table.get_random(words_table.nouns)
-    return adverb .. ' ' .. adjective .. ' ' .. noun
+    return adverb .. '_' .. adjective .. '_' .. noun
 end
 
 --- Calls create_name until a unique name is returned
