@@ -139,15 +139,13 @@ local function regular(cmd)
     for param in string.gmatch(cmd.parameter, '%S+') do
         table.insert(params, param)
     end
-    if params[2] == nil then
-        if params[1] == 'promote' then
+    if (params[2] == nil) and (params[1] == 'promote')  then
             Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
             return
-        else
-            Game.player_print('Success. Suggested usage: /regular <promote, demote>, <player>')
-            UserGroups.add_regular(params[1])
-            Utils.log_command(game.player.name, cmd.name, cmd.parameter)
-        end
+    elseif (params[2] == nil) then
+        Game.player_print('Success. Suggested usage: /regular <promote, demote>, <player>')
+        UserGroups.add_regular(params[1])
+        Utils.log_command(game.player.name, cmd.name, cmd.parameter)
     elseif (params[1] == 'promote') then
         UserGroups.add_regular(params[2])
         Utils.log_command(game.player.name, cmd.name, cmd.parameter)
@@ -385,11 +383,11 @@ end ]]
 --- Creates an alert for the player at the location of their target
 local function find_player(cmd)
     local player = game.player
-    player.print('Please use /find <player> instead. /find-player will be deprecated Jan 2019.')
     if not player then
         return
     end
 
+    player.print('Please use /find <player> instead. /find-player will be deprecated Jan 2019.')
     local name = cmd.parameter
     if not name then
         player.print('Usage: /find-player <player>')
