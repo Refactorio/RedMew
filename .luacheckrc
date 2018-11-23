@@ -41,7 +41,7 @@ files['.luacheckrc'] = {
 -------------------------------------------------------------------------------
 --[Set Defaults]--
 -------------------------------------------------------------------------------
-local LINE_LENGTH = 170 -- It is 2017 limits on length are a waste
+local LINE_LENGTH = false -- It is 2017 limits on length are a waste
 local IGNORE = {'21./%w+_$', '21./^_%w+$', '213/[ijk]', '213/index', '213/key'}
 local NOT_GLOBALS = {'coroutine', 'io', 'socket', 'dofile', 'loadfile'} -- These globals are not available to the factorio API
 

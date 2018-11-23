@@ -212,7 +212,38 @@ function DiggyHole.register(config)
         entity.destroy()
     end)
 
-    local enable_digging_warning = config.enable_digging_warning
+    Event.add(defines.events.on_robot_mined_entity, function (event)
+        local entity = event.entity
+        local name = entity.name
+
+        if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
+            return
+        end
+
+        local health = entity.health
+        local remove = event.buffer.remove
+
+        health = health - 10
+        remove({name = 'stone', count = 100})
+        remove({name = 'coal', count = 100})
+
+        local graphics_variation = entity.graphics_variation
+        local create_entity = entity.surface.create_entity
+        local position = entity.position
+        local force = event.robot.force
+
+        if health < 1 then
+            raise_event(defines.events.on_entity_died, {entity = entity, force = force})
+            return
+        end
+
+        entity.destroy()
+
+        local rock = create_entity({name = name, position = position})
+        rock.graphics_variation = graphics_variation
+        rock.order_deconstruction(force)
+        rock.health = health
+    end)
 
     Event.add(defines.events.on_player_mined_entity, function (event)
         local entity = event.entity

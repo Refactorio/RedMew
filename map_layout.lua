@@ -86,6 +86,8 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.creepy"
 --shape = require "map_gen.presets.vanilla"
 --shape = require "map_gen.presets.maltease_crossings"
+--shape = require "map_gen.presets.tetris"
+--shape = require "map_gen.presets.world_map_thanksgiving"
 --shape = require "map_gen.presets.test"
 
 --shapes--
@@ -137,6 +139,7 @@ local terrain_modules = {
 --require 'map_gen.misc.nightfall'
 --require 'map_gen.misc.creep_spread'
 --require 'map_gen.misc.car_body'
+--require 'features.silly_player_names'
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
