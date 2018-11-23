@@ -223,8 +223,7 @@ local function on_entity_died (event)
     if not cause or cause.type ~= 'player' or not cause.valid then
         return
     end
-    local exp = 0
-    exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
+    local exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
     local text = string_format('Killed %s! + %d XP', entity.name, exp)
     local player_index = cause.player.index
     Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
