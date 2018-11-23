@@ -41,20 +41,34 @@ end)
 
 
 local Config = {}
-local floor = math.floor
 local string_format = string.format
 local alien_coin_modifiers = require 'map_gen.Diggy.Config'.features.ArtefactHunting.alien_coin_modifiers
 
 local level_up_formula = (function (level_reached)
     local floor = math.floor
+    local log = math.log
     local Config = require 'map_gen.Diggy.Config'.features.Experience
     local difficulty_scale = floor(Config.difficulty_scale)
-    local local_start_value = floor(Config.first_lvl_xp)
-    if level_reached ~= 0 then
-        return difficulty_scale*((level_reached+1)^3)+(local_start_value-difficulty_scale) - (difficulty_scale*((level_reached)^3)+(local_start_value-difficulty_scale))
-    else
-        return difficulty_scale*((level_reached+1)^3)+(local_start_value-difficulty_scale)
+    local level_fine_tune = floor(Config.xp_fine_tune)
+    local start_value = (floor(Config.first_lvl_xp)/2)
+    local precision = (floor(Config.cost_precision))
+    local function formula(level)
+        return (
+            difficulty_scale * (level) ^ 3
+            + (level_fine_tune + start_value) * (level) ^ 2
+            + start_value * (level)
+            - difficulty_scale * (level)
+            - level_fine_tune * (level)
+        )
     end
+    local value = formula(level_reached + 1)
+    local lower_value = formula(level_reached)
+    value = value - (value % (10 ^ (floor(log(value,10)) - precision)))
+    if lower_value == 0 then
+        return value - lower_value
+    end
+    lower_value = lower_value - (lower_value % (10 ^ (floor(log(lower_value,10)) - precision)))
+    return value - lower_value
 end)
 
 ---Updates a forces manual mining speed modifier. By removing active modifiers and re-adding
@@ -158,7 +172,7 @@ local function on_research_finished(event)
     local exp = award_xp * research.research_unit_count
     local text = string_format('Research completed! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
-        player_index = p.index
+        local player_index = p.index
         Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249}, -1, -0.5)
     end
     ForceControl.add_experience(force, exp)
@@ -188,7 +202,7 @@ local function on_rocket_launched(event)
     local force = event.force
     local text = string_format('Rocket launched! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
-        player_index = p.index
+        local player_index = p.index
         Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
     end
     ForceControl.add_experience(force, exp)
@@ -212,7 +226,7 @@ local function on_entity_died (event)
     local exp = 0
     exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
     local text = string_format('Killed %s! + %d XP', entity.name, exp)
-    player_index = cause.player.index
+    local player_index = cause.player.index
     Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
     ForceControl.add_experience(force, exp)
 end
@@ -262,7 +276,7 @@ function Experience.register(cfg)
 
     --Adds a function that'll be executed at every level up
     ForceControl_builder.register_on_every_level(function (level_reached, force)
-        force.print(string_format('Leved up to %d!', level_reached))
+        force.print(string_format('%s Leveled up to %d!', '## - ', level_reached))
         force.play_sound{path='utility/new_objective', volume_modifier = 1 }
         local Experience = require 'map_gen.Diggy.Feature.Experience'
         Experience.update_inventory_slots(force, level_reached)

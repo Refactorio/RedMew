@@ -388,9 +388,10 @@ local Config = {
         Experience = {
             enabled = true,
             -- controls the formula for calculating level up costs in stone sent to surface
-            difficulty_scale = 25, -- Diggy default 25. Higher increases difficulty, lower decreases (Only affects the stone requirement/cost to level up) (Only integers has been tested successful)
-            first_lvl_xp = 500, -- Diggy default 50. This sets the price for the first level.
-            cost_precision = 2, -- Diggy default 2. This sets the precision of the stone requirements to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
+            difficulty_scale = 25, -- Diggy default 25. Higher increases experience requirement climb
+            first_lvl_xp = 600, -- Diggy default 600. This sets the price for the first level.
+            xp_fine_tune = 200, -- Diggy default 200. This value is used to fine tune the overall requirement climb without affecting the speed
+            cost_precision = 3, -- Diggy default 3. This sets the precision of the required experience to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
 
             -- percentage * mining productivity level gets added to mining speed
             mining_speed_productivity_multiplier = 5,
@@ -399,13 +400,13 @@ local Config = {
               ['sand-rock-big']             = 5,
               ['rock-huge']                 = 10,
               ['rocket_launch']             = 5000,     -- XP reward for a single rocket launch
-              ['science-pack-1']            = 1,
-              ['science-pack-2']            = 2,
-              ['science-pack-3']            = 5,
-              ['military-science-pack']     = 4,
-              ['production-science-pack']   = 12,
-              ['high-tech-science-pack']    = 25,
-              ['space-science-pack']        = 5,
+              ['science-pack-1']            = 2,
+              ['science-pack-2']            = 4,
+              ['science-pack-3']            = 10,
+              ['military-science-pack']     = 8,
+              ['production-science-pack']   = 25,
+              ['high-tech-science-pack']    = 50,
+              ['space-science-pack']        = 10,
               ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters. This value is multiplied by the alien_coin_modifiers from ArtefactHunting
               ['death-penalty']             = 0.005,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.005 which equals 0.5%)
             },

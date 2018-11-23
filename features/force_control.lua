@@ -230,7 +230,8 @@ end
 ---Adds experience to a force.
 ---@param lua_force_or_name LuaForce|string
 ---@param experience number amount of experience to add
-function ForceControl.add_experience(lua_force_or_name, experience)
+---@param resursive_call boolean whether or not the function is called recursively (optional)
+function ForceControl.add_experience(lua_force_or_name, experience, recursive_call)
     assert_type('number', experience, 'Argument experience of function ForceControl.add_experience')
 
     if experience < 1 then
@@ -247,7 +248,9 @@ function ForceControl.add_experience(lua_force_or_name, experience)
 
     local new_experience = force_config.current_experience + experience
     local experience_level_up_cap = force_config.experience_level_up_cap
-    force_config.total_experience = force_config.total_experience + experience
+    if not recursive_call then
+        force_config.total_experience = force_config.total_experience + experience
+    end
 
     if (new_experience < experience_level_up_cap) then
         force_config.current_experience = new_experience
@@ -259,10 +262,9 @@ function ForceControl.add_experience(lua_force_or_name, experience)
     force_config.current_level = new_level
     force_config.current_experience = 0
     force_config.experience_level_up_cap = calculate_next_level_cap(new_level)
-
     raise_event(ForceControl.events.on_level_up, {level_reached = new_level, force = force})
 
-    ForceControl.add_experience(force, new_experience - experience_level_up_cap)
+    ForceControl.add_experience(force, new_experience - experience_level_up_cap, true)
 end
 
 ---Return the force data as {
@@ -298,7 +300,7 @@ function ForceControl.get_formatted_force_data(lua_force_or_name)
         return
     end
 
-    local result =  
+    local result =
         string.format(
             'Current experience: %d Total experience: %d Current level: %d  Next level at: %d Percentage to level up: %d%%',
             force_config.current_experience,
