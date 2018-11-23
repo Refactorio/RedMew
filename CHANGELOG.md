@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Next version
 
 ### Features
+- [Diggy] Added particles when a biter mines a rock upon spawning #424
 - [Diggy] Added bot mining #434
 - [Map] Add Tetris map #433
 - [Map] Add World Thanksgiving map #433
