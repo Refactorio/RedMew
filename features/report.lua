@@ -263,7 +263,7 @@ function Module.unjail_player(cmd)
         target_player.print(prefix)
         target_player.print('Your ability to perform actions has been restored', {r = 0, g = 1, b = 0, a = 1})
         target_player.print(prefix_e)
-        Utils.print_admins(target_player.name .. ' has been set free by ' .. player.name)
+        Utils.print_admins(target_player.name .. ' has been released from jail by ' .. player.name)
         Utils.log_command(player, 'unjail', target_player.name)
     else
         -- Let admin know it didn't work.

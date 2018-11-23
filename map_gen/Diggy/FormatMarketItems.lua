@@ -32,13 +32,13 @@ function FormatMarketItems.initialize_unlockables(items)
     for _, item in ipairs(items) do
         add(item.level, item.price, item.name)
     end
-    
+
         for lvl, v in pairs(market_prototype_items) do
             for _, w in ipairs(v) do
                 insert(unlockables, {level = lvl, type = 'market', prototype = w})
             end
         end
-      
+
     return unlockables
 end
 

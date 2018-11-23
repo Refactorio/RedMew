@@ -32,13 +32,13 @@ function MarketUnlockables.calculate_level(level) -- all configurable variables 
     local b = floor(Config.difficulty_scale) or 25 -- Default 25 <-- Controls how much stone is needed.
     local start_value = floor(Config.start_stone) or 50 -- The start value/the first level cost
     local formula = b*(level^3)+(start_value-b)
-        
+
     local precision = floor(Config.cost_precision) or 2 -- Sets the precision
-        
+
     -- Truncates to the precision and prevents duplicates by incrementing with 5 in the third highest place.
     -- First evaluates loosely if the previous level requirement would return same number after truncating.
-    -- If true evaluates down all levels to level 1 for the precise number 
-    -- (In case itself got incremented) 
+    -- If true evaluates down all levels to level 1 for the precise number
+    -- (In case itself got incremented)
     -- Only useful if three or more values turns out to be the same after truncating, thus the loosely evaluation to save an expensive recursive function
     local number, number_lenght = truncate(precision, formula)
     local prev_number = truncate(precision, b*((level-1)^3)+(start_value-b))

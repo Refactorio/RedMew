@@ -8,7 +8,6 @@ local Report = require 'features.report'
 
 --local Antigrief = require 'features.antigrief'
 
-
 --- Takes a target and teleports them to player. (admin only)
 local function invoke(cmd)
     if not (game.player and game.player.admin) then
@@ -41,7 +40,7 @@ local function teleport_player(cmd)
     local pos = surface.find_non_colliding_position('player', game.players[target].position, 0, 1)
     game.player.teleport(pos, surface)
     game.print(target .. "! watcha doin'?!")
-    game.player.print("You have teleported to" .. game.players[target].name)
+    game.player.print('You have teleported to ' .. game.players[target].name)
     Utils.log_command(game.player.name, cmd.name, cmd.parameter)
 end
 
@@ -91,6 +90,13 @@ local function kill(cmd)
         end
     end
 
+    if global.walking then
+        if global.walking[player.index] == true or global.walking[target.index] == true then
+            player.print("A player on walkabout cannot be killed by a mere fish, don't waste your efforts.")
+            return
+        end
+    end
+
     if not target and player then
         if not do_fish_kill(player, true) then
             Game.player_print("Sorry, you don't have a character to kill.")
@@ -121,112 +127,6 @@ local function kill(cmd)
     end
 end
 
---- A table of players currently on walkabout
-global.walking = {}
-
---- Return player from walkabout
-local custom_commands_return_player =
-    Token.register(
-    function(args)
-        local player = args.player
-        if not player.valid then
-            return
-        end
-
-        global.walking[player.index] = false
-
-        local walkabout_character = player.character
-        if walkabout_character and walkabout_character.valid then
-            walkabout_character.destroy()
-        end
-
-        local character = args.character
-        if character ~= nil and character.valid then
-            player.character = character
-        else
-            player.create_character()
-            player.teleport(args.position)
-        end
-
-        player.force = args.force
-
-        game.print(args.player.name .. ' came back from his walkabout.')
-    end
-)
-
---- Takes a target and puts them on walkabot (admin only)
-local function walkabout(cmd)
-    if game.player and not game.player.admin then
-        Utils.cant_run(cmd.name)
-        return
-    end
-    local params = {}
-    if cmd.parameter == nil then
-        Game.player_print('Walkabout failed, check /help walkabout.')
-        return
-    end
-    for param in string.gmatch(cmd.parameter, '%S+') do
-        table.insert(params, param)
-    end
-    local player_name = params[1]
-    local duration = 60
-    if #params > 2 then
-        Game.player_print('Walkabout failed, check /help walkabout.')
-        return
-    elseif #params == 2 and tonumber(params[2]) == nil then
-        Game.player_print(params[2] .. ' is not a number.')
-        return
-    elseif #params == 2 and tonumber(params[2]) then
-        duration = tonumber(params[2])
-    end
-    if duration < 15 then
-        duration = 15
-    end
-
-    local player = game.players[player_name]
-    if player == nil or not player.valid or global.walking[player.index] then
-        Game.player_print(player_name .. ' could not go on a walkabout.')
-        return
-    end
-    local chunks = {}
-    for chunk in player.surface.get_chunks() do
-        table.insert(chunks, chunk)
-    end
-
-    local surface = player.surface
-    local chunk = surface.get_random_chunk()
-    local pos = {x = chunk.x * 32, y = chunk.y * 32}
-    local non_colliding_pos = surface.find_non_colliding_position('player', pos, 100, 1)
-
-    local character = player.character
-    if character and character.valid then
-        character.walking_state = {walking = false}
-    end
-
-    if non_colliding_pos then
-        game.print(player_name .. ' went on a walkabout, to find himself.')
-        Task.set_timeout(
-            duration,
-            custom_commands_return_player,
-            {
-                player = player,
-                force = player.force,
-                position = {x = player.position.x, y = player.position.y},
-                character = character
-            }
-        )
-        player.character = nil
-        player.create_character()
-        player.teleport(non_colliding_pos)
-        player.force = 'neutral'
-        global.walking[player.index] = true
-        Utils.log_command(game.player.name, cmd.name, cmd.parameter)
-    else
-        Game.player_print('Walkabout failed: could not find non colliding position')
-    end
-end
-
---- Promote or demote a player between guest and regular (admin only)
 local function regular(cmd)
     if game.player and not game.player.admin then
         Utils.cant_run(cmd.name)
@@ -389,9 +289,7 @@ local function get_group()
                 group.set_allows_action(i, false)
             end
         else
-            game.print(
-                'This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).'
-            )
+            game.print('This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).')
         end
     end
     return group
@@ -466,7 +364,7 @@ local function zoom(cmd)
 end
 
 --- Creates a rectangle of water below an admin
-local function pool()
+local function pool(cmd)
     if game.player and game.player.admin then
         local t = {}
         local p = game.player.position
@@ -549,7 +447,6 @@ end
 
 --- Places a target in jail (a permissions group which is unable to act aside from chatting)(admin only)
 local function jail_player(cmd)
-
     local player = game.player
     -- Check if the player can run the command
     if player and not player.admin then
@@ -646,12 +543,10 @@ commands.add_command(
     end
 )
 
-
 commands.add_command('kill', 'Will kill you.', kill)
 commands.add_command('tpplayer', '<player> - Teleports you to the player. (Admins only)', teleport_player)
 commands.add_command('invoke', '<player> - Teleports the player to you. (Admins only)', invoke)
 commands.add_command('tppos', 'Teleports you to a selected entity. (Admins only)', teleport_location)
-commands.add_command('walkabout', '<player> <duration> - Send someone on a walk.  (Admins only)', walkabout)
 commands.add_command('regulars', 'Prints a list of game regulars.', UserGroups.print_regulars)
 commands.add_command('regular', '<promote, demote>, <player> Change regular status of a player. (Admins only)', regular)
 commands.add_command('afk', 'Shows how long players have been afk.', afk)
@@ -667,7 +562,6 @@ commands.add_command('unjail', '<player> restores ability for a player to perfor
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
 commands.add_command('report', '<griefer-name> <message> Reports a user to admins', Report.cmd_report)
 commands.add_command('show-rail-block', 'Toggles rail block visualisation', show_rail_block)
-
 
 --[[ commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
 commands.add_command(

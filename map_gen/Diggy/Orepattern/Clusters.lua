@@ -1,5 +1,5 @@
 
--- defines all ore patches to be generated. Add as many clusters as 
+-- defines all ore patches to be generated. Add as many clusters as
 -- needed. Clusters listed first have a higher placement priority over
 -- the latter clusters
 --

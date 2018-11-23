@@ -1,4 +1,4 @@
-local Event = require "utils.event"
+local Event = require 'utils.event'
 
 -- Uncomment the desired day/night cycle
 

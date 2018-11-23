@@ -13,9 +13,9 @@ local Module = {}
 local function update_file()
     local data = {'{\n'}
     for player_name, _ in pairs(global.regulars) do
-        table.insert(data, '["')
+        table.insert(data, "['")
         table.insert(data, player_name)
-        table.insert(data, '"] = true,\n')
+        table.insert(data, "''] = true,\n")
     end
     table.insert(data, '}')
 

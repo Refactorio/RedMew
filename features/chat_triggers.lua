@@ -63,18 +63,17 @@ local function hodor(event)
     local message = event.message:lower()
 
     if message:match('hodor') then
-
         game.print('Hodor: ' .. table.get_random_weighted(Hodor, 1, 2))
     end
 
     -- player_index is nil if the message came from the server,
     -- and indexing Game.players with nil is apparently an error.
-    local player = Game.get_player_by_index(event.player_index)
     local player_index = event.player_index
     if not player_index then
         return
     end
 
+    local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -104,8 +103,8 @@ local function hodor(event)
         local missing_player_string
         local not_found = 0
         local cannot_mention = {}
-        for word in event.message:gmatch('%S+') do
-            local word = word:lower()
+        for w in event.message:gmatch('%S+') do
+            local word = w:lower()
             local trimmed_word = string.sub(word, 0, string.len(word)-1)
             local first_char = string.sub(word, 0, 1)
             local last_char = string.sub(word, string.len(word))
