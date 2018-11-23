@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - [Diggy] Added bot mining #434
 - [Map] Add Tetris map #433
 - [Map] Add World Thanksgiving map #433
+- [Diggy] Added bot mining levels and rock mining/destruction particles #442
 
 ### Bugfixes
 - [Diggy] Stones killed by damage no longer spill. #395
