@@ -130,28 +130,25 @@ local function regular(cmd)
         Utils.cant_run(cmd.name)
         return
     end
-
     if cmd.parameter == nil then
         Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
         return
     end
+
     local params = {}
     for param in string.gmatch(cmd.parameter, '%S+') do
         table.insert(params, param)
     end
-    if (params[2] == nil) and (params[1] == 'promote')  then
+    if #params == 2 then
+        if params[1] == 'promote' then
+            UserGroups.add_regular(params[2])
+        elseif params[1] == 'demote' then
+            UserGroups.remove_regular(params[2])
+        else
             Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
-            return
-    elseif (params[2] == nil) then
-        Game.player_print('Success. Suggested usage: /regular <promote, demote>, <player>')
+        end
+    elseif #params == 1 and params[1] ~= 'promote' and params[1] ~= 'demote' then
         UserGroups.add_regular(params[1])
-        Utils.log_command(game.player.name, cmd.name, cmd.parameter)
-    elseif (params[1] == 'promote') then
-        UserGroups.add_regular(params[2])
-        Utils.log_command(game.player.name, cmd.name, cmd.parameter)
-    elseif (params[1] == 'demote') then
-        UserGroups.remove_regular(params[2])
-        Utils.log_command(game.player.name, cmd.name, cmd.parameter)
     else
         Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
     end
@@ -387,37 +384,9 @@ local function find_player(cmd)
         return
     end
 
-    player.print('Please use /find <player> instead. /find-player will be deprecated Jan 2019.')
     local name = cmd.parameter
     if not name then
         player.print('Usage: /find-player <player>')
-        return
-    end
-
-    local target = game.players[name]
-    if not target then
-        player.print('player ' .. name .. ' not found')
-        return
-    end
-
-    target = target.character
-    if not target or not target.valid then
-        player.print('player ' .. name .. ' does not have a character')
-        return
-    end
-
-    player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, name, true)
-end
-
-local function find(cmd)
-    local player = game.player
-    if not player then
-        return
-    end
-
-    local name = cmd.parameter
-    if not name then
-        player.print('Usage: /find <player>')
         return
     end
 
@@ -547,8 +516,7 @@ commands.add_command('tpmode', 'Toggles tp mode. When on place a ghost entity to
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
 commands.add_command('pool', 'Spawns a pool', pool)
-commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)
-commands.add_command('find', '<player> shows an alert on the map where the player is located', find)
+commands.add_command('find', '<player> shows an alert on the map where the player is located', find_player)
 commands.add_command('jail', '<player> disables all actions a player can perform except chatting. (Admins only)', jail_player)
 commands.add_command('unjail', '<player> restores ability for a player to perform actions. (Admins only)', Report.unjail_player)
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
