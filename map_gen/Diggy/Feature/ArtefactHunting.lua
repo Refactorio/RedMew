@@ -24,17 +24,13 @@ local function redraw_table(data)
 
     data.frame.caption = 'Scoretable'
 
-    local score_keys = ScoreTable.all_keys()
-
-    for _, data in pairs(score_keys) do
-        local val = ScoreTable.get(data)
-
+    for name, value in pairs(ScoreTable.all()) do
         local table = list.add({type = 'table', column_count = 2})
 
-        local key = table.add({type = 'label', name = 'Diggy.ArtefactHunting.Frame.List.Key', caption = data})
+        local key = table.add({type = 'label', name = 'Diggy.ArtefactHunting.Frame.List.Key', caption = name})
         key.style.minimal_width = 175
 
-        local val = table.add({type = 'label', name = 'Diggy.ArtefactHunting.Frame.List.Val', caption = utils.comma_value(val)})
+        local val = table.add({type = 'label', name = 'Diggy.ArtefactHunting.Frame.List.Val', caption = utils.comma_value(value)})
         val.style.minimal_width = 225
     end
 end

@@ -10,6 +10,7 @@ local Task = require 'utils.task'
 local AlienEvolutionProgress = require 'map_gen.Diggy.AlienEvolutionProgress'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
+local CreateParticles = require 'map_gen.Diggy.CreateParticles'
 local random = math.random
 local floor = math.floor
 local ceil = math.ceil
@@ -54,16 +55,7 @@ local do_alien_mining = Token.register(function(params)
         local particle_count = 16 - ((#rocks - 1) * 5)
         for _, rock in pairs(rocks) do
             raise_event(defines.events.on_entity_died, {entity = rock})
-            for _ = particle_count, 1, -1 do
-                create_entity({
-                    position = rock.position,
-                    name = 'stone-particle',
-                    movement = {random(-5, 5) * 0.01, random(-5, 5) * 0.01},
-                    frame_speed = 1,
-                    vertical_speed = random(12, 14) * 0.01,
-                    height = random(9, 11) * 0.1,
-                })
-            end
+            CreateParticles.destroy_rock(create_entity, particle_count, rock.position)
             rock.destroy()
         end
     end
