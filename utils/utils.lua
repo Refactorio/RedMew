@@ -16,7 +16,9 @@ Module.print_except = function(msg, player)
     end
 end
 
--- Takes a LuaPlayer or string as source
+--- Prints a message to all online admins
+--@param1 The message to print, as a string
+--@param2 The source of the message, as a string, LuaPlayer, or nil.
 Module.print_admins = function(msg, source)
     local source_name
     local chat_color
@@ -41,6 +43,7 @@ Module.print_admins = function(msg, source)
     end
 end
 
+--- Returns a valid string with the name of the actor of a command.
 Module.get_actor = function()
     if game.player then
         return game.player.name
@@ -119,22 +122,20 @@ Module.format_time = function(ticks)
     return table.concat(result, ' ')
 end
 
+--- Prints a message letting the player know they cannot run a command
+-- @param1 name of the command
 Module.cant_run = function(name)
     Game.player_print("Can't run command (" .. name .. ') - insufficient permission.')
 end
 
-Module.log_command = function(user, command, parameters)
-    local name
-
-    -- We can use a LuaPlayer or a string (ex. "Server").
-    if type(user) == 'string' then
-        name = user
-    else
-        name = user.name
-    end
-    local action = table.concat {'[Admin-Command] ', name, ' used: ', command}
+--- Logs the use of a command and its user
+-- @param1 takes a string with the actor's name (usually acquired by calling get_actor)
+-- @param2 the command's name as table element
+-- @param3 the command's parameters as a table element (optional)
+Module.log_command = function(actor, command, parameters)
+    local action = table.concat {'[Admin-Command] ', actor, ' used: ', command}
     if parameters then
-        action = table.concat {'[Admin-Command] ', name, ' used: ', command, ' ', parameters}
+        action = table.concat {action, ' ', parameters}
     end
     log(action)
 end
