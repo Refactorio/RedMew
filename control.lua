@@ -47,3 +47,35 @@ require 'features.gui.blueprint_helper'
 require 'features.gui.paint'
 require 'features.gui.score'
 require 'features.gui.popup'
+
+Server.on_data_set_changed(
+    'Test',
+    function(data)
+        game.print(serpent.block(data))
+    end
+)
+
+Server.on_data_set_changed(
+    'Test 2',
+    function(data)
+        game.print(serpent.block(data))
+    end
+)
+
+Server.on_data_set_changed(
+    'Test,2',
+    function(data)
+        game.print(serpent.block(data))
+    end
+)
+
+local Event = require('utils.event')
+Event.add(
+    Server.events.on_server_started,
+    function(tbl)
+        game.print('on_server_started')
+        print('on_server_started')
+        game.print(serpent.block(tbl))
+        print(serpent.block(tbl))
+    end
+)
