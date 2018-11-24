@@ -43,6 +43,7 @@ end)
 local Config = {}
 local string_format = string.format
 local alien_coin_modifiers = require 'map_gen.Diggy.Config'.features.ArtefactHunting.alien_coin_modifiers
+local floor = math.floor
 
 local level_up_formula = (function (level_reached)
     local floor = math.floor
@@ -211,17 +212,34 @@ end
 ---@param event LuaEvent
 local function on_entity_died (event)
     local entity = event.entity
-    local force = entity.force
-
-    if force.name ~= 'enemy' then
-        return
-    end
+    local force = event.force
 
     local cause = event.cause
 
+    --For bot mining
     if not cause or cause.type ~= 'player' or not cause.valid then
+        if force == 'player' then
+            local exp
+            if entity.name == 'sand-rock-big' then
+                exp = floor(sand_rock_xp/2)
+            elseif entity.name == 'rock-huge' then
+                exp = floor(rock_huge_xp/2)
+            else
+                return
+            end
+        else
+            return
+        end
+        local text = string_format('+ %d XP', exp)
+        Game.print_floating_text(entity.surface, entity.position, text, {r = 144, g = 202, b = 249})
+        ForceControl.add_experience(force, exp)
         return
     end
+
+    if entity.force.name ~= 'enemy' then
+        return
+    end
+
     local exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
     local text = string_format('Killed %s! + %d XP', entity.name, exp)
     local player_index = cause.player.index
