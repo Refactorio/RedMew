@@ -13,10 +13,12 @@ All notable changes to this project will be documented in this file.
 - [Diggy] Added bot mining #434
 - [Map] Add Tetris map #433
 - [Map] Add World Thanksgiving map #433
+- [Diggy] Added bot mining levels and rock mining/destruction particles #442
 
 ### Bugfixes
 - [Diggy] Stones killed by damage no longer spill. #395
 - [Core] Fix /kill non-functional if walkabout is disabled. Fix walkabout giving from variable definition. #425
+- [Diggy] Improved biter spawning algorithm #408
 - [Core] Fix null reference in chat_triggers #431
 - [Core] Fix nil ref in train_station_names #441
 

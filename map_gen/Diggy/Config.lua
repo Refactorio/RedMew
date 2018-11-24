@@ -49,13 +49,18 @@ local Config = {
                 character_health_bonus = 1000000,
 
                 -- unlock all research by default, only useful when testing
-                unlock_all_research = true,
+                unlock_all_research = false,
 
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
                     {name = 'power-armor-mk2', count = 1},
                     {name = 'submachine-gun', count = 1},
                     {name = 'uranium-rounds-magazine', count = 1000},
+                    {name = 'roboport', count = 2},
+                    {name = 'construction-robot', count = 50},
+                    {name = 'electric-energy-interface', count = 1},
+                    {name = 'medium-electric-pole', count = 50},
+                    {name = 'logistic-chest-storage', count = 50},
                 },
             },
         },
@@ -70,6 +75,12 @@ local Config = {
 
             -- enables commands like /clear-void
             enable_debug_commands = false,
+
+            -- initial damage per tick it damages a rock to mine, can be enhanced by robot_damage_per_mining_prod_level
+            robot_initial_mining_damage = 4,
+
+            -- damage added per level of mining productivity level research
+            robot_damage_per_mining_prod_level = 1,
         },
 
         -- adds the ability to collapse caves

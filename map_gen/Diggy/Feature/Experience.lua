@@ -154,7 +154,6 @@ local function on_player_mined_entity(event)
     local text = string_format('+%d XP', exp)
     Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},0, -0.5)
     ForceControl.add_experience(force, exp)
-    Debug.print(ForceControl.get_formatted_force_data(force))
 end
 
 ---Awards experience when a research has finished, based on ingredient cost of research
