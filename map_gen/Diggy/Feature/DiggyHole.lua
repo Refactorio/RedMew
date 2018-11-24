@@ -15,12 +15,6 @@ local insert = table.insert
 local random = math.random
 local raise_event = script.raise_event
 
--- todo remove this dependency
-local ResourceConfig = require 'map_gen.Diggy.Config'.features.ScatteredResources
-
-local Perlin = require 'map_gen.shared.perlin_noise'
-local Simplex = require 'map_gen.shared.simplex_noise'
-
 -- this
 local DiggyHole = {}
 
@@ -62,120 +56,15 @@ local function diggy_hole(entity)
     local rocks = {}
     local surface = entity.surface
     local position = entity.position
-    local x = position.x
-    local y = position.y
 
     local out_of_map_found = Scanner.scan_around_position(surface, position, 'out-of-map');
-    local distance = ResourceConfig.distance(x, y)
 
-    -- source of noise for resource generation
-    -- index determines offset
-    -- '-1' is reserved for cluster mode
-    -- compound clusters use as many indexes as needed > 1
-    local base_seed
-    local function seeded_noise(surface, x, y, index, sources)
-        base_seed = base_seed or surface.map_gen_settings.seed + surface.index + 4000
-        local noise = 0
-        for _, settings in ipairs(sources) do
-            settings.type = settings.type or 'perlin'
-            settings.offset = settings.offset or 0
-            if settings.type == 'zero' then
-                noise = noise + 0
-            elseif settings.type == 'one' then
-                noise = noise + settings.weight * 1
-            elseif settings.type == 'perlin' then
-                noise = noise + settings.weight * Perlin.noise(x/settings.variance, y/settings.variance,
-                            base_seed + 2000*index + settings.offset)
-            elseif settings.type == 'simplex' then
-                noise = noise + settings.weight * Simplex.d2(x/settings.variance, y/settings.variance,
-                            base_seed + 2000*index + settings.offset)
-            else
-                Debug.print('noise type \'' .. settings.type .. '\' not recognized')
-            end
-
-        end
-        return noise
-    end
-
-    -- global config values
-    local resource_richness_weights = ResourceConfig.resource_richness_weights
-    local resource_richness_weights_sum = 0
-    for _, weight in pairs(resource_richness_weights) do
-        resource_richness_weights_sum = resource_richness_weights_sum + weight
-    end
-
-    local s_resource_weights = ResourceConfig.scattered_resource_weights
-    local s_resource_weights_sum = 0
-    for _, weight in pairs(s_resource_weights) do
-        s_resource_weights_sum = s_resource_weights_sum + weight
-    end
-
-    -- compound cluster spawning
-    local c_mode = ResourceConfig.cluster_mode
---    local c_clusters = Config.features.ScatteredResources.clusters
-    local c_clusters = require(ResourceConfig.cluster_file_location)
-    if ('table' ~= type(c_clusters)) then
-        error('cluster_file_location invalid')
-    end
-
-    local c_count = 0
-    for _, cluster in ipairs(c_clusters) do
-        c_count = c_count + 1
-        cluster.weights_sum = 0
-        for _, weight in pairs(cluster.weights) do
-            cluster.weights_sum = cluster.weights_sum + weight
-        end
-    end
-
-    local function spawn_cluster_resource(surface, x, y, cluster_index, cluster)
-        for name, weight in pairs(cluster.weights) do
-            if name == 'skip' then return false end
-        end
-        return true
-    end
-
-        local huge_rock_inserted = false
-    for _, position in pairs(out_of_map_found) do
-        insert(tiles, {name = 'dirt-' .. random(1, 7), position = position})
-
-
-        if c_mode then
-            for index,cluster in ipairs(c_clusters) do
-                if distance >= cluster.min_distance and cluster.noise_settings.type ~= 'skip' then
-                    if cluster.noise_settings.type == "connected_tendril" then
-                        local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
-                        if -1 * cluster.noise_settings.threshold < noise and noise < cluster.noise_settings.threshold then
-                            if spawn_cluster_resource(surface, x, y, index, cluster) then
-                                insert(rocks, {name = 'rock-huge', position = position})
-                                huge_rock_inserted = true
-                            end
-                        end
-                    elseif cluster.noise_settings.type == "fragmented_tendril" then
-                        local noise1 = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
-                        local noise2 = seeded_noise(surface, x, y, index, cluster.noise_settings.discriminator)
-                        if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold
-                                and -1 * cluster.noise_settings.discriminator_threshold < noise2
-                                and noise2 < cluster.noise_settings.discriminator_threshold then
-                            if spawn_cluster_resource(surface, x, y, index, cluster) then
-                                insert(rocks, {name = 'rock-huge', position = position})
-                                huge_rock_inserted = true
-                            end
-                        end
-                    else
-                        local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
-                        if noise >= cluster.noise_settings.threshold then
-                            if spawn_cluster_resource(surface, x, y, index, cluster) then
-                                insert(rocks, {name = 'rock-huge', position = position})
-                                huge_rock_inserted = true
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-    if (huge_rock_inserted == false) then
-        insert(rocks, {name = 'sand-rock-big', position = position})
+    for _, void_position in ipairs(out_of_map_found) do
+        insert(tiles, {name = 'dirt-' .. random(1, 7), position = void_position })
+        if random() < 0.35 then
+            insert(rocks, {name = 'rock-huge', position = void_position })
+        else
+            insert(rocks, {name = 'sand-rock-big', position = void_position })
         end
     end
 

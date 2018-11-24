@@ -9,7 +9,6 @@ local Task = require 'utils.Task'
 local Gui = require 'utils.gui'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
-local Global = require 'utils.global'
 local Game = require 'utils.game'
 local insert = table.insert
 local force_control = require 'features.force_control'
@@ -17,7 +16,6 @@ local Experience = require 'map_gen.Diggy.Feature.Experience'
 local max = math.max
 local floor = math.floor
 local utils = require 'utils.utils'
-local prefix = '## - '
 
 -- this
 local MarketExchange = {}
@@ -25,7 +23,7 @@ local MarketExchange = {}
 local config = {}
 
 local on_market_timeout_finished = Token.register(function(params)
-    Template.market(params.surface, params.position, params.player_force, {})
+    Template.market(params.surface, params.position, params.player_force)
 end)
 
 ---Updates market content with new items if they are to be unlocked
@@ -366,13 +364,11 @@ function MarketExchange.update_gui()
 end
 
 function MarketExchange.on_init()
-    Task.set_timeout_in_ticks(50, on_market_timeout_finished, {
+    Task.set_timeout_in_ticks(1, on_market_timeout_finished, {
         surface = game.surfaces.nauvis,
         position = config.market_spawn_position,
         player_force = game.forces.player,
     })
-
-
 end
 
 --[[--

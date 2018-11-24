@@ -2,12 +2,6 @@
 
 -- this
 local Config = {
-    -- enable debug mode, shows extra messages
-    debug = false,
-
-    -- allow cheats, primarily configured under SetupPlayer
-    cheats = false,
-
     -- a list of features to register and enable
     -- to disable a feature, change the flag
     features = {
@@ -306,8 +300,8 @@ local Config = {
             cluster_mode = true,
 
             -- location of file to find the cluster definition file
-            cluster_file_location = 'map_gen.Diggy.Orepattern.Tendrils',
-            --cluster_file_location = 'map_gen.Diggy.Orepattern.Clusters',
+            ore_pattern = require 'map_gen.Diggy.Orepattern.Tendrils',
+            --ore_pattern = require 'map_gen.Diggy.Orepattern.Clusters',
 
         },
 

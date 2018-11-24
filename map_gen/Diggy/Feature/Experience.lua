@@ -40,7 +40,7 @@ Global.register({
 end)
 
 
-local Config = {}
+local config = {}
 local string_format = string.format
 local alien_coin_modifiers = require 'map_gen.Diggy.Config'.features.ArtefactHunting.alien_coin_modifiers
 local floor = math.floor
@@ -51,7 +51,7 @@ local level_up_formula = (function (level_reached)
     local Config = require 'map_gen.Diggy.Config'.features.Experience
     local difficulty_scale = floor(Config.difficulty_scale)
     local level_fine_tune = floor(Config.xp_fine_tune)
-    local start_value = (floor(Config.first_lvl_xp)/2)
+    local start_value = (floor(Config.first_lvl_xp) * 0.5)
     local precision = (floor(Config.cost_precision))
     local function formula(level)
         return (
@@ -68,7 +68,7 @@ local level_up_formula = (function (level_reached)
     if lower_value == 0 then
         return value - lower_value
     end
-    lower_value = lower_value - (lower_value % (10 ^ (floor(log(lower_value,10)) - precision)))
+    lower_value = lower_value - (lower_value % (10 ^ (floor(log(lower_value, 10)) - precision)))
     return value - lower_value
 end)
 
@@ -76,10 +76,10 @@ end)
 ---@param force LuaForce the force of which will be updated
 ---@param level_up number a level if updating as part of a level up (optional)
 function Experience.update_mining_speed(force, level_up)
-    local level_up = level_up ~= nil and level_up or 0
-    local buff = Config.buffs['mining_speed']
+    level_up = level_up ~= nil and level_up or 0
+    local buff = config.buffs['mining_speed']
     if level_up > 0 and buff ~= nil then
-        local value = (buff.double_level ~= nil and level_up%buff.double_level == 0) and buff.value*2 or buff.value
+        local value = (buff.double_level ~= nil and level_up % buff.double_level == 0) and buff.value * 2 or buff.value
         mining_efficiency.level_modifier = mining_efficiency.level_modifier + (value * 0.01)
     end
     -- remove the current buff
@@ -96,10 +96,10 @@ end
 ---@param force LuaForce the force of which will be updated
 ---@param level_up number a level if updating as part of a level up (optional)
 function Experience.update_inventory_slots(force, level_up)
-    local level_up = level_up ~= nil and level_up or 0
-    local buff = Config.buffs['inventory_slot']
+    level_up = level_up ~= nil and level_up or 0
+    local buff = config.buffs['inventory_slot']
     if level_up > 0 and buff ~= nil then
-        local value = (buff.double_level ~= nil and level_up%buff.double_level == 0) and buff.value*2 or buff.value
+        local value = (buff.double_level ~= nil and level_up % buff.double_level == 0) and buff.value * 2 or buff.value
         inventory_slots.level_modifier = inventory_slots.level_modifier + value
     end
 
@@ -117,8 +117,8 @@ end
 ---@param force LuaForce the force of which will be updated
 ---@param level_up number a level if updating as part of a level up (optional)
 function Experience.update_health_bonus(force, level_up)
-    local level_up = level_up ~= nil and level_up or 0
-    local buff = Config.buffs['health_bonus']
+    level_up = level_up ~= nil and level_up or 0
+    local buff = config.buffs['health_bonus']
     if level_up > 0 and buff ~= nil then
         local value = (buff.double_level ~= nil and level_up%buff.double_level == 0) and buff.value*2 or buff.value
         health_bonus.level_modifier = health_bonus.level_modifier + value
@@ -166,7 +166,7 @@ local function on_research_finished(event)
 
     for _, ingredient in pairs(research.research_unit_ingredients) do
         local name = ingredient.name
-        local reward = Config.XP[name]
+        local reward = config.XP[name]
         award_xp = award_xp + reward
     end
     local exp = award_xp * research.research_unit_count
@@ -179,7 +179,7 @@ local function on_research_finished(event)
 
 
     local current_modifier = mining_efficiency.research_modifier
-    local new_modifier = force.mining_drill_productivity_bonus * Config.mining_speed_productivity_multiplier * 0.5
+    local new_modifier = force.mining_drill_productivity_bonus * config.mining_speed_productivity_multiplier * 0.5
 
     if (current_modifier == new_modifier) then
         -- something else was researched
@@ -198,7 +198,7 @@ end
 ---Awards experience when a rocket has been launched
 ---@param event LuaEvent
 local function on_rocket_launched(event)
-    local exp = Config.XP['rocket_launch']
+    local exp = config.XP['rocket_launch']
     local force = event.force
     local text = string_format('Rocket launched! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
@@ -246,7 +246,7 @@ local function on_entity_died (event)
         return
     end
 
-    local exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
+    local exp = config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
     local text = string_format('+ %d XP', exp)
     local player_index = cause.player.index
     Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
@@ -258,7 +258,7 @@ end
 local function on_player_respawned(event)
     local player = Game.get_player_by_index(event.player_index)
     local force = player.force
-    local exp = ForceControl.remove_experience_percentage(force, Config.XP['death-penalty'], 50)
+    local exp = ForceControl.remove_experience_percentage(force, config.XP['death-penalty'], 50)
     local text = string_format('%s died! -%d XP', player.name, exp)
     for _, p in pairs(game.connected_players) do
         Game.print_player_floating_text_position(p.index, text, {r = 255, g = 0, b = 0},-1, -0.5)
@@ -269,7 +269,7 @@ end
 ---@return table with the same format as in the Diggy Config
 ---@see Diggy.Config.features.Experience.Buffs
 function Experience.get_buffs()
-    return Config.buffs
+    return config.buffs
 end
 
 local level_table = {}
@@ -291,7 +291,7 @@ function Experience.calculate_level_xp(level)
 end
 
 function Experience.register(cfg)
-    Config = cfg
+    config = cfg
 
     --Adds the function on how to calculate level caps (When to level up)
     ForceControl_builder = ForceControl.register(level_up_formula)
@@ -318,8 +318,8 @@ function Experience.register(cfg)
     Event.add(defines.events.on_entity_died, on_entity_died)
 
     -- Prevents table lookup thousands of times
-    sand_rock_xp = Config.XP['sand-rock-big']
-    rock_huge_xp = Config.XP['rock-huge']
+    sand_rock_xp = config.XP['sand-rock-big']
+    rock_huge_xp = config.XP['rock-huge']
 end
 
 function Experience.on_init()
