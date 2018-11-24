@@ -40,6 +40,11 @@ function Command.add(command_name, options, callback)
             end
         else
             print = player.print
+
+            if admin_only and not player.admin then
+                print(string.format('The %s command is only available to admins.', command_name))
+                return
+            end
         end
 
         local named_arguments = {}
@@ -48,14 +53,26 @@ function Command.add(command_name, options, callback)
             insert(from_command, param)
         end
 
+        local errors = {}
+
         for index, argument in ipairs(arguments) do
             local parameter = from_command[index]
             if not parameter then
-                print(string.format('Argument %s from command %s is missing.', argument, command_name))
-                return
+                insert(errors, string.format('Argument %s from command %s is missing.', argument, command_name))
+            else
+                named_arguments[argument] = parameter
             end
+        end
 
-            named_arguments[argument] = parameter
+        local return_early = false
+
+        for _, error in ipairs(errors) do
+            return_early = true
+            print(error)
+        end
+
+        if return_early then
+            return
         end
 
         if log_command then
