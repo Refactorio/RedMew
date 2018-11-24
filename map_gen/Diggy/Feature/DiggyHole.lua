@@ -24,42 +24,6 @@ local Simplex = require 'map_gen.shared.simplex_noise'
 -- this
 local DiggyHole = {}
 
--- keeps track of the amount of times per player when they mined with a full inventory in a row
-local full_inventory_mining_cache = {}
-
-Global.register({
-    full_inventory_mining_cache = full_inventory_mining_cache,
-}, function (tbl)
-    full_inventory_mining_cache = tbl.full_inventory_mining_cache
-end)
-
-local function reset_player_full_inventory_cache(player)
-    if not full_inventory_mining_cache[player.index] then
-        return
-    end
-
-    full_inventory_mining_cache[player.index] = nil
-end
-
-local full_inventory_message = 'Miner, you have a full inventory!\n\nMake sure to empty it before you continue digging.'
-
-local function trigger_inventory_warning(player)
-    local player_index = player.index
-    local count = full_inventory_mining_cache[player_index]
-    if not count then
-        full_inventory_mining_cache[player_index] = 1
-        player.print('## - ' .. full_inventory_message, {r = 1, g = 1, b = 0, a = 1})
-        player.play_sound{path='utility/new_objective', volume_modifier = 1 }
-        return
-    end
-
-    full_inventory_mining_cache[player_index] = count + 1
-
-    if count % 5 == 0 then
-        require 'features.gui.popup'.player(player, full_inventory_message)
-    end
-end
-
 --[[--
     Triggers a diggy diggy hole for a given sand-rock-big or rock-huge.
 
@@ -287,8 +251,9 @@ function DiggyHole.register(config)
 
         if name == 'sand-rock-big' or name == 'rock-huge' then
             event.buffer.remove({name = 'coal', count = 100})
+            event.buffer.remove({name = 'stone', count = 100})
 
-            -- this logic can be replaced once we've fully replaced the stone to surface functionality
+            --[[ this logic can be replaced once we've fully replaced the stone to surface functionality
             if enable_digging_warning then
                 local player = Game.get_player_by_index(event.player_index)
                 if player and player.valid then
@@ -298,7 +263,7 @@ function DiggyHole.register(config)
                         trigger_inventory_warning(player)
                     end
                 end
-            end
+            end ]]
         end
 
         diggy_hole(entity)
@@ -351,6 +316,7 @@ end
 
 function DiggyHole.on_init()
     game.forces.player.technologies['landfill'].enabled = false
+    game.forces.player.technologies['atomic-bomb'].enabled = false
 end
 
 return DiggyHole

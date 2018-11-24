@@ -343,7 +343,7 @@ local Config = {
             -- market config
             market_spawn_position = {x = 0, y = 3},
             stone_to_surface_amount = 50,
-            currency_item = 'stone',
+            currency_item = 'coin',
 
             -- locations where chests will be automatically cleared from currency_item
             void_chest_tiles = {
@@ -355,52 +355,42 @@ local Config = {
 
             -- add or remove a table entry to add or remove a unlockable item from the mall.
             -- format: {unlock_at_level, price, prototype_name},
+            -- alternative format: {level = 32, price = {{"stone", 2500}, {"coin", 100}}, name = 'power-armor'},
             unlockables = require('map_gen.Diggy.FormatMarketItems').initialize_unlockables(
                 {
-                    {level = 1, price = 50, name = 'iron-axe'},
-                    {level = 2, price = 50, name = 'raw-wood'},
-                    {level = 2, price = 20, name = 'raw-fish'},
-                    {level = 3, price = 50, name = 'stone-brick'},
-                    {level = 5, price = 125, name = 'stone-wall'},
-                    {level = 7, price = 25, name = 'small-lamp'},
-                    {level = 9, price = 50, name = 'firearm-magazine'},
-                    {level = 9, price = 250, name = 'pistol'},
-                    {level = 11, price = 850, name = 'shotgun'},
-                    {level = 11, price = 50, name = 'shotgun-shell'},
-                    {level = 14, price = 500, name = 'light-armor'},
-                    {level = 16, price = 850, name = 'submachine-gun'},
-                    {level = 16, price = 50, name = 'steel-axe'},
-                    {level = 19, price = 100, name = 'piercing-rounds-magazine'},
-                    {level = 19, price = 100, name = 'piercing-shotgun-shell'},
-                    {level = 21, price = 750, name = 'heavy-armor'},
-                    {level = 25, price = 1500, name = 'modular-armor'},
-                    {level = 25, price = 1000, name = 'landfill'},
-                    {level = 28, price = {{"stone", 900}, {"coin", 25}}, name = 'personal-roboport-equipment'},
-                    {level = 28, price = {{"stone", 250}, {"coin", 10}}, name = 'construction-robot'},
-                    {level = 32, price = {{"stone", 2500}, {"coin", 100}}, name = 'power-armor'},
-                    {level = 34, price = {{"stone", 150}, {"coin", 10}}, name = 'battery-equipment'},
-                    {level = 33, price = {{"stone", 2000}, {"coin", 75}}, name = 'fusion-reactor-equipment'},
-                    {level = 36, price = {{"stone", 750}, {"coin", 20}}, name = 'energy-shield-equipment'},
+                    {level = 1, price = 5, name = 'iron-axe'},
+                    {level = 2, price = 5, name = 'raw-wood'},
+                    {level = 2, price = 10, name = 'raw-fish'},
+                    {level = 3, price = 5, name = 'stone-brick'},
+                    {level = 5, price = 12, name = 'stone-wall'},
+                    {level = 7, price = 6, name = 'small-lamp'},
+                    {level = 9, price = 5, name = 'firearm-magazine'},
+                    {level = 9, price = 25, name = 'pistol'},
+                    {level = 11, price = 85, name = 'shotgun'},
+                    {level = 11, price = 5, name = 'shotgun-shell'},
+                    {level = 14, price = 50, name = 'light-armor'},
+                    {level = 16, price = 85, name = 'submachine-gun'},
+                    {level = 16, price = 25, name = 'steel-axe'},
+                    {level = 19, price = 15, name = 'piercing-rounds-magazine'},
+                    {level = 19, price = 15, name = 'piercing-shotgun-shell'},
+                    {level = 21, price = 100, name = 'heavy-armor'},
+                    {level = 25, price = 250, name = 'modular-armor'},
+                    {level = 25, price = 100, name = 'landfill'},
+                    {level = 28, price = 250, name = 'personal-roboport-equipment'},
+                    {level = 28, price = 75, name = 'construction-robot'},
+                    {level = 32, price = 850, name = 'power-armor'},
+                    {level = 34, price = 100, name = 'battery-equipment'},
+                    {level = 33, price = 1000, name = 'fusion-reactor-equipment'},
+                    {level = 36, price = 150, name = 'energy-shield-equipment'},
                     {level = 42, price = 1000, name = 'combat-shotgun'},
                     {level = 46, price = 250, name = 'uranium-rounds-magazine'},
-                    {level = 58, price = {{"stone", 1500}, {"coin", 25}}, name = 'rocket-launcher'},
-                    {level = 58, price = {{"stone", 500}, {"coin", 5}}, name = 'rocket'},
-                    {level = 66, price = {{"stone", 1000}, {"coin", 10}}, name = 'explosive-rocket'},
-                    {level = 73, price = {{"stone", 1000}, {"coin", 200}}, name = 'satellite'},
-                    {level = 100, price = {{"stone", 5000}, {"coin", 9999}}, name = 'atomic-bomb'},
+                    {level = 58, price = 250, name = 'rocket-launcher'},
+                    {level = 58, price = 50, name = 'rocket'},
+                    {level = 66, price = 100, name = 'explosive-rocket'},
+                    {level = 73, price = 2000, name = 'satellite'},
+                    {level = 100, price = 1, name = 'iron-stick'},
                 }
             ),
-
-            buffs = { --Define new buffs here, they are handed out for each level
-                {prototype = {name = 'mining_speed', value = 5}},
-                {prototype = {name = 'inventory_slot', value = 1}},
-                {prototype = {name = 'stone_automation', value = 3}},
-            },
-
-            -- controls the formula for calculating level up costs in stone sent to surface
-            difficulty_scale = 25, -- Diggy default 25. Higher increases difficulty, lower decreases (Only affects the stone requirement/cost to level up) (Only integers has been tested succesful)
-            start_stone = 50, -- Diggy default 50. This sets the price for the first level.
-            cost_precision = 2, -- Diggy default 2. This sets the precision of the stone requirements to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
         },
 
 
@@ -409,7 +399,40 @@ local Config = {
             enabled = true,
             autojail = true,
             allowed_collapses_first_hour = 4
-        }
+        },
+
+        Experience = {
+            enabled = true,
+            -- controls the formula for calculating level up costs in stone sent to surface
+            difficulty_scale = 25, -- Diggy default 25. Higher increases experience requirement climb
+            first_lvl_xp = 600, -- Diggy default 600. This sets the price for the first level.
+            xp_fine_tune = 200, -- Diggy default 200. This value is used to fine tune the overall requirement climb without affecting the speed
+            cost_precision = 3, -- Diggy default 3. This sets the precision of the required experience to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
+
+            -- percentage * mining productivity level gets added to mining speed
+            mining_speed_productivity_multiplier = 5,
+
+            XP = {
+              ['sand-rock-big']             = 5,
+              ['rock-huge']                 = 10,
+              ['rocket_launch']             = 5000,     -- XP reward for a single rocket launch
+              ['science-pack-1']            = 2,
+              ['science-pack-2']            = 4,
+              ['science-pack-3']            = 10,
+              ['military-science-pack']     = 8,
+              ['production-science-pack']   = 25,
+              ['high-tech-science-pack']    = 50,
+              ['space-science-pack']        = 10,
+              ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters. This value is multiplied by the alien_coin_modifiers from ArtefactHunting
+              ['death-penalty']             = 0.005,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.005 which equals 0.5%)
+            },
+
+            buffs = { --Define new buffs here, they are handed out for each level.
+                ['mining_speed'] = {value = 5},
+                ['inventory_slot'] = {value = 1},
+                ['health_bonus'] = {value = 2.5, double_level = 5}, -- double_level is the level interval for receiving a double bonus (Diggy default: 5 which equals every 5th level)
+            },
+        },
 
     },
 }

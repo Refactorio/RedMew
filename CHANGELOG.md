@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 ## Next version
 
 ### Features
+- [Diggy] Added new formula to calculate experience requirement for next level #402
+- [Diggy] Added health bonus on level up #402
+- [Diggy] Added new level system to replace stone sent to surface #402
+- [Diggy] Mining rocks no longer gives stone or coal #402
 - [Diggy] Added particles when a biter mines a rock upon spawning #424
 - [Diggy] Added bot mining #434
 - [Map] Add Tetris map #433
