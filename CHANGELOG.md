@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## Next version
 
 ### Features
+- [Core] Change /find-player to /find #417
+- [Core] Using `/regular <name>` now defaults to promoting the player. #417
 - [Diggy] Added new formula to calculate experience requirement for next level #402
 - [Diggy] Added health bonus on level up #402
 - [Diggy] Added new level system to replace stone sent to surface #402
