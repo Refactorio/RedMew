@@ -39,7 +39,7 @@ end
 --[[--
     Register the events required to initialize the scenario.
 ]]
-function Scenario.register(debug)
+function Scenario.register(debug, cheats)
     if global.diggy_scenario_registered then
         error('Cannot register the Diggy scenario multiple times.')
         return
@@ -50,11 +50,11 @@ function Scenario.register(debug)
         global.scenario.config.fish_market.enable = nil
     end
 
-    if (_DEBUG) then
+    if debug then
         Debug.enable_debug()
     end
 
-    if (_CHEATS) then
+    if cheats then
         Debug.enable_cheats()
     end
 
