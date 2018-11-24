@@ -1,4 +1,3 @@
-local Utils = require 'utils.utils'
 local insert = table.insert
 
 local Command = {}
@@ -14,7 +13,7 @@ local Command = {}
 ---
 ---The callback receives the following arguments:
 --- - arguments (indexed by name, value is extracted from the parameters)
---- - the LuaPlayer or nil if it doesn't exist
+--- - the LuaPlayer or nil if it doesn't exist (such as the server player)
 --- - the game tick in which the command was executed
 ---
 ---@param command_name string
@@ -32,9 +31,9 @@ function Command.add(command_name, options, callback)
     end
 
     commands.add_command(command_name, argument_list .. description .. (admin_only and ' (Admin Only)' or ''), function (command)
-        local print
+        local print -- custom print reference in case no player is present
         local player_index = command.player_index
-        local player = game.players[player_index]
+        local player = game.player
         if not player or not player.valid then
             print = function (message)
                 log(string.format('Trying to print message to player #%d, but not such player found: %s', player_index, message))
@@ -81,7 +80,7 @@ function Command.add(command_name, options, callback)
         end)
 
         if not success then
-            log(error)
+            log(string.format('Error while running %s: %s', command_name, error))
             print(string.format('There was an error running %s, it has been logged.', command_name))
         end
     end)
