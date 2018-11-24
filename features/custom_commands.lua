@@ -128,22 +128,25 @@ local function regular(cmd)
         Utils.cant_run(cmd.name)
         return
     end
-
     if cmd.parameter == nil then
         Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
         return
     end
+
     local params = {}
     for param in string.gmatch(cmd.parameter, '%S+') do
         table.insert(params, param)
     end
-    if params[2] == nil then
-        Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
-        return
-    elseif (params[1] == 'promote') then
-        UserGroups.add_regular(params[2])
-    elseif (params[1] == 'demote') then
-        UserGroups.remove_regular(params[2])
+    if #params == 2 then
+        if params[1] == 'promote' then
+            UserGroups.add_regular(params[2])
+        elseif params[1] == 'demote' then
+            UserGroups.remove_regular(params[2])
+        else
+            Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
+        end
+    elseif #params == 1 and params[1] ~= 'promote' and params[1] ~= 'demote' then
+        UserGroups.add_regular(params[1])
     else
         Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
     end
@@ -506,7 +509,7 @@ commands.add_command('tpmode', 'Toggles tp mode. When on place a ghost entity to
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
 commands.add_command('pool', 'Spawns a pool', pool)
-commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)
+commands.add_command('find', '<player> shows an alert on the map where the player is located', find_player)
 commands.add_command('jail', '<player> disables all actions a player can perform except chatting. (Admins only)', jail_player)
 commands.add_command('unjail', '<player> restores ability for a player to perform actions. (Admins only)', Report.unjail_player)
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
