@@ -1,4 +1,7 @@
+require 'utils.list_utils'
+
 local insert = table.insert
+local size = table.size
 local format = string.format
 
 local Command = {}
@@ -14,6 +17,7 @@ local Command = {}
 ---    allowed_by_server = false -- lets the server execute this, defaults to false
 ---    allowed_by_player = true -- lets players execute this, defaults to true
 ---    log_command = true, -- defaults to false unless admin only, then always true
+---    capture_excess_arguments = true, defaults to false, captures excess arguments in the last argument, useful for sentences
 ---}
 ---
 ---The callback receives the following arguments:
@@ -30,9 +34,11 @@ function Command.add(command_name, options, callback)
     local default_values = options.default_values or {}
     local admin_only = options.admin_only or false
     local debug_only = options.debug_only or false
+    local capture_excess_arguments = options.capture_excess_arguments or false
     local allowed_by_server = options.allowed_by_server or false
     local allowed_by_player = options.allowed_by_player
     local log_command = options.log_command or options.admin_only or false
+    local argument_list_size = size(arguments)
     local argument_list = ''
 
     if nil == options.allowed_by_player then
@@ -47,13 +53,17 @@ function Command.add(command_name, options, callback)
         error(format("The command '%s' is not allowed by the server nor player, please enable at least one of them.", command_name))
     end
 
-    for _, argument_name in ipairs(arguments) do
+    for index, argument_name in ipairs(arguments) do
         local argument_display = argument_name
         for default_value_name, _ in pairs(default_values) do
             if default_value_name == argument_name then
                 argument_display = argument_display .. ':optional'
                 break
             end
+        end
+
+        if argument_list_size == index and capture_excess_arguments then
+            argument_display = argument_display .. ':sentence'
         end
 
         argument_list = format('%s<%s> ', argument_list, argument_display)
@@ -96,8 +106,18 @@ function Command.add(command_name, options, callback)
 
         local named_arguments = {}
         local from_command = {}
+        local raw_parameter_index = 1
         for param in string.gmatch(command.parameter or '', '%S+') do
-            insert(from_command, param)
+            if capture_excess_arguments and raw_parameter_index == argument_list_size then
+                if not from_command[raw_parameter_index] then
+                    from_command[raw_parameter_index] = param
+                else
+                    from_command[raw_parameter_index] = from_command[raw_parameter_index] .. ' ' .. param
+                end
+            else
+                from_command[raw_parameter_index] = param
+                raw_parameter_index = raw_parameter_index + 1
+            end
         end
 
         local errors = {}
