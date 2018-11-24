@@ -2,12 +2,6 @@
 
 -- this
 local Config = {
-    -- enable debug mode, shows extra messages
-    debug = false,
-
-    -- allow cheats, primarily configured under SetupPlayer
-    cheats = false,
-
     -- a list of features to register and enable
     -- to disable a feature, change the flag
     features = {

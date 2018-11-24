@@ -50,15 +50,11 @@ function Scenario.register(debug)
         global.scenario.config.fish_market.enable = nil
     end
 
-    if ('boolean' == type(debug)) then
-        Config.Debug = debug
-    end
-
-    if (Config.debug) then
+    if (_DEBUG) then
         Debug.enable_debug()
     end
 
-    if (Config.cheats) then
+    if (_CHEATS) then
         Debug.enable_cheats()
     end
 

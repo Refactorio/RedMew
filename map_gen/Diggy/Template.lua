@@ -163,14 +163,9 @@ end
     @param force LuaForce
     @param market_items Table
 ]]
-function Template.market(surface, position, force, market_inventory)
+function Template.market(surface, position, force)
     local market = surface.create_entity({name = 'market', position = position})
-    local add_market_item = market.add_market_item
     market.destructible = false
-
-    for _, item in ipairs(market_inventory) do
-        add_market_item(item)
-    end
 
     force.add_chart_tag(surface, {
         text = 'Market',
