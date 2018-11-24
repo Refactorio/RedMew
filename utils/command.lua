@@ -3,8 +3,38 @@ require 'utils.list_utils'
 local insert = table.insert
 local size = table.size
 local format = string.format
+local next = next
+local serialize = serpent.line
 
 local Command = {}
+
+local option_names = {
+    ['description'] = true,
+    ['arguments'] = true,
+    ['default_values'] = true,
+    ['admin_only'] = true,
+    ['debug_only'] = true,
+    ['allowed_by_server'] = true,
+    ['allowed_by_player'] = true,
+    ['log_command'] = true,
+    ['capture_excess_arguments'] = true,
+}
+
+---Validates if there aren't any wrong fields in the options.
+---@param command_name string
+---@param options table
+local function assert_existing_options(command_name, options)
+    local invalid = {}
+    for name, _ in pairs(options) do
+        if not option_names[name] then
+            insert(invalid, name)
+        end
+    end
+
+    if next(invalid) then
+        error(format("The following options were given to the command '%s' but are invalid: %s", command_name, serialize(invalid)))
+    end
+end
 
 ---Adds a command to be executed.
 ---
@@ -40,6 +70,8 @@ function Command.add(command_name, options, callback)
     local log_command = options.log_command or options.admin_only or false
     local argument_list_size = size(arguments)
     local argument_list = ''
+
+    assert_existing_options(command_name, options)
 
     if nil == options.allowed_by_player then
         allowed_by_player = true
@@ -81,6 +113,7 @@ function Command.add(command_name, options, callback)
         local print -- custom print reference in case no player is present
         local player_index = command.player_index
         local player = game.player
+        local player_name = player and player.valid and player.name or '<server>'
         if not player or not player.valid then
             print = function (message)
                 log(format('Trying to print message to player #%d, but not such player found: %s', player_index, message))
@@ -153,29 +186,22 @@ function Command.add(command_name, options, callback)
         end
 
         if log_command then
-            log(format(
-                '[%s Command] %s, used: %s %s',
-                admin_only and 'Admin' or 'Player',
-                player and player.valid and player.name or '<server>',
-                command_name,
-                serpent.line(named_arguments)
-            ))
+            log(format('[%s Command] %s, used: %s %s', admin_only and 'Admin' or 'Player', player_name, command_name, serialize(named_arguments)))
         end
 
-        if _DEBUG then
-            -- in debug mode it will crash and report errors directly
-            callback(named_arguments, player, command.tick)
-            return
-        end
-
-        -- safety check for the command
         local success, error = pcall(function ()
             callback(named_arguments, player, command.tick)
         end)
 
         if not success then
-            log(format('Error while running %s: %s', command_name, error))
-            print(format('There was an error running %s, it has been logged.', command_name))
+            local serialized_arguments = serialize(named_arguments)
+            if _DEBUG then
+                game.print(format("%s triggered an error running a command and has been logged: '%s' with arguments %s", player_name, command_name, serialized_arguments))
+                game.print(error)
+            else
+                print(format('There was an error running %s, it has been logged.', command_name))
+            end
+            log(format("Error while running '%s' with arguments %s: %s", command_name, serialized_arguments, error))
         end
     end)
 end
