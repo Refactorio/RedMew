@@ -227,6 +227,12 @@ local function on_entity_died (event)
             else
                 return
             end
+        elseif cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
+            local exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
+            local text = string_format('Killed %s! + %d XP', entity.name, exp)
+            Game.print_floating_text(cause.surface, cause.position, text, {r = 144, g = 202, b = 249})
+            ForceControl.add_experience(force, exp)
+            return
         else
             return
         end
