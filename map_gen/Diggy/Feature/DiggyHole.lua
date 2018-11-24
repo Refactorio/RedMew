@@ -6,12 +6,11 @@
 -- dependencies
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local Scanner = require 'map_gen.Diggy.Scanner'
 local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Debug = require 'map_gen.Diggy.Debug'
-local CreateParticles = require 'map_gen.Diggy.CreateParticles'
+local CreateParticles = require 'features.create_particles'
 local insert = table.insert
 local random = math.random
 local raise_event = script.raise_event
@@ -54,33 +53,6 @@ local function update_robot_mining_damage()
     robot_mining.damage = old_modifier + robot_mining.active_modifier
 
     ScoreTable.set('Robot mining damage', robot_mining.damage)
-end
-
-local function reset_player_full_inventory_cache(player)
-    if not full_inventory_mining_cache[player.index] then
-        return
-    end
-
-    full_inventory_mining_cache[player.index] = nil
-end
-
-local full_inventory_message = 'Miner, you have a full inventory!\n\nMake sure to empty it before you continue digging.'
-
-local function trigger_inventory_warning(player)
-    local player_index = player.index
-    local count = full_inventory_mining_cache[player_index]
-    if not count then
-        full_inventory_mining_cache[player_index] = 1
-        player.print('## - ' .. full_inventory_message, {r = 1, g = 1, b = 0, a = 1})
-        player.play_sound{path='utility/new_objective', volume_modifier = 1 }
-        return
-    end
-
-    full_inventory_mining_cache[player_index] = count + 1
-
-    if count % 5 == 0 then
-        require 'features.gui.popup'.player(player, full_inventory_message)
-    end
 end
 
 ---Triggers a diggy diggy hole for a given sand-rock-big or rock-huge.
@@ -278,11 +250,8 @@ function DiggyHole.register(config)
         end
 
         local health = entity.health
-        local remove = event.buffer.remove
-
         health = health - robot_mining.damage
-        remove({name = 'stone', count = 100})
-        remove({name = 'coal', count = 100})
+        event.buffer.clear()
 
         local graphics_variation = entity.graphics_variation
         local create_entity = entity.surface.create_entity
@@ -311,21 +280,7 @@ function DiggyHole.register(config)
             return
         end
 
-        event.buffer.remove({name = 'coal', count = 100})
-        event.buffer.remove({name = 'stone', count = 100})
-
-            --[[ this logic can be replaced once we've fully replaced the stone to surface functionality
-            if enable_digging_warning then
-                local player = Game.get_player_by_index(event.player_index)
-                if player and player.valid then
-                    if player.get_main_inventory().can_insert({name = 'stone'}) then
-                        reset_player_full_inventory_cache(player)
-                    else
-                        trigger_inventory_warning(player)
-                    end
-                end
-            end ]]
-        end
+        event.buffer.clear()
 
         diggy_hole(entity)
         CreateParticles.mine_rock(entity.surface.create_entity, 6, entity.position)

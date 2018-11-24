@@ -49,7 +49,7 @@ local Config = {
                 character_health_bonus = 1000000,
 
                 -- unlock all research by default, only useful when testing
-                unlock_all_research = true,
+                unlock_all_research = false,
 
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
