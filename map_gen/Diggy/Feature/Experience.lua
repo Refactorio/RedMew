@@ -228,8 +228,8 @@ local function on_entity_died (event)
                 return
             end
         elseif cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
-            local exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
-            local text = string_format('Killed %s! + %d XP', entity.name, exp)
+            exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
+            local text = string_format('+ %d XP', exp)
             Game.print_floating_text(cause.surface, cause.position, text, {r = 144, g = 202, b = 249})
             ForceControl.add_experience(force, exp)
             return
@@ -247,7 +247,7 @@ local function on_entity_died (event)
     end
 
     local exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
-    local text = string_format('Killed %s! + %d XP', entity.name, exp)
+    local text = string_format('+ %d XP', exp)
     local player_index = cause.player.index
     Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
     ForceControl.add_experience(force, exp)
