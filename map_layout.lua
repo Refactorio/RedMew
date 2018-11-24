@@ -6,7 +6,7 @@ in this file and your run_*type*_module(event) function will be called.
 --]]
 
 local b = require 'map_gen.shared.builders'
-local Perlin = require 'map_gen.shared.perlin_noise'
+require 'map_gen.shared.perlin_noise'
 
 local shape = nil
 local regen_decoratives = false
@@ -21,7 +21,6 @@ local tiles_per_tick = 32
 --require "map_gen.combined.meteor_strike" --unfinished
 --require 'map_gen.combined.cave_miner.cave_miner'
 --require "map_gen.combined.diggy"
-
 
 --presets--
 --shape = require "map_gen.presets.template"
@@ -87,6 +86,8 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.creepy"
 --shape = require "map_gen.presets.vanilla"
 --shape = require "map_gen.presets.maltease_crossings"
+--shape = require "map_gen.presets.tetris"
+--shape = require "map_gen.presets.world_map_thanksgiving"
 --shape = require "map_gen.presets.test"
 
 --shapes--
@@ -111,21 +112,21 @@ local tiles_per_tick = 32
 
 -- modules that only return max one entity per tile
 local entity_modules = {
-	--require "map_gen.misc.loot_items",
-	--require "map_gen.terrain.mines",
-	--require "map_gen.terrain.deathworld",
-	--require "map_gen.ores.glitter_ores",
-	--require "map_gen.terrain.worms",
-	--require "map_gen.misc.wreck_items",
-	--require "map_gen.ores.neko_crazy_ores",
-	--require "map_gen.ores.fluffy_rainbows",
-	--require "map_gen.ores.harmonic_gen",
-	--require "map_gen.ores.resource_clustertruck"
-	--require "map_gen.ores.tiny_ores"
+    --require "map_gen.misc.loot_items",
+    --require "map_gen.terrain.mines",
+    --require "map_gen.terrain.deathworld",
+    --require "map_gen.ores.glitter_ores",
+    --require "map_gen.terrain.worms",
+    --require "map_gen.misc.wreck_items",
+    --require "map_gen.ores.neko_crazy_ores",
+    --require "map_gen.ores.fluffy_rainbows",
+    --require "map_gen.ores.harmonic_gen",
+    --require "map_gen.ores.resource_clustertruck"
+    --require "map_gen.ores.tiny_ores"
 }
 
 local terrain_modules = {
-	--require "map_gen.misc.tris_chunk_grid",
+    --require "map_gen.misc.tris_chunk_grid",
 }
 
 --everything else. You may use more than one of these, but beware they might not be compatible
@@ -138,6 +139,7 @@ local terrain_modules = {
 --require 'map_gen.misc.nightfall'
 --require 'map_gen.misc.creep_spread'
 --require 'map_gen.misc.car_body'
+--require 'features.silly_player_names'
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
@@ -154,10 +156,10 @@ if #terrain_modules > 0 then
 end
 
 if shape then
-	local surfaces = {
-		['nauvis'] = shape,
-	}
+    local surfaces = {
+        ['nauvis'] = shape,
+    }
 
     require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-	--require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
+    --require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end

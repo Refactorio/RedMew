@@ -123,11 +123,11 @@ local function update_market_contents(market)
     local old_level = stone_tracker.current_level
     local print = game.print
     local item_unlocked = false
-            
+
     if (calculate_level(stone_tracker.current_level+1) <= stone_tracker.stone_sent_to_surface) then
         stone_tracker.current_level = stone_tracker.current_level + 1
     end
-            
+
     for _, unlockable in pairs(config.unlockables) do
         local stone_unlock = calculate_level(unlockable.level)
         local is_in_range = stone_unlock > stone_tracker.previous_stone_sent_to_surface and stone_unlock <= stone_tracker.stone_sent_to_surface
@@ -185,7 +185,7 @@ local function update_market_contents(market)
             end
         end
     end
-    
+
     local force
 
     if (should_update_mining_speed) then
@@ -381,11 +381,11 @@ local function redraw_buff(data) --! Almost equals to the redraw_table() functio
     local buffs = {}
     local number_of_rows = 0
     local row = {}
-    
+
     for i = 1, #config.buffs do
         -- get items and buffs for each stone value
         buffs = config.buffs
-        
+
         local result = {}
 
         -- 1st column
@@ -405,7 +405,7 @@ local function redraw_buff(data) --! Almost equals to the redraw_table() functio
         else
             result[2] = 'Description missing: unknown buff. Please contact admin'
         end
-        
+
         -- 3rd column
         result[3] = ''
         -- indicator to stop print level number
@@ -415,7 +415,7 @@ local function redraw_buff(data) --! Almost equals to the redraw_table() functio
             result[4] = false
         end
         insert(row, result)
-    end    
+    end
     for _, unlockable in pairs(row) do
         local list = buff_scroll_pane.add {type = 'table', column_count = 2 }
         list.style.horizontal_spacing = 16
@@ -490,9 +490,9 @@ local function toggle(event)
 
     local market_scroll_pane = frame.add({type = 'scroll-pane'})
     market_scroll_pane.style.maximal_height = 300
-    
+
     local buff_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
-    
+
     local buff_scroll_pane = frame.add({type = 'scroll-pane'})
     buff_scroll_pane.style.maximal_height = 100
 
@@ -509,7 +509,7 @@ local function toggle(event)
 
     redraw_title(data)
     redraw_table(data)
-    
+
     redraw_heading(data, 2)
     redraw_buff(data)
 

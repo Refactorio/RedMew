@@ -97,7 +97,7 @@ function Debug.print_grid_value(value, surface, position, scale, offset, immutab
     if type(immutable) ~= 'boolean' then
         immutable = false
     end
-    
+
     if not is_string then
         scale = scale or 1
         offset = offset or 0
@@ -174,7 +174,7 @@ function Debug.print_colored_grid_value(value, surface, position, scale, offset,
     local d_color = delta_color or {r = 0, g = 0, b = 0}
     local u_color = under_bound or color
     local o_color = over_bound or color
-    
+
     if (color_value < 0) then
         color = u_color
     elseif (color_value > 1) then
@@ -184,7 +184,7 @@ function Debug.print_colored_grid_value(value, surface, position, scale, offset,
                   g = color.g + color_value * d_color.g,
                   b = color.b + color_value * d_color.b }
     end
-    
+
     text = value
 
     if type(immutable) ~= 'boolean' then

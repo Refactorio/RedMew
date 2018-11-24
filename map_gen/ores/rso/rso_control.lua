@@ -612,8 +612,8 @@ local function spawn_resource_ore(surface, rname, pos, size, richness, startingA
                force = game.forces.neutral,
                amount = amount}
                if removeTrees then
-						remove_trees(surface, location.x + resOffsetX, location.y + resOffsetY, 1, 1)
-					end
+                        remove_trees(surface, location.x + resOffsetX, location.y + resOffsetY, 1, 1)
+                    end
             end
          end
       end

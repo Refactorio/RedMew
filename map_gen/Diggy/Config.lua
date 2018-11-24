@@ -5,7 +5,7 @@ local Config = {
     -- enable debug mode, shows extra messages
     debug = false,
 
-    -- allow cheats. Example: by default the player will have X mining speed
+    -- allow cheats, primarily configured under SetupPlayer
     cheats = false,
 
     -- a list of features to register and enable
@@ -18,7 +18,7 @@ local Config = {
             -- initial starting position size, higher values are not recommended
             starting_size = 8,
         },
-        
+
         -- controls the Daylight (Default diggy: enabled = true)
         NightTime = {
             enabled = true, -- true = No Daylight, false = Day/night circle (Solar panels work)
@@ -31,14 +31,31 @@ local Config = {
                 {name = 'iron-axe', count = 1},
                 {name = 'stone-wall', count = 10},
             },
+
+            -- applied when cheat_mode is set to true. It's recommended to tweak this to your needs
+            -- when playing with cheats on (recommended for single player or LAN with limited players)
             cheats = {
+                -- Sets the manual mining speed for the player force. A value of 1 = 100% faster. Setting it
+                -- to 0.5 would make it 50% faster than the base speed.
                 manual_mining_speed_modifier = 1000,
+
+                -- increase the amount of inventory slots for the player force
                 character_inventory_slots_bonus = 1000,
+
+                -- increases the run speed of all characters for the player force
                 character_running_speed_modifier = 2,
+
+                -- a flat health bonus to the player force
+                character_health_bonus = 1000000,
+
+                -- unlock all research by default, only useful when testing
+                unlock_all_research = true,
+
+                -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
-                    {name = 'modular-armor', count = 1},
+                    {name = 'power-armor-mk2', count = 1},
                     {name = 'submachine-gun', count = 1},
-                    {name = 'uranium-rounds-magazine', count = 200},
+                    {name = 'uranium-rounds-magazine', count = 1000},
                 },
             },
         },
@@ -113,21 +130,27 @@ local Config = {
             minimal_treasure_chest_distance = 25,
 
             -- chances to receive a coin when mining
-            mining_artefact_chance = 0.10,
-            mining_artefact_amount = {min = 1, max = 4},
+            mining_coin_chance = 0.10,
+            mining_coin_amount = {min = 1, max = 4},
 
             -- lets you set the coin modifiers for aliens
             -- the modifier value increases the upper random limit that biters can drop
             alien_coin_modifiers = {
-                ['small-biter'] = 1,
-                ['small-spitter'] = 1,
-                ['medium-biter'] = 2,
-                ['medium-spitter'] = 2,
-                ['big-biter'] = 4,
-                ['big-spitter'] = 4,
-                ['behemoth-biter'] = 6,
-                ['behemoth-spitter'] = 6,
+                ['small-biter'] = 2,
+                ['small-spitter'] = 2,
+                ['small-worm'] = 2,
+                ['medium-biter'] = 3,
+                ['medium-spitter'] = 3,
+                ['medium-worm'] = 3,
+                ['big-biter'] = 5,
+                ['big-spitter'] = 5,
+                ['big-worm'] = 5,
+                ['behemoth-biter'] = 7,
+                ['behemoth-spitter'] = 7,
             },
+
+            -- chance of aliens dropping coins between 0 and 1, where 1 is 100%
+            alien_coin_drop_chance = 0.30,
 
             -- shows the chest locations, only use when debugging
             display_chest_locations = false,
@@ -172,15 +195,15 @@ local Config = {
                 {name = 'dirt', min = 0.39, max = 0.53},
             },
         },
-    
+
         -- responsible for resource spawning
         ScatteredResources = {
             enabled = true,
-            
+
             -- determines how distance is measured
-            distance = function (x, y) return math.abs(x) + math.abs(y) end, 
+            distance = function (x, y) return math.abs(x) + math.abs(y) end,
             --distance = function (x, y) return math.sqrt(x * x + y * y) end,
-            
+
             -- defines the weights of which resource_richness_value to spawn
             resource_richness_weights = {
                 ['scarce']     = 440,
@@ -200,51 +223,51 @@ local Config = {
                 ['plenty']     = {1201, 2000},
                 ['jackpot']    = {2001, 5000},
             },
-            
+
             -- increases the amount of resources by flat multiplication to initial amount
             -- highly suggested to use for fluids so their yield is reasonable
             resource_type_scalar = {
                 ['crude-oil'] = 1500,
                 ['uranium-ore'] = 1.25,
             },
-            
+
             -- ==============
             -- Debug settings
             -- ==============
-            
+
             -- shows the ore locations, only use when debugging (compound_cluster_mode)
             display_ore_clusters = false,
-            
+
             -- =======================
             -- Scattered mode settings
             -- =======================
-            
+
             -- creates scattered ore (single tiles) at random locations
             scattered_mode = false,
-            
+
             -- defines the increased chance of spawning resources
             -- calculated_probability = resource_probability + ((distance / scattered_distance_probability_modifier) / 100)
             -- this means the chance increases by 1% every DISTANCE tiles up to the max_probability
             scattered_distance_probability_modifier = 10,
-            
+
             -- min percentage of chance that resources will spawn after mining
             scattered_min_probability = 0.01,
 
             -- max chance of spawning resources based on resource_probability + calculated scattered_distance_probability_modifier
             scattered_max_probability = 0.10,
-            
+
             -- percentage of resource added to the sum. 100 tiles means
             -- 10% more resources with a distance_richness_modifier of 10
             -- 20% more resources with a distance_richness_modifier of 5
             scattered_distance_richness_modifier = 7,
-            
+
             -- multiplies probability only if cluster mode is enabled
             scattered_cluster_probability_multiplier = 0.5,
-            
+
             -- multiplies yield only if cluster mode is enabled
             scattered_cluster_yield_multiplier = 1.7,
-            
-            -- weights per resource of spawning 
+
+            -- weights per resource of spawning
             scattered_resource_weights = {
                 ['coal']        = 160,
                 ['copper-ore']  = 215,
@@ -263,18 +286,18 @@ local Config = {
                 ['uranium-ore'] = 86,
                 ['crude-oil']   = 57,
             },
-            
+
             -- ==============================
             -- Compound cluster mode settings
             -- ==============================
-            
+
             -- creates compound clusters of ores defined by a layered ore-gen
             cluster_mode = true,
-            
+
             -- location of file to find the cluster definition file
             cluster_file_location = 'map_gen.Diggy.Orepattern.Tendrils',
             --cluster_file_location = 'map_gen.Diggy.Orepattern.Clusters',
-            
+
         },
 
         -- controls the alien spawning mechanic
@@ -285,7 +308,29 @@ local Config = {
             alien_minimum_distance = 40,
 
             -- chance of spawning aliens when mining
-            alien_probability = 0.07,
+            alien_probability = 0.05,
+
+            -- spawns the following units when they die. To disable change it to:
+            --hail_hydra = nil,
+            -- any non-rounded number will turn into a chance to spawn an additional alien
+            -- example: 2.5 would spawn 2 for sure and 50% chance to spawn one additionally
+            hail_hydra = {
+                -- spitters
+                ['small-spitter'] = {['small-worm-turret'] = 0.4},
+                ['medium-spitter'] = {['medium-worm-turret'] = 0.4},
+                ['big-spitter'] = {['big-worm-turret'] = 0.4},
+                ['behemoth-spitter'] = {['big-worm-turret'] = 0.6},
+
+                -- biters
+                ['medium-biter'] = {['small-biter'] = 1.7},
+                ['big-biter'] = {['medium-biter'] = 1.7},
+                ['behemoth-biter'] = {['big-biter'] = 1.7},
+
+                -- worms
+                ['small-worm-turret'] = {['small-biter'] = 2.5},
+                ['medium-worm-turret'] = {['small-biter'] = 2.5, ['medium-biter'] = 0.5},
+                ['big-worm-turret'] = {['small-biter'] = 3.5, ['medium-biter'] = 1, ['big-biter'] = 0.5},
+            },
         },
 
         -- controls the market and buffs

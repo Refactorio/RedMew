@@ -5,11 +5,22 @@ All notable changes to this project will be documented in this file.
 ## Next version
 
 ### Features
+- [Diggy] Added particles when a biter mines a rock upon spawning #424
+- [Diggy] Added bot mining #434
+- [Map] Add Tetris map #433
+- [Map] Add World Thanksgiving map #433
 
 ### Bugfixes
 - [Diggy] Stones killed by damage no longer spill. #395
+- [Core] Fix /kill non-functional if walkabout is disabled. Fix walkabout giving from variable definition. #425
+- [Core] Fix null reference in chat_triggers #431
+- [Core] Fix nil ref in train_station_names #441
 
 ### Internal
+- [Core] Cleanup of code formatting. #413 #415 #414 #412 #411
+- [Core] Establishment of a style guide. #396
+- [GitHub] Add stickler_ci #435
+- [Core] Add server print on admin_prints #430
 
 ## v1.0.0
 

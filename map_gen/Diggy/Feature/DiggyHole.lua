@@ -107,7 +107,7 @@ local function diggy_hole(entity)
             else
                 Debug.print('noise type \'' .. settings.type .. '\' not recognized')
             end
-            
+
         end
         return noise
     end
@@ -132,7 +132,7 @@ local function diggy_hole(entity)
     if ('table' ~= type(c_clusters)) then
         error('cluster_file_location invalid')
     end
-    
+
     local c_count = 0
     for _, cluster in ipairs(c_clusters) do
         c_count = c_count + 1
@@ -170,7 +170,7 @@ local function diggy_hole(entity)
                     elseif cluster.noise_settings.type == "fragmented_tendril" then
                         local noise1 = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                         local noise2 = seeded_noise(surface, x, y, index, cluster.noise_settings.discriminator)
-                        if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold 
+                        if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold
                                 and -1 * cluster.noise_settings.discriminator_threshold < noise2
                                 and noise2 < cluster.noise_settings.discriminator_threshold then
                             if spawn_cluster_resource(surface, x, y, index, cluster) then
@@ -190,7 +190,7 @@ local function diggy_hole(entity)
                 end
             end
         end
-    
+
     if (huge_rock_inserted == false) then
         insert(rocks, {name = 'sand-rock-big', position = position})
         end
@@ -236,17 +236,50 @@ function DiggyHole.register(config)
         local entity = event.entity
         local name = entity.name
 
+        if entity.health ~= 0 then
+            return
+        end
+
         if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
             return
         end
 
-        if entity.health == 0 then
-            raise_event(defines.events.on_entity_died, {entity = entity, cause = event.cause, force = event.force})
-            entity.destroy()
-        end
+        raise_event(defines.events.on_entity_died, {entity = entity, cause = event.cause, force = event.force})
+        entity.destroy()
     end)
 
-    local enable_digging_warning = config.enable_digging_warning
+    Event.add(defines.events.on_robot_mined_entity, function (event)
+        local entity = event.entity
+        local name = entity.name
+
+        if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
+            return
+        end
+
+        local health = entity.health
+        local remove = event.buffer.remove
+
+        health = health - 10
+        remove({name = 'stone', count = 100})
+        remove({name = 'coal', count = 100})
+
+        local graphics_variation = entity.graphics_variation
+        local create_entity = entity.surface.create_entity
+        local position = entity.position
+        local force = event.robot.force
+
+        if health < 1 then
+            raise_event(defines.events.on_entity_died, {entity = entity, force = force})
+            return
+        end
+
+        entity.destroy()
+
+        local rock = create_entity({name = name, position = position})
+        rock.graphics_variation = graphics_variation
+        rock.order_deconstruction(force)
+        rock.health = health
+    end)
 
     Event.add(defines.events.on_player_mined_entity, function (event)
         local entity = event.entity
