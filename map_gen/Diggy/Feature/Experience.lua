@@ -219,7 +219,7 @@ local function on_entity_died (event)
     --For bot mining
     if not cause or cause.type ~= 'player' or not cause.valid then
         local exp
-        if force == 'player' then
+        if force.name == 'player' then
             if entity.name == 'sand-rock-big' then
                 exp = floor(sand_rock_xp/2)
             elseif entity.name == 'rock-huge' then
