@@ -79,7 +79,9 @@ function Experience.update_mining_speed(force, level_up)
     level_up = level_up ~= nil and level_up or 0
     local buff = config.buffs['mining_speed']
     if level_up > 0 and buff ~= nil then
-        local value = (buff.double_level ~= nil and level_up % buff.double_level == 0) and buff.value * 2 or buff.value
+        local level = ForceControl.get_force_data(force).current_level
+        local adjusted_value = floor(math.max(buff.value, 24*0.9^level))
+        local value = (buff.double_level ~= nil and level_up % buff.double_level == 0) and adjusted_value * 2 or adjusted_value
         mining_efficiency.level_modifier = mining_efficiency.level_modifier + (value * 0.01)
     end
     -- remove the current buff
@@ -138,17 +140,18 @@ end
 local sand_rock_xp
 local rock_huge_xp
 
----Awards experience when a rock has been mined
+---Awards experience when a rock has been mined (increases by 1 XP every 5th level)
 ---@param event LuaEvent
 local function on_player_mined_entity(event)
     local entity = event.entity
     local player_index = event.player_index
     local force = Game.get_player_by_index(player_index).force
+    local level = ForceControl.get_force_data(force).current_level
     local exp
     if entity.name == 'sand-rock-big' then
-        exp = sand_rock_xp
+        exp = sand_rock_xp + floor(level / 5)
     elseif entity.name == 'rock-huge' then
-        exp = rock_huge_xp
+        exp = rock_huge_xp + floor(level / 5)
     else
         return
     end
@@ -195,17 +198,16 @@ local function on_research_finished(event)
     game.forces.player.technologies['landfill'].enabled = false
 end
 
----Awards experience when a rocket has been launched
+---Awards experience when a rocket has been launched based on percentage of total experience
 ---@param event LuaEvent
 local function on_rocket_launched(event)
-    local exp = config.XP['rocket_launch']
-    local force = event.force
+    local force = event.rocket.force
+    local exp = ForceControl.add_experience_percentage(force, config.XP['rocket_launch'])
     local text = string_format('Rocket launched! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
         Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
     end
-    ForceControl.add_experience(force, exp)
 end
 
 ---Awards experience when a player kills an enemy, based on type of enemy
@@ -213,28 +215,28 @@ end
 local function on_entity_died (event)
     local entity = event.entity
     local force = event.force
-
     local cause = event.cause
 
-    --For bot mining
+    --For bot mining and turrets
     if not cause or cause.type ~= 'player' or not cause.valid then
         local exp
-        if force.name == 'player' then
-            if entity.name == 'sand-rock-big' then
-                exp = floor(sand_rock_xp/2)
-            elseif entity.name == 'rock-huge' then
-                exp = floor(rock_huge_xp/2)
-            else
+        if force and force.name == 'player' then
+            if cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
+                exp = config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
+                local text = string_format('+ %d XP', exp)
+                Game.print_floating_text(cause.surface, cause.position, text, {r = 144, g = 202, b = 249})
+                ForceControl.add_experience(force, exp)
                 return
+            else
+                local level = ForceControl.get_force_data(force).current_level
+                if entity.name == 'sand-rock-big' then
+                    exp = floor((sand_rock_xp + (level / 5)) / 2)
+                elseif entity.name == 'rock-huge' then
+                    exp = floor((rock_huge_xp + (level / 5)) / 2)
+                else
+                    return
+                end
             end
-        elseif cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
-            exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
-            local text = string_format('+ %d XP', exp)
-            Game.print_floating_text(cause.surface, cause.position, text, {r = 144, g = 202, b = 249})
-            ForceControl.add_experience(force, exp)
-            return
-        else
-            return
         end
         local text = string_format('+ %d XP', exp)
         Game.print_floating_text(entity.surface, entity.position, text, {r = 144, g = 202, b = 249})
@@ -245,7 +247,6 @@ local function on_entity_died (event)
     if entity.force.name ~= 'enemy' then
         return
     end
-
     local exp = config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
     local text = string_format('+ %d XP', exp)
     local player_index = cause.player.index
@@ -259,7 +260,7 @@ local function on_player_respawned(event)
     local player = Game.get_player_by_index(event.player_index)
     local force = player.force
     local exp = ForceControl.remove_experience_percentage(force, config.XP['death-penalty'], 50)
-    local text = string_format('%s died! -%d XP', player.name, exp)
+    local text = string_format('%s resurrected! -%d XP', player.name, exp)
     for _, p in pairs(game.connected_players) do
         Game.print_player_floating_text_position(p.index, text, {r = 255, g = 0, b = 0},-1, -0.5)
     end

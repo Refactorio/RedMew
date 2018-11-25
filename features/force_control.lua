@@ -212,7 +212,7 @@ end
 ---@return number the experience being removed
 ---@see ForceControl.remove_experience
 function ForceControl.remove_experience_percentage(lua_force_or_name, percentage, min_experience)
-    local min_experience = min_experience ~= nil and min_experience or 0
+    min_experience = min_experience ~= nil and min_experience or 0
     local force = get_valid_force(lua_force_or_name)
     if not force then
         return
@@ -265,6 +265,29 @@ function ForceControl.add_experience(lua_force_or_name, experience, recursive_ca
     raise_event(ForceControl.events.on_level_up, {level_reached = new_level, force = force})
 
     ForceControl.add_experience(force, new_experience - experience_level_up_cap, true)
+end
+
+---Adds experience from a force, based on a percentage of the total obtained experience
+---@param lua_force_or_name LuaForce|string
+---@param percentage number percentage of total obtained experience to add
+---@param min_experience number minimum amount of experience to add (optional)
+---@return number the experience being added
+---@see ForceControl.add_experience
+function ForceControl.add_experience_percentage(lua_force_or_name, percentage, min_experience)
+    min_experience = min_experience ~= nil and min_experience or 0
+    local force = get_valid_force(lua_force_or_name)
+    if not force then
+        return
+    end
+    local force_config = forces[force.name]
+    if not force_config then
+        return
+    end
+
+    local reward = force_config.total_experience * percentage
+    reward = (reward >= min_experience) and ceil(reward) or ceil(min_experience)
+    ForceControl.add_experience(lua_force_or_name, reward)
+    return reward
 end
 
 ---Return the force data as {

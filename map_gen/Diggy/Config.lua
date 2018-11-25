@@ -347,16 +347,7 @@ local Config = {
 
             -- market config
             market_spawn_position = {x = 0, y = 3},
-            stone_to_surface_amount = 50,
             currency_item = 'coin',
-
-            -- locations where chests will be automatically cleared from currency_item
-            void_chest_tiles = {
-                {x = -1, y = 5}, {x = 0, y = 5}, {x = 1, y = 5},
-            },
-
-            -- every x ticks it will clear y currency_item
-            void_chest_frequency = 307,
 
             -- add or remove a table entry to add or remove a unlockable item from the mall.
             -- format: {unlock_at_level, price, prototype_name},
@@ -365,20 +356,20 @@ local Config = {
                 {
                     {level = 1, price = 5, name = 'iron-axe'},
                     {level = 2, price = 5, name = 'raw-wood'},
-                    {level = 2, price = 10, name = 'raw-fish'},
-                    {level = 3, price = 5, name = 'stone-brick'},
-                    {level = 5, price = 12, name = 'stone-wall'},
-                    {level = 7, price = 6, name = 'small-lamp'},
-                    {level = 9, price = 5, name = 'firearm-magazine'},
-                    {level = 9, price = 25, name = 'pistol'},
-                    {level = 11, price = 85, name = 'shotgun'},
-                    {level = 11, price = 5, name = 'shotgun-shell'},
-                    {level = 14, price = 50, name = 'light-armor'},
-                    {level = 16, price = 85, name = 'submachine-gun'},
-                    {level = 16, price = 25, name = 'steel-axe'},
-                    {level = 19, price = 15, name = 'piercing-rounds-magazine'},
-                    {level = 19, price = 15, name = 'piercing-shotgun-shell'},
-                    {level = 21, price = 100, name = 'heavy-armor'},
+                    {level = 3, price = 20, name = 'pistol'},
+                    {level = 3, price = 2, name = 'firearm-magazine'},
+                    {level = 5, price = 2, name = 'stone-brick'},
+                    {level = 6, price = 6, name = 'small-lamp'},
+                    {level = 6, price = 5, name = 'raw-fish'},
+                    {level = 8, price = 10, name = 'stone-wall'},
+                    {level = 10, price = 85, name = 'shotgun'},
+                    {level = 10, price = 2, name = 'shotgun-shell'},
+                    {level = 13, price = 25, name = 'steel-axe'},
+                    {level = 13, price = 50, name = 'light-armor'},
+                    {level = 15, price = 85, name = 'submachine-gun'},
+                    {level = 18, price = 8, name = 'piercing-rounds-magazine'},
+                    {level = 18, price = 8, name = 'piercing-shotgun-shell'},
+                    {level = 20, price = 100, name = 'heavy-armor'},
                     {level = 25, price = 250, name = 'modular-armor'},
                     {level = 25, price = 100, name = 'landfill'},
                     {level = 28, price = 250, name = 'personal-roboport-equipment'},
@@ -387,11 +378,11 @@ local Config = {
                     {level = 34, price = 100, name = 'battery-equipment'},
                     {level = 33, price = 1000, name = 'fusion-reactor-equipment'},
                     {level = 36, price = 150, name = 'energy-shield-equipment'},
-                    {level = 42, price = 1000, name = 'combat-shotgun'},
-                    {level = 46, price = 250, name = 'uranium-rounds-magazine'},
+                    {level = 42, price = 650, name = 'combat-shotgun'},
+                    {level = 46, price = 25, name = 'uranium-rounds-magazine'},
                     {level = 58, price = 250, name = 'rocket-launcher'},
-                    {level = 58, price = 50, name = 'rocket'},
-                    {level = 66, price = 100, name = 'explosive-rocket'},
+                    {level = 58, price = 40, name = 'rocket'},
+                    {level = 66, price = 80, name = 'explosive-rocket'},
                     {level = 73, price = 2000, name = 'satellite'},
                     {level = 100, price = 1, name = 'iron-stick'},
                 }
@@ -409,8 +400,8 @@ local Config = {
         Experience = {
             enabled = true,
             -- controls the formula for calculating level up costs in stone sent to surface
-            difficulty_scale = 25, -- Diggy default 25. Higher increases experience requirement climb
-            first_lvl_xp = 600, -- Diggy default 600. This sets the price for the first level.
+            difficulty_scale = 16, -- Diggy default 16. Higher increases experience requirement climb
+            first_lvl_xp = 400, -- Diggy default 400. This sets the price for the first level.
             xp_fine_tune = 200, -- Diggy default 200. This value is used to fine tune the overall requirement climb without affecting the speed
             cost_precision = 3, -- Diggy default 3. This sets the precision of the required experience to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
 
@@ -420,16 +411,16 @@ local Config = {
             XP = {
               ['sand-rock-big']             = 5,
               ['rock-huge']                 = 10,
-              ['rocket_launch']             = 5000,     -- XP reward for a single rocket launch
-              ['science-pack-1']            = 2,
-              ['science-pack-2']            = 4,
-              ['science-pack-3']            = 10,
-              ['military-science-pack']     = 8,
+              ['rocket_launch']             = 0.01,     -- XP reward in percentage of total experience when a rocket launches (Diggy default: 0.01 which equals 1%)
+              ['science-pack-1']            = 4,
+              ['science-pack-2']            = 8,
+              ['science-pack-3']            = 15,
+              ['military-science-pack']     = 12,
               ['production-science-pack']   = 25,
               ['high-tech-science-pack']    = 50,
               ['space-science-pack']        = 10,
               ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters. This value is multiplied by the alien_coin_modifiers from ArtefactHunting
-              ['death-penalty']             = 0.005,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.005 which equals 0.5%)
+              ['death-penalty']             = 0.002,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.002 which equals 0.2%)
             },
 
             buffs = { --Define new buffs here, they are handed out for each level.
