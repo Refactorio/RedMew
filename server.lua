@@ -134,6 +134,9 @@ function Public.set_data(data_set, key, value)
     if vt == 'nil' then
         message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '"}'})
     elseif vt == 'string' then
+        -- Excessive escaping because the data is serialized twice.
+        value = value:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+
         message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"\\"', value, '\\""}'})
     elseif vt == 'number' then
         message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"', value, '"}'})
@@ -142,9 +145,13 @@ function Public.set_data(data_set, key, value)
             table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"', tostring(value), '"}'})
     elseif vt == 'function' then
         error('value cannot be a function')
-    else
+    else -- table
         value = serpent.line(value)
-        value = value:gsub("'", "\\'")
+
+        -- Less escaping than the string case as serpent provides one level of escaping.
+        -- Need to escape single quotes as serpent uses double quotes for strings.
+        value = value:gsub('\\', '\\\\'):gsub("'", "\\'")
+
         message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, "\",value:'", value, "'}"})
     end
 

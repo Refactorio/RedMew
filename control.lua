@@ -78,3 +78,18 @@ Event.add(
         print(serpent.block(tbl))
     end
 )
+
+local Token = require('utils.global_token')
+local data_callback = Token.register(
+    function(data)
+        game.print(serpent.line(data))
+    end
+)
+
+function get_data(data_set, key)
+    Server.try_get_data(data_set, key, data_callback)
+end
+
+function get_all_data(data_set, key)
+    Server.try_get_all_data(data_set, data_callback)
+end
