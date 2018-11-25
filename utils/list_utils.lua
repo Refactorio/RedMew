@@ -95,7 +95,8 @@ end
 
 --- Chooses a random entry from a table
 table.get_random = function(this_table)
-    return this_table[math.random(#this_table)]
+    local size = table.size(this_table)
+    return this_table[math.random(size)]
 end
 
 --- Chooses a random entry from a weighted table
