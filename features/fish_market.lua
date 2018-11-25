@@ -329,7 +329,7 @@ local function on_180_ticks()
             for k, v in pairs(global.player_speed_boost_records) do
                 if game.tick - v.start_tick > 3000 then
                     local player = Game.get_player_by_index(k)
-                    if player.connected and player.character then
+                    if player and player.connected and player.character then
                         reset_player_runningspeed(player)
                     end
                 end
@@ -340,7 +340,7 @@ local function on_180_ticks()
             for k, v in pairs(global.player_mining_boost_records) do
                 if game.tick - v.start_tick > 6000 then
                     local player = Game.get_player_by_index(k)
-                    if player.connected and player.character then
+                    if player and player.connected and player.character then
                         reset_player_miningspeed(player)
                     end
                 end
