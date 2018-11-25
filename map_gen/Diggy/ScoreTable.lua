@@ -12,73 +12,47 @@ Global.register({
     scores = tbl.scores
 end)
 
---[[--
-    Resets the score 0 for the given name
-
-    @param name String
-]]
+---Resets the score 0 for the given name
+---@param name string
 function ScoreTable.reset(name)
     scores[name] = 0
 end
 
---[[--
-    Adds score.
-
-    @param name String
-    @param value int amount to add
-
-    @return int the sum for the score added by name
-]]
+---Adds score.
+---@param name string
+---@param value number the sum for the score added by name
+---@return number the sum for the score added by the name
 function ScoreTable.add(name, value)
     local new = (scores[name] or 0) + value
     scores[name] = new
     return new
 end
 
---[[--
-    Increments the score by 1 for name.
+---Sets score.
+---@param name string
+---@param value number the sum for the score added by name
+function ScoreTable.set(name, value)
+    scores[name] = value
+end
 
-    @param name String
-
-    @return int the sum for the score incremented by name
-]]
+---Increments the score by 1 for name.
+---@param name string
+---@return number the sum for the score incremented by name
 function ScoreTable.increment(name)
     return ScoreTable.add(name, 1)
 end
 
---[[--
-    Returns the score for a single key.
-
-    @param
-]]
+---Returns the score for a single key.
+---@param name string
+---@return number the sum for the score by name
 function ScoreTable.get(name)
     return scores[name] or 0
 end
 
---[[--
-    Returns all scores.
-
-    @return table {[string] = int}
-]]
+---Returns all scores.
+---@return table {[string] = int}
 function ScoreTable.all()
     return scores
-end
-
---[[--
-    Returns all keys of table scores.
-
-    @return table {[string] = name of key}
-]]
-function ScoreTable.all_keys()
-    local keyset = {}
-    local n = 0
-
-    for k, v in pairs(scores) do
-        n = n + 1
-        keyset[n] = k
-    end
-
-    return keyset
 end
 
 return ScoreTable

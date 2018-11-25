@@ -207,7 +207,7 @@ function Module.jail(target_player, player)
         target_player.print('Please respond to inquiries from the admins.', {r = 1, g = 1, b = 0, a = 1})
         target_player.print(prefix_e)
         Utils.print_admins(target_player.name .. ' has been jailed by ' .. player.name)
-        Utils.log_command(player, 'jail', target_player.name)
+        Utils.log_command(Utils.get_actor(), 'jail', target_player.name)
     else
         -- Let admin know it didn't work.
         print('Something went wrong in the jailing of ' .. target_player.name .. '. You can still change their group via /permissions.')
@@ -264,7 +264,7 @@ function Module.unjail_player(cmd)
         target_player.print('Your ability to perform actions has been restored', {r = 0, g = 1, b = 0, a = 1})
         target_player.print(prefix_e)
         Utils.print_admins(target_player.name .. ' has been released from jail by ' .. player.name)
-        Utils.log_command(player, 'unjail', target_player.name)
+        Utils.log_command(Utils.get_actor(), 'unjail', target_player.name)
     else
         -- Let admin know it didn't work.
         Game.player_print('Something went wrong in the unjailing of ' .. target .. '. You can still change their group via /permissions and inform them.')

@@ -53,7 +53,7 @@ function Debug.print_serpent(message)
 end
 
 --[[--
-    Shows the given message if _DEBUG == true for a given position.
+    Shows the given message if debug is on.
 
     @param x number
     @param y number

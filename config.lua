@@ -1,4 +1,5 @@
 _DEBUG = false
+_CHEATS = false
 MARKET_ITEM = 'coin'
 
 global.scenario = {}
@@ -18,6 +19,8 @@ global.scenario.config.nuke_control.enable_autokick = true
 global.scenario.config.nuke_control.enable_autoban = true
 global.scenario.custom_functions = {}
 global.scenario.config.nuke_control.nuke_min_time_hours = 3 --how long a player must be on the server to be allowed to use the nuke
+global.scenario.config.players_assigned_names = false -- assigns players random names when they first join
+global.scenario.config.players_roll_names = false -- allows players to roll random names
 global.newline = '\n'
 newline = '\n'
 

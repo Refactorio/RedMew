@@ -8,7 +8,6 @@ require 'map_gen.shared.perlin_noise'
 require 'map_layout'
 
 -- Specific to RedMew hosts, can be disabled safely if not hosting on RedMew servers
-require 'features.bot'
 Server = require 'server'
 ServerCommands = require 'server_commands'
 
