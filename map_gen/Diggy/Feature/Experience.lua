@@ -147,9 +147,9 @@ local function on_player_mined_entity(event)
     local level = ForceControl.get_force_data(force).current_level
     local exp
     if entity.name == 'sand-rock-big' then
-        exp = sand_rock_xp + (floor(level / 5))
+        exp = sand_rock_xp + floor(level / 5)
     elseif entity.name == 'rock-huge' then
-        exp = rock_huge_xp + (floor(level / 5))
+        exp = rock_huge_xp + floor(level / 5)
     else
         return
     end
@@ -200,7 +200,7 @@ end
 ---@param event LuaEvent
 local function on_rocket_launched(event)
     local force = event.rocket.force
-    local exp = ForceControl.add_experience_percentage(force, config.XP['rocket_launch'], 5000)
+    local exp = ForceControl.add_experience_percentage(force, config.XP['rocket_launch'])
     local text = string_format('Rocket launched! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
@@ -222,9 +222,9 @@ local function on_entity_died (event)
         if force and force.name == 'player' then
             local level = ForceControl.get_force_data(force).current_level
             if entity.name == 'sand-rock-big' then
-                exp = floor((sand_rock_xp + (floor(level / 5))) / 2)
+                exp = floor((sand_rock_xp + (level / 5)) / 2)
             elseif entity.name == 'rock-huge' then
-                exp = floor((rock_huge_xp + (floor(level / 5))) / 2)
+                exp = floor((rock_huge_xp + (level / 5)) / 2)
             else
                 return
             end

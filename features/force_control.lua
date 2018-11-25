@@ -212,7 +212,7 @@ end
 ---@return number the experience being removed
 ---@see ForceControl.remove_experience
 function ForceControl.remove_experience_percentage(lua_force_or_name, percentage, min_experience)
-    local min_experience = min_experience ~= nil and min_experience or 0
+    min_experience = min_experience ~= nil and min_experience or 0
     local force = get_valid_force(lua_force_or_name)
     if not force then
         return
@@ -274,7 +274,7 @@ end
 ---@return number the experience being added
 ---@see ForceControl.add_experience
 function ForceControl.add_experience_percentage(lua_force_or_name, percentage, min_experience)
-    local min_experience = min_experience ~= nil and min_experience or 0
+    min_experience = min_experience ~= nil and min_experience or 0
     local force = get_valid_force(lua_force_or_name)
     if not force then
         return
