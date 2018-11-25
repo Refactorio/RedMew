@@ -1,6 +1,4 @@
-local Debug = require 'map_gen.Diggy.Debug'
 local Global = require 'utils.global'
-local format = string.format
 local insert = table.insert
 
 local Retailer = {}
