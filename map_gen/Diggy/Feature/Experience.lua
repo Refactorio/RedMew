@@ -147,9 +147,9 @@ local function on_player_mined_entity(event)
     local level = ForceControl.get_force_data(force).current_level
     local exp
     if entity.name == 'sand-rock-big' then
-        exp = sand_rock_xp * (floor(level / 5) +1 )
+        exp = sand_rock_xp + (floor(level / 5))
     elseif entity.name == 'rock-huge' then
-        exp = rock_huge_xp * (floor(level / 5) + 1)
+        exp = rock_huge_xp + (floor(level / 5))
     else
         return
     end
@@ -222,9 +222,9 @@ local function on_entity_died (event)
         local level = ForceControl.get_force_data(force).current_level
         if force.name == 'player' then
             if entity.name == 'sand-rock-big' then
-                exp = floor((sand_rock_xp * (floor(level / 5) +1 )) / 2)
+                exp = floor((sand_rock_xp + (floor(level / 5))) / 2)
             elseif entity.name == 'rock-huge' then
-                exp = floor((rock_huge_xp * (floor(level / 5) +1 )) / 2)
+                exp = floor((rock_huge_xp + (floor(level / 5))) / 2)
             else
                 return
             end
