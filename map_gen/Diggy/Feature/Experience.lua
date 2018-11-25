@@ -4,9 +4,18 @@ local Game = require 'utils.game'
 local Global = require 'utils.global'
 local ForceControl = require 'features.force_control'
 local Debug = require 'map_gen.Diggy.Debug'
+local Retailer = require 'features.retailer'
+local Gui = require 'utils.gui'
+local force_control = require 'features.force_control'
+local utils = require 'utils.utils'
+local format = string.format
+local string_format = string.format
+local floor = math.floor
+local log = math.log
+local insert = table.insert
 
--- Will be registered in Experience.register
-local ForceControl_builder = {}
+-- hack
+local alien_coin_modifiers = require 'map_gen.Diggy.Config'.features.ArtefactHunting.alien_coin_modifiers
 
 -- this
 local Experience = {}
@@ -39,15 +48,9 @@ Global.register({
     health_bonus = tbl.health_bonus
 end)
 
-
 local config = {}
-local string_format = string.format
-local alien_coin_modifiers = require 'map_gen.Diggy.Config'.features.ArtefactHunting.alien_coin_modifiers
-local floor = math.floor
 
 local level_up_formula = (function (level_reached)
-    local floor = math.floor
-    local log = math.log
     local Config = require 'map_gen.Diggy.Config'.features.Experience
     local difficulty_scale = floor(Config.difficulty_scale)
     local level_fine_tune = floor(Config.xp_fine_tune)
@@ -71,6 +74,20 @@ local level_up_formula = (function (level_reached)
     lower_value = lower_value - (lower_value % (10 ^ (floor(log(lower_value, 10)) - precision)))
     return value - lower_value
 end)
+
+---Updates the market contents based on the current level.
+---@param force LuaForce the force which the unlocking requirement should be based of
+function Experience.update_market_contents(force)
+    local current_level = ForceControl.get_force_data(force).current_level
+    local force_name = force.name
+    for _, prototype in ipairs(config.unlockables) do
+        if (current_level >= prototype.level) then
+            Retailer.set_item(force_name, prototype.name, {coin = prototype.price})
+        end
+    end
+
+    Retailer.ship_items(force_name)
+end
 
 ---Updates a forces manual mining speed modifier. By removing active modifiers and re-adding
 ---@param force LuaForce the force of which will be updated
@@ -238,10 +255,12 @@ local function on_entity_died (event)
                 end
             end
         end
-        local text = string_format('+ %d XP', exp)
-        Game.print_floating_text(entity.surface, entity.position, text, {r = 144, g = 202, b = 249})
-        ForceControl.add_experience(force, exp)
-        return
+        if exp then
+            local text = string_format('+ %d XP', exp)
+            Game.print_floating_text(entity.surface, entity.position, text, {r = 144, g = 202, b = 249})
+            ForceControl.add_experience(force, exp)
+            return
+        end
     end
 
     if entity.force.name ~= 'enemy' then
@@ -266,49 +285,228 @@ local function on_player_respawned(event)
     end
 end
 
----Get list of defined buffs
----@return table with the same format as in the Diggy Config
----@see Diggy.Config.features.Experience.Buffs
-function Experience.get_buffs()
-    return config.buffs
-end
-
 local level_table = {}
 ---Get experiment requirement for a given level
----Primarily used for the market GUI to display total experience required to unlock a specific item
+---Primarily used for the Experience GUI to display total experience required to unlock a specific item
 ---@param level number a number specifying the level
 ---@return number required total experience to reach supplied level
-function Experience.calculate_level_xp(level)
+local function calculate_level_xp(level)
     if level_table[level] == nil then
         local value
         if level == 1 then
             value = level_up_formula(level-1)
         else
-            value = level_up_formula(level-1)+Experience.calculate_level_xp(level-1)
+            value = level_up_formula(level-1)+calculate_level_xp(level-1)
         end
-        table.insert(level_table, level, value)
+        insert(level_table, level, value)
     end
     return level_table[level]
+end
+local function redraw_title(data)
+    local force_data = force_control.get_force_data('player')
+    data.frame.caption = utils.comma_value(force_data.total_experience) .. ' total experience earned!'
+end
+
+local function apply_heading_style(style, width)
+    style.font = 'default-bold'
+    style.width = width
+end
+
+local function redraw_heading(data, header)
+    local head_condition = (header == 1)
+    local frame = (head_condition) and data.experience_list_heading or data.buff_list_heading
+    local header_caption = (head_condition) and 'Reward Item' or 'Reward Buff'
+    Gui.clear(frame)
+
+    local heading_table = frame.add({type = 'table', column_count = 2})
+    apply_heading_style(heading_table.add({ type = 'label', caption = 'Requirement'}).style, 100)
+    apply_heading_style(heading_table.add({type = 'label', caption = header_caption}).style, 220)
+end
+
+local function redraw_progressbar(data)
+    local force_data = force_control.get_force_data('player')
+    local flow = data.experience_progressbars
+    Gui.clear(flow)
+
+    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) ..' xp\nRemaining xp: ' .. utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.Experience.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
+    local level_progressbar = flow.add({type = 'progressbar', tooltip = floor(force_data.experience_percentage*100)*0.01 .. '% xp to next level'})
+    level_progressbar.style.width = 350
+    level_progressbar.value = force_data.experience_percentage * 0.01
+end
+
+local function redraw_table(data)
+    local experience_scroll_pane = data.experience_scroll_pane
+    Gui.clear(experience_scroll_pane)
+
+    redraw_progressbar(data)
+    redraw_heading(data, 1)
+
+    local last_level = 0
+    local current_force_level = force_control.get_force_data('player').current_level
+
+    for _, prototype in ipairs(config.unlockables) do
+        local current_item_level = prototype.level
+        local first_item_for_level = current_item_level ~= last_level
+        local color
+
+        if current_force_level >= current_item_level  then
+            color = {r = 1, g = 1, b = 1 }
+        else
+            color = {r = 0.5, g = 0.5, b = 0.5 }
+        end
+
+        local list = experience_scroll_pane.add({type = 'table', column_count = 2})
+
+        local level_caption = ''
+        if first_item_for_level then
+            level_caption = 'level ' .. current_item_level
+        end
+
+        local level_column = list.add({
+            type = 'label',
+            caption = level_caption,
+            tooltip = 'XP: ' .. utils.comma_value(calculate_level_xp(current_item_level)),
+        })
+        level_column.style.minimal_width = 100
+        level_column.style.font_color = color
+
+        local item_column = list.add({
+            type = 'label',
+            caption = prototype.name
+        })
+        item_column.style.minimal_width = 22
+        item_column.style.font_color = color
+
+        last_level = current_item_level
+    end
+end
+
+local function redraw_buff(data)
+    local buff_scroll_pane = data.buff_scroll_pane
+    Gui.clear(buff_scroll_pane)
+
+    local all_levels_shown = false
+    for name, effects in pairs(config.buffs) do
+        local list = buff_scroll_pane.add({type = 'table', column_count = 2})
+        list.style.horizontal_spacing = 16
+
+        local level_caption = ''
+        if not all_levels_shown then
+            all_levels_shown = true
+            level_caption = 'All levels'
+        end
+
+        local level_label = list.add({type = 'label', caption = level_caption})
+        level_label.style.minimal_width = 100
+        level_label.style.font_color = {r = 1, g = 1, b = 1 }
+
+        local buff_caption
+        local effect_value = effects.value
+        if name == 'mining_speed' then
+            buff_caption = format('+ %d mining speed', effect_value)
+        elseif name == 'inventory_slot' then
+            buff_caption = format('+ %d inventory slot%s', effect_value, effect_value > 1 and 's' or '')
+        elseif name == 'health_bonus' then
+            buff_caption = format('+ %d max health', effect_value)
+        else
+            buff_caption = format('+ %d %s', effect_value, name)
+        end
+
+        local buffs_label = list.add({ type = 'label', caption = buff_caption})
+        buffs_label.style.minimal_width = 220
+        buffs_label.style.font_color = {r = 1, g = 1, b = 1 }
+    end
+end
+
+local function toggle(event)
+    local player = event.player
+    local left = player.gui.left
+    local frame = left['Diggy.Experience.Frame']
+
+    if (frame and event.trigger == nil) then
+        Gui.destroy(frame)
+        return
+    elseif (frame) then
+        local data = Gui.get_data(frame)
+        redraw_title(data)
+        redraw_progressbar(data)
+        redraw_table(data)
+        return
+    end
+
+    frame = left.add({name = 'Diggy.Experience.Frame', type = 'frame', direction = 'vertical'})
+
+    local experience_progressbars = frame.add({ type = 'flow', direction = 'vertical'})
+    local experience_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
+
+    local experience_scroll_pane = frame.add({ type = 'scroll-pane'})
+    experience_scroll_pane.style.maximal_height = 300
+
+    local buff_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
+
+    local buff_scroll_pane = frame.add({type = 'scroll-pane'})
+    buff_scroll_pane.style.maximal_height = 100
+
+    frame.add({type = 'button', name = 'Diggy.Experience.Button', caption = 'Close'})
+
+    local data = {
+        frame = frame,
+        experience_progressbars = experience_progressbars,
+        experience_list_heading = experience_list_heading,
+        experience_scroll_pane = experience_scroll_pane,
+        buff_list_heading = buff_list_heading,
+        buff_scroll_pane = buff_scroll_pane,
+    }
+
+    redraw_title(data)
+    redraw_table(data)
+
+    redraw_heading(data, 2)
+    redraw_buff(data)
+
+    Gui.set_data(frame, data)
+end
+
+local function on_player_created(event)
+    Game.get_player_by_index(event.player_index).gui.top.add({
+        name = 'Diggy.Experience.Button',
+        type = 'sprite-button',
+        sprite = 'entity/market',
+    })
+end
+
+Gui.on_click('Diggy.Experience.Button', toggle)
+Gui.on_custom_close('Diggy.Experience.Frame', function (event)
+    event.element.destroy()
+end)
+
+---Updates the experience progress gui for every player that has it open
+local function update_gui()
+    for _, p in ipairs(game.connected_players) do
+        local frame = p.gui.left['Diggy.Experience.Frame']
+
+        if frame and frame.valid then
+            local data = {player = p, trigger = 'update_gui'}
+            toggle(data)
+        end
+    end
 end
 
 function Experience.register(cfg)
     config = cfg
 
     --Adds the function on how to calculate level caps (When to level up)
-    ForceControl_builder = ForceControl.register(level_up_formula)
+    local ForceControlBuilder = ForceControl.register(level_up_formula)
 
     --Adds a function that'll be executed at every level up
-    ForceControl_builder.register_on_every_level(function (level_reached, force)
+    ForceControlBuilder.register_on_every_level(function (level_reached, force)
         force.print(string_format('%s Leveled up to %d!', '## - ', level_reached))
         force.play_sound{path='utility/new_objective', volume_modifier = 1 }
         local Experience = require 'map_gen.Diggy.Feature.Experience'
         Experience.update_inventory_slots(force, level_reached)
         Experience.update_mining_speed(force, level_reached)
         Experience.update_health_bonus(force, level_reached)
-        local MarketExchange = require 'map_gen.Diggy.Feature.MarketExchange'
-        local market = MarketExchange.get_market()
-        MarketExchange.update_market_contents(market, force)
-        MarketExchange.update_gui()
+        Experience.update_market_contents(force)
     end)
 
     -- Events
@@ -317,6 +515,8 @@ function Experience.register(cfg)
     Event.add(defines.events.on_rocket_launched, on_rocket_launched)
     Event.add(defines.events.on_player_respawned, on_player_respawned)
     Event.add(defines.events.on_entity_died, on_entity_died)
+    Event.add(defines.events.on_player_created, on_player_created)
+    Event.on_nth_tick(61, update_gui)
 
     -- Prevents table lookup thousands of times
     sand_rock_xp = config.XP['sand-rock-big']
