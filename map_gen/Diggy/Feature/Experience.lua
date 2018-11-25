@@ -138,17 +138,18 @@ end
 local sand_rock_xp
 local rock_huge_xp
 
----Awards experience when a rock has been mined
+---Awards experience when a rock has been mined (increases by 1 XP every 5th level)
 ---@param event LuaEvent
 local function on_player_mined_entity(event)
     local entity = event.entity
     local player_index = event.player_index
     local force = Game.get_player_by_index(player_index).force
+    local level = ForceControl.get_force_data(force).current_level
     local exp
     if entity.name == 'sand-rock-big' then
-        exp = sand_rock_xp
+        exp = sand_rock_xp * (floor(level / 5) +1 )
     elseif entity.name == 'rock-huge' then
-        exp = rock_huge_xp
+        exp = rock_huge_xp * (floor(level / 5) + 1)
     else
         return
     end
@@ -195,17 +196,16 @@ local function on_research_finished(event)
     game.forces.player.technologies['landfill'].enabled = false
 end
 
----Awards experience when a rocket has been launched
+---Awards experience when a rocket has been launched based on percentage of total experience
 ---@param event LuaEvent
 local function on_rocket_launched(event)
-    local exp = config.XP['rocket_launch']
-    local force = event.force
+    local force = event.rocket.force
+    local exp = ForceControl.add_experience_percentage(force, config.XP['rocket_launch'], 5000)
     local text = string_format('Rocket launched! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
         Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
     end
-    ForceControl.add_experience(force, exp)
 end
 
 ---Awards experience when a player kills an enemy, based on type of enemy
@@ -219,11 +219,12 @@ local function on_entity_died (event)
     --For bot mining
     if not cause or cause.type ~= 'player' or not cause.valid then
         local exp
+        local level = ForceControl.get_force_data(force).current_level
         if force.name == 'player' then
             if entity.name == 'sand-rock-big' then
-                exp = floor(sand_rock_xp/2)
+                exp = floor((sand_rock_xp * (floor(level / 5) +1 )) / 2)
             elseif entity.name == 'rock-huge' then
-                exp = floor(rock_huge_xp/2)
+                exp = floor((rock_huge_xp * (floor(level / 5) +1 )) / 2)
             else
                 return
             end
@@ -259,7 +260,7 @@ local function on_player_respawned(event)
     local player = Game.get_player_by_index(event.player_index)
     local force = player.force
     local exp = ForceControl.remove_experience_percentage(force, config.XP['death-penalty'], 50)
-    local text = string_format('%s died! -%d XP', player.name, exp)
+    local text = string_format('%s resurrected! -%d XP', player.name, exp)
     for _, p in pairs(game.connected_players) do
         Game.print_player_floating_text_position(p.index, text, {r = 255, g = 0, b = 0},-1, -0.5)
     end
