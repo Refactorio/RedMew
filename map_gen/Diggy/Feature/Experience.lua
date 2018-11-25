@@ -213,29 +213,28 @@ end
 local function on_entity_died (event)
     local entity = event.entity
     local force = event.force
-
     local cause = event.cause
 
-    --For bot mining
+    --For bot mining and turrets
     if not cause or cause.type ~= 'player' or not cause.valid then
         local exp
         if force and force.name == 'player' then
-            local level = ForceControl.get_force_data(force).current_level
-            if entity.name == 'sand-rock-big' then
-                exp = floor((sand_rock_xp + (level / 5)) / 2)
-            elseif entity.name == 'rock-huge' then
-                exp = floor((rock_huge_xp + (level / 5)) / 2)
-            else
+            if cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
+                exp = config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
+                local text = string_format('+ %d XP', exp)
+                Game.print_floating_text(cause.surface, cause.position, text, {r = 144, g = 202, b = 249})
+                ForceControl.add_experience(force, exp)
                 return
+            else
+                local level = ForceControl.get_force_data(force).current_level
+                if entity.name == 'sand-rock-big' then
+                    exp = floor((sand_rock_xp + (level / 5)) / 2)
+                elseif entity.name == 'rock-huge' then
+                    exp = floor((rock_huge_xp + (level / 5)) / 2)
+                else
+                    return
+                end
             end
-        elseif cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
-            exp = Config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
-            local text = string_format('+ %d XP', exp)
-            Game.print_floating_text(cause.surface, cause.position, text, {r = 144, g = 202, b = 249})
-            ForceControl.add_experience(force, exp)
-            return
-        else
-            return
         end
         local text = string_format('+ %d XP', exp)
         Game.print_floating_text(entity.surface, entity.position, text, {r = 144, g = 202, b = 249})
@@ -246,7 +245,6 @@ local function on_entity_died (event)
     if entity.force.name ~= 'enemy' then
         return
     end
-
     local exp = config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
     local text = string_format('+ %d XP', exp)
     local player_index = cause.player.index
