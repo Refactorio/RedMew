@@ -79,7 +79,9 @@ function Experience.update_mining_speed(force, level_up)
     level_up = level_up ~= nil and level_up or 0
     local buff = config.buffs['mining_speed']
     if level_up > 0 and buff ~= nil then
-        local value = (buff.double_level ~= nil and level_up % buff.double_level == 0) and buff.value * 2 or buff.value
+        local level = ForceControl.get_force_data(force).current_level
+        local adjusted_value = floor(math.max(buff.value, 24*0.9^level))
+        local value = (buff.double_level ~= nil and level_up % buff.double_level == 0) and adjusted_value * 2 or adjusted_value
         mining_efficiency.level_modifier = mining_efficiency.level_modifier + (value * 0.01)
     end
     -- remove the current buff
