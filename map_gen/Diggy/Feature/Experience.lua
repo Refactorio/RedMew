@@ -219,8 +219,8 @@ local function on_entity_died (event)
     --For bot mining
     if not cause or cause.type ~= 'player' or not cause.valid then
         local exp
-        local level = ForceControl.get_force_data(force).current_level
-        if force.name == 'player' then
+        if force and force.name == 'player' then
+            local level = ForceControl.get_force_data(force).current_level
             if entity.name == 'sand-rock-big' then
                 exp = floor((sand_rock_xp + (floor(level / 5))) / 2)
             elseif entity.name == 'rock-huge' then
