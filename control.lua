@@ -8,8 +8,8 @@ require 'map_gen.shared.perlin_noise'
 require 'map_layout'
 
 -- Specific to RedMew hosts, can be disabled safely if not hosting on RedMew servers
-Server = require 'server'
-ServerCommands = require 'server_commands'
+require 'server'
+require 'server_commands'
 
 -- Library modules which, if missing, will cause other feature modules to fail
 require 'features.base_data'
@@ -46,43 +46,3 @@ require 'features.gui.blueprint_helper'
 require 'features.gui.paint'
 require 'features.gui.score'
 require 'features.gui.popup'
-
-local Token = require('utils.global_token')
-local data_callback =
-    Token.register(
-    function(data)
-        game.print(serpent.line(data))
-    end
-)
-
-function get_data(data_set, key)
-    Server.try_get_data(data_set, key, data_callback)
-end
-
-function get_all_data(data_set, key)
-    Server.try_get_all_data(data_set, data_callback)
-end
-
-local Event = require('utils.event')
-Event.add(
-    Server.events.on_server_started,
-    function(tbl)
-        game.print('on_server_started')
-        print('on_server_started')
-        game.print(serpent.block(tbl))
-        print(serpent.block(tbl))
-
-        Server.try_get_all_data('webtest', data_callback)
-    end
-)
-
-local data_token =
-    Token.register(
-    function(data)
-        global.data = data.entries
-    end
-)
-
-function get_data_set(data_set)
-    Server.try_get_all_data(data_set, data_token)
-end
