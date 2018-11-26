@@ -1,5 +1,4 @@
 local Token = require 'utils.global_token'
-local Event = require 'utils.event'
 
 local Public = {}
 
@@ -17,9 +16,6 @@ local discord_embed_tag = '[DISCORD-EMBED]'
 local discord_embed_raw_tag = '[DISCORD-EMBED-RAW]'
 local discord_admin_embed_tag = '[DISCORD-ADMIN-EMBED]'
 local discord_admin_embed_raw_tag = '[DISCORD-ADMIN-EMBED-RAW]'
-local regular_promote_tag = '[REGULAR-PROMOTE]'
-local regular_deomote_tag = '[REGULAR-DEOMOTE]'
-local donator_set_tag = '[DONATOR-SET]'
 local start_scenario_tag = '[START-SCENARIO]'
 local ping_tag = '[PING]'
 local data_set_tag = '[DATA-SET]'
@@ -33,67 +29,73 @@ local data_set_handlers = {}
 
 defines.events.on_server_started = script.generate_event_name()
 
+--- The event id for the on_server_started event.
+-- The event is raised whenever the server goes from the starting state to the running state.
+-- It provides a good opportunity to request data from the web server.
+-- Note that if the server is stopped then started again, this event will be raised again.
+-- @usage
+-- Event.add(Server.events.on_server_started,
+-- function()
+--      Server.try_get_all_data('regulars', callback)
+-- end)
 Public.events = {on_server_started = defines.events.on_server_started}
 
+--- Sends a message to the linked discord channel. The message is sanitized of markdown server side.
+-- @param  message<string> message to send.
 function Public.to_discord(message)
     raw_print(discord_tag .. message)
 end
 
+--- Sends a message to the linked discord channel. The message is not sanitized of markdown.
+-- @param  message<string> message to send.
 function Public.to_discord_raw(message)
     raw_print(discord_raw_tag .. message)
 end
 
+--- Sends a message to the linked discord channel. The message is sanitized of markdown server side, then made bold.
+-- @param  message<string> message to send.
 function Public.to_discord_bold(message)
     raw_print(discord_bold_tag .. message)
 end
 
+--- Sends a message to the linked admin discord channel. The message is sanitized of markdown server side.
+-- @param  message<string> message to send.
 function Public.to_admin(message)
     raw_print(discord_admin_tag .. message)
 end
 
+--- Sends a message to the linked admin discord channel. The message is not sanitized of markdown.
+-- @param  message<string> message to send.
 function Public.to_admin_raw(message)
     raw_print(discord_admin_raw_tag .. message)
 end
 
+--- Sends a embed message to the linked discord channel. The message is sanitized of markdown server side.
+-- @param  message<string> the content of the embed.
 function Public.to_discord_embed(message)
     raw_print(discord_embed_tag .. message)
 end
 
+--- Sends a embed message to the linked discord channel. The message is not sanitized of markdown.
+-- @param  message<string> the content of the embed.
 function Public.to_discord_embed_raw(message)
     raw_print(discord_embed_raw_tag .. message)
 end
 
+--- Sends a embed message to the linked admin discord channel. The message is sanitized of markdown server side.
+-- @param  message<string> the content of the embed.
 function Public.to_admin_embed(message)
     raw_print(discord_admin_embed_tag .. message)
 end
 
+--- Sends a embed message to the linked admin discord channel. The message is not sanitized of markdown.
+-- @param  message<string> the content of the embed.
 function Public.to_admin_embed_raw(message)
     raw_print(discord_admin_embed_raw_tag .. message)
 end
 
-function Public.regular_promote(target, promotor)
-    local control_message = table.concat {regular_promote_tag, target, ' ', promotor}
-    local discord_message = table.concat {discord_bold_tag, promotor .. ' promoted ' .. target .. ' to regular.'}
-
-    raw_print(control_message)
-    raw_print(discord_message)
-end
-
-function Public.regular_deomote(target, demotor)
-    local discord_message = table.concat {discord_bold_tag, target, ' was demoted from regular by ', demotor, '.'}
-
-    raw_print(regular_deomote_tag .. target)
-    raw_print(discord_message)
-end
-
-function Public.donator_set(target, perks)
-    perks = perks or 'nil'
-
-    local message = table.concat {donator_set_tag, target, ' ', perks}
-
-    raw_print(message)
-end
-
+--- Stops and saves the factorio server and starts the named scenario.
+-- @param  scenario_name<string> The name of the scenario as appears in the scenario table on http://redmew.com/admin
 function Public.start_scenario(scenario_name)
     if type(scenario_name) ~= 'string' then
         game.print('start_scenario - scenario_name ' .. tostring(scenario_name) .. ' must be a string.')
@@ -116,11 +118,20 @@ local default_ping_token =
     end
 )
 
+--- Pings the web server.
+-- @param  func_token<token> The function that is called when the web server replies.
+-- The function is passed the tick that the ping was sent.
 function Public.ping(func_token)
     local message = table.concat({ping_tag, func_token or default_ping_token, ' ', game.tick})
     raw_print(message)
 end
 
+--- Sets the web server's persistent data storage. If you pass nil for the value removes the data.
+-- Data set this will by synced in with other server if they choose to.
+-- There can only be one key for each data_set.
+-- @param  data_set<string>
+-- @param  key<string>
+-- @param  value<nil|boolean|number|string|table> Any type that is not a function. set to nil to remove the data.
 function Public.set_data(data_set, key, value)
     if type(data_set) ~= 'string' then
         error('data_set must be a string')
@@ -129,6 +140,7 @@ function Public.set_data(data_set, key, value)
         error('key must be a string')
     end
 
+    -- Excessive escaping because the data is serialized twice.
     data_set = data_set:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
     key = key:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
 
@@ -161,6 +173,12 @@ function Public.set_data(data_set, key, value)
     raw_print(message)
 end
 
+--- Gets data from the web server's persistent data storage.
+-- The callback is passed a table {data_set: string, key: string, value: any}.
+-- If the value is nil, it means there is no stored data for that data_set key pair.
+-- @param  data_set<string>
+-- @param  key<string>
+-- @param  callback_token<token>
 function Public.try_get_data(data_set, key, callback_token)
     if type(data_set) ~= 'string' then
         error('data_set must be a string')
@@ -180,6 +198,11 @@ function Public.try_get_data(data_set, key, callback_token)
     raw_print(message)
 end
 
+--- Gets all the data for the data_set from the web server's persistent data storage.
+-- The callback is passed a table {data_set: string, entries: {dictionary key -> value}}.
+-- If there is no data stored for the data_set entries will be nil.
+-- @param  data_set<string>
+-- @param  callback_token<token>
 function Public.try_get_all_data(data_set, callback_token)
     if type(data_set) ~= 'string' then
         error('data_set must be a string')
@@ -219,6 +242,15 @@ local function data_set_changed(data)
     end
 end
 
+--- Register a handler to be called when the data_set changes.
+-- The handler is passed a table {data_set:string, key:string, value:any}
+-- If value is nil that means the key was removed.
+-- The handler may be called even if the value hasn't changed. It's up to the implementer
+-- to determine if the value has changed, or not care.
+-- To prevent desyncs the same handlers must be registered for all clients. The easiest way to do this
+-- is in the control stage, i.e before on_init or on_load would be called.
+-- @param  data_set<string>
+-- @param  handler<function>
 function Public.on_data_set_changed(data_set, handler)
     if type(data_set) ~= 'string' then
         error('data_set must be a string')
@@ -235,6 +267,7 @@ end
 
 Public.raise_data_set = data_set_changed
 
+--- Called by the web server to determine which data_sets are being tracked.
 function Public.get_tracked_data_sets()
     local message = {data_tracked_tag, '['}
 
