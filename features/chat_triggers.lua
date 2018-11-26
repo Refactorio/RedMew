@@ -20,12 +20,11 @@ local function get_player(event)
     -- and indexing Game.players with nil is apparently an error.
     local player_index = event.player_index
     if not player_index then
-        return false
+        return nil
     end
-
     local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
-        return false
+        return nil
     end
     return player
 end
