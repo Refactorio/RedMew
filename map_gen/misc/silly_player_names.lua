@@ -16,9 +16,9 @@ local name_combinations = #naming_words.adverbs * #naming_words.adjectives * #na
 -- @returns name as a string
 local function create_name(words_table)
     local adverb, adjective, noun
-    adverb = table.get_random(words_table.adverbs)
-    adjective = table.get_random(words_table.adjectives)
-    noun = table.get_random(words_table.nouns)
+    adverb = table.get_random(words_table.adverbs, true)
+    adjective = table.get_random(words_table.adjectives, true)
+    noun = table.get_random(words_table.nouns, true)
     return adverb .. '_' .. adjective .. '_' .. noun
 end
 
