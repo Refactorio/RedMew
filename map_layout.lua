@@ -139,7 +139,8 @@ local terrain_modules = {
 --require 'map_gen.misc.nightfall'
 --require 'map_gen.misc.creep_spread'
 --require 'map_gen.misc.car_body'
---require 'features.silly_player_names'
+--require 'map_gen.misc.silly_player_names'
+--require 'map_gen.misc.infinite_storage_chest'
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
