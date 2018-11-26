@@ -50,6 +50,11 @@ end)
 
 local config = {}
 
+local gain_xp_color = {r = 144, g = 202, b = 249}
+local lose_xp_color = {r = 255, g = 0, b = 0}
+local unlocked_color = {r = 255, g = 255, b = 255}
+local locked_color = {r = 127, g = 127, b = 127}
+
 local level_up_formula = (function (level_reached)
     local Config = require 'map_gen.Diggy.Config'.features.Experience
     local difficulty_scale = floor(Config.difficulty_scale)
@@ -173,7 +178,7 @@ local function on_player_mined_entity(event)
         return
     end
     local text = string_format('+%d XP', exp)
-    Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},0, -0.5)
+    Game.print_player_floating_text_position(player_index, text, gain_xp_color,0, -0.5)
     ForceControl.add_experience(force, exp)
 end
 
@@ -193,7 +198,7 @@ local function on_research_finished(event)
     local text = string_format('Research completed! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
-        Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249}, -1, -0.5)
+        Game.print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
     end
     ForceControl.add_experience(force, exp)
 
@@ -223,7 +228,7 @@ local function on_rocket_launched(event)
     local text = string_format('Rocket launched! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
-        Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
+        Game.print_player_floating_text_position(player_index, text, gain_xp_color,-1, -0.5)
     end
 end
 
@@ -241,7 +246,7 @@ local function on_entity_died (event)
             if cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
                 exp = config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
                 local text = string_format('+ %d XP', exp)
-                Game.print_floating_text(cause.surface, cause.position, text, {r = 144, g = 202, b = 249})
+                Game.print_floating_text(cause.surface, cause.position, text, gain_xp_color)
                 ForceControl.add_experience(force, exp)
                 return
             else
@@ -257,7 +262,7 @@ local function on_entity_died (event)
         end
         if exp then
             local text = string_format('+ %d XP', exp)
-            Game.print_floating_text(entity.surface, entity.position, text, {r = 144, g = 202, b = 249})
+            Game.print_floating_text(entity.surface, entity.position, text, gain_xp_color)
             ForceControl.add_experience(force, exp)
         end
         return
@@ -269,7 +274,7 @@ local function on_entity_died (event)
     local exp = config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
     local text = string_format('+ %d XP', exp)
     local player_index = cause.player.index
-    Game.print_player_floating_text_position(player_index, text, {r = 144, g = 202, b = 249},-1, -0.5)
+    Game.print_player_floating_text_position(player_index, text, gain_xp_color,-1, -0.5)
     ForceControl.add_experience(force, exp)
 end
 
@@ -281,7 +286,7 @@ local function on_player_respawned(event)
     local exp = ForceControl.remove_experience_percentage(force, config.XP['death-penalty'], 50)
     local text = string_format('%s resurrected! -%d XP', player.name, exp)
     for _, p in pairs(game.connected_players) do
-        Game.print_player_floating_text_position(p.index, text, {r = 255, g = 0, b = 0},-1, -0.5)
+        Game.print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
     end
 end
 
@@ -350,9 +355,9 @@ local function redraw_table(data)
         local color
 
         if current_force_level >= current_item_level  then
-            color = {r = 1, g = 1, b = 1 }
+            color = unlocked_color
         else
-            color = {r = 0.5, g = 0.5, b = 0.5 }
+            color = locked_color
         end
 
         local list = experience_scroll_pane.add({type = 'table', column_count = 2})
@@ -398,7 +403,7 @@ local function redraw_buff(data)
 
         local level_label = list.add({type = 'label', caption = level_caption})
         level_label.style.minimal_width = 100
-        level_label.style.font_color = {r = 1, g = 1, b = 1 }
+        level_label.style.font_color = unlocked_color
 
         local buff_caption
         local effect_value = effects.value
@@ -414,7 +419,7 @@ local function redraw_buff(data)
 
         local buffs_label = list.add({ type = 'label', caption = buff_caption})
         buffs_label.style.minimal_width = 220
-        buffs_label.style.font_color = {r = 1, g = 1, b = 1 }
+        buffs_label.style.font_color = unlocked_color
     end
 end
 
