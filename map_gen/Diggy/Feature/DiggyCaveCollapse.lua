@@ -149,7 +149,7 @@ end
 local on_collapse_timeout_finished = Token.register(collapse)
 
 local function spawn_cracking_sound_text(surface, position)
-    local text = config.cracking_sounds[random(1, #config.cracking_sounds)]
+    local text = table.get_random(config.cracking_sounds, true)
 
     local color = {
         r = 1,

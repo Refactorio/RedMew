@@ -715,7 +715,7 @@ Gui.on_click(
         local count = (player_pokes[poke_player_index] or 0) + 1
         player_pokes[poke_player_index] = count
 
-        local poke_str = poke_messages[math.random(#poke_messages)]
+        local poke_str = table.get_random(poke_messages, true)
         local message = table.concat({'>> ', player.name, ' has poked ', poke_player.name, ' with ', poke_str, ' <<'})
 
         for _, p in ipairs(game.connected_players) do

@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 
 local drivers_group = 'Drivers'
+local directions = defines.direction
 
 local function transfer_body(player)
     -- Remove the player from their character and place them in a car.
@@ -10,7 +11,7 @@ local function transfer_body(player)
     local pos = force.get_spawn_position(surface)
 
     -- Choose a random direction for the car to face
-    local dir = math.random(0, 7)
+    local dir = table.get_random(directions, true)
 
     -- Remove the players' character
     if player.character then
