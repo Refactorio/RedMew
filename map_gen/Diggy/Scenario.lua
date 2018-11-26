@@ -45,9 +45,9 @@ function Scenario.register(debug, cheats)
         return
     end
 
-    global.scenario.config.player_list.enable_coin_col = false
-    if global.scenario.config then
-        global.scenario.config.fish_market.enable = nil
+    global.config.player_list.enable_coin_col = false
+    if global.config then
+        global.config.fish_market.enable = nil
     end
 
     if debug then

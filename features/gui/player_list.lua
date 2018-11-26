@@ -448,7 +448,7 @@ local function get_default_player_settings()
         distance_heading_name
     }
     local offset = 6
-    if global.scenario.config.player_list.enable_coin_col then
+    if global.config.player_list.enable_coin_col then
         columns[6] = coin_heading_name
         offset = 7
     end
