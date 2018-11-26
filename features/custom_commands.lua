@@ -152,45 +152,6 @@ local function regular(cmd)
     end
 end
 
-local function donator(cmd)
-    local player = game.player
-    if player and not player.admin then
-        cant_run(cmd.name)
-        return
-    end
-
-    if cmd.parameter == nil then
-        player_print('Command failed. Usage: /donator <player> <perks>')
-        return
-    end
-
-    local params = {}
-    for param in string.gmatch(cmd.parameter, '%S+') do
-        table.insert(params, param)
-    end
-    if params[2] == nil then
-        player_print('Command failed. Usage: /donator <player> <perks>')
-        return
-    end
-
-    local perks = params[2]
-    if perks == 'nil' then
-        perks = nil
-    end
-
-    if (tonumber(perks) == nil and perks ~= nil) then
-        player_print("Command failed. perks must be number or the string 'nil' to remove donator.")
-        return
-    end
-
-    local target = params[1]
-
-    UserGroups.set_donator(target, perks)
-
-    local message = table.concat {'Player ', target, ' donator perks set to ', perks}
-    player_print(message)
-end
-
 --- Check players' afk times
 local function afk()
     for _, v in pairs(game.players) do
