@@ -5,6 +5,7 @@ local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
 local math = require 'utils.math'
 local Utils = require 'utils.utils'
+local Server = require 'server'
 
 local default_poll_duration = 300 * 60 -- in ticks
 local duration_max = 3600 -- in seconds
