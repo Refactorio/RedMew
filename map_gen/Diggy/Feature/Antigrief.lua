@@ -22,9 +22,11 @@ local jailed_players = {}
 Global.register({
     player_collapses = player_collapses,
     jailed_players = jailed_players,
+    global_primitives = global_primitives,
 }, function(tbl)
     player_collapses = tbl.player_collapses
     jailed_players = tbl.jailed_players
+    global_primitives = tbl.global_primitives
 end)
 
 global_primitives.autojail = false
