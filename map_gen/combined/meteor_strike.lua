@@ -1,5 +1,4 @@
 local perlin = require 'map_gen.shared.perlin_noise'
-local Task = require 'utils.task'
 local Event = require 'utils.event'
 
 local block_size = 1 -- in tiles
