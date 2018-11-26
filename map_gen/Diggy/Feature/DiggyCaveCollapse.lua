@@ -350,13 +350,14 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(defines.events.on_surface_created, on_surface_created)
 
     Event.add(defines.events.on_marked_for_deconstruction, function (event)
-        local name = event.entity.name
+        local entity = event.entity
+        local name = entity.name
         if name == 'sand-rock-big' or name == 'rock-huge' then
             return
         end
 
         if name == 'deconstructible-tile-proxy' or nil ~= support_beam_entities[name] then
-            event.entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
+            entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
         end
     end)
 

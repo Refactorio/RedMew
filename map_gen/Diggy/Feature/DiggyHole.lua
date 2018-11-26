@@ -59,12 +59,13 @@ local function diggy_hole(entity)
 
     local out_of_map_found = Scanner.scan_around_position(surface, position, 'out-of-map');
 
-    for _, void_position in ipairs(out_of_map_found) do
-        insert(tiles, {name = 'dirt-' .. random(1, 7), position = void_position })
+    for i = #out_of_map_found, 1, -1 do
+        local void_position = out_of_map_found[i]
+        tiles[i] = {name = 'dirt-' .. random(1, 7), position = void_position}
         if random() < 0.35 then
-            insert(rocks, {name = 'rock-huge', position = void_position })
+            rocks[i] = {name = 'rock-huge', position = void_position}
         else
-            insert(rocks, {name = 'sand-rock-big', position = void_position })
+            rocks[i] = {name = 'sand-rock-big', position = void_position}
         end
     end
 
@@ -100,7 +101,7 @@ end
 function DiggyHole.register(config)
     robot_mining.damage = config.robot_initial_mining_damage
     ScoreTable.set('Robot mining damage', robot_mining.damage)
-    ScoreTable.reset('Void removed')
+    ScoreTable.reset('Mine size')
 
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
@@ -184,7 +185,7 @@ function DiggyHole.register(config)
     end)
 
     Event.add(Template.events.on_void_removed, function ()
-        ScoreTable.increment('Void removed')
+        ScoreTable.increment('Mine size')
     end)
 
     Event.add(defines.events.on_research_finished, function (event)

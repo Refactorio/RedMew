@@ -11,7 +11,6 @@ local Simplex = require 'map_gen.shared.simplex_noise'
 local random = math.random
 local sqrt = math.sqrt
 local ceil = math.ceil
-local floor = math.floor
 
 -- this
 local ScatteredResources = {}
@@ -44,7 +43,7 @@ function ScatteredResources.register(config)
     local function seeded_noise(surface, x, y, index, sources)
         base_seed = base_seed or surface.map_gen_settings.seed + surface.index + 4000
         local noise = 0
-        for _, settings in ipairs(sources) do
+        for _, settings in pairs(sources) do
             settings.type = settings.type or 'perlin'
             settings.offset = settings.offset or 0
             if settings.type == 'zero' then
@@ -101,7 +100,7 @@ function ScatteredResources.register(config)
         error('ore_pattern invalid')
     end
     local c_count = 0
-    for _, cluster in ipairs(c_clusters) do
+    for _, cluster in pairs(c_clusters) do
         c_count = c_count + 1
         cluster.weights_sum = 0
         -- ensure the cluster colors are valid otherwise it fails silently
@@ -154,7 +153,7 @@ function ScatteredResources.register(config)
         local distance = config.distance(x, y)
 
         if c_mode then
-            for index,cluster in ipairs(c_clusters) do
+            for index,cluster in pairs(c_clusters) do
                 if distance >= cluster.min_distance and cluster.noise_settings.type ~= 'skip' then
                     if cluster.noise_settings.type == "connected_tendril" then
                         local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
@@ -224,7 +223,7 @@ function ScatteredResources.register(config)
 
             for x = area.left_top.x, area.left_top.x + 31 do
                 for y = area.left_top.y, area.left_top.y + 31 do
-                    for index,cluster in ipairs(c_clusters) do
+                    for index,cluster in pairs(c_clusters) do
                         if cluster.noise_settings.type == "connected_tendril" then
                             local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                             if -1 * cluster.noise_settings.threshold < noise and noise < cluster.noise_settings.threshold then
