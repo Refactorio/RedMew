@@ -17,11 +17,11 @@ make pet faster
 make pet follow you moar
 --]]
 local Event = require 'utils.event'
-local Token = require 'utils.global_token'
-local Task = require 'utils.Task'
+local Token = require 'utils.token'
+local Task = require 'utils.task'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 
 local Market_items = require 'resources.market_items'
 local market_item = Market_items.market_item

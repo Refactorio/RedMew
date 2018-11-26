@@ -4,7 +4,7 @@ local Gui = require 'utils.gui'
 local Donators = require 'resources.donators'
 local UserGroups = require 'features.user_groups'
 local PlayerStats = require 'features.player_stats'
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 local Report = require 'features.report'
 local Game = require 'utils.game'
 

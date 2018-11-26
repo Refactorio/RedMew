@@ -4,8 +4,8 @@ local Debug = require 'map_gen.Diggy.Debug'
 local ScenarioInfo = require 'features.gui.info'
 local Event = require 'utils.event'
 
-require 'utils.list_utils'
-require 'utils.utils'
+require 'utils.table'
+require 'utils.core'
 
 -- this
 local Scenario = {}

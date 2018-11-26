@@ -1,7 +1,7 @@
 local Module = {}
 
 local Gui = require('utils.gui')
-local Utils = require('utils.utils')
+local Utils = require('utils.core')
 local Game = require 'utils.game'
 
 local report_frame_name = Gui.uid_name()

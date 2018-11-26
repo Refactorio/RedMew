@@ -1,6 +1,6 @@
 -- adds some wrecked items around the map, good for MP, reduces total resources pulled from factory, and adds incentive to push out
 
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 
 local wreck_item_pool = {
     {name = 'iron-gear-wheel', count = 32},

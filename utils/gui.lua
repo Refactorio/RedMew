@@ -1,4 +1,4 @@
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 

@@ -1,8 +1,8 @@
-require 'utils.list_utils'
+require 'utils.table'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 local naming_words = require 'resources.naming_words'
-local Utils = require('utils.utils')
+local Utils = require('utils.core')
 global.actual_name = {}
 global.silly_names = {}
 global.silly_names.count = 0

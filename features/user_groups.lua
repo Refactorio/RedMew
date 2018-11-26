@@ -1,5 +1,5 @@
 local Event = require 'utils.event'
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 local Server = require 'features.server'
 local Donators = require 'resources.donators'
 local Game = require 'utils.game'

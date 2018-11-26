@@ -1,4 +1,4 @@
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 
 local Builders = {}
 

@@ -5,9 +5,9 @@
 -- ======================================================= --
 
 local Queue = require 'utils.Queue'
-local PriorityQueue = require 'utils.PriorityQueue'
+local PriorityQueue = require 'utils.priority_queue'
 local Event = require 'utils.event'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 
 local Task = {}
 

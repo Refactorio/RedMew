@@ -1,6 +1,6 @@
 global.follows = {}
 global.follows.n_entries = 0
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 local Game = require 'utils.game'
 
 local function get_direction(follower, target)

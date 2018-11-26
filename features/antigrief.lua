@@ -1,5 +1,5 @@
 local Event = require 'utils.event'
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 local Game = require 'utils.game'
 
 global.original_last_users_by_ent_pos = {}

@@ -12,7 +12,7 @@ local Perlin = require 'map_gen.shared.perlin_noise'
 local random = math.random
 local ceil = math.ceil
 local Gui = require 'utils.gui'
-local utils = require 'utils.utils'
+local utils = require 'utils.core'
 
 -- this
 local ArtefactHunting = {}
