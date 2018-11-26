@@ -47,40 +47,9 @@ require 'features.gui.paint'
 require 'features.gui.score'
 require 'features.gui.popup'
 
-Server.on_data_set_changed(
-    'Test',
-    function(data)
-        game.print(serpent.block(data))
-    end
-)
-
-Server.on_data_set_changed(
-    'Test 2',
-    function(data)
-        game.print(serpent.block(data))
-    end
-)
-
-Server.on_data_set_changed(
-    'Test,2',
-    function(data)
-        game.print(serpent.block(data))
-    end
-)
-
-local Event = require('utils.event')
-Event.add(
-    Server.events.on_server_started,
-    function(tbl)
-        game.print('on_server_started')
-        print('on_server_started')
-        game.print(serpent.block(tbl))
-        print(serpent.block(tbl))
-    end
-)
-
 local Token = require('utils.global_token')
-local data_callback = Token.register(
+local data_callback =
+    Token.register(
     function(data)
         game.print(serpent.line(data))
     end
@@ -92,4 +61,28 @@ end
 
 function get_all_data(data_set, key)
     Server.try_get_all_data(data_set, data_callback)
+end
+
+local Event = require('utils.event')
+Event.add(
+    Server.events.on_server_started,
+    function(tbl)
+        game.print('on_server_started')
+        print('on_server_started')
+        game.print(serpent.block(tbl))
+        print(serpent.block(tbl))
+
+        Server.try_get_all_data('webtest', data_callback)
+    end
+)
+
+local data_token =
+    Token.register(
+    function(data)
+        global.data = data.entries
+    end
+)
+
+function get_data_set(data_set)
+    Server.try_get_all_data(data_set, data_token)
 end

@@ -129,6 +129,9 @@ function Public.set_data(data_set, key, value)
         error('key must be a string')
     end
 
+    data_set = data_set:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+    key = key:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+
     local message
     local vt = type(value)
     if vt == 'nil' then
@@ -155,7 +158,40 @@ function Public.set_data(data_set, key, value)
         message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, "\",value:'", value, "'}"})
     end
 
-    game.print(message)
+    raw_print(message)
+end
+
+function Public.try_get_data(data_set, key, callback_token)
+    if type(data_set) ~= 'string' then
+        error('data_set must be a string')
+    end
+    if type(key) ~= 'string' then
+        error('key must be a string')
+    end
+    if type(callback_token) ~= 'number' then
+        error('callback_token must be a number')
+    end
+
+    -- Excessive escaping because the data is serialized twice.
+    data_set = data_set:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+    key = key:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+
+    local message = table.concat {data_get_tag, callback_token, ' {', 'data_set:"', data_set, '",key:"', key, '"}'}
+    raw_print(message)
+end
+
+function Public.try_get_all_data(data_set, callback_token)
+    if type(data_set) ~= 'string' then
+        error('data_set must be a string')
+    end
+    if type(callback_token) ~= 'number' then
+        error('callback_token must be a number')
+    end
+
+    -- Excessive escaping because the data is serialized twice.
+    data_set = data_set:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+
+    local message = table.concat {data_get_all_tag, callback_token, ' {', 'data_set:"', data_set, '"}'}
     raw_print(message)
 end
 
@@ -203,6 +239,9 @@ function Public.get_tracked_data_sets()
     local message = {data_tracked_tag, '['}
 
     for k, _ in pairs(data_set_handlers) do
+        -- Excessive escaping because the data is serialized twice.
+        k = k:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+
         table.insert(message, '"')
         table.insert(message, k)
         table.insert(message, '"')
@@ -216,34 +255,6 @@ function Public.get_tracked_data_sets()
     table.insert(message, ']')
 
     message = table.concat(message)
-    raw_print(message)
-    game.print(message)
-end
-
-function Public.try_get_data(data_set, key, callback_token)
-    if type(data_set) ~= 'string' then
-        error('data_set must be a string')
-    end
-    if type(key) ~= 'string' then
-        error('key must be a string')
-    end
-    if type(callback_token) ~= 'number' then
-        error('callback_token must be a number')
-    end
-
-    local message = table.concat {data_get_tag, callback_token, ' {', 'data_set:"', data_set, '",key:"', key, '"}'}
-    raw_print(message)
-end
-
-function Public.try_get_all_data(data_set, callback_token)
-    if type(data_set) ~= 'string' then
-        error('data_set must be a string')
-    end
-    if type(callback_token) ~= 'number' then
-        error('callback_token must be a number')
-    end
-
-    local message = table.concat {data_get_all_tag, callback_token, ' {', 'data_set:"', data_set, '"}'}
     raw_print(message)
 end
 
