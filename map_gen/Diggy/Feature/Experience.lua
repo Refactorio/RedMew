@@ -259,8 +259,8 @@ local function on_entity_died (event)
             local text = string_format('+ %d XP', exp)
             Game.print_floating_text(entity.surface, entity.position, text, {r = 144, g = 202, b = 249})
             ForceControl.add_experience(force, exp)
-            return
         end
+        return
     end
 
     if entity.force.name ~= 'enemy' then
