@@ -105,7 +105,7 @@ end
 
 map = b.apply_effect(map, effect)
 
-local Spawn_Control = require 'features.spawn_control'
+local Spawn_Control = require 'map_gen.misc.spawn_control'
 
 Spawn_Control.add_spawn('left', -88, -88)
 Spawn_Control.add_spawn('right', 88, 88)

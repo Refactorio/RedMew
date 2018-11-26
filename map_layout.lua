@@ -141,6 +141,7 @@ local terrain_modules = {
 --require 'map_gen.misc.car_body' -- gives players cars instead of characters
 --require 'features.silly_player_names' -- assigns players random names when they first join
 --require 'map_gen.misc.naughty_words' -- admonishes players for cursing
+--require 'map_gen.misc.infinite_storage_chest'
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
