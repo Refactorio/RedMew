@@ -1,6 +1,6 @@
 local Game = require 'utils.game'
 local Event = require 'utils.event'
-local Donators = require 'resources.donators'
+local UserGroups = require 'features.user_groups'
 
 local function player_joined(event)
     local player = Game.get_player_by_index(event.player_index)
@@ -8,7 +8,7 @@ local function player_joined(event)
         return
     end
 
-    local message = Donators.welcome_messages[player.name]
+    local message = UserGroups.get_donator_welcome_message(player.name)
     if not message then
         return
     end
