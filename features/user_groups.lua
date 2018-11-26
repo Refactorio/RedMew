@@ -128,8 +128,11 @@ Event.add(
     defines.events.on_player_joined_game,
     function(event)
         local correctCaseName = Game.get_player_by_index(event.player_index).name
-        if global.regulars[correctCaseName:lower()] and not global.regulars[correctCaseName] then
-            Server.set_data('regulars', correctCaseName:lower(), nil)
+        local lowerCaseName = correctCaseName:lower()
+        if correctCaseName ~= lowerCaseName and global.regulars[lowerCaseName] then
+            global.regulars[lowerCaseName] = nil
+            global.regulars[correctCaseName] = true
+            Server.set_data('regulars', lowerCaseName, nil)
             Server.set_data('regulars', correctCaseName, true)
         end
     end
