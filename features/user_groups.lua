@@ -7,7 +7,6 @@ local Token = require 'utils.global_token'
 
 global.regulars = {}
 global.donators = Donators.donators
-global.donator_welcome_messages = {}
 
 local Module = {}
 
@@ -72,7 +71,7 @@ function Module.get_rank(player)
 end
 
 function Module.is_donator(player_name)
-    return global.donators[player_name]
+    return global.donators[player_name] ~= nil
 end
 
 function Module.player_has_donator_perk(player_name, perk_flag)
@@ -81,38 +80,47 @@ function Module.player_has_donator_perk(player_name, perk_flag)
         return false
     end
 
-    return bit32.band(d, perk_flag) == perk_flag
+    local flags = d.perk_flags
+    if not flags then
+        return false
+    end
+
+    return bit32.band(flags, perk_flag) == perk_flag
 end
 
 function Module.get_donator_welcome_message(player_name)
-    return global.donator_welcome_messages[player_name]
+    local d = global.donators[player_name]
+    if not d then
+        return nil
+    end
+
+    return d.welcome_messages
 end
 
-function Module.set_donator(player_name, perks)
-    global.donators[player_name] = perks
-    Server.donator_set(player_name, perks)
+function Module.set_donator(player_name, data)
+    global.donators[player_name] = data
+    Server.set_data('donators', player_name, data)
 end
 
-function Module.sync_donators(donators, messages)
-    global.donators = donators
-    global.donator_welcome_messages = messages
-end
+local sync_donators_callback =
+    Token.register(
+    function(data)
+        global.donators = data.entries
+    end
+)
 
-function Module.server_set_donator(player_name, perks)
-    global.donators[player_name] = perks
+function Module.sync_donators()
+    Server.try_get_all_data('donators', sync_donators_callback)
 end
 
 function Module.print_donators()
     local result = {}
-    for k, v in pairs(global.donators) do
-        table.insert(result, k)
-        table.insert(result, ' : ')
-        table.insert(result, v)
-        table.insert(result, ', ')
-    end
-    table.remove(result)
 
-    result = table.concat(result)
+    for k, _ in pairs(global.donators) do
+        table.insert(result, k)
+    end
+
+    result = table.concat(result, ', ')
     game.print(result)
 end
 
@@ -131,6 +139,7 @@ Event.add(
     Server.events.on_server_started,
     function()
         Module.sync_regulars()
+        Module.sync_donators()
     end
 )
 
@@ -138,6 +147,13 @@ Server.on_data_set_changed(
     'regulars',
     function(data)
         global.regulars[data.key] = data.value
+    end
+)
+
+Server.on_data_set_changed(
+    'donators',
+    function(data)
+        global.donators[data.key] = data.value
     end
 )
 
