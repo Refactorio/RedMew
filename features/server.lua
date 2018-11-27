@@ -34,6 +34,9 @@ local data_set_handlers = {}
 -- It provides a good opportunity to request data from the web server.
 -- Note that if the server is stopped then started again, this event will be raised again.
 -- @usage
+-- local Server = require 'features.server'
+-- local Event = require 'utils.event'
+--
 -- Event.add(Server.events.on_server_started,
 -- function()
 --      Server.try_get_all_data('regulars', callback)
@@ -43,7 +46,7 @@ Public.events = {on_server_started = script.generate_event_name()}
 --- Sends a message to the linked discord channel. The message is sanitized of markdown server side.
 -- @param  message<string> message to send.
 -- @usage
--- local Server = require 'server'
+-- local Server = require 'features.server'
 -- Server.to_discord('Hello from scenario script!')
 function Public.to_discord(message)
     raw_print(discord_tag .. message)
@@ -100,7 +103,7 @@ end
 --- Stops and saves the factorio server and starts the named scenario.
 -- @param  scenario_name<string> The name of the scenario as appears in the scenario table on http://redmew.com/admin
 -- @usage
--- local Server = require 'server'
+-- local Server = require 'features.server'
 -- Server.start_scenario('my_scenario_name')
 function Public.start_scenario(scenario_name)
     if type(scenario_name) ~= 'string' then
@@ -139,7 +142,7 @@ end
 -- @param  key<string>
 -- @param  value<nil|boolean|number|string|table> Any type that is not a function. set to nil to remove the data.
 -- @usage
--- local Server = require 'server'
+-- local Server = require 'features.server'
 -- Server.set_data('my data set', 'key 1', 123)
 -- Server.set_data('my data set', 'key 2', 'abc')
 -- Server.set_data('my data set', 'key 3', {'some', 'data', ['is_set'] = true})
@@ -194,7 +197,7 @@ end
 -- @param  key<string>
 -- @param  callback_token<token>
 -- @usage
--- local Server = require 'server'
+-- local Server = require 'features.server'
 -- local Token = require 'utils.global_token'
 --
 -- local callback =
@@ -234,7 +237,7 @@ end
 -- @param  data_set<string>
 -- @param  callback_token<token>
 -- @usage
--- local Server = require 'server'
+-- local Server = require 'features.server'
 -- local Token = require 'utils.global_token'
 --
 -- local callback =
@@ -297,7 +300,7 @@ end
 -- @param  data_set<string>
 -- @param  handler<function>
 -- @usage
--- local Server = require 'server'
+-- local Server = require 'features.server'
 -- Server.on_data_set_changed(
 --     'my data set',
 --     function(data)
@@ -320,6 +323,7 @@ function Public.on_data_set_changed(data_set, handler)
     end
 end
 
+--- Called by the web server to notify the client that a data_set has changed.
 Public.raise_data_set = data_set_changed
 
 --- Called by the web server to determine which data_sets are being tracked.
