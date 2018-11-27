@@ -42,7 +42,7 @@ end
 local sync_regulars_callback =
     Token.register(
     function(data)
-        global.regulars = data.entries
+        global.regulars = data.entries or {}
     end
 )
 
@@ -105,7 +105,7 @@ end
 local sync_donators_callback =
     Token.register(
     function(data)
-        global.donators = data.entries
+        global.donators = data.entries or {}
     end
 )
 
