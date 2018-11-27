@@ -86,7 +86,8 @@ local function mentions(event)
                 local word_back_double_trim = string.sub(word_back_trim, 0, string.len(word_back_trim) - 1)
                 word = (trimmed_word == 'admin' or trimmed_word == 'moderator') and trimmed_word or word
                 if admin_call and p.admin then
-                    p.print(prefix .. Game.get_player_by_index(event.player_index).name .. ' mentioned ' .. word .. '!', {r = 1, g = 1, b = 0, a = 1})
+                    local message = string.format('%s%s mentioned %s!', prefix, Game.get_player_by_index(event.player_index).name, word )
+                    p.print(message, {r = 1, g = 1, b = 0, a = 1})
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
                     success = true
                 end
