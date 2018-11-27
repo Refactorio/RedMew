@@ -4,6 +4,8 @@ local Event = require 'utils.event'
 local raise_event = script.raise_event
 local ceil = math.ceil
 local max = math.max
+local floor = math.floor
+local format = string.format
 
 -- this, things that can be done run-time
 local ForceControl = {}
@@ -323,16 +325,14 @@ function ForceControl.get_formatted_force_data(lua_force_or_name)
         return
     end
 
-    local result =
-        string.format(
-            'Current experience: %d Total experience: %d Current level: %d  Next level at: %d Percentage to level up: %d%%',
-            force_config.current_experience,
-            force_config.total_experience,
-            force_config.current_level,
-            force_config.experience_level_up_cap,
-            math.floor(force_config.experience_percentage * 100) / 100
-        )
-    return result
+    return format(
+        'Current experience: %d Total experience: %d Current level: %d  Next level at: %d Percentage to level up: %d%%',
+        force_config.current_experience,
+        force_config.total_experience,
+        force_config.current_level,
+        force_config.experience_level_up_cap,
+        floor(force_config.experience_percentage * 100) * 0.01
+    )
 end
 
 return ForceControl

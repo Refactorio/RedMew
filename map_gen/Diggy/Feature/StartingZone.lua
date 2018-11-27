@@ -6,11 +6,13 @@ local Event = require 'utils.event'
 local Token = require 'utils.global_token'
 local Template = require 'map_gen.Diggy.Template'
 local Debug = require 'map_gen.Diggy.Debug'
+local Retailer = require 'features.retailer'
 local DiggyCaveCollapse = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'
 local insert = table.insert
 local random = math.random
 local sqrt = math.sqrt
 local floor = math.floor
+local raise_event = script.raise_event
 
 -- this
 local StartingZone = {}
@@ -67,7 +69,23 @@ function StartingZone.register(config)
             end
         end
 
-        Template.insert(event.surface, tiles, rocks)
+        Template.insert(surface, tiles, rocks)
+
+        local position = config.market_spawn_position;
+        local player_force = game.forces.player;
+
+        local market = surface.create_entity({name = 'market', position = position})
+        market.destructible = false
+
+        Retailer.add_market(player_force.name, market)
+        Retailer.ship_items(player_force.name)
+
+        player_force.add_chart_tag(surface, {
+            text = 'Market',
+            position = position,
+        })
+
+        raise_event(Template.events.on_placed_entity, {entity = market})
 
         Event.remove_removable(defines.events.on_chunk_generated, callback_token)
     end
@@ -76,6 +94,5 @@ function StartingZone.register(config)
 
     Event.add_removable(defines.events.on_chunk_generated, callback_token)
 end
-
 
 return StartingZone

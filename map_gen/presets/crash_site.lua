@@ -570,7 +570,7 @@ Global.register_init(
         tbl.outpost_seed = outpost_seed or seed
         tbl.ore_seed = ore_seed or seed
 
-        global.scenario.config.fish_market.enable = false
+        global.config.fish_market.enable = false
     end,
     function(tbl)
         outpost_seed = tbl.outpost_seed

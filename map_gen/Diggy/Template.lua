@@ -10,8 +10,8 @@ local raise_event = script.raise_event
 -- this
 local Template = {}
 
-local tiles_per_call = 5 --how many tiles are inserted with each call of insert_action
-local entities_per_call = 5 --how many entities are inserted with each call of insert_action
+local tiles_per_call = 256 --how many tiles are inserted with each call of insert_action
+local entities_per_call = 8 --how many entities are inserted with each call of insert_action
 
 Template.events = {
     --[[--
@@ -71,7 +71,7 @@ local function insert_next_entities(data)
             for i = data.entity_iterator, min(data.entity_iterator + entities_per_call - 1, data.entities_n) do
                 local entity = data.entities[i]
                 local created_entity = create_entity(entity)
-                if (nil == created_entity) then
+                if not created_entity then
                     error('Failed creating entity ' .. entity.name .. ' on surface.')
                 end
 
@@ -128,7 +128,7 @@ function Template.insert(surface, tiles, entities)
     }
 
     local continue = true
-    for i = 1, 4 do
+    for _ = 1, 4 do
         continue = insert_action(data)
         if not continue then
             return
@@ -153,26 +153,6 @@ function Template.resources(surface, resources)
     for _, entity in pairs(resources) do
         create_entity(entity)
     end
-end
-
---[[--
-    Designed to spawn a market.
-
-    @param surface LuaSurface
-    @param position Position
-    @param force LuaForce
-    @param market_items Table
-]]
-function Template.market(surface, position, force)
-    local market = surface.create_entity({name = 'market', position = position})
-    market.destructible = false
-
-    force.add_chart_tag(surface, {
-        text = 'Market',
-        position = position,
-    })
-
-    raise_event(Template.events.on_placed_entity, {entity = market})
 end
 
 return Template
