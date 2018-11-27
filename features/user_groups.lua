@@ -57,7 +57,7 @@ Module.print_regulars = function()
     end
 
     result = table.concat(result, ', ')
-    game.print(result)
+    Game.player_print(result)
 end
 
 function Module.get_rank(player)
@@ -121,7 +121,7 @@ function Module.print_donators()
     end
 
     result = table.concat(result, ', ')
-    game.print(result)
+    Game.player_print(result)
 end
 
 Event.add(
