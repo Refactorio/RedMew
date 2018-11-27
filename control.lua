@@ -7,6 +7,10 @@ require 'utils.math'
 require 'map_gen.shared.perlin_noise'
 require 'map_layout'
 
+-- Specific to RedMew hosts, can be disabled safely if not hosting on RedMew servers
+require 'features.server'
+require 'features.server_commands'
+
 -- Library modules which, if missing, will cause other feature modules to fail
 require 'features.base_data'
 --require 'features.follow' -- Nothing currently uses anything inside follow

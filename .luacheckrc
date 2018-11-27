@@ -56,7 +56,7 @@ local STD_BASE_CONTROL = 'lua52c+factorio+factorio_control+factorio_defines+fact
 --[Assume Factorio Control stage as default]--
 -------------------------------------------------------------------------------
 std = STD_CONTROL
-globals = {'math', 'table', '_DEBUG', '_CHEATS', 'MARKET_ITEM'} -- RedMew-specific globals
+globals = {'print', 'math', 'table', '_DEBUG', '_CHEATS', 'MARKET_ITEM', 'ServerCommands'} -- RedMew-specific globals
 max_line_length = LINE_LENGTH
 
 not_globals = NOT_GLOBALS
@@ -625,7 +625,7 @@ stds.factorio_defines = {
                         "on_gui_closed", "on_gui_value_changed", "on_player_muted", "on_player_unmuted", "on_player_cheat_mode_enabled", "on_player_cheat_mode_disabled",
                         "on_character_corpse_expired", "on_pre_ghost_deconstructed", "on_player_pipette", "on_player_display_resolution_changed", "on_player_display_scale_changed",
                         "on_pre_player_crafted_item", "on_player_cancelled_crafting", "on_chunk_charted", "on_technology_effects_reset", "on_land_mine_armed", "on_forces_merged",
-                        "on_player_trash_inventory_changed",
+                        "on_player_trash_inventory_changed", "on_server_started"
                     },
                 },
                 alert_type = {
