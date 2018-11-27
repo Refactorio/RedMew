@@ -1,3 +1,5 @@
+--- See documentation at https://github.com/Refactorio/RedMew/pull/469
+
 local Token = require 'utils.global_token'
 
 local Public = {}
@@ -42,6 +44,9 @@ Public.events = {on_server_started = defines.events.on_server_started}
 
 --- Sends a message to the linked discord channel. The message is sanitized of markdown server side.
 -- @param  message<string> message to send.
+-- @usage
+-- local Server = require 'server'
+-- Server.to_discord('Hello from scenario script!')
 function Public.to_discord(message)
     raw_print(discord_tag .. message)
 end
@@ -96,6 +101,9 @@ end
 
 --- Stops and saves the factorio server and starts the named scenario.
 -- @param  scenario_name<string> The name of the scenario as appears in the scenario table on http://redmew.com/admin
+-- @usage
+-- local Server = require 'server'
+-- Server.start_scenario('my_scenario_name')
 function Public.start_scenario(scenario_name)
     if type(scenario_name) ~= 'string' then
         game.print('start_scenario - scenario_name ' .. tostring(scenario_name) .. ' must be a string.')
@@ -132,6 +140,14 @@ end
 -- @param  data_set<string>
 -- @param  key<string>
 -- @param  value<nil|boolean|number|string|table> Any type that is not a function. set to nil to remove the data.
+-- @usage
+-- local Server = require 'server'
+-- Server.set_data('my data set', 'key 1', 123)
+-- Server.set_data('my data set', 'key 2', 'abc')
+-- Server.set_data('my data set', 'key 3', {'some', 'data', ['is_set'] = true})
+--
+-- Server.set_data('my data set', 'key 1', nil) -- this will remove 'key 1'
+-- Server.set_data('my data set', 'key 2', 'def') -- this will change the value for 'key 2' to 'def'
 function Public.set_data(data_set, key, value)
     if type(data_set) ~= 'string' then
         error('data_set must be a string')
@@ -179,6 +195,22 @@ end
 -- @param  data_set<string>
 -- @param  key<string>
 -- @param  callback_token<token>
+-- @usage
+-- local Server = require 'server'
+-- local Token = require 'utils.global_token'
+--
+-- local callback =
+--     Token.register(
+--     function(data)
+--         local data_set = data.data_set
+--         local key = data.key
+--         local value = data.value -- will be nil if no data
+--
+--         game.print(data_set .. ':' .. key .. ':' .. tostring(value))
+--     end
+-- )
+--
+-- Server.try_get_data('my data set', 'key 1', callback)
 function Public.try_get_data(data_set, key, callback_token)
     if type(data_set) ~= 'string' then
         error('data_set must be a string')
@@ -203,6 +235,21 @@ end
 -- If there is no data stored for the data_set entries will be nil.
 -- @param  data_set<string>
 -- @param  callback_token<token>
+-- @usage
+-- local Server = require 'server'
+-- local Token = require 'utils.global_token'
+--
+-- local callback =
+--     Token.register(
+--     function(data)
+--         local data_set = data.data_set
+--         local entries = data.entries -- will be nil if no data
+--         local value2 = entries['key 2']
+--         local value3 = entries['key 3']
+--     end
+-- )
+--
+-- Server.try_get_all_data('my data set', callback)
 function Public.try_get_all_data(data_set, callback_token)
     if type(data_set) ~= 'string' then
         error('data_set must be a string')
@@ -251,6 +298,16 @@ end
 -- is in the control stage, i.e before on_init or on_load would be called.
 -- @param  data_set<string>
 -- @param  handler<function>
+-- @usage
+-- local Server = require 'server'
+-- Server.on_data_set_changed(
+--     'my data set',
+--     function(data)
+--         local data_set = data.data_set
+--         local key = data.key
+--         local value = data.value -- will be nil if data was removed.
+--     end
+-- )
 function Public.on_data_set_changed(data_set, handler)
     if type(data_set) ~= 'string' then
         error('data_set must be a string')
