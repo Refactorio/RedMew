@@ -371,7 +371,7 @@ local Config = {
               ['production-science-pack']   = 25,
               ['high-tech-science-pack']    = 50,
               ['space-science-pack']        = 10,
-              ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters. This value is multiplied by the alien_coin_modifiers from ArtefactHunting
+              ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters.
               ['death-penalty']             = 0.002,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.002 which equals 0.2%)
             },
 
