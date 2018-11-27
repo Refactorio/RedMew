@@ -69,13 +69,12 @@ end
 table.get_random = function(t, sorted)
     if sorted then
         return t[math.random(#t)]
-    else
-        local target_index = math.random(1, table_size(t))
-        local count = 1
-        for _, v in pairs(t) do
-            if target_index == count then
-                return t[v]
-            end
+    end
+    local target_index = math.random(1, table_size(t))
+    local count = 1
+    for _, v in pairs(t) do
+        if target_index == count then
+            return t[v]
         end
     end
 end
