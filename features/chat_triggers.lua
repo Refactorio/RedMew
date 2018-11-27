@@ -56,7 +56,7 @@ end
 
 --- Create notifications when a player's name is mentioned
 local function mentions(event)
-    -- Gives a sound notification to a mentioned player using #[player-name], [player-name]#, @[player-name], [player-name]@ or to admins with moderator or admin without prefix or postfix
+    -- Gives a sound notification to a mentioned player using #[player-name], [player-name]#, @[player-name], [player-name]@ or to admins with admin with prefix or postfix
 
     local missing_player_string
     local not_found = 0
@@ -73,9 +73,7 @@ local function mentions(event)
         local last_char = string.sub(word, string.len(word))
         local success = false
         local admin_call = false
-        if word == 'admin' or word == 'moderator' or trimmed_word == 'admin' or trimmed_word == 'moderator' then
-            admin_call = true
-        elseif (first_char ~= '#' and last_char ~= '#') and (first_char ~= '@' and last_char ~= '@') then
+        if (first_char ~= '#' and last_char ~= '#') and (first_char ~= '@' and last_char ~= '@') then
             success = true
         end
         if not success then
@@ -84,7 +82,10 @@ local function mentions(event)
                 local word_back_trim = trimmed_word
                 local word_front_back_trim = string.sub(word_front_trim, 0, string.len(word_front_trim) - 1)
                 local word_back_double_trim = string.sub(word_back_trim, 0, string.len(word_back_trim) - 1)
-                word = (trimmed_word == 'admin' or trimmed_word == 'moderator') and trimmed_word or word
+                if word_front_trim == 'admin' or word_back_trim == 'admin' or word_back_double_trim == 'admin' or word_front_back_trim == 'admin' then
+                    admin_call = true
+                    word = 'admin'
+                end
                 if admin_call and p.admin then
                     local message = string.format('%s%s mentioned %s!', prefix, Game.get_player_by_index(event.player_index).name, word )
                     p.print(message, {r = 1, g = 1, b = 0, a = 1})
