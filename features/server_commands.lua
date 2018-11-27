@@ -1,6 +1,6 @@
 local Poll = require 'features.gui.poll'
 local UserGroups = require 'features.user_groups'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local Server = require 'features.server'
 
 --- This module is for the web server to call functions and raise events.

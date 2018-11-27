@@ -3,7 +3,7 @@ local Utils = require 'utils.core'
 local Server = require 'features.server'
 local Donators = require 'resources.donators'
 local Game = require 'utils.game'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 
 global.regulars = {}
 global.donators = Donators.donators

@@ -1,6 +1,6 @@
 --- See documentation at https://github.com/Refactorio/RedMew/pull/469
 
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 
 local Public = {}
 
@@ -198,7 +198,7 @@ end
 -- @param  callback_token<token>
 -- @usage
 -- local Server = require 'features.server'
--- local Token = require 'utils.global_token'
+-- local Token = require 'utils.token'
 --
 -- local callback =
 --     Token.register(
@@ -238,7 +238,7 @@ end
 -- @param  callback_token<token>
 -- @usage
 -- local Server = require 'features.server'
--- local Token = require 'utils.global_token'
+-- local Token = require 'utils.token'
 --
 -- local callback =
 --     Token.register(
