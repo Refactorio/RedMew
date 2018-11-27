@@ -6,6 +6,8 @@ local Utils = require('utils.utils')
 global.actual_name = {}
 global.silly_names = {}
 global.silly_names.count = 0
+global.config.players_assigned_names = true -- assigns players random names when they first join
+global.config.players_roll_names = true -- allows players to roll random names
 
 local name_combinations = #naming_words.adverbs * #naming_words.adjectives * #naming_words.nouns
 
@@ -144,15 +146,15 @@ local function get_player_id(cmd)
     Game.player_print(target_name .. ' -- ' .. target_index)
 end
 
-if global.scenario.config.players_assigned_names == true then
+if global.config.players_assigned_names == true then
     Event.add(defines.events.on_player_created, name_player_event)
 end
 
-if global.scenario.config.players_roll_names == true then
+if global.config.players_roll_names == true then
     commands.add_command('name-roll', 'Assigns you a random, silly name', name_player_command)
 end
 
-if global.scenario.config.players_roll_names == true or global.scenario.config.players_assigned_names == true then
+if global.config.players_roll_names == true or global.config.players_assigned_names == true then
     commands.add_command('name-restore', 'Removes your fun name and gives you back your actual name', restore_name)
     commands.add_command('name-check', '<player> Check the original name of a player', check_name)
     commands.add_command('get-player-id', 'Gets the ID of a player (Admin only)', get_player_id)
