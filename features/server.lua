@@ -29,7 +29,7 @@ Public.raw_print = raw_print
 
 local data_set_handlers = {}
 
-defines.events.on_server_started = script.generate_event_name()
+defines.events.on_server_started = script.generate_event_name() -- luacheck: ignore
 
 --- The event id for the on_server_started event.
 -- The event is raised whenever the server goes from the starting state to the running state.
