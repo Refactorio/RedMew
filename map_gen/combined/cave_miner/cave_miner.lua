@@ -41,22 +41,22 @@ But be careful, eating too much might have it´s consequences too...
 ]])
 
 
-if global.scenario and global.scenario.config then
-    if global.scenario.config.player_list then
-        global.scenario.config.player_list.enable_coin_col = nil
+if global.scenario and global.config then
+    if global.config.player_list then
+        global.config.player_list.enable_coin_col = nil
     end
-    if global.scenario.config.fish_market then
-        global.scenario.config.fish_market.enable = nil
+    if global.config.fish_market then
+        global.config.fish_market.enable = nil
     end
-    if global.scenario.config.paint then
-        global.scenario.config.paint.enable = nil
+    if global.config.paint then
+        global.config.paint.enable = nil
     end
     if global.scenario.nuke_control then
         global.scenario.nuke_control.enable_autokick = nil
         global.scenario.nuke_control.enable_autoban = nil
     end
-    if global.scenario.config.fish_market then
-      global.scenario.config.fish_market.enable = nil
+    if global.config.fish_market then
+      global.config.fish_market.enable = nil
     end
 end
 

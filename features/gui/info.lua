@@ -21,10 +21,10 @@ local new_info_key = 4
 local welcomed_players = {}
 
 local editable_info = {
-    [map_name_key] = global.scenario.config.map_name_key,
-    [map_description_key] = global.scenario.config.map_description_key,
-    [map_extra_info_key] = global.scenario.config.map_extra_info_key,
-    [new_info_key] = global.scenario.config.new_info_key
+    [map_name_key] = global.config.map_name_key,
+    [map_description_key] = global.config.map_description_key,
+    [map_extra_info_key] = global.config.map_extra_info_key,
+    [new_info_key] = global.config.new_info_key
 }
 
 Global.register(

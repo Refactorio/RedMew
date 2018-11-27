@@ -11,6 +11,9 @@ local Config = {
 
             -- initial starting position size, higher values are not recommended
             starting_size = 8,
+
+            -- where the market should spawn
+            market_spawn_position = {x = 0, y = 3},
         },
 
         -- controls the Daylight (Default diggy: enabled = true)
@@ -34,7 +37,7 @@ local Config = {
                 manual_mining_speed_modifier = 1000,
 
                 -- increase the amount of inventory slots for the player force
-                character_inventory_slots_bonus = 1000,
+                character_inventory_slots_bonus = 0,
 
                 -- increases the run speed of all characters for the player force
                 character_running_speed_modifier = 2,
@@ -43,7 +46,7 @@ local Config = {
                 character_health_bonus = 1000000,
 
                 -- unlock all research by default, only useful when testing
-                unlock_all_research = false,
+                unlock_all_research = true,
 
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
@@ -114,9 +117,9 @@ local Config = {
                 ['refined-concrete'] = 0.06,
             },
             cracking_sounds = {
-              'CRACK',
-              'KRRRR',
-              'R U N',
+                'CRACK',
+                'KRRRR',
+                'R U N',
             }
         },
 
@@ -338,58 +341,6 @@ local Config = {
             },
         },
 
-        -- controls the market and buffs
-        MarketExchange = {
-            enabled = true,
-
-            -- percentage * mining productivity level gets added to mining speed
-            mining_speed_productivity_multiplier = 5,
-
-            -- market config
-            market_spawn_position = {x = 0, y = 3},
-            currency_item = 'coin',
-
-            -- add or remove a table entry to add or remove a unlockable item from the mall.
-            -- format: {unlock_at_level, price, prototype_name},
-            -- alternative format: {level = 32, price = {{"stone", 2500}, {"coin", 100}}, name = 'power-armor'},
-            unlockables = require('map_gen.Diggy.FormatMarketItems').initialize_unlockables(
-                {
-                    {level = 1, price = 5, name = 'iron-axe'},
-                    {level = 2, price = 5, name = 'raw-wood'},
-                    {level = 3, price = 20, name = 'pistol'},
-                    {level = 3, price = 2, name = 'firearm-magazine'},
-                    {level = 5, price = 2, name = 'stone-brick'},
-                    {level = 6, price = 6, name = 'small-lamp'},
-                    {level = 6, price = 5, name = 'raw-fish'},
-                    {level = 8, price = 10, name = 'stone-wall'},
-                    {level = 10, price = 85, name = 'shotgun'},
-                    {level = 10, price = 2, name = 'shotgun-shell'},
-                    {level = 13, price = 25, name = 'steel-axe'},
-                    {level = 13, price = 50, name = 'light-armor'},
-                    {level = 15, price = 85, name = 'submachine-gun'},
-                    {level = 18, price = 8, name = 'piercing-rounds-magazine'},
-                    {level = 18, price = 8, name = 'piercing-shotgun-shell'},
-                    {level = 20, price = 100, name = 'heavy-armor'},
-                    {level = 25, price = 250, name = 'modular-armor'},
-                    {level = 25, price = 100, name = 'landfill'},
-                    {level = 28, price = 250, name = 'personal-roboport-equipment'},
-                    {level = 28, price = 75, name = 'construction-robot'},
-                    {level = 32, price = 850, name = 'power-armor'},
-                    {level = 34, price = 100, name = 'battery-equipment'},
-                    {level = 33, price = 1000, name = 'fusion-reactor-equipment'},
-                    {level = 36, price = 150, name = 'energy-shield-equipment'},
-                    {level = 42, price = 650, name = 'combat-shotgun'},
-                    {level = 46, price = 25, name = 'uranium-rounds-magazine'},
-                    {level = 58, price = 250, name = 'rocket-launcher'},
-                    {level = 58, price = 40, name = 'rocket'},
-                    {level = 66, price = 80, name = 'explosive-rocket'},
-                    {level = 73, price = 2000, name = 'satellite'},
-                    {level = 100, price = 1, name = 'iron-stick'},
-                }
-            ),
-        },
-
-
         --Tracks players causing collapses
         Antigrief = {
             enabled = true,
@@ -423,10 +374,47 @@ local Config = {
               ['death-penalty']             = 0.002,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.002 which equals 0.2%)
             },
 
-            buffs = { --Define new buffs here, they are handed out for each level.
-                ['mining_speed'] = {value = 5},
-                ['inventory_slot'] = {value = 1},
-                ['health_bonus'] = {value = 2.5, double_level = 5}, -- double_level is the level interval for receiving a double bonus (Diggy default: 5 which equals every 5th level)
+            buffs = {
+                -- define new buffs here, they are handed out for each level
+                mining_speed = {value = 5},
+                inventory_slot = {value = 1},
+                -- double_level is the level interval for receiving a double bonus (Diggy default: 5 which equals every 5th level)
+                health_bonus = {value = 2.5, double_level = 5},
+            },
+
+            -- add or remove a table entry to add or remove a unlockable item from the market.
+            unlockables = {
+                {level = 1, price = 5, name = 'iron-axe'},
+                {level = 2, price = 5, name = 'raw-wood'},
+                {level = 3, price = 20, name = 'pistol'},
+                {level = 3, price = 2, name = 'firearm-magazine'},
+                {level = 5, price = 2, name = 'stone-brick'},
+                {level = 6, price = 6, name = 'small-lamp'},
+                {level = 6, price = 5, name = 'raw-fish'},
+                {level = 8, price = 10, name = 'stone-wall'},
+                {level = 10, price = 85, name = 'shotgun'},
+                {level = 10, price = 2, name = 'shotgun-shell'},
+                {level = 13, price = 25, name = 'steel-axe'},
+                {level = 13, price = 50, name = 'light-armor'},
+                {level = 15, price = 85, name = 'submachine-gun'},
+                {level = 18, price = 8, name = 'piercing-rounds-magazine'},
+                {level = 18, price = 8, name = 'piercing-shotgun-shell'},
+                {level = 20, price = 100, name = 'heavy-armor'},
+                {level = 25, price = 250, name = 'modular-armor'},
+                {level = 25, price = 100, name = 'landfill'},
+                {level = 28, price = 250, name = 'personal-roboport-equipment'},
+                {level = 28, price = 75, name = 'construction-robot'},
+                {level = 32, price = 850, name = 'power-armor'},
+                {level = 34, price = 100, name = 'battery-equipment'},
+                {level = 33, price = 1000, name = 'fusion-reactor-equipment'},
+                {level = 36, price = 150, name = 'energy-shield-equipment'},
+                {level = 42, price = 650, name = 'combat-shotgun'},
+                {level = 46, price = 25, name = 'uranium-rounds-magazine'},
+                {level = 58, price = 250, name = 'rocket-launcher'},
+                {level = 58, price = 40, name = 'rocket'},
+                {level = 66, price = 80, name = 'explosive-rocket'},
+                {level = 73, price = 2000, name = 'satellite'},
+                {level = 100, price = 1, name = 'iron-stick'},
             },
         },
 

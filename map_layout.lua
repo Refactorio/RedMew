@@ -139,7 +139,7 @@ local terrain_modules = {
 --require 'map_gen.misc.nightfall' -- forces idle biters to attack at night
 --require 'map_gen.misc.creep_spread'
 --require 'map_gen.misc.car_body' -- gives players cars instead of characters
---require 'features.silly_player_names' -- assigns players random names when they first join
+--require 'map_gen.misc.silly_player_names' -- assigns players random names when they first join
 --require 'map_gen.misc.naughty_words' -- admonishes players for cursing
 --require 'map_gen.misc.infinite_storage_chest'
 

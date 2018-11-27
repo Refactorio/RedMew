@@ -5,7 +5,7 @@ local Game = require 'utils.game'
 
 local function allowed_to_nuke(player)
     if type(player) == 'table' then
-        return player.admin or UserGroups.is_regular(player.name) or ((player.online_time / 216000) > global.scenario.config.nuke_control.nuke_min_time_hours)
+        return player.admin or UserGroups.is_regular(player.name) or ((player.online_time / 216000) > global.config.nuke_control.nuke_min_time_hours)
     elseif type(player) == 'number' then
         return allowed_to_nuke(Game.get_player_by_index(player))
     end
@@ -109,7 +109,7 @@ local function on_capsule_used(event)
     local item = event.item
     local player = Game.get_player_by_index(event.player_index)
 
-    if not player or not player.valid or (global.scenario.config.nuke_control.enable_autokick and global.scenario.config.nuke_control.enable_autoban) then
+    if not player or not player.valid or (global.config.nuke_control.enable_autokick and global.config.nuke_control.enable_autoban) then
         return
     end
 
@@ -132,12 +132,12 @@ local function on_capsule_used(event)
         end
         if count > 8 then
             if global.players_warned[event.player_index] then
-                if global.scenario.config.nuke_control.enable_autokick then
+                if global.config.nuke_control.enable_autokick then
                     game.ban_player(player, string.format('Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.', count, event.item.name))
                 end
             else
                 global.players_warned[event.player_index] = true
-                if global.scenario.config.nuke_control.enable_autoban then
+                if global.config.nuke_control.enable_autoban then
                     game.print(player, string.format('Damaged %i entities with %s -Antigrief', count, event.item.name))
                 end
             end

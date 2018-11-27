@@ -5,6 +5,7 @@ local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
 local math = require 'utils.math'
 local Utils = require 'utils.utils'
+local Server = require 'features.server'
 
 local default_poll_duration = 300 * 60 -- in ticks
 local duration_max = 3600 -- in seconds
@@ -106,6 +107,48 @@ local function do_remaining_time(poll, remaining_time_label)
         remaining_time_label.caption = 'Remaining Time: ' .. time
         return true
     end
+end
+
+local function send_poll_result_to_discord(poll)
+    local result = {'Poll #', poll.id}
+
+    local created_by_player = poll.created_by
+    if created_by_player and created_by_player.valid then
+        table.insert(result, ' Created by ')
+        table.insert(result, created_by_player.name)
+    end
+
+    local edited_by_players = poll.edited_by
+    if next(edited_by_players) then
+        table.insert(result, ' Edited by ')
+        for pi, _ in pairs(edited_by_players) do
+            local p = game.players[pi]
+            if p and p.valid then
+                table.insert(result, p.name)
+                table.insert(result, ', ')
+            end
+        end
+        table.remove(result)
+    end
+
+    table.insert(result, '\\n**Question: ')
+    table.insert(result, poll.question)
+    table.insert(result, '**\\n')
+
+    local answers = poll.answers
+    local answers_count = #answers
+    for i, a in ipairs(answers) do
+        table.insert(result, '[')
+        table.insert(result, a.voted_count)
+        table.insert(result, '] - ')
+        table.insert(result, a.text)
+        if i ~= answers_count then
+            table.insert(result, '\\n')
+        end
+    end
+
+    local message = table.concat(result)
+    Server.to_discord_embed(message)
 end
 
 local function redraw_poll_viewer_content(data)
@@ -657,6 +700,7 @@ local function create_poll(event)
     table.insert(polls, poll_data)
 
     show_new_poll(poll_data)
+    send_poll_result_to_discord(poll_data)
 
     Gui.remove_data_recursivly(frame)
     frame.destroy()
@@ -1199,6 +1243,7 @@ function Class.poll(data)
     table.insert(polls, poll_data)
 
     show_new_poll(poll_data)
+    send_poll_result_to_discord(poll_data)
 
     return true, id
 end
@@ -1271,6 +1316,23 @@ local function poll_result_command(cmd)
     local result = Class.poll_result(id)
 
     Game.player_print(result)
+end
+
+function Class.send_poll_result_to_discord(id)
+    if type(id) ~= 'number' then
+        Server.to_discord_embed('poll-id must be a number')
+        return
+    end
+
+    for _, poll_data in ipairs(polls) do
+        if poll_data.id == id then
+            send_poll_result_to_discord(poll_data)
+            return
+        end
+    end
+
+    local message = table.concat {'poll #', id, ' not found'}
+    Server.to_discord_embed(message)
 end
 
 commands.add_command(
