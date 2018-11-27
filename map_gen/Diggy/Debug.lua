@@ -7,6 +7,9 @@ local abs = math.abs
 -- this
 local Debug = {}
 
+local default_base_color = {r = 1, g = 1, b = 1}
+local default_delta_color = {r = 0, g = 0, b = 0}
+
 -- private state
 local debug = false
 local cheats = false
@@ -91,8 +94,8 @@ end
 ]]
 function Debug.print_grid_value(value, surface, position, scale, offset, immutable)
     local is_string = type(value) == 'string'
-    local color = {r = 1, g = 1, b = 1}
-    text = value
+    local color = default_base_color
+    local text = value
 
     if type(immutable) ~= 'boolean' then
         immutable = false
@@ -170,8 +173,8 @@ function Debug.print_colored_grid_value(value, surface, position, scale, offset,
         color_value, base_color, delta_color, under_bound, over_bound)
     local is_string = type(value) == 'string'
     -- default values:
-    local color = base_color or {r = 1, g = 1, b = 1}
-    local d_color = delta_color or {r = 0, g = 0, b = 0}
+    local color = base_color or default_base_color
+    local d_color = delta_color or default_delta_color
     local u_color = under_bound or color
     local o_color = over_bound or color
 
@@ -185,7 +188,7 @@ function Debug.print_colored_grid_value(value, surface, position, scale, offset,
                   b = color.b + color_value * d_color.b }
     end
 
-    text = value
+    local text = value
 
     if type(immutable) ~= 'boolean' then
         immutable = false

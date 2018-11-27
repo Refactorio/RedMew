@@ -17,6 +17,8 @@ local utils = require 'utils.utils'
 -- this
 local ArtefactHunting = {}
 
+local coin_color = {r = 255, g = 215, b = 0}
+
 -- some GUI stuff
 local function redraw_table(data)
     local list = data.list
@@ -81,7 +83,7 @@ Gui.on_custom_close('Diggy.ArtefactHunting.Frame', function (event)
 end)
 
 function ArtefactHunting.update_gui()
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local frame = p.gui.left['Diggy.ArtefactHunting.Frame']
 
         if frame and frame.valid then
@@ -137,9 +139,10 @@ function ArtefactHunting.register(config)
             return
         end
 
+        local insert = chest.insert
         for name, prototype in pairs(config.treasure_chest_raffle) do
             if random() <= prototype.chance then
-                chest.insert({name = name, count = random(prototype.min, prototype.max)})
+                insert({name = name, count = random(prototype.min, prototype.max)})
             end
         end
     end)
@@ -156,7 +159,7 @@ function ArtefactHunting.register(config)
             ScoreTable.add('Collected coins', count)
         end
 
-        Game.print_player_floating_text(player_index, text, {r = 255, g = 215, b = 0})
+        Game.print_player_floating_text(player_index, text, coin_color)
     end
 
     ScoreTable.reset('Collected coins')
@@ -166,7 +169,6 @@ function ArtefactHunting.register(config)
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
         local force = entity.force
-
         if force.name ~= 'enemy' or random() > alien_coin_drop_chance then
             return
         end

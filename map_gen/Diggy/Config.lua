@@ -1,4 +1,5 @@
 -- dependencies
+local abs = math.abs
 
 -- this
 local Config = {
@@ -146,13 +147,13 @@ local Config = {
             alien_coin_modifiers = {
                 ['small-biter'] = 2,
                 ['small-spitter'] = 2,
-                ['small-worm'] = 2,
+                ['small-worm-turret'] = 2,
                 ['medium-biter'] = 3,
                 ['medium-spitter'] = 3,
-                ['medium-worm'] = 3,
+                ['medium-worm-turret'] = 3,
                 ['big-biter'] = 5,
                 ['big-spitter'] = 5,
-                ['big-worm'] = 5,
+                ['big-worm-turret'] = 5,
                 ['behemoth-biter'] = 7,
                 ['behemoth-spitter'] = 7,
             },
@@ -209,7 +210,7 @@ local Config = {
             enabled = true,
 
             -- determines how distance is measured
-            distance = function (x, y) return math.abs(x) + math.abs(y) end,
+            distance = function (x, y) return abs(x) + abs(y) end,
             --distance = function (x, y) return math.sqrt(x * x + y * y) end,
 
             -- defines the weights of which resource_richness_value to spawn
@@ -370,7 +371,7 @@ local Config = {
               ['production-science-pack']   = 25,
               ['high-tech-science-pack']    = 50,
               ['space-science-pack']        = 10,
-              ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters. This value is multiplied by the alien_coin_modifiers from ArtefactHunting
+              ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters.
               ['death-penalty']             = 0.002,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.002 which equals 0.2%)
             },
 
@@ -416,8 +417,21 @@ local Config = {
                 {level = 73, price = 2000, name = 'satellite'},
                 {level = 100, price = 1, name = 'iron-stick'},
             },
+            -- modifies the experience per alien type, higher is more xp
+            alien_experience_modifiers = {
+                ['small-biter'] = 2,
+                ['small-spitter'] = 2,
+                ['small-worm-turret'] = 2,
+                ['medium-biter'] = 3,
+                ['medium-spitter'] = 3,
+                ['medium-worm-turret'] = 3,
+                ['big-biter'] = 5,
+                ['big-spitter'] = 5,
+                ['big-worm-turret'] = 5,
+                ['behemoth-biter'] = 7,
+                ['behemoth-spitter'] = 7,
+            },
         },
-
     },
 }
 

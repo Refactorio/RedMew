@@ -6,12 +6,10 @@
 -- dependencies
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local Scanner = require 'map_gen.Diggy.Scanner'
 local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Debug = require 'map_gen.Diggy.Debug'
 local CreateParticles = require 'features.create_particles'
-local insert = table.insert
 local random = math.random
 local raise_event = script.raise_event
 
@@ -56,15 +54,38 @@ local function diggy_hole(entity)
     local rocks = {}
     local surface = entity.surface
     local position = entity.position
+    local x = position.x
+    local y = position.y
+    local get_tile = surface.get_tile
+    local out_of_map_found = {}
+    local count = 0
 
-    local out_of_map_found = Scanner.scan_around_position(surface, position, 'out-of-map');
+    if (get_tile(x, y - 1).name == 'out-of-map') then
+        count = count + 1
+        out_of_map_found[count] = {x = x, y = y - 1}
+    end
 
-    for _, void_position in ipairs(out_of_map_found) do
-        insert(tiles, {name = 'dirt-' .. random(1, 7), position = void_position })
+    if (get_tile(x + 1, y).name == 'out-of-map') then
+        count = count + 1
+        out_of_map_found[count] = {x = x + 1, y = y}
+    end
+
+    if (get_tile(x, y + 1).name == 'out-of-map') then
+        count = count + 1
+        out_of_map_found[count] = {x = x, y = y + 1}
+    end
+
+    if (get_tile(x - 1, y).name == 'out-of-map') then
+        out_of_map_found[count + 1] = {x = x - 1, y = y}
+    end
+
+    for i = #out_of_map_found, 1, -1 do
+        local void_position = out_of_map_found[i]
+        tiles[i] = {name = 'dirt-' .. random(1, 7), position = void_position}
         if random() < 0.35 then
-            insert(rocks, {name = 'rock-huge', position = void_position })
+            rocks[i] = {name = 'rock-huge', position = void_position}
         else
-            insert(rocks, {name = 'sand-rock-big', position = void_position })
+            rocks[i] = {name = 'sand-rock-big', position = void_position}
         end
     end
 
@@ -84,10 +105,11 @@ local artificial_tiles = {
 
 local function on_mined_tile(surface, tiles)
     local new_tiles = {}
-
+    local count = 0
     for _, tile in pairs(tiles) do
         if (artificial_tiles[tile.old_tile.name]) then
-            insert(new_tiles, { name = 'dirt-' .. random(1, 7), position = tile.position})
+            count = count + 1
+            new_tiles[count] = {name = 'dirt-' .. random(1, 7), position = tile.position}
         end
     end
 
@@ -100,7 +122,7 @@ end
 function DiggyHole.register(config)
     robot_mining.damage = config.robot_initial_mining_damage
     ScoreTable.set('Robot mining damage', robot_mining.damage)
-    ScoreTable.reset('Void removed')
+    ScoreTable.reset('Mine size')
 
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
@@ -184,7 +206,7 @@ function DiggyHole.register(config)
     end)
 
     Event.add(Template.events.on_void_removed, function ()
-        ScoreTable.increment('Void removed')
+        ScoreTable.increment('Mine size')
     end)
 
     Event.add(defines.events.on_research_finished, function (event)
@@ -218,17 +240,16 @@ function DiggyHole.register(config)
             local height = tonumber(params[4])
             local surface_index = params[5]
             local tiles = {}
-            local entities = {}
-
+            local count = 0
             for x = 0, width do
                 for y = 0, height do
-                    insert(tiles, {name = 'dirt-' .. random(1, 7), position = {x = x + left_top_x, y = y + left_top_y}})
+                    count = count + 1
+                    tiles[count] = {name = 'dirt-' .. random(1, 7), position = {x = x + left_top_x, y = y + left_top_y}}
                 end
             end
 
-            Template.insert(game.surfaces[surface_index], tiles, entities)
-        end
-        )
+            Template.insert(game.surfaces[surface_index], tiles, {})
+        end)
     end
 end
 
