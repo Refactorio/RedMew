@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## Next version
+
+## In development
+
+
+### Features
+### Bugfixes
+### Internal
+- [Core] Added a new command wrapper #443
+- [Core] Overhaul utils and add minor functionality #464
+
+## v1.1.0 - Persian Longhair
 
 ### Features
 - [Core] Change /find-player to /find #417
@@ -16,6 +26,8 @@ All notable changes to this project will be documented in this file.
 - [Map] Add Tetris map #433
 - [Map] Add World Thanksgiving map #433
 - [Diggy] Added bot mining levels and rock mining/destruction particles #442
+- [Diggy] Bot mining experience #447
+- [Core] Added a Market Retailer to manage the market contents of market groups #461
 
 ### Bugfixes
 - [Diggy] Stones killed by damage no longer spill. #395
@@ -23,14 +35,20 @@ All notable changes to this project will be documented in this file.
 - [Diggy] Improved biter spawning algorithm #408
 - [Core] Fix null reference in chat_triggers #431
 - [Core] Fix nil ref in train_station_names #441
+- [Diggy] Fixed a bunch of performance issues and bugs in Diggy #470
+- [Diggy] Fixed antigrief desyncs #467
+- [Core] Fix walkabout case of player with no character #474
 
 ### Internal
 - [Core] Cleanup of code formatting. #413 #415 #414 #412 #411
 - [Core] Establishment of a style guide. #396
 - [GitHub] Add stickler_ci #435
 - [Core] Add server print on admin_prints #430
+- [Core] Overhaul config and global.scenario usage #466
+- [Core] Add new server module #469
+- [Core] Restructured chat_trigger functions #465
 
-## v1.0.0
+## v1.0.0 - Maine Coon
 
 ### Features
 - [GUI] When admins click the "Report" button in the player list it now jails the player.  #399
