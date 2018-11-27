@@ -29,8 +29,6 @@ Public.raw_print = raw_print
 
 local data_set_handlers = {}
 
-defines.events.on_server_started = script.generate_event_name() -- luacheck: ignore
-
 --- The event id for the on_server_started event.
 -- The event is raised whenever the server goes from the starting state to the running state.
 -- It provides a good opportunity to request data from the web server.
@@ -40,7 +38,7 @@ defines.events.on_server_started = script.generate_event_name() -- luacheck: ign
 -- function()
 --      Server.try_get_all_data('regulars', callback)
 -- end)
-Public.events = {on_server_started = defines.events.on_server_started}
+Public.events = {on_server_started = script.generate_event_name()}
 
 --- Sends a message to the linked discord channel. The message is sanitized of markdown server side.
 -- @param  message<string> message to send.
