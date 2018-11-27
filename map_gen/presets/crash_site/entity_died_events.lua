@@ -1,5 +1,5 @@
 local Event = require 'utils.event'
-local Task = require 'utils.task'
+local Task = require 'utils.Task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 

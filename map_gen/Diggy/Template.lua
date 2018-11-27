@@ -1,5 +1,5 @@
 -- dependencies
-local Task = require 'utils.task'
+local Task = require 'utils.Task'
 local Token = require 'utils.token'
 local Debug = require 'map_gen.Diggy.Debug'
 local insert = table.insert

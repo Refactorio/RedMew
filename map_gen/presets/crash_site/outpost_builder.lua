@@ -2,7 +2,7 @@ local Random = require 'map_gen.shared.random'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
-local Task = require 'utils.task'
+local Task = require 'utils.Task'
 local Market = require 'map_gen.presets.crash_site.market'
 local PlayerStats = require 'features.player_stats'
 

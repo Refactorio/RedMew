@@ -4,7 +4,7 @@
 -- Use water only in starting area as map setting!!!
 
 local perlin = require 'map_gen.shared.perlin_noise'
-local Task = require 'utils.task'
+local Task = require 'utils.Task'
 
 wreck_item_pool = {}
 wreck_item_pool = {

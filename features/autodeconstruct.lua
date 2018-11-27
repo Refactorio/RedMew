@@ -2,7 +2,7 @@
 
 local Event = require 'utils.event'
 local Token = require 'utils.token'
-local Task = require 'utils.task'
+local Task = require 'utils.Task'
 
 local function is_depleted(drill, entity)
     local position = drill.position

@@ -7,7 +7,7 @@ local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
 local Debug = require'map_gen.Diggy.Debug'
-local Task = require 'utils.task'
+local Task = require 'utils.Task'
 local Token = require 'utils.token'
 local raise_event = script.raise_event
 
