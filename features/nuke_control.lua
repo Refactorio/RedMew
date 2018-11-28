@@ -4,11 +4,8 @@ local Utils = require 'utils.utils'
 local Game = require 'utils.game'
 
 local function allowed_to_nuke(player)
-    if type(player) == 'table' then
-        return player.admin or UserGroups.is_regular(player.name) or ((player.online_time / 216000) > global.config.nuke_control.nuke_min_time_hours)
-    elseif type(player) == 'number' then
-        return allowed_to_nuke(Game.get_player_by_index(player))
-    end
+    return player.admin or UserGroups.is_regular(player.name) or
+        ((player.online_time / 216000) > global.config.nuke_control.nuke_min_time_hours)
 end
 
 local function ammo_changed(event)
@@ -41,7 +38,9 @@ local function on_player_deconstructed_area(event)
 
     --Make them think they arent noticed
     Utils.print_except(player.name .. ' tried to deconstruct something, but instead deconstructed themself.', player)
-    player.print('Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.')
+    player.print(
+        'Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.'
+    )
 
     local character = player.character
     if character and character.valid then
@@ -61,7 +60,10 @@ local function on_player_deconstructed_area(event)
 
     local entities = player.surface.find_entities_filtered {area = area, force = player.force}
     if #entities > 1000 then
-        Utils.print_admins('Warning! ' .. player.name .. ' just tried to deconstruct ' .. tostring(#entities) .. ' entities!', false)
+        Utils.print_admins(
+            'Warning! ' .. player.name .. ' just tried to deconstruct ' .. tostring(#entities) .. ' entities!',
+            false
+        )
     end
     for _, entity in pairs(entities) do
         if entity.valid and entity.to_be_deconstructed(Game.get_player_by_index(event.player_index).force) then
@@ -72,7 +74,8 @@ end
 
 local function item_not_sanctioned(item)
     local name = item.name
-    return (name:find('capsule') or name == 'cliff-explosives' or name == 'raw-fish' or name == 'discharge-defense-remote')
+    return (name:find('capsule') or name == 'cliff-explosives' or name == 'raw-fish' or
+        name == 'discharge-defense-remote')
 end
 
 global.entities_allowed_to_bomb = {
@@ -104,24 +107,36 @@ global.entities_allowed_to_bomb = {
 local function entity_allowed_to_bomb(entity)
     return global.entities_allowed_to_bomb[entity.name]
 end
+
 global.players_warned = {}
+
 local function on_capsule_used(event)
     local item = event.item
     local player = Game.get_player_by_index(event.player_index)
 
-    if not player or not player.valid or (global.config.nuke_control.enable_autokick and global.config.nuke_control.enable_autoban) then
+    if not player or not player.valid then
         return
     end
 
     if item.name == 'artillery-targeting-remote' then
-        player.surface.create_entity {name = 'flying-text', text = player.name, color = player.color, position = event.position}
+        player.surface.create_entity {
+            name = 'flying-text',
+            text = player.name,
+            color = player.color,
+            position = event.position
+        }
+    end
+
+    local nuke_control = global.config.nuke_control
+    if not nuke_control.enable_autokick or not nuke_control.enable_autoban then
+        return
     end
 
     if item_not_sanctioned(item) then
         return
     end
 
-    if (not allowed_to_nuke(player)) then
+    if not allowed_to_nuke(player) then
         local area = {{event.position.x - 5, event.position.y - 5}, {event.position.x + 5, event.position.y + 5}}
         local count = 0
         local entities = player.surface.find_entities_filtered {force = player.force, area = area}
@@ -132,13 +147,20 @@ local function on_capsule_used(event)
         end
         if count > 8 then
             if global.players_warned[event.player_index] then
-                if global.config.nuke_control.enable_autokick then
-                    game.ban_player(player, string.format('Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.', count, event.item.name))
+                if nuke_control.enable_autoban then
+                    game.ban_player(
+                        player,
+                        string.format(
+                            'Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.',
+                            count,
+                            item.name
+                        )
+                    )
                 end
             else
                 global.players_warned[event.player_index] = true
-                if global.config.nuke_control.enable_autoban then
-                    game.print(player, string.format('Damaged %i entities with %s -Antigrief', count, event.item.name))
+                if nuke_control.enable_autokick then
+                    game.kick_player(player, string.format('Damaged %i entities with %s -Antigrief', count, item.name))
                 end
             end
         end
