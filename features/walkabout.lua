@@ -82,7 +82,7 @@ local function walkabout(cmd)
     end
 
     local player = game.players[player_name]
-    if player == nil or not player.valid or global.walking[player.index] then
+    if not player or not player.character or global.walking[player.index] then
         Game.player_print(player_name .. ' could not go on a walkabout.')
         return
     end
