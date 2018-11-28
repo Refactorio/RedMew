@@ -150,7 +150,7 @@ local function on_capsule_used(event)
             if global.players_warned[event.player_index] then
                 if nuke_control.enable_autoban then
                     Server.ban_sync(
-                        player,
+                        player.name,
                         string.format(
                             'Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.',
                             count,
@@ -172,7 +172,7 @@ end
 local function on_player_joined(event)
     local player = game.players[event.player_index]
     if string.match(player.name, '^[Ili1|]+$') then
-        Server.ban_sync(player, '', '<script>') --No reason given, to not give them any hints to change their name
+        Server.ban_sync(player.name, '', '<script>') --No reason given, to not give them any hints to change their name
     end
 end
 
