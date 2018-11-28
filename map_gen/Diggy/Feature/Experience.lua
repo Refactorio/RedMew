@@ -14,9 +14,6 @@ local floor = math.floor
 local log = math.log
 local insert = table.insert
 
--- hack
-local alien_coin_modifiers = require 'map_gen.Diggy.Config'.features.ArtefactHunting.alien_coin_modifiers
-
 -- this
 local Experience = {}
 
@@ -85,7 +82,7 @@ end)
 function Experience.update_market_contents(force)
     local current_level = ForceControl.get_force_data(force).current_level
     local force_name = force.name
-    for _, prototype in ipairs(config.unlockables) do
+    for _, prototype in pairs(config.unlockables) do
         if (current_level >= prototype.level) then
             Retailer.set_item(force_name, prototype.name, {coin = prototype.price})
         end
@@ -244,7 +241,7 @@ local function on_entity_died (event)
         local exp
         if force and force.name == 'player' then
             if cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
-                exp = config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
+                exp = config.XP['enemy_killed'] * config.alien_experience_modifiers[entity.name]
                 local text = string_format('+ %d XP', exp)
                 Game.print_floating_text(cause.surface, cause.position, text, gain_xp_color)
                 ForceControl.add_experience(force, exp)
@@ -271,7 +268,7 @@ local function on_entity_died (event)
     if entity.force.name ~= 'enemy' then
         return
     end
-    local exp = config.XP['enemy_killed'] * alien_coin_modifiers[entity.name]
+    local exp = config.XP['enemy_killed'] * config.alien_experience_modifiers[entity.name]
     local text = string_format('+ %d XP', exp)
     local player_index = cause.player.index
     Game.print_player_floating_text_position(player_index, text, gain_xp_color,-1, -0.5)
@@ -324,7 +321,7 @@ local function redraw_heading(data, header)
     Gui.clear(frame)
 
     local heading_table = frame.add({type = 'table', column_count = 2})
-    apply_heading_style(heading_table.add({ type = 'label', caption = 'Requirement'}).style, 100)
+    apply_heading_style(heading_table.add({type = 'label', caption = 'Requirement'}).style, 100)
     apply_heading_style(heading_table.add({type = 'label', caption = header_caption}).style, 220)
 end
 
@@ -349,7 +346,7 @@ local function redraw_table(data)
     local last_level = 0
     local current_force_level = force_control.get_force_data('player').current_level
 
-    for _, prototype in ipairs(config.unlockables) do
+    for _, prototype in pairs(config.unlockables) do
         local current_item_level = prototype.level
         local first_item_for_level = current_item_level ~= last_level
         local color
@@ -417,7 +414,7 @@ local function redraw_buff(data)
             buff_caption = format('+ %d %s', effect_value, name)
         end
 
-        local buffs_label = list.add({ type = 'label', caption = buff_caption})
+        local buffs_label = list.add({type = 'label', caption = buff_caption})
         buffs_label.style.minimal_width = 220
         buffs_label.style.font_color = unlocked_color
     end
@@ -441,10 +438,10 @@ local function toggle(event)
 
     frame = left.add({name = 'Diggy.Experience.Frame', type = 'frame', direction = 'vertical'})
 
-    local experience_progressbars = frame.add({ type = 'flow', direction = 'vertical'})
+    local experience_progressbars = frame.add({type = 'flow', direction = 'vertical'})
     local experience_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
 
-    local experience_scroll_pane = frame.add({ type = 'scroll-pane'})
+    local experience_scroll_pane = frame.add({type = 'scroll-pane'})
     experience_scroll_pane.style.maximal_height = 300
 
     local buff_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
@@ -487,7 +484,9 @@ end)
 
 ---Updates the experience progress gui for every player that has it open
 local function update_gui()
-    for _, p in ipairs(game.connected_players) do
+    local players = game.connected_players
+    for i = #players, 1, -1 do
+        local p = players[i]
         local frame = p.gui.left['Diggy.Experience.Frame']
 
         if frame and frame.valid then

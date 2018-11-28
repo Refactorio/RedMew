@@ -18,16 +18,20 @@ local do_spawn_tile = Token.register(function(params)
     Template.insert(params.surface, {params.tile}, {})
 end)
 
+local rocks_lookup = {'sand-rock-big', 'rock-huge'}
+
 local do_mine = Token.register(function(params)
     local surface = params.surface
     local position = params.position
-    local rocks = surface.find_entities_filtered({ position = position, name = { 'sand-rock-big', 'rock-huge'}})
+    local rocks = surface.find_entities_filtered({position = position, name = rocks_lookup})
 
-    if (0 == #rocks) then
+    local rock_count = #rocks
+    if rock_count == 0 then
         return
     end
 
-    for _, rock in pairs(rocks) do
+    for i = rock_count, 1, -1 do
+        local rock = rocks[i]
         raise_event(defines.events.on_entity_died, {entity = rock})
         rock.destroy()
     end
@@ -38,7 +42,7 @@ local function handle_noise(name, surface, position)
 
     if ('water' == name) then
         -- water is slower because for some odd reason it doesn't always want to mine it properly
-        Task.set_timeout_in_ticks(4, do_spawn_tile, { surface = surface, tile = { name = 'deepwater-green', position = position}})
+        Task.set_timeout_in_ticks(4, do_spawn_tile, { surface = surface, tile = {name = 'deepwater-green', position = position}})
         return
     end
 

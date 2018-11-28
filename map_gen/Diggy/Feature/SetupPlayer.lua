@@ -25,7 +25,7 @@ function SetupPlayer.register(config)
         local position = {0, 0}
         local surface = player.surface
 
-        for _, item in ipairs(config.starting_items) do
+        for _, item in pairs(config.starting_items) do
             player_insert(item)
         end
 
@@ -50,7 +50,7 @@ function SetupPlayer.register(config)
                 force.research_all_technologies()
             end
 
-            for _, item in ipairs(cheats.starting_items) do
+            for _, item in pairs(cheats.starting_items) do
                 player_insert(item)
             end
         end)

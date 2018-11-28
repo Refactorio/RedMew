@@ -136,10 +136,11 @@ local terrain_modules = {
 --require ('map_gen.misc.danger_ore_banned_entities')
 --require ('map_gen.misc.restrict_landfill_tile')({['water'] = true})
 --require "map_gen.ores.rso.rso_control"
---require 'map_gen.misc.nightfall'
+--require 'map_gen.misc.nightfall' -- forces idle biters to attack at night
 --require 'map_gen.misc.creep_spread'
---require 'map_gen.misc.car_body'
---require 'map_gen.misc.silly_player_names'
+--require 'map_gen.misc.car_body' -- gives players cars instead of characters
+--require 'map_gen.misc.silly_player_names' -- assigns players random names when they first join
+--require 'map_gen.misc.naughty_words' -- admonishes players for cursing
 --require 'map_gen.misc.infinite_storage_chest'
 
 if #entity_modules > 0 then
