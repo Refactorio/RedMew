@@ -5,7 +5,7 @@
 -- dependencies
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local Task = require 'utils.Task'
 local AlienEvolutionProgress = require 'map_gen.Diggy.AlienEvolutionProgress'
 local Debug = require 'map_gen.Diggy.Debug'

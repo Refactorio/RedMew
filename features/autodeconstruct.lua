@@ -1,7 +1,7 @@
 --Author: Valansch
 
 local Event = require 'utils.event'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local Task = require 'utils.Task'
 
 local function is_depleted(drill, entity)

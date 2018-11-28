@@ -1,7 +1,7 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
 local Perlin = require 'map_gen.shared.perlin_noise'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local degrees = require "utils.math".degrees

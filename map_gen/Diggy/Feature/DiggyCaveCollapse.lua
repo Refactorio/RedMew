@@ -2,14 +2,14 @@
     Provides the ability to collapse caves when digging.
 ]]
 -- dependencies
-require 'utils.list_utils'
+require 'utils.table'
 
 local Event = require 'utils.event'
 local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Debug = require 'map_gen.Diggy.Debug'
 local Task = require 'utils.Task'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
 local insert = table.insert
@@ -149,7 +149,7 @@ end
 local on_collapse_timeout_finished = Token.register(collapse)
 
 local function spawn_cracking_sound_text(surface, position)
-    local text = config.cracking_sounds[random(1, #config.cracking_sounds)]
+    local text = table.get_random(config.cracking_sounds, true)
 
     local color = {
         r = 1,

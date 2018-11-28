@@ -3,7 +3,7 @@
 require("rso_config")
 require("util")
 require("rso_resource_config")
-local Utils = require "utils.utils"
+local Utils = require "utils.core"
 local Game = require 'utils.game'
 local math = require 'utils.math'
 

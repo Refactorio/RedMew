@@ -1,17 +1,7 @@
--- Functions that perform actions on tables
-
-local function assert_argument_valid(a, arg_type)
-    arg_type = arg_type or 'table'
-    if type(a) ~= arg_type then
-        error("bad argument #1 to '" .. debug.getinfo(2, 'n').name .. "' (table expected, got " .. type(a) .. ')', 3)
-    end
-end
-
---- Removes a specific element from a table
+--- Searches a table to remove a specific element without an index
 -- @param t table to search
 -- @param element to search for
 table.remove_element = function(t, element)
-    assert_argument_valid(t)
     for k, v in pairs(t) do
         if v == element then
             table.remove(t, k)
@@ -20,9 +10,10 @@ table.remove_element = function(t, element)
     end
 end
 
+--- Adds the contents of table t2 to table t1
+-- @param t1 table to insert into
+-- @param t2 table to insert from
 table.add_all = function(t1, t2)
-    assert_argument_valid(t1)
-    assert_argument_valid(t2)
     for k, v in pairs(t2) do
         if tonumber(k) then
             table.insert(t1, v)
@@ -32,21 +23,11 @@ table.add_all = function(t1, t2)
     end
 end
 
-table.size = function(t)
-    assert_argument_valid(t)
-    local size = 0
-    for _ in pairs(t) do
-        size = size + 1
-    end
-    return size
-end
-
 --- Checks if a table contains an element
 -- @param t table to search
 -- @param e element to search for
 -- @returns the index of an element or -1
 table.index_of = function(t, e)
-    assert_argument_valid(t)
     local i = 1
     for _, v in pairs(t) do
         if v == e then
@@ -62,13 +43,14 @@ end
 -- @param e element to search for
 -- @returns true or false
 table.contains = function(t, e)
-    assert_argument_valid(t)
     return table.index_of(t, e) > -1
 end
 
+--- Adds an element into a specific index position while shuffling the rest down
+-- @param t table to add into
+-- @param index the position in the table to add to
+-- @param element to add
 table.set = function(t, index, element)
-    assert_argument_valid(t)
-    assert_argument_valid(index, 'number')
     local i = 1
     for k in pairs(t) do
         if i == index then
@@ -80,22 +62,21 @@ table.set = function(t, index, element)
     error('Index out of bounds', 2)
 end
 
-table.get = function(t, index)
-    assert_argument_valid(t)
-    assert_argument_valid(index, 'number')
-    local i = 1
-    for k in pairs(t) do
-        if i == index then
-            return t[k]
-        end
-        i = i + 1
-    end
-    error('Index out of bounds', 2)
-end
-
 --- Chooses a random entry from a table
-table.get_random = function(this_table)
-    return this_table[math.random(#this_table)]
+--@param t table to select an element from
+--@param sorted boolean to indicate whether the table is sorted by numerical index or not
+--@return a random element of table t
+table.get_random = function(t, sorted)
+    if sorted then
+        return t[math.random(#t)]
+    end
+    local target_index = math.random(1, table_size(t))
+    local count = 1
+    for _, v in pairs(t) do
+        if target_index == count then
+            return t[v]
+        end
+    end
 end
 
 --- Chooses a random entry from a weighted table
@@ -140,8 +121,6 @@ end
 table.binary_search =
     function(t, target)
     --For some reason bit32.bnot doesn't return negative numbers so I'm using ~x = -1 - x instead.
-    assert_argument_valid(t)
-    assert_argument_valid(target, 'number')
 
     local lower = 1
     local upper = #t

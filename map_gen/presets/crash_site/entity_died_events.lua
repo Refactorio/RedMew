@@ -1,6 +1,6 @@
 local Event = require 'utils.event'
 local Task = require 'utils.Task'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local Global = require 'utils.global'
 
 local no_coin_entity = {}

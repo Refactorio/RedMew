@@ -17,16 +17,15 @@ make pet faster
 make pet follow you moar
 --]]
 local Event = require 'utils.event'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local Task = require 'utils.Task'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 
 local Market_items = require 'resources.market_items'
 local market_item = Market_items.market_item
 local fish_market_bonus_message = require 'resources.fish_messages'
-local total_fish_market_bonus_messages = #fish_market_bonus_message
 
 local function spawn_market(cmd)
     local player = game.player
@@ -77,7 +76,7 @@ local function fish_earned(event, amount)
 
     if fish % 70 == 0 then
         if player and player.valid then
-            local message = fish_market_bonus_message[math.random(total_fish_market_bonus_messages)]
+            local message = table.get_random(fish_market_bonus_message, true)
             player.print(message)
         end
     end

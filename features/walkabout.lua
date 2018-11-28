@@ -1,8 +1,8 @@
 local Task = require 'utils.Task'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
-local Token = require 'utils.global_token'
-local Utils = require 'utils.utils'
+local Token = require 'utils.token'
+local Utils = require 'utils.core'
 
 global.walking = {}
 global.walking_storage = {}

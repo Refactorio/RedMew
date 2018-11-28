@@ -1,4 +1,4 @@
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 

@@ -1,5 +1,5 @@
 local ob = require 'map_gen.presets.crash_site.outpost_builder'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 
 local loot = {
     {weight = 5},

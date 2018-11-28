@@ -1,6 +1,6 @@
 local Event = require 'utils.event'
 local UserGroups = require 'features.user_groups'
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 local Game = require 'utils.game'
 
 local function allowed_to_nuke(player)

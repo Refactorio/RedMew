@@ -85,7 +85,7 @@ function Event.on_nth_tick(tick, handler)
     end
 end
 
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 global.event_tokens = {}
 
 function Event.add_removable(event_name, token)

@@ -1,7 +1,7 @@
 -- Soft mod version of Blueprint Flipper and Turner https://mods.factorio.com/mods/Marthen/Blueprint_Flip_Turn
 
 local Event = require 'utils.event'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local Gui = require 'utils.gui'
 local Game = require 'utils.game'
 

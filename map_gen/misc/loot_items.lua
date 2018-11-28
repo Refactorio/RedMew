@@ -1,4 +1,4 @@
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 
 local item_pool = {
     {name = 'firearm-magazine', count = 200, weight = 1250},

@@ -3,7 +3,7 @@
 ]]
 -- dependencies
 local Event = require 'utils.event'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local Template = require 'map_gen.Diggy.Template'
 local Debug = require 'map_gen.Diggy.Debug'
 local Retailer = require 'features.retailer'

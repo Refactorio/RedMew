@@ -1,6 +1,6 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 local Module = {}
 
 global.player_spawns = {} -- player_index to spawn_name

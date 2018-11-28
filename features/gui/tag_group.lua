@@ -3,7 +3,7 @@ local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 
 local deafult_verb = 'expanded'
 

@@ -1,8 +1,8 @@
 local Task = require 'utils.Task'
 local Event = require 'utils.event'
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
 local UserGroups = require 'features.user_groups'
-local Utils = require 'utils.utils'
+local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Report = require 'features.report'
 

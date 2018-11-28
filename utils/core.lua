@@ -1,16 +1,22 @@
 local Module = {}
 local Game = require 'utils.game'
 local prefix = '## - '
+local minutes_to_ticks = 60 * 60
+local hours_to_ticks = 60 * 60 * 60
+local ticks_to_minutes = 1 / minutes_to_ticks
+local ticks_to_hours = 1 / hours_to_ticks
 
+--- Measures distance between pos1 and pos2
 Module.distance = function(pos1, pos2)
     local dx = pos2.x - pos1.x
     local dy = pos2.y - pos1.y
     return math.sqrt(dx * dx + dy * dy)
 end
 
+--- Takes msg and prints it to all players except provided player
 Module.print_except = function(msg, player)
-    for _, p in pairs(game.players) do
-        if p.connected and p ~= player then
+    for _, p in pairs(game.connected_players) do
+        if p ~= player then
             p.print(msg)
         end
     end
@@ -93,10 +99,7 @@ Module.ternary = function(c, t, f)
     end
 end
 
-local minutes_to_ticks = 60 * 60
-local hours_to_ticks = 60 * 60 * 60
-local ticks_to_minutes = 1 / minutes_to_ticks
-local ticks_to_hours = 1 / hours_to_ticks
+--- Takes a time in ticks and returns a string with the time in format "x hour(s) x minute(s)"
 Module.format_time = function(ticks)
     local result = {}
 
@@ -123,15 +126,15 @@ Module.format_time = function(ticks)
 end
 
 --- Prints a message letting the player know they cannot run a command
--- @param1 name of the command
+-- @param name string name of the command
 Module.cant_run = function(name)
     Game.player_print("Can't run command (" .. name .. ') - insufficient permission.')
 end
 
 --- Logs the use of a command and its user
--- @param1 takes a string with the actor's name (usually acquired by calling get_actor)
--- @param2 the command's name as table element
--- @param3 the command's parameters as a table element (optional)
+-- @param actor string with the actor's name (usually acquired by calling get_actor)
+-- @param command the command's name as table element
+-- @param parameters the command's parameters as a table (optional)
 Module.log_command = function(actor, command, parameters)
     local action = table.concat {'[Admin-Command] ', actor, ' used: ', command}
     if parameters then
@@ -143,6 +146,19 @@ end
 Module.comma_value = function(n) -- credit http://richard.warburton.it
     local left, num, right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
     return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
+end
+
+--- Asserts the argument is one of type arg_types
+-- @param arg the variable to check
+-- @param arg_types the type as a table of sings
+-- @return boolean
+Module.verify_mult_types = function(arg, arg_types)
+    for _, arg_type in pairs(arg_types) do
+        if type(arg) == arg_type then
+            return true
+        end
+    end
+    return false
 end
 
 return Module
