@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local UserGroups = require 'features.user_groups'
 local Utils = require 'utils.utils'
 local Game = require 'utils.game'
+local Server = require 'features.server'
 
 local function allowed_to_nuke(player)
     return player.admin or UserGroups.is_regular(player.name) or
@@ -128,7 +129,7 @@ local function on_capsule_used(event)
     end
 
     local nuke_control = global.config.nuke_control
-    if not nuke_control.enable_autokick and not nuke_control.enable_autoban then        
+    if not nuke_control.enable_autokick and not nuke_control.enable_autoban then
         return
     end
 
@@ -148,13 +149,14 @@ local function on_capsule_used(event)
         if count > 8 then
             if global.players_warned[event.player_index] then
                 if nuke_control.enable_autoban then
-                    game.ban_player(
+                    Server.ban_sync(
                         player,
                         string.format(
                             'Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.',
                             count,
                             item.name
-                        )
+                        ),
+                        '<script>'
                     )
                 end
             else
@@ -170,7 +172,7 @@ end
 local function on_player_joined(event)
     local player = game.players[event.player_index]
     if string.match(player.name, '^[Ili1|]+$') then
-        game.ban_player(player) --No reason given, to not give them any hints to change their name
+        Server.ban_sync(player, '', '<script>') --No reason given, to not give them any hints to change their name
     end
 end
 
