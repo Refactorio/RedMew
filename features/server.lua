@@ -367,12 +367,16 @@ function Public.ban_sync(username, reason, admin)
         error('username must be a string')
     end
 
-    if type(reason) ~= 'string' then
+    if reason == nil then
         reason = ''
+    elseif type(reason) ~= 'string' then
+        error('reason must be a string or nil')
     end
 
-    if type(admin) ~= 'string' then
+    if admin == nil then
         admin = '<script>'
+    elseif type(admin) ~= 'string' then
+        error('admin must be a string or nil')
     end
 
     -- game.ban_player errors if player not found.
@@ -409,8 +413,10 @@ function Public.unban_sync(username, admin)
         error('username must be a string')
     end
 
-    if type(admin) ~= 'string' then
+    if admin == nil then
         admin = '<script>'
+    elseif type(admin) ~= 'string' then
+        error('admin must be a string or nil')
     end
 
     -- game.unban_player errors if player not found.
