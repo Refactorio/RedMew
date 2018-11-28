@@ -124,7 +124,6 @@ local function collapse(args)
     local surface = args.surface
     local positions = {}
     local strength = config.collapse_threshold_total_strength
-    local player_index = args.player_index
     create_collapse_alert(surface, position)
     mask_disc_blur(
         position.x,  position.y,
@@ -231,15 +230,6 @@ local function on_player_mined_tile(event)
     end
 end
 
-local function on_robot_mined_entity(event)
-    local entity = event.entity
-    local strength = support_beam_entities[entity.name]
-
-    if strength then
-        stress_map_add(entity.surface, entity.position, strength, false, entity.last_user.index)
-    end
-end
-
 local function on_mined_entity(event)
     local entity = event.entity
     local name = entity.name
@@ -249,12 +239,13 @@ local function on_mined_entity(event)
     end
 end
 
+local no_player_cause = {index = 0}
 local function on_entity_died(event)
     local entity = event.entity
     local name = entity.name
     local strength = support_beam_entities[name]
     if strength then
-        local cause = event.cause or {}
+        local cause = event.cause or no_player_cause
         stress_map_add(entity.surface, entity.position, strength, false, (not (name == "sand-rock-big" or name == "rock-huge")) and cause.index)
     end
 end
@@ -351,7 +342,6 @@ function DiggyCaveCollapse.register(cfg)
     end)
     Event.add(defines.events.on_robot_mined_tile, on_robot_mined_tile)
     Event.add(defines.events.on_player_mined_tile, on_player_mined_tile)
-    Event.add(defines.events.on_robot_mined_entity, on_robot_mined_entity)
     Event.add(defines.events.on_built_entity, on_built_entity)
     Event.add(Template.events.on_placed_entity, on_placed_entity)
     Event.add(defines.events.on_entity_died, on_entity_died)
@@ -360,8 +350,14 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(defines.events.on_surface_created, on_surface_created)
 
     Event.add(defines.events.on_marked_for_deconstruction, function (event)
-        if (nil ~= support_beam_entities[event.entity.name]) then
-            event.entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
+        local entity = event.entity
+        local name = entity.name
+        if name == 'sand-rock-big' or name == 'rock-huge' then
+            return
+        end
+
+        if name == 'deconstructible-tile-proxy' or nil ~= support_beam_entities[name] then
+            entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
         end
     end)
 

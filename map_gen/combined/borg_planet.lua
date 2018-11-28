@@ -573,18 +573,18 @@ function run_combined_module(event)
 end
 
 --[[
-local function on_tick()		
-		if game.tick % 180 == 0 then		
-			if global.void_slime_is_alive == true then
-				local b,x,y = create_tile_cluster("lab-dark-1",global.void_slime,math.random(1,4))
-				global.void_slime.x = x
-				global.void_slime.y = y	
-				if b == false then
-					global.void_slime_is_alive = false 
-					game.print("The void slime died.")
-				end
-			end
-		end			
+local function on_tick()
+        if game.tick % 180 == 0 then
+            if global.void_slime_is_alive == true then
+                local b,x,y = create_tile_cluster("lab-dark-1",global.void_slime,math.random(1,4))
+                global.void_slime.x = x
+                global.void_slime.y = y
+                if b == false then
+                    global.void_slime_is_alive = false
+                    game.print("The void slime died.")
+                end
+            end
+        end
 end
 
 

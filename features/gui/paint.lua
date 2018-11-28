@@ -41,8 +41,8 @@ local filter_table_close_button_name = Gui.uid_name()
 
 global.paint_brushes_by_player = {}
 local function player_build_tile(event)
-    if not global.scenario.config.paint.enable then 
-        return 
+    if not global.config.paint.enable then
+        return
     end
     if event.item.name ~= brush_tool then
         return
@@ -75,8 +75,8 @@ local function player_build_tile(event)
 end
 
 local function player_joined(event)
-    if not global.scenario.config.paint.enable then 
-        return 
+    if not global.config.paint.enable then
+        return
     end
     local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then

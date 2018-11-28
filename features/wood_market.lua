@@ -3,7 +3,7 @@ local Token = require 'utils.global_token'
 local Task = require 'utils.Task'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
-local Utils = require "utils.utils"
+local Utils = require 'utils.utils'
 
 local market_items = require 'resources.market_items'
 
@@ -103,8 +103,7 @@ local function boost_player_runningspeed(player, market)
         [3] = 'Kungfu Master %s defended the village and was awarded a lv.3 speed boost!',
         [4] = 'Travelled at the speed of light. %s saw a blackhole. Oops.'
     }
-    global.player_speed_boost_records[player.index].boost_lvl =
-        1 + global.player_speed_boost_records[player.index].boost_lvl
+    global.player_speed_boost_records[player.index].boost_lvl = 1 + global.player_speed_boost_records[player.index].boost_lvl
     player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
     game.print(string.format(boost_msg[global.player_speed_boost_records[player.index].boost_lvl], player.name))
     if global.player_speed_boost_records[player.index].boost_lvl >= 4 then
@@ -136,8 +135,7 @@ local function boost_player_miningspeed(player, market)
         [3] = 'Wood fiend, %s, has picked up a massive chain saw and is awarded a lv.3 mining boost!',
         [4] = 'Better learn to control that saw, %s, chopped off their legs. Oops.'
     }
-    global.player_mining_boost_records[player.index].boost_lvl =
-        1 + global.player_mining_boost_records[player.index].boost_lvl
+    global.player_mining_boost_records[player.index].boost_lvl = 1 + global.player_mining_boost_records[player.index].boost_lvl
     player.character_mining_speed_modifier = 1 + player.character_mining_speed_modifier
     game.print(string.format(boost_msg[global.player_mining_boost_records[player.index].boost_lvl], player.name))
     if global.player_mining_boost_records[player.index].boost_lvl >= 4 then

@@ -10,8 +10,8 @@ local raise_event = script.raise_event
 -- this
 local Template = {}
 
-local tiles_per_call = 5 --how many tiles are inserted with each call of insert_action
-local entities_per_call = 5 --how many entities are inserted with each call of insert_action
+local tiles_per_call = 256 --how many tiles are inserted with each call of insert_action
+local entities_per_call = 8 --how many entities are inserted with each call of insert_action
 
 Template.events = {
     --[[--
@@ -71,7 +71,7 @@ local function insert_next_entities(data)
             for i = data.entity_iterator, min(data.entity_iterator + entities_per_call - 1, data.entities_n) do
                 local entity = data.entities[i]
                 local created_entity = create_entity(entity)
-                if (nil == created_entity) then
+                if not created_entity then
                     error('Failed creating entity ' .. entity.name .. ' on surface.')
                 end
 
@@ -128,7 +128,7 @@ function Template.insert(surface, tiles, entities)
     }
 
     local continue = true
-    for i = 1, 4 do
+    for _ = 1, 4 do
         continue = insert_action(data)
         if not continue then
             return
@@ -137,39 +137,6 @@ function Template.insert(surface, tiles, entities)
 
     if continue then
         Task.queue_task(insert_token, data, total_calls - 4)
-    end
-end
-
---[[--
-    Designed to spawn aliens, uses find_non_colliding_position.
-
-    @see LuaSurface.entity
-
-    @param surface LuaSurface to put the tiles and entities on
-    @param units table of entities as required by create_entity
-    @param non_colliding_distance int amount of tiles to scan around original position in case it's already taken
-    @param generic_unit_name_for_spawn_size String allows setting a custom unit name for spawn size, will overwrite the actual
-]]
-function Template.units(surface, units, non_colliding_distance, generic_unit_name_for_spawn_size)
-    non_colliding_distance = non_colliding_distance or 1
-    generic_unit_name_for_spawn_size = generic_unit_name_for_spawn_size or 'player'
-
-    local create_entity = surface.create_entity
-    local position
-
-    for _, entity in pairs(units) do
-        position = position or surface.find_non_colliding_position(
-            generic_unit_name_for_spawn_size,
-            entity.position, non_colliding_distance,
-            0.5
-        )
-
-        if (nil ~= position) then
-            entity.position = position
-            create_entity(entity)
-        elseif (nil == create_entity(entity)) then
-            Debug.print_position(entity.position, "Failed to spawn '" .. entity.name .. "'")
-        end
     end
 end
 
@@ -186,31 +153,6 @@ function Template.resources(surface, resources)
     for _, entity in pairs(resources) do
         create_entity(entity)
     end
-end
-
---[[--
-    Designed to spawn a market.
-
-    @param surface LuaSurface
-    @param position Position
-    @param force LuaForce
-    @param market_items Table
-]]
-function Template.market(surface, position, force, market_inventory)
-    local market = surface.create_entity({name = 'market', position = position})
-    local add_market_item = market.add_market_item
-    market.destructible = false
-
-    for _, item in ipairs(market_inventory) do
-        add_market_item(item)
-    end
-
-    force.add_chart_tag(surface, {
-        text = 'Market',
-        position = position,
-    })
-
-    raise_event(Template.events.on_placed_entity, {entity = market})
 end
 
 return Template

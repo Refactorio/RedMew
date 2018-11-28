@@ -79,7 +79,7 @@ local function alert(reactor)
 end
 
 local function check_reactors()
-    for _, surface in pairs(game.surfaces) do
+    for _ in pairs(game.surfaces) do
         for i, reactor in pairs(global.reactors) do
             if reactor.valid then
                 if reactor.temperature > 800 then
@@ -109,7 +109,7 @@ local function check_reactors()
                 table.remove(global.reactors, i)
             end
         end
-        global.last_reactor_warning = last_reactor_warning
+        --global.last_reactor_warning = last_reactor_warning
     end
 end
 

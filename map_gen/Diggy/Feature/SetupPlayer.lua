@@ -20,6 +20,7 @@ global.SetupPlayer = {
 function SetupPlayer.register(config)
     Event.add(defines.events.on_player_created, function (event)
         local player = Game.get_player_by_index(event.player_index)
+        local force = player.force
         local player_insert = player.insert
         local position = {0, 0}
         local surface = player.surface
@@ -28,20 +29,26 @@ function SetupPlayer.register(config)
             player_insert(item)
         end
 
-        if (global.SetupPlayer.first_player_spawned) then
+        if global.SetupPlayer.first_player_spawned then
             position = surface.find_non_colliding_position('player', position, 3, 0.1)
         else
             global.SetupPlayer.first_player_spawned = true
         end
 
-        player.force.set_spawn_position(position, surface)
+        force.set_spawn_position(position, surface)
         player.teleport(position)
 
         Debug.cheat(function()
             local cheats = config.cheats
-            player.force.manual_mining_speed_modifier = cheats.manual_mining_speed_modifier
-            player.force.character_inventory_slots_bonus = cheats.character_inventory_slots_bonus
-            player.force.character_running_speed_modifier = cheats.character_running_speed_modifier
+            force.manual_mining_speed_modifier = cheats.manual_mining_speed_modifier
+            force.character_inventory_slots_bonus = cheats.character_inventory_slots_bonus
+            force.character_running_speed_modifier = cheats.character_running_speed_modifier
+            force.character_running_speed_modifier = cheats.character_running_speed_modifier
+            force.character_health_bonus = cheats.character_health_bonus
+            force.character_health_bonus = cheats.character_health_bonus
+            if cheats.unlock_all_research then
+                force.research_all_technologies()
+            end
 
             for _, item in pairs(cheats.starting_items) do
                 player_insert(item)

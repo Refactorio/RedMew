@@ -1,86 +1,99 @@
 -- Functions that perform actions on tables
 
 local function assert_argument_valid(a, arg_type)
-  arg_type = arg_type or "table"
-  if type(a) ~= arg_type then
-    error("bad argument #1 to '" .. debug.getinfo(2, "n").name .. "' (table expected, got ".. type(a) .. ")", 3)
-  end
+    arg_type = arg_type or 'table'
+    if type(a) ~= arg_type then
+        error("bad argument #1 to '" .. debug.getinfo(2, 'n').name .. "' (table expected, got " .. type(a) .. ')', 3)
+    end
 end
 
+--- Removes a specific element from a table
+-- @param t table to search
+-- @param element to search for
 table.remove_element = function(t, element)
-  assert_argument_valid(t)
-  for k,v in pairs(t) do
-    if v == element then
-      table.remove(t, k)
-      break
+    assert_argument_valid(t)
+    for k, v in pairs(t) do
+        if v == element then
+            table.remove(t, k)
+            break
+        end
     end
-  end
 end
 
-table.add_all = function (t1, t2)
-  assert_argument_valid(t1)
-  assert_argument_valid(t2)
-  for k,v in pairs(t2) do
-    if tonumber(k) then
-      table.insert(t1, v)
-    else
-      t1[k] = v
+table.add_all = function(t1, t2)
+    assert_argument_valid(t1)
+    assert_argument_valid(t2)
+    for k, v in pairs(t2) do
+        if tonumber(k) then
+            table.insert(t1, v)
+        else
+            t1[k] = v
+        end
     end
-  end
 end
 
 table.size = function(t)
-  assert_argument_valid(t)
-  local size = 0
-  for _,_ in pairs(t) do size = size + 1 end
-  return size
+    assert_argument_valid(t)
+    local size = 0
+    for _ in pairs(t) do
+        size = size + 1
+    end
+    return size
 end
 
+--- Checks if a table contains an element
+-- @param t table to search
+-- @param e element to search for
+-- @returns the index of an element or -1
 table.index_of = function(t, e)
-  assert_argument_valid(t)
-  local i = 1
-  for _,v in pairs(t) do
-    if v == e then
-      return i
+    assert_argument_valid(t)
+    local i = 1
+    for _, v in pairs(t) do
+        if v == e then
+            return i
+        end
+        i = i + 1
     end
-    i = i + 1
-  end
-  return -1
+    return -1
 end
 
+--- Checks if a table contains an element
+-- @param t table to search
+-- @param e element to search for
+-- @returns true or false
 table.contains = function(t, e)
-  assert_argument_valid(t)
-  return table.index_of(t, e) > -1
+    assert_argument_valid(t)
+    return table.index_of(t, e) > -1
 end
 
-table.set = function (t, index, element)
-  assert_argument_valid(t)
-  assert_argument_valid(index, "number")
-  local i = 1
-  for k,v in pairs(t) do
-    if i == index then
-      t[k] = element
-      return nil
+table.set = function(t, index, element)
+    assert_argument_valid(t)
+    assert_argument_valid(index, 'number')
+    local i = 1
+    for k in pairs(t) do
+        if i == index then
+            t[k] = element
+            return nil
+        end
+        i = i + 1
     end
-    i = i + 1
-  end
-  error("Index out of bounds", 2)
+    error('Index out of bounds', 2)
 end
 
-table.get = function (t, index)
-  assert_argument_valid(t)
-  assert_argument_valid(index, "number")
-  local i = 1
-  for k,v in pairs(t) do
-    if i == index then
-      return t[k]
+table.get = function(t, index)
+    assert_argument_valid(t)
+    assert_argument_valid(index, 'number')
+    local i = 1
+    for k in pairs(t) do
+        if i == index then
+            return t[k]
+        end
+        i = i + 1
     end
-    i = i + 1
-  end
-  error("Index out of bounds", 2)
+    error('Index out of bounds', 2)
 end
 
--- Chooses a random entry from a table
+--- Chooses a random entry from a table
 table.get_random = function(this_table)
     return this_table[math.random(#this_table)]
 end
@@ -92,20 +105,20 @@ end
 -- @returns a random item with weighting
 -- @see features.chat_triggers.hodor
 table.get_random_weighted = function(weighted_table, item_index, weight_index)
-  local total_weight = 0
+    local total_weight = 0
 
-  for _, w in pairs(weighted_table) do
-      total_weight = total_weight + w[weight_index]
-  end
+    for _, w in pairs(weighted_table) do
+        total_weight = total_weight + w[weight_index]
+    end
 
-  local index = math.random(total_weight)
-  local weight_sum = 0
-  for _, w in pairs(weighted_table) do
-      weight_sum = weight_sum + w[weight_index]
-      if weight_sum >= index then
-          return w[item_index]
-      end
-  end
+    local index = math.random(total_weight)
+    local weight_sum = 0
+    for _, w in pairs(weighted_table) do
+        weight_sum = weight_sum + w[weight_index]
+        if weight_sum >= index then
+            return w[item_index]
+        end
+    end
 end
 
 --[[
@@ -124,30 +137,30 @@ end
     game.print("value found at index: " .. index)
   end
 ]]
-table.binary_search = function(t, target)
-  --For some reason bit32.bnot doesn't return negative numbers so I'm using ~x = -1 - x instead.
+table.binary_search =
+    function(t, target)
+    --For some reason bit32.bnot doesn't return negative numbers so I'm using ~x = -1 - x instead.
     assert_argument_valid(t)
-    assert_argument_valid(target, "number")
+    assert_argument_valid(target, 'number')
 
     local lower = 1
     local upper = #t
 
     if upper == 0 then
-      return -2 -- ~1
+        return -2 -- ~1
     end
 
     repeat
-      local mid = math.floor( (lower + upper) / 2 )
-      local value = t[mid]
-      if value == target then
-        return mid
-      elseif value < target then
-        lower = mid + 1
-      else
-        upper = mid - 1
-      end
+        local mid = math.floor((lower + upper) / 2)
+        local value = t[mid]
+        if value == target then
+            return mid
+        elseif value < target then
+            lower = mid + 1
+        else
+            upper = mid - 1
+        end
     until lower > upper
 
     return -1 - lower -- ~lower
-
-  end
+end

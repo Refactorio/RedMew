@@ -17,6 +17,8 @@ local utils = require 'utils.utils'
 -- this
 local ArtefactHunting = {}
 
+local coin_color = {r = 255, g = 215, b = 0}
+
 -- some GUI stuff
 local function redraw_table(data)
     local list = data.list
@@ -24,17 +26,13 @@ local function redraw_table(data)
 
     data.frame.caption = 'Scoretable'
 
-    local score_keys = ScoreTable.all_keys()
-
-    for _, data in pairs(score_keys) do
-        local val = ScoreTable.get(data)
-
+    for name, value in pairs(ScoreTable.all()) do
         local table = list.add({type = 'table', column_count = 2})
 
-        local key = table.add({type = 'label', name = 'Diggy.ArtefactHunting.Frame.List.Key', caption = data})
+        local key = table.add({type = 'label', name = 'Diggy.ArtefactHunting.Frame.List.Key', caption = name})
         key.style.minimal_width = 175
 
-        local val = table.add({type = 'label', name = 'Diggy.ArtefactHunting.Frame.List.Val', caption = utils.comma_value(val)})
+        local val = table.add({type = 'label', name = 'Diggy.ArtefactHunting.Frame.List.Val', caption = utils.comma_value(value)})
         val.style.minimal_width = 225
     end
 end
@@ -85,7 +83,7 @@ Gui.on_custom_close('Diggy.ArtefactHunting.Frame', function (event)
 end)
 
 function ArtefactHunting.update_gui()
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local frame = p.gui.left['Diggy.ArtefactHunting.Frame']
 
         if frame and frame.valid then
@@ -141,9 +139,10 @@ function ArtefactHunting.register(config)
             return
         end
 
+        local insert = chest.insert
         for name, prototype in pairs(config.treasure_chest_raffle) do
             if random() <= prototype.chance then
-                chest.insert({name = name, count = random(prototype.min, prototype.max)})
+                insert({name = name, count = random(prototype.min, prototype.max)})
             end
         end
     end)
@@ -160,30 +159,25 @@ function ArtefactHunting.register(config)
             ScoreTable.add('Collected coins', count)
         end
 
-        Game.print_player_floating_text(player_index, text, {r = 255, g = 215, b = 0})
+        Game.print_player_floating_text(player_index, text, coin_color)
     end
 
     ScoreTable.reset('Collected coins')
 
+    local alien_coin_drop_chance = config.alien_coin_drop_chance
+
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
         local force = entity.force
-
-        if force.name ~= 'enemy' then
-            return
-        end
-
-        local cause = event.cause
-
-        if not cause or cause.type ~= 'player' or not cause.valid then
+        if force.name ~= 'enemy' or random() > alien_coin_drop_chance then
             return
         end
 
         local modifier = modifiers[entity.name] or 1
-        local evolution_multiplier = force.evolution_factor * 11
+        local evolution_multiplier = force.evolution_factor
         local count = random(
-            ceil(2 * evolution_multiplier * 0.1),
-            ceil(5 * (evolution_multiplier * evolution_multiplier + modifier) * 0.1)
+            ceil(2 * evolution_multiplier * modifier),
+            ceil(5 * evolution_multiplier * modifier)
         )
 
         entity.surface.create_entity({
@@ -207,11 +201,11 @@ function ArtefactHunting.register(config)
             return
         end
 
-        if random() > config.mining_artefact_chance then
+        if random() > config.mining_coin_chance then
             return
         end
 
-        local count = random(config.mining_artefact_amount.min, config.mining_artefact_amount.max)
+        local count = random(config.mining_coin_amount.min, config.mining_coin_amount.max)
         local player_index = event.player_index
 
         Game.get_player_by_index(player_index).insert({name = 'coin', count = count})

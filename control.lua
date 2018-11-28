@@ -8,11 +8,12 @@ require 'map_gen.shared.perlin_noise'
 require 'map_layout'
 
 -- Specific to RedMew hosts, can be disabled safely if not hosting on RedMew servers
-require 'features.bot'
+require 'features.server'
+require 'features.server_commands'
 
 -- Library modules which, if missing, will cause other feature modules to fail
 require 'features.base_data'
-require 'features.follow'
+--require 'features.follow' -- Nothing currently uses anything inside follow
 require 'features.player_create'
 require 'features.user_groups'
 
@@ -24,7 +25,6 @@ require 'features.donator_messages'
 require 'features.train_saviour'
 require 'features.fish_market'
 require 'features.free_item_logging'
---require 'features.infinite_storage_chest'
 require 'features.nuke_control'
 require 'features.player_colors'
 require 'features.reactor_meltdown'

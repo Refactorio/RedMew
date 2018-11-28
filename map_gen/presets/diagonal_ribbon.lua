@@ -54,9 +54,9 @@ oob_shape = b.change_tile(oob_shape, true, oob_tile)
 oob_shape = b.translate(oob_shape, 0, -(play_area_width/2))
 
 --[[ Make up the map from 3 components: the oob shape we created (which covers the NW), a copy of the oob shape which is
-	flipped (to cover the SE) and then translated so that the crests and valleys of the noise creates a nice wave.
-	Lastly, any part of the map that isn't in oob_shape or the oob_copy is filled by full_shape which just passes the
-	vanilla mapgen through. ]]--
+    flipped (to cover the SE) and then translated so that the crests and valleys of the noise creates a nice wave.
+    Lastly, any part of the map that isn't in oob_shape or the oob_copy is filled by full_shape which just passes the
+    vanilla mapgen through. ]]--
 local map = b.any {oob_shape, b.translate(b.flip_y(oob_shape), (oob_width/2), 0), b.full_shape}
 
 map = b.rotate(map, math.rad(45))

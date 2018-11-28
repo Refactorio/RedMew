@@ -1,9 +1,8 @@
 local Gui = require 'utils.gui'
-local Utils = require "utils.utils"
-local Game = require "utils.game"
+local Utils = require 'utils.utils'
+local Game = require 'utils.game'
 
 local close_name = Gui.uid_name()
-
 
 local function show_popup(player, message)
     local frame = player.gui.center.add {type = 'frame', direction = 'vertical', style = 'captionless_frame'}
@@ -87,9 +86,8 @@ local function popup(cmd)
         show_popup(p, message)
     end
 
-    player.print('Popup sent')
-    Utils.print_admins(player.name .. ' sent a popup to all players', false)
-    Utils.log_command(game.player.name, cmd.name, cmd.parameter)
+    Game.player_print('Popup sent')
+    Utils.print_admins(Utils.get_actor() .. ' sent a popup to all players', false)
 end
 
 -- Creates a popup dialog for all players, specifically for the server upgrading factorio versions
@@ -106,9 +104,8 @@ local function popup_update(cmd)
         show_popup(p, message)
     end
 
-    player.print('Popup sent')
-    Utils.print_admins(player.name .. ' sent a popup to all players', false)
-    Utils.log_command(game.player.name, cmd.name, message)
+    Game.player_print('Popup sent')
+    Utils.print_admins(Utils.get_actor() .. ' sent a popup to all players', false)
 end
 
 -- Creates a popup dialog for the specifically targetted player
@@ -142,8 +139,7 @@ local function popup_player(cmd)
 
     show_popup(target, message)
 
-    player.print('Popup sent')
-    Utils.log_command(game.player.name, cmd.name, cmd.parameter)
+    Game.player_print('Popup sent')
 end
 
 commands.add_command('popup', '<message> - Shows a popup to all connected players (Admins only)', popup)

@@ -8,7 +8,6 @@ local Report = require 'features.report'
 
 --local Antigrief = require 'features.antigrief'
 
-
 --- Takes a target and teleports them to player. (admin only)
 local function invoke(cmd)
     if not (game.player and game.player.admin) then
@@ -23,7 +22,6 @@ local function invoke(cmd)
     local pos = game.player.surface.find_non_colliding_position('player', game.player.position, 0, 1)
     game.players[target].teleport({pos.x, pos.y}, game.player.surface)
     game.print(target .. ', get your ass over here!')
-    Utils.log_command(game.player.name, cmd.name, cmd.parameter)
 end
 
 --- Takes a target and teleports player to target. (admin only)
@@ -41,8 +39,7 @@ local function teleport_player(cmd)
     local pos = surface.find_non_colliding_position('player', game.players[target].position, 0, 1)
     game.player.teleport(pos, surface)
     game.print(target .. "! watcha doin'?!")
-    game.player.print("You have teleported to" .. game.players[target].name)
-    Utils.log_command(game.player.name, cmd.name, cmd.parameter)
+    game.player.print('You have teleported to ' .. game.players[target].name)
 end
 
 --- Takes a selected entity and teleports player to entity. (admin only)
@@ -57,7 +54,6 @@ local function teleport_location(cmd)
     end
     local pos = game.player.surface.find_non_colliding_position('player', game.player.selected.position, 0, 1)
     game.player.teleport(pos)
-    Utils.log_command(game.player.name, cmd.name, false)
 end
 
 --- Kill a player with fish as the cause of death.
@@ -91,9 +87,11 @@ local function kill(cmd)
         end
     end
 
-    if global.walking[player.index] == true or global.walking[target.index] == true then
-        player.print("A player on walkabout cannot be killed by a mere fish, don't waste your efforts.")
-        return
+    if global.walking then
+        if (player and global.walking[player.index]) or (target and global.walking[target.index]) then
+            Game.player_print("A player on walkabout cannot be killed by a mere fish, don't waste your efforts.")
+            return
+        end
     end
 
     if not target and player then
@@ -109,7 +107,6 @@ local function kill(cmd)
             if not do_fish_kill(target) then
                 Game.player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
             end
-            Utils.log_command(game.player.name, cmd.name, param)
         else
             Game.player_print("Sorry you don't have permission to use the kill command on other players.")
         end
@@ -131,24 +128,25 @@ local function regular(cmd)
         Utils.cant_run(cmd.name)
         return
     end
-
     if cmd.parameter == nil then
         Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
         return
     end
+
     local params = {}
     for param in string.gmatch(cmd.parameter, '%S+') do
         table.insert(params, param)
     end
-    if params[2] == nil then
-        Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
-        return
-    elseif (params[1] == 'promote') then
-        UserGroups.add_regular(params[2])
-        Utils.log_command(game.player.name, cmd.name, cmd.parameter)
-    elseif (params[1] == 'demote') then
-        UserGroups.remove_regular(params[2])
-        Utils.log_command(game.player.name, cmd.name, cmd.parameter)
+    if #params == 2 then
+        if params[1] == 'promote' then
+            UserGroups.add_regular(params[2])
+        elseif params[1] == 'demote' then
+            UserGroups.remove_regular(params[2])
+        else
+            Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
+        end
+    elseif #params == 1 and params[1] ~= 'promote' and params[1] ~= 'demote' then
+        UserGroups.add_regular(params[1])
     else
         Game.player_print('Command failed. Usage: /regular <promote, demote>, <player>')
     end
@@ -230,11 +228,9 @@ local function toggle_tp_mode(cmd)
     if toggled then
         global.tp_players[index] = nil
         Game.player_print('tp mode is now off')
-        Utils.log_command(game.player.name, cmd.name, 'off')
     else
         global.tp_players[index] = true
         Game.player_print('tp mode is now on - place a ghost entity to teleport there.')
-        Utils.log_command(game.player.name, cmd.name, 'on')
     end
 end
 
@@ -249,9 +245,7 @@ local function get_group()
                 group.set_allows_action(i, false)
             end
         else
-            game.print(
-                'This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).'
-            )
+            game.print('This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).')
         end
     end
     return group
@@ -291,7 +285,6 @@ local function tempban(cmd)
     local group = get_group()
 
     game.print(Utils.get_actor() .. ' put ' .. params[1] .. ' in timeout for ' .. params[2] .. ' minutes.')
-    Utils.log_command(game.player.name, cmd.name, cmd.parameter)
     if group then
         group.add_player(params[1])
         if not tonumber(cmd.parameter) then
@@ -326,7 +319,7 @@ local function zoom(cmd)
 end
 
 --- Creates a rectangle of water below an admin
-local function pool()
+local function pool(cmd)
     if game.player and game.player.admin then
         local t = {}
         local p = game.player.position
@@ -337,7 +330,6 @@ local function pool()
         end
         game.player.surface.set_tiles(t)
         game.player.surface.create_entity {name = 'fish', position = {p.x + 0.5, p.y + 5}}
-        Utils.log_command(game.player.name, cmd.name, false)
     end
 end
 
@@ -409,7 +401,6 @@ end
 
 --- Places a target in jail (a permissions group which is unable to act aside from chatting)(admin only)
 local function jail_player(cmd)
-
     local player = game.player
     -- Check if the player can run the command
     if player and not player.admin then
@@ -490,7 +481,6 @@ commands.add_command(
     function()
         if game.player and game.player.admin then
             game.player.cheat_mode = not game.player.cheat_mode
-            Utils.log_command(game.player, 'hax', false)
         end
     end
 )
@@ -506,7 +496,6 @@ commands.add_command(
     end
 )
 
-
 commands.add_command('kill', 'Will kill you.', kill)
 commands.add_command('tpplayer', '<player> - Teleports you to the player. (Admins only)', teleport_player)
 commands.add_command('invoke', '<player> - Teleports the player to you. (Admins only)', invoke)
@@ -520,13 +509,12 @@ commands.add_command('tpmode', 'Toggles tp mode. When on place a ghost entity to
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
 commands.add_command('pool', 'Spawns a pool', pool)
-commands.add_command('find-player', '<player> shows an alert on the map where the player is located', find_player)
+commands.add_command('find', '<player> shows an alert on the map where the player is located', find_player)
 commands.add_command('jail', '<player> disables all actions a player can perform except chatting. (Admins only)', jail_player)
 commands.add_command('unjail', '<player> restores ability for a player to perform actions. (Admins only)', Report.unjail_player)
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
 commands.add_command('report', '<griefer-name> <message> Reports a user to admins', Report.cmd_report)
 commands.add_command('show-rail-block', 'Toggles rail block visualisation', show_rail_block)
-
 
 --[[ commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
 commands.add_command(

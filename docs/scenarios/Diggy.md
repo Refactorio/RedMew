@@ -74,6 +74,6 @@ your own resources (for example bobs or angels) with a value and the scenario wi
 spawn chances.
 
 ### Adding Market Items
-Items can be configured by adding the desired item under the `MarketExchange` configuration. You only have to define a
-level at which it unlocks, a price or prices in case it can cost more, and what the item prototype is. For a list of
-items, you can look up each possible item on the [Factorio raw data page](https://wiki.factorio.com/Data.raw#item).
+Items can be configured by adding the desired item under the `Experience` configuration. You only have to define a level
+at which it unlocks and a price. For a list of items, you can look up each possible item on the
+[Factorio raw data page](https://wiki.factorio.com/Data.raw#item).

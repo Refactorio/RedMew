@@ -12,44 +12,47 @@ local Report = require 'features.report'
 -- this
 local Antigrief = {}
 
-global.Antigrief = {
-    autojail = false,
-    jailed_players = {},
-    last_collapse = 0
-}
+local global_primitives = {}
 
 local allowed_collapses_first_hour = 0
 
 local player_collapses = {}
+local jailed_players = {}
 
 Global.register({
-    cave_collapse_disabled = cave_collapse_disabled
+    player_collapses = player_collapses,
+    jailed_players = jailed_players,
+    global_primitives = global_primitives,
 }, function(tbl)
-    cave_collapse_disabled = tbl.cave_collapse_disabled
+    player_collapses = tbl.player_collapses
+    jailed_players = tbl.jailed_players
+    global_primitives = tbl.global_primitives
 end)
 
+global_primitives.autojail = false
+global_primitives.last_collapse = 0
 
 --[[--
     Registers all event handlers.
 ]]
 function Antigrief.register(config)
-    global.Antigrief.autojail = config.autojail
+    global_primitives.autojail = config.autojail
     allowed_collapses_first_hour = config.allowed_collapses_first_hour
 end
 
 
 Event.add(CaveCollapse.events.on_collapse, function(event)
     local player_index = event.player_index
-    if player_index and global.Antigrief.last_collapse ~= game.tick then
-        global.Antigrief.last_collapse = game.tick
+    if player_index and global_primitives.last_collapse ~= game.tick then
+        global_primitives.last_collapse = game.tick
         local count = player_collapses[player_index] or 0
         count = count + 1
         player_collapses[player_index] = count
         local player = Game.get_player_by_index(player_index)
-        if global.Antigrief.autojail and count > allowed_collapses_first_hour and player.online_time < 216000 and not global.Antigrief.jailed_players[player_index] then
+        if global_primitives.autojail and count > allowed_collapses_first_hour and player.online_time < 216000 and not jailed_players[player_index] then
             Report.jail(player)
             Report.report(nil, player, string.format("Caused %d collapses in the first hour", count))
-            global.Antigrief.jailed_players[player_index] = true
+            jailed_players[player_index] = true
         end
     end
 end)

@@ -441,18 +441,18 @@ local column_builders = {
 
 local function get_default_player_settings()
     columns = {
-            sprite_heading_name,
-            player_name_heading_name,
-            time_heading_name,
-            rank_heading_name,
-            distance_heading_name
+        sprite_heading_name,
+        player_name_heading_name,
+        time_heading_name,
+        rank_heading_name,
+        distance_heading_name
     }
     local offset = 6
-    if global.scenario.config.player_list.enable_coin_col then
+    if global.config.player_list.enable_coin_col then
         columns[6] = coin_heading_name
         offset = 7
     end
-    columns[offset] =  deaths_heading_name
+    columns[offset] = deaths_heading_name
     columns[offset + 1] = poke_name_heading_name
     columns[offset + 2] = report_heading_name
     return {
