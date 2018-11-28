@@ -357,7 +357,7 @@ local function escape(str)
 end
 
 --- If the player exists bans the player.
--- Regardless of if the player exists the name is synchronized with other servers
+-- Regardless of whether or not the player exists the name is synchronized with other servers
 -- and stored in the database.
 -- @param  username<string>
 -- @param  reason<string?> defaults to empty string.
@@ -400,7 +400,7 @@ function Public.ban_non_sync(PlayerSpecification, reason)
 end
 
 --- If the player exists unbans the player.
--- Regardless of if the player exists the name is synchronized with other servers
+-- Regardless of whether or not the player exists the name is synchronized with other servers
 -- and removed from the database.
 -- @param  username<string>
 -- @param  admin<string?> admin's name, defaults to '<script>'. This name is stored in the logs for who removed the ban.
