@@ -413,7 +413,7 @@ function Public.unban_sync(username, admin)
         admin = '<script>'
     end
 
-    -- game.ban_player errors if player not found.
+    -- game.unban_player errors if player not found.
     -- However we may still want to use this function to unban player names.
     local player = game.players[username]
     if player then
