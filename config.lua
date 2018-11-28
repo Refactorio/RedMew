@@ -1,6 +1,3 @@
--- global: the global table
--- global.scenario: the only segment of global we should touch
--- global.
 _DEBUG = false
 _CHEATS = false
 MARKET_ITEM = 'coin'
