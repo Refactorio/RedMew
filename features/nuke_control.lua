@@ -128,7 +128,7 @@ local function on_capsule_used(event)
     end
 
     local nuke_control = global.config.nuke_control
-    if not nuke_control.enable_autokick or not nuke_control.enable_autoban then
+    if not nuke_control.enable_autokick and not nuke_control.enable_autoban then        
         return
     end
 
