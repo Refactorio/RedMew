@@ -198,7 +198,7 @@ function AlienSpawner.register(config)
     Event.add(Template.events.on_void_removed, function (event)
         local force = game.forces.enemy
         local evolution_factor = force.evolution_factor
-        force.evolution_factor = evolution_factor + 0.0000012
+        force.evolution_factor = evolution_factor + 0.0000024
 
         local position = event.position
         local x = position.x
@@ -224,8 +224,10 @@ Minimum spawn distance: ]] .. config.alien_minimum_distance .. ' tiles'
 end
 
 function AlienSpawner.on_init()
-    -- base factorio =                pollution_factor = 0.000015
-    game.map_settings.enemy_evolution.pollution_factor = 0.000004
+    -- base factorio =                time_factor = 0.000004
+    game.map_settings.enemy_evolution.time_factor = 0.000008
+    game.forces.enemy.evolution_factor = 0.1
+    game.map_settings.pollution.enabled = false
 end
 
 return AlienSpawner
