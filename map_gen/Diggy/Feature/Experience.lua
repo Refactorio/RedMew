@@ -4,6 +4,7 @@ local Game = require 'utils.game'
 local Global = require 'utils.global'
 local ForceControl = require 'features.force_control'
 local Debug = require 'map_gen.Diggy.Debug'
+local Template = require 'map_gen.Diggy.Template'
 local Retailer = require 'features.retailer'
 local Gui = require 'utils.gui'
 local force_control = require 'features.force_control'
@@ -51,6 +52,7 @@ local gain_xp_color = {r = 144, g = 202, b = 249}
 local lose_xp_color = {r = 255, g = 0, b = 0}
 local unlocked_color = {r = 255, g = 255, b = 255}
 local locked_color = {r = 127, g = 127, b = 127}
+local count = -189
 
 local level_up_formula = (function (level_reached)
     local Config = require 'map_gen.Diggy.Config'.features.Experience
@@ -287,6 +289,24 @@ local function on_player_respawned(event)
     end
 end
 
+local function on_void_removed(event)
+    local interval = 50
+    if count == interval then
+        local force = game.forces.enemy
+        local evolution_factor = force.evolution_factor
+        local current_level = ForceControl.get_force_data(game.forces.player).current_level
+        local number = config.evolution_scaling['void-mined_fine_tune'] * (current_level + 7)^config.evolution_scaling['void_mined_scaling']
+        if current_level == 0 then
+            force.evolution_factor = 0.1
+            count = -1
+        else
+            force.evolution_factor = evolution_factor + (number*interval)
+            count = -1
+        end
+    end
+    count = count + 1
+end
+
 local level_table = {}
 ---Get experiment requirement for a given level
 ---Primarily used for the Experience GUI to display total experience required to unlock a specific item
@@ -521,6 +541,7 @@ function Experience.register(cfg)
     Event.add(defines.events.on_entity_died, on_entity_died)
     Event.add(defines.events.on_player_created, on_player_created)
     Event.on_nth_tick(61, update_gui)
+    Event.add(Template.events.on_void_removed, on_void_removed)
 
     -- Prevents table lookup thousands of times
     sand_rock_xp = config.XP['sand-rock-big']
