@@ -81,6 +81,7 @@ local function player_created(event)
     local index = event.player_index
     local player = Game.get_player_by_index(index)
 
+    player_on_create_playtime[index] = 0
     Server.try_get_data('total_playtime', player.name, callback)
     player_last_position[index] = Game.get_player_by_index(index).position
     player_walk_distances[index] = 0
