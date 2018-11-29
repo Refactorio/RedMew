@@ -435,14 +435,13 @@ to reinforce it further.
                     end
                     for _, entity in pairs(surface.find_entities_filtered({position = {x = x, y = y}})) do
                         pcall(function()
-                                local strength = support_beam_entities[entity.name]
-                                local position = entity.position
-                                entity.die()
-                                if strength then
-                                    stress_map_add(surface, position, strength)
-                                end
+                            local local_strength = support_beam_entities[entity.name]
+                            local local_position = entity.position
+                            entity.die()
+                            if strength then
+                                stress_map_add(surface, local_position, local_strength)
                             end
-                        )
+                        end)
                     end
                 end
             end
