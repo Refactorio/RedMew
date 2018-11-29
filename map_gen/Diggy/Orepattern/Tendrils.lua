@@ -42,14 +42,14 @@ return {
             ['copper-ore']  = 215,
             ['iron-ore']    = 389,
             ['stone']       = 212,
-            ['uranium-ore'] =  21,
+            ['uranium-ore'] =  5,
         },
         distances = {
             ['coal']        = 16,
             ['copper-ore']  = 18,
             ['iron-ore']    = 18,
             ['stone']       = 15,
-            ['uranium-ore'] = 86,
+            ['uranium-ore'] = 120,
         }, },
     { -- tendril default small
         yield=1.0,
@@ -78,7 +78,7 @@ return {
             ['copper-ore']  = 18,
             ['iron-ore']    = 18,
             ['stone']       = 15,
-            ['uranium-ore'] = 86,
+            ['uranium-ore'] = 120,
         },
     },
     { -- tendril default fragments coal

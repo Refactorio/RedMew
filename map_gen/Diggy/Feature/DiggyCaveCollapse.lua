@@ -445,8 +445,8 @@ to reinforce it further.
     commands.add_command('toggle-cave-collapse', 'Toggles cave collapse (admins only).', function()
       pcall(function() --better safe than sorry
           if not game.player or game.player.admin then
-              cave_collapse_disabled = not cave_collapse_disabled
-              if cave_collapse_disabled then
+              global.cave_collapse_disabled = not global.cave_collapse_disabled
+              if global.cave_collapse_disabled then
                   game.print("Cave collapse: Disabled.")
               else
                   game.print("Cave collapse: Enabled.")
