@@ -251,7 +251,7 @@ end
 
 -- Returns the amount of time the player spent on redmew before joining this map
 function Public.get_player_on_create_playtime(player_index)
-    return player_on_create_playtime[player_index] or 0
+    return player_on_create_playtime[player_index]
 end
 
 -- Returns the amount of time the player spent on previous maps in addition to the current
