@@ -248,14 +248,17 @@ local function on_mined_entity(event)
     end
 end
 
-local no_player_cause = {index = 0}
 local function on_entity_died(event)
     local entity = event.entity
     local name = entity.name
     local strength = support_beam_entities[name]
     if strength then
-        local cause = event.cause or no_player_cause
-        stress_map_add(entity.surface, entity.position, strength, false, (not (name == 'sand-rock-big' or name == 'rock-huge')) and cause.index)
+        local player_index
+        if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
+            local cause = event.cause
+            player_index = cause and cause.player and cause.player.index or nil
+        end
+        stress_map_add(entity.surface, entity.position, strength, false, player_index)
     end
 end
 
