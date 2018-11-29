@@ -496,6 +496,10 @@ local function update_gui()
     end
 end
 
+local function evolution_boost(_, force)
+    force.evolution_factor = force.evolution_factor + 0.012
+end
+
 function Experience.register(cfg)
     config = cfg
 
@@ -512,6 +516,10 @@ function Experience.register(cfg)
         Experience.update_health_bonus(force, level_reached)
         Experience.update_market_contents(force)
     end)
+
+    for i=1, 10 do
+        ForceControlBuilder.register_on_single_level(i, evolution_boost)
+    end
 
     -- Events
     Event.add(defines.events.on_player_mined_entity, on_player_mined_entity)
