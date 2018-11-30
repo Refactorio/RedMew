@@ -47,7 +47,7 @@ local function update_robot_mining_damage()
     ScoreTable.set('Robot mining damage', robot_mining.damage)
 end
 
----Triggers a diggy diggy hole for a given sand-rock-big or rock-huge.
+---Triggers a diggy diggy hole for a given sand-rock-big, rock-big or rock-huge.
 ---@param entity LuaEntity
 local function diggy_hole(entity)
     local tiles = {}
@@ -82,8 +82,11 @@ local function diggy_hole(entity)
     for i = #out_of_map_found, 1, -1 do
         local void_position = out_of_map_found[i]
         tiles[i] = {name = 'dirt-' .. random(1, 7), position = void_position}
-        if random() < 0.35 then
+        local predicted = random()
+        if predicted < 0.2 then
             rocks[i] = {name = 'rock-huge', position = void_position}
+        elseif predicted < 0.6 then
+            rocks[i] = {name = 'rock-big', position = void_position}
         else
             rocks[i] = {name = 'sand-rock-big', position = void_position}
         end
@@ -127,7 +130,7 @@ function DiggyHole.register(config)
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
         local name = entity.name
-        if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
+        if name ~= 'sand-rock-big' and name ~= 'rock-huge' and name ~= 'rock-big' then
             return
         end
         diggy_hole(entity)
@@ -144,7 +147,7 @@ function DiggyHole.register(config)
             return
         end
 
-        if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
+        if name ~= 'sand-rock-big' and name ~= 'rock-huge' and name ~= 'rock-big' then
             return
         end
 
@@ -156,7 +159,7 @@ function DiggyHole.register(config)
         local entity = event.entity
         local name = entity.name
 
-        if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
+        if name ~= 'sand-rock-big' and name ~= 'rock-huge' and name ~= 'rock-big' then
             return
         end
 
@@ -187,7 +190,7 @@ function DiggyHole.register(config)
     Event.add(defines.events.on_player_mined_entity, function (event)
         local entity = event.entity
         local name = entity.name
-        if name ~= 'sand-rock-big' and name ~= 'rock-huge' then
+        if name ~= 'sand-rock-big' and name ~= 'rock-huge' and name ~= 'rock-big' then
             return
         end
 

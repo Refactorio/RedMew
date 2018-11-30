@@ -157,6 +157,7 @@ end
 
 -- declaration of variables to prevent table lookups @see Experience.register
 local sand_rock_xp
+local rock_big_xp
 local rock_huge_xp
 
 ---Awards experience when a rock has been mined (increases by 1 XP every 5th level)
@@ -240,18 +241,21 @@ local function on_entity_died (event)
     if not cause or cause.type ~= 'player' or not cause.valid then
         local exp
         if force and force.name == 'player' then
+            local entity_name = entity.name
             if cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
-                exp = config.XP['enemy_killed'] * config.alien_experience_modifiers[entity.name]
+                exp = config.XP['enemy_killed'] * config.alien_experience_modifiers[entity_name]
                 local text = string_format('+ %d XP', exp)
                 Game.print_floating_text(cause.surface, cause.position, text, gain_xp_color)
                 ForceControl.add_experience(force, exp)
                 return
             else
                 local level = ForceControl.get_force_data(force).current_level
-                if entity.name == 'sand-rock-big' then
-                    exp = floor((sand_rock_xp + (level / 5)) / 2)
-                elseif entity.name == 'rock-huge' then
-                    exp = floor((rock_huge_xp + (level / 5)) / 2)
+                if entity_name == 'sand-rock-big' then
+                    exp = floor((sand_rock_xp + level * 0.2) * 0.5)
+                elseif entity_name == 'rock-big' then
+                    exp = floor((rock_big_xp + level * 0.2) * 0.5)
+                elseif entity_name == 'rock-huge' then
+                    exp = floor((rock_huge_xp + level * 0.2) * 0.5)
                 else
                     return
                 end
@@ -524,6 +528,7 @@ function Experience.register(cfg)
 
     -- Prevents table lookup thousands of times
     sand_rock_xp = config.XP['sand-rock-big']
+    rock_big_xp = config.XP['rock-big']
     rock_huge_xp = config.XP['rock-huge']
 end
 
