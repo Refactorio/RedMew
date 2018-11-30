@@ -1,4 +1,4 @@
-require 'utils.list_utils'
+require 'utils.table'
 
 local insert = table.insert
 local size = table.size
