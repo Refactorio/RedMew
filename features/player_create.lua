@@ -27,6 +27,47 @@ local function player_created(event)
     if info ~= nil then
         info.show_info({player = player})
     end
+
+    if _CHEATS then
+        local force = player.force
+        local i = player.insert
+
+        i {name = 'power-armor-mk2', count = 1}
+        local p_armor = player.get_inventory(5)[1].grid
+        p_armor.put({name = 'fusion-reactor-equipment'})
+        p_armor.put({name = 'fusion-reactor-equipment'})
+        p_armor.put({name = 'fusion-reactor-equipment'})
+        p_armor.put({name = 'fusion-reactor-equipment'})
+        p_armor.put({name = 'personal-roboport-mk2-equipment'})
+        p_armor.put({name = 'personal-roboport-mk2-equipment'})
+        p_armor.put({name = 'personal-laser-defense-equipment'})
+        p_armor.put({name = 'personal-laser-defense-equipment'})
+        p_armor.put({name = 'energy-shield-mk2-equipment'})
+        p_armor.put({name = 'energy-shield-mk2-equipment'})
+        p_armor.put({name = 'night-vision-equipment'})
+        p_armor.put({name = 'battery-mk2-equipment'})
+        p_armor.put({name = 'battery-mk2-equipment'})
+        p_armor.put({name = 'battery-mk2-equipment'})
+        p_armor.put({name = 'belt-immunity-equipment'})
+        p_armor.put({name = 'solar-panel-equipment'})
+        i {name = 'steel-axe', count = 10}
+        i {name = 'submachine-gun', count = 1}
+        i {name = 'uranium-rounds-magazine', count = 1000}
+        i {name = 'construction-robot', count = 250}
+        i {name = 'electric-energy-interface', count = 50}
+        i {name = 'substation', count = 50}
+        i {name = 'roboport', count = 10}
+        i {name = 'infinity-chest', count = 10}
+        i {name = 'small-plane', count = 2}
+        i {name = 'coin', count = 20000}
+        i {name = 'rocket-part', count = 2}
+        i {name = 'computer', count = 2}
+
+        player.cheat_mode = true
+        force.manual_mining_speed_modifier = 10
+        force.character_running_speed_modifier = 5
+        force.character_health_bonus = 100000
+    end
 end
 
 Event.add(defines.events.on_player_created, player_created)
