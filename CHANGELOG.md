@@ -7,10 +7,16 @@ All notable changes to this project will be documented in this file.
 
 
 ### Features
+- [Diggy] Added a crumbling effect from the ceiling when close to collapse #478
 ### Bugfixes
+- [Diggy] Balancing changes #481
+- [Diggy] Fixed a bug related to player index missing #483
+- [Diggy] Lowered uranium density in main vein #479
 ### Internal
 - [Core] Added a new command wrapper #443
 - [Core] Overhaul utils and add minor functionality #464
+- [Core] Add ability to push time from server to factorio #487
+- [Core] Ban sync #476
 
 ## v1.1.0 - Persian Longhair
 
