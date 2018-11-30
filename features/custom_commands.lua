@@ -5,6 +5,8 @@ local UserGroups = require 'features.user_groups'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Report = require 'features.report'
+local Server = require 'features.server'
+local Timestamp = require 'utils.timestamp'
 
 --local Antigrief = require 'features.antigrief'
 
@@ -179,7 +181,9 @@ local function follow(cmd)
         global.follows[game.player.name] = cmd.parameter
         global.follows.n_entries = global.follows.n_entries + 1
     else
-        Game.player_print('Usage: /follow <player> makes you follow the player. Use /unfollow to stop following a player.')
+        Game.player_print(
+            'Usage: /follow <player> makes you follow the player. Use /unfollow to stop following a player.'
+        )
     end
 end
 
@@ -245,7 +249,9 @@ local function get_group()
                 group.set_allows_action(i, false)
             end
         else
-            game.print('This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).')
+            game.print(
+                'This would have nearly crashed the server, please consult the next best scenario dev (valansch or TWLtriston).'
+            )
         end
     end
     return group
@@ -370,7 +376,6 @@ local function antigrief_surface_tp()
     end
     Antigrief.antigrief_surface_tp()
 end ]]
-
 --- Creates an alert for the player at the location of their target
 local function find_player(cmd)
     local player = game.player
@@ -469,6 +474,25 @@ local function show_rail_block()
     player.print('show_rail_block_visualisation set to ' .. tostring(show))
 end
 
+local function server_time()
+    local player = game.player
+    local p
+    if not player then
+        p = print
+    elseif player.valid then
+        p = player.print
+    else
+        return
+    end
+
+    local secs = Server.get_current_time()
+    if secs == nil then
+        p('Server time is not available, is this game running on a Redmew server?')
+    else
+        p(Timestamp.to_string(secs))
+    end
+end
+
 --- Add all commands to command list
 if _DEBUG then
     commands.add_command('all-tech', 'researches all technologies (debug only)', all_tech)
@@ -503,18 +527,35 @@ commands.add_command('tppos', 'Teleports you to a selected entity. (Admins only)
 commands.add_command('regulars', 'Prints a list of game regulars.', UserGroups.print_regulars)
 commands.add_command('regular', '<promote, demote>, <player> Change regular status of a player. (Admins only)', regular)
 commands.add_command('afk', 'Shows how long players have been afk.', afk)
-commands.add_command('follow', '<player> makes you follow the player. Use /unfollow to stop following a player.', follow)
+commands.add_command(
+    'follow',
+    '<player> makes you follow the player. Use /unfollow to stop following a player.',
+    follow
+)
 commands.add_command('unfollow', 'stops following a player.', unfollow)
-commands.add_command('tpmode', 'Toggles tp mode. When on place a ghost entity to teleport there (Admins only)', toggle_tp_mode)
+commands.add_command(
+    'tpmode',
+    'Toggles tp mode. When on place a ghost entity to teleport there (Admins only)',
+    toggle_tp_mode
+)
 commands.add_command('tempban', '<player> <minutes> Temporarily bans a player (Admins only)', tempban)
 commands.add_command('zoom', '<number> Sets your zoom.', zoom)
 commands.add_command('pool', 'Spawns a pool', pool)
 commands.add_command('find', '<player> shows an alert on the map where the player is located', find_player)
-commands.add_command('jail', '<player> disables all actions a player can perform except chatting. (Admins only)', jail_player)
-commands.add_command('unjail', '<player> restores ability for a player to perform actions. (Admins only)', Report.unjail_player)
+commands.add_command(
+    'jail',
+    '<player> disables all actions a player can perform except chatting. (Admins only)',
+    jail_player
+)
+commands.add_command(
+    'unjail',
+    '<player> restores ability for a player to perform actions. (Admins only)',
+    Report.unjail_player
+)
 commands.add_command('a', 'Admin chat. Messages all other admins (Admins only)', admin_chat)
 commands.add_command('report', '<griefer-name> <message> Reports a user to admins', Report.cmd_report)
 commands.add_command('show-rail-block', 'Toggles rail block visualisation', show_rail_block)
+commands.add_command('server-time', "Prints the server's time", server_time)
 
 --[[ commands.add_command('undo', '<player> undoes everything a player has done (Admins only)', undo)
 commands.add_command(
