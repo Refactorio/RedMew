@@ -9,15 +9,15 @@ local serialize = serpent.line
 local Command = {}
 
 local option_names = {
-    ['description'] = true,
-    ['arguments'] = true,
-    ['default_values'] = true,
-    ['admin_only'] = true,
-    ['debug_only'] = true,
-    ['allowed_by_server'] = true,
-    ['allowed_by_player'] = true,
-    ['log_command'] = true,
-    ['capture_excess_arguments'] = true,
+    ['description'] = 'A description of the command',
+    ['arguments'] = 'A table of arguments, example: {"foo", "bar"} would map the first 2 arguments to foo and bar',
+    ['default_values'] = 'A default value for a given argument when omitted, example: {bar = false}',
+    ['admin_only'] = 'Set this to true if only admins may execute this command',
+    ['debug_only'] = 'Set this to true if it should only be registered when _DEBUG is true',
+    ['allowed_by_server'] = 'Set to true if the server (host) may execute this command',
+    ['allowed_by_player'] = 'Set to false to disable players from executing this command',
+    ['log_command'] = 'Set to true to log commands. Always true when admin_only is enabled',
+    ['capture_excess_arguments'] = 'Allows the last argument to be the remaining text in the command',
 }
 
 ---Validates if there aren't any wrong fields in the options.
@@ -41,7 +41,7 @@ end
 ---Options table accepts the following structure: {
 ---    description = 'A description of the command',
 ---    arguments = {'foo', 'bar'}, -- maps arguments to these names in the given sequence
----    default_values = {'bar' = nil}, -- gives a default value to 'bar' when omitted
+---    default_values = {bar = false}, -- gives a default value to 'bar' when omitted
 ---    admin_only = true, -- defaults to false
 ---    debug_only = false, -- only registers it if _DEBUG is set to true when false
 ---    allowed_by_server = false -- lets the server execute this, defaults to false
