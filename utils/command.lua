@@ -85,7 +85,7 @@ function Command.add(command_name, options, callback)
         error(format("The command '%s' is not allowed by the server nor player, please enable at least one of them.", command_name))
     end
 
-    for index, argument_name in ipairs(arguments) do
+    for index, argument_name in pairs(arguments) do
         local argument_display = argument_name
         for default_value_name, _ in pairs(default_values) do
             if default_value_name == argument_name then
@@ -152,7 +152,7 @@ function Command.add(command_name, options, callback)
 
         local errors = {}
 
-        for index, argument in ipairs(arguments) do
+        for index, argument in pairs(arguments) do
             local parameter = from_command[index]
 
             if not parameter then
@@ -173,7 +173,7 @@ function Command.add(command_name, options, callback)
 
         local return_early = false
 
-        for _, error in ipairs(errors) do
+        for _, error in pairs(errors) do
             return_early = true
             print(error)
         end
