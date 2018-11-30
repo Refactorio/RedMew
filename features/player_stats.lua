@@ -14,12 +14,14 @@ local player_console_chats = {}
 local player_damage_taken = {}
 local player_damage_dealt = {}
 local player_deaths = {}
-local player_on_create_playtime = {}
+local player_previous_session_playtime = {}
+local player_other_map_playtime = {} -- all playtime on redmew maps excluding time on current map
 local total_players = {0}
 local total_train_kills = {0}
 local total_trees_mined = {0}
 local total_rocks_mined = {0}
 local total_robot_built_entities = {0}
+local total_player_built_entities = {0}
 
 local train_kill_causes = {
     'locomotive',
@@ -44,7 +46,9 @@ Global.register(
         player_damage_taken = player_damage_taken,
         player_damage_dealt = player_damage_dealt,
         total_robot_built_entities = total_robot_built_entities,
-        player_on_create_playtime = player_on_create_playtime,
+        player_other_map_playtime = player_other_map_playtime,
+        total_player_built_entities = total_player_built_entities,
+        player_previous_session_playtime = player_previous_session_playtime,
     },
     function(tbl)
         player_last_position = tbl.player_last_position
@@ -61,28 +65,18 @@ Global.register(
         player_damage_taken = tbl.player_damage_taken
         player_damage_dealt = tbl.player_damage_dealt
         total_robot_built_entities = tbl.total_robot_built_entities
-        player_on_create_playtime = tbl.player_on_create_playtime
+        player_other_map_playtime = tbl.player_other_map_playtime
+        total_player_built_entities = tbl.total_player_built_entities
+        player_previous_session_playtime = tbl.player_previous_session_playtime
     end
-)
-
-local callback =
-     Token.register(
-     function(data)
-         local key = data.key
-         local value = data.value -- will be nil if no data
-         local index = game.players[key].index
-
-         player_on_create_playtime[index] = tonumber(value) or 0
-     end
 )
 
 --- When the player first logs on, initialize their stats and pull their former playtime
 local function player_created(event)
     local index = event.player_index
-    local player = Game.get_player_by_index(index)
 
-    player_on_create_playtime[index] = 0
-    Server.try_get_data('total_playtime', player.name, callback)
+    player_previous_session_playtime[index] = 0
+    player_other_map_playtime[index] = 0
     player_last_position[index] = Game.get_player_by_index(index).position
     player_walk_distances[index] = 0
     player_coin_earned[index] = 0
@@ -94,15 +88,34 @@ local function player_created(event)
     total_players[1] = total_players[1] + 1
 end
 
+local callback =
+     Token.register(
+     function(data)
+         local key = data.key
+         local value = data.value -- will be nil if no data
+         local index = game.players[key].index
+         local total_server_playtime = tonumber(value) or 0
+         player_other_map_playtime[index] = total_server_playtime - player_previous_session_playtime[index]
+     end
+)
+
+--- Returns total playtime on redmew: playtime on other maps + playtime on current map
 local function calculate_player_total_playtime(index)
     local player = Game.get_player_by_index(index)
-    return player_on_create_playtime[index] + player.online_time
+    return (player_other_map_playtime[index] + player.online_time)
+end
+
+local function player_joined_game(event)
+    local index = event.player_index
+    local player = Game.get_player_by_index(index)
+    Server.try_get_data('total_playtime', player.name, callback)
 end
 
 local function player_left_game(event)
     local index = event.player_index
     local player = Game.get_player_by_index(index)
     Server.set_data('total_playtime', player.name, calculate_player_total_playtime(index))
+    player_previous_session_playtime[index] = player.online_time
 end
 
 local function get_cause_name(cause)
@@ -180,6 +193,10 @@ local function entity_damaged(event)
     end
 end
 
+local function player_built_entity()
+    total_player_built_entities[1] = total_player_built_entities[1] + 1
+end
+
 local function robot_built_entity()
     total_robot_built_entities[1] = total_robot_built_entities[1] + 1
 end
@@ -207,8 +224,11 @@ Event.add(defines.events.on_pre_player_mined_item, player_mined_item)
 Event.add(defines.events.on_player_crafted_item, player_crafted_item)
 Event.add(defines.events.on_console_chat, player_console_chat)
 Event.add(defines.events.on_entity_damaged, entity_damaged)
+Event.add(defines.events.on_built_entity, player_built_entity)
 Event.add(defines.events.on_robot_built_entity, robot_built_entity)
+Event.add(defines.events.on_player_joined_game, player_joined_game)
 Event.add(defines.events.on_player_left_game, player_left_game)
+
 Event.on_nth_tick(62, tick)
 
 local Public = {}
@@ -251,8 +271,8 @@ function Public.get_all_death_counts_by_casue(player_index)
 end
 
 -- Returns the amount of time the player spent on redmew before joining this map
-function Public.get_player_on_create_playtime(player_index)
-    return player_on_create_playtime[player_index]
+function Public.get_player_other_map_playtime(player_index)
+    return player_other_map_playtime[player_index]
 end
 
 -- Returns the amount of time the player spent on previous maps in addition to the current
