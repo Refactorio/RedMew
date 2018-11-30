@@ -111,16 +111,13 @@ function Command.add(command_name, options, callback)
 
     commands.add_command(command_name, argument_list .. description .. extra, function (command)
         local print -- custom print reference in case no player is present
-        local player_index = command.player_index
         local player = game.player
         local player_name = player and player.valid and player.name or '<server>'
         if not player or not player.valid then
-            print = function (message)
-                log(format('Trying to print message to player #%d, but not such player found: %s', player_index, message))
-            end
+            print = _G.print
 
             if not allowed_by_server then
-                log(format("The command '%s' is not allowed to be executed by the server.", command_name))
+                print(format("The command '%s' is not allowed to be executed by the server.", command_name))
                 return
             end
         else
@@ -196,11 +193,12 @@ function Command.add(command_name, options, callback)
         if not success then
             local serialized_arguments = serialize(named_arguments)
             if _DEBUG then
-                game.print(format("%s triggered an error running a command and has been logged: '%s' with arguments %s", player_name, command_name, serialized_arguments))
-                game.print(error)
-            else
-                print(format('There was an error running %s, it has been logged.', command_name))
+                print(format("%s triggered an error running a command and has been logged: '%s' with arguments %s", player_name, command_name, serialized_arguments))
+                print(error)
+                return
             end
+
+            print(format('There was an error running %s, it has been logged.', command_name))
             log(format("Error while running '%s' with arguments %s: %s", command_name, serialized_arguments, error))
         end
     end)
