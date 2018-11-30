@@ -18,10 +18,11 @@ local player_previous_session_playtime = {}
 local player_other_map_playtime = {} -- all playtime on redmew maps excluding time on current map
 local total_players = {0}
 local total_train_kills = {0}
-local total_trees_mined = {0}
-local total_rocks_mined = {0}
+local total_player_trees_mined = {0}
+local total_player_rocks_mined = {0}
 local total_robot_built_entities = {0}
 local total_player_built_entities = {0}
+local total_biter_kills = {0}
 
 local train_kill_causes = {
     'locomotive',
@@ -39,8 +40,8 @@ Global.register(
         player_deaths = player_deaths,
         total_players = total_players,
         total_train_kills = total_train_kills,
-        total_trees_mined = total_trees_mined,
-        total_rocks_mined = total_rocks_mined,
+        total_player_trees_mined = total_player_trees_mined,
+        total_player_rocks_mined = total_player_rocks_mined,
         player_crafted_items = player_crafted_items,
         player_console_chats = player_console_chats,
         player_damage_taken = player_damage_taken,
@@ -49,6 +50,7 @@ Global.register(
         player_other_map_playtime = player_other_map_playtime,
         total_player_built_entities = total_player_built_entities,
         player_previous_session_playtime = player_previous_session_playtime,
+        total_biter_kills = total_biter_kills,
     },
     function(tbl)
         player_last_position = tbl.player_last_position
@@ -58,8 +60,8 @@ Global.register(
         player_deaths = tbl.player_deaths
         total_players = tbl.total_players
         total_train_kills = tbl.total_train_kills
-        total_trees_mined = tbl.total_trees_mined
-        total_rocks_mined = tbl.total_rocks_mined
+        total_player_trees_mined = tbl.total_player_trees_mined
+        total_player_rocks_mined = tbl.total_player_rocks_mined
         player_crafted_items = tbl.player_crafted_items
         player_console_chats = tbl.player_console_chats
         player_damage_taken = tbl.player_damage_taken
@@ -68,6 +70,7 @@ Global.register(
         player_other_map_playtime = tbl.player_other_map_playtime
         total_player_built_entities = tbl.total_player_built_entities
         player_previous_session_playtime = tbl.player_previous_session_playtime
+        total_biter_kills = tbl.total_biter_kills
     end
 )
 
@@ -161,11 +164,11 @@ end
 
 local function player_mined_item(event)
     if event.entity.type == 'simple-entity' then -- Cheap check for rock, may have other side effects
-        total_rocks_mined[1] = total_rocks_mined[1] + 1
+        total_player_rocks_mined[1] = total_player_rocks_mined[1] + 1
         return
     end
     if event.entity.type == 'tree' then
-        total_trees_mined[1] = total_trees_mined[1] + 1
+        total_player_trees_mined[1] = total_player_trees_mined[1] + 1
     end
 end
 
@@ -201,6 +204,12 @@ local function robot_built_entity()
     total_robot_built_entities[1] = total_robot_built_entities[1] + 1
 end
 
+local function biter_kill_counter(event)
+    if event.entity.force.name == 'enemy' then
+        total_biter_kills[1] = total_biter_kills[1] + 1
+    end
+end
+
 local function tick()
     for _, p in ipairs(game.connected_players) do
         if (p.afk_time < 30 or p.walking_state.walking) and p.vehicle == nil then
@@ -227,6 +236,7 @@ Event.add(defines.events.on_entity_damaged, entity_damaged)
 Event.add(defines.events.on_built_entity, player_built_entity)
 Event.add(defines.events.on_robot_built_entity, robot_built_entity)
 Event.add(defines.events.on_player_joined_game, player_joined_game)
+Event.add(defines.events.on_entity_died, biter_kill_counter)
 Event.add(defines.events.on_player_left_game, player_left_game)
 
 Event.on_nth_tick(62, tick)
@@ -288,12 +298,12 @@ function Public.get_total_train_kills()
     return total_train_kills[1]
 end
 
-function Public.get_total_trees_mined()
-    return total_trees_mined[1]
+function Public.get_total_player_trees_mined()
+    return total_player_trees_mined[1]
 end
 
-function Public.get_total_rocks_mined()
-    return total_rocks_mined[1]
+function Public.get_total_player_rocks_mined()
+    return total_player_rocks_mined[1]
 end
 
 function Public.get_player_crafted_item(player_index)
@@ -314,6 +324,14 @@ end
 
 function Public.get_total_robot_built_entities()
     return total_robot_built_entities[1]
+end
+
+function Public.get_total_player_built_entities()
+    return total_player_built_entities[1]
+end
+
+function Public.get_total_biter_kills()
+    return total_biter_kills[1]
 end
 
 return Public
