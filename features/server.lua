@@ -10,7 +10,7 @@ function print(str)
     raw_print('[PRINT] ' .. str)
 end
 
-local server_time = {secs = 0, tick = 0}
+local server_time = {secs = nil, tick = 0}
 
 Global.register(
     server_time,
@@ -457,20 +457,26 @@ function Public.set_time(secs)
     server_time.tick = game.tick
 end
 
---- Gets a table {secs:number, tick:number} with secs being the unix epoch timestamp
+--- Gets a table {secs:number?, tick:number} with secs being the unix epoch timestamp
 -- for the server time and ticks the number of game ticks it was set
 -- @return table
 function Public.get_time_data_raw()
     return server_time
 end
 
---- Gets an estimate of the current server time as a unix epoch timestamp
+--- Gets an estimate of the current server time as a unix epoch timestamp.
+-- If the server time has not been set returns nil.
 -- The estimate may be slightly off if within the last minute the game has been paused, saving or overwise,
 -- or the game speed has been changed.
--- @return number
+-- @return number?
 function Public.get_current_time()
+    local secs = server_time.secs
+    if secs == nil then
+        return nil
+    end
+
     local diff = game.tick - server_time.tick
-    return server_time.secs + diff / game.speed
+    return math.floor(secs + diff / game.speed / 60)
 end
 
 return Public
