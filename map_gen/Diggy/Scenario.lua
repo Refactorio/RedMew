@@ -1,6 +1,5 @@
 -- dependencies
 local Config = require 'map_gen.Diggy.Config'
-local Debug = require 'map_gen.Diggy.Debug'
 local ScenarioInfo = require 'features.gui.info'
 local Event = require 'utils.event'
 
@@ -36,10 +35,8 @@ local function each_enabled_feature(if_enabled)
     end
 end
 
---[[--
-    Register the events required to initialize the scenario.
-]]
-function Scenario.register(debug, cheats)
+---Register the events required to initialize the scenario.
+function Scenario.register()
     if global.diggy_scenario_registered then
         error('Cannot register the Diggy scenario multiple times.')
         return
@@ -48,14 +45,6 @@ function Scenario.register(debug, cheats)
     global.config.player_list.enable_coin_col = false
     if global.config then
         global.config.fish_market.enable = nil
-    end
-
-    if debug then
-        Debug.enable_debug()
-    end
-
-    if cheats then
-        Debug.enable_cheats()
     end
 
     local extra_map_info = ''

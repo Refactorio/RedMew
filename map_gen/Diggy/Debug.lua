@@ -1,4 +1,5 @@
 -- dependencies
+local BaseDebug = require 'utils.debug'
 local min = math.min
 local max = math.max
 local floor = math.floor
@@ -10,76 +11,19 @@ local Debug = {}
 local default_base_color = {r = 1, g = 1, b = 1}
 local default_delta_color = {r = 0, g = 0, b = 0}
 
--- private state
-local debug = false
-local cheats = false
-
-function Debug.enable_debug()
-    debug = true
-end
-
-function Debug.disable_debug()
-    debug = false
-end
-
-function Debug.enable_cheats()
-    cheats = true
-end
-
-function Debug.disable_cheats()
-    cheats = true
-end
-
-global.message_count = 0
-
---[[--
-    Shows the given message if debug is enabled.
-
-    @param message string
-]]
+---@deprecated use 'utils.debug'.print instead
 function Debug.print(message)
-    if type(message) ~= 'string' and type(message) ~= 'number'  and type(message) ~= 'boolean' then message = type(message) end
-    global.message_count = global.message_count + 1
-    if (debug) then
-        game.print('[' .. global.message_count .. '] ' .. tostring(message))
-        log('[' .. global.message_count .. '] ' .. tostring(message))
-    end
+    BaseDebug.print(message)
 end
 
---[[--
-    Shows the given message with serpent enabled, if debug is enabled.
-
-    @param message string
-]]
-function Debug.print_serpent(message)
-    Debug.print(serpent.line(message))
-end
-
---[[--
-    Shows the given message if debug is on.
-
-    @param x number
-    @param y number
-    @param message string
-]]
+---@deprecated use 'utils.debug'.print_position instead
 function Debug.print_position(position, message)
-    message = message or ''
-    if type(message) ~= 'string' and type(message) ~= 'number'  and type(message) ~= 'boolean' then message = type(message) end
-    global.message_count = global.message_count + 1
-    if (debug) then
-        game.print('[' .. global.message_count .. '] {x=' .. position.x .. ', y=' .. position.y .. '} ' .. tostring(message))
-    end
+    BaseDebug.print_position(position, message)
 end
 
---[[--
-    Executes the given callback if cheating is enabled.
-
-    @param callback function
-]]
+---@deprecated use 'utils.debug'.cheat instead
 function Debug.cheat(callback)
-    if (cheats) then
-        callback()
-    end
+    BaseDebug.cheat(callback)
 end
 
 --[[--

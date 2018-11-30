@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Internal
 - [Core] Added a new command wrapper #443
 - [Core] Overhaul utils and add minor functionality #464
+- [Core] Added a new command wrapper to reduce boilerplate #443
 
 ## v1.1.0 - Persian Longhair
 
