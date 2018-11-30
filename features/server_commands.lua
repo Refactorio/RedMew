@@ -25,4 +25,6 @@ function ServerCommands.server_started()
     script.raise_event(Server.events.on_server_started, {})
 end
 
+ServerCommands.set_time = Server.set_time
+
 return ServerCommands
