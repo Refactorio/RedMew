@@ -51,13 +51,13 @@ local gain_xp_color = {r = 144, g = 202, b = 249}
 local lose_xp_color = {r = 255, g = 0, b = 0}
 local unlocked_color = {r = 255, g = 255, b = 255}
 local locked_color = {r = 127, g = 127, b = 127}
+local table_column_layout = {type = 'table', column_count = 2}
 
 local level_up_formula = (function (level_reached)
-    local Config = require 'map_gen.Diggy.Config'.features.Experience
-    local difficulty_scale = floor(Config.difficulty_scale)
-    local level_fine_tune = floor(Config.xp_fine_tune)
-    local start_value = (floor(Config.first_lvl_xp) * 0.5)
-    local precision = (floor(Config.cost_precision))
+    local difficulty_scale = floor(config.difficulty_scale)
+    local level_fine_tune = floor(config.xp_fine_tune)
+    local start_value = (floor(config.first_lvl_xp) * 0.5)
+    local precision = (floor(config.cost_precision))
     local function formula(level)
         return (
             difficulty_scale * (level) ^ 3
@@ -69,7 +69,7 @@ local level_up_formula = (function (level_reached)
     end
     local value = formula(level_reached + 1)
     local lower_value = formula(level_reached)
-    value = value - (value % (10 ^ (floor(log(value,10)) - precision)))
+    value = value - (value % (10 ^ (floor(log(value, 10)) - precision)))
     if lower_value == 0 then
         return value - lower_value
     end
@@ -155,7 +155,7 @@ function Experience.update_health_bonus(force, level_up)
     force.character_health_bonus = old_modifier + health_bonus.active_modifier
 end
 
--- declaration of variables to prevent table lookups @see Experience.register
+-- declaration of variables to prevent table look ups @see Experience.register
 local sand_rock_xp
 local rock_huge_xp
 
@@ -320,7 +320,7 @@ local function redraw_heading(data, header)
     local header_caption = (head_condition) and 'Reward Item' or 'Reward Buff'
     Gui.clear(frame)
 
-    local heading_table = frame.add({type = 'table', column_count = 2})
+    local heading_table = frame.add(table_column_layout)
     apply_heading_style(heading_table.add({type = 'label', caption = 'Requirement'}).style, 100)
     apply_heading_style(heading_table.add({type = 'label', caption = header_caption}).style, 220)
 end
@@ -357,7 +357,7 @@ local function redraw_table(data)
             color = locked_color
         end
 
-        local list = experience_scroll_pane.add({type = 'table', column_count = 2})
+        local list = experience_scroll_pane.add(table_column_layout)
 
         local level_caption = ''
         if first_item_for_level then
@@ -389,7 +389,7 @@ local function redraw_buff(data)
 
     local all_levels_shown = false
     for name, effects in pairs(config.buffs) do
-        local list = buff_scroll_pane.add({type = 'table', column_count = 2})
+        local list = buff_scroll_pane.add(table_column_layout)
         list.style.horizontal_spacing = 16
 
         local level_caption = ''
@@ -506,7 +506,6 @@ function Experience.register(cfg)
     ForceControlBuilder.register_on_every_level(function (level_reached, force)
         force.print(string_format('%s Leveled up to %d!', '## - ', level_reached))
         force.play_sound{path='utility/new_objective', volume_modifier = 1 }
-        local Experience = require 'map_gen.Diggy.Feature.Experience'
         Experience.update_inventory_slots(force, level_reached)
         Experience.update_mining_speed(force, level_reached)
         Experience.update_health_bonus(force, level_reached)
