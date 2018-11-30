@@ -1,7 +1,6 @@
 require 'utils.table'
 
 local insert = table.insert
-local size = table.size
 local format = string.format
 local next = next
 local serialize = serpent.line
@@ -68,7 +67,7 @@ function Command.add(command_name, options, callback)
     local allowed_by_server = options.allowed_by_server or false
     local allowed_by_player = options.allowed_by_player
     local log_command = options.log_command or options.admin_only or false
-    local argument_list_size = size(arguments)
+    local argument_list_size = table_size(arguments)
     local argument_list = ''
 
     assert_existing_options(command_name, options)
