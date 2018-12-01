@@ -318,26 +318,25 @@ local Config = {
             -- chance of spawning aliens when mining
             alien_probability = 0.05,
 
-            -- spawns the following units when they die. To disable change it to:
-            --hail_hydra = nil,
+            -- spawns the following units when they die. To disable, remove the contents
             -- any non-rounded number will turn into a chance to spawn an additional alien
             -- example: 2.5 would spawn 2 for sure and 50% chance to spawn one additionally
             hail_hydra = {
                 -- spitters
-                ['small-spitter'] = {['small-worm-turret'] = 0.4},
-                ['medium-spitter'] = {['medium-worm-turret'] = 0.4},
-                ['big-spitter'] = {['big-worm-turret'] = 0.4},
-                ['behemoth-spitter'] = {['big-worm-turret'] = 0.6},
+                ['small-spitter'] = {['small-worm-turret'] = 0.2},
+                ['medium-spitter'] = {['medium-worm-turret'] = 0.2},
+                ['big-spitter'] = {['big-worm-turret'] = 0.2},
+                ['behemoth-spitter'] = {['big-worm-turret'] = 0.4},
 
                 -- biters
-                ['medium-biter'] = {['small-biter'] = 1.7},
-                ['big-biter'] = {['medium-biter'] = 1.7},
-                ['behemoth-biter'] = {['big-biter'] = 1.7},
+                ['medium-biter'] = {['small-biter'] = 1.2},
+                ['big-biter'] = {['medium-biter'] = 1.2},
+                ['behemoth-biter'] = {['big-biter'] = 1.2},
 
                 -- worms
                 ['small-worm-turret'] = {['small-biter'] = 2.5},
-                ['medium-worm-turret'] = {['small-biter'] = 2.5, ['medium-biter'] = 0.5},
-                ['big-worm-turret'] = {['small-biter'] = 3.5, ['medium-biter'] = 1, ['big-biter'] = 0.5},
+                ['medium-worm-turret'] = {['small-biter'] = 2.5, ['medium-biter'] = 0.6},
+                ['big-worm-turret'] = {['small-biter'] = 3.8, ['medium-biter'] = 1.3, ['big-biter'] = 1.1},
             },
         },
 
