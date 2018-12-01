@@ -261,11 +261,12 @@ local function on_entity_died (event)
                 elseif entity_name == 'rock-huge' then
                     exp = floor((rock_huge_xp + level * 0.2) * 0.5)
                 end
+                floating_text_position = entity.position
             end
         end
 
         if exp > 0 then
-            Game.print_floating_text(entity.surface, entity.position, format('+%d XP', exp), gain_xp_color)
+            Game.print_floating_text(entity.surface, floating_text_position, format('+%d XP', exp), gain_xp_color)
             ForceControl.add_experience(force, exp)
         end
 
