@@ -498,6 +498,36 @@ if _DEBUG then
     commands.add_command('all-tech', 'researches all technologies (debug only)', all_tech)
 end
 
+commands.add_command(
+    'sc',
+    'silent-command (Admins only)',
+    function(cmd)
+        local player = game.player
+        local p
+        if player then
+            p = player.print
+            if not player.admin then
+                p('Only admins can use this command.')
+                return
+            end
+        else
+            p = print
+        end
+
+        local func, err = loadstring(cmd.parameter)
+        if not func then
+            p(err)
+            return
+        end
+
+        local _, err2 = pcall(func)
+        if err2 then
+            local i = err2:find('\n')
+            p(err2:sub(1, i))
+        end
+    end
+)
+
 --- Enables cheat mode (free pocket crafting) for player
 commands.add_command(
     'hax',
