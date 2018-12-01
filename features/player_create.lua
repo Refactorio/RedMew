@@ -15,7 +15,7 @@ local function player_created(event)
     player.insert {name = 'iron-plate', count = 16}
 
     player.print('Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord')
-    player.print('Click the question mark in the top left corner for server infomation and map details.')
+    player.print('Click the question mark in the top left corner for server information and map details.')
     player.print(table.get_random_weighted(join_msgs, 1, 2))
 
     local gui = player.gui
