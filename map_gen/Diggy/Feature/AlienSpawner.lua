@@ -43,7 +43,7 @@ end, function(tbl)
     alien_size_chart = tbl.alien_size_chart
 end)
 
-local rocks_to_find = {'sand-rock-big', 'rock-huge'}
+local rocks_to_find = {'sand-rock-big', 'rock-huge', 'rock-big'}
 
 ---Triggers mining at the collision_box of the alien, to free it
 local do_alien_mining = Token.register(function(params)

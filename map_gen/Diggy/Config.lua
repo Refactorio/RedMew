@@ -110,6 +110,7 @@ local Config = {
                 ['market'] = 9,
                 ['stone-wall'] = 3,
                 ['sand-rock-big'] = 2,
+                ['rock-big'] = 2,
                 ['rock-huge'] = 2.5,
                 ['out-of-map'] = 1,
                 ['stone-path'] = 0.03,
@@ -118,9 +119,7 @@ local Config = {
                 ['refined-concrete'] = 0.06,
             },
             cracking_sounds = {
-                'CRACK',
-                'KRRRR',
-                'R U N',
+                ' R U NY O UF O O L S !',
             }
         },
 
@@ -362,6 +361,7 @@ local Config = {
 
             XP = {
                 ['sand-rock-big']             = 5,
+                ['rock-big']                  = 5,
                 ['rock-huge']                 = 10,
                 ['rocket_launch']             = 0.01,     -- XP reward in percentage of total experience when a rocket launches (Diggy default: 0.01 which equals 1%)
                 ['science-pack-1']            = 4,

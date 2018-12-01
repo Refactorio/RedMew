@@ -155,4 +155,12 @@ function Template.resources(surface, resources)
     end
 end
 
+Template.diggy_rocks = {'sand-rock-big', 'rock-big', 'rock-big'}
+
+---Returns true if the entity name is that of a diggy rock.
+---@param entity_name string
+function Template.is_diggy_rock(entity_name)
+    return entity_name == 'sand-rock-big' or entity_name == 'rock-big' or entity_name == 'rock-huge'
+end
+
 return Template

@@ -58,7 +58,7 @@ function StartingZone.register(config)
                     end
 
                     if (distance > rock_range) then
-                        insert(rocks, {name = 'sand-rock-big', position = {x = x, y = y}})
+                        insert(rocks, {name = 'rock-big', position = {x = x, y = y}})
                     end
 
                     -- hack to avoid starting area from collapsing
