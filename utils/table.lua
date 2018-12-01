@@ -143,3 +143,7 @@ table.binary_search =
 
     return -1 - lower -- ~lower
 end
+
+table.inspect = require'inspect'
+
+table.size = table_size
