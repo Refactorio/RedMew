@@ -206,7 +206,7 @@ local function value(base, mult, pow)
 end
 
 -- removes spawners when called
-local function no_spawners(x, y, world, tile)
+local function no_spawners(_, _, world, tile)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {force = 'enemy', name = names, position = {world.x, world.y}}
@@ -217,7 +217,7 @@ local function no_spawners(x, y, world, tile)
     return tile
 end
 
-local function no_resources(x, y, world, tile)
+local function no_resources(_, _, world, tile)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
