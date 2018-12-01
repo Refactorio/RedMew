@@ -155,7 +155,7 @@ function Template.resources(surface, resources)
     end
 end
 
-Template.diggy_rocks = {'sand-rock-big', 'rock-big', 'rock-big'}
+Template.diggy_rocks = {'sand-rock-big', 'rock-big', 'rock-huge'}
 
 ---Returns true if the entity name is that of a diggy rock.
 ---@param entity_name string
