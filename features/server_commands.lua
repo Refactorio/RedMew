@@ -26,5 +26,6 @@ function ServerCommands.server_started()
 end
 
 ServerCommands.set_time = Server.set_time
+ServerCommands.query_online_players = Server.query_online_players
 
 return ServerCommands

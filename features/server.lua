@@ -36,6 +36,7 @@ local data_get_all_tag = '[DATA-GET-ALL]'
 local data_tracked_tag = '[DATA-TRACKED]'
 local ban_sync_tag = '[BAN-SYNC]'
 local unbanned_sync_tag = '[UNBANNED-SYNC]'
+local query_players_tag = '[QUERY-PLAYERS]'
 
 Public.raw_print = raw_print
 
@@ -458,7 +459,7 @@ function Public.set_time(secs)
 end
 
 --- Gets a table {secs:number?, tick:number} with secs being the unix epoch timestamp
--- for the server time and ticks the number of game ticks it was set
+-- for the server time and ticks the number of game ticks ago it was set.
 -- @return table
 function Public.get_time_data_raw()
     return server_time
@@ -477,6 +478,27 @@ function Public.get_current_time()
 
     local diff = game.tick - server_time.tick
     return math.floor(secs + diff / game.speed / 60)
+end
+
+--- Called be the web server to re sync which players are online.
+function Public.query_online_players()
+    local message = {query_players_tag, '['}
+
+    for _, p in ipairs(game.connected_players) do
+        table.insert(message, '"')
+        local name = escape(p.name)
+        table.insert(message, name)
+        table.insert(message, '",')
+    end
+
+    if message[#message] == '",' then
+        message[#message] = '"'
+    end
+
+    table.insert(message, ']')
+
+    message = table.concat(message)
+    raw_print(message)
 end
 
 return Public
