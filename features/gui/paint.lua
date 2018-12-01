@@ -125,7 +125,7 @@ local function toggle(event)
     local main_frame = left[main_frame_name]
 
     if main_frame and main_frame.valid then
-        Gui.remove_data_recursivly(main_frame)
+        Gui.remove_data_recursively(main_frame)
         main_frame.destroy()
     else
         main_frame =
@@ -199,7 +199,7 @@ Gui.on_click(
         filter_button.sprite = element.sprite
         filter_button.tooltip = element.tooltip
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 )
@@ -208,7 +208,7 @@ Gui.on_click(
     filter_table_close_button_name,
     function(event)
         local frame = Gui.get_data(event.element)
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 )
@@ -217,7 +217,7 @@ Gui.on_custom_close(
     filters_table_name,
     function(event)
         local element = event.element
-        Gui.remove_data_recursivly(element)
+        Gui.remove_data_recursively(element)
         element.destroy()
     end
 )

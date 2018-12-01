@@ -61,7 +61,7 @@ Gui.on_click(
     function(event)
         local frame = Gui.get_data(event.element)
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 )
