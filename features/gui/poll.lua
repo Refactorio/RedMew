@@ -6,6 +6,7 @@ local Game = require 'utils.game'
 local math = require 'utils.math'
 local Utils = require 'utils.core'
 local Server = require 'features.server'
+local insert = table.insert
 
 local default_poll_duration = 300 * 60 -- in ticks
 local duration_max = 3600 -- in seconds
@@ -114,36 +115,36 @@ local function send_poll_result_to_discord(poll)
 
     local created_by_player = poll.created_by
     if created_by_player and created_by_player.valid then
-        table.insert(result, ' Created by ')
-        table.insert(result, created_by_player.name)
+        insert(result, ' Created by ')
+        insert(result, created_by_player.name)
     end
 
     local edited_by_players = poll.edited_by
     if next(edited_by_players) then
-        table.insert(result, ' Edited by ')
+        insert(result, ' Edited by ')
         for pi, _ in pairs(edited_by_players) do
             local p = game.players[pi]
             if p and p.valid then
-                table.insert(result, p.name)
-                table.insert(result, ', ')
+                insert(result, p.name)
+                insert(result, ', ')
             end
         end
         table.remove(result)
     end
 
-    table.insert(result, '\\n**Question: ')
-    table.insert(result, poll.question)
-    table.insert(result, '**\\n')
+    insert(result, '\\n**Question: ')
+    insert(result, poll.question)
+    insert(result, '**\\n')
 
     local answers = poll.answers
     local answers_count = #answers
-    for i, a in ipairs(answers) do
-        table.insert(result, '[')
-        table.insert(result, a.voted_count)
-        table.insert(result, '] - ')
-        table.insert(result, a.text)
+    for i, a in pairs(answers) do
+        insert(result, '[')
+        insert(result, a.voted_count)
+        insert(result, '] - ')
+        insert(result, a.text)
         if i ~= answers_count then
-            table.insert(result, '\\n')
+            insert(result, '\\n')
         end
     end
 
@@ -158,7 +159,7 @@ local function redraw_poll_viewer_content(data)
     local player = poll_viewer_content.gui.player
 
     data.vote_buttons = nil
-    Gui.remove_data_recursivly(poll_viewer_content)
+    Gui.remove_data_recursively(poll_viewer_content)
     poll_viewer_content.clear()
 
     local poll = polls[poll_index]
@@ -170,13 +171,13 @@ local function redraw_poll_viewer_content(data)
     local voters = poll.voters
 
     local tooltips = {}
-    for _, a in ipairs(answers) do
+    for _, a in pairs(answers) do
         tooltips[a] = {}
     end
 
     for player_index, answer in pairs(voters) do
         local p = Game.get_player_by_index(player_index)
-        table.insert(tooltips[answer], p.name)
+        insert(tooltips[answer], p.name)
     end
 
     for a, t in pairs(tooltips) do
@@ -204,8 +205,8 @@ local function redraw_poll_viewer_content(data)
         for pi, _ in pairs(edited_by_players) do
             local p = Game.get_player_by_index(pi)
             if p and p.valid then
-                table.insert(edit_names, p.name)
-                table.insert(edit_names, ', ')
+                insert(edit_names, p.name)
+                insert(edit_names, ', ')
             end
         end
 
@@ -242,7 +243,7 @@ local function redraw_poll_viewer_content(data)
 
     local answer = voters[player.index]
     local vote_buttons = {}
-    for i, a in ipairs(answers) do
+    for i, a in pairs(answers) do
         local vote_button_flow = grid.add {type = 'flow'}
         local vote_button =
             vote_button_flow.add {
@@ -391,7 +392,7 @@ local function remove_create_poll_frame(create_poll_frame, player_index)
     data.edit_mode = nil
     player_create_poll_data[player_index] = data
 
-    Gui.remove_data_recursivly(create_poll_frame)
+    Gui.remove_data_recursively(create_poll_frame)
     create_poll_frame.destroy()
 end
 
@@ -400,7 +401,7 @@ local function remove_main_frame(main_frame, left, player)
     local data = Gui.get_data(main_frame)
     player_poll_index[player_index] = data.poll_index
 
-    Gui.remove_data_recursivly(main_frame)
+    Gui.remove_data_recursively(main_frame)
     main_frame.destroy()
 
     local create_poll_frame = left[create_poll_frame_name]
@@ -440,7 +441,7 @@ local function redraw_create_poll_content(data)
     local grid = data.grid
     local answers = data.answers
 
-    Gui.remove_data_recursivly(grid)
+    Gui.remove_data_recursively(grid)
     grid.clear()
 
     grid.add {type = 'flow'}
@@ -481,7 +482,7 @@ local function redraw_create_poll_content(data)
     Gui.set_data(question_textfield, data)
 
     local edit_mode = data.edit_mode
-    for count, answer in ipairs(answers) do
+    for count, answer in pairs(answers) do
         local delete_flow = grid.add {type = 'flow'}
 
         local delete_button
@@ -538,7 +539,7 @@ local function draw_create_poll_frame(parent, player, previous_data)
         question = previous_data.question
 
         answers = {}
-        for i, a in ipairs(previous_data.answers) do
+        for i, a in pairs(previous_data.answers) do
             answers[i] = {text = a.text, source = a}
         end
 
@@ -624,7 +625,7 @@ local function show_new_poll(poll_data)
     local message =
         table.concat {poll_data.created_by.name, ' has created a new Poll #', poll_data.id, ': ', poll_data.question}
 
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local left = p.gui.left
         local frame = left[main_frame_name]
         if no_notify_players[p.index] then
@@ -660,7 +661,7 @@ local function create_poll(event)
     end
 
     local answers = {}
-    for _, a in ipairs(data.answers) do
+    for _, a in pairs(data.answers) do
         local text = a.text
         if text:find('%S') then
             local index = #answers + 1
@@ -697,12 +698,12 @@ local function create_poll(event)
         edited_by = {}
     }
 
-    table.insert(polls, poll_data)
+    insert(polls, poll_data)
 
     show_new_poll(poll_data)
     send_poll_result_to_discord(poll_data)
 
-    Gui.remove_data_recursivly(frame)
+    Gui.remove_data_recursively(frame)
     frame.destroy()
 end
 
@@ -714,7 +715,7 @@ local function update_vote(voters, answer, direction)
     for pi, a in pairs(voters) do
         if a == answer then
             local player = Game.get_player_by_index(pi)
-            table.insert(tooltip, player.name)
+            insert(tooltip, player.name)
         end
     end
 
@@ -751,7 +752,7 @@ local function vote(event)
 
     local vote_button_count, vote_button_tooltip = update_vote(voters, answer, 1)
 
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local frame = p.gui.left[main_frame_name]
         if frame and frame.valid then
             local data = Gui.get_data(frame)
@@ -803,7 +804,7 @@ local function player_joined(event)
 end
 
 local function tick()
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local frame = p.gui.left[main_frame_name]
         if frame and frame.valid then
             local data = Gui.get_data(frame)
@@ -812,7 +813,7 @@ local function tick()
                 local poll_enabled = do_remaining_time(poll, data.remaining_time_label)
 
                 if not poll_enabled then
-                    for _, v in ipairs(data.vote_buttons) do
+                    for _, v in pairs(data.vote_buttons) do
                         v.enabled = poll_enabled
                     end
                 end
@@ -848,7 +849,7 @@ Gui.on_click(
         local frame = left[create_poll_frame_name]
 
         if frame and frame.valid then
-            Gui.remove_data_recursivly(frame)
+            Gui.remove_data_recursively(frame)
             frame.destroy()
         end
 
@@ -912,7 +913,7 @@ Gui.on_click(
     function(event)
         local data = Gui.get_data(event.element)
 
-        table.insert(data.answers, {text = ''})
+        insert(data.answers, {text = ''})
         redraw_create_poll_content(data)
     end
 )
@@ -955,13 +956,13 @@ Gui.on_click(
         local frame = data.frame
         local poll = data.previous_data
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
 
         player_create_poll_data[player.index] = nil
 
         local removed_index
-        for i, p in ipairs(polls) do
+        for i, p in pairs(polls) do
             if p == poll then
                 table.remove(polls, i)
                 removed_index = i
@@ -975,7 +976,7 @@ Gui.on_click(
 
         local message = table.concat {player.name, ' has deleted Poll #', poll.id, ': ', poll.question}
 
-        for _, p in ipairs(game.connected_players) do
+        for _, p in pairs(game.connected_players) do
             if not no_notify_players[p.index] then
                 p.print(message)
             end
@@ -1011,7 +1012,7 @@ Gui.on_click(
 
         local new_answer_set = {}
         local new_answers = {}
-        for _, a in ipairs(data.answers) do
+        for _, a in pairs(data.answers) do
             if a.text:find('%S') then
                 local source = a.source
                 local index = #new_answers + 1
@@ -1031,7 +1032,7 @@ Gui.on_click(
             return
         end
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
 
         local player_index = player.index
@@ -1040,7 +1041,7 @@ Gui.on_click(
 
         local old_answers = poll.answers
         local voters = poll.voters
-        for _, a in ipairs(old_answers) do
+        for _, a in pairs(old_answers) do
             if not new_answer_set[a] then
                 for pi, a2 in pairs(voters) do
                     if a == a2 then
@@ -1069,7 +1070,7 @@ Gui.on_click(
         poll.duration = duration
 
         local poll_index
-        for i, p in ipairs(polls) do
+        for i, p in pairs(polls) do
             if poll == p then
                 poll_index = i
                 break
@@ -1077,13 +1078,13 @@ Gui.on_click(
         end
 
         if not poll_index then
-            table.insert(polls, poll)
+            insert(polls, poll)
             poll_index = #polls
         end
 
         local message = table.concat {player.name, ' has edited Poll #', poll.id, ': ', poll.question}
 
-        for _, p in ipairs(game.connected_players) do
+        for _, p in pairs(game.connected_players) do
             local main_frame = p.gui.left[main_frame_name]
 
             if no_notify_players[p.index] then
@@ -1179,7 +1180,7 @@ function Class.validate(data)
         return false, 'answer array must contain at least one entry.'
     end
 
-    for _, a in ipairs(answers) do
+    for _, a in pairs(answers) do
         if type(a) ~= 'string' or a == '' then
             return false, 'answers must be a non empty string.'
         end
@@ -1205,9 +1206,9 @@ function Class.poll(data)
     end
 
     local answers = {}
-    for index, a in ipairs(data.answers) do
+    for index, a in pairs(data.answers) do
         if a ~= '' then
-            table.insert(answers, {text = a, index = index, voted_count = 0})
+            insert(answers, {text = a, index = index, voted_count = 0})
         end
     end
 
@@ -1240,7 +1241,7 @@ function Class.poll(data)
         edited_by = {}
     }
 
-    table.insert(polls, poll_data)
+    insert(polls, poll_data)
 
     show_new_poll(poll_data)
     send_poll_result_to_discord(poll_data)
@@ -1253,19 +1254,19 @@ function Class.poll_result(id)
         return 'poll-id must be a number'
     end
 
-    for _, poll_data in ipairs(polls) do
+    for _, poll_data in pairs(polls) do
         if poll_data.id == id then
             local result = {'Question: ', poll_data.question, ' Answers: '}
             local answers = poll_data.answers
             local answers_count = #answers
-            for i, a in ipairs(answers) do
-                table.insert(result, '( [')
-                table.insert(result, a.voted_count)
-                table.insert(result, '] - ')
-                table.insert(result, a.text)
-                table.insert(result, ' )')
+            for i, a in pairs(answers) do
+                insert(result, '( [')
+                insert(result, a.voted_count)
+                insert(result, '] - ')
+                insert(result, a.text)
+                insert(result, ' )')
                 if i ~= answers_count then
-                    table.insert(result, ', ')
+                    insert(result, ', ')
                 end
             end
 
@@ -1324,7 +1325,7 @@ function Class.send_poll_result_to_discord(id)
         return
     end
 
-    for _, poll_data in ipairs(polls) do
+    for _, poll_data in pairs(polls) do
         if poll_data.id == id then
             send_poll_result_to_discord(poll_data)
             return

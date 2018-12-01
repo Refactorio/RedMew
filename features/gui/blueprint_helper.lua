@@ -333,13 +333,13 @@ local function toggle(event)
             p_filters[i].to = f.to.tooltip
         end
 
-        Gui.remove_data_recursivly(main_frame)
+        Gui.remove_data_recursively(main_frame)
         main_frame.destroy()
 
         if player.opened_gui_type == defines.gui_type.custom then
             local opened = player.opened
             if opened and opened.valid and opened.name == filters_table_name then
-                Gui.remove_data_recursivly(opened)
+                Gui.remove_data_recursively(opened)
                 opened.destroy()
             end
         end
@@ -495,7 +495,7 @@ Gui.on_click(
             filter_button.tooltip = element.tooltip
         end
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 )
@@ -505,7 +505,7 @@ Gui.on_click(
     function(event)
         local frame = Gui.get_data(event.element)
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 )
@@ -519,7 +519,7 @@ Gui.on_click(
         filter_button.sprite = 'utility/pump_cannot_connect_icon'
         filter_button.tooltip = ''
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 )
@@ -567,7 +567,7 @@ Gui.on_custom_close(
     filters_table_name,
     function(event)
         local element = event.element
-        Gui.remove_data_recursivly(element)
+        Gui.remove_data_recursively(element)
         element.destroy()
     end
 )
