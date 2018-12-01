@@ -1,4 +1,4 @@
-local market_item = MARKET_ITEM or 'coin'
+local market_item = global.config.fish_market.market_item or 'coin'
 
 return {
     market_item = market_item,
