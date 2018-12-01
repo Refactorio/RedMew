@@ -18,7 +18,7 @@ local do_spawn_tile = Token.register(function(params)
     Template.insert(params.surface, {params.tile}, {})
 end)
 
-local rocks_lookup = {'sand-rock-big', 'rock-huge', 'rock-big'}
+local rocks_lookup = Template.diggy_rocks
 
 local do_mine = Token.register(function(params)
     local surface = params.surface

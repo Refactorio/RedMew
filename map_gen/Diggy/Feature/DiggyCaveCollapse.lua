@@ -87,7 +87,7 @@ DiggyCaveCollapse.events = {
     ]]
     on_collapse = script.generate_event_name()
 }
-local collapse_rocks = {'sand-rock-big', 'rock-big', 'rock-big'}
+local collapse_rocks = Template.diggy_rocks
 local collapse_rocks_size = #collapse_rocks
 
 local function create_collapse_template(positions, surface)
@@ -113,7 +113,7 @@ local function create_collapse_template(positions, surface)
 
         if do_insert then
             entity_count = entity_count + 1
-            entities[entity_count] = {position = position, name = collapse_rocks[random(1, collapse_rocks_size)]}
+            entities[entity_count] = {position = position, name = collapse_rocks[random(collapse_rocks_size)]}
         end
     end
 
@@ -246,7 +246,7 @@ local function on_mined_entity(event)
     local strength = support_beam_entities[name]
     if strength then
         local player_index
-        if name ~= 'sand-rock-big' and name ~= 'rock-huge' and name ~= 'rock-big' then
+        if not Template.is_diggy_rock(name) then
             player_index = event.player_index
         end
         stress_map_add(entity.surface, entity.position, strength, false, player_index)
@@ -259,7 +259,7 @@ local function on_entity_died(event)
     local strength = support_beam_entities[name]
     if strength then
         local player_index
-        if name ~= 'sand-rock-big' and name ~= 'rock-huge' and name ~= 'rock-big' then
+        if not Template.is_diggy_rock(name) then
             local cause = event.cause
             player_index = cause and cause.player and cause.player.index or nil
         end
@@ -369,7 +369,7 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(defines.events.on_marked_for_deconstruction, function (event)
         local entity = event.entity
         local name = entity.name
-        if name == 'sand-rock-big' or name == 'rock-huge' and name ~= 'rock-big' then
+        if Template.is_diggy_rock(name) then
             return
         end
 

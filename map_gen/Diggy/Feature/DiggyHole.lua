@@ -130,7 +130,7 @@ function DiggyHole.register(config)
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
         local name = entity.name
-        if name ~= 'sand-rock-big' and name ~= 'rock-huge' and name ~= 'rock-big' then
+        if not Template.is_diggy_rock(name) then
             return
         end
         diggy_hole(entity)
@@ -147,7 +147,7 @@ function DiggyHole.register(config)
             return
         end
 
-        if name ~= 'sand-rock-big' and name ~= 'rock-huge' and name ~= 'rock-big' then
+        if not Template.is_diggy_rock(name) then
             return
         end
 
@@ -159,7 +159,7 @@ function DiggyHole.register(config)
         local entity = event.entity
         local name = entity.name
 
-        if name ~= 'sand-rock-big' and name ~= 'rock-huge' and name ~= 'rock-big' then
+        if not Template.is_diggy_rock(name) then
             return
         end
 
@@ -190,7 +190,7 @@ function DiggyHole.register(config)
     Event.add(defines.events.on_player_mined_entity, function (event)
         local entity = event.entity
         local name = entity.name
-        if name ~= 'sand-rock-big' and name ~= 'rock-huge' and name ~= 'rock-big' then
+        if not Template.is_diggy_rock(name) then
             return
         end
 
