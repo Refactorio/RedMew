@@ -205,6 +205,11 @@ local function value(base, mult, pow)
     end
 end
 
+local names = {
+    'biter-spawner',
+    'spitter-spawner'
+}
+
 -- removes spawners when called
 local function no_spawners(_, _, world, tile)
     for _, e in ipairs(
