@@ -119,13 +119,9 @@ function ForceControlBuilder.register_on_single_level(level, callback, lua_force
     assert_type('number', level, 'level of function ForceControl.register_reward_on_single_level')
     assert_type('function', callback, 'callback of function ForceControlBuilder.register_on_single_level')
 
-    ForceControlBuilder.register(
-        function(level_reached)
-            return level == level_reached
-        end,
-        callback,
-        lua_force_name
-    )
+    ForceControlBuilder.register(function(level_reached)
+        return level == level_reached
+    end, callback, lua_force_name)
 end
 
 ---Always returns true
