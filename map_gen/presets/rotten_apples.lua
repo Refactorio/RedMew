@@ -1,5 +1,6 @@
 -- Rotten Apples - Islands of trees with apple ore patches, infested with worms.
 -- Damage modifiers influenced by science progression to increase teamwork by worm difficulty
+-- For added difficulty/balance the original playthrough used a modified version of market_items.lua
 -- Map by Jayefuu and plague006
 -- 2018-11-30
 
