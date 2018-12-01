@@ -19,6 +19,7 @@ local function no_resources(_, _, world, tile)
     end
     for _, e in ipairs(
         world.surface.find_entities_filtered(
+            -- all tree types
             {type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
         )
     ) do
@@ -26,7 +27,8 @@ local function no_resources(_, _, world, tile)
     end
     for _, e in ipairs(
         world.surface.find_entities_filtered(
-            {type = 'rock', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
+            -- all rock types
+            {type = 'simple-entity', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
         )
     ) do
         e.destroy()
@@ -35,7 +37,7 @@ local function no_resources(_, _, world, tile)
     return tile
 end
 
---[[local function no_trees(x, y, world, tile)
+local function no_trees(x, y, world, tile)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
@@ -45,7 +47,7 @@ end
     end
 
     return tile
-end]]--
+end
 
 -- create a square on which to place each ore
 local square = b.rectangle(12,12)
@@ -56,12 +58,15 @@ local iron = b.resource(b.rectangle(12,12), 'iron-ore', value(200, 1))
 local copper = b.resource(b.rectangle(12,12), 'copper-ore', value(150, 0.8))
 local stone = b.resource(b.rectangle(12,12), 'stone', value(100, .5))
 local coal = b.resource(b.rectangle(12,12), 'coal', value(100, 0.6))
+local tree = b.entity(b.throttle_world_xy(b.full_shape, 1, 2, 1, 2), 'dead-tree-desert')
 
 -- place each ore on the square
 local iron_sq = b.apply_entity(square, iron)
 local copper_sq = b.apply_entity(square, copper)
 local stone_sq = b.apply_entity(square, stone)
 local coal_sq = b.apply_entity(square, coal)
+local tree_sq= b.apply_entity(square, tree)
+
 
 -- create starting water square and change the type to water
 local water_start =
@@ -82,9 +87,15 @@ local start_area =
     b.translate(copper_sq, -ore_distance, ore_distance),
     b.translate(stone_sq, ore_distance, -ore_distance),
     b.translate(coal_sq, ore_distance, ore_distance),
+    b.translate(tree_sq,ore_distance,0),
+    b.translate(tree_sq,0,ore_distance),
+    b.translate(tree_sq,0,-ore_distance),
+    b.translate(tree_sq,-ore_distance,0),
     water_start,
     safe_square
 }
+
+
 start_area = b.apply_effect(start_area, no_resources)
 --start_area = b.apply_effect(start_area, no_trees)
 
@@ -93,6 +104,6 @@ local map = start_area
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 map = b.change_tile(map, false, 'sand-1')
 map = b.translate(map, 6, -10) -- translate the whole map away, otherwise we'll spawn in the water
-
+map = b.apply_effect(map, no_trees)
 --return start_area
 return map
