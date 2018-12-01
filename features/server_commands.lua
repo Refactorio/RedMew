@@ -25,4 +25,6 @@ function ServerCommands.server_started()
     script.raise_event(Server.events.on_server_started, {})
 end
 
+ServerCommands.query_online_players = Server.query_online_players
+
 return ServerCommands

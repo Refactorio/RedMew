@@ -26,6 +26,7 @@ local data_get_all_tag = '[DATA-GET-ALL]'
 local data_tracked_tag = '[DATA-TRACKED]'
 local ban_sync_tag = '[BAN-SYNC]'
 local unbanned_sync_tag = '[UNBANNED-SYNC]'
+local query_players_tag = '[QUERY-PLAYERS]'
 
 Public.raw_print = raw_print
 
@@ -438,6 +439,27 @@ end
 -- @param  PlayerSpecification
 function Public.unban_non_sync(PlayerSpecification)
     game.unban_player(PlayerSpecification)
+end
+
+--- Called be the web server to re sync which players are online.
+function Public.query_online_players()
+    local message = {query_players_tag, '['}
+
+    for _, p in ipairs(game.connected_players) do
+        table.insert(message, '"')
+        local name = escape(p.name)
+        table.insert(message, name)
+        table.insert(message, '",')
+    end
+
+    if message[#message] == '",' then
+        message[#message] = '"'
+    end
+
+    table.insert(message, ']')
+
+    message = table.concat(message)
+    raw_print(message)
 end
 
 return Public
