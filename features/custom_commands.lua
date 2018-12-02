@@ -494,7 +494,7 @@ local function server_time()
 end
 
 --- Add all commands to command list
-if _DEBUG then
+if _DEBUG or _CHEATS then
     commands.add_command('all-tech', 'researches all technologies (debug only)', all_tech)
 end
 
