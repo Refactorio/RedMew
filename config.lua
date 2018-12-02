@@ -15,6 +15,10 @@ global.config = {
     -- New Scenario Features, appears in the "What's new" tab
     new_info_key = 'Nothing is new. The world is at peace',
 
+    performance = {
+        enabled = true,
+    },
+
     player_list = {
         enable_coin_col = true,
     },
