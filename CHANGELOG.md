@@ -7,7 +7,9 @@ All notable changes to this project will be documented in this file.
 
 
 ### Features
+- [Map] Added 'rotten_apples' map preset and supporting files. #494
 - [Diggy] Added a crumbling effect from the ceiling when close to collapse #478
+- [Core] Add core cheats #490
 ### Bugfixes
 - [Diggy] Balancing changes #481
 - [Diggy] Fixed a bug related to player index missing #483
