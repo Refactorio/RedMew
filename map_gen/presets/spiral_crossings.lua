@@ -16,7 +16,6 @@
 
 local b = require 'map_gen.shared.builders'
 local math = require "utils.math"
-local Random = require 'map_gen.shared.random'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local degrees = math.rad
 local enemy_seed = 420420
