@@ -253,9 +253,4 @@ function ScatteredResources.register(config)
     end
 end
 
-function ScatteredResources.get_extra_map_info(config)
-    return [[Scattered Resources, resources are everywhere!
-Scans of the mine have shown greater amounts of resources to be deeper in the mine]]
-end
-
 return ScatteredResources

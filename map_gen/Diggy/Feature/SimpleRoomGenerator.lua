@@ -105,8 +105,4 @@ function SimpleRoomGenerator.register(config)
     end
 end
 
-function SimpleRoomGenerator.get_extra_map_info(config)
-    return 'Simple Room Generator, digging around might open rooms!'
-end
-
 return SimpleRoomGenerator

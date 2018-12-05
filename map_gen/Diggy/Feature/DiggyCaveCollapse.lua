@@ -660,9 +660,4 @@ mask_disc_blur = function(x_start, y_start, factor, callback)
     end
 end
 
-function DiggyCaveCollapse.get_extra_map_info(config)
-    return [[Alien Spawner, aliens might spawn when mining!
-Place stone walls, stone paths and (refined) concrete to reinforce the mine. If you see cracks appear, run!]]
-end
-
 return DiggyCaveCollapse

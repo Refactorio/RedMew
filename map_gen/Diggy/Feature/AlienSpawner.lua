@@ -249,12 +249,6 @@ function AlienSpawner.register(config)
     end)
 end
 
-function AlienSpawner.get_extra_map_info(config)
-    return [[Alien Spawner, aliens might spawn when mining!
-Spawn chance: ]] .. (config.alien_probability * 100) .. [[%
-Minimum spawn distance: ]] .. config.alien_minimum_distance .. ' tiles'
-end
-
 function AlienSpawner.on_init()
     -- base factorio =                time_factor = 0.000004
     game.map_settings.enemy_evolution.time_factor = 0.000008

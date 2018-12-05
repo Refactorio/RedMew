@@ -229,8 +229,4 @@ function ArtefactHunting.register(config)
     end
 end
 
-function ArtefactHunting.get_extra_map_info(config)
-    return 'Artefact Hunting, find precious coins while mining and launch them to the surface!'
-end
-
 return ArtefactHunting

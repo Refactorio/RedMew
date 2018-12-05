@@ -10,6 +10,7 @@ local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Debug = require 'map_gen.Diggy.Debug'
 local CreateParticles = require 'features.create_particles'
+local ScenarioInfo = require 'features.gui.info'
 local random = math.random
 local raise_event = script.raise_event
 
@@ -126,6 +127,16 @@ function DiggyHole.register(config)
     robot_mining.damage = config.robot_initial_mining_damage
     ScoreTable.set('Robot mining damage', robot_mining.damage)
     ScoreTable.reset('Mine size')
+
+    ScenarioInfo.set_map_name('Diggy')
+    ScenarioInfo.set_map_description('Dig your way through!')
+    ScenarioInfo.set_map_extra_info('Build pillars and make sure the ceiling does not collapse.')
+
+    local landfill_tiles = {'dirt-1', 'dirt-2', 'dirt-3', 'dirt-4', 'dirt-5', 'dirt-6', 'dirt-7'}
+    require ('map_gen.misc.change_landfill_tile')(landfill_tiles)
+
+    global.config.player_list.enable_coin_col = false
+    global.config.fish_market.enable = nil
 
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
