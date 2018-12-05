@@ -27,7 +27,7 @@ local function value(base, mult, pow)
     end
 end
 
-local function no_resources(x, y, world, tile)
+local function no_resources(_, _ world, tile)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
@@ -47,7 +47,7 @@ local names = {
 }
 
 -- removes spawners when called so we can place our own
-local function no_spawners(x, y, world, tile)
+local function no_spawners(_, _, world, tile)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {force = 'enemy', name = names, position = {world.x, world.y}}
@@ -108,7 +108,7 @@ local stone_patches = b.resource(patches_wide, 'stone',  value(400, 0.75, 1.1))
 local oil_patches = b.resource(b.throttle_world_xy(patches_wide_small,1,6,1,6), 'crude-oil', value(33000, 50, 1.05))
 local uranium_patches = b.resource(patches_wide_small, 'uranium-ore', value(200, 0.75, 1.1))
 
-local function ore_arm_bounds(x, y)
+local function ore_arm_bounds(x, _)
     return x < 20
 end
 
@@ -184,7 +184,7 @@ end
 -- Maltese cross shape so the biter patches get wider the further from base
 local gradient = 0.1
 local tiles_half = (50) * 0.5
-local function enemy_cross(x,y)     
+local function enemy_cross(x,y)
     local abs_x = math.abs(x)
     local abs_y = math.abs(y)
     return not (abs_x > (tiles_half+(abs_y*gradient)) and abs_y > (tiles_half+(abs_x*gradient)))
