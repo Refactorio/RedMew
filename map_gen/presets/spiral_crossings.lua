@@ -27,7 +27,7 @@ local function value(base, mult, pow)
     end
 end
 
-local function no_resources(_, _ world, tile)
+local function no_resources(_, _, world, tile)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
