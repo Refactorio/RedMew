@@ -9,7 +9,11 @@ local function value(base, mult)
 end
 
 local function no_resources(_, _, world, tile)
-    for _, e in ipairs(world.surface.find_entities_filtered({type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
+    for _, e in ipairs(
+        world.surface.find_entities_filtered(
+            {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
+        )
+    ) do
         e.destroy()
     end
     for _, e in ipairs(
@@ -33,7 +37,9 @@ local function no_resources(_, _, world, tile)
 end
 
 local function no_trees(_, _, world, tile)
-    for _, e in ipairs(world.surface.find_entities_filtered({type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
+    for _, e in ipairs(
+        world.surface.find_entities_filtered({type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})
+    ) do
         e.destroy()
     end
 
@@ -87,9 +93,8 @@ local start_area =
 
 start_area = b.apply_effect(start_area, no_resources)
 
-local map = start_area
-map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
-map = b.change_tile(map, false, 'sand-1')
+local map = b.any {start_area, b.full_shape}
+map = b.change_map_gen_collision_tile(map, 'ground-tile', 'sand-1')
 map = b.translate(map, 6, -10) -- translate the whole map away, otherwise we'll spawn in the water
 map = b.apply_effect(map, no_trees)
 
@@ -157,7 +162,8 @@ local function on_init()
             grass = {frequency = 'normal', size = 'none', richness = 'normal'},
             desert = {frequency = 'normal', size = 'none', richness = 'normal'},
             dirt = {frequency = 'normal', size = 'none', richness = 'normal'},
-            sand = {frequency = 'normal', size = 'normal', richness = 'normal'}
+            sand = {frequency = 'normal', size = 'normal', richness = 'normal'},
+            water = {frequency = 'normal', size = 'normal', richness = 'normal'}
         },
         cliff_settings = {
             name = 'cliff',
