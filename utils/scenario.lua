@@ -4,6 +4,8 @@ local Event = require 'utils.event'
 require 'utils.table'
 require 'utils.core'
 
+local format = string.format
+
 global.scenario_loaded = false
 
 return function (scenario_namespace, config)
