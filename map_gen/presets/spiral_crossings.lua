@@ -6,17 +6,12 @@
 -- Add market with /market
 -- Hover over the market and run:
 --      /silent-command game.player.selected.add_market_item{price={{MARKET_ITEM, 100}}, offer={type="give-item", item="landfill"}}
---[[    Run the following command on startup
-      /silent-command
-      game.forces["player"].technologies["landfill"].enabled = false -- disable landfill
-      game.forces.enemy.set_ammo_damage_modifier('melee', 1) -- +100% biter damage
-      game.forces.enemy.set_ammo_damage_modifier('biological', 0.5) -- +50% spitter/worm damage
-      game.map_settings.enemy_expansion.enabled = false -- turn off expansion to compensave for harder biters
-]]--
+
 
 local b = require 'map_gen.shared.builders'
 local math = require "utils.math"
 local Perlin = require 'map_gen.shared.perlin_noise'
+local Event = require 'utils.event'
 local degrees = math.rad
 local enemy_seed = 420420
 
@@ -202,5 +197,16 @@ map = b.apply_entity(map,start_ore_patch)
 map = b.apply_effect(map, no_resources)
 map = b.apply_effect(map, no_spawners)  -- remove all spawners and worms
 map = b.apply_entity(map, enemy)        -- add the enemies we generated
+
+local function on_init()
+    local player_force = game.forces.player
+    local enemy_force = game.forces.enemy
+    player_force.technologies["landfill"].enabled = false -- disable landfill
+    enemy_force.set_ammo_damage_modifier('melee', 1) -- +100% biter damage
+    enemy_force.set_ammo_damage_modifier('biological', 0.5) -- +50% spitter/worm damage
+    game.map_settings.enemy_expansion.enabled = false -- turn off expansion to compensave for harder biters
+end
+
+Event.on_init(on_init)
 
 return map
