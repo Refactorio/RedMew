@@ -7,6 +7,7 @@ local Game = require 'utils.game'
 local Report = require 'features.report'
 local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
+local Command = require 'utils.command'
 
 --local Antigrief = require 'features.antigrief'
 
@@ -498,26 +499,27 @@ if _DEBUG then
     commands.add_command('all-tech', 'researches all technologies (debug only)', all_tech)
 end
 
-commands.add_command(
+Command.add(
     'sc',
-    'silent-command (Admins only)',
-    function(cmd)
-        local player = game.player
+    {
+        description = 'silent-command',
+        arguments = {'str'},
+        admin_only = true,
+        capture_excess_arguments = true,
+        allowed_by_server = true,
+        allowed_by_player = true
+    },
+    function(args, player)
         local p
         if player then
             p = player.print
-            if not player.admin then
-                p('Only admins can use this command.')
-                return
-            end
         else
             p = print
         end
 
-        local func, err = loadstring(cmd.parameter)
+        local func, err = loadstring(args.str)
         if not func then
             p(err)
-            return
         end
 
         local _, err2 = pcall(func)
