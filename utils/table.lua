@@ -109,9 +109,13 @@ end
 --- Creates a fisher-yates shuffle of a sequential number-indexed table
 -- from: http://www.sdknews.com/cross-platform/corona/tutorial-how-to-shuffle-table-items
 -- @param table takes a table
-table.shuffle_table = function(t)
-    local rand = math.random
+table.shuffle_table = function(t, rng)
+    local rand = rng or math.random
     local iterations = #t
+    if iterations == 0 then
+        error('Not a sequential table')
+        return
+    end
     local j
 
     for i = iterations, 2, -1 do
