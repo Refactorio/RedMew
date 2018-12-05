@@ -88,6 +88,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.tetris"
 --shape = require "map_gen.presets.world_map_thanksgiving"
 --shape = require "map_gen.presets.rotten_apples"
+--shape = require "map_gen.presets.spiral_crossings"
 --shape = require "map_gen.presets.test"
 
 --shapes--
