@@ -78,7 +78,6 @@ function StartingZone.register(config)
         market.destructible = false
 
         Retailer.add_market(player_force.name, market)
-        Retailer.ship_items(player_force.name)
 
         player_force.add_chart_tag(surface, {
             text = 'Market',

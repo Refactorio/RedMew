@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 
 
 ### Features
+- [Map/Core] Overhauled day_night_cycle, creep_spread, and nightfall. Add Venus map. #524
+- [Core] Added builders.circular_pattern #514
+- [Diggy] Ore tendril pattern with slight impurities #528
+- [Core] Added a command-search command #530
+- [Core] Added particle limits and scales #504
+- [Core] Docs into wiki #510
 - [Diggy] Improved Biter aggression and scales a bit higher #498
 - [Map] Added spiral_crossings map preset. #508
 - [Map] Added 'rotten_apples' map preset and supporting files. #494
@@ -14,12 +20,18 @@ All notable changes to this project will be documented in this file.
 - [Core] Add core cheats #490
 - [Diggy] Added big rocks to the table #489
 ### Bugfixes
+- [Core] Fix car body directions #521
+- [Diggy] Fixed some bugs and tweaked some balance #520
 - [Diggy] Fixed duplicate big rock and missing huge rock #497
 - [Core] Minor fixes in the config #499
 - [Diggy] Balancing changes #481
 - [Diggy] Fixed a bug related to player index missing #483
 - [Diggy] Lowered uranium density in main vein #479
 ### Internal
+- [Diggy] Cleaned up some diggy commands and the left-overs register in _DEBUG #522
+- [Core] Added the crash-site GUI features to the retailer #523
+- [Core] Gave the player_create feature the same as diggy SetupPlayer #529
+- [Core] Added a basic RedMew configuration setup #502
 - [Core] Server time #487
 - [Core] Add inspect and size to table util #492
 - [Map] Removed the old cave_miner #500

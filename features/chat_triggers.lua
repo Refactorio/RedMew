@@ -34,7 +34,7 @@ local function hodor(event)
     -- first check for a match, since 99% of messages aren't a match for 'hodor'
     local message = event.message:lower()
     if message:match('hodor') then
-        game.print('Hodor: ' .. table.get_random_weighted(Hodor, 1, 2))
+        game.print('Hodor: ' .. table.get_random_weighted(Hodor))
     end
 end
 
@@ -131,16 +131,14 @@ local function mentions(event)
     end
 end
 
-local function on_console_chat(event)
-    if global.config.hodor then
-        hodor(event)
-    end
-    if global.config.auto_respond then
-        auto_respond(event)
-    end
-    if global.config.mentions then
-        mentions(event)
-    end
+if global.config.hodor.enabled then
+    Event.add(defines.events.on_console_chat, hodor)
 end
 
-Event.add(defines.events.on_console_chat, on_console_chat)
+if global.config.auto_respond.enabled then
+    Event.add(defines.events.on_console_chat, auto_respond)
+end
+
+if global.config.mentions.enabled then
+    Event.add(defines.events.on_console_chat, mentions)
+end

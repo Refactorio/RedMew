@@ -13,7 +13,6 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
 local CreateParticles = require 'features.create_particles'
-local insert = table.insert
 local random = math.random
 local floor = math.floor
 local abs = math.abs
@@ -48,7 +47,7 @@ local support_beam_entities
 local on_surface_created
 
 local stress_threshold_causing_collapse = 3.57
-local near_stress_threshold_causing_collapse = 3.57 * 0.9
+local near_stress_threshold_causing_collapse = 3.3 -- just above the threshold of a normal 4 pillar grid
 
 local show_deconstruction_alert_message = {}
 local stress_map_storage = {}
@@ -182,8 +181,6 @@ local function spawn_cracking_sound_text(surface, position)
 end
 
 local function on_collapse_triggered(event)
-    if global.cave_collapse_disabled then return end --kill switch
-
     local surface = event.surface
     local position = event.position
     local x = position.x
@@ -414,61 +411,6 @@ to reinforce it further.
             Debug.print_grid_value(fraction, surface, {x = x, y = y})
         end)
     end
-
-
-    if config.enable_debug_commands then
-        commands.add_command('test-tile-support-range', '<tilename> <range> creates a square of tiles with length <range>. It is spawned one <range> north of the player.', function(cmd)
-            local params = {}
-            for param in string.gmatch(cmd.parameter, '%S+') do
-                table.insert(params, param)
-            end
-
-            local tilename = params[1]
-            local range = tonumber(params[2])
-
-            local position = {x = math.floor(game.player.position.x), y = math.floor(game.player.position.y) - 5 * range - 1}
-            local surface = game.player.surface
-            local tiles = {}
-            local entities = {}
-            for x = position.x, position.x + range * 5 do
-                for y = position.y, position.y + range  * 5 do
-                    if y % range + x % range == 0 then
-                        insert(entities,{name = 'stone-wall', position = {x=x,y=y}})
-                    end
-                    insert(tiles, {position = {x = x, y = y}, name = tilename})
-
-                    local strength = support_beam_entities[tilename]
-                    if strength then
-                        stress_map_add(surface, {x = x, y = y}, - strength)
-                    end
-                    for _, entity in pairs(surface.find_entities_filtered({position = {x = x, y = y}})) do
-                        pcall(function()
-                            local local_strength = support_beam_entities[entity.name]
-                            local local_position = entity.position
-                            entity.die()
-                            if strength then
-                                stress_map_add(surface, local_position, local_strength)
-                            end
-                        end)
-                    end
-                end
-            end
-            Template.insert(surface, tiles, entities)
-        end)
-     end
-
-    commands.add_command('toggle-cave-collapse', 'Toggles cave collapse (admins only).', function()
-      pcall(function() --better safe than sorry
-          if not game.player or game.player.admin then
-              global.cave_collapse_disabled = not global.cave_collapse_disabled
-              if global.cave_collapse_disabled then
-                  game.print('Cave collapse: Disabled.')
-              else
-                  game.print('Cave collapse: Enabled.')
-              end
-          end
-      end)
-    end)
 end
 
 --
@@ -522,7 +464,7 @@ local function add_fraction(stress_map, x, y, fraction, player_index, surface)
         end
     end
     if enable_stress_grid then
-        Debug.print_colored_grid_value(value, surface, {x = x, y = y}, 4, 0.5, false,
+        Debug.print_colored_grid_value(value, surface, {x = x, y = y}, 0.5, false,
             value / stress_threshold_causing_collapse,  {r = 0, g = 1, b = 0}, {r = 1, g = -1, b = 0},
             {r = 0, g = 1, b = 0}, {r = 1, g = 1, b = 1})
     end
@@ -550,7 +492,7 @@ end
 ---@param callback function
 stress_map_check_stress_in_threshold = function(surface, x, y, threshold, callback)
     local stress_map = stress_map_storage[surface.index]
-    local value = add_fraction(stress_map, x, y, 0, surface)
+    local value = add_fraction(stress_map, x, y, 0, nil, surface)
 
     if (value >= stress_threshold_causing_collapse - threshold) then
         callback(surface, x, y)

@@ -56,7 +56,7 @@ local STD_BASE_CONTROL = 'lua52c+factorio+factorio_control+factorio_defines+fact
 --[Assume Factorio Control stage as default]--
 -------------------------------------------------------------------------------
 std = STD_CONTROL
-globals = {'print', 'math', 'table', '_DEBUG', '_CHEATS', 'MARKET_ITEM', 'ServerCommands'} -- RedMew-specific globals
+globals = {'print', 'math', 'table', '_DEBUG', '_CHEATS', 'ServerCommands'} -- RedMew-specific globals
 max_line_length = LINE_LENGTH
 
 not_globals = NOT_GLOBALS

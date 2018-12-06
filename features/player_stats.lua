@@ -1,6 +1,8 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
+local pairs = pairs
+local sqrt = math.sqrt
 
 local player_last_position = {}
 local player_walk_distances = {}
@@ -69,7 +71,6 @@ end
 
 local function picked_up_item(event)
     local stack = event.item_stack
-
     if stack.name == 'coin' then
         local player_index = event.player_index
         player_coin_earned[player_index] = player_coin_earned[player_index] + stack.count
@@ -77,7 +78,7 @@ local function picked_up_item(event)
 end
 
 local function tick()
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         if (p.afk_time < 30 or p.walking_state.walking) and p.vehicle == nil then
             local index = p.index
             local last_pos = player_last_position[index]
@@ -86,7 +87,7 @@ local function tick()
             local d_x = last_pos.x - pos.x
             local d_y = last_pos.y - pos.y
 
-            player_walk_distances[index] = player_walk_distances[index] + math.sqrt(d_x * d_x + d_y * d_y)
+            player_walk_distances[index] = player_walk_distances[index] + sqrt(d_x * d_x + d_y * d_y)
             player_last_position[index] = pos
         end
     end
@@ -94,6 +95,7 @@ end
 
 Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_died, player_died)
+Event.add(defines.events.on_player_mined_item, picked_up_item)
 Event.add(defines.events.on_picked_up_item, picked_up_item)
 Event.on_nth_tick(62, tick)
 
@@ -131,8 +133,8 @@ function Public.get_death_count(player_index)
     return player_deaths[player_index].count
 end
 
--- Returns a dictionary of casue_name -> count
-function Public.get_all_death_counts_by_casue(player_index)
+-- Returns a dictionary of cause_name -> count
+function Public.get_all_death_counts_by_cause(player_index)
     return player_deaths[player_index].causes or {}
 end
 

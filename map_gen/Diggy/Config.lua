@@ -46,19 +46,9 @@ local Config = {
                 -- a flat health bonus to the player force
                 character_health_bonus = 1000000,
 
-                -- unlock all research by default, only useful when testing
-                unlock_all_research = true,
-
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
-                    {name = 'power-armor-mk2', count = 1},
-                    {name = 'submachine-gun', count = 1},
-                    {name = 'uranium-rounds-magazine', count = 1000},
-                    {name = 'roboport', count = 2},
-                    {name = 'construction-robot', count = 50},
-                    {name = 'electric-energy-interface', count = 1},
-                    {name = 'medium-electric-pole', count = 50},
-                    {name = 'logistic-chest-storage', count = 50},
+                    {name = 'uranium-rounds-magazine', count = 200},
                 },
             },
         },
@@ -66,13 +56,6 @@ local Config = {
         -- core feature
         DiggyHole = {
             enabled = true,
-
-            -- displays a warning when a player continues digging with a full inventory
-            -- primarily used for multiplayer, can be disabled without consequences
-            enable_digging_warning = true,
-
-            -- enables commands like /clear-void
-            enable_debug_commands = false,
 
             -- initial damage per tick it damages a rock to mine, can be enhanced by robot_damage_per_mining_prod_level
             robot_initial_mining_damage = 4,
@@ -90,9 +73,6 @@ local Config = {
 
             -- shows the mask on spawn
             enable_mask_debug = false,
-
-            -- enables commands like /test-tile-support-range
-            enable_debug_commands = false,
 
             --the size of the mask used
             mask_size = 9,
@@ -124,7 +104,7 @@ local Config = {
         },
 
         -- Adds the ability to drop coins and track how many are sent into space
-        ArtefactHunting = {
+        CoinGathering = {
             enabled = true,
 
             -- value between 0 and 1, higher value means stronger variance between coordinates
@@ -302,8 +282,13 @@ local Config = {
             -- creates compound clusters of ores defined by a layered ore-gen
             cluster_mode = true,
 
-            -- location of file to find the cluster definition file
-            ore_pattern = require 'map_gen.Diggy.Orepattern.Tendrils',
+            -- spawns tendrils of ore with roughly 80% purity
+            ore_pattern = require 'map_gen.Diggy.Orepattern.tendrils_impure',
+
+            -- spawns some smaller dedicated and bigger mixed tendrils
+            --ore_pattern = require 'map_gen.Diggy.Orepattern.Tendrils',
+
+            -- spawns clusters of ore similar to vanilla, but mixed
             --ore_pattern = require 'map_gen.Diggy.Orepattern.Clusters',
 
         },

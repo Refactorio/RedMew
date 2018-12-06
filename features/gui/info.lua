@@ -380,90 +380,101 @@ but you will lose a small plane. You can get planes from the market.
             }
             train_savior_label.style.single_line = false
 
-            grid.add {type = 'sprite', sprite = 'entity/player'}
-            local player_list = grid.add {type = 'label', caption = 'Player\nlist'}
-            player_list.style.font = 'default-listbox'
-            player_list.style.single_line = false
-            local player_list_label =
+            if global.config.player_list.enabled then
+                grid.add {type = 'sprite', sprite = 'entity/player'}
+                local player_list = grid.add {type = 'label', caption = 'Player\nlist'}
+                player_list.style.font = 'default-listbox'
+                player_list.style.single_line = false
+                local player_list_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 Lists all players on the server and shows some stats. You can sort the list by
 clicking on the column headers. You can also poke people, which throws a random
 noun in the chat.]]
-            }
-            player_list_label.style.single_line = false
-
-            grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
-            local poll = grid.add {type = 'label', caption = 'Polls'}
-            poll.style.font = 'default-listbox'
-            local poll_label =
+                }
+                player_list_label.style.single_line = false
+            end
+            if global.config.poll.enabled then
+                grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
+                local poll = grid.add {type = 'label', caption = 'Polls'}
+                poll.style.font = 'default-listbox'
+                local poll_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 Polls help players get consensus for major actions. Want to improve an important
 build? Make a poll to check everyone is ok with that. You need to be a regular
 to make new polls.]]
-            }
-            poll_label.style.single_line = false
+                }
+                poll_label.style.single_line = false
+            end
 
-            local tag_button = grid.add {type = 'label', caption = 'tag'}
-            local tag_button_style = tag_button.style
-            tag_button_style.font = 'default-listbox'
-            tag_button_style.font_color = {r = 0, g = 0, b = 0}
-            local tag = grid.add {type = 'label', caption = 'Tags'}
-            tag.style.font = 'default-listbox'
-            local tag_label =
+            if global.config.tag_group.enabled then
+                local tag_button = grid.add {type = 'label', caption = 'tag'}
+                local tag_button_style = tag_button.style
+                tag_button_style.font = 'default-listbox'
+                tag_button_style.font_color = {r = 0, g = 0, b = 0}
+                local tag = grid.add {type = 'label', caption = 'Tags'}
+                tag.style.font = 'default-listbox'
+                local tag_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 You can assign yourself a role with tags to let other players know what you are
 doing. Or just use the tag as decoration. Regulars can create new custom tags,
 be sure to show off your creatively.]]
-            }
-            tag_label.style.single_line = false
+                }
+                tag_label.style.single_line = false
+            end
 
-            grid.add {type = 'sprite', sprite = 'item/repair-pack'}
-            local task = grid.add {type = 'label', caption = 'Tasks'}
-            task.style.font = 'default-listbox'
-            local task_label =
+            if global.config.tasklist.enabled then
+                grid.add {type = 'sprite', sprite = 'item/repair-pack'}
+                local task = grid.add {type = 'label', caption = 'Tasks'}
+                task.style.font = 'default-listbox'
+                local task_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 Not sure what you should be working on, why not look at the tasks and see what
 needs doing. Regulars can add new tasks.]]
-            }
-            task_label.style.single_line = false
+                }
+                task_label.style.single_line = false
+            end
 
-            grid.add {type = 'sprite', sprite = 'item/blueprint'}
-            local blueprint = grid.add {type = 'label', caption = 'BP\nhelper'}
-            local blueprint_style = blueprint.style
-            blueprint_style.font = 'default-listbox'
-            blueprint_style.single_line = false
-            blueprint_style.width = 55
-            local blueprint_label =
+            if global.config.blueprint_helper.enabled then
+                grid.add {type = 'sprite', sprite = 'item/blueprint'}
+                local blueprint = grid.add {type = 'label', caption = 'BP\nhelper'}
+                local blueprint_style = blueprint.style
+                blueprint_style.font = 'default-listbox'
+                blueprint_style.single_line = false
+                blueprint_style.width = 55
+                local blueprint_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you
 converter the entities used in the blueprint e.g. turn yellow belts into red belts.]]
-            }
-            blueprint_label.style.single_line = false
+                }
+                blueprint_label.style.single_line = false
+            end
 
-            grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
-            local score = grid.add {type = 'label', caption = 'Score'}
-            score.style.font = 'default-listbox'
-            local score_label =
+            if global.config.score.enabled then
+                grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
+                local score = grid.add {type = 'label', caption = 'Score'}
+                score.style.font = 'default-listbox'
+                local score_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 Shows number of rockets launched and biters liberated.]]
-            }
-            score_label.style.single_line = false
+                }
+                score_label.style.single_line = false
+            end
         end
     },
     {
-        tab_button = function(parent, player)
+        tab_button = function(parent)
             local button = parent.add {type = 'button', name = tab_button_name, caption = "What's New"}
             return button
         end,
