@@ -40,6 +40,22 @@ end
 ---@param create_entity function a reference to a surface.create_entity
 ---@param particle_count number particle count to spawn
 ---@param position Position
+function CreateParticles.blood_explosion(create_entity, particle_count, position)
+    for _ = particle_count, 1, -1 do
+        create_entity({
+            position = position,
+            name = 'blood-particle',
+            movement = {random(-5, 5) * 0.01, random(-5, 5) * 0.01},
+            frame_speed = 1,
+            vertical_speed = random(10, 12) * 0.01,
+            height = random(5, 15) * 0.1,
+        })
+    end
+end
+
+---@param create_entity function a reference to a surface.create_entity
+---@param particle_count number particle count to spawn
+---@param position Position
 function CreateParticles.mine_rock(create_entity, particle_count, position)
     for _ = particle_count, 1, -1 do
         create_entity({

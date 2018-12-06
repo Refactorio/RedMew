@@ -7,6 +7,7 @@ local Game = require 'utils.game'
 local Report = require 'features.report'
 local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
+local Command = require 'utils.command'
 
 --local Antigrief = require 'features.antigrief'
 
@@ -494,9 +495,40 @@ local function server_time()
 end
 
 --- Add all commands to command list
-if _DEBUG then
+if _DEBUG or _CHEATS then
     commands.add_command('all-tech', 'researches all technologies (debug only)', all_tech)
 end
+
+Command.add(
+    'sc',
+    {
+        description = 'silent-command',
+        arguments = {'str'},
+        admin_only = true,
+        capture_excess_arguments = true,
+        allowed_by_server = true,
+        allowed_by_player = true
+    },
+    function(args, player)
+        local p
+        if player then
+            p = player.print
+        else
+            p = print
+        end
+
+        local func, err = loadstring(args.str)
+        if not func then
+            p(err)
+        end
+
+        local _, err2 = pcall(func)
+        if err2 then
+            local i = err2:find('\n')
+            p(err2:sub(1, i))
+        end
+    end
+)
 
 --- Enables cheat mode (free pocket crafting) for player
 commands.add_command(
