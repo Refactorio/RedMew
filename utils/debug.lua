@@ -38,12 +38,4 @@ function Debug.print_position(position, message)
     Debug.print(format('%s %s', serialize(position), message))
 end
 
----Executes the given callback if cheating is enabled.
----@param callback function
-function Debug.cheat(callback)
-    if _CHEATS then
-        callback()
-    end
-end
-
 return Debug

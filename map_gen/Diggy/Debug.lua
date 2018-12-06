@@ -21,11 +21,6 @@ function Debug.print_position(position, message)
     BaseDebug.print_position(position, message)
 end
 
----@deprecated use 'utils.debug'.cheat instead
-function Debug.cheat(callback)
-    BaseDebug.cheat(callback)
-end
-
 --[[--
     Prints a colored value on a location.
 

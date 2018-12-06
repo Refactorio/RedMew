@@ -37,21 +37,6 @@ function SetupPlayer.register(config)
 
         force.set_spawn_position(position, surface)
         player.teleport(position)
-
-        Debug.cheat(function()
-            local cheats = config.cheats
-            force.manual_mining_speed_modifier = cheats.manual_mining_speed_modifier
-            force.character_inventory_slots_bonus = cheats.character_inventory_slots_bonus
-            force.character_running_speed_modifier = cheats.character_running_speed_modifier
-            force.character_health_bonus = cheats.character_health_bonus
-            if cheats.unlock_all_research then
-                force.research_all_technologies()
-            end
-
-            for _, item in pairs(cheats.starting_items) do
-                player_insert(item)
-            end
-        end)
     end)
 end
 

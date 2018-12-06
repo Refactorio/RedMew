@@ -135,8 +135,8 @@ function DiggyHole.register(config)
     local landfill_tiles = {'dirt-1', 'dirt-2', 'dirt-3', 'dirt-4', 'dirt-5', 'dirt-6', 'dirt-7'}
     require ('map_gen.misc.change_landfill_tile')(landfill_tiles)
 
-    global.config.player_list.enable_coin_col = false
-    global.config.fish_market.enable = nil
+    global.config.player_list.show_coin_column = false
+    global.config.fish_market.enabled = nil
 
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity

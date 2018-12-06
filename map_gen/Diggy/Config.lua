@@ -29,38 +29,6 @@ local Config = {
                 {name = 'iron-axe', count = 1},
                 {name = 'stone-wall', count = 10},
             },
-
-            -- applied when cheat_mode is set to true. It's recommended to tweak this to your needs
-            -- when playing with cheats on (recommended for single player or LAN with limited players)
-            cheats = {
-                -- Sets the manual mining speed for the player force. A value of 1 = 100% faster. Setting it
-                -- to 0.5 would make it 50% faster than the base speed.
-                manual_mining_speed_modifier = 1000,
-
-                -- increase the amount of inventory slots for the player force
-                character_inventory_slots_bonus = 0,
-
-                -- increases the run speed of all characters for the player force
-                character_running_speed_modifier = 2,
-
-                -- a flat health bonus to the player force
-                character_health_bonus = 1000000,
-
-                -- unlock all research by default, only useful when testing
-                unlock_all_research = true,
-
-                -- adds additional items to the player force when starting in addition to defined in start_items above
-                starting_items = {
-                    {name = 'power-armor-mk2', count = 1},
-                    {name = 'submachine-gun', count = 1},
-                    {name = 'uranium-rounds-magazine', count = 1000},
-                    {name = 'roboport', count = 2},
-                    {name = 'construction-robot', count = 50},
-                    {name = 'electric-energy-interface', count = 1},
-                    {name = 'medium-electric-pole', count = 50},
-                    {name = 'logistic-chest-storage', count = 50},
-                },
-            },
         },
 
         -- core feature

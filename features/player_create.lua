@@ -62,7 +62,7 @@ local function player_created(event)
         i {name = 'computer', count = 2}
 
         player.cheat_mode = true
-        force.manual_mining_speed_modifier = 10
+        force.manual_mining_speed_modifier = 1000
         force.character_running_speed_modifier = 5
         force.character_health_bonus = 100000
     end
