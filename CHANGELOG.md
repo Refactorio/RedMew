@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 
 
 ### Features
+- [Core] Added particle limits and scales #504
 - [Core] Docs into wiki #510
 - [Diggy] Improved Biter aggression and scales a bit higher #498
 - [Map] Added spiral_crossings map preset. #508
