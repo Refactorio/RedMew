@@ -26,8 +26,10 @@ local Config = {
         SetupPlayer = {
             enabled = true,
             starting_items = {
-                {name = 'iron-axe', count = 1},
-                {name = 'stone-wall', count = 10},
+                {name = 'iron-axe', count = 2},
+                {name = 'stone-wall', count = 12},
+                {name = 'iron-gear-wheel', count = 8},
+                {name = 'iron-plate', count = 16},
             },
 
             -- applied when cheat_mode is set to true. It's recommended to tweak this to your needs
@@ -46,19 +48,8 @@ local Config = {
                 -- a flat health bonus to the player force
                 character_health_bonus = 1000000,
 
-                -- unlock all research by default, only useful when testing
-                unlock_all_research = true,
-
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
-                    {name = 'power-armor-mk2', count = 1},
-                    {name = 'submachine-gun', count = 1},
-                    {name = 'uranium-rounds-magazine', count = 1000},
-                    {name = 'roboport', count = 2},
-                    {name = 'construction-robot', count = 50},
-                    {name = 'electric-energy-interface', count = 1},
-                    {name = 'medium-electric-pole', count = 50},
-                    {name = 'logistic-chest-storage', count = 50},
                 },
             },
         },
@@ -66,13 +57,6 @@ local Config = {
         -- core feature
         DiggyHole = {
             enabled = true,
-
-            -- displays a warning when a player continues digging with a full inventory
-            -- primarily used for multiplayer, can be disabled without consequences
-            enable_digging_warning = true,
-
-            -- enables commands like /clear-void
-            enable_debug_commands = false,
 
             -- initial damage per tick it damages a rock to mine, can be enhanced by robot_damage_per_mining_prod_level
             robot_initial_mining_damage = 4,
@@ -90,9 +74,6 @@ local Config = {
 
             -- shows the mask on spawn
             enable_mask_debug = false,
-
-            -- enables commands like /test-tile-support-range
-            enable_debug_commands = false,
 
             --the size of the mask used
             mask_size = 9,
@@ -119,12 +100,12 @@ local Config = {
                 ['refined-concrete'] = 0.06,
             },
             cracking_sounds = {
-                ' R U NY O UF O O L S !',
+                'R U N,  Y O U   F O O L S !',
             }
         },
 
         -- Adds the ability to drop coins and track how many are sent into space
-        ArtefactHunting = {
+        CoinGathering = {
             enabled = true,
 
             -- value between 0 and 1, higher value means stronger variance between coordinates
@@ -138,8 +119,8 @@ local Config = {
             minimal_treasure_chest_distance = 25,
 
             -- chances to receive a coin when mining
-            mining_coin_chance = 0.10,
-            mining_coin_amount = {min = 1, max = 4},
+            mining_coin_chance = 0.15,
+            mining_coin_amount = {min = 1, max = 5},
 
             -- lets you set the coin modifiers for aliens
             -- the modifier value increases the upper random limit that biters can drop
@@ -158,26 +139,43 @@ local Config = {
             },
 
             -- chance of aliens dropping coins between 0 and 1, where 1 is 100%
-            alien_coin_drop_chance = 0.30,
+            alien_coin_drop_chance = 0.28,
 
             -- shows the chest locations, only use when debugging
             display_chest_locations = false,
 
             treasure_chest_raffle = {
                 ['coin'] = {chance = 1.00, min = 20, max = 255},
-                ['steel-axe'] = {chance = 0.55, min = 1, max = 2},
-                ['stone'] = {chance = 0.50, min = 25, max = 75},
+                ['steel-axe'] = {chance = 0.55, min = 1, max = 3},
+                ['stone'] = {chance = 0.20, min = 15, max = 40},
                 ['copper-ore'] = {chance = 0.25, min = 30, max = 60},
                 ['copper-plate'] = {chance = 0.10, min = 12, max = 25},
                 ['iron-ore'] = {chance = 0.20, min = 10, max = 55},
                 ['iron-plate'] = {chance = 0.10, min = 5, max = 25},
                 ['steel-plate'] = {chance = 0.05, min = 3, max = 14},
-                ['steel-furnace'] = {chance = 0.02, min = 1, max = 1},
-                ['steam-engine'] = {chance = 0.02, min = 1, max = 1},
-                ['coal'] = {chance = 0.40, min = 30, max = 55},
+                ['steel-furnace'] = {chance = 0.03, min = 1, max = 2},
+                ['steam-engine'] = {chance = 0.03, min = 1, max = 2},
+                ['coal'] = {chance = 0.30, min = 30, max = 55},
                 ['concrete'] = {chance = 0.14, min = 10, max = 50},
                 ['stone-brick'] = {chance = 0.14, min = 25, max = 75},
-                ['stone-wall'] = {chance = 0.50, min = 1, max = 3},
+                ['stone-wall'] = {chance = 0.50, min = 1, max = 5},
+                ['transport-belt'] = {chance = 0.10, min = 1, max = 5},
+                ['fast-transport-belt'] = {chance = 0.07, min = 2, max = 7},
+                ['express-transport-belt'] = {chance = 0.04, min = 4, max = 9},
+                ['rail'] = {chance = 0.20, min = 7, max = 15},
+                ['rail-signal'] = {chance = 0.05, min = 3, max = 8},
+                ['rail-chain-signal'] = {chance = 0.05, min = 3, max = 8},
+                ['firearm-magazine'] = {chance = 0.25, min = 35, max = 120},
+                ['piercing-rounds-magazine'] = {chance = 0.10, min = 15, max = 35},
+                ['gun-turret'] = {chance = 0.3, min = 1, max = 2},
+                ['beacon'] = {chance = 0.01, min = 1, max = 2},
+                ['effectivity-module'] = {chance = 0.03, min = 1, max = 2},
+                ['effectivity-module-2'] = {chance = 0.01, min = 1, max = 2},
+                ['productivity-module'] = {chance = 0.03, min = 1, max = 2},
+                ['productivity-module-2'] = {chance = 0.01, min = 1, max = 2},
+                ['speed-module'] = {chance = 0.03, min = 1, max = 2},
+                ['speed-module-2'] = {chance = 0.01, min = 1, max = 2},
+                ['small-lamp'] = {chance = 0.05, min = 1, max = 5},
             }
         },
 
@@ -199,8 +197,11 @@ local Config = {
             -- minimum distance and noise range required for water to spawn
             room_noise_minimum_distance = 9,
             room_noise_ranges = {
-                {name = 'water', min = 0.54, max = 1},
-                {name = 'dirt', min = 0.39, max = 0.53},
+                {name = 'water', min = 0.84, max = 0.96},
+                {name = 'water', min = 0.73, max = 0.81},
+                {name = 'water', min = 0.54, max = 0.7},
+                {name = 'dirt', min = 0.46, max = 0.53},
+                {name = 'dirt', min = 0.37, max = 0.45},
             },
         },
 
@@ -302,8 +303,13 @@ local Config = {
             -- creates compound clusters of ores defined by a layered ore-gen
             cluster_mode = true,
 
-            -- location of file to find the cluster definition file
-            ore_pattern = require 'map_gen.Diggy.Orepattern.Tendrils',
+            -- spawns tendrils of ore with roughly 80% purity
+            ore_pattern = require 'map_gen.Diggy.Orepattern.tendrils_impure',
+
+            -- spawns some smaller dedicated and bigger mixed tendrils
+            --ore_pattern = require 'map_gen.Diggy.Orepattern.Tendrils',
+
+            -- spawns clusters of ore similar to vanilla, but mixed
             --ore_pattern = require 'map_gen.Diggy.Orepattern.Clusters',
 
         },
@@ -344,14 +350,14 @@ local Config = {
         Antigrief = {
             enabled = true,
             autojail = true,
-            allowed_collapses_first_hour = 4
+            allowed_collapses_first_hour = 4,
         },
 
         Experience = {
             enabled = true,
             -- controls the formula for calculating level up costs in stone sent to surface
-            difficulty_scale = 16, -- Diggy default 16. Higher increases experience requirement climb
-            first_lvl_xp = 400, -- Diggy default 400. This sets the price for the first level.
+            difficulty_scale = 15, -- Diggy default 16. Higher increases experience requirement climb
+            first_lvl_xp = 350, -- Diggy default 400. This sets the price for the first level.
             xp_fine_tune = 200, -- Diggy default 200. This value is used to fine tune the overall requirement climb without affecting the speed
             cost_precision = 3, -- Diggy default 3. This sets the precision of the required experience to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
 
@@ -372,7 +378,7 @@ local Config = {
                 ['space-science-pack']        = 10,
                 ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters.
                 ['death-penalty']             = 0.002,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.002 which equals 0.2%)
-                ['cave-in-penalty']           = 100       -- XP lost every cave in.
+                --['cave-in-penalty']           = 100       -- XP lost every cave in.
             },
 
             buffs = {
@@ -400,7 +406,14 @@ local Config = {
                 {level = 15, price = 85, name = 'submachine-gun'},
                 {level = 18, price = 10, name = 'piercing-rounds-magazine'},
                 {level = 18, price = 8, name = 'piercing-shotgun-shell'},
+                {level = 19, price = 5, name = 'rail'},
+                {level = 20, price = 50, name = 'locomotive'},
                 {level = 20, price = 50, name = 'landfill'},
+                {level = 21, price = 5, name = 'rail-signal'},
+                {level = 22, price = 5, name = 'rail-chain-signal'},
+                {level = 23, price = 15, name = 'train-stop'},
+                {level = 24, price = 35, name = 'cargo-wagon'},
+                {level = 24, price = 35, name = 'fluid-wagon'},
                 {level = 25, price = 100, name = 'heavy-armor'},
                 {level = 30, price = 250, name = 'modular-armor'},
                 {level = 32, price = 150, name = 'personal-roboport-equipment'},

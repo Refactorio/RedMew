@@ -4,18 +4,21 @@
 
 -- dependencies
 local Template = require 'map_gen.Diggy.Template'
-local Perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
 local Debug = require'map_gen.Diggy.Debug'
-local Task = require 'utils.Task'
+local Task = require 'utils.schedule'
 local Token = require 'utils.token'
 local raise_event = script.raise_event
-
+local pairs = pairs
+local perlin_noise = require 'map_gen.shared.perlin_noise'.noise
+local template_insert = Template.insert
+local set_timeout_in_ticks = Task.set_timeout_in_ticks
+local on_entity_died = defines.events.on_entity_died
 -- this
 local SimpleRoomGenerator = {}
 
 local do_spawn_tile = Token.register(function(params)
-    Template.insert(params.surface, {params.tile}, {})
+    template_insert(params.surface, {params.tile}, {})
 end)
 
 local rocks_lookup = Template.diggy_rocks
@@ -32,21 +35,21 @@ local do_mine = Token.register(function(params)
 
     for i = rock_count, 1, -1 do
         local rock = rocks[i]
-        raise_event(defines.events.on_entity_died, {entity = rock})
+        raise_event(on_entity_died, {entity = rock})
         rock.destroy()
     end
 end)
 
 local function handle_noise(name, surface, position)
-    Task.set_timeout_in_ticks(1, do_mine, {surface = surface, position = position})
+    set_timeout_in_ticks(1, do_mine, {surface = surface, position = position})
 
-    if ('water' == name) then
-        -- water is slower because for some odd reason it doesn't always want to mine it properly
-        Task.set_timeout_in_ticks(4, do_spawn_tile, { surface = surface, tile = {name = 'deepwater-green', position = position}})
+    if 'dirt' == name then
         return
     end
 
-    if ('dirt' == name) then
+    if 'water' == name then
+        -- water is slower because for some odd reason it doesn't always want to mine it properly
+        set_timeout_in_ticks(4, do_spawn_tile, { surface = surface, tile = {name = 'deepwater-green', position = position}})
         return
     end
 
@@ -58,11 +61,12 @@ end
 ]]
 function SimpleRoomGenerator.register(config)
     local room_noise_minimum_distance_sq = config.room_noise_minimum_distance * config.room_noise_minimum_distance
+    local noise_variance = config.noise_variance
 
     local seed
     local function get_noise(surface, x, y)
         seed = seed or surface.map_gen_settings.seed + surface.index + 100
-        return Perlin.noise(x * config.noise_variance, y * config.noise_variance, seed)
+        return perlin_noise(x * noise_variance, y * noise_variance, seed)
     end
 
     Event.add(Template.events.on_void_removed, function (event)
@@ -78,7 +82,6 @@ function SimpleRoomGenerator.register(config)
 
         local surface = event.surface
         local noise = get_noise(surface, x, y)
-
         for _, noise_range in pairs(config.room_noise_ranges) do
             if (noise >= noise_range.min and noise <= noise_range.max) then
                 handle_noise(noise_range.name, surface, position)
@@ -105,7 +108,7 @@ function SimpleRoomGenerator.register(config)
     end
 end
 
-function SimpleRoomGenerator.get_extra_map_info(config)
+function SimpleRoomGenerator.get_extra_map_info()
     return 'Simple Room Generator, digging around might open rooms!'
 end
 

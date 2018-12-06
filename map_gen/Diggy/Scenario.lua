@@ -2,6 +2,8 @@
 local Config = require 'map_gen.Diggy.Config'
 local ScenarioInfo = require 'features.gui.info'
 local Event = require 'utils.event'
+local type = type
+local pairs = pairs
 
 require 'utils.table'
 require 'utils.core'
@@ -19,9 +21,9 @@ global.diggy_scenario_registered = false
     @param if_enabled function to be called if enabled
 ]]
 local function each_enabled_feature(if_enabled)
-    local type = type(if_enabled)
-    if ('function' ~= type) then
-        error('each_enabled_feature expects callback to be a function, given type: ' .. type)
+    local enabled_type = type(if_enabled)
+    if ('function' ~= enabled_type) then
+        error('each_enabled_feature expects callback to be a function, given type: ' .. enabled_type)
     end
 
     for current_name, feature_data in pairs(Config.features) do
@@ -42,12 +44,13 @@ function Scenario.register()
         return
     end
 
-    global.config.player_list.enable_coin_col = false
-    if global.config then
-        global.config.fish_market.enable = nil
-    end
-
-    local extra_map_info = ''
+    -- disabled redmew features for diggy
+    local redmew_config = global.config
+    redmew_config.fish_market.enabled = false
+    redmew_config.reactor_meltdown.enabled = false
+    redmew_config.hodor.enabled = false
+    redmew_config.blueprint_helper.enabled = false
+    redmew_config.paint.enabled = false
 
     each_enabled_feature(
         function(feature_name, feature_config)
@@ -59,7 +62,7 @@ function Scenario.register()
             feature.register(feature_config)
 
             if ('function' == type(feature.get_extra_map_info)) then
-                extra_map_info = extra_map_info .. feature.get_extra_map_info(feature_config) .. '\n\n'
+                ScenarioInfo.add_map_extra_info(feature.get_extra_map_info(feature_config) .. '\n')
             end
 
             if ('function' == type(feature.on_init)) then
@@ -73,7 +76,6 @@ function Scenario.register()
 
     ScenarioInfo.set_map_name('Diggy')
     ScenarioInfo.set_map_description('Dig your way through!')
-    ScenarioInfo.set_map_extra_info(extra_map_info)
 
     global.diggy_scenario_registered = true
 end

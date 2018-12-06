@@ -4,11 +4,13 @@ You may choose up to one of each type shapes, terrain, ores and misc or one of t
 If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
-
 local b = require 'map_gen.shared.builders'
+require 'utils.table'
 require 'map_gen.shared.perlin_noise'
+global.map = {}
+global.map.terraforming = {}
 
-local shape = nil
+local shape
 local regen_decoratives = false
 local tiles_per_tick = 32
 
@@ -82,11 +84,12 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.spiral"
 --shape = require "map_gen.presets.hub_spiral"
 --shape = require "map_gen.presets.diagonal_ribbon"
---shape = require "map_gen.presets.creepy"
+--shape = require "map_gen.presets.venus"
 --shape = require "map_gen.presets.vanilla"
 --shape = require "map_gen.presets.maltease_crossings"
 --shape = require "map_gen.presets.tetris"
 --shape = require "map_gen.presets.world_map_thanksgiving"
+--shape = require "map_gen.presets.christmas_tree_of_terror"
 --shape = require "map_gen.presets.rotten_apples"
 --shape = require "map_gen.presets.spiral_crossings"
 --shape = require "map_gen.presets.test"
@@ -138,7 +141,7 @@ local terrain_modules = {
 --require ('map_gen.misc.restrict_landfill_tile')({['water'] = true})
 --require "map_gen.ores.rso.rso_control"
 --require 'map_gen.misc.nightfall' -- forces idle biters to attack at night
---require 'map_gen.misc.creep_spread'
+--require 'map_gen.misc.terraforming' -- prevents players from building on non-terraformed tiles
 --require 'map_gen.misc.car_body' -- gives players cars instead of characters
 --require 'map_gen.misc.silly_player_names' -- assigns players random names when they first join
 --require 'map_gen.misc.naughty_words' -- admonishes players for cursing

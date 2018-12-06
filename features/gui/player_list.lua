@@ -15,7 +15,6 @@ local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
 local symbol_asc = ' ▲'
 local symbol_desc = ' ▼'
-local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
 local rank_colors = {
     {r = 1, g = 1, b = 1}, -- Guest
@@ -313,7 +312,7 @@ local column_builders = {
             local player_index = player.index
             return {
                 count = PlayerStats.get_death_count(player_index),
-                causes = PlayerStats.get_all_death_counts_by_casue(player_index)
+                causes = PlayerStats.get_all_death_counts_by_cause(player_index)
             }
         end,
         sort = function(a, b)
@@ -448,7 +447,7 @@ local function get_default_player_settings()
         distance_heading_name
     }
     local offset = 6
-    if global.config.player_list.enable_coin_col then
+    if global.config.player_list.show_coin_column then
         columns[6] = coin_heading_name
         offset = 7
     end
@@ -759,3 +758,5 @@ Gui.on_click(
         end
     end
 )
+
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)

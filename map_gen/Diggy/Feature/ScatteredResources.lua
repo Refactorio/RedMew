@@ -11,6 +11,9 @@ local Simplex = require 'map_gen.shared.simplex_noise'
 local random = math.random
 local sqrt = math.sqrt
 local ceil = math.ceil
+local min = math.min
+local pairs = pairs
+local template_resources = Template.resources
 
 -- this
 local ScatteredResources = {}
@@ -118,28 +121,26 @@ function ScatteredResources.register(config)
         end
     end
 
-    local function spawn_cluster_resource(surface, x, y, cluster_index, cluster)
+    local function spawn_cluster_resource(surface, x, y, cluster)
         local distance = sqrt(x * x + y * y)
         local resource_name = get_name_by_weight(cluster.weights, cluster.weights_sum)
         if resource_name == 'skip' then
             return false
         end
-        if cluster.distances[resource_name] then
-            if distance < cluster.distances[resource_name] then
-                return false
-            end
+
+        local cluster_distance = cluster.distances[resource_name]
+        if cluster_distance and distance < cluster_distance then
+            return false
         end
 
         local range = resource_richness_values[get_name_by_weight(resource_richness_weights, resource_richness_weights_sum)]
-        local amount = random(range[1], range[2])
-        amount = amount * (1 + ((distance / cluster.distance_richness) * 0.01))
-        amount = amount * cluster.yield
+        local amount = random(range[1], range[2]) * (1 + ((distance / cluster.distance_richness) * 0.01)) * cluster.yield
 
         if resource_type_scalar[resource_name] then
             amount = amount * resource_type_scalar[resource_name]
         end
 
-        Template.resources(surface, {{name = resource_name, position = {x = x, y = y}, amount = ceil(amount)}})
+        template_resources(surface, {{name = resource_name, position = {x = x, y = y}, amount = ceil(amount)}})
         return true
     end
 
@@ -158,7 +159,7 @@ function ScatteredResources.register(config)
                     if cluster.noise_settings.type == "connected_tendril" then
                         local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                         if -1 * cluster.noise_settings.threshold < noise and noise < cluster.noise_settings.threshold then
-                            if spawn_cluster_resource(surface, x, y, index, cluster) then
+                            if spawn_cluster_resource(surface, x, y, cluster) then
                                 return -- resource spawned
                             end
                         end
@@ -168,14 +169,14 @@ function ScatteredResources.register(config)
                         if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold
                                 and -1 * cluster.noise_settings.discriminator_threshold < noise2
                                 and noise2 < cluster.noise_settings.discriminator_threshold then
-                            if spawn_cluster_resource(surface, x, y, index, cluster) then
+                            if spawn_cluster_resource(surface, x, y, cluster) then
                                 return -- resource spawned
                             end
                         end
                     else
                         local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                         if noise >= cluster.noise_settings.threshold then
-                            if spawn_cluster_resource(surface, x, y, index, cluster) then
+                            if spawn_cluster_resource(surface, x, y, cluster) then
                                 return -- resource spawned
                             end
                         end
@@ -185,7 +186,7 @@ function ScatteredResources.register(config)
         end
 
         if s_mode then
-            local probability = math.min(s_max_prob, s_min_prob + 0.01 * (distance / s_dist_mod))
+            local probability = min(s_max_prob, s_min_prob + 0.01 * (distance / s_dist_mod))
 
             if (cluster_mode) then
                 probability = probability * s_cluster_prob
@@ -228,7 +229,7 @@ function ScatteredResources.register(config)
                             local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                             if -1 * cluster.noise_settings.threshold < noise and noise < cluster.noise_settings.threshold then
                                 color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
-                                Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, nil, true, 0, color[index])
+                                Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, true, 0, color[index])
                             end
                         elseif cluster.noise_settings.type == "fragmented_tendril" then
                             local noise1 = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
@@ -237,13 +238,13 @@ function ScatteredResources.register(config)
                                     and -1 * cluster.noise_settings.discriminator_threshold < noise2
                                     and noise2 < cluster.noise_settings.discriminator_threshold then
                                 color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
-                                Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, nil, true, 0, color[index])
+                                Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, true, 0, color[index])
                             end
                         elseif cluster.noise_settings.type ~= 'skip' then
                             local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                             if noise >= cluster.noise_settings.threshold then
                                 color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
-                                Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, nil, true, 0, color[index])
+                                Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, true, 0, color[index])
                             end
                         end
                     end
@@ -253,7 +254,7 @@ function ScatteredResources.register(config)
     end
 end
 
-function ScatteredResources.get_extra_map_info(config)
+function ScatteredResources.get_extra_map_info()
     return [[Scattered Resources, resources are everywhere!
 Scans of the mine have shown greater amounts of resources to be deeper in the mine]]
 end

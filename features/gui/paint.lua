@@ -41,9 +41,6 @@ local filter_table_close_button_name = Gui.uid_name()
 
 global.paint_brushes_by_player = {}
 local function player_build_tile(event)
-    if not global.config.paint.enable then
-        return
-    end
     if event.item.name ~= brush_tool then
         return
     end
@@ -75,9 +72,6 @@ local function player_build_tile(event)
 end
 
 local function player_joined(event)
-    if not global.config.paint.enable then
-        return
-    end
     local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
@@ -221,6 +215,8 @@ Gui.on_custom_close(
         element.destroy()
     end
 )
+
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_player_built_tile, player_build_tile)

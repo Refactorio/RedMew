@@ -1,4 +1,7 @@
-local Poll = require 'features.gui.poll'
+local Poll = {send_poll_result_to_discord = function () end}
+if global.config.poll.enabled then
+    Poll = require 'features.gui.poll'
+end
 local UserGroups = require 'features.user_groups'
 local Token = require 'utils.token'
 local Server = require 'features.server'

@@ -1159,6 +1159,8 @@ Gui.on_click(
 
 Gui.on_click(poll_view_vote_name, vote)
 
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
+
 local Class = {}
 
 function Class.validate(data)

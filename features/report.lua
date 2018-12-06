@@ -97,6 +97,7 @@ function Module.report(reporting_player, reported_player, message)
     local player_index
     if reporting_player then
         player_index = reporting_player.index
+        reporting_player.print('Your report has been sent.')
     end
     table.insert(global.reports, {reporting_player_index = player_index, reported_player_index = reported_player.index, message = message, tick = game.tick})
 
@@ -138,6 +139,7 @@ function Module.cmd_report(cmd)
             return nil
         end
         Module.report(reporting_player, reported_player, string.sub(cmd.parameter, string.len(params[1]) + 2))
+        reporting_player.print('Your report has been sent.')
     end
 end
 

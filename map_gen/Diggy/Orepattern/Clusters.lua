@@ -20,7 +20,7 @@
 --   simplex: similar to perlin
 --   zero: does nothing with this source
 --   one: adds the weight directly to the noise calculation
-clusters = {
+return {
     {
         yield=1.0,
         min_distance=30,

@@ -3,6 +3,8 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
+local PlayerRewards = require 'utils.player_rewards'
+local format = string.format
 
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
@@ -13,27 +15,42 @@ local rank_colors = {
     {r = 0.093, g = 0.768, b = 0.172} -- Admin
 }
 
+local reward_amount = 2
+local reward_plural_indicator = reward_amount > 1 and 's' or ''
+local reward_token = PlayerRewards.get_reward()
+local info_tab_flags = {
+    0x1, -- welcome
+    0x2, -- rules
+    0x4, -- map_info
+    0x8, -- scenario_mods
+    0x10, -- whats_new
+}
+local flags_sum = 0
+for _, v in pairs(info_tab_flags) do
+    flags_sum = flags_sum + v
+end
+
 local map_name_key = 1
 local map_description_key = 2
 local map_extra_info_key = 3
 local new_info_key = 4
 
-local welcomed_players = {}
+local rewarded_players = {}
 
 local editable_info = {
-    [map_name_key] = global.config.map_name_key,
-    [map_description_key] = global.config.map_description_key,
-    [map_extra_info_key] = global.config.map_extra_info_key,
-    [new_info_key] = global.config.new_info_key
+    [map_name_key] = global.config.map_info.map_name_key,
+    [map_description_key] = global.config.map_info.map_description_key,
+    [map_extra_info_key] = global.config.map_info.map_extra_info_key,
+    [new_info_key] = global.config.map_info.new_info_key
 }
 
 Global.register(
     {
-        welcomed_players = welcomed_players,
-        editable_info = editable_info
+        rewarded_players = rewarded_players,
+        editable_info = editable_info,
     },
     function(tbl)
-        welcomed_players = tbl.welcomed_players
+        rewarded_players = tbl.rewarded_players
         editable_info = tbl.editable_info
     end
 )
@@ -121,11 +138,11 @@ end
 
 local pages = {
     {
-        tab_button = function(parent, player)
+        tab_button = function(parent)
             local button = parent.add {type = 'button', name = tab_button_name, caption = 'Welcome'}
             return button
         end,
-        content = function(parent, player)
+        content = function(parent)
             local parent_style = parent.style
             parent_style.right_padding = 2
 
@@ -142,13 +159,11 @@ local pages = {
             centered_label(
                 parent,
                 [[
-Redmew is community for players of all skill levels committed to pushing the limits of Factorio Multiplayer through custom scripts and crazy map designs.
+Redmew is a community for players of all skill levels committed to pushing the limits of Factorio Multiplayer through custom scripts and crazy map designs.
 
 We are a friendly bunch, our objective is to have as much fun as possible and we hope you will too.
                 ]]
             )
-
-
 
             header_label(parent, 'How To Chat')
             centered_label(
@@ -160,7 +175,13 @@ This can be changed in options -> controls -> "toggle lua console".
                 ]]
             )
 
-
+            if global.config.player_rewards.enabled and global.config.player_rewards.info_player_reward then
+                local string = format('You have been given %s %s%s for looking at the welcome tab.\nChecking each tab will reward you %s more %s%s.\n', reward_amount, reward_token, reward_plural_indicator, reward_amount, reward_token, reward_plural_indicator)
+                header_label(parent, 'Free Coins')
+                centered_label(
+                    parent, string
+                )
+            end
 
             header_label(parent, 'Useful Links')
             centered_label(parent, [[Check out our discord for new map info and to suggest new maps / ideas.]])
@@ -202,11 +223,11 @@ This can be changed in options -> controls -> "toggle lua console".
         end
     },
     {
-        tab_button = function(parent, player)
+        tab_button = function(parent)
             local button = parent.add {type = 'button', name = tab_button_name, caption = 'Rules'}
             return button
         end,
-        content = function(parent, player)
+        content = function(parent)
             header_label(parent, 'Rules')
 
             centered_label(
@@ -222,7 +243,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
         end
     },
     {
-        tab_button = function(parent, player)
+        tab_button = function(parent)
             local button = parent.add {type = 'button', name = tab_button_name, caption = 'Map Info'}
             return button
         end,
@@ -293,7 +314,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
         end
     },
     {
-        tab_button = function(parent, player)
+        tab_button = function(parent)
             local button = parent.add {type = 'button', name = tab_button_name, caption = 'Scenario Mods'}
             return button
         end,
@@ -380,90 +401,101 @@ but you will lose a small plane. You can get planes from the market.
             }
             train_savior_label.style.single_line = false
 
-            grid.add {type = 'sprite', sprite = 'entity/player'}
-            local player_list = grid.add {type = 'label', caption = 'Player\nlist'}
-            player_list.style.font = 'default-listbox'
-            player_list.style.single_line = false
-            local player_list_label =
+            if global.config.player_list.enabled then
+                grid.add {type = 'sprite', sprite = 'entity/player'}
+                local player_list = grid.add {type = 'label', caption = 'Player\nlist'}
+                player_list.style.font = 'default-listbox'
+                player_list.style.single_line = false
+                local player_list_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 Lists all players on the server and shows some stats. You can sort the list by
 clicking on the column headers. You can also poke people, which throws a random
 noun in the chat.]]
-            }
-            player_list_label.style.single_line = false
-
-            grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
-            local poll = grid.add {type = 'label', caption = 'Polls'}
-            poll.style.font = 'default-listbox'
-            local poll_label =
+                }
+                player_list_label.style.single_line = false
+            end
+            if global.config.poll.enabled then
+                grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
+                local poll = grid.add {type = 'label', caption = 'Polls'}
+                poll.style.font = 'default-listbox'
+                local poll_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 Polls help players get consensus for major actions. Want to improve an important
 build? Make a poll to check everyone is ok with that. You need to be a regular
 to make new polls.]]
-            }
-            poll_label.style.single_line = false
+                }
+                poll_label.style.single_line = false
+            end
 
-            local tag_button = grid.add {type = 'label', caption = 'tag'}
-            local tag_button_style = tag_button.style
-            tag_button_style.font = 'default-listbox'
-            tag_button_style.font_color = {r = 0, g = 0, b = 0}
-            local tag = grid.add {type = 'label', caption = 'Tags'}
-            tag.style.font = 'default-listbox'
-            local tag_label =
+            if global.config.tag_group.enabled then
+                local tag_button = grid.add {type = 'label', caption = 'tag'}
+                local tag_button_style = tag_button.style
+                tag_button_style.font = 'default-listbox'
+                tag_button_style.font_color = {r = 0, g = 0, b = 0}
+                local tag = grid.add {type = 'label', caption = 'Tags'}
+                tag.style.font = 'default-listbox'
+                local tag_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 You can assign yourself a role with tags to let other players know what you are
 doing. Or just use the tag as decoration. Regulars can create new custom tags,
 be sure to show off your creatively.]]
-            }
-            tag_label.style.single_line = false
+                }
+                tag_label.style.single_line = false
+            end
 
-            grid.add {type = 'sprite', sprite = 'item/repair-pack'}
-            local task = grid.add {type = 'label', caption = 'Tasks'}
-            task.style.font = 'default-listbox'
-            local task_label =
+            if global.config.tasklist.enabled then
+                grid.add {type = 'sprite', sprite = 'item/repair-pack'}
+                local task = grid.add {type = 'label', caption = 'Tasks'}
+                task.style.font = 'default-listbox'
+                local task_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 Not sure what you should be working on, why not look at the tasks and see what
 needs doing. Regulars can add new tasks.]]
-            }
-            task_label.style.single_line = false
+                }
+                task_label.style.single_line = false
+            end
 
-            grid.add {type = 'sprite', sprite = 'item/blueprint'}
-            local blueprint = grid.add {type = 'label', caption = 'BP\nhelper'}
-            local blueprint_style = blueprint.style
-            blueprint_style.font = 'default-listbox'
-            blueprint_style.single_line = false
-            blueprint_style.width = 55
-            local blueprint_label =
+            if global.config.blueprint_helper.enabled then
+                grid.add {type = 'sprite', sprite = 'item/blueprint'}
+                local blueprint = grid.add {type = 'label', caption = 'BP\nhelper'}
+                local blueprint_style = blueprint.style
+                blueprint_style.font = 'default-listbox'
+                blueprint_style.single_line = false
+                blueprint_style.width = 55
+                local blueprint_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you
 converter the entities used in the blueprint e.g. turn yellow belts into red belts.]]
-            }
-            blueprint_label.style.single_line = false
+                }
+                blueprint_label.style.single_line = false
+            end
 
-            grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
-            local score = grid.add {type = 'label', caption = 'Score'}
-            score.style.font = 'default-listbox'
-            local score_label =
+            if global.config.score.enabled then
+                grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
+                local score = grid.add {type = 'label', caption = 'Score'}
+                score.style.font = 'default-listbox'
+                local score_label =
                 grid.add {
-                type = 'label',
-                caption = [[
+                    type = 'label',
+                    caption = [[
 Shows number of rockets launched and biters liberated.]]
-            }
-            score_label.style.single_line = false
+                }
+                score_label.style.single_line = false
+            end
         end
     },
     {
-        tab_button = function(parent, player)
+        tab_button = function(parent)
             local button = parent.add {type = 'button', name = tab_button_name, caption = "What's New"}
             return button
         end,
@@ -582,6 +614,29 @@ local function draw_main_frame(center, player)
     player.opened = frame
 end
 
+local function reward_player(player, index, message)
+    if not global.config.player_rewards.enabled or not global.config.player_rewards.info_player_reward then
+        return
+    end
+
+    local player_index = player.index
+    if not rewarded_players[player_index] then
+        error('Player with no entry in rewarded_players table')
+        return false
+    end
+    local tab_flag = info_tab_flags[index]
+
+    if bit32.band(rewarded_players[player_index], tab_flag) == tab_flag then
+        return
+    else
+        PlayerRewards.give_reward(player, reward_amount, message)
+        rewarded_players[player_index] = rewarded_players[player_index] + tab_flag
+        if rewarded_players[player_index] == flags_sum then
+            rewarded_players[player_index] = nil
+        end
+    end
+end
+
 local function toggle(event)
     local player = event.player
     local center = player.gui.center
@@ -596,21 +651,15 @@ end
 
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
-
     if not player or not player.valid then
         return
     end
 
     local gui = player.gui
-
     gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'utility/questionmark'}
 
-    if player.admin or UserGroups.is_regular(player.name) or welcomed_players[player.index] then
-        return
-    end
-
-    welcomed_players[player.index] = true
-    draw_main_frame(gui.center, player)
+    rewarded_players[player.index] = 0
+    reward_player(player, info_tab_flags[1])
 end
 
 Event.add(defines.events.on_player_created, player_created)
@@ -644,6 +693,10 @@ Gui.on_click(
         Gui.clear(content)
 
         pages[index].content(content, player)
+        local string = format('%s %s%s awarded for reading a tab on the info screen.', reward_amount, reward_token, reward_plural_indicator)
+        if rewarded_players[player.index] then
+            reward_player(player, index, string)
+        end
     end
 )
 
@@ -663,6 +716,8 @@ Gui.on_custom_close(
         Gui.destroy(event.element)
     end
 )
+
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
 local Public = {}
 
@@ -690,8 +745,13 @@ function Public.get_map_extra_info()
     return editable_info[map_extra_info_key]
 end
 
-function Public.set_map_extra_info(value)
-    editable_info[map_extra_info_key] = value
+--- Adds to existing map_extra_info. Removes default text if it is the only text in place.
+function Public.add_map_extra_info(value)
+    if editable_info[map_extra_info_key] == global.config.map_info.map_extra_info_key then
+        editable_info[map_extra_info_key] = value
+    else
+        editable_info[map_extra_info_key] = string.format('%s\n%s', editable_info[map_extra_info_key], value)
+    end
 end
 
 function Public.get_new_info()
