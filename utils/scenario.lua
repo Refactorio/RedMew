@@ -10,7 +10,7 @@ global.scenario_loaded = false
 
 return function (scenario_namespace, config)
     if global.scenario_loaded then
-        error(format('Cannot register '%s' scenario multiple times.', scenario_namespace))
+        error(format('Cannot register %s scenario multiple times.', scenario_namespace))
         return
     end
 
