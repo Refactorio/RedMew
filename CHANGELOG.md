@@ -7,14 +7,22 @@ All notable changes to this project will be documented in this file.
 
 
 ### Features
+- [Diggy] Improved Biter aggression and scales a bit higher #498
+- [Map] Added spiral_crossings map preset. #508
 - [Map] Added 'rotten_apples' map preset and supporting files. #494
 - [Diggy] Added a crumbling effect from the ceiling when close to collapse #478
 - [Core] Add core cheats #490
+- [Diggy] Added big rocks to the table #489
 ### Bugfixes
+- [Diggy] Fixed duplicate big rock and missing huge rock #497
+- [Core] Minor fixes in the config #499
 - [Diggy] Balancing changes #481
 - [Diggy] Fixed a bug related to player index missing #483
 - [Diggy] Lowered uranium density in main vein #479
 ### Internal
+- [Core] Server time #487
+- [Core] Add inspect and size to table util #492
+- [Map] Removed the old cave_miner #500
 - [Core] Added a new command wrapper #443
 - [Core] Overhaul utils and add minor functionality #464
 - [Core] Add ability to push time from server to factorio #487
