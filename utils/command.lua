@@ -163,7 +163,7 @@ function Command.add(command_name, options, callback)
                 end
             end
 
-            if not parameter then
+            if parameter == nil then
                 insert(errors, format('Argument %s from command %s is missing.', argument, command_name))
             else
                 named_arguments[argument] = parameter
