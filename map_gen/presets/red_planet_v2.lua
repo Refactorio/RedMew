@@ -530,3 +530,4 @@ function run_planet(params)
         table.insert(global.planet_tiles_hold, {name = tile_to_insert, position = {pos_x, pos_y}})
     end
 end
+return nil

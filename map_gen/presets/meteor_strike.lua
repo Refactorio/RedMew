@@ -168,3 +168,4 @@ local function on_tick()
 end
 
 Event.add(defines.events.on_tick, on_tick)
+return nil

@@ -625,3 +625,4 @@ function run_swamp_cleanup(params)
         surface.create_decoratives {check_collision = false, decoratives = {deco}}
     end
 end
+return nil

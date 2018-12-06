@@ -153,3 +153,4 @@ function run_shape_module(event)
             removeChunk(event)
     end
 end
+return nil

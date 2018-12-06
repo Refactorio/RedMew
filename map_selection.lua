@@ -1,7 +1,9 @@
 local map_name = 'default'
-
 --[[
 Replace the word default in the quotes above with the name of the map you want to play then save this file.
+Example: If you want to play beach, line 1 should look like:
+local map_name = 'beach'
+
 You can get the full list of map names by looking in map_names.lua
 Names of some popular maps:
 diggy
@@ -27,10 +29,7 @@ tetris
 triangle_of_death
 void_gears
 
-If you want to play beach, line 1 should look like:
-local map_name = 'beach'
-
 If default is left in place, you will get a vanilla world.
-You can also use 'map_layout' to load that file and create custom layouts.
+You can also use 'map_layout' to load that file and create a custom layout.
 ]]
 return map_name

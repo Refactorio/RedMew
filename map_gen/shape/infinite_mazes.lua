@@ -308,3 +308,4 @@ function run_shape_module(event)
 
     on_chunk_generated_ore(event)
 end
+return nil
