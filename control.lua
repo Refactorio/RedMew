@@ -1,9 +1,9 @@
 -- Omitting the math library is a very bad idea
 require 'utils.math'
 
--- Map layout and config dictate the map you play and the settings in it
+-- Config and map_loader dictate the map you play and the settings in it
 require 'config'
-require 'map_layout'
+require 'map_gen.map_loader' -- to change the map you're playing, modify map_selection.lua
 
 -- Specific to RedMew hosts, can be disabled safely if not hosting on RedMew servers
 require 'features.server'
