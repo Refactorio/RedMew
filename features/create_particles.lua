@@ -11,9 +11,9 @@ local format = string.format
 local CreateParticles = {}
 
 local settings = {
-    scale = 1.0,
+    faction = 1.0,
     particles_spawned_buffer = 0,
-    max_particles_in_three_seconds = 12000,
+    max_particles_per_second = 4000,
 }
 
 Global.register({
@@ -23,22 +23,22 @@ Global.register({
 end)
 
 ---sets the scale of particles. 1.0 means 100%, 0.5 would mean spawn only 50% of the particles.
----@param scale number
-function CreateParticles.set_scale(scale)
-    if scale < 0 or scale > 1 then
-        error(format('Scale must range from 0 to 1'))
+---@param fraction number
+function CreateParticles.set_fraction(fraction)
+    if fraction < 0 or fraction > 1 then
+        error(format('Fraction must range from 0 to 1'))
     end
 
-    settings.scale = scale
+    settings.faction = fraction
 end
 
 ---Returns the current scale
-function CreateParticles.get_scale()
-    return settings.scale
+function CreateParticles.get_fraction()
+    return settings.faction
 end
 
 local function get_particle_cap()
-    return settings.max_particles_in_three_seconds * (settings.scale + 0.1)
+    return settings.max_particles_per_second * (settings.faction + 0.1)
 end
 
 ---Returns whether or not more particles may be spawned, scale minimum is 0.1
@@ -46,37 +46,33 @@ local function may_spawn_particles()
     return settings.particles_spawned_buffer < get_particle_cap()
 end
 
---- resets the amount of particles in the past 3 seconds so new ones may spawn
-Event.on_nth_tick(191, function ()
+--- resets the amount of particles in the past second so new ones may spawn
+Event.on_nth_tick(63, function ()
     settings.particles_spawned_buffer = 0
 end)
 
-Command.add('set-particle-scale', {
-    description = 'Sets the particle scale between 0 and 1. Lower means less particles per function and a lower buffer size per 3 seconds.',
-    arguments = {'scale'},
+Command.add('particle-scale', {
+    description = 'Provide a fraction between 0 and 1 to lower or increase the amount of (max) particles. Leave empty to view the current values.',
+    arguments = {'fraction'},
+    default_values = {fraction = false},
     admin_only = true,
     allowed_by_server = true,
 }, function (arguments, player)
-    local scale = tonumber(arguments.scale)
-    if scale == nil or scale < 0 or scale > 1 then
-        player.print('Scale must be a valid number ranging from 0 to 1')
-        return
+    local p = player and player.print or print
+
+    local fraction = arguments.fraction
+
+    if fraction ~= false then
+        local scale = tonumber(fraction)
+        if scale == nil or scale < 0 or scale > 1 then
+            p('Scale must be a valid number ranging from 0 to 1')
+            return
+        end
+        CreateParticles.set_fraction(scale)
     end
 
-    CreateParticles.set_scale(scale)
-    local p = player.print
-    p(format('Particle scale changed to: %.2f', scale))
-    p(format('Particles per 3 seconds: %d', get_particle_cap()))
-end)
-
-Command.add('get-particle-scale', {
-    description = 'Shows the current particle scale.',
-    admin_only = true,
-    allowed_by_server = true,
-}, function (_, player)
-    local p = player.print
-    p(format('Particle scale: %.2f', CreateParticles.get_scale()))
-    p(format('Particles per 3 seconds: %d', get_particle_cap()))
+    p(format('Particle fraction: %.2f', CreateParticles.get_fraction()))
+    p(format('Particles per second: %d', get_particle_cap()))
 end)
 
 ---Scales the count to round the fraction up. Always returns at least 1 unless the particle limit is reached.
@@ -87,7 +83,7 @@ local function scale_ceil(count)
         return 0
     end
 
-    local scale = settings.scale
+    local scale = settings.faction
     if scale == 0 then
         return 1
     end
@@ -102,7 +98,7 @@ end
 ---Useful for particle spawning that doesn't influence gameplay.
 ---@param count number
 local function scale_floor(count)
-    local scale = settings.scale
+    local scale = settings.faction
     if scale == 0 then
         return 0
     end
