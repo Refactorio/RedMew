@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 
 
 ### Features
+- [Core] Docs into wiki #510
 - [Diggy] Improved Biter aggression and scales a bit higher #498
 - [Map] Added spiral_crossings map preset. #508
 - [Map] Added 'rotten_apples' map preset and supporting files. #494
@@ -20,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - [Diggy] Fixed a bug related to player index missing #483
 - [Diggy] Lowered uranium density in main vein #479
 ### Internal
+- [Core] Added a basic RedMew configuration setup #502
 - [Core] Server time #487
 - [Core] Add inspect and size to table util #492
 - [Map] Removed the old cave_miner #500
