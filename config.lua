@@ -14,6 +14,10 @@ global.config = {
     -- New Scenario Features, appears in the "What's new" tab
     new_info_key = 'Nothing is new. The world is at peace',
 
+    performance = {
+        enabled = true,
+    },
+  
     -- adds a player list icon and keeps track of data.
     player_list = {
         enabled = true,

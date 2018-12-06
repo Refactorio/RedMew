@@ -39,6 +39,10 @@ end
 require 'features.train_station_names'
 require 'features.walkabout'
 
+if global.config.performance.enabled then
+    require 'features.performance'
+end
+
 -- GUIs the order determines the order they appear from left to right.
 -- These can be safely disabled if you want less GUI items.
 -- Some map presets will add GUI modules themselves.
