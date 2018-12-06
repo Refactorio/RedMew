@@ -17,7 +17,6 @@ elseif map_name == 'map_layout' then
     require 'map_gen.map_layout'
 else
     error('Incorrect map name/map name not found in table')
-    return
 end
 
 if shape then
