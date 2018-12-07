@@ -47,7 +47,7 @@ local support_beam_entities
 local on_surface_created
 
 local stress_threshold_causing_collapse = 3.57
-local near_stress_threshold_causing_collapse = 3.57 * 0.9
+local near_stress_threshold_causing_collapse = 3.3 --
 
 local show_deconstruction_alert_message = {}
 local stress_map_storage = {}
@@ -464,7 +464,7 @@ local function add_fraction(stress_map, x, y, fraction, player_index, surface)
         end
     end
     if enable_stress_grid then
-        Debug.print_colored_grid_value(value, surface, {x = x, y = y}, 4, 0.5, false,
+        Debug.print_colored_grid_value(value, surface, {x = x, y = y}, 0.5, false,
             value / stress_threshold_causing_collapse,  {r = 0, g = 1, b = 0}, {r = 1, g = -1, b = 0},
             {r = 0, g = 1, b = 0}, {r = 1, g = 1, b = 1})
     end
@@ -492,7 +492,7 @@ end
 ---@param callback function
 stress_map_check_stress_in_threshold = function(surface, x, y, threshold, callback)
     local stress_map = stress_map_storage[surface.index]
-    local value = add_fraction(stress_map, x, y, 0, surface)
+    local value = add_fraction(stress_map, x, y, 0, nil, surface)
 
     if (value >= stress_threshold_causing_collapse - threshold) then
         callback(surface, x, y)
