@@ -47,7 +47,7 @@ local support_beam_entities
 local on_surface_created
 
 local stress_threshold_causing_collapse = 3.57
-local near_stress_threshold_causing_collapse = 3.3 --
+local near_stress_threshold_causing_collapse = 3.3 -- just above the threshold of a normal 4 pillar grid
 
 local show_deconstruction_alert_message = {}
 local stress_map_storage = {}
