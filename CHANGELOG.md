@@ -16,6 +16,8 @@ All notable changes to this project will be documented in this file.
 - [Core] Add core cheats #490
 - [Diggy] Added big rocks to the table #489
 ### Bugfixes
+- [Core] Fix car body directions #521
+- [Diggy] Fixed some bugs and tweaked some balance #520
 - [Diggy] Fixed duplicate big rock and missing huge rock #497
 - [Core] Minor fixes in the config #499
 - [Diggy] Balancing changes #481
