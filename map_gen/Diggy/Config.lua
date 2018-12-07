@@ -71,9 +71,6 @@ local Config = {
             -- primarily used for multiplayer, can be disabled without consequences
             enable_digging_warning = true,
 
-            -- enables commands like /clear-void
-            enable_debug_commands = false,
-
             -- initial damage per tick it damages a rock to mine, can be enhanced by robot_damage_per_mining_prod_level
             robot_initial_mining_damage = 4,
 
@@ -90,9 +87,6 @@ local Config = {
 
             -- shows the mask on spawn
             enable_mask_debug = false,
-
-            -- enables commands like /test-tile-support-range
-            enable_debug_commands = false,
 
             --the size of the mask used
             mask_size = 9,

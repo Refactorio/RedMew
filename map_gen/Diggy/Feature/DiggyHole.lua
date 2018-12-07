@@ -9,8 +9,10 @@ local Global = require 'utils.global'
 local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Debug = require 'map_gen.Diggy.Debug'
+local Command = require 'utils.command'
 local CreateParticles = require 'features.create_particles'
 local random = math.random
+local tonumber = tonumber
 local raise_event = script.raise_event
 
 -- this
@@ -118,6 +120,27 @@ local function on_mined_tile(surface, tiles)
 
     Template.insert(surface, new_tiles, {})
 end
+Command.add('diggy-clear-void', {
+    description = 'Clears the void in a given area but still triggers all events Diggy would when clearing void.',
+    arguments = {'left_top_x', 'left_top_y', 'width', 'height', 'surface_index'},
+    debug_only = true,
+    admin_only = true,
+}, function(arguments)
+    local left_top_x = tonumber(arguments.left_top_x)
+    local left_top_y = tonumber(arguments.left_top_y)
+    local width = tonumber(arguments.width)
+    local height = tonumber(arguments.height)
+    local tiles = {}
+    local count = 0
+    for x = 0, width do
+        for y = 0, height do
+            count = count + 1
+            tiles[count] = {name = 'dirt-' .. random(1, 7), position = {x = x + left_top_x, y = y + left_top_y}}
+        end
+    end
+
+    Template.insert(game.surfaces[arguments.surface_index], tiles, {})
+end)
 
 --[[--
     Registers all event handlers.
@@ -223,37 +246,6 @@ function DiggyHole.register(config)
         robot_mining.research_modifier = new_modifier
         update_robot_mining_damage()
     end)
-
-    if config.enable_debug_commands then
-        commands.add_command('clear-void', '<left top x> <left top y> <width> <height> <surface index> triggers Template.insert for the given area.', function(cmd)
-            local params = {}
-            local args = cmd.parameter or ''
-            for param in string.gmatch(args, '%S+') do
-                table.insert(params, param)
-            end
-
-            if (#params ~= 5) then
-                game.player.print('/clear-void requires exactly 5 arguments: <left top x> <left top y> <width> <height> <surface index>')
-                return
-            end
-
-            local left_top_x = tonumber(params[1])
-            local left_top_y = tonumber(params[2])
-            local width = tonumber(params[3])
-            local height = tonumber(params[4])
-            local surface_index = params[5]
-            local tiles = {}
-            local count = 0
-            for x = 0, width do
-                for y = 0, height do
-                    count = count + 1
-                    tiles[count] = {name = 'dirt-' .. random(1, 7), position = {x = x + left_top_x, y = y + left_top_y}}
-                end
-            end
-
-            Template.insert(game.surfaces[surface_index], tiles, {})
-        end)
-    end
 end
 
 function DiggyHole.on_init()
