@@ -13,7 +13,6 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
 local CreateParticles = require 'features.create_particles'
-local insert = table.insert
 local random = math.random
 local floor = math.floor
 local abs = math.abs
@@ -182,8 +181,6 @@ local function spawn_cracking_sound_text(surface, position)
 end
 
 local function on_collapse_triggered(event)
-    if global.cave_collapse_disabled then return end --kill switch
-
     local surface = event.surface
     local position = event.position
     local x = position.x
@@ -414,61 +411,6 @@ to reinforce it further.
             Debug.print_grid_value(fraction, surface, {x = x, y = y})
         end)
     end
-
-
-    if config.enable_debug_commands then
-        commands.add_command('test-tile-support-range', '<tilename> <range> creates a square of tiles with length <range>. It is spawned one <range> north of the player.', function(cmd)
-            local params = {}
-            for param in string.gmatch(cmd.parameter, '%S+') do
-                table.insert(params, param)
-            end
-
-            local tilename = params[1]
-            local range = tonumber(params[2])
-
-            local position = {x = math.floor(game.player.position.x), y = math.floor(game.player.position.y) - 5 * range - 1}
-            local surface = game.player.surface
-            local tiles = {}
-            local entities = {}
-            for x = position.x, position.x + range * 5 do
-                for y = position.y, position.y + range  * 5 do
-                    if y % range + x % range == 0 then
-                        insert(entities,{name = 'stone-wall', position = {x=x,y=y}})
-                    end
-                    insert(tiles, {position = {x = x, y = y}, name = tilename})
-
-                    local strength = support_beam_entities[tilename]
-                    if strength then
-                        stress_map_add(surface, {x = x, y = y}, - strength)
-                    end
-                    for _, entity in pairs(surface.find_entities_filtered({position = {x = x, y = y}})) do
-                        pcall(function()
-                            local local_strength = support_beam_entities[entity.name]
-                            local local_position = entity.position
-                            entity.die()
-                            if strength then
-                                stress_map_add(surface, local_position, local_strength)
-                            end
-                        end)
-                    end
-                end
-            end
-            Template.insert(surface, tiles, entities)
-        end)
-     end
-
-    commands.add_command('toggle-cave-collapse', 'Toggles cave collapse (admins only).', function()
-      pcall(function() --better safe than sorry
-          if not game.player or game.player.admin then
-              global.cave_collapse_disabled = not global.cave_collapse_disabled
-              if global.cave_collapse_disabled then
-                  game.print('Cave collapse: Disabled.')
-              else
-                  game.print('Cave collapse: Enabled.')
-              end
-          end
-      end)
-    end)
 end
 
 --
