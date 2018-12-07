@@ -1,9 +1,14 @@
 local Game = require 'utils.game'
 local Event = require 'utils.event'
+local Task = require 'utils.Task'
+local Token = require 'utils.token'
 local random = math.random
 local insert = table.insert
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
+if not global.map.terraforming then
+    global.map.terraforming = {}
+end
 
 --[[
 Some inspiration and bits of code taken from Nightfall by Yehn and dangOreus by Mylon.
@@ -40,7 +45,9 @@ local death_recap_timer = 1200 --  20 secs
 -- force that is restricted to the creep
 local creep_force = 'player'
 -- the threshold above which creep expands
-local pollution_threshold = 200
+local pollution_upper_threshold = 200
+-- the threshold below which creep retracts
+local pollution_lower_threshold = 100
 -- the number of tiles that change to/from creep at once
 local random_factor = 0.1
 
@@ -54,7 +61,10 @@ local player_damage_message = 'You are taking damage from the toxic atmosphere.'
 local vehicle_ejecte_message = 'The toxic atmosphere wreaks havoc on your controls and you find yourself ejected from the vehicle.'
 -- message printed to game when a player dies to the atmosphere
 local player_death_message = 'The toxic atmosphere has claimed a victim.'
-
+-- message printed to the game when a bot is destroyed placing a tile
+local dead_robot_recap_message = ' robots died trying to place tiles, it seemed as though the ground swelled up swallowed them whole.'
+-- message printed to the game when a player tries placing a tile
+local player_built_tile_message = 'The ground rejects the artificial tiles you have tried to place'
 
 -- boosts while on creep
 local boosts = {
@@ -65,12 +75,12 @@ local boosts = {
 }
 
 -- which tiles to use for creep expansion
-local creep_expansion_tiles = {
+local creep_expansion_tiles = global.map.terraforming.creep_expansion_tiles or {
     'grass-1',
     'grass-2',
 }
 -- which tiles to use when creep retracts
-local creep_retraction_tiles = {
+local creep_retraction_tiles = global.map.terraforming.creep_retraction_tiles or {
     'dirt-1',
     'dirt-2',
     'dry-dirt',
@@ -79,7 +89,7 @@ local creep_retraction_tiles = {
     'sand-3',
 }
 -- which tiles players can build on/count as creep
-local creep_tiles = {
+local creep_tiles = global.map.terraforming.creep_tiles or {
     'grass-1',
     'grass-2',
     'concrete',
@@ -91,7 +101,7 @@ local creep_tiles = {
     'stone-path',
 }
 -- tiles which creep can expand into
-local non_creep_tiles = {
+local non_creep_tiles = global.map.terraforming.non_creep_tiles or {
     'dirt-1',
     'dirt-2',
     'dirt-3',
@@ -112,6 +122,23 @@ local non_creep_tiles = {
 }
 -- Tiles which are completely exempt from the creep mechanic, currently kept in comment as a reference:
 -- 'deepwater', 'deepwater-green', 'out-of-map', 'water', 'water-green', 'lab-dark-1', 'lab-dark-2', 'lab-white', 'tutorial-grid'
+local decoratives = {
+    'brown-asterisk',
+    'brown-carpet-grass',
+    'brown-fluff',
+    'brown-fluff-dry',
+    'brown-hairy-grass',
+    'garballo',
+    'garballo-mini-dry',
+    'green-asterisk',
+    'green-bush-mini',
+    'green-carpet-grass',
+    'green-hairy-grass',
+    'green-pita',
+    'green-pita-mini',
+    'green-small-grass',
+    'red-asterisk'
+}
 
 -- the 5 states a chunk can be in
 local NOT_CREEP = 1 -- Chunk is 0% creep tiles and unpolluted
@@ -122,7 +149,9 @@ local CREEP_UNKNOWN = 5 -- a special case for newly-generated chunks where we ne
 
 -- Register our globals
 local chunklist = {}
+local popup_timeout = {}
 local death_count = {0}
+local dead_robot_count = {0}
 local c_index = {1}
 
 Global.register(
@@ -130,11 +159,15 @@ Global.register(
         chunklist = chunklist,
         death_count = death_count,
         c_index = c_index,
+        dead_robot_count = dead_robot_count,
+        popup_timeout = popup_timeout,
     },
     function(tbl)
         chunklist = tbl.chunklist
         death_count = tbl.death_count
         c_index = tbl.c_index
+        dead_robot_count = tbl.dead_robot_count
+        popup_timeout = popup_timeout
     end
 )
 
@@ -154,6 +187,13 @@ local function convert_tiles(tile_table, tiles)
     -- change the tiles to the target_tile
     set_tiles(tile_set)
 end
+
+local on_popup_timeout_complete =
+    Token.register(
+    function(name)
+        popup_timeout[name] = nil
+    end
+)
 
 --- Kills buildings that are not on creep tiles
 -- @param entity LuaEntity to kill
@@ -197,8 +237,10 @@ local function kill_invalid_builds(entity, event)
         entity.die()
         force.ghost_time_to_live = ttl
         death_count[1] = death_count[1] + 1
-        if event and last_user and last_user.connected then
+        if event and last_user and last_user.connected and not popup_timeout[last_user.name] then
             Popup.player(Game.get_player_by_index(event.player_index), popup_message)
+            popup_timeout[last_user.name] = true
+            Task.set_timeout(60, on_popup_timeout_complete, last_user.name)
         end
     end
 end
@@ -223,13 +265,13 @@ end
 --@param i number of the chunk's key in the chunklist table
 local function change_creep_state(state, i)
     local find_tiles_filtered = game.surfaces[1].find_tiles_filtered
-    -- expand = 1, retract = 2
     local tiles_to_set = {}
     local debug_message
     local chunk_end_state
     local chunk_transition_state
     local tiles_to_find
 
+    -- states: expand = 1, retract = 2
     if state == 1 then
         tiles_to_find = non_creep_tiles
         tiles_to_set = creep_expansion_tiles
@@ -261,9 +303,10 @@ local function change_creep_state(state, i)
     else
         -- if there are 0 tiles to convert, they're either fully creep or fully non-creep
         chunklist[i].is_creep = chunk_end_state
-        -- if a chunk has lost all creep, do a final check to see if there are any buildings to kill
+        -- if a chunk has lost all creep, do a final check to see if there are any buildings to kill and regen the decoratives
         if state == 2 then
             check_chunk_for_entities(chunklist[i])
+            game.surfaces[1].regenerate_decorative(decoratives, {{chunklist[i].x, chunklist[i].y}})
         end
     end
 end
@@ -278,9 +321,9 @@ local function on_tick()
             c_index[1] = 1
             break
         end
-        if get_pollution(chunklist[i]) > pollution_threshold and chunklist[i].is_creep ~= FULL_CREEP then
+        if get_pollution(chunklist[i]) > pollution_upper_threshold and chunklist[i].is_creep ~= FULL_CREEP then
             change_creep_state(1, i) -- expand = 1, retract = 2
-        elseif get_pollution(chunklist[i]) == 0 and chunklist[i].is_creep ~= NOT_CREEP then
+        elseif get_pollution(chunklist[i]) < pollution_lower_threshold and chunklist[i].is_creep ~= NOT_CREEP then
             change_creep_state(2, i) -- expand = 1, retract = 2
         end
         if chunklist[i].is_creep == CREEP_RETRACTION then
@@ -309,6 +352,10 @@ local function print_death_recap()
         game.print(death_count[1] .. death_recap_message)
         death_count[1] = 0
     end
+    if dead_robot_count[1] > 1 then
+        game.print(dead_robot_count[1] .. dead_robot_recap_message)
+        dead_robot_count[1] = 0
+    end
 end
 
 --- Send newly built entities on to kill_invalid_builds
@@ -325,75 +372,96 @@ local function apply_penalties(p, c)
     c.disable_flashlight()
 end
 
-
 --- Gives movement speed buffs when on creep, slows when only near creep, damages when far from creep.
 local function apply_creep_effects_on_players()
     local radius = 10 --distance to check around player for creep (nb. not actually a radius)
     for _, p in pairs(game.connected_players) do
         local c = p.character
-        if not c then
-            return
-        end
-        -- count all non_creep_tiles around the player
-        local count = p.surface.count_tiles_filtered {name = non_creep_tiles, area = {{p.position.x - radius, p.position.y - radius}, {p.position.x + radius, p.position.y + radius}}}
-        if count == (radius * 2) ^ 2 then
-            -- kick player from vehicle
-            if p.vehicle then
-                p.driving = false
-                p.print(vehicle_ejecte_message)
-            end
-            -- calculate damage based on whether player has shields and is not in combat and check to see if we would deal lethal damage
-            -- (shields prevent us putting the character into combat, so we need to compensate for health regen)
-            local message = player_damage_message
-            local damage
-            if c.grid and c.grid.shield and not c.in_combat then
-                damage = off_creep_damage + regen_factor
-                message = message .. ' Your shields do nothing to help.'
+        if c then
+            -- count all non_creep_tiles around the player
+            local count = p.surface.count_tiles_filtered {name = non_creep_tiles, area = {{p.position.x - radius, p.position.y - radius}, {p.position.x + radius, p.position.y + radius}}}
+            if count == (radius * 2) ^ 2 then
+                -- kick player from vehicle
+                if p.vehicle then
+                    p.driving = false
+                    p.print(vehicle_ejecte_message)
+                end
+                -- calculate damage based on whether player has shields and is not in combat and check to see if we would deal lethal damage
+                -- (shields prevent us putting the character into combat, so we need to compensate for health regen)
+                local message = player_damage_message
+                local damage
+                if c.grid and c.grid.shield and not c.in_combat then
+                    damage = off_creep_damage + regen_factor
+                    message = message .. ' Your shields do nothing to help.'
+                else
+                    damage = off_creep_damage
+                end
+                if (damage + 10) >= c.health then -- add 10 for the acid projectile damage
+                    c.die('enemy')
+                    game.print(player_death_message)
+                    return
+                end
+                -- create acid splash and deal damage
+                p.surface.create_entity {name = 'acid-projectile-purple', target = p.character, position = p.character.position, speed = 10}
+                c.health = c.health - damage
+                p.print(message)
+                -- apply penalties for being away from creep
+                apply_penalties(p, c)
+                if global.DEBUG_ON_CREEP then
+                    game.print('Far from creep and taking damage')
+                end
+            elseif count > (radius * 2) ^ 2 * 0.8 then
+                -- apply penalties for being away from creep
+                apply_penalties(p, c)
+                if global.DEBUG_ON_CREEP then
+                    game.print('Near but not on creep')
+                end
             else
-                damage = off_creep_damage
-            end
-            if (damage + 10) >= c.health then -- add 10 for the acid projectile damage
-                c.die('enemy')
-                game.print(player_death_message)
-                return
-            end
-            -- create acid splash and deal damage
-            p.surface.create_entity {name = 'acid-projectile-purple', target = p.character, position = p.character.position, speed = 10}
-            c.health = c.health - damage
-            p.print(message)
-            -- apply penalties for being away from creep
-            apply_penalties(p, c)
-            if global.DEBUG_ON_CREEP then
-                game.print('Far from creep and taking damage')
-            end
-        elseif count > (radius * 2) ^ 2 * 0.8 then
-            -- apply penalties for being away from creep
-            apply_penalties(p,c)
-            if global.DEBUG_ON_CREEP then
-                game.print('Near but not on creep')
-            end
-        else
-            -- apply boosts for being on or near creep
-            for boost, boost_value in pairs(boosts) do
-                p[boost] = boost_value
-            end
-            c.enable_flashlight()
-            if global.DEBUG_ON_CREEP then
-                game.print('On creep and getting full benefits')
+                -- apply boosts for being on or near creep
+                for boost, boost_value in pairs(boosts) do
+                    p[boost] = boost_value
+                end
+                c.enable_flashlight()
+                if global.DEBUG_ON_CREEP then
+                    game.print('On creep and getting full benefits')
+                end
             end
         end
     end
+end
+
+--- Revert built tiles
+local function check_on_tile_built(event)
+    local surface
+    if event.robot then
+        surface = event.robot.surface
+        event.robot.die('enemy')
+        dead_robot_count[1] = dead_robot_count[1] + 1
+    else
+        local player = Game.get_player_by_index(event.player_index)
+        surface = player.surface
+        player.print(player_built_tile_message)
+    end
+    global.temp = event.tiles
+    local tile_set = {}
+    insert = table.insert
+    for k, v in pairs(event.tiles) do
+        tile_set[#tile_set + 1] = {name = v.old_tile.name, position = v.position}
+    end
+    surface.set_tiles(tile_set)
 end
 
 Event.add(defines.events.on_tick, on_tick)
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)
 Event.add(defines.events.on_built_entity, check_on_built)
 Event.add(defines.events.on_robot_built_entity, check_on_built)
+Event.add(defines.events.on_player_built_tile, check_on_tile_built)
+Event.add(defines.events.on_robot_built_tile, check_on_tile_built)
 Event.on_nth_tick(death_recap_timer, print_death_recap)
 Event.on_nth_tick(player_pos_check_time, apply_creep_effects_on_players)
 
 --- Debug commands which will generate or clear pollution
-if _DEBUG then
+if _DEBUG or _CHEATS then
     commands.add_command(
         'cloud',
         'Use your vape rig to create a pollution cloud around you',

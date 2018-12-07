@@ -5,12 +5,12 @@ If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
 
-global.config.map = {}
-
 local b = require 'map_gen.shared.builders'
 require 'map_gen.shared.perlin_noise'
+global.map = {}
+global.map.terraforming = {}
 
-local shape = nil
+local shape
 local regen_decoratives = false
 local tiles_per_tick = 32
 
@@ -145,7 +145,7 @@ local terrain_modules = {
 --require 'map_gen.misc.naughty_words' -- admonishes players for cursing
 --require 'map_gen.misc.infinite_storage_chest'
 
-global.config.map.day_night_cycle = '' -- for options, see the files in map_gen/day_night_cycles/
+global.map.day_night_cycle = global.map.day_night_cycle or '' -- for options, see the files in map_gen/day_night_cycles/
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
@@ -169,6 +169,6 @@ if shape then
     require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
     --require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end
-if global.config.map.day_night_cycle and global.config.map.day_night_cycle ~= '' then
+if global.map.day_night_cycle and global.map.day_night_cycle ~= '' then
     require 'map_gen.day_night_cycles.day_night_cycle'
 end

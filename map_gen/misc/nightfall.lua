@@ -92,7 +92,9 @@ local function biter_attack()
     if state[1] == IDLE then
         c_index[1] = 1
         lastattack[1] = game.tick
-        game.print('[NIGHTFALL] attack complete')
+        if _DEBUG then
+            game.print('[NIGHTFALL] attack complete')
+        end
     end
 end
 
@@ -128,7 +130,9 @@ local function find_bases()
     --Reset our index and shuffle the table if we're moving to the next state.
     if state[1] == ATTACKING then
         c_index[1] = 1
-        table.shuffle_table(bases)
+        if #bases > 0 then
+            table.shuffle_table(bases)
+        end
         if _DEBUG then
             game.print('[NIGHTFALL] bases added: ' .. tostring(#bases))
             game.print('[NIGHTFALL] entering ATTACKING state')

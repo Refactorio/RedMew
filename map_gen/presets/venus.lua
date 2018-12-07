@@ -1,6 +1,23 @@
 -- luacheck: ignore pollution enemy_evolution enemy_expansion
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
+global.map.terraforming.creep_retraction_tiles = { 'sand-1' }
+require 'map_gen.misc.nightfall' -- forces idle biters to attack at night
+require 'map_gen.misc.terraforming' -- prevents players from building on non-terraformed tiles
+global.map.day_night_cycle = 'long_days_long_nights_fast_transitions'
+local ScenarioInfo = require 'features.gui.info'
+
+ScenarioInfo.set_map_name('Terraform Venus')
+ScenarioInfo.set_map_description('After a long journey you have reached Venus. Your mission is simple, turn this hostile environment into one where humans can thrive')
+ScenarioInfo.set_map_extra_info(
+    '- Venus is an endless desert spotted with tiny oases\n' ..
+    '- The atmosphere is toxic and you are not equipped to deal with it\n' ..
+    '- While unsure the exact effects the atmosphere will have, you should be cautios of it\n' ..
+    '- As you spread breathable atmosphere the ground will change to show where you can breathe\n' ..
+    '- The days seem endless, but when the sun begins setting night is upon us immediately.\n' ..
+    '- The biters here are numerous and seem especially aggressive during the short nights\n' ..
+    '- Technology seems to take 6 times longer than usual'
+)
 
 local function value(base, mult)
     return function(x, y)
@@ -98,12 +115,13 @@ map = b.change_map_gen_collision_tile(map, 'ground-tile', 'sand-1')
 map = b.translate(map, 6, -10) -- translate the whole map away, otherwise we'll spawn in the water
 map = b.apply_effect(map, no_trees)
 
+--- Sets the map parameters once the game begins and we have a surface to act on
 local function on_init()
     local player_force = game.forces.player
 
     player_force.recipes['steel-plate'].enabled = true
     player_force.recipes['medium-electric-pole'].enabled = true
-    game.difficulty_settings.technology_price_multiplier = 1000
+    game.difficulty_settings.technology_price_multiplier = 6
     local map_settings = game.map_settings
     local pollution = map_settings.pollution
     local p = {
@@ -148,13 +166,13 @@ local function on_init()
 
     local surface = game.surfaces.nauvis
     surface.map_gen_settings = {
-        terrain_segmentation = 'normal', -- water frequency
-        water = 'none', -- water size
+        terrain_segmentation = 'very-low', -- water frequency
+        water = 'very-low', -- water size
         autoplace_controls = {
-            stone = {frequency = 'normal', size = 'high', richness = 'high'},
-            coal = {frequency = 'normal', size = 'high', richness = 'high'},
-            ['copper-ore'] = {frequency = 'normal', size = 'high', richness = 'high'},
-            ['iron-ore'] = {frequency = 'normal', size = 'high', richness = 'high'},
+            stone = {frequency = 'normal', size = 'high', richness = 'normal'},
+            coal = {frequency = 'normal', size = 'high', richness = 'normal'},
+            ['copper-ore'] = {frequency = 'normal', size = 'high', richness = 'normal'},
+            ['iron-ore'] = {frequency = 'normal', size = 'high', richness = 'normal'},
             ['uranium-ore'] = {frequency = 'normal', size = 'normal', richness = 'normal'},
             ['crude-oil'] = {frequency = 'normal', size = 'normal', richness = 'normal'},
             trees = {frequency = 'normal', size = 'none', richness = 'normal'},
@@ -162,13 +180,12 @@ local function on_init()
             grass = {frequency = 'normal', size = 'none', richness = 'normal'},
             desert = {frequency = 'normal', size = 'none', richness = 'normal'},
             dirt = {frequency = 'normal', size = 'none', richness = 'normal'},
-            sand = {frequency = 'normal', size = 'normal', richness = 'normal'},
-            water = {frequency = 'normal', size = 'normal', richness = 'normal'}
+            sand = {frequency = 'normal', size = 'normal', richness = 'normal'}
         },
         cliff_settings = {
             name = 'cliff',
-            cliff_elevation_0 = 1024,
-            cliff_elevation_interval = 10
+            cliff_elevation_0 = 2.5000572204589844,
+            cliff_elevation_interval = 40
         },
         width = 0,
         height = 0,
