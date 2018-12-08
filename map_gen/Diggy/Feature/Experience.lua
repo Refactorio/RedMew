@@ -3,7 +3,6 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
 local ForceControl = require 'features.force_control'
-local Debug = require 'map_gen.Diggy.Debug'
 local Retailer = require 'features.retailer'
 local Gui = require 'utils.gui'
 local force_control = require 'features.force_control'
@@ -83,11 +82,9 @@ function Experience.update_market_contents(force)
     local force_name = force.name
     for _, prototype in pairs(config.unlockables) do
         if (current_level >= prototype.level) then
-            Retailer.set_item(force_name, prototype.name, {coin = prototype.price})
+            Retailer.set_item(force_name, prototype)
         end
     end
-
-    Retailer.ship_items(force_name)
 end
 
 ---Updates a forces manual mining speed modifier. By removing active modifiers and re-adding
