@@ -5,7 +5,6 @@ local format = string.format
 local next = next
 local serialize = serpent.line
 local match = string.match
-local lower = string.lower
 
 local Command = {}
 

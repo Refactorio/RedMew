@@ -9,7 +9,6 @@ local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
 local string_length = string.len
-local string_repeat = string.rep
 local format = string.format
 
 --local Antigrief = require 'features.antigrief'
