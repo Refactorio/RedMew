@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 With Nightfall, biters in polluted areas become more aggressive at night.
 
 TODO: Look into triggering existing unit groups to attack in unison with the groups we generate.
-]]
+]] --
 
 -- Dependencies
 local Event = require 'utils.event'
@@ -34,42 +34,33 @@ local BASE_SEARCH = 2
 local ATTACKING = 3
 
 -- create globals
-local bases = {}
-local c_index = {1}
 local chunklist = {}
-local state = {1}
-local lastattack = {0}
+local data = {bases = {}, c_index = 1, state = 1, lastattack = 0}
 
 Global.register(
     {
-        bases = bases,
-        c_index = c_index,
         chunklist = chunklist,
-        state = state,
-        lastattack = lastattack
+        data = data
     },
     function(tbl)
-        bases = tbl.bases
-        c_index = tbl.c_index
         chunklist = tbl.chunklist
-        state = tbl.state
-        lastattack = tbl.lastattack
+        data = tbl.data
     end
 )
 
 --- Called each tick when in ATTACKING state, scans through _processchunk_ chunks
 -- looking for biters and adding them to a group
 local function biter_attack()
-    local maxindex = #bases
+    local maxindex = #data.bases
     local surface = game.surfaces[1]
-    for i = c_index[1], c_index[1] + processchunk, 1 do
+    for i = data.c_index, data.c_index + processchunk, 1 do
         if i > maxindex then
             -- we reached the end of the table
-            state[1] = IDLE
+            data.state = IDLE
             break
         end
         if random() < surface.darkness then
-            local base = bases[i]
+            local base = data.bases
             local group = surface.create_unit_group {position = base}
 
             for _, biter in pairs(surface.find_enemy_units(base, 16)) do
@@ -87,11 +78,11 @@ local function biter_attack()
             end
         end
     end
-    c_index[1] = c_index[1] + processchunk
+    data.c_index = data.c_index + processchunk
     --Reset if we're moving to the next state.
-    if state[1] == IDLE then
-        c_index[1] = 1
-        lastattack[1] = game.tick
+    if data.state == IDLE then
+        data.c_index = 1
+        data.lastattack = game.tick
         if _DEBUG then
             game.print('[NIGHTFALL] attack complete')
         end
@@ -104,14 +95,14 @@ end
 local function find_bases()
     local get_pollution = game.surfaces[1].get_pollution
     local count_entities_filtered = game.surfaces[1].count_entities_filtered
-    if c_index[1] == 1 then
-        table.clear_table(bases)
+    if data.c_index == 1 then
+        data.bases = {}
     end
     local maxindex = #chunklist
-    for i = c_index[1], c_index[1] + processchunk, 1 do
+    for i = data.c_index, data.c_index + processchunk, 1 do
         if i > maxindex then
             -- we're done with the search
-            state[1] = ATTACKING
+            data.state = ATTACKING
             break
         end
         if get_pollution(chunklist[i]) > 0.1 then
@@ -119,22 +110,23 @@ local function find_bases()
             if
                 (count_entities_filtered {
                     area = {{chunkcoord.x - 16, chunkcoord.y - 16}, {chunkcoord.x + 16, chunkcoord.y + 16}},
-                    type = 'unit-spawner', limit = 1
+                    type = 'unit-spawner',
+                    limit = 1
                 }) > 0
              then
-                insert(bases, chunkcoord)
+                insert(data.bases, chunkcoord)
             end
         end
     end
-    c_index[1] = c_index[1] + processchunk
+    data.c_index = data.c_index + processchunk
     --Reset our index and shuffle the table if we're moving to the next state.
-    if state[1] == ATTACKING then
-        c_index[1] = 1
-        if #bases > 0 then
-            table.shuffle_table(bases)
+    if data.state == ATTACKING then
+        data.c_index = 1
+        if #data.bases > 0 then
+            table.shuffle_table(data.bases)
         end
         if _DEBUG then
-            game.print('[NIGHTFALL] bases added: ' .. tostring(#bases))
+            game.print('[NIGHTFALL] bases added: ' .. tostring(#data.bases))
             game.print('[NIGHTFALL] entering ATTACKING state')
         end
     end
@@ -153,17 +145,20 @@ end
 
 --- Every tick, choose between searching for bases, preparing an attack, or doing nothing
 local function on_tick()
-    if state[1] == BASE_SEARCH then
+    if data.state == BASE_SEARCH then
         find_bases()
-    elseif state[1] == ATTACKING then
+    elseif data.state == ATTACKING then
         biter_attack()
     end
 end
 
 --- Change us from idle to searching for bases if the conditions are met.
 local function on_interval()
-    if game.surfaces[1].darkness > 0.5 and random() > 0.5 and state[1] == IDLE and game.tick >= lastattack[1] + timeinterval then
-        state[1] = BASE_SEARCH
+    if
+        game.surfaces[1].darkness > 0.5 and random() > 0.5 and data.state == IDLE and
+            game.tick >= data.lastattack + timeinterval
+     then
+        data.state = BASE_SEARCH
         if _DEBUG then
             game.surfaces[1].print('[NIGHTFALL] entering BASE_SEARCH state') --for debug
         end
