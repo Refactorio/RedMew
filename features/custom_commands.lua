@@ -8,6 +8,9 @@ local Report = require 'features.report'
 local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
+local string_length = string.len
+local string_repeat = string.rep
+local format = string.format
 
 --local Antigrief = require 'features.antigrief'
 
@@ -595,3 +598,41 @@ commands.add_command(
     'moves you to the antigrief surface or back (Admins only)',
     antigrief_surface_tp
 ) ]]
+
+Command.add('search-command', {
+    description = 'Search for commands matching the keyword in name or description',
+    arguments = {'keyword'},
+    capture_excess_arguments = true,
+}, function (arguments, player)
+    local keyword = arguments.keyword
+    local p = player.print
+    if string_length(keyword) < 2 then
+        p('Keyword should be 2 characters or more')
+        return
+    end
+
+    local matches = Command.search(arguments.keyword)
+    local count = #matches
+
+    if count == 0 then
+        p('----- Search Results -----')
+        p(format('No commands found matching "%s"', keyword))
+        return
+    end
+
+    local max = count > 7 and 7 or count
+
+    p('----- Search Results -----')
+    for i = 1, max do
+        p(format('/%s', matches[i]))
+    end
+
+    local diff = count - max
+    local singular = diff == 1
+    p('-------------------------')
+    if max ~= count then
+        p(format('%d %s hidden, please narrow your search', diff, singular and 'result was' or 'results were'))
+    else
+        p(format('%d %s matching "%s"', count, singular and 'result' or 'results', keyword))
+    end
+end)
