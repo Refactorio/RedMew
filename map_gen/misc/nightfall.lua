@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 With Nightfall, biters in polluted areas become more aggressive at night.
 
 TODO: Look into triggering existing unit groups to attack in unison with the groups we generate.
-]] --
+]]
 
 -- Dependencies
 local Event = require 'utils.event'

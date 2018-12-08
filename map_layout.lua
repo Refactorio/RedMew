@@ -145,8 +145,6 @@ local terrain_modules = {
 --require 'map_gen.misc.naughty_words' -- admonishes players for cursing
 --require 'map_gen.misc.infinite_storage_chest'
 
-global.map.day_night_cycle = global.map.day_night_cycle or '' -- for options, see the files in map_gen/day_night_cycles/
-
 if #entity_modules > 0 then
     shape = shape or b.full_shape
 
@@ -168,7 +166,4 @@ if shape then
 
     require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
     --require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
-end
-if global.map.day_night_cycle and global.map.day_night_cycle ~= '' then
-    require 'map_gen.day_night_cycles.day_night_cycle'
 end

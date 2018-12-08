@@ -30,13 +30,14 @@ end
 -- @param day_night_cycle table containing keys: ticks_per_day, dusk, evening, morning, dawn
 -- @param surface the LuaSurface to set the day/night cycle of
 -- @returns boolean true if set properly
+-- @see Venus::world_settings
 Public.set_cycle = function(day_night_cycle, surface)
     if not check_cycle_validity(day_night_cycle) then
-        error('Provided day/night cycle is invalid')
+        error('[DAY_NIGHT] Provided day/night cycle is invalid')
         return
     end
     if not surface.valid then
-        error('Provided surface is invalid')
+        error('[DAY_NIGHT] Provided surface is invalid')
         return
     end
 
@@ -57,14 +58,14 @@ end
 -- @return boolean true if time is set properly
 Public.set_fixed_brightness = function(daylight, surface)
     if not surface.valid then
-        error('Provided surface is invalid')
+        error('[DAY_NIGHT] Provided surface is invalid')
         return
     end
     if daylight < 0.15 then
-        error('Daylight set too low. 0.15 is the darkest available.')
+        error('[DAY_NIGHT] Daylight set too low. 0.15 is the darkest available.')
         return
     elseif daylight > 1 then
-        error('Daylight set too high. 1.00 is the lightest available.')
+        error('[DAY_NIGHT] Daylight set too high. 1.00 is the lightest available.')
         return
     end
 
@@ -78,10 +79,10 @@ Public.set_fixed_brightness = function(daylight, surface)
     surface.freeze_daytime = true
 
     if _DEBUG then
-        game.print('breakpoint/surface_daytime: ' .. breakpoint .. '/' .. surface.daytime)
+        game.print('[DAY_NIGHT] breakpoint/surface_daytime: ' .. breakpoint .. '/' .. surface.daytime)
     end
     if _DEBUG then
-        game.print('brightness/surface_brightness: ' .. math.round(daylight, 2) .. '/' .. math.round((1 - surface.darkness), 2))
+        game.print('[DAY_NIGHT] brightness/surface_brightness: ' .. math.round(daylight, 2) .. '/' .. math.round((1 - surface.darkness), 2))
     end
 
     if math.round(daylight, 2) == math.round((1 - surface.darkness), 2) then

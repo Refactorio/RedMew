@@ -4,7 +4,7 @@ local Event = require 'utils.event'
 global.map.terraforming.creep_retraction_tiles = { 'sand-1' }
 require 'map_gen.misc.nightfall' -- forces idle biters to attack at night
 require 'map_gen.misc.terraforming' -- prevents players from building on non-terraformed tiles
-global.map.day_night_cycle = 'long_days_long_nights_fast_transitions'
+local DayNight = require 'map_gen.misc.day_night'
 local ScenarioInfo = require 'features.gui.info'
 
 ScenarioInfo.set_map_name('Terraform Venus')
@@ -116,8 +116,19 @@ map = b.translate(map, 6, -10) -- translate the whole map away, otherwise we'll 
 map = b.apply_effect(map, no_trees)
 
 --- Sets the map parameters once the game begins and we have a surface to act on
-local function on_init()
+local function world_settings()
+    local surface = game.surfaces.nauvis
     local player_force = game.forces.player
+
+    -- 20 minute cycle, 14m of full light, 1m light to dark, 4m full dark, 1m dark to light
+    local day_night_cycle = {
+        ['ticks_per_day'] = 72000,
+        ['dusk'] = 0.625,
+        ['evening'] = 0.775,
+        ['morning'] = 0.925,
+        ['dawn'] = 0.975
+    }
+    DayNight.set_cycle(day_night_cycle, surface)
 
     player_force.recipes['steel-plate'].enabled = true
     player_force.recipes['medium-electric-pole'].enabled = true
@@ -164,7 +175,6 @@ local function on_init()
     }
     enemy_expansion = e_ex
 
-    local surface = game.surfaces.nauvis
     surface.map_gen_settings = {
         terrain_segmentation = 'very-low', -- water frequency
         water = 'very-low', -- water size
@@ -194,6 +204,6 @@ local function on_init()
         seed = nil
     }
 end
-Event.on_init(on_init)
+Event.on_init(world_settings)
 
 return map
