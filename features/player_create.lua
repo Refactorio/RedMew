@@ -1,71 +1,99 @@
 local Game = require 'utils.game'
 local Event = require 'utils.event'
+local Global = require 'utils.global'
+local Info = require 'features.gui.info'
+local get_random_weighted = table.get_random_weighted
 
-local info = require 'features.gui.info'
-local join_msgs = require 'resources.join_messages'
+local memory = {
+    forces_initialized = {
+        player = false, -- default force for everyone
+    }
+}
+
+Global.register({
+    memory = memory,
+}, function (tbl)
+    memory = tbl.memory
+end)
 
 local function player_created(event)
+    local config = global.config.player_create
     local player = Game.get_player_by_index(event.player_index)
 
     if not player or not player.valid then
         return
     end
 
-    player.insert {name = 'iron-gear-wheel', count = 8}
-    player.insert {name = 'iron-plate', count = 16}
+    local force = player.force
 
-    player.print('Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord')
-    player.print('Click the question mark in the top left corner for server information and map details.')
-    player.print(table.get_random_weighted(join_msgs, 1, 2))
-
+    -- ensure the top menu is correctly styled
     local gui = player.gui
     gui.top.style = 'slot_table_spacing_horizontal_flow'
     gui.left.style = 'slot_table_spacing_vertical_flow'
-    if info ~= nil then
-        info.show_info({player = player})
+
+    local player_insert = player.insert
+
+    for _, item in pairs(config.starting_items) do
+        player_insert(item)
+    end
+
+    local p = player.print
+    for _, message in pairs(config.join_messages) do
+        p(message)
+    end
+
+    local random_messages = config.random_join_message_set
+    if #random_messages > 0 then
+        p(get_random_weighted(random_messages, 1, 2))
+    end
+
+    if config.show_info_at_start then
+        if Info ~= nil then
+            Info.show_info({player = player})
+        end
     end
 
     if _CHEATS then
-        local force = player.force
-        local i = player.insert
-
-        i {name = 'power-armor-mk2', count = 1}
-        local p_armor = player.get_inventory(5)[1].grid
-        local p = p_armor.put
-        p({name = 'fusion-reactor-equipment'})
-        p({name = 'fusion-reactor-equipment'})
-        p({name = 'fusion-reactor-equipment'})
-        p({name = 'fusion-reactor-equipment'})
-        p({name = 'personal-roboport-mk2-equipment'})
-        p({name = 'personal-roboport-mk2-equipment'})
-        p({name = 'personal-laser-defense-equipment'})
-        p({name = 'personal-laser-defense-equipment'})
-        p({name = 'energy-shield-mk2-equipment'})
-        p({name = 'energy-shield-mk2-equipment'})
-        p({name = 'night-vision-equipment'})
-        p({name = 'battery-mk2-equipment'})
-        p({name = 'battery-mk2-equipment'})
-        p({name = 'battery-mk2-equipment'})
-        p({name = 'belt-immunity-equipment'})
-        p({name = 'solar-panel-equipment'})
-        i {name = 'steel-axe', count = 10}
-        i {name = 'submachine-gun', count = 1}
-        i {name = 'uranium-rounds-magazine', count = 1000}
-        i {name = 'construction-robot', count = 250}
-        i {name = 'electric-energy-interface', count = 50}
-        i {name = 'substation', count = 50}
-        i {name = 'roboport', count = 10}
-        i {name = 'infinity-chest', count = 10}
-        i {name = 'small-plane', count = 2}
-        i {name = 'coin', count = 20000}
-        i {name = 'rocket-part', count = 2}
-        i {name = 'computer', count = 2}
-
         player.cheat_mode = true
-        force.manual_mining_speed_modifier = 10
-        force.character_running_speed_modifier = 5
-        force.character_health_bonus = 100000
+        local cheats = config.cheats
+
+        if cheats.start_with_power_armor then
+            player_insert({name = 'power-armor-mk2', count = 1})
+            local armor_put = player.get_inventory(5)[1].grid.put
+            armor_put({name = 'fusion-reactor-equipment'})
+            armor_put({name = 'fusion-reactor-equipment'})
+            armor_put({name = 'fusion-reactor-equipment'})
+            armor_put({name = 'fusion-reactor-equipment'})
+            armor_put({name = 'personal-roboport-mk2-equipment'})
+            armor_put({name = 'personal-roboport-mk2-equipment'})
+            armor_put({name = 'personal-laser-defense-equipment'})
+            armor_put({name = 'personal-laser-defense-equipment'})
+            armor_put({name = 'energy-shield-mk2-equipment'})
+            armor_put({name = 'energy-shield-mk2-equipment'})
+            armor_put({name = 'night-vision-equipment'})
+            armor_put({name = 'battery-mk2-equipment'})
+            armor_put({name = 'battery-mk2-equipment'})
+            armor_put({name = 'battery-mk2-equipment'})
+            armor_put({name = 'belt-immunity-equipment'})
+            armor_put({name = 'solar-panel-equipment'})
+        end
+        for _, item in pairs(cheats.starting_items) do
+            player_insert(item)
+        end
+
+        if not memory.forces_initialized[force.name] then
+            force.manual_mining_speed_modifier = cheats.manual_mining_speed_modifier
+            force.character_inventory_slots_bonus = cheats.character_inventory_slots_bonus
+            force.character_running_speed_modifier = cheats.character_running_speed_modifier
+            force.character_health_bonus = cheats.character_health_bonus
+
+            if cheats.unlock_all_research then
+                force.research_all_technologies()
+            end
+        end
     end
+
+    memory.forces_initialized[force.name] = true
 end
 
 Event.add(defines.events.on_player_created, player_created)
