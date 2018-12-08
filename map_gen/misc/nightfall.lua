@@ -144,6 +144,7 @@ local function on_chunk_generated(event)
 end
 
 --- Every tick, choose between searching for bases, preparing an attack, or doing nothing
+-- See the definitions of the called function for further information
 local function on_tick()
     if data.state == BASE_SEARCH then
         find_bases()

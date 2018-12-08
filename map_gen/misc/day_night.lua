@@ -1,5 +1,6 @@
 -- For more info on the day/night cycle and examples of cycles see: https://github.com/Refactorio/RedMew/wiki/Day-Night-cycle
 local Public = {}
+local Debug = 'utils.debug'
 
 local day_night_cycle_keys = {
     'ticks_per_day',
@@ -33,11 +34,11 @@ end
 -- @see Venus::world_settings
 Public.set_cycle = function(day_night_cycle, surface)
     if not check_cycle_validity(day_night_cycle) then
-        error('[DAY_NIGHT] Provided day/night cycle is invalid')
+        error('Provided day/night cycle is invalid')
         return
     end
     if not surface.valid then
-        error('[DAY_NIGHT] Provided surface is invalid')
+        error('Provided surface is invalid')
         return
     end
 
@@ -58,14 +59,14 @@ end
 -- @return boolean true if time is set properly
 Public.set_fixed_brightness = function(daylight, surface)
     if not surface.valid then
-        error('[DAY_NIGHT] Provided surface is invalid')
+        error('Provided surface is invalid')
         return
     end
     if daylight < 0.15 then
-        error('[DAY_NIGHT] Daylight set too low. 0.15 is the darkest available.')
+        error('Daylight set too low. 0.15 is the darkest available.')
         return
     elseif daylight > 1 then
-        error('[DAY_NIGHT] Daylight set too high. 1.00 is the lightest available.')
+        error('Daylight set too high. 1.00 is the lightest available.')
         return
     end
 
@@ -78,12 +79,8 @@ Public.set_fixed_brightness = function(daylight, surface)
     -- Freeze the day/night cycle
     surface.freeze_daytime = true
 
-    if _DEBUG then
-        game.print('[DAY_NIGHT] breakpoint/surface_daytime: ' .. breakpoint .. '/' .. surface.daytime)
-    end
-    if _DEBUG then
-        game.print('[DAY_NIGHT] brightness/surface_brightness: ' .. math.round(daylight, 2) .. '/' .. math.round((1 - surface.darkness), 2))
-    end
+    Debug.print('breakpoint/surface_daytime: ' .. breakpoint .. '/' .. surface.daytime)
+    Debug.print('brightness/surface_brightness: ' .. math.round(daylight, 2) .. '/' .. math.round((1 - surface.darkness), 2))
 
     if math.round(daylight, 2) == math.round((1 - surface.darkness), 2) then
         return true
