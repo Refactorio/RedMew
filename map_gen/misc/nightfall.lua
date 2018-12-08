@@ -105,7 +105,7 @@ local function find_bases()
     local get_pollution = game.surfaces[1].get_pollution
     local count_entities_filtered = game.surfaces[1].count_entities_filtered
     if c_index[1] == 1 then
-        bases = {}
+        table.clear_table(bases)
     end
     local maxindex = #chunklist
     for i = c_index[1], c_index[1] + processchunk, 1 do

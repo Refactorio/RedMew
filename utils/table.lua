@@ -108,7 +108,7 @@ end
 
 --- Creates a fisher-yates shuffle of a sequential number-indexed table
 -- from: http://www.sdknews.com/cross-platform/corona/tutorial-how-to-shuffle-table-items
--- @param table takes a table
+-- @param t table to shuffle
 table.shuffle_table = function(t, rng)
     local rand = rng or math.random
     local iterations = #t
@@ -121,6 +121,14 @@ table.shuffle_table = function(t, rng)
     for i = iterations, 2, -1 do
         j = rand(i)
         t[i], t[j] = t[j], t[i]
+    end
+end
+
+--- Clears all existing entries in a table
+-- @param t table to clear
+table.clear_table = function(t)
+    for i in pairs(t) do
+        t[i] = nil
     end
 end
 
