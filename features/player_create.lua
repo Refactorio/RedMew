@@ -86,10 +86,6 @@ local function player_created(event)
             force.character_inventory_slots_bonus = cheats.character_inventory_slots_bonus
             force.character_running_speed_modifier = cheats.character_running_speed_modifier
             force.character_health_bonus = cheats.character_health_bonus
-
-            if cheats.unlock_all_research then
-                force.research_all_technologies()
-            end
         end
     end
 

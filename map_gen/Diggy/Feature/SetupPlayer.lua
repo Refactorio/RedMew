@@ -34,7 +34,6 @@ function SetupPlayer.register(config)
         redmew_cheats.character_inventory_slots_bonus = cheats.character_inventory_slots_bonus
         redmew_cheats.character_running_speed_modifier = cheats.character_running_speed_modifier
         redmew_cheats.character_health_bonus = cheats.character_health_bonus
-        redmew_cheats.unlock_all_research = cheats.unlock_all_research
 
         if #cheats.starting_items > 0 then
             redmew_cheats.starting_items = cheats.starting_items

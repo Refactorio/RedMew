@@ -136,9 +136,6 @@ global.config = {
             -- a flat health bonus to the player force
             character_health_bonus = 1000000,
 
-            -- unlock all research by default, only useful when testing
-            unlock_all_research = true,
-
             -- starts with a fully slotted power armor mk2
             start_with_power_armor = true,
 

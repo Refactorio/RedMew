@@ -46,9 +46,6 @@ local Config = {
                 -- a flat health bonus to the player force
                 character_health_bonus = 1000000,
 
-                -- unlock all research by default, only useful when testing
-                unlock_all_research = true,
-
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
                     {name = 'power-armor-mk2', count = 1},
