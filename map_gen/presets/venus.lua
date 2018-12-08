@@ -128,18 +128,20 @@ local function world_settings()
         ['morning'] = 0.925,
         ['dawn'] = 0.975
     }
-    DayNight.set_cycle(day_night_cycle, surface)
 
-    player_force.recipes['steel-plate'].enabled = true
+    DayNight.set_cycle(day_night_cycle, surface)
     player_force.recipes['medium-electric-pole'].enabled = true
-    game.difficulty_settings.technology_price_multiplier = 6
+    player_force.technologies['steel-plate'].enabled = false
+    player_force.technologies['artillery-shell-range-1'].enabled = false
+    game.difficulty_settings.technology_price_multiplier = 1
+
     local map_settings = game.map_settings
     local pollution = map_settings.pollution
     local p = {
         enabled = true,
         diffusion_ratio = 0.01,
         min_to_diffuse = 30,
-        ageing = 0.7,
+        ageing = 1,
         expected_max_per_chunk = 7000,
         min_to_show_per_chunk = 700,
         min_pollution_to_damage_trees = 3500,
@@ -153,7 +155,7 @@ local function world_settings()
     local e_ev = {
         enabled = true,
         time_factor = 0.00004,
-        destroy_factor = 0.008,
+        destroy_factor = 0.002,
         pollution_factor = 0.000045
     }
     enemy_evolution = e_ev
@@ -179,9 +181,9 @@ local function world_settings()
         terrain_segmentation = 'very-low', -- water frequency
         water = 'very-low', -- water size
         autoplace_controls = {
-            stone = {frequency = 'normal', size = 'high', richness = 'normal'},
+            stone = {frequency = 'normal', size = 'high', richness = 'low'},
             coal = {frequency = 'normal', size = 'high', richness = 'normal'},
-            ['copper-ore'] = {frequency = 'normal', size = 'high', richness = 'normal'},
+            ['copper-ore'] = {frequency = 'normal', size = 'high', richness = 'low'},
             ['iron-ore'] = {frequency = 'normal', size = 'high', richness = 'normal'},
             ['uranium-ore'] = {frequency = 'normal', size = 'normal', richness = 'normal'},
             ['crude-oil'] = {frequency = 'normal', size = 'normal', richness = 'normal'},
@@ -194,8 +196,8 @@ local function world_settings()
         },
         cliff_settings = {
             name = 'cliff',
-            cliff_elevation_0 = 2.5000572204589844,
-            cliff_elevation_interval = 40
+            cliff_elevation_0 = 10,
+            cliff_elevation_interval = 10
         },
         width = 0,
         height = 0,
