@@ -1,3 +1,4 @@
+require 'utils.table'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
