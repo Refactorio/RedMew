@@ -44,7 +44,7 @@ local function player_created(event)
 
     local random_messages = config.random_join_message_set
     if #random_messages > 0 then
-        p(get_random_weighted(random_messages, 1, 2))
+        p(get_random_weighted(random_messages))
     end
 
     if config.show_info_at_start then

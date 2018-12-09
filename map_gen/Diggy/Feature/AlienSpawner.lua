@@ -8,7 +8,7 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
 local Task = require 'utils.Task'
-local AlienEvolutionProgress = require 'map_gen.Diggy.AlienEvolutionProgress'
+local AlienEvolutionProgress = require 'utils.alien_evolution_progress'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local CreateParticles = require 'features.create_particles'
@@ -35,7 +35,6 @@ Global.register_init({
     for name, prototype in pairs(game.entity_prototypes) do
         if prototype.type == 'unit' and prototype.subgroup.name == 'enemies' then
             tbl.alien_size_chart[name] = {
-                name = name,
                 collision_box = prototype.collision_box
             }
         end
@@ -236,16 +235,13 @@ function AlienSpawner.register(config)
             return
         end
 
-        local aliens = AlienEvolutionProgress.getBitersByEvolution(random(1, 2), evolution_factor)
-        for name, amount in pairs(AlienEvolutionProgress.getSpittersByEvolution(random(1, 2), evolution_factor)) do
-            local existing = aliens[name]
-            if existing then
-                amount = amount + existing
-            end
-            aliens[name] = amount
-        end
-
-        spawn_aliens(aliens, force, event.surface, x, y)
+        spawn_aliens(
+            AlienEvolutionProgress.get_aliens(AlienEvolutionProgress.create_spawner_request(3), force.evolution_factor),
+            force,
+            event.surface,
+            x,
+            y
+        )
     end)
 end
 

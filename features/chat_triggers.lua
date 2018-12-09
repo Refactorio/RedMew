@@ -34,7 +34,7 @@ local function hodor(event)
     -- first check for a match, since 99% of messages aren't a match for 'hodor'
     local message = event.message:lower()
     if message:match('hodor') then
-        game.print('Hodor: ' .. table.get_random_weighted(Hodor, 1, 2))
+        game.print('Hodor: ' .. table.get_random_weighted(Hodor))
     end
 end
 
