@@ -9,6 +9,7 @@ local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
 local format = string.format
+local ceil = math.ceil
 
 --local Antigrief = require 'features.antigrief'
 
@@ -599,8 +600,8 @@ commands.add_command(
 
 Command.add('search-command', {
     description = 'Search for commands matching the keyword in name or description',
-    arguments = {'keyword'},
-    capture_excess_arguments = true,
+    arguments = {'keyword', 'page'},
+    default_values = {page = 1},
 }, function (arguments, player)
     local keyword = arguments.keyword
     local p = player.print
@@ -609,28 +610,42 @@ Command.add('search-command', {
         return
     end
 
-    local matches = Command.search(arguments.keyword)
+    local per_page = 7
+    local matches = Command.search(keyword)
     local count = #matches
 
     if count == 0 then
-        p('----- Search Results -----')
+        p('---- 0 Search Results ----')
         p(format('No commands found matching "%s"', keyword))
+        p('-------------------------')
         return
     end
 
-    local max = count > 7 and 7 or count
+    local page = tonumber(arguments.page)
+    local pages = ceil(count / per_page)
 
-    p('----- Search Results -----')
-    for i = 1, max do
-        p(format('/%s', matches[i]))
+    if nil == page then
+        p('Page should be a valid number')
+        return
     end
 
-    local diff = count - max
-    local singular = diff == 1
-    p('-------------------------')
-    if max ~= count then
-        p(format('%d %s hidden, please narrow your search', diff, singular and 'result was' or 'results were'))
-    else
-        p(format('%d %s matching "%s"', count, singular and 'result' or 'results', keyword))
+    -- just show the last page
+    if page > pages then
+        page = pages
     end
+
+    if page < 1 then
+        page = 1
+    end
+
+    local page_start = per_page * (page - 1) + 1
+    local page_end = per_page * page
+    page_end = page_end <= count and page_end or count
+
+    p(format('---- %d Search %s -----', count, count == 1 and 'Result' or 'Results'))
+    p(format('Searching for: "%s"', keyword))
+    for i = page_start, page_end do
+        p(format('[%d] /%s', i, matches[i]))
+    end
+    p(format('-------- Page %d / %d --------', page, pages))
 end)
