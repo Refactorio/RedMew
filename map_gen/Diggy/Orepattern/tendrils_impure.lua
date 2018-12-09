@@ -52,7 +52,7 @@ return {
         color={r=0/255, g=140/255, b=255/255},
         noise_settings = {
             type = "connected_tendril",
-            threshold = 0.06,
+            threshold = 0.055,
             sources = {
                 {variance=350, weight = 1.000, offset = 000, type="simplex"},
                 {variance=200, weight = 0.350, offset = 150, type="simplex"},
@@ -78,7 +78,7 @@ return {
         color={r=255/255, g=55/255, b=0/255},
         noise_settings = {
             type = "connected_tendril",
-            threshold = 0.055,
+            threshold = 0.050,
             sources = {
                 {variance=350, weight = 1.000, offset = 000, type="simplex"},
                 {variance=200, weight = 0.350, offset = 150, type="simplex"},
@@ -141,6 +141,41 @@ return {
         },
         distances = {
             ['uranium-ore'] = 86,
+        },
+    },
+    { -- scattered tendril fragments
+        yield=0.2,
+        min_distance=10,
+        distance_richness=7,
+        color={r=0/255, g=0/255, b=0/255},
+        noise_settings = {
+            type = "fragmented_tendril",
+            threshold = 0.06,
+            discriminator_threshold = 1.2,
+            sources = {
+                {variance=025, weight = 1.000, offset = 600, type="simplex"},
+                {variance=015, weight = 0.500, offset = 750, type="simplex"},
+                {variance=010, weight = 0.250, offset = 900, type="simplex"},
+                {variance=05, weight = 0.100, offset =1050, type="simplex"},
+            },
+            discriminator = {
+                {variance=120, weight = 1.000, offset = 000, type="simplex"},
+                {variance=060, weight = 0.300, offset = 150, type="simplex"},
+                {variance=040, weight = 0.200, offset = 300, type="simplex"},
+                {variance=020, weight = 0.090, offset = 450, type="simplex"},
+            },
+        },
+        weights = {
+            ['coal']        = 160,
+            ['copper-ore']  = 280,
+            ['iron-ore']    = 395,
+            ['stone']       = 135,
+        },
+        distances = {
+            ['coal']        = 16,
+            ['iron-ore']    = 18,
+            ['copper-ore']  = 18,
+            ['stone']       = 15,
         },
     },
     { -- crude oil
