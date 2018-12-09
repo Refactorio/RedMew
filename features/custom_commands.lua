@@ -8,7 +8,6 @@ local Report = require 'features.report'
 local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
-local string_length = string.len
 local format = string.format
 
 --local Antigrief = require 'features.antigrief'
@@ -605,7 +604,7 @@ Command.add('search-command', {
 }, function (arguments, player)
     local keyword = arguments.keyword
     local p = player.print
-    if string_length(keyword) < 2 then
+    if #keyword < 2 then
         p('Keyword should be 2 characters or more')
         return
     end
