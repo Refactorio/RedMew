@@ -111,8 +111,10 @@ local function spawn_aliens(aliens, force, surface, x, y)
     local count_tiles_filtered = surface.count_tiles_filtered
 
     local spawn_count = 0
+    local alien_collision_boxes = memory.alien_collision_boxes
+
     for name, amount in pairs(aliens) do
-        local collision_box = memory.alien_collision_boxes[name]
+        local collision_box = alien_collision_boxes[name]
         if not collision_box then
             Debug.print_position(position, 'Unable to find prototype data for ' .. name)
             break
