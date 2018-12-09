@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 
 
 ### Features
+- [Core] Added builders.circular_pattern #514
+- [Diggy] Ore tendril pattern with slight impurities #528
+- [Core] Added a command-search command #530
 - [Core] Added particle limits and scales #504
 - [Core] Docs into wiki #510
 - [Diggy] Improved Biter aggression and scales a bit higher #498
@@ -24,6 +27,9 @@ All notable changes to this project will be documented in this file.
 - [Diggy] Fixed a bug related to player index missing #483
 - [Diggy] Lowered uranium density in main vein #479
 ### Internal
+- [Diggy] Cleaned up some diggy commands and the left-overs register in _DEBUG #522
+- [Core] Added the crash-site GUI features to the retailer #523
+- [Core] Gave the player_create feature the same as diggy SetupPlayer #529
 - [Core] Added a basic RedMew configuration setup #502
 - [Core] Server time #487
 - [Core] Add inspect and size to table util #492
