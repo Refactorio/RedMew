@@ -12,6 +12,7 @@ local ceil = math.ceil
 local floor = math.floor
 local random = math.random
 local pairs = pairs
+local format = string.format
 
 -- this
 local AlienEvolutionProgress = {}
@@ -95,7 +96,7 @@ end
 local function get_spawner_values(spawner, evolution)
     local spawner_specification = memory.spawner_specifications[spawner]
     if not spawner_specification then
-        Debug.print(format('Spawner "%s" does not exist in the prototype data'))
+        Debug.print(format('Spawner "%s" does not exist in the prototype data', spawner))
         return
     end
 
