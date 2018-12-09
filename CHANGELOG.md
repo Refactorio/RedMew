@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 
 
 ### Features
+- [Map/Core] Overhauled day_night_cycle, creep_spread, and nightfall. Add Venus map. #524
 - [Core] Added builders.circular_pattern #514
 - [Diggy] Ore tendril pattern with slight impurities #528
 - [Core] Added a command-search command #530
