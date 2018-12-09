@@ -16,12 +16,15 @@ local random = math.random
 local floor = math.floor
 local ceil = math.ceil
 local size = table.size
+local pairs = pairs
 local raise_event = script.raise_event
 
 -- this
 local AlienSpawner = {}
 
-local alien_size_chart = {}
+local memory = {
+    alien_collision_boxes = {},
+}
 local locations_to_scan = {
     {x = 0, y = -1.5}, -- up
     {x = 1.5, y = 0}, -- right
@@ -30,17 +33,15 @@ local locations_to_scan = {
 }
 
 Global.register_init({
-    alien_size_chart = alien_size_chart,
+    memory = memory,
 }, function(tbl)
     for name, prototype in pairs(game.entity_prototypes) do
         if prototype.type == 'unit' and prototype.subgroup.name == 'enemies' then
-            tbl.alien_size_chart[name] = {
-                collision_box = prototype.collision_box
-            }
+            tbl.memory.alien_collision_boxes[name] = prototype.collision_box
         end
     end
 end, function(tbl)
-    alien_size_chart = tbl.alien_size_chart
+    memory = tbl.memory
 end)
 
 local rocks_to_find = Template.diggy_rocks
@@ -111,17 +112,18 @@ local function spawn_aliens(aliens, force, surface, x, y)
 
     local spawn_count = 0
     for name, amount in pairs(aliens) do
-        local size_data = alien_size_chart[name]
-        if not size_data then
+        local collision_box = memory.alien_collision_boxes[name]
+        if not collision_box then
             Debug.print_position(position, 'Unable to find prototype data for ' .. name)
             break
         end
 
-        local collision_box = size_data.collision_box
-        local left_top_x = collision_box.left_top.x * 1.6
-        local left_top_y = collision_box.left_top.y * 1.6
-        local right_bottom_x = collision_box.right_bottom.x * 1.6
-        local right_bottom_y = collision_box.right_bottom.y * 1.6
+        local left_top = collision_box.left_top
+        local right_bottom = collision_box.right_bottom
+        local left_top_x = left_top.x * 1.6
+        local left_top_y = left_top.y * 1.6
+        local right_bottom_x = right_bottom.x * 1.6
+        local right_bottom_y = right_bottom.y * 1.6
 
         for i = #locations_to_scan, 1, -1 do
             local direction = locations_to_scan[i]
