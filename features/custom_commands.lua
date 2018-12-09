@@ -8,6 +8,8 @@ local Report = require 'features.report'
 local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
+local format = string.format
+local ceil = math.ceil
 
 --local Antigrief = require 'features.antigrief'
 
@@ -595,3 +597,55 @@ commands.add_command(
     'moves you to the antigrief surface or back (Admins only)',
     antigrief_surface_tp
 ) ]]
+
+Command.add('search-command', {
+    description = 'Search for commands matching the keyword in name or description',
+    arguments = {'keyword', 'page'},
+    default_values = {page = 1},
+}, function (arguments, player)
+    local keyword = arguments.keyword
+    local p = player.print
+    if #keyword < 2 then
+        p('Keyword should be 2 characters or more')
+        return
+    end
+
+    local per_page = 7
+    local matches = Command.search(keyword)
+    local count = #matches
+
+    if count == 0 then
+        p('---- 0 Search Results ----')
+        p(format('No commands found matching "%s"', keyword))
+        p('-------------------------')
+        return
+    end
+
+    local page = tonumber(arguments.page)
+    local pages = ceil(count / per_page)
+
+    if nil == page then
+        p('Page should be a valid number')
+        return
+    end
+
+    -- just show the last page
+    if page > pages then
+        page = pages
+    end
+
+    if page < 1 then
+        page = 1
+    end
+
+    local page_start = per_page * (page - 1) + 1
+    local page_end = per_page * page
+    page_end = page_end <= count and page_end or count
+
+    p(format('---- %d Search %s -----', count, count == 1 and 'Result' or 'Results'))
+    p(format('Searching for: "%s"', keyword))
+    for i = page_start, page_end do
+        p(format('[%d] /%s', i, matches[i]))
+    end
+    p(format('-------- Page %d / %d --------', page, pages))
+end)
