@@ -614,7 +614,7 @@ local function player_created(event)
 
     local gui = player.gui
 
-    gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'utility/questionmark'}
+    gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'item/coin'}
 
     if player.admin or UserGroups.is_regular(player.name) or welcomed_players[player.index] then
         return
