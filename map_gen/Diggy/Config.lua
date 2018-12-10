@@ -294,7 +294,8 @@ local Config = {
             cluster_mode = true,
 
             -- location of file to find the cluster definition file
-            ore_pattern = require 'map_gen.Diggy.Orepattern.Tendrils',
+            ore_pattern = require 'map_gen.Diggy.Orepattern.tendrils_impure',
+            --ore_pattern = require 'map_gen.Diggy.Orepattern.Tendrils',
             --ore_pattern = require 'map_gen.Diggy.Orepattern.Clusters',
 
         },
