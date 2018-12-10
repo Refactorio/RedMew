@@ -1,4 +1,4 @@
-local Task = require 'utils.Task'
+local Task = require 'utils.threading'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
 local Command = require 'utils.command'
