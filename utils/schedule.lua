@@ -4,7 +4,7 @@
 -- github: https://github.com/Valansch/RedMew
 -- ======================================================= --
 
-local Queue = require 'utils.processing_queue'
+local Queue = require 'utils.q'
 local PriorityQueue = require 'utils.priority_queue'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
