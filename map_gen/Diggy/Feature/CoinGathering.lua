@@ -161,11 +161,15 @@ function CoinGathering.register(config)
             ceil(5 * evolution_multiplier * modifier)
         )
 
-        entity.surface.create_entity({
+        local coin = entity.surface.create_entity({
             name = 'item-on-ground',
             position = entity.position,
             stack = {name = 'coin', count = count}
         })
+
+        if coin and coin.valid then
+            coin.to_be_looted = true
+        end
     end)
 
     local mining_coin_chance = config.mining_coin_chance
@@ -181,11 +185,15 @@ function CoinGathering.register(config)
             return
         end
 
-        entity.surface.create_entity({
+        local coin = entity.surface.create_entity({
             name = 'item-on-ground',
             position = entity.position,
             stack = {name = 'coin', count = random(mining_coin_amount_min, mining_coin_amount_max)}
         })
+
+        if coin and coin.valid then
+            coin.to_be_looted = true
+        end
     end)
 
     if config.display_chest_locations then
