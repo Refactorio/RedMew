@@ -2,35 +2,47 @@ require 'utils.table'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 local naming_words = require 'resources.naming_words'
-local Utils = require('utils.core')
-global.actual_name = {}
-global.silly_names = {}
-global.silly_names.count = 0
-global.config.players_assigned_names = true -- assigns players random names when they first join
-global.config.players_roll_names = true -- allows players to roll random names
+local Utils = require 'utils.core'
+local Global = require 'utils.global'
 
-local name_combinations = #naming_words.adverbs * #naming_words.adjectives * #naming_words.nouns
+local data_silly_names = {}
+data_silly_names.silly_names = {}
+data_silly_names.silly_name_store = {}
+data_silly_names.silly_names_count = {0}
+data_silly_names.silly_name_store = {}
+data_silly_names.actual_name = {}
+
+local name_combinations = #naming_words.adverbs * #naming_words.adjectives * 1
+
+Global.register(
+    {
+        data_silly_names = data_silly_names
+    },
+    function(tbl)
+        data_silly_names = tbl.data_silly_names
+    end
+)
 
 --- Creates name by combining elements from the passed table
 -- @param1 table including adverbs, adjectives, and nouns
 -- @returns name as a string
-local function create_name(words_table)
-    local adverb, adjective, noun
+local function create_name(words_table, player_name)
+    local adverb, adjective--, noun
     adverb = table.get_random(words_table.adverbs, true)
     adjective = table.get_random(words_table.adjectives, true)
-    noun = table.get_random(words_table.nouns, true)
-    return adverb .. '_' .. adjective .. '_' .. noun
+    --noun = table.get_random(words_table.nouns, true)
+    return adverb .. '_' .. adjective .. '_' .. player_name
 end
 
 --- Calls create_name until a unique name is returned
 -- @param1 table including adverbs, adjectives, and nouns
 -- @returns name as a string
-local function create_unique_name(words_table)
-    local silly_names = global.silly_names
-    local name = create_name(words_table)
+local function create_unique_name(words_table, player_name)
+    local silly_names = data_silly_names.silly_names
+    local name = create_name(words_table, player_name)
 
     while table.contains(silly_names, name) do
-        name = create_name(words_table)
+        name = create_name(words_table, player_name)
     end
     return name
 end
@@ -38,22 +50,25 @@ end
 --- Assigns a player a name, stores their old and silly names
 -- @param1 Takes a LuaPlayer
 local function name_player(player)
+    local passed_name = player.name
     -- Store a player's original name in case they want it back.
-    if not global.actual_name[player.index] then
-        global.actual_name[player.index] = player.name
+    if data_silly_names.actual_name[player.index] then
+        passed_name = data_silly_names.actual_name[player.index]
+    else
+        data_silly_names.actual_name[player.index] = passed_name
     end
 
     -- Because create_unique_name enters a while loop looking for a unique name, ensure we never get stuck.
     local ceiling = math.min(name_combinations * 0.25, 10000)
-    if global.silly_names.count > ceiling then
-        global.silly_names = {}
-        global.silly_names.count = 0
+    if data_silly_names.silly_names_count[1] > ceiling then
+        data_silly_names.silly_names = {}
+        data_silly_names.silly_names_count[1] = 0
     end
 
-    local name = create_unique_name(naming_words)
+    local name = create_unique_name(naming_words, passed_name)
 
-    table.insert(global.silly_names, name)
-    global.silly_names.count = global.silly_names.count + 1
+    data_silly_names.silly_names[#data_silly_names.silly_names + 1] = name
+    data_silly_names.silly_names_count[1] = data_silly_names.silly_names_count[1] + 1
     local str = player.name .. ' will now be known as: ' .. name
     game.print(str)
     Utils.print_admins(str .. ' (ID: ' .. player.index .. ')', false)
@@ -61,16 +76,31 @@ local function name_player(player)
 end
 
 --- Restores a player's actual name
-local function restore_name(cmd)
-    local player = Game.get_player_by_index(cmd.player_index)
-    player.name = global.actual_name[player.index]
-    player.print('Your true name has been restored.')
+local function restore_name(data)
+    local player
+    if data.player_index then
+        player = Game.get_player_by_index(data.player_index)
+    else
+        player = game.player
+    end
+    local silly_name = player.name
+    data_silly_names.silly_name_store[player.index] = player.name
+    player.name = data_silly_names.actual_name[player.index]
+    if data.name == 'name-restore' then
+        player.print('Your true name has been restored.')
+        local str = silly_name .. ' will now be known as: ' .. player.name
+        Utils.print_admins(str .. ' (ID: ' .. player.index .. ')', false)
+    end
 end
 
 --- Passes _event_ on to name_players
-local function name_player_event(event)
+local function on_player_joined(event)
     local player = Game.get_player_by_index(event.player_index)
-    name_player(player)
+    if data_silly_names.silly_name_store[event.player_index] then
+        player.name = data_silly_names.silly_name_store[event.player_index]
+    else
+        name_player(player)
+    end
 end
 
 --- Passes target or player on to name_players
@@ -124,7 +154,7 @@ local function check_name(cmd)
         return
     end
 
-    local actual_name = global.actual_name[target.index]
+    local actual_name = data_silly_names.actual_name[target.index]
     Game.player_print(target.name .. ' is actually: ' .. actual_name)
 end
 
@@ -146,16 +176,10 @@ local function get_player_id(cmd)
     Game.player_print(target_name .. ' -- ' .. target_index)
 end
 
-if global.config.players_assigned_names == true then
-    Event.add(defines.events.on_player_created, name_player_event)
-end
+Event.add(defines.events.on_player_joined_game, on_player_joined)
+Event.add(defines.events.on_pre_player_left_game, restore_name)
 
-if global.config.players_roll_names == true then
-    commands.add_command('name-roll', 'Assigns you a random, silly name', name_player_command)
-end
-
-if global.config.players_roll_names == true or global.config.players_assigned_names == true then
-    commands.add_command('name-restore', 'Removes your fun name and gives you back your actual name', restore_name)
-    commands.add_command('name-check', '<player> Check the original name of a player', check_name)
-    commands.add_command('get-player-id', 'Gets the ID of a player (Admin only)', get_player_id)
-end
+commands.add_command('name-roll', 'Assigns you a random, silly name', name_player_command)
+commands.add_command('name-restore', 'Removes your fun/silly name and gives you back your actual name', restore_name)
+commands.add_command('name-check', '<silly_player_name> Check the original name of a player with a silly name', check_name)
+commands.add_command('get-player-id', 'Gets the ID of a player (Admin only)', get_player_id)
