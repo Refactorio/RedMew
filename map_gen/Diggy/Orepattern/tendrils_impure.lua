@@ -19,40 +19,19 @@
 --   simplex: similar to perlin
 --   zero: does nothing with this source
 --   one: adds the weight directly to the noise calculation
+--
+-- weights:  recommend having resource weights for each cluster add up to 100
+--           so that the weights = percentage of each ore type
 
 return {
-    { -- tendril medium impure coal
-        yield=0.5,
-        min_distance=25,
-        distance_richness=9,
-        color={r=0/255, g=0/255, b=0/255},
-        noise_settings = {
-            type = "connected_tendril",
-            threshold = 0.035,
-            sources = {
-                {variance=350, weight = 1.000, offset = 000, type="simplex"},
-                {variance=200, weight = 0.350, offset = 150, type="simplex"},
-                {variance=050, weight = 0.050, offset = 300, type="simplex"},
-                {variance=020, weight = 0.015, offset = 450, type="simplex"},
-            }
-        },
-        weights = {
-            ['coal']        = 160,
-            ['stone']       = 35,
-        },
-        distances = {
-            ['coal']        = 16,
-            ['stone']       = 15,
-        },
-    },
     { -- tendril medium large impure iron
-        yield=1,
+        yield=1.15,
         min_distance=25,
         distance_richness=9,
         color={r=0/255, g=140/255, b=255/255},
         noise_settings = {
             type = "connected_tendril",
-            threshold = 0.055,
+            threshold = 0.05,
             sources = {
                 {variance=350, weight = 1.000, offset = 000, type="simplex"},
                 {variance=200, weight = 0.350, offset = 150, type="simplex"},
@@ -61,9 +40,9 @@ return {
             }
         },
         weights = {
-            ['coal']        = 40,
-            ['iron-ore']    = 395,
-            ['stone']       = 35,
+            ['iron-ore']    = 80,
+            ['coal']        = 11,
+            ['stone']       = 9,
         },
         distances = {
             ['coal']        = 16,
@@ -72,13 +51,13 @@ return {
         },
     },
     { -- tendril medium large impure copper
-        yield=1,
+        yield=0.95,
         min_distance=25,
         distance_richness=9,
         color={r=255/255, g=55/255, b=0/255},
         noise_settings = {
             type = "connected_tendril",
-            threshold = 0.050,
+            threshold = 0.05,
             sources = {
                 {variance=350, weight = 1.000, offset = 000, type="simplex"},
                 {variance=200, weight = 0.350, offset = 150, type="simplex"},
@@ -87,13 +66,39 @@ return {
             }
         },
         weights = {
-            ['coal']        = 40,
-            ['copper-ore']  = 280,
-            ['stone']       = 35,
+            ['copper-ore']  = 80,
+            ['coal']        = 11,
+            ['stone']       = 9,
         },
         distances = {
             ['coal']        = 16,
             ['copper-ore']  = 18,
+            ['stone']       = 15,
+        },
+    },
+    { -- tendril medium impure coal
+        yield=0.5,
+        min_distance=25,
+        distance_richness=9,
+        color={r=0/255, g=0/255, b=0/255},
+        noise_settings = {
+            type = "connected_tendril",
+            threshold = 0.03,
+            sources = {
+                {variance=350, weight = 1.000, offset = 000, type="simplex"},
+                {variance=200, weight = 0.350, offset = 150, type="simplex"},
+                {variance=050, weight = 0.050, offset = 300, type="simplex"},
+                {variance=020, weight = 0.015, offset = 450, type="simplex"},
+            },
+        },
+        weights = {
+            ['coal']        = 80,
+            ['iron-ore']    = 15,
+            ['stone']       = 5,
+        },
+        distances = {
+            ['coal']        = 16,
+            ['iron-ore']    = 18,
             ['stone']       = 15,
         },
     },
@@ -104,7 +109,7 @@ return {
         color={r=100/255, g=100/255, b=100/255},
         noise_settings = {
             type = "connected_tendril",
-            threshold = 0.0325,
+            threshold = 0.028,
             sources = {
                 {variance=350, weight = 1.000, offset = 000, type="simplex"},
                 {variance=200, weight = 0.350, offset = 150, type="simplex"},
@@ -113,11 +118,13 @@ return {
             }
         },
         weights = {
-            ['coal']        = 40,
-            ['stone']       = 135,
+            ['stone']       = 80,
+            ['copper-ore']  = 13,
+            ['coal']        = 7,
         },
         distances = {
             ['coal']        = 16,
+            ['copper-ore']  = 18,
             ['stone']       = 15,
         },
     },

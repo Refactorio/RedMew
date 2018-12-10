@@ -64,10 +64,6 @@ local Config = {
         DiggyHole = {
             enabled = true,
 
-            -- displays a warning when a player continues digging with a full inventory
-            -- primarily used for multiplayer, can be disabled without consequences
-            enable_digging_warning = true,
-
             -- initial damage per tick it damages a rock to mine, can be enhanced by robot_damage_per_mining_prod_level
             robot_initial_mining_damage = 4,
 
@@ -293,8 +289,13 @@ local Config = {
             -- creates compound clusters of ores defined by a layered ore-gen
             cluster_mode = true,
 
-            -- location of file to find the cluster definition file
-            ore_pattern = require 'map_gen.Diggy.Orepattern.Tendrils',
+            -- spawns tendrils of ore with roughly 80% purity
+            ore_pattern = require 'map_gen.Diggy.Orepattern.tendrils_impure',
+
+            -- spawns some smaller dedicated and bigger mixed tendrils
+            --ore_pattern = require 'map_gen.Diggy.Orepattern.Tendrils',
+
+            -- spawns clusters of ore similar to vanilla, but mixed
             --ore_pattern = require 'map_gen.Diggy.Orepattern.Clusters',
 
         },
