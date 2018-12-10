@@ -64,10 +64,6 @@ local Config = {
         DiggyHole = {
             enabled = true,
 
-            -- displays a warning when a player continues digging with a full inventory
-            -- primarily used for multiplayer, can be disabled without consequences
-            enable_digging_warning = true,
-
             -- initial damage per tick it damages a rock to mine, can be enhanced by robot_damage_per_mining_prod_level
             robot_initial_mining_damage = 4,
 

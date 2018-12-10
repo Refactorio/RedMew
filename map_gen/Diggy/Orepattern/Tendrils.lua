@@ -39,9 +39,9 @@ return {
         },
         weights = {
             ['coal']        = 160,
-            ['copper-ore']  = 215,
-            ['iron-ore']    = 389,
-            ['stone']       = 182,
+            ['copper-ore']  = 280,
+            ['iron-ore']    = 395,
+            ['stone']       = 135,
             ['uranium-ore'] =  6,
         },
         distances = {
@@ -70,7 +70,7 @@ return {
             ['coal']        = 160,
             ['copper-ore']  = 215,
             ['iron-ore']    = 389,
-            ['stone']       = 182,
+            ['stone']       = 100,
             ['uranium-ore'] =  30,
         },
         distances = {
