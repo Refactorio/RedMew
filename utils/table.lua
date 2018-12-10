@@ -1,6 +1,10 @@
 local random = math.random
-local insert = table.insert
+local floor = math.floor
 local remove = table.remove
+local insert = table.insert
+local tonumber = tonumber
+local pairs = pairs
+local table_size = table_size
 
 --- Searches a table to remove a specific element without an index
 -- @param t table to search
@@ -42,12 +46,14 @@ table.index_of = function(t, e)
     return -1
 end
 
+local index_of = table.index_of
+
 --- Checks if a table contains an element
 -- @param t table to search
 -- @param e element to search for
 -- @returns true or false
 table.contains = function(t, e)
-    return table.index_of(t, e) > -1
+    return index_of(t, e) > -1
 end
 
 --- Adds an element into a specific index position while shuffling the rest down
@@ -85,18 +91,20 @@ end
 
 --- Chooses a random entry from a weighted table
 -- @param weight_table a table of tables with items and their weights
--- @param item_index the index of the items
--- @param weight_index the index of the weights
+-- @param item_index the index of the items, defaults to 1
+-- @param weight_index the index of the weights, defaults to 2
 -- @returns a random item with weighting
 -- @see features.chat_triggers.hodor
 table.get_random_weighted = function(weighted_table, item_index, weight_index)
     local total_weight = 0
+    item_index = item_index or 1
+    weight_index = weight_index or 2
 
     for _, w in pairs(weighted_table) do
         total_weight = total_weight + w[weight_index]
     end
 
-    local index = random(total_weight)
+    local index = random() * total_weight
     local weight_sum = 0
     for _, w in pairs(weighted_table) do
         weight_sum = weight_sum + w[weight_index]
@@ -134,8 +142,8 @@ end
 
 --[[
   Returns the index where t[index] == target.
-  If there is no such index, returns a negative vaule such that bit32.bnot(value) is
-  the index that the vaule should be inserted to keep the list ordered.
+  If there is no such index, returns a negative value such that bit32.bnot(value) is
+  the index that the value should be inserted to keep the list ordered.
   t must be a list in ascending order for the return value to be valid.
 
   Usage example:
@@ -148,8 +156,7 @@ end
     game.print("value found at index: " .. index)
   end
 ]]
-table.binary_search =
-    function(t, target)
+table.binary_search = function(t, target)
     --For some reason bit32.bnot doesn't return negative numbers so I'm using ~x = -1 - x instead.
 
     local lower = 1
@@ -160,7 +167,7 @@ table.binary_search =
     end
 
     repeat
-        local mid = math.floor((lower + upper) / 2)
+        local mid = floor((lower + upper) * 0.5)
         local value = t[mid]
         if value == target then
             return mid
