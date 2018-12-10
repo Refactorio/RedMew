@@ -1,6 +1,7 @@
 --- See documentation at https://github.com/Refactorio/RedMew/pull/469
 
 local Token = require 'utils.token'
+local Global = require 'utils.global'
 
 local Public = {}
 
@@ -8,6 +9,15 @@ local raw_print = print
 function print(str)
     raw_print('[PRINT] ' .. str)
 end
+
+local server_time = {secs = nil, tick = 0}
+
+Global.register(
+    server_time,
+    function(tbl)
+        server_time = tbl
+    end
+)
 
 local discord_tag = '[DISCORD]'
 local discord_raw_tag = '[DISCORD-RAW]'
@@ -26,6 +36,7 @@ local data_get_all_tag = '[DATA-GET-ALL]'
 local data_tracked_tag = '[DATA-TRACKED]'
 local ban_sync_tag = '[BAN-SYNC]'
 local unbanned_sync_tag = '[UNBANNED-SYNC]'
+local query_players_tag = '[QUERY-PLAYERS]'
 
 Public.raw_print = raw_print
 
@@ -438,6 +449,56 @@ end
 -- @param  PlayerSpecification
 function Public.unban_non_sync(PlayerSpecification)
     game.unban_player(PlayerSpecification)
+end
+
+--- Called by the web server to set the server time.
+-- @param  secs<number> unix epoch timestamp
+function Public.set_time(secs)
+    server_time.secs = secs
+    server_time.tick = game.tick
+end
+
+--- Gets a table {secs:number?, tick:number} with secs being the unix epoch timestamp
+-- for the server time and ticks the number of game ticks ago it was set.
+-- @return table
+function Public.get_time_data_raw()
+    return server_time
+end
+
+--- Gets an estimate of the current server time as a unix epoch timestamp.
+-- If the server time has not been set returns nil.
+-- The estimate may be slightly off if within the last minute the game has been paused, saving or overwise,
+-- or the game speed has been changed.
+-- @return number?
+function Public.get_current_time()
+    local secs = server_time.secs
+    if secs == nil then
+        return nil
+    end
+
+    local diff = game.tick - server_time.tick
+    return math.floor(secs + diff / game.speed / 60)
+end
+
+--- Called be the web server to re sync which players are online.
+function Public.query_online_players()
+    local message = {query_players_tag, '['}
+
+    for _, p in ipairs(game.connected_players) do
+        table.insert(message, '"')
+        local name = escape(p.name)
+        table.insert(message, name)
+        table.insert(message, '",')
+    end
+
+    if message[#message] == '",' then
+        message[#message] = '"'
+    end
+
+    table.insert(message, ']')
+
+    message = table.concat(message)
+    raw_print(message)
 end
 
 return Public

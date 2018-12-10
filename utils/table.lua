@@ -1,10 +1,14 @@
+local random = math.random
+local insert = table.insert
+local remove = table.remove
+
 --- Searches a table to remove a specific element without an index
 -- @param t table to search
 -- @param element to search for
 table.remove_element = function(t, element)
     for k, v in pairs(t) do
         if v == element then
-            table.remove(t, k)
+            remove(t, k)
             break
         end
     end
@@ -16,7 +20,7 @@ end
 table.add_all = function(t1, t2)
     for k, v in pairs(t2) do
         if tonumber(k) then
-            table.insert(t1, v)
+            insert(t1, v)
         else
             t1[k] = v
         end
@@ -68,9 +72,9 @@ end
 --@return a random element of table t
 table.get_random = function(t, sorted)
     if sorted then
-        return t[math.random(#t)]
+        return t[random(#t)]
     end
-    local target_index = math.random(1, table_size(t))
+    local target_index = random(1, table_size(t))
     local count = 1
     for _, v in pairs(t) do
         if target_index == count then
@@ -92,13 +96,39 @@ table.get_random_weighted = function(weighted_table, item_index, weight_index)
         total_weight = total_weight + w[weight_index]
     end
 
-    local index = math.random(total_weight)
+    local index = random(total_weight)
     local weight_sum = 0
     for _, w in pairs(weighted_table) do
         weight_sum = weight_sum + w[weight_index]
         if weight_sum >= index then
             return w[item_index]
         end
+    end
+end
+
+--- Creates a fisher-yates shuffle of a sequential number-indexed table
+-- from: http://www.sdknews.com/cross-platform/corona/tutorial-how-to-shuffle-table-items
+-- @param t table to shuffle
+table.shuffle_table = function(t, rng)
+    local rand = rng or math.random
+    local iterations = #t
+    if iterations == 0 then
+        error('Not a sequential table')
+        return
+    end
+    local j
+
+    for i = iterations, 2, -1 do
+        j = rand(i)
+        t[i], t[j] = t[j], t[i]
+    end
+end
+
+--- Clears all existing entries in a table
+-- @param t table to clear
+table.clear_table = function(t)
+    for i in pairs(t) do
+        t[i] = nil
     end
 end
 
@@ -143,3 +173,7 @@ table.binary_search =
 
     return -1 - lower -- ~lower
 end
+
+-- add table-related functions that exist in base factorio to the 'table' table
+table.inspect = require 'inspect'
+table.size = table_size

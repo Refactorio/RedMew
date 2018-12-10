@@ -46,9 +46,6 @@ local Config = {
                 -- a flat health bonus to the player force
                 character_health_bonus = 1000000,
 
-                -- unlock all research by default, only useful when testing
-                unlock_all_research = true,
-
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
                     {name = 'power-armor-mk2', count = 1},
@@ -71,9 +68,6 @@ local Config = {
             -- primarily used for multiplayer, can be disabled without consequences
             enable_digging_warning = true,
 
-            -- enables commands like /clear-void
-            enable_debug_commands = false,
-
             -- initial damage per tick it damages a rock to mine, can be enhanced by robot_damage_per_mining_prod_level
             robot_initial_mining_damage = 4,
 
@@ -91,9 +85,6 @@ local Config = {
             -- shows the mask on spawn
             enable_mask_debug = false,
 
-            -- enables commands like /test-tile-support-range
-            enable_debug_commands = false,
-
             --the size of the mask used
             mask_size = 9,
 
@@ -110,6 +101,7 @@ local Config = {
                 ['market'] = 9,
                 ['stone-wall'] = 3,
                 ['sand-rock-big'] = 2,
+                ['rock-big'] = 2,
                 ['rock-huge'] = 2.5,
                 ['out-of-map'] = 1,
                 ['stone-path'] = 0.03,
@@ -118,9 +110,7 @@ local Config = {
                 ['refined-concrete'] = 0.06,
             },
             cracking_sounds = {
-                'CRACK',
-                'KRRRR',
-                'R U N',
+                ' R U NY O UF O O L S !',
             }
         },
 
@@ -319,26 +309,25 @@ local Config = {
             -- chance of spawning aliens when mining
             alien_probability = 0.05,
 
-            -- spawns the following units when they die. To disable change it to:
-            --hail_hydra = nil,
+            -- spawns the following units when they die. To disable, remove the contents
             -- any non-rounded number will turn into a chance to spawn an additional alien
             -- example: 2.5 would spawn 2 for sure and 50% chance to spawn one additionally
             hail_hydra = {
                 -- spitters
-                ['small-spitter'] = {['small-worm-turret'] = 0.4},
-                ['medium-spitter'] = {['medium-worm-turret'] = 0.4},
-                ['big-spitter'] = {['big-worm-turret'] = 0.4},
-                ['behemoth-spitter'] = {['big-worm-turret'] = 0.6},
+                ['small-spitter'] = {['small-worm-turret'] = 0.2},
+                ['medium-spitter'] = {['medium-worm-turret'] = 0.2},
+                ['big-spitter'] = {['big-worm-turret'] = 0.2},
+                ['behemoth-spitter'] = {['big-worm-turret'] = 0.4},
 
                 -- biters
-                ['medium-biter'] = {['small-biter'] = 1.7},
-                ['big-biter'] = {['medium-biter'] = 1.7},
-                ['behemoth-biter'] = {['big-biter'] = 1.7},
+                ['medium-biter'] = {['small-biter'] = 1.2},
+                ['big-biter'] = {['medium-biter'] = 1.2},
+                ['behemoth-biter'] = {['big-biter'] = 1.2},
 
                 -- worms
                 ['small-worm-turret'] = {['small-biter'] = 2.5},
-                ['medium-worm-turret'] = {['small-biter'] = 2.5, ['medium-biter'] = 0.5},
-                ['big-worm-turret'] = {['small-biter'] = 3.5, ['medium-biter'] = 1, ['big-biter'] = 0.5},
+                ['medium-worm-turret'] = {['small-biter'] = 2.5, ['medium-biter'] = 0.6},
+                ['big-worm-turret'] = {['small-biter'] = 3.8, ['medium-biter'] = 1.3, ['big-biter'] = 1.1},
             },
         },
 
@@ -361,18 +350,20 @@ local Config = {
             mining_speed_productivity_multiplier = 5,
 
             XP = {
-              ['sand-rock-big']             = 5,
-              ['rock-huge']                 = 10,
-              ['rocket_launch']             = 0.01,     -- XP reward in percentage of total experience when a rocket launches (Diggy default: 0.01 which equals 1%)
-              ['science-pack-1']            = 4,
-              ['science-pack-2']            = 8,
-              ['science-pack-3']            = 15,
-              ['military-science-pack']     = 12,
-              ['production-science-pack']   = 25,
-              ['high-tech-science-pack']    = 50,
-              ['space-science-pack']        = 10,
-              ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters.
-              ['death-penalty']             = 0.002,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.002 which equals 0.2%)
+                ['sand-rock-big']             = 5,
+                ['rock-big']                  = 5,
+                ['rock-huge']                 = 10,
+                ['rocket_launch']             = 0.01,     -- XP reward in percentage of total experience when a rocket launches (Diggy default: 0.01 which equals 1%)
+                ['science-pack-1']            = 4,
+                ['science-pack-2']            = 8,
+                ['science-pack-3']            = 15,
+                ['military-science-pack']     = 12,
+                ['production-science-pack']   = 25,
+                ['high-tech-science-pack']    = 50,
+                ['space-science-pack']        = 10,
+                ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters.
+                ['death-penalty']             = 0.002,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.002 which equals 0.2%)
+                ['cave-in-penalty']           = 100       -- XP lost every cave in.
             },
 
             buffs = {
@@ -386,35 +377,35 @@ local Config = {
             -- add or remove a table entry to add or remove a unlockable item from the market.
             unlockables = {
                 {level = 1, price = 5, name = 'iron-axe'},
-                {level = 2, price = 5, name = 'raw-wood'},
-                {level = 3, price = 20, name = 'pistol'},
-                {level = 3, price = 2, name = 'firearm-magazine'},
+                {level = 2, price = 4, name = 'raw-wood'},
+                {level = 4, price = 20, name = 'pistol'},
+                {level = 4, price = 5, name = 'firearm-magazine'},
                 {level = 5, price = 2, name = 'stone-brick'},
                 {level = 6, price = 6, name = 'small-lamp'},
                 {level = 6, price = 5, name = 'raw-fish'},
                 {level = 8, price = 10, name = 'stone-wall'},
                 {level = 10, price = 85, name = 'shotgun'},
-                {level = 10, price = 2, name = 'shotgun-shell'},
+                {level = 10, price = 4, name = 'shotgun-shell'},
                 {level = 13, price = 25, name = 'steel-axe'},
                 {level = 13, price = 50, name = 'light-armor'},
                 {level = 15, price = 85, name = 'submachine-gun'},
-                {level = 18, price = 8, name = 'piercing-rounds-magazine'},
+                {level = 18, price = 10, name = 'piercing-rounds-magazine'},
                 {level = 18, price = 8, name = 'piercing-shotgun-shell'},
-                {level = 20, price = 100, name = 'heavy-armor'},
-                {level = 25, price = 250, name = 'modular-armor'},
-                {level = 25, price = 100, name = 'landfill'},
-                {level = 28, price = 250, name = 'personal-roboport-equipment'},
-                {level = 28, price = 75, name = 'construction-robot'},
-                {level = 32, price = 850, name = 'power-armor'},
-                {level = 34, price = 100, name = 'battery-equipment'},
-                {level = 33, price = 1000, name = 'fusion-reactor-equipment'},
-                {level = 36, price = 150, name = 'energy-shield-equipment'},
-                {level = 42, price = 650, name = 'combat-shotgun'},
-                {level = 46, price = 25, name = 'uranium-rounds-magazine'},
-                {level = 58, price = 250, name = 'rocket-launcher'},
-                {level = 58, price = 40, name = 'rocket'},
-                {level = 66, price = 80, name = 'explosive-rocket'},
-                {level = 73, price = 2000, name = 'satellite'},
+                {level = 20, price = 50, name = 'landfill'},
+                {level = 25, price = 100, name = 'heavy-armor'},
+                {level = 30, price = 250, name = 'modular-armor'},
+                {level = 32, price = 150, name = 'personal-roboport-equipment'},
+                {level = 32, price = 20, name = 'construction-robot'},
+                {level = 37, price = 750, name = 'power-armor'},
+                {level = 38, price = 100, name = 'battery-equipment'},
+                {level = 39, price = 750, name = 'fusion-reactor-equipment'},
+                {level = 40, price = 150, name = 'energy-shield-equipment'},
+                {level = 47, price = 550, name = 'combat-shotgun'},
+                {level = 51, price = 25, name = 'uranium-rounds-magazine'},
+                {level = 63, price = 250, name = 'rocket-launcher'},
+                {level = 63, price = 40, name = 'rocket'},
+                {level = 71, price = 80, name = 'explosive-rocket'},
+                {level = 78, price = 1000, name = 'satellite'},
                 {level = 100, price = 1, name = 'iron-stick'},
             },
             -- modifies the experience per alien type, higher is more xp

@@ -963,6 +963,17 @@ function Builders.grid_pattern_full_overlap(pattern, columns, rows, width, heigh
     end
 end
 
+-- Tile a shape in a circular pattern
+function Builders.circular_pattern(shape, quantity, radius)
+    local pattern = {}
+    local angle = tau / quantity
+    for i = 1, quantity do
+        local shape2 = Builders.rotate(Builders.translate(shape, 0, radius), i * angle)
+        table.insert(pattern, shape2)
+    end
+    return Builders.any(pattern)
+end
+
 local function is_spiral(x, y)
     local a = -math.max(math.abs(x), math.abs(y))
 

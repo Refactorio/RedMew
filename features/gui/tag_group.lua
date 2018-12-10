@@ -249,7 +249,7 @@ local function redraw_main_frame()
         if main_frame and main_frame.valid then
             local content = main_frame[main_frame_content_name]
 
-            Gui.remove_data_recursivly(content)
+            Gui.remove_data_recursively(content)
             content.clear()
 
             if p.connected then
@@ -276,7 +276,7 @@ local function toggle(event)
     local main_frame = left[main_frame_name]
 
     if main_frame then
-        Gui.remove_data_recursivly(main_frame)
+        Gui.remove_data_recursively(main_frame)
         main_frame.destroy()
     else
         draw_main_frame(event.player)
@@ -330,7 +330,7 @@ local function draw_create_tag_frame(event, tag_data)
 
     local frame = center[create_tag_frame_name]
     if frame then
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 
@@ -450,7 +450,7 @@ Gui.on_click(
         local tag_data = data.tag_data
         local tag_name = tag_data.name
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
 
         if not tag_groups[tag_name] then
@@ -536,7 +536,7 @@ Gui.on_click(
         frame_data.focus = radio
 
         local choose = frame_data.choose
-        Gui.remove_data_recursivly(choose)
+        Gui.remove_data_recursively(choose)
         choose.destroy()
 
         choose =
@@ -592,7 +592,7 @@ Gui.on_click(
             verb = deafult_verb
         end
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
 
         local tag_data = {
@@ -642,7 +642,7 @@ Gui.on_click(
     function(event)
         local frame = Gui.get_data(event.element)
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 )
@@ -651,7 +651,7 @@ Gui.on_custom_close(
     create_tag_frame_name,
     function(event)
         local element = event.element
-        Gui.remove_data_recursivly(element)
+        Gui.remove_data_recursively(element)
         element.destroy()
     end
 )

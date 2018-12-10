@@ -27,7 +27,7 @@ function Gui.get_data(element)
 end
 
 -- Removes data associated with LuaGuiElement and its children recursivly.
-function Gui.remove_data_recursivly(element)
+function Gui.remove_data_recursively(element)
     Gui.set_data(element, nil)
 
     local children = element.children
@@ -38,7 +38,7 @@ function Gui.remove_data_recursivly(element)
 
     for _, child in ipairs(children) do
         if child.valid then
-            Gui.remove_data_recursivly(child)
+            Gui.remove_data_recursively(child)
         end
     end
 end
@@ -59,7 +59,7 @@ function Gui.remove_children_data(element)
 end
 
 function Gui.destroy(element)
-    Gui.remove_data_recursivly(element)
+    Gui.remove_data_recursively(element)
     element.destroy()
 end
 

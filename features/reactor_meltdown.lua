@@ -6,7 +6,7 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 
-global.reactors_enabled = false
+global.reactors_enabled = global.config.reactor_meltdown.on_by_default
 global.wastelands = {}
 global.reactors = {}
 local wasteland_duration_seconds = 300

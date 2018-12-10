@@ -1,4 +1,7 @@
-local Poll = require 'features.gui.poll'
+local Poll = {send_poll_result_to_discord = function () end}
+if global.config.poll.enabled then
+    Poll = require 'features.gui.poll'
+end
 local UserGroups = require 'features.user_groups'
 local Token = require 'utils.token'
 local Server = require 'features.server'
@@ -24,5 +27,8 @@ ServerCommands.get_tracked_data_sets = Server.get_tracked_data_sets
 function ServerCommands.server_started()
     script.raise_event(Server.events.on_server_started, {})
 end
+
+ServerCommands.set_time = Server.set_time
+ServerCommands.query_online_players = Server.query_online_players
 
 return ServerCommands

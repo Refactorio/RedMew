@@ -3,6 +3,7 @@
 ]]
 
 -- dependencies
+require 'utils.table'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
@@ -14,7 +15,7 @@ local CreateParticles = require 'features.create_particles'
 local random = math.random
 local floor = math.floor
 local ceil = math.ceil
-local insert = table.insert
+local size = table.size
 local raise_event = script.raise_event
 
 -- this
@@ -43,7 +44,23 @@ end, function(tbl)
     alien_size_chart = tbl.alien_size_chart
 end)
 
-local rocks_to_find = {'sand-rock-big', 'rock-huge'}
+local rocks_to_find = Template.diggy_rocks
+
+local function create_attack_command(position, target)
+    local command = {type = defines.command.attack_area, destination = position, radius = 10}
+    if target then
+        command = {
+            type = defines.command.compound,
+            structure_type = defines.compound_command.logical_or,
+            commands = {
+                {type = defines.command.attack, target = target},
+                command,
+            }
+        }
+    end
+
+    return command
+end
 
 ---Triggers mining at the collision_box of the alien, to free it
 local do_alien_mining = Token.register(function(params)
@@ -152,44 +169,55 @@ function AlienSpawner.register(config)
     local alien_probability = config.alien_probability
     local hail_hydra = config.hail_hydra
 
-    if hail_hydra then
+    if size(hail_hydra) > 0 then
         Event.add(defines.events.on_entity_died, function (event)
             local entity = event.entity
             local name = entity.name
 
-            local force
-            local position
-            local surface
-            local create_entity
-            local find_non_colliding_position
+            local hydras = hail_hydra[name]
+            if not hydras then
+                return
+            end
 
-            for alien, hydras in pairs(hail_hydra) do
-                if name == alien then
-                    for hydra_spawn, amount in pairs(hydras) do
-                        local extra_chance = amount % 1
-                        if extra_chance > 0 then
-                            if random() <= extra_chance then
-                                amount = ceil(amount)
-                            else
-                                amount = floor(amount)
-                            end
-                        end
+            local position = entity.position
+            local force = entity.force
+            local evolution_factor = force.evolution_factor
+            local cause = event.cause
 
-                        while amount > 0 do
-                            force = force or entity.force
-                            position = position or entity.position
-                            surface = surface or entity.surface
-                            create_entity = create_entity or surface.create_entity
-                            -- always spawn worms on their designated position
-                            if not hydra_spawn:match('worm-turret') then
-                                find_non_colliding_position = find_non_colliding_position or surface.find_non_colliding_position
-                                position = find_non_colliding_position(hydra_spawn, position, 2, 0.4) or position
-                            end
-                            create_entity({name = hydra_spawn, force = force, position = position})
-                            amount = amount - 1
-                        end
+            local surface = entity.surface
+            local create_entity = surface.create_entity
+            local find_non_colliding_position = surface.find_non_colliding_position
+
+            local command = create_attack_command(position, cause)
+
+            for hydra_spawn, amount in pairs(hydras) do
+                amount = amount + evolution_factor
+                local extra_chance = amount % 1
+                if extra_chance > 0 then
+                    if random() <= extra_chance then
+                        amount = ceil(amount)
+                    else
+                        amount = floor(amount)
                     end
-                    break
+                end
+                local particle_count
+
+                if amount > 4 then
+                    particle_count = 60
+                else
+                    particle_count = amount * 15
+                end
+
+                CreateParticles.blood_explosion(create_entity, particle_count, position)
+
+                for _ = amount, 1, -1  do
+                    position = find_non_colliding_position(hydra_spawn, position, 2, 0.4) or position
+                    local spawned = create_entity({name = hydra_spawn, force = force, position = position})
+                    if spawned and spawned.type == 'unit' then
+                        spawned.set_command(command)
+                    elseif spawned and cause then
+                        spawned.shooting_target = cause
+                    end
                 end
             end
         end)
@@ -198,7 +226,7 @@ function AlienSpawner.register(config)
     Event.add(Template.events.on_void_removed, function (event)
         local force = game.forces.enemy
         local evolution_factor = force.evolution_factor
-        force.evolution_factor = evolution_factor + 0.0000012
+        force.evolution_factor = evolution_factor + 0.0000024
 
         local position = event.position
         local x = position.x
@@ -210,6 +238,10 @@ function AlienSpawner.register(config)
 
         local aliens = AlienEvolutionProgress.getBitersByEvolution(random(1, 2), evolution_factor)
         for name, amount in pairs(AlienEvolutionProgress.getSpittersByEvolution(random(1, 2), evolution_factor)) do
+            local existing = aliens[name]
+            if existing then
+                amount = amount + existing
+            end
             aliens[name] = amount
         end
 
@@ -224,8 +256,10 @@ Minimum spawn distance: ]] .. config.alien_minimum_distance .. ' tiles'
 end
 
 function AlienSpawner.on_init()
-    -- base factorio =                pollution_factor = 0.000015
-    game.map_settings.enemy_evolution.pollution_factor = 0.000004
+    -- base factorio =                time_factor = 0.000004
+    game.map_settings.enemy_evolution.time_factor = 0.000008
+    game.forces.enemy.evolution_factor = 0.1
+    game.map_settings.pollution.enabled = false
 end
 
 return AlienSpawner

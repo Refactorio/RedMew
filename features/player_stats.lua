@@ -276,7 +276,7 @@ function Public.get_death_count(player_index)
 end
 
 -- Returns a dictionary of cause_name -> count
-function Public.get_all_death_counts_by_casue(player_index)
+function Public.get_all_death_counts_by_cause(player_index)
     return player_deaths[player_index].causes or {}
 end
 
