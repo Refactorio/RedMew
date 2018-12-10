@@ -131,51 +131,44 @@ local function world_settings()
 
     DayNight.set_cycle(day_night_cycle, surface)
     player_force.recipes['medium-electric-pole'].enabled = true
-    player_force.technologies['steel-plate'].enabled = false
+    player_force.recipes['steel-plate'].enabled = true
     player_force.technologies['artillery-shell-range-1'].enabled = false
     game.difficulty_settings.technology_price_multiplier = 1
 
     local map_settings = game.map_settings
     local pollution = map_settings.pollution
-    local p = {
-        enabled = true,
-        diffusion_ratio = 0.01,
-        min_to_diffuse = 30,
-        ageing = 1,
-        expected_max_per_chunk = 7000,
-        min_to_show_per_chunk = 700,
-        min_pollution_to_damage_trees = 3500,
-        pollution_with_max_forest_damage = 10000,
-        pollution_per_tree_damage = 2000,
-        pollution_restored_per_tree_damage = 500,
-        max_pollution_to_restore_trees = 1000
-    }
-    pollution = p
+    pollution.enabled = true
+    pollution.diffusion_ratio = 0.01
+    pollution.min_to_diffuse = 30
+    pollution.ageing = 1
+    pollution.expected_max_per_chunk = 7000
+    pollution.min_to_show_per_chunk = 700
+    pollution.min_pollution_to_damage_trees = 3500
+    pollution.pollution_with_max_forest_damage = 10000
+    pollution.pollution_per_tree_damage = 2000
+    pollution.pollution_restored_per_tree_damage = 500
+    pollution.max_pollution_to_restore_trees = 1000
+
     local enemy_evolution = map_settings.enemy_evolution
-    local e_ev = {
-        enabled = true,
-        time_factor = 0.00004,
-        destroy_factor = 0.002,
-        pollution_factor = 0.000045
-    }
-    enemy_evolution = e_ev
+    enemy_evolution.enabled = true
+    enemy_evolution.time_factor = 0.00004
+    enemy_evolution.destroy_factor = 0.002
+    enemy_evolution.pollution_factor = 0.000045
+
     local enemy_expansion = map_settings.enemy_expansion
-    local e_ex = {
-        enabled = true,
-        max_expansion_distance = 10,
-        friendly_base_influence_radius = 2,
-        enemy_building_influence_radius = 2,
-        building_coefficient = 0.1,
-        other_base_coefficient = 2.0,
-        neighbouring_chunk_coefficient = 0.5,
-        neighbouring_base_chunk_coefficient = 0.4,
-        max_colliding_tiles_coefficient = 0.9,
-        settler_group_min_size = 2,
-        settler_group_max_size = 30,
-        min_expansion_cooldown = 1 * 3600,
-        max_expansion_cooldown = 15 * 3600
-    }
-    enemy_expansion = e_ex
+    enemy_expansion.enabled = true
+    enemy_expansion.max_expansion_distance = 10
+    enemy_expansion.friendly_base_influence_radius = 2
+    enemy_expansion.enemy_building_influence_radius = 2
+    enemy_expansion.building_coefficient = 0.1
+    enemy_expansion.other_base_coefficient = 2.0
+    enemy_expansion.neighbouring_chunk_coefficient = 0.5
+    enemy_expansion.neighbouring_base_chunk_coefficient = 0.4
+    enemy_expansion.max_colliding_tiles_coefficient = 0.9
+    enemy_expansion.settler_group_min_size = 2
+    enemy_expansion.settler_group_max_size = 30
+    enemy_expansion.min_expansion_cooldown = 1 * 3600
+    enemy_expansion.max_expansion_cooldown = 15 * 3600
 
     surface.map_gen_settings = {
         terrain_segmentation = 'very-low', -- water frequency
