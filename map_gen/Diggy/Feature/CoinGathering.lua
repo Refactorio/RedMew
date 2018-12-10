@@ -6,7 +6,6 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
-local PlayerStats = require 'features.player_stats'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
@@ -18,8 +17,6 @@ local utils = require 'utils.core'
 
 -- this
 local CoinGathering = {}
-
-local coin_color = {r = 255, g = 215, b = 0}
 
 -- some GUI stuff
 local function redraw_table(data)
