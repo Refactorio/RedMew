@@ -48,14 +48,7 @@ local Config = {
 
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
-                    {name = 'power-armor-mk2', count = 1},
-                    {name = 'submachine-gun', count = 1},
-                    {name = 'uranium-rounds-magazine', count = 1000},
-                    {name = 'roboport', count = 2},
-                    {name = 'construction-robot', count = 50},
-                    {name = 'electric-energy-interface', count = 1},
-                    {name = 'medium-electric-pole', count = 50},
-                    {name = 'logistic-chest-storage', count = 50},
+                    {name = 'uranium-rounds-magazine', count = 200},
                 },
             },
         },
