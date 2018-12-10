@@ -111,7 +111,7 @@ local Config = {
         },
 
         -- Adds the ability to drop coins and track how many are sent into space
-        ArtefactHunting = {
+        CoinGathering = {
             enabled = true,
 
             -- value between 0 and 1, higher value means stronger variance between coordinates

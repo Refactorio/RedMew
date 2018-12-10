@@ -42,7 +42,6 @@ function Scenario.register()
         return
     end
 
-    global.config.player_list.show_coin_column = false
     global.config.fish_market.enabled = false
 
     local extra_map_info = ''
