@@ -4,12 +4,13 @@ local CreateParticles = require 'features.create_particles'
 local random = math.random
 local floor = math.floor
 local ceil = math.ceil
+local pairs = pairs
 local compound = defines.command.compound
 local logical_or = defines.compound_command.logical_or
 local attack = defines.command.attack
 local attack_area = defines.command.attack_area
-
-local HailHydra = {}
+local config = global.config.hail_hydra
+local hydras = config.hydras
 
 local function create_attack_command(position, target)
     local command = {type = attack_area, destination = position, radius = 10}
@@ -23,8 +24,6 @@ local function create_attack_command(position, target)
     return command
 end
 
-local config = global.config.hail_hydra
-local hydras = config.hydras
 
 Event.add(defines.events.on_entity_died, function (event)
     local entity = event.entity
@@ -77,5 +76,3 @@ Event.add(defines.events.on_entity_died, function (event)
         end
     end
 end)
-
-return HailHydra
