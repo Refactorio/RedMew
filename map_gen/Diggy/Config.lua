@@ -28,6 +28,8 @@ local Config = {
             starting_items = {
                 {name = 'iron-axe', count = 1},
                 {name = 'stone-wall', count = 10},
+                {name = 'iron-gear-wheel', count = 8},
+                {name = 'iron-plate', count = 16},
             },
 
             -- applied when cheat_mode is set to true. It's recommended to tweak this to your needs
