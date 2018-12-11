@@ -17,8 +17,6 @@ elseif table.contains(maps, map_name) then
         local surfaces = {['nauvis'] = shape}
         require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
     end
-elseif map_name == 'map_layout' then
-    require 'map_gen.map_layout'
 else
     error('Incorrect map name/map name not found in table')
 end

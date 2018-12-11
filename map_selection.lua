@@ -30,6 +30,5 @@ triangle_of_death
 void_gears
 
 If default is left in place, you will get a vanilla world.
-You can also use 'map_layout' to load that file and create a custom layout.
 ]]
 return map_name
