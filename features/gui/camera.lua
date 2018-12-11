@@ -143,6 +143,9 @@ local function update_camera_size(targetframe)
 end
 
 local function on_tick()
+    if global.config.camera_disabled then
+        return
+    end
     for table_key, camera_table in pairs(camera_users) do
         local player = Game.get_player_by_index(table_key)
         local target = Game.get_player_by_index(camera_table)
@@ -165,6 +168,10 @@ local function on_tick()
 end
 
 local function watch_command(args, player)
+    if global.config.camera_disabled then
+        player.print('The watch/camera function has been disabled for performance reasons.')
+        return
+    end
     if args.target then
         create_destroy_camera(nil, player, args)
     else
@@ -176,6 +183,6 @@ local function watch_close_button(event)
     create_destroy_camera(true, event.player)
 end
 
-Command.add('watch', {description = 'Allows you to watch other players. Use /watch to close the camera.', arguments = {'target'}, default_values = {target = false}, admin_only = false, debug_only = false}, watch_command)
+Command.add('watch', {description = 'Allows you to watch other players. Use /watch to close the camera.', arguments = {'target'}, default_values = {target = false}, admin_only = false}, watch_command)
 Event.add(defines.events.on_tick, on_tick)
 Gui.on_click(main_button_name, watch_close_button)
