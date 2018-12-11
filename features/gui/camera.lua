@@ -13,9 +13,19 @@ local mod_gui = require 'mod-gui'
 local Command = require 'utils.command'
 local Game = require 'utils.game'
 local Gui = require 'utils.gui'
+local Global = require 'utils.global'
 
 local main_button_name = Gui.uid_name()
-global.camera_users = {}
+
+local camera_users = {}
+Global.register(
+    {
+        camera_users = camera_users,
+    },
+    function(tbl)
+        camera_users = tbl.camera_users
+    end
+)
 
 local zoomlevels = {1.00, 0.75, 0.50, 0.40, 0.30, 0.25, 0.20, 0.15, 0.10, 0.05}
 local zoomlevellabels = {'100%', '75%', '50%', '40%', '30%', '25%', '20%', '15%', '10%', '5%'}
@@ -39,8 +49,8 @@ local function create_destroy_camera(destroy, player, args, table_index)
     local mainframe = mainframeflow[mainframeid]
 
     if table_index or destroy then
-        if global.camera_users[player_index] then
-            global.camera_users[player_index] = nil
+        if camera_users[player_index] then
+            camera_users[player_index] = nil
         else
             player.print('No current target. Correct usage is /watch <target> to watch a player.')
         end
@@ -73,7 +83,7 @@ local function create_destroy_camera(destroy, player, args, table_index)
         local close_button = mainframe.add {type = 'button', name = main_button_name, caption = 'Close'}
         apply_button_style(close_button)
         local target_index = target.index
-        global.camera_users[player_index] = target_index
+        camera_users[player_index] = target_index
     end
 end
 
@@ -133,7 +143,7 @@ local function update_camera_size(targetframe)
 end
 
 local function on_tick()
-    for table_key, camera_table in pairs(global.camera_users) do
+    for table_key, camera_table in pairs(camera_users) do
         local player = Game.get_player_by_index(table_key)
         local target = Game.get_player_by_index(camera_table)
         if not target.connected then
