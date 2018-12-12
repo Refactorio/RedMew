@@ -5,6 +5,7 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local degrees = require "utils.math".degrees
+require 'utils.table'
 
 -- change these to change the pattern.
 local ore_seed1 = 30000
@@ -295,7 +296,7 @@ local function loot(x, y)
         name = name,
         force = 'neutral',
         callback = callback,
-        data = {power = loot_power / d, seed = generator(4294967295)}
+        data = {power = loot_power / d_sq, seed = generator(4294967295)}
     }
 
     return entity
