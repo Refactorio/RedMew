@@ -30,5 +30,11 @@ triangle_of_death
 void_gears
 
 If default is left in place, you will get a vanilla world.
+
+If you're an end-user: Everything below this line is just stuff you needn't be concerned with.
 ]]
-return map_name
+local map_selection = {}
+map_selection['name'] = map_name
+map_selection['threaded'] = true
+
+return map_selection
