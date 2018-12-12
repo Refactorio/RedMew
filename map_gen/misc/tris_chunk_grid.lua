@@ -1,3 +1,7 @@
+-- This is a terrain module
+-- To use this feature in a map, add the following line before the "return map" line in a map preset
+-- map = b.overlay_tile_land(map, require "map_gen.misc.tris_chunk_grid")
+
 local b = require 'map_gen.shared.builders'
 
 local size = 8 * 32
