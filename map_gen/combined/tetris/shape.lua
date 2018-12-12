@@ -177,16 +177,12 @@ for _ = 1, p_rows do
     local row = {}
     table.insert(pattern, row)
     for _ = 1, p_cols do
-        --m_t_width
-        --t_width
-        -- map_width = m_t_width*t_width
         local i = random:next_int(1, tetriminos_count * 1.5)
         local shape = tetriminos[i] or b.empty_shape
 
         local angle = random:next_int(0, 3) * quarter
         shape = b.rotate(shape, angle)
 
-        --local y_offset = random:next_int(-2, 2) * t_width
         local x_offset = random:next_int(-10, 8) * t_width
         shape = b.translate(shape, x_offset, 0)
 
@@ -324,7 +320,6 @@ local starting_area = b.any{
     b.translate(tet_L,-t_width*8,-t_width*2)
 }
 
-tetriminos_shape = b.any{tetriminos_shape, starting_area}
 ores = b.grid_pattern_overlap(pattern, p_cols, p_rows, t_width, t_width)
 ores = b.translate(ores, t_h_width, t_h_width)
 
@@ -342,7 +337,7 @@ local sea = b.single_grid_pattern(water_tile, t_width, t_width)
 sea = b.translate(sea, t_h_width, -t_h_width)
 sea = b.choose(sea_bounds, sea, b.empty_shape)
 
-local map = b.choose(sea_bounds, tetriminos_shape, b.empty_shape)
+local map = b.choose(sea_bounds, starting_area, b.empty_shape)
 map = b.if_else(map, sea)
 
 local half_border_width = half_sea_width + t_width
@@ -362,8 +357,9 @@ map = b.apply_effect(map, no_resources)
 
 local bounds = t_width * 2
  
-function spawn(number)
-    local pos = game.player.position
+local Module = {}
+
+function Module.spawn_tetri(pos, number)
     local tiles = {}
     local surface = game.player.surface
     local shape = tetriminos[number]
@@ -380,11 +376,14 @@ function spawn(number)
     surface.set_tiles(tiles)
 end
 
-local Module = {}
 
 Module.disable = function()
     tetriminos = {}
 
 end
 
-return map, Module
+Module.get_map = function()
+    return map
+end
+
+return Module
