@@ -279,12 +279,12 @@ local function loot(x, y)
         return nil
     end
 
-    local d_sq = x * x + y * y
+    local d = math.sqrt(x * x + y * y)
     local name
-    if d_sq < 360000 then --d < 600
+    if d < 600 then
         name = 'car'
     else
-        if math.random(5) == 1 then
+        if generator(5) == 1 then
             name = 'tank'
         else
             name = 'car'
@@ -296,7 +296,7 @@ local function loot(x, y)
         name = name,
         force = 'neutral',
         callback = callback,
-        data = {power = loot_power / d_sq, seed = generator(4294967295)}
+        data = {power = loot_power / d, seed = generator(4294967295)}
     }
 
     return entity
