@@ -26,8 +26,8 @@ local Config = {
         SetupPlayer = {
             enabled = true,
             starting_items = {
-                {name = 'iron-axe', count = 1},
-                {name = 'stone-wall', count = 10},
+                {name = 'iron-axe', count = 2},
+                {name = 'stone-wall', count = 12},
                 {name = 'iron-gear-wheel', count = 8},
                 {name = 'iron-plate', count = 16},
             },
@@ -50,7 +50,6 @@ local Config = {
 
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
-                    {name = 'uranium-rounds-magazine', count = 200},
                 },
             },
         },
@@ -359,7 +358,7 @@ local Config = {
                 ['space-science-pack']        = 10,
                 ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters.
                 ['death-penalty']             = 0.002,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.002 which equals 0.2%)
-                ['cave-in-penalty']           = 100       -- XP lost every cave in.
+                --['cave-in-penalty']           = 100       -- XP lost every cave in.
             },
 
             buffs = {
@@ -387,7 +386,14 @@ local Config = {
                 {level = 15, price = 85, name = 'submachine-gun'},
                 {level = 18, price = 10, name = 'piercing-rounds-magazine'},
                 {level = 18, price = 8, name = 'piercing-shotgun-shell'},
+                {level = 19, price = 5, name = 'rail'},
+                {level = 20, price = 50, name = 'locomotive'},
                 {level = 20, price = 50, name = 'landfill'},
+                {level = 21, price = 5, name = 'rail-signal'},
+                {level = 22, price = 5, name = 'rail-chain-signal'},
+                {level = 23, price = 15, name = 'train-stop'},
+                {level = 24, price = 35, name = 'cargo-wagon'},
+                {level = 24, price = 35, name = 'fluid-wagon'},
                 {level = 25, price = 100, name = 'heavy-armor'},
                 {level = 30, price = 250, name = 'modular-armor'},
                 {level = 32, price = 150, name = 'personal-roboport-equipment'},

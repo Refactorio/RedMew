@@ -1,13 +1,10 @@
---[[-- info
-    Provides the ability to setup a player when first joined.
-]]
-
 -- dependencies
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local CaveCollapse = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'
 local Game = require 'utils.game'
 local Report = require 'features.report'
+local format = string.format
 
 -- this
 local Antigrief = {}
@@ -51,7 +48,7 @@ Event.add(CaveCollapse.events.on_collapse, function(event)
         local player = Game.get_player_by_index(player_index)
         if global_primitives.autojail and count > allowed_collapses_first_hour and player.online_time < 216000 and not jailed_players[player_index] then
             Report.jail(player)
-            Report.report(nil, player, string.format("Caused %d collapses in the first hour", count))
+            Report.report(nil, player, format('Caused %d collapses in the first hour', count))
             jailed_players[player_index] = true
         end
     end

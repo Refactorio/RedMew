@@ -18,6 +18,10 @@ local ceil = math.ceil
 local size = table.size
 local pairs = pairs
 local raise_event = script.raise_event
+local get_aliens = AlienEvolutionProgress.get_aliens
+local create_spawner_request = AlienEvolutionProgress.create_spawner_request
+local set_timeout_in_ticks = Task.set_timeout_in_ticks
+local destroy_rock = CreateParticles.destroy_rock
 
 -- this
 local AlienSpawner = {}
@@ -69,7 +73,7 @@ local do_alien_mining = Token.register(function(params)
         for rock_index = rock_count, 1, -1 do
             local rock = rocks[rock_index]
             raise_event(defines.events.on_entity_died, {entity = rock})
-            CreateParticles.destroy_rock(create_entity, particle_count, rock.position)
+            destroy_rock(create_entity, particle_count, rock.position)
             rock.destroy()
         end
     end
@@ -132,7 +136,7 @@ local function spawn_aliens(aliens, force, surface, x, y)
             -- can't spawn properly if void is present
             if count_tiles_filtered({area = offset_area, name = 'out-of-map'}) == 0 then
                 spawn_count = spawn_count + 1
-                Task.set_timeout_in_ticks(spawn_count, do_alien_mining, {
+                set_timeout_in_ticks(spawn_count, do_alien_mining, {
                     surface = surface,
                     clear_area = offset_area,
                     spawn_location = {
@@ -174,13 +178,7 @@ function AlienSpawner.register(config)
             return
         end
 
-        spawn_aliens(
-            AlienEvolutionProgress.get_aliens(AlienEvolutionProgress.create_spawner_request(3), force.evolution_factor),
-            force,
-            event.surface,
-            x,
-            y
-        )
+        spawn_aliens(get_aliens(create_spawner_request(3), force.evolution_factor), force, event.surface, x, y)
     end)
 end
 

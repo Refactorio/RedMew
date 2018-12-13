@@ -11,6 +11,9 @@ local Simplex = require 'map_gen.shared.simplex_noise'
 local random = math.random
 local sqrt = math.sqrt
 local ceil = math.ceil
+local min = math.min
+local pairs = pairs
+local template_resources = Template.resources
 
 -- this
 local ScatteredResources = {}
@@ -124,22 +127,20 @@ function ScatteredResources.register(config)
         if resource_name == 'skip' then
             return false
         end
-        if cluster.distances[resource_name] then
-            if distance < cluster.distances[resource_name] then
-                return false
-            end
+
+        local cluster_distance = cluster.distances[resource_name]
+        if cluster_distance and distance < cluster_distance then
+            return false
         end
 
         local range = resource_richness_values[get_name_by_weight(resource_richness_weights, resource_richness_weights_sum)]
-        local amount = random(range[1], range[2])
-        amount = amount * (1 + ((distance / cluster.distance_richness) * 0.01))
-        amount = amount * cluster.yield
+        local amount = random(range[1], range[2]) * (1 + ((distance / cluster.distance_richness) * 0.01)) * cluster.yield
 
         if resource_type_scalar[resource_name] then
             amount = amount * resource_type_scalar[resource_name]
         end
 
-        Template.resources(surface, {{name = resource_name, position = {x = x, y = y}, amount = ceil(amount)}})
+        template_resources(surface, {{name = resource_name, position = {x = x, y = y}, amount = ceil(amount)}})
         return true
     end
 
@@ -185,7 +186,7 @@ function ScatteredResources.register(config)
         end
 
         if s_mode then
-            local probability = math.min(s_max_prob, s_min_prob + 0.01 * (distance / s_dist_mod))
+            local probability = min(s_max_prob, s_min_prob + 0.01 * (distance / s_dist_mod))
 
             if (cluster_mode) then
                 probability = probability * s_cluster_prob
@@ -253,7 +254,7 @@ function ScatteredResources.register(config)
     end
 end
 
-function ScatteredResources.get_extra_map_info(config)
+function ScatteredResources.get_extra_map_info()
     return [[Scattered Resources, resources are everywhere!
 Scans of the mine have shown greater amounts of resources to be deeper in the mine]]
 end
