@@ -273,7 +273,8 @@ local function player_created(event)
         return
     end
 
-    player.insert {name = market_item, count = 10}
+    local count = global.config.info_player_reward and 0 or 10
+    player.insert {name = market_item, count = count}
 end
 
 local function init()

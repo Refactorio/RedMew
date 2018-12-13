@@ -1,5 +1,6 @@
 _DEBUG = false
 _CHEATS = false
+local market_item = 'coin'
 
 global.config = {
     -- The title of the map
@@ -19,7 +20,7 @@ global.config = {
     performance = {
         enabled = true,
     },
-  
+
     -- adds a player list icon and keeps track of data.
     player_list = {
         enabled = true,
@@ -59,7 +60,7 @@ global.config = {
     -- adds a fish market
     fish_market = {
         enabled = true,
-        market_item = 'coin',
+        market_item = market_item,
     },
 
     -- automatically marks mines for deconstruction when they are depleted
@@ -181,6 +182,13 @@ global.config = {
             ['big-worm-turret'] = {['small-biter'] = 3.8, ['medium-biter'] = 1.3, ['big-biter'] = 1.1},
         },
     },
+
+    -- grants reward coins for certain actions
+    player_rewards_enabled = true,
+    -- the token to use for rewards
+    player_rewards_token = market_item,
+    -- rewards players for looking through the info tabs (if true, will override player_rewards_enabled to true)
+    info_player_reward = true
 }
 
 return global.config

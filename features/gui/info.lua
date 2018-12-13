@@ -3,6 +3,8 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
+local PlayerRewards = require 'utils.player_rewards'
+local format = string.format
 
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
@@ -13,12 +15,27 @@ local rank_colors = {
     {r = 0.093, g = 0.768, b = 0.172} -- Admin
 }
 
+if global.config.info_player_reward then
+    global.config.player_rewards_enabled = true
+end
+
+local reward_amount = 2
+local reward_plural_indicator = reward_amount > 1 and 's' or ''
+local reward_token = PlayerRewards.get_reward()
+local info_tab_flags = {
+    0x1, -- welcome
+    0x2, -- rules
+    0x4, -- map_info
+    0x8, -- scenario_mods
+    0x10, -- whats_new
+}
+
 local map_name_key = 1
 local map_description_key = 2
 local map_extra_info_key = 3
 local new_info_key = 4
 
-local welcomed_players = {}
+local rewarded_players = {}
 
 local editable_info = {
     [map_name_key] = global.config.map_name_key,
@@ -29,11 +46,11 @@ local editable_info = {
 
 Global.register(
     {
-        welcomed_players = welcomed_players,
-        editable_info = editable_info
+        rewarded_players = rewarded_players,
+        editable_info = editable_info,
     },
     function(tbl)
-        welcomed_players = tbl.welcomed_players
+        rewarded_players = tbl.rewarded_players
         editable_info = tbl.editable_info
     end
 )
@@ -121,11 +138,11 @@ end
 
 local pages = {
     {
-        tab_button = function(parent, player)
+        tab_button = function(parent)
             local button = parent.add {type = 'button', name = tab_button_name, caption = 'Welcome'}
             return button
         end,
-        content = function(parent, player)
+        content = function(parent)
             local parent_style = parent.style
             parent_style.right_padding = 2
 
@@ -142,13 +159,11 @@ local pages = {
             centered_label(
                 parent,
                 [[
-Redmew is community for players of all skill levels committed to pushing the limits of Factorio Multiplayer through custom scripts and crazy map designs.
+Redmew is a community for players of all skill levels committed to pushing the limits of Factorio Multiplayer through custom scripts and crazy map designs.
 
 We are a friendly bunch, our objective is to have as much fun as possible and we hope you will too.
                 ]]
             )
-
-
 
             header_label(parent, 'How To Chat')
             centered_label(
@@ -160,7 +175,13 @@ This can be changed in options -> controls -> "toggle lua console".
                 ]]
             )
 
-
+            if global.config.info_player_reward then
+                local string = format('You have been given %s %s%s for looking at the welcome tab.\nChecking each tab will reward you %s more %s%s.\n', reward_amount, reward_token, reward_plural_indicator, reward_amount, reward_token, reward_plural_indicator)
+                header_label(parent, 'Free Coins')
+                centered_label(
+                    parent, string
+                )
+            end
 
             header_label(parent, 'Useful Links')
             centered_label(parent, [[Check out our discord for new map info and to suggest new maps / ideas.]])
@@ -202,11 +223,11 @@ This can be changed in options -> controls -> "toggle lua console".
         end
     },
     {
-        tab_button = function(parent, player)
+        tab_button = function(parent)
             local button = parent.add {type = 'button', name = tab_button_name, caption = 'Rules'}
             return button
         end,
-        content = function(parent, player)
+        content = function(parent)
             header_label(parent, 'Rules')
 
             centered_label(
@@ -222,7 +243,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
         end
     },
     {
-        tab_button = function(parent, player)
+        tab_button = function(parent)
             local button = parent.add {type = 'button', name = tab_button_name, caption = 'Map Info'}
             return button
         end,
@@ -293,7 +314,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
         end
     },
     {
-        tab_button = function(parent, player)
+        tab_button = function(parent)
             local button = parent.add {type = 'button', name = tab_button_name, caption = 'Scenario Mods'}
             return button
         end,
@@ -593,6 +614,26 @@ local function draw_main_frame(center, player)
     player.opened = frame
 end
 
+local function reward_player(player, index, message)
+    if not global.config.info_player_reward then
+        return
+    end
+
+    local player_index = player.index
+    if not rewarded_players[player_index] then
+        error('Player with no entry in rewarded_players table')
+        return false
+    end
+    local tab_flag = info_tab_flags[index]
+
+    if bit32.band(rewarded_players[player_index], tab_flag) == tab_flag then
+        return
+    else
+        PlayerRewards.give_reward(player, reward_amount, message)
+        rewarded_players[player_index] = rewarded_players[player_index] + tab_flag
+    end
+end
+
 local function toggle(event)
     local player = event.player
     local center = player.gui.center
@@ -607,21 +648,15 @@ end
 
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
-
     if not player or not player.valid then
         return
     end
 
     local gui = player.gui
-
     gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'utility/questionmark'}
 
-    if player.admin or UserGroups.is_regular(player.name) or welcomed_players[player.index] then
-        return
-    end
-
-    welcomed_players[player.index] = true
-    draw_main_frame(gui.center, player)
+    rewarded_players[player.index] = 0
+    reward_player(player, info_tab_flags[1])
 end
 
 Event.add(defines.events.on_player_created, player_created)
@@ -655,6 +690,8 @@ Gui.on_click(
         Gui.clear(content)
 
         pages[index].content(content, player)
+        local string = format('%s %s%s awarded for reading a tab on the info screen.', reward_amount, reward_token, reward_plural_indicator)
+        reward_player(player, index, string)
     end
 )
 
