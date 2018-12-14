@@ -131,6 +131,15 @@ local function mentions(event)
     end
 end
 
+--warns admins that /c /command and /silent-command are deprecated
+local function notify_deprecated_command(event)
+    local command = event.command
+    if command == 'silent-command' or command == 'c' or command == 'command' then
+        local player = game.player or {print = log}
+        player.print('Warning! Usage of the command "' .. command .. '" is deprecated. Please use "/sc" instead.')
+    end
+end
+
 if global.config.hodor.enabled then
     Event.add(defines.events.on_console_chat, hodor)
 end
@@ -142,3 +151,5 @@ end
 if global.config.mentions.enabled then
     Event.add(defines.events.on_console_chat, mentions)
 end
+
+Event.add(defines.events.on_console_command, notify_deprecated_command)
