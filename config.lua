@@ -3,17 +3,20 @@ _CHEATS = false
 local market_item = 'coin'
 
 global.config = {
+    -- The contents of the info GUI
+    map_info = {
     -- The title of the map
     map_name_key = 'This Map has no name',
 
     -- The long description of the map, typically 1 paragraph
-    map_description_key = "By default this section is blank as it's supposed to be filled out on a per map basis. (If you're seeing this message, ping the admin team to get a description added for this map)",
+    map_description_key = "This section is supposed to be filled out on a per map basis. If you're seeing this message, ping the admin team to get a description added for this map. A 20 coin bonus is available to the first person to point this out.",
 
     -- The feature list of the map
     map_extra_info_key = 'This map has no extra information',
 
     -- New Scenario Features, appears in the "What's new" tab
     new_info_key = 'Nothing is new. The world is at peace',
+    },
 
     -- Adds a command to scale UPS and movement speed. Use with caution
     -- as it might break scenarios that modify movement speed
@@ -101,6 +104,7 @@ global.config = {
         enabled = true,
     },
 
+    -- settings for when a player joins the server for the first time
     player_create = {
         enabled = true,
 
@@ -184,11 +188,13 @@ global.config = {
     },
 
     -- grants reward coins for certain actions
-    player_rewards_enabled = true,
-    -- the token to use for rewards
-    player_rewards_token = market_item,
-    -- rewards players for looking through the info tabs (if true, will override player_rewards_enabled to true)
-    info_player_reward = true
+    player_rewards = {
+        enabled = true,
+        -- the token to use for rewards
+        token = market_item,
+        -- rewards players for looking through the info tabs
+        info_player_reward = true,
+    },
 }
 
 return global.config

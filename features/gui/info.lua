@@ -15,10 +15,6 @@ local rank_colors = {
     {r = 0.093, g = 0.768, b = 0.172} -- Admin
 }
 
-if global.config.info_player_reward then
-    global.config.player_rewards_enabled = true
-end
-
 local reward_amount = 2
 local reward_plural_indicator = reward_amount > 1 and 's' or ''
 local reward_token = PlayerRewards.get_reward()
@@ -29,6 +25,10 @@ local info_tab_flags = {
     0x8, -- scenario_mods
     0x10, -- whats_new
 }
+local flags_sum = 0
+for _, v in pairs(info_tab_flags) do
+    flags_sum = flags_sum + v
+end
 
 local map_name_key = 1
 local map_description_key = 2
@@ -38,10 +38,10 @@ local new_info_key = 4
 local rewarded_players = {}
 
 local editable_info = {
-    [map_name_key] = global.config.map_name_key,
-    [map_description_key] = global.config.map_description_key,
-    [map_extra_info_key] = global.config.map_extra_info_key,
-    [new_info_key] = global.config.new_info_key
+    [map_name_key] = global.config.map_info.map_name_key,
+    [map_description_key] = global.config.map_info.map_description_key,
+    [map_extra_info_key] = global.config.map_info.map_extra_info_key,
+    [new_info_key] = global.config.map_info.new_info_key
 }
 
 Global.register(
@@ -175,7 +175,7 @@ This can be changed in options -> controls -> "toggle lua console".
                 ]]
             )
 
-            if global.config.info_player_reward then
+            if global.config.player_rewards.enabled and global.config.player_rewards.info_player_reward then
                 local string = format('You have been given %s %s%s for looking at the welcome tab.\nChecking each tab will reward you %s more %s%s.\n', reward_amount, reward_token, reward_plural_indicator, reward_amount, reward_token, reward_plural_indicator)
                 header_label(parent, 'Free Coins')
                 centered_label(
@@ -615,7 +615,7 @@ local function draw_main_frame(center, player)
 end
 
 local function reward_player(player, index, message)
-    if not global.config.info_player_reward then
+    if not global.config.player_rewards.enabled or not global.config.player_rewards.info_player_reward then
         return
     end
 
