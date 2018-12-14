@@ -99,6 +99,9 @@ local Config = {
                 ['concrete'] = 0.04,
                 ['hazard-concrete'] = 0.04,
                 ['refined-concrete'] = 0.06,
+				['small-electric-pole'] = .25,
+				['medium-electric-pole'] = .5,
+				['big-electric-pole'] = 2
             },
             cracking_sounds = {
                 ' R U NY O UF O O L S !',

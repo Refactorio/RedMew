@@ -41,6 +41,7 @@ local ring_value = 0
 
 local enable_stress_grid = 0
 local stress_map_add
+local stress_map_add_pole
 local mask_disc_blur
 local stress_map_check_stress_in_threshold
 local support_beam_entities
@@ -246,7 +247,14 @@ local function on_mined_entity(event)
         if not Template.is_diggy_rock(name) then
             player_index = event.player_index
         end
-        stress_map_add(entity.surface, entity.position, strength, false, player_index)
+		
+		if ( name == 'small-electric-pole' or name == 'medium-electric-pole' or name == 'big-electric-pole' ) then
+			stress_map_add_pole(entity.surface, entity.position, strength, false, player_index)
+		else
+			stress_map_add(entity.surface, entity.position, strength, false, player_index)
+		end
+
+        -- stress_map_add(entity.surface, entity.position, strength, false, player_index)
     end
 end
 
@@ -260,24 +268,42 @@ local function on_entity_died(event)
             local cause = event.cause
             player_index = cause and cause.player and cause.player.index or nil
         end
-        stress_map_add(entity.surface, entity.position, strength, false, player_index)
+		if ( name == 'small-electric-pole' or name == 'medium-electric-pole' or name == 'big-electric-pole' ) then
+			stress_map_add_pole(entity.surface, entity.position, strength, false, player_index)
+		else
+			stress_map_add(entity.surface, entity.position, strength, false, player_index)
+		end
+		-- stress_map_add(entity.surface, entity.position, strength, false, player_index)
     end
 end
 
 local function on_built_entity(event)
     local entity = event.created_entity
-    local strength = support_beam_entities[entity.name]
+	local name = entity.name
+    local strength = support_beam_entities[name]
 
     if strength then
-        stress_map_add(entity.surface, entity.position, -1 * strength)
+		if ( name == 'small-electric-pole' or name == 'medium-electric-pole' or name == 'big-electric-pole' ) then
+			stress_map_add_pole(entity.surface, entity.position, -1 * strength)
+		else
+			stress_map_add(entity.surface, entity.position, -1 * strength)
+		end
+		-- stress_map_add(entity.surface, entity.position, -1 * strength)
     end
 end
 
 local function on_placed_entity(event)
-    local strength = support_beam_entities[event.entity.name]
+	local entity = event.entity
+    local name = entity.name
+    local strength = support_beam_entities[name]
 
     if strength then
-        stress_map_add(event.entity.surface, event.entity.position, -1 * strength)
+		if ( name == 'small-electric-pole' or name == 'medium-electric-pole' or name == 'big-electric-pole' ) then
+			stress_map_add_pole(entity.surface, entity.position, -1 * strength)
+		else
+			stress_map_add(entity.surface, entity.position, -1 * strength)
+		end
+		-- stress_map_add(entity.surface, entity.position, -1 * strength)
     end
 end
 
@@ -532,6 +558,40 @@ stress_map_add = function(surface, position, factor, no_blur, player_index)
 end
 
 DiggyCaveCollapse.stress_map_add = stress_map_add
+
+stress_map_add_pole = function(surface, position, factor, no_blur, player_index)
+    local x_start = floor(position.x)
+    local y_start = floor(position.y)
+
+    local stress_map = stress_map_storage[surface.index]
+    if not stress_map then
+        return
+    end
+
+    if no_blur then
+        add_fraction(stress_map, x_start, y_start, factor, player_index, surface)
+        return
+    end
+
+    for x = -radius, radius do
+        for y = -radius, radius do
+            local value = 0
+            local distance_sq = x * x + y * y
+            if distance_sq <= center_radius_sq then
+                value = ((center_value*6)/4)
+            elseif distance_sq <= disc_radius_sq then
+                value = disc_value
+            elseif distance_sq <= radius_sq then
+                value = 0
+            end
+            if value > 0.001 or value < -0.001 then
+                add_fraction(stress_map, x + x_start, y + y_start, value * factor, player_index, surface)
+            end
+        end
+    end
+end
+
+DiggyCaveCollapse.stress_map_add_pole = stress_map_add_pole
 
 --
 -- MASK
