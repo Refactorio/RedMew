@@ -5,6 +5,7 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local degrees = require "utils.math".degrees
+require 'utils.table'
 
 -- change these to change the pattern.
 local ore_seed1 = 30000
@@ -278,12 +279,12 @@ local function loot(x, y)
         return nil
     end
 
-    local d_sq = x * x + y * y
+    local d = math.sqrt(x * x + y * y)
     local name
-    if d_sq < 360000 then --d < 600
+    if d < 600 then
         name = 'car'
     else
-        if math.random(5) == 1 then
+        if generator(5) == 1 then
             name = 'tank'
         else
             name = 'car'

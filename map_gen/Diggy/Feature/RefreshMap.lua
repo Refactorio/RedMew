@@ -11,7 +11,7 @@ local RefreshMap = {}
 --[[--
     Registers all event handlers.
 ]]
-function RefreshMap.register(config)
+function RefreshMap.register()
     Event.add(defines.events.on_chunk_generated, function (event)
         local tiles = {}
 

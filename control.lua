@@ -42,6 +42,10 @@ if global.config.performance.enabled then
     require 'features.performance'
 end
 
+if global.config.hail_hydra.enabled then
+    require 'features.hail_hydra'
+end
+
 -- GUIs the order determines the order they appear from left to right.
 -- These can be safely disabled if you want less GUI items.
 -- Some map presets will add GUI modules themselves.

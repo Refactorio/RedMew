@@ -2,6 +2,8 @@
 local Config = require 'map_gen.Diggy.Config'
 local ScenarioInfo = require 'features.gui.info'
 local Event = require 'utils.event'
+local type = type
+local pairs = pairs
 
 require 'utils.table'
 require 'utils.core'
@@ -19,9 +21,9 @@ global.diggy_scenario_registered = false
     @param if_enabled function to be called if enabled
 ]]
 local function each_enabled_feature(if_enabled)
-    local type = type(if_enabled)
-    if ('function' ~= type) then
-        error('each_enabled_feature expects callback to be a function, given type: ' .. type)
+    local enabled_type = type(if_enabled)
+    if ('function' ~= enabled_type) then
+        error('each_enabled_feature expects callback to be a function, given type: ' .. enabled_type)
     end
 
     for current_name, feature_data in pairs(Config.features) do
@@ -42,8 +44,13 @@ function Scenario.register()
         return
     end
 
-    global.config.player_list.show_coin_column = false
-    global.config.fish_market.enabled = false
+    -- disabled redmew features for diggy
+    local redmew_config = global.config
+    redmew_config.fish_market.enabled = false
+    redmew_config.reactor_meltdown.enabled = false
+    redmew_config.hodor.enabled = false
+    redmew_config.blueprint_helper.enabled = false
+    redmew_config.paint.enabled = false
 
     local extra_map_info = ''
 
