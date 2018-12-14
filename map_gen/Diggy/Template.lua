@@ -1,16 +1,17 @@
 -- dependencies
 local Task = require 'utils.Task'
 local Token = require 'utils.token'
-local Debug = require 'map_gen.Diggy.Debug'
-local insert = table.insert
 local min = math.min
 local ceil = math.ceil
 local raise_event = script.raise_event
+local queue_task = Task.queue_task
+local pairs = pairs
+local pcall = pcall
 
 -- this
 local Template = {}
 
-local tiles_per_call = 256 --how many tiles are inserted with each call of insert_action
+local tiles_per_call = 8 --how many tiles are inserted with each call of insert_action
 local entities_per_call = 8 --how many entities are inserted with each call of insert_action
 
 Template.events = {
@@ -28,62 +29,62 @@ Template.events = {
     on_void_removed = script.generate_event_name(),
 }
 
+local on_void_removed = Template.events.on_void_removed
+local on_placed_entity = Template.events.on_placed_entity
+
 local function insert_next_tiles(data)
     local void_removed = {}
+    local void_removed_count = 0
     local surface = data.surface
     local get_tile = surface.get_tile
     local tiles = {}
+    local tile_count = 0
+    local tile_iterator = data.tile_iterator
 
-    pcall(
-        function()
-            --use pcall to assure tile_iterator is always incremented, to avoid endless loops
-            for i = data.tile_iterator, min(data.tile_iterator + tiles_per_call - 1, data.tiles_n) do
-                local new_tile = data.tiles[i]
-                insert(tiles, new_tile)
+    pcall(function()
+        --use pcall to assure tile_iterator is always incremented, to avoid endless loops
+        for i = tile_iterator, min(tile_iterator + tiles_per_call - 1, data.tiles_n) do
+            local new_tile = data.tiles[i]
+            tile_count = tile_count + 1
+            tiles[tile_count] = new_tile
+
+            if new_tile.name ~= 'out-of-map' then
                 local current_tile = get_tile(new_tile.position.x, new_tile.position.y)
-                local current_is_void = current_tile.name == 'out-of-map'
-                local new_is_void = new_tile.name == 'out-of-map'
-
-                if (current_is_void and not new_is_void) then
-                    insert(void_removed, {surface = surface, position = current_tile.position})
+                if current_tile.name == 'out-of-map' then
+                    void_removed_count = void_removed_count + 1
+                    void_removed[void_removed_count] = {surface = surface, position = current_tile.position}
                 end
             end
         end
-    )
+    end)
 
-    data.tile_iterator = data.tile_iterator + tiles_per_call
+    data.tile_iterator = tile_iterator + tiles_per_call
 
     surface.set_tiles(tiles)
 
-    for _, event in pairs(void_removed) do
-        raise_event(Template.events.on_void_removed, event)
+    for i = 1, void_removed_count do
+        raise_event(on_void_removed, void_removed[i])
     end
 end
 
 local function insert_next_entities(data)
     local created_entities = {}
+    local created_entities_count = 0
     local surface = data.surface
     local create_entity = surface.create_entity
 
-    pcall(
-        function()
-            --use pcall to assure tile_iterator is always incremented, to avoid endless loops
-            for i = data.entity_iterator, min(data.entity_iterator + entities_per_call - 1, data.entities_n) do
-                local entity = data.entities[i]
-                local created_entity = create_entity(entity)
-                if not created_entity then
-                    error('Failed creating entity ' .. entity.name .. ' on surface.')
-                end
-
-                insert(created_entities, created_entity)
-            end
+    pcall(function()
+        --use pcall to assure tile_iterator is always incremented, to avoid endless loops
+        for i = data.entity_iterator, min(data.entity_iterator + entities_per_call - 1, data.entities_n) do
+            created_entities_count = created_entities_count + 1
+            created_entities[created_entities_count] = create_entity(data.entities[i])
         end
-    )
+    end)
 
     data.entity_iterator = data.entity_iterator + entities_per_call
 
-    for _, entity in pairs(created_entities) do
-        raise_event(Template.events.on_placed_entity, {entity = entity})
+    for i = 1, created_entities_count do
+        raise_event(on_placed_entity, {entity = created_entities[i]})
     end
 
     return data.entity_iterator <= data.entities_n
@@ -136,7 +137,7 @@ function Template.insert(surface, tiles, entities)
     end
 
     if continue then
-        Task.queue_task(insert_token, data, total_calls - 4)
+        queue_task(insert_token, data, total_calls - 4)
     end
 end
 
@@ -153,6 +154,14 @@ function Template.resources(surface, resources)
     for _, entity in pairs(resources) do
         create_entity(entity)
     end
+end
+
+Template.diggy_rocks = {'sand-rock-big', 'rock-big', 'rock-huge'}
+
+---Returns true if the entity name is that of a diggy rock.
+---@param entity_name string
+function Template.is_diggy_rock(entity_name)
+    return entity_name == 'sand-rock-big' or entity_name == 'rock-big' or entity_name == 'rock-huge'
 end
 
 return Template

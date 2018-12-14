@@ -7,6 +7,9 @@ local Game = require 'utils.game'
 local Report = require 'features.report'
 local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
+local Command = require 'utils.command'
+local format = string.format
+local ceil = math.ceil
 
 --local Antigrief = require 'features.antigrief'
 
@@ -494,9 +497,40 @@ local function server_time()
 end
 
 --- Add all commands to command list
-if _DEBUG then
+if _DEBUG or _CHEATS then
     commands.add_command('all-tech', 'researches all technologies (debug only)', all_tech)
 end
+
+Command.add(
+    'sc',
+    {
+        description = 'silent-command',
+        arguments = {'str'},
+        admin_only = true,
+        capture_excess_arguments = true,
+        allowed_by_server = true,
+        allowed_by_player = true
+    },
+    function(args, player)
+        local p
+        if player then
+            p = player.print
+        else
+            p = print
+        end
+
+        local func, err = loadstring(args.str)
+        if not func then
+            p(err)
+        end
+
+        local _, err2 = pcall(func)
+        if err2 then
+            local i = err2:find('\n')
+            p(err2:sub(1, i))
+        end
+    end
+)
 
 --- Enables cheat mode (free pocket crafting) for player
 commands.add_command(
@@ -563,3 +597,55 @@ commands.add_command(
     'moves you to the antigrief surface or back (Admins only)',
     antigrief_surface_tp
 ) ]]
+
+Command.add('search-command', {
+    description = 'Search for commands matching the keyword in name or description',
+    arguments = {'keyword', 'page'},
+    default_values = {page = 1},
+}, function (arguments, player)
+    local keyword = arguments.keyword
+    local p = player.print
+    if #keyword < 2 then
+        p('Keyword should be 2 characters or more')
+        return
+    end
+
+    local per_page = 7
+    local matches = Command.search(keyword)
+    local count = #matches
+
+    if count == 0 then
+        p('---- 0 Search Results ----')
+        p(format('No commands found matching "%s"', keyword))
+        p('-------------------------')
+        return
+    end
+
+    local page = tonumber(arguments.page)
+    local pages = ceil(count / per_page)
+
+    if nil == page then
+        p('Page should be a valid number')
+        return
+    end
+
+    -- just show the last page
+    if page > pages then
+        page = pages
+    end
+
+    if page < 1 then
+        page = 1
+    end
+
+    local page_start = per_page * (page - 1) + 1
+    local page_end = per_page * page
+    page_end = page_end <= count and page_end or count
+
+    p(format('---- %d Search %s -----', count, count == 1 and 'Result' or 'Results'))
+    p(format('Searching for: "%s"', keyword))
+    for i = page_start, page_end do
+        p(format('[%d] /%s', i, matches[i]))
+    end
+    p(format('-------- Page %d / %d --------', page, pages))
+end)

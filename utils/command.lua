@@ -4,6 +4,7 @@ local insert = table.insert
 local format = string.format
 local next = next
 local serialize = serpent.line
+local match = string.match
 
 local Command = {}
 
@@ -163,8 +164,8 @@ function Command.add(command_name, options, callback)
                 end
             end
 
-            if not parameter then
-                insert(errors, format('Argument %s from command %s is missing.', argument, command_name))
+            if parameter == nil then
+                insert(errors, format('Argument "%s" from command %s is missing.', argument, command_name))
             else
                 named_arguments[argument] = parameter
             end
@@ -201,6 +202,30 @@ function Command.add(command_name, options, callback)
             log(format("Error while running '%s' with arguments %s: %s", command_name, serialized_arguments, error))
         end
     end)
+end
+
+function Command.search(keyword)
+    local matches = {}
+    local count = 0
+    keyword = keyword:lower()
+    for name, description in pairs(commands.commands) do
+        local command = format('%s %s', name, description)
+        if match(command:lower(), keyword) then
+            count = count + 1
+            matches[count] = command
+        end
+    end
+
+    -- built-in commands use LocalisedString, which cannot be translated until player.print is called
+    for name in pairs(commands.game_commands) do
+        name = name
+        if match(name:lower(), keyword) then
+            count = count + 1
+            matches[count] = name
+        end
+    end
+
+    return matches
 end
 
 return Command

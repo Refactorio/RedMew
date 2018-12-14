@@ -3,24 +3,32 @@
 ]]
 
 -- dependencies
+require 'utils.table'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
 local Task = require 'utils.Task'
-local AlienEvolutionProgress = require 'map_gen.Diggy.AlienEvolutionProgress'
+local AlienEvolutionProgress = require 'utils.alien_evolution_progress'
 local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local CreateParticles = require 'features.create_particles'
 local random = math.random
 local floor = math.floor
 local ceil = math.ceil
-local insert = table.insert
+local size = table.size
+local pairs = pairs
 local raise_event = script.raise_event
+local get_aliens = AlienEvolutionProgress.get_aliens
+local create_spawner_request = AlienEvolutionProgress.create_spawner_request
+local set_timeout_in_ticks = Task.set_timeout_in_ticks
+local destroy_rock = CreateParticles.destroy_rock
 
 -- this
 local AlienSpawner = {}
 
-local alien_size_chart = {}
+local memory = {
+    alien_collision_boxes = {},
+}
 local locations_to_scan = {
     {x = 0, y = -1.5}, -- up
     {x = 1.5, y = 0}, -- right
@@ -29,21 +37,18 @@ local locations_to_scan = {
 }
 
 Global.register_init({
-    alien_size_chart = alien_size_chart,
+    memory = memory,
 }, function(tbl)
     for name, prototype in pairs(game.entity_prototypes) do
         if prototype.type == 'unit' and prototype.subgroup.name == 'enemies' then
-            tbl.alien_size_chart[name] = {
-                name = name,
-                collision_box = prototype.collision_box
-            }
+            tbl.memory.alien_collision_boxes[name] = prototype.collision_box
         end
     end
 end, function(tbl)
-    alien_size_chart = tbl.alien_size_chart
+    memory = tbl.memory
 end)
 
-local rocks_to_find = {'sand-rock-big', 'rock-huge'}
+local rocks_to_find = Template.diggy_rocks
 
 ---Triggers mining at the collision_box of the alien, to free it
 local do_alien_mining = Token.register(function(params)
@@ -68,7 +73,7 @@ local do_alien_mining = Token.register(function(params)
         for rock_index = rock_count, 1, -1 do
             local rock = rocks[rock_index]
             raise_event(defines.events.on_entity_died, {entity = rock})
-            CreateParticles.destroy_rock(create_entity, particle_count, rock.position)
+            destroy_rock(create_entity, particle_count, rock.position)
             rock.destroy()
         end
     end
@@ -94,18 +99,21 @@ local function spawn_aliens(aliens, force, surface, x, y)
     local count_tiles_filtered = surface.count_tiles_filtered
 
     local spawn_count = 0
+    local alien_collision_boxes = memory.alien_collision_boxes
+
     for name, amount in pairs(aliens) do
-        local size_data = alien_size_chart[name]
-        if not size_data then
+        local collision_box = alien_collision_boxes[name]
+        if not collision_box then
             Debug.print_position(position, 'Unable to find prototype data for ' .. name)
             break
         end
 
-        local collision_box = size_data.collision_box
-        local left_top_x = collision_box.left_top.x * 1.6
-        local left_top_y = collision_box.left_top.y * 1.6
-        local right_bottom_x = collision_box.right_bottom.x * 1.6
-        local right_bottom_y = collision_box.right_bottom.y * 1.6
+        local left_top = collision_box.left_top
+        local right_bottom = collision_box.right_bottom
+        local left_top_x = left_top.x * 1.6
+        local left_top_y = left_top.y * 1.6
+        local right_bottom_x = right_bottom.x * 1.6
+        local right_bottom_y = right_bottom.y * 1.6
 
         for i = #locations_to_scan, 1, -1 do
             local direction = locations_to_scan[i]
@@ -128,7 +136,7 @@ local function spawn_aliens(aliens, force, surface, x, y)
             -- can't spawn properly if void is present
             if count_tiles_filtered({area = offset_area, name = 'out-of-map'}) == 0 then
                 spawn_count = spawn_count + 1
-                Task.set_timeout_in_ticks(spawn_count, do_alien_mining, {
+                set_timeout_in_ticks(spawn_count, do_alien_mining, {
                     surface = surface,
                     clear_area = offset_area,
                     spawn_location = {
@@ -152,47 +160,9 @@ function AlienSpawner.register(config)
     local alien_probability = config.alien_probability
     local hail_hydra = config.hail_hydra
 
-    if hail_hydra then
-        Event.add(defines.events.on_entity_died, function (event)
-            local entity = event.entity
-            local name = entity.name
-
-            local force
-            local position
-            local surface
-            local create_entity
-            local find_non_colliding_position
-
-            for alien, hydras in pairs(hail_hydra) do
-                if name == alien then
-                    for hydra_spawn, amount in pairs(hydras) do
-                        local extra_chance = amount % 1
-                        if extra_chance > 0 then
-                            if random() <= extra_chance then
-                                amount = ceil(amount)
-                            else
-                                amount = floor(amount)
-                            end
-                        end
-
-                        while amount > 0 do
-                            force = force or entity.force
-                            position = position or entity.position
-                            surface = surface or entity.surface
-                            create_entity = create_entity or surface.create_entity
-                            -- always spawn worms on their designated position
-                            if not hydra_spawn:match('worm-turret') then
-                                find_non_colliding_position = find_non_colliding_position or surface.find_non_colliding_position
-                                position = find_non_colliding_position(hydra_spawn, position, 2, 0.4) or position
-                            end
-                            create_entity({name = hydra_spawn, force = force, position = position})
-                            amount = amount - 1
-                        end
-                    end
-                    break
-                end
-            end
-        end)
+    if size(hail_hydra) > 0 then
+        global.config.hail_hydra.enabled = true
+        global.config.hail_hydra.hydras = hail_hydra
     end
 
     Event.add(Template.events.on_void_removed, function (event)
@@ -208,12 +178,7 @@ function AlienSpawner.register(config)
             return
         end
 
-        local aliens = AlienEvolutionProgress.getBitersByEvolution(random(1, 2), evolution_factor)
-        for name, amount in pairs(AlienEvolutionProgress.getSpittersByEvolution(random(1, 2), evolution_factor)) do
-            aliens[name] = amount
-        end
-
-        spawn_aliens(aliens, force, event.surface, x, y)
+        spawn_aliens(get_aliens(create_spawner_request(3), force.evolution_factor), force, event.surface, x, y)
     end)
 end
 

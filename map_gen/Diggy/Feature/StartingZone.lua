@@ -5,13 +5,13 @@
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Template = require 'map_gen.Diggy.Template'
-local Debug = require 'map_gen.Diggy.Debug'
 local Retailer = require 'features.retailer'
 local DiggyCaveCollapse = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'
 local insert = table.insert
 local random = math.random
 local sqrt = math.sqrt
 local floor = math.floor
+local pairs = pairs
 local raise_event = script.raise_event
 
 -- this
@@ -58,7 +58,7 @@ function StartingZone.register(config)
                     end
 
                     if (distance > rock_range) then
-                        insert(rocks, {name = 'sand-rock-big', position = {x = x, y = y}})
+                        insert(rocks, {name = 'rock-big', position = {x = x, y = y}})
                     end
 
                     -- hack to avoid starting area from collapsing
@@ -78,7 +78,6 @@ function StartingZone.register(config)
         market.destructible = false
 
         Retailer.add_market(player_force.name, market)
-        Retailer.ship_items(player_force.name)
 
         player_force.add_chart_tag(surface, {
             text = 'Market',

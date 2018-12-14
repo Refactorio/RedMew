@@ -11,13 +11,12 @@ local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local random = math.random
 local ceil = math.ceil
+local pairs = pairs
 local Gui = require 'utils.gui'
 local utils = require 'utils.core'
 
 -- this
-local ArtefactHunting = {}
-
-local coin_color = {r = 255, g = 215, b = 0}
+local CoinGathering = {}
 
 -- some GUI stuff
 local function redraw_table(data)
@@ -29,10 +28,10 @@ local function redraw_table(data)
     for name, value in pairs(ScoreTable.all()) do
         local table = list.add({type = 'table', column_count = 2})
 
-        local key = table.add({type = 'label', name = 'Diggy.ArtefactHunting.Frame.List.Key', caption = name})
+        local key = table.add({type = 'label', name = 'Diggy.CoinGathering.Frame.List.Key', caption = name})
         key.style.minimal_width = 175
 
-        local val = table.add({type = 'label', name = 'Diggy.ArtefactHunting.Frame.List.Val', caption = utils.comma_value(value)})
+        local val = table.add({type = 'label', name = 'Diggy.CoinGathering.Frame.List.Val', caption = utils.comma_value(value)})
         val.style.minimal_width = 225
     end
 end
@@ -41,7 +40,7 @@ end
 local function toggle(event)
     local player = event.player
     local center = player.gui.left
-    local frame = center['Diggy.ArtefactHunting.Frame']
+    local frame = center['Diggy.CoinGathering.Frame']
 
     if (frame and event.trigger == nil) then
         Gui.destroy(frame)
@@ -52,12 +51,12 @@ local function toggle(event)
         return
     end
 
-    frame = center.add({name = 'Diggy.ArtefactHunting.Frame', type = 'frame', direction = 'vertical'})
+    frame = center.add({name = 'Diggy.CoinGathering.Frame', type = 'frame', direction = 'vertical'})
 
     local scroll_pane = frame.add({type = 'scroll-pane'})
     scroll_pane.style.maximal_height = 400
 
-    frame.add({ type = 'button', name = 'Diggy.ArtefactHunting.Button', caption = 'Close'})
+    frame.add({type = 'button', name = 'Diggy.CoinGathering.Button', caption = 'Close'})
 
     local data = {
         frame = frame,
@@ -71,20 +70,20 @@ end
 
 local function on_player_created(event)
     Game.get_player_by_index(event.player_index).gui.top.add({
-        name = 'Diggy.ArtefactHunting.Button',
+        name = 'Diggy.CoinGathering.Button',
         type = 'sprite-button',
         sprite = 'item/steel-axe',
     })
 end
 
-Gui.on_click('Diggy.ArtefactHunting.Button', toggle)
-Gui.on_custom_close('Diggy.ArtefactHunting.Frame', function (event)
+Gui.on_click('Diggy.CoinGathering.Button', toggle)
+Gui.on_custom_close('Diggy.CoinGathering.Frame', function (event)
     event.element.destroy()
 end)
 
-function ArtefactHunting.update_gui()
+function CoinGathering.update_gui()
     for _, p in pairs(game.connected_players) do
-        local frame = p.gui.left['Diggy.ArtefactHunting.Frame']
+        local frame = p.gui.left['Diggy.CoinGathering.Frame']
 
         if frame and frame.valid then
             local data = {player = p, trigger = 'update_gui'}
@@ -93,19 +92,17 @@ function ArtefactHunting.update_gui()
     end
 end
 
---[[--
-    Registers all event handlers.
-]]
-function ArtefactHunting.register(config)
+function CoinGathering.register(config)
     Event.add(defines.events.on_player_created, on_player_created)
-    Event.on_nth_tick(61, ArtefactHunting.update_gui)
+    Event.on_nth_tick(61, CoinGathering.update_gui)
 
     ScoreTable.reset('Coins sent to space')
 
     local seed
+    local noise_variance = config.noise_variance
     local function get_noise(surface, x, y)
         seed = seed or surface.map_gen_settings.seed + surface.index + 300
-        return Perlin.noise(x * config.noise_variance * 0.9, y * config.noise_variance * 1.1, seed)
+        return Perlin.noise(x * noise_variance * 0.9, y * noise_variance * 1.1, seed)
     end
 
     local distance_required = config.minimal_treasure_chest_distance * config.minimal_treasure_chest_distance
@@ -118,6 +115,7 @@ function ArtefactHunting.register(config)
         end
     end)
 
+    local treasure_chest_noise_threshold = config.treasure_chest_noise_threshold
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.position
         local x = position.x
@@ -129,7 +127,7 @@ function ArtefactHunting.register(config)
 
         local surface = event.surface
 
-        if get_noise(surface, x, y) < config.treasure_chest_noise_threshold then
+        if get_noise(surface, x, y) < treasure_chest_noise_threshold then
             return
         end
 
@@ -148,22 +146,6 @@ function ArtefactHunting.register(config)
     end)
 
     local modifiers = config.alien_coin_modifiers
-
-    local function picked_up_coins(player_index, count)
-        local text
-        if count == 1 then
-            text = '+1 coin'
-            ScoreTable.increment('Collected coins')
-        else
-            text = '+' .. count ..' coins'
-            ScoreTable.add('Collected coins', count)
-        end
-
-        Game.print_player_floating_text(player_index, text, coin_color)
-    end
-
-    ScoreTable.reset('Collected coins')
-
     local alien_coin_drop_chance = config.alien_coin_drop_chance
 
     Event.add(defines.events.on_entity_died, function (event)
@@ -180,39 +162,42 @@ function ArtefactHunting.register(config)
             ceil(5 * evolution_multiplier * modifier)
         )
 
-        entity.surface.create_entity({
+        local coin = entity.surface.create_entity({
             name = 'item-on-ground',
             position = entity.position,
             stack = {name = 'coin', count = count}
         })
-    end)
 
-    Event.add(defines.events.on_picked_up_item, function (event)
-        local stack = event.item_stack
-        if stack.name ~= 'coin' then
-            return
+        if coin and coin.valid then
+            coin.to_be_looted = true
         end
-
-        picked_up_coins(event.player_index, stack.count)
     end)
 
+    local mining_coin_chance = config.mining_coin_chance
+    local mining_coin_amount_min = config.mining_coin_amount.min
+    local mining_coin_amount_max = config.mining_coin_amount.max
     Event.add(defines.events.on_pre_player_mined_item, function (event)
-        if event.entity.type ~= 'simple-entity' then
+        local entity = event.entity
+        if entity.type ~= 'simple-entity' then
             return
         end
 
-        if random() > config.mining_coin_chance then
+        if random() > mining_coin_chance then
             return
         end
 
-        local count = random(config.mining_coin_amount.min, config.mining_coin_amount.max)
-        local player_index = event.player_index
+        local coin = entity.surface.create_entity({
+            name = 'item-on-ground',
+            position = entity.position,
+            stack = {name = 'coin', count = random(mining_coin_amount_min, mining_coin_amount_max)}
+        })
 
-        Game.get_player_by_index(player_index).insert({name = 'coin', count = count})
-        picked_up_coins(player_index, count)
+        if coin and coin.valid then
+            coin.to_be_looted = true
+        end
     end)
 
-    if (config.display_chest_locations) then
+    if config.display_chest_locations then
         Event.add(defines.events.on_chunk_generated, function (event)
             local surface = event.surface
             local area = event.area
@@ -220,7 +205,7 @@ function ArtefactHunting.register(config)
             for x = area.left_top.x, area.left_top.x + 31 do
                 local sq_x = x * x
                 for y = area.left_top.y, area.left_top.y + 31 do
-                    if sq_x + y * y >= distance_required and get_noise(surface, x, y) >= config.treasure_chest_noise_threshold then
+                    if sq_x + y * y >= distance_required and get_noise(surface, x, y) >= treasure_chest_noise_threshold then
                         Debug.print_grid_value('chest', surface, {x = x, y = y}, nil, nil, true)
                     end
                 end
@@ -229,8 +214,4 @@ function ArtefactHunting.register(config)
     end
 end
 
-function ArtefactHunting.get_extra_map_info(config)
-    return 'Artefact Hunting, find precious coins while mining and launch them to the surface!'
-end
-
-return ArtefactHunting
+return CoinGathering

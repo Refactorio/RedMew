@@ -145,7 +145,7 @@ end
 -- @param  secs<type> unix epoch timestamp
 -- @return string
 function Public.to_string(secs)
-    local tt = normalise(secs)
+    local tt = normalise(1970, 1, 1, 0, 0, secs)
     return strformat('%04u-%02u-%02u %02u:%02u:%02d', tt.year, tt.month, tt.day, tt.hour, tt.min, tt.sec)
 end
 

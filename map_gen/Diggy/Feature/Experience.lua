@@ -3,16 +3,22 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
 local ForceControl = require 'features.force_control'
-local Debug = require 'map_gen.Diggy.Debug'
 local Retailer = require 'features.retailer'
 local Gui = require 'utils.gui'
-local force_control = require 'features.force_control'
 local utils = require 'utils.core'
 local format = string.format
-local string_format = string.format
 local floor = math.floor
 local log = math.log
+local max = math.max
 local insert = table.insert
+local pairs = pairs
+local add_experience = ForceControl.add_experience
+local add_experience_percentage = ForceControl.add_experience_percentage
+local remove_experience_percentage = ForceControl.remove_experience_percentage
+local print_player_floating_text_position = Game.print_player_floating_text_position
+local get_force_data = ForceControl.get_force_data
+local get_player_by_index = Game.get_player_by_index
+local set_item = Retailer.set_item
 
 -- this
 local Experience = {}
@@ -51,13 +57,13 @@ local gain_xp_color = {r = 144, g = 202, b = 249}
 local lose_xp_color = {r = 255, g = 0, b = 0}
 local unlocked_color = {r = 255, g = 255, b = 255}
 local locked_color = {r = 127, g = 127, b = 127}
+local table_column_layout = {type = 'table', column_count = 2}
 
 local level_up_formula = (function (level_reached)
-    local Config = require 'map_gen.Diggy.Config'.features.Experience
-    local difficulty_scale = floor(Config.difficulty_scale)
-    local level_fine_tune = floor(Config.xp_fine_tune)
-    local start_value = (floor(Config.first_lvl_xp) * 0.5)
-    local precision = (floor(Config.cost_precision))
+    local difficulty_scale = floor(config.difficulty_scale)
+    local level_fine_tune = floor(config.xp_fine_tune)
+    local start_value = (floor(config.first_lvl_xp) * 0.5)
+    local precision = (floor(config.cost_precision))
     local function formula(level)
         return (
             difficulty_scale * (level) ^ 3
@@ -69,7 +75,7 @@ local level_up_formula = (function (level_reached)
     end
     local value = formula(level_reached + 1)
     local lower_value = formula(level_reached)
-    value = value - (value % (10 ^ (floor(log(value,10)) - precision)))
+    value = value - (value % (10 ^ (floor(log(value, 10)) - precision)))
     if lower_value == 0 then
         return value - lower_value
     end
@@ -80,15 +86,13 @@ end)
 ---Updates the market contents based on the current level.
 ---@param force LuaForce the force which the unlocking requirement should be based of
 function Experience.update_market_contents(force)
-    local current_level = ForceControl.get_force_data(force).current_level
+    local current_level = get_force_data(force).current_level
     local force_name = force.name
     for _, prototype in pairs(config.unlockables) do
         if (current_level >= prototype.level) then
-            Retailer.set_item(force_name, prototype.name, {coin = prototype.price})
+            set_item(force_name, prototype)
         end
     end
-
-    Retailer.ship_items(force_name)
 end
 
 ---Updates a forces manual mining speed modifier. By removing active modifiers and re-adding
@@ -98,8 +102,8 @@ function Experience.update_mining_speed(force, level_up)
     level_up = level_up ~= nil and level_up or 0
     local buff = config.buffs['mining_speed']
     if level_up > 0 and buff ~= nil then
-        local level = ForceControl.get_force_data(force).current_level
-        local adjusted_value = floor(math.max(buff.value, 24*0.9^level))
+        local level = get_force_data(force).current_level
+        local adjusted_value = floor(max(buff.value, 24*0.9^level))
         local value = (buff.double_level ~= nil and level_up % buff.double_level == 0) and adjusted_value * 2 or adjusted_value
         mining_efficiency.level_modifier = mining_efficiency.level_modifier + (value * 0.01)
     end
@@ -155,28 +159,34 @@ function Experience.update_health_bonus(force, level_up)
     force.character_health_bonus = old_modifier + health_bonus.active_modifier
 end
 
--- declaration of variables to prevent table lookups @see Experience.register
+-- declaration of variables to prevent table look ups @see Experience.register
 local sand_rock_xp
+local rock_big_xp
 local rock_huge_xp
 
 ---Awards experience when a rock has been mined (increases by 1 XP every 5th level)
 ---@param event LuaEvent
 local function on_player_mined_entity(event)
     local entity = event.entity
+    local name = entity.name
     local player_index = event.player_index
-    local force = Game.get_player_by_index(player_index).force
-    local level = ForceControl.get_force_data(force).current_level
-    local exp
-    if entity.name == 'sand-rock-big' then
+    local force = get_player_by_index(player_index).force
+    local level = get_force_data(force).current_level
+    local exp = 0
+    if name == 'sand-rock-big' then
         exp = sand_rock_xp + floor(level / 5)
-    elseif entity.name == 'rock-huge' then
+    elseif name == 'rock-big' then
+        exp = rock_big_xp + floor(level / 5)
+    elseif name == 'rock-huge' then
         exp = rock_huge_xp + floor(level / 5)
-    else
+    end
+
+    if exp == 0 then
         return
     end
-    local text = string_format('+%d XP', exp)
-    Game.print_player_floating_text_position(player_index, text, gain_xp_color,0, -0.5)
-    ForceControl.add_experience(force, exp)
+
+    print_player_floating_text_position(player_index, format('+%d XP', exp), gain_xp_color,0, -0.5)
+    add_experience(force, exp)
 end
 
 ---Awards experience when a research has finished, based on ingredient cost of research
@@ -192,12 +202,12 @@ local function on_research_finished(event)
         award_xp = award_xp + reward
     end
     local exp = award_xp * research.research_unit_count
-    local text = string_format('Research completed! +%d XP', exp)
+    local text = format('Research completed! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
-        Game.print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
+        print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
     end
-    ForceControl.add_experience(force, exp)
+    add_experience(force, exp)
 
 
     local current_modifier = mining_efficiency.research_modifier
@@ -221,11 +231,11 @@ end
 ---@param event LuaEvent
 local function on_rocket_launched(event)
     local force = event.rocket.force
-    local exp = ForceControl.add_experience_percentage(force, config.XP['rocket_launch'])
-    local text = string_format('Rocket launched! +%d XP', exp)
+    local exp = add_experience_percentage(force, config.XP['rocket_launch'])
+    local text = format('Rocket launched! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
-        Game.print_player_floating_text_position(player_index, text, gain_xp_color,-1, -0.5)
+        print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
     end
 end
 
@@ -237,53 +247,54 @@ local function on_entity_died (event)
     local cause = event.cause
 
     --For bot mining and turrets
-    if not cause or cause.type ~= 'player' or not cause.valid then
-        local exp
+    if not cause or not cause.valid or cause.type ~= 'player' then
+        local exp = 0
+        local floating_text_position
+
+        -- stuff killed by the player force, but not the player
         if force and force.name == 'player' then
+            local entity_name = entity.name
             if cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
-                exp = config.XP['enemy_killed'] * config.alien_experience_modifiers[entity.name]
-                local text = string_format('+ %d XP', exp)
-                Game.print_floating_text(cause.surface, cause.position, text, gain_xp_color)
-                ForceControl.add_experience(force, exp)
-                return
+                exp = config.XP['enemy_killed'] * (config.alien_experience_modifiers[entity_name] or 1)
+                floating_text_position = cause.position
             else
-                local level = ForceControl.get_force_data(force).current_level
-                if entity.name == 'sand-rock-big' then
-                    exp = floor((sand_rock_xp + (level / 5)) / 2)
-                elseif entity.name == 'rock-huge' then
-                    exp = floor((rock_huge_xp + (level / 5)) / 2)
-                else
-                    return
+                local level = get_force_data(force).current_level
+                if entity_name == 'sand-rock-big' then
+                    exp = floor((sand_rock_xp + level * 0.2) * 0.5)
+                elseif entity_name == 'rock-big' then
+                    exp = floor((rock_big_xp + level * 0.2) * 0.5)
+                elseif entity_name == 'rock-huge' then
+                    exp = floor((rock_huge_xp + level * 0.2) * 0.5)
                 end
+                floating_text_position = entity.position
             end
         end
-        if exp then
-            local text = string_format('+ %d XP', exp)
-            Game.print_floating_text(entity.surface, entity.position, text, gain_xp_color)
-            ForceControl.add_experience(force, exp)
+
+        if exp > 0 then
+            Game.print_floating_text(entity.surface, floating_text_position, format('+%d XP', exp), gain_xp_color)
+            add_experience(force, exp)
         end
+
         return
     end
 
     if entity.force.name ~= 'enemy' then
         return
     end
-    local exp = config.XP['enemy_killed'] * config.alien_experience_modifiers[entity.name]
-    local text = string_format('+ %d XP', exp)
-    local player_index = cause.player.index
-    Game.print_player_floating_text_position(player_index, text, gain_xp_color,-1, -0.5)
-    ForceControl.add_experience(force, exp)
+
+    local exp = config.XP['enemy_killed'] * (config.alien_experience_modifiers[entity.name] or 1)
+    print_player_floating_text_position(cause.player.index, format('+%d XP', exp), gain_xp_color, -1, -0.5)
+    add_experience(force, exp)
 end
 
 ---Deducts experience when a player respawns, based on a percentage of total experience
 ---@param event LuaEvent
 local function on_player_respawned(event)
-    local player = Game.get_player_by_index(event.player_index)
-    local force = player.force
-    local exp = ForceControl.remove_experience_percentage(force, config.XP['death-penalty'], 50)
-    local text = string_format('%s resurrected! -%d XP', player.name, exp)
+    local player = get_player_by_index(event.player_index)
+    local exp = remove_experience_percentage(player.force, config.XP['death-penalty'], 50)
+    local text = format('%s resurrected! -%d XP', player.name, exp)
     for _, p in pairs(game.connected_players) do
-        Game.print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
+        print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
     end
 end
 
@@ -305,7 +316,7 @@ local function calculate_level_xp(level)
     return level_table[level]
 end
 local function redraw_title(data)
-    local force_data = force_control.get_force_data('player')
+    local force_data = get_force_data('player')
     data.frame.caption = utils.comma_value(force_data.total_experience) .. ' total experience earned!'
 end
 
@@ -320,13 +331,13 @@ local function redraw_heading(data, header)
     local header_caption = (head_condition) and 'Reward Item' or 'Reward Buff'
     Gui.clear(frame)
 
-    local heading_table = frame.add({type = 'table', column_count = 2})
+    local heading_table = frame.add(table_column_layout)
     apply_heading_style(heading_table.add({type = 'label', caption = 'Requirement'}).style, 100)
     apply_heading_style(heading_table.add({type = 'label', caption = header_caption}).style, 220)
 end
 
 local function redraw_progressbar(data)
-    local force_data = force_control.get_force_data('player')
+    local force_data = get_force_data('player')
     local flow = data.experience_progressbars
     Gui.clear(flow)
 
@@ -344,7 +355,7 @@ local function redraw_table(data)
     redraw_heading(data, 1)
 
     local last_level = 0
-    local current_force_level = force_control.get_force_data('player').current_level
+    local current_force_level = get_force_data('player').current_level
 
     for _, prototype in pairs(config.unlockables) do
         local current_item_level = prototype.level
@@ -357,7 +368,7 @@ local function redraw_table(data)
             color = locked_color
         end
 
-        local list = experience_scroll_pane.add({type = 'table', column_count = 2})
+        local list = experience_scroll_pane.add(table_column_layout)
 
         local level_caption = ''
         if first_item_for_level then
@@ -389,7 +400,7 @@ local function redraw_buff(data)
 
     local all_levels_shown = false
     for name, effects in pairs(config.buffs) do
-        local list = buff_scroll_pane.add({type = 'table', column_count = 2})
+        local list = buff_scroll_pane.add(table_column_layout)
         list.style.horizontal_spacing = 16
 
         local level_caption = ''
@@ -405,13 +416,13 @@ local function redraw_buff(data)
         local buff_caption
         local effect_value = effects.value
         if name == 'mining_speed' then
-            buff_caption = format('+ %d mining speed', effect_value)
+            buff_caption = format('+%d mining speed', effect_value)
         elseif name == 'inventory_slot' then
-            buff_caption = format('+ %d inventory slot%s', effect_value, effect_value > 1 and 's' or '')
+            buff_caption = format('+%d inventory slot%s', effect_value, effect_value > 1 and 's' or '')
         elseif name == 'health_bonus' then
-            buff_caption = format('+ %d max health', effect_value)
+            buff_caption = format('+%d max health', effect_value)
         else
-            buff_caption = format('+ %d %s', effect_value, name)
+            buff_caption = format('+%d %s', effect_value, name)
         end
 
         local buffs_label = list.add({type = 'label', caption = buff_caption})
@@ -470,7 +481,7 @@ local function toggle(event)
 end
 
 local function on_player_created(event)
-    Game.get_player_by_index(event.player_index).gui.top.add({
+    get_player_by_index(event.player_index).gui.top.add({
         name = 'Diggy.Experience.Button',
         type = 'sprite-button',
         sprite = 'entity/market',
@@ -504,9 +515,8 @@ function Experience.register(cfg)
 
     --Adds a function that'll be executed at every level up
     ForceControlBuilder.register_on_every_level(function (level_reached, force)
-        force.print(string_format('%s Leveled up to %d!', '## - ', level_reached))
+        force.print(format('%s Leveled up to %d!', '## - ', level_reached))
         force.play_sound{path='utility/new_objective', volume_modifier = 1 }
-        local Experience = require 'map_gen.Diggy.Feature.Experience'
         Experience.update_inventory_slots(force, level_reached)
         Experience.update_mining_speed(force, level_reached)
         Experience.update_health_bonus(force, level_reached)
@@ -524,6 +534,7 @@ function Experience.register(cfg)
 
     -- Prevents table lookup thousands of times
     sand_rock_xp = config.XP['sand-rock-big']
+    rock_big_xp = config.XP['rock-big']
     rock_huge_xp = config.XP['rock-huge']
 end
 
