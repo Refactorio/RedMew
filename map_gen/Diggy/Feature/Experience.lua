@@ -5,12 +5,20 @@ local Global = require 'utils.global'
 local ForceControl = require 'features.force_control'
 local Retailer = require 'features.retailer'
 local Gui = require 'utils.gui'
-local force_control = require 'features.force_control'
 local utils = require 'utils.core'
 local format = string.format
 local floor = math.floor
 local log = math.log
+local max = math.max
 local insert = table.insert
+local pairs = pairs
+local add_experience = ForceControl.add_experience
+local add_experience_percentage = ForceControl.add_experience_percentage
+local remove_experience_percentage = ForceControl.remove_experience_percentage
+local print_player_floating_text_position = Game.print_player_floating_text_position
+local get_force_data = ForceControl.get_force_data
+local get_player_by_index = Game.get_player_by_index
+local set_item = Retailer.set_item
 
 -- this
 local Experience = {}
@@ -78,11 +86,11 @@ end)
 ---Updates the market contents based on the current level.
 ---@param force LuaForce the force which the unlocking requirement should be based of
 function Experience.update_market_contents(force)
-    local current_level = ForceControl.get_force_data(force).current_level
+    local current_level = get_force_data(force).current_level
     local force_name = force.name
     for _, prototype in pairs(config.unlockables) do
         if (current_level >= prototype.level) then
-            Retailer.set_item(force_name, prototype)
+            set_item(force_name, prototype)
         end
     end
 end
@@ -94,8 +102,8 @@ function Experience.update_mining_speed(force, level_up)
     level_up = level_up ~= nil and level_up or 0
     local buff = config.buffs['mining_speed']
     if level_up > 0 and buff ~= nil then
-        local level = ForceControl.get_force_data(force).current_level
-        local adjusted_value = floor(math.max(buff.value, 24*0.9^level))
+        local level = get_force_data(force).current_level
+        local adjusted_value = floor(max(buff.value, 24*0.9^level))
         local value = (buff.double_level ~= nil and level_up % buff.double_level == 0) and adjusted_value * 2 or adjusted_value
         mining_efficiency.level_modifier = mining_efficiency.level_modifier + (value * 0.01)
     end
@@ -162,8 +170,8 @@ local function on_player_mined_entity(event)
     local entity = event.entity
     local name = entity.name
     local player_index = event.player_index
-    local force = Game.get_player_by_index(player_index).force
-    local level = ForceControl.get_force_data(force).current_level
+    local force = get_player_by_index(player_index).force
+    local level = get_force_data(force).current_level
     local exp = 0
     if name == 'sand-rock-big' then
         exp = sand_rock_xp + floor(level / 5)
@@ -177,8 +185,8 @@ local function on_player_mined_entity(event)
         return
     end
 
-    Game.print_player_floating_text_position(player_index, format('+%d XP', exp), gain_xp_color,0, -0.5)
-    ForceControl.add_experience(force, exp)
+    print_player_floating_text_position(player_index, format('+%d XP', exp), gain_xp_color,0, -0.5)
+    add_experience(force, exp)
 end
 
 ---Awards experience when a research has finished, based on ingredient cost of research
@@ -197,9 +205,9 @@ local function on_research_finished(event)
     local text = format('Research completed! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
-        Game.print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
+        print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
     end
-    ForceControl.add_experience(force, exp)
+    add_experience(force, exp)
 
 
     local current_modifier = mining_efficiency.research_modifier
@@ -223,11 +231,11 @@ end
 ---@param event LuaEvent
 local function on_rocket_launched(event)
     local force = event.rocket.force
-    local exp = ForceControl.add_experience_percentage(force, config.XP['rocket_launch'])
+    local exp = add_experience_percentage(force, config.XP['rocket_launch'])
     local text = format('Rocket launched! +%d XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
-        Game.print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
+        print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
     end
 end
 
@@ -250,7 +258,7 @@ local function on_entity_died (event)
                 exp = config.XP['enemy_killed'] * (config.alien_experience_modifiers[entity_name] or 1)
                 floating_text_position = cause.position
             else
-                local level = ForceControl.get_force_data(force).current_level
+                local level = get_force_data(force).current_level
                 if entity_name == 'sand-rock-big' then
                     exp = floor((sand_rock_xp + level * 0.2) * 0.5)
                 elseif entity_name == 'rock-big' then
@@ -264,7 +272,7 @@ local function on_entity_died (event)
 
         if exp > 0 then
             Game.print_floating_text(entity.surface, floating_text_position, format('+%d XP', exp), gain_xp_color)
-            ForceControl.add_experience(force, exp)
+            add_experience(force, exp)
         end
 
         return
@@ -275,18 +283,18 @@ local function on_entity_died (event)
     end
 
     local exp = config.XP['enemy_killed'] * (config.alien_experience_modifiers[entity.name] or 1)
-    Game.print_player_floating_text_position(cause.player.index, format('+%d XP', exp), gain_xp_color, -1, -0.5)
-    ForceControl.add_experience(force, exp)
+    print_player_floating_text_position(cause.player.index, format('+%d XP', exp), gain_xp_color, -1, -0.5)
+    add_experience(force, exp)
 end
 
 ---Deducts experience when a player respawns, based on a percentage of total experience
 ---@param event LuaEvent
 local function on_player_respawned(event)
-    local player = Game.get_player_by_index(event.player_index)
-    local exp = ForceControl.remove_experience_percentage(player.force, config.XP['death-penalty'], 50)
+    local player = get_player_by_index(event.player_index)
+    local exp = remove_experience_percentage(player.force, config.XP['death-penalty'], 50)
     local text = format('%s resurrected! -%d XP', player.name, exp)
     for _, p in pairs(game.connected_players) do
-        Game.print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
+        print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
     end
 end
 
@@ -308,7 +316,7 @@ local function calculate_level_xp(level)
     return level_table[level]
 end
 local function redraw_title(data)
-    local force_data = force_control.get_force_data('player')
+    local force_data = get_force_data('player')
     data.frame.caption = utils.comma_value(force_data.total_experience) .. ' total experience earned!'
 end
 
@@ -329,7 +337,7 @@ local function redraw_heading(data, header)
 end
 
 local function redraw_progressbar(data)
-    local force_data = force_control.get_force_data('player')
+    local force_data = get_force_data('player')
     local flow = data.experience_progressbars
     Gui.clear(flow)
 
@@ -347,7 +355,7 @@ local function redraw_table(data)
     redraw_heading(data, 1)
 
     local last_level = 0
-    local current_force_level = force_control.get_force_data('player').current_level
+    local current_force_level = get_force_data('player').current_level
 
     for _, prototype in pairs(config.unlockables) do
         local current_item_level = prototype.level
@@ -473,7 +481,7 @@ local function toggle(event)
 end
 
 local function on_player_created(event)
-    Game.get_player_by_index(event.player_index).gui.top.add({
+    get_player_by_index(event.player_index).gui.top.add({
         name = 'Diggy.Experience.Button',
         type = 'sprite-button',
         sprite = 'entity/market',

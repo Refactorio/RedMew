@@ -161,6 +161,12 @@ global.config = {
     hail_hydra = {
         enabled = false,
 
+        -- at which scale the evolution will increase the additional hydra spawns
+        -- to disable scaling with evolution, set to 0.
+        -- the formula: chance = hydra_chance + (evolution_factor * evolution_scale)
+        -- example: small spitter has 0.2, which is 20% at 0% and 120% at an evolution_factor of 1
+        evolution_scale = 1,
+
         -- any non-rounded number will turn into a chance to spawn an additional alien
         -- example: 2.5 would spawn 2 for sure and 50% chance to spawn one additionally
         hydras = {

@@ -26,8 +26,8 @@ local Config = {
         SetupPlayer = {
             enabled = true,
             starting_items = {
-                {name = 'iron-axe', count = 1},
-                {name = 'stone-wall', count = 10},
+                {name = 'iron-axe', count = 2},
+                {name = 'stone-wall', count = 12},
                 {name = 'iron-gear-wheel', count = 8},
                 {name = 'iron-plate', count = 16},
             },
@@ -50,7 +50,6 @@ local Config = {
 
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {
-                    {name = 'uranium-rounds-magazine', count = 200},
                 },
             },
         },
@@ -143,23 +142,40 @@ local Config = {
             alien_coin_drop_chance = 0.30,
 
             -- shows the chest locations, only use when debugging
-            display_chest_locations = false,
+            display_chest_locations = true,
 
             treasure_chest_raffle = {
                 ['coin'] = {chance = 1.00, min = 20, max = 255},
-                ['steel-axe'] = {chance = 0.55, min = 1, max = 2},
-                ['stone'] = {chance = 0.50, min = 25, max = 75},
+                ['steel-axe'] = {chance = 0.55, min = 1, max = 3},
+                ['stone'] = {chance = 0.20, min = 15, max = 40},
                 ['copper-ore'] = {chance = 0.25, min = 30, max = 60},
                 ['copper-plate'] = {chance = 0.10, min = 12, max = 25},
                 ['iron-ore'] = {chance = 0.20, min = 10, max = 55},
                 ['iron-plate'] = {chance = 0.10, min = 5, max = 25},
                 ['steel-plate'] = {chance = 0.05, min = 3, max = 14},
-                ['steel-furnace'] = {chance = 0.02, min = 1, max = 1},
-                ['steam-engine'] = {chance = 0.02, min = 1, max = 1},
-                ['coal'] = {chance = 0.40, min = 30, max = 55},
+                ['steel-furnace'] = {chance = 0.03, min = 1, max = 2},
+                ['steam-engine'] = {chance = 0.03, min = 1, max = 2},
+                ['coal'] = {chance = 0.30, min = 30, max = 55},
                 ['concrete'] = {chance = 0.14, min = 10, max = 50},
                 ['stone-brick'] = {chance = 0.14, min = 25, max = 75},
-                ['stone-wall'] = {chance = 0.50, min = 1, max = 3},
+                ['stone-wall'] = {chance = 0.50, min = 1, max = 5},
+                ['transport-belt'] = {chance = 0.10, min = 1, max = 5},
+                ['fast-transport-belt'] = {chance = 0.07, min = 2, max = 7},
+                ['express-transport-belt'] = {chance = 0.04, min = 4, max = 9},
+                ['rail'] = {chance = 0.20, min = 7, max = 15},
+                ['rail-signal'] = {chance = 0.05, min = 3, max = 8},
+                ['rail-chain-signal'] = {chance = 0.05, min = 3, max = 8},
+                ['firearm-magazine'] = {chance = 0.25, min = 35, max = 120},
+                ['piercing-rounds-magazine'] = {chance = 0.10, min = 15, max = 35},
+                ['gun-turret'] = {chance = 0.3, min = 1, max = 2},
+                ['beacon'] = {chance = 0.01, min = 1, max = 2},
+                ['effectivity-module'] = {chance = 0.03, min = 1, max = 2},
+                ['effectivity-module-2'] = {chance = 0.01, min = 1, max = 2},
+                ['productivity-module'] = {chance = 0.03, min = 1, max = 2},
+                ['productivity-module-2'] = {chance = 0.01, min = 1, max = 2},
+                ['speed-module'] = {chance = 0.03, min = 1, max = 2},
+                ['speed-module-2'] = {chance = 0.01, min = 1, max = 2},
+                ['small-lamp'] = {chance = 0.05, min = 1, max = 5},
             }
         },
 
@@ -359,7 +375,7 @@ local Config = {
                 ['space-science-pack']        = 10,
                 ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters.
                 ['death-penalty']             = 0.002,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.002 which equals 0.2%)
-                ['cave-in-penalty']           = 100       -- XP lost every cave in.
+                --['cave-in-penalty']           = 100       -- XP lost every cave in.
             },
 
             buffs = {
@@ -387,7 +403,14 @@ local Config = {
                 {level = 15, price = 85, name = 'submachine-gun'},
                 {level = 18, price = 10, name = 'piercing-rounds-magazine'},
                 {level = 18, price = 8, name = 'piercing-shotgun-shell'},
+                {level = 19, price = 5, name = 'rail'},
+                {level = 20, price = 50, name = 'locomotive'},
                 {level = 20, price = 50, name = 'landfill'},
+                {level = 21, price = 5, name = 'rail-signal'},
+                {level = 22, price = 5, name = 'rail-chain-signal'},
+                {level = 23, price = 15, name = 'train-stop'},
+                {level = 24, price = 35, name = 'cargo-wagon'},
+                {level = 24, price = 35, name = 'fluid-wagon'},
                 {level = 25, price = 100, name = 'heavy-armor'},
                 {level = 30, price = 250, name = 'modular-armor'},
                 {level = 32, price = 150, name = 'personal-roboport-equipment'},

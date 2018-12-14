@@ -8,11 +8,15 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
-local Debug = require 'map_gen.Diggy.Debug'
 local Command = require 'utils.command'
 local CreateParticles = require 'features.create_particles'
 local random = math.random
 local tonumber = tonumber
+local pairs = pairs
+local is_diggy_rock = Template.is_diggy_rock
+local destroy_rock = CreateParticles.destroy_rock
+local mine_rock = CreateParticles.mine_rock
+local increment_score = ScoreTable.increment
 local raise_event = script.raise_event
 
 -- this
@@ -153,12 +157,12 @@ function DiggyHole.register(config)
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
         local name = entity.name
-        if not Template.is_diggy_rock(name) then
+        if not is_diggy_rock(name) then
             return
         end
         diggy_hole(entity)
         if event.cause then
-            CreateParticles.destroy_rock(entity.surface.create_entity, 10, entity.position)
+            destroy_rock(entity.surface.create_entity, 10, entity.position)
         end
     end)
 
@@ -170,7 +174,7 @@ function DiggyHole.register(config)
             return
         end
 
-        if not Template.is_diggy_rock(name) then
+        if not is_diggy_rock(name) then
             return
         end
 
@@ -182,7 +186,7 @@ function DiggyHole.register(config)
         local entity = event.entity
         local name = entity.name
 
-        if not Template.is_diggy_rock(name) then
+        if not is_diggy_rock(name) then
             return
         end
 
@@ -197,14 +201,14 @@ function DiggyHole.register(config)
 
         if health < 1 then
             raise_event(defines.events.on_entity_died, {entity = entity, force = force})
-            CreateParticles.mine_rock(create_entity, 6, position)
+            mine_rock(create_entity, 6, position)
             entity.destroy()
             return
         end
         entity.destroy()
 
         local rock = create_entity({name = name, position = position})
-        CreateParticles.mine_rock(create_entity, 1, position)
+        mine_rock(create_entity, 1, position)
         rock.graphics_variation = graphics_variation
         rock.order_deconstruction(force)
         rock.health = health
@@ -213,14 +217,14 @@ function DiggyHole.register(config)
     Event.add(defines.events.on_player_mined_entity, function (event)
         local entity = event.entity
         local name = entity.name
-        if not Template.is_diggy_rock(name) then
+        if not is_diggy_rock(name) then
             return
         end
 
         event.buffer.clear()
 
         diggy_hole(entity)
-        CreateParticles.mine_rock(entity.surface.create_entity, 6, entity.position)
+        mine_rock(entity.surface.create_entity, 6, entity.position)
     end)
 
     Event.add(defines.events.on_robot_mined_tile, function (event)
@@ -232,11 +236,12 @@ function DiggyHole.register(config)
     end)
 
     Event.add(Template.events.on_void_removed, function ()
-        ScoreTable.increment('Mine size')
+        increment_score('Mine size')
     end)
 
+    local robot_damage_per_mining_prod_level = config.robot_damage_per_mining_prod_level
     Event.add(defines.events.on_research_finished, function (event)
-        local new_modifier = event.research.force.mining_drill_productivity_bonus * 50 * config.robot_damage_per_mining_prod_level
+        local new_modifier = event.research.force.mining_drill_productivity_bonus * 50 * robot_damage_per_mining_prod_level
 
         if (robot_mining.research_modifier == new_modifier) then
             -- something else was researched

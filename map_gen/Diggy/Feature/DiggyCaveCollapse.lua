@@ -15,8 +15,17 @@ local Game = require 'utils.game'
 local CreateParticles = require 'features.create_particles'
 local random = math.random
 local floor = math.floor
-local abs = math.abs
+local pairs = pairs
+local pcall = pcall
+local get_random = table.get_random
+local is_diggy_rock = Template.is_diggy_rock
+local increment_score = ScoreTable.increment
+local template_insert = Template.insert
 local raise_event = script.raise_event
+local set_timeout = Task.set_timeout
+local set_timeout_in_ticks = Task.set_timeout_in_ticks
+local collapse_rocks = Template.diggy_rocks
+local collapse_rocks_size = #collapse_rocks
 
 -- this
 local DiggyCaveCollapse = {}
@@ -86,8 +95,6 @@ DiggyCaveCollapse.events = {
     ]]
     on_collapse = script.generate_event_name()
 }
-local collapse_rocks = Template.diggy_rocks
-local collapse_rocks_size = #collapse_rocks
 
 local function create_collapse_template(positions, surface)
     local entities = {}
@@ -146,10 +153,10 @@ local function collapse(args)
 
     create_collapse_alert(surface, position)
 
-    Template.insert(surface, {}, create_collapse_template(positions, surface))
+    template_insert(surface, {}, create_collapse_template(positions, surface))
 
     raise_event(DiggyCaveCollapse.events.on_collapse, args)
-    ScoreTable.increment('Cave collapse')
+    increment_score('Cave collapse')
 end
 
 local on_collapse_timeout_finished = Token.register(collapse)
@@ -158,7 +165,7 @@ local on_near_threshold = Token.register(function (params)
 end)
 
 local function spawn_cracking_sound_text(surface, position)
-    local text = table.get_random(config.cracking_sounds, true)
+    local text = get_random(config.cracking_sounds, true)
 
     local color = {
         r = 1,
@@ -169,7 +176,7 @@ local function spawn_cracking_sound_text(surface, position)
     local create_entity = surface.create_entity
 
     for i = 1, #text do
-        local x_offset = (i - #text / 2 - 1) / 3
+        local x_offset = (i - #text / 2 - 1) * 0.333333333
         local char = text:sub(i, i)
         create_entity {
             name = 'flying-text',
@@ -188,15 +195,11 @@ local function on_collapse_triggered(event)
 
     local x_t = new_tile_map[x]
     if x_t and x_t[y] then
-        Template.insert(surface, {}, {{position = position, name = 'rock-big'}})
+        template_insert(surface, {}, {{position = position, name = 'rock-big'}})
         return
     end
     spawn_cracking_sound_text(surface, position)
-    Task.set_timeout(
-        config.collapse_delay,
-        on_collapse_timeout_finished,
-        event
-    )
+    set_timeout(config.collapse_delay, on_collapse_timeout_finished, event)
 end
 
 local function on_built_tile(surface, new_tile, tiles)
@@ -243,7 +246,7 @@ local function on_mined_entity(event)
     local strength = support_beam_entities[name]
     if strength then
         local player_index
-        if not Template.is_diggy_rock(name) then
+        if not is_diggy_rock(name) then
             player_index = event.player_index
         end
         stress_map_add(entity.surface, entity.position, strength, false, player_index)
@@ -256,7 +259,7 @@ local function on_entity_died(event)
     local strength = support_beam_entities[name]
     if strength then
         local player_index
-        if not Template.is_diggy_rock(name) then
+        if not is_diggy_rock(name) then
             local cause = event.cause
             player_index = cause and cause.player and cause.player.index or nil
         end
@@ -310,7 +313,7 @@ local function on_void_removed(event)
         }
         new_tile_map[x] = x_t
     end
-    Task.set_timeout(3, on_new_tile_timeout_finished, {x = x, y = y})
+    set_timeout(3, on_new_tile_timeout_finished, {x = x, y = y})
 end
 
 --[[--
@@ -366,7 +369,7 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(defines.events.on_marked_for_deconstruction, function (event)
         local entity = event.entity
         local name = entity.name
-        if Template.is_diggy_rock(name) then
+        if is_diggy_rock(name) then
             return
         end
 
@@ -460,7 +463,7 @@ local function add_fraction(stress_map, x, y, fraction, player_index, surface)
                 player_index = player_index
             })
         elseif value > near_stress_threshold_causing_collapse then
-            Task.set_timeout_in_ticks(2, on_near_threshold, {surface = surface, position = {x = x, y = y}})
+            set_timeout_in_ticks(2, on_near_threshold, {surface = surface, position = {x = x, y = y}})
         end
     end
     if enable_stress_grid then
@@ -539,10 +542,11 @@ DiggyCaveCollapse.stress_map_add = stress_map_add
 
 function mask_init(config)
     n = config.mask_size
+    local ring_weights = config.mask_relative_ring_weights
 
-    ring_weight = config.mask_relative_ring_weights[1]
-    disc_weight = config.mask_relative_ring_weights[2]
-    center_weight = config.mask_relative_ring_weights[3]
+    ring_weight = ring_weights[1]
+    disc_weight = ring_weights[2]
+    center_weight = ring_weights[3]
 
     radius = floor(n * 0.5)
 
@@ -595,15 +599,15 @@ mask_disc_blur = function(x_start, y_start, factor, callback)
             elseif distance_sq <= radius_sq then
                 value = ring_value
             end
-            if abs(value) > 0.001 then
+            if value > 0.001 or value < -0.001 then
                 callback(x_start + x, y_start + y, value * factor)
             end
         end
     end
 end
 
-function DiggyCaveCollapse.get_extra_map_info(config)
-    return [[Alien Spawner, aliens might spawn when mining!
+function DiggyCaveCollapse.get_extra_map_info()
+    return [[Cave Collapse, it might just collapse!
 Place stone walls, stone paths and (refined) concrete to reinforce the mine. If you see cracks appear, run!]]
 end
 

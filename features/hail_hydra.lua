@@ -10,6 +10,7 @@ local logical_or = defines.compound_command.logical_or
 local attack = defines.command.attack
 local attack_area = defines.command.attack_area
 local config = global.config.hail_hydra
+local evolution_scale = config.evolution_scale
 local hydras = config.hydras
 
 local function create_attack_command(position, target)
@@ -36,7 +37,7 @@ Event.add(defines.events.on_entity_died, function (event)
 
     local position = entity.position
     local force = entity.force
-    local evolution_factor = force.evolution_factor
+    local evolution_factor = force.evolution_factor * evolution_scale
     local cause = event.cause
 
     local surface = entity.surface
@@ -47,6 +48,7 @@ Event.add(defines.events.on_entity_died, function (event)
 
     for hydra_spawn, amount in pairs(hydra) do
         amount = amount + evolution_factor
+
         local extra_chance = amount % 1
         if extra_chance > 0 then
             if random() <= extra_chance then
