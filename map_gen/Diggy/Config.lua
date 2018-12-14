@@ -142,7 +142,7 @@ local Config = {
             alien_coin_drop_chance = 0.30,
 
             -- shows the chest locations, only use when debugging
-            display_chest_locations = true,
+            display_chest_locations = false,
 
             treasure_chest_raffle = {
                 ['coin'] = {chance = 1.00, min = 20, max = 255},
