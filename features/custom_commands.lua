@@ -8,7 +8,6 @@ local Report = require 'features.report'
 local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
-local Event = require 'utils.event'
 local format = string.format
 local ceil = math.ceil
 
