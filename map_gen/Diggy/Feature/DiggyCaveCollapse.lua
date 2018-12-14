@@ -247,14 +247,11 @@ local function on_mined_entity(event)
         if not Template.is_diggy_rock(name) then
             player_index = event.player_index
         end
-		
 		if ( name == 'small-electric-pole' or name == 'medium-electric-pole' or name == 'big-electric-pole' ) then
 			stress_map_add_pole(entity.surface, entity.position, strength, false, player_index)
 		else
 			stress_map_add(entity.surface, entity.position, strength, false, player_index)
 		end
-
-        -- stress_map_add(entity.surface, entity.position, strength, false, player_index)
     end
 end
 
@@ -273,7 +270,6 @@ local function on_entity_died(event)
 		else
 			stress_map_add(entity.surface, entity.position, strength, false, player_index)
 		end
-		-- stress_map_add(entity.surface, entity.position, strength, false, player_index)
     end
 end
 
@@ -288,7 +284,6 @@ local function on_built_entity(event)
 		else
 			stress_map_add(entity.surface, entity.position, -1 * strength)
 		end
-		-- stress_map_add(entity.surface, entity.position, -1 * strength)
     end
 end
 
@@ -303,7 +298,6 @@ local function on_placed_entity(event)
 		else
 			stress_map_add(entity.surface, entity.position, -1 * strength)
 		end
-		-- stress_map_add(entity.surface, entity.position, -1 * strength)
     end
 end
 
