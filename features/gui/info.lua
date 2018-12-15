@@ -631,6 +631,9 @@ local function reward_player(player, index, message)
     else
         PlayerRewards.give_reward(player, reward_amount, message)
         rewarded_players[player_index] = rewarded_players[player_index] + tab_flag
+        if rewarded_players[player_index] == flags_sum then
+            rewarded_players[player_index] = nil
+        end
     end
 end
 
@@ -691,7 +694,9 @@ Gui.on_click(
 
         pages[index].content(content, player)
         local string = format('%s %s%s awarded for reading a tab on the info screen.', reward_amount, reward_token, reward_plural_indicator)
-        reward_player(player, index, string)
+        if rewarded_players[player.index] then
+            reward_player(player, index, string)
+        end
     end
 )
 
