@@ -10,7 +10,7 @@ local ScenarioInfo = require 'features.gui.info'
 require 'utils.table'
 
 ScenarioInfo.set_map_name('Christmas Tree of Terror')
-ScenarioInfo.set_map_description('Triangle of death\'s Christmas cousin')
+ScenarioInfo.set_map_description("Triangle of death's Christmas cousin")
 ScenarioInfo.set_map_extra_info('Christmas tree shaped death world with plenty of loot to fight for. Can you reach the presents at the base of the tree?')
 
 -- change these to change the pattern.
@@ -48,11 +48,7 @@ local function init_weapon_damage()
 end
 
 local function no_resources(_, _, world, tile)
-    for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
-        )
-    ) do
+    for _, e in ipairs(world.surface.find_entities_filtered({type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
         e.destroy()
     end
     return tile
@@ -98,13 +94,13 @@ local gradient = 0.5
 local segment_height = 64
 local branch_gradient = 0.3
 
-local function tree(x,y)
+local function tree(x, y)
     local abs_x = math.abs(x)
     local abs_y = math.abs(y)
-        return not (abs_x > ((abs_y*gradient)+(branch_gradient*(abs_y%segment_height))) or y < 0)
+    return not (abs_x > ((abs_y * gradient) + (branch_gradient * (abs_y % segment_height))) or y < 0)
 end
 
-tree = b.translate(tree,0,-30)
+tree = b.translate(tree, 0, -30)
 tree = b.change_tile(tree, true, 'grass-1')
 
 local star = b.picture(require 'map_gen.data.presets.star')
@@ -130,7 +126,6 @@ local icons = {
     baubel_3,
     baubel_4
 }
-
 
 local icons_count = #icons
 local value = b.manhattan_value
@@ -193,7 +188,7 @@ for _ = 1, p_rows do
         local x = random:next_int(-24, 24)
         local y = random:next_int(-24, 24)
         shape = b.translate(shape, x, y)
-        
+
         local ore = b.resource(shape, ore_data.resource, ore_data.value)
 
         table.insert(row, ore)
@@ -203,7 +198,7 @@ end
 local ore_shape = b.project_pattern(pattern, 250, 1.0625, 50, 50)
 ore_shape = b.scale(ore_shape, 0.1)
 
-local start_ore = b.scale(icons[2],0.3)
+local start_ore = b.scale(icons[2], 0.3)
 local start_iron = b.resource(start_ore, 'iron-ore', value(1000, 0))
 local start_copper = b.resource(start_ore, 'copper-ore', value(1000, 0))
 local start_coal = b.resource(start_ore, 'coal', value(1500, 0))
@@ -324,7 +319,7 @@ local function loot(x, y)
         name = name,
         force = 'neutral',
         callback = callback,
-        data = {power = loot_power / d_sq , seed = generator(4294967295)}
+        data = {power = loot_power / d_sq, seed = generator(4294967295)}
     }
 
     return entity
@@ -384,9 +379,8 @@ local function enemy(x, y, world)
     end
 end
 
-
 -- COMBINGING IT ALL
-local sea = b.change_tile(b.full_shape, true, 'water')          -- turn the void to water
+local sea = b.change_tile(b.full_shape, true, 'water') -- turn the void to water
 sea = b.fish(sea, 0.00125)
 
 tree = b.apply_entity(tree, ore_shape)
@@ -400,9 +394,8 @@ map = b.apply_entity(map, loot)
 map = b.apply_entity(map, enemy)
 map = b.apply_effect(map, no_resources)
 
-
 local function on_init()
-    game.forces["player"].technologies["landfill"].enabled = false
+    game.forces['player'].technologies['landfill'].enabled = false
 
     local surface = game.surfaces.nauvis
     surface.map_gen_settings = {
@@ -410,11 +403,9 @@ local function on_init()
             name = 'cliff',
             cliff_elevation_0 = 1024,
             cliff_elevation_interval = 10
-        },
+        }
     }
 end
 Event.on_init(on_init)
 
 return map
-
-
