@@ -10,7 +10,6 @@ require 'features.server'
 require 'features.server_commands'
 
 -- Library modules which, if missing, will cause other feature modules to fail
-require 'features.base_data'
 require 'features.player_create'
 require 'features.user_groups'
 
