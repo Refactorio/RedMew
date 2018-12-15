@@ -72,3 +72,4 @@ if config.score.enabled then
     require 'features.gui.score'
 end
 require 'features.gui.popup'
+require 'features.gui.camera'
