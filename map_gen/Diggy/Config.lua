@@ -100,7 +100,7 @@ local Config = {
                 ['refined-concrete'] = 0.06,
             },
             cracking_sounds = {
-                ' R U NY O UF O O L S !',
+                'R U N,  Y O U   F O O L S !',
             }
         },
 
@@ -197,8 +197,11 @@ local Config = {
             -- minimum distance and noise range required for water to spawn
             room_noise_minimum_distance = 9,
             room_noise_ranges = {
-                {name = 'water', min = 0.54, max = 1},
-                {name = 'dirt', min = 0.39, max = 0.53},
+                {name = 'water', min = 0.84, max = 0.96},
+                {name = 'water', min = 0.73, max = 0.81},
+                {name = 'water', min = 0.54, max = 0.7},
+                {name = 'dirt', min = 0.46, max = 0.53},
+                {name = 'dirt', min = 0.37, max = 0.45},
             },
         },
 
@@ -347,7 +350,7 @@ local Config = {
         Antigrief = {
             enabled = true,
             autojail = true,
-            allowed_collapses_first_hour = 4
+            allowed_collapses_first_hour = 4,
         },
 
         Experience = {
