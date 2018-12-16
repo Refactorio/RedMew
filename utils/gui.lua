@@ -6,19 +6,15 @@ local Global = require 'utils.global'
 local Gui = {}
 
 local data = {}
-local top_elements = {}
 
 Global.register(
-    {
-        data = data,
-        top_elements = top_elements
-    },
+    data,
     function(tbl)
-        data = tbl.data
-        top_elements = tbl.top_elements
+        data = tbl
     end
 )
 
+local top_elements = {}
 local on_visable_handlers = {}
 local on_pre_hidden_handlers = {}
 
@@ -190,6 +186,7 @@ Gui.on_pre_player_hide_top = custom_handler_factory(on_pre_hidden_handlers)
 
 --- Allows the player to show / hide this element.
 -- The element must be part in gui.top.
+-- This function must be called in the control stage, i.e not inside an event.
 -- @param element_name<string> This name must be globally unique.
 function Gui.allow_player_to_toggle_top_element_visibility(element_name)
     top_elements[#top_elements + 1] = element_name
