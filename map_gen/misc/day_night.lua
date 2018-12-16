@@ -1,13 +1,27 @@
 -- For more info on the day/night cycle and examples of cycles see: https://github.com/Refactorio/RedMew/wiki/Day-Night-cycle
-local Public = {}
+-- This module can be used in multiple ways: Public.fixed_brightness or Public.day_night_cycle can be set and this module will
+-- set the brightness/cycle alternatively the set_cycle or set_fixed_brightness functions can be called to set cycle or brightness.
 local Debug = require 'utils.debug'
+local RS = require 'map_gen.shared.redmew_surface'
+local Event = require 'utils.event'
+
+local Public = {}
+Public.fixed_brightness = nil
 
 local day_night_cycle_keys = {
     'ticks_per_day',
     'dusk',
     'evening',
     'morning',
-    'dawn',
+    'dawn'
+}
+
+Public.day_night_cycle = {
+    ['ticks_per_day'] = 25000,
+    ['dusk'] = 0.25,
+    ['evening'] = 0.45,
+    ['morning'] = 0.55,
+    ['dawn'] = 0.75
 }
 
 --- Checks that a table has a valid day night cycle.
@@ -39,6 +53,10 @@ Public.set_cycle = function(day_night_cycle, surface)
     end
     if not surface.valid then
         error('Provided surface is invalid')
+        return
+    end
+    if not Public.unfreeze_daytime then
+        error('Time is frozen')
         return
     end
 
@@ -86,5 +104,27 @@ Public.set_fixed_brightness = function(daylight, surface)
         return true
     end
 end
+
+--- Unfreezes daytime (usually frozen by set_fixed_brightness)
+-- @param surface the LuaSurface to unfreeze the day/night cycle of
+-- @return boolean true if daytime unfrozen
+Public.unfreeze_daytime = function(surface)
+    if not surface.valid then
+        error('Provided surface is invalid')
+        return
+    end
+    surface.freeze_daytime = false
+    return true
+end
+
+local function init()
+    if Public.fixed_brightness then
+        Public.set_fixed_brightness(Public.fixed_brightness, RS.get_surface())
+    else
+        Public.set_cycle(Public.day_night_cycle, RS.get_surface())
+    end
+end
+
+Event.on_init(init)
 
 return Public
