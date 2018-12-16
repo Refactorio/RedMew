@@ -488,6 +488,8 @@ local function on_player_created(event)
     })
 end
 
+Gui.allow_player_to_toggle_top_element_visibility('Diggy.Experience.Button')
+
 Gui.on_click('Diggy.Experience.Button', toggle)
 Gui.on_custom_close('Diggy.Experience.Frame', function (event)
     event.element.destroy()

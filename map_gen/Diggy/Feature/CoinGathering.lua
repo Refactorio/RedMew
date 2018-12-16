@@ -76,6 +76,8 @@ local function on_player_created(event)
     })
 end
 
+Gui.allow_player_to_toggle_top_element_visibility('Diggy.CoinGathering.Button')
+
 Gui.on_click('Diggy.CoinGathering.Button', toggle)
 Gui.on_custom_close('Diggy.CoinGathering.Frame', function (event)
     event.element.destroy()
