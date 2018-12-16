@@ -1109,7 +1109,7 @@ end
 function RSO_init()
    if not initDone then
 
-      local surface = game.surfaces["nauvis"]
+      local surface = game.surfaces["redmew"]
 
       if not global.regions then
          global.regions = {}

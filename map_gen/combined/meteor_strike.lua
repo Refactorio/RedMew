@@ -152,7 +152,7 @@ local function do_strike()
             table.insert(tiles, {name = 'dry-dirt', position = {x, y}})
         end
     end
-    local surface = game.surfaces[1]
+    local surface = game.surfaces.redmew
     surface.set_tiles(tiles, false)
 
     game.forces.player.chart(surface, {{bx, by}, {bx + block_size, by + block_size}})

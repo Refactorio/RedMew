@@ -566,7 +566,7 @@ local map
 Global.register_init(
     {},
     function(tbl)
-        local seed = game.surfaces[1].map_gen_settings.seed
+        local seed = game.surfaces.redmew.map_gen_settings.seed
         tbl.outpost_seed = outpost_seed or seed
         tbl.ore_seed = ore_seed or seed
 

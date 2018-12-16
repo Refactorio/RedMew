@@ -14,7 +14,7 @@ local ore_base_amounts = {
 }
 
 local function init()
-    global.perlin_noise_seed = game.surfaces[1].map_gen_settings.seed
+    global.perlin_noise_seed = game.surfaces.redmew.map_gen_settings.seed
     -- math.random(1000, 1000000)
 end
 

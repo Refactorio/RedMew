@@ -86,7 +86,7 @@ function run_combined_module(event)
     if not global.perlin_noise_seed then
         global.perlin_noise_seed = math.random(1000, 1000000)
     end
-    local surface = game.surfaces[1]
+    local surface = game.surfaces.redmew
 
     local entities = surface.find_entities(event.area)
     for _, entity in pairs(entities) do

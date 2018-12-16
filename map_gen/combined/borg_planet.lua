@@ -89,7 +89,7 @@ local function find_tile_placement_spot_around_target_position(tilename, positio
     local x = position.x
     local y = position.y
     if not surface then
-        surface = game.surfaces[1]
+        surface = game.surfaces.redmew
     end
     local scan_radius = 50
     if not tilename then
@@ -322,7 +322,7 @@ end
 local function create_tile_cluster(tilename, position, amount)
     local mode = 'ball'
     local cluster_tiles = {}
-    local surface = game.surfaces[1]
+    local surface = game.surfaces.redmew
     local pos = position
     local x = pos.x
     local y = pos.y

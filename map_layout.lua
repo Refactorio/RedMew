@@ -7,6 +7,7 @@ in this file and your run_*type*_module(event) function will be called.
 
 local b = require 'map_gen.shared.builders'
 require 'map_gen.shared.perlin_noise'
+require 'map_gen.shared.redmew_surface'
 global.map = {}
 global.map.terraforming = {}
 
@@ -163,7 +164,7 @@ end
 
 if shape then
     local surfaces = {
-        ['nauvis'] = shape,
+        ['redmew'] = shape,
     }
 
     require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})

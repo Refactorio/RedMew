@@ -52,7 +52,7 @@ Global.register(
 -- looking for biters and adding them to a group
 local function biter_attack()
     local maxindex = #data.bases
-    local surface = game.surfaces[1]
+    local surface = game.surfaces.redmew
     for i = data.c_index, data.c_index + processchunk, 1 do
         if i > maxindex then
             -- we reached the end of the table
@@ -93,8 +93,8 @@ end
 -- looking for unit spawners and adding them to the bases table, when done iterating
 -- through chunklist it sets the state to ATTACKING
 local function find_bases()
-    local get_pollution = game.surfaces[1].get_pollution
-    local count_entities_filtered = game.surfaces[1].count_entities_filtered
+    local get_pollution = game.surfaces.redmew.get_pollution
+    local count_entities_filtered = game.surfaces.redmew.count_entities_filtered
     if data.c_index == 1 then
         data.bases = {}
     end
@@ -134,7 +134,7 @@ end
 
 --- When a chunk is generated, add it to the chunklist
 local function on_chunk_generated(event)
-    if event.surface == game.surfaces[1] then
+    if event.surface == game.surfaces.redmew then
         local chunk = {}
         local coords = event.area.left_top
         chunk.x = coords.x + 16
@@ -156,12 +156,12 @@ end
 --- Change us from idle to searching for bases if the conditions are met.
 local function on_interval()
     if
-        game.surfaces[1].darkness > 0.5 and random() > 0.5 and data.state == IDLE and
+        game.surfaces.redmew.darkness > 0.5 and random() > 0.5 and data.state == IDLE and
             game.tick >= data.lastattack + timeinterval
      then
         data.state = BASE_SEARCH
         if _DEBUG then
-            game.surfaces[1].print('[NIGHTFALL] entering BASE_SEARCH state') --for debug
+            game.surfaces.redmew.print('[NIGHTFALL] entering BASE_SEARCH state') --for debug
         end
     end
 end

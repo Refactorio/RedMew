@@ -402,7 +402,7 @@ to reinforce it further.
 
     mask_init(config)
     if (config.enable_mask_debug) then
-        local surface = game.surfaces.nauvis
+        local surface = game.surfaces.redmew
         mask_disc_blur(0, 0, 10,  function(x, y, fraction)
             Debug.print_grid_value(fraction, surface, {x = x, y = y})
         end)

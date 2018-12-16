@@ -397,7 +397,7 @@ map = b.apply_effect(map, no_resources)
 local function on_init()
     game.forces['player'].technologies['landfill'].enabled = false
 
-    local surface = game.surfaces.nauvis
+    local surface = game.surfaces.redmew
     surface.map_gen_settings = {
         cliff_settings = {
             name = 'cliff',

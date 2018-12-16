@@ -22,7 +22,7 @@ local density_multiplier = 50
 Global.register_init(
     {},
     function(tbl)
-        tbl.seed = game.surfaces[1].map_gen_settings.seed
+        tbl.seed = game.surfaces.redmew.map_gen_settings.seed
     end,
     function(tbl)
         local seed = tbl.seed

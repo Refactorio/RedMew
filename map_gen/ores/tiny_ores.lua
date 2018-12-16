@@ -10,7 +10,7 @@ Global.register_init(
     {},
     function(tbl)
         tbl.generator = game.create_random_generator()
-        tbl.seed = seed or game.surfaces[1].map_gen_settings.seed
+        tbl.seed = seed or game.surfaces.redmew.map_gen_settings.seed
     end,
     function(tbl)
         generator = tbl.generator

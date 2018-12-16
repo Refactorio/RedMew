@@ -117,7 +117,7 @@ map = b.apply_effect(map, no_trees)
 
 --- Sets the map parameters once the game begins and we have a surface to act on
 local function world_settings()
-    local surface = game.surfaces.nauvis
+    local surface = game.surfaces.redmew
     local player_force = game.forces.player
 
     -- 20 minute cycle, 14m of full light, 1m light to dark, 4m full dark, 1m dark to light

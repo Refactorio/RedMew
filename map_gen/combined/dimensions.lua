@@ -28,7 +28,7 @@ end
 
 --Creates autoplace_controls with only one resource type enabled
 local function create_resource_setting(resource)
-  local settings = game.surfaces[1].map_gen_settings
+  local settings = game.surfaces.redmew.map_gen_settings
   for _,type in pairs(resource_types) do
     settings.autoplace_controls[type] = {frequency = "none", size = "none", richness = "none"}
   end

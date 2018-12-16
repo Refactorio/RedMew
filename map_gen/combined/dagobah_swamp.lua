@@ -81,7 +81,7 @@ local function auto_place_entity_around_target(entity, scan_radius, mode, densit
     local x = entity.pos.x
     local y = entity.pos.y
     if not surface then
-        surface = game.surfaces[1]
+        surface = game.surfaces.redmew
     end
     if not scan_radius then
         scan_radius = 6

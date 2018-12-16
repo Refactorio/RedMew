@@ -55,7 +55,7 @@ end
 -- a daytime of 0.5 is the value where every light and ambient lights are turned on.
 --
 function NightTime.on_init()
-    local surface = game.surfaces.nauvis
+    local surface = game.surfaces.redmew
 
     surface.daytime = 0.5
     surface.freeze_daytime = 1
