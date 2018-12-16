@@ -146,12 +146,15 @@ local function player_console_chat(event)
 end
 
 local function entity_damaged(event)
-    if event.entity.type == 'player' then -- player taking damage
-        local index = event.entity.player.index
+    local entity = event.entity
+    if entity.valid and entity.type == 'player' then -- player taking damage
+        local index = entity.player.index
         player_damage_taken[index] = player_damage_taken[index] + event.final_damage_amount
     end
-    if event.cause.type == 'player' then -- player causing damage
-        local index = event.cause.player.index
+
+    local cause = event.cause
+    if cause and cause.valid and cause.type == 'player' then -- player causing damage
+        local index = cause.player.index
         player_damage_dealt[index] = player_damage_dealt[index] + event.final_damage_amount
     end
 end
