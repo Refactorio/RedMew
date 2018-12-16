@@ -178,14 +178,14 @@ Gui.on_text_changed = handler_factory(defines.events.on_gui_text_changed)
 -- Adds a player field to the event table.
 Gui.on_value_changed = handler_factory(defines.events.on_gui_value_changed)
 
--- Register a handler for the when the player shows the top LuaGuiElements with element_name.
+-- Register a handler for when the player shows the top LuaGuiElements with element_name.
 -- Assuming the element_name has been added with Gui.allow_player_to_toggle_top_element_visibility.
 -- Can only have one handler per element name.
 -- Guarantees that the element and the player are valid when calling the handler.
 -- Adds a player field to the event table.
 Gui.on_player_show_top = custom_handler_factory(on_visable_handlers)
 
--- Register a handler for the when the player hides the top LuaGuiElements with element_name.
+-- Register a handler for when the player hides the top LuaGuiElements with element_name.
 -- Assuming the element_name has been added with Gui.allow_player_to_toggle_top_element_visibility.
 -- Can only have one handler per element name.
 -- Guarantees that the element and the player are valid when calling the handler.
