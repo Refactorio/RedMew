@@ -2,7 +2,6 @@ local Token = require 'utils.token'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
-local table = require 'utils.table'
 
 local Gui = {}
 
@@ -19,9 +18,6 @@ Global.register(
         top_elements = tbl.top_elements
     end
 )
-
-local on_visable_event_id = script.generate_event_name()
-local on_pre_hidden_event_id = script.generate_event_name()
 
 local on_visable_handlers = {}
 local on_pre_hidden_handlers = {}
