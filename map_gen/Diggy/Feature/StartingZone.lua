@@ -25,6 +25,9 @@ function StartingZone.register(config)
     local starting_zone_size = config.starting_size
 
     local function on_chunk_generated(event)
+        if event.surface == game.surfaces.nauvis then
+            return
+        end
         local start_point_area = {{-0.9, -0.9}, {0.9, 0.9}}
         local start_point_cleanup = {{-0.9, -0.9}, {1.9, 1.9}}
         local surface = event.surface
