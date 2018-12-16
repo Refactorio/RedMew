@@ -6,6 +6,7 @@ require 'map_gen.misc.nightfall' -- forces idle biters to attack at night
 require 'map_gen.misc.terraforming' -- prevents players from building on non-terraformed tiles
 local DayNight = require 'map_gen.misc.day_night'
 local ScenarioInfo = require 'features.gui.info'
+local RS = require 'map_gen.shared.redmew_surface'
 
 ScenarioInfo.set_map_name('Terraform Venus')
 ScenarioInfo.set_map_description('After a long journey you have reached Venus. Your mission is simple, turn this hostile environment into one where humans can thrive')
@@ -117,7 +118,7 @@ map = b.apply_effect(map, no_trees)
 
 --- Sets the map parameters once the game begins and we have a surface to act on
 local function world_settings()
-    local surface = game.surfaces.redmew
+    local surface = RS.get_surface()
     local player_force = game.forces.player
 
     -- 20 minute cycle, 14m of full light, 1m light to dark, 4m full dark, 1m dark to light

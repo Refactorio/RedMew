@@ -1,8 +1,8 @@
 --Author: MewMew
 -- !! ATTENTION !!
 -- Use water only in starting area as map setting!!!
-local Event = require 'utils.event'
 local perlin = require 'map_gen.shared.perlin_noise'
+local RS = require 'map_gen.shared.redmew_surface'
 
 wreck_item_pool = {}
 wreck_item_pool = {
@@ -89,7 +89,7 @@ local function find_tile_placement_spot_around_target_position(tilename, positio
     local x = position.x
     local y = position.y
     if not surface then
-        surface = game.surfaces.redmew
+        surface = RS.get_surface()
     end
     local scan_radius = 50
     if not tilename then
@@ -321,11 +321,7 @@ end
 
 local function create_tile_cluster(tilename, position, amount)
     local mode = 'ball'
-    local cluster_tiles = {}
-    local surface = game.surfaces.redmew
     local pos = position
-    local x = pos.x
-    local y = pos.y
     for i = 1, amount, 1 do
         local b, x, y = find_tile_placement_spot_around_target_position(tilename, pos, mode)
         if b == true then
@@ -356,7 +352,6 @@ function run_combined_module(event)
     local area = event.area
     local surface = event.surface
     local tiles = {}
-    local decoratives = {}
     local resource_tiles = {}
     local special_tiles = true
 

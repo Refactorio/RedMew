@@ -2,9 +2,22 @@
 -- If you want to modify settings for a particular map, see 'Creating a new scenario' in the wiki for examples of how.
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local Global = require 'utils.global'
+
+local surface_name = 'redmew'
 
 local Public = {}
-Public.position_check_override = false
+Public.first_player_position_check_override = false
+local first_player_position_check_override = {Public.first_player_position_check_override}
+
+Global.register(
+    {
+        first_player_position_check_override = first_player_position_check_override,
+    },
+    function(tbl)
+        first_player_position_check_override = tbl.first_player_position_check_override
+    end
+)
 
 -- These settings are default except:
 -- cliffs disabled, enemy bases to high frequency and big size, and starting area to small
@@ -196,9 +209,14 @@ Public.difficulty_settings = {
     technology_price_multiplier = 2
 }
 
+--- Returns the play surface that the map is created on
+Public.get_surface = function()
+    return game.surfaces[surface_name]
+end
+
 --- Creates a new surface with the name 'redmew'
 local create_redmew_surface = function()
-    local surface = game.create_surface('redmew', Public.map_gen_settings)
+    local surface = game.create_surface(surface_name, Public.map_gen_settings)
 
     for k, v in pairs(Public.difficulty_settings) do
         game.difficulty_settings[k] = v
@@ -243,11 +261,11 @@ end
 
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
-    local surface =  game.surfaces.redmew
+    local surface =  game.surfaces[surface_name]
     local spawn_coords
 
     local pos = surface.find_non_colliding_position('player', {0,0}, 50, 1)
-    if pos and not Public.position_check_override then
+    if pos and not first_player_position_check_override[1] then
         player.teleport(pos, surface)
         spawn_coords = pos
     else
@@ -260,8 +278,8 @@ local function player_created(event)
         })
         player.teleport({0,0}, surface)
         spawn_coords = {0,0}
+        first_player_position_check_override[1] = false
     end
-
     game.forces.player.set_spawn_position(spawn_coords, surface)
 end
 

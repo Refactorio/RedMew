@@ -1,5 +1,6 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local RS = require 'map_gen.shared.redmew_surface'
 
 Event.on_init(
     function()
@@ -87,7 +88,7 @@ Event.add(
         if player.force == game.forces.player and event.element.name == 'new_button' then
             if neForceNear(player.position) then
                 local force = game.create_force(player.name)
-                force.set_spawn_position(player.position, game.surfaces.redmew)
+                force.set_spawn_position(player.position, RS.get_surface())
                 player.force = force
                 killBitters(player.position)
                 player.force.chart(player.surface, {{player.position.x - 200, player.position.y - 200}, {player.position.x + 200, player.position.y + 200}})
@@ -107,7 +108,7 @@ Event.add(
                 local igui = iplayer.gui.left
 
                 iplayer.force = player.force
-                iplayer.teleport(player.force.get_spawn_position(game.surfaces.redmew))
+                iplayer.teleport(player.force.get_spawn_position(RS.get_surface()))
 
                 igui.new_force.destroy()
                 guiForcePlayer(igui)
@@ -137,7 +138,7 @@ Event.add(
 
 function neForceNear(pos)
     for k, v in pairs(game.forces) do
-        if dist(pos, v.get_spawn_position(game.surfaces.redmew)) <= 50 then
+        if dist(pos, v.get_spawn_position(RS.get_surface())) <= 50 then
             return false
         end
     end
@@ -145,7 +146,7 @@ function neForceNear(pos)
 end
 
 function killBitters(pos)
-    for k, v in pairs(game.surfaces.redmew.find_entities_filtered({area = {{pos.x - 250, pos.y - 250}, {pos.x + 250, pos.y + 250}}, force = 'enemy'})) do
+    for k, v in pairs(RS.get_surface().find_entities_filtered({area = {{pos.x - 250, pos.y - 250}, {pos.x + 250, pos.y + 250}}, force = 'enemy'})) do
         v.destroy()
     end
 end

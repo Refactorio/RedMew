@@ -11,7 +11,7 @@ require 'map_gen.shared.redmew_surface'
 global.map = {}
 global.map.terraforming = {}
 
-local shape
+local shape = nil
 local regen_decoratives = false
 local tiles_per_tick = 32
 
