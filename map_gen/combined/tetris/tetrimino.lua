@@ -72,15 +72,15 @@ local function collides(self, collision_box, x_steps, y_steps)
     for y = 1, 4 do
         for x = 1, 4 do 
             local bit = collision_box[y][x]
-            if bit == 1 then 
+            if bit == 1 then
                 local y_offset = y + y_steps
                 local x_offset = x + x_steps
-                if 
+                if  
                     y_offset < 1 or --Cant collide with itself, so continue checking for collision
                     y_offset > 4 or
                     x_offset < 1 or
                     x_offset > 4 or
-                    collision_box[y_offset][x_offset] == 0 --check for collision if not colliding with old self
+                    old_collision_box[y_offset][x_offset] == 0 --check for collision if not colliding with old self
                 then 
                     local x_target = x_offset * 16 + c_x + 2 - 16
                     local y_target = y_offset * 16 + c_y + 2 - 16
@@ -164,6 +164,70 @@ function Module.move(self, x_direction, y_direction)
     position.y = tetri_y + 16 * y_direction
     position.x = tetri_x + 16 * x_direction
     Task.set_timeout_in_ticks(1, worker)
+end
+
+function rotate_collision_box(collision_box, reverse)
+    local new_collision_box = {{},{},{},{}}
+    local transformation = {{},{},{},{}}
+    if reverse then
+        for y = 1, 4 do 
+            for x = 1, 4 do
+                new_collision_box[y][x] = collision_box[5 - x][y]
+                transformation[5 - x][y] = {x = x, y = y}
+            end
+        end
+    else
+        for y = 1, 4 do 
+            for x = 1, 4 do
+                new_collision_box[y][x] = collision_box[x][5 - y]
+                transformation[y][5 - x] = {x = x, y = y}
+            end
+        end
+    end
+    return new_collision_box, transformation
+end
+
+function Module.rotate(self, reverse)
+    local new_collision_box, transformation = rotate_collision_box(self.collision_box, reverse)
+    if collides(self, new_collision_box, 0, 0) then return end
+
+    local old_collision_box = self.collision_box
+    local surface = self.surface
+    local find_tiles_filtered = surface.find_tiles_filtered
+    local find_entities_filtered = surface.find_entities_filtered
+    local tetri_x = self.position.x
+    local tetri_y = self.position.y
+    local insert = insert
+    local tiles = {}
+    local entities = {}
+
+    for x = 1, 4 do 
+        for y = 1, 4 do 
+            local target = transformation[y][x]
+            if 
+                (target.x ~= x or target.y ~= y) and --Do not rotate identity
+                old_collision_box[y][x] == 1 --check for existence
+            then
+
+                local top_left_x = tetri_x + x * 16 - 16
+                local top_left_y = tetri_y + y * 16 - 16
+                local area = {{top_left_x, top_left_y},{tetri_x + x * 16 - 1, tetri_y + y * 16 - 1}}
+
+                for _, tile in pairs(find_tiles_filtered{area = {{top_left_x, top_left_y},{tetri_x + x * 16, tetri_y + y * 16}}}) do 
+                    insert(tiles, {name = tile.name, position = {tile.position.x + (target.x - x) * 16, tile.position.y + (target.y - y) * 16}})
+                end
+
+                for _, entity in pairs(find_entities_filtered{area = {{top_left_x, top_left_y},{tetri_x + x * 16 - 1, tetri_y + y * 16 - 1}}}) do 
+                    insert(entities, {name = entity.name, position = {entity.position.x + (target.x - x) * 16, entity.position.y + (target.y - y) * 16}})
+                end
+                erase_qchunk(surface, top_left_x, top_left_y)
+            end 
+        end
+    end
+
+    surface.set_tiles(tiles)
+
+    self.collision_box = new_collision_box --Is this desync save? I think i need a deep copy
 end
 
 function Module.new(surface, position, number)
