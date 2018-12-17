@@ -8,4 +8,4 @@ Event.on_nth_tick(61, function()
 end)
 
 
-return Map
+return Map.get_map()
