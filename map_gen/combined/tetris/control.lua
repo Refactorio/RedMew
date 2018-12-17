@@ -37,15 +37,6 @@ if Map.get_map() then
     require ("map_gen.shared.generate_not_threaded"){surfaces = surfaces}
 end
 
-
-function spawn()
-    local number = math.random(1,#collision_boxes)
-    collision_box = collision_boxes[number]
-    Map.spawn_tetri(tetri_spawn_position, number)
-    active_tetri_position.y = tetri_spawn_position.y
-    active_tetri_position.x = tetri_spawn_position.x
-end
-
 local worker = nil
 worker =
     Token.register(
