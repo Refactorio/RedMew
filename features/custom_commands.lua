@@ -11,8 +11,6 @@ local Command = require 'utils.command'
 local format = string.format
 local ceil = math.ceil
 
-
-
 local deprecated_command_alternatives = {
     ['silent-command'] = 'sc'
 }
@@ -21,14 +19,13 @@ Event.add(defines.events.on_console_command, function (event)
         local alternative = deprecated_command_alternatives[event.command]
         if alternative then
             local print = log
-            if event.player_index then 
+            if event.player_index then
                 print = game.players[event.player_index].print
             end
             print(string.format('Warning! Usage of the command /"%s" is deprecated. Please use "%s" instead.', event.command, alternative))
         end
     end
 )
-
 
 --- Takes a target and teleports them to player. (admin only)
 local function invoke(cmd)
