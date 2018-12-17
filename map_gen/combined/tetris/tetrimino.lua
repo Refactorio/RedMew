@@ -1,8 +1,8 @@
 Module = {}
 
-local Token = require 'utils.global_token'
-local Task = require 'utils.Task'
-local Queue = require 'utils.Queue'
+local Token = require 'utils.token'
+local Task = require 'utils.schedule'
+local Queue = require 'utils.q'
 
 local collision_boxes = {
     {
@@ -64,7 +64,7 @@ local function collides(self, collision_box, center, x_steps, y_steps)
                 if 
                     y_offset > 0 or --Cant collide with itself, so continue checking for collision
                     y_offset < 5 or 
-                    collision_box[y + y_steps][x + x_steps] == 0 --Skip if colliding with itself
+                    collision_box[y + y_steps][x + x_steps] == 0 or --Skip if colliding with itself
                     old_collision_box[y + y_steps][x + y_steps] == 0 --Skip if colliding with old self
                 then 
                     local x_target = (x + x_steps - 3) * 16 + c_x + 2

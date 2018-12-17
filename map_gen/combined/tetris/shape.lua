@@ -12,6 +12,7 @@ local math = require 'utils.math'
 local degrees = math.rad
 local ore_seed1 = 7000
 local ore_seed2 = ore_seed1 * 2
+require 'utils.table'
 
 local Random = require 'map_gen.shared.random'
 local random = Random.new(ore_seed1, ore_seed2)
