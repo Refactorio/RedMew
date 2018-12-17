@@ -1,6 +1,7 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local PlayerStats = require 'features.player_stats'
+local Gui = require 'utils.gui'
 
 if not global.score_rockets_launched then
     global.score_rockets_launched = 0
@@ -130,6 +131,8 @@ local function rocket_launched()
     game.print('A rocket has been launched!')
     refresh_score()
 end
+
+Gui.allow_player_to_toggle_top_element_visibility('score')
 
 Event.add(defines.events.on_entity_died, refresh_score)
 Event.add(defines.events.on_gui_click, on_gui_click)
