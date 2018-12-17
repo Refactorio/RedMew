@@ -20,8 +20,11 @@ local deprecated_command_alternatives = {
 Event.add(defines.events.on_console_command, function (event)
         local alternative = deprecated_command_alternatives[event.command]
         if alternative then
-            local player = game.player or {print = log}
-            player.print(string.format('Warning! Usage of the command /"%s" is deprecated. Please use "%s" instead.', event.command, alternative))
+            local print = log
+            if event.player_index then 
+                print = game.players[event.player_index].print
+            end
+            print(string.format('Warning! Usage of the command /"%s" is deprecated. Please use "%s" instead.', event.command, alternative))
         end
     end
 )
