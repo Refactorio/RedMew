@@ -1,9 +1,9 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
-local Token = require 'utils.global_token'
-local Task = require 'utils.Task'
+local Token = require 'utils.token'
+local Task = require 'utils.schedule'
 local Global = require 'utils.global'
-local Queue = require 'utils.Queue'
+local Queue = require 'utils.q'
 
 local Map = require 'map_gen.combined.tetris.shape'
 require 'map_gen.combined.tetris.tetrimino'(Map)
@@ -34,7 +34,7 @@ if Map.get_map() then
     local surfaces = {
         ['nauvis'] = Map.get_map(),
     }
-    require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
+    require ("map_gen.shared.generate_not_threaded"){surfaces = surfaces}
 end
 
 
