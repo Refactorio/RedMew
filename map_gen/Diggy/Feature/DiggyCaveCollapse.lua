@@ -24,6 +24,7 @@ local template_insert = Template.insert
 local raise_event = script.raise_event
 local set_timeout = Task.set_timeout
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
+local ceiling_crumble = CreateParticles.ceiling_crumble
 local collapse_rocks = Template.diggy_rocks
 local collapse_rocks_size = #collapse_rocks
 
@@ -127,7 +128,7 @@ local function create_collapse_template(positions, surface)
 end
 
 local function create_collapse_alert(surface, position)
-    local target = surface.create_entity{position = position, name = 'rock-big'}
+    local target = surface.create_entity({position = position, name = 'rock-big'})
     for _, player in pairs(game.connected_players) do
         player.add_custom_alert(target, collapse_alert, 'Cave collapsed!', true)
     end
@@ -161,30 +162,22 @@ end
 
 local on_collapse_timeout_finished = Token.register(collapse)
 local on_near_threshold = Token.register(function (params)
-    CreateParticles.ceiling_crumble(params.surface, params.position)
+    ceiling_crumble(params.surface, params.position)
 end)
 
-local function spawn_cracking_sound_text(surface, position)
-    local text = get_random(config.cracking_sounds, true)
-
+local function spawn_collapse_text(surface, position)
     local color = {
         r = 1,
         g = random(1, 100) * 0.01,
         b = 0
     }
 
-    local create_entity = surface.create_entity
-
-    for i = 1, #text do
-        local x_offset = (i - #text / 2 - 1) * 0.333333333
-        local char = text:sub(i, i)
-        create_entity {
-            name = 'flying-text',
-            color = color,
-            text = char,
-            position = {x = position.x + x_offset, y = position.y - ((i + 1) % 2) * 0.25}
-        }.active = true
-    end
+    surface.create_entity({
+        name = 'tutorial-flying-text',
+        color = color,
+        text = get_random(config.cracking_sounds, true),
+        position = position,
+    })
 end
 
 local function on_collapse_triggered(event)
@@ -198,7 +191,7 @@ local function on_collapse_triggered(event)
         template_insert(surface, {}, {{position = position, name = 'rock-big'}})
         return
     end
-    spawn_cracking_sound_text(surface, position)
+    spawn_collapse_text(surface, position)
     set_timeout(config.collapse_delay, on_collapse_timeout_finished, event)
 end
 
@@ -261,7 +254,7 @@ local function on_entity_died(event)
         local player_index
         if not is_diggy_rock(name) then
             local cause = event.cause
-            player_index = cause and cause.player and cause.player.index or nil
+            player_index = cause and cause.type == 'player' and cause.player and cause.player.index or nil
         end
         stress_map_add(entity.surface, entity.position, strength, false, player_index)
     end

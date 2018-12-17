@@ -100,7 +100,7 @@ local Config = {
                 ['refined-concrete'] = 0.06,
             },
             cracking_sounds = {
-                ' R U NY O UF O O L S !',
+                'R U N,  Y O U   F O O L S !',
             }
         },
 
@@ -119,8 +119,8 @@ local Config = {
             minimal_treasure_chest_distance = 25,
 
             -- chances to receive a coin when mining
-            mining_coin_chance = 0.10,
-            mining_coin_amount = {min = 1, max = 4},
+            mining_coin_chance = 0.15,
+            mining_coin_amount = {min = 1, max = 5},
 
             -- lets you set the coin modifiers for aliens
             -- the modifier value increases the upper random limit that biters can drop
@@ -139,10 +139,10 @@ local Config = {
             },
 
             -- chance of aliens dropping coins between 0 and 1, where 1 is 100%
-            alien_coin_drop_chance = 0.30,
+            alien_coin_drop_chance = 0.28,
 
             -- shows the chest locations, only use when debugging
-            display_chest_locations = true,
+            display_chest_locations = false,
 
             treasure_chest_raffle = {
                 ['coin'] = {chance = 1.00, min = 20, max = 255},
@@ -197,8 +197,11 @@ local Config = {
             -- minimum distance and noise range required for water to spawn
             room_noise_minimum_distance = 9,
             room_noise_ranges = {
-                {name = 'water', min = 0.54, max = 1},
-                {name = 'dirt', min = 0.39, max = 0.53},
+                {name = 'water', min = 0.84, max = 0.96},
+                {name = 'water', min = 0.73, max = 0.81},
+                {name = 'water', min = 0.54, max = 0.7},
+                {name = 'dirt', min = 0.46, max = 0.53},
+                {name = 'dirt', min = 0.37, max = 0.45},
             },
         },
 
@@ -347,14 +350,14 @@ local Config = {
         Antigrief = {
             enabled = true,
             autojail = true,
-            allowed_collapses_first_hour = 4
+            allowed_collapses_first_hour = 4,
         },
 
         Experience = {
             enabled = true,
             -- controls the formula for calculating level up costs in stone sent to surface
-            difficulty_scale = 16, -- Diggy default 16. Higher increases experience requirement climb
-            first_lvl_xp = 400, -- Diggy default 400. This sets the price for the first level.
+            difficulty_scale = 15, -- Diggy default 16. Higher increases experience requirement climb
+            first_lvl_xp = 350, -- Diggy default 400. This sets the price for the first level.
             xp_fine_tune = 200, -- Diggy default 200. This value is used to fine tune the overall requirement climb without affecting the speed
             cost_precision = 3, -- Diggy default 3. This sets the precision of the required experience to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
 
