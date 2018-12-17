@@ -1,1 +1,1 @@
-require 'map_gen.combined.tetris.control'
+return require 'map_gen.combined.tetris.control'
