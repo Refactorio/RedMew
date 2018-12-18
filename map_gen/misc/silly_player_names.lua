@@ -4,7 +4,17 @@ local Event = require 'utils.event'
 local naming_words = require 'resources.naming_words'
 local Utils = require 'utils.core'
 local Global = require 'utils.global'
+local UserGroups = require 'features.user_groups'
+local ScenarioInfo = require 'features.gui.info'
 
+local format = string.format
+
+ScenarioInfo.add_map_extra_info(
+'- On this map you will be assigned a silly name.\n' ..
+'- If you dislike your name you can /name-restore or /name-roll for a new one'
+)
+
+global.silly_regulars = {}
 local data_silly_names = {}
 data_silly_names.silly_names = {}
 data_silly_names.silly_name_store = {}
@@ -13,6 +23,7 @@ data_silly_names.silly_name_store = {}
 data_silly_names.actual_name = {}
 
 local name_combinations = #naming_words.adverbs * #naming_words.adjectives * 1
+local table_size_ceiling = math.min(name_combinations * 0.25, 10000)
 
 Global.register(
     {
@@ -23,9 +34,22 @@ Global.register(
     end
 )
 
+--- Takes a player's real name, current silly name, and old silly name and adjusts
+-- the silly_regulars table accordingly
+local function check_regular(real_name, silly_name, old_silly_name)
+    if UserGroups.is_regular(real_name) then
+        global.silly_regulars[silly_name] = true
+        if old_silly_name then
+            global.silly_regulars[old_silly_name] = nil
+        end
+    end
+end
+
 --- Creates name by combining elements from the passed table
--- @param1 table including adverbs, adjectives, and nouns
--- @returns name as a string
+-- @param words_table including adverbs, adjectives, and nouns
+-- @param player_name string with player's name
+-- @returns string with player's silly name
+-- TODO: Config option to set the name style
 local function create_name(words_table, player_name)
     local adverb, adjective--, noun
     adverb = table.get_random(words_table.adverbs, true)
@@ -35,8 +59,9 @@ local function create_name(words_table, player_name)
 end
 
 --- Calls create_name until a unique name is returned
--- @param1 table including adverbs, adjectives, and nouns
--- @returns name as a string
+-- @param words_table including adverbs, adjectives, and nouns
+-- @param player_name string with player's name
+-- @returns string with player's silly name
 local function create_unique_name(words_table, player_name)
     local silly_names = data_silly_names.silly_names
     local name = create_name(words_table, player_name)
@@ -48,31 +73,37 @@ local function create_unique_name(words_table, player_name)
 end
 
 --- Assigns a player a name, stores their old and silly names
--- @param1 Takes a LuaPlayer
+-- @param player LuaPlayer, the player to change the name of
 local function name_player(player)
-    local passed_name = player.name
-    -- Store a player's original name in case they want it back.
+    local real_name = data_silly_names.actual_name[player.index] or player.name
+    local old_silly_name
+
+    -- If we don't have a player's actual name yet, store it
     if data_silly_names.actual_name[player.index] then
-        passed_name = data_silly_names.actual_name[player.index]
+        old_silly_name = player.name
     else
-        data_silly_names.actual_name[player.index] = passed_name
+        data_silly_names.actual_name[player.index] = real_name
     end
 
-    -- Because create_unique_name enters a while loop looking for a unique name, ensure we never get stuck.
-    local ceiling = math.min(name_combinations * 0.25, 10000)
-    if data_silly_names.silly_names_count[1] > ceiling then
-        data_silly_names.silly_names = {}
+    -- Because create_unique_name enters a while loop looking for a _unique_ name,
+    -- we ensure the table never contains all possible combinations by having a ceiling
+    if data_silly_names.silly_names_count[1] > table_size_ceiling then
+        table.clear_table(data_silly_names.silly_names, true)
         data_silly_names.silly_names_count[1] = 0
     end
 
-    local name = create_unique_name(naming_words, passed_name)
-
+    local name = create_unique_name(naming_words, real_name)
     data_silly_names.silly_names[#data_silly_names.silly_names + 1] = name
     data_silly_names.silly_names_count[1] = data_silly_names.silly_names_count[1] + 1
-    local str = player.name .. ' will now be known as: ' .. name
+
+    local str = format('%s will now be known as: %s', player.name, name)
     game.print(str)
-    Utils.print_admins(str .. ' (ID: ' .. player.index .. ')', false)
+    local admin_str = format('%s (ID: %s)', str, player.index)
+    Utils.print_admins(admin_str, false)
     player.name = name
+
+    -- After they have their name, we need to ensure compatibility with the regulars system
+    check_regular(real_name, name, old_silly_name)
 end
 
 --- Restores a player's actual name
@@ -94,7 +125,7 @@ local function restore_name(data)
 end
 
 --- Passes _event_ on to name_players
-local function on_player_joined(event)
+local function player_joined(event)
     local player = Game.get_player_by_index(event.player_index)
     if data_silly_names.silly_name_store[event.player_index] then
         player.name = data_silly_names.silly_name_store[event.player_index]
@@ -176,7 +207,7 @@ local function get_player_id(cmd)
     Game.player_print(target_name .. ' -- ' .. target_index)
 end
 
-Event.add(defines.events.on_player_joined_game, on_player_joined)
+Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_pre_player_left_game, restore_name)
 
 commands.add_command('name-roll', 'Assigns you a random, silly name', name_player_command)
