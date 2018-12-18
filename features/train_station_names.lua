@@ -4,9 +4,9 @@ local function pick_name(event)
     -- Create a weight table comprised of the backer name, a player's name, and a regular's name
     local player = table.get_random(game.players, true)
     local name_table = {
-        {event.created_entity.backer_name, 1},
-        {player.name, 2},
-        {table.get_random(global.regulars, false, true), 3},
+        {event.created_entity.backer_name, 8},
+        {player.name, 1},
+        {table.get_random(global.regulars, false, true), 1},
     }
     return table.get_random_weighted(name_table)
 end
