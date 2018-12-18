@@ -73,28 +73,34 @@ table.set = function(t, index, element)
 end
 
 --- Chooses a random entry from a table
---@param t table to select an element from
---@param sorted boolean to indicate whether the table is sorted by numerical index or not
---@return a random element of table t
-table.get_random = function(t, sorted)
+-- @param t table to select an element from
+-- @param sorted boolean to indicate whether the table is sorted by numerical index or not
+-- @param key boolean to indicate whether to return the key or value
+-- @return a random element of table t
+table.get_random = function(t, sorted, key)
     if sorted then
         return t[random(#t)]
     end
     local target_index = random(1, table_size(t))
     local count = 1
-    for _, v in pairs(t) do
+    for k, v in pairs(t) do
         if target_index == count then
-            return t[v]
+            if key then
+                return k
+            else
+                return t[v]
+            end
         end
+        count = count + 1
     end
 end
 
 --- Chooses a random entry from a weighted table
--- @param weight_table a table of tables with items and their weights
--- @param item_index the index of the items, defaults to 1
--- @param weight_index the index of the weights, defaults to 2
--- @returns a random item with weighting
--- @see features.chat_triggers.hodor
+-- @param weight_table table of tables with items and their weights
+-- @param item_index number of the index of items, defaults to 1
+-- @param weight_index number of the index of the weights, defaults to 2
+-- @returns a table entry
+-- @see features.chat_triggers::hodor
 table.get_random_weighted = function(weighted_table, item_index, weight_index)
     local total_weight = 0
     item_index = item_index or 1
