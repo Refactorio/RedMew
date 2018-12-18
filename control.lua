@@ -91,6 +91,6 @@ end
 if config.camera.enabled then
     require 'features.gui.camera'
 end
-if _DEBUG then
+if _DUMP_ENV then
     require 'utils.dump_env'
 end
