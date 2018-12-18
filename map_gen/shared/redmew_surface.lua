@@ -4,9 +4,8 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
 
-local surface_name = 'redmew'
-
 local Public = {}
+Public.surface_name = 'redmew'
 Public.first_player_position_check_override = false
 local first_player_position_check_override = {Public.first_player_position_check_override}
 
@@ -211,12 +210,12 @@ Public.difficulty_settings = {
 
 --- Returns the play surface that the map is created on
 Public.get_surface = function()
-    return game.surfaces[surface_name]
+    return game.surfaces[Public.surface_name]
 end
 
 --- Creates a new surface with the name 'redmew'
 local create_redmew_surface = function()
-    local surface = game.create_surface(surface_name, Public.map_gen_settings)
+    local surface = game.create_surface(Public.surface_name, Public.map_gen_settings)
 
     for k, v in pairs(Public.difficulty_settings) do
         game.difficulty_settings[k] = v
@@ -261,7 +260,7 @@ end
 
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
-    local surface =  game.surfaces[surface_name]
+    local surface =  game.surfaces[Public.surface_name]
     local spawn_coords
 
     local pos = surface.find_non_colliding_position('player', {0,0}, 50, 1)

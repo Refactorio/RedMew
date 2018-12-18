@@ -6,6 +6,7 @@ in this file and your run_*type*_module(event) function will be called.
 --]]
 
 local b = require 'map_gen.shared.builders'
+local RS = require 'map_gen.shared.redmew_surface'
 require 'map_gen.shared.perlin_noise'
 require 'map_gen.shared.redmew_surface'
 global.map = {}
@@ -164,7 +165,7 @@ end
 
 if shape then
     local surfaces = {
-        ['redmew'] = shape,
+        [RS.surface_name] = shape,
     }
 
     require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
