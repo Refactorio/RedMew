@@ -73,6 +73,7 @@ table.set = function(t, index, element)
 end
 
 --- Chooses a random entry from a table
+-- because this uses math.random, it cannot be used outside of events
 -- @param t table to select an element from
 -- @param sorted boolean to indicate whether the table is sorted by numerical index or not
 -- @param key boolean to indicate whether to return the key or value
@@ -96,6 +97,7 @@ table.get_random = function(t, sorted, key)
 end
 
 --- Chooses a random entry from a weighted table
+-- because this uses math.random, it cannot be used outside of events
 -- @param weight_table table of tables with items and their weights
 -- @param item_index number of the index of items, defaults to 1
 -- @param weight_index number of the index of the weights, defaults to 2
@@ -121,6 +123,7 @@ table.get_random_weighted = function(weighted_table, item_index, weight_index)
 end
 
 --- Creates a fisher-yates shuffle of a sequential number-indexed table
+-- because this uses math.random, it cannot be used outside of events if no rng is supplied
 -- from: http://www.sdknews.com/cross-platform/corona/tutorial-how-to-shuffle-table-items
 -- @param t table to shuffle
 table.shuffle_table = function(t, rng)

@@ -3,6 +3,9 @@ local Event = require 'utils.event'
 local function pick_name(event)
     -- Create a weight table comprised of the backer name, a player's name, and a regular's name
     local random_player = table.get_random(game.players, true)
+    if not random_player then
+        return
+    end
     local name_table = {
         {event.created_entity.backer_name, 8},
         {random_player.name, 1},
