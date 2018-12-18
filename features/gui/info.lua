@@ -745,8 +745,13 @@ function Public.get_map_extra_info()
     return editable_info[map_extra_info_key]
 end
 
-function Public.set_map_extra_info(value)
-    editable_info[map_extra_info_key] = value
+--- Adds to existing map_extra_info. Removes default text if it is the only text in place.
+function Public.add_map_extra_info(value)
+    if editable_info[map_extra_info_key] == global.config.map_extra_info_key then
+        editable_info[map_extra_info_key] = value
+    else
+        editable_info[map_extra_info_key] = string.format('%s\n%s', editable_info[map_extra_info_key], value)
+    end
 end
 
 function Public.get_new_info()
