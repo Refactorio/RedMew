@@ -167,7 +167,7 @@ Global.register(
         death_count = tbl.death_count
         c_index = tbl.c_index
         dead_robot_count = tbl.dead_robot_count
-        popup_timeout = popup_timeout
+        popup_timeout = tbl.popup_timeout
     end
 )
 
