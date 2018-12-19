@@ -1,5 +1,7 @@
 local Event = require 'utils.event'
 local Map = require 'map_gen.combined.tetris.shape'
+local Token = require 'utils.token'
+local Task = require 'utils.schedule'
 local Tetrimino = require 'map_gen.combined.tetris.tetrimino'(Map)
 local View = require 'map_gen.combined.tetris.view'
 local Global = require 'utils.global'
@@ -76,19 +78,41 @@ end
 
 local function tetrimino_finished(tetri)
     spawn_new_tetrimino()
-    game.print("finished")
 end
 
-Event.on_nth_tick(121, function() 
+
+tick = Token.register(
+    function()
+        for key, tetri in pairs(tetriminos) do 
+            if not Tetrimino.move(tetri, 0, 1) then 
+                tetrimino_finished(tetri)
+                tetriminos[key] = nil
+            end
+        end
+    end
+)
+
+
+Event.on_nth_tick(121, function()
+    if #tetriminos == 0 then 
+        spawn_new_tetrimino()
+    end
+    Task.set_timeout_in_ticks(16, tick)
+
     for key, tetri in pairs(tetriminos) do 
-        if not Tetrimino.move(tetri, 0, 1) then 
-            tetrimino_finished(tetri)
-            tetriminos[key] = nil
+        if winner_index == 1 then 
+            Tetrimino.rotate(tetri)
+        elseif winner_index == 2 then 
+            Tetrimino.rotate(tetri, true)
+        elseif winner_index == 3 then 
+            Tetrimino.move(tetri, -1, 0)
+        elseif winner_index == 4 then 
+            Tetrimino.move(tetri, 1, 0)
         end
     end
 end)
 
-Event.add(defines.events.on_player_left_game, function(event) 
+Event.add(defines.events.on_player_left_game, function(event)
     player_votes[event.player_index] = nil
 end)
 
