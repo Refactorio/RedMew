@@ -22,7 +22,7 @@ Event.add(defines.events.on_console_command, function (event)
             if event.player_index then
                 print = Game.get_player_by_index(event.player_index).print
             end
-            print(string.format('Warning! Usage of the command /"%s" is deprecated. Please use "%s" instead.', event.command, alternative))
+            print(string.format('Warning! Usage of the command "/%s" is deprecated. Please use "%s" instead.', event.command, alternative))
         end
     end
 )
