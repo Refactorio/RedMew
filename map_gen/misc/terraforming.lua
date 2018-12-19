@@ -198,7 +198,8 @@ local on_popup_timeout_complete =
 --- Kills buildings that are not on creep tiles
 -- @param entity LuaEntity to kill
 -- @param event or false - whether the entity is coming from a build event
-local function kill_invalid_builds(entity, event)
+local function kill_invalid_builds(event)
+    local entity = event.created_entity
     if not (entity and entity.valid) then
         return
     end
@@ -237,8 +238,9 @@ local function kill_invalid_builds(entity, event)
         entity.die()
         force.ghost_time_to_live = ttl
         death_count[1] = death_count[1] + 1
-        if event and last_user and last_user.connected and not popup_timeout[last_user.name] then
-            Popup.player(Game.get_player_by_index(event.player_index), popup_message)
+        -- checking for event.tick is a cheap way to see if it's an actual event or if the event data came from check_chunk_for_entities
+        if event.tick and last_user and last_user.connected and not popup_timeout[last_user.name] then
+            Popup.player(last_user, popup_message)
             popup_timeout[last_user.name] = true
             Task.set_timeout(60, on_popup_timeout_complete, last_user.name)
         end
@@ -256,7 +258,7 @@ local function check_chunk_for_entities(chunk)
         force = creep_force
     }
     for _, entity in pairs(entities_found) do
-        kill_invalid_builds(entity, false)
+        kill_invalid_builds({['created_entity'] = entity})
     end
 end
 
@@ -358,12 +360,6 @@ local function print_death_recap()
     end
 end
 
---- Send newly built entities on to kill_invalid_builds
-local function check_on_built(event)
-    local entity = event.created_entity
-    kill_invalid_builds(entity, event)
-end
-
 --- Apply penalties for being away from creep
 local function apply_penalties(p, c)
     for boost in pairs(boosts) do
@@ -453,8 +449,8 @@ end
 
 Event.add(defines.events.on_tick, on_tick)
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)
-Event.add(defines.events.on_built_entity, check_on_built)
-Event.add(defines.events.on_robot_built_entity, check_on_built)
+Event.add(defines.events.on_built_entity, kill_invalid_builds)
+Event.add(defines.events.on_robot_built_entity, kill_invalid_builds)
 Event.add(defines.events.on_player_built_tile, check_on_tile_built)
 Event.add(defines.events.on_robot_built_tile, check_on_tile_built)
 Event.on_nth_tick(death_recap_timer, print_death_recap)
