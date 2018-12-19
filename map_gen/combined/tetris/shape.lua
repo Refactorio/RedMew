@@ -372,14 +372,12 @@ function Module.spawn_tetri(surface, pos, number)
             end
         end
     end
- 
     surface.set_tiles(tiles)
 end
 
 
 Module.disable = function()
     tetriminos = {}
-
 end
 
 Module.get_map = function()
