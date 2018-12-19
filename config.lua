@@ -1,12 +1,13 @@
 _DEBUG = false
 _CHEATS = false
+local market_item = 'coin'
 
 global.config = {
     map_info = {
         -- The title of the map
         map_name_key = 'This Map has no name',
         -- The long description of the map, typically 1 paragraph
-        map_description_key = "By default this section is blank as it's supposed to be filled out on a per map basis. (If you're seeing this message, ping the admin team to get a description added for this map)",
+        map_description_key = "This section is supposed to be filled out on a per map basis. If you're seeing this message, ping the admin team to get a description added for this map. A 20 coin bonus is available to the first person to point this out.",
         -- The feature list of the map
         map_extra_info_key = 'This map has no extra information',
         -- New Scenario Features, appears in the "What's new" tab
@@ -48,7 +49,7 @@ global.config = {
     -- adds a fish market
     fish_market = {
         enabled = true,
-        market_item = 'coin',
+        market_item = market_item,
     },
     -- adds anti-nuke griefing
     nuke_control = {
@@ -76,6 +77,7 @@ global.config = {
     mentions = {
         enabled = true,
     },
+    -- settings for when a player joins the server for the first time
     player_create = {
         enabled = true,
         -- items automatically inserted into the player inventory
@@ -147,6 +149,14 @@ global.config = {
             ['medium-worm-turret'] = {['small-biter'] = 2.5, ['medium-biter'] = 0.6},
             ['big-worm-turret'] = {['small-biter'] = 3.8, ['medium-biter'] = 1.3, ['big-biter'] = 1.1},
         },
+    },
+    -- grants reward coins for certain actions
+    player_rewards = {
+        enabled = true,
+        -- the token to use for rewards
+        token = market_item,
+        -- rewards players for looking through the info tabs
+        info_player_reward = true,
     },
     -- automatically marks miners for deconstruction when they are depleted (currently compatible with hard mods that add miners)
     autodeconstruct = {
