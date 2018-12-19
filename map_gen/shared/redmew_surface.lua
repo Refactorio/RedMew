@@ -21,7 +21,7 @@ Global.register(
     end
 )
 
-Public.map_gen_settings = map_gen_settings_presets.no_cliffs
+Public.map_gen_settings = map_gen_settings_presets.redmew_default
 Public.map_settings = map_settings_presets.default
 Public.difficulty_settings = difficulty_settings_presets.default
 
@@ -32,36 +32,46 @@ end
 
 --- Creates a new surface with the name 'redmew'
 local create_redmew_surface = function()
-    local surface = game.create_surface(Public.surface_name, Public.map_gen_settings)
+    local surface
 
-    for k, v in pairs(Public.difficulty_settings) do
-        game.difficulty_settings[k] = v
+    if global.config.redmew_surface.map_gen_settings then
+        surface = game.create_surface(Public.surface_name, Public.map_gen_settings)
+    else
+        surface = game.create_surface(Public.surface_name)
     end
 
-    for k, v in pairs(Public.map_settings.pollution) do
-        game.map_settings.pollution[k] = v
+    if global.config.redmew_surface.difficulty then
+        for k, v in pairs(Public.difficulty_settings) do
+            game.difficulty_settings[k] = v
+        end
     end
-    for k, v in pairs(Public.map_settings.enemy_evolution) do
-        game.map_settings.enemy_evolution[k] = v
-    end
-    for k, v in pairs(Public.map_settings.enemy_expansion) do
-        game.map_settings.enemy_expansion[k] = v
-    end
-    for k, v in pairs(Public.map_settings.unit_group) do
-        game.map_settings.unit_group[k] = v
-    end
-    for k, v in pairs(Public.map_settings.steering.default) do
-        game.map_settings.steering.default[k] = v
-    end
-    for k, v in pairs(Public.map_settings.steering.moving) do
-        game.map_settings.steering.moving[k] = v
-    end
-    for k, v in pairs(Public.map_settings.path_finder) do
-        game.map_settings.path_finder[k] = v
-    end
-    game.map_settings.max_failed_behavior_count = Public.map_settings.max_failed_behavior_count
 
-    surface.request_to_generate_chunks({0,0}, 4)
+    if global.config.redmew_surface.map_settings then
+        for k, v in pairs(Public.map_settings.pollution) do
+            game.map_settings.pollution[k] = v
+        end
+        for k, v in pairs(Public.map_settings.enemy_evolution) do
+            game.map_settings.enemy_evolution[k] = v
+        end
+        for k, v in pairs(Public.map_settings.enemy_expansion) do
+            game.map_settings.enemy_expansion[k] = v
+        end
+        for k, v in pairs(Public.map_settings.unit_group) do
+            game.map_settings.unit_group[k] = v
+        end
+        for k, v in pairs(Public.map_settings.steering.default) do
+            game.map_settings.steering.default[k] = v
+        end
+        for k, v in pairs(Public.map_settings.steering.moving) do
+            game.map_settings.steering.moving[k] = v
+        end
+        for k, v in pairs(Public.map_settings.path_finder) do
+            game.map_settings.path_finder[k] = v
+        end
+        game.map_settings.max_failed_behavior_count = Public.map_settings.max_failed_behavior_count
+    end
+
+    surface.request_to_generate_chunks({0, 0}, 4)
     surface.force_generate_chunk_requests()
 end
 
@@ -77,23 +87,25 @@ end
 
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
-    local surface =  game.surfaces[Public.surface_name]
+    local surface = game.surfaces[Public.surface_name]
     local spawn_coords
 
-    local pos = surface.find_non_colliding_position('player', {0,0}, 50, 1)
+    local pos = surface.find_non_colliding_position('player', {0, 0}, 50, 1)
     if pos and not first_player_position_check_override[1] then
         player.teleport(pos, surface)
         spawn_coords = pos
     else
         -- if there's no position available within range or a map needs players at 0,0: create an island and place the player there
-        surface.set_tiles({
-            {name = 'lab-white', position = {-1, -1}},
-            {name = 'lab-white', position = {-1, 0}},
-            {name = 'lab-white', position = {0, -1}},
-            {name = 'lab-white', position = {0, 0}},
-        })
-        player.teleport({0,0}, surface)
-        spawn_coords = {0,0}
+        surface.set_tiles(
+            {
+                {name = 'lab-white', position = {-1, -1}},
+                {name = 'lab-white', position = {-1, 0}},
+                {name = 'lab-white', position = {0, -1}},
+                {name = 'lab-white', position = {0, 0}}
+            }
+        )
+        player.teleport({0, 0}, surface)
+        spawn_coords = {0, 0}
         first_player_position_check_override[1] = false
     end
     game.forces.player.set_spawn_position(spawn_coords, surface)

@@ -10,6 +10,8 @@ local math = require 'utils.math'
 local degrees = math.degrees
 local ScenarioInfo = require 'features.gui.info'
 local RS = require 'map_gen.shared.redmew_surface'
+local map_gen_settings_presets = require 'resources.map_gen_settings'
+
 
 -- Comment out this block if you're getting scenario info from another source.
 ScenarioInfo.set_map_name('Crashsite')
@@ -17,6 +19,8 @@ ScenarioInfo.set_map_description('Capture outposts and defend against the biters
 ScenarioInfo.set_map_extra_info(
     '- Outposts have enemy turrets defending them.\n- Outposts have loot and provide a steady stream of resources.\n- Outpost markets with different resources and at prices.\n- Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.\n- Biters have more health and deal more damage.'
 )
+
+RS.map_gen_settings = map_gen_settings_presets.no_cliff_ore
 
 -- leave seeds nil to have them filled in based on teh map seed.
 local outpost_seed = nil --91000
