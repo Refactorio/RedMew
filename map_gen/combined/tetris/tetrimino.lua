@@ -210,7 +210,6 @@ function Module.rotate(self, reverse)
                 (target.x ~= x or target.y ~= y) and --Do not rotate identity
                 old_collision_box[y][x] == 1 --check for existence
             then
-
                 local top_left_x = tetri_x + x * 16 - 16
                 local top_left_y = tetri_y + y * 16 - 16
                 local area = {{top_left_x, top_left_y},{tetri_x + x * 16 - 1, tetri_y + y * 16 - 1}}
@@ -260,7 +259,6 @@ worker = Token.register(
         end
     end
 )
-
 
 return function(map_input)
     Map = map_input
