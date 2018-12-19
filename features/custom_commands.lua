@@ -11,7 +11,21 @@ local Command = require 'utils.command'
 local format = string.format
 local ceil = math.ceil
 
---local Antigrief = require 'features.antigrief'
+local deprecated_command_alternatives = {
+    ['silent-command'] = 'sc'
+}
+
+Event.add(defines.events.on_console_command, function (event)
+        local alternative = deprecated_command_alternatives[event.command]
+        if alternative then
+            local print = log
+            if event.player_index then
+                print = Game.get_player_by_index(event.player_index).print
+            end
+            print(string.format('Warning! Usage of the command "/%s" is deprecated. Please use "%s" instead.', event.command, alternative))
+        end
+    end
+)
 
 --- Takes a target and teleports them to player. (admin only)
 local function invoke(cmd)
@@ -342,43 +356,6 @@ local function pool(cmd)
     end
 end
 
---[[ global.undo_warned_players = {}
-local function undo(cmd)
-    if (not game.player) or not game.player.admin then
-        Utils.cant_run(cmd.name)
-        return
-    end
-    if cmd.parameter and game.players[cmd.parameter] then
-        if
-            not global.undo_warned_players[game.player.index] or
-                global.undo_warned_players[game.player.index] ~= game.players[cmd.parameter].index
-         then
-            global.undo_warned_players[game.player.index] = game.players[cmd.parameter].index
-            game.player.print(
-                string.format(
-                    'Warning! You are about to remove %s entities and restore %s entities.',
-                    #Utils.find_entities_by_last_user(game.players[cmd.parameter], game.surfaces.nauvis),
-                    Antigrief.count_removed_entities(game.players[cmd.parameter])
-                )
-            )
-            game.player.print('To execute the command please run it again.')
-            return
-        end
-        Antigrief.undo(game.players[cmd.parameter])
-        game.print(string.format('Undoing everything %s did...', cmd.parameter))
-        global.undo_warned_players[game.player.index] = nil
-    else
-        Game.player_print('Usage: /undo <player>')
-    end
-end
-
-local function antigrief_surface_tp()
-    if (not game.player) or not game.player.admin then
-        Utils.cant_run(cmd.name)
-        return
-    end
-    Antigrief.antigrief_surface_tp()
-end ]]
 --- Creates an alert for the player at the location of their target
 local function find_player(cmd)
     local player = game.player
