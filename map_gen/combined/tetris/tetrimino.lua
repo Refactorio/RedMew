@@ -55,12 +55,13 @@ local collision_boxes = {
 local worker = nil
 local move_queue = Queue.new()
 
-Global.register({
-    move_queue,
-},
-function(tbl)
-    move_queue = tbl.move_queue
-end
+Global.register(
+    {
+        move_queue = move_queue,
+    },
+    function(tbl)
+       move_queue = tbl.move_queue
+    end
 )
 
 local function collides(self, collision_box, x_steps, y_steps)
@@ -141,7 +142,7 @@ function Module.move(self, x_direction, y_direction)
     local surface = self.surface
     local position = self.position
     local collision_box = self.collision_box
-    if collides(self, collision_box, x_direction, y_direction) then return end
+    if collides(self, collision_box, x_direction, y_direction) then return false end
     local tetri_x = position.x
     local tetri_y = position.y
     if y_direction == 1 then
@@ -164,6 +165,7 @@ function Module.move(self, x_direction, y_direction)
     position.y = tetri_y + 16 * y_direction
     position.x = tetri_x + 16 * x_direction
     Task.set_timeout_in_ticks(1, worker)
+    return true
 end
 
 function rotate_collision_box(collision_box, reverse)
@@ -180,7 +182,7 @@ function rotate_collision_box(collision_box, reverse)
         for y = 1, 4 do 
             for x = 1, 4 do
                 new_collision_box[y][x] = collision_box[x][5 - y]
-                transformation[y][5 - x] = {x = x, y = y}
+                transformation[x][5 - y] = {x = x, y = y}
             end
         end
     end
@@ -227,17 +229,18 @@ function Module.rotate(self, reverse)
 
     surface.set_tiles(tiles)
 
-    self.collision_box = new_collision_box --Is this desync save? I think i need a deep copy
+    self.collision_box = new_collision_box
 end
 
-function Module.new(surface, position, number)
+function Module.new(surface, position)
+    local number = math.random(7)
     local self = table.deepcopy(Module) -- construct()
     self.position = {x = position.x - 32, y = position.y - 32}
     self.surface = surface
     self.collision_box = collision_boxes[number]
     self.collision_boxes = nil --save space :)
 
-    Map.spawn_tetri(position, number)
+    Map.spawn_tetri(surface, position, number)
 
     return self
 end

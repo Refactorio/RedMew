@@ -360,9 +360,8 @@ local bounds = t_width * 2
  
 local Module = {}
 
-function Module.spawn_tetri(pos, number)
+function Module.spawn_tetri(surface, pos, number)
     local tiles = {}
-    local surface = game.player.surface
     local shape = tetriminos[number]
  
     for x = -bounds, bounds do
