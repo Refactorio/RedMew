@@ -717,6 +717,8 @@ Gui.on_custom_close(
     end
 )
 
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
+
 local Public = {}
 
 function Public.show_info(player)

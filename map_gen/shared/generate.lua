@@ -1,4 +1,4 @@
-local Task = require 'utils.Task'
+local Task = require 'utils.schedule'
 local Token = require 'utils.token'
 local Event = require 'utils.event'
 

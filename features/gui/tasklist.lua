@@ -1065,6 +1065,8 @@ Gui.on_click(
     end
 )
 
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
+
 commands.add_command(
     'task',
     '<task> - Creates a new task (Admins and regulars only).',

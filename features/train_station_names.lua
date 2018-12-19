@@ -1,5 +1,19 @@
 local Event = require 'utils.event'
 
+local function pick_name(event)
+    -- Create a weight table comprised of the backer name, a player's name, and a regular's name
+    local random_player = table.get_random(game.players, true)
+    if not random_player then
+        return
+    end
+    local name_table = {
+        {event.created_entity.backer_name, 8},
+        {random_player.name, 1},
+        {table.get_random(global.regulars, false, true), 1},
+    }
+    return table.get_random_weighted(name_table)
+end
+
 local function player_built_entity(event)
     local entity = event.created_entity
     if not entity or not entity.valid then
@@ -7,11 +21,7 @@ local function player_built_entity(event)
     end
 
     if entity.name == 'train-stop' then
-        local y = math.random(1, 3)
-        if y ~= 1 then
-            local player = table.get_random(game.players, true)
-            event.created_entity.backer_name = player.name
-        end
+        event.created_entity.backer_name = pick_name(event) or event.created_entity.backer_name
     end
 end
 

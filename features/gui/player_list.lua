@@ -758,3 +758,5 @@ Gui.on_click(
         end
     end
 )
+
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)

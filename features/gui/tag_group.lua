@@ -656,6 +656,8 @@ Gui.on_custom_close(
     end
 )
 
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
+
 Event.add(defines.events.on_player_joined_game, player_joined)
 
 local function tag_command(cmd)

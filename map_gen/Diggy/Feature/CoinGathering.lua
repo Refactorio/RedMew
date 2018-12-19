@@ -76,6 +76,8 @@ local function on_player_created(event)
     })
 end
 
+Gui.allow_player_to_toggle_top_element_visibility('Diggy.CoinGathering.Button')
+
 Gui.on_click('Diggy.CoinGathering.Button', toggle)
 Gui.on_custom_close('Diggy.CoinGathering.Frame', function (event)
     event.element.destroy()
@@ -115,6 +117,7 @@ function CoinGathering.register(config)
         end
     end)
 
+    local treasure_chest_noise_threshold = config.treasure_chest_noise_threshold
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.position
         local x = position.x
@@ -126,7 +129,7 @@ function CoinGathering.register(config)
 
         local surface = event.surface
 
-        if get_noise(surface, x, y) < config.treasure_chest_noise_threshold then
+        if get_noise(surface, x, y) < treasure_chest_noise_threshold then
             return
         end
 
@@ -204,7 +207,7 @@ function CoinGathering.register(config)
             for x = area.left_top.x, area.left_top.x + 31 do
                 local sq_x = x * x
                 for y = area.left_top.y, area.left_top.y + 31 do
-                    if sq_x + y * y >= distance_required and get_noise(surface, x, y) >= config.treasure_chest_noise_threshold then
+                    if sq_x + y * y >= distance_required and get_noise(surface, x, y) >= treasure_chest_noise_threshold then
                         Debug.print_grid_value('chest', surface, {x = x, y = y}, nil, nil, true)
                     end
                 end
