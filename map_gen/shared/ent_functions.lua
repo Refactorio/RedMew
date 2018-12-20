@@ -1,3 +1,5 @@
+-- luacheck: ignore
+-- This file is a linting disaster and needs an overhaul
 local RS = require 'map_gen.shared.redmew_surface'
 --allows any gen to access these functions
 

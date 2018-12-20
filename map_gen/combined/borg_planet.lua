@@ -1,3 +1,5 @@
+-- luacheck: ignore
+-- This file is a linting disaster and needs an overhaul
 --Author: MewMew
 -- !! ATTENTION !!
 -- Use water only in starting area as map setting!!!
