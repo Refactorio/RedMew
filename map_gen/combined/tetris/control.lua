@@ -8,7 +8,6 @@ local Global = require 'utils.global'
 local Game = require 'utils.game'
 local Debug = require 'map_gen.Diggy.Debug'
 
-
 local tetriminos = {}
 local states = {
     normal = 1,
@@ -108,7 +107,6 @@ local function player_vote(player, option_index)
     calculate_winner()
 end
 
-
 for option_index, option in pairs(options) do
     View.bind_button(
         View.button_uids[option.button_name_key],
@@ -130,7 +128,7 @@ View.bind_button(
         local zoom = player_zoom[player.index] or 1
         if zoom == 1 then
             zoom = 0.13
-        else 
+        else
             zoom = 1
         end
         player.zoom = zoom
@@ -172,7 +170,6 @@ local function tetrimino_finished(tetri)
 
     spawn_new_tetrimino()
 end
-
 
 chart_area = Token.register(
     function(data)
@@ -252,4 +249,8 @@ Event.add(defines.events.on_player_left_game, function(event)
     player_votes[event.player_index] = nil
 end)
 
+Event.add(defines.events.on_player_created, function(event)
+    local player = Game.get_player_by_index(event.player_index)
+    player.teleport{8,8}
+end)
 return Map.get_map()

@@ -23,7 +23,6 @@ Module.button_uids = button_uids
 local votes = {}
 local primitives = {next_move = ""}
 
-
 Global.register(
     {
         votes = votes,
@@ -34,7 +33,6 @@ Global.register(
         primitives = tbl.primitives
     end
 )
-
 
 local function toggle(player)
     local left = player.gui.left
@@ -64,7 +62,6 @@ local function toggle(player)
         upper_b_f.add{type = 'sprite-button', name = button_uids.clear_button_name, sprite = 'utility/trash_bin'}
         upper_b_f.add{type = 'sprite-button', name = button_uids.cw_button_name, sprite = 'utility/hint_arrow_right'}
 
-
         lower_b_f.add{type = 'sprite-button', name = button_uids.left_button_name, sprite = 'utility/left_arrow'}
         lower_b_f.add{type = 'sprite-button', name = button_uids.down_button_name, sprite = 'utility/speed_down'}
         lower_b_f.add{type = 'sprite-button', name = button_uids.right_button_name, sprite = 'utility/right_arrow'}
@@ -86,8 +83,6 @@ end
 
 local function player_joined(event)
     local player = Game.get_player_by_index(event.player_index)
-
-    player.character = nil
 
     if player.gui.top[main_button_name] ~= nil then
         return
