@@ -17,6 +17,8 @@ require 'utils.table'
 local Random = require 'map_gen.shared.random'
 local random = Random.new(ore_seed1, ore_seed2)
 
+local enable_sand_border = false
+
 local function value(base, mult, pow)
     return function(x, y)
         local d_sq = x * x + y * y
@@ -348,11 +350,12 @@ end
 
 border_bounds = b.subtract(border_bounds, sea_bounds)
 local border = b.change_tile(border_bounds, true, 'sand-1')
-map = b.add(map, border)
+if enable_sand_border then
+    map = b.add(map, border)
+end
 local music_island = b.translate(b.rotate(tet_I,degrees(90)),0, 2*t_width)
 map = b.add(map,music_island)
-map = b.translate(map, 0, -t_width / 2 + 8)
-
+map = b.translate(map, 0, -t_width / 2 + 24)
 
 map = b.apply_effect(map, no_resources)
 
@@ -387,7 +390,6 @@ function Module.spawn_tetri(surface, pos, number)
         surface.create_entity(e)
     end
 end
-
 
 Module.disable = function()
     tetriminos = {}
