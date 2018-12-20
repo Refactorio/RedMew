@@ -1,4 +1,4 @@
-Module = {}
+local Module = {}
 
 local Token = require 'utils.token'
 local Task = require 'utils.schedule'
@@ -189,6 +189,17 @@ function rotate_collision_box(collision_box, reverse)
     return new_collision_box, transformation
 end
 
+function Module.bottom_position(self)
+    local collision_box = self.collision_box
+    for y = 3,4 do
+        local row = collision_box[y]
+        if math.max(row[1], row[2], row[3], row[4], 0) == 0 then
+            return y - 1
+        end
+    end
+    return 4
+end
+
 function Module.rotate(self, reverse)
     local new_collision_box, transformation = rotate_collision_box(self.collision_box, reverse)
     if collides(self, new_collision_box, 0, 0) then return end
@@ -238,7 +249,7 @@ end
 function Module.new(surface, position)
     local number = math.random(7)
     local self = table.deepcopy(Module) -- construct()
-    self.position = {x = position.x - 32, y = position.y - 32}
+    self.position = {x = position.x - 32, y = position.y - 32}   
     self.surface = surface
     self.collision_box = collision_boxes[number]
     self.collision_boxes = nil --save space :)
