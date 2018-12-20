@@ -238,6 +238,7 @@ function Module.new(surface, position)
     self.surface = surface
     self.collision_box = collision_boxes[number]
     self.collision_boxes = nil --save space :)
+    self.number = number
 
     Map.spawn_tetri(surface, position, number)
 

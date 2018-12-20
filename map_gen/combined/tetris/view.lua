@@ -10,6 +10,7 @@ local main_frame_name = Gui.uid_name()
 
 local button_uids = {
     ['ccw_button_name'] = Gui.uid_name(),
+    ['clear_button_name'] = Gui.uid_name(),
     ['cw_button_name'] = Gui.uid_name(),
     ['left_button_name'] = Gui.uid_name(),
     ['down_button_name'] = Gui.uid_name(),
@@ -59,7 +60,7 @@ local function toggle(player)
         local lower_b_f = main_frame.add {type = 'flow', direction = 'horizontal'}
 
         upper_b_f.add {type = 'sprite-button', name = button_uids.ccw_button_name, sprite = 'utility/hint_arrow_left'}
-        upper_b_f.add {type = 'sprite-button', name = 'dasdsa', caption = ''}
+        upper_b_f.add {type = 'sprite-button', name = button_uids.clear_button_name}
         upper_b_f.add {type = 'sprite-button', name = button_uids.cw_button_name, sprite = 'utility/hint_arrow_right'}
 
 

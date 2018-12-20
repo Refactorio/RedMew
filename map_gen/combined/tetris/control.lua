@@ -28,27 +28,23 @@ local options = {
         action_func_name = 'rotate',
         args = {false},
         transition = 1,
-    },
-    {
+    },{
         name = 'Rotate counter clockwise',
         button_name_key = 'cw_button_name',
         action_func_name = 'rotate',
         args = {true},
         transition = 1,
-    },
-    {
+    },{
         name = 'Move left',
         button_name_key = 'left_button_name',
         action_func_name = 'move',
         args = {-1, 0},
         transition = 1,
-    },
-    {
+    },{
         name = 'Drop',
         button_name_key = 'down_button_name',
         transition = 2,
-    },
-    {
+    },{
         name = 'Move right',
         button_name_key = 'right_button_name',
         action_func_name = 'move',
@@ -81,6 +77,11 @@ local function calculate_winner()
 
     local winners = {}
     local max = math.max(vote_sum[1], vote_sum[2], vote_sum[3], vote_sum[4], vote_sum[5])
+    if max == 0 then 
+        Debug.print('No votes')
+        View.set_next_move('None')
+        return
+    end
     for candidate, n_votes in ipairs(vote_sum) do
         if max == n_votes then
             table.insert(winners, candidate)
@@ -94,9 +95,13 @@ local function calculate_winner()
 end
 
 local function player_vote(player, option_index)
-    Debug.print(player.name .. " voted for " .. options[option_index].name)
     player_votes[player.index] = option_index
-    View.set_player_vote(player, options[option_index].name)
+    local vote_name = 'None'
+    if option_index then
+        vote_name =  options[option_index].name
+    end
+    Debug.print(player.name .. ' voted for ' .. vote_name)
+    View.set_player_vote(player, vote_name)
     calculate_winner()
 end
 
@@ -109,6 +114,14 @@ for option_index, option in pairs(options) do
         end
     )
 end
+
+
+View.bind_button(
+    View.button_uids.clear_button_name,
+    function(player)
+        player_vote(player, nil) -- Clear player vote
+    end
+)
 
 function spawn_new_tetrimino()
     table.insert(tetriminos, Module.new(game.surfaces.nauvis, {x = 0, y = primitives.tetri_spawn_y_position}))
