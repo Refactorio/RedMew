@@ -179,7 +179,7 @@ global.config = {
         enabled = true,
     },
     -- logs when commands are used and when items are spawned in
-    free_item_loggin = {
+    free_item_logging = {
         enabled = true,
     },
     player_colors = {

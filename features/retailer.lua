@@ -1,3 +1,4 @@
+require 'utils.table'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Event = require 'utils.event'
@@ -5,11 +6,15 @@ local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local math = require 'utils.math'
 local format = string.format
-local concat = table.concat
+local size = table.size
+local insert = table.insert
+local pairs = pairs
+local tonumber = tonumber
 local clamp = math.clamp
 local floor = math.floor
 local ceil = math.ceil
 local market_frame_name = Gui.uid_name()
+local market_frame_close_button_name = Gui.uid_name()
 local item_button_name = Gui.uid_name()
 local count_slider_name = Gui.uid_name()
 local count_text_name = Gui.uid_name()
@@ -22,6 +27,7 @@ local Retailer = {}
 local memory = {
     markets = {},
     items = {},
+    group_label = {},
 }
 
 Global.register({
@@ -29,6 +35,13 @@ Global.register({
 }, function (tbl)
     memory = tbl.memory
 end)
+
+---Sets the name of the market group, provides a user friendly label in the GUI.
+---@param group_name string
+---@param label string
+function Retailer.set_market_group_label(group_name, label)
+    memory.group_label[group_name] = label
+end
 
 ---Returns all item for the group_name retailer.
 ---@param group_name string
@@ -54,53 +67,74 @@ local function redraw_market_items(data)
 
     local count = data.count
     local market_items = data.market_items
+    local player_coins = data.player_coins
+
+    if size(market_items) == 0 then
+        grid.add({type = 'label', caption = 'No items available at this time'})
+        return
+    end
 
     for i, item in pairs(market_items) do
-        local name = item.name
         local price = item.price
+        local tooltip = {'', item.name_label, format('\nprice: %d', price)}
+        local description = item.description
+        local total_price = ceil(price * count)
+        local message
+        if total_price == 1 then
+            message = '1 coin'
+        else
+            message = total_price .. ' coins'
+        end
 
-        local price_per_item = format('%.2f', price)
+        local missing_coins = total_price - player_coins
+        local is_missing_coins = missing_coins > 0
+
+        if description then
+            insert(tooltip, '\n' .. item.description)
+        end
+
+        if is_missing_coins then
+            insert(tooltip, '\n\n' .. format('Missing %d coins to buy %d', missing_coins, count))
+        end
 
         local button = grid.add({type = 'flow'}).add({
             type = 'sprite-button',
             name = item_button_name,
-            sprite = 'item/' .. name,
+            sprite = item.sprite,
             number = count,
-            tooltip = concat({name, '  price: ', price_per_item})
+            tooltip = tooltip,
         })
         button.style = 'slot_button'
 
         Gui.set_data(button, {index = i, data = data})
 
-        local message = ceil(price * count)
-        if message == 1 then
-            message = message .. ' coin'
-        else
-            message = message .. ' coins'
-        end
-
         local label = grid.add({type = 'label', caption = message})
         local label_style = label.style
-        label_style.width = 80
+        label_style.width = 93
+        label_style.height = 38
         label_style.font = 'default-bold'
+
+        if is_missing_coins then
+            label_style.font_color = {r = 1, b = 0, g = 0}
+            button.enabled = false
+        end
     end
 end
 
-local function do_coin_label(player, label)
-    local coin_count = player.get_item_count('coin')
-
+local function do_coin_label(coin_count, label)
     if coin_count == 1 then
-        label.caption = coin_count .. ' coin available'
+        label.caption = '1 coin available'
     else
         label.caption = coin_count .. ' coins available'
     end
+    label.style.font = 'default-bold'
 end
 
 local function draw_market_frame(player, group_name)
     local frame = player.gui.center.add({
         type = 'frame',
         name = market_frame_name,
-        caption = 'Market',
+        caption = memory.group_label[group_name] or 'Market',
         direction = 'vertical',
     })
 
@@ -110,38 +144,39 @@ local function draw_market_frame(player, group_name)
 
     local grid = scroll_pane.add({type = 'table', column_count = 10})
 
-    local data = {
-        grid = grid,
-        count = 1,
-        market_items = Retailer.get_items(group_name),
-    }
+    local market_items = Retailer.get_items(group_name)
+    local player_coins = player.get_item_count('coin')
+    local data = {grid = grid, count = 1, market_items = market_items, player_coins = player_coins}
+
+    local coin_label = frame.add({type = 'label'})
+    do_coin_label(player_coins, coin_label)
+    data.coin_label = coin_label
 
     redraw_market_items(data)
 
-    local coin_label = frame.add({type = 'label'})
-    do_coin_label(player, coin_label)
-    coin_label.style.font = 'default-bold'
-    data.coin_label = coin_label
+    local bottom_grid = frame.add({type = 'table', column_count = 2})
 
-    local count_flow = frame.add({type = 'flow'})
+    bottom_grid.add({type = 'label', caption = 'Quantity'}).style.font = 'default-bold'
+    bottom_grid.add({type = 'label'})
 
-    local count_slider = count_flow.add({
+    local count_slider = bottom_grid.add({
         type = 'slider',
         name = count_slider_name,
         minimum_value = 1,
         maximum_value = 7,
         value = 1,
     })
-    local count_text = count_flow.add({
+
+    local count_text = bottom_grid.add({
         type = 'text-box',
         name = count_text_name,
         text = '1',
     })
 
+    frame.add({name = market_frame_close_button_name, type = 'button', caption = 'Close'})
+
     count_slider.style.width = 100
     count_text.style.width = 60
-
-    count_flow.add({type = 'label', caption = 'Quantity'}).style.font = 'default-bold'
 
     data.slider = count_slider
     data.text = count_text
@@ -178,18 +213,12 @@ Event.add(defines.events.on_gui_opened, function (event)
     player.opened = frame
 end)
 
-Gui.on_custom_close(market_frame_name, function(event)
+Gui.on_custom_close(market_frame_name, function (event)
     local element = event.element
     Gui.destroy(element)
 end)
 
-Event.add(defines.events.on_player_died, function(event)
-    local player = Game.get_player_by_index(event.player_index or 0)
-
-    if not player or not player.valid then
-        return
-    end
-
+local function close_market_gui(player)
     local element = player.gui.center
 
     if element and element.valid then
@@ -198,9 +227,23 @@ Event.add(defines.events.on_player_died, function(event)
             Gui.destroy(element)
         end
     end
+end
+
+Gui.on_click(market_frame_close_button_name, function (event)
+    close_market_gui(event.player)
 end)
 
-Gui.on_value_changed(count_slider_name, function(event)
+Event.add(defines.events.on_player_died, function (event)
+    local player = Game.get_player_by_index(event.player_index or 0)
+
+    if not player or not player.valid then
+        return
+    end
+
+    close_market_gui(player)
+end)
+
+Gui.on_value_changed(count_slider_name, function (event)
     local element = event.element
     local data = Gui.get_data(element)
 
@@ -218,7 +261,7 @@ Gui.on_value_changed(count_slider_name, function(event)
     redraw_market_items(data)
 end)
 
-Gui.on_text_changed(count_text_name, function(event)
+Gui.on_text_changed(count_text_name, function (event)
     local element = event.element
     local data = Gui.get_data(element)
 
@@ -236,7 +279,7 @@ Gui.on_text_changed(count_text_name, function(event)
     redraw_market_items(data)
 end)
 
-Gui.on_click(item_button_name, function(event)
+Gui.on_click(item_button_name, function (event)
     local player = event.player
     local element = event.element
     local button_data = Gui.get_data(element)
@@ -266,7 +309,10 @@ Gui.on_click(item_button_name, function(event)
     end
 
     player.remove_item({name = 'coin', count = cost})
-    do_coin_label(player, data.coin_label)
+    local player_coins = data.player_coins - cost
+    data.player_coins = player_coins
+    do_coin_label(player_coins, data.coin_label)
+    redraw_market_items(data)
     PlayerStats.change_coin_spent(player.index, cost)
 end)
 
@@ -286,7 +332,18 @@ function Retailer.set_item(group_name, prototype)
         memory.items[group_name] = {}
     end
 
-    memory.items[group_name][prototype.name] = prototype
+    local item_name = prototype.name
+    local name_label = prototype.name_label
+
+    if not name_label then
+        local item_prototype = game.item_prototypes[item_name]
+        name_label = item_prototype and item_prototype.localised_name
+    end
+
+    prototype.name_label = name_label or item_name
+    prototype.sprite = prototype.sprite or 'item/' .. item_name
+
+    memory.items[group_name][item_name] = prototype
 end
 
 return Retailer
