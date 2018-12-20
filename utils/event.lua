@@ -237,7 +237,7 @@ end
 -- @param  event_name<number>
 -- @param  func<function>
 function Event.add_removable_function(event_name, func)
-    if type(token) ~= 'function' then
+    if type(func) ~= 'function' then
         error('func must be a function', 2)
     end
 
@@ -336,7 +336,7 @@ end
 -- @param  event_name<number>
 -- @param  func<function>
 function Event.add_removable_nth_tick_function(tick, func)
-    if type(token) ~= 'function' then
+    if type(func) ~= 'function' then
         error('func must be a function', 2)
     end
 
