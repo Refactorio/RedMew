@@ -14,34 +14,48 @@ require 'features.player_create'
 require 'features.user_groups'
 
 -- Feature modules, each can be disabled safely
-if config.auto_deconstruct.enabled then
+if config.autodeconstruct.enabled then
     require 'features.autodeconstruct'
 end
 if config.hodor.enabled or config.auto_respond.enabled or config.mentions.enabled then
     require 'features.chat_triggers'
 end
-require 'features.corpse_util'
-require 'features.custom_commands'
-require 'features.donator_messages'
-require 'features.train_saviour'
+if config.corpse_util.enabled then
+    require 'features.corpse_util'
+end
+if config.custom_commands.enabled then
+    require 'features.custom_commands'
+end
+if config.donator_messages.enabled then
+    require 'features.donator_messages'
+end
+if config.train_saviour.enabled then
+    require 'features.train_saviour'
+end
 if config.fish_market.enabled then
     require 'features.fish_market'
 end
-require 'features.free_item_logging'
+if config.free_item_loggin.enabled then
+    require 'features.free_item_logging'
+end
 if config.nuke_control.enabled then
     require 'features.nuke_control'
 end
-require 'features.player_colors'
+if config.player_colors.enabled then
+    require 'features.player_colors'
+end
 if config.reactor_meltdown.enabled then
     require 'features.reactor_meltdown'
 end
-require 'features.train_station_names'
-require 'features.walkabout'
-
+if config.train_station_names.enabled then
+    require 'features.train_station_names'
+end
+if config.walkabout.enabled then
+    require 'features.walkabout'
+end
 if global.config.performance.enabled then
     require 'features.performance'
 end
-
 if global.config.hail_hydra.enabled then
     require 'features.hail_hydra'
 end
@@ -71,5 +85,9 @@ end
 if config.score.enabled then
     require 'features.gui.score'
 end
-require 'features.gui.popup'
-require 'features.gui.camera'
+if config.popup.enabled then
+    require 'features.gui.popup'
+end
+if config.camera.enabled then
+    require 'features.gui.camera'
+end

@@ -78,6 +78,7 @@ local function player_created(event)
     player_coin_spent[index] = 0
     player_crafted_items[index] = 0
     player_damage_taken[index] = 0
+    player_console_chats[index] = 0
     player_damage_dealt[index] = 0
     player_deaths[index] = {causes = {}, count = 0}
     total_players[1] = total_players[1] + 1

@@ -13,7 +13,7 @@ local pairs = pairs
 local perlin_noise = require 'map_gen.shared.perlin_noise'.noise
 local template_insert = Template.insert
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
-
+local on_entity_died = defines.events.on_entity_died
 -- this
 local SimpleRoomGenerator = {}
 
@@ -35,7 +35,7 @@ local do_mine = Token.register(function(params)
 
     for i = rock_count, 1, -1 do
         local rock = rocks[i]
-        raise_event(defines.events.on_entity_died, {entity = rock})
+        raise_event(on_entity_died, {entity = rock})
         rock.destroy()
     end
 end)
