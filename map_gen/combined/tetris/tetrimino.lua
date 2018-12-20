@@ -193,6 +193,10 @@ function Module.rotate(self, reverse)
     local new_collision_box, transformation = rotate_collision_box(self.collision_box, reverse)
     if collides(self, new_collision_box, 0, 0) then return end
 
+    if self.number == 2 then
+        game.print('You are a smart motherfucker, that\'s right.')
+    end
+
     local old_collision_box = self.collision_box
     local surface = self.surface
     local find_tiles_filtered = surface.find_tiles_filtered
