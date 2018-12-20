@@ -21,7 +21,7 @@ local on_pre_hidden_handlers = {}
 function Gui.uid_name()
     if _DEBUG then
         -- https://stackoverflow.com/questions/48402876/getting-current-file-name-in-lua
-        local filename = debug.getinfo(2, 'S').source:match('^.+/(.+)$'):sub(1, -5)
+        local filename = debug.getinfo(2, 'S').source:match('^.+/currently%-playing/(.+)$'):sub(1, -5)
         return filename .. ',' .. Token.uid()
     else
         return tostring(Token.uid())
