@@ -1,6 +1,7 @@
 -- dependencies
 local format = string.format
 local serialize = serpent.line
+local debug_getupvalue = debug.getupvalue
 
 -- this
 local Debug = {}
@@ -44,6 +45,15 @@ function Debug.cheat(callback)
     if _CHEATS then
         callback()
     end
+end
+
+--- Returns true if the function is a closure, false otherwise.
+-- A closure is a function that contains 'upvalues' or in other words
+-- has a reference to a local variable defined outside the function's scope.
+-- @param  func<function>
+-- @return boolean
+function Debug.is_closure(func)
+    return debug_getupvalue(func, 1)
 end
 
 return Debug
