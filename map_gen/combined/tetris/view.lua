@@ -69,7 +69,7 @@ local function toggle(player)
         
         main_frame.add {
             type = 'label',
-            caption = 'Your vote:  ' .. (votes[player.index] or 'none')
+            caption = 'Your vote:   ' .. (votes[player.index] or 'None')
         }
         
         main_frame.add {
@@ -81,9 +81,8 @@ end
 
 local function player_joined(event)
     local player = Game.get_player_by_index(event.player_index)
-    if not player or not player.valid then
-        return
-    end
+
+    player.character = nil
 
     if player.gui.top[main_button_name] ~= nil then
         return

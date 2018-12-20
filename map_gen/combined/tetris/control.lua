@@ -10,10 +10,15 @@ local Debug = require 'map_gen.Diggy.Debug'
 
 
 local tetriminos = {}
-local primitives = {
+local states = {
+    normal = 1,
+    drop = 2,
+    pause = 3,
+}
+primitives = {
     tetri_spawn_y_position = -160, 
     winner_option_index = 0,
-    mode = 1 -- 1 == normal, 2 == going down
+    state = states.normal
 }
 local player_votes = {}
 local options = {
@@ -22,30 +27,33 @@ local options = {
         button_name_key = 'ccw_button_name',
         action_func_name = 'rotate',
         args = {false},
+        transition = 1,
     },
     {
         name = 'Rotate counter clockwise',
         button_name_key = 'cw_button_name',
         action_func_name = 'rotate',
         args = {true},
+        transition = 1,
     },
     {
         name = 'Move left',
         button_name_key = 'left_button_name',
         action_func_name = 'move',
         args = {-1, 0},
+        transition = 1,
     },
     {
         name = 'Drop',
         button_name_key = 'down_button_name',
-        action_func_name = 'move',
-        args = {0, 0}, -- Do nothing :D
+        transition = 2,
     },
     {
         name = 'Move right',
         button_name_key = 'right_button_name',
         action_func_name = 'move',
         args = {1, 0},
+        transition = 1,
     },
 }
 
@@ -63,12 +71,13 @@ Global.register(
 )
 
 local function calculate_winner()
+    if primitives.state == states.drop then 
+        return --Halt vote if in drop mode
+    end 
     local vote_sum = {0,0,0,0,0}
     for _, vote in ipairs(player_votes) do 
         vote_sum[vote] = vote_sum[vote] + 1
     end
-    
-    Debug.print(serpent.line(vote_sum))
 
     local winners = {}
     local max = math.max(vote_sum[1], vote_sum[2], vote_sum[3], vote_sum[4], vote_sum[5])
@@ -81,7 +90,7 @@ local function calculate_winner()
     primitives.winner_option_index = winner_option_index
     local winner = options[winner_option_index].name
     View.set_next_move(winner)
-    Debug.print("Calculated winner: " .. winner)
+    Debug.print('Calculated winner: ' .. winner)
 end
 
 local function player_vote(player, option_index)
@@ -111,6 +120,13 @@ local function tetrimino_finished(tetri)
         primitives.tetri_spawn_y_position = final_y_position - 176
         game.forces.player.chart(game.surfaces.nauvis, {{-192, final_y_position - 240},{160, final_y_position - 176}})
     end
+
+    if primitives.state == states.drop then
+        View.set_next_move('None')
+    end
+    primitives.state = states.normal
+    Debug.print('state ' .. primitives.state)
+
     spawn_new_tetrimino()
 end
 
@@ -133,26 +149,42 @@ move_down = Token.register(
 )
 
 global.pause = false
-global.speed = 5
-Event.on_nth_tick(61, function()
+global.speed = 2
 
-    Debug.print(debug.getinfo(2, 'S').source:match('^.+/(.+)$playing/(.+)$'))
-    if #tetriminos == 0 and game.tick < 500 and game.tick > 241 then 
-        game.forces.player.chart(game.surfaces.nauvis, {{-192, -304}, {160, 0}})
-        spawn_new_tetrimino()
+
+spawn_new_tetrimino_token = Token.register(spawn_new_tetrimino)
+Event.on_init(function() 
+    game.forces.player.chart(game.surfaces.nauvis, {{-192, -304}, {160, 0}})
+    Task.set_timeout_in_ticks(300, spawn_new_tetrimino_token)
+end)
+Event.on_nth_tick(61, function()
+    if 
+        primitives.state == states.pause or 
+        (
+            (game.tick % (610 / global.speed)) ~= 0 and 
+            primitives.state == states.normal
+        ) 
+    then
+        return
     end
-    if global.pause or (game.tick % (610 / global.speed)) ~= 0 then
+    
+    Task.set_timeout_in_ticks(16, move_down)
+
+    if primitives.state == states.drop then
         return
     end
 
-    Task.set_timeout_in_ticks(16, move_down)
-
-    for key, tetri in pairs(tetriminos) do --Move down
+    for key, tetri in pairs(tetriminos) do --Execute voted action
         local winner = options[primitives.winner_option_index]
         --Execute voted action
         if winner then
-            Tetrimino[winner.action_func_name](tetri, winner.args[1], winner.args[2])
+            local action = Tetrimino[winner.action_func_name]
+            if action then 
+                action(tetri, winner.args[1], winner.args[2])
+            end
+            primitives.state = winner.transition --Change system state
         end
+
         local pos = tetri.position
         Task.set_timeout_in_ticks(10, chart_area, {
             force = game.forces.player, 
@@ -165,11 +197,13 @@ Event.on_nth_tick(61, function()
     end
 
     primitives.winner_option_index = 0
-    View.set_next_move('none')
+    if primitives.state == states.normal then --Keep showing 'none if dropping'
+        View.set_next_move('None')
+    end
     for player_index, _ in ipairs(player_votes) do -- reset poll
         player_votes[player_index] = nil
         local player = Game.get_player_by_index(player_index)
-        View.set_player_vote(player, 'none')
+        View.set_player_vote(player, 'None')
     end
 end)
 
