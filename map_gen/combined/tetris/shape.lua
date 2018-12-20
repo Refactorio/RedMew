@@ -362,17 +362,30 @@ local Module = {}
 
 function Module.spawn_tetri(surface, pos, number)
     local tiles = {}
+    local entities = {}
     local shape = tetriminos[number]
- 
+
     for x = -bounds, bounds do
         for y = -bounds, bounds do
-            local name = shape(x + 0.5, y + 0.5)
+            local x2, y2 = x + 0.5, y + 0.5
+            local name = shape(x2, y2)
             if name then
-                table.insert(tiles, {name = name, position = {pos.x + x, pos.y + y}})
+                local position = {x = pos.x + x, y = pos.y + y}
+                table.insert(tiles, {name = name, position = position})
+
+                local ore = ores(x2, y2, position)
+                if ore then
+                    ore.position = position
+                    table.insert(entities, ore)
+                end
             end
         end
     end
     surface.set_tiles(tiles)
+
+    for _, e in ipairs(entities) do
+        surface.create_entity(e)
+    end
 end
 
 
