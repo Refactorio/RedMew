@@ -53,16 +53,19 @@ local options = {
     },
 }
 
+local player_zoom = {}
 Global.register(
     {
         tetriminos = tetriminos,
         primitives = primitives,
         player_votes = player_votes,
+        player_zoom = player_zoom,
     },
     function(tbl)
         tetriminos = tbl.tetriminos
         primitives = tbl.primitives
         player_votes = tbl.player_votes
+        player_zoom = tbl.player_zoom
     end
 )
 
@@ -118,6 +121,20 @@ View.bind_button(
     View.button_uids.clear_button_name,
     function(player)
         player_vote(player, nil) -- Clear player vote
+    end
+)
+
+View.bind_button(
+    View.button_uids.zoom_button_name,
+    function(player)
+        local zoom = player_zoom[player.index] or 1
+        if zoom == 1 then
+            zoom = 0.13
+        else 
+            zoom = 1
+        end
+        player.zoom = zoom
+        player_zoom[player.index] = zoom
     end
 )
 
