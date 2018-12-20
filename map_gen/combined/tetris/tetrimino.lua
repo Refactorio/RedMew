@@ -86,7 +86,7 @@ local function collides(self, collision_box, x_steps, y_steps)
                     local x_target = x_offset * 16 + c_x + 2 - 16
                     local y_target = y_offset * 16 + c_y + 2 - 16
                     local tile = surface.get_tile{x_target, y_target}
-                    if tile.name ~= "water" then 
+                    if not tile.valid or tile.name ~= "water" then
                         return true
                     end
                 end

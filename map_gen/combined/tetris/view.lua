@@ -12,7 +12,8 @@ local button_uids = {
     ['ccw_button_name'] = Gui.uid_name(),
     ['cw_button_name'] = Gui.uid_name(),
     ['left_button_name'] = Gui.uid_name(),
-    ['right_button_name'] = Gui.uid_name()
+    ['down_button_name'] = Gui.uid_name(),
+    ['right_button_name'] = Gui.uid_name(),
 }
 
 Module.button_uids = button_uids
@@ -58,14 +59,17 @@ local function toggle(player)
         local lower_b_f = main_frame.add {type = 'flow', direction = 'horizontal'}
 
         upper_b_f.add {type = 'sprite-button', name = button_uids.ccw_button_name, sprite = 'utility/hint_arrow_left'}
+        upper_b_f.add {type = 'sprite-button', name = 'dasdsa', caption = ''}
         upper_b_f.add {type = 'sprite-button', name = button_uids.cw_button_name, sprite = 'utility/hint_arrow_right'}
 
+
         lower_b_f.add {type = 'sprite-button', name = button_uids.left_button_name, sprite = 'utility/left_arrow'}
+        lower_b_f.add {type = 'sprite-button', name = button_uids.down_button_name, sprite = 'utility/speed_down'}
         lower_b_f.add {type = 'sprite-button', name = button_uids.right_button_name, sprite = 'utility/right_arrow'}
         
         main_frame.add {
             type = 'label',
-            caption = 'Your vote: ' .. (votes[player.index] or 'none')
+            caption = 'Your vote:  ' .. (votes[player.index] or 'none')
         }
         
         main_frame.add {
