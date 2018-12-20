@@ -6,11 +6,48 @@ local Tetrimino = require 'map_gen.combined.tetris.tetrimino'(Map)
 local View = require 'map_gen.combined.tetris.view'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
+local Debug = require 'map_gen.Diggy.Debug'
 
 
 local tetriminos = {}
-local primitives = {tetri_spawn_y_position = -160, winner_index = 0}
+local primitives = {
+    tetri_spawn_y_position = -160, 
+    winner_option_index = 0,
+    mode = 1 -- 1 == normal, 2 == going down
+}
 local player_votes = {}
+local options = {
+    {
+        name = 'Rotate counter clockwise',
+        button_name_key = 'ccw_button_name',
+        action_func_name = 'rotate',
+        args = {false},
+    },
+    {
+        name = 'Rotate counter clockwise',
+        button_name_key = 'cw_button_name',
+        action_func_name = 'rotate',
+        args = {true},
+    },
+    {
+        name = 'Move left',
+        button_name_key = 'left_button_name',
+        action_func_name = 'move',
+        args = {-1, 0},
+    },
+    {
+        name = 'Drop',
+        button_name_key = 'down_button_name',
+        action_func_name = 'move',
+        args = {0, 0}, -- Do nothing :D
+    },
+    {
+        name = 'Move right',
+        button_name_key = 'right_button_name',
+        action_func_name = 'move',
+        args = {1, 0},
+    },
+}
 
 Global.register(
     {
@@ -26,108 +63,118 @@ Global.register(
 )
 
 local function calculate_winner()
-    local vote_sum = {0,0,0,0}
+    local vote_sum = {0,0,0,0,0}
     for _, vote in ipairs(player_votes) do 
         vote_sum[vote] = vote_sum[vote] + 1
     end
     
+    Debug.print(serpent.line(vote_sum))
+
     local winners = {}
-    local max = math.max(vote_sum[1], vote_sum[2], vote_sum[3], vote_sum[4])
+    local max = math.max(vote_sum[1], vote_sum[2], vote_sum[3], vote_sum[4], vote_sum[5])
     for candidate, n_votes in ipairs(vote_sum) do
         if max == n_votes then
             table.insert(winners, candidate)
         end
     end
-    primitives.winner_index = winners[math.random(#winners)]
-    if primitives.winner_index == 1 then 
-        View.set_next_move("Rotate counter clockwise")
-    elseif primitives.winner_index == 2 then 
-        View.set_next_move("Rotate clockwise")
-    elseif primitives.winner_index == 3 then 
-        View.set_next_move("Move left")
-    elseif primitives.winner_index == 4 then 
-        View.set_next_move('Move right')
-    end
+    local winner_option_index = winners[math.random(#winners)]
+    primitives.winner_option_index = winner_option_index
+    local winner = options[winner_option_index].name
+    View.set_next_move(winner)
+    Debug.print("Calculated winner: " .. winner)
 end
 
-View.bind_button(View.button_uids.ccw_button_name, function(player)
-    player_votes[player.index] = 1
-    View.set_player_vote(player, 'Rotate counter clockwise')
+local function player_vote(player, option_index)
+    Debug.print(player.name .. " voted for " .. options[option_index].name)
+    player_votes[player.index] = option_index
+    View.set_player_vote(player, options[option_index].name)
     calculate_winner()
-end)
-View.bind_button(View.button_uids.cw_button_name, function(player)
-    player_votes[player.index] = 2
-    View.set_player_vote(player, 'Rotate clockwise')
-    calculate_winner()
-end)
-View.bind_button(View.button_uids.left_button_name, function(player)
-    player_votes[player.index] = 3
-    View.set_player_vote(player, 'Move left')
-    calculate_winner()
-end)
-View.bind_button(View.button_uids.right_button_name, function(player)
-    player_votes[player.index] = 4
-    View.set_player_vote(player, 'Move right')
-    calculate_winner()
-end)
+end
+
+
+for option_index, option in pairs(options) do 
+    View.bind_button(
+        View.button_uids[option.button_name_key],
+        function(player)
+            player_vote(player, option_index)
+        end
+    )
+end
 
 function spawn_new_tetrimino()
     table.insert(tetriminos, Module.new(game.surfaces.nauvis, {x = 0, y = primitives.tetri_spawn_y_position}))
-    primitives.tetri_spawn_y_position = primitives.tetri_spawn_y_position - 16
 end
 
 local function tetrimino_finished(tetri)
     local final_y_position = tetri.position.y
     if final_y_position < (primitives.tetri_spawn_y_position + 160) then
         primitives.tetri_spawn_y_position = final_y_position - 176
+        game.forces.player.chart(game.surfaces.nauvis, {{-192, final_y_position - 240},{160, final_y_position - 176}})
     end
     spawn_new_tetrimino()
 end
 
 
-tick = Token.register(
+chart_area = Token.register(
+    function(data) 
+        data.force.chart(data.surface, data.area)
+    end
+)
+
+move_down = Token.register(
     function()
-        primitives.winner_index = 0
-        View.set_next_move('none')
-        for player_index, _ in pairs(player_votes) do
-            player_votes[player_index] = nil
-            local player = Game.get_player_by_index(player_index)
-            View.set_player_vote(player, 'none')
+        for key, tetri in pairs(tetriminos) do
+            if not Tetrimino.move(tetri, 0, 1) then
+                tetrimino_finished(tetri) --If collided with ground fire finished event
+                tetriminos[key] = nil
+            end
         end
     end
 )
 
 global.pause = false
-Event.on_nth_tick(241, function()
-    if global.pause then return end
+global.speed = 5
+Event.on_nth_tick(61, function()
+
+    Debug.print(debug.getinfo(2, 'S').source:match('^.+/(.+)$playing/(.+)$'))
     if #tetriminos == 0 and game.tick < 500 and game.tick > 241 then 
+        game.forces.player.chart(game.surfaces.nauvis, {{-192, -304}, {160, 0}})
         spawn_new_tetrimino()
     end
-    Task.set_timeout_in_ticks(16, tick)
+    if global.pause or (game.tick % (610 / global.speed)) ~= 0 then
+        return
+    end
 
-    for key, tetri in pairs(tetriminos) do 
-        if primitives.winner_index == 1 then 
-            Tetrimino.rotate(tetri)
-        elseif primitives.winner_index == 2 then 
-            Tetrimino.rotate(tetri, true)
-        elseif primitives.winner_index == 3 then 
-            Tetrimino.move(tetri, -1, 0)
-        elseif primitives.winner_index == 4 then 
-            Tetrimino.move(tetri, 1, 0)
+    Task.set_timeout_in_ticks(16, move_down)
+
+    for key, tetri in pairs(tetriminos) do --Move down
+        local winner = options[primitives.winner_option_index]
+        --Execute voted action
+        if winner then
+            Tetrimino[winner.action_func_name](tetri, winner.args[1], winner.args[2])
         end
+        local pos = tetri.position
+        Task.set_timeout_in_ticks(10, chart_area, {
+            force = game.forces.player, 
+            surface = game.surfaces.nauvis, 
+            area = {
+                {pos.x - 32, pos.y - 32},
+                {pos.x + 64, pos.y + 64}
+            }
+        })
     end
-    for key, tetri in pairs(tetriminos) do
-    if not Tetrimino.move(tetri, 0, 1) then
-        tetrimino_finished(tetri)
-        tetriminos[key] = nil
-    end
-end
 
+    primitives.winner_option_index = 0
+    View.set_next_move('none')
+    for player_index, _ in ipairs(player_votes) do -- reset poll
+        player_votes[player_index] = nil
+        local player = Game.get_player_by_index(player_index)
+        View.set_player_vote(player, 'none')
+    end
 end)
 
 Event.add(defines.events.on_player_left_game, function(event)
     player_votes[event.player_index] = nil
 end)
-
 
 return Map.get_map()
