@@ -53,7 +53,8 @@ end
 -- @param  func<function>
 -- @return boolean
 function Debug.is_closure(func)
-    return debug_getupvalue(func, 1)
+    -- debug_getupvalue returns two values, we only want the first, hence the == true check
+    return debug_getupvalue(func, 1) == true 
 end
 
 return Debug
