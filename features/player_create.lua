@@ -48,9 +48,9 @@ local function player_created(event)
         p(get_random_weighted(random_messages))
     end
 
-    if config.show_info_at_start then
+    if config.show_info_at_start and not _DEBUG then
         if Info ~= nil then
-            Info.show_info({player = player})
+            Info.show_info(player)
         end
     end
 
