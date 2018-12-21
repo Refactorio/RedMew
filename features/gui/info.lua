@@ -5,46 +5,6 @@ local Game = require 'utils.game'
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
 
-
-local function prepare_title()
-    local welcome_title = [[
-111111  1111111 111111  111    111 1111111 11     11
-11   11 11      11   11 1111  1111 11      11     11
-111111  11111   11   11 11 1111 11 11111   11  1  11
-11   11 11      11   11 11  11  11 11      11 111 11
-11   11 1111111 111111  11      11 1111111  111 111
-]]
-
-    local row = {}
-    local welcome_title2 = {row}
-    local row_index = 1
-    local column_index = 1
-
-    local max = 0
-    for i = 1, #welcome_title do
-        local char = welcome_title:sub(i, i)
-        if char == '\n' then
-            row_index = row_index + 1
-            row = {}
-            welcome_title2[row_index] = row
-
-            max = math.max(max, column_index - 1)
-
-            column_index = 1
-        elseif char == '1' then
-            row[column_index] = true
-            column_index = column_index + 1
-        elseif char == ' ' then
-            row[column_index] = false
-            column_index = column_index + 1
-        end
-    end
-
-    return welcome_title2, max
-end
-
-local title, title_max = prepare_title()
-
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 local tab_button_name = Gui.uid_name()
@@ -113,27 +73,6 @@ local function draw_main_frame(center, player)
     top_flow_style.align = 'center'
     top_flow_style.top_padding = 8
     top_flow_style.horizontally_stretchable = true
-
-    local title_grid = top_flow.add {type = 'table', column_count = title_max}
-    for _, row in ipairs(title) do
-        for _, char in ipairs(row) do
-            local ele
-            if char then
-                ele = title_grid.add {type = 'sprite', sprite = 'virtual-signal/signal-red'}
-            else
-                ele = title_grid.add {type = 'label', caption = ' '}
-            end
-
-            local ele_style = ele.style
-            ele_style.height = 10
-            ele_style.width = 10
-        end
-    end
-
-    local title_grid_style = title_grid.style
-    title_grid_style.vertical_spacing = 0
-    title_grid_style.horizontal_spacing = 0
-    title_grid_style.bottom_padding = 8
 
     line_bar(frame)
 
