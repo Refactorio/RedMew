@@ -1,1 +1,0 @@
-All documentation has moved to the project's wiki: https://github.com/Refactorio/RedMew/wiki
