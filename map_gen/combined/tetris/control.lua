@@ -77,7 +77,7 @@ local function calculate_winner()
         return --Halt vote if in drop mode
     end
     local vote_sum = {0,0,0,0,0}
-    for _, vote in ipairs(player_votes) do
+    for _, vote in pairs(player_votes) do
         vote_sum[vote] = vote_sum[vote] + 1
     end
 
