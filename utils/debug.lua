@@ -53,8 +53,18 @@ end
 -- @param  func<function>
 -- @return boolean
 function Debug.is_closure(func)
-    -- debug_getupvalue returns two values, we only want the first, hence the == true check
-    return debug_getupvalue(func, 1) == true 
+    local i = 1
+    while true do
+        local n = debug.getupvalue(func, i)
+
+        if n == nil then
+            return false
+        elseif n ~= '_ENV' then
+            return true
+        end
+
+        i = i + 1
+    end
 end
 
 return Debug
