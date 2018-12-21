@@ -105,13 +105,6 @@ local function draw_main_frame(center, player)
 
     data.content = content
 
-    local bottom_flow = frame.add {type = 'flow'}
-    local bottom_flow_style = bottom_flow.style
-    bottom_flow_style.align = 'center'
-    bottom_flow_style.top_padding = 8
-    bottom_flow_style.horizontally_stretchable = true
-
-    bottom_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
 
     player.opened = frame
 end
