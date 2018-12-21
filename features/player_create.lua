@@ -3,12 +3,9 @@ local Event = require 'utils.event'
 local Info = require 'features.gui.info'
 
 local function player_created(event)
-    local config = global.config.player_create
     local player = Game.get_player_by_index(event.player_index)
-    if config.show_info_at_start then
-        if Info ~= nil then
-            Info.show_info({player = player})
-        end
+    if Info ~= nil then
+        Info.show_info({player = player})
     end
 end
 
