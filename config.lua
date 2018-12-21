@@ -1,5 +1,3 @@
-_DEBUG = false
-_CHEATS = false
 _DUMP_ENV = true
 local market_item = 'coin'
 
@@ -14,70 +12,7 @@ global.config = {
         -- New Scenario Features, appears in the "What's new" tab
         new_info_key = 'Nothing is new. The world is at peace',
     },
-    -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
-    performance = {
-        enabled = true,
-    },
-    -- adds a player list icon and keeps track of data.
-    player_list = {
-        enabled = true,
-        show_coin_column = true,
-    },
-    -- enables the poll system
-    poll = {
-        enabled = true,
-    },
-    -- enables players to create and join tags
-    tag_group = {
-        enabled = true,
-    },
-    -- enables players to create and prioritize tasks
-    tasklist = {
-        enabled = true,
-    },
-    -- enables the blueprint helper
-    blueprint_helper = {
-        enabled = true,
-    },
-    -- enables score and tracking thereof
-    score = {
-        enabled = true,
-    },
-    -- adds a paint brush
-    paint = {
-        enabled = true,
-    },
-    -- adds a fish market
-    fish_market = {
-        enabled = true,
-        market_item = market_item,
-    },
-    -- adds anti-nuke griefing
-    nuke_control = {
-        enabled = true,
-        enable_autokick = true,
-        enable_autoban = true,
-        -- how long a player must be on the server to be allowed to use the nuke
-        nuke_min_time_hours = 3,
-    },
-    -- adds a meltdown feature, requiring precise management
-    reactor_meltdown = {
-        enabled = true,
-        -- when enabled, controls whether it's on by default. State can be controlled with the /meltdown command.
-        on_by_default = false,
-    },
-    -- adds hodor responses to messages
-    hodor = {
-        enabled = true,
-    },
-    -- enable RedMew auto respond messages
-    auto_respond = {
-        enabled = true,
-    },
-    -- enable the mentioning system, which notifies a player when their name is mentioned
-    mentions = {
-        enabled = true,
-    },
+
     -- settings for when a player joins the server for the first time
     player_create = {
         enabled = true,
@@ -125,32 +60,6 @@ global.config = {
             },
         },
     },
-    -- spawns more units when one dies
-    hail_hydra = {
-        enabled = false,
-        -- at which scale the evolution will increase the additional hydra spawns
-        -- to disable scaling with evolution, set to 0.
-        -- the formula: chance = hydra_chance + (evolution_factor * evolution_scale)
-        -- example: small spitter has 0.2, which is 20% at 0% and 120% at an evolution_factor of 1
-        evolution_scale = 1,
-        -- any non-rounded number will turn into a chance to spawn an additional alien
-        -- example: 2.5 would spawn 2 for sure and 50% chance to spawn one additionally
-        hydras = {
-            -- spitters
-            ['small-spitter'] = {['small-worm-turret'] = 0.2},
-            ['medium-spitter'] = {['medium-worm-turret'] = 0.2},
-            ['big-spitter'] = {['big-worm-turret'] = 0.2},
-            ['behemoth-spitter'] = {['big-worm-turret'] = 0.4},
-            -- biters
-            ['medium-biter'] = {['small-biter'] = 1.2},
-            ['big-biter'] = {['medium-biter'] = 1.2},
-            ['behemoth-biter'] = {['big-biter'] = 1.2},
-            -- worms
-            ['small-worm-turret'] = {['small-biter'] = 2.5},
-            ['medium-worm-turret'] = {['small-biter'] = 2.5, ['medium-biter'] = 0.6},
-            ['big-worm-turret'] = {['small-biter'] = 3.8, ['medium-biter'] = 1.3, ['big-biter'] = 1.1},
-        },
-    },
     -- grants reward coins for certain actions
     player_rewards = {
         enabled = true,
@@ -158,49 +67,6 @@ global.config = {
         token = market_item,
         -- rewards players for looking through the info tabs
         info_player_reward = true,
-    },
-    -- automatically marks miners for deconstruction when they are depleted (currently compatible with hard mods that add miners)
-    autodeconstruct = {
-        enabled = true,
-    },
-    -- when a player dies, leaves a map marker until the corpse expires or is looted
-    corpse_util = {
-        enabled = true,
-    },
-    -- adds many commands for users and admins alike
-    custom_commands = {
-        enabled = true,
-    },
-    -- enables donators' on-join messages
-    donator_messages = {
-        enabled = true,
-    },
-    -- saves players' lives if they have a small-plane in their inventory, also adds the small-plan to the market
-    train_saviour = {
-        enabled = true,
-    },
-    -- logs when commands are used and when items are spawned in
-    free_item_loggin = {
-        enabled = true,
-    },
-    player_colors = {
-        enabled = true,
-    },
-    -- checks the list of players for train station names
-    train_station_names = {
-        enabled = true,
-    },
-    -- adds a command that switches a player to the enemy force and teleports them far away for some time to calm down
-    walkabout = {
-        enabled = true,
-    },
-    -- adds a command to generate a popup dialog box for players to see, useful for important announcements
-    popup = {
-        enabled = true,
-    },
-    -- adds a camera to watch another player
-    camera = {
-        enabled = true,
     },
 }
 

@@ -6,7 +6,6 @@ require 'config'
 
 -- Library modules which, if missing, will cause other feature modules to fail
 require 'features.player_create'
-require 'features.user_groups'
 
 -- GUIs the order determines the order they appear from left to right.
 -- These can be safely disabled if you want less GUI items.
