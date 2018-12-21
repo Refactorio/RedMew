@@ -1,37 +1,10 @@
 local Gui = require 'utils.gui'
-local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
-local rank_colors = {
-    {r = 1, g = 1, b = 1}, -- Guest
-    {r = 0.155, g = 0.540, b = 0.898}, -- Regular
-    {r = 172.6, g = 70.2, b = 215.8}, -- Donator
-    {r = 0.093, g = 0.768, b = 0.172} -- Admin
-}
 
-local map_name_key = 1
-local map_description_key = 2
-local map_extra_info_key = 3
-local new_info_key = 4
-
-local editable_info = {
-    [map_name_key] = global.config.map_info.map_name_key,
-    [map_description_key] = global.config.map_info.map_description_key,
-    [map_extra_info_key] = global.config.map_info.map_extra_info_key,
-    [new_info_key] = global.config.map_info.new_info_key
-}
-
-Global.register(
-    {
-        editable_info = editable_info
-    },
-    function(tbl)
-        editable_info = tbl.editable_info
-    end
-)
 
 local function prepare_title()
     local welcome_title = [[
@@ -75,7 +48,6 @@ local title, title_max = prepare_title()
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 local tab_button_name = Gui.uid_name()
-local editable_textbox_name = Gui.uid_name()
 
 local function line_bar(parent)
     local bar = parent.add {type = 'progressbar', value = 1}
@@ -217,18 +189,6 @@ local function draw_main_frame(center, player)
     player.opened = frame
 end
 
-local function toggle(event)
-    local player = event.player
-    local center = player.gui.center
-    local main_frame = center[main_frame_name]
-
-    if main_frame then
-        Gui.destroy(main_frame)
-    else
-        draw_main_frame(center, player)
-    end
-end
-
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
@@ -237,11 +197,10 @@ local function player_created(event)
 
     local gui = player.gui
     gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'utility/questionmark'}
+    draw_main_frame(gui.center, player)
 end
 
 Event.add(defines.events.on_player_created, player_created)
-
-Gui.on_click(main_button_name, toggle)
 
 Gui.on_click(
     tab_button_name,
@@ -270,27 +229,9 @@ Gui.on_click(
     end
 )
 
-Gui.on_text_changed(
-    editable_textbox_name,
-    function(event)
-        local textbox = event.element
-        local key = Gui.get_data(textbox)
-
-        editable_info[key] = textbox.text
-    end
-)
-
 Gui.on_custom_close(
     main_frame_name,
     function(event)
         Gui.destroy(event.element)
     end
 )
-
-local Public = {}
-
-function Public.show_info(player)
-    toggle(player)
-end
-
-return Public

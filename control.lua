@@ -1,13 +1,16 @@
--- Map layout and config dictate the map you play and the settings in it
-require 'config'
+_DUMP_ENV = true
 
--- Library modules which, if missing, will cause other feature modules to fail
-require 'features.player_create'
+global.config = {
+    map_info = {
+        map_name_key = 'No name',
+        map_description_key = "No description",
+        map_extra_info_key = 'No info',
+        new_info_key = 'Nothing new',
+    },
+}
 
--- GUIs the order determines the order they appear from left to right.
--- These can be safely disabled if you want less GUI items.
--- Some map presets will add GUI modules themselves.
 require 'features.gui.info'
+
 if _DUMP_ENV then
     require 'utils.dump_env'
 end
