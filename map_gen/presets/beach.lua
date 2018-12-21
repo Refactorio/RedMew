@@ -1,6 +1,5 @@
 local b = require 'map_gen.shared.builders'
 local perlin = require 'map_gen.shared.perlin_noise'
-local Event = require 'utils.event'
 local Global = require 'utils.global'
 local math = require 'utils.math'
 
@@ -13,7 +12,7 @@ local water_width_inv = math.tau / water_width
 local noise_variance = 0.025 --The lower this number the smoother the curve is gonna be
 local noise_level = 15 --Factor for the magnitude of the curve
 
-local sand_nosie_level = noise_level * 0.9
+local sand_noise_level = noise_level * 0.9
 local water_noise_level = noise_level * 1.35
 
 -- Leave nil and they will be set based on the map seed.
@@ -34,7 +33,7 @@ Global.register_init(
 )
 
 local function sand_shape(x, y)
-    local p = perlin.noise(x * noise_variance, y * noise_variance, perlin_seed_1) * sand_nosie_level
+    local p = perlin.noise(x * noise_variance, y * noise_variance, perlin_seed_1) * sand_noise_level
     p = p + math.sin(x * sand_width_inv) * 15
     return p > y
 end
@@ -58,7 +57,7 @@ local ores = {
 
 local start_coal = b.resource(b.full_shape, 'coal', value(500, 0.25))
 
-uranium_ore = b.resource(b.full_shape, 'uranium-ore', value(50, 0.25))
+local uranium_ore = b.resource(b.full_shape, 'uranium-ore', value(50, 0.25))
 
 local total_weights = {}
 local t = 0
@@ -103,7 +102,7 @@ end
 
 water_shape = b.apply_entity(water_shape, do_oil)
 
-grass = b.tile('grass-1')
+local grass = b.tile('grass-1')
 
 local bounds = b.line_x(384)
 
