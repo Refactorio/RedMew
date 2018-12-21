@@ -12,7 +12,6 @@ global.config = {
         -- New Scenario Features, appears in the "What's new" tab
         new_info_key = 'Nothing is new. The world is at peace',
     },
-
     -- settings for when a player joins the server for the first time
     player_create = {
         enabled = true,

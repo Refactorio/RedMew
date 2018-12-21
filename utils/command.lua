@@ -1,5 +1,3 @@
-require 'utils.table'
-
 local insert = table.insert
 local format = string.format
 local next = next
