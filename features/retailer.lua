@@ -18,6 +18,7 @@ local market_frame_close_button_name = Gui.uid_name()
 local item_button_name = Gui.uid_name()
 local count_slider_name = Gui.uid_name()
 local count_text_name = Gui.uid_name()
+local color_red = {r = 1, b = 0, g = 0}
 
 local Retailer = {}
 
@@ -115,7 +116,7 @@ local function redraw_market_items(data)
         label_style.font = 'default-bold'
 
         if is_missing_coins then
-            label_style.font_color = {r = 1, b = 0, g = 0}
+            label_style.font_color = color_red
             button.enabled = false
         end
     end
