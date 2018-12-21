@@ -141,7 +141,7 @@ local function spawn_new_tetrimino()
 end
 
 local function row_full(tetri)
-    local bottom = tetri:bottom_position()
+    local bottom = Tetrimino.bottom_position()
 
     local y = tetri.position.y + 16 * bottom - 14
     for x = -178, 162, 16 do
@@ -180,7 +180,7 @@ chart_area = Token.register(
 move_down = Token.register(
     function()
         for key, tetri in pairs(tetriminos) do
-            if not tetri:move(0, 1) then
+            if not Tetrimino.move(tetri, 0, 1) then
                 tetrimino_finished(tetri) --If collided with ground fire finished event
                 tetriminos[key] = nil
             end
@@ -216,7 +216,7 @@ Event.on_nth_tick(61, function()
         local winner = options[primitives.winner_option_index]
         --Execute voted action
         if winner then
-            local action = tetri[winner.action_func_name]
+            local action = Tetrimino[winner.action_func_name]
             if action then
                 action(tetri, winner.args[1], winner.args[2])
             end
