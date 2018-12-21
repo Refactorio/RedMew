@@ -156,16 +156,7 @@ local function draw_market_frame(player, group_name)
 
     local bottom_grid = frame.add({type = 'table', column_count = 2})
 
-    bottom_grid.add({type = 'label', caption = 'Quantity'}).style.font = 'default-bold'
-    bottom_grid.add({type = 'label'})
-
-    local count_slider = bottom_grid.add({
-        type = 'slider',
-        name = count_slider_name,
-        minimum_value = 1,
-        maximum_value = 7,
-        value = 1,
-    })
+    bottom_grid.add({type = 'label', caption = 'Quantity: '}).style.font = 'default-bold'
 
     local count_text = bottom_grid.add({
         type = 'text-box',
@@ -173,10 +164,18 @@ local function draw_market_frame(player, group_name)
         text = '1',
     })
 
+    local count_slider = frame.add({
+        type = 'slider',
+        name = count_slider_name,
+        minimum_value = 1,
+        maximum_value = 7,
+        value = 1,
+    })
+
     frame.add({name = market_frame_close_button_name, type = 'button', caption = 'Close'})
 
-    count_slider.style.width = 100
-    count_text.style.width = 60
+    count_slider.style.width = 115
+    count_text.style.width = 45
 
     data.slider = count_slider
     data.text = count_text
