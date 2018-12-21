@@ -3,8 +3,6 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
-local PlayerRewards = require 'utils.player_rewards'
-local format = string.format
 
 local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
@@ -15,27 +13,11 @@ local rank_colors = {
     {r = 0.093, g = 0.768, b = 0.172} -- Admin
 }
 
-local reward_amount = 2
-local reward_plural_indicator = reward_amount > 1 and 's' or ''
-local reward_token = PlayerRewards.get_reward()
-local info_tab_flags = {
-    0x1, -- welcome
-    0x2, -- rules
-    0x4, -- map_info
-    0x8, -- scenario_mods
-    0x10, -- whats_new
-}
-local flags_sum = 0
-for _, v in pairs(info_tab_flags) do
-    flags_sum = flags_sum + v
-end
-
 local map_name_key = 1
 local map_description_key = 2
 local map_extra_info_key = 3
 local new_info_key = 4
 
-local rewarded_players = {}
 
 local editable_info = {
     [map_name_key] = global.config.map_info.map_name_key,
@@ -46,11 +28,9 @@ local editable_info = {
 
 Global.register(
     {
-        rewarded_players = rewarded_players,
         editable_info = editable_info,
     },
     function(tbl)
-        rewarded_players = tbl.rewarded_players
         editable_info = tbl.editable_info
     end
 )
@@ -174,14 +154,6 @@ It is below the ESC key on English keyboards and looks like ~ or `
 This can be changed in options -> controls -> "toggle lua console".
                 ]]
             )
-
-            if global.config.player_rewards.enabled and global.config.player_rewards.info_player_reward then
-                local string = format('You have been given %s %s%s for looking at the welcome tab.\nChecking each tab will reward you %s more %s%s.\n', reward_amount, reward_token, reward_plural_indicator, reward_amount, reward_token, reward_plural_indicator)
-                header_label(parent, 'Free Coins')
-                centered_label(
-                    parent, string
-                )
-            end
 
             header_label(parent, 'Useful Links')
             centered_label(parent, [[Check out our discord for new map info and to suggest new maps / ideas.]])
@@ -614,29 +586,6 @@ local function draw_main_frame(center, player)
     player.opened = frame
 end
 
-local function reward_player(player, index, message)
-    if not global.config.player_rewards.enabled or not global.config.player_rewards.info_player_reward then
-        return
-    end
-
-    local player_index = player.index
-    if not rewarded_players[player_index] then
-        error('Player with no entry in rewarded_players table')
-        return false
-    end
-    local tab_flag = info_tab_flags[index]
-
-    if bit32.band(rewarded_players[player_index], tab_flag) == tab_flag then
-        return
-    else
-        PlayerRewards.give_reward(player, reward_amount, message)
-        rewarded_players[player_index] = rewarded_players[player_index] + tab_flag
-        if rewarded_players[player_index] == flags_sum then
-            rewarded_players[player_index] = nil
-        end
-    end
-end
-
 local function toggle(event)
     local player = event.player
     local center = player.gui.center
@@ -658,8 +607,6 @@ local function player_created(event)
     local gui = player.gui
     gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'utility/questionmark'}
 
-    rewarded_players[player.index] = 0
-    reward_player(player, info_tab_flags[1])
 end
 
 Event.add(defines.events.on_player_created, player_created)
@@ -670,7 +617,6 @@ Gui.on_click(
     tab_button_name,
     function(event)
         local button = event.element
-        local player = event.player
 
         local button_data = Gui.get_data(button)
         local index = button_data.index
@@ -692,11 +638,6 @@ Gui.on_click(
         local content = data.content
         Gui.clear(content)
 
-        pages[index].content(content, player)
-        local string = format('%s %s%s awarded for reading a tab on the info screen.', reward_amount, reward_token, reward_plural_indicator)
-        if rewarded_players[player.index] then
-            reward_player(player, index, string)
-        end
     end
 )
 
