@@ -189,15 +189,17 @@ function rotate_collision_box(collision_box, reverse)
     return new_collision_box, transformation
 end
 
-function Module.bottom_position(self)
+function Module.active_qchunks(self)
     local collision_box = self.collision_box
-    for y = 3,4 do
-        local row = collision_box[y]
-        if math.max(row[1], row[2], row[3], row[4], 0) == 0 then
-            return y - 1
+    local result = {nil, nil, nil, nil}
+    for x = 1, 4 do
+        for y = 1, 4 do
+            if collision_box[y][x] == 1 then
+                table.insert(result, {x = x, y = y})
+            end
         end
     end
-    return 4
+    return result
 end
 
 function Module.rotate(self, reverse)
