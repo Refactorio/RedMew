@@ -3,6 +3,7 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
 local ForceControl = require 'features.force_control'
+local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Retailer = require 'features.retailer'
 local Gui = require 'utils.gui'
 local utils = require 'utils.core'
@@ -241,7 +242,7 @@ end
 
 ---Awards experience when a player kills an enemy, based on type of enemy
 ---@param event LuaEvent
-local function on_entity_died (event)
+local function on_entity_died(event)
     local entity = event.entity
     local force = event.force
     local cause = event.cause
@@ -296,6 +297,7 @@ local function on_player_respawned(event)
     for _, p in pairs(game.connected_players) do
         print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
     end
+    ScoreTable.add('Experience lost', exp)
 end
 
 local level_table = {}
@@ -511,6 +513,8 @@ end
 
 function Experience.register(cfg)
     config = cfg
+
+    ScoreTable.reset('Experience lost')
 
     --Adds the function on how to calculate level caps (When to level up)
     local ForceControlBuilder = ForceControl.register(level_up_formula)
