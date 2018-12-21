@@ -2,19 +2,11 @@ local Gui = require 'utils.gui'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 
-local normal_color = {r = 1, g = 1, b = 1}
 local focus_color = {r = 1, g = 0.55, b = 0.1}
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 local tab_button_name = Gui.uid_name()
-
-local function line_bar(parent)
-    local bar = parent.add {type = 'progressbar', value = 1}
-    local style = bar.style
-    style.color = normal_color
-    style.horizontally_stretchable = true
-end
 
 local function centered_label(parent, string)
     local flow = parent.add {type = 'flow'}
@@ -74,8 +66,6 @@ local function draw_main_frame(center, player)
     top_flow_style.top_padding = 8
     top_flow_style.horizontally_stretchable = true
 
-    line_bar(frame)
-
     local tab_buttons = {}
     local active_tab = 1
     local data = {
@@ -102,8 +92,6 @@ local function draw_main_frame(center, player)
     end
 
     tab_buttons[active_tab].style.font_color = focus_color
-
-    line_bar(frame)
 
     local content = frame.add {type = 'frame', direction = 'vertical', style = 'image_frame'}
     local content_style = content.style
@@ -140,33 +128,6 @@ local function player_created(event)
 end
 
 Event.add(defines.events.on_player_created, player_created)
-
-Gui.on_click(
-    tab_button_name,
-    function(event)
-        local button = event.element
-
-        local button_data = Gui.get_data(button)
-        local index = button_data.index
-        local data = button_data.data
-        local active_tab = data.active_tab
-
-        if active_tab == index then
-            return
-        end
-
-        local tab_buttons = data.tab_buttons
-        local old_button = tab_buttons[active_tab]
-
-        old_button.style.font_color = normal_color
-        button.style.font_color = focus_color
-
-        data.active_tab = index
-
-        local content = data.content
-        Gui.clear(content)
-    end
-)
 
 Gui.on_custom_close(
     main_frame_name,
