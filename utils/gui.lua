@@ -15,7 +15,7 @@ Global.register(
 )
 
 local top_elements = {}
-local on_visable_handlers = {}
+local on_visible_handlers = {}
 local on_pre_hidden_handlers = {}
 
 function Gui.uid_name()
@@ -38,7 +38,7 @@ function Gui.get_data(element)
     return data[element.player_index * 0x100000000 + element.index]
 end
 
--- Removes data associated with LuaGuiElement and its children recursivly.
+-- Removes data associated with LuaGuiElement and its children recursively.
 function Gui.remove_data_recursively(element)
     Gui.set_data(element, nil)
 
@@ -175,7 +175,7 @@ Gui.on_value_changed = handler_factory(defines.events.on_gui_value_changed)
 -- Can only have one handler per element name.
 -- Guarantees that the element and the player are valid when calling the handler.
 -- Adds a player field to the event table.
-Gui.on_player_show_top = custom_handler_factory(on_visable_handlers)
+Gui.on_player_show_top = custom_handler_factory(on_visible_handlers)
 
 -- Register a handler for when the player hides the top LuaGuiElements with element_name.
 -- Assuming the element_name has been added with Gui.allow_player_to_toggle_top_element_visibility.
@@ -256,7 +256,7 @@ Gui.on_click(
 
                     if not style.visible then
                         style.visible = true
-                        custom_raise(on_visable_handlers, ele, player)
+                        custom_raise(on_visible_handlers, ele, player)
                     end
                 end
             end

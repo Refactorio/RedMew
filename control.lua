@@ -35,7 +35,7 @@ end
 if config.fish_market.enabled then
     require 'features.fish_market'
 end
-if config.free_item_loggin.enabled then
+if config.free_item_logging.enabled then
     require 'features.free_item_logging'
 end
 if config.nuke_control.enabled then

@@ -77,7 +77,8 @@ function StartingZone.register(config)
         local market = surface.create_entity({name = 'market', position = position})
         market.destructible = false
 
-        Retailer.add_market(player_force.name, market)
+        Retailer.set_market_group_label('player', 'Diggy Market')
+        Retailer.add_market('player', market)
 
         player_force.add_chart_tag(surface, {
             text = 'Market',
