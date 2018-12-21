@@ -331,12 +331,6 @@ you're working on a project which requires it.]]
             if player.admin then
                 local label = player_rank_flow.add {type = 'label', caption = 'Admin'}
                 label.style.font_color = rank_colors[4]
-            elseif UserGroups.is_donator(player.name) then
-                local label = player_rank_flow.add {type = 'label', caption = 'Donator'}
-                label.style.font_color = rank_colors[3]
-            elseif UserGroups.is_regular(player.name) then
-                local label = player_rank_flow.add {type = 'label', caption = 'Regular'}
-                label.style.font_color = rank_colors[2]
             else
                 local label = player_rank_flow.add {type = 'label', caption = 'Guest'}
                 label.style.font_color = rank_colors[1]
