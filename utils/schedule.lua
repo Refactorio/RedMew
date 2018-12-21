@@ -1,6 +1,6 @@
 -- Threading simulation module
 -- Task.sleep()
--- @author Valansch
+-- @author Valansch and Grilledham
 -- github: https://github.com/Valansch/RedMew
 -- ======================================================= --
 
@@ -41,7 +41,11 @@ local function on_tick()
             -- result is error if not success else result is a boolean for if the task should stay in the queue.
             local success, result = pcall(Token.get(task.func_token), task.params)
             if not success then
-                log(result)
+                if _DEBUG then
+                    error(result)
+                else
+                    log(result)
+                end
                 Queue.pop(queue)
                 global.total_task_weight = global.total_task_weight - task.weight
             elseif not result then
@@ -54,9 +58,13 @@ local function on_tick()
     local callbacks = global.callbacks
     local callback = PriorityQueue.peek(callbacks)
     while callback ~= nil and game.tick >= callback.time do
-        local success, error = pcall(Token.get(callback.func_token), callback.params)
+        local success, result = pcall(Token.get(callback.func_token), callback.params)
         if not success then
-            log(error)
+            if _DEBUG then
+                error(result)
+            else
+                log(result)
+            end
         end
         PriorityQueue.pop(callbacks, comp)
         callback = PriorityQueue.peek(callbacks)
