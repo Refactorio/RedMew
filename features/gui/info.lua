@@ -17,7 +17,6 @@ local map_description_key = 2
 local map_extra_info_key = 3
 local new_info_key = 4
 
-
 local editable_info = {
     [map_name_key] = global.config.map_info.map_name_key,
     [map_description_key] = global.config.map_info.map_description_key,
@@ -27,7 +26,7 @@ local editable_info = {
 
 Global.register(
     {
-        editable_info = editable_info,
+        editable_info = editable_info
     },
     function(tbl)
         editable_info = tbl.editable_info
@@ -35,8 +34,7 @@ Global.register(
 )
 
 local function prepare_title()
-    local welcome_title =
-        [[
+    local welcome_title = [[
 111111  1111111 111111  111    111 1111111 11     11
 11   11 11      11   11 1111  1111 11      11     11
 111111  11111   11   11 11 1111 11 11111   11  1  11
@@ -145,14 +143,11 @@ We are a friendly bunch, our objective is to have as much fun as possible and we
             )
 
             header_label(parent, 'How To Chat')
-            centered_label(
-                parent,
-                [[
+            centered_label(parent, [[
 To chat with other players, press the "grave" key on your keyboard.
 It is below the ESC key on English keyboards and looks like ~ or `
 This can be changed in options -> controls -> "toggle lua console".
-                ]]
-            )
+                ]])
 
             header_label(parent, 'Useful Links')
             centered_label(parent, [[Check out our discord for new map info and to suggest new maps / ideas.]])
@@ -186,8 +181,7 @@ This can be changed in options -> controls -> "toggle lua console".
             maps_textbox_flow_style.align = 'center'
             maps_textbox_flow_style.horizontally_stretchable = true
             maps_textbox_flow.add({type = 'label', caption = 'Maps: '}).style.font = 'default-bold'
-            local maps_textbox =
-                maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
+            local maps_textbox = maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
             maps_textbox.read_only = true
 
             parent.add({type = 'flow'}).style.height = 24
@@ -372,7 +366,7 @@ but you will lose a small plane. You can get planes from the market.
                 player_list.style.font = 'default-listbox'
                 player_list.style.single_line = false
                 local player_list_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Lists all players on the server and shows some stats. You can sort the list by
@@ -386,7 +380,7 @@ noun in the chat.]]
                 local poll = grid.add {type = 'label', caption = 'Polls'}
                 poll.style.font = 'default-listbox'
                 local poll_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Polls help players get consensus for major actions. Want to improve an important
@@ -404,7 +398,7 @@ to make new polls.]]
                 local tag = grid.add {type = 'label', caption = 'Tags'}
                 tag.style.font = 'default-listbox'
                 local tag_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 You can assign yourself a role with tags to let other players know what you are
@@ -419,7 +413,7 @@ be sure to show off your creatively.]]
                 local task = grid.add {type = 'label', caption = 'Tasks'}
                 task.style.font = 'default-listbox'
                 local task_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Not sure what you should be working on, why not look at the tasks and see what
@@ -436,7 +430,7 @@ needs doing. Regulars can add new tasks.]]
                 blueprint_style.single_line = false
                 blueprint_style.width = 55
                 local blueprint_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you
@@ -450,7 +444,7 @@ converter the entities used in the blueprint e.g. turn yellow belts into red bel
                 local score = grid.add {type = 'label', caption = 'Score'}
                 score.style.font = 'default-listbox'
                 local score_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Shows number of rockets launched and biters liberated.]]
@@ -459,34 +453,6 @@ Shows number of rockets launched and biters liberated.]]
             end
         end
     },
-    {
-        tab_button = function(parent)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = "What's New"}
-            return button
-        end,
-        content = function(parent, player)
-            local read_only = not player.admin
-
-            header_label(parent, 'New Features')
-
-            local new_info_flow = parent.add {type = 'flow'}
-            new_info_flow.style.align = 'center'
-
-            local new_info_textbox =
-                new_info_flow.add {
-                type = 'text-box',
-                name = editable_textbox_name,
-                text = editable_info[new_info_key]
-            }
-            new_info_textbox.read_only = read_only
-
-            local new_info_textbox_style = new_info_textbox.style
-            new_info_textbox_style.width = 590
-            new_info_textbox_style.height = 300
-
-            Gui.set_data(new_info_textbox, new_info_key)
-        end
-    }
 }
 
 local function draw_main_frame(center, player)
@@ -599,7 +565,6 @@ local function player_created(event)
 
     local gui = player.gui
     gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'utility/questionmark'}
-
 end
 
 Event.add(defines.events.on_player_created, player_created)
@@ -630,7 +595,6 @@ Gui.on_click(
 
         local content = data.content
         Gui.clear(content)
-
     end
 )
 
