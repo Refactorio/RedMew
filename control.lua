@@ -1,6 +1,3 @@
--- Omitting the math library is a very bad idea
-require 'utils.math'
-
 -- Map layout and config dictate the map you play and the settings in it
 require 'config'
 
