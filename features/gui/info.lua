@@ -658,44 +658,10 @@ Gui.on_custom_close(
     end
 )
 
-Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
-
 local Public = {}
 
 function Public.show_info(player)
     toggle(player)
-end
-
-function Public.get_map_name()
-    return editable_info[map_name_key]
-end
-
-function Public.set_map_name(value)
-    editable_info[map_name_key] = value
-end
-
-function Public.get_map_description()
-    return editable_info[map_description_key]
-end
-
-function Public.set_map_description(value)
-    editable_info[map_description_key] = value
-end
-
-function Public.get_map_extra_info()
-    return editable_info[map_extra_info_key]
-end
-
-function Public.set_map_extra_info(value)
-    editable_info[map_extra_info_key] = value
-end
-
-function Public.get_new_info()
-    return editable_info[new_info_key]
-end
-
-function Public.set_new_info(value)
-    editable_info[new_info_key] = value
 end
 
 return Public
