@@ -363,10 +363,14 @@ local bounds = t_width * 2
  
 local Module = {}
 
+local bounds_size = t_width * 4
+
 function Module.spawn_tetri(surface, pos, number)
     local tiles = {}
     local entities = {}
     local shape = tetriminos[number]
+
+    local offset = math.random(1,1000) * bounds_size
 
     for x = -bounds, bounds do
         for y = -bounds, bounds do
@@ -376,7 +380,7 @@ function Module.spawn_tetri(surface, pos, number)
                 local position = {x = pos.x + x, y = pos.y + y}
                 table.insert(tiles, {name = name, position = position})
 
-                local ore = ores(x2, y2, position)
+                local ore = ores(x2, y2 - offset, position)
                 if ore then
                     ore.position = position
                     table.insert(entities, ore)

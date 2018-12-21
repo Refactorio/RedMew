@@ -181,6 +181,12 @@ local function collect_full_row_resources(tetri)
 
         for resource, amount in pairs(storage) do
             storage[resource] = amount * points
+            if resource =='crude-oil' then
+                storage[resource] = nil
+                if #full_rows == 1 then
+                    return
+                end
+            end
         end
 
         local x = tetri.position.x + active_qchunks[1].x * 16 - 9
@@ -188,6 +194,8 @@ local function collect_full_row_resources(tetri)
         InfinityChest.create_chest(tetri.surface, {x, y}, storage)
 
         primitives.points = primitives.points + points * 100
+
+        View.set_points(primitives.points)
     end
 end
 
@@ -222,6 +230,16 @@ move_down = Token.register(
                 tetrimino_finished(tetri) --If collided with ground fire finished event
                 tetriminos[key] = nil
             end
+
+            local pos = tetri.position
+            Task.set_timeout_in_ticks(10, chart_area, {
+                force = game.forces.player,
+                surface = game.surfaces.nauvis,
+                area = {
+                    {pos.x - 32, pos.y - 32},
+                    {pos.x + 64, pos.y + 64}
+                }
+            })
         end
     end
 )
@@ -260,16 +278,6 @@ Event.on_nth_tick(61, function()
             end
             primitives.state = winner.transition --Change system state
         end
-
-        local pos = tetri.position
-        Task.set_timeout_in_ticks(10, chart_area, {
-            force = game.forces.player,
-            surface = game.surfaces.nauvis,
-            area = {
-                {pos.x - 32, pos.y - 32},
-                {pos.x + 64, pos.y + 64}
-            }
-        })
     end
 
     primitives.winner_option_index = 0
