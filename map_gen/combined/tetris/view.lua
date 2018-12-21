@@ -88,7 +88,7 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'utility/force_editor_icon'}
+    player.gui.top.add{name = main_button_name, type = 'sprite-button', sprite = 'utility/force_editor_icon'}
     toggle(Game.get_player_by_index(event.player_index))
 end
 

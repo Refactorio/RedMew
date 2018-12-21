@@ -7,6 +7,7 @@ local View = require 'map_gen.combined.tetris.view'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
 local Debug = require 'map_gen.Diggy.Debug'
+local InfinityChest = require 'map_gen.misc.infinite_storage_chest'
 
 local tetriminos = {}
 local states = {
@@ -17,7 +18,8 @@ local states = {
 primitives = {
     tetri_spawn_y_position = -160,
     winner_option_index = 0,
-    state = states.normal
+    state = states.normal,
+    points = 0,
 }
 local player_votes = {}
 local options = {
@@ -67,6 +69,8 @@ Global.register(
         player_zoom = tbl.player_zoom
     end
 )
+
+local point_table = {1, 3, 5, 8}
 
 local function calculate_winner()
     if primitives.state == states.drop then
@@ -140,17 +144,51 @@ local function spawn_new_tetrimino()
     table.insert(tetriminos, Tetrimino.new(game.surfaces.nauvis, {x = 0, y = primitives.tetri_spawn_y_position}))
 end
 
-local function row_full(tetri)
-    local bottom = Tetrimino.bottom_position()
+local function collect_full_row_resources(tetri)
 
-    local y = tetri.position.y + 16 * bottom - 14
-    for x = -178, 162, 16 do
-        local tile = tetri.surface.get_tile(x, y)
-        if tile.valid and tile.name == 'water' then
-            return false
+    local active_qchunks = Tetrimino.active_qchunks(tetri)
+    local storage = {}
+
+    local full_rows = {}
+    local rows = {}
+    for _, qchunk in ipairs(active_qchunks) do
+        local q_y = qchunk.y
+        if not rows[q_y] then
+            rows[q_y] = true
+            local y = tetri.position.y + 16 * q_y - 14
+            local row_full = true
+            for x = -178, 162, 16 do
+                local tile = tetri.surface.get_tile(x, y)
+                if tile.valid and tile.name == 'water' then
+                    row_full = false
+                    break
+                end
+            end
+
+            if row_full then
+                table.insert(full_rows, q_y)
+                for _, patch in pairs(tetri.surface.find_entities_filtered{type = 'resource', area = {{-178, y}, {162, y + 12}}}) do
+                    local total = storage[patch.name] or 0
+                    storage[patch.name] = total + patch.amount
+                    patch.destroy()
+                end
+            end
         end
     end
-    return true
+
+    if #full_rows > 0 then
+        local points = point_table[#full_rows]
+
+        for resource, amount in pairs(storage) do
+            storage[resource] = amount * points
+        end
+
+        local x = tetri.position.x + active_qchunks[1].x * 16 - 9
+        local y = tetri.position.y + active_qchunks[1].y * 16 - 9
+        InfinityChest.create_chest(tetri.surface, {x, y}, storage)
+
+        primitives.points = primitives.points + points * 100
+    end
 end
 
 local function tetrimino_finished(tetri)
@@ -166,7 +204,7 @@ local function tetrimino_finished(tetri)
     primitives.state = states.normal
     Debug.print('state ' .. primitives.state)
 
-    Debug.print('Row full: ' .. tostring(row_full(tetri)))
+    collect_full_row_resources(tetri)
 
     spawn_new_tetrimino()
 end

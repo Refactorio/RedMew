@@ -200,11 +200,11 @@ local ore_shape = b.rectangle(t_width * 0.8)
 local oil_shape = b.throttle_world_xy(ore_shape, 1, 4, 1, 4)
 
 local ores = {
-    {b.resource(ore_shape, 'iron-ore', value(250, 0.75, 1.15)), 10},
-    {b.resource(ore_shape, 'copper-ore', value(200, 0.75, 1.15)), 6},
-    {b.resource(ore_shape, 'stone', value(350, 0.4, 1.075)), 3},
-    {b.resource(ore_shape, 'coal', value(200, 0.8, 1.075)), 5},
-    {b.resource(b.scale(ore_shape, 0.5), 'uranium-ore', value(300, 0.3, 1.05)), 2},
+    {b.resource(ore_shape, 'iron-ore', value(50, 0.225, 1.15)), 10},
+    {b.resource(ore_shape, 'copper-ore', value(40, 0.225, 1.15)), 6},
+    {b.resource(ore_shape, 'stone', value(70, 0.12, 1.075)), 3},
+    {b.resource(ore_shape, 'coal', value(40, 0.24, 1.075)), 5},
+    {b.resource(b.scale(ore_shape, 0.5), 'uranium-ore', value(60, 0.09, 1.05)), 2},
     {b.resource(oil_shape, 'crude-oil', value(120000, 50, 1.15)), 1},
     {b.empty_shape, 100}
 }
