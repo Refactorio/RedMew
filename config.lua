@@ -1,6 +1,6 @@
 _DEBUG = false
 _CHEATS = false
-_DUMP_ENV = false
+_DUMP_ENV = true
 local market_item = 'coin'
 
 global.config = {
