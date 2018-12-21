@@ -1,5 +1,4 @@
-local Static = {}
-local Non_static = {}
+Module = {}
 
 local Token = require 'utils.token'
 local Task = require 'utils.schedule'
@@ -139,7 +138,7 @@ function move_qchunk(surface, x, y, x_offset, y_offset)
     erase_qchunk(surface, x, y)
 end
 
-function Non_static.move(self, x_direction, y_direction)
+function Module.move(self, x_direction, y_direction)
     local surface = self.surface
     local position = self.position
     local collision_box = self.collision_box
@@ -190,7 +189,7 @@ function rotate_collision_box(collision_box, reverse)
     return new_collision_box, transformation
 end
 
-function Non_static.bottom_position(self)
+function Module.bottom_position(self)
     local collision_box = self.collision_box
     for y = 3,4 do
         local row = collision_box[y]
@@ -201,7 +200,7 @@ function Non_static.bottom_position(self)
     return 4
 end
 
-function Non_static.rotate(self, reverse)
+function Module.rotate(self, reverse)
     local new_collision_box, transformation = rotate_collision_box(self.collision_box, reverse)
     if collides(self, new_collision_box, 0, 0) then return end
 
@@ -247,17 +246,14 @@ function Non_static.rotate(self, reverse)
     self.collision_box = new_collision_box
 end
 
-function Static.new(surface, position)
+function Module.new(surface, position)
     local number = math.random(7)
-    local self = table.deepcopy(Non_static) -- construct()
-    self.position = {x = position.x - 32, y = position.y - 32}   
+    local self = {}
+    self.position = {x = position.x - 32, y = position.y - 32}
     self.surface = surface
     self.collision_box = collision_boxes[number]
-    self.collision_boxes = nil --save space :)
-    self.number = number
 
     Map.spawn_tetri(surface, position, number)
-
     return self
 end
 
@@ -279,5 +275,5 @@ worker = Token.register(
 
 return function(map_input)
     Map = map_input
-    return Static
+    return Module
 end
