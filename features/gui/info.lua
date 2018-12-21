@@ -53,18 +53,8 @@ local pages = {
 
 local function draw_main_frame(center, player)
     local frame = center.add {type = 'frame', name = main_frame_name, direction = 'vertical'}
-    local frame_style = frame.style
-    frame_style.height = 600
-    frame_style.width = 650
-    frame_style.left_padding = 16
-    frame_style.right_padding = 16
-    frame_style.top_padding = 16
 
-    local top_flow = frame.add {type = 'flow'}
-    local top_flow_style = top_flow.style
-    top_flow_style.align = 'center'
-    top_flow_style.top_padding = 8
-    top_flow_style.horizontally_stretchable = true
+    frame.add {type = 'flow'}
 
     local tab_buttons = {}
     local active_tab = 1
@@ -74,17 +64,10 @@ local function draw_main_frame(center, player)
     }
 
     local tab_flow = frame.add {type = 'flow', direction = 'horizontal'}
-    local tab_flow_style = tab_flow.style
-    tab_flow_style.align = 'center'
-    tab_flow_style.horizontally_stretchable = true
 
     for index, page in ipairs(pages) do
         local button_flow = tab_flow.add {type = 'flow'}
         local button = page.tab_button(button_flow, player)
-
-        local button_style = button.style
-        button_style.left_padding = 3
-        button_style.right_padding = 3
 
         Gui.set_data(button, {index = index, data = data})
 
@@ -94,17 +77,10 @@ local function draw_main_frame(center, player)
     tab_buttons[active_tab].style.font_color = focus_color
 
     local content = frame.add {type = 'frame', direction = 'vertical', style = 'image_frame'}
-    local content_style = content.style
-    content_style.horizontally_stretchable = true
-    content_style.vertically_stretchable = true
-    content_style.left_padding = 8
-    content_style.right_padding = 8
-    content_style.top_padding = 4
 
     pages[active_tab].content(content, player)
 
     data.content = content
-
 
     player.opened = frame
 end
