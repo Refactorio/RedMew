@@ -9,7 +9,7 @@ local ScenarioInfo = require 'features.gui.info'
 
 ScenarioInfo.set_map_name('Terraform Venus')
 ScenarioInfo.set_map_description('After a long journey you have reached Venus. Your mission is simple, turn this hostile environment into one where humans can thrive')
-ScenarioInfo.set_map_extra_info(
+ScenarioInfo.add_map_extra_info(
     '- Venus is an endless desert spotted with tiny oases\n' ..
     '- The atmosphere is toxic and you are not equipped to deal with it\n' ..
     '- While unsure the exact effects the atmosphere will have, you should be cautios of it\n' ..

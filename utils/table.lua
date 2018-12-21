@@ -143,9 +143,16 @@ end
 
 --- Clears all existing entries in a table
 -- @param t table to clear
-table.clear_table = function(t)
-    for i in pairs(t) do
-        t[i] = nil
+-- @param sorted boolean to indicate whether the table is sorted by numerical index or not
+table.clear_table = function(t, sorted)
+    if sorted then
+        for i = 1, #t do
+            t[i] = nil
+        end
+    else
+        for i in pairs(t) do
+            t[i] = nil
+        end
     end
 end
 
