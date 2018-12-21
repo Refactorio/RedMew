@@ -21,7 +21,7 @@ local button_uids = {
 Module.button_uids = button_uids
 
 local votes = {}
-local primitives = {next_move = ""}
+local primitives = {next_move = "", points = 0}
 
 Global.register(
     {
@@ -34,7 +34,8 @@ Global.register(
     end
 )
 
-local function toggle(player)
+function toggle(player)
+    if not player then return end
     local left = player.gui.left
     local main_frame = left[main_frame_name]
 
@@ -76,8 +77,12 @@ local function toggle(player)
             caption = 'Next move: ' .. primitives.next_move
         }
 
-        main_frame.add{type = 'sprite-button', name = button_uids.zoom_button_name, sprite = 'utility/search_icon'}
+        local search_icon = main_frame.add{type = 'sprite-button', name = button_uids.zoom_button_name, sprite = 'utility/search_icon'}
 
+        main_frame.add{
+            type = 'label',
+            caption = 'Points: ' .. primitives.points
+        }
     end
 end
 
@@ -100,18 +105,26 @@ function Module.bind_button(button_uid, handler)
     )
 end
 
-function Module.set_player_vote(player, value)
-    votes[player.index] = value
+function Module.set_points(points)
+    primitives.points = points
     toggle(player) --TODO: Fix this
     toggle(player)
 end
 
-function Module.set_next_move(next_move) 
-    primitives.next_move = next_move
-    for _,p in pairs(game.players) do 
+function refresh_all()
+    for _, p in pairs(game.players) do
         toggle(p) --TODO: Fix this
         toggle(p)
     end
+end
+function Module.set_player_vote(player, value)
+    votes[player.index] = value
+    refresh_all()
+end
+
+function Module.set_next_move(next_move)
+    primitives.next_move = next_move
+    refresh_all()
 end
 
 Event.add(defines.events.on_player_joined_game, player_joined)
