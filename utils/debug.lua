@@ -55,7 +55,7 @@ end
 function Debug.is_closure(func)
     local i = 1
     while true do
-        local n = debug.getupvalue(func, i)
+        local n = debug_getupvalue(func, i)
 
         if n == nil then
             return false
