@@ -41,7 +41,7 @@ local function on_tick()
             -- result is error if not success else result is a boolean for if the task should stay in the queue.
             local success, result = pcall(Token.get(task.func_token), task.params)
             if not success then
-                if _DEBUG then 
+                if _DEBUG then
                     error(result)
                 else
                     log(result)
@@ -60,7 +60,7 @@ local function on_tick()
     while callback ~= nil and game.tick >= callback.time do
         local success, result = pcall(Token.get(callback.func_token), callback.params)
         if not success then
-            if _DEBUG then 
+            if _DEBUG then
                 error(result)
             else
                 log(result)
