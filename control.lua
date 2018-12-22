@@ -1,8 +1,5 @@
-_DUMP_ENV = true
-
 --require 'features.gui.info'
 require 'features.gui.paint'
-
 
 
 -- Dump code

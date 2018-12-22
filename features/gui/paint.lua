@@ -44,21 +44,12 @@ local function toggle(event)
             caption = 'Choose a replacement tile for Refined hazard concrete'
         }
 
-        local tooltip = global.paint_brushes_by_player[event.player_index] or ''
-
         local brush =
             main_frame.add({type = 'flow'}).add {
             type = 'sprite-button',
             name = filter_button_name,
-            tooltip = tooltip,
-            sprite = tooltip ~= '' and 'tile/' .. tooltip or nil
         }
-        brush.style = 'slot_button'
-
         local buttons_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
-
-        buttons_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
-
         local clear_bursh = buttons_flow.add {type = 'button', name = filter_clear_name, caption = 'Clear Brush'}
         Gui.set_data(clear_bursh, brush)
     end
