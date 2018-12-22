@@ -3,7 +3,7 @@
 -- ** Event.add(event_name, handler) **
 --
 -- Handlers added with Event.add must be added at the control stage or in Event.on_init or Event.on_load.
--- Remeber that for each player, on_init or on_load is run, never both. So if you can't add the handler in the
+-- Remember that for each player, on_init or on_load is run, never both. So if you can't add the handler in the
 -- control stage add the handler in both on_init and on_load.
 -- Handlers added with Event.add cannot be removed.
 -- For handlers that need to be removed or added at runtime use Event.add_removable.
@@ -77,7 +77,7 @@
 --
 -- local Event = require 'utils.event'
 --
--- local event_id = script.get_event_handler()
+-- local event_id = script.generate_event_name()
 --
 -- Event.add(
 --     event_id,
@@ -257,7 +257,7 @@ function Event.add_removable_function(event_name, func)
 
     -- If this is called before runtime, we don't need to add the handlers
     -- as they will be added later either in on_init or on_load.
-    if EventCore.runtime then        
+    if EventCore.runtime then
         core_add(event_name, func)
     end
 end
