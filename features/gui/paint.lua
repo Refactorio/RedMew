@@ -4,39 +4,11 @@ local Game = require 'utils.game'
 
 local brush_tool = 'refined-hazard-concrete'
 
-local valid_filters = {
-    'dirt-1',
-    'dirt-2',
-    'dirt-3',
-    'dirt-4',
-    'dirt-5',
-    'dirt-6',
-    'dirt-7',
-    'dry-dirt',
-    'grass-1',
-    'grass-2',
-    'grass-3',
-    'grass-4',
-    'lab-dark-1',
-    'lab-dark-2',
-    'lab-white',
-    'red-desert-0',
-    'red-desert-1',
-    'red-desert-2',
-    'red-desert-3',
-    'sand-1',
-    'sand-2',
-    'sand-3',
-    'tutorial-grid'
-}
-
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 
 local filter_button_name = Gui.uid_name()
 local filter_clear_name = Gui.uid_name()
-local filter_element_name = Gui.uid_name()
-local filters_table_name = Gui.uid_name()
 local filter_table_close_button_name = Gui.uid_name()
 
 global.paint_brushes_by_player = {}
@@ -84,36 +56,6 @@ local function player_joined(event)
     player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'utility/spray_icon'}
 end
 
-local function draw_filters_table(event)
-    local center = event.player.gui.center
-
-    if center[filters_table_name] then
-        return
-    end
-
-    local frame = center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = 'Palette'}
-
-    local t = frame.add {type = 'table', column_count = 10}
-    t.style.horizontal_spacing = 0
-    t.style.vertical_spacing = 0
-
-    for _, v in ipairs(valid_filters) do
-        local flow = t.add {type = 'flow'}
-        local b = flow.add {type = 'sprite-button', name = filter_element_name, sprite = 'tile/' .. v, tooltip = v}
-        Gui.set_data(b, frame)
-        b.style = 'slot_button'
-    end
-
-    local flow = frame.add {type = 'flow'}
-
-    local close = flow.add {type = 'button', name = filter_table_close_button_name, caption = 'Close'}
-    Gui.set_data(close, frame)
-
-    event.player.opened = frame
-
-    Gui.set_data(frame, event.element)
-end
-
 local function toggle(event)
     local left = event.player.gui.left
     local main_frame = left[main_frame_name]
@@ -157,48 +99,6 @@ end
 Gui.on_click(main_button_name, toggle)
 
 Gui.on_click(
-    filter_button_name,
-    function(event)
-        if event.button == defines.mouse_button_type.right then
-            global.paint_brushes_by_player[event.player_index] = nil
-            local element = event.element
-            element.sprite = 'utility/pump_cannot_connect_icon'
-            element.tooltip = ''
-        else
-            draw_filters_table(event)
-        end
-    end
-)
-
-Gui.on_click(
-    filter_clear_name,
-    function(event)
-        local brush = Gui.get_data(event.element)
-
-        brush.sprite = 'utility/pump_cannot_connect_icon'
-        brush.tooltip = ''
-
-        global.paint_brushes_by_player[event.player_index] = nil
-    end
-)
-
-Gui.on_click(
-    filter_element_name,
-    function(event)
-        local element = event.element
-        local frame = Gui.get_data(element)
-        local filter_button = Gui.get_data(frame)
-
-        global.paint_brushes_by_player[event.player_index] = element.tooltip
-        filter_button.sprite = element.sprite
-        filter_button.tooltip = element.tooltip
-
-        Gui.remove_data_recursively(frame)
-        frame.destroy()
-    end
-)
-
-Gui.on_click(
     filter_table_close_button_name,
     function(event)
         local frame = Gui.get_data(event.element)
@@ -206,17 +106,6 @@ Gui.on_click(
         frame.destroy()
     end
 )
-
-Gui.on_custom_close(
-    filters_table_name,
-    function(event)
-        local element = event.element
-        Gui.remove_data_recursively(element)
-        element.destroy()
-    end
-)
-
-Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_player_built_tile, player_build_tile)
