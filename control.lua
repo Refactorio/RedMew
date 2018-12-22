@@ -5,7 +5,7 @@ local inspect = require 'inspect'
 local Event = require 'utils.event'
 
 local filter = function(item)
-    if item ~= 'tokens' then
+    if item ~= 'that_thing' then
         return item
     end
 end
