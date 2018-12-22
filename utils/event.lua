@@ -4,7 +4,7 @@
 --
 -- Handlers added with Event.add must be added at the control stage or in Event.on_init or Event.on_load.
 -- Remeber that for each player, on_init or on_load is run, never both. So if you can't add the handler in the
--- contorl stage add the handler in both on_init and on_load.
+-- control stage add the handler in both on_init and on_load.
 -- Handlers added with Event.add cannot be removed.
 -- For handlers that need to be removed or added at runtime use Event.add_removable.
 -- @usage
@@ -20,7 +20,7 @@
 --
 -- For conditional event handlers. Event.add_removable can be safely called at runtime without desync risk.
 -- Only use this if you need to add the handler at runtime or need to remove the handler, other wise use Event.add
--- Token is used becasue it's a desync risk to store closures inside the global table.
+-- Token is used because it's a desync risk to store closures inside the global table.
 --
 -- @usage
 -- local Token = require 'utils.token'
@@ -52,7 +52,7 @@
 -- @usage
 -- local Event = require 'utils.event'
 --
--- If you want to remove the handler you will need to keep a refernece to it.
+-- If you want to remove the handler you will need to keep a reference to it.
 -- global.handler = function(event)
 --     game.print(serpent.block(event)) -- prints the content of the event table to console.
 -- end
