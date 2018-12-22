@@ -12,7 +12,7 @@ require 'utils.core'
 -- this
 local Scenario = {}
 
-RS.first_player_position_check_override = true -- forces players to spawn at 0,0
+RS.set_first_player_position_check_override(true) -- forces players to spawn at 0,0
 global.diggy_scenario_registered = false
 
 --[[--

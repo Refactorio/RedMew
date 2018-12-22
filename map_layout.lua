@@ -165,7 +165,7 @@ end
 
 if shape then
     local surfaces = {
-        [RS.surface_name] = shape,
+        [RS.get_surface_name()] = shape,
     }
 
     require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})

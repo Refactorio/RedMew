@@ -14,8 +14,10 @@ global.config = {
         -- new Scenario Features, appears in the "What's new" tab
         new_info_key = 'Nothing is new. The world is at peace',
     },
-    -- toggle on/off overriding pre-game map generator settings
+    -- by default the redmew scenario completely controls world generation when a preset map is loaded
+    -- you can toggle this behaviour completely with 'enabled' or the individual modules
     redmew_surface = {
+        enabled = true,
         map_gen_settings = true,
         map_settings = true,
         difficulty = true,
