@@ -19,9 +19,7 @@ local function toggle(event)
         main_frame =
             left.add {
             type = 'frame',
-            name = main_frame_name,
-            direction = 'vertical',
-            caption = 'Paint Brush'
+            name = main_frame_name
         }
         local brush =
             main_frame.add({type = 'flow'}).add {
