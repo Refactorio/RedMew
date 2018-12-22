@@ -7,7 +7,6 @@ local main_frame_name = Gui.uid_name()
 
 local filter_button_name = Gui.uid_name()
 local filter_clear_name = Gui.uid_name()
-local filter_table_close_button_name = Gui.uid_name()
 
 global.paint_brushes_by_player = {}
 
@@ -29,8 +28,7 @@ local function toggle(event)
     local main_frame = left[main_frame_name]
 
     if main_frame and main_frame.valid then
-        Gui.remove_data_recursively(main_frame)
-        main_frame.destroy()
+        return
     else
         main_frame =
             left.add {
@@ -54,16 +52,6 @@ local function toggle(event)
         Gui.set_data(clear_bursh, brush)
     end
 end
-
-Gui.on_click(main_button_name, toggle)
-
-Gui.on_click(
-    filter_table_close_button_name,
-    function(event)
-        local frame = Gui.get_data(event.element)
-        Gui.remove_data_recursively(frame)
-    end
-)
 
 Event.add(defines.events.on_player_joined_game, player_joined)
 
