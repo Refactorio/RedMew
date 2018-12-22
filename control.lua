@@ -63,7 +63,9 @@ end
 -- GUIs the order determines the order they appear from left to right.
 -- These can be safely disabled if you want less GUI items.
 -- Some map presets will add GUI modules themselves.
-require 'features.gui.info'
+if config.map_info.enabled then
+    require 'features.gui.info'
+end
 if config.player_list.enabled then
     require 'features.gui.player_list'
 end
