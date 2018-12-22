@@ -4,8 +4,8 @@ You may choose up to one of each type shapes, terrain, ores and misc or one of t
 If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
-
 local b = require 'map_gen.shared.builders'
+require 'utils.table'
 require 'map_gen.shared.perlin_noise'
 global.map = {}
 global.map.terraforming = {}
@@ -45,7 +45,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.UK"
 --shape = require "map_gen.presets.venice"
 --shape = require "map_gen.presets.goats_on_goats"
---shape = require "map_gen.presets.grid_islands"
+shape = require "map_gen.presets.grid_islands"
 --shape = require "map_gen.presets.grid_islands_rotated"
 --shape = require "map_gen.presets.crosses"
 --shape = require "map_gen.presets.crosses3"
