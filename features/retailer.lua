@@ -77,7 +77,7 @@ local function redraw_market_items(data)
 
     for i, item in pairs(market_items) do
         local price = item.price
-        local tooltip = {'', item.name_label, format('\nprice: %d', price)}
+        local tooltip = {'', item.name_label, format('\nprice: %.2f', price)}
         local description = item.description
         local total_price = ceil(price * count)
         local message
