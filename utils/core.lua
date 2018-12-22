@@ -23,8 +23,8 @@ Module.print_except = function(msg, player)
 end
 
 --- Prints a message to all online admins
---@param1 The message to print, as a string
---@param2 The source of the message, as a string, LuaPlayer, or nil.
+--@param msg <string> The message to print
+--@param source <LuaPlayer|string|nil> string must be the name of a player, nil for server.
 Module.print_admins = function(msg, source)
     local source_name
     local chat_color

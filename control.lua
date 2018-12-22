@@ -23,6 +23,9 @@ end
 if config.corpse_util.enabled then
     require 'features.corpse_util'
 end
+if config.admin_commands.enabled then
+    require 'features.admin_commands'
+end
 if config.custom_commands.enabled then
     require 'features.custom_commands'
 end
@@ -34,9 +37,6 @@ if config.train_saviour.enabled then
 end
 if config.fish_market.enabled then
     require 'features.fish_market'
-end
-if config.free_item_logging.enabled then
-    require 'features.free_item_logging'
 end
 if config.nuke_control.enabled then
     require 'features.nuke_control'

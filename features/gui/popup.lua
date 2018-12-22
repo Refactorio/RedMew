@@ -87,7 +87,7 @@ local function popup(cmd)
     end
 
     Game.player_print('Popup sent')
-    Utils.print_admins(Utils.get_actor() .. ' sent a popup to all players', false)
+    Utils.print_admins(Utils.get_actor() .. ' sent a popup to all players', nil)
 end
 
 -- Creates a popup dialog for all players, specifically for the server upgrading factorio versions
@@ -105,7 +105,7 @@ local function popup_update(cmd)
     end
 
     Game.player_print('Popup sent')
-    Utils.print_admins(Utils.get_actor() .. ' sent a popup to all players', false)
+    Utils.print_admins(Utils.get_actor() .. ' sent a popup to all players', nil)
 end
 
 -- Creates a popup dialog for the specifically targetted player

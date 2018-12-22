@@ -63,7 +63,7 @@ local function on_player_deconstructed_area(event)
     if #entities > 1000 then
         Utils.print_admins(
             'Warning! ' .. player.name .. ' just tried to deconstruct ' .. tostring(#entities) .. ' entities!',
-            false
+            nil
         )
     end
     for _, entity in pairs(entities) do

@@ -170,16 +170,16 @@ global.config = {
     custom_commands = {
         enabled = true,
     },
+    -- adds many commands for admins
+    admin_commands = {
+        enabled = true,
+    },
     -- enables donators' on-join messages
     donator_messages = {
         enabled = true,
     },
     -- saves players' lives if they have a small-plane in their inventory, also adds the small-plan to the market
     train_saviour = {
-        enabled = true,
-    },
-    -- logs when commands are used and when items are spawned in
-    free_item_logging = {
         enabled = true,
     },
     player_colors = {

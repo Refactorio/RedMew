@@ -99,7 +99,7 @@ local function name_player(player)
     local str = format('%s will now be known as: %s', player.name, name)
     game.print(str)
     local admin_str = format('%s (ID: %s)', str, player.index)
-    Utils.print_admins(admin_str, false)
+    Utils.print_admins(admin_str, nil)
     player.name = name
 
     -- After they have their name, we need to ensure compatibility with the regulars system
@@ -120,7 +120,7 @@ local function restore_name(data)
     if data.name == 'name-restore' then
         player.print('Your true name has been restored.')
         local str = silly_name .. ' will now be known as: ' .. player.name
-        Utils.print_admins(str .. ' (ID: ' .. player.index .. ')', false)
+        Utils.print_admins(str .. ' (ID: ' .. player.index .. ')', nil)
     end
 end
 

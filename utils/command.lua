@@ -1,4 +1,6 @@
 require 'utils.table'
+local Event = require 'utils.event'
+local Game = require 'utils.game'
 
 local insert = table.insert
 local format = string.format
@@ -8,16 +10,25 @@ local match = string.match
 
 local Command = {}
 
+local deprecated_command_alternatives = {
+    ['silent-command'] = 'sc',
+    ['tpplayer'] = 'tp',
+    ['tppos'] = 'tp',
+    ['tpmode'] = 'tp',
+}
+
 local option_names = {
     ['description'] = 'A description of the command',
     ['arguments'] = 'A table of arguments, example: {"foo", "bar"} would map the first 2 arguments to foo and bar',
     ['default_values'] = 'A default value for a given argument when omitted, example: {bar = false}',
     ['admin_only'] = 'Set this to true if only admins may execute this command',
-    ['debug_only'] = 'Set this to true if it should only be registered when _DEBUG is true',
+    ['debug_only'] = 'Set this to true if it should be registered when _DEBUG is true',
+    ['cheat_only'] = 'Set this to true if it should be registered when _CHEATS is true',
     ['allowed_by_server'] = 'Set to true if the server (host) may execute this command',
     ['allowed_by_player'] = 'Set to false to disable players from executing this command',
     ['log_command'] = 'Set to true to log commands. Always true when admin_only is enabled',
     ['capture_excess_arguments'] = 'Allows the last argument to be the remaining text in the command',
+    ['custom_help_text'] = 'Sets a custom help text to override the auto-generated help',
 }
 
 ---Validates if there aren't any wrong fields in the options.
@@ -42,10 +53,11 @@ end
 ---    description = 'A description of the command',
 ---    arguments = {'foo', 'bar'}, -- maps arguments to these names in the given sequence
 ---    default_values = {bar = false}, -- gives a default value to 'bar' when omitted
----    admin_only = true, -- defaults to false
----    debug_only = false, -- only registers it if _DEBUG is set to true when false
----    allowed_by_server = false -- lets the server execute this, defaults to false
----    allowed_by_player = true -- lets players execute this, defaults to true
+---    admin_only = false, -- defaults to false
+---    debug_only = false, -- registers the command if _DEBUG is set to true, defaults to false
+---    cheat_only = false, -- registers the command if _CHEATS is set to true, defaults to false
+---    allowed_by_server, = false -- lets the server execute this, defaults to false
+---    allowed_by_player, = true -- lets players execute this, defaults to true
 ---    log_command = true, -- defaults to false unless admin only, then always true
 ---    capture_excess_arguments = true, defaults to false, captures excess arguments in the last argument, useful for sentences
 ---}
@@ -64,7 +76,9 @@ function Command.add(command_name, options, callback)
     local default_values = options.default_values or {}
     local admin_only = options.admin_only or false
     local debug_only = options.debug_only or false
+    local cheat_only = options.cheat_only or false
     local capture_excess_arguments = options.capture_excess_arguments or false
+    local custom_help_text = options.custom_help_text or false
     local allowed_by_server = options.allowed_by_server or false
     local allowed_by_player = options.allowed_by_player
     local log_command = options.log_command or options.admin_only or false
@@ -77,7 +91,7 @@ function Command.add(command_name, options, callback)
         allowed_by_player = true
     end
 
-    if not _DEBUG and debug_only then
+    if (not _DEBUG and debug_only) and (not _CHEATS and cheat_only) then
         return
     end
 
@@ -109,7 +123,9 @@ function Command.add(command_name, options, callback)
         extra = ' (Admin Only)'
     end
 
-    commands.add_command(command_name, argument_list .. description .. extra, function (command)
+    local help_text = custom_help_text or argument_list .. description .. extra
+
+    commands.add_command(command_name, help_text, function (command)
         local print -- custom print reference in case no player is present
         local player = game.player
         local player_name = player and player.valid and player.name or '<server>'
@@ -227,5 +243,38 @@ function Command.search(keyword)
 
     return matches
 end
+
+--- Warns users of deprecated commands
+local function notify_deprecated(event)
+    local alternative = deprecated_command_alternatives[event.command]
+    if alternative then
+        local print = log
+        if event.player_index then
+            print = Game.get_player_by_index(event.player_index).print
+        end
+        print(string.format('Warning! Usage of the command "/%s" is deprecated. Please use "/%s" instead.', event.command, alternative))
+    end
+end
+
+--- Traps command errors if not in DEBUG.
+if not _DEBUG then
+    local old_add_command = commands.add_command
+    commands.add_command =
+        function(name, desc, func)
+        old_add_command(
+            name,
+            desc,
+            function(cmd)
+                local success, error = pcall(func, cmd)
+                if not success then
+                    log(error)
+                    Game.player_print('Sorry there was an error running ' .. cmd.name)
+                end
+            end
+        )
+    end
+end
+
+Event.add(defines.events.on_console_command, notify_deprecated)
 
 return Command
