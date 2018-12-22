@@ -7,7 +7,7 @@ local filename = 'env_dump.lua'
 
 local remove_package = function(item)
 	if item ~= 'package' then return item end
-  end
+end
 
 local function player_joined(event)
 	local dump_string = table.inspect(_ENV, {process = remove_package})
