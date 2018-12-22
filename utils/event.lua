@@ -257,9 +257,8 @@ function Event.add_removable_function(event_name, func)
 
     -- If this is called before runtime, we don't need to add the handlers
     -- as they will be added later either in on_init or on_load.
-    if EventCore.runtime then
-        local handler = Token.get(func)
-        core_add(event_name, handler)
+    if EventCore.runtime then        
+        core_add(event_name, func)
     end
 end
 
