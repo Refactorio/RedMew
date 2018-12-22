@@ -2,8 +2,6 @@ local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Game = require 'utils.game'
 
-local brush_tool = 'refined-hazard-concrete'
-
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 
@@ -12,36 +10,6 @@ local filter_clear_name = Gui.uid_name()
 local filter_table_close_button_name = Gui.uid_name()
 
 global.paint_brushes_by_player = {}
-local function player_build_tile(event)
-    if event.item.name ~= brush_tool then
-        return
-    end
-
-    local replace_tile = global.paint_brushes_by_player[event.player_index]
-    if not replace_tile then
-        return
-    end
-
-    local player = Game.get_player_by_index(event.player_index)
-    if not player.gui.left[main_frame_name] then
-        return
-    end
-
-    local tiles = event.tiles
-    local count = 0
-    for _, tile_data in ipairs(tiles) do
-        tile_data.name = replace_tile
-        if tile_data.old_tile.name == replace_tile then
-            count = count + 1
-        end
-    end
-
-    game.surfaces[event.surface_index].set_tiles(tiles)
-
-    if count > 0 then
-        player.insert {name = brush_tool, count = count}
-    end
-end
 
 local function player_joined(event)
     local player = Game.get_player_by_index(event.player_index)
@@ -108,7 +76,6 @@ Gui.on_click(
 )
 
 Event.add(defines.events.on_player_joined_game, player_joined)
-Event.add(defines.events.on_player_built_tile, player_build_tile)
 
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
