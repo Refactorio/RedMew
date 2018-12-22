@@ -27,23 +27,20 @@ local function do_fish_kill(player, suicide)
 end
 
 --- Kill a player: admins and the server can kill others, non-admins can only kill themselves
-local function kill(cmd)
-    local player = game.player
-    local param = cmd.parameter
+local function kill(args, player)
+    local target_name = args.player
     local target
-    if param then
-        target = game.players[param]
+    if target_name then
+        target = game.players[target_name]
         if not target then
-            Game.player_print(table.concat {"Sorry, player '", param, "' was not found."})
+            Game.player_print(format('Player %s was not found.', target_name))
             return
         end
     end
 
-    if global.walking then
-        if (player and global.walking[player.index]) or (target and global.walking[target.index]) then
-            Game.player_print("A player on walkabout cannot be killed by a mere fish, don't waste your efforts.")
-            return
-        end
+    if global.walking and ((player and global.walking[player.index]) or (target and global.walking[target.index])) then
+        Game.player_print("A player on walkabout cannot be killed by a mere fish, don't waste your efforts.")
+        return
     end
 
     if not target and player then
@@ -66,19 +63,15 @@ local function kill(cmd)
         if not do_fish_kill(target) then
             Game.player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
         end
-    else
-        if param then
-            Game.player_print(table.concat {"Sorry, player '", param, "' was not found."})
-        else
-            Game.player_print('Usage: /kill <player>')
-        end
     end
 end
 
 --- Check players' afk times
 local function afk()
+    local count = 0
     for _, v in pairs(game.players) do
         if v.afk_time > 300 then
+            count = count + 1
             local time = ' '
             if v.afk_time > 21600 then
                 time = time .. math.floor(v.afk_time / 216000) .. ' hours '
@@ -90,37 +83,33 @@ local function afk()
             Game.player_print(v.name .. ' has been afk for' .. time)
         end
     end
+    if count == 0 then
+        Game.player_print('No players afk.')
+    end
 end
 
 --- Lets a player set their zoom level
-local function zoom(cmd)
-    if game.player and cmd and cmd.parameter and tonumber(cmd.parameter) then
-        game.player.zoom = tonumber(cmd.parameter)
+local function zoom(args, player)
+    if tonumber(args.zoom) then
+        player.zoom = tonumber(args.zoom)
+    else
+        Game.player_print('You must give zoom a number.')
     end
 end
 
 --- Creates an alert for the player at the location of their target
-local function find_player(cmd)
-    local player = game.player
-    if not player then
-        return
-    end
-
-    local name = cmd.parameter
-    if not name then
-        player.print('Usage: /find-player <player>')
-        return
-    end
+local function find_player(args, player)
+    local name = args.player
 
     local target = game.players[name]
     if not target then
-        player.print('player ' .. name .. ' not found')
+        Game.player_print('player ' .. name .. ' not found')
         return
     end
 
     target = target.character
     if not target or not target.valid then
-        player.print('player ' .. name .. ' does not have a character')
+        Game.player_print('player ' .. name .. ' does not have a character')
         return
     end
 
@@ -128,21 +117,15 @@ local function find_player(cmd)
 end
 
 --- Turns on rail block visualization for player
-local function show_rail_block()
-    local player = game.player
-    if not player then
-        return
-    end
-
+local function show_rail_block(_, player)
     local vs = player.game_view_settings
     local show = not vs.show_rail_block_visualisation
     vs.show_rail_block_visualisation = show
 
-    player.print('show_rail_block_visualisation set to ' .. tostring(show))
+    Game.player_print('show_rail_block_visualisation set to ' .. tostring(show))
 end
 
-local function server_time()
-    local player = game.player
+local function server_time(_, player)
     local p
     if not player then
         p = print
@@ -160,20 +143,7 @@ local function server_time()
     end
 end
 
-commands.add_command('kill', 'Will kill you.', kill)
-commands.add_command('regulars', 'Prints a list of game regulars.', UserGroups.print_regulars)
-commands.add_command('afk', 'Shows how long players have been afk.', afk)
-commands.add_command('zoom', '<number> Sets your zoom.', zoom)
-commands.add_command('find', '<player> shows an alert on the map where the player is located', find_player)
-commands.add_command('report', '<griefer-name> <message> Reports a user to admins', Report.cmd_report)
-commands.add_command('show-rail-block', 'Toggles rail block visualisation', show_rail_block)
-commands.add_command('server-time', "Prints the server's time", server_time)
-
-Command.add('search-command', {
-    description = 'Search for commands matching the keyword in name or description',
-    arguments = {'keyword', 'page'},
-    default_values = {page = 1},
-}, function (arguments, player)
+local function search_command(arguments, player)
     local keyword = arguments.keyword
     local p = player.print
     if #keyword < 2 then
@@ -219,4 +189,92 @@ Command.add('search-command', {
         p(format('[%d] /%s', i, matches[i]))
     end
     p(format('-------- Page %d / %d --------', page, pages))
-end)
+end
+
+----------------------------------------------------------------------------------------
+
+Command.add(
+    'kill',
+    {
+        description = 'Will kill you.',
+        arguments = {'player'},
+        default_values = {player = false},
+        allowed_by_server = true
+    },
+    kill
+)
+
+Command.add(
+    'afk',
+    {
+        description = 'Shows how long players have been afk.',
+        allowed_by_server = true
+    },
+    afk
+)
+
+Command.add(
+    'zoom',
+    {
+        description = 'Sets your zoom.',
+        arguments = {'zoom'}
+    },
+    zoom
+)
+
+Command.add(
+    'find',
+    {
+        description = 'shows an alert on the map where the player is located',
+        arguments = {'player'}
+    },
+    find_player
+)
+
+Command.add(
+    'show-rail-block',
+    {
+        description = 'Toggles rail block visualisation.'
+    },
+    show_rail_block
+)
+
+Command.add(
+    'server-time',
+    {
+        description = "Prints the server's time.",
+        allowed_by_server = true
+    },
+    server_time
+)
+
+Command.add(
+    'search-command',
+    {
+        description = 'Search for commands matching the keyword in name or description',
+        arguments = {'keyword', 'page'},
+        default_values = {page = 1}
+    },
+    search_command
+)
+
+-- Commands with no functions, only calls to other modules
+
+Command.add(
+    'report',
+    {
+        description = 'Reports a user to admins',
+        arguments = {'player', 'message'},
+        capture_excess_arguments = true
+    },
+    Report.report_command
+)
+
+Command.add(
+    'regulars',
+    {
+        description = 'Prints a list of game regulars.',
+        allowed_by_server = true
+    },
+    UserGroups.print_regulars
+)

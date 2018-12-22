@@ -183,6 +183,15 @@ local function watch_close_button(event)
     create_destroy_camera(true, event.player)
 end
 
-Command.add('watch', {description = 'Allows you to watch other players. Use /watch to close the camera.', arguments = {'target'}, default_values = {target = false}, admin_only = false}, watch_command)
+Command.add(
+    'watch',
+    {
+        description = 'Allows you to watch other players. Use /watch to close the camera.',
+        arguments = {'target'},
+        default_values = {target = false},
+        admin_only = false
+    },
+    watch_command
+)
 Event.on_nth_tick(120, on_tick)
 Gui.on_click(main_button_name, watch_close_button)

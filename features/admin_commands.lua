@@ -41,13 +41,13 @@ end
 --- Toggles cheat mode for a player
 local function toggle_cheat_mode(_, player)
     player.cheat_mode = not player.cheat_mode
-    player.print('Cheat mode toggled')
+    Game.player_print('Cheat mode set to ' .. tostring(player.cheat_mode))
 end
 
 --- Enables all researches for a player's force
 local function all_tech(_, player)
     player.force.research_all_technologies()
-    player.print('Your force has been granted all technologies')
+    Game.player_print('Your force has been granted all technologies')
 end
 
 --- Add or remove someone from the list of regulars
@@ -150,12 +150,12 @@ end
 local function invoke(args, player)
     local target = game.players[args.player]
     if not target then
-        player.print('Unknown player.')
+        Game.player_print('Unknown player.')
         return
     end
     local pos = player.surface.find_non_colliding_position('player', player.position, 50, 1)
     if not pos then
-        player.print('Unable to find suitable location to teleport to.')
+        Game.player_print('Unable to find suitable location to teleport to.')
         return
     end
     target.teleport({pos.x, pos.y}, player.surface)
@@ -170,33 +170,33 @@ local function teleport_player(args, player)
         target = game.players[target_name]
     end
     if not target then
-        player.print('Unknown player.')
+        Game.player_print('Unknown player.')
         return
     end
     local surface = target.surface
     local pos = surface.find_non_colliding_position('player', target.position, 50, 1)
     if not pos then
-        player.print('Unable to find suitable location to teleport to.')
+        Game.player_print('Unable to find suitable location to teleport to.')
         return
     end
     player.teleport(pos, surface)
     game.print(target_name .. "! watcha doin'?!")
-    player.print('You have teleported to ' .. target_name)
+    Game.player_print('You have teleported to ' .. target_name)
 end
 
 --- Takes a selected entity and teleports player to it
 local function teleport_location(_, player)
     if not player.selected then
-        player.print('No entity under cursor.')
+        Game.player_print('No entity under cursor.')
         return
     end
     local pos = player.surface.find_non_colliding_position('player', player.selected.position, 50, 1)
     if not pos then
-        player.print('Unable to find suitable location to teleport to.')
+        Game.player_print('Unable to find suitable location to teleport to.')
         return
     end
     player.teleport(pos)
-    player.print('Teleporting to your selected entity.')
+    Game.player_print('Teleporting to your selected entity.')
 end
 
 --- If a player is in the global.tp_players list, remove ghosts they place and teleport them to that position
@@ -222,10 +222,10 @@ local function toggle_tp_mode(_, player)
 
     if toggled then
         global.tp_players[index] = nil
-        player.print('tp mode is now off')
+        Game.player_print('tp mode is now off')
     else
         global.tp_players[index] = true
-        player.print('tp mode is now on - place a ghost entity to teleport there.')
+        Game.player_print('tp mode is now on - place a ghost entity to teleport there.')
     end
 end
 
