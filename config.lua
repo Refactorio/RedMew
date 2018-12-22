@@ -3,7 +3,9 @@ _CHEATS = false
 local market_item = 'coin'
 
 global.config = {
+    -- adds a GUI listing the scenario features, the rules, and the details of the current map
     map_info = {
+        enabled = true,
         -- The title of the map
         map_name_key = 'This Map has no name',
         -- The long description of the map, typically 1 paragraph
