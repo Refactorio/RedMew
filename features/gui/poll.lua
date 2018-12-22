@@ -4,7 +4,6 @@ local Event = require 'utils.event'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
 local math = require 'utils.math'
-local Utils = require 'utils.core'
 local Server = require 'features.server'
 local Command = require 'utils.command'
 
@@ -1281,7 +1280,7 @@ function Class.poll_result(id)
     return table.concat {'poll #', id, ' not found'}
 end
 
-local function poll_command(args, player)
+local function poll_command(args)
     local param = args.poll
     param = 'return ' .. param
 
