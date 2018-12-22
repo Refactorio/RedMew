@@ -130,8 +130,9 @@ local function redraw_market_items(data)
         local label = grid.add({type = 'label', caption = message})
         local label_style = label.style
         label_style.width = 93
-        label_style.height = 38
+        label_style.height = 32
         label_style.font = 'default-bold'
+        label_style.vertical_align = 'center'
 
         if is_missing_coins then
             label_style.font_color = color_red
