@@ -7,8 +7,6 @@ local main_frame_name = Gui.uid_name()
 local filter_button_name = Gui.uid_name()
 local filter_clear_name = Gui.uid_name()
 
-global.paint_brushes_by_player = {}
-
 local function toggle(event)
     local left = event.player.gui.left
     local main_frame = left[main_frame_name]
