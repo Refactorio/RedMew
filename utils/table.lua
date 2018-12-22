@@ -198,5 +198,5 @@ table.binary_search = function(t, target)
 end
 
 -- add table-related functions that exist in base factorio to the 'table' table
-table.inspect = require 'inspect'
+table.inspect = require 'utils.inspect'
 table.size = table_size
