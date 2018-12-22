@@ -13,12 +13,12 @@ local tonumber = tonumber
 local clamp = math.clamp
 local floor = math.floor
 local ceil = math.ceil
+local raise_event = script.raise_event
 local market_frame_name = Gui.uid_name()
 local market_frame_close_button_name = Gui.uid_name()
 local item_button_name = Gui.uid_name()
 local count_slider_name = Gui.uid_name()
 local count_text_name = Gui.uid_name()
-local raise_event = script.raise_event
 local color_red = {r = 1, b = 0, g = 0}
 
 local Retailer = {}
