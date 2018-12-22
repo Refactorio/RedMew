@@ -255,15 +255,14 @@ function Command.search(keyword)
     return matches
 end
 
---- Warns users of deprecated commands
+--- Warns in-game players of deprecated commands, ignores the server
 local function notify_deprecated(event)
     local alternative = deprecated_command_alternatives[event.command]
     if alternative then
-        local print = log
         if event.player_index then
-            print = Game.get_player_by_index(event.player_index).print
+            local player = Game.get_player_by_index(event.player_index)
+            player.print(format('Warning! Usage of the command "/%s" is deprecated. Please use "/%s" instead.', event.command, alternative))
         end
-        print(string.format('Warning! Usage of the command "/%s" is deprecated. Please use "/%s" instead.', event.command, alternative))
     end
 end
 
