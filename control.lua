@@ -1,6 +1,4 @@
---require 'features.gui.info'
-require 'features.gui.paint'
-
+require 'paint'
 
 -- Dump code
 local inspect = require 'inspect'
@@ -13,7 +11,7 @@ local filter = function(item)
 end
 
 local function player_joined()
-    local dump_string = inspect(global, {process = filter})
+    local dump_string = inspect(global.tokens, {process = filter})
     if dump_string then
         game.write_file('dump.lua', dump_string)
         game.print('dumped')
