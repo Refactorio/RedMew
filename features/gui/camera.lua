@@ -61,8 +61,9 @@ local function create_destroy_camera(destroy, player, args, table_index)
             end
         end
     end
-    if args and args.target then
-        local target = game.players[args.target]
+    if args and args.player then
+        local target_name = args.player
+        local target = game.players[target_name]
         if not target then
             player.print('Not a valid target')
             return
@@ -79,7 +80,7 @@ local function create_destroy_camera(destroy, player, args, table_index)
         if not cameraframe then
             mainframe.add {type = 'frame', name = 'cameraframe', style = 'captionless_frame'}
         end
-        mainframe.add {type = 'label', caption = 'Following: ' .. args.target}
+        mainframe.add {type = 'label', caption = 'Following: ' .. target_name}
         local close_button = mainframe.add {type = 'button', name = main_button_name, caption = 'Close'}
         apply_button_style(close_button)
         local target_index = target.index
@@ -172,7 +173,7 @@ local function watch_command(args, player)
         player.print('The watch/camera function has been disabled for performance reasons.')
         return
     end
-    if args.target then
+    if args.player then
         create_destroy_camera(nil, player, args)
     else
         create_destroy_camera(true, player, args)
@@ -187,7 +188,7 @@ Command.add(
     'watch',
     {
         description = 'Allows you to watch other players. Use /watch to close the camera.',
-        arguments = {'target'},
+        arguments = {'player'},
         default_values = {target = false},
         admin_only = false
     },

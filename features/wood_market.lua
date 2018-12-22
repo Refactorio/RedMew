@@ -4,6 +4,7 @@ local Task = require 'utils.schedule'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local Utils = require 'utils.core'
+local Command = require 'utils.command'
 
 local market_items = require 'resources.market_items'
 
@@ -18,24 +19,28 @@ market_items[2].offer.effect_description = 'Temporary mining bonus - Price 40  W
 
 table.insert(market_items, {price = {{'raw-wood', 4}}, offer = {type = 'give-item', item = 'raw-fish'}})
 
-local function spawn_market(cmd)
-    if not game.player or not game.player.admin then
-        Utils.cant_run(cmd.name)
-        return
-    end
+local function spawn_market(_, player)
     local surface = game.player.surface
+    local force = player.force
 
-    local player = game.player
+    local pos = player.position
+    pos.y = pos.y - 4
 
-    local market_location = {x = player.position.x, y = player.position.y}
-    market_location.y = market_location.y - 4
-
-    local market = surface.create_entity {name = 'market', position = market_location}
+    local market = surface.create_entity {name = 'market', position = pos}
     market.destructible = false
 
     for _, item in ipairs(market_items) do
         market.add_market_item(item)
     end
+
+    force.add_chart_tag(
+        surface,
+        {
+            icon = {type = 'item', name = 'raw-wood'},
+            position = pos,
+            text = 'Market'
+        }
+    )
 end
 
 local entity_drop_amount = {
@@ -207,7 +212,14 @@ local function player_mined_entity(event)
     end
 end
 
-commands.add_command('market', 'Places a wood market near you.  (Admins only)', spawn_market)
+Command.add(
+    'market',
+    {
+        description = 'Places a market near you.',
+        admin_only = true
+    },
+    spawn_market
+)
 
 Event.on_nth_tick(180, on_180_ticks)
 

@@ -334,7 +334,7 @@ Command.add(
 Command.add(
     'tempban',
     {
-        description = ' Temporarily bans a player',
+        description = 'Temporarily bans a player',
         arguments = {'player', 'minutes'},
         admin_only = true,
         allowed_by_server = true

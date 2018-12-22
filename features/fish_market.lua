@@ -14,19 +14,13 @@ local Token = require 'utils.token'
 local Task = require 'utils.schedule'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
-local Utils = require 'utils.core'
+local Command = require 'utils.command'
 
 local Market_items = require 'resources.market_items'
 local market_item = Market_items.market_item
 local fish_market_bonus_message = require 'resources.fish_messages'
 
-local function spawn_market(cmd)
-    local player = game.player
-    if not player or not player.admin then
-        Utils.cant_run(cmd.name)
-        return
-    end
-
+local function spawn_market(_, player)
     local surface = player.surface
     local force = player.force
 
@@ -45,7 +39,7 @@ local function spawn_market(cmd)
         {
             icon = {type = 'item', name = market_item},
             position = pos,
-            text = ' Market'
+            text = 'Market'
         }
     )
 end
@@ -278,7 +272,14 @@ local function player_created(event)
 end
 
 local function init()
-    commands.add_command('market', 'Places a fish market near you.  (Admins only)', spawn_market)
+    Command.add(
+    'market',
+    {
+        description = 'Places a market near you.',
+        admin_only = true
+    },
+    spawn_market
+)
 
     Event.on_nth_tick(180, on_180_ticks)
     Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)

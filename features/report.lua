@@ -131,7 +131,7 @@ function Module.report_command(args, player)
         return nil
     end
 
-    Module.report(player, reported_player, tostring(args.message))
+    Module.report(player, reported_player, args.message)
     Game.player_print('Your report has been sent.')
 end
 

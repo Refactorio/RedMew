@@ -1,6 +1,7 @@
 local Gui = require 'utils.gui'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
+local Command = require 'utils.command'
 
 local close_name = Gui.uid_name()
 
@@ -67,20 +68,8 @@ Gui.on_click(
 )
 
 -- Creates a popup dialog for all players
-local function popup(cmd)
-    local player = game.player
-    if player and not player.admin then
-        Utils.cant_run(cmd.name)
-        return
-    end
-
-    local message = cmd.parameter
-    if not message then
-        Game.player_print('Usage: /popup <message>')
-        return
-    end
-
-    message = message:gsub('\\n', '\n')
+local function popup(args)
+    local message = args.message:gsub('\\n', '\n')
 
     for _, p in ipairs(game.connected_players) do
         show_popup(p, message)
@@ -91,14 +80,8 @@ local function popup(cmd)
 end
 
 -- Creates a popup dialog for all players, specifically for the server upgrading factorio versions
-local function popup_update(cmd)
-    local player = game.player
-    if player and not player.admin then
-        Utils.cant_run(cmd.name)
-        return
-    end
-
-    local message = '\nServer updating to ' .. cmd.parameter .. ', back in one minute.'
+local function popup_update(args)
+    local message = '\nServer updating to ' .. args.version .. ', back in one minute.'
 
     for _, p in ipairs(game.connected_players) do
         show_popup(p, message)
@@ -109,48 +92,55 @@ local function popup_update(cmd)
 end
 
 -- Creates a popup dialog for the specifically targetted player
-local function popup_player(cmd)
-    local player = game.player
-    if player and not player.admin then
-        Utils.cant_run(cmd.name)
-        return
-    end
-
-    local message = cmd.parameter
-    if not message then
-        Game.player_print('Usage: /popup <player> <message>')
-        return
-    end
-
-    local start_index, end_index = message:find(' ')
-    if not start_index then
-        Game.player_print('Usage: /popup <player> <message>')
-        return
-    end
-
-    local target_name = message:sub(1, start_index - 1)
+local function popup_player(args)
+    local target_name = args.player
     local target = game.players[target_name]
     if not target then
         Game.player_print('Player ' .. target_name .. ' not found.')
         return
     end
 
-    message = message:sub(end_index, #message):gsub('\\n', '\n')
+    local message = args.message:gsub('\\n', '\n')
 
     show_popup(target, message)
-
     Game.player_print('Popup sent')
 end
 
-commands.add_command('popup', '<message> - Shows a popup to all connected players (Admins only)', popup)
+Command.add(
+    'popup',
+    {
+        description = 'Shows a popup to all connected players',
+        arguments = {'message'},
+        admin_only = true,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    popup
+)
 
-commands.add_command(
+Command.add(
     'popup-update',
-    '<version> - Shows an update popup to all connected players (Admins only)',
+    {
+        description = 'Shows an update popup to all connected players',
+        arguments = {'version'},
+        admin_only = true,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
     popup_update
 )
 
-commands.add_command('popup-player', '<player> <message> - Shows a popup to the players (Admins only)', popup_player)
+Command.add(
+    'popup-player',
+    {
+        description = 'Shows a popup to the player.',
+        arguments = {'player', 'message'},
+        admin_only = true,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    popup_player
+)
 
 local Public = {}
 

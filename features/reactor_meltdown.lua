@@ -5,6 +5,7 @@
 
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local Command = require 'utils.command'
 
 global.reactors_enabled = global.config.reactor_meltdown.on_by_default
 global.wastelands = {}
@@ -152,13 +153,11 @@ local function entity_build(event)
 end
 
 local function reactor_toggle()
-    if not game.player or game.player.admin then
-        global.reactors_enabled = not global.reactors_enabled
-        if global.reactors_enabled then
-            game.print('Reactor meltdown activated.')
-        else
-            game.print('Reactor meltdown deactivated.')
-        end
+    global.reactors_enabled = not global.reactors_enabled
+    if global.reactors_enabled then
+        game.print('Reactor meltdown activated.')
+    else
+        game.print('Reactor meltdown deactivated.')
     end
 end
 
@@ -169,9 +168,25 @@ local function is_meltdown()
         Game.player_print('Reactor meltdown is disabled.')
     end
 end
+Command.add(
+    'meltdown',
+    {
+        description = 'Toggles if reactors blow up',
+        admin_only = true,
+        allowed_by_server = true,
+        log_command = true
+    },
+    reactor_toggle
+)
 
-commands.add_command('meltdown', 'Toggles if reactors blow up', reactor_toggle)
-commands.add_command('is-meltdown', 'Prints if meltdown is enabled', is_meltdown)
+Command.add(
+    'is-meltdown',
+    {
+        description = 'Prints if meltdown is enabled',
+        allowed_by_server = true
+    },
+    is_meltdown
+)
 
 Event.on_nth_tick(60, on_tick)
 Event.add(defines.events.on_player_mined_entity, entity_destroyed)

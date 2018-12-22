@@ -2,7 +2,7 @@ local Task = require 'utils.schedule'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
-local Utils = require 'utils.core'
+local Command = require 'utils.command'
 
 global.walking = {}
 global.walking_storage = {}
@@ -53,30 +53,15 @@ local custom_commands_return_player =
 --- Sends a player on a walkabout:
 -- They are teleported far away, placed on a neutral force, and are given a new character.
 -- They are turned after the timeout by custom_commands_return_player
-local function walkabout(cmd)
-    if game.player and not game.player.admin then
-        Utils.cant_run(cmd.name)
-        return
+local function walkabout(args)
+    local player_name = args.player
+
+    local duration = tonumber(args.duration)
+    if not duration then
+        Game.player_print('Duration should be a number, player will be sent on walkabout for the default 60 seconds.')
+        duration = 60
     end
-    local params = {}
-    if cmd.parameter == nil then
-        Game.player_print('Walkabout failed, check /help walkabout.')
-        return
-    end
-    for param in string.gmatch(cmd.parameter, '%S+') do
-        table.insert(params, param)
-    end
-    local player_name = params[1]
-    local duration = 60
-    if #params > 2 then
-        Game.player_print('Walkabout failed, check /help walkabout.')
-        return
-    elseif #params == 2 and tonumber(params[2]) == nil then
-        Game.player_print(params[2] .. ' is not a number.')
-        return
-    elseif #params == 2 and tonumber(params[2]) then
-        duration = tonumber(params[2])
-    end
+
     if duration < 15 then
         duration = 15
     end
@@ -85,10 +70,6 @@ local function walkabout(cmd)
     if not player or not player.character or global.walking[player.index] then
         Game.player_print(player_name .. ' could not go on a walkabout.')
         return
-    end
-    local chunks = {}
-    for chunk in player.surface.get_chunks() do
-        table.insert(chunks, chunk)
     end
 
     local surface = player.surface
@@ -153,4 +134,14 @@ local function clean_on_join(event)
 end
 
 Event.add(defines.events.on_player_joined_game, clean_on_join)
-commands.add_command('walkabout', '<player> <duration> - Send someone on a walk.  (Admins only)', walkabout)
+Command.add(
+    'walkabout',
+    {
+        description = 'Send someone on a walk. Duration is in seconds.',
+        arguments = {'player', 'duration'},
+        default_values = {duration = 60},
+        admin_only = true,
+        allowed_by_server = true
+    },
+    walkabout
+)
