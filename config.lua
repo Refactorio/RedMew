@@ -167,7 +167,7 @@ global.config = {
         enabled = true,
     },
     -- adds many commands for users and admins alike
-    custom_commands = {
+    redmew_commands = {
         enabled = true,
     },
     -- adds many commands for admins

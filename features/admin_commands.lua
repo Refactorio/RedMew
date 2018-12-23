@@ -97,7 +97,7 @@ local function get_tempban_group()
 end
 
 --- Removes player from the tempban list (by changing them back to the default permissions group)
-local custom_commands_untempban =
+local redmew_commands_untempban =
     Token.register(
     function(param)
         game.print(param.name .. ' is out of timeout.')
@@ -129,7 +129,7 @@ local function tempban(args, player)
     game.print(format('%s put %s in timeout for %s minutes.', actor, target_name, duration))
     if group then
         group.add_player(target_name)
-        Task.set_timeout(60 * tonumber(duration), custom_commands_untempban, {name = target_name})
+        Task.set_timeout(60 * tonumber(duration), redmew_commands_untempban, {name = target_name})
     end
 end
 

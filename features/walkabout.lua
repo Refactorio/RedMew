@@ -10,7 +10,7 @@ global.walking_storage = {}
 --- Returns a player from walkabout after the timeout.
 -- If the player is no longer logged in, store their info
 -- in the global table walking_storage
-local custom_commands_return_player =
+local redmew_commands_return_player =
     Token.register(
     function(args)
         local player = args.player
@@ -52,7 +52,7 @@ local custom_commands_return_player =
 
 --- Sends a player on a walkabout:
 -- They are teleported far away, placed on a neutral force, and are given a new character.
--- They are turned after the timeout by custom_commands_return_player
+-- They are turned after the timeout by redmew_commands_return_player
 local function walkabout(args)
     local player_name = args.player
 
@@ -86,7 +86,7 @@ local function walkabout(args)
         game.print(player_name .. ' went on a walkabout, to find himself.')
         Task.set_timeout(
             duration,
-            custom_commands_return_player,
+            redmew_commands_return_player,
             {
                 player = player,
                 force = player.force,

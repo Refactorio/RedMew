@@ -26,8 +26,8 @@ end
 if config.admin_commands.enabled then
     require 'features.admin_commands'
 end
-if config.custom_commands.enabled then
-    require 'features.custom_commands'
+if config.redmew_commands.enabled then
+    require 'features.redmew_commands'
 end
 if config.donator_messages.enabled then
     require 'features.donator_messages'
