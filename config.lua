@@ -35,7 +35,7 @@ global.config = {
     },
     -- enables players to create and prioritize tasks
     tasklist = {
-        enabled = true,
+        enabled = false,
     },
     -- enables the blueprint helper
     blueprint_helper = {
