@@ -20,8 +20,8 @@
 --   zero: does nothing with this source
 --   one: adds the weight directly to the noise calculation
 --
--- weights:  recommend having resource weights for each cluster add up to 100
---           so that the weights = percentage of each ore type
+-- weights:  recommend having resource weights for each cluster add up to 1000
+--           so that it is apparent that every 10 weight = 1%.  eg. weight 860 (86%) + weight 80 (8%) + weight 60 (6%) = 100%
 
 return {
     { -- tendril medium large impure iron
@@ -40,9 +40,9 @@ return {
             }
         },
         weights = {
-            ['iron-ore']    = 80,
-            ['coal']        = 10,
-            ['stone']       = 8,
+            ['iron-ore']    = 860,
+            ['coal']        = 80,
+            ['stone']       = 60,
         },
         distances = {
             ['coal']        = 16,
@@ -66,9 +66,9 @@ return {
             }
         },
         weights = {
-            ['copper-ore']  = 80,
-            ['coal']        = 10,
-            ['stone']       = 8,
+            ['copper-ore']  = 860,
+            ['coal']        = 80,
+            ['stone']       = 60,
         },
         distances = {
             ['coal']        = 16,
@@ -92,9 +92,9 @@ return {
             },
         },
         weights = {
-            ['coal']        = 80,
-            ['iron-ore']    = 16,
-            ['stone']       = 5,
+            ['coal']        = 790,
+            ['iron-ore']    = 160,
+            ['stone']       = 50,
         },
         distances = {
             ['coal']        = 16,
@@ -118,9 +118,9 @@ return {
             }
         },
         weights = {
-            ['stone']       = 80,
-            ['copper-ore']  = 14,
-            ['coal']        = 7,
+            ['stone']       = 790,
+            ['copper-ore']  = 140,
+            ['coal']        = 70,
         },
         distances = {
             ['coal']        = 16,
@@ -173,10 +173,10 @@ return {
             },
         },
         weights = {
-            ['coal']        = 130,
-            ['copper-ore']  = 280,
-            ['iron-ore']    = 395,
-            ['stone']       = 105,
+            ['coal']        = 143,
+            ['copper-ore']  = 307,
+            ['iron-ore']    = 435,
+            ['stone']       = 115,
         },
         distances = {
             ['coal']        = 16,
