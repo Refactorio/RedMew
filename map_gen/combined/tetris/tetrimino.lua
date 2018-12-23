@@ -135,8 +135,9 @@ function move_qchunk(surface, x, y, x_offset, y_offset)
             amount = entity.amount
         end
         local type = entity.type
-        if type ~= 'player' and type ~= 'character-corpse' then
-            surface.create_entity{force=entity.force, amount = amount, name = entity.name, position = {old_pos.x + x_offset, old_pos.y + y_offset}}
+        local name = entity.name
+        if type ~= 'player' and type ~= 'character-corpse' and type ~= 'particle' and name ~= 'entity-ghost' then
+            surface.create_entity{force=entity.force, amount = amount, name = name, position = {old_pos.x + x_offset, old_pos.y + y_offset}}
         elseif entity.type == 'player' and entity.player then
             player_positions[entity.player.index] = {old_pos.x + x_offset, old_pos.y + y_offset}
             entity.player.teleport{0, 0}
