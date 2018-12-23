@@ -1082,14 +1082,15 @@ Public.market_set_items_callback =
         end
 
         entity.destructible = false
-        local market_id = 'market-' .. Token.uid()
+        local market_id = Retailer.generate_group_id()
         Retailer.add_market(market_id, entity)
 
         local p = entity.position
         local x, y = p.x, p.y
         local d = math.sqrt(x * x + y * y)
 
-        for _, item in pairs(data) do
+        for i = 1, #data do
+            local item = data[i]
             local price = item.price
 
             local df = item.distance_factor

@@ -26,6 +26,7 @@ local Retailer = {}
 ---Markets are indexed by the position "x,y" and contains the group it belongs to
 ---Items are indexed by the group name and is a list indexed by the item name and contains the prices per item
 local memory = {
+    id = 0,
     markets = {},
     items = {},
     group_label = {},
@@ -36,6 +37,13 @@ Global.register({
 }, function (tbl)
     memory = tbl.memory
 end)
+
+---Generates a unique identifier for a market group name, as alternative for a custom name.
+function Retailer.generate_group_id()
+    local id = memory.id + 1
+    memory.id = id
+    return 'market-' .. id
+end
 
 ---Sets the name of the market group, provides a user friendly label in the GUI.
 ---@param group_name string
