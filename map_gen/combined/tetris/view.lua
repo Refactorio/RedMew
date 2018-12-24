@@ -25,17 +25,43 @@ Module.uids = uids
 
 local votes = {}
 local primitives = {next_move = '', points = 0}
-
+local vote_players = {
+    ccw_button = {},
+    cw_button = {},
+    left_button = {},
+    down_button = {},
+    right_button = {},
+}
+local vote_numbers = {
+    ccw_button = 0,
+    cw_button = 0,
+    left_button = 0,
+    down_button = 0,
+    right_button = 0,
+}
 Global.register(
     {
         votes = votes,
         primitives = primitives,
+        vote_players = vote_players,
+        vote_numbers = vote_numbers,
     },
     function(tbl)
         votes = tbl.votes
         primitives = tbl.primitives
+        vote_players = tbl.vote_players
+        vote_numbers = tbl.vote_numbers
     end
 )
+
+local function button_tooltip(button_key)
+    local n = 0
+    local tooltip = ""
+    for p_name, _ in pairs(vote_players[button_key]) do
+        tooltip = string.format('%s, %s', p_name, tooltip) --If you have a better solution please tell me. Lol.
+    end
+    return tooltip
+end
 
 local function toggle(player)
     if not player then return end
@@ -61,15 +87,15 @@ local function toggle(player)
         local upper_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
         local lower_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
 
-        local vote_buttons = {}
-        table.insert(vote_buttons, upper_b_f.add{type = 'sprite-button', name = uids.ccw_button, sprite = 'utility/hint_arrow_left'})
-        table.insert(vote_buttons, upper_b_f.add{type = 'sprite-button', name = uids.clear_button, sprite = 'utility/trash_bin'})
-        table.insert(vote_buttons, upper_b_f.add{type = 'sprite-button', name = uids.cw_button, sprite = 'utility/hint_arrow_right'})
+        local vote_buttons = {
+            [uids.ccw_button] = upper_b_f.add{type = 'sprite-button', tooltip = button_tooltip('cw_button'), number = vote_numbers.ccw_button, name = uids.ccw_button, sprite = 'utility/hint_arrow_left'},
+            [uids.clear_button] = upper_b_f.add{type = 'sprite-button', name = uids.clear_button._n, sprite = 'utility/trash_bin'},
+            [uids.cw_button] = upper_b_f.add{type = 'sprite-button', tooltip = button_tooltip('cw_button'), number = vote_numbers.cw_button, name = uids.cw_button, sprite = 'utility/hint_arrow_right'},
 
-        table.insert(vote_buttons, lower_b_f.add{type = 'sprite-button', name = uids.left_button, sprite = 'utility/left_arrow'})
-        table.insert(vote_buttons, lower_b_f.add{type = 'sprite-button', name = uids.down_button, sprite = 'utility/speed_down'})
-        table.insert(vote_buttons, lower_b_f.add{type = 'sprite-button', name = uids.right_button, sprite = 'utility/right_arrow'})
-  
+            [uids.left_button] = lower_b_f.add{type = 'sprite-button', tooltip = button_tooltip('left_button'), number = vote_numbers.left_button,  name = uids.left_button, sprite = 'utility/left_arrow'},
+            [uids.down_button] = lower_b_f.add{type = 'sprite-button', tooltip = button_tooltip('down_button'), number = vote_numbers.down_button, name = uids.down_button, sprite = 'utility/speed_down'},
+            [uids.right_button] = lower_b_f.add{type = 'sprite-button', tooltip = button_tooltip('right_button'), number = vote_numbers.right_button, name = uids.right_button, sprite = 'utility/right_arrow'},
+        }
         local vote_f = main_frame.add{type = 'flow', direction = 'horizontal'}
         vote_f.add{
             type = 'label',
@@ -145,13 +171,31 @@ function Module.set_points(points)
     end
 end
 
-function Module.set_player_vote(player, value)
+local function change_vote_button(data, player_name, button_key, change, set)
+    local element = data.vote_buttons[uids[button_key]]
+    local number = vote_numbers[button_key] + change
+    vote_numbers[button_key] = number
+    element.number = number
+    vote_players[button_key][player_name] = set
+    element.tooltip = button_tooltip(button_key)
+end
+
+function Module.set_player_vote(player, value, vote_button_key, old_vote_button_key)
+
     votes[player.index] = value
     local mf = player.gui.left[main_frame_name]
     if mf then
         local data = Gui.get_data(mf)
         if data then
-            data['vote'].caption = value
+            data['vote'].caption = value --Set vote button
+        end
+
+        if vote_button_key then
+            change_vote_button(data, player.name, vote_button_key, 1, true)
+        end
+
+        if old_vote_button_key then
+            change_vote_button(data, player.name, old_vote_button_key, -1)
         end
     end
 end

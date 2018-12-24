@@ -105,13 +105,30 @@ local function calculate_winner()
 end
 
 local function player_vote(player, option_index)
-    player_votes[player.index] = option_index
+
+    local old_vote = player_votes[player.index]
+    if old_vote == option_index then 
+        return 
+    end
     local vote_name = 'None'
+    local vote_button_key = nil
+    local old_vote_button_key = nil
+
     if option_index then
         vote_name =  options[option_index].name
+        vote_button_name = options[option_index].button_key
     end
+
+    if old_vote then
+        old_vote_button_key = options[old_vote].button_key
+    end
+
+    player_votes[player.index] = option_index
+
+    View.set_player_vote(player, vote_name, vote_button_name, old_vote_button_key)
+
     Debug.print(string.format('%s voted for %s', player.name, vote_name))
-    View.set_player_vote(player, vote_name)
+
     calculate_winner()
 end
 
@@ -248,11 +265,13 @@ move_down = Token.register(
     end
 )
 
-global.vote_delay = 5
+global.vote_delay = 610
 
 local function execute_vote_tick()
 
-    if game.tick < primitives.next_vote_finished then return end
+    if game.tick >= primitives.next_vote_finished then return end
+
+    Debug.print('Vote finalized')
 
     for key, tetri in pairs(tetriminos) do --Execute voted action
         local winner = options[primitives.winner_option_index]
