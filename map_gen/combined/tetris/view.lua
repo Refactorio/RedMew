@@ -8,20 +8,23 @@ local Global = require 'utils.global'
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 
-local button_uids = {
-    ['ccw_button_name'] = Gui.uid_name(),
-    ['clear_button_name'] = Gui.uid_name(),
-    ['cw_button_name'] = Gui.uid_name(),
-    ['left_button_name'] = Gui.uid_name(),
-    ['down_button_name'] = Gui.uid_name(),
-    ['right_button_name'] = Gui.uid_name(),
-    ['zoom_button_name'] = Gui.uid_name(),
+local uids = {
+    ['ccw_button'] = Gui.uid_name(),
+    ['clear_button'] = Gui.uid_name(),
+    ['cw_button'] = Gui.uid_name(),
+    ['left_button'] = Gui.uid_name(),
+    ['down_button'] = Gui.uid_name(),
+    ['right_button'] = Gui.uid_name(),
+    ['zoom_button'] = Gui.uid_name(),
+    ['vote_label_name'] = Gui.uid_name(),
+    ['next_move_label'] = Gui.uid_name(),
+    ['points_label'] = Gui.uid_name(),
 }
 
-Module.button_uids = button_uids
+Module.uids = uids
 
 local votes = {}
-local primitives = {next_move = "", points = 0}
+local primitives = {next_move = '', points = 0}
 
 Global.register(
     {
@@ -34,14 +37,13 @@ Global.register(
     end
 )
 
-function toggle(player)
+local function toggle(player)
     if not player then return end
     local left = player.gui.left
     local main_frame = left[main_frame_name]
 
     if main_frame and main_frame.valid then
-        Gui.remove_data_recursively(main_frame)
-        main_frame.destroy()
+        Gui.destroy(main_frame)
     else
         main_frame =
             left.add {
@@ -56,33 +58,58 @@ function toggle(player)
             caption = 'Vote on the next move!'
         }
 
-        local upper_b_f = main_frame.add {type = 'flow', direction = 'horizontal'}
-        local lower_b_f = main_frame.add {type = 'flow', direction = 'horizontal'}
+        local upper_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
+        local lower_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
 
-        upper_b_f.add{type = 'sprite-button', name = button_uids.ccw_button_name, sprite = 'utility/hint_arrow_left'}
-        upper_b_f.add{type = 'sprite-button', name = button_uids.clear_button_name, sprite = 'utility/trash_bin'}
-        upper_b_f.add{type = 'sprite-button', name = button_uids.cw_button_name, sprite = 'utility/hint_arrow_right'}
+        local vote_buttons = {}
+        table.insert(vote_buttons, upper_b_f.add{type = 'sprite-button', name = uids.ccw_button, sprite = 'utility/hint_arrow_left'})
+        table.insert(vote_buttons, upper_b_f.add{type = 'sprite-button', name = uids.clear_button, sprite = 'utility/trash_bin'})
+        table.insert(vote_buttons, upper_b_f.add{type = 'sprite-button', name = uids.cw_button, sprite = 'utility/hint_arrow_right'})
 
-        lower_b_f.add{type = 'sprite-button', name = button_uids.left_button_name, sprite = 'utility/left_arrow'}
-        lower_b_f.add{type = 'sprite-button', name = button_uids.down_button_name, sprite = 'utility/speed_down'}
-        lower_b_f.add{type = 'sprite-button', name = button_uids.right_button_name, sprite = 'utility/right_arrow'}
-        
-        main_frame.add{
+        table.insert(vote_buttons, lower_b_f.add{type = 'sprite-button', name = uids.left_button, sprite = 'utility/left_arrow'})
+        table.insert(vote_buttons, lower_b_f.add{type = 'sprite-button', name = uids.down_button, sprite = 'utility/speed_down'})
+        table.insert(vote_buttons, lower_b_f.add{type = 'sprite-button', name = uids.right_button, sprite = 'utility/right_arrow'})
+  
+        local vote_f = main_frame.add{type = 'flow', direction = 'horizontal'}
+        vote_f.add{
             type = 'label',
-            caption = 'Your vote:   ' .. (votes[player.index] or 'None')
+            caption = 'Your vote:   '
         }
-        
-        main_frame.add{
+        local vote = vote_f.add {
             type = 'label',
-            caption = 'Next move: ' .. primitives.next_move
+            caption = (votes[player.index] or 'None')
+        }
+    
+        local move_f = main_frame.add {type = 'flow', direction = 'horizontal'}
+        move_f.add{
+            type = 'label',
+            caption = 'Next move: '
+        }
+        local move = move_f.add {
+            type = 'label',
+            caption = primitives.next_move
         }
 
-        local search_icon = main_frame.add{type = 'sprite-button', name = button_uids.zoom_button_name, sprite = 'utility/search_icon'}
+        main_frame.add{type = 'sprite-button', name = uids.zoom_button, sprite = 'utility/search_icon'}
 
-        main_frame.add{
+        local points_f = main_frame.add{type = 'flow', direction = 'horizontal'}
+        points_f.add{
             type = 'label',
-            caption = 'Points: ' .. primitives.points
+            caption = 'Points: ',
         }
+
+        local points = points_f.add {
+            type = 'label',
+            caption = primitives.points,
+        }
+
+        local data = {
+            vote_buttons = vote_buttons,
+            vote = vote,
+            move = move,
+            points = points,
+        }
+        Gui.set_data(main_frame, data)
     end
 end
 
@@ -107,25 +134,56 @@ end
 
 function Module.set_points(points)
     primitives.points = points
-    toggle(player) --TODO: Fix this
-    toggle(player)
-end
-
-function refresh_all()
-    for _, p in pairs(game.players) do
-        toggle(p) --TODO: Fix this
-        toggle(p)
+    for _, player in pairs(game.players) do
+        local mf = player.gui.left[main_frame_name]
+        if mf then
+            local data = Gui.get_data(mf)
+            if data then
+                data['points'].caption = points
+            end
+        end
     end
 end
+
 function Module.set_player_vote(player, value)
     votes[player.index] = value
-    refresh_all()
+    local mf = player.gui.left[main_frame_name]
+    if mf then
+        local data = Gui.get_data(mf)
+        if data then
+            data['vote'].caption = value
+        end
+    end
 end
 
 function Module.set_next_move(next_move)
     primitives.next_move = next_move
-    refresh_all()
+    for _,player in pairs(game.players) do
+        local mf = player.gui.left[main_frame_name]
+        if mf then     
+            local data = Gui.get_data(mf)
+            if data then
+                data['move'].caption = next_move
+            end
+        end
+    end
 end
+
+function Module.disable_vote_buttons()
+    for _,player in pairs(game.players) do
+        local mf = player.gui.left[main_frame_name]
+        if mf then
+            local data = Gui.get_data(mf)
+            if data then
+                local buttons = data.vote_buttons
+                for _, button in pairs(buttons) do
+                    button.enabled = false
+                end
+            end
+        end
+    end
+end
+disable = Module.disable
 
 Event.add(defines.events.on_player_joined_game, player_joined)
 
