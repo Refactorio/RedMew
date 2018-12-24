@@ -28,29 +28,29 @@ local player_votes = {}
 local options = {
     {
         name = 'Rotate counter clockwise',
-        button_name_key = 'ccw_button_name',
+        button_key = 'ccw_button',
         action_func_name = 'rotate',
         args = {false},
         transition = 1,
     },{
         name = 'Rotate clockwise',
-        button_name_key = 'cw_button_name',
+        button_key = 'cw_button',
         action_func_name = 'rotate',
         args = {true},
         transition = 1,
     },{
         name = 'Move left',
-        button_name_key = 'left_button_name',
+        button_key = 'left_button',
         action_func_name = 'move',
         args = {-1, 0},
         transition = 1,
     },{
         name = 'Down',
-        button_name_key = 'down_button_name',
+        button_key = 'down_button',
         transition = 2,
     },{
         name = 'Move right',
-        button_name_key = 'right_button_name',
+        button_key = 'right_button',
         action_func_name = 'move',
         args = {1, 0},
         transition = 1,
@@ -117,21 +117,21 @@ end
 
 for option_index, option in pairs(options) do
     View.bind_button(
-        View.button_uids[option.button_name_key],
+        View.uids[option.button_key],
         function(player)
             player_vote(player, option_index)
         end
     )
 end
 View.bind_button(
-    View.button_uids.clear_button_name,
+    View.uids.clear_button,
     function(player)
         player_vote(player, nil) -- Clear player vote
     end
 )
 
 View.bind_button(
-    View.button_uids.zoom_button_name,
+    View.uids.zoom_button,
     function(player)
         local zoom = player_zoom[player.index] or 1
         if zoom == 1 then
