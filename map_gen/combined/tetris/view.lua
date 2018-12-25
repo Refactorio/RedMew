@@ -16,15 +16,19 @@ local uids = {
     ['down_button'] = Gui.uid_name(),
     ['right_button'] = Gui.uid_name(),
     ['zoom_button'] = Gui.uid_name(),
-    ['vote_label_name'] = Gui.uid_name(),
-    ['next_move_label'] = Gui.uid_name(),
     ['points_label'] = Gui.uid_name(),
 }
 
+local button_pretty_names = {
+    ['ccw_button'] = 'Rotate counter clockwise',
+    ['cw_button'] = 'Rotate clockwise',
+    ['left_button'] = 'Move left',
+    ['down_button'] = 'Move down',
+    ['right_button'] = 'Move right',
+}
 Module.uids = uids
 
-local votes = {}
-local primitives = {next_move = '', points = 0}
+local primitives = {points = 0}
 local vote_players = {
     ccw_button = {},
     cw_button = {},
@@ -41,13 +45,11 @@ local vote_numbers = {
 }
 Global.register(
     {
-        votes = votes,
         primitives = primitives,
         vote_players = vote_players,
         vote_numbers = vote_numbers,
     },
     function(tbl)
-        votes = tbl.votes
         primitives = tbl.primitives
         vote_players = tbl.vote_players
         vote_numbers = tbl.vote_numbers
@@ -56,11 +58,17 @@ Global.register(
 
 local function button_tooltip(button_key)
     local n = 0
-    local tooltip = ""
+    local tooltip = ''
+    local names = {}
+    local non_zero = false
     for p_name, _ in pairs(vote_players[button_key]) do
+        non_zero = true
         tooltip = string.format('%s, %s', p_name, tooltip) --If you have a better solution please tell me. Lol.
     end
-    return tooltip
+    if non_zero then
+        return string.format('%s: %s', button_pretty_names[button_key], tooltip:sub(1, -3))
+    end
+    return button_pretty_names[button_key]
 end
 
 local function toggle(player)
@@ -88,32 +96,13 @@ local function toggle(player)
         local lower_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
 
         local vote_buttons = {
-            [uids.ccw_button] = upper_b_f.add{type = 'sprite-button', tooltip = button_tooltip('cw_button'), number = vote_numbers.ccw_button, name = uids.ccw_button, sprite = 'utility/hint_arrow_left'},
+            [uids.ccw_button] = upper_b_f.add{type = 'sprite-button', tooltip = button_tooltip('cw_button'), number = vote_numbers.ccw_button, name = uids.ccw_button, sprite = 'utility/reset'},
             [uids.clear_button] = upper_b_f.add{type = 'sprite-button', name = uids.clear_button._n, sprite = 'utility/trash_bin'},
-            [uids.cw_button] = upper_b_f.add{type = 'sprite-button', tooltip = button_tooltip('cw_button'), number = vote_numbers.cw_button, name = uids.cw_button, sprite = 'utility/hint_arrow_right'},
+            [uids.cw_button] = upper_b_f.add{type = 'sprite-button', tooltip = button_tooltip('cw_button'), number = vote_numbers.cw_button, name = uids.cw_button, sprite = 'utility/reset'},
 
             [uids.left_button] = lower_b_f.add{type = 'sprite-button', tooltip = button_tooltip('left_button'), number = vote_numbers.left_button,  name = uids.left_button, sprite = 'utility/left_arrow'},
             [uids.down_button] = lower_b_f.add{type = 'sprite-button', tooltip = button_tooltip('down_button'), number = vote_numbers.down_button, name = uids.down_button, sprite = 'utility/speed_down'},
             [uids.right_button] = lower_b_f.add{type = 'sprite-button', tooltip = button_tooltip('right_button'), number = vote_numbers.right_button, name = uids.right_button, sprite = 'utility/right_arrow'},
-        }
-        local vote_f = main_frame.add{type = 'flow', direction = 'horizontal'}
-        vote_f.add{
-            type = 'label',
-            caption = 'Your vote:   '
-        }
-        local vote = vote_f.add {
-            type = 'label',
-            caption = (votes[player.index] or 'None')
-        }
-    
-        local move_f = main_frame.add {type = 'flow', direction = 'horizontal'}
-        move_f.add{
-            type = 'label',
-            caption = 'Next move: '
-        }
-        local move = move_f.add {
-            type = 'label',
-            caption = primitives.next_move
         }
 
         main_frame.add{type = 'sprite-button', name = uids.zoom_button, sprite = 'utility/search_icon'}
@@ -131,8 +120,6 @@ local function toggle(player)
 
         local data = {
             vote_buttons = vote_buttons,
-            vote = vote,
-            move = move,
             points = points,
         }
         Gui.set_data(main_frame, data)
@@ -181,14 +168,9 @@ local function change_vote_button(data, player_name, button_key, change, set)
 end
 
 function Module.set_player_vote(player, value, vote_button_key, old_vote_button_key)
-
-    votes[player.index] = value
     local mf = player.gui.left[main_frame_name]
     if mf then
         local data = Gui.get_data(mf)
-        if data then
-            data['vote'].caption = value --Set vote button
-        end
 
         if vote_button_key then
             change_vote_button(data, player.name, vote_button_key, 1, true)
@@ -196,19 +178,6 @@ function Module.set_player_vote(player, value, vote_button_key, old_vote_button_
 
         if old_vote_button_key then
             change_vote_button(data, player.name, old_vote_button_key, -1)
-        end
-    end
-end
-
-function Module.set_next_move(next_move)
-    primitives.next_move = next_move
-    for _,player in pairs(game.players) do
-        local mf = player.gui.left[main_frame_name]
-        if mf then     
-            local data = Gui.get_data(mf)
-            if data then
-                data['move'].caption = next_move
-            end
         end
     end
 end
