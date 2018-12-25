@@ -5,7 +5,6 @@ local Server = require 'features.server'
 local Token = require 'utils.token'
 local Utils = require 'utils.core'
 
-local random = math.random
 local serialize = serpent.line
 
 local Public = {}
