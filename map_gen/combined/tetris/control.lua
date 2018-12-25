@@ -89,7 +89,6 @@ local function calculate_winner()
     local max = math.max(vote_sum[1], vote_sum[2], vote_sum[3], vote_sum[4], vote_sum[5])
     if max == 0 then
         Debug.print('No votes')
-        View.set_next_move('None')
         return
     end
     for candidate, n_votes in ipairs(vote_sum) do
@@ -100,7 +99,6 @@ local function calculate_winner()
     local winner_option_index = winners[math.random(#winners)]
     primitives.winner_option_index = winner_option_index
     local winner = options[winner_option_index].name
-    View.set_next_move(winner)
     Debug.print('Calculated winner: ' .. winner)
 end
 
@@ -227,10 +225,6 @@ local function tetrimino_finished(tetri)
         game.forces.player.chart(tetri.surface, {{-192, final_y_position - 352},{160, final_y_position - 176}})
     end
 
-    if machine.is_in(states.down) then
-        View.set_next_move('None')
-    end
-
     machine.transition(states.voting)
 
     collect_full_row_resources(tetri)
@@ -294,9 +288,6 @@ local function execute_vote_tick()
     end
 
     primitives.winner_option_index = 0
-    if machine.is_in(states.voting) then --Keep showing 'none if going down'
-        View.set_next_move('None')
-    end
     for player_index, _ in ipairs(player_votes) do -- reset poll
         player_votes[player_index] = nil
         local player = Game.get_player_by_index(player_index)
