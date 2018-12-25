@@ -3,7 +3,7 @@ local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Server = require 'features.server'
 local Token = require 'utils.token'
-local Util = require 'utils.core'
+local Utils = require 'utils.core'
 
 local random = math.random
 local serialize = serpent.line
@@ -35,8 +35,8 @@ end
 --- Assigns LuaPlayer random RGB values for color and player_color and returns the RGB table.
 function Public.set_random_color(player)
     return {
-        chat_color = Util.set_and_return(player, 'chat_color', Utils.random_RGB()),
-        color = Util.set_and_return(player, 'color', Utils.random_RGB())
+        chat_color = Utils.set_and_return(player, 'chat_color', Utils.random_RGB()),
+        color = Utils.set_and_return(player, 'color', Utils.random_RGB())
     }
 end
 
