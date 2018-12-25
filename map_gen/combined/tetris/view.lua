@@ -4,6 +4,7 @@ local Gui = require 'utils.gui'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
+local Debug = require 'utils.debug'
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
@@ -28,7 +29,11 @@ local button_pretty_names = {
 }
 Module.uids = uids
 
-local primitives = {points = 0}
+local primitives = {
+    buttons_enabled = false,
+    points = 0,
+    progress = 0
+}
 local vote_players = {
     ccw_button = {},
     cw_button = {},
@@ -96,16 +101,17 @@ local function toggle(player)
         local lower_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
 
         local vote_buttons = {
-            [uids.ccw_button] = upper_b_f.add{type = 'sprite-button', tooltip = button_tooltip('cw_button'), number = vote_numbers.ccw_button, name = uids.ccw_button, sprite = 'utility/reset'},
-            [uids.clear_button] = upper_b_f.add{type = 'sprite-button', name = uids.clear_button._n, sprite = 'utility/trash_bin'},
-            [uids.cw_button] = upper_b_f.add{type = 'sprite-button', tooltip = button_tooltip('cw_button'), number = vote_numbers.cw_button, name = uids.cw_button, sprite = 'utility/reset'},
+            [uids.ccw_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip('cw_button'), number = vote_numbers.ccw_button, name = uids.ccw_button, sprite = 'utility/reset'},
+            [uids.clear_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, name = uids.clear_button._n, sprite = 'utility/trash_bin'},
+            [uids.cw_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip('cw_button'), number = vote_numbers.cw_button, name = uids.cw_button, sprite = 'utility/reset'},
 
-            [uids.left_button] = lower_b_f.add{type = 'sprite-button', tooltip = button_tooltip('left_button'), number = vote_numbers.left_button,  name = uids.left_button, sprite = 'utility/left_arrow'},
-            [uids.down_button] = lower_b_f.add{type = 'sprite-button', tooltip = button_tooltip('down_button'), number = vote_numbers.down_button, name = uids.down_button, sprite = 'utility/speed_down'},
-            [uids.right_button] = lower_b_f.add{type = 'sprite-button', tooltip = button_tooltip('right_button'), number = vote_numbers.right_button, name = uids.right_button, sprite = 'utility/right_arrow'},
+            [uids.left_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip('left_button'), number = vote_numbers.left_button,  name = uids.left_button, sprite = 'utility/left_arrow'},
+            [uids.down_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip('down_button'), number = vote_numbers.down_button, name = uids.down_button, sprite = 'utility/speed_down'},
+            [uids.right_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip('right_button'), number = vote_numbers.right_button, name = uids.right_button, sprite = 'utility/right_arrow'},
         }
 
         main_frame.add{type = 'sprite-button', name = uids.zoom_button, sprite = 'utility/search_icon'}
+        local progress_bar = main_frame.add {type = 'progressbar', value = primitives.progress}
 
         local points_f = main_frame.add{type = 'flow', direction = 'horizontal'}
         points_f.add{
@@ -121,6 +127,7 @@ local function toggle(player)
         local data = {
             vote_buttons = vote_buttons,
             points = points,
+            progress_bar = progress_bar
         }
         Gui.set_data(main_frame, data)
     end
@@ -182,7 +189,7 @@ function Module.set_player_vote(player, value, vote_button_key, old_vote_button_
     end
 end
 
-function Module.disable_vote_buttons()
+function Module.enable_vote_buttons(enable)
     for _,player in pairs(game.players) do
         local mf = player.gui.left[main_frame_name]
         if mf then
@@ -190,13 +197,36 @@ function Module.disable_vote_buttons()
             if data then
                 local buttons = data.vote_buttons
                 for _, button in pairs(buttons) do
-                    button.enabled = false
+                    button.enabled = enable
                 end
             end
         end
     end
 end
-disable = Module.disable
+
+function Module.reset_poll_buttons()
+    for key, _ in pairs(vote_players) do
+        vote_players[key] = {}
+        vote_numbers[key] = 0
+    end
+    for _, player in pairs(game.players) do
+        toggle(player)
+        toggle(player)
+    end
+end
+
+function Module.set_progress(progress)
+    primitives.progress = progress
+    for _, player in pairs(game.players) do
+        local mf = player.gui.left[main_frame_name]
+        if mf then
+            local data = Gui.get_data(mf)
+            if data then
+                data.progress_bar.value = progress
+            end
+        end
+    end
+end
 
 Event.add(defines.events.on_player_joined_game, player_joined)
 
