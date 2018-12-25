@@ -26,30 +26,25 @@ primitives = {
 local player_votes = {}
 local options = {
     {
-        name = 'Rotate counter clockwise',
-        button_key = 'ccw_button',
+        button = View.button_enum.ccw_button,
         action_func_name = 'rotate',
         args = {false},
         transition = states.moving,
     },{
-        name = 'Rotate clockwise',
-        button_key = 'cw_button',
+        button = View.button_enum.cw_button,
         action_func_name = 'rotate',
         args = {true},
         transition = states.moving,
     },{
-        name = 'Move left',
-        button_key = 'left_button',
+        button = View.button_enum.left_button,
         action_func_name = 'move',
         args = {-1, 0},
         transition = states.moving,
     },{
-        name = 'Down',
-        button_key = 'down_button',
+        button = View.button_enum.down_button,
         transition = states.down,
     },{
-        name = 'Move right',
-        button_key = 'right_button',
+        button = View.button_enum.right_button,
         action_func_name = 'move',
         args = {1, 0},
         transition = states.moving,
@@ -99,8 +94,7 @@ local function calculate_winner()
     end
     local winner_option_index = winners[math.random(#winners)]
     primitives.winner_option_index = winner_option_index
-    local winner = options[winner_option_index].name
-    Debug.print('Calculated winner: ' .. winner)
+    Debug.print('Calculated winner: ' .. winner_option_index)
 end
 
 local function player_vote(player, option_index)
@@ -109,24 +103,22 @@ local function player_vote(player, option_index)
     if old_vote == option_index then 
         return 
     end
-    local vote_name = 'None'
-    local vote_button_key = nil
-    local old_vote_button_key = nil
+    local vote_button = nil
+    local old_vote_button = nil
 
     if option_index then
-        vote_name =  options[option_index].name
-        vote_button_name = options[option_index].button_key
+        vote_button = options[option_index].button
     end
 
     if old_vote then
-        old_vote_button_key = options[old_vote].button_key
+        old_vote_button = options[old_vote].button
     end
 
     player_votes[player.index] = option_index
 
-    View.set_player_vote(player, vote_name, vote_button_name, old_vote_button_key)
+    View.set_player_vote(player, vote_button, old_vote_button)
 
-    Debug.print(string.format('%s voted for %s', player.name, vote_name))
+    Debug.print(string.format('%s voted for %s', player.name, vote_button))
 
     machine.transition(states.voting)
 
@@ -135,21 +127,30 @@ end
 
 for option_index, option in pairs(options) do
     View.bind_button(
-        View.uids[option.button_key],
+        option.button,
         function(player)
             player_vote(player, option_index)
         end
     )
 end
 View.bind_button(
-    View.uids.clear_button,
+    View.button_enum.clear_button,
     function(player)
+        Debug.print('clear')
+
         player_vote(player, nil) -- Clear player vote
+
+        Debug.print('clear')
+        local old_vote = player_votes[player.index]
+        if old_vote then
+            old_vote_button = options[old_vote].button
+        end
+        View.set_player_vote(player, nil, old_vote_button)
     end
 )
 
 View.bind_button(
-    View.uids.zoom_button,
+    View.button_enum.zoom_button,
     function(player)
         local zoom = player_zoom[player.index] or 1
         if zoom == 1 then

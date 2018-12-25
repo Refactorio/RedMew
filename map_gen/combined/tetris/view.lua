@@ -21,13 +21,13 @@ local uids = {
 }
 
 local button_pretty_names = {
-    ['ccw_button'] = 'Rotate counter clockwise',
-    ['cw_button'] = 'Rotate clockwise',
-    ['left_button'] = 'Move left',
-    ['down_button'] = 'Move down',
-    ['right_button'] = 'Move right',
+    [uids.ccw_button] = 'Rotate counter clockwise',
+    [uids.cw_button] = 'Rotate clockwise',
+    [uids.left_button] = 'Move left',
+    [uids.down_button] = 'Move down',
+    [uids.right_button] = 'Move right',
 }
-Module.uids = uids
+Module.button_enum = uids
 
 local primitives = {
     buttons_enabled = false,
@@ -35,18 +35,18 @@ local primitives = {
     progress = 0
 }
 local vote_players = {
-    ccw_button = {},
-    cw_button = {},
-    left_button = {},
-    down_button = {},
-    right_button = {},
+    [uids.ccw_button] = {},
+    [uids.cw_button] = {},
+    [uids.left_button] = {},
+    [uids.down_button] = {},
+    [uids.right_button] = {},
 }
 local vote_numbers = {
-    ccw_button = 0,
-    cw_button = 0,
-    left_button = 0,
-    down_button = 0,
-    right_button = 0,
+    [uids.ccw_button] = 0,
+    [uids.cw_button] = 0,
+    [uids.left_button] = 0,
+    [uids.down_button] = 0,
+    [uids.right_button] = 0,
 }
 Global.register(
     {
@@ -61,19 +61,19 @@ Global.register(
     end
 )
 
-local function button_tooltip(button_key)
+local function button_tooltip(button_id)
     local n = 0
     local tooltip = ''
     local names = {}
     local non_zero = false
-    for p_name, _ in pairs(vote_players[button_key]) do
+    for p_name, _ in pairs(vote_players[button_id]) do
         non_zero = true
         tooltip = string.format('%s, %s', p_name, tooltip) --If you have a better solution please tell me. Lol.
     end
     if non_zero then
-        return string.format('%s: %s', button_pretty_names[button_key], tooltip:sub(1, -3))
+        return string.format('%s: %s', button_pretty_names[button_id], tooltip:sub(1, -3))
     end
-    return button_pretty_names[button_key]
+    return button_pretty_names[button_id]
 end
 
 local function toggle(player)
@@ -101,13 +101,13 @@ local function toggle(player)
         local lower_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
 
         local vote_buttons = {
-            [uids.ccw_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip('cw_button'), number = vote_numbers.ccw_button, name = uids.ccw_button, sprite = 'utility/reset'},
-            [uids.clear_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, name = uids.clear_button._n, sprite = 'utility/trash_bin'},
-            [uids.cw_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip('cw_button'), number = vote_numbers.cw_button, name = uids.cw_button, sprite = 'utility/reset'},
+            [uids.ccw_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip(uids.cw_button), number = vote_numbers.ccw_button, name = uids.ccw_button, sprite = 'utility/reset'},
+            [uids.clear_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, name = uids.clear_button, sprite = 'utility/trash_bin'},
+            [uids.cw_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip(uids.cw_button), number = vote_numbers.cw_button, name = uids.cw_button, sprite = 'utility/reset'},
 
-            [uids.left_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip('left_button'), number = vote_numbers.left_button,  name = uids.left_button, sprite = 'utility/left_arrow'},
-            [uids.down_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip('down_button'), number = vote_numbers.down_button, name = uids.down_button, sprite = 'utility/speed_down'},
-            [uids.right_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip('right_button'), number = vote_numbers.right_button, name = uids.right_button, sprite = 'utility/right_arrow'},
+            [uids.left_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip(uids.left_button), number = vote_numbers.left_button,  name = uids.left_button, sprite = 'utility/left_arrow'},
+            [uids.down_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip(uids.down_button), number = vote_numbers.down_button, name = uids.down_button, sprite = 'utility/speed_down'},
+            [uids.right_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip(uids.right_button), number = vote_numbers.right_button, name = uids.right_button, sprite = 'utility/right_arrow'},
         }
 
         main_frame.add{type = 'sprite-button', name = uids.zoom_button, sprite = 'utility/search_icon'}
@@ -148,8 +148,8 @@ Gui.on_click(main_button_name, function(event) toggle(event.player) end)
 
 function Module.bind_button(button_uid, handler)
     Gui.on_click(button_uid, function(event)
-        handler(event.player) end
-    )
+        handler(event.player)
+    end)
 end
 
 function Module.set_points(points)
@@ -165,26 +165,26 @@ function Module.set_points(points)
     end
 end
 
-local function change_vote_button(data, player_name, button_key, change, set)
-    local element = data.vote_buttons[uids[button_key]]
-    local number = vote_numbers[button_key] + change
-    vote_numbers[button_key] = number
+local function change_vote_button(vote_buttons, player_name, button_id, change, set)
+    local element = vote_buttons[button_id]
+    local number = vote_numbers[button_id] + change
+    vote_numbers[button_id] = number
     element.number = number
-    vote_players[button_key][player_name] = set
-    element.tooltip = button_tooltip(button_key)
+    vote_players[button_id][player_name] = set
+    element.tooltip = button_tooltip(button_id)
+    element.enabled = not set
 end
 
-function Module.set_player_vote(player, value, vote_button_key, old_vote_button_key)
+function Module.set_player_vote(player, vote_button_id, old_vote_button_id)
     local mf = player.gui.left[main_frame_name]
     if mf then
-        local data = Gui.get_data(mf)
-
-        if vote_button_key then
-            change_vote_button(data, player.name, vote_button_key, 1, true)
+        local vote_buttons = Gui.get_data(mf).vote_buttons
+        if vote_button_id then
+            change_vote_button(vote_buttons, player.name, vote_button_id, 1, true)
         end
 
-        if old_vote_button_key then
-            change_vote_button(data, player.name, old_vote_button_key, -1)
+        if old_vote_button_id then
+            change_vote_button(vote_buttons, player.name, old_vote_button_id, -1)
         end
     end
 end
