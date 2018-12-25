@@ -32,16 +32,11 @@ function Public.recall_player_color(player)
     Server.try_get_data('colors', player.name, color_callback)
 end
 
---- Returns a random RGB color
-local function get_random_RGB()
-    return {r = random(0, 255), g = random(0, 255), b = random(0, 255)}
-end
-
 --- Assigns LuaPlayer random RGB values for color and player_color and returns the RGB table.
 function Public.set_random_color(player)
     return {
-        chat_color = Util.set_and_return(player, 'chat_color', get_random_RGB()),
-        color = Util.set_and_return(player, 'color', get_random_RGB())
+        chat_color = Util.set_and_return(player, 'chat_color', Utils.random_RGB()),
+        color = Util.set_and_return(player, 'color', Utils.random_RGB())
     }
 end
 
