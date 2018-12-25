@@ -183,4 +183,8 @@ Module.random_RGB = function ()
     return value
 end
 
+Module.random_RGB = function ()
+    return {r = random(0, 255), g = random(0, 255), b = random(0, 255)}
+end
+
 return Module
