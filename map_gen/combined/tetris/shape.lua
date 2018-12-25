@@ -12,10 +12,13 @@ local math = require 'utils.math'
 local degrees = math.rad
 local ore_seed1 = 7000
 local ore_seed2 = ore_seed1 * 2
+local noise = require 'map_gen.shared.perlin_noise'.noise
+
 require 'utils.table'
 
 local Random = require 'map_gen.shared.random'
 local random = Random.new(ore_seed1, ore_seed2)
+local math_random = math.random
 
 local enable_sand_border = false
 
@@ -246,30 +249,30 @@ local worm_names = {
 local max_worm_chance = 1 / 128
 local worm_chance_factor = 1 / (192 * 512)
 
-local function worms(_, _, world)
-    local wx, wy = world.x, world.y
-    local d = math.sqrt(wx * wx + wy * wy)
+local function worms(position)
+    local x, y  = position.x, position.y
+    local d = math.sqrt(x * x + y * y)
 
-    local worm_chance = d - 128
+    local worm_chance = d - 256
 
     if worm_chance > 0 then
         worm_chance = worm_chance * worm_chance_factor
         worm_chance = math.min(worm_chance, max_worm_chance)
 
-        if math.random() < worm_chance then
-            if d < 256 then
+        if math_random() < worm_chance then
+            if d < 600 then
                 return {name = 'small-worm-turret'}
             else
                 local max_lvl
                 local min_lvl
-                if d < 512 then
+                if d < 800 then
                     max_lvl = 2
                     min_lvl = 1
                 else
                     max_lvl = 3
                     min_lvl = 2
                 end
-                local lvl = math.random() ^ (512 / d) * max_lvl
+                local lvl = math_random() ^ (512 / d) * max_lvl
                 lvl = math.ceil(lvl)
                 lvl = math.clamp(lvl, min_lvl, 3)
                 return {name = worm_names[lvl]}
@@ -370,7 +373,11 @@ function Module.spawn_tetri(surface, pos, number)
     local entities = {}
     local shape = tetriminos[number]
 
-    local offset = math.random(1,1000) * bounds_size
+    local offset = math_random(1,1000) * bounds_size
+
+    local create_entity = surface.create_entity
+
+    local tree = 'tree-0' .. math_random(1,9)
 
     for x = -bounds, bounds do
         for y = -bounds, bounds do
@@ -380,19 +387,32 @@ function Module.spawn_tetri(surface, pos, number)
                 local position = {x = pos.x + x, y = pos.y + y}
                 table.insert(tiles, {name = name, position = position})
 
+                if math_random() > 0.8 and (noise(0.02 * x, 0.02 * y,0)) > 0.3 then
+                    create_entity {name = tree, position = position}
+                else 
+                    local n = math_random(1, 599)
+                    if n > 590 then 
+                        create_entity{name = 'tree-0' .. n % 10, position = position}
+                    end
+                end
+
+
                 local ore = ores(x2, y2 - offset, position)
                 if ore then
                     ore.position = position
-                    table.insert(entities, ore)
+                    ore.enable_tree_removal = false
+                    create_entity(ore)
+                end
+
+                local worm = worms(position)
+                if worm then 
+                    worm.position = position
+                    create_entity(worm)
                 end
             end
         end
     end
     surface.set_tiles(tiles)
-
-    for _, e in ipairs(entities) do
-        surface.create_entity(e)
-    end
 end
 
 Module.disable = function()
