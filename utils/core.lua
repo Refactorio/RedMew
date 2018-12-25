@@ -1,10 +1,18 @@
-local Module = {}
+-- Dependencies
 local Game = require 'utils.game'
+
+-- localized functions
+local random = math.random
+
+-- local constants
 local prefix = '## - '
 local minutes_to_ticks = 60 * 60
 local hours_to_ticks = 60 * 60 * 60
 local ticks_to_minutes = 1 / minutes_to_ticks
 local ticks_to_hours = 1 / hours_to_ticks
+
+-- local vars
+local Module = {}
 
 --- Measures distance between pos1 and pos2
 Module.distance = function(pos1, pos2)
@@ -159,6 +167,11 @@ Module.verify_mult_types = function(arg, arg_types)
         end
     end
     return false
+end
+
+--- Returns a random RGB color as a table
+Module.random_RGB = function ()
+    return {r = random(0, 255), g = random(0, 255), b = random(0, 255)}
 end
 
 return Module
