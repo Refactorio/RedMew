@@ -283,7 +283,7 @@ local function execute_vote_tick()
         else 
             stale_vote_turns = primitives.stale_vote_turns
             if stale_vote_turns >= pause_after_n_ticks then
-                machine.transition(states.pause)
+                Task.set_timeout_in_ticks(1, switch_state, {state = states.pause})
             else 
                 primitives.stale_vote_turns = stale_vote_turns + 1
             machine.transition(states.moving)
@@ -353,6 +353,15 @@ machine.register_state_tick_action(states.voting, execute_vote_tick)
 
 machine.register_state_tick_action(states.down, execute_down_tick)
 
+machine.register_transition(states.voting, states.pause, function()
+    View.enable_vote_buttons(true)
+end)
+
+machine.register_transition(states.pause, states.voting, function()
+    primitives.next_vote_finished = global.vote_delay * tetris_tick_duration + game.tick
+end)
+
+
 machine.register_transition(states.moving, states.voting, function()
     View.enable_vote_buttons(true)
 end)
@@ -367,9 +376,9 @@ machine.register_transition(states.voting, states.down, function()
 end)
 
 machine.register_transition(states.voting, states.moving, function()
-    execute_winner_action()
-    primitives.next_vote_finished = global.vote_delay * tetris_tick_duration + game.tick
     View.enable_vote_buttons(false)
+    primitives.next_vote_finished = global.vote_delay * tetris_tick_duration + game.tick
+    execute_winner_action()
 end)
 
 Event.on_nth_tick(tetris_tick_duration, machine.tick)
