@@ -30,27 +30,10 @@ local function value(base, mult, pow)
 end
 
 -- Removes vanilla resources when called
-local function no_resources(x, y, world, tile)
+local function no_resources(_, _, world, tile)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
-        )
-    ) do
-        e.destroy()
-    end
-    return tile
-end
-
-local names = {
-    'biter-spawner',
-    'spitter-spawner'
-}
-
--- removes spawners when called
-local function no_spawners(x, y, world, tile)
-    for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {force = 'enemy', name = names, position = {world.x, world.y}}
         )
     ) do
         e.destroy()
@@ -196,9 +179,6 @@ for _ = 1, p_rows do
     end
 end
 
-local tetriminos_shape = b.grid_pattern(pattern, p_cols, p_rows, t_width * 24, t_width * 4)
-tetriminos_shape = b.translate(tetriminos_shape, t_width, -t_width)
-
 local ore_shape = b.rectangle(t_width * 0.8)
 local oil_shape = b.throttle_world_xy(ore_shape, 1, 4, 1, 4)
 
@@ -329,10 +309,6 @@ local starting_area = b.any{
 ores = b.grid_pattern_overlap(pattern, p_cols, p_rows, t_width, t_width)
 ores = b.translate(ores, t_h_width, t_h_width)
 
-tetriminos_shape = b.apply_entity(tetriminos_shape, ores)           -- add ores to tetriminoes
-tetriminos_shape = b.apply_effect(tetriminos_shape, no_spawners)    -- remove spawners to help pathing
-tetriminos_shape = b.apply_entity(tetriminos_shape, worms)          -- add worms
-
 local water_tile = two_tone_square('water', 'deepwater')
 local half_sea_width = m_t_width * t_width - t_width
 local function sea_bounds(x, y)
@@ -363,14 +339,13 @@ map = b.translate(map, 0, -t_width / 2 + 24)
 map = b.apply_effect(map, no_resources)
 
 local bounds = t_width * 2
- 
+
 local Module = {}
 
 local bounds_size = t_width * 4
 
 function Module.spawn_tetri(surface, pos, number)
     local tiles = {}
-    local entities = {}
     local shape = tetriminos[number]
 
     local offset = math_random(1,1000) * bounds_size
@@ -389,9 +364,9 @@ function Module.spawn_tetri(surface, pos, number)
 
                 if math_random() > 0.8 and (noise(0.02 * x, 0.02 * y,0)) > 0.3 then
                     create_entity {name = tree, position = position}
-                else 
+                else
                     local n = math_random(1, 599)
-                    if n > 590 then 
+                    if n > 590 then
                         create_entity{name = 'tree-0' .. n % 10, position = position}
                     end
                 end
@@ -405,7 +380,7 @@ function Module.spawn_tetri(surface, pos, number)
                 end
 
                 local worm = worms(position)
-                if worm then 
+                if worm then
                     worm.position = position
                     create_entity(worm)
                 end
