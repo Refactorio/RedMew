@@ -20,7 +20,7 @@ global.config = {
     performance = {
         enabled = true,
     },
-    -- adds a player list icon and keeps track of data.
+    -- adds a player list icon and keeps track of data
     player_list = {
         enabled = true,
         show_coin_column = true,
