@@ -41,8 +41,8 @@ return {
         },
         weights = {
             ['iron-ore']    = 860,
-            ['coal']        = 80,
-            ['stone']       = 60,
+            ['coal']        = 85,
+            ['stone']       = 55,
         },
         distances = {
             ['coal']        = 16,
@@ -51,7 +51,7 @@ return {
         },
     },
     { -- tendril medium large impure copper
-        yield=0.95,
+        yield=0.92,
         min_distance=25,
         distance_richness=9,
         color={r=255/255, g=55/255, b=0/255},
@@ -67,8 +67,8 @@ return {
         },
         weights = {
             ['copper-ore']  = 860,
-            ['coal']        = 80,
-            ['stone']       = 60,
+            ['coal']        = 85,
+            ['stone']       = 55,
         },
         distances = {
             ['coal']        = 16,
@@ -103,7 +103,7 @@ return {
         },
     },
     { -- tendril medium impure stone
-        yield=0.5,
+        yield=0.35,
         min_distance=25,
         distance_richness=9,
         color={r=100/255, g=100/255, b=100/255},
@@ -119,8 +119,8 @@ return {
         },
         weights = {
             ['stone']       = 790,
-            ['copper-ore']  = 140,
-            ['coal']        = 70,
+            ['copper-ore']  = 126,
+            ['coal']        = 84,
         },
         distances = {
             ['coal']        = 16,
@@ -173,10 +173,10 @@ return {
             },
         },
         weights = {
-            ['coal']        = 143,
-            ['copper-ore']  = 307,
-            ['iron-ore']    = 435,
-            ['stone']       = 115,
+            ['coal']        = 181,
+            ['copper-ore']  = 272,
+            ['iron-ore']    = 454,
+            ['stone']       = 93,
         },
         distances = {
             ['coal']        = 16,
