@@ -62,9 +62,7 @@ Global.register(
 )
 
 local function button_tooltip(button_id)
-    local n = 0
     local tooltip = ''
-    local names = {}
     local non_zero = false
     for p_name, _ in pairs(vote_players[button_id]) do
         non_zero = true

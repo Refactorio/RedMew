@@ -14,7 +14,7 @@ local machine = require 'map_gen.combined.tetris.machine'
 
 local tetriminos = {}
 
-primitives = {
+local primitives = {
     tetri_spawn_y_position = -160,
     winner_option_index = 0,
     state = states.voting,
@@ -100,8 +100,8 @@ end
 local function player_vote(player, option_index)
 
     local old_vote = player_votes[player.index]
-    if old_vote == option_index then 
-        return 
+    if old_vote == option_index then
+        return
     end
     local vote_button = nil
     local old_vote_button = nil
@@ -142,6 +142,7 @@ View.bind_button(
 
         Debug.print('clear')
         local old_vote = player_votes[player.index]
+        local old_vote_button = nil
         if old_vote then
             old_vote_button = options[old_vote].button
         end
@@ -236,7 +237,7 @@ local function tetrimino_finished(tetri)
     spawn_new_tetrimino()
 end
 
-chart_area = Token.register(
+local chart_area = Token.register(
     function(data)
         data.force.chart(data.surface, data.area)
     end
@@ -275,19 +276,17 @@ local function execute_vote_tick()
 
     Debug.print('Vote finalized')
 
-    for key, tetri in pairs(tetriminos) do
-        local winner = options[primitives.winner_option_index]
-        if winner then
-            machine.transition(winner.transition)
-            primitives.stale_vote_turns = 0
-        else 
-            stale_vote_turns = primitives.stale_vote_turns
-            if stale_vote_turns >= pause_after_n_ticks then
-                Task.set_timeout_in_ticks(1, switch_state, {state = states.pause})
-            else 
-                primitives.stale_vote_turns = stale_vote_turns + 1
-            machine.transition(states.moving)
-            end
+    local winner = options[primitives.winner_option_index]
+    if winner then
+        machine.transition(winner.transition)
+        primitives.stale_vote_turns = 0
+    else
+        local stale_vote_turns = primitives.stale_vote_turns
+        if stale_vote_turns >= pause_after_n_ticks then
+            Task.set_timeout_in_ticks(1, switch_state, {state = states.pause})
+        else
+            primitives.stale_vote_turns = stale_vote_turns + 1
+        machine.transition(states.moving)
         end
     end
 
@@ -298,7 +297,7 @@ local function execute_vote_tick()
     View.reset_poll_buttons()
 end
 
-function execute_winner_action()
+local function execute_winner_action()
     for key, tetri in pairs(tetriminos) do --Execute voted action
         local winner = options[primitives.winner_option_index]
         --Execute voted action
@@ -316,29 +315,30 @@ end
 
 
 
-spawn_new_tetrimino_token = Token.register(spawn_new_tetrimino)
+local spawn_new_tetrimino_token = Token.register(spawn_new_tetrimino)
 Event.on_init(function()
     game.forces.player.chart(game.surfaces.nauvis, {{-192, -432}, {160, 0}})
     Task.set_timeout_in_ticks(2 * tetris_tick_duration - 15, spawn_new_tetrimino_token)
     View.enable_vote_buttons(true)
 end)
 
-Event.add(defines.events.on_tick, function(event)
+Event.add(defines.events.on_tick, function()
 
-    if machine.is_in(states.voting) then 
+    if machine.is_in(states.voting) then
         local progress = (primitives.next_vote_finished - game.tick + 1)  / global.vote_delay / tetris_tick_duration
-        if progress >= 0 and progress <= 1 then 
+        if progress >= 0 and progress <= 1 then
             View.set_progress(progress)
-        else 
+        else
             Debug.print('Progress out of bounds: ' .. progress)
         end
     end
 end)
 
 local function execute_down_tick()
+
     local down_state = primitives.down_substate
 
-    if down_state > 3 then 
+    if down_state > 3 then
         primitives.down_substate = 1
         machine.transition(states.voting)
         return

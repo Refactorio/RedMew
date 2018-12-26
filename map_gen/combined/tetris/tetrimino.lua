@@ -1,4 +1,4 @@
-Module = {}
+local Module = {}
 
 local Token = require 'utils.token'
 local Task = require 'utils.schedule'
@@ -55,6 +55,7 @@ local collision_boxes = {
 
 local worker = nil
 local move_queue = Queue.new()
+local Map = nil
 
 Global.register(
     {
@@ -118,7 +119,7 @@ local function erase_qchunk(surface, x, y)
     surface.set_tiles(new_tiles)
 end
 
-function move_qchunk(surface, x, y, x_offset, y_offset)
+local function move_qchunk(surface, x, y, x_offset, y_offset)
     local entities = surface.find_entities_filtered{area = {{x,y}, {x + 15, y + 15}}}
     local old_tiles = surface.find_tiles_filtered{area = {{x,y}, {x + 16, y + 16}}}
     local new_tiles = {}
@@ -180,7 +181,7 @@ function Module.move(self, x_direction, y_direction)
     return true
 end
 
-function rotate_collision_box(collision_box, reverse)
+local function rotate_collision_box(collision_box, reverse)
     local new_collision_box = {{},{},{},{}}
     local transformation = {{},{},{},{}}
     if reverse then
@@ -228,7 +229,7 @@ function Module.rotate(self, reverse)
     local find_entities_filtered = surface.find_entities_filtered
     local tetri_x = self.position.x
     local tetri_y = self.position.y
-    local insert = insert
+    local insert = insert --Intentionally shadowing upvalue
     local tiles = {}
     local entities = {}
 
@@ -241,7 +242,6 @@ function Module.rotate(self, reverse)
             then
                 local top_left_x = tetri_x + x * 16 - 16
                 local top_left_y = tetri_y + y * 16 - 16
-                local area = {{top_left_x, top_left_y},{tetri_x + x * 16 - 1, tetri_y + y * 16 - 1}}
 
                 for _, tile in pairs(find_tiles_filtered{area = {{top_left_x, top_left_y},{tetri_x + x * 16, tetri_y + y * 16}}}) do
                     insert(tiles, {name = tile.name, position = {tile.position.x + (target.x - x) * 16, tile.position.y + (target.y - y) * 16}})
@@ -288,7 +288,6 @@ worker = Token.register(
         if quad then
             Task.set_timeout_in_ticks(1, worker)
             local surface = quad.surface
-            local direction = quad.direction
             local x = quad.x
             local y = quad.y
             local x_offset = quad.x_offset
