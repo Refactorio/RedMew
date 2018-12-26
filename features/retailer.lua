@@ -13,6 +13,7 @@ local tonumber = tonumber
 local clamp = math.clamp
 local floor = math.floor
 local ceil = math.ceil
+local raise_event = script.raise_event
 local market_frame_name = Gui.uid_name()
 local market_frame_close_button_name = Gui.uid_name()
 local item_button_name = Gui.uid_name()
@@ -21,6 +22,17 @@ local count_text_name = Gui.uid_name()
 local color_red = {r = 1, b = 0, g = 0}
 
 local Retailer = {}
+
+Retailer.events = {
+    --- Triggered when a purchase is made
+    -- Event {
+    --        item = item,
+    --        count = count,
+    --        player = player,
+    --        group_name = group_name,
+    --    }
+    on_market_purchase = script.generate_event_name(),
+}
 
 ---Global storage
 ---Markets are indexed by the position "x,y" and contains the group it belongs to
@@ -42,6 +54,12 @@ end)
 ---@param label string
 function Retailer.set_market_group_label(group_name, label)
     memory.group_label[group_name] = label
+end
+
+---Gets the name of the market group.
+---@param group_name string
+function Retailer.get_market_group_label(group_name)
+    return memory.group_label[group_name] or 'Market'
 end
 
 ---Returns all item for the group_name retailer.
@@ -112,8 +130,9 @@ local function redraw_market_items(data)
         local label = grid.add({type = 'label', caption = message})
         local label_style = label.style
         label_style.width = 93
-        label_style.height = 38
+        label_style.height = 32
         label_style.font = 'default-bold'
+        label_style.vertical_align = 'center'
 
         if is_missing_coins then
             label_style.font_color = color_red
@@ -135,7 +154,7 @@ local function draw_market_frame(player, group_name)
     local frame = player.gui.center.add({
         type = 'frame',
         name = market_frame_name,
-        caption = memory.group_label[group_name] or 'Market',
+        caption = Retailer.get_market_group_label(group_name),
         direction = 'vertical',
     })
 
@@ -147,7 +166,13 @@ local function draw_market_frame(player, group_name)
 
     local market_items = Retailer.get_items(group_name)
     local player_coins = player.get_item_count('coin')
-    local data = {grid = grid, count = 1, market_items = market_items, player_coins = player_coins}
+    local data = {
+        grid = grid,
+        count = 1,
+        market_items = market_items,
+        player_coins = player_coins,
+        market_group = group_name,
+    }
 
     local coin_label = frame.add({type = 'label'})
     do_coin_label(player_coins, coin_label)
@@ -299,13 +324,15 @@ Gui.on_click(item_button_name, function (event)
         return
     end
 
-    local inserted = player.insert({name = name, count = count})
-    if inserted < count then
-        player.print('Insufficient inventory space')
-        if inserted > 0 then
-            player.remove_item({name = name, count = inserted})
+    if item.type == 'item' then
+        local inserted = player.insert({name = name, count = count})
+        if inserted < count then
+            player.print('Insufficient inventory space')
+            if inserted > 0 then
+                player.remove_item({name = name, count = inserted})
+            end
+            return
         end
-        return
     end
 
     player.remove_item({name = 'coin', count = cost})
@@ -314,6 +341,12 @@ Gui.on_click(item_button_name, function (event)
     do_coin_label(player_coins, data.coin_label)
     redraw_market_items(data)
     PlayerStats.change_coin_spent(player.index, cost)
+
+    raise_event(Retailer.events.on_market_purchase, {
+        item = item,
+        count = count,
+        player = player,
+    })
 end)
 
 ---Add a market to the group_name retailer.
@@ -342,6 +375,7 @@ function Retailer.set_item(group_name, prototype)
 
     prototype.name_label = name_label or item_name
     prototype.sprite = prototype.sprite or 'item/' .. item_name
+    prototype.type = prototype.type or 'item'
 
     memory.items[group_name][item_name] = prototype
 end
