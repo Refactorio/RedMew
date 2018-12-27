@@ -1,0 +1,12 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: mspielberg/circleci-busted:5.2
+    steps:
+      - checkout
+      - run:
+          name: Run linter
+          command: git diff-tree -r --no-commit-id --name-only HEAD
+                   | { grep '\.lua$' || true ; }
+                   | xargs -r luacheck
