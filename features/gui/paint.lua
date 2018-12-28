@@ -149,8 +149,8 @@ local function toggle(event)
 
         buttons_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
 
-        local clear_bursh = buttons_flow.add {type = 'button', name = filter_clear_name, caption = 'Clear Brush'}
-        Gui.set_data(clear_bursh, brush)
+        local clear_brush = buttons_flow.add {type = 'button', name = filter_clear_name, caption = 'Clear Brush'}
+        Gui.set_data(clear_brush, brush)
     end
 end
 
