@@ -138,7 +138,7 @@ local function move_qchunk(surface, x, y, x_offset, y_offset)
         local success, e = pcall(function()
             entity.teleport{old_pos.x + x_offset, old_pos.y + y_offset}
         end)
-        if not success then 
+        if not success then --I will remove this after the beta :)
             game.print('PLEASE TELL VALANSCH OR WE WILL ALL DIE: ')
             game.print(name)
             game.print(type)

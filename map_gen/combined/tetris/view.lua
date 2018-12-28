@@ -4,7 +4,6 @@ local Gui = require 'utils.gui'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
-local Debug = require 'utils.debug'
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
@@ -67,7 +66,7 @@ local function button_tooltip(button_id)
     local tooltip = ''
     local non_zero = false
     local players = vote_players[button_id]
-    if not players then 
+    if not players then
         return button_pretty_names[button_id]
     end
     for _, p_name in pairs(vote_players[button_id]) do

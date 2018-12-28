@@ -11,7 +11,6 @@ local InfinityChest = require 'map_gen.misc.infinite_storage_chest'
 local states = require 'map_gen.combined.tetris.states'
 local machine = require 'map_gen.combined.tetris.machine'
 
-
 local tetriminos = {}
 
 local primitives = {
@@ -84,7 +83,6 @@ local function calculate_winner()
     local winners = {}
     local max = math.max(vote_sum[1], vote_sum[2], vote_sum[3], vote_sum[4], vote_sum[5])
     if max == 0 then
-        Debug.print('No votes')
         return
     end
     for candidate, n_votes in ipairs(vote_sum) do
@@ -117,7 +115,9 @@ local function player_vote(player, option_index)
 
     player_votes[player.index] = option_index
 
-    Debug.print(string.format('%s voted for %s', player.name, View.pretty_names[vote_button]))
+    if _DEBUG then
+        Debug.print(string.format('%s voted for %s', player.name, View.pretty_names[vote_button]))
+    end
     machine.transition(states.voting)
 
     calculate_winner()
@@ -312,8 +312,6 @@ local function execute_winner_action()
     Task.set_timeout_in_ticks(26, switch_state, {state = states.voting})
 end
 
-
-
 local spawn_new_tetrimino_token = Token.register(spawn_new_tetrimino)
 Event.on_init(function()
     game.forces.player.chart(game.surfaces.nauvis, {{-192, -432}, {160, 0}})
@@ -327,18 +325,13 @@ Event.add(defines.events.on_tick, function()
         local progress = (primitives.next_vote_finished - game.tick + 1)  / global.vote_delay / tetris_tick_duration
         if progress >= 0 and progress <= 1 then
             View.set_progress(progress)
-        else
-            --Debug.print('Progress out of bounds: ' .. progress)
         end
     end
 end)
 
 local function execute_down_tick()
-
-    Debug.print('Down')
     local down_state = primitives.down_substate
 
-    Debug.print(down_state)
     if down_state > 3 then
         primitives.down_substate = 0
         machine.transition(states.voting)

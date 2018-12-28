@@ -371,7 +371,6 @@ function Module.spawn_tetri(surface, pos, number)
                     end
                 end
 
-
                 local ore = ores(x2, y2 - offset, position)
                 if ore then
                     ore.position = position
