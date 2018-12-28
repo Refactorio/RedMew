@@ -8,6 +8,7 @@
 -- Excellent tetris themed music generated from midi files, credit to mgabor of miditorio.com
 
 local b = require 'map_gen.shared.builders'
+local table = require 'utils.table'
 local math = require 'utils.math'
 local degrees = math.rad
 local ore_seed1 = 7000

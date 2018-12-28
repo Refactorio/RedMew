@@ -91,10 +91,11 @@ local function calculate_winner()
         if max == n_votes then
             table.insert(winners, candidate)
         end
+        View.set_vote_number(options[candidate].button, n_votes)
     end
     local winner_option_index = winners[math.random(#winners)]
     primitives.winner_option_index = winner_option_index
-    Debug.print('Calculated winner: ' .. winner_option_index)
+    Debug.print('Calculated winner: ' .. View.pretty_names[options[winner_option_index].button])
 end
 
 local function player_vote(player, option_index)
@@ -116,13 +117,13 @@ local function player_vote(player, option_index)
 
     player_votes[player.index] = option_index
 
-    View.set_player_vote(player, vote_button, old_vote_button)
-
-    Debug.print(string.format('%s voted for %s', player.name, vote_button))
-
+    Debug.print(string.format('%s voted for %s', player.name, View.pretty_names[vote_button]))
     machine.transition(states.voting)
 
     calculate_winner()
+
+    View.set_player_vote(player, vote_button, old_vote_button)
+
 end
 
 for option_index, option in pairs(options) do
@@ -136,11 +137,7 @@ end
 View.bind_button(
     View.button_enum.clear_button,
     function(player)
-        Debug.print('clear')
-
         player_vote(player, nil) -- Clear player vote
-
-        Debug.print('clear')
         local old_vote = player_votes[player.index]
         local old_vote_button = nil
         if old_vote then
@@ -215,7 +212,10 @@ local function collect_full_row_resources(tetri)
 
         local x = tetri.position.x + active_qchunks[1].x * 16 - 9
         local y = tetri.position.y + active_qchunks[1].y * 16 - 9
-        InfinityChest.create_chest(tetri.surface, {x, y}, storage)
+        local chest = InfinityChest.create_chest(tetri.surface, {x, y}, storage)
+
+        chest.minable = false
+        chest.destructible = false
 
         primitives.points = primitives.points + points * 100
 
@@ -274,8 +274,6 @@ local function execute_vote_tick()
 
     if game.tick < primitives.next_vote_finished then return end
 
-    Debug.print('Vote finalized')
-
     local winner = options[primitives.winner_option_index]
     if winner then
         machine.transition(winner.transition)
@@ -329,17 +327,19 @@ Event.add(defines.events.on_tick, function()
         if progress >= 0 and progress <= 1 then
             View.set_progress(progress)
         else
-            Debug.print('Progress out of bounds: ' .. progress)
+            --Debug.print('Progress out of bounds: ' .. progress)
         end
     end
 end)
 
 local function execute_down_tick()
 
+    Debug.print('Down')
     local down_state = primitives.down_substate
 
+    Debug.print(down_state)
     if down_state > 3 then
-        primitives.down_substate = 1
+        primitives.down_substate = 0
         machine.transition(states.voting)
         return
     end
@@ -355,12 +355,13 @@ machine.register_state_tick_action(states.down, execute_down_tick)
 
 machine.register_transition(states.voting, states.pause, function()
     View.enable_vote_buttons(true)
+    game.print('Pausing...')
 end)
 
 machine.register_transition(states.pause, states.voting, function()
     primitives.next_vote_finished = global.vote_delay * tetris_tick_duration + game.tick
+    game.print('Resuming...')
 end)
-
 
 machine.register_transition(states.moving, states.voting, function()
     View.enable_vote_buttons(true)
@@ -389,6 +390,11 @@ end)
 
 Event.add(defines.events.on_player_created, function(event)
     local player = Game.get_player_by_index(event.player_index)
-    player.teleport{8,8}
+
+    local position = player.surface.find_non_colliding_position('player', {8,8}, 3, 1)
+    if position then
+        player.teleport(position)
+    end
+
 end)
 return Map.get_map()

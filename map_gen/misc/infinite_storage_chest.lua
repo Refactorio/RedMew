@@ -24,6 +24,7 @@ local chest_content_table_name = Gui.uid_name()
 function Module.create_chest(surface, position, storage)
     local entity = surface.create_entity{name = 'infinity-chest', position = position, force = 'player'}
     chests[entity.unit_number] = {entity = entity, storage = storage}
+    return entity
 end
 
 local function built_entity(event)

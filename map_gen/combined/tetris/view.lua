@@ -22,17 +22,19 @@ local uids = {
 
 local button_pretty_names = {
     [uids.ccw_button] = 'Rotate counter clockwise',
+    [uids.clear_button] = 'Clear your vote',
     [uids.cw_button] = 'Rotate clockwise',
     [uids.left_button] = 'Move left',
     [uids.down_button] = 'Move down',
     [uids.right_button] = 'Move right',
 }
 Module.button_enum = uids
+Module.pretty_names = button_pretty_names
 
 local primitives = {
     buttons_enabled = false,
     points = 0,
-    progress = 0
+    progress = 0,
 }
 local vote_players = {
     [uids.ccw_button] = {},
@@ -64,7 +66,11 @@ Global.register(
 local function button_tooltip(button_id)
     local tooltip = ''
     local non_zero = false
-    for p_name, _ in pairs(vote_players[button_id]) do
+    local players = vote_players[button_id]
+    if not players then 
+        return button_pretty_names[button_id]
+    end
+    for _, p_name in pairs(vote_players[button_id]) do
         non_zero = true
         tooltip = string.format('%s, %s', p_name, tooltip) --If you have a better solution please tell me. Lol.
     end
@@ -72,6 +78,21 @@ local function button_tooltip(button_id)
         return string.format('%s: %s', button_pretty_names[button_id], tooltip:sub(1, -3))
     end
     return button_pretty_names[button_id]
+end
+
+local function button_enabled(button_id, player_id)
+    return (not vote_players[button_id]) or primitives.buttons_enabled and (not vote_players[button_id][player_id])
+end
+
+local function add_sprite_button(element, player, name, sprite)
+    return element.add{
+        type = 'sprite-button',
+        name = name,
+        enabled = button_enabled(name, player.index),
+        tooltip = button_tooltip(name),
+        number = vote_numbers[name],
+        sprite = sprite,
+    }
 end
 
 local function toggle(player)
@@ -99,13 +120,13 @@ local function toggle(player)
         local lower_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
 
         local vote_buttons = {
-            [uids.ccw_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip(uids.cw_button), number = vote_numbers.ccw_button, name = uids.ccw_button, sprite = 'utility/reset'},
-            [uids.clear_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, name = uids.clear_button, sprite = 'utility/trash_bin'},
-            [uids.cw_button] = upper_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip(uids.cw_button), number = vote_numbers.cw_button, name = uids.cw_button, sprite = 'utility/reset'},
+            [uids.ccw_button] = add_sprite_button(upper_b_f, player, uids.ccw_button, 'utility/reset'),
+            [uids.clear_button] = add_sprite_button(upper_b_f, player, uids.clear_button, 'utility/trash_bin'),
+            [uids.cw_button] = add_sprite_button(upper_b_f, player, uids.cw_button, 'utility/reset'),
 
-            [uids.left_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip(uids.left_button), number = vote_numbers.left_button,  name = uids.left_button, sprite = 'utility/left_arrow'},
-            [uids.down_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip(uids.down_button), number = vote_numbers.down_button, name = uids.down_button, sprite = 'utility/speed_down'},
-            [uids.right_button] = lower_b_f.add{type = 'sprite-button', enabled = primitives.buttons_enabled, tooltip = button_tooltip(uids.right_button), number = vote_numbers.right_button, name = uids.right_button, sprite = 'utility/right_arrow'},
+            [uids.left_button] = add_sprite_button(lower_b_f, player, uids.left_button, 'utility/left_arrow'),
+            [uids.down_button] = add_sprite_button(lower_b_f, player, uids.down_button, 'utility/speed_down'),
+            [uids.right_button] = add_sprite_button(lower_b_f, player, uids.right_button, 'utility/right_arrow'),
         }
 
         main_frame.add{type = 'sprite-button', name = uids.zoom_button, sprite = 'utility/search_icon'}
@@ -162,15 +183,8 @@ function Module.set_points(points)
         end
     end
 end
-
-local function change_vote_button(vote_buttons, player_name, button_id, change, set)
-    local element = vote_buttons[button_id]
-    local number = vote_numbers[button_id] + change
+function Module.set_vote_number(button_id, number)
     vote_numbers[button_id] = number
-    element.number = number
-    vote_players[button_id][player_name] = set
-    element.tooltip = button_tooltip(button_id)
-    element.enabled = not set
 end
 
 function Module.set_player_vote(player, vote_button_id, old_vote_button_id)
@@ -178,16 +192,23 @@ function Module.set_player_vote(player, vote_button_id, old_vote_button_id)
     if mf then
         local vote_buttons = Gui.get_data(mf).vote_buttons
         if vote_button_id then
-            change_vote_button(vote_buttons, player.name, vote_button_id, 1, true)
+            vote_buttons[vote_button_id].enabled = false
+            vote_players[vote_button_id][player.index] = player.name
         end
 
         if old_vote_button_id then
-            change_vote_button(vote_buttons, player.name, old_vote_button_id, -1)
+            vote_buttons[old_vote_button_id].enabled = true
+            vote_players[old_vote_button_id][player.index] = nil
         end
+    end
+    for _, p in pairs(game.players) do
+        toggle(p)
+        toggle(p)
     end
 end
 
 function Module.enable_vote_buttons(enable)
+    primitives.buttons_enabled = enable
     for _,player in pairs(game.players) do
         local mf = player.gui.left[main_frame_name]
         if mf then
@@ -195,7 +216,7 @@ function Module.enable_vote_buttons(enable)
             if data then
                 local buttons = data.vote_buttons
                 for _, button in pairs(buttons) do
-                    button.enabled = enable
+                    button.enabled = button_enabled(button.name, player.index)
                 end
             end
         end

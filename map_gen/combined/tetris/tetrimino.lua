@@ -131,17 +131,18 @@ local function move_qchunk(surface, x, y, x_offset, y_offset)
 
     for index, entity in ipairs(entities) do
         local old_pos = entity.position
-        local amount = nil
-        if entity.type == "resource" then
-            amount = entity.amount
-        end
-        local type = entity.type
-        local name = entity.name
-        if type ~= 'player' and type ~= 'character-corpse' and type ~= 'particle' and name ~= 'entity-ghost' then
-            surface.create_entity{force=entity.force, amount = amount, name = name, position = {old_pos.x + x_offset, old_pos.y + y_offset}}
-        elseif entity.type == 'player' and entity.player then
-            player_positions[entity.player.index] = {old_pos.x + x_offset, old_pos.y + y_offset}
-            entity.player.teleport{0, 0}
+
+        local success, e = pcall(function()
+            entity.teleport{old_pos.x + x_offset, old_pos.y + y_offset}
+        end)
+        if not success then 
+            game.print('PLEASE TELL VALANSCH OR WE WILL ALL DIE: ')
+            game.print(name)
+            game.print(type)
+
+            log(name)
+            log(type)
+            log('error in create entity ' .. tostring(e))
         end
     end
     surface.set_tiles(new_tiles)
