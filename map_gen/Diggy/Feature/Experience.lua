@@ -20,6 +20,9 @@ local print_player_floating_text_position = Game.print_player_floating_text_posi
 local get_force_data = ForceControl.get_force_data
 local get_player_by_index = Game.get_player_by_index
 local set_item = Retailer.set_item
+local disable_item = Retailer.disable_item
+local enable_item = Retailer.enable_item
+
 
 -- this
 local Experience = {}
@@ -90,8 +93,11 @@ function Experience.update_market_contents(force)
     local current_level = get_force_data(force).current_level
     local force_name = force.name
     for _, prototype in pairs(config.unlockables) do
-        if (current_level >= prototype.level) then
-            set_item(force_name, prototype)
+        local prototype_level = prototype.level
+        if current_level < prototype_level then
+            disable_item(force_name, prototype.name, format('Unlocks at level %d', prototype_level))
+        else
+            enable_item(force_name, prototype.name)
         end
     end
 end
@@ -548,6 +554,13 @@ function Experience.on_init()
     --Adds the 'player' force to participate in the force control system.
     local force = game.forces.player
     ForceControl.register_force(force)
+
+    local force_name = force.name
+    for _, prototype in pairs(config.unlockables) do
+        set_item(force_name, prototype)
+    end
+
+    Experience.update_market_contents(force)
 end
 
 return Experience

@@ -19,7 +19,8 @@ local market_frame_close_button_name = Gui.uid_name()
 local item_button_name = Gui.uid_name()
 local count_slider_name = Gui.uid_name()
 local count_text_name = Gui.uid_name()
-local color_red = {r = 1, b = 0, g = 0}
+local color_red = {r = 255, b = 0, g = 0}
+local color_dark_grey = {r = 169, g = 169, b = 169}
 
 local Retailer = {}
 
@@ -98,6 +99,7 @@ local function redraw_market_items(data)
         local tooltip = {'', item.name_label, format('\nprice: %d', price)}
         local description = item.description
         local total_price = ceil(price * count)
+        local disabled = item.disabled == true
         local message
         if total_price == 1 then
             message = '1 coin'
@@ -112,7 +114,9 @@ local function redraw_market_items(data)
             insert(tooltip, '\n' .. item.description)
         end
 
-        if is_missing_coins then
+        if disabled then
+            insert(tooltip, '\n\n' .. (item.disabled_reason or 'Not available'))
+        elseif is_missing_coins then
             insert(tooltip, '\n\n' .. format('Missing %d coins to buy %d', missing_coins, count))
         end
 
@@ -134,7 +138,10 @@ local function redraw_market_items(data)
         label_style.font = 'default-bold'
         label_style.vertical_align = 'center'
 
-        if is_missing_coins then
+        if disabled then
+            label_style.font_color = color_dark_grey
+            button.enabled = false
+        elseif is_missing_coins then
             label_style.font_color = color_red
             button.enabled = false
         end
@@ -312,6 +319,11 @@ Gui.on_click(item_button_name, function (event)
 
     local item = data.market_items[button_data.index]
 
+    if item.disabled then
+        player.print({'', item.name_label, ' is disabled. ', item.disabled_reason or ''})
+        return
+    end
+
     local name = item.name
     local price = item.price
     local count = data.count
@@ -378,6 +390,43 @@ function Retailer.set_item(group_name, prototype)
     prototype.type = prototype.type or 'item'
 
     memory.items[group_name][item_name] = prototype
+end
+
+---Enables a market item by group name and item name if it's registered.
+---@param group_name string
+---@param item_name string
+function Retailer.enable_item(group_name, item_name)
+    if not memory.items[group_name] then
+        return
+    end
+
+    local prototype = memory.items[group_name][item_name]
+
+    if not prototype then
+        return
+    end
+
+    prototype.disabled = false
+    prototype.disabled_reason = false
+end
+
+---Disables a market item by group name and item name if it's registered.
+---@param group_name string
+---@param item_name string
+---@param disabled_reason string
+function Retailer.disable_item(group_name, item_name, disabled_reason)
+    if not memory.items[group_name] then
+        return
+    end
+
+    local prototype = memory.items[group_name][item_name]
+
+    if not prototype then
+        return
+    end
+
+    prototype.disabled = true
+    prototype.disabled_reason = disabled_reason
 end
 
 return Retailer
