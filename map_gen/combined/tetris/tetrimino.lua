@@ -232,7 +232,6 @@ function Module.rotate(self, reverse)
     local insert = insert --Intentionally shadowing upvalue
     local tiles = {}
     local entities = {}
-
     for x = 1, 4 do
         for y = 1, 4 do
             local target = transformation[y][x]
@@ -250,7 +249,13 @@ function Module.rotate(self, reverse)
                 for _, entity in pairs(find_entities_filtered{area = {{top_left_x, top_left_y},{tetri_x + x * 16 - 1, tetri_y + y * 16 - 1}}}) do
                     local type = entity.type
                     if type ~= 'player' and type ~= 'character-corpse' then
-                        insert(entities, {name = entity.name, position = {entity.position.x + (target.x - x) * 16, entity.position.y + (target.y - y) * 16}})
+                        local amount = nil
+                        if type == 'resource' then
+                            amount = entity.amount
+                        end
+                        insert(entities, {name = entity.name, amount = amount, position = {entity.position.x + (target.x - x) * 16, entity.position.y + (target.y - y) * 16}})
+                        entity.destroy()
+
                     elseif entity.type == 'player' then
                         entity.player.teleport{entity.position.x + (target.x - x) * 16, entity.position.y + (target.y - y) * 16}
                     end
@@ -263,7 +268,7 @@ function Module.rotate(self, reverse)
     end
 
     for _, e in pairs(entities) do
-        surface.create_entity{position = e.position, name = e.name}
+        surface.create_entity(e)
     end
 
     surface.set_tiles(tiles)
