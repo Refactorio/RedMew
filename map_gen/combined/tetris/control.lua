@@ -144,6 +144,7 @@ View.bind_button(
             old_vote_button = options[old_vote].button
         end
         View.set_player_vote(player, nil, old_vote_button)
+        calculate_winner()
     end
 )
 

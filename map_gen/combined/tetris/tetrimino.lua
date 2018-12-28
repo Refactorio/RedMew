@@ -56,13 +56,16 @@ local collision_boxes = {
 local worker = nil
 local move_queue = Queue.new()
 local Map = nil
+local sequence = {1,2,3,4,5,6,7, _head = 8}
 
 Global.register(
     {
         move_queue = move_queue,
+        sequence = sequence,
     },
     function(tbl)
        move_queue = tbl.move_queue
+       sequence = tbl.sequence
     end
 )
 
@@ -277,9 +280,22 @@ function Module.rotate(self, reverse)
     self.collision_box = new_collision_box
 end
 
+local function get_next_tetri_number()
+    local head = sequence._head
+    if head > 7 then
+        table.shuffle_table(sequence)
+        game.print(serpent.line(sequence))
+        head = 1
+        sequence._head = 0
+    end
+    sequence._head = head + 1
+    return sequence[head]
+end
+
 function Module.new(surface, position)
-    local number = math.random(7)
+    local number = get_next_tetri_number()
     local self = {}
+    self.number = number
     self.position = {x = position.x - 32, y = position.y - 32}
     self.surface = surface
     self.collision_box = collision_boxes[number]
