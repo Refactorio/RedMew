@@ -5,6 +5,7 @@ local Event = require 'utils.event'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local math = require 'utils.math'
+local Color = require 'resources.color_presets'
 local format = string.format
 local size = table.size
 local insert = table.insert
@@ -19,8 +20,6 @@ local market_frame_close_button_name = Gui.uid_name()
 local item_button_name = Gui.uid_name()
 local count_slider_name = Gui.uid_name()
 local count_text_name = Gui.uid_name()
-local color_red = {r = 255, b = 0, g = 0}
-local color_dark_grey = {r = 169, g = 169, b = 169}
 
 local Retailer = {}
 
@@ -139,10 +138,10 @@ local function redraw_market_items(data)
         label_style.vertical_align = 'center'
 
         if disabled then
-            label_style.font_color = color_dark_grey
+            label_style.font_color = Color.dark_grey
             button.enabled = false
         elseif is_missing_coins then
-            label_style.font_color = color_red
+            label_style.font_color = Color.red
             button.enabled = false
         end
     end
