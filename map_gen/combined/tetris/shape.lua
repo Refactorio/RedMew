@@ -13,6 +13,7 @@ local degrees = math.rad
 local ore_seed1 = 7000
 local ore_seed2 = ore_seed1 * 2
 local noise = require 'map_gen.shared.perlin_noise'.noise
+local abs = math.abs
 
 require 'utils.table'
 
@@ -227,13 +228,12 @@ local worm_names = {
 }
 
 local max_worm_chance = 1 / 128
+local max_spawner_chance = 1/64
 local worm_chance_factor = 1 / (192 * 512)
 
 local function worms(position)
-    local x, y  = position.x, position.y
-    local d = math.sqrt(x * x + y * y)
-
-    local worm_chance = d - 256
+    local d = abs(position.y)
+    local worm_chance = d - 300
 
     if worm_chance > 0 then
         worm_chance = worm_chance * worm_chance_factor
@@ -241,7 +241,7 @@ local function worms(position)
 
         if math_random() < worm_chance then
             if d < 600 then
-                return {name = 'small-worm-turret'}
+                return {name = 'small-worm-turret', position = position}
             else
                 local max_lvl
                 local min_lvl
@@ -255,8 +255,27 @@ local function worms(position)
                 local lvl = math_random() ^ (512 / d) * max_lvl
                 lvl = math.ceil(lvl)
                 lvl = math.clamp(lvl, min_lvl, 3)
-                return {name = worm_names[lvl]}
+                return {name = worm_names[lvl], position = position}
             end
+        end
+    end
+end
+
+local spawner_names = {
+    'spitter-spawner',
+    'biter-spawner'
+}
+
+local function spawners(position)
+
+    local spawner_chance = abs(position.y) - 600
+
+    if spawner_chance > 0 then
+        spawner_chance = spawner_chance * worm_chance_factor
+        spawner_chance = math.min(spawner_chance, max_spawner_chance)
+
+        if math_random() < spawner_chance then
+            return {name = spawner_names[math_random(1,2)], position = position}
         end
     end
 end
@@ -380,8 +399,12 @@ function Module.spawn_tetri(surface, pos, number)
 
                 local worm = worms(position)
                 if worm then
-                    worm.position = position
                     create_entity(worm)
+                else
+                    local spawner = spawners(position)
+                    if spawner then
+                        create_entity(spawner)
+                    end
                 end
             end
         end
