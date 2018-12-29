@@ -1,4 +1,5 @@
 local Global = require 'utils.global'
+local pairs = pairs
 
 local Game = {}
 

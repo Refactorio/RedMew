@@ -3,6 +3,10 @@ require 'utils.math'
 
 -- Map layout and config dictate the map you play and the settings in it
 local config = require 'config'
+
+-- global for easy access
+Debug = require 'utils.debug'
+
 require 'map_layout'
 
 -- Specific to RedMew hosts, can be disabled safely if not hosting on RedMew servers

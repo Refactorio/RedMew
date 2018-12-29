@@ -20,6 +20,7 @@ local market_frame_close_button_name = Gui.uid_name()
 local item_button_name = Gui.uid_name()
 local count_slider_name = Gui.uid_name()
 local count_text_name = Gui.uid_name()
+local market_gui_close_distance_squared = 6 * 6 + 6 * 6
 
 local Retailer = {}
 
@@ -41,6 +42,7 @@ local memory = {
     markets = {},
     items = {},
     group_label = {},
+    players_in_market_view = {},
 }
 
 Global.register({
@@ -223,11 +225,6 @@ Event.add(defines.events.on_gui_opened, function (event)
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
-    if not player or not player.valid then
-        return
-    end
-
     local entity = event.entity
     if not entity or not entity.valid then
         return
@@ -239,6 +236,12 @@ Event.add(defines.events.on_gui_opened, function (event)
         return
     end
 
+    local player = Game.get_player_by_index(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    memory.players_in_market_view[player.index] = position
     local frame = draw_market_frame(player, group_name)
 
     player.opened = frame
@@ -246,11 +249,13 @@ end)
 
 Gui.on_custom_close(market_frame_name, function (event)
     local element = event.element
+    memory.players_in_market_view[event.player.index] = nil
     Gui.destroy(element)
 end)
 
 local function close_market_gui(player)
     local element = player.gui.center
+    memory.players_in_market_view[player.index] = nil
 
     if element and element.valid then
         element = element[market_frame_name]
@@ -390,6 +395,26 @@ function Retailer.set_item(group_name, prototype)
 
     memory.items[group_name][item_name] = prototype
 end
+
+local function validate_distance_from_market()
+    for player_index, market_position in pairs(memory.players_in_market_view) do
+        local player = Game.get_player_by_index(player_index)
+        if player and player.valid then
+            local player_position = player.position
+            local delta_x = player_position.x - market_position.x
+            local delta_y = player_position.y - market_position.y
+
+            if delta_x * delta_x + delta_y * delta_y > market_gui_close_distance_squared then
+                close_market_gui(player)
+            end
+        else
+            -- player is no longer in the game, remove it from the market view
+            memory.players_in_market_view[player_index] = nil
+        end
+    end
+end
+
+Event.on_nth_tick(37, validate_distance_from_market)
 
 ---Enables a market item by group name and item name if it's registered.
 ---@param group_name string
