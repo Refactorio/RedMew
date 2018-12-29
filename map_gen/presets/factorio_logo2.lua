@@ -8,7 +8,7 @@ local island_distance_y = 128
 local b = require "map_gen.shared.builders"
 
 local pic = require "map_gen.data.presets.factorio_logo2"
-local pic = b.decompress(pic)
+pic = b.decompress(pic)
 
 local shape = b.picture(pic)
 shape = b.scale(shape, scale_factor, scale_factor)

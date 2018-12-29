@@ -90,7 +90,7 @@ for _, v in ipairs(squares) do
     table.insert(total_square_weights, square_t)
 end
 
-value = b.exponential_value
+local value = b.exponential_value
 
 local function non_transform(shape)
     return shape

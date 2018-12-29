@@ -29,7 +29,7 @@ local ores = {
     {resource_type = 'uranium-ore', value = value(125, 1)},
     {resource_type = 'crude-oil', value = value(50000, 250)}
 }
-local function striped(shape)
+local function striped(shape) -- luacheck: ignore 431
     return function(x, y, world)
         if not shape(x, y) then
             return nil
@@ -46,7 +46,7 @@ local function striped(shape)
     end
 end
 
-local function sprinkle(shape)
+local function sprinkle(shape) -- luacheck: ignore 431
     return function(x, y, world)
         if not shape(x, y) then
             return nil
@@ -64,8 +64,7 @@ local function sprinkle(shape)
 end
 
 
-local function radial(shape, radius)
-    local radius_sq = radius * radius
+local function radial(shape, radius) -- luacheck: ignore 431
     local stone_r_sq = radius * 0.3025 -- radius * 0.55
     local coal_r_sq = radius * 0.4225 -- radius * 0.65
     local copper_r_sq = radius * 0.64 -- radius * 0.8
@@ -173,7 +172,7 @@ local function do_patches(patches, offset)
                 index = bit32.bnot(index)
             end
 
-            local shape = patches[index][1]
+            local shape = patches[index][1] -- luacheck: ignore 431
 
             local x = random:next_int(-offset, offset)
             local y = random:next_int(-offset, offset)

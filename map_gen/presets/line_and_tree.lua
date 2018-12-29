@@ -55,10 +55,10 @@ local function make_tree()
     end
     local pattern = {}
 
-    for r = 1, p_rows do
+    for _ = 1, p_rows do
         local row = {}
         table.insert(pattern, row)
-        for c = 1, p_cols do
+        for _ = 1, p_cols do
             local i = random:next_int(1, t)
 
             local index = table.binary_search(total_weights, i)

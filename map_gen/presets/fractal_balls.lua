@@ -7,7 +7,7 @@ local function value(base, mult)
     end
 end
 
-local function no_resources(x, y, world, tile)
+local function no_resources(_, _, world, tile)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
@@ -28,8 +28,6 @@ local arm2 = b.translate(b.rectangle(6, 2), 0, 22)
 local inner = b.circle(22)
 local outer = b.circle(24)
 local ring = b.all {outer, b.invert(inner)}
-
-map = b.any {map, ring}
 
 local arms = b.any {arm1, arm2}
 arms = b.translate(arms, 0, -16)
@@ -123,7 +121,7 @@ balls4 = b.choose(b.scale(outer, 3, 3), balls4, b.empty_shape)
 
 local function make_ball(shape, sf)
     local s1 = b.translate(shape, 0, -12 * sf)
-    local shape =
+    shape =
         b.any {
         s1,
         b.rotate(s1, degrees(120)),

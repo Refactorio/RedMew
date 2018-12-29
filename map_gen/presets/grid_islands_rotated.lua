@@ -24,9 +24,9 @@ local track = {
     b.rectangle(3, 22)
 }
 
-h_track = b.any(track)
+local h_track = b.any(track)
 h_track = b.single_x_pattern(h_track, 15)
-v_track = b.rotate(h_track,degrees(90))
+local v_track = b.rotate(h_track,degrees(90))
 
 local square = b.rectangle(190, 190)
 local circle = b.circle(80)
@@ -96,7 +96,7 @@ for r = 1, 50 do
             row[c] = square
         else
             local i = random_ore:next_int(1, ore_t)
-            index = table.binary_search(total_ore_weights, i)
+            local index = table.binary_search(total_ore_weights, i)
             if (index < 0) then
                 index = bit32.bnot(index)
             end
