@@ -170,6 +170,8 @@ function Module.bind_button(button_uid, handler)
     end)
 end
 
+--- Sets the total game points to the given number
+-- @param points number
 function Module.set_points(points)
     primitives.points = points
     for _, player in pairs(game.players) do
@@ -182,10 +184,19 @@ function Module.set_points(points)
         end
     end
 end
+
+--- Sets the number displayed next to a button
+-- @param button_id string the buttons uid
+-- @param number number then number that will be displayed
 function Module.set_vote_number(button_id, number)
     vote_numbers[button_id] = number
 end
 
+--- Adds a players name to the tooltip of a button and (if applicable) removes the name from another button
+-- @description Also disabled the selected button an (if applicable) enables the second
+-- @param player LuaPlayer
+-- @param vote_button_id string the uid of the button that the players name will be added to
+-- @param[opt] old_vote_button_id string the uid of the button that the players name will be removed from
 function Module.set_player_vote(player, vote_button_id, old_vote_button_id)
     local mf = player.gui.left[main_frame_name]
     if mf then
@@ -206,6 +217,8 @@ function Module.set_player_vote(player, vote_button_id, old_vote_button_id)
     end
 end
 
+--- enables or disables the vote buttons
+-- @param enable boolean true if the vote buttons should be enabled, false if not
 function Module.enable_vote_buttons(enable)
     primitives.buttons_enabled = enable
     for _,player in pairs(game.players) do
@@ -222,6 +235,7 @@ function Module.enable_vote_buttons(enable)
     end
 end
 
+--- Resets all poll buttons back to default
 function Module.reset_poll_buttons()
     for key, _ in pairs(vote_players) do
         vote_players[key] = {}
@@ -233,6 +247,8 @@ function Module.reset_poll_buttons()
     end
 end
 
+--- Sets progressbar denoting the time left until the current vote is finished
+-- @param progress number between 0 and 1
 function Module.set_progress(progress)
     primitives.progress = progress
     for _, player in pairs(game.players) do

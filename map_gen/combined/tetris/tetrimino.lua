@@ -1,4 +1,18 @@
-local Module = {}
+--- @class This module provides a class that provides Tetrimino object functionallity
+local Tetrimino = {}
+
+--- @type LuaTetrimino
+-- @field number number identifies the kind of Tetrimino
+-- @field collision_box LuaTetriminoCollisionBox @see LuaTetriminoCollisionBox
+-- @field position LuaPosition The current position of top left corner of the collision box of the tetrimino.
+--    Only x/y divisible by 16 are legal coordinates.
+
+--- @type LuaTetriminoCollisionBox represents the collision box of a tetrimino. Contains a 4x4 2d array.
+-- @description If a cell is 1 the quad chunk represented by the array position is occupied. 0 if not
+-- @field 1 table of numbers first row
+-- @field 2 table of numbers second row
+-- @field 3 table of numbers thrid row
+-- @field 4 table of numbers forth  row
 
 local Token = require 'utils.token'
 local Task = require 'utils.schedule'
@@ -8,6 +22,10 @@ local Game = require 'utils.game'
 
 local insert = table.insert
 
+--- Holds collision boxes for all tetriminos.
+-- The index of this table is what defines the tetriminos kind.
+-- IE: tetrimino with 1 is the "I" tetrimino
+-- @table containing LuaTetriminoCollisionBox
 local collision_boxes = {
     {
         {0, 1, 0, 0},
@@ -69,6 +87,12 @@ Global.register(
     end
 )
 
+--- Does this tetrimino collide with anything but itself with a new collision box(rotation) and an x/y offset
+-- @param self LuaTetrimino (See @LuaTetrimino) The tetrimino that may collide
+-- @param collision_box LuaTetriminoCollisionBox (See @LuaTetriminoCollisionBox) The suggested new collision box of self.
+-- @param x_steps number either -1, 0 or 1. Represent going left by 16 tiles, not moving in x direction or going right by 16 tiles
+-- @param y_steps number either -1, 0 or 1. Represent going up by 16 tiles, not moving in y direction or going down by 16 tiles
+-- @return boolean
 local function collides(self, collision_box, x_steps, y_steps)
     local old_collision_box = self.collision_box
     local position = self.position
@@ -101,6 +125,10 @@ local function collides(self, collision_box, x_steps, y_steps)
     return false
 end
 
+--- Replaces a quad chunk with water and destroys all entities on it
+-- @param surface LuaSurface
+-- @param x number top left x position of the quad chunk
+-- @param y number top left y position of the quad chunk
 local function erase_qchunk(surface, x, y)
     local new_tiles = {}
     for c_x = x + 1 , x + 14 do
@@ -122,6 +150,12 @@ local function erase_qchunk(surface, x, y)
     surface.set_tiles(new_tiles)
 end
 
+--- Moves a quad chunk (16x16 tiles)
+-- @param surface LuaSurface
+-- @param x number x position of the quad chunk
+-- @param y number y position of the quad chunk
+-- @param x_offset number tiles to move in x direction
+-- @param y_offset number tiles to move in y direction
 local function move_qchunk(surface, x, y, x_offset, y_offset)
     local entities = surface.find_entities_filtered{area = {{x,y}, {x + 15, y + 15}}}
     local old_tiles = surface.find_tiles_filtered{area = {{x,y}, {x + 16, y + 16}}}
@@ -155,7 +189,12 @@ local function move_qchunk(surface, x, y, x_offset, y_offset)
     end
 end
 
-function Module.move(self, x_direction, y_direction)
+--- Moves the tetrimino in a supplied direction
+-- @param self LuaTetrimino
+-- @param x_direction number (-1, 0 or 1)
+-- @param y_direction number (-1, 0 or 1)
+-- @return boolean success
+function Tetrimino.move(self, x_direction, y_direction)
     local surface = self.surface
     local position = self.position
     local collision_box = self.collision_box
@@ -185,6 +224,10 @@ function Module.move(self, x_direction, y_direction)
     return true
 end
 
+--- Returns a rotated version of a supplied collision box by 90° in mathematically positive direction
+-- @param collision_box LuaTetriminoCollisionBox
+-- @param[opt=false] reverse boolean rotate in mathematically negative direction?
+-- @treturn LuaTetriminoCollisionBox the rotated collision box
 local function rotate_collision_box(collision_box, reverse)
     local new_collision_box = {{},{},{},{}}
     local transformation = {{},{},{},{}}
@@ -206,7 +249,10 @@ local function rotate_collision_box(collision_box, reverse)
     return new_collision_box, transformation
 end
 
-function Module.active_qchunks(self)
+--- Returns the collision box positions of the occupied qchunks in the tetris collision box
+-- @param self LuaTetrimino
+-- @return table of LuaPosition
+function Tetrimino.active_qchunks(self)
     local collision_box = self.collision_box
     local result = {nil, nil, nil, nil}
     for x = 1, 4 do
@@ -219,9 +265,13 @@ function Module.active_qchunks(self)
     return result
 end
 
-function Module.rotate(self, reverse)
+--- Rotates a tetrimino, if it doesnt collide
+-- @param self LuaTetrimino
+-- @param[opt=false] reverse boolean rotate in mathmatically negative direction?
+-- @return boolean success
+function Tetrimino.rotate(self, reverse)
     local new_collision_box, transformation = rotate_collision_box(self.collision_box, reverse)
-    if collides(self, new_collision_box, 0, 0) then return end
+    if collides(self, new_collision_box, 0, 0) then return false end
 
     if self.number == 2 then
         game.print('You are a smart motherfucker, that\'s right.')
@@ -276,8 +326,9 @@ function Module.rotate(self, reverse)
     end
 
     surface.set_tiles(tiles)
-
     self.collision_box = new_collision_box
+
+    return true
 end
 
 local function get_next_tetri_number()
@@ -292,7 +343,11 @@ local function get_next_tetri_number()
     return sequence[head]
 end
 
-function Module.new(surface, position)
+--- Constructs a new tetri and places it on the map
+-- @param surface LuaSurface the surface the tetri will be placed on
+-- @param position LuaPosition the position the tetri will be placed at. Legal values for x and y must be divisable by 16
+-- @return LuaTetrimino @see LuaTetrimino
+function Tetrimino.new(surface, position)
     local number = get_next_tetri_number()
     local self = {}
     self.number = number
@@ -304,6 +359,7 @@ function Module.new(surface, position)
     return self
 end
 
+--Works on one quad chunk in the move_queue
 worker = Token.register(
     function()
         local quad =  Queue.pop(move_queue)
@@ -319,7 +375,9 @@ worker = Token.register(
     end
 )
 
+--- This module requires a map module as input.
+--- @param map_input table containing the function field spawn_tetri(surface, position, number)
 return function(map_input)
     Map = map_input
-    return Module
+    return Tetrimino
 end
