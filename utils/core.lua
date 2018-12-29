@@ -15,14 +15,14 @@ local ticks_to_hours = 1 / hours_to_ticks
 local Module = {}
 
 --- Measures distance between pos1 and pos2
-Module.distance = function(pos1, pos2)
+function Module.distance(pos1, pos2)
     local dx = pos2.x - pos1.x
     local dy = pos2.y - pos1.y
     return math.sqrt(dx * dx + dy * dy)
 end
 
 --- Takes msg and prints it to all players except provided player
-Module.print_except = function(msg, player)
+function Module.print_except(msg, player)
     for _, p in pairs(game.connected_players) do
         if p ~= player then
             p.print(msg)
@@ -33,7 +33,7 @@ end
 --- Prints a message to all online admins
 --@param1 The message to print, as a string
 --@param2 The source of the message, as a string, LuaPlayer, or nil.
-Module.print_admins = function(msg, source)
+function Module.print_admins(msg, source)
     local source_name
     local chat_color
     if source then
@@ -58,14 +58,14 @@ Module.print_admins = function(msg, source)
 end
 
 --- Returns a valid string with the name of the actor of a command.
-Module.get_actor = function()
+function Module.get_actor()
     if game.player then
         return game.player.name
     end
     return '<server>'
 end
 
-Module.cast_bool = function(var)
+function Module.cast_bool(var)
     if var then
         return true
     else
@@ -73,7 +73,7 @@ Module.cast_bool = function(var)
     end
 end
 
-Module.find_entities_by_last_user = function(player, surface, filters)
+function Module.find_entities_by_last_user(player, surface, filters)
     if type(player) == 'string' or not player then
         error("bad argument #1 to '" .. debug.getinfo(1, 'n').name .. "' (number or LuaPlayer expected, got " .. type(player) .. ')', 1)
         return
@@ -99,7 +99,7 @@ Module.find_entities_by_last_user = function(player, surface, filters)
     return entities
 end
 
-Module.ternary = function(c, t, f)
+function Module.ternary(c, t, f)
     if c then
         return t
     else
@@ -108,7 +108,7 @@ Module.ternary = function(c, t, f)
 end
 
 --- Takes a time in ticks and returns a string with the time in format "x hour(s) x minute(s)"
-Module.format_time = function(ticks)
+function Module.format_time(ticks)
     local result = {}
 
     local hours = math.floor(ticks * ticks_to_hours)
@@ -135,7 +135,7 @@ end
 
 --- Prints a message letting the player know they cannot run a command
 -- @param name string name of the command
-Module.cant_run = function(name)
+function Module.cant_run(name)
     Game.player_print("Can't run command (" .. name .. ') - insufficient permission.')
 end
 
@@ -143,7 +143,7 @@ end
 -- @param actor string with the actor's name (usually acquired by calling get_actor)
 -- @param command the command's name as table element
 -- @param parameters the command's parameters as a table (optional)
-Module.log_command = function(actor, command, parameters)
+function Module.log_command(actor, command, parameters)
     local action = table.concat {'[Admin-Command] ', actor, ' used: ', command}
     if parameters then
         action = table.concat {action, ' ', parameters}
@@ -151,7 +151,7 @@ Module.log_command = function(actor, command, parameters)
     log(action)
 end
 
-Module.comma_value = function(n) -- credit http://richard.warburton.it
+function Module.comma_value(n) -- credit http://richard.warburton.it
     local left, num, right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
     return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
 end
@@ -160,7 +160,7 @@ end
 -- @param arg the variable to check
 -- @param arg_types the type as a table of sings
 -- @return boolean
-Module.verify_mult_types = function(arg, arg_types)
+function Module.verify_mult_types(arg, arg_types)
     for _, arg_type in pairs(arg_types) do
         if type(arg) == arg_type then
             return true
@@ -170,8 +170,30 @@ Module.verify_mult_types = function(arg, arg_types)
 end
 
 --- Returns a random RGB color as a table
-Module.random_RGB = function ()
+function Module.random_RGB()
     return {r = random(0, 255), g = random(0, 255), b = random(0, 255)}
 end
+
+-- add utility functions that exist in base factorio/util
+require 'util'
+
+--- Moves a position according to the parameters given
+-- Notice: only accepts cardinal directions as direction
+-- @param position <table> table containing a map position
+-- @param direction <defines.direction> north, east, south, west
+-- @param distance <number>
+-- @return <table> modified position
+Module.move_position = util.moveposition
+
+
+--- Takes a direction and gives you the opposite
+-- @param direction <defines.direction> north, east, south, west, northeast, northwest, southeast, southwest
+-- @return <number> representing the direction
+Module.opposite_direction = util.oppositedirection
+
+--- Takes the string of a module and returns whether is it available or not
+-- @param name <string> the name of the module (ex. 'utils.core')
+-- @return <boolean>
+Module.is_module_available = util.ismoduleavailable
 
 return Module

@@ -9,7 +9,7 @@ local table_size = table_size
 --- Searches a table to remove a specific element without an index
 -- @param t table to search
 -- @param element to search for
-table.remove_element = function(t, element)
+function table.remove_element(t, element)
     for k, v in pairs(t) do
         if v == element then
             remove(t, k)
@@ -21,7 +21,7 @@ end
 --- Adds the contents of table t2 to table t1
 -- @param t1 table to insert into
 -- @param t2 table to insert from
-table.add_all = function(t1, t2)
+function table.add_all(t1, t2)
     for k, v in pairs(t2) do
         if tonumber(k) then
             insert(t1, v)
@@ -35,7 +35,7 @@ end
 -- @param t table to search
 -- @param e element to search for
 -- @returns the index of an element or -1
-table.index_of = function(t, e)
+function table.index_of(t, e)
     local i = 1
     for _, v in pairs(t) do
         if v == e then
@@ -52,7 +52,7 @@ local index_of = table.index_of
 -- @param t table to search
 -- @param e element to search for
 -- @returns true or false
-table.contains = function(t, e)
+function table.contains(t, e)
     return index_of(t, e) > -1
 end
 
@@ -60,7 +60,7 @@ end
 -- @param t table to add into
 -- @param index the position in the table to add to
 -- @param element to add
-table.set = function(t, index, element)
+function table.set(t, index, element)
     local i = 1
     for k in pairs(t) do
         if i == index then
@@ -78,7 +78,7 @@ end
 -- @param sorted boolean to indicate whether the table is sorted by numerical index or not
 -- @param key boolean to indicate whether to return the key or value
 -- @return a random element of table t
-table.get_random = function(t, sorted, key)
+function table.get_random(t, sorted, key)
     if sorted then
         return t[random(#t)]
     end
@@ -103,7 +103,7 @@ end
 -- @param weight_index number of the index of the weights, defaults to 2
 -- @returns a table entry
 -- @see features.chat_triggers::hodor
-table.get_random_weighted = function(weighted_table, item_index, weight_index)
+function table.get_random_weighted(weighted_table, item_index, weight_index)
     local total_weight = 0
     item_index = item_index or 1
     weight_index = weight_index or 2
@@ -126,7 +126,7 @@ end
 -- because this uses math.random, it cannot be used outside of events if no rng is supplied
 -- from: http://www.sdknews.com/cross-platform/corona/tutorial-how-to-shuffle-table-items
 -- @param t table to shuffle
-table.shuffle_table = function(t, rng)
+function table.shuffle_table(t, rng)
     local rand = rng or math.random
     local iterations = #t
     if iterations == 0 then
@@ -144,7 +144,7 @@ end
 --- Clears all existing entries in a table
 -- @param t table to clear
 -- @param sorted boolean to indicate whether the table is sorted by numerical index or not
-table.clear_table = function(t, sorted)
+function table.clear_table(t, sorted)
     if sorted then
         for i = 1, #t do
             t[i] = nil
@@ -172,7 +172,7 @@ end
     game.print("value found at index: " .. index)
   end
 ]]
-table.binary_search = function(t, target)
+function table.binary_search(t, target)
     --For some reason bit32.bnot doesn't return negative numbers so I'm using ~x = -1 - x instead.
 
     local lower = 1
@@ -197,6 +197,40 @@ table.binary_search = function(t, target)
     return -1 - lower -- ~lower
 end
 
--- add table-related functions that exist in base factorio to the 'table' table
-table.inspect = require 'utils.inspect'
+-- add table-related functions that exist in base factorio/util to the 'table' table
+require 'util'
+
+--- Similar to serpent.block, returns a string with a pretty representation of a table.
+-- Notice: This method is not appropriate for saving/restoring tables. It is meant to be used by the programmer mainly while debugging a program.
+-- @param table <table> the table to serialize
+-- @param options <table> options are depth, newline, indent, process
+-- depth sets the maximum depth that will be printed out. When the max depth is reached, inspect will stop parsing tables and just return {...}
+-- process is a function which allow altering the passed object before transforming it into a string.
+-- A typical way to use it would be to remove certain values so that they don't appear at all.
+-- return <string> the prettied table
+table.inspect = require 'inspect'
+
+--- Takes a table and returns the number of entries in the table. (Slower than #table, faster than iterating via pairs)
 table.size = table_size
+
+--- Creates a copy of a table, metatable, or LuaObject.
+-- @param object <table|LuaObject> the object to copy
+-- @return <table|LuaObject> the copied object
+table.deep_copy = table.deepcopy
+
+--- Merges multiple tables. Tables later in the list will overwrite entries from tables earlier in the list.
+-- Ex. merge({{1, 2, 3}, {[2] = 0}, {[3] = 0}}) will return {1, 0, 0}
+-- @param tables <table> takes a table of tables to merge
+-- @return <table> a merged table
+table.merge = util.merge
+
+--- Compares the contents of two tables and returns if they are equal
+-- Notice: API calls are never equal to tables/stored LuaObjects.
+-- Ex. this_player = game.player
+-- table.compare(this_player, game.player) -- false
+-- table.compare(this_player, this_player) -- true
+-- table.compare(game.player, game.player) -- true
+-- @param tbl1 <table>
+-- @param tbl2 <table>
+-- @return <boolean>
+table.equals = table.compare
