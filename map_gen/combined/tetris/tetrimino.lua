@@ -283,7 +283,7 @@ function Tetrimino.rotate(self, reverse)
     local find_entities_filtered = surface.find_entities_filtered
     local tetri_x = self.position.x
     local tetri_y = self.position.y
-    local insert = insert --Intentionally shadowing upvalue
+    local insert = insert -- luacheck: ignore 431 (intentional upvalue shadow)
     local tiles = {}
     local entities = {}
     for x = 1, 4 do
