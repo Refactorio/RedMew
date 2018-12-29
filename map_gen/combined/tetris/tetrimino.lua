@@ -335,7 +335,6 @@ local function get_next_tetri_number()
     local head = sequence._head
     if head > 7 then
         table.shuffle_table(sequence)
-        game.print(serpent.line(sequence))
         head = 1
         sequence._head = 0
     end

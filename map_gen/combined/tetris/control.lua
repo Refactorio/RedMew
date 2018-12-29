@@ -317,7 +317,7 @@ end
 local spawn_new_tetrimino_token = Token.register(spawn_new_tetrimino)
 Event.on_init(function()
     game.forces.player.chart(game.surfaces.nauvis, {{-192, -432}, {160, 0}})
-    Task.set_timeout_in_ticks(2 * tetris_tick_duration - 15, spawn_new_tetrimino_token)
+    Task.set_timeout_in_ticks(20 * tetris_tick_duration - 15, spawn_new_tetrimino_token)
     View.enable_vote_buttons(true)
 end)
 
