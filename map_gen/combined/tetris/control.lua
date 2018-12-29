@@ -75,6 +75,7 @@ local function calculate_winner()
     if machine.is_in(states.down) then --TODO: Fix
         return --Halt vote if in down mode
     end
+    Debug.print('calculating winner')
     local vote_sum = {0,0,0,0,0}
     for _, vote in pairs(player_votes) do
         vote_sum[vote] = vote_sum[vote] + 1
@@ -82,18 +83,18 @@ local function calculate_winner()
 
     local winners = {}
     local max = math.max(vote_sum[1], vote_sum[2], vote_sum[3], vote_sum[4], vote_sum[5])
-    if max == 0 then
-        return
-    end
     for candidate, n_votes in ipairs(vote_sum) do
         if max == n_votes then
             table.insert(winners, candidate)
         end
         View.set_vote_number(options[candidate].button, n_votes)
     end
-    local winner_option_index = winners[math.random(#winners)]
+    local winner_option_index = 0
+    if max > 0 then
+        winner_option_index = winners[math.random(#winners)]
+    end
     primitives.winner_option_index = winner_option_index
-    if _DEBUG then
+    if _DEBUG and (winner_option_index > 0) then
         Debug.print('Calculated winner: ' .. View.pretty_names[options[winner_option_index].button])
     end
 end
@@ -317,7 +318,7 @@ end
 local spawn_new_tetrimino_token = Token.register(spawn_new_tetrimino)
 Event.on_init(function()
     game.forces.player.chart(game.surfaces.nauvis, {{-192, -432}, {160, 0}})
-    Task.set_timeout_in_ticks(20 * tetris_tick_duration - 15, spawn_new_tetrimino_token)
+    Task.set_timeout_in_ticks(30 * tetris_tick_duration - 15, spawn_new_tetrimino_token)
     View.enable_vote_buttons(true)
 end)
 

@@ -128,7 +128,7 @@ local function toggle(player)
             [uids.right_button] = add_sprite_button(lower_b_f, player, uids.right_button, 'utility/right_arrow'),
         }
 
-        main_frame.add{type = 'sprite-button', name = uids.zoom_button, sprite = 'utility/search_icon'}
+        main_frame.add{type = 'sprite-button', tooltip = 'Zoom in/out', name = uids.zoom_button, sprite = 'utility/search_icon'}
         local progress_bar = main_frame.add {type = 'progressbar', value = primitives.progress}
 
         local points_f = main_frame.add{type = 'flow', direction = 'horizontal'}
