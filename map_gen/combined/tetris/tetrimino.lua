@@ -258,7 +258,7 @@ function Tetrimino.active_qchunks(self)
     for x = 1, 4 do
         for y = 1, 4 do
             if collision_box[y][x] == 1 then
-                table.insert(result, {x = x, y = y})
+                insert(result, {x = x, y = y})
             end
         end
     end
