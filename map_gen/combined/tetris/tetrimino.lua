@@ -174,11 +174,11 @@ local function move_qchunk(surface, x, y, x_offset, y_offset)
         end)
         if not success then --I will remove this after the beta :)
             game.print('PLEASE TELL VALANSCH OR WE WILL ALL DIE: ')
-            game.print(name)
-            game.print(type)
+            game.print(entity.name)
+            game.print(entity.type)
 
-            log(name)
-            log(type)
+            log(entity.name)
+            log(entity.type)
             log('error in create entity ' .. tostring(e))
         end
     end

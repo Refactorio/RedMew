@@ -28,7 +28,6 @@ function Queue.pop(queue)
     if element then
         queue._tail = index - 1
     end
-    
     return element
 end
 
