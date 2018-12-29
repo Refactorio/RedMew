@@ -36,6 +36,7 @@ local map_extra_info_key = 3
 local new_info_key = 4
 
 local rewarded_players = {}
+local map_extra_info_lock = {false}
 
 local editable_info = {
     [map_name_key] = global.config.map_info.map_name_key,
@@ -48,10 +49,12 @@ Global.register(
     {
         rewarded_players = rewarded_players,
         editable_info = editable_info,
+        map_extra_info_lock = map_extra_info_lock,
     },
     function(tbl)
         rewarded_players = tbl.rewarded_players
         editable_info = tbl.editable_info
+        map_extra_info_lock = tbl.map_extra_info_lock
     end
 )
 
@@ -662,6 +665,24 @@ local function player_created(event)
     reward_player(player, info_tab_flags[1])
 end
 
+--- Sets editable_info[map_extra_info_key] outright or adds info to it.
+-- Forbids map_extra_info being explicitly set twice
+local function create_map_extra_info(value, set)
+    if map_extra_info_lock[1] and set then
+        error('Cannot set extra info twice, use add instead')
+        return
+    elseif map_extra_info_lock[1] then
+        return
+    elseif set then
+        editable_info[map_extra_info_key] = value
+        map_extra_info_lock[1] = true
+    elseif editable_info[map_extra_info_key] == global.config.map_info.map_extra_info_key then
+        editable_info[map_extra_info_key] = value
+    else
+        editable_info[map_extra_info_key] = string.format('%s\n%s', editable_info[map_extra_info_key], value)
+    end
+end
+
 Event.add(defines.events.on_player_created, player_created)
 
 Gui.on_click(main_button_name, toggle)
@@ -747,11 +768,15 @@ end
 
 --- Adds to existing map_extra_info. Removes default text if it is the only text in place.
 function Public.add_map_extra_info(value)
-    if editable_info[map_extra_info_key] == global.config.map_info.map_extra_info_key then
-        editable_info[map_extra_info_key] = value
-    else
-        editable_info[map_extra_info_key] = string.format('%s\n%s', editable_info[map_extra_info_key], value)
-    end
+    create_map_extra_info(value, false)
+end
+
+--- Overrides all info added via add_map_extra_info. It is an error to call this more than once.
+-- This should only be used in maps, never in features/modules.
+-- Use case: for maps that know exactly what features they're using and
+-- want full control over the info presented.
+function Public.set_map_extra_info(value)
+    create_map_extra_info(value, true)
 end
 
 function Public.get_new_info()
