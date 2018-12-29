@@ -4,15 +4,16 @@ local Event = require 'utils.event'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
 local PlayerRewards = require 'utils.player_rewards'
+local Color = require 'resources.color_presets'
 local format = string.format
 
-local normal_color = {r = 1, g = 1, b = 1}
-local focus_color = {r = 1, g = 0.55, b = 0.1}
+local normal_color = Color.white
+local focus_color = Color.dark_orange
 local rank_colors = {
-    {r = 1, g = 1, b = 1}, -- Guest
-    {r = 0.155, g = 0.540, b = 0.898}, -- Regular
-    {r = 172.6, g = 70.2, b = 215.8}, -- Donator
-    {r = 0.093, g = 0.768, b = 0.172} -- Admin
+    Color.white, -- Guest
+    Color.regular, -- Regular
+    Color.donator, -- Donator
+    Color.admin -- Admin
 }
 
 local reward_amount = 2
@@ -435,7 +436,7 @@ to make new polls.]]
                 local tag_button = grid.add {type = 'label', caption = 'tag'}
                 local tag_button_style = tag_button.style
                 tag_button_style.font = 'default-listbox'
-                tag_button_style.font_color = {r = 0, g = 0, b = 0}
+                tag_button_style.font_color = Color.black
                 local tag = grid.add {type = 'label', caption = 'Tags'}
                 tag.style.font = 'default-listbox'
                 local tag_label =

@@ -7,6 +7,7 @@ local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.core'
 local Report = require 'features.report'
 local Game = require 'utils.game'
+local Color = require 'resources.color_presets'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
@@ -15,12 +16,12 @@ local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
 local symbol_asc = ' ▲'
 local symbol_desc = ' ▼'
-local focus_color = {r = 1, g = 0.55, b = 0.1}
+local focus_color = Color.dark_orange
 local rank_colors = {
-    {r = 1, g = 1, b = 1}, -- Guest
-    {r = 0.155, g = 0.540, b = 0.898}, -- Regular
-    {r = 172.6, g = 70.2, b = 215.8}, -- Donator {r = 152, g = 24, b = 206}
-    {r = 0.093, g = 0.768, b = 0.172} -- Admin
+    Color.white, -- Guest
+    Color.regular, -- Regular
+    Color.donator, -- Donator
+    Color.admin -- Admin
 }
 
 local inv_sprite_time_step = 1 / sprite_time_step

@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local PlayerStats = require 'features.player_stats'
 local Gui = require 'utils.gui'
+local Color = require 'resources.color_presets'
 
 if not global.score_rockets_launched then
     global.score_rockets_launched = 0
@@ -46,7 +47,7 @@ local function score_show(player)
 
     local label = score_table.add {type = 'label', caption = ' ', name = 'label_rockets_launched'}
     label.style.font = 'default-bold'
-    label.style.font_color = {r = 0.98, g = 0.66, b = 0.22}
+    label.style.font_color = Color.orange
     label.style.top_padding = 2
     label.style.left_padding = 4
     label.style.right_padding = 4
@@ -55,7 +56,7 @@ local function score_show(player)
 
     label = score_table.add {type = 'label', caption = '', name = 'label_biters_killed'}
     label.style.font = 'default-bold'
-    label.style.font_color = {r = 0.98, g = 0.11, b = 0.11}
+    label.style.font_color = Color.red
     label.style.top_padding = 2
     label.style.left_padding = 4
     label.style.right_padding = 4
@@ -64,7 +65,7 @@ local function score_show(player)
 
     label = score_table.add {type = 'label', caption = '', name = 'label_player_built_entities'}
     label.style.font = 'default-bold'
-    label.style.font_color = {r = 1, g = 1, b = 1}
+    label.style.font_color = Color.white
     label.style.top_padding = 2
     label.style.left_padding = 4
     label.style.right_padding = 4
@@ -73,7 +74,7 @@ local function score_show(player)
 
     label = score_table.add {type = 'label', caption = '', name = 'label_robot_built_entities'}
     label.style.font = 'default-bold'
-    label.style.font_color = {r = 1, g = 1, b = 1}
+    label.style.font_color = Color.white
     label.style.top_padding = 2
     label.style.left_padding = 4
     label.style.right_padding = 4
@@ -82,7 +83,7 @@ local function score_show(player)
 
     label = score_table.add {type = 'label', caption = '', name = 'label_player_mined_trees'}
     label.style.font = 'default-bold'
-    label.style.font_color = {r = 0.11, g = 0.98, b = 0.11}
+    label.style.font_color = Color.lime
     label.style.top_padding = 2
     label.style.left_padding = 4
     label.style.right_padding = 4
@@ -91,7 +92,7 @@ local function score_show(player)
 
     label = score_table.add {type = 'label', caption = '', name = 'label_player_mined_stones'}
     label.style.font = 'default-bold'
-    label.style.font_color = {r = 0.11, g = 0.98, b = 0.11}
+    label.style.font_color = Color.lime
     label.style.top_padding = 2
     label.style.left_padding = 4
     label.style.right_padding = 4
@@ -100,7 +101,7 @@ local function score_show(player)
 
     label = score_table.add {type = 'label', caption = '', name = 'label_kills_by_train'}
     label.style.font = 'default-bold'
-    label.style.font_color = {r = 0.98, g = 0.98, b = 0.11}
+    label.style.font_color = Color.yellow
     label.style.top_padding = 2
     label.style.left_padding = 4
     label.style.right_padding = 4

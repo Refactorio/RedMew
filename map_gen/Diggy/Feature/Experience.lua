@@ -6,7 +6,9 @@ local ForceControl = require 'features.force_control'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Retailer = require 'features.retailer'
 local Gui = require 'utils.gui'
-local utils = require 'utils.core'
+local Utils = require 'utils.core'
+local Color = require 'resources.color_presets'
+
 local format = string.format
 local floor = math.floor
 local log = math.log
@@ -54,10 +56,10 @@ end)
 
 local config = {}
 
-local gain_xp_color = {r = 144, g = 202, b = 249}
-local lose_xp_color = {r = 255, g = 0, b = 0}
-local unlocked_color = {r = 255, g = 255, b = 255}
-local locked_color = {r = 127, g = 127, b = 127}
+local gain_xp_color = Color.light_sky_blue
+local lose_xp_color = Color.red
+local unlocked_color = Color.black
+local locked_color = Color.gray
 local table_column_layout = {type = 'table', column_count = 2}
 
 local level_up_formula = (function (level_reached)
@@ -319,7 +321,7 @@ local function calculate_level_xp(level)
 end
 local function redraw_title(data)
     local force_data = get_force_data('player')
-    data.frame.caption = utils.comma_value(force_data.total_experience) .. ' total experience earned!'
+    data.frame.caption = Utils.comma_value(force_data.total_experience) .. ' total experience earned!'
 end
 
 local function apply_heading_style(style, width)
@@ -343,7 +345,7 @@ local function redraw_progressbar(data)
     local flow = data.experience_progressbars
     Gui.clear(flow)
 
-    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) ..' xp\nRemaining xp: ' .. utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.Experience.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
+    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. Utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) ..' xp\nRemaining xp: ' .. Utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.Experience.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
     local level_progressbar = flow.add({type = 'progressbar', tooltip = floor(force_data.experience_percentage*100)*0.01 .. '% xp to next level'})
     level_progressbar.style.width = 350
     level_progressbar.value = force_data.experience_percentage * 0.01
@@ -380,7 +382,7 @@ local function redraw_table(data)
         local level_column = list.add({
             type = 'label',
             caption = level_caption,
-            tooltip = 'XP: ' .. utils.comma_value(calculate_level_xp(current_item_level)),
+            tooltip = 'XP: ' .. Utils.comma_value(calculate_level_xp(current_item_level)),
         })
         level_column.style.minimal_width = 100
         level_column.style.font_color = color
