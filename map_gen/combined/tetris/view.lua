@@ -3,6 +3,7 @@ local Module = {}
 local Gui = require 'utils.gui'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local Debug = require 'utils.debug'
 local Global = require 'utils.global'
 
 local main_button_name = Gui.uid_name()
@@ -27,6 +28,16 @@ local button_pretty_names = {
     [uids.down_button] = 'Move down',
     [uids.right_button] = 'Move right',
 }
+
+local sprites = {
+    [uids.ccw_button] = 'utility/reset',
+    [uids.clear_button] = 'utility/trash_bin',
+    [uids.cw_button] = 'utility/reset',
+    [uids.left_button] = 'utility/left_arrow',
+    [uids.down_button] =  'utility/speed_down',
+    [uids.right_button] = 'utility/right_arrow',
+}
+
 Module.button_enum = uids
 Module.pretty_names = button_pretty_names
 
@@ -34,6 +45,7 @@ local primitives = {
     buttons_enabled = false,
     points = 0,
     progress = 0,
+    last_move = nil,
 }
 local vote_players = {
     [uids.ccw_button] = {},
@@ -83,14 +95,14 @@ local function button_enabled(button_id, player_id)
     return (not vote_players[button_id]) or primitives.buttons_enabled and (not vote_players[button_id][player_id])
 end
 
-local function add_sprite_button(element, player, name, sprite)
+local function add_sprite_button(element, player, name)
     return element.add{
         type = 'sprite-button',
         name = name,
         enabled = button_enabled(name, player.index),
         tooltip = button_tooltip(name),
         number = vote_numbers[name],
-        sprite = sprite,
+        sprite = sprites[name],
     }
 end
 
@@ -119,13 +131,13 @@ local function toggle(player)
         local lower_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
 
         local vote_buttons = {
-            [uids.ccw_button] = add_sprite_button(upper_b_f, player, uids.ccw_button, 'utility/reset'),
-            [uids.clear_button] = add_sprite_button(upper_b_f, player, uids.clear_button, 'utility/trash_bin'),
-            [uids.cw_button] = add_sprite_button(upper_b_f, player, uids.cw_button, 'utility/reset'),
+            [uids.ccw_button] = add_sprite_button(upper_b_f, player, uids.ccw_button),
+            [uids.clear_button] = add_sprite_button(upper_b_f, player, uids.clear_button),
+            [uids.cw_button] = add_sprite_button(upper_b_f, player, uids.cw_button),
 
-            [uids.left_button] = add_sprite_button(lower_b_f, player, uids.left_button, 'utility/left_arrow'),
-            [uids.down_button] = add_sprite_button(lower_b_f, player, uids.down_button, 'utility/speed_down'),
-            [uids.right_button] = add_sprite_button(lower_b_f, player, uids.right_button, 'utility/right_arrow'),
+            [uids.left_button] = add_sprite_button(lower_b_f, player, uids.left_button),
+            [uids.down_button] = add_sprite_button(lower_b_f, player, uids.down_button),
+            [uids.right_button] = add_sprite_button(lower_b_f, player, uids.right_button),
         }
 
         main_frame.add{type = 'sprite-button', tooltip = 'Zoom in/out', name = uids.zoom_button, sprite = 'utility/search_icon'}
@@ -140,6 +152,24 @@ local function toggle(player)
         local points = points_f.add {
             type = 'label',
             caption = primitives.points,
+        }
+        main_frame.add{
+            type = 'label',
+            caption = 'Last move:',
+        }
+
+        local last_move_tooltip = 'None'
+        local last_move_sprite = nil
+        local last_move_button = primitives.last_move
+        if last_move_button then
+            last_move_tooltip = button_pretty_names[last_move_button]
+            last_move_sprite = sprites[last_move_button]
+        end
+        local next_move = main_frame.add{
+            type = 'sprite-button',
+            enabled = false,
+            tooltip = last_move_tooltip,
+            sprite = last_move_sprite,
         }
 
         local data = {
@@ -233,6 +263,13 @@ function Module.enable_vote_buttons(enable)
             end
         end
     end
+end
+
+--- Sets the last move
+-- @param button_id string the button id of the last move
+function Module.set_last_move(button_id)
+    Debug.print(button_id)
+    primitives.last_move = button_id
 end
 
 --- Resets all poll buttons back to default

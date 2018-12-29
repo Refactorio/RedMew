@@ -282,7 +282,9 @@ local function execute_vote_tick()
     if winner then
         machine.transition(winner.transition)
         primitives.stale_vote_turns = 0
+        View.set_last_move(winner.button)
     else
+        View.set_last_move(nil)
         local stale_vote_turns = primitives.stale_vote_turns
         if stale_vote_turns >= pause_after_n_ticks then
             Task.set_timeout_in_ticks(1, switch_state, {state = states.pause})
