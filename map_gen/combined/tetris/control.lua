@@ -92,7 +92,7 @@ local function calculate_winner()
         View.set_vote_number(options[candidate].button, n_votes)
     end
     local winner_option_index = winners[math.random(#winners)]
-    primitives.winner_option_index =
+    primitives.winner_option_index = winner_option_index
     if _DEBUG then
         Debug.print('Calculated winner: ' .. View.pretty_names[options[winner_option_index].button])
     end
