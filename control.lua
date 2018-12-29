@@ -1,12 +1,11 @@
 -- Omitting the math library is a very bad idea
 require 'utils.math'
 
--- Map layout and config dictate the map you play and the settings in it
-local config = require 'config'
-
--- global for easy access
+-- global to prevent having require left-overs in files to use a Debug.print
 Debug = require 'utils.debug'
 
+-- Map layout and config dictate the map you play and the settings in it
+local config = require 'config'
 require 'map_layout'
 
 -- Specific to RedMew hosts, can be disabled safely if not hosting on RedMew servers
