@@ -213,9 +213,9 @@ table.inspect = require 'inspect'
 --- Takes a table and returns the number of entries in the table. (Slower than #table, faster than iterating via pairs)
 table.size = table_size
 
---- Creates a copy of a table, metatable, or LuaObject.
--- @param object <table|LuaObject> the object to copy
--- @return <table|LuaObject> the copied object
+--- Creates a deepcopy of a table. Metatables and LuaObjects inside the table are shallow copies.
+-- @param object <table> the object to copy
+-- @return <table> the copied object
 table.deep_copy = table.deepcopy
 
 --- Merges multiple tables. Tables later in the list will overwrite entries from tables earlier in the list.
