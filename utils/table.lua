@@ -224,12 +224,8 @@ table.deep_copy = table.deepcopy
 -- @return <table> a merged table
 table.merge = util.merge
 
---- Compares the contents of two tables and returns if they are equal
--- Notice: API calls are never equal to tables/stored LuaObjects.
--- Ex. this_player = game.player
--- table.compare(this_player, game.player) -- false
--- table.compare(this_player, this_player) -- true
--- table.compare(game.player, game.player) -- true
+--- Determines if two tables are structurally equal.
+-- Notice: tables that are LuaObjects or contain LuaObjects wont be compared correctly, use == operator for LuaObjects
 -- @param tbl1 <table>
 -- @param tbl2 <table>
 -- @return <boolean>
