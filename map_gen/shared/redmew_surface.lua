@@ -3,25 +3,28 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
-local map_gen_settings_presets = require 'resources.map_gen_settings'
 local map_settings_presets = require 'resources.map_settings'
 local difficulty_settings_presets = require 'resources.difficulty_settings'
 
 local Public = {}
+Public.map_gen_settings = {}
+
 local surface_name = 'redmew'
 
-local first_player_position_check_override = {false}
+local map_gen_settings = {}
+local primitives = {first_player_position_check_override = false}
 
 Global.register(
     {
-        first_player_position_check_override = first_player_position_check_override,
+        primitives = primitives,
+        map_gen_settings = map_gen_settings,
     },
     function(tbl)
-        first_player_position_check_override = tbl.first_player_position_check_override
+        primitives = tbl.primitives
+        map_gen_settings = tbl.map_gen_settings
     end
 )
 
-Public.map_gen_settings = map_gen_settings_presets.redmew_default
 Public.map_settings = map_settings_presets.default
 Public.difficulty_settings = difficulty_settings_presets.default
 
@@ -77,7 +80,7 @@ local function player_created(event)
     local surface = game.surfaces[surface_name]
 
     local pos = surface.find_non_colliding_position('player', {0, 0}, 50, 1)
-    if pos and not first_player_position_check_override[1] then
+    if pos and not primitives['first_player_position_check_override'] then
         player.teleport(pos, surface)
     else
         -- if there's no position available within range or a map needs players at 0,0: create an island and place the player there
@@ -90,13 +93,23 @@ local function player_created(event)
             }
         )
         player.teleport({0, 0}, surface)
-        first_player_position_check_override[1] = false
+        primitives['first_player_position_check_override'] = false
     end
 end
 
 local function init()
     create_redmew_surface()
     Public.set_ghost_ttl()
+end
+
+---
+function Public.set_map_gen_settings(components)
+    -- Add the user's settings as the first component of the list.
+    local merged_components = {game.surfaces.nauvis.map_gen_settings}
+    for _, v in pairs(components) do
+        table.insert(merged_components, v)
+    end
+    table.insert(merged_components, Public.map_gen_settings)
 end
 
 --- Sets a ghost_time_to_live as a quality of life feature: now ghosts
@@ -122,7 +135,7 @@ end
 --- Allows maps to set first_player_position_check_override
 -- This is a hack for diggy and forces the first created player to be teleported to {0, 0} and not check for collision
 function Public.set_first_player_position_check_override(bool)
-    first_player_position_check_override[1] = bool
+    primitives['first_player_position_check_override'] = bool
 end
 
 Event.on_init(init)

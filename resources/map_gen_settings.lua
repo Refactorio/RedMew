@@ -9,667 +9,80 @@
     The expectation is that all changes that deviate from default generation are noted.
 ]]
 return {
-    -- no cliffs, enemies high frequency, big size, starting area to small
-    redmew_default = {
+    -- high frequency and big size enemies
+    enemy_high = {
         autoplace_controls = {
-            ['coal'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
             ['enemy-base'] = {
                 frequency = 'high',
                 richness = 'normal',
                 size = 'high'
+            }
+        }
+    },
+    -- no ores/oil
+    ore_none = {
+        autoplace_controls = {
+            coal = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'none'
+            },
+            ['copper-ore'] = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'none'
+            },
+            ['crude-oil'] = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'none'
             },
             ['iron-ore'] = {
                 frequency = 'normal',
                 richness = 'normal',
-                size = 'normal'
+                size = 'none'
             },
-            ['stone'] = {
+            stone = {
                 frequency = 'normal',
                 richness = 'normal',
-                size = 'normal'
+                size = 'none'
             },
             ['uranium-ore'] = {
                 frequency = 'normal',
                 richness = 'normal',
-                size = 'normal'
-            },
-            ['desert'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['dirt'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['grass'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['sand'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['trees'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
+                size = 'none'
             }
-        },
-        cliff_settings = {
-            cliff_elevation_0 = 1024,
-            cliff_elevation_interval = 10,
-            name = 'cliff'
-        },
-        terrain_segmentation = 'normal', -- water frequency
-        water = 'normal', -- water size
-        starting_area = 'low',
-        starting_points = {
-            {
-                x = 0,
-                y = 0
+        }
+    },
+    -- no water
+    water_none = {
+        terrain_segmentation = 'normal',
+        water = 'none'
+    },
+    -- no enemies
+    enemy_none = {
+        autoplace_controls = {
+            ['enemy-base'] = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'none'
             }
-        },
-        width = 2000000,
-        height = 2000000,
-        peaceful_mode = false,
-        seed = nil
+        }
     },
     -- no cliffs
-    no_cliff = {
-        autoplace_controls = {
-            coal = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            desert = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            dirt = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['enemy-base'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            grass = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['iron-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            sand = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            stone = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            trees = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['uranium-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            }
-        },
+    cliff_none = {
         cliff_settings = {
             cliff_elevation_0 = 1024,
             cliff_elevation_interval = 10,
             name = 'cliff'
-        },
-        height = 2000000,
-        peaceful_mode = false,
-        seed = nil,
-        starting_area = 'normal',
-        starting_points = {
-            {
-                x = 0,
-                y = 0
-            }
-        },
-        terrain_segmentation = 'normal',
-        water = 'normal',
-        width = 2000000
-    },
-    -- no cliffs, no ores/oil
-    no_cliff_ore = {
-        autoplace_controls = {
-            coal = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            desert = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            dirt = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['enemy-base'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            grass = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['iron-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            sand = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            stone = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            trees = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['uranium-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            }
-        },
-        cliff_settings = {
-            cliff_elevation_0 = 1024,
-            cliff_elevation_interval = 10,
-            name = 'cliff'
-        },
-        height = 2000000,
-        peaceful_mode = false,
-        seed = nil,
-        starting_area = 'normal',
-        starting_points = {
-            {
-                x = 0,
-                y = 0
-            }
-        },
-        terrain_segmentation = 'normal',
-        water = 'normal',
-        width = 2000000
-    },
-    -- no cliffs, no ores/oil, no water
-    no_cliff_ore_water = {
-        autoplace_controls = {
-            coal = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            desert = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            dirt = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['enemy-base'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            grass = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['iron-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            sand = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            stone = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            trees = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['uranium-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            }
-        },
-        cliff_settings = {
-            cliff_elevation_0 = 1024,
-            cliff_elevation_interval = 10,
-            name = 'cliff'
-        },
-        height = 2000000,
-        peaceful_mode = false,
-        seed = nil,
-        starting_area = 'very-low',
-        starting_points = {
-            {
-                x = 0,
-                y = 0
-            }
-        },
-        terrain_segmentation = 'normal',
-        water = 'none',
-        width = 2000000
-    },
-    -- no cliffs, no ores/oil, no water, no enemies
-    no_cliff_ore_water_enemy = {
-        autoplace_controls = {
-            coal = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            desert = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            dirt = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['enemy-base'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            grass = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['iron-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            sand = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            stone = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            trees = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['uranium-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            }
-        },
-        cliff_settings = {
-            cliff_elevation_0 = 1024,
-            cliff_elevation_interval = 10,
-            name = 'cliff'
-        },
-        height = 2000000,
-        peaceful_mode = false,
-        seed = nil,
-        starting_area = 'very-low',
-        starting_points = {
-            {
-                x = 0,
-                y = 0
-            }
-        },
-        terrain_segmentation = 'normal',
-        water = 'none',
-        width = 2000000
+        }
     },
     -- cliffs to very high frequency, very big size
-    cliff_hell = {
-        autoplace_controls = {
-            coal = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            desert = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            dirt = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['enemy-base'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            grass = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['iron-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            sand = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            stone = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            trees = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['uranium-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            }
-        },
+    cliff_very_high = {
         cliff_settings = {
             cliff_elevation_0 = 2.5000572204589844,
             cliff_elevation_interval = 2.5000572204589844,
             name = 'cliff'
-        },
-        height = 2000000,
-        peaceful_mode = false,
-        seed = nil,
-        starting_area = 'normal',
-        starting_points = {
-            {
-                x = 0,
-                y = 0
-            }
-        },
-        terrain_segmentation = 'normal',
-        water = 'normal',
-        width = 2000000
+        }
     },
-    -- water to very low and only in starting area
-    no_water = {
-        autoplace_controls = {
-            coal = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            desert = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            dirt = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['enemy-base'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            grass = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['iron-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            sand = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            stone = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            trees = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['uranium-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            }
-        },
-        cliff_settings = {
-            cliff_elevation_0 = 10,
-            cliff_elevation_interval = 10,
-            name = 'cliff'
-        },
-        height = 2000000,
-        peaceful_mode = false,
-        seed = nil,
-        starting_area = 'normal',
-        starting_points = {
-            {
-                x = 0,
-                y = 0
-            }
-        },
-        terrain_segmentation = 'very-low',
-        water = 'none',
-        width = 2000000
-    },
-    nothing = {
-        autoplace_controls = {
-          coal = {
-            frequency = "normal",
-            richness = "very-high",
-            size = "none"
-          },
-          ["copper-ore"] = {
-            frequency = "normal",
-            richness = "very-high",
-            size = "none"
-          },
-          ["crude-oil"] = {
-            frequency = "normal",
-            richness = "very-high",
-            size = "none"
-          },
-          desert = {
-            frequency = "normal",
-            richness = "normal",
-            size = "none"
-          },
-          dirt = {
-            frequency = "normal",
-            richness = "normal",
-            size = "none"
-          },
-          ["enemy-base"] = {
-            frequency = "normal",
-            richness = "normal",
-            size = "none"
-          },
-          grass = {
-            frequency = "normal",
-            richness = "normal",
-            size = "none"
-          },
-          ["iron-ore"] = {
-            frequency = "normal",
-            richness = "very-high",
-            size = "none"
-          },
-          sand = {
-            frequency = "normal",
-            richness = "normal",
-            size = "none"
-          },
-          stone = {
-            frequency = "normal",
-            richness = "very-high",
-            size = "none"
-          },
-          trees = {
-            frequency = "normal",
-            richness = "normal",
-            size = "none"
-          },
-          ["uranium-ore"] = {
-            frequency = "normal",
-            richness = "very-high",
-            size = "none"
-          }
-        },
-        cliff_settings = {
-          cliff_elevation_0 = 1024,
-          cliff_elevation_interval = 10,
-          name = "cliff"
-        },
-        height = 2000000,
-        peaceful_mode = false,
-        seed = nil,
-        starting_area = "very-low",
-        starting_points = {
-          {
-            x = 0,
-            y = 0
-          }
-        },
-        terrain_segmentation = "normal",
-        water = "none",
-        width = 2000000
-      }
 }
