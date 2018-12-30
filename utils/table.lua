@@ -225,7 +225,7 @@ table.deep_copy = table.deepcopy
 table.merge = util.merge
 
 --- Determines if two tables are structurally equal.
--- Notice: tables that are LuaObjects or contain LuaObjects wont be compared correctly, use == operator for LuaObjects
+-- Notice: tables that are LuaObjects or contain LuaObjects won't be compared correctly, use == operator for LuaObjects
 -- @param tbl1 <table>
 -- @param tbl2 <table>
 -- @return <boolean>
