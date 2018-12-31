@@ -173,12 +173,12 @@ end
 local function on_market_purchase(event)
     local item_name = event.item.name
     if item_name == 'temporary-running-speed-bonus' then
-        boost_player_running_speed(event.player, market)
+        boost_player_running_speed(event.player)
         return
     end
 
     if item_name == 'temporary-mining-speed-bonus' then
-        boost_player_mining_speed(event.player, market)
+        boost_player_mining_speed(event.player)
         return
     end
 end
