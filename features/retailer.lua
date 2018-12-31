@@ -2,6 +2,8 @@ require 'utils.table'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Event = require 'utils.event'
+local Token = require 'utils.token'
+local Schedule = require 'utils.schedule'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local math = require 'utils.math'
@@ -11,6 +13,7 @@ local size = table.size
 local insert = table.insert
 local pairs = pairs
 local tonumber = tonumber
+local set_timeout_in_ticks = Schedule.set_timeout_in_ticks
 local clamp = math.clamp
 local floor = math.floor
 local ceil = math.ceil
@@ -34,14 +37,20 @@ Retailer.events = {
     on_market_purchase = script.generate_event_name(),
 }
 
+local market_gui_close_distance_squared = 6 * 6 + 6 * 6
+local do_update_market_gui -- token
+
 ---Global storage
 ---Markets are indexed by the position "x,y" and contains the group it belongs to
 ---Items are indexed by the group name and is a list indexed by the item name and contains the prices per item
+---players_in_market_view is a list of {position, group_name} data
 local memory = {
     id = 0,
     markets = {},
     items = {},
     group_label = {},
+    players_in_market_view = {},
+    market_gui_refresh_scheduled = {},
 }
 
 Global.register({
@@ -49,6 +58,16 @@ Global.register({
 }, function (tbl)
     memory = tbl.memory
 end)
+
+local function schedule_market_gui_refresh(group_name)
+    if memory.market_gui_refresh_scheduled[group_name] then
+        -- already scheduled
+        return
+    end
+
+    set_timeout_in_ticks(1, do_update_market_gui, {group_name = group_name})
+    memory.market_gui_refresh_scheduled[group_name] = true
+end
 
 ---Generates a unique identifier for a market group name, as alternative for a custom name.
 function Retailer.generate_group_id()
@@ -62,6 +81,8 @@ end
 ---@param label string
 function Retailer.set_market_group_label(group_name, label)
     memory.group_label[group_name] = label
+
+    schedule_market_gui_refresh(group_name)
 end
 
 ---Gets the name of the market group.
@@ -85,6 +106,8 @@ function Retailer.remove_item(group_name, item_name)
     end
 
     memory.items[group_name][item_name] = nil
+
+    schedule_market_gui_refresh(group_name)
 end
 
 local function redraw_market_items(data)
@@ -222,17 +245,26 @@ local function draw_market_frame(player, group_name)
 
     Gui.set_data(count_slider, data)
     Gui.set_data(count_text, data)
+    Gui.set_data(frame, data)
 
     return frame
 end
 
+---Returns the group name of the market at the given position, nil if not registered.
+---@param position Position
+local function get_market_group_name(position)
+    return memory.markets[position.x .. ',' .. position.y]
+end
+
+---Sets the group name for a market at a given position.
+---@param position Position
+---@param group_name string
+local function set_market_group_name(position, group_name)
+    memory.markets[position.x .. ',' .. position.y] = group_name
+end
+
 Event.add(defines.events.on_gui_opened, function (event)
     if not event.gui_type == defines.gui_type.entity then
-        return
-    end
-
-    local player = Game.get_player_by_index(event.player_index)
-    if not player or not player.valid then
         return
     end
 
@@ -242,11 +274,20 @@ Event.add(defines.events.on_gui_opened, function (event)
     end
 
     local position = entity.position
-    local group_name = memory.markets[position.x .. ',' .. position.y]
+    local group_name = get_market_group_name(position)
     if not group_name then
         return
     end
 
+    local player = Game.get_player_by_index(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    memory.players_in_market_view[player.index] = {
+        position = position,
+        group_name = group_name,
+    }
     local frame = draw_market_frame(player, group_name)
 
     player.opened = frame
@@ -254,11 +295,13 @@ end)
 
 Gui.on_custom_close(market_frame_name, function (event)
     local element = event.element
+    memory.players_in_market_view[event.player.index] = nil
     Gui.destroy(element)
 end)
 
 local function close_market_gui(player)
     local element = player.gui.center
+    memory.players_in_market_view[player.index] = nil
 
     if element and element.valid then
         element = element[market_frame_name]
@@ -326,6 +369,11 @@ Gui.on_click(item_button_name, function (event)
 
     local item = data.market_items[button_data.index]
 
+    if not item then
+        player.print('This item is no longer available in the market')
+        return
+    end
+
     if item.disabled then
         player.print({'', item.name_label, ' is disabled. ', item.disabled_reason or ''})
         return
@@ -372,8 +420,7 @@ end)
 ---@param group_name string
 ---@param market_entity LuaEntity
 function Retailer.add_market(group_name, market_entity)
-    local position = market_entity.position
-    memory.markets[position.x .. ',' .. position.y] = group_name
+    set_market_group_name(market_entity.position, group_name)
 end
 
 ---Sets an item for all the group_name markets.
@@ -397,6 +444,8 @@ function Retailer.set_item(group_name, prototype)
     prototype.type = prototype.type or 'item'
 
     memory.items[group_name][item_name] = prototype
+
+    schedule_market_gui_refresh(group_name)
 end
 
 ---Enables a market item by group name and item name if it's registered.
@@ -415,6 +464,8 @@ function Retailer.enable_item(group_name, item_name)
 
     prototype.disabled = false
     prototype.disabled_reason = false
+
+    schedule_market_gui_refresh(group_name)
 end
 
 ---Disables a market item by group name and item name if it's registered.
@@ -434,6 +485,52 @@ function Retailer.disable_item(group_name, item_name, disabled_reason)
 
     prototype.disabled = true
     prototype.disabled_reason = disabled_reason
+
+    schedule_market_gui_refresh(group_name)
 end
+
+do_update_market_gui = Token.register(function(params)
+    local group_name = params.group_name
+
+    for player_index, view_data in pairs(memory.players_in_market_view) do
+        if group_name == view_data.group_name then
+            local player = Game.get_player_by_index(player_index)
+            if player and player.valid then
+                local frame = player.gui.center[market_frame_name]
+                if not frame or not frame.valid then
+                    -- player already closed the market GUI and somehow this was not reported
+                    memory.players_in_market_view[player_index] = nil
+                else
+                    redraw_market_items(Gui.get_data(frame))
+                end
+            else
+                -- player is no longer in the game, remove it from the market view
+                memory.players_in_market_view[player_index] = nil
+            end
+        end
+    end
+
+    -- mark it as updated
+    memory.market_gui_refresh_scheduled[group_name] = nil
+end)
+
+Event.on_nth_tick(37, function()
+    for player_index, view_data in pairs(memory.players_in_market_view) do
+        local player = Game.get_player_by_index(player_index)
+        if player and player.valid then
+            local player_position = player.position
+            local market_position = view_data.position
+            local delta_x = player_position.x - market_position.x
+            local delta_y = player_position.y - market_position.y
+
+            if delta_x * delta_x + delta_y * delta_y > market_gui_close_distance_squared then
+                close_market_gui(player)
+            end
+        else
+            -- player is no longer in the game, remove it from the market view
+            memory.players_in_market_view[player_index] = nil
+        end
+    end
+end)
 
 return Retailer

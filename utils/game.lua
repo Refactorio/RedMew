@@ -1,5 +1,6 @@
 local Global = require 'utils.global'
 local Color = require 'resources.color_presets'
+local pairs = pairs
 
 local Game = {}
 
