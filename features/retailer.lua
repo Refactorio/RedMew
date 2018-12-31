@@ -1,3 +1,42 @@
+--- The Retailer provides a market replacement GUI with additional
+--- functionality. To register a market, you need the market entity and a name
+--- for the market group:
+---
+--- Retailer.add_market(group_name, market_entity)
+---
+--- If you don't have a group name or don't want to re-use it, you can generate
+--- a group name with:
+---
+--- local group_name = Retailer.generate_group_id()
+---
+--- To change the description displayed in the market GUI, you can call:
+---
+--- Retailer.set_market_group_label(group_name, 'Name of your market')
+---
+--- To add, remove, disable and enable items, you can call their respective
+--- functions. Note that each item can be added only once and will replace the
+--- previous if set again. Calling any of those functions will trigger a GUI
+--- redraw for all markets in that group in the next tick.
+---
+--- When an item is bought from the market, it will raise an event you can
+--- listen to: Retailer.events.on_market_purchase. Items can be registered
+--- with different types. By default the type is 'item', which will insert the
+--- item(s) bought into the player's inventory. Anything else will merely
+--- remove the coins and trigger the event. You can listen to this event and do
+--- whatever custom handling you want.
+---
+--- Items support the following structure:
+--- {
+---     name: the (raw) item inserted in inventory, does nothing when type is not item
+---     name_label: the name shown in the GUI. If omitted and a prototype exists for 'name', it will use that LocalisedString
+---     sprite: a custom sprite, will use 'item/<name>' if omitted
+---     price: the price of an item, supports floats (0.95 for example)
+---     description: an additional description displayed in the tooltip
+---     disabled: whether or not the item should be disabled by default
+---     disabled_reason: the reason the item is disabled
+--- }
+---
+---
 require 'utils.table'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
