@@ -45,6 +45,7 @@ local do_update_market_gui -- token
 ---Items are indexed by the group name and is a list indexed by the item name and contains the prices per item
 ---players_in_market_view is a list of {position, group_name} data
 local memory = {
+    id = 0,
     markets = {},
     items = {},
     group_label = {},
@@ -66,6 +67,13 @@ local function schedule_market_gui_refresh(group_name)
 
     set_timeout_in_ticks(1, do_update_market_gui, {group_name = group_name})
     memory.market_gui_refresh_scheduled[group_name] = true
+end
+
+---Generates a unique identifier for a market group name, as alternative for a custom name.
+function Retailer.generate_group_id()
+    local id = memory.id + 1
+    memory.id = id
+    return 'market-' .. id
 end
 
 ---Sets the name of the market group, provides a user friendly label in the GUI.
@@ -118,7 +126,7 @@ local function redraw_market_items(data)
 
     for i, item in pairs(market_items) do
         local price = item.price
-        local tooltip = {'', item.name_label, format('\nprice: %d', price)}
+        local tooltip = {'', item.name_label, format('\nprice: %.2f', price)}
         local description = item.description
         local total_price = ceil(price * count)
         local disabled = item.disabled == true

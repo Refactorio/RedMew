@@ -1,5 +1,6 @@
 -- Dependencies
 local Game = require 'utils.game'
+local Color = require 'resources.color_presets'
 
 -- localized functions
 local random = math.random
@@ -46,7 +47,7 @@ Module.print_admins = function(msg, source)
         end
     else
         source_name = 'Server'
-        chat_color = {r = 255, g = 255, b = 255}
+        chat_color = Color.black
     end
     local formatted_msg = string.format('%s(ADMIN) %s: %s', prefix, source_name, msg) -- to the server
     print(formatted_msg)
