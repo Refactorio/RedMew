@@ -4,15 +4,16 @@ local Event = require 'utils.event'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
 local PlayerRewards = require 'utils.player_rewards'
+local Color = require 'resources.color_presets'
 local format = string.format
 
-local normal_color = {r = 1, g = 1, b = 1}
-local focus_color = {r = 1, g = 0.55, b = 0.1}
+local normal_color = Color.white
+local focus_color = Color.dark_orange
 local rank_colors = {
-    {r = 1, g = 1, b = 1}, -- Guest
-    {r = 0.155, g = 0.540, b = 0.898}, -- Regular
-    {r = 172.6, g = 70.2, b = 215.8}, -- Donator
-    {r = 0.093, g = 0.768, b = 0.172} -- Admin
+    Color.white, -- Guest
+    Color.regular, -- Regular
+    Color.donator, -- Donator
+    Color.admin -- Admin
 }
 
 local reward_amount = 2
@@ -36,6 +37,7 @@ local map_extra_info_key = 3
 local new_info_key = 4
 
 local rewarded_players = {}
+local map_extra_info_lock = {false}
 
 local editable_info = {
     [map_name_key] = global.config.map_info.map_name_key,
@@ -48,10 +50,12 @@ Global.register(
     {
         rewarded_players = rewarded_players,
         editable_info = editable_info,
+        map_extra_info_lock = map_extra_info_lock,
     },
     function(tbl)
         rewarded_players = tbl.rewarded_players
         editable_info = tbl.editable_info
+        map_extra_info_lock = tbl.map_extra_info_lock
     end
 )
 
@@ -435,7 +439,7 @@ to make new polls.]]
                 local tag_button = grid.add {type = 'label', caption = 'tag'}
                 local tag_button_style = tag_button.style
                 tag_button_style.font = 'default-listbox'
-                tag_button_style.font_color = {r = 0, g = 0, b = 0}
+                tag_button_style.font_color = Color.black
                 local tag = grid.add {type = 'label', caption = 'Tags'}
                 tag.style.font = 'default-listbox'
                 local tag_label =
@@ -662,6 +666,24 @@ local function player_created(event)
     reward_player(player, info_tab_flags[1])
 end
 
+--- Sets editable_info[map_extra_info_key] outright or adds info to it.
+-- Forbids map_extra_info being explicitly set twice
+local function create_map_extra_info(value, set)
+    if map_extra_info_lock[1] and set then
+        error('Cannot set extra info twice, use add instead')
+        return
+    elseif map_extra_info_lock[1] then
+        return
+    elseif set then
+        editable_info[map_extra_info_key] = value
+        map_extra_info_lock[1] = true
+    elseif editable_info[map_extra_info_key] == global.config.map_info.map_extra_info_key then
+        editable_info[map_extra_info_key] = value
+    else
+        editable_info[map_extra_info_key] = string.format('%s\n%s', editable_info[map_extra_info_key], value)
+    end
+end
+
 Event.add(defines.events.on_player_created, player_created)
 
 Gui.on_click(main_button_name, toggle)
@@ -747,11 +769,15 @@ end
 
 --- Adds to existing map_extra_info. Removes default text if it is the only text in place.
 function Public.add_map_extra_info(value)
-    if editable_info[map_extra_info_key] == global.config.map_extra_info_key then
-        editable_info[map_extra_info_key] = value
-    else
-        editable_info[map_extra_info_key] = string.format('%s\n%s', editable_info[map_extra_info_key], value)
-    end
+    create_map_extra_info(value, false)
+end
+
+--- Overrides all info added via add_map_extra_info. It is an error to call this more than once.
+-- This should only be used in maps, never in features/modules.
+-- Use case: for maps that know exactly what features they're using and
+-- want full control over the info presented.
+function Public.set_map_extra_info(value)
+    create_map_extra_info(value, true)
 end
 
 function Public.get_new_info()

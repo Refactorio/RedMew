@@ -1,0 +1,18 @@
+language: python
+sudo: false
+
+env:
+  - LUA="lua=5.2"
+
+before_install:
+  - pip install hererocks
+  - hererocks lua_install -r^ --$LUA
+  - export PATH=$PATH:$PWD/lua_install/bin
+
+install:
+  - luarocks install luacheck
+
+script:
+  - git diff-tree -r --no-commit-id --name-only HEAD
+    | grep '\.lua$'
+    | xargs -r luacheck

@@ -11,7 +11,7 @@ require 'utils.table'
 
 ScenarioInfo.set_map_name('Christmas Tree of Terror')
 ScenarioInfo.set_map_description("Triangle of death's Christmas cousin")
-ScenarioInfo.set_map_extra_info('Christmas tree shaped death world with plenty of loot to fight for. Can you reach the presents at the base of the tree?')
+ScenarioInfo.add_map_extra_info('Christmas tree shaped death world with plenty of loot to fight for.\nCan you reach the presents at the base of the tree?')
 
 -- change these to change the pattern.
 local ore_seed1 = 30000

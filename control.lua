@@ -1,6 +1,9 @@
 -- Omitting the math library is a very bad idea
 require 'utils.math'
 
+-- global to prevent having require left-overs in files to use a Debug.print
+Debug = require 'utils.debug'
+
 -- Map layout and config dictate the map you play and the settings in it
 local config = require 'config'
 require 'map_layout'
@@ -63,7 +66,9 @@ end
 -- GUIs the order determines the order they appear from left to right.
 -- These can be safely disabled if you want less GUI items.
 -- Some map presets will add GUI modules themselves.
-require 'features.gui.info'
+if config.map_info.enabled then
+    require 'features.gui.info'
+end
 if config.player_list.enabled then
     require 'features.gui.player_list'
 end
@@ -90,4 +95,7 @@ if config.popup.enabled then
 end
 if config.camera.enabled then
     require 'features.gui.camera'
+end
+if _DUMP_ENV then
+    require 'utils.dump_env'
 end

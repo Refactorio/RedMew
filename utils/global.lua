@@ -1,4 +1,4 @@
-local Event = require 'utils.event'
+local Event = require 'utils.event_core'
 local Token = require 'utils.token'
 
 local Global = {}

@@ -1,5 +1,7 @@
 -- dependencies
 local BaseDebug = require 'utils.debug'
+local Color = require 'resources.color_presets'
+
 local min = math.min
 local max = math.max
 local floor = math.floor
@@ -8,8 +10,8 @@ local abs = math.abs
 -- this
 local Debug = {}
 
-local default_base_color = {r = 1, g = 1, b = 1}
-local default_delta_color = {r = 0, g = 0, b = 0}
+local default_base_color = Color.white
+local default_delta_color = Color.black
 
 ---@deprecated use 'utils.debug'.print instead
 function Debug.print(message)

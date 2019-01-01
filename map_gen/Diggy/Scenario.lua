@@ -49,7 +49,6 @@ function Scenario.register()
     redmew_config.fish_market.enabled = false
     redmew_config.reactor_meltdown.enabled = false
     redmew_config.hodor.enabled = false
-    redmew_config.blueprint_helper.enabled = false
     redmew_config.paint.enabled = false
 
     each_enabled_feature(

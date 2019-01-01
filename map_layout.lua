@@ -4,8 +4,8 @@ You may choose up to one of each type shapes, terrain, ores and misc or one of t
 If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
-
 local b = require 'map_gen.shared.builders'
+require 'utils.table'
 require 'map_gen.shared.perlin_noise'
 global.map = {}
 global.map.terraforming = {}
@@ -143,7 +143,6 @@ local terrain_modules = {
 --require 'map_gen.misc.nightfall' -- forces idle biters to attack at night
 --require 'map_gen.misc.terraforming' -- prevents players from building on non-terraformed tiles
 --require 'map_gen.misc.car_body' -- gives players cars instead of characters
---require 'map_gen.misc.silly_player_names' -- assigns players random names when they first join
 --require 'map_gen.misc.naughty_words' -- admonishes players for cursing
 --require 'map_gen.misc.infinite_storage_chest'
 

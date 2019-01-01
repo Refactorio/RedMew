@@ -56,9 +56,9 @@ end
 ---    arguments = {'foo', 'bar'}, -- maps arguments to these names in the given sequence
 ---    default_values = {bar = false}, -- gives a default value to 'bar' when omitted
 ---    regular_only = true, -- defaults to false
----    admin_only = false, -- defaults to false
----    debug_only = false, -- registers the command if _DEBUG is set to true, defaults to false
----    cheat_only = false, -- registers the command if _CHEATS is set to true, defaults to false
+---    admin_only = true, -- defaults to false
+---    debug_only = true, -- registers the command if _DEBUG is set to true, defaults to false
+---    cheat_only = true, -- registers the command if _CHEATS is set to true, defaults to false
 ---    allowed_by_server = false, -- lets the server execute this, defaults to false
 ---    allowed_by_player = true, -- lets players execute this, defaults to true
 ---    log_command = true, -- defaults to false unless admin only, then always true

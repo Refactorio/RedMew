@@ -56,7 +56,7 @@ local STD_BASE_CONTROL = 'lua52c+factorio+factorio_control+factorio_defines+fact
 --[Assume Factorio Control stage as default]--
 -------------------------------------------------------------------------------
 std = STD_CONTROL
-globals = {'print', 'math', 'table', '_DEBUG', '_CHEATS', 'ServerCommands'} -- RedMew-specific globals
+globals = {'print', 'math', 'table', '_DEBUG', '_CHEATS', '_DUMP_ENV', 'ServerCommands', 'Debug'} -- RedMew-specific globals
 max_line_length = LINE_LENGTH
 
 not_globals = NOT_GLOBALS
@@ -176,7 +176,7 @@ stds.factorio = {
             fields = {
                 "by_pixel", "distance", "findfirstentity", "positiontostr", "formattime", "moveposition", "oppositedirection",
                 "ismoduleavailable", "multiplystripes", "format_number", "increment", "color", "make_color", "conditional_return",
-                "add_shift",
+                "add_shift", "merge",
                 table = {
                     fields = {
                         "compare", "deepcopy"

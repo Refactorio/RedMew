@@ -8,6 +8,7 @@ local Debug = require 'map_gen.Diggy.Debug'
 local Template = require 'map_gen.Diggy.Template'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Simplex = require 'map_gen.shared.simplex_noise'
+local Utils = require 'utils.core'
 local random = math.random
 local sqrt = math.sqrt
 local ceil = math.ceil
@@ -228,7 +229,7 @@ function ScatteredResources.register(config)
                         if cluster.noise_settings.type == "connected_tendril" then
                             local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                             if -1 * cluster.noise_settings.threshold < noise and noise < cluster.noise_settings.threshold then
-                                color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
+                                color[index] = color[index] or cluster.color or Utils.random_RGB
                                 Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, true, 0, color[index])
                             end
                         elseif cluster.noise_settings.type == "fragmented_tendril" then
@@ -237,13 +238,13 @@ function ScatteredResources.register(config)
                             if -1 * cluster.noise_settings.threshold < noise1 and noise1 < cluster.noise_settings.threshold
                                     and -1 * cluster.noise_settings.discriminator_threshold < noise2
                                     and noise2 < cluster.noise_settings.discriminator_threshold then
-                                color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
+                                color[index] = color[index] or cluster.color or Utils.random_RGB
                                 Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, true, 0, color[index])
                             end
                         elseif cluster.noise_settings.type ~= 'skip' then
                             local noise = seeded_noise(surface, x, y, index, cluster.noise_settings.sources)
                             if noise >= cluster.noise_settings.threshold then
-                                color[index] = color[index] or cluster.color or {r=random(), g=random(), b=random()}
+                                color[index] = color[index] or cluster.color or Utils.random_RGB
                                 Debug.print_colored_grid_value('o' .. index, surface, {x = x, y = y}, nil, true, 0, color[index])
                             end
                         end

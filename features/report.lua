@@ -1,6 +1,7 @@
 local Gui = require('utils.gui')
 local Utils = require('utils.core')
 local Game = require 'utils.game'
+local Color = require 'resources.color_presets'
 
 local format = string.format
 
@@ -197,8 +198,8 @@ function Module.jail(target_player, player)
     if target_player.permission_group == permission_group then
         -- Let admin know it worked, let target know what's going on.
         target_player.print(prefix)
-        target_player.print(format('You have been placed in jail by %s. The only action avaliable to you is chatting.', jailed_by))
-        target_player.print('Please respond to inquiries from the admins.', {r = 1, g = 1, b = 0, a = 1})
+        target_player.print('You have been placed in jail by ' .. jailed_by .. '. The only action avaliable to you is chatting.')
+        target_player.print('Please respond to inquiries from the admins.', Color.yellow)
         target_player.print(prefix_e)
         Utils.print_admins(format('%s has been jailed by %s', target_player.name, player.name))
         Utils.log_command(Utils.get_actor(), 'jail', target_player.name)
@@ -250,7 +251,7 @@ function Module.unjail(target_player, player)
         -- Let admin know it worked, let target know what's going on.
         Game.player_print(target_name .. ' has been returned to the default group. They have been advised of this.')
         target_player.print(prefix)
-        target_player.print('Your ability to perform actions has been restored', {r = 0, g = 1, b = 0, a = 1})
+        target_player.print('Your ability to perform actions has been restored', Color.green)
         target_player.print(prefix_e)
         Utils.print_admins(format('%s has been released from jail by %s', target_player.name, player.name))
         Utils.log_command(Utils.get_actor(), 'unjail', target_player.name)
