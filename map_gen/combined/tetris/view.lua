@@ -165,7 +165,7 @@ local function toggle(player)
             last_move_tooltip = button_pretty_names[last_move_button]
             last_move_sprite = sprites[last_move_button]
         end
-        local next_move = main_frame.add{
+        main_frame.add{
             type = 'sprite-button',
             enabled = false,
             tooltip = last_move_tooltip,

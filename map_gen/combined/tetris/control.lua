@@ -51,6 +51,8 @@ local options = {
 }
 
 local player_zoom = {}
+local player_force = nil
+local nauvis = nil
 Global.register(
     {
         tetriminos = tetriminos,
@@ -83,7 +85,7 @@ local function calculate_winner()
 
     local winners = {}
     local max = math.max(vote_sum[1], vote_sum[2], vote_sum[3], vote_sum[4], vote_sum[5])
-    for candidate, n_votes in ipairs(vote_sum) do
+    for candidate, n_votes in pairs(vote_sum) do
         if max == n_votes then
             table.insert(winners, candidate)
         end
@@ -166,7 +168,7 @@ View.bind_button(
 )
 
 local function spawn_new_tetrimino()
-    table.insert(tetriminos, Tetrimino.new(game.surfaces.nauvis, {x = 0, y = primitives.tetri_spawn_y_position}))
+    table.insert(tetriminos, Tetrimino.new(nauvis, {x = 0, y = primitives.tetri_spawn_y_position}))
 end
 
 local function collect_full_row_resources(tetri)
@@ -176,14 +178,16 @@ local function collect_full_row_resources(tetri)
 
     local full_rows = {}
     local rows = {}
-    for _, qchunk in ipairs(active_qchunks) do
+    local tetri_y = tetri.position.y
+    local get_tile = tetri.surface.get_tile
+    for _, qchunk in pairs(active_qchunks) do
         local q_y = qchunk.y
         if not rows[q_y] then
             rows[q_y] = true
-            local y = tetri.position.y + 16 * q_y - 14
+            local y = tetri_y + 16 * q_y - 14
             local row_full = true
             for x = -178, 178, 16 do
-                local tile = tetri.surface.get_tile(x, y)
+                local tile = get_tile(x, y)
                 if tile.valid and tile.name == 'water' then
                     row_full = false
                     break
@@ -231,7 +235,7 @@ local function tetrimino_finished(tetri)
     local final_y_position = tetri.position.y
     if final_y_position < (primitives.tetri_spawn_y_position + 352) then
         primitives.tetri_spawn_y_position = final_y_position - 256
-        game.forces.player.chart(tetri.surface, {{-192, final_y_position - 352},{160, final_y_position - 176}})
+        player_force.chart(tetri.surface, {{-192, final_y_position - 352},{160, final_y_position - 176}})
     end
 
     machine.transition(states.voting)
@@ -263,8 +267,8 @@ local move_down = Token.register(
 
             local pos = tetri.position
             Task.set_timeout_in_ticks(10, chart_area, {
-                force = game.forces.player,
-                surface = game.surfaces.nauvis,
+                force = player_force,
+                surface = nauvis,
                 area = {
                     {pos.x - 32, pos.y - 32},
                     {pos.x + 64, pos.y + 64}
@@ -290,12 +294,12 @@ local function execute_vote_tick()
             Task.set_timeout_in_ticks(1, switch_state, {state = states.pause})
         else
             primitives.stale_vote_turns = stale_vote_turns + 1
-        machine.transition(states.moving)
+            machine.transition(states.moving)
         end
     end
 
     primitives.winner_option_index = 0
-    for player_index, _ in ipairs(player_votes) do -- reset poll
+    for player_index, _ in pairs(player_votes) do -- reset poll
         player_votes[player_index] = nil
     end
     View.reset_poll_buttons()
@@ -319,7 +323,9 @@ end
 
 local spawn_new_tetrimino_token = Token.register(spawn_new_tetrimino)
 Event.on_init(function()
-    game.forces.player.chart(game.surfaces.nauvis, {{-192, -432}, {160, 0}})
+    player_force = game.forces.player
+    nauvis = game.surfaces.nauvis
+    player_force.chart(nauvis, {{-192, -432}, {160, 0}})
     Task.set_timeout_in_ticks(30 * tetris_tick_duration - 15, spawn_new_tetrimino_token)
     View.enable_vote_buttons(true)
 end)

@@ -161,12 +161,12 @@ local function move_qchunk(surface, x, y, x_offset, y_offset)
     local old_tiles = surface.find_tiles_filtered{area = {{x,y}, {x + 16, y + 16}}}
     local new_tiles = {}
     local player_positions = {}
-    for index, tile in ipairs(old_tiles) do
+    for index, tile in pairs(old_tiles) do
         local old_pos = tile.position
         new_tiles[index] = {name = tile.name, position = {x = old_pos.x + x_offset, y = old_pos.y + y_offset}}
     end
 
-    for index, entity in ipairs(entities) do
+    for index, entity in pairs(entities) do
         local old_pos = entity.position
 
         local success, e = pcall(function()
@@ -301,18 +301,7 @@ function Tetrimino.rotate(self, reverse)
                 end
 
                 for _, entity in pairs(find_entities_filtered{area = {{top_left_x, top_left_y},{tetri_x + x * 16 - 1, tetri_y + y * 16 - 1}}}) do
-                    local type = entity.type
-                    if type ~= 'player' and type ~= 'character-corpse' then
-                        local amount = nil
-                        if type == 'resource' then
-                            amount = entity.amount
-                        end
-                        insert(entities, {name = entity.name, amount = amount, position = {entity.position.x + (target.x - x) * 16, entity.position.y + (target.y - y) * 16}})
-                        entity.destroy()
-
-                    elseif entity.type == 'player' then
-                        entity.player.teleport{entity.position.x + (target.x - x) * 16, entity.position.y + (target.y - y) * 16}
-                    end
+                    entity.teleport{entity.position.x + (target.x - x) * 16, entity.position.y + (target.y - y) * 16}
                 end
                 if new_collision_box[y][x] == 0 then
                     erase_qchunk(surface, top_left_x, top_left_y)
