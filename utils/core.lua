@@ -1,3 +1,5 @@
+-- This file contains core utilities used by the redmew scenario.
+
 -- Dependencies
 local Game = require 'utils.game'
 local Color = require 'resources.color_presets'
