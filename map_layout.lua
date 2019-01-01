@@ -22,6 +22,7 @@ local tiles_per_tick = 32
 --require "map_gen.combined.dagobah_swamp"
 --require "map_gen.combined.meteor_strike" --unfinished
 --require "map_gen.combined.diggy"
+require "map_gen.combined.biter_lane_wars"
 
 --presets--
 --shape = require "map_gen.presets.template"
@@ -166,6 +167,6 @@ if shape then
         ['nauvis'] = shape,
     }
 
-    require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-    --require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
+    --require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
+    require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end

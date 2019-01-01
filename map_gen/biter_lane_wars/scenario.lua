@@ -13,7 +13,7 @@ if not global.map.blw then
     global.map.blw = {}
 end
 if not global.map.blw.config then
-    global.map.blw.config
+    global.map.blw.config = {}
 end
 if not global.map.blw.teams then
     global.map.blw.teams = {}
