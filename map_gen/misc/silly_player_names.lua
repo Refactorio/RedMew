@@ -55,7 +55,8 @@ local function create_name(words_table, player_name)
     adverb = table.get_random(words_table.adverbs, true)
     adjective = table.get_random(words_table.adjectives, true)
     --noun = table.get_random(words_table.nouns, true)
-    return adverb .. '_' .. adjective .. '_' .. player_name
+    local name = format('%s_%s_%s', adverb, adjective, player_name)
+    return string.gsub(name, "%s+", "_")
 end
 
 --- Calls create_name until a unique name is returned

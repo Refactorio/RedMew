@@ -98,6 +98,7 @@ local Config = {
                 ['concrete'] = 0.04,
                 ['hazard-concrete'] = 0.04,
                 ['refined-concrete'] = 0.06,
+                ['refined-hazard-concrete'] = 0.06,
             },
             cracking_sounds = {
                 'R U N,  Y O U   F O O L S !',

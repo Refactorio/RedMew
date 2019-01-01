@@ -1,4 +1,6 @@
 local Global = require 'utils.global'
+local Color = require 'resources.color_presets'
+local pairs = pairs
 
 local Game = {}
 
@@ -56,7 +58,7 @@ end
     @return the created entity
 ]]
 function Game.print_floating_text(surface, position, text, color)
-    color = color or {r = 1, g = 1, b = 1}
+    color = color or Color.white
 
     return surface.create_entity {
         name = 'tutorial-flying-text',

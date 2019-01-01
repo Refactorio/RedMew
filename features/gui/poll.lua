@@ -6,6 +6,8 @@ local Game = require 'utils.game'
 local math = require 'utils.math'
 local Utils = require 'utils.core'
 local Server = require 'features.server'
+local Color = require 'resources.color_presets'
+
 local insert = table.insert
 
 local default_poll_duration = 300 * 60 -- in ticks
@@ -16,8 +18,8 @@ local duration_slider_max = duration_max / duration_step
 local tick_duration_step = duration_step * 60
 local inv_tick_duration_step = 1 / tick_duration_step
 
-local normal_color = {r = 1, g = 1, b = 1}
-local focus_color = {r = 1, g = 0.55, b = 0.1}
+local normal_color = Color.white
+local focus_color = Color.dark_orange
 
 local polls = {}
 local polls_counter = {0}

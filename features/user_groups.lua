@@ -12,7 +12,7 @@ local Module = {}
 
 Module.is_regular =
     function(player_name)
-    return Utils.cast_bool(global.regulars[player_name] or global.regulars[player_name:lower()] or (global.silly_regulars and global.silly_regulars[player_name])) --to make it backwards compatible
+    return Utils.cast_bool(global.regulars[player_name])
 end
 
 Module.add_regular = function(player_name)
