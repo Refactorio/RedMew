@@ -23,10 +23,10 @@ local total_player_built_entities = {0}
 local total_biter_kills = {0}
 
 local train_kill_causes = {
-    'locomotive',
-    'cargo-wagon',
-    'fluid-wagon',
-    'artillery-wagon'
+    ['locomotive'] = true,
+    ['cargo-wagon'] = true,
+    ['fluid-wagon'] = true,
+    ['artillery-wagon'] = true
 }
 
 Global.register(
@@ -110,8 +110,8 @@ local function player_died(event)
     local cause_count = causes[cause] or 0
     causes[cause] = cause_count + 1
 
-    if table.contains(train_kill_causes, cause) then
-        total_train_kills = total_train_kills + 1
+    if train_kill_causes[cause] then
+        total_train_kills[1] = total_train_kills[1] + 1
     end
 end
 
