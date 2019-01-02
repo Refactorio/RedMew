@@ -6,6 +6,7 @@ local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Color = require 'resources.color_presets'
 local math = require 'utils.math'
+local Command = require 'utils.command'
 
 local normal_color = Color.white
 local focus_color = Color.dark_orange
@@ -1068,28 +1069,17 @@ Gui.on_click(
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
-commands.add_command(
+Command.add(
     'task',
-    '<task> - Creates a new task (Admins and regulars only).',
-    function(cmd)
-        local player = game.player
-
-        if player then
-            if not player.admin and not UserGroups.is_regular(player.name) then
-                Utils.cant_run(cmd.name)
-                return
-            end
-        else
-            player = server_player
-        end
-
-        local task_name = cmd.parameter
-
-        if not task_name or task_name == '' then
-            player.print('Usage: /task <task>')
-            return
-        end
-
-        create_new_tasks(task_name, player)
+    {
+        description = 'Creates a new task.',
+        arguments = {'task'},
+        regular_only = true,
+        allowed_by_server = true,
+        log_command = true,
+        capture_excess_arguments = true,
+    },
+    function(args, player)
+        create_new_tasks(args.task, player or server_player)
     end
 )

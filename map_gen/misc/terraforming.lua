@@ -6,6 +6,7 @@ local random = math.random
 local insert = table.insert
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
+local Command = require 'utils.command'
 if not global.map.terraforming then
     global.map.terraforming = {}
 end
@@ -457,23 +458,29 @@ Event.on_nth_tick(death_recap_timer, print_death_recap)
 Event.on_nth_tick(player_pos_check_time, apply_creep_effects_on_players)
 
 --- Debug commands which will generate or clear pollution
-if _DEBUG or _CHEATS then
-    commands.add_command(
-        'cloud',
-        'Use your vape rig to create a pollution cloud around you',
-        function()
-            if game.player then
-                game.player.surface.pollute(game.player.position, 10000)
-            end
+Command.add(
+    'cloud',
+    {
+        description = 'Create a lot of pollution',
+        debug_only = true,
+        cheat_only = true
+    },
+    function()
+        if game.player then
+            game.player.surface.pollute(game.player.position, 10000)
         end
-    )
-    commands.add_command(
-        'clean',
-        'Use your vacuum to suck up the pollution cloud around you',
-        function()
-            if game.player then
-                game.player.surface.clear_pollution()
-            end
+    end
+)
+Command.add(
+    'clean',
+    {
+        description = 'Eliminate all pollution on the surface',
+        debug_only = true,
+        cheat_only = true
+    },
+    function()
+        if game.player then
+            game.player.surface.clear_pollution()
         end
-    )
-end
+    end
+)

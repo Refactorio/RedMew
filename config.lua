@@ -170,7 +170,11 @@ global.config = {
         enabled = true,
     },
     -- adds many commands for users and admins alike
-    custom_commands = {
+    redmew_commands = {
+        enabled = true,
+    },
+    -- adds many commands for admins
+    admin_commands = {
         enabled = true,
     },
     -- enables donators' on-join messages
@@ -181,11 +185,6 @@ global.config = {
     train_saviour = {
         enabled = true,
     },
-    -- logs when commands are used and when items are spawned in
-    free_item_logging = {
-        enabled = true,
-    },
-    -- adds ability to save and restore player colors
     player_colors = {
         enabled = true,
     },

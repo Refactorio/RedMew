@@ -4,8 +4,8 @@ local Event = require 'utils.event'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
 local math = require 'utils.math'
-local Utils = require 'utils.core'
 local Server = require 'features.server'
+local Command = require 'utils.command'
 local Color = require 'resources.color_presets'
 
 local insert = table.insert
@@ -1281,19 +1281,8 @@ function Class.poll_result(id)
     return table.concat {'poll #', id, ' not found'}
 end
 
-local function poll_command(cmd)
-    local player = game.player
-    if player and not (player.admin or UserGroups.is_regular(player.name)) then
-        Utils.cant_run(cmd.name)
-    end
-
-    local param = cmd.parameter
-
-    if not param then
-        Game.player_print('Usage: /poll <{question = "question", answers = {"answer 1", "answer 2"}, duration = 300 | nil}>')
-        return
-    end
-
+local function poll_command(args)
+    local param = args.poll
     param = 'return ' .. param
 
     local func, error = loadstring(param)
@@ -1310,16 +1299,9 @@ local function poll_command(cmd)
     end
 end
 
-local function poll_result_command(cmd)
-    local param = cmd.parameter
-    if not param then
-        Game.player_print('Usage: /poll-result <poll#>')
-        return
-    end
-
-    local id = tonumber(param)
+local function poll_result_command(args)
+    local id = tonumber(args.poll)
     local result = Class.poll_result(id)
-
     Game.player_print(result)
 end
 
@@ -1340,12 +1322,27 @@ function Class.send_poll_result_to_discord(id)
     Server.to_discord_embed(message)
 end
 
-commands.add_command(
+Command.add(
     'poll',
-    '<{question = "question", answers = {"answer 1", "answer 2"}, duration = 300 | nil}> - Creates a new poll (Admin and regulars only).',
+    {
+        arguments = {'poll'},
+        regular_only = true,
+        allowed_by_server = true,
+        custom_help_text = '<{question = "question", answers = {"answer 1", "answer 2"}, duration = 300}> - Creates a new poll (Regulars only).',
+        log_command = true,
+        capture_excess_arguments = true
+    },
     poll_command
 )
 
-commands.add_command('poll-result', '<poll#> - prints the result for the poll.', poll_result_command)
+Command.add(
+    'poll-result',
+    {
+        description = 'Prints the result for the given poll number.',
+        arguments = {'poll'},
+        allowed_by_server = true
+    },
+    poll_result_command
+)
 
 return Class
