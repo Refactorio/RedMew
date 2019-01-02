@@ -185,6 +185,7 @@ global.config = {
     free_item_logging = {
         enabled = true,
     },
+    -- adds ability to save and restore player colors
     player_colors = {
         enabled = true,
     },

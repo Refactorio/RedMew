@@ -1,4 +1,5 @@
 require 'utils.table'
+local UserGroups = require 'features.user_groups'
 
 local insert = table.insert
 local format = string.format
@@ -12,6 +13,7 @@ local option_names = {
     ['description'] = 'A description of the command',
     ['arguments'] = 'A table of arguments, example: {"foo", "bar"} would map the first 2 arguments to foo and bar',
     ['default_values'] = 'A default value for a given argument when omitted, example: {bar = false}',
+    ['regular_only'] = 'Set this to true if only regulars may execute this command',
     ['admin_only'] = 'Set this to true if only admins may execute this command',
     ['debug_only'] = 'Set this to true if it should only be registered when _DEBUG is true',
     ['allowed_by_server'] = 'Set to true if the server (host) may execute this command',
@@ -42,10 +44,11 @@ end
 ---    description = 'A description of the command',
 ---    arguments = {'foo', 'bar'}, -- maps arguments to these names in the given sequence
 ---    default_values = {bar = false}, -- gives a default value to 'bar' when omitted
+---    regular_only = true, -- defaults to false
 ---    admin_only = true, -- defaults to false
 ---    debug_only = false, -- only registers it if _DEBUG is set to true when false
----    allowed_by_server = false -- lets the server execute this, defaults to false
----    allowed_by_player = true -- lets players execute this, defaults to true
+---    allowed_by_server = false, -- lets the server execute this, defaults to false
+---    allowed_by_player = true, -- lets players execute this, defaults to true
 ---    log_command = true, -- defaults to false unless admin only, then always true
 ---    capture_excess_arguments = true, defaults to false, captures excess arguments in the last argument, useful for sentences
 ---}
@@ -62,6 +65,7 @@ function Command.add(command_name, options, callback)
     local description = options.description or '[Undocumented command]'
     local arguments = options.arguments or {}
     local default_values = options.default_values or {}
+    local regular_only = options.regular_only or false
     local admin_only = options.admin_only or false
     local debug_only = options.debug_only or false
     local capture_excess_arguments = options.capture_excess_arguments or false
@@ -107,6 +111,8 @@ function Command.add(command_name, options, callback)
         extra = ' (Server Only)'
     elseif allowed_by_player and admin_only then
         extra = ' (Admin Only)'
+    elseif allowed_by_player and regular_only then
+        extra = ' (Regulars Only)'
     end
 
     commands.add_command(command_name, argument_list .. description .. extra, function (command)
@@ -129,7 +135,12 @@ function Command.add(command_name, options, callback)
             end
 
             if admin_only and not player.admin then
-                print(format("The command '%s' requires an admin to be be executed", command_name))
+                print(format("The command '%s' requires admin status to be be executed.", command_name))
+                return
+            end
+
+            if regular_only and not UserGroups.is_regular(player_name) then
+            print(format("The command '%s' is not available to guests.", command_name))
                 return
             end
         end
