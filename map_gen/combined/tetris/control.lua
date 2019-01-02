@@ -68,8 +68,8 @@ Global.register(
     end
 )
 
-local point_table = {1, 3, 5, 8}
-local tetris_tick_duration = 61 --ttick = tetris tick
+local point_table = {1, 3, 5, 9}
+local tetris_tick_duration = 61
 local pause_after_n_ticks = 10
 global.vote_delay = 10
 
@@ -178,8 +178,11 @@ local function collect_full_row_resources(tetri)
 
     local full_rows = {}
     local rows = {}
-    local tetri_y = tetri.position.y
-    local get_tile = tetri.surface.get_tile
+    local position = tetri.position
+    local tetri_y = position.y
+    local surface = tetri.surface
+    local get_tile = surface.get_tile
+    local find_entities_filtered = surface.find_entities_filtered
     for _, qchunk in pairs(active_qchunks) do
         local q_y = qchunk.y
         if not rows[q_y] then
@@ -196,9 +199,9 @@ local function collect_full_row_resources(tetri)
 
             if row_full then
                 table.insert(full_rows, q_y)
-                for _, patch in pairs(tetri.surface.find_entities_filtered{type = 'resource', area = {{-178, y}, {162, y + 12}}}) do
-                    local total = storage[patch.name] or 0
-                    storage[patch.name] = total + patch.amount
+                for _, patch in pairs(find_entities_filtered{type = 'resource', area = {{-178, y}, {162, y + 12}}}) do
+                    local subtotal = storage[patch.name] or 0
+                    storage[patch.name] = subtotal + patch.amount
                     patch.destroy()
                 end
             end
@@ -207,7 +210,6 @@ local function collect_full_row_resources(tetri)
 
     if #full_rows > 0 then
         local points = point_table[#full_rows]
-
         for resource, amount in pairs(storage) do
             storage[resource] = amount * points
             if resource =='crude-oil' then
@@ -218,15 +220,13 @@ local function collect_full_row_resources(tetri)
             end
         end
 
-        local x = tetri.position.x + active_qchunks[1].x * 16 - 9
-        local y = tetri.position.y + active_qchunks[1].y * 16 - 9
+        local x = position.x + active_qchunks[1].x * 16 - 9
+        local y = tetri_y + active_qchunks[1].y * 16 - 9
         local chest = InfinityChest.create_chest(tetri.surface, {x, y}, storage)
-
         chest.minable = false
         chest.destructible = false
 
         primitives.points = primitives.points + points * 100
-
         View.set_points(primitives.points)
     end
 end
@@ -235,7 +235,7 @@ local function tetrimino_finished(tetri)
     local final_y_position = tetri.position.y
     if final_y_position < (primitives.tetri_spawn_y_position + 352) then
         primitives.tetri_spawn_y_position = final_y_position - 256
-        player_force.chart(tetri.surface, {{-192, final_y_position - 352},{160, final_y_position - 176}})
+        player_force.chart(tetri.surface, {{-192, final_y_position - 352}, {160, final_y_position - 176}})
     end
 
     machine.transition(states.voting)
@@ -279,7 +279,6 @@ local move_down = Token.register(
 )
 
 local function execute_vote_tick()
-
     if game.tick < primitives.next_vote_finished then return end
 
     local winner = options[primitives.winner_option_index]
@@ -360,7 +359,7 @@ machine.register_state_tick_action(states.down, execute_down_tick)
 
 machine.register_transition(states.voting, states.pause, function()
     View.enable_vote_buttons(true)
-    game.print('Pausing...')
+    game.print('Pausing due to inactivity...')
 end)
 
 machine.register_transition(states.pause, states.voting, function()
