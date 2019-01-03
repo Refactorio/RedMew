@@ -699,7 +699,11 @@ local changelog_callback =
 
 Event.add(defines.events.on_player_created, player_created)
 
-Event.on_init(Server.try_get_data('misc', 'changelog', changelog_callback))
+Event.add(Server.events.on_server_started,
+    function()
+        Server.try_get_data('misc', 'changelog', changelog_callback)
+    end
+)
 
 Gui.on_click(main_button_name, toggle)
 
