@@ -184,10 +184,6 @@ global.config = {
     donator_messages = {
         enabled = true,
     },
-    -- saves players' lives if they have a small-plane in their inventory, also adds the small-plan to the market
-    train_saviour = {
-        enabled = true,
-    },
     player_colors = {
         enabled = true,
     },
