@@ -117,7 +117,6 @@ local function fish_drop_entity_died(event)
     end
 end
 
-
 local function reset_player_running_speed(player)
     player.character_running_speed_modifier = global.player_speed_boost_records[player.index].pre_boost_modifier
     global.player_speed_boost_records[player.index] = nil
@@ -141,7 +140,8 @@ local function boost_player_running_speed(player, market)
         [3] = 'Kungfu Master %s defended the village and was awarded a lv.3 speed boost!',
         [4] = 'Travelled at the speed of light. %s saw a blackhole. Oops.'
     }
-    global.player_speed_boost_records[player.index].boost_lvl = 1 + global.player_speed_boost_records[player.index].boost_lvl
+    global.player_speed_boost_records[player.index].boost_lvl =
+        1 + global.player_speed_boost_records[player.index].boost_lvl
     player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
 
     if global.player_speed_boost_records[player.index].boost_lvl >= 4 then
@@ -177,7 +177,8 @@ local function boost_player_mining_speed(player, market)
         [3] = 'Wood fiend, %s, has picked up a massive chain saw and is awarded a lv.3 mining boost!',
         [4] = 'Better learn to control that saw, %s, chopped off their legs. Oops.'
     }
-    global.player_mining_boost_records[player.index].boost_lvl = 1 + global.player_mining_boost_records[player.index].boost_lvl
+    global.player_mining_boost_records[player.index].boost_lvl =
+        1 + global.player_mining_boost_records[player.index].boost_lvl
     player.character_mining_speed_modifier = 1 + player.character_mining_speed_modifier
 
     if global.player_mining_boost_records[player.index].boost_lvl >= 4 then
@@ -271,8 +272,7 @@ local function player_created(event)
     player.insert {name = market_item, count = count}
 end
 
-local function init()
-    Command.add(
+Command.add(
     'market',
     {
         description = 'Places a market near you.',
@@ -281,13 +281,9 @@ local function init()
     spawn_market
 )
 
-    Event.on_nth_tick(180, on_180_ticks)
-    Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
-    Event.add(defines.events.on_entity_died, fish_drop_entity_died)
-    Event.add(defines.events.on_market_item_purchased, market_item_purchased)
-    Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
-    Event.add(defines.events.on_player_created, player_created)
-end
-
-Event.on_init(init)
-Event.on_load(init)
+Event.on_nth_tick(180, on_180_ticks)
+Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
+Event.add(defines.events.on_entity_died, fish_drop_entity_died)
+Event.add(defines.events.on_market_item_purchased, market_item_purchased)
+Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
+Event.add(defines.events.on_player_created, player_created)
