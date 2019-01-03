@@ -18,8 +18,7 @@ end
 
 --- Takes the output from debug.getinfo and strips the function and full source names
 local function cleanup_debug(debug_table)
-    local clean_string = format('caller details: name: %s file: %s, line number: %s', debug_table.name, debug_table.short_src, debug_table.currentline)
-    return clean_string
+    return format('caller details: name: %s file: %s, line number: %s', debug_table.name, debug_table.short_src, debug_table.currentline)
 end
 
 ---Shows the given message if debug is enabled. Uses serpent to print non scalars.
