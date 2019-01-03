@@ -16,9 +16,15 @@ local function increment()
     return next
 end
 
+--- Takes the output from debug.getinfo and strips the function and full source names
+local function cleanup_debug(debug_table)
+    return format('caller details: name: %s file: %s, line number: %s', debug_table.name, debug_table.short_src, debug_table.currentline)
+end
+
 ---Shows the given message if debug is enabled. Uses serpent to print non scalars.
----@param message table
-function Debug.print(message)
+-- @param message <table|string|number|boolean>
+-- @param no_source <boolean> if true, will omit the source of the debug message
+function Debug.print(message, no_source)
     if not _DEBUG then
         return
     end
@@ -28,7 +34,12 @@ function Debug.print(message)
     end
 
     message = format('[%d] %s', increment(), tostring(message))
-    game.print(message)
+    if not no_source then
+        message = format('%s -- %s', message, cleanup_debug(debug.getinfo(2)))
+    end
+    if game then
+        game.print(message)
+    end
     log(message)
 end
 
