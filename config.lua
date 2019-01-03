@@ -188,10 +188,6 @@ global.config = {
     train_saviour = {
         enabled = true,
     },
-    -- logs when commands are used and when items are spawned in
-    free_item_logging = {
-        enabled = true,
-    },
     player_colors = {
         enabled = true,
     },
