@@ -145,7 +145,7 @@ end
 
 local function search_command(arguments, player)
     local keyword = arguments.keyword
-    local p = player.print
+    local p = Game.player_print
     if #keyword < 2 then
         p('Keyword should be 2 characters or more')
         return
