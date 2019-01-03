@@ -50,17 +50,17 @@ end
 if config.reactor_meltdown.enabled then
     require 'features.reactor_meltdown'
 end
-if config.train_station_names.enabled then
-    require 'features.train_station_names'
-end
 if config.walkabout.enabled then
     require 'features.walkabout'
 end
-if global.config.performance.enabled then
+if config.performance.enabled then
     require 'features.performance'
 end
-if global.config.hail_hydra.enabled then
+if config.hail_hydra.enabled then
     require 'features.hail_hydra'
+end
+if config.redmew_qol.enabled then
+    require 'features.redmew_qol'
 end
 
 -- GUIs the order determines the order they appear from left to right.
