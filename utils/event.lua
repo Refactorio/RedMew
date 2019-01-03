@@ -102,6 +102,8 @@ local core_on_nth_tick = EventCore.on_nth_tick
 
 local Event = {}
 
+local handlers_added = false -- set to true after the removeable event handlers have been added.
+
 local event_handlers = EventCore.get_event_handlers()
 local on_nth_tick_event_handlers = EventCore.get_on_nth_tick_event_handlers()
 
@@ -201,9 +203,7 @@ function Event.add_removable(event_name, token)
         tokens[#tokens + 1] = token
     end
 
-    -- If this is called before runtime, we don't need to add the handlers
-    -- as they will be added later either in on_init or on_load.
-    if EventCore.runtime then
+    if handlers_added then
         local handler = Token.get(token)
         core_add(event_name, handler)
     end
@@ -255,9 +255,7 @@ function Event.add_removable_function(event_name, func)
         funcs[#funcs + 1] = func
     end
 
-    -- If this is called before runtime, we don't need to add the handlers
-    -- as they will be added later either in on_init or on_load.
-    if EventCore.runtime then
+    if handlers_added then
         core_add(event_name, func)
     end
 end
@@ -299,9 +297,7 @@ function Event.add_removable_nth_tick(tick, token)
         tokens[#tokens + 1] = token
     end
 
-    -- If this is called before runtime, we don't need to add the handlers
-    -- as they will be added later either in on_init or on_load.
-    if EventCore.runtime then
+    if handlers_added then
         local handler = Token.get(token)
         core_on_nth_tick(tick, handler)
     end
@@ -353,9 +349,7 @@ function Event.add_removable_nth_tick_function(tick, func)
         funcs[#funcs + 1] = func
     end
 
-    -- If this is called before runtime, we don't need to add the handlers
-    -- as they will be added later either in on_init or on_load.
-    if EventCore.runtime then
+    if handlers_added then
         core_on_nth_tick(tick, func)
     end
 end
@@ -409,6 +403,8 @@ local function add_handlers()
             core_on_nth_tick(tick, handler)
         end
     end
+
+    handlers_added = true
 end
 
 core_on_init(add_handlers)
