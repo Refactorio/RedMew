@@ -1,4 +1,4 @@
-local Task = require 'utils.schedule'
+local Task = require 'utils.task'
 local Token = require 'utils.token'
 local UserGroups = require 'features.user_groups'
 local Report = require 'features.report'
