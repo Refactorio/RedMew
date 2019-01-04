@@ -29,7 +29,8 @@ local function spawn_market(_, player)
 
     local market = surface.create_entity {name = 'market', position = pos}
     market.destructible = false
-
+    game.player.print("Market added. To remove it, highlight it with your cursor and run the command /sc game.player.selected.destroy()")
+    
     for _, item in ipairs(Market_items) do
         market.add_market_item(item)
     end
