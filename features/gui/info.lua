@@ -5,6 +5,8 @@ local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
 local PlayerRewards = require 'utils.player_rewards'
 local Color = require 'resources.color_presets'
+local Server = require 'features.server'
+local Token = require 'utils.token'
 local format = string.format
 
 local normal_color = Color.white
@@ -684,7 +686,24 @@ local function create_map_extra_info(value, set)
     end
 end
 
+--- Sets the "new info" according to the changelog located on the server
+local changelog_callback =
+    Token.register(
+    function(data)
+        local value = data.value -- will be nil if no data
+        if value then
+            editable_info[new_info_key] = value
+        end
+    end
+)
+
 Event.add(defines.events.on_player_created, player_created)
+
+Event.add(Server.events.on_server_started,
+    function()
+        Server.try_get_data('misc', 'changelog', changelog_callback)
+    end
+)
 
 Gui.on_click(main_button_name, toggle)
 
