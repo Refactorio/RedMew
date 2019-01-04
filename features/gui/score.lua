@@ -34,7 +34,7 @@ local function refresh_score()
             frame.score_table.label_player_built_entities.caption = 'Buildings by hand: ' .. PlayerStats.get_total_player_built_entities()
             frame.score_table.label_robot_built_entities.caption = 'Buildings by robots: ' .. PlayerStats.get_total_robot_built_entities()
             frame.score_table.label_player_mined_trees.caption = 'Trees chopped: ' .. PlayerStats.get_total_player_trees_mined()
-            frame.score_table.label_player_mined_stones.caption = 'Rocks smashes: ' .. PlayerStats.get_total_player_rocks_mined()
+            frame.score_table.label_player_mined_stones.caption = 'Rocks smashed: ' .. PlayerStats.get_total_player_rocks_mined()
             frame.score_table.label_kills_by_train.caption = 'Kills by train: ' .. PlayerStats.get_total_train_kills()
         end
         x = x + 1
