@@ -46,7 +46,7 @@ local random_train_color =
 local function on_init()
     -- Set player force's ghost_time_to_live to an hour. Giving the players ghosts before the research of robots is a nice QOL improvement.
     if config.ghosts_before_research then
-        game.forces.player.ghost_time_to_live = 216000
+        Public.set_ghost_ttl()
     end
 end
 
@@ -132,7 +132,17 @@ end
 
 Event.on_init(on_init)
 
--- Getters/setters
+-- Public functions
+
+--- Sets a ghost_time_to_live as a quality of life feature: now ghosts
+-- are created on death of entities before robot research
+-- @param force_name string with name of force
+-- @param time number of ticks for ghosts to live
+function Public.set_ghost_ttl(force_name, time)
+    force_name = force_name or 'player'
+    time = time or (30 * 60 * 60)
+    game.forces[force_name].ghost_time_to_live = time
+end
 
 --- Sets random_train_color on or off.
 -- @param enable <boolean> true to toggle on, false for off
