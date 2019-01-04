@@ -173,7 +173,8 @@ local function on_tick()
         local target = Game.get_player_by_index(camera_table)
         if not target.connected then
             destroy_camera({player = player})
-            player.print('Target has went offline, camera closed')
+            player.print('Target is offline, camera closed')
+            camera_users[player.index] = nil
             return
         end
         local mainframeflow = mod_gui.get_frame_flow(player)
