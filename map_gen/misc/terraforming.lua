@@ -1,6 +1,6 @@
 local Game = require 'utils.game'
 local Event = require 'utils.event'
-local Task = require 'utils.schedule'
+local Task = require 'utils.task'
 local Token = require 'utils.token'
 local random = math.random
 local insert = table.insert

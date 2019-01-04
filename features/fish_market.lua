@@ -11,7 +11,7 @@ It will spawn a few tiles north of the current position where your character is.
 --]]
 local Event = require 'utils.event'
 local Token = require 'utils.token'
-local Task = require 'utils.schedule'
+local Task = require 'utils.task'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
