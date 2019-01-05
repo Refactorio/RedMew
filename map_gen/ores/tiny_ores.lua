@@ -1,4 +1,5 @@
 local Global = require 'utils.global'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local seed = nil -- Set to number to force seed.
 
@@ -10,7 +11,7 @@ Global.register_init(
     {},
     function(tbl)
         tbl.generator = game.create_random_generator()
-        tbl.seed = seed or game.surfaces[1].map_gen_settings.seed
+        tbl.seed = seed or RS.get_surface().map_gen_settings.seed
     end,
     function(tbl)
         generator = tbl.generator

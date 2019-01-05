@@ -1,11 +1,12 @@
 local perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local random_ores = {'iron-ore', 'coal', 'copper-ore', 'stone', 'uranium-ore'}
 local random_dense = {1.6, 0.8, 1, 0.6, 0.5} --ore density reference
 
 local function run_ores_module_setup()
-    local seed = game.surfaces[1].map_gen_settings.seed
+    local seed = RS.get_surface().map_gen_settings.seed
     if not global.ores_seed_A then
         global.ores_seed_A = seed
     end

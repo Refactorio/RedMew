@@ -1,3 +1,6 @@
+-- luacheck: ignore
+-- This file contains many linting warnings and needs an overhaul
+local RS = require 'map_gen.shared.redmew_surface'
 --allows any gen to access these functions
 
 function place_entities(surface, entity_list)
@@ -25,7 +28,7 @@ end
 function auto_place_entity_around_target(entity, scan_radius, mode, density, surface)
     local x = entity.pos.x
     local y = entity.pos.y
-    if not surface then surface = game.surfaces[1] end
+    if not surface then surface = RS.get_surface() end
     if not scan_radius then scan_radius = 6 end
     if not entity then return end
     if not mode then mode = "ball" end
@@ -215,7 +218,7 @@ end
 
 function create_entitie_cluster(name, pos, amount)
 
-    local surface = game.surfaces[1]
+    local surface = RS.get_surface()
     local entity = {}
     entity.pos = pos
     entity.name = name
@@ -291,7 +294,7 @@ end
 function find_tile_placement_spot_around_target_position(tilename, position, mode, density)
     local x = position.x
     local y = position.y
-    if not surface then surface = game.surfaces[1] end
+    if not surface then surface = RS.get_surface() end
     local scan_radius = 50
     if not tilename then return end
     if not mode then mode = "ball" end
@@ -517,7 +520,7 @@ end
 function create_tile_cluster(tilename,position,amount)
     local mode = "ball"
     local cluster_tiles = {}
-    local surface = game.surfaces[1]
+    local surface = RS.get_surface()
     local pos = position
     local x = pos.x
     local y = pos.y
