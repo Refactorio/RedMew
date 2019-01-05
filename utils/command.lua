@@ -155,7 +155,7 @@ function Command.add(command_name, options, callback)
                 return
             end
 
-            if regular_only and not UserGroups.is_regular(player_name) then
+            if regular_only and not UserGroups.is_regular(player_name) and not player.admin then
                 print(format("The command '%s' is not available to guests.", command_name))
                 return
             end
