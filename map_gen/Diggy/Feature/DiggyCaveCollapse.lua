@@ -13,6 +13,8 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
 local CreateParticles = require 'features.create_particles'
+local RS = require 'map_gen.shared.redmew_surface'
+
 local random = math.random
 local floor = math.floor
 local pairs = pairs
@@ -402,7 +404,7 @@ to reinforce it further.
 
     mask_init(config)
     if (config.enable_mask_debug) then
-        local surface = game.surfaces.nauvis
+        local surface = RS.get_surface()
         mask_disc_blur(0, 0, 10,  function(x, y, fraction)
             Debug.print_grid_value(fraction, surface, {x = x, y = y})
         end)

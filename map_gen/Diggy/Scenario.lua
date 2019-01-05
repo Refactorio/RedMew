@@ -1,6 +1,7 @@
 -- dependencies
 local Config = require 'map_gen.Diggy.Config'
 local ScenarioInfo = require 'features.gui.info'
+local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
 local type = type
 local pairs = pairs
@@ -11,6 +12,7 @@ require 'utils.core'
 -- this
 local Scenario = {}
 
+RS.set_first_player_position_check_override(true) -- forces players to spawn at 0,0
 global.diggy_scenario_registered = false
 
 --[[--

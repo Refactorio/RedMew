@@ -7,6 +7,8 @@ local Token = require 'utils.token'
 local Template = require 'map_gen.Diggy.Template'
 local Retailer = require 'features.retailer'
 local DiggyCaveCollapse = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'
+local RS = require 'map_gen.shared.redmew_surface'
+
 local insert = table.insert
 local random = math.random
 local sqrt = math.sqrt
@@ -25,6 +27,9 @@ function StartingZone.register(config)
     local starting_zone_size = config.starting_size
 
     local function on_chunk_generated(event)
+        if event.surface ~= RS.get_surface() then
+            return
+        end
         local start_point_area = {{-0.9, -0.9}, {0.9, 0.9}}
         local start_point_cleanup = {{-0.9, -0.9}, {1.9, 1.9}}
         local surface = event.surface
