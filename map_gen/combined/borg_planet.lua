@@ -1,7 +1,8 @@
+-- luacheck: ignore
+-- This file is a linting disaster and needs an overhaul
 --Author: MewMew
 -- !! ATTENTION !!
 -- Use water only in starting area as map setting!!!
-local Event = require 'utils.event'
 local perlin = require 'map_gen.shared.perlin_noise'
 local RS = require 'map_gen.shared.redmew_surface'
 
@@ -322,11 +323,7 @@ end
 
 local function create_tile_cluster(tilename, position, amount)
     local mode = 'ball'
-    local cluster_tiles = {}
-    local surface = game.surfaces[1]
     local pos = position
-    local x = pos.x
-    local y = pos.y
     for i = 1, amount, 1 do
         local b, x, y = find_tile_placement_spot_around_target_position(tilename, pos, mode)
         if b == true then
@@ -357,7 +354,6 @@ function run_combined_module(event)
     local area = event.area
     local surface = event.surface
     local tiles = {}
-    local decoratives = {}
     local resource_tiles = {}
     local special_tiles = true
 
