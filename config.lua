@@ -16,6 +16,14 @@ global.config = {
         -- New Scenario Features, appears in the "What's new" tab
         new_info_key = 'Nothing is new. The world is at peace',
     },
+    -- redmew_surface allows a map preset to control world generation as well as map and difficulty settings
+    -- the entire module can be toggled or just individual parts
+    redmew_surface = {
+        enabled = true,
+        map_gen_settings = true,
+        map_settings = true,
+        difficulty = true,
+    },
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
         enabled = true,
