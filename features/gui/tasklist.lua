@@ -617,8 +617,8 @@ local function player_joined(event)
                 local data = Gui.get_data(main_frame)
                 local volunteer_buttons = data.volunteer_buttons
 
-                for t, _ in pairs(tasks_for_player) do
-                    update_volunteer_button(volunteer_buttons[t.task_id], t)
+                for index, task in pairs(tasks_for_player) do
+                    update_volunteer_button(volunteer_buttons[index], task)
                 end
             end
         end
@@ -807,10 +807,11 @@ Gui.on_click(
             task.name
         }
 
+        local task_id = task.task_id
         for pi, _ in pairs(task.volunteers) do
             local tasks_for_player = player_tasks[pi]
             if tasks_for_player then
-                tasks_for_player[task.task_id] = nil
+                tasks_for_player[task_id] = nil
             end
         end
 
@@ -900,6 +901,7 @@ Gui.on_click(
     function(event)
         local button = event.element
         local task = Gui.get_data(button)
+        local task_id = task.task_id
 
         local player_index = event.player_index
         local volunteers = task.volunteers
@@ -908,7 +910,7 @@ Gui.on_click(
             volunteers[player_index] = nil
 
             local tasks_for_player = player_tasks[player_index]
-            tasks_for_player[task.task_id] = nil
+            tasks_for_player[task_id] = nil
         else
             volunteers[player_index] = event.player
 
@@ -918,7 +920,7 @@ Gui.on_click(
                 player_tasks[player_index] = tasks_for_player
             end
 
-            tasks_for_player[task.task_id] = true
+            tasks_for_player[task_id] = task
         end
 
         for _, p in ipairs(game.connected_players) do
@@ -927,7 +929,7 @@ Gui.on_click(
                 local data = Gui.get_data(frame)
                 local volunteer_buttons = data.volunteer_buttons
 
-                update_volunteer_button(volunteer_buttons[task.task_id], task)
+                update_volunteer_button(volunteer_buttons[task_id], task)
             end
         end
     end
