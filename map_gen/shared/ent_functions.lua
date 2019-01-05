@@ -3,7 +3,9 @@
 local RS = require 'map_gen.shared.redmew_surface'
 --allows any gen to access these functions
 
-function place_entities(surface, entity_list)
+local Public = {}
+
+function Public.place_entities(surface, entity_list)
     local directions = {defines.direction.north, defines.direction.east, defines.direction.south, defines.direction.west}
     for _, entity in pairs(entity_list) do
         local r = math.random(1,entity.chance)
@@ -25,7 +27,7 @@ function place_entities(surface, entity_list)
     return false
 end
 
-function auto_place_entity_around_target(entity, scan_radius, mode, density, surface)
+function Public.auto_place_entity_around_target(entity, scan_radius, mode, density, surface)
     local x = entity.pos.x
     local y = entity.pos.y
     if not surface then surface = RS.get_surface() end
@@ -216,8 +218,7 @@ function auto_place_entity_around_target(entity, scan_radius, mode, density, sur
     return false
 end
 
-function create_entitie_cluster(name, pos, amount)
-
+function Public.create_entitie_cluster(name, pos, amount)
     local surface = RS.get_surface()
     local entity = {}
     entity.pos = pos
@@ -238,7 +239,7 @@ function create_entitie_cluster(name, pos, amount)
     return b, e
 end
 
-function create_rock_cluster(pos, amount)
+function Public.create_rock_cluster(pos, amount)
     if not pos then return false end
     if amount == nil then amount = 7 end
     local scan_radius = amount * 2
@@ -262,7 +263,7 @@ function create_rock_cluster(pos, amount)
     return b, e
 end
 
-function create_tree_cluster(pos, amount)
+function Public.create_tree_cluster(pos, amount)
     if not pos then return false end
     if amount == nil then amount = 7 end
     local scan_radius = amount * 2
@@ -291,7 +292,7 @@ function create_tree_cluster(pos, amount)
     return b, e
 end
 
-function find_tile_placement_spot_around_target_position(tilename, position, mode, density)
+function Public.find_tile_placement_spot_around_target_position(tilename, position, mode, density)
     local x = position.x
     local y = position.y
     if not surface then surface = RS.get_surface() end
@@ -517,7 +518,7 @@ function find_tile_placement_spot_around_target_position(tilename, position, mod
     return false
 end
 
-function create_tile_cluster(tilename,position,amount)
+function Public.create_tile_cluster(tilename,position,amount)
     local mode = "ball"
     local cluster_tiles = {}
     local surface = RS.get_surface()
@@ -525,7 +526,7 @@ function create_tile_cluster(tilename,position,amount)
     local x = pos.x
     local y = pos.y
     for i = 1, amount, 1 do
-        local b,x,y = find_tile_placement_spot_around_target_position(tilename, pos, mode)
+        local b,x,y = Public.find_tile_placement_spot_around_target_position(tilename, pos, mode)
         if b == true then
             if 1 == math.random(1,2) then
                 pos.x = x
@@ -536,3 +537,5 @@ function create_tile_cluster(tilename,position,amount)
         if i >= amount then return true,x,y end
     end
 end
+
+return Public
