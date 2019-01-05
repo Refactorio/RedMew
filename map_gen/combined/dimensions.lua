@@ -1,7 +1,7 @@
 --Author: Valansch
 
 local Event = require "utils.event"
-
+local RS = require 'map_gen.shared.redmew_surface'
 local wrech_items_module = require "map_gen.misc.wreck_items"
 
 local resource_types = {"copper-ore", "iron-ore", "coal", "stone", "uranium-ore", "crude-oil"}
@@ -28,7 +28,7 @@ end
 
 --Creates autoplace_controls with only one resource type enabled
 local function create_resource_setting(resource)
-  local settings = game.surfaces[1].map_gen_settings
+    local settings = RS.get_surface().map_gen_settings
   for _,type in pairs(resource_types) do
     settings.autoplace_controls[type] = {frequency = "none", size = "none", richness = "none"}
   end
@@ -36,7 +36,8 @@ local function create_resource_setting(resource)
   return settings
 end
 local function init()
-  if not game.surfaces[2] then
+    local rs_index = RS.get_surface().index + 1
+    if not game.surfaces[rs_index] then
     for _,type in pairs(resource_types) do
       game.create_surface(get_nice_surface_name(type), create_resource_setting(type))
     end

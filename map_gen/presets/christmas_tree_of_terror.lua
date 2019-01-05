@@ -7,6 +7,8 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local ScenarioInfo = require 'features.gui.info'
+local RS = require 'map_gen.shared.redmew_surface'
+
 require 'utils.table'
 
 ScenarioInfo.set_map_name('Christmas Tree of Terror')
@@ -397,7 +399,7 @@ map = b.apply_effect(map, no_resources)
 local function on_init()
     game.forces['player'].technologies['landfill'].enabled = false
 
-    local surface = game.surfaces.nauvis
+    local surface = RS.get_surface()
     surface.map_gen_settings = {
         cliff_settings = {
             name = 'cliff',

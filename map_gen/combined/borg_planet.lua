@@ -3,6 +3,7 @@
 -- Use water only in starting area as map setting!!!
 local Event = require 'utils.event'
 local perlin = require 'map_gen.shared.perlin_noise'
+local RS = require 'map_gen.shared.redmew_surface'
 
 wreck_item_pool = {}
 wreck_item_pool = {
@@ -89,7 +90,7 @@ local function find_tile_placement_spot_around_target_position(tilename, positio
     local x = position.x
     local y = position.y
     if not surface then
-        surface = game.surfaces[1]
+        surface = RS.get_surface()
     end
     local scan_radius = 50
     if not tilename then

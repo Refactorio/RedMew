@@ -50,7 +50,7 @@ local callback =
     end
 )
 
-return function(x, y, world)
+return function()
     local ship = table.get_random(entity_list, true)
 
     if math.random(ship.chance) ~= 1 then

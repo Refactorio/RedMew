@@ -1,6 +1,7 @@
 local b = require 'map_gen.shared.builders'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
+local RS = require 'map_gen.shared.redmew_surface'
 local math = require "utils.math"
 
 local oil_seed
@@ -20,7 +21,7 @@ local density_multiplier = 50
 Global.register_init(
     {},
     function(tbl)
-        tbl.seed = game.surfaces[1].map_gen_settings.seed
+        tbl.seed = RS.get_surface().map_gen_settings.seed
     end,
     function(tbl)
         local seed = tbl.seed

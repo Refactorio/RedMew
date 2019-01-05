@@ -2,11 +2,14 @@ local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
-local random = math.random
-local insert = table.insert
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
 local Command = require 'utils.command'
+local RS = require 'map_gen.shared.redmew_surface'
+
+local random = math.random
+local insert = table.insert
+
 if not global.map.terraforming then
     global.map.terraforming = {}
 end

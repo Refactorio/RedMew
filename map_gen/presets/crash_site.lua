@@ -9,6 +9,7 @@ local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local math = require 'utils.math'
 local degrees = math.degrees
 local ScenarioInfo = require 'features.gui.info'
+local RS = require 'map_gen.shared.redmew_surface'
 
 -- Comment out this block if you're getting scenario info from another source.
 ScenarioInfo.set_map_name('Crashsite')
@@ -566,7 +567,7 @@ local map
 Global.register_init(
     {},
     function(tbl)
-        local seed = game.surfaces[1].map_gen_settings.seed
+        local seed = RS.get_surface().map_gen_settings.seed
         tbl.outpost_seed = outpost_seed or seed
         tbl.ore_seed = ore_seed or seed
 

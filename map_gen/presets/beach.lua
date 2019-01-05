@@ -2,6 +2,7 @@ local b = require 'map_gen.shared.builders'
 local perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
 local math = require 'utils.math'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local sand_width = 512
 local sand_width_inv = math.tau / sand_width
@@ -22,7 +23,7 @@ local perlin_seed_2 = nil
 Global.register_init(
     {},
     function(tbl)
-        local seed = game.surfaces[1].map_gen_settings.seed
+        local seed = RS.get_surface().map_gen_settings.seed
         tbl.perlin_seed_1 = perlin_seed_1 or seed
         tbl.perlin_seed_2 = perlin_seed_2 or seed * 2
     end,

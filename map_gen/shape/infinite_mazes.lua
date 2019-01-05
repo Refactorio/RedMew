@@ -1,3 +1,4 @@
+local RS = require 'map_gen.shared.redmew_surface'
 --Author: Hexicube
 --The size of each individual maze, in cells.
 local maze_width = 17
@@ -286,7 +287,7 @@ local function on_chunk_generated_ore(event)
 
     for x=tx,ex do
         for y=ty,ey do
-            handle_maze_tile_ore(x, y, game.surfaces[1], global.maze_seed)
+            handle_maze_tile_ore(x, y, RS.get_surface(), global.maze_seed)
         end
     end
 end
@@ -300,11 +301,11 @@ function run_shape_module(event)
 
     for x=tx,ex do
         for y=ty,ey do
-            local new_tile = handle_maze_tile(x, y, game.surfaces[1], global.maze_seed)
+            local new_tile = handle_maze_tile(x, y, RS.get_surface(), global.maze_seed)
             if new_tile then table.insert(tiles, new_tile) end
         end
     end
-    game.surfaces[1].set_tiles(tiles, true)
+    RS.get_surface().set_tiles(tiles, true)
 
     on_chunk_generated_ore(event)
 end
