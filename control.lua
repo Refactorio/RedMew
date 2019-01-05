@@ -20,6 +20,9 @@ require 'features.user_groups'
 if config.train_saviour.enabled then
     require 'features.train_saviour'
 end
+if config.infinite_storage_chest.enabled then
+    require 'features.infinite_storage_chest'
+end
 if config.autodeconstruct.enabled then
     require 'features.autodeconstruct'
 end

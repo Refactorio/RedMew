@@ -20,6 +20,10 @@ global.config = {
     train_saviour = {
         enabled = true,
     },
+    -- Adds the infinite storage chest to the market and adds a custom GUI to it. Also has to be loaded first due to adding a market item
+    infinite_storage_chest = {
+        enabled = false,
+    },
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
         enabled = true,

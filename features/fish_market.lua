@@ -43,7 +43,7 @@ local function spawn_market(_, player)
         Retailer.set_item('fish_market', prototype)
     end
 
-    force.add_chart_tag(surface, {position = pos, text = 'Market'})
+    force.add_chart_tag(surface, {icon = {type = 'item', name = 'coin'}, position = pos, text = 'Market'})
 end
 
 local function fish_earned(event, amount)
