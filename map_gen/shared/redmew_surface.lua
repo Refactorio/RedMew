@@ -49,11 +49,6 @@
     RS.add_map_gen_settings({MGSP.enemy_none, MGSP.ore_none, MGSP.oil_none})
     RS.add_difficulty_settings({DSP.tech_x3})
     RS.add_map_settings({MSP.enemy_evolution_off, MSP.pollution_off})
-
-    TODO
-    Need to extract user map_settings and difficulty settings (only available post-init) and set those to the lowest priority for
-    set_difficulty_settings when not primitives['set_difficulty_settings'] and set_map_settings when not primitives['set_difficulty_settings']
-    For the public set function I need to pull the default table then override that with map-given options.
 ]]
 -- Dependencies
 require 'util'
