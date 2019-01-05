@@ -76,7 +76,7 @@ local function teleport_nearby_players(portal)
         if not global.last_tp[player.name] or global.last_tp[player.name] + global.teleport_cooldown * 60 < game.tick then
             player.teleport(portal.target, portal.target_surface)
             global.last_tp[player.name] = game.tick
-            player.print('Wooosh! You are now in the ' .. portal.target_surface.name .. ' dimention.')
+            player.print('Wooosh! You are now in the ' .. portal.target_surface.name .. ' dimension.')
         end
     end
 end
