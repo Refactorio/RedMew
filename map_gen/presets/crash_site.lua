@@ -379,9 +379,9 @@ local function init()
     local max_worm_chance = 1 / 32
     local worm_chance_factor = 1 / (32 * 512)
 
-    local scale_factor = 1 / 32
+    --local scale_factor = 1 / 32
 
-    local function enemy(x, y, world)
+    local function enemy(_, _, world)
         local wx, wy = world.x, world.y
         local d = math.sqrt(wx * wx + wy * wy)
 

@@ -40,7 +40,6 @@ local ham = b.picture(require 'map_gen.data.presets.ham')
 pig = b.scale(pig, 64 / 320)
 ham = b.scale(ham, 64 / 127)
 
-local ores_patch = b.circle(16)
 local function value(base, mult, pow)
     return function(x, y)
         local d = math.sqrt(x * x + y * y)
@@ -96,7 +95,7 @@ for r = 1, 50 do
         end
 
         local i = random_ore:next_int(1, ore_t)
-        index = table.binary_search(total_ore_weights, i)
+        local index = table.binary_search(total_ore_weights, i)
         if (index < 0) then
             index = bit32.bnot(index)
         end

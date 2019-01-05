@@ -1,7 +1,7 @@
 local b = require "map_gen.shared.builders"
 
 local pic = require "map_gen.data.presets.creation_of_adam"
-local pic = b.decompress(pic)
+pic = b.decompress(pic)
 
 local scale_factor = 3
 local shape = b.picture(pic)

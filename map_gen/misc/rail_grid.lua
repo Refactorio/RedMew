@@ -1,7 +1,7 @@
 local Event = require 'utils.event'
 local RS = require 'map_gen.shared.redmew_surface'
 
-mymodule = {}
+local mymodule = {}
 
 local function rot_pos(pos, rot)
     local ctr = {x = 15, y = 15}
@@ -395,14 +395,6 @@ local function find_connections(gx, gy)
     else
         return {0, 0, 0, 0}
     end
-end
-
-local function disable_items()
-    force = game.forces['player']
-    force.recipes['logistic-chest-requester'].enabled = false
-    force.recipes['underground-belt'].enabled = false
-    force.recipes['fast-underground-belt'].enabled = false
-    force.recipes['express-underground-belt'].enabled = false
 end
 
 function mymodule.on_chunk_generated(event)

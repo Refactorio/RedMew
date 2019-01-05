@@ -95,7 +95,7 @@ for r = 1, 50 do
             row[c] = square
         else
             local i = random_ore:next_int(1, ore_t)
-            index = table.binary_search(total_ore_weights, i)
+            local index = table.binary_search(total_ore_weights, i)
             if (index < 0) then
                 index = bit32.bnot(index)
             end

@@ -174,8 +174,8 @@ start = b.decompress(start)
 start = b.picture(start)
 start = b.change_tile(start, 'water', false)
 
-local pic = require 'map_gen.data.presets.fish_black_and_white'
-local pic = b.decompress(pic)
+pic = require 'map_gen.data.presets.fish_black_and_white'
+pic = b.decompress(pic)
 local fish_bw = b.picture(pic)
 fish_bw = b.scale(fish_bw, 0.25, 0.25)
 
@@ -211,14 +211,14 @@ end
 
 --worms = b.entity(worms, 'big-worm-turret')
 
-local start = b.apply_entity(start, b.any {start_iron, start_copper, start_stone, start_coal, start_oil, worms_top})
+start = b.apply_entity(start, b.any {start_iron, start_copper, start_stone, start_coal, start_oil, worms_top})
 
 map = b.if_else(start, map)
 
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 
 local sea = b.tile('water')
-local sea = b.fish(sea, 0.0025)
+sea = b.fish(sea, 0.0025)
 
 map = b.if_else(map, sea)
 
