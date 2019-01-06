@@ -1,3 +1,9 @@
+--- This module provides a classical mealy/moore state machine.
+-- Each machine in constructed by calling new()
+-- States and Transitions are lazily added to the machine as transition handlers and state tick handlers are registered.
+-- However the state machine must be fully defined after init is done. Dynamic machine changes are currently unsupported
+-- An example usage can be found here: map_gen\combined\tetris\control.lua
+
 local Module = {}
 
 local Debug = require 'utils.debug'
@@ -61,6 +67,7 @@ function Module.machine_tick(self)
 end
 
 --- Register a handler that will be invoked by StateMachine.machine_tick
+-- You may register multiple handlers for the same transition
 -- NOTICE: This function will invoke an error if called after init. Dynamic machine changes are currently unsupported
 -- @param self StateMachine the machine
 -- @param state number/string The state, that the machine will be in, when callback is invoked
@@ -74,6 +81,7 @@ function Module.register_state_tick_callback(self, state, callback)
 end
 
 --- Register a handler that will be invoked by StateMachine.transition
+-- You may register multiple handlers for the same transition
 -- NOTICE: This function will invoke an error if called after init. Dynamic machine changes are currently unsupported
 -- @param self StateMachine the machine
 -- @param state number/string exiting state
