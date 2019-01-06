@@ -19,7 +19,11 @@
 -- ** Event.add_removable(event_name, token) **
 --
 -- For conditional event handlers. Event.add_removable can be safely called at runtime without desync risk.
--- Only use this if you need to add the handler at runtime or need to remove the handler, other wise use Event.add
+-- Only use this if you need to add the handler at runtime or need to remove the handler, otherwise use Event.add
+--
+-- Event.add_removable can be safely used at the control stage or in Event.on_init. If used in on_init you don't
+-- need to also add in on_load (unlike Event.add).
+-- Event.add_removable cannot be called in on_load, doing so will crash the game on loading.
 -- Token is used because it's a desync risk to store closures inside the global table.
 --
 -- @usage
@@ -46,6 +50,7 @@
 -- ** Event.add_removable_function(event_name, func) **
 --
 -- Only use this function if you can't use Event.add_removable. i.e you are registering the handler at the console.
+-- The same restriction that apply to Event.add_removable also apply to Event.add_removable_function.
 -- func cannot be a closure in this case, as there is no safe way to store closures in the global table.
 -- A closure is a function that uses a local variable not defined in the function.
 --
@@ -128,6 +133,10 @@ Global.register(
 )
 
 local function remove(tbl, handler)
+    if tbl == nil then
+        return
+    end
+
     -- the handler we are looking for is more likly to be at the back of the array.
     for i = #tbl, 1, -1 do
         if tbl[i] == handler then
@@ -188,6 +197,7 @@ function Event.on_nth_tick(tick, handler)
 end
 
 --- Register a token handler that can be safely added and removed at runtime.
+-- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
 -- @param  event_name<number>
 -- @param  token<number>
@@ -210,6 +220,7 @@ function Event.add_removable(event_name, token)
 end
 
 --- Removes a token handler for the given event_name.
+-- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
 -- @param  event_name<number>
 -- @param  token<number>
@@ -233,6 +244,7 @@ end
 
 --- Register a handler that can be safely added and removed at runtime.
 -- The handler must not be a closure, as that is a desync risk.
+-- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
 -- @param  event_name<number>
 -- @param  func<function>
@@ -261,6 +273,7 @@ function Event.add_removable_function(event_name, func)
 end
 
 --- Removes a handler for the given event_name.
+-- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
 -- @param  event_name<number>
 -- @param  func<function>
@@ -282,6 +295,7 @@ function Event.remove_removable_function(event_name, func)
 end
 
 --- Register a token handler for the nth tick that can be safely added and removed at runtime.
+-- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
 -- @param  event_name<number>
 -- @param  token<number>
@@ -304,6 +318,7 @@ function Event.add_removable_nth_tick(tick, token)
 end
 
 --- Removes a token handler for the nth tick.
+-- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
 -- @param  event_name<number>
 -- @param  token<number>
@@ -327,6 +342,7 @@ end
 
 --- Register a handler for the nth tick that can be safely added and removed at runtime.
 -- The handler must not be a closure, as that is a desync risk.
+-- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
 -- @param  event_name<number>
 -- @param  func<function>
@@ -355,6 +371,7 @@ function Event.add_removable_nth_tick_function(tick, func)
 end
 
 --- Removes a handler for the nth tick.
+-- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
 -- @param  event_name<number>
 -- @param  func<function>
