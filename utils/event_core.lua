@@ -6,7 +6,7 @@ local Public = {}
 local init_event_name = -1
 local load_event_name = -2
 
-Public.runtime = false
+Public.runtime = false -- Set to true after on_init or on_load has finished.
 
 -- map of event_name to handlers[]
 local event_handlers = {}
