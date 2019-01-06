@@ -7,7 +7,6 @@
 local Module = {}
 
 local Debug = require 'utils.debug'
-local states = require 'map_gen.combined.tetris.states'
 
 local in_state_callbacks = {}
 local transaction_callbacks = {}
@@ -34,7 +33,7 @@ function Module.transition(self, new_state)
     local exit_callbacks = transaction_callbacks[self.id][old_state]
     if exit_callbacks then
         for i = 1, #exit_callbacks do
-            local callbacks = exit_callbacks[i]
+            local callback = exit_callbacks[i]
             if callback then
                 callback()
             end
