@@ -145,7 +145,7 @@ end
 
 local function search_command(arguments, player)
     local keyword = arguments.keyword
-    local p = player.print
+    local p = Game.player_print
     if #keyword < 2 then
         p('Keyword should be 2 characters or more')
         return
@@ -199,7 +199,7 @@ Command.add(
         description = 'Will kill you.',
         arguments = {'player'},
         default_values = {player = false},
-        allowed_by_server = true
+        allowed_by_server = true,
     },
     kill
 )
@@ -208,7 +208,7 @@ Command.add(
     'afk',
     {
         description = 'Shows how long players have been afk.',
-        allowed_by_server = true
+        allowed_by_server = true,
     },
     afk
 )
@@ -217,7 +217,7 @@ Command.add(
     'zoom',
     {
         description = 'Sets your zoom.',
-        arguments = {'zoom'}
+        arguments = {'zoom'},
     },
     zoom
 )
@@ -226,7 +226,7 @@ Command.add(
     'find',
     {
         description = 'shows an alert on the map where the player is located',
-        arguments = {'player'}
+        arguments = {'player'},
     },
     find_player
 )
@@ -234,7 +234,7 @@ Command.add(
 Command.add(
     'show-rail-block',
     {
-        description = 'Toggles rail block visualisation.'
+        description = 'Toggles rail block visualisation.',
     },
     show_rail_block
 )
@@ -243,7 +243,7 @@ Command.add(
     'server-time',
     {
         description = "Prints the server's time.",
-        allowed_by_server = true
+        allowed_by_server = true,
     },
     server_time
 )
@@ -253,7 +253,8 @@ Command.add(
     {
         description = 'Search for commands matching the keyword in name or description',
         arguments = {'keyword', 'page'},
-        default_values = {page = 1}
+        default_values = {page = 1},
+        allowed_by_server = true,
     },
     search_command
 )
@@ -265,7 +266,7 @@ Command.add(
     {
         description = 'Reports a user to admins',
         arguments = {'player', 'message'},
-        capture_excess_arguments = true
+        capture_excess_arguments = true,
     },
     Report.report_command
 )
@@ -274,7 +275,7 @@ Command.add(
     'regulars',
     {
         description = 'Prints a list of game regulars.',
-        allowed_by_server = true
+        allowed_by_server = true,
     },
     UserGroups.print_regulars
 )

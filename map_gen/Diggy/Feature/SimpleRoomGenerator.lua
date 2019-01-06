@@ -6,7 +6,7 @@
 local Template = require 'map_gen.Diggy.Template'
 local Event = require 'utils.event'
 local Debug = require'map_gen.Diggy.Debug'
-local Task = require 'utils.schedule'
+local Task = require 'utils.task'
 local Token = require 'utils.token'
 local raise_event = script.raise_event
 local pairs = pairs
