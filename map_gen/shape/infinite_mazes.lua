@@ -28,7 +28,7 @@ local resource_density_factor = 500
 --DO NOT TOUCH BELOW THIS LINE--
 
 local bor = bit32.bor
-local borx = bit32.borx
+local bxor = bit32.bxor
 local band = bit32.band
 local rshift = bit32.rshift
 
