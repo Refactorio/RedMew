@@ -15,8 +15,8 @@ local Tetrimino = {}
 -- @field 4 table of numbers forth  row
 
 local Token = require 'utils.token'
-local Task = require 'utils.schedule'
-local Queue = require 'utils.q'
+local Task = require 'utils.task'
+local Queue = require 'utils.queue'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
 
