@@ -353,10 +353,11 @@ function Public.get_tracked_data_sets()
     for k, _ in pairs(data_set_handlers) do
         k = double_escape(k)
 
-        message[#message + 1] = '"'
-        message[#message + 1] = k
-        message[#message + 1] = '"'
-        message[#message + 1] = ','
+        local message_length = #message
+        message[message_length + 1] = '"'
+        message[message_length + 2] = k
+        message[message_length + 3] = '"'
+        message[message_length + 4] = ','
     end
 
     if message[#message] == ',' then
