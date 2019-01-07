@@ -32,15 +32,20 @@ local bxor = bit32.bxor
 local band = bit32.band
 local rshift = bit32.rshift
 
-local maze_data = {}
-local maze_data_ore = {}
+local global_ore_data = {}
+local global_maze_data = {}
+local primitives = {
+    maze_seed = 0,
+}
 
 Global.register(
     {
-        maze_data = maze_data
+        primitives = primitives,
+        global_ore_data = global_ore_data,
     },
     function(tbl)
-        maze_data = tbl.maze_data
+        primitives = tbl.primitives
+        global_ore_data = tbl.global_ore_data
     end
 )
 
@@ -51,17 +56,17 @@ local function get_random_maze_val(cur_seed)
     return new_seed, bor(return_val, 0)
 end
 
-local last_maze_x, last_maze_y, last_maze = nil, nil, nil
+local last_maze_x, last_maze_y, last_maze
 local function get_maze(x, y, seed, width, height)
     if last_maze and last_maze_x == x and last_maze_y == y then
         return last_maze
     end
 
-    if not maze_data[x] then
-        maze_data[x] = {}
+    if not global_maze_data[x] then
+        global_maze_data[x] = {}
     end
-    if maze_data[x][y] then
-        last_maze = maze_data[x][y]
+    if global_maze_data[x][y] then
+        last_maze = global_maze_data[x][y]
         last_maze_x = x
         last_maze_y = y
         return last_maze
@@ -133,24 +138,24 @@ local function get_maze(x, y, seed, width, height)
     value = rshift(value, 16)
     maze_data[width + 1][2] = value % height + 1
 
-    maze_data[x][y] = maze_data
+    global_maze_data[x][y] = maze_data
     last_maze = maze_data
     last_maze_x = x
     last_maze_y = y
     return maze_data
 end
 
-local last_maze_ore_x, last_maze_ore_y, last_maze_ore = nil, nil, nil
+local last_maze_ore_x, last_maze_ore_y, last_maze_ore
 local function get_maze_ore(x, y, seed, width, height)
     if last_maze_ore and last_maze_ore_x == x and last_maze_ore_y == y then
         return last_maze_ore
     end
 
-    if not maze_data_ore[x] then
-        maze_data_ore[x] = {}
+    if not global_ore_data[x] then
+        global_ore_data[x] = {}
     end
-    if maze_data_ore[x][y] then
-        last_maze_ore = maze_data_ore[x][y]
+    if global_ore_data[x][y] then
+        last_maze_ore = global_ore_data[x][y]
         last_maze_ore_x = x
         last_maze_ore_y = y
         return last_maze_ore
@@ -195,7 +200,7 @@ local function get_maze_ore(x, y, seed, width, height)
         maze_data[pos[1]][pos[2]] = 'uranium-ore'
     end
 
-    maze_data_ore[x][y] = maze_data
+    global_ore_data[x][y] = maze_data
     last_maze_ore = maze_data
     last_maze_ore_x = x
     last_maze_ore_y = y
@@ -225,7 +230,7 @@ end
 
 local function handle_maze_tile(x, y, _, seed)
     local orig_x, orig_y = x, y
-    local global_maze_x, global_maze_y, local_maze_x, local_maze_y = 0, 0, 0, 0
+    local global_maze_x, global_maze_y, local_maze_x, local_maze_y
     global_maze_x, global_maze_y, local_maze_x, local_maze_y, x, y = global_to_maze_pos(x, y)
 
     local maze_data = get_maze(global_maze_x, global_maze_y, seed, maze_width, maze_height)
@@ -261,7 +266,7 @@ end
 local function handle_maze_tile_ore(x, y, surf, seed)
     local orig_x, orig_y = x, y
     local spawn_distance_1k = math.sqrt(x * x + y * y) / 1000
-    local global_maze_x, global_maze_y, local_maze_x, local_maze_y = 0, 0, 0, 0
+    local global_maze_x, global_maze_y, local_maze_x, local_maze_y
     global_maze_x, global_maze_y, local_maze_x, local_maze_y, x, y = global_to_maze_pos(x, y)
 
     if x < maze_tile_border or y < maze_tile_border then
@@ -283,8 +288,8 @@ local function handle_maze_tile_ore(x, y, surf, seed)
             ore_name = 'coal'
         end
     else
-        local maze_data = get_maze_ore(global_maze_x, global_maze_y, seed, maze_width, maze_height)
-        ore_name = maze_data[local_maze_x][local_maze_y]
+        local ore_data = get_maze_ore(global_maze_x, global_maze_y, seed, maze_width, maze_height)
+        ore_name = ore_data[local_maze_x][local_maze_y]
     end
 
     if ore_name then
@@ -314,7 +319,7 @@ local function handle_maze_tile_ore(x, y, surf, seed)
     end
 end
 
-local function on_chunk_generated_ore(event, maze_seed)
+local function on_chunk_generated_ore(event)
     local entities = event.surface.find_entities(event.area)
     for _, entity in pairs(entities) do
         if entity.type == 'resource' and entity.name ~= 'crude-oil' then
@@ -324,33 +329,43 @@ local function on_chunk_generated_ore(event, maze_seed)
 
     local tx, ty = event.area.left_top.x, event.area.left_top.y
     local ex, ey = event.area.right_bottom.x, event.area.right_bottom.y
+    local surface = event.surface
 
     for x = tx, ex do
         for y = ty, ey do
-            handle_maze_tile_ore(x, y, RS.get_surface(), maze_seed)
+            handle_maze_tile_ore(x, y, surface, primitives.maze_seed)
         end
     end
 end
 
+Event.on_init(
+    function()
+        primitives.maze_seed = math.random(0, 65536 * 65536 - 1)
+    end
+)
+
 Event.add(
     defines.events.on_chunk_generated,
     function(event)
-        local maze_seed = math.random(0, 4294967296 - 1)
+        if event.surface ~= RS.get_surface() then
+            return
+        end
 
         local tiles = {}
         local tx, ty = event.area.left_top.x, event.area.left_top.y
         local ex, ey = event.area.right_bottom.x, event.area.right_bottom.y
+        local surface = event.surface
 
         for x = tx, ex do
             for y = ty, ey do
-                local new_tile = handle_maze_tile(x, y, RS.get_surface(), maze_seed)
+                local new_tile = handle_maze_tile(x, y, surface, primitives.maze_seed)
                 if new_tile then
                     table.insert(tiles, new_tile)
                 end
             end
         end
-        RS.get_surface().set_tiles(tiles, true)
+        surface.set_tiles(tiles, true)
 
-        on_chunk_generated_ore(event, maze_seed)
+        on_chunk_generated_ore(event)
     end
 )
