@@ -50,7 +50,7 @@
 -- ** Event.add_removable_function(event_name, func) **
 --
 -- Only use this function if you can't use Event.add_removable. i.e you are registering the handler at the console.
--- The same restriction that apply to Event.add_removable also apply to Event.add_removable_function.
+-- The same restrictions that apply to Event.add_removable also apply to Event.add_removable_function.
 -- func cannot be a closure in this case, as there is no safe way to store closures in the global table.
 -- A closure is a function that uses a local variable not defined in the function.
 --
