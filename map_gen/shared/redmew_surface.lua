@@ -35,18 +35,24 @@
 
     RS.add_difficulty_settings({difficulty_settings_presets.tech_x3, difficulty_settings_presets.tech_x4})
 
-    To create a map with no ores, no enemies, no pollution, no enemy evolution, 3x tech costs, but leaving everything else up to the user
-    we would use the following:
+    To create a map with no ores, no enemies, no pollution, no enemy evolution, 3x tech costs, and more sand than usual while leaving
+    everything else up to the user we would use the following:
 
     -- We require redmew_surface to access the public functions and assign the table Public to the RS variable to access them easily.
     local RS = require 'map_gen.shared.redmew_surface'
     -- We require the resources tables so that we don't have to write settings components by hand.
-    -- In general, don't create a table custom for a map, instead just add it to the resource files and call that so that others can make use of it.
     local MGSP = require 'resources.map_gen_settings' -- map gen settings presets
     local DSP = require 'resources.difficulty_settings' -- difficulty settings presets
     local MSP = require 'resources.map_settings' -- map settings presets
 
-    RS.add_map_gen_settings({MGSP.enemy_none, MGSP.ore_none, MGSP.oil_none})
+    -- We create a custom table for the niche settings of wanting more sand
+    local extra_sand = {
+        autoplace_controls = {
+            sand = {frequency = 'high', size = 'high'}
+        }
+    }
+
+    RS.add_map_gen_settings({MGSP.enemy_none, MGSP.ore_none, MGSP.oil_none, extra_sand})
     RS.add_difficulty_settings({DSP.tech_x3})
     RS.add_map_settings({MSP.enemy_evolution_off, MSP.pollution_off})
 ]]
@@ -178,19 +184,14 @@ end
 local function create_redmew_surface()
     local surface
 
-    if global.config.redmew_surface.enabled and global.config.redmew_surface.map_gen_settings then
-        -- Add the user's map gen settings as the first entry in the table
-        local combined_map_gen = {game.surfaces.nauvis.map_gen_settings}
-        -- Take the map's settings and add them into the table
-        for _, v in pairs(data.map_gen_settings_components) do
-            insert(combined_map_gen, v)
-        end
-
-        surface = game.create_surface(surface_name, merge(combined_map_gen))
-    else
-        surface = game.create_surface(surface_name)
+    -- Add the user's map gen settings as the first entry in the table
+    local combined_map_gen = {game.surfaces.nauvis.map_gen_settings}
+    -- Take the map's settings and add them into the table
+    for _, v in pairs(data.map_gen_settings_components) do
+        insert(combined_map_gen, v)
     end
 
+    surface = game.create_surface(surface_name, merge(combined_map_gen))
     set_difficulty_settings()
     set_map_settings()
 
@@ -200,7 +201,6 @@ local function create_redmew_surface()
 end
 
 --- On player create, teleport the player to the redmew surface
---- When placed, locomotives will get a random color
 local player_created =
     Token.register(
     function(event)
@@ -228,7 +228,11 @@ local player_created =
 )
 
 local function init()
-    create_redmew_surface()
+    if global.config.redmew_surface.enabled and global.config.redmew_surface.map_gen_settings then
+        create_redmew_surface()
+    else
+        surface_name = 'nauvis'
+    end
 end
 
 -- Public functions
