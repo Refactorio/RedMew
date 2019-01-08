@@ -1,14 +1,10 @@
 -- technology_difficulty has no effect in vanilla
 return {
-    -- the default table should not be changed
-    default = {
-        recipe_difficulty = defines.difficulty_settings.recipe_difficulty.normal,
-        technology_difficulty = defines.difficulty_settings.technology_difficulty.normal,
-        technology_price_multiplier = 1
-    },
+    -- turns on expensive recipes
     expensive_recipe = {
         recipe_difficulty = defines.difficulty_settings.recipe_difficulty.expensive,
     },
+    -- the following are tech cost reducers
     ['tech_x0.25'] = {
         technology_price_multiplier = 0.25
     },
@@ -18,6 +14,7 @@ return {
     ['tech_x0.75'] = {
         technology_price_multiplier = 0.75
     },
+    -- the following are all tech cost multipliers
     tech_x2 = {
         technology_price_multiplier = 2
     },
@@ -66,5 +63,10 @@ return {
     tech_x1000 = {
         technology_price_multiplier = 1000
     },
-
+    -- the default table is included as a reference but also to give the option of overwriting all user settings
+    default = {
+        recipe_difficulty = defines.difficulty_settings.recipe_difficulty.normal,
+        technology_difficulty = defines.difficulty_settings.technology_difficulty.normal,
+        technology_price_multiplier = 1
+    },
 }

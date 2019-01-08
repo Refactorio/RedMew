@@ -1,5 +1,92 @@
 return {
-    -- the default table should not be changed
+    -- no pollution
+    pollution_off = {
+        pollution = {
+            enabled = false
+        }
+    },
+    -- decreases the spread of pollution and increases the absorption per chunk of land
+    pollution_decreased_per_chunk = {
+        pollution = {
+            diffusion_ratio = 0.01,
+            min_to_diffuse = 30,
+            ageing = 2
+        }
+    },
+    -- tough to spread pollution, pollution rapidly decayse: for venus
+    pollution_hard_to_spread = {
+        enabled = true,
+        diffusion_ratio = 0.01,
+        min_to_diffuse = 200,
+        ageing = 5
+    },
+    -- increases the ability of trees to suck up pollution
+    pollution_decreased_per_tree = {
+        pollution = {
+            pollution_with_max_forest_damage = 20000,
+            pollution_per_tree_damage = 4000,
+            max_pollution_to_restore_trees = 2000
+        }
+    },
+    -- no enemy evolution
+    enemy_evolution_off = {
+        enemy_evolution = {
+            enabled = false
+        }
+    },
+    -- evolution from all factors x2
+    enemy_evolution_x2 = {
+        enemy_evolution = {
+            enabled = true,
+            time_factor = 0.000008,
+            destroy_factor = 0.004,
+            pollution_factor = 0.000030
+        }
+    },
+    -- 3x cost for pollution, all else 1x
+    enemy_evolution_punishes_pollution = {
+        enemy_evolution = {
+            enabled = true,
+            time_factor = 0.000004,
+            destroy_factor = 0.002,
+            pollution_factor = 0.000045
+        }
+    },
+    -- 3x cost for destroying spawners, all else 1x
+    enemy_evolution_punishes_destruction = {
+        enemy_evolution = {
+            enabled = true,
+            time_factor = 0.000004,
+            destroy_factor = 0.006,
+            pollution_factor = 0.000015
+        }
+    },
+    -- no enemy expansion
+    enemy_expansion_off = {
+        enemy_expansion = {
+            enabled = false
+        }
+    },
+    -- should increase the fequency with which enemies expand
+    enemy_expansion_frequency_x4 = {
+        enemy_expansion = {
+            enabled = true,
+            min_expansion_cooldown = 1 * 3600,
+            max_expansion_cooldown = 15 * 3600
+        }
+    },
+    -- biters will expand to more chunks and will be more densely packed
+    enemy_expansion_aggressive = {
+        enemy_expansion = {
+            enabled = true,
+            max_expansion_distance = 21,
+            friendly_base_influence_radius = 1,
+            enemy_building_influence_radius = 1,
+            settler_group_min_size = 1,
+            settler_group_max_size = 10
+        }
+    },
+    -- the default table is included as a reference but also to give the option of overwriting all user settings
     default = {
         pollution = {
             enabled = true,
@@ -96,127 +183,4 @@ return {
         },
         max_failed_behavior_count = 3
     },
-    -- full table of the default pollution settings
-    pollution_default = {
-        pollution = {
-            enabled = true,
-            diffusion_ratio = 0.02,
-            min_to_diffuse = 15,
-            ageing = 1,
-            expected_max_per_chunk = 7000,
-            min_to_show_per_chunk = 700,
-            min_pollution_to_damage_trees = 3500,
-            pollution_with_max_forest_damage = 10000,
-            pollution_per_tree_damage = 2000,
-            pollution_restored_per_tree_damage = 500,
-            max_pollution_to_restore_trees = 1000
-        }
-    },
-    pollution_off = {
-        pollution = {
-            enabled = false
-        }
-    },
-    -- decreases the spread of pollution and increases the absorption per chunk of land
-    pollution_decreased_per_chunk = {
-        pollution = {
-            diffusion_ratio = 0.01,
-            min_to_diffuse = 30,
-            ageing = 2
-        }
-    },
-    -- tough to spread pollution, pollution rapidly decayse: for venus
-    pollution_hard_to_spread = {
-        enabled = true,
-        diffusion_ratio = 0.01,
-        min_to_diffuse = 200,
-        ageing = 5
-    },
-    -- increases the ability of trees to suck up pollution
-    pollution_decreased_per_tree = {
-        pollution = {
-            pollution_with_max_forest_damage = 20000,
-            pollution_per_tree_damage = 4000,
-            max_pollution_to_restore_trees = 2000
-        }
-    },
-    -- full table of the default evolution settings
-    enemy_evolution_default = {
-        enemy_evolution = {
-            enabled = true,
-            time_factor = 0.000004,
-            destroy_factor = 0.002,
-            pollution_factor = 0.000015
-        }
-    },
-    enemy_evolution_off = {
-        enemy_evolution = {
-            enabled = false
-        }
-    },
-    enemy_evolution_x2 = {
-        enemy_evolution = {
-            enabled = true,
-            time_factor = 0.000008,
-            destroy_factor = 0.004,
-            pollution_factor = 0.000030
-        }
-    },
-    -- 3x cost for pollution, all else 1x
-    enemy_evolution_punishes_pollution = {
-        enemy_evolution = {
-            enabled = true,
-            time_factor = 0.000004,
-            destroy_factor = 0.002,
-            pollution_factor = 0.000045
-        }
-    },
-    -- 3x cost for destroying spawners, all else 1x
-    enemy_evolution_punishes_destruction = {
-        enemy_evolution = {
-            enabled = true,
-            time_factor = 0.000004,
-            destroy_factor = 0.006,
-            pollution_factor = 0.000015
-        }
-    },
-    -- full table of the default expansion settings
-    enemy_expansion_default = {
-        enemy_expansion = {
-            enabled = true,
-            max_expansion_distance = 7,
-            friendly_base_influence_radius = 2,
-            enemy_building_influence_radius = 2,
-            building_coefficient = 0.1,
-            other_base_coefficient = 2.0,
-            neighbouring_chunk_coefficient = 0.5,
-            neighbouring_base_chunk_coefficient = 0.4,
-            max_colliding_tiles_coefficient = 0.9,
-            settler_group_min_size = 5,
-            settler_group_max_size = 20,
-            min_expansion_cooldown = 4 * 3600,
-            max_expansion_cooldown = 60 * 3600
-        }
-    },
-    enemy_expansion_off = {
-        enemy_expansion = {
-            enabled = false
-        }
-    },
-    enemy_expansion_frequency_x4 = {
-        enemy_expansion = {
-            min_expansion_cooldown = 1 * 3600,
-            max_expansion_cooldown = 15 * 3600
-        }
-    },
-    -- biters will expand to more chunks and will be more densely packed
-    enemy_expansion_aggressive = {
-        enemy_expansion = {
-            max_expansion_distance = 21,
-            friendly_base_influence_radius = 1,
-            enemy_building_influence_radius = 1,
-            settler_group_min_size = 1,
-            settler_group_max_size = 10
-        }
-    }
 }

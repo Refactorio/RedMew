@@ -10,83 +10,6 @@
     Water size and frequency is not denoted as such. Instead water size = water and water frequency = terrain_segmentation
 ]]
 return {
-    -- the default table should not be changed
-    default = {
-        autoplace_controls = {
-            coal = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            desert = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            dirt = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['enemy-base'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            grass = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['iron-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            sand = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            stone = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            trees = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            ['uranium-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            }
-        },
-        cliff_settings = {
-            cliff_elevation_0 = 10,
-            cliff_elevation_interval = 10,
-            name = 'cliff'
-        },
-        height = 2000000,
-        peaceful_mode = false,
-        starting_area = 'normal',
-        terrain_segmentation = 'normal',
-        water = 'normal',
-        width = 2000000
-    },
-    -- components
     -- no enemies
     enemy_none = {
         autoplace_controls = {
@@ -292,7 +215,7 @@ return {
             sand = {frequency = 'normal', size = 'normal', richness = 'normal'}
         },
     },
-    -- will generate a world with only water
+    -- will generate a world with only water (useful for maps that want full terrain control and no entities on the surface)
     waterworld = {
         autoplace_controls = {
             desert = {
@@ -316,12 +239,87 @@ return {
                 size = 'none'
             }
         },
-        peaceful_mode = false,
         starting_points = {
             {
                 x = 0,
                 y = 0
             }
         },
-    }
+    },
+    -- the default table is included as a reference but also to give the option of overwriting all user settings
+    default = {
+        autoplace_controls = {
+            coal = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            ['copper-ore'] = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            ['crude-oil'] = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            desert = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            dirt = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            ['enemy-base'] = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            grass = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            ['iron-ore'] = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            sand = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            stone = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            trees = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            },
+            ['uranium-ore'] = {
+                frequency = 'normal',
+                richness = 'normal',
+                size = 'normal'
+            }
+        },
+        cliff_settings = {
+            cliff_elevation_0 = 10,
+            cliff_elevation_interval = 10,
+            name = 'cliff'
+        },
+        height = 2000000,
+        peaceful_mode = false,
+        starting_area = 'normal',
+        terrain_segmentation = 'normal',
+        water = 'normal',
+        width = 2000000
+    },
 }

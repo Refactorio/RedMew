@@ -2,41 +2,43 @@
     Creates a custom surface for all redmew maps so that we can ignore all user input at time of world creation.
 
     Allows map makers to define the map gen settings, map settings, and difficulty settings in as much or as little details as they want.
-    The aim is to make this a very easy process for map makers, while eliminating the need for many of the existing builder functions.
+    The aim is to make this a very easy process for map makers, while eliminating the need for some of the existing builder functions.
     For example by preventing ores from spawning we no longer need to manually scan for and remove ores.
 
-    So first, a few concepts: When you create a new map you're given many options. These options break into 3 categories which are not made explicitly
+    When you create a new map you're given many options. These options break into 3 categories which are not made explicitly
     clear in the game itself:
     map_gen_settings, map_settings, and difficulty_settings
+
     map_gen_settings: Only affect a given surface. These settings determine everything that surface is made of:
     ores, tiles, entities, boundaries, etc. It also contains a less obvious setting: peaceful_mode.
+
     map_settings: Are kind of a misnomer since they apply to the game at large. Contain settings for pollution, enemy_evolution, enemy_expansion,
     unit_group, steering, path_finder, and something called max_failed_behavior_count (shrug)
     lastly, difficulty_settings
+
     difficulty_settings: contains only recipe_difficulty, technology_difficulty (not used in vanilla), and technology_price_multiplier
-    In the 16.51 version of factorio's Map Generator page then, difficulty_settings make up the "Recipes/Technology" section of the
-    "Advanced settings" tab while map_settings make up the rest of that tab.
+
+    In the 16.51 version of factorio's Map Generator page difficulty_settings make up the "Recipes/Technology" section of the
+    "Advanced settings" tab. map_settings make up the rest of that tab.
     map_gen_settings are detemined by everything in the remaining 3 tabs (Basic settings, Resource settings, Terrain settings)
 
-    Unless fed arguments via the public functions, this module will simply clone nauvis, and respect all user settings.
-    To pass settings to redmew_surface, there are two types of public commands: sets and adds.
-    `Set` commands will use a copy of the default generation settings and apply map settings on top of that. All user settings for that
-    category will be discarded.
-    `Add` commands will take the user's settings and apply the map's settings on top (overwriting user settings)
-    For both the set and add functions they take a list of tables.
+    Unless fed arguments via the public functions, this module will simply clone nauvis, respecting all user settings.
+    To pass settings to redmew_surface, each of the above-mentioned 3 settings components has a public function.
+    set_map_gen_settings, set_map_settings, and set_difficulty_settings
+    The functions all take a list of tables which contain settings. The tables then overwrite any existing user settings.
+    Therefore, for any settings not explicitly set the user's settings persist.
 
-    So for example to select a 4x tech cost while letting the user decide whether to use expensive recipes you would call:
-    RS.add_difficulty_settings({difficulty_settings_presets.tech_x4})
-    And to select a 4x tech cost while maintaining default settings for everything else you would call:
+    Tables of settings can be constructed manually or can be taken from the resource files by the same names (resources/map_gen_settings, etc.)
+
+    Example: to select a 4x tech cost you would call:
     RS.set_difficulty_settings({difficulty_settings_presets.tech_x4})
 
     It should be noted that tables earlier in the list will be overwritten by tables later in the list.
     So in the following example the resulting tech cost would be 4, not 3.
 
-    RS.add_difficulty_settings({difficulty_settings_presets.tech_x3, difficulty_settings_presets.tech_x4})
+    RS.set_difficulty_settings({difficulty_settings_presets.tech_x3, difficulty_settings_presets.tech_x4})
 
-    To create a map with no ores, no enemies, no pollution, no enemy evolution, 3x tech costs, and more sand than usual while leaving
-    everything else up to the user we would use the following:
+    To create a map with no ores, no enemies, no pollution, no enemy evolution, 3x tech costs, and sand set to high we would use the following:
 
     -- We require redmew_surface to access the public functions and assign the table Public to the RS variable to access them easily.
     local RS = require 'map_gen.shared.redmew_surface'
@@ -52,9 +54,9 @@
         }
     }
 
-    RS.add_map_gen_settings({MGSP.enemy_none, MGSP.ore_none, MGSP.oil_none, extra_sand})
-    RS.add_difficulty_settings({DSP.tech_x3})
-    RS.add_map_settings({MSP.enemy_evolution_off, MSP.pollution_off})
+    RS.set_map_gen_settings({MGSP.enemy_none, MGSP.ore_none, MGSP.oil_none, extra_sand})
+    RS.set_difficulty_settings({DSP.tech_x3})
+    RS.set_map_settings({MSP.enemy_evolution_off, MSP.pollution_off})
 ]]
 -- Dependencies
 require 'util'
@@ -62,9 +64,6 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
-
-local map_settings_presets = require 'resources.map_settings'
-local difficulty_settings_presets = require 'resources.difficulty_settings'
 
 -- Localized functions
 local insert = table.insert
@@ -76,7 +75,7 @@ local Public = {}
 
 -- Constants
 local surface_name = 'redmew'
-local set_error_message = 'set_%s has already been called. You cannot set/add to settings that are already set.'
+local set_error_message = 'set_%s has already been called. You cannot call set twice as earlier values may be overwritten.'
 
 -- Global tokens
 local data = {
@@ -117,9 +116,6 @@ end
 local function set_difficulty_settings()
     if global.config.redmew_surface.enabled and global.config.redmew_surface.difficulty then
         local combined_difficulty_settings = merge(data.difficulty_settings_components)
-        if primitives['set_difficulty_settings'] then
-            combined_difficulty_settings = merge({difficulty_settings_presets.default, combined_difficulty_settings})
-        end
         for k, v in pairs(combined_difficulty_settings) do
             game.difficulty_settings[k] = v
         end
@@ -128,13 +124,8 @@ end
 
 --- Sets up the map settings
 local function set_map_settings()
-    -- map_settings_presets.default
     if global.config.redmew_surface.enabled and global.config.redmew_surface.map_settings then
         local combined_map_settings = merge(data.map_settings_components)
-
-        if primitives['set_difficulty_settings'] then
-            combined_map_settings = merge({map_settings_presets.default, combined_map_settings})
-        end
 
         -- Iterating through individual tables because game.map_settings is read-only
         if combined_map_settings.pollution then
@@ -243,7 +234,7 @@ function Public.remove_player_created_event()
 end
 
 --- Sets components to the difficulty_settings_components table
--- Only one call to this may be made, it is an error to call this twice as it is intended to give unique control of settings.
+-- It is an error to call this twice as later calls will overwrite earlier ones if values overlap.
 -- @param components <table> list of difficulty settings components (usually from resources.difficulty_settings)
 function Public.set_difficulty_settings(components)
     if primitives['set_difficulty_settings'] then
@@ -253,18 +244,8 @@ function Public.set_difficulty_settings(components)
     primitives['set_difficulty_settings'] = true
 end
 
---- Adds components to the difficulty_settings_components table
--- Only one call to this should be made, as later calls can overwrite earlier ones if the values overlap.
--- @param components <table> list of difficulty settings components (usually from resources.difficulty_settings)
-function Public.add_difficulty_settings(components)
-    if primitives['set_difficulty_settings'] then
-        error(format(set_error_message, 'difficulty_settings'))
-    end
-    combine_settings(components, data.difficulty_settings_components)
-end
-
 --- Adds components to the map_gen_settings_components table
--- Only one call to this may be made, it is an error to call this twice as it is intended to give unique control of settings.
+-- It is an error to call this twice as later calls will overwrite earlier ones if values overlap.
 -- @param components <table> list of map gen components (usually from resources.map_gen_settings)
 function Public.set_map_gen_settings(components)
     if primitives['set_map_gen_settings'] then
@@ -274,18 +255,8 @@ function Public.set_map_gen_settings(components)
     primitives['set_map_gen_settings'] = true
 end
 
---- Adds components to the map_gen_settings_components table
--- Only one call to this should be made, as later calls can overwrite earlier ones if the values overlap.
--- @param components <table> list of map gen components (usually from resources.map_gen_settings)
-function Public.add_map_gen_settings(components)
-    if primitives['set_map_gen_settings'] then
-        error(format(set_error_message, 'map_gen_settings'))
-    end
-    combine_settings(components, data.map_gen_settings_components)
-end
-
 --- Adds components to the map_settings_components table
--- Only one call to this may be made, it is an error to call this twice as it is intended to give unique control of settings.
+-- It is an error to call this twice as later calls will overwrite earlier ones if values overlap.
 -- @param components <table> list of map setting components (usually from resources.map_settings)
 function Public.set_map_settings(components)
     if primitives['set_map_settings'] then
@@ -293,16 +264,6 @@ function Public.set_map_settings(components)
     end
     combine_settings(components, data.map_settings_components)
     primitives['set_map_settings'] = true
-end
-
---- Adds components to the map_settings_components table
--- Only one call to this should be made, as later calls can overwrite earlier ones if the values overlap.
--- @param components <table> list of map setting components (usually from resources.map_settings)
-function Public.add_map_settings(components)
-    if primitives['set_map_settings'] then
-        error(format(set_error_message, 'map_settings'))
-    end
-    combine_settings(components, data.map_settings_components)
 end
 
 --- Returns the LuaSurface that the map is created on
