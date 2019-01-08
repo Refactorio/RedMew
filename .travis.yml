@@ -13,4 +13,4 @@ install:
   - luarocks install luacheck
 
 script:
-  - luacheck .
+  - luacheck . --exclude-files lua_install
