@@ -171,26 +171,6 @@ local function set_map_settings()
     end
 end
 
---- Creates a new surface
-local function create_redmew_surface()
-    local surface
-
-    -- Add the user's map gen settings as the first entry in the table
-    local combined_map_gen = {game.surfaces.nauvis.map_gen_settings}
-    -- Take the map's settings and add them into the table
-    for _, v in pairs(data.map_gen_settings_components) do
-        insert(combined_map_gen, v)
-    end
-
-    surface = game.create_surface(surface_name, merge(combined_map_gen))
-    set_difficulty_settings()
-    set_map_settings()
-
-    surface.request_to_generate_chunks({0, 0}, 4)
-    surface.force_generate_chunk_requests()
-    game.forces.player.set_spawn_position({0, 0}, surface)
-end
-
 --- On player create, teleport the player to the redmew surface
 local player_created =
     Token.register(
@@ -220,13 +200,33 @@ local player_created =
 
 local function init()
     if global.config.redmew_surface.enabled and global.config.redmew_surface.map_gen_settings then
-        create_redmew_surface()
+        Public.create_redmew_surface()
     else
         surface_name = 'nauvis'
     end
 end
 
 -- Public functions
+
+--- Creates a new surface with the settings provided by the map file and the player.
+function Public.create_redmew_surface()
+    local surface
+
+    -- Add the user's map gen settings as the first entry in the table
+    local combined_map_gen = {game.surfaces.nauvis.map_gen_settings}
+    -- Take the map's settings and add them into the table
+    for _, v in pairs(data.map_gen_settings_components) do
+        insert(combined_map_gen, v)
+    end
+
+    surface = game.create_surface(surface_name, merge(combined_map_gen))
+    set_difficulty_settings()
+    set_map_settings()
+
+    surface.request_to_generate_chunks({0, 0}, 4)
+    surface.force_generate_chunk_requests()
+    game.forces.player.set_spawn_position({0, 0}, surface)
+end
 
 --- Removes the player_created event.
 function Public.remove_player_created_event()
