@@ -93,10 +93,8 @@ local memory = {
     market_gui_refresh_scheduled = {},
 }
 
-Global.register({
-    memory = memory,
-}, function (tbl)
-    memory = tbl.memory
+Global.register(memory, function (tbl)
+    memory = tbl
 end)
 
 local function schedule_market_gui_refresh(group_name)
@@ -165,10 +163,12 @@ local function redraw_market_items(data)
     end
 
     for i, item in pairs(market_items) do
+        local stack_limit = item.stack_limit
+        local stack_count = stack_limit ~= -1 and stack_limit < count and item.stack_limit or count
         local price = item.price
         local tooltip = {'', item.name_label, format('\nprice: %.2f', price)}
         local description = item.description
-        local total_price = ceil(price * count)
+        local total_price = ceil(price * stack_count)
         local disabled = item.disabled == true
         local message
         if total_price == 1 then
@@ -187,19 +187,19 @@ local function redraw_market_items(data)
         if disabled then
             insert(tooltip, '\n\n' .. (item.disabled_reason or 'Not available'))
         elseif is_missing_coins then
-            insert(tooltip, '\n\n' .. format('Missing %d coins to buy %d', missing_coins, count))
+            insert(tooltip, '\n\n' .. format('Missing %d coins to buy %d', missing_coins, stack_count))
         end
 
         local button = grid.add({type = 'flow'}).add({
             type = 'sprite-button',
             name = item_button_name,
             sprite = item.sprite,
-            number = count,
+            number = stack_count,
             tooltip = tooltip,
         })
         button.style = 'slot_button'
 
-        Gui.set_data(button, {index = i, data = data})
+        Gui.set_data(button, {index = i, data = data, stack_count = stack_count})
 
         local label = grid.add({type = 'label', caption = message})
         local label_style = label.style
@@ -406,6 +406,7 @@ Gui.on_click(item_button_name, function (event)
     local element = event.element
     local button_data = Gui.get_data(element)
     local data = button_data.data
+    local stack_count = button_data.stack_count
 
     local item = data.market_items[button_data.index]
 
@@ -421,9 +422,8 @@ Gui.on_click(item_button_name, function (event)
 
     local name = item.name
     local price = item.price
-    local count = data.count
 
-    local cost = ceil(price * count)
+    local cost = ceil(price * stack_count)
     local coin_count = player.get_item_count('coin')
 
     if cost > coin_count then
@@ -432,8 +432,8 @@ Gui.on_click(item_button_name, function (event)
     end
 
     if item.type == 'item' then
-        local inserted = player.insert({name = name, count = count})
-        if inserted < count then
+        local inserted = player.insert({name = name, count = stack_count})
+        if inserted < stack_count then
             player.print('Insufficient inventory space')
             if inserted > 0 then
                 player.remove_item({name = name, count = inserted})
@@ -451,7 +451,7 @@ Gui.on_click(item_button_name, function (event)
 
     raise_event(Retailer.events.on_market_purchase, {
         item = item,
-        count = count,
+        count = stack_count,
         player = player,
     })
 end)
@@ -482,6 +482,10 @@ function Retailer.set_item(group_name, prototype)
     prototype.name_label = name_label or item_name
     prototype.sprite = prototype.sprite or 'item/' .. item_name
     prototype.type = prototype.type or 'item'
+
+    if not prototype.stack_limit then
+        prototype.stack_limit = -1
+    end
 
     memory.items[group_name][item_name] = prototype
 

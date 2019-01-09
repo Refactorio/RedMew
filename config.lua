@@ -16,6 +16,14 @@ global.config = {
         -- New Scenario Features, appears in the "What's new" tab
         new_info_key = 'Nothing is new. The world is at peace',
     },
+    -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
+    train_saviour = {
+        enabled = true,
+    },
+    -- Adds the infinite storage chest to the market and adds a custom GUI to it. Also has to be loaded first due to adding a market item
+    infinite_storage_chest = {
+        enabled = false,
+    },
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
         enabled = true,
@@ -52,7 +60,6 @@ global.config = {
     -- adds a fish market
     fish_market = {
         enabled = true,
-        market_item = market_item,
     },
     -- adds anti-nuke griefing
     nuke_control = {
@@ -179,10 +186,6 @@ global.config = {
     },
     -- enables donators' on-join messages
     donator_messages = {
-        enabled = true,
-    },
-    -- saves players' lives if they have a small-plane in their inventory, also adds the small-plan to the market
-    train_saviour = {
         enabled = true,
     },
     player_colors = {
