@@ -230,7 +230,7 @@ end
 
 --- Removes the player_created event.
 function Public.remove_player_created_event()
-    Event.remove_removable(defines.events.on_built_entity, player_created)
+    Event.remove_removable(defines.events.on_player_created, player_created)
 end
 
 --- Sets components to the difficulty_settings_components table
