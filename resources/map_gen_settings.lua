@@ -246,6 +246,11 @@ return {
             }
         },
     },
+    -- will generate void except for a single tile
+    void = {
+        height = 1,
+        width = 1
+    },
     -- the default table is included as a reference but also to give the option of overwriting all user settings
     default = {
         autoplace_controls = {
