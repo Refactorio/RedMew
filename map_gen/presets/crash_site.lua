@@ -597,7 +597,7 @@ local function init()
     end
 
     local ores = {
-        {weight = 300},
+        {weight = 275},
         {transform = non_transform, resource = 'iron-ore', value = value(500, 0.75, 1.1), weight = 16},
         {transform = non_transform, resource = 'copper-ore', value = value(400, 0.75, 1.1), weight = 10},
         {transform = non_transform, resource = 'stone', value = value(250, 0.3, 1.05), weight = 5},
