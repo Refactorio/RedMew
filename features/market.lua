@@ -241,6 +241,6 @@ Command.add(
 Event.on_nth_tick(180, on_180_ticks)
 Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
 Event.add(defines.events.on_entity_died, fish_drop_entity_died)
-Event.add(defines.events.on_market_item_purchased, market_item_purchased)
+Event.add(Retailer.events.on_market_purchase, market_item_purchased)
 Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
 Event.add(defines.events.on_player_created, player_created)
