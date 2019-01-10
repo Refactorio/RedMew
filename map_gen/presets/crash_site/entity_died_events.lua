@@ -90,6 +90,17 @@ local unit_levels = {
     }
 }
 
+local allowed_cause_source = {
+    ['small-biter'] = true,
+    ['medium-biter'] = true,
+    ['big-biter'] = true,
+    ['behemoth-biter'] = true,
+    ['small-spitter'] = true,
+    ['medium-spitter'] = true,
+    ['big-spitter'] = true,
+    ['behemoth-spitter'] = true
+}
+
 local turret_evolution_factor = {
     ['gun-turret'] = 0.001,
     ['laser-turret'] = 0.002,
@@ -159,7 +170,6 @@ Event.add(
 
         local factor = turret_evolution_factor[entity_name]
         if factor then
-            local force = entity.force
             if force.name == 'enemy' then
                 local old = force.evolution_factor
                 local new = old + (1 - old) * factor
@@ -195,7 +205,7 @@ Event.add(
                     local type = spawn.type
                     if type == 'cause' then
                         local cause = event.cause
-                        if not cause or force.name == 'player' then
+                        if not cause or not allowed_cause_source[cause.name] then
                             return
                         end
                         name = cause.name
