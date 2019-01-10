@@ -40,6 +40,7 @@ local factory_b = {
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Big Science Factory',
         {
             name = 'science-pack-1',
             price = 10,

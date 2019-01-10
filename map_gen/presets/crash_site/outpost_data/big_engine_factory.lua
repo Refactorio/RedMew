@@ -41,6 +41,7 @@ local factory_b = {
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Big Engine Factory',
         {
             name = 'engine-unit',
             price = 4,

@@ -37,6 +37,7 @@ local factory_b = {
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Medium Iron Plate Factory',
         {
             name = 'iron-plate',
             price = 0.3,

@@ -1104,6 +1104,7 @@ Public.market_set_items_callback =
         entity.destructible = false
         local market_id = Retailer.generate_group_id()
         Retailer.add_market(market_id, entity)
+        Retailer.set_market_group_label(market_id, data.market_name)
 
         local p = entity.position
         local x, y = p.x, p.y

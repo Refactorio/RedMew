@@ -47,6 +47,7 @@ local factory_c = {
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Big Ammo Factory',
         {
             name = 'firearm-magazine',
             price = 0.5,

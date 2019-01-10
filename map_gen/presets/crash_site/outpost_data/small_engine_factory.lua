@@ -30,6 +30,7 @@ local factory = {
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Small Engine Factory',
         {
             name = 'engine-unit',
             price = 4,

@@ -22,6 +22,7 @@ local factory = {
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Small Circuit Factory',
         {
             name = 'copper-cable',
             price = 0.25,

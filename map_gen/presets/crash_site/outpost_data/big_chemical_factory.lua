@@ -49,6 +49,7 @@ local factory_c = {
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Big Chemical Factory',
         {
             name = 'coal',
             price = 0.25,
