@@ -5,7 +5,7 @@ local Command = require 'utils.command'
 local format = string.format
 
 local Public = {}
-local reward_token = {global.config.player_rewards.token} or {'coin'}
+local reward_token = {global.config.player_rewards.token} or {global.config.market.currency} or {'coin'}
 
 Global.register({
     reward_token = reward_token,

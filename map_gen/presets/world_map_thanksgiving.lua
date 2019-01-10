@@ -1,6 +1,6 @@
 -- Map by Jayefuu & grilledham for Thanksgiving 2018
--- For Thanksgiving themed messages and jokes change line 28 of fish_market.lua to:
--- local fish_market_bonus_message = require 'resources.turkey_messages'
+-- For Thanksgiving themed messages and jokes change line 9 of market.lua to:
+-- local market_bonus_message = require 'resources.turkey_messages'
 
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'

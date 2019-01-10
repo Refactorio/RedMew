@@ -59,10 +59,10 @@ end
 if config.walkabout.enabled then
     require 'features.walkabout'
 end
-if global.config.performance.enabled then
+if config.performance.enabled then
     require 'features.performance'
 end
-if global.config.hail_hydra.enabled then
+if config.hail_hydra.enabled then
     require 'features.hail_hydra'
 end
 
