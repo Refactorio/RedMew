@@ -574,7 +574,7 @@ local function init()
 
     local enemy_shape = b.apply_entity(b.full_shape, enemy)
 
-    local ores_patch = b.circle(12)
+    local ores_patch = b.circle(13)
     local function value(base, mult, pow)
         return function(x, y)
             local d_sq = x * x + y * y
