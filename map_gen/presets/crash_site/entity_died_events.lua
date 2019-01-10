@@ -2,6 +2,10 @@ local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
+local Game = require 'utils.game'
+
+local random = math.random
+local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 local no_coin_entity = {}
 
@@ -37,30 +41,60 @@ local spill_items =
 )
 
 local entity_spawn_map = {
-    ['medium-biter'] = 'small-worm-turret',
-    ['big-biter'] = 'medium-worm-turret',
-    ['behemoth-biter'] = 'big-worm-turret'
+    ['medium-biter'] = {name = 'small-biter', count = 2, chance = 1},
+    ['big-biter'] = {name = 'medium-biter', count = 2, chance = 1},
+    ['behemoth-biter'] = {name = 'big-biter', count = 2, chance = 1},
+    ['medium-spitter'] = {name = 'small-worm-turret', count = 1, chance = 0.25},
+    ['big-spitter'] = {name = 'medium-worm-turret', count = 1, chance = 0.25},
+    ['behemoth-spitter'] = {name = 'big-worm-turret', count = 1, chance = 0.25},
+    ['biter-spawner'] = {type = 'biter', count = 5, chance = 1},
+    ['spitter-spawner'] = {type = 'spitter', count = 5, chance = 1},
+    ['stone-furnace'] = {type = 'cause', count = 1, chance = 1},
+    ['steel-furnace'] = {type = 'cause', count = 1, chance = 1},
+    ['electric-furnace'] = {type = 'cause', count = 2, chance = 1},
+    ['assembling-machine-1'] = {type = 'cause', count = 2, chance = 1},
+    ['assembling-machine-2'] = {type = 'cause', count = 2, chance = 1},
+    ['assembling-machine-3'] = {type = 'cause', count = 2, chance = 1},
+    ['chemical-plant'] = {type = 'cause', count = 2, chance = 1},
+    ['centrifuge'] = {type = 'cause', count = 3, chance = 1},
+    ['oil-refinery'] = {type = 'cause', count = 4, chance = 1},
+    ['offshore-pump'] = {type = 'cause', count = 1, chance = 1},
+    ['boiler'] = {type = 'cause', count = 1, chance = 1},
+    ['heat-exchanger'] = {type = 'cause', count = 2, chance = 1},
+    ['steam-engine'] = {type = 'cause', count = 3, chance = 1},
+    ['steam-turbine'] = {type = 'cause', count = 5, chance = 1},
+    ['nuclear-reactor'] = {type = 'cause', count = 10, chance = 1},
+    ['rocket-silo'] = {type = 'cause', count = 20, chance = 1},
+    ['train-stop'] = {type = 'cause', count = 1, chance = 1},
+    ['burner-mining-drill'] = {type = 'cause', count = 1, chance = 1},
+    ['electric-mining-drill'] = {type = 'cause', count = 2, chance = 1},
+    ['lab'] = {type = 'cause', count = 3, chance = 1},
+    ['solar-panel'] = {type = 'cause', count = 2, chance = 1},
+    ['accumulator'] = {type = 'cause', count = 1, chance = 1},
+    ['beacon'] = {type = 'cause', count = 3, chance = 1},
+    ['radar'] = {type = 'cause', count = 2, chance = 1}
 }
 
-local biters = {
-    'small-biter',
-    'medium-biter',
-    'big-biter',
-    'behemoth-biter'
-}
-
-local spitters = {
-    'small-spitter',
-    'medium-spitter',
-    'big-spitter',
-    'behemoth-spitter'
+local unit_levels = {
+    biter = {
+        'small-biter',
+        'medium-biter',
+        'big-biter',
+        'behemoth-biter'
+    },
+    spitter = {
+        'small-spitter',
+        'medium-spitter',
+        'big-spitter',
+        'behemoth-spitter'
+    }
 }
 
 local turret_evolution_factor = {
-    ['gun-turret'] = 0.002,
-    ['laser-turret'] = 0.004,
-    ['flamethrower-turret'] = 0.003,
-    ['artillery-turret'] = 0.008
+    ['gun-turret'] = 0.001,
+    ['laser-turret'] = 0.002,
+    ['flamethrower-turret'] = 0.0015,
+    ['artillery-turret'] = 0.004
 }
 
 local spawn_worm =
@@ -90,11 +124,20 @@ local spawn_units =
         local surface = data.surface
         local name = data.name
         local position = data.position
-        for _ = 1, 5 do
+        for _ = 1, data.count do
             local p = surface.find_non_colliding_position(name, position, 8, 1)
             if p then
                 surface.create_entity {name = name, position = p}
             end
+        end
+    end
+)
+
+local spawn_player =
+    Token.register(
+    function(player)
+        if player and player.valid then
+            player.ticks_to_respawn = 3600
         end
     end
 )
@@ -107,55 +150,14 @@ Event.add(
             return
         end
 
-        local name = entity.name
-
-        local bounds = entity_drop_amount[name]
-        if bounds then
-            local unit_number = entity.unit_number
-            if no_coin_entity[unit_number] then
-                no_coin_entity[unit_number] = nil
-            else
-                local count = math.random(bounds.low, bounds.high)
-
-                if count > 0 then
-                    Task.set_timeout_in_ticks(
-                        1,
-                        spill_items,
-                        {count = count, surface = entity.surface, position = entity.position}
-                    )
-                end
-            end
+        local force = event.force
+        if force and force == entity.force then
+            return
         end
 
-        local spawn = entity_spawn_map[name]
+        local entity_name = entity.name
 
-        if spawn then
-            if math.random() <= 0.25 then
-                Task.set_timeout_in_ticks(
-                    1,
-                    spawn_worm,
-                    {surface = entity.surface, name = spawn, position = entity.position}
-                )
-            end
-        else
-            if name == 'biter-spawner' then
-                local unit = biters[get_level()]
-                Task.set_timeout_in_ticks(
-                    10,
-                    spawn_units,
-                    {surface = entity.surface, name = unit, position = entity.position}
-                )
-            elseif name == 'spitter-spawner' then
-                local unit = spitters[get_level()]
-                Task.set_timeout_in_ticks(
-                    10,
-                    spawn_units,
-                    {surface = entity.surface, name = unit, position = entity.position}
-                )
-            end
-        end
-
-        local factor = turret_evolution_factor[name]
+        local factor = turret_evolution_factor[entity_name]
         if factor then
             local force = entity.force
             if force.name == 'enemy' then
@@ -164,5 +166,57 @@ Event.add(
                 force.evolution_factor = math.min(new, 1)
             end
         end
+
+        local bounds = entity_drop_amount[entity_name]
+        if bounds then
+            local unit_number = entity.unit_number
+            if no_coin_entity[unit_number] then
+                no_coin_entity[unit_number] = nil
+            else
+                local count = math.random(bounds.low, bounds.high)
+
+                if count > 0 then
+                    set_timeout_in_ticks(
+                        1,
+                        spill_items,
+                        {count = count, surface = entity.surface, position = entity.position}
+                    )
+                end
+            end
+        end
+
+        local spawn = entity_spawn_map[entity_name]
+
+        if spawn then
+            local chance = spawn.chance
+            if chance == 1 or random() <= chance then
+                local name = spawn.name
+                if name == nil then
+                    local type = spawn.type
+                    if type == 'cause' then
+                        local cause = event.cause
+                        if not cause or force.name == 'player' then
+                            return
+                        end
+                        name = cause.name
+                    else
+                        name = unit_levels[spawn.type][get_level()]
+                    end
+                end
+                set_timeout_in_ticks(
+                    5,
+                    spawn_units,
+                    {surface = entity.surface, name = name, position = entity.position, count = spawn.count}
+                )
+            end
+        end
+    end
+)
+
+Event.add(
+    defines.events.on_player_died,
+    function(event)
+        local player = Game.get_player_by_index(event.player_index)
+        set_timeout_in_ticks(1, spawn_player, player)
     end
 )
