@@ -126,8 +126,9 @@ local function boost_player_running_speed(player)
             boost_lvl = 0,
         }
     end
+    global.player_speed_boost_records[player.index].boost_lvl =
+        1 + global.player_speed_boost_records[player.index].boost_lvl
 
-    global.player_speed_boost_records[player.index].boost_lvl = 1 + global.player_speed_boost_records[player.index].boost_lvl
     player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
 
     if global.player_speed_boost_records[player.index].boost_lvl >= 4 then
@@ -157,8 +158,8 @@ local function boost_player_mining_speed(player)
             boost_lvl = 0,
         }
     end
-    global.player_mining_boost_records[player.index].boost_lvl = 1 + global.player_mining_boost_records[player.index].boost_lvl
-    player.character_mining_speed_modifier = 1 + player.character_mining_speed_modifier
+    global.player_mining_boost_records[player.index].boost_lvl =
+        1 + global.player_mining_boost_records[player.index].boost_lvl
 
     if global.player_mining_boost_records[player.index].boost_lvl >= 4 then
         game.print(format(mining_speed_boost_messages[global.player_mining_boost_records[player.index].boost_lvl], player.name))
@@ -170,7 +171,7 @@ local function boost_player_mining_speed(player)
     player.print(format(mining_speed_boost_messages[global.player_mining_boost_records[player.index].boost_lvl], player.name))
 end
 
-local function on_market_purchase(event)
+local function market_item_purchased(event)
     local item_name = event.item.name
     if item_name == 'temporary-running-speed-bonus' then
         boost_player_running_speed(event.player)
@@ -224,17 +225,21 @@ local function player_created(event)
     end
 
     local count = global.config.player_rewards.info_player_reward and 1 or 10
-    player.insert({name = 'coin', count = count})
+    player.insert {name = 'coin', count = count}
 end
 
-Command.add('market', {
-    description = 'Places a market near you.',
-    admin_only = true,
-}, spawn_market)
+Command.add(
+    'market',
+    {
+        description = 'Places a market near you.',
+        admin_only = true
+    },
+    spawn_market
+)
 
 Event.on_nth_tick(180, on_180_ticks)
 Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
 Event.add(defines.events.on_entity_died, fish_drop_entity_died)
-Event.add(Retailer.events.on_market_purchase, on_market_purchase)
+Event.add(defines.events.on_market_item_purchased, market_item_purchased)
 Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
 Event.add(defines.events.on_player_created, player_created)

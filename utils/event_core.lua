@@ -6,7 +6,7 @@ local Public = {}
 local init_event_name = -1
 local load_event_name = -2
 
-Public.runtime = false
+Public.runtime = false -- Set to true after on_init or on_load has finished.
 
 -- map of event_name to handlers[]
 local event_handlers = {}
@@ -60,6 +60,9 @@ function Public.add(event_name, handler)
         script.on_event(event_name, on_event)
     else
         table.insert(handlers, handler)
+        if #handlers == 1 then
+            script.on_event(event_name, on_event)
+        end
     end
 end
 
@@ -71,6 +74,9 @@ function Public.on_init(handler)
         script.on_init(on_init)
     else
         table.insert(handlers, handler)
+        if #handlers == 1 then
+            script.on_init(on_init)
+        end
     end
 end
 
@@ -82,6 +88,9 @@ function Public.on_load(handler)
         script.on_load(on_load)
     else
         table.insert(handlers, handler)
+        if #handlers == 1 then
+            script.on_load(on_load)
+        end
     end
 end
 
@@ -93,6 +102,9 @@ function Public.on_nth_tick(tick, handler)
         script.on_nth_tick(tick, on_nth_tick_event)
     else
         table.insert(handlers, handler)
+        if #handlers == 1 then
+            script.on_nth_tick(tick, on_nth_tick_event)
+        end
     end
 end
 
