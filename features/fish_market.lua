@@ -126,12 +126,6 @@ local function boost_player_running_speed(player)
             boost_lvl = 0,
         }
     end
-    local boost_msg = {
-        [1] = '%s found the lost Dragon Scroll and got a lv.1 speed boost!',
-        [2] = 'Guided by Master Oogway, %s got a lv.2 speed boost!',
-        [3] = 'Kungfu Master %s defended the village and was awarded a lv.3 speed boost!',
-        [4] = 'Travelled at the speed of light. %s saw a blackhole. Oops.'
-    }
     global.player_speed_boost_records[player.index].boost_lvl =
         1 + global.player_speed_boost_records[player.index].boost_lvl
 
@@ -164,12 +158,6 @@ local function boost_player_mining_speed(player)
             boost_lvl = 0,
         }
     end
-    local boost_msg = {
-        [1] = '%s is going on a tree harvest!',
-        [2] = 'In search of a sharper axe, %s got a lv.2 mining boost!',
-        [3] = 'Wood fiend, %s, has picked up a massive chain saw and is awarded a lv.3 mining boost!',
-        [4] = 'Better learn to control that saw, %s, chopped off their legs. Oops.'
-    }
     global.player_mining_boost_records[player.index].boost_lvl =
         1 + global.player_mining_boost_records[player.index].boost_lvl
 
@@ -237,7 +225,7 @@ local function player_created(event)
     end
 
     local count = global.config.player_rewards.info_player_reward and 1 or 10
-    player.insert {name = market_item, count = count}
+    player.insert {name = 'coin', count = count}
 end
 
 Command.add(
