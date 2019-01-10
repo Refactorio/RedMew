@@ -4,13 +4,13 @@ local Token = require 'utils.token'
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 100, distance_factor = 1 / 8}, weight = 5},
-    {stack = {name = 'firearm-magazine', count = 500, distance_factor = 1}, weight = 5},
-    {stack = {name = 'piercing-rounds-magazine', count = 150, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'shotgun-shell', count = 200, distance_factor = 1 / 4}, weight = 1},
-    {stack = {name = 'grenade', count = 100, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'land-mine', count = 400, distance_factor = 1}, weight = 1},
-    {stack = {name = 'rocket', count = 50, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'cannon-shell', count = 50, distance_factor = 1 / 32}, weight = 1},
+    {stack = {name = 'firearm-magazine', count = 125, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'piercing-rounds-magazine', count = 37, distance_factor = 1 / 4}, weight = 5},
+    {stack = {name = 'shotgun-shell', count = 100, distance_factor = 1 / 8}, weight = 1},
+    {stack = {name = 'grenade', count = 50, distance_factor = 1 / 16}, weight = 1},
+    {stack = {name = 'land-mine', count = 200, distance_factor = 1 / 2}, weight = 1},
+    {stack = {name = 'rocket', count = 25, distance_factor = 1 / 32}, weight = 1},
+    {stack = {name = 'cannon-shell', count = 25, distance_factor = 1 / 32}, weight = 1},
     {stack = {name = 'cluster-grenade', count = 10, distance_factor = 1 / 32}, weight = 1}
 }
 

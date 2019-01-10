@@ -6,11 +6,11 @@ local loot = {
     {stack = {name = 'coin', count = 100, distance_factor = 1 / 8}, weight = 3},
     {stack = {name = 'raw-fish', count = 50, distance_factor = 1 / 16}, weight = 1},
     {stack = {name = 'combat-shotgun', count = 3, distance_factor = 1 / 128}, weight = 1},
-    {stack = {name = 'shotgun-shell', count = 200, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'piercing-shotgun-shell', count = 50, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'rocket-launcher', count = 5, distance_factor = 1 / 128}, weight = 1},
-    {stack = {name = 'gun-turret', count = 25, distance_factor = 1 / 16}, weight = 1},
-    {stack = {name = 'heavy-armor', count = 25, distance_factor = 1 / 32}, weight = 3}
+    {stack = {name = 'shotgun-shell', count = 100, distance_factor = 1 / 16}, weight = 1},
+    {stack = {name = 'piercing-shotgun-shell', count = 50, distance_factor = 1 / 32}, weight = 1},
+    {stack = {name = 'rocket-launcher', count = 3, distance_factor = 1 / 128}, weight = 1},
+    {stack = {name = 'gun-turret', count = 15, distance_factor = 1 / 32}, weight = 1},
+    {stack = {name = 'heavy-armor', count = 10, distance_factor = 1 / 64}, weight = 3}
 }
 
 local weights = ob.prepare_weighted_loot(loot)

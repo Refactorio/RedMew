@@ -26,7 +26,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'battery',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'battery'}
+        output = {min_rate = 1.25 / 60, distance_factor = 1.25 / 60 / 512, item = 'battery'}
     }
 }
 
@@ -34,7 +34,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'explosives',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'explosives'}
+        output = {min_rate = 2 / 60, distance_factor = 2 / 60 / 512, item = 'explosives'}
     }
 }
 

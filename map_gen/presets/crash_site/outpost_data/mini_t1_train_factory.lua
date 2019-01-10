@@ -4,13 +4,13 @@ local Token = require 'utils.token'
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 100, distance_factor = 1 / 8}, weight = 5},
-    {stack = {name = 'locomotive', count = 2, distance_factor = 1 / 64}, weight = 5},
-    {stack = {name = 'cargo-wagon', count = 4, distance_factor = 1 / 32}, weight = 5},
-    {stack = {name = 'fluid-wagon', count = 4, distance_factor = 1 / 32}, weight = 2},
+    {stack = {name = 'locomotive', count = 2, distance_factor = 1 / 128}, weight = 5},
+    {stack = {name = 'cargo-wagon', count = 4, distance_factor = 1 / 64}, weight = 5},
+    {stack = {name = 'fluid-wagon', count = 4, distance_factor = 1 / 64}, weight = 2},
     {stack = {name = 'rail', count = 400, distance_factor = 1 / 8}, weight = 5},
-    {stack = {name = 'rail-signal', count = 35, distance_factor = 1 / 16}, weight = 5},
-    {stack = {name = 'rail-chain-signal', count = 15, distance_factor = 1 / 16}, weight = 5},
-    {stack = {name = 'train-stop', count = 2, distance_factor = 1 / 32}, weight = 5}
+    {stack = {name = 'rail-signal', count = 30, distance_factor = 1 / 32}, weight = 5},
+    {stack = {name = 'rail-chain-signal', count = 15, distance_factor = 1 / 32}, weight = 5},
+    {stack = {name = 'train-stop', count = 2, distance_factor = 1 / 128}, weight = 5}
 }
 
 local weights = ob.prepare_weighted_loot(loot)

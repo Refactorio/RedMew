@@ -5,7 +5,7 @@ local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 100, distance_factor = 1 / 8}, weight = 5},
     {stack = {name = 'medium-electric-pole', count = 25, distance_factor = 1 / 24}, weight = 3},
-    {stack = {name = 'big-electric-pole', count = 25, distance_factor = 1 / 24}, weight = 2},
+    {stack = {name = 'big-electric-pole', count = 25, distance_factor = 1 / 24}, weight = 1},
     {stack = {name = 'substation', count = 5, distance_factor = 1 / 32}, weight = 1},
     {stack = {name = 'solar-panel', count = 25, distance_factor = 1 / 25}, weight = 3},
     {stack = {name = 'accumulator', count = 21, distance_factor = 1 / 21}, weight = 3}

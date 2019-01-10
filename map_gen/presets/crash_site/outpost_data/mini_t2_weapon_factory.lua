@@ -4,19 +4,19 @@ local Token = require 'utils.token'
 local loot = {
     {weight = 5},
     {stack = {name = 'coin', count = 150, distance_factor = 1 / 8}, weight = 3},
-    {stack = {name = 'raw-fish', count = 100, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'piercing-shotgun-shell', count = 500, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'flamethrower', count = 5, distance_factor = 1 / 128}, weight = 1},
-    {stack = {name = 'flamethrower-ammo', count = 125, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'rocket', count = 200, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'explosive-rocket', count = 200, distance_factor = 1 / 8}, weight = 1},
-    {stack = {name = 'gun-turret', count = 50, distance_factor = 1 / 16}, weight = 1},
-    {stack = {name = 'flamethrower-turret', count = 10, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'cluster-grenade', count = 50, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'modular-armor', count = 3, distance_factor = 1 / 128}, weight = 3},
-    {stack = {name = 'solar-panel-equipment', count = 12, distance_factor = 1 / 32}, weight = 1},
-    {stack = {name = 'battery-equipment', count = 10, distance_factor = 1 / 128}, weight = 1},
-    {stack = {name = 'energy-shield-equipment', count = 10, distance_factor = 1 / 64}, weight = 1}
+    {stack = {name = 'raw-fish', count = 50, distance_factor = 1 / 16}, weight = 1},
+    {stack = {name = 'piercing-shotgun-shell', count = 250, distance_factor = 1 / 16}, weight = 1},
+    {stack = {name = 'flamethrower', count = 3, distance_factor = 1 / 128}, weight = 1},
+    {stack = {name = 'flamethrower-ammo', count = 75, distance_factor = 1 / 16}, weight = 1},
+    {stack = {name = 'rocket', count = 50, distance_factor = 1 / 16}, weight = 1},
+    {stack = {name = 'explosive-rocket', count = 35, distance_factor = 1 / 16}, weight = 1},
+    {stack = {name = 'gun-turret', count = 25, distance_factor = 1 / 32}, weight = 1},
+    {stack = {name = 'flamethrower-turret', count = 5, distance_factor = 1 / 64}, weight = 1},
+    {stack = {name = 'cluster-grenade', count = 25, distance_factor = 1 / 32}, weight = 1},
+    {stack = {name = 'modular-armor', count = 4, distance_factor = 1 / 128}, weight = 2},
+    {stack = {name = 'solar-panel-equipment', count = 10, distance_factor = 1 / 32}, weight = 1},
+    {stack = {name = 'battery-equipment', count = 8, distance_factor = 1 / 128}, weight = 1},
+    {stack = {name = 'energy-shield-equipment', count = 8, distance_factor = 1 / 128}, weight = 1}
 }
 
 local weights = ob.prepare_weighted_loot(loot)

@@ -27,7 +27,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'iron-gear-wheel',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'iron-gear-wheel'}
+        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 512, item = 'iron-gear-wheel'}
     }
 }
 
@@ -88,6 +88,10 @@ local market = {
     }
 }
 
+local turrets = require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets'
+local worms = require 'map_gen.presets.crash_site.outpost_data.big_worm_turrets'
+worms = ob.extend_walls(worms, {max_count = 2, fallback = turrets})
+
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.small_factory'
 
 local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})
@@ -124,7 +128,7 @@ return {
         max_level = 2
     },
     walls = {
-        require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets'
+        worms
     },
     bases = {
         {level4, level2}

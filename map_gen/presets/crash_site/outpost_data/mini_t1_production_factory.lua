@@ -7,8 +7,8 @@ local loot = {
     {stack = {name = 'steel-furnace', count = 24, distance_factor = 1 / 32}, weight = 3},
     {stack = {name = 'electric-mining-drill', count = 25, distance_factor = 1 / 24}, weight = 3},
     {stack = {name = 'storage-tank', count = 5, distance_factor = 1 / 24}, weight = 2},
-    {stack = {name = 'pumpjack', count = 2, distance_factor = 1 / 32}, weight = 2},
-    {stack = {name = 'oil-refinery', count = 1, distance_factor = 1 / 32}, weight = 1}
+    {stack = {name = 'pumpjack', count = 2, distance_factor = 1 / 64}, weight = 2},
+    {stack = {name = 'oil-refinery', count = 1, distance_factor = 1 / 64}, weight = 1}
 }
 
 local weights = ob.prepare_weighted_loot(loot)

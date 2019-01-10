@@ -4,8 +4,8 @@ local Token = require 'utils.token'
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 250, distance_factor = 1 / 20}, weight = 5},
-    {stack = {name = 'production-science-pack', count = 50, distance_factor = 1 / 5}, weight = 5},
-    {stack = {name = 'high-tech-science-pack', count = 50, distance_factor = 1 / 5}, weight = 5}
+    {stack = {name = 'production-science-pack', count = 25, distance_factor = 1 / 20}, weight = 5},
+    {stack = {name = 'high-tech-science-pack', count = 25, distance_factor = 1 / 20}, weight = 5}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
