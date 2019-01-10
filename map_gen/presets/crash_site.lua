@@ -14,7 +14,7 @@ local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Crashsite')
 ScenarioInfo.set_map_description('Capture outposts and defend against the biters.')
 ScenarioInfo.add_map_extra_info(
-    '- Outposts have enemy turrets defending them.\n- Outposts have loot and provide a steady stream of resources.\n- Outpost markets with different resources and at prices.\n- Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.\n- Biters have more health and deal more damage.'
+    '- Outposts have enemy turrets defending them.\n- Outposts have loot and provide a steady stream of resources.\n- Outpost markets with different resources and at prices.\n- Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.\n- Biters have more health and deal more damage.\n- Biters and spitters spawn on death of entities.'
 )
 
 -- leave seeds nil to have them filled in based on teh map seed.
@@ -66,6 +66,28 @@ local medium_power_factory = require 'map_gen.presets.crash_site.outpost_data.me
 local big_power_factory = require 'map_gen.presets.crash_site.outpost_data.big_power_factory'
 
 local thin_walls = require 'map_gen.presets.crash_site.outpost_data.thin_walls'
+
+local mini_t1_ammo_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t1_ammo_factory'
+local mini_t2_ammo_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t2_ammo_factory'
+
+local mini_t1_weapon_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t1_weapon_factory'
+local mini_t2_weapon_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t2_weapon_factory'
+
+local mini_t2_logistics_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t2_logistics_factory'
+local mini_t3_logistics_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t3_logistics_factory'
+
+local mini_t1_science_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t1_science_factory'
+local mini_t2_science_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t2_science_factory'
+local mini_t3_science_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t3_science_factory'
+
+local mini_t1_module_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t1_module_factory'
+local mini_t2_module_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t2_module_factory'
+local mini_t3_module_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t3_module_factory'
+
+local mini_t1_robotics_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t1_robotics_factory'
+local mini_t1_production_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t1_production_factory'
+local mini_t2_energy_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t2_energy_factory'
+local mini_t1_train_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t1_train_factory'
 
 local function init()
     local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
@@ -172,6 +194,46 @@ local function init()
         big_chemical_factory
     }
 
+    local mini1 = {
+        mini_t1_ammo_factory,
+        mini_t1_ammo_factory,
+        mini_t1_weapon_factory,
+        mini_t1_weapon_factory,
+        mini_t2_logistics_factory,
+        mini_t2_logistics_factory,
+        mini_t1_science_factory,
+        mini_t1_science_factory,
+        mini_t1_module_factory,
+        mini_t1_production_factory,
+        mini_t2_energy_factory,
+        mini_t1_train_factory
+    }
+
+    local mini2 = {
+        mini_t2_ammo_factory,
+        mini_t2_ammo_factory,
+        mini_t2_weapon_factory,
+        mini_t2_weapon_factory,
+        mini_t3_logistics_factory,
+        mini_t3_logistics_factory,
+        mini_t2_science_factory,
+        mini_t2_science_factory,
+        mini_t2_module_factory,
+        mini_t1_robotics_factory,
+        mini_t2_energy_factory,
+        mini_t1_train_factory
+    }
+
+    local mini3 = {
+        mini_t2_ammo_factory,
+        mini_t2_ammo_factory,
+        mini_t2_weapon_factory,
+        mini_t2_weapon_factory,
+        mini_t3_science_factory,
+        mini_t3_module_factory,
+        mini_t1_robotics_factory
+    }
+
     local function fast_remove(tbl, index)
         local count = #tbl
         if index > count then
@@ -209,14 +271,18 @@ local function init()
     local stage3_iter = itertor_builder(stage3, outpost_random)
     local stage4_iter = itertor_builder(stage4, outpost_random)
 
+    local mini1_iter = itertor_builder(mini1, outpost_random)
+    local mini2_iter = itertor_builder(mini2, outpost_random)
+    local mini3_iter = itertor_builder(mini3, outpost_random)
+
     local start_outpost = outpost_builder:do_outpost(thin_walls)
     start_outpost = b.change_tile(start_outpost, false, true)
     start_outpost = b.change_map_gen_collision_tile(start_outpost, 'water-tile', 'grass-1')
 
-    local start_patch = b.circle(10)
+    local start_patch = b.circle(9)
     local start_iron_patch =
         b.resource(
-        b.translate(start_patch, -32, -32),
+        b.translate(start_patch, -26, -26),
         'iron-ore',
         function()
             return 1500
@@ -224,7 +290,7 @@ local function init()
     )
     local start_copper_patch =
         b.resource(
-        b.translate(start_patch, 32, -32),
+        b.translate(start_patch, 26, -26),
         'copper-ore',
         function()
             return 1200
@@ -232,7 +298,7 @@ local function init()
     )
     local start_stone_patch =
         b.resource(
-        b.translate(start_patch, 32, 32),
+        b.translate(start_patch, 26, 26),
         'stone',
         function()
             return 900
@@ -240,7 +306,7 @@ local function init()
     )
     local start_coal_patch =
         b.resource(
-        b.translate(start_patch, -32, 32),
+        b.translate(start_patch, -26, 26),
         'coal',
         function()
             return 1350
@@ -256,7 +322,7 @@ local function init()
         b.translate(b.rectangle(16, 6), 0, -6)
     }
     water_corner = b.change_tile(water_corner, true, 'water')
-    water_corner = b.translate(water_corner, -60, -60)
+    water_corner = b.translate(water_corner, -54, -54)
 
     start_outpost =
         b.any {
@@ -267,18 +333,22 @@ local function init()
         start_outpost
     }
 
+    local outpost_offset = 59
+    local grid_block_size = 180
+    local grid_number_of_blocks = 9
+
+    local mini_outpost_offset = 36
+    local mini_grid_block_size = 96
+    local mini_grid_number_of_blocks = 21
+
     local pattern = {}
 
-    for r = 1, 10 do
+    for r = 1, grid_number_of_blocks do
         local row = {}
         pattern[r] = row
     end
 
     pattern[5][5] = start_outpost
-
-    local outpost_offset = 59
-    local grid_block_size = 190
-    local grid_number_of_blocks = 9
 
     local half_total_size = grid_block_size * 0.5 * 8
 
@@ -359,8 +429,83 @@ local function init()
         end
     end
 
-    local outposts = b.grid_pattern(pattern, 10, 10, grid_block_size, grid_block_size)
-    --outposts = b.if_else(outposts, b.full_shape)
+    local mini_pattern = {}
+
+    for r = 1, mini_grid_number_of_blocks do
+        mini_pattern[r] = {}
+    end
+
+    for r = 11, 11 do
+        local row = mini_pattern[r]
+        for c = 11, 11 do
+            row[c] = b.empty_shape
+        end
+    end
+
+    for r = 8, 14 do
+        local row = mini_pattern[r]
+        for c = 8, 14 do
+            if not row[c] then
+                local template = mini1_iter()
+                local shape = outpost_builder:do_outpost(template)
+
+                local x = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
+                local y = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
+                shape = b.translate(shape, x, y)
+
+                row[c] = shape
+            end
+        end
+    end
+
+    for r = 6, 16 do
+        local row = mini_pattern[r]
+        for c = 6, 16 do
+            if not row[c] then
+                local template = mini2_iter()
+                local shape = outpost_builder:do_outpost(template)
+
+                local x = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
+                local y = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
+                shape = b.translate(shape, x, y)
+
+                row[c] = shape
+            end
+        end
+    end
+
+    for r = 1, mini_grid_number_of_blocks do
+        local row = mini_pattern[r]
+        for c = 1, mini_grid_number_of_blocks do
+            if not row[c] then
+                local template = mini3_iter()
+                local shape = outpost_builder:do_outpost(template)
+
+                local x = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
+                local y = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
+                shape = b.translate(shape, x, y)
+
+                row[c] = shape
+            end
+        end
+    end
+
+    local outposts =
+        b.grid_pattern(pattern, grid_number_of_blocks, grid_number_of_blocks, grid_block_size, grid_block_size)
+    local mini_outposts =
+        b.grid_pattern(
+        mini_pattern,
+        mini_grid_number_of_blocks,
+        mini_grid_number_of_blocks,
+        mini_grid_block_size,
+        mini_grid_block_size
+    )
+    local offset = -180 -- (grid_block_size ) * 0.5
+
+    mini_outposts = b.translate(mini_outposts, offset, offset)
+
+    outposts = b.if_else(outposts, mini_outposts)
+    --outposts = mini_outposts
 
     local spawners = {
         'biter-spawner',
@@ -375,8 +520,8 @@ local function init()
 
     local max_spawner_chance = 1 / 256
     local spawner_chance_factor = 1 / (256 * 512)
-    local max_worm_chance = 1 / 32
-    local worm_chance_factor = 1 / (32 * 512)
+    local max_worm_chance = 1 / 64
+    local worm_chance_factor = 1 / (40 * 512)
 
     local scale_factor = 1 / 32
 
@@ -387,7 +532,7 @@ local function init()
         --[[ if Perlin.noise(x * scale_factor, y * scale_factor, enemy_seed) < 0 then
         return nil
     end ]]
-        local spawner_chance = d - 128
+        local spawner_chance = d - 120
 
         if spawner_chance > 0 then
             spawner_chance = spawner_chance * spawner_chance_factor
@@ -398,7 +543,7 @@ local function init()
             end
         end
 
-        local worm_chance = d - 128
+        local worm_chance = d - 120
 
         if worm_chance > 0 then
             worm_chance = worm_chance * worm_chance_factor
@@ -429,7 +574,7 @@ local function init()
 
     local enemy_shape = b.apply_entity(b.full_shape, enemy)
 
-    local ores_patch = b.circle(16)
+    local ores_patch = b.circle(12)
     local function value(base, mult, pow)
         return function(x, y)
             local d_sq = x * x + y * y
@@ -446,7 +591,7 @@ local function init()
     end
 
     local function oil_transform(shape)
-        shape = b.scale(shape, 0.5)
+        shape = b.scale(shape, 0.75)
         shape = b.throttle_world_xy(shape, 1, 5, 1, 5)
         return shape
     end
@@ -498,34 +643,33 @@ local function init()
         end
     end
 
-    local ore_grid = b.grid_pattern_full_overlap(ore_pattern, 50, 50, 64, 64)
-    ore_grid = b.choose(b.rectangle(138), b.no_entity, ore_grid)
+    local ore_grid = b.grid_pattern_full_overlap(ore_pattern, 35, 35, 56, 56)
+    ore_grid = b.choose(b.rectangle(126), b.no_entity, ore_grid)
 
     local map = b.if_else(outposts, enemy_shape)
-    --map = b.change_tile(map, true, 'grass-1')
+
     map = b.if_else(map, b.full_shape)
 
     map = b.translate(map, -half_total_size, -half_total_size)
 
     map = b.apply_entity(map, ore_grid)
 
-    --map = b.apply_entity(map, enemy)
-
     local market = {
         callback = outpost_builder.market_set_items_callback,
         data = {
+            market_name = 'Spawn',
             {name = 'raw-wood', price = 1},
             {name = 'iron-plate', price = 2},
             {name = 'stone', price = 2},
             {name = 'coal', price = 1.25},
             {name = 'raw-fish', price = 4},
             {name = 'firearm-magazine', price = 5},
-            {name = 'science-pack-1', price = 20},
-            {name = 'science-pack-2', price = 40},
-            {name = 'military-science-pack', price = 80},
-            {name = 'science-pack-3', price = 120},
-            {name = 'production-science-pack', price = 240},
-            {name = 'high-tech-science-pack', price = 360},
+            {name = 'science-pack-1', price = 10},
+            {name = 'science-pack-2', price = 25},
+            {name = 'military-science-pack', price = 50},
+            {name = 'science-pack-3', price = 75},
+            {name = 'production-science-pack', price = 100},
+            {name = 'high-tech-science-pack', price = 125},
             {name = 'small-plane', price = 100}
         }
     }
@@ -578,6 +722,14 @@ Global.register_init(
         map = init()
     end
 )
+
+--[[ local Event = require 'utils.event'
+Event.add(
+    defines.events.on_player_joined_game,
+    function(event)
+        game.players[event.player_index].character = nil
+    end
+) ]]
 
 return function(x, y, world)
     return map(x, y, world)
