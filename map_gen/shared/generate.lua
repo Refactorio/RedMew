@@ -1,14 +1,80 @@
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Event = require 'utils.event'
+local Global = require 'utils.global'
 
 local insert = table.insert
 
 local tiles_per_tick
 local regen_decoratives
 local surfaces
-
 local total_calls
+
+local Public = {}
+
+local primitives = {
+    ['registered_threaded_event'] = nil
+}
+
+Global.register(
+    {
+        primitives = primitives
+    },
+    function(tbl)
+        primitives = tbl.primitives
+    end
+)
+
+local function do_row(row, data, shape)
+    local function do_tile(tile, pos)
+        if not tile then
+            insert(data.tiles, {name = 'out-of-map', position = pos})
+        elseif type(tile) == 'string' then
+            insert(data.tiles, {name = tile, position = pos})
+        end
+    end
+
+    local y = data.top_y + row
+    local top_x = data.top_x
+
+    data.y = y
+
+    for x = top_x, top_x + 31 do
+        data.x = x
+        local pos = {data.x, data.y}
+
+        -- local coords need to be 'centered' to allow for correct rotation and scaling.
+        local tile = shape(x + 0.5, y + 0.5, data)
+
+        if type(tile) == 'table' then
+            do_tile(tile.tile, pos)
+
+            local hidden_tile = tile.hidden_tile
+            if hidden_tile then
+                insert(data.hidden_tiles, {tile = hidden_tile, position = pos})
+            end
+
+            local entities = tile.entities
+            if entities then
+                for _, entity in ipairs(entities) do
+                    if not entity.position then
+                        entity.position = pos
+                    end
+                    insert(data.entities, entity)
+                end
+            end
+
+            local decoratives = tile.decoratives
+            if decoratives then
+                for _, decorative in ipairs(decoratives) do
+                    insert(data.decoratives, decorative)
+                end
+            end
+        else
+            do_tile(tile, pos)
+        end
+    end
+end
 
 local function do_tile(y, x, data, shape)
     local function do_tile_inner(tile, pos)
@@ -182,7 +248,7 @@ end
 
 local map_gen_action_token = Token.register(map_gen_action)
 
-local function on_chunk(event)
+local function assemble_data(event)
     local surface = event.surface
     local shape = surfaces[surface.name]
 
@@ -204,18 +270,72 @@ local function on_chunk(event)
         entities = {},
         decoratives = {}
     }
-
-    Task.queue_task(map_gen_action_token, data, total_calls)
+    return data
 end
 
-local function init(args)
+local on_chunk_non_threaded =
+    Token.register(
+    function(event)
+        local surface = event.surface
+        local shape = surfaces[surface.name]
+
+        local data = assemble_data(event)
+
+        for row = 0, 31 do
+            do_row(row, data, shape)
+        end
+
+        do_place_tiles(data)
+        do_place_hidden_tiles(data)
+        do_place_entities(data)
+        do_place_decoratives(data)
+    end
+)
+
+local on_chunk_threaded =
+    Token.register(
+    function(event)
+        local data = assemble_data(event)
+
+        Task.queue_task(map_gen_action_token, data, total_calls)
+    end
+)
+
+function Public.register_threaded(args)
     tiles_per_tick = args.tiles_per_tick or 32
     regen_decoratives = args.regen_decoratives or false
     surfaces = args.surfaces or {}
 
     total_calls = math.ceil(1024 / tiles_per_tick) + 5
 
-    Event.add(defines.events.on_chunk_generated, on_chunk)
+    if primitives['event_registered'] then
+        log('Double registered generate events', 999)
+        return
+    end
+    Event.add_removable(defines.events.on_chunk_generated, on_chunk_threaded)
+    primitives['event_registered'] = true
 end
 
-return init
+function Public.unregister_threaded()
+    Event.add_removable(defines.events.on_chunk_generated, on_chunk_threaded)
+    primitives['event_registered'] = nil
+end
+
+function Public.register_non_threaded(args)
+    regen_decoratives = args.regen_decoratives
+    surfaces = args.surfaces or {}
+
+    if primitives['event_registered'] then
+        log('Double registered generate events', 999)
+        return
+    end
+    Event.add_removable(defines.events.on_chunk_generated, on_chunk_non_threaded)
+    primitives['event_registered'] = true
+end
+
+function Public.unregister_non_threaded()
+    Event.add_removable(defines.events.on_chunk_generated, on_chunk_non_threaded)
+    primitives['event_registered'] = nil
+end
+
+return Public

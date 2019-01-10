@@ -5,6 +5,7 @@ If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
 local b = require 'map_gen.shared.builders'
+local Generate = require 'map_gen.shared.generate'
 require 'utils.table'
 require 'map_gen.shared.perlin_noise'
 global.map = {}
@@ -164,6 +165,6 @@ if shape then
         ['nauvis'] = shape,
     }
 
-    require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-    --require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
+    Generate.register_threaded({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
+    --Generate.register_non_threaded({surfaces = surfaces, regen_decoratives = regen_decoratives})
 end
