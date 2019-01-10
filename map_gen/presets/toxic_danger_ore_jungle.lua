@@ -3,6 +3,8 @@ local Perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local math = require "utils.math"
+local match = string.match
+local remove = table.remove
 
 local oil_seed
 local uranium_seed
@@ -34,8 +36,11 @@ Global.register_init(
 )
 
 local market_items = require 'resources.market_items'
-table.remove(market_items, 13)
-table.remove(market_items, 9)
+for i = #market_items, 1, -1 do
+    if match(market_items[i].name, 'flamethrower') then
+        remove(market_items, i)
+    end
+end
 
 Event.add(
     defines.events.on_research_finished,

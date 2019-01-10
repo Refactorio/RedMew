@@ -187,10 +187,6 @@ function Module.set_and_return(tbl, key, value)
     return value
 end
 
-function Module.random_RGB()
-    return {r = random(0, 255), g = random(0, 255), b = random(0, 255)}
-end
-
 -- add utility functions that exist in base factorio/util
 require 'util'
 
