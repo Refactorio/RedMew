@@ -1,7 +1,7 @@
 _DEBUG = false
 _CHEATS = false
 _DUMP_ENV = false
-local market_item = 'coin'
+local currency = 'coin'
 
 global.config = {
     -- adds a GUI listing the scenario features, the rules, and the details of the current map
@@ -60,6 +60,7 @@ global.config = {
     -- adds a fish market
     fish_market = {
         enabled = true,
+        currency = currency,
     },
     -- adds anti-nuke griefing
     nuke_control = {
@@ -164,7 +165,7 @@ global.config = {
     player_rewards = {
         enabled = true,
         -- the token to use for rewards
-        token = market_item,
+        token = currency,
         -- rewards players for looking through the info tabs
         info_player_reward = true,
     },

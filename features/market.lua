@@ -11,6 +11,7 @@ local pairs = pairs
 local random = math.random
 local format = string.format
 local get_random = table.get_random
+local currency = global.config.fish_market.currency
 
 local running_speed_boost_messages = {
     '%s found the lost Dragon Scroll and got a lv.1 speed boost!',
@@ -43,14 +44,14 @@ local function spawn_market(_, player)
         Retailer.set_item('fish_market', prototype)
     end
 
-    force.add_chart_tag(surface, {icon = {type = 'item', name = 'coin'}, position = pos, text = 'Market'})
+    force.add_chart_tag(surface, {icon = {type = 'item', name = currency}, position = pos, text = 'Market'})
 end
 
 local function fish_earned(event, amount)
     local player_index = event.player_index
     local player = Game.get_player_by_index(player_index)
 
-    local stack = {name = 'coin', count = amount}
+    local stack = {name = currency, count = amount}
     local inserted = player.insert(stack)
 
     local diff = amount - inserted
@@ -88,7 +89,7 @@ local entity_drop_amount = {
 }
 
 local spill_items = Token.register(function(data)
-    data.surface.spill_item_stack(data.position, {name = 'coin', count = data.count}, true)
+    data.surface.spill_item_stack(data.position, {name = currency, count = data.count}, true)
 end)
 
 local function fish_drop_entity_died(event)
@@ -225,14 +226,14 @@ local function player_created(event)
     end
 
     local count = global.config.player_rewards.info_player_reward and 1 or 10
-    player.insert {name = 'coin', count = count}
+    player.insert {name = currency, count = count}
 end
 
 Command.add(
     'market',
     {
         description = 'Places a market near you.',
-        admin_only = true
+        admin_only = true,
     },
     spawn_market
 )
