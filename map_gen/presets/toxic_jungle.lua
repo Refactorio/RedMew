@@ -1,11 +1,17 @@
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
 local Perlin = require 'map_gen.shared.perlin_noise'
+local match = string.match
+local remove = table.remove
 
 local enemy_seed = 420420
 
 local market_items = require 'resources.market_items'
-table.remove(market_items, 8)
+for i = #market_items, 1, -1 do
+    if match(market_items[i].name, 'flamethrower') then
+        remove(market_items, i)
+    end
+end
 
 Event.add(
     defines.events.on_research_finished,

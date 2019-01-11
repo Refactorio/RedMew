@@ -1,7 +1,7 @@
 _DEBUG = false
 _CHEATS = false
 _DUMP_ENV = false
-local market_item = 'coin'
+local currency = 'coin'
 
 global.config = {
     -- adds a GUI listing the scenario features, the rules, and the details of the current map
@@ -15,6 +15,14 @@ global.config = {
         map_extra_info_key = 'This map has no extra information',
         -- New Scenario Features, appears in the "What's new" tab
         new_info_key = 'Nothing is new. The world is at peace',
+    },
+    -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
+    train_saviour = {
+        enabled = true,
+    },
+    -- Adds the infinite storage chest to the market and adds a custom GUI to it. Also has to be loaded first due to adding a market item
+    infinite_storage_chest = {
+        enabled = false,
     },
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
@@ -52,7 +60,7 @@ global.config = {
     -- adds a fish market
     fish_market = {
         enabled = true,
-        market_item = market_item,
+        currency = currency,
     },
     -- adds anti-nuke griefing
     nuke_control = {
@@ -157,7 +165,7 @@ global.config = {
     player_rewards = {
         enabled = true,
         -- the token to use for rewards
-        token = market_item,
+        token = currency,
         -- rewards players for looking through the info tabs
         info_player_reward = true,
     },
@@ -179,10 +187,6 @@ global.config = {
     },
     -- enables donators' on-join messages
     donator_messages = {
-        enabled = true,
-    },
-    -- saves players' lives if they have a small-plane in their inventory, also adds the small-plan to the market
-    train_saviour = {
         enabled = true,
     },
     player_colors = {

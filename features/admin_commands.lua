@@ -241,7 +241,11 @@ local function teleport_command(args, player)
     end
 end
 
+-- Event registrations
+
 Event.add(defines.events.on_built_entity, built_entity)
+
+-- Command registrations
 
 Command.add(
     'a',

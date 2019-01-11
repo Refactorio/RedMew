@@ -17,6 +17,12 @@ require 'features.player_create'
 require 'features.user_groups'
 
 -- Feature modules, each can be disabled safely
+if config.train_saviour.enabled then
+    require 'features.train_saviour'
+end
+if config.infinite_storage_chest.enabled then
+    require 'features.infinite_storage_chest'
+end
 if config.autodeconstruct.enabled then
     require 'features.autodeconstruct'
 end
@@ -34,9 +40,6 @@ if config.redmew_commands.enabled then
 end
 if config.donator_messages.enabled then
     require 'features.donator_messages'
-end
-if config.train_saviour.enabled then
-    require 'features.train_saviour'
 end
 if config.fish_market.enabled then
     require 'features.fish_market'
@@ -56,10 +59,10 @@ end
 if config.walkabout.enabled then
     require 'features.walkabout'
 end
-if global.config.performance.enabled then
+if config.performance.enabled then
     require 'features.performance'
 end
-if global.config.hail_hydra.enabled then
+if config.hail_hydra.enabled then
     require 'features.hail_hydra'
 end
 
