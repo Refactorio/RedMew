@@ -17,6 +17,8 @@ ScenarioInfo.add_map_extra_info(
     '- Outposts have enemy turrets defending them.\n- Outposts have loot and provide a steady stream of resources.\n- Outpost markets with different resources and at prices.\n- Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.\n- Biters have more health and deal more damage.\n- Biters and spitters spawn on death of entities.'
 )
 
+global.config.fish_market.enabled = false
+
 -- leave seeds nil to have them filled in based on teh map seed.
 local outpost_seed = nil --91000
 local ore_seed = nil --92000
@@ -282,7 +284,7 @@ local function init()
     local start_patch = b.circle(9)
     local start_iron_patch =
         b.resource(
-        b.translate(start_patch, -26, -26),
+        b.translate(start_patch, -30, -30),
         'iron-ore',
         function()
             return 1500
@@ -290,7 +292,7 @@ local function init()
     )
     local start_copper_patch =
         b.resource(
-        b.translate(start_patch, 26, -26),
+        b.translate(start_patch, 30, -30),
         'copper-ore',
         function()
             return 1200
@@ -298,7 +300,7 @@ local function init()
     )
     local start_stone_patch =
         b.resource(
-        b.translate(start_patch, 26, 26),
+        b.translate(start_patch, 30, 30),
         'stone',
         function()
             return 900
@@ -306,7 +308,7 @@ local function init()
     )
     local start_coal_patch =
         b.resource(
-        b.translate(start_patch, -26, 26),
+        b.translate(start_patch, -30, 30),
         'coal',
         function()
             return 1350
@@ -730,7 +732,6 @@ Event.add(
         game.players[event.player_index].character = nil
     end
 ) ]]
-
 return function(x, y, world)
     return map(x, y, world)
 end

@@ -3,9 +3,11 @@ local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
+local math = require 'utils.math'
 
 local random = math.random
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
+local ceil = math.ceil
 
 local no_coin_entity = {}
 
@@ -25,11 +27,11 @@ local entity_drop_amount = {
     ['big-spitter'] = {low = -2, high = 1},
     ['behemoth-biter'] = {low = 1, high = 1},
     ['behemoth-spitter'] = {low = 1, high = 1}, ]]
-    ['biter-spawner'] = {low = 5, high = 15},
-    ['spitter-spawner'] = {low = 5, high = 15},
-    ['small-worm-turret'] = {low = 2, high = 8},
-    ['medium-worm-turret'] = {low = 5, high = 15},
-    ['big-worm-turret'] = {low = 10, high = 20}
+    ['biter-spawner'] = {low = 8, high = 24},
+    ['spitter-spawner'] = {low = 8, high = 24},
+    ['small-worm-turret'] = {low = 3, high = 10},
+    ['medium-worm-turret'] = {low = 8, high = 24},
+    ['big-worm-turret'] = {low = 15, high = 30}
 }
 
 local spill_items =
@@ -44,9 +46,9 @@ local entity_spawn_map = {
     ['medium-biter'] = {name = 'small-biter', count = 2, chance = 1},
     ['big-biter'] = {name = 'medium-biter', count = 2, chance = 1},
     ['behemoth-biter'] = {name = 'big-biter', count = 2, chance = 1},
-    ['medium-spitter'] = {name = 'small-worm-turret', count = 1, chance = 0.25},
-    ['big-spitter'] = {name = 'medium-worm-turret', count = 1, chance = 0.25},
-    ['behemoth-spitter'] = {name = 'big-worm-turret', count = 1, chance = 0.25},
+    ['medium-spitter'] = {name = 'small-worm-turret', count = 1, chance = 0.2},
+    ['big-spitter'] = {name = 'medium-worm-turret', count = 1, chance = 0.2},
+    ['behemoth-spitter'] = {name = 'big-worm-turret', count = 1, chance = 0.2},
     ['biter-spawner'] = {type = 'biter', count = 5, chance = 1},
     ['spitter-spawner'] = {type = 'spitter', count = 5, chance = 1},
     ['stone-furnace'] = {type = 'cause', count = 1, chance = 1},
@@ -90,6 +92,12 @@ local unit_levels = {
     }
 }
 
+local worms = {
+    ['small-worm-turret'] = true,
+    ['medium-worm-turret'] = true,
+    ['big-worm-turret'] = true
+}
+
 local allowed_cause_source = {
     ['small-biter'] = true,
     ['medium-biter'] = true,
@@ -126,7 +134,11 @@ local spawn_worm =
 
 local function get_level()
     local ef = game.forces.enemy.evolution_factor
-    return math.floor(ef * 4) + 1
+    if ef == 0 then
+        return 1
+    else
+        return ceil(ef * 4)
+    end
 end
 
 local spawn_units =
@@ -161,19 +173,15 @@ Event.add(
             return
         end
 
-        local force = event.force
-        if force and force == entity.force then
-            return
-        end
-
+        local entity_force = entity.force
         local entity_name = entity.name
 
         local factor = turret_evolution_factor[entity_name]
         if factor then
-            if force.name == 'enemy' then
-                local old = force.evolution_factor
+            if entity_force.name == 'enemy' then
+                local old = entity_force.evolution_factor
                 local new = old + (1 - old) * factor
-                force.evolution_factor = math.min(new, 1)
+                entity_force.evolution_factor = math.min(new, 1)
             end
         end
 
@@ -205,19 +213,31 @@ Event.add(
                     local type = spawn.type
                     if type == 'cause' then
                         local cause = event.cause
-                        if not cause or not allowed_cause_source[cause.name] then
+                        if not cause then
                             return
                         end
                         name = cause.name
+                        if not allowed_cause_source[cause.name] then
+                            return
+                        end
                     else
-                        name = unit_levels[spawn.type][get_level()]
+                        name = unit_levels[type][get_level()]
                     end
                 end
-                set_timeout_in_ticks(
-                    5,
-                    spawn_units,
-                    {surface = entity.surface, name = name, position = entity.position, count = spawn.count}
-                )
+
+                if worms[name] then
+                    set_timeout_in_ticks(
+                        5,
+                        spawn_worm,
+                        {surface = entity.surface, name = name, position = entity.position}
+                    )
+                else
+                    set_timeout_in_ticks(
+                        5,
+                        spawn_units,
+                        {surface = entity.surface, name = name, position = entity.position, count = spawn.count}
+                    )
+                end
             end
         end
     end
