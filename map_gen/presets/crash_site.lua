@@ -701,7 +701,7 @@ local function init()
 
     map = b.choose(b.rectangle(16, 16), spawn_shape, map)
 
-    local bounds = b.rectangle(grid_block_size * grid_number_of_blocks)
+    local bounds = b.rectangle(grid_block_size * (grid_number_of_blocks) + 1)
     map = b.choose(bounds, map, b.empty_shape)
 
     return map
