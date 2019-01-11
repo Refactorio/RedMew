@@ -1,6 +1,6 @@
 local ob = require 'map_gen.presets.crash_site.outpost_builder'
 
-local walls = {
+local walls = ob.make_walls{
     ob.make_4_way {
         force = 'player',
         [1] = {entity = {name = 'stone-wall'}},
@@ -163,7 +163,7 @@ local bases = {
 
 return {
     settings = {
-        blocks = 20,
+        blocks = 18,
         variance = 3,
         min_step = 2,
         max_level = 2

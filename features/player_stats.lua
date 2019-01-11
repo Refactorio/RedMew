@@ -46,7 +46,7 @@ Global.register(
         player_damage_dealt = player_damage_dealt,
         total_robot_built_entities = total_robot_built_entities,
         total_player_built_entities = total_player_built_entities,
-        total_biter_kills = total_biter_kills,
+        total_biter_kills = total_biter_kills
     },
     function(tbl)
         player_last_position = tbl.player_last_position
@@ -149,14 +149,20 @@ end
 local function entity_damaged(event)
     local entity = event.entity
     if entity.valid and entity.type == 'player' then -- player taking damage
-        local index = entity.player.index
-        player_damage_taken[index] = player_damage_taken[index] + event.final_damage_amount
+        local player = entity.player
+        if player and player.valid then
+            local index = entity.player.index
+            player_damage_taken[index] = player_damage_taken[index] + event.final_damage_amount
+        end
     end
 
     local cause = event.cause
     if cause and cause.valid and cause.type == 'player' then -- player causing damage
-        local index = cause.player.index
-        player_damage_dealt[index] = player_damage_dealt[index] + event.final_damage_amount
+        local player = cause.player
+        if player and player.valid then
+            local index = cause.player.index
+            player_damage_dealt[index] = player_damage_dealt[index] + event.final_damage_amount
+        end
     end
 end
 
