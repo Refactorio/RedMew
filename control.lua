@@ -1,8 +1,9 @@
 -- Omitting the math library is a very bad idea
 require 'utils.math'
 
--- global to prevent having require left-overs in files to use a Debug.print
+-- Global Debug and extra global table functions to make debugging and coding significantly easier
 Debug = require 'utils.debug'
+require 'utils.table'
 
 -- Map layout and config dictate the map you play and the settings in it
 local config = require 'config'
