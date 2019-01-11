@@ -31,59 +31,59 @@ local collision_boxes = {
         {0, 1, 0, 0},
         {0, 1, 0, 0},
         {0, 1, 0, 0},
-        {0, 1, 0, 0},
+        {0, 1, 0, 0}
     },
     {
         {0, 0, 0, 0},
         {0, 1, 1, 0},
         {0, 1, 1, 0},
-        {0, 0, 0, 0},
+        {0, 0, 0, 0}
     },
     {
         {0, 0, 0, 0},
         {0, 1, 0, 0},
         {1, 1, 1, 0},
-        {0, 0, 0, 0},
+        {0, 0, 0, 0}
     },
     {
         {0, 0, 0, 0},
         {0, 1, 1, 0},
         {1, 1, 0, 0},
-        {0, 0, 0, 0},
+        {0, 0, 0, 0}
     },
     {
         {0, 0, 0, 0},
         {1, 1, 0, 0},
         {0, 1, 1, 0},
-        {0, 0, 0, 0},
+        {0, 0, 0, 0}
     },
     {
         {0, 0, 0, 0},
         {0, 0, 1, 0},
         {0, 0, 1, 0},
-        {0, 1, 1, 0},
+        {0, 1, 1, 0}
     },
     {
         {0, 0, 0, 0},
         {0, 1, 0, 0},
         {0, 1, 0, 0},
-        {0, 1, 1, 0},
-    },
+        {0, 1, 1, 0}
+    }
 }
 
 local worker = nil
 local move_queue = Queue.new()
 local Map = nil
-local sequence = {1,2,3,4,5,6,7, _head = 8}
+local sequence = {1, 2, 3, 4, 5, 6, 7, _head = 8}
 
 Global.register(
     {
         move_queue = move_queue,
-        sequence = sequence,
+        sequence = sequence
     },
     function(tbl)
-       move_queue = tbl.move_queue
-       sequence = tbl.sequence
+        move_queue = tbl.move_queue
+        sequence = tbl.sequence
     end
 )
 
@@ -107,15 +107,15 @@ local function collides(self, collision_box, x_steps, y_steps)
                 local x_offset = x + x_steps
                 if
                     y_offset < 1 or --Cant collide with itself, so continue checking for collision
-                    y_offset > 4 or
-                    x_offset < 1 or
-                    x_offset > 4 or
-                    old_collision_box[y_offset][x_offset] == 0 --check for collision if not colliding with old self
-                then
+                        y_offset > 4 or
+                        x_offset < 1 or
+                        x_offset > 4 or
+                        old_collision_box[y_offset][x_offset] == 0
+                 then --check for collision if not colliding with old self
                     local x_target = x_offset * 16 + c_x + 2 - 16
                     local y_target = y_offset * 16 + c_y + 2 - 16
-                    local tile = surface.get_tile{x_target, y_target}
-                    if not tile.valid or tile.name ~= "water" then
+                    local tile = surface.get_tile {x_target, y_target}
+                    if not tile.valid or tile.name ~= 'water' then
                         return true
                     end
                 end
@@ -131,21 +131,21 @@ end
 -- @param y number top left y position of the quad chunk
 local function erase_qchunk(surface, x, y)
     local new_tiles = {}
-    for c_x = x + 1 , x + 14 do
+    for c_x = x + 1, x + 14 do
         for c_y = y + 1, y + 14 do
-            insert(new_tiles, {name = "water", position = {c_x, c_y}})
+            insert(new_tiles, {name = 'water', position = {c_x, c_y}})
         end
     end
     local y_plus15 = y + 15
     for c_x = x, x + 15 do
-        insert(new_tiles, {name = "deepwater", position = {c_x, y}})
-        insert(new_tiles, {name = "deepwater", position = {c_x, y_plus15}})
+        insert(new_tiles, {name = 'deepwater', position = {c_x, y}})
+        insert(new_tiles, {name = 'deepwater', position = {c_x, y_plus15}})
     end
 
     local x_plus15 = x + 15
     for c_y = y, y + 14 do
-        insert(new_tiles, {name = "deepwater", position = {x, c_y}})
-        insert(new_tiles, {name = "deepwater", position = {x_plus15, c_y}})
+        insert(new_tiles, {name = 'deepwater', position = {x, c_y}})
+        insert(new_tiles, {name = 'deepwater', position = {x_plus15, c_y}})
     end
     surface.set_tiles(new_tiles)
 end
@@ -157,8 +157,8 @@ end
 -- @param x_offset number tiles to move in x direction
 -- @param y_offset number tiles to move in y direction
 local function move_qchunk(surface, x, y, x_offset, y_offset)
-    local entities = surface.find_entities_filtered{area = {{x,y}, {x + 15, y + 15}}}
-    local old_tiles = surface.find_tiles_filtered{area = {{x,y}, {x + 16, y + 16}}}
+    local entities = surface.find_entities_filtered {area = {{x, y}, {x + 15, y + 15}}}
+    local old_tiles = surface.find_tiles_filtered {area = {{x, y}, {x + 16, y + 16}}}
     local new_tiles = {}
     local player_positions = {}
     for index, tile in pairs(old_tiles) do
@@ -169,9 +169,13 @@ local function move_qchunk(surface, x, y, x_offset, y_offset)
     for index, entity in pairs(entities) do
         local old_pos = entity.position
 
-        local success, e = pcall(function()
-            entity.teleport{old_pos.x + x_offset, old_pos.y + y_offset}
-        end)
+        local success,
+            e =
+            pcall(
+            function()
+                entity.teleport {old_pos.x + x_offset, old_pos.y + y_offset}
+            end
+        )
         if not success then --I will remove this after the beta :)
             game.print('PLEASE TELL VALANSCH OR WE WILL ALL DIE: ')
             game.print(entity.name)
@@ -198,14 +202,16 @@ function Tetrimino.move(self, x_direction, y_direction)
     local surface = self.surface
     local position = self.position
     local collision_box = self.collision_box
-    if collides(self, collision_box, x_direction, y_direction) then return false end
+    if collides(self, collision_box, x_direction, y_direction) then
+        return false
+    end
     local tetri_x = position.x
     local tetri_y = position.y
     if y_direction == 1 then
         for y = 4, 1, -1 do
             for x = 1, 4 do
                 if collision_box[y] and collision_box[y][x] == 1 then
-                    Queue.push(move_queue, {surface = surface, x = tetri_x + (x - 1) * 16, y = tetri_y + (y - 1) * 16 , x_offset = 0, y_offset = 16})
+                    Queue.push(move_queue, {surface = surface, x = tetri_x + (x - 1) * 16, y = tetri_y + (y - 1) * 16, x_offset = 0, y_offset = 16})
                 end
             end
         end
@@ -213,7 +219,10 @@ function Tetrimino.move(self, x_direction, y_direction)
         for x = 2.5 + 1.5 * x_direction, 2.5 - 1.5 * x_direction, -x_direction do --go from 1 to 4 or from 4 to 1
             for y = 4, 1, -1 do
                 if collision_box[y] and collision_box[y][x] == 1 then
-                    Queue.push(move_queue, {surface = surface, x = tetri_x + (x - 1) * 16, y = tetri_y + (y - 1) * 16 , x_offset = x_direction * 16, y_offset = 0})
+                    Queue.push(
+                        move_queue,
+                        {surface = surface, x = tetri_x + (x - 1) * 16, y = tetri_y + (y - 1) * 16, x_offset = x_direction * 16, y_offset = 0}
+                    )
                 end
             end
         end
@@ -224,13 +233,17 @@ function Tetrimino.move(self, x_direction, y_direction)
     return true
 end
 
+--- Do nothing. Literally.
+function Tetrimino.noop()
+end
+
 --- Returns a rotated version of a supplied collision box by 90° in mathematically positive direction
 -- @param collision_box LuaTetriminoCollisionBox
 -- @param[opt=false] reverse boolean rotate in mathematically negative direction?
 -- @treturn LuaTetriminoCollisionBox the rotated collision box
 local function rotate_collision_box(collision_box, reverse)
-    local new_collision_box = {{},{},{},{}}
-    local transformation = {{},{},{},{}}
+    local new_collision_box = {{}, {}, {}, {}}
+    local transformation = {{}, {}, {}, {}}
     if reverse then
         for y = 1, 4 do
             for x = 1, 4 do
@@ -271,10 +284,12 @@ end
 -- @return boolean success
 function Tetrimino.rotate(self, reverse)
     local new_collision_box, transformation = rotate_collision_box(self.collision_box, reverse)
-    if collides(self, new_collision_box, 0, 0) then return false end
+    if collides(self, new_collision_box, 0, 0) then
+        return false
+    end
 
     if self.number == 2 then
-        game.print('You are a smart motherfucker, that\'s right.')
+        game.print("You are a smart motherfucker, that's right.")
     end
 
     local old_collision_box = self.collision_box
@@ -291,17 +306,17 @@ function Tetrimino.rotate(self, reverse)
             local target = transformation[y][x]
             if
                 (target.x ~= x or target.y ~= y) and --Do not rotate identity
-                old_collision_box[y][x] == 1 --check for existence
-            then
+                    old_collision_box[y][x] == 1
+             then --check for existence
                 local top_left_x = tetri_x + x * 16 - 16
                 local top_left_y = tetri_y + y * 16 - 16
 
-                for _, tile in pairs(find_tiles_filtered{area = {{top_left_x, top_left_y},{tetri_x + x * 16, tetri_y + y * 16}}}) do
+                for _, tile in pairs(find_tiles_filtered {area = {{top_left_x, top_left_y}, {tetri_x + x * 16, tetri_y + y * 16}}}) do
                     insert(tiles, {name = tile.name, position = {tile.position.x + (target.x - x) * 16, tile.position.y + (target.y - y) * 16}})
                 end
 
-                for _, entity in pairs(find_entities_filtered{area = {{top_left_x, top_left_y},{tetri_x + x * 16 - 1, tetri_y + y * 16 - 1}}}) do
-                    entity.teleport{entity.position.x + (target.x - x) * 16, entity.position.y + (target.y - y) * 16}
+                for _, entity in pairs(find_entities_filtered {area = {{top_left_x, top_left_y}, {tetri_x + x * 16 - 1, tetri_y + y * 16 - 1}}}) do
+                    entity.teleport {entity.position.x + (target.x - x) * 16, entity.position.y + (target.y - y) * 16}
                 end
                 if new_collision_box[y][x] == 0 then
                     erase_qchunk(surface, top_left_x, top_left_y)
@@ -348,9 +363,10 @@ function Tetrimino.new(surface, position)
 end
 
 --Works on one quad chunk in the move_queue
-worker = Token.register(
+worker =
+    Token.register(
     function()
-        local quad =  Queue.pop(move_queue)
+        local quad = Queue.pop(move_queue)
         if quad then
             Task.set_timeout_in_ticks(1, worker)
             local surface = quad.surface

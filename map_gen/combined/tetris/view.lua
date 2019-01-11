@@ -11,31 +11,33 @@ local main_frame_name = Gui.uid_name()
 
 local uids = {
     ['ccw_button'] = Gui.uid_name(),
-    ['clear_button'] = Gui.uid_name(),
+    ['noop_button'] = Gui.uid_name(),
     ['cw_button'] = Gui.uid_name(),
     ['left_button'] = Gui.uid_name(),
     ['down_button'] = Gui.uid_name(),
     ['right_button'] = Gui.uid_name(),
-    ['zoom_button'] = Gui.uid_name(),
-    ['points_label'] = Gui.uid_name(),
+    ['pause_button'] = Gui.uid_name(),
+    ['points_label'] = Gui.uid_name()
 }
 
 local button_pretty_names = {
     [uids.ccw_button] = 'Rotate counter clockwise',
-    [uids.clear_button] = 'Clear your vote',
+    [uids.noop_button] = 'Do nothing',
     [uids.cw_button] = 'Rotate clockwise',
     [uids.left_button] = 'Move left',
     [uids.down_button] = 'Move down',
     [uids.right_button] = 'Move right',
+    [uids.pause_button] = 'Pause'
 }
 
 local sprites = {
     [uids.ccw_button] = 'utility/reset',
-    [uids.clear_button] = 'utility/trash_bin',
+    [uids.noop_button] = 'utility/clear',
     [uids.cw_button] = 'utility/reset',
     [uids.left_button] = 'utility/left_arrow',
-    [uids.down_button] =  'utility/speed_down',
+    [uids.down_button] = 'utility/speed_down',
     [uids.right_button] = 'utility/right_arrow',
+    [uids.pause_button] = 'utility/pause'
 }
 
 Module.button_enum = uids
@@ -45,27 +47,31 @@ local primitives = {
     buttons_enabled = false,
     points = 0,
     progress = 0,
-    last_move = nil,
+    last_move = nil
 }
 local vote_players = {
     [uids.ccw_button] = {},
+    [uids.noop_button] = {},
     [uids.cw_button] = {},
     [uids.left_button] = {},
     [uids.down_button] = {},
     [uids.right_button] = {},
+    [uids.pause_button] = {}
 }
 local vote_numbers = {
     [uids.ccw_button] = 0,
+    [uids.noop_button] = 0,
     [uids.cw_button] = 0,
     [uids.left_button] = 0,
     [uids.down_button] = 0,
     [uids.right_button] = 0,
+    [uids.pause_button] = 0
 }
 Global.register(
     {
         primitives = primitives,
         vote_players = vote_players,
-        vote_numbers = vote_numbers,
+        vote_numbers = vote_numbers
     },
     function(tbl)
         primitives = tbl.primitives
@@ -96,18 +102,20 @@ local function button_enabled(button_id, player_id)
 end
 
 local function add_sprite_button(element, player, name)
-    return element.add{
+    return element.add {
         type = 'sprite-button',
         name = name,
         enabled = button_enabled(name, player.index),
         tooltip = button_tooltip(name),
         number = vote_numbers[name],
-        sprite = sprites[name],
+        sprite = sprites[name]
     }
 end
 
 local function toggle(player)
-    if not player then return end
+    if not player then
+        return
+    end
     local left = player.gui.left
     local main_frame = left[main_frame_name]
 
@@ -119,7 +127,7 @@ local function toggle(player)
             type = 'frame',
             name = main_frame_name,
             direction = 'vertical',
-            caption = 'Tetris',
+            caption = 'Tetris'
         }
         main_frame.style.width = 250
         main_frame.add {
@@ -127,49 +135,49 @@ local function toggle(player)
             caption = 'Vote on the next move!'
         }
 
-        local upper_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
-        local lower_b_f = main_frame.add{type = 'flow', direction = 'horizontal'}
+        local upper_b_f = main_frame.add {type = 'flow', direction = 'horizontal'}
+        local lower_b_f = main_frame.add {type = 'flow', direction = 'horizontal'}
 
         local vote_buttons = {
             [uids.ccw_button] = add_sprite_button(upper_b_f, player, uids.ccw_button),
-            [uids.clear_button] = add_sprite_button(upper_b_f, player, uids.clear_button),
+            [uids.noop_button] = add_sprite_button(upper_b_f, player, uids.noop_button),
             [uids.cw_button] = add_sprite_button(upper_b_f, player, uids.cw_button),
-
             [uids.left_button] = add_sprite_button(lower_b_f, player, uids.left_button),
             [uids.down_button] = add_sprite_button(lower_b_f, player, uids.down_button),
             [uids.right_button] = add_sprite_button(lower_b_f, player, uids.right_button),
+            [uids.pause_button] = add_sprite_button(main_frame, player, uids.pause_button)
         }
 
-        main_frame.add{type = 'sprite-button', tooltip = 'Zoom in/out', name = uids.zoom_button, sprite = 'utility/search_icon'}
         local progress_bar = main_frame.add {type = 'progressbar', value = primitives.progress}
 
-        local points_f = main_frame.add{type = 'flow', direction = 'horizontal'}
-        points_f.add{
+        local points_f = main_frame.add {type = 'flow', direction = 'horizontal'}
+        points_f.add {
             type = 'label',
-            caption = 'Points: ',
+            caption = 'Points: '
         }
 
-        local points = points_f.add {
+        local points =
+            points_f.add {
             type = 'label',
-            caption = primitives.points,
+            caption = primitives.points
         }
-        main_frame.add{
+        main_frame.add {
             type = 'label',
-            caption = 'Last move:',
+            caption = 'Last move:'
         }
 
-        local last_move_tooltip = 'None'
+        local last_move_tooltip = 'Do nothing'
         local last_move_sprite = nil
         local last_move_button = primitives.last_move
         if last_move_button then
             last_move_tooltip = button_pretty_names[last_move_button]
             last_move_sprite = sprites[last_move_button]
         end
-        main_frame.add{
+        main_frame.add {
             type = 'sprite-button',
             enabled = false,
             tooltip = last_move_tooltip,
-            sprite = last_move_sprite,
+            sprite = last_move_sprite
         }
 
         local data = {
@@ -188,16 +196,24 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add{name = main_button_name, type = 'sprite-button', sprite = 'utility/force_editor_icon'}
+    player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'utility/force_editor_icon'}
     toggle(Game.get_player_by_index(event.player_index))
 end
 
-Gui.on_click(main_button_name, function(event) toggle(event.player) end)
+Gui.on_click(
+    main_button_name,
+    function(event)
+        toggle(event.player)
+    end
+)
 
 function Module.bind_button(button_uid, handler)
-    Gui.on_click(button_uid, function(event)
-        handler(event.player)
-    end)
+    Gui.on_click(
+        button_uid,
+        function(event)
+            handler(event.player)
+        end
+    )
 end
 
 --- Sets the total game points to the given number
@@ -251,7 +267,7 @@ end
 -- @param enable boolean true if the vote buttons should be enabled, false if not
 function Module.enable_vote_buttons(enable)
     primitives.buttons_enabled = enable
-    for _,player in pairs(game.players) do
+    for _, player in pairs(game.players) do
         local mf = player.gui.left[main_frame_name]
         if mf then
             local data = Gui.get_data(mf)
@@ -268,7 +284,6 @@ end
 --- Sets the last move
 -- @param button_id string the button id of the last move
 function Module.set_last_move(button_id)
-    Debug.print(button_id)
     primitives.last_move = button_id
 end
 

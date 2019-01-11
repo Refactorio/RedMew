@@ -18,8 +18,7 @@ local primitives = {
     state = states.voting,
     next_vote_finished = 305,
     points = 0,
-    down_substate = 0,
-    stale_vote_turns = 0
+    down_substate = 0
 }
 local player_votes = {}
 local options = {
@@ -27,26 +26,42 @@ local options = {
         button = View.button_enum.ccw_button,
         action_func_name = 'rotate',
         args = {false},
-        transition = states.moving,
-    },{
+        transition = states.moving
+    },
+    {
+        button = View.button_enum.noop_button,
+        action_func_name = 'noop',
+        args = {},
+        transition = states.moving
+    },
+    {
         button = View.button_enum.cw_button,
         action_func_name = 'rotate',
         args = {true},
-        transition = states.moving,
-    },{
+        transition = states.moving
+    },
+    {
         button = View.button_enum.left_button,
         action_func_name = 'move',
         args = {-1, 0},
-        transition = states.moving,
-    },{
+        transition = states.moving
+    },
+    {
         button = View.button_enum.down_button,
-        transition = states.down,
-    },{
+        transition = states.down
+    },
+    {
         button = View.button_enum.right_button,
         action_func_name = 'move',
         args = {1, 0},
-        transition = states.moving,
+        transition = states.moving
     },
+    {
+        button = View.button_enum.pause_button,
+        action_func_name = 'noop',
+        args = {},
+        transition = states.pause
+    }
 }
 
 local machine = StateMachine.new(states.voting)
@@ -60,7 +75,7 @@ Global.register(
         primitives = primitives,
         player_votes = player_votes,
         player_zoom = player_zoom,
-        machine = machine,
+        machine = machine
     },
     function(tbl)
         tetriminos = tbl.tetriminos
@@ -73,7 +88,6 @@ Global.register(
 
 local point_table = {1, 3, 5, 9}
 local tetris_tick_duration = 61
-local pause_after_n_ticks = 10
 global.vote_delay = 10
 
 local function calculate_winner()
@@ -81,13 +95,13 @@ local function calculate_winner()
         return --Halt vote if in down mode
     end
     Debug.print('calculating winner')
-    local vote_sum = {0,0,0,0,0}
+    local vote_sum = {0, 0, 0, 0, 0, 0, 0}
     for _, vote in pairs(player_votes) do
         vote_sum[vote] = vote_sum[vote] + 1
     end
 
     local winners = {}
-    local max = math.max(vote_sum[1], vote_sum[2], vote_sum[3], vote_sum[4], vote_sum[5])
+    local max = math.max(vote_sum[1], vote_sum[2], vote_sum[3], vote_sum[4], vote_sum[5], vote_sum[6], vote_sum[7])
     for candidate, n_votes in pairs(vote_sum) do
         if max == n_votes then
             table.insert(winners, candidate)
@@ -105,7 +119,6 @@ local function calculate_winner()
 end
 
 local function player_vote(player, option_index)
-
     local old_vote = player_votes[player.index]
     if old_vote == option_index then
         return
@@ -131,7 +144,6 @@ local function player_vote(player, option_index)
     calculate_winner()
 
     View.set_player_vote(player, vote_button, old_vote_button)
-
 end
 
 for option_index, option in pairs(options) do
@@ -142,40 +154,12 @@ for option_index, option in pairs(options) do
         end
     )
 end
-View.bind_button(
-    View.button_enum.clear_button,
-    function(player)
-        player_vote(player, nil) -- Clear player vote
-        local old_vote = player_votes[player.index]
-        local old_vote_button = nil
-        if old_vote then
-            old_vote_button = options[old_vote].button
-        end
-        View.set_player_vote(player, nil, old_vote_button)
-        calculate_winner()
-    end
-)
-
-View.bind_button(
-    View.button_enum.zoom_button,
-    function(player)
-        local zoom = player_zoom[player.index] or 1
-        if zoom == 1 then
-            zoom = 0.13
-        else
-            zoom = 1
-        end
-        player.zoom = zoom
-        player_zoom[player.index] = zoom
-    end
-)
 
 local function spawn_new_tetrimino()
     table.insert(tetriminos, Tetrimino.new(nauvis, {x = 0, y = primitives.tetri_spawn_y_position}))
 end
 
 local function collect_full_row_resources(tetri)
-
     local active_qchunks = Tetrimino.active_qchunks(tetri)
     local storage = {}
 
@@ -202,7 +186,7 @@ local function collect_full_row_resources(tetri)
 
             if row_full then
                 table.insert(full_rows, q_y)
-                for _, patch in pairs(find_entities_filtered{type = 'resource', area = {{-178, y}, {162, y + 12}}}) do
+                for _, patch in pairs(find_entities_filtered {type = 'resource', area = {{-178, y}, {162, y + 12}}}) do
                     local subtotal = storage[patch.name] or 0
                     storage[patch.name] = subtotal + patch.amount
                     patch.destroy()
@@ -215,7 +199,7 @@ local function collect_full_row_resources(tetri)
         local points = point_table[#full_rows]
         for resource, amount in pairs(storage) do
             storage[resource] = amount * points
-            if resource =='crude-oil' then
+            if resource == 'crude-oil' then
                 storage[resource] = nil
                 if #full_rows == 1 then
                     return
@@ -248,19 +232,22 @@ local function tetrimino_finished(tetri)
     spawn_new_tetrimino()
 end
 
-local chart_area = Token.register(
+local chart_area =
+    Token.register(
     function(data)
         data.force.chart(data.surface, data.area)
     end
 )
 
-local switch_state = Token.register(
+local switch_state =
+    Token.register(
     function(data)
         StateMachine.transition(machine, data.state)
     end
 )
 
-local move_down = Token.register(
+local move_down =
+    Token.register(
     function()
         for key, tetri in pairs(tetriminos) do
             if not Tetrimino.move(tetri, 0, 1) then
@@ -269,35 +256,34 @@ local move_down = Token.register(
             end
 
             local pos = tetri.position
-            Task.set_timeout_in_ticks(10, chart_area, {
-                force = player_force,
-                surface = nauvis,
-                area = {
-                    {pos.x - 32, pos.y - 32},
-                    {pos.x + 64, pos.y + 64}
+            Task.set_timeout_in_ticks(
+                10,
+                chart_area,
+                {
+                    force = player_force,
+                    surface = nauvis,
+                    area = {
+                        {pos.x - 32, pos.y - 32},
+                        {pos.x + 64, pos.y + 64}
+                    }
                 }
-            })
+            )
         end
     end
 )
 
 local function execute_vote_tick()
-    if game.tick < primitives.next_vote_finished then return end
+    if game.tick < primitives.next_vote_finished then
+        return
+    end
 
     local winner = options[primitives.winner_option_index]
     if winner then
         StateMachine.transition(machine, winner.transition)
-        primitives.stale_vote_turns = 0
         View.set_last_move(winner.button)
     else
         View.set_last_move(nil)
-        local stale_vote_turns = primitives.stale_vote_turns
-        if stale_vote_turns >= pause_after_n_ticks then
-            Task.set_timeout_in_ticks(1, switch_state, {state = states.pause})
-        else
-            primitives.stale_vote_turns = stale_vote_turns + 1
-            StateMachine.transition(machine, states.moving)
-        end
+        StateMachine.transition(machine, states.moving)
     end
 
     primitives.winner_option_index = 0
@@ -324,23 +310,27 @@ local function execute_winner_action()
 end
 
 local spawn_new_tetrimino_token = Token.register(spawn_new_tetrimino)
-Event.on_init(function()
-    player_force = game.forces.player
-    nauvis = game.surfaces.nauvis
-    player_force.chart(nauvis, {{-192, -432}, {160, 0}})
-    Task.set_timeout_in_ticks(30 * tetris_tick_duration - 15, spawn_new_tetrimino_token)
-    View.enable_vote_buttons(true)
-end)
+Event.on_init(
+    function()
+        player_force = game.forces.player
+        nauvis = game.surfaces.nauvis
+        player_force.chart(nauvis, {{-192, -432}, {160, 0}})
+        Task.set_timeout_in_ticks(30 * tetris_tick_duration - 15, spawn_new_tetrimino_token)
+        View.enable_vote_buttons(true)
+    end
+)
 
-Event.add(defines.events.on_tick, function()
-
-    if StateMachine.in_state(machine, states.voting) then
-        local progress = (primitives.next_vote_finished - game.tick + 1)  / global.vote_delay / tetris_tick_duration
-        if progress >= 0 and progress <= 1 then
-            View.set_progress(progress)
+Event.add(
+    defines.events.on_tick,
+    function()
+        if StateMachine.in_state(machine, states.voting) then
+            local progress = (primitives.next_vote_finished - game.tick + 1) / global.vote_delay / tetris_tick_duration
+            if progress >= 0 and progress <= 1 then
+                View.set_progress(progress)
+            end
         end
     end
-end)
+)
 
 local function execute_down_tick()
     local down_state = primitives.down_substate
@@ -360,48 +350,88 @@ StateMachine.register_state_tick_callback(machine, states.voting, execute_vote_t
 
 StateMachine.register_state_tick_callback(machine, states.down, execute_down_tick)
 
-StateMachine.register_transition_callback(machine, states.voting, states.pause, function()
-    View.enable_vote_buttons(true)
-    game.print('Pausing due to inactivity...')
-end)
-
-StateMachine.register_transition_callback(machine, states.pause, states.voting, function()
-    primitives.next_vote_finished = global.vote_delay * tetris_tick_duration + game.tick
-    game.print('Resuming...')
-end)
-
-StateMachine.register_transition_callback(machine, states.moving, states.voting, function()
-    View.enable_vote_buttons(true)
-end)
-
-StateMachine.register_transition_callback(machine, states.down, states.voting, function()
-    View.enable_vote_buttons(true)
-end)
-
-StateMachine.register_transition_callback(machine, states.voting, states.down, function()
-    primitives.next_vote_finished = (3 + global.vote_delay) * tetris_tick_duration + game.tick
-    View.enable_vote_buttons(false)
-end)
-
-StateMachine.register_transition_callback(machine, states.voting, states.moving, function()
-    View.enable_vote_buttons(false)
-    primitives.next_vote_finished = global.vote_delay * tetris_tick_duration + game.tick
-    execute_winner_action()
-end)
-
-Event.on_nth_tick(tetris_tick_duration, function() StateMachine.machine_tick(machine) end)
-
-Event.add(defines.events.on_player_left_game, function(event)
-    player_votes[event.player_index] = nil
-end)
-
-Event.add(defines.events.on_player_created, function(event)
-    local player = Game.get_player_by_index(event.player_index)
-
-    local position = player.surface.find_non_colliding_position('player', {8,8}, 3, 1)
-    if position then
-        player.teleport(position)
+StateMachine.register_transition_callback(
+    machine,
+    states.voting,
+    states.pause,
+    function()
+        View.enable_vote_buttons(true)
+        game.print('Pausing...')
     end
+)
 
-end)
+StateMachine.register_transition_callback(
+    machine,
+    states.pause,
+    states.voting,
+    function()
+        primitives.next_vote_finished = global.vote_delay * tetris_tick_duration + game.tick
+        game.print('Resuming...')
+    end
+)
+
+StateMachine.register_transition_callback(
+    machine,
+    states.moving,
+    states.voting,
+    function()
+        View.enable_vote_buttons(true)
+    end
+)
+
+StateMachine.register_transition_callback(
+    machine,
+    states.down,
+    states.voting,
+    function()
+        View.enable_vote_buttons(true)
+    end
+)
+
+StateMachine.register_transition_callback(
+    machine,
+    states.voting,
+    states.down,
+    function()
+        primitives.next_vote_finished = (3 + global.vote_delay) * tetris_tick_duration + game.tick
+        View.enable_vote_buttons(false)
+    end
+)
+
+StateMachine.register_transition_callback(
+    machine,
+    states.voting,
+    states.moving,
+    function()
+        View.enable_vote_buttons(false)
+        primitives.next_vote_finished = global.vote_delay * tetris_tick_duration + game.tick
+        execute_winner_action()
+    end
+)
+
+Event.on_nth_tick(
+    tetris_tick_duration,
+    function()
+        StateMachine.machine_tick(machine)
+    end
+)
+
+Event.add(
+    defines.events.on_player_left_game,
+    function(event)
+        player_votes[event.player_index] = nil
+    end
+)
+
+Event.add(
+    defines.events.on_player_created,
+    function(event)
+        local player = Game.get_player_by_index(event.player_index)
+
+        local position = player.surface.find_non_colliding_position('player', {8, 8}, 3, 1)
+        if position then
+            player.teleport(position)
+        end
+    end
+)
 return Map.get_map()
