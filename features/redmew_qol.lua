@@ -102,29 +102,29 @@ local change_backer_name =
 -- Event registers
 
 local function register_random_train_color()
-    if enabled['random_train_color'] then
+    if enabled.random_train_color then
         return false -- already registered
     end
-    enabled['random_train_color'] = true
+    enabled.random_train_color = true
     Event.add_removable(defines.events.on_built_entity, random_train_color)
     return true
 end
 
 local function register_restrict_chest()
-    if enabled['restrict_chest'] then
+    if enabled.restrict_chest then
         return false -- already registered
     end
-    enabled['restrict_chest'] = true
+    enabled.restrict_chest = true
     Event.add_removable(defines.events.on_built_entity, restrict_chest)
     Event.add_removable(defines.events.on_robot_built_entity, restrict_chest)
     return true
 end
 
 local function register_change_backer_name()
-    if enabled['change_backer_name'] then
+    if enabled.change_backer_name then
         return false -- already registered
     end
-    enabled['change_backer_name'] = true
+    enabled.change_backer_name = true
     Event.add_removable(defines.events.on_built_entity, change_backer_name)
     Event.add_removable(defines.events.on_robot_built_entity, change_backer_name)
     return true
@@ -152,13 +152,13 @@ function Public.set_random_train_color(enable)
         return register_random_train_color()
     end
     Event.remove_removable(defines.events.on_built_entity, random_train_color)
-    enabled['random_train_color'] = false
+    enabled.random_train_color = false
     return true
 end
 
 --- Return status of restrict_chest
 function Public.get_random_train_color()
-    return enabled['random_train_color'] or false
+    return enabled.random_train_color or false
 end
 
 --- Sets restrict_chest on or off.
@@ -170,14 +170,14 @@ function Public.set_restrict_chest(enable)
     else
         Event.remove_removable(defines.events.on_built_entity, restrict_chest)
         Event.remove_removable(defines.events.on_robot_built_entity, restrict_chest)
-        enabled['restrict_chest'] = false
+        enabled.restrict_chest = false
         return true
     end
 end
 
 --- Return status of restrict_chest
 function Public.get_restrict_chest()
-    return enabled['restrict_chest'] or false
+    return enabled.restrict_chest or false
 end
 
 --- Sets backer_name on or off.
@@ -189,14 +189,14 @@ function Public.set_backer_name(enable)
     else
         Event.remove_removable(defines.events.on_built_entity, change_backer_name)
         Event.remove_removable(defines.events.on_robot_built_entity, change_backer_name)
-        enabled['change_backer_name'] = false
+        enabled.change_backer_name = false
         return true
     end
 end
 
 --- Return status of backer_name
 function Public.get_backer_name()
-    return enabled['change_backer_name'] or false
+    return enabled.change_backer_name or false
 end
 
 -- Initial event setup
