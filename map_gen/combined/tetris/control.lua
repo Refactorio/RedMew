@@ -7,9 +7,9 @@ local Debug = require 'utils.debug'
 local Map = require 'map_gen.combined.tetris.shape'
 local Tetrimino = require 'map_gen.combined.tetris.tetrimino'(Map)
 local View = require 'map_gen.combined.tetris.view'
-local InfinityChest = require 'map_gen.misc.infinite_storage_chest'
+local InfinityChest = require 'features.infinite_storage_chest'
 local states = require 'map_gen.combined.tetris.states'
-local StateMachine = require 'utils.machine'
+local StateMachine = require 'utils.state_machine'
 
 local tetriminos = {}
 local primitives = {

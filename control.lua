@@ -41,8 +41,8 @@ end
 if config.donator_messages.enabled then
     require 'features.donator_messages'
 end
-if config.fish_market.enabled then
-    require 'features.fish_market'
+if config.market.enabled then
+    require 'features.market'
 end
 if config.nuke_control.enabled then
     require 'features.nuke_control'

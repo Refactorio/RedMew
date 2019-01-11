@@ -57,8 +57,8 @@ global.config = {
     paint = {
         enabled = true,
     },
-    -- adds a fish market
-    fish_market = {
+    -- adds a market
+    market = {
         enabled = true,
         currency = currency,
     },

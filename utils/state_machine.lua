@@ -17,7 +17,7 @@ local machine_count = 0
 -- @param self StateMachine
 -- @param new_state number/string The new state to transition to
 function Module.transition(self, new_state)
-    Debug.print(string.format('Transitioning from state %d to state %d.', self.state, new_state), true)
+    Debug.print(string.format('Transitioning from state %d to state %d.', self.state, new_state))
     local old_state = self.state
 
     local stack_depth = self.stack_depth
@@ -32,10 +32,13 @@ function Module.transition(self, new_state)
 
     local exit_callbacks = transaction_callbacks[self.id][old_state]
     if exit_callbacks then
-        for i = 1, #exit_callbacks do
-            local callback = exit_callbacks[i]
-            if callback then
-                callback()
+        local entry_callbacks = exit_callbacks[new_state]
+        if entry_callbacks then
+            for i = 1, #entry_callbacks do
+                local callback = entry_callbacks[i]
+                if callback then
+                    callback()
+                end
             end
         end
     end
