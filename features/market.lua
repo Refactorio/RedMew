@@ -11,7 +11,7 @@ local pairs = pairs
 local random = math.random
 local format = string.format
 local get_random = table.get_random
-local currency = global.config.fish_market.currency
+local currency = global.config.market.currency
 
 local running_speed_boost_messages = {
     '%s found the lost Dragon Scroll and got a lv.1 speed boost!',

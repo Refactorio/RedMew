@@ -1,3 +1,5 @@
+local Module = {}
+
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Gui = require 'utils.gui'
@@ -18,6 +20,12 @@ Global.register(
 
 local chest_gui_frame_name = Gui.uid_name()
 local chest_content_table_name = Gui.uid_name()
+
+function Module.create_chest(surface, position, storage)
+    local entity = surface.create_entity{name = 'infinity-chest', position = position, force = 'player'}
+    chests[entity.unit_number] = {entity = entity, storage = storage}
+    return entity
+end
 
 local function built_entity(event)
     local entity = event.created_entity
@@ -251,3 +259,5 @@ Gui.on_custom_close(
 
 local market_items = require 'resources.market_items'
 table.insert(market_items, {price = 100, name = 'infinity-chest', description = 'Stores unlimited quantity of items for up to 48 different item types'})
+return Module
+
