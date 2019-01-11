@@ -10,11 +10,14 @@
 
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
+local math = require "utils.math"
+local table = require 'utils.table'
+
+local degrees = math.rad
+
 local ore_seed1 = 1000
 local ore_seed2 = ore_seed1 * 2
 local island_separation = 350
-local math = require "utils.math"
-local degrees = math.rad
 
 local track = {
     b.translate(b.line_x(3), 0, -3),

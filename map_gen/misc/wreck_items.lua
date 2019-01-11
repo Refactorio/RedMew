@@ -1,5 +1,5 @@
 -- adds some wrecked items around the map, good for MP, reduces total resources pulled from factory, and adds incentive to push out
-
+local table = require 'utils.table'
 local Token = require 'utils.token'
 
 local wreck_item_pool = {
@@ -50,7 +50,7 @@ local callback =
     end
 )
 
-return function(x, y, world)
+return function()
     local ship = table.get_random(entity_list, true)
 
     if math.random(ship.chance) ~= 1 then

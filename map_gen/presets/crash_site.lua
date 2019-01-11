@@ -9,6 +9,7 @@ local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local math = require 'utils.math'
 local degrees = math.degrees
 local ScenarioInfo = require 'features.gui.info'
+local table = require 'utils.table'
 
 -- Comment out this block if you're getting scenario info from another source.
 ScenarioInfo.set_map_name('Crashsite')

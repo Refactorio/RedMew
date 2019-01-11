@@ -5,6 +5,7 @@ This map has isolated areas, it's recommend turning biters to peaceful to reduce
 ]]
 local b = require 'map_gen.shared.builders'
 local math = require "utils.math"
+local table = require 'utils.table'
 
 -- change these to change the pattern.
 local seed1 = 17000
