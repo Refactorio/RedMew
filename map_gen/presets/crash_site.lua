@@ -33,7 +33,7 @@ ScenarioInfo.add_map_extra_info(
     '- Outposts have enemy turrets defending them.\n- Outposts have loot and provide a steady stream of resources.\n- Outpost markets with different resources and at prices.\n- Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.\n- Biters have more health and deal more damage.\n- Biters and spitters spawn on death of entities.'
 )
 
-global.config.fish_market.enabled = false
+global.config.market.enabled = false
 
 -- leave seeds nil to have them filled in based on teh map seed.
 local outpost_seed = nil --91000
@@ -731,8 +731,6 @@ Global.register_init(
         local seed = RS.get_surface().map_gen_settings.seed
         tbl.outpost_seed = outpost_seed or seed
         tbl.ore_seed = ore_seed or seed
-
-        global.config.fish_market.enable = false
     end,
     function(tbl)
         outpost_seed = tbl.outpost_seed

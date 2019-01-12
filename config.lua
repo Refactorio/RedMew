@@ -23,6 +23,7 @@ global.config = {
         map_gen_settings = true,
         map_settings = true,
         difficulty = true
+    },
     -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
     train_saviour = {
         enabled = true
