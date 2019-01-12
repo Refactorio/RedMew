@@ -10,6 +10,21 @@ local math = require 'utils.math'
 local degrees = math.degrees
 local ScenarioInfo = require 'features.gui.info'
 local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+RS.set_map_gen_settings(
+    {
+        MGSP.grass_only,
+        {
+            terrain_segmentation = 'normal',
+            water = 'normal'
+        },
+        MGSP.starting_area_very_low,
+        MGSP.ore_oil_none,
+        MGSP.enemy_none,
+        MGSP.cliff_none
+    }
+)
 
 -- Comment out this block if you're getting scenario info from another source.
 ScenarioInfo.set_map_name('Crashsite')
