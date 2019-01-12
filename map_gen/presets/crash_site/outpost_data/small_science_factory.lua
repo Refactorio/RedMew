@@ -21,7 +21,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'science-pack-1',
-        output = {min_rate = 0.25 / 60, distance_factor = 0.25 / 60 / 512, item = 'science-pack-1'}
+        output = {min_rate = 0.35 / 60, distance_factor = 0.35 / 60 / 512, item = 'science-pack-1'}
     }
 }
 
@@ -29,13 +29,14 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'science-pack-2',
-        output = {min_rate = 0.25 / 60, distance_factor = 0.25 / 60 / 512, item = 'science-pack-2'}
+        output = {min_rate = 0.35 / 60, distance_factor = 0.35 / 60 / 512, item = 'science-pack-2'}
     }
 }
 
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Small Science Factory',
         {
             name = 'science-pack-1',
             price = 10,
@@ -57,6 +58,10 @@ local market = {
     }
 }
 
+local gun_turrets = require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets'
+local laser_turrets = require 'map_gen.presets.crash_site.outpost_data.light_laser_turrets'
+laser_turrets = ob.extend_walls(laser_turrets, {max_count = 4, fallback = gun_turrets})
+
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.small_factory'
 
 local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})
@@ -73,7 +78,7 @@ local level3b =
     base_factory[2],
     {
         factory = factory_b,
-        fallback = level2
+        fallback = level3
     }
 )
 local level4 =
@@ -81,7 +86,7 @@ local level4 =
     base_factory[3],
     {
         market = market,
-        fallback = level3
+        fallback = level3b
     }
 )
 return {
@@ -92,9 +97,10 @@ return {
         max_level = 2
     },
     walls = {
-        require 'map_gen.presets.crash_site.outpost_data.light_laser_turrets'
+        laser_turrets,
+        gun_turrets
     },
     bases = {
-        {level4, level3b, level2}
+        {level4, level3b, level3, level2}
     }
 }

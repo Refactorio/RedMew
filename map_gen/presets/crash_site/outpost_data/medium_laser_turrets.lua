@@ -1,6 +1,6 @@
 local ob = require 'map_gen.presets.crash_site.outpost_builder'
 
-return {
+return ob.make_walls{
     ob.make_4_way {
         turret = {callback = ob.power_source_callback, data = ob.laser_turrent_power_source},
         [1] = {entity = {name = 'stone-wall'}},

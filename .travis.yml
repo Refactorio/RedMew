@@ -13,6 +13,4 @@ install:
   - luarocks install luacheck
 
 script:
-  - git diff-tree -r --no-commit-id --name-only HEAD
-    | grep '\.lua$'
-    | xargs -r luacheck
+  - luacheck . --exclude-files lua_install

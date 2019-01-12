@@ -49,7 +49,7 @@ function Module.print_admins(msg, source)
         end
     else
         source_name = 'Server'
-        chat_color = Color.black
+        chat_color = Color.yellow
     end
     local formatted_msg = string.format('%s(ADMIN) %s: %s', prefix, source_name, msg) -- to the server
     print(formatted_msg)
@@ -185,10 +185,6 @@ end
 function Module.set_and_return(tbl, key, value)
     tbl[key] = value
     return value
-end
-
-function Module.random_RGB()
-    return {r = random(0, 255), g = random(0, 255), b = random(0, 255)}
 end
 
 -- add utility functions that exist in base factorio/util

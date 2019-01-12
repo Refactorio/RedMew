@@ -208,7 +208,7 @@ require 'util'
 -- process is a function which allow altering the passed object before transforming it into a string.
 -- A typical way to use it would be to remove certain values so that they don't appear at all.
 -- return <string> the prettied table
-table.inspect = require 'inspect'
+table.inspect = require 'utils.inspect'
 
 --- Takes a table and returns the number of entries in the table. (Slower than #table, faster than iterating via pairs)
 table.size = table_size

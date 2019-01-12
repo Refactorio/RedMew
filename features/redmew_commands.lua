@@ -143,7 +143,7 @@ local function server_time(_, player)
     end
 end
 
-local function search_command(arguments, player)
+local function search_command(arguments)
     local keyword = arguments.keyword
     local p = Game.player_print
     if #keyword < 2 then
@@ -191,7 +191,7 @@ local function search_command(arguments, player)
     p(format('-------- Page %d / %d --------', page, pages))
 end
 
-----------------------------------------------------------------------------------------
+-- Command registrations
 
 Command.add(
     'kill',
