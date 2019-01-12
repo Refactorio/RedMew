@@ -1,5 +1,7 @@
--- dependencies
+-- localised functions
 local format = string.format
+local match = string.match
+local gsub = string.gsub
 local serialize = serpent.line
 local debug_getupvalue = debug.getupvalue
 
@@ -16,27 +18,50 @@ local function increment()
     return next
 end
 
---- Takes the output from debug.getinfo and strips the function and full source names
+--- Takes the table output from debug.getinfo and pretties it
 local function cleanup_debug(debug_table)
-    return format('caller details: name: %s file: %s, line number: %s', debug_table.name, debug_table.short_src, debug_table.currentline)
+    local short_src = match(debug_table.source, '/[^/]*/[^/]*$')
+    -- require will not return a valid string so short_src may be nil here
+    if short_src then
+        short_src = gsub(short_src, '%.lua', '')
+    end
+
+    return format('[function: %s file: %s line number: %s]', debug_table.name, short_src, debug_table.currentline)
 end
 
 ---Shows the given message if debug is enabled. Uses serpent to print non scalars.
 -- @param message <table|string|number|boolean>
--- @param no_source <boolean> if true, will omit the source of the debug message
-function Debug.print(message, no_source)
+-- @param stack_traceback <number|nil> levels of stack trace to give, defaults to 1 level if nil
+function Debug.print(message, trace_levels)
     if not _DEBUG then
         return
     end
 
+    if not trace_levels then
+        trace_levels = 2
+    else
+        trace_levels = trace_levels + 1
+    end
+
+    local traceback_string = ''
     if type(message) ~= 'string' and type(message) ~= 'number' and type(message) ~= 'boolean' then
         message = serialize(message)
     end
 
     message = format('[%d] %s', increment(), tostring(message))
-    if not no_source then
-        message = format('%s -- %s', message, cleanup_debug(debug.getinfo(2)))
+
+    if trace_levels >= 2 then
+        for i = 2, trace_levels do
+            local debug_table = debug.getinfo(i)
+            if debug_table then
+                traceback_string = format('%s -> %s', traceback_string, cleanup_debug(debug_table))
+            else
+                break
+            end
+        end
+        message = format('%s - Traceback%s', message, traceback_string)
     end
+
     if game then
         game.print(message)
     end

@@ -22,13 +22,14 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         furance_item = 'copper-ore',
-        output = {min_rate = 3 / 60, distance_factor = 1.5 / 60 / 512, item = 'copper-plate'}
+        output = {min_rate = 4 / 60, distance_factor = 1.75 / 60 / 512, item = 'copper-plate'}
     }
 }
 
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Small Copper Plate Factory',
         {
             name = 'copper-cable',
             price = 0.12,
@@ -43,6 +44,10 @@ local market = {
         }
     }
 }
+
+local turrets = require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets'
+local worms = require 'map_gen.presets.crash_site.outpost_data.big_worm_turrets'
+worms = ob.extend_walls(worms, {max_count = 2, fallback = turrets})
 
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.small_furance'
 
@@ -71,7 +76,7 @@ return {
         max_level = 2
     },
     walls = {
-        require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets'
+        worms
     },
     bases = {
         {level4, level2}

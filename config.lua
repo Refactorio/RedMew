@@ -1,7 +1,7 @@
 _DEBUG = false
 _CHEATS = false
 _DUMP_ENV = false
-local market_item = 'coin'
+local currency = 'coin'
 
 global.config = {
     -- adds a GUI listing the scenario features, the rules, and the details of the current map
@@ -22,7 +22,14 @@ global.config = {
         enabled = true,
         map_gen_settings = true,
         map_settings = true,
-        difficulty = true,
+        difficulty = true
+    -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
+    train_saviour = {
+        enabled = true
+    },
+    -- Adds the infinite storage chest to the market and adds a custom GUI to it. Also has to be loaded first due to adding a market item
+    infinite_storage_chest = {
+        enabled = false
     },
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
@@ -43,7 +50,7 @@ global.config = {
     },
     -- enables players to create and prioritize tasks
     tasklist = {
-        enabled = false,
+        enabled = true,
     },
     -- enables the blueprint helper
     blueprint_helper = {
@@ -57,10 +64,10 @@ global.config = {
     paint = {
         enabled = true,
     },
-    -- adds a fish market
-    fish_market = {
+    -- adds a market
+    market = {
         enabled = true,
-        market_item = market_item,
+        currency = currency,
     },
     -- adds anti-nuke griefing
     nuke_control = {
@@ -165,7 +172,7 @@ global.config = {
     player_rewards = {
         enabled = true,
         -- the token to use for rewards
-        token = market_item,
+        token = currency,
         -- rewards players for looking through the info tabs
         info_player_reward = true,
     },
@@ -189,15 +196,7 @@ global.config = {
     donator_messages = {
         enabled = true,
     },
-    -- saves players' lives if they have a small-plane in their inventory, also adds the small-plan to the market
-    train_saviour = {
-        enabled = true,
-    },
     player_colors = {
-        enabled = true,
-    },
-    -- checks the list of players for train station names
-    train_station_names = {
         enabled = true,
     },
     -- adds a command that switches a player to the enemy force and teleports them far away for some time to calm down
@@ -211,6 +210,18 @@ global.config = {
     -- adds a camera to watch another player
     camera = {
         enabled = true,
+    },
+    -- adds small quality of life tweaks for multiplayer play
+    redmew_qol = {
+        enabled = true,
+        -- restricts placed chests to 1 square of inventory
+        restrict_chest = false,
+        -- gives entities with backer names a chance to be named after a player or redmew regular
+        backer_name = true,
+        -- gives locos placed a random color
+        random_train_color = true,
+        -- gives players entity ghosts (from destruction like biter attacks) before the required research is complete
+        ghosts_before_research = true,
     },
 }
 

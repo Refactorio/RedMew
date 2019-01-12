@@ -51,6 +51,7 @@ local factory = {
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Medium Oil Refinery',
         {
             name = 'crude-oil-barrel',
             price = 10,

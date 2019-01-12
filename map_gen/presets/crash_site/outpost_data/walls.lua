@@ -1,6 +1,6 @@
 local ob = require 'map_gen.presets.crash_site.outpost_builder'
 
-return {
+return ob.make_walls{
     ob.make_4_way {
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {entity = {name = 'stone-wall'}},

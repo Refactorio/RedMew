@@ -1,8 +1,9 @@
 -- Omitting the math library is a very bad idea
 require 'utils.math'
 
--- global to prevent having require left-overs in files to use a Debug.print
+-- Global Debug and extra global table functions to make debugging and coding significantly easier
 Debug = require 'utils.debug'
+require 'utils.table'
 
 -- Map layout and config dictate the map you play and the settings in it
 local config = require 'config'
@@ -17,6 +18,12 @@ require 'features.player_create'
 require 'features.user_groups'
 
 -- Feature modules, each can be disabled safely
+if config.train_saviour.enabled then
+    require 'features.train_saviour'
+end
+if config.infinite_storage_chest.enabled then
+    require 'features.infinite_storage_chest'
+end
 if config.autodeconstruct.enabled then
     require 'features.autodeconstruct'
 end
@@ -35,11 +42,8 @@ end
 if config.donator_messages.enabled then
     require 'features.donator_messages'
 end
-if config.train_saviour.enabled then
-    require 'features.train_saviour'
-end
-if config.fish_market.enabled then
-    require 'features.fish_market'
+if config.market.enabled then
+    require 'features.market'
 end
 if config.nuke_control.enabled then
     require 'features.nuke_control'
@@ -50,17 +54,17 @@ end
 if config.reactor_meltdown.enabled then
     require 'features.reactor_meltdown'
 end
-if config.train_station_names.enabled then
-    require 'features.train_station_names'
-end
 if config.walkabout.enabled then
     require 'features.walkabout'
 end
-if global.config.performance.enabled then
+if config.performance.enabled then
     require 'features.performance'
 end
-if global.config.hail_hydra.enabled then
+if config.hail_hydra.enabled then
     require 'features.hail_hydra'
+end
+if config.redmew_qol.enabled then
+    require 'features.redmew_qol'
 end
 
 -- GUIs the order determines the order they appear from left to right.

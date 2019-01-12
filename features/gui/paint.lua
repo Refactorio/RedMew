@@ -129,10 +129,6 @@ local function toggle(event)
             direction = 'vertical',
             caption = 'Paint Brush'
         }
-        main_frame.add {
-            type = 'label',
-            caption = 'Choose a replacement tile for Refined hazard concrete'
-        }
 
         local tooltip = global.paint_brushes_by_player[event.player_index] or ''
 

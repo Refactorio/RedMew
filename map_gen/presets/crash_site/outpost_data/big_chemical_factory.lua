@@ -27,7 +27,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'plastic-bar',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'plastic-bar'}
+        output = {min_rate = 2.5 / 60, distance_factor = 2 / 60 / 512, item = 'plastic-bar'}
     }
 }
 
@@ -49,6 +49,7 @@ local factory_c = {
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Big Chemical Factory',
         {
             name = 'coal',
             price = 0.25,

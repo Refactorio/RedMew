@@ -26,7 +26,7 @@ local loot_callback =
 local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'coal'}
+        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 512, item = 'coal'}
     }
 }
 
@@ -34,13 +34,14 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'solid-fuel-from-light-oil',
-        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'solid-fuel'}
+        output = {min_rate = 0.75 / 60, distance_factor = 0.75 / 60 / 512, item = 'solid-fuel'}
     }
 }
 
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Small Power Factory',
         {
             name = 'coal',
             price = 0.5,
@@ -92,6 +93,10 @@ local market = {
     }
 }
 
+local turrets = require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets'
+local worms = require 'map_gen.presets.crash_site.outpost_data.big_worm_turrets'
+worms = ob.extend_walls(worms, {max_count = 2, fallback = turrets})
+
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.small_furance'
 local base_factory2 = require 'map_gen.presets.crash_site.outpost_data.small_chemical_plant'
 
@@ -132,7 +137,7 @@ return {
         max_level = 2
     },
     walls = {
-        require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets'
+        worms
     },
     bases = {
         {level4, level2}

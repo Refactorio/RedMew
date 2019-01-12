@@ -1,4 +1,3 @@
--- luacheck: ignore pollution enemy_evolution enemy_expansion
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
 global.map.terraforming.creep_retraction_tiles = {'sand-1'}
