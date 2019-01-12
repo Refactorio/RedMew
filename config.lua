@@ -192,10 +192,6 @@ global.config = {
     player_colors = {
         enabled = true,
     },
-    -- checks the list of players for train station names
-    train_station_names = {
-        enabled = true,
-    },
     -- adds a command that switches a player to the enemy force and teleports them far away for some time to calm down
     walkabout = {
         enabled = true,
@@ -207,6 +203,18 @@ global.config = {
     -- adds a camera to watch another player
     camera = {
         enabled = true,
+    },
+    -- adds small quality of life tweaks for multiplayer play
+    redmew_qol = {
+        enabled = true,
+        -- restricts placed chests to 1 square of inventory
+        restrict_chest = false,
+        -- gives entities with backer names a chance to be named after a player or redmew regular
+        backer_name = true,
+        -- gives locos placed a random color
+        random_train_color = true,
+        -- gives players entity ghosts (from destruction like biter attacks) before the required research is complete
+        ghosts_before_research = true,
     },
 }
 
