@@ -67,6 +67,10 @@ if config.redmew_qol.enabled then
     require 'features.redmew_qol'
 end
 
+if config.loaders.enabled then
+    require 'features.loaders'
+end
+
 -- GUIs the order determines the order they appear from left to right.
 -- These can be safely disabled if you want less GUI items.
 -- Some map presets will add GUI modules themselves.
