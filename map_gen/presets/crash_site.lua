@@ -672,7 +672,12 @@ local function init()
             {name = 'science-pack-3', price = 75},
             {name = 'production-science-pack', price = 100},
             {name = 'high-tech-science-pack', price = 125},
-            {name = 'small-plane', price = 100}
+            {
+                price = 100,
+                name = 'small-plane',
+                name_label = 'Train Immunity (1x use)',
+                description = 'Each small plane in your inventory will save you from being killed by a train once.'
+            }
         }
     }
 

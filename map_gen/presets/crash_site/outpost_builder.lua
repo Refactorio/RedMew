@@ -1122,7 +1122,10 @@ Public.market_set_items_callback =
                 price = math.max(price, min_price)
             end
 
-            Retailer.set_item(market_id, {name = item.name, price = price})
+            Retailer.set_item(
+                market_id,
+                {name = item.name, price = price, name_label = item.name_label, description = item.description}
+            )
         end
     end
 )
