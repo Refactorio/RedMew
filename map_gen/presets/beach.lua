@@ -3,6 +3,7 @@ local perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
 local math = require 'utils.math'
 local RS = require 'map_gen.shared.redmew_surface'
+local table = require 'utils.table'
 
 local sand_width = 512
 local sand_width_inv = math.tau / sand_width

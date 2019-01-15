@@ -5,7 +5,7 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local degrees = require "utils.math".degrees
-require 'utils.table'
+local table = require 'utils.table'
 
 -- change these to change the pattern.
 local ore_seed1 = 30000

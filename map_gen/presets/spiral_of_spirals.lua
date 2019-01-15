@@ -1,4 +1,5 @@
 local b = require 'map_gen.shared.builders'
+local table = require 'utils.table'
 local Random = require 'map_gen.shared.random'
 local ore_seed1 = 2000
 local ore_seed2 = ore_seed1 * 2

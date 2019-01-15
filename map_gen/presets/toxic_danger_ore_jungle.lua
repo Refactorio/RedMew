@@ -4,6 +4,8 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local math = require "utils.math"
 local RS = require 'map_gen.shared.redmew_surface'
+local table = require 'utils.table'
+
 local match = string.match
 local remove = table.remove
 

@@ -19,6 +19,7 @@ TODO: Look into triggering existing unit groups to attack in unison with the gro
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
+local table = require 'utils.table'
 
 local random = math.random
 local insert = table.insert

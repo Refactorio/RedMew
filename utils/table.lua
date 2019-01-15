@@ -1,3 +1,4 @@
+--luacheck:ignore global table
 local random = math.random
 local floor = math.floor
 local remove = table.remove
@@ -230,3 +231,5 @@ table.merge = util.merge
 -- @param tbl2 <table>
 -- @return <boolean>
 table.equals = table.compare
+
+return table

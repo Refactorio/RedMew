@@ -1,5 +1,6 @@
 local b = require "map_gen.shared.builders"
 local degrees = require "utils.math".degrees
+local table = require 'utils.table'
 
 local seed1 = 666
 local seed2 = 999

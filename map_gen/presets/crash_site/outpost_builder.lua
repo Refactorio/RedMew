@@ -5,6 +5,7 @@ local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Retailer = require 'features.retailer'
 local PlayerStats = require 'features.player_stats'
+local table = require 'utils.table'
 
 local b = require 'map_gen.shared.builders'
 
@@ -1122,7 +1123,10 @@ Public.market_set_items_callback =
                 price = math.max(price, min_price)
             end
 
-            Retailer.set_item(market_id, {name = item.name, price = price})
+            Retailer.set_item(
+                market_id,
+                {name = item.name, price = price, name_label = item.name_label, description = item.description}
+            )
         end
     end
 )

@@ -3,7 +3,7 @@
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Color = require 'resources.color_presets'
-require 'utils.table'
+local table = require 'utils.table'
 local Hodor = require 'resources.hodor_messages'
 
 local prefix = '## - '

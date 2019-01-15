@@ -1,5 +1,6 @@
 local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
+local table = require 'utils.table'
 
 local seed = nil -- Set to number to force seed.
 

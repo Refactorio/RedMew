@@ -4,7 +4,7 @@ local Event = require 'utils.event'
 local player_ammo_starting_modifiers = {
     ['artillery-shell'] = -0.75,
     ['biological'] = -0.5,
-    ['bullet'] = -0.35,
+    ['bullet'] = -0.20,
     ['cannon-shell'] = -0.75,
     ['capsule'] = -0.5,
     ['combat-robot-beam'] = -0.5,
@@ -17,13 +17,13 @@ local player_ammo_starting_modifiers = {
     ['melee'] = 0,
     ['railgun'] = 0,
     ['rocket'] = -0.5,
-    ['shotgun-shell'] = -0.25
+    ['shotgun-shell'] = -0.20
 }
 
 local player_ammo_research_modifiers = {
     ['artillery-shell'] = -0.75,
     ['biological'] = -0.5,
-    ['bullet'] = -0.35,
+    ['bullet'] = -0.20,
     ['cannon-shell'] = -0.75,
     ['capsule'] = -0.5,
     ['combat-robot-beam'] = -0.5,
@@ -36,7 +36,7 @@ local player_ammo_research_modifiers = {
     ['melee'] = -0.5,
     ['railgun'] = -0.5,
     ['rocket'] = -0.5,
-    ['shotgun-shell'] = -0.25
+    ['shotgun-shell'] = -0.20
 }
 
 local player_turrets_research_modifiers = {

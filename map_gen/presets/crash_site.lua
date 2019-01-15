@@ -9,6 +9,7 @@ local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local math = require 'utils.math'
 local degrees = math.degrees
 local ScenarioInfo = require 'features.gui.info'
+local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 
@@ -688,7 +689,12 @@ local function init()
             {name = 'science-pack-3', price = 75},
             {name = 'production-science-pack', price = 100},
             {name = 'high-tech-science-pack', price = 125},
-            {name = 'small-plane', price = 100}
+            {
+                price = 100,
+                name = 'small-plane',
+                name_label = 'Train Immunity (1x use)',
+                description = 'Each small plane in your inventory will save you from being killed by a train once.'
+            }
         }
     }
 
@@ -731,6 +737,7 @@ Global.register_init(
         local seed = RS.get_surface().map_gen_settings.seed
         tbl.outpost_seed = outpost_seed or seed
         tbl.ore_seed = ore_seed or seed
+        global.config.market.enable = false
     end,
     function(tbl)
         outpost_seed = tbl.outpost_seed

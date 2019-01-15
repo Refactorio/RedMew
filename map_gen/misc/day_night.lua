@@ -1,6 +1,7 @@
 -- For more info on the day/night cycle and examples of cycles see: https://github.com/Refactorio/RedMew/wiki/Day-Night-cycle
 local Public = {}
 local Debug = require 'utils.debug'
+local math = require 'utils.math'
 
 local day_night_cycle_keys = {
     'ticks_per_day',
