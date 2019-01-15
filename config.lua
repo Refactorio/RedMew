@@ -14,53 +14,53 @@ global.config = {
         -- The feature list of the map
         map_extra_info_key = 'This map has no extra information',
         -- New Scenario Features, appears in the "What's new" tab
-        new_info_key = 'Nothing is new. The world is at peace',
+        new_info_key = 'Nothing is new. The world is at peace'
     },
     -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
     train_saviour = {
-        enabled = true,
+        enabled = true
     },
     -- Adds the infinite storage chest to the market and adds a custom GUI to it. Also has to be loaded first due to adding a market item
     infinite_storage_chest = {
-        enabled = false,
+        enabled = false
     },
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
-        enabled = true,
+        enabled = true
     },
     -- adds a player list icon and keeps track of data.
     player_list = {
         enabled = true,
-        show_coin_column = true,
+        show_coin_column = true
     },
     -- enables the poll system
     poll = {
-        enabled = true,
+        enabled = true
     },
     -- enables players to create and join tags
     tag_group = {
-        enabled = true,
+        enabled = true
     },
     -- enables players to create and prioritize tasks
     tasklist = {
-        enabled = true,
+        enabled = true
     },
     -- enables the blueprint helper
     blueprint_helper = {
-        enabled = true,
+        enabled = true
     },
     -- enables score and tracking thereof
     score = {
-        enabled = true,
+        enabled = true
     },
     -- adds a paint brush
     paint = {
-        enabled = true,
+        enabled = true
     },
     -- adds a market
     market = {
         enabled = true,
-        currency = currency,
+        currency = currency
     },
     -- adds anti-nuke griefing
     nuke_control = {
@@ -68,25 +68,25 @@ global.config = {
         enable_autokick = true,
         enable_autoban = true,
         -- how long a player must be on the server to be allowed to use the nuke
-        nuke_min_time_hours = 3,
+        nuke_min_time_hours = 3
     },
     -- adds a meltdown feature, requiring precise management
     reactor_meltdown = {
         enabled = true,
         -- when enabled, controls whether it's on by default. State can be controlled with the /meltdown command.
-        on_by_default = false,
+        on_by_default = false
     },
     -- adds hodor responses to messages
     hodor = {
-        enabled = true,
+        enabled = true
     },
     -- enable RedMew auto respond messages
     auto_respond = {
-        enabled = true,
+        enabled = true
     },
     -- enable the mentioning system, which notifies a player when their name is mentioned
     mentions = {
-        enabled = true,
+        enabled = true
     },
     -- settings for when a player joins the server for the first time
     player_create = {
@@ -94,14 +94,14 @@ global.config = {
         -- items automatically inserted into the player inventory
         starting_items = {
             {name = 'iron-gear-wheel', count = 8},
-            {name = 'iron-plate', count = 16},
+            {name = 'iron-plate', count = 16}
         },
         -- opens the scenario popup when the player joins
         show_info_at_start = true,
         -- prints messages when the player joins
         join_messages = {
             'Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord',
-            'Click the question mark in the top left corner for server information and map details.',
+            'Click the question mark in the top left corner for server information and map details.'
         },
         -- format is a table: {{message, weight}, {message, weight}}, where a higher weight has more chance to be shown
         random_join_message_set = require 'resources.join_messages',
@@ -131,9 +131,9 @@ global.config = {
                 {name = 'small-plane', count = 2},
                 {name = 'coin', count = 20000},
                 {name = 'rocket-part', count = 2},
-                {name = 'computer', count = 2},
-            },
-        },
+                {name = 'computer', count = 2}
+            }
+        }
     },
     -- spawns more units when one dies
     hail_hydra = {
@@ -158,8 +158,8 @@ global.config = {
             -- worms
             ['small-worm-turret'] = {['small-biter'] = 2.5},
             ['medium-worm-turret'] = {['small-biter'] = 2.5, ['medium-biter'] = 0.6},
-            ['big-worm-turret'] = {['small-biter'] = 3.8, ['medium-biter'] = 1.3, ['big-biter'] = 1.1},
-        },
+            ['big-worm-turret'] = {['small-biter'] = 3.8, ['medium-biter'] = 1.3, ['big-biter'] = 1.1}
+        }
     },
     -- grants reward coins for certain actions
     player_rewards = {
@@ -167,42 +167,42 @@ global.config = {
         -- the token to use for rewards
         token = currency,
         -- rewards players for looking through the info tabs
-        info_player_reward = true,
+        info_player_reward = true
     },
     -- automatically marks miners for deconstruction when they are depleted (currently compatible with hard mods that add miners)
     autodeconstruct = {
-        enabled = true,
+        enabled = true
     },
     -- when a player dies, leaves a map marker until the corpse expires or is looted
     corpse_util = {
-        enabled = true,
+        enabled = true
     },
     -- adds many commands for users and admins alike
     redmew_commands = {
-        enabled = true,
+        enabled = true
     },
     -- adds many commands for admins
     admin_commands = {
-        enabled = true,
+        enabled = true
     },
     -- enables donators' on-join messages
     donator_messages = {
-        enabled = true,
+        enabled = true
     },
     player_colors = {
-        enabled = true,
+        enabled = true
     },
     -- adds a command that switches a player to the enemy force and teleports them far away for some time to calm down
     walkabout = {
-        enabled = true,
+        enabled = true
     },
     -- adds a command to generate a popup dialog box for players to see, useful for important announcements
     popup = {
-        enabled = true,
+        enabled = true
     },
     -- adds a camera to watch another player
     camera = {
-        enabled = true,
+        enabled = true
     },
     -- adds small quality of life tweaks for multiplayer play
     redmew_qol = {
@@ -215,7 +215,9 @@ global.config = {
         random_train_color = true,
         -- gives players entity ghosts (from destruction like biter attacks) before the required research is complete
         ghosts_before_research = true,
-    },
+        -- adds craftable loaders.
+        loaders = true
+    }
 }
 
 return global.config

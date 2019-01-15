@@ -78,7 +78,4 @@ return {
     {price = 350,  name = 'energy-shield-equipment'},
     {price = 750,  name = 'personal-laser-defense-equipment'},
     {price = 1,    name = 'refined-hazard-concrete'},
-    {price = 75,   name = 'loader'},
-    {price = 150,  name = 'fast-loader'},
-    {price = 225,  name = 'express-loader'},
 }
