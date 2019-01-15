@@ -99,6 +99,21 @@ local change_backer_name =
     end
 )
 
+local loaders_technology_map = {
+    ['logistics'] = 'loader',
+    ['logistics-2'] = 'fast-loader',
+    ['logistics-3'] = 'express-loader'
+}
+
+-- Enables loaders when prerequisite technology is researched.
+local function enable_loaders(event)
+    local research = event.research
+    local recipe = loaders_technology_map[research.name]
+    if recipe then
+        research.force.recipes[recipe].enabled = true
+    end
+end
+
 -- Event registers
 
 local function register_random_train_color()
@@ -209,6 +224,10 @@ if config.restrict_chest then
 end
 if config.backer_name then
     register_change_backer_name()
+end
+
+if config.loaders then
+    Event.add(defines.events.on_research_finished, enable_loaders)
 end
 
 return Public

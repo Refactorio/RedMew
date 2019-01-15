@@ -214,11 +214,9 @@ global.config = {
         -- gives locos placed a random color
         random_train_color = true,
         -- gives players entity ghosts (from destruction like biter attacks) before the required research is complete
-        ghosts_before_research = true
-    },
-    -- adds craftable loaders.
-    loaders = {
-        enabled = true
+        ghosts_before_research = true,
+        -- adds craftable loaders.
+        loaders = true
     }
 }
 
