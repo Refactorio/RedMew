@@ -29,7 +29,7 @@ return ob.make_walls {
         part_size = 3,
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {tile = 'concrete'},
-        [3] = {entity = {name = 'iron-chest'}, tile = 'stone-path'},
+        [3] = {entity = {name = 'iron-chest', force = 'neutral', callback = 'loot'}, tile = 'stone-path'},
         [4] = {tile = 'concrete'},
         [5] = {tile = 'concrete'},
         [6] = {entity = {name = 'iron-chest', force = 'neutral', callback = 'loot'}, tile = 'stone-path'},
