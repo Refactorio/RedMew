@@ -14,6 +14,7 @@ local Tetrimino = {}
 -- @field 3 table of numbers thrid row
 -- @field 4 table of numbers forth  row
 
+local table = require 'utils.table'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Queue = require 'utils.queue'

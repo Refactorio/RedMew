@@ -1,3 +1,4 @@
+-- dependencies
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
@@ -5,13 +6,19 @@ local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Retailer = require 'features.retailer'
+local table = require 'utils.table'
 local market_items = require 'resources.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
+
+-- localized functions
+
 local pairs = pairs
 local random = math.random
 local format = string.format
 local get_random = table.get_random
 local currency = global.config.market.currency
+
+-- local vars
 
 local running_speed_boost_messages = {
     '%s found the lost Dragon Scroll and got a lv.1 speed boost!',

@@ -1,10 +1,15 @@
 -- A small debugging tool that writes the contents of _ENV to a file when the game loads.
 -- Useful for ensuring you get the same information when loading
 -- the reference and desync levels in desync reports.
-require 'utils.table'
+-- dependencies
+local table = require 'utils.table'
 local Event = require 'utils.event'
-local filename = 'env_dump.lua'
+
+-- localized functions
 local inspect = table.inspect
+
+-- local constants
+local filename = 'env_dump.lua'
 
 -- Removes metatables and the package table
 local filter = function(item, path)

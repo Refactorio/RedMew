@@ -7,7 +7,7 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local ScenarioInfo = require 'features.gui.info'
-require 'utils.table'
+local table = require 'utils.table'
 
 ScenarioInfo.set_map_name('Christmas Tree of Terror')
 ScenarioInfo.set_map_description("Triangle of death's Christmas cousin")
