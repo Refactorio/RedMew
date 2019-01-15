@@ -1,4 +1,4 @@
-require 'utils.table'
+local table = require 'utils.table'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 local naming_words = require 'resources.naming_words'

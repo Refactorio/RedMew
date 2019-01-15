@@ -6,6 +6,9 @@
 -- dependencies
 local Global = require 'utils.global'
 local Debug = require 'utils.debug'
+local table = require 'utils.table'
+
+-- localized functions
 local get_random_weighted = table.get_random_weighted
 local round = math.round
 local ceil = math.ceil

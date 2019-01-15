@@ -1,4 +1,5 @@
 local b = require 'map_gen.shared.builders'
+local table = require 'utils.table'
 
 local seed1 = 6666
 local seed2 = 9999

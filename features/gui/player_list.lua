@@ -8,6 +8,7 @@ local Utils = require 'utils.core'
 local Report = require 'features.report'
 local Game = require 'utils.game'
 local Color = require 'resources.color_presets'
+local table = require 'utils.table'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
@@ -396,7 +397,7 @@ local column_builders = {
         sort = function(a, b)
             return a.name:lower() < b.name:lower()
         end,
-        draw_heading = function(parent, data)
+        draw_heading = function(parent)
             local label =
                 parent.add {
                 type = 'label',
@@ -410,7 +411,7 @@ local column_builders = {
 
             return label
         end,
-        draw_cell = function(parent, cell_data, data)
+        draw_cell = function(parent, cell_data)
             local parent_style = parent.style
             parent_style.width = 58
             parent_style.align = 'center'
@@ -440,7 +441,7 @@ local column_builders = {
 }
 
 local function get_default_player_settings()
-    columns = {
+    local columns = {
         sprite_heading_name,
         player_name_heading_name,
         time_heading_name,

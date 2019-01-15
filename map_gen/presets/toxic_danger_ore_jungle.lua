@@ -3,6 +3,8 @@ local Perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local math = require "utils.math"
+local table = require 'utils.table'
+
 local match = string.match
 local remove = table.remove
 

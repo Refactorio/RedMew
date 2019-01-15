@@ -1,4 +1,5 @@
 local Global = require 'utils.global'
+local table = require 'utils.table'
 
 local seed = nil -- Set to number to force seed.
 

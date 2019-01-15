@@ -4,6 +4,8 @@
 
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
+local table = require 'utils.table'
+
 local ore_seed = 3000
 
 local function no_resources(x, y, world, tile)

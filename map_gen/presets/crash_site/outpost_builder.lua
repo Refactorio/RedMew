@@ -5,6 +5,7 @@ local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Retailer = require 'features.retailer'
 local PlayerStats = require 'features.player_stats'
+local table = require 'utils.table'
 
 local b = require 'map_gen.shared.builders'
 

@@ -1,4 +1,5 @@
 local Token = require 'utils.token'
+local table = require 'utils.table'
 
 local item_pool = {
     {name = 'firearm-magazine', count = 200, weight = 1250},

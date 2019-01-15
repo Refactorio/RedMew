@@ -9,13 +9,13 @@
 
 local b = require 'map_gen.shared.builders'
 local math = require 'utils.math'
+local table = require 'utils.table'
 local degrees = math.rad
 local ore_seed1 = 7000
 local ore_seed2 = ore_seed1 * 2
 local noise = require 'map_gen.shared.perlin_noise'.noise
 local abs = math.abs
 
-require 'utils.table'
 
 local Random = require 'map_gen.shared.random'
 local random = Random.new(ore_seed1, ore_seed2)

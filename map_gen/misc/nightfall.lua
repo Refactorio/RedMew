@@ -17,9 +17,11 @@ TODO: Look into triggering existing unit groups to attack in unison with the gro
 
 -- Dependencies
 local Event = require 'utils.event'
+local Global = require 'utils.global'
+local table = require 'utils.table'
+
 local random = math.random
 local insert = table.insert
-local Global = require 'utils.global'
 
 -- config settings
 -- basic interval for checks

@@ -2,6 +2,7 @@ local b = require 'map_gen.shared.builders'
 local perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
 local math = require 'utils.math'
+local table = require 'utils.table'
 
 local sand_width = 512
 local sand_width_inv = math.tau / sand_width

@@ -7,7 +7,7 @@
 local b = require 'map_gen.shared.builders'
 local math = require "utils.math"
 local degrees = math.rad
-require 'utils.table'
+local table = require 'utils.table'
 local Event = require 'utils.event'
 
 -- change these to change the pattern.

@@ -2,8 +2,7 @@
     Provides the ability to collapse caves when digging.
 ]]
 -- dependencies
-require 'utils.table'
-
+local table = require 'utils.table'
 local Event = require 'utils.event'
 local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
