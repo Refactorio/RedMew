@@ -64,18 +64,21 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
+local config = global.config.redmew_surface
 
 -- Localized functions
 local insert = table.insert
 local merge = util.merge
 local format = string.format
 
--- Local vars
-local Public = {}
-
 -- Constants
-local surface_name = 'redmew'
-local set_error_message = 'set_%s has already been called. You cannot call set twice as earlier values may be overwritten.'
+local set_warn_message = 'set_%s has already been called. Calling this twice can lead to unexpected settings overwrites.'
+
+-- Local vars
+local set_difficulty_settings_called
+local set_map_gen_settings_called
+local set_map_settings_called
+local Public = {}
 
 -- Global tokens
 local data = {
@@ -84,22 +87,18 @@ local data = {
     ['difficulty_settings_components'] = {}
 }
 
--- This just creates an empty primitives table, the definitions are to document what primitives might exist.
+-- The nil definitions are to document what primitives might exist.
 local primitives = {
+    ['surface_name'] = 'redmew',
     ['first_player_position_check_override'] = nil,
-    ['set_difficulty_settings'] = nil,
-    ['set_map_gen_settings'] = nil,
-    ['set_map_settings'] = nil,
 }
 
 Global.register(
     {
         primitives = primitives,
-        data = data
     },
     function(tbl)
         primitives = tbl.primitives
-        data = tbl.data
     end
 )
 
@@ -114,61 +113,85 @@ end
 
 --- Sets up the difficulty settings
 local function set_difficulty_settings()
-    if global.config.redmew_surface.enabled and global.config.redmew_surface.difficulty then
-        local combined_difficulty_settings = merge(data.difficulty_settings_components)
-        for k, v in pairs(combined_difficulty_settings) do
-            game.difficulty_settings[k] = v
-        end
+    local combined_difficulty_settings = merge(data.difficulty_settings_components)
+    for k, v in pairs(combined_difficulty_settings) do
+        game.difficulty_settings[k] = v
     end
 end
 
 --- Sets up the map settings
 local function set_map_settings()
-    if global.config.redmew_surface.enabled and global.config.redmew_surface.map_settings then
-        local combined_map_settings = merge(data.map_settings_components)
+    local combined_map_settings = merge(data.map_settings_components)
 
-        -- Iterating through individual tables because game.map_settings is read-only
-        if combined_map_settings.pollution then
-            for k, v in pairs(combined_map_settings.pollution) do
-                game.map_settings.pollution[k] = v
-            end
-        end
-        if combined_map_settings.enemy_evolution then
-            for k, v in pairs(combined_map_settings.enemy_evolution) do
-                game.map_settings.enemy_evolution[k] = v
-            end
-        end
-        if combined_map_settings.enemy_expansion then
-            for k, v in pairs(combined_map_settings.enemy_expansion) do
-                game.map_settings.enemy_expansion[k] = v
-            end
-        end
-        if combined_map_settings.unit_group then
-            for k, v in pairs(combined_map_settings.unit_group) do
-                game.map_settings.unit_group[k] = v
-            end
-        end
-        if combined_map_settings.steering then
-            if combined_map_settings.steering.default then
-                for k, v in pairs(combined_map_settings.steering.default) do
-                    game.map_settings.steering.default[k] = v
-                end
-            end
-            if combined_map_settings.steering.moving then
-                for k, v in pairs(combined_map_settings.steering.moving) do
-                    game.map_settings.steering.moving[k] = v
-                end
-            end
-        end
-        if combined_map_settings.path_finder then
-            for k, v in pairs(combined_map_settings.path_finder) do
-                game.map_settings.path_finder[k] = v
-            end
-        end
-        if combined_map_settings.max_failed_behavior_count then
-            game.map_settings.max_failed_behavior_count = combined_map_settings.max_failed_behavior_count
+    -- Iterating through individual tables because game.map_settings is read-only
+    if combined_map_settings.pollution then
+        for k, v in pairs(combined_map_settings.pollution) do
+            game.map_settings.pollution[k] = v
         end
     end
+    if combined_map_settings.enemy_evolution then
+        for k, v in pairs(combined_map_settings.enemy_evolution) do
+            game.map_settings.enemy_evolution[k] = v
+        end
+    end
+    if combined_map_settings.enemy_expansion then
+        for k, v in pairs(combined_map_settings.enemy_expansion) do
+            game.map_settings.enemy_expansion[k] = v
+        end
+    end
+    if combined_map_settings.unit_group then
+        for k, v in pairs(combined_map_settings.unit_group) do
+            game.map_settings.unit_group[k] = v
+        end
+    end
+    if combined_map_settings.steering then
+        if combined_map_settings.steering.default then
+            for k, v in pairs(combined_map_settings.steering.default) do
+                game.map_settings.steering.default[k] = v
+            end
+        end
+        if combined_map_settings.steering.moving then
+            for k, v in pairs(combined_map_settings.steering.moving) do
+                game.map_settings.steering.moving[k] = v
+            end
+        end
+    end
+    if combined_map_settings.path_finder then
+        for k, v in pairs(combined_map_settings.path_finder) do
+            game.map_settings.path_finder[k] = v
+        end
+    end
+    if combined_map_settings.max_failed_behavior_count then
+        game.map_settings.max_failed_behavior_count = combined_map_settings.max_failed_behavior_count
+    end
+end
+
+--- Creates a new surface with the settings provided by the map file and the player.
+local function create_redmew_surface()
+    local surface
+
+    if config.map_gen_settings then
+        -- Add the user's map gen settings as the first entry in the table
+        local combined_map_gen = {game.surfaces.nauvis.map_gen_settings}
+        -- Take the map's settings and add them into the table
+        for _, v in pairs(data.map_gen_settings_components) do
+            insert(combined_map_gen, v)
+        end
+        surface = game.create_surface(primitives.surface_name, merge(combined_map_gen))
+    else
+        surface = game.create_surface(primitives.surface_name)
+    end
+
+    if config.difficulty then
+        set_difficulty_settings()
+    end
+    if config.map_settings then
+        set_map_settings()
+    end
+
+    surface.request_to_generate_chunks({0, 0}, 4)
+    surface.force_generate_chunk_requests()
+    game.forces.player.set_spawn_position({0, 0}, surface)
 end
 
 --- On player create, teleport the player to the redmew surface
@@ -176,7 +199,7 @@ local player_created =
     Token.register(
     function(event)
         local player = Game.get_player_by_index(event.player_index)
-        local surface = game.surfaces[surface_name]
+        local surface = game.surfaces[primitives.surface_name]
 
         local pos = surface.find_non_colliding_position('player', {0, 0}, 50, 1)
         if pos and not primitives['first_player_position_check_override'] then
@@ -199,34 +222,14 @@ local player_created =
 )
 
 local function init()
-    if global.config.redmew_surface.enabled and global.config.redmew_surface.map_gen_settings then
-        Public.create_redmew_surface()
+    if config.enabled then
+        create_redmew_surface()
     else
-        surface_name = 'nauvis'
+        primitives.surface_name = 'nauvis'
     end
 end
 
 -- Public functions
-
---- Creates a new surface with the settings provided by the map file and the player.
-function Public.create_redmew_surface()
-    local surface
-
-    -- Add the user's map gen settings as the first entry in the table
-    local combined_map_gen = {game.surfaces.nauvis.map_gen_settings}
-    -- Take the map's settings and add them into the table
-    for _, v in pairs(data.map_gen_settings_components) do
-        insert(combined_map_gen, v)
-    end
-
-    surface = game.create_surface(surface_name, merge(combined_map_gen))
-    set_difficulty_settings()
-    set_map_settings()
-
-    surface.request_to_generate_chunks({0, 0}, 4)
-    surface.force_generate_chunk_requests()
-    game.forces.player.set_spawn_position({0, 0}, surface)
-end
 
 --- Removes the player_created event.
 function Public.remove_player_created_event()
@@ -237,43 +240,43 @@ end
 -- It is an error to call this twice as later calls will overwrite earlier ones if values overlap.
 -- @param components <table> list of difficulty settings components (usually from resources.difficulty_settings)
 function Public.set_difficulty_settings(components)
-    if primitives['set_difficulty_settings'] then
-        error(format(set_error_message, 'difficulty_settings'))
+    if set_difficulty_settings_called then
+        log(format(set_warn_message, 'difficulty_settings'))
     end
     combine_settings(components, data.difficulty_settings_components)
-    primitives['set_difficulty_settings'] = true
+    set_difficulty_settings_called = true
 end
 
 --- Adds components to the map_gen_settings_components table
 -- It is an error to call this twice as later calls will overwrite earlier ones if values overlap.
 -- @param components <table> list of map gen components (usually from resources.map_gen_settings)
 function Public.set_map_gen_settings(components)
-    if primitives['set_map_gen_settings'] then
-        error(format(set_error_message, 'map_gen_settings'))
+    if set_map_gen_settings_called then
+        log(format(set_warn_message, 'map_gen_settings'))
     end
     combine_settings(components, data.map_gen_settings_components)
-    primitives['set_map_gen_settings'] = true
+    set_map_gen_settings_called = true
 end
 
 --- Adds components to the map_settings_components table
 -- It is an error to call this twice as later calls will overwrite earlier ones if values overlap.
 -- @param components <table> list of map setting components (usually from resources.map_settings)
 function Public.set_map_settings(components)
-    if primitives['set_map_settings'] then
-        error(format(set_error_message, 'map_settings'))
+    if set_map_settings_called then
+        log(format(set_warn_message, 'map_settings'))
     end
     combine_settings(components, data.map_settings_components)
-    primitives['set_map_settings'] = true
+    set_map_settings_called = true
 end
 
 --- Returns the LuaSurface that the map is created on
 function Public.get_surface()
-    return game.surfaces[surface_name]
+    return game.surfaces[primitives.surface_name]
 end
 
 --- Returns the string name of the surface that the map is created on
 function Public.get_surface_name()
-    return surface_name
+    return primitives.surface_name
 end
 
 --- Allows maps to set first_player_position_check_override
