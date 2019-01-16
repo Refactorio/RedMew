@@ -1,6 +1,7 @@
 require 'map_gen.presets.crash_site.blueprint_extractor'
 require 'map_gen.presets.crash_site.entity_died_events'
 require 'map_gen.presets.crash_site.weapon_balance'
+require 'map_gen.presets.crash_site.commands'
 
 local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
