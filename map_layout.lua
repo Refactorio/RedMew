@@ -10,7 +10,6 @@ require 'utils.table'
 global.map = {}
 global.map.terraforming = {}
 
-MAP_LAYOUT_REGISTER = true
 local shape
 local regen_decoratives = false
 local tiles_per_tick = 32
@@ -163,17 +162,10 @@ end
 
 if shape then
     local surfaces = {
-        [RS.get_surface_name()] = shape,
+        [RS.get_surface_name()] = shape
     }
 
     local gen = require('map_gen.shared.generate')
     gen.init({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-
-    if MAP_LAYOUT_REGISTER then
-        if _DEBUG then
-            gen.register_debug()
-        else
-            gen.register()
-        end
-    end
+    gen.register()
 end

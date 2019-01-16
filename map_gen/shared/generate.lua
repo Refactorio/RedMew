@@ -12,22 +12,25 @@ local total_calls
 
 local Public = {}
 
-local function do_tile(y, x, data, shape)
-    local function do_tile_inner(tile, pos)
-        if not tile then
-            insert(data.tiles, {name = 'out-of-map', position = pos})
-        elseif type(tile) == 'string' then
-            insert(data.tiles, {name = tile, position = pos})
-        end
-    end
+-- Set to false by modules that want to control the on_chunk_generated event themselves.
+Public.enable_register_events = true
 
+local function do_tile_inner(tiles, tile, pos)
+    if not tile then
+        insert(tiles, {name = 'out-of-map', position = pos})
+    elseif type(tile) == 'string' then
+        insert(tiles, {name = tile, position = pos})
+    end
+end
+
+local function do_tile(y, x, data, shape)
     local pos = {x, y}
 
     -- local coords need to be 'centered' to allow for correct rotation and scaling.
     local tile = shape(x + 0.5, y + 0.5, data)
 
     if type(tile) == 'table' then
-        do_tile_inner(tile.tile, pos)
+        do_tile_inner(data.tiles, tile.tile, pos)
 
         local hidden_tile = tile.hidden_tile
         if hidden_tile then
@@ -51,22 +54,14 @@ local function do_tile(y, x, data, shape)
             end
         end
     else
-        do_tile_inner(tile, pos)
+        do_tile_inner(data.tiles, tile, pos)
     end
 end
 
-
 local function do_row(row, data, shape)
-    local function do_tile(tile, pos)
-        if not tile then
-            insert(data.tiles, {name = 'out-of-map', position = pos})
-        elseif type(tile) == 'string' then
-            insert(data.tiles, {name = tile, position = pos})
-        end
-    end
-
     local y = data.top_y + row
     local top_x = data.top_x
+    local tiles = data.tiles
 
     data.y = y
 
@@ -78,7 +73,7 @@ local function do_row(row, data, shape)
         local tile = shape(x + 0.5, y + 0.5, data)
 
         if type(tile) == 'table' then
-            do_tile(tile.tile, pos)
+            do_tile_inner(tiles, tile.tile, pos)
 
             local hidden_tile = tile.hidden_tile
             if hidden_tile then
@@ -102,7 +97,7 @@ local function do_row(row, data, shape)
                 end
             end
         else
-            do_tile(tile, pos)
+            do_tile_inner(tiles, tile, pos)
         end
     end
 end
@@ -313,11 +308,15 @@ local function on_chunk(event)
 end
 
 function Public.register()
-    Event.add(defines.events.on_chunk_generated, on_chunk)
-end
+    if not Public.enable_register_events then
+        return
+    end
 
-function Public.register_debug()
-    Event.add(defines.events.on_chunk_generated, do_chunk)
+    if _DEBUG then
+        Event.add(defines.events.on_chunk_generated, do_chunk)
+    else
+        Event.add(defines.events.on_chunk_generated, on_chunk)
+    end
 end
 
 function Public.get_surfaces()

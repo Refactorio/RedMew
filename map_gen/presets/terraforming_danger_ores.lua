@@ -5,11 +5,27 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local math = require 'utils.math'
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+RS.set_map_gen_settings(
+    {
+        MGSP.grass_only,
+        {
+            terrain_segmentation = 'normal',
+            water = 'normal'
+        },
+        MGSP.starting_area_very_low,
+        MGSP.ore_oil_none,
+        MGSP.enemy_none,
+        MGSP.cliff_none
+    }
+)
 
 local perlin_noise = Perlin.noise
 local fast_remove = table.fast_remove
 
-MAP_LAYOUT_REGISTER = false
+Generate.enable_register_events = false
 
 local oil_seed
 local uranium_seed
@@ -47,7 +63,7 @@ local start_size = start_chunks_half_size * 64
 Global.register_init(
     {chunk_list = chunk_list},
     function(tbl)
-        local s = game.surfaces[1]
+        local s = RS.get_surface()
         tbl.seed = s.map_gen_settings.seed
         tbl.surface = s
     end,
