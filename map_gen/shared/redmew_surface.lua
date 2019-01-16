@@ -63,7 +63,6 @@ require 'util'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
-local Token = require 'utils.token'
 local config = global.config.redmew_surface
 
 -- Localized functions
@@ -90,12 +89,12 @@ local data = {
 -- The nil definitions are to document what primitives might exist.
 local primitives = {
     ['surface_name'] = 'redmew',
-    ['first_player_position_check_override'] = nil,
+    ['first_player_position_check_override'] = nil
 }
 
 Global.register(
     {
-        primitives = primitives,
+        primitives = primitives
     },
     function(tbl)
         primitives = tbl.primitives
@@ -191,35 +190,34 @@ local function create_redmew_surface()
 
     surface.request_to_generate_chunks({0, 0}, 4)
     surface.force_generate_chunk_requests()
-    game.forces.player.set_spawn_position({0, 0}, surface)
 end
 
---- On player create, teleport the player to the redmew surface
-local player_created =
-    Token.register(
-    function(event)
-        local player = Game.get_player_by_index(event.player_index)
-        local surface = game.surfaces[primitives.surface_name]
-
-        local pos = surface.find_non_colliding_position('player', {0, 0}, 50, 1)
-        if pos and not primitives['first_player_position_check_override'] then
-            player.teleport(pos, surface)
-        else
-            -- if there's no position available within range or a map needs players at 0,0: create an island and place the player there
-            surface.set_tiles(
-                {
-                    {name = 'lab-white', position = {-1, -1}},
-                    {name = 'lab-white', position = {-1, 0}},
-                    {name = 'lab-white', position = {0, -1}},
-                    {name = 'lab-white', position = {0, 0}}
-                }
-            )
-            player.teleport({0, 0}, surface)
-            primitives['first_player_position_check_override'] = nil
-        end
-        Public.remove_player_created_event()
+--- Teleport the player to the redmew surface and if there is no suitable location, create a lab-white island.
+local function player_created(event)
+    if not config.enabled then
+        return
     end
-)
+
+    local player = Game.get_player_by_index(event.player_index)
+    local surface = game.surfaces[primitives.surface_name]
+
+    local pos = surface.find_non_colliding_position('player', {0, 0}, 50, 1)
+    if pos and not primitives['first_player_position_check_override'] then
+        player.teleport(pos, surface)
+    else
+        -- if there's no position available within range or a map needs players at 0,0: create an island and place the player there
+        surface.set_tiles(
+            {
+                {name = 'lab-white', position = {-1, -1}},
+                {name = 'lab-white', position = {-1, 0}},
+                {name = 'lab-white', position = {0, -1}},
+                {name = 'lab-white', position = {0, 0}}
+            }
+        )
+        player.teleport({0, 0}, surface)
+        primitives['first_player_position_check_override'] = nil
+    end
+end
 
 local function init()
     if config.enabled then
@@ -230,11 +228,6 @@ local function init()
 end
 
 -- Public functions
-
---- Removes the player_created event.
-function Public.remove_player_created_event()
-    Event.remove_removable(defines.events.on_player_created, player_created)
-end
 
 --- Sets components to the difficulty_settings_components table
 -- It is an error to call this twice as later calls will overwrite earlier ones if values overlap.
@@ -287,6 +280,6 @@ end
 
 Event.on_init(init)
 
-Event.add_removable(defines.events.on_player_created, player_created)
+Event.add(defines.events.on_player_created, player_created)
 
 return Public
