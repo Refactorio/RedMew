@@ -71,33 +71,34 @@ local merge = util.merge
 local format = string.format
 
 -- Constants
-local set_warn_message = 'set_%s has already been called. Calling this twice can lead to unexpected settings overwrites.'
+local set_warn_message =
+    'set_%s has already been called. Calling this twice can lead to unexpected settings overwrites.'
+local vanilla_surface_name = 'nauvis'
+local redmew_surface_name = 'redmew'
 
 -- Local vars
 local set_difficulty_settings_called
 local set_map_gen_settings_called
 local set_map_settings_called
-local Public = {}
-
--- Global tokens
 local data = {
     ['map_gen_settings_components'] = {},
     ['map_settings_components'] = {},
     ['difficulty_settings_components'] = {}
 }
 
--- The nil definitions are to document what primitives might exist.
-local primitives = {
-    ['surface_name'] = 'redmew',
-    ['first_player_position_check_override'] = nil
+local Public = {}
+
+-- Global tokens
+-- The nil definitions are to document what data might exist.
+local global_data = {
+    surface = nil,
+    first_player_position_check_override = nil
 }
 
 Global.register(
-    {
-        primitives = primitives
-    },
+    global_data,
     function(tbl)
-        primitives = tbl.primitives
+        global_data = tbl
     end
 )
 
@@ -167,6 +168,12 @@ end
 
 --- Creates a new surface with the settings provided by the map file and the player.
 local function create_redmew_surface()
+    if not config.enabled then
+        -- we still need to set the surface so Public.get_surface() will work.
+        global_data.surface = game.surfaces[vanilla_surface_name]
+        return
+    end
+
     local surface
 
     if config.map_gen_settings then
@@ -176,10 +183,12 @@ local function create_redmew_surface()
         for _, v in pairs(data.map_gen_settings_components) do
             insert(combined_map_gen, v)
         end
-        surface = game.create_surface(primitives.surface_name, merge(combined_map_gen))
+        surface = game.create_surface(redmew_surface_name, merge(combined_map_gen))
     else
-        surface = game.create_surface(primitives.surface_name)
+        surface = game.create_surface(redmew_surface_name)
     end
+
+    global_data.surface = surface
 
     if config.difficulty then
         set_difficulty_settings()
@@ -194,15 +203,11 @@ end
 
 --- Teleport the player to the redmew surface and if there is no suitable location, create a lab-white island.
 local function player_created(event)
-    if not config.enabled then
-        return
-    end
-
     local player = Game.get_player_by_index(event.player_index)
-    local surface = game.surfaces[primitives.surface_name]
+    local surface = global_data.surface
 
     local pos = surface.find_non_colliding_position('player', {0, 0}, 50, 1)
-    if pos and not primitives['first_player_position_check_override'] then
+    if pos and not global_data.first_player_position_check_override then
         player.teleport(pos, surface)
     else
         -- if there's no position available within range or a map needs players at 0,0: create an island and place the player there
@@ -215,15 +220,7 @@ local function player_created(event)
             }
         )
         player.teleport({0, 0}, surface)
-        primitives['first_player_position_check_override'] = nil
-    end
-end
-
-local function init()
-    if config.enabled then
-        create_redmew_surface()
-    else
-        primitives.surface_name = 'nauvis'
+        global_data.first_player_position_check_override = nil
     end
 end
 
@@ -262,24 +259,32 @@ function Public.set_map_settings(components)
     set_map_settings_called = true
 end
 
---- Returns the LuaSurface that the map is created on
+--- Returns the LuaSurface that the map is created on.
+-- Not safe to call outside of events.
 function Public.get_surface()
-    return game.surfaces[primitives.surface_name]
+    return global_data.surface
 end
 
---- Returns the string name of the surface that the map is created on
+--- Returns the string name of the surface that the map is created on.
+-- This can safely be called at any time.
 function Public.get_surface_name()
-    return primitives.surface_name
+    if config.enabled then
+        return redmew_surface_name
+    else
+        return vanilla_surface_name
+    end
 end
 
 --- Allows maps to set first_player_position_check_override
 -- This is a hack for diggy and forces the first created player to be teleported to {0, 0} and skip the collision check.
 function Public.set_first_player_position_check_override(bool)
-    primitives['first_player_position_check_override'] = bool
+    global_data.first_player_position_check_override = bool
 end
 
-Event.on_init(init)
+Event.on_init(create_redmew_surface)
 
-Event.add(defines.events.on_player_created, player_created)
+if config.enabled then
+    Event.add(defines.events.on_player_created, player_created)
+end
 
 return Public
