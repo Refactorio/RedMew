@@ -9,7 +9,6 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local insert = table.insert
 
---local GameStart = require 'map_gen.combined.racetrack.GameStart'
 local Player = require 'map_gen.combined.racetrack.Player'
 local GameData = require 'map_gen.combined.racetrack.GameData'
 
@@ -87,15 +86,15 @@ local itemstack = {
     {health = 400, type = 'other', size = '3x5', name = 'steam-engine'},
     {health = 500, type = 'other', size = '4x4', name = 'roboport'},
 
-    {health = 200, type = 'useless', size = '1x1', count = '10', name = 'heat-pipe'},             -- useless items because you can
-    {health = 1, type = 'useless', size = '1x1', count = '10', name = 'stone-brick'},             -- drive over them or they do nothing usefull
-    {health = 1, type = 'useless', size = '1x1', count = '10', name = 'concrete'},
-    {health = 1, type = 'useless', size = '1x1', count = '10', name = 'hazard-concrete'},
-    {health = 1, type = 'useless', size = '1x1', count = '10', name = 'refined-concrete'},
-    {health = 1, type = 'useless', size = '1x1', count = '10', name = 'refined-hazard-concrete'},
-    {health = 1, type = 'useless', size = '1x1', count = '10', name = 'concrete'},
-    {health = 100, type = 'useless', size = '1x1', count = '7', name = 'logistic-robot'},
-    {health = 100, type = 'useless', size = '1x1', count = '7', name = 'construction-robot'},
+    {health = 200, type = 'useless', size = '1x1', amount = '10', name = 'heat-pipe'},             -- useless items because you can
+    {health = 1, type = 'useless', size = '1x1', amount = '10', name = 'stone-brick'},             -- drive over them or they do nothing usefull
+    {health = 1, type = 'useless', size = '1x1', amount = '10', name = 'concrete'},
+    {health = 1, type = 'useless', size = '1x1', amount = '10', name = 'hazard-concrete'},
+    {health = 1, type = 'useless', size = '1x1', amount = '10', name = 'refined-concrete'},
+    {health = 1, type = 'useless', size = '1x1', amount = '10', name = 'refined-hazard-concrete'},
+    {health = 1, type = 'useless', size = '1x1', amount = '10', name = 'concrete'},
+    {health = 100, type = 'useless', size = '1x1', amount = '7', name = 'logistic-robot'},
+    {health = 100, type = 'useless', size = '1x1', amount = '7', name = 'construction-robot'},
 }
 
 local item_types = {'other', 'chest', 'belt', 'inserter', 'pole', 'pipe', 'combinator', 'machine', 'useless'}
@@ -123,7 +122,7 @@ local function on_player_mined_item(event)
 
     if item.name == 'coin' then
         script.raise_event(
-            Item.events.on_coin_mined, { item = item, player = player }
+            Item.events.on_coin_mined, {item = item, player = player}
         )
     end
 end
@@ -152,10 +151,10 @@ local function on_coin_mined(event)
     random_item.force = player.name         -- set the force for the item, nobody else can decontruct the item. Force name is players name
 
     -- place the random item in the inventory of the player
-    if random_item.count ~= nil then
-        player.insert{name = random_item.name, count = math.random(1, random_item.count)}
+    if random_item.amount ~= nil then
+        player.insert{name = random_item.name, amount = math.random(1, random_item.amount)}
     else
-        player.insert{name = random_item.name, count = 1}
+        player.insert{name = random_item.name, amount = 1}
     end
     -- remove the mined item (the coin)
     player.remove_item{name = 'coin', count = 1}
@@ -165,6 +164,7 @@ end
 
 function Item.register(config)
     Event.add(defines.events.on_player_mined_item, on_player_mined_item)
+    Event.add(defines.events.on_picked_up_item, on_player_mined_item)
     Event.add(Item.events.on_coin_mined, on_coin_mined)
 end
 

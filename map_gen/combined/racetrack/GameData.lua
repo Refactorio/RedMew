@@ -6,7 +6,7 @@
 
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
+local Command = require 'utils.command'
 
 local GameData = {}
 
@@ -27,6 +27,8 @@ function GameData.reset_game_data()
     game_data['finished'] = false
     game_data['restart'] = true
     game_data['driving_players'] = 0
+    game_data['countdown_act'] = 0
+    game_data['countdown_start_tick'] = 0
 end
 
 function GameData.set_value(atrribute, value)
@@ -38,16 +40,48 @@ function GameData.get_value(atrribute)
     -- set a attribute of game_data with value
     return game_data[atrribute]
 end
+
+Command.add(
+    'info-game',
+    {
+        description = 'Print game_data information',
+        admin_only = true,
+        allowed_by_server = true
+    },
+    function()
+        local msg
+        if GameData.get_value('started') then
+            msg = 'started: true'
+        else
+            msg = 'started: false'
+        end
+        game.print(msg)
+        if GameData.get_value('finished') then
+            msg = 'finished: true'
+        else
+            msg = 'finished: false'
+        end
+        game.print(msg)
+        if GameData.get_value('restart') then
+            msg = 'restart: true'
+        else
+            msg = 'restart: false'
+        end
+        game.print(msg)
+        local msg = 'driving_players: ' .. GameData.get_value('driving_players')
+        game.print(msg)
+    end
+)
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
 -- EVENTs
 local function player_left(event)
-    -- IMPORTANT NOTE: decreasing "driving_players" is done via Player.lua::player_left - decreasing just done when player left while "driving_state" = "driving"
+    -- IMPORTANT NOTE: decreasing "driving_players" is done via Player::player_left - decreasing just done when player left while "driving_state" = "driving"
 end
 
 local function driving_state_changed(event)
-    -- IMPORTANT NOTE: decreasing "driving_players" is done via Player.lua::driving_state_changed - decreasing just done when player left vehicle (= player died) while "driving_state" = "driving"
+    -- IMPORTANT NOTE: decreasing "driving_players" is done via Player::driving_state_changed - decreasing just done when player left vehicle (= player died) while "driving_state" = "driving"
 end
 -- ---------------------------------------------------------------------------------------------------------------------
 

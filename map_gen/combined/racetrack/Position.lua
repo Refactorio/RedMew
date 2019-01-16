@@ -12,11 +12,11 @@ local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local math = require 'utils.math'
 local insert = table.insert
+local Command = require 'utils.command'
 
 local GameConfig = require 'map_gen.combined.racetrack.GameConfig'
-local MapData = require ('map_gen.combined.racetrack.tracks.' .. GameConfig.track)
+local MapData = GameConfig.track
 local PlayerCar = require 'map_gen.combined.racetrack.PlayerCar'
-local GameStart = require 'map_gen.combined.racetrack.GameStart'
 local Player = require 'map_gen.combined.racetrack.Player'
 local GameData = require 'map_gen.combined.racetrack.GameData'
 
@@ -219,6 +219,20 @@ function Position.update_gui()
         end
     end
 end
+
+Command.add(
+    'finish-game',
+    {
+        description = 'Finish the game immediately',
+        admin_only = true,
+        allowed_by_server = true
+    },
+    function()
+        script.raise_event(
+            Position.events.on_game_ends, {player = game.player}
+        )
+    end
+)
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -256,21 +270,6 @@ local function on_player_left(event)
     Position.update_gui()
 end
 
---[[local function on_player_driving_state_changed(event)
-    -- called when player is entering/leaving vehicle (due to permission player cant leave a vehicle, it can only happen when vehicle is destroyed -> player died)
-    local player = Game.get_player_by_index(event.player_index)
-
-    -- due to timing modell at this time game_data[driving_players] is already 0, we decreased game_data[driving_players] in Player.lua::player_left function
-    if player.vehicle == nil and GameData.get_value('driving_players') == 0 then
-        Debug.print('Position::on_player_driving_state_changed: No more players driving -> raise event on_game_ends')
-        script.raise_event(
-            Position.events.on_game_ends, {player = player}
-        )
-    end
-
-    Position.update_gui()
-end]]
-
 local function on_checkpoint_passed(event)
     -- called when a player passes a checkpoint
 
@@ -296,16 +295,16 @@ local function on_checkpoint_passed(event)
         Debug.print('Position::on_checkpoint_passed: Player ' .. player_id .. ' passed ' .. checkpoint.name .. ' with ID ' .. checkpoint_id .. ' after ' .. event.tick .. ' ticks')
 
         player.print('You passed ' .. checkpoint.name .. ' after ' .. event.tick .. ' ticks')
+
+        Position.update_gui()
     else
         -- TODO: maybe put a message the player is driving in wrong direction?
         --Debug.print('on_checkpoint_passed: something went wrong/wrong direction?')
     end
-
-    Position.update_gui()
 end
 
 local function on_finish_passed(event)
-    -- calleds when a player passes the finish line
+    -- called when a player passes the finish line
 
     local checkpoint = event.checkpoint
     local player = event.player
@@ -329,6 +328,8 @@ local function on_finish_passed(event)
                 Position.events.on_player_ends,
                 {player = player, checkpoint_id = checkpoint_id}
             )
+
+            Position.update_gui()
         else
             -- next round
             local rounds = Player.get_value(player, 'rounds')
@@ -338,10 +339,10 @@ local function on_finish_passed(event)
             Debug.print('Position::on_finish_passed: Player ' .. player_id .. ' passed ' .. checkpoint.name .. ' with ID ' .. checkpoint_id .. ' after ' .. event.tick .. ' ticks')
 
             player.print('You passed ' .. checkpoint.name .. ' after ' .. event.tick .. ' ticks')
+
+            Position.update_gui()
         end
     end
-
-    Position.update_gui()
 end
 
 local function player_ends_game(event)
@@ -372,9 +373,9 @@ local function player_ends_game(event)
     -- remove players car and teleport player to playground
     PlayerCar.transfer_body_to_character(player)
 
-    -- decrease game_data[driving_players] by one
-    local driving_players = GameData.get_value('driving_players')
-    GameData.set_value('driving_players', driving_players - 1)
+    -- decrease game_data[driving_players] by 1
+    -- IMPORTANT NOTE: decreasing "driving_players" is done via Player::driving_state_changed
+    -- because the driving state changed event is always called and so we will decrease it 2 times
 
     if GameData.get_value('driving_players') < 1 and GameData.get_value('started') then
         -- game was started and last player reached the finish ---> game end
@@ -382,6 +383,13 @@ local function player_ends_game(event)
             Position.events.on_game_ends, {player = event.player}
         )
     end
+
+    Position.update_gui()
+end
+
+local function spill_items(data)
+    local stack = {name = 'coin', count = data.count}
+    data.surface.spill_item_stack(data.position, stack, true)
 end
 
 local function game_end(event)
@@ -390,16 +398,16 @@ local function game_end(event)
 
     Debug.print('Position::game_end: event called by last player: ' .. last_player.name)
 
-    local countdown = GameStart.get_countdown()
-
     -- set started to false, finished to true and restart to true
     GameData.set_value('started', false)
     GameData.set_value('finished', true)
     GameData.set_value('restart', true)
+    GameData.set_value('driving_players', 0)
 
     -- reset countdown
-    countdown['act'] = GameConfig.time_to_start
-    countdown['start_tick'] = 0
+    GameData.set_value('countdown_act', GameConfig.time_to_start)
+    GameData.set_value('countdown_start_tick', 0)
+
 
     -- reset player depending data
     local players = game.connected_players
@@ -423,16 +431,24 @@ local function game_end(event)
         'red-desert-0', 'red-desert-1', 'red-desert-2', 'red-desert-3', 'sand-1', 'sand-2', 'sand-3'
     }
 
-    local all_tiles = last_player.surface.find_tiles_filtered{area = {{(MapData.width/2)* -1, (MapData.height)* -1}, {(MapData.width/2), (MapData.height)}}, name = tiles_to_find}
+    -- calculate BoundingBox area of map to use find_tiles_filtered in
+    local half_width = MapData.width / 2
+    local half_height = MapData.height / 2
+    local top_left = {-(half_width - math.abs(MapData.spawn.x)), -(half_height + math.abs(MapData.spawn.y)) }
+    local bottom_right = {(half_width - math.abs(MapData.spawn.x)) + half_width, (half_height - math.abs(MapData.spawn.y))}
+
+    local all_tiles = last_player.surface.find_tiles_filtered{area = {top_left, bottom_right}, name = tiles_to_find}  --13.830 tiles
     local count_tiles = #all_tiles
 
     for i = 1, count_tiles do
         local random = math.random(0, 100)
         local count = 100 - GameConfig.coin_chance
         if random > count then
-            local car = last_player.surface.create_entity{name = 'item-on-ground', position = all_tiles[i].position, stack = {name = 'coin', count = 1}}
+            spill_items({count = 1, surface = last_player.surface, position = all_tiles[i].position})
         end
     end
+
+    Position.update_gui()
 end
 -- ---------------------------------------------------------------------------------------------------------------------
 
@@ -452,20 +468,13 @@ local function check_player_position(event)
 
         -- create table with players whos driving_state is 'driving'
         local driving_players = {}
-        for _, player in ipairs(game.connected_players) do
+        for _, player in pairs(game.connected_players) do
             if Player.get_value(player, 'driving_state') == 'driving' then
-            --if parse_player_data(player, 'driving_state', 'driving') then
                 insert(driving_players, player)
-
-                --Debug.print('Position::check_player_position: added player with ID ' .. player.name .. ' to driving_players table')
             end
         end
 
-        for _, driver in ipairs(driving_players) do
-
-            --Debug.print('Position::check_player_position: total number of driving_players: ' .. #driving_players)
-
-            local player_id = driver.name
+        for _, driver in pairs(driving_players) do
 
             -- checkpoints check and message
             local checkp = MapData.checkpoints
@@ -560,6 +569,7 @@ function Position.register(config)
     Event.add(Position.events.on_player_ends, player_ends_game)
     Event.add(Position.events.on_game_ends, game_end)
     Event.on_nth_tick(10, check_player_position)            -- every 0.1 seconds
+
 
 
     --[[Event.add(defines.events.on_chunk_generated, function (event)

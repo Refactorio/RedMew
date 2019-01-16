@@ -52,7 +52,7 @@ function GameScript.register(debug)
 
     ScenarioInfo.set_map_name('Racetrack')
     ScenarioInfo.set_map_description('Play against others like in Mario Kart!')
-    ScenarioInfo.set_map_extra_info('- Collect coins to to get entities.\n- Place entities to disturb other players.\n- Be the first who reaches the finish.')
+    ScenarioInfo.set_map_extra_info('- Collect coins to to get entities.\n- Place entities to disturb other players.\n- Be the first who reaches the finish.\n- The best way to collect coins is to put your cursor on your car while driving\n- Drive counterclockwise')
 end
 
 return GameScript

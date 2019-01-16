@@ -98,8 +98,9 @@ local function player_joined(event)
 
     Debug.print('Player::player_joined: event called by joining player: ' .. player.name)
 
-    Player.reset_player_data(player)
-
+    local new_force = game.create_force(player.name)
+    -- Assign new force to the player
+    player.force = new_force
     -- Disable the god mode spotlight.
     player.disable_flashlight()
     -- enable bigger toolbar
@@ -135,6 +136,44 @@ local function driving_state_changed(event)
         Player.reset_player_data(player)
     end
 end
+
+local function player_died(event)
+    local player = Game.get_player_by_index(event.player_index)
+
+    Debug.print('Player::player_died: event called by player: ' .. player.name)
+
+    -- only run code if player is on server
+    if player_data[player.name] ~= nil then
+        player.print('o.O    GAME OVER, ' .. player.name .. '! You was killed!')
+        game.print('-.-    GAME OVER for ' .. player.name .. '!')
+        Player.reset_player_data(player)
+    end
+end
+
+local function player_respawned(event)
+    local player = Game.get_player_by_index(event.player_index)
+
+    Debug.print('Player::player_respawned: event called by player: ' .. player.name)
+
+    -- only run code if player is on server
+    if player_data[player.name] ~= nil then
+        -- directly teleport player to playground
+        PlayerCar.transfer_body_to_character(player)
+    end
+end
+
+local function player_chat(event)
+    -- player_index is nil if the message came from the server,
+    -- and indexing Game.players with nil is apparently an error.
+    local player_index = event.player_index
+    if not player_index then
+        return nil
+    end
+
+    local player = Game.get_player_by_index(event.player_index)
+
+    game.print(player.name .. ': ' .. event.message, player.chat_color)
+end
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -142,6 +181,9 @@ function Player.register(config)
     Event.add(defines.events.on_player_joined_game, player_joined)
     Event.add(defines.events.on_player_left_game, player_left)
     Event.add(defines.events.on_player_driving_changed_state, driving_state_changed)
+    Event.add(defines.events.on_player_died, player_died)
+    Event.add(defines.events.on_player_respawned, player_respawned)
+    Event.add(defines.events.on_console_chat, player_chat)
 end
 
 return Player

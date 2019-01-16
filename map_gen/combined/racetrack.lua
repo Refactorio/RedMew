@@ -10,11 +10,11 @@ local b = require 'map_gen.shared.builders'
 local insert = table.insert
 
 local GameConfig = require 'map_gen.combined.racetrack.GameConfig'
-local pic_data = require ('map_gen.combined.racetrack.tracks.' .. GameConfig.track)
+local MapData = GameConfig.track
 
-local checkpoints = pic_data.checkpoints
+local checkpoints = MapData.checkpoints
 
-local pic = b.decompress(pic_data)
+local pic = b.decompress(MapData)
 local map = b.picture(pic)
 
 local function no_trash(x, y, world, tile)
@@ -69,22 +69,15 @@ local function parse_checkpoints_by_id(checkpoint, id)
     return result
 end
 
-local function place_coins(x, y, world)
-    local random = math.random(0, 100)
-    local count = 100 - GameConfig.coin_chance
-    if random > count then
-        return {position = {world.x, world.y}, name = 'item-on-ground', stack = {name = 'coin', count = 1} }
-    end
-end
 
 -- set playground (area for players not driving)
 local playground = b.circle(10)
-local spawn_x = pic_data.spawn.x
-local spawn_y = pic_data.spawn.y
+local spawn_x = MapData.spawn.x
+local spawn_y = MapData.spawn.y
 if spawn_y < 0 then
     spawn_y = (spawn_y * -1)
 end
-playground = b.translate(playground, pic_data.playground.x - spawn_x, pic_data.playground.y + spawn_y)
+playground = b.translate(playground, MapData.playground.x - spawn_x, MapData.playground.y + spawn_y)
 map = b.combine{playground, map}
 
 -- CHECK: is the first checkpoint configured as finish?
@@ -103,7 +96,7 @@ for i = 1, num_checkpoints do
 end
 
 -- set spawnpoint
-map = b.translate(map, pic_data.spawn.x, pic_data.spawn.y)
+map = b.translate(map, MapData.spawn.x, MapData.spawn.y)
 
 
 
@@ -138,8 +131,5 @@ map = b.change_map_gen_collision_tile(map, 'water-tile', 'dirt-2')
 
 -- remove trash from track
 map = b.apply_effect(map, no_trash)
-
--- place coins on map
-map = b.apply_entity(map, place_coins)
 
 return map

@@ -6,18 +6,15 @@
 --
 
 local Config = {
-    -- enable debug mode, shows extra messages
-    debug = true,
-
     -- which track to drive, must be placed in 'tracks' directory!
-    track = 'classic_new',
+    track = require 'map_gen.combined.racetrack.tracks.classic',
 
     -- how many players are needed to start the game? when this number is reached, the timer "time_to_start" is started (1 player would be useless ;) )
     players_to_start = 2,
 
     -- how many seconds to wait until game starts? (during this countdown new players can connect, countdown will be
     -- reset to this value after one player connected)
-    time_to_start = 70,
+    time_to_start = 60,
 
     -- 1 - 100; the higher this value, the more coins are placed on track and more items could be placed by players on track
     coin_chance = 2,            -- TODO should also be calculated by number of players
