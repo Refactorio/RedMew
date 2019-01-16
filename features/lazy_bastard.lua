@@ -1,4 +1,5 @@
 local Event = require 'utils.event'
+local Game = require 'utils.game'
 local Retailer = require 'features.retailer'
 local insert = table.insert
 local remove = table.remove
