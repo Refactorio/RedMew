@@ -37,12 +37,18 @@ local function on_init()
     local handlers = event_handlers[init_event_name]
     call_handlers(handlers)
 
+    event_handlers[init_event_name] = nil
+    event_handlers[load_event_name] = nil
+
     Public.runtime = true
 end
 
 local function on_load()
     local handlers = event_handlers[load_event_name]
     call_handlers(handlers)
+
+    event_handlers[init_event_name] = nil
+    event_handlers[load_event_name] = nil
 
     Public.runtime = true
 end

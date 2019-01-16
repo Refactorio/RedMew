@@ -1,5 +1,6 @@
 local perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local block_size = 1 -- in tiles
 local start_size = 64 -- in blocks
@@ -152,7 +153,7 @@ local function do_strike()
             table.insert(tiles, {name = 'dry-dirt', position = {x, y}})
         end
     end
-    local surface = game.surfaces[1]
+    local surface = RS.get_surface()
     surface.set_tiles(tiles, false)
 
     game.forces.player.chart(surface, {{bx, by}, {bx + block_size, by + block_size}})

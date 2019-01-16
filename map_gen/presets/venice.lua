@@ -1,7 +1,7 @@
 local b = require "map_gen.shared.builders"
 
 local pic = require "map_gen.data.presets.venice"
-local pic = b.decompress(pic)
+pic = b.decompress(pic)
 local map = b.picture(pic)
 
 map = b.translate(map, 90, 190)

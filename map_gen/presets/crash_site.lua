@@ -10,6 +10,22 @@ local math = require 'utils.math'
 local degrees = math.degrees
 local ScenarioInfo = require 'features.gui.info'
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+RS.set_map_gen_settings(
+    {
+        MGSP.grass_only,
+        {
+            terrain_segmentation = 'normal',
+            water = 'normal'
+        },
+        MGSP.starting_area_very_low,
+        MGSP.ore_oil_none,
+        MGSP.enemy_none,
+        MGSP.cliff_none
+    }
+)
 
 -- Comment out this block if you're getting scenario info from another source.
 ScenarioInfo.set_map_name('Crashsite')
@@ -526,9 +542,9 @@ local function init()
     local max_worm_chance = 1 / 64
     local worm_chance_factor = 1 / (40 * 512)
 
-    local scale_factor = 1 / 32
+    --local scale_factor = 1 / 32
 
-    local function enemy(x, y, world)
+    local function enemy(_, _, world)
         local wx, wy = world.x, world.y
         local d = math.sqrt(wx * wx + wy * wy)
 
@@ -718,10 +734,9 @@ local map
 Global.register_init(
     {},
     function(tbl)
-        local seed = game.surfaces[1].map_gen_settings.seed
+        local seed = RS.get_surface().map_gen_settings.seed
         tbl.outpost_seed = outpost_seed or seed
         tbl.ore_seed = ore_seed or seed
-
         global.config.market.enable = false
     end,
     function(tbl)

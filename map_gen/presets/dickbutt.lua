@@ -22,7 +22,7 @@ local eye1 = b.translate(b.circle(32),-130, -100)
 local dickbutt = b.any({body,butt,  shaft, ball1, ball2, leg1, leg2, foot1, foot2, eye1 })
 dickbutt = b.translate(dickbutt, -80, 0)
 
-local patch = b.scale(dickbutt, 0.15, 0.15)
+b.scale(dickbutt, 0.15, 0.15)
 local iron_patch = b.resource(b.translate(b.scale(dickbutt, 0.15, 0.15), 20, 0), "iron-ore")
 local copper_patch = b.resource(b.translate(b.scale(dickbutt, 0.115, 0.115), -125, 50), "copper-ore")
 local coal_patch = b.resource(b.translate(b.scale(dickbutt, 0.1, 0.1), -135, -90), "coal")
