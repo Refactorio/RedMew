@@ -63,6 +63,9 @@ end
 if config.hail_hydra.enabled then
     require 'features.hail_hydra'
 end
+if config.lazy_bastard.enabled then
+    require 'features.lazy_bastard'
+end
 if config.redmew_qol.enabled then
     require 'features.redmew_qol'
 end

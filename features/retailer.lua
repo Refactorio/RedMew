@@ -77,6 +77,12 @@ Retailer.events = {
     on_market_purchase = script.generate_event_name(),
 }
 
+Retailer.item_types = {
+    --- expects an array of item prototypes that can be inserted directly via
+    --- player.insert() called 'items' in the item prototype.
+    item_package = 'item_package',
+}
+
 local market_gui_close_distance_squared = 6 * 6 + 6 * 6
 local do_update_market_gui -- token
 
@@ -91,6 +97,7 @@ local memory = {
     group_label = {},
     players_in_market_view = {},
     market_gui_refresh_scheduled = {},
+    limited_items = {}
 }
 
 Global.register(memory, function (tbl)
@@ -156,6 +163,7 @@ local function redraw_market_items(data)
     local count = data.count
     local market_items = data.market_items
     local player_coins = data.player_coins
+    local player_index = data.player_index
 
     if size(market_items) == 0 then
         grid.add({type = 'label', caption = 'No items available at this time'})
@@ -163,15 +171,41 @@ local function redraw_market_items(data)
     end
 
     for i, item in pairs(market_items) do
-        local stack_limit = item.stack_limit
-        local stack_count = stack_limit ~= -1 and stack_limit < count and item.stack_limit or count
+        local has_stack_limit = item.stack_limit ~= -1
+        local stack_limit = has_stack_limit and item.stack_limit or count
+        local stack_count = has_stack_limit and stack_limit < count and item.stack_limit or count
+        local player_limit = item.player_limit
+        local has_player_limit = player_limit ~= -1
+        local player_item_limit = -1
+
+        if has_player_limit then
+            local item_name = item.name
+            local player_limits = memory.limited_items[item_name]
+
+            if not player_limits then
+                -- no limit set yet
+                player_limits = {[player_index] = player_limit}
+                memory.limited_items[item_name] = player_limits
+            end
+
+            player_item_limit = player_limits[player_index]
+            if player_item_limit < stack_count then
+                -- ensure the stack count is never higher than the item limit for the player
+                stack_count = player_item_limit
+            end
+        end
+
+        local player_bought_max_total = has_player_limit and stack_count == 0
         local price = item.price
-        local tooltip = {'', item.name_label, format('\nprice: %.2f', price)}
+        local tooltip = {'', item.name_label}
         local description = item.description
         local total_price = ceil(price * stack_count)
         local disabled = item.disabled == true
         local message
-        if total_price == 1 then
+
+        if total_price == 0 then
+            message = 'FREE!'
+        elseif total_price == 1 then
             message = '1 coin'
         else
             message = total_price .. ' coins'
@@ -179,6 +213,10 @@ local function redraw_market_items(data)
 
         local missing_coins = total_price - player_coins
         local is_missing_coins = missing_coins > 0
+
+        if price ~= 0 then
+            insert(tooltip, format('\nprice: %.2f', price))
+        end
 
         if description then
             insert(tooltip, '\n' .. item.description)
@@ -188,6 +226,10 @@ local function redraw_market_items(data)
             insert(tooltip, '\n\n' .. (item.disabled_reason or 'Not available'))
         elseif is_missing_coins then
             insert(tooltip, '\n\n' .. format('Missing %d coins to buy %d', missing_coins, stack_count))
+        end
+
+        if has_player_limit then
+            insert(tooltip, '\n\n' .. format('You have bought this item %d out of %d times', player_limit - player_item_limit, player_limit))
         end
 
         local button = grid.add({type = 'flow'}).add({
@@ -208,7 +250,7 @@ local function redraw_market_items(data)
         label_style.font = 'default-bold'
         label_style.vertical_align = 'center'
 
-        if disabled then
+        if disabled or player_bought_max_total then
             label_style.font_color = Color.dark_grey
             button.enabled = false
         elseif is_missing_coins then
@@ -249,6 +291,7 @@ local function draw_market_frame(player, group_name)
         market_items = market_items,
         player_coins = player_coins,
         market_group = group_name,
+        player_index = player.index,
     }
 
     local coin_label = frame.add({type = 'label'})
@@ -431,6 +474,11 @@ Gui.on_click(item_button_name, function (event)
         return
     end
 
+    if item.player_limit ~= -1 then
+        local limited_item = memory.limited_items[name]
+        limited_item[player.index] = limited_item[player.index] - stack_count
+    end
+
     if item.type == 'item' then
         local inserted = player.insert({name = name, count = stack_count})
         if inserted < stack_count then
@@ -442,10 +490,13 @@ Gui.on_click(item_button_name, function (event)
         end
     end
 
-    player.remove_item({name = 'coin', count = cost})
-    local player_coins = data.player_coins - cost
-    data.player_coins = player_coins
-    do_coin_label(player_coins, data.coin_label)
+    if cost > 0 then
+        player.remove_item({name = 'coin', count = cost})
+        local player_coins = data.player_coins - cost
+        data.player_coins = player_coins
+        do_coin_label(player_coins, data.coin_label)
+    end
+
     redraw_market_items(data)
     PlayerStats.change_coin_spent(player.index, cost)
 
@@ -485,6 +536,10 @@ function Retailer.set_item(group_name, prototype)
 
     if not prototype.stack_limit then
         prototype.stack_limit = -1
+    end
+
+    if not prototype.player_limit then
+        prototype.player_limit = -1
     end
 
     memory.items[group_name][item_name] = prototype
@@ -574,6 +629,19 @@ Event.on_nth_tick(37, function()
             -- player is no longer in the game, remove it from the market view
             memory.players_in_market_view[player_index] = nil
         end
+    end
+end)
+
+Event.add(Retailer.events.on_market_purchase, function (event)
+    local package = event.item
+    if package.type ~= Retailer.item_types.item_package then
+        return
+    end
+
+    local player_insert = event.player.insert
+    for _, item in pairs(package.items) do
+        item.count = item.count * event.count
+        player_insert(item)
     end
 end)
 
