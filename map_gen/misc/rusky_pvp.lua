@@ -1,5 +1,62 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local RS = require 'map_gen.shared.redmew_surface'
+
+local function killBitters(pos)
+    for k, v in pairs(RS.get_surface().find_entities_filtered({area = {{pos.x - 250, pos.y - 250}, {pos.x + 250, pos.y + 250}}, force = 'enemy'})) do
+        v.destroy()
+    end
+end
+
+local function dist(position1, position2)
+    return ((position1.x - position2.x) ^ 2 + (position1.y - position2.y) ^ 2) ^ 0.5
+end
+
+local function neForceNear(pos)
+    for k, v in pairs(game.forces) do
+        if dist(pos, v.get_spawn_position(RS.get_surface())) <= 50 then
+            return false
+        end
+    end
+    return true
+end
+
+local function validPlayer(name)
+    if name ~= nil and Game.get_player_by_index(name) ~= nil and Game.get_player_by_index(name).force == game.forces.player then
+        return true
+    end
+    return false
+end
+
+local function guiNewPlayer(gui)
+    local frame = gui.add {type = 'frame', name = 'new_force', caption = {'gui.create-force'}, direction = 'vertical'}
+    frame.add {type = 'button', name = 'new_button', caption = {'gui.new-force'}}
+end
+
+local function guiForcePlayer(gui)
+    local frame = gui.add {type = 'frame', name = 'own_force', caption = {'gui.force'}, direction = 'vertical'}
+    frame.add {type = 'textfield', name = 'inv_name'}
+    frame.add {type = 'button', name = 'inv_button', caption = {'gui.invite'}}
+    frame.add {type = 'button', name = 'leave_button', caption = {'gui.leave'}}
+end
+
+local function printNewPlayer(player)
+    --player.print{"msg.info13"}
+    --player.print{"msg.info14"}
+    player.print {'msg.info1'}
+    player.print {'msg.info2'}
+    player.print {'msg.info3'}
+    player.print {'msg.info4'}
+    player.print {'msg.info5'}
+    --player.print{"msg.info6"}
+    --player.print{"msg.info7"}
+    --player.print{"msg.info8"}
+end
+
+local function printForcePlayer(player)
+    player.print {'msg.info11'}
+    player.print {'msg.info12'}
+end
 
 Event.on_init(
     function()
@@ -87,7 +144,7 @@ Event.add(
         if player.force == game.forces.player and event.element.name == 'new_button' then
             if neForceNear(player.position) then
                 local force = game.create_force(player.name)
-                force.set_spawn_position(player.position, game.surfaces[1])
+                force.set_spawn_position(player.position, RS.get_surface())
                 player.force = force
                 killBitters(player.position)
                 player.force.chart(player.surface, {{player.position.x - 200, player.position.y - 200}, {player.position.x + 200, player.position.y + 200}})
@@ -107,7 +164,7 @@ Event.add(
                 local igui = iplayer.gui.left
 
                 iplayer.force = player.force
-                iplayer.teleport(player.force.get_spawn_position(game.surfaces[1]))
+                iplayer.teleport(player.force.get_spawn_position(RS.get_surface()))
 
                 igui.new_force.destroy()
                 guiForcePlayer(igui)
@@ -134,59 +191,3 @@ Event.add(
         end
     end
 )
-
-function neForceNear(pos)
-    for k, v in pairs(game.forces) do
-        if dist(pos, v.get_spawn_position(game.surfaces[1])) <= 50 then
-            return false
-        end
-    end
-    return true
-end
-
-function killBitters(pos)
-    for k, v in pairs(game.surfaces[1].find_entities_filtered({area = {{pos.x - 250, pos.y - 250}, {pos.x + 250, pos.y + 250}}, force = 'enemy'})) do
-        v.destroy()
-    end
-end
-
-function dist(position1, position2)
-    return ((position1.x - position2.x) ^ 2 + (position1.y - position2.y) ^ 2) ^ 0.5
-end
-
-function validPlayer(name)
-    if name ~= nil and Game.get_player_by_index(name) ~= nil and Game.get_player_by_index(name).force == game.forces.player then
-        return true
-    end
-    return false
-end
-
-function guiNewPlayer(gui)
-    local frame = gui.add {type = 'frame', name = 'new_force', caption = {'gui.create-force'}, direction = 'vertical'}
-    frame.add {type = 'button', name = 'new_button', caption = {'gui.new-force'}}
-end
-
-function guiForcePlayer(gui)
-    local frame = gui.add {type = 'frame', name = 'own_force', caption = {'gui.force'}, direction = 'vertical'}
-    frame.add {type = 'textfield', name = 'inv_name'}
-    frame.add {type = 'button', name = 'inv_button', caption = {'gui.invite'}}
-    frame.add {type = 'button', name = 'leave_button', caption = {'gui.leave'}}
-end
-
-function printNewPlayer(player)
-    --player.print{"msg.info13"}
-    --player.print{"msg.info14"}
-    player.print {'msg.info1'}
-    player.print {'msg.info2'}
-    player.print {'msg.info3'}
-    player.print {'msg.info4'}
-    player.print {'msg.info5'}
-    --player.print{"msg.info6"}
-    --player.print{"msg.info7"}
-    --player.print{"msg.info8"}
-end
-
-function printForcePlayer(player)
-    player.print {'msg.info11'}
-    player.print {'msg.info12'}
-end

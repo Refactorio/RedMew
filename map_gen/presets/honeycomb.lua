@@ -1,7 +1,7 @@
 local b = require "map_gen.shared.builders"
 
 local pic = require "map_gen.data.presets.honeycomb"
-local pic = b.decompress(pic)
+pic = b.decompress(pic)
 local map = b.picture(pic)
 
 -- this builds the map by duplicating the pic in every direction

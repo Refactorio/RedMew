@@ -5,8 +5,8 @@ If you want to add your own module, just add it to the others
 in this file and your run_*type*_module(event) function will be called.
 --]]
 local b = require 'map_gen.shared.builders'
+local RS = require 'map_gen.shared.redmew_surface'
 require 'utils.table'
-require 'map_gen.shared.perlin_noise'
 global.map = {}
 global.map.terraforming = {}
 
@@ -163,7 +163,7 @@ end
 
 if shape then
     local surfaces = {
-        ['nauvis'] = shape
+        [RS.get_surface_name()] = shape,
     }
 
     local gen = require('map_gen.shared.generate')

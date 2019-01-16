@@ -5,6 +5,7 @@
 
 local perlin = require 'map_gen.shared.perlin_noise'
 local Task = require 'utils.task'
+local RS = require 'map_gen.shared.redmew_surface'
 
 wreck_item_pool = {}
 wreck_item_pool = {
@@ -86,7 +87,7 @@ function run_combined_module(event)
     if not global.perlin_noise_seed then
         global.perlin_noise_seed = math.random(1000, 1000000)
     end
-    local surface = game.surfaces[1]
+    local surface = RS.get_surface()
 
     local entities = surface.find_entities(event.area)
     for _, entity in pairs(entities) do

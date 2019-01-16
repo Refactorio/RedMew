@@ -1,6 +1,7 @@
 local Event = require 'utils.event'
+local RS = require 'map_gen.shared.redmew_surface'
 
-mymodule = {}
+local mymodule = {}
 
 local function rot_pos(pos, rot)
     local ctr = {x = 15, y = 15}
@@ -326,7 +327,7 @@ end
 Event.on_init(on_init)
 
 local function build_intersection(type, origin, rot)
-    local surface = game.surfaces[1]
+    local surface = RS.get_surface()
     for _, v in pairs(rail_grid[type]) do
         local pos = rot_pos(v.position, rot)
         local dir = rot_dir(v.direction, rot)
@@ -339,7 +340,7 @@ end
 
 -- dirs : {E, S, W, N}, array of 0/1
 local function build_chunk(origin, dirs)
-    local surface = game.surfaces[1]
+    local surface = RS.get_surface()
     local cnt = 0
     local sum = {x = 0, y = 0}
     local delta = {x = 1, y = 0}
@@ -396,21 +397,13 @@ local function find_connections(gx, gy)
     end
 end
 
-local function disable_items()
-    force = game.forces['player']
-    force.recipes['logistic-chest-requester'].enabled = false
-    force.recipes['underground-belt'].enabled = false
-    force.recipes['fast-underground-belt'].enabled = false
-    force.recipes['express-underground-belt'].enabled = false
-end
-
 function mymodule.on_chunk_generated(event)
     local bd_box = event.area
     local surface = event.surface
     local chunk_size = 32
     -- assert(chunk_size == bd_box.right_bottom.x - bd_box.left_top.x)
     -- assert(chunk_size == bd_box.right_bottom.y - bd_box.left_top.y)
-    if surface ~= game.surfaces[1] then
+    if surface ~= RS.get_surface() then
         return
     end
 
