@@ -19,6 +19,21 @@ function table.remove_element(t, element)
     end
 end
 
+--- Removes an item from an array in O(1) time.
+-- The catch is that fast_remove doesn't guarantee to maintain the order of items in the array.
+-- @param tbl<array>
+-- @param index<int> Must be >= 0. The case where index > #tbl is handled.
+function table.fast_remove(tbl, index)
+    local count = #tbl
+    if index > count then
+        return
+    elseif index < count then
+        tbl[index] = tbl[count]
+    end
+
+    tbl[count] = nil
+end
+
 --- Adds the contents of table t2 to table t1
 -- @param t1 table to insert into
 -- @param t2 table to insert from
