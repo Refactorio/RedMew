@@ -1,8 +1,5 @@
 -- Map by Jayefuu and grilled ham, concept by claude47, 2018-12-02
 
--- SETUP INSTRUCTIONS:
--- This map preset will remove biters everywhere except near the ores.
-
 -- Add market with /market
 -- Hover over the market and run:
 --      /silent-command game.player.selected.add_market_item{price={{MARKET_ITEM, 100}}, offer={type="give-item", item="landfill"}}
@@ -12,45 +9,27 @@ local b = require 'map_gen.shared.builders'
 local math = require "utils.math"
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
 local degrees = math.rad
+
 local enemy_seed = 420420
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none,
+        MGSP.enemy_none,
+        MGSP.peaceful_mode_on
+    }
+)
 
 local function value(base, mult, pow)
     return function(x, y)
         local d_sq = x * x + y * y
         return base + mult * d_sq ^ (pow / 2) -- d ^ pow
     end
-end
-
-local function no_resources(_, _, world, tile)
-    for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
-        )
-    ) do
-        e.destroy()
-    end
-    return tile
-end
-
-local names = {
-    'biter-spawner',
-    'spitter-spawner',
-    'small-worm-turret',
-    'medium-worm-turret',
-    'big-worm-turret'
-}
-
--- removes spawners when called so we can place our own
-local function no_spawners(_, _, world, tile)
-    for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {force = 'enemy', name = names, position = {world.x, world.y}}
-        )
-    ) do
-        e.destroy()
-    end
-    return tile
 end
 
 local spiral = b.circular_spiral(80, 90)
@@ -194,8 +173,6 @@ local map = b.any{
     water_cross
 }
 map = b.apply_entity(map,start_ore_patch)
-map = b.apply_effect(map, no_resources)
-map = b.apply_effect(map, no_spawners)  -- remove all spawners and worms
 map = b.apply_entity(map, enemy)        -- add the enemies we generated
 
 local function on_init()

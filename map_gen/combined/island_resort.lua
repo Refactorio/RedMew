@@ -1,27 +1,26 @@
 --Author: MewMew
 local perlin = require 'map_gen.shared.perlin_noise'
 local b = require 'map_gen.shared.builders'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings' -- map gen settings presets
 
 local radius = 129
 local radsquare = radius * radius
 
 local start_seed = 1234567
 
-local clear_types = {'simple-entity', 'resource', 'tree'}
+-- Cannot use waterworld as we need the biter generation.
+RS.set_map_gen_settings(
+    {
+        MGSP.tree_none,
+        MGSP.ore_oil_none,
+        MGSP.enemy_very_high,
+        MGSP.cliff_none,
+        MGSP.grass_only
+    }
+)
 
-local function do_clear_entities(world)
-    local entities = world.surface.find_entities_filtered({area = world.area, type = clear_types})
-    for _, entity in ipairs(entities) do
-        entity.destroy()
-    end
-end
-
-function map(x, y, world)
-    if not world.island_resort_cleared then
-        world.island_resort_cleared = true
-        do_clear_entities(world)
-    end
-
+local function map(x, y, world)
     local entities = {}
     local decoratives = {}
 
@@ -42,9 +41,7 @@ function map(x, y, world)
     local noise_island_iron_and_copper_2 = perlin.noise(((x + seed) / 40), ((y + seed) / 40), 0)
     seed = seed + seed_increment
     local noise_island_iron_and_copper_3 = perlin.noise(((x + seed) / 10), ((y + seed) / 10), 0)
-    local noise_island_iron_and_copper =
-        noise_island_iron_and_copper_1 + (noise_island_iron_and_copper_2 * 0.1) +
-        (noise_island_iron_and_copper_3 * 0.05)
+    local noise_island_iron_and_copper = noise_island_iron_and_copper_1 + (noise_island_iron_and_copper_2 * 0.1) + (noise_island_iron_and_copper_3 * 0.05)
 
     seed = seed + seed_increment
     local noise_island_stone_and_coal_1 = perlin.noise(((x + seed) / 300), ((y + seed) / 300), 0)
@@ -52,8 +49,7 @@ function map(x, y, world)
     local noise_island_stone_and_coal_2 = perlin.noise(((x + seed) / 40), ((y + seed) / 40), 0)
     seed = seed + seed_increment
     local noise_island_stone_and_coal_3 = perlin.noise(((x + seed) / 10), ((y + seed) / 10), 0)
-    local noise_island_stone_and_coal =
-        noise_island_stone_and_coal_1 + (noise_island_stone_and_coal_2 * 0.1) + (noise_island_stone_and_coal_3 * 0.05)
+    local noise_island_stone_and_coal = noise_island_stone_and_coal_1 + (noise_island_stone_and_coal_2 * 0.1) + (noise_island_stone_and_coal_3 * 0.05)
 
     seed = seed + seed_increment
     local noise_island_oil_and_uranium_1 = perlin.noise(((x + seed) / 300), ((y + seed) / 300), 0)
@@ -61,9 +57,7 @@ function map(x, y, world)
     local noise_island_oil_and_uranium_2 = perlin.noise(((x + seed) / 40), ((y + seed) / 40), 0)
     seed = seed + seed_increment
     local noise_island_oil_and_uranium_3 = perlin.noise(((x + seed) / 10), ((y + seed) / 10), 0)
-    local noise_island_oil_and_uranium =
-        noise_island_oil_and_uranium_1 + (noise_island_oil_and_uranium_2 * 0.1) +
-        (noise_island_oil_and_uranium_3 * 0.05)
+    local noise_island_oil_and_uranium = noise_island_oil_and_uranium_1 + (noise_island_oil_and_uranium_2 * 0.1) + (noise_island_oil_and_uranium_3 * 0.05)
 
     seed = seed + seed_increment
     local noise_island_resource = perlin.noise(((x + seed) / 60), ((y + seed) / 60), 0)
@@ -86,9 +80,9 @@ function map(x, y, world)
     local tile_to_insert = 'water'
 
     --Create starting Island
-    local a = y * y
-    local b = x * x
-    local tile_distance_to_center = a + b
+    local dist_1 = y * y
+    local dist_2 = x * x
+    local tile_distance_to_center = dist_1 + dist_2
     if tile_distance_to_center + noise_island_starting <= radsquare then
         tile_to_insert = 'grass-1'
     end
@@ -206,8 +200,7 @@ function map(x, y, world)
 
         local resource_amount_distance_multiplicator = (((c + 1) / 75) / 75) + 1
         local noise_resource_amount_modifier = perlin.noise(((world.x + seed) / 200), ((world.y + seed) / 200), 0)
-        local resource_amount =
-            1 + ((500 + (500 * noise_resource_amount_modifier * 0.2)) * resource_amount_distance_multiplicator)
+        local resource_amount = 1 + ((500 + (500 * noise_resource_amount_modifier * 0.2)) * resource_amount_distance_multiplicator)
 
         if tile_to_insert == 'sand-1' or tile_to_insert == 'sand-3' then
             if noise_island_iron_and_copper > 0.5 and noise_island_resource > 0.2 then
@@ -239,28 +232,16 @@ function map(x, y, world)
         noise_island_starting = noise_island_starting * 0.08
         --Starting Resources
         if tile_distance_to_center <= radsquare then
-            if
-                tile_distance_to_center + noise_island_starting > radsquare * 0.09 and
-                    tile_distance_to_center + noise_island_starting <= radsquare * 0.15
-             then
+            if tile_distance_to_center + noise_island_starting > radsquare * 0.09 and tile_distance_to_center + noise_island_starting <= radsquare * 0.15 then
                 table.insert(entities, {name = 'stone', amount = resource_amount * 1.5})
             end
-            if
-                tile_distance_to_center + noise_island_starting > radsquare * 0.05 and
-                    tile_distance_to_center + noise_island_starting <= radsquare * 0.09
-             then
+            if tile_distance_to_center + noise_island_starting > radsquare * 0.05 and tile_distance_to_center + noise_island_starting <= radsquare * 0.09 then
                 table.insert(entities, {name = 'coal', amount = resource_amount * 1.5})
             end
-            if
-                tile_distance_to_center + noise_island_starting > radsquare * 0.02 and
-                    tile_distance_to_center + noise_island_starting <= radsquare * 0.05
-             then
+            if tile_distance_to_center + noise_island_starting > radsquare * 0.02 and tile_distance_to_center + noise_island_starting <= radsquare * 0.05 then
                 table.insert(entities, {name = 'iron-ore', amount = resource_amount * 1.5})
             end
-            if
-                tile_distance_to_center + noise_island_starting > radsquare * 0.003 and
-                    tile_distance_to_center + noise_island_starting <= radsquare * 0.02
-             then
+            if tile_distance_to_center + noise_island_starting > radsquare * 0.003 and tile_distance_to_center + noise_island_starting <= radsquare * 0.02 then
                 table.insert(entities, {name = 'copper-ore', amount = resource_amount * 1.5})
             end
             if tile_distance_to_center + noise_island_starting <= radsquare * 0.002 then

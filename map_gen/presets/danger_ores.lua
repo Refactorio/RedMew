@@ -4,6 +4,8 @@ local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
 local math = require "utils.math"
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 
 local oil_seed
 local uranium_seed
@@ -18,6 +20,13 @@ local uranium_threshold = 0.65
 local density_scale = 1 / 48
 local density_threshold = 0.5
 local density_multiplier = 50
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 Global.register_init(
     {},

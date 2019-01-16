@@ -1,8 +1,19 @@
 local b = require 'map_gen.shared.builders'
 local table = require 'utils.table'
 local Random = require 'map_gen.shared.random'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
 local ore_seed1 = 2000
 local ore_seed2 = ore_seed1 * 2
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none,
+        MGSP.enemy_none
+    }
+)
 
 local random = Random.new(ore_seed1, ore_seed2)
 

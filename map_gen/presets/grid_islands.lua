@@ -1,12 +1,20 @@
---[[
-This map uses custom ore gen. When generating the map, under the resource settings tab use Size = 'None' for all resources.
-]]
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
 local degrees = require "utils.math".degrees
+
 local ore_seed1 = 1000
 local ore_seed2 = ore_seed1 * 2
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local h_track = {
     b.line_x(2),

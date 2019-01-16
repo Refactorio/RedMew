@@ -3,6 +3,7 @@ local perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
 local math = require 'utils.math'
 local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 local table = require 'utils.table'
 
 local sand_width = 512
@@ -20,6 +21,13 @@ local water_noise_level = noise_level * 1.35
 -- Leave nil and they will be set based on the map seed.
 local perlin_seed_1 = nil
 local perlin_seed_2 = nil
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 Global.register_init(
     {},

@@ -1,9 +1,15 @@
---[[
-This map uses custom ore gen. When generating the map, under the resource settings tab use Size = 'None' for iron, copper, stone and coal.
-]]
-
 local b = require "map_gen.shared.builders"
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
 local degrees = require "utils.math".degrees
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_none,
+        MGSP.cliff_none
+    }
+)
 
 local body = b.rotate(b.oval(128,256), degrees(20))
 local butt = b.translate(b.rotate(b.oval(180, 128), degrees(30)), 130,100)

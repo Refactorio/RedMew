@@ -1,7 +1,16 @@
 local b = require 'map_gen.shared.builders'
-
 local beach = require 'map_gen.presets.beach'
-local degrees = require "utils.math".degrees
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+local degrees = require 'utils.math'.degrees
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local start_pound = b.circle(6)
 start_pound = b.translate(start_pound, 0, -16)

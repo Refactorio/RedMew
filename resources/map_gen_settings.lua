@@ -193,7 +193,7 @@ return {
     },
     -- no water
     water_none = {
-        terrain_segmentation = 'normal',
+        terrain_segmentation = 'very-low',
         water = 'none'
     },
     -- very low water

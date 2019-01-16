@@ -6,13 +6,25 @@
 
 local b = require 'map_gen.shared.builders'
 local math = require "utils.math"
-local degrees = math.rad
 local table = require 'utils.table'
 local Event = require 'utils.event'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+local degrees = math.rad
 
 -- change these to change the pattern.
 local seed1 = 20000
 local seed2 = seed1 * 2
+
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none,
+        MGSP.enemy_none
+    }
+)
 
 local military_techs = {
     'artillery',
@@ -206,34 +218,6 @@ local function value(base, mult, pow)
     end
 end
 
-local names = {
-    'biter-spawner',
-    'spitter-spawner'
-}
-
--- removes spawners when called
-local function no_spawners(_, _, world, tile)
-    for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {force = 'enemy', name = names, position = {world.x, world.y}}
-        )
-    ) do
-        e.destroy()
-    end
-    return tile
-end
-
-local function no_resources(_, _, world, tile)
-    for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
-        )
-    ) do
-        e.destroy()
-    end
-    return tile
-end
-
 local apple = b.translate(b.circle(20),0,-90)
 local tree = b.picture(require 'map_gen.data.presets.tree')
 tree = b.scale(tree,0.6,0.6)
@@ -397,8 +381,6 @@ end
 local map = b.grid_pattern_full_overlap(pattern, p_cols, p_rows, 500, 500)
 
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
-map = b.apply_effect(map, no_resources)
-map = b.apply_effect(map, no_spawners)
 
 local sea = b.change_tile(apple, false, 'water')
 sea = b.fish(sea, 0.005)
