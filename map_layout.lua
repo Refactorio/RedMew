@@ -10,6 +10,7 @@ require 'map_gen.shared.perlin_noise'
 global.map = {}
 global.map.terraforming = {}
 
+MAP_LAYOUT_REGISTER = true
 local shape
 local regen_decoratives = false
 local tiles_per_tick = 32
@@ -76,10 +77,11 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.world_map"
 --shape = require "map_gen.presets.lines_and_squares"
 --shape = require "map_gen.presets.spiral_of_spirals"
---shape = require "map_gen.presets.crash_site"
+--shape = require 'map_gen.presets.crash_site'
 --shape = require "map_gen.presets.dino_island"
 --shape = require "map_gen.presets.toxic_jungle"
 --shape = require "map_gen.presets.danger_ores"
+shape = require 'map_gen.presets.terraforming_danger_ores'
 --shape = require "map_gen.presets.bacon_islands"
 --shape = require "map_gen.presets.spiral"
 --shape = require "map_gen.presets.hub_spiral"
@@ -161,9 +163,17 @@ end
 
 if shape then
     local surfaces = {
-        ['nauvis'] = shape,
+        ['nauvis'] = shape
     }
 
-    require('map_gen.shared.generate')({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
-    --require ("map_gen.shared.generate_not_threaded")({surfaces = surfaces, regen_decoratives = regen_decoratives})
+    local gen = require('map_gen.shared.generate')
+    gen.init({surfaces = surfaces, regen_decoratives = regen_decoratives, tiles_per_tick = tiles_per_tick})
+
+    if MAP_LAYOUT_REGISTER then
+        if _DEBUG then
+            gen.register_debug()
+        else
+            gen.register()
+        end
+    end
 end
