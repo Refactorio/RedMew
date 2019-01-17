@@ -1,13 +1,8 @@
 --[[
-Inspired/copied from Beach/Double beach by GrilledHam
-Creates a diagonal, wavy ribbon world with only tiles. Vanilla ore and biter generation are unaffected.
+    Inspired/copied from Beach/Double beach by GrilledHam
+    Creates a diagonal, wavy ribbon world with only tiles. Vanilla ore and biter generation are unaffected.
+]]
 
-Post-mortum analysis after 2018-11-15 run:
-
-
-The players expanded the base easily and had too much access to resources. The biter frequency should be increased and the ore richness and/or size decreased.
-There was a lot of space in the North-South direction for building, so play_area_width should be turned down significantly.
-]]--
 local b = require 'map_gen.shared.builders'
 local perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
@@ -15,7 +10,6 @@ local math = require 'utils.math'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 
--- A "very small" starting area is advised at the default 100 width.
 local play_area_width = 50 -- The approximate width of the play area
 local oob_tile = 'out-of-map' -- The tiles that make up the out of bounds/world border. Recommended are out-of-map or water.
 
