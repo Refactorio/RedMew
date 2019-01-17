@@ -162,8 +162,9 @@ local function redraw_market_items(data)
 
     local count = data.count
     local market_items = data.market_items
-    local player_coins = data.player_coins
     local player_index = data.player_index
+    local player_coins = Game.get_player_by_index(player_index).get_item_count('coin')
+    local limited_items = memory.limited_items[data.market_group]
 
     if size(market_items) == 0 then
         grid.add({type = 'label', caption = 'No items available at this time'})
@@ -176,22 +177,20 @@ local function redraw_market_items(data)
         local stack_count = has_stack_limit and stack_limit < count and item.stack_limit or count
         local player_limit = item.player_limit
         local has_player_limit = player_limit ~= -1
-        local player_item_limit = -1
 
         if has_player_limit then
             local item_name = item.name
-            local player_limits = memory.limited_items[item_name]
+            player_limit = limited_items[item_name][player_index]
 
-            if not player_limits then
+            if player_limit == nil then
                 -- no limit set yet
-                player_limits = {[player_index] = player_limit}
-                memory.limited_items[item_name] = player_limits
+                player_limit = item.player_limit
+                limited_items[item_name][player_index] = item.player_limit
             end
 
-            player_item_limit = player_limits[player_index]
-            if player_item_limit < stack_count then
+            if player_limit < stack_count then
                 -- ensure the stack count is never higher than the item limit for the player
-                stack_count = player_item_limit
+                stack_count = player_limit
             end
         end
 
@@ -229,7 +228,7 @@ local function redraw_market_items(data)
         end
 
         if has_player_limit then
-            insert(tooltip, '\n\n' .. format('You have bought this item %d out of %d times', player_limit - player_item_limit, player_limit))
+            insert(tooltip, '\n\n' .. format('You have bought this item %d out of %d times', item.player_limit - player_limit, item.player_limit))
         end
 
         local button = grid.add({type = 'flow'}).add({
@@ -289,7 +288,6 @@ local function draw_market_frame(player, group_name)
         grid = grid,
         count = 1,
         market_items = market_items,
-        player_coins = player_coins,
         market_group = group_name,
         player_index = player.index,
     }
@@ -474,8 +472,9 @@ Gui.on_click(item_button_name, function (event)
         return
     end
 
+    local market_group = data.market_group
     if item.player_limit ~= -1 then
-        local limited_item = memory.limited_items[name]
+        local limited_item = memory.limited_items[market_group][name]
         limited_item[player.index] = limited_item[player.index] - stack_count
     end
 
@@ -492,9 +491,6 @@ Gui.on_click(item_button_name, function (event)
 
     if cost > 0 then
         player.remove_item({name = 'coin', count = cost})
-        local player_coins = data.player_coins - cost
-        data.player_coins = player_coins
-        do_coin_label(player_coins, data.coin_label)
     end
 
     redraw_market_items(data)
@@ -504,7 +500,10 @@ Gui.on_click(item_button_name, function (event)
         item = item,
         count = stack_count,
         player = player,
+        group_name = market_group,
     })
+
+    do_coin_label(player.get_item_count('coin'), data.coin_label)
 end)
 
 ---Add a market to the group_name retailer.
@@ -520,6 +519,9 @@ end
 function Retailer.set_item(group_name, prototype)
     if not memory.items[group_name] then
         memory.items[group_name] = {}
+    end
+    if not memory.limited_items[group_name] then
+        memory.limited_items[group_name] = {}
     end
 
     local item_name = prototype.name
@@ -543,6 +545,7 @@ function Retailer.set_item(group_name, prototype)
     end
 
     memory.items[group_name][item_name] = prototype
+    memory.limited_items[group_name][item_name] = prototype
 
     schedule_market_gui_refresh(group_name)
 end
