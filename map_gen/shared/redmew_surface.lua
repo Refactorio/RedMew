@@ -71,8 +71,7 @@ local merge = util.merge
 local format = string.format
 
 -- Constants
-local set_warn_message =
-    'set_%s has already been called. Calling this twice can lead to unexpected settings overwrites.'
+local set_warn_message = 'set_%s has already been called. Calling this twice can lead to unexpected settings overwrites.'
 local vanilla_surface_name = 'nauvis'
 local redmew_surface_name = 'redmew'
 
@@ -85,14 +84,15 @@ local data = {
     ['map_settings_components'] = {},
     ['difficulty_settings_components'] = {}
 }
-
 local Public = {}
 
 -- Global tokens
 -- The nil definitions are to document what data might exist.
 local global_data = {
     surface = nil,
-    first_player_position_check_override = nil
+    first_player_position_check_override = nil,
+    spawn_position = nil,
+    island_tile = nil
 }
 
 Global.register(
@@ -199,6 +199,10 @@ local function create_redmew_surface()
 
     surface.request_to_generate_chunks({0, 0}, 4)
     surface.force_generate_chunk_requests()
+    local spawn_position = global_data.spawn_position
+    if spawn_position then
+        game.forces.player.set_spawn_position(spawn_position, surface)
+    end
 end
 
 --- Teleport the player to the redmew surface and if there is no suitable location, create a lab-white island.
@@ -206,20 +210,24 @@ local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
     local surface = global_data.surface
 
-    local pos = surface.find_non_colliding_position('player', {0, 0}, 50, 1)
-    if pos and not global_data.first_player_position_check_override then
+    local spawn_position = global_data.spawn_position or {x = 0, y = 0}
+    local pos = surface.find_non_colliding_position('player', spawn_position, 50, 1)
+
+    if pos and not global_data.first_player_position_check_override then -- we tp to that pos
         player.teleport(pos, surface)
     else
-        -- if there's no position available within range or a map needs players at 0,0: create an island and place the player there
-        surface.set_tiles(
-            {
-                {name = 'lab-white', position = {-1, -1}},
-                {name = 'lab-white', position = {-1, 0}},
-                {name = 'lab-white', position = {0, -1}},
-                {name = 'lab-white', position = {0, 0}}
-            }
-        )
-        player.teleport({0, 0}, surface)
+        -- if there's no position available within range or we override the position check:
+        -- create an island and place the player at spawn_position
+        local island_tile = global_data.island_tile or 'lab-white'
+        local tile_table = {}
+        for x = -1, 1 do
+            for y = -1, 1 do
+                insert(tile_table, {name = island_tile, position = {spawn_position.x - x, spawn_position.y - y}})
+            end
+        end
+        surface.set_tiles(tile_table)
+
+        player.teleport(spawn_position, surface)
         global_data.first_player_position_check_override = nil
     end
 end
@@ -275,10 +283,23 @@ function Public.get_surface_name()
     end
 end
 
---- Allows maps to set first_player_position_check_override
--- This is a hack for diggy and forces the first created player to be teleported to {0, 0} and skip the collision check.
+--- Allows maps to skip the collision check for the first player being teleported.
+-- This is useful when a collision check at the spawn point is either invalid or puts the
+-- player in a position that will get them killed by map generation (ex. diggy, tetris)
 function Public.set_first_player_position_check_override(bool)
     global_data.first_player_position_check_override = bool
+end
+
+--- Allows maps to set a custom spawn position
+-- @param position <table> with x and y keys ex.{x = 5.0, y = 5.0}
+function Public.set_spawn_position(position)
+    global_data.spawn_position = position
+end
+
+--- Allows maps to set the tile used for spawn islands
+-- @param tile_name <string> name of the tile to create the island out of
+function Public.set_spawn_island_tile(tile_name)
+    global_data.island_tile = tile_name
 end
 
 Event.on_init(create_redmew_surface)
