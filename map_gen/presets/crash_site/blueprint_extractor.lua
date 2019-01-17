@@ -1,3 +1,7 @@
+local Command = require 'utils.command'
+
+local insert = table.insert
+
 local function get_mins(entities, tiles)
     local min_x, min_y = math.huge, math.huge
 
@@ -28,67 +32,69 @@ local function get_mins(entities, tiles)
     return min_x, min_y
 end
 
-local function output(result, prepend, size)
+local function output(result, prepend, size, player)
     local str = {prepend}
-    table.insert(str, '{\npart_size = ')
-    table.insert(str, size)
-    table.insert(str, ',\n')
+    insert(str, '{\npart_size = ')
+    insert(str, size)
+    insert(str, ',\n')
 
     for i, entry in pairs(result) do
-        table.insert(str, '[')
-        table.insert(str, i)
-        table.insert(str, '] = {')
+        insert(str, '[')
+        insert(str, i)
+        insert(str, '] = {')
 
         local e = entry.entity
         if e then
-            table.insert(str, 'entity = {')
+            insert(str, 'entity = {')
 
-            table.insert(str, "name = '")
-            table.insert(str, e.name)
-            table.insert(str, "'")
+            insert(str, "name = '")
+            insert(str, e.name)
+            insert(str, "'")
 
             local dir = e.direction
             if dir then
-                table.insert(str, ', direction = ')
-                table.insert(str, dir)
+                insert(str, ', direction = ')
+                insert(str, dir)
             end
 
             local offset = e.offset
             if offset then
-                table.insert(str, ', offset = ')
-                table.insert(str, offset)
+                insert(str, ', offset = ')
+                insert(str, offset)
             end
 
-            table.insert(str, '}')
+            insert(str, '}')
         end
 
         local t = entry.tile
         if t then
             if e then
-                table.insert(str, ', ')
+                insert(str, ', ')
             end
-            table.insert(str, "tile = '")
-            table.insert(str, t.name)
-            table.insert(str, "'")
+            insert(str, "tile = '")
+            insert(str, t.name)
+            insert(str, "'")
         end
 
-        table.insert(str, '}')
-        table.insert(str, ',\n')
+        insert(str, '}')
+        insert(str, ',\n')
     end
     table.remove(str)
 
-    table.insert(str, '\n}')
+    insert(str, '\n}')
 
     str = table.concat(str)
 
-    game.write_file('bp.lua', str)
+    game.write_file('bp.lua', str, false, player.index)
+    player.print('bp.lua written')
 end
 
-function extract1(size)
-    local cs = game.player.cursor_stack
+local function extract1(args, player)
+    local size = args.size
+    local cs = player.cursor_stack
 
     if not (cs.valid_for_read and cs.name == 'blueprint' and cs.is_blueprint_setup()) then
-        game.print('invalid blueprint')
+        player.print('invalid blueprint')
         return
     end
 
@@ -132,14 +138,15 @@ function extract1(size)
 
         entry.tile = e
     end
-    output(result, 'ob.make_1_way', size)
+    output(result, 'ob.make_1_way', size, player)
 end
 
-function extract4(size)
-    local cs = game.player.cursor_stack
+local function extract4(args, player)
+    local size = args.size
+    local cs = player.cursor_stack
 
     if not (cs.valid_for_read and cs.name == 'blueprint' and cs.is_blueprint_setup()) then
-        game.print('invalid blueprint')
+        player.print('invalid blueprint')
         return
     end
 
@@ -195,5 +202,24 @@ function extract4(size)
 
         entry.tile = t
     end
-    output(result, 'ob.make_4_way', size)
+    output(result, 'ob.make_4_way', size, player)
 end
+
+Command.add(
+    'extract1',
+    {
+        arguments = {'size'},
+        default_values = {size = 6},
+        admin_only = true
+    },
+    extract1
+)
+Command.add(
+    'extract4',
+    {
+        arguments = {'size'},
+        default_values = {size = 6},
+        admin_only = true
+    },
+    extract4
+)
