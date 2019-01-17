@@ -1,10 +1,21 @@
 local b = require 'map_gen.shared.builders'
 local table = require 'utils.table'
+local pic = require 'map_gen.data.presets.void_gears'
+local gear = require 'map_gen.data.presets.gear_96by96'
+local Random = require 'map_gen.shared.random'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 
 local seed1 = 6666
 local seed2 = 9999
 
-local pic = require 'map_gen.data.presets.void_gears'
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
+
 pic = b.decompress(pic)
 
 local shape = b.picture(pic)
@@ -14,7 +25,6 @@ local map = b.single_pattern(shape, pic.width, pic.height)
 map = b.translate(map, -102, 133)
 map = b.scale(map, 1.75, 1.75)
 
-local gear = require 'map_gen.data.presets.gear_96by96'
 gear = b.decompress(gear)
 local gear_big = b.picture(gear)
 local gear_medium = b.scale(gear_big, 2 / 3)
@@ -63,7 +73,6 @@ local function sprinkle(shape) -- luacheck: ignore 431
         }
     end
 end
-
 
 local function radial(shape, radius) -- luacheck: ignore 431
     local stone_r_sq = radius * 0.3025 -- radius * 0.55
@@ -147,7 +156,6 @@ small_patches[#small_patches + 1] = {
     1
 }
 
-local Random = require 'map_gen.shared.random'
 local random = Random.new(seed1, seed2)
 
 local p_cols = 50
@@ -187,7 +195,7 @@ local function do_patches(patches, offset)
     return pattern
 end
 
-big_patches = do_patches(big_patches, 96 )
+big_patches = do_patches(big_patches, 96)
 big_patches = b.grid_pattern_full_overlap(big_patches, p_cols, p_rows, 192, 192)
 
 medium_patches = do_patches(medium_patches, 64)
@@ -199,10 +207,38 @@ small_patches = b.grid_pattern_full_overlap(small_patches, p_cols, p_rows, 64, 6
 --map = b.apply_entity(map, small_patches)
 map = b.apply_entities(map, {big_patches, medium_patches, small_patches})
 
-local start_stone = b.resource(gear_big, 'stone', function() return 400 end)
-local start_coal = b.resource(gear_big, 'coal', function() return 800 end)
-local start_copper = b.resource(gear_big, 'copper-ore', function() return 800 end)
-local start_iron = b.resource(gear_big, 'iron-ore', function() return 1600 end)
+local start_stone =
+    b.resource(
+    gear_big,
+    'stone',
+    function()
+        return 400
+    end
+)
+local start_coal =
+    b.resource(
+    gear_big,
+    'coal',
+    function()
+        return 800
+    end
+)
+local start_copper =
+    b.resource(
+    gear_big,
+    'copper-ore',
+    function()
+        return 800
+    end
+)
+local start_iron =
+    b.resource(
+    gear_big,
+    'iron-ore',
+    function()
+        return 1600
+    end
+)
 local start_segmented = b.segment_pattern({start_stone, start_coal, start_copper, start_iron})
 local start_gear = b.apply_entity(gear_big, start_segmented)
 

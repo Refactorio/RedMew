@@ -8,11 +8,12 @@ local Global = require('utils.global')
 local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
 local math = require 'utils.math'
-local degrees = math.degrees
 local ScenarioInfo = require 'features.gui.info'
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+
+local degrees = math.degrees
 
 RS.set_map_gen_settings(
     {
@@ -37,7 +38,7 @@ ScenarioInfo.add_map_extra_info(
 
 global.config.market.enabled = false
 
--- leave seeds nil to have them filled in based on teh map seed.
+-- leave seeds nil to have them filled in based on the map seed.
 local outpost_seed = nil --91000
 local ore_seed = nil --92000
 

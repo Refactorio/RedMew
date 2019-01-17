@@ -30,8 +30,8 @@ local leg = b.rectangle(32,480)
 local head = b.translate (b.oval(32, 64), 0, -64)
 local body = b.translate (b.circle(64), 0, 64)
 
-local count = 10
-local angle = 360 / count
+count = 10
+angle = 360 / count
 local list = { head, body }
 for i = 1, (count / 2) - 1 do
     local shape = b.rotate(leg, degrees(i * angle))

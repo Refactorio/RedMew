@@ -1,7 +1,9 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
 local table = require 'utils.table'
-local math = require "utils.math"
+local math = require 'utils.math'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 
 local track_seed1 = 37000
 local track_seed2 = track_seed1 * 2
@@ -16,6 +18,14 @@ local number_blocks = 25
 
 local ore_blocks = 32
 local ore_block_size = 30
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none,
+        MGSP.enemy_none
+    }
+)
 
 local blocks_size = track_lines * block_size
 local offset = (track_lines * 0.5 + 0.5) * block_size

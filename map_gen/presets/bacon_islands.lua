@@ -1,9 +1,19 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
-local degrees = require "utils.math".degrees
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+local degrees = require "utils.math".degrees
 
 local ore_seed = 3000
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local wave = b.sine_wave(64, 16, 4)
 

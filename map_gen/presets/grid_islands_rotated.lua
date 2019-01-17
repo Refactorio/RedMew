@@ -12,12 +12,21 @@ local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
 local math = require "utils.math"
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 
 local degrees = math.rad
 
 local ore_seed1 = 1000
 local ore_seed2 = ore_seed1 * 2
 local island_separation = 350
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local track = {
     b.translate(b.line_x(3), 0, -3),

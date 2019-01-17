@@ -1,18 +1,23 @@
---[[
-This map uses custom ore gen. When generating the map, under the resource settings tab use Size = 'None' for all resources.
-This map removes and adds it's own water, in terrain settings use water frequency = very low and water size = only in starting area.
-This map has isolated areas, it's recommend turning biters to peaceful to reduce stress on the pathfinder.
-]]
 local b = require 'map_gen.shared.builders'
-local math = require "utils.math"
-local degrees = math.degrees
+local math = require 'utils.math'
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 
--- change these to change the pattern.
+local degrees = math.degrees
+
+-- change these to change the pattern and scale
 local seed1 = 12345
 local seed2 = 56789
-
 local fish_scale = 1.75
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.peaceful_mode_on,
+        MGSP.water_none
+    }
+)
 
 local value = b.exponential_value
 

@@ -1,9 +1,19 @@
 local b = require "map_gen.shared.builders"
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
 local degrees = require "utils.math".degrees
 
 local seed1 = 420420
 local seed2 = 696969
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local ball = b.circle(16)
 local line1 = b.translate(b.rectangle(42, 8), 34, 0)

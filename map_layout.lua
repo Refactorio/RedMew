@@ -10,24 +10,18 @@ require 'utils.table'
 global.map = {}
 global.map.terraforming = {}
 
-local shape
+local shape = nil
 local regen_decoratives = false
 local tiles_per_tick = 32
 
 --combined--
 --shape = require "map_gen.combined.island_resort"
---require "map_gen.combined.red_planet_v2"
 --shape = require 'map_gen.combined.borg_planet_v2'
 --require "map_gen.combined.dimensions"
---require "map_gen.combined.dagobah_swamp"
---require "map_gen.combined.meteor_strike" --unfinished
 --require "map_gen.combined.diggy"
 
 --presets--
 --shape = require "map_gen.presets.template"
---shape = require "map_gen.presets.web" --unfinished
---shape = require "map_gen.presets.rings_and_boxes" --unfinished
---shape = require "map_gen.presets.ring_of_balls" --unfinished
 --shape = require "map_gen.presets.dna"
 --shape = require "map_gen.presets.lines_and_balls"
 --shape = require "map_gen.presets.mobius_strip"
@@ -94,6 +88,12 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.rotten_apples"
 --shape = require "map_gen.presets.spiral_crossings"
 --shape = require "map_gen.presets.test"
+
+--WIP maps--
+--require "map_gen.combined.meteor_strike" --unfinished
+--shape = require "map_gen.presets.web" --unfinished
+--shape = require "map_gen.presets.rings_and_boxes" --unfinished
+--shape = require "map_gen.presets.ring_of_balls" --unfinished
 
 --shapes--
 --shape = require "map_gen.shape.left"

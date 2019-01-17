@@ -3,6 +3,11 @@
 -- Use water only in starting area as map setting!!!
 local perlin = require 'map_gen.shared.perlin_noise'
 local Token = require 'utils.token'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+local insert = table.insert
+local random = math.random
 
 local wreck_item_pool = {
     {name = 'iron-gear-wheel', count = 32},
@@ -34,14 +39,16 @@ local wreck_item_pool = {
     {name = 'explosive-rocket', count = 32}
 }
 
+RS.set_map_gen_settings({MGSP.water_none})
+
 local ship_callback =
     Token.register(
     function(entity)
-        entity.health = math.random(entity.health)
+        entity.health = random(entity.health)
 
-        entity.insert(wreck_item_pool[math.random(#wreck_item_pool)])
-        entity.insert(wreck_item_pool[math.random(#wreck_item_pool)])
-        entity.insert(wreck_item_pool[math.random(#wreck_item_pool)])
+        entity.insert(wreck_item_pool[random(#wreck_item_pool)])
+        entity.insert(wreck_item_pool[random(#wreck_item_pool)])
+        entity.insert(wreck_item_pool[random(#wreck_item_pool)])
     end
 )
 
@@ -54,31 +61,24 @@ local function do_clear_entities(world)
     end
 end
 
-local random_health =
-    Token.register(
-    function(e)
-        e.health = math.random(e.health)
-    end
-)
-
 local medium_health =
     Token.register(
     function(e)
-        e.health = math.random(math.floor(e.health * 0.333), math.floor(e.health * 0.666))
+        e.health = random(math.floor(e.health * 0.333), math.floor(e.health * 0.666))
     end
 )
 
 local low_health =
     Token.register(
     function(e)
-        e.health = math.random(math.floor(e.health * 0.033), math.floor(e.health * 0.330))
+        e.health = random(math.floor(e.health * 0.033), math.floor(e.health * 0.330))
     end
 )
 
 local turrent_callback =
     Token.register(
     function(e)
-        if math.random(1, 3) == 1 then
+        if random(1, 3) == 1 then
             e.insert('piercing-rounds-magazine')
         else
             e.insert('firearm-magazine')
@@ -86,10 +86,9 @@ local turrent_callback =
     end
 )
 
-return function(x, y, world)
+return function(_, _, world)
     local entities = {}
 
-    local area = world.area
     local surface = world.surface
 
     if not world.island_resort_cleared then
@@ -123,12 +122,12 @@ return function(x, y, world)
     local noise_walls = noise_walls_1 + noise_walls_2 * 0.1 + noise_walls_3 * 0.03
 
     if noise_borg_defense > 0.66 then
-        if math.random(25) == 1 then
-            table.insert(entities, {name = 'big-ship-wreck-1', force = 'player', callback = ship_callback})
-        elseif math.random(25) == 1 then
-            table.insert(entities, {name = 'big-ship-wreck-2', force = 'player', callback = ship_callback})
-        elseif math.random(25) == 1 then
-            table.insert(entities, {name = 'big-ship-wreck-3', force = 'player', callback = ship_callback})
+        if random(25) == 1 then
+            insert(entities, {name = 'big-ship-wreck-1', force = 'player', callback = ship_callback})
+        elseif random(25) == 1 then
+            insert(entities, {name = 'big-ship-wreck-2', force = 'player', callback = ship_callback})
+        elseif random(25) == 1 then
+            insert(entities, {name = 'big-ship-wreck-3', force = 'player', callback = ship_callback})
         end
     end
 
@@ -142,70 +141,70 @@ return function(x, y, world)
         tile_to_insert = 'stone-path'
     end
     if noise_borg_defense > 0.65 and noise_borg_defense < 0.66 then
-        table.insert(entities, {name = 'substation', force = 'enemy'})
+        insert(entities, {name = 'substation', force = 'enemy'})
     end
     if noise_borg_defense >= 0.54 and noise_borg_defense < 0.65 then
-        table.insert(entities, {name = 'solar-panel', force = 'enemy'})
+        insert(entities, {name = 'solar-panel', force = 'enemy'})
     end
     if noise_borg_defense > 0.53 and noise_borg_defense < 0.54 then
-        table.insert(entities, {name = 'substation', force = 'enemy'})
+        insert(entities, {name = 'substation', force = 'enemy'})
     end
     if noise_borg_defense >= 0.51 and noise_borg_defense < 0.53 then
-        table.insert(entities, {name = 'accumulator', force = 'enemy'})
+        insert(entities, {name = 'accumulator', force = 'enemy'})
     end
     if noise_borg_defense >= 0.50 and noise_borg_defense < 0.51 then
-        table.insert(entities, {name = 'substation', force = 'enemy'})
+        insert(entities, {name = 'substation', force = 'enemy'})
     end
     if noise_borg_defense >= 0.487 and noise_borg_defense < 0.50 then
-        table.insert(entities, {name = 'laser-turret', force = 'enemy'})
+        insert(entities, {name = 'laser-turret', force = 'enemy'})
     end
     if noise_borg_defense >= 0.485 and noise_borg_defense < 0.487 then
-        table.insert(entities, {name = 'substation', force = 'enemy'})
+        insert(entities, {name = 'substation', force = 'enemy'})
     end
     if noise_borg_defense >= 0.45 and noise_borg_defense < 0.484 then
-        table.insert(entities, {name = 'stone-wall', force = 'enemy'})
+        insert(entities, {name = 'stone-wall', force = 'enemy'})
     end
 
     if noise_trees > 0.2 and tile_to_insert == 'sand-3' then
-        if math.random(1, 15) == 1 then
-            if math.random(1, 5) == 1 then
-                table.insert(entities, {name = 'dry-hairy-tree'})
+        if random(1, 15) == 1 then
+            if random(1, 5) == 1 then
+                insert(entities, {name = 'dry-hairy-tree'})
             else
-                table.insert(entities, {name = 'dry-tree'})
+                insert(entities, {name = 'dry-tree'})
             end
         end
     end
 
-    if math.random(35000) == 1 then
-        table.insert(entities, {name = 'big-ship-wreck-1', force = 'player', callback = ship_callback})
-    elseif math.random(45000) == 1 then
-        table.insert(entities, {name = 'big-ship-wreck-2', force = 'player', callback = ship_callback})
-    elseif math.random(55000) == 1 then
-        table.insert(entities, {name = 'big-ship-wreck-3', force = 'player', callback = ship_callback})
-    elseif noise_walls > -0.03 and noise_walls < 0.03 and math.random(40) == 1 then
-        table.insert(entities, {name = 'gun-turret', force = 'enemy', callback = turrent_callback})
-    elseif noise_borg_defense > 0.41 and noise_borg_defense < 0.45 and math.random(15) == 1 then
-        table.insert(entities, {name = 'gun-turret', force = 'enemy', callback = turrent_callback})
-    elseif math.random(7500) == 1 then
-        table.insert(entities, {name = 'pipe-to-ground', force = 'enemy'})
-    elseif tile_to_insert ~= 'stone-path' and tile_to_insert ~= 'concrete' and math.random(1500) == 1 then
-        table.insert(entities, {name = 'dead-dry-hairy-tree'})
-    elseif tile_to_insert ~= 'stone-path' and tile_to_insert ~= 'concrete' and math.random(1500) == 1 then
-        table.insert(entities, {name = 'dead-grey-trunk'})
-    elseif math.random(25000) == 1 then
-        table.insert(entities, {name = 'medium-ship-wreck', force = 'player', callback = medium_health})
-    elseif math.random(15000) == 1 then
-        table.insert(entities, {name = 'small-ship-wreck', force = 'player', callback = medium_health})
-    elseif math.random(150000) == 1 then
-        table.insert(entities, {name = 'car', force = 'player', callback = low_health})
-    elseif math.random(100000) == 1 then
-        table.insert(entities, {name = 'laser-turret', force = 'enemy', callback = low_health})
-    elseif math.random(1000000) == 1 then
-        table.insert(entities, {name = 'nuclear-reactor', force = 'enemy', callback = medium_health})
+    if random(35000) == 1 then
+        insert(entities, {name = 'big-ship-wreck-1', force = 'player', callback = ship_callback})
+    elseif random(45000) == 1 then
+        insert(entities, {name = 'big-ship-wreck-2', force = 'player', callback = ship_callback})
+    elseif random(55000) == 1 then
+        insert(entities, {name = 'big-ship-wreck-3', force = 'player', callback = ship_callback})
+    elseif noise_walls > -0.03 and noise_walls < 0.03 and random(40) == 1 then
+        insert(entities, {name = 'gun-turret', force = 'enemy', callback = turrent_callback})
+    elseif noise_borg_defense > 0.41 and noise_borg_defense < 0.45 and random(15) == 1 then
+        insert(entities, {name = 'gun-turret', force = 'enemy', callback = turrent_callback})
+    elseif random(7500) == 1 then
+        insert(entities, {name = 'pipe-to-ground', force = 'enemy'})
+    elseif tile_to_insert ~= 'stone-path' and tile_to_insert ~= 'concrete' and random(1500) == 1 then
+        insert(entities, {name = 'dead-dry-hairy-tree'})
+    elseif tile_to_insert ~= 'stone-path' and tile_to_insert ~= 'concrete' and random(1500) == 1 then
+        insert(entities, {name = 'dead-grey-trunk'})
+    elseif random(25000) == 1 then
+        insert(entities, {name = 'medium-ship-wreck', force = 'player', callback = medium_health})
+    elseif random(15000) == 1 then
+        insert(entities, {name = 'small-ship-wreck', force = 'player', callback = medium_health})
+    elseif random(150000) == 1 then
+        insert(entities, {name = 'car', force = 'player', callback = low_health})
+    elseif random(100000) == 1 then
+        insert(entities, {name = 'laser-turret', force = 'enemy', callback = low_health})
+    elseif random(1000000) == 1 then
+        insert(entities, {name = 'nuclear-reactor', force = 'enemy', callback = medium_health})
     end
 
-    if noise_trees < -0.5 and (tile_to_insert == 'sand-3' or tile_to_insert == 'sand-1') and math.random(15) == 1 then
-        table.insert(entities, {name = 'rock-big'})
+    if noise_trees < -0.5 and (tile_to_insert == 'sand-3' or tile_to_insert == 'sand-1') and random(15) == 1 then
+        insert(entities, {name = 'rock-big'})
     end
 
     local noise_water_1 = perlin.noise(((world.x + seed) / 200), ((world.y + seed) / 200), 0)
@@ -228,10 +227,7 @@ return function(x, y, world)
     seed = seed + seed_increment_number
     noise_water_2 = noise_water_1 + noise_water_2 + noise_water_3 * 0.07 + noise_water_4 * 0.07
 
-    if
-        tile_to_insert ~= 'stone-path' and tile_to_insert ~= 'concrete' and noise_water > -0.15 and noise_water < 0.15 and
-            noise_water_2 > 0.5
-     then
+    if tile_to_insert ~= 'stone-path' and tile_to_insert ~= 'concrete' and noise_water > -0.15 and noise_water < 0.15 and noise_water_2 > 0.5 then
         tile_to_insert = 'water-green'
     end
 
@@ -239,7 +235,7 @@ return function(x, y, world)
         local a = -0.01
         local b = 0.01
         if noise_walls > a and noise_walls < b then
-            table.insert(entities, {name = 'stone-wall', force = 'enemy'})
+            insert(entities, {name = 'stone-wall', force = 'enemy'})
         end
         if noise_walls >= a and noise_walls <= b then
             tile_to_insert = 'concrete'
@@ -261,10 +257,7 @@ return function(x, y, world)
 
     local decoratives
     if noise_decoratives > 0.3 and noise_decoratives < 0.5 then
-        if
-            tile_to_insert ~= 'stone-path' and tile_to_insert ~= 'concrete' and tile_to_insert ~= 'water-green' and
-                math.random(10) == 1
-         then
+        if tile_to_insert ~= 'stone-path' and tile_to_insert ~= 'concrete' and tile_to_insert ~= 'water-green' and random(10) == 1 then
             decoratives = {name = 'red-desert-bush', amount = 1}
         end
     end

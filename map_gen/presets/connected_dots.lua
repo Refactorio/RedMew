@@ -1,7 +1,9 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
-local math = require "utils.math"
+local math = require 'utils.math'
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 
 local ore_seed1 = 11000
 local ore_seed2 = ore_seed1 * 2
@@ -11,7 +13,14 @@ local ore_block_size = 32
 local random_ore = Random.new(ore_seed1, ore_seed2)
 local degrees = math.degrees
 
-local function no_enemies(x, y, world, tile)
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
+
+local function no_enemies(_, _, world, tile)
     for _, e in ipairs(world.surface.find_entities_filtered({force = 'enemy', position = {world.x, world.y}})) do
         e.destroy()
     end
@@ -36,7 +45,7 @@ for _, v in ipairs(ore_patches) do
     table.insert(total_ore_patch_weights, square_t)
 end
 
-value = b.exponential_value
+local value = b.exponential_value
 
 local function non_transform(shape)
     return shape
@@ -221,7 +230,7 @@ iron =
     b.resource(
     iron,
     'iron-ore',
-    function(x, y)
+    function()
         return 700
     end
 )
@@ -233,7 +242,7 @@ copper =
     b.resource(
     copper,
     'copper-ore',
-    function(x, y)
+    function()
         return 600
     end
 )
@@ -245,7 +254,7 @@ stone =
     b.resource(
     stone,
     'stone',
-    function(x, y)
+    function()
         return 1500
     end
 )
@@ -257,7 +266,7 @@ coal =
     b.resource(
     coal,
     'coal',
-    function(x, y)
+    function()
         return 850
     end
 )
@@ -270,12 +279,12 @@ oil =
     b.resource(
     oil,
     'crude-oil',
-    function(x, y)
+    function()
         return 60000
     end
 )
 
-start = b.apply_entity(mediumn_dot, b.any {iron, copper, stone, coal, oil})
+local start = b.apply_entity(mediumn_dot, b.any {iron, copper, stone, coal, oil})
 
 local pattern = {
     {shape, b.empty_shape},

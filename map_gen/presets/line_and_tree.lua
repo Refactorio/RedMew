@@ -1,8 +1,18 @@
 local b = require 'map_gen.shared.builders'
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
 local degrees = require "utils.math".degrees
 
 local ore_seed = 4000
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local function no_enemies(_, _, world, tile)
     for _, e in ipairs(world.surface.find_entities_filtered({force = 'enemy', position = {world.x, world.y}})) do

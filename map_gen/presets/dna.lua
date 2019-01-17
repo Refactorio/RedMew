@@ -1,9 +1,15 @@
---[[
-This map uses custom ore gen. When generating the map, under the resource settings tab use Size = 'None' for all resources.
-]]
 local b = require 'map_gen.shared.builders'
-local math = require "utils.math"
+local math = require 'utils.math'
 local degrees = math.degrees
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local ball_r = 16
 local big_circle = b.circle(ball_r)
@@ -77,7 +83,7 @@ for i = 1, count - 1 do
     local c = lines_circle
     c = b.apply_entity(c, resources[i])
     c = b.change_map_gen_collision_tile(c, 'water-tile', 'grass-1')
-    local c = b.translate(c, x, 0)
+    c = b.translate(c, x, 0)
 
     table.insert(lines, c)
     table.insert(lines, l)

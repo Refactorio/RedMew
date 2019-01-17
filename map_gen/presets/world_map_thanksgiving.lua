@@ -5,36 +5,31 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
 local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 
 local ore_seed = 3000
 
-local function no_resources(x, y, world, tile)
-    for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
-        )
-    ) do
-        e.destroy()
-    end
-    return tile
-end
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local world_pic = require 'map_gen.data.presets.world-map'
 local map = b.picture(world_pic)
-
 
 local pic = require 'map_gen.data.presets.turkey_bw'
 local turkey = b.picture(pic)
 turkey = b.invert(turkey)
 local bounds = b.rectangle(pic.width, pic.height)
-turkey = b.all{bounds, turkey}
-
+turkey = b.all {bounds, turkey}
 
 local ham = b.picture(require 'map_gen.data.presets.ham')
 
-
 ham = b.scale(ham, 64 / 127) --0.5
-turkey = b.scale(turkey,0.2)
+turkey = b.scale(turkey, 0.2)
 
 local function value(base, mult, pow)
     return function(x, y)
@@ -158,5 +153,4 @@ map = b.translate(map, 756.5, 564)
 
 map = b.scale(map, 2, 2)
 map = b.apply_entity(map, ore_grid)
-map = b.apply_effect(map, no_resources)
 return map

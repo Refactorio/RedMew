@@ -2,7 +2,6 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local Debug = require 'utils.debug'
 local Map = require 'map_gen.combined.tetris.shape'
 local Tetrimino = require 'map_gen.combined.tetris.tetrimino'(Map)
@@ -10,6 +9,8 @@ local View = require 'map_gen.combined.tetris.view'
 local InfinityChest = require 'features.infinite_storage_chest'
 local states = require 'map_gen.combined.tetris.states'
 local StateMachine = require 'utils.state_machine'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 
 local tetriminos = {}
 local primitives = {
@@ -68,7 +69,7 @@ local machine = StateMachine.new(states.voting)
 
 local player_zoom = {}
 local player_force = nil
-local nauvis = nil
+local play_surface = nil
 Global.register(
     {
         tetriminos = tetriminos,
@@ -89,6 +90,10 @@ Global.register(
 local point_table = {1, 3, 5, 9}
 local tetris_tick_duration = 61
 global.vote_delay = 10
+
+-- Use redmew_surface to give us a waterworld and a spawn location
+RS.set_spawn_position({x = 8, y = 8})
+RS.set_map_gen_settings({MGSP.waterworld})
 
 local function calculate_winner()
     if StateMachine.in_state(machine, states.down) then --TODO: Fix
@@ -156,7 +161,7 @@ for option_index, option in pairs(options) do
 end
 
 local function spawn_new_tetrimino()
-    table.insert(tetriminos, Tetrimino.new(nauvis, {x = 0, y = primitives.tetri_spawn_y_position}))
+    table.insert(tetriminos, Tetrimino.new(play_surface, {x = 0, y = primitives.tetri_spawn_y_position}))
 end
 
 local function collect_full_row_resources(tetri)
@@ -261,7 +266,7 @@ local move_down =
                 chart_area,
                 {
                     force = player_force,
-                    surface = nauvis,
+                    surface = play_surface,
                     area = {
                         {pos.x - 32, pos.y - 32},
                         {pos.x + 64, pos.y + 64}
@@ -313,8 +318,8 @@ local spawn_new_tetrimino_token = Token.register(spawn_new_tetrimino)
 Event.on_init(
     function()
         player_force = game.forces.player
-        nauvis = game.surfaces.nauvis
-        player_force.chart(nauvis, {{-192, -432}, {160, 0}})
+        play_surface = RS.get_surface()
+        player_force.chart(play_surface, {{-192, -432}, {160, 0}})
         Task.set_timeout_in_ticks(30 * tetris_tick_duration - 15, spawn_new_tetrimino_token)
         View.enable_vote_buttons(true)
     end
@@ -423,15 +428,4 @@ Event.add(
     end
 )
 
-Event.add(
-    defines.events.on_player_created,
-    function(event)
-        local player = Game.get_player_by_index(event.player_index)
-
-        local position = player.surface.find_non_colliding_position('player', {8, 8}, 3, 1)
-        if position then
-            player.teleport(position)
-        end
-    end
-)
 return Map.get_map()

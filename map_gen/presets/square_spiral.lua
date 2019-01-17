@@ -1,8 +1,18 @@
 local b = require 'map_gen.shared.builders'
 local table = require 'utils.table'
+local Random = require 'map_gen.shared.random'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 
 local seed1 = 320420
 local seed2 = 420320
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local patch = b.rectangular_spiral(5)
 local bounds = b.rectangle(46, 43)
@@ -36,7 +46,6 @@ local patches = {
     {oil, 4}
 }
 
-local Random = require 'map_gen.shared.random'
 local random = Random.new(seed1, seed2)
 
 local total_weights = {}
