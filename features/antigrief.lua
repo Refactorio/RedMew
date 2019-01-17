@@ -177,8 +177,8 @@ Module.undo =
             local new_entity = place_entity_on_surface(e, RS.get_surface(), false, last_user)
             --Transfer items
             if new_entity then
-                local player = Utils.ternary(new_entity.last_user, new_entity.last_user, game.player)
-                local event = {created_entity = new_entity, player_index = player.index, stack = {}}
+                local event_player = Utils.ternary(new_entity.last_user, new_entity.last_user, game.player)
+                local event = {created_entity = new_entity, player_index = event_player.index, stack = {}}
                 script.raise_event(defines.events.on_built_entity, event)
 
                 if e.type == 'container' then
