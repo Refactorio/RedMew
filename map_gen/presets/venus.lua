@@ -24,9 +24,9 @@ local MGSP = require 'resources.map_gen_settings' -- map gen settings presets
 local DSP = require 'resources.difficulty_settings' -- difficulty settings presets
 local MSP = require 'resources.map_settings' -- map settings presets
 
-RS.add_map_gen_settings({MGSP.tree_none, MGSP.enemy_very_high, MGSP.water_very_low,MGSP.cliff_normal, MGSP.starting_area_very_low, MGSP.sand_only})
-RS.add_difficulty_settings({DSP.tech_x2})
-RS.add_map_settings({MSP.pollution_hard_to_spread, MSP.enemy_evolution_punishes_pollution, MSP.enemy_expansion_frequency_x4, MSP.enemy_expansion_aggressive})
+RS.set_map_gen_settings({MGSP.tree_none, MGSP.enemy_very_high, MGSP.water_very_low,MGSP.cliff_normal, MGSP.starting_area_very_low, MGSP.sand_only})
+RS.set_difficulty_settings({DSP.tech_x2})
+RS.set_map_settings({MSP.pollution_hard_to_spread, MSP.enemy_evolution_punishes_pollution, MSP.enemy_expansion_frequency_x4, MSP.enemy_expansion_aggressive})
 
 -- 20 minute cycle, 14m of full light, 1m light to dark, 4m full dark, 1m dark to light
 DayNight.day_night_cycle = {
