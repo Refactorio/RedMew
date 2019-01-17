@@ -1,7 +1,6 @@
 local b = require 'map_gen.shared.builders'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
-local RS = require 'map_gen.shared.redmew_surface'
 local math = require "utils.math"
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
