@@ -2,6 +2,8 @@
 
 local Token = require 'utils.token'
 local Global = require 'utils.global'
+local Event = require 'utils.event'
+local Game = require 'utils.game'
 
 local serialize = serpent.serialize
 local concat = table.concat
@@ -44,6 +46,8 @@ local data_tracked_tag = '[DATA-TRACKED]'
 local ban_sync_tag = '[BAN-SYNC]'
 local unbanned_sync_tag = '[UNBANNED-SYNC]'
 local query_players_tag = '[QUERY-PLAYERS]'
+local player_join_tag = '[PLAYER-JOIN]'
+local player_leave_tag = '[PLAYER-LEAVE]'
 
 Public.raw_print = raw_print
 
@@ -506,5 +510,31 @@ function Public.query_online_players()
     message = concat(message)
     raw_print(message)
 end
+
+--- The [JOIN] nad [LEAVE] messages Factorio sends to stdout aren't sent in all cases of
+--  players joining or leaving. So we send our own [PLAYER-JOIN] and [PLAYER-LEAVE] tags.
+Event.add(
+    defines.events.on_player_joined_game,
+    function(event)
+        local player = Game.get_player_by_index(event.player_index)
+        if not player then
+            return
+        end
+
+        raw_print(player_join_tag .. player.name)
+    end
+)
+
+Event.add(
+    defines.events.on_player_left_game,
+    function(event)
+        local player = Game.get_player_by_index(event.player_index)
+        if not player then
+            return
+        end
+
+        raw_print(player_leave_tag .. player.name)
+    end
+)
 
 return Public
