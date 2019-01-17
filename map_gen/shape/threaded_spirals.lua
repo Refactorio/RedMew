@@ -12,7 +12,7 @@ local function is_on_spiral(x, y, distance, angle_offset)
     return offset % 96 * 2 >= 48 * 2
 end
 
-return function(x, y, world)
+return function(x, y)
     local pseudo_x = x / (arm_width / 48)
     local pseudo_y = y / (arm_width / 48)
     local distance = math.sqrt(pseudo_x * pseudo_x + pseudo_y * pseudo_y)

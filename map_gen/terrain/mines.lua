@@ -3,7 +3,7 @@ local Game = require 'utils.game'
 
 local mines_factor = 1
 
-mines_factor_sq = 16384 * 16384 / mines_factor / mines_factor
+local mines_factor_sq = 16384 * 16384 / mines_factor / mines_factor
 
 local death_messages = {
     "went exploring, and didn't bring a minesweeping kit.",

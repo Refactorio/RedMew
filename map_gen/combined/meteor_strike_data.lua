@@ -1,7 +1,7 @@
 local data =
 {
     {
-        weight = 1
+        weight = 1,
         thresholds =
         {
             {value = 400, name = nil},

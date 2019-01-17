@@ -55,7 +55,7 @@ Command.add(
         allowed_by_server = true
     },
     function(args, player)
-        local player = player or server_player
+        player = player or server_player
 
         if global_data.restarting then
             player.print('Restart already in progress')
@@ -87,7 +87,7 @@ Command.add(
         allowed_by_server = true
     },
     function(_, player)
-        local player = player or server_player
+        player = player or server_player
 
         if global_data.restarting then
             global_data.restarting = nil
