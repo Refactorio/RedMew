@@ -97,7 +97,7 @@ local memory = {
     group_label = {},
     players_in_market_view = {},
     market_gui_refresh_scheduled = {},
-    limited_items = {}
+    limited_items = {},
 }
 
 Global.register(memory, function (tbl)
@@ -137,9 +137,9 @@ function Retailer.get_market_group_label(group_name)
 end
 
 ---Returns all item for the group_name retailer.
----@param group_name string
-function Retailer.get_items(group_name)
-    return memory.items[group_name] or {}
+---@param market_group string
+function Retailer.get_items(market_group)
+    return memory.items[market_group] or {}
 end
 
 ---Removes an item from the markets for the group_name retailer.
@@ -155,6 +155,76 @@ function Retailer.remove_item(group_name, item_name)
     schedule_market_gui_refresh(group_name)
 end
 
+---Returns the remaining market group item limit or -1 if there is none for a given player.
+---@param market_group string
+---@param item_name string
+---@param player_index number
+function Retailer.get_player_item_limit(market_group, item_name, player_index)
+    local item = Retailer.get_items(market_group)[item_name]
+
+    if not item then
+        Debug.print({message = 'Item not registered in the Retailer', data = {
+            market_group = market_group,
+            item_name = item_name,
+        }})
+        return -1
+    end
+
+    return memory.limited_items[market_group][item_name][player_index] or item.player_limit
+end
+
+---Returns the configured market group item limit or -1 if there is none.
+---@param market_group string
+---@param item_name string
+function Retailer.get_item_limit(market_group, item_name)
+    local item = Retailer.get_items(market_group)[item_name]
+
+    if not item then
+        Debug.print({message = 'Item not registered in the Retailer', data = {
+            market_group = market_group,
+            item_name = item_name,
+        }})
+        return -1
+    end
+
+    return item.player_limit
+end
+
+---sets the configured market group item limit for a given player
+---@param market_group string
+---@param item_name string
+---@param player_index number
+---@param new_limit number
+function Retailer.set_player_item_limit(market_group, item_name, player_index, new_limit)
+    if new_limit < 0 then
+        Debug.print({message = 'Cannot set a negative item limit', data = {
+            market_group = market_group,
+            item_name = item_name,
+            new_limit = new_limit,
+        }})
+        return
+    end
+    local item = Retailer.get_items(market_group)[item_name]
+
+    if not item then
+        Debug.print({message = 'Item not registered in the Retailer', data = {
+            market_group = market_group,
+            item_name = item_name,
+        }})
+        return -1
+    end
+
+    if new_limit > item.player_limit then
+        Debug.print({message = 'Cannot set an item limit higher than the item prototype defined', data = {
+            market_group = market_group,
+            item_name = item_name,
+            new_limit = new_limit,
+        }})
+        new_limit = item.player_limit
+    end
+    memory.limited_items[market_group][item_name][player_index] = new_limit
+end
+
 local function redraw_market_items(data)
     local grid = data.grid
 
@@ -164,12 +234,13 @@ local function redraw_market_items(data)
     local market_items = data.market_items
     local player_index = data.player_index
     local player_coins = Game.get_player_by_index(player_index).get_item_count('coin')
-    local limited_items = memory.limited_items[data.market_group]
 
     if size(market_items) == 0 then
         grid.add({type = 'label', caption = 'No items available at this time'})
         return
     end
+
+    local limited_items = memory.limited_items[data.market_group]
 
     for i, item in pairs(market_items) do
         local has_stack_limit = item.stack_limit ~= -1
@@ -503,7 +574,7 @@ Gui.on_click(item_button_name, function (event)
         group_name = market_group,
     })
 
-    do_coin_label(player.get_item_count('coin'), data.coin_label)
+    do_coin_label(coin_count - cost, data.coin_label)
 end)
 
 ---Add a market to the group_name retailer.
@@ -545,7 +616,7 @@ function Retailer.set_item(group_name, prototype)
     end
 
     memory.items[group_name][item_name] = prototype
-    memory.limited_items[group_name][item_name] = prototype
+    memory.limited_items[group_name][item_name] = {}
 
     schedule_market_gui_refresh(group_name)
 end

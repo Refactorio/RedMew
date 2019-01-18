@@ -48,8 +48,10 @@ local function spawn_market(_, player)
 
     Retailer.add_market('fish_market', market)
 
-    for _, prototype in pairs(market_items) do
-        Retailer.set_item('fish_market', prototype)
+    if table.size(Retailer.get_items('fish_market')) == 0 then
+        for _, prototype in pairs(market_items) do
+            Retailer.set_item('fish_market', prototype)
+        end
     end
 
     force.add_chart_tag(surface, {icon = {type = 'item', name = currency}, position = pos, text = 'Market'})
