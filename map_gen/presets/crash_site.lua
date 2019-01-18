@@ -722,6 +722,7 @@ local function init()
 
     local spawn_shape = outpost_builder.to_shape(spawn)
     spawn_shape = b.change_tile(spawn_shape, false, 'stone-path')
+    spawn_shape = b.change_map_gen_collision_hidden_tile(spawn_shape, 'water-tile', 'grass-1')
 
     map = b.choose(b.rectangle(16, 16), spawn_shape, map)
 

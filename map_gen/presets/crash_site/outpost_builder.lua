@@ -636,7 +636,7 @@ local function to_shape(blocks, part_size)
     local t_size = size * part_size
     local half_t_size = t_size * 0.5
 
-    return function(x, y, world)
+    local function shape(x, y, world)
         x, y = math.floor(x + half_t_size), math.floor(y + half_t_size)
         if x < 0 or y < 0 or x >= t_size or y >= t_size then
             return false
@@ -697,30 +697,11 @@ local function to_shape(blocks, part_size)
         end
         return tile
     end
+
+    return b.change_map_gen_collision_hidden_tile(shape, 'water-tile', 'grass-1')
 end
 
-local path_tiles = b.path_tiles
-
-local function collides(world)
-    local gen_tile = world.surface.get_tile(world.x, world.y)
-    return gen_tile.collides_with('water-tile')
-end
-
-local function set_hidden_tiles(shape)
-    return function(x, y, world)
-        local tile = shape(x, y, world)
-
-        if type(tile) == 'table' then
-            if path_tiles[tile.tile] and collides(world) then
-                tile.hidden_tile = 'grass-1'
-            end
-        elseif path_tiles[tile] and collides(world) then
-            tile = {tile = tile, hidden_tile = 'grass-1'}
-        end
-
-        return tile
-    end
-end
+Public.to_shape = to_shape
 
 function Public:do_outpost(template)
     local settings = template.settings
@@ -731,12 +712,7 @@ function Public:do_outpost(template)
     do_levels(blocks, settings.max_level)
     make_blocks(self, blocks, template)
 
-    local shape = to_shape(blocks, settings.part_size)
-    return set_hidden_tiles(shape)
-end
-
-function Public.to_shape(blocks, part_size)
-    return to_shape(blocks, part_size)
+    return to_shape(blocks, settings.part_size)
 end
 
 local function change_direction(entity, new_dir)
