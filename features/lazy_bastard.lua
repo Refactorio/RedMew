@@ -1,10 +1,22 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
+local Task = require 'utils.task'
+local Token = require 'utils.token'
 local Retailer = require 'features.retailer'
 local round = math.round
 local insert = table.insert
 local remove = table.remove
+
+local clean_energy_interface = Token.register(function (params)
+    local entity = params.entity
+    if not entity or not entity.valid then
+        -- already removed o.O
+        return
+    end
+
+    entity.destroy()
+end)
 
 if global.config.market.enabled then
     local new_items = {
@@ -22,14 +34,16 @@ if global.config.market.enabled then
                 {name = 'roboport', count = 1},
                 {name = 'coin', count = 30},
                 {name = 'small-electric-pole', count = 5},
-                {name = 'construction-robot', count = 1},
-                {name = 'stone', count = 20},
+                {name = 'construction-robot', count = 2},
             },
         },
         {price = 5, name = 'construction-robot'},
         {price = 15, name = 'logistic-robot'},
         {price = 50, name = 'roboport'},
         {price = 5, name = 'logistic-chest-passive-provider'},
+        {price = 5, name = 'logistic-chest-active-provider'},
+        {price = 5, name = 'logistic-chest-buffer'},
+        {price = 5, name = 'logistic-chest-requester'},
         {price = 5, name = 'logistic-chest-storage'},
 
     }
@@ -47,7 +61,6 @@ if global.config.market.enabled then
         insert(market_items, i, new_items[i])
     end
 end
-
 
 -- disable pickaxes from the start
 Event.on_init(function ()
@@ -119,7 +132,6 @@ Command.add('lazy-bastard-bootstrap', {
     local templates = {
         {name = 'medium-electric-pole', force = force, position = {x = pos.x - 2, y = pos.y - 1}},
         {name = 'roboport', force = force, position = {x = pos.x, y = pos.y}},
-        {name = 'solar-panel', force = force, position = {x = pos.x, y = pos.y}},
         {name = 'logistic-chest-storage', force = force, position = {x = pos.x + 1, y = pos.y + 1}},
         {name = 'logistic-chest-storage', force = force, position = {x = pos.x - 2, y = pos.y + 1}},
     }
@@ -133,4 +145,11 @@ Command.add('lazy-bastard-bootstrap', {
     for _ = 1, bot_count do
         create_entity({name = 'construction-robot', force = force, position = pos})
     end
+
+    local power_source = create_entity({name = 'hidden-electric-energy-interface', position = pos})
+    power_source.electric_buffer_size = 30000
+    power_source.power_production = 30000
+
+    -- in 7 minutes, remove the power source
+    Task.set_timeout(420, clean_energy_interface, {entity = power_source})
 end)
