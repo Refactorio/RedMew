@@ -10,6 +10,8 @@ local Token = require 'utils.token'
 local Event = require 'utils.event'
 local Utils = require 'utils.core'
 local Global = require 'utils.global'
+local table = require 'utils.table'
+
 local config = global.config.redmew_qol
 
 -- Localized functions

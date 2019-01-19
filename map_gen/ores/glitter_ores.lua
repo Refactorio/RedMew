@@ -29,7 +29,7 @@ for a, b in pairs(ore_ratios) do
   end
 end
 
-return function(x, y, world)
+return function(_, _, world)
   local d = world.x * world.x + world.y * world.y
   if d <= starting_distance then
     return nil

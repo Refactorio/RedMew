@@ -6,7 +6,6 @@ local degrees = require "utils.math".degrees
 
 RS.set_map_gen_settings(
     {
-        MGSP.ore_oil_none,
         MGSP.cliff_none,
         MGSP.water_none
     }
@@ -16,6 +15,18 @@ local function value(base, mult)
     return function(x, y)
         return mult * (math.abs(x) + math.abs(y)) + base
     end
+end
+
+local function no_resources(_, _, world, tile)
+    for _, e in ipairs(
+        world.surface.find_entities_filtered(
+            {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
+        )
+    ) do
+        e.destroy()
+    end
+
+    return tile
 end
 
 -- bot_islands_flag true if you want to add islands of ores only reachable by robots

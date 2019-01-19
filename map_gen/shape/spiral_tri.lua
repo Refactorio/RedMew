@@ -1,4 +1,4 @@
-return function(x, y, world)
+return function(x, y)
     local distance = math.sqrt(x * x + y * y)
     if distance > 128 then
         local angle = (180 + math.deg(math.atan2(x, y))) * 3

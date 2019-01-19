@@ -8,7 +8,7 @@ end
 
 Event.on_init(init)
 
-return function(x, y, world)
+return function(x, y)
     local wiggle = 50 + perlin.noise((x * 0.005), (y * 0.005), global.terrain_seed_A + 71) * 60
     local terrain_A = perlin.noise((x * 0.005), (y * 0.005), global.terrain_seed_A + 19) * wiggle --For determining where water is
     local terrain_sqr = terrain_A * terrain_A --we can use this again to mess with other layers as well

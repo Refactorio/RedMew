@@ -11,7 +11,7 @@ Event.on_init(init)
 local radius = 10
 local radius_sq = radius * radius
 
-return function(x, y, world)
+return function(_, _, world)
     local entities = world.surface.find_entities_filtered {position = {world.x + 0.5, world.y + 0.5}, type = "resource"}
     for _, e in ipairs(entities) do
         e.destroy()

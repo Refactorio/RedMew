@@ -86,7 +86,7 @@ local turrent_callback =
     end
 )
 
-return function(_, _, world)
+return function(_, _, world) -- luacheck: ignore 561
     local entities = {}
 
     local surface = world.surface
