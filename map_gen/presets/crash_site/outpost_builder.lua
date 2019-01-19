@@ -962,6 +962,7 @@ Public.power_source_callback =
             entity.surface.create_entity {name = 'hidden-electric-energy-interface', position = entity.position}
         power_source.electric_buffer_size = data.buffer_size
         power_source.power_production = data.power_production
+        power_source.destructible = false
 
         power_sources[entity.unit_number] = power_source
     end
@@ -974,6 +975,7 @@ Public.power_source_player_callback =
             entity.surface.create_entity {name = 'hidden-electric-energy-interface', position = entity.position}
         power_source.electric_buffer_size = data.buffer_size
         power_source.power_production = data.power_production
+        power_source.destructible = false
 
         power_sources[entity.unit_number] = power_source
 
