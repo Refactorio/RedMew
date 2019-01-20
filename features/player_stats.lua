@@ -42,8 +42,6 @@ Global.register(
         total_player_rocks_mined = total_player_rocks_mined,
         player_crafted_items = player_crafted_items,
         player_console_chats = player_console_chats,
-        player_damage_taken = player_damage_taken,
-        player_damage_dealt = player_damage_dealt,
         total_robot_built_entities = total_robot_built_entities,
         total_player_built_entities = total_player_built_entities,
         total_biter_kills = total_biter_kills
@@ -60,8 +58,6 @@ Global.register(
         total_player_rocks_mined = tbl.total_player_rocks_mined
         player_crafted_items = tbl.player_crafted_items
         player_console_chats = tbl.player_console_chats
-        player_damage_taken = tbl.player_damage_taken
-        player_damage_dealt = tbl.player_damage_dealt
         total_robot_built_entities = tbl.total_robot_built_entities
         total_player_built_entities = tbl.total_player_built_entities
         total_biter_kills = tbl.total_biter_kills
@@ -146,26 +142,6 @@ local function player_console_chat(event)
     end
 end
 
-local function entity_damaged(event)
-    local entity = event.entity
-    if entity.valid and entity.type == 'player' then -- player taking damage
-        local player = entity.player
-        if player and player.valid then
-            local index = entity.player.index
-            player_damage_taken[index] = player_damage_taken[index] + event.final_damage_amount
-        end
-    end
-
-    local cause = event.cause
-    if cause and cause.valid and cause.type == 'player' then -- player causing damage
-        local player = cause.player
-        if player and player.valid then
-            local index = cause.player.index
-            player_damage_dealt[index] = player_damage_dealt[index] + event.final_damage_amount
-        end
-    end
-end
-
 local function player_built_entity()
     total_player_built_entities[1] = total_player_built_entities[1] + 1
 end
@@ -203,7 +179,6 @@ Event.add(defines.events.on_picked_up_item, picked_up_item)
 Event.add(defines.events.on_pre_player_mined_item, player_mined_item)
 Event.add(defines.events.on_player_crafted_item, player_crafted_item)
 Event.add(defines.events.on_console_chat, player_console_chat)
-Event.add(defines.events.on_entity_damaged, entity_damaged)
 Event.add(defines.events.on_built_entity, player_built_entity)
 Event.add(defines.events.on_robot_built_entity, robot_built_entity)
 Event.add(defines.events.on_entity_died, biter_kill_counter)
