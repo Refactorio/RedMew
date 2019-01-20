@@ -87,6 +87,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.presets.christmas_tree_of_terror"
 --shape = require "map_gen.presets.rotten_apples"
 --shape = require "map_gen.presets.spiral_crossings"
+--shape = require "map_gen.presets.grid_bot_islands"
 --shape = require "map_gen.presets.test"
 
 --WIP maps--
