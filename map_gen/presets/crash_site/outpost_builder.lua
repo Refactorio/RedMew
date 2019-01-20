@@ -971,10 +971,7 @@ local function do_magic_crafters()
         if fluidbox_index then
             local fb = entity.fluidbox
 
-            local fb_data = fb[fluidbox_index]
-            if not fb_data then
-                fb_data = {name = data.item, amount = 0}
-            end
+            local fb_data = fb[fluidbox_index] or {name = data.item, amount = 0}
             fb_data.amount = fb_data.amount + fcount
             fb[fluidbox_index] = fb_data
         else
