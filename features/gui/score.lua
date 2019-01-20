@@ -3,140 +3,177 @@ local Game = require 'utils.game'
 local PlayerStats = require 'features.player_stats'
 local Gui = require 'utils.gui'
 local Color = require 'resources.color_presets'
+local Global = require 'utils.global'
+local Server = require('features.server')
 
-if not global.score_rockets_launched then
-    global.score_rockets_launched = 0
-end
+local data = {rockets_launched = 0}
+
+Global.register(
+    data,
+    function(tbl)
+        data = tbl
+    end
+)
+
+local main_frame_name = Gui.uid_name()
+local main_button_name = Gui.uid_name()
 
 local function create_score_gui(event)
     local player = Game.get_player_by_index(event.player_index)
+    if not player then
+        return
+    end
 
-    if player.gui.top.score == nil then
-        local button = player.gui.top.add({type = 'sprite-button', name = 'score', sprite = 'item/rocket-silo'})
-        button.style.minimal_height = 38
-        button.style.minimal_width = 38
-        button.style.top_padding = 2
-        button.style.left_padding = 4
-        button.style.right_padding = 4
-        button.style.bottom_padding = 2
+    local top = player.gui.top
+
+    if not top[main_frame_name] then
+        local button = top.add({type = 'sprite-button', name = main_button_name, sprite = 'item/rocket-silo'})
+        local style = button.style
+        style.minimal_height = 38
+        style.minimal_width = 38
+        style.top_padding = 2
+        style.left_padding = 4
+        style.right_padding = 4
+        style.bottom_padding = 2
     end
 end
 
 local function refresh_score()
-    local x = 1
-    while (Game.get_player_by_index(x) ~= nil) do
-        local player = Game.get_player_by_index(x)
-        local frame = player.gui.top['score_panel']
+    local players = game.connected_players
 
-        if (frame) then
-            frame.score_table.label_rockets_launched.caption = 'Rockets launched: ' .. global.score_rockets_launched
-            frame.score_table.label_biters_killed.caption = 'Biters liberated: ' .. PlayerStats.get_total_biter_kills()
-            frame.score_table.label_player_built_entities.caption = 'Buildings by hand: ' .. PlayerStats.get_total_player_built_entities()
-            frame.score_table.label_robot_built_entities.caption = 'Buildings by robots: ' .. PlayerStats.get_total_robot_built_entities()
-            frame.score_table.label_player_mined_trees.caption = 'Trees chopped: ' .. PlayerStats.get_total_player_trees_mined()
-            frame.score_table.label_player_mined_stones.caption = 'Rocks smashed: ' .. PlayerStats.get_total_player_rocks_mined()
-            frame.score_table.label_kills_by_train.caption = 'Kills by train: ' .. PlayerStats.get_total_train_kills()
+    local rockets_launched = 'Rockets launched: ' .. data.rockets_launched
+    local biters_liberated = 'Biters liberated: ' .. PlayerStats.get_total_biter_kills()
+    local buildings_by_hand = 'Buildings by hand: ' .. PlayerStats.get_total_player_built_entities()
+    local buildings_by_robot = 'Buildings by robots: ' .. PlayerStats.get_total_robot_built_entities()
+    local trees_chopped = 'Trees chopped: ' .. PlayerStats.get_total_player_trees_mined()
+    local rocks_smashed = 'Rocks smashed: ' .. PlayerStats.get_total_player_rocks_mined()
+    local kills_by_train = 'Kills by train: ' .. PlayerStats.get_total_train_kills()
+
+    for i = 1, #players do
+        local player = players[i]
+        local frame = player.gui.top[main_frame_name]
+
+        if frame and frame.valid then
+            local score_table = frame.score_table
+            score_table.label_rockets_launched.caption = rockets_launched
+            score_table.label_biters_killed.caption = biters_liberated
+            score_table.label_player_built_entities.caption = buildings_by_hand
+            score_table.label_robot_built_entities.caption = buildings_by_robot
+            score_table.label_player_mined_trees.caption = trees_chopped
+            score_table.label_player_mined_stones.caption = rocks_smashed
+            score_table.label_kills_by_train.caption = kills_by_train
         end
-        x = x + 1
     end
 end
 
-local function score_show(player)
-    local frame = player.gui.top.add {type = 'frame', name = 'score_panel'}
-    local score_table = frame.add {type = 'table', column_count = 8, name = 'score_table'}
+local function score_label_style(label, color)
+    local style = label.style
+    style.font = 'default-bold'
+    style.font_color = color
+    style.top_padding = 2
+    style.left_padding = 4
+    style.right_padding = 4
+end
 
-    local label = score_table.add {type = 'label', caption = ' ', name = 'label_rockets_launched'}
-    label.style.font = 'default-bold'
-    label.style.font_color = Color.orange
-    label.style.top_padding = 2
-    label.style.left_padding = 4
-    label.style.right_padding = 4
+local function score_show(top)
+    local frame = top.add {type = 'frame', name = main_frame_name}
+    local score_table = frame.add {type = 'table', name = 'score_table', column_count = 8}
 
+    local label =
+        score_table.add {
+        type = 'label',
+        name = 'label_rockets_launched',
+        caption = 'Rockets launched: ' .. data.rockets_launched
+    }
+    score_label_style(label, Color.orange)
     score_table.add {type = 'label', caption = '  '}
 
-    label = score_table.add {type = 'label', caption = '', name = 'label_biters_killed'}
-    label.style.font = 'default-bold'
-    label.style.font_color = Color.red
-    label.style.top_padding = 2
-    label.style.left_padding = 4
-    label.style.right_padding = 4
-
+    label =
+        score_table.add {
+        type = 'label',
+        name = 'label_biters_killed',
+        caption = 'Biters liberated: ' .. PlayerStats.get_total_biter_kills()
+    }
+    score_label_style(label, Color.red)
     score_table.add {type = 'label', caption = '   '}
 
-    label = score_table.add {type = 'label', caption = '', name = 'label_player_built_entities'}
-    label.style.font = 'default-bold'
-    label.style.font_color = Color.white
-    label.style.top_padding = 2
-    label.style.left_padding = 4
-    label.style.right_padding = 4
-
+    label =
+        score_table.add {
+        type = 'label',
+        name = 'label_player_built_entities',
+        caption = 'Buildings by hand: ' .. PlayerStats.get_total_player_built_entities()
+    }
+    score_label_style(label, Color.white)
     score_table.add {type = 'label', caption = '   '}
 
-    label = score_table.add {type = 'label', caption = '', name = 'label_robot_built_entities'}
-    label.style.font = 'default-bold'
-    label.style.font_color = Color.white
-    label.style.top_padding = 2
-    label.style.left_padding = 4
-    label.style.right_padding = 4
-
+    label =
+        score_table.add {
+        type = 'label',
+        name = 'label_robot_built_entities',
+        caption = 'Buildings by robots: ' .. PlayerStats.get_total_robot_built_entities()
+    }
+    score_label_style(label, Color.white)
     score_table.add {type = 'label', caption = '   '}
 
-    label = score_table.add {type = 'label', caption = '', name = 'label_player_mined_trees'}
-    label.style.font = 'default-bold'
-    label.style.font_color = Color.lime
-    label.style.top_padding = 2
-    label.style.left_padding = 4
-    label.style.right_padding = 4
-
+    label =
+        score_table.add {
+        type = 'label',
+        name = 'label_player_mined_trees',
+        caption = 'Trees chopped: ' .. PlayerStats.get_total_player_trees_mined()
+    }
+    score_label_style(label, Color.lime)
     score_table.add {type = 'label', caption = '   '}
 
-    label = score_table.add {type = 'label', caption = '', name = 'label_player_mined_stones'}
-    label.style.font = 'default-bold'
-    label.style.font_color = Color.lime
-    label.style.top_padding = 2
-    label.style.left_padding = 4
-    label.style.right_padding = 4
-
+    label =
+        score_table.add {
+        type = 'label',
+        name = 'label_player_mined_stones',
+        caption = 'Rocks smashed: ' .. PlayerStats.get_total_player_rocks_mined()
+    }
+    score_label_style(label, Color.lime)
     score_table.add {type = 'label', caption = '   '}
 
-    label = score_table.add {type = 'label', caption = '', name = 'label_kills_by_train'}
-    label.style.font = 'default-bold'
-    label.style.font_color = Color.yellow
-    label.style.top_padding = 2
-    label.style.left_padding = 4
-    label.style.right_padding = 4
+    label =
+        score_table.add {
+        type = 'label',
+        name = 'label_kills_by_train',
+        caption = 'Kills by train: ' .. PlayerStats.get_total_train_kills()
+    }
+    score_label_style(label, Color.yellow)
 
     refresh_score()
-end
-
-local function on_gui_click(event)
-    if not (event and event.element and event.element.valid) then
-        return
-    end
-
-    local player = Game.get_player_by_index(event.element.player_index)
-    local name = event.element.name
-    local frame = player.gui.top['score_panel']
-
-    if (name == 'score') and (frame == nil) then
-        score_show(player)
-    else
-        if (name == 'score') then
-            frame.destroy()
-        end
-    end
 end
 
 local function rocket_launched()
-    global.score_rockets_launched = global.score_rockets_launched + 1
-    game.print('A rocket has been launched!')
+    local count = data.rockets_launched + 1
+    data.rockets_launched = count
+
+    local message = 'A rocket has been launched! Total count: ' .. count
+
+    game.print(message)
+    Server.to_discord_bold(message)
+
     refresh_score()
 end
 
+Gui.on_click(
+    main_button_name,
+    function(event)
+        local player = event.player
+
+        local top = player.gui.top
+        local frame = top[main_frame_name]
+
+        if not frame then
+            score_show(top)
+        else
+            frame.destroy()
+        end
+    end
+)
+
 Gui.allow_player_to_toggle_top_element_visibility('score')
 
-Event.add(defines.events.on_entity_died, refresh_score)
-Event.add(defines.events.on_gui_click, on_gui_click)
 Event.add(defines.events.on_player_joined_game, create_score_gui)
 Event.add(defines.events.on_rocket_launched, rocket_launched)
 Event.on_nth_tick(300, refresh_score)
