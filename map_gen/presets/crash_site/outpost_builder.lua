@@ -46,6 +46,7 @@ local refill_turrets = {index = 1}
 local power_sources = {}
 local magic_crafters = {index = 1}
 local outposts = {}
+local outpost_count = 0
 
 Global.register(
     {
@@ -638,21 +639,25 @@ end
 
 local remove_entity_types = {'tree', 'simple-entity'}
 
-local function to_shape(blocks, part_size)
+local function to_shape(blocks, part_size, on_init)
     part_size = part_size or default_part_size
     local inv_part_size = 1 / part_size
     local size = blocks.size
     local t_size = size * part_size
     local half_t_size = t_size * 0.5
 
-    local outpost_id = #outposts + 1
-    outposts[outpost_id] = {
-        outpost_id = outpost_id,
-        magic_crafters = {},
-        turret_count = 0,
-        top_left = {nil, nil},
-        bottom_right = {nil, nil}
-    }
+    local outpost_id = outpost_count + 1
+    outpost_count = outpost_id
+
+    if on_init then
+        outposts[outpost_id] = {
+            outpost_id = outpost_id,
+            magic_crafters = {},
+            turret_count = 0,
+            top_left = {nil, nil},
+            bottom_right = {nil, nil}
+        }
+    end
 
     local function shape(x, y, world)
         x, y = math.floor(x + half_t_size), math.floor(y + half_t_size)
@@ -723,7 +728,7 @@ end
 
 Public.to_shape = to_shape
 
-function Public:do_outpost(template)
+function Public:do_outpost(template, on_init)
     local settings = template.settings
     local blocks = {size = settings.blocks}
 
@@ -732,7 +737,7 @@ function Public:do_outpost(template)
     do_levels(blocks, settings.max_level)
     make_blocks(self, blocks, template)
 
-    return to_shape(blocks, settings.part_size)
+    return to_shape(blocks, settings.part_size, on_init)
 end
 
 local function change_direction(entity, new_dir)
