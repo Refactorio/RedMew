@@ -27,7 +27,8 @@ local function create_score_gui(event)
     local top = player.gui.top
 
     if not top[main_frame_name] then
-        local button = top.add({type = 'sprite-button', name = main_button_name, sprite = 'item/rocket-silo'})
+        local button =
+            top.add({type = 'sprite-button', name = main_button_name, sprite = 'achievement/there-is-no-spoon'})
         local style = button.style
         style.minimal_height = 38
         style.minimal_width = 38
