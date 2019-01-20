@@ -106,6 +106,11 @@ local function fish_drop_entity_died(event)
 
 
     local chance = bounds.chance
+
+    if chance == 0 then
+        return
+    end
+
     if chance == 1 or random() <= chance then
         local count = random(bounds.low, bounds.high)
         if count > 0 then
