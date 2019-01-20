@@ -11,8 +11,6 @@ local player_coin_earned = {}
 local player_coin_spent = {}
 local player_crafted_items = {}
 local player_console_chats = {}
-local player_damage_taken = {}
-local player_damage_dealt = {}
 local player_deaths = {}
 local total_players = {0}
 local total_train_kills = {0}
@@ -73,9 +71,7 @@ local function player_created(event)
     player_coin_earned[index] = 0
     player_coin_spent[index] = 0
     player_crafted_items[index] = 0
-    player_damage_taken[index] = 0
     player_console_chats[index] = 0
-    player_damage_dealt[index] = 0
     player_deaths[index] = {causes = {}, count = 0}
     total_players[1] = total_players[1] + 1
 end
@@ -246,14 +242,6 @@ end
 
 function Public.get_player_console_chat(player_index)
     return player_console_chats[player_index]
-end
-
-function Public.get_player_damage_taken(player_index)
-    return player_damage_taken[player_index]
-end
-
-function Public.get_player_damage_dealt(player_index)
-    return player_damage_dealt[player_index]
 end
 
 function Public.get_total_robot_built_entities()
