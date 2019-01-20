@@ -40,7 +40,8 @@ return ob.make_walls {
         [36] = {tile = 'stone-path'}
     },
     ob.make_4_way {
-        [1] = {entity = {name = 'stone-wall'}},
+        wall = {callback = ob.wall_callback},
+        [1] = {entity = {name = 'stone-wall', callback = 'wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {entity = {name = 'stone-wall'}},
         [4] = {entity = {name = 'stone-wall'}},

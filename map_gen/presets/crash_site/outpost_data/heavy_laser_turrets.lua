@@ -57,7 +57,8 @@ return ob.make_walls{
     },
     ob.make_4_way {
         turret = {callback = ob.power_source_callback, data = ob.laser_turrent_power_source},
-        [1] = {entity = {name = 'stone-wall'}},
+        wall = {callback = ob.wall_callback},
+        [1] = {entity = {name = 'stone-wall', callback = 'wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {entity = {name = 'stone-wall'}},
         [4] = {entity = {name = 'stone-wall'}},

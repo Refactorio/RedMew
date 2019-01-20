@@ -5,7 +5,13 @@ local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Retailer = require 'features.retailer'
 local PlayerStats = require 'features.player_stats'
+local RS = require 'map_gen.shared.redmew_surface'
+local Server = require 'features.server'
+local Color = require 'resources.color_presets'
+
 local table = require 'utils.table'
+local next = next
+local concat = table.concat
 
 local b = require 'map_gen.shared.builders'
 
@@ -39,17 +45,20 @@ local default_part_size = 6
 local refill_turrets = {index = 1}
 local power_sources = {}
 local magic_crafters = {index = 1}
+local outposts = {}
 
 Global.register(
     {
         refil_turrets = refill_turrets,
         power_sources = power_sources,
-        magic_crafters = magic_crafters
+        magic_crafters = magic_crafters,
+        outposts = outposts
     },
     function(tbl)
         refill_turrets = tbl.refil_turrets
         power_sources = tbl.power_sources
         magic_crafters = tbl.magic_crafters
+        outposts = tbl.outposts
     end
 )
 
@@ -636,6 +645,15 @@ local function to_shape(blocks, part_size)
     local t_size = size * part_size
     local half_t_size = t_size * 0.5
 
+    local outpost_id = #outposts + 1
+    outposts[outpost_id] = {
+        outpost_id = outpost_id,
+        magic_crafters = {},
+        turret_count = 0,
+        top_left = {nil, nil},
+        bottom_right = {nil, nil}
+    }
+
     local function shape(x, y, world)
         x, y = math.floor(x + half_t_size), math.floor(y + half_t_size)
         if x < 0 or y < 0 or x >= t_size or y >= t_size then
@@ -676,11 +694,13 @@ local function to_shape(blocks, part_size)
             local data
             local callback = entity.callback
             if callback then
+                data = {outpost_id = outpost_id}
                 local cd = template[callback]
 
                 callback = cd.callback
-                data = cd.data
+                data.callback_data = cd.data
             end
+
             return {
                 tile = tile,
                 entities = {
@@ -869,6 +889,21 @@ function Public.extend_walls(data, tbl)
     return setmetatable(copy, base)
 end
 
+local function change_wall_ownership(outpost_data)
+    local area = {top_left = outpost_data.top_left, bottom_right = outpost_data.bottom_right}
+    local walls = RS.get_surface().find_entities_filtered {area = area, force = 'enemy', name = 'stone-wall'}
+
+    for i = 1, #walls do
+        walls[i].force = 'player'
+    end
+
+    local name = Retailer.get_market_group_label(outpost_data.outpost_id)
+    if name ~= 'Market' then
+        game.print(concat({'*** ', 'Outpost captured: ' .. name, ' ***'}), Color.lime_green)
+        Server.to_discord_bold('Outpost captured: ' .. name)
+    end
+end
+
 local function do_refill_turrets()
     local index = refill_turrets.index
 
@@ -877,21 +912,31 @@ local function do_refill_turrets()
         return
     end
 
-    local data = refill_turrets[index]
-    local turret = data.turret
+    local turret_data = refill_turrets[index]
+    local turret = turret_data.turret
 
     if not turret.valid then
         fast_remove(refill_turrets, index)
+
+        local outpost_data = outposts[turret_data.outpost_id]
+
+        local turret_count = outpost_data.turret_count - 1
+        outpost_data.turret_count = turret_count
+
+        if turret_count == 0 then
+            change_wall_ownership(outpost_data)
+        end
+
         return
     end
 
     refill_turrets.index = index + 1
 
-    local ammo = data.ammo
+    local data = turret_data.data
     if data.liquid then
-        turret.fluidbox[1] = ammo
-    elseif ammo then
-        turret.insert(ammo)
+        turret.fluidbox[1] = data
+    elseif data then
+        turret.insert(data)
     end
 end
 
@@ -946,60 +991,64 @@ end
 
 Public.refill_turret_callback =
     Token.register(
-    function(turret, ammo)
-        table.insert(refill_turrets, {turret = turret, ammo = ammo})
+    function(turret, data)
+        local outpost_id = data.outpost_id
+
+        refill_turrets[#refill_turrets + 1] = {outpost_id = outpost_id, turret = turret, data = data.callback_data}
+
+        local outpost_data = outposts[outpost_id]
+        outpost_data.turret_count = outpost_data.turret_count + 1
     end
 )
 
 Public.refill_liquid_turret_callback =
     Token.register(
-    function(turret, ammo)
-        table.insert(refill_turrets, {turret = turret, ammo = ammo, liquid = true})
+    function(turret, data)
+        local callback_data = data.callback_data
+        callback_data.liquid = true
+
+        local outpost_id = data.outpost_id
+
+        refill_turrets[#refill_turrets + 1] = {outpost_id = outpost_id, turret = turret, data = callback_data}
+
+        local outpost_data = outposts[outpost_id]
+        outpost_data.turret_count = outpost_data.turret_count + 1
     end
 )
 
 Public.power_source_callback =
     Token.register(
     function(entity, data)
+        local outpost_id = data.outpost_id
+        local callback_data = data.callback_data
+
         local power_source =
             entity.surface.create_entity {name = 'hidden-electric-energy-interface', position = entity.position}
-        power_source.electric_buffer_size = data.buffer_size
-        power_source.power_production = data.power_production
+        power_source.electric_buffer_size = callback_data.buffer_size
+        power_source.power_production = callback_data.power_production
         power_source.destructible = false
 
-        power_sources[entity.unit_number] = power_source
+        power_sources[entity.unit_number] = {outpost_id = outpost_id, entity = power_source}
+
+        local outpost_data = outposts[outpost_id]
+        outpost_data.turret_count = outpost_data.turret_count + 1
     end
 )
 
-Public.power_source_player_callback =
-    Token.register(
-    function(entity, data)
-        local power_source =
-            entity.surface.create_entity {name = 'hidden-electric-energy-interface', position = entity.position}
-        power_source.electric_buffer_size = data.buffer_size
-        power_source.power_production = data.power_production
-        power_source.destructible = false
-
-        power_sources[entity.unit_number] = power_source
-
-        entity.minable = false
-        entity.operable = false
-        entity.destructible = false
-    end
-)
-
-local function add_magic_crafter_output(entity, output, distance)
+local function add_magic_crafter_output(entity, output, distance, outpost_id)
     local rate = output.min_rate + output.distance_factor * distance
-    table.insert(
-        magic_crafters,
-        {
-            entity = entity,
-            last_tick = game.tick,
-            rate = rate,
-            item = output.item,
-            fluidbox_index = output.fluidbox_index
-        }
-    )
+
+    local data = {
+        entity = entity,
+        last_tick = game.tick,
+        rate = rate,
+        item = output.item,
+        fluidbox_index = output.fluidbox_index
+    }
+
+    magic_crafters[#magic_crafters + 1] = data
+    local outpost_magic_crafters = outposts[outpost_id].magic_crafters
+    outpost_magic_crafters[#outpost_magic_crafters + 1] = data
 end
 
 local set_inactive_token =
@@ -1014,15 +1063,18 @@ local set_inactive_token =
 Public.magic_item_crafting_callback =
     Token.register(
     function(entity, data)
+        local outpost_id = data.outpost_id
+        local callback_data = data.callback_data
+
         entity.minable = false
         entity.destructible = false
         entity.operable = false
 
-        local recipe = data.recipe
+        local recipe = callback_data.recipe
         if recipe then
             entity.set_recipe(recipe)
         else
-            local furance_item = data.furance_item
+            local furance_item = callback_data.furance_item
             if furance_item then
                 local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
                 inv.insert(furance_item)
@@ -1033,17 +1085,50 @@ Public.magic_item_crafting_callback =
         local x, y = p.x, p.y
         local distance = math.sqrt(x * x + y * y)
 
-        local output = data.output
+        local output = callback_data.output
         if #output == 0 then
-            add_magic_crafter_output(entity, output, distance)
+            add_magic_crafter_output(entity, output, distance, outpost_id)
         else
-            for _, o in ipairs(data.output) do
-                add_magic_crafter_output(entity, o, distance)
+            for _, o in ipairs(callback_data.output) do
+                add_magic_crafter_output(entity, o, distance, outpost_id)
             end
         end
 
-        if not data.keep_active then
+        if not callback_data.keep_active then
             Task.set_timeout_in_ticks(2, set_inactive_token, entity) -- causes problems with refineries.
+        end
+    end
+)
+
+Public.wall_callback =
+    Token.register(
+    function(entity, data)
+        if not entity.valid then
+            return
+        end
+
+        local position = entity.position
+        local px, py = position.x, position.y
+
+        local outpost_id = data.outpost_id
+        local outpost_data = outposts[outpost_id]
+        local top_left = outpost_data.top_left
+        local bottom_right = outpost_data.bottom_right
+        local tx, ty = top_left.x, top_left.y
+        local bx, by = bottom_right.x, bottom_right.y
+
+        if not tx or px < tx then
+            top_left.x = px
+        end
+        if not ty or py < ty then
+            top_left.y = py
+        end
+
+        if not bx or px > bx then
+            bottom_right.x = px
+        end
+        if not by or py > by then
+            bottom_right.y = py
         end
     end
 )
@@ -1068,11 +1153,26 @@ local function remove_power_source(event)
         return
     end
 
-    local ps = power_sources[number]
+    local data = power_sources[number]
+    if not data then
+        return
+    end
+
     power_sources[number] = nil
 
-    if ps and ps.valid then
-        ps.destroy()
+    local ps_entity = data.entity
+
+    if ps_entity and ps_entity.valid then
+        ps_entity.destroy()
+    end
+
+    local outpost_data = outposts[data.outpost_id]
+
+    local turret_count = outpost_data.turret_count - 1
+    outpost_data.turret_count = turret_count
+
+    if turret_count == 0 then
+        change_wall_ownership(outpost_data)
     end
 end
 
@@ -1083,17 +1183,20 @@ Public.market_set_items_callback =
             return
         end
 
+        local callback_data = data.callback_data
+
         entity.destructible = false
-        local market_id = Retailer.generate_group_id()
+
+        local market_id = data.outpost_id
         Retailer.add_market(market_id, entity)
-        Retailer.set_market_group_label(market_id, data.market_name)
+        Retailer.set_market_group_label(market_id, callback_data.market_name)
 
         local p = entity.position
         local x, y = p.x, p.y
         local d = math.sqrt(x * x + y * y)
 
-        for i = 1, #data do
-            local item = data[i]
+        for i = 1, #callback_data do
+            local item = callback_data[i]
             local price = item.price
 
             local df = item.distance_factor

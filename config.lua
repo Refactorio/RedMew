@@ -1,5 +1,5 @@
-_DEBUG = false
-_CHEATS = false
+_DEBUG = true
+_CHEATS = true
 _DUMP_ENV = false
 local currency = 'coin'
 
