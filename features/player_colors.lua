@@ -63,6 +63,7 @@ Command.add(
             }
             save_color(player_name, data)
             player.print('Your color has been saved. Any time you join a redmew server your color will automatically be set.')
+            Utils.print_except(player_name .. ' has saved their color server-side for future maps. You can do the same! Check out /help color-redmew', player)
         elseif args['set-reset-random'] == 'reset' then
             save_color(player_name, nil)
             player.print('Your saved color (if you had one) has been removed.')
