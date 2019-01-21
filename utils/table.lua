@@ -90,14 +90,10 @@ end
 
 --- Chooses a random entry from a table
 -- because this uses math.random, it cannot be used outside of events
--- @param t table to select an element from
--- @param sorted boolean to indicate whether the table is sorted by numerical index or not
--- @param key boolean to indicate whether to return the key or value
+-- @param t <table> to select an element from
+-- @param key <boolean> to indicate whether to return the key or value
 -- @return a random element of table t
-function table.get_random(t, sorted, key)
-    if sorted then
-        return t[random(#t)]
-    end
+function table.get_random_dictionary_entry(t, key)
     local target_index = random(1, table_size(t))
     local count = 1
     for k, v in pairs(t) do
@@ -105,7 +101,7 @@ function table.get_random(t, sorted, key)
             if key then
                 return k
             else
-                return t[v]
+                return v
             end
         end
         count = count + 1

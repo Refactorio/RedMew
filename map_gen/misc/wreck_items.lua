@@ -1,6 +1,7 @@
 -- adds some wrecked items around the map, good for MP, reduces total resources pulled from factory, and adds incentive to push out
-local table = require 'utils.table'
 local Token = require 'utils.token'
+
+local random = math.random
 
 local wreck_item_pool = {
     {name = 'iron-gear-wheel', count = 32},
@@ -44,14 +45,14 @@ local callback =
     function(entity)
         entity.health = math.random(entity.health)
 
-        entity.insert(wreck_item_pool[table.get_random(wreck_item_pool, true)])
-        entity.insert(wreck_item_pool[table.get_random(wreck_item_pool, true)])
-        entity.insert(wreck_item_pool[table.get_random(wreck_item_pool, true)])
+        entity.insert(wreck_item_pool[random(#wreck_item_pool)])
+        entity.insert(wreck_item_pool[random(#wreck_item_pool)])
+        entity.insert(wreck_item_pool[random(#wreck_item_pool)])
     end
 )
 
 return function()
-    local ship = table.get_random(entity_list, true)
+    local ship = entity_list[random(#entity_list)]
 
     if math.random(ship.chance) ~= 1 then
         return nil

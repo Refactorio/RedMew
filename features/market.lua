@@ -6,7 +6,6 @@ local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Retailer = require 'features.retailer'
-local table = require 'utils.table'
 local market_items = require 'resources.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
 
@@ -15,7 +14,6 @@ local fish_market_bonus_message = require 'resources.fish_messages'
 local pairs = pairs
 local random = math.random
 local format = string.format
-local get_random = table.get_random
 local currency = global.config.market.currency
 
 -- local vars
@@ -70,7 +68,7 @@ local function fish_earned(event, amount)
     PlayerStats.change_coin_earned(player_index, amount)
 
     if PlayerStats.get_coin_earned(player_index) % 70 == 0 and player and player.valid then
-        local message = get_random(fish_market_bonus_message, true)
+        local message = fish_market_bonus_message[random(#fish_market_bonus_message)]
         player.print(message)
     end
 end
