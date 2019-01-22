@@ -143,7 +143,7 @@ local function on_gui_opened(event)
     local corpse_owner = Game.get_player_by_index(corpse_owner_index)
 
     if player and corpse_owner then
-        local message = table.concat {player.name, ' is looting ', corpse_owner.name, "'s corpse"}
+        local message = table.concat {'## - ', player.name, ' is looting ', corpse_owner.name, "'s corpse"}
 
         game.print(message, Color.yellow)
         log('[Corpse] ' .. message)
