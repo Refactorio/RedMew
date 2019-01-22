@@ -2,6 +2,7 @@ local ob = require 'map_gen.presets.crash_site.outpost_builder'
 
 return ob.make_walls {
     ob.make_4_way {
+        turret = {callback = ob.worm_turret_callback},
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {entity = {name = 'stone-wall'}},
@@ -22,7 +23,7 @@ return ob.make_walls {
         [18] = {tile = 'stone-path'},
         [19] = {tile = 'concrete'},
         [20] = {tile = 'concrete'},
-        [21] = {entity = {name = 'big-worm-turret'}, tile = 'concrete'},
+        [21] = {entity = {name = 'big-worm-turret', callback = 'turret'}, tile = 'concrete'},
         [22] = {tile = 'concrete'},
         [23] = {tile = 'concrete'},
         [24] = {tile = 'concrete'},
@@ -40,6 +41,7 @@ return ob.make_walls {
         [36] = {tile = 'stone-path'}
     },
     ob.make_4_way {
+        turret = {callback = ob.worm_turret_callback},
         wall = {callback = ob.wall_callback},
         [1] = {entity = {name = 'stone-wall', callback = 'wall'}},
         [2] = {entity = {name = 'stone-wall'}},
@@ -62,7 +64,7 @@ return ob.make_walls {
         [19] = {entity = {name = 'stone-wall'}},
         [20] = {entity = {name = 'stone-wall'}},
         [21] = {tile = 'stone-path'},
-        [22] = {entity = {name = 'big-worm-turret'}, tile = 'concrete'},
+        [22] = {entity = {name = 'big-worm-turret', callback = 'turret'}, tile = 'concrete'},
         [23] = {tile = 'concrete'},
         [24] = {tile = 'concrete'},
         [25] = {entity = {name = 'stone-wall'}},
@@ -79,6 +81,7 @@ return ob.make_walls {
         [36] = {tile = 'stone-path'}
     },
     ob.make_4_way {
+        turret = {callback = ob.worm_turret_callback},
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {tile = 'stone-path'},
@@ -100,7 +103,7 @@ return ob.make_walls {
         [19] = {tile = 'concrete'},
         [20] = {tile = 'concrete'},
         [21] = {tile = 'concrete'},
-        [22] = {entity = {name = 'big-worm-turret'}, tile = 'concrete'},
+        [22] = {entity = {name = 'big-worm-turret', callback = 'turret'}, tile = 'concrete'},
         [23] = {tile = 'concrete'},
         [24] = {tile = 'stone-path'},
         [25] = {tile = 'concrete'},

@@ -1,4 +1,4 @@
-local Random = require 'map_gen.shared.random'
+--local Random = require 'map_gen.shared.random'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
@@ -10,7 +10,8 @@ local Server = require 'features.server'
 local Color = require 'resources.color_presets'
 
 local table = require 'utils.table'
-local next = next
+--local next = next
+local pairs = pairs
 local concat = table.concat
 
 local b = require 'map_gen.shared.builders'
@@ -18,13 +19,13 @@ local b = require 'map_gen.shared.builders'
 local direction_bit_mask = 0xc0000000
 local section_bit_mask = 0x30000000
 local level_bit_mask = 0x0fffffff
-local not_level_bit_mask = 0xf0000000
+--local not_level_bit_mask = 0xf0000000
 local direction_bit_shift = 30
 local section_bit_shift = 28
 
-local section_straight = 0
-local section_outer_corner = 1
-local section_inner_corner = 2
+--local section_straight = 0
+--local section_outer_corner = 1
+--local section_inner_corner = 2
 
 local wall_north_straight = 0x00000001
 local wall_east_straight = 0x40000001
@@ -40,10 +41,10 @@ local wall_south_inner = 0xa0000001
 local wall_west_inner = 0xe0000001
 
 local default_part_size = 6
---local inv_part_size = 1 / part_size
 
 local refill_turrets = {index = 1}
 local power_sources = {}
+local turret_to_outpost = {}
 local magic_crafters = {index = 1}
 local outposts = {}
 local outpost_count = 0
@@ -52,22 +53,23 @@ Global.register(
     {
         refil_turrets = refill_turrets,
         power_sources = power_sources,
+        turret_to_outpost = turret_to_outpost,
         magic_crafters = magic_crafters,
         outposts = outposts
     },
     function(tbl)
         refill_turrets = tbl.refil_turrets
         power_sources = tbl.power_sources
+        turret_to_outpost = tbl.turret_to_outpost
         magic_crafters = tbl.magic_crafters
         outposts = tbl.outposts
     end
 )
 
-local function get_direction(part)
+--[[ local function get_direction(part)
     local dir = bit32.band(part, direction_bit_mask)
     return bit32.rshift(dir, direction_bit_shift - 1)
-end
-
+end ]]
 local function get_4_way_direction(part)
     local dir = bit32.band(part, direction_bit_mask)
     return bit32.rshift(dir, direction_bit_shift)
@@ -82,7 +84,7 @@ local function get_level(part)
     return bit32.band(part, level_bit_mask)
 end
 
-local function set_level(part, level)
+--[[ local function set_level(part, level)
     local not_level = bit32.band(part)
     return not_level + level
 end
@@ -97,8 +99,7 @@ local function get_block(tbl, x, y)
         return 0
     end
     return tbl[(y - 1) * size + x] or 0
-end
-
+end ]]
 local function fast_remove(tbl, index)
     local count = #tbl
     if index > count then
@@ -419,22 +420,22 @@ local function fill(blocks)
     local y_offset = (size - 1) * size
     for x = 1, size do
         if blocks[x] == nil then
-            table.insert(anti_stack, {x = x, y = 1})
+            anti_stack[#anti_stack + 1] = {x = x, y = 1}
         end
 
         if blocks[x + y_offset] == nil then
-            table.insert(anti_stack, {x = x, y = size})
+            anti_stack[#anti_stack + 1] = {x = x, y = size}
         end
     end
 
     for y = 2, size do
         y_offset = (y - 1) * size
         if blocks[y_offset + 1] == nil then
-            table.insert(anti_stack, {x = 1, y = y})
+            anti_stack[#anti_stack + 1] = {x = 1, y = y}
         end
 
         if blocks[y_offset + size] == nil then
-            table.insert(anti_stack, {x = size, y = y})
+            anti_stack[#anti_stack + 1] = {x = size, y = y}
         end
     end
 
@@ -451,7 +452,7 @@ local function fill(blocks)
             local offset2 = offset - 1
 
             if not anti_set[offset2] and not blocks[offset2] then
-                table.insert(anti_stack, {x = x2, y = y})
+                anti_stack[#anti_stack + 1] = {x = x2, y = y}
             end
         end
         if x < size then
@@ -459,7 +460,7 @@ local function fill(blocks)
             local offset2 = offset + 1
 
             if not anti_set[offset2] and not blocks[offset2] then
-                table.insert(anti_stack, {x = x2, y = y})
+                anti_stack[#anti_stack + 1] = {x = x2, y = y}
             end
         end
         if y > 1 then
@@ -467,7 +468,7 @@ local function fill(blocks)
             local offset2 = offset - size
 
             if not anti_set[offset2] and not blocks[offset2] then
-                table.insert(anti_stack, {x = x, y = y2})
+                anti_stack[#anti_stack + 1] = {x = x, y = y2}
             end
         end
         if y < size then
@@ -475,7 +476,7 @@ local function fill(blocks)
             local offset2 = offset + size
 
             if not anti_set[offset2] and not blocks[offset2] then
-                table.insert(anti_stack, {x = x, y = y2})
+                anti_stack[#anti_stack + 1] = {x = x, y = y2}
             end
         end
     end
@@ -543,7 +544,9 @@ local function do_levels(blocks, max_level)
             local block = blocks[i]
             if block then
                 local l = get_level(block)
-                table.insert(levels[l], i)
+
+                local lvl = levels[l]
+                lvl[#lvl + 1] = i
             end
         end
     end
@@ -630,7 +633,8 @@ local function make_blocks(self, blocks, template)
                 blocks[i] = get_template(random, base_templates, base_template_count, counts)
             end
         else
-            for _, i in ipairs(level) do
+            for index = 1, #level do
+                local i = level[index]
                 blocks[i] = nil
             end
         end
@@ -673,14 +677,14 @@ local function to_shape(blocks, part_size, on_init)
         end
 
         local wx, wy = world.x, world.y
-        for _, e in ipairs(
-            world.surface.find_entities_filtered(
-                {
-                    area = {{wx, wy}, {wx + 1, wy + 1}},
-                    type = remove_entity_types
-                }
-            )
-        ) do
+
+        local entities =
+            world.surface.find_entities_filtered {
+            area = {{wx, wy}, {wx + 1, wy + 1}},
+            type = remove_entity_types
+        }
+        for i = 1, #entities do
+            local e = entities[i]
             e.destroy()
         end
 
@@ -922,16 +926,6 @@ local function do_refill_turrets()
 
     if not turret.valid then
         fast_remove(refill_turrets, index)
-
-        local outpost_data = outposts[turret_data.outpost_id]
-
-        local turret_count = outpost_data.turret_count - 1
-        outpost_data.turret_count = turret_count
-
-        if turret_count == 0 then
-            change_wall_ownership(outpost_data)
-        end
-
         return
     end
 
@@ -996,7 +990,8 @@ Public.refill_turret_callback =
     function(turret, data)
         local outpost_id = data.outpost_id
 
-        refill_turrets[#refill_turrets + 1] = {outpost_id = outpost_id, turret = turret, data = data.callback_data}
+        refill_turrets[#refill_turrets + 1] = {turret = turret, data = data.callback_data}
+        turret_to_outpost[turret.unit_number] = outpost_id
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1011,7 +1006,8 @@ Public.refill_liquid_turret_callback =
 
         local outpost_id = data.outpost_id
 
-        refill_turrets[#refill_turrets + 1] = {outpost_id = outpost_id, turret = turret, data = callback_data}
+        refill_turrets[#refill_turrets + 1] = {turret = turret, data = callback_data}
+        turret_to_outpost[turret.unit_number] = outpost_id
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1020,17 +1016,30 @@ Public.refill_liquid_turret_callback =
 
 Public.power_source_callback =
     Token.register(
-    function(entity, data)
+    function(turret, data)
         local outpost_id = data.outpost_id
         local callback_data = data.callback_data
 
         local power_source =
-            entity.surface.create_entity {name = 'hidden-electric-energy-interface', position = entity.position}
+            turret.surface.create_entity {name = 'hidden-electric-energy-interface', position = turret.position}
         power_source.electric_buffer_size = callback_data.buffer_size
         power_source.power_production = callback_data.power_production
         power_source.destructible = false
 
-        power_sources[entity.unit_number] = {outpost_id = outpost_id, entity = power_source}
+        power_sources[turret.unit_number] = {entity = power_source}
+        turret_to_outpost[turret.unit_number] = outpost_id
+
+        local outpost_data = outposts[outpost_id]
+        outpost_data.turret_count = outpost_data.turret_count + 1
+    end
+)
+
+Public.worm_turret_callback =
+    Token.register(
+    function(turret, data)
+        local outpost_id = data.outpost_id
+
+        turret_to_outpost[turret.unit_number] = outpost_id
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1091,7 +1100,8 @@ Public.magic_item_crafting_callback =
         if #output == 0 then
             add_magic_crafter_output(entity, output, distance, outpost_id)
         else
-            for _, o in ipairs(callback_data.output) do
+            for i = 1, #output do
+                local o = output[i]
                 add_magic_crafter_output(entity, o, distance, outpost_id)
             end
         end
@@ -1144,7 +1154,7 @@ Public.deactivate_callback =
     end
 )
 
-local function remove_power_source(event)
+local function turret_died(event)
     local entity = event.entity
     if not entity or not entity.valid then
         return
@@ -1155,26 +1165,27 @@ local function remove_power_source(event)
         return
     end
 
-    local data = power_sources[number]
-    if not data then
-        return
+    local ps_data = power_sources[number]
+    if ps_data then
+        power_sources[number] = nil
+
+        local ps_entity = ps_data.entity
+
+        if ps_entity and ps_entity.valid then
+            ps_entity.destroy()
+        end
     end
 
-    power_sources[number] = nil
+    local outpost_id = turret_to_outpost[number]
+    if outpost_id then
+        local outpost_data = outposts[outpost_id]
 
-    local ps_entity = data.entity
+        local turret_count = outpost_data.turret_count - 1
+        outpost_data.turret_count = turret_count
 
-    if ps_entity and ps_entity.valid then
-        ps_entity.destroy()
-    end
-
-    local outpost_data = outposts[data.outpost_id]
-
-    local turret_count = outpost_data.turret_count - 1
-    outpost_data.turret_count = turret_count
-
-    if turret_count == 0 then
-        change_wall_ownership(outpost_data)
+        if turret_count == 0 then
+            change_wall_ownership(outpost_data)
+        end
     end
 end
 
@@ -1229,9 +1240,10 @@ function Public.prepare_weighted_loot(loot)
     local total = 0
     local weights = {}
 
-    for _, v in ipairs(loot) do
+    for i = 1, #loot do
+        local v = loot[i]
         total = total + v.weight
-        table.insert(weights, total)
+        weights[#weights + 1] = total
     end
 
     weights.total = total
@@ -1355,7 +1367,7 @@ local function coin_mined(event)
 end
 
 Event.add(defines.events.on_tick, tick)
-Event.add(defines.events.on_entity_died, remove_power_source)
+Event.add(defines.events.on_entity_died, turret_died)
 
 Event.on_init(
     function()
