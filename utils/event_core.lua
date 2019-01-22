@@ -58,7 +58,7 @@ local function on_nth_tick_event(event)
     call_handlers(handlers, event)
 end
 
---- Do not use this function, use Event.add instead has it has safety checks.
+--- Do not use this function, use Event.add instead as it has safety checks.
 function Public.add(event_name, handler)
     local handlers = event_handlers[event_name]
     if not handlers then
@@ -72,7 +72,7 @@ function Public.add(event_name, handler)
     end
 end
 
---- Do not use this function, use Event.on_init instead has it has safety checks.
+--- Do not use this function, use Event.on_init instead as it has safety checks.
 function Public.on_init(handler)
     local handlers = event_handlers[init_event_name]
     if not handlers then
@@ -86,7 +86,7 @@ function Public.on_init(handler)
     end
 end
 
---- Do not use this function, use Event.on_load instead has it has safety checks.
+--- Do not use this function, use Event.on_load instead as it has safety checks.
 function Public.on_load(handler)
     local handlers = event_handlers[load_event_name]
     if not handlers then
@@ -100,7 +100,7 @@ function Public.on_load(handler)
     end
 end
 
---- Do not use this function, use Event.on_nth_tick instead has it has safety checks.
+--- Do not use this function, use Event.on_nth_tick instead as it has safety checks.
 function Public.on_nth_tick(tick, handler)
     local handlers = on_nth_tick_event_handlers[tick]
     if not handlers then
