@@ -453,6 +453,7 @@ Gui.on_click(item_button_name, function (event)
         item = item,
         count = stack_count,
         player = player,
+        group_name = data.market_group
     })
 end)
 

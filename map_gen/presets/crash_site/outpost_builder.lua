@@ -13,6 +13,9 @@ local table = require 'utils.table'
 --local next = next
 local pairs = pairs
 local concat = table.concat
+local floor = math.floor
+local format = string.format
+local tostring = tostring
 
 local b = require 'map_gen.shared.builders'
 
@@ -42,10 +45,14 @@ local wall_west_inner = 0xe0000001
 
 local default_part_size = 6
 
+local magic_crafters_per_tick = 2
+local magic_fluid_crafters_per_tick = 8
+
 local refill_turrets = {index = 1}
 local power_sources = {}
 local turret_to_outpost = {}
 local magic_crafters = {index = 1}
+local magic_fluid_crafters = {index = 1}
 local outposts = {}
 local outpost_count = 0
 
@@ -55,6 +62,7 @@ Global.register(
         power_sources = power_sources,
         turret_to_outpost = turret_to_outpost,
         magic_crafters = magic_crafters,
+        magic_fluid_crafters = magic_fluid_crafters,
         outposts = outposts
     },
     function(tbl)
@@ -62,6 +70,7 @@ Global.register(
         power_sources = tbl.power_sources
         turret_to_outpost = tbl.turret_to_outpost
         magic_crafters = tbl.magic_crafters
+        magic_fluid_crafters = tbl.magic_fluid_crafters
         outposts = tbl.outposts
     end
 )
@@ -657,19 +666,24 @@ local function to_shape(blocks, part_size, on_init)
         outposts[outpost_id] = {
             outpost_id = outpost_id,
             magic_crafters = {},
+            --magic_fluid_crafters = {},
             turret_count = 0,
             top_left = {nil, nil},
-            bottom_right = {nil, nil}
+            bottom_right = {nil, nil},
+            level = 1,
+            upgrade_rate = nil,
+            upgrade_base_cost = nil,
+            upgrade_cost_base = nil
         }
     end
 
     local function shape(x, y, world)
-        x, y = math.floor(x + half_t_size), math.floor(y + half_t_size)
+        x, y = floor(x + half_t_size), floor(y + half_t_size)
         if x < 0 or y < 0 or x >= t_size or y >= t_size then
             return false
         end
 
-        local x2, y2 = math.floor(x * inv_part_size), math.floor(y * inv_part_size)
+        local x2, y2 = floor(x * inv_part_size), floor(y * inv_part_size)
 
         local template = blocks[y2 * size + x2 + 1]
         if not template then
@@ -898,7 +912,78 @@ function Public.extend_walls(data, tbl)
     return setmetatable(copy, base)
 end
 
-local function change_wall_ownership(outpost_data)
+local function update_market_upgrade_description(outpost_data)
+    local outpost_id = outpost_data.outpost_id
+
+    local upgrade_rate = outpost_data.upgrade_rate or 0.2
+    local upgrade_base_cost = outpost_data.upgrade_base_cost or 250
+    local upgrade_cost_base = outpost_data.upgrade_cost_base or 2
+    local level = outpost_data.level
+    local base_outputs = outpost_data.base_outputs
+    local outpost_magic_crafters = outpost_data.magic_crafters
+    local prototype = Retailer.get_items(outpost_id)['upgrade']
+
+    prototype.price = upgrade_base_cost * #outpost_magic_crafters * upgrade_cost_base ^ (level - 1)
+    prototype.name_label = 'Upgrade Outpost to level ' .. tostring(level + 1)
+
+    local str = {}
+    for k, v in pairs(base_outputs) do
+        local base_rate = v * 60
+        local upgrade_per_level = base_rate * upgrade_rate
+        local current_rate = base_rate + (level - 1) * upgrade_per_level
+        local next_rate = current_rate + upgrade_per_level
+
+        str[#str + 1] = k
+        str[#str + 1] = ': '
+        str[#str + 1] = format('%.2f', current_rate)
+        str[#str + 1] = ' -> '
+        str[#str + 1] = format('%.2f / sec', next_rate)
+        str[#str + 1] = '\n'
+    end
+    str[#str] = nil
+
+    str = concat(str)
+
+    local prototype = Retailer.get_items(outpost_id)['upgrade']
+
+    prototype.description = str
+    prototype.disabled = false
+
+    Retailer.set_item(outpost_id, prototype)
+end
+
+local function do_outpost_upgrade(event)
+    if event.item.type ~= 'upgrade' then
+        return
+    end
+
+    local outpost_id = event.group_name
+    local outpost_data = outposts[outpost_id]
+
+    local outpost_magic_crafters = outpost_data.magic_crafters
+    local upgrade_rate = outpost_data.upgrade_rate or 0.2
+
+    local level = outpost_data.level + 1
+    outpost_data.level = level
+
+    local message =
+        concat({'*** ', Retailer.get_market_group_label(outpost_id), ' has been upgraded to level ', level, ' ***'})
+    game.print(message, Color.lime_green)
+    Server.to_discord_bold(message)
+
+    for i = 1, #outpost_magic_crafters do
+        local crafter = outpost_magic_crafters[i]
+
+        local rate = crafter.rate
+        local upgrade_amount = upgrade_rate * crafter.base_rate
+
+        crafter.rate = rate + upgrade_amount
+    end
+
+    update_market_upgrade_description(outpost_data)
+end
+
+local function do_capture_outpost(outpost_data)
     local area = {top_left = outpost_data.top_left, bottom_right = outpost_data.bottom_right}
     local walls = RS.get_surface().find_entities_filtered {area = area, force = 'enemy', name = 'stone-wall'}
 
@@ -906,11 +991,33 @@ local function change_wall_ownership(outpost_data)
         walls[i].force = 'player'
     end
 
-    local name = Retailer.get_market_group_label(outpost_data.outpost_id)
-    if name ~= 'Market' then
+    local outpost_id = outpost_data.outpost_id
+
+    local name = Retailer.get_market_group_label(outpost_id)
+    if name == 'Market' then
+        return
+    else
         game.print(concat({'*** ', 'Outpost captured: ' .. name, ' ***'}), Color.lime_green)
         Server.to_discord_bold('Outpost captured: ' .. name)
     end
+
+    local outpost_magic_crafters = outpost_data.magic_crafters
+
+    local base_outputs = {}
+
+    for i = 1, #outpost_magic_crafters do
+        local crafter = outpost_magic_crafters[i]
+        local item = crafter.item
+
+        local count = base_outputs[item] or 0
+        count = count + crafter.rate
+
+        base_outputs[item] = count
+    end
+
+    outpost_data.base_outputs = base_outputs
+
+    update_market_upgrade_description(outpost_data)
 end
 
 local function do_refill_turrets()
@@ -940,49 +1047,94 @@ local function do_refill_turrets()
 end
 
 local function do_magic_crafters()
+    local limit = #magic_crafters
+    if limit == 0 then
+        return
+    end
+
     local index = magic_crafters.index
 
-    if index > #magic_crafters then
-        magic_crafters.index = 1
-        return
-    end
-
-    local data = magic_crafters[index]
-
-    local entity = data.entity
-    if not entity.valid then
-        fast_remove(magic_crafters, index)
-        return
-    end
-
-    magic_crafters.index = index + 1
-
-    local tick = game.tick
-    local last_tick = data.last_tick
-    local rate = data.rate
-
-    local count = (tick - last_tick) * rate
-
-    local fcount = math.floor(count)
-
-    if fcount > 0 then
-        local fluidbox_index = data.fluidbox_index
-        if fluidbox_index then
-            local fb = entity.fluidbox
-
-            local fb_data = fb[fluidbox_index] or {name = data.item, amount = 0}
-            fb_data.amount = fb_data.amount + fcount
-            fb[fluidbox_index] = fb_data
-        else
-            entity.get_output_inventory().insert {name = data.item, count = fcount}
+    for i = 1, magic_crafters_per_tick do
+        if index > limit then
+            index = 1
         end
-        data.last_tick = tick - (count - fcount) / rate
+
+        local data = magic_crafters[index]
+
+        local entity = data.entity
+        if not entity.valid then
+            fast_remove(magic_crafters, index)
+        else
+            index = index + 1
+
+            local tick = game.tick
+            local last_tick = data.last_tick
+            local rate = data.rate
+
+            local count = (tick - last_tick) * rate
+
+            local fcount = floor(count)
+
+            if fcount > 0 then
+                entity.get_output_inventory().insert {name = data.item, count = fcount}
+                data.last_tick = tick - (count - fcount) / rate
+            end
+        end
     end
+
+    magic_crafters.index = index
+end
+
+local function do_magic_fluid_crafters()
+    local limit = #magic_fluid_crafters
+
+    if limit == 0 then
+        return
+    end
+
+    local index = magic_fluid_crafters.index
+
+    for i = 1, magic_fluid_crafters_per_tick do
+        if index > limit then
+            index = 1
+        end
+
+        local data = magic_fluid_crafters[index]
+
+        local entity = data.entity
+        if not entity.valid then
+            fast_remove(magic_fluid_crafters, index)
+        else
+            index = index + 1
+
+            local tick = game.tick
+            local last_tick = data.last_tick
+            local rate = data.rate
+
+            local count = (tick - last_tick) * rate
+
+            local fcount = floor(count)
+
+            if fcount > 0 then
+                local fluidbox_index = data.fluidbox_index
+                local fb = entity.fluidbox
+
+                local fb_data = fb[fluidbox_index] or {name = data.item, amount = 0}
+                fb_data.amount = fb_data.amount + fcount
+                fb[fluidbox_index] = fb_data
+
+                data.last_tick = tick - (count - fcount) / rate
+            end
+        end
+    end
+
+    magic_fluid_crafters.index = index
 end
 
 local function tick()
     do_refill_turrets()
     do_magic_crafters()
+    do_magic_fluid_crafters()
 end
 
 Public.refill_turret_callback =
@@ -1047,17 +1199,25 @@ Public.worm_turret_callback =
 )
 
 local function add_magic_crafter_output(entity, output, distance, outpost_id)
+    local outpost_data = outposts[outpost_id]
     local rate = output.min_rate + output.distance_factor * distance
 
+    local fluidbox_index = output.fluidbox_index
     local data = {
         entity = entity,
         last_tick = game.tick,
+        base_rate = rate,
         rate = rate,
         item = output.item,
-        fluidbox_index = output.fluidbox_index
+        fluidbox_index = fluidbox_index
     }
 
-    magic_crafters[#magic_crafters + 1] = data
+    if fluidbox_index then
+        magic_fluid_crafters[#magic_fluid_crafters + 1] = data
+    else
+        magic_crafters[#magic_crafters + 1] = data
+    end
+
     local outpost_magic_crafters = outposts[outpost_id].magic_crafters
     outpost_magic_crafters[#outpost_magic_crafters + 1] = data
 end
@@ -1184,7 +1344,7 @@ local function turret_died(event)
         outpost_data.turret_count = turret_count
 
         if turret_count == 0 then
-            change_wall_ownership(outpost_data)
+            do_capture_outpost(outpost_data)
         end
     end
 end
@@ -1201,8 +1361,30 @@ Public.market_set_items_callback =
         entity.destructible = false
 
         local market_id = data.outpost_id
+        local outpost_data = outposts[market_id]
+        local upgrade_base_cost = data.upgrade_base_cost or 0
+
+        outpost_data.upgrade_rate = data.upgrade_rate
+        outpost_data.upgrade_base_cost = upgrade_base_cost
+        outpost_data.upgrade_cost_base = data.upgrade_cost_base
+
         Retailer.add_market(market_id, entity)
         Retailer.set_market_group_label(market_id, callback_data.market_name)
+
+        Retailer.set_item(
+            market_id,
+            {
+                name = 'upgrade',
+                type = 'upgrade',
+                name_label = 'Upgrade Outpost',
+                sprite = 'item-group/production',
+                price = upgrade_base_cost,
+                stack_limit = 1,
+                disabled = true,
+                disabled_reason = 'Outpost must be captured first.',
+                description = 'Increases output.'
+            }
+        )
 
         local p = entity.position
         local x, y = p.x, p.y
@@ -1225,6 +1407,11 @@ Public.market_set_items_callback =
                 {name = item.name, price = price, name_label = item.name_label, description = item.description}
             )
         end
+
+        local outpost_data = outposts[market_id]
+        outpost_data.upgrade_rate = data.upgrade_rate
+        outpost_data.upgrade_base_cost = data.upgrade_base_cost
+        outpost_data.upgrade_cost_base = data.upgrade_cost_base
     end
 )
 
@@ -1366,6 +1553,10 @@ local function coin_mined(event)
     end
 end
 
+local function market_purchase(event)
+    game.print(serpent.block(event))
+end
+
 Event.add(defines.events.on_tick, tick)
 Event.add(defines.events.on_entity_died, turret_died)
 
@@ -1376,5 +1567,7 @@ Event.on_init(
 )
 
 Event.add(defines.events.on_player_mined_item, coin_mined)
+
+Event.add(Retailer.events.on_market_purchase, do_outpost_upgrade)
 
 return Public
