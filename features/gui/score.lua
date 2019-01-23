@@ -135,8 +135,9 @@ local function score_show(top)
 end
 
 local function rocket_launched(event)
-    local entity = event.entity
-    if not entity or not entity.valid then
+    local entity = event.rocket
+
+    if not entity or not entity.valid or not entity.force == 'player' then
         return
     end
 
@@ -151,12 +152,15 @@ local function rocket_launched(event)
     end
 
     count = game.forces.player.get_item_launched('satellite')
-    local message = 'A satellite has been launched! Total count: ' .. count
 
-    game.print(message)
-    Server.to_discord_bold(message)
+    if (count < 10) or ((count < 50) and ((count % 5) == 0)) or ((count % 25) == 0) then
+        local message = 'A satellite has been launched! Total count: ' .. count
 
-    refresh_score()
+        game.print(message)
+        Server.to_discord_bold(message)
+
+        refresh_score()
+    end
 end
 
 Gui.on_click(
