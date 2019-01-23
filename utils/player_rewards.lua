@@ -2,16 +2,31 @@ local Global = require 'utils.global'
 local Game = require 'utils.game'
 local PlayerStats = require 'features.player_stats'
 local Command = require 'utils.command'
+
 local format = string.format
+local abs = math.abs
+local concat = table.concat
 
 local Public = {}
 local reward_token = {global.config.player_rewards.token} or {global.config.market.currency} or {'coin'}
 
-Global.register({
-    reward_token = reward_token,
-}, function (tbl)
-    reward_token = tbl.reward_token
-end)
+Global.register(
+    {
+        reward_token = reward_token
+    },
+    function(tbl)
+        reward_token = tbl.reward_token
+    end
+)
+
+--- Returns the single or plural form of the token name
+local function get_token_plural(quantity)
+    if quantity and quantity > 1 then
+        return concat({reward_token[1], 's'})
+    else
+        return reward_token[1]
+    end
+end
 
 --- Set the item to use for rewards
 -- @param reward string - item name to use as reward
@@ -92,7 +107,7 @@ end
 Command.add(
     'reward',
     {
-        description = 'Gives a reward to a target player',
+        description = 'Gives a reward to a target player (removes if quantity is negative)',
         arguments = {'target', 'quantity', 'reason'},
         default_values = {reason = false},
         admin_only = true,
@@ -106,21 +121,32 @@ Command.add(
             player_name = player.name
         end
 
-        local target = game.players[args.target]
-        local target_name
-        if target then
-            target_name = args.target
-        else
+        local target_name = args.target
+        local target = game.players[target_name]
+        if not target then
             player.print('Target not found.')
             return
         end
 
-        Public.give_reward(target, args.quantity)
-        local string = format('%s has rewarded %s with %s %s', player_name, target_name, args.quantity, reward_token[1])
-        if args.reason then
-            string = format('%s for %s', string, args.reason)
+        local quantity = tonumber(args.quantity)
+        if quantity > 0 then
+            Public.give_reward(target, quantity)
+            local string = format('%s has rewarded %s with %s %s', player_name, target_name, get_token_plural(quantity), reward_token[1])
+            if args.reason then
+                string = format('%s for %s', string, args.reason)
+            end
+            game.print(string)
+        elseif quantity < 0 then
+            quantity = abs(quantity)
+            Public.remove_reward(target, quantity)
+            local string = format('%s has punished %s by taking %s %s', player_name, target_name, quantity, get_token_plural(quantity))
+            if args.reason then
+                string = format('%s for %s', string, args.reason)
+            end
+            game.print(string)
+        else
+            Game.player_print(" A reward of 0 is neither a reward nor a punishment, it's just dumb. Try harder.")
         end
-        game.print(string)
     end
 )
 
