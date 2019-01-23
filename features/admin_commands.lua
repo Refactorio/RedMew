@@ -241,6 +241,19 @@ local function teleport_command(args, player)
     end
 end
 
+--- Revives ghosts around the player
+local function revive_ghosts(args, player)
+    local radius = args.radius
+    local pos = player.position
+    for _, e in pairs(player.surface.find_entities_filtered {area = {{pos.x - radius, pos.y - radius}, {pos.x + radius, pos.y + radius}}}) do
+        if e.type == 'entity-ghost' then
+            e.revive()
+        else
+            e.health = 10000
+        end
+    end
+end
+
 -- Event registrations
 
 Event.add(defines.events.on_built_entity, built_entity)
@@ -375,4 +388,15 @@ Command.add(
         custom_help_text = '<blank|mode|player> 3 different uses: "/tp" to tp to selected entity. "/tp mode" to toggle tp mode. "/tp Newcott" to tp to Newcott'
     },
     teleport_command
+)
+
+Command.add(
+    'revive-ghosts',
+    {
+        description = 'Revives the ghosts within the provided radius around you',
+        arguments = {'radius'},
+        default_values = {radius = 10},
+        admin_only = true
+    },
+    revive_ghosts
 )
