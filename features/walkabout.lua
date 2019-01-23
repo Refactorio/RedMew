@@ -3,11 +3,22 @@ local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Command = require 'utils.command'
+local Global = require 'utils.global'
 
-global.walkabout = {}
+-- Register our globals
+local walkabouts = {}
+
+Global.register(
+    {
+        walkabouts = walkabouts
+    },
+    function(tbl)
+        walkabouts = tbl.walkabout
+    end
+)
 
 local function return_player(index)
-    local data = global.walkabout[index]
+    local data = walkabouts[index]
     if not data then
         log('Warning: return_player received nil data')
         return
@@ -34,7 +45,7 @@ local function return_player(index)
     player.force = data.force
 
     game.print(data.player.name .. ' came back from walkabout.')
-    global.walkabout[index] = nil
+    walkabouts[index] = nil
 end
 
 --- Returns a player from walkabout after the timeout.
@@ -52,7 +63,7 @@ local redmew_commands_return_player =
         if player.connected then
             return_player(index)
         else
-            global.walkabout[index].timer_expired = true
+            walkabouts[index].timer_expired = true
         end
     end
 )
@@ -74,7 +85,7 @@ local function walkabout(args)
     end
 
     local player = game.players[player_name]
-    if not player or not player.character or global.walkabout[player.index] then
+    if not player or not player.character or walkabouts[player.index] then
         Game.player_print(player_name .. ' could not go on a walkabout.')
         return
     end
@@ -101,7 +112,7 @@ local function walkabout(args)
         }
 
         Task.set_timeout(duration, redmew_commands_return_player, player)
-        global.walkabout[player.index] = data
+        walkabouts[player.index] = data
 
         player.character = nil
         player.create_character()
@@ -119,7 +130,7 @@ local function clean_on_join(event)
     local index = player.index
 
     -- If a player joins and they're marked as being on walkabout but their timer has expired, restore them.
-    if player and global.walkabout[index] and global.walkabout[index].timer_expired then
+    if player and walkabouts[index] and walkabouts[index].timer_expired then
         return_player(index)
     end
 end
