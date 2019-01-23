@@ -7,6 +7,12 @@ local Server = require 'features.server'
 
 -- localized functions
 local random = math.random
+local sqrt = math.sqrt
+local floor = math.floor
+local format = string.format
+local match = string.match
+local insert = table.insert
+local concat = table.concat
 
 -- local constants
 local prefix = '## - '
@@ -22,7 +28,7 @@ local Module = {}
 function Module.distance(pos1, pos2)
     local dx = pos2.x - pos1.x
     local dy = pos2.y - pos1.y
-    return math.sqrt(dx * dx + dy * dy)
+    return sqrt(dx * dx + dy * dy)
 end
 
 --- Takes msg and prints it to all players except provided player
@@ -59,7 +65,7 @@ function Module.print_admins(msg, source)
         source_name = 'Server'
         chat_color = Color.yellow
     end
-    local formatted_msg = string.format('%s(ADMIN) %s: %s', prefix, source_name, msg) -- to the server
+    local formatted_msg = format('%s(ADMIN) %s: %s', prefix, source_name, msg) -- to the server
     print(formatted_msg)
     for _, p in pairs(game.connected_players) do
         if p.admin then
@@ -104,7 +110,7 @@ function Module.find_entities_by_last_user(player, surface, filters)
     filter.force = player.force.name
     for _, e in pairs(surface.find_entities_filtered(filter)) do
         if e.last_user == player then
-            table.insert(entities, e)
+            insert(entities, e)
         end
     end
     return entities
@@ -122,26 +128,26 @@ end
 function Module.format_time(ticks)
     local result = {}
 
-    local hours = math.floor(ticks * ticks_to_hours)
+    local hours = floor(ticks * ticks_to_hours)
     if hours > 0 then
         ticks = ticks - hours * hours_to_ticks
-        table.insert(result, hours)
+        insert(result, hours)
         if hours == 1 then
-            table.insert(result, 'hour')
+            insert(result, 'hour')
         else
-            table.insert(result, 'hours')
+            insert(result, 'hours')
         end
     end
 
-    local minutes = math.floor(ticks * ticks_to_minutes)
-    table.insert(result, minutes)
+    local minutes = floor(ticks * ticks_to_minutes)
+    insert(result, minutes)
     if minutes == 1 then
-        table.insert(result, 'minute')
+        insert(result, 'minute')
     else
-        table.insert(result, 'minutes')
+        insert(result, 'minutes')
     end
 
-    return table.concat(result, ' ')
+    return concat(result, ' ')
 end
 
 --- Prints a message letting the player know they cannot run a command
@@ -155,15 +161,15 @@ end
 -- @param command the command's name as table element
 -- @param parameters the command's parameters as a table (optional)
 function Module.log_command(actor, command, parameters)
-    local action = table.concat {'[Admin-Command] ', actor, ' used: ', command}
+    local action = concat {'[Admin-Command] ', actor, ' used: ', command}
     if parameters then
-        action = table.concat {action, ' ', parameters}
+        action = concat {action, ' ', parameters}
     end
     log(action)
 end
 
 function Module.comma_value(n) -- credit http://richard.warburton.it
-    local left, num, right = string.match(n, '^([^%d]*%d)(%d*)(.-)$')
+    local left, num, right = match(n, '^([^%d]*%d)(%d*)(.-)$')
     return left .. (num:reverse():gsub('(%d%d%d)', '%1,'):reverse()) .. right
 end
 
@@ -200,7 +206,7 @@ end
 -- @param warning_prefix <string> The name of the module/warning
 function Module.action_warning(msg, warning_prefix)
     game.print(prefix .. msg, Color.yellow)
-    msg = warning_prefix .. msg
+    msg = format('%s %s', warning_prefix, msg)
     log(msg)
     Server.to_discord_bold(msg)
 end
@@ -211,7 +217,7 @@ end
 -- @param player <LuaPlayer> the player not to send the message to
 function Module.silent_action_warning(msg, warning_prefix, player)
     Module.print_except(prefix .. msg, Color.yellow, player)
-    msg = warning_prefix .. msg
+    msg = format('%s %s', warning_prefix, msg)
     log(msg)
     Server.to_discord_bold(msg)
 end
