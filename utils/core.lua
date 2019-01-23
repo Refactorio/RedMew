@@ -3,6 +3,7 @@
 -- Dependencies
 local Game = require 'utils.game'
 local Color = require 'resources.color_presets'
+local Server = require 'features.server'
 
 -- localized functions
 local random = math.random
@@ -25,10 +26,17 @@ function Module.distance(pos1, pos2)
 end
 
 --- Takes msg and prints it to all players except provided player
-function Module.print_except(msg, player)
+-- @param msg <string> The message to print
+-- @param color <table> the color to use for the message
+-- @param player <LuaPlayer> the player not to send the message to
+function Module.print_except(msg, color, player)
+    if not color then
+        color = Color.white
+    end
+
     for _, p in pairs(game.connected_players) do
         if p ~= player then
-            p.print(msg)
+            p.print(msg, color)
         end
     end
 end
@@ -185,6 +193,27 @@ end
 function Module.set_and_return(tbl, key, value)
     tbl[key] = value
     return value
+end
+
+--- Takes msg and prints it to all players. Also prints to the log and discord
+-- @param msg <string> The message to print
+-- @param warning_prefix <string> The name of the module/warning
+function Module.action_warning(msg, warning_prefix)
+    game.print(prefix .. msg, Color.yellow)
+    msg = warning_prefix .. msg
+    log(msg)
+    Server.to_discord_bold(msg)
+end
+
+--- Takes msg and prints it to all players except provided player. Also prints to the log and discord
+-- @param msg <string> The message to print
+-- @param warning_prefix <string> The name of the module/warning
+-- @param player <LuaPlayer> the player not to send the message to
+function Module.silent_action_warning(msg, warning_prefix, player)
+    Module.print_except(prefix .. msg, Color.yellow, player)
+    msg = warning_prefix .. msg
+    log(msg)
+    Server.to_discord_bold(msg)
 end
 
 -- add utility functions that exist in base factorio/util
