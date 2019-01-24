@@ -68,7 +68,26 @@ global.config = {
     -- adds a market
     market = {
         enabled = true,
-        currency = currency
+        currency = currency,
+
+        -- defines the chance that killing an entity will drop coins and the min and max it can drop upon death
+        entity_drop_amount = {
+            ['biter-spawner'] = {low = 5, high = 15, chance = 1},
+            ['spitter-spawner'] = {low = 5, high = 15, chance = 1},
+            ['small-worm-turret'] = {low = 2, high = 8, chance = 1},
+            ['medium-worm-turret'] = {low = 5, high = 15, chance = 1},
+            ['big-worm-turret'] = {low = 10, high = 20, chance = 1},
+
+            -- default is 0, no chance of coins dropping from biters/spitters
+            ['small-biter'] = {low = 1, high = 5, chance = 0},
+            ['small-spitter'] = {low = 1, high = 2, chance = 0},
+            ['medium-spitter'] = {low = 1, high = 3, chance = 0},
+            ['big-spitter'] = {low = 1, high = 3, chance = 0},
+            ['behemoth-spitter'] = {low = 1, high = 10, chance = 0},
+            ['medium-biter']  = {low = 1, high = 3, chance = 0},
+            ['big-biter']  = {low = 1, high = 5, chance = 0},
+            ['behemoth-biter']  = {low = 1, high = 10, chance = 0}
+        }
     },
     -- adds anti-nuke griefing
     nuke_control = {
