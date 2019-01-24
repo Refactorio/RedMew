@@ -118,7 +118,7 @@ local function mined_entity(event)
 
     if player and corpse_owner then
         local message = table.concat {'## - ', player.name, ' has looted ', corpse_owner.name, "'s corpse"}
-        Utils.action_warning(message, '[Corpse]')
+        Utils.action_warning('[Corpse]', message)
     end
 end
 
@@ -140,7 +140,7 @@ local function on_gui_opened(event)
 
     if player and corpse_owner then
         local message = table.concat {player.name, ' is looting ', corpse_owner.name, "'s corpse"}
-        Utils.action_warning(message, '[Corpse]')
+        Utils.action_warning('[Corpse]', message)
     end
 end
 

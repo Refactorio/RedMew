@@ -204,7 +204,7 @@ end
 --- Takes msg and prints it to all players. Also prints to the log and discord
 -- @param msg <string> The message to print
 -- @param warning_prefix <string> The name of the module/warning
-function Module.action_warning(msg, warning_prefix)
+function Module.action_warning(warning_prefix, msg)
     game.print(prefix .. msg, Color.yellow)
     msg = format('%s %s', warning_prefix, msg)
     log(msg)
@@ -215,7 +215,7 @@ end
 -- @param msg <string> The message to print
 -- @param warning_prefix <string> The name of the module/warning
 -- @param player <LuaPlayer> the player not to send the message to
-function Module.silent_action_warning(msg, warning_prefix, player)
+function Module.silent_action_warning(warning_prefix, msg, player)
     Module.print_except(prefix .. msg, Color.yellow, player)
     msg = format('%s %s', warning_prefix, msg)
     log(msg)
@@ -232,7 +232,6 @@ require 'util'
 -- @param distance <number>
 -- @return <table> modified position
 Module.move_position = util.moveposition
-
 
 --- Takes a direction and gives you the opposite
 -- @param direction <defines.direction> north, east, south, west, northeast, northwest, southeast, southwest

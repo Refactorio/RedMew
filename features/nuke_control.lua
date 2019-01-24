@@ -4,6 +4,9 @@ local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Server = require 'features.server'
 
+local format = string.format
+local match = string.match
+
 local function allowed_to_nuke(player)
     return player.admin or UserGroups.is_regular(player.name) or ((player.online_time / 216000) > global.config.nuke_control.nuke_min_time_hours)
 end
@@ -15,7 +18,7 @@ local function ammo_changed(event)
     end
     local nukes = player.remove_item({name = 'atomic-bomb', count = 1000})
     if nukes > 0 then
-        Utils.action_warning(player.name .. ' tried to use a nuke, but instead dropped it on his foot.', '[Nuke]')
+        Utils.action_warning('[Nuke]', player.name .. ' tried to use a nuke, but instead dropped it on his foot.')
 
         local character = player.character
         if character and character.valid then
@@ -37,7 +40,7 @@ local function on_player_deconstructed_area(event)
     player.remove_item({name = 'deconstruction-planner', count = 1000})
 
     --Make them think they arent noticed
-    Utils.silent_action_warning(player.name .. ' tried to deconstruct something, but instead deconstructed themself.', '[Deconstruct]', player)
+    Utils.silent_action_warning('[Deconstruct]', player.name .. ' tried to deconstruct something, but instead deconstructed themself.', player)
     player.print('Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.')
 
     local character = player.character
@@ -142,12 +145,12 @@ local function on_capsule_used(event)
         if count > 8 then
             if global.players_warned[event.player_index] then
                 if nuke_control.enable_autoban then
-                    Server.ban_sync(player.name, string.format('Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.', count, item.name), '<script>')
+                    Server.ban_sync(player.name, format('Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.', count, item.name), '<script>')
                 end
             else
                 global.players_warned[event.player_index] = true
                 if nuke_control.enable_autokick then
-                    game.kick_player(player, string.format('Damaged %i entities with %s -Antigrief', count, item.name))
+                    game.kick_player(player, format('Damaged %i entities with %s -Antigrief', count, item.name))
                 end
             end
         end
@@ -156,7 +159,7 @@ end
 
 local function on_player_joined(event)
     local player = game.players[event.player_index]
-    if string.match(player.name, '^[Ili1|]+$') then
+    if match(player.name, '^[Ili1|]+$') then
         Server.ban_sync(player.name, '', '<script>') --No reason given, to not give them any hints to change their name
     end
 end
