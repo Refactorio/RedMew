@@ -3,6 +3,8 @@ local Global = require 'utils.global'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Game = require 'utils.game'
+local Server = require 'features.server'
+local Color = require 'resources.color_presets'
 
 local player_corpses = {}
 
@@ -43,7 +45,11 @@ local function player_died(event)
 
     local text = player.name .. "'s corpse"
     local position = entity.position
-    local tag = player.force.add_chart_tag(player.surface, {icon = {type = 'item', name = 'power-armor-mk2'}, position = position, text = text})
+    local tag =
+        player.force.add_chart_tag(
+        player.surface,
+        {icon = {type = 'item', name = 'power-armor-mk2'}, position = position, text = text}
+    )
 
     if not tag then
         return
@@ -85,21 +91,67 @@ local corpse_util_mined_entity =
 local function mined_entity(event)
     local entity = event.entity
 
-    if entity and entity.valid and entity.name == 'character-corpse' then
-        -- The corpse may be mined but not removed (if player doesn't have inventory space)
-        -- so we wait one tick to see if the corpse is gone.
-        Task.set_timeout_in_ticks(
-            1,
-            corpse_util_mined_entity,
-            {
-                entity = entity,
-                player_index = entity.character_corpse_player_index,
-                tick = entity.character_corpse_tick_of_death
-            }
-        )
+    if not entity or not entity.valid or entity.name ~= 'character-corpse' then
+        return
+    end
+
+    -- The corpse may be mined but not removed (if player doesn't have inventory space)
+    -- so we wait one tick to see if the corpse is gone.
+    Task.set_timeout_in_ticks(
+        1,
+        corpse_util_mined_entity,
+        {
+            entity = entity,
+            player_index = entity.character_corpse_player_index,
+            tick = entity.character_corpse_tick_of_death
+        }
+    )
+
+    local player_index = event.player_index
+    local corpse_owner_index = entity.character_corpse_player_index
+
+    if player_index == corpse_owner_index then
+        return
+    end
+
+    local player = Game.get_player_by_index(player_index)
+    local corpse_owner = Game.get_player_by_index(corpse_owner_index)
+
+    if player and corpse_owner then
+        local message = table.concat {'## - ', player.name, ' has looted ', corpse_owner.name, "'s corpse"}
+
+        game.print(message, Color.yellow)
+        log('[Corpse] ' .. message)
+        Server.to_discord_bold(message)
+    end
+end
+
+local function on_gui_opened(event)
+    local entity = event.entity
+    if not entity or not entity.valid or entity.name ~= 'character-corpse' then
+        return
+    end
+
+    local player_index = event.player_index
+    local corpse_owner_index = entity.character_corpse_player_index
+
+    if player_index == corpse_owner_index then
+        return
+    end
+
+    local player = Game.get_player_by_index(player_index)
+    local corpse_owner = Game.get_player_by_index(corpse_owner_index)
+
+    if player and corpse_owner then
+        local message = table.concat {'## - ', player.name, ' is looting ', corpse_owner.name, "'s corpse"}
+
+        game.print(message, Color.yellow)
+        log('[Corpse] ' .. message)
+        Server.to_discord_bold(message)
     end
 end
 
 Event.add(defines.events.on_player_died, player_died)
 Event.add(defines.events.on_character_corpse_expired, corpse_expired)
 Event.add(defines.events.on_pre_player_mined_item, mined_entity)
+Event.add(defines.events.on_gui_opened, on_gui_opened)
