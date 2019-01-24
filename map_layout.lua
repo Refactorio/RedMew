@@ -145,6 +145,8 @@ local terrain_modules = {
 --require 'map_gen.misc.terraforming' -- prevents players from building on non-terraformed tiles
 --require 'map_gen.misc.car_body' -- gives players cars instead of characters
 --require 'map_gen.misc.naughty_words' -- admonishes players for cursing
+--require ('map_gen.misc.rails_only_banned_entities') -- disables placement of belt related entites, and roboports WIP
+
 
 if #entity_modules > 0 then
     shape = shape or b.full_shape
