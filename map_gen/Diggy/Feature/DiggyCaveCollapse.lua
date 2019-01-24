@@ -2,7 +2,6 @@
     Provides the ability to collapse caves when digging.
 ]]
 -- dependencies
-local table = require 'utils.table'
 local Event = require 'utils.event'
 local Template = require 'map_gen.Diggy.Template'
 local ScoreTable = require 'map_gen.Diggy.ScoreTable'
@@ -18,7 +17,6 @@ local random = math.random
 local floor = math.floor
 local pairs = pairs
 local pcall = pcall
-local get_random = table.get_random
 local is_diggy_rock = Template.is_diggy_rock
 local increment_score = ScoreTable.increment
 local template_insert = Template.insert
@@ -176,7 +174,7 @@ local function spawn_collapse_text(surface, position)
     surface.create_entity({
         name = 'tutorial-flying-text',
         color = color,
-        text = get_random(config.cracking_sounds, true),
+        text = config.cracking_sounds[random(#config.cracking_sounds)],
         position = position,
     })
 end
