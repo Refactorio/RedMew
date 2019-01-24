@@ -158,9 +158,9 @@ local function rocket_launched(event)
 
         game.print(message)
         Server.to_discord_bold(message)
-
-        refresh_score()
     end
+
+    refresh_score()
 end
 
 Gui.on_click(
