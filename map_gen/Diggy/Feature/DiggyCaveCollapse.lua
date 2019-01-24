@@ -470,7 +470,12 @@ end
 
 on_surface_created = function (event)
     local index = event.surface_index
-    stress_map_storage[index] = {}
+
+    if stress_map_storage[index] then
+        table.clear_table(stress_map_storage[index])
+    else
+        stress_map_storage[index] = {}
+    end
 
     local map = stress_map_storage[index]
 
@@ -604,5 +609,13 @@ function DiggyCaveCollapse.get_extra_map_info()
     return [[Cave Collapse, it might just collapse!
 Place stone walls, stone paths and (refined) concrete to reinforce the mine. If you see cracks appear, run!]]
 end
+
+Event.on_init(
+    function()
+        if global.config.redmew_surface.enabled then
+            on_surface_created({surface_index = RS.get_surface().index})
+        end
+    end
+)
 
 return DiggyCaveCollapse
