@@ -11,7 +11,6 @@ local sin = math.sin
 local cos = math.cos
 local atan2 = math.atan2
 local tau = math.tau
-local insert = table.insert
 
 -- helpers
 local inv_pi = 1 / pi
@@ -21,7 +20,7 @@ local Builders = {}
 local function add_entity(tile, entity)
     if type(tile) == 'table' then
         if tile.entities then
-            insert(tile.entities, entity)
+            tile.entities [#tile.entities + 1] = entity
         else
             tile.entities = {entity}
         end
@@ -767,9 +766,7 @@ function Builders.single_pattern_overlap(shape, width, height)
         y = ((y + half_height) % height) - half_height
         x = ((x + half_width) % width) - half_width
 
-        return shape(x, y, world) or shape(x + width, y, world) or shape(x - width, y, world) or
-            shape(x, y + height, world) or
-            shape(x, y - height, world)
+        return shape(x, y, world) or shape(x + width, y, world) or shape(x - width, y, world) or shape(x, y + height, world) or shape(x, y - height, world)
     end
 end
 
@@ -987,7 +984,7 @@ function Builders.circular_pattern(shape, quantity, radius)
     local angle = tau / quantity
     for i = 1, quantity do
         local shape2 = Builders.rotate(Builders.translate(shape, 0, radius), i * angle)
-        insert(pattern, shape2)
+        pattern[i] = shape2
     end
     return Builders.any(pattern)
 end
@@ -1600,10 +1597,11 @@ end
 function Builders.prepare_weighted_array(array)
     local total = 0
     local weights = {}
-
+    local weight_counter = 1
     for _, v in ipairs(array) do
         total = total + v.weight
-        insert(weights, total)
+        weights[weight_counter] = total
+        weight_counter = weight_counter + 1
     end
 
     weights.total = total
