@@ -7,6 +7,8 @@ local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
 local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
+local Token = require 'utils.token'
+local Task = require 'utils.task'
 local math = require 'utils.math'
 local ScenarioInfo = require 'features.gui.info'
 local table = require 'utils.table'
@@ -109,6 +111,21 @@ local mini_t1_robotics_factory = require 'map_gen.presets.crash_site.outpost_dat
 local mini_t1_production_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t1_production_factory'
 local mini_t2_energy_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t2_energy_factory'
 local mini_t1_train_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t1_train_factory'
+
+local spawn_callback_callback =
+    Token.register(
+    function(outpost_id)
+        OutpostBuilder.activate_market_upgrade(outpost_id)
+    end
+)
+
+local spawn_callback =
+    Token.register(
+    function(entity, data)
+        Token.get(OutpostBuilder.market_set_items_callback)(entity, data)
+        Task.set_timeout_in_ticks(1, spawn_callback_callback, data.outpost_id)
+    end
+)
 
 local function init()
     local on_init = game ~= nil
@@ -679,9 +696,12 @@ local function init()
     map = b.apply_entity(map, ore_grid)
 
     local market = {
-        callback = outpost_builder.market_set_items_callback,
+        callback = spawn_callback,
         data = {
             market_name = 'Spawn',
+            upgrade_rate = 0.5,
+            upgrade_base_cost = 500,
+            upgrade_cost_base = 2,
             {name = 'raw-wood', price = 1},
             {name = 'iron-plate', price = 2},
             {name = 'stone', price = 2},
@@ -752,13 +772,6 @@ Global.register_init(
     end
 )
 
---[[ local Event = require 'utils.event'
-Event.add(
-    defines.events.on_player_joined_game,
-    function(event)
-        game.players[event.player_index].character = nil
-    end
-) ]]
 return function(x, y, world)
     return map(x, y, world)
 end

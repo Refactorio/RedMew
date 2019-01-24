@@ -43,6 +43,9 @@ local market = {
     callback = ob.market_set_items_callback,
     data = {
         market_name = 'Small Gear Factory',
+        upgrade_rate = 0.5,
+        upgrade_base_cost = 250,
+        upgrade_cost_base = 2,
         {
             name = 'iron-gear-wheel',
             price = 0.5,

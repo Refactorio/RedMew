@@ -915,9 +915,9 @@ end
 local function update_market_upgrade_description(outpost_data)
     local outpost_id = outpost_data.outpost_id
 
-    local upgrade_rate = outpost_data.upgrade_rate or 0.2
-    local upgrade_base_cost = outpost_data.upgrade_base_cost or 250
-    local upgrade_cost_base = outpost_data.upgrade_cost_base or 2
+    local upgrade_rate = outpost_data.upgrade_rate
+    local upgrade_base_cost = outpost_data.upgrade_base_cost
+    local upgrade_cost_base = outpost_data.upgrade_cost_base
     local level = outpost_data.level
     local base_outputs = outpost_data.base_outputs
     local outpost_magic_crafters = outpost_data.magic_crafters
@@ -961,7 +961,7 @@ local function do_outpost_upgrade(event)
     local outpost_data = outposts[outpost_id]
 
     local outpost_magic_crafters = outpost_data.magic_crafters
-    local upgrade_rate = outpost_data.upgrade_rate or 0.2
+    local upgrade_rate = outpost_data.upgrade_rate
 
     local level = outpost_data.level + 1
     outpost_data.level = level
@@ -983,25 +983,19 @@ local function do_outpost_upgrade(event)
     update_market_upgrade_description(outpost_data)
 end
 
-local function do_capture_outpost(outpost_data)
-    local area = {top_left = outpost_data.top_left, bottom_right = outpost_data.bottom_right}
-    local walls = RS.get_surface().find_entities_filtered {area = area, force = 'enemy', name = 'stone-wall'}
-
-    for i = 1, #walls do
-        walls[i].force = 'player'
-    end
-
-    local outpost_id = outpost_data.outpost_id
-
-    local name = Retailer.get_market_group_label(outpost_id)
-    if name == 'Market' then
-        return
-    else
-        game.print(concat({'*** ', 'Outpost captured: ' .. name, ' ***'}), Color.lime_green)
-        Server.to_discord_bold('Outpost captured: ' .. name)
-    end
-
+local function activate_market_upgrade(outpost_data)
     local outpost_magic_crafters = outpost_data.magic_crafters
+
+    if #outpost_magic_crafters == 0 then
+        local outpost_id = outpost_data.outpost_id
+
+        local prototype = Retailer.get_items(outpost_id)['upgrade']
+        prototype.disabled_reason = 'No machines to upgrade.'
+
+        Retailer.set_item(outpost_id, prototype)
+
+        return
+    end
 
     local base_outputs = {}
 
@@ -1018,6 +1012,32 @@ local function do_capture_outpost(outpost_data)
     outpost_data.base_outputs = base_outputs
 
     update_market_upgrade_description(outpost_data)
+end
+
+function Public.activate_market_upgrade(outpost_id)
+    local outpost_data = outposts[outpost_id]
+    activate_market_upgrade(outpost_data)
+end
+
+local function do_capture_outpost(outpost_data)
+    local area = {top_left = outpost_data.top_left, bottom_right = outpost_data.bottom_right}
+    local walls = RS.get_surface().find_entities_filtered {area = area, force = 'enemy', name = 'stone-wall'}
+
+    for i = 1, #walls do
+        walls[i].force = 'player'
+    end
+
+    local outpost_id = outpost_data.outpost_id
+
+    local name = Retailer.get_market_group_label(outpost_id)
+    if name == 'Market' then
+        return
+    end
+
+    game.print(concat({'*** ', 'Outpost captured: ' .. name, ' ***'}), Color.lime_green)
+    Server.to_discord_bold('Outpost captured: ' .. name)
+
+    activate_market_upgrade(outpost_data)
 end
 
 local function do_refill_turrets()
@@ -1362,11 +1382,11 @@ Public.market_set_items_callback =
 
         local market_id = data.outpost_id
         local outpost_data = outposts[market_id]
-        local upgrade_base_cost = data.upgrade_base_cost or 0
+        local upgrade_base_cost = callback_data.upgrade_base_cost or 0
 
-        outpost_data.upgrade_rate = data.upgrade_rate
+        outpost_data.upgrade_rate = callback_data.upgrade_rate
         outpost_data.upgrade_base_cost = upgrade_base_cost
-        outpost_data.upgrade_cost_base = data.upgrade_cost_base
+        outpost_data.upgrade_cost_base = callback_data.upgrade_cost_base
 
         Retailer.add_market(market_id, entity)
         Retailer.set_market_group_label(market_id, callback_data.market_name)
@@ -1378,7 +1398,7 @@ Public.market_set_items_callback =
                 type = 'upgrade',
                 name_label = 'Upgrade Outpost',
                 sprite = 'item-group/production',
-                price = upgrade_base_cost,
+                price = 0,
                 stack_limit = 1,
                 disabled = true,
                 disabled_reason = 'Outpost must be captured first.',
@@ -1407,11 +1427,6 @@ Public.market_set_items_callback =
                 {name = item.name, price = price, name_label = item.name_label, description = item.description}
             )
         end
-
-        local outpost_data = outposts[market_id]
-        outpost_data.upgrade_rate = data.upgrade_rate
-        outpost_data.upgrade_base_cost = data.upgrade_base_cost
-        outpost_data.upgrade_cost_base = data.upgrade_cost_base
     end
 )
 
@@ -1551,10 +1566,6 @@ local function coin_mined(event)
     if stack.name == 'coin' then
         PlayerStats.change_coin_earned(event.player_index, stack.count)
     end
-end
-
-local function market_purchase(event)
-    game.print(serpent.block(event))
 end
 
 Event.add(defines.events.on_tick, tick)
