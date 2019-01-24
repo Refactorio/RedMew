@@ -5,8 +5,7 @@ local Game = require 'utils.game'
 local Server = require 'features.server'
 
 local function allowed_to_nuke(player)
-    return player.admin or UserGroups.is_regular(player.name) or
-        ((player.online_time / 216000) > global.config.nuke_control.nuke_min_time_hours)
+    return player.admin or UserGroups.is_regular(player.name) or ((player.online_time / 216000) > global.config.nuke_control.nuke_min_time_hours)
 end
 
 local function ammo_changed(event)
@@ -16,7 +15,7 @@ local function ammo_changed(event)
     end
     local nukes = player.remove_item({name = 'atomic-bomb', count = 1000})
     if nukes > 0 then
-        game.print(player.name .. ' tried to use a nuke, but instead dropped it on his foot.')
+        Utils.action_warning(player.name .. ' tried to use a nuke, but instead dropped it on his foot.', '[Nuke]')
 
         local character = player.character
         if character and character.valid then
@@ -38,10 +37,8 @@ local function on_player_deconstructed_area(event)
     player.remove_item({name = 'deconstruction-planner', count = 1000})
 
     --Make them think they arent noticed
-    Utils.print_except(player.name .. ' tried to deconstruct something, but instead deconstructed themself.', nil, player)
-    player.print(
-        'Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.'
-    )
+    Utils.silent_action_warning(player.name .. ' tried to deconstruct something, but instead deconstructed themself.', '[Deconstruct]', player)
+    player.print('Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.')
 
     local character = player.character
     if character and character.valid then
@@ -61,10 +58,7 @@ local function on_player_deconstructed_area(event)
 
     local entities = player.surface.find_entities_filtered {area = area, force = player.force}
     if #entities > 1000 then
-        Utils.print_admins(
-            'Warning! ' .. player.name .. ' just tried to deconstruct ' .. tostring(#entities) .. ' entities!',
-            nil
-        )
+        Utils.print_admins('Warning! ' .. player.name .. ' just tried to deconstruct ' .. tostring(#entities) .. ' entities!', nil)
     end
     for _, entity in pairs(entities) do
         if entity.valid and entity.to_be_deconstructed(Game.get_player_by_index(event.player_index).force) then
@@ -75,8 +69,7 @@ end
 
 local function item_not_sanctioned(item)
     local name = item.name
-    return (name:find('capsule') or name == 'cliff-explosives' or name == 'raw-fish' or
-        name == 'discharge-defense-remote')
+    return (name:find('capsule') or name == 'cliff-explosives' or name == 'raw-fish' or name == 'discharge-defense-remote')
 end
 
 global.entities_allowed_to_bomb = {
@@ -149,15 +142,7 @@ local function on_capsule_used(event)
         if count > 8 then
             if global.players_warned[event.player_index] then
                 if nuke_control.enable_autoban then
-                    Server.ban_sync(
-                        player.name,
-                        string.format(
-                            'Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.',
-                            count,
-                            item.name
-                        ),
-                        '<script>'
-                    )
+                    Server.ban_sync(player.name, string.format('Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.', count, item.name), '<script>')
                 end
             else
                 global.players_warned[event.player_index] = true

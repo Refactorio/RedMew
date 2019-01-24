@@ -3,8 +3,7 @@ local Global = require 'utils.global'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Game = require 'utils.game'
-local Server = require 'features.server'
-local Color = require 'resources.color_presets'
+local Utils = require 'utils.core'
 
 local player_corpses = {}
 
@@ -119,10 +118,7 @@ local function mined_entity(event)
 
     if player and corpse_owner then
         local message = table.concat {'## - ', player.name, ' has looted ', corpse_owner.name, "'s corpse"}
-
-        game.print(message, Color.yellow)
-        log('[Corpse] ' .. message)
-        Server.to_discord_bold(message)
+        Utils.action_warning(message, '[Corpse]')
     end
 end
 
@@ -143,11 +139,8 @@ local function on_gui_opened(event)
     local corpse_owner = Game.get_player_by_index(corpse_owner_index)
 
     if player and corpse_owner then
-        local message = table.concat {'## - ', player.name, ' is looting ', corpse_owner.name, "'s corpse"}
-
-        game.print(message, Color.yellow)
-        log('[Corpse] ' .. message)
-        Server.to_discord_bold(message)
+        local message = table.concat {player.name, ' is looting ', corpse_owner.name, "'s corpse"}
+        Utils.action_warning(message, '[Corpse]')
     end
 end
 
