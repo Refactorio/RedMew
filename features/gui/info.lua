@@ -26,7 +26,7 @@ local info_tab_flags = {
     0x2, -- rules
     0x4, -- map_info
     0x8, -- scenario_mods
-    0x10, -- whats_new
+    0x10 -- whats_new
 }
 local flags_sum = 0
 for _, v in pairs(info_tab_flags) do
@@ -52,12 +52,23 @@ Global.register(
     {
         rewarded_players = rewarded_players,
         editable_info = editable_info,
-        map_extra_info_lock = map_extra_info_lock,
+        map_extra_info_lock = map_extra_info_lock
     },
     function(tbl)
         rewarded_players = tbl.rewarded_players
         editable_info = tbl.editable_info
         map_extra_info_lock = tbl.map_extra_info_lock
+    end
+)
+
+--- Sets the "new info" according to the changelog located on the server
+local changelog_callback =
+    Token.register(
+    function(data)
+        local value = data.value -- will be nil if no data
+        if value then
+            editable_info[new_info_key] = value
+        end
     end
 )
 
@@ -643,7 +654,23 @@ local function reward_player(player, index, message)
     end
 end
 
+--- Uploads the contents of new info tab to the server.
+-- Is triggered on closing the info window by clicking the close button or by pressing escape.
+local function upload_changelog(event)
+    local player = event.player
+    if not player or not player.valid or not player.admin then
+        return
+    end
+    Server.set_data('misc', 'changelog', editable_info[new_info_key])
+end
+
+--- Tries to download the latest changelog
+local function download_changelog()
+    Server.try_get_data('misc', 'changelog', changelog_callback)
+end
+
 local function toggle(event)
+    upload_changelog(event)
     local player = event.player
     local center = player.gui.center
     local main_frame = center[main_frame_name]
@@ -686,24 +713,12 @@ local function create_map_extra_info(value, set)
     end
 end
 
---- Sets the "new info" according to the changelog located on the server
-local changelog_callback =
-    Token.register(
-    function(data)
-        local value = data.value -- will be nil if no data
-        if value then
-            editable_info[new_info_key] = value
-        end
-    end
-)
-
 Event.add(defines.events.on_player_created, player_created)
 
-Event.add(Server.events.on_server_started,
-    function()
-        Server.try_get_data('misc', 'changelog', changelog_callback)
-    end
-)
+Event.add(Server.events.on_server_started, download_changelog)
+
+-- Hourly
+Event.on_nth_tick(215983, download_changelog)
 
 Gui.on_click(main_button_name, toggle)
 
@@ -754,6 +769,7 @@ Gui.on_text_changed(
 Gui.on_custom_close(
     main_frame_name,
     function(event)
+        upload_changelog(event)
         Gui.destroy(event.element)
     end
 )
