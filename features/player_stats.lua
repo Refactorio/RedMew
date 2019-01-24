@@ -19,6 +19,7 @@ local total_player_rocks_mined = {0}
 local total_robot_built_entities = {0}
 local total_player_built_entities = {0}
 local total_biter_kills = {0}
+local total_coins_spent = {0}
 
 local train_kill_causes = {
     ['locomotive'] = true,
@@ -42,7 +43,8 @@ Global.register(
         player_console_chats = player_console_chats,
         total_robot_built_entities = total_robot_built_entities,
         total_player_built_entities = total_player_built_entities,
-        total_biter_kills = total_biter_kills
+        total_biter_kills = total_biter_kills,
+        total_coins_spent = total_coins_spent
     },
     function(tbl)
         player_last_position = tbl.player_last_position
@@ -59,6 +61,7 @@ Global.register(
         total_robot_built_entities = tbl.total_robot_built_entities
         total_player_built_entities = tbl.total_player_built_entities
         total_biter_kills = tbl.total_biter_kills
+        total_coins_spent = tbl.total_coins_spent
     end
 )
 
@@ -204,11 +207,16 @@ function Public.get_coin_spent(player_index)
 end
 
 function Public.set_coin_spent(player_index, value)
+    local old_value = player_coin_spent[player_index]
     player_coin_spent[player_index] = value
+
+    local diff = value - old_value
+    total_coins_spent[1] = total_coins_spent[1] + diff
 end
 
 function Public.change_coin_spent(player_index, amount)
     player_coin_spent[player_index] = player_coin_spent[player_index] + amount
+    total_coins_spent[1] = total_coins_spent[1] + amount
 end
 
 function Public.get_death_count(player_index)
@@ -254,6 +262,10 @@ end
 
 function Public.get_total_biter_kills()
     return total_biter_kills[1]
+end
+
+function Public.get_total_coins_spent()
+    return total_coins_spent[1]
 end
 
 return Public
