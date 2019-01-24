@@ -45,7 +45,7 @@ local wall_west_inner = 0xe0000001
 
 local default_part_size = 6
 
-local magic_crafters_per_tick = 2
+local magic_crafters_per_tick = 3
 local magic_fluid_crafters_per_tick = 8
 
 local refill_turrets = {index = 1}
@@ -1277,6 +1277,62 @@ Public.magic_item_crafting_callback =
         local distance = math.sqrt(x * x + y * y)
 
         local output = callback_data.output
+        if #output == 0 then
+            add_magic_crafter_output(entity, output, distance, outpost_id)
+        else
+            for i = 1, #output do
+                local o = output[i]
+                add_magic_crafter_output(entity, o, distance, outpost_id)
+            end
+        end
+
+        if not callback_data.keep_active then
+            Task.set_timeout_in_ticks(2, set_inactive_token, entity) -- causes problems with refineries.
+        end
+    end
+)
+
+Public.magic_item_crafting_callback_weighted =
+    Token.register(
+    function(entity, data)
+        local outpost_id = data.outpost_id
+        local callback_data = data.callback_data
+
+        entity.minable = false
+        entity.destructible = false
+        entity.operable = false
+
+        local weights = callback_data.weights
+        local loot = callback_data.loot
+
+        local i = math.random() * weights.total
+
+        local index = table.binary_search(weights, i)
+        if (index < 0) then
+            index = bit32.bnot(index)
+        end
+
+        local stack = loot[index].stack
+        if not stack then
+            return
+        end
+
+        local recipe = stack.recipe
+        if recipe then
+            entity.set_recipe(recipe)
+        else
+            local furance_item = stack.furance_item
+            if furance_item then
+                local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
+                inv.insert(furance_item)
+            end
+        end
+
+        local p = entity.position
+        local x, y = p.x, p.y
+        local distance = math.sqrt(x * x + y * y)
+
+        local output = stack.output
         if #output == 0 then
             add_magic_crafter_output(entity, output, distance, outpost_id)
         else

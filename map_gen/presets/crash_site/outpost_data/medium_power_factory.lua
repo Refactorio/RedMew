@@ -27,7 +27,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'accumulator',
-        output = {min_rate = 0.84 / 2 / 60, distance_factor = 0.84 / 2 / 60 / 512, item = 'accumulator'}
+        output = {min_rate = 0.42 / 2 / 60, distance_factor = 0.42 / 2 / 60 / 512, item = 'accumulator'}
     }
 }
 
@@ -35,7 +35,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'solar-panel',
-        output = {min_rate = 1 / 2 / 60, distance_factor = 1 / 2 / 60 / 512, item = 'solar-panel'}
+        output = {min_rate = 0.5 / 2 / 60, distance_factor = 0.5 / 2 / 60 / 512, item = 'solar-panel'}
     }
 }
 

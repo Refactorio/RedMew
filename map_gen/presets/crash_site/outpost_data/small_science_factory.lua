@@ -21,7 +21,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'science-pack-1',
-        output = {min_rate = 0.35 / 60, distance_factor = 0.35 / 60 / 512, item = 'science-pack-1'}
+        output = {min_rate = 0.175 / 60, distance_factor = 0.175 / 60 / 512, item = 'science-pack-1'}
     }
 }
 
@@ -29,7 +29,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'science-pack-2',
-        output = {min_rate = 0.35 / 60, distance_factor = 0.35 / 60 / 512, item = 'science-pack-2'}
+        output = {min_rate = 0.175 / 60, distance_factor = 0.175 / 60 / 512, item = 'science-pack-2'}
     }
 }
 
@@ -38,7 +38,7 @@ local market = {
     data = {
         market_name = 'Small Science Factory',
         upgrade_rate = 0.5,
-        upgrade_base_cost = 250,
+        upgrade_base_cost = 350,
         upgrade_cost_base = 2,
         {
             name = 'science-pack-1',

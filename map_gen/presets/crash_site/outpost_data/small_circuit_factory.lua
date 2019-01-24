@@ -15,7 +15,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'electronic-circuit',
-        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 512, item = 'electronic-circuit'}
+        output = {min_rate = 0.75 / 60, distance_factor = 0.75 / 60 / 512, item = 'electronic-circuit'}
     }
 }
 
@@ -24,7 +24,7 @@ local market = {
     data = {
         market_name = 'Small Circuit Factory',
         upgrade_rate = 0.5,
-        upgrade_base_cost = 250,
+        upgrade_base_cost = 350,
         upgrade_cost_base = 2,
         {
             name = 'copper-cable',

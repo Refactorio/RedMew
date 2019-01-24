@@ -22,14 +22,31 @@ local factory_loot = {
     {stack = {name = 'science-pack-2', count = 50, distance_factor = 1 / 2}, weight = 5}
 }
 
-local factory_weights = ob.prepare_weighted_loot(factory_loot)
+local factory_loot = {
+    {
+        stack = {
+            recipe = 'science-pack-1',
+            output = {item = 'science-pack-1', min_rate = 1 / 5 / 60, distance_factor = 1 / 5 / 60 / 512}
+        },
+        weight = 5
+    },
+    {
+        stack = {
+            recipe = 'science-pack-2',
+            output = {item = 'science-pack-2', min_rate = 1 / 6 / 60, distance_factor = 1 / 6 / 60 / 512}
+        },
+        weight = 5
+    }
+}
 
-local factory_callback =
-    Token.register(
-    function(factory)
-        ob.do_factory_loot(factory, factory_weights, factory_loot)
-    end
-)
+local factory_weights = ob.prepare_weighted_loot(factory_loot)
+local factory_callback = {
+    callback = ob.magic_item_crafting_callback_weighted,
+    data = {
+        loot = factory_loot,
+        weights = factory_weights
+    }
+}
 
 local wall_chests = require 'map_gen.presets.crash_site.outpost_data.mini_wall_chests'
 local turret = require 'map_gen.presets.crash_site.outpost_data.mini_gun_turret'
@@ -49,7 +66,7 @@ local blank = require 'map_gen.presets.crash_site.outpost_data.mini_blank'
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.mini_factory'
 local gun_turret_block = require 'map_gen.presets.crash_site.outpost_data.mini_gun_turret_block'
 
-local factory = ob.extend_1_way(base_factory, {factory = {callback = factory_callback}, fallback = blank})
+local factory = ob.extend_1_way(base_factory, {factory = factory_callback, fallback = blank})
 local gun =
     ob.extend_1_way(
     gun_turret_block,

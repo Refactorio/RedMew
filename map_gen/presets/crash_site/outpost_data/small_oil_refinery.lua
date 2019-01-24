@@ -41,9 +41,9 @@ local factory = {
         recipe = 'basic-oil-processing',
         keep_active = true,
         output = {
-            {min_rate = 15 / 60, distance_factor = 15 / 60 / 512, item = 'heavy-oil', fluidbox_index = 2},
-            {min_rate = 15 / 60, distance_factor = 15 / 60 / 512, item = 'light-oil', fluidbox_index = 3},
-            {min_rate = 20 / 60, distance_factor = 20 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 4}
+            {min_rate = 7.5 / 60, distance_factor = 7.5 / 60 / 512, item = 'heavy-oil', fluidbox_index = 2},
+            {min_rate = 7.5 / 60, distance_factor = 7.5 / 60 / 512, item = 'light-oil', fluidbox_index = 3},
+            {min_rate = 10 / 60, distance_factor = 10 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 4}
         }
     }
 }

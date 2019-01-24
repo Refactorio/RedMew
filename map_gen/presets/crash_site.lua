@@ -686,8 +686,7 @@ local function init()
     local ore_grid = b.grid_pattern_full_overlap(ore_pattern, 35, 35, 56, 56)
     ore_grid = b.choose(b.rectangle(126), b.no_entity, ore_grid)
 
-    --local map = b.if_else(outposts, enemy_shape)
-    local map = b.if_else(outposts, b.full_shape)
+    local map = b.if_else(outposts, enemy_shape)
 
     map = b.if_else(map, b.full_shape)
 

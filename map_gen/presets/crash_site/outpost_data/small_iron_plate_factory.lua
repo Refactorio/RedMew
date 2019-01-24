@@ -22,7 +22,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         furance_item = 'iron-ore',
-        output = {min_rate = 4 / 60, distance_factor = 1.75 / 60 / 512, item = 'iron-plate'}
+        output = {min_rate = 2 / 60, distance_factor = 2 / 60 / 512, item = 'iron-plate'}
     }
 }
 

@@ -25,7 +25,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         furance_item = 'stone',
-        output = {min_rate = 2 / 60, distance_factor = 2 / 60 / 512, item = 'stone-brick'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'stone-brick'}
     }
 }
 
@@ -33,15 +33,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'refined-concrete',
-        output = {min_rate = 2 / 60, distance_factor = 2 / 60 / 512, item = 'refined-concrete'}
-    }
-}
-
-local factory_c = {
-    callback = ob.magic_item_crafting_callback,
-    data = {
-        recipe = 'electric-engine-unit',
-        output = {min_rate = 2 / 60, distance_factor = 2 / 60 / 512, item = 'electric-engine-unit'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'refined-concrete'}
     }
 }
 
@@ -50,7 +42,7 @@ local market = {
     data = {
         market_name = 'Big Stone Factory',
         upgrade_rate = 0.5,
-        upgrade_base_cost = 250,
+        upgrade_base_cost = 125,
         upgrade_cost_base = 2,
         {
             name = 'stone',

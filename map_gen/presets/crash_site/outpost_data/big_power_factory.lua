@@ -30,7 +30,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'uranium-processing',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'uranium-238'}
+        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'uranium-238'}
     }
 }
 
@@ -38,7 +38,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'uranium-fuel-cell',
-        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'uranium-fuel-cell'}
+        output = {min_rate = 0.025 / 60, distance_factor = 0.025 / 60 / 512, item = 'uranium-fuel-cell'}
     }
 }
 
@@ -46,7 +46,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'nuclear-fuel',
-        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'nuclear-fuel'}
+        output = {min_rate = 0.025 / 60, distance_factor = 0.025 / 60 / 512, item = 'nuclear-fuel'}
     }
 }
 
@@ -55,7 +55,7 @@ local market = {
     data = {
         market_name = 'Big Power Factory',
         upgrade_rate = 0.5,
-        upgrade_base_cost = 250,
+        upgrade_base_cost = 350,
         upgrade_cost_base = 2,
         {
             name = 'coal',

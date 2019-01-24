@@ -24,7 +24,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'piercing-rounds-magazine',
-        output = {min_rate = 3 / 60, distance_factor = 2 / 60 / 512, item = 'piercing-rounds-magazine'}
+        output = {min_rate = 1.5 / 60, distance_factor = 1 / 60 / 512, item = 'piercing-rounds-magazine'}
     }
 }
 
@@ -32,7 +32,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'uranium-rounds-magazine',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'uranium-rounds-magazine'}
+        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'uranium-rounds-magazine'}
     }
 }
 
@@ -40,7 +40,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'explosive-uranium-cannon-shell',
-        output = {min_rate = 1 / 2 / 60, distance_factor = 1 / 2 / 60 / 512, item = 'explosive-uranium-cannon-shell'}
+        output = {min_rate = 0.5 / 2 / 60, distance_factor = 0.5 / 2 / 60 / 512, item = 'explosive-uranium-cannon-shell'}
     }
 }
 
@@ -49,7 +49,7 @@ local market = {
     data = {
         market_name = 'Big Ammo Factory',
         upgrade_rate = 0.5,
-        upgrade_base_cost = 250,
+        upgrade_base_cost = 500,
         upgrade_cost_base = 2,
         {
             name = 'firearm-magazine',

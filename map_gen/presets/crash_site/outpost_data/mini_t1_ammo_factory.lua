@@ -24,20 +24,45 @@ local loot_callback =
 )
 
 local factory_loot = {
-    {stack = {name = 'piercing-rounds-magazine', count = 200, distance_factor = 0}, weight = 10},
-    {stack = {name = 'rocket', count = 50, distance_factor = 1 / 8}, weight = 5},
-    {stack = {name = 'cannon-shell', count = 50, distance_factor = 1 / 8}, weight = 5},
-    {stack = {name = 'cluster-grenade', count = 10, distance_factor = 1 / 16}, weight = 5}
+    {
+        stack = {
+            recipe = 'piercing-rounds-magazine',
+            output = {item = 'piercing-rounds-magazine', min_rate = 1 / 3 / 60, distance_factor = 1 / 3 / 60 / 512}
+        },
+        weight = 10
+    },
+    {
+        stack = {
+            recipe = 'rocket',
+            output = {item = 'rocket', min_rate = 0.5 / 8 / 60, distance_factor = 1 / 8 / 60 / 512}
+        },
+        weight = 5
+    },
+    {
+        stack = {
+            recipe = 'cannon-shell',
+            output = {item = 'cannon-shell', min_rate = 0.5 / 8 / 60, distance_factor = 1 / 8 / 60 / 512}
+        },
+        weight = 5
+    },
+    {
+        stack = {
+            recipe = 'cluster-grenade',
+            output = {item = 'cluster-grenade', min_rate = 0.1 / 8 / 60, distance_factor = 1 / 8 / 60 / 512}
+        },
+        weight = 5
+    }
 }
 
 local factory_weights = ob.prepare_weighted_loot(factory_loot)
 
-local factory_callback =
-    Token.register(
-    function(factory)
-        ob.do_factory_loot(factory, factory_weights, factory_loot)
-    end
-)
+local factory_callback = {
+    callback = ob.magic_item_crafting_callback_weighted,
+    data = {
+        loot = factory_loot,
+        weights = factory_weights
+    }
+}
 
 local wall_chests = require 'map_gen.presets.crash_site.outpost_data.mini_wall_chests'
 local turret = require 'map_gen.presets.crash_site.outpost_data.mini_gun_turret'
@@ -49,7 +74,7 @@ local blank = require 'map_gen.presets.crash_site.outpost_data.mini_blank'
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.mini_factory'
 local gun_turret_block = require 'map_gen.presets.crash_site.outpost_data.mini_gun_turret_block'
 
-local factory = ob.extend_1_way(base_factory, {factory = {callback = factory_callback}, fallback = blank})
+local factory = ob.extend_1_way(base_factory, {factory = factory_callback, fallback = blank})
 local gun = ob.extend_1_way(gun_turret_block, {fallback = factory})
 
 return {
