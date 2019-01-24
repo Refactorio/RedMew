@@ -1,4 +1,3 @@
-local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Retailer = require 'features.retailer'
 local Command = require 'utils.command'
@@ -40,14 +39,11 @@ player_create.starting_items = {
 --custom market function to spawn a rail-centric market
 local function spawn_rail_market(_, player)
 	local surface = player.surface
-	local pos = player.position
-	local force = player.force
-	
+	local pos = player.position	
 	pos.y = pos.y - 4
-	
-	market_item = 'coin'
+	local market_item = 'coin'
 --market will contain only rail stuff, and equipment for later game
-	market_items ={
+	local market_items ={
 		--{price = .1, name = 'raw-fish'},
 		{price = .1, name ='rail'},
 		{price = 1, name ='rail-signal'},
@@ -72,19 +68,15 @@ local function spawn_rail_market(_, player)
 		{price = 750, name ='personal-laser-defense-equipment'},
 		{price = 2625, name ='power-armor-mk2'},
 	}
-	
 	local market = surface.create_entity({name = 'market', position = pos})
 	
     market.destructible = false
     player.print("Rail market added. To remove it, highlight it with your cursor and run the command /sc game.player.selected.destroy()")
-
     Retailer.add_market('fish_market', market)
 
     for _, prototype in pairs(market_items) do
         Retailer.set_item('fish_market', prototype)
     end
-	
---	force.add_chart_tag(surface, {icon = {type = 'item', name = currency}, position = pos, text = 'Rail Market'})
 end
 --spawns rail market into the game
 Command.add(
@@ -95,7 +87,6 @@ Command.add(
     },
     spawn_rail_market
 )
-
 --checks on entity built to remove disabled entities and return them to the player
 script.on_event(defines.events.on_built_entity,
     function(event)
