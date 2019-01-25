@@ -52,7 +52,9 @@ Command.add(
         local stat_mod = Performance.get_player_stat_modifier()
         p('## - Changed the game speed and running speed.')
         p(format('## - Game speed: %.2f', Performance.get_time_scale()))
-        p(format('## - Force running speed: %.2f -- mining speed: %.2f -- crafting speed: %.2f', stat_mod, stat_mod, stat_mod))
+        p(format('## - Running speed: %.2f', stat_mod))
+        p(format('## - Manual mining speed: %.2f', stat_mod))
+        p(format('## - Manual crafting speed: %.2f', stat_mod))
     end
 )
 
