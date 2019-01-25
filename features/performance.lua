@@ -35,7 +35,7 @@ end
 Command.add(
     'performance-scale-set',
     {
-        description = 'Sets the performance scale between 0.05 and 1. Will alter the game speed and character running speed per force.',
+        description = 'Sets the performance scale between 0.05 and 1. Will alter the game speed, manual mining speed, manual crafting speed and character running speed per force.',
         arguments = {'scale'},
         admin_only = true,
         allowed_by_server = true
