@@ -41,9 +41,9 @@ local factory = {
         recipe = 'advanced-oil-processing',
         keep_active = true,
         output = {
-            {min_rate = 2.5 / 60, distance_factor = 2.5 / 60 / 512, item = 'heavy-oil', fluidbox_index = 3},
-            {min_rate = 11.25 / 60, distance_factor = 11.25 / 60 / 512, item = 'light-oil', fluidbox_index = 4},
-            {min_rate = 13.75 / 60, distance_factor = 13.75 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 5}
+            {min_rate = 1.25 / 60, distance_factor = 1.25 / 60 / 512, item = 'heavy-oil', fluidbox_index = 3},
+            {min_rate = 5.625 / 60, distance_factor = 5.625 / 60 / 512, item = 'light-oil', fluidbox_index = 4},
+            {min_rate = 6.875 / 60, distance_factor = 6.875 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 5}
         }
     }
 }
@@ -53,43 +53,43 @@ local market = {
     data = {
         market_name = 'Medium Oil Refinery',
         upgrade_rate = 0.5,
-        upgrade_base_cost = 250,
+        upgrade_base_cost = 100,
         upgrade_cost_base = 2,
         {
             name = 'crude-oil-barrel',
-            price = 10,
+            price = 1,
             distance_factor = 5 / 512,
-            min_price = 1
+            min_price = 0.1
         },
         {
             name = 'heavy-oil-barrel',
-            price = 15,
+            price = 1.5,
             distance_factor = 7.5 / 512,
-            min_price = 1.5
+            min_price = 0.15
         },
         {
             name = 'light-oil-barrel',
-            price = 20,
+            price = 2,
             distance_factor = 10 / 512,
-            min_price = 2
+            min_price = 0.2
         },
         {
             name = 'petroleum-gas-barrel',
-            price = 25,
+            price = 2.5,
             distance_factor = 12.5 / 512,
-            min_price = 2.5
+            min_price = 0.25
         },
         {
             name = 'lubricant-barrel',
-            price = 15,
+            price = 1.5,
             distance_factor = 7.5 / 512,
-            min_price = 1.5
+            min_price = 0.15
         },
         {
             name = 'sulfuric-acid-barrel',
-            price = 40,
+            price = 4,
             distance_factor = 20 / 512,
-            min_price = 4
+            min_price = 0.4
         }
     }
 }

@@ -26,7 +26,7 @@ local factory_loot = {
     {
         stack = {
             recipe = 'piercing-shotgun-shell',
-            output = {item = 'piercing-shotgun-shell', min_rate = 0.5 / 8 / 60, distance_factor = 1 / 8 / 60 / 512}
+            output = {item = 'piercing-shotgun-shell', min_rate = 0.75 / 8 / 60, distance_factor = 1 / 8 / 60 / 512}
         },
         weight = 5
     },

@@ -926,14 +926,25 @@ local function update_market_upgrade_description(outpost_data)
     prototype.price = upgrade_base_cost * #outpost_magic_crafters * upgrade_cost_base ^ (level - 1)
     prototype.name_label = 'Upgrade Outpost to level ' .. tostring(level + 1)
 
-    local str = {}
+    local str = {''}
     for k, v in pairs(base_outputs) do
         local base_rate = v * 60
         local upgrade_per_level = base_rate * upgrade_rate
         local current_rate = base_rate + (level - 1) * upgrade_per_level
         local next_rate = current_rate + upgrade_per_level
 
-        str[#str + 1] = k
+        local name = game.item_prototypes[k]
+        if name then
+            str[#str + 1] = name.localised_name
+        else
+            name = game.fluid_prototypes[k]
+            if name then
+                str[#str + 1] = name.localised_name
+            else
+                str[#str + 1] = k
+            end
+        end
+
         str[#str + 1] = ': '
         str[#str + 1] = format('%.2f', current_rate)
         str[#str + 1] = ' -> '
@@ -941,8 +952,6 @@ local function update_market_upgrade_description(outpost_data)
         str[#str + 1] = '\n'
     end
     str[#str] = nil
-
-    str = concat(str)
 
     local prototype = Retailer.get_items(outpost_id)['upgrade']
 
