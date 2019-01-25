@@ -1,6 +1,7 @@
 -- dependencies
 local Config = require 'map_gen.Diggy.Config'
 local ScenarioInfo = require 'features.gui.info'
+local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
 local type = type
 local pairs = pairs
@@ -11,6 +12,8 @@ require 'utils.core'
 -- this
 local Scenario = {}
 
+RS.set_first_player_position_check_override(true) -- forces players to spawn at 0,0
+RS.set_spawn_island_tile('stone-path')
 global.diggy_scenario_registered = false
 
 --[[--
@@ -46,13 +49,10 @@ function Scenario.register()
 
     -- disabled redmew features for diggy
     local redmew_config = global.config
-    redmew_config.fish_market.enabled = false
+    redmew_config.market.enabled = false
     redmew_config.reactor_meltdown.enabled = false
     redmew_config.hodor.enabled = false
-    redmew_config.blueprint_helper.enabled = false
     redmew_config.paint.enabled = false
-
-    local extra_map_info = ''
 
     each_enabled_feature(
         function(feature_name, feature_config)
@@ -64,7 +64,7 @@ function Scenario.register()
             feature.register(feature_config)
 
             if ('function' == type(feature.get_extra_map_info)) then
-                extra_map_info = extra_map_info .. feature.get_extra_map_info(feature_config) .. '\n\n'
+                ScenarioInfo.add_map_extra_info(feature.get_extra_map_info(feature_config) .. '\n')
             end
 
             if ('function' == type(feature.on_init)) then
@@ -78,7 +78,6 @@ function Scenario.register()
 
     ScenarioInfo.set_map_name('Diggy')
     ScenarioInfo.set_map_description('Dig your way through!')
-    ScenarioInfo.set_map_extra_info(extra_map_info)
 
     global.diggy_scenario_registered = true
 end

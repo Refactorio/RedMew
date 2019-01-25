@@ -1,5 +1,15 @@
 local b = require 'map_gen.shared.builders'
 local math = require "utils.math"
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none,
+        MGSP.enemy_none
+    }
+)
 
 local value = b.exponential_value
 

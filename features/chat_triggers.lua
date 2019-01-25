@@ -2,7 +2,8 @@
 
 local Game = require 'utils.game'
 local Event = require 'utils.event'
-require 'utils.table'
+local Color = require 'resources.color_presets'
+local table = require 'utils.table'
 local Hodor = require 'resources.hodor_messages'
 
 local prefix = '## - '
@@ -88,23 +89,23 @@ local function mentions(event)
                 end
                 if admin_call and p.admin then
                     local message = string.format('%s%s mentioned %s!', prefix, Game.get_player_by_index(event.player_index).name, word )
-                    p.print(message, {r = 1, g = 1, b = 0, a = 1})
+                    p.print(message, Color.yellow)
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
                     success = true
                 end
                 if not admin_call and (p.name:lower() == word_front_trim or p.name:lower() == word_back_trim or p.name:lower() == word_back_double_trim or p.name:lower() == word_front_back_trim) then
                     if p.name == player.name then
                         if _DEBUG then
-                            player.print(prefix .. "Can't mention yourself!", {r = 1, g = 0, b = 0, a = 1})
+                            player.print(prefix .. "Can't mention yourself!", Color.red)
                         end
                         success = true
                         break
                     end
-                    p.print(prefix .. Game.get_player_by_index(event.player_index).name .. ' mentioned you!', {r = 1, g = 1, b = 0, a = 1})
+                    p.print(prefix .. Game.get_player_by_index(event.player_index).name .. ' mentioned you!', Color.yellow)
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
                     success = true
                     if _DEBUG then
-                        player.print(prefix .. 'Successful mentioned ' .. p.name, {r = 0, g = 1, b = 0, a = 1})
+                        player.print(prefix .. 'Successful mentioned ' .. p.name, Color.red)
                     end
                     break
                 end
@@ -124,9 +125,9 @@ local function mentions(event)
     if missing_player_string ~= nil then
         missing_player_string = string.sub(missing_player_string, 1, (string.len(missing_player_string) - 2))
         if not_found > 1 then
-            player.print(prefix .. 'Players not found: ' .. missing_player_string, {r = 1, g = 1, b = 0, a = 1})
+            player.print(prefix .. 'Players not found: ' .. missing_player_string, Color.yellow)
         else
-            player.print(prefix .. 'Player not found: ' .. missing_player_string, {r = 1, g = 1, b = 0, a = 1})
+            player.print(prefix .. 'Player not found: ' .. missing_player_string, Color.yellow)
         end
     end
 end

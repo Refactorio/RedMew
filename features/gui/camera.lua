@@ -1,12 +1,13 @@
 --[[
-Camera, used under MIT license.
-Copyright 2018 angelickite
+    Liberally rewritten from:
+    Camera, used under MIT license.
+    Copyright 2018 angelickite
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]
 local Event = require 'utils.event'
 local mod_gui = require 'mod-gui'
@@ -20,7 +21,7 @@ local main_button_name = Gui.uid_name()
 local camera_users = {}
 Global.register(
     {
-        camera_users = camera_users,
+        camera_users = camera_users
     },
     function(tbl)
         camera_users = tbl.camera_users
@@ -42,48 +43,69 @@ local function apply_button_style(button)
     button_style.right_padding = 2
 end
 
-local function create_destroy_camera(destroy, player, args, table_index)
+--- Takes args and a LuaPlayer and creates a camera GUI element
+local function create_camera(args, player)
     local player_index = player.index
     local mainframeflow = mod_gui.get_frame_flow(player)
     local mainframeid = 'mainframe_' .. player_index
     local mainframe = mainframeflow[mainframeid]
 
-    if table_index or destroy then
-        if camera_users[player_index] then
-            camera_users[player_index] = nil
-        else
-            player.print('No current target. Correct usage is /watch <target> to watch a player.')
-        end
-        if mainframe then
-            mainframe.destroy()
-            if args then
-                player.print('Closing camera.')
-            end
-        end
+    local target = game.players[args.target]
+    if not target then
+        player.print('Not a valid target')
+        return
     end
-    if args and args.target then
-        local target = game.players[args.target]
-        if not target then
-            player.print('Not a valid target')
-            return
-        end
-        if not mainframe then
-            mainframe = mainframeflow.add {type = 'frame', name = mainframeid, direction = 'vertical', style = 'captionless_frame'}
-            mainframe.style.visible = true
-        end
-        local headerframe = mainframe.headerframe
-        if not headerframe then
-            mainframe.add {type = 'frame', name = 'headerframe', direction = 'horizontal', style = 'captionless_frame'}
-        end
-        local cameraframe = mainframe.cameraframe
-        if not cameraframe then
-            mainframe.add {type = 'frame', name = 'cameraframe', style = 'captionless_frame'}
-        end
-        mainframe.add {type = 'label', caption = 'Following: ' .. args.target}
-        local close_button = mainframe.add {type = 'button', name = main_button_name, caption = 'Close'}
-        apply_button_style(close_button)
-        local target_index = target.index
-        camera_users[player_index] = target_index
+
+    if not mainframe then
+        mainframe = mainframeflow.add {type = 'frame', name = mainframeid, direction = 'vertical', style = 'captionless_frame'}
+        mainframe.style.visible = true
+    end
+
+    local headerframe = mainframe.headerframe
+    if not headerframe then
+        mainframe.add {type = 'frame', name = 'headerframe', direction = 'horizontal', style = 'captionless_frame'}
+    end
+
+    local cameraframe = mainframe.cameraframe
+    if not cameraframe then
+        mainframe.add {type = 'frame', name = 'cameraframe', style = 'captionless_frame'}
+    end
+
+    mainframe.add {type = 'label', caption = 'Following: ' .. args.target}
+    local close_button = mainframe.add {type = 'button', name = main_button_name, caption = 'Close'}
+    apply_button_style(close_button)
+    local target_index = target.index
+    camera_users[player_index] = target_index
+end
+
+--- Takes table with a LuaPlayer under key player and destroys the camera of the associated player
+local function destroy_camera(data)
+    local player = data.player
+    if not player then
+        return
+    end
+
+    local player_index = player.index
+    local mainframeflow = mod_gui.get_frame_flow(player)
+    local mainframeid = 'mainframe_' .. player_index
+    local mainframe = mainframeflow[mainframeid]
+
+    if mainframe then
+        mainframe.destroy()
+        return true
+    end
+end
+
+--- Destroys existing camera and, if applicable, creates a new one for the new target.
+local function camera_command(args, player)
+    destroy_camera({player = player})
+    -- Once the old camera is destroyed, check to see if we need to make a new one
+    if global.config.camera_disabled then
+        player.print('The watch/camera function has been disabled for performance reasons.')
+        return
+    end
+    if args and args.target and player then
+        create_camera(args, player)
     end
 end
 
@@ -150,8 +172,9 @@ local function on_tick()
         local player = Game.get_player_by_index(table_key)
         local target = Game.get_player_by_index(camera_table)
         if not target.connected then
-            create_destroy_camera(true, player, nil, table_key)
-            player.print('Target has went offline, camera closed')
+            destroy_camera({player = player})
+            player.print('Target is offline, camera closed')
+            camera_users[player.index] = nil
             return
         end
         local mainframeflow = mod_gui.get_frame_flow(player)
@@ -167,22 +190,14 @@ local function on_tick()
     end
 end
 
-local function watch_command(args, player)
-    if global.config.camera_disabled then
-        player.print('The watch/camera function has been disabled for performance reasons.')
-        return
-    end
-    if args.target then
-        create_destroy_camera(nil, player, args)
-    else
-        create_destroy_camera(true, player, args)
-    end
-end
-
-local function watch_close_button(event)
-    create_destroy_camera(true, event.player)
-end
-
-Command.add('watch', {description = 'Allows you to watch other players. Use /watch to close the camera.', arguments = {'target'}, default_values = {target = false}, admin_only = false}, watch_command)
+Command.add(
+    'watch',
+    {
+        description = 'Allows you to watch other players.',
+        arguments = {'target'},
+        default_values = {target = false}
+    },
+    camera_command
+)
 Event.on_nth_tick(120, on_tick)
-Gui.on_click(main_button_name, watch_close_button)
+Gui.on_click(main_button_name, destroy_camera)

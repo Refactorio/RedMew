@@ -1,10 +1,21 @@
 local b = require "map_gen.shared.builders"
+local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
 local degrees = require "utils.math".degrees
 
 local seed1 = 666
 local seed2 = 999
 
-local function value(a, b)
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
+
+local function value()
     return 1000000
 end
 
@@ -12,7 +23,7 @@ local Random = require "map_gen.shared.random"
 local random = Random.new(seed1, seed2)
 
 local pic = require "map_gen.data.presets.cookie"
-local pic = b.decompress(pic)
+pic = b.decompress(pic)
 local cookie1 = b.picture(pic)
 local cookie = b.scale(cookie1, 0.1, 0.1)
 
@@ -65,10 +76,10 @@ local p_cols = 50
 local p_rows = 50
 local pattern = {}
 
-for c = 1, p_cols do
+for _ = 1, p_cols do
     local row = {}
     table.insert(pattern, row)
-    for r = 1, p_rows do
+    for _ = 1, p_rows do
         local chips = makeChips()
 
         local shape
@@ -102,11 +113,11 @@ local tablecloth = {
         {"water", "deepwater", }
     }
 }
-local tablecloth = b.picture(tablecloth)
+tablecloth = b.picture(tablecloth)
 tablecloth = b.single_pattern(tablecloth, 2, 2)
 tablecloth = b.scale(tablecloth, 42, 42)
 tablecloth = b.fish(tablecloth, 0.005)
 
-map = b.if_else(cookies, tablecloth)
+local map = b.if_else(cookies, tablecloth)
 
 return map

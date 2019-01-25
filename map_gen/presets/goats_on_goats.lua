@@ -1,7 +1,7 @@
 local b = require "map_gen.shared.builders"
 
 local pic = require "map_gen.data.presets.goat"
-local pic = b.decompress(pic)
+pic = b.decompress(pic)
 
 local goat1 = b.picture(pic)
 goat1 = b.invert(goat1)

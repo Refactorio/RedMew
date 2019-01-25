@@ -1,4 +1,6 @@
 local Global = require 'utils.global'
+local Color = require 'resources.color_presets'
+local pairs = pairs
 
 local Game = {}
 
@@ -28,7 +30,11 @@ function Game.get_player_by_index(index)
 
     p = bad_name_players[index]
     if p then
-        return p
+        if p.valid then
+            return p
+        else
+            return nil
+        end
     end
 
     for k, v in pairs(game.players) do
@@ -56,7 +62,7 @@ end
     @return the created entity
 ]]
 function Game.print_floating_text(surface, position, text, color)
-    color = color or {r = 1, g = 1, b = 1}
+    color = color or Color.white
 
     return surface.create_entity {
         name = 'tutorial-flying-text',
@@ -75,7 +81,6 @@ end
 
     @return the created entity
 ]]
-
 function Game.print_player_floating_text_position(player_index, text, color, x_offset, y_offset)
     local player = Game.get_player_by_index(player_index)
     if not player or not player.valid then

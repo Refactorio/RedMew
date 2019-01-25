@@ -1,3 +1,4 @@
+--luacheck:ignore global table
 local random = math.random
 local floor = math.floor
 local remove = table.remove
@@ -7,9 +8,9 @@ local pairs = pairs
 local table_size = table_size
 
 --- Searches a table to remove a specific element without an index
--- @param t table to search
--- @param element to search for
-table.remove_element = function(t, element)
+-- @param t <table> to search
+-- @param <any> table element to search for
+function table.remove_element(t, element)
     for k, v in pairs(t) do
         if v == element then
             remove(t, k)
@@ -18,10 +19,25 @@ table.remove_element = function(t, element)
     end
 end
 
+--- Removes an item from an array in O(1) time.
+-- The catch is that fast_remove doesn't guarantee to maintain the order of items in the array.
+-- @param tbl <table> arrayed table
+-- @param index <number> Must be >= 0. The case where index > #tbl is handled.
+function table.fast_remove(tbl, index)
+    local count = #tbl
+    if index > count then
+        return
+    elseif index < count then
+        tbl[index] = tbl[count]
+    end
+
+    tbl[count] = nil
+end
+
 --- Adds the contents of table t2 to table t1
--- @param t1 table to insert into
--- @param t2 table to insert from
-table.add_all = function(t1, t2)
+-- @param t1 <table> to insert into
+-- @param t2 <table> to insert from
+function table.add_all(t1, t2)
     for k, v in pairs(t2) do
         if tonumber(k) then
             insert(t1, v)
@@ -32,10 +48,10 @@ table.add_all = function(t1, t2)
 end
 
 --- Checks if a table contains an element
--- @param t table to search
--- @param e element to search for
--- @returns the index of an element or -1
-table.index_of = function(t, e)
+-- @param t <table> to search
+-- @param e <any> table element to search for
+-- @returns <number|string> the index of the element or -1 for failure
+function table.index_of(t, e)
     local i = 1
     for _, v in pairs(t) do
         if v == e then
@@ -49,18 +65,18 @@ end
 local index_of = table.index_of
 
 --- Checks if a table contains an element
--- @param t table to search
--- @param e element to search for
--- @returns true or false
-table.contains = function(t, e)
+-- @param t <table> to search
+-- @param e <any> table element to search for
+-- @returns <boolean> indicating success
+function table.contains(t, e)
     return index_of(t, e) > -1
 end
 
 --- Adds an element into a specific index position while shuffling the rest down
--- @param t table to add into
--- @param index the position in the table to add to
--- @param element to add
-table.set = function(t, index, element)
+-- @param t <table> to add into
+-- @param index <number> the position in the table to add to
+-- @param element <any> to add to the table
+function table.set(t, index, element)
     local i = 1
     for k in pairs(t) do
         if i == index then
@@ -74,14 +90,10 @@ end
 
 --- Chooses a random entry from a table
 -- because this uses math.random, it cannot be used outside of events
--- @param t table to select an element from
--- @param sorted boolean to indicate whether the table is sorted by numerical index or not
--- @param key boolean to indicate whether to return the key or value
+-- @param t <table> to select an element from
+-- @param key <boolean> to indicate whether to return the key or value
 -- @return a random element of table t
-table.get_random = function(t, sorted, key)
-    if sorted then
-        return t[random(#t)]
-    end
+function table.get_random_dictionary_entry(t, key)
     local target_index = random(1, table_size(t))
     local count = 1
     for k, v in pairs(t) do
@@ -89,7 +101,7 @@ table.get_random = function(t, sorted, key)
             if key then
                 return k
             else
-                return t[v]
+                return v
             end
         end
         count = count + 1
@@ -98,12 +110,12 @@ end
 
 --- Chooses a random entry from a weighted table
 -- because this uses math.random, it cannot be used outside of events
--- @param weight_table table of tables with items and their weights
--- @param item_index number of the index of items, defaults to 1
--- @param weight_index number of the index of the weights, defaults to 2
--- @returns a table entry
+-- @param weight_table <table> of tables with items and their weights
+-- @param item_index <number> of the index of items, defaults to 1
+-- @param weight_index <number> of the index of the weights, defaults to 2
+-- @return <any> table element
 -- @see features.chat_triggers::hodor
-table.get_random_weighted = function(weighted_table, item_index, weight_index)
+function table.get_random_weighted(weighted_table, item_index, weight_index)
     local total_weight = 0
     item_index = item_index or 1
     weight_index = weight_index or 2
@@ -125,8 +137,8 @@ end
 --- Creates a fisher-yates shuffle of a sequential number-indexed table
 -- because this uses math.random, it cannot be used outside of events if no rng is supplied
 -- from: http://www.sdknews.com/cross-platform/corona/tutorial-how-to-shuffle-table-items
--- @param t table to shuffle
-table.shuffle_table = function(t, rng)
+-- @param t <table> to shuffle
+function table.shuffle_table(t, rng)
     local rand = rng or math.random
     local iterations = #t
     if iterations == 0 then
@@ -142,10 +154,17 @@ table.shuffle_table = function(t, rng)
 end
 
 --- Clears all existing entries in a table
--- @param t table to clear
-table.clear_table = function(t)
-    for i in pairs(t) do
-        t[i] = nil
+-- @param t <table> to clear
+-- @param sorted <boolean> to indicate whether the table is an array or not
+function table.clear_table(t, array)
+    if array then
+        for i = 1, #t do
+            t[i] = nil
+        end
+    else
+        for i in pairs(t) do
+            t[i] = nil
+        end
     end
 end
 
@@ -165,7 +184,7 @@ end
     game.print("value found at index: " .. index)
   end
 ]]
-table.binary_search = function(t, target)
+function table.binary_search(t, target)
     --For some reason bit32.bnot doesn't return negative numbers so I'm using ~x = -1 - x instead.
 
     local lower = 1
@@ -190,6 +209,38 @@ table.binary_search = function(t, target)
     return -1 - lower -- ~lower
 end
 
--- add table-related functions that exist in base factorio to the 'table' table
-table.inspect = require 'inspect'
+-- add table-related functions that exist in base factorio/util to the 'table' table
+require 'util'
+
+--- Similar to serpent.block, returns a string with a pretty representation of a table.
+-- Notice: This method is not appropriate for saving/restoring tables. It is meant to be used by the programmer mainly while debugging a program.
+-- @param table <table> the table to serialize
+-- @param options <table> options are depth, newline, indent, process
+-- depth sets the maximum depth that will be printed out. When the max depth is reached, inspect will stop parsing tables and just return {...}
+-- process is a function which allow altering the passed object before transforming it into a string.
+-- A typical way to use it would be to remove certain values so that they don't appear at all.
+-- return <string> the prettied table
+table.inspect = require 'utils.inspect'
+
+--- Takes a table and returns the number of entries in the table. (Slower than #table, faster than iterating via pairs)
 table.size = table_size
+
+--- Creates a deepcopy of a table. Metatables and LuaObjects inside the table are shallow copies.
+-- @param object <table> the object to copy
+-- @return <table> the copied object
+table.deep_copy = table.deepcopy
+
+--- Merges multiple tables. Tables later in the list will overwrite entries from tables earlier in the list.
+-- Ex. merge({{1, 2, 3}, {[2] = 0}, {[3] = 0}}) will return {1, 0, 0}
+-- @param tables <table> takes a table of tables to merge
+-- @return <table> a merged table
+table.merge = util.merge
+
+--- Determines if two tables are structurally equal.
+-- Notice: tables that are LuaObjects or contain LuaObjects won't be compared correctly, use == operator for LuaObjects
+-- @param tbl1 <table>
+-- @param tbl2 <table>
+-- @return <boolean>
+table.equals = table.compare
+
+return table

@@ -5,7 +5,7 @@ local Command = require 'utils.command'
 local format = string.format
 
 local Public = {}
-local reward_token = {global.config.player_rewards.token} or {'coin'}
+local reward_token = {global.config.player_rewards.token} or {global.config.market.currency} or {'coin'}
 
 Global.register({
     reward_token = reward_token,
@@ -31,10 +31,10 @@ Public.get_reward = function()
 end
 
 --- Gives the player the quantity of reward
--- @param player player_index number or LuaPlayer table -- the player to reward
--- @param amount number - the amount of reward tokens to give
--- @param message string - an optional message to send to the affected player
--- @return number - indicating how many were inserted or if operation failed
+-- @param player <number|LuaPlayer> the player to reward
+-- @param amount <number> the amount of reward tokens to remove
+-- @param message <string> an optional message to send to the affected player
+-- @return <number> indicating how many were inserted or if operation failed
 Public.give_reward = function(player, amount, message)
     if global.config.player_rewards.enabled == false then
         return 0
@@ -62,10 +62,10 @@ Public.give_reward = function(player, amount, message)
 end
 
 --- Removes an amount of rewards from the player
--- @param player player_index number or LuaPlayer table -- the player to reward
--- @param amount number - the amount of reward tokens to remove
--- @param message string - an optional message to send to the affected player
--- @return number - indicating how many were removed or if operation failed
+-- @param player <number|LuaPlayer> the player to reward
+-- @param amount <number> the amount of reward tokens to remove
+-- @param message <string> an optional message to send to the affected player
+-- @return <number> indicating how many were removed or if operation failed
 Public.remove_reward = function(player, amount, message)
     if global.config.player_rewards.enabled == false then
         return 0
@@ -77,9 +77,6 @@ Public.remove_reward = function(player, amount, message)
         player = Game.get_player_by_index(player)
     else
         player_index = player.index
-    end
-    if type(player) == 'number' then
-        player = Game.get_player_by_index(player)
     end
     local unreward = {name = reward_token[1], count = amount}
     if message then

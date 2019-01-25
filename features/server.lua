@@ -2,6 +2,15 @@
 
 local Token = require 'utils.token'
 local Global = require 'utils.global'
+local Event = require 'utils.event'
+local Game = require 'utils.game'
+
+local serialize = serpent.serialize
+local concat = table.concat
+local remove = table.remove
+local tostring = tostring
+
+local serialize_options = {sparse = true, compact = true}
 
 local Public = {}
 
@@ -37,6 +46,8 @@ local data_tracked_tag = '[DATA-TRACKED]'
 local ban_sync_tag = '[BAN-SYNC]'
 local unbanned_sync_tag = '[UNBANNED-SYNC]'
 local query_players_tag = '[QUERY-PLAYERS]'
+local player_join_tag = '[PLAYER-JOIN]'
+local player_leave_tag = '[PLAYER-LEAVE]'
 
 Public.raw_print = raw_print
 
@@ -135,7 +146,7 @@ local default_ping_token =
         local now = game.tick
         local diff = now - sent_tick
 
-        local message = table.concat({'Pong in ', diff, ' tick(s) ', 'sent tick: ', sent_tick, ' received tick: ', now})
+        local message = concat({'Pong in ', diff, ' tick(s) ', 'sent tick: ', sent_tick, ' received tick: ', now})
         game.print(message)
     end
 )
@@ -144,8 +155,13 @@ local default_ping_token =
 -- @param  func_token<token> The function that is called when the web server replies.
 -- The function is passed the tick that the ping was sent.
 function Public.ping(func_token)
-    local message = table.concat({ping_tag, func_token or default_ping_token, ' ', game.tick})
+    local message = concat({ping_tag, func_token or default_ping_token, ' ', game.tick})
     raw_print(message)
+end
+
+local function double_escape(str)
+    -- Excessive escaping because the data is serialized twice.
+    return str:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"'):gsub('\n', '\\\\n')
 end
 
 --- Sets the web server's persistent data storage. If you pass nil for the value removes the data.
@@ -164,40 +180,37 @@ end
 -- Server.set_data('my data set', 'key 2', 'def') -- this will change the value for 'key 2' to 'def'
 function Public.set_data(data_set, key, value)
     if type(data_set) ~= 'string' then
-        error('data_set must be a string')
+        error('data_set must be a string', 2)
     end
     if type(key) ~= 'string' then
-        error('key must be a string')
+        error('key must be a string', 2)
     end
 
-    -- Excessive escaping because the data is serialized twice.
-    data_set = data_set:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
-    key = key:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+    data_set = double_escape(data_set)
+    key = double_escape(key)
 
     local message
     local vt = type(value)
     if vt == 'nil' then
-        message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '"}'})
+        message = concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '"}'})
     elseif vt == 'string' then
-        -- Excessive escaping because the data is serialized twice.
-        value = value:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+        value = double_escape(value)
 
-        message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"\\"', value, '\\""}'})
+        message = concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"\\"', value, '\\""}'})
     elseif vt == 'number' then
-        message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"', value, '"}'})
+        message = concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"', value, '"}'})
     elseif vt == 'boolean' then
-        message =
-            table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"', tostring(value), '"}'})
+        message = concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"', tostring(value), '"}'})
     elseif vt == 'function' then
-        error('value cannot be a function')
+        error('value cannot be a function', 2)
     else -- table
-        value = serpent.line(value)
+        value = serialize(value, serialize_options)
 
         -- Less escaping than the string case as serpent provides one level of escaping.
         -- Need to escape single quotes as serpent uses double quotes for strings.
         value = value:gsub('\\', '\\\\'):gsub("'", "\\'")
 
-        message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, "\",value:'", value, "'}"})
+        message = concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, "\",value:'", value, "'}"})
     end
 
     raw_print(message)
@@ -227,20 +240,19 @@ end
 -- Server.try_get_data('my data set', 'key 1', callback)
 function Public.try_get_data(data_set, key, callback_token)
     if type(data_set) ~= 'string' then
-        error('data_set must be a string')
+        error('data_set must be a string', 2)
     end
     if type(key) ~= 'string' then
-        error('key must be a string')
+        error('key must be a string', 2)
     end
     if type(callback_token) ~= 'number' then
-        error('callback_token must be a number')
+        error('callback_token must be a number', 2)
     end
 
-    -- Excessive escaping because the data is serialized twice.
-    data_set = data_set:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
-    key = key:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+    data_set = double_escape(data_set)
+    key = double_escape(key)
 
-    local message = table.concat {data_get_tag, callback_token, ' {', 'data_set:"', data_set, '",key:"', key, '"}'}
+    local message = concat {data_get_tag, callback_token, ' {', 'data_set:"', data_set, '",key:"', key, '"}'}
     raw_print(message)
 end
 
@@ -266,16 +278,15 @@ end
 -- Server.try_get_all_data('my data set', callback)
 function Public.try_get_all_data(data_set, callback_token)
     if type(data_set) ~= 'string' then
-        error('data_set must be a string')
+        error('data_set must be a string', 2)
     end
     if type(callback_token) ~= 'number' then
-        error('callback_token must be a number')
+        error('callback_token must be a number', 2)
     end
 
-    -- Excessive escaping because the data is serialized twice.
-    data_set = data_set:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+    data_set = double_escape(data_set)
 
-    local message = table.concat {data_get_all_tag, callback_token, ' {', 'data_set:"', data_set, '"}'}
+    local message = concat {data_get_all_tag, callback_token, ' {', 'data_set:"', data_set, '"}'}
     raw_print(message)
 end
 
@@ -290,7 +301,7 @@ local function data_set_changed(data)
             local success, err = pcall(handler, data)
             if not success then
                 log(err)
-                error(err)
+                error(err, 2)
             end
         end
     else
@@ -324,7 +335,7 @@ end
 -- )
 function Public.on_data_set_changed(data_set, handler)
     if type(data_set) ~= 'string' then
-        error('data_set must be a string')
+        error('data_set must be a string', 2)
     end
 
     local handlers = data_set_handlers[data_set]
@@ -332,7 +343,7 @@ function Public.on_data_set_changed(data_set, handler)
         handlers = {handler}
         data_set_handlers[data_set] = handlers
     else
-        table.insert(handlers, handler)
+        handlers[#handlers + 1] = handler
     end
 end
 
@@ -344,22 +355,22 @@ function Public.get_tracked_data_sets()
     local message = {data_tracked_tag, '['}
 
     for k, _ in pairs(data_set_handlers) do
-        -- Excessive escaping because the data is serialized twice.
-        k = k:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+        k = double_escape(k)
 
-        table.insert(message, '"')
-        table.insert(message, k)
-        table.insert(message, '"')
-        table.insert(message, ',')
+        local message_length = #message
+        message[message_length + 1] = '"'
+        message[message_length + 2] = k
+        message[message_length + 3] = '"'
+        message[message_length + 4] = ','
     end
 
     if message[#message] == ',' then
-        table.remove(message)
+        remove(message)
     end
 
-    table.insert(message, ']')
+    message[#message + 1] = ']'
 
-    message = table.concat(message)
+    message = concat(message)
     raw_print(message)
 end
 
@@ -375,19 +386,19 @@ end
 -- @param  admin<string?> admin's name, defaults to '<script>'
 function Public.ban_sync(username, reason, admin)
     if type(username) ~= 'string' then
-        error('username must be a string')
+        error('username must be a string', 2)
     end
 
     if reason == nil then
         reason = ''
     elseif type(reason) ~= 'string' then
-        error('reason must be a string or nil')
+        error('reason must be a string or nil', 2)
     end
 
     if admin == nil then
         admin = '<script>'
     elseif type(admin) ~= 'string' then
-        error('admin must be a string or nil')
+        error('admin must be a string or nil', 2)
     end
 
     -- game.ban_player errors if player not found.
@@ -401,8 +412,7 @@ function Public.ban_sync(username, reason, admin)
     reason = escape(reason)
     admin = escape(admin)
 
-    local message =
-        table.concat({ban_sync_tag, '{username:"', username, '",reason:"', reason, '",admin:"', admin, '"}'})
+    local message = concat({ban_sync_tag, '{username:"', username, '",reason:"', reason, '",admin:"', admin, '"}'})
     raw_print(message)
 end
 
@@ -421,13 +431,13 @@ end
 -- @param  admin<string?> admin's name, defaults to '<script>'. This name is stored in the logs for who removed the ban.
 function Public.unban_sync(username, admin)
     if type(username) ~= 'string' then
-        error('username must be a string')
+        error('username must be a string', 2)
     end
 
     if admin == nil then
         admin = '<script>'
     elseif type(admin) ~= 'string' then
-        error('admin must be a string or nil')
+        error('admin must be a string or nil', 2)
     end
 
     -- game.unban_player errors if player not found.
@@ -440,7 +450,7 @@ function Public.unban_sync(username, admin)
     username = escape(username)
     admin = escape(admin)
 
-    local message = table.concat({unbanned_sync_tag, '{username:"', username, '",admin:"', admin, '"}'})
+    local message = concat({unbanned_sync_tag, '{username:"', username, '",admin:"', admin, '"}'})
     raw_print(message)
 end
 
@@ -485,20 +495,46 @@ function Public.query_online_players()
     local message = {query_players_tag, '['}
 
     for _, p in ipairs(game.connected_players) do
-        table.insert(message, '"')
+        message[#message + 1] = '"'
         local name = escape(p.name)
-        table.insert(message, name)
-        table.insert(message, '",')
+        message[#message + 1] = name
+        message[#message + 1] = '",'
     end
 
     if message[#message] == '",' then
         message[#message] = '"'
     end
 
-    table.insert(message, ']')
+    message[#message + 1] = ']'
 
-    message = table.concat(message)
+    message = concat(message)
     raw_print(message)
 end
+
+--- The [JOIN] nad [LEAVE] messages Factorio sends to stdout aren't sent in all cases of
+--  players joining or leaving. So we send our own [PLAYER-JOIN] and [PLAYER-LEAVE] tags.
+Event.add(
+    defines.events.on_player_joined_game,
+    function(event)
+        local player = Game.get_player_by_index(event.player_index)
+        if not player then
+            return
+        end
+
+        raw_print(player_join_tag .. player.name)
+    end
+)
+
+Event.add(
+    defines.events.on_player_left_game,
+    function(event)
+        local player = Game.get_player_by_index(event.player_index)
+        if not player then
+            return
+        end
+
+        raw_print(player_leave_tag .. player.name)
+    end
+)
 
 return Public

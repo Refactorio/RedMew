@@ -101,7 +101,6 @@ end
 local function popup_update(args)
     local message = 'Server is updating to ' .. args.version .. '\nWe will be back in a minute'
 
-
     for _, p in ipairs(game.connected_players) do
         show_popup(p, message, "Incoming update!", 11)
     end
@@ -126,39 +125,39 @@ local function popup_player(args)
 end
 
 Command.add(
-        'popup',
-        {
-            description = 'Shows a popup to all connected players',
-            arguments = {'message'},
-            admin_only = true,
-            capture_excess_arguments = true,
-            allowed_by_server = true
-        },
-        popup
+    'popup',
+    {
+        description = 'Shows a popup to all connected players',
+        arguments = {'message'},
+        admin_only = true,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    popup
 )
 
 Command.add(
-        'popup-update',
-        {
-            description = 'Shows an update popup to all connected players',
-            arguments = {'version'},
-            admin_only = true,
-            capture_excess_arguments = true,
-            allowed_by_server = true
-        },
-        popup_update
+    'popup-update',
+    {
+        description = 'Shows an update popup to all connected players',
+        arguments = {'version'},
+        admin_only = true,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    popup_update
 )
 
 Command.add(
-        'popup-player',
-        {
-            description = 'Shows a popup to the player.',
-            arguments = {'player', 'message'},
-            admin_only = true,
-            capture_excess_arguments = true,
-            allowed_by_server = true
-        },
-        popup_player
+    'popup-player',
+    {
+        description = 'Shows a popup to the player.',
+        arguments = {'player', 'message'},
+        admin_only = true,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    popup_player
 )
 
 local Public = {}

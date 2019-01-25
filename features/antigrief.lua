@@ -1,6 +1,7 @@
 local Event = require 'utils.event'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
+local RS = require 'map_gen.shared.redmew_surface'
 
 global.original_last_users_by_ent_pos = {}
 
@@ -173,11 +174,11 @@ Module.undo =
         if e.last_user == player then
             --Place removed entity IF no collision is detected
             local last_user = global.original_last_users_by_ent_pos[get_position_str(e.position)]
-            local new_entity = place_entity_on_surface(e, game.surfaces.nauvis, false, last_user)
+            local new_entity = place_entity_on_surface(e, RS.get_surface(), false, last_user)
             --Transfer items
             if new_entity then
-                local player = Utils.ternary(new_entity.last_user, new_entity.last_user, game.player)
-                local event = {created_entity = new_entity, player_index = player.index, stack = {}}
+                local event_player = Utils.ternary(new_entity.last_user, new_entity.last_user, game.player)
+                local event = {created_entity = new_entity, player_index = event_player.index, stack = {}}
                 script.raise_event(defines.events.on_built_entity, event)
 
                 if e.type == 'container' then
@@ -197,7 +198,7 @@ end
 Module.antigrief_surface_tp = function()
     if game.player then
         if game.player.surface == global.ag_surface then
-            game.player.teleport(game.player.position, game.surfaces.nauvis)
+            game.player.teleport(game.player.position, RS.get_surface())
         else
             game.player.teleport(game.player.position, global.ag_surface)
         end

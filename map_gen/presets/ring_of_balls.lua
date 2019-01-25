@@ -1,3 +1,5 @@
+-- luacheck: ignore
+-- please remove luacheck ignore when map is complete/functional
 local b = require "map_gen.shared.builders"
 local degrees = require "utils.math".degrees
 

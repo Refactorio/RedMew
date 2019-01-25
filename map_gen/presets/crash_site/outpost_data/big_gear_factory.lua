@@ -52,6 +52,7 @@ local factory_c = {
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Big Gear Factory',
         {
             name = 'iron-gear-wheel',
             price = 0.5,

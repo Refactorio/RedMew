@@ -7,17 +7,26 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local ScenarioInfo = require 'features.gui.info'
-require 'utils.table'
-
-ScenarioInfo.set_map_name('Christmas Tree of Terror')
-ScenarioInfo.set_map_description("Triangle of death's Christmas cousin")
-ScenarioInfo.set_map_extra_info('Christmas tree shaped death world with plenty of loot to fight for. Can you reach the presents at the base of the tree?')
+local RS = require 'map_gen.shared.redmew_surface'
+local table = require 'utils.table'
+local MGSP = require 'resources.map_gen_settings'
 
 -- change these to change the pattern.
 local ore_seed1 = 30000
 local ore_seed2 = 2 * ore_seed1
 local enemy_seed = 420420
 local loot_seed = 2000
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
+
+ScenarioInfo.set_map_name('Christmas Tree of Terror')
+ScenarioInfo.set_map_description("Triangle of death's Christmas cousin")
+ScenarioInfo.add_map_extra_info('Christmas tree shaped death world with plenty of loot to fight for.\nCan you reach the presents at the base of the tree?')
 
 local generator
 local ammos = {
@@ -45,13 +54,6 @@ local function init_weapon_damage()
     for _, a in ipairs(ammos) do
         p_force.set_ammo_damage_modifier(a, -0.5)
     end
-end
-
-local function no_resources(_, _, world, tile)
-    for _, e in ipairs(world.surface.find_entities_filtered({type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
-        e.destroy()
-    end
-    return tile
 end
 
 Event.add(
@@ -392,12 +394,11 @@ local map = b.any{
 
 map = b.apply_entity(map, loot)
 map = b.apply_entity(map, enemy)
-map = b.apply_effect(map, no_resources)
 
 local function on_init()
     game.forces['player'].technologies['landfill'].enabled = false
 
-    local surface = game.surfaces.nauvis
+    local surface = RS.get_surface()
     surface.map_gen_settings = {
         cliff_settings = {
             name = 'cliff',

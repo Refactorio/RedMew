@@ -11,8 +11,6 @@ local player_coin_earned = {}
 local player_coin_spent = {}
 local player_crafted_items = {}
 local player_console_chats = {}
-local player_damage_taken = {}
-local player_damage_dealt = {}
 local player_deaths = {}
 local total_players = {0}
 local total_train_kills = {0}
@@ -21,12 +19,13 @@ local total_player_rocks_mined = {0}
 local total_robot_built_entities = {0}
 local total_player_built_entities = {0}
 local total_biter_kills = {0}
+local total_coins_spent = {0}
 
 local train_kill_causes = {
-    'locomotive',
-    'cargo-wagon',
-    'fluid-wagon',
-    'artillery-wagon'
+    ['locomotive'] = true,
+    ['cargo-wagon'] = true,
+    ['fluid-wagon'] = true,
+    ['artillery-wagon'] = true
 }
 
 Global.register(
@@ -42,11 +41,10 @@ Global.register(
         total_player_rocks_mined = total_player_rocks_mined,
         player_crafted_items = player_crafted_items,
         player_console_chats = player_console_chats,
-        player_damage_taken = player_damage_taken,
-        player_damage_dealt = player_damage_dealt,
         total_robot_built_entities = total_robot_built_entities,
         total_player_built_entities = total_player_built_entities,
         total_biter_kills = total_biter_kills,
+        total_coins_spent = total_coins_spent
     },
     function(tbl)
         player_last_position = tbl.player_last_position
@@ -60,11 +58,10 @@ Global.register(
         total_player_rocks_mined = tbl.total_player_rocks_mined
         player_crafted_items = tbl.player_crafted_items
         player_console_chats = tbl.player_console_chats
-        player_damage_taken = tbl.player_damage_taken
-        player_damage_dealt = tbl.player_damage_dealt
         total_robot_built_entities = tbl.total_robot_built_entities
         total_player_built_entities = tbl.total_player_built_entities
         total_biter_kills = tbl.total_biter_kills
+        total_coins_spent = tbl.total_coins_spent
     end
 )
 
@@ -77,9 +74,7 @@ local function player_created(event)
     player_coin_earned[index] = 0
     player_coin_spent[index] = 0
     player_crafted_items[index] = 0
-    player_damage_taken[index] = 0
     player_console_chats[index] = 0
-    player_damage_dealt[index] = 0
     player_deaths[index] = {causes = {}, count = 0}
     total_players[1] = total_players[1] + 1
 end
@@ -110,8 +105,8 @@ local function player_died(event)
     local cause_count = causes[cause] or 0
     causes[cause] = cause_count + 1
 
-    if table.contains(train_kill_causes, cause) then
-        total_train_kills = total_train_kills + 1
+    if train_kill_causes[cause] then
+        total_train_kills[1] = total_train_kills[1] + 1
     end
 end
 
@@ -143,20 +138,6 @@ local function player_console_chat(event)
     local player_index = event.player_index
     if player_index then
         player_console_chats[player_index] = player_console_chats[player_index] + 1
-    end
-end
-
-local function entity_damaged(event)
-    local entity = event.entity
-    if entity.valid and entity.type == 'player' then -- player taking damage
-        local index = entity.player.index
-        player_damage_taken[index] = player_damage_taken[index] + event.final_damage_amount
-    end
-
-    local cause = event.cause
-    if cause and cause.valid and cause.type == 'player' then -- player causing damage
-        local index = cause.player.index
-        player_damage_dealt[index] = player_damage_dealt[index] + event.final_damage_amount
     end
 end
 
@@ -197,7 +178,6 @@ Event.add(defines.events.on_picked_up_item, picked_up_item)
 Event.add(defines.events.on_pre_player_mined_item, player_mined_item)
 Event.add(defines.events.on_player_crafted_item, player_crafted_item)
 Event.add(defines.events.on_console_chat, player_console_chat)
-Event.add(defines.events.on_entity_damaged, entity_damaged)
 Event.add(defines.events.on_built_entity, player_built_entity)
 Event.add(defines.events.on_robot_built_entity, robot_built_entity)
 Event.add(defines.events.on_entity_died, biter_kill_counter)
@@ -227,11 +207,16 @@ function Public.get_coin_spent(player_index)
 end
 
 function Public.set_coin_spent(player_index, value)
+    local old_value = player_coin_spent[player_index]
     player_coin_spent[player_index] = value
+
+    local diff = value - old_value
+    total_coins_spent[1] = total_coins_spent[1] + diff
 end
 
 function Public.change_coin_spent(player_index, amount)
     player_coin_spent[player_index] = player_coin_spent[player_index] + amount
+    total_coins_spent[1] = total_coins_spent[1] + amount
 end
 
 function Public.get_death_count(player_index)
@@ -267,14 +252,6 @@ function Public.get_player_console_chat(player_index)
     return player_console_chats[player_index]
 end
 
-function Public.get_player_damage_taken(player_index)
-    return player_damage_taken[player_index]
-end
-
-function Public.get_player_damage_dealt(player_index)
-    return player_damage_dealt[player_index]
-end
-
 function Public.get_total_robot_built_entities()
     return total_robot_built_entities[1]
 end
@@ -285,6 +262,10 @@ end
 
 function Public.get_total_biter_kills()
     return total_biter_kills[1]
+end
+
+function Public.get_total_coins_spent()
+    return total_coins_spent[1]
 end
 
 return Public

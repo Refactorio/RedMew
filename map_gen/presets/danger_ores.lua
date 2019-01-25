@@ -2,6 +2,9 @@ local b = require 'map_gen.shared.builders'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
 local math = require "utils.math"
+local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
 
 local oil_seed
 local uranium_seed
@@ -17,10 +20,17 @@ local density_scale = 1 / 48
 local density_threshold = 0.5
 local density_multiplier = 50
 
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
+
 Global.register_init(
     {},
     function(tbl)
-        tbl.seed = game.surfaces[1].map_gen_settings.seed
+        tbl.seed = RS.get_surface().map_gen_settings.seed
     end,
     function(tbl)
         local seed = tbl.seed

@@ -1,11 +1,15 @@
 local Game = require 'utils.game'
 local Event = require 'utils.event'
-local Task = require 'utils.schedule'
+local Task = require 'utils.task'
 local Token = require 'utils.token'
-local random = math.random
-local insert = table.insert
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
+local Command = require 'utils.command'
+local RS = require 'map_gen.shared.redmew_surface'
+
+local random = math.random
+local insert = table.insert
+
 if not global.map.terraforming then
     global.map.terraforming = {}
 end
@@ -175,7 +179,7 @@ Global.register(
 -- @param tile_table table of tiles to convert
 -- @param tiles table of potential tiles to convert to
 local function convert_tiles(tile_table, tiles)
-    local set_tiles = game.surfaces[1].set_tiles
+    local set_tiles = RS.get_surface().set_tiles
     local tile_set = {}
     local target_tile = tile_table[random(1, #tile_table)]
     -- convert the LuaTiles table into a new one we can edit
@@ -250,7 +254,7 @@ end
 --- Scans the provided chunk for entities on force _creep_force_.
 --@param chunk table with position and status of a map chunk
 local function check_chunk_for_entities(chunk)
-    local find_entities_filtered = game.surfaces[1].find_entities_filtered
+    local find_entities_filtered = RS.get_surface().find_entities_filtered
     local entities_found
     entities_found =
         find_entities_filtered {
@@ -266,7 +270,7 @@ end
 --@param state number representing whether we want to expand or contract the chunk (expand = 1, retract = 2)
 --@param i number of the chunk's key in the chunklist table
 local function change_creep_state(state, i)
-    local find_tiles_filtered = game.surfaces[1].find_tiles_filtered
+    local find_tiles_filtered = RS.get_surface().find_tiles_filtered
     local tiles_to_set = {}
     local debug_message
     local chunk_end_state
@@ -308,14 +312,14 @@ local function change_creep_state(state, i)
         -- if a chunk has lost all creep, do a final check to see if there are any buildings to kill and regen the decoratives
         if state == 2 then
             check_chunk_for_entities(chunklist[i])
-            game.surfaces[1].regenerate_decorative(decoratives, {{chunklist[i].x, chunklist[i].y}})
+            RS.get_surface().regenerate_decorative(decoratives, {{chunklist[i].x, chunklist[i].y}})
         end
     end
 end
 
 --- Every tick scan _processchunk_ number of chunks for their pollution state and if needed, change their state
 local function on_tick()
-    local get_pollution = game.surfaces[1].get_pollution
+    local get_pollution = RS.get_surface().get_pollution
     local maxindex = #chunklist
     for i = c_index[1], c_index[1] + processchunk, 1 do
         if i > maxindex then
@@ -338,7 +342,7 @@ end
 
 --- Takes newly generated chunks and places them inside the chunklist table
 local function on_chunk_generated(event)
-    if event.surface == game.surfaces[1] then
+    if event.surface == RS.get_surface() then
         local chunk = {}
         local coords = event.area.left_top
         chunk.x = coords.x + 16
@@ -457,23 +461,29 @@ Event.on_nth_tick(death_recap_timer, print_death_recap)
 Event.on_nth_tick(player_pos_check_time, apply_creep_effects_on_players)
 
 --- Debug commands which will generate or clear pollution
-if _DEBUG or _CHEATS then
-    commands.add_command(
-        'cloud',
-        'Use your vape rig to create a pollution cloud around you',
-        function()
-            if game.player then
-                game.player.surface.pollute(game.player.position, 10000)
-            end
+Command.add(
+    'cloud',
+    {
+        description = 'Create a lot of pollution',
+        debug_only = true,
+        cheat_only = true
+    },
+    function()
+        if game.player then
+            game.player.surface.pollute(game.player.position, 10000)
         end
-    )
-    commands.add_command(
-        'clean',
-        'Use your vacuum to suck up the pollution cloud around you',
-        function()
-            if game.player then
-                game.player.surface.clear_pollution()
-            end
+    end
+)
+Command.add(
+    'clean',
+    {
+        description = 'Eliminate all pollution on the surface',
+        debug_only = true,
+        cheat_only = true
+    },
+    function()
+        if game.player then
+            game.player.surface.clear_pollution()
         end
-    )
-end
+    end
+)

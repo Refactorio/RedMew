@@ -1,7 +1,18 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
+local table = require 'utils.table'
 local math = require "utils.math"
-local degrees = require math.degrees
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+local degrees = math.degrees
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local seed1 = 17000
 local seed2 = seed1 * 2
@@ -156,7 +167,7 @@ local function constant(x)
     end
 end
 
-local small_circle = b.circle(32)
+small_circle = b.circle(32)
 local start_iron = b.resource(small_circle, ores[1].resource, constant(900))
 local start_copper = b.resource(small_circle, ores[2].resource, constant(600))
 local start_stone = b.resource(small_circle, ores[3].resource, constant(400))

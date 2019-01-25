@@ -13,7 +13,7 @@ local function harmonic(x, y)
     local max_idx = 0
     local max = -1
     local richness = 0
-    for i, e in ipairs(ctrs) do
+    for i in ipairs(ctrs) do
         local noise = perlin.noise(x / 32, y / 32, ctrs[i][6])
         local h_coeff =
             1 /
@@ -31,7 +31,7 @@ local function harmonic(x, y)
     return max, max_idx, richness
 end
 
-return function(x, y, world)
+return function(_, _, world)
     if math.abs(world.x / 32) < 3 and math.abs(world.y / 32) < 3 then
         return
     end

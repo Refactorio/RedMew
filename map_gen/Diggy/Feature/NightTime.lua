@@ -7,6 +7,7 @@
 -- dependencies
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local RS = require 'map_gen.shared.redmew_surface'
 
 -- this
 local NightTime = {}
@@ -55,7 +56,7 @@ end
 -- a daytime of 0.5 is the value where every light and ambient lights are turned on.
 --
 function NightTime.on_init()
-    local surface = game.surfaces.nauvis
+    local surface = RS.get_surface()
 
     surface.daytime = 0.5
     surface.freeze_daytime = 1

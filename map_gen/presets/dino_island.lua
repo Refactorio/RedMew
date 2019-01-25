@@ -1,9 +1,20 @@
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
 local Random = require 'map_gen.shared.random'
+local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
 local degrees = require "utils.math".degrees
 
 local seed = 1000
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 Event.on_init(
     function()
@@ -146,7 +157,7 @@ for r = 1, 50 do
 
         local ore_data
         i = random:next_int(1, ore_t)
-        index = table.binary_search(total_ore_weights, i)
+        local index = table.binary_search(total_ore_weights, i)
         if (index < 0) then
             index = bit32.bnot(index)
         end
@@ -165,7 +176,7 @@ local map = b.grid_pattern_full_overlap(land_pattern, 50, 50, 640, 640)
 map = b.change_tile(map, false, 'deepwater')
 map = b.fish(map, 0.0025)
 
-local ores = b.grid_pattern_full_overlap(ore_pattern, 50, 50, 128, 128)
+ores = b.grid_pattern_full_overlap(ore_pattern, 50, 50, 128, 128)
 map = b.apply_entity(map, ores)
 
 map = b.translate(map, -50, -160)

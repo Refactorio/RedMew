@@ -15,13 +15,14 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'electronic-circuit',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'electronic-circuit'}
+        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 512, item = 'electronic-circuit'}
     }
 }
 
 local market = {
     callback = ob.market_set_items_callback,
     data = {
+        market_name = 'Small Circuit Factory',
         {
             name = 'copper-cable',
             price = 0.25,
@@ -52,6 +53,10 @@ local loot_callback =
     end
 )
 
+local gun_turrets = require 'map_gen.presets.crash_site.outpost_data.light_gun_turrets'
+local laser_turrets = require 'map_gen.presets.crash_site.outpost_data.light_laser_turrets'
+laser_turrets = ob.extend_walls(laser_turrets, {max_count = 4, fallback = gun_turrets})
+
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.small_factory'
 
 local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})
@@ -79,7 +84,8 @@ return {
         max_level = 2
     },
     walls = {
-        require 'map_gen.presets.crash_site.outpost_data.light_laser_turrets'
+        laser_turrets,
+        gun_turrets
     },
     bases = {
         {level4, level2}

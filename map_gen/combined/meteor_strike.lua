@@ -1,5 +1,6 @@
 local perlin = require 'map_gen.shared.perlin_noise'
 local Event = require 'utils.event'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local block_size = 1 -- in tiles
 local start_size = 64 -- in blocks
@@ -46,7 +47,7 @@ local function get_resource(x, y)
     value = value + 1
     value = value * 500
 
-    local name = ''
+    local name
 
     if value < 450 then
         return nil
@@ -69,7 +70,7 @@ local function get_resource(x, y)
     return {name = name, position = {x, y}, amount = value}
 end
 
-function run_combined_module(event)
+function run_combined_module(event) -- luacheck: ignore global run_combined_module
     if not global.blocks then
         init_blocks()
     end
@@ -130,7 +131,7 @@ end
 local function do_strike()
     local block = get_block()
 
-    function add(x, y)
+    local function add(x, y)
         local key = x .. ',' .. y
         if not global.used_blocks[key] then
             table.insert(global.blocks, {x = x, y = y})
@@ -152,7 +153,7 @@ local function do_strike()
             table.insert(tiles, {name = 'dry-dirt', position = {x, y}})
         end
     end
-    local surface = game.surfaces[1]
+    local surface = RS.get_surface()
     surface.set_tiles(tiles, false)
 
     game.forces.player.chart(surface, {{bx, by}, {bx + block_size, by + block_size}})

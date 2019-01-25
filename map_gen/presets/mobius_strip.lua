@@ -15,7 +15,7 @@ line1 = b.rotate(line1, degrees(45))
 line1 = b.translate(line1, 66.5, 12.6875)
 
 local line2 = b.rectangle(45, 16)
-local line2 = b.rotate(line2, degrees(-45))
+line2 = b.rotate(line2, degrees(-45))
 line2 = b.translate(line2, 55.5, -23.6875)
 
 --line2 =b.change_tile(line2, true, "water")
@@ -35,20 +35,8 @@ end
 
 Event.add(defines.events.on_research_finished, research_finished)
 
-local function max_axis_distance(world_x, world_y, target_x, target_y)
-    local x = math.abs(world_x - target_x)
-    local y = math.abs(world_y - target_y)
-
-    return math.max(x, y)
-end
-
-local function distance(world_x, world_y, target_x, target_y)
-    return math.abs(world_x - target_x) + math.abs(world_y - target_y)
-end
-
 local init = false
-local safe_distance = 480
-local function effect(x, y, world, tile)
+local function effect(_, _, world, tile)
     if not init then
         init = true
         game.forces['player'].chart(world.surface, {{-32, -32}, {31, 31}})

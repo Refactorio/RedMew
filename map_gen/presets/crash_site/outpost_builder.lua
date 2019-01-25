@@ -2,9 +2,10 @@ local Random = require 'map_gen.shared.random'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
-local Task = require 'utils.schedule'
-local Market = require 'map_gen.presets.crash_site.market'
+local Task = require 'utils.task'
+local Retailer = require 'features.retailer'
 local PlayerStats = require 'features.player_stats'
+local table = require 'utils.table'
 
 local b = require 'map_gen.shared.builders'
 
@@ -32,8 +33,8 @@ local wall_east_inner = 0x60000001
 local wall_south_inner = 0xa0000001
 local wall_west_inner = 0xe0000001
 
-local part_size = 6
-local inv_part_size = 1 / part_size
+local default_part_size = 6
+--local inv_part_size = 1 / part_size
 
 local refill_turrets = {index = 1}
 local power_sources = {}
@@ -572,15 +573,21 @@ end
 
 local function make_blocks(self, blocks, template)
     local random = self.random
+    local counts = {}
 
     local levels = blocks.levels
     local wall_level = levels[1]
 
     local walls = template.walls
     local wall_template_count = #walls
-    for _, i in ipairs(wall_level) do
-        local ti = random:next_int(1, wall_template_count)
-        local block = walls[ti]
+
+    while #wall_level > 0 do
+        local index = random:next_int(1, #wall_level)
+        local i = wall_level[index]
+
+        fast_remove(wall_level, index)
+
+        local block = get_template(random, walls, wall_template_count, counts)
 
         if block == Public.empty_template then
             blocks[i] = nil
@@ -595,7 +602,6 @@ local function make_blocks(self, blocks, template)
         end
     end
 
-    local counts = {}
     local bases = template.bases
 
     for l = 2, #levels do
@@ -623,12 +629,14 @@ end
 
 local remove_entity_types = {'tree', 'simple-entity'}
 
-local function to_shape(blocks)
+local function to_shape(blocks, part_size)
+    part_size = part_size or default_part_size
+    local inv_part_size = 1 / part_size
     local size = blocks.size
     local t_size = size * part_size
     local half_t_size = t_size * 0.5
 
-    return function(x, y, world)
+    local function shape(x, y, world)
         x, y = math.floor(x + half_t_size), math.floor(y + half_t_size)
         if x < 0 or y < 0 or x >= t_size or y >= t_size then
             return false
@@ -679,7 +687,7 @@ local function to_shape(blocks)
                     {
                         name = entity.name,
                         direction = entity.direction,
-                        force = template.force,
+                        force = entity.force or template.force,
                         callback = callback,
                         data = data,
                         always_place = true
@@ -689,30 +697,11 @@ local function to_shape(blocks)
         end
         return tile
     end
+
+    return b.change_map_gen_collision_hidden_tile(shape, 'water-tile', 'grass-1')
 end
 
-local path_tiles = b.path_tiles
-
-local function collides(world)
-    local gen_tile = world.surface.get_tile(world.x, world.y)
-    return gen_tile.collides_with('water-tile')
-end
-
-local function set_hidden_tiles(shape)
-    return function(x, y, world)
-        local tile = shape(x, y, world)
-
-        if type(tile) == 'table' then
-            if path_tiles[tile.tile] and collides(world) then
-                tile.hidden_tile = 'grass-1'
-            end
-        elseif path_tiles[tile] and collides(world) then
-            tile = {tile = tile, hidden_tile = 'grass-1'}
-        end
-
-        return tile
-    end
-end
+Public.to_shape = to_shape
 
 function Public:do_outpost(template)
     local settings = template.settings
@@ -723,12 +712,7 @@ function Public:do_outpost(template)
     do_levels(blocks, settings.max_level)
     make_blocks(self, blocks, template)
 
-    local shape = to_shape(blocks)
-    return set_hidden_tiles(shape)
-end
-
-function Public.to_shape(blocks)
-    return to_shape(blocks)
+    return to_shape(blocks, settings.part_size)
 end
 
 local function change_direction(entity, new_dir)
@@ -767,6 +751,9 @@ local function set_entity(tbl, index, entity)
 end
 
 function Public.make_4_way(data)
+    local part_size = data.part_size or default_part_size
+    local inv_part_size = 1 / part_size
+
     local props = {}
 
     local north = {}
@@ -807,14 +794,14 @@ function Public.make_4_way(data)
                 local offset = entity.offset
 
                 if offset == 3 then
-                    i = i + 7
-                    i2 = i2 + 6
+                    i = i + part_size + 1
+                    i2 = i2 + part_size
                     i4 = i4 + 1
                 elseif offset == 1 then
                     i = i + 1
-                    i2 = i2 + 6
+                    i2 = i2 + part_size
                 elseif offset == 2 then
-                    i = i + 6
+                    i = i + part_size
                     i4 = i4 + 1
                 end
 
@@ -843,6 +830,11 @@ function Public.make_4_way(data)
     return res
 end
 
+function Public.make_walls(data)
+    data.__index = data
+    return data
+end
+
 local function shallow_copy(tbl)
     local copy = {}
     for k, v in pairs(tbl) do
@@ -865,11 +857,16 @@ function Public.extend_4_way(data, tbl)
 end
 
 function Public.extend_walls(data, tbl)
-    return {
-        Public.extend_4_way(data[1], tbl),
-        Public.extend_4_way(data[2], tbl),
-        Public.extend_4_way(data[3], tbl)
+    local copy = shallow_copy(tbl)
+
+    local base = {
+        Public.extend_4_way(data[1], copy),
+        Public.extend_4_way(data[2], copy),
+        Public.extend_4_way(data[3], copy)
     }
+    base.__index = base
+
+    return setmetatable(copy, base)
 end
 
 local function do_refill_turrets()
@@ -965,6 +962,7 @@ Public.power_source_callback =
             entity.surface.create_entity {name = 'hidden-electric-energy-interface', position = entity.position}
         power_source.electric_buffer_size = data.buffer_size
         power_source.power_production = data.power_production
+        power_source.destructible = false
 
         power_sources[entity.unit_number] = power_source
     end
@@ -977,6 +975,7 @@ Public.power_source_player_callback =
             entity.surface.create_entity {name = 'hidden-electric-energy-interface', position = entity.position}
         power_source.electric_buffer_size = data.buffer_size
         power_source.power_production = data.power_production
+        power_source.destructible = false
 
         power_sources[entity.unit_number] = power_source
 
@@ -1082,13 +1081,16 @@ Public.market_set_items_callback =
         end
 
         entity.destructible = false
+        local market_id = Retailer.generate_group_id()
+        Retailer.add_market(market_id, entity)
+        Retailer.set_market_group_label(market_id, data.market_name)
 
         local p = entity.position
         local x, y = p.x, p.y
         local d = math.sqrt(x * x + y * y)
 
-        local market_data = {}
-        for i, item in ipairs(data) do
+        for i = 1, #data do
+            local item = data[i]
             local price = item.price
 
             local df = item.distance_factor
@@ -1099,10 +1101,11 @@ Public.market_set_items_callback =
                 price = math.max(price, min_price)
             end
 
-            market_data[i] = {name = item.name, price = price}
+            Retailer.set_item(
+                market_id,
+                {name = item.name, price = price, name_label = item.name_label, description = item.description}
+            )
         end
-
-        Market.add_market(entity.position, market_data)
     end
 )
 
@@ -1196,6 +1199,44 @@ function Public.do_random_fluid_loot(entity, weights, loot)
     end
 
     entity.fluidbox[1] = {name = stack.name, amount = count}
+end
+
+function Public.do_factory_loot(entity, weights, loot)
+    if not entity.valid then
+        return
+    end
+
+    entity.operable = false
+    entity.destructible = false
+
+    local i = math.random() * weights.total
+
+    local index = table.binary_search(weights, i)
+    if (index < 0) then
+        index = bit32.bnot(index)
+    end
+
+    local stack = loot[index].stack
+    if not stack then
+        return
+    end
+
+    local df = stack.distance_factor
+    local count
+    if df then
+        local p = entity.position
+        local x, y = p.x, p.y
+        local d = math.sqrt(x * x + y * y)
+
+        count = stack.count + d * df
+    else
+        count = stack.count
+    end
+
+    local name = stack.name
+
+    entity.set_recipe(name)
+    entity.get_output_inventory().insert {name = name, count = count}
 end
 
 local function coin_mined(event)

@@ -4,14 +4,24 @@ local Perlin = require 'map_gen.shared.perlin_noise'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
+local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
 local degrees = require "utils.math".degrees
-require 'utils.table'
 
 -- change these to change the pattern.
 local ore_seed1 = 30000
 local ore_seed2 = 2 * ore_seed1
 local enemy_seed = 420420
 local loot_seed = 1000
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local generator
 
@@ -243,8 +253,8 @@ local item_pool = {
     {name = 'space-science-pack', count = 200, weight = 10}
 }
 
-local total_weights = {}
-local t = 0
+total_weights = {}
+t = 0
 for _, v in ipairs(item_pool) do
     t = t + v.weight
     table.insert(total_weights, t)

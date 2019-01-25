@@ -1,7 +1,7 @@
 local b = require "map_gen.shared.builders"
 
 local pic = require "map_gen.data.presets.north_america"
-local pic = b.decompress(pic)
+pic = b.decompress(pic)
 local map = b.picture(pic)
 
 -- this changes the size of the map

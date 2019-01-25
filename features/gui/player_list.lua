@@ -7,20 +7,24 @@ local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.core'
 local Report = require 'features.report'
 local Game = require 'utils.game'
+local Color = require 'resources.color_presets'
+local table = require 'utils.table'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
+
+local random = math.random
 
 local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
 local symbol_asc = ' ▲'
 local symbol_desc = ' ▼'
-local focus_color = {r = 1, g = 0.55, b = 0.1}
+local focus_color = Color.dark_orange
 local rank_colors = {
-    {r = 1, g = 1, b = 1}, -- Guest
-    {r = 0.155, g = 0.540, b = 0.898}, -- Regular
-    {r = 172.6, g = 70.2, b = 215.8}, -- Donator {r = 152, g = 24, b = 206}
-    {r = 0.093, g = 0.768, b = 0.172} -- Admin
+    Color.white, -- Guest
+    Color.regular, -- Regular
+    Color.donator, -- Donator
+    Color.admin -- Admin
 }
 
 local inv_sprite_time_step = 1 / sprite_time_step
@@ -395,7 +399,7 @@ local column_builders = {
         sort = function(a, b)
             return a.name:lower() < b.name:lower()
         end,
-        draw_heading = function(parent, data)
+        draw_heading = function(parent)
             local label =
                 parent.add {
                 type = 'label',
@@ -409,7 +413,7 @@ local column_builders = {
 
             return label
         end,
-        draw_cell = function(parent, cell_data, data)
+        draw_cell = function(parent, cell_data)
             local parent_style = parent.style
             parent_style.width = 58
             parent_style.align = 'center'
@@ -439,7 +443,7 @@ local column_builders = {
 }
 
 local function get_default_player_settings()
-    columns = {
+    local columns = {
         sprite_heading_name,
         player_name_heading_name,
         time_heading_name,
@@ -714,7 +718,7 @@ Gui.on_click(
         local count = (player_pokes[poke_player_index] or 0) + 1
         player_pokes[poke_player_index] = count
 
-        local poke_str = table.get_random(poke_messages, true)
+        local poke_str = poke_messages[random(#poke_messages)]
         local message = table.concat({'>> ', player.name, ' has poked ', poke_player.name, ' with ', poke_str, ' <<'})
 
         for _, p in ipairs(game.connected_players) do

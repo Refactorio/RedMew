@@ -1,8 +1,10 @@
-require 'utils.table'
+local table = require 'utils.table'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Info = require 'features.gui.info'
+local UserGroups  = require 'features.user_groups'
+
 local get_random_weighted = table.get_random_weighted
 
 local memory = {
@@ -48,10 +50,14 @@ local function player_created(event)
         p(get_random_weighted(random_messages))
     end
 
-    if config.show_info_at_start then
+    if config.show_info_at_start and not _DEBUG then
         if Info ~= nil then
-            Info.show_info({player = player})
+            Info.show_info(player)
         end
+    end
+
+    if _DEBUG and player.admin then
+        UserGroups.add_regular(player.name)
     end
 
     if _CHEATS then

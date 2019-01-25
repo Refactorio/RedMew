@@ -3,9 +3,12 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
 local ForceControl = require 'features.force_control'
+local ScoreTable = require 'map_gen.Diggy.ScoreTable'
 local Retailer = require 'features.retailer'
 local Gui = require 'utils.gui'
-local utils = require 'utils.core'
+local Utils = require 'utils.core'
+local Color = require 'resources.color_presets'
+
 local format = string.format
 local floor = math.floor
 local log = math.log
@@ -19,6 +22,9 @@ local print_player_floating_text_position = Game.print_player_floating_text_posi
 local get_force_data = ForceControl.get_force_data
 local get_player_by_index = Game.get_player_by_index
 local set_item = Retailer.set_item
+local disable_item = Retailer.disable_item
+local enable_item = Retailer.enable_item
+
 
 -- this
 local Experience = {}
@@ -53,10 +59,10 @@ end)
 
 local config = {}
 
-local gain_xp_color = {r = 144, g = 202, b = 249}
-local lose_xp_color = {r = 255, g = 0, b = 0}
-local unlocked_color = {r = 255, g = 255, b = 255}
-local locked_color = {r = 127, g = 127, b = 127}
+local gain_xp_color = Color.light_sky_blue
+local lose_xp_color = Color.red
+local unlocked_color = Color.black
+local locked_color = Color.gray
 local table_column_layout = {type = 'table', column_count = 2}
 
 local level_up_formula = (function (level_reached)
@@ -89,8 +95,11 @@ function Experience.update_market_contents(force)
     local current_level = get_force_data(force).current_level
     local force_name = force.name
     for _, prototype in pairs(config.unlockables) do
-        if (current_level >= prototype.level) then
-            set_item(force_name, prototype)
+        local prototype_level = prototype.level
+        if current_level < prototype_level then
+            disable_item(force_name, prototype.name, format('Unlocks at level %d', prototype_level))
+        else
+            enable_item(force_name, prototype.name)
         end
     end
 end
@@ -241,7 +250,7 @@ end
 
 ---Awards experience when a player kills an enemy, based on type of enemy
 ---@param event LuaEvent
-local function on_entity_died (event)
+local function on_entity_died(event)
     local entity = event.entity
     local force = event.force
     local cause = event.cause
@@ -296,6 +305,7 @@ local function on_player_respawned(event)
     for _, p in pairs(game.connected_players) do
         print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
     end
+    ScoreTable.add('Experience lost', exp)
 end
 
 local level_table = {}
@@ -317,7 +327,7 @@ local function calculate_level_xp(level)
 end
 local function redraw_title(data)
     local force_data = get_force_data('player')
-    data.frame.caption = utils.comma_value(force_data.total_experience) .. ' total experience earned!'
+    data.frame.caption = Utils.comma_value(force_data.total_experience) .. ' total experience earned!'
 end
 
 local function apply_heading_style(style, width)
@@ -341,7 +351,7 @@ local function redraw_progressbar(data)
     local flow = data.experience_progressbars
     Gui.clear(flow)
 
-    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) ..' xp\nRemaining xp: ' .. utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.Experience.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
+    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. Utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) ..' xp\nRemaining xp: ' .. Utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.Experience.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
     local level_progressbar = flow.add({type = 'progressbar', tooltip = floor(force_data.experience_percentage*100)*0.01 .. '% xp to next level'})
     level_progressbar.style.width = 350
     level_progressbar.value = force_data.experience_percentage * 0.01
@@ -378,7 +388,7 @@ local function redraw_table(data)
         local level_column = list.add({
             type = 'label',
             caption = level_caption,
-            tooltip = 'XP: ' .. utils.comma_value(calculate_level_xp(current_item_level)),
+            tooltip = 'XP: ' .. Utils.comma_value(calculate_level_xp(current_item_level)),
         })
         level_column.style.minimal_width = 100
         level_column.style.font_color = color
@@ -512,6 +522,8 @@ end
 function Experience.register(cfg)
     config = cfg
 
+    ScoreTable.reset('Experience lost')
+
     --Adds the function on how to calculate level caps (When to level up)
     local ForceControlBuilder = ForceControl.register(level_up_formula)
 
@@ -544,6 +556,13 @@ function Experience.on_init()
     --Adds the 'player' force to participate in the force control system.
     local force = game.forces.player
     ForceControl.register_force(force)
+
+    local force_name = force.name
+    for _, prototype in pairs(config.unlockables) do
+        set_item(force_name, prototype)
+    end
+
+    Experience.update_market_contents(force)
 end
 
 return Experience

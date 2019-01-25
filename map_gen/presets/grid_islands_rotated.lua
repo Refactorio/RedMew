@@ -10,11 +10,23 @@
 
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
+local math = require "utils.math"
+local table = require 'utils.table'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+local degrees = math.rad
+
 local ore_seed1 = 1000
 local ore_seed2 = ore_seed1 * 2
 local island_separation = 350
-local math = require "utils.math"
-local degrees = math.rad
+
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
 
 local track = {
     b.translate(b.line_x(3), 0, -3),
@@ -24,9 +36,9 @@ local track = {
     b.rectangle(3, 22)
 }
 
-h_track = b.any(track)
+local h_track = b.any(track)
 h_track = b.single_x_pattern(h_track, 15)
-v_track = b.rotate(h_track,degrees(90))
+local v_track = b.rotate(h_track,degrees(90))
 
 local square = b.rectangle(190, 190)
 local circle = b.circle(80)
@@ -96,7 +108,7 @@ for r = 1, 50 do
             row[c] = square
         else
             local i = random_ore:next_int(1, ore_t)
-            index = table.binary_search(total_ore_weights, i)
+            local index = table.binary_search(total_ore_weights, i)
             if (index < 0) then
                 index = bit32.bnot(index)
             end

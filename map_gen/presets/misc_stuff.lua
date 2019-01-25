@@ -1,10 +1,15 @@
---[[
-    This map removes and adds it's own water, in terrain settings use water frequency = very low and water size = only in starting area.
- ]]
-
 local b = require "map_gen.shared.builders"
-
 local pic = require "map_gen.data.presets.misc_stuff"
+
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+
+RS.set_map_gen_settings(
+    {
+        MGSP.water_none
+    }
+)
+
 pic = b.decompress(pic)
 
 local shape = b.picture(pic)

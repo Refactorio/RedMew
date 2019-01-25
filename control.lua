@@ -1,6 +1,10 @@
 -- Omitting the math library is a very bad idea
 require 'utils.math'
 
+-- Global Debug and extra global table functions to make debugging and coding significantly easier
+Debug = require 'utils.debug'
+require 'utils.table'
+
 -- Map layout and config dictate the map you play and the settings in it
 local config = require 'config'
 require 'map_layout'
@@ -14,6 +18,12 @@ require 'features.player_create'
 require 'features.user_groups'
 
 -- Feature modules, each can be disabled safely
+if config.train_saviour.enabled then
+    require 'features.train_saviour'
+end
+if config.infinite_storage_chest.enabled then
+    require 'features.infinite_storage_chest'
+end
 if config.autodeconstruct.enabled then
     require 'features.autodeconstruct'
 end
@@ -23,20 +33,17 @@ end
 if config.corpse_util.enabled then
     require 'features.corpse_util'
 end
-if config.custom_commands.enabled then
-    require 'features.custom_commands'
+if config.admin_commands.enabled then
+    require 'features.admin_commands'
+end
+if config.redmew_commands.enabled then
+    require 'features.redmew_commands'
 end
 if config.donator_messages.enabled then
     require 'features.donator_messages'
 end
-if config.train_saviour.enabled then
-    require 'features.train_saviour'
-end
-if config.fish_market.enabled then
-    require 'features.fish_market'
-end
-if config.free_item_loggin.enabled then
-    require 'features.free_item_logging'
+if config.market.enabled then
+    require 'features.market'
 end
 if config.nuke_control.enabled then
     require 'features.nuke_control'
@@ -47,23 +54,28 @@ end
 if config.reactor_meltdown.enabled then
     require 'features.reactor_meltdown'
 end
-if config.train_station_names.enabled then
-    require 'features.train_station_names'
-end
 if config.walkabout.enabled then
     require 'features.walkabout'
 end
-if global.config.performance.enabled then
+if config.performance.enabled then
     require 'features.performance'
 end
-if global.config.hail_hydra.enabled then
+if config.hail_hydra.enabled then
     require 'features.hail_hydra'
+end
+if config.lazy_bastard.enabled then
+    require 'features.lazy_bastard'
+end
+if config.redmew_qol.enabled then
+    require 'features.redmew_qol'
 end
 
 -- GUIs the order determines the order they appear from left to right.
 -- These can be safely disabled if you want less GUI items.
 -- Some map presets will add GUI modules themselves.
-require 'features.gui.info'
+if config.map_info.enabled then
+    require 'features.gui.info'
+end
 if config.player_list.enabled then
     require 'features.gui.player_list'
 end
@@ -90,4 +102,7 @@ if config.popup.enabled then
 end
 if config.camera.enabled then
     require 'features.gui.camera'
+end
+if _DUMP_ENV then
+    require 'utils.dump_env'
 end

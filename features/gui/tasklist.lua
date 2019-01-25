@@ -4,10 +4,12 @@ local Global = require 'utils.global'
 local UserGroups = require 'features.user_groups'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
+local Color = require 'resources.color_presets'
 local math = require 'utils.math'
+local Command = require 'utils.command'
 
-local normal_color = {r = 1, g = 1, b = 1}
-local focus_color = {r = 1, g = 0.55, b = 0.1}
+local normal_color = Color.white
+local focus_color = Color.dark_orange
 
 local server_player = {
     valid = true,
@@ -42,7 +44,7 @@ Global.register(
         player_tasks = player_tasks,
         tasks_counter = tasks_counter,
         last_task_update_data = last_task_update_data,
-        no_notify_announcements_players = no_notify_players
+        no_notify_players = no_notify_players
     },
     function(tbl)
         announcements = tbl.announcements
@@ -50,7 +52,7 @@ Global.register(
         player_tasks = tbl.player_tasks
         tasks_counter = tbl.tasks_counter
         last_task_update_data = tbl.last_task_update_data
-        no_notify_players = tbl.no_notify_announcements_players
+        no_notify_players = tbl.no_notify_players
     end
 )
 
@@ -294,7 +296,7 @@ local function redraw_tasks(data, enabled)
         Gui.set_data(volunteer_button, task)
         update_volunteer_button(volunteer_button, task)
 
-        volunteer_buttons[task] = volunteer_button
+        volunteer_buttons[task.task_id] = volunteer_button
 
         local label =
             parent.add {
@@ -313,13 +315,13 @@ local function draw_main_frame(left, player)
 
     local data = {}
 
-    local edit_announcments_button_tooltip
+    local edit_announcements_button_tooltip
     local add_task_button_tooltip
     if enabled then
-        edit_announcments_button_tooltip = 'Edit announcments.'
+        edit_announcements_button_tooltip = 'Edit announcements.'
         add_task_button_tooltip = 'Create a new task.'
     else
-        edit_announcments_button_tooltip = 'Sorry, you need to a regular to edit announcments.'
+        edit_announcements_button_tooltip = 'Sorry, you need to be a regular to edit announcements.'
         add_task_button_tooltip = 'Sorry, you need to be a regular to create a new tasks.'
     end
 
@@ -328,15 +330,15 @@ local function draw_main_frame(left, player)
 
     local announcements_header_flow = frame.add {type = 'flow'}
 
-    local edit_announcments_button =
+    local edit_announcements_button =
         announcements_header_flow.add {
         type = 'sprite-button',
         name = announcements_edit_button_name,
         sprite = 'utility/rename_icon_normal',
-        tooltip = edit_announcments_button_tooltip
+        tooltip = edit_announcements_button_tooltip
     }
-    edit_announcments_button.enabled = enabled
-    apply_button_style(edit_announcments_button)
+    edit_announcements_button.enabled = enabled
+    apply_button_style(edit_announcements_button)
 
     local announcements_header = announcements_header_flow.add {type = 'label', caption = 'Announcements'}
     announcements_header.style.font = 'default-listbox'
@@ -399,14 +401,14 @@ local function draw_main_frame(left, player)
     frame.add {
         type = 'checkbox',
         name = notify_checkbox_name,
-        caption = 'Notify me about new annoucements or tasks',
+        caption = 'Notify me about new announcements or tasks',
         state = not no_notify_players[left.player_index]
     }
 
     frame.add {type = 'button', name = main_button_name, caption = 'Close'}
 end
 
-local function close_edit_announcments_frame(frame)
+local function close_edit_announcements_frame(frame)
     local editing_players = announcements.editing_players
     editing_players[frame.player_index] = nil
     Gui.destroy(frame)
@@ -432,7 +434,7 @@ local function toggle(event)
         Gui.destroy(frame)
         frame = left[edit_announcements_frame_name]
         if frame and frame.valid then
-            close_edit_announcments_frame(frame)
+            close_edit_announcements_frame(frame)
         end
         frame = left[create_task_frame_name]
         if frame and frame.valid then
@@ -582,7 +584,7 @@ local function draw_create_task_frame(left, previous_task)
     Gui.set_data(confirm_button, {frame = frame, textbox = textbox, previous_task = previous_task})
 end
 
-local function player_created(event)
+local function player_joined(event)
     local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
         return
@@ -615,8 +617,8 @@ local function player_created(event)
                 local data = Gui.get_data(main_frame)
                 local volunteer_buttons = data.volunteer_buttons
 
-                for t, _ in pairs(tasks_for_player) do
-                    update_volunteer_button(volunteer_buttons[t], t)
+                for index, task in pairs(tasks_for_player) do
+                    update_volunteer_button(volunteer_buttons[index], task)
                 end
             end
         end
@@ -634,7 +636,7 @@ local function player_left(event)
 
     local frame = left[edit_announcements_frame_name]
     if frame and frame.valid then
-        close_edit_announcments_frame(frame)
+        close_edit_announcements_frame(frame)
     end
 end
 
@@ -656,7 +658,7 @@ local function on_tick()
     end
 end
 
-Event.add(defines.events.on_player_joined_game, player_created)
+Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_player_left_game, player_left)
 Event.on_nth_tick(3600, on_tick)
 
@@ -744,7 +746,7 @@ Gui.on_click(
     edit_close_button_name,
     function(event)
         local frame = Gui.get_data(event.element)
-        close_edit_announcments_frame(frame)
+        close_edit_announcements_frame(frame)
     end
 )
 
@@ -772,7 +774,7 @@ Gui.on_click(
     edit_confirm_button_name,
     function(event)
         local frame = Gui.get_data(event.element)
-        close_edit_announcments_frame(frame)
+        close_edit_announcements_frame(frame)
 
         local player = event.player
         update_announcements(player)
@@ -805,10 +807,11 @@ Gui.on_click(
             task.name
         }
 
+        local task_id = task.task_id
         for pi, _ in pairs(task.volunteers) do
             local tasks_for_player = player_tasks[pi]
             if tasks_for_player then
-                tasks_for_player[task] = nil
+                tasks_for_player[task_id] = nil
             end
         end
 
@@ -898,6 +901,7 @@ Gui.on_click(
     function(event)
         local button = event.element
         local task = Gui.get_data(button)
+        local task_id = task.task_id
 
         local player_index = event.player_index
         local volunteers = task.volunteers
@@ -906,7 +910,7 @@ Gui.on_click(
             volunteers[player_index] = nil
 
             local tasks_for_player = player_tasks[player_index]
-            tasks_for_player[task] = nil
+            tasks_for_player[task_id] = nil
         else
             volunteers[player_index] = event.player
 
@@ -916,7 +920,7 @@ Gui.on_click(
                 player_tasks[player_index] = tasks_for_player
             end
 
-            tasks_for_player[task] = true
+            tasks_for_player[task_id] = task
         end
 
         for _, p in ipairs(game.connected_players) do
@@ -925,7 +929,7 @@ Gui.on_click(
                 local data = Gui.get_data(frame)
                 local volunteer_buttons = data.volunteer_buttons
 
-                update_volunteer_button(volunteer_buttons[task], task)
+                update_volunteer_button(volunteer_buttons[task_id], task)
             end
         end
     end
@@ -1067,28 +1071,17 @@ Gui.on_click(
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
-commands.add_command(
+Command.add(
     'task',
-    '<task> - Creates a new task (Admins and regulars only).',
-    function(cmd)
-        local player = game.player
-
-        if player then
-            if not player.admin and not UserGroups.is_regular(player.name) then
-                Utils.cant_run(cmd.name)
-                return
-            end
-        else
-            player = server_player
-        end
-
-        local task_name = cmd.parameter
-
-        if not task_name or task_name == '' then
-            player.print('Usage: /task <task>')
-            return
-        end
-
-        create_new_tasks(task_name, player)
+    {
+        description = 'Creates a new task.',
+        arguments = {'task'},
+        regular_only = true,
+        allowed_by_server = true,
+        log_command = true,
+        capture_excess_arguments = true,
+    },
+    function(args, player)
+        create_new_tasks(args.task, player or server_player)
     end
 )

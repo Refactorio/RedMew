@@ -3,7 +3,7 @@ local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
-local Utils = require 'utils.core'
+local Command = require 'utils.command'
 
 local deafult_verb = 'expanded'
 
@@ -660,36 +660,15 @@ Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
 Event.add(defines.events.on_player_joined_game, player_joined)
 
-local function tag_command(cmd)
-    local player = game.player
-    if player and not player.admin then
-        Utils.cant_run(cmd.name)
-        return
-    end
+local function tag_command(args)
+    local target_player = game.players[args.player]
 
-    if cmd.parameter == nil then
-        Game.player_print('Usage: /tag <player> <tag> Sets a players tag.')
-        return
-    end
-
-    local params = {}
-    for param in string.gmatch(cmd.parameter, '%S+') do
-        table.insert(params, param)
-    end
-
-    if #params < 2 then
-        Game.player_print('Usage: <player> <tag> Sets a players tag.')
-        return
-    end
-
-    local target_player = game.players[params[1]]
-
-    if target_player == nil or not target_player.valid then
+    if not target_player then
         Game.player_print('Player does not exist.')
         return
     end
 
-    local tag_name = string.sub(cmd.parameter, params[1]:len() + 2)
+    local tag_name = args.tag
     local tag = tag_groups[tag_name]
 
     if tag == nil then
@@ -704,4 +683,14 @@ local function tag_command(cmd)
     end
 end
 
-commands.add_command('tag', "<player> <tag> Sets a player's tag. (Admins only)", tag_command)
+Command.add(
+    'tag',
+    {
+        description = "Sets a player's tag",
+        arguments = {'player', 'tag'},
+        admin_only = true,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    tag_command
+)

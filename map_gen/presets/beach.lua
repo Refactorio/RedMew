@@ -1,8 +1,10 @@
 local b = require 'map_gen.shared.builders'
 local perlin = require 'map_gen.shared.perlin_noise'
-local Event = require 'utils.event'
 local Global = require 'utils.global'
 local math = require 'utils.math'
+local RS = require 'map_gen.shared.redmew_surface'
+local MGSP = require 'resources.map_gen_settings'
+local table = require 'utils.table'
 
 local sand_width = 512
 local sand_width_inv = math.tau / sand_width
@@ -13,17 +15,24 @@ local water_width_inv = math.tau / water_width
 local noise_variance = 0.025 --The lower this number the smoother the curve is gonna be
 local noise_level = 15 --Factor for the magnitude of the curve
 
-local sand_nosie_level = noise_level * 0.9
+local sand_noise_level = noise_level * 0.9
 local water_noise_level = noise_level * 1.35
 
 -- Leave nil and they will be set based on the map seed.
 local perlin_seed_1 = nil
 local perlin_seed_2 = nil
 
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.cliff_none
+    }
+)
+
 Global.register_init(
     {},
     function(tbl)
-        local seed = game.surfaces[1].map_gen_settings.seed
+        local seed = RS.get_surface().map_gen_settings.seed
         tbl.perlin_seed_1 = perlin_seed_1 or seed
         tbl.perlin_seed_2 = perlin_seed_2 or seed * 2
     end,
@@ -34,7 +43,7 @@ Global.register_init(
 )
 
 local function sand_shape(x, y)
-    local p = perlin.noise(x * noise_variance, y * noise_variance, perlin_seed_1) * sand_nosie_level
+    local p = perlin.noise(x * noise_variance, y * noise_variance, perlin_seed_1) * sand_noise_level
     p = p + math.sin(x * sand_width_inv) * 15
     return p > y
 end
@@ -58,7 +67,7 @@ local ores = {
 
 local start_coal = b.resource(b.full_shape, 'coal', value(500, 0.25))
 
-uranium_ore = b.resource(b.full_shape, 'uranium-ore', value(50, 0.25))
+local uranium_ore = b.resource(b.full_shape, 'uranium-ore', value(50, 0.25))
 
 local total_weights = {}
 local t = 0
@@ -103,7 +112,7 @@ end
 
 water_shape = b.apply_entity(water_shape, do_oil)
 
-grass = b.tile('grass-1')
+local grass = b.tile('grass-1')
 
 local bounds = b.line_x(384)
 

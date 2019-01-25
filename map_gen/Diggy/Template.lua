@@ -1,5 +1,5 @@
 -- dependencies
-local Task = require 'utils.schedule'
+local Task = require 'utils.task'
 local Token = require 'utils.token'
 local min = math.min
 local ceil = math.ceil
