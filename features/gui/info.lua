@@ -44,7 +44,10 @@ local map_extra_info_key = 3
 local new_info_key = 4
 
 local rewarded_players = {}
-local map_extra_info_lock = {false}
+local primitives = {
+    map_extra_info_lock = nil,
+    info_edited = nil
+}
 
 local editable_info = {
     [map_name_key] = config_mapinfo.map_name_key,
@@ -57,12 +60,12 @@ Global.register(
     {
         rewarded_players = rewarded_players,
         editable_info = editable_info,
-        map_extra_info_lock = map_extra_info_lock
+        primitives = primitives,
     },
     function(tbl)
         rewarded_players = tbl.rewarded_players
         editable_info = tbl.editable_info
-        map_extra_info_lock = tbl.map_extra_info_lock
+        primitives = tbl.primitives
     end
 )
 
@@ -664,8 +667,9 @@ local function upload_changelog(event)
         return
     end
 
-    if editable_info[new_info_key] ~= config_mapinfo.new_info_key then
+    if editable_info[new_info_key] ~= config_mapinfo.new_info_key and primitives.info_edited then
         Server.set_data('misc', 'changelog', editable_info[new_info_key])
+        primitives.info_edited = nil
     end
 end
 
@@ -703,14 +707,14 @@ end
 --- Sets editable_info[map_extra_info_key] outright or adds info to it.
 -- Forbids map_extra_info being explicitly set twice
 local function create_map_extra_info(value, set)
-    if map_extra_info_lock[1] and set then
+    if primitives.map_extra_info_lock and set then
         error('Cannot set extra info twice, use add instead')
         return
-    elseif map_extra_info_lock[1] then
+    elseif primitives.map_extra_info_lock then
         return
     elseif set then
         editable_info[map_extra_info_key] = value
-        map_extra_info_lock[1] = true
+        primitives.map_extra_info_lock = true
     elseif editable_info[map_extra_info_key] == config_mapinfo.map_extra_info_key then
         editable_info[map_extra_info_key] = value
     else
@@ -767,6 +771,7 @@ Gui.on_text_changed(
         local key = Gui.get_data(textbox)
 
         editable_info[key] = textbox.text
+        primitives.info_edited = true
     end
 )
 
