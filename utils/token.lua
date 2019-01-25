@@ -29,9 +29,20 @@ function Token.get(token_id)
 end
 
 global.tokens = {}
+global.tokens.contents = {}
 
-function Token.register_global(var)
+--- Enters a given var into the global.tokens table
+-- This function cannot be called after on_init() or on_load() has run as that is a desync risk.
+-- Typically this is used to register tables for persistent storage inside global but without namespace concerns
+-- @param var <any>
+-- @param name <string> an optional identifier for the module registering data in the tokens table
+-- @return the array index under which the var is kept
+function Token.register_global(var, name)
     local c = #global.tokens + 1
+
+    if name then
+        global.tokens.contents[name] = c
+    end
 
     global.tokens[c] = var
 
