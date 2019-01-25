@@ -196,6 +196,10 @@ global.config = {
         -- rewards players for looking through the info tabs
         info_player_reward = true
     },
+    -- makes manual stuff cumbersome
+    lazy_bastard = {
+        enabled = false,
+    },
     -- automatically marks miners for deconstruction when they are depleted (currently compatible with hard mods that add miners)
     autodeconstruct = {
         enabled = true
