@@ -675,12 +675,12 @@ local function download_changelog()
 end
 
 local function toggle(event)
-    upload_changelog(event)
     local player = event.player
     local center = player.gui.center
     local main_frame = center[main_frame_name]
 
     if main_frame then
+        upload_changelog(event)
         Gui.destroy(main_frame)
     else
         draw_main_frame(center, player)
