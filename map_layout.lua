@@ -7,8 +7,6 @@ in this file and your run_*type*_module(event) function will be called.
 local b = require 'map_gen.shared.builders'
 local RS = require 'map_gen.shared.redmew_surface'
 require 'utils.table'
-global.map = {}
-global.map.terraforming = {}
 
 local shape = nil
 local regen_decoratives = false
@@ -87,6 +85,8 @@ shape = require 'map_gen.presets.crash_site'
 --shape = require "map_gen.presets.christmas_tree_of_terror"
 --shape = require "map_gen.presets.rotten_apples"
 --shape = require "map_gen.presets.spiral_crossings"
+--shape = require "map_gen.presets.grid_bot_islands"
+--shape = require "map_gen.presets.sierpinski_carpet"
 --shape = require "map_gen.presets.test"
 
 --WIP maps--

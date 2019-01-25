@@ -9,6 +9,7 @@ local ScenarioInfo = require 'features.gui.info'
 local Command = require 'utils.command'
 
 local format = string.format
+local random = math.random
 
 ScenarioInfo.add_map_extra_info('- On this map you will be assigned a silly name.\n' .. '- If you dislike your name you can /name-restore or /name-roll for a new one')
 
@@ -50,9 +51,9 @@ end
 -- TODO: Config option to set the name style
 local function create_name(words_table, player_name)
     local adverb, adjective  --, noun
-    adverb = table.get_random(words_table.adverbs, true)
-    adjective = table.get_random(words_table.adjectives, true)
-    --noun = table.get_random(words_table.nouns, true)
+    adverb = words_table[random(#words_table)]
+    adjective = words_table[random(#words_table)]
+    --noun = words_table[random(#words_table)]
     local name = format('%s_%s_%s', adverb, adjective, player_name)
     return string.gsub(name, "%s+", "_")
 end

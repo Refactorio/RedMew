@@ -205,7 +205,7 @@ local function create_redmew_surface()
     end
 end
 
---- Teleport the player to the redmew surface and if there is no suitable location, create a lab-white island.
+--- Teleport the player to the redmew surface and if there is no suitable location, create an island
 local function player_created(event)
     local player = Game.get_player_by_index(event.player_index)
     local surface = global_data.surface

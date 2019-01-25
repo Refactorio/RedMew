@@ -13,6 +13,8 @@ local table = require 'utils.table'
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
 
+local random = math.random
+
 local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
 local symbol_asc = ' ▲'
@@ -716,7 +718,7 @@ Gui.on_click(
         local count = (player_pokes[poke_player_index] or 0) + 1
         player_pokes[poke_player_index] = count
 
-        local poke_str = table.get_random(poke_messages, true)
+        local poke_str = poke_messages[random(#poke_messages)]
         local message = table.concat({'>> ', player.name, ' has poked ', poke_player.name, ' with ', poke_str, ' <<'})
 
         for _, p in ipairs(game.connected_players) do
