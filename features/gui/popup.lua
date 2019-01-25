@@ -6,27 +6,30 @@ local Command = require 'utils.command'
 local close_name = Gui.uid_name()
 
 local icons = {
-    "ammo_icon",                            -- 1
-    "danger_icon",                          -- 2
-    "destroyed_icon",                       -- 3
-    "warning_icon",                         -- 4
-    "electricity_icon",                     -- 5
-    "electricity_icon_unplugged",           -- 6
-    "fluid_icon",                           -- 7
-    "fuel_icon",                            -- 8
-    "no_building_material_icon",            -- 9
-    "no_storage_space_icon",                -- 10
-    "not_enough_construction_robots_icon",  -- 11
-    "not_enough_repair_packs_icon",         -- 12
-    "recharge_icon",                        -- 13
-    "too_far_from_roboport_icon"            -- 14
+    "utility/ammo_icon",                            -- 1
+    "utility/danger_icon",                          -- 2
+    "utility/destroyed_icon",                       -- 3
+    "utility/warning_icon",                         -- 4
+    "utility/electricity_icon",                     -- 5
+    "utility/electricity_icon_unplugged",           -- 6
+    "utility/fluid_icon",                           -- 7
+    "utility/fuel_icon",                            -- 8
+    "utility/no_building_material_icon",            -- 9
+    "utility/no_storage_space_icon",                -- 10
+    "utility/not_enough_construction_robots_icon",  -- 11
+    "utility/not_enough_repair_packs_icon",         -- 12
+    "utility/recharge_icon",                        -- 13
+    "utility/too_far_from_roboport_icon"            -- 14
 }
 
-local function show_popup(player, message, title, icon_id)
+local function show_popup(player, message, title, sprite_path)
     --Default title and icon
     local title = (title ~= nil) and title or 'NOTICE!'
-    local icon_id = (icon_id ~= nil) and icon_id or 4
-
+    if type(sprite_path) == 'number' then
+        sprite_path = (sprite_path ~= nil) and icons[sprite_path] or icons[4]
+    else
+        sprite_path = (sprite_path ~= nil) and sprite_path or icons[4]
+    end
     local frame = player.gui.center.add {type = 'frame', direction = 'vertical', style = 'captionless_frame'}
     frame.style.minimal_width = 300
 
@@ -55,7 +58,7 @@ local function show_popup(player, message, title, icon_id)
     sprite_flow.style.vertical_align = 'center'
     sprite_flow.style.vertically_stretchable = true
 
-    sprite_flow.add {type = 'sprite', sprite = 'utility/'..icons[icon_id]}
+    sprite_flow.add {type = 'sprite', sprite = sprite_path}
 
     local label_flow = content_flow.add {type = 'flow'}
     label_flow.style.align = 'left'
@@ -168,8 +171,8 @@ local Public = {}
     @param player LuaPlayer
     @param message string
 ]]
-function Public.player(player, message, title, icon_id)
-    show_popup(player, message, title, icon_id)
+function Public.player(player, message, title, sprite_path)
+    show_popup(player, message, title, sprite_path)
 end
 
 --[[--
@@ -177,9 +180,9 @@ end
 
     @param message string
 ]]
-function Public.all_online(message, title, icon_id)
+function Public.all_online(message, title, sprite_path)
     for _, p in ipairs(game.connected_players) do
-        show_popup(p, message, title, icon_id)
+        show_popup(p, message, title, sprite_path)
     end
 end
 
@@ -188,9 +191,9 @@ end
 
     @param message string
 ]]
-function Public.all(message, title, icon_id)
+function Public.all(message, title, sprite_path)
     for _, p in pairs(game.players) do
-        show_popup(p, message, title, icon_id)
+        show_popup(p, message, title, sprite_path)
     end
 end
 
