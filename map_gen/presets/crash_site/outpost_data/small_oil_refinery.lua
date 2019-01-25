@@ -53,7 +53,7 @@ local market = {
     data = {
         market_name = 'Small Oil Refinery',
         upgrade_rate = 0.5,
-        upgrade_base_cost = 100,
+        upgrade_base_cost = 150,
         upgrade_cost_base = 2,
         {
             name = 'crude-oil-barrel',
