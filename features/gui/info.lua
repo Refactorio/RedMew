@@ -717,8 +717,7 @@ Event.add(defines.events.on_player_created, player_created)
 
 Event.add(Server.events.on_server_started, download_changelog)
 
--- Hourly
-Event.on_nth_tick(215983, download_changelog)
+Server.on_data_set_changed('misc', download_changelog)
 
 Gui.on_click(main_button_name, toggle)
 
