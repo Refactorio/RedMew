@@ -7,7 +7,12 @@ local PlayerRewards = require 'utils.player_rewards'
 local Color = require 'resources.color_presets'
 local Server = require 'features.server'
 local Token = require 'utils.token'
+
 local format = string.format
+
+local config = global.config
+local config_mapinfo = config.map_info
+local config_prewards = config.player_rewards
 
 local normal_color = Color.white
 local focus_color = Color.dark_orange
@@ -42,10 +47,10 @@ local rewarded_players = {}
 local map_extra_info_lock = {false}
 
 local editable_info = {
-    [map_name_key] = global.config.map_info.map_name_key,
-    [map_description_key] = global.config.map_info.map_description_key,
-    [map_extra_info_key] = global.config.map_info.map_extra_info_key,
-    [new_info_key] = global.config.map_info.new_info_key
+    [map_name_key] = config_mapinfo.map_name_key,
+    [map_description_key] = config_mapinfo.map_description_key,
+    [map_extra_info_key] = config_mapinfo.map_extra_info_key,
+    [new_info_key] = config_mapinfo.new_info_key
 }
 
 Global.register(
@@ -192,7 +197,7 @@ It is below the ESC key on English keyboards and looks like ~ or `
 This can be changed in options -> controls -> "toggle lua console".
                 ]])
 
-            if global.config.player_rewards.enabled and global.config.player_rewards.info_player_reward then
+            if config_prewards.enabled and config_prewards.info_player_reward then
                 local string = format('You have been given %s %s%s for looking at the welcome tab.\nChecking each tab will reward you %s more %s%s.\n', reward_amount, reward_token, reward_plural_indicator, reward_amount, reward_token, reward_plural_indicator)
                 header_label(parent, 'Free Coins')
                 centered_label(parent, string)
@@ -415,7 +420,7 @@ but you will lose a small plane. You can get planes from the market.
             }
             train_savior_label.style.single_line = false
 
-            if global.config.player_list.enabled then
+            if config.player_list.enabled then
                 grid.add {type = 'sprite', sprite = 'entity/player'}
                 local player_list = grid.add {type = 'label', caption = 'Player\nlist'}
                 player_list.style.font = 'default-listbox'
@@ -430,7 +435,7 @@ noun in the chat.]]
                 }
                 player_list_label.style.single_line = false
             end
-            if global.config.poll.enabled then
+            if config.poll.enabled then
                 grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
                 local poll = grid.add {type = 'label', caption = 'Polls'}
                 poll.style.font = 'default-listbox'
@@ -445,7 +450,7 @@ to make new polls.]]
                 poll_label.style.single_line = false
             end
 
-            if global.config.tag_group.enabled then
+            if config.tag_group.enabled then
                 local tag_button = grid.add {type = 'label', caption = 'tag'}
                 local tag_button_style = tag_button.style
                 tag_button_style.font = 'default-listbox'
@@ -463,7 +468,7 @@ be sure to show off your creatively.]]
                 tag_label.style.single_line = false
             end
 
-            if global.config.tasklist.enabled then
+            if config.tasklist.enabled then
                 grid.add {type = 'sprite', sprite = 'item/repair-pack'}
                 local task = grid.add {type = 'label', caption = 'Tasks'}
                 task.style.font = 'default-listbox'
@@ -477,7 +482,7 @@ needs doing. Regulars can add new tasks.]]
                 task_label.style.single_line = false
             end
 
-            if global.config.blueprint_helper.enabled then
+            if config.blueprint_helper.enabled then
                 grid.add {type = 'sprite', sprite = 'item/blueprint'}
                 local blueprint = grid.add {type = 'label', caption = 'BP\nhelper'}
                 local blueprint_style = blueprint.style
@@ -494,7 +499,7 @@ converter the entities used in the blueprint e.g. turn yellow belts into red bel
                 blueprint_label.style.single_line = false
             end
 
-            if global.config.score.enabled then
+            if config.score.enabled then
                 grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
                 local score = grid.add {type = 'label', caption = 'Score'}
                 score.style.font = 'default-listbox'
@@ -629,7 +634,7 @@ local function draw_main_frame(center, player)
 end
 
 local function reward_player(player, index, message)
-    if not global.config.player_rewards.enabled or not global.config.player_rewards.info_player_reward then
+    if not config_prewards.enabled or not config_prewards.info_player_reward then
         return
     end
 
@@ -658,7 +663,10 @@ local function upload_changelog(event)
     if not player or not player.valid or not player.admin then
         return
     end
-    Server.set_data('misc', 'changelog', editable_info[new_info_key])
+
+    if editable_info[new_info_key] ~= config_mapinfo.new_info_key then
+        Server.set_data('misc', 'changelog', editable_info[new_info_key])
+    end
 end
 
 --- Tries to download the latest changelog
@@ -703,10 +711,10 @@ local function create_map_extra_info(value, set)
     elseif set then
         editable_info[map_extra_info_key] = value
         map_extra_info_lock[1] = true
-    elseif editable_info[map_extra_info_key] == global.config.map_info.map_extra_info_key then
+    elseif editable_info[map_extra_info_key] == config_mapinfo.map_extra_info_key then
         editable_info[map_extra_info_key] = value
     else
-        editable_info[map_extra_info_key] = string.format('%s\n%s', editable_info[map_extra_info_key], value)
+        editable_info[map_extra_info_key] = format('%s\n%s', editable_info[map_extra_info_key], value)
     end
 end
 
