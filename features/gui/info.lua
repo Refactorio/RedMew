@@ -77,8 +77,7 @@ end
 local changelog_callback = Token.register(process_changelog)
 
 local function prepare_title()
-    local welcome_title =
-        [[
+    local welcome_title = [[
 111111  1111111 111111  111    111 1111111 11     11
 11   11 11      11   11 1111  1111 11      11     11
 111111  11111   11   11 11 1111 11 11111   11  1  11
@@ -187,21 +186,16 @@ We are a friendly bunch, our objective is to have as much fun as possible and we
             )
 
             header_label(parent, 'How To Chat')
-            centered_label(
-                parent,
-                [[
+            centered_label(parent, [[
 To chat with other players, press the "grave" key on your keyboard.
 It is below the ESC key on English keyboards and looks like ~ or `
 This can be changed in options -> controls -> "toggle lua console".
-                ]]
-            )
+                ]])
 
             if global.config.player_rewards.enabled and global.config.player_rewards.info_player_reward then
                 local string = format('You have been given %s %s%s for looking at the welcome tab.\nChecking each tab will reward you %s more %s%s.\n', reward_amount, reward_token, reward_plural_indicator, reward_amount, reward_token, reward_plural_indicator)
                 header_label(parent, 'Free Coins')
-                centered_label(
-                    parent, string
-                )
+                centered_label(parent, string)
             end
 
             header_label(parent, 'Useful Links')
@@ -236,8 +230,7 @@ This can be changed in options -> controls -> "toggle lua console".
             maps_textbox_flow_style.align = 'center'
             maps_textbox_flow_style.horizontally_stretchable = true
             maps_textbox_flow.add({type = 'label', caption = 'Maps: '}).style.font = 'default-bold'
-            local maps_textbox =
-                maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
+            local maps_textbox = maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
             maps_textbox.read_only = true
 
             parent.add({type = 'flow'}).style.height = 24
@@ -428,7 +421,7 @@ but you will lose a small plane. You can get planes from the market.
                 player_list.style.font = 'default-listbox'
                 player_list.style.single_line = false
                 local player_list_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Lists all players on the server and shows some stats. You can sort the list by
@@ -442,7 +435,7 @@ noun in the chat.]]
                 local poll = grid.add {type = 'label', caption = 'Polls'}
                 poll.style.font = 'default-listbox'
                 local poll_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Polls help players get consensus for major actions. Want to improve an important
@@ -460,7 +453,7 @@ to make new polls.]]
                 local tag = grid.add {type = 'label', caption = 'Tags'}
                 tag.style.font = 'default-listbox'
                 local tag_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 You can assign yourself a role with tags to let other players know what you are
@@ -475,7 +468,7 @@ be sure to show off your creatively.]]
                 local task = grid.add {type = 'label', caption = 'Tasks'}
                 task.style.font = 'default-listbox'
                 local task_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Not sure what you should be working on, why not look at the tasks and see what
@@ -492,7 +485,7 @@ needs doing. Regulars can add new tasks.]]
                 blueprint_style.single_line = false
                 blueprint_style.width = 55
                 local blueprint_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you
@@ -506,7 +499,7 @@ converter the entities used in the blueprint e.g. turn yellow belts into red bel
                 local score = grid.add {type = 'label', caption = 'Score'}
                 score.style.font = 'default-listbox'
                 local score_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Shows number of rockets launched and biters liberated.]]
