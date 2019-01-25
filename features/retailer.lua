@@ -181,7 +181,8 @@ local function redraw_market_items(data)
         local is_missing_coins = missing_coins > 0
 
         if description then
-            insert(tooltip, '\n' .. item.description)
+            insert(tooltip, '\n')
+            insert(tooltip, item.description)
         end
 
         if disabled then
