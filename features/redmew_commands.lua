@@ -7,6 +7,7 @@ local Command = require 'utils.command'
 
 local format = string.format
 local ceil = math.ceil
+local concat = table.concat
 
 --- Kill a player with fish as the cause of death.
 local function do_fish_kill(player, suicide)
@@ -191,6 +192,22 @@ local function search_command(arguments)
     p(format('-------- Page %d / %d --------', page, pages))
 end
 
+local function list_seeds()
+    local seeds = {}
+    local count_of_seeds = 0
+    for _, surface in pairs(game.surfaces) do
+        seeds[count_of_seeds + 1] = surface.name
+        seeds[count_of_seeds + 2] = ': '
+        seeds[count_of_seeds + 3] = tostring(surface.map_gen_settings.seed)
+        count_of_seeds = count_of_seeds + 4
+        seeds[count_of_seeds] = ', '
+    end
+
+    seeds[#seeds] = nil
+    seeds = concat(seeds)
+    Game.player_print(seeds)
+end
+
 -- Command registrations
 
 Command.add(
@@ -257,6 +274,15 @@ Command.add(
         allowed_by_server = true,
     },
     search_command
+)
+
+Command.add(
+    'seeds',
+    {
+        description = 'List the seeds of all surfaces',
+        allowed_by_server = true,
+    },
+    list_seeds
 )
 
 -- Commands with no functions, only calls to other modules

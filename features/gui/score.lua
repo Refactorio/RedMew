@@ -179,7 +179,7 @@ Gui.on_click(
     end
 )
 
-Gui.allow_player_to_toggle_top_element_visibility('score')
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
 Event.add(defines.events.on_player_joined_game, create_score_gui)
 Event.add(defines.events.on_rocket_launched, rocket_launched)

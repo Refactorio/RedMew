@@ -15,7 +15,7 @@ local table = require 'utils.table'
 local config = global.config.redmew_qol
 
 -- Localized functions
-local get_random = table.get_random
+local random = math.random
 
 -- Local vars
 local Public = {}
@@ -70,7 +70,7 @@ local restrict_chest =
 --- Selects a name from the entity backer name, game.players, and regulars
 local function pick_name()
     -- Create a weight table comprised of the backer name, a player's name, and a regular's name
-    local random_player = get_random(game.players, true)
+    local random_player = game.players[random(#game.players)]
     if not random_player then
         return
     end
@@ -80,7 +80,7 @@ local function pick_name()
     if table.size(regulars) == 0 then
         reg = nil
     else
-        reg = {table.get_random(regulars, false, true), 1}
+        reg = {table.get_random_dictionary_entry(regulars, true), 1}
     end
     local name_table = {
         {false, 8},

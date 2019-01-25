@@ -6,7 +6,6 @@ local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Retailer = require 'features.retailer'
-local table = require 'utils.table'
 local market_items = require 'resources.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
 
@@ -15,8 +14,8 @@ local fish_market_bonus_message = require 'resources.fish_messages'
 local pairs = pairs
 local random = math.random
 local format = string.format
-local get_random = table.get_random
 local currency = global.config.market.currency
+local entity_drop_amount = global.config.market.entity_drop_amount
 
 -- local vars
 
@@ -70,7 +69,7 @@ local function fish_earned(event, amount)
     PlayerStats.change_coin_earned(player_index, amount)
 
     if PlayerStats.get_coin_earned(player_index) % 70 == 0 and player and player.valid then
-        local message = get_random(fish_market_bonus_message, true)
+        local message = fish_market_bonus_message[random(#fish_market_bonus_message)]
         player.print(message)
     end
 end
@@ -87,18 +86,11 @@ local function pre_player_mined_item(event)
     end
 end
 
-local entity_drop_amount = {
-    ['biter-spawner'] = {low = 5, high = 15},
-    ['spitter-spawner'] = {low = 5, high = 15},
-    ['small-worm-turret'] = {low = 2, high = 8},
-    ['medium-worm-turret'] = {low = 5, high = 15},
-    ['big-worm-turret'] = {low = 10, high = 20}
-}
-
 local spill_items = Token.register(function(data)
     data.surface.spill_item_stack(data.position, {name = currency, count = data.count}, true)
 end)
 
+-- Determines how many coins to drop when enemy entity dies based upon the entity_drop_amount table in config.lua
 local function fish_drop_entity_died(event)
     local entity = event.entity
     if not entity or not entity.valid then
@@ -110,10 +102,19 @@ local function fish_drop_entity_died(event)
         return
     end
 
-    local count = random(bounds.low, bounds.high)
 
-    if count > 0 then
-        Task.set_timeout_in_ticks(1, spill_items, {count = count, surface = entity.surface, position = entity.position})
+    local chance = bounds.chance
+
+    if chance == 0 then
+        return
+    end
+
+    if chance == 1 or random() <= chance then
+        local count = random(bounds.low, bounds.high)
+        if count > 0 then
+            Task.set_timeout_in_ticks(1, spill_items, {count = count, surface = entity.surface, position = entity.position}
+        )
+        end
     end
 end
 
