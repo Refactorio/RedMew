@@ -50,7 +50,7 @@ Command.add(
         Performance.set_time_scale(scale)
         local p = game.print
         local stat_mod = Performance.get_player_stat_modifier()
-        p('## - Changed the game speed and running speed.')
+        p('## - Game speed changed to compensate for UPS drops and players trying to catch up.')
         p(format('## - Game speed: %.2f', Performance.get_time_scale()))
         p(format('## - Running speed: %.2f', stat_mod))
         p(format('## - Manual mining speed: %.2f', stat_mod))
