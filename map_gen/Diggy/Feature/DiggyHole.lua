@@ -32,13 +32,18 @@ local robot_mining = {
     research_modifier = 0,
 }
 
-Global.register({
-    full_inventory_mining_cache = full_inventory_mining_cache,
-    bot_mining_damage = robot_mining,
-}, function (tbl)
-    full_inventory_mining_cache = tbl.full_inventory_mining_cache
-    robot_mining = tbl.bot_mining_damage
-end)
+Global.register(
+    {
+        full_inventory_mining_cache = full_inventory_mining_cache,
+        bot_mining_damage = robot_mining
+    },
+    function(tbl)
+        full_inventory_mining_cache = tbl.full_inventory_mining_cache
+        robot_mining = tbl.bot_mining_damage
+    end,
+    'diggy_hole'
+)
+
 
 local function update_robot_mining_damage()
     -- remove the current buff

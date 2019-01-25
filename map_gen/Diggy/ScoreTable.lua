@@ -10,7 +10,8 @@ Global.register({
     scores = scores,
 }, function (tbl)
     scores = tbl.scores
-end)
+end,
+'diggy_score_table')
 
 ---Resets the score 0 for the given name
 ---@param name string

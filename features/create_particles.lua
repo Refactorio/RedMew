@@ -16,11 +16,16 @@ local settings = {
     max_particles_per_second = 4000,
 }
 
-Global.register({
-    settings = settings,
-}, function (tbl)
-    settings = tbl.settings
-end)
+Global.register(
+    {
+        settings = settings
+    },
+    function(tbl)
+        settings = tbl.settings
+    end,
+    'create_particles'
+)
+
 
 ---sets the scale of particles. 1.0 means 100%, 0.5 would mean spawn only 50% of the particles.
 ---@param fraction number

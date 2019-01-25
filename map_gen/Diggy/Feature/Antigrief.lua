@@ -16,15 +16,20 @@ local allowed_collapses_first_hour = 0
 local player_collapses = {}
 local jailed_players = {}
 
-Global.register({
-    player_collapses = player_collapses,
-    jailed_players = jailed_players,
-    global_primitives = global_primitives,
-}, function(tbl)
-    player_collapses = tbl.player_collapses
-    jailed_players = tbl.jailed_players
-    global_primitives = tbl.global_primitives
-end)
+Global.register(
+    {
+        player_collapses = player_collapses,
+        jailed_players = jailed_players,
+        global_primitives = global_primitives
+    },
+    function(tbl)
+        player_collapses = tbl.player_collapses
+        jailed_players = tbl.jailed_players
+        global_primitives = tbl.global_primitives
+    end,
+    'antigrief'
+)
+
 
 global_primitives.autojail = false
 global_primitives.last_collapse = 0

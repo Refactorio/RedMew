@@ -58,7 +58,8 @@ Global.register(
         rewarded_players = tbl.rewarded_players
         editable_info = tbl.editable_info
         map_extra_info_lock = tbl.map_extra_info_lock
-    end
+    end,
+    'info'
 )
 
 local function prepare_title()

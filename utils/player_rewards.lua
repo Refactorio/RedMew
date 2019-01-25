@@ -7,11 +7,15 @@ local format = string.format
 local Public = {}
 local reward_token = {global.config.player_rewards.token} or {global.config.market.currency} or {'coin'}
 
-Global.register({
-    reward_token = reward_token,
-}, function (tbl)
-    reward_token = tbl.reward_token
-end)
+Global.register(
+    {
+        reward_token = reward_token
+    },
+    function(tbl)
+        reward_token = tbl.reward_token
+    end,
+    'player_rewards'
+)
 
 --- Set the item to use for rewards
 -- @param reward string - item name to use as reward

@@ -11,7 +11,8 @@ Global.register(
     data,
     function(tbl)
         data = tbl
-    end
+    end,
+    'gui'
 )
 
 local top_elements = {}

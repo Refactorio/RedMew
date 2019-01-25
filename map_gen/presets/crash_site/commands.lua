@@ -13,7 +13,8 @@ Global.register(
     global_data,
     function(tbl)
         global_data = tbl
-    end
+    end,
+    'crashsite_commands'
 )
 
 local function double_print(str)

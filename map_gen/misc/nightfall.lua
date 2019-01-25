@@ -48,7 +48,8 @@ Global.register(
     function(tbl)
         chunklist = tbl.chunklist
         data = tbl.data
-    end
+    end,
+    'nightfall'
 )
 
 --- Called each tick when in ATTACKING state, scans through _processchunk_ chunks

@@ -99,7 +99,8 @@ Global.register(
     global_data,
     function(tbl)
         global_data = tbl
-    end
+    end,
+    'redmew_surface'
 )
 
 -- Local functions

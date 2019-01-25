@@ -75,7 +75,8 @@ Global.register(
         stress_map_storage = tbl.stress_map_storage
         show_deconstruction_alert_message = tbl.deconstruction_alert_message_shown
         collapse_positions_storage = tbl.collapse_positions_storage
-    end
+    end,
+    'diggy_cave_collapse'
 )
 
 local defaultValue = 0

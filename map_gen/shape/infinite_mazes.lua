@@ -46,7 +46,8 @@ Global.register(
     function(tbl)
         primitives = tbl.primitives
         global_ore_data = tbl.global_ore_data
-    end
+    end,
+    'infinite_mazes'
 )
 
 local function get_random_maze_val(cur_seed)

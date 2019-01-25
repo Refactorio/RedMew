@@ -25,7 +25,8 @@ Global.register(
     server_time,
     function(tbl)
         server_time = tbl
-    end
+    end,
+    'server'
 )
 
 local discord_tag = '[DISCORD]'

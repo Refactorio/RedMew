@@ -9,7 +9,8 @@ Global.register(
     bad_name_players,
     function(tbl)
         bad_name_players = tbl
-    end
+    end,
+    'game'
 )
 
 --[[

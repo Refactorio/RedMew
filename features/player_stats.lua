@@ -62,7 +62,8 @@ Global.register(
         total_player_built_entities = tbl.total_player_built_entities
         total_biter_kills = tbl.total_biter_kills
         total_coins_spent = tbl.total_coins_spent
-    end
+    end,
+    'player_stats'
 )
 
 --- When the player first logs on, initialize their stats and pull their former playtime

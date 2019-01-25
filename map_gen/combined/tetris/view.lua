@@ -76,7 +76,8 @@ Global.register(
         primitives = tbl.primitives
         vote_players = tbl.vote_players
         vote_numbers = tbl.vote_numbers
-    end
+    end,
+    'tetris_view'
 )
 
 local function button_tooltip(button_id)

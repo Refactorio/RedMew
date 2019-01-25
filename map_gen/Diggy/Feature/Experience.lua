@@ -47,15 +47,20 @@ local health_bonus = {
     level_modifier = 0,
 }
 
-Global.register({
-    mining_efficiency = mining_efficiency,
-    inventory_slots = inventory_slots,
-    health_bonus = health_bonus
-}, function(tbl)
-    mining_efficiency = tbl.mining_efficiency
-    inventory_slots = tbl.inventory_slots
-    health_bonus = tbl.health_bonus
-end)
+Global.register(
+    {
+        mining_efficiency = mining_efficiency,
+        inventory_slots = inventory_slots,
+        health_bonus = health_bonus
+    },
+    function(tbl)
+        mining_efficiency = tbl.mining_efficiency
+        inventory_slots = tbl.inventory_slots
+        health_bonus = tbl.health_bonus
+    end,
+    'diggy_experience'
+)
+
 
 local config = {}
 

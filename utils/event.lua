@@ -129,7 +129,8 @@ Global.register(
         token_nth_tick_handlers = tbl.token_nth_tick_handlers
         function_handlers = tbl.function_handlers
         function_nth_tick_handlers = tbl.function_nth_tick_handlers
-    end
+    end,
+    'event'
 )
 
 local function remove(tbl, handler)

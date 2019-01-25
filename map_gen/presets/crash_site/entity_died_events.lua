@@ -15,7 +15,8 @@ Global.register(
     {no_coin_entity = no_coin_entity},
     function(tbl)
         no_coin_entity = tbl.no_coin_entity
-    end
+    end,
+    'crashsite_entity_died_events'
 )
 
 local entity_drop_amount = {

@@ -30,7 +30,8 @@ Global.register(
     },
     function(tbl)
         data_silly_names = tbl.data_silly_names
-    end
+    end,
+    'silly_player_names'
 )
 
 --- Takes a player's real name, current silly name, and old silly name and adjusts

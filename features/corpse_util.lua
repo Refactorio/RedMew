@@ -12,7 +12,8 @@ Global.register(
     player_corpses,
     function(tbl)
         player_corpses = tbl
-    end
+    end,
+    'corpse_util'
 )
 
 local function player_died(event)

@@ -19,9 +19,14 @@ table.insert(market_items, 3, {
 local remove_stack = {name = saviour_token_name, count = 1}
 local saved_players = {}
 
-Global.register(saved_players, function(tbl)
-    saved_players = tbl
-end)
+Global.register(
+    saved_players,
+    function(tbl)
+        saved_players = tbl
+    end,
+    'train_saviour'
+)
+
 
 local train_names = {
     ['locomotive'] = true,

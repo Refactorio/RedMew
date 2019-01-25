@@ -17,7 +17,8 @@ Global.register(
         tag_groups = data.tag_groups
         player_tags = data.player_tags
         no_notify_players = data.no_notify_players
-    end
+    end,
+    'tag_group'
 )
 
 local function notify_players(message)

@@ -15,7 +15,8 @@ Global.register(
     function(tbl)
         chests = tbl.chests
         chests_next = tbl.chests_next
-    end
+    end,
+    'storage_chest'
 )
 
 local chest_gui_frame_name = Gui.uid_name()
@@ -260,4 +261,3 @@ Gui.on_custom_close(
 local market_items = require 'resources.market_items'
 table.insert(market_items, {price = 100, name = 'infinity-chest', description = 'Stores unlimited quantity of items for up to 48 different item types'})
 return Module
-

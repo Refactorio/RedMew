@@ -27,7 +27,8 @@ Global.register(
     function(tbl)
         primitives = tbl.primitives
         rects = tbl.rects
-    end
+    end,
+    'maze'
 )
 
 local function add_tile(x, y, width, height, add_cell)

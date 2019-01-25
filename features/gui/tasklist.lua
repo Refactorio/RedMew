@@ -53,7 +53,8 @@ Global.register(
         tasks_counter = tbl.tasks_counter
         last_task_update_data = tbl.last_task_update_data
         no_notify_players = tbl.no_notify_players
-    end
+    end,
+    'tasklist'
 )
 
 local main_frame_name = Gui.uid_name()

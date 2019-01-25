@@ -100,9 +100,14 @@ local memory = {
     limited_items = {},
 }
 
-Global.register(memory, function (tbl)
-    memory = tbl
-end)
+Global.register(
+    memory,
+    function(tbl)
+        memory = tbl
+    end,
+    'retailer'
+)
+
 
 local function schedule_market_gui_refresh(group_name)
     if memory.market_gui_refresh_scheduled[group_name] then

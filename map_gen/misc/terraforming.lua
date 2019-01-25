@@ -172,7 +172,8 @@ Global.register(
         c_index = tbl.c_index
         dead_robot_count = tbl.dead_robot_count
         popup_timeout = tbl.popup_timeout
-    end
+    end,
+    'terraforming'
 )
 
 --- Converts tiles

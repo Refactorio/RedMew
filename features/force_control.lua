@@ -30,7 +30,8 @@ Global.register(
     },
     function(tbl)
         forces = tbl.forces
-    end
+    end,
+    'force_control'
 )
 
 ---Asserts if a given variable is of the expected type using type().

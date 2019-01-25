@@ -72,7 +72,8 @@ Global.register(
         magic_crafters = tbl.magic_crafters
         magic_fluid_crafters = tbl.magic_fluid_crafters
         outposts = tbl.outposts
-    end
+    end,
+    'crashsite_outpost_builder'
 )
 
 --[[ local function get_direction(part)

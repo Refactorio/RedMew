@@ -41,7 +41,8 @@ Global.register(
         no_notify_players = tbl.no_notify_players
         player_poll_index = tbl.player_poll_index
         player_create_poll_data = tbl.player_create_poll_data
-    end
+    end,
+    'poll'
 )
 
 local main_button_name = Gui.uid_name()

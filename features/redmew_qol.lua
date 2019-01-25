@@ -29,7 +29,8 @@ Global.register(
     },
     function(tbl)
         enabled = tbl.enabled
-    end
+    end,
+    'redmew_qol'
 )
 
 -- Local functions

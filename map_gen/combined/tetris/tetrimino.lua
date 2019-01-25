@@ -85,7 +85,8 @@ Global.register(
     function(tbl)
         move_queue = tbl.move_queue
         sequence = tbl.sequence
-    end
+    end,
+    'tetris_tetrimino'
 )
 
 --- Does this tetrimino collide with anything but itself with a new collision box(rotation) and an x/y offset

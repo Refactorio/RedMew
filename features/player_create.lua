@@ -13,11 +13,16 @@ local memory = {
     }
 }
 
-Global.register({
-    memory = memory,
-}, function (tbl)
-    memory = tbl.memory
-end)
+Global.register(
+    {
+        memory = memory
+    },
+    function(tbl)
+        memory = tbl.memory
+    end,
+    'player_create'
+)
+
 
 local function player_created(event)
     local config = global.config.player_create
