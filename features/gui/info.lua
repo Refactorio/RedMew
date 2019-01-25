@@ -62,15 +62,19 @@ Global.register(
 )
 
 --- Sets the "new info" according to the changelog located on the server
-local changelog_callback =
-    Token.register(
-    function(data)
-        local value = data.value -- will be nil if no data
-        if value then
-            editable_info[new_info_key] = value
-        end
+local function process_changelog(data)
+    local key = data.key
+    if key ~= 'changelog' then
+        return
     end
-)
+
+    local value = data.value -- will be nil if no data
+    if value then
+        editable_info[new_info_key] = value
+    end
+end
+
+local changelog_callback = Token.register(process_changelog)
 
 local function prepare_title()
     local welcome_title =
@@ -717,7 +721,7 @@ Event.add(defines.events.on_player_created, player_created)
 
 Event.add(Server.events.on_server_started, download_changelog)
 
-Server.on_data_set_changed('misc', download_changelog)
+Server.on_data_set_changed('misc', process_changelog)
 
 Gui.on_click(main_button_name, toggle)
 
