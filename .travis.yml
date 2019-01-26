@@ -21,7 +21,9 @@ before_deploy:
 - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y-%m-%d-%H-%M')-$(git log --format=%h -1)}
 - git tag $TRAVIS_TAG
 - rm -rf lua_install
+- cd ..
 - ls -al
+- echo "return" git log --format=%h -1 > resources/version.lua
 
 deploy:
   provider: releases
@@ -31,3 +33,4 @@ deploy:
     repo: plague006/RedMew
     branch: develop
   skip_cleanup: true
+  prerelease: true
