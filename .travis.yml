@@ -3,13 +3,7 @@ sudo: false
 env:
   matrix:
   - LUA="lua=5.2"
-  global:
-  - secure: keIUdRmp6szAoxc11cHDIVbdwvBv9uBI0No5vDO4N6jr2tNM9aFrBTgSKj6CRecWX19J0EVYH1bDGBXnmF+D7Xs7eC1t7145FBK8A6YNRlf5JFdTHHwcwH548FtsICCzGbsrIZ9/+OiPI4OwlDVHKhfNF8qXQ8r36cZOl+6gZzYCqKVt6bKYDbHLnqra7rnXhh83IcZPrdBXHUmHnJ1VGamBQnO77MLLAZcpUV6cGYeDWXOx24tj9ZNwl67xggp9vPIfXNEZx6//+9Ax53g3bjb4WI3ZDE+ZHA5kpzXq0xrfhHgx7eVNFXRU45CXqfINTYegQdkjyKu8hfkGhm745yBCiCW2beQkJ3lbf1KtGWTxANE6khX0b7maF76nmcEZD/CU1Sa4a6ZuznPrNMfFEZeYjL0sFCjOzZApyNh3g8lJp+obeI8ESZVsjH9XgEuepzsrOs/vLSAPp27yNSaPZbGnx/vq4Wbcl+CaMgf4HIEzX40GXaSeFznoX2n2+Kv0x/r3GA0m4zcc1O6zs5gg6Zhqw2gXJTUL0ZX2ynF9TCG39gADv6SRzDcsoY8ZHsPaK6zTqP+iV/r5SDr29Bv9/2fEaSnppZVt+Hw0UWIbrQJNkFGjc4IzyeWjN457eE2ZcynLWAOXxZE1G71nbXbe7SrBO6Y+31OFs6IldHMQYV0=
-  - secure: Az/lJ3/nt39Q/WItdC52tTvuF4eKd8NZBJMIB/aRTf/gALr9EYG0PidKbq5YqL2uVzPOob96mdg30fPaaiBj+tPsGWQg4o3FgvMRnSvvVE72PMl+z/xECdRe4aGbj+eOk5nvA6FmZ0uoA8vG46eGOnABNJCjT116z7QEcjXFuxoF80ZzFtnhdd77FPu40Pxrx+dLxhigeIzM5pNbbsb92TEb8xfOpKXhEoO8RBGLWZfZuNAbW7/1e6edQaM0PBowRvQwU0Z+zyV9oGQJYFH7VWoux1aTCh2RfNm5QsaFhr29U35VGA1j8v2bGfjSSeJ1TgseRV2wnobYsGdtgGFkTHJEJOV2QFPWQe8a7FDo6MoB/hB69ey1GA053juV2yFpgTRVx+eDOuzP1WJghfxHLjWJV7attUj1pgSSz3gFMmVfGototqt/RlxduN8axsx081D7tia/hnNuiw3LXSyUrcLZqZq+9eQfE9S6W7iQJhDZDfFWu4teJVWJg2tJAKJnQIk/LsB5i3iJJq/dEIDzZ0IuDlwuRnuQ1E5juWFs9DdXNGb0AS/yKh0NFtmyjQkiFCCKyMccZDDd3Ey4erji3EJ6T83TjraLZ2f28ryfyEcYv9qIxw7MHe3R6KQqPYbtjDBEyjrMf2EG1YsO0JP3JW4UmZqwqJl86Xi/MaUT0hA=
-  - secure: YM5hc8PYrc6ZT9hepUSM5MDbLAiJSefERJWf4I5qBW7s3gQ7cfKUV5I8ssxkpp3A7HDkItGXbytsl0P2cEbnmTYu78Godp4BwrK9d4s6DRFQQKtaGkClfQl2q/M3hro0Vd/tOpuBBO+7nGI0ZhtS6ySiepnY9VbOmlaQ4/P2lTS/3Hv/1B1APL7z8pnov/Opx7izi4hEZWzIQB1Wli3ICpl67ixiBATS0A0OWpTby0sJTrUL3NDNebrX7eiGujH0yzEnmilQ/yW8xYIz4/mEY4yXZJV5NVcw8c3FZFMkbCav2DTbeuAhQlqF8NRN1VjAxTXMkh96Hx4J/4g/ssUTvXasr38Ke5wiOgzJDYjknnNC8bscbKngNdTp/8//rlvUp2V1K+h458hzLEjnOd7KJVqfBnWs8tZOb9PAbYBy0wTozT/SN7m2AgX629vzIaQfRvww1JETfKn7UYw/RY9FXAK3xpq7Rr3OBX8nWID2MuZ840wcZDVJiXK6V2VGh6DZMi6lCkhkPyUgQC2Pp6M0sW6vB6jnk6jv69HLy1m8dXyE1fenAUMF6l7+2uDrcBRdtUOCiI7l9Sv9ROUU4dCEp6oZG2/OKr4ce1SZYJBNU5rrVYNesXON+EDZ3wViZp1YRUnIfSDOGIrR8YmBLj5Ma4yRGW0JRebq6zk4zwlK12Q=
 before_install:
-- openssl aes-256-cbc -K $encrypted_7d0f22d3b8b2_key -iv $encrypted_7d0f22d3b8b2_iv
-  -in .travis/plague006_github_deploy_key.enc -out plague006_github_deploy_key -d
 - pip install hererocks
 - hererocks lua_install -r^ --$LUA
 - export PATH=$PATH:$PWD/lua_install/bin
@@ -20,9 +14,10 @@ script:
 before_deploy:
 - git config --local user.name $github_user_name
 - git config --local user.email $github_user_email
-- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%H -1)}
+- export TRAVIS_TAG=${TRAVIS_TAG:-$(git log --format=%H -1)}
 - git tag $TRAVIS_TAG
 - rm -rf lua_install
+- ls -al
 deploy:
   provider: releases
   api_key:
