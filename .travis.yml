@@ -5,7 +5,7 @@ env:
   - LUA="lua=5.2"
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_7d0f22d3b8b2_key -iv $encrypted_7d0f22d3b8b2_iv -in .travis/github_deploy_key.enc -out plague006_github_deploy_key -d #plague's key
+  - openssl aes-256-cbc -K $encrypted_7d0f22d3b8b2_key -iv $encrypted_7d0f22d3b8b2_iv -in .travis/plague006_github_deploy_key.enc -out plague006_github_deploy_key -d #plague's key
   #- openssl aes-256-cbc -K $encrypted_7d0f22d3b8b2_key -iv $encrypted_7d0f22d3b8b2_iv -in .travis/github_deploy_key.enc -out refactorio_github_deploy_key -d #refactorio's key
 
   - pip install hererocks
