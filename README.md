@@ -24,3 +24,5 @@ on [Discord](http://redmew.com/discord).
 
 ## License
 The RedMew codebase is licensed under the [GPL3 License](LICENSE).
+
+1
