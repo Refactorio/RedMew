@@ -3,7 +3,6 @@ local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Color = require 'resources.color_presets'
-local Command = require 'utils.command'
 
 local type = type
 local tonumber = tonumber
@@ -29,20 +28,15 @@ end
 ---Toast to a specific player
 ---@param p number|string|LuaPlayer player index or object
 ---@param duration number in seconds
----@param message|nil message displayed, leave empty to have an empty LuaGuiElement
-function Public.toast_player(p, duration, message)
+local function toast_to(p, duration)
     local player
-    local player_name
 
     if type(p) == 'string' then
         player = Game.get_player_by_index(tonumber(p))
-        player_name = player.name
     elseif type(p) == 'number' then
         player = Game.get_player_by_index(p)
-        player_name = player.name
     else
         player = p
-        player_name = p.name
     end
 
     if not player or not player.valid then
@@ -75,12 +69,7 @@ function Public.toast_player(p, duration, message)
         start_tick = tick,
         end_tick = tick + duration * 60
     })
-    memory.active_toasts[id] = player_name
-
-    if message ~= nil then
-        local label = container.add({type = 'label', caption = message})
-        label.style.single_line = false
-    end
+    memory.active_toasts[id] = player.name
 
     return container
 end
@@ -158,14 +147,67 @@ Event.add(defines.events.on_player_left_game, function (event)
     end
 end)
 
-Command.add('toast', {
-    description = 'Toast!',
-    arguments = {'message'},
-    capture_excess_arguments = true,
-}, function (arguments)
-    for _, player in pairs(game.connected_players) do
-        Public.toast_player(player, 10, arguments.message)
+---Toast a specific player, template is a callable that receives a LuaGuiElement
+---to add contents to and a player as second argument.
+---@param player LuaPlayer|number
+---@param duration table
+---@param template function
+function Public.toast_player_template(player, duration, template)
+    local container = toast_to(player, duration)
+    if container then
+        template(container, player)
     end
-end)
+end
+
+---Toast all players of the given force, template is a callable that receives a LuaGuiElement
+---to add contents to and a player as second argument.
+---@param force LuaForce
+---@param duration number
+---@param template function
+function Public.toast_force_template(force, duration, template)
+    for _, player in pairs(force.connected_players) do
+        template(toast_to(player, duration), player)
+    end
+end
+
+---Toast all players, template is a callable that receives a LuaGuiElement
+---to add contents to and a player as second argument.
+---@param duration number
+---@param template function
+function Public.toast_all_players_template(duration, template)
+    for _, player in pairs(game.connected_players) do
+        template(toast_to(player, duration), player)
+    end
+end
+
+---Toast a message to a specific player
+---@param player LuaPlayer|number
+---@param duration number
+---@param message string
+function Public.toast_player(player, duration, message)
+    Public.toast_player_template(player, duration, function (container)
+        local label = container.add({type = 'label', caption = message})
+        label.style.single_line = false
+    end)
+end
+
+---Toast a message to all players of a given force
+---@param force LuaForce
+---@param duration number
+---@param message string
+function Public.toast_force(force, duration, message)
+    for _, player in pairs(force.connected_players) do
+        Public.toast_player(player, duration, message)
+    end
+end
+
+---Toast a message to all players
+---@param duration number
+---@param message string
+function Public.toast_all_players(duration, message)
+    for _, player in pairs(game.connected_players) do
+        Public.toast_player(player, duration, message)
+    end
+end
 
 return Public
