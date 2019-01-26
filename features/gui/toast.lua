@@ -83,7 +83,7 @@ local function get_toast(element)
 
     local data = Gui.get_data(element)
 
-    if data and data.is_toast then
+    if type(data) == 'table' and data.is_toast then
         return element, data
     end
 
