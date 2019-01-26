@@ -3,8 +3,6 @@ sudo: false
 env:
   matrix:
   - LUA="lua=5.2"
-  global:
-    secure: keIUdRmp6szAoxc11cHDIVbdwvBv9uBI0No5vDO4N6jr2tNM9aFrBTgSKj6CRecWX19J0EVYH1bDGBXnmF+D7Xs7eC1t7145FBK8A6YNRlf5JFdTHHwcwH548FtsICCzGbsrIZ9/+OiPI4OwlDVHKhfNF8qXQ8r36cZOl+6gZzYCqKVt6bKYDbHLnqra7rnXhh83IcZPrdBXHUmHnJ1VGamBQnO77MLLAZcpUV6cGYeDWXOx24tj9ZNwl67xggp9vPIfXNEZx6//+9Ax53g3bjb4WI3ZDE+ZHA5kpzXq0xrfhHgx7eVNFXRU45CXqfINTYegQdkjyKu8hfkGhm745yBCiCW2beQkJ3lbf1KtGWTxANE6khX0b7maF76nmcEZD/CU1Sa4a6ZuznPrNMfFEZeYjL0sFCjOzZApyNh3g8lJp+obeI8ESZVsjH9XgEuepzsrOs/vLSAPp27yNSaPZbGnx/vq4Wbcl+CaMgf4HIEzX40GXaSeFznoX2n2+Kv0x/r3GA0m4zcc1O6zs5gg6Zhqw2gXJTUL0ZX2ynF9TCG39gADv6SRzDcsoY8ZHsPaK6zTqP+iV/r5SDr29Bv9/2fEaSnppZVt+Hw0UWIbrQJNkFGjc4IzyeWjN457eE2ZcynLWAOXxZE1G71nbXbe7SrBO6Y+31OFs6IldHMQYV0=
 before_install:
 - pip install hererocks
 - hererocks lua_install -r^ --$LUA
@@ -19,6 +17,7 @@ before_deploy:
 - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%H -1)}
 - git tag $TRAVIS_TAG
 - rm -rf lua_install
+- ls -al
 deploy:
   provider: releases
   api_key:
