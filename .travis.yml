@@ -5,7 +5,9 @@ env:
   - LUA="lua=5.2"
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_7d0f22d3b8b2_key -iv $encrypted_7d0f22d3b8b2_iv -in .travis/github_deploy_key.enc -out refactorio_github_deploy_key -d
+  - openssl aes-256-cbc -K $encrypted_7d0f22d3b8b2_key -iv $encrypted_7d0f22d3b8b2_iv -in .travis/plague006_github_deploy_key.enc -out plague006_github_deploy_key -d #plague's key
+  #- openssl aes-256-cbc -K $encrypted_7d0f22d3b8b2_key -iv $encrypted_7d0f22d3b8b2_iv -in .travis/refactorio_github_deploy_key.enc -out refactorio_github_deploy_key -d #refactorio's key
+
   - pip install hererocks
   - hererocks lua_install -r^ --$LUA
   - export PATH=$PATH:$PWD/lua_install/bin
@@ -19,8 +21,8 @@ script:
 
 before_deploy:
   # Set up git user name and tag this commit
-  - git config --local user.name "Matthew"
-  - git config --local user.email "plague006@users.noreply.github.com"
+  - git config --local user.name $github_user_name
+  - git config --local user.email $github_user_email
   - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%H -1)}
   - git tag $TRAVIS_TAG
   - rm -rf lua_install
