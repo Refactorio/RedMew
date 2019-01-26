@@ -16,7 +16,7 @@ local memory = {
     active_toasts = {},
 }
 
-Global.register(memory, function (tbl) memory = tbl end)
+Global.register(memory, function (tbl) memory = tbl end, 'toast')
 
 ---Creates a unique ID for a toast message
 local function autoincrement()
