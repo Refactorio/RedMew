@@ -83,7 +83,7 @@ local function get_toast(element)
 
     local data = Gui.get_data(element)
 
-    if type(data) == 'table' and data.is_toast then
+    if data and type(data) == 'table' and not data.__self and data.is_toast then
         return element, data
     end
 
@@ -128,21 +128,6 @@ Event.on_nth_tick(2, function (event)
                     end
                 end
             end
-        end
-    end
-end)
-
-Event.add(defines.events.on_player_left_game, function (event)
-    local active_toasts = memory.active_toasts
-    if size(active_toasts) == 0 then
-        return
-    end
-
-    -- active toasts, do a cleanup so data remains uncorrupted
-    for _, element in pairs(Game.get_player_by_index(event.player_index).gui.left.children) do
-        local toast = get_toast(element)
-        if toast then
-            Gui.destroy(element)
         end
     end
 end)
