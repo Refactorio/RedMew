@@ -59,6 +59,8 @@ local entity_spawn_map = {
     ['assembling-machine-3'] = {type = 'cause', count = 4, chance = 1},
     ['chemical-plant'] = {type = 'cause', count = 4, chance = 1},
     ['centrifuge'] = {type = 'cause', count = 6, chance = 1},
+    ['pumpjack'] = {type = 'cause', count = 6, chance = 1},
+    ['storage-tank'] = {type = 'cause', count = 4, chance = 1},
     ['oil-refinery'] = {type = 'cause', count = 8, chance = 1},
     ['offshore-pump'] = {type = 'cause', count = 2, chance = 1},
     ['boiler'] = {type = 'cause', count = 2, chance = 1},
