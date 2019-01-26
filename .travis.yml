@@ -3,26 +3,31 @@ sudo: false
 env:
   matrix:
   - LUA="lua=5.2"
+
 before_install:
 - pip install hererocks
 - hererocks lua_install -r^ --$LUA
 - export PATH=$PATH:$PWD/lua_install/bin
+
 install:
 - luarocks install luacheck
+
 script:
-- ls -al
+
+
 before_deploy:
 - git config --local user.name $github_user_name
 - git config --local user.email $github_user_email
-- export TRAVIS_TAG=${TRAVIS_TAG:-$(git log --format=%H -1)}
+- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y-%m-%d-%H-%M')-$(git log --format=%h -1)}
 - git tag $TRAVIS_TAG
 - rm -rf lua_install
 - ls -al
+
 deploy:
   provider: releases
-  api_key:
-    secure: bJaIfB4l/ZD2ICMSqsd1evY7A2bRUF9NUkjazzxbU+NpIvd6gUmFQMzyXmJjDeVQUVAwsDIVo5m1cz3dGC48z/ohMT/8GJUuvStQ8BW9fg+koTz1V9TZbSC5wQs1KcoCM7Iq6KEGEsmTRUjGJuxw+IH3c1Qbc0R80yUT5XGybvflTJZ4ca/191Fgu9I1qkkDh7EvPVxkLr4GlhAmGMbDFUS3kqwY59C+sCbSu7qdexrQI1mkOmKw4VWVeQ+aHhX0VMo1R0OFPO11sJ74PsoRj2j7JbYddttFo1UoXrp+5WiABOwbG0IkToN1c0uisuE2+K0RQluNSbl8qCFq7Op3ab09oWCN1Rzt/iwI62hFKQgYGpr+D8Wb7C5IYKeZQMMPRP70kZd2pJMBEWtRZgpt7FazGbQIfvz3d5BmoS20PVZNtwDhULEYqdbP3d53AFeo0egYlag8/vVsfG0cJlKzUGReFd0uRL/9bPlDN6vdeVitZfOmHg+RldEx2aAsTJKniNo6WY/l+kAsBAqp5GVc3unPhRv1IBMtFTtLxQpnTYHGamlCxtO+ZfmLzkm6ugOEjqsw6JGW8+5rcYvi0mgInKv5pnPHKg+7+kIML4V1AqiuekwhPb8C7EmKH/M9G8vreY1OF8ie2C87QOUjXmYYfrfHCdY8LjH7Xohdgm/PUOM=
+  api_key: $github_key
   file: "../RedMew"
   on:
     repo: plague006/RedMew
     branch: develop
+  skip_cleanup: true
