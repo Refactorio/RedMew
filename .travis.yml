@@ -14,6 +14,7 @@ install:
 
 script:
   #- luacheck . --exclude-files lua_install
+  - ls -al
 
 before_deploy:
   # Set up git user name and tag this commit
