@@ -13,7 +13,7 @@ install:
   - luarocks install luacheck
 
 script:
-  - luacheck . --exclude-files lua_install
+  #- luacheck . --exclude-files lua_install
 
 before_deploy:
   # Set up git user name and tag this commit
