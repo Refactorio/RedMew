@@ -8,14 +8,6 @@ branches:
   - master
   - develop
 
-# one job to test, one job to prep everything for deployment
-jobs:
-  include:
-    - stage: test
-      script: luacheck . --exclude-files lua_install
-    - stage: deploy
-      script: ./deploy
-
 before_install:
 - pip install hererocks
 - hererocks lua_install -r^ --$LUA
