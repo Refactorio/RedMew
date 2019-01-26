@@ -20,7 +20,7 @@ before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "Matthew"
   - git config --local user.email "plague006@users.noreply.github.com"
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%H -1)}
   - git tag $TRAVIS_TAG
   - rm -rf lua_install
 
