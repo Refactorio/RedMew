@@ -13,7 +13,7 @@ To join a RedMew Factorio server, follow the following steps in Factorio:
  - Next select "Browse public games" (this requires a factorio account and may prompt you to log in)
  - In the list of "Browse games" you can filter for "RedMew" and you will see all RedMew hosted maps
 
-> _Note_: Not every server in this list will be official. If you're in doubt, join Discord and ask.
+> _Note_: Not every server in this list will be official. If you're in doubt, join our Discord and ask.
 
 ## Documentation
 Looking for a way to play a RedMew scenario yourself? [Check out our wiki!](https://github.com/Refactorio/RedMew/wiki).
