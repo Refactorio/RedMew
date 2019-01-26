@@ -3,6 +3,7 @@ local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Color = require 'resources.color_presets'
+local Command = require 'utils.command'
 
 local type = type
 local tonumber = tonumber
@@ -31,13 +32,17 @@ end
 ---@param message|nil message displayed, leave empty to have an empty LuaGuiElement
 function Public.toast_player(p, duration, message)
     local player
+    local player_name
 
     if type(p) == 'string' then
         player = Game.get_player_by_index(tonumber(p))
+        player_name = player.name
     elseif type(p) == 'number' then
         player = Game.get_player_by_index(p)
+        player_name = player.name
     else
         player = p
+        player_name = p.name
     end
 
     if not player or not player.valid then
@@ -70,7 +75,7 @@ function Public.toast_player(p, duration, message)
         start_tick = tick,
         end_tick = tick + duration * 60
     })
-    memory.active_toasts[id] = true
+    memory.active_toasts[id] = player_name
 
     if message ~= nil then
         local label = container.add({type = 'label', caption = message})
@@ -98,12 +103,13 @@ local function get_toast(element)
 end
 
 Event.add(defines.events.on_gui_click, function (event)
-    local element = get_toast(event.element)
-    if not element then
+    local element, data = get_toast(event.element)
+    if not element or not data then
         return
     end
 
     Gui.destroy(element)
+    memory.active_toasts[data.toast_id] = nil
 end)
 
 Event.on_nth_tick(2, function (event)
@@ -113,32 +119,27 @@ Event.on_nth_tick(2, function (event)
     end
 
     local tick = event.tick
-    local players = game.connected_players
+    local players = game.players
 
-    local finished_toasts = {}
+    for _, player_name in pairs(active_toasts) do
+        local player = players[player_name]
+        if player and player.valid then
+            for _, element in pairs(player.gui.left.children) do
+                local toast, data = get_toast(element)
+                if toast and data then
+                    local end_tick = data.end_tick
 
-    for _, player in pairs(players) do
-        for _, element in pairs(player.gui.left.children) do
-            local toast, data = get_toast(element)
-            if toast and data then
-                local toast_id = data.toast_id
-                local end_tick = data.end_tick
-
-                if tick > end_tick then
-                    Gui.destroy(element)
-                    finished_toasts[toast_id] = true
-                else
-                    local start_tick = data.start_tick
-                    local limit = end_tick - start_tick
-                    local current = end_tick - tick
-                    data.progressbar.value = current / limit
+                    if tick > end_tick then
+                        Gui.destroy(element)
+                        active_toasts[data.toast_id] = nil
+                    else
+                        local limit = end_tick - data.start_tick
+                        local current = end_tick - tick
+                        data.progressbar.value = current / limit
+                    end
                 end
             end
         end
-    end
-
-    for toast_id, _ in pairs(finished_toasts) do
-        active_toasts[toast_id] = nil
     end
 end)
 
@@ -154,6 +155,16 @@ Event.add(defines.events.on_player_left_game, function (event)
         if toast then
             Gui.destroy(element)
         end
+    end
+end)
+
+Command.add('toast', {
+    description = 'Toast!',
+    arguments = {'message'},
+    capture_excess_arguments = true,
+}, function (arguments)
+    for _, player in pairs(game.connected_players) do
+        Public.toast_player(player, 10, arguments.message)
     end
 end)
 
