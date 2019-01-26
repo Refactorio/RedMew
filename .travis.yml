@@ -3,31 +3,24 @@ sudo: false
 env:
   matrix:
   - LUA="lua=5.2"
-
 before_install:
 - pip install hererocks
 - hererocks lua_install -r^ --$LUA
 - export PATH=$PATH:$PWD/lua_install/bin
-
 install:
 - luarocks install luacheck
-
 script:
-
+- ls -al
 before_deploy:
 - git config --local user.name $github_user_name
 - git config --local user.email $github_user_email
-- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y-%m-%d-%H-%M')-$(git log --format=%h -1)}
+- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%H -1)}
 - git tag $TRAVIS_TAG
 - rm -rf lua_install
-- echo "return" git log --format=%h -1 > resources/version.lua
-
 deploy:
   provider: releases
-  api_key: $github_key
+  api_key: $api_key
   file: "../RedMew"
   on:
     repo: plague006/RedMew
     branch: develop
-  skip_cleanup: true
-  prerelease: true
