@@ -19,8 +19,9 @@ before_deploy:
 - rm -rf lua_install
 deploy:
   provider: releases
-  api_key: $api_key
-  file: "../RedMew"
+  api_key:
+    secure: 3LnvdRAePdWDqVkHW7tn9rPQ9rWbBRJuUR/ImK0z+cHEkN/VYvo65S7bc4Ij1zIkQ5Qq4ljSxAy7zNafIsAqeTES9xDiveGxaLt+lmNI//eW024aKEcK1IkGLiGvff64J3LMw+cXwLGXMEKtx7q2Qd3QSYpjXxqOWA1OyfuHw/jyatpNHx2PKbA6e6s0ll3tYRhsGRmaCAGoPdBKwfVF5YIRauZUUp7pYpz4RFp+QTd/opTJhr0EOciwZxmIGmgXU2roKb5d9mt5B7IZGtOXCZNtFCZTJTAvgL4pjuFnpF4Cs0XZ0c/uihLT2B1bLqjjvbks2FHaLCgu6FdApwb28SfovbO98qxkuuaIYYJOrCiZ8zwtnhutkYr/Zs5Vdc5CEbm7YUjEIBKharlR8Pc5baRAQH4SOG13QYLqbKonQKUDHUUQWLs2ZugiT+m9QH7RbvSB/ji/cB+ksZiOKMRyfXWTJgdj48LicE9oKIpWcIk3gjzs1PONHM7Ie8c4UdfLdxoAQV7Of8OmCu41OtXAcErDL60TJleXh/bHFNyoDM/fukekbH6WewEteKkBUO0ylMZJVeTtIAwkp0jSuba8aUtIZXau947mz0j4f9Yf2WzasNuINHbWt7FNU6RThBgNun6zFXRWhrJ6JudM/R6UhDondPZmOUo+l1esoIue5FY=
+  file: control.lua
   on:
     repo: plague006/RedMew
     branch: develop
