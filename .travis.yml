@@ -3,7 +3,6 @@ sudo: false
 env:
   matrix:
   - LUA="lua=5.2"
-  # safelist
 branches:
   only:
   - master
@@ -16,6 +15,7 @@ install:
 - luarocks install luacheck
 script:
 #- luacheck . --exclude-files lua_install
+- ls
 before_deploy:
 - git config --local user.name $github_user_name
 - git config --local user.email $github_user_email
