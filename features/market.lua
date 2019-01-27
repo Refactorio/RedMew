@@ -10,8 +10,8 @@ local market_items = require 'resources.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
 
 -- localized functions
-
 local pairs = pairs
+local round = math.round
 local random = math.random
 local format = string.format
 local currency = global.config.market.currency
@@ -38,7 +38,8 @@ local function spawn_market(_, player)
     local force = player.force
 
     local pos = player.position
-    pos.y = pos.y - 4
+    pos.y = round(pos.y - 4)
+    pos.x = round(pos.x)
 
     local market = surface.create_entity({name = 'market', position = pos})
     market.destructible = false
@@ -46,8 +47,10 @@ local function spawn_market(_, player)
 
     Retailer.add_market('fish_market', market)
 
-    for _, prototype in pairs(market_items) do
-        Retailer.set_item('fish_market', prototype)
+    if table.size(Retailer.get_items('fish_market')) == 0 then
+        for _, prototype in pairs(market_items) do
+            Retailer.set_item('fish_market', prototype)
+        end
     end
 
     force.add_chart_tag(surface, {icon = {type = 'item', name = currency}, position = pos, text = 'Market'})

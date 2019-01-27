@@ -13,6 +13,7 @@ require 'utils.core'
 local Scenario = {}
 
 RS.set_first_player_position_check_override(true) -- forces players to spawn at 0,0
+RS.set_spawn_island_tile('stone-path')
 global.diggy_scenario_registered = false
 
 --[[--
