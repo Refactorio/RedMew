@@ -12,6 +12,7 @@ local Global = require 'utils.global'
 local Game = require 'utils.game'
 local CreateParticles = require 'features.create_particles'
 local RS = require 'map_gen.shared.redmew_surface'
+local table = require 'utils.table'
 
 local random = math.random
 local floor = math.floor
@@ -24,6 +25,7 @@ local raise_event = script.raise_event
 local set_timeout = Task.set_timeout
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local ceiling_crumble = CreateParticles.ceiling_crumble
+local clear_table = table.clear_table
 local collapse_rocks = Template.diggy_rocks
 local collapse_rocks_size = #collapse_rocks
 
@@ -51,6 +53,7 @@ local ring_value = 0
 local enable_stress_grid = 0
 local stress_map_add
 local mask_disc_blur
+local mask_init
 local stress_map_check_stress_in_threshold
 local support_beam_entities
 local on_surface_created
@@ -512,7 +515,7 @@ on_surface_created = function(event)
     local index = event.surface_index
 
     if stress_map_storage[index] then
-        table.clear_table(stress_map_storage[index])
+        clear_table(stress_map_storage[index])
     else
         stress_map_storage[index] = {}
     end
@@ -579,7 +582,7 @@ DiggyCaveCollapse.stress_map_add = stress_map_add
 -- MASK
 --
 
-function mask_init(config)
+mask_init = function(config) -- luacheck: ignore 431 (intentional upvalue shadow)
     n = config.mask_size
     local ring_weights = config.mask_relative_ring_weights
 

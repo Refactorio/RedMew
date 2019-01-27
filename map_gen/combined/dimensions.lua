@@ -61,6 +61,8 @@ local function generate_nihil(event)
     event.surface.set_tiles(tiles)
 end
 
+--[[
+    Nothihng calls run_combined_module and I'm not sure what to do with it since it seems to want an event to trigger it
 function run_combined_module(event)
     init()
     if event.surface.name == 'Zerus' then
@@ -69,6 +71,7 @@ function run_combined_module(event)
         generate_nihil(event)
     end
 end
+]]
 
 local function teleport_nearby_players(portal)
     for _, player_character in pairs(portal.source.find_entities_filtered {area = {{portal.position.x - global.portal_radius, portal.position.y - global.portal_radius}, {portal.position.x + global.portal_radius, portal.position.y + global.portal_radius}}, name = 'player', type = 'player'}) do

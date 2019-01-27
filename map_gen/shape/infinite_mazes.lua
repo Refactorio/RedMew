@@ -26,7 +26,7 @@ local resource_density_factor = 500
 --Warning: Do not exceed the total number of cells in the maze, or it will break!
 
 --DO NOT TOUCH BELOW THIS LINE--
-
+local _ -- garbage collection var
 local bor = bit32.bor
 local bxor = bit32.bxor
 local band = bit32.band
@@ -132,7 +132,7 @@ local function get_maze(x, y, seed, width, height)
     value = rshift(value, 16)
     maze_data[1][value % height + 1] = band(maze_data[1][value % height + 1], 2)
 
-    maze_seed, value = get_random_maze_val(maze_seed)
+    _, value = get_random_maze_val(maze_seed)
     maze_data[width + 1] = {0, 0}
     maze_data[width + 1][1] = value % width + 1
     value = rshift(value, 16)
