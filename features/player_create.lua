@@ -56,6 +56,10 @@ local function player_created(event)
         end
     end
 
+    if not game.is_multiplayer() and not _DEBUG then
+        player.print('To change your name in single-player, open chat and type the following /c game.player.name = "your_name"')
+    end
+
     if _DEBUG and player.admin then
         UserGroups.add_regular(player.name)
     end
