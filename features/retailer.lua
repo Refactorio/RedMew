@@ -289,7 +289,8 @@ local function redraw_market_items(data)
         end
 
         if description then
-            insert(tooltip, '\n' .. item.description)
+            insert(tooltip, '\n')
+            insert(tooltip, item.description)
         end
 
         if disabled then

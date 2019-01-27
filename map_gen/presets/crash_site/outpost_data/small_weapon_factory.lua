@@ -35,7 +35,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'piercing-shotgun-shell',
-        output = {min_rate = 0.25 / 60, distance_factor = 0.25 / 60 / 512, item = 'piercing-shotgun-shell'}
+        output = {min_rate = 0.125 / 60, distance_factor = 0.125 / 60 / 512, item = 'piercing-shotgun-shell'}
     }
 }
 
@@ -43,7 +43,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'rocket',
-        output = {min_rate = 0.2 / 60, distance_factor = 0.2 / 60 / 512, item = 'rocket'}
+        output = {min_rate = 0.1 / 60, distance_factor = 0.1 / 60 / 512, item = 'rocket'}
     }
 }
 
@@ -51,7 +51,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'gun-turret',
-        output = {min_rate = 0.1 / 60, distance_factor = 0.1 / 60 / 512, item = 'gun-turret'}
+        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'gun-turret'}
     }
 }
 
@@ -59,6 +59,9 @@ local market = {
     callback = ob.market_set_items_callback,
     data = {
         market_name = 'Small Weapon Factory',
+        upgrade_rate = 0.5,
+        upgrade_base_cost = 350,
+        upgrade_cost_base = 2,
         {
             name = 'raw-fish',
             price = 1,

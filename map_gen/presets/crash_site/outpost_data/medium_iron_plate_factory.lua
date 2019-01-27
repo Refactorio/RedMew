@@ -22,7 +22,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         furance_item = 'iron-ore',
-        output = {min_rate = 5 / 60, distance_factor = 2 / 60 / 512, item = 'iron-plate'}
+        output = {min_rate = 2.5 / 60, distance_factor = 2.5 / 60 / 512, item = 'iron-plate'}
     }
 }
 
@@ -30,7 +30,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         furance_item = {name = 'iron-plate', count = 100},
-        output = {min_rate = 1.5 / 60, distance_factor = 1.5 / 60 / 512, item = 'steel-plate'}
+        output = {min_rate = 0.75 / 60, distance_factor = 0.75 / 60 / 512, item = 'steel-plate'}
     }
 }
 
@@ -38,6 +38,9 @@ local market = {
     callback = ob.market_set_items_callback,
     data = {
         market_name = 'Medium Iron Plate Factory',
+        upgrade_rate = 0.5,
+        upgrade_base_cost = 250,
+        upgrade_cost_base = 2,
         {
             name = 'iron-plate',
             price = 0.3,

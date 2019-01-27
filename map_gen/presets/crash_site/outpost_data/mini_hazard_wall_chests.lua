@@ -15,7 +15,8 @@ return ob.make_walls {
     },
     ob.make_4_way {
         part_size = 3,
-        [1] = {entity = {name = 'stone-wall'}},
+        wall = {callback = ob.wall_callback},
+        [1] = {entity = {name = 'stone-wall', callback = 'wall'}},
         [2] = {entity = {name = 'stone-wall'}},
         [3] = {entity = {name = 'stone-wall'}},
         [4] = {entity = {name = 'stone-wall'}},
@@ -29,7 +30,7 @@ return ob.make_walls {
         part_size = 3,
         [1] = {entity = {name = 'stone-wall'}},
         [2] = {tile = 'hazard-concrete-left'},
-        [3] = {entity = {name = 'iron-chest'}, tile = 'stone-path'},
+        [3] = {entity = {name = 'iron-chest', force = 'neutral', callback = 'loot'}, tile = 'stone-path'},
         [4] = {tile = 'hazard-concrete-left'},
         [5] = {entity = {name = 'medium-electric-pole'}, tile = 'hazard-concrete-left'},
         [6] = {entity = {name = 'iron-chest', force = 'neutral', callback = 'loot'}, tile = 'stone-path'},

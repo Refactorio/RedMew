@@ -22,7 +22,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         furance_item = 'copper-ore',
-        output = {min_rate = 5 / 60, distance_factor = 2 / 60 / 512, item = 'copper-plate'}
+        output = {min_rate = 2.5 / 60, distance_factor = 2.5 / 60 / 512, item = 'copper-plate'}
     }
 }
 
@@ -30,6 +30,9 @@ local market = {
     callback = ob.market_set_items_callback,
     data = {
         market_name = 'Medium Copper Plate Factory',
+        upgrade_rate = 0.5,
+        upgrade_base_cost = 250,
+        upgrade_cost_base = 2,
         {
             name = 'copper-cable',
             price = 0.12,

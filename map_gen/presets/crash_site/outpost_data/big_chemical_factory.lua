@@ -27,7 +27,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'plastic-bar',
-        output = {min_rate = 2.5 / 60, distance_factor = 2 / 60 / 512, item = 'plastic-bar'}
+        output = {min_rate = 1.25 / 60, distance_factor = 1 / 60 / 512, item = 'plastic-bar'}
     }
 }
 
@@ -35,14 +35,14 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'sulfuric-acid',
-        output = {min_rate = 20 / 60, distance_factor = 20 / 60 / 512, item = 'sulfuric-acid', fluidbox_index = 2}
+        output = {min_rate = 10 / 60, distance_factor = 10 / 60 / 512, item = 'sulfuric-acid', fluidbox_index = 2}
     }
 }
 local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'rocket-fuel',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'rocket-fuel'}
+        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'rocket-fuel'}
     }
 }
 
@@ -50,6 +50,9 @@ local market = {
     callback = ob.market_set_items_callback,
     data = {
         market_name = 'Big Chemical Factory',
+        upgrade_rate = 0.5,
+        upgrade_base_cost = 250,
+        upgrade_cost_base = 2,
         {
             name = 'coal',
             price = 0.25,

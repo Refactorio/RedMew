@@ -24,7 +24,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'advanced-circuit',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'advanced-circuit'}
+        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'advanced-circuit'}
     }
 }
 
@@ -32,7 +32,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'processing-unit',
-        output = {min_rate = 0.2 / 60, distance_factor = 0.2 / 60 / 512, item = 'processing-unit'}
+        output = {min_rate = 0.4 / 60, distance_factor = 0.4 / 60 / 512, item = 'processing-unit'}
     }
 }
 
@@ -40,7 +40,7 @@ local factory_d = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'rocket-control-unit',
-        output = {min_rate = 0.1 / 60, distance_factor = 0.1 / 60 / 512, item = 'rocket-control-unit'}
+        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'rocket-control-unit'}
     }
 }
 
@@ -48,6 +48,9 @@ local market = {
     callback = ob.market_set_items_callback,
     data = {
         market_name = 'Big Circuit Factory',
+        upgrade_rate = 0.5,
+        upgrade_base_cost = 350,
+        upgrade_cost_base = 2,
         {
             name = 'copper-cable',
             price = 0.25,

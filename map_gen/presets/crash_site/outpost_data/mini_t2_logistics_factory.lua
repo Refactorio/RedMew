@@ -21,21 +21,52 @@ local loot_callback =
 )
 
 local factory_loot = {
-    {stack = {name = 'fast-transport-belt', count = 100, distance_factor = 0}, weight = 5},
-    {stack = {name = 'fast-underground-belt', count = 50, distance_factor = 0}, weight = 5},
-    {stack = {name = 'fast-splitter', count = 25, distance_factor = 1 / 32}, weight = 5},
-    {stack = {name = 'fast-inserter', count = 50, distance_factor = 0}, weight = 5},
-    {stack = {name = 'assembling-machine-2', count = 25, distance_factor = 1 / 32}, weight = 5}
+    {
+        stack = {
+            recipe = 'fast-transport-belt',
+            output = {item = 'fast-transport-belt', min_rate = 1 / 2 / 60, distance_factor = 1 / 2 / 60 / 512}
+        },
+        weight = 5
+    },
+    {
+        stack = {
+            recipe = 'fast-underground-belt',
+            output = {item = 'fast-underground-belt', min_rate = 1 / 8 / 60, distance_factor = 1 / 8 / 60 / 512}
+        },
+        weight = 5
+    },
+    {
+        stack = {
+            recipe = 'fast-splitter',
+            output = {item = 'fast-splitter', min_rate = 1 / 8 / 60, distance_factor = 1 / 8 / 60 / 512}
+        },
+        weight = 5
+    },
+    {
+        stack = {
+            recipe = 'fast-inserter',
+            output = {item = 'fast-inserter', min_rate = 1 / 2 / 60, distance_factor = 1 / 2 / 60 / 512}
+        },
+        weight = 5
+    },
+    {
+        stack = {
+            recipe = 'assembling-machine-2',
+            output = {item = 'assembling-machine-2', min_rate = 1 / 4 / 60, distance_factor = 1 / 4 / 60 / 512}
+        },
+        weight = 5
+    }
 }
 
 local factory_weights = ob.prepare_weighted_loot(factory_loot)
 
-local factory_callback =
-    Token.register(
-    function(factory)
-        ob.do_factory_loot(factory, factory_weights, factory_loot)
-    end
-)
+local factory_callback = {
+    callback = ob.magic_item_crafting_callback_weighted,
+    data = {
+        loot = factory_loot,
+        weights = factory_weights
+    }
+}
 
 local wall_chests = require 'map_gen.presets.crash_site.outpost_data.mini_wall_chests'
 local turret = require 'map_gen.presets.crash_site.outpost_data.mini_gun_turret'
@@ -47,7 +78,7 @@ local blank = require 'map_gen.presets.crash_site.outpost_data.mini_blank'
 local base_factory = require 'map_gen.presets.crash_site.outpost_data.mini_factory'
 local gun_turret_block = require 'map_gen.presets.crash_site.outpost_data.mini_gun_turret_block'
 
-local factory = ob.extend_1_way(base_factory, {factory = {callback = factory_callback}, fallback = blank})
+local factory = ob.extend_1_way(base_factory, {factory = factory_callback, fallback = blank})
 local gun = ob.extend_1_way(gun_turret_block, {fallback = factory})
 
 return {

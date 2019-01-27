@@ -29,7 +29,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'iron-gear-wheel',
-        output = {min_rate = 4 / 60, distance_factor = 4 / 60 / 512, item = 'iron-gear-wheel'}
+        output = {min_rate = 2 / 60, distance_factor = 2 / 60 / 512, item = 'iron-gear-wheel'}
     }
 }
 
@@ -37,7 +37,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'engine-unit',
-        output = {min_rate = 2 / 60, distance_factor = 2 / 60 / 512, item = 'engine-unit'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'engine-unit'}
     }
 }
 
@@ -45,7 +45,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'electric-engine-unit',
-        output = {min_rate = 2 / 60, distance_factor = 2 / 60 / 512, item = 'electric-engine-unit'}
+        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'electric-engine-unit'}
     }
 }
 
@@ -53,6 +53,9 @@ local market = {
     callback = ob.market_set_items_callback,
     data = {
         market_name = 'Big Gear Factory',
+        upgrade_rate = 0.5,
+        upgrade_base_cost = 200,
+        upgrade_cost_base = 2,
         {
             name = 'iron-gear-wheel',
             price = 0.5,

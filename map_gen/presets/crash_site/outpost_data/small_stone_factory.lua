@@ -23,7 +23,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         furance_item = 'stone',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'stone-brick'}
+        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'stone-brick'}
     }
 }
 
@@ -31,7 +31,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'stone-wall',
-        output = {min_rate = 1 / 60, distance_factor = 1 / 60 / 512, item = 'stone-wall'}
+        output = {min_rate = 0.1 / 60, distance_factor = 0.1 / 60 / 512, item = 'stone-wall'}
     }
 }
 
@@ -39,6 +39,9 @@ local market = {
     callback = ob.market_set_items_callback,
     data = {
         market_name = 'Small Stone Factory',
+        upgrade_rate = 0.5,
+        upgrade_base_cost = 125,
+        upgrade_cost_base = 2,
         {
             name = 'stone',
             price = 0.25,

@@ -7,6 +7,8 @@ local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
 local Random = require 'map_gen.shared.random'
 local OutpostBuilder = require 'map_gen.presets.crash_site.outpost_builder'
+local Token = require 'utils.token'
+local Task = require 'utils.task'
 local math = require 'utils.math'
 local ScenarioInfo = require 'features.gui.info'
 local table = require 'utils.table'
@@ -33,7 +35,7 @@ RS.set_map_gen_settings(
 ScenarioInfo.set_map_name('Crashsite')
 ScenarioInfo.set_map_description('Capture outposts and defend against the biters.')
 ScenarioInfo.add_map_extra_info(
-    '- Outposts have enemy turrets defending them.\n- Outposts have loot and provide a steady stream of resources.\n- Outpost markets with different resources and at prices.\n- Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.\n- Biters have more health and deal more damage.\n- Biters and spitters spawn on death of entities.'
+    '- Outposts have enemy turrets defending them.\n- Outposts have loot and provide a steady stream of resources.\n- Outpost markets to purchase items and outpost upgrades.\n- Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.\n- Biters have more health and deal more damage.\n- Biters and spitters spawn on death of entities.'
 )
 
 global.config.market.enabled = false
@@ -110,7 +112,24 @@ local mini_t1_production_factory = require 'map_gen.presets.crash_site.outpost_d
 local mini_t2_energy_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t2_energy_factory'
 local mini_t1_train_factory = require 'map_gen.presets.crash_site.outpost_data.mini_t1_train_factory'
 
+local spawn_callback_callback =
+    Token.register(
+    function(outpost_id)
+        OutpostBuilder.activate_market_upgrade(outpost_id)
+    end
+)
+
+local spawn_callback =
+    Token.register(
+    function(entity, data)
+        Token.get(OutpostBuilder.market_set_items_callback)(entity, data)
+        Task.set_timeout_in_ticks(1, spawn_callback_callback, data.outpost_id)
+    end
+)
+
 local function init()
+    local on_init = game ~= nil
+
     local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
 
     local outpost_builder = OutpostBuilder.new(outpost_random)
@@ -296,7 +315,7 @@ local function init()
     local mini2_iter = itertor_builder(mini2, outpost_random)
     local mini3_iter = itertor_builder(mini3, outpost_random)
 
-    local start_outpost = outpost_builder:do_outpost(thin_walls)
+    local start_outpost = outpost_builder:do_outpost(thin_walls, on_init)
     start_outpost = b.change_tile(start_outpost, false, true)
     start_outpost = b.change_map_gen_collision_tile(start_outpost, 'water-tile', 'grass-1')
 
@@ -379,7 +398,7 @@ local function init()
         local row = pattern[r]
 
         local template = stage1a_iter()
-        local shape = outpost_builder:do_outpost(template)
+        local shape = outpost_builder:do_outpost(template, on_init)
 
         local x = outpost_random:next_int(-outpost_offset, outpost_offset)
         local y = outpost_random:next_int(-outpost_offset, outpost_offset)
@@ -394,7 +413,7 @@ local function init()
         local row = pattern[r]
 
         local template = stage1b_iter()
-        local shape = outpost_builder:do_outpost(template)
+        local shape = outpost_builder:do_outpost(template, on_init)
 
         local x = outpost_random:next_int(-outpost_offset, outpost_offset)
         local y = outpost_random:next_int(-outpost_offset, outpost_offset)
@@ -409,7 +428,7 @@ local function init()
         local row = pattern[r]
 
         local template = stage2_iter()
-        local shape = outpost_builder:do_outpost(template)
+        local shape = outpost_builder:do_outpost(template, on_init)
 
         local x = outpost_random:next_int(-outpost_offset, outpost_offset)
         local y = outpost_random:next_int(-outpost_offset, outpost_offset)
@@ -423,7 +442,7 @@ local function init()
         for c = 2, 8 do
             if not row[c] then
                 local template = stage3_iter()
-                local shape = outpost_builder:do_outpost(template)
+                local shape = outpost_builder:do_outpost(template, on_init)
 
                 local x = outpost_random:next_int(-outpost_offset, outpost_offset)
                 local y = outpost_random:next_int(-outpost_offset, outpost_offset)
@@ -439,7 +458,7 @@ local function init()
         for c = 1, grid_number_of_blocks do
             if not row[c] then
                 local template = stage4_iter()
-                local shape = outpost_builder:do_outpost(template)
+                local shape = outpost_builder:do_outpost(template, on_init)
 
                 local x = outpost_random:next_int(-outpost_offset, outpost_offset)
                 local y = outpost_random:next_int(-outpost_offset, outpost_offset)
@@ -468,7 +487,7 @@ local function init()
         for c = 8, 14 do
             if not row[c] then
                 local template = mini1_iter()
-                local shape = outpost_builder:do_outpost(template)
+                local shape = outpost_builder:do_outpost(template, on_init)
 
                 local x = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
                 local y = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
@@ -484,7 +503,7 @@ local function init()
         for c = 6, 16 do
             if not row[c] then
                 local template = mini2_iter()
-                local shape = outpost_builder:do_outpost(template)
+                local shape = outpost_builder:do_outpost(template, on_init)
 
                 local x = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
                 local y = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
@@ -500,7 +519,7 @@ local function init()
         for c = 1, mini_grid_number_of_blocks do
             if not row[c] then
                 local template = mini3_iter()
-                local shape = outpost_builder:do_outpost(template)
+                local shape = outpost_builder:do_outpost(template, on_init)
 
                 local x = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
                 local y = outpost_random:next_int(-mini_outpost_offset, mini_outpost_offset)
@@ -676,9 +695,12 @@ local function init()
     map = b.apply_entity(map, ore_grid)
 
     local market = {
-        callback = outpost_builder.market_set_items_callback,
+        callback = spawn_callback,
         data = {
             market_name = 'Spawn',
+            upgrade_rate = 0.5,
+            upgrade_base_cost = 500,
+            upgrade_cost_base = 2,
             {name = 'raw-wood', price = 1},
             {name = 'iron-plate', price = 2},
             {name = 'stone', price = 2},
@@ -720,7 +742,7 @@ local function init()
         }
     }
 
-    local spawn_shape = outpost_builder.to_shape(spawn)
+    local spawn_shape = outpost_builder.to_shape(spawn, 6, on_init)
     spawn_shape = b.change_tile(spawn_shape, false, 'stone-path')
     spawn_shape = b.change_map_gen_collision_hidden_tile(spawn_shape, 'water-tile', 'grass-1')
 
@@ -749,13 +771,6 @@ Global.register_init(
     end
 )
 
---[[ local Event = require 'utils.event'
-Event.add(
-    defines.events.on_player_joined_game,
-    function(event)
-        game.players[event.player_index].character = nil
-    end
-) ]]
 return function(x, y, world)
     return map(x, y, world)
 end
