@@ -45,9 +45,9 @@ Public.get_reward = function()
     return reward_token[1]
 end
 
---- Gives the player the quantity of reward
--- @param player <number|LuaPlayer> the player to reward
--- @param amount <number> the amount of reward tokens to remove
+--- Gives reward tokens to the player
+-- @param player <number|LuaPlayer>
+-- @param amount <number> of reward tokens
 -- @param message <string> an optional message to send to the affected player
 -- @return <number> indicating how many were inserted or if operation failed
 Public.give_reward = function(player, amount, message)
@@ -76,9 +76,9 @@ Public.give_reward = function(player, amount, message)
     return coin_difference
 end
 
---- Removes an amount of rewards from the player
--- @param player <number|LuaPlayer> the player to reward
--- @param amount <number> the amount of reward tokens to remove
+--- Removes reward tokens from the player
+-- @param player <number|LuaPlayer>
+-- @param amount <number> of reward tokens
 -- @param message <string> an optional message to send to the affected player
 -- @return <number> indicating how many were removed or if operation failed
 Public.remove_reward = function(player, amount, message)
