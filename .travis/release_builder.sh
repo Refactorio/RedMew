@@ -9,26 +9,26 @@ cp -rf Refactorio/RedMew working_copy
 echo "Removing git files"
 rm -rf working_copy/.??*
 echo "Writing the version file"
-echo 'return '"$DATE_FORMATTED"'-'"$COMMIT_SHA" > working_copy/resources/version.lua
+echo "global.redmew_version=$DATE_FORMATTED-$COMMIT_SHA" > working_copy/resources/version.lua
 echo "Contents of the version file:"
 cat working_copy/resources/version.lua
 
 #Create zips for each of the major maps/scenarios
 function process_map (){
-    echo '-----'"$1"'-----'
+    echo "-----$1-----"
     mv "$3" "$1"
-    echo 'return '"'$2'" > "$1"'/map_selection.lua'
+    echo "return $2" > "$1/map_selection.lua"
     echo "Contents of map_selection:"
-    cat "$1"'/map_selection.lua'
+    cat "$1/map_selection.lua"
     echo "Creating zip..."
-    zip -r9q "$1"'.zip' "$1"
+    zip -r9q "$1.zip" "$1"
     #if [ "$4" != true ]; then #Base RedMew can't be deflated
         #echo "Deflating the zip..."
         #Having the deflater here would be dope.
     #fi
     echo "Stats on the zip:"
-    ls -al "$1"'.zip'
-    cp "$1"'.zip' "$HOME/build/Refactorio/RedMew/""$1"'.zip'
+    ls -al "$1.zip"
+    cp "$1.zip" "$HOME/build/Refactorio/RedMew/$1.zip"
     PREVIOUS_NAME=$1
     export PREVIOUS_NAME
     return 0

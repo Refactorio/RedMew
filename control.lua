@@ -1,8 +1,9 @@
 -- Omitting the math library is a very bad idea
 require 'utils.math'
 
--- Global Debug and extra global table functions to make debugging and coding significantly easier
+-- Global Debug and make sure our version file is registered
 Debug = require 'utils.debug'
+require 'resources.version'
 require 'utils.table'
 
 -- Map layout and config dictate the map you play and the settings in it
@@ -110,6 +111,7 @@ if _DUMP_ENV then
     require 'utils.dump_env'
 end
 
+require 'resources.version'
 -- Needs to be at bottom so tokens are registered last.
 if _DEBUG then
     require 'features.gui.debug.command'
