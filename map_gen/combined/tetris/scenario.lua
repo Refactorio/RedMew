@@ -85,7 +85,7 @@ Global.register(
         player_zoom = tbl.player_zoom
         machine = tbl.machine
     end,
-    'tetris_control'
+    'tetris_scenario'
 )
 
 local point_table = {1, 3, 5, 9}
