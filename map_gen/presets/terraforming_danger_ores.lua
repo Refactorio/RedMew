@@ -8,6 +8,8 @@ local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 
+global.config.lazy_bastard.enabled = true
+
 RS.set_map_gen_settings(
     {
         MGSP.grass_only,
@@ -66,6 +68,9 @@ Global.register_init(
         local s = RS.get_surface()
         tbl.seed = s.map_gen_settings.seed
         tbl.surface = s
+        game.difficulty_settings.technology_price_multiplier = 50
+        game.forces.player.technologies.logistics.researched = true
+        game.forces.player.technologies.automation.researched = true
     end,
     function(tbl)
         local seed = tbl.seed

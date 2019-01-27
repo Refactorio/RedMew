@@ -4,6 +4,7 @@ local Game = require 'utils.game'
 local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
+local redmew_version = require 'resources.version'
 
 local format = string.format
 local ceil = math.ceil
@@ -208,6 +209,10 @@ local function list_seeds()
     Game.player_print(seeds)
 end
 
+local function print_version()
+    Game.player_print(redmew_version)
+end
+
 -- Command registrations
 
 Command.add(
@@ -283,6 +288,15 @@ Command.add(
         allowed_by_server = true,
     },
     list_seeds
+)
+
+Command.add(
+    'redmew-version',
+    {
+        description = 'Prints the version of the RedMew scenario',
+        allowed_by_server = true,
+    },
+    print_version
 )
 
 -- Commands with no functions, only calls to other modules
