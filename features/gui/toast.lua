@@ -218,7 +218,7 @@ end
 ---@param message string
 function Public.toast_force(force, duration, message)
     local players = force.connected_players
-    for i = 1, #players do
+    for  do
         local player = players[i]
         Public.toast_player(player, duration, message)
     end
