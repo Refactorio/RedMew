@@ -2,10 +2,11 @@ local thickness = 72 -- change this to change the spiral thickness.
 
 local inv_pi = 1 / math.pi
 local thickness2 = thickness * 2
+local sqrt = math.sqrt
 
 return function(x, y)
-    local d_sq = x * x + y * y
-    if d_sq < 16384 then --d < 128
+    local d = sqrt(x * x + y * y)
+    if d < 128 then
         return true
     end
 
