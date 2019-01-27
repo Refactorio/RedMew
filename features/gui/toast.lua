@@ -31,6 +31,11 @@ local toast_container_name = Gui.uid_name()
 local toast_progress_name = Gui.uid_name()
 local close_toast_name = Gui.uid_name()
 
+--- Apply this name to an element to have it close the toast when clicked.
+-- Two elements in the same parent cannot have the same name. If you need your
+-- own name you can use Toast.close_toast(element)
+Public.close_toast_name = close_toast_name
+
 ---Creates a unique ID for a toast message
 local function autoincrement()
     local id = id_counter[1] + 1
