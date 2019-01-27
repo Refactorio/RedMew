@@ -75,11 +75,6 @@ end
 ---@param duration number in seconds
 local function toast_to(player, duration)
     local frame_holder = player.gui.left.add({type = 'flow'})
-    local frame_holder_style = frame_holder.style
-    frame_holder_style.left_padding = 0
-    frame_holder_style.top_padding = 0
-    frame_holder_style.right_padding = 0
-    frame_holder_style.bottom_padding = 0
 
     local frame =
         frame_holder.add({type = 'frame', name = toast_frame_name, direction = 'vertical', style = 'captionless_frame'})
