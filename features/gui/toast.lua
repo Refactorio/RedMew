@@ -144,21 +144,6 @@ local function update_toast(id, frame, tick)
     end
 end
 
-on_tick =
-    Token.register(
-    function(event)
-        if not next(active_toasts) then
-            Event.remove_removable_nth_tick(2, on_tick)
-            return
-        end
-
-        local tick = event.tick
-
-        for id, frame in pairs(active_toasts) do
-            update_toast(id, frame, tick)
-        end
-    end
-)
 
 ---Toast a specific player, template is a callable that receives a LuaGuiElement
 ---to add contents to and a player as second argument.
@@ -220,7 +205,7 @@ function Public.toast_force(force, duration, message)
     local players = force.connected_players
     for i = 1, #players do
         local player = players[i]
-        toast_player(player, duration, message)
+        Public.toast_player(player, duration, message)
     end
 end
 
