@@ -18,11 +18,6 @@ local loot_callback =
 )
 
 local factory_loot = {
-    {stack = {name = 'science-pack-1', count = 75, distance_factor = 1 / 2}, weight = 5},
-    {stack = {name = 'science-pack-2', count = 50, distance_factor = 1 / 2}, weight = 5}
-}
-
-local factory_loot = {
     {
         stack = {
             recipe = 'science-pack-1',

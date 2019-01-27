@@ -953,8 +953,6 @@ local function update_market_upgrade_description(outpost_data)
     end
     str[#str] = nil
 
-    local prototype = Retailer.get_items(outpost_id)['upgrade']
-
     prototype.description = str
     prototype.disabled = false
 
@@ -1228,7 +1226,6 @@ Public.worm_turret_callback =
 )
 
 local function add_magic_crafter_output(entity, output, distance, outpost_id)
-    local outpost_data = outposts[outpost_id]
     local rate = output.min_rate + output.distance_factor * distance
 
     local fluidbox_index = output.fluidbox_index
@@ -1345,8 +1342,8 @@ Public.magic_item_crafting_callback_weighted =
         if #output == 0 then
             add_magic_crafter_output(entity, output, distance, outpost_id)
         else
-            for i = 1, #output do
-                local o = output[i]
+            for o_i = 1, #output do
+                local o = output[o_i]
                 add_magic_crafter_output(entity, o, distance, outpost_id)
             end
         end
