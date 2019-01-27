@@ -162,7 +162,7 @@ on_tick =
 
 ---Toast a specific player, template is a callable that receives a LuaGuiElement
 ---to add contents to and a player as second argument.
----@param player LuaPlayer|number
+---@param player LuaPlayer
 ---@param duration table
 ---@param template function
 function Public.toast_player_template(player, duration, template)
@@ -198,7 +198,7 @@ function Public.toast_all_players_template(duration, template)
 end
 
 ---Toast a message to a specific player
----@param player LuaPlayer|number
+---@param player LuaPlayer
 ---@param duration number
 ---@param message string
 function Public.toast_player(player, duration, message)
