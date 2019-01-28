@@ -13,9 +13,9 @@ local Command = {}
 
 local deprecated_command_alternatives = {
     ['silent-command'] = 'sc',
-    ['tpplayer'] = 'tp',
+    ['tpplayer'] = 'tp <player>',
     ['tppos'] = 'tp',
-    ['tpmode'] = 'tp',
+    ['tpmode'] = 'tp mode',
 }
 
 local option_names = {

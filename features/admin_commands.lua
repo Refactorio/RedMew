@@ -376,31 +376,3 @@ Command.add(
     },
     teleport_command
 )
-
-Command.add(
-    'tpplayer',
-    {
-        description = 'Teleports you to the player',
-        arguments = {'player'},
-        admin_only = true
-    },
-    teleport_player
-)
-
-Command.add(
-    'tppos',
-    {
-        description = 'Teleports you to a selected entity.',
-        admin_only = true
-    },
-    teleport_location
-)
-
-Command.add(
-    'tpmode',
-    {
-        description = 'Toggles tp mode. When on place a ghost entity to teleport there',
-        admin_only = true
-    },
-    toggle_tp_mode
-)
