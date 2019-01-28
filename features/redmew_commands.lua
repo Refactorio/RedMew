@@ -5,6 +5,9 @@ local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
 local Walkabout = require 'features.walkabout'
+local redmew_version = require 'resources.version'
+local PlayerStats = require 'features.player_stats'
+local Utils = require 'utils.core'
 
 local format = string.format
 local ceil = math.ceil
@@ -127,6 +130,7 @@ local function show_rail_block(_, player)
     Game.player_print('show_rail_block_visualisation set to ' .. tostring(show))
 end
 
+--- Provides the time on the server
 local function server_time(_, player)
     local p
     if not player then
@@ -219,6 +223,60 @@ local function print_version()
     Game.player_print(version_str)
 end
 
+--- Returns a string indicating the player's rank
+local function get_rank(player)
+    if player.admin then
+        return 'Admin'
+    end
+
+    local name = player.name
+    if UserGroups.is_donator(name) then
+        return 'Donator'
+    elseif UserGroups.is_regular(name) then
+        return 'Regular'
+    end
+
+    return 'Guest'
+end
+
+--- Prints information about the target player
+local function print_player_info(args, player)
+    local name = args.player
+    local target = game.players[name]
+    if not target then
+        Game.player_print('Target not found')
+    end
+    local index = player.index
+    local m_inventory = player.get_inventory(defines.inventory.player_main)
+    m_inventory = m_inventory.get_contents()
+    local q_inventory = player.get_inventory(defines.inventory.player_quickbar)
+    q_inventory = q_inventory.get_contents()
+    local info_t = {
+        'Name: ' .. name,
+        player.connected and 'Online: ' .. 'yes' or 'Online: ' .. 'no',
+        'Index: ' .. player.index,
+        'Rank: ' .. get_rank(player),
+        'Time played: ' .. Utils.format_time(player.online_time),
+        'AFK time: ' .. player.afk_time or 0,
+        'Force: ' .. player.force.name,
+        'Surface: ' .. player.surface.name,
+        'Tag: ' .. player.tag,
+        'Distance walked: ' .. PlayerStats.get_walk_distance(index),
+        'Coin earned: ' .. PlayerStats.get_coin_earned(index),
+        'Coin spent: ' .. PlayerStats.get_coin_spent(index),
+        'Deaths: ' .. PlayerStats.get_death_count(index),
+        'Crafted items: ' .. PlayerStats.get_crafted_item(index),
+        'Chat messages: ' .. PlayerStats.get_console_chat(index)
+    }
+    Game.player_print(concat(info_t, ' - '))
+
+    if player and player.admin and not args.inventory then
+        Game.player_print('Main and hotbar inventories: ')
+        Game.player_print(serpent.line(m_inventory))
+        Game.player_print(serpent.line(q_inventory))
+    end
+end
+
 -- Command registrations
 
 Command.add(
@@ -227,7 +285,7 @@ Command.add(
         description = 'Will kill you.',
         arguments = {'player'},
         default_values = {player = false},
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     kill
 )
@@ -236,7 +294,7 @@ Command.add(
     'afk',
     {
         description = 'Shows how long players have been afk.',
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     afk
 )
@@ -245,7 +303,7 @@ Command.add(
     'zoom',
     {
         description = 'Sets your zoom.',
-        arguments = {'zoom'},
+        arguments = {'zoom'}
     },
     zoom
 )
@@ -254,7 +312,7 @@ Command.add(
     'find',
     {
         description = 'shows an alert on the map where the player is located',
-        arguments = {'player'},
+        arguments = {'player'}
     },
     find_player
 )
@@ -262,7 +320,7 @@ Command.add(
 Command.add(
     'show-rail-block',
     {
-        description = 'Toggles rail block visualisation.',
+        description = 'Toggles rail block visualisation.'
     },
     show_rail_block
 )
@@ -271,7 +329,7 @@ Command.add(
     'server-time',
     {
         description = "Prints the server's time.",
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     server_time
 )
@@ -282,7 +340,7 @@ Command.add(
         description = 'Search for commands matching the keyword in name or description',
         arguments = {'keyword', 'page'},
         default_values = {page = 1},
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     search_command
 )
@@ -291,7 +349,7 @@ Command.add(
     'seeds',
     {
         description = 'List the seeds of all surfaces',
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     list_seeds
 )
@@ -300,19 +358,30 @@ Command.add(
     'redmew-version',
     {
         description = 'Prints the version of the RedMew scenario',
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     print_version
 )
 
--- Commands with no local functions, only calls to other modules
+Command.add(
+    'whois',
+    {
+        description = 'provides information about a given player, admins get additional information',
+        arguments = {'player', 'inventory'},
+        default_values = {inventory = false},
+        allowed_by_server = true
+    },
+    print_player_info
+)
+
+-- Commands with no functions, only calls to other modules
 
 Command.add(
     'report',
     {
         description = 'Reports a user to admins',
         arguments = {'player', 'message'},
-        capture_excess_arguments = true,
+        capture_excess_arguments = true
     },
     Report.report_command
 )
@@ -321,7 +390,7 @@ Command.add(
     'regulars',
     {
         description = 'Prints a list of game regulars.',
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     UserGroups.print_regulars
 )
