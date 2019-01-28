@@ -68,6 +68,16 @@ function Debug.print(message, trace_levels)
     log(message)
 end
 
+--- Returns the factorio LuaObject type or the Lua data type
+-- @param object <any>
+function Debug.object_type(object)
+    local obj_type = type(object)
+    if obj_type == 'table' and object.isluaobject then
+        return match(object.help(),'Lua%a+')
+    end
+    return obj_type
+end
+
 ---Shows the given message if debug is on.
 ---@param position Position
 ---@param message string
