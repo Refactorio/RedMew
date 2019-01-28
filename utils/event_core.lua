@@ -6,8 +6,6 @@ local Public = {}
 local init_event_name = -1
 local load_event_name = -2
 
-Public.runtime = false -- Set to true after on_init or on_load has finished.
-
 -- map of event_name to handlers[]
 local event_handlers = {}
 -- map of nth_tick to handlers[]
@@ -34,23 +32,25 @@ local function on_event(event)
 end
 
 local function on_init()
+    _LIFECYCLE = 5 -- on_init
     local handlers = event_handlers[init_event_name]
     call_handlers(handlers)
 
     event_handlers[init_event_name] = nil
     event_handlers[load_event_name] = nil
 
-    Public.runtime = true
+    _LIFECYCLE = 8 -- Runtime
 end
 
 local function on_load()
+    _LIFECYCLE = 6 -- on_load
     local handlers = event_handlers[load_event_name]
     call_handlers(handlers)
 
     event_handlers[init_event_name] = nil
     event_handlers[load_event_name] = nil
 
-    Public.runtime = true
+    _LIFECYCLE = 8 -- Runtime
 end
 
 local function on_nth_tick_event(event)
