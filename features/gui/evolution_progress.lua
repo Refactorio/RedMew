@@ -39,7 +39,7 @@ local function get_evolution_percentage()
 end
 
 local function get_alien_name(evolution_factor)
-    local last_match
+    local last_match = 'fish'
     for name, alien_threshold in pairs(button_sprites) do
         if evolution_factor == alien_threshold then
             return name
@@ -56,8 +56,7 @@ local function get_alien_name(evolution_factor)
         end
     end
 
-    -- shouldn't be reached but shouldn't crash either
-    return 'fish'
+    return last_match
 end
 
 local function player_joined(event)
