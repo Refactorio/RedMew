@@ -79,6 +79,9 @@ end
 if config.player_list.enabled then
     require 'features.gui.player_list'
 end
+if config.evolution_progress.enabled then
+    require 'features.gui.evolution_progress'
+end
 if config.poll.enabled then
     require 'features.gui.poll'
 end
