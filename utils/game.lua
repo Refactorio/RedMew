@@ -45,6 +45,25 @@ function Game.get_player_by_index(index)
     end
 end
 
+--- Returns a valid LuaPlayer if given a number, string, or LuaPlayer. Returns nil otherwise.
+-- obj <number|string|LuaPlayer>
+function Game.get_player_from_any(obj)
+    local o_type = type(obj)
+    local p
+    if type == 'number' then
+        p = Game.get_player_by_index(obj)
+    elseif o_type == 'string' then
+        p = game.players[obj]
+    elseif o_type == 'table' and obj.is_player() then
+        p = obj
+    end
+
+    if p and p.valid then
+        return p
+    end
+end
+
+--- Prints to player or console.
 function Game.player_print(str)
     if game.player then
         game.player.print(str)
