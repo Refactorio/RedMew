@@ -54,8 +54,8 @@ function Game.get_player_from_any(obj)
         p = Game.get_player_by_index(obj)
     elseif o_type == 'string' then
         p = game.players[obj]
-    elseif o_type == 'table' and obj.is_player() then
-        p = obj
+    elseif o_type == 'table' and obj.valid and obj.is_player() then
+        return obj
     end
 
     if p and p.valid then
