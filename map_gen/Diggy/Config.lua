@@ -357,8 +357,8 @@ local Config = {
         Experience = {
             enabled = true,
             -- controls the formula for calculating level up costs in stone sent to surface
-            difficulty_scale = 15, -- Diggy default 16. Higher increases experience requirement climb
-            first_lvl_xp = 350, -- Diggy default 400. This sets the price for the first level.
+            difficulty_scale = 15, -- Diggy default 15. Higher increases experience requirement climb
+            first_lvl_xp = 350, -- Diggy default 350. This sets the price for the first level.
             xp_fine_tune = 200, -- Diggy default 200. This value is used to fine tune the overall requirement climb without affecting the speed
             cost_precision = 3, -- Diggy default 3. This sets the precision of the required experience to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
 
@@ -378,7 +378,7 @@ local Config = {
                 ['high-tech-science-pack']    = 50,
                 ['space-science-pack']        = 10,
                 ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters.
-                ['death-penalty']             = 0.002,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.002 which equals 0.2%)
+                ['death-penalty']             = 0.0035,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.0035 which equals 0.35%)
                 --['cave-in-penalty']           = 100       -- XP lost every cave in.
             },
 
@@ -397,21 +397,21 @@ local Config = {
                 {level = 3, price = 5, name = 'stone-wall'},
                 {level = 4, price = 20, name = 'pistol'},
                 {level = 4, price = 5, name = 'firearm-magazine'},
-                {level = 5, price = 50, name = 'light-armor'},
+                {level = 5, price = 100, name = 'light-armor'},
                 {level = 6, price = 6, name = 'small-lamp'},
                 {level = 6, price = 5, name = 'raw-fish'},
                 {level = 8, price = 1, name = 'stone-brick'},
                 {level = 10, price = 85, name = 'shotgun'},
                 {level = 10, price = 4, name = 'shotgun-shell'},
-                {level = 12, price = 100, name = 'heavy-armor'},
-                {level = 13, price = 25, name = 'steel-axe'},
+                {level = 12, price = 200, name = 'heavy-armor'},
+                {level = 13, price = 30, name = 'steel-axe'},
                 {level = 14, price = 35, name = 'landfill'},
                 {level = 15, price = 85, name = 'submachine-gun'},
                 {level = 18, price = 10, name = 'piercing-rounds-magazine'},
                 {level = 18, price = 8, name = 'piercing-shotgun-shell'},
-                {level = 19, price = 5, name = 'rail'},
+                {level = 19, price = 2, name = 'rail'},
                 {level = 20, price = 50, name = 'locomotive'},
-                {level = 20, price = 250, name = 'modular-armor'},
+                {level = 20, price = 350, name = 'modular-armor'},
                 {level = 21, price = 5, name = 'rail-signal'},
                 {level = 22, price = 5, name = 'rail-chain-signal'},
                 {level = 23, price = 15, name = 'train-stop'},
@@ -419,14 +419,16 @@ local Config = {
                 {level = 24, price = 35, name = 'fluid-wagon'},
                 {level = 29, price = 750, name = 'power-armor'},
                 {level = 30, price = 30, name = 'logistic-robot'},
-                {level = 31, price = 150, name = 'personal-roboport-equipment'},
+                {level = 31, price = 200, name = 'personal-roboport-equipment'},
                 {level = 32, price = 20, name = 'construction-robot'},
-                {level = 33, price = 750, name = 'fusion-reactor-equipment'},
-                {level = 34, price = 100, name = 'battery-equipment'},
-                {level = 40, price = 150, name = 'energy-shield-equipment'},
-                {level = 45, price = 1000, name = 'power-armor-mk2'},
+                {level = 34, price = 750, name = 'fusion-reactor-equipment'},
+                {level = 35, price = 150, name = 'battery-equipment'},
+                {level = 38, price = 250, name = 'exoskeleton-equipment'},
+                {level = 40, price = 125, name = 'energy-shield-equipment'},
+                {level = 42, price = 500, name = 'personal-laser-defense-equipment'},
+                {level = 44, price = 1250, name = 'power-armor-mk2'},
                 {level = 46, price = 750, name = 'battery-mk2-equipment'},
-                {level = 47, price = 550, name = 'combat-shotgun'},
+                {level = 48, price = 550, name = 'combat-shotgun'},
                 {level = 51, price = 25, name = 'uranium-rounds-magazine'},
                 {level = 63, price = 250, name = 'rocket-launcher'},
                 {level = 63, price = 40, name = 'rocket'},
