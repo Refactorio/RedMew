@@ -223,22 +223,6 @@ local function print_version()
     Game.player_print(version_str)
 end
 
---- Returns a string indicating the player's rank
-local function get_rank(player)
-    if player.admin then
-        return 'Admin'
-    end
-
-    local name = player.name
-    if UserGroups.is_donator(name) then
-        return 'Donator'
-    elseif UserGroups.is_regular(name) then
-        return 'Regular'
-    end
-
-    return 'Guest'
-end
-
 --- Prints information about the target player
 local function print_player_info(args, player)
     local name = args.player
@@ -255,7 +239,8 @@ local function print_player_info(args, player)
         'Name: ' .. name,
         player.connected and 'Online: ' .. 'yes' or 'Online: ' .. 'no',
         'Index: ' .. player.index,
-        'Rank: ' .. get_rank(player),
+        'Rank: ' .. UserGroups.get_rank(player),
+        'Donator: ' .. UserGroups.is_donator(player.name),
         'Time played: ' .. Utils.format_time(player.online_time),
         'AFK time: ' .. player.afk_time or 0,
         'Force: ' .. player.force.name,
