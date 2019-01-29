@@ -45,7 +45,7 @@
 -- Event.remove_removable(defines.events.on_built_entity, handler)
 --
 -- It's not an error to register the same token multiple times to the same event, however when
--- removing only the first occurance is removed.
+-- removing only the first occurrence is removed.
 --
 -- ** Event.add_removable_function(event_name, func) **
 --

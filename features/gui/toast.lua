@@ -1,14 +1,11 @@
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Token = require 'utils.token'
 local Color = require 'resources.color_presets'
 
-local type = type
-local tonumber = tonumber
 local pairs = pairs
-local size = table.size
+local next = next
 
 local Public = {}
 

@@ -248,6 +248,10 @@ global.config = {
         ghosts_before_research = true,
         -- adds craftable loaders.
         loaders = true
+    },
+    -- adds a useless button with the biter percentage
+    evolution_progress = {
+        enabled = true,
     }
 }
 
