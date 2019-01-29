@@ -12,6 +12,7 @@ local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 
 local degrees = math.rad
+local array_contains = table.array_contains
 
 -- change these to change the pattern.
 local seed1 = 20000
@@ -194,7 +195,7 @@ local function research_finished(event)
     local research = event.research
     local force = research.force
 
-    if table.contains(military_techs, research.name) then
+    if array_contains(military_techs, research.name) then
         --increase player damage
         modify_damage(force, 1)
         game.print('Military research complete.... you feel stronger')
