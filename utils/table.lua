@@ -48,28 +48,47 @@ function table.add_all(t1, t2)
 end
 
 --- Checks if a table contains an element
--- @param t <table> to search
--- @param e <any> table element to search for
--- @returns <number|string> the index of the element or -1 for failure
+-- @param t <table>
+-- @param e <any> table element
+-- @returns <number|string|nil> the index of the element or nil
 function table.index_of(t, e)
-    local i = 1
-    for _, v in pairs(t) do
+    for k, v in pairs(t) do
         if v == e then
+            return k
+        end
+    end
+    return nil
+end
+
+--- Checks if the arrayed portion of a table contains an element
+-- @param t <table>
+-- @param e <any> table element
+-- @returns <number|nil> the index of the element or nil
+function table.index_of_in_array(t, e)
+    for i = 1, #t do
+        if t[i] == e then
             return i
         end
-        i = i + 1
     end
-    return -1
+    return nil
 end
 
 local index_of = table.index_of
-
 --- Checks if a table contains an element
--- @param t <table> to search
--- @param e <any> table element to search for
+-- @param t <table>
+-- @param e <any> table element
 -- @returns <boolean> indicating success
 function table.contains(t, e)
-    return index_of(t, e) > -1
+    return index_of(t, e) and true or false
+end
+
+local index_of_in_array = table.index_of_in_array
+--- Checks if the arrayed portion of a table contains an element
+-- @param t <table>
+-- @param e <any> table element
+-- @returns <boolean> indicating success
+function table.array_contains(t, e)
+    return index_of_in_array(t, e) and true or false
 end
 
 --- Adds an element into a specific index position while shuffling the rest down
