@@ -6,6 +6,7 @@ local Command = require 'utils.command'
 local Global = require 'utils.global'
 
 local Public = {}
+local return_player
 
 -- Register our globals
 local walkabouts = {}
@@ -23,44 +24,6 @@ Global.register(
         primitives = tbl.primitives
     end
 )
-
-
-local function return_player(index)
-    local data = walkabouts[index]
-    if not data then
-        log('Warning: return_player received nil data')
-        return
-    end
-
-    local player = Game.get_player_by_index(index)
-    if not player or not player.valid then
-        log('Warning: return_player received nil or invalid player')
-        return
-    end
-
-    local walkabout_character = player.character
-    if walkabout_character and walkabout_character.valid then
-        walkabout_character.destroy()
-    end
-
-    local character = data.character
-    if character and character.valid then
-        player.character = character
-        player.character.destructible = true
-    else
-        player.create_character()
-        player.teleport(data.position)
-    end
-    player.force = data.force
-
-    game.print(data.player.name .. ' came back from walkabout.')
-    walkabouts[index] = nil
-
-    if #walkabouts == 0 then
-        --TODO unreg event
-        Event.remove_removable(defines.events.on_player_joined_game, on_join_token)
-    end
-end
 
 --- Cleans the walkabout status off players who disconnected during walkabout.
 local on_join_token =
@@ -96,6 +59,42 @@ local redmew_commands_return_player =
     end
 )
 
+return_player = function(index)
+    local data = walkabouts[index]
+    if not data then
+        log('Warning: return_player received nil data')
+        return
+    end
+
+    local player = Game.get_player_by_index(index)
+    if not player or not player.valid then
+        log('Warning: return_player received nil or invalid player')
+        return
+    end
+
+    local walkabout_character = player.character
+    if walkabout_character and walkabout_character.valid then
+        walkabout_character.destroy()
+    end
+
+    local character = data.character
+    if character and character.valid then
+        player.character = character
+        player.character.destructible = true
+    else
+        player.create_character()
+        player.teleport(data.position)
+    end
+    player.force = data.force
+
+    game.print(data.player.name .. ' came back from walkabout.')
+    walkabouts[index] = nil
+
+    if #walkabouts == 0 then
+        --TODO unreg event
+        Event.remove_removable(defines.events.on_player_joined_game, on_join_token)
+    end
+end
 
 --- Sends a player on a walkabout:
 -- They are teleported far away, placed on a neutral force, and are given a new character.
