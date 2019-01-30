@@ -35,14 +35,18 @@ end
 -- Local vars
 local Public = {}
 
-local player_ranks = {} -- global register
+-- Global register vars
+local player_ranks = {}
+local guests = {}
 
 Global.register(
     {
-        player_ranks = player_ranks
+        player_ranks = player_ranks,
+        guests = guests
     },
     function(tbl)
         player_ranks = tbl.player_ranks
+        guests = tbl.guests
     end
 )
 
@@ -59,14 +63,24 @@ local function check_promote_to_auto_trusted()
     local auto_trusted = Ranks.auto_trusted
     local guest = Ranks.guest
     local time_for_trust = Config.time_for_trust
-    local less_than = Public.less_than
+    local equal_or_greater_than = Public.equal_or_greater_than
+    local equal = Public.equal
     local set_data = Server.set_data
 
-    for _, p in pairs(game.connected_players) do
-        local player_name = p.name
-        if (p.online_time > time_for_trust) and less_than(player_name, auto_trusted) and Public.equal_or_greater_than(player_name, guest) then
-            player_ranks[player_name] = auto_trusted
-            set_data(ranking_data_set, player_name, auto_trusted)
+    for p_name in pairs(guests) do
+        local p = game.players[p_name]
+        if not p or not p.valid then
+            return
+        end
+
+        if equal_or_greater_than(p_name, auto_trusted) then
+            guests[p_name] = nil
+        elseif (p.online_time > time_for_trust) and equal(p_name, guest) then
+            player_ranks[p_name] = auto_trusted
+            set_data(ranking_data_set, p_name, auto_trusted)
+            guests[p_name] = nil
+        elseif not p.online then
+            guests[p_name] = nil
         end
     end
 end
@@ -80,7 +94,6 @@ local sync_ranks_callback =
     end
 )
 
---- Fix for legacy name storage
 local function on_player_joined(event)
     local player = Game.get_player_by_index(event.player_index)
     if not player then
@@ -88,6 +101,11 @@ local function on_player_joined(event)
     end
     local player_name = player.name
 
+    if Public.equal(player_name, Ranks.guest) then
+        guests[player_name] = true
+    end
+
+    --- Fix for legacy name storage
     local lowerCaseName = player_name:lower()
     if player_name ~= lowerCaseName and player_ranks[lowerCaseName] then
         local player_rank = player_ranks[lowerCaseName]
@@ -265,6 +283,7 @@ Server.on_data_set_changed(
         player_ranks[data.key] = data.value
     end
 )
+
 
 Event.add(
     Server.events.on_server_started,
