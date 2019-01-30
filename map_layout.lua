@@ -112,8 +112,8 @@ local tiles_per_tick = 32
 --shape = require "map_gen.shape.pacman"
 
 --terrain--
---require "map_gen.terrain.neko_bridged_rivers"
---require "map_gen.terrain.neko_river_overlay"
+--shape = require "map_gen.terrain.neko_bridged_rivers"
+--shape = require "map_gen.terrain.neko_river_overlay"
 
 -- modules that only return max one entity per tile
 local entity_modules = {

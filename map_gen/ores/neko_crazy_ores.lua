@@ -23,7 +23,7 @@ return function(x, y, world)
         return
     end
 
-    local distance_bonus = 100 + 0.4 * d ^ 1.2
+    local distance_bonus = 100 + 0.4 * d_sq ^ 2.4 -- d ^ 1.2
 
     local wiggle = 100 + perlin.noise((x * 0.005), (y * 0.005), global.ores_seed_A + 41) * 60
     local Ores_A = perlin.noise((x * 0.01), (y * 0.01), global.ores_seed_B + 57) * wiggle
