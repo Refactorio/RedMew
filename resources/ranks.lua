@@ -1,3 +1,4 @@
+-- When adding/removing/changing ranks, rank_system has a migrate_data() function you can use to adjust the existing data.
 return {
     probation = -1,
     guest = 0,

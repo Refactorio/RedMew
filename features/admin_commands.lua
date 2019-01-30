@@ -7,6 +7,7 @@ local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Command = require 'utils.command'
+local Color = require 'resources.color_presets'
 local Ranks = require 'resources.ranks'
 
 local format = string.format
@@ -76,10 +77,23 @@ local function regular(args)
     local add_target = args['name|remove']
     local remove_target = args['name']
 
+    if not game.players[remove_target] then
+        Game.player_print('The player you targeted has never joined this game, please ensure no typo in name.', Color.red)
+        return
+    end
+
     if remove_target and add_target == 'remove' then
-        Rank.set_rank(remove_target, Ranks.guest)
+        if Rank.decrease_player_rank(remove_target) then
+            game.print(format("%s removed %s's regular rank.", Utils.get_actor(), remove_target), Color.yellow)
+        else
+            Game.player_print(format('%s is already a regular.', remove_target), Color.red)
+        end
     else
-        Rank.set_rank(add_target, Ranks.regular)
+        if Rank.set_rank(add_target, Ranks.regular) then
+            game.print(format('%s promoted %s to regular.', Utils.get_actor(), remove_target), Color.yellow)
+        else
+            Game.player_print(format('%s is already a regular.', remove_target), Color.red)
+        end
     end
 end
 
@@ -87,11 +101,27 @@ end
 local function probation(args)
     local add_target = args['name|remove']
     local remove_target = args['name']
+    local target_player = game.players[remove_target]
+
+    if not target_player then
+        Game.player_print('The player you targeted has never joined this game, please ensure no typo in name.', Color.red)
+        return
+    end
 
     if remove_target and add_target == 'remove' then
-        Rank.set_rank(remove_target, Ranks.guest)
+        if Rank.reset_rank(remove_target) then
+            game.print(format('%s took %s off of probation.', Utils.get_actor(), remove_target), Color.yellow)
+            target_player.print('Your probation status has been removed. You may now perform functions as usual', Color.yellow)
+        else
+            Game.player_print(format('%s is not on probation.', remove_target), Color.red)
+        end
     else
-        Rank.set_rank(add_target, Ranks.probation)
+        if Rank.set_rank(add_target, Ranks.probation) then
+            game.print(format('%s put %s on probation.', Utils.get_actor(), remove_target), Color.yellow)
+            target_player.print('You have been placed on probation. You have limited access to normal functions.', Color.yellow)
+        else
+            Game.player_print(format('%s is already on probation.', remove_target), Color.red)
+        end
     end
 end
 

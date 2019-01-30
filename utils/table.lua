@@ -109,7 +109,7 @@ end
 
 --- Chooses a random entry from a table
 -- because this uses math.random, it cannot be used outside of events
--- @param t <table> to select an element from
+-- @param t <table>
 -- @param key <boolean> to indicate whether to return the key or value
 -- @return <any> a random element of table t
 function table.get_random_dictionary_entry(t, key)
