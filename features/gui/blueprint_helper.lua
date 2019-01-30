@@ -13,8 +13,7 @@ Global.register(
     },
     function(tbl)
         player_filters = tbl.player_filters
-    end,
-    'blueprint_helper'
+    end
 )
 
 local function getBlueprintCursorStack(player)
