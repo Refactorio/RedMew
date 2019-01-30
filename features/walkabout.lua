@@ -9,15 +9,21 @@ local Public = {}
 
 -- Register our globals
 local walkabouts = {}
+local primitives = {
+    event_registered = nil
+}
 
 Global.register(
     {
-        walkabouts = walkabouts
+        walkabouts = walkabouts,
+        primitives = primitives
     },
     function(tbl)
         walkabouts = tbl.walkabout
+        primitives = tbl.primitives
     end
 )
+
 
 local function return_player(index)
     local data = walkabouts[index]
@@ -40,6 +46,7 @@ local function return_player(index)
     local character = data.character
     if character and character.valid then
         player.character = character
+        player.character.destructible = true
     else
         player.create_character()
         player.teleport(data.position)
@@ -48,7 +55,26 @@ local function return_player(index)
 
     game.print(data.player.name .. ' came back from walkabout.')
     walkabouts[index] = nil
+
+    if #walkabouts == 0 then
+        --TODO unreg event
+        Event.remove_removable(defines.events.on_player_joined_game, on_join_token)
+    end
 end
+
+--- Cleans the walkabout status off players who disconnected during walkabout.
+local on_join_token =
+    Token.register(
+    function(event)
+        local player = Game.get_player_by_index(event.player_index)
+        local index = player.index
+
+        -- If a player joins and they're marked as being on walkabout but their timer has expired, restore them.
+        if player and walkabouts[index] and walkabouts[index].timer_expired then
+            return_player(index)
+        end
+    end
+)
 
 --- Returns a player from walkabout after the timeout.
 local redmew_commands_return_player =
@@ -69,6 +95,7 @@ local redmew_commands_return_player =
         end
     end
 )
+
 
 --- Sends a player on a walkabout:
 -- They are teleported far away, placed on a neutral force, and are given a new character.
@@ -120,24 +147,17 @@ local function walkabout(args)
         Task.set_timeout(duration, redmew_commands_return_player, player)
         walkabouts[player.index] = data
 
+        if not primitives then
+            Event.add_removable(defines.events.on_player_joined_game, on_join_token)
+        end
+
+        player.character.destructible = false
         player.character = nil
         player.create_character()
         player.teleport(non_colliding_pos)
         player.force = 'neutral'
     else
         Game.player_print('Walkabout failed: could not find non-colliding-position')
-    end
-end
-
---- Cleans the walkabout status off players who disconnected during walkabout.
--- Restores their original force, character, and position.
-local function clean_on_join(event)
-    local player = Game.get_player_by_index(event.player_index)
-    local index = player.index
-
-    -- If a player joins and they're marked as being on walkabout but their timer has expired, restore them.
-    if player and walkabouts[index] and walkabouts[index].timer_expired then
-        return_player(index)
     end
 end
 
@@ -151,7 +171,6 @@ function Public.is_on_walkabout(player_index)
     return false
 end
 
-Event.add(defines.events.on_player_joined_game, clean_on_join)
 Command.add(
     'walkabout',
     {
