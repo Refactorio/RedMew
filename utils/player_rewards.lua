@@ -2,6 +2,7 @@ local Global = require 'utils.global'
 local Game = require 'utils.game'
 local PlayerStats = require 'features.player_stats'
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 
 local format = string.format
 local abs = math.abs
@@ -110,7 +111,7 @@ Command.add(
         description = 'Gives a reward to a target player (removes if quantity is negative)',
         arguments = {'target', 'quantity', 'reason'},
         default_values = {reason = false},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true,
         allowed_by_player = true

@@ -1,14 +1,16 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
-local Donators = require 'resources.donators'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
+local Donator = require 'features.Donator'
 local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.core'
 local Report = require 'features.report'
 local Game = require 'utils.game'
-local Color = require 'resources.color_presets'
 local table = require 'utils.table'
+local Color = require 'resources.color_presets'
+local DonatorPerks = require 'resources.donator_perks'
+local Ranks = require 'resources.ranks'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
@@ -28,7 +30,7 @@ local rank_colors = {
 }
 
 local inv_sprite_time_step = 1 / sprite_time_step
-local rank_perk_flag = Donators.donator_perk_flags.rank
+local rank_perk_flag = DonatorPerks.rank
 local rank_names = {
     'Guest',
     'Regular',
@@ -97,9 +99,9 @@ local function get_rank_level(player)
     end
 
     local name = player.name
-    if UserGroups.player_has_donator_perk(name, rank_perk_flag) then
+    if Donator.player_has_donator_perk(name, rank_perk_flag) then
         return 3
-    elseif UserGroups.is_regular(name) then
+    elseif Rank.equal(name, Ranks.regular) then
         return 2
     end
 

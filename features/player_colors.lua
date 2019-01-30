@@ -4,6 +4,7 @@ local Command = require 'utils.command'
 local Server = require 'features.server'
 local Token = require 'utils.token'
 local Utils = require 'utils.core'
+local Ranks = require 'resources.ranks'
 
 local serialize = serpent.line
 
@@ -44,8 +45,7 @@ Command.add(
     {
         description = 'Set will save your current color for future maps. Reset will erase your saved color. Random will give you a random color.',
         arguments = {'set-reset-random'},
-        admin_only = false,
-        regular_only = true,
+        required_rank = Ranks.regular,
         allowed_by_server = false,
         allowed_by_player = true
     },

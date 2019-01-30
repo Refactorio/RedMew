@@ -1,12 +1,13 @@
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Report = require 'features.report'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 
 local format = string.format
 local loadstring = loadstring
@@ -76,9 +77,21 @@ local function regular(args)
     local remove_target = args['name']
 
     if remove_target and add_target == 'remove' then
-        UserGroups.remove_regular(remove_target)
+        Rank.set_rank(remove_target, Ranks.guest)
     else
-        UserGroups.add_regular(add_target)
+        Rank.set_rank(add_target, Ranks.regular)
+    end
+end
+
+--- Add or remove someone from probation
+local function probation(args)
+    local add_target = args['name|remove']
+    local remove_target = args['name']
+
+    if remove_target and add_target == 'remove' then
+        Rank.set_rank(remove_target, Ranks.guest)
+    else
+        Rank.set_rank(add_target, Ranks.probation)
     end
 end
 
@@ -281,7 +294,7 @@ Command.add(
     {
         description = 'Admin chat. Messages all other admins.',
         arguments = {'msg'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },
@@ -293,7 +306,7 @@ Command.add(
     {
         description = 'silent-command',
         arguments = {'str'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },
@@ -304,7 +317,7 @@ Command.add(
     'hax',
     {
         description = 'Toggles your hax (makes recipes cost nothing)',
-        admin_only = true
+        required_rank = Ranks.admin
     },
     toggle_cheat_mode
 )
@@ -313,7 +326,7 @@ Command.add(
     'all-tech',
     {
         description = 'researches all technologies',
-        admin_only = true,
+        required_rank = Ranks.admin,
         debug_only = true,
         cheat_only = true
     },
@@ -326,18 +339,29 @@ Command.add(
         description = 'Add/remove player from regualrs. Use /regular <name> to add or /regular remove <name> to remove.',
         arguments = {'name|remove', 'name'},
         default_values = {['name'] = false},
-        admin_only = true,
-        capture_excess_arguments = false,
-        allowed_by_server = false
+        required_rank = Ranks.admin,
+        allowed_by_server = true
     },
     regular
+)
+
+Command.add(
+    'probation',
+    {
+        description = 'Add/remove player from probation. Use /probation <name> to add or /probation remove <name> to remove.',
+        arguments = {'name|remove', 'name'},
+        default_values = {['name'] = false},
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    probation
 )
 
 Command.add(
     'showreports',
     {
         description = 'Shows user reports',
-        admin_only = true
+        required_rank = Ranks.admin
     },
     show_reports
 )
@@ -347,7 +371,7 @@ Command.add(
     {
         description = 'Puts a player in jail',
         arguments = {'player'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     jail_player
@@ -358,7 +382,7 @@ Command.add(
     {
         description = 'Removes a player from jail',
         arguments = {'player'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     unjail_player
@@ -369,7 +393,7 @@ Command.add(
     {
         description = 'Temporarily bans a player',
         arguments = {'player', 'minutes'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     tempban
@@ -379,7 +403,7 @@ Command.add(
     'pool',
     {
         description = 'Spawns a pool of water',
-        admin_only = true
+        required_rank = Ranks.admin
     },
     pool
 )
@@ -389,7 +413,7 @@ Command.add(
     {
         description = 'Teleports the player to you.',
         arguments = {'player'},
-        admin_only = true
+        required_rank = Ranks.admin
     },
     invoke
 )
@@ -400,7 +424,7 @@ Command.add(
         description = 'if blank, teleport to selected entity. mode = toggle tp mode where you can teleport to a placed ghost. player = teleport to player.',
         arguments = {'mode|player'},
         default_values = {['mode|player'] = false},
-        admin_only = true,
+        required_rank = Ranks.admin,
         custom_help_text = '<blank|mode|player> 3 different uses: "/tp" to tp to selected entity. "/tp mode" to toggle tp mode. "/tp Newcott" to tp to Newcott'
     },
     teleport_command

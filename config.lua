@@ -231,10 +231,6 @@ global.config = {
     admin_commands = {
         enabled = true
     },
-    -- enables donators' on-join messages
-    donator_messages = {
-        enabled = true
-    },
     player_colors = {
         enabled = true
     },

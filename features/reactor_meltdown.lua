@@ -8,6 +8,8 @@ local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Global = require 'utils.global'
 
+local Ranks = require 'resources.ranks'
+
 local primitives = {reactors_enabled = {global.config.reactor_meltdown.on_by_default}}
 local wastelands = {}
 local reactors = {}
@@ -182,7 +184,7 @@ Command.add(
     'meltdown',
     {
         description = 'Toggles if reactors blow up',
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true,
         log_command = true
     },

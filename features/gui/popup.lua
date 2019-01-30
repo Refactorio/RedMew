@@ -2,6 +2,7 @@ local Gui = require 'utils.gui'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 
 local close_name = Gui.uid_name()
 
@@ -144,7 +145,7 @@ Command.add(
     {
         description = 'Shows a popup to all connected players',
         arguments = {'message'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },
@@ -156,7 +157,7 @@ Command.add(
     {
         description = 'Shows an update popup to all connected players',
         arguments = {'version'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },
@@ -168,7 +169,7 @@ Command.add(
     {
         description = 'Shows a popup to the player.',
         arguments = {'player', 'message'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },

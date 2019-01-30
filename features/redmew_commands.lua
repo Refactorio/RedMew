@@ -1,3 +1,4 @@
+local Report = require 'features.report'
 local Game = require 'utils.game'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
@@ -377,15 +378,7 @@ Command.add(
     Report.report_command
 )
 
-Command.add(
-    'regulars',
-    {
-        description = 'Prints a list of game regulars.',
-        allowed_by_server = true
-    },
-    UserGroups.print_regulars
-)
-
+-- No man's land / free for all
 Command.add('redmew-setting-set', {
     description = 'Set a setting for yourself',
     arguments = {'setting_name', 'new_value'},

@@ -1,10 +1,10 @@
 local Event = require 'utils.event'
 local market_items = require 'resources.market_items'
 local Global = require 'utils.global'
-local Donators = require 'resources.donators'
-local UserGroups = require 'features.user_groups'
+local DonatorPerks = require 'resources.donator_perks'
+local Donator = require 'features.donator'
 local Game = require 'utils.game'
-local train_perk_flag = Donators.donator_perk_flags.train
+local train_perk_flag = DonatorPerks.train
 
 local saviour_token_name = 'small-plane' -- item name for what saves players
 local saviour_timeout = 180 -- number of ticks players are train immune after getting hit (roughly)
@@ -66,7 +66,7 @@ local function on_pre_death(event)
 
     local player_name = player.name
 
-    if UserGroups.player_has_donator_perk(player_name, train_perk_flag) then
+    if Donator.player_has_donator_perk(player_name, train_perk_flag) then
         saved_players[player_index] = game_tick
         save_player(player)
 

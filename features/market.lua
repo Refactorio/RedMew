@@ -6,6 +6,7 @@ local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Retailer = require 'features.retailer'
+local Ranks = require 'resources.ranks'
 local market_items = require 'resources.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
 
@@ -244,7 +245,7 @@ Command.add(
     'market',
     {
         description = 'Places a market near you.',
-        admin_only = true,
+        required_rank = Ranks.admin,
     },
     spawn_market
 )

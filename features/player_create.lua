@@ -3,7 +3,6 @@ local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Info = require 'features.gui.info'
-local UserGroups  = require 'features.user_groups'
 
 local get_random_weighted = table.get_random_weighted
 

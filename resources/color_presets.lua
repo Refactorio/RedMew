@@ -143,8 +143,13 @@ return {
     light_gray = {r = 211, g = 211, b = 211},
     gainsboro = {r = 220, g = 220, b = 220},
     white_smoke = {r = 245, g = 245, b = 245},
+
     white = {r = 255, g = 255, b = 255},
+    jailed = {r = 255, g = 255, b = 255},
+    probation = {r = 255, g = 255, b = 255},
+    guest = {r = 255, g = 255, b = 255},
+    auto_trusted = {r = 192, g = 192, b = 192},
     regular = {r = 0.155, g = 0.540, b = 0.898},
-    donator = {r = 172.6, g = 70.2, b = 215.8},
-    admin = {r = 0.093, g = 0.768, b = 0.172}
+    admin = {r = 0.093, g = 0.768, b = 0.172},
+    donator = {r = 172.6, g = 70.2, b = 215.8}
 }

@@ -4,6 +4,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Command = require 'utils.command'
 local Global = require 'utils.global'
+local Ranks = require 'resources.ranks'
 
 local Public = {}
 local return_player
@@ -176,7 +177,7 @@ Command.add(
         description = 'Send someone on a walk. Duration is in seconds.',
         arguments = {'player', 'duration'},
         default_values = {duration = 60},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     walkabout

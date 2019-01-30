@@ -1,9 +1,10 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 
 local deafult_verb = 'expanded'
 
@@ -147,7 +148,7 @@ local function draw_main_frame_content(parent)
         local row = grid.add {type = 'table', column_count = 4}
         row.style.horizontal_spacing = 0
 
-        if player.admin or UserGroups.is_regular(player.name) then
+        if Rank.equal_or_greater_than(player.name, Ranks.regular) then
             local edit_button =
                 row.add {
                 type = 'sprite-button',
@@ -238,7 +239,7 @@ local function draw_main_frame(player)
 
     right_flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
 
-    if player.admin or UserGroups.is_regular(player.name) then
+    if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         right_flow.add {type = 'button', name = create_tag_button_name, caption = 'Create Tag'}
     end
 end
@@ -688,7 +689,7 @@ Command.add(
     {
         description = "Sets a player's tag",
         arguments = {'player', 'tag'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },

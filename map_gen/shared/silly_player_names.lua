@@ -4,9 +4,10 @@ local Event = require 'utils.event'
 local naming_words = require 'resources.naming_words'
 local Utils = require 'utils.core'
 local Global = require 'utils.global'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local ScenarioInfo = require 'features.gui.info'
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 
 local format = string.format
 local random = math.random
@@ -36,7 +37,7 @@ Global.register(
 --- Takes a player's real name, current silly name, and old silly name and adjusts
 -- the silly_regulars table accordingly
 local function check_regular(real_name, silly_name, old_silly_name)
-    if UserGroups.is_regular(real_name) then
+    if Rank.equal(real_name, Ranks.regular) then
         global.silly_regulars[silly_name] = true
         if old_silly_name then
             global.silly_regulars[old_silly_name] = nil
@@ -227,7 +228,7 @@ Command.add(
     {
         description = 'Gets the index of a player',
         arguments = {'player'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     get_player_id

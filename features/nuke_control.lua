@@ -1,14 +1,15 @@
 local Event = require 'utils.event'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Server = require 'features.server'
+local Ranks = require 'resources.ranks'
 
 local format = string.format
 local match = string.match
 
 local function allowed_to_nuke(player)
-    return player.admin or UserGroups.is_regular(player.name) or ((player.online_time / 216000) > global.config.nuke_control.nuke_min_time_hours)
+    return Rank.equal_or_greater_than(player.name, Ranks.auto_trusted)
 end
 
 local function ammo_changed(event)
