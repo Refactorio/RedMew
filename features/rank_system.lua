@@ -19,14 +19,18 @@ local Colors = require 'resources.color_presets'
 
 local Config = global.config.rank_system
 
-local format = string.format
-
 -- Localized functions
-local index_of = table.index_of
+local format = string.format
+local index_in_array = table.index_of_in_array
 
 -- Constants
 local ranking_data_set = 'rankings'
 local nth_tick = 215983 -- nearest prime to 1 hour in ticks
+local rank_name_lookup = {}
+
+for k, v in pairs(Ranks) do
+    rank_name_lookup[v] = k
+end
 
 -- Local vars
 local Public = {}
@@ -44,16 +48,23 @@ Global.register(
 
 -- Local functions
 
---- Check each online player and if their playtime
-local function check_playtime()
+--- Gets a player's rank. Intentionally not exposed.
+local function get_player_rank(player_name)
+    return player_ranks[player_name] or 0
+end
+
+--- Check each online player and if their playtime is above the required cutoff, promote them to auto-trusted.
+-- Only applies to players at the guest rank or higher
+local function check_promote_to_auto_trusted()
     local auto_trusted = Ranks.auto_trusted
+    local guest = Ranks.guest
     local time_for_trust = Config.time_for_trust
     local less_than = Public.less_than
     local set_data = Server.set_data
 
     for _, p in pairs(game.connected_players) do
         local player_name = p.name
-        if (p.online_time > time_for_trust) and less_than(player_name, auto_trusted) then
+        if (p.online_time > time_for_trust) and less_than(player_name, auto_trusted) and Public.equal_or_greater_than(player_name, guest) then
             player_ranks[player_name] = auto_trusted
             set_data(ranking_data_set, player_name, auto_trusted)
         end
@@ -93,7 +104,7 @@ end
 -- @param player_name <string>
 -- @return <string>
 function Public.get_player_rank_name(player_name)
-    return index_of(Ranks, (player_ranks[player_name] or 0))
+    return rank_name_lookup[get_player_rank(player_name)]
 end
 
 --- Returns the player's rank as a name.
@@ -108,7 +119,7 @@ end
 -- @param rank <number>
 -- @return <string>
 function Public.get_rank_name(rank)
-    return index_of(Ranks, rank)
+    return rank_name_lookup[rank]
 end
 
 --- Returns the rank's color.
@@ -123,7 +134,7 @@ end
 -- @param rank <number>
 -- @return <boolean>
 function Public.equal(player_name, rank)
-    local p_rank = player_ranks[player_name] or 0
+    local p_rank = get_player_rank(player_name)
     return p_rank == rank
 end
 
@@ -132,7 +143,7 @@ end
 -- @param rank <number>
 -- @return <boolean>
 function Public.not_equal(player_name, rank)
-    local p_rank = player_ranks[player_name] or 0
+    local p_rank = get_player_rank(player_name)
     return p_rank ~= rank
 end
 
@@ -141,7 +152,7 @@ end
 -- @param rank <number>
 -- @return <boolean>
 function Public.greater_than(player_name, rank)
-    local p_rank = player_ranks[player_name] or 0
+    local p_rank = get_player_rank(player_name)
     return p_rank > rank
 end
 
@@ -150,7 +161,7 @@ end
 -- @param rank <number>
 -- @return <boolean>
 function Public.less_than(player_name, rank)
-    local p_rank = player_ranks[player_name] or 0
+    local p_rank = get_player_rank(player_name)
     return p_rank < rank
 end
 
@@ -159,7 +170,7 @@ end
 -- @param rank <number>
 -- @return <boolean>
 function Public.equal_or_greater_than(player_name, rank)
-    local p_rank = player_ranks[player_name] or 0
+    local p_rank = get_player_rank(player_name)
     return p_rank >= rank
 end
 
@@ -168,8 +179,36 @@ end
 -- @param rank <number>
 -- @return <boolean>
 function Public.equal_or_less_than(player_name, rank)
-    local p_rank = player_ranks[player_name] or 0
+    local p_rank = get_player_rank(player_name)
     return p_rank <= rank
+end
+
+--- Take a player and attempts to increase their rank by 1
+-- @param player_name <string>
+-- @return <string|nil> new rank name or nil if already at highest rank
+function Public.increase_player_rank(player_name)
+    local new_rank = (get_player_rank(player_name) + 1)
+    local new_rank_name = rank_name_lookup[new_rank]
+    if new_rank_name then
+        player_ranks[player_name] = (new_rank)
+        return new_rank_name
+    else
+        return nil
+    end
+end
+
+--- Take a player and attempts to decrease their rank by 1
+-- @param player_name <string>
+-- @return <string|nil> new rank name or nil if already at lowest rank
+function Public.decrease_player_rank(player_name)
+    local new_rank = (get_player_rank(player_name) - 1)
+    local new_rank_name = rank_name_lookup[new_rank]
+    if new_rank_name then
+        player_ranks[player_name] = (new_rank)
+        return new_rank_name
+    else
+        return nil
+    end
 end
 
 --- Sets a player's rank
@@ -187,7 +226,7 @@ function Public.set_rank(player_name, rank)
     end
 end
 
---- Resets a player's rank
+--- Resets a player's rank to the lowest rank based on playtime (guest or auto_trust)
 -- @param player_name <string>
 function Public.reset_rank(player_name)
     local actor = Utils.get_actor()
@@ -234,6 +273,28 @@ Event.add(
     end
 )
 
-Event.on_nth_tick(nth_tick, check_playtime)
+Event.on_nth_tick(nth_tick, check_promote_to_auto_trusted)
+
+if _DEBUG then
+    --- Takes a table of old ranks, converts those ranks to correcponding entries in new_ranks and uploads everything to the upload_target dataset
+    -- @param old_ranks <table> an array of ranks you want to change *from*
+    -- @param new_ranks <table> an array of ranks you want to change *to*
+    -- Note: old_ranks and new_ranks must have the same index key
+    -- @param upload_target <string> the data set to upload to (this way you can test your migration to a dummy data set before changing the real one)
+    -- @param yes_im_sure <boolean> Are you really sure you want to change the existing data set?
+    function Public.migrate_data(old_ranks, new_ranks, upload_target, yes_im_sure)
+        if ranking_data_set == upload_target and not yes_im_sure then
+            return
+        end
+
+        for k, v in pairs(player_ranks) do
+            local index = index_in_array(old_ranks, v)
+            if index then
+                player_ranks[k] = new_ranks[index]
+            end
+            Server.set_data(upload_target, k, player_ranks[k])
+        end
+    end
+end
 
 return Public
