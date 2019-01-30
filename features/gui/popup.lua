@@ -22,9 +22,9 @@ local icons = {
     "utility/too_far_from_roboport_icon"            -- 14
 }
 
-local function show_popup(player, message, title, sprite_path)
+local function show_popup(player, message, title_text, sprite_path)
     --Default title and icon
-    local title = (title ~= nil) and title or 'NOTICE!'
+    title_text = (title_text ~= nil) and title_text or 'NOTICE!'
     if type(sprite_path) == 'number' then
         sprite_path = (sprite_path ~= nil) and icons[sprite_path] or icons[4]
     else
