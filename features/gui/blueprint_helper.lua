@@ -1,9 +1,20 @@
 -- Soft mod version of Blueprint Flipper and Turner https://mods.factorio.com/mods/Marthen/Blueprint_Flip_Turn
 
 local Event = require 'utils.event'
-local Token = require 'utils.token'
+local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Game = require 'utils.game'
+
+local player_filters = {}
+
+Global.register(
+    {
+        player_filters = player_filters
+    },
+    function(tbl)
+        player_filters = tbl.player_filters
+    end
+)
 
 local function getBlueprintCursorStack(player)
     local cursor = player.cursor_stack
@@ -63,7 +74,7 @@ local function flip_v(cursor)
         cursor.set_blueprint_entities(ents)
     end
     if cursor.get_blueprint_tiles() ~= nil then
-        local ents = cursor.get_blueprint_tiles()
+        ents = cursor.get_blueprint_tiles()
         for i = 1, #ents do
             local dir = ents[i].direction or 0
             ents[i].direction = (12 - dir) % 8
@@ -120,7 +131,7 @@ local function flip_h(cursor)
         cursor.set_blueprint_entities(ents)
     end
     if cursor.get_blueprint_tiles() ~= nil then
-        local ents = cursor.get_blueprint_tiles()
+        ents = cursor.get_blueprint_tiles()
         for i = 1, #ents do
             local dir = ents[i].direction or 0
             ents[i].direction = (16 - dir) % 8
@@ -242,15 +253,6 @@ local valid_filters = {
 }
 
 -- Gui implementation.
-
-local player_filters = {}
-local player_filters_token = Token.register_global(player_filters)
-
-Event.on_load(
-    function()
-        player_filters = Token.get_global(player_filters_token)
-    end
-)
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
