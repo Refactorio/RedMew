@@ -79,7 +79,7 @@ local function check_promote_to_auto_trusted()
             player_ranks[p_name] = auto_trusted
             set_data(ranking_data_set, p_name, auto_trusted)
             guests[p_name] = nil
-        elseif not p.online then
+        elseif not p.connected then
             guests[p_name] = nil
         end
     end
