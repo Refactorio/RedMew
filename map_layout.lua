@@ -14,6 +14,7 @@ local tiles_per_tick = 32
 
 --combined--
 --shape = require "map_gen.combined.island_resort"
+shape = require "map_gen.combined.quadrants"
 --shape = require 'map_gen.combined.borg_planet_v2'
 --require "map_gen.combined.dimensions"
 --require "map_gen.combined.diggy"
@@ -109,7 +110,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.shape.diagonal_lattice"
 --require "map_gen.shape.infinite_mazes"
 --shape = require "map_gen.shape.x_shape"
-shape = require "map_gen.shape.test"
+--shape = require "map_gen.shape.test"
 --shape = require "map_gen.shape.pacman"
 
 --terrain--
