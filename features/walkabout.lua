@@ -5,6 +5,8 @@ local Token = require 'utils.token'
 local Command = require 'utils.command'
 local Global = require 'utils.global'
 
+local Public = {}
+
 -- Register our globals
 local walkabouts = {}
 
@@ -72,6 +74,10 @@ local redmew_commands_return_player =
 -- They are teleported far away, placed on a neutral force, and are given a new character.
 -- They are returned after the timeout by redmew_commands_return_player
 local function walkabout(args)
+    if global.config.walkabout.enabled then
+        Game.player_print('Walkabout is disabled via the config')
+        return
+    end
     local player_name = args.player
     local duration = tonumber(args.duration)
 
@@ -135,6 +141,16 @@ local function clean_on_join(event)
     end
 end
 
+--- Checks if a player is on walkabout
+-- @param player_index <number>
+-- @return <boolean>
+function Public.is_on_walkabout(player_index)
+    if walkabouts[player_index] then
+        return true
+    end
+    return false
+end
+
 Event.add(defines.events.on_player_joined_game, clean_on_join)
 Command.add(
     'walkabout',
@@ -147,3 +163,5 @@ Command.add(
     },
     walkabout
 )
+
+return Public
