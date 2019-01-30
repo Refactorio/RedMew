@@ -4,6 +4,7 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local Timestamp = require 'utils.timestamp'
 
 local serialize = serpent.serialize
 local concat = table.concat
@@ -510,6 +511,18 @@ function Public.query_online_players()
     message = concat(message)
     raw_print(message)
 end
+
+--- Sets the server time as the scenario version. Imperfect since we ideally want the commit,
+-- but an easy way to at least establish a baseline.
+local function set_scenario_version()
+    -- A 1 hour buffer is in place to account for potential playtime pre-upload.
+    if game.tick < 216000 and not global.redmew_version then
+        local time_string = Timestamp.to_string(Public.get_current_time())
+        global.redmew_version = 'Time of map launch: ' .. time_string
+    end
+end
+
+Event.add(Public.events.on_server_started, set_scenario_version)
 
 --- The [JOIN] nad [LEAVE] messages Factorio sends to stdout aren't sent in all cases of
 --  players joining or leaving. So we send our own [PLAYER-JOIN] and [PLAYER-LEAVE] tags.

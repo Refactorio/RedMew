@@ -4,7 +4,6 @@ local Game = require 'utils.game'
 local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
-local redmew_version = require 'resources.version'
 
 local format = string.format
 local ceil = math.ceil
@@ -210,7 +209,13 @@ local function list_seeds()
 end
 
 local function print_version()
-    Game.player_print(redmew_version)
+    local version_str
+    if global.redmew_version then
+        version_str = global.redmew_version
+    else
+        version_str = 'This map was created from source code, only releases (zips with names) and server saves have versions'
+    end
+    Game.player_print(version_str)
 end
 
 -- Command registrations
@@ -299,7 +304,7 @@ Command.add(
     print_version
 )
 
--- Commands with no functions, only calls to other modules
+-- Commands with no local functions, only calls to other modules
 
 Command.add(
     'report',

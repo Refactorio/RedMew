@@ -40,7 +40,7 @@ function Public.set_random_color(player)
 end
 
 Command.add(
-    'color-redmew',
+    'redmew-color',
     {
         description = 'Set will save your current color for future maps. Reset will erase your saved color. Random will give you a random color.',
         arguments = {'set-reset-random'},
