@@ -109,6 +109,7 @@ local tiles_per_tick = 32
 --shape = require "map_gen.shape.diagonal_lattice"
 --require "map_gen.shape.infinite_mazes"
 --shape = require "map_gen.shape.x_shape"
+shape = require "map_gen.shape.test"
 --shape = require "map_gen.shape.pacman"
 
 --terrain--
