@@ -41,7 +41,7 @@ local function show_popup(player, message, title_text, sprite_path)
     title_flow.style.top_padding = 8
     title_flow.style.horizontally_stretchable = true
 
-    local title = title_flow.add {type = 'label', caption = title}
+    local title = title_flow.add {type = 'label', caption = title_text}
     title.style.font = 'default-large-bold'
 
     local close_button_flow = top_flow.add {type = 'flow'}
