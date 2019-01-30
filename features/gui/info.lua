@@ -7,7 +7,12 @@ local PlayerRewards = require 'utils.player_rewards'
 local Color = require 'resources.color_presets'
 local Server = require 'features.server'
 local Token = require 'utils.token'
+
 local format = string.format
+
+local config = global.config
+local config_mapinfo = config.map_info
+local config_prewards = config.player_rewards
 
 local normal_color = Color.white
 local focus_color = Color.dark_orange
@@ -26,7 +31,7 @@ local info_tab_flags = {
     0x2, -- rules
     0x4, -- map_info
     0x8, -- scenario_mods
-    0x10, -- whats_new
+    0x10 -- whats_new
 }
 local flags_sum = 0
 for _, v in pairs(info_tab_flags) do
@@ -39,31 +44,48 @@ local map_extra_info_key = 3
 local new_info_key = 4
 
 local rewarded_players = {}
-local map_extra_info_lock = {false}
+local primitives = {
+    map_extra_info_lock = nil,
+    info_edited = nil
+}
 
 local editable_info = {
-    [map_name_key] = global.config.map_info.map_name_key,
-    [map_description_key] = global.config.map_info.map_description_key,
-    [map_extra_info_key] = global.config.map_info.map_extra_info_key,
-    [new_info_key] = global.config.map_info.new_info_key
+    [map_name_key] = config_mapinfo.map_name_key,
+    [map_description_key] = config_mapinfo.map_description_key,
+    [map_extra_info_key] = config_mapinfo.map_extra_info_key,
+    [new_info_key] = config_mapinfo.new_info_key
 }
 
 Global.register(
     {
         rewarded_players = rewarded_players,
         editable_info = editable_info,
-        map_extra_info_lock = map_extra_info_lock,
+        primitives = primitives,
     },
     function(tbl)
         rewarded_players = tbl.rewarded_players
         editable_info = tbl.editable_info
-        map_extra_info_lock = tbl.map_extra_info_lock
+        primitives = tbl.primitives
     end
 )
 
+--- Sets the "new info" according to the changelog located on the server
+local function process_changelog(data)
+    local key = data.key
+    if key ~= 'changelog' then
+        return
+    end
+
+    local value = data.value -- will be nil if no data
+    if value then
+        editable_info[new_info_key] = value
+    end
+end
+
+local changelog_callback = Token.register(process_changelog)
+
 local function prepare_title()
-    local welcome_title =
-        [[
+    local welcome_title = [[
 111111  1111111 111111  111    111 1111111 11     11
 11   11 11      11   11 1111  1111 11      11     11
 111111  11111   11   11 11 1111 11 11111   11  1  11
@@ -172,21 +194,16 @@ We are a friendly bunch, our objective is to have as much fun as possible and we
             )
 
             header_label(parent, 'How To Chat')
-            centered_label(
-                parent,
-                [[
+            centered_label(parent, [[
 To chat with other players, press the "grave" key on your keyboard.
 It is below the ESC key on English keyboards and looks like ~ or `
 This can be changed in options -> controls -> "toggle lua console".
-                ]]
-            )
+                ]])
 
-            if global.config.player_rewards.enabled and global.config.player_rewards.info_player_reward then
+            if config_prewards.enabled and config_prewards.info_player_reward then
                 local string = format('You have been given %s %s%s for looking at the welcome tab.\nChecking each tab will reward you %s more %s%s.\n', reward_amount, reward_token, reward_plural_indicator, reward_amount, reward_token, reward_plural_indicator)
                 header_label(parent, 'Free Coins')
-                centered_label(
-                    parent, string
-                )
+                centered_label(parent, string)
             end
 
             header_label(parent, 'Useful Links')
@@ -221,8 +238,7 @@ This can be changed in options -> controls -> "toggle lua console".
             maps_textbox_flow_style.align = 'center'
             maps_textbox_flow_style.horizontally_stretchable = true
             maps_textbox_flow.add({type = 'label', caption = 'Maps: '}).style.font = 'default-bold'
-            local maps_textbox =
-                maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
+            local maps_textbox = maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
             maps_textbox.read_only = true
 
             parent.add({type = 'flow'}).style.height = 24
@@ -407,13 +423,13 @@ but you will lose a small plane. You can get planes from the market.
             }
             train_savior_label.style.single_line = false
 
-            if global.config.player_list.enabled then
+            if config.player_list.enabled then
                 grid.add {type = 'sprite', sprite = 'entity/player'}
                 local player_list = grid.add {type = 'label', caption = 'Player\nlist'}
                 player_list.style.font = 'default-listbox'
                 player_list.style.single_line = false
                 local player_list_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Lists all players on the server and shows some stats. You can sort the list by
@@ -422,12 +438,12 @@ noun in the chat.]]
                 }
                 player_list_label.style.single_line = false
             end
-            if global.config.poll.enabled then
+            if config.poll.enabled then
                 grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
                 local poll = grid.add {type = 'label', caption = 'Polls'}
                 poll.style.font = 'default-listbox'
                 local poll_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Polls help players get consensus for major actions. Want to improve an important
@@ -437,7 +453,7 @@ to make new polls.]]
                 poll_label.style.single_line = false
             end
 
-            if global.config.tag_group.enabled then
+            if config.tag_group.enabled then
                 local tag_button = grid.add {type = 'label', caption = 'tag'}
                 local tag_button_style = tag_button.style
                 tag_button_style.font = 'default-listbox'
@@ -445,7 +461,7 @@ to make new polls.]]
                 local tag = grid.add {type = 'label', caption = 'Tags'}
                 tag.style.font = 'default-listbox'
                 local tag_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 You can assign yourself a role with tags to let other players know what you are
@@ -455,12 +471,12 @@ be sure to show off your creatively.]]
                 tag_label.style.single_line = false
             end
 
-            if global.config.tasklist.enabled then
+            if config.tasklist.enabled then
                 grid.add {type = 'sprite', sprite = 'item/repair-pack'}
                 local task = grid.add {type = 'label', caption = 'Tasks'}
                 task.style.font = 'default-listbox'
                 local task_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Not sure what you should be working on, why not look at the tasks and see what
@@ -469,7 +485,7 @@ needs doing. Regulars can add new tasks.]]
                 task_label.style.single_line = false
             end
 
-            if global.config.blueprint_helper.enabled then
+            if config.blueprint_helper.enabled then
                 grid.add {type = 'sprite', sprite = 'item/blueprint'}
                 local blueprint = grid.add {type = 'label', caption = 'BP\nhelper'}
                 local blueprint_style = blueprint.style
@@ -477,7 +493,7 @@ needs doing. Regulars can add new tasks.]]
                 blueprint_style.single_line = false
                 blueprint_style.width = 55
                 local blueprint_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you
@@ -486,12 +502,12 @@ converter the entities used in the blueprint e.g. turn yellow belts into red bel
                 blueprint_label.style.single_line = false
             end
 
-            if global.config.score.enabled then
+            if config.score.enabled then
                 grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
                 local score = grid.add {type = 'label', caption = 'Score'}
                 score.style.font = 'default-listbox'
                 local score_label =
-                grid.add {
+                    grid.add {
                     type = 'label',
                     caption = [[
 Shows number of rockets launched and biters liberated.]]
@@ -621,7 +637,7 @@ local function draw_main_frame(center, player)
 end
 
 local function reward_player(player, index, message)
-    if not global.config.player_rewards.enabled or not global.config.player_rewards.info_player_reward then
+    if not config_prewards.enabled or not config_prewards.info_player_reward then
         return
     end
 
@@ -643,12 +659,32 @@ local function reward_player(player, index, message)
     end
 end
 
+--- Uploads the contents of new info tab to the server.
+-- Is triggered on closing the info window by clicking the close button or by pressing escape.
+local function upload_changelog(event)
+    local player = event.player
+    if not player or not player.valid or not player.admin then
+        return
+    end
+
+    if editable_info[new_info_key] ~= config_mapinfo.new_info_key and primitives.info_edited then
+        Server.set_data('misc', 'changelog', editable_info[new_info_key])
+        primitives.info_edited = nil
+    end
+end
+
+--- Tries to download the latest changelog
+local function download_changelog()
+    Server.try_get_data('misc', 'changelog', changelog_callback)
+end
+
 local function toggle(event)
     local player = event.player
     local center = player.gui.center
     local main_frame = center[main_frame_name]
 
     if main_frame then
+        upload_changelog(event)
         Gui.destroy(main_frame)
     else
         draw_main_frame(center, player)
@@ -671,39 +707,26 @@ end
 --- Sets editable_info[map_extra_info_key] outright or adds info to it.
 -- Forbids map_extra_info being explicitly set twice
 local function create_map_extra_info(value, set)
-    if map_extra_info_lock[1] and set then
+    if primitives.map_extra_info_lock and set then
         error('Cannot set extra info twice, use add instead')
         return
-    elseif map_extra_info_lock[1] then
+    elseif primitives.map_extra_info_lock then
         return
     elseif set then
         editable_info[map_extra_info_key] = value
-        map_extra_info_lock[1] = true
-    elseif editable_info[map_extra_info_key] == global.config.map_info.map_extra_info_key then
+        primitives.map_extra_info_lock = true
+    elseif editable_info[map_extra_info_key] == config_mapinfo.map_extra_info_key then
         editable_info[map_extra_info_key] = value
     else
-        editable_info[map_extra_info_key] = string.format('%s\n%s', editable_info[map_extra_info_key], value)
+        editable_info[map_extra_info_key] = format('%s\n%s', editable_info[map_extra_info_key], value)
     end
 end
 
---- Sets the "new info" according to the changelog located on the server
-local changelog_callback =
-    Token.register(
-    function(data)
-        local value = data.value -- will be nil if no data
-        if value then
-            editable_info[new_info_key] = value
-        end
-    end
-)
-
 Event.add(defines.events.on_player_created, player_created)
 
-Event.add(Server.events.on_server_started,
-    function()
-        Server.try_get_data('misc', 'changelog', changelog_callback)
-    end
-)
+Event.add(Server.events.on_server_started, download_changelog)
+
+Server.on_data_set_changed('misc', process_changelog)
 
 Gui.on_click(main_button_name, toggle)
 
@@ -748,12 +771,14 @@ Gui.on_text_changed(
         local key = Gui.get_data(textbox)
 
         editable_info[key] = textbox.text
+        primitives.info_edited = true
     end
 )
 
 Gui.on_custom_close(
     main_frame_name,
     function(event)
+        upload_changelog(event)
         Gui.destroy(event.element)
     end
 )
