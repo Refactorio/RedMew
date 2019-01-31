@@ -50,7 +50,7 @@ end
 --- Checks if a table contains an element
 -- @param t <table>
 -- @param e <any> table element
--- @returns <number|string|nil> the index of the element or nil
+-- @returns <any> the index of the element or nil
 function table.index_of(t, e)
     for k, v in pairs(t) do
         if v == e then
@@ -111,7 +111,7 @@ end
 -- because this uses math.random, it cannot be used outside of events
 -- @param t <table> to select an element from
 -- @param key <boolean> to indicate whether to return the key or value
--- @return a random element of table t
+-- @return <any> a random element of table t
 function table.get_random_dictionary_entry(t, key)
     local target_index = random(1, table_size(t))
     local count = 1
