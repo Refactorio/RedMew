@@ -6,6 +6,8 @@ local wrech_items_module = require 'map_gen.misc.wreck_items'
 
 local resource_types = {'copper-ore', 'iron-ore', 'coal', 'stone', 'uranium-ore', 'crude-oil'}
 
+local Public = {}
+
 global.current_portal_index = 1
 global.portals = {}
 --Sample Portal:
@@ -33,6 +35,7 @@ local function create_resource_setting(resource)
     settings.autoplace_controls[resource] = {frequency = 'normal', size = 'big', richness = 'good'}
     return settings
 end
+
 local function init()
     local rs_index = RS.get_surface().index + 1
     if not game.surfaces[rs_index] then
@@ -61,9 +64,7 @@ local function generate_nihil(event)
     event.surface.set_tiles(tiles)
 end
 
---[[
-    Nothihng calls run_combined_module and I'm not sure what to do with it since it seems to want an event to trigger it
-function run_combined_module(event)
+function Public.run_combined_module(event)
     init()
     if event.surface.name == 'Zerus' then
         wrech_items_module.on_chunk_generated(event)
@@ -71,7 +72,6 @@ function run_combined_module(event)
         generate_nihil(event)
     end
 end
-]]
 
 local function teleport_nearby_players(portal)
     for _, player_character in pairs(portal.source.find_entities_filtered {area = {{portal.position.x - global.portal_radius, portal.position.y - global.portal_radius}, {portal.position.x + global.portal_radius, portal.position.y + global.portal_radius}}, name = 'player', type = 'player'}) do
@@ -163,3 +163,5 @@ end
 commands.add_command('linkchests', 'Select a chest to link to another. Run this command again to select the other one.', linkchests)
 commands.add_command('linkportals', 'Select a portal to link to another. Run this command again to select the other one.', linkportals)
 Event.add(defines.events.on_tick, dim_on_tick)
+
+return Public
