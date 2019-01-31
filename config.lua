@@ -16,6 +16,21 @@ global.config = {
         -- New Scenario Features, appears in the "What's new" tab
         new_info_key = 'Nothing is new. The world is at peace'
     },
+    -- map generation settings for redmew's maps
+    map_generation = {
+        -- whether to regen decoratives
+        ['regen_decoratives'] = false,
+        -- the number of tiles to change per tick
+        ['tiles_per_tick'] = 32,
+        -- the entity modules to load (takes a list of requires), example included
+        ['entity_modules'] = {
+            -- require('map_gen.fluffy_rainbows')
+        },
+        -- the terrain modules to load (takes a list of requires), example included
+        ['terrain_modules'] = {
+            --require('map_gen.terrain.tris_chunk_grid')
+        },
+    },
     -- redmew_surface allows a map preset to control world generation as well as map and difficulty settings
     -- the entire module can be toggled or just individual parts
     redmew_surface = {
@@ -31,7 +46,7 @@ global.config = {
     -- Adds the infinite storage chest to the market and adds a custom GUI to it. Also has to be loaded first due to adding a market item
     infinite_storage_chest = {
         enabled = false
-    },
+	},
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
         enabled = true

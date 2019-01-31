@@ -6,9 +6,9 @@ Debug = require 'utils.debug'
 require 'resources.version'
 require 'utils.table'
 
--- Map layout and config dictate the map you play and the settings in it
+-- Config and map_loader dictate the map you play and the settings in it
 local config = require 'config'
-require 'map_layout'
+require 'map_gen.shared.map_loader' -- to change the map you're playing, modify map_selection.lua
 
 -- Specific to RedMew hosts, can be disabled safely if not hosting on RedMew servers
 require 'features.server'
