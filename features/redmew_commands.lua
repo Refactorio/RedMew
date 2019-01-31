@@ -230,22 +230,18 @@ local function print_player_info(args, player)
     if not target then
         Game.player_print('Target not found')
     end
-    local index = player.index
-    local m_inventory = player.get_inventory(defines.inventory.player_main)
-    m_inventory = m_inventory.get_contents()
-    local q_inventory = player.get_inventory(defines.inventory.player_quickbar)
-    q_inventory = q_inventory.get_contents()
+    local index = target.index
     local info_t = {
         'Name: ' .. name,
-        player.connected and 'Online: ' .. 'yes' or 'Online: ' .. 'no',
-        'Index: ' .. player.index,
-        'Rank: ' .. UserGroups.get_rank(player),
-        'Donator: ' .. UserGroups.is_donator(player.name),
-        'Time played: ' .. Utils.format_time(player.online_time),
-        'AFK time: ' .. player.afk_time or 0,
-        'Force: ' .. player.force.name,
-        'Surface: ' .. player.surface.name,
-        'Tag: ' .. player.tag,
+        target.connected and 'Online: ' .. 'yes' or 'Online: ' .. 'no',
+        'Index: ' .. target.index,
+        'Rank: ' .. UserGroups.get_rank(target),
+        'Donator: ' .. UserGroups.is_donator(target.name),
+        'Time played: ' .. Utils.format_time(target.online_time),
+        'AFK time: ' .. target.afk_time or 0,
+        'Force: ' .. target.force.name,
+        'Surface: ' .. target.surface.name,
+        'Tag: ' .. target.tag,
         'Distance walked: ' .. PlayerStats.get_walk_distance(index),
         'Coin earned: ' .. PlayerStats.get_coin_earned(index),
         'Coin spent: ' .. PlayerStats.get_coin_spent(index),
@@ -253,9 +249,13 @@ local function print_player_info(args, player)
         'Crafted items: ' .. PlayerStats.get_crafted_item(index),
         'Chat messages: ' .. PlayerStats.get_console_chat(index)
     }
-    Game.player_print(concat(info_t, ' - '))
+    Game.player_print(concat(info_t, '\n- '))
 
-    if player and player.admin and not args.inventory then
+    if (not player or player.admin) and args.inventory then
+        local m_inventory = target.get_inventory(defines.inventory.player_main)
+        m_inventory = m_inventory.get_contents()
+        local q_inventory = target.get_inventory(defines.inventory.player_quickbar)
+        q_inventory = q_inventory.get_contents()
         Game.player_print('Main and hotbar inventories: ')
         Game.player_print(serpent.line(m_inventory))
         Game.player_print(serpent.line(q_inventory))
@@ -351,7 +351,7 @@ Command.add(
 Command.add(
     'whois',
     {
-        description = 'provides information about a given player, admins get additional information',
+        description = 'provides information about a given player, admins can see the inventory of a player by adding "yes" as a second argument',
         arguments = {'player', 'inventory'},
         default_values = {inventory = false},
         allowed_by_server = true
