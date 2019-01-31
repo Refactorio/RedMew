@@ -245,12 +245,8 @@ end
 local function revive_ghosts(args, player)
     local radius = args.radius
     local pos = player.position
-    for _, e in pairs(player.surface.find_entities_filtered {area = {{pos.x - radius, pos.y - radius}, {pos.x + radius, pos.y + radius}}}) do
-        if e.type == 'entity-ghost' then
-            e.revive()
-        else
-            e.health = 10000
-        end
+    for _, e in pairs(player.surface.find_entities_filtered {area = {{pos.x - radius, pos.y - radius}, {pos.x + radius, pos.y + radius}}, type = 'entity-ghost'}) do
+        e.revive()
     end
 end
 
