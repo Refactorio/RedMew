@@ -5,7 +5,6 @@ local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
 local Walkabout = require 'features.walkabout'
-local redmew_version = require 'resources.version'
 
 local format = string.format
 local ceil = math.ceil
