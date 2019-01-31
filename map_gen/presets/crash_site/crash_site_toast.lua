@@ -1,6 +1,5 @@
 local Gui = require 'utils.gui'
 local Toast = require 'features.gui.toast'
-local Retailer = require 'features.retailer'
 local Color = require 'resources.color_presets'
 
 local Public = {}
