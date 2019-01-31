@@ -8,6 +8,7 @@ local PlayerStats = require 'features.player_stats'
 local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local Color = require 'resources.color_presets'
+local CrashSiteToast = require 'map_gen.presets.crash_site.crash_site_toast'
 
 local table = require 'utils.table'
 --local next = next
@@ -667,6 +668,7 @@ local function to_shape(blocks, part_size, on_init)
             outpost_id = outpost_id,
             magic_crafters = {},
             --magic_fluid_crafters = {},
+            market = nil,
             turret_count = 0,
             top_left = {nil, nil},
             bottom_right = {nil, nil},
@@ -973,10 +975,11 @@ local function do_outpost_upgrade(event)
     local level = outpost_data.level + 1
     outpost_data.level = level
 
-    local message =
-        concat({'*** ', Retailer.get_market_group_label(outpost_id), ' has been upgraded to level ', level, ' ***'})
-    game.print(message, Color.lime_green)
-    Server.to_discord_bold(message)
+    local outpost_name = Retailer.get_market_group_label(outpost_id)
+    local message = concat {outpost_name, ' has been upgraded to level ', level}
+
+    CrashSiteToast.do_outpost_toast(outpost_data.market, outpost_name, message)
+    Server.to_discord_bold(concat {'*** ', message, ' ***'})
 
     for i = 1, #outpost_magic_crafters do
         local crafter = outpost_magic_crafters[i]
@@ -1041,8 +1044,18 @@ local function do_capture_outpost(outpost_data)
         return
     end
 
-    game.print(concat({'*** ', 'Outpost captured: ' .. name, ' ***'}), Color.lime_green)
-    Server.to_discord_bold('Outpost captured: ' .. name)
+    local donators = global.donators
+    if next(donators) then
+        local donator = table.get_random_dictionary_entry(donators, true)
+        if donator then
+            name = concat({donator, "'s ", name})
+            Retailer.set_market_group_label(outpost_id, name)
+        end
+    end
+
+    local message = 'Outpost captured: ' .. name
+    CrashSiteToast.do_outpost_toast(outpost_data.market, name, message)
+    Server.to_discord_bold(concat {'*** ', message, ' ***'})
 
     activate_market_upgrade(outpost_data)
 end
@@ -1446,6 +1459,7 @@ Public.market_set_items_callback =
         local outpost_data = outposts[market_id]
         local upgrade_base_cost = callback_data.upgrade_base_cost or 0
 
+        outpost_data.market = entity
         outpost_data.upgrade_rate = callback_data.upgrade_rate
         outpost_data.upgrade_base_cost = upgrade_base_cost
         outpost_data.upgrade_cost_base = callback_data.upgrade_cost_base
@@ -1521,7 +1535,7 @@ function Public.do_random_loot(entity, weights, loot)
     end
 
     entity.operable = false
-    entity.destructible = false
+    --entity.destructible = false
 
     local i = math.random() * weights.total
 
