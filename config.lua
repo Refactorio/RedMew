@@ -16,15 +16,15 @@ global.config = {
         -- New Scenario Features, appears in the "What's new" tab
         new_info_key = 'Nothing is new. The world is at peace'
     },
-    -- map generation settings for redmew's maps
+    -- map generation settings for redmew's maps (only applies to maps that use 'shapes')
     map_generation = {
         -- whether to regen decoratives
         ['regen_decoratives'] = false,
-        -- the number of tiles to change per tick
+        -- the number of 'tiles' that are calculated per tick
         ['tiles_per_tick'] = 32,
         -- the entity modules to load (takes a list of requires), example included
         ['entity_modules'] = {
-            -- require('map_gen.fluffy_rainbows')
+            -- require('map_gen.entity.fluffy_rainbows')
         },
         -- the terrain modules to load (takes a list of requires), example included
         ['terrain_modules'] = {
