@@ -2,7 +2,7 @@
 
 local Event = require 'utils.event'
 local RS = require 'map_gen.shared.redmew_surface'
-local wrech_items_module = require 'map_gen.misc.wreck_items'
+local wrech_items_module = require 'map_gen.shared.wreck_items'
 
 local resource_types = {'copper-ore', 'iron-ore', 'coal', 'stone', 'uranium-ore', 'crude-oil'}
 

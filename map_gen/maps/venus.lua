@@ -1,9 +1,9 @@
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
 global.map.terraforming.creep_retraction_tiles = {'sand-1'}
-require 'map_gen.misc.nightfall' -- forces idle biters to attack at night
-require 'map_gen.misc.terraforming' -- prevents players from building on non-terraformed tiles
-local DayNight = require 'map_gen.misc.day_night'
+require 'map_gen.shared.nightfall' -- forces idle biters to attack at night
+require 'map_gen.shared.terraforming' -- prevents players from building on non-terraformed tiles
+local DayNight = require 'map_gen.shared.day_night'
 local ScenarioInfo = require 'features.gui.info'
 local RS = require 'map_gen.shared.redmew_surface'
 
