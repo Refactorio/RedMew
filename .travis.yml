@@ -51,3 +51,7 @@ deploy:
   skip_cleanup: true
   prerelease: true
   name: "$RELEASE_NAME"
+after_failure:
+  - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh failure $webhook_url
