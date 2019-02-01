@@ -4,9 +4,9 @@
 -- dependencies
 local Event = require 'utils.event'
 local Token = require 'utils.token'
-local Template = require 'map_gen.Diggy.Template'
+local Template = require 'map_gen.maps.diggy.template'
 local Retailer = require 'features.retailer'
-local DiggyCaveCollapse = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'
+local DiggyCaveCollapse = require 'map_gen.maps.diggy.feature.diggy_cave_collapse'
 local RS = require 'map_gen.shared.redmew_surface'
 
 local insert = table.insert
@@ -34,7 +34,7 @@ function StartingZone.register(config)
         local start_point_cleanup = {{-0.9, -0.9}, {1.9, 1.9}}
         local surface = event.surface
 
-        -- hack to figure out whether the important chunks are generated via Diggy.Feature.RefreshMap.
+        -- hack to figure out whether the important chunks are generated via diggy.feature.refresh_map.
         if (4 ~= surface.count_tiles_filtered({start_point_area, name = 'lab-dark-1'})) then
             return
         end

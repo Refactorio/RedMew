@@ -4,8 +4,8 @@
 
 -- dependencies
 local Event = require 'utils.event'
-local Debug = require 'map_gen.Diggy.Debug'
-local Template = require 'map_gen.Diggy.Template'
+local Debug = require 'map_gen.maps.diggy.debug'
+local Template = require 'map_gen.maps.diggy.template'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Simplex = require 'map_gen.shared.simplex_noise'
 local Utils = require 'utils.core'

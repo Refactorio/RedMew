@@ -6,8 +6,8 @@
 -- dependencies
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local Template = require 'map_gen.Diggy.Template'
-local ScoreTable = require 'map_gen.Diggy.ScoreTable'
+local Template = require 'map_gen.maps.diggy.template'
+local ScoreTable = require 'map_gen.maps.diggy.score_table'
 local Command = require 'utils.command'
 local CreateParticles = require 'features.create_particles'
 local random = math.random

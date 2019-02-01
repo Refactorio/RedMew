@@ -7,7 +7,7 @@ local Config = {
     -- to disable a feature, change the flag
     features = {
         -- creates a starting zone
-        StartingZone = {
+        starting_zone = {
             enabled = true,
 
             -- initial starting position size, higher values are not recommended
@@ -18,12 +18,12 @@ local Config = {
         },
 
         -- controls the Daylight (Default diggy: enabled = true)
-        NightTime = {
+        night_time = {
             enabled = true, -- true = No Daylight, false = Day/night circle (Solar panels work)
         },
 
         -- controls setting up the players
-        SetupPlayer = {
+        setup_player = {
             enabled = true,
             starting_items = {
                 {name = 'iron-axe', count = 2},
@@ -55,7 +55,7 @@ local Config = {
         },
 
         -- core feature
-        DiggyHole = {
+        diggy_hole = {
             enabled = true,
 
             -- initial damage per tick it damages a rock to mine, can be enhanced by robot_damage_per_mining_prod_level
@@ -66,7 +66,7 @@ local Config = {
         },
 
         -- adds the ability to collapse caves
-        DiggyCaveCollapse = {
+        diggy_cave_collapse = {
             enabled = true,
 
             -- adds per tile what the current stress is
@@ -106,7 +106,7 @@ local Config = {
         },
 
         -- Adds the ability to drop coins and track how many are sent into space
-        CoinGathering = {
+        coin_gathering = {
             enabled = true,
 
             -- value between 0 and 1, higher value means stronger variance between coordinates
@@ -181,12 +181,12 @@ local Config = {
         },
 
         -- replaces the chunks with void
-        RefreshMap = {
+        refresh_map = {
             enabled = true,
         },
 
         -- automatically opens areas
-        SimpleRoomGenerator = {
+        simple_room_generator = {
             enabled = true,
 
             -- value between 0 and 1, higher value means stronger variance between coordinates
@@ -207,7 +207,7 @@ local Config = {
         },
 
         -- responsible for resource spawning
-        ScatteredResources = {
+        scattered_resources = {
             enabled = true,
 
             -- determines how distance is measured
@@ -305,18 +305,18 @@ local Config = {
             cluster_mode = true,
 
             -- spawns tendrils of ore with roughly 80% purity
-            ore_pattern = require 'map_gen.Diggy.Orepattern.tendrils_impure',
+            ore_pattern = require 'map_gen.maps.diggy.orepattern.tendrils_impure',
 
             -- spawns some smaller dedicated and bigger mixed tendrils
-            --ore_pattern = require 'map_gen.Diggy.Orepattern.Tendrils',
+            --ore_pattern = require 'map_gen.maps.diggy.orepattern.tendrils',
 
             -- spawns clusters of ore similar to vanilla, but mixed
-            --ore_pattern = require 'map_gen.Diggy.Orepattern.Clusters',
+            --ore_pattern = require 'map_gen.maps.diggy.orepattern.clusters',
 
         },
 
         -- controls the alien spawning mechanic
-        AlienSpawner = {
+        alien_spawner = {
             enabled = true,
 
             -- minimum distance from spawn before aliens can spawn
@@ -348,13 +348,13 @@ local Config = {
         },
 
         --Tracks players causing collapses
-        Antigrief = {
+        antigrief = {
             enabled = true,
             autojail = true,
             allowed_collapses_first_hour = 4,
         },
 
-        Experience = {
+        experience = {
             enabled = true,
             -- controls the formula for calculating level up costs in stone sent to surface
             difficulty_scale = 15, -- Diggy default 15. Higher increases experience requirement climb

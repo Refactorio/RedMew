@@ -3,9 +3,9 @@
 ]]
 
 -- dependencies
-local Template = require 'map_gen.Diggy.Template'
+local Template = require 'map_gen.maps.diggy.template'
 local Event = require 'utils.event'
-local Debug = require'map_gen.Diggy.Debug'
+local Debug = require 'map_gen.maps.diggy.debug'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local raise_event = script.raise_event

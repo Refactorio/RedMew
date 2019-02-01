@@ -1,5 +1,5 @@
 -- dependencies
-local Config = require 'map_gen.Diggy.Config'
+local Config = require 'map_gen.maps.diggy.config'
 local ScenarioInfo = require 'features.gui.info'
 local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
@@ -56,7 +56,7 @@ function Scenario.register()
 
     each_enabled_feature(
         function(feature_name, feature_config)
-            local feature = require ('map_gen.Diggy.Feature.' .. feature_name)
+            local feature = require ('map_gen.maps.diggy.feature.' .. feature_name)
             if ('function' ~= type(feature.register)) then
                 error('Feature ' .. feature_name .. ' did not define a register function.')
             end

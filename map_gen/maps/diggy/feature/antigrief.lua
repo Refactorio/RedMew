@@ -1,7 +1,7 @@
 -- dependencies
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local CaveCollapse = require 'map_gen.Diggy.Feature.DiggyCaveCollapse'
+local CaveCollapse = require 'map_gen.maps.diggy.feature.diggy_cave_collapse'
 local Game = require 'utils.game'
 local Report = require 'features.report'
 local format = string.format
