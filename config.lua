@@ -46,7 +46,7 @@ global.config = {
     -- Adds the infinite storage chest to the market and adds a custom GUI to it. Also has to be loaded first due to adding a market item
     infinite_storage_chest = {
         enabled = false
-	},
+    },
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
         enabled = true
@@ -99,9 +99,9 @@ global.config = {
             ['medium-spitter'] = {low = 1, high = 3, chance = 0},
             ['big-spitter'] = {low = 1, high = 3, chance = 0},
             ['behemoth-spitter'] = {low = 1, high = 10, chance = 0},
-            ['medium-biter']  = {low = 1, high = 3, chance = 0},
-            ['big-biter']  = {low = 1, high = 5, chance = 0},
-            ['behemoth-biter']  = {low = 1, high = 10, chance = 0}
+            ['medium-biter'] = {low = 1, high = 3, chance = 0},
+            ['big-biter'] = {low = 1, high = 5, chance = 0},
+            ['behemoth-biter'] = {low = 1, high = 10, chance = 0}
         }
     },
     -- adds anti-nuke griefing
@@ -213,7 +213,7 @@ global.config = {
     },
     -- makes manual stuff cumbersome
     lazy_bastard = {
-        enabled = false,
+        enabled = false
     },
     -- automatically marks miners for deconstruction when they are depleted (currently compatible with hard mods that add miners)
     autodeconstruct = {
@@ -266,7 +266,7 @@ global.config = {
     },
     -- adds a useless button with the biter percentage
     evolution_progress = {
-        enabled = true,
+        enabled = true
     }
 }
 
