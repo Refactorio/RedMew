@@ -13,6 +13,7 @@ local Global = require 'utils.global'
 local table = require 'utils.table'
 local Token = require 'utils.token'
 local Utils = require 'utils.core'
+local math = require 'utils.math'
 local Server = require 'features.server'
 local Ranks = require 'resources.ranks'
 local Colors = require 'resources.color_presets'
@@ -22,14 +23,26 @@ local Config = global.config.rank_system
 -- Localized functions
 local format = string.format
 local index_in_array = table.index_of_in_array
+local clamp = math.clamp
 
 -- Constants
 local ranking_data_set = 'rankings'
 local nth_tick = 215983 -- nearest prime to 1 hour in ticks
 local rank_name_lookup = {}
+local sorted_ranks = {}
+local rank_to_index = {}
 
 for k, v in pairs(Ranks) do
     rank_name_lookup[v] = k
+end
+
+for k, v in pairs(Ranks) do
+    sorted_ranks[#sorted_ranks + 1] = v
+end
+table.sort(sorted_ranks)
+
+for k, v in pairs(sorted_ranks) do
+    rank_to_index[v] = k
 end
 
 -- Local vars
@@ -51,6 +64,15 @@ Global.register(
 )
 
 -- Local functions
+
+--- Changes a rank
+local function change_rank(current_rank, change)
+    local index = rank_to_index[current_rank]
+
+    local new_index = clamp(index + change, 1, #sorted_ranks)
+
+    return sorted_ranks[new_index]
+end
 
 --- Gets a player's rank. Intentionally not exposed.
 local function get_player_rank(player_name)
@@ -205,7 +227,12 @@ end
 -- @param player_name <string>
 -- @return <string|nil> new rank name or nil if already at highest rank
 function Public.increase_player_rank(player_name)
-    local new_rank = (get_player_rank(player_name) + 1)
+    local current_rank = (get_player_rank(player_name))
+    local new_rank = change_rank(current_rank, 1)
+    if current_rank == new_rank then
+        return nil
+    end
+
     local new_rank_name = rank_name_lookup[new_rank]
     if new_rank_name then
         player_ranks[player_name] = (new_rank)
@@ -219,7 +246,12 @@ end
 -- @param player_name <string>
 -- @return <string|nil> new rank name or nil if already at lowest rank
 function Public.decrease_player_rank(player_name)
-    local new_rank = (get_player_rank(player_name) - 1)
+    local current_rank = (get_player_rank(player_name))
+    local new_rank = change_rank(current_rank, -1)
+    if current_rank == new_rank then
+        return nil
+    end
+
     local new_rank_name = rank_name_lookup[new_rank]
     if new_rank_name then
         player_ranks[player_name] = (new_rank)
