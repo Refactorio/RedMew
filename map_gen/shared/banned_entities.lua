@@ -64,12 +64,12 @@ Event.add(
         entity.destroy()
         if not ghost then
             p.insert(event.stack)
-            require 'features.gui.popup'.player_ones(
+            require 'features.gui.popup'.player(
                     p,[[
 You don't know how to operate this item!
 
 Advice: Only burner inserters and burner mining drills works in prehistoric land
-]], 'map_gen.shared.banned_entities')
+]],nil, nil, 'map_gen.shared.banned_entities')
         end
 
 
