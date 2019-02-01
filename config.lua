@@ -24,7 +24,7 @@ global.config = {
         ['tiles_per_tick'] = 32,
         -- the entity modules to load (takes a list of requires), example included
         ['entity_modules'] = {
-            -- require('map_gen.entity.fluffy_rainbows')
+            -- require('map_gen.entities.fluffy_rainbows')
         },
         -- the terrain modules to load (takes a list of requires), example included
         ['terrain_modules'] = {
