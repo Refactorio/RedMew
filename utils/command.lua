@@ -16,6 +16,7 @@ local deprecated_command_alternatives = {
     ['tpplayer'] = 'tp <player>',
     ['tppos'] = 'tp',
     ['tpmode'] = 'tp mode',
+    ['color-redmew'] = 'redmew-color'
 }
 
 local option_names = {
