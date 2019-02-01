@@ -22,7 +22,7 @@ local icons = {
     "utility/too_far_from_roboport_icon"            -- 14
 }
 
-local function show_popup(player, message, title_text, sprite_path)
+local function show_popup(player, message, title_text, sprite_path, popup_name)
     --Default title and icon
     title_text = (title_text ~= nil) and title_text or 'NOTICE!'
     if type(sprite_path) == 'number' then
@@ -30,7 +30,19 @@ local function show_popup(player, message, title_text, sprite_path)
     else
         sprite_path = (sprite_path ~= nil) and sprite_path or icons[4]
     end
-    local frame = player.gui.center.add {type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+
+    local frame
+    if popup_name ~= nil then
+        local center = player.gui.center
+        local popup = center['Popup.' .. popup_name]
+        if (popup) then
+            Gui.destroy(popup)
+        end
+        frame = player.gui.center.add {name = 'Popup.' .. popup_name, type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+    else
+        frame = player.gui.center.add {type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+    end
+
     frame.style.minimal_width = 300
 
     local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
@@ -170,19 +182,25 @@ local Public = {}
 
     @param player LuaPlayer
     @param message string
+    @param title string
+    @param sprite_path string, see format in icons table
+    @param popup_name string, assign to have a popup only exist once.
 ]]
-function Public.player(player, message, title, sprite_path)
-    show_popup(player, message, title, sprite_path)
+function Public.player(player, message, title, sprite_path, popup_name)
+    show_popup(player, message, title, sprite_path, popup_name)
 end
 
 --[[--
     Shows a popup dialog to all connected players.
 
     @param message string
+    @param title string
+    @param sprite_path string, see format in icons table
+    @param popup_name string, assign to have a popup only exist once.
 ]]
-function Public.all_online(message, title, sprite_path)
+function Public.all_online(message, title, sprite_path, popup_name)
     for _, p in ipairs(game.connected_players) do
-        show_popup(p, message, title, sprite_path)
+        show_popup(p, message, title, sprite_path, popup_name)
     end
 end
 
@@ -190,10 +208,13 @@ end
     Shows a popup dialog to all players.
 
     @param message string
+    @param title string
+    @param sprite_path string, see format in icons table
+    @param popup_name string, assign to have a popup only exist once.
 ]]
-function Public.all(message, title, sprite_path)
+function Public.all(message, title, sprite_path, popup_name)
     for _, p in pairs(game.players) do
-        show_popup(p, message, title, sprite_path)
+        show_popup(p, message, title, sprite_path, popup_name)
     end
 end
 
