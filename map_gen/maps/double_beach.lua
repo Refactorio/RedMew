@@ -1,5 +1,5 @@
 local b = require 'map_gen.shared.builders'
-local beach = require 'map_gen.presets.beach'
+local beach = require 'map_gen.maps.beach'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 

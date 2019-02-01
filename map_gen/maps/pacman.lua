@@ -4,8 +4,8 @@ local grid_width = 40
 local grid_height = 40
 local grid_scale = 32 -- 4/8/16/32 are good values here
 
- local starting_grid = require "pacman_grids.classic"
---local starting_grid = require "pacman_grids.rotated_rectangles"
+ local starting_grid = require "map_gen.maps.pacman_grids.classic"
+--local starting_grid = require "map_gen.maps.pacman_grids.rotated_rectangles"
 
 local image_grid = starting_grid.image_grid
 local mult = 1 / grid_scale
