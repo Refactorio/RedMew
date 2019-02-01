@@ -30,7 +30,7 @@ before_deploy:
   - ./.travis/release_builder.sh
 deploy:
   on:
-    condition: $TRAVIS_EVENT_TYPE = cron
+    condition: $TRAVIS_EVENT_TYPE = cron or $TRAVIS_EVENT_TYPE = api
     repo: Refactorio/RedMew
     branch: develop
   provider: releases
@@ -41,6 +41,13 @@ deploy:
     - Diggy.zip
     - Crashsite.zip
     - Tetris.zip
+    - Beach.zip
+    - Danger_Ores.zip
+    - Grid_Islands_Rotated.zip
+    - Toxic_Danger_Ore_Jungle.zip
+    - Hub_Spiral.zip
+    - Bacon_Islands.zip
+    - Triangle_of_Death.zip
   skip_cleanup: true
   prerelease: true
   name: "$RELEASE_NAME"
