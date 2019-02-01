@@ -38,8 +38,9 @@ deploy:
     secure: SZsTjOLenetur34FEDCOrOw1jCI0xoZ0KyCrsrBpieQ0+P0hlVgRjEhyg74IiKC5cX5+HS329jUiIs7dUts2mGF09gCdYTPtKtkjmbhZK61DkMSplUIUDJDv5lCsR9BQTSX0x38+olkCTZAgFnU6T449auwd4Htsw6NOKI1V0h33K5YX4QJeMwnFQUorQ5lIl9+aEz/PVKHV0Glqnfp52O/Tn2nqfZxBI48UXRkJJIJLfVi74gPpD0HjspSYoCig3u6j9Rq2HcML+/geyJeM0aL6vZUsZhADIBT2x2MSZtN5KGRby+HEGnyj1u8Bp7BNpbioXtVZ3e57hrqTIbNzMx/8p4rqip9lm7ClP6uPTlgMfHKsnFYKOWiyuMGeFtJxcb/3KzMt4wXxZQQAkoJ4BnsYcm0G7H3EkAMbIF0piOwp2Fn8MCrmUSJcb+dOEe2ixe8p00vi9ffnvBr4Qz+nyqQU6D1aq3DNafmQn2eshuqrhB6+s86uj/3F9fFaPD+GhjL9t7zGgkX/RuLDPxdM7Xo7lc6yUhrFGA2yrkROqPq4M7bCmMcegRyvl27mGsh1R6FTwAEShHa7CU5/8bnnSxsp1YIdHoMWhCBEeFrm3lz6w+gly+iAxjkc0lzREjf/nYmjWSqB1TXUMbssg/G0czCgmTYlq9G7QhhPaWd0D2I=
   file:
     - RedMew.zip
-    #- Diggy.zip
-    #- Crashsite.zip
+    - Diggy.zip
+    - Crashsite.zip
+    - Tetris.zip
   skip_cleanup: true
   #prerelease: true
   draft: true #after the testing phase, this will be deleted and we will issue prereleases

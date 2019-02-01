@@ -15,17 +15,25 @@ cat working_copy/resources/version.lua
 
 #Create zips for each of the major maps/scenarios
 function process_map (){
+    #Show us which file is being worked on
     echo "-----$1-----"
+    #Rename the directory per map
     mv "$3" "$1"
+    # Write the contents to map_selection.lua
     echo "return require 'map_gen.maps.$2'" > "$1/map_selection.lua"
     echo "Contents of map_selection:"
+    #Display the contents of map_selection.lua for verification
     cat "$1/map_selection.lua"
+    if [ "$4" != true ]; then #Base RedMew can't be deflated
+        echo "Remove binary files (images)"
+        #Remove the binary files that don't compress well
+        rm redmew_git_banner.png
+        rm map_gen/data/.source_images -rf
+        rm map_gen/data/.map_previews -rf
+    fi
     echo "Creating zip..."
+    #Create the actual zip file with recursion, quiet, and max compression
     zip -r9q "$1.zip" "$1"
-    #if [ "$4" != true ]; then #Base RedMew can't be deflated
-        #echo "Deflating the zip..."
-        #Having the deflater here would be dope.
-    #fi
     echo "Stats on the zip:"
     ls -al "$1.zip"
     cp "$1.zip" "$HOME/build/Refactorio/RedMew/$1.zip"
@@ -36,6 +44,6 @@ function process_map (){
 
 #Each map after the default redmew release repeats the pattern of $1=The regular name of the map (proper casing), $2=The name of the map file (lower case), $3 "$PREVIOUS_NAME"
 process_map "RedMew" "default" "working_copy" true
-#process_map "Diggy" "diggy" "$PREVIOUS_NAME"
-#process_map "Crashsite" "crash_site" "$PREVIOUS_NAME"
-#process_map "Tetris" "tetris" "$PREVIOUS_NAME"
+process_map "Diggy" "diggy" "$PREVIOUS_NAME"
+process_map "Crashsite" "crash_site" "$PREVIOUS_NAME"
+process_map "Tetris" "tetris" "$PREVIOUS_NAME"
