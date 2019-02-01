@@ -30,7 +30,6 @@ function process_map (){
         rm "$1"/redmew_git_banner.png -f
         rm "$1"/map_gen/data/.source_images -rf
         rm "$1"/map_gen/data/.map_previews -rf
-        rm "$1"/map_gen/data -rf
     fi
     echo "Creating zip..."
     #Create the actual zip file with recursion, quiet, and max compression
