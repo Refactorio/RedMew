@@ -45,7 +45,7 @@ Event.add(
             ghost = true
         end
 
-        if not global.banned_entites[name] then
+        if not banned_entities[name] then
             return
         end
 
@@ -56,12 +56,6 @@ Event.add(
             return
         end
 
-        --local count = entity.surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
-
-        --if count == 0 then
-        --    return
-        --end
-
         local p = Game.get_player_by_index(event.player_index)
         if not p or not p.valid then
             return
@@ -70,12 +64,12 @@ Event.add(
         entity.destroy()
         if not ghost then
             p.insert(event.stack)
-            require 'features.gui.popup'.player(
+            require 'features.gui.popup'.player_ones(
                     p,[[
 You don't know how to operate this item!
 
 Advice: Only burner inserters and burner mining drills works in prehistoric land
-]])
+]], 'map_gen.shared.banned_entities')
         end
 
 
