@@ -16,7 +16,7 @@ if #config.terrain_modules > 0 then
     end
 end
 
-if shape and type(shape) ~= 'boolean' then
+if type(shape) == 'function' then
     local surfaces = {
         [RS.get_surface_name()] = shape
     }
