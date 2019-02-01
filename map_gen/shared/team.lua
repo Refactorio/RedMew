@@ -1,32 +1,21 @@
 --[[
-    TODO: Have events be compatible with/respect limits set by create_balanced_teams
-
     This module creates and balances teams (forces) of players. It does not handle relationships between forces (ie. cease_fire and friend states).
-    This module contains options for automatic/passive team balancing based on event triggers like players joining or leaving, and also
-    contains an option for creating teams with specific limits when called.
+
+    Balance is kept and maintained through several togglable event hooks:
+    on_created: will assign new players to the lowest population team
+    on_join: will assign new and returning players to the lowest population team
+    on_leave: will find the highest population team, and if the difference between the highest population and lowest population team is 2 or more,
+    a player from the highest population team will be sent to the lowest
 
     Examples
 
     -- Keeping 2 teams roughly balanced by assigning new players to the lowest population team
-    -- This will passively balance teams for the duration of the map
-    -- Hooks on specific events (ex. on_player_left) can be toggled on and off during runtime.
     -- Toggling the option of teleporting can be toggled on and off during runtime.
     local Teams = require 'map_gen.shared.team'
-    Teams.set_event_teleporting(true) -- this means players will be teleported to their team's spawn
+    Teams.set_event_teleporting(true) -- players will be teleported to their team's spawn when their team is changed via an event hook
     Teams.set_initial_num_of_teams(3) -- the number of teams to create at the beginning of the map
     Teams.enable_player_created_balancing() -- will assign new players to the lower population team
     Teams.set_team_names({'positive', 'negative', 'that third team'}) -- sets custom names for our 3 teams
-
-    -- For a multi-team map that resets and wants teams generated within specific parameters
-    local Teams = require 'map_gen.shared.team'
-    Teams.set_team_names(table_of_team_names)
-    Teams.add_protected_forces({'admins', 'enemy_1', 'enemy_2', 'enemy_3', 'enemy_4'})
-
-    local function map_reset()
-        local teams = Teams.create_balanced_teams(2, 4, 1, 20, true) -- to get even teams for a competitive mode
-        create_play_area(#teams) -- fictional function that would create a map section per team
-        setup_teams(teams) -- fictional function that sets up things like spawn locations and markets per team
-    end
 
     To act on players whose force/team has changed, use the on_player_changed_force event.
     To act on forces being created or merging, use the on_force_created, on_forces_merged, and on_forces_merging events.
@@ -45,7 +34,7 @@ local Teamnames = require 'resources.team_names'
 -- Localized functions
 local format = string.format
 local random = math.random
-local fast_remove = table.fast_remove
+--local fast_remove = table.fast_remove
 local remove_element = table.remove_element
 local clear_table = table.clear_table
 local contains = table.contains
@@ -56,7 +45,8 @@ local always_protected_forces = {
     ['player'] = true,
     ['enemy'] = true,
     ['neutral'] = true,
-    ['spectator'] = true
+    ['spectator'] = true,
+    ['queue'] = true
 }
 
 -- Local vars
@@ -69,7 +59,8 @@ local primitives = {
     on_join_balancing = nil,
     on_created_balancing = nil,
     on_leave_balancing = nil,
-    max_ppt = nil
+    --max_ppt = nil,
+    --queue = nil
 }
 local team_store = {}
 local team_names = {}
@@ -77,7 +68,8 @@ local protected_forces = {
     ['player'] = true,
     ['enemy'] = true,
     ['neutral'] = true,
-    ['spectator'] = true
+    ['spectator'] = true,
+    ['queue'] = true
 }
 
 Global.register(
@@ -150,8 +142,8 @@ end
 --- Creates a new team based on the team_names array
 local function create_team()
     local team_count = #team_store
-    -- There can only be 61 custom forces, we keep 1 for a margin of error/spectator for map use
-    if team_count >= primitives.teams_needed or team_count >= 60 then
+    -- There can only be 61 custom forces, we keep 6 for a margin of error/spectator/for map use
+    if team_count >= primitives.teams_needed or team_count >= 55 then
         return
     end
 
@@ -267,8 +259,6 @@ local player_added =
 
 --- When a player leaves, check team populations differences. If found, compensate by bringing a player from a higher pop
 -- team to the departing player's team
-
--- TODO check the players team to see if a spot is open
 local player_left =
     Token.register(
     function(event)
@@ -325,10 +315,10 @@ end
 -- Can only be called pre-init, for a runtime option, see create_balanced_teams()
 -- @param teams_needed <number> the number of teams
 function Public.set_initial_num_of_teams(teams_needed)
-    if teams_needed and teams_needed <= 60 then
+    if teams_needed and teams_needed <= 55 then
         primitives.teams_needed = teams_needed
     else
-        primitives.teams_needed = 60
+        primitives.teams_needed = 55
     end
 end
 
@@ -428,10 +418,12 @@ function Public.disable_leave_balancing()
     Event.remove_removable(defines.events.on_player_left_game, player_left)
 end
 
+--[[
+    WIP
 --- Calling this will delete or reset all existing teams and create even teams based on the parameters supplied.
 -- Can be called during or after init. (Should not be called during init as you have no players to assign...)
 -- @param teams_min <number|nil> the minimum required teams, if nil is set to  2
--- @param teams_max <number|nil> the number of teams allowed, if nil is set to 60
+-- @param teams_max <number|nil> the number of teams allowed, if nil is set to 55
 -- @param per_team_min <number|nil> the minimum of players per team, if nil is set to 1
 -- @param per_team_max <number|nil> the minimum of players per team, if nil is set to 100
 -- @param absolute_balance <boolean> if false or nil, players will be assigned teams regardless of teams being imbalanced by 1
@@ -439,7 +431,7 @@ end
 -- @return <table> returns the array of teams or nil
 function Public.create_balanced_teams(teams_min, teams_max, per_team_min, per_team_max, absolute_balance)
     teams_min = teams_min or 2
-    teams_max = teams_max or 60
+    teams_max = teams_max or 55
     per_team_min = per_team_min or 1
     per_team_max = per_team_max or 100
     primitives.max_ppt = per_team_max
@@ -499,5 +491,5 @@ function Public.create_balanced_teams(teams_min, teams_max, per_team_min, per_te
         return
     end
 end
-
+]]
 return Public
