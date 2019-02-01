@@ -4,11 +4,13 @@ local Random = require 'map_gen.shared.random'
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local Game = require 'utils.game'
 
 local degrees = require "utils.math".degrees
 
-local seed = 1000
+require 'map_gen.shared.banned_entities'
 
+local seed = 210
 RS.set_map_gen_settings(
     {
         MGSP.ore_oil_none,
@@ -18,10 +20,10 @@ RS.set_map_gen_settings(
 
 Event.on_init(
     function()
-        local rs = game.forces.player.recipes
+        --local rs = game.forces.player.recipes
 
-        rs['electric-mining-drill'].enabled = false
-        rs['inserter'].enabled = false
+        --rs['electric-mining-drill'].enabled = false
+        --rs['inserter'].enabled = false
     end
 )
 
@@ -34,12 +36,7 @@ Event.add(
 
         for _, e in ipairs(effects) do
             local t = e.type
-            if t == 'unlock-recipe' then
-                local rn = e.recipe
-                if rn:find('inserter') then
-                    rs[rn].enabled = false
-                end
-            elseif t == 'stack-inserter-capacity-bonus' then
+            if t == 'stack-inserter-capacity-bonus' then
                 f.inserter_stack_size_bonus = f.inserter_stack_size_bonus + e.modifier
             end
         end
@@ -54,6 +51,11 @@ local dino9 = b.picture(require 'map_gen.data.presets.dino9')
 local dino13 = b.picture(require 'map_gen.data.presets.dino13')
 local dino14 = b.picture(require 'map_gen.data.presets.dino14')
 local dino16 = b.picture(require 'map_gen.data.presets.dino16')
+local groundhog1 = b.picture(b.decompress(require'map_gen.data.presets.groundhog1'))
+local groundhog2 = b.picture(b.decompress(require'map_gen.data.presets.groundhog2'))
+local groundhog3 = b.picture(b.decompress(require'map_gen.data.presets.groundhog3'))
+local groundhog4 = b.picture(b.decompress(require'map_gen.data.presets.groundhog4'))
+local groundhog5 = b.picture(b.decompress(require'map_gen.data.presets.groundhog5'))
 
 local dino17 = b.picture(require 'map_gen.data.presets.dino17')
 local dino18 = b.picture(require 'map_gen.data.presets.dino18')
@@ -71,6 +73,11 @@ local dinos = {
     dino13,
     dino14,
     dino16,
+    groundhog1,
+    groundhog2,
+    groundhog3,
+    groundhog4,
+    groundhog5,
     dino17,
     dino18,
     dino19,
@@ -78,8 +85,8 @@ local dinos = {
     dino21,
     dino22
 }
-local land_dino_count = 8
-local ore_dino_start = 9
+local land_dino_count = 13
+local ore_dino_start = 14
 local ore_dino_end = #dinos
 
 local random = Random.new(seed, seed * 2)
@@ -127,13 +134,12 @@ local function empty_transform()
 end
 
 local ores = {
-    {transform = non_transform, resource = 'iron-ore', value = value(500, 0.75, 1.1), weight = 16},
-    {transform = non_transform, resource = 'copper-ore', value = value(400, 0.75, 1.1), weight = 10},
-    {transform = non_transform, resource = 'stone', value = value(250, 0.3, 1.05), weight = 6},
-    {transform = non_transform, resource = 'coal', value = value(400, 0.8, 1.075), weight = 16},
-    {transform = uranium_transform, resource = 'uranium-ore', value = value(200, 0.3, 1.025), weight = 3},
-    {transform = oil_transform, resource = 'crude-oil', value = value(100000, 50, 1.025), weight = 10},
-    {transform = empty_transform, weight = 10}
+    {transform = non_transform, resource = 'iron-ore', value = value(300, 0.425, 1.1), weight = 16},
+    {transform = non_transform, resource = 'copper-ore', value = value(250, 0.425, 1.1), weight = 10},
+    {transform = non_transform, resource = 'stone', value = value(150, 0.2, 1.05), weight = 6},
+    {transform = non_transform, resource = 'coal', value = value(250, 0.25, 1.075), weight = 16},
+    {transform = oil_transform, resource = 'crude-oil', value = value(50000, 50, 1.025), weight = 10},
+    {transform = empty_transform, weight = 65}
 }
 
 local total_ore_weights = {}
