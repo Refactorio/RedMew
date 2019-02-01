@@ -27,9 +27,9 @@ function process_map (){
     if [ "$4" != true ]; then #Base RedMew can't be deflated
         echo "Remove binary files (images)"
         #Remove the binary files that don't compress well
-        rm redmew_git_banner.png
-        rm map_gen/data/.source_images -rf
-        rm map_gen/data/.map_previews -rf
+        rm "$1"/redmew_git_banner.png -f
+        rm "$1"/map_gen/data/.source_images -rf
+        rm "$1"/map_gen/data/.map_previews -rf
     fi
     echo "Creating zip..."
     #Create the actual zip file with recursion, quiet, and max compression
