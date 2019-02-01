@@ -56,12 +56,6 @@ Event.add(
             return
         end
 
-        --local count = entity.surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
-
-        --if count == 0 then
-        --    return
-        --end
-
         local p = Game.get_player_by_index(event.player_index)
         if not p or not p.valid then
             return
