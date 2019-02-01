@@ -11,7 +11,7 @@ return {
         recipe_difficulty = defines.difficulty_settings.recipe_difficulty.expensive
     },
     -- the following are tech cost reducers
-    ['tech_x0.25'] = {
+    ['tech_x0.25'] =
         technology_price_multiplier = 0.25
     },
     ['tech_x0.5'] = {
