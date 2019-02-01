@@ -1,5 +1,3 @@
-local EventCore = require 'utils.event_core'
-
 local Token = {}
 
 local tokens = {}
