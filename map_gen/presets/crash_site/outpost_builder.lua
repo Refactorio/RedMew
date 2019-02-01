@@ -7,7 +7,6 @@ local Retailer = require 'features.retailer'
 local PlayerStats = require 'features.player_stats'
 local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
-local Color = require 'resources.color_presets'
 local CrashSiteToast = require 'map_gen.presets.crash_site.crash_site_toast'
 
 local table = require 'utils.table'
