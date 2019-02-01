@@ -5,8 +5,44 @@ local Command = require 'utils.command'
 
 local close_name = Gui.uid_name()
 
-local function show_popup(player, message)
-    local frame = player.gui.center.add {type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+local icons = {
+    "utility/ammo_icon",                            -- 1
+    "utility/danger_icon",                          -- 2
+    "utility/destroyed_icon",                       -- 3
+    "utility/warning_icon",                         -- 4
+    "utility/electricity_icon",                     -- 5
+    "utility/electricity_icon_unplugged",           -- 6
+    "utility/fluid_icon",                           -- 7
+    "utility/fuel_icon",                            -- 8
+    "utility/no_building_material_icon",            -- 9
+    "utility/no_storage_space_icon",                -- 10
+    "utility/not_enough_construction_robots_icon",  -- 11
+    "utility/not_enough_repair_packs_icon",         -- 12
+    "utility/recharge_icon",                        -- 13
+    "utility/too_far_from_roboport_icon"            -- 14
+}
+
+local function show_popup(player, message, title_text, sprite_path, popup_name)
+    --Default title and icon
+    title_text = (title_text ~= nil) and title_text or 'NOTICE!'
+    if type(sprite_path) == 'number' then
+        sprite_path = (sprite_path ~= nil) and icons[sprite_path] or icons[4]
+    else
+        sprite_path = (sprite_path ~= nil) and sprite_path or icons[4]
+    end
+
+    local frame
+    if popup_name ~= nil then
+        local center = player.gui.center
+        local popup = center['Popup.' .. popup_name]
+        if (popup) then
+            Gui.destroy(popup)
+        end
+        frame = player.gui.center.add {name = 'Popup.' .. popup_name, type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+    else
+        frame = player.gui.center.add {type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+    end
+
     frame.style.minimal_width = 300
 
     local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
@@ -17,14 +53,11 @@ local function show_popup(player, message)
     title_flow.style.top_padding = 8
     title_flow.style.horizontally_stretchable = true
 
-    local title = title_flow.add {type = 'label', caption = 'Attention!'}
+    local title = title_flow.add {type = 'label', caption = title_text}
     title.style.font = 'default-large-bold'
 
     local close_button_flow = top_flow.add {type = 'flow'}
     close_button_flow.style.align = 'right'
-
-    local close_button = close_button_flow.add {type = 'button', name = close_name, caption = 'X'}
-    Gui.set_data(close_button, frame)
 
     local content_flow = frame.add {type = 'flow', direction = 'horizontal'}
     content_flow.style.top_padding = 16
@@ -37,7 +70,7 @@ local function show_popup(player, message)
     sprite_flow.style.vertical_align = 'center'
     sprite_flow.style.vertically_stretchable = true
 
-    sprite_flow.add {type = 'sprite', sprite = 'utility/warning_icon'}
+    sprite_flow.add {type = 'sprite', sprite = sprite_path}
 
     local label_flow = content_flow.add {type = 'flow'}
     label_flow.style.align = 'left'
@@ -58,13 +91,13 @@ local function show_popup(player, message)
 end
 
 Gui.on_click(
-    close_name,
-    function(event)
-        local frame = Gui.get_data(event.element)
+        close_name,
+        function(event)
+            local frame = Gui.get_data(event.element)
 
-        Gui.remove_data_recursively(frame)
-        frame.destroy()
-    end
+            Gui.remove_data_recursively(frame)
+            frame.destroy()
+        end
 )
 
 -- Creates a popup dialog for all players
@@ -81,10 +114,10 @@ end
 
 -- Creates a popup dialog for all players, specifically for the server upgrading factorio versions
 local function popup_update(args)
-    local message = '\nServer updating to ' .. args.version .. ', back in one minute.'
+    local message = 'Server is updating to ' .. args.version .. '\nWe will be back in a minute'
 
     for _, p in ipairs(game.connected_players) do
-        show_popup(p, message)
+        show_popup(p, message, "Incoming update!", 11)
     end
 
     Game.player_print('Popup sent')
@@ -149,19 +182,25 @@ local Public = {}
 
     @param player LuaPlayer
     @param message string
+    @param title string
+    @param sprite_path string, see format in icons table
+    @param popup_name string, assign to have a popup only exist once.
 ]]
-function Public.player(player, message)
-    show_popup(player, message)
+function Public.player(player, message, title, sprite_path, popup_name)
+    show_popup(player, message, title, sprite_path, popup_name)
 end
 
 --[[--
     Shows a popup dialog to all connected players.
 
     @param message string
+    @param title string
+    @param sprite_path string, see format in icons table
+    @param popup_name string, assign to have a popup only exist once.
 ]]
-function Public.all_online(message)
+function Public.all_online(message, title, sprite_path, popup_name)
     for _, p in ipairs(game.connected_players) do
-        show_popup(p, message)
+        show_popup(p, message, title, sprite_path, popup_name)
     end
 end
 
@@ -169,10 +208,13 @@ end
     Shows a popup dialog to all players.
 
     @param message string
+    @param title string
+    @param sprite_path string, see format in icons table
+    @param popup_name string, assign to have a popup only exist once.
 ]]
-function Public.all(message)
+function Public.all(message, title, sprite_path, popup_name)
     for _, p in pairs(game.players) do
-        show_popup(p, message)
+        show_popup(p, message, title, sprite_path, popup_name)
     end
 end
 
