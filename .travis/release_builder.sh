@@ -17,7 +17,7 @@ cat working_copy/resources/version.lua
 function process_map (){
     echo "-----$1-----"
     mv "$3" "$1"
-    echo "return $2" > "$1/map_selection.lua"
+    echo "return require 'map_gen.maps.$2'" > "$1/map_selection.lua"
     echo "Contents of map_selection:"
     cat "$1/map_selection.lua"
     echo "Creating zip..."
@@ -37,4 +37,5 @@ function process_map (){
 #Each map after the default redmew release repeats the pattern of $1=The regular name of the map (proper casing), $2=The name of the map file (lower case), $3 "$PREVIOUS_NAME"
 process_map "RedMew" "default" "working_copy" true
 #process_map "Diggy" "diggy" "$PREVIOUS_NAME"
-#process_map "Crashsite" "crashsite" "$PREVIOUS_NAME"
+#process_map "Crashsite" "crash_site" "$PREVIOUS_NAME"
+#process_map "Tetris" "tetris" "$PREVIOUS_NAME"
