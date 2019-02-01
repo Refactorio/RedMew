@@ -35,6 +35,7 @@ local Public = {
             tick :: uint: Tick the event was generated.
             created_entity :: LuaEntity
             player_index :: uint
+            player :: LuaPlayer
             stack :: LuaItemStack
             ghost :: boolean indicating if the entity was a ghost
         ]]
@@ -123,6 +124,7 @@ local on_built_token =
             event.item_returned = true
         end
         event.ghost = ghost
+        event.player = p
         raise_event(Public.events.on_restricted_entity_destroyed, event)
     end
 )
