@@ -128,7 +128,7 @@ end
 function Public.dump_text(text, player)
     local func = loadstring('return ' .. text)
     if not func then
-        return nil
+        return false
     end
 
     rawset(game, 'player', player)
@@ -138,10 +138,10 @@ function Public.dump_text(text, player)
     rawset(game, 'player', nil)
 
     if not suc then
-        return nil
+        return false
     end
 
-    return dump(var)
+    return true, dump(var)
 end
 
 return Public
