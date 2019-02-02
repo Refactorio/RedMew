@@ -26,7 +26,7 @@ local clamp = math.clamp
 
 -- Constants
 local ranking_data_set = 'rankings'
-local nth_tick = 215983 -- nearest prime to 1 hour in ticks
+local nth_tick = 54001 -- nearest prime to 15 minutes in ticks
 local rank_name_lookup = {}
 local sorted_ranks = {}
 local rank_to_index = {}
