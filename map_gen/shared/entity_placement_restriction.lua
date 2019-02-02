@@ -1,20 +1,20 @@
 --[[
     Regulates the placement of entities and their ghosts
     Can be called through public function to provide lists of allowed or banned entities.
-    Can also set a logic function to check what is beneath the entity, for example for checking for ores or certain tiles.
+    Can also set a keep_alive_callback function to check what is beneath the entity, for example for checking for ores or certain tiles.
 
-    Example of logic function to check if there are ores beneath:
-    function logic(surface, area)
+    Example of keep_alive_callback function to check if there are ores beneath:
+    function keep_alive_callback (surface, area)
         local count = surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
         if count == 0 then
             return true
         end
     end
 
-    Allowed entities: are exempt from the logic check and are never destroyed.
+    Allowed entities: are exempt from the keep_alive_callback check and are never destroyed.
     Banned entities: are always destroyed.
 
-    Maps can hook the on_restricted_entity_destroyed event to generate whatever feedback they deem appropriate
+    Maps can hook the on_pre_restricted_entity_destroyed and on_restricted_entity_destroyed events.
 ]]
 local Event = require 'utils.event'
 local Game = require 'utils.game'
@@ -24,12 +24,13 @@ local table = require 'utils.table'
 
 -- Localized functions
 local raise_event = script.raise_event
+local deep_copy = table.deep_copy
 
 local Public = {
     events = {
         --[[
-        on_restricted_entity_destroyed
-        Triggered when an entity is destroyed by this script
+        on_pre_restricted_entity_destroyed
+        Called before an entity is destroyed by this script
         Contains
             name :: defines.events: Identifier of the event
             tick :: uint: Tick the event was generated.
@@ -39,30 +40,42 @@ local Public = {
             stack :: LuaItemStack
             ghost :: boolean indicating if the entity was a ghost
         ]]
+        on_pre_restricted_entity_destroyed = script.generate_event_name(),
+        --[[
+        on_restricted_entity_destroyed
+        Called when an entity is destroyed by this script
+        Contains
+            name :: defines.events: Identifier of the event
+            tick :: uint: Tick the event was generated.
+            player_index :: uint
+            player :: LuaPlayer
+            ghost :: boolean indicating if the entity was a ghost
+            item_returned :: boolean indicating if the item was returned by this module
+        ]]
         on_restricted_entity_destroyed = script.generate_event_name()
     }
 }
 
 -- Global-registered locals
 
-local allowed_entites = {}
-local banned_entites = {}
+local allowed_entities = {}
+local banned_entities = {}
 local primitives = {
     event = nil,
     allowed_ents = nil,
     banned_ents = nil,
-    logic = nil
+    keep_alive_callback = nil
 }
 
 Global.register(
     {
-        allowed_entites = allowed_entites,
-        banned_entites = banned_entites,
+        allowed_entities = allowed_entities,
+        banned_entities = banned_entities,
         primitives = primitives
     },
     function(tbl)
-        allowed_entites = tbl.allowed_entites
-        banned_entites = tbl.banned_entites
+        allowed_entities = tbl.allowed_entities
+        banned_entities = tbl.banned_entities
         primitives = tbl.primitives
     end
 )
@@ -89,26 +102,14 @@ local on_built_token =
             ghost = true
         end
 
-        if primitives.allowed_ents and allowed_entites[name] then
+        if primitives.allowed_ents and allowed_entities[name] then
             return
         end
 
-        -- Some entities have a bounding_box area of zero, eg robots.
-        local area = entity.bounding_box
-        local left_top, right_bottom = area.left_top, area.right_bottom
-        if left_top.x == right_bottom.x and left_top.y == right_bottom.y then
-            return
-        end
-
-        -- Takes the logic function (if provided) and runs it with the surface and area as arguments
-        -- this allows the logic function to scan underneath the entity. if true is returned, we exit.
-        -- If false, we destroy the entity and return it
-        local logic = primitives.logic
-        if logic and logic(entity.surface, area) then
-            return
-        end
-
-        if primitives.banned_ents and not banned_entites[name] and not primitives.allowed_ents then
+        -- Takes the keep_alive_callback function (if provided) and runs it with the entity as an argument
+        -- If true is returned, we exit. If false, we destroy the entity and return the itemstack to the player (if possible)
+        local keep_alive_callback = primitives.keep_alive_callback
+        if not banned_entities[name] and keep_alive_callback and keep_alive_callback(entity) then
             return
         end
 
@@ -117,14 +118,25 @@ local on_built_token =
             return
         end
 
-        entity.destroy()
-        event.item_returned = false
-        if not ghost then
-            p.insert(event.stack)
-            event.item_returned = true
-        end
         event.ghost = ghost
         event.player = p
+        raise_event(Public.events.on_pre_restricted_entity_destroyed, deep_copy(event)) -- use deepcopy so that any potential writes to `event` aren't passed backwards
+
+        -- Need to revalidate the entity since we sent it via the event
+        if entity.valid then
+            entity.destroy()
+        end
+
+        -- Need to revalidate the stack since we sent it via the event
+        local stack = event.stack
+        event.item_returned = false
+        if not ghost and stack.valid then
+            p.insert(stack)
+            event.item_returned = true
+        end
+
+        event.stack = nil
+        event.created_entity = nil
         raise_event(Public.events.on_restricted_entity_destroyed, event)
     end
 )
@@ -147,10 +159,10 @@ end
 
 -- Public functions
 
---- Sets the function to be used for logic
--- @param logic <function>
-function Public.set_logic(logic)
-    primitives.logic = logic
+--- Sets the function to be used for keep_alive_callback
+-- @param keep_alive_callback <function>
+function Public.set_keep_alive_callback(keep_alive_callback)
+    primitives.keep_alive_callback = keep_alive_callback
 end
 
 --- Adds to the list of allowed entities
@@ -158,7 +170,7 @@ end
 function Public.add_allowed(ents)
     primitives.allowed_ents = true
     for _, v in pairs(ents) do
-        allowed_entites[v] = true
+        allowed_entities[v] = true
     end
     if not primitives.event then
         add_event()
@@ -169,9 +181,9 @@ end
 -- @param ents <table> array of entity strings
 function Public.remove_allowed(ents)
     for _, v in pairs(ents) do
-        allowed_entites[v] = true
+        allowed_entities[v] = nil
     end
-    if table.size(allowed_entites) == 0 then
+    if table.size(allowed_entities) == 0 then
         primitives.allowed_ents = nil
         if primitives.event and not primitives.banned_ents then
             remove_event()
@@ -181,7 +193,7 @@ end
 
 --- Resets the list of banned entities
 function Public.reset_allowed()
-    table.clear_table(allowed_entites)
+    table.clear_table(allowed_entities)
     primitives.allowed_ents = nil
     if primitives.event and not primitives.banned_ents then
         remove_event()
@@ -193,7 +205,7 @@ end
 function Public.add_banned(ents)
     primitives.banned_ents = true
     for _, v in pairs(ents) do
-        banned_entites[v] = true
+        banned_entities[v] = true
     end
     if not primitives.event then
         add_event()
@@ -204,9 +216,9 @@ end
 -- @param ents <table> array of entity strings
 function Public.remove_banned(ents)
     for _, v in pairs(ents) do
-        banned_entites[v] = true
+        banned_entities[v] = nil
     end
-    if table.size(banned_entites) == 0 then
+    if table.size(banned_entities) == 0 then
         primitives.banned_ents = nil
         if primitives.event and not primitives.allowed_ents then
             remove_event()
@@ -217,7 +229,7 @@ end
 --- Resets the list of banned entities
 function Public.reset_banned()
     primitives.banned_ents = nil
-    table.clear_table(banned_entites)
+    table.clear_table(banned_entities)
     if primitives.event and not primitives.allowed_ents then
         remove_event()
     end
