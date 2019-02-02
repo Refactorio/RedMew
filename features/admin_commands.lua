@@ -89,7 +89,7 @@ local function regular(args)
             Game.player_print(format('%s is already a regular.', remove_target), Color.red)
         end
     else
-        if Rank.set_rank(add_target, Ranks.regular) then
+        if Rank.set_player_rank(add_target, Ranks.regular) then
             game.print(format('%s promoted %s to regular.', Utils.get_actor(), remove_target), Color.yellow)
         else
             Game.player_print(format('%s is already a regular.', remove_target), Color.red)
@@ -109,14 +109,14 @@ local function probation(args)
     end
 
     if remove_target and add_target == 'remove' then
-        if Rank.reset_rank(remove_target) then
+        if Rank.reset_player_rank(remove_target) then
             game.print(format('%s took %s off of probation.', Utils.get_actor(), remove_target), Color.yellow)
             target_player.print('Your probation status has been removed. You may now perform functions as usual', Color.yellow)
         else
             Game.player_print(format('%s is not on probation.', remove_target), Color.red)
         end
     else
-        if Rank.set_rank(add_target, Ranks.probation) then
+        if Rank.set_player_rank(add_target, Ranks.probation) then
             game.print(format('%s put %s on probation.', Utils.get_actor(), remove_target), Color.yellow)
             target_player.print('You have been placed on probation. You have limited access to normal functions.', Color.yellow)
         else

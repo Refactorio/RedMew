@@ -266,7 +266,7 @@ end
 --- Sets a player's rank
 -- @param player_name <string>
 -- @param rank <number>
-function Public.set_rank(player_name, rank)
+function Public.set_player_rank(player_name, rank)
     local actor = Utils.get_actor()
 
     if Public.equal(player_name, rank) then
@@ -280,7 +280,7 @@ end
 
 --- Resets a player's rank to the lowest rank based on playtime (guest or auto_trust)
 -- @param player_name <string>
-function Public.reset_rank(player_name)
+function Public.reset_player_rank(player_name)
     local actor = Utils.get_actor()
     local guest_rank = Ranks.guest
     local auto_trusted = Ranks.auto_trusted
