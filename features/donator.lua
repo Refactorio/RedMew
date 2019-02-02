@@ -58,7 +58,7 @@ local function player_joined(event)
 end
 
 --- Returns the table of donators
--- @return <boolean>
+-- @return <table>
 function Public.get_donators()
     return donators
 end
