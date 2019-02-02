@@ -5,6 +5,7 @@ local Task = require 'utils.task'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
+local Global = require 'utils.global'
 local Retailer = require 'features.retailer'
 local Ranks = require 'resources.ranks'
 local market_items = require 'resources.market_items'
@@ -34,7 +35,33 @@ local mining_speed_boost_messages = {
     'Better learn to control that saw, %s, chopped off their legs. Oops.',
 }
 
-local function spawn_market(_, player)
+-- Global registered local vars
+local markets = {}
+
+Global.register(
+    {
+        markets = markets
+    },
+    function(tbl)
+        markets = tbl.markets
+    end
+)
+
+-- local functions
+
+local function spawn_market(args, player)
+    if args.removeall == 'removeall' then
+        local count = 0
+        for _, market in pairs(markets) do
+            if market.valid then
+                count = count + 1
+                market.destroy()
+            end
+        end
+        player.print(count .. ' markets removed')
+        return
+    end
+
     local surface = player.surface
     local force = player.force
 
@@ -43,8 +70,9 @@ local function spawn_market(_, player)
     pos.x = round(pos.x)
 
     local market = surface.create_entity({name = 'market', position = pos})
+    markets[#markets + 1] = market
     market.destructible = false
-    player.print("Market added. To remove it, highlight it with your cursor and run the command /sc game.player.selected.destroy()")
+    player.print('Market added. To remove it, highlight it with your cursor and use the /destroy command, or use /market removall to remove all markets placed.')
 
     Retailer.add_market('fish_market', market)
 
@@ -244,7 +272,9 @@ end
 Command.add(
     'market',
     {
-        description = 'Places a market near you.',
+        description = 'Places a market near you. Use /market removeall to remove all markets on a map',
+        arguments = {'removeall'},
+        default_values = {removeall = false},
         required_rank = Ranks.admin,
     },
     spawn_market
