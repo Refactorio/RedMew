@@ -1,17 +1,29 @@
 -- For more info on the day/night cycle and examples of cycles see: https://github.com/Refactorio/RedMew/wiki/Day-Night-cycle
-local Public = {}
-local Debug = require 'utils.debug'
+-- Dependencies
+local Event = require 'utils.event'
 local math = require 'utils.math'
+local RS = require 'map_gen.shared.redmew_surface'
 
+-- Localized global table
+local config = global.config.day_night
+
+-- Localized functions
+local round = math.round
+local format = string.format
+
+-- Constants
 local day_night_cycle_keys = {
     'ticks_per_day',
     'dusk',
     'evening',
     'morning',
-    'dawn',
+    'dawn'
 }
 
---- Checks that a table has a valid day night cycle.
+-- Local vars
+local Public = {}
+
+--- Checks that a table is a valid day night cycle.
 local function check_cycle_validity(day_night_cycle)
     for _, required_key in pairs(day_night_cycle_keys) do
         if not day_night_cycle[required_key] then
@@ -19,27 +31,46 @@ local function check_cycle_validity(day_night_cycle)
         end
     end
 
-    if (day_night_cycle['dusk'] > day_night_cycle['evening']) or
-    (day_night_cycle['evening'] > day_night_cycle['morning']) or
-    (day_night_cycle['morning'] > day_night_cycle['dawn']) then
+    if (day_night_cycle['dusk'] > day_night_cycle['evening']) or (day_night_cycle['evening'] > day_night_cycle['morning']) or (day_night_cycle['morning'] > day_night_cycle['dawn']) then
         return false
     else
         return true
     end
 end
 
+--- On init, check the config settings
+local function init()
+    if config.use_day_night_cycle and config.use_fixed_brightness then
+        error('Cannot use both a day/night cycle and a fixed brightness')
+        return
+    elseif config.use_day_night_cycle then
+        Public.set_cycle(config.day_night_cycle, RS.get_surface())
+    elseif config.use_fixed_brightness then
+        Public.set_fixed_brightness(config.fixed_brightness, RS.get_surface())
+    end
+end
+
+Event.on_init(init)
+
+-- Public functions
+
 --- Sets the day/night cycle according to the table it is given.
--- @param day_night_cycle table containing keys: ticks_per_day, dusk, evening, morning, dawn
--- @param surface the LuaSurface to set the day/night cycle of
--- @returns boolean true if set properly
+-- Can only be used during or after init.
+-- @param day_night_cycle <table> containing specific, required keys: ticks_per_day, dusk, evening, morning, dawn
+-- @param surface <LuaSurface> to set the day/night cycle of
+-- @returns <boolean> true if set properly, nil if not
 -- @see Venus::world_settings
-Public.set_cycle = function(day_night_cycle, surface)
+function Public.set_cycle(day_night_cycle, surface)
     if not check_cycle_validity(day_night_cycle) then
-        error('Provided day/night cycle is invalid')
+        log('Provided day/night cycle is invalid')
         return
     end
-    if not surface.valid then
-        error('Provided surface is invalid')
+    if not surface or not surface.valid then
+        log('Provided surface is invalid')
+        return
+    end
+    if not Public.unfreeze_daytime then
+        log('Time is frozen')
         return
     end
 
@@ -55,19 +86,20 @@ Public.set_cycle = function(day_night_cycle, surface)
 end
 
 --- Sets the brightness to a fixed level
--- @param daylight number between 0.15 and 1 representing the percentage of daylight (0.15 brightness is the darkest available)
--- @param surface the LuaSurface to set the day/night cycle of
--- @return boolean true if time is set properly
-Public.set_fixed_brightness = function(daylight, surface)
-    if not surface.valid then
-        error('Provided surface is invalid')
+-- Can only be used during or after init.
+-- @param daylight <number> between 0.15 and 1 representing the percentage of daylight (0.15 brightness is the darkest available)
+-- @param surface <LuaSurface> to set the day/night cycle of
+-- @return <boolean> true if time is set properly, nil if not
+function Public.set_fixed_brightness(daylight, surface)
+    if not surface or not surface.valid then
+        log('Provided surface is invalid')
         return
     end
     if daylight < 0.15 then
-        error('Daylight set too low. 0.15 is the darkest available.')
+        log('Daylight set too low. 0.15 is the darkest available.')
         return
     elseif daylight > 1 then
-        error('Daylight set too high. 1.00 is the lightest available.')
+        log('Daylight set too high. 1.00 is the lightest available.')
         return
     end
 
@@ -80,12 +112,24 @@ Public.set_fixed_brightness = function(daylight, surface)
     -- Freeze the day/night cycle
     surface.freeze_daytime = true
 
-    Debug.print('breakpoint/surface_daytime: ' .. breakpoint .. '/' .. surface.daytime)
-    Debug.print('brightness/surface_brightness: ' .. math.round(daylight, 2) .. '/' .. math.round((1 - surface.darkness), 2))
+    Debug.print(format('breakpoint/surface_daytime: %s/%s', breakpoint, surface.daytime))
+    Debug.print(format('brightness/surface_brightness: %s/%s', round(daylight, 2), round((1 - surface.darkness), 2)))
 
-    if math.round(daylight, 2) == math.round((1 - surface.darkness), 2) then
+    if round(daylight, 2) == round((1 - surface.darkness), 2) then
         return true
     end
+end
+
+--- Unfreezes daytime (usually frozen by set_fixed_brightness)
+-- @param surface <LuaSurface> to unfreeze the day/night cycle of
+-- @return <boolean> true if daytime unfrozen, nil if not
+function Public.unfreeze_daytime(surface)
+    if not surface or not surface.valid then
+        log('Provided surface is invalid')
+        return
+    end
+    surface.freeze_daytime = false
+    return true
 end
 
 return Public

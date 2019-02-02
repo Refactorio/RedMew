@@ -74,6 +74,9 @@ end
 if config.camera.enabled then
     require 'features.gui.camera'
 end
+if config.day_night.enabled then
+    require 'map_gen.shared.day_night'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.
