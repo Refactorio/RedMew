@@ -70,7 +70,8 @@ end
 ---Toast to a specific player
 ---@param player LuaPlayer
 ---@param duration number in seconds
-local function toast_to(player, duration)
+---@param sound string sound to play, nil to not play anything
+local function toast_to(player, duration, sound)
     local frame_holder = player.gui.left.add({type = 'flow'})
 
     local frame =
@@ -108,6 +109,10 @@ local function toast_to(player, duration)
     end
 
     active_toasts[id] = frame_holder
+
+    if sound then
+        player.play_sound({path = sound, volume_modifier = 1})
+    end
 
     return container
 end
@@ -162,8 +167,10 @@ on_tick =
 ---@param player LuaPlayer
 ---@param duration table
 ---@param template function
-function Public.toast_player_template(player, duration, template)
-    local container = toast_to(player, duration)
+---@param sound string sound to play, nil to not play anything
+function Public.toast_player_template(player, duration, template, sound)
+    sound = sound or 'utility/new_objective'
+    local container = toast_to(player, duration, sound)
     if container then
         template(container, player)
     end
@@ -174,11 +181,13 @@ end
 ---@param force LuaForce
 ---@param duration number
 ---@param template function
-function Public.toast_force_template(force, duration, template)
+---@param sound string sound to play, nil to not play anything
+function Public.toast_force_template(force, duration, template, sound)
+    sound = sound or 'utility/new_objective'
     local players = force.connected_players
     for i = 1, #players do
         local player = players[i]
-        template(toast_to(player, duration), player)
+        template(toast_to(player, duration, sound), player)
     end
 end
 
@@ -186,11 +195,13 @@ end
 ---to add contents to and a player as second argument.
 ---@param duration number
 ---@param template function
-function Public.toast_all_players_template(duration, template)
+---@param sound string sound to play, nil to not play anything
+function Public.toast_all_players_template(duration, template, sound)
+    sound = sound or 'utility/new_objective'
     local players = game.connected_players
     for i = 1, #players do
         local player = players[i]
-        template(toast_to(player, duration), player)
+        template(toast_to(player, duration, sound), player)
     end
 end
 
