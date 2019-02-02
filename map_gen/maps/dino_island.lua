@@ -7,6 +7,8 @@ local MGSP = require 'resources.map_gen_settings'
 local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 local Popup = require 'features.gui.popup'
 
+local config = global.config
+
 local degrees = require 'utils.math'.degrees
 
 local seed = 210
@@ -28,6 +30,11 @@ RestrictEntities.add_banned(
         'electric-mining-drill'
     }
 )
+
+-- config changes
+config.hail_hydra.enabled = true
+config.autodeconstruct.enabled = false
+config.redmew_qol.loaders = false
 
 Event.add(
     defines.events.on_research_finished,
@@ -61,6 +68,8 @@ Event.add(
         end
     end
 )
+
+-- Map
 
 local dino1 = b.picture(require 'map_gen.data.presets.dino1')
 local dino2 = b.picture(require 'map_gen.data.presets.dino2')
