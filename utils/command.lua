@@ -273,11 +273,9 @@ local function on_command(event)
     end
 
     local notification = notify_on_commands[event.command]
-    if notification then
-        if event.player_index then
-            local player = Game.get_player_by_index(event.player_index)
-            player.print(notification)
-        end
+    if notification and event.player_index then
+        local player = Game.get_player_by_index(event.player_index)
+        player.print(notification)
     end
 end
 
