@@ -2,7 +2,7 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Token = require 'utils.token'
-local Settings = require 'utils.settings'
+local Settings = require 'utils.redmew_settings'
 local Color = require 'resources.color_presets'
 
 local pairs = pairs

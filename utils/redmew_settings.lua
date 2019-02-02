@@ -120,13 +120,13 @@ end
 function Public.set(player_index, name, value)
     local setting = settings[name]
     if not setting then
-        return error(format('Setting "%s" does not exist.', name))
+        return error({message = format('Setting "%s" does not exist.', name)})
     end
 
     local success, sanitized_value = setting.callback(value)
 
     if not success then
-        error(format('set("%s") failed: %s', name, sanitized_value))
+        error({message = format('Setting "%s" failed: %s', name, sanitized_value)})
     end
 
     local player_settings = memory[player_index]
@@ -149,7 +149,7 @@ end
 function Public.get(player_index, name)
     local setting = settings[name]
     if not setting then
-        return error(format('Setting "%s" does not exist.', name))
+        return error({message = format('Setting "%s" does not exist.', name)})
     end
 
     local player_settings = memory[player_index]
