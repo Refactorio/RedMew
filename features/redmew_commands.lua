@@ -233,10 +233,10 @@ local function print_player_info(args, player)
     local index = target.index
     local info_t = {
         'Name: ' .. name,
-        target.connected and 'Online: ' .. 'yes' or 'Online: ' .. 'no',
+        target.connected and 'Online: yes' or 'Online: no',
         'Index: ' .. target.index,
         'Rank: ' .. UserGroups.get_rank(target),
-        'Donator: ' .. UserGroups.is_donator(target.name),
+        UserGroups.is_donator(target.name) and 'Donator: yes' or 'Donator: no',
         'Time played: ' .. Utils.format_time(target.online_time),
         'AFK time: ' .. target.afk_time or 0,
         'Force: ' .. target.force.name,
