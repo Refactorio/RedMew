@@ -4,6 +4,7 @@ local Game = require 'utils.game'
 local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
+local Walkabout = require 'features.walkabout'
 
 local format = string.format
 local ceil = math.ceil
@@ -39,7 +40,7 @@ local function kill(args, player)
         end
     end
 
-    if global.walking and ((player and global.walking[player.index]) or (target and global.walking[target.index])) then
+    if (player and Walkabout.is_on_walkabout(player.index)) or (target and Walkabout.is_on_walkabout(target.index)) then
         Game.player_print("A player on walkabout cannot be killed by a mere fish, don't waste your efforts.")
         return
     end
