@@ -567,6 +567,7 @@ Gui.on_click(item_button_name, function (event)
 
     redraw_market_items(data)
     PlayerStats.change_coin_spent(player.index, cost)
+    do_coin_label(coin_count - cost, data.coin_label)
 
     raise_event(Retailer.events.on_market_purchase, {
         item = item,
@@ -574,8 +575,6 @@ Gui.on_click(item_button_name, function (event)
         player = player,
         group_name = market_group,
     })
-
-    do_coin_label(coin_count - cost, data.coin_label)
 end)
 
 ---Add a market to the group_name retailer.
