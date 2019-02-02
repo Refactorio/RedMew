@@ -57,6 +57,12 @@ local function player_joined(event)
     Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
 end
 
+--- Returns the table of donators
+-- @return <boolean>
+function Public.get_donators()
+    return donators
+end
+
 --- Checks if a player is a donator
 -- @param player_name <string>
 -- @return <boolean>
