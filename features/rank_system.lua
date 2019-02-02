@@ -91,6 +91,7 @@ local function check_promote_to_auto_trusted()
     for p_name in pairs(guests) do
         local p = game.players[p_name]
         if not p or not p.valid then
+            guests[p_name] = nil
             return
         end
 
