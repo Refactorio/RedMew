@@ -72,7 +72,7 @@ Event.add(defines.events.on_entity_died, function (event)
             local spawned = create_entity({name = hydra_spawn, force = force, position = position})
             if spawned and spawned.type == 'unit' then
                 spawned.set_command(command)
-            elseif spawned and cause then
+            elseif spawned and cause and cause.valid and cause.force then
                 spawned.shooting_target = cause
             end
         end
