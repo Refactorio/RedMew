@@ -239,7 +239,7 @@ local function print_player_info(args, player)
         'Rank: ' .. UserGroups.get_rank(target),
         UserGroups.is_donator(target.name) and 'Donator: yes' or 'Donator: no',
         'Time played: ' .. Utils.format_time(target.online_time),
-        'AFK time: ' .. target.afk_time or 0,
+        'AFK time: ' .. Utils.format_time(target.afk_time or 0),
         'Force: ' .. target.force.name,
         'Surface: ' .. target.surface.name,
         'Tag: ' .. target.tag,
