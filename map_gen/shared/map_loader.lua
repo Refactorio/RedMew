@@ -1,6 +1,6 @@
+local shape = require 'map_selection'
 local b = require 'map_gen.shared.builders'
 local RS = require 'map_gen.shared.redmew_surface'
-local shape = require 'map_selection'
 local config = global.config.map_generation
 
 if #config.entity_modules > 0 then
