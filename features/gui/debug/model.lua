@@ -7,6 +7,7 @@ local concat = table.concat
 local inspect = table.inspect
 local pcall = pcall
 local loadstring = loadstring
+local rawset = rawset
 
 local Public = {}
 
