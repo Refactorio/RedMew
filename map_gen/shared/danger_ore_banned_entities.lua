@@ -22,9 +22,15 @@ RestrictEntities.add_allowed(
 )
 
 --- The logic for checking that there are resources under the entity's position
-RestrictEntities.set_logic(
-    function(surface, area)
-        local count = surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
+RestrictEntities.set_keep_alive_callback(
+    function(entity)
+        -- Some entities have a bounding_box area of zero, eg robots.
+        local area = entity.bounding_box
+        local left_top, right_bottom = area.left_top, area.right_bottom
+        if left_top.x == right_bottom.x and left_top.y == right_bottom.y then
+            return
+        end
+        local count = entity.surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
         if count == 0 then
             return true
         end
@@ -35,7 +41,7 @@ RestrictEntities.set_logic(
 local function on_destroy(event)
     local p = event.player
     if p and p.valid then
-        p.print('You cannot build on top of ores')
+        p.print('You cannot build that on top of ores, only belts, mining drills, and power poles are allowed.')
     end
 end
 
