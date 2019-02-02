@@ -228,7 +228,9 @@ local function print_player_info(args, player)
     local target = game.players[name]
     if not target then
         Game.player_print('Target not found')
+        return
     end
+
     local index = target.index
     local info_t = {
         'Name: ' .. name,
