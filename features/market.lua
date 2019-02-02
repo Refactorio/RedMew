@@ -37,13 +37,19 @@ local mining_speed_boost_messages = {
 
 -- Global registered local vars
 local markets = {}
+local speed_records = {}
+local mining_records = {}
 
 Global.register(
     {
-        markets = markets
+        markets = markets,
+        speed_records = speed_records,
+        mining_records = mining_records
     },
     function(tbl)
         markets = tbl.markets
+        speed_records = tbl.speed_records
+        mining_records = tbl.mining_records
     end
 )
 
@@ -160,63 +166,59 @@ local function fish_drop_entity_died(event)
 end
 
 local function reset_player_running_speed(player)
-    player.character_running_speed_modifier = global.player_speed_boost_records[player.index].pre_boost_modifier
-    global.player_speed_boost_records[player.index] = nil
+    local p_name = player.name
+    player.character_running_speed_modifier = speed_records[p_name].pre_boost_modifier
+    speed_records[p_name] = nil
+end
+
+local function reset_player_mining_speed(player)
+    local p_name = player.name
+    player.character_mining_speed_modifier = mining_records[p_name].pre_mining_boost_modifier
+    mining_records[p_name] = nil
 end
 
 local function boost_player_running_speed(player)
-    if global.player_speed_boost_records == nil then
-        global.player_speed_boost_records = {}
-    end
-
-    if global.player_speed_boost_records[player.index] == nil then
-        global.player_speed_boost_records[player.index] = {
+    local p_name = player.name
+    if not speed_records[p_name] then
+        speed_records[p_name] = {
             start_tick = game.tick,
             pre_boost_modifier = player.character_running_speed_modifier,
             boost_lvl = 0
         }
     end
-    global.player_speed_boost_records[player.index].boost_lvl = 1 + global.player_speed_boost_records[player.index].boost_lvl
+    speed_records[p_name].boost_lvl = 1 + speed_records[p_name].boost_lvl
 
     player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
 
-    if global.player_speed_boost_records[player.index].boost_lvl >= 4 then
-        game.print(format(running_speed_boost_messages[global.player_speed_boost_records[player.index].boost_lvl], player.name))
+    if speed_records[p_name].boost_lvl >= 4 then
+        game.print(format(running_speed_boost_messages[speed_records[p_name].boost_lvl], p_name))
         reset_player_running_speed(player)
         player.character.die(player.force, player.character)
         return
     end
 
-    player.print(format(running_speed_boost_messages[global.player_speed_boost_records[player.index].boost_lvl], player.name))
-end
-
-local function reset_player_mining_speed(player)
-    player.character_mining_speed_modifier = global.player_mining_boost_records[player.index].pre_mining_boost_modifier
-    global.player_mining_boost_records[player.index] = nil
+    player.print(format(running_speed_boost_messages[speed_records[p_name].boost_lvl], p_name))
 end
 
 local function boost_player_mining_speed(player)
-    if global.player_mining_boost_records == nil then
-        global.player_mining_boost_records = {}
-    end
-
-    if global.player_mining_boost_records[player.index] == nil then
-        global.player_mining_boost_records[player.index] = {
+    local p_name = player.name
+    if not mining_records[p_name] then
+        mining_records[p_name] = {
             start_tick = game.tick,
             pre_mining_boost_modifier = player.character_mining_speed_modifier,
             boost_lvl = 0
         }
     end
-    global.player_mining_boost_records[player.index].boost_lvl = 1 + global.player_mining_boost_records[player.index].boost_lvl
+    mining_records[p_name].boost_lvl = 1 + mining_records[p_name].boost_lvl
 
-    if global.player_mining_boost_records[player.index].boost_lvl >= 4 then
-        game.print(format(mining_speed_boost_messages[global.player_mining_boost_records[player.index].boost_lvl], player.name))
+    if mining_records[p_name].boost_lvl >= 4 then
+        game.print(format(mining_speed_boost_messages[mining_records[p_name].boost_lvl], p_name))
         reset_player_mining_speed(player)
         player.character.die(player.force, player.character)
         return
     end
 
-    player.print(format(mining_speed_boost_messages[global.player_mining_boost_records[player.index].boost_lvl], player.name))
+    player.print(format(mining_speed_boost_messages[mining_records[p_name].boost_lvl], p_name))
 end
 
 local function market_item_purchased(event)
@@ -232,28 +234,22 @@ local function market_item_purchased(event)
     end
 end
 
-local function on_180_ticks()
+local function on_nth_tick()
     local tick = game.tick
-    if tick % 900 == 0 then
-        if global.player_speed_boost_records then
-            for k, v in pairs(global.player_speed_boost_records) do
-                if tick - v.start_tick > 3000 then
-                    local player = Game.get_player_by_index(k)
-                    if player.connected and player.character then
-                        reset_player_running_speed(player)
-                    end
-                end
+    for k, v in pairs(speed_records) do
+        if tick - v.start_tick > 3000 then
+            local player = game.players[k]
+            if player and player.valid and player.connected and player.character then
+                reset_player_running_speed(player)
             end
         end
+    end
 
-        if global.player_mining_boost_records then
-            for k, v in pairs(global.player_mining_boost_records) do
-                if tick - v.start_tick > 6000 then
-                    local player = Game.get_player_by_index(k)
-                    if player.connected and player.character then
-                        reset_player_mining_speed(player)
-                    end
-                end
+    for k, v in pairs(mining_records) do
+        if tick - v.start_tick > 6000 then
+            local player = game.players[k]
+            if player and player.valid and player.connected and player.character then
+                reset_player_mining_speed(player)
             end
         end
     end
@@ -287,7 +283,7 @@ Command.add(
     spawn_market
 )
 
-Event.on_nth_tick(180, on_180_ticks)
+Event.on_nth_tick(907, on_nth_tick)
 Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
 Event.add(defines.events.on_entity_died, fish_drop_entity_died)
 Event.add(Retailer.events.on_market_purchase, market_item_purchased)
