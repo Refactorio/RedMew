@@ -3,6 +3,7 @@ local type = type
 local error = error
 local tonumber = tonumber
 local tostring = tostring
+local pairs = pairs
 local format = string.format
 
 --- Contains a set of callables that will attempt to sanitize and transform the input
@@ -158,6 +159,18 @@ function Public.get(player_index, name)
 
     local player_setting = player_settings[name]
     return player_setting ~= nil and player_setting or setting.default
+end
+
+---Returns a table of all settings for a given player in a key => value setup
+---@param player_index number
+function Public.all(player_index)
+    local player_settings = memory[player_index] or {}
+    local output = {}
+    for name, data in pairs(settings) do
+        output[name] = player_settings[name] or data.default
+    end
+
+    return output
 end
 
 return Public

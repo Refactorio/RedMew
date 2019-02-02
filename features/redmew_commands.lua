@@ -422,3 +422,11 @@ Command.add('setting-get', {
 
     player.print(format('Setting "%s" has a value of: "%s"', setting_name, value))
 end)
+
+Command.add('setting-all', {
+    description = 'Display all settings for yourself',
+}, function (_, player)
+    for name, value in pairs(Settings.all(player.index)) do
+        player.print(format('%s=%s', name, value))
+    end
+end)
