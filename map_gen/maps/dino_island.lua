@@ -4,11 +4,10 @@ local Random = require 'map_gen.shared.random'
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
-local Game = require 'utils.game'
+local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
+local Popup = require 'features.gui.popup'
 
-local degrees = require "utils.math".degrees
-
-require 'map_gen.shared.banned_entities'
+local degrees = require 'utils.math'.degrees
 
 local seed = 210
 RS.set_map_gen_settings(
@@ -18,13 +17,16 @@ RS.set_map_gen_settings(
     }
 )
 
-Event.on_init(
-    function()
-        --local rs = game.forces.player.recipes
-
-        --rs['electric-mining-drill'].enabled = false
-        --rs['inserter'].enabled = false
-    end
+RestrictEntities.add_banned(
+    {
+        'inserter',
+        'long-handed-inserter',
+        'fast-inserter',
+        'filter-inserter',
+        'stack-inserter',
+        'stack-filter-inserter',
+        'electric-mining-drill'
+    }
 )
 
 Event.add(
@@ -32,13 +34,30 @@ Event.add(
     function(event)
         local effects = event.research.effects
         local f = game.forces.player
-        local rs = f.recipes
 
         for _, e in ipairs(effects) do
             local t = e.type
             if t == 'stack-inserter-capacity-bonus' then
                 f.inserter_stack_size_bonus = f.inserter_stack_size_bonus + e.modifier
             end
+        end
+    end
+)
+
+Event.add(
+    RestrictEntities.events.on_restricted_entity_destroyed,
+    function(event)
+        local p = event.player
+        if not p or not p.valid then
+            return
+        end
+
+        if not event.ghost then
+            Popup.player(p, [[
+                You don't know how to operate this item!
+
+                Advice: Only burner inserters and burner mining drills work in this prehistoric land
+                ]], nil, nil, 'prehistoric_entity_warning')
         end
     end
 )
@@ -51,11 +70,11 @@ local dino9 = b.picture(require 'map_gen.data.presets.dino9')
 local dino13 = b.picture(require 'map_gen.data.presets.dino13')
 local dino14 = b.picture(require 'map_gen.data.presets.dino14')
 local dino16 = b.picture(require 'map_gen.data.presets.dino16')
-local groundhog1 = b.picture(b.decompress(require'map_gen.data.presets.groundhog1'))
-local groundhog2 = b.picture(b.decompress(require'map_gen.data.presets.groundhog2'))
-local groundhog3 = b.picture(b.decompress(require'map_gen.data.presets.groundhog3'))
-local groundhog4 = b.picture(b.decompress(require'map_gen.data.presets.groundhog4'))
-local groundhog5 = b.picture(b.decompress(require'map_gen.data.presets.groundhog5'))
+local groundhog1 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog1'))
+local groundhog2 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog2'))
+local groundhog3 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog3'))
+local groundhog4 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog4'))
+local groundhog5 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog5'))
 
 local dino17 = b.picture(require 'map_gen.data.presets.dino17')
 local dino18 = b.picture(require 'map_gen.data.presets.dino18')
@@ -118,10 +137,6 @@ end
 
 local function non_transform(shape)
     return b.scale(shape, 0.5)
-end
-
-local function uranium_transform(shape)
-    return b.scale(shape, 0.25)
 end
 
 local function oil_transform(shape)
