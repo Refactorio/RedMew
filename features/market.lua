@@ -25,14 +25,14 @@ local running_speed_boost_messages = {
     '%s found the lost Dragon Scroll and got a lv.1 speed boost!',
     'Guided by Master Oogway, %s got a lv.2 speed boost!',
     'Kung Fu Master %s defended the village and was awarded a lv.3 speed boost!',
-    'Travelled at the speed of light. %s saw a black hole. Oops.',
+    'Travelled at the speed of light. %s saw a black hole. Oops.'
 }
 
 local mining_speed_boost_messages = {
     '%s is going on a tree harvest!',
     'In search of a sharper axe, %s got a lv.2 mining boost!',
     'Wood fiend, %s, has picked up a massive chain saw and is awarded a lv.3 mining boost!',
-    'Better learn to control that saw, %s, chopped off their legs. Oops.',
+    'Better learn to control that saw, %s, chopped off their legs. Oops.'
 }
 
 -- Global registered local vars
@@ -118,9 +118,12 @@ local function pre_player_mined_item(event)
     end
 end
 
-local spill_items = Token.register(function(data)
-    data.surface.spill_item_stack(data.position, {name = currency, count = data.count}, true)
-end)
+local spill_items =
+    Token.register(
+    function(data)
+        data.surface.spill_item_stack(data.position, {name = currency, count = data.count}, true)
+    end
+)
 
 -- Determines how many coins to drop when enemy entity dies based upon the entity_drop_amount table in config.lua
 local function fish_drop_entity_died(event)
@@ -134,7 +137,6 @@ local function fish_drop_entity_died(event)
         return
     end
 
-
     local chance = bounds.chance
 
     if chance == 0 then
@@ -144,8 +146,15 @@ local function fish_drop_entity_died(event)
     if chance == 1 or random() <= chance then
         local count = random(bounds.low, bounds.high)
         if count > 0 then
-            Task.set_timeout_in_ticks(1, spill_items, {count = count, surface = entity.surface, position = entity.position}
-        )
+            Task.set_timeout_in_ticks(
+                1,
+                spill_items,
+                {
+                    count = count,
+                    surface = entity.surface,
+                    position = entity.position
+                }
+            )
         end
     end
 end
@@ -164,11 +173,10 @@ local function boost_player_running_speed(player)
         global.player_speed_boost_records[player.index] = {
             start_tick = game.tick,
             pre_boost_modifier = player.character_running_speed_modifier,
-            boost_lvl = 0,
+            boost_lvl = 0
         }
     end
-    global.player_speed_boost_records[player.index].boost_lvl =
-        1 + global.player_speed_boost_records[player.index].boost_lvl
+    global.player_speed_boost_records[player.index].boost_lvl = 1 + global.player_speed_boost_records[player.index].boost_lvl
 
     player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
 
@@ -196,11 +204,10 @@ local function boost_player_mining_speed(player)
         global.player_mining_boost_records[player.index] = {
             start_tick = game.tick,
             pre_mining_boost_modifier = player.character_mining_speed_modifier,
-            boost_lvl = 0,
+            boost_lvl = 0
         }
     end
-    global.player_mining_boost_records[player.index].boost_lvl =
-        1 + global.player_mining_boost_records[player.index].boost_lvl
+    global.player_mining_boost_records[player.index].boost_lvl = 1 + global.player_mining_boost_records[player.index].boost_lvl
 
     if global.player_mining_boost_records[player.index].boost_lvl >= 4 then
         game.print(format(mining_speed_boost_messages[global.player_mining_boost_records[player.index].boost_lvl], player.name))
