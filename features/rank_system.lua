@@ -88,21 +88,21 @@ local function check_promote_to_auto_trusted()
     local equal = Public.equal
     local set_data = Server.set_data
 
-    for p_name in pairs(guests) do
-        local p = game.players[p_name]
+    for index, p in pairs(guests) do
         if not p or not p.valid then
-            guests[p_name] = nil
+            guests[index] = nil
             return
         end
 
+        local p_name = p.name
         if equal_or_greater_than(p_name, auto_trusted) then
-            guests[p_name] = nil
+            guests[index] = nil
         elseif (p.online_time > time_for_trust) and equal(p_name, guest) then
             player_ranks[p_name] = auto_trusted
             set_data(ranking_data_set, p_name, auto_trusted)
-            guests[p_name] = nil
+            guests[index] = nil
         elseif not p.connected then
-            guests[p_name] = nil
+            guests[index] = nil
         end
     end
 end
@@ -118,14 +118,15 @@ local sync_ranks_callback =
 )
 
 local function on_player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local index = event.player_index
+    local player = Game.get_player_by_index(index)
     if not player then
         return
     end
-    local player_name = player.name
 
+    local player_name = player.name
     if Public.equal(player_name, Ranks.guest) then
-        guests[player_name] = true
+        guests[index] = player
     end
 
     --- Fix for legacy name storage
