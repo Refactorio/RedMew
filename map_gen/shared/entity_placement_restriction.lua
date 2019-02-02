@@ -121,8 +121,7 @@ local on_built_token =
 
         event.ghost = ghost
         event.player = p
-        raise_event(Public.events.on_pre_restricted_entity_destroyed, deep_copy(event)) -- use deepcopy so that any potential writes to `event` aren't passed backwards
-
+        raise_event(Public.events.on_pre_restricted_entity_destroyed, event)
         -- Need to revalidate the entity since we sent it via the event
         if entity.valid then
             entity.destroy()
