@@ -331,6 +331,16 @@ local function revive_ghosts(args, player)
     end
 end
 
+local function destroy(_, player)
+    local ent = player.selected
+    if ent then
+        Game.player_print(ent.name .. ' destroyed')
+        ent.destroy()
+    else
+        Game.player_print('Nothing found to destroy.')
+    end
+end
+
 -- Event registrations
 
 Event.add(defines.events.on_built_entity, built_entity)
@@ -498,4 +508,13 @@ Command.add(
         required_rank = Ranks.admin,
     },
     Apocalypse.begin_apocalypse
+)
+
+Command.add(
+    'destroy',
+    {
+        description = 'Destroys the entity under your cursor',
+        admin_only = true
+    },
+    destroy
 )
