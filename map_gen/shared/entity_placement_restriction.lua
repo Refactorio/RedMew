@@ -1,11 +1,12 @@
 --[[
     Regulates the placement of entities and their ghosts
     Can be called through public function to provide lists of allowed or banned entities.
-    Can also set a keep_alive_callback function to check what is beneath the entity, for example for checking for ores or certain tiles.
+    Can also set a keep_alive_callback function to process information about the entity about to be destroyed
+    for example, checking for resources underneath the entity or checking the pollution in the entity's chunk.
 
-    Example of keep_alive_callback function to check if there are ores beneath:
-    function keep_alive_callback (surface, area)
-        local count = surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
+    Example of keep_alive_callback function to check if there are resources beneath:
+    function keep_alive_callback (entity)
+        local count = entity.surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
         if count == 0 then
             return true
         end
