@@ -518,7 +518,7 @@ local function set_scenario_version()
     -- A 1 hour buffer is in place to account for potential playtime pre-upload.
     if game.tick < 216000 and not global.redmew_version then
         local time_string = Timestamp.to_string(Public.get_current_time())
-        global.redmew_version = string.format('Time of map launch: %sUTC', time_string)
+        global.redmew_version = string.format('Time of map launch: %s UTC', time_string)
     end
 end
 
