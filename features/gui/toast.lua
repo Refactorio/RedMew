@@ -2,10 +2,14 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Token = require 'utils.token'
+local Settings = require 'utils.settings'
 local Color = require 'resources.color_presets'
 
 local pairs = pairs
 local next = next
+
+local toast_volume_name = 'toast-volume'
+Settings.register(toast_volume_name, 'fraction', 1.0)
 
 local Public = {}
 
@@ -111,7 +115,7 @@ local function toast_to(player, duration, sound)
     active_toasts[id] = frame_holder
 
     if sound then
-        player.play_sound({path = sound, volume_modifier = 1})
+        player.play_sound({path = sound, volume_modifier = Settings.get(player.index, toast_volume_name)})
     end
 
     return container

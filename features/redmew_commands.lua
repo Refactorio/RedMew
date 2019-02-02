@@ -1,6 +1,7 @@
 local Game = require 'utils.game'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
+local Settings = require 'utils.settings'
 local Utils = require 'utils.core'
 local Report = require 'features.report'
 local Server = require 'features.server'
@@ -11,6 +12,10 @@ local PlayerStats = require 'features.player_stats'
 local format = string.format
 local ceil = math.ceil
 local concat = table.concat
+local pcall = pcall
+local tostring = tostring
+local tonumber = tonumber
+local pairs = pairs
 
 --- Kill a player with fish as the cause of death.
 local function do_fish_kill(player, suicide)
@@ -380,3 +385,40 @@ Command.add(
     },
     UserGroups.print_regulars
 )
+
+Command.add('setting-set', {
+    description = 'Set a setting for yourself',
+    arguments = {'setting_name', 'new_value'},
+    capture_excess_arguments = true,
+}, function (arguments, player)
+    local value
+    local setting_name = arguments.setting_name
+    local success, message = pcall(function()
+        value = Settings.set(player.index, setting_name, arguments.new_value)
+    end)
+
+    if not success then
+        player.print(message)
+        return
+    end
+
+    player.print(format('Changed "%s" to: "%s"', setting_name, value))
+end)
+
+Command.add('setting-get', {
+    description = 'Display a setting value for yourself',
+    arguments = {'setting_name'},
+}, function (arguments, player)
+    local value
+    local setting_name = arguments.setting_name
+    local success, message = pcall(function()
+        value = Settings.get(player.index, setting_name)
+    end)
+
+    if not success then
+        player.print(message)
+        return
+    end
+
+    player.print(format('Setting "%s" has a value of: "%s"', setting_name, value))
+end)
