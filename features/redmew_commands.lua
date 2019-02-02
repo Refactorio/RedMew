@@ -1,13 +1,12 @@
-local Report = require 'features.report'
-local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
-local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
-local Walkabout = require 'features.walkabout'
-local redmew_version = require 'resources.version'
-local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.core'
+local Report = require 'features.report'
+local Server = require 'features.server'
+local UserGroups = require 'features.user_groups'
+local Walkabout = require 'features.walkabout'
+local PlayerStats = require 'features.player_stats'
 
 local format = string.format
 local ceil = math.ceil
