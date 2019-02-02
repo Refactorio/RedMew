@@ -1,8 +1,10 @@
-require 'utils.table'
-local Rank = require 'features.rank_system'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local Utils = require 'utils.core'
+local Timestamp = require 'utils.timestamp'
+local Rank = require 'features.rank_system'
 local Donator = require 'features.donator'
+local Server = require 'features.server'
 local Ranks = require 'resources.ranks'
 
 local insert = table.insert
@@ -221,7 +223,18 @@ function Command.add(command_name, options, callback)
         end
 
         if log_command then
-            log(format('[%s Command] %s, used: %s %s', (options.required_rank >= Ranks.admin) and 'Admin' or 'Player', player_name, command_name, serialize(named_arguments)))
+            local tick = 'pre-game'
+            if game then
+                tick = Utils.format_time(game.tick)
+            end
+            local server_time = Server.get_current_time()
+            if server_time then
+                server_time = format('(Server time: %s)', Timestamp.to_string(server_time))
+            else
+                server_time = ''
+            end
+
+            log(format('%s(Map time: %s) [%s Command] %s, used: %s %s', server_time, tick, (options.required_rank >= Ranks.admin) and 'Admin' or 'Player', player_name, command_name, serialize(named_arguments)))
         end
 
         local success, error = pcall(function ()
