@@ -74,8 +74,14 @@ local function change_rank(current_rank, change)
 end
 
 --- Gets a player's rank. Intentionally not exposed.
+-- Is the only place player.admin should be checked.
 local function get_player_rank(player_name)
-    return player_ranks[player_name] or 0
+    local player = game.players[player_name]
+    if player and player.valid and player.admin then
+        return Ranks.admin
+    end
+
+    return player_ranks[player_name] or Ranks.guest
 end
 
 --- Check each online player and if their playtime is above the required cutoff, promote them to auto-trusted.
