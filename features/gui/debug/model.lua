@@ -14,12 +14,12 @@ local luaPlayer = {"{LuaPlayer, name = '", nil, "', index = ", nil, '}'}
 local luaEntity = {"{LuaEntity, name = '", nil, "', unit_number = ", nil, '}'}
 local luaGuiElement = {"{LuaGuiElement, name = '", nil, "'}"}
 
-local function get_name_safe_inner(obj)
-    return obj.name
+local function get(obj, prop)
+    return obj[prop]
 end
 
 local function get_name_safe(obj)
-    local s, r = pcall(get_name_safe_inner, obj)
+    local s, r = pcall(get, obj, 'name')
     if not s then
         return 'nil'
     else
@@ -27,21 +27,36 @@ local function get_name_safe(obj)
     end
 end
 
+local function get_lua_object_type_safe(obj)
+    local s, r = pcall(get, obj, 'help')
+
+    if not s then
+        return
+    end
+
+    return r():match('Lua%a+')
+end
+
 local function inspect_process(item)
-    if type(item) ~= 'table' or not item.__self then
+    if type(item) ~= 'table' or type(item.__self) ~= 'userdata' then
         return item
     end
 
-    if not item.valid then
+    local suc, valid = pcall(get, item, 'valid')
+    if not suc then
+        -- no 'valid' property
+        return get_lua_object_type_safe(item) or '{NoHelp LuaObject}'
+    end
+
+    if not valid then
         return '{Invalid LuaObject}'
     end
 
-    local help = item.help
-    if not help then
-        return '{Invalid LuaObject}'
+    local obj_type = get_lua_object_type_safe(item)
+    if not obj_type then
+        return '{NoHelp LuaObject}'
     end
 
-    local obj_type = help():match('Lua%a+')
     if obj_type == 'LuaPlayer' then
         luaPlayer[2] = item.name or 'nil'
         luaPlayer[4] = item.index or 'nil'
