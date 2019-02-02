@@ -62,15 +62,15 @@ Event.on_init(init)
 -- @see Venus::world_settings
 function Public.set_cycle(day_night_cycle, surface)
     if not check_cycle_validity(day_night_cycle) then
-        log('Provided day/night cycle is invalid')
+        error('Provided day/night cycle is invalid')
         return
     end
     if not surface or not surface.valid then
-        log('Provided surface is invalid')
+        error('Provided surface is invalid')
         return
     end
     if not Public.unfreeze_daytime then
-        log('Time is frozen')
+        error('Time is stuck in a frozen state')
         return
     end
 
@@ -92,14 +92,14 @@ end
 -- @return <boolean> true if time is set properly, nil if not
 function Public.set_fixed_brightness(daylight, surface)
     if not surface or not surface.valid then
-        log('Provided surface is invalid')
+        error('Provided surface is invalid')
         return
     end
     if daylight < 0.15 then
-        log('Daylight set too low. 0.15 is the darkest available.')
+        error('Daylight set too low. 0.15 is the darkest available.')
         return
     elseif daylight > 1 then
-        log('Daylight set too high. 1.00 is the lightest available.')
+        error('Daylight set too high. 1.00 is the lightest available.')
         return
     end
 
