@@ -22,7 +22,6 @@ local Config = global.config.rank_system
 
 -- Localized functions
 local format = string.format
-local index_in_array = table.index_of_in_array
 local clamp = math.clamp
 
 -- Constants
@@ -107,12 +106,13 @@ local function check_promote_to_auto_trusted()
     end
 end
 
---- Clears the player_ranks table and merges the entries into it
+--- On callback, overwrites player rank entries with data entries
 local sync_ranks_callback =
     Token.register(
     function(data)
-        table.clear_table(player_ranks)
-        table.merge({player_ranks, data.entries})
+        for k, v in pairs(data.entries) do
+            player_ranks[k] = v
+        end
     end
 )
 
@@ -309,43 +309,15 @@ end
 
 Event.add(defines.events.on_player_joined_game, on_player_joined)
 
+Event.add(Server.events.on_server_started, Public.sync_ranks)
+
+Event.on_nth_tick(nth_tick, check_promote_to_auto_trusted)
+
 Server.on_data_set_changed(
     ranking_data_set,
     function(data)
         player_ranks[data.key] = data.value
     end
 )
-
-
-Event.add(
-    Server.events.on_server_started,
-    function()
-        Public.sync_rankings()
-    end
-)
-
-Event.on_nth_tick(nth_tick, check_promote_to_auto_trusted)
-
-if _DEBUG then
-    --- Takes a table of old ranks, converts those ranks to correcponding entries in new_ranks and uploads everything to the upload_target dataset
-    -- @param old_ranks <table> an array of ranks you want to change *from*
-    -- @param new_ranks <table> an array of ranks you want to change *to*
-    -- Note: old_ranks and new_ranks must have the same index key
-    -- @param upload_target <string> the data set to upload to (this way you can test your migration to a dummy data set before changing the real one)
-    -- @param yes_im_sure <boolean> Are you really sure you want to change the existing data set?
-    function Public.migrate_data(old_ranks, new_ranks, upload_target, yes_im_sure)
-        if ranking_data_set == upload_target and not yes_im_sure then
-            return
-        end
-
-        for k, v in pairs(player_ranks) do
-            local index = index_in_array(old_ranks, v)
-            if index then
-                player_ranks[k] = new_ranks[index]
-            end
-            Server.set_data(upload_target, k, player_ranks[k])
-        end
-    end
-end
 
 return Public

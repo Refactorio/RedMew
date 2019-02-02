@@ -6,6 +6,11 @@ local table = require 'utils.table'
 local Global = require 'utils.global'
 local Task = require 'utils.task'
 
+local concat = table.concat
+local insert = table.insert
+
+local donator_data_set = 'donators'
+
 local donators = {} -- global register
 
 Global.register(
@@ -48,7 +53,7 @@ local function player_joined(event)
         return
     end
 
-    message = table.concat({'*** ', message, ' ***'})
+    message = concat({'*** ', message, ' ***'})
     Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
 end
 
@@ -79,36 +84,49 @@ end
 
 --- Sets the data for a donator
 -- @param player_name <string>
--- @param data <table> a table containing perk_flags and welcome_messages
+-- @param data <table>
 -- @return <string|nil>
-function Public.set_donator(player_name, data)
+function Public.set_donator_data(player_name, data)
     donators[player_name] = data
-    Server.set_data('donators', player_name, data)
+    Server.set_data(donator_data_set, player_name, data)
+end
+
+--- Changes the data for a donator with any data that is sent, but does not change any other
+-- @param player_name <string>
+-- @param data <table>
+-- @return <string|nil>
+function Public.change_donator_data(player_name, data)
+    for k, v in pairs(data) do
+        donators[player_name][k] = v
+    end
+
+    Server.set_data(donator_data_set, player_name, donators[player_name])
 end
 
 --- Clears the player_ranks table and merges the entries into it
 local sync_donators_callback =
     Token.register(
     function(data)
-        table.clear_table(donators)
-        table.merge({donators, data.entries})
+        for k, v in pairs(data.entries) do
+            donators[k] = v
+        end
     end
 )
 
 --- Signals the server to retrieve the donators data set
 function Public.sync_donators()
-    Server.try_get_all_data('donators', sync_donators_callback)
+    Server.try_get_all_data(donator_data_set, sync_donators_callback)
 end
 
 --- Prints a list of donators
 function Public.print_donators()
     local result = {}
 
-    for k, _ in pairs(global.donators) do
-        table.insert(result, k)
+    for k, _ in pairs(donators) do
+        insert(result, k)
     end
 
-    result = table.concat(result, ', ')
+    result = concat(result, ', ')
     Game.player_print(result)
 end
 
@@ -120,13 +138,11 @@ Event.add(
 )
 
 Server.on_data_set_changed(
-    'donators',
+    donator_data_set,
     function(data)
-        global.donators[data.key] = data.value
+        donators[data.key] = data.value
     end
 )
-
-
 
 Event.add(defines.events.on_player_joined_game, player_joined)
 
