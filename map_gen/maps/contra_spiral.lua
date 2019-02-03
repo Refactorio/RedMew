@@ -1,6 +1,6 @@
 local b = require "map_gen.shared.builders"
 
-local pic = require "map_gen.data.presets.CSrMap"
+local pic = require "map_gen.data.presets.contra_spiral"
 pic = b.decompress(pic)
 local map = b.picture(pic)
 
