@@ -264,10 +264,14 @@ end
 
 --- Trigger messages on deprecated or defined commands, ignores the server
 local function on_command(event)
+    if not event.player_index then
+        return
+    end
+
     local alternative = deprecated_command_alternatives[event.command]
     if alternative then
-        if event.player_index then
-            local player = Game.get_player_by_index(event.player_index)
+        local player = Game.get_player_by_index(event.player_index)
+        if player then
             player.print(format('Warning! Usage of the command "/%s" is deprecated. Please use "/%s" instead.', event.command, alternative))
         end
     end
@@ -275,7 +279,9 @@ local function on_command(event)
     local notification = notify_on_commands[event.command]
     if notification and event.player_index then
         local player = Game.get_player_by_index(event.player_index)
-        player.print(notification)
+        if player then
+            player.print(notification)
+        end
     end
 end
 
