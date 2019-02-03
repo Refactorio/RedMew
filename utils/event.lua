@@ -297,7 +297,7 @@ end
 --- Register a token handler for the nth tick that can be safely added and removed at runtime.
 -- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
--- @param  event_name<number>
+-- @param  tick<number>
 -- @param  token<number>
 function Event.add_removable_nth_tick(tick, token)
     if type(token) ~= 'number' then
@@ -320,7 +320,7 @@ end
 --- Removes a token handler for the nth tick.
 -- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
--- @param  event_name<number>
+-- @param  tick<number>
 -- @param  token<number>
 function Event.remove_removable_nth_tick(tick, token)
     local tokens = token_nth_tick_handlers[tick]
@@ -344,7 +344,7 @@ end
 -- The handler must not be a closure, as that is a desync risk.
 -- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
--- @param  event_name<number>
+-- @param  tick<number>
 -- @param  func<function>
 function Event.add_removable_nth_tick_function(tick, func)
     if type(func) ~= 'function' then
@@ -373,7 +373,7 @@ end
 --- Removes a handler for the nth tick.
 -- Do NOT call this method during on_load.
 -- See documentation at top of file for details on using events.
--- @param  event_name<number>
+-- @param  tick<number>
 -- @param  func<function>
 function Event.remove_removable_nth_tick_function(tick, func)
     local funcs = function_nth_tick_handlers[tick]
