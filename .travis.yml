@@ -14,7 +14,7 @@ before_install:
 install:
   - luarocks install luacheck
 script:
-  - "if [[ $TRAVIS_EVENT_TYPE != 'cron' ]]; then luacheck .; fi"
+  - "if [[ $TRAVIS_EVENT_TYPE != 'cron' ] || [ $TRAVIS_EVENT_TYPE != 'api' ]]; then luacheck .; fi"
 before_deploy:
   - git config --local user.name "$github_user_name"
   - git config --local user.email "$github_user_email"
@@ -30,7 +30,7 @@ before_deploy:
   - ./.travis/release_builder.sh
 deploy:
   on:
-    condition: $TRAVIS_EVENT_TYPE = cron or $TRAVIS_EVENT_TYPE = api
+    condition: $TRAVIS_EVENT_TYPE = cron
     repo: Refactorio/RedMew
     branch: develop
   provider: releases
