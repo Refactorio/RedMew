@@ -5,19 +5,17 @@
 -- 2018-11-30
 
 local b = require 'map_gen.shared.builders'
-local math = require "utils.math"
+local math = require 'utils.math'
 local table = require 'utils.table'
 local Event = require 'utils.event'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 
 local degrees = math.rad
-local array_contains = table.array_contains
 
 -- change these to change the pattern.
 local seed1 = 20000
 local seed2 = seed1 * 2
-
 
 RS.set_map_gen_settings(
     {
@@ -28,138 +26,138 @@ RS.set_map_gen_settings(
 )
 
 local military_techs = {
-    'artillery',
-    'artillery-shell-range-1',
-    'artillery-shell-speed-1',
-    'atomic-bomb',
-    'bullet-damage-1',
-    'bullet-damage-2',
-    'bullet-damage-3',
-    'bullet-damage-4',
-    'bullet-damage-5',
-    'bullet-damage-6',
-    'bullet-damage-7',
-    'bullet-speed-1',
-    'bullet-speed-2',
-    'bullet-speed-3',
-    'bullet-speed-4',
-    'bullet-speed-5',
-    'bullet-speed-6',
-    'cannon-shell-damage-1',
-    'cannon-shell-damage-2',
-    'cannon-shell-damage-3',
-    'cannon-shell-damage-4',
-    'cannon-shell-damage-5',
-    'cannon-shell-damage-6',
-    'cannon-shell-speed-1',
-    'cannon-shell-speed-2',
-    'cannon-shell-speed-3',
-    'cannon-shell-speed-4',
-    'cannon-shell-speed-5',
-    'combat-robot-damage-1',
-    'combat-robot-damage-2',
-    'combat-robot-damage-3',
-    'combat-robot-damage-4',
-    'combat-robot-damage-5',
-    'combat-robot-damage-6',
-    'combat-robotics',
-    'combat-robotics-2',
-    'combat-robotics-3',
-    'discharge-defense-equipment',
-    'energy-shield-equipment',
-    'energy-shield-mk2-equipment',
-    'exoskeleton-equipment',
-    'explosive-rocketry',
-    'flamethrower',
-    'flamethrower-damage-1',
-    'flamethrower-damage-2',
-    'flamethrower-damage-3',
-    'flamethrower-damage-4',
-    'flamethrower-damage-5',
-    'flamethrower-damage-6',
-    'flamethrower-damage-7',
-    'flammables',
-    'follower-robot-count-1',
-    'follower-robot-count-2',
-    'follower-robot-count-3',
-    'follower-robot-count-4',
-    'follower-robot-count-5',
-    'follower-robot-count-6',
-    'follower-robot-count-7',
-    'grenade-damage-1',
-    'grenade-damage-2',
-    'grenade-damage-3',
-    'grenade-damage-4',
-    'grenade-damage-5',
-    'grenade-damage-6',
-    'grenade-damage-7',
-    'gun-turret-damage-1',
-    'gun-turret-damage-2',
-    'gun-turret-damage-3',
-    'gun-turret-damage-4',
-    'gun-turret-damage-5',
-    'gun-turret-damage-6',
-    'gun-turret-damage-7',
-    'heavy-armor',
-    'land-mine',
-    'laser',
-    'laser-turret-damage-1',
-    'laser-turret-damage-2',
-    'laser-turret-damage-3',
-    'laser-turret-damage-4',
-    'laser-turret-damage-5',
-    'laser-turret-damage-6',
-    'laser-turret-damage-7',
-    'laser-turret-damage-8',
-    'laser-turret-speed-1',
-    'laser-turret-speed-2',
-    'laser-turret-speed-3',
-    'laser-turret-speed-4',
-    'laser-turret-speed-5',
-    'laser-turret-speed-6',
-    'laser-turret-speed-7',
-    'laser-turrets',
-    'military',
-    'military-2',
-    'military-3',
-    'military-4',
-    'modular-armor',
-    'night-vision-equipment',
-    'personal-laser-defense-equipment',
-    'power-armor',
-    'power-armor-2',
-    'rocket-damage-1',
-    'rocket-damage-2',
-    'rocket-damage-3',
-    'rocket-damage-4',
-    'rocket-damage-5',
-    'rocket-damage-6',
-    'rocket-damage-7',
-    'rocket-speed-1',
-    'rocket-speed-2',
-    'rocket-speed-3',
-    'rocket-speed-4',
-    'rocket-speed-5',
-    'rocket-speed-6',
-    'rocket-speed-7',
-    'rocketry',
-    'shotgun-shell-damage-1',
-    'shotgun-shell-damage-2',
-    'shotgun-shell-damage-3',
-    'shotgun-shell-damage-4',
-    'shotgun-shell-damage-5',
-    'shotgun-shell-damage-6',
-    'shotgun-shell-damage-7',
-    'shotgun-shell-speed-1',
-    'shotgun-shell-speed-2',
-    'shotgun-shell-speed-3',
-    'shotgun-shell-speed-4',
-    'shotgun-shell-speed-5',
-    'shotgun-shell-speed-6',
-    'stone-walls',
-    'tanks',
-    'turrets',
-    'uranium-ammo'
+    ['artillery'] = true,
+    ['artillery-shell-range-1'] = true,
+    ['artillery-shell-speed-1'] = true,
+    ['atomic-bomb'] = true,
+    ['bullet-damage-1'] = true,
+    ['bullet-damage-2'] = true,
+    ['bullet-damage-3'] = true,
+    ['bullet-damage-4'] = true,
+    ['bullet-damage-5'] = true,
+    ['bullet-damage-6'] = true,
+    ['bullet-damage-7'] = true,
+    ['bullet-speed-1'] = true,
+    ['bullet-speed-2'] = true,
+    ['bullet-speed-3'] = true,
+    ['bullet-speed-4'] = true,
+    ['bullet-speed-5'] = true,
+    ['bullet-speed-6'] = true,
+    ['cannon-shell-damage-1'] = true,
+    ['cannon-shell-damage-2'] = true,
+    ['cannon-shell-damage-3'] = true,
+    ['cannon-shell-damage-4'] = true,
+    ['cannon-shell-damage-5'] = true,
+    ['cannon-shell-damage-6'] = true,
+    ['cannon-shell-speed-1'] = true,
+    ['cannon-shell-speed-2'] = true,
+    ['cannon-shell-speed-3'] = true,
+    ['cannon-shell-speed-4'] = true,
+    ['cannon-shell-speed-5'] = true,
+    ['combat-robot-damage-1'] = true,
+    ['combat-robot-damage-2'] = true,
+    ['combat-robot-damage-3'] = true,
+    ['combat-robot-damage-4'] = true,
+    ['combat-robot-damage-5'] = true,
+    ['combat-robot-damage-6'] = true,
+    ['combat-robotics'] = true,
+    ['combat-robotics-2'] = true,
+    ['combat-robotics-3'] = true,
+    ['discharge-defense-equipment'] = true,
+    ['energy-shield-equipment'] = true,
+    ['energy-shield-mk2-equipment'] = true,
+    ['exoskeleton-equipment'] = true,
+    ['explosive-rocketry'] = true,
+    ['flamethrower'] = true,
+    ['flamethrower-damage-1'] = true,
+    ['flamethrower-damage-2'] = true,
+    ['flamethrower-damage-3'] = true,
+    ['flamethrower-damage-4'] = true,
+    ['flamethrower-damage-5'] = true,
+    ['flamethrower-damage-6'] = true,
+    ['flamethrower-damage-7'] = true,
+    ['flammables'] = true,
+    ['follower-robot-count-1'] = true,
+    ['follower-robot-count-2'] = true,
+    ['follower-robot-count-3'] = true,
+    ['follower-robot-count-4'] = true,
+    ['follower-robot-count-5'] = true,
+    ['follower-robot-count-6'] = true,
+    ['follower-robot-count-7'] = true,
+    ['grenade-damage-1'] = true,
+    ['grenade-damage-2'] = true,
+    ['grenade-damage-3'] = true,
+    ['grenade-damage-4'] = true,
+    ['grenade-damage-5'] = true,
+    ['grenade-damage-6'] = true,
+    ['grenade-damage-7'] = true,
+    ['gun-turret-damage-1'] = true,
+    ['gun-turret-damage-2'] = true,
+    ['gun-turret-damage-3'] = true,
+    ['gun-turret-damage-4'] = true,
+    ['gun-turret-damage-5'] = true,
+    ['gun-turret-damage-6'] = true,
+    ['gun-turret-damage-7'] = true,
+    ['heavy-armor'] = true,
+    ['land-mine'] = true,
+    ['laser'] = true,
+    ['laser-turret-damage-1'] = true,
+    ['laser-turret-damage-2'] = true,
+    ['laser-turret-damage-3'] = true,
+    ['laser-turret-damage-4'] = true,
+    ['laser-turret-damage-5'] = true,
+    ['laser-turret-damage-6'] = true,
+    ['laser-turret-damage-7'] = true,
+    ['laser-turret-damage-8'] = true,
+    ['laser-turret-speed-1'] = true,
+    ['laser-turret-speed-2'] = true,
+    ['laser-turret-speed-3'] = true,
+    ['laser-turret-speed-4'] = true,
+    ['laser-turret-speed-5'] = true,
+    ['laser-turret-speed-6'] = true,
+    ['laser-turret-speed-7'] = true,
+    ['laser-turrets'] = true,
+    ['military'] = true,
+    ['military-2'] = true,
+    ['military-3'] = true,
+    ['military-4'] = true,
+    ['modular-armor'] = true,
+    ['night-vision-equipment'] = true,
+    ['personal-laser-defense-equipment'] = true,
+    ['power-armor'] = true,
+    ['power-armor-2'] = true,
+    ['rocket-damage-1'] = true,
+    ['rocket-damage-2'] = true,
+    ['rocket-damage-3'] = true,
+    ['rocket-damage-4'] = true,
+    ['rocket-damage-5'] = true,
+    ['rocket-damage-6'] = true,
+    ['rocket-damage-7'] = true,
+    ['rocket-speed-1'] = true,
+    ['rocket-speed-2'] = true,
+    ['rocket-speed-3'] = true,
+    ['rocket-speed-4'] = true,
+    ['rocket-speed-5'] = true,
+    ['rocket-speed-6'] = true,
+    ['rocket-speed-7'] = true,
+    ['rocketry'] = true,
+    ['shotgun-shell-damage-1'] = true,
+    ['shotgun-shell-damage-2'] = true,
+    ['shotgun-shell-damage-3'] = true,
+    ['shotgun-shell-damage-4'] = true,
+    ['shotgun-shell-damage-5'] = true,
+    ['shotgun-shell-damage-6'] = true,
+    ['shotgun-shell-damage-7'] = true,
+    ['shotgun-shell-speed-1'] = true,
+    ['shotgun-shell-speed-2'] = true,
+    ['shotgun-shell-speed-3'] = true,
+    ['shotgun-shell-speed-4'] = true,
+    ['shotgun-shell-speed-5'] = true,
+    ['shotgun-shell-speed-6'] = true,
+    ['stone-walls'] = true,
+    ['tanks'] = true,
+    ['turrets'] = true,
+    ['uranium-ammo'] = true
 }
 
 local player_ammo_research_modifiers = {
@@ -177,13 +175,13 @@ local player_ammo_research_modifiers = {
     ['melee'] = 0.025,
     ['rocket'] = 0.08,
     ['shotgun-shell'] = 0.00,
-    ['laser-turret'] = 0.12,
+    ['laser-turret'] = 0.12
 }
 
 local function modify_damage(force, mult)
     for type, mod in pairs(player_ammo_research_modifiers) do
         local current_m = force.get_ammo_damage_modifier(type)
-        if (current_m + (mod * mult))<=-0.9 then
+        if (current_m + (mod * mult)) <= -0.9 then
             force.set_ammo_damage_modifier(type, -0.9)
         else
             force.set_ammo_damage_modifier(type, current_m + (mod * mult))
@@ -195,7 +193,7 @@ local function research_finished(event)
     local research = event.research
     local force = research.force
 
-    if array_contains(military_techs, research.name) then
+    if military_techs[research.name] then
         --increase player damage
         modify_damage(force, 1)
         game.print('Military research complete.... you feel stronger')
@@ -204,6 +202,7 @@ local function research_finished(event)
         modify_damage(force, -1.5)
         game.print('Research complete. A feeling of weakness spreads.')
     end
+
     if string.find(research.name, 'follower%-robot%-count') then
         force.maximum_following_robot_count = force.maximum_following_robot_count + 10
         game.print('Your Plague of robots disperses........')
@@ -219,9 +218,9 @@ local function value(base, mult, pow)
     end
 end
 
-local apple = b.translate(b.circle(20),0,-90)
+local apple = b.translate(b.circle(20), 0, -90)
 local tree = b.picture(require 'map_gen.data.presets.tree')
-tree = b.scale(tree,0.6,0.6)
+tree = b.scale(tree, 0.6, 0.6)
 
 local ores = {
     {resource_type = 'iron-ore', value = value(90, 0.25, 1.15)},
@@ -287,47 +286,52 @@ local stone_circle = b.apply_entities(apple, {stone, worms})
 local oil_circle = b.apply_entities(apple, {oil, worms})
 local uranium_circle = b.apply_entities(apple, {uranium, worms})
 
-
-local start_ores = b.any{
-    b.rotate(iron_circle,degrees(-25)),
-    b.rotate(copper_circle,degrees(25)),
-    b.rotate(stone_circle,degrees(-75)),
-    b.rotate(coal_circle,degrees(75)),
+local start_ores =
+    b.any {
+    b.rotate(iron_circle, degrees(-25)),
+    b.rotate(copper_circle, degrees(25)),
+    b.rotate(stone_circle, degrees(-75)),
+    b.rotate(coal_circle, degrees(75)),
     tree
 }
 
-local ore_group_1 = b.any{
-    b.rotate(iron_circle,degrees(-25)),
-    b.rotate(oil_circle,degrees(-75)),
-    b.rotate(coal_circle,degrees(75)),
+local ore_group_1 =
+    b.any {
+    b.rotate(iron_circle, degrees(-25)),
+    b.rotate(oil_circle, degrees(-75)),
+    b.rotate(coal_circle, degrees(75)),
     tree
 }
 
-local ore_group_2 = b.any{
-    b.rotate(iron_circle,degrees(-25)),
-    b.rotate(copper_circle,degrees(25)),
-    b.rotate(stone_circle,degrees(-75)),
-    b.rotate(uranium_circle,degrees(75)),
+local ore_group_2 =
+    b.any {
+    b.rotate(iron_circle, degrees(-25)),
+    b.rotate(copper_circle, degrees(25)),
+    b.rotate(stone_circle, degrees(-75)),
+    b.rotate(uranium_circle, degrees(75)),
     tree
 }
 
-local ore_group_3 = b.any{
-    b.rotate(stone_circle,degrees(-75)),
-    b.rotate(iron_circle,degrees(75)),
+local ore_group_3 =
+    b.any {
+    b.rotate(stone_circle, degrees(-75)),
+    b.rotate(iron_circle, degrees(75)),
     tree
 }
 
-local ore_group_4 = b.any{
-    b.rotate(iron_circle,degrees(-75)),
-    b.rotate(copper_circle,degrees(25)),
+local ore_group_4 =
+    b.any {
+    b.rotate(iron_circle, degrees(-75)),
+    b.rotate(copper_circle, degrees(25)),
     tree
 }
 
-local ore_group_5 = b.any{
-    b.rotate(iron_circle,degrees(-25)),
-    b.rotate(copper_circle,degrees(25)),
-    b.rotate(stone_circle,degrees(-75)),
-    b.rotate(coal_circle,degrees(75)),
+local ore_group_5 =
+    b.any {
+    b.rotate(iron_circle, degrees(-25)),
+    b.rotate(copper_circle, degrees(25)),
+    b.rotate(stone_circle, degrees(-75)),
+    b.rotate(coal_circle, degrees(75)),
     tree
 }
 
@@ -387,5 +391,5 @@ local sea = b.change_tile(apple, false, 'water')
 sea = b.fish(sea, 0.005)
 
 map = b.if_else(map, sea)
-map = b.translate(map,0,50)
+map = b.translate(map, 0, 50)
 return map
