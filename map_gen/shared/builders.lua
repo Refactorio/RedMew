@@ -766,7 +766,11 @@ function Builders.single_pattern_overlap(shape, width, height)
         y = ((y + half_height) % height) - half_height
         x = ((x + half_width) % width) - half_width
 
-        return shape(x, y, world) or shape(x + width, y, world) or shape(x - width, y, world) or shape(x, y + height, world) or shape(x, y - height, world)
+        return shape(x, y, world) or
+        shape(x + width, y, world) or
+        shape(x - width, y, world) or
+        shape(x, y + height, world) or
+        shape(x, y - height, world)
     end
 end
 
