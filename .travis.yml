@@ -14,7 +14,7 @@ before_install:
 install:
   - luarocks install luacheck
 script:
-  - "if [[ $TRAVIS_EVENT_TYPE != 'cron' ] || [ $TRAVIS_EVENT_TYPE != 'api' ]]; then luacheck .; fi"
+  - "if [[ $TRAVIS_EVENT_TYPE != 'cron' ]]; then luacheck .; fi"
 before_deploy:
   - git config --local user.name "$github_user_name"
   - git config --local user.email "$github_user_email"
