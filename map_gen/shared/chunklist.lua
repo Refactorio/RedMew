@@ -7,9 +7,11 @@
 local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
+local table = require 'utils.table'
 
 -- Localized functions
 local raise_event = script.raise_event
+local deep_copy = table.deep_copy
 
 -- Local vars
 local surface
@@ -52,8 +54,9 @@ local function on_chunk_generated(event)
 
     chunk_list[new_entry_index] = event.area.left_top
 
-    event.chunk_index = new_entry_index
-    raise_event(Public.events.on_chunk_registered, event)
+    local custom_event = deep_copy(event)
+    custom_event.chunk_index = new_entry_index
+    raise_event(Public.events.on_chunk_registered, custom_event)
 end
 
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)
