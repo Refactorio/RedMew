@@ -20,6 +20,8 @@ local density_scale = 1 / 48
 local density_threshold = 0.5
 local density_multiplier = 50
 
+RS.set_first_player_position_check_override(true)
+RS.set_spawn_island_tile('grass-1')
 RS.set_map_gen_settings(
     {
         MGSP.ore_oil_none,
