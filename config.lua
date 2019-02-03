@@ -267,6 +267,23 @@ global.config = {
     -- adds a useless button with the biter percentage
     evolution_progress = {
         enabled = true
+    },
+    -- sets the day/night cycle or a fixed light level. use_day_night_cycle and use_fixed_brightness are mutually exclusive
+    day_night ={
+        -- enables/disables the module
+        enabled = false,
+        -- for info on day/night cycles see https://github.com/Refactorio/RedMew/wiki/Day-Night-cycle
+        use_day_night_cycle = false,
+        day_night_cycle = {
+            ticks_per_day = 25000,
+            dusk = 0.25,
+            evening = 0.45,
+            morning = 0.55,
+            dawn = 0.75
+        },
+        -- brightness is a number between 0.15 and 1
+        use_fixed_brightness = false,
+        fixed_brightness = 0.5
     }
 }
 
