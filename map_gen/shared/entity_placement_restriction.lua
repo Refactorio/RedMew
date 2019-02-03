@@ -121,30 +121,17 @@ local on_built_token =
             name = entity.ghost_name
             ghost = true
         end
-        game.print('-----------------------') -- debug
+
         if allowed_entities[name] then
-            Debug.print(string.format('Allowed: %s', allowed_entities[name]))
             return
         end
 
         -- Takes the keep_alive_callback function and runs it with the entity as an argument
         -- If true is returned, we exit. If false, we destroy the entity.
         local keep_alive_callback = primitives.keep_alive_callback
-        Debug.print(string.format('Banned: %s', banned_entities[name]))
-        local result  -- debug
-        if keep_alive_callback then -- debug
-            result = keep_alive_callback(entity) -- debug
-        else -- debug
-            result = 'no function' -- debug
-        end -- debug
-
-        Debug.print(string.format('Function return: %s', result))
         if not banned_entities[name] and keep_alive_callback and keep_alive_callback(entity) then
-            Debug.print('Entity was spared')
             return
         end
-
-        Debug.print('Entity was killed')
 
         local p = Game.get_player_by_index(event.player_index)
         if not p or not p.valid then
