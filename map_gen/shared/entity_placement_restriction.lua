@@ -1,22 +1,42 @@
 --[[
-    Regulates the placement of entities and their ghosts
-    Can be called through public function to provide lists of allowed or banned entities.
-    Can also set a keep_alive_callback function to process information about the entity about to be destroyed
-    for example, checking for resources underneath the entity or checking the pollution in the entity's chunk.
+    This module restricts the placement of entities and ghosts based on an allowed and banned list,
+    as well as by the (optionally) provided function.
 
-    Example of keep_alive_callback function to check if there are resources beneath:
-    function keep_alive_callback (entity)
-        local count = entity.surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
-        if count == 0 then
-            return true
+    The table of allowed_entities are *always* allowed to be placed.
+    The table of banned_entities are *never* allowed to be placed, and are destroyed.
+
+    For anything not in either of those lists, you can use the set_keep_alive_callback function to set a keep_alive_callback function.
+    This means you can use any custom logic you want to determine whether an entity should be destroyed or not.
+    The callback function is supplied a valid LuaEntity as an argument.
+    A return of true indicates the entity should be kept alive, while false or nil indicate it should be destroyed.
+
+    Refunds for items that were placed can be toggled on or off via the enable and disable_refund functions
+
+    Lastly, this module raises 2 events: on_pre_restricted_entity_destroyed and on_restricted_entity_destroyed events.
+    They are fully defined below.
+
+    Examples (only the first example will include the require):
+    -- A map which allows no roboports:
+    local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
+    RestrictEntities.add_banned({'roboport'})
+
+    -- A map which allows only belts (for a foot race map, of course)
+    -- The function provided does nothing but return nil
+    -- every entity will be destroyed except those on the allowed list
+    RestrictEntities.add_allowed({'transport-belt'})
+    RestrictEntities.set_keep_alive_callback(function() end)
+
+    -- Danger ores (a lot of important code omitted for the sake of a brief example)
+    RestrictEntities.add_allowed({belts, power_poles, mining_drills, 'pumpjack'})
+    RestrictEntities.set_keep_alive_callback(
+        function(entity)
+            if entity.surface.count_entities_filtered {area = entity.bounding_box, type = 'resource', limit = 1} == 0 then
+                return true
+            end
         end
-    end
-
-    Allowed entities: are exempt from the keep_alive_callback check and are never destroyed.
-    Banned entities: are always destroyed.
-
-    Maps can hook the on_pre_restricted_entity_destroyed and on_restricted_entity_destroyed events.
+    )
 ]]
+
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
@@ -62,10 +82,9 @@ local Public = {
 local allowed_entities = {}
 local banned_entities = {}
 local primitives = {
-    event = nil,
-    allowed_ents = nil,
-    banned_ents = nil,
-    keep_alive_callback = nil
+    event = nil, -- if the event is registered or not
+    refund = true, -- if we issue a refund or not
+    keep_alive_callback = nil -- the function to process entities through
 }
 
 Global.register(
@@ -83,7 +102,7 @@ Global.register(
 
 -- Local functions
 
---- Token for on_built callback, checks if an entity should be destroyed.
+--- Token for the on_built event callback, checks if an entity should be destroyed.
 local on_built_token =
     Token.register(
     function(event)
@@ -102,137 +121,157 @@ local on_built_token =
             name = entity.ghost_name
             ghost = true
         end
-
-        if primitives.allowed_ents and allowed_entities[name] then
+        game.print('-----------------------') -- debug
+        if allowed_entities[name] then
+            Debug.print(string.format('Allowed: %s', allowed_entities[name]))
             return
         end
 
-        -- Takes the keep_alive_callback function (if provided) and runs it with the entity as an argument
-        -- If true is returned, we exit. If false, we destroy the entity and return the itemstack to the player (if possible)
+        -- Takes the keep_alive_callback function and runs it with the entity as an argument
+        -- If true is returned, we exit. If false, we destroy the entity.
         local keep_alive_callback = primitives.keep_alive_callback
+        Debug.print(string.format('Banned: %s', banned_entities[name]))
+        local result  -- debug
+        if keep_alive_callback then -- debug
+            result = keep_alive_callback(entity) -- debug
+        else -- debug
+            result = 'no function' -- debug
+        end -- debug
+
+        Debug.print(string.format('Function return: %s', result))
         if not banned_entities[name] and keep_alive_callback and keep_alive_callback(entity) then
+            Debug.print('Entity was spared')
             return
         end
+
+        Debug.print('Entity was killed')
 
         local p = Game.get_player_by_index(event.player_index)
         if not p or not p.valid then
             return
         end
 
-        event.ghost = ghost
-        event.player = p
-        raise_event(Public.events.on_pre_restricted_entity_destroyed, event)
-        -- Need to revalidate the entity since we sent it via the event
+        -- Create a copy of the event to send to raised events
+        local custom_event = deep_copy(event)
+        custom_event.ghost = ghost
+        custom_event.player = p
+        raise_event(Public.events.on_pre_restricted_entity_destroyed, deep_copy(custom_event))
+
+        -- Need to revalidate the entity since we sent it to the raised event
         if entity.valid then
             entity.destroy()
         end
 
-        -- Need to revalidate the stack since we sent it via the event
+        -- Check if we issue a refund: make sure refund is enabled, make sure we're not refunding a ghost,
+        -- and revalidate the stack since we sent it to the raised event
         local stack = event.stack
-        event.item_returned = false
-        if not ghost and stack.valid then
+        if primitives.refund and not ghost and stack.valid then
             p.insert(stack)
-            event.item_returned = true
+            custom_event.item_returned = true
+        else
+            custom_event.item_returned = false
         end
 
-        event.stack = nil
-        event.created_entity = nil
-        raise_event(Public.events.on_restricted_entity_destroyed, event)
+        custom_event.stack = nil
+        custom_event.created_entity = nil
+        -- raise_event(defines.events.script_raised_destroy, deep_copy(custom_event))
+        raise_event(Public.events.on_restricted_entity_destroyed, custom_event)
     end
 )
 
---- Adds the event hook for on_built_entity
-local function add_event()
-    if not primitives.event then
-        Event.add_removable(defines.events.on_built_entity, on_built_token)
-        primitives.event = true
-    end
-end
-
---- Removes the event hook for on_built_entity
-local function remove_event()
+--- Registers and unregisters the event hook
+local function check_event_status()
+    -- First we check if the event hook is in place or not
     if primitives.event then
-        Event.remove_removable(defines.events.on_built_entity, on_built_token)
-        primitives.event = nil
+        -- If there are no items in either list and no function is present, unhook the event
+        if not next(allowed_entities) and not next(banned_entities) and not primitives.keep_alive_callback then
+            Event.remove_removable(defines.events.on_built_entity, on_built_token)
+            primitives.event = nil
+        end
+    else
+        -- If either of the lists have an entry or there is a function present, hook the event
+        if next(allowed_entities) or next(banned_entities) or primitives.keep_alive_callback then
+            Event.add_removable(defines.events.on_built_entity, on_built_token)
+            primitives.event = true
+        end
     end
 end
 
 -- Public functions
 
---- Sets the function to be used for keep_alive_callback
+--- Sets the keep_alive_callback function. This function is used to provide
+-- logic on what entities should and should not be destroyed.
 -- @param keep_alive_callback <function>
 function Public.set_keep_alive_callback(keep_alive_callback)
+    if type(keep_alive_callback) ~= 'function' then
+        error('Sending a non-funciton')
+    end
     primitives.keep_alive_callback = keep_alive_callback
+    check_event_status()
+end
+
+--- Removes the keep_alive_callback function
+function Public.remove_keep_alive_callback()
+    primitives.keep_alive_callback = nil
+    check_event_status()
 end
 
 --- Adds to the list of allowed entities
--- @param ents <table> array of entity strings
+-- @param ents <table> array of string entity names
 function Public.add_allowed(ents)
-    primitives.allowed_ents = true
     for _, v in pairs(ents) do
         allowed_entities[v] = true
     end
-    if not primitives.event then
-        add_event()
-    end
+    check_event_status()
 end
 
 --- Removes from the list of allowed entities
--- @param ents <table> array of entity strings
+-- @param ents <table> array of string entity names
 function Public.remove_allowed(ents)
     for _, v in pairs(ents) do
         allowed_entities[v] = nil
     end
-    if table.size(allowed_entities) == 0 then
-        primitives.allowed_ents = nil
-        if primitives.event and not primitives.banned_ents then
-            remove_event()
-        end
-    end
+    check_event_status()
 end
 
---- Resets the list of banned entities
+--- Resets the list of allowed entities
 function Public.reset_allowed()
     table.clear_table(allowed_entities)
-    primitives.allowed_ents = nil
-    if primitives.event and not primitives.banned_ents then
-        remove_event()
-    end
+    check_event_status()
 end
 
 --- Adds to the list of banned entities
--- @param ents <table> array of entity strings
+-- @param ents <table> array of string entity names
 function Public.add_banned(ents)
-    primitives.banned_ents = true
     for _, v in pairs(ents) do
         banned_entities[v] = true
     end
-    if not primitives.event then
-        add_event()
-    end
+    check_event_status()
 end
 
 --- Removes from the list of banned entities
--- @param ents <table> array of entity strings
+-- @param ents <table> array of string entity names
 function Public.remove_banned(ents)
     for _, v in pairs(ents) do
         banned_entities[v] = nil
     end
-    if table.size(banned_entities) == 0 then
-        primitives.banned_ents = nil
-        if primitives.event and not primitives.allowed_ents then
-            remove_event()
-        end
-    end
+    check_event_status()
 end
 
 --- Resets the list of banned entities
 function Public.reset_banned()
-    primitives.banned_ents = nil
     table.clear_table(banned_entities)
-    if primitives.event and not primitives.allowed_ents then
-        remove_event()
-    end
+    check_event_status()
+end
+
+--- Enables the returning of items that are destroyed by this module
+function Public.enable_refund()
+    primitives.refund = true
+end
+
+--- Disables the returning of items that are destroyed by this module
+function Public.set_refund()
+    primitives.refund = false
 end
 
 return Public
