@@ -239,6 +239,10 @@ global.config = {
     admin_commands = {
         enabled = true
     },
+    -- adds commands for donators
+    donator_commands = {
+        enabled = true
+    },
     player_colors = {
         enabled = true
     },

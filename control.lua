@@ -50,6 +50,9 @@ end
 if config.redmew_commands.enabled then
     require 'features.redmew_commands'
 end
+if config.donator_commands.enabled then
+    require 'features.donator_commands'
+end
 if config.market.enabled then
     require 'features.market'
 end
