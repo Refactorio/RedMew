@@ -7,10 +7,15 @@ local Server = require 'features.server'
 local UserGroups = require 'features.user_groups'
 local Walkabout = require 'features.walkabout'
 local PlayerStats = require 'features.player_stats'
+local Settings = require 'utils.redmew_settings'
 
 local format = string.format
 local ceil = math.ceil
 local concat = table.concat
+local pcall = pcall
+local tostring = tostring
+local tonumber = tonumber
+local pairs = pairs
 
 --- Kill a player with fish as the cause of death.
 local function do_fish_kill(player, suicide)
@@ -380,3 +385,50 @@ Command.add(
     },
     UserGroups.print_regulars
 )
+
+Command.add('redmew-setting-set', {
+    description = 'Set a setting for yourself',
+    arguments = {'setting_name', 'new_value'},
+    capture_excess_arguments = true,
+}, function (arguments, player)
+    local value
+    local setting_name = arguments.setting_name
+    local success, data = pcall(function()
+        value = Settings.set(player.index, setting_name, arguments.new_value)
+    end)
+
+    if not success then
+        local i = data:find('%s')
+        player.print(data:sub(i + 1))
+        return
+    end
+
+    player.print(format('Changed "%s" to: "%s"', setting_name, value))
+end)
+
+Command.add('redmew-setting-get', {
+    description = 'Display a setting value for yourself',
+    arguments = {'setting_name'},
+}, function (arguments, player)
+    local value
+    local setting_name = arguments.setting_name
+    local success, data = pcall(function()
+        value = Settings.get(player.index, setting_name)
+    end)
+
+    if not success then
+        local i = data:find('%s')
+        player.print(data:sub(i + 1))
+        return
+    end
+
+    player.print(format('Setting "%s" has a value of: "%s"', setting_name, value))
+end)
+
+Command.add('redmew-setting-all', {
+    description = 'Display all settings for yourself',
+}, function (_, player)
+    for name, value in pairs(Settings.all(player.index)) do
+        player.print(format('%s=%s', name, value))
+    end
+end)

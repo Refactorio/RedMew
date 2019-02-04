@@ -2,6 +2,7 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
+local Toast = require 'features.gui.toast'
 local ForceControl = require 'features.force_control'
 local ScoreTable = require 'map_gen.maps.diggy.score_table'
 local Retailer = require 'features.retailer'
@@ -530,8 +531,7 @@ function Experience.register(cfg)
 
     --Adds a function that'll be executed at every level up
     ForceControlBuilder.register_on_every_level(function (level_reached, force)
-        force.print(format('%s Leveled up to %d!', '## - ', level_reached))
-        force.play_sound{path='utility/new_objective', volume_modifier = 1 }
+        Toast.toast_force(force, 10 , format('Your team has reached level %d!', level_reached))
         Experience.update_inventory_slots(force, level_reached)
         Experience.update_mining_speed(force, level_reached)
         Experience.update_health_bonus(force, level_reached)
