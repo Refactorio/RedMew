@@ -1,6 +1,7 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Game = require 'utils.game'
+local Global = require 'utils.global'
 
 local brush_tool = 'refined-hazard-concrete'
 
@@ -39,13 +40,23 @@ local filter_element_name = Gui.uid_name()
 local filters_table_name = Gui.uid_name()
 local filter_table_close_button_name = Gui.uid_name()
 
-global.paint_brushes_by_player = {}
+local paint_brushes_by_player = {}
+
+Global.register(
+    {
+        paint_brushes_by_player = paint_brushes_by_player
+    },
+    function(tbl)
+        paint_brushes_by_player = tbl.paint_brushes_by_player
+    end
+)
+
 local function player_build_tile(event)
     if event.item.name ~= brush_tool then
         return
     end
 
-    local replace_tile = global.paint_brushes_by_player[event.player_index]
+    local replace_tile = paint_brushes_by_player[event.player_index]
     if not replace_tile then
         return
     end
@@ -130,7 +141,7 @@ local function toggle(event)
             caption = 'Paint Brush'
         }
 
-        local tooltip = global.paint_brushes_by_player[event.player_index] or ''
+        local tooltip = paint_brushes_by_player[event.player_index] or ''
 
         local brush =
             main_frame.add({type = 'flow'}).add {
@@ -156,7 +167,7 @@ Gui.on_click(
     filter_button_name,
     function(event)
         if event.button == defines.mouse_button_type.right then
-            global.paint_brushes_by_player[event.player_index] = nil
+            paint_brushes_by_player[event.player_index] = nil
             local element = event.element
             element.sprite = 'utility/pump_cannot_connect_icon'
             element.tooltip = ''
@@ -174,7 +185,7 @@ Gui.on_click(
         brush.sprite = 'utility/pump_cannot_connect_icon'
         brush.tooltip = ''
 
-        global.paint_brushes_by_player[event.player_index] = nil
+        paint_brushes_by_player[event.player_index] = nil
     end
 )
 
@@ -185,7 +196,7 @@ Gui.on_click(
         local frame = Gui.get_data(element)
         local filter_button = Gui.get_data(frame)
 
-        global.paint_brushes_by_player[event.player_index] = element.tooltip
+        paint_brushes_by_player[event.player_index] = element.tooltip
         filter_button.sprite = element.sprite
         filter_button.tooltip = element.tooltip
 

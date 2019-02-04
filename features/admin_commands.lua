@@ -1,5 +1,6 @@
 local Task = require 'utils.task'
 local Token = require 'utils.token'
+local Global = require 'utils.global'
 local UserGroups = require 'features.user_groups'
 local Report = require 'features.report'
 local Utils = require 'utils.core'
@@ -11,7 +12,16 @@ local format = string.format
 local loadstring = loadstring
 
 --- A table of players with tpmode turned on
-global.tp_players = {}
+local tp_players = {}
+
+Global.register(
+    {
+        tp_players = tp_players
+    },
+    function(tbl)
+        tp_players = tbl.tp_players
+    end
+)
 
 --- Sends a message to all online admins
 local function admin_chat(args, player)
@@ -209,11 +219,11 @@ local function teleport_location(_, player)
     Game.player_print('Teleporting to your selected entity.')
 end
 
---- If a player is in the global.tp_players list, remove ghosts they place and teleport them to that position
+--- If a player is in the tp_players list, remove ghosts they place and teleport them to that position
 local function built_entity(event)
     local index = event.player_index
 
-    if global.tp_players[index] then
+    if tp_players[index] then
         local entity = event.created_entity
 
         if not entity or not entity.valid or entity.type ~= 'entity-ghost' then
@@ -228,13 +238,13 @@ end
 --- Adds/removes players from the tp_players table (admin only)
 local function toggle_tp_mode(_, player)
     local index = player.index
-    local toggled = global.tp_players[index]
+    local toggled = tp_players[index]
 
     if toggled then
-        global.tp_players[index] = nil
+        tp_players[index] = nil
         Game.player_print('tp mode is now off')
     else
-        global.tp_players[index] = true
+        tp_players[index] = true
         Game.player_print('tp mode is now on - place a ghost entity to teleport there.')
     end
 end
