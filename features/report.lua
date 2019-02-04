@@ -2,8 +2,6 @@ local Gui = require 'utils.gui'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
-local Event = require 'utils.event'
-local Token = require 'utils.token'
 local Popup = require 'features.gui.popup'
 local Color = require 'resources.color_presets'
 
@@ -15,7 +13,6 @@ local report_tab_button_name = Gui.uid_name()
 local jail_offender_button_name = Gui.uid_name()
 local report_body_name = Gui.uid_name()
 local jail_name = 'Jail'
-local jail_force = 'jailed'
 local default_group = 'Default'
 local prefix = '------------------NOTICE-------------------'
 local prefix_e = '--------------------------------------------'
@@ -25,9 +22,6 @@ local Module = {}
 -- Global registered locals
 local report_data = {}
 local jail_data = {}
-local primitives = {
-    on_chat_registered = nil
-}
 
 Global.register(
     {
@@ -37,24 +31,6 @@ Global.register(
     function(tbl)
         report_data = tbl.report_data
         jail_data = tbl.jail_data
-    end
-)
-
---- If a player in jail chats to their force, let the admins know
-local on_chat =
-    Token.register(
-    function(event)
-        local index = event.player_index
-        local player = Game.get_player_by_index(index)
-        local message
-
-        if jail_data[index] then
-            message = 'From jail: ' .. event.message
-            Utils.print_admins(message, player.name)
-        elseif player.admin then
-            message = 'From admin: ' .. event.message
-            game.forces[jail_force].print(message)
-        end
     end
 )
 
@@ -251,19 +227,8 @@ function Module.jail(target_player, player)
             character.destructible = false
         end
 
-        local former_force_name = target_player.force.name
-        if not game.forces[jail_force] then
-            local force = game.create_force(jail_force)
-            local former_force = target_player.force
-            former_force.set_cease_fire(force, true)
-            former_force.set_friend(force, true)
-        end
-
-        target_player.force = game.forces[jail_force]
-
         jail_data[target_player.index] = {
             name = target_name,
-            force = former_force_name,
             perm_group = former_permission_group,
             char_dest = former_char_dest,
             color = target_player.color,
@@ -272,10 +237,6 @@ function Module.jail(target_player, player)
 
         target_player.color = Color.white
         target_player.chat_color = Color.white
-        if not primitives.on_chat_registered then
-            Event.add_removable(defines.events.on_console_chat, on_chat)
-            primitives.on_chat_registered = true
-        end
     else
         -- Let admin know it didn't work.
         print(format('Something went wrong in the jailing of %s. You can still change their group via /permissions.', target_name))
@@ -322,7 +283,6 @@ function Module.unjail(target_player, player)
     target_player.shooting_state.state = 0
 
     -- Restore player's state from stored data
-    target_player.force = target_jail_data.force
     local character = target_player.character
     if character and character.valid then
         character.destructible = target_jail_data.char_dest
@@ -340,11 +300,6 @@ function Module.unjail(target_player, player)
         target_player.print(prefix_e)
         Utils.print_admins(format('%s has been released from jail by %s', target_name, player.name))
         Utils.log_command(Utils.get_actor(), 'unjail', target_name)
-
-        if primitives.on_chat_registered and #jail_data == 0 then
-            Event.remove_removable(defines.events.on_console_chat, on_chat)
-            primitives.on_chat_registered = nil
-        end
     else
         -- Let admin know it didn't work.
         Game.player_print(format('Something went wrong in the unjailing of %s. You can still change their group via /permissions and inform them.', target_name))
