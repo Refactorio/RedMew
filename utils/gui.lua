@@ -19,13 +19,7 @@ local on_visible_handlers = {}
 local on_pre_hidden_handlers = {}
 
 function Gui.uid_name()
-    if _DEBUG then
-        -- https://stackoverflow.com/questions/48402876/getting-current-file-name-in-lua
-        local filepath = debug.getinfo(2, 'S').source:match('^.+/currently%-playing/(.+)$'):sub(1, -5)
-        return filepath .. ',' .. Token.uid()
-    else
-        return tostring(Token.uid())
-    end
+    return tostring(Token.uid())
 end
 
 -- Associates data with the LuaGuiElement. If data is nil then removes the data
@@ -266,5 +260,25 @@ Gui.on_click(
         end
     end
 )
+
+if _DEBUG then
+    local concat = table.concat
+
+    local names = {}
+    Gui.names = names
+
+    function Gui.uid_name()
+        local info = debug.getinfo(2, 'Sl')
+        local filepath = info.source:match('^.+/currently%-playing/(.+)$'):sub(1, -5)
+        local line = info.currentline
+
+        local token = tostring(Token.uid())
+
+        local name = concat {token, ' - ', filepath, ':line:', line}
+        names[token] = name
+
+        return token
+    end
+end
 
 return Gui

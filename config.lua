@@ -16,6 +16,21 @@ global.config = {
         -- New Scenario Features, appears in the "What's new" tab
         new_info_key = 'Nothing is new. The world is at peace'
     },
+    -- map generation settings for redmew's maps (only applies to maps that use 'shapes')
+    map_generation = {
+        -- whether to regen decoratives
+        ['regen_decoratives'] = false,
+        -- the number of 'tiles' that are calculated per tick
+        ['tiles_per_tick'] = 32,
+        -- the entity modules to load (takes a list of requires), example included
+        ['entity_modules'] = {
+            -- require('map_gen.entities.fluffy_rainbows')
+        },
+        -- the terrain modules to load (takes a list of requires), example included
+        ['terrain_modules'] = {
+            --require('map_gen.terrain.tris_chunk_grid')
+        },
+    },
     -- redmew_surface allows a map preset to control world generation as well as map and difficulty settings
     -- the entire module can be toggled or just individual parts
     redmew_surface = {
@@ -84,9 +99,9 @@ global.config = {
             ['medium-spitter'] = {low = 1, high = 3, chance = 0},
             ['big-spitter'] = {low = 1, high = 3, chance = 0},
             ['behemoth-spitter'] = {low = 1, high = 10, chance = 0},
-            ['medium-biter']  = {low = 1, high = 3, chance = 0},
-            ['big-biter']  = {low = 1, high = 5, chance = 0},
-            ['behemoth-biter']  = {low = 1, high = 10, chance = 0}
+            ['medium-biter'] = {low = 1, high = 3, chance = 0},
+            ['big-biter'] = {low = 1, high = 5, chance = 0},
+            ['behemoth-biter'] = {low = 1, high = 10, chance = 0}
         }
     },
     -- adds anti-nuke griefing
@@ -198,7 +213,7 @@ global.config = {
     },
     -- makes manual stuff cumbersome
     lazy_bastard = {
-        enabled = false,
+        enabled = false
     },
     -- automatically marks miners for deconstruction when they are depleted (currently compatible with hard mods that add miners)
     autodeconstruct = {
@@ -251,7 +266,24 @@ global.config = {
     },
     -- adds a useless button with the biter percentage
     evolution_progress = {
-        enabled = true,
+        enabled = true
+    },
+    -- sets the day/night cycle or a fixed light level. use_day_night_cycle and use_fixed_brightness are mutually exclusive
+    day_night ={
+        -- enables/disables the module
+        enabled = false,
+        -- for info on day/night cycles see https://github.com/Refactorio/RedMew/wiki/Day-Night-cycle
+        use_day_night_cycle = false,
+        day_night_cycle = {
+            ticks_per_day = 25000,
+            dusk = 0.25,
+            evening = 0.45,
+            morning = 0.55,
+            dawn = 0.75
+        },
+        -- brightness is a number between 0.15 and 1
+        use_fixed_brightness = false,
+        fixed_brightness = 0.5
     }
 }
 

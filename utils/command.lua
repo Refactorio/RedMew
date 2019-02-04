@@ -16,6 +16,13 @@ local deprecated_command_alternatives = {
     ['tpplayer'] = 'tp <player>',
     ['tppos'] = 'tp',
     ['tpmode'] = 'tp mode',
+    ['color-redmew'] = 'redmew-color'
+}
+
+local notify_on_commands = {
+    ['version'] = 'RedMew has a version as well, accessible via /redmew-version',
+    ['color'] = 'RedMew allows color saving and a color randomizer: check out /redmew-color',
+    ['ban'] = 'In case your forgot: please remember to include a message on how to appeal a ban'
 }
 
 local option_names = {
@@ -255,13 +262,25 @@ function Command.search(keyword)
     return matches
 end
 
---- Warns in-game players of deprecated commands, ignores the server
-local function notify_deprecated(event)
+--- Trigger messages on deprecated or defined commands, ignores the server
+local function on_command(event)
+    if not event.player_index then
+        return
+    end
+
     local alternative = deprecated_command_alternatives[event.command]
     if alternative then
-        if event.player_index then
-            local player = Game.get_player_by_index(event.player_index)
+        local player = Game.get_player_by_index(event.player_index)
+        if player then
             player.print(format('Warning! Usage of the command "/%s" is deprecated. Please use "/%s" instead.', event.command, alternative))
+        end
+    end
+
+    local notification = notify_on_commands[event.command]
+    if notification and event.player_index then
+        local player = Game.get_player_by_index(event.player_index)
+        if player then
+            player.print(notification)
         end
     end
 end
@@ -285,6 +304,6 @@ if not _DEBUG then
     end
 end
 
-Event.add(defines.events.on_console_command, notify_deprecated)
+Event.add(defines.events.on_console_command, on_command)
 
 return Command

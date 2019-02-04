@@ -62,6 +62,11 @@ local function player_created(event)
 
     if _DEBUG and player.admin then
         UserGroups.add_regular(player.name)
+        if game.is_multiplayer then
+            game.print("THIS MULTIPLAYER MAP IS IN DEBUG!!!")
+        else
+            game.print("DON'T LAUNCH THIS MAP! DEBUG MODE IS ENABLED!!!")
+        end
     end
 
     if _CHEATS then

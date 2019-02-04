@@ -223,6 +223,14 @@ function Public.get_death_count(player_index)
     return player_deaths[player_index].count
 end
 
+function Public.get_crafted_item(player_index)
+    return player_crafted_items[player_index]
+end
+
+function Public.get_console_chat(player_index)
+    return player_console_chats[player_index]
+end
+
 -- Returns a dictionary of cause_name -> count
 function Public.get_all_death_counts_by_cause(player_index)
     return player_deaths[player_index].causes or {}
@@ -242,14 +250,6 @@ end
 
 function Public.get_total_player_rocks_mined()
     return total_player_rocks_mined[1]
-end
-
-function Public.get_player_crafted_item(player_index)
-    return player_crafted_items[player_index]
-end
-
-function Public.get_player_console_chat(player_index)
-    return player_console_chats[player_index]
 end
 
 function Public.get_total_robot_built_entities()
