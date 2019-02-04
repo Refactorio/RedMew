@@ -75,7 +75,7 @@ end
 -- @param state number/string The state, that the machine will be in, when callback is invoked
 -- @param callback function
 function Module.register_state_tick_callback(self, state, callback)
-    if game then
+    if _LIFECYCLE > 4 then
         error('StateMachine.register_state_tick_callback after on_init() is unsupported due to desyncs.', 2)
     end
     in_state_callbacks[self.id][state] = in_state_callbacks[self.id][state] or {}
@@ -90,7 +90,7 @@ end
 -- @param state number/string entering state
 -- @param callback function
 function Module.register_transition_callback(self, old, new, callback)
-    if game then
+    if _LIFECYCLE > 4 then
         error('StateMachine.register_transition after on_init() is unsupported due to desyncs.', 2)
     end
     transaction_callbacks[self.id][old] = transaction_callbacks[self.id][old] or {}
@@ -102,7 +102,7 @@ end
 -- @param init_state number/string The starting state of the machine
 -- @return StateMachine The constructed state machine object
 function Module.new(init_state)
-    if game then
+    if _LIFECYCLE > 4 then
         error('StateMachine.register_transition after on_init() is unsupported due to desyncs.', 2)
     end
     machine_count = machine_count + 1

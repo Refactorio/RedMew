@@ -62,7 +62,7 @@ function Debug.print(message, trace_levels)
         message = format('%s - Traceback%s', message, traceback_string)
     end
 
-    if game then
+    if _LIFECYCLE == 8 then
         game.print(message)
     end
     log(message)
