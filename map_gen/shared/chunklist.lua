@@ -7,11 +7,9 @@
 local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
-local table = require 'utils.table'
 
 -- Localized functions
 local raise_event = script.raise_event
-local deep_copy = table.deep_copy
 
 -- Local vars
 local surface
@@ -26,7 +24,7 @@ local Public = {
             tick :: uint: Tick the event was generated.
             area :: BoundingBox: Area of the chunk
             surface :: LuaSurface: The surface the chunk is on
-            chunk_index :: the index of the chunk in the table
+            chunk_index :: the index of the chunk in Chunklist's table
         ]]
         on_chunk_registered = script.generate_event_name()
     }
@@ -51,12 +49,17 @@ local function on_chunk_generated(event)
 
     local chunk_list = Public.chunk_list
     local new_entry_index = #chunk_list + 1
+    local area = event.area
 
-    chunk_list[new_entry_index] = event.area.left_top
-
-    local custom_event = deep_copy(event)
-    custom_event.chunk_index = new_entry_index
-    raise_event(Public.events.on_chunk_registered, custom_event)
+    chunk_list[new_entry_index] = area.left_top
+    raise_event(
+        Public.events.on_chunk_registered,
+        {
+            area = area,
+            surface = surface,
+            chunk_index = new_entry_index
+        }
+    )
 end
 
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)
