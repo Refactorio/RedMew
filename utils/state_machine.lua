@@ -76,7 +76,7 @@ end
 -- @param callback function
 function Module.register_state_tick_callback(self, state, callback)
     if _LIFECYCLE > 4 then
-        error('StateMachine.register_state_tick_callback after on_init() is unsupported due to desyncs.', 2)
+        error('Calling StateMachine.register_state_tick_callback after the control stage is unsupported due to desyncs.', 2)
     end
     in_state_callbacks[self.id][state] = in_state_callbacks[self.id][state] or {}
     table.insert(in_state_callbacks[self.id][state], callback)
@@ -91,7 +91,7 @@ end
 -- @param callback function
 function Module.register_transition_callback(self, old, new, callback)
     if _LIFECYCLE > 4 then
-        error('StateMachine.register_transition after on_init() is unsupported due to desyncs.', 2)
+        error('Calling StateMachine.register_transition_callback after the control stage is unsupported due to desyncs.', 2)
     end
     transaction_callbacks[self.id][old] = transaction_callbacks[self.id][old] or {}
     transaction_callbacks[self.id][old][new] = transaction_callbacks[self.id][old][new] or {}
@@ -103,7 +103,7 @@ end
 -- @return StateMachine The constructed state machine object
 function Module.new(init_state)
     if _LIFECYCLE > 4 then
-        error('StateMachine.register_transition after on_init() is unsupported due to desyncs.', 2)
+        error('Calling StateMachine.new after the control stage is unsupported due to desyncs.', 2)
     end
     machine_count = machine_count + 1
     in_state_callbacks[machine_count] = {}

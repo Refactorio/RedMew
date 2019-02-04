@@ -231,6 +231,8 @@ end
 
 local map_gen_action_token = Token.register(map_gen_action)
 
+--- Adds generation of a Chunk of the map to the queue
+-- @param event <table> the event table from on_chunk_generated
 function Public.schedule_chunk(event)
     local surface = event.surface
     local shape = surfaces[surface.name]
@@ -257,6 +259,8 @@ function Public.schedule_chunk(event)
     Task.queue_task(map_gen_action_token, data, total_calls)
 end
 
+--- Generates a Chunk of map when called
+-- @param event <table> the event table from on_chunk_generated
 function Public.do_chunk(event)
     local surface = event.surface
     local shape = surfaces[surface.name]
@@ -288,6 +292,8 @@ function Public.do_chunk(event)
     do_place_decoratives(data)
 end
 
+--- Sets the variables for the generate functions, should only be called from map_loader
+-- @param args <table>
 function Public.init(args)
     tiles_per_tick = args.tiles_per_tick or 32
     regen_decoratives = args.regen_decoratives or false
@@ -307,6 +313,7 @@ local function on_chunk(event)
     end
 end
 
+--- Registers the event to generate our map when Chunks are generated, should only be called from map_loader
 function Public.register()
     if not Public.enable_register_events then
         return
@@ -319,6 +326,8 @@ function Public.register()
     end
 end
 
+--- Returns the surfaces that the generate functions will act on
+-- @return dictionary of surface_name -> shape function
 function Public.get_surfaces()
     return surfaces
 end

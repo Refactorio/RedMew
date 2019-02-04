@@ -25,7 +25,7 @@ local button_sprites = {
 }
 
 local function get_evolution_percentage()
-    if not game then
+    if _LIFECYCLE <= 4 then
         return 0
     end
 
