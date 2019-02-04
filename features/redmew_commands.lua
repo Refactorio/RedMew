@@ -398,7 +398,8 @@ Command.add('redmew-setting-set', {
     end)
 
     if not success then
-        player.print(data.message)
+        local i = data:find('%s')
+        player.print(data:sub(i + 1))
         return
     end
 
@@ -416,7 +417,8 @@ Command.add('redmew-setting-get', {
     end)
 
     if not success then
-        player.print(data.message)
+        local i = data:find('%s')
+        player.print(data:sub(i + 1))
         return
     end
 

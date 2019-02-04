@@ -8,6 +8,7 @@ local Event = require 'utils.event'
 local Command = require 'utils.command'
 
 local format = string.format
+local loadstring = loadstring
 
 --- A table of players with tpmode turned on
 global.tp_players = {}
@@ -29,12 +30,21 @@ local function silent_command(args, player)
     local func, err = loadstring(args.str)
     if not func then
         p(err)
+        return
     end
 
     local _, err2 = pcall(func)
     if err2 then
         local i = err2:find('\n')
-        p(err2:sub(1, i))
+        if i then
+            p(err2:sub(1, i))
+            return
+        end
+
+        i = err2:find('%s')
+        if i then
+            p(err2:sub(i + 1))
+        end
     end
 end
 

@@ -74,6 +74,8 @@ Global.register(memory, function (tbl) memory = tbl end)
 
 local Public = {}
 
+Public.types = {fraction = 'fraction', string = 'string', boolean = 'boolean'}
+
 ---Register a specific setting with a sensitization setting type.
 ---
 --- Available setting types:
@@ -81,23 +83,23 @@ local Public = {}
 --- - string a string or anything that can be cast to a string
 --- - boolean, 1, 0, yes, no, true, false or an empty string for false
 ---
---- This function can only be called before the game is initialized.
+--- This function must be called in the control stage, i.e. not inside an event.
 ---
 ---@param name string
 ---@param setting_type string
 ---@param default mixed
 function Public.register(name, setting_type, default)
     if game then
-        error(format('You can only register setting names before the game is initialized. Tried setting "%s" with type "%s".', name, setting_type))
+        error(format('You can only register setting names in the control stage, i.e. not inside events. Tried setting "%s" with type "%s".', name, setting_type), 2)
     end
 
     if settings[name] then
-        error(format('Trying to register setting for "%s" while it has already been registered.', name))
+        error(format('Trying to register setting for "%s" while it has already been registered.', name), 2)
     end
 
     local callback = settings_type[setting_type]
     if not callback then
-        error(format('Trying to register setting for "%s" with type "%s" while this type does not exist.', name, setting_type))
+        error(format('Trying to register setting for "%s" with type "%s" while this type does not exist.', name, setting_type), 2)
     end
 
     local setting = {
@@ -120,13 +122,13 @@ end
 function Public.set(player_index, name, value)
     local setting = settings[name]
     if not setting then
-        return error({message = format('Setting "%s" does not exist.', name)})
+        return error(format('Setting "%s" does not exist.', name), 2)
     end
 
     local success, sanitized_value = setting.callback(value)
 
     if not success then
-        error({message = format('Setting "%s" failed: %s', name, sanitized_value)})
+        error(format('Setting "%s" failed: %s', name, sanitized_value), 2)
     end
 
     local player_settings = memory[player_index]
@@ -149,7 +151,7 @@ end
 function Public.get(player_index, name)
     local setting = settings[name]
     if not setting then
-        return error({message = format('Setting "%s" does not exist.', name)})
+        return error(format('Setting "%s" does not exist.', name), 2)
     end
 
     local player_settings = memory[player_index]
