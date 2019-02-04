@@ -296,7 +296,7 @@ function Module.unjail(target_player, player)
         -- Let admin know it worked, let target know what's going on.
         Game.player_print(target_name .. ' has been returned to the default group. They have been advised of this.')
         target_player.print(prefix)
-        target_player.print('Your ability to perform actions has been restored', Color.green)
+        target_player.print('Your ability to perform actions has been restored', Color.light_green)
         target_player.print(prefix_e)
         Utils.print_admins(format('%s has been released from jail by %s', target_name, player.name))
         Utils.log_command(Utils.get_actor(), 'unjail', target_name)
