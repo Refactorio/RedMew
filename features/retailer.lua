@@ -273,7 +273,9 @@ local function redraw_market_items(data)
         local disabled = item.disabled == true
         local message
 
-        if total_price == 0 then
+        if total_price == 0 and player_limit == 0 then
+            message = 'SOLD!'
+        elseif total_price == 0 then
             message = 'FREE!'
         elseif total_price == 1 then
             message = '1 coin'
