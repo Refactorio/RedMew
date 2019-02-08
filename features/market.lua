@@ -166,59 +166,61 @@ local function fish_drop_entity_died(event)
 end
 
 local function reset_player_running_speed(player)
-    local p_name = player.name
-    player.character_running_speed_modifier = speed_records[p_name].pre_boost_modifier
-    speed_records[p_name] = nil
+    local index = player.index
+    player.character_running_speed_modifier = speed_records[index].pre_boost_modifier
+    speed_records[index] = nil
 end
 
 local function reset_player_mining_speed(player)
-    local p_name = player.name
-    player.character_mining_speed_modifier = mining_records[p_name].pre_mining_boost_modifier
-    mining_records[p_name] = nil
+    local index = player.index
+    player.character_mining_speed_modifier = mining_records[index].pre_mining_boost_modifier
+    mining_records[index] = nil
 end
 
 local function boost_player_running_speed(player)
+    local index = player.index
     local p_name = player.name
-    if not speed_records[p_name] then
-        speed_records[p_name] = {
+    if not speed_records[index] then
+        speed_records[index] = {
             start_tick = game.tick,
             pre_boost_modifier = player.character_running_speed_modifier,
             boost_lvl = 0
         }
     end
-    speed_records[p_name].boost_lvl = 1 + speed_records[p_name].boost_lvl
+    speed_records[index].boost_lvl = 1 + speed_records[index].boost_lvl
 
     player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
 
-    if speed_records[p_name].boost_lvl >= 4 then
-        game.print(format(running_speed_boost_messages[speed_records[p_name].boost_lvl], p_name))
+    if speed_records[index].boost_lvl >= 4 then
+        game.print(format(running_speed_boost_messages[speed_records[index].boost_lvl], p_name))
         reset_player_running_speed(player)
         player.character.die(player.force, player.character)
         return
     end
 
-    player.print(format(running_speed_boost_messages[speed_records[p_name].boost_lvl], p_name))
+    player.print(format(running_speed_boost_messages[speed_records[index].boost_lvl], p_name))
 end
 
 local function boost_player_mining_speed(player)
+    local index = player.index
     local p_name = player.name
-    if not mining_records[p_name] then
-        mining_records[p_name] = {
+    if not mining_records[index] then
+        mining_records[index] = {
             start_tick = game.tick,
             pre_mining_boost_modifier = player.character_mining_speed_modifier,
             boost_lvl = 0
         }
     end
-    mining_records[p_name].boost_lvl = 1 + mining_records[p_name].boost_lvl
+    mining_records[index].boost_lvl = 1 + mining_records[index].boost_lvl
 
-    if mining_records[p_name].boost_lvl >= 4 then
-        game.print(format(mining_speed_boost_messages[mining_records[p_name].boost_lvl], p_name))
+    if mining_records[index].boost_lvl >= 4 then
+        game.print(format(mining_speed_boost_messages[mining_records[index].boost_lvl], p_name))
         reset_player_mining_speed(player)
         player.character.die(player.force, player.character)
         return
     end
 
-    player.print(format(mining_speed_boost_messages[mining_records[p_name].boost_lvl], p_name))
+    player.print(format(mining_speed_boost_messages[mining_records[index].boost_lvl], p_name))
 end
 
 local function market_item_purchased(event)
@@ -238,7 +240,7 @@ local function on_nth_tick()
     local tick = game.tick
     for k, v in pairs(speed_records) do
         if tick - v.start_tick > 3000 then
-            local player = game.players[k]
+            local player = Game.get_player_by_index(k)
             if player and player.valid and player.connected and player.character then
                 reset_player_running_speed(player)
             end
@@ -247,7 +249,7 @@ local function on_nth_tick()
 
     for k, v in pairs(mining_records) do
         if tick - v.start_tick > 6000 then
-            local player = game.players[k]
+            local player = Game.get_player_by_index(k)
             if player and player.valid and player.connected and player.character then
                 reset_player_mining_speed(player)
             end
