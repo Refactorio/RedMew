@@ -88,7 +88,7 @@ global.config = {
     -- adds a market
     market = {
         enabled = true,
-        -- will create a standard market on game startup at the {0,-2} coordinates
+        -- will create a standard market on game startup
         create_standard_market = true,
         currency = currency,
 
