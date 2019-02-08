@@ -22,20 +22,21 @@ local biter_spawn_token =
 
         local create_entity = surface.create_entity
 
-        for i = 1, 2 do
+        local aliens = {
+            'behemoth-biter',
+            'behemoth-biter',
+            'behemoth-spitter',
+            'behemoth-spitter'
+        }
+
+        for i = 1, #aliens do
             local spawn_pos = surface.find_non_colliding_position('behemoth-biter', p_spawn, 300, 1)
             if spawn_pos then
-                local biter = create_entity {name = 'behemoth-biter', position = spawn_pos}
+                local biter = create_entity {name = aliens[i], position = spawn_pos}
                 group.add_member(biter)
             end
         end
-        for i = 1, 2 do
-            local spawn_pos = surface.find_non_colliding_position('behemoth-biter', p_spawn, 300, 1)
-            if spawn_pos then
-                local biter = create_entity {name = 'behemoth-spitter', position = spawn_pos}
-                group.add_member(biter)
-            end
-        end
+
         group.set_command({type = defines.command.attack_area, destination = {0, 0}, radius = 500})
         Toast.toast_all_players(500, 'The end times are here. The four biters of the apocalypse have been summoned. Repent as the aliens take back what is theirs.')
     end
@@ -56,11 +57,6 @@ local function begin_apocalypse(_, player)
     else
         surface = RS.get_surface()
         player_force = game.forces.player
-    end
-
-    player_force.recipes['atomic-bomb'].enabled = false
-    for _, p in pairs(game.connected_players) do
-        p.remove_item({name = 'atomic-bomb', count = 1000})
     end
 
     local hydras = global.config.hail_hydra.hydras
