@@ -514,7 +514,7 @@ Command.add(
     'destroy',
     {
         description = 'Destroys the entity under your cursor',
-        admin_only = true
+        required_rank = Ranks.admin
     },
     destroy
 )

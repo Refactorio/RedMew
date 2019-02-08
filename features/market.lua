@@ -280,7 +280,7 @@ Command.add(
         description = 'Places a market near you. Use /market removeall to remove all markets on a map',
         arguments = {'removeall'},
         default_values = {removeall = false},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.admin
     },
     spawn_market
 )
