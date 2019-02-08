@@ -21,6 +21,7 @@ local entity_drop_amount = global.config.market.entity_drop_amount
 
 -- local vars
 
+local nth_tick_token
 local running_speed_boost_messages = {
     '%s found the lost Dragon Scroll and got a lv.1 speed boost!',
     'Guided by Master Oogway, %s got a lv.2 speed boost!',
@@ -36,6 +37,7 @@ local mining_speed_boost_messages = {
 }
 
 -- Global registered local vars
+local primitives = {event_registered = nil}
 local markets = {}
 local speed_records = {}
 local mining_records = {}
@@ -44,16 +46,32 @@ Global.register(
     {
         markets = markets,
         speed_records = speed_records,
-        mining_records = mining_records
+        mining_records = mining_records,
+        primitives = primitives
     },
     function(tbl)
         markets = tbl.markets
         speed_records = tbl.speed_records
         mining_records = tbl.mining_records
+        primitives = tbl.primitives
     end
 )
 
 -- local functions
+
+local function register_event()
+    if not primitives.event_registered then
+        Event.add_removable_nth_tick(907, nth_tick_token)
+        primitives.event_registered = true
+    end
+end
+
+local function unregister_event()
+    if primitives.event_registered then
+        Event.remove_removable_nth_tick(907, nth_tick_token)
+        primitives.event_registered = nil
+    end
+end
 
 local function spawn_market(args, player)
     if args.removeall == 'removeall' then
@@ -199,6 +217,7 @@ local function boost_player_running_speed(player)
     end
 
     player.print(format(running_speed_boost_messages[speed_records[index].boost_lvl], p_name))
+    register_event()
 end
 
 local function boost_player_mining_speed(player)
@@ -221,6 +240,7 @@ local function boost_player_mining_speed(player)
     end
 
     player.print(format(mining_speed_boost_messages[mining_records[index].boost_lvl], p_name))
+    register_event()
 end
 
 local function market_item_purchased(event)
@@ -236,26 +256,33 @@ local function market_item_purchased(event)
     end
 end
 
-local function on_nth_tick()
-    local tick = game.tick
-    for k, v in pairs(speed_records) do
-        if tick - v.start_tick > 3000 then
-            local player = Game.get_player_by_index(k)
-            if player and player.valid and player.connected and player.character then
-                reset_player_running_speed(player)
+nth_tick_token =
+    Token.register(
+    function()
+        local tick = game.tick
+        for k, v in pairs(speed_records) do
+            if tick - v.start_tick > 3000 then
+                local player = Game.get_player_by_index(k)
+                if player and player.valid and player.connected and player.character then
+                    reset_player_running_speed(player)
+                end
             end
         end
-    end
 
-    for k, v in pairs(mining_records) do
-        if tick - v.start_tick > 6000 then
-            local player = Game.get_player_by_index(k)
-            if player and player.valid and player.connected and player.character then
-                reset_player_mining_speed(player)
+        for k, v in pairs(mining_records) do
+            if tick - v.start_tick > 6000 then
+                local player = Game.get_player_by_index(k)
+                if player and player.valid and player.connected and player.character then
+                    reset_player_mining_speed(player)
+                end
             end
         end
+
+        if not next(speed_records) and not next(mining_records) then
+            unregister_event()
+        end
     end
-end
+)
 
 local function fish_player_crafted_item(event)
     if random(1, 50) == 1 then
@@ -285,7 +312,6 @@ Command.add(
     spawn_market
 )
 
-Event.on_nth_tick(907, on_nth_tick)
 Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
 Event.add(defines.events.on_entity_died, fish_drop_entity_died)
 Event.add(Retailer.events.on_market_purchase, market_item_purchased)
