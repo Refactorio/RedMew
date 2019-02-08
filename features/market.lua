@@ -17,8 +17,9 @@ local pairs = pairs
 local round = math.round
 local random = math.random
 local format = string.format
-local currency = global.config.market.currency
-local entity_drop_amount = global.config.market.entity_drop_amount
+local market_config = global.config.market
+local currency = market_config.currency
+local entity_drop_amount = market_config.entity_drop_amount
 
 -- local vars
 
@@ -89,6 +90,7 @@ local function spawn_market(args, player)
     end
     local surface = RS.get_surface()
     local force = game.forces.player
+    local maket_spawn_pos = market_config.standard_market_location
 
     if player then -- If we have a player, this is coming from a player running the command
         surface = player.surface
