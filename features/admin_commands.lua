@@ -466,7 +466,7 @@ Command.add(
         description = 'Revives the ghosts within the provided radius around you',
         arguments = {'radius'},
         default_values = {radius = 10},
-        admin_only = true
+        required_rank = Ranks.admin
     },
     revive_ghosts
 )
