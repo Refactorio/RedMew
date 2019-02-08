@@ -148,6 +148,12 @@ end
 
 -- Exposed functions
 
+--- Returns the table of players in the ranking system
+-- @return <table>
+function Public.get_player_table()
+    return player_ranks
+end
+
 --- Returns the player's rank as a name.
 -- @param player_name <string>
 -- @return <string>

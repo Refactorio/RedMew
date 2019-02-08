@@ -59,7 +59,7 @@ end
 
 --- Returns the table of donators
 -- @return <table>
-function Public.get_donators()
+function Public.get_donators_table()
     return donators
 end
 

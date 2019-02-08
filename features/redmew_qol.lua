@@ -11,6 +11,7 @@ local Event = require 'utils.event'
 local Utils = require 'utils.core'
 local Global = require 'utils.global'
 local table = require 'utils.table'
+local Rank = require 'features.rank_system'
 
 local config = global.config.redmew_qol
 
@@ -75,7 +76,7 @@ local function pick_name()
         return
     end
 
-    local regulars = global.regulars
+    local regulars = Rank.get_player_table()
     local reg
     if table.size(regulars) == 0 then
         reg = nil
