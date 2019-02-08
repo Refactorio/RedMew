@@ -3,6 +3,7 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Rank = require 'features.rank_system'
 local Report = require 'features.report'
+local Apocalypse = require 'features.apocalypse'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
@@ -484,4 +485,16 @@ Command.add(
         required_rank = Ranks.admin
     },
     revive_ghosts
+)
+
+-- Commands with no functions, only calls to other modules
+
+Command.add(
+    'apocalypse',
+    {
+        description = 'Calls for the endtimes.',
+        admin_only = true,
+        allowed_by_server = true
+    },
+    Apocalypse.begin_apocalypse
 )

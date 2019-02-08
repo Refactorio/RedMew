@@ -1,4 +1,3 @@
-local Command = require 'utils.command'
 local table = require 'utils.table'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
@@ -7,6 +6,8 @@ local RS = require 'map_gen.shared.redmew_surface'
 local HailHydra = require 'map_gen.shared.hail_hydra'
 
 local clear_table = table.clear_table
+
+local Public = {}
 
 local hydra_config = {
     ['behemoth-spitter'] = {['behemoth-spitter'] = 0.01},
@@ -42,7 +43,7 @@ local biter_spawn_token =
     end
 )
 
-local function begin_apocalypse(_, player)
+function Public.begin_apocalypse(_, player)
     if global.apocalypse_now then
         return
     end
@@ -83,12 +84,4 @@ local function begin_apocalypse(_, player)
     )
 end
 
-Command.add(
-    'apocalypse',
-    {
-        description = 'Calls for the endtimes.',
-        admin_only = true,
-        allowed_by_server = true
-    },
-    begin_apocalypse
-)
+return Public
