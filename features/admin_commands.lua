@@ -494,7 +494,7 @@ Command.add(
     {
         description = 'Calls for the endtimes.',
         admin_only = true,
-        allowed_by_server = true
+        required_rank = Ranks.admin,
     },
     Apocalypse.begin_apocalypse
 )
