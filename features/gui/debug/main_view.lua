@@ -7,7 +7,8 @@ local pages = {
     require 'features.gui.debug.redmew_global_view',
     require 'features.gui.debug.global_view',
     require 'features.gui.debug.package_view',
-    require 'features.gui.debug._g_view'
+    require 'features.gui.debug._g_view',
+    require 'features.gui.debug.gui_data_view'
 }
 
 local main_frame_name = Gui.uid_name()

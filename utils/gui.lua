@@ -314,6 +314,8 @@ if _DEBUG then
 
         return token
     end
+
+    Gui.data = data
 end
 
 return Gui
