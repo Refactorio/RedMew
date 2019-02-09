@@ -10,9 +10,12 @@ global.donators = Donators.donators
 
 local Module = {}
 
-Module.is_regular =
-    function(player_name)
-    return Utils.cast_bool(global.regulars[player_name])
+Module.is_regular = function(player_name)
+	if global.config.everyone_is_regular.enabled then
+		return true
+    else
+		return Utils.cast_bool(global.regulars[player_name])
+	end
 end
 
 Module.add_regular = function(player_name)

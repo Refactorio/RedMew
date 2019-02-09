@@ -284,7 +284,11 @@ global.config = {
         -- brightness is a number between 0.15 and 1
         use_fixed_brightness = false,
         fixed_brightness = 0.5
-    }
+    },
+	-- makes every player a regular so they can do the full range of actions
+	everyone_is_regular = {
+		enabled = true
+	}
 }
 
 return global.config
