@@ -131,7 +131,7 @@ Command.add(
         local quantity = tonumber(args.quantity)
         if quantity > 0 then
             Public.give_reward(target, quantity)
-            local string = format('%s has rewarded %s with %s %s', player_name, target_name, get_token_plural(quantity), reward_token[1])
+            local string = format('%s has rewarded %s with %s %s', player_name, target_name, quantity, get_token_plural(quantity))
             if args.reason then
                 string = format('%s for %s', string, args.reason)
             end

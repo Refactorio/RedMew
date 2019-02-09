@@ -24,7 +24,7 @@ local Public = {
             tick :: uint: Tick the event was generated.
             area :: BoundingBox: Area of the chunk
             surface :: LuaSurface: The surface the chunk is on
-            chunk_index :: the index of the chunk in the table
+            chunk_index :: the index of the chunk in Chunklist's table
         ]]
         on_chunk_registered = script.generate_event_name()
     }
@@ -49,11 +49,17 @@ local function on_chunk_generated(event)
 
     local chunk_list = Public.chunk_list
     local new_entry_index = #chunk_list + 1
+    local area = event.area
 
-    chunk_list[new_entry_index] = event.area.left_top
-
-    event.chunk_index = new_entry_index
-    raise_event(Public.events.on_chunk_registered, event)
+    chunk_list[new_entry_index] = area.left_top
+    raise_event(
+        Public.events.on_chunk_registered,
+        {
+            area = area,
+            surface = surface,
+            chunk_index = new_entry_index
+        }
+    )
 end
 
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)

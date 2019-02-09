@@ -816,7 +816,7 @@ function Public.add_map_extra_info(value)
     create_map_extra_info(value, false)
 end
 
---- Overrides all info added via add_map_extra_info. It is an error to call this more than once.
+--- Overrides all info added via add_map_extra_info.
 -- This should only be used in maps, never in features/modules.
 -- Use case: for maps that know exactly what features they're using and
 -- want full control over the info presented.
