@@ -287,7 +287,7 @@ global.config = {
     },
 	-- makes every player a regular so they can do the full range of actions
 	everyone_is_regular = {
-		enabled = true
+		enabled = false
 	}
 }
 
