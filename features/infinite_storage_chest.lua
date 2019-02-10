@@ -267,7 +267,7 @@ local market_items = require 'resources.market_items'
 table.insert(
     market_items,
     {
-        price = 100,
+        price = config.cost,
         name = 'infinity-chest',
         description = 'Stores unlimited quantity of items for up to 48 different item types'
     }
