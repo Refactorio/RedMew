@@ -41,7 +41,8 @@ global.config = {
     },
     -- time before a player gets the auto-trusted rank, allowing them access to the deconstructions planner, nukes, etc.
     rank_system = {
-        time_for_trust = 3*60*60*60 -- 3 hours
+        time_for_trust = 3*60*60*60, -- 3 hours
+        everyone_is_regular = false
     },
     -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
     train_saviour = {

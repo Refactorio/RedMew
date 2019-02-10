@@ -79,6 +79,8 @@ local function get_player_rank(player_name)
     local player = game.players[player_name]
     if player and player.valid and player.admin then
         return Ranks.admin
+    elseif Config.everyone_is_regular then
+        return Ranks.regular
     end
 
     return player_ranks[player_name] or Ranks.guest
