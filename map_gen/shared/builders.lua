@@ -11,6 +11,7 @@ local sin = math.sin
 local cos = math.cos
 local atan2 = math.atan2
 local tau = math.tau
+local loga = math.log
 
 -- helpers
 local inv_pi = 1 / pi
@@ -562,7 +563,7 @@ function Builders.grow(in_shape, out_shape, size, offset)
 end
 
 function Builders.project(shape, size, r)
-    local ln_r = log(r)
+    local ln_r = loga(r)
     local r2 = 1 / (r - 1)
     local a = 1 / size
 
@@ -570,7 +571,7 @@ function Builders.project(shape, size, r)
         local offset = 0.5 * size
         local sn = ceil(y + offset)
 
-        local n = ceil(log((r - 1) * sn * a + 1) / ln_r - 1)
+        local n = ceil(loga((r - 1) * sn * a + 1) / ln_r - 1)
         local rn = r ^ n
         local rn2 = 1 / rn
         local c = size * rn
@@ -584,7 +585,7 @@ function Builders.project(shape, size, r)
 end
 
 function Builders.project_pattern(pattern, size, r, columns, rows)
-    local ln_r = log(r)
+    local ln_r = loga(r)
     local r2 = 1 / (r - 1)
     local a = 1 / size
     local half_size = size / 2
@@ -593,7 +594,7 @@ function Builders.project_pattern(pattern, size, r, columns, rows)
         local offset = 0.5 * size
         local sn = ceil(y + offset)
 
-        local n = ceil(log((r - 1) * sn * a + 1) / ln_r - 1)
+        local n = ceil(loga((r - 1) * sn * a + 1) / ln_r - 1)
         local rn = r ^ n
         local rn2 = 1 / rn
         local c = size * rn
@@ -616,7 +617,7 @@ function Builders.project_pattern(pattern, size, r, columns, rows)
 end
 
 function Builders.project_overlap(shape, size, r)
-    local ln_r = log(r)
+    local ln_r = loga(r)
     local r2 = 1 / (r - 1)
     local a = 1 / size
     local offset = 0.5 * size
@@ -624,7 +625,7 @@ function Builders.project_overlap(shape, size, r)
     return function(x, y, world)
         local sn = ceil(y + offset)
 
-        local n = ceil(log((r - 1) * sn * a + 1) / ln_r - 1)
+        local n = ceil(loga((r - 1) * sn * a + 1) / ln_r - 1)
         local rn = r ^ n
         local rn2 = 1 / rn
         local c = size * rn
