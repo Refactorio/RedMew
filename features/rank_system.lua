@@ -23,6 +23,7 @@ local Config = global.config.rank_system
 -- Localized functions
 local format = string.format
 local clamp = math.clamp
+local clear_table = table.clear_table
 
 -- Constants
 local ranking_data_set = 'rankings'
@@ -115,10 +116,11 @@ local function check_promote_to_auto_trusted()
     end
 end
 
---- On callback, overwrites player rank entries with data entries. Existing entries will not be removed.
+--- On callback, overwrites player rank entries with data entries.
 local sync_ranks_callback =
     Token.register(
     function(data)
+        clear_table(player_ranks)
         for k, v in pairs(data.entries) do
             player_ranks[k] = v
         end
