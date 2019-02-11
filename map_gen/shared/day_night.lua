@@ -61,9 +61,6 @@ Event.on_init(init)
 -- @returns <boolean> true if set properly, nil if not
 -- @see Venus::world_settings
 function Public.set_cycle(day_night_cycle, surface)
-    if _LIFECYCLE < 5 then
-        error('cannot call before on_init', 2)
-    end
     if not check_cycle_validity(day_night_cycle) then
         error('Provided day/night cycle is invalid')
         return
@@ -94,9 +91,6 @@ end
 -- @param surface <LuaSurface> to set the day/night cycle of
 -- @return <boolean> true if time is set properly, nil if not
 function Public.set_fixed_brightness(daylight, surface)
-    if _LIFECYCLE < 5 then
-        error('cannot call before on_init', 2)
-    end
     if not surface or not surface.valid then
         error('Provided surface is invalid')
         return
@@ -131,9 +125,6 @@ end
 -- @param surface <LuaSurface> to unfreeze the day/night cycle of
 -- @return <boolean> true if daytime unfrozen, nil if not
 function Public.unfreeze_daytime(surface)
-    if _LIFECYCLE < 5 then
-        error('cannot call before on_init', 2)
-    end
     if not surface or not surface.valid then
         log('Provided surface is invalid')
         return

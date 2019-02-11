@@ -338,9 +338,6 @@ function Public.on_data_set_changed(data_set, handler)
     if _LIFECYCLE == 8 then
         error('cannot call during runtime', 2)
     end
-    if _LIFECYCLE > 4 then
-        log('Should not call on_data_set_changed after the control stage.')
-    end
     if type(data_set) ~= 'string' then
         error('data_set must be a string', 2)
     end
