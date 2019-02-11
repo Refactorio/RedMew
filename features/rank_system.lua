@@ -115,7 +115,7 @@ local function check_promote_to_auto_trusted()
     end
 end
 
---- On callback, overwrites player rank entries with data entries
+--- On callback, overwrites player rank entries with data entries. Existing entries will not be removed.
 local sync_ranks_callback =
     Token.register(
     function(data)

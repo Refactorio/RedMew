@@ -88,7 +88,7 @@ function Public.player_has_donator_perk(player_name, perk_flag)
     return bit32.band(flags, perk_flag) == perk_flag
 end
 
---- Sets the data for a donator
+--- Sets the data for a donator, all existing data for the entry is removed
 -- @param player_name <string>
 -- @param data <table>
 -- @return <string|nil>
@@ -97,7 +97,7 @@ function Public.set_donator_data(player_name, data)
     Server.set_data(donator_data_set, player_name, data)
 end
 
---- Changes the data for a donator with any data that is sent, but does not change any other
+--- Changes the data for a donator with any data that is sent, only overwritten data is affected
 -- @param player_name <string>
 -- @param data <table>
 -- @return <string|nil>
@@ -109,7 +109,7 @@ function Public.change_donator_data(player_name, data)
     Server.set_data(donator_data_set, player_name, donators[player_name])
 end
 
---- Clears the player_ranks table and merges the entries into it
+--- Writes the data called back from the server into the donators table, overwriting any matching entries
 local sync_donators_callback =
     Token.register(
     function(data)
