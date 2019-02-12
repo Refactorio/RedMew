@@ -67,6 +67,7 @@ end
 -- @param str <string>
 -- @param color <table> defaults to white
 function Game.player_print(str, color)
+    color = color or Color.white
     if game.player then
         game.player.print(str, color)
     else
