@@ -34,7 +34,7 @@ end
 --- Takes msg and prints it to all players except provided player
 -- @param msg <string> The message to print
 -- @param player <LuaPlayer> the player not to send the message to
--- @param color <table> the color to use for the message
+-- @param color <table> the color to use for the message, defaults to white
 function Module.print_except(msg, player, color)
     if not color then
         color = Color.white
