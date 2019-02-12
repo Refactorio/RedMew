@@ -55,7 +55,7 @@ Global.register(
     {
         rewarded_players = rewarded_players,
         editable_info = editable_info,
-        primitives = primitives,
+        primitives = primitives
     },
     function(tbl)
         rewarded_players = tbl.rewarded_players
@@ -376,12 +376,12 @@ you're working on a project which requires it.]]
             player_rank_flow.add {type = 'label', caption = 'Your rank is:'}
             local player_name = player.name
 
+            local rank_label = player_rank_flow.add {type = 'label', caption = Rank.get_player_rank_name(player_name)}
+            rank_label.style.font_color = Rank.get_player_rank_color(player_name)
+
             if Donator.is_donator(player_name) then
-                local label = player_rank_flow.add {type = 'label', caption = 'Donator'}
-                label.style.font_color = Color.donator
-            else
-                local label = player_rank_flow.add {type = 'label', caption = Rank.get_player_rank_name(player_name)}
-                label.style.font_color = Rank.get_player_rank_color(player_name)
+                local donator_label = player_rank_flow.add {type = 'label', caption = {'ranks.donator'}}
+                donator_label.style.font_color = Color.donator
             end
 
             grid.add {type = 'sprite', sprite = 'entity/market'}
