@@ -12,7 +12,6 @@ local Game = require 'utils.game'
 local Global = require 'utils.global'
 local table = require 'utils.table'
 local Token = require 'utils.token'
-local Utils = require 'utils.core'
 local math = require 'utils.math'
 local Server = require 'features.server'
 local Ranks = require 'resources.ranks'
@@ -21,7 +20,6 @@ local Colors = require 'resources.color_presets'
 local Config = global.config.rank_system
 
 -- Localized functions
-local format = string.format
 local clamp = math.clamp
 local clear_table = table.clear_table
 
@@ -65,8 +63,10 @@ Global.register(
 
 -- Local functions
 
---- Changes a rank
-local function change_rank(current_rank, change)
+--- Changes a rank by a fixed number
+-- @param current_rank <number>
+-- @param change <number> the number by which to increase or decrease a rank
+local function change_rank_by_number(current_rank, change)
     local index = rank_to_index[current_rank]
 
     local new_index = clamp(index + change, 1, #sorted_ranks)
@@ -246,7 +246,7 @@ end
 -- @return <string|nil> new rank name or nil if already at highest rank
 function Public.increase_player_rank(player_name)
     local current_rank = (get_player_rank(player_name))
-    local new_rank = change_rank(current_rank, 1)
+    local new_rank = change_rank_by_number(current_rank, 1)
     if current_rank == new_rank then
         return nil
     end
@@ -257,6 +257,20 @@ function Public.increase_player_rank(player_name)
         return new_rank_name
     else
         return nil
+    end
+end
+
+--- Take a player and attempts to increase their rank to the rank provided
+-- Fails if player is already higher rank
+-- @param player_name <string>
+-- @param rank <number>
+-- @return <boolean> <string> success/failure, and string name of the player's rank
+function Public.increase_player_rank_to(player_name, rank)
+    if Public.less_than(player_name, rank) then
+        Public.set_player_rank(player_name, rank)
+        return true, Public.get_rank_name(rank)
+    else
+        return false, Public.get_player_rank_name(player_name)
     end
 end
 
@@ -265,7 +279,7 @@ end
 -- @return <string|nil> new rank name or nil if already at lowest rank
 function Public.decrease_player_rank(player_name)
     local current_rank = (get_player_rank(player_name))
-    local new_rank = change_rank(current_rank, -1)
+    local new_rank = change_rank_by_number(current_rank, -1)
     if current_rank == new_rank then
         return nil
     end
@@ -279,43 +293,64 @@ function Public.decrease_player_rank(player_name)
     end
 end
 
---- Sets a player's rank
+--- Take a player and attempts to decrease their rank to the rank provided
+-- Fails if player is already lower rank
 -- @param player_name <string>
 -- @param rank <number>
-function Public.set_player_rank(player_name, rank)
-    local actor = Utils.get_actor()
-
-    if Public.equal(player_name, rank) then
-        Game.player_print(format('%s is %s rank already.', player_name, Public.get_rank_name(rank)))
+-- @return <boolean> <string> success/failure, and string name of the player's rank
+function Public.decrease_player_rank_to(player_name, rank)
+    if Public.greater_than(player_name, rank) then
+        Public.set_player_rank(player_name, rank)
+        return true, Public.get_rank_name(rank)
     else
-        player_ranks[player_name] = rank
-        Server.set_data(ranking_data_set, player_name, rank)
-        game.print(format("%s set %s's rank to %s.", actor, player_name, Public.get_rank_name(rank)))
+        return false, Public.get_player_rank_name(player_name)
     end
 end
 
---- Resets a player's rank to the lowest rank based on playtime (guest or auto_trust)
+--- Sets a player's rank
 -- @param player_name <string>
+-- @param rank <number>
+-- @return <boolean> success/failure
+function Public.set_player_rank(player_name, rank)
+    if Public.equal(player_name, rank) then
+        return false
+    elseif rank == Ranks.guest then
+        player_ranks[player_name] = nil
+        Server.set_data(ranking_data_set, player_name, nil)
+        -- If we're dropping someone back down the guest, put them on the guests list
+        local player = game.players[player_name]
+        if player and player.valid then
+            guests[player.index] = player
+        end
+
+        return true
+    else
+        player_ranks[player_name] = rank
+        Server.set_data(ranking_data_set, player_name, rank)
+        return true
+    end
+end
+
+--- Resets a player's rank to guest (or higher if a user meets the criteria for automatic rank)
+-- @param player_name <string>
+-- @return <boolean> <string> boolean for success/failure, string as name of rank
 function Public.reset_player_rank(player_name)
-    local actor = Utils.get_actor()
     local guest_rank = Ranks.guest
     local auto_trusted = Ranks.auto_trusted
 
     if Public.equal(player_name, guest_rank) then
-        Game.player_print(format('%s is %s rank already.', player_name, Public.get_rank_name(guest_rank)))
+        return false, Public.get_rank_name(guest_rank)
     else
         local player = game.players[player_name]
         local rank
         if player and player.valid and (player.online_time > Config.time_for_trust) then
-            player_ranks[player_name] = auto_trusted
-            Server.set_data(ranking_data_set, player_name, auto_trusted)
             rank = auto_trusted
+            Public.set_player_rank(player_name, rank)
         else
-            player_ranks[player_name] = nil
-            Server.set_data(ranking_data_set, player_name, nil)
             rank = guest_rank
+            Public.set_player_rank(player_name, rank)
         end
-        game.print(format("%s set %s's rank to %s.", actor, player_name, Public.get_rank_name(rank)))
+        return true, Public.get_rank_name(rank)
     end
 end
 
