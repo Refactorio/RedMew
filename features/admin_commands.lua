@@ -114,7 +114,7 @@ local function probation(args)
     if add_remove == 'add' then
         local success = Rank.decrease_player_rank_to(name, Ranks.probation)
         if success and Rank.equal(name, Ranks.admin) then
-            game.print(format('%s tried to put you on probation, can you believe that shit?', Utils.get_actor()), Color.yellow)
+            target_player.print(format('%s tried to put you on probation, can you believe that shit?', Utils.get_actor()), Color.yellow)
             Game.player_print('You failed to put your fellow admin on probation. Shame on you for trying.', Color.yellow)
             Rank.reset_player_rank(name)
         elseif success then
