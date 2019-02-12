@@ -187,7 +187,7 @@ Event.on_init(
         force.technologies['turrets'].researched = true
         force.technologies['military'].researched = true
         force.technologies['logistics'].researched = true
-        if config.redmew_qol.enabled and config.redmew_qol.loaders.enabled then
+        if config.redmew_qol.enabled and config.redmew_qol.loaders then
             force.recipes['loader'].enabled = true
         end
 
