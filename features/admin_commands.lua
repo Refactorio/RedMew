@@ -83,6 +83,9 @@ local function regular(args)
     end
 
     if add_remove == 'add' then
+        if Rank.less_than(name, Ranks.guest) then
+            Game.player_print('Cannot promote someone on probation to regular. Instead remove their probation and then promote them.', Color.red)
+        end
         local success, rank = Rank.increase_player_rank_to(name, Ranks.regular)
         if success then
             game.print(format('%s promoted %s to %s.', Utils.get_actor(), name, rank), Color.yellow)
