@@ -74,19 +74,6 @@ local function change_rank_by_number(current_rank, change)
     return sorted_ranks[new_index]
 end
 
---- Gets a player's rank. Intentionally not exposed.
--- Is the only place player.admin should be checked.
-local function get_player_rank(player_name)
-    local player = game.players[player_name]
-    if player and player.valid and player.admin then
-        return Ranks.admin
-    elseif Config.everyone_is_regular then
-        return Ranks.regular
-    end
-
-    return player_ranks[player_name] or Ranks.guest
-end
-
 --- Check each online player and if their playtime is above the required cutoff, promote them to auto-trusted.
 -- Only applies to players at the guest rank or higher
 local function check_promote_to_auto_trusted()
@@ -152,6 +139,22 @@ end
 
 -- Exposed functions
 
+--- Gets a player's rank. In cases of comparison, the appropriate functions should be used.
+-- This function is exposed for the purpose of returning a numerical value for players for the
+-- purposes of sorting.
+-- Is the only place player.admin should be checked.
+function Public.get_player_rank(player_name)
+    local player = game.players[player_name]
+    if player and player.valid and player.admin then
+        return Ranks.admin
+    elseif Config.everyone_is_regular then
+        return Ranks.regular
+    end
+
+    return player_ranks[player_name] or Ranks.guest
+end
+local get_player_rank = Public.get_player_rank
+
 --- Returns the table of players in the ranking system
 -- @return <table>
 function Public.get_player_table()
@@ -164,12 +167,13 @@ end
 function Public.get_player_rank_name(player_name)
     return rank_name_lookup[get_player_rank(player_name)]
 end
+local get_player_rank_name = Public.get_player_rank_name
 
 --- Returns the player's rank as a name.
 -- @param player_name <string>
 -- @return <table>
 function Public.get_player_rank_color(player_name)
-    local rank_name = Public.get_player_rank_name(player_name)
+    local rank_name = get_player_rank_name(player_name)
     return Colors[rank_name]
 end
 
@@ -179,11 +183,12 @@ end
 function Public.get_rank_name(rank)
     return rank_name_lookup[rank]
 end
+local get_rank_name = Public.get_rank_name
 
 --- Returns the rank's color.
 -- @param rank <table>
 function Public.get_rank_color(rank)
-    local rank_name = Public.get_rank_name(rank)
+    local rank_name = get_rank_name(rank)
     return Colors[rank_name]
 end
 
