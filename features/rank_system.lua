@@ -187,8 +187,7 @@ local get_rank_name = Public.get_rank_name
 --- Returns the rank's color.
 -- @param rank <table>
 function Public.get_rank_color(rank)
-    local rank_name = get_rank_name(rank)
-    return Colors[rank_name]
+    return Colors[rank]
 end
 
 --- Evaluates if a player's rank is equal to the rank provided
