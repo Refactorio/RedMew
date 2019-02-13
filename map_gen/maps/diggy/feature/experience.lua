@@ -212,7 +212,7 @@ local function on_research_finished(event)
         award_xp = award_xp + reward
     end
     local exp = award_xp * research.research_unit_count
-    local text = format('Research completed! +s XP', exp)
+    local text = format('Research completed! +%s XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
         print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
