@@ -16,27 +16,23 @@ local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
 
 local random = math.random
+local get_rank_color = Rank.get_rank_color
+local get_rank_name = Rank.get_rank_name
+local get_player_rank = Rank.get_player_rank
+local donator_is_donator = Donator.is_donator
 
 local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
 local symbol_asc = ' ▲'
 local symbol_desc = ' ▼'
 local focus_color = Color.dark_orange
-local rank_colors = {
-    Color.white, -- Guest
-    Color.regular, -- Regular
-    Color.donator, -- Donator
-    Color.admin -- Admin
-}
+local donator_color = Color.donator
+
+local rank_column_width = 100
 
 local inv_sprite_time_step = 1 / sprite_time_step
 local rank_perk_flag = DonatorPerks.rank
-local rank_names = {
-    'Guest',
-    'Regular',
-    'Donator',
-    'Admin'
-}
+local donator_label_caption = {'', '(', {'ranks.donator_abbreviation'}, ')'}
 
 local player_poke_cooldown = {}
 local player_pokes = {}
@@ -224,26 +220,49 @@ local column_builders = {
         end
     },
     [rank_heading_name] = {
-        create_data = get_rank_level,
+        create_data = function(player)
+            local player_name = player.name
+            return {
+                rank = get_player_rank(player_name),
+                is_donator = donator_is_donator(player_name)
+            }
+        end,
         sort = function(a, b)
-            return a < b
+            return a.rank < b.rank
         end,
         draw_heading = function(parent)
             local label = parent.add {type = 'label', name = rank_heading_name, caption = 'Rank'}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 50
+            label_style.width = rank_column_width
 
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local label = parent.add {type = 'label', name = rank_cell_name, caption = rank_names[cell_data]}
-            local label_style = label.style
-            label_style.align = 'center'
-            label_style.font_color = rank_colors[cell_data]
-            label_style.width = 50
+            local is_donator = cell_data.is_donator
+            local rank = cell_data.rank
+            if is_donator then
+                local flow = parent.add {type = 'flow', name = rank_cell_name, direction = 'horizontal'}
+                local flow_style = flow.style
+                flow_style.align = 'center'
+                flow_style.width = rank_column_width
 
-            return label
+                local label_rank = flow.add {type = 'label', caption = get_rank_name(rank)}
+                label_rank.style.font_color = get_rank_color(rank)
+
+                local label_donator = flow.add {type = 'label', caption = donator_label_caption}
+                label_donator.style.font_color = donator_color
+
+                return flow
+            else
+                local label = parent.add {type = 'label', name = rank_cell_name, caption = get_rank_name(rank)}
+                local label_style = label.style
+                label_style.align = 'center'
+                label_style.font_color = get_rank_color(rank)
+                label_style.width = rank_column_width
+
+                return label
+            end
         end
     },
     [distance_heading_name] = {
