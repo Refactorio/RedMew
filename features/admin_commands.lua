@@ -84,21 +84,26 @@ local function regular(args)
 
     if add_remove == 'add' then
         if Rank.less_than(name, Ranks.guest) then
-            Game.player_print('Cannot promote someone on probation to regular. Instead remove their probation and then promote them.', Color.red)
+            -- Cannot promote someone on probation to regular. You must remove them from probation and then promote them.
+            Game.player_print({'admin_commands.regular_add_fail_probation'}, Color.red)
         end
         local success, rank = Rank.increase_player_rank_to(name, Ranks.regular)
         if success then
-            game.print(format('%s promoted %s to %s.', Utils.get_actor(), name, rank), Color.yellow)
+            -- __1__ promoted __2__ to __3__.
+            game.print({'admin_commands.regular_add_success', Utils.get_actor(), name, rank}, Color.yellow)
         else
-            Game.player_print(format('%s is already rank %s.', name, rank), Color.red)
+            -- __1__ is already rank __2__.
+            Game.player_print({'admin_commands.regular_add_fail', name, rank}, Color.red)
         end
     elseif add_remove == 'remove' then
         if Rank.equal(name, Ranks.regular) then
             local new_rank = Rank.decrease_player_rank(name)
-            game.print(format('%s demoted %s to %s.', Utils.get_actor(), name, new_rank), Color.yellow)
+            -- __1__ demoted __2__ to __3__.
+            game.print({'admin_commands.regular_remove_success', Utils.get_actor(), name, new_rank}, Color.yellow)
         else
             local rank_name = Rank.get_player_rank_name(name)
-            Game.player_print(format('%s is rank %s, their regular status cannot be removed.', name, rank_name), Color.red)
+            -- __1__ is rank __2__ their regular status cannot be removed.
+            Game.player_print({'admin_commands.regular_remove_fail', name, rank_name}, Color.red)
         end
     end
 end

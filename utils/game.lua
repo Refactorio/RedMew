@@ -64,7 +64,7 @@ function Game.get_player_from_any(obj)
 end
 
 --- Prints to player or console.
--- @param str <string>
+-- @param str <string|table> table if locale is used
 -- @param color <table> defaults to white
 function Game.player_print(str, color)
     color = color or Color.white

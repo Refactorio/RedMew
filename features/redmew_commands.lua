@@ -242,7 +242,7 @@ local function print_player_info(args, player)
         'Name: ' .. name,
         target.connected and 'Online: yes' or 'Online: no',
         'Index: ' .. target.index,
-        'Rank: ' .. Rank.get_player_rank_name(name),
+        --'Rank: ' .. Rank.get_player_rank_name(name),
         Donator.is_donator(target.name) and 'Donator: yes' or 'Donator: no',
         'Time played: ' .. Utils.format_time(target.online_time),
         'AFK time: ' .. Utils.format_time(target.afk_time or 0),

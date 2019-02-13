@@ -31,9 +31,8 @@ local sorted_ranks = {}
 local rank_to_index = {}
 
 for k, v in pairs(Ranks) do
-    rank_name_lookup[v] = k
+    rank_name_lookup[v] = {'ranks.' .. k}
 end
-
 for k, v in pairs(Ranks) do
     sorted_ranks[#sorted_ranks + 1] = v
 end
@@ -258,7 +257,7 @@ function Public.increase_player_rank(player_name)
 
     local new_rank_name = rank_name_lookup[new_rank]
     if new_rank_name then
-        player_ranks[player_name] = (new_rank)
+        player_ranks[player_name] = new_rank
         return new_rank_name
     else
         return nil
@@ -291,7 +290,7 @@ function Public.decrease_player_rank(player_name)
 
     local new_rank_name = rank_name_lookup[new_rank]
     if new_rank_name then
-        player_ranks[player_name] = (new_rank)
+        player_ranks[player_name] = new_rank
         return new_rank_name
     else
         return nil

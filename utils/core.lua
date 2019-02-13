@@ -32,7 +32,7 @@ function Module.distance(pos1, pos2)
 end
 
 --- Takes msg and prints it to all players except provided player
--- @param msg <string> The message to print
+-- @param msg <string|table> table if locale is used
 -- @param player <LuaPlayer> the player not to send the message to
 -- @param color <table> the color to use for the message, defaults to white
 function Module.print_except(msg, player, color)
@@ -48,8 +48,8 @@ function Module.print_except(msg, player, color)
 end
 
 --- Prints a message to all online admins
---@param msg <string> The message to print
---@param source <LuaPlayer|string|nil> string must be the name of a player, nil for server.
+-- @param msg <string|table> table if locale is used
+-- @param source <LuaPlayer|string|nil> string must be the name of a player, nil for server.
 function Module.print_admins(msg, source)
     local source_name
     local chat_color
