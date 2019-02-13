@@ -195,7 +195,7 @@ local function on_player_mined_entity(event)
         return
     end
 
-    print_player_floating_text_position(player_index, format('+%d XP', exp), gain_xp_color,0, -0.5)
+    print_player_floating_text_position(player_index, format('+%s XP', exp), gain_xp_color,0, -0.5)
     add_experience(force, exp)
 end
 
@@ -212,7 +212,7 @@ local function on_research_finished(event)
         award_xp = award_xp + reward
     end
     local exp = award_xp * research.research_unit_count
-    local text = format('Research completed! +%d XP', exp)
+    local text = format('Research completed! +%s XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
         print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
@@ -242,7 +242,7 @@ end
 local function on_rocket_launched(event)
     local force = event.rocket.force
     local exp = add_experience_percentage(force, config.XP['rocket_launch'])
-    local text = format('Rocket launched! +%d XP', exp)
+    local text = format('Rocket launched! +%s XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
         print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
@@ -281,7 +281,7 @@ local function on_entity_died(event)
         end
 
         if exp > 0 then
-            Game.print_floating_text(entity.surface, floating_text_position, format('+%d XP', exp), gain_xp_color)
+            Game.print_floating_text(entity.surface, floating_text_position, format('+%s XP', exp), gain_xp_color)
             add_experience(force, exp)
         end
 
@@ -302,8 +302,8 @@ end
 local function on_player_respawned(event)
     local player = get_player_by_index(event.player_index)
     local exp = remove_experience_percentage(player.force, config.XP['death-penalty'], 50)
-    local text = format('-%d XP', exp)
-    game.print(format('%s drained %d experience.', player.name, exp), lose_xp_color)
+    local text = format('-%s XP', exp)
+    game.print(format('%s drained %s experience.', player.name, exp), lose_xp_color)
     for _, p in pairs(game.connected_players) do
         print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
     end

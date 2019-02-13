@@ -298,11 +298,11 @@ local function redraw_market_items(data)
         if disabled then
             insert(tooltip, '\n\n' .. (item.disabled_reason or 'Not available'))
         elseif is_missing_coins then
-            insert(tooltip, '\n\n' .. format('Missing %d coins to buy %d', missing_coins, stack_count))
+            insert(tooltip, '\n\n' .. format('Missing %s coins to buy %s', missing_coins, stack_count))
         end
 
         if has_player_limit then
-            insert(tooltip, '\n\n' .. format('You have bought this item %d out of %d times', item.player_limit - player_limit, item.player_limit))
+            insert(tooltip, '\n\n' .. format('You have bought this item %s out of %s times', item.player_limit - player_limit, item.player_limit))
         end
 
         local button = grid.add({type = 'flow'}).add({
