@@ -47,6 +47,7 @@ function Public.begin_apocalypse(_, player)
     if global.apocalypse_now then
         return
     end
+    game.server_save('pre-apocalypse')
     global.apocalypse_now = true
     local surface
     local player_force
