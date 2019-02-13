@@ -106,6 +106,10 @@ end
 local sync_ranks_callback =
     Token.register(
     function(data)
+        if not data or not data.entries then
+            return
+        end
+
         clear_table(player_ranks)
         for k, v in pairs(data.entries) do
             player_ranks[k] = v
