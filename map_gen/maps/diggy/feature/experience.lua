@@ -242,7 +242,7 @@ end
 local function on_rocket_launched(event)
     local force = event.rocket.force
     local exp = add_experience_percentage(force, config.XP['rocket_launch'])
-    local text = format('Rocket launched! +%d XP', exp)
+    local text = format('Rocket launched! +%s XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
         print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
