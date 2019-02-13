@@ -406,16 +406,16 @@ local function draw_market_frame(player, group_name)
 end
 
 ---Returns the group name of the market at the given position, nil if not registered.
----@param position Position
+---@param position <table> Position
 local function get_market_group_name(position)
-    return memory.markets[position.x .. ',' .. position.y]
+    return memory.markets[(position.x or position[1]) .. ',' .. (position.y or position[2])]
 end
 
 ---Sets the group name for a market at a given position.
----@param position Position
----@param group_name string
+---@param position <table> Position
+---@param group_name <string>
 local function set_market_group_name(position, group_name)
-    memory.markets[position.x .. ',' .. position.y] = group_name
+    memory.markets[(position.x or position[1]) .. ',' .. (position.y or position[2])] = group_name
 end
 
 Event.add(defines.events.on_gui_opened, function (event)
