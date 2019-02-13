@@ -322,7 +322,7 @@ function ForceControl.get_formatted_force_data(lua_force_or_name)
     end
 
     return format(
-        'Current experience: %d Total experience: %d Current level: %d  Next level at: %d Percentage to level up: %d%%',
+        'Current experience: %s Total experience: %s Current level: %d  Next level at: %s Percentage to level up: %d%%',
         force_config.current_experience,
         force_config.total_experience,
         force_config.current_level,
