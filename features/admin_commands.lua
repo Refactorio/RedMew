@@ -331,13 +331,14 @@ local function revive_ghosts(args, player)
     end
 end
 
-local function destroy(_, player)
+--- Destroys the player's selected entity
+local function destroy_selected(_, player)
     local ent = player.selected
     if ent then
         Game.player_print(ent.name .. ' destroyed')
         ent.destroy()
     else
-        Game.player_print('Nothing found to destroy.')
+        Game.player_print('Nothing found to destroy. (You must have an entity under your cursor when you hit enter)')
     end
 end
 
@@ -513,8 +514,8 @@ Command.add(
 Command.add(
     'destroy',
     {
-        description = 'Destroys the entity under your cursor',
+        description = 'Destroys the entity under your cursor when you run this command',
         required_rank = Ranks.admin
     },
-    destroy
+    destroy_selected
 )
