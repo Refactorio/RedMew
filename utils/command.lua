@@ -137,12 +137,12 @@ function Command.add(command_name, options, callback)
     if allowed_by_server and not allowed_by_player then
         extra = ' (Server only)'
     elseif allowed_by_player and (required_rank > Ranks.guest) then
-        extra = format(' (Rank %s or above only)', get_rank_name(required_rank))
+        extra = {'command.required_rank', get_rank_name(required_rank)}
     elseif allowed_by_player and donator_only then
         extra = ' (Donator only)'
     end
 
-    local help_text = custom_help_text or argument_list .. description .. extra
+    local help_text = {'command.help_text_format',(custom_help_text or argument_list), description, extra}
 
     commands.add_command(command_name, help_text, function (command)
         local print -- custom print reference in case no player is present
@@ -164,7 +164,7 @@ function Command.add(command_name, options, callback)
             end
 
             if Rank.less_than(player_name, required_rank) then
-                print(format("The command '%s' requires %s rank or higher to be be executed.", command_name, get_rank_name(required_rank)))
+                print({'command.higher_rank_needed', command_name, get_rank_name(required_rank)})
                 return
             end
 
