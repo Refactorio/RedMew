@@ -166,7 +166,7 @@ end
 
 --- Returns the player's rank as a name.
 -- @param player_name <string>
--- @return <string>
+-- @return <LocalisedString>
 function Public.get_player_rank_name(player_name)
     return rank_name_lookup[get_player_rank(player_name)]
 end
@@ -182,7 +182,7 @@ end
 
 --- Returns the rank's name.
 -- @param rank <number>
--- @return <string>
+-- @return <LocalisedString>
 function Public.get_rank_name(rank)
     return rank_name_lookup[rank]
 end
@@ -250,7 +250,7 @@ end
 
 --- Take a player and attempts to increase their rank by 1
 -- @param player_name <string>
--- @return <string|nil> new rank name or nil if already at highest rank
+-- @return <LocalisedString|nil> new rank name or nil if already at highest rank
 function Public.increase_player_rank(player_name)
     local current_rank = (get_player_rank(player_name))
     local new_rank = change_rank_by_number(current_rank, 1)
@@ -271,7 +271,7 @@ end
 -- Fails if player is already higher rank
 -- @param player_name <string>
 -- @param rank <number>
--- @return <boolean> <string> success/failure, and string name of the player's rank
+-- @return <boolean> <LocalisedString> success/failure, and LocalisedString of the player's rank
 function Public.increase_player_rank_to(player_name, rank)
     if Public.less_than(player_name, rank) then
         Public.set_player_rank(player_name, rank)
@@ -283,7 +283,7 @@ end
 
 --- Take a player and attempts to decrease their rank by 1
 -- @param player_name <string>
--- @return <string|nil> new rank name or nil if already at lowest rank
+-- @return <LocalisedString|nil> new rank name or nil if already at lowest rank
 function Public.decrease_player_rank(player_name)
     local current_rank = (get_player_rank(player_name))
     local new_rank = change_rank_by_number(current_rank, -1)
@@ -304,7 +304,7 @@ end
 -- Fails if player is already lower rank
 -- @param player_name <string>
 -- @param rank <number>
--- @return <boolean> <string> success/failure, and string name of the player's rank
+-- @return <boolean> <LocalisedString> success/failure, and LocalisedString of the player's rank
 function Public.decrease_player_rank_to(player_name, rank)
     if Public.greater_than(player_name, rank) then
         Public.set_player_rank(player_name, rank)
@@ -340,7 +340,7 @@ end
 
 --- Resets a player's rank to guest (or higher if a user meets the criteria for automatic rank)
 -- @param player_name <string>
--- @return <boolean> <string> boolean for success/failure, string as name of rank
+-- @return <boolean> <LocalisedString> boolean for success/failure, LocalisedString of rank name
 function Public.reset_player_rank(player_name)
     local guest_rank = Ranks.guest
     local auto_trusted = Ranks.auto_trusted
