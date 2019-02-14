@@ -275,9 +275,9 @@ end
 function Public.increase_player_rank_to(player_name, rank)
     if Public.less_than(player_name, rank) then
         Public.set_player_rank(player_name, rank)
-        return true, Public.get_rank_name(rank)
+        return true, get_rank_name(rank)
     else
-        return false, Public.get_player_rank_name(player_name)
+        return false, get_player_rank_name(player_name)
     end
 end
 
@@ -308,9 +308,9 @@ end
 function Public.decrease_player_rank_to(player_name, rank)
     if Public.greater_than(player_name, rank) then
         Public.set_player_rank(player_name, rank)
-        return true, Public.get_rank_name(rank)
+        return true, get_rank_name(rank)
     else
-        return false, Public.get_player_rank_name(player_name)
+        return false, get_player_rank_name(player_name)
     end
 end
 
@@ -346,7 +346,7 @@ function Public.reset_player_rank(player_name)
     local auto_trusted = Ranks.auto_trusted
 
     if Public.equal(player_name, guest_rank) then
-        return false, Public.get_rank_name(guest_rank)
+        return false, get_rank_name(guest_rank)
     else
         local player = game.players[player_name]
         local rank
@@ -357,7 +357,7 @@ function Public.reset_player_rank(player_name)
             rank = guest_rank
             Public.set_player_rank(player_name, rank)
         end
-        return true, Public.get_rank_name(rank)
+        return true, get_rank_name(rank)
     end
 end
 

@@ -9,8 +9,6 @@ local Report = require 'features.report'
 local Game = require 'utils.game'
 local table = require 'utils.table'
 local Color = require 'resources.color_presets'
-local DonatorPerks = require 'resources.donator_perks'
-local Ranks = require 'resources.ranks'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
@@ -31,7 +29,6 @@ local donator_color = Color.donator
 local rank_column_width = 100
 
 local inv_sprite_time_step = 1 / sprite_time_step
-local rank_perk_flag = DonatorPerks.rank
 local donator_label_caption = {'', '(', {'ranks.donator_abbreviation'}, ')'}
 
 local player_poke_cooldown = {}
@@ -87,21 +84,6 @@ end
 
 local function format_distance(tiles)
     return math.round(tiles * 0.001, 1) .. ' km'
-end
-
-local function get_rank_level(player)
-    if player.admin then
-        return 4
-    end
-
-    local name = player.name
-    if Donator.player_has_donator_perk(name, rank_perk_flag) then
-        return 3
-    elseif Rank.equal(name, Ranks.regular) then
-        return 2
-    end
-
-    return 1
 end
 
 local function do_poke_spam_protection(player)
