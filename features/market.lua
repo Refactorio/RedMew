@@ -5,6 +5,7 @@ local Task = require 'utils.task'
 local PlayerStats = require 'features.player_stats'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
+local Global = require 'utils.global'
 local Retailer = require 'features.retailer'
 local Ranks = require 'resources.ranks'
 local market_items = require 'resources.market_items'
@@ -20,21 +21,71 @@ local entity_drop_amount = global.config.market.entity_drop_amount
 
 -- local vars
 
+local nth_tick_token
 local running_speed_boost_messages = {
     '%s found the lost Dragon Scroll and got a lv.1 speed boost!',
     'Guided by Master Oogway, %s got a lv.2 speed boost!',
     'Kung Fu Master %s defended the village and was awarded a lv.3 speed boost!',
-    'Travelled at the speed of light. %s saw a black hole. Oops.',
+    'Travelled at the speed of light. %s saw a black hole. Oops.'
 }
 
 local mining_speed_boost_messages = {
     '%s is going on a tree harvest!',
     'In search of a sharper axe, %s got a lv.2 mining boost!',
     'Wood fiend, %s, has picked up a massive chain saw and is awarded a lv.3 mining boost!',
-    'Better learn to control that saw, %s, chopped off their legs. Oops.',
+    'Better learn to control that saw, %s, chopped off their legs. Oops.'
 }
 
-local function spawn_market(_, player)
+-- Global registered local vars
+local primitives = {event_registered = nil}
+local markets = {}
+local speed_records = {}
+local mining_records = {}
+
+Global.register(
+    {
+        markets = markets,
+        speed_records = speed_records,
+        mining_records = mining_records,
+        primitives = primitives
+    },
+    function(tbl)
+        markets = tbl.markets
+        speed_records = tbl.speed_records
+        mining_records = tbl.mining_records
+        primitives = tbl.primitives
+    end
+)
+
+-- local functions
+
+local function register_event()
+    if not primitives.event_registered then
+        Event.add_removable_nth_tick(907, nth_tick_token)
+        primitives.event_registered = true
+    end
+end
+
+local function unregister_event()
+    if primitives.event_registered then
+        Event.remove_removable_nth_tick(907, nth_tick_token)
+        primitives.event_registered = nil
+    end
+end
+
+local function spawn_market(args, player)
+    if args.removeall == 'removeall' then
+        local count = 0
+        for _, market in pairs(markets) do
+            if market.valid then
+                count = count + 1
+                market.destroy()
+            end
+        end
+        player.print(count .. ' markets removed')
+        return
+    end
+
     local surface = player.surface
     local force = player.force
 
@@ -43,8 +94,9 @@ local function spawn_market(_, player)
     pos.x = round(pos.x)
 
     local market = surface.create_entity({name = 'market', position = pos})
+    markets[#markets + 1] = market
     market.destructible = false
-    player.print("Market added. To remove it, highlight it with your cursor and run the command /sc game.player.selected.destroy()")
+    player.print('Market added. To remove it, highlight it with your cursor and use the /destroy command, or use /market removall to remove all markets placed.')
 
     Retailer.add_market('fish_market', market)
 
@@ -90,9 +142,12 @@ local function pre_player_mined_item(event)
     end
 end
 
-local spill_items = Token.register(function(data)
-    data.surface.spill_item_stack(data.position, {name = currency, count = data.count}, true)
-end)
+local spill_items =
+    Token.register(
+    function(data)
+        data.surface.spill_item_stack(data.position, {name = currency, count = data.count}, true)
+    end
+)
 
 -- Determines how many coins to drop when enemy entity dies based upon the entity_drop_amount table in config.lua
 local function fish_drop_entity_died(event)
@@ -106,7 +161,6 @@ local function fish_drop_entity_died(event)
         return
     end
 
-
     local chance = bounds.chance
 
     if chance == 0 then
@@ -116,72 +170,77 @@ local function fish_drop_entity_died(event)
     if chance == 1 or random() <= chance then
         local count = random(bounds.low, bounds.high)
         if count > 0 then
-            Task.set_timeout_in_ticks(1, spill_items, {count = count, surface = entity.surface, position = entity.position}
-        )
+            Task.set_timeout_in_ticks(
+                1,
+                spill_items,
+                {
+                    count = count,
+                    surface = entity.surface,
+                    position = entity.position
+                }
+            )
         end
     end
 end
 
 local function reset_player_running_speed(player)
-    player.character_running_speed_modifier = global.player_speed_boost_records[player.index].pre_boost_modifier
-    global.player_speed_boost_records[player.index] = nil
+    local index = player.index
+    player.character_running_speed_modifier = speed_records[index].pre_boost_modifier
+    speed_records[index] = nil
+end
+
+local function reset_player_mining_speed(player)
+    local index = player.index
+    player.character_mining_speed_modifier = mining_records[index].pre_mining_boost_modifier
+    mining_records[index] = nil
 end
 
 local function boost_player_running_speed(player)
-    if global.player_speed_boost_records == nil then
-        global.player_speed_boost_records = {}
-    end
-
-    if global.player_speed_boost_records[player.index] == nil then
-        global.player_speed_boost_records[player.index] = {
+    local index = player.index
+    local p_name = player.name
+    if not speed_records[index] then
+        speed_records[index] = {
             start_tick = game.tick,
             pre_boost_modifier = player.character_running_speed_modifier,
-            boost_lvl = 0,
+            boost_lvl = 0
         }
     end
-    global.player_speed_boost_records[player.index].boost_lvl =
-        1 + global.player_speed_boost_records[player.index].boost_lvl
+    speed_records[index].boost_lvl = 1 + speed_records[index].boost_lvl
 
     player.character_running_speed_modifier = 1 + player.character_running_speed_modifier
 
-    if global.player_speed_boost_records[player.index].boost_lvl >= 4 then
-        game.print(format(running_speed_boost_messages[global.player_speed_boost_records[player.index].boost_lvl], player.name))
+    if speed_records[index].boost_lvl >= 4 then
+        game.print(format(running_speed_boost_messages[speed_records[index].boost_lvl], p_name))
         reset_player_running_speed(player)
         player.character.die(player.force, player.character)
         return
     end
 
-    player.print(format(running_speed_boost_messages[global.player_speed_boost_records[player.index].boost_lvl], player.name))
-end
-
-local function reset_player_mining_speed(player)
-    player.character_mining_speed_modifier = global.player_mining_boost_records[player.index].pre_mining_boost_modifier
-    global.player_mining_boost_records[player.index] = nil
+    player.print(format(running_speed_boost_messages[speed_records[index].boost_lvl], p_name))
+    register_event()
 end
 
 local function boost_player_mining_speed(player)
-    if global.player_mining_boost_records == nil then
-        global.player_mining_boost_records = {}
-    end
-
-    if global.player_mining_boost_records[player.index] == nil then
-        global.player_mining_boost_records[player.index] = {
+    local index = player.index
+    local p_name = player.name
+    if not mining_records[index] then
+        mining_records[index] = {
             start_tick = game.tick,
             pre_mining_boost_modifier = player.character_mining_speed_modifier,
-            boost_lvl = 0,
+            boost_lvl = 0
         }
     end
-    global.player_mining_boost_records[player.index].boost_lvl =
-        1 + global.player_mining_boost_records[player.index].boost_lvl
+    mining_records[index].boost_lvl = 1 + mining_records[index].boost_lvl
 
-    if global.player_mining_boost_records[player.index].boost_lvl >= 4 then
-        game.print(format(mining_speed_boost_messages[global.player_mining_boost_records[player.index].boost_lvl], player.name))
+    if mining_records[index].boost_lvl >= 4 then
+        game.print(format(mining_speed_boost_messages[mining_records[index].boost_lvl], p_name))
         reset_player_mining_speed(player)
         player.character.die(player.force, player.character)
         return
     end
 
-    player.print(format(mining_speed_boost_messages[global.player_mining_boost_records[player.index].boost_lvl], player.name))
+    player.print(format(mining_speed_boost_messages[mining_records[index].boost_lvl], p_name))
+    register_event()
 end
 
 local function market_item_purchased(event)
@@ -197,32 +256,33 @@ local function market_item_purchased(event)
     end
 end
 
-local function on_180_ticks()
-    local tick = game.tick
-    if tick % 900 == 0 then
-        if global.player_speed_boost_records then
-            for k, v in pairs(global.player_speed_boost_records) do
-                if tick - v.start_tick > 3000 then
-                    local player = Game.get_player_by_index(k)
-                    if player.connected and player.character then
-                        reset_player_running_speed(player)
-                    end
+nth_tick_token =
+    Token.register(
+    function()
+        local tick = game.tick
+        for k, v in pairs(speed_records) do
+            if tick - v.start_tick > 3000 then
+                local player = Game.get_player_by_index(k)
+                if player and player.valid and player.connected and player.character then
+                    reset_player_running_speed(player)
                 end
             end
         end
 
-        if global.player_mining_boost_records then
-            for k, v in pairs(global.player_mining_boost_records) do
-                if tick - v.start_tick > 6000 then
-                    local player = Game.get_player_by_index(k)
-                    if player.connected and player.character then
-                        reset_player_mining_speed(player)
-                    end
+        for k, v in pairs(mining_records) do
+            if tick - v.start_tick > 6000 then
+                local player = Game.get_player_by_index(k)
+                if player and player.valid and player.connected and player.character then
+                    reset_player_mining_speed(player)
                 end
             end
         end
+
+        if not next(speed_records) and not next(mining_records) then
+            unregister_event()
+        end
     end
-end
+)
 
 local function fish_player_crafted_item(event)
     if random(1, 50) == 1 then
@@ -244,13 +304,14 @@ end
 Command.add(
     'market',
     {
-        description = 'Places a market near you.',
-        required_rank = Ranks.admin,
+        description = 'Places a market near you. Use /market removeall to remove all markets on a map',
+        arguments = {'removeall'},
+        default_values = {removeall = false},
+        required_rank = Ranks.admin
     },
     spawn_market
 )
 
-Event.on_nth_tick(180, on_180_ticks)
 Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
 Event.add(defines.events.on_entity_died, fish_drop_entity_died)
 Event.add(Retailer.events.on_market_purchase, market_item_purchased)
