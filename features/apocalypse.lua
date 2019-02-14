@@ -1,6 +1,7 @@
 local table = require 'utils.table'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
+local Game = require 'utils.game'
 local Toast = require 'features.gui.toast'
 local RS = require 'map_gen.shared.redmew_surface'
 local HailHydra = require 'map_gen.shared.hail_hydra'
@@ -43,7 +44,12 @@ local biter_spawn_token =
     end
 )
 
-function Public.begin_apocalypse(_, player)
+function Public.begin_apocalypse(args, player)
+    if args.confirmation ~= 'end this map' then
+        Game.player_print('You must use /apocalypse end this map')
+        return
+    end
+
     if global.apocalypse_now then
         return
     end

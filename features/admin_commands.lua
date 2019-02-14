@@ -492,7 +492,9 @@ Command.add(
 Command.add(
     'apocalypse',
     {
-        description = 'Calls for the endtimes.',
+        description = "Calls for the endtimes. This really ends the map, so you must use '/apocalypse end this map'",
+        arguments = {'confirmation'},
+        capture_excess_arguments = true,
         required_rank = Ranks.admin,
     },
     Apocalypse.begin_apocalypse
