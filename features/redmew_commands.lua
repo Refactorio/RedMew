@@ -1,13 +1,14 @@
 local Game = require 'utils.game'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
+local Settings = require 'utils.redmew_settings'
 local Utils = require 'utils.core'
 local Report = require 'features.report'
 local Server = require 'features.server'
-local UserGroups = require 'features.user_groups'
 local Walkabout = require 'features.walkabout'
 local PlayerStats = require 'features.player_stats'
-local Settings = require 'utils.redmew_settings'
+local Rank = require 'features.rank_system'
+local Donator = require 'features.donator'
 
 local format = string.format
 local ceil = math.ceil
@@ -238,24 +239,25 @@ local function print_player_info(args, player)
 
     local index = target.index
     local info_t = {
-        'Name: ' .. name,
-        target.connected and 'Online: yes' or 'Online: no',
-        'Index: ' .. target.index,
-        'Rank: ' .. UserGroups.get_rank(target),
-        UserGroups.is_donator(target.name) and 'Donator: yes' or 'Donator: no',
-        'Time played: ' .. Utils.format_time(target.online_time),
-        'AFK time: ' .. Utils.format_time(target.afk_time or 0),
-        'Force: ' .. target.force.name,
-        'Surface: ' .. target.surface.name,
-        'Tag: ' .. target.tag,
-        'Distance walked: ' .. PlayerStats.get_walk_distance(index),
-        'Coin earned: ' .. PlayerStats.get_coin_earned(index),
-        'Coin spent: ' .. PlayerStats.get_coin_spent(index),
-        'Deaths: ' .. PlayerStats.get_death_count(index),
-        'Crafted items: ' .. PlayerStats.get_crafted_item(index),
-        'Chat messages: ' .. PlayerStats.get_console_chat(index)
+        'redmew_commands.whois_formatter',
+        {'format.1_colon_2', 'Name', name},
+        {'format.single_item', target.connected and 'Online: yes' or 'Online: no'},
+        {'format.1_colon_2', 'Index', target.index},
+        {'format.1_colon_2', 'Rank', Rank.get_player_rank_name(name)},
+        {'format.single_item', Donator.is_donator(target.name) and 'Donator: yes' or 'Donator: no'},
+        {'format.1_colon_2', 'Time played', Utils.format_time(target.online_time)},
+        {'format.1_colon_2', 'AFK time', Utils.format_time(target.afk_time or 0)},
+        {'format.1_colon_2', 'Force', target.force.name},
+        {'format.1_colon_2', 'Surface', target.surface.name},
+        {'format.1_colon_2', 'Tag', target.tag},
+        {'format.1_colon_2', 'Distance walked', PlayerStats.get_walk_distance(index)},
+        {'format.1_colon_2', 'Coin earned', PlayerStats.get_coin_earned(index)},
+        {'format.1_colon_2', 'Coin spent', PlayerStats.get_coin_spent(index)},
+        {'format.1_colon_2', 'Deaths', PlayerStats.get_death_count(index)},
+        {'format.1_colon_2', 'Crafted items', PlayerStats.get_crafted_item(index)},
+        {'format.1_colon_2', 'Chat messages', PlayerStats.get_console_chat(index)},
     }
-    Game.player_print(concat(info_t, '\n- '))
+    Game.player_print(info_t)
 
     if (not player or player.admin) and args.inventory then
         local m_inventory = target.get_inventory(defines.inventory.player_main)
@@ -377,15 +379,7 @@ Command.add(
     Report.report_command
 )
 
-Command.add(
-    'regulars',
-    {
-        description = 'Prints a list of game regulars.',
-        allowed_by_server = true
-    },
-    UserGroups.print_regulars
-)
-
+-- No man's land / free for all
 Command.add('redmew-setting-set', {
     description = 'Set a setting for yourself',
     arguments = {'setting_name', 'new_value'},

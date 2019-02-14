@@ -1,12 +1,13 @@
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
-local UserGroups = require 'features.user_groups'
+local Donator = require 'features.donator'
+local Rank = require 'features.rank_system'
 local Game = require 'utils.game'
 local PlayerRewards = require 'utils.player_rewards'
-local Color = require 'resources.color_presets'
 local Server = require 'features.server'
 local Token = require 'utils.token'
+local Color = require 'resources.color_presets'
 
 local format = string.format
 
@@ -16,12 +17,6 @@ local config_prewards = config.player_rewards
 
 local normal_color = Color.white
 local focus_color = Color.dark_orange
-local rank_colors = {
-    Color.white, -- Guest
-    Color.regular, -- Regular
-    Color.donator, -- Donator
-    Color.admin -- Admin
-}
 
 local reward_amount = 2
 local reward_plural_indicator = reward_amount > 1 and 's' or ''
@@ -60,7 +55,7 @@ Global.register(
     {
         rewarded_players = rewarded_players,
         editable_info = editable_info,
-        primitives = primitives,
+        primitives = primitives
     },
     function(tbl)
         rewarded_players = tbl.rewarded_players
@@ -379,18 +374,14 @@ you're working on a project which requires it.]]
             ranks_label_style.single_line = false
             local player_rank_flow = ranks_flow.add {type = 'flow', direction = 'horizontal'}
             player_rank_flow.add {type = 'label', caption = 'Your rank is:'}
-            if player.admin then
-                local label = player_rank_flow.add {type = 'label', caption = 'Admin'}
-                label.style.font_color = rank_colors[4]
-            elseif UserGroups.is_donator(player.name) then
-                local label = player_rank_flow.add {type = 'label', caption = 'Donator'}
-                label.style.font_color = rank_colors[3]
-            elseif UserGroups.is_regular(player.name) then
-                local label = player_rank_flow.add {type = 'label', caption = 'Regular'}
-                label.style.font_color = rank_colors[2]
-            else
-                local label = player_rank_flow.add {type = 'label', caption = 'Guest'}
-                label.style.font_color = rank_colors[1]
+            local player_name = player.name
+
+            local rank_label = player_rank_flow.add {type = 'label', caption = Rank.get_player_rank_name(player_name)}
+            rank_label.style.font_color = Rank.get_player_rank_color(player_name)
+
+            if Donator.is_donator(player_name) then
+                local donator_label = player_rank_flow.add {type = 'label', caption = {'ranks.donator'}}
+                donator_label.style.font_color = Color.donator
             end
 
             grid.add {type = 'sprite', sprite = 'entity/market'}

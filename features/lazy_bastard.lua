@@ -4,6 +4,8 @@ local Command = require 'utils.command'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Retailer = require 'features.retailer'
+local Ranks = require 'resources.ranks'
+
 local round = math.round
 local insert = table.insert
 local remove = table.remove
@@ -118,7 +120,7 @@ end)
 
 Command.add('lazy-bastard-bootstrap', {
     description = 'Puts down the minimum requirements to get started',
-    admin_only = true,
+    required_rank = Ranks.admin,
 }, function(_, player)
     local surface = player.surface
     local force = player.force

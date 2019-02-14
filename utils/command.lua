@@ -1,13 +1,19 @@
-require 'utils.table'
-local UserGroups = require 'features.user_groups'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local Utils = require 'utils.core'
+local Timestamp = require 'utils.timestamp'
+local Rank = require 'features.rank_system'
+local Donator = require 'features.donator'
+local Server = require 'features.server'
+local Ranks = require 'resources.ranks'
 
 local insert = table.insert
 local format = string.format
 local next = next
 local serialize = serpent.line
 local match = string.match
+local gmatch = string.gmatch
+local get_rank_name = Rank.get_rank_name
 
 local Command = {}
 
@@ -29,13 +35,13 @@ local option_names = {
     ['description'] = 'A description of the command',
     ['arguments'] = 'A table of arguments, example: {"foo", "bar"} would map the first 2 arguments to foo and bar',
     ['default_values'] = 'A default value for a given argument when omitted, example: {bar = false}',
-    ['regular_only'] = 'Set this to true if only regulars may execute this command',
-    ['admin_only'] = 'Set this to true if only admins may execute this command',
+    ['required_rank'] = 'Set this to determins what rank is required to execute a command',
+    ['donator_only'] = 'Set this to true if only donators may execute this command',
     ['debug_only'] = 'Set this to true if it should be registered when _DEBUG is true',
     ['cheat_only'] = 'Set this to true if it should be registered when _CHEATS is true',
     ['allowed_by_server'] = 'Set to true if the server (host) may execute this command',
     ['allowed_by_player'] = 'Set to false to disable players from executing this command',
-    ['log_command'] = 'Set to true to log commands. Always true when admin_only is enabled',
+    ['log_command'] = 'Set to true to log commands. Always true when admin is required',
     ['capture_excess_arguments'] = 'Allows the last argument to be the remaining text in the command',
     ['custom_help_text'] = 'Sets a custom help text to override the auto-generated help',
 }
@@ -62,8 +68,8 @@ end
 ---    description = 'A description of the command',
 ---    arguments = {'foo', 'bar'}, -- maps arguments to these names in the given sequence
 ---    default_values = {bar = false}, -- gives a default value to 'bar' when omitted
----    regular_only = true, -- defaults to false
----    admin_only = true, -- defaults to false
+---    required_rank = Ranks.regular, -- defaults to Ranks.guest
+---    donator_only = true, -- defaults to false
 ---    debug_only = true, -- registers the command if _DEBUG is set to true, defaults to false
 ---    cheat_only = true, -- registers the command if _CHEATS is set to true, defaults to false
 ---    allowed_by_server = false, -- lets the server execute this, defaults to false
@@ -84,15 +90,15 @@ function Command.add(command_name, options, callback)
     local description = options.description or '[Undocumented command]'
     local arguments = options.arguments or {}
     local default_values = options.default_values or {}
-    local regular_only = options.regular_only or false
-    local admin_only = options.admin_only or false
+    local required_rank = options.required_rank or Ranks.guest
+    local donator_only = options.donator_only or false
     local debug_only = options.debug_only or false
     local cheat_only = options.cheat_only or false
     local capture_excess_arguments = options.capture_excess_arguments or false
     local custom_help_text = options.custom_help_text or false
     local allowed_by_server = options.allowed_by_server or false
     local allowed_by_player = options.allowed_by_player
-    local log_command = options.log_command or options.admin_only or false
+    local log_command = options.log_command or (required_rank >= Ranks.admin) or false
     local argument_list_size = table_size(arguments)
     local argument_list = ''
 
@@ -129,11 +135,11 @@ function Command.add(command_name, options, callback)
     local extra = ''
 
     if allowed_by_server and not allowed_by_player then
-        extra = ' (Server Only)'
-    elseif allowed_by_player and admin_only then
-        extra = ' (Admin Only)'
-    elseif allowed_by_player and regular_only then
-        extra = ' (Regulars Only)'
+        extra = ' (Server only)'
+    elseif allowed_by_player and (required_rank > Ranks.guest) then
+        extra = format(' (Rank %s or above only)', get_rank_name(required_rank))
+    elseif allowed_by_player and donator_only then
+        extra = ' (Donator only)'
     end
 
     local help_text = custom_help_text or argument_list .. description .. extra
@@ -157,13 +163,13 @@ function Command.add(command_name, options, callback)
                 return
             end
 
-            if admin_only and not player.admin then
-                print(format("The command '%s' requires admin status to be be executed.", command_name))
+            if Rank.less_than(player_name, required_rank) then
+                print(format("The command '%s' requires %s rank or higher to be be executed.", command_name, get_rank_name(required_rank)))
                 return
             end
 
-            if regular_only and not UserGroups.is_regular(player_name) and not player.admin then
-                print(format("The command '%s' is not available to guests.", command_name))
+            if donator_only and not Donator.is_donator(player_name) then
+                print(format("The command '%s' is only allowed for donators.", command_name))
                 return
             end
         end
@@ -171,7 +177,7 @@ function Command.add(command_name, options, callback)
         local named_arguments = {}
         local from_command = {}
         local raw_parameter_index = 1
-        for param in string.gmatch(command.parameter or '', '%S+') do
+        for param in gmatch(command.parameter or '', '%S+') do
             if capture_excess_arguments and raw_parameter_index == argument_list_size then
                 if not from_command[raw_parameter_index] then
                     from_command[raw_parameter_index] = param
@@ -217,7 +223,18 @@ function Command.add(command_name, options, callback)
         end
 
         if log_command then
-            log(format('[%s Command] %s, used: %s %s', admin_only and 'Admin' or 'Player', player_name, command_name, serialize(named_arguments)))
+            local tick = 'pre-game'
+            if game then
+                tick = Utils.format_time(game.tick)
+            end
+            local server_time = Server.get_current_time()
+            if server_time then
+                server_time = format('(Server time: %s)', Timestamp.to_string(server_time))
+            else
+                server_time = ''
+            end
+
+            log(format('%s(Map time: %s) [%s Command] %s, used: %s %s', server_time, tick, (options.required_rank >= Ranks.admin) and 'Admin' or 'Player', player_name, command_name, serialize(named_arguments)))
         end
 
         local success, error = pcall(function ()

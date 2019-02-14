@@ -10,6 +10,8 @@ local Template = require 'map_gen.maps.diggy.template'
 local ScoreTable = require 'map_gen.maps.diggy.score_table'
 local Command = require 'utils.command'
 local CreateParticles = require 'features.create_particles'
+local Ranks = require 'resources.ranks'
+
 local random = math.random
 local tonumber = tonumber
 local pairs = pairs
@@ -128,7 +130,7 @@ Command.add('diggy-clear-void', {
     description = 'Clears the void in a given area but still triggers all events Diggy would when clearing void.',
     arguments = {'left_top_x', 'left_top_y', 'width', 'height', 'surface_index'},
     debug_only = true,
-    admin_only = true,
+    required_rank = Ranks.admin,
 }, function(arguments)
     local left_top_x = tonumber(arguments.left_top_x)
     local left_top_y = tonumber(arguments.left_top_y)

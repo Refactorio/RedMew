@@ -1,12 +1,13 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
-local Color = require 'resources.color_presets'
 local math = require 'utils.math'
 local Command = require 'utils.command'
+local Color = require 'resources.color_presets'
+local Ranks = require 'resources.ranks'
 
 local normal_color = Color.white
 local focus_color = Color.dark_orange
@@ -311,7 +312,7 @@ local function redraw_tasks(data, enabled)
 end
 
 local function draw_main_frame(left, player)
-    local enabled = player.admin or UserGroups.is_regular(player.name)
+    local enabled = Rank.equal_or_greater_than(player.name, Ranks.regular)
 
     local data = {}
 
@@ -537,7 +538,7 @@ local function create_new_tasks(task_name, player)
             local frame_data = Gui.get_data(frame)
             frame_data.tasks_updated_label.caption = update_message
 
-            local enabled = p.admin or UserGroups.is_regular(p.name)
+            local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
             redraw_tasks(frame_data, enabled)
         elseif notify then
             draw_main_frame(left, p)
@@ -605,7 +606,7 @@ local function player_joined(event)
         label.caption = last_edit_message
         label.tooltip = last_edit_message
 
-        local enabled = player.admin or UserGroups.is_regular(player.name)
+        local enabled = Rank.equal_or_greater_than(player.name, Ranks.regular)
         redraw_tasks(data, enabled)
     end
 
@@ -821,7 +822,7 @@ Gui.on_click(
             local frame = left[main_frame_name]
             if frame and frame.valid then
                 local data = Gui.get_data(frame)
-                local enabled = p.admin or UserGroups.is_regular(p.name)
+                local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
                 redraw_tasks(data, enabled)
             elseif notify then
                 draw_main_frame(left, p)
@@ -876,7 +877,7 @@ local function do_direction(event, sign)
         local frame = p.gui.left[main_frame_name]
         if frame and frame.valid then
             local data = Gui.get_data(frame)
-            local enabled = p.admin or UserGroups.is_regular(p.name)
+            local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
             redraw_tasks(data, enabled)
         end
     end
@@ -1056,7 +1057,7 @@ Gui.on_click(
                 local main_frame_data = Gui.get_data(main_frame)
 
                 main_frame_data.tasks_updated_label.caption = update_message
-                local enabled = p.admin or UserGroups.is_regular(p.name)
+                local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
                 redraw_tasks(main_frame_data, enabled)
             elseif notify then
                 draw_main_frame(left, p)
@@ -1076,7 +1077,7 @@ Command.add(
     {
         description = 'Creates a new task.',
         arguments = {'task'},
-        regular_only = true,
+        required_rank = Ranks.regular,
         allowed_by_server = true,
         log_command = true,
         capture_excess_arguments = true,

@@ -1,12 +1,14 @@
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Report = require 'features.report'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Command = require 'utils.command'
+local Color = require 'resources.color_presets'
+local Ranks = require 'resources.ranks'
 
 local format = string.format
 local loadstring = loadstring
@@ -72,13 +74,71 @@ end
 
 --- Add or remove someone from the list of regulars
 local function regular(args)
-    local add_target = args['name|remove']
-    local remove_target = args['name']
+    local add_remove = args['add|remove']
+    local name = args['name']
 
-    if remove_target and add_target == 'remove' then
-        UserGroups.remove_regular(remove_target)
-    else
-        UserGroups.add_regular(add_target)
+    if not game.players[name] then
+        Game.player_print('The player you targeted has never joined this game, please ensure no typo in name.', Color.red)
+        return
+    end
+
+    if add_remove == 'add' then
+        if Rank.less_than(name, Ranks.guest) then
+            -- Cannot promote someone on probation to regular. You must remove them from probation and then promote them.
+            Game.player_print({'admin_commands.regular_add_fail_probation'}, Color.red)
+        end
+        local success, rank = Rank.increase_player_rank_to(name, Ranks.regular)
+        if success then
+            -- __1__ promoted __2__ to __3__.
+            game.print({'admin_commands.regular_add_success', Utils.get_actor(), name, rank}, Color.yellow)
+        else
+            -- __1__ is already rank __2__.
+            Game.player_print({'admin_commands.regular_add_fail', name, rank}, Color.red)
+        end
+    elseif add_remove == 'remove' then
+        if Rank.equal(name, Ranks.regular) then
+            local new_rank = Rank.decrease_player_rank(name)
+            -- __1__ demoted __2__ to __3__.
+            game.print({'admin_commands.regular_remove_success', Utils.get_actor(), name, new_rank}, Color.yellow)
+        else
+            local rank_name = Rank.get_player_rank_name(name)
+            -- __1__ is rank __2__ their regular status cannot be removed.
+            Game.player_print({'admin_commands.regular_remove_fail', name, rank_name}, Color.red)
+        end
+    end
+end
+
+--- Add or remove someone from probation
+local function probation(args)
+    local add_remove = args['add|remove']
+    local name = args['name']
+    local target_player = game.players[name]
+
+    if not target_player then
+        Game.player_print('The player you targeted has never joined this game, please ensure no typo in name.', Color.red)
+        return
+    end
+
+    if add_remove == 'add' then
+        local success = Rank.decrease_player_rank_to(name, Ranks.probation)
+        if success and Rank.equal(name, Ranks.admin) then
+            target_player.print(format('%s tried to put you on probation, can you believe that shit?', Utils.get_actor()), Color.yellow)
+            Game.player_print('You failed to put your fellow admin on probation. Shame on you for trying.', Color.yellow)
+            Rank.reset_player_rank(name)
+        elseif success then
+            game.print(format('%s put %s on probation.', Utils.get_actor(), name), Color.yellow)
+            target_player.print('You have been placed on probation. You have limited access to normal functions.', Color.yellow)
+        else
+            Game.player_print(format('%s already has probation rank or lower.', name), Color.red)
+        end
+    elseif add_remove == 'remove' then
+        local success = Rank.increase_player_rank_to(name, Ranks.guest)
+        if success then
+            game.print(format('%s took %s off of probation.', Utils.get_actor(), name), Color.yellow)
+            target_player.print('Your probation status has been removed. You may now perform functions as usual', Color.yellow)
+        else
+            Game.player_print(format('%s is not on probation.', name), Color.red)
+        end
     end
 end
 
@@ -281,7 +341,7 @@ Command.add(
     {
         description = 'Admin chat. Messages all other admins.',
         arguments = {'msg'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },
@@ -293,7 +353,7 @@ Command.add(
     {
         description = 'silent-command',
         arguments = {'str'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },
@@ -304,7 +364,7 @@ Command.add(
     'hax',
     {
         description = 'Toggles your hax (makes recipes cost nothing)',
-        admin_only = true
+        required_rank = Ranks.admin
     },
     toggle_cheat_mode
 )
@@ -313,7 +373,7 @@ Command.add(
     'all-tech',
     {
         description = 'researches all technologies',
-        admin_only = true,
+        required_rank = Ranks.admin,
         debug_only = true,
         cheat_only = true
     },
@@ -323,21 +383,30 @@ Command.add(
 Command.add(
     'regular',
     {
-        description = 'Add/remove player from regualrs. Use /regular <name> to add or /regular remove <name> to remove.',
-        arguments = {'name|remove', 'name'},
-        default_values = {['name'] = false},
-        admin_only = true,
-        capture_excess_arguments = false,
-        allowed_by_server = false
+        description = 'Add/remove player from regualrs. Use /regular <add|remove> <name> to add/remove a regular.',
+        arguments = {'add|remove', 'name'},
+        required_rank = Ranks.admin,
+        allowed_by_server = true
     },
     regular
+)
+
+Command.add(
+    'probation',
+    {
+        description = 'Add/remove player from probation. Use /probation <add|remove> <name> to add/remove someone from probation.',
+        arguments = {'add|remove', 'name'},
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    probation
 )
 
 Command.add(
     'showreports',
     {
         description = 'Shows user reports',
-        admin_only = true
+        required_rank = Ranks.admin
     },
     show_reports
 )
@@ -347,7 +416,7 @@ Command.add(
     {
         description = 'Puts a player in jail',
         arguments = {'player'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     jail_player
@@ -358,7 +427,7 @@ Command.add(
     {
         description = 'Removes a player from jail',
         arguments = {'player'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     unjail_player
@@ -369,7 +438,7 @@ Command.add(
     {
         description = 'Temporarily bans a player',
         arguments = {'player', 'minutes'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     tempban
@@ -379,7 +448,7 @@ Command.add(
     'pool',
     {
         description = 'Spawns a pool of water',
-        admin_only = true
+        required_rank = Ranks.admin
     },
     pool
 )
@@ -389,7 +458,7 @@ Command.add(
     {
         description = 'Teleports the player to you.',
         arguments = {'player'},
-        admin_only = true
+        required_rank = Ranks.admin
     },
     invoke
 )
@@ -400,7 +469,7 @@ Command.add(
         description = 'if blank, teleport to selected entity. mode = toggle tp mode where you can teleport to a placed ghost. player = teleport to player.',
         arguments = {'mode|player'},
         default_values = {['mode|player'] = false},
-        admin_only = true,
+        required_rank = Ranks.admin,
         custom_help_text = '<blank|mode|player> 3 different uses: "/tp" to tp to selected entity. "/tp mode" to toggle tp mode. "/tp Newcott" to tp to Newcott'
     },
     teleport_command
@@ -412,7 +481,7 @@ Command.add(
         description = 'Revives the ghosts within the provided radius around you',
         arguments = {'radius'},
         default_values = {radius = 10},
-        admin_only = true
+        required_rank = Ranks.admin
     },
     revive_ghosts
 )

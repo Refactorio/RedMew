@@ -5,6 +5,7 @@ local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Retailer = require 'features.retailer'
 local PlayerStats = require 'features.player_stats'
+local Donator = require 'features.donator'
 local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local CrashSiteToast = require 'map_gen.maps.crash_site.crash_site_toast'
@@ -1043,7 +1044,7 @@ local function do_capture_outpost(outpost_data)
         return
     end
 
-    local donators = global.donators
+    local donators = Donator.get_donators_table()
     if next(donators) then
         local donator = table.get_random_dictionary_entry(donators, true)
         if donator then

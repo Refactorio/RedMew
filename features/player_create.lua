@@ -3,21 +3,23 @@ local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Info = require 'features.gui.info'
-local UserGroups  = require 'features.user_groups'
 
 local get_random_weighted = table.get_random_weighted
 
 local memory = {
     forces_initialized = {
-        player = false, -- default force for everyone
+        player = false -- default force for everyone
     }
 }
 
-Global.register({
-    memory = memory,
-}, function (tbl)
-    memory = tbl.memory
-end)
+Global.register(
+    {
+        memory = memory
+    },
+    function(tbl)
+        memory = tbl.memory
+    end
+)
 
 local function player_created(event)
     local config = global.config.player_create
@@ -56,17 +58,12 @@ local function player_created(event)
         end
     end
 
-    if not game.is_multiplayer() and not _DEBUG then
+    if _DEBUG and game.is_multiplayer() then
+        game.print('THIS MULTIPLAYER MAP IS IN DEBUG!!!')
+    elseif _DEBUG then
+        game.print("DON'T LAUNCH THIS MAP! DEBUG MODE IS ENABLED!!!")
+    elseif not _DEBUG and not game.is_multiplayer() then
         player.print('To change your name in single-player, open chat and type the following /c game.player.name = "your_name"')
-    end
-
-    if _DEBUG and player.admin then
-        UserGroups.add_regular(player.name)
-        if game.is_multiplayer() then
-            game.print("THIS MULTIPLAYER MAP IS IN DEBUG!!!")
-        else
-            game.print("DON'T LAUNCH THIS MAP! DEBUG MODE IS ENABLED!!!")
-        end
     end
 
     if _CHEATS then
