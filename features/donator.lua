@@ -9,8 +9,9 @@ local Task = require 'utils.task'
 
 local concat = table.concat
 local insert = table.insert
-local random = math.random
+local remove = table.remove
 local set_data = Server.set_data
+local random = math.random
 
 local donator_data_set = 'donators'
 
@@ -56,14 +57,7 @@ local function player_joined(event)
         return
     end
 
-    local message
-    local messages_type = type(messages)
-    if messages_type == 'string' then
-        message = messages
-    elseif messages_type == 'table' then
-        message = messages[random(#messages)]
-    end
-
+    local message = messages[random(#messages)]
     message = concat({'*** ', message, ' ***'})
     Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
 end
@@ -116,6 +110,41 @@ function Public.change_donator_data(player_name, data)
     end
 
     set_data(donator_data_set, player_name, donators[player_name])
+end
+
+--- Adds a donator join message
+-- @param player_name <string>
+-- @param str <string>
+function Public.add_donator_message(player_name, str)
+    local d_table = donators[player_name]
+    if not d_table.welcome_messages then
+        d_table.welcome_messages = {}
+    end
+
+    d_table.welcome_messages[#d_table.welcome_messages + 1] = str
+    set_data(donator_data_set, player_name, d_table)
+end
+
+--- Deletes the indicated donator join message
+-- @param player_name <string>
+-- @param num <number>
+-- @return <string|nil> the value that was deleted, nil if nothing to delete
+function Public.delete_donator_message(player_name, num)
+    local d_table = donators[player_name]
+    if not d_table.welcome_messages or not d_table.welcome_messages[num] then
+        return
+    end
+
+    local del_msg = remove(d_table.welcome_messages, num)
+    set_data(donator_data_set, player_name, d_table)
+    return del_msg
+end
+
+--- Returns the list of donator join messages
+-- @param player_name <string>
+-- @return <table|nil> an array of strings or nil if no messages
+function Public.get_donator_messages(player_name)
+    return donators[player_name].welcome_messages
 end
 
 --- Writes the data called back from the server into the donators table, overwriting any matching entries
