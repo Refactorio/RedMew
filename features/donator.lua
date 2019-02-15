@@ -1,3 +1,4 @@
+-- This module contains features for donators and the permissions system for donators: who is a donator, what flags they have, adding/modifying donator data, etc.
 local Event = require 'utils.event'
 local Server = require 'features.server'
 local Game = require 'utils.game'
@@ -8,6 +9,8 @@ local Task = require 'utils.task'
 
 local concat = table.concat
 local insert = table.insert
+local random = math.random
+local set_data = Server.set_data
 
 local donator_data_set = 'donators'
 
@@ -48,9 +51,17 @@ local function player_joined(event)
         return nil
     end
 
-    local message = d.welcome_messages
-    if not message then
+    local messages = d.welcome_messages
+    if not messages then
         return
+    end
+
+    local message
+    local messages_type = type(messages)
+    if messages_type == 'string' then
+        message = messages
+    elseif messages_type == 'table' then
+        message = messages[random(#messages)]
     end
 
     message = concat({'*** ', message, ' ***'})
@@ -91,22 +102,20 @@ end
 --- Sets the data for a donator, all existing data for the entry is removed
 -- @param player_name <string>
 -- @param data <table>
--- @return <string|nil>
 function Public.set_donator_data(player_name, data)
     donators[player_name] = data
-    Server.set_data(donator_data_set, player_name, data)
+    set_data(donator_data_set, player_name, data)
 end
 
 --- Changes the data for a donator with any data that is sent, only overwritten data is affected
 -- @param player_name <string>
 -- @param data <table>
--- @return <string|nil>
 function Public.change_donator_data(player_name, data)
     for k, v in pairs(data) do
         donators[player_name][k] = v
     end
 
-    Server.set_data(donator_data_set, player_name, donators[player_name])
+    set_data(donator_data_set, player_name, donators[player_name])
 end
 
 --- Writes the data called back from the server into the donators table, overwriting any matching entries
