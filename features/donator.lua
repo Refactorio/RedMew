@@ -57,9 +57,10 @@ local function player_joined(event)
     end
 
     local message
-    if type(messages) == 'string' then
+    local messages_type = type(messages)
+    if messages_type == 'string' then
         message = messages
-    elseif type(messages) == 'table' then
+    elseif messages_type == 'table' then
         message = messages[random(#messages)]
     end
 
