@@ -76,7 +76,7 @@ local function unregister_event()
 end
 
 local function spawn_market(args, player)
-    if args.removeall == 'removeall' then
+    if args and args.removeall == 'removeall' then
         local count = 0
         for _, market in pairs(markets) do
             if market.valid then
@@ -97,7 +97,7 @@ local function spawn_market(args, player)
         maket_spawn_pos = player.position
         maket_spawn_pos.y = round(maket_spawn_pos.y - 4)
         maket_spawn_pos.x = round(maket_spawn_pos.x)
-        player.print('Market added. To remove it, highlight it with your cursor and run the command /sc game.player.selected.destroy()')
+        player.print('Market added. To remove it, highlight it with your cursor and use the /destroy command, or use /market removeall to remove all markets placed.')
     end
 
     local market = surface.create_entity({name = 'market', position = maket_spawn_pos})
