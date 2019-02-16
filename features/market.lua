@@ -24,7 +24,6 @@ local entity_drop_amount = market_config.entity_drop_amount
 -- local vars
 
 local nth_tick_token
-local maket_spawn_pos = {0, -4}
 local running_speed_boost_messages = {
     '%s found the lost Dragon Scroll and got a lv.1 speed boost!',
     'Guided by Master Oogway, %s got a lv.2 speed boost!',
