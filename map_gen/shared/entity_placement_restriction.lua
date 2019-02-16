@@ -36,7 +36,6 @@
         end
     )
 ]]
-
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
@@ -45,7 +44,6 @@ local table = require 'utils.table'
 
 -- Localized functions
 local raise_event = script.raise_event
-local deep_copy = table.deep_copy
 
 local Public = {
     events = {
@@ -133,16 +131,23 @@ local on_built_token =
             return
         end
 
-        local p = Game.get_player_by_index(event.player_index)
+        local index = event.player_index
+        local p = Game.get_player_by_index(index)
         if not p or not p.valid then
             return
         end
 
-        -- Create a copy of the event to send to raised events
-        local custom_event = deep_copy(event)
-        custom_event.ghost = ghost
-        custom_event.player = p
-        raise_event(Public.events.on_pre_restricted_entity_destroyed, deep_copy(custom_event))
+        local stack = event.stack
+        raise_event(
+            Public.events.on_pre_restricted_entity_destroyed,
+            {
+                created_entity = entity,
+                player_index = index,
+                player = p,
+                stack = stack,
+                ghost = ghost
+            }
+        )
 
         -- Need to revalidate the entity since we sent it to the raised event
         if entity.valid then
@@ -151,18 +156,23 @@ local on_built_token =
 
         -- Check if we issue a refund: make sure refund is enabled, make sure we're not refunding a ghost,
         -- and revalidate the stack since we sent it to the raised event
-        local stack = event.stack
+        local item_returned
         if primitives.refund and not ghost and stack.valid then
             p.insert(stack)
-            custom_event.item_returned = true
+            item_returned = true
         else
-            custom_event.item_returned = false
+            item_returned = false
         end
 
-        custom_event.stack = nil
-        custom_event.created_entity = nil
-        -- raise_event(defines.events.script_raised_destroy, deep_copy(custom_event))
-        raise_event(Public.events.on_restricted_entity_destroyed, custom_event)
+        raise_event(
+            Public.events.on_restricted_entity_destroyed,
+            {
+                player_index = index,
+                player = p,
+                ghost = ghost,
+                item_returned = item_returned
+            }
+        )
     end
 )
 
