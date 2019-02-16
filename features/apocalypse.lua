@@ -81,21 +81,20 @@ function Public.begin_apocalypse(_, player)
         index = 0
     end
 
-    -- Make them run it twice to ensure no accidental apocalypse
-    if not second_run[index] then
+    -- Check if the apocalypse is happening or if it's the first run of the command.
+    if primitives.apocalypse_now then
+        Game.player_print({'apocalypse.apocalypse_already_running'}, Color.yellow)
+        return
+    elseif not second_run[index] then
         second_run[index] = true
         game.server_save('pre-apocalypse-' .. index)
         Game.player_print({'apocalypse.run_twice'})
         return
     end
 
-    if primitives.apocalypse_now then
-        return
-    end
     primitives.apocalypse_now = true
-
     game.print({'apocalypse.apocalypse_begins'}, Color.pink)
-    Task.set_timeout(60, biter_spawn_token, {})
+    Task.set_timeout(15, biter_spawn_token, {})
 end
 
 return Public
