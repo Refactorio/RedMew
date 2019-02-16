@@ -262,9 +262,13 @@ function Module.unjail(target_player, player)
 
     local target_name = target_player.name
     local target_index = target_player.index
-    local permissions = game.permissions
     local target_jail_data = jail_data[target_index]
+    if not target_jail_data then
+        Game.player_print(format('%s is already not in Jail.', target_name))
+        return
+    end
 
+    local permissions = game.permissions
     -- Check if the permission group exists, if it doesn't, create it.
     local permission_group = target_jail_data.perm_group or permissions.get_group(default_group)
     if not permission_group then
