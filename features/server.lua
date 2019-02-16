@@ -5,20 +5,17 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Timestamp = require 'utils.timestamp'
+local Print = require('utils.print_override')
 
 local serialize = serpent.serialize
 local concat = table.concat
 local remove = table.remove
 local tostring = tostring
+local raw_print = Print.raw_print
 
 local serialize_options = {sparse = true, compact = true}
 
 local Public = {}
-
-local raw_print = print
-function print(str)
-    raw_print('[PRINT] ' .. str)
-end
 
 local server_time = {secs = nil, tick = 0}
 

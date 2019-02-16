@@ -3,6 +3,9 @@
 -- Info on the data lifecycle and how we use it: https://github.com/Refactorio/RedMew/wiki/The-data-lifecycle
 _LIFECYCLE = 4 -- Control stage
 
+-- Overrides the _G.print function
+require 'utils.print_override'
+
 -- Omitting the math library is a very bad idea
 require 'utils.math'
 
