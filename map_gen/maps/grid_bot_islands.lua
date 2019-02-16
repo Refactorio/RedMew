@@ -323,7 +323,8 @@ local function on_init()
     game.map_settings.enemy_expansion.enabled = true
 
     -- Set up non-standard market so we can add logistics network things without editing a different file
-     Retailer.set_item('items', {price = 2, name = 'raw-fish'})
+    global.config.market.create_standard_market = false
+    Retailer.set_item('items', {price = 2, name = 'raw-fish'})
      Retailer.set_item('items', {price = 1, name = 'rail'})
      Retailer.set_item('items', {price = 2, name = 'rail-signal'})
      Retailer.set_item('items', {price = 2, name = 'rail-chain-signal'})

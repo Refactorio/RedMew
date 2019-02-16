@@ -88,6 +88,8 @@ global.config = {
     -- adds a market
     market = {
         enabled = true,
+        -- will create a standard market on game startup at the {0,-2} coordinates
+        create_standard_market = true,
         currency = currency,
 
         -- defines the chance that killing an entity will drop coins and the min and max it can drop upon death

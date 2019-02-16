@@ -1,6 +1,5 @@
 -- Map by Jayefuu and grilled ham, concept by claude47, 2018-12-02
 
--- Add market with /market
 -- Hover over the market and run:
 --      /silent-command game.player.selected.add_market_item{price={{MARKET_ITEM, 100}}, offer={type="give-item", item="landfill"}}
 

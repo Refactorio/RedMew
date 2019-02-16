@@ -3,7 +3,6 @@
 -- This variation on grid_islands.lua has 1) Greater island separation 2) 4 not 2 rail tracks 3) Whole map rotated 45 degrees
 
 -- For best balance run the following commands after map generation:
--- /market
 -- /silent-command game.forces["player"].technologies["landfill"].enabled = false
 -- /silent-command game.forces.player.character_running_speed_modifier = 1.5
 -- /silent-command game.difficulty_settings.technology_price_multiplier=2
