@@ -97,7 +97,7 @@ RS.set_map_gen_settings(
         MGSP.sand_only
     }
 )
-RS.set_difficulty_settings({technology_price_multiplier = tech_cost})
+RS.set_difficulty_settings({{technology_price_multiplier = tech_cost}})
 RS.set_map_settings({map_settings})
 
 -- Setup market inventory
