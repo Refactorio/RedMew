@@ -8,6 +8,7 @@ local Command = require 'utils.command'
 local Global = require 'utils.global'
 local Retailer = require 'features.retailer'
 local Ranks = require 'resources.ranks'
+local RS = require 'map_gen.shared.redmew_surface'
 local market_items = require 'resources.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
 
@@ -16,8 +17,9 @@ local pairs = pairs
 local round = math.round
 local random = math.random
 local format = string.format
-local currency = global.config.market.currency
-local entity_drop_amount = global.config.market.entity_drop_amount
+local market_config = global.config.market
+local currency = market_config.currency
+local entity_drop_amount = market_config.entity_drop_amount
 
 -- local vars
 
@@ -74,7 +76,7 @@ local function unregister_event()
 end
 
 local function spawn_market(args, player)
-    if args.removeall == 'removeall' then
+    if args and args.removeall == 'removeall' then
         local count = 0
         for _, market in pairs(markets) do
             if market.valid then
@@ -85,18 +87,22 @@ local function spawn_market(args, player)
         player.print(count .. ' markets removed')
         return
     end
+    local surface = RS.get_surface()
+    local force = game.forces.player
+    local maket_spawn_pos = market_config.standard_market_location
 
-    local surface = player.surface
-    local force = player.force
+    if player then -- If we have a player, this is coming from a player running the command
+        surface = player.surface
+        force = player.force
+        maket_spawn_pos = player.position
+        maket_spawn_pos.y = round(maket_spawn_pos.y - 4)
+        maket_spawn_pos.x = round(maket_spawn_pos.x)
+        player.print('Market added. To remove it, highlight it with your cursor and use the /destroy command, or use /market removeall to remove all markets placed.')
+    end
 
-    local pos = player.position
-    pos.y = round(pos.y - 4)
-    pos.x = round(pos.x)
-
-    local market = surface.create_entity({name = 'market', position = pos})
+    local market = surface.create_entity({name = 'market', position = maket_spawn_pos})
     markets[#markets + 1] = market
     market.destructible = false
-    player.print('Market added. To remove it, highlight it with your cursor and use the /destroy command, or use /market removall to remove all markets placed.')
 
     Retailer.add_market('fish_market', market)
 
@@ -106,7 +112,7 @@ local function spawn_market(args, player)
         end
     end
 
-    force.add_chart_tag(surface, {icon = {type = 'item', name = currency}, position = pos, text = 'Market'})
+    force.add_chart_tag(surface, {icon = {type = 'item', name = currency}, position = maket_spawn_pos, text = 'Market'})
 end
 
 local function fish_earned(event, amount)
@@ -317,3 +323,6 @@ Event.add(defines.events.on_entity_died, fish_drop_entity_died)
 Event.add(Retailer.events.on_market_purchase, market_item_purchased)
 Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
 Event.add(defines.events.on_player_created, player_created)
+if global.config.market.create_standard_market then
+    Event.on_init(spawn_market)
+end
