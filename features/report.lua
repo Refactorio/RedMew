@@ -329,7 +329,10 @@ Gui.on_click(
             Module.jail(target, event.player)
         else
             target_name = string.sub(event.element.caption, 8)
-            Module.unjail({['parameter'] = target_name, ['player'] = event.player})
+            target = game.players[target_name]
+            if target then
+                Module.unjail(target, event.player)
+            end
         end
         Module.show_reports(event.player)
         Module.show_reports(event.player) -- Double toggle, first destroy then draw.
