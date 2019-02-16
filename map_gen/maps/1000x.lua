@@ -14,7 +14,6 @@ local Toast = require 'features.gui.toast'
 local Retailer = require 'features.retailer'
 
 local MGSP = require 'resources.map_gen_settings'
-local DSP = require 'resources.difficulty_settings'
 local market_items = require 'resources.market_items'
 
 local noise = Perlin.noise
@@ -24,38 +23,27 @@ local format = string.format
 
 local config = global.config
 
--- Local constants
-
+local tech_cost = 1000
 -- Startup bonus
-local timeout_duration = 20 * 60 -- 20 min timeouts means the bonuses are gone at 2hr
-local startup_bonus = 50 -- mining multiplier
 local toast_duration = 15 -- secs
+local startup_bonus = 50 -- mining multiplier
+local timeout_duration = (20 * 60) / (1000 / tech_cost) -- at 1000x tech cost these are 20 min timeouts meaning the bonuses are gone at 2hr
+
+local evo_multiplier = (1 / tech_cost) * 25
 
 -- Multipliers added as the last number to make it easier to read/understand the deviation from norms
 local map_settings = {
     pollution = {
-        enabled = true,
-        diffusion_ratio = (0.02 * 20),
-        ageing = (1 * 0.1)
+        enabled = false
     },
     enemy_evolution = {
         enabled = true,
-        time_factor = (0.000004 * 0.025),
-        destroy_factor = (0.002 * 0.025),
-        pollution_factor = (0.000015 * 0.025)
+        time_factor = (0.000004 * evo_multiplier),
+        destroy_factor = (0.002 * evo_multiplier),
+        pollution_factor = (0.000015 * evo_multiplier)
     },
     enemy_expansion = {
-        enabled = true,
-        max_expansion_distance = (7 * 2),
-        enemy_building_influence_radius = (2 / 2),
-        min_expansion_cooldown = ((4 * 3600) / 4),
-        max_expansion_cooldown = ((60 * 3600) / 4)
-    },
-    unit_group = {
-        max_group_radius = (30.0 * 2),
-        max_member_speedup_when_behind = (1.4 * 10),
-        max_member_slowdown_when_ahead = (0.6 * 2),
-        max_group_slowdown_factor = (0.3 * 3)
+        enabled = false
     }
 }
 
@@ -86,13 +74,11 @@ config.hail_hydra.hydras = {
 }
 
 -- Scenario info
-local map_extra_info =
-    [[
-- There are infinite ores in every direction
-- Technology is very, very expensive
-- You have done basic research into how to build a factory
-- The market does not offer what it normally does
-- The biters are plentiful, but seem slow to evolve
+local map_extra_info = [[
+- There are infinite ores in every direction.
+- You have done basic research into how to build a factory.
+- The market does not offer what it normally does.
+- The biters are plentiful, but seem slow to evolve.
 - The sun's position seems unchanging.
 ]]
 ScenarioInfo.set_map_name('The 1000 Yard Stare')
@@ -111,7 +97,7 @@ RS.set_map_gen_settings(
         MGSP.sand_only
     }
 )
-RS.set_difficulty_settings({DSP.tech_x1000})
+RS.set_difficulty_settings({technology_price_multiplier = tech_cost})
 RS.set_map_settings({map_settings})
 
 -- Setup market inventory
