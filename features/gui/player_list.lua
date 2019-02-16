@@ -226,7 +226,7 @@ local column_builders = {
             if is_donator then
                 local flow = parent.add {type = 'flow', name = rank_cell_name, direction = 'horizontal'}
                 local flow_style = flow.style
-                flow_style.align = 'center'
+                flow_style.align = 'left'
                 flow_style.width = rank_column_width
 
                 local label_rank = flow.add {type = 'label', caption = get_rank_name(rank)}
@@ -239,7 +239,7 @@ local column_builders = {
             else
                 local label = parent.add {type = 'label', name = rank_cell_name, caption = get_rank_name(rank)}
                 local label_style = label.style
-                label_style.align = 'center'
+                label_style.align = 'left'
                 label_style.font_color = get_rank_color(rank)
                 label_style.width = rank_column_width
 

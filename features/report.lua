@@ -262,19 +262,19 @@ function Module.unjail(target_player, player)
 
     local target_name = target_player.name
     local target_index = target_player.index
-    local permissions = game.permissions
     local target_jail_data = jail_data[target_index]
 
-    -- Check if the permission group exists, if it doesn't, create it.
+    local permissions = game.permissions
+    local jail_permission_group = permissions.get_group(jail_name)
+    if (not jail_permission_group) or target_player.permission_group ~= jail_permission_group or not target_jail_data then
+        Game.player_print(format('%s is already not in Jail.', target_name))
+        return
+    end
+
+    -- Check if the player's former permission group exists, if it doesn't, create it.
     local permission_group = target_jail_data.perm_group or permissions.get_group(default_group)
     if not permission_group then
         permission_group = permissions.create_group(default_group)
-    end
-
-    local jail_permission_group = permissions.get_group(jail_name)
-    if (not jail_permission_group) or target_player.permission_group ~= jail_permission_group then
-        Game.player_print(format('%s is already not in Jail.', target_name))
-        return
     end
 
     -- Move player
@@ -329,7 +329,10 @@ Gui.on_click(
             Module.jail(target, event.player)
         else
             target_name = string.sub(event.element.caption, 8)
-            Module.unjail_player({['parameter'] = target_name, ['player'] = event.player})
+            target = game.players[target_name]
+            if target then
+                Module.unjail(target, event.player)
+            end
         end
         Module.show_reports(event.player)
         Module.show_reports(event.player) -- Double toggle, first destroy then draw.
