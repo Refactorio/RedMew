@@ -503,9 +503,7 @@ Command.add(
 Command.add(
     'apocalypse',
     {
-        description = "Calls for the endtimes. This really ends the map, so you must use '/apocalypse end this map'",
-        arguments = {'confirmation'},
-        capture_excess_arguments = true,
+        description = "This really ends the map. When you first run it, the game will save. When run a second time, the apocalypse will begin.",
         required_rank = Ranks.admin,
     },
     Apocalypse.begin_apocalypse

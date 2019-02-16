@@ -3,27 +3,36 @@ local Event = require 'utils.event'
 local CreateParticles = require 'features.create_particles'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
+local table = require 'utils.table'
 
 local random = math.random
 local floor = math.floor
 local ceil = math.ceil
 local pairs = pairs
+local clear_table = table.clear_table
 local compound = defines.command.compound
 local logical_or = defines.compound_command.logical_or
 local attack = defines.command.attack
 local attack_area = defines.command.attack_area
-local config = global.config.hail_hydra
-local evolution_scale = config.evolution_scale
-local hydras = config.hydras
 
-local primitives = {enabled = nil}
+local spawn_table = {}
+for k, v in pairs(global.config.hail_hydra.hydras) do
+    spawn_table[k] = v
+end
+
+local primitives = {
+    evolution_scale = global.config.hail_hydra.evolution_scale,
+    enabled = nil
+}
 
 Global.register(
     {
-        primitives = primitives
+        primitives = primitives,
+        spawn_table = spawn_table
     },
     function(tbl)
         primitives = tbl.primitives
+        spawn_table = tbl.spawn_table
     end
 )
 
@@ -51,14 +60,14 @@ local on_died =
         local entity = event.entity
         local name = entity.name
 
-        local hydra = hydras[name]
+        local hydra = spawn_table[name]
         if not hydra then
             return
         end
 
         local position = entity.position
         local force = entity.force
-        local evolution_factor = force.evolution_factor * evolution_scale
+        local evolution_factor = force.evolution_factor * primitives.evolution_scale
         local cause = event.cause
 
         local surface = entity.surface
@@ -108,19 +117,44 @@ local function register_event()
     end
 end
 
-if config.enabled then
-    register_event()
-end
-
+--- Enables hail_hydra
 function Public.enable_hail_hydra()
     register_event()
 end
 
+--- Disables hail_hydra
 function Public.disable_hail_hydra()
     if primitives.enabled then
         Event.remove_removable(defines.events.on_entity_died, on_died)
         primitives.enabled = nil
     end
+end
+
+--- Sets the evolution scale
+-- @param scale <number>
+function Public.set_evolution_scale(scale)
+    primitives.evolution_scale = scale
+end
+
+--- Sets the hydra spawning table
+-- @param hydras <table> see config.lua's hail_hydra section for example
+function Public.set_hydras(hydras)
+    clear_table(spawn_table)
+    for k, v in pairs(hydras) do
+        spawn_table[k] = v
+    end
+end
+
+--- Adds to/overwrites parts of the hydra spawning table
+-- @param hydras <table> see config.lua's hail_hydra section for example
+function Public.add_hydras(hydras)
+    for k, v in pairs(hydras) do
+        spawn_table[k] = v
+    end
+end
+
+if global.config.hail_hydra.enabled then
+    register_event()
 end
 
 return Public
