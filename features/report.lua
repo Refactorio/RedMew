@@ -198,7 +198,13 @@ function Module.jail(target_player, player)
     -- If in vehicle, kick them out and set the speed to 0.
     local vehicle = target_player.vehicle
     if vehicle then
-        vehicle.speed = 0
+        local train = vehicle.train
+        -- Trains can't have their speed set via ent.speed and instead need ent.train.speed
+        if train then
+            train.speed = 0
+        else
+            vehicle.speed = 0
+        end
         target_player.driving = false
     end
 
