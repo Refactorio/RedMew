@@ -253,7 +253,7 @@ function Public.toast_all_players(duration, message)
 end
 
 Command.add(
-    'toast-all',
+    'toast',
     {
         description = 'Sends a toast to all players',
         arguments = {'msg'},
