@@ -11,7 +11,7 @@ local Rank = require 'features.rank_system'
 local Donator = require 'features.donator'
 
 local format = string.format
-local ceil = math.ceil
+-- local ceil = math.ceil
 local concat = table.concat
 local pcall = pcall
 local tostring = tostring
@@ -154,7 +154,11 @@ local function server_time(_, player)
     end
 end
 
-local function search_command(arguments)
+local function search_command(arguments) -- TODO: Re-enable this when (locale) has been properly integrated
+    Game.player_print('Sorry, search is temporarily out of order')
+    return arguments -- return args so that we avoid a lint warning
+
+    --[[
     local keyword = arguments.keyword
     local p = Game.player_print
     if #keyword < 2 then
@@ -200,6 +204,7 @@ local function search_command(arguments)
         p(format('[%d] /%s', i, matches[i]))
     end
     p(format('-------- Page %d / %d --------', page, pages))
+    --[[]]
 end
 
 local function list_seeds()
@@ -255,7 +260,7 @@ local function print_player_info(args, player)
         {'format.1_colon_2', 'Coin spent', PlayerStats.get_coin_spent(index)},
         {'format.1_colon_2', 'Deaths', PlayerStats.get_death_count(index)},
         {'format.1_colon_2', 'Crafted items', PlayerStats.get_crafted_item(index)},
-        {'format.1_colon_2', 'Chat messages', PlayerStats.get_console_chat(index)},
+        {'format.1_colon_2', 'Chat messages', PlayerStats.get_console_chat(index)}
     }
     Game.player_print(info_t)
 
@@ -380,49 +385,69 @@ Command.add(
 )
 
 -- No man's land / free for all
-Command.add('redmew-setting-set', {
-    description = 'Set a setting for yourself',
-    arguments = {'setting_name', 'new_value'},
-    capture_excess_arguments = true,
-}, function (arguments, player)
-    local value
-    local setting_name = arguments.setting_name
-    local success, data = pcall(function()
-        value = Settings.set(player.index, setting_name, arguments.new_value)
-    end)
+Command.add(
+    'redmew-setting-set',
+    {
+        description = 'Set a setting for yourself',
+        arguments = {'setting_name', 'new_value'},
+        capture_excess_arguments = true
+    },
+    function(arguments, player)
+        local value
+        local setting_name = arguments.setting_name
+        local success,
+            data =
+            pcall(
+            function()
+                value = Settings.set(player.index, setting_name, arguments.new_value)
+            end
+        )
 
-    if not success then
-        local i = data:find('%s')
-        player.print(data:sub(i + 1))
-        return
+        if not success then
+            local i = data:find('%s')
+            player.print(data:sub(i + 1))
+            return
+        end
+
+        player.print(format('Changed "%s" to: "%s"', setting_name, value))
     end
+)
 
-    player.print(format('Changed "%s" to: "%s"', setting_name, value))
-end)
+Command.add(
+    'redmew-setting-get',
+    {
+        description = 'Display a setting value for yourself',
+        arguments = {'setting_name'}
+    },
+    function(arguments, player)
+        local value
+        local setting_name = arguments.setting_name
+        local success,
+            data =
+            pcall(
+            function()
+                value = Settings.get(player.index, setting_name)
+            end
+        )
 
-Command.add('redmew-setting-get', {
-    description = 'Display a setting value for yourself',
-    arguments = {'setting_name'},
-}, function (arguments, player)
-    local value
-    local setting_name = arguments.setting_name
-    local success, data = pcall(function()
-        value = Settings.get(player.index, setting_name)
-    end)
+        if not success then
+            local i = data:find('%s')
+            player.print(data:sub(i + 1))
+            return
+        end
 
-    if not success then
-        local i = data:find('%s')
-        player.print(data:sub(i + 1))
-        return
+        player.print(format('Setting "%s" has a value of: "%s"', setting_name, value))
     end
+)
 
-    player.print(format('Setting "%s" has a value of: "%s"', setting_name, value))
-end)
-
-Command.add('redmew-setting-all', {
-    description = 'Display all settings for yourself',
-}, function (_, player)
-    for name, value in pairs(Settings.all(player.index)) do
-        player.print(format('%s=%s', name, value))
+Command.add(
+    'redmew-setting-all',
+    {
+        description = 'Display all settings for yourself'
+    },
+    function(_, player)
+        for name, value in pairs(Settings.all(player.index)) do
+            player.print(format('%s=%s', name, value))
+        end
     end
-end)
+)
