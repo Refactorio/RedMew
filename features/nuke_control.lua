@@ -2,7 +2,11 @@ local Event = require 'utils.event'
 local Rank = require 'features.rank_system'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
+local Task = require 'utils.task'
+local Token = require 'utils.token'
 local Server = require 'features.server'
+local Report = require 'features.report'
+local Popup = require 'features.gui.popup'
 local Ranks = require 'resources.ranks'
 
 local format = string.format
@@ -168,8 +172,82 @@ local function on_player_joined(event)
     end
 end
 
+local train_to_manual =
+    Token.register(
+    function(train)
+        if train and train.valid then
+            train.manual_mode = true
+        end
+    end
+)
+
+local function on_entity_died(event)
+    -- Check that they destroyed train of force player
+    -- (we don't care about anything else that happened to be on the tracks)
+    local entity = event.entity
+    if not entity or not entity.valid or not entity.train or entity.force ~= game.forces.player then
+        return
+    end
+    -- Check that the player force did the killing
+    local force = event.force
+    if not force or not force.valid or force ~= game.forces.player then
+        return
+    end
+    -- Check that an entity did the killing
+    local cause = event.cause
+    if not cause or not cause.valid then
+        return
+    end
+    -- Check that the entity was a train and in manual
+    local train = cause.train
+    if not train or not train.manual_mode then
+        return
+    end
+    -- Check if the train has passengers
+    local passengers = train.passengers
+    local num_passengers = #passengers
+    if num_passengers == 0 then
+        train.manual_mode = false -- if the train is in manual and has no passengers, stop it
+        Task.set_timeout_in_ticks(30, train_to_manual, train)
+        return
+    end
+
+    -- Go through the passengers and punish any guests involved
+    local player_punished
+    local player_unpunished
+    local name_list = {}
+    for i = 1, #passengers do
+        local player = passengers[i]
+        if not player.valid or allowed_to_nuke(player) then
+            player_unpunished = true
+            name_list[#name_list + 1] = player.name
+        else
+            -- If they aren't allowed to nuke, stop the train and act accordingly.
+            player_punished = true
+            name_list[#name_list + 1] = player.name
+            player.driving = false
+            train.manual_mode = false
+            Task.set_timeout_in_ticks(30, train_to_manual, train)
+            if players_warned[player.index] then -- jail for later offenses
+                Report.jail(player)
+                Utils.print_admins({'nuke_control.train_jailing', player.name})
+            else -- warn for first offense
+                players_warned[player.index] = true
+                Utils.print_admins({'nuke_control.train_warning', player.name})
+                Popup.player(player, {'nuke_control.train_player_warning'})
+            end
+        end
+    end
+
+    -- If there was a passenger who was unpunished along with a punished passenger, let the admins know
+    if player_punished and player_unpunished then
+        local name_string = table.concat(name_list, ' - ')
+        Utils.print_admins({'nuke_control.multiple_passengers', num_passengers, name_string})
+    end
+end
+
 Event.add(defines.events.on_player_ammo_inventory_changed, ammo_changed)
 Event.add(defines.events.on_player_joined_game, on_player_joined)
 Event.add(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
---Event.add(defines.events.on_player_mined_entity, on_player_mined_item)
 Event.add(defines.events.on_player_used_capsule, on_capsule_used)
+Event.add(defines.events.on_entity_died, on_entity_died)
