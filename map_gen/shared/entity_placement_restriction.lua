@@ -53,11 +53,10 @@ local Public = {
         Contains
             name :: defines.events: Identifier of the event
             tick :: uint: Tick the event was generated.
-            created_entity :: LuaEntity
             player_index :: uint
-            player :: LuaPlayer
-            stack :: LuaItemStack
+            created_entity :: LuaEntity
             ghost :: boolean indicating if the entity was a ghost
+            stack :: LuaItemStack
         ]]
         on_pre_restricted_entity_destroyed = script.generate_event_name(),
         --[[
@@ -67,9 +66,9 @@ local Public = {
             name :: defines.events: Identifier of the event
             tick :: uint: Tick the event was generated.
             player_index :: uint
-            player :: LuaPlayer
+            player :: LuaPlayer The player who was refunded (optional)
             ghost :: boolean indicating if the entity was a ghost
-            item_returned :: boolean indicating if the item was returned by this module
+            item_returned :: boolean indicating if a refund of the item was attempted
         ]]
         on_restricted_entity_destroyed = script.generate_event_name()
     }
@@ -132,20 +131,15 @@ local on_built_token =
         end
 
         local index = event.player_index
-        local p = Game.get_player_by_index(index)
-        if not p or not p.valid then
-            return
-        end
 
         local stack = event.stack
         raise_event(
             Public.events.on_pre_restricted_entity_destroyed,
             {
-                created_entity = entity,
                 player_index = index,
-                player = p,
-                stack = stack,
-                ghost = ghost
+                created_entity = entity,
+                ghost = ghost,
+                stack = stack
             }
         )
 
@@ -156,9 +150,10 @@ local on_built_token =
 
         -- Check if we issue a refund: make sure refund is enabled, make sure we're not refunding a ghost,
         -- and revalidate the stack since we sent it to the raised event
+        local player = Game.get_player_by_index(index)
         local item_returned
-        if primitives.refund and not ghost and stack.valid then
-            p.insert(stack)
+        if player and player.valid and primitives.refund and not ghost and stack.valid then
+            player.insert(stack)
             item_returned = true
         else
             item_returned = false
@@ -168,7 +163,7 @@ local on_built_token =
             Public.events.on_restricted_entity_destroyed,
             {
                 player_index = index,
-                player = p,
+                player = player,
                 ghost = ghost,
                 item_returned = item_returned
             }
