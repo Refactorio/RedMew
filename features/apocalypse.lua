@@ -2,10 +2,12 @@ local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
+local Command = require 'utils.command'
 local Toast = require 'features.gui.toast'
 local RS = require 'map_gen.shared.redmew_surface'
 local HailHydra = require 'map_gen.shared.hail_hydra'
 local Color = require 'resources.color_presets'
+local Ranks = require 'resources.ranks'
 
 -- Constants
 local hail_hydra_data = {
@@ -96,5 +98,14 @@ function Public.begin_apocalypse(_, player)
     game.print({'apocalypse.apocalypse_begins'}, Color.pink)
     Task.set_timeout(15, biter_spawn_token, {})
 end
+
+Command.add(
+    'apocalypse',
+    {
+        description = "This really ends the map. When you first run it, the game will save. When run a second time, the apocalypse will begin.",
+        required_rank = Ranks.admin,
+    },
+    Public.begin_apocalypse
+)
 
 return Public

@@ -3,7 +3,6 @@ local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
 local Settings = require 'utils.redmew_settings'
 local Utils = require 'utils.core'
-local Report = require 'features.report'
 local Server = require 'features.server'
 local Walkabout = require 'features.walkabout'
 local PlayerStats = require 'features.player_stats'
@@ -370,18 +369,6 @@ Command.add(
         allowed_by_server = true
     },
     print_player_info
-)
-
--- Commands with no functions, only calls to other modules
-
-Command.add(
-    'report',
-    {
-        description = 'Reports a user to admins',
-        arguments = {'player', 'message'},
-        capture_excess_arguments = true
-    },
-    Report.report_command
 )
 
 -- No man's land / free for all
