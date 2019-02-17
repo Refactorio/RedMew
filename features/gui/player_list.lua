@@ -210,7 +210,11 @@ local column_builders = {
             }
         end,
         sort = function(a, b)
-            return a.rank < b.rank
+            local a_rank, b_rank = a.rank, b.rank
+            if a_rank == b_rank then
+                return b.is_donator
+            end
+            return a_rank < b_rank
         end,
         draw_heading = function(parent)
             local label = parent.add {type = 'label', name = rank_heading_name, caption = 'Rank'}
