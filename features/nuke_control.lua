@@ -241,7 +241,7 @@ local function on_entity_died(event)
 
     -- If there was a passenger who was unpunished along with a punished passenger, let the admins know
     if player_punished and player_unpunished then
-        local name_string = table.concat(name_list, ' - ')
+        local name_string = table.concat(name_list, ', ')
         Utils.print_admins({'nuke_control.multiple_passengers', num_passengers, name_string})
     end
 end
