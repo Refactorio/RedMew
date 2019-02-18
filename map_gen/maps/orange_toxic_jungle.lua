@@ -131,12 +131,12 @@ local function on_init()
     local surface = RS.get_surface()
     local player_force = game.forces.player
     local enemy_force = game.forces.enemy
-    player_force.recipes["military-science-pack"].enabled=false 
+    player_force.recipes["military-science-pack"].enabled=false
     player_force.recipes["production-science-pack"].enabled=false
     player_force.recipes["high-tech-science-pack"].enabled=false  -- disable crafting of sciences
     game.map_settings.enemy_expansion.enabled = true
 
-    -- Set up non-standard market so we can add science packs for purchase
+    -- Set up non-standard market so we can add science packs for purchase while keeping all other items
     global.config.market.create_standard_market = false
     Retailer.set_item('items', {
         name = 'temporary-running-speed-bonus',
@@ -175,11 +175,9 @@ local function on_init()
     Retailer.set_item('items', {price = 15, name = 'shotgun'})
     Retailer.set_item('items', {price = 250, name = 'combat-shotgun'})
     Retailer.set_item('items', {price = 25, name = 'railgun'})
-    Retailer.set_item('items', {price = 250, name = 'flamethrower'})
     Retailer.set_item('items', {price = 175, name = 'rocket-launcher'})
     Retailer.set_item('items', {price = 250, name = 'tank-cannon'})
     Retailer.set_item('items', {price = 750,  name = 'tank-machine-gun'})
-    Retailer.set_item('items', {price = 75, name = 'tank-flamethrower'})
     Retailer.set_item('items', {price = 2500, name = 'artillery-wagon-cannon'})
     Retailer.set_item('items', {price = 1, name = 'firearm-magazine'})
     Retailer.set_item('items', {price = 5, name = 'piercing-rounds-magazine'})
@@ -187,7 +185,6 @@ local function on_init()
     Retailer.set_item('items', {price = 2, name = 'shotgun-shell'})
     Retailer.set_item('items', {price = 10, name = 'piercing-shotgun-shell'})
     Retailer.set_item('items', {price = 5, name = 'railgun-dart'})
-    Retailer.set_item('items', {price = 25, name = 'flamethrower-ammo'})
     Retailer.set_item('items', {price = 15, name = 'rocket'})
     Retailer.set_item('items', {price = 25, name = 'explosive-rocket'})
     Retailer.set_item('items', {price = 2500, name = 'atomic-bomb'})
@@ -220,7 +217,7 @@ local function on_init()
     local item_market_1 = surface.create_entity({name = 'market', position = {0, 0}})
     item_market_1.destructible = false
     Retailer.add_market('items', item_market_1)
-    
+
 end
 Event.on_init(on_init)
 
