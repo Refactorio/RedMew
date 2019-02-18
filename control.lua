@@ -82,6 +82,9 @@ end
 if config.day_night.enabled then
     require 'map_gen.shared.day_night'
 end
+if config.apocalypse.enabled then
+    require 'features.apocalypse'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.
