@@ -275,7 +275,7 @@ global.config = {
         enabled = true
     },
     -- sets the day/night cycle or a fixed light level. use_day_night_cycle and use_fixed_brightness are mutually exclusive
-    day_night ={
+    day_night = {
         -- enables/disables the module
         enabled = false,
         -- for info on day/night cycles see https://github.com/Refactorio/RedMew/wiki/Day-Night-cycle
