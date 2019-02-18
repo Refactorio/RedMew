@@ -14,12 +14,44 @@ local abs = math.abs
 local round = math.round
 local redmew_config = global.config
 
-ScenarioInfo.set_map_name('[WIP] Quadrants')
-ScenarioInfo.set_map_description('Teamwork based map')
+ScenarioInfo.set_map_name('Quadrants')
+ScenarioInfo.set_map_description('Take control over an area and work together as a region!')
 ScenarioInfo.add_map_extra_info([[
-- Restricted research
-- Restricted recipes
-- Restricted teleport between quadrants
+This map is split in four quadrants.
+Each quadrant has a main objective.
+
+The following quadrants exists:
+Science and Military, Intermediate produce, Oil and High Tech, Logistics and Transport.
+
+Common for all quadrants:
+- Basic manufacturing and power
+- Commercial super market present
+- Teleportation between quadrants with empty inventory, excluding:
+    - Tools
+    - Utility Armor
+    - Weaponry
+
+Science and Military
+- Manages research for the entire region
+- Supplies weaponry and security solutions to the entire region
+
+Intermediate produce
+- Only producer of steel
+- High precision workers allowing for circuitry manufacturing
+
+Oil and High Tech
+- Facilities for oil processing
+- Facilities for nuclear handling
+- Leading force in innovating products
+- Rocket launch site
+
+Logistics and Transport
+- Leading force in logistical solutions
+    - Belt based
+    - Bot based
+    - Train based
+
+Version: pre-v1.0
 ]]
 )
 
@@ -34,7 +66,7 @@ redmew_config.player_create.join_messages = {
     'Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord',
     'Click the question mark in the top left corner for server information and map details.',
     '----',
-    'Quadrants is a different take on a teamwork based map. Be sure to read the map details!',
+    'Quadrants is a new take on a teamwork based map. Be sure to read the map details!',
     '--------'
 }
 
