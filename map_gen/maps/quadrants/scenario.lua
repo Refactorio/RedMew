@@ -20,6 +20,9 @@ ScenarioInfo.add_map_extra_info([[
 This map is split in four quadrants.
 Each quadrant has a main objective.
 
+Chat is restricted to your current quadrant.
+Use /shout <message> (shortcut: /s <message>) to chat with entire server
+
 The following quadrants exists:
 Science and Military, Intermediate produce, Oil and High Tech, Logistics and Transport.
 
@@ -56,6 +59,7 @@ Version: pre-v1.0
 )
 
 redmew_config.paint.enabled = false
+redmew_config.player_create.random_join_message_set = {}
 
 redmew_config.player_create.starting_items = {
     { name = 'iron-plate', count = 7 },
@@ -67,6 +71,8 @@ redmew_config.player_create.join_messages = {
     'Click the question mark in the top left corner for server information and map details.',
     '----',
     'Quadrants is a new take on a teamwork based map. Be sure to read the map details!',
+    'Chat is restricted to your current quadrant.',
+    'Use /shout <message> (shortcut: /s <message>) to chat with entire server',
     '--------'
 }
 
