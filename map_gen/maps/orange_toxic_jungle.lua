@@ -3,11 +3,14 @@ local Event = require 'utils.event'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local Retailer = require 'features.retailer'
 
 local match = string.match
 local remove = table.remove
 
 local enemy_seed = 420420
+
+global.config.market.create_standard_market = false
 
 local market_items = require 'resources.market_items'
 for i = #market_items, 1, -1 do
@@ -135,6 +138,22 @@ local function on_init()
 
     -- Set up non-standard market so we can add science packs for purchase
     global.config.market.create_standard_market = false
+    Retailer.set_item('items', {
+        name = 'temporary-running-speed-bonus',
+        name_label = 'Temporary running speed bonus',
+        type = 'temporary-buff',
+        description = 'Increases running speed by one level for a short period',
+        sprite = 'technology/exoskeleton-equipment',
+        stack_limit = 1,
+        price = 10,})
+    Retailer.set_item('items', {
+        name = 'temporary-mining-speed-bonus',
+        name_label = 'Temporary mining speed bonus',
+        type = 'temporary-buff',
+        description = 'Increases manual mining speed by one level for a short period',
+        sprite = 'technology/mining-productivity-1',
+        stack_limit = 1,
+        price = 10,})
     Retailer.set_item('items', {price = 2, name = 'raw-fish'})
     Retailer.set_item('items', {price = 25, name = 'military-science-pack'})
     Retailer.set_item('items', {price = 50, name = 'production-science-pack'})
@@ -201,6 +220,7 @@ local function on_init()
     local item_market_1 = surface.create_entity({name = 'market', position = {0, 0}})
     item_market_1.destructible = false
     Retailer.add_market('items', item_market_1)
+    
 end
 Event.on_init(on_init)
 
