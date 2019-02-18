@@ -10,7 +10,36 @@ local remove = table.remove
 
 local enemy_seed = 420420
 
-global.config.market.create_standard_market = false
+global.config.market.create_standard_market = false -- stop standard market from spawning
+
+local map_gen_settings = {
+    autoplace_controls = {
+        coal = {
+            frequency = 'high',
+            richness = 'good'
+        },
+        ['copper-ore'] = {
+            frequency = 'high',
+            richness = 'good'
+        },
+        ['iron-ore'] = {
+            frequency = 'high',
+            richness = 'good'
+        },
+        stone = {
+            richness = 'good'
+        },
+        ['uranium-ore'] = {
+            richness = 'good'
+        },
+        ['crude-oil'] = {
+            richness = 'very-good'
+        }
+    },
+    terrain_segmentation = 'very-high',
+    water = 'very-big'
+}
+RS.set_map_gen_settings({map_gen_settings})
 
 local market_items = require 'resources.market_items'
 for i = #market_items, 1, -1 do
