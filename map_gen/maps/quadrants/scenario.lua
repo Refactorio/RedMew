@@ -91,9 +91,11 @@ local function on_init()
             if force.name ~= 'quadrant1' then
                 force.disable_research()
             end
-            for _, friend_force in pairs(forces) do
-                if friend_force ~= force then
-                    force.set_friend(friend_force, true)
+            for _, friend_force in pairs(game.forces) do
+                if (string.find(friend_force.name, 'quadrant')) ~= nil then
+                    if friend_force ~= force then
+                        force.set_friend(friend_force, true)
+                    end
                 end
             end
         end
@@ -179,6 +181,7 @@ local rectangle = b.rectangle(32, 32)
 local tree_rectangle = b.rectangle(64, 16)
 local tree_rectangle_1 = b.throttle_xy(tree_rectangle, 1, 3, 1, 3)
 local tree_rectangle_2 = b.rotate(tree_rectangle_1, math.pi / 2)
+local oil_rectangle = b.throttle_xy(tree_rectangle, 1, 5, 1, 5)
 
 local function constant(x)
     return function()
@@ -194,6 +197,7 @@ local start_copper = b.resource(rectangle, 'copper-ore', constant(600))
 local start_stone = b.resource(rectangle, 'stone', constant(600))
 local start_coal = b.resource(rectangle, 'coal', constant(600))
 local start_tree_1 = b.entity(tree_rectangle_1, 'tree-01')
+local start_oil = b.resource(oil_rectangle, 'crude-oil', b.exponential_value(100000, 0, 1))
 local start_tree_2 = b.entity(tree_rectangle_2, 'tree-01')
 
 start_iron = b.combine({ b.translate(start_iron, base_x, base_y), b.translate(start_iron, -base_x, -base_y), b.translate(start_iron, base_x, -base_y), b.translate(start_iron, -base_x, base_y) })
@@ -209,11 +213,11 @@ start_coal = b.combine({ b.translate(start_coal, base_x, base_y), b.translate(st
 
 base_x = 64
 base_y = 128
-start_tree_1 = b.combine({ b.translate(start_tree_1, base_x, base_y), b.translate(start_tree_1, -base_x, -base_y), b.translate(start_tree_1, base_x, -base_y), b.translate(start_tree_1, -base_x, base_y) })
+start_tree_1 = b.combine({ b.translate(start_tree_1, base_x, base_y), b.translate(start_tree_1, -base_x, -base_y), b.translate(start_tree_1, base_x, -base_y), b.translate(start_oil, -base_x, base_y) })
 
 base_x = 128
 base_y = 64
 start_tree_2 = b.combine({ b.translate(start_tree_2, base_x, base_y), b.translate(start_tree_2, -base_x, -base_y), b.translate(start_tree_2, base_x, -base_y), b.translate(start_tree_2, -base_x, base_y) })
 
-local map = b.apply_entities(quadrants, { start_iron, start_copper, start_stone, start_coal, start_tree_1, start_tree_2 })
+local map = b.apply_entities(quadrants, { start_iron, start_copper, start_stone, start_coal, start_tree_1, start_tree_2})
 return map
