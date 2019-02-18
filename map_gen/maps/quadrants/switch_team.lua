@@ -4,6 +4,7 @@ local Game = require 'utils.game'
 local abs = math.abs
 local Color = require 'resources.color_presets'
 local Popup = require 'features.gui.popup'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local gui = {}
 
@@ -59,7 +60,8 @@ local function teleport(event, quadrant)
     local player = event.player
 
     if (abs(player.position.x) <= 4 and abs(player.position.y) <= 4) or (player.get_inventory(1).is_empty() and player.get_inventory(2).is_empty() and (player.get_inventory(8) or player.get_inventory(3).is_empty())) then
-        player.teleport(spawn_locations['quadrant_'..quadrant])
+        local pos = RS.get_surface().find_non_colliding_position('player', spawn_locations['quadrant_'..quadrant], 5, 1)
+        player.teleport(pos)
         player.force = game.forces['quadrant'..quadrant]
         Popup.player(player, quadrant_message[quadrant].msg, quadrant_message[quadrant].title, nil, 'Quadrants.quadrant_description')
     else

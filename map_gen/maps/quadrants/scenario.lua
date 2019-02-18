@@ -78,8 +78,9 @@ redmew_config.player_create.join_messages = {
 
 local function spawn_market(surface, force, position)
 
-    position.y = round(position.y - 4)
+
     position.x = round(position.x)
+    position.y = round(position.y - 4)
 
     local pos = surface.find_non_colliding_position('market', position, 10, 1)
 
