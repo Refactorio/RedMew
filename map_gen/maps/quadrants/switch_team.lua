@@ -25,12 +25,14 @@ local quadrant_message = {
         ]]
     },
     {
-        title = 'Intermediate production',
+        title = 'Intermediate production and mining',
         msg = [[
                 Our main objective is to provide the region with intermediate products
 
                 We primarily supply electronic circuits in various densities
                 We're also the area with the highest quality steel!
+
+                Initial survey shows increased resources in this area
         ]]
     },
     {
@@ -108,7 +110,7 @@ local function toggle(event)
     right_flow.style.align = 'right'
     right_flow.style.horizontally_stretchable = true
 
-    left_flow.add({type = 'button', name = 'Quadrants.Button.2', caption = 'Intermediate produce'})
+    left_flow.add({type = 'button', name = 'Quadrants.Button.2', caption = 'Intermediate and Mining'})
     right_flow.add({type = 'button', name = 'Quadrants.Button.1', caption = 'Science and Military'})
 
     local content_flow = frame.add {type = 'flow', direction = 'horizontal'}

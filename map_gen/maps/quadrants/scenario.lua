@@ -24,7 +24,7 @@ Chat is restricted to your current quadrant.
 Use /shout <message> (shortcut: /s <message>) to chat with entire server
 
 The following quadrants exists:
-Science and Military, Intermediate produce, Oil and High Tech, Logistics and Transport.
+Science and Military, Intermediate and Mining, Oil and High Tech, Logistics and Transport.
 
 Common for all quadrants:
 - Basic manufacturing and power
@@ -38,9 +38,10 @@ Science and Military
 - Manages research for the entire region
 - Supplies weaponry and security solutions to the entire region
 
-Intermediate produce
+Intermediate and Mining
 - Only producer of steel
 - High precision workers allowing for circuitry manufacturing
+- Area found to have rich amount of minerals
 
 Oil and High Tech
 - Facilities for oil processing
@@ -170,6 +171,18 @@ local function quadrants(x, y)
         for _, entity in ipairs(entities) do
             if entity.name ~= 'player' then
                 entity.destroy()
+            end
+        end
+    end
+
+    if (x < 0 and y < 0) then
+        if not (abs_x <= 200 and abs_y <= 200) then
+            local resources = game.surfaces[2].find_entities_filtered{area = {{ x - 0.5, y - 0.5 }, { x + 0.5, y + 0.5 }}, type= "resource"}
+            for _, resource in pairs(resources) do
+                if resource.name ~= 'crude-oil' then
+                    local amount = b.euclidean_value(1, 0.01)
+                    resource.amount = resource.amount * amount(x, y)
+                end
             end
         end
     end
