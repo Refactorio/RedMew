@@ -60,12 +60,9 @@ local function spawn_market(surface, force, position)
 end
 
 local function reset_recipes()
-    log('Reset_recipes!')
     for _, force in pairs(game.forces) do
-        log(force.name .. " < Force |")
         if (string.find(force.name, 'quadrant')) ~= nil then
             for _, recipe in pairs(force.recipes) do
-                log(force.name .. " < Force | Recipe > " .. recipe.name)
                 if not (Recipes[force.name].recipe[recipe.name] or Recipes.default.recipe[recipe.name]) then
                     recipe.enabled = false
                 end
@@ -104,9 +101,7 @@ local function on_init()
 end
 
 local function on_research_finished(event)
-    log(event.research.name .. ' researched!')
     if event.research.force ~= game.forces['quadrant1'] then
-        log('NOT QUADRANT1!')
         return
     end
     for _, force in pairs(game.forces) do
