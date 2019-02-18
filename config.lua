@@ -103,14 +103,14 @@ global.config = {
             ['big-worm-turret'] = {low = 10, high = 20, chance = 1},
 
             -- default is 0, no chance of coins dropping from biters/spitters
-            ['small-biter'] = {low = 1, high = 5, chance = 0},
-            ['small-spitter'] = {low = 1, high = 2, chance = 0},
-            ['medium-spitter'] = {low = 1, high = 3, chance = 0},
-            ['big-spitter'] = {low = 1, high = 3, chance = 0},
-            ['behemoth-spitter'] = {low = 1, high = 10, chance = 0},
-            ['medium-biter'] = {low = 1, high = 3, chance = 0},
-            ['big-biter'] = {low = 1, high = 5, chance = 0},
-            ['behemoth-biter'] = {low = 1, high = 10, chance = 0}
+            ['small-biter'] = {low = 1, high = 5, chance = 1},
+            ['small-spitter'] = {low = 1, high = 2, chance = 1},
+            ['medium-spitter'] = {low = 1, high = 3, chance = 1},
+            ['big-spitter'] = {low = 1, high = 3, chance = 1},
+            ['behemoth-spitter'] = {low = 1, high = 10, chance = 1},
+            ['medium-biter'] = {low = 1, high = 3, chance = 1},
+            ['big-biter'] = {low = 1, high = 5, chance = 1},
+            ['behemoth-biter'] = {low = 1, high = 10, chance = 1}
         }
     },
     -- adds anti-nuke griefing
@@ -188,7 +188,7 @@ global.config = {
     },
     -- spawns more units when one dies
     hail_hydra = {
-        enabled = false,
+        enabled = true,
         -- at which scale the evolution will increase the additional hydra spawns
         -- to disable scaling with evolution, set to 0.
         -- the formula: chance = hydra_chance + (evolution_factor * evolution_scale)
