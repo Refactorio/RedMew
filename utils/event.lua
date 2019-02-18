@@ -205,7 +205,7 @@ function Event.add_removable(event_name, token)
     if type(token) ~= 'number' then
         error('token must be a number', 2)
     end
-    if _LIFECYCLE == 6 then
+    if _LIFECYCLE == _STAGE.load then
         error('cannot call during on_load', 2)
     end
 
@@ -228,7 +228,7 @@ end
 -- @param  event_name<number>
 -- @param  token<number>
 function Event.remove_removable(event_name, token)
-    if _LIFECYCLE == 6 then
+    if _LIFECYCLE == _STAGE.load then
         error('cannot call during on_load', 2)
     end
     local tokens = token_handlers[event_name]
@@ -255,7 +255,7 @@ end
 -- @param  event_name<number>
 -- @param  func<function>
 function Event.add_removable_function(event_name, func)
-    if _LIFECYCLE == 6 then
+    if _LIFECYCLE == _STAGE.load then
         error('cannot call during on_load', 2)
     end
     if type(func) ~= 'function' then
@@ -287,7 +287,7 @@ end
 -- @param  event_name<number>
 -- @param  func<function>
 function Event.remove_removable_function(event_name, func)
-    if _LIFECYCLE == 6 then
+    if _LIFECYCLE == _STAGE.load then
         error('cannot call during on_load', 2)
     end
     local funcs = function_handlers[event_name]
@@ -312,7 +312,7 @@ end
 -- @param  tick<number>
 -- @param  token<number>
 function Event.add_removable_nth_tick(tick, token)
-    if _LIFECYCLE == 6 then
+    if _LIFECYCLE == _STAGE.load then
         error('cannot call during on_load', 2)
     end
     if type(token) ~= 'number' then
@@ -338,7 +338,7 @@ end
 -- @param  tick<number>
 -- @param  token<number>
 function Event.remove_removable_nth_tick(tick, token)
-    if _LIFECYCLE == 6 then
+    if _LIFECYCLE == _STAGE.load then
         error('cannot call during on_load', 2)
     end
     local tokens = token_nth_tick_handlers[tick]
@@ -365,7 +365,7 @@ end
 -- @param  tick<number>
 -- @param  func<function>
 function Event.add_removable_nth_tick_function(tick, func)
-    if _LIFECYCLE == 6 then
+    if _LIFECYCLE == _STAGE.load then
         error('cannot call during on_load', 2)
     end
     if type(func) ~= 'function' then
@@ -397,7 +397,7 @@ end
 -- @param  tick<number>
 -- @param  func<function>
 function Event.remove_removable_nth_tick_function(tick, func)
-    if _LIFECYCLE == 6 then
+    if _LIFECYCLE == _STAGE.load then
         error('cannot call during on_load', 2)
     end
     local funcs = function_nth_tick_handlers[tick]

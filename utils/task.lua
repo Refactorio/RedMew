@@ -77,8 +77,8 @@ end
 -- @param func_token <number> a token for a function store via the token system
 -- @param params <any> the argument to send to the tokened function
 function Task.set_timeout_in_ticks(ticks, func_token, params)
-    if _LIFECYCLE < 5 then
-        error('cannot call before on_init', 2)
+    if not game then
+        error('cannot call when game is not available', 2)
     end
     local time = game.tick + ticks
     local callback = {time = time, func_token = func_token, params = params}
@@ -91,8 +91,8 @@ end
 -- @param func_token <number> a token for a function store via the token system
 -- @param params <any> the argument to send to the tokened function
 function Task.set_timeout(sec, func_token, params)
-    if _LIFECYCLE < 5 then
-        error('cannot call before on_init', 2)
+    if not game then
+        error('cannot call when game is not available', 2)
     end
     Task.set_timeout_in_ticks(60 * sec, func_token, params)
 end
