@@ -179,7 +179,7 @@ local function quadrants(x, y)
             local resources = game.surfaces[2].find_entities_filtered{area = {{ x - 0.5, y - 0.5 }, { x + 0.5, y + 0.5 }}, type= "resource"}
             for _, resource in pairs(resources) do
                 if resource.name ~= 'crude-oil' then
-                    local amount = b.euclidean_value(1, 0.01)
+                    local amount = b.euclidean_value(1, 0.002)
                     resource.amount = resource.amount * amount(x, y)
                 end
             end
@@ -244,8 +244,8 @@ local base_y = 48
 
 local start_iron = b.resource(rectangle, 'iron-ore', constant(750))
 local start_copper = b.resource(rectangle, 'copper-ore', constant(600))
-local start_stone = b.resource(rectangle, 'stone', constant(600))
-local start_coal = b.resource(rectangle, 'coal', constant(600))
+local start_stone = b.resource(rectangle, 'stone', constant(300))
+local start_coal = b.resource(rectangle, 'coal', constant(450))
 local start_tree_1 = b.entity(tree_rectangle_1, 'tree-01')
 local start_oil = b.resource(oil_rectangle, 'crude-oil', b.exponential_value(100000, 0, 1))
 local start_tree_2 = b.entity(tree_rectangle_2, 'tree-01')
