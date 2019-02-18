@@ -8,7 +8,6 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
 local ScenarioInfo = require 'features.gui.info'
 local Recipes = require 'map_gen.maps.quadrants.enabled_recipes'
-local Global = require 'utils.global'
 
 local abs = math.abs
 local round = math.round

@@ -90,17 +90,17 @@ local function toggle(event)
     label.style.single_line = false
     label.style.font = 'default-large-bold'
 
-    local label_flow = content_flow.add {type = 'flow'}
-    local label = label_flow.add {type = 'label', caption = "While in spawn, you can switch quadrant!"}
+    label_flow = content_flow.add {type = 'flow'}
+    label = label_flow.add {type = 'label', caption = "While in spawn, you can switch quadrant!"}
     label.style.single_line = false
     label.style.font = 'default'
 
-    local label_flow = content_flow.add {type = 'flow'}
-    local label = label_flow.add {type = 'label', caption = "Go ahead and pick a quadrant you'd like to help out!"}
+    label_flow = content_flow.add {type = 'flow'}
+    label = label_flow.add {type = 'label', caption = "Go ahead and pick a quadrant you'd like to help out!"}
     label.style.single_line = false
     label.style.font = 'default'
 
-    local content_flow = frame.add {type = 'flow', direction = 'horizontal'}
+    content_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
     left_flow.style.align = 'left'
@@ -113,13 +113,13 @@ local function toggle(event)
     left_flow.add({type = 'button', name = 'Quadrants.Button.2', caption = 'Intermediate and Mining'})
     right_flow.add({type = 'button', name = 'Quadrants.Button.1', caption = 'Science and Military'})
 
-    local content_flow = frame.add {type = 'flow', direction = 'horizontal'}
+    content_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
-    local left_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
+    left_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
     left_flow.style.align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local right_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
+    right_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
     right_flow.style.align = 'right'
     right_flow.style.horizontally_stretchable = true
 
