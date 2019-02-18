@@ -36,10 +36,9 @@ local function on_built_entity(event)
     local pos = {x = abs(entity.position.x) - (size_x/2), y = abs(entity.position.y) - (size_y/2)}
     local entity_pos = entity.position
 
-    local quadrant_bound = {0, 0}
     local within_range = false
     if string.find(force.name, 'quadrant') then
-        quadrant_bound = quadrant_bounds[force.name]
+        local quadrant_bound = quadrant_bounds[force.name]
         if (force.name == 'quadrant1') then
             within_range = (entity_pos.x >= quadrant_bound.x and entity_pos.y <= quadrant_bound.y)
         elseif (force.name == 'quadrant2') then
