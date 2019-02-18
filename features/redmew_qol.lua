@@ -1,10 +1,5 @@
 -- Assorted quality of life improvements that are restricted in scope. Similar to redmew_commands but event-based rather than command-based.
 
--- This file has each module in 3 parts.
--- The local functions (including at least 1 tokenized function) are located below the "Local functions" comment
--- The functions which register and remove the events (allowing for runtime enabling/disabling of features) are located below the "Event registers" comment
--- Lastly the public get/set functions are located after the "Getters/setters" comment
-
 -- Dependencies
 local Token = require 'utils.token'
 local Event = require 'utils.event'

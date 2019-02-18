@@ -7,8 +7,12 @@ local Task = require 'utils.task'
 local Global = require 'utils.global'
 local Game = require 'utils.game'
 
+local format = string.format
+
 local chests = {}
 local chests_next = {}
+local config = global.config.infinite_storage_chest
+
 
 Global.register(
     {chests = chests, chests_next = chests_next},
@@ -215,7 +219,7 @@ local function gui_opened(event)
     local text =
         frame.add {
         type = 'label',
-        caption = 'This chest stores unlimited quantity of items (up to 48 different item types).\nThe chest is best used with an inserter to add / remove items.\nIf the chest is mined or destroyed the items are lost.\nYou can buy the chest at the market for 100 coins.'
+        caption = format('This chest stores unlimited quantity of items (up to 48 different item types).\nThe chest is best used with an inserter to add / remove items.\nIf the chest is mined or destroyed the items are lost.\nYou can buy the chest at the market for %s coins.', config.cost)
     }
     text.style.single_line = false
 
@@ -263,7 +267,7 @@ local market_items = require 'resources.market_items'
 table.insert(
     market_items,
     {
-        price = 100,
+        price = config.cost,
         name = 'infinity-chest',
         description = 'Stores unlimited quantity of items for up to 48 different item types'
     }
