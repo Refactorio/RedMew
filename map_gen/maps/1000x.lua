@@ -101,6 +101,7 @@ RS.set_difficulty_settings({{technology_price_multiplier = tech_cost}})
 RS.set_map_settings({map_settings})
 
 -- Setup market inventory
+config.market.create_standard_market = false
 if config.market.enabled then
     local items_to_add = {
         {name = 'modular-armor', stack_limit = 1, player_limit = 1, price = 50},
