@@ -8,15 +8,15 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
 local ScenarioInfo = require 'features.gui.info'
 local Recipes = require 'map_gen.maps.quadrants.enabled_recipes'
+local Global = require 'utils.global'
 
 local abs = math.abs
 local round = math.round
 local redmew_config = global.config
-local forces = {}
 
 ScenarioInfo.set_map_name('[WIP] Quadrants')
 ScenarioInfo.set_map_description('Teamwork based map')
-ScenarioInfo.add_map_extra_info( [[
+ScenarioInfo.add_map_extra_info([[
 - Restricted research
 - Restricted recipes
 - Restricted teleport between quadrants
@@ -26,16 +26,16 @@ ScenarioInfo.add_map_extra_info( [[
 redmew_config.paint.enabled = false
 
 redmew_config.player_create.starting_items = {
-    {name = 'iron-plate', count = 7},
-    {name = 'iron-gear-wheel', count = 3}
+    { name = 'iron-plate', count = 7 },
+    { name = 'iron-gear-wheel', count = 3 }
 }
 
 redmew_config.player_create.join_messages = {
-'Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord',
-'Click the question mark in the top left corner for server information and map details.',
-'----',
-'Quadrants is a different take on a teamwork based map. Be sure to read the map details!',
-'--------'
+    'Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord',
+    'Click the question mark in the top left corner for server information and map details.',
+    '----',
+    'Quadrants is a different take on a teamwork based map. Be sure to read the map details!',
+    '--------'
 }
 
 local function spawn_market(surface, force, position)
@@ -60,10 +60,15 @@ local function spawn_market(surface, force, position)
 end
 
 local function reset_recipes()
-    for _, force in pairs(forces) do
-        for _, recipe in pairs(force.recipes) do
-            if not (Recipes[force.name].recipe[recipe.name] or Recipes.default.recipe[recipe.name]) then
-                recipe.enabled = false
+    log('Reset_recipes!')
+    for _, force in pairs(game.forces) do
+        log(force.name .. " < Force |")
+        if (string.find(force.name, 'quadrant')) ~= nil then
+            for _, recipe in pairs(force.recipes) do
+                log(force.name .. " < Force | Recipe > " .. recipe.name)
+                if not (Recipes[force.name].recipe[recipe.name] or Recipes.default.recipe[recipe.name]) then
+                    recipe.enabled = false
+                end
             end
         end
     end
@@ -81,29 +86,34 @@ local function on_init()
     local q4 = game.create_force('quadrant4')
     q4.set_spawn_position({ 64, 64 }, surface)
 
-    forces = { q1, q2, q3, q4 }
     reset_recipes()
-    for _, force in pairs(forces) do
-        force.share_chart = true
+    for _, force in pairs(game.forces) do
+        if (string.find(force.name, 'quadrant')) ~= nil then
+            force.share_chart = true
 
-        if force.name ~= 'quadrant1' then
-            force.disable_research()
-        end
-        for _, friend_force in pairs(forces) do
-            if friend_force ~= force then
-                force.set_friend(friend_force, true)
+            if force.name ~= 'quadrant1' then
+                force.disable_research()
+            end
+            for _, friend_force in pairs(forces) do
+                if friend_force ~= force then
+                    force.set_friend(friend_force, true)
+                end
             end
         end
     end
 end
 
 local function on_research_finished(event)
-    if event.research.force ~= forces[1] then
+    log(event.research.name .. ' researched!')
+    if event.research.force ~= game.forces['quadrant1'] then
+        log('NOT QUADRANT1!')
         return
     end
-    for _, force in pairs(forces) do
-        if force.name ~= 'quadrant1' then
-            force.technologies[event.research.name].researched = true
+    for _, force in pairs(game.forces) do
+        if (string.find(force.name, 'quadrant')) ~= nil then
+            if force.name ~= 'quadrant1' then
+                force.technologies[event.research.name].researched = true
+            end
         end
     end
     reset_recipes()
