@@ -14,8 +14,17 @@ local allowed_entities = {
     ['express-splitter'] = true,
 }
 
+local quadrant_bounds = {
+    ['quadrant1'] = {x = 24, y = -24},
+    ['quadrant2'] = {x = -24, y = -24},
+    ['quadrant3'] = {x = -24, y = 24},
+    ['quadrant4'] = {x = 24, y = 24}
+}
+
 local function on_built_entity(event)
     local entity = event.created_entity
+    local force = entity.force
+
     if not entity or not entity.valid then
         return
     end
@@ -25,8 +34,24 @@ local function on_built_entity(event)
     local size_x = abs(s_box.left_top.x - s_box.right_bottom.x)
     local size_y = abs(s_box.left_top.y - s_box.right_bottom.y)
     local pos = {x = abs(entity.position.x) - (size_x/2), y = abs(entity.position.y) - (size_y/2)}
+    local entity_pos = entity.position
 
-    if not(pos.x <= 23 or pos.y <= 23) then
+    local quadrant_bound = {0, 0}
+    local within_range = false
+    if string.find(force.name, 'quadrant') then
+        quadrant_bound = quadrant_bounds[force.name]
+        if (force.name == 'quadrant1') then
+            within_range = (entity_pos.x >= quadrant_bound.x and entity_pos.y <= quadrant_bound.y)
+        elseif (force.name == 'quadrant2') then
+            within_range = (entity_pos.x <= quadrant_bound.x and entity_pos.y <= quadrant_bound.y)
+        elseif (force.name == 'quadrant3') then
+            within_range = (entity_pos.x <= quadrant_bound.x and entity_pos.y >= quadrant_bound.y)
+        elseif (force.name == 'quadrant4') then
+            within_range = (entity_pos.x >= quadrant_bound.x and entity_pos.y >= quadrant_bound.y)
+        end
+    end
+
+    if not(pos.x <= 23 or pos.y <= 23) and (within_range) then
         return
     end
 
@@ -44,7 +69,7 @@ local function on_built_entity(event)
     end
 
 
-    if allowed_entities[name] and not (pos.x < 2 or pos.y < 2) then
+    if allowed_entities[name] and not (pos.x < 2 or pos.y < 2) and (within_range or (pos.x <= 23 or pos.y <= 23)) then
         return
     end
 
