@@ -8,9 +8,9 @@ global.config = {
     map_info = {
         enabled = true,
         -- The title of the map
-        map_name_key = 'Toxic Jungle, Toxic Science',
+        map_name_key = 'This Map has no name',
         -- The long description of the map, typically 1 paragraph
-        map_description_key = "Military, Production and High-Tech Science Packs are too deadly to craft and must be purchased from the market",
+        map_description_key = "This section is supposed to be filled out on a per map basis. If you're seeing this message, ping the admin team to get a description added for this map. A 20 coin bonus is available to the first person to point this out.",
         -- The feature list of the map
         map_extra_info_key = 'This map has no extra information',
         -- New Scenario Features, appears in the "What's new" tab
@@ -103,14 +103,14 @@ global.config = {
             ['big-worm-turret'] = {low = 10, high = 20, chance = 1},
 
             -- default is 0, no chance of coins dropping from biters/spitters
-            ['small-biter'] = {low = 1, high = 5, chance = 1},
-            ['small-spitter'] = {low = 1, high = 2, chance = 1},
-            ['medium-spitter'] = {low = 1, high = 3, chance = 1},
-            ['big-spitter'] = {low = 1, high = 3, chance = 1},
-            ['behemoth-spitter'] = {low = 1, high = 10, chance = 1},
-            ['medium-biter'] = {low = 1, high = 3, chance = 1},
-            ['big-biter'] = {low = 1, high = 5, chance = 1},
-            ['behemoth-biter'] = {low = 1, high = 10, chance = 1}
+            ['small-biter'] = {low = 1, high = 5, chance = 0},
+            ['small-spitter'] = {low = 1, high = 2, chance = 0},
+            ['medium-spitter'] = {low = 1, high = 3, chance = 0},
+            ['big-spitter'] = {low = 1, high = 3, chance = 0},
+            ['behemoth-spitter'] = {low = 1, high = 10, chance = 0},
+            ['medium-biter'] = {low = 1, high = 3, chance = 0},
+            ['big-biter'] = {low = 1, high = 5, chance = 0},
+            ['behemoth-biter'] = {low = 1, high = 10, chance = 0}
         }
     },
     -- adds anti-nuke griefing
@@ -188,7 +188,7 @@ global.config = {
     },
     -- spawns more units when one dies
     hail_hydra = {
-        enabled = true,
+        enabled = false,
         -- at which scale the evolution will increase the additional hydra spawns
         -- to disable scaling with evolution, set to 0.
         -- the formula: chance = hydra_chance + (evolution_factor * evolution_scale)
