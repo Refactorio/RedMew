@@ -183,6 +183,9 @@ Gui.on_pre_player_hide_top = custom_handler_factory(on_pre_hidden_handlers)
 -- This function must be called in the control stage, i.e not inside an event.
 -- @param element_name<string> This name must be globally unique.
 function Gui.allow_player_to_toggle_top_element_visibility(element_name)
+    if _LIFECYCLE ~= _STAGE.control then
+        error('can only be called during the control stage', 2)
+    end
     top_elements[#top_elements + 1] = element_name
 end
 

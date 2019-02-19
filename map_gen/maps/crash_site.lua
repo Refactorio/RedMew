@@ -128,7 +128,7 @@ local spawn_callback =
 )
 
 local function init()
-    local on_init = game ~= nil
+    local on_init = (_LIFECYCLE == _STAGE.init)
 
     local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
 

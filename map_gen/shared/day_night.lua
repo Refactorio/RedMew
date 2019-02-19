@@ -55,7 +55,7 @@ Event.on_init(init)
 -- Public functions
 
 --- Sets the day/night cycle according to the table it is given.
--- Can only be used during or after init.
+-- Can only be called during or after init.
 -- @param day_night_cycle <table> containing specific, required keys: ticks_per_day, dusk, evening, morning, dawn
 -- @param surface <LuaSurface> to set the day/night cycle of
 -- @returns <boolean> true if set properly, nil if not
@@ -86,7 +86,7 @@ function Public.set_cycle(day_night_cycle, surface)
 end
 
 --- Sets the brightness to a fixed level
--- Can only be used during or after init.
+-- Can only be called during or after init.
 -- @param daylight <number> between 0.15 and 1 representing the percentage of daylight (0.15 brightness is the darkest available)
 -- @param surface <LuaSurface> to set the day/night cycle of
 -- @return <boolean> true if time is set properly, nil if not
@@ -121,6 +121,7 @@ function Public.set_fixed_brightness(daylight, surface)
 end
 
 --- Unfreezes daytime (usually frozen by set_fixed_brightness)
+-- Can only be called during or after init.
 -- @param surface <LuaSurface> to unfreeze the day/night cycle of
 -- @return <boolean> true if daytime unfrozen, nil if not
 function Public.unfreeze_daytime(surface)

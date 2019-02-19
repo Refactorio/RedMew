@@ -332,6 +332,9 @@ end
 --     end
 -- )
 function Public.on_data_set_changed(data_set, handler)
+    if _LIFECYCLE == _STAGE.runtime then
+        error('cannot call during runtime', 2)
+    end
     if type(data_set) ~= 'string' then
         error('data_set must be a string', 2)
     end

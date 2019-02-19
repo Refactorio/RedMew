@@ -1,7 +1,8 @@
 -- If you're looking to configure anything, you want config.lua. Nearly everything in this file is dictated by the config.
 
 -- Info on the data lifecycle and how we use it: https://github.com/Refactorio/RedMew/wiki/The-data-lifecycle
-_LIFECYCLE = 4 -- Control stage
+require 'resources.data_stages'
+_LIFECYCLE = _STAGE.control -- Control stage
 
 -- Overrides the _G.print function
 require 'utils.print_override'

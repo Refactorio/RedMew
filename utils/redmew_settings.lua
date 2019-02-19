@@ -89,7 +89,7 @@ Public.types = {fraction = 'fraction', string = 'string', boolean = 'boolean'}
 ---@param setting_type string
 ---@param default mixed
 function Public.register(name, setting_type, default)
-    if game then
+    if _LIFECYCLE ~= _STAGE.control then
         error(format('You can only register setting names in the control stage, i.e. not inside events. Tried setting "%s" with type "%s".', name, setting_type), 2)
     end
 
