@@ -244,6 +244,7 @@ table.inspect = require 'utils.inspect'
 table.size = table_size
 
 --- Creates a deepcopy of a table. Metatables and LuaObjects inside the table are shallow copies.
+-- Shallow copies meaning it copies the reference to the object instead of the object itself.
 -- @param object <table> the object to copy
 -- @return <table> the copied object
 table.deep_copy = table.deepcopy
