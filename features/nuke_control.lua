@@ -182,9 +182,9 @@ local train_to_manual =
 )
 
 local function on_entity_died(event)
-    -- We only care is a train is killed by a member of its own force
+    -- We only care if a train is killed by a member of its own force
     local entity = event.entity
-    if (not entity or not entity.valid) or (event.force ~= entity.force) then
+    if (not entity or not entity.valid) or not entity.train or (event.force ~= entity.force) then
         return
     end
     -- Check that an entity did the killing
