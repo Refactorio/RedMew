@@ -164,8 +164,6 @@ local function on_init()
     player_force.manual_mining_speed_modifier = 2 -- increase mining speed, disabled after military 2 research
     game.map_settings.enemy_expansion.enabled = true
 
-    -- Set up non-standard market so we can add science packs for purchase while keeping all other items
-    global.config.market.create_standard_market = false
     Retailer.set_item(
         'items',
         {
