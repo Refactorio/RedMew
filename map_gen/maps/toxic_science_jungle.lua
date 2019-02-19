@@ -253,4 +253,6 @@ local function on_init()
     Retailer.add_market('items', item_market_1)
 end
 
+Event.on_init(on_init)
+
 return map
