@@ -12,6 +12,7 @@ local Retailer = require 'features.retailer'
 
 local enemy_seed = 420420
 
+table.insert(global.config.player_create.starting_items, {name = 'steel-axe', count = 2})
 global.config.market.create_standard_market = false -- stop standard market from spawning
 
 local map_gen_settings = {
@@ -164,6 +165,7 @@ local function on_init()
     game.map_settings.enemy_expansion.enabled = true
 
     -- Set up non-standard market so we can add science packs for purchase while keeping all other items
+    global.config.market.create_standard_market = false
     Retailer.set_item(
         'items',
         {
@@ -252,8 +254,5 @@ local function on_init()
     item_market_1.destructible = false
     Retailer.add_market('items', item_market_1)
 end
-Event.on_init(on_init)
-
-table.insert(global.config.player_create.starting_items, {name = 'steel-axe', count = 2})
 
 return map
