@@ -18,11 +18,13 @@ local script_on_nth_tick = script.on_nth_tick
 
 local function call_handlers(handlers, event)
     if _DEBUG then
-        for _, handler in ipairs(handlers) do
+        for i = 1, #handlers do
+            local handler = handlers[i]
             handler(event)
         end
     else
-        for _, handler in ipairs(handlers) do
+        for i = 1, #handlers do
+            local handler = handlers[i]
             local success, error = pcall(handler, event)
             if not success then
                 log(error)
