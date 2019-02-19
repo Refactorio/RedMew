@@ -1,3 +1,8 @@
+--changes that should be made in config.lua:
+--change coin drop probabliity from biters/spitters from 0 -> 1
+--enable hail hydra
+--change map info + description if playing in MP
+
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
 local Perlin = require 'map_gen.shared.perlin_noise'
