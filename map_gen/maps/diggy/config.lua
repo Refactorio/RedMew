@@ -357,9 +357,9 @@ local Config = {
         experience = {
             enabled = true,
             -- controls the formula for calculating level up costs in stone sent to surface
-            difficulty_scale = 15, -- Diggy default 15. Higher increases experience requirement climb
+            difficulty_scale = 20, -- Diggy default 15. Higher increases experience requirement climb
             first_lvl_xp = 350, -- Diggy default 350. This sets the price for the first level.
-            xp_fine_tune = 200, -- Diggy default 200. This value is used to fine tune the overall requirement climb without affecting the speed
+            xp_fine_tune = 400, -- Diggy default 200. This value is used to fine tune the overall requirement climb without affecting the speed
             cost_precision = 3, -- Diggy default 3. This sets the precision of the required experience to level up. E.g. 1234 becomes 1200 with precision 2 and 1230 with precision 3.
 
             -- percentage * mining productivity level gets added to mining speed
@@ -369,7 +369,7 @@ local Config = {
                 ['sand-rock-big']             = 5,
                 ['rock-big']                  = 5,
                 ['rock-huge']                 = 10,
-                ['rocket_launch']             = 0.01,     -- XP reward in percentage of total experience when a rocket launches (Diggy default: 0.01 which equals 1%)
+                ['rocket_launch']             = 0.01,      -- XP reward in percentage of total experience when a rocket launches (Diggy default: 0.01 which equals 1%)
                 ['science-pack-1']            = 4,
                 ['science-pack-2']            = 8,
                 ['science-pack-3']            = 15,
@@ -377,17 +377,18 @@ local Config = {
                 ['production-science-pack']   = 25,
                 ['high-tech-science-pack']    = 50,
                 ['space-science-pack']        = 10,
-                ['enemy_killed']              = 10,       -- Base XP for killing biters and spitters.
+                ['enemy_killed']              = 10,        -- Base XP for killing biters and spitters.
                 ['death-penalty']             = 0.0035,    -- XP deduct in percentage of total experience when a player dies (Diggy default: 0.0035 which equals 0.35%)
-                --['cave-in-penalty']           = 100       -- XP lost every cave in.
+                --['cave-in-penalty']         = 100        -- XP lost every cave in.
+                ['infinity-research']         = 0.60       -- XP reward in percentage of the required experience from current level to next level (Diggy default: 0.60 which equals 60%)
             },
 
             buffs = {
                 -- define new buffs here, they are handed out for each level
-                mining_speed = {value = 5},
-                inventory_slot = {value = 1},
+                mining_speed = {value = 5, max = 100},
+                inventory_slot = {value = 1, max = 100},
                 -- double_level is the level interval for receiving a double bonus (Diggy default: 5 which equals every 5th level)
-                health_bonus = {value = 2.5, double_level = 5},
+                health_bonus = {value = 2.5, double_level = 5, max = 500},
             },
 
             -- add or remove a table entry to add or remove a unlockable item from the market.
