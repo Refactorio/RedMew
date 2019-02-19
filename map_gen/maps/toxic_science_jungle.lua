@@ -153,7 +153,7 @@ local function on_init()
     player_force.recipes['military-science-pack'].enabled = false
     player_force.recipes['production-science-pack'].enabled = false
     player_force.recipes['high-tech-science-pack'].enabled = false -- disable crafting of sciences
-    game.forces.player.technologies['flamethrower'].enabled = false -- disable flamethrower tech
+    player_force.technologies['flamethrower'].enabled = false -- disable flamethrower tech
     player_force.manual_mining_speed_modifier = 2 -- increase mining speed, disabled after military 2 research
     game.map_settings.enemy_expansion.enabled = true
 
