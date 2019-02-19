@@ -28,7 +28,7 @@ RestrictEntities.set_keep_alive_callback(
         local area = entity.bounding_box
         local left_top, right_bottom = area.left_top, area.right_bottom
         if left_top.x == right_bottom.x and left_top.y == right_bottom.y then
-            return
+            return true
         end
         local count = entity.surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
         if count == 0 then
