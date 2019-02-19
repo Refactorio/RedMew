@@ -1,6 +1,6 @@
-local success, shape = pcall(function() require 'map_selection' end)
+local success, shape = pcall(function() return require 'map_selection' end)
 if not success then
-	error('\n NO MAP SELECTED \n The RedMew scenario contains many different maps. If you are unsure how to select a map checkout our guide at: \n https://redmew.com/guide \n -The RedMew Team ', 0)
+	error('\n\n--map_selection.lua not found--\nReleases on github include this file.\nFor info: \nhttps://redmew.com/guide\n - The RedMew Team ', 0)
 end
 
 local b = require 'map_gen.shared.builders'
