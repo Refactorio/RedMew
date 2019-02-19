@@ -277,13 +277,13 @@ Command.add(
         allowed_by_server = true
     },
     function(args)
-        local player_name = args.player
-        local player = game.players[player_name]
-        if player then
-            Public.toast_player(player, 15, args.msg)
-            Utils.print_admins(format('%s sent a toast to %s', Utils.get_actor(), player_name))
+        local target_name = args.player
+        local target = game.players[target_name]
+        if target then
+            Public.toast_player(target, 15, args.msg)
+            Utils.print_admins(format('%s sent a toast to %s', Utils.get_actor(), target_name))
         else
-            Game.player_print({'common.fail_no_target'}, Color.yellow)
+            Game.player_print({'common.fail_no_target', target_name}, Color.yellow)
         end
     end
 )
