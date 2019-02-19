@@ -2,6 +2,7 @@ local Gui = require 'utils.gui'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
+local Command = require 'utils.command'
 local Popup = require 'features.gui.popup'
 local Color = require 'resources.color_presets'
 
@@ -33,6 +34,19 @@ Global.register(
         jail_data = tbl.jail_data
     end
 )
+
+local function report_command(args, player)
+    local reported_player_name = args.player
+    local reported_player = game.players[reported_player_name]
+
+    if not reported_player then
+        Game.player_print(reported_player_name .. ' does not exist.')
+        return nil
+    end
+
+    Module.report(player, reported_player, args.message)
+    Game.player_print('Your report has been sent.')
+end
 
 local function draw_report(parent, report_id)
     local report = report_data[report_id]
@@ -136,19 +150,6 @@ function Module.report(reporting_player, reported_player, message)
             end
         end
     end
-end
-
-function Module.report_command(args, player)
-    local reported_player_name = args.player
-    local reported_player = game.players[reported_player_name]
-
-    if not reported_player then
-        Game.player_print(reported_player_name .. ' does not exist.')
-        return nil
-    end
-
-    Module.report(player, reported_player, args.message)
-    Game.player_print('Your report has been sent.')
 end
 
 --- Places a target in jail
@@ -422,6 +423,16 @@ Gui.on_click(
         print('You have successfully reported: ' .. Game.get_player_by_index(reported_player_index).name)
         print(prefix_e)
     end
+)
+
+Command.add(
+    'report',
+    {
+        description = 'Reports a user to admins',
+        arguments = {'player', 'message'},
+        capture_excess_arguments = true
+    },
+    report_command
 )
 
 return Module

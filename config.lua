@@ -41,7 +41,7 @@ global.config = {
     },
     -- time before a player gets the auto-trusted rank, allowing them access to the deconstructions planner, nukes, etc.
     rank_system = {
-        time_for_trust = 3*60*60*60, -- 3 hours
+        time_for_trust = 3 * 60 * 60 * 60, -- 3 hours
         everyone_is_regular = false
     },
     -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
@@ -94,7 +94,6 @@ global.config = {
         -- the coordinates at which the standard market will be created
         standard_market_location = {x = 0, y = -5},
         currency = currency,
-
         -- defines the chance that killing an entity will drop coins and the min and max it can drop upon death
         entity_drop_amount = {
             ['biter-spawner'] = {low = 5, high = 15, chance = 1},
@@ -102,7 +101,6 @@ global.config = {
             ['small-worm-turret'] = {low = 2, high = 8, chance = 1},
             ['medium-worm-turret'] = {low = 5, high = 15, chance = 1},
             ['big-worm-turret'] = {low = 10, high = 20, chance = 1},
-
             -- default is 0, no chance of coins dropping from biters/spitters
             ['small-biter'] = {low = 1, high = 5, chance = 0},
             ['small-spitter'] = {low = 1, high = 2, chance = 0},
@@ -290,6 +288,10 @@ global.config = {
         -- brightness is a number between 0.15 and 1
         use_fixed_brightness = false,
         fixed_brightness = 0.5
+    },
+    -- enables a command which allows for an end-game event
+    apocalypse = {
+        enabled = true
     }
 }
 

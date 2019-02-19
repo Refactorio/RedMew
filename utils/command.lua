@@ -149,7 +149,7 @@ function Command.add(command_name, options, callback)
         local player = game.player
         local player_name = player and player.valid and player.name or '<server>'
         if not player or not player.valid then
-            print = _G.print
+            print = log
 
             if not allowed_by_server then
                 print(format("The command '%s' is not allowed to be executed by the server.", command_name))
