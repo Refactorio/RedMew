@@ -5,6 +5,7 @@
 
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
+local RecipeLocker = require 'utils.recipe_locker'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local RS = require 'map_gen.shared.redmew_surface'
 local Retailer = require 'features.retailer'
@@ -41,6 +42,14 @@ local map_gen_settings = {
     water = 'very-big'
 }
 RS.set_map_gen_settings({map_gen_settings})
+
+RecipeLocker.lock_recipes(
+    {
+        'military-science-pack',
+        'production-science-pack',
+        'high-tech-science-pack'
+    }
+)
 
 Event.add(
     defines.events.on_research_finished,
@@ -150,15 +159,11 @@ map = b.apply_entity(map, enemy)
 local function on_init()
     local surface = RS.get_surface()
     local player_force = game.forces.player
-    player_force.recipes['military-science-pack'].enabled = false
-    player_force.recipes['production-science-pack'].enabled = false
-    player_force.recipes['high-tech-science-pack'].enabled = false -- disable crafting of sciences
     player_force.technologies['flamethrower'].enabled = false -- disable flamethrower tech
     player_force.manual_mining_speed_modifier = 2 -- increase mining speed, disabled after military 2 research
     game.map_settings.enemy_expansion.enabled = true
 
     -- Set up non-standard market so we can add science packs for purchase while keeping all other items
-    global.config.market.create_standard_market = false
     Retailer.set_item(
         'items',
         {
