@@ -7,11 +7,7 @@ local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local RS = require 'map_gen.shared.redmew_surface'
-local MGSP = require 'resources.map_gen_settings'
 local Retailer = require 'features.retailer'
-
-local match = string.match
-local remove = table.remove
 
 local enemy_seed = 420420
 
@@ -45,8 +41,6 @@ local map_gen_settings = {
     water = 'very-big'
 }
 RS.set_map_gen_settings({map_gen_settings})
-
-local market_items = require 'resources.market_items'
 
 Event.add(
     defines.events.on_research_finished,
@@ -156,31 +150,39 @@ map = b.apply_entity(map, enemy)
 local function on_init()
     local surface = RS.get_surface()
     local player_force = game.forces.player
-    player_force.recipes["military-science-pack"].enabled=false
-    player_force.recipes["production-science-pack"].enabled=false
-    player_force.recipes["high-tech-science-pack"].enabled=false  -- disable crafting of sciences
+    player_force.recipes['military-science-pack'].enabled = false
+    player_force.recipes['production-science-pack'].enabled = false
+    player_force.recipes['high-tech-science-pack'].enabled = false -- disable crafting of sciences
     game.forces.player.technologies['flamethrower'].enabled = false -- disable flamethrower tech
-    player_force.manual_mining_speed_modifier=2 -- increase mining speed, disabled after military 2 research
+    player_force.manual_mining_speed_modifier = 2 -- increase mining speed, disabled after military 2 research
     game.map_settings.enemy_expansion.enabled = true
 
     -- Set up non-standard market so we can add science packs for purchase while keeping all other items
     global.config.market.create_standard_market = false
-    Retailer.set_item('items', {
-        name = 'temporary-running-speed-bonus',
-        name_label = 'Temporary running speed bonus',
-        type = 'temporary-buff',
-        description = 'Increases running speed by one level for a short period',
-        sprite = 'technology/exoskeleton-equipment',
-        stack_limit = 1,
-        price = 10,})
-    Retailer.set_item('items', {
-        name = 'temporary-mining-speed-bonus',
-        name_label = 'Temporary mining speed bonus',
-        type = 'temporary-buff',
-        description = 'Increases manual mining speed by one level for a short period',
-        sprite = 'technology/mining-productivity-1',
-        stack_limit = 1,
-        price = 10,})
+    Retailer.set_item(
+        'items',
+        {
+            name = 'temporary-running-speed-bonus',
+            name_label = 'Temporary running speed bonus',
+            type = 'temporary-buff',
+            description = 'Increases running speed by one level for a short period',
+            sprite = 'technology/exoskeleton-equipment',
+            stack_limit = 1,
+            price = 10
+        }
+    )
+    Retailer.set_item(
+        'items',
+        {
+            name = 'temporary-mining-speed-bonus',
+            name_label = 'Temporary mining speed bonus',
+            type = 'temporary-buff',
+            description = 'Increases manual mining speed by one level for a short period',
+            sprite = 'technology/mining-productivity-1',
+            stack_limit = 1,
+            price = 10
+        }
+    )
     Retailer.set_item('items', {price = 2, name = 'raw-fish'})
     Retailer.set_item('items', {price = 25, name = 'military-science-pack'})
     Retailer.set_item('items', {price = 50, name = 'production-science-pack'})
@@ -204,7 +206,7 @@ local function on_init()
     Retailer.set_item('items', {price = 25, name = 'railgun'})
     Retailer.set_item('items', {price = 175, name = 'rocket-launcher'})
     Retailer.set_item('items', {price = 250, name = 'tank-cannon'})
-    Retailer.set_item('items', {price = 750,  name = 'tank-machine-gun'})
+    Retailer.set_item('items', {price = 750, name = 'tank-machine-gun'})
     Retailer.set_item('items', {price = 2500, name = 'artillery-wagon-cannon'})
     Retailer.set_item('items', {price = 1, name = 'firearm-magazine'})
     Retailer.set_item('items', {price = 5, name = 'piercing-rounds-magazine'})
@@ -218,15 +220,15 @@ local function on_init()
     Retailer.set_item('items', {price = 20, name = 'cannon-shell'})
     Retailer.set_item('items', {price = 30, name = 'explosive-cannon-shell'})
     Retailer.set_item('items', {price = 75, name = 'explosive-uranium-cannon-shell'})
-    Retailer.set_item('items', {price = 100,  name = 'artillery-shell'})
+    Retailer.set_item('items', {price = 100, name = 'artillery-shell'})
     Retailer.set_item('items', {price = 3, name = 'land-mine'})
     Retailer.set_item('items', {price = 5, name = 'grenade'})
     Retailer.set_item('items', {price = 35, name = 'cluster-grenade'})
     Retailer.set_item('items', {price = 5, name = 'defender-capsule'})
     Retailer.set_item('items', {price = 75, name = 'destroyer-capsule'})
     Retailer.set_item('items', {price = 35, name = 'poison-capsule'})
-    Retailer.set_item('items', {price = 35,   name = 'slowdown-capsule'})
-    Retailer.set_item('items', {price = 50,   name = 'artillery-targeting-remote'})
+    Retailer.set_item('items', {price = 35, name = 'slowdown-capsule'})
+    Retailer.set_item('items', {price = 50, name = 'artillery-targeting-remote'})
     Retailer.set_item('items', {price = 1000, name = 'artillery-turret'})
     Retailer.set_item('items', {price = 350, name = 'modular-armor'})
     Retailer.set_item('items', {price = 875, name = 'power-armor'})
@@ -244,7 +246,6 @@ local function on_init()
     local item_market_1 = surface.create_entity({name = 'market', position = {0, 0}})
     item_market_1.destructible = false
     Retailer.add_market('items', item_market_1)
-
 end
 Event.on_init(on_init)
 
