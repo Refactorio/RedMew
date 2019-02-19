@@ -8,9 +8,9 @@ global.config = {
     map_info = {
         enabled = true,
         -- The title of the map
-        map_name_key = 'This Map has no name',
+        map_name_key = 'Toxic Jungle, Toxic Science',
         -- The long description of the map, typically 1 paragraph
-        map_description_key = "This section is supposed to be filled out on a per map basis. If you're seeing this message, ping the admin team to get a description added for this map. A 20 coin bonus is available to the first person to point this out.",
+        map_description_key = "Military, Production and High-Tech Science Packs are too deadly to craft and must be purchased from the market",
         -- The feature list of the map
         map_extra_info_key = 'This map has no extra information',
         -- New Scenario Features, appears in the "What's new" tab
