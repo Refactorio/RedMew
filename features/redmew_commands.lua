@@ -1,13 +1,21 @@
-local Report = require 'features.report'
-local UserGroups = require 'features.user_groups'
 local Game = require 'utils.game'
-local Server = require 'features.server'
 local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
+local Settings = require 'utils.redmew_settings'
+local Utils = require 'utils.core'
+local Server = require 'features.server'
+local Walkabout = require 'features.walkabout'
+local PlayerStats = require 'features.player_stats'
+local Rank = require 'features.rank_system'
+local Donator = require 'features.donator'
 
 local format = string.format
-local ceil = math.ceil
+-- local ceil = math.ceil
 local concat = table.concat
+local pcall = pcall
+local tostring = tostring
+local tonumber = tonumber
+local pairs = pairs
 
 --- Kill a player with fish as the cause of death.
 local function do_fish_kill(player, suicide)
@@ -39,7 +47,7 @@ local function kill(args, player)
         end
     end
 
-    if global.walking and ((player and global.walking[player.index]) or (target and global.walking[target.index])) then
+    if (player and Walkabout.is_on_walkabout(player.index)) or (target and Walkabout.is_on_walkabout(target.index)) then
         Game.player_print("A player on walkabout cannot be killed by a mere fish, don't waste your efforts.")
         return
     end
@@ -126,6 +134,7 @@ local function show_rail_block(_, player)
     Game.player_print('show_rail_block_visualisation set to ' .. tostring(show))
 end
 
+--- Provides the time on the server
 local function server_time(_, player)
     local p
     if not player then
@@ -144,7 +153,11 @@ local function server_time(_, player)
     end
 end
 
-local function search_command(arguments)
+local function search_command(arguments) -- TODO: Re-enable this when (locale) has been properly integrated
+    Game.player_print('Sorry, search is temporarily out of order')
+    return arguments -- return args so that we avoid a lint warning
+
+    --[[
     local keyword = arguments.keyword
     local p = Game.player_print
     if #keyword < 2 then
@@ -190,6 +203,7 @@ local function search_command(arguments)
         p(format('[%d] /%s', i, matches[i]))
     end
     p(format('-------- Page %d / %d --------', page, pages))
+    --[[]]
 end
 
 local function list_seeds()
@@ -218,6 +232,48 @@ local function print_version()
     Game.player_print(version_str)
 end
 
+--- Prints information about the target player
+local function print_player_info(args, player)
+    local name = args.player
+    local target = game.players[name]
+    if not target then
+        Game.player_print('Target not found')
+        return
+    end
+
+    local index = target.index
+    local info_t = {
+        'redmew_commands.whois_formatter',
+        {'format.1_colon_2', 'Name', name},
+        {'format.single_item', target.connected and 'Online: yes' or 'Online: no'},
+        {'format.1_colon_2', 'Index', target.index},
+        {'format.1_colon_2', 'Rank', Rank.get_player_rank_name(name)},
+        {'format.single_item', Donator.is_donator(target.name) and 'Donator: yes' or 'Donator: no'},
+        {'format.1_colon_2', 'Time played', Utils.format_time(target.online_time)},
+        {'format.1_colon_2', 'AFK time', Utils.format_time(target.afk_time or 0)},
+        {'format.1_colon_2', 'Force', target.force.name},
+        {'format.1_colon_2', 'Surface', target.surface.name},
+        {'format.1_colon_2', 'Tag', target.tag},
+        {'format.1_colon_2', 'Distance walked', PlayerStats.get_walk_distance(index)},
+        {'format.1_colon_2', 'Coin earned', PlayerStats.get_coin_earned(index)},
+        {'format.1_colon_2', 'Coin spent', PlayerStats.get_coin_spent(index)},
+        {'format.1_colon_2', 'Deaths', PlayerStats.get_death_count(index)},
+        {'format.1_colon_2', 'Crafted items', PlayerStats.get_crafted_item(index)},
+        {'format.1_colon_2', 'Chat messages', PlayerStats.get_console_chat(index)}
+    }
+    Game.player_print(info_t)
+
+    if (not player or player.admin) and args.inventory then
+        local m_inventory = target.get_inventory(defines.inventory.player_main)
+        m_inventory = m_inventory.get_contents()
+        local q_inventory = target.get_inventory(defines.inventory.player_quickbar)
+        q_inventory = q_inventory.get_contents()
+        Game.player_print('Main and hotbar inventories: ')
+        Game.player_print(serpent.line(m_inventory))
+        Game.player_print(serpent.line(q_inventory))
+    end
+end
+
 -- Command registrations
 
 Command.add(
@@ -226,7 +282,7 @@ Command.add(
         description = 'Will kill you.',
         arguments = {'player'},
         default_values = {player = false},
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     kill
 )
@@ -235,7 +291,7 @@ Command.add(
     'afk',
     {
         description = 'Shows how long players have been afk.',
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     afk
 )
@@ -244,7 +300,7 @@ Command.add(
     'zoom',
     {
         description = 'Sets your zoom.',
-        arguments = {'zoom'},
+        arguments = {'zoom'}
     },
     zoom
 )
@@ -253,7 +309,7 @@ Command.add(
     'find',
     {
         description = 'shows an alert on the map where the player is located',
-        arguments = {'player'},
+        arguments = {'player'}
     },
     find_player
 )
@@ -261,7 +317,7 @@ Command.add(
 Command.add(
     'show-rail-block',
     {
-        description = 'Toggles rail block visualisation.',
+        description = 'Toggles rail block visualisation.'
     },
     show_rail_block
 )
@@ -270,7 +326,7 @@ Command.add(
     'server-time',
     {
         description = "Prints the server's time.",
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     server_time
 )
@@ -281,7 +337,7 @@ Command.add(
         description = 'Search for commands matching the keyword in name or description',
         arguments = {'keyword', 'page'},
         default_values = {page = 1},
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     search_command
 )
@@ -290,7 +346,7 @@ Command.add(
     'seeds',
     {
         description = 'List the seeds of all surfaces',
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     list_seeds
 )
@@ -299,28 +355,86 @@ Command.add(
     'redmew-version',
     {
         description = 'Prints the version of the RedMew scenario',
-        allowed_by_server = true,
+        allowed_by_server = true
     },
     print_version
 )
 
--- Commands with no local functions, only calls to other modules
-
 Command.add(
-    'report',
+    'whois',
     {
-        description = 'Reports a user to admins',
-        arguments = {'player', 'message'},
-        capture_excess_arguments = true,
+        description = 'provides information about a given player, admins can see the inventory of a player by adding "yes" as a second argument',
+        arguments = {'player', 'inventory'},
+        default_values = {inventory = false},
+        allowed_by_server = true
     },
-    Report.report_command
+    print_player_info
+)
+
+-- No man's land / free for all
+Command.add(
+    'redmew-setting-set',
+    {
+        description = 'Set a setting for yourself',
+        arguments = {'setting_name', 'new_value'},
+        capture_excess_arguments = true
+    },
+    function(arguments, player)
+        local value
+        local setting_name = arguments.setting_name
+        local success,
+            data =
+            pcall(
+            function()
+                value = Settings.set(player.index, setting_name, arguments.new_value)
+            end
+        )
+
+        if not success then
+            local i = data:find('%s')
+            player.print(data:sub(i + 1))
+            return
+        end
+
+        player.print(format('Changed "%s" to: "%s"', setting_name, value))
+    end
 )
 
 Command.add(
-    'regulars',
+    'redmew-setting-get',
     {
-        description = 'Prints a list of game regulars.',
-        allowed_by_server = true,
+        description = 'Display a setting value for yourself',
+        arguments = {'setting_name'}
     },
-    UserGroups.print_regulars
+    function(arguments, player)
+        local value
+        local setting_name = arguments.setting_name
+        local success,
+            data =
+            pcall(
+            function()
+                value = Settings.get(player.index, setting_name)
+            end
+        )
+
+        if not success then
+            local i = data:find('%s')
+            player.print(data:sub(i + 1))
+            return
+        end
+
+        player.print(format('Setting "%s" has a value of: "%s"', setting_name, value))
+    end
+)
+
+Command.add(
+    'redmew-setting-all',
+    {
+        description = 'Display all settings for yourself'
+    },
+    function(_, player)
+        for name, value in pairs(Settings.all(player.index)) do
+            player.print(format('%s=%s', name, value))
+        end
+    end
 )

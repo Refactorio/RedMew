@@ -68,14 +68,42 @@ function Debug.print(message, trace_levels)
     log(message)
 end
 
---- Returns the factorio LuaObject type or the Lua data type
+local function get(obj, prop)
+    return obj[prop]
+end
+
+local function get_lua_object_type_safe(obj)
+    local s, r = pcall(get, obj, 'help')
+
+    if not s then
+        return
+    end
+
+    return r():match('Lua%a+')
+end
+
+--- Returns the Lua data type or the factorio LuaObject type
+-- or 'NoHelpLuaObject' if the LuaObject does not have a help function
+-- or 'InvalidLuaObject' if the LuaObject is invalid.
 -- @param object <any>
 function Debug.object_type(object)
     local obj_type = type(object)
-    if obj_type == 'table' and object.isluaobject then
-        return match(object.help(),'Lua%a+')
+
+    if obj_type ~= 'table' or type(object.__self) ~= 'userdata' then
+        return obj_type
     end
-    return obj_type
+
+    local suc, valid = pcall(get, object, 'valid')
+    if not suc then
+        -- no 'valid' property
+        return get_lua_object_type_safe(object) or 'NoHelpLuaObject'
+    end
+
+    if not valid then
+        return 'InvalidLuaObject'
+    else
+        return get_lua_object_type_safe(object) or 'NoHelpLuaObject'
+    end
 end
 
 ---Shows the given message if debug is on.

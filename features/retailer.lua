@@ -273,7 +273,9 @@ local function redraw_market_items(data)
         local disabled = item.disabled == true
         local message
 
-        if total_price == 0 then
+        if total_price == 0 and player_limit == 0 then
+            message = 'SOLD!'
+        elseif total_price == 0 then
             message = 'FREE!'
         elseif total_price == 1 then
             message = '1 coin'
@@ -296,11 +298,11 @@ local function redraw_market_items(data)
         if disabled then
             insert(tooltip, '\n\n' .. (item.disabled_reason or 'Not available'))
         elseif is_missing_coins then
-            insert(tooltip, '\n\n' .. format('Missing %d coins to buy %d', missing_coins, stack_count))
+            insert(tooltip, '\n\n' .. format('Missing %s coins to buy %s', missing_coins, stack_count))
         end
 
         if has_player_limit then
-            insert(tooltip, '\n\n' .. format('You have bought this item %d out of %d times', item.player_limit - player_limit, item.player_limit))
+            insert(tooltip, '\n\n' .. format('You have bought this item %s out of %s times', item.player_limit - player_limit, item.player_limit))
         end
 
         local button = grid.add({type = 'flow'}).add({
@@ -404,16 +406,16 @@ local function draw_market_frame(player, group_name)
 end
 
 ---Returns the group name of the market at the given position, nil if not registered.
----@param position Position
+---@param position <table> Position
 local function get_market_group_name(position)
-    return memory.markets[position.x .. ',' .. position.y]
+    return memory.markets[(position.x or position[1]) .. ',' .. (position.y or position[2])]
 end
 
 ---Sets the group name for a market at a given position.
----@param position Position
----@param group_name string
+---@param position <table> Position
+---@param group_name <string>
 local function set_market_group_name(position, group_name)
-    memory.markets[position.x .. ',' .. position.y] = group_name
+    memory.markets[(position.x or position[1]) .. ',' .. (position.y or position[2])] = group_name
 end
 
 Event.add(defines.events.on_gui_opened, function (event)
@@ -567,6 +569,7 @@ Gui.on_click(item_button_name, function (event)
 
     redraw_market_items(data)
     PlayerStats.change_coin_spent(player.index, cost)
+    do_coin_label(coin_count - cost, data.coin_label)
 
     raise_event(Retailer.events.on_market_purchase, {
         item = item,
@@ -574,8 +577,6 @@ Gui.on_click(item_button_name, function (event)
         player = player,
         group_name = market_group,
     })
-
-    do_coin_label(coin_count - cost, data.coin_label)
 end)
 
 ---Add a market to the group_name retailer.

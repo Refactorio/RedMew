@@ -2,10 +2,19 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Token = require 'utils.token'
+local Command = require 'utils.command'
+local Utils = require 'utils.core'
+local Game = require 'utils.game'
+local Settings = require 'utils.redmew_settings'
 local Color = require 'resources.color_presets'
+local Ranks = require 'resources.ranks'
 
 local pairs = pairs
 local next = next
+local format = string.format
+
+local toast_volume_name = 'toast-volume'
+Settings.register(toast_volume_name, 'fraction', 1.0)
 
 local Public = {}
 
@@ -70,7 +79,8 @@ end
 ---Toast to a specific player
 ---@param player LuaPlayer
 ---@param duration number in seconds
-local function toast_to(player, duration)
+---@param sound string sound to play, nil to not play anything
+local function toast_to(player, duration, sound)
     local frame_holder = player.gui.left.add({type = 'flow'})
 
     local frame =
@@ -108,6 +118,10 @@ local function toast_to(player, duration)
     end
 
     active_toasts[id] = frame_holder
+
+    if sound then
+        player.play_sound({path = sound, volume_modifier = Settings.get(player.index, toast_volume_name)})
+    end
 
     return container
 end
@@ -162,8 +176,10 @@ on_tick =
 ---@param player LuaPlayer
 ---@param duration table
 ---@param template function
-function Public.toast_player_template(player, duration, template)
-    local container = toast_to(player, duration)
+---@param sound string sound to play, nil to not play anything
+function Public.toast_player_template(player, duration, template, sound)
+    sound = sound or 'utility/new_objective'
+    local container = toast_to(player, duration, sound)
     if container then
         template(container, player)
     end
@@ -174,11 +190,13 @@ end
 ---@param force LuaForce
 ---@param duration number
 ---@param template function
-function Public.toast_force_template(force, duration, template)
+---@param sound string sound to play, nil to not play anything
+function Public.toast_force_template(force, duration, template, sound)
+    sound = sound or 'utility/new_objective'
     local players = force.connected_players
     for i = 1, #players do
         local player = players[i]
-        template(toast_to(player, duration), player)
+        template(toast_to(player, duration, sound), player)
     end
 end
 
@@ -186,11 +204,13 @@ end
 ---to add contents to and a player as second argument.
 ---@param duration number
 ---@param template function
-function Public.toast_all_players_template(duration, template)
+---@param sound string sound to play, nil to not play anything
+function Public.toast_all_players_template(duration, template, sound)
+    sound = sound or 'utility/new_objective'
     local players = game.connected_players
     for i = 1, #players do
         local player = players[i]
-        template(toast_to(player, duration), player)
+        template(toast_to(player, duration, sound), player)
     end
 end
 
@@ -231,5 +251,41 @@ function Public.toast_all_players(duration, message)
         Public.toast_player(player, duration, message)
     end
 end
+
+Command.add(
+    'toast',
+    {
+        description = 'Sends a toast to all players',
+        arguments = {'msg'},
+        capture_excess_arguments = true,
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    function(args)
+        Public.toast_all_players(15, args.msg)
+        Utils.print_admins(format('%s sent a toast to all players', Utils.get_actor()))
+    end
+)
+
+Command.add(
+    'toast-player',
+    {
+        description = 'Sends a toast to a specific player',
+        arguments = {'player', 'msg'},
+        capture_excess_arguments = true,
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    function(args)
+        local target_name = args.player
+        local target = game.players[target_name]
+        if target then
+            Public.toast_player(target, 15, args.msg)
+            Utils.print_admins(format('%s sent a toast to %s', Utils.get_actor(), target_name))
+        else
+            Game.player_print({'common.fail_no_target', target_name}, Color.yellow)
+        end
+    end
+)
 
 return Public

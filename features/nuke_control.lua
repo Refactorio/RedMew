@@ -1,14 +1,15 @@
 local Event = require 'utils.event'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Server = require 'features.server'
+local Ranks = require 'resources.ranks'
 
 local format = string.format
 local match = string.match
 
 local function allowed_to_nuke(player)
-    return player.admin or UserGroups.is_regular(player.name) or ((player.online_time / 216000) > global.config.nuke_control.nuke_min_time_hours)
+    return Rank.equal_or_greater_than(player.name, Ranks.auto_trusted)
 end
 
 local function ammo_changed(event)
@@ -75,37 +76,40 @@ local function item_not_sanctioned(item)
     return (name:find('capsule') or name == 'cliff-explosives' or name == 'raw-fish' or name == 'discharge-defense-remote')
 end
 
-global.entities_allowed_to_bomb = {
-    ['stone-wall'] = true,
-    ['transport-belt'] = true,
-    ['fast-transport-belt'] = true,
-    ['express-transport-belt'] = true,
-    ['construction-robot'] = true,
-    ['player'] = true,
-    ['gun-turret'] = true,
-    ['laser-turret'] = true,
-    ['flamethrower-turret'] = true,
-    ['rail'] = true,
-    ['rail-chain-signal'] = true,
-    ['rail-signal'] = true,
-    ['tile-ghost'] = true,
-    ['entity-ghost'] = true,
-    ['gate'] = true,
-    ['electric-pole'] = true,
-    ['small-electric-pole'] = true,
-    ['medium-electric-pole'] = true,
-    ['big-electric-pole'] = true,
-    ['logistic-robot'] = true,
-    ['defender'] = true,
-    ['destroyer'] = true,
-    ['distractor'] = true
+global.nuke_control = {
+    entities_allowed_to_bomb = {
+        ['stone-wall'] = true,
+        ['transport-belt'] = true,
+        ['fast-transport-belt'] = true,
+        ['express-transport-belt'] = true,
+        ['construction-robot'] = true,
+        ['player'] = true,
+        ['gun-turret'] = true,
+        ['laser-turret'] = true,
+        ['flamethrower-turret'] = true,
+        ['rail'] = true,
+        ['rail-chain-signal'] = true,
+        ['rail-signal'] = true,
+        ['tile-ghost'] = true,
+        ['entity-ghost'] = true,
+        ['gate'] = true,
+        ['electric-pole'] = true,
+        ['small-electric-pole'] = true,
+        ['medium-electric-pole'] = true,
+        ['big-electric-pole'] = true,
+        ['logistic-robot'] = true,
+        ['defender'] = true,
+        ['destroyer'] = true,
+        ['distractor'] = true
+    },
+    players_warned = {}
 }
+local entities_allowed_to_bomb = global.nuke_control.entities_allowed_to_bomb
+local players_warned = global.nuke_control.players_warned
 
 local function entity_allowed_to_bomb(entity)
-    return global.entities_allowed_to_bomb[entity.name]
+    return entities_allowed_to_bomb[entity.name]
 end
-
-global.players_warned = {}
 
 local function on_capsule_used(event)
     local item = event.item
@@ -143,12 +147,12 @@ local function on_capsule_used(event)
             end
         end
         if count > 8 then
-            if global.players_warned[event.player_index] then
+            if players_warned[event.player_index] then
                 if nuke_control.enable_autoban then
                     Server.ban_sync(player.name, format('Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.', count, item.name), '<script>')
                 end
             else
-                global.players_warned[event.player_index] = true
+                players_warned[event.player_index] = true
                 if nuke_control.enable_autokick then
                     game.kick_player(player, format('Damaged %i entities with %s -Antigrief', count, item.name))
                 end

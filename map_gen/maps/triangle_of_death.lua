@@ -22,6 +22,7 @@ RS.set_map_gen_settings(
         MGSP.cliff_none
     }
 )
+global.config.market.create_standard_market = false
 
 local generator
 

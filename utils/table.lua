@@ -2,7 +2,6 @@
 local random = math.random
 local floor = math.floor
 local remove = table.remove
-local insert = table.insert
 local tonumber = tonumber
 local pairs = pairs
 local table_size = table_size
@@ -40,7 +39,7 @@ end
 function table.add_all(t1, t2)
     for k, v in pairs(t2) do
         if tonumber(k) then
-            insert(t1, v)
+            t1[#t1 + 1] = v
         else
             t1[k] = v
         end
@@ -48,28 +47,47 @@ function table.add_all(t1, t2)
 end
 
 --- Checks if a table contains an element
--- @param t <table> to search
--- @param e <any> table element to search for
--- @returns <number|string> the index of the element or -1 for failure
+-- @param t <table>
+-- @param e <any> table element
+-- @returns <any> the index of the element or nil
 function table.index_of(t, e)
-    local i = 1
-    for _, v in pairs(t) do
+    for k, v in pairs(t) do
         if v == e then
+            return k
+        end
+    end
+    return nil
+end
+
+--- Checks if the arrayed portion of a table contains an element
+-- @param t <table>
+-- @param e <any> table element
+-- @returns <number|nil> the index of the element or nil
+function table.index_of_in_array(t, e)
+    for i = 1, #t do
+        if t[i] == e then
             return i
         end
-        i = i + 1
     end
-    return -1
+    return nil
 end
 
 local index_of = table.index_of
-
 --- Checks if a table contains an element
--- @param t <table> to search
--- @param e <any> table element to search for
+-- @param t <table>
+-- @param e <any> table element
 -- @returns <boolean> indicating success
 function table.contains(t, e)
-    return index_of(t, e) > -1
+    return index_of(t, e) and true or false
+end
+
+local index_of_in_array = table.index_of_in_array
+--- Checks if the arrayed portion of a table contains an element
+-- @param t <table>
+-- @param e <any> table element
+-- @returns <boolean> indicating success
+function table.array_contains(t, e)
+    return index_of_in_array(t, e) and true or false
 end
 
 --- Adds an element into a specific index position while shuffling the rest down
@@ -90,9 +108,9 @@ end
 
 --- Chooses a random entry from a table
 -- because this uses math.random, it cannot be used outside of events
--- @param t <table> to select an element from
+-- @param t <table>
 -- @param key <boolean> to indicate whether to return the key or value
--- @return a random element of table t
+-- @return <any> a random element of table t
 function table.get_random_dictionary_entry(t, key)
     local target_index = random(1, table_size(t))
     local count = 1
@@ -226,6 +244,7 @@ table.inspect = require 'utils.inspect'
 table.size = table_size
 
 --- Creates a deepcopy of a table. Metatables and LuaObjects inside the table are shallow copies.
+-- Shallow copies meaning it copies the reference to the object instead of the object itself.
 -- @param object <table> the object to copy
 -- @return <table> the copied object
 table.deep_copy = table.deepcopy

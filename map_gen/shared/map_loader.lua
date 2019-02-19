@@ -1,6 +1,6 @@
+local shape = require 'map_selection'
 local b = require 'map_gen.shared.builders'
 local RS = require 'map_gen.shared.redmew_surface'
-local shape = require 'map_selection'
 local config = global.config.map_generation
 
 if #config.entity_modules > 0 then
@@ -24,4 +24,6 @@ if type(shape) == 'function' then
     local gen = require('map_gen.shared.generate')
     gen.init({surfaces = surfaces, regen_decoratives = config.regen_decoratives, tiles_per_tick = config.tiles_per_tick})
     gen.register()
+elseif shape ~= true then
+    error('You forgot to require a map')
 end

@@ -1,67 +1,48 @@
+-- This module prevents all but the allowed items from being built on top of resources
+local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 
-global.allowed_entites = {
-    ['transport-belt'] = true,
-    ['fast-transport-belt'] = true,
-    ['express-transport-belt'] = true,
-    ['underground-belt'] = true,
-    ['fast-underground-belt'] = true,
-    ['express-underground-belt'] = true,
-    ['small-electric-pole'] = true,
-    ['medium-electric-pole'] = true,
-    ['big-electric-pole'] = true,
-    ['substation'] = true,
-    ['electric-mining-drill'] = true,
-    ['burner-mining-drill'] = true,
-    ['pumpjack'] = true
-}
+--- Items explicitly allowed on ores
+RestrictEntities.add_allowed(
+    {
+        'transport-belt',
+        'fast-transport-belt',
+        'express-transport-belt',
+        'underground-belt',
+        'fast-underground-belt',
+        'express-underground-belt',
+        'small-electric-pole',
+        'medium-electric-pole',
+        'big-electric-pole',
+        'substation',
+        'electric-mining-drill',
+        'burner-mining-drill',
+        'pumpjack'
+    }
+)
 
-Event.add(
-    defines.events.on_built_entity,
-    function(event)
-        local entity = event.created_entity
-        if not entity or not entity.valid then
-            return
-        end
-
-        local name = entity.name
-
-        if name == 'tile-ghost' then
-            return
-        end
-
-        local ghost = false
-        if name == 'entity-ghost' then
-            name = entity.ghost_name
-            ghost = true
-        end
-
-        if global.allowed_entites[name] then
-            return
-        end
-
+--- The logic for checking that there are resources under the entity's position
+RestrictEntities.set_keep_alive_callback(
+    function(entity)
         -- Some entities have a bounding_box area of zero, eg robots.
         local area = entity.bounding_box
         local left_top, right_bottom = area.left_top, area.right_bottom
         if left_top.x == right_bottom.x and left_top.y == right_bottom.y then
-            return
+            return true
         end
-
         local count = entity.surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
-
         if count == 0 then
-            return
-        end
-
-        local p = Game.get_player_by_index(event.player_index)
-        if not p or not p.valid then
-            return
-        end
-
-        entity.destroy()
-        if not ghost then
-            p.insert(event.stack)
+            return true
         end
     end
 )
+
+--- Warning for players when their entities are destroyed
+local function on_destroy(event)
+    local p = event.player
+    if p and p.valid then
+        p.print('You cannot build that on top of ores, only belts, mining drills, and power poles are allowed.')
+    end
+end
+
+Event.add(RestrictEntities.events.on_restricted_entity_destroyed, on_destroy)

@@ -11,6 +11,7 @@ local config = global.config
 
 local degrees = require 'utils.math'.degrees
 
+
 local groundhog_mode = false -- Toggle to enable groundhogs
 
 local seed = 210
@@ -81,6 +82,11 @@ local dino9 = b.picture(require 'map_gen.data.presets.dino9')
 local dino13 = b.picture(require 'map_gen.data.presets.dino13')
 local dino14 = b.picture(require 'map_gen.data.presets.dino14')
 local dino16 = b.picture(require 'map_gen.data.presets.dino16')
+local groundhog1 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog1'))
+local groundhog2 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog2'))
+local groundhog3 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog3'))
+local groundhog4 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog4'))
+local groundhog5 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog5'))
 
 local dino17 = b.picture(require 'map_gen.data.presets.dino17')
 local dino18 = b.picture(require 'map_gen.data.presets.dino18')

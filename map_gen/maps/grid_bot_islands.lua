@@ -1,11 +1,8 @@
---[[
-This map uses custom ore gen. When generating the map, under the resource settings tab use Size = 'None' for all resources.
-]]
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
-local degrees = require "utils.math".degrees
-local math = require "utils.math"
-local table = require "utils.table"
+local degrees = require 'utils.math'.degrees
+local math = require 'utils.math'
+local table = require 'utils.table'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local ore_seed1 = 1000
 local ore_seed2 = ore_seed1 * 2
@@ -40,9 +37,9 @@ market.entity_drop_amount = {
     ['medium-spitter'] = {low = 1, high = 3, chance = 0.05},
     ['big-spitter'] = {low = 1, high = 3, chance = 0.05},
     ['behemoth-spitter'] = {low = 1, high = 10, chance = 0.05},
-    ['medium-biter']  = {low = 1, high = 3, chance = 0.05},
-    ['big-biter']  = {low = 1, high = 5, chance = 0.05},
-    ['behemoth-biter']  = {low = 1, high = 10, chance = 0.05}
+    ['medium-biter'] = {low = 1, high = 3, chance = 0.05},
+    ['big-biter'] = {low = 1, high = 5, chance = 0.05},
+    ['behemoth-biter'] = {low = 1, high = 10, chance = 0.05}
 }
 
 -- Setup the scenario map information because everyone gets upset if you don't
@@ -86,8 +83,8 @@ v_track = b.single_y_pattern(v_track, 15)
 
 local square = b.rectangle(130, 130)
 
-local ore_square = b.rectangle(20,20)
-local small_ore_square = b.rectangle(18,18)
+local ore_square = b.rectangle(20, 20)
+local small_ore_square = b.rectangle(18, 18)
 
 local leg = b.rectangle(32, 480)
 local head = b.translate(b.oval(32, 64), 0, -64)
@@ -107,7 +104,7 @@ local spider = b.any(list)
 local function value(base, mult, pow)
     return function(x, y)
         local d_sq = x * x + y * y
-        return base + mult * d_sq ^ ( pow / 2 ) -- d ^ pow
+        return base + mult * d_sq ^ (pow / 2) -- d ^ pow
     end
 end
 
@@ -146,7 +143,7 @@ for r = 1, 50 do
     local row = {}
     pattern[r] = row
     for c = 1, 50 do
-            row[c] = square
+        row[c] = square
     end
 end
 
@@ -157,34 +154,34 @@ for r = 1, 50 do
     local row = {}
     ore_pattern[r] = row
     for c = 1, 50 do
-            local i = random_ore:next_int(1, ore_t)
-            local index = table.binary_search(total_ore_weights, i)
-            if (index < 0) then
-                index = bit32.bnot(index)
-            end
-            local ore_data = ores[index]
+        local i = random_ore:next_int(1, ore_t)
+        local index = table.binary_search(total_ore_weights, i)
+        if (index < 0) then
+            index = bit32.bnot(index)
+        end
+        local ore_data = ores[index]
 
-            local ore_shape = ore_data.transform(small_ore_square)
-            local ore = b.resource(ore_shape, ore_data.resource, ore_data.value)
+        local ore_shape = ore_data.transform(small_ore_square)
+        local ore = b.resource(ore_shape, ore_data.resource, ore_data.value)
 
-            local shape = ore_square
-            shape = b.apply_entity(shape, ore)
+        local shape = ore_square
+        shape = b.apply_entity(shape, ore)
 
-            row[c] = shape
-
+        row[c] = shape
     end
 end
 
 -- create a mask to place over the ore grid
-local mask_square = b.rectangle(60,60)
+local mask_square = b.rectangle(60, 60)
 mask_square = b.change_tile(mask_square, true, 'sand-1')
-local mask_group = b.any{
+local mask_group =
+    b.any {
     mask_square,
-    b.translate(mask_square,90,0),
-    b.translate(mask_square,0,90),
-    b.translate(mask_square,90,90)
+    b.translate(mask_square, 90, 0),
+    b.translate(mask_square, 0, 90),
+    b.translate(mask_square, 90, 90)
 }
-mask_group = b.translate(mask_group,-60,-60)
+mask_group = b.translate(mask_group, -60, -60)
 
 -- sort out the starting ore patches
 local start_patch = b.scale(spider, 0.1, 0.1)
@@ -284,15 +281,14 @@ map = b.choose(b.rectangle(300, 300), start, map)
 local resource_islands = b.grid_pattern(ore_pattern, 50, 50, 30, 30)
 resource_islands = b.change_tile(resource_islands, true, 'sand-1')
 
-local mask_pattern =
-{
+local mask_pattern = {
     {mask_group, mask_group, mask_group},
     {mask_group, mask_group, mask_group},
-    {mask_group, mask_group, mask_group},
+    {mask_group, mask_group, mask_group}
 }
 
 local resource_mask = b.grid_pattern(mask_pattern, 3, 3, 300, 300)
-resource_mask = b.translate(resource_mask,-130,-130)
+resource_mask = b.translate(resource_mask, -130, -130)
 resource_islands = b.choose(resource_mask, resource_islands, b.empty_shape)
 
 local paths =
@@ -309,81 +305,76 @@ map = b.any {map, paths, resource_islands, sea}
 
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 
-
-
-
 local function on_init()
-
     local surface = RS.get_surface()
     local player_force = game.forces.player
     local enemy_force = game.forces.enemy
-    player_force.technologies["landfill"].enabled = false -- disable landfill
+    player_force.technologies['landfill'].enabled = false -- disable landfill
     --enemy_force.set_ammo_damage_modifier('melee', 1) -- +100% biter damage
     enemy_force.set_ammo_damage_modifier('biological', 1) -- +100% spitter/worm damage
     game.map_settings.enemy_expansion.enabled = true
 
     -- Set up non-standard market so we can add logistics network things without editing a different file
-     Retailer.set_item('items', {price = 2, name = 'raw-fish'})
-     Retailer.set_item('items', {price = 1, name = 'rail'})
-     Retailer.set_item('items', {price = 2, name = 'rail-signal'})
-     Retailer.set_item('items', {price = 2, name = 'rail-chain-signal'})
-     Retailer.set_item('items', {price = 15, name = 'train-stop'})
-     Retailer.set_item('items', {price = 75, name = 'locomotive'})
-     Retailer.set_item('items', {price = 30, name = 'cargo-wagon'})
-     Retailer.set_item('items', {price = 15, name = 'steel-axe'})
-     Retailer.set_item('items', {price = 15, name = 'submachine-gun'})
-     Retailer.set_item('items', {price = 15, name = 'shotgun'})
-     Retailer.set_item('items', {price = 250, name = 'combat-shotgun'})
-     Retailer.set_item('items', {price = 25, name = 'railgun'})
-     Retailer.set_item('items', {price = 250, name = 'flamethrower'})
-     Retailer.set_item('items', {price = 175, name = 'rocket-launcher'})
-     Retailer.set_item('items', {price = 250, name = 'tank-cannon'})
-     Retailer.set_item('items', {price = 75, name = 'tank-flamethrower'})
-     Retailer.set_item('items', {price = 1, name = 'firearm-magazine'})
-     Retailer.set_item('items', {price = 5, name = 'piercing-rounds-magazine'})
-     Retailer.set_item('items', {price = 20, name = 'uranium-rounds-magazine'})
-     Retailer.set_item('items', {price = 2, name = 'shotgun-shell'})
-     Retailer.set_item('items', {price = 10, name = 'piercing-shotgun-shell'})
-     Retailer.set_item('items', {price = 5, name = 'railgun-dart'})
-     Retailer.set_item('items', {price = 25, name = 'flamethrower-ammo'})
-     Retailer.set_item('items', {price = 15, name = 'rocket'})
-     Retailer.set_item('items', {price = 25, name = 'explosive-rocket'})
-     Retailer.set_item('items', {price = 20, name = 'cannon-shell'})
-     Retailer.set_item('items', {price = 30, name = 'explosive-cannon-shell'})
-     Retailer.set_item('items', {price = 75, name = 'explosive-uranium-cannon-shell'})
-     Retailer.set_item('items', {price = 3, name = 'land-mine'})
-     Retailer.set_item('items', {price = 5, name = 'grenade'})
-     Retailer.set_item('items', {price = 35, name = 'cluster-grenade'})
-     Retailer.set_item('items', {price = 5, name = 'defender-capsule'})
-     Retailer.set_item('items', {price = 75, name = 'destroyer-capsule'})
-     Retailer.set_item('items', {price = 35, name = 'poison-capsule'})
-     Retailer.set_item('items', {price = 350, name = 'modular-armor'})
-     Retailer.set_item('items', {price = 875, name = 'power-armor'})
-     Retailer.set_item('items', {price = 40, name = 'solar-panel-equipment'})
-     Retailer.set_item('items', {price = 875, name = 'fusion-reactor-equipment'})
-     Retailer.set_item('items', {price = 100, name = 'battery-equipment'})
-     Retailer.set_item('items', {price = 625, name = 'battery-mk2-equipment'})
-     Retailer.set_item('items', {price = 250, name = 'belt-immunity-equipment'})
-     Retailer.set_item('items', {price = 100, name = 'night-vision-equipment'})
-     Retailer.set_item('items', {price = 150, name = 'exoskeleton-equipment'})
-     Retailer.set_item('items', {price = 250, name = 'personal-roboport-equipment'})
-     Retailer.set_item('items', {price = 10, name = 'construction-robot'})
-     Retailer.set_item('items', {price = 2, name = 'logistic-robot'})
-     Retailer.set_item('items', {price = 75, name = 'roboport'})
-     Retailer.set_item('items', {price = 50, name = 'logistic-chest-active-provider'})
-     Retailer.set_item('items', {price = 50, name = 'logistic-chest-passive-provider'})
-     Retailer.set_item('items', {price = 50, name = 'logistic-chest-requester'})
-     Retailer.set_item('items', {price = 50, name = 'logistic-chest-storage'})
-     Retailer.set_item('items', {price = 6, name = 'big-electric-pole'})
-     Retailer.set_item('items', {price = 3, name = 'medium-electric-pole'})
-     Retailer.set_item('items', {price = 50, name = 'substation'})
+    global.config.market.create_standard_market = false
+    Retailer.set_item('items', {price = 2, name = 'raw-fish'})
+    Retailer.set_item('items', {price = 1, name = 'rail'})
+    Retailer.set_item('items', {price = 2, name = 'rail-signal'})
+    Retailer.set_item('items', {price = 2, name = 'rail-chain-signal'})
+    Retailer.set_item('items', {price = 15, name = 'train-stop'})
+    Retailer.set_item('items', {price = 75, name = 'locomotive'})
+    Retailer.set_item('items', {price = 30, name = 'cargo-wagon'})
+    Retailer.set_item('items', {price = 15, name = 'steel-axe'})
+    Retailer.set_item('items', {price = 15, name = 'submachine-gun'})
+    Retailer.set_item('items', {price = 15, name = 'shotgun'})
+    Retailer.set_item('items', {price = 250, name = 'combat-shotgun'})
+    Retailer.set_item('items', {price = 25, name = 'railgun'})
+    Retailer.set_item('items', {price = 250, name = 'flamethrower'})
+    Retailer.set_item('items', {price = 175, name = 'rocket-launcher'})
+    Retailer.set_item('items', {price = 250, name = 'tank-cannon'})
+    Retailer.set_item('items', {price = 75, name = 'tank-flamethrower'})
+    Retailer.set_item('items', {price = 1, name = 'firearm-magazine'})
+    Retailer.set_item('items', {price = 5, name = 'piercing-rounds-magazine'})
+    Retailer.set_item('items', {price = 20, name = 'uranium-rounds-magazine'})
+    Retailer.set_item('items', {price = 2, name = 'shotgun-shell'})
+    Retailer.set_item('items', {price = 10, name = 'piercing-shotgun-shell'})
+    Retailer.set_item('items', {price = 5, name = 'railgun-dart'})
+    Retailer.set_item('items', {price = 25, name = 'flamethrower-ammo'})
+    Retailer.set_item('items', {price = 15, name = 'rocket'})
+    Retailer.set_item('items', {price = 25, name = 'explosive-rocket'})
+    Retailer.set_item('items', {price = 20, name = 'cannon-shell'})
+    Retailer.set_item('items', {price = 30, name = 'explosive-cannon-shell'})
+    Retailer.set_item('items', {price = 75, name = 'explosive-uranium-cannon-shell'})
+    Retailer.set_item('items', {price = 3, name = 'land-mine'})
+    Retailer.set_item('items', {price = 5, name = 'grenade'})
+    Retailer.set_item('items', {price = 35, name = 'cluster-grenade'})
+    Retailer.set_item('items', {price = 5, name = 'defender-capsule'})
+    Retailer.set_item('items', {price = 75, name = 'destroyer-capsule'})
+    Retailer.set_item('items', {price = 35, name = 'poison-capsule'})
+    Retailer.set_item('items', {price = 350, name = 'modular-armor'})
+    Retailer.set_item('items', {price = 875, name = 'power-armor'})
+    Retailer.set_item('items', {price = 40, name = 'solar-panel-equipment'})
+    Retailer.set_item('items', {price = 875, name = 'fusion-reactor-equipment'})
+    Retailer.set_item('items', {price = 100, name = 'battery-equipment'})
+    Retailer.set_item('items', {price = 625, name = 'battery-mk2-equipment'})
+    Retailer.set_item('items', {price = 250, name = 'belt-immunity-equipment'})
+    Retailer.set_item('items', {price = 100, name = 'night-vision-equipment'})
+    Retailer.set_item('items', {price = 150, name = 'exoskeleton-equipment'})
+    Retailer.set_item('items', {price = 250, name = 'personal-roboport-equipment'})
+    Retailer.set_item('items', {price = 10, name = 'construction-robot'})
+    Retailer.set_item('items', {price = 2, name = 'logistic-robot'})
+    Retailer.set_item('items', {price = 75, name = 'roboport'})
+    Retailer.set_item('items', {price = 50, name = 'logistic-chest-active-provider'})
+    Retailer.set_item('items', {price = 50, name = 'logistic-chest-passive-provider'})
+    Retailer.set_item('items', {price = 50, name = 'logistic-chest-requester'})
+    Retailer.set_item('items', {price = 50, name = 'logistic-chest-storage'})
+    Retailer.set_item('items', {price = 6, name = 'big-electric-pole'})
+    Retailer.set_item('items', {price = 3, name = 'medium-electric-pole'})
+    Retailer.set_item('items', {price = 50, name = 'substation'})
 
-     Retailer.set_market_group_label('items', 'Items Market')
-    local item_market_1 = surface.create_entity({name = 'market',  position={0,0}})
+    Retailer.set_market_group_label('items', 'Items Market')
+    local item_market_1 = surface.create_entity({name = 'market', position = {0, 0}})
     item_market_1.destructible = false
     Retailer.add_market('items', item_market_1)
-
-
 end
 Event.on_init(on_init)
 

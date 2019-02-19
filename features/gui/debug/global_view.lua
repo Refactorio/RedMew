@@ -3,9 +3,8 @@ local Model = require 'features.gui.debug.model'
 local Color = require 'resources.color_presets'
 
 local dump = Model.dump
+local dump_text = Model.dump_text
 local concat = table.concat
-local loadstring = loadstring
-local pcall = pcall
 
 local Public = {}
 
@@ -97,23 +96,14 @@ Gui.on_click(
     end
 )
 
-local function update_dump(text_input, data)
-    local func = loadstring('return ' .. text_input.text)
-    if not func then
-        text_input.style.font_color = Color.red
-        return
-    end
-
-    local suc, var = pcall(func)
+local function update_dump(text_input, data, player)
+    local suc, ouput = dump_text(text_input.text, player)
     if not suc then
         text_input.style.font_color = Color.red
-        return
+    else
+        text_input.style.font_color = Color.black
+        data.right_panel.text = ouput
     end
-
-    text_input.style.font_color = Color.black
-
-    local right_panel = data.right_panel
-    right_panel.text = dump(var)
 end
 
 Gui.on_text_changed(
@@ -122,7 +112,7 @@ Gui.on_text_changed(
         local element = event.element
         local data = Gui.get_data(element)
 
-        update_dump(element, data)
+        update_dump(element, data, event.player)
     end
 )
 
@@ -134,7 +124,7 @@ Gui.on_click(
 
         local input_text_box = data.input_text_box
 
-        update_dump(input_text_box, data)
+        update_dump(input_text_box, data, event.player)
     end
 )
 

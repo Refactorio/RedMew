@@ -1,8 +1,8 @@
 [![RedMew](redmew_git_banner.png)](http://redmew.com)
 
 RedMew is a Factorio community that hosts custom servers, maps in different shapes and sizes, scripted scenarios and
-modded servers. The majority of the games hosted, are available to the public, for all players, no matter how
-experienced and can be found in the Factorio multi-player lobby.
+modded servers. All of the games hosted are available to the public and our community is meant for players of all skill
+levels and experience. You can find out servers by searching for "RedMew" in the multiplayer lobby.
 
 ## The Community
 You can join the RedMew community on Discord by visiting http://redmew.com/discord

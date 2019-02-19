@@ -1,12 +1,13 @@
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Game = require 'utils.game'
 local math = require 'utils.math'
 local Server = require 'features.server'
 local Command = require 'utils.command'
 local Color = require 'resources.color_presets'
+local Ranks = require 'resources.ranks'
 
 local insert = table.insert
 
@@ -222,7 +223,7 @@ local function redraw_poll_viewer_content(data)
 
     local question_flow = poll_viewer_content.add {type = 'table', column_count = 2}
 
-    if player.admin or UserGroups.is_regular(player.name) then
+    if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         local edit_button =
             question_flow.add {
             type = 'sprite-button',
@@ -372,7 +373,7 @@ local function draw_main_frame(left, player)
     local right_flow = bottom_flow.add {type = 'flow'}
     right_flow.style.align = 'right'
 
-    if player.admin or UserGroups.is_regular(player.name) then
+    if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         local create_poll_button =
             right_flow.add {type = 'button', name = create_poll_button_name, caption = 'Create Poll'}
         apply_button_style(create_poll_button)
@@ -1326,7 +1327,7 @@ Command.add(
     'poll',
     {
         arguments = {'poll'},
-        regular_only = true,
+        required_rank = Ranks.regular,
         allowed_by_server = true,
         custom_help_text = '<{question = "question", answers = {"answer 1", "answer 2"}, duration = 300}> - Creates a new poll (Regulars only).',
         log_command = true,

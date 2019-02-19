@@ -10,6 +10,8 @@ local MGSP = require 'resources.map_gen_settings'
 
 global.config.lazy_bastard.enabled = true
 
+RS.set_first_player_position_check_override(true)
+RS.set_spawn_island_tile('grass-1')
 RS.set_map_gen_settings(
     {
         MGSP.grass_only,

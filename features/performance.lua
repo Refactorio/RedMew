@@ -1,4 +1,6 @@
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
+
 local format = string.format
 
 local Performance = {}
@@ -37,7 +39,7 @@ Command.add(
     {
         description = 'Sets the performance scale between 0.05 and 1. Will alter the game speed, manual mining speed, manual crafting speed and character running speed per force.',
         arguments = {'scale'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     function(arguments, player)

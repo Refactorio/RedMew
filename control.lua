@@ -1,10 +1,17 @@
+-- If you're looking to configure anything, you want config.lua. Nearly everything in this file is dictated by the config.
+
+-- Info on the data lifecycle and how we use it: https://github.com/Refactorio/RedMew/wiki/The-data-lifecycle
+_LIFECYCLE = 4 -- Control stage
+
+-- Overrides the _G.print function
+require 'utils.print_override'
+
 -- Omitting the math library is a very bad idea
 require 'utils.math'
 
 -- Global Debug and make sure our version file is registered
 Debug = require 'utils.debug'
 require 'resources.version'
-require 'utils.table'
 
 -- Config and map_loader dictate the map you play and the settings in it
 local config = require 'config'
@@ -14,11 +21,13 @@ require 'map_gen.shared.map_loader' -- to change the map you're playing, modify 
 require 'features.server'
 require 'features.server_commands'
 
--- Library modules which, if missing, will cause other feature modules to fail
+-- Library modules
+-- If missing, will cause other feature modules to fail
 require 'features.player_create'
-require 'features.user_groups'
+require 'features.rank_system'
 
--- Feature modules, each can be disabled safely
+-- Feature modules
+-- Each can be disabled safely
 if config.train_saviour.enabled then
     require 'features.train_saviour'
 end
@@ -40,9 +49,6 @@ end
 if config.redmew_commands.enabled then
     require 'features.redmew_commands'
 end
-if config.donator_messages.enabled then
-    require 'features.donator_messages'
-end
 if config.market.enabled then
     require 'features.market'
 end
@@ -62,7 +68,7 @@ if config.performance.enabled then
     require 'features.performance'
 end
 if config.hail_hydra.enabled then
-    require 'features.hail_hydra'
+    require 'map_gen.shared.hail_hydra'
 end
 if config.lazy_bastard.enabled then
     require 'features.lazy_bastard'
@@ -70,8 +76,18 @@ end
 if config.redmew_qol.enabled then
     require 'features.redmew_qol'
 end
+if config.camera.enabled then
+    require 'features.gui.camera'
+end
+if config.day_night.enabled then
+    require 'map_gen.shared.day_night'
+end
+if config.apocalypse.enabled then
+    require 'features.apocalypse'
+end
 
--- GUIs the order determines the order they appear from left to right.
+-- GUIs
+-- The order determines the order they appear from left to right.
 -- These can be safely disabled if you want less GUI items.
 -- Some map presets will add GUI modules themselves.
 if config.map_info.enabled then
@@ -104,15 +120,11 @@ end
 if config.popup.enabled then
     require 'features.gui.popup'
 end
-if config.camera.enabled then
-    require 'features.gui.camera'
-end
+
+-- Needs to be at bottom so tokens are registered last.
 if _DUMP_ENV then
     require 'utils.dump_env'
 end
-
-require 'resources.version'
--- Needs to be at bottom so tokens are registered last.
 if _DEBUG then
     require 'features.gui.debug.command'
 end

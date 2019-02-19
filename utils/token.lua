@@ -1,5 +1,3 @@
-local EventCore = require 'utils.event_core'
-
 local Token = {}
 
 local tokens = {}
@@ -13,7 +11,7 @@ local counter = 0
 -- @param  var<any>
 -- @return number the unique token for the variable.
 function Token.register(var)
-    if EventCore.runtime then
+    if _LIFECYCLE == 8 then
         error('Calling Token.register after on_init() or on_load() has run is a desync risk.', 2)
     end
 

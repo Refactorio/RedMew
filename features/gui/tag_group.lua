@@ -1,13 +1,13 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
-
-local deafult_verb = 'expanded'
-
+local Ranks = require 'resources.ranks'
 local tag_groups = require 'resources.tag_groups'
+
+local default_verb = 'expanded'
 local player_tags = {}
 local no_notify_players = {}
 
@@ -21,7 +21,9 @@ Global.register(
 )
 
 local function notify_players(message)
-    for _, p in ipairs(game.connected_players) do
+    local players = game.connected_players
+    for i=1, #players do
+        local p = players[i]
         if p.valid and not no_notify_players[p.index] then
             p.print(message)
         end
@@ -69,7 +71,7 @@ local function change_player_tag(player, tag_name, silent)
 
     player.tag = tag
 
-    local verb = tag_data.verb or deafult_verb
+    local verb = tag_data.verb or default_verb
 
     if not silent then
         notify_players(tag .. ' squad has `' .. verb .. '` with ' .. player.name)
@@ -147,7 +149,7 @@ local function draw_main_frame_content(parent)
         local row = grid.add {type = 'table', column_count = 4}
         row.style.horizontal_spacing = 0
 
-        if player.admin or UserGroups.is_regular(player.name) then
+        if Rank.equal_or_greater_than(player.name, Ranks.regular) then
             local edit_button =
                 row.add {
                 type = 'sprite-button',
@@ -238,7 +240,7 @@ local function draw_main_frame(player)
 
     right_flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
 
-    if player.admin or UserGroups.is_regular(player.name) then
+    if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         right_flow.add {type = 'button', name = create_tag_button_name, caption = 'Create Tag'}
     end
 end
@@ -589,7 +591,7 @@ Gui.on_click(
 
         local verb = data.verb.text
         if verb == '' then
-            verb = deafult_verb
+            verb = default_verb
         end
 
         Gui.remove_data_recursively(frame)
@@ -688,7 +690,7 @@ Command.add(
     {
         description = "Sets a player's tag",
         arguments = {'player', 'tag'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },

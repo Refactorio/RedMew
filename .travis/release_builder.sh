@@ -9,7 +9,7 @@ cp -rf Refactorio/RedMew working_copy
 echo "Removing git files"
 rm -rf working_copy/.??*
 echo "Writing the version file"
-echo "global.redmew_version=$DATE_FORMATTED-$COMMIT_SHA" > working_copy/resources/version.lua
+echo "global.redmew_version='$DATE_FORMATTED-$COMMIT_SHA'" > working_copy/resources/version.lua
 echo "Contents of the version file:"
 cat working_copy/resources/version.lua
 echo "Copying map_selection.lua.sample to map_selection.lua"

@@ -6,10 +6,27 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
+local Global = require 'utils.global'
 
-global.reactors_enabled = global.config.reactor_meltdown.on_by_default
-global.wastelands = {}
-global.reactors = {}
+local Ranks = require 'resources.ranks'
+
+local primitives = {reactors_enabled = {global.config.reactor_meltdown.on_by_default}}
+local wastelands = {}
+local reactors = {}
+
+Global.register(
+    {
+        primitives = primitives,
+        wastelands = wastelands,
+        reactors = reactors
+    },
+    function(tbl)
+        primitives = tbl.primitives
+        wastelands = tbl.wastelands
+        reactors = tbl.reactors
+    end
+)
+
 local wasteland_duration_seconds = 300
 
 local function spawn_wasteland(surface, position)
@@ -51,7 +68,7 @@ local function spawn_wasteland(surface, position)
 end
 
 local function entity_destroyed(event)
-    if not global.reactors_enabled or not event.entity.valid or event.entity.name ~= 'nuclear-reactor' then
+    if not primitives.reactors_enabled or not event.entity.valid or event.entity.name ~= 'nuclear-reactor' then
         return
     end
 
@@ -60,7 +77,7 @@ local function entity_destroyed(event)
     if reactor.temperature > 700 then
         reactor.surface.create_entity {name = 'atomic-rocket', position = reactor.position, target = reactor, speed = 1}
         spawn_wasteland(reactor.surface, reactor.position)
-        global.wastelands[reactor.position.x .. '/' .. reactor.position.y] = {
+        wastelands[reactor.position.x .. '/' .. reactor.position.y] = {
             position = reactor.position,
             surface_id = reactor.surface.index,
             creation_time = game.tick
@@ -70,18 +87,13 @@ end
 
 local function alert(reactor)
     for _, p in pairs(game.players) do
-        p.add_custom_alert(
-            reactor,
-            {type = 'item', name = 'nuclear-reactor'},
-            string.format('Reactor at %s°C', math.floor(reactor.temperature)),
-            true
-        )
+        p.add_custom_alert(reactor, {type = 'item', name = 'nuclear-reactor'}, string.format('Reactor at %s°C', math.floor(reactor.temperature)), true)
     end
 end
 
 local function check_reactors()
     for _ in pairs(game.surfaces) do
-        for i, reactor in pairs(global.reactors) do
+        for i, reactor in pairs(reactors) do
             if reactor.valid then
                 if reactor.temperature > 800 then
                     alert(reactor)
@@ -97,17 +109,17 @@ local function check_reactors()
                         speed = 1
                     }
                     spawn_wasteland(reactor.surface, reactor.position)
-                    global.wastelands[reactor.position.x .. '/' .. reactor.position.y] = {
+                    wastelands[reactor.position.x .. '/' .. reactor.position.y] = {
                         position = reactor.position,
                         surface_id = reactor.surface.index,
                         creation_time = game.tick
                     }
-                    table.remove(global.reactors, i)
+                    table.remove(reactors, i)
                 else
                     reactor.health = 500 - (reactor.temperature - 800) * 2.5
                 end
             else
-                table.remove(global.reactors, i)
+                table.remove(reactors, i)
             end
         end
         --global.last_reactor_warning = last_reactor_warning
@@ -115,21 +127,21 @@ local function check_reactors()
 end
 
 local function check_wastelands()
-    for index, wl in pairs(global.wastelands) do
+    for index, wl in pairs(wastelands) do
         local age = game.tick - wl.creation_time
         wl.last_checked = wl.last_checked or 0
         if (game.tick - wl.last_checked) > 899 then
             wl.last_checked = game.tick
             spawn_wasteland(game.surfaces[wl.surface_id], wl.position)
             if age > wasteland_duration_seconds * 60 - 1 then
-                global.wastelands[index] = nil
-                local reactors =
+                wastelands[index] = nil
+                local wasteland_reactors =
                     game.surfaces[wl.surface_id].find_entities_filtered {
                     position = wl.position,
                     name = 'nuclear-reactor'
                 }
-                if reactors[1] then
-                    reactors[1].destroy()
+                if wasteland_reactors[1] then
+                    wasteland_reactors[1].destroy()
                 end
             end
         end
@@ -137,7 +149,7 @@ local function check_wastelands()
 end
 
 local function on_tick()
-    if global.reactors_enabled then
+    if primitives.reactors_enabled then
         check_wastelands()
         check_reactors()
     end
@@ -147,14 +159,14 @@ local function entity_build(event)
     if not event.created_entity.valid then
         return
     end
-    if event.created_entity.name == 'nuclear-reactor' and event.created_entity.surface.name ~= "antigrief" then
-        table.insert(global.reactors, event.created_entity)
+    if event.created_entity.name == 'nuclear-reactor' and event.created_entity.surface.name ~= 'antigrief' then
+        table.insert(reactors, event.created_entity)
     end
 end
 
 local function reactor_toggle()
-    global.reactors_enabled = not global.reactors_enabled
-    if global.reactors_enabled then
+    primitives.reactors_enabled = not primitives.reactors_enabled
+    if primitives.reactors_enabled then
         game.print('Reactor meltdown activated.')
     else
         game.print('Reactor meltdown deactivated.')
@@ -162,7 +174,7 @@ local function reactor_toggle()
 end
 
 local function is_meltdown()
-    if global.reactors_enabled then
+    if primitives.reactors_enabled then
         Game.player_print('Reactor meltdown is enabled.')
     else
         Game.player_print('Reactor meltdown is disabled.')
@@ -172,7 +184,7 @@ Command.add(
     'meltdown',
     {
         description = 'Toggles if reactors blow up',
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true,
         log_command = true
     },
