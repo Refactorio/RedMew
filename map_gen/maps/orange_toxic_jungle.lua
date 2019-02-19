@@ -15,7 +15,7 @@ global.config.market.create_standard_market = false -- stop standard market from
 local map_gen_settings = {
     autoplace_controls = {
         coal = {
-            frequency = 'high',
+            frequency = 'low',
             richness = 'good'
         },
         ['copper-ore'] = {
@@ -42,21 +42,13 @@ local map_gen_settings = {
 RS.set_map_gen_settings({map_gen_settings})
 
 local market_items = require 'resources.market_items'
-for i = #market_items, 1, -1 do
-    if match(market_items[i].name, 'flamethrower') then
-        remove(market_items, i)
-    end
-end
 
 Event.add(
     defines.events.on_research_finished,
     function(event)
-        local p_force = game.forces.player
         local r = event.research
-
-        if r.name == 'flamethrower' then
-            p_force.recipes['flamethrower'].enabled = false
-            p_force.recipes['flamethrower-turret'].enabled = false
+        if r.name == 'military-2' then
+            game.forces.player.manual_mining_speed_modifier = 0
         end
     end
 )
@@ -159,10 +151,11 @@ map = b.apply_entity(map, enemy)
 local function on_init()
     local surface = RS.get_surface()
     local player_force = game.forces.player
-    local enemy_force = game.forces.enemy
     player_force.recipes["military-science-pack"].enabled=false
     player_force.recipes["production-science-pack"].enabled=false
     player_force.recipes["high-tech-science-pack"].enabled=false  -- disable crafting of sciences
+    game.forces.player.technologies['flamethrower'].enabled = false -- disable flamethrower tech
+    player_force.manual_mining_speed_modifier=2 -- increase mining speed, disabled after military 2 research
     game.map_settings.enemy_expansion.enabled = true
 
     -- Set up non-standard market so we can add science packs for purchase while keeping all other items
@@ -249,5 +242,7 @@ local function on_init()
 
 end
 Event.on_init(on_init)
+
+table.insert(global.config.player_create.starting_items, {name = 'steel-axe', count = 2})
 
 return map
