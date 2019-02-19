@@ -175,22 +175,17 @@ end
 local train_to_manual =
     Token.register(
     function(train)
-        if train and train.valid then
+        if train.valid then
             train.manual_mode = true
         end
     end
 )
 
 local function on_entity_died(event)
-    -- Check that they destroyed train of force player
-    -- (we don't care about anything else that happened to be on the tracks)
+    -- We only care is a train is killed by a member of its own force
     local entity = event.entity
-    if not entity or not entity.valid or not entity.train or entity.force ~= game.forces.player then
-        return
-    end
-    -- Check that the player force did the killing
     local force = event.force
-    if not force or not force.valid or force ~= game.forces.player then
+    if (not entity or not entity.valid) or (not force or not force.valid) or (force ~= entity.force) then
         return
     end
     -- Check that an entity did the killing
@@ -218,23 +213,25 @@ local function on_entity_died(event)
     local name_list = {}
     for i = 1, #passengers do
         local player = passengers[i]
-        if not player.valid or allowed_to_nuke(player) then
-            player_unpunished = true
-            name_list[#name_list + 1] = player.name
-        else
-            -- If they aren't allowed to nuke, stop the train and act accordingly.
-            player_punished = true
-            name_list[#name_list + 1] = player.name
-            player.driving = false
-            train.manual_mode = false
-            Task.set_timeout_in_ticks(30, train_to_manual, train)
-            if players_warned[player.index] then -- jail for later offenses
-                Report.jail(player)
-                Utils.print_admins({'nuke_control.train_jailing', player.name})
-            else -- warn for first offense
-                players_warned[player.index] = true
-                Utils.print_admins({'nuke_control.train_warning', player.name})
-                Popup.player(player, {'nuke_control.train_player_warning'})
+        if player.valid then
+            if allowed_to_nuke(player) then
+                player_unpunished = true
+                name_list[#name_list + 1] = player.name
+            else
+                -- If they aren't allowed to nuke, stop the train and act accordingly.
+                player_punished = true
+                name_list[#name_list + 1] = player.name
+                player.driving = false
+                train.manual_mode = false
+                Task.set_timeout_in_ticks(30, train_to_manual, train)
+                if players_warned[player.index] then -- jail for later offenses
+                    Report.jail(player)
+                    Utils.print_admins({'nuke_control.train_jailing', player.name})
+                else -- warn for first offense
+                    players_warned[player.index] = true
+                    Utils.print_admins({'nuke_control.train_warning', player.name})
+                    Popup.player(player, {'nuke_control.train_player_warning'})
+                end
             end
         end
     end
