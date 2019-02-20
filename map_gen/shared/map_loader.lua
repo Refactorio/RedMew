@@ -40,7 +40,7 @@ if #config.terrain_modules > 0 then
 end
 Debug.print(shape)
 Debug.print(shape_type)
---- If shape it a function, initialize the generator
+--- If shape is a function, initialize the generator
 if shape_type == 'function' then
     local surfaces = {
         [RS.get_surface_name()] = shape
