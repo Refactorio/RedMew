@@ -22,7 +22,7 @@ end
 
 ScenarioInfo.set_map_name('Toxic Science Jungle')
 ScenarioInfo.set_map_description('March your way through the jungle, and use coins you find to purchase certain science packs at the market.')
-ScenarioInfo.add_map_extra_info('-Military, Production, High-Tech science pack crafting disabled.\n-Spend coins at the market to buy packs.\n-Increased coin drops from aliens.')
+ScenarioInfo.add_map_extra_info('-Military, Production, High-Tech science pack crafting disabled.\n-Spend coins at the market to buy packs.\n-Increased coin drops from aliens.\n-Flamethrower technology disabled.')
 
 local map_gen_settings = {
     autoplace_controls = {
