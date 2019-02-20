@@ -65,8 +65,8 @@ function Module.print_admins(msg, source)
         source_name = 'Server'
         chat_color = Color.yellow
     end
-    local formatted_msg = format('%s(ADMIN) %s: %s', prefix, source_name, msg) -- to the server
-    print(formatted_msg)
+    local formatted_msg = {'utils_core.print_admins',prefix, source_name, msg}
+    log(formatted_msg)
     for _, p in pairs(game.connected_players) do
         if p.admin then
             p.print(formatted_msg, chat_color)
