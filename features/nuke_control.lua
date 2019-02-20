@@ -12,13 +12,13 @@ local Ranks = require 'resources.ranks'
 local format = string.format
 local match = string.match
 
-local function allowed_to_nuke(player)
+local function is_trusted(player)
     return Rank.equal_or_greater_than(player.name, Ranks.auto_trusted)
 end
 
 local function ammo_changed(event)
     local player = Game.get_player_by_index(event.player_index)
-    if allowed_to_nuke(player) then
+    if is_trusted(player) then
         return
     end
     local nukes = player.remove_item({name = 'atomic-bomb', count = 1000})
@@ -39,7 +39,7 @@ end
 
 local function on_player_deconstructed_area(event)
     local player = Game.get_player_by_index(event.player_index)
-    if allowed_to_nuke(player) then
+    if is_trusted(player) then
         return
     end
     player.remove_item({name = 'deconstruction-planner', count = 1000})
@@ -141,7 +141,7 @@ local function on_capsule_used(event)
         return
     end
 
-    if not allowed_to_nuke(player) then
+    if not is_trusted(player) then
         local area = {{event.position.x - 5, event.position.y - 5}, {event.position.x + 5, event.position.y + 5}}
         local count = 0
         local entities = player.surface.find_entities_filtered {force = player.force, area = area}
@@ -213,7 +213,7 @@ local function on_entity_died(event)
     for i = 1, #passengers do
         local player = passengers[i]
         if player.valid then
-            if allowed_to_nuke(player) then
+            if is_trusted(player) then
                 player_unpunished = true
                 name_list[#name_list + 1] = player.name
             else
