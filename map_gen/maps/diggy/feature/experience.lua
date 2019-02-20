@@ -64,21 +64,21 @@ local gain_xp_color = Color.light_sky_blue
 local lose_xp_color = Color.red
 local unlocked_color = Color.black
 local locked_color = Color.gray
-local table_column_layout = {type = 'table', column_count = 2}
+local table_column_layout = { type = 'table', column_count = 2 }
 
-local level_up_formula = (function (level_reached)
+local level_up_formula = (function(level_reached)
     local difficulty_scale = floor(config.difficulty_scale)
     local level_fine_tune = floor(config.xp_fine_tune)
     local start_value = (floor(config.first_lvl_xp))
     local precision = (floor(config.cost_precision))
     local function formula(level)
         return (floor(
-            (1.15 ^ (level * 0.1))
-            + difficulty_scale * (level) ^ 3
-            + level_fine_tune * (level) ^ 2
-            + start_value * (level)
-            - difficulty_scale * (level)
-            - level_fine_tune * (level))
+                (1.15 ^ (level * 0.1))
+                        + difficulty_scale * (level) ^ 3
+                        + level_fine_tune * (level) ^ 2
+                        + start_value * (level)
+                        - difficulty_scale * (level)
+                        - level_fine_tune * (level))
         )
     end
     local value = formula(level_reached + 1)
@@ -100,9 +100,9 @@ local function calculate_level_xp(level)
     if level_table[level] == nil then
         local value
         if level == 1 then
-            value = level_up_formula(level-1)
+            value = level_up_formula(level - 1)
         else
-            value = level_up_formula(level-1)+calculate_level_xp(level-1)
+            value = level_up_formula(level - 1) + calculate_level_xp(level - 1)
         end
         insert(level_table, level, value)
     end
@@ -112,7 +112,7 @@ end
 ---@param level number a number specifying the current level
 ---@return number a percentage of the required experience to level up from one level to the other
 local function percentage_of_level_req(level, percentage)
-    return level_up_formula(level)*percentage
+    return level_up_formula(level) * percentage
 end
 
 ---Updates the market contents based on the current level.
@@ -139,7 +139,7 @@ function Experience.update_mining_speed(force, level_up)
         level_up = level_up ~= nil and level_up or 0
         if level_up > 0 and buff ~= nil then
             local level = get_force_data(force).current_level
-            local adjusted_value = floor(max(buff.value, 24*0.9^level))
+            local adjusted_value = floor(max(buff.value, 24 * 0.9 ^ level))
             local value = (buff.double_level ~= nil and level_up % buff.double_level == 0) and adjusted_value * 2 or adjusted_value
             mining_efficiency.level_modifier = mining_efficiency.level_modifier + (value * 0.01)
         end
@@ -185,7 +185,7 @@ function Experience.update_health_bonus(force, level_up)
     if buff.max == nil or force.character_health_bonus < buff.max then
         level_up = level_up ~= nil and level_up or 0
         if level_up > 0 and buff ~= nil then
-            local value = (buff.double_level ~= nil and level_up%buff.double_level == 0) and buff.value*2 or buff.value
+            local value = (buff.double_level ~= nil and level_up % buff.double_level == 0) and buff.value * 2 or buff.value
             health_bonus.level_modifier = health_bonus.level_modifier + value
         end
 
@@ -226,7 +226,7 @@ local function on_player_mined_entity(event)
         return
     end
 
-    print_player_floating_text_position(player_index, format('+%s XP', exp), gain_xp_color,0, -0.5)
+    print_player_floating_text_position(player_index, format('+%s XP', exp), gain_xp_color, 0, -0.5)
     add_experience(force, exp)
 end
 
@@ -254,7 +254,6 @@ local function on_research_finished(event)
         print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
     end
     add_experience(force, exp)
-
 
     local current_modifier = mining_efficiency.research_modifier
     local new_modifier = force.mining_drill_productivity_bonus * config.mining_speed_productivity_multiplier * 0.5
@@ -363,8 +362,8 @@ local function redraw_heading(data, header)
     Gui.clear(frame)
 
     local heading_table = frame.add(table_column_layout)
-    apply_heading_style(heading_table.add({type = 'label', caption = 'Requirement'}).style, 100)
-    apply_heading_style(heading_table.add({type = 'label', caption = header_caption}).style, 220)
+    apply_heading_style(heading_table.add({ type = 'label', caption = 'Requirement' }).style, 100)
+    apply_heading_style(heading_table.add({ type = 'label', caption = header_caption }).style, 220)
 end
 
 local function redraw_progressbar(data)
@@ -372,8 +371,8 @@ local function redraw_progressbar(data)
     local flow = data.experience_progressbars
     Gui.clear(flow)
 
-    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. Utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) ..' xp\nRemaining xp: ' .. Utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.Experience.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
-    local level_progressbar = flow.add({type = 'progressbar', tooltip = floor(force_data.experience_percentage*100)*0.01 .. '% xp to next level'})
+    apply_heading_style(flow.add({ type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. Utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) .. ' xp\nRemaining xp: ' .. Utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.Experience.Frame.Progress.Level', caption = 'Progress to next level:' }).style)
+    local level_progressbar = flow.add({ type = 'progressbar', tooltip = floor(force_data.experience_percentage * 100) * 0.01 .. '% xp to next level' })
     level_progressbar.style.width = 350
     level_progressbar.value = force_data.experience_percentage * 0.01
 end
@@ -393,7 +392,7 @@ local function redraw_table(data)
         local first_item_for_level = current_item_level ~= last_level
         local color
 
-        if current_force_level >= current_item_level  then
+        if current_force_level >= current_item_level then
             color = unlocked_color
         else
             color = locked_color
@@ -440,7 +439,7 @@ local function redraw_buff(data)
             level_caption = 'All levels'
         end
 
-        local level_label = list.add({type = 'label', caption = level_caption})
+        local level_label = list.add({ type = 'label', caption = level_caption })
         level_label.style.minimal_width = 100
         level_label.style.font_color = unlocked_color
 
@@ -456,7 +455,7 @@ local function redraw_buff(data)
             buff_caption = format('+%d %s', effect_value, name)
         end
 
-        local buffs_label = list.add({type = 'label', caption = buff_caption})
+        local buffs_label = list.add({ type = 'label', caption = buff_caption })
         buffs_label.style.minimal_width = 220
         buffs_label.style.font_color = unlocked_color
     end
@@ -478,20 +477,20 @@ local function toggle(event)
         return
     end
 
-    frame = left.add({name = 'Diggy.Experience.Frame', type = 'frame', direction = 'vertical'})
+    frame = left.add({ name = 'Diggy.Experience.Frame', type = 'frame', direction = 'vertical' })
 
-    local experience_progressbars = frame.add({type = 'flow', direction = 'vertical'})
-    local experience_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
+    local experience_progressbars = frame.add({ type = 'flow', direction = 'vertical' })
+    local experience_list_heading = frame.add({ type = 'flow', direction = 'horizontal' })
 
-    local experience_scroll_pane = frame.add({type = 'scroll-pane'})
+    local experience_scroll_pane = frame.add({ type = 'scroll-pane' })
     experience_scroll_pane.style.maximal_height = 300
 
-    local buff_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
+    local buff_list_heading = frame.add({ type = 'flow', direction = 'horizontal' })
 
-    local buff_scroll_pane = frame.add({type = 'scroll-pane'})
+    local buff_scroll_pane = frame.add({ type = 'scroll-pane' })
     buff_scroll_pane.style.maximal_height = 100
 
-    frame.add({type = 'button', name = 'Diggy.Experience.Button', caption = 'Close'})
+    frame.add({ type = 'button', name = 'Diggy.Experience.Button', caption = 'Close' })
 
     local data = {
         frame = frame,
@@ -522,7 +521,7 @@ end
 Gui.allow_player_to_toggle_top_element_visibility('Diggy.Experience.Button')
 
 Gui.on_click('Diggy.Experience.Button', toggle)
-Gui.on_custom_close('Diggy.Experience.Frame', function (event)
+Gui.on_custom_close('Diggy.Experience.Frame', function(event)
     event.element.destroy()
 end)
 
@@ -534,7 +533,7 @@ local function update_gui()
         local frame = p.gui.left['Diggy.Experience.Frame']
 
         if frame and frame.valid then
-            local data = {player = p, trigger = 'update_gui'}
+            local data = { player = p, trigger = 'update_gui' }
             toggle(data)
         end
     end
@@ -549,8 +548,8 @@ function Experience.register(cfg)
     local ForceControlBuilder = ForceControl.register(level_up_formula)
 
     --Adds a function that'll be executed at every level up
-    ForceControlBuilder.register_on_every_level(function (level_reached, force)
-        Toast.toast_force(force, 10 , format('Your team has reached level %d!', level_reached))
+    ForceControlBuilder.register_on_every_level(function(level_reached, force)
+        Toast.toast_force(force, 10, format('Your team has reached level %d!', level_reached))
         Experience.update_inventory_slots(force, level_reached)
         Experience.update_mining_speed(force, level_reached)
         Experience.update_health_bonus(force, level_reached)
