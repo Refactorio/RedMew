@@ -218,7 +218,7 @@ local function on_entity_died(event)
     local player_punished
     local player_unpunished
     local name_list = {}
-    for i = 1, #passengers do
+    for i = 1, num_passengers do
         local player = passengers[i]
         if player.valid then
             if is_trusted(player) then
@@ -231,10 +231,10 @@ local function on_entity_died(event)
                 player.driving = false
                 train.manual_mode = false
                 Task.set_timeout_in_ticks(30, train_to_manual, train)
-                if players_warned[player.index] then -- jail for later offenses
+                if players_warned[player.index] and num_passengers == 1 then -- jail for later offenses if they're solely guilty
                     Report.jail(player)
                     Utils.print_admins({'nuke_control.train_jailing', player.name})
-                else -- warn for first offense
+                else -- warn for first offense or if there's someone else in the train
                     players_warned[player.index] = true
                     Utils.print_admins({'nuke_control.train_warning', player.name})
                     Popup.player(player, {'nuke_control.train_player_warning'})
