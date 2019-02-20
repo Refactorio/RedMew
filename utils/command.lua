@@ -75,7 +75,7 @@ end
 ---    allowed_by_server = false, -- lets the server execute this, defaults to false
 ---    allowed_by_player = true, -- lets players execute this, defaults to true
 ---    log_command = true, -- defaults to false unless admin only, then always true
----    capture_excess_arguments = true, defaults to false, captures excess arguments in the last argument, useful for sentences
+---    capture_excess_arguments = true, -- defaults to false, captures excess arguments in the last argument, useful for sentences
 ---}
 ---
 ---The callback receives the following arguments:
