@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for RedMew
+about: Suggest a feature for RedMew
 
 ---
 
