@@ -8,15 +8,15 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Retailer = require 'features.retailer'
 local ScenarioInfo = require 'features.gui.info'
 
+local config = global.config
+
 local enemy_seed = 420420
 
-table.insert(global.config.player_create.starting_items, {name = 'steel-axe', count = 2})
-
-global.config.market.create_standard_market = false -- stop standard market from spawning
-
+table.insert(config.player_create.starting_items, {name = 'steel-axe', count = 2})
+config.market.create_standard_market = false -- stop standard market from spawning
 global.config.hail_hydra.enabled = true
 
-for _, v in pairs(global.config.market.entity_drop_amount) do
+for _, v in pairs(config.market.entity_drop_amount) do
     v.chance = 1
 end
 
@@ -52,6 +52,7 @@ local map_gen_settings = {
     water = 'very-big'
 }
 RS.set_map_gen_settings({map_gen_settings})
+RS.set_map_settings({enemy_expansion = {enabled = true}})
 
 RecipeLocker.lock_recipes(
     {
@@ -71,107 +72,10 @@ Event.add(
     end
 )
 
-local trees = {
-    'tree-01',
-    'tree-02',
-    'tree-02-red',
-    'tree-03',
-    'tree-04',
-    'tree-05',
-    'tree-06',
-    'tree-06-brown',
-    'tree-07',
-    'tree-08',
-    'tree-08-brown',
-    'tree-08-red',
-    'tree-09',
-    'tree-09-brown',
-    'tree-09-red'
-}
-
-local trees_count = #trees
-
-local function tree_shape()
-    local tree = trees[math.random(trees_count)]
-
-    return {name = tree}
-    --, always_place = true}
-end
-
-local worm_names = {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret'}
-local spawner_names = {'biter-spawner', 'spitter-spawner'}
-local factor = 10 / (768 * 32)
-local max_chance = 1 / 6
-
-local scale_factor = 32
-local sf = 1 / scale_factor
-local m = 1 / 850
-local function enemy(x, y, world)
-    local d = math.sqrt(world.x * world.x + world.y * world.y)
-
-    if d < 2 then
-        return nil
-    end
-
-    if d < 100 then
-        return tree_shape()
-    end
-
-    local threshold = 1 - d * m
-    threshold = math.max(threshold, 0.25) -- -0.125)
-
-    x, y = x * sf, y * sf
-    if Perlin.noise(x, y, enemy_seed) > threshold then
-        if math.random(8) == 1 then
-            local lvl
-            if d < 400 then
-                lvl = 1
-            elseif d < 650 then
-                lvl = 2
-            else
-                lvl = 3
-            end
-
-            local chance = math.min(max_chance, d * factor)
-
-            if math.random() < chance then
-                local worm_id
-                if d > 1000 then
-                    local power = 1000 / d
-                    worm_id = math.ceil((math.random() ^ power) * lvl)
-                else
-                    worm_id = math.random(lvl)
-                end
-
-                return {name = worm_names[worm_id]}
-            --, always_place = true}
-            end
-        else
-            local chance = math.min(max_chance, d * factor)
-            if math.random() < chance then
-                local spawner_id = math.random(2)
-                return {name = spawner_names[spawner_id]}
-            --, always_place = true}
-            end
-        end
-    else
-        return tree_shape()
-    end
-end
-
-local map = b.full_shape
-
-map = b.change_map_gen_tile(map, 'water', 'water-green')
-map = b.change_map_gen_tile(map, 'deepwater', 'deepwater-green')
-
-map = b.apply_entity(map, enemy)
-
 local function on_init()
-    local surface = RS.get_surface()
     local player_force = game.forces.player
     player_force.technologies['flamethrower'].enabled = false -- disable flamethrower tech
     player_force.manual_mining_speed_modifier = 2 -- increase mining speed, disabled after military 2 research
-    game.map_settings.enemy_expansion.enabled = true
 
     Retailer.set_item(
         'items',
@@ -257,11 +161,107 @@ local function on_init()
     Retailer.set_item('items', {price = 10, name = 'construction-robot'})
 
     Retailer.set_market_group_label('items', 'Items Market')
+    local surface = RS.get_surface()
     local item_market_1 = surface.create_entity({name = 'market', position = {0, 0}})
     item_market_1.destructible = false
     Retailer.add_market('items', item_market_1)
 end
 
 Event.on_init(on_init)
+
+-- Map
+
+local trees = {
+    'tree-01',
+    'tree-02',
+    'tree-02-red',
+    'tree-03',
+    'tree-04',
+    'tree-05',
+    'tree-06',
+    'tree-06-brown',
+    'tree-07',
+    'tree-08',
+    'tree-08-brown',
+    'tree-08-red',
+    'tree-09',
+    'tree-09-brown',
+    'tree-09-red'
+}
+
+local trees_count = #trees
+
+local function tree_shape()
+    local tree = trees[math.random(trees_count)]
+
+    return {name = tree}
+    --, always_place = true}
+end
+
+local worm_names = {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret'}
+local spawner_names = {'biter-spawner', 'spitter-spawner'}
+local factor = 10 / (768 * 32)
+local max_chance = 1 / 6
+
+local scale_factor = 32
+local sf = 1 / scale_factor
+local m = 1 / 850
+local function enemy(x, y, world)
+    local d = math.sqrt(world.x * world.x + world.y * world.y)
+
+    if d < 2 then
+        return nil
+    end
+
+    if d < 100 then
+        return tree_shape()
+    end
+
+    local threshold = 1 - d * m
+    threshold = math.max(threshold, 0.25) -- -0.125)
+
+    x, y = x * sf, y * sf
+    if Perlin.noise(x, y, enemy_seed) > threshold then
+        if math.random(8) == 1 then
+            local lvl
+            if d < 400 then
+                lvl = 1
+            elseif d < 650 then
+                lvl = 2
+            else
+                lvl = 3
+            end
+
+            local chance = math.min(max_chance, d * factor)
+
+            if math.random() < chance then
+                local worm_id
+                if d > 1000 then
+                    local power = 1000 / d
+                    worm_id = math.ceil((math.random() ^ power) * lvl)
+                else
+                    worm_id = math.random(lvl)
+                end
+
+                return {name = worm_names[worm_id]}
+            end
+        else
+            local chance = math.min(max_chance, d * factor)
+            if math.random() < chance then
+                local spawner_id = math.random(2)
+                return {name = spawner_names[spawner_id]}
+            end
+        end
+    else
+        return tree_shape()
+    end
+end
+
+local map = b.full_shape
+
+map = b.change_map_gen_tile(map, 'water', 'water-green')
+map = b.change_map_gen_tile(map, 'deepwater', 'deepwater-green')
+
+map = b.apply_entity(map, enemy)
 
 return map
