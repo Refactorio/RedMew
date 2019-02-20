@@ -108,7 +108,7 @@ local random = Random.new(ore_seed1, ore_seed2)
 
 local total_weights = {}
 local t = 0
-for _, v in ipairs(ores) do
+for _, v in pairs(ores) do
     t = t + v.weight
     insert(total_weights, t)
 end

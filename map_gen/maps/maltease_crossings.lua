@@ -28,7 +28,7 @@ local function no_trees(world, tile)
     if not tile then
         return
     end
-    for _, e in ipairs(world.surface.find_entities_filtered({type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
+    for _, e in pairs(world.surface.find_entities_filtered({type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
         e.destroy()
     end
     return tile

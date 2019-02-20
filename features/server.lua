@@ -295,7 +295,7 @@ local function data_set_changed(data)
     end
 
     if _DEBUG then
-        for _, handler in ipairs(handlers) do
+        for _, handler in pairs(handlers) do
             local success, err = pcall(handler, data)
             if not success then
                 log(err)
@@ -303,7 +303,7 @@ local function data_set_changed(data)
             end
         end
     else
-        for _, handler in ipairs(handlers) do
+        for _, handler in pairs(handlers) do
             local success, err = pcall(handler, data)
             if not success then
                 log(err)
@@ -495,7 +495,7 @@ end
 function Public.query_online_players()
     local message = {query_players_tag, '['}
 
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         message[#message + 1] = '"'
         local name = escape(p.name)
         message[#message + 1] = name

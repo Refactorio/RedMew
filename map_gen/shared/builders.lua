@@ -364,7 +364,7 @@ end
 
 function Builders.any(shapes)
     return function(x, y, world)
-        for _, s in ipairs(shapes) do
+        for _, s in pairs(shapes) do
             local tile = s(x, y, world)
             if tile then
                 return tile
@@ -377,7 +377,7 @@ end
 function Builders.all(shapes)
     return function(x, y, world)
         local tile
-        for _, s in ipairs(shapes) do
+        for _, s in pairs(shapes) do
             tile = s(x, y, world)
             if not tile then
                 return false
@@ -400,7 +400,7 @@ function Builders.combine(shapes)
 
                     local es = t.entities
                     if es then
-                        for _, e in ipairs(es) do
+                        for _, e in pairs(es) do
                             add_entity(tile, e)
                         end
                     end
@@ -723,7 +723,7 @@ function Builders.apply_entities(shape, entity_shapes)
             return false
         end
 
-        for _, es in ipairs(entity_shapes) do
+        for _, es in pairs(entity_shapes) do
             local e = es(x, y, world)
             if e then
                 tile = add_entity(tile, e)
@@ -1603,7 +1603,7 @@ function Builders.prepare_weighted_array(array)
     local total = 0
     local weights = {}
     local weight_counter = 1
-    for _, v in ipairs(array) do
+    for _, v in pairs(array) do
         total = total + v.weight
         weights[weight_counter] = total
         weight_counter = weight_counter + 1

@@ -116,7 +116,7 @@ local function research_finished(event)
     local r = event.research
     local p_force = r.force
 
-    for _, e in ipairs(r.effects) do
+    for _, e in pairs(r.effects) do
         local t = e.type
 
         if t == 'ammo-damage' then

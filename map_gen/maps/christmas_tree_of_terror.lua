@@ -52,7 +52,7 @@ local ammos = {
 local function init_weapon_damage()
     local p_force = game.forces.player
 
-    for _, a in ipairs(ammos) do
+    for _, a in pairs(ammos) do
         p_force.set_ammo_damage_modifier(a, -0.5)
     end
 end
@@ -63,7 +63,7 @@ Event.add(
         local p_force = game.forces.player
         local r = event.research
 
-        for _, e in ipairs(r.effects) do
+        for _, e in pairs(r.effects) do
             local t = e.type
 
             if t == 'ammo-damage' then
@@ -164,7 +164,7 @@ local random = Random.new(ore_seed1, ore_seed2)
 
 local total_weights = {}
 local t = 0
-for _, v in ipairs(ores) do
+for _, v in pairs(ores) do
     t = t + v.weight
     table.insert(total_weights, t)
 end
@@ -273,7 +273,7 @@ local item_pool = {
 
 local total_weights2 = {}
 t = 0
-for _, v in ipairs(item_pool) do
+for _, v in pairs(item_pool) do
     t = t + v.weight
     table.insert(total_weights2, t)
 end

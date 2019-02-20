@@ -208,7 +208,7 @@ worms_area = b.translate(worms_area, 0, -210)
 local function worms_top(x, y, world)
     if worms_area(x, y) then
         local entities = world.surface.find_entities {{world.x, world.y}, {world.x + 1, world.y + 1}}
-        for _, e in ipairs(entities) do
+        for _, e in pairs(entities) do
             e.destroy()
         end
         return {name = 'big-worm-turret'}

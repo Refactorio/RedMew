@@ -31,7 +31,7 @@ local function player_died(event)
 
     local tick = game.tick
     local entity
-    for _, e in ipairs(entities) do
+    for _, e in pairs(entities) do
         if e.character_corpse_player_index == event.player_index and e.character_corpse_tick_of_death == tick then
             entity = e
             break

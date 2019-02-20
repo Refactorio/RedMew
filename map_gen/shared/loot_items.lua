@@ -54,7 +54,7 @@ local item_pool = {
 
 local total_weights = {}
 local t = 0
-for _, v in ipairs(item_pool) do
+for _, v in pairs(item_pool) do
     t = t + v.weight
     table.insert(total_weights, t)
 end

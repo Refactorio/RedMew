@@ -240,7 +240,7 @@ local function redraw_tasks(data, enabled)
 
     local game_tick = game.tick
 
-    for task_index, task in ipairs(tasks) do
+    for task_index, task in pairs(tasks) do
         local delete_button =
             parent.add({type = 'flow'}).add {
             type = 'sprite-button',
@@ -480,7 +480,7 @@ local function update_announcements(player)
     local last_edit_message = get_announcements_updated_by_message()
     local update_message = 'The announcements have been updated by ' .. player.name
 
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local notify = not no_notify_players[p.index]
 
         if notify then
@@ -530,7 +530,7 @@ local function create_new_tasks(task_name, player)
         task_name
     }
 
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local notify = not no_notify_players[p.index]
         local left = p.gui.left
         local frame = left[main_frame_name]
@@ -612,7 +612,7 @@ local function player_joined(event)
 
     local tasks_for_player = player_tasks[player.index]
     if tasks_for_player and next(tasks_for_player) then
-        for _, p in ipairs(game.connected_players) do
+        for _, p in pairs(game.connected_players) do
             local main_frame = p.gui.left[main_frame_name]
             if main_frame then
                 local data = Gui.get_data(main_frame)
@@ -642,7 +642,7 @@ local function player_left(event)
 end
 
 local function on_tick()
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local left = p.gui.left
         local frame = left[main_frame_name]
 
@@ -652,7 +652,7 @@ local function on_tick()
             data.announcements_updated_label.caption = get_announcements_updated_by_message()
 
             local game_tick = game.tick
-            for task_index, label in ipairs(data.task_labels) do
+            for task_index, label in pairs(data.task_labels) do
                 label.tooltip = get_task_label_tooltip(tasks[task_index], game_tick)
             end
         end
@@ -816,7 +816,7 @@ Gui.on_click(
             end
         end
 
-        for _, p in ipairs(game.connected_players) do
+        for _, p in pairs(game.connected_players) do
             local notify = not no_notify_players[p.index]
             local left = p.gui.left
             local frame = left[main_frame_name]
@@ -873,7 +873,7 @@ local function do_direction(event, sign)
     local task = table.remove(tasks, old_index)
     table.insert(tasks, new_index, task)
 
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local frame = p.gui.left[main_frame_name]
         if frame and frame.valid then
             local data = Gui.get_data(frame)
@@ -924,7 +924,7 @@ Gui.on_click(
             tasks_for_player[task_id] = task
         end
 
-        for _, p in ipairs(game.connected_players) do
+        for _, p in pairs(game.connected_players) do
             local frame = p.gui.left[main_frame_name]
             if frame and frame.valid then
                 local data = Gui.get_data(frame)
@@ -1026,7 +1026,7 @@ Gui.on_click(
         last_task_update_data.time = tick
 
         local task_index
-        for i, t in ipairs(tasks) do
+        for i, t in pairs(tasks) do
             if task == t then
                 task_index = i
                 break
@@ -1048,7 +1048,7 @@ Gui.on_click(
 
         local update_message = get_task_updated_by_message()
 
-        for _, p in ipairs(game.connected_players) do
+        for _, p in pairs(game.connected_players) do
             local notify = not no_notify_players[p.index]
             local left = p.gui.left
             local main_frame = left[main_frame_name]

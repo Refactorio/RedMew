@@ -43,7 +43,7 @@ local function effect(_, _, world, tile)
     end
 
     if world.x == 0 and world.y == 0 then
-        for _, e in ipairs(world.surface.find_entities({{-5, -5}, {5, 5}})) do
+        for _, e in pairs(world.surface.find_entities({{-5, -5}, {5, 5}})) do
             e.destroy()
         end
 
@@ -55,16 +55,16 @@ local function effect(_, _, world, tile)
     --[[
 
     if max_axis_distance(world_x, world_y, -2144, 0) < safe_distance then
-    for _, e in ipairs(surface.find_entities_filtered({ force = "enemy", position = { world_x, world_y } } )) do
+    for _, e in pairs(surface.find_entities_filtered({ force = "enemy", position = { world_x, world_y } } )) do
     e.destroy()
     end
     elseif max_axis_distance(world_x, world_y, 2144, 0) < safe_distance then
-    for _, e in ipairs(surface.find_entities_filtered({ force = "enemy", position = { world_x, world_y } } )) do
+    for _, e in pairs(surface.find_entities_filtered({ force = "enemy", position = { world_x, world_y } } )) do
     e.destroy()
     end
     end
 
-    for _, e in ipairs(surface.find_entities_filtered({ type = "resource", area = {{world_x, world_y  }, {world_x + 1, world_y + 1 } } })) do -- I want to use position but for some reason it doesn't seem to work for ores.
+    for _, e in pairs(surface.find_entities_filtered({ type = "resource", area = {{world_x, world_y  }, {world_x + 1, world_y + 1 } } })) do -- I want to use position but for some reason it doesn't seem to work for ores.
     local dist1 = distance(world_x, world_y, -2144, 0)
     local dist2 = distance(world_x, world_y, 2144, 0)
     local amount = math.min(dist1, dist2)

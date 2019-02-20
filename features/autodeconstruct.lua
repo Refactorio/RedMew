@@ -39,7 +39,7 @@ local function on_resource_depleted(event)
     local position = entity.position
     local area = {{position.x - 1, position.y - 1}, {position.x + 1, position.y + 1}}
     local drills = event.entity.surface.find_entities_filtered {area = area, type = 'mining-drill'}
-    for _, drill in ipairs(drills) do
+    for _, drill in pairs(drills) do
         if drill.name ~= 'pumpjack' and is_depleted(drill, entity) then
             Task.set_timeout_in_ticks(5, callback, drill)
         end

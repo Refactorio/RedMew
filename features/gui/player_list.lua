@@ -500,7 +500,7 @@ local function redraw_headings(data)
 
     local heading_table = heading_table_flow.add {type = 'table', column_count = #columns}
 
-    for i, c in ipairs(settings.columns) do
+    for i, c in pairs(settings.columns) do
         local heading = column_builders[c].draw_heading(heading_table, data)
 
         if i == sort_column then
@@ -536,10 +536,10 @@ local function redraw_cells(data)
     local grid = cell_table_scroll_pane.add {type = 'table', column_count = #columns}
 
     local list_data = {}
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local row = {}
 
-        for _, c in ipairs(columns) do
+        for _, c in pairs(columns) do
             local cell_data = column_builders[c].create_data(p)
             table.insert(row, cell_data)
         end
@@ -549,8 +549,8 @@ local function redraw_cells(data)
 
     table.sort(list_data, comp)
 
-    for _, row in ipairs(list_data) do
-        for c_i, c in ipairs(columns) do
+    for _, row in pairs(list_data) do
+        for c_i, c in pairs(columns) do
             local flow = grid.add {type = 'flow'}
             column_builders[c].draw_cell(flow, row[c_i], data)
         end
@@ -611,7 +611,7 @@ local function toggle(event)
 end
 
 local function tick()
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local frame = p.gui.left[main_frame_name]
 
         if frame and frame.valid then
@@ -634,7 +634,7 @@ local function player_joined(event)
         top.add {type = 'sprite-button', name = main_button_name, sprite = 'entity/player'}
     end
 
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local frame = p.gui.left[main_frame_name]
 
         if frame and frame.valid then
@@ -646,7 +646,7 @@ local function player_joined(event)
 end
 
 local function player_left()
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         local frame = p.gui.left[main_frame_name]
 
         if frame and frame.valid then
@@ -728,7 +728,7 @@ Gui.on_click(
         local poke_str = poke_messages[random(#poke_messages)]
         local message = table.concat({'>> ', player.name, ' has poked ', poke_player.name, ' with ', poke_str, ' <<'})
 
-        for _, p in ipairs(game.connected_players) do
+        for _, p in pairs(game.connected_players) do
             local frame = p.gui.left[main_frame_name]
             if frame and frame.valid then
                 local frame_data = Gui.get_data(frame)

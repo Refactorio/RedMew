@@ -23,7 +23,7 @@ local function ammo_changed(event)
 
         local character = player.character
         if character and character.valid then
-            for _, p in ipairs(game.connected_players) do
+            for _, p in pairs(game.connected_players) do
                 if p ~= player then
                     p.add_custom_alert(character, {type = 'item', name = 'atomic-bomb'}, player.name, true)
                 end
@@ -46,7 +46,7 @@ local function on_player_deconstructed_area(event)
 
     local character = player.character
     if character and character.valid then
-        for _, p in ipairs(game.connected_players) do
+        for _, p in pairs(game.connected_players) do
             if p ~= player then
                 p.add_custom_alert(character, {type = 'item', name = 'deconstruction-planner'}, player.name, true)
             end

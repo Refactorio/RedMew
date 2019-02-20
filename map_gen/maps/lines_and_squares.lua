@@ -96,7 +96,7 @@ local squares = {
 
 local total_square_weights = {}
 local square_t = 0
-for _, v in ipairs(squares) do
+for _, v in pairs(squares) do
     square_t = square_t + v.weight
     table.insert(total_square_weights, square_t)
 end
@@ -132,7 +132,7 @@ local ores = {
 
 local total_ore_weights = {}
 local ore_t = 0
-for _, v in ipairs(ores) do
+for _, v in pairs(ores) do
     ore_t = ore_t + v.weight
     table.insert(total_ore_weights, ore_t)
 end

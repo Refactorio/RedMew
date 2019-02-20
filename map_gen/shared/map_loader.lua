@@ -11,7 +11,7 @@ end
 if #config.terrain_modules > 0 then
     shape = shape or b.full_shape
 
-    for _, m in ipairs(config.terrain_modules) do
+    for _, m in pairs(config.terrain_modules) do
         shape = b.overlay_tile_land(shape, m)
     end
 end

@@ -71,7 +71,7 @@ local uranium_ore = b.resource(b.full_shape, 'uranium-ore', value(50, 0.25))
 
 local total_weights = {}
 local t = 0
-for _, v in ipairs(ores) do
+for _, v in pairs(ores) do
     t = t + v[2]
     table.insert(total_weights, t)
 end

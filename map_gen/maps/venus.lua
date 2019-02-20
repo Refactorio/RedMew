@@ -54,14 +54,14 @@ local function value(base, mult)
 end
 
 local function no_resources(_, _, world, tile)
-    for _, e in ipairs(
+    for _, e in pairs(
         world.surface.find_entities_filtered(
             {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
         )
     ) do
         e.destroy()
     end
-    for _, e in ipairs(
+    for _, e in pairs(
         world.surface.find_entities_filtered(
             -- all tree types
             {type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
@@ -69,7 +69,7 @@ local function no_resources(_, _, world, tile)
     ) do
         e.destroy()
     end
-    for _, e in ipairs(
+    for _, e in pairs(
         world.surface.find_entities_filtered(
             -- all rock types
             {type = 'simple-entity', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}

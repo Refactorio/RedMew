@@ -13,7 +13,7 @@ local function harmonic(x, y)
     local max_idx = 0
     local max = -1
     local richness = 0
-    for i in ipairs(ctrs) do
+    for i in pairs(ctrs) do
         local noise = perlin.noise(x / 32, y / 32, ctrs[i][6])
         local h_coeff =
             1 /
@@ -37,7 +37,7 @@ return function(_, _, world)
     end
 
     local entities = world.surface.find_entities_filtered {position = {world.x + 0.5, world.y + 0.5}, type = 'resource'}
-    for _, e in ipairs(entities) do
+    for _, e in pairs(entities) do
         if e.name ~= 'crude-oil' then
             e.destroy()
         end

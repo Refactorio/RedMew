@@ -344,7 +344,7 @@ local function build_chunk(origin, dirs)
     local cnt = 0
     local sum = {x = 0, y = 0}
     local delta = {x = 1, y = 0}
-    for dir, b in ipairs(dirs) do
+    for dir, b in pairs(dirs) do
         cnt = cnt + b
         sum = {x = sum.x + delta.x * b, y = sum.y + delta.y * b}
         delta = {x = -delta.y, y = delta.x}
@@ -384,7 +384,7 @@ local function find_connections(gx, gy)
     local dd = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}}
     if is_on_grid(gx, gy) then
         local c = {}
-        for _, d in ipairs(dd) do
+        for _, d in pairs(dd) do
             if is_on_grid(gx + d[1], gy + d[2]) then
                 table.insert(c, 1)
             else

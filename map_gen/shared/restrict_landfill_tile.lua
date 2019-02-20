@@ -14,7 +14,7 @@ Event.add(
         local allowed = global.allowed_landfill_tiles
 
         local new_tiles = {}
-        for _, tile in ipairs(event.tiles) do
+        for _, tile in pairs(event.tiles) do
             local name = tile.old_tile.name
             if not allowed[name] then
                 tile.name = name

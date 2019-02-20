@@ -392,7 +392,7 @@ local function init()
 
     local half_total_size = grid_block_size * 0.5 * 8
 
-    for _, pos in ipairs(stage1a_pos) do
+    for _, pos in pairs(stage1a_pos) do
         local r, c = pos[1], pos[2]
 
         local row = pattern[r]
@@ -407,7 +407,7 @@ local function init()
         row[c] = shape
     end
 
-    for _, pos in ipairs(stage1b_pos) do
+    for _, pos in pairs(stage1b_pos) do
         local r, c = pos[1], pos[2]
 
         local row = pattern[r]
@@ -422,7 +422,7 @@ local function init()
         row[c] = shape
     end
 
-    for _, pos in ipairs(stage2_pos) do
+    for _, pos in pairs(stage2_pos) do
         local r, c = pos[1], pos[2]
 
         local row = pattern[r]
@@ -648,7 +648,7 @@ local function init()
 
     local total_ore_weights = {}
     local ore_t = 0
-    for _, v in ipairs(ores) do
+    for _, v in pairs(ores) do
         ore_t = ore_t + v.weight
         table.insert(total_ore_weights, ore_t)
     end

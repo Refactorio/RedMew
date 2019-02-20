@@ -98,7 +98,7 @@ function run_combined_module(event) -- luacheck: ignore global run_combined_modu
 
     surface.set_tiles(tiles, false)
 
-    for _, e in ipairs(entities) do
+    for _, e in pairs(entities) do
         if surface.can_place_entity(e) then
             surface.create_entity(e)
         end

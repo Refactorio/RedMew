@@ -161,7 +161,7 @@ local function convert(cursor, filters)
         return
     end
 
-    for _, e in ipairs(entities) do
+    for _, e in pairs(entities) do
         local to_name = filters[e.name]
         if to_name then
             e.name = to_name
@@ -293,7 +293,7 @@ local function draw_filters_table(event)
     t.style.horizontal_spacing = 0
     t.style.vertical_spacing = 0
 
-    for _, v in ipairs(valid_filters) do
+    for _, v in pairs(valid_filters) do
         local flow = t.add {type = 'flow'}
         local b = flow.add {type = 'sprite-button', name = filter_element_name, sprite = 'entity/' .. v, tooltip = v}
         Gui.set_data(b, frame)
@@ -531,7 +531,7 @@ Gui.on_click(
     function(event)
         local filters = Gui.get_data(event.element)
 
-        for _, filter in ipairs(filters) do
+        for _, filter in pairs(filters) do
             local from = filter.from
             local to = filter.to
 

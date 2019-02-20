@@ -349,7 +349,7 @@ local function draw_create_tag_frame(event, tag_data)
     local selection_flow = icons_flow.add {type = 'flow'}
 
     local focus
-    for _, value in ipairs(choices) do
+    for _, value in pairs(choices) do
         local radio =
             selection_flow.add({type = 'flow'}).add {
             type = 'radiobutton',

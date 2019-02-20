@@ -6,7 +6,7 @@ local insert = table.insert
 local function get_mins(entities, tiles)
     local min_x, min_y = math.huge, math.huge
 
-    for _, e in ipairs(entities) do
+    for _, e in pairs(entities) do
         local p = e.position
         local x, y = p.x, p.y
 
@@ -18,7 +18,7 @@ local function get_mins(entities, tiles)
         end
     end
 
-    for _, e in ipairs(tiles) do
+    for _, e in pairs(tiles) do
         local p = e.position
         local x, y = p.x, p.y
 
@@ -110,7 +110,7 @@ local function extract1(args, player)
     min_y = 1 - math.ceil(min_y)
 
     local result = {}
-    for _, e in ipairs(es) do
+    for _, e in pairs(es) do
         local p = e.position
         local x, y = p.x + min_x, p.y + min_y
         local x2, y2 = math.ceil(x), math.ceil(y)
@@ -125,7 +125,7 @@ local function extract1(args, player)
         entry.entity = e
     end
 
-    for _, e in ipairs(ts) do
+    for _, e in pairs(ts) do
         local p = e.position
         local x, y = p.x + min_x, p.y + min_y
         x, y = math.ceil(x), math.ceil(y)
@@ -162,7 +162,7 @@ local function extract4(args, player)
     min_y = 1 - math.floor(min_y)
 
     local result = {}
-    for _, e in ipairs(es) do
+    for _, e in pairs(es) do
         local p = e.position
         local x, y = p.x + min_x, p.y + min_y
         local x2, y2 = math.floor(x), math.floor(y)
@@ -189,7 +189,7 @@ local function extract4(args, player)
         entry.entity = e
     end
 
-    for _, t in ipairs(ts) do
+    for _, t in pairs(ts) do
         local p = t.position
         local x, y = p.x + min_x, p.y + min_y
         x, y = math.ceil(x), math.ceil(y)

@@ -49,7 +49,7 @@ local ores = {
 
 local total_ore_weights = {}
 local ore_t = 0
-for _, v in ipairs(ores) do
+for _, v in pairs(ores) do
     ore_t = ore_t + v.weight
     table.insert(total_ore_weights, ore_t)
 end
@@ -83,7 +83,7 @@ local resources = {
 
 local total_resource_weights = {}
 local resource_t = 0
-for _, v in ipairs(resources) do
+for _, v in pairs(resources) do
     resource_t = resource_t + v.weight
     table.insert(total_resource_weights, resource_t)
 end

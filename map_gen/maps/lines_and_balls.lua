@@ -34,7 +34,7 @@ local ore_patches = {
 
 local total_ore_patch_weights = {}
 local square_t = 0
-for _, v in ipairs(ore_patches) do
+for _, v in pairs(ore_patches) do
     square_t = square_t + v.weight
     table.insert(total_ore_patch_weights, square_t)
 end
@@ -70,7 +70,7 @@ local ores = {
 
 local total_ore_weights = {}
 local ore_t = 0
-for _, v in ipairs(ores) do
+for _, v in pairs(ores) do
     ore_t = ore_t + v.weight
     table.insert(total_ore_weights, ore_t)
 end

@@ -68,7 +68,7 @@ local function player_build_tile(event)
 
     local tiles = event.tiles
     local count = 0
-    for _, tile_data in ipairs(tiles) do
+    for _, tile_data in pairs(tiles) do
         tile_data.name = replace_tile
         if tile_data.old_tile.name == replace_tile then
             count = count + 1
@@ -108,7 +108,7 @@ local function draw_filters_table(event)
     t.style.horizontal_spacing = 0
     t.style.vertical_spacing = 0
 
-    for _, v in ipairs(valid_filters) do
+    for _, v in pairs(valid_filters) do
         local flow = t.add {type = 'flow'}
         local b = flow.add {type = 'sprite-button', name = filter_element_name, sprite = 'tile/' .. v, tooltip = v}
         Gui.set_data(b, frame)

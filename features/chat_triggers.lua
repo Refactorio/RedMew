@@ -78,7 +78,7 @@ local function mentions(event)
             success = true
         end
         if not success then
-            for _, p in ipairs(game.connected_players) do
+            for _, p in pairs(game.connected_players) do
                 local word_front_trim = string.sub(word, 2, string.len(word))
                 local word_back_trim = trimmed_word
                 local word_front_back_trim = string.sub(word_front_trim, 0, string.len(word_front_trim) - 1)
@@ -119,7 +119,7 @@ local function mentions(event)
             table.insert(cannot_mention, (word .. ', '))
         end
     end
-    for _, pname in ipairs(cannot_mention) do
+    for _, pname in pairs(cannot_mention) do
         missing_player_string = missing_player_string ~= nil and missing_player_string .. pname or pname
     end
     if missing_player_string ~= nil then

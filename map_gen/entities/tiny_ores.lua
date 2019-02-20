@@ -41,7 +41,7 @@ return function(tiles_per_resource)
 
     local total_weights = {}
     local t = 0
-    for _, v in ipairs(ores) do
+    for _, v in pairs(ores) do
         t = t + v[3]
         table.insert(total_weights, t)
     end

@@ -56,7 +56,7 @@ local clear_types = {'simple-entity', 'tree'}
 
 local function do_clear_entities(world)
     local entities = world.surface.find_entities_filtered({area = world.area, type = clear_types})
-    for _, entity in ipairs(entities) do
+    for _, entity in pairs(entities) do
         entity.destroy()
     end
 end

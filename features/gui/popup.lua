@@ -105,7 +105,7 @@ Gui.on_click(
 local function popup(args)
     local message = args.message:gsub('\\n', '\n')
 
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         show_popup(p, message)
     end
 
@@ -117,7 +117,7 @@ end
 local function popup_update(args)
     local message = 'Server is updating to ' .. args.version .. '\nWe will be back in a minute'
 
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         show_popup(p, message, "Incoming update!", 11)
     end
 
@@ -200,7 +200,7 @@ end
     @param popup_name string, assign to have a popup only exist once.
 ]]
 function Public.all_online(message, title, sprite_path, popup_name)
-    for _, p in ipairs(game.connected_players) do
+    for _, p in pairs(game.connected_players) do
         show_popup(p, message, title, sprite_path, popup_name)
     end
 end

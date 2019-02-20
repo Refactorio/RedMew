@@ -86,7 +86,7 @@ local function res_builder(x, y, world_x, world_y)
     local row_pos = math.floor(world_y / ISLAND_Y_DISTANCE + 0.5)
     local offset = ((math.abs(col_pos) + math.abs(row_pos)) % 6) + 1
     local rt = res_tables[offset]
-    for k, v in ipairs(patch_table) do
+    for k, v in pairs(patch_table) do
             local r = rt[k]
             local f = r[1]
             local name = r[2]

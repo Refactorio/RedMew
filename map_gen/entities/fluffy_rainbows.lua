@@ -41,7 +41,7 @@ return function(x, y, world)
     end
 
     --[[ local entities = world.surface.find_entities_filtered {position = {world.x + 0.5, world.y + 0.5}, type = 'resource'}
-    for _, e in ipairs(entities) do
+    for _, e in pairs(entities) do
         if e.name ~= 'crude-oil' then
             e.destroy()
         end

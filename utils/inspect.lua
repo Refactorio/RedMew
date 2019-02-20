@@ -264,7 +264,7 @@ function Inspector:putTable(t)
         count = count + 1
       end
 
-      for _,k in ipairs(nonSequentialKeys) do
+      for _,k in pairs(nonSequentialKeys) do
         if count > 0 then self:puts(',') end
         self:tabify()
         self:putKey(k)
@@ -339,4 +339,3 @@ end
 setmetatable(inspect, { __call = function(_, ...) return inspect.inspect(...) end })
 
 return inspect
-

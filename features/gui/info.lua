@@ -553,8 +553,8 @@ local function draw_main_frame(center, player)
     top_flow_style.horizontally_stretchable = true
 
     local title_grid = top_flow.add {type = 'table', column_count = title_max}
-    for _, row in ipairs(title) do
-        for _, char in ipairs(row) do
+    for _, row in pairs(title) do
+        for _, char in pairs(row) do
             local ele
             if char then
                 ele = title_grid.add {type = 'sprite', sprite = 'virtual-signal/signal-red'}
@@ -587,7 +587,7 @@ local function draw_main_frame(center, player)
     tab_flow_style.align = 'center'
     tab_flow_style.horizontally_stretchable = true
 
-    for index, page in ipairs(pages) do
+    for index, page in pairs(pages) do
         local button_flow = tab_flow.add {type = 'flow'}
         local button = page.tab_button(button_flow, player)
 

@@ -39,7 +39,7 @@ local function do_tile(y, x, data, shape)
 
         local entities = tile.entities
         if entities then
-            for _, entity in ipairs(entities) do
+            for _, entity in pairs(entities) do
                 if not entity.position then
                     entity.position = pos
                 end
@@ -49,7 +49,7 @@ local function do_tile(y, x, data, shape)
 
         local decoratives = tile.decoratives
         if decoratives then
-            for _, decorative in ipairs(decoratives) do
+            for _, decorative in pairs(decoratives) do
                 insert(data.decoratives, decorative)
             end
         end
@@ -82,7 +82,7 @@ local function do_row(row, data, shape)
 
             local entities = tile.entities
             if entities then
-                for _, entity in ipairs(entities) do
+                for _, entity in pairs(entities) do
                     if not entity.position then
                         entity.position = pos
                     end
@@ -92,7 +92,7 @@ local function do_row(row, data, shape)
 
             local decoratives = tile.decoratives
             if decoratives then
-                for _, decorative in ipairs(decoratives) do
+                for _, decorative in pairs(decoratives) do
                     insert(data.decoratives, decorative)
                 end
             end
@@ -108,7 +108,7 @@ end
 
 local function do_place_hidden_tiles(data)
     local surface = data.surface
-    for _, t in ipairs(data.hidden_tiles) do
+    for _, t in pairs(data.hidden_tiles) do
         surface.set_hidden_tile(t.position, t.tile)
     end
 end
@@ -144,7 +144,7 @@ end
 
 local function do_place_entities(data)
     local surface = data.surface
-    for _, e in ipairs(data.entities) do
+    for _, e in pairs(data.entities) do
         if e.always_place or surface.can_place_entity(e) then
             local entity = surface.create_entity(e)
             if entity and e.callback then

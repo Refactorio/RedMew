@@ -13,7 +13,7 @@ local radius_sq = radius * radius
 
 return function(_, _, world)
     local entities = world.surface.find_entities_filtered {position = {world.x + 0.5, world.y + 0.5}, type = "resource"}
-    for _, e in ipairs(entities) do
+    for _, e in pairs(entities) do
         e.destroy()
     end
 

@@ -38,7 +38,7 @@ return function(_, _, world)
   local pos = {world.x + 0.5, world.y + 0.5}
   local entities = world.surface.find_entities_filtered {position = pos, type = "resource"}
 
-  for _, entity in ipairs(entities) do
+  for _, entity in pairs(entities) do
     if ore_ratios[entity.name] ~= nil then
       if sprinkle_factor == 100 or math.random(100) <= sprinkle_factor then
         local amount_old = entity.amount

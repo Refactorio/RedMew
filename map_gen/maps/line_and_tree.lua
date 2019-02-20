@@ -15,7 +15,7 @@ RS.set_map_gen_settings(
 )
 
 local function no_enemies(_, _, world, tile)
-    for _, e in ipairs(world.surface.find_entities_filtered({force = 'enemy', position = {world.x, world.y}})) do
+    for _, e in pairs(world.surface.find_entities_filtered({force = 'enemy', position = {world.x, world.y}})) do
         e.destroy()
     end
 

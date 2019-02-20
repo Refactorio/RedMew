@@ -42,7 +42,7 @@ function Gui.remove_data_recursively(element)
         return
     end
 
-    for _, child in ipairs(children) do
+    for _, child in pairs(children) do
         if child.valid then
             Gui.remove_data_recursively(child)
         end
@@ -56,7 +56,7 @@ function Gui.remove_children_data(element)
         return
     end
 
-    for _, child in ipairs(children) do
+    for _, child in pairs(children) do
         if child.valid then
             Gui.set_data(child, nil)
             Gui.remove_children_data(child)
