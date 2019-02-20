@@ -141,6 +141,10 @@ local function non_transform(shape)
     return b.scale(shape, 0.5)
 end
 
+local function uranium_transform(shape)
+    return b.scale(shape, 0.25)
+end
+
 local function oil_transform(shape)
     shape = b.scale(shape, 0.25)
     return b.throttle_world_xy(shape, 1, 4, 1, 4)
@@ -155,6 +159,7 @@ local ores = {
     {transform = non_transform, resource = 'copper-ore', value = value(250, 0.425, 1.1), weight = 10},
     {transform = non_transform, resource = 'stone', value = value(150, 0.2, 1.05), weight = 6},
     {transform = non_transform, resource = 'coal', value = value(250, 0.25, 1.075), weight = 16},
+    {transform = uranium_transform, resource = 'uranium-ore', value = value(200, 0.3, 1.025), weight = 3},
     {transform = oil_transform, resource = 'crude-oil', value = value(50000, 50, 1.025), weight = 10},
     {transform = empty_transform, weight = 65}
 }
