@@ -144,8 +144,8 @@ function Experience.update_mining_speed(force, level_up)
             mining_efficiency.level_modifier = mining_efficiency.level_modifier + (value * 0.01)
         end
         -- remove the current buff
-        local old_modifier = force.manual_mining_speed_modifier - mining_efficiency.active_modifier
-
+        local old_modifier = (force.manual_mining_speed_modifier == 0) and 0 or force.manual_mining_speed_modifier - mining_efficiency.active_modifier
+        old_modifier = old_modifier >= 0 and old_modifier or 0
         -- update the active modifier
         mining_efficiency.active_modifier = mining_efficiency.research_modifier + mining_efficiency.level_modifier
 
@@ -167,8 +167,8 @@ function Experience.update_inventory_slots(force, level_up)
         end
 
         -- remove the current buff
-        local old_modifier = force.character_inventory_slots_bonus - inventory_slots.active_modifier
-
+        local old_modifier = (force.character_inventory_slots_bonus == 0) and 0 or force.character_inventory_slots_bonus - inventory_slots.active_modifier
+        old_modifier = old_modifier >= 0 and old_modifier or 0
         -- update the active modifier
         inventory_slots.active_modifier = inventory_slots.research_modifier + inventory_slots.level_modifier
 
@@ -190,8 +190,8 @@ function Experience.update_health_bonus(force, level_up)
         end
 
         -- remove the current buff
-        local old_modifier = force.character_health_bonus - health_bonus.active_modifier
-
+        local old_modifier = (force.character_health_bonus == 0) and 0 or force.character_health_bonus - health_bonus.active_modifier
+        old_modifier = old_modifier >= 0 and old_modifier or 0
         -- update the active modifier
         health_bonus.active_modifier = health_bonus.research_modifier + health_bonus.level_modifier
 
@@ -268,6 +268,7 @@ local function on_research_finished(event)
 
     Experience.update_inventory_slots(force, 0)
     Experience.update_mining_speed(force, 0)
+    Experience.update_health_bonus(force, 0)
 
     game.forces.player.technologies['landfill'].enabled = false
 end
@@ -537,6 +538,12 @@ local function update_gui()
             toggle(data)
         end
     end
+
+    --Resets buffs if they have been set to 0
+    local force = game.forces.player
+    Experience.update_inventory_slots(force, 0)
+    Experience.update_mining_speed(force, 0)
+    Experience.update_health_bonus(force, 0)
 end
 
 function Experience.register(cfg)
