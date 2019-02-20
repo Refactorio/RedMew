@@ -1,7 +1,4 @@
---changes that should be made in config.lua:
---change coin drop probabliity from biters/spitters from 0 -> 1
---enable hail hydra
---change map info + description if playing in MP
+--This is Orange's first map, a tweaked toxic jungle. Credit should go to the original toxic jungle creators, and to those who put up with my github education (and lack thereof).
 
 local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
@@ -9,11 +6,23 @@ local RecipeLocker = require 'utils.recipe_locker'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local RS = require 'map_gen.shared.redmew_surface'
 local Retailer = require 'features.retailer'
+local ScenarioInfo = require 'features.gui.info'
 
 local enemy_seed = 420420
 
 table.insert(global.config.player_create.starting_items, {name = 'steel-axe', count = 2})
+
 global.config.market.create_standard_market = false -- stop standard market from spawning
+
+global.config.hail_hydra.enabled = true
+
+for _, v in pairs(global.config.market.entity_drop_amount) do
+    v.chance = 1
+end
+
+ScenarioInfo.set_map_name('Toxic Science Jungle')
+ScenarioInfo.set_map_description('March your way through the jungle, and use coins you find to purchase certain science packs at the market.')
+ScenarioInfo.add_map_extra_info('-Military, Production, High-Tech science pack crafting disabled.\n-Spend coins at the market to buy packs.\n-Increased coin drops from aliens.')
 
 local map_gen_settings = {
     autoplace_controls = {
