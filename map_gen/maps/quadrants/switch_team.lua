@@ -5,6 +5,8 @@ local abs = math.abs
 local Color = require 'resources.color_presets'
 local Popup = require 'features.gui.popup'
 local RS = require 'map_gen.shared.redmew_surface'
+local Item_to_chest = require 'map_gen.maps.quadrants.item_to_chest'
+local Global = require 'utils.global'
 
 local gui = {}
 
@@ -14,6 +16,17 @@ local spawn_locations = {
     quadrant_3 = {-64, 64},
     quadrant_4 = {64, 64}
 }
+
+local toggle_chest_status = {}
+
+Global.register(
+        {
+            toggle_chest_status = toggle_chest_status
+        },
+        function(tbl)
+            toggle_chest_status = tbl.toggle_chest_status
+        end
+)
 
 local quadrant_message = {
     {
@@ -58,8 +71,8 @@ local quadrant_message = {
 
 local function teleport(event, quadrant)
     local player = event.player
-
-    if (abs(player.position.x) <= 4 and abs(player.position.y) <= 4) or (player.get_inventory(1).is_empty() and player.get_inventory(2).is_empty() and (player.get_inventory(8) or player.get_inventory(3).is_empty())) then
+    local toggle_status = toggle_chest_status[player.index]
+    if (abs(player.position.x) <= 4 and abs(player.position.y) <= 4) or (player.get_inventory(1).is_empty() and player.get_inventory(2).is_empty() and (player.get_inventory(8) or player.get_inventory(3).is_empty())) or (toggle_status == 'ON' and Item_to_chest.transfer_inventory(player.index, {defines.inventory.player_quickbar, defines.inventory.player_main})) then
         local pos = RS.get_surface().find_non_colliding_position('player', spawn_locations['quadrant_'..quadrant], 5, 1)
         player.teleport(pos)
         player.force = game.forces['quadrant'..quadrant]
@@ -68,6 +81,15 @@ local function teleport(event, quadrant)
         local text = '## - You are too heavy for teleportation! Empty your inventory before switching quadrant!'
         player.print(text, Color.red)
     end
+end
+
+local function redraw_chest_button(data, player)
+    local left_flow = data.chest_button_left_flow
+    local toggle_status = toggle_chest_status[player.index]
+    Gui.clear(left_flow)
+
+    local button = left_flow.add({type = 'button', name = 'Quadrants.Button.Toggle', caption = 'Toggle inventory empty to chest. Currently: ' .. toggle_status})
+    button.style.font = 'default'
 end
 
 local function toggle(event)
@@ -79,6 +101,8 @@ local function toggle(event)
         Gui.destroy(frame)
         return
     elseif (frame) then
+        local data = Gui.get_data(frame)
+        redraw_chest_button(data, player)
         return
     end
 
@@ -128,22 +152,19 @@ local function toggle(event)
     left_flow.add({type = 'button', name = 'Quadrants.Button.3', caption = 'Oil and High Tech'})
     right_flow.add({type = 'button', name = 'Quadrants.Button.4', caption = 'Logistics and Transport'})
 
+    content_flow = frame.add {type = 'flow', direction = 'horizontal'}
+    local chest_button_left_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
+    chest_button_left_flow.style.align = 'left'
+    chest_button_left_flow.style.horizontally_stretchable = true
+
     local data = {
         frame = frame,
+        chest_button_left_flow = chest_button_left_flow
     }
 
+    redraw_chest_button(data, player)
+
     Gui.set_data(frame, data)
-end
-
-Gui.on_click('Quadrants.Button.1', function(event) teleport(event, 1) end)
-Gui.on_click('Quadrants.Button.2', function(event) teleport(event, 2) end)
-Gui.on_click('Quadrants.Button.3', function(event) teleport(event, 3) end)
-Gui.on_click('Quadrants.Button.4', function(event) teleport(event, 4) end)
-
-
-local function on_player_created(event)
-    event.player = Game.get_player_by_index(event.player_index)
-    toggle(event)
 end
 
 local function update_gui()
@@ -159,6 +180,31 @@ local function update_gui()
             toggle(data)
         end
     end
+end
+
+local function toggle_chest(event)
+    local toggle_status = toggle_chest_status[event.player.index]
+    if toggle_status == 'OFF' then
+        toggle_chest_status[event.player.index] = 'ON'
+    else
+        toggle_chest_status[event.player.index] = 'OFF'
+    end
+    event.trigger = true
+    toggle(event)
+end
+
+
+Gui.on_click('Quadrants.Button.1', function(event) teleport(event, 1) end)
+Gui.on_click('Quadrants.Button.2', function(event) teleport(event, 2) end)
+Gui.on_click('Quadrants.Button.3', function(event) teleport(event, 3) end)
+Gui.on_click('Quadrants.Button.4', function(event) teleport(event, 4) end)
+Gui.on_click('Quadrants.Button.Toggle', function(event) toggle_chest(event) end)
+
+
+local function on_player_created(event)
+    event.player = Game.get_player_by_index(event.player_index)
+    toggle_chest_status[event.player_index] = 'OFF'
+    toggle(event)
 end
 
 Event.add(defines.events.on_player_created, on_player_created)
