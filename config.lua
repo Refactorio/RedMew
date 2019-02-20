@@ -24,11 +24,11 @@ global.config = {
         ['tiles_per_tick'] = 32,
         -- the entity modules to load (takes a list of requires), example included
         ['entity_modules'] = {
-            -- require('map_gen.entities.fluffy_rainbows')
+            --function() return require('map_gen.entities.fluffy_rainbows') end
         },
         -- the terrain modules to load (takes a list of requires), example included
         ['terrain_modules'] = {
-            --require('map_gen.terrain.tris_chunk_grid')
+            --function() return require('map_gen.terrain.tris_chunk_grid') end
         },
     },
     -- redmew_surface allows a map preset to control world generation as well as map and difficulty settings
