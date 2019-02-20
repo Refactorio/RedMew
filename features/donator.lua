@@ -6,6 +6,7 @@ local Token = require 'utils.token'
 local table = require 'utils.table'
 local Global = require 'utils.global'
 local Task = require 'utils.task'
+local Color = require 'resources.color_presets'
 
 local concat = table.concat
 local insert = table.insert
@@ -62,6 +63,28 @@ local function player_joined(event)
     Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
 end
 
+local function player_died(event)
+    local player = Game.get_player_by_index(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    local d = donators[player.name]
+    if not d then
+        return nil
+    end
+
+    local messages = d.death_messages
+    if not messages then
+        return
+    end
+
+    local message = messages[random(#messages)]
+    game.print({'donator.death_message'}, Color.white)
+    message = concat({'*** ', message, ' ***'})
+    Task.set_timeout_in_ticks(30, print_after_timeout, {player = player, message = message})
+end
+
 --- Returns the table of donators
 -- @return <table>
 function Public.get_donators_table()
@@ -112,39 +135,42 @@ function Public.change_donator_data(player_name, data)
     set_data(donator_data_set, player_name, donators[player_name])
 end
 
---- Adds a donator join message
+--- Adds a donator message to the appropriate table
 -- @param player_name <string>
+-- @param table_name <string> the name table to change the message in
 -- @param str <string>
-function Public.add_donator_message(player_name, str)
+function Public.add_donator_message(player_name, table_name, str)
     local d_table = donators[player_name]
-    if not d_table.welcome_messages then
-        d_table.welcome_messages = {}
+    if not d_table[table_name] then
+        d_table[table_name] = {}
     end
 
-    d_table.welcome_messages[#d_table.welcome_messages + 1] = str
+    d_table[table_name][#d_table[table_name] + 1] = str
     set_data(donator_data_set, player_name, d_table)
 end
 
---- Deletes the indicated donator join message
+--- Deletes the indicated donator message from the appropriate table
 -- @param player_name <string>
+-- @param table_name <string> the name table to change the message in
 -- @param num <number>
 -- @return <string|nil> the value that was deleted, nil if nothing to delete
-function Public.delete_donator_message(player_name, num)
+function Public.delete_donator_message(player_name, table_name, num)
     local d_table = donators[player_name]
-    if not d_table.welcome_messages or not d_table.welcome_messages[num] then
+    if not d_table[table_name] or not d_table[table_name][num] then
         return
     end
 
-    local del_msg = remove(d_table.welcome_messages, num)
+    local del_msg = remove(d_table[table_name], num)
     set_data(donator_data_set, player_name, d_table)
     return del_msg
 end
 
---- Returns the list of donator join messages
+--- Returns the list of messages from the appropriate table
 -- @param player_name <string>
+-- @param table_name <string> the name table to change the message in
 -- @return <table|nil> an array of strings or nil if no messages
-function Public.get_donator_messages(player_name)
-    return donators[player_name].welcome_messages
+function Public.get_donator_messages(player_name, table_name)
+    return donators[player_name][table_name]
 end
 
 --- Writes the data called back from the server into the donators table, overwriting any matching entries
@@ -189,5 +215,7 @@ Server.on_data_set_changed(
 )
 
 Event.add(defines.events.on_player_joined_game, player_joined)
+
+Event.add(defines.events.on_player_died, player_died)
 
 return Public

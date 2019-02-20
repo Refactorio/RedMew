@@ -9,56 +9,67 @@ local format = string.format
 -- Local functions
 
 --- Saves the player's message
-local function add_join_message(args, player)
+local function add_message(args, player, table_name)
     local str = tostring(args.value)
     if not str or str == 'false' then
-        Game.player_print({'donator_commands.add_join_message_fail_not_string'}, Color.fail)
+        Game.player_print({'donator_commands.add_message_fail_not_string'}, Color.fail)
         return
     end
-    Donator.add_donator_message(player.name, str)
-    Game.player_print({'donator_commands.add_join_message_success'}, Color.success)
+    Donator.add_donator_message(player.name, table_name, str)
+    Game.player_print({'donator_commands.add_message_success'}, Color.success)
 end
 
 --- Deletes one of the player's message
-local function delete_join_message(args, player)
+local function delete_message(args, player, table_name)
     local num = tonumber(args.value)
     if not num then
-        Game.player_print({'donator_commands.delete_join_message_fail_not_number'}, Color.fail)
+        Game.player_print({'donator_commands.delete_message_fail_not_number'}, Color.fail)
         return
     end
 
-    local message = Donator.delete_donator_message(player.name, num)
+    local message = Donator.delete_donator_message(player.name, table_name, num)
     if message then
-        Game.player_print({'donator_commands.delete_join_message_success', message}, Color.success)
+        Game.player_print({'donator_commands.delete_message_success', message}, Color.success)
     else
-        Game.player_print({'donator_commands.delete_join_message_fail_no_message'}, Color.fail)
+        Game.player_print({'donator_commands.delete_message_fail_no_message'}, Color.fail)
     end
 end
 
 --- Lists the player's messages
-local function list_join_messages(player)
-    local messages = Donator.get_donator_messages(player.name)
+local function list_messages(player, table_name)
+    local messages = Donator.get_donator_messages(player.name, table_name)
     if messages then
         for k, v in pairs(messages) do
             Game.player_print(format('[%s] %s', k, v))
         end
     else
-        Game.player_print({'donator_commands.list_join_message_fail_no_messages'}, Color.warning)
+        Game.player_print({'donator_commands.list_message_fail_no_messages'}, Color.warning)
+    end
+end
+
+local function command_path_decider(args, player, table_name)
+    local multi = args['add|delete|list']
+    if multi == 'add' then
+        add_message(args, player, table_name)
+    elseif multi == 'delete' then
+        delete_message(args, player, table_name)
+    elseif multi == 'list' then
+        list_messages(player, table_name)
+    else
+        Game.player_print({'donator_commands.donator_message_wrong_arg1'}, Color.white)
     end
 end
 
 --- Decides which function to call depending on the first arg to the command
 local function donator_join_message_command(args, player)
-    local multi = args['add|delete|list']
-    if multi == 'add' then
-        add_join_message(args, player)
-    elseif multi == 'delete' then
-        delete_join_message(args, player)
-    elseif multi == 'list' then
-        list_join_messages(player)
-    else
-        Game.player_print({'donator_commands.donator_join_message_wrong_arg1'}, Color.white)
-    end
+    local table_name = 'join_messages'
+    command_path_decider(args, player, table_name)
+end
+
+--- Decides which function to call depending on the first arg to the command
+local function donator_death_message_command(args, player)
+    local table_name = 'death_messages'
+    command_path_decider(args, player, table_name)
 end
 
 -- Commands
@@ -66,11 +77,23 @@ end
 Command.add(
     'donator-join-message',
     {
-        description = 'Adds, deletes, or lists donator on-join messages.', -- (LOCALE) Localize once command can handle localized strings
+        description = 'Adds, deletes, or lists donator on-join messages.',
         arguments = {'add|delete|list', 'value'},
         default_values = {value = false},
         capture_excess_arguments = true,
         donator_only = true
     },
     donator_join_message_command
+)
+
+Command.add(
+    'donator-death-message',
+    {
+        description = 'Adds, deletes, or lists donator death messages.',
+        arguments = {'add|delete|list', 'value'},
+        default_values = {value = false},
+        capture_excess_arguments = true,
+        donator_only = true
+    },
+    donator_death_message_command
 )
