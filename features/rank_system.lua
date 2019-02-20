@@ -260,12 +260,8 @@ function Public.increase_player_rank(player_name)
     end
 
     local new_rank_name = rank_name_lookup[new_rank]
-    if new_rank_name then
-        set_player_rank(player_name, new_rank)
-        return new_rank_name
-    else
-        return nil
-    end
+    set_player_rank(player_name, new_rank)
+    return new_rank_name
 end
 
 --- Take a player and attempts to increase their rank to the rank provided
@@ -293,12 +289,8 @@ function Public.decrease_player_rank(player_name)
     end
 
     local new_rank_name = rank_name_lookup[new_rank]
-    if new_rank_name then
-        set_player_rank(player_name, new_rank)
-        return new_rank_name
-    else
-        return nil
-    end
+    set_player_rank(player_name, new_rank)
+    return new_rank_name
 end
 
 --- Take a player and attempts to decrease their rank to the rank provided
