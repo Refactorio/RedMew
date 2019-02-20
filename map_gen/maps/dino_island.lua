@@ -11,7 +11,6 @@ local config = global.config
 
 local degrees = require 'utils.math'.degrees
 
-
 local groundhog_mode = false -- Toggle to enable groundhogs
 
 local seed = 210
@@ -45,7 +44,7 @@ Event.add(
         local effects = event.research.effects
         local f = game.forces.player
 
-        for _, e in ipairs(effects) do
+        for _, e in pairs(effects) do
             local t = e.type
             if t == 'stack-inserter-capacity-bonus' then
                 f.inserter_stack_size_bonus = f.inserter_stack_size_bonus + e.modifier
@@ -90,62 +89,25 @@ local dino20 = b.picture(require 'map_gen.data.presets.dino20')
 local dino21 = b.picture(require 'map_gen.data.presets.dino21')
 local dino22 = b.picture(require 'map_gen.data.presets.dino22')
 
-local land_dino_count
-local ore_dino_start
-local dinos
+local land_dino_count = 8
+local ore_dino_start = 9
+local dinos = {dino1, dino2, dino4, dino7, dino9, dino13, dino14, dino16}
 
 if groundhog_mode then
-    local groundhog1 = b.picture(b.decompress(require'map_gen.data.presets.groundhog1'))
-    local groundhog2 = b.picture(b.decompress(require'map_gen.data.presets.groundhog2'))
-    local groundhog3 = b.picture(b.decompress(require'map_gen.data.presets.groundhog3'))
-    local groundhog4 = b.picture(b.decompress(require'map_gen.data.presets.groundhog4'))
-    local groundhog5 = b.picture(b.decompress(require'map_gen.data.presets.groundhog5'))
+    local groundhog1 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog1'))
+    local groundhog2 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog2'))
+    local groundhog3 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog3'))
+    local groundhog4 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog4'))
+    local groundhog5 = b.picture(b.decompress(require 'map_gen.data.presets.groundhog5'))
 
-    dinos = {
-        dino1,
-        dino2,
-        dino4,
-        dino7,
-        dino9,
-        dino13,
-        dino14,
-        dino16,
-        groundhog1,
-        groundhog2,
-        groundhog3,
-        groundhog4,
-        groundhog5,
-        dino17,
-        dino18,
-        dino19,
-        dino20,
-        dino21,
-        dino22
-    }
+    table.add_all(dinos, {groundhog1, groundhog2, groundhog3, groundhog4, groundhog5})
 
     land_dino_count = 13
     ore_dino_start = 14
-else
-    dinos = {
-        dino1,
-        dino2,
-        dino4,
-        dino7,
-        dino9,
-        dino13,
-        dino14,
-        dino16,
-        dino17,
-        dino18,
-        dino19,
-        dino20,
-        dino21,
-        dino22
-    }
-
-    land_dino_count = 8
-    ore_dino_start = 9
 end
+
+table.add_all(dinos, {dino17, dino18, dino19, dino20, dino21, dino22})
+
 local ore_dino_end = #dinos
 
 local random = Random.new(seed, seed * 2)
@@ -199,7 +161,7 @@ local ores = {
 
 local total_ore_weights = {}
 local ore_t = 0
-for _, v in ipairs(ores) do
+for _, v in pairs(ores) do
     ore_t = ore_t + v.weight
     table.insert(total_ore_weights, ore_t)
 end
