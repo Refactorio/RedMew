@@ -4,6 +4,7 @@ local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
+local Global = require 'utils.global'
 local Server = require 'features.server'
 local Report = require 'features.report'
 local Popup = require 'features.gui.popup'
@@ -11,6 +12,44 @@ local Ranks = require 'resources.ranks'
 
 local format = string.format
 local match = string.match
+
+local players_warned = {}
+local entities_allowed_to_bomb = {
+    ['stone-wall'] = true,
+    ['transport-belt'] = true,
+    ['fast-transport-belt'] = true,
+    ['express-transport-belt'] = true,
+    ['construction-robot'] = true,
+    ['player'] = true,
+    ['gun-turret'] = true,
+    ['laser-turret'] = true,
+    ['flamethrower-turret'] = true,
+    ['rail'] = true,
+    ['rail-chain-signal'] = true,
+    ['rail-signal'] = true,
+    ['tile-ghost'] = true,
+    ['entity-ghost'] = true,
+    ['gate'] = true,
+    ['electric-pole'] = true,
+    ['small-electric-pole'] = true,
+    ['medium-electric-pole'] = true,
+    ['big-electric-pole'] = true,
+    ['logistic-robot'] = true,
+    ['defender'] = true,
+    ['destroyer'] = true,
+    ['distractor'] = true
+}
+
+Global.register(
+    {
+        players_warned = players_warned,
+        entities_allowed_to_bomb = entities_allowed_to_bomb
+    },
+    function(tbl)
+        players_warned = tbl.players_warned
+        entities_allowed_to_bomb = tbl.entities_allowed_to_bomb
+    end
+)
 
 local function is_trusted(player)
     return Rank.equal_or_greater_than(player.name, Ranks.auto_trusted)
@@ -79,37 +118,6 @@ local function item_not_sanctioned(item)
     local name = item.name
     return (name:find('capsule') or name == 'cliff-explosives' or name == 'raw-fish' or name == 'discharge-defense-remote')
 end
-
-global.nuke_control = {
-    entities_allowed_to_bomb = {
-        ['stone-wall'] = true,
-        ['transport-belt'] = true,
-        ['fast-transport-belt'] = true,
-        ['express-transport-belt'] = true,
-        ['construction-robot'] = true,
-        ['player'] = true,
-        ['gun-turret'] = true,
-        ['laser-turret'] = true,
-        ['flamethrower-turret'] = true,
-        ['rail'] = true,
-        ['rail-chain-signal'] = true,
-        ['rail-signal'] = true,
-        ['tile-ghost'] = true,
-        ['entity-ghost'] = true,
-        ['gate'] = true,
-        ['electric-pole'] = true,
-        ['small-electric-pole'] = true,
-        ['medium-electric-pole'] = true,
-        ['big-electric-pole'] = true,
-        ['logistic-robot'] = true,
-        ['defender'] = true,
-        ['destroyer'] = true,
-        ['distractor'] = true
-    },
-    players_warned = {}
-}
-local entities_allowed_to_bomb = global.nuke_control.entities_allowed_to_bomb
-local players_warned = global.nuke_control.players_warned
 
 local function entity_allowed_to_bomb(entity)
     return entities_allowed_to_bomb[entity.name]
