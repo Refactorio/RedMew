@@ -101,7 +101,7 @@ end
 -- They are teleported far away, placed on a neutral force, and are given a new character.
 -- They are returned after the timeout by redmew_commands_return_player
 local function walkabout(args)
-    if global.config.walkabout.enabled then
+    if not global.config.walkabout.enabled then
         Game.player_print('Walkabout is disabled via the config')
         return
     end
