@@ -82,10 +82,30 @@ local function get_lua_object_type_safe(obj)
     return r():match('Lua%a+')
 end
 
+--- Returns the value of the key inside the object
+-- or 'InvalidLuaObject' if the LuaObject is invalid.
+-- or 'InvalidLuaObjectKey' if the LuaObject does not have an entry at that key
+-- @param object <table> LuaObject or metatable
+-- @param key <string>
+-- @return <any>
+function Debug.get_meta_value(object, key)
+    if Debug.object_type(object) == 'InvalidLuaObject' then
+        return 'InvalidLuaObject'
+    end
+
+    local suc, value = pcall(get, object, key)
+    if not suc then
+        return 'InvalidLuaObjectKey'
+    end
+
+    return value
+end
+
 --- Returns the Lua data type or the factorio LuaObject type
 -- or 'NoHelpLuaObject' if the LuaObject does not have a help function
 -- or 'InvalidLuaObject' if the LuaObject is invalid.
 -- @param object <any>
+-- @return string
 function Debug.object_type(object)
     local obj_type = type(object)
 

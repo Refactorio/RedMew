@@ -38,8 +38,7 @@ if #config.terrain_modules > 0 then
         shape = b.overlay_tile_land(shape, m)
     end
 end
-Debug.print(shape)
-Debug.print(shape_type)
+
 --- If shape is a function, initialize the generator
 if shape_type == 'function' then
     local surfaces = {
