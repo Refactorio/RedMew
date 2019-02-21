@@ -1,10 +1,3 @@
---[[
-    Create table of tables, each holding the last event of a particular type:
-    last_triggers = {
-        on_player_joined = {event},
-        on_player_left = {event}
-    }
-]]
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local table = require 'utils.table'
