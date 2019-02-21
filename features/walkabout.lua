@@ -21,7 +21,7 @@ Global.register(
         primitives = primitives
     },
     function(tbl)
-        walkabouts = tbl.walkabout
+        walkabouts = tbl.walkabouts
         primitives = tbl.primitives
     end
 )
