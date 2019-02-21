@@ -44,6 +44,7 @@ end
 
 -- Local vars
 local Public = {}
+local set_player_rank
 
 -- Global register vars
 local player_ranks = {}
@@ -259,12 +260,8 @@ function Public.increase_player_rank(player_name)
     end
 
     local new_rank_name = rank_name_lookup[new_rank]
-    if new_rank_name then
-        player_ranks[player_name] = new_rank
-        return new_rank_name
-    else
-        return nil
-    end
+    set_player_rank(player_name, new_rank)
+    return new_rank_name
 end
 
 --- Take a player and attempts to increase their rank to the rank provided
@@ -274,7 +271,7 @@ end
 -- @return <boolean> <LocalisedString> success/failure, and LocalisedString of the player's rank
 function Public.increase_player_rank_to(player_name, rank)
     if Public.less_than(player_name, rank) then
-        Public.set_player_rank(player_name, rank)
+        set_player_rank(player_name, rank)
         return true, get_rank_name(rank)
     else
         return false, get_player_rank_name(player_name)
@@ -292,12 +289,8 @@ function Public.decrease_player_rank(player_name)
     end
 
     local new_rank_name = rank_name_lookup[new_rank]
-    if new_rank_name then
-        player_ranks[player_name] = new_rank
-        return new_rank_name
-    else
-        return nil
-    end
+    set_player_rank(player_name, new_rank)
+    return new_rank_name
 end
 
 --- Take a player and attempts to decrease their rank to the rank provided
@@ -307,7 +300,7 @@ end
 -- @return <boolean> <LocalisedString> success/failure, and LocalisedString of the player's rank
 function Public.decrease_player_rank_to(player_name, rank)
     if Public.greater_than(player_name, rank) then
-        Public.set_player_rank(player_name, rank)
+        set_player_rank(player_name, rank)
         return true, get_rank_name(rank)
     else
         return false, get_player_rank_name(player_name)
@@ -337,6 +330,7 @@ function Public.set_player_rank(player_name, rank)
         return true
     end
 end
+set_player_rank = Public.set_player_rank
 
 --- Resets a player's rank to guest (or higher if a user meets the criteria for automatic rank)
 -- @param player_name <string>
@@ -352,10 +346,10 @@ function Public.reset_player_rank(player_name)
         local rank
         if player and player.valid and (player.online_time > Config.time_for_trust) then
             rank = auto_trusted
-            Public.set_player_rank(player_name, rank)
+            set_player_rank(player_name, rank)
         else
             rank = guest_rank
-            Public.set_player_rank(player_name, rank)
+            set_player_rank(player_name, rank)
         end
         return true, get_rank_name(rank)
     end
