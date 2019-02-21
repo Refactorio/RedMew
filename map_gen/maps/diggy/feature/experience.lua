@@ -190,7 +190,7 @@ function Experience.update_health_bonus(force, level_up)
         end
 
         -- remove the current buff
-        local old_modifier = (force.character_health_bonus == 0) and 0 or force.character_health_bonus - health_bonus.active_modifier
+        local old_modifier = force.character_health_bonus - health_bonus.active_modifier
         old_modifier = old_modifier >= 0 and old_modifier or 0
         -- update the active modifier
         health_bonus.active_modifier = health_bonus.research_modifier + health_bonus.level_modifier
