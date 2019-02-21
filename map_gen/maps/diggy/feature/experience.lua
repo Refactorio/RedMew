@@ -167,7 +167,7 @@ function Experience.update_inventory_slots(force, level_up)
         end
 
         -- remove the current buff
-        local old_modifier = (force.character_inventory_slots_bonus == 0) and 0 or force.character_inventory_slots_bonus - inventory_slots.active_modifier
+        local old_modifier = force.character_inventory_slots_bonus - inventory_slots.active_modifier
         old_modifier = old_modifier >= 0 and old_modifier or 0
         -- update the active modifier
         inventory_slots.active_modifier = inventory_slots.research_modifier + inventory_slots.level_modifier
