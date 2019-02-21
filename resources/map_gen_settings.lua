@@ -215,6 +215,14 @@ return {
         cliff_elevation_0 = 10,
         cliff_elevation_interval = 10
     },
+    -- cliffs to high frequency, big size
+    cliff_high = {
+        cliff_settings = {
+            cliff_elevation_0 = 5,
+            cliff_elevation_interval = 5,
+            name = 'cliff'
+        }
+    },
     -- cliffs to very high frequency, very big size
     cliff_very_high = {
         cliff_settings = {

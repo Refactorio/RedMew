@@ -23,7 +23,7 @@ ScenarioInfo.add_map_extra_info([[
 - The beasts on this planet are savage and unrelenting.
 ]])
 
-RS.set_map_gen_settings({MGSP.enemy_very_high, MGSP.tree_none, MGSP.cliff_very_high})
+RS.set_map_gen_settings({MGSP.enemy_very_high, MGSP.tree_none, MGSP.cliff_high})
 
 config.hail_hydra.enabled = true
 
@@ -64,25 +64,21 @@ Event.on_init(
 
 -- Map
 
-local function on_chunk_generated(event)
-    local bd_box = event.area
-    local surface = event.surface
-    if surface ~= RS.get_surface() then
-        return
-    end
-
-    -- remove rocks
-    local ents = surface.find_entities_filtered {area = bd_box, type = 'simple-entity'}
+local function no_rocks(_, _, world, tile)
+    local x, y = world.x, world.y
+    local ents = world.surface.find_entities_filtered {area = {{x, y}, {x + 1, y + 1}}, type = 'simple-entity'}
     for i = 1, #ents do
         ents[i].destroy()
     end
-end
 
-Event.add(defines.events.on_chunk_generated, on_chunk_generated)
+    return tile
+end
 
 local start = b.full_shape
 start = b.change_map_gen_collision_tile(start, 'ground-tile', 'refined-concrete')
 start = b.change_map_gen_collision_hidden_tile(start, 'ground-tile', 'lab-dark-2')
 local map = b.if_else(start, b.full_shape)
+
+map = b.apply_effect(map, no_rocks)
 
 return map
