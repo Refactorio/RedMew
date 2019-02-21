@@ -6,6 +6,12 @@
 
 [![RedMew](redmew_git_banner.png)](http://redmew.com)
 
+### Quick note:
+
+Downloads of the repository and source code require the file `map_selection.lua.sample` to be renamed to `map_seleciton.lua`. The release assets have this file built in.
+
+# RedMew
+
 RedMew is a Factorio community that hosts custom servers, maps in different shapes and sizes, scripted scenarios and
 modded servers. All of the games hosted are available to the public and our community is meant for players of all skill
 levels and experience. You can find out servers by searching for "RedMew" in the multiplayer lobby.
