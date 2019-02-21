@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local table = require 'utils.table'
 local Gui = require 'utils.gui'
+local Model = require 'features.gui.debug.model'
 
 local format = string.format
 local insert = table.insert
@@ -51,29 +52,7 @@ local function event_callback(event)
     last_events[name][events_to_keep + 1] = nil
     event.name = nil
 
-    local str = format('%s (id = %s): ', name, id)
-    for k, v in pairs(event) do
-        if type(v) ~= 'table' then
-            str = format('%s %s = %s,', str, k, v)
-        elseif v.__self then
-            str = format('%s %s :: %s', str, k, Debug.object_type(v))
-            if v.valid then
-                str = format('%s (name = %s),', str, v.name)
-            else
-                str = str .. ','
-            end
-        else
-            str = format('%s %s = {', str, k)
-            for k2, v2 in pairs(v) do
-                if type(v2) == 'table' then
-                    str = format('%s %s = <table>,', str, k2)
-                else
-                    str = format('%s %s = %s,', str, k2, v2)
-                end
-            end
-            str = format('%s},', str)
-        end
-    end
+    local str = format('%s (id = %s): %s', name, id, Model.dump(event))
     game.print(str)
     log(str)
 end
