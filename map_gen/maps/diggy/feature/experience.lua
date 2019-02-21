@@ -64,7 +64,7 @@ local gain_xp_color = Color.light_sky_blue
 local lose_xp_color = Color.red
 local unlocked_color = Color.black
 local locked_color = Color.gray
-local table_column_layout = { type = 'table', column_count = 2 }
+local table_column_layout = {type = 'table', column_count = 2}
 
 local level_up_formula = (function(level_reached)
     local difficulty_scale = floor(config.difficulty_scale)
@@ -363,8 +363,8 @@ local function redraw_heading(data, header)
     Gui.clear(frame)
 
     local heading_table = frame.add(table_column_layout)
-    apply_heading_style(heading_table.add({ type = 'label', caption = 'Requirement' }).style, 100)
-    apply_heading_style(heading_table.add({ type = 'label', caption = header_caption }).style, 220)
+    apply_heading_style(heading_table.add({type = 'label', caption = 'Requirement'}).style, 100)
+    apply_heading_style(heading_table.add({type = 'label', caption = header_caption}).style, 220)
 end
 
 local function redraw_progressbar(data)
@@ -372,8 +372,8 @@ local function redraw_progressbar(data)
     local flow = data.experience_progressbars
     Gui.clear(flow)
 
-    apply_heading_style(flow.add({ type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. Utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) .. ' xp\nRemaining xp: ' .. Utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.Experience.Frame.Progress.Level', caption = 'Progress to next level:' }).style)
-    local level_progressbar = flow.add({ type = 'progressbar', tooltip = floor(force_data.experience_percentage * 100) * 0.01 .. '% xp to next level' })
+    apply_heading_style(flow.add({type = 'label', tooltip = 'Currently at level: ' .. force_data.current_level .. '\nNext level at: ' .. Utils.comma_value((force_data.total_experience - force_data.current_experience) + force_data.experience_level_up_cap) .. ' xp\nRemaining xp: ' .. Utils.comma_value(force_data.experience_level_up_cap - force_data.current_experience), name = 'Diggy.Experience.Frame.Progress.Level', caption = 'Progress to next level:'}).style)
+    local level_progressbar = flow.add({type = 'progressbar', tooltip = floor(force_data.experience_percentage * 100) * 0.01 .. '% xp to next level'})
     level_progressbar.style.width = 350
     level_progressbar.value = force_data.experience_percentage * 0.01
 end
@@ -440,7 +440,7 @@ local function redraw_buff(data)
             level_caption = 'All levels'
         end
 
-        local level_label = list.add({ type = 'label', caption = level_caption })
+        local level_label = list.add({type = 'label', caption = level_caption})
         level_label.style.minimal_width = 100
         level_label.style.font_color = unlocked_color
 
@@ -456,7 +456,7 @@ local function redraw_buff(data)
             buff_caption = format('+%d %s', effect_value, name)
         end
 
-        local buffs_label = list.add({ type = 'label', caption = buff_caption })
+        local buffs_label = list.add({type = 'label', caption = buff_caption})
         buffs_label.style.minimal_width = 220
         buffs_label.style.font_color = unlocked_color
     end
@@ -478,20 +478,20 @@ local function toggle(event)
         return
     end
 
-    frame = left.add({ name = 'Diggy.Experience.Frame', type = 'frame', direction = 'vertical' })
+    frame = left.add({name = 'Diggy.Experience.Frame', type = 'frame', direction = 'vertical'})
 
-    local experience_progressbars = frame.add({ type = 'flow', direction = 'vertical' })
-    local experience_list_heading = frame.add({ type = 'flow', direction = 'horizontal' })
+    local experience_progressbars = frame.add({type = 'flow', direction = 'vertical'})
+    local experience_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
 
-    local experience_scroll_pane = frame.add({ type = 'scroll-pane' })
+    local experience_scroll_pane = frame.add({type = 'scroll-pane'})
     experience_scroll_pane.style.maximal_height = 300
 
-    local buff_list_heading = frame.add({ type = 'flow', direction = 'horizontal' })
+    local buff_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
 
-    local buff_scroll_pane = frame.add({ type = 'scroll-pane' })
+    local buff_scroll_pane = frame.add({type = 'scroll-pane'})
     buff_scroll_pane.style.maximal_height = 100
 
-    frame.add({ type = 'button', name = 'Diggy.Experience.Button', caption = 'Close' })
+    frame.add({type = 'button', name = 'Diggy.Experience.Button', caption = 'Close'})
 
     local data = {
         frame = frame,
@@ -534,7 +534,7 @@ local function update_gui()
         local frame = p.gui.left['Diggy.Experience.Frame']
 
         if frame and frame.valid then
-            local data = { player = p, trigger = 'update_gui' }
+            local data = {player = p, trigger = 'update_gui'}
             toggle(data)
         end
     end
