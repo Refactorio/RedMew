@@ -4,8 +4,6 @@
 [![License](https://img.shields.io/github/license/Refactorio/Redmew.svg)](LICENSE)
 [![Activity Level](https://img.shields.io/github/commit-activity/m/Refactorio/RedMew.svg)](https://github.com/Refactorio/RedMew/pulse/monthly)
 
-
-
 [![RedMew](redmew_git_banner.png)](http://redmew.com)
 
 RedMew is a Factorio community that hosts custom servers, maps in different shapes and sizes, scripted scenarios and
