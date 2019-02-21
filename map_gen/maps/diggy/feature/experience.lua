@@ -144,7 +144,7 @@ function Experience.update_mining_speed(force, level_up)
             mining_efficiency.level_modifier = mining_efficiency.level_modifier + (value * 0.01)
         end
         -- remove the current buff
-        local old_modifier = (force.manual_mining_speed_modifier == 0) and 0 or force.manual_mining_speed_modifier - mining_efficiency.active_modifier
+        local old_modifier = force.manual_mining_speed_modifier - mining_efficiency.active_modifier
         old_modifier = old_modifier >= 0 and old_modifier or 0
         -- update the active modifier
         mining_efficiency.active_modifier = mining_efficiency.research_modifier + mining_efficiency.level_modifier
