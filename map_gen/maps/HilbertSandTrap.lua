@@ -72,8 +72,8 @@ local starting_area = {
 local water_settings = {
 	terrain_segmentation = 'high',
     water = 'low'
-}	
---Set map settings	
+}
+--Set map settings
 RS.set_map_gen_settings(
     {
         MGSP.cliff_none,
@@ -82,8 +82,7 @@ RS.set_map_gen_settings(
 		biter_settings,
 		starting_area,
 		tree_settings,
-		water_settings,
-		map_seed
+		water_settings
     }
 )
 --remove resources from sand
@@ -149,7 +148,7 @@ pattern =
 }
 -- Tile map in X direction
 local function ribbon(x, y)
-    local abs_x = math.abs(x)
+    --local abs_x = math.abs(x)
     local abs_y = math.abs(y)
     return (abs_y < 40)
 end
@@ -166,7 +165,7 @@ local start_region = b.rectangle(160,60)
 map = b.subtract(map, start_region)
 start_region = b.change_tile(start_region,true, 'grass-1')
 start_region = b.apply_effect(start_region, no_resources)
-start_water = b.change_tile(b.circle(5),true, 'water')
+local start_water = b.change_tile(b.circle(5),true, 'water')
 map = b.any{start_water,start_region,map}
 --make starting ores
 local value = b.manhattan_value
@@ -227,7 +226,6 @@ Event.add(
 		end
         local ghost = false
         if name == 'entity-ghost' then
-            name = entity.ghost_name
             ghost = true
         end
         -- Check the bounding box for the tile
