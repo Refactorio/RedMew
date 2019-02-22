@@ -282,6 +282,7 @@ Event.add(
 		if #replace_tiles > 0 then
 			player.surface.set_tiles(replace_tiles, true)
 		end
+		player.surface.set_tiles(replace_tiles, true)
 		player.insert {name = event.item.name, count = refund_count}
 	end
 )
