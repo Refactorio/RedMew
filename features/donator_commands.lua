@@ -11,12 +11,13 @@ local format = string.format
 --- Saves the player's message
 local function add_message(args, player, table_name)
     local str = tostring(args.value)
-    if not str or str == 'false' then
+    if not str then
         Game.player_print({'donator_commands.add_message_fail_not_string'}, Color.fail)
         return
     end
+
     Donator.add_donator_message(player.name, table_name, str)
-    Game.player_print({'donator_commands.add_message_success'}, Color.success)
+    Game.player_print({'donator_commands.add_message_success', str}, Color.success)
 end
 
 --- Deletes one of the player's message
@@ -38,12 +39,12 @@ end
 --- Lists the player's messages
 local function list_messages(player, table_name)
     local messages = Donator.get_donator_messages(player.name, table_name)
-    if messages then
+    if messages and #messages > 0 then
         for k, v in pairs(messages) do
             Game.player_print(format('[%s] %s', k, v))
         end
     else
-        Game.player_print({'donator_commands.list_message_fail_no_messages'}, Color.warning)
+        Game.player_print({'donator_commands.list_message_no_messages'}, Color.info)
     end
 end
 
@@ -61,8 +62,8 @@ local function command_path_decider(args, player, table_name)
 end
 
 --- Decides which function to call depending on the first arg to the command
-local function donator_join_message_command(args, player)
-    local table_name = 'join_messages'
+local function donator_welcome_message_command(args, player)
+    local table_name = 'welcome_messages'
     command_path_decider(args, player, table_name)
 end
 
@@ -75,15 +76,15 @@ end
 -- Commands
 
 Command.add(
-    'donator-join-message',
+    'donator-welcome-message',
     {
-        description = 'Adds, deletes, or lists donator on-join messages.',
+        description = 'Adds, deletes, or lists donator welcome messages.',
         arguments = {'add|delete|list', 'value'},
         default_values = {value = false},
         capture_excess_arguments = true,
         donator_only = true
     },
-    donator_join_message_command
+    donator_welcome_message_command
 )
 
 Command.add(
