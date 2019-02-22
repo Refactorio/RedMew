@@ -148,7 +148,7 @@ pattern =
 }
 -- Tile map in X direction
 local function ribbon(x, y)
-    --local abs_x = math.abs(x)
+    local abs_x = math.abs(x)
     local abs_y = math.abs(y)
     return (abs_y < 40)
 end
