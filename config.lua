@@ -291,6 +291,10 @@ global.config = {
     rich_text_gui = {
         enabled = true
     },
+    -- Prevents personal construction robots from being mined by other players
+    save_bots = {
+        enabled = true
+    },
     -- adds a camera to watch another player
     camera = {
         enabled = true

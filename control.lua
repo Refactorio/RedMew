@@ -127,6 +127,9 @@ end
 if config.rich_text_gui.enabled then
     require 'features.gui.rich_text'
 end
+if config.save_bots.enabled then
+    require 'features.save_bots'
+end
 
 -- Debug-only modules
 if _DEBUG then
