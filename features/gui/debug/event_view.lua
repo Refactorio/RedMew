@@ -24,17 +24,26 @@ local checkbox_name = Gui.uid_name()
 -- Global tables
 local enabled = {}
 local last_events = {}
+global.event_view = {
+    enabled = enabled,
+    last_events = last_events
+}
 
-Global.register(
-    {
-        enabled = enabled,
-        last_events = last_events
-    },
-    function(tbl)
+local function setup_globals()
+    local tbl = global.event_view
+    if tbl then
         enabled = tbl.enabled
         last_events = tbl.last_events
+    else
+        enabled = {}
+        last_events = {}
+
+        global.event_view = {
+            enabled = enabled,
+            last_events = last_events
+        }
     end
-)
+end
 
 -- Local functions
 local function event_callback(event)
@@ -82,6 +91,8 @@ grid_builder[0] = nil
 table.sort(grid_builder)
 
 function Public.show(container)
+    setup_globals()
+
     local main_frame_flow = container.add({type = 'flow', direction = 'vertical'})
     local scroll_pane = main_frame_flow.add({type = 'scroll-pane'})
     local gui_table = scroll_pane.add({type = 'table', column_count = 3, draw_horizontal_lines = true})
