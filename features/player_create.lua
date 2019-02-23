@@ -63,7 +63,7 @@ local function player_created(event)
     elseif _DEBUG then
         game.print("DON'T LAUNCH THIS MAP! DEBUG MODE IS ENABLED!!!")
     elseif not _DEBUG and not game.is_multiplayer() then
-        player.print('To change your name in single-player, open chat and type the following /c game.player.name = "your_name"')
+    player.print('To change your name in single-player, open chat and type the following /c game.player.name = "your_name"')
     end
 
     if _CHEATS then
@@ -101,6 +101,14 @@ local function player_created(event)
             force.character_health_bonus = cheats.character_health_bonus
         end
     end
+
+    -- Remove 2019-03-04
+    if player.admin then
+        player.print(
+            '## - Regular commands have changed. /regular <player_name> to promote /regular-remove <player_name> to demote.'
+        )
+    end
+    --End remove
 
     memory.forces_initialized[force.name] = true
 end
