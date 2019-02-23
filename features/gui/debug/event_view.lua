@@ -1,5 +1,4 @@
 local Event = require 'utils.event'
-local Global = require 'utils.global'
 local table = require 'utils.table'
 local Gui = require 'utils.gui'
 local Model = require 'features.gui.debug.model'
@@ -21,20 +20,31 @@ local name_lookup = {}
 -- GUI names
 local checkbox_name = Gui.uid_name()
 
--- Global tables
+-- global tables
 local enabled = {}
 local last_events = {}
+global.debug_event_view = {
+    enabled = enabled,
+    last_events = last_events
+}
 
-Global.register(
-    {
-        enabled = enabled,
-        last_events = last_events
-    },
-    function(tbl)
+function Public.on_open_debug()
+    local tbl = global.debug_event_view
+    if tbl then
         enabled = tbl.enabled
         last_events = tbl.last_events
+    else
+        enabled = {}
+        last_events = {}
+
+        global.debug_event_view = {
+            enabled = enabled,
+            last_events = last_events
+        }
     end
-)
+
+    Public.on_open_debug = nil
+end
 
 -- Local functions
 local function event_callback(event)
