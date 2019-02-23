@@ -59,7 +59,7 @@ local function player_joined(event)
     end
 
     local messages = d.welcome_messages
-    if not messages then
+    if not messages or not #messages > 0 then
         return
     end
 
@@ -80,7 +80,7 @@ local function player_died(event)
     end
 
     local messages = d.death_messages
-    if not messages then
+    if not messages or not #messages > 0 then
         return
     end
 
