@@ -30,6 +30,8 @@ To join a RedMew Factorio server, follow the following steps in Factorio:
 ## Documentation
 Looking for a way to play a RedMew scenario yourself? [Check out our wiki!](https://github.com/Refactorio/RedMew/wiki).
 
+Are you a Content Creator looking to play a RedMew scenario? [Visit the Content Creator Guide!](https://docs.google.com/document/d/1KE20uAOIVeQG2-Kh7OjcmU39e71m1PLk79EGr1ZWn7c/edit?usp=sharing).
+
 ## Contributing
 If you wish to contribute, don't hesitate to make a Pull Request or open an issue. When in doubt, you can always ask
 on [Discord](http://redmew.com/discord).
