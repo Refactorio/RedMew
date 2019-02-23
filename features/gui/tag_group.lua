@@ -307,6 +307,8 @@ local choices = {
 local function draw_create_tag_frame(event, tag_data)
     local name
     local verb
+    local join
+    local leave	
     local path
     local spirte_type
     local frame_caption
@@ -315,8 +317,8 @@ local function draw_create_tag_frame(event, tag_data)
         name = tag_data.name
         verb = tag_data.verb
         path = tag_data.path
-		join = tag_data.join
-		leave = tag_data.leave
+	join = tag_data.join
+	leave = tag_data.leave
 
         if path and path ~= '' then
             spirte_type, path = path:match('([^/]+)/([^/]+)')
