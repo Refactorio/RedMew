@@ -37,6 +37,11 @@ local print_after_timeout =
         if not player.valid then
             return
         end
+
+        if data.death then
+            game.print({'donator.death_message'}, Color.white)
+        end
+
         game.print(data.message, player.chat_color)
     end
 )
@@ -80,9 +85,8 @@ local function player_died(event)
     end
 
     local message = messages[random(#messages)]
-    game.print({'donator.death_message'}, Color.white)
     message = concat({'*** ', message, ' ***'})
-    Task.set_timeout_in_ticks(30, print_after_timeout, {player = player, message = message})
+    Task.set_timeout_in_ticks(30, print_after_timeout, {player = player, message = message, death = true})
 end
 
 --- Returns the table of donators
