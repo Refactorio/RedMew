@@ -4,50 +4,76 @@
 return {
     ['Trooper'] = {
         path = 'item/tank',
-        verb = 'strengthened'
+        verb = 'strengthened',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
+		
     },
     ['Mining'] = {
         path = 'item/electric-mining-drill',
-        verb = 'enriched'
+        verb = 'enriched',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
     },
     ['Smelting'] = {
         path = 'item/stone-furnace',
-        verb = 'fused'
+        verb = 'fused',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"		
     },
     ['Production'] = {
         path = 'item/assembling-machine-2',
-        verb = 'enhanced'
+        verb = 'enhanced',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
+		
     },
     ['Science'] = {
         path = 'item/science-pack-3',
-        verb = 'advanced'
+        verb = 'advanced',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
     },
     ['Wizard'] = {
         path = 'item/green-wire',
-        verb = 'combinated'
+        verb = 'combinated',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
     },
     ['Trains'] = {
         path = 'item/locomotive',
-        verb = 'derailed'
+        verb = 'derailed',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
     },
     ['Oil'] = {
         path = 'fluid/crude-oil',
-        verb = 'lubricated'
+        verb = 'lubricated',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
     },
     ['Powah!'] = {
         path = 'item/steam-engine',
-        verb = 'electrified'
+        verb = 'electrified',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
     },
     ['Spaceman'] = {
         path = 'item/rocket-silo',
-        verb = 'warped'
+        verb = 'warped',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
     },
     ['Cat'] = {
         path = 'item/raw-fish',
-        verb = 'mewed'
+        verb = 'mewed',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
     },
     ['Dog'] = {
         path = 'entity/medium-biter',
-        verb = 'woofed'
+        verb = 'woofed',
+		join = "{tag} squad expanded with {player}",
+		leave = "{player} has left the {tag} squad"
     }
 }
