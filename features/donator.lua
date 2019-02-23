@@ -9,7 +9,6 @@ local Task = require 'utils.task'
 local Color = require 'resources.color_presets'
 
 local concat = table.concat
-local insert = table.insert
 local remove = table.remove
 local set_data = Server.set_data
 local random = math.random
@@ -38,10 +37,6 @@ local print_after_timeout =
             return
         end
 
-        if data.death then
-            game.print({'donator.death_message'}, Color.white)
-        end
-
         game.print(data.message, player.chat_color)
     end
 )
@@ -59,7 +54,7 @@ local function player_joined(event)
     end
 
     local messages = d.welcome_messages
-    if not messages or not #messages > 0 then
+    if not messages then
         return
     end
 
@@ -73,6 +68,7 @@ local function player_joined(event)
     Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
 end
 
+--- Prints a message on donator death
 local function player_died(event)
     local player = Game.get_player_by_index(event.player_index)
     if not player or not player.valid then
@@ -85,7 +81,7 @@ local function player_died(event)
     end
 
     local messages = d.death_messages
-    if not messages or not #messages > 0 then
+    if not messages then
         return
     end
 
@@ -95,9 +91,9 @@ local function player_died(event)
     end
 
     local message = messages[random(count)]
-    game.print({'donator.death_message'}, Color.white)
+    game.print({'donator.death_message', player.name}, player.chat_color)
     message = concat({'*** ', message, ' ***'})
-    Task.set_timeout_in_ticks(30, print_after_timeout, {player = player, message = message, death = true})
+    game.print(message, player.chat_color)
 end
 
 --- Returns the table of donators
@@ -202,7 +198,7 @@ function Public.get_donator_messages(player_name, table_name)
     return d_table[table_name]
 end
 
---- Writes the data called back from the server into the donators table, overwriting any matching entries
+--- Writes the data called back from the server into the donators table, clearing any previous entries
 local sync_donators_callback =
     Token.register(
     function(data)
