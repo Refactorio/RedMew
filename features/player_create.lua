@@ -75,6 +75,7 @@ if _CHEATS then
     )
 
     local function player_created_cheat_mode(event)
+        local config = global.config.player_create
         local player = Game.get_player_by_index(event.player_index)
 
         if not player or not player.valid then
