@@ -1,5 +1,4 @@
 local Event = require 'utils.event'
-local Global = require 'utils.global'
 local table = require 'utils.table'
 local Gui = require 'utils.gui'
 local Model = require 'features.gui.debug.model'
