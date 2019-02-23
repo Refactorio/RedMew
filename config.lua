@@ -217,18 +217,18 @@ global.config = {
         -- At evolution 0.60 it would spawn with a chance of min + max * (percentage of max) = 1.1
         hydras = {
             -- spitters
-            ['small-spitter'] = {['small-worm-turret'] = {min = 0.2, max = 0}},
-            ['medium-spitter'] = {['medium-worm-turret'] = {min = 0.2, max = 0}},
-            ['big-spitter'] = {['big-worm-turret'] = {min = 0.2, max = 0}},
-            ['behemoth-spitter'] = {['big-worm-turret'] = {min = 0.4, max = 0}},
+            ['small-spitter'] = {['small-worm-turret'] = {min = 0.2, max = -1}},
+            ['medium-spitter'] = {['medium-worm-turret'] = {min = 0.2, max = -1}},
+            ['big-spitter'] = {['big-worm-turret'] = {min = 0.2, max = -1}},
+            ['behemoth-spitter'] = {['big-worm-turret'] = {min = 0.4, max = -1}},
             -- biters
             ['medium-biter'] = {['small-biter'] = {min = 1.2, max = 2}},
             ['big-biter'] = {['medium-biter'] = {min = 1.2, max = 2}},
             ['behemoth-biter'] = {['big-biter'] = {min = 1.2, max = 2}},
             -- worms
-            ['small-worm-turret'] = {['small-biter'] = {min = 2.5, max = 0}},
-            ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = 0}, ['medium-biter'] = {min = 0.6, max = 0}},
-            ['big-worm-turret'] = {['small-biter'] = {min = 3.8, max = 0}, ['medium-biter'] = {min = 1.3, max = 0}, ['big-biter'] = {min = 1.1, max = 0}, ['behemoth-biter'] = {min = 0.1, max = 0, trigger = 0.99}}
+            ['small-worm-turret'] = {['small-biter'] = {min = 2.5, max = -1}},
+            ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = -1}, ['medium-biter'] = {min = 0.6, max = -1}},
+            ['big-worm-turret'] = {['small-biter'] = {min = 3.8, max = -1}, ['medium-biter'] = {min = 1.3, max = -1}, ['big-biter'] = {min = 1.1, max = -1}, ['behemoth-biter'] = {min = 0.1, max = -1, trigger = 0.99}}
         }
     },
     -- grants reward coins for certain actions
