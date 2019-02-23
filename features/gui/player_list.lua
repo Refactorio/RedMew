@@ -212,7 +212,7 @@ local column_builders = {
         sort = function(a, b)
             local a_rank, b_rank = a.rank, b.rank
             if a_rank == b_rank then
-                return b.is_donator
+                return b.is_donator and not a.is_donator
             end
             return a_rank < b_rank
         end,
