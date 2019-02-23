@@ -54,9 +54,9 @@ local function change_player_tag(player, tag_name, silent)
     if tag_name == '' then
         player.tag = ''
         if not silent then
-			local message = tag_data.leave
-			message = string.gsub(message,"{tag}",old_tag)
-			message = string.gsub(message,"{player}",player.name)
+            local message = tag_data.leave
+            message = string.gsub(message,"{tag}",old_tag)
+            message = string.gsub(message,"{player}",player.name)
 
             notify_players(message) --(player.name .. ' has left the ' .. old_tag .. ' squad')
         end
@@ -80,9 +80,9 @@ local function change_player_tag(player, tag_name, silent)
     local verb = tag_data.verb or default_verb
 
     if not silent then
-		local message = tag_data.join
-		message = string.gsub(message,"{tag}",tag)
-		message = string.gsub(message,"{player}",player.name)		
+        local message = tag_data.join
+        message = string.gsub(message,"{tag}",tag)
+        message = string.gsub(message,"{player}",player.name)		
 		
         notify_players(message)  --(tag .. ' squad has `' .. verb .. '` with ' .. player.name)
     end
@@ -334,8 +334,8 @@ local function draw_create_tag_frame(event, tag_data)
     else
         name = ''
         verb = 'expanded'
-		join = "[{tag}] squad expanded with {player}"
-		leave = "{player} has left the {tag} squad"
+	join = "[{tag}] squad expanded with {player}"
+	leave = "{player} has left the {tag} squad"
         spirte_type = choices[1]
         frame_caption = 'Create A New Tag'
         confirm_caption = 'Create'
@@ -432,8 +432,8 @@ local function draw_create_tag_frame(event, tag_data)
         icons_flow = icons_flow,
         name = name_field,
         verb = verb_field,
-		join = join_field,
-		leave = leave_field,
+	join = join_field,
+	leave = leave_field,
         tag_data = tag_data
     }
     Gui.set_data(frame, data)
@@ -636,8 +636,8 @@ Gui.on_click(
         local tag_data = {
             path = path,
             verb = verb,
-			join = join,
-			leave = leave
+            join = join,
+            leave = leave
         }
         tag_groups[tag_name] = tag_data
 
