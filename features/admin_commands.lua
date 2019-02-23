@@ -94,7 +94,7 @@ local function add_regular(args)
 
     local success = Rank.increase_player_rank_to(target_name, Ranks.regular)
     if success then
-        game.print({'admin_commands.regular_add_success', Utils.get_actor(), target_name}, Color.information)
+        game.print({'admin_commands.regular_add_success', Utils.get_actor(), target_name}, Color.info)
         target_player.print({'admin_commands.regular_add_notify_target'}, Color.warning)
     else
         Game.player_print({'admin_commands.regular_add_fail', target_name, Rank.get_player_rank_name(target_name)}, Color.fail)
@@ -113,7 +113,7 @@ local function remove_regular(args)
 
     if Rank.equal(target_name, Ranks.regular) then
         local _, new_rank = Rank.reset_player_rank(target_name)
-        game.print({'admin_commands.regular_remove_success', Utils.get_actor(), target_name, new_rank}, Color.information)
+        game.print({'admin_commands.regular_remove_success', Utils.get_actor(), target_name, new_rank}, Color.info)
         target_player.print({'admin_commands.regular_remove_notify_target'}, Color.warning)
     else
         local rank_name = Rank.get_player_rank_name(target_name)
@@ -139,7 +139,7 @@ local function probation_add(args)
 
     local success = Rank.decrease_player_rank_to(target_name, Ranks.probation)
     if success then
-        game.print({'admin_commands.probation_add_success', Utils.get_actor(), target_name}, Color.information)
+        game.print({'admin_commands.probation_add_success', Utils.get_actor(), target_name}, Color.info)
         target_player.print({'admin_commands.probation_add_notify_target'}, Color.warning)
     else
         Game.player_print({'admin_commands.probation_add_fail', target_name}, Color.fail)
@@ -157,7 +157,7 @@ local function probation_remove(args)
 
     if Rank.equal(target_name, Ranks.probation) then
         Rank.reset_player_rank(target_name)
-        game.print({'admin_commands.probation_remove_success', Utils.get_actor(), target_name}, Color.information)
+        game.print({'admin_commands.probation_remove_success', Utils.get_actor(), target_name}, Color.info)
         target_player.print({'admin_commands.probation_remove_notify_target'}, Color.warning)
     else
         Game.player_print({'admin_commands.probation_remove_fail', target_name}, Color.fail)

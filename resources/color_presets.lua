@@ -159,6 +159,5 @@ return {
     success = {r = 0, g = 255, b = 0},
     warning = {r = 255, g = 255, b = 0},
     fail = {r = 255, g = 0, b = 0},
-    information = {r = 255, g = 255, b = 255}
     info = {r = 255, g = 255, b = 255}
 }
