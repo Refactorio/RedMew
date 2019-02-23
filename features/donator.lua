@@ -90,8 +90,11 @@ local function player_died(event)
         return
     end
 
-    local message = messages[random(count)]
+    -- Generic: this person has died message
     game.print({'donator.death_message', player.name}, player.chat_color)
+
+    -- Player's selected message
+    local message = messages[random(count)]
     message = concat({'*** ', message, ' ***'})
     game.print(message, player.chat_color)
 end
