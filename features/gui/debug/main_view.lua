@@ -16,6 +16,14 @@ local close_name = Gui.uid_name()
 local tab_name = Gui.uid_name()
 
 function Public.open_dubug(player)
+    for i = 1, #pages do
+        local page = pages[i]
+        local callback = page.on_open_debug
+        if callback then
+            callback()
+        end
+    end
+
     local center = player.gui.center
     local frame = center[main_frame_name]
     if frame then

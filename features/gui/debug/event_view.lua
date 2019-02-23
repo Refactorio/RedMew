@@ -21,16 +21,16 @@ local name_lookup = {}
 -- GUI names
 local checkbox_name = Gui.uid_name()
 
--- Global tables
+-- global tables
 local enabled = {}
 local last_events = {}
-global.event_view = {
+global.debug_event_view = {
     enabled = enabled,
     last_events = last_events
 }
 
-local function setup_globals()
-    local tbl = global.event_view
+function Public.on_open_debug()
+    local tbl = global.debug_event_view
     if tbl then
         enabled = tbl.enabled
         last_events = tbl.last_events
@@ -38,11 +38,13 @@ local function setup_globals()
         enabled = {}
         last_events = {}
 
-        global.event_view = {
+        global.debug_event_view = {
             enabled = enabled,
             last_events = last_events
         }
     end
+
+    Public.on_open_debug = nil
 end
 
 -- Local functions
@@ -91,8 +93,6 @@ grid_builder[0] = nil
 table.sort(grid_builder)
 
 function Public.show(container)
-    setup_globals()
-
     local main_frame_flow = container.add({type = 'flow', direction = 'vertical'})
     local scroll_pane = main_frame_flow.add({type = 'scroll-pane'})
     local gui_table = scroll_pane.add({type = 'table', column_count = 3, draw_horizontal_lines = true})
