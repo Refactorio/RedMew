@@ -32,6 +32,9 @@ end
 
 local function change_player_tag(player, tag_name, silent)
     local old_tag = player.tag
+	
+	local tag_data = tag_groups[tag_name]
+	
     if tag_name == '' and old_tag == '' then
         return false
     end
@@ -51,12 +54,15 @@ local function change_player_tag(player, tag_name, silent)
     if tag_name == '' then
         player.tag = ''
         if not silent then
-            notify_players(player.name .. ' has left the ' .. old_tag .. ' squad')
+			local message = tag_data.leave
+			message = string.gsub(message,"{tag}",old_tag)
+			message = string.gsub(message,"{player}",player.name)
+
+            notify_players(message) --(player.name .. ' has left the ' .. old_tag .. ' squad')
         end
         return true
     end
 
-    local tag_data = tag_groups[tag_name]
     if not tag_data then
         return false
     end
@@ -68,13 +74,17 @@ local function change_player_tag(player, tag_name, silent)
     end
 
     players[player.index] = true
-
+	
     player.tag = tag
 
     local verb = tag_data.verb or default_verb
 
     if not silent then
-        notify_players(tag .. ' squad has `' .. verb .. '` with ' .. player.name)
+		local message = tag_data.join
+		message = string.gsub(message,"{tag}",tag)
+		message = string.gsub(message,"{player}",player.name)		
+		
+        notify_players(message)  --(tag .. ' squad has `' .. verb .. '` with ' .. player.name)
     end
     return true
 end
@@ -305,6 +315,8 @@ local function draw_create_tag_frame(event, tag_data)
         name = tag_data.name
         verb = tag_data.verb
         path = tag_data.path
+		join = tag_data.join
+		leave = tag_data.leave
 
         if path and path ~= '' then
             spirte_type, path = path:match('([^/]+)/([^/]+)')
@@ -322,6 +334,8 @@ local function draw_create_tag_frame(event, tag_data)
     else
         name = ''
         verb = 'expanded'
+		join = "[{tag}] squad expanded with {player}"
+		leave = "{player} has left the {tag} squad"
         spirte_type = choices[1]
         frame_caption = 'Create A New Tag'
         confirm_caption = 'Create'
@@ -382,6 +396,16 @@ local function draw_create_tag_frame(event, tag_data)
     local verb_field = main_table.add {type = 'textfield', text = verb}
     Gui.set_data(verb_field, frame)
 
+    main_table.add {type = 'label', caption = 'Join message'}
+    local join_field = main_table.add {type = 'textfield', text = join}
+    Gui.set_data(join_field, frame)	
+	
+    main_table.add {type = 'label', caption = 'Leave message'}
+    local leave_field = main_table.add {type = 'textfield', text = leave}
+    Gui.set_data(leave_field, frame)	
+	
+	
+	
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
@@ -408,6 +432,8 @@ local function draw_create_tag_frame(event, tag_data)
         icons_flow = icons_flow,
         name = name_field,
         verb = verb_field,
+		join = join_field,
+		leave = leave_field,
         tag_data = tag_data
     }
     Gui.set_data(frame, data)
@@ -593,13 +619,25 @@ Gui.on_click(
         if verb == '' then
             verb = default_verb
         end
+		
+		local join = data.join.text
+		if join == "" then
+			join = "[{tag}] squad expanded with {player}"
+		end
 
+		local leave = data.leave.text
+		if leave == "" then
+			leave = "{player} has left the {tag} squad"
+		end
+		
         Gui.remove_data_recursively(frame)
         frame.destroy()
 
         local tag_data = {
             path = path,
-            verb = verb
+            verb = verb,
+			join = join,
+			leave = leave
         }
         tag_groups[tag_name] = tag_data
 
