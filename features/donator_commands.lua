@@ -10,7 +10,7 @@ local format = string.format
 
 --- Saves the player's message
 local function add_message(args, player, table_name)
-    local str = tostring(args.value)
+    local str = args.value
     if not str then
         Game.player_print({'donator_commands.add_message_fail_not_string'}, Color.fail)
         return

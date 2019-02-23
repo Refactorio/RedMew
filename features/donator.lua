@@ -63,7 +63,12 @@ local function player_joined(event)
         return
     end
 
-    local message = messages[random(#messages)]
+    local count = #messages
+    if count == 0 then
+        return
+    end
+
+    local message = messages[random(count)]
     message = concat({'*** ', message, ' ***'})
     Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
 end
@@ -84,7 +89,13 @@ local function player_died(event)
         return
     end
 
-    local message = messages[random(#messages)]
+    local count = #messages
+    if count == 0 then
+        return
+    end
+
+    local message = messages[random(count)]
+    game.print({'donator.death_message'}, Color.white)
     message = concat({'*** ', message, ' ***'})
     Task.set_timeout_in_ticks(30, print_after_timeout, {player = player, message = message, death = true})
 end
@@ -132,8 +143,14 @@ end
 -- @param player_name <string>
 -- @param data <table>
 function Public.change_donator_data(player_name, data)
+    local d_table = donators[player_name]
+
+    if not d_table then
+        return
+    end
+
     for k, v in pairs(data) do
-        donators[player_name][k] = v
+        d_table[k] = v
     end
 
     set_data(donator_data_set, player_name, donators[player_name])
@@ -145,11 +162,13 @@ end
 -- @param str <string>
 function Public.add_donator_message(player_name, table_name, str)
     local d_table = donators[player_name]
-    if not d_table[table_name] then
-        d_table[table_name] = {}
+    local message_table = d_table[table_name]
+    if not message_table then
+        message_table = {}
+        d_table[table_name] = message_table
     end
 
-    d_table[table_name][#d_table[table_name] + 1] = str
+    message_table[#message_table + 1] = str
     set_data(donator_data_set, player_name, d_table)
 end
 
@@ -160,11 +179,12 @@ end
 -- @return <string|nil> the value that was deleted, nil if nothing to delete
 function Public.delete_donator_message(player_name, table_name, num)
     local d_table = donators[player_name]
-    if not d_table[table_name] or not d_table[table_name][num] then
+    local message_table = d_table[table_name]
+    if not message_table or not message_table[num] then
         return
     end
 
-    local del_msg = remove(d_table[table_name], num)
+    local del_msg = remove(message_table, num)
     set_data(donator_data_set, player_name, d_table)
     return del_msg
 end
@@ -174,13 +194,19 @@ end
 -- @param table_name <string> the name table to change the message in
 -- @return <table|nil> an array of strings or nil if no messages
 function Public.get_donator_messages(player_name, table_name)
-    return donators[player_name][table_name]
+    local d_table = donators[player_name]
+    if not d_table then
+        return nil
+    end
+
+    return d_table[table_name]
 end
 
 --- Writes the data called back from the server into the donators table, overwriting any matching entries
 local sync_donators_callback =
     Token.register(
     function(data)
+        table.clear_table(donators)
         for k, v in pairs(data.entries) do
             donators[k] = v
         end
@@ -197,7 +223,7 @@ function Public.print_donators()
     local result = {}
 
     for k, _ in pairs(donators) do
-        insert(result, k)
+        result[#result + 1] = k
     end
 
     result = concat(result, ', ')
