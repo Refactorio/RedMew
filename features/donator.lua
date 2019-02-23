@@ -6,7 +6,6 @@ local Token = require 'utils.token'
 local table = require 'utils.table'
 local Global = require 'utils.global'
 local Task = require 'utils.task'
-local Color = require 'resources.color_presets'
 
 local concat = table.concat
 local remove = table.remove
