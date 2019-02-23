@@ -188,27 +188,39 @@ global.config = {
     -- spawns more units when one dies
     hail_hydra = {
         enabled = false,
-        -- at which scale the evolution will increase the additional hydra spawns
-        -- to disable scaling with evolution, set to 0.
-        -- the formula: chance = hydra_chance + (evolution_factor * evolution_scale)
-        -- example: small spitter has 0.2, which is 20% at 0% and 120% at an evolution_factor of 1
-        evolution_scale = 1,
+        -- enables difficulty scaling with number of online players
+        online_player_scale_enabled = true,
+        -- the number of players required for regular values.
+        -- less online players than this number decreases the spawn chances
+        -- more online players than this number increases the spawn chances
+        -- the spawn chance is increased or decreased with 0.01 * (#connected_players - online_player_scale)
+        online_player_scale = 20,
         -- any non-rounded number will turn into a chance to spawn an additional alien
         -- example: 2.5 would spawn 2 for sure and 50% chance to spawn one additionally
+        -- min defines the lowest chance, max defines the max chance at evolution 1.
+        -- trigger defines when the chance is active
+        -- setting max to less than min or nil will ignore set the max = min
+        -- Hail Hydra scales between min and max with a custom formula.
+        -- Key values shown in evolution = (percentage of max):
+        -- | 0.25 evolution = 10% | 0.50 evolution = 29% | 0.60 evolution = 45% | 0.75 evolution = 58% |
+        -- | 0.80 evolution = 65% | 0.90 evolution = 81% | 1.00 evolution = 100% |
+        -- eg. {min = 0.2, max = 2, trigger = 0.3} means that after evolution 0.3 this hydra spawns with a chance of at least 0.2
+        -- and at evolution = 1.00 it spawns with a chance of 2.
+        -- At evolution 0.60 it would spawn with a chance of min + max * (percentage of max) = 1.1
         hydras = {
             -- spitters
-            ['small-spitter'] = {['small-worm-turret'] = 0.2},
-            ['medium-spitter'] = {['medium-worm-turret'] = 0.2},
-            ['big-spitter'] = {['big-worm-turret'] = 0.2},
-            ['behemoth-spitter'] = {['big-worm-turret'] = 0.4},
+            ['small-spitter'] = {['small-worm-turret'] = {min = 0.2, max = 0}},
+            ['medium-spitter'] = {['medium-worm-turret'] = {min = 0.2, max = 0}},
+            ['big-spitter'] = {['big-worm-turret'] = {min = 0.2, max = 0}},
+            ['behemoth-spitter'] = {['big-worm-turret'] = {min = 0.4, max = 0}},
             -- biters
-            ['medium-biter'] = {['small-biter'] = 1.2},
-            ['big-biter'] = {['medium-biter'] = 1.2},
-            ['behemoth-biter'] = {['big-biter'] = 1.2},
+            ['medium-biter'] = {['small-biter'] = {min = 1.2, max = 2}},
+            ['big-biter'] = {['medium-biter'] = {min = 1.2, max = 2}},
+            ['behemoth-biter'] = {['big-biter'] = {min = 1.2, max = 2}},
             -- worms
-            ['small-worm-turret'] = {['small-biter'] = 2.5},
-            ['medium-worm-turret'] = {['small-biter'] = 2.5, ['medium-biter'] = 0.6},
-            ['big-worm-turret'] = {['small-biter'] = 3.8, ['medium-biter'] = 1.3, ['big-biter'] = 1.1}
+            ['small-worm-turret'] = {['small-biter'] = {min = 2.5, max = 0}},
+            ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = 0}, ['medium-biter'] = {min = 0.6, max = 0}},
+            ['big-worm-turret'] = {['small-biter'] = {min = 3.8, max = 0}, ['medium-biter'] = {min = 1.3, max = 0}, ['big-biter'] = {min = 1.1, max = 0}, ['behemoth-biter'] = {min = 0.1, max = 0, trigger = 0.99}}
         }
     },
     -- grants reward coins for certain actions

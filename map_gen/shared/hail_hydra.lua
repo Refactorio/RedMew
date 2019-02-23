@@ -20,8 +20,16 @@ for k, v in pairs(global.config.hail_hydra.hydras) do
     spawn_table[k] = v
 end
 
+local function formula(evo)
+    evo = evo * 100
+    local value = (0.00003 * evo ^ 3 + 0.004 * evo ^ 2 + 0.3 * evo) * 0.01
+    return value <= 1 and value or 1
+end
+
 local primitives = {
-    evolution_scale = global.config.hail_hydra.evolution_scale,
+    evolution_scale = formula,
+    online_player_scale_enabled = global.config.hail_hydra.online_player_scale_enabled,
+    online_player_scale = global.config.hail_hydra.online_player_scale,
     enabled = nil
 }
 
@@ -67,9 +75,17 @@ local on_died =
 
         local position = entity.position
         local force = entity.force
-        local evolution_factor = force.evolution_factor * primitives.evolution_scale
-        local cause = event.cause
 
+        local num_online_players = #game.connected_players
+        local player_scale = 0
+        if primitives.online_player_scale_enabled then
+            player_scale = (num_online_players - primitives.online_player_scale) * 0.01
+        end
+
+        local evolution_factor = primitives.evolution_scale(force.evolution_factor)
+        evolution_factor = evolution_factor + evolution_factor * player_scale
+
+        local cause = event.cause
         local surface = entity.surface
         local create_entity = surface.create_entity
         local find_non_colliding_position = surface.find_non_colliding_position
@@ -77,7 +93,26 @@ local on_died =
         local command = create_attack_command(position, cause)
 
         for hydra_spawn, amount in pairs(hydra) do
-            amount = amount + evolution_factor
+            local trigger = amount.trigger
+            if trigger == nil or trigger < force.evolution_factor then
+                local max = amount.max
+                local min = amount.min
+                max = (max ~= nil and max >= min) and max or min
+                if max ~= min then
+                    amount = (max - min) * (evolution_factor / primitives.evolution_scale(1)) + min
+                else
+                    amount = min
+                end
+            else
+                game.print('Trigger: '..trigger .. ' Evolution: '..force.evolution_factor)
+                game.print(tostring(trigger == nil))
+                game.print(tostring(trigger < force.evolution_factor))
+                amount = 0
+            end
+            amount = (amount > 0) and amount or 0
+            if hydra_spawn == 'behemoth-biter' then
+                game.print(hydra_spawn .. ' < biter | amount > ' .. amount)
+            end
 
             local extra_chance = amount % 1
             if extra_chance > 0 then
