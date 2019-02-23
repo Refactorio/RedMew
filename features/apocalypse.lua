@@ -46,6 +46,7 @@ local biter_spawn_token =
         player_force = game.forces.player
 
         HailHydra.set_hydras(hail_hydra_data)
+        HailHydra.set_evolution_scale(1)
         HailHydra.enable_hail_hydra()
         enemy_force.evolution_factor = 1
 
