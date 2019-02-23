@@ -17,7 +17,9 @@ local Server = require 'features.server'
 local Ranks = require 'resources.ranks'
 local Colors = require 'resources.color_presets'
 
-local Config = global.config.rank_system
+local config = global.config.rank_system
+local trust_time = config.time_for_trust
+local everyone_is_regular = config.everyone_is_regular
 
 -- Localized functions
 local clamp = math.clamp
@@ -79,7 +81,7 @@ end
 local function check_promote_to_auto_trusted()
     local auto_trusted = Ranks.auto_trusted
     local guest = Ranks.guest
-    local time_for_trust = Config.time_for_trust
+    local time_for_trust = trust_time
     local equal_or_greater_than = Public.equal_or_greater_than
     local equal = Public.equal
     local set_data = Server.set_data
@@ -151,7 +153,7 @@ function Public.get_player_rank(player_name)
     local player = game.players[player_name]
     if player and player.valid and player.admin then
         return Ranks.admin
-    elseif Config.everyone_is_regular then
+    elseif everyone_is_regular then
         return Ranks.regular
     end
 
@@ -344,7 +346,7 @@ function Public.reset_player_rank(player_name)
     else
         local player = game.players[player_name]
         local rank
-        if player and player.valid and (player.online_time > Config.time_for_trust) then
+        if player and player.valid and (player.online_time > trust_time) then
             rank = auto_trusted
             set_player_rank(player_name, rank)
         else
