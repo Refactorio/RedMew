@@ -6,21 +6,6 @@ local Info = require 'features.gui.info'
 
 local get_random_weighted = table.get_random_weighted
 
-local memory = {
-    forces_initialized = {
-        player = false -- default force for everyone
-    }
-}
-
-Global.register(
-    {
-        memory = memory
-    },
-    function(tbl)
-        memory = tbl.memory
-    end
-)
-
 local function player_created(event)
     local config = global.config.player_create
     local player = Game.get_player_by_index(event.player_index)
@@ -28,8 +13,6 @@ local function player_created(event)
     if not player or not player.valid then
         return
     end
-
-    local force = player.force
 
     -- ensure the top menu is correctly styled
     local gui = player.gui
@@ -63,12 +46,48 @@ local function player_created(event)
     elseif _DEBUG then
         game.print("DON'T LAUNCH THIS MAP! DEBUG MODE IS ENABLED!!!")
     elseif not _DEBUG and not game.is_multiplayer() then
-    player.print('To change your name in single-player, open chat and type the following /c game.player.name = "your_name"')
+        player.print('To change your name in single-player, open chat and type the following /c game.player.name = "your_name"')
     end
 
-    if _CHEATS then
+    -- Remove 2019-03-04
+    if player.admin then
+        player.print('## - Regular commands have changed. /regular <player_name> to promote /regular-remove <player_name> to demote.')
+    end
+    --End remove
+end
+
+Event.add(defines.events.on_player_created, player_created)
+
+if _CHEATS then
+    local memory = {
+        forces_initialized = {
+            player = false -- default force for everyone
+        }
+    }
+
+    Global.register(
+        {
+            memory = memory
+        },
+        function(tbl)
+            memory = tbl.memory
+        end
+    )
+
+    local function player_created_cheat_mode(event)
+        local config = global.config.player_create
+        local player = Game.get_player_by_index(event.player_index)
+
+        if not player or not player.valid then
+            return
+        end
+
+        local force = player.force
+
         player.cheat_mode = true
         local cheats = config.cheats
+
+        local player_insert = player.insert
 
         if cheats.start_with_power_armor then
             player_insert({name = 'power-armor-mk2', count = 1})
@@ -100,17 +119,9 @@ local function player_created(event)
             force.character_running_speed_modifier = cheats.character_running_speed_modifier
             force.character_health_bonus = cheats.character_health_bonus
         end
+
+        memory.forces_initialized[force.name] = true
     end
 
-    -- Remove 2019-03-04
-    if player.admin then
-        player.print(
-            '## - Regular commands have changed. /regular <player_name> to promote /regular-remove <player_name> to demote.'
-        )
-    end
-    --End remove
-
-    memory.forces_initialized[force.name] = true
+    Event.add(defines.events.on_player_created, player_created_cheat_mode)
 end
-
-Event.add(defines.events.on_player_created, player_created)
