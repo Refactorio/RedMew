@@ -104,15 +104,9 @@ local on_died =
                     amount = min
                 end
             else
-                game.print('Trigger: '..trigger .. ' Evolution: '..force.evolution_factor)
-                game.print(tostring(trigger == nil))
-                game.print(tostring(trigger < force.evolution_factor))
                 amount = 0
             end
             amount = (amount > 0) and amount or 0
-            if hydra_spawn == 'behemoth-biter' then
-                game.print(hydra_spawn .. ' < biter | amount > ' .. amount)
-            end
 
             local extra_chance = amount % 1
             if extra_chance > 0 then
