@@ -8,10 +8,16 @@ local pairs = pairs
 local main_button_name = Gui.uid_name()
 
 local memory = {
-    last_percentage = 0,
+    last_percentage = 0
 }
 
-Global.register(memory, function (tbl) memory = tbl end, 'evolution_progress')
+Global.register(
+    memory,
+    function(tbl)
+        memory = tbl
+    end,
+    'evolution_progress'
+)
 
 local button_sprites = {
     ['small-biter'] = 0,
@@ -21,7 +27,7 @@ local button_sprites = {
     ['big-spitter'] = 0.5,
     ['big-biter'] = 0.501,
     ['behemoth-spitter'] = 0.9,
-    ['behemoth-biter'] = 0.901,
+    ['behemoth-biter'] = 0.901
 }
 
 local function get_evolution_percentage()
@@ -51,12 +57,27 @@ local function get_alien_name(evolution_factor)
         end
 
         -- surpassed this alien evolution_factor
-        if alien_threshold < evolution_factor  then
+        if alien_threshold < evolution_factor then
             last_match = name
         end
     end
 
     return last_match
+end
+
+local function update_gui(player)
+    local button = player.gui.top[main_button_name]
+    if button and button.valid then
+        local evolution_factor = get_evolution_percentage()
+        local evolution_button_number = evolution_factor * 100
+        local current_alien = get_alien_name(evolution_factor)
+        local sprite = 'entity/' .. current_alien
+
+        button.number = evolution_button_number
+        if sprite then
+            button.sprite = sprite
+        end
+    end
 end
 
 local function player_joined(event)
@@ -66,18 +87,21 @@ local function player_joined(event)
     end
 
     if player.gui.top[main_button_name] ~= nil then
+        update_gui(player)
         return
     end
 
     local evolution_factor = get_evolution_percentage()
     local alien_name = get_alien_name(evolution_factor)
 
-    player.gui.top.add({
-        name = main_button_name,
-        type = 'sprite-button',
-        sprite = 'entity/' .. alien_name,
-        number = evolution_factor * 100,
-    }).enabled = false
+    player.gui.top.add(
+            {
+                name = main_button_name,
+                type = 'sprite-button',
+                sprite = 'entity/' .. alien_name,
+                number = evolution_factor * 100
+            }
+        ).enabled = false
 end
 
 local function on_nth_tick()
@@ -97,25 +121,21 @@ local function on_nth_tick()
     if current_alien ~= previous_alien then
         sprite = 'entity/' .. current_alien
         local caption = {'', 'Evolution notice: ', {'entity-name.' .. current_alien}, ' sighted!'}
-        Toast.toast_all_players_template(10, function (container)
-            container.add({type = 'sprite', sprite = sprite})
-            local text = container.add({type = 'label', caption = caption, name = Toast.close_toast_name})
-            local text_style = text.style
-            text_style.single_line = false
-            text_style.vertical_align = 'center'
-        end)
+        Toast.toast_all_players_template(
+            10,
+            function(container)
+                container.add({type = 'sprite', sprite = sprite})
+                local text = container.add({type = 'label', caption = caption, name = Toast.close_toast_name})
+                local text_style = text.style
+                text_style.single_line = false
+                text_style.vertical_align = 'center'
+            end
+        )
     end
 
     local players = game.connected_players
-    local evolution_button_number = evolution_factor * 100
     for i = 1, #players do
-        local button = players[i].gui.top[main_button_name]
-        if button and button.valid then
-            button.number = evolution_button_number
-            if sprite then
-                button.sprite = sprite
-            end
-        end
+        update_gui(players[i])
     end
 end
 
