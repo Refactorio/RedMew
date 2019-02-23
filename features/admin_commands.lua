@@ -25,6 +25,11 @@ Global.register(
     end
 )
 
+--- Informs the actor that there is no target. Acts as a central place where this message can be changed.
+local function print_no_target(target_name)
+    Game.player_print({'common.fail_no_target', target_name}, Color.fail)
+end
+
 --- Sends a message to all online admins
 local function admin_chat(args, player)
     Utils.print_admins(args.msg, player)
@@ -72,73 +77,90 @@ local function all_tech(_, player)
     Game.player_print('Your force has been granted all technologies')
 end
 
---- Add or remove someone from the list of regulars
-local function regular(args)
-    local add_remove = args['add|remove']
-    local name = args['name']
+--- Promote someone to regular
+local function add_regular(args)
+    local target_name = args['player']
+    local target_player = game.players[target_name]
 
-    if not game.players[name] then
-        Game.player_print('The player you targeted has never joined this game, please ensure no typo in name.', Color.red)
+    if not target_player or not target_player.valid then
+        print_no_target(target_name)
         return
     end
 
-    if add_remove == 'add' then
-        if Rank.less_than(name, Ranks.guest) then
-            -- Cannot promote someone on probation to regular. You must remove them from probation and then promote them.
-            Game.player_print({'admin_commands.regular_add_fail_probation'}, Color.red)
-        end
-        local success, rank = Rank.increase_player_rank_to(name, Ranks.regular)
-        if success then
-            -- __1__ promoted __2__ to __3__.
-            game.print({'admin_commands.regular_add_success', Utils.get_actor(), name, rank}, Color.yellow)
-        else
-            -- __1__ is already rank __2__.
-            Game.player_print({'admin_commands.regular_add_fail', name, rank}, Color.red)
-        end
-    elseif add_remove == 'remove' then
-        if Rank.equal(name, Ranks.regular) then
-            local new_rank = Rank.decrease_player_rank(name)
-            -- __1__ demoted __2__ to __3__.
-            game.print({'admin_commands.regular_remove_success', Utils.get_actor(), name, new_rank}, Color.yellow)
-        else
-            local rank_name = Rank.get_player_rank_name(name)
-            -- __1__ is rank __2__ their regular status cannot be removed.
-            Game.player_print({'admin_commands.regular_remove_fail', name, rank_name}, Color.red)
-        end
+    if Rank.less_than(target_name, Ranks.guest) then
+        Game.player_print({'admin_commands.regular_add_fail_probation'}, Color.fail)
+        return
+    end
+
+    local success = Rank.increase_player_rank_to(target_name, Ranks.regular)
+    if success then
+        game.print({'admin_commands.regular_add_success', Utils.get_actor(), target_name}, Color.info)
+        target_player.print({'admin_commands.regular_add_notify_target'}, Color.warning)
+    else
+        Game.player_print({'admin_commands.regular_add_fail', target_name, Rank.get_player_rank_name(target_name)}, Color.fail)
+    end
+end
+
+--- Demote someone from regular
+local function remove_regular(args)
+    local target_name = args['player']
+    local target_player = game.players[target_name]
+
+    if not target_player or not target_player.valid then
+        print_no_target(target_name)
+        return
+    end
+
+    if Rank.equal(target_name, Ranks.regular) then
+        local _, new_rank = Rank.reset_player_rank(target_name)
+        game.print({'admin_commands.regular_remove_success', Utils.get_actor(), target_name, new_rank}, Color.info)
+        target_player.print({'admin_commands.regular_remove_notify_target'}, Color.warning)
+    else
+        local rank_name = Rank.get_player_rank_name(target_name)
+        Game.player_print({'admin_commands.regular_remove_fail', target_name, rank_name}, Color.fail)
     end
 end
 
 --- Add or remove someone from probation
-local function probation(args)
-    local add_remove = args['add|remove']
-    local name = args['name']
-    local target_player = game.players[name]
+local function probation_add(args)
+    local target_name = args['player']
+    local target_player = game.players[target_name]
 
-    if not target_player then
-        Game.player_print('The player you targeted has never joined this game, please ensure no typo in name.', Color.red)
+    if not target_player or not target_player.valid then
+        print_no_target(target_name)
         return
     end
 
-    if add_remove == 'add' then
-        local success = Rank.decrease_player_rank_to(name, Ranks.probation)
-        if success and Rank.equal(name, Ranks.admin) then
-            target_player.print(format('%s tried to put you on probation, can you believe that shit?', Utils.get_actor()), Color.yellow)
-            Game.player_print('You failed to put your fellow admin on probation. Shame on you for trying.', Color.yellow)
-            Rank.reset_player_rank(name)
-        elseif success then
-            game.print(format('%s put %s on probation.', Utils.get_actor(), name), Color.yellow)
-            target_player.print('You have been placed on probation. You have limited access to normal functions.', Color.yellow)
-        else
-            Game.player_print(format('%s already has probation rank or lower.', name), Color.red)
-        end
-    elseif add_remove == 'remove' then
-        local success = Rank.increase_player_rank_to(name, Ranks.guest)
-        if success then
-            game.print(format('%s took %s off of probation.', Utils.get_actor(), name), Color.yellow)
-            target_player.print('Your probation status has been removed. You may now perform functions as usual', Color.yellow)
-        else
-            Game.player_print(format('%s is not on probation.', name), Color.red)
-        end
+    if Rank.equal(target_name, Ranks.admin) then
+        target_player.print({'admin_commands.probation_warn_admin', Utils.get_actor()}, Color.warning)
+        Game.player_print({'admin_commands.probation_add_fail_admin'}, Color.fail)
+        return
+    end
+
+    local success = Rank.decrease_player_rank_to(target_name, Ranks.probation)
+    if success then
+        game.print({'admin_commands.probation_add_success', Utils.get_actor(), target_name}, Color.info)
+        target_player.print({'admin_commands.probation_add_notify_target'}, Color.warning)
+    else
+        Game.player_print({'admin_commands.probation_add_fail', target_name}, Color.fail)
+    end
+end
+
+local function probation_remove(args)
+    local target_name = args['player']
+    local target_player = game.players[target_name]
+
+    if not target_player or not target_player.valid then
+        print_no_target(target_name)
+        return
+    end
+
+    if Rank.equal(target_name, Ranks.probation) then
+        Rank.reset_player_rank(target_name)
+        game.print({'admin_commands.probation_remove_success', Utils.get_actor(), target_name}, Color.info)
+        target_player.print({'admin_commands.probation_remove_notify_target'}, Color.warning)
+    else
+        Game.player_print({'admin_commands.probation_remove_fail', target_name}, Color.fail)
     end
 end
 
@@ -191,7 +213,7 @@ local function tempban(args, player)
     local target = game.players[target_name]
     local duration = args.minutes
     if not target then
-        Game.player_print("Player doesn't exist.")
+        print_no_target(target_name)
         return
     end
     if not tonumber(duration) then
@@ -228,9 +250,10 @@ end
 
 --- Takes a target and teleports them to player
 local function invoke(args, player)
-    local target = game.players[args.player]
+    local target_name = args.player
+    local target = game.players[target_name]
     if not target then
-        Game.player_print('Unknown player.')
+        print_no_target(target_name)
         return
     end
     local pos = player.surface.find_non_colliding_position('player', player.position, 50, 1)
@@ -250,7 +273,7 @@ local function teleport_player(args, player)
         target = game.players[target_name]
     end
     if not target then
-        Game.player_print('Unknown player.')
+        print_no_target(target_name)
         return
     end
     local surface = target.surface
@@ -394,23 +417,45 @@ Command.add(
 Command.add(
     'regular',
     {
-        description = 'Add/remove player from regualrs. Use /regular <add|remove> <name> to add/remove a regular.',
-        arguments = {'add|remove', 'name'},
+        description = 'Gives a player the regualar rank.',
+        arguments = {'player'},
         required_rank = Ranks.admin,
         allowed_by_server = true
     },
-    regular
+    add_regular
+)
+
+Command.add(
+    'regular-remove',
+    {
+        description = 'Demotes a player from regular to the next lowest rank',
+        arguments = {'player'},
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    remove_regular
 )
 
 Command.add(
     'probation',
     {
-        description = 'Add/remove player from probation. Use /probation <add|remove> <name> to add/remove someone from probation.',
-        arguments = {'add|remove', 'name'},
+        description = 'Put player on probation. (They will be unable to use redmew commands and will never gain auto-trusted rank.)',
+        arguments = {'player'},
         required_rank = Ranks.admin,
         allowed_by_server = true
     },
-    probation
+    probation_add
+)
+
+Command.add(
+    'probation-remove',
+    {
+        description = 'Remove player from probation.',
+        arguments = {'player'},
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    probation_remove
 )
 
 Command.add(
