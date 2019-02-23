@@ -197,6 +197,7 @@ global.config = {
     hail_hydra = {
         enabled = false,
         -- enables difficulty scaling with number of online players
+        -- if enabled you can disable it for individual spawns by setting {locked = true}
         online_player_scale_enabled = true,
         -- the number of players required for regular values.
         -- less online players than this number decreases the spawn chances
@@ -215,6 +216,8 @@ global.config = {
         -- eg. {min = 0.2, max = 2, trigger = 0.3} means that after evolution 0.3 this hydra spawns with a chance of at least 0.2
         -- and at evolution = 1.00 it spawns with a chance of 2.
         -- At evolution 0.60 it would spawn with a chance of min + max * (percentage of max) = 1.1
+        -- Example of all available options (only min is required):
+        -- ['behemoth-biter'] = {min = 0.1, max = 0.5, trigger = 0.90, locked = true}}
         hydras = {
             -- spitters
             ['small-spitter'] = {['small-worm-turret'] = {min = 0.2, max = -1}},
@@ -228,7 +231,7 @@ global.config = {
             -- worms
             ['small-worm-turret'] = {['small-biter'] = {min = 2.5, max = -1}},
             ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = -1}, ['medium-biter'] = {min = 0.6, max = -1}},
-            ['big-worm-turret'] = {['small-biter'] = {min = 3.8, max = -1}, ['medium-biter'] = {min = 1.3, max = -1}, ['big-biter'] = {min = 1.1, max = -1}, ['behemoth-biter'] = {min = 0.1, max = -1, trigger = 0.99}}
+            ['big-worm-turret'] = {['small-biter'] = {min = 3.8, max = -1}, ['medium-biter'] = {min = 1.3, max = -1}, ['big-biter'] = {min = 1.1, max = -1}, ['behemoth-biter'] = {min = 0.1, max = -1, trigger = 0.99, locked = true}}
         }
     },
     -- grants reward coins for certain actions

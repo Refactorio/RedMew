@@ -88,8 +88,8 @@ local on_died =
             player_scale = (num_online_players - primitives.online_player_scale) * 0.01
         end
 
-        local evolution_factor = primitives.evolution_scale_formula(force.evolution_factor)
-        evolution_factor = evolution_factor + evolution_factor * player_scale
+        local evolution_scaled = primitives.evolution_scale_formula(force.evolution_factor)
+        local evolution_factor = evolution_scaled + evolution_scaled * player_scale
 
         local cause = event.cause
         local surface = entity.surface
@@ -104,6 +104,10 @@ local on_died =
             end
             local trigger = amount.trigger
             if trigger == nil or trigger < force.evolution_factor then
+                if amount.locked then
+                    evolution_factor = evolution_scaled
+                    game.print('Locked!')
+                end
                 local min = amount.min
                 local max = amount.max
                 max = (max ~= nil and max >= min) and max or min
