@@ -181,7 +181,9 @@ global.config = {
                 {name = 'small-plane', count = 2},
                 {name = 'coin', count = 20000},
                 {name = 'rocket-part', count = 2},
-                {name = 'computer', count = 2}
+                {name = 'computer', count = 2},
+                {name = 'infinity-pipe', count = 10},
+                {name = 'heat-interface', count = 10}
             }
         }
     },
