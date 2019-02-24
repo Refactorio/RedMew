@@ -219,14 +219,11 @@ Event.add(
             return
         end
         local name = entity.name
-		local tile_ghost = false
-		if name == 'tile-ghost' then
-			tile_ghost = true
+	local ghost = false
+		if name == 'tile-ghost' or name == 'entity-ghost' then
+			ghost = true
 		end
-        local ghost = false
-        if name == 'entity-ghost' then
-            ghost = true
-        end
+
         -- Check the bounding box for the tile
         local status = true
         local area = entity.bounding_box
@@ -250,7 +247,7 @@ Event.add(
                 return
             end
             entity.destroy()
-            if not ghost and not tile_ghost then
+            if not ghost then
                 p.insert(event.stack)
             end
         end
