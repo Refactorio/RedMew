@@ -124,25 +124,6 @@ local non_creep_tiles = global.map.terraforming.non_creep_tiles or {
     'sand-2',
     'sand-3',
 }
--- Tiles which are completely exempt from the creep mechanic, currently kept in comment as a reference:
--- 'deepwater', 'deepwater-green', 'out-of-map', 'water', 'water-green', 'lab-dark-1', 'lab-dark-2', 'lab-white', 'tutorial-grid'
-local decoratives = {
-    'brown-asterisk',
-    'brown-carpet-grass',
-    'brown-fluff',
-    'brown-fluff-dry',
-    'brown-hairy-grass',
-    'garballo',
-    'garballo-mini-dry',
-    'green-asterisk',
-    'green-bush-mini',
-    'green-carpet-grass',
-    'green-hairy-grass',
-    'green-pita',
-    'green-pita-mini',
-    'green-small-grass',
-    'red-asterisk'
-}
 
 -- the 5 states a chunk can be in
 local NOT_CREEP = 1 -- Chunk is 0% creep tiles and unpolluted
@@ -312,7 +293,7 @@ local function change_creep_state(state, i)
         -- if a chunk has lost all creep, do a final check to see if there are any buildings to kill and regen the decoratives
         if state == 2 then
             check_chunk_for_entities(chunklist[i])
-            RS.get_surface().regenerate_decorative(decoratives, {{chunklist[i].x, chunklist[i].y}})
+            RS.get_surface().regenerate_decorative(nil, {{chunklist[i].x, chunklist[i].y}})
         end
     end
 end
