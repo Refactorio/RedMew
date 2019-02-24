@@ -207,32 +207,10 @@ map = b.translate(map, 0, 30)
 -- -- Untested Code for not building on sand. However, this requires plague's entity restriction module
 -- -- Enable this section when the entity restriction modules is finalized
 -- -- Make sure this works on tiles if needed, otherwise keep function below
--- local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
-
--- local function sand_trap(entity)
--- local Game = require 'utils.game'
--- local p = Game.get_player_by_index(event.player_index)
---
--- local status = true
--- {{x1, y1},{x2,y2}} = entity.bounding_box
---
--- for x=x1,x2,1 do
--- for y = y1, y2,1 do
--- if utils.game.player.surface.get_tile(x,y).name == 'sand-1' then
--- status = false
--- break
--- end
--- end
--- end
--- return status
--- end
-
--- RestrictEntities.set_keep_alive_callback(sand_trap)
-
--- substitute until entity restriction module is finished.
 local Event = require 'utils.event'
 local Game = require 'utils.game'
---Ban entities from sand-1
+--Ban entities from sand-1, including tile ghosts. This currently prevents us from using entity_placement_restriction.lua as of 2019-02-22
+-- Convert to using entity_replacement_restriction.lua once it is possible to do so
 Event.add(
     defines.events.on_built_entity,
     function(event)
@@ -278,7 +256,7 @@ Event.add(
         end
     end
 )
--- Ban tiles from sand-1
+-- Hotfix to ban tiles by grilledham
 Event.add(
     defines.events.on_player_built_tile,
     function(event)
