@@ -1,9 +1,32 @@
 local Command = require 'utils.command'
 local Ranks = require 'resources.ranks'
+local Global = require 'utils.global'
 
 local format = string.format
 
 local Performance = {}
+
+local mining_efficiency = {
+    active_modifier = 0,
+}
+
+local craft_bonus = {
+    active_modifier = 0,
+}
+
+local running_bonus = {
+    active_modifier = 0,
+}
+
+Global.register({
+    mining_efficiency = mining_efficiency,
+    craft_bonus = craft_bonus,
+    running_bonus = running_bonus
+}, function(tbl)
+    mining_efficiency = tbl.mining_efficiency
+    craft_bonus = tbl.craft_bonus
+    running_bonus = tbl.running_bonus
+end)
 
 ---Sets the scale of performance.
 ---1 means the game runs at normal game speed with normal walking speed
@@ -18,9 +41,12 @@ function Performance.set_time_scale(scale)
 
     local stat_mod = Performance.get_player_stat_modifier()
     for _, force in pairs(game.forces) do
-        force.character_running_speed_modifier = stat_mod - 1
-        force.manual_mining_speed_modifier = stat_mod - 1
-        force.manual_crafting_speed_modifier = stat_mod - 1
+        force.character_running_speed_modifier = force.character_running_speed_modifier - running_bonus.active_modifier + stat_mod - 1
+        running_bonus.active_modifier = stat_mod - 1
+        force.manual_mining_speed_modifier = force.manual_mining_speed_modifier - mining_efficiency.active_modifier + stat_mod - 1
+        mining_efficiency.active_modifier = stat_mod - 1
+        force.manual_crafting_speed_modifier = force.manual_crafting_speed_modifier - craft_bonus.active_modifier + stat_mod - 1
+        craft_bonus.active_modifier = stat_mod - 1
     end
 end
 
