@@ -125,6 +125,10 @@ if config.popup.enabled then
     require 'features.gui.popup'
 end
 
+-- Debug-only modules
+if _DEBUG then
+    require 'features.scenario_data_manipulation'
+end
 -- Needs to be at bottom so tokens are registered last.
 if _DUMP_ENV then
     require 'utils.dump_env'
