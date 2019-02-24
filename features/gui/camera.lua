@@ -71,7 +71,7 @@ local function create_camera(args, player)
         mainframe.add {type = 'frame', name = 'cameraframe', style = 'captionless_frame'}
     end
 
-    mainframe.add {type = 'label', caption = 'Following: ' .. args.target}
+    mainframe.add {type = 'label', caption = 'Following: ' .. target.name}
     local close_button = mainframe.add {type = 'button', name = main_button_name, caption = 'Close'}
     apply_button_style(close_button)
     local target_index = target.index

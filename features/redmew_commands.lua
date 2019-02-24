@@ -244,7 +244,7 @@ local function print_player_info(args, player)
     local index = target.index
     local info_t = {
         'redmew_commands.whois_formatter',
-        {'format.1_colon_2', 'Name', name},
+        {'format.1_colon_2', 'Name', target.name},
         {'format.single_item', target.connected and 'Online: yes' or 'Online: no'},
         {'format.1_colon_2', 'Index', target.index},
         {'format.1_colon_2', 'Rank', Rank.get_player_rank_name(name)},
