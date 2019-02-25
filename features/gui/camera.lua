@@ -58,7 +58,7 @@ local function create_camera(args, player)
 
     if not mainframe then
         mainframe = mainframeflow.add {type = 'frame', name = mainframeid, direction = 'vertical', style = 'captionless_frame'}
-        mainframe.style.visible = true
+        mainframe.visible = true
     end
 
     local headerframe = mainframe.headerframe
@@ -122,7 +122,7 @@ local function update_camera_render(target, targetframe, zoom, size, visible)
     camera.position = position
     camera.surface_index = surface_index
     camera.zoom = zoom
-    camera.style.visible = visible
+    camera.visible = visible
     camera.style.minimal_width = preview_size
     camera.style.minimal_height = preview_size
     camera.style.maximal_width = preview_size
