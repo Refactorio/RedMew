@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Utils = require 'utils.core'
 local Timestamp = require 'utils.timestamp'
+local ErrorLogging = require 'utils.error_logging'
 local Rank = require 'features.rank_system'
 local Donator = require 'features.donator'
 local Server = require 'features.server'
@@ -247,11 +248,14 @@ function Command.add(command_name, options, callback)
             if _DEBUG then
                 print(format("%s triggered an error running a command and has been logged: '%s' with arguments %s", player_name, command_name, serialized_arguments))
                 print(error)
+                ErrorLogging.generate_error_report(error)
                 return
             end
 
             print(format('There was an error running %s, it has been logged.', command_name))
-            log(format("Error while running '%s' with arguments %s: %s", command_name, serialized_arguments, error))
+            local err = format("Error while running '%s' with arguments %s: %s", command_name, serialized_arguments, error)
+            log(err)
+            ErrorLogging.generate_error_report(err)
         end
     end)
 end

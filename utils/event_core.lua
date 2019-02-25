@@ -1,5 +1,6 @@
 -- This module exists to break the circular dependency between event.lua and global.lua.
 -- It is not expected that any user code would require this module instead event.lua should be required.
+local ErrorLogging = require 'utils.error_logging'
 
 local Public = {}
 
@@ -16,18 +17,22 @@ local log = log
 local script_on_event = script.on_event
 local script_on_nth_tick = script.on_nth_tick
 
-local function call_handlers(handlers, event)
-    if _DEBUG then
+local call_handlers
+if _DEBUG then
+    function call_handlers(handlers, event)
         for i = 1, #handlers do
             local handler = handlers[i]
             handler(event)
         end
-    else
+    end
+else
+    function call_handlers(handlers, event)
         for i = 1, #handlers do
             local handler = handlers[i]
             local success, error = pcall(handler, event)
             if not success then
                 log(error)
+                ErrorLogging.generate_error_report(error)
             end
         end
     end
