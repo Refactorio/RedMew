@@ -383,7 +383,7 @@ Command.add(
 )
 
 Command.add(
-    'sc',
+    'dc',
     {
         description = 'silent-command',
         arguments = {'str'},

@@ -18,7 +18,8 @@ local get_rank_name = Rank.get_rank_name
 local Command = {}
 
 local deprecated_command_alternatives = {
-    ['silent-command'] = 'sc',
+    ['silent-command'] = 'dc',
+    ['sc'] = 'dc',
     ['tpplayer'] = 'tp <player>',
     ['tppos'] = 'tp',
     ['tpmode'] = 'tp mode',
