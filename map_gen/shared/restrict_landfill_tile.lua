@@ -6,7 +6,12 @@ global.allowed_landfill_tiles = {}
 Event.add(
     defines.events.on_player_built_tile,
     function(event)
-        local item_name = event.item.name
+        local item = event.item
+        if not item then
+            return
+        end
+
+        local item_name = item.name
         if item_name ~= 'landfill' then
             return
         end
