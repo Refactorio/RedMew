@@ -238,6 +238,8 @@ local function boost_player_mining_speed(player)
     end
     mining_records[index].boost_lvl = 1 + mining_records[index].boost_lvl
 
+    player.character_mining_speed_modifier = 1 + player.character_mining_speed_modifier
+
     if mining_records[index].boost_lvl >= 4 then
         game.print(format(mining_speed_boost_messages[mining_records[index].boost_lvl], p_name))
         reset_player_mining_speed(player)
