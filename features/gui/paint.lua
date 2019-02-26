@@ -52,7 +52,12 @@ Global.register(
 )
 
 local function player_build_tile(event)
-    if event.item.name ~= brush_tool then
+    local item = event.item
+    if not item then
+        return
+    end
+
+    if item.name ~= brush_tool then
         return
     end
 
@@ -68,8 +73,10 @@ local function player_build_tile(event)
 
     local tiles = event.tiles
     local count = 0
-    for _, tile_data in ipairs(tiles) do
+    for i = 1, #tiles do
+        local tile_data = tiles[i]
         tile_data.name = replace_tile
+
         if tile_data.old_tile.name == replace_tile then
             count = count + 1
         end

@@ -8,15 +8,16 @@ Event.add(
     defines.events.on_player_built_tile,
     function(event)
         local item = event.item
-        if not item or not item.valid then
+        if not item then
             return
         end
 
-        if event.item.name == 'landfill' then
+        if item.name == 'landfill' then
             local tiles = event.tiles
             for i = 1, #tiles do
                 tiles[i].name = replacement_tiles[random(1, tile_count)]
             end
+
             local surface = game.surfaces[event.surface_index]
             surface.set_tiles(tiles)
         end
