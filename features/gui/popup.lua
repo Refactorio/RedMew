@@ -49,7 +49,7 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
     local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local title_flow = top_flow.add {type = 'flow'}
-    title_flow.style.align = 'center'
+    title_flow.style.horizontal_align  = 'center'
     title_flow.style.left_padding = 32
     title_flow.style.top_padding = 8
     title_flow.style.horizontally_stretchable = true
@@ -58,7 +58,7 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
     title.style.font = 'default-large-bold'
 
     local close_button_flow = top_flow.add {type = 'flow'}
-    close_button_flow.style.align = 'right'
+    close_button_flow.style.horizontal_align  = 'right'
 
     local content_flow = frame.add {type = 'flow', direction = 'horizontal'}
     content_flow.style.top_padding = 16
@@ -74,7 +74,7 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
     sprite_flow.add {type = 'sprite', sprite = sprite_path}
 
     local label_flow = content_flow.add {type = 'flow'}
-    label_flow.style.align = 'left'
+    label_flow.style.horizontal_align  = 'left'
     label_flow.style.top_padding = 10
     label_flow.style.left_padding = 24
 
@@ -85,7 +85,7 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
 
     local ok_button_flow = frame.add {type = 'flow'}
     ok_button_flow.style.horizontally_stretchable = true
-    ok_button_flow.style.align = 'center'
+    ok_button_flow.style.horizontal_align  = 'center'
 
     local ok_button = ok_button_flow.add {type = 'button', name = close_name, caption = 'OK'}
     Gui.set_data(ok_button, frame)

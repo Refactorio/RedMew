@@ -133,12 +133,12 @@ end
 local function centered_label(parent, string)
     local flow = parent.add {type = 'flow'}
     local flow_style = flow.style
-    flow_style.align = 'center'
+    flow_style.horizontal_align  = 'center'
     flow_style.horizontally_stretchable = true
 
     local label = flow.add {type = 'label', caption = string}
     local label_style = label.style
-    label_style.align = 'center'
+    label_style.horizontal_align  = 'center'
     label_style.single_line = false
 
     return label
@@ -147,14 +147,14 @@ end
 local function header_label(parent, string)
     local flow = parent.add {type = 'flow'}
     local flow_style = flow.style
-    flow_style.align = 'center'
+    flow_style.horizontal_align  = 'center'
     flow_style.horizontally_stretchable = true
 
     local label = flow.add {type = 'label', caption = string}
     local label_style = label.style
-    label_style.align = 'center'
+    label_style.horizontal_align  = 'center'
     label_style.single_line = false
-    label_style.font = 'default-frame'
+    label_style.font = 'default-dialog-button'
 
     return label
 end
@@ -205,7 +205,7 @@ This can be changed in options -> controls -> "toggle lua console".
             centered_label(parent, [[Check out our discord for new map info and to suggest new maps / ideas.]])
             local discord_textbox_flow = parent.add {type = 'flow'}
             local discord_textbox_flow_style = discord_textbox_flow.style
-            discord_textbox_flow_style.align = 'center'
+            discord_textbox_flow_style.horizontal_align  = 'center'
             discord_textbox_flow_style.horizontally_stretchable = true
             discord_textbox_flow.add({type = 'label', caption = 'Discord: '}).style.font = 'default-bold'
             local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'redmew.com/discord '}
@@ -213,7 +213,7 @@ This can be changed in options -> controls -> "toggle lua console".
             centered_label(parent, 'Contribute to our Patreon to receive special perks and help maintain our servers.')
             local patreon_flow = parent.add {type = 'flow', direction = 'horizontal'}
             local patreon_flow_style = patreon_flow.style
-            patreon_flow_style.align = 'center'
+            patreon_flow_style.horizontal_align  = 'center'
             patreon_flow_style.horizontally_stretchable = true
             patreon_flow.add({type = 'label', caption = 'Patreon:'}).style.font = 'default-bold'
             local patreon_textbox = patreon_flow.add {type = 'text-box', text = 'patreon.com/redmew '}
@@ -221,7 +221,7 @@ This can be changed in options -> controls -> "toggle lua console".
             centered_label(parent, 'Download our maps, start and finish state, from our website.')
             local save_textbox_flow = parent.add {type = 'flow'}
             local save_textbox_flow_style = save_textbox_flow.style
-            save_textbox_flow_style.align = 'center'
+            save_textbox_flow_style.horizontal_align  = 'center'
             save_textbox_flow_style.horizontally_stretchable = true
             save_textbox_flow.add({type = 'label', caption = 'Saves: '}).style.font = 'default-bold'
             local save_textbox = save_textbox_flow.add {type = 'text-box', text = 'http://www.redmew.com/saves/ '}
@@ -230,7 +230,7 @@ This can be changed in options -> controls -> "toggle lua console".
             centered_label(parent, 'View our past maps as a Google Map.')
             local maps_textbox_flow = parent.add {type = 'flow'}
             local maps_textbox_flow_style = maps_textbox_flow.style
-            maps_textbox_flow_style.align = 'center'
+            maps_textbox_flow_style.horizontal_align  = 'center'
             maps_textbox_flow_style.horizontally_stretchable = true
             maps_textbox_flow.add({type = 'label', caption = 'Maps: '}).style.font = 'default-bold'
             local maps_textbox = maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
@@ -270,12 +270,12 @@ If you suspect someone is griefing, notify the admin team by using /report or by
 
             local top_flow = parent.add {type = 'flow'}
             local top_flow_style = top_flow.style
-            top_flow_style.align = 'center'
+            top_flow_style.horizontal_align  = 'center'
             top_flow_style.horizontally_stretchable = true
 
             local top_label = top_flow.add {type = 'label', caption = 'Map Infomation'}
             local top_label_style = top_label.style
-            top_label_style.font = 'default-frame'
+            top_label_style.font = 'default-dialog-button'
 
             local grid = parent.add {type = 'table', column_count = 2}
             local grid_style = grid.style
@@ -518,7 +518,7 @@ Shows number of rockets launched and biters liberated.]]
             header_label(parent, 'New Features')
 
             local new_info_flow = parent.add {type = 'flow'}
-            new_info_flow.style.align = 'center'
+            new_info_flow.style.horizontal_align  = 'center'
 
             local new_info_textbox =
                 new_info_flow.add {
@@ -548,7 +548,7 @@ local function draw_main_frame(center, player)
 
     local top_flow = frame.add {type = 'flow'}
     local top_flow_style = top_flow.style
-    top_flow_style.align = 'center'
+    top_flow_style.horizontal_align  = 'center'
     top_flow_style.top_padding = 8
     top_flow_style.horizontally_stretchable = true
 
@@ -584,7 +584,7 @@ local function draw_main_frame(center, player)
 
     local tab_flow = frame.add {type = 'flow', direction = 'horizontal'}
     local tab_flow_style = tab_flow.style
-    tab_flow_style.align = 'center'
+    tab_flow_style.horizontal_align  = 'center'
     tab_flow_style.horizontally_stretchable = true
 
     for index, page in ipairs(pages) do
@@ -618,7 +618,7 @@ local function draw_main_frame(center, player)
 
     local bottom_flow = frame.add {type = 'flow'}
     local bottom_flow_style = bottom_flow.style
-    bottom_flow_style.align = 'center'
+    bottom_flow_style.horizontal_align  = 'center'
     bottom_flow_style.top_padding = 8
     bottom_flow_style.horizontally_stretchable = true
 

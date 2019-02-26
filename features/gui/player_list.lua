@@ -104,7 +104,7 @@ end
 local function apply_heading_style(style)
     style.font_color = focus_color
     style.font = 'default-bold'
-    style.align = 'center'
+    style.horizontal_align  = 'center'
 end
 
 local column_builders = {
@@ -135,7 +135,7 @@ local column_builders = {
                 sprite = player_sprites[cell_data]
             }
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 32
 
             return label
@@ -169,7 +169,7 @@ local column_builders = {
             }
             local label_style = label.style
             label_style.font_color = color
-            label_style.align = 'left'
+            label_style.horizontal_align  = 'left'
             label_style.width = 150
 
             return label
@@ -195,7 +195,7 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = time_cell_name, caption = text}
             local label_style = label.style
-            label_style.align = 'left'
+            label_style.horizontal_align  = 'left'
             label_style.width = 125
 
             return label
@@ -230,7 +230,7 @@ local column_builders = {
             if is_donator then
                 local flow = parent.add {type = 'flow', name = rank_cell_name, direction = 'horizontal'}
                 local flow_style = flow.style
-                flow_style.align = 'left'
+                flow_style.horizontal_align  = 'left'
                 flow_style.width = rank_column_width
 
                 local label_rank = flow.add {type = 'label', caption = get_rank_name(rank)}
@@ -243,7 +243,7 @@ local column_builders = {
             else
                 local label = parent.add {type = 'label', name = rank_cell_name, caption = get_rank_name(rank)}
                 local label_style = label.style
-                label_style.align = 'left'
+                label_style.horizontal_align  = 'left'
                 label_style.font_color = get_rank_color(rank)
                 label_style.width = rank_column_width
 
@@ -271,7 +271,7 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = distance_cell_name, caption = text}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 70
 
             return label
@@ -312,7 +312,7 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = coin_cell_name, caption = text}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 80
 
             return label
@@ -351,7 +351,7 @@ local column_builders = {
             local label =
                 parent.add {type = 'label', name = deaths_cell_name, caption = cell_data.count, tooltip = tooltip}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 60
 
             return label
@@ -379,11 +379,11 @@ local column_builders = {
 
             local parent_style = parent.style
             parent_style.width = 64
-            parent_style.align = 'center'
+            parent_style.horizontal_align  = 'center'
 
             local label = parent.add {type = 'button', name = poke_cell_name, caption = cell_data.poke_count}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.minimal_width = 32
             label_style.height = 24
             label_style.font = 'default-bold'
@@ -423,7 +423,7 @@ local column_builders = {
         draw_cell = function(parent, cell_data)
             local parent_style = parent.style
             parent_style.width = 58
-            parent_style.align = 'center'
+            parent_style.horizontal_align  = 'center'
 
             local label =
                 parent.add {
@@ -433,7 +433,7 @@ local column_builders = {
                 tooltip = 'Report ' .. cell_data.name
             }
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.minimal_width = 32
             label_style.height = 24
             label_style.font = 'default-bold'

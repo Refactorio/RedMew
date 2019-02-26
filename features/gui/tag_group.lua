@@ -230,13 +230,13 @@ local function draw_main_frame(player)
     local bottom_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.align = 'left'
+    left_flow.style.horizontal_align  = 'left'
     left_flow.style.horizontally_stretchable = true
 
     left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.align = 'right'
+    right_flow.style.horizontal_align  = 'right'
 
     right_flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
 
@@ -385,14 +385,14 @@ local function draw_create_tag_frame(event, tag_data)
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.align = 'left'
+    left_flow.style.horizontal_align  = 'left'
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = close_create_tag_name, caption = 'Close'}
     Gui.set_data(close_button, frame)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.align = 'right'
+    right_flow.style.horizontal_align  = 'right'
 
     if tag_data then
         local delete_button = right_flow.add {type = 'button', name = delete_tag_name, caption = 'Delete'}
