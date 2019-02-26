@@ -4,10 +4,10 @@ local Token = require 'utils.token'
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 250, distance_factor = 1 / 20}, weight = 5},
-    {stack = {name = 'science-pack-1', count = 200, distance_factor = 1 / 10}, weight = 2},
-    {stack = {name = 'science-pack-2', count = 100, distance_factor = 1 / 10}, weight = 2},
+    {stack = {name = 'automation-science-pack', count = 200, distance_factor = 1 / 10}, weight = 2},
+    {stack = {name = 'logistic-science-pack', count = 100, distance_factor = 1 / 10}, weight = 2},
     {stack = {name = 'military-science-pack', count = 75, distance_factor = 1 / 10}, weight = 3},
-    {stack = {name = 'science-pack-3', count = 75, distance_factor = 1 / 10}, weight = 3},
+    {stack = {name = 'chemical-science-pack', count = 75, distance_factor = 1 / 10}, weight = 3},
     {stack = {name = 'production-science-pack', count = 50, distance_factor = 1 / 10}, weight = 5},
     {stack = {name = 'high-tech-science-pack', count = 50, distance_factor = 1 / 10}, weight = 5}
 }
@@ -45,13 +45,13 @@ local market = {
         upgrade_base_cost = 500,
         upgrade_cost_base = 2,
         {
-            name = 'science-pack-1',
+            name = 'automation-science-pack',
             price = 10,
             distance_factor = 5 / 512,
             min_price = 1
         },
         {
-            name = 'science-pack-2',
+            name = 'logistic-science-pack',
             price = 20,
             distance_factor = 10 / 512,
             min_price = 2
@@ -63,7 +63,7 @@ local market = {
             min_price = 4
         },
         {
-            name = 'science-pack-3',
+            name = 'chemical-science-pack',
             price = 60,
             distance_factor = 30 / 512,
             min_price = 4
