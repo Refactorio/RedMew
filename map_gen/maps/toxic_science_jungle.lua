@@ -57,7 +57,7 @@ RecipeLocker.lock_recipes(
     {
         'military-science-pack',
         'production-science-pack',
-        'high-tech-science-pack'
+        'utility-science-pack'
     }
 )
 
@@ -103,7 +103,7 @@ local function on_init()
     Retailer.set_item('items', {price = 2, name = 'raw-fish'})
     Retailer.set_item('items', {price = 25, name = 'military-science-pack'})
     Retailer.set_item('items', {price = 50, name = 'production-science-pack'})
-    Retailer.set_item('items', {price = 125, name = 'high-tech-science-pack'})
+    Retailer.set_item('items', {price = 125, name = 'utility-science-pack'})
     Retailer.set_item('items', {price = 1, name = 'rail'})
     Retailer.set_item('items', {price = 2, name = 'rail-signal'})
     Retailer.set_item('items', {price = 2, name = 'rail-chain-signal'})

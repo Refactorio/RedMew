@@ -712,7 +712,7 @@ local function init()
             {name = 'military-science-pack', price = 50},
             {name = 'chemical-science-pack', price = 75},
             {name = 'production-science-pack', price = 100},
-            {name = 'high-tech-science-pack', price = 125},
+            {name = 'utility-science-pack', price = 125},
             {
                 price = 100,
                 name = 'small-plane',

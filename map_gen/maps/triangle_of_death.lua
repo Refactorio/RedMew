@@ -246,7 +246,7 @@ local item_pool = {
     {name = 'power-armor', count = 1, weight = 33.3333},
     {name = 'fusion-reactor-equipment', count = 1, weight = 33.3333},
     {name = 'production-science-pack', count = 200, weight = 100},
-    {name = 'high-tech-science-pack', count = 200, weight = 100},
+    {name = 'utility-science-pack', count = 200, weight = 100},
     {name = 'artillery-turret', count = 1, weight = 2.5},
     {name = 'artillery-wagon-cannon', count = 1, weight = 1},
     {name = 'atomic-bomb', count = 1, weight = 1},

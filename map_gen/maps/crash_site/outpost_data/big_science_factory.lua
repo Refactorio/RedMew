@@ -9,7 +9,7 @@ local loot = {
     {stack = {name = 'military-science-pack', count = 75, distance_factor = 1 / 10}, weight = 3},
     {stack = {name = 'chemical-science-pack', count = 75, distance_factor = 1 / 10}, weight = 3},
     {stack = {name = 'production-science-pack', count = 50, distance_factor = 1 / 10}, weight = 5},
-    {stack = {name = 'high-tech-science-pack', count = 50, distance_factor = 1 / 10}, weight = 5}
+    {stack = {name = 'utility-science-pack', count = 50, distance_factor = 1 / 10}, weight = 5}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -32,8 +32,8 @@ local factory = {
 local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'high-tech-science-pack',
-        output = {min_rate = 0.0625 / 60, distance_factor = 0.0625 / 60 / 512, item = 'high-tech-science-pack'}
+        recipe = 'utility-science-pack',
+        output = {min_rate = 0.0625 / 60, distance_factor = 0.0625 / 60 / 512, item = 'utility-science-pack'}
     }
 }
 
@@ -75,7 +75,7 @@ local market = {
             min_price = 4
         },
         {
-            name = 'high-tech-science-pack',
+            name = 'utility-science-pack',
             price = 180,
             distance_factor = 90 / 512,
             min_price = 4
