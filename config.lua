@@ -183,7 +183,14 @@ global.config = {
                 {name = 'rocket-part', count = 2},
                 {name = 'computer', count = 2},
                 {name = 'infinity-pipe', count = 10},
-                {name = 'heat-interface', count = 10}
+                {name = 'heat-interface', count = 10},
+                {name = 'compilatron-chest', count = 5},
+                {name = 'compilatron-chest', count = 5},
+                {name = 'escape-pod-assembler', count = 5},
+                {name = 'escape-pod-lab', count = 10},
+                {name = 'escape-pod-power', count = 5},
+                {name = 'pollution', count = 5},
+                {name = 'selection-tool', count = 1}
             }
         }
     },
