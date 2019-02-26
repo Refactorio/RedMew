@@ -72,7 +72,7 @@ local function on_player_created(event)
     Game.get_player_by_index(event.player_index).gui.top.add({
         name = 'Diggy.CoinGathering.Button',
         type = 'sprite-button',
-        sprite = 'item/steel-axe',
+        sprite = 'item/coin',
     })
 end
 

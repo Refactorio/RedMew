@@ -26,7 +26,6 @@ local Config = {
         setup_player = {
             enabled = true,
             starting_items = {
-                {name = 'iron-axe', count = 2},
                 {name = 'stone-wall', count = 12},
                 {name = 'iron-gear-wheel', count = 8},
                 {name = 'iron-plate', count = 16},
@@ -147,7 +146,6 @@ local Config = {
 
             treasure_chest_raffle = {
                 ['coin'] = {chance = 1.00, min = 20, max = 255},
-                ['steel-axe'] = {chance = 0.55, min = 1, max = 3},
                 ['stone'] = {chance = 0.20, min = 15, max = 40},
                 ['copper-ore'] = {chance = 0.25, min = 30, max = 60},
                 ['copper-plate'] = {chance = 0.10, min = 12, max = 25},
@@ -393,7 +391,6 @@ local Config = {
 
             -- add or remove a table entry to add or remove a unlockable item from the market.
             unlockables = {
-                {level = 1, price = 5, name = 'iron-axe'},
                 {level = 2, price = 4, name = 'raw-wood'},
                 {level = 3, price = 5, name = 'stone-wall'},
                 {level = 4, price = 20, name = 'pistol'},
@@ -405,7 +402,6 @@ local Config = {
                 {level = 10, price = 85, name = 'shotgun'},
                 {level = 10, price = 4, name = 'shotgun-shell'},
                 {level = 12, price = 200, name = 'heavy-armor'},
-                {level = 13, price = 30, name = 'steel-axe'},
                 {level = 14, price = 35, name = 'landfill'},
                 {level = 15, price = 85, name = 'submachine-gun'},
                 {level = 18, price = 10, name = 'piercing-rounds-magazine'},

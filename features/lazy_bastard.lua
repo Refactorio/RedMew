@@ -54,7 +54,7 @@ if global.config.market.enabled then
     for i = #market_items, 1, -1 do
         local name = market_items[i].name
         -- cleanup items we don't need, construction bot has to be replaced for convenience
-        if name == 'temporary-mining-speed-bonus' or name == 'construction-robot' or name == 'steel-axe' then
+        if name == 'temporary-mining-speed-bonus' or name == 'construction-robot' then
             remove(market_items, i)
         end
     end
@@ -63,20 +63,6 @@ if global.config.market.enabled then
         insert(market_items, i, new_items[i])
     end
 end
-
--- disable pickaxes from the start
-Event.on_init(function ()
-    local recipes = game.forces.player.recipes
-    recipes['iron-axe'].enabled = false
-    recipes['steel-axe'].enabled = false
-end)
-
--- ensure the recipes are disabled all the time
-Event.add(defines.events.on_research_finished, function (event)
-    local recipes = event.research.force.recipes
-    recipes['iron-axe'].enabled = false
-    recipes['steel-axe'].enabled = false
-end)
 
 -- players cannot build anything, just place ghosts
 Event.add(defines.events.on_built_entity, function(event)
