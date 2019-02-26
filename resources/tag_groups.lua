@@ -19,7 +19,7 @@ return {
         verb = 'enhanced'
     },
     ['Science'] = {
-        path = 'item/science-pack-3',
+        path = 'item/chemical-science-pack',
         verb = 'advanced'
     },
     ['Wizard'] = {

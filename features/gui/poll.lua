@@ -364,14 +364,14 @@ local function draw_main_frame(left, player)
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow'}
-    left_flow.style.align = 'left'
+    left_flow.style.horizontal_align  = 'left'
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
     apply_button_style(close_button)
 
     local right_flow = bottom_flow.add {type = 'flow'}
-    right_flow.style.align = 'right'
+    right_flow.style.horizontal_align  = 'right'
 
     if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         local create_poll_button =
@@ -599,7 +599,7 @@ local function draw_create_poll_frame(parent, player, previous_data)
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow'}
-    left_flow.style.align = 'left'
+    left_flow.style.horizontal_align  = 'left'
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = create_poll_close_name, caption = 'Close'}
@@ -611,7 +611,7 @@ local function draw_create_poll_frame(parent, player, previous_data)
     Gui.set_data(clear_button, data)
 
     local right_flow = bottom_flow.add {type = 'flow'}
-    right_flow.style.align = 'right'
+    right_flow.style.horizontal_align  = 'right'
 
     if edit_mode then
         local delete_button = right_flow.add {type = 'button', name = create_poll_delete_name, caption = 'Delete'}
