@@ -30,7 +30,6 @@ return {
     {price = 3,    name = 'arithmetic-combinator'},
     {price = 3,    name = 'constant-combinator'},
     {price = 7,    name = 'programmable-speaker'},
-    {price = 15,   name = 'steel-axe'},
     {price = 15,   name = 'submachine-gun'},
     {price = 15,   name = 'shotgun'},
     {price = 250,  name = 'combat-shotgun'},
