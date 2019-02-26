@@ -701,7 +701,7 @@ local function init()
             upgrade_rate = 0.5,
             upgrade_base_cost = 500,
             upgrade_cost_base = 2,
-            {name = 'raw-wood', price = 1},
+            {name = 'wood', price = 1},
             {name = 'iron-plate', price = 2},
             {name = 'stone', price = 2},
             {name = 'coal', price = 1.25},

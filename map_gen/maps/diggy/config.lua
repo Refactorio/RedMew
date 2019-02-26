@@ -391,7 +391,7 @@ local Config = {
 
             -- add or remove a table entry to add or remove a unlockable item from the market.
             unlockables = {
-                {level = 2, price = 4, name = 'raw-wood'},
+                {level = 2, price = 4, name = 'wood'},
                 {level = 3, price = 5, name = 'stone-wall'},
                 {level = 4, price = 20, name = 'pistol'},
                 {level = 4, price = 5, name = 'firearm-magazine'},
