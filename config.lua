@@ -170,7 +170,6 @@ global.config = {
             start_with_power_armor = true,
             -- adds additional items to the player when _CHEATS is true
             starting_items = {
-                {name = 'steel-axe', count = 10},
                 {name = 'submachine-gun', count = 1},
                 {name = 'uranium-rounds-magazine', count = 200},
                 {name = 'construction-robot', count = 250},

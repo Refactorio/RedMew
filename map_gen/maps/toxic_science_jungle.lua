@@ -12,7 +12,6 @@ local config = global.config
 
 local enemy_seed = 420420
 
-table.insert(config.player_create.starting_items, {name = 'steel-axe', count = 2})
 config.market.create_standard_market = false -- stop standard market from spawning
 global.config.hail_hydra.enabled = true
 
@@ -58,7 +57,7 @@ RecipeLocker.lock_recipes(
     {
         'military-science-pack',
         'production-science-pack',
-        'high-tech-science-pack'
+        'utility-science-pack'
     }
 )
 
@@ -104,7 +103,7 @@ local function on_init()
     Retailer.set_item('items', {price = 2, name = 'raw-fish'})
     Retailer.set_item('items', {price = 25, name = 'military-science-pack'})
     Retailer.set_item('items', {price = 50, name = 'production-science-pack'})
-    Retailer.set_item('items', {price = 125, name = 'high-tech-science-pack'})
+    Retailer.set_item('items', {price = 125, name = 'utility-science-pack'})
     Retailer.set_item('items', {price = 1, name = 'rail'})
     Retailer.set_item('items', {price = 2, name = 'rail-signal'})
     Retailer.set_item('items', {price = 2, name = 'rail-chain-signal'})
@@ -117,7 +116,6 @@ local function on_init()
     Retailer.set_item('items', {price = 3, name = 'arithmetic-combinator'})
     Retailer.set_item('items', {price = 3, name = 'constant-combinator'})
     Retailer.set_item('items', {price = 7, name = 'programmable-speaker'})
-    Retailer.set_item('items', {price = 15, name = 'steel-axe'})
     Retailer.set_item('items', {price = 15, name = 'submachine-gun'})
     Retailer.set_item('items', {price = 15, name = 'shotgun'})
     Retailer.set_item('items', {price = 250, name = 'combat-shotgun'})
