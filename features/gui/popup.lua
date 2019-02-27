@@ -86,7 +86,7 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
     label.style.font = 'default-large-bold'
 
     local ok_button_flow = frame.add {type = 'flow'}
-    ok_button_flow.style.horizontally_stretchable = false
+    ok_button_flow.style.horizontally_stretchable = true
     ok_button_flow.style.horizontal_align  = 'center'
 
     local ok_button = ok_button_flow.add {type = 'button', name = close_name, caption = 'OK'}
