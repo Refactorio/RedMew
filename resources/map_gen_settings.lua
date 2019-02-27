@@ -255,7 +255,7 @@ return {
     unique_seed = {
         seed = nil
     },
-    -- grass1 only
+    -- grass1 only (no water, you will need to add enabled_water if you want water)
     grass1_only = {
         autoplace_settings = {
             tile = {
@@ -266,7 +266,7 @@ return {
             }
         }
     },
-    -- grass only
+    -- grass only (no water, you will need to add enabled_water if you want water)
     grass_only = {
         autoplace_settings = {
             tile = {
@@ -280,7 +280,7 @@ return {
             }
         }
     },
-    -- desert only
+    -- desert only (no water, you will need to add enabled_water if you want water)
     desert_only = {
         autoplace_settings = {
             tile = {
@@ -294,7 +294,7 @@ return {
             }
         }
     },
-    -- dirt only
+    -- dirt only (no water, you will need to add enabled_water if you want water)
     dirt_only = {
         autoplace_settings = {
             tile = {
@@ -311,7 +311,7 @@ return {
             }
         }
     },
-    -- sand only
+    -- sand only (no water, you will need to add enabled_water if you want water)
     sand_only = {
         autoplace_settings = {
             tile = {
@@ -324,6 +324,7 @@ return {
             }
         }
     },
+    -- adds water to *_only maps
     enable_water = {
         autoplace_settings = {
             tile = {

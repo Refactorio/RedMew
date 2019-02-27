@@ -18,7 +18,8 @@ RS.set_map_gen_settings(
     {
         MGSP.ore_oil_none,
         MGSP.cliff_none,
-        MGSP.grass_only
+        MGSP.grass_only,
+        MGSP.enable_water
     }
 )
 

@@ -20,6 +20,7 @@ local degrees = math.degrees
 RS.set_map_gen_settings(
     {
         MGSP.grass_only,
+        MGSP.enable_water,
         {
             terrain_segmentation = 'normal',
             water = 'normal'
