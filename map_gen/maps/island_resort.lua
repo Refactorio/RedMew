@@ -14,7 +14,6 @@ local radsquare = radius * radius
 
 local start_seed = 1234567
 
--- Cannot use waterworld as we need the biter generation.
 RS.set_map_gen_settings(
     {
         MGSP.tree_none,
