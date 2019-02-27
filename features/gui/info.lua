@@ -182,7 +182,7 @@ local pages = {
             parent_style = parent.style
             parent_style.vertically_stretchable = false
 
-            header_label(parent, 'Welcome to the Redmew Server!')
+            header_label(parent, 'Welcome to Redmew!')
             centered_label(
                 parent,
                 [[
@@ -297,7 +297,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
             top_flow_style.horizontal_align = 'center'
             top_flow_style.horizontally_stretchable = true
 
-            local top_label = top_flow.add {type = 'label', caption = 'Map Infomation'}
+            local top_label = top_flow.add {type = 'label', caption = 'Map Information'}
             local top_label_style = top_label.style
             top_label_style.font = 'default-dialog-button'
 
@@ -329,11 +329,11 @@ If you suspect someone is griefing, notify the admin team by using /report or by
                 text = editable_info[map_description_key]
             }
             map_description_textbox.read_only = read_only
-            map_description_textbox.word_wrap = true
+            --map_description_textbox.word_wrap = true
 
             local map_description_textbox_style = map_description_textbox.style
             map_description_textbox_style.width = text_width
-            map_description_textbox_style.maximal_height = 72
+            map_description_textbox_style.height = 72
 
             Gui.set_data(map_description_textbox, map_description_key)
 
@@ -345,7 +345,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
                 text = editable_info[map_extra_info_key]
             }
             map_extra_info_textbox.read_only = read_only
-            map_extra_info_textbox.word_wrap = true
+            --map_extra_info_textbox.word_wrap = true
 
             local map_extra_info_textbox_style = map_extra_info_textbox.style
             map_extra_info_textbox_style.width = text_width
