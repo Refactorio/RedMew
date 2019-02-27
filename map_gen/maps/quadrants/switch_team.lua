@@ -72,7 +72,7 @@ local quadrant_message = {
 local function teleport(event, quadrant)
     local player = event.player
     local toggle_status = toggle_chest_status[player.index]
-    if (abs(player.position.x) <= 4 and abs(player.position.y) <= 4) or (player.get_inventory(1).is_empty() and player.get_inventory(2).is_empty() and (player.get_inventory(8) or player.get_inventory(3).is_empty())) or (toggle_status == 'ON' and Item_to_chest.transfer_inventory(player.index, {defines.inventory.player_quickbar, defines.inventory.player_main})) then
+    if (abs(player.position.x) <= 4 and abs(player.position.y) <= 4) or (player.get_inventory(defines.inventory.player_main).is_empty() and player.get_inventory(defines.inventory.player_trash).is_empty()) or (toggle_status == 'ON' and Item_to_chest.transfer_inventory(player.index, {defines.inventory.player_main, defines.inventory.player_trash})) then
         local pos = RS.get_surface().find_non_colliding_position('player', spawn_locations['quadrant_'..quadrant], 5, 1)
         player.teleport(pos)
         player.force = game.forces['quadrant'..quadrant]
@@ -111,7 +111,7 @@ local function toggle(event)
     local content_flow = frame.add {type = 'flow', direction = 'vertical'}
     local label_flow = content_flow.add {type = 'flow'}
 
-    label_flow.style.horizontally_stretchable = true
+    label_flow.style.horizontally_stretchable = false
     local label = label_flow.add {type = 'label', caption = "Welcome to Redmew - Quadrants!"}
     label.style.single_line = false
     label.style.font = 'default-large-bold'
@@ -129,12 +129,12 @@ local function toggle(event)
     content_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.align = 'left'
-    left_flow.style.horizontally_stretchable = true
+    left_flow.style.horizontal_align = 'left'
+    left_flow.style.horizontally_stretchable = false
 
     local right_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.align = 'right'
-    right_flow.style.horizontally_stretchable = true
+    right_flow.style.horizontal_align = 'right'
+    right_flow.style.horizontally_stretchable = false
 
     left_flow.add({type = 'button', name = 'Quadrants.Button.2', caption = 'Intermediate and Mining'})
     right_flow.add({type = 'button', name = 'Quadrants.Button.1', caption = 'Science and Military'})
@@ -142,20 +142,21 @@ local function toggle(event)
     content_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     left_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.align = 'left'
-    left_flow.style.horizontally_stretchable = true
+    left_flow.style.horizontal_align = 'left'
+    left_flow.style.horizontally_stretchable = false
 
     right_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.align = 'right'
-    right_flow.style.horizontally_stretchable = true
+    right_flow.style.horizontal_align = 'right'
+    right_flow.style.horizontally_stretchable = false
 
     left_flow.add({type = 'button', name = 'Quadrants.Button.3', caption = 'Oil and High Tech'})
     right_flow.add({type = 'button', name = 'Quadrants.Button.4', caption = 'Logistics and Transport'})
 
     content_flow = frame.add {type = 'flow', direction = 'horizontal'}
     local chest_button_left_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
-    chest_button_left_flow.style.align = 'left'
-    chest_button_left_flow.style.horizontally_stretchable = true
+    chest_button_left_flow.style.horizontal_align = 'left'
+    chest_button_left_flow.style.horizontally_stretchable = false
+    chest_button_left_flow.style.top_padding = 12
 
     local data = {
         frame = frame,

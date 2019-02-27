@@ -1,13 +1,11 @@
 local recipes = {
     default = {
         recipe = {
-            ['iron-axe'] = true,
             ['boiler'] = true,
             ['steam-engine'] = true,
             ['offshore-pump'] = true,
             ['stone-furnace'] = true,
             ['assembling-machine-1'] = true,
-            ['wood'] = true,
             ['copper-cable'] = true,
             ['iron-stick'] = true,
             ['iron-plate'] = true,
@@ -29,7 +27,6 @@ local recipes = {
             ['pipe'] = true,
             ['pipe-to-ground'] = true,
             ['lamp'] = true,
-            ['steel-axe'] = true,
             ['repair-pack'] = true,
             ['pistol'] = true,
             ['firearm-magazine'] = true,
@@ -43,7 +40,7 @@ local recipes = {
 
     quadrant1 = {
         recipe = {
-            ['science-pack-1'] = true,
+            ['automation-science-pack'] = true,
             ['military-science-pack'] = true,
             ['artillery-wagon'] = true,
             ['car'] = true,
@@ -115,7 +112,7 @@ local recipes = {
             ['electric-engine-unit'] = true,
             ['steel-plate'] = true,
             ['solar-panel-equipment'] = true,
-            ['science-pack-3'] = true
+            ['chemical-science-pack'] = true
         }
     },
 
@@ -150,7 +147,7 @@ local recipes = {
             ['productivity-module'] = true,
             ['productivity-module-2'] = true,
             ['productivity-module-3'] = true,
-            ['high-tech-science-pack'] = true,
+            ['utility-science-pack'] = true,
             ['uranium-fuel-cell'] = true,
             ['nuclear-fuel-reprocessing'] = true,
             ['uranium-processing'] = true,
@@ -184,7 +181,8 @@ local recipes = {
             ['flamethrower'] = true,
             ['fusion-reactor-equipment'] = true,
             ['rocket-silo'] = true,
-            ['rocket-part'] = true
+            ['rocket-part'] = true,
+            ['belt-immunity-equipment'] = true
         }
     },
 
@@ -230,7 +228,7 @@ local recipes = {
             ['steel-furnace'] = true,
             ['assembling-machine-2'] = true,
             ['assembling-machine-3'] = true,
-            ['science-pack-2'] = true,
+            ['logistic-science-pack'] = true,
             ['rocket-fuel'] = true,
             ['nuclear-fuel'] = true,
             ['exoskeleton-equipment'] = true,
