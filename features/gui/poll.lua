@@ -87,8 +87,9 @@ end
 
 local function apply_button_style(button)
     local button_style = button.style
-    button_style.font = 'default-bold'
+    button_style.font = 'default-semibold'
     button_style.height = 26
+    button_style.minimal_width = 26
     button_style.top_padding = 0
     button_style.bottom_padding = 0
     button_style.left_padding = 2
@@ -199,7 +200,7 @@ local function redraw_poll_viewer_content(data)
         created_by_text = ''
     end
 
-    local top_flow = poll_viewer_content.add {type = 'flow', direction = 'horizontal'}
+    local top_flow = poll_viewer_content.add {type = 'flow', direction = 'vertical'}
     top_flow.add {type = 'label', caption = table.concat {'Poll #', poll.id, created_by_text}}
 
     local edited_by_players = poll.edited_by
@@ -216,7 +217,9 @@ local function redraw_poll_viewer_content(data)
         table.remove(edit_names)
         local edit_text = table.concat(edit_names)
 
-        top_flow.add {type = 'label', caption = edit_text, tooltip = edit_text}
+        local top_flow_label = top_flow.add {type = 'label', caption = edit_text, tooltip = edit_text}
+        top_flow_label.style.single_line = false
+        top_flow_label.style.horizontally_stretchable = false
     end
 
     local poll_enabled = do_remaining_time(poll, remaining_time_label)
@@ -479,7 +482,7 @@ local function redraw_create_poll_content(data)
 
     local question_textfield =
         grid.add({type = 'flow'}).add {type = 'textfield', name = create_poll_question_name, text = data.question}
-    question_textfield.style.width = 400
+    question_textfield.style.width = 175
 
     Gui.set_data(question_label, question_textfield)
     Gui.set_data(question_textfield, data)
@@ -515,7 +518,7 @@ local function redraw_create_poll_content(data)
         local textfield_flow = grid.add {type = 'flow'}
 
         local textfield = textfield_flow.add {type = 'textfield', name = create_poll_answer_name, text = answer.text}
-        textfield.style.width = 400
+        textfield.style.width = 175
         Gui.set_data(textfield, {answers = answers, count = count})
 
         if delete_button then
