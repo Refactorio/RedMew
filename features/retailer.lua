@@ -298,11 +298,11 @@ local function redraw_market_items(data)
         if disabled then
             insert(tooltip, '\n\n' .. (item.disabled_reason or 'Not available'))
         elseif is_missing_coins then
-            insert(tooltip, '\n\n' .. format('Missing %d coins to buy %d', missing_coins, stack_count))
+            insert(tooltip, '\n\n' .. format('Missing %s coins to buy %s', missing_coins, stack_count))
         end
 
         if has_player_limit then
-            insert(tooltip, '\n\n' .. format('You have bought this item %d out of %d times', item.player_limit - player_limit, item.player_limit))
+            insert(tooltip, '\n\n' .. format('You have bought this item %s out of %s times', item.player_limit - player_limit, item.player_limit))
         end
 
         local button = grid.add({type = 'flow'}).add({
@@ -406,16 +406,16 @@ local function draw_market_frame(player, group_name)
 end
 
 ---Returns the group name of the market at the given position, nil if not registered.
----@param position Position
+---@param position <table> Position
 local function get_market_group_name(position)
-    return memory.markets[position.x .. ',' .. position.y]
+    return memory.markets[(position.x or position[1]) .. ',' .. (position.y or position[2])]
 end
 
 ---Sets the group name for a market at a given position.
----@param position Position
----@param group_name string
+---@param position <table> Position
+---@param group_name <string>
 local function set_market_group_name(position, group_name)
-    memory.markets[position.x .. ',' .. position.y] = group_name
+    memory.markets[(position.x or position[1]) .. ',' .. (position.y or position[2])] = group_name
 end
 
 Event.add(defines.events.on_gui_opened, function (event)

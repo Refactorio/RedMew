@@ -2,7 +2,6 @@
 local random = math.random
 local floor = math.floor
 local remove = table.remove
-local insert = table.insert
 local tonumber = tonumber
 local pairs = pairs
 local table_size = table_size
@@ -40,7 +39,7 @@ end
 function table.add_all(t1, t2)
     for k, v in pairs(t2) do
         if tonumber(k) then
-            insert(t1, v)
+            t1[#t1 + 1] = v
         else
             t1[k] = v
         end
@@ -109,7 +108,7 @@ end
 
 --- Chooses a random entry from a table
 -- because this uses math.random, it cannot be used outside of events
--- @param t <table> to select an element from
+-- @param t <table>
 -- @param key <boolean> to indicate whether to return the key or value
 -- @return <any> a random element of table t
 function table.get_random_dictionary_entry(t, key)
@@ -245,6 +244,7 @@ table.inspect = require 'utils.inspect'
 table.size = table_size
 
 --- Creates a deepcopy of a table. Metatables and LuaObjects inside the table are shallow copies.
+-- Shallow copies meaning it copies the reference to the object instead of the object itself.
 -- @param object <table> the object to copy
 -- @return <table> the copied object
 table.deep_copy = table.deepcopy

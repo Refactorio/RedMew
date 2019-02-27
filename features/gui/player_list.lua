@@ -1,40 +1,35 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
-local Donators = require 'resources.donators'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
+local Donator = require 'features.donator'
 local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.core'
 local Report = require 'features.report'
 local Game = require 'utils.game'
-local Color = require 'resources.color_presets'
 local table = require 'utils.table'
+local Color = require 'resources.color_presets'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
 
 local random = math.random
+local get_rank_color = Rank.get_rank_color
+local get_rank_name = Rank.get_rank_name
+local get_player_rank = Rank.get_player_rank
+local donator_is_donator = Donator.is_donator
 
 local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
 local symbol_asc = ' ▲'
 local symbol_desc = ' ▼'
 local focus_color = Color.dark_orange
-local rank_colors = {
-    Color.white, -- Guest
-    Color.regular, -- Regular
-    Color.donator, -- Donator
-    Color.admin -- Admin
-}
+local donator_color = Color.donator
+
+local rank_column_width = 100
 
 local inv_sprite_time_step = 1 / sprite_time_step
-local rank_perk_flag = Donators.donator_perk_flags.rank
-local rank_names = {
-    'Guest',
-    'Regular',
-    'Donator',
-    'Admin'
-}
+local donator_label_caption = {'', '(', {'ranks.donator_abbreviation'}, ')'}
 
 local player_poke_cooldown = {}
 local player_pokes = {}
@@ -91,21 +86,6 @@ local function format_distance(tiles)
     return math.round(tiles * 0.001, 1) .. ' km'
 end
 
-local function get_rank_level(player)
-    if player.admin then
-        return 4
-    end
-
-    local name = player.name
-    if UserGroups.player_has_donator_perk(name, rank_perk_flag) then
-        return 3
-    elseif UserGroups.is_regular(name) then
-        return 2
-    end
-
-    return 1
-end
-
 local function do_poke_spam_protection(player)
     if player.admin then
         return true
@@ -124,7 +104,7 @@ end
 local function apply_heading_style(style)
     style.font_color = focus_color
     style.font = 'default-bold'
-    style.align = 'center'
+    style.horizontal_align  = 'center'
 end
 
 local column_builders = {
@@ -155,7 +135,7 @@ local column_builders = {
                 sprite = player_sprites[cell_data]
             }
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 32
 
             return label
@@ -189,7 +169,7 @@ local column_builders = {
             }
             local label_style = label.style
             label_style.font_color = color
-            label_style.align = 'left'
+            label_style.horizontal_align  = 'left'
             label_style.width = 150
 
             return label
@@ -215,33 +195,60 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = time_cell_name, caption = text}
             local label_style = label.style
-            label_style.align = 'left'
+            label_style.horizontal_align  = 'left'
             label_style.width = 125
 
             return label
         end
     },
     [rank_heading_name] = {
-        create_data = get_rank_level,
+        create_data = function(player)
+            local player_name = player.name
+            return {
+                rank = get_player_rank(player_name),
+                is_donator = donator_is_donator(player_name)
+            }
+        end,
         sort = function(a, b)
-            return a < b
+            local a_rank, b_rank = a.rank, b.rank
+            if a_rank == b_rank then
+                return b.is_donator and not a.is_donator
+            end
+            return a_rank < b_rank
         end,
         draw_heading = function(parent)
             local label = parent.add {type = 'label', name = rank_heading_name, caption = 'Rank'}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 50
+            label_style.width = rank_column_width
 
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local label = parent.add {type = 'label', name = rank_cell_name, caption = rank_names[cell_data]}
-            local label_style = label.style
-            label_style.align = 'center'
-            label_style.font_color = rank_colors[cell_data]
-            label_style.width = 50
+            local is_donator = cell_data.is_donator
+            local rank = cell_data.rank
+            if is_donator then
+                local flow = parent.add {type = 'flow', name = rank_cell_name, direction = 'horizontal'}
+                local flow_style = flow.style
+                flow_style.horizontal_align  = 'left'
+                flow_style.width = rank_column_width
 
-            return label
+                local label_rank = flow.add {type = 'label', caption = get_rank_name(rank)}
+                label_rank.style.font_color = get_rank_color(rank)
+
+                local label_donator = flow.add {type = 'label', caption = donator_label_caption}
+                label_donator.style.font_color = donator_color
+
+                return flow
+            else
+                local label = parent.add {type = 'label', name = rank_cell_name, caption = get_rank_name(rank)}
+                local label_style = label.style
+                label_style.horizontal_align  = 'left'
+                label_style.font_color = get_rank_color(rank)
+                label_style.width = rank_column_width
+
+                return label
+            end
         end
     },
     [distance_heading_name] = {
@@ -264,7 +271,7 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = distance_cell_name, caption = text}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 70
 
             return label
@@ -305,7 +312,7 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = coin_cell_name, caption = text}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 80
 
             return label
@@ -344,7 +351,7 @@ local column_builders = {
             local label =
                 parent.add {type = 'label', name = deaths_cell_name, caption = cell_data.count, tooltip = tooltip}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 60
 
             return label
@@ -372,11 +379,11 @@ local column_builders = {
 
             local parent_style = parent.style
             parent_style.width = 64
-            parent_style.align = 'center'
+            parent_style.horizontal_align  = 'center'
 
             local label = parent.add {type = 'button', name = poke_cell_name, caption = cell_data.poke_count}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.minimal_width = 32
             label_style.height = 24
             label_style.font = 'default-bold'
@@ -416,7 +423,7 @@ local column_builders = {
         draw_cell = function(parent, cell_data)
             local parent_style = parent.style
             parent_style.width = 58
-            parent_style.align = 'center'
+            parent_style.horizontal_align  = 'center'
 
             local label =
                 parent.add {
@@ -426,7 +433,7 @@ local column_builders = {
                 tooltip = 'Report ' .. cell_data.name
             }
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.minimal_width = 32
             label_style.height = 24
             label_style.font = 'default-bold'

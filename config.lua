@@ -24,11 +24,11 @@ global.config = {
         ['tiles_per_tick'] = 32,
         -- the entity modules to load (takes a list of requires), example included
         ['entity_modules'] = {
-            -- require('map_gen.entities.fluffy_rainbows')
+            --function() return require('map_gen.entities.fluffy_rainbows') end
         },
         -- the terrain modules to load (takes a list of requires), example included
         ['terrain_modules'] = {
-            --require('map_gen.terrain.tris_chunk_grid')
+            --function() return require('map_gen.terrain.tris_chunk_grid') end
         },
     },
     -- redmew_surface allows a map preset to control world generation as well as map and difficulty settings
@@ -39,13 +39,19 @@ global.config = {
         map_settings = true,
         difficulty = true
     },
+    -- time before a player gets the auto-trusted rank, allowing them access to the deconstructions planner, nukes, etc.
+    rank_system = {
+        time_for_trust = 3 * 60 * 60 * 60, -- 3 hours
+        everyone_is_regular = false
+    },
     -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
     train_saviour = {
         enabled = true
     },
     -- Adds the infinite storage chest to the market and adds a custom GUI to it. Also has to be loaded first due to adding a market item
     infinite_storage_chest = {
-        enabled = false
+        enabled = false,
+        cost = 100
     },
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
@@ -83,8 +89,11 @@ global.config = {
     -- adds a market
     market = {
         enabled = true,
+        -- will create a standard market on game startup
+        create_standard_market = true,
+        -- the coordinates at which the standard market will be created
+        standard_market_location = {x = 0, y = -5},
         currency = currency,
-
         -- defines the chance that killing an entity will drop coins and the min and max it can drop upon death
         entity_drop_amount = {
             ['biter-spawner'] = {low = 5, high = 15, chance = 1},
@@ -92,7 +101,6 @@ global.config = {
             ['small-worm-turret'] = {low = 2, high = 8, chance = 1},
             ['medium-worm-turret'] = {low = 5, high = 15, chance = 1},
             ['big-worm-turret'] = {low = 10, high = 20, chance = 1},
-
             -- default is 0, no chance of coins dropping from biters/spitters
             ['small-biter'] = {low = 1, high = 5, chance = 0},
             ['small-spitter'] = {low = 1, high = 2, chance = 0},
@@ -162,7 +170,6 @@ global.config = {
             start_with_power_armor = true,
             -- adds additional items to the player when _CHEATS is true
             starting_items = {
-                {name = 'steel-axe', count = 10},
                 {name = 'submachine-gun', count = 1},
                 {name = 'uranium-rounds-magazine', count = 200},
                 {name = 'construction-robot', count = 250},
@@ -231,8 +238,8 @@ global.config = {
     admin_commands = {
         enabled = true
     },
-    -- enables donators' on-join messages
-    donator_messages = {
+    -- adds commands for donators
+    donator_commands = {
         enabled = true
     },
     player_colors = {
@@ -269,7 +276,7 @@ global.config = {
         enabled = true
     },
     -- sets the day/night cycle or a fixed light level. use_day_night_cycle and use_fixed_brightness are mutually exclusive
-    day_night ={
+    day_night = {
         -- enables/disables the module
         enabled = false,
         -- for info on day/night cycles see https://github.com/Refactorio/RedMew/wiki/Day-Night-cycle
@@ -284,6 +291,10 @@ global.config = {
         -- brightness is a number between 0.15 and 1
         use_fixed_brightness = false,
         fixed_brightness = 0.5
+    },
+    -- enables a command which allows for an end-game event
+    apocalypse = {
+        enabled = true
     }
 }
 

@@ -3,6 +3,7 @@ local Global = require 'utils.global'
 local Token = require 'utils.token'
 local Command = require 'utils.command'
 local Event = require 'utils.event'
+local Ranks = require 'resources.ranks'
 local random = math.random
 local ceil = math.ceil
 local floor = math.floor
@@ -55,7 +56,7 @@ Command.add('particle-scale', {
     description = 'Provide a fraction between 0 and 1 to lower or increase the amount of (max) particles. Leave empty to view the current values.',
     arguments = {'fraction'},
     default_values = {fraction = false},
-    admin_only = true,
+    required_rank = Ranks.admin,
     allowed_by_server = true,
 }, function (arguments, player)
     local p = player and player.print or print

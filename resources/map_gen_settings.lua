@@ -249,7 +249,7 @@ return {
     },
     -- peaceful mode on
     peaceful_mode_on = {
-        peaceful_mode = false
+        peaceful_mode = true
     },
     -- random seed, in case you need/want the seed to be unique from nauvis
     unique_seed = {

@@ -4,8 +4,8 @@ local Token = require 'utils.token'
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
-    {stack = {name = 'science-pack-1', count = 37, distance_factor = 1 / 20}, weight = 5},
-    {stack = {name = 'science-pack-2', count = 25, distance_factor = 1 / 20}, weight = 5}
+    {stack = {name = 'automation-science-pack', count = 37, distance_factor = 1 / 20}, weight = 5},
+    {stack = {name = 'logistic-science-pack', count = 25, distance_factor = 1 / 20}, weight = 5}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -20,15 +20,15 @@ local loot_callback =
 local factory_loot = {
     {
         stack = {
-            recipe = 'science-pack-1',
-            output = {item = 'science-pack-1', min_rate = 1 / 5 / 60, distance_factor = 1 / 5 / 60 / 512}
+            recipe = 'automation-science-pack',
+            output = {item = 'automation-science-pack', min_rate = 1 / 5 / 60, distance_factor = 1 / 5 / 60 / 512}
         },
         weight = 5
     },
     {
         stack = {
-            recipe = 'science-pack-2',
-            output = {item = 'science-pack-2', min_rate = 1 / 6 / 60, distance_factor = 1 / 6 / 60 / 512}
+            recipe = 'logistic-science-pack',
+            output = {item = 'logistic-science-pack', min_rate = 1 / 6 / 60, distance_factor = 1 / 6 / 60 / 512}
         },
         weight = 5
     }

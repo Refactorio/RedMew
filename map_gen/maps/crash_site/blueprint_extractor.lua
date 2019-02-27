@@ -1,4 +1,5 @@
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 
 local insert = table.insert
 
@@ -210,7 +211,7 @@ Command.add(
     {
         arguments = {'size'},
         default_values = {size = 6},
-        admin_only = true
+        required_rank = Ranks.admin
     },
     extract1
 )
@@ -219,7 +220,7 @@ Command.add(
     {
         arguments = {'size'},
         default_values = {size = 6},
-        admin_only = true
+        required_rank = Ranks.admin
     },
     extract4
 )

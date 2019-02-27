@@ -5,7 +5,7 @@ local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 75, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'military-science-pack', count = 12, distance_factor = 1 / 20}, weight = 5},
-    {stack = {name = 'science-pack-3', count = 12, distance_factor = 1 / 20}, weight = 5}
+    {stack = {name = 'chemical-science-pack', count = 12, distance_factor = 1 / 20}, weight = 5}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -27,8 +27,8 @@ local factory_loot = {
     },
     {
         stack = {
-            recipe = 'science-pack-3',
-            output = {item = 'science-pack-3', min_rate = 1 / 12 / 60, distance_factor = 1 / 12 / 60 / 512}
+            recipe = 'chemical-science-pack',
+            output = {item = 'chemical-science-pack', min_rate = 1 / 12 / 60, distance_factor = 1 / 12 / 60 / 512}
         },
         weight = 5
     }

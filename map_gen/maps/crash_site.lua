@@ -128,7 +128,7 @@ local spawn_callback =
 )
 
 local function init()
-    local on_init = game ~= nil
+    local on_init = (_LIFECYCLE == _STAGE.init)
 
     local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
 
@@ -701,18 +701,18 @@ local function init()
             upgrade_rate = 0.5,
             upgrade_base_cost = 500,
             upgrade_cost_base = 2,
-            {name = 'raw-wood', price = 1},
+            {name = 'wood', price = 1},
             {name = 'iron-plate', price = 2},
             {name = 'stone', price = 2},
             {name = 'coal', price = 1.25},
             {name = 'raw-fish', price = 4},
             {name = 'firearm-magazine', price = 5},
-            {name = 'science-pack-1', price = 10},
-            {name = 'science-pack-2', price = 25},
+            {name = 'automation-science-pack', price = 10},
+            {name = 'logistic-science-pack', price = 25},
             {name = 'military-science-pack', price = 50},
-            {name = 'science-pack-3', price = 75},
+            {name = 'chemical-science-pack', price = 75},
             {name = 'production-science-pack', price = 100},
-            {name = 'high-tech-science-pack', price = 125},
+            {name = 'utility-science-pack', price = 125},
             {
                 price = 100,
                 name = 'small-plane',

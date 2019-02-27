@@ -1,16 +1,13 @@
 -- Assorted quality of life improvements that are restricted in scope. Similar to redmew_commands but event-based rather than command-based.
 
--- This file has each module in 3 parts.
--- The local functions (including at least 1 tokenized function) are located below the "Local functions" comment
--- The functions which register and remove the events (allowing for runtime enabling/disabling of features) are located below the "Event registers" comment
--- Lastly the public get/set functions are located after the "Getters/setters" comment
-
 -- Dependencies
 local Token = require 'utils.token'
 local Event = require 'utils.event'
 local Utils = require 'utils.core'
 local Global = require 'utils.global'
 local table = require 'utils.table'
+local Task = require 'utils.task'
+local Rank = require 'features.rank_system'
 
 local config = global.config.redmew_qol
 
@@ -45,13 +42,6 @@ local random_train_color =
     end
 )
 
-local function on_init()
-    -- Set player force's ghost_time_to_live to an hour. Giving the players ghosts before the research of robots is a nice QOL improvement.
-    if config.ghosts_before_research then
-        Public.set_ghost_ttl()
-    end
-end
-
 --- If a newly placed entity is a provider or non-logi chest, set it to only have 1 slot available.
 -- If placed from a bp and the bp has restrictions on the chest, it takes priority.
 local restrict_chest =
@@ -75,7 +65,7 @@ local function pick_name()
         return
     end
 
-    local regulars = global.regulars
+    local regulars = Rank.get_player_table()
     local reg
     if table.size(regulars) == 0 then
         reg = nil
@@ -116,6 +106,21 @@ local function enable_loaders(event)
     end
 end
 
+--- After init, checks if any of the loader techs have been researched
+-- and enables loaders if appropriate.
+local loader_check_token =
+    Token.register(
+    function()
+        for _, force in pairs(game.forces) do
+            for key, recipe in pairs(loaders_technology_map) do
+                if force.technologies[key].researched then
+                    force.recipes[recipe].enabled = true
+                end
+            end
+        end
+    end
+)
+
 -- Event registers
 
 local function register_random_train_color()
@@ -145,6 +150,16 @@ local function register_change_backer_name()
     Event.add_removable(defines.events.on_built_entity, change_backer_name)
     Event.add_removable(defines.events.on_robot_built_entity, change_backer_name)
     return true
+end
+
+local function on_init()
+    -- Set player force's ghost_time_to_live to an hour. Giving the players ghosts before the research of robots is a nice QOL improvement.
+    if config.ghosts_before_research then
+        Public.set_ghost_ttl()
+    end
+    if config.loaders then
+        Task.set_timeout_in_ticks(1, loader_check_token, nil)
+    end
 end
 
 Event.on_init(on_init)

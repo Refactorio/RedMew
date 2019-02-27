@@ -1,5 +1,4 @@
 return {
-    'item/iron-axe',
     'item/burner-mining-drill',
     'item/burner-inserter',
     'item/stone-furnace',
@@ -15,7 +14,6 @@ return {
     'item/electric-mining-drill',
     'item/heavy-armor',
     'item/steel-furnace',
-    'item/steel-axe',
     'item/gun-turret',
     'item/fast-transport-belt',
     'item/fast-underground-belt',

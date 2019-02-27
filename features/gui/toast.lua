@@ -2,11 +2,16 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Token = require 'utils.token'
+local Command = require 'utils.command'
+local Utils = require 'utils.core'
+local Game = require 'utils.game'
 local Settings = require 'utils.redmew_settings'
 local Color = require 'resources.color_presets'
+local Ranks = require 'resources.ranks'
 
 local pairs = pairs
 local next = next
+local format = string.format
 
 local toast_volume_name = 'toast-volume'
 Settings.register(toast_volume_name, 'fraction', 1.0)
@@ -246,5 +251,41 @@ function Public.toast_all_players(duration, message)
         Public.toast_player(player, duration, message)
     end
 end
+
+Command.add(
+    'toast',
+    {
+        description = 'Sends a toast to all players',
+        arguments = {'msg'},
+        capture_excess_arguments = true,
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    function(args)
+        Public.toast_all_players(15, args.msg)
+        Utils.print_admins(format('%s sent a toast to all players', Utils.get_actor()))
+    end
+)
+
+Command.add(
+    'toast-player',
+    {
+        description = 'Sends a toast to a specific player',
+        arguments = {'player', 'msg'},
+        capture_excess_arguments = true,
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    function(args)
+        local target_name = args.player
+        local target = game.players[target_name]
+        if target then
+            Public.toast_player(target, 15, args.msg)
+            Utils.print_admins(format('%s sent a toast to %s', Utils.get_actor(), target_name))
+        else
+            Game.player_print({'common.fail_no_target', target_name}, Color.yellow)
+        end
+    end
+)
 
 return Public

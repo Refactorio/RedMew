@@ -6,20 +6,25 @@ local Public = {}
 local init_event_name = -1
 local load_event_name = -2
 
-Public.runtime = false -- Set to true after on_init or on_load has finished.
-
 -- map of event_name to handlers[]
 local event_handlers = {}
 -- map of nth_tick to handlers[]
 local on_nth_tick_event_handlers = {}
 
+local pcall = pcall
+local log = log
+local script_on_event = script.on_event
+local script_on_nth_tick = script.on_nth_tick
+
 local function call_handlers(handlers, event)
     if _DEBUG then
-        for _, handler in ipairs(handlers) do
+        for i = 1, #handlers do
+            local handler = handlers[i]
             handler(event)
         end
     else
-        for _, handler in ipairs(handlers) do
+        for i = 1, #handlers do
+            local handler = handlers[i]
             local success, error = pcall(handler, event)
             if not success then
                 log(error)
@@ -34,23 +39,25 @@ local function on_event(event)
 end
 
 local function on_init()
+    _LIFECYCLE = 5 -- on_init
     local handlers = event_handlers[init_event_name]
     call_handlers(handlers)
 
     event_handlers[init_event_name] = nil
     event_handlers[load_event_name] = nil
 
-    Public.runtime = true
+    _LIFECYCLE = 8 -- Runtime
 end
 
 local function on_load()
+    _LIFECYCLE = 6 -- on_load
     local handlers = event_handlers[load_event_name]
     call_handlers(handlers)
 
     event_handlers[init_event_name] = nil
     event_handlers[load_event_name] = nil
 
-    Public.runtime = true
+    _LIFECYCLE = 8 -- Runtime
 end
 
 local function on_nth_tick_event(event)
@@ -63,11 +70,11 @@ function Public.add(event_name, handler)
     local handlers = event_handlers[event_name]
     if not handlers then
         event_handlers[event_name] = {handler}
-        script.on_event(event_name, on_event)
+        script_on_event(event_name, on_event)
     else
         table.insert(handlers, handler)
         if #handlers == 1 then
-            script.on_event(event_name, on_event)
+            script_on_event(event_name, on_event)
         end
     end
 end
@@ -105,11 +112,11 @@ function Public.on_nth_tick(tick, handler)
     local handlers = on_nth_tick_event_handlers[tick]
     if not handlers then
         on_nth_tick_event_handlers[tick] = {handler}
-        script.on_nth_tick(tick, on_nth_tick_event)
+        script_on_nth_tick(tick, on_nth_tick_event)
     else
         table.insert(handlers, handler)
         if #handlers == 1 then
-            script.on_nth_tick(tick, on_nth_tick_event)
+            script_on_nth_tick(tick, on_nth_tick_event)
         end
     end
 end

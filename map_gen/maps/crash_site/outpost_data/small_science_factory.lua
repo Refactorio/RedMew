@@ -4,8 +4,8 @@ local Token = require 'utils.token'
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
-    {stack = {name = 'science-pack-1', count = 50, distance_factor = 1 / 10}, weight = 5},
-    {stack = {name = 'science-pack-2', count = 25, distance_factor = 1 / 10}, weight = 5}
+    {stack = {name = 'automation-science-pack', count = 50, distance_factor = 1 / 10}, weight = 5},
+    {stack = {name = 'logistic-science-pack', count = 25, distance_factor = 1 / 10}, weight = 5}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -20,16 +20,16 @@ local loot_callback =
 local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'science-pack-1',
-        output = {min_rate = 0.175 / 60, distance_factor = 0.175 / 60 / 512, item = 'science-pack-1'}
+        recipe = 'automation-science-pack',
+        output = {min_rate = 0.175 / 60, distance_factor = 0.175 / 60 / 512, item = 'automation-science-pack'}
     }
 }
 
 local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'science-pack-2',
-        output = {min_rate = 0.175 / 60, distance_factor = 0.175 / 60 / 512, item = 'science-pack-2'}
+        recipe = 'logistic-science-pack',
+        output = {min_rate = 0.175 / 60, distance_factor = 0.175 / 60 / 512, item = 'logistic-science-pack'}
     }
 }
 
@@ -41,13 +41,13 @@ local market = {
         upgrade_base_cost = 350,
         upgrade_cost_base = 2,
         {
-            name = 'science-pack-1',
+            name = 'automation-science-pack',
             price = 10,
             distance_factor = 5 / 512,
             min_price = 1
         },
         {
-            name = 'science-pack-2',
+            name = 'logistic-science-pack',
             price = 20,
             distance_factor = 10 / 512,
             min_price = 2

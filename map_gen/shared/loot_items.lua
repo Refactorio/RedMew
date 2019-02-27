@@ -10,7 +10,6 @@ local item_pool = {
     {name = 'defender-capsule', count = 50, weight = 500},
     {name = 'railgun-dart', count = 100, weight = 500},
     {name = 'piercing-shotgun-shell', count = 200, weight = 312.5},
-    {name = 'steel-axe', count = 5, weight = 166.6667},
     {name = 'submachine-gun', count = 1, weight = 166.6667},
     {name = 'shotgun', count = 1, weight = 166.6667},
     {name = 'uranium-rounds-magazine', count = 200, weight = 166.6667},

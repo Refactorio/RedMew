@@ -76,7 +76,7 @@ end
 ---@param callback function function(number level_reached, LuaForce force)
 ---@param lua_force_name string|nil only register for this force (optional)
 function ForceControlBuilder.register(level_matches, callback, lua_force_name)
-    if game then
+    if _LIFECYCLE > _STAGE.control then
         error('You can only register level up callbacks before the game is initialized')
     end
     assert_type('function', level_matches, 'level_matches of function ForceControl.register_reward')
@@ -322,7 +322,7 @@ function ForceControl.get_formatted_force_data(lua_force_or_name)
     end
 
     return format(
-        'Current experience: %d Total experience: %d Current level: %d  Next level at: %d Percentage to level up: %d%%',
+        'Current experience: %s Total experience: %s Current level: %d  Next level at: %s Percentage to level up: %d%%',
         force_config.current_experience,
         force_config.total_experience,
         force_config.current_level,

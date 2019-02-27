@@ -4,6 +4,7 @@ local Command = require 'utils.command'
 local Server = require 'features.server'
 local Token = require 'utils.token'
 local Utils = require 'utils.core'
+local Ranks = require 'resources.ranks'
 
 local serialize = serpent.line
 
@@ -44,25 +45,23 @@ Command.add(
     {
         description = 'Set will save your current color for future maps. Reset will erase your saved color. Random will give you a random color.',
         arguments = {'set-reset-random'},
-        admin_only = false,
-        regular_only = true,
-        allowed_by_server = false,
-        allowed_by_player = true
+        required_rank = Ranks.regular
     },
     function(args, player)
         local player_name = player.name
-        if args['set-reset-random'] == 'set' then
+        local arg = args['set-reset-random']
+        if arg == 'set' then
             local data = {
                 color = player.color,
-                chat_color = player.chat_color,
+                chat_color = player.chat_color
             }
             Server.set_data('colors', player_name, data)
             player.print('Your color has been saved. Any time you join a redmew server your color will automatically be set.')
             Utils.print_except(player_name .. ' has saved their color server-side for future maps. You can do the same! Check out /help redmew-color', player)
-        elseif args['set-reset-random'] == 'reset' then
+        elseif arg == 'reset' then
             Server.set_data('colors', player_name, nil)
             player.print('Your saved color (if you had one) has been removed.')
-        elseif args['set-reset-random'] == 'random' then
+        elseif arg == 'random' then
             local color_data = Public.set_random_color(player)
             player.print('Your color has been changed to: ' .. serialize(color_data))
         else

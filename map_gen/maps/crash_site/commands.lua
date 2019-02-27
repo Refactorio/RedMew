@@ -4,6 +4,7 @@ local Token = require 'utils.token'
 local Server = require 'features.server'
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
+local Ranks = require 'resources.ranks'
 
 local server_player = {name = '<server>', print = print}
 
@@ -51,7 +52,7 @@ Command.add(
         description = 'Restarts the crashsite scenario.',
         arguments = {'scenario_name'},
         default_values = {scenario_name = 'crashsite'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     function(args, player)
@@ -83,7 +84,7 @@ Command.add(
     'abort',
     {
         description = 'Aborts the restart of the crashsite scenario.',
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     function(_, player)

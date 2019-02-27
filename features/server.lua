@@ -5,20 +5,17 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Timestamp = require 'utils.timestamp'
+local Print = require('utils.print_override')
 
 local serialize = serpent.serialize
 local concat = table.concat
 local remove = table.remove
 local tostring = tostring
+local raw_print = Print.raw_print
 
 local serialize_options = {sparse = true, compact = true}
 
 local Public = {}
-
-local raw_print = print
-function print(str)
-    raw_print('[PRINT] ' .. str)
-end
 
 local server_time = {secs = nil, tick = 0}
 
@@ -335,6 +332,9 @@ end
 --     end
 -- )
 function Public.on_data_set_changed(data_set, handler)
+    if _LIFECYCLE == _STAGE.runtime then
+        error('cannot call during runtime', 2)
+    end
     if type(data_set) ~= 'string' then
         error('data_set must be a string', 2)
     end
@@ -518,7 +518,7 @@ local function set_scenario_version()
     -- A 1 hour buffer is in place to account for potential playtime pre-upload.
     if game.tick < 216000 and not global.redmew_version then
         local time_string = Timestamp.to_string(Public.get_current_time())
-        global.redmew_version = 'Time of map launch: ' .. time_string
+        global.redmew_version = string.format('Time of map launch: %s UTC', time_string)
     end
 end
 

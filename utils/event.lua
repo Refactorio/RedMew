@@ -104,6 +104,9 @@ local core_add = EventCore.add
 local core_on_init = EventCore.on_init
 local core_on_load = EventCore.on_load
 local core_on_nth_tick = EventCore.on_nth_tick
+local stage_load = _STAGE.load
+local script_on_event = script.on_event
+local script_on_nth_tick = script.on_nth_tick
 
 local Event = {}
 
@@ -152,7 +155,7 @@ end
 -- @param event_name<number>
 -- @param handler<function>
 function Event.add(event_name, handler)
-    if EventCore.runtime then
+    if _LIFECYCLE == 8 then
         error('Calling Event.add after on_init() or on_load() has run is a desync risk.', 2)
     end
 
@@ -164,7 +167,7 @@ end
 -- See documentation at top of file for details on using events.
 -- @param handler<function>
 function Event.on_init(handler)
-    if EventCore.runtime then
+    if _LIFECYCLE == 8 then
         error('Calling Event.on_init after on_init() or on_load() has run is a desync risk.', 2)
     end
 
@@ -176,7 +179,7 @@ end
 -- See documentation at top of file for details on using events.
 -- @param handler<function>
 function Event.on_load(handler)
-    if EventCore.runtime then
+    if _LIFECYCLE == 8 then
         error('Calling Event.on_load after on_init() or on_load() has run is a desync risk.', 2)
     end
 
@@ -189,7 +192,7 @@ end
 -- @param tick<number> The handler will be called every nth tick
 -- @param handler<function>
 function Event.on_nth_tick(tick, handler)
-    if EventCore.runtime then
+    if _LIFECYCLE == 8 then
         error('Calling Event.on_nth_tick after on_init() or on_load() has run is a desync risk.', 2)
     end
 
@@ -204,6 +207,9 @@ end
 function Event.add_removable(event_name, token)
     if type(token) ~= 'number' then
         error('token must be a number', 2)
+    end
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
     end
 
     local tokens = token_handlers[event_name]
@@ -225,6 +231,9 @@ end
 -- @param  event_name<number>
 -- @param  token<number>
 function Event.remove_removable(event_name, token)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     local tokens = token_handlers[event_name]
 
     if not tokens then
@@ -238,7 +247,7 @@ function Event.remove_removable(event_name, token)
     remove(handlers, handler)
 
     if #handlers == 0 then
-        script.on_event(event_name, nil)
+        script_on_event(event_name, nil)
     end
 end
 
@@ -249,6 +258,9 @@ end
 -- @param  event_name<number>
 -- @param  func<function>
 function Event.add_removable_function(event_name, func)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     if type(func) ~= 'function' then
         error('func must be a function', 2)
     end
@@ -278,6 +290,9 @@ end
 -- @param  event_name<number>
 -- @param  func<function>
 function Event.remove_removable_function(event_name, func)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     local funcs = function_handlers[event_name]
 
     if not funcs then
@@ -290,7 +305,7 @@ function Event.remove_removable_function(event_name, func)
     remove(handlers, func)
 
     if #handlers == 0 then
-        script.on_event(event_name, nil)
+        script_on_event(event_name, nil)
     end
 end
 
@@ -300,6 +315,9 @@ end
 -- @param  tick<number>
 -- @param  token<number>
 function Event.add_removable_nth_tick(tick, token)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     if type(token) ~= 'number' then
         error('token must be a number', 2)
     end
@@ -323,6 +341,9 @@ end
 -- @param  tick<number>
 -- @param  token<number>
 function Event.remove_removable_nth_tick(tick, token)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     local tokens = token_nth_tick_handlers[tick]
 
     if not tokens then
@@ -336,7 +357,7 @@ function Event.remove_removable_nth_tick(tick, token)
     remove(handlers, handler)
 
     if #handlers == 0 then
-        script.on_nth_tick(tick, nil)
+        script_on_nth_tick(tick, nil)
     end
 end
 
@@ -347,6 +368,9 @@ end
 -- @param  tick<number>
 -- @param  func<function>
 function Event.add_removable_nth_tick_function(tick, func)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     if type(func) ~= 'function' then
         error('func must be a function', 2)
     end
@@ -376,6 +400,9 @@ end
 -- @param  tick<number>
 -- @param  func<function>
 function Event.remove_removable_nth_tick_function(tick, func)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     local funcs = function_nth_tick_handlers[tick]
 
     if not funcs then
@@ -388,7 +415,7 @@ function Event.remove_removable_nth_tick_function(tick, func)
     remove(handlers, func)
 
     if #handlers == 0 then
-        script.on_nth_tick(tick, nil)
+        script_on_nth_tick(tick, nil)
     end
 end
 
