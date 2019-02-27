@@ -80,7 +80,8 @@ end
 local changelog_callback = Token.register(process_changelog)
 
 local function prepare_title()
-    local welcome_title = [[
+    local welcome_title =
+        [[
 111111  1111111 111111  111    111 1111111 11     11
 11   11 11      11   11 1111  1111 11      11     11
 111111  11111   11   11 11 1111 11 11111   11  1  11
@@ -133,12 +134,12 @@ end
 local function centered_label(parent, string)
     local flow = parent.add {type = 'flow'}
     local flow_style = flow.style
-    flow_style.horizontal_align  = 'center'
+    flow_style.horizontal_align = 'center'
     flow_style.horizontally_stretchable = true
 
     local label = flow.add {type = 'label', caption = string}
     local label_style = label.style
-    label_style.horizontal_align  = 'center'
+    label_style.horizontal_align = 'center'
     label_style.single_line = false
 
     return label
@@ -147,12 +148,12 @@ end
 local function header_label(parent, string)
     local flow = parent.add {type = 'flow'}
     local flow_style = flow.style
-    flow_style.horizontal_align  = 'center'
+    flow_style.horizontal_align = 'center'
     flow_style.horizontally_stretchable = true
 
     local label = flow.add {type = 'label', caption = string}
     local label_style = label.style
-    label_style.horizontal_align  = 'center'
+    label_style.horizontal_align = 'center'
     label_style.single_line = false
     label_style.font = 'default-dialog-button'
 
@@ -167,7 +168,9 @@ local pages = {
         end,
         content = function(parent)
             local parent_style = parent.style
-            parent_style.right_padding = 2
+            parent_style.right_padding = 0
+            parent_style.left_padding = 0
+            parent_style.top_padding = 1
 
             parent =
                 parent.add {
@@ -176,7 +179,7 @@ local pages = {
                 horizontal_scroll_policy = 'never'
             }
             parent_style = parent.style
-            parent_style.vertically_stretchable = true
+            parent_style.vertically_stretchable = false
 
             header_label(parent, 'Welcome to the Redmew Server!')
             centered_label(
@@ -189,14 +192,26 @@ We are a friendly bunch, our objective is to have as much fun as possible and we
             )
 
             header_label(parent, 'How To Chat')
-            centered_label(parent, [[
+            centered_label(
+                parent,
+                [[
 To chat with other players, press the "grave" key on your keyboard.
 It is below the ESC key on English keyboards and looks like ~ or `
 This can be changed in options -> controls -> "toggle lua console".
-                ]])
+                ]]
+            )
 
             if config_prewards.enabled and config_prewards.info_player_reward then
-                local string = format('You have been given %s %s%s for looking at the welcome tab.\nChecking each tab will reward you %s more %s%s.\n', reward_amount, reward_token, reward_plural_indicator, reward_amount, reward_token, reward_plural_indicator)
+                local string =
+                    format(
+                    'You have been given %s %s%s for looking at the welcome tab.\nChecking each tab will reward you %s more %s%s.\n',
+                    reward_amount,
+                    reward_token,
+                    reward_plural_indicator,
+                    reward_amount,
+                    reward_token,
+                    reward_plural_indicator
+                )
                 header_label(parent, 'Free Coins')
                 centered_label(parent, string)
             end
@@ -205,36 +220,44 @@ This can be changed in options -> controls -> "toggle lua console".
             centered_label(parent, [[Check out our discord for new map info and to suggest new maps / ideas.]])
             local discord_textbox_flow = parent.add {type = 'flow'}
             local discord_textbox_flow_style = discord_textbox_flow.style
-            discord_textbox_flow_style.horizontal_align  = 'center'
+            discord_textbox_flow_style.horizontal_align = 'center'
             discord_textbox_flow_style.horizontally_stretchable = true
             discord_textbox_flow.add({type = 'label', caption = 'Discord: '}).style.font = 'default-bold'
-            local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'redmew.com/discord '}
+            local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'https://www.redmew.com/discord '}
             discord_textbox.read_only = true
+            discord_textbox.style.width = 225
+            discord_textbox.style.height = 28
             centered_label(parent, 'Contribute to our Patreon to receive special perks and help maintain our servers.')
             local patreon_flow = parent.add {type = 'flow', direction = 'horizontal'}
             local patreon_flow_style = patreon_flow.style
-            patreon_flow_style.horizontal_align  = 'center'
+            patreon_flow_style.horizontal_align = 'center'
             patreon_flow_style.horizontally_stretchable = true
             patreon_flow.add({type = 'label', caption = 'Patreon:'}).style.font = 'default-bold'
-            local patreon_textbox = patreon_flow.add {type = 'text-box', text = 'patreon.com/redmew '}
+            local patreon_textbox = patreon_flow.add {type = 'text-box', text = 'https://wwwpatreon.com/redmew '}
             patreon_textbox.read_only = true
+            patreon_textbox.style.width = 225
+            patreon_textbox.style.height = 28
             centered_label(parent, 'Download our maps, start and finish state, from our website.')
             local save_textbox_flow = parent.add {type = 'flow'}
             local save_textbox_flow_style = save_textbox_flow.style
-            save_textbox_flow_style.horizontal_align  = 'center'
+            save_textbox_flow_style.horizontal_align = 'center'
             save_textbox_flow_style.horizontally_stretchable = true
             save_textbox_flow.add({type = 'label', caption = 'Saves: '}).style.font = 'default-bold'
             local save_textbox = save_textbox_flow.add {type = 'text-box', text = 'http://www.redmew.com/saves/ '}
             save_textbox.read_only = true
-
+            save_textbox.style.width = 225
+            save_textbox.style.height = 28
             centered_label(parent, 'View our past maps as a Google Map.')
             local maps_textbox_flow = parent.add {type = 'flow'}
             local maps_textbox_flow_style = maps_textbox_flow.style
-            maps_textbox_flow_style.horizontal_align  = 'center'
+            maps_textbox_flow_style.horizontal_align = 'center'
             maps_textbox_flow_style.horizontally_stretchable = true
             maps_textbox_flow.add({type = 'label', caption = 'Maps: '}).style.font = 'default-bold'
-            local maps_textbox = maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
+            local maps_textbox =
+                maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
             maps_textbox.read_only = true
+            maps_textbox.style.width = 300
+            maps_textbox.style.height = 28
 
             parent.add({type = 'flow'}).style.height = 24
         end
@@ -270,7 +293,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
 
             local top_flow = parent.add {type = 'flow'}
             local top_flow_style = top_flow.style
-            top_flow_style.horizontal_align  = 'center'
+            top_flow_style.horizontal_align = 'center'
             top_flow_style.horizontally_stretchable = true
 
             local top_label = top_flow.add {type = 'label', caption = 'Map Infomation'}
@@ -337,7 +360,9 @@ If you suspect someone is griefing, notify the admin team by using /report or by
         end,
         content = function(parent, player)
             local parent_style = parent.style
-            parent_style.right_padding = 2
+            parent_style.right_padding = 0
+            parent_style.left_padding = 0
+            parent_style.top_padding = 1
 
             parent =
                 parent.add {
@@ -517,8 +542,8 @@ Shows number of rockets launched and biters liberated.]]
 
             header_label(parent, 'New Features')
 
-            local new_info_flow = parent.add {type = 'flow'}
-            new_info_flow.style.horizontal_align  = 'center'
+            local new_info_flow = parent.add {name = 'whatsNew_new_info_flow',type = 'flow'}
+            new_info_flow.style.horizontal_align = 'center'
 
             local new_info_textbox =
                 new_info_flow.add {
@@ -548,7 +573,7 @@ local function draw_main_frame(center, player)
 
     local top_flow = frame.add {type = 'flow'}
     local top_flow_style = top_flow.style
-    top_flow_style.horizontal_align  = 'center'
+    top_flow_style.horizontal_align = 'center'
     top_flow_style.top_padding = 8
     top_flow_style.horizontally_stretchable = true
 
@@ -558,6 +583,7 @@ local function draw_main_frame(center, player)
             local ele
             if char then
                 ele = title_grid.add {type = 'sprite', sprite = 'virtual-signal/signal-red'}
+                ele.style.stretch_image_to_widget_size = true
             else
                 ele = title_grid.add {type = 'label', caption = ' '}
             end
@@ -584,7 +610,7 @@ local function draw_main_frame(center, player)
 
     local tab_flow = frame.add {type = 'flow', direction = 'horizontal'}
     local tab_flow_style = tab_flow.style
-    tab_flow_style.horizontal_align  = 'center'
+    tab_flow_style.horizontal_align = 'center'
     tab_flow_style.horizontally_stretchable = true
 
     for index, page in ipairs(pages) do
@@ -618,7 +644,7 @@ local function draw_main_frame(center, player)
 
     local bottom_flow = frame.add {type = 'flow'}
     local bottom_flow_style = bottom_flow.style
-    bottom_flow_style.horizontal_align  = 'center'
+    bottom_flow_style.horizontal_align = 'center'
     bottom_flow_style.top_padding = 8
     bottom_flow_style.horizontally_stretchable = true
 
@@ -748,7 +774,13 @@ Gui.on_click(
         Gui.clear(content)
 
         pages[index].content(content, player)
-        local string = format('%s %s%s awarded for reading a tab on the info screen.', reward_amount, reward_token, reward_plural_indicator)
+        local string =
+            format(
+            '%s %s%s awarded for reading a tab on the info screen.',
+            reward_amount,
+            reward_token,
+            reward_plural_indicator
+        )
         if rewarded_players[player.index] then
             reward_player(player, index, string)
         end
