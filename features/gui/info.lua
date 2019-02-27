@@ -17,6 +17,7 @@ local config_prewards = config.player_rewards
 
 local normal_color = Color.white
 local focus_color = Color.dark_orange
+local unfocus_color = Color.black
 
 local reward_amount = 2
 local reward_plural_indicator = reward_amount > 1 and 's' or ''
@@ -289,7 +290,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
         end,
         content = function(parent, player)
             local read_only = not player.admin
-            local text_width = 480
+            local text_width = 490
 
             local top_flow = parent.add {type = 'flow'}
             local top_flow_style = top_flow.style
@@ -312,11 +313,11 @@ If you suspect someone is griefing, notify the admin team by using /report or by
                 text = editable_info[map_name_key]
             }
             map_name_textbox.read_only = read_only
-            map_name_textbox.word_wrap = true
+            --map_name_textbox.word_wrap = true
 
             local map_name_textbox_style = map_name_textbox.style
             map_name_textbox_style.width = text_width
-            map_name_textbox_style.maximal_height = 27
+            map_name_textbox_style.maximal_height = 30
 
             Gui.set_data(map_name_textbox, map_name_key)
 
@@ -765,7 +766,7 @@ Gui.on_click(
         local tab_buttons = data.tab_buttons
         local old_button = tab_buttons[active_tab]
 
-        old_button.style.font_color = normal_color
+        old_button.style.font_color = unfocus_color
         button.style.font_color = focus_color
 
         data.active_tab = index
