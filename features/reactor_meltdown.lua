@@ -141,7 +141,7 @@ local function check_wastelands()
                     name = 'nuclear-reactor'
                 }
                 if wasteland_reactors[1] then
-                    wasteland_reactors[1].destroy()
+                    wasteland_reactors[1].destroy({raise_destroy = true})
                 end
             end
         end
