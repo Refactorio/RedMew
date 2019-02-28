@@ -354,7 +354,7 @@ local function draw_main_frame(left, player)
 
     local announcements_textbox = frame.add {type = 'text-box', text = announcements.text}
     announcements_textbox.read_only = true
-    announcements_textbox.word_wrap = true
+    --announcements_textbox.word_wrap = true
     local announcements_textbox_style = announcements_textbox.style
     announcements_textbox_style.width = 450
     announcements_textbox_style.height = 100
@@ -694,7 +694,7 @@ Gui.on_click(
         local editing_players_label = top_flow.add {type = 'label'}
 
         local textbox = frame.add {type = 'text-box', name = edit_announcements_textbox_name, text = announcements.edit_text}
-        textbox.word_wrap = true
+        --textbox.word_wrap = true
         local textbox_style = textbox.style
         textbox_style.width = 450
         textbox_style.height = 100
