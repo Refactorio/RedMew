@@ -10,6 +10,7 @@ local floor = math.floor
 local format = string.format
 local insert = table.insert
 local concat = table.concat
+local pcall = pcall
 
 -- Local constants
 local minutes_to_ticks = 60 * 60
@@ -50,9 +51,7 @@ local function format_time(ticks)
     return concat(result, ' ')
 end
 
---- Takes the given string and generates an entry in the error file.
-function Public.generate_error_report(str)
-    Debug.print()
+local function try_generate_report(str)
     local server_time = Public.server_time.secs
 
     local server_time_str = '(Server time: unavailable)'
@@ -81,6 +80,14 @@ function Public.generate_error_report(str)
     local output = concat({server_time_str, tick, redmew_version, str, '\n'}, '\n')
 
     game.write_file(file_name, output, true, 0)
+end
+
+--- Takes the given string and generates an entry in the error file.
+function Public.generate_error_report(str)
+    local success, err = pcall(try_generate_report, str)
+    if not success then
+        log(err)
+    end
 end
 
 return Public
