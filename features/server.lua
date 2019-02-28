@@ -6,6 +6,7 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Timestamp = require 'utils.timestamp'
 local Print = require('utils.print_override')
+local ErrorLogging = require 'utils.error_logging'
 
 local serialize = serpent.serialize
 local concat = table.concat
@@ -18,11 +19,13 @@ local serialize_options = {sparse = true, compact = true}
 local Public = {}
 
 local server_time = {secs = nil, tick = 0}
+ErrorLogging.server_time = server_time
 
 Global.register(
     server_time,
     function(tbl)
         server_time = tbl
+        ErrorLogging.server_time = tbl
     end
 )
 
@@ -299,6 +302,7 @@ local function data_set_changed(data)
             local success, err = pcall(handler, data)
             if not success then
                 log(err)
+                ErrorLogging.generate_error_report(err)
                 error(err, 2)
             end
         end
@@ -307,6 +311,7 @@ local function data_set_changed(data)
             local success, err = pcall(handler, data)
             if not success then
                 log(err)
+                ErrorLogging.generate_error_report(err)
             end
         end
     end
