@@ -10,7 +10,7 @@ local Global = require 'utils.global'
 
 local Ranks = require 'resources.ranks'
 
-local primitives = {reactors_enabled = {global.config.reactor_meltdown.on_by_default}}
+local primitives = {reactors_enabled = global.config.reactor_meltdown.on_by_default}
 local wastelands = {}
 local reactors = {}
 
