@@ -28,15 +28,7 @@
 -- For more information, please refer to <http://unlicense.org/>
 -- ]]
 
--------------------------------------------------------------------------------
---[.luacheckrc]-- Current Factorio Version .16
--------------------------------------------------------------------------------
--- Set up the the standards for this file.
-files['.luacheckrc'] = {
-    std = 'lua52c',
-    globals = {'files', 'exclude_files', 'not_globals', 'stds', 'std', 'max_line_length', 'ignore', 'quiet', "max_cyclomatic_complexity", "codes", "globals"},
-    max_line_length = false --turn of line length warnings for this file
-}
+-- Current Factorio Version 0.17.0, luacheck version 0.23.0
 
 -------------------------------------------------------------------------------
 --[Set Defaults]--
@@ -69,8 +61,8 @@ codes = true
 exclude_files = {
     --Ignore special folders
     '**/.*/*', --Ignore if path starts with .
-    '**/mod/stdlib/', --Ignore from symlinked
-    '**/vendor/',
+    '**/stdlib/vendor/',
+    '**/*WIP/',
 
     --Ignore development mods
     '**/combat-tester/',
@@ -98,7 +90,6 @@ files['**/settings/'].std = STD_DATA
 
 local base_scenarios = {
     std = STD_BASE_CONTROL .. '+factorio_base_scenarios+factorio_base_story',
-    --Ignore these, Klonan is on his own!
     --ignore = {'212/event', '111', '112', '113', '211', '212', '213', '311', '411', '412', '421', '422', '423', '431', '432', '512'}
     ignore = {'...'}
 }
@@ -127,9 +118,7 @@ files['**/base/prototypes/'] = {std = STD_BASE_DATA}
 files['**/core/prototypes/'] = {std = STD_BASE_DATA}
 files['**/core/prototypes/noise-programs.lua'] = {ignore = {'212/x', '212/y', '212/tile', '212/map'}}
 
--------------------------------------------------------------------------------
---[Set STDLIB project modules]--
--------------------------------------------------------------------------------
+--(( stdlib ))--
 local stdlib_control = {
     std = 'lua52c+factorio+factorio_control+stdlib+factorio_defines',
     max_line_length = LINE_LENGTH
@@ -143,26 +132,19 @@ local stdlib_data = {
 -- Assume control stage for stdlib
 files['**/stdlib/'] = stdlib_control
 
-files['**/stdlib/utils/math.lua'].std = 'lua52c'
-files['**/stdlib/utils/string.lua'].std = 'lua52c'
-files['**/stdlib/utils/table.lua'].std = 'lua52c'
-files['**/stdlib/utils/iterator.lua'].std = 'lua52c'
-files['**/stdlib/utils/is.lua'].std = 'lua52c'
+-- Assume generic content for stdlib utils
+files['**/stdlib/utils/**'].std = 'lua52c+stdlib'
 
 -- STDLIB data files
 files['**/stdlib/data/'] = stdlib_data
-files['**/creative'].ignore = {'...'}
 
 -- STDLIB Busted Spec
 files['**/spec/**'] = {
     globals = {'serpent', 'log', 'SLOG', 'RESET'},
     std = 'lua52c+busted+factorio_defines+factorio_control+stdlib'
-}
+} --))
 
-
--------------------------------------------------------------------------------
---[STDS FACTORIO]--
--------------------------------------------------------------------------------
+--(( Factorio ))--
 stds.factorio = {
     --Set the read only variables
     read_globals = {
@@ -176,7 +158,7 @@ stds.factorio = {
             fields = {
                 "by_pixel", "distance", "findfirstentity", "positiontostr", "formattime", "moveposition", "oppositedirection",
                 "ismoduleavailable", "multiplystripes", "format_number", "increment", "color", "conditional_return",
-                "add_shift", "merge", "premul_color", "encode", "decode",
+                "add_shift", "merge", "premul_color", "encode", "decode", "insert_safe",
                 table = {
                     fields = {
                         "compare", "deepcopy"
@@ -195,6 +177,13 @@ stds.factorio = {
 stds.factorio_control = {
     read_globals = {
 
+        -- @commands@:
+        commands = {
+            fields = {
+                "add_command", "commands", "game_commands", "remove_command"
+            },
+        },
+
         -- @settings@:
         settings = {
             fields = {
@@ -212,140 +201,201 @@ stds.factorio_control = {
                 "on_event", "on_nth_tick", "on_configuration_changed", "on_init", "on_load", "generate_event_name",
                 "raise_event", "get_event_handler", "mod_name", "get_event_order"
             },
+            other_fields = false,
         },
 
         -- @remote@: Allows inter-mod communication by providing a repository of interfaces that is shared by all mods.
         -- (http://lua-api.factorio.com/latest/LuaRemote.html)
         remote = {
             fields = {
-                "add_interface", "remove_interface", "call", "interfaces"
+                interfaces = {read_only = false, other_fields = true},
+                "add_interface", "remove_interface", "call"
             },
+            read_only = true,
+            other_fields = false,
+        },
+
+        rcon = {
+            fields = {'print'}
+        },
+
+        rendering = {
+            other_fields = false,
+            read_only = true,
+            fields = {
+                'draw_line',
+                'draw_text',
+                'draw_circle',
+                'draw_rectangle',
+                'draw_arc',
+                'draw_polygon',
+                'draw_sprite',
+                'draw_light',
+                'destroy',
+                'is_font_valid',
+                'is_valid',
+                'get_all_ids',
+                'clear',
+                'get_type',
+                'get_surface',
+                'get_time_to_live',
+                'set_time_to_live',
+                'get_forces',
+                'set_forces',
+                'get_players',
+                'set_players',
+                'get_color',
+                'set_color',
+                'get_width',
+                'set_width',
+                'get_from',
+                'set_from',
+                'get_to',
+                'set_to',
+                'get_gap_amount',
+                'set_gap_amount',
+                'get_gap_length',
+                'set_gap_length',
+                'get_target',
+                'set_target',
+                'get_orientation',
+                'set_orientation',
+                'get_scale',
+                'set_scale',
+                'get_text',
+                'set_text',
+                'get_font',
+                'set_font',
+                'get_alignment',
+                'set_alignment',
+                'get_scale_with_zoom',
+                'set_scale_with_zoom',
+                'get_filled',
+                'set_filled',
+                'get_radius',
+                'set_radius',
+                'get_left_top',
+                'set_left_top',
+                'get_right_bottom',
+                'set_right_bottom',
+                'get_max_radius',
+                'set_max_radius',
+                'get_min_radius',
+                'set_min_radius',
+                'get_start_angle',
+                'set_start_angle',
+                'get_angle',
+                'set_angle',
+                'get_vertices',
+                'set_vertices',
+                'get_sprite',
+                'set_sprite',
+                'get_x_scale',
+                'set_x_scale',
+                'get_y_scale',
+                'set_y_scale',
+                'get_render_layer',
+                'set_render_layer',
+                'get_orientation_target',
+                'set_orientation_target',
+                'get_oriented_offset',
+                'set_oriented_offset',
+                'get_intensity',
+                'set_intensity',
+                'get_minimum_darkness',
+                'set_minimum_darkness'
+            }
         },
 
         -- @game@: Main object through which most of the API is accessed.
         -- It is, however, not available inside handlers registered with @script.on_load@.
         -- (http://lua-api.factorio.com/latest/LuaGameScript.html)
         game ={
-            other_fields = true,
+            other_fields = false,
             read_only = false,
             fields = {
-                "set_game_state", "get_entity_by_tag", "show_message_dialog", "disable_tips_and_tricks", "is_demo", "reload_script",
-                "save_atlas", "check_consistency", "regenerate_entity", "take_screenshot", "write_file", "remove_path",
-                "remove_offline_players", "force_crc", "merge_forces", "player", "server_save", "delete_surface", "disable_replay",
-                "direction_to_string", "print", "tick", "finished", "difficulty",
-                speed = {
-                    --rw
-                    read_only = false,
-                },
-                player = {
-                    --luaPlayer
-                    --The player typing at the console, nil in all other cases
-                    read_only = false,
-                    other_fields = true,
-                },
-                players = {
-                    --array of luaPlayer
-                    read_only = false,
-                    other_fields = true,
-                },
-                connected_players = {
-                    --array of luaPlayer
-                    read_only = false,
-                    other_fields = true,
-                },
-                surfaces = {
-                    --array of luaSurface
-                    read_only = false,
-                    other_fields = true,
-                },
-                create_surface = {
-                    --luaSurface
-                    read_only = false,
-                    other_fields = true,
-                },
-                forces = {
-                    --array of luaForce
-                    read_only = false,
-                    other_fields = true,
-                },
-                create_force = {
-                    --luaForce
-                    read_only = false,
-                    other_fields = true,
-                },
-                entity_prototypes = {
-                    --string dictionary - > luaEntityPrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                item_prototypes = {
-                    --string dictionary - > luaItemPrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                fluid_prototypes = {
-                    --string dictionary - > luaFluidPrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                tile_prototypes = {
-                    --string dictionary - > luaTilePrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                equipment_prototypes = {
-                    --string dictionary - > luaEquipmentPrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                recipe_prototypes = {
-                    --string dictionary - > luaRecipePrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                technology_prototypes = {
-                    --string dictionary - > luaTechnologyPrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                damage_prototypes = {
-                    --string dictionary - > luaDamagePrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                virtual_signal_prototypes = {
-                    --string dictionary - > luaVirtualSignalPrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                equipment_grid_prototypes = {
-                    --string dictionary - > luaEquipmentGridPrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                decorative_prototypes = {
-                    --string dictionary -> LuaDecorativePrototype
-                    read_only = true,
-                    other_fields = true
-                },
-                map_settings = {
-                    --custom -> mapsettings
-                    read_only = false,
-                    other_fields = true
-                },
-                active_mods = {
-                    --string dictionary -> string version
-                    read_only = true,
-                    other_fields = true
-                },
-                permissions = {
-                    read_only = true,
-                    other_fields = true
-                },
-                backer_names = {
-                    read_only = true,
-                    other_fields = true
-                }
+                "auto_save",
+                "ban_player",
+                "check_consistency",
+                "check_prototype_translations",
+                "count_pipe_groups",
+                "create_force",
+                "create_random_generator",
+                "create_surface",
+                "delete_surface",
+                "desync_players",
+                "direction_to_string",
+                "disable_replay",
+                "disable_tips_and_tricks",
+                "force_crc",
+                "get_active_entities_count",
+                "get_entity_by_tag",
+                "get_map_exchange_string",
+                "get_player",
+                "help",
+                "is_demo",
+                "is_multiplayer",
+                "is_valid_sound_path",
+                "json_to_table",
+                "kick_player",
+                "merge_forces",
+                "mute_player",
+                "play_sound",
+                "print",
+                "print_stack_size",
+                "purge_player",
+                "regenerate_entity",
+                "reload_mods",
+                "reload_script",
+                "remove_offline_players",
+                "remove_path",
+                "save_atlas",
+                "server_save",
+                "set_game_state",
+                "show_message_dialog",
+                "table_to_json",
+                "take_screenshot",
+                "take_technology_screenshot",
+                "unban_player",
+                "unmute_player",
+                "write_file",
+
+                active_mods = {read_only = true, other_fields = true},
+                ammo_category_prototypes = {read_only = true, other_fields = true},
+                autoplace_control_prototypes = {read_only = true, other_fields = true},
+                backer_names = {read_only = true, other_fields = true},
+                connected_players = {read_only = true, other_fields = true},
+                custom_input_prototypes = {read_only = true, other_fields = true},
+                damage_prototypes = {read_only = true, other_fields = true},
+                decorative_prototypes = {read_only = true, other_fields = true},
+                default_map_gen_settings = {read_only = true, other_fields = true},
+                difficulty = {read_only = true, other_fields = true},
+                difficulty_settings = {read_only = true, other_fields = true},
+                enemy_has_vision_on_land_mines = {read_only = false, other_fields = false},
+                entity_prototypes = {read_only = true, other_fields = true},
+                equipment_grid_prototypes = {read_only = true, other_fields = true},
+                equipment_prototypes = {read_only = true, other_fields = true},
+                finished = {read_only = true, other_fields = true},
+                fluid_prototypes = {read_only = true, other_fields = true},
+                forces = {read_only = true, other_fields = true},
+                item_prototypes = {read_only = true, other_fields = true},
+                map_settings = {read_only = true, other_fields = true},
+                mod_setting_prototypes = {read_only = true, other_fields = true},
+                noise_layer_prototypes = {read_only = true, other_fields = true},
+                permissions = {read_only = true, other_fields = true},
+                player = {read_only = true, other_fields = true},
+                players = {read_only = true, other_fields = true},
+                recipe_prototypes = {read_only = true, other_fields = true},
+                speed = {read_only = false, other_fields = false},
+                styles = {read_only = true, other_fields = true},
+                surfaces = {read_only = true, other_fields = true},
+                technology_prototypes = {read_only = true, other_fields = true},
+                tick = {read_only = true, other_fields = true},
+                tick_paused = {read_only = false, other_fields = false},
+                ticks_played = {read_only = true, other_fields = true},
+                ticks_to_run = {read_only = false, other_fields = false},
+                tile_prototypes = {read_only = true, other_fields = true},
+                virtual_signal_prototypes = {read_only = true, other_fields = true}
             },
         },
     },
@@ -357,14 +407,7 @@ stds.factorio_control = {
         "global",
 
         -- @MOD@: Keep it organized, use this variable for anything that "NEEDS" to be global for some reason.
-        "MOD",
-
-        -- @commands@:
-        commands = {
-            fields = {
-                "add_command", "commands", "game_commands",
-            },
-        }
+        "MOD"
     },
 }
 
@@ -400,11 +443,9 @@ stds.factorio_data = {
             other_fields = true
         }
     }
-}
+} --))
 
--------------------------------------------------------------------------------
---[Factorio Data]--------------------------------------------------------------
--------------------------------------------------------------------------------
+--(( Factorio Globals are bad mkay ))--
 stds.factorio_base_control = {
     read_globals = {"silo_script", "mod_gui", "camera"}
 }
@@ -553,40 +594,39 @@ stds.factorio_circuit_connector_generated = {
         'inserter_circuit_wire_max_distance', 'inserter_default_stack_control_input_signal', 'transport_belt_connector_frame_sprites',
         'transport_belt_circuit_wire_max_distance',
     }
-}
+} --))
 
 --(( STDLIB ))--
 stds.stdlib = {
     read_globals = {
-        table = {
-            fields = {
-                "map", "avg", "count_keys", "sum", "max", "remove", "insert", "invert", "first", "sort", "compare", "maxn", "any", "array_to_dictionary",
-                "each", "flatten", "keys", "filter", "remove_keys", "flexcopy", "find", "fullcopy", "values", "pack", "deepcopy", "concat", "clear", "min",
-                "is_empty", "merge", "size", "dictionary_merge", "unpack", "last"
-            },
-        },
-        string = {
-            fields = {
-                "is_space", "is_empty", "match", "title", "upper", "gmatch", "trim", "split", "len", "ordinal_suffix", "dump", "shorten", "reverse",
-                "ends_with", "byte", "starts_with", "join", "is_alpha", "lower", "is_upper", "is_digit", "is_alnum", "rjust", "center", "ljust", "format",
-                "char", "is_lower", "contains", "gsub", "find", "rep", "sub"
-            },
-        },
-        math = {
-            fields = {
-                "asin", "max", "modf", "midrange_mean", "pow", "ldexp", "maxuint16", "fmod", "round_to", "randomseed", "huge", "harmonic_mean", "tan",
-                "maxint32", "quadratic_mean", "pi", "energetic_mean", "minint8", "frexp", "generalized_mean", "rad", "sin", "sinh", "min", "geometric_mean",
-                "atan", "avg", "cosh", "maxint8", "arithmetic_mean", "exp", "sum", "round", "maxuint64", "minint64", "ceil", "maxint64", "atan2", "floor_to",
-                "floor", "log", "maxint16", "minint16", "tanh", "acos", "deg", "cos", "log10", "maxuint8", "abs", "weighted_mean", "random", "maxuint32",
-                "sqrt", "minint32"
-            }
-        },
+        -- table = {
+        --     fields = {
+        --         "map", "avg", "count_keys", "sum", "max", "remove", "insert", "invert", "first", "sort", "compare", "maxn", "any", "array_to_dictionary",
+        --         "each", "flatten", "keys", "filter", "remove_keys", "flexcopy", "find", "fullcopy", "values", "pack", "deepcopy", "concat", "clear", "min",
+        --         "is_empty", "merge", "size", "dictionary_merge", "unpack", "last"
+        --     },
+        -- },
+        -- string = {
+        --     fields = {
+        --         "is_space", "is_empty", "match", "title", "upper", "gmatch", "trim", "split", "len", "ordinal_suffix", "dump", "shorten", "reverse",
+        --         "ends_with", "byte", "starts_with", "join", "is_alpha", "lower", "is_upper", "is_digit", "is_alnum", "rjust", "center", "ljust", "format",
+        --         "char", "is_lower", "contains", "gsub", "find", "rep", "sub"
+        --     },
+        -- },
+        -- math = {
+        --     fields = {
+        --         "asin", "max", "modf", "midrange_mean", "pow", "ldexp", "maxuint16", "fmod", "round_to", "randomseed", "huge", "harmonic_mean", "tan",
+        --         "maxint32", "quadratic_mean", "pi", "energetic_mean", "minint8", "frexp", "generalized_mean", "rad", "sin", "sinh", "min", "geometric_mean",
+        --         "atan", "avg", "cosh", "maxint8", "arithmetic_mean", "exp", "sum", "round", "maxuint64", "minint64", "ceil", "maxint64", "atan2", "floor_to",
+        --         "floor", "log", "maxint16", "minint16", "tanh", "acos", "deg", "cos", "log10", "maxuint8", "abs", "weighted_mean", "random", "maxuint32",
+        --         "sqrt", "minint32"
+        --     }
+        -- },
     },
     globals = {
-        "prequire", "rawtostring", "traceback", "inspect", "serpent", "inline_if",
+        "prequire", "rawtostring", "traceback", "inspect", "serpent", "inline_if", "install",
         "GAME", "AREA", "POSITION", "TILE", "SURFACE", "CHUNK", "COLOR", "ENTITY", "INVENTORY", "RESOURCE", "CONFIG", "LOGGER", "QUEUE",
-        "EVENT", "GUI", "PLAYER", "FORCE",
-        "_STDLIB_NO_DEFINES_COLOR", "_STDLIB_NO_DEFINES_TIME", "_STDLIB_NO_STRING", "_STDLIB_NO_TABLE", "_STDLIB_NO_MATH"
+        "EVENT", "GUI", "PLAYER", "FORCE", "log"
     }
 }
 
@@ -601,71 +641,108 @@ stds.stdlib_data = {
 
 --(( FACTORIO DEFINES ))--
 stds.factorio_defines = {
-    globals = {"creative_mode_defines"},
     read_globals = {
         defines = {
             fields = {
-                events = {
-                    fields = {
-                        "on_tick", "on_gui_click", "on_gui_text_changed", "on_gui_checked_state_changed", "on_entity_died", "on_entity_damaged", "on_picked_up_item",
-                        "on_built_entity", "on_sector_scanned", "on_player_mined_item", "on_put_item", "on_rocket_launched", "on_pre_player_mined_item", "on_chunk_generated",
-                        "on_player_crafted_item", "on_robot_built_entity", "on_robot_pre_mined", "on_robot_mined", "on_research_started", "on_research_finished",
-                        "on_player_rotated_entity", "on_marked_for_deconstruction", "on_canceled_deconstruction", "on_trigger_created_entity", "on_train_changed_state",
-                        "on_player_created", "on_resource_depleted", "on_player_driving_changed_state", "on_force_created", "on_forces_merging", "on_player_cursor_stack_changed",
-                        "on_pre_entity_settings_pasted", "on_entity_settings_pasted", "on_player_main_inventory_changed", "on_player_quickbar_inventory_changed",
-                        "on_player_tool_inventory_changed", "on_player_armor_inventory_changed", "on_player_ammo_inventory_changed", "on_player_gun_inventory_changed",
-                        "on_player_placed_equipment", "on_player_removed_equipment", "on_pre_player_died", "on_player_died", "on_player_respawned", "on_player_joined_game",
-                        "on_player_left_game", "on_player_built_tile", "on_player_mined_tile", "on_robot_built_tile", "on_robot_mined_tile", "on_player_selected_area",
-                        "on_player_alt_selected_area", "on_player_changed_surface", "on_selected_entity_changed", "on_market_item_purchased", "on_player_dropped_item",
-                        "on_biter_base_built", "on_player_changed_force", "on_entity_renamed", "on_gui_selection_state_changed", "on_runtime_mod_setting_changed",
-                        "on_difficulty_settings_changed", "on_surface_created", "on_surface_deleted", "on_pre_surface_deleted", "on_player_mined_entity", "on_robot_mined_entity",
-                        "on_train_created", "on_gui_elem_changed", "on_player_setup_blueprint", "on_player_deconstructed_area", "on_player_configured_blueprint", "on_console_chat",
-                        "on_console_command", "on_player_removed", "on_player_used_capsule", "script_raised_built", "script_raised_destroy", "script_raised_revive",
-                        "on_player_promoted", "on_player_demoted", "on_combat_robot_expired", "on_player_changed_position", "on_mod_item_opened", "on_gui_opened",
-                        "on_gui_closed", "on_gui_value_changed", "on_player_muted", "on_player_unmuted", "on_player_cheat_mode_enabled", "on_player_cheat_mode_disabled",
-                        "on_character_corpse_expired", "on_pre_ghost_deconstructed", "on_player_pipette", "on_player_display_resolution_changed", "on_player_display_scale_changed",
-                        "on_pre_player_crafted_item", "on_player_cancelled_crafting", "on_chunk_charted", "on_technology_effects_reset", "on_land_mine_armed", "on_forces_merged",
-                        "on_player_trash_inventory_changed", "on_pre_player_left_game"
-                    },
-                },
                 alert_type = {
                     fields = {
-                        "custom", "entity_destroyed", "entity_under_attack", "no_material_for_construction",
-                        "no_storage", "not_enough_construction_robots", "not_enough_repair_packs", "turret_fire",
-                    },
+                        'custom',
+                        'entity_destroyed',
+                        'entity_under_attack',
+                        'no_material_for_construction',
+                        'no_storage',
+                        'not_enough_construction_robots',
+                        'not_enough_repair_packs',
+                        'train_out_of_fuel',
+                        'turret_fire',
+                        'fluid_mixing'
+                    }
+                },
+                behavior_result = {
+                    fields = {
+                        'deleted',
+                        'fail',
+                        'in_progress',
+                        'success'
+                    }
+                },
+                build_check_type = {
+                    fields = {
+                        'ghost_place',
+                        'ghost_revive',
+                        'manual',
+                        'script'
+                    }
                 },
                 chain_signal_state = {
                     fields = {
-                        "all_open", "none", "none_open", "partially_open",
-                    },
+                        'all_open',
+                        'none',
+                        'none_open',
+                        'partially_open'
+                    }
                 },
                 chunk_generated_status = {
                     fields = {
-                        "basic_tiles", "corrected_tiles", "custom_tiles", "entities", "nothing", "tiles",
-                    },
+                        'basic_tiles',
+                        'corrected_tiles',
+                        'custom_tiles',
+                        'entities',
+                        'nothing',
+                        'tiles'
+                    }
                 },
                 circuit_condition_index = {
                     fields = {
-                        "arithmetic_combinator", "constant_combinator", "decider_combinator", "inserter_circuit",
-                        "inserter_logistic", "lamp", "offshore_pump", "pump",
-                    },
+                        'arithmetic_combinator',
+                        'constant_combinator',
+                        'decider_combinator',
+                        'inserter_circuit',
+                        'inserter_logistic',
+                        'lamp',
+                        'offshore_pump',
+                        'pump'
+                    }
                 },
                 circuit_connector_id = {
                     fields = {
-                        "accumulator", "combinator_input", "combinator_output", "constant_combinator", "container",
-                        "electric_pole", "inserter", "lamp", "offshore_pump", "programmable_speaker", "pump",
-                        "rail_signal", "roboport", "storage_tank", "wall",
-                    },
+                        'accumulator',
+                        'combinator_input',
+                        'combinator_output',
+                        'constant_combinator',
+                        'container',
+                        'electric_pole',
+                        'inserter',
+                        'lamp',
+                        'offshore_pump',
+                        'programmable_speaker',
+                        'pump',
+                        'rail_chain_signal',
+                        'rail_signal',
+                        'roboport',
+                        'storage_tank',
+                        'wall'
+                    }
                 },
                 command = {
                     fields = {
-                        "attack", "attack_area", "build_base", "compound", "go_to_location", "group", "wander",
-                    },
+                        'attack',
+                        'attack_area',
+                        'build_base',
+                        'compound',
+                        'flee',
+                        'go_to_location',
+                        'group',
+                        'stop',
+                        'wander'
+                    }
                 },
                 compound_command = {
                     fields = {
-                        "logical_and", "logical_or", "return_last",
-                    },
+                        'logical_and',
+                        'logical_or',
+                        'return_last'
+                    }
                 },
                 control_behavior = {
                     fields = {
@@ -673,276 +750,758 @@ stds.factorio_defines = {
                             fields = {
                                 circuit_mode_of_operation = {
                                     fields = {
-                                        "enable_disable", "none", "read_hand_contents", "set_filters", "set_stack_size",
-                                    },
+                                        'enable_disable',
+                                        'none',
+                                        'read_hand_contents',
+                                        'set_filters',
+                                        'set_stack_size'
+                                    }
                                 },
                                 hand_read_mode = {
                                     fields = {
-                                        "hold", "pulse",
+                                        'hold',
+                                        'pulse'
                                     }
-                                },
-                            },
+                                }
+                            }
                         },
                         lamp = {
                             fields = {
                                 circuit_mode_of_operation = {
                                     fields = {
-                                        "use_colors",
+                                        'use_colors'
                                     }
-                                },
-                            },
+                                }
+                            }
                         },
                         logistic_container = {
                             fields = {
                                 circuit_mode_of_operation = {
                                     fields = {
-                                        "send_contents", "set_requests",
+                                        'send_contents',
+                                        'set_requests'
                                     }
-                                },
-                            },
+                                }
+                            }
                         },
                         mining_drill = {
                             fields = {
                                 resource_read_mode = {
                                     fields = {
-                                        "entire_patch", "this_miner",
+                                        'entire_patch',
+                                        'this_miner'
                                     }
-                                },
-                            },
+                                }
+                            }
                         },
                         roboport = {
                             fields = {
                                 circuit_mode_of_operation = {
                                     fields = {
-                                        "read_logistics", "read_robot_stats",
+                                        'read_logistics',
+                                        'read_robot_stats'
                                     }
-                                },
-                            },
+                                }
+                            }
                         },
                         train_stop = {
                             fields = {
                                 circuit_mode_of_operation = {
                                     fields = {
-                                        "enable_disable", "read_from_train", "send_to_train",
+                                        'enable_disable',
+                                        'read_from_train',
+                                        'read_stopped_train',
+                                        'send_to_train'
                                     }
-                                },
-                            },
+                                }
+                            }
+                        },
+                        transport_belt = {
+                            fields = {
+                                content_read_mode = {
+                                    fields = {
+                                        'hold',
+                                        'pulse'
+                                    }
+                                }
+                            }
                         },
                         type = {
                             fields = {
-                                "accumulator", "arithmetic_combinator", "constant_combinator", "container",
-                                "decider_combinator", "generic_on_off", "inserter", "lamp", "logistic_container",
-                                "rail_signal", "roboport", "storage_tank", "train_stop", "transport_belt",
-                            },
-                        },
-                    },
+                                'accumulator',
+                                'arithmetic_combinator',
+                                'constant_combinator',
+                                'container',
+                                'decider_combinator',
+                                'generic_on_off',
+                                'inserter',
+                                'lamp',
+                                'logistic_container',
+                                'mining_drill',
+                                'programmable_speaker',
+                                'rail_chain_signal',
+                                'rail_signal',
+                                'roboport',
+                                'storage_tank',
+                                'train_stop',
+                                'transport_belt',
+                                'wall'
+                            }
+                        }
+                    }
                 },
                 controllers = {
                     fields = {
-                        "character", "ghost", "god",
-                    },
+                        'character',
+                        'cutscene',
+                        'editor',
+                        'ghost',
+                        'god',
+                        'spectator'
+                    }
                 },
                 deconstruction_item = {
                     fields = {
                         entity_filter_mode = {
                             fields = {
-                                "blacklist", "whitelist",
-                            },
+                                'blacklist',
+                                'whitelist'
+                            }
                         },
                         tile_filter_mode = {
                             fields = {
-                                "always", "never", "normal", "only",
+                                'blacklist',
+                                'whitelist'
                             }
                         },
-                    },
+                        tile_selection_mode = {
+                            fields = {
+                                'always',
+                                'never',
+                                'normal',
+                                'only'
+                            }
+                        }
+                    }
                 },
                 difficulty = {
                     fields = {
-                        "easy", "hard", "normal",
-                    },
+                        'easy',
+                        'hard',
+                        'normal'
+                    }
                 },
                 difficulty_settings = {
                     fields = {
                         recipe_difficulty = {
                             fields = {
-                                "expensive", "normal",
-                            },
+                                'expensive',
+                                'normal'
+                            }
                         },
                         technology_difficulty = {
                             fields = {
-                                "expensive", "normal",
+                                'expensive',
+                                'normal'
                             }
-                        },
-                    },
+                        }
+                    }
                 },
                 direction = {
                     fields = {
-                        "east", "north", "northeast", "northwest", "south", "southeast", "southwest", "west",
-                    },
+                        'east',
+                        'north',
+                        'northeast',
+                        'northwest',
+                        'south',
+                        'southeast',
+                        'southwest',
+                        'west'
+                    }
                 },
                 distraction = {
                     fields = {
-                        "by_anything", "by_damage", "by_enemy", "none",
-                    },
+                        'by_anything',
+                        'by_damage',
+                        'by_enemy',
+                        'none'
+                    }
+                },
+                entity_status = {
+                    fields = {
+                        'working',
+                        'no_power',
+                        'no_fuel',
+                        'no_recipe',
+                        'no_input_fluid',
+                        'no_research_in_progress',
+                        'no_minable_resources',
+                        'low_input_fluid',
+                        'low_power',
+                        'disabled_by_control_behavior',
+                        'disabled_by_script',
+                        'fluid_ingredient_shortage',
+                        'fluid_production_overload',
+                        'item_ingredient_shortage',
+                        'item_production_overload',
+                        'marked_for_deconstruction',
+                        'missing_required_fluid',
+                        'missing_science_packs',
+                        'waiting_for_source_items',
+                        'waiting_for_space_in_destination',
+                    }
+                },
+                events = {
+                    fields = {
+                        'on_ai_command_completed',
+                        'on_area_cloned',
+                        'on_biter_base_built',
+                        'on_built_entity',
+                        'on_cancelled_deconstruction',
+                        'on_cancelled_upgrade',
+                        'on_character_corpse_expired',
+                        'on_chart_tag_added',
+                        'on_chart_tag_modified',
+                        'on_chart_tag_removed',
+                        'on_chunk_charted',
+                        'on_chunk_deleted',
+                        'on_chunk_generated',
+                        'on_combat_robot_expired',
+                        'on_console_chat',
+                        'on_console_command',
+                        'on_cutscene_waypoint_reached',
+                        'on_difficulty_settings_changed',
+                        'on_entity_cloned',
+                        'on_entity_damaged',
+                        'on_entity_died',
+                        'on_entity_renamed',
+                        'on_entity_settings_pasted',
+                        'on_entity_spawned',
+                        'on_force_created',
+                        'on_forces_merged',
+                        'on_forces_merging',
+                        'on_game_created_from_scenario',
+                        'on_gui_checked_state_changed',
+                        'on_gui_click',
+                        'on_gui_closed',
+                        'on_gui_elem_changed',
+                        'on_gui_opened',
+                        'on_gui_selection_state_changed',
+                        'on_gui_text_changed',
+                        'on_gui_value_changed',
+                        'on_land_mine_armed',
+                        'on_lua_shortcut',
+                        'on_marked_for_deconstruction',
+                        'on_marked_for_upgrade',
+                        'on_market_item_purchased',
+                        'on_mod_item_opened',
+                        'on_picked_up_item',
+                        'on_player_alt_selected_area',
+                        'on_player_ammo_inventory_changed',
+                        'on_player_armor_inventory_changed',
+                        'on_player_banned',
+                        'on_player_built_tile',
+                        'on_player_cancelled_crafting',
+                        'on_player_changed_force',
+                        'on_player_changed_position',
+                        'on_player_changed_surface',
+                        'on_player_cheat_mode_disabled',
+                        'on_player_cheat_mode_enabled',
+                        'on_player_configured_blueprint',
+                        'on_player_crafted_item',
+                        'on_player_created',
+                        'on_player_cursor_stack_changed',
+                        'on_player_deconstructed_area',
+                        'on_player_demoted',
+                        'on_player_died',
+                        'on_player_display_resolution_changed',
+                        'on_player_display_scale_changed',
+                        'on_player_driving_changed_state',
+                        'on_player_dropped_item',
+                        'on_player_fast_transferred',
+                        'on_player_gun_inventory_changed',
+                        'on_player_joined_game',
+                        'on_player_kicked',
+                        'on_player_left_game',
+                        'on_player_main_inventory_changed',
+                        'on_player_mined_entity',
+                        'on_player_mined_item',
+                        'on_player_mined_tile',
+                        'on_player_muted',
+                        'on_player_pipette',
+                        'on_player_placed_equipment',
+                        'on_player_promoted',
+                        'on_player_removed',
+                        'on_player_removed_equipment',
+                        'on_player_repaired_entity',
+                        'on_player_respawned',
+                        'on_player_rotated_entity',
+                        'on_player_selected_area',
+                        'on_player_setup_blueprint',
+                        'on_player_toggled_alt_mode',
+                        'on_player_toggled_map_editor',
+                        'on_player_tool_inventory_changed',
+                        'on_player_trash_inventory_changed',
+                        'on_player_unbanned',
+                        'on_player_unmuted',
+                        'on_player_used_capsule',
+                        'on_post_entity_died',
+                        'on_pre_chunk_deleted',
+                        'on_pre_entity_settings_pasted',
+                        'on_pre_ghost_deconstructed',
+                        'on_pre_player_crafted_item',
+                        'on_pre_player_died',
+                        'on_pre_player_left_game',
+                        'on_pre_player_mined_item',
+                        'on_pre_player_removed',
+                        'on_pre_robot_exploded_cliff',
+                        'on_pre_surface_cleared',
+                        'on_pre_surface_deleted',
+                        'on_put_item',
+                        'on_research_finished',
+                        'on_research_started',
+                        'on_resource_depleted',
+                        'on_robot_built_entity',
+                        'on_robot_built_tile',
+                        'on_robot_exploded_cliff',
+                        'on_robot_mined',
+                        'on_robot_mined_entity',
+                        'on_robot_mined_tile',
+                        'on_robot_pre_mined',
+                        'on_rocket_launch_ordered',
+                        'on_rocket_launched',
+                        'on_runtime_mod_setting_changed',
+                        'on_script_path_request_finished',
+                        'on_sector_scanned',
+                        'on_selected_entity_changed',
+                        'on_surface_cleared',
+                        'on_surface_created',
+                        'on_surface_deleted',
+                        'on_surface_imported',
+                        'on_surface_renamed',
+                        'on_technology_effects_reset',
+                        'on_tick',
+                        'on_train_changed_state',
+                        'on_train_created',
+                        'on_train_schedule_changed',
+                        'on_trigger_created_entity',
+                        'on_trigger_fired_artillery',
+                        'on_unit_added_to_group',
+                        'on_unit_group_created',
+                        'on_unit_removed_from_group',
+                        'script_raised_built',
+                        'script_raised_destroy',
+                        'script_raised_revive'
+                    }
+                },
+                flow_precision_index = {
+                    fields = {
+                        'fifty_hours',
+                        'one_hour',
+                        'one_minute',
+                        'one_second',
+                        'one_thousand_hours',
+                        'ten_hours',
+                        'ten_minutes',
+                        'two_hundred_fifty_hours'
+                    }
                 },
                 group_state = {
                     fields = {
-                        "attacking_distraction", "attacking_target", "finished", "gathering", "moving",
-                    },
+                        'attacking_distraction',
+                        'attacking_target',
+                        'finished',
+                        'gathering',
+                        'moving'
+                    }
                 },
                 gui_type = {
                     fields = {
-                        "achievement", "blueprint_library", "bonus", "controller", "entity", "equipment", "item",
-                        "kills", "logistic", "none", "other_player", "permissions", "production", "research",
-                        "trains", "tutorials", "custom",
-                    },
+                        'achievement',
+                        'blueprint_library',
+                        'bonus',
+                        'controller',
+                        'custom',
+                        'entity',
+                        'equipment',
+                        'item',
+                        'kills',
+                        'logistic',
+                        'none',
+                        'other_player',
+                        'permissions',
+                        'player_management',
+                        'production',
+                        'research',
+                        'server_management',
+                        'trains',
+                        'tutorials'
+                    }
                 },
                 input_action = {
                     fields = {
-                        "add_permission_group", "alt_select_area", "alt_select_blueprint_entities", "begin_mining",
-                        "begin_mining_terrain", "build_item", "build_rail", "build_terrain", "cancel_craft",
-                        "cancel_deconstruct", "cancel_new_blueprint", "cancel_research", "change_active_item_group_for_crafting",
-                        "change_active_item_group_for_filters", "change_active_quick_bar", "change_arithmetic_combinator_parameters",
-                        "change_blueprint_book_record_label", "change_decider_combinator_parameters", "change_item_label",
-                        "change_picking_state", "change_programmable_speaker_alert_parameters", "change_programmable_speaker_circuit_parameters",
-                        "change_programmable_speaker_parameters", "change_riding_state", "change_shooting_state",
-                        "change_single_blueprint_record_label", "change_train_stop_station", "change_train_wait_condition",
-                        "change_train_wait_condition_data", "clean_cursor_stack", "clear_blueprint", "clear_selected_blueprint",
-                        "clear_selected_deconstruction_item", "connect_rolling_stock", "copy_entity_settings", "craft",
-                        "craft_blueprint_record", "create_blueprint_like", "cursor_split", "cursor_transfer", "custom_input",
-                        "cycle_blueprint_book_backwards", "cycle_blueprint_book_forwards", "deconstruct", "delete_blueprint_record",
-                        "delete_custom_tag", "delete_permission_group", "disconnect_rolling_stock", "drop_blueprint_record",
-                        "drop_item", "drop_to_blueprint_book", "edit_custom_tag", "edit_permission_group", "edit_train_schedule",
-                        "export_blueprint", "fast_entity_split", "fast_entity_transfer", "grab_blueprint_record", "gui_checked_state_changed",
-                        "gui_click", "gui_elem_selected", "gui_selection_state_changed", "gui_text_changed", "import_blueprint",
-                        "import_blueprint_string", "inventory_split", "inventory_transfer", "launch_rocket", "market_offer",
-                        "mod_settings_changed", "open_achievements_gui", "open_blueprint_library_gui", "open_blueprint_record",
-                        "open_bonus_gui", "open_character_gui", "open_equipment", "open_gui", "open_item", "open_kills_gui",
-                        "open_logistic_gui", "open_production_gui", "open_technology_gui", "open_train_gui", "open_train_station_gui",
-                        "open_trains_gui", "open_tutorials_gui", "paste_entity_settings", "place_equipment", "remove_cables",
-                        "reset_assembling_machine", "reverse_rotate_entity", "rotate_entity", "select_area", "select_blueprint_entities",
-                        "select_entity_slot", "select_gun", "select_item", "select_tile_slot", "set_auto_launch_rocket", "set_autosort_inventory",
-                        "set_behavior_mode", "set_blueprint_icon", "set_circuit_condition", "set_circuit_mode_of_operation",
-                        "set_deconstruction_item_tile_selection_mode", "set_deconstruction_item_trees_only", "set_entity_color",
-                        "set_entity_energy_property", "set_filter", "set_inserter_max_stack_size", "set_inventory_bar", "set_logistic_filter_item",
-                        "set_logistic_filter_signal", "set_logistic_trash_filter_item", "set_research_finished_stops_game", "set_signal",
-                        "set_single_blueprint_record_icon", "set_train_stopped", "set_use_item_groups", "setup_assembling_machine",
-                        "setup_blueprint", "setup_single_blueprint_record", "shortcut_quick_bar_transfer", "smart_pipette", "stack_split",
-                        "stack_transfer", "start_repair", "start_research", "start_walking", "switch_connect_to_logistic_network",
-                        "switch_constant_combinator_state", "switch_power_switch_state", "switch_to_rename_stop_gui", "take_equipment",
-                        "toggle_connect_center_back_tank", "toggle_connect_front_center_tank", "toggle_deconstruction_item_entity_filter_mode",
-                        "toggle_deconstruction_item_tile_filter_mode", "toggle_driving", "toggle_enable_vehicle_logistics_while_moving",
-                        "toggle_entity_on_off_state", "toggle_show_entity_info", "use_ability", "use_item", "wire_dragging", "write_to_console",
-                    },
+                        'activate_copy',
+                        'activate_cut',
+                        'activate_paste',
+                        'add_permission_group',
+                        'add_train_station',
+                        'admin_action',
+                        'alt_select_area',
+                        'alt_select_blueprint_entities',
+                        'alternative_copy',
+                        'begin_mining',
+                        'begin_mining_terrain',
+                        'build_item',
+                        'build_rail',
+                        'build_terrain',
+                        'cancel_craft',
+                        'cancel_deconstruct',
+                        'cancel_new_blueprint',
+                        'cancel_research',
+                        'cancel_upgrade',
+                        'change_active_item_group_for_crafting',
+                        'change_active_item_group_for_filters',
+                        'change_active_quick_bar',
+                        'change_arithmetic_combinator_parameters',
+                        'change_blueprint_book_record_label',
+                        'change_decider_combinator_parameters',
+                        'change_item_label',
+                        'change_multiplayer_config',
+                        'change_picking_state',
+                        'change_programmable_speaker_alert_parameters',
+                        'change_programmable_speaker_circuit_parameters',
+                        'change_programmable_speaker_parameters',
+                        'change_riding_state',
+                        'change_shooting_state',
+                        'change_single_blueprint_record_label',
+                        'change_train_stop_station',
+                        'change_train_wait_condition',
+                        'change_train_wait_condition_data',
+                        'clean_cursor_stack',
+                        'clear_selected_blueprint',
+                        'clear_selected_deconstruction_item',
+                        'clear_selected_upgrade_item',
+                        'clone_item',
+                        'connect_rolling_stock',
+                        'copy',
+                        'copy_entity_settings',
+                        'craft',
+                        'create_blueprint_like',
+                        'cursor_split',
+                        'cursor_transfer',
+                        'custom_input',
+                        'cycle_blueprint_book_backwards',
+                        'cycle_blueprint_book_forwards',
+                        'deconstruct',
+                        'delete_blueprint_library',
+                        'delete_blueprint_record',
+                        'delete_custom_tag',
+                        'delete_permission_group',
+                        'destroy_opened_item',
+                        'disconnect_rolling_stock',
+                        'drag_train_schedule',
+                        'drag_train_wait_condition',
+                        'drop_blueprint_record',
+                        'drop_item',
+                        'drop_to_blueprint_book',
+                        'edit_custom_tag',
+                        'edit_permission_group',
+                        'export_blueprint',
+                        'fast_entity_split',
+                        'fast_entity_transfer',
+                        'go_to_train_station',
+                        'grab_blueprint_record',
+                        'gui_checked_state_changed',
+                        'gui_click',
+                        'gui_elem_changed',
+                        'gui_selection_state_changed',
+                        'gui_text_changed',
+                        'gui_value_changed',
+                        'import_blueprint',
+                        'import_blueprint_string',
+                        'import_permissions_string',
+                        'inventory_split',
+                        'inventory_transfer',
+                        'launch_rocket',
+                        'map_editor_action',
+                        'market_offer',
+                        'mod_settings_changed',
+                        'open_achievements_gui',
+                        'open_blueprint_library_gui',
+                        'open_blueprint_record',
+                        'open_bonus_gui',
+                        'open_character_gui',
+                        'open_equipment',
+                        'open_gui',
+                        'open_item',
+                        'open_kills_gui',
+                        'open_logistic_gui',
+                        'open_mod_item',
+                        'open_production_gui',
+                        'open_technology_gui',
+                        'open_train_gui',
+                        'open_train_station_gui',
+                        'open_trains_gui',
+                        'open_tutorials_gui',
+                        'paste_entity_settings',
+                        'place_equipment',
+                        'quick_bar_pick_slot',
+                        'quick_bar_set_selected_page',
+                        'quick_bar_set_slot',
+                        'remove_cables',
+                        'remove_train_station',
+                        'reset_assembling_machine',
+                        'rotate_entity',
+                        'select_area',
+                        'select_blueprint_entities',
+                        'select_entity_slot',
+                        'select_item',
+                        'select_mapper_slot',
+                        'select_next_valid_gun',
+                        'select_tile_slot',
+                        'set_auto_launch_rocket',
+                        'set_autosort_inventory',
+                        'set_behavior_mode',
+                        'set_car_weapons_control',
+                        'set_circuit_condition',
+                        'set_circuit_mode_of_operation',
+                        'set_deconstruction_item_tile_selection_mode',
+                        'set_deconstruction_item_trees_and_rocks_only',
+                        'set_entity_color',
+                        'set_entity_energy_property',
+                        'set_filter',
+                        'set_heat_interface_mode',
+                        'set_heat_interface_temperature',
+                        'set_infinity_container_filter_item',
+                        'set_infinity_container_remove_unfiltered_items',
+                        'set_infinity_pipe_filter',
+                        'set_inserter_max_stack_size',
+                        'set_inventory_bar',
+                        'set_logistic_filter_item',
+                        'set_logistic_filter_signal',
+                        'set_logistic_trash_filter_item',
+                        'set_request_from_buffers',
+                        'set_research_finished_stops_game',
+                        'set_signal',
+                        'set_single_blueprint_record_icon',
+                        'set_splitter_priority',
+                        'set_train_stopped',
+                        'setup_assembling_machine',
+                        'setup_blueprint',
+                        'setup_single_blueprint_record',
+                        'smart_pipette',
+                        'stack_split',
+                        'stack_transfer',
+                        'start_repair',
+                        'start_research',
+                        'start_walking',
+                        'switch_connect_to_logistic_network',
+                        'switch_constant_combinator_state',
+                        'switch_inserter_filter_mode_state',
+                        'switch_power_switch_state',
+                        'switch_to_rename_stop_gui',
+                        'take_equipment',
+                        'toggle_deconstruction_item_entity_filter_mode',
+                        'toggle_deconstruction_item_tile_filter_mode',
+                        'toggle_driving',
+                        'toggle_enable_vehicle_logistics_while_moving',
+                        'toggle_equipment_movement_bonus',
+                        'toggle_map_editor',
+                        'toggle_personal_roboport',
+                        'toggle_show_entity_info',
+                        'undo',
+                        'upgrade',
+                        'upgrade_opened_blueprint',
+                        'use_artillery_remote',
+                        'use_item',
+                        'wire_dragging',
+                        'write_to_console'
+                    }
                 },
                 inventory = {
                     fields = {
-                        "assembling_machine_input", "assembling_machine_modules", "assembling_machine_output", "beacon_modules",
-                        "burnt_result", "car_ammo", "car_trunk", "cargo_wagon", "chest", "fuel", "furnace_modules",
-                        "furnace_result", "furnace_source", "god_main", "god_quickbar", "item_main", "lab_input", "lab_modules",
-                        "mining_drill_modules", "player_ammo", "player_armor", "player_guns", "player_main", "player_quickbar",
-                        "player_tools", "player_trash", "player_vehicle", "roboport_material", "roboport_robot", "rocket_silo_result",
-                        "rocket_silo_rocket", "turret_ammo", "rocket", "character_corpse"
-                    },
+                        'artillery_turret_ammo',
+                        'artillery_wagon_ammo',
+                        'assembling_machine_input',
+                        'assembling_machine_modules',
+                        'assembling_machine_output',
+                        'beacon_modules',
+                        'burnt_result',
+                        'car_ammo',
+                        'car_trunk',
+                        'cargo_wagon',
+                        'character_corpse',
+                        'chest',
+                        'fuel',
+                        'furnace_modules',
+                        'furnace_result',
+                        'furnace_source',
+                        'god_main',
+                        'item_main',
+                        'lab_input',
+                        'lab_modules',
+                        'mining_drill_modules',
+                        'player_ammo',
+                        'player_armor',
+                        'player_guns',
+                        'player_main',
+                        'player_trash',
+                        'player_vehicle',
+                        'roboport_material',
+                        'roboport_robot',
+                        'robot_cargo',
+                        'robot_repair',
+                        'rocket',
+                        'rocket_silo_result',
+                        'rocket_silo_rocket',
+                        'turret_ammo'
+                    }
                 },
                 logistic_member_index = {
                     fields = {
-                        "character_provider", "character_requester", "character_storage", "generic_on_off_behavior", "logistic_container", "vehicle_storage",
-                    },
+                        'character_provider',
+                        'character_requester',
+                        'character_storage',
+                        'generic_on_off_behavior',
+                        'logistic_container',
+                        'vehicle_storage'
+                    }
                 },
                 logistic_mode = {
                     fields = {
-                        "active_provider", "none", "passive_provider", "requester", "storage", "buffer"
-                    },
+                        'active_provider',
+                        'buffer',
+                        'none',
+                        'passive_provider',
+                        'requester',
+                        'storage'
+                    }
                 },
                 mouse_button_type = {
                     fields = {
-                        "left", "middle", "none", "right",
-                    },
+                        'left',
+                        'middle',
+                        'none',
+                        'right'
+                    }
                 },
                 rail_connection_direction = {
                     fields = {
-                        "left", "none", "right", "straight",
-                    },
+                        'left',
+                        'none',
+                        'right',
+                        'straight'
+                    }
                 },
                 rail_direction = {
                     fields = {
-                        "back", "front",
-                    },
+                        'back',
+                        'front'
+                    }
                 },
                 riding = {
                     fields = {
                         acceleration = {
                             fields = {
-                                "accelerating", "braking", "nothing", "reversing",
-                            },
+                                'accelerating',
+                                'braking',
+                                'nothing',
+                                'reversing'
+                            }
                         },
                         direction = {
                             fields = {
-                                "left", "right", "straight",
+                                'left',
+                                'right',
+                                'straight'
                             }
-                        },
-                    },
+                        }
+                    }
                 },
                 shooting = {
                     fields = {
-                        "not_shooting", "shooting_enemies", "shooting_selected",
-                    },
+                        'not_shooting',
+                        'shooting_enemies',
+                        'shooting_selected'
+                    }
                 },
                 signal_state = {
                     fields = {
-                        "closed", "open", "reserved", "reserved_by_circuit_network",
-                    },
+                        'closed',
+                        'open',
+                        'reserved',
+                        'reserved_by_circuit_network'
+                    }
                 },
                 train_state = {
                     fields = {
-                        "arrive_signal", "arrive_station", "manual_control", "manual_control_stop", "no_path", "no_schedule",
-                        "on_the_path", "path_lost", "stop_for_auto_control", "wait_signal", "wait_station",
-                    },
+                        'arrive_signal',
+                        'arrive_station',
+                        'manual_control',
+                        'manual_control_stop',
+                        'no_path',
+                        'no_schedule',
+                        'on_the_path',
+                        'path_lost',
+                        'wait_signal',
+                        'wait_station'
+                    }
                 },
                 transport_line = {
                     fields = {
-                        "left_line", "left_split_line", "left_underground_line", "right_line", "right_split_line", "right_underground_line",
-                        "secondary_left_line", "secondary_left_split_line", "secondary_right_line", "secondary_right_split_line",
-                    },
+                        'left_line',
+                        'left_split_line',
+                        'left_underground_line',
+                        'right_line',
+                        'right_split_line',
+                        'right_underground_line',
+                        'secondary_left_line',
+                        'secondary_left_split_line',
+                        'secondary_right_line',
+                        'secondary_right_split_line'
+                    }
+                },
+                wire_connection_id = {
+                    fields = {
+                        'electric_pole',
+                        'power_switch_left',
+                        'power_switch_right'
+                    }
                 },
                 wire_type = {
                     fields = {
-                        "copper", "green", "red",
+                        'copper',
+                        'green',
+                        'red'
                     }
                 },
-                -- Deprecated
-                colors = {
-                    other_fields = true,
-                },
-                -- Deprecated
-                anticolors = {
-                    other_fields = true,
-                },
-                -- Deprecated
-                lightcolors = {
-                    other_fields = true,
-                },
+                -- Defines additional modules
                 color = {
-                    other_fields = true,
+                    other_fields = true
                 },
                 anticolor = {
-                    other_fields = true,
+                    other_fields = true
                 },
                 lightcolor = {
-                    other_fields = true,
+                    other_fields = true
                 },
                 time = {
                     fields = {
-                        "second", "minute", "hour", "day", "week", "month", "year",
+                        'second',
+                        'minute',
+                        'hour',
+                        'day',
+                        'week',
+                        'month',
+                        'year'
                     }
-                },
-            },
+                }
+            }
         }
     }
-} --))
+}--))
 
---[[
+--[[ Options
     "ignore", "std", "globals", "unused_args", "self", "compat", "global", "unused", "redefined",
     "unused_secondaries", "allow_defined", "allow_defined_top", "module",
     "read_globals", "new_globals", "new_read_globals", "enable", "only", "not_globals",
@@ -950,54 +1509,55 @@ stds.factorio_defines = {
     "max_cyclomatic_complexity"
 --]]
 
--- Warnings list
--- 011 A syntax error.
--- 021 An invalid inline option.
--- 022 An unpaired inline push directive.
--- 023 An unpaired inline pop directive.
--- 111 Setting an undefined global variable.
--- 112 Mutating an undefined global variable.
--- 113 Accessing an undefined global variable.
--- 121 Setting a read-only global variable.
--- 122 Setting a read-only field of a global variable.
--- 131 Unused implicitly defined global variable.
--- 142 Setting an undefined field of a global variable.
--- 143 Accessing an undefined field of a global variable.
--- 211 Unused local variable.
--- 212 Unused argument.
--- 213 Unused loop variable.
--- 221 Local variable is accessed but never set.
--- 231 Local variable is set but never accessed.
--- 232 An argument is set but never accessed.
--- 233 Loop variable is set but never accessed.
--- 241 Local variable is mutated but never accessed.
--- 311 Value assigned to a local variable is unused.
--- 312 Value of an argument is unused.
--- 313 Value of a loop variable is unused.
--- 314 Value of a field in a table literal is unused.
--- 321 Accessing uninitialized local variable.
--- 331 Value assigned to a local variable is mutated but never accessed.
--- 341 Mutating uninitialized local variable.
--- 411 Redefining a local variable.
--- 412 Redefining an argument.
--- 413 Redefining a loop variable.
--- 421 Shadowing a local variable.
--- 422 Shadowing an argument.
--- 423 Shadowing a loop variable.
--- 431 Shadowing an upvalue.
--- 432 Shadowing an upvalue argument.
--- 433 Shadowing an upvalue loop variable.
--- 511 Unreachable code.
--- 512 Loop can be executed at most once.
--- 521 Unused label.
--- 531 Left-hand side of an assignment is too short.
--- 532 Left-hand side of an assignment is too long.
--- 541 An empty do end block.
--- 542 An empty if branch.
--- 551 An empty statement.
--- 611 A line consists of nothing but whitespace.
--- 612 A line contains trailing whitespace.
--- 613 Trailing whitespace in a string.
--- 614 Trailing whitespace in a comment.
--- 621 Inconsistent indentation (SPACE followed by TAB).
--- 631 Line is too long.
+--[[ Warnings list
+    -- 011 A syntax error.
+    -- 021 An invalid inline option.
+    -- 022 An unpaired inline push directive.
+    -- 023 An unpaired inline pop directive.
+    -- 111 Setting an undefined global variable.
+    -- 112 Mutating an undefined global variable.
+    -- 113 Accessing an undefined global variable.
+    -- 121 Setting a read-only global variable.
+    -- 122 Setting a read-only field of a global variable.
+    -- 131 Unused implicitly defined global variable.
+    -- 142 Setting an undefined field of a global variable.
+    -- 143 Accessing an undefined field of a global variable.
+    -- 211 Unused local variable.
+    -- 212 Unused argument.
+    -- 213 Unused loop variable.
+    -- 221 Local variable is accessed but never set.
+    -- 231 Local variable is set but never accessed.
+    -- 232 An argument is set but never accessed.
+    -- 233 Loop variable is set but never accessed.
+    -- 241 Local variable is mutated but never accessed.
+    -- 311 Value assigned to a local variable is unused.
+    -- 312 Value of an argument is unused.
+    -- 313 Value of a loop variable is unused.
+    -- 314 Value of a field in a table literal is unused.
+    -- 321 Accessing uninitialized local variable.
+    -- 331 Value assigned to a local variable is mutated but never accessed.
+    -- 341 Mutating uninitialized local variable.
+    -- 411 Redefining a local variable.
+    -- 412 Redefining an argument.
+    -- 413 Redefining a loop variable.
+    -- 421 Shadowing a local variable.
+    -- 422 Shadowing an argument.
+    -- 423 Shadowing a loop variable.
+    -- 431 Shadowing an upvalue.
+    -- 432 Shadowing an upvalue argument.
+    -- 433 Shadowing an upvalue loop variable.
+    -- 511 Unreachable code.
+    -- 512 Loop can be executed at most once.
+    -- 521 Unused label.
+    -- 531 Left-hand side of an assignment is too short.
+    -- 532 Left-hand side of an assignment is too long.
+    -- 541 An empty do end block.
+    -- 542 An empty if branch.
+    -- 551 An empty statement.
+    -- 611 A line consists of nothing but whitespace.
+    -- 612 A line contains trailing whitespace.
+    -- 613 Trailing whitespace in a string.
+    -- 614 Trailing whitespace in a comment.
+    -- 621 Inconsistent indentation (SPACE followed by TAB).
+    -- 631 Line is too long.
+--]]
