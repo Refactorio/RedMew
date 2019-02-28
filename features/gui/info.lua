@@ -224,9 +224,10 @@ This can be changed in options -> controls -> "toggle lua console".
             discord_textbox_flow_style.horizontal_align = 'center'
             discord_textbox_flow_style.horizontally_stretchable = true
             discord_textbox_flow.add({type = 'label', caption = 'Discord: '}).style.font = 'default-bold'
-            local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'https://www.redmew.com/discord '}
+            local discord_textbox =
+                discord_textbox_flow.add {type = 'text-box', text = 'https://www.redmew.com/discord '}
             discord_textbox.read_only = true
-            discord_textbox.style.width = 225
+            discord_textbox.style.width = 235
             discord_textbox.style.height = 28
             centered_label(parent, 'Contribute to our Patreon to receive special perks and help maintain our servers.')
             local patreon_flow = parent.add {type = 'flow', direction = 'horizontal'}
@@ -234,9 +235,9 @@ This can be changed in options -> controls -> "toggle lua console".
             patreon_flow_style.horizontal_align = 'center'
             patreon_flow_style.horizontally_stretchable = true
             patreon_flow.add({type = 'label', caption = 'Patreon:'}).style.font = 'default-bold'
-            local patreon_textbox = patreon_flow.add {type = 'text-box', text = 'https://wwwpatreon.com/redmew '}
+            local patreon_textbox = patreon_flow.add {type = 'text-box', text = 'https://www.patreon.com/redmew '}
             patreon_textbox.read_only = true
-            patreon_textbox.style.width = 225
+            patreon_textbox.style.width = 235
             patreon_textbox.style.height = 28
             centered_label(parent, 'Download our maps, start and finish state, from our website.')
             local save_textbox_flow = parent.add {type = 'flow'}
@@ -246,7 +247,7 @@ This can be changed in options -> controls -> "toggle lua console".
             save_textbox_flow.add({type = 'label', caption = 'Saves: '}).style.font = 'default-bold'
             local save_textbox = save_textbox_flow.add {type = 'text-box', text = 'http://www.redmew.com/saves/ '}
             save_textbox.read_only = true
-            save_textbox.style.width = 225
+            save_textbox.style.width = 235
             save_textbox.style.height = 28
             centered_label(parent, 'View our past maps as a Google Map.')
             local maps_textbox_flow = parent.add {type = 'flow'}
@@ -257,7 +258,7 @@ This can be changed in options -> controls -> "toggle lua console".
             local maps_textbox =
                 maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
             maps_textbox.read_only = true
-            maps_textbox.style.width = 300
+            maps_textbox.style.width = 315
             maps_textbox.style.height = 28
 
             parent.add({type = 'flow'}).style.height = 24
@@ -269,6 +270,20 @@ This can be changed in options -> controls -> "toggle lua console".
             return button
         end,
         content = function(parent)
+            local parent_style = parent.style
+            parent_style.right_padding = 0
+            parent_style.left_padding = 0
+            parent_style.top_padding = 1
+
+            parent =
+                parent.add {
+                type = 'flow',
+                direction = 'vertical'
+            }
+            parent_style = parent.style
+            parent_style.vertically_stretchable = false
+            parent_style.width = 600
+
             header_label(parent, 'Rules')
 
             centered_label(
@@ -333,7 +348,9 @@ If you suspect someone is griefing, notify the admin team by using /report or by
 
             local map_description_textbox_style = map_description_textbox.style
             map_description_textbox_style.width = text_width
-            map_description_textbox_style.height = 72
+            map_description_textbox_style.minimal_height = 80
+            map_description_textbox_style.vertically_stretchable = true
+            map_description_textbox_style.maximal_height = 100
 
             Gui.set_data(map_description_textbox, map_description_key)
 
@@ -543,7 +560,7 @@ Shows number of rockets launched and biters liberated.]]
 
             header_label(parent, 'New Features')
 
-            local new_info_flow = parent.add {name = 'whatsNew_new_info_flow',type = 'flow'}
+            local new_info_flow = parent.add {name = 'whatsNew_new_info_flow', type = 'flow'}
             new_info_flow.style.horizontal_align = 'center'
 
             local new_info_textbox =
@@ -555,8 +572,9 @@ Shows number of rockets launched and biters liberated.]]
             new_info_textbox.read_only = read_only
 
             local new_info_textbox_style = new_info_textbox.style
-            new_info_textbox_style.width = 590
+            new_info_textbox_style.width = 600
             new_info_textbox_style.height = 300
+            new_info_textbox_style.left_margin = 2
 
             Gui.set_data(new_info_textbox, new_info_key)
         end
