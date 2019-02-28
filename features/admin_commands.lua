@@ -71,12 +71,6 @@ local function toggle_cheat_mode(_, player)
     Game.player_print('Cheat mode set to ' .. tostring(player.cheat_mode))
 end
 
---- Enables all researches for a player's force
-local function all_tech(_, player)
-    player.force.research_all_technologies()
-    Game.player_print('Your force has been granted all technologies')
-end
-
 --- Promote someone to regular
 local function add_regular(args)
     local target_name = args['player']
@@ -401,17 +395,6 @@ Command.add(
         required_rank = Ranks.admin
     },
     toggle_cheat_mode
-)
-
-Command.add(
-    'all-tech',
-    {
-        description = 'researches all technologies',
-        required_rank = Ranks.admin,
-        debug_only = true,
-        cheat_only = true
-    },
-    all_tech
 )
 
 Command.add(
