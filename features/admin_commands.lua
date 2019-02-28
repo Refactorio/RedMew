@@ -107,7 +107,7 @@ local function remove_regular(args)
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-        Game.player_print({'common.warn_not_online', target_name}, Color.warning)
+        Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.regular) then
@@ -126,7 +126,7 @@ local function probation_add(args)
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-    Game.player_print({'common.warn_not_online', target_name}, Color.warning)
+    Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.admin) then
@@ -150,7 +150,7 @@ local function probation_remove(args)
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-    Game.player_print({'common.warn_not_online', target_name}, Color.warning)
+    Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.probation) then
