@@ -107,8 +107,7 @@ local function remove_regular(args)
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-        print_no_target(target_name)
-        return
+        Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.regular) then
@@ -121,14 +120,13 @@ local function remove_regular(args)
     end
 end
 
---- Add or remove someone from probation
+--- Put someone on probation
 local function probation_add(args)
     local target_name = args['player']
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-        print_no_target(target_name)
-        return
+    Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.admin) then
@@ -146,13 +144,13 @@ local function probation_add(args)
     end
 end
 
+--- Remove someone from probation
 local function probation_remove(args)
     local target_name = args['player']
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-        print_no_target(target_name)
-        return
+    Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.probation) then
