@@ -22,7 +22,7 @@ Global.register(
 
 local function notify_players(message)
     local players = game.connected_players
-    for i=1, #players do
+    for i = 1, #players do
         local p = players[i]
         if p.valid and not no_notify_players[p.index] then
             p.print(message)
@@ -30,15 +30,20 @@ local function notify_players(message)
     end
 end
 
-local function change_player_tag(player, tag_name, silent)
+local function change_player_tag(player, tag_name, silent, force)
     local old_tag = player.tag
-    if tag_name == '' and old_tag == '' then
+
+    if tag_name == '' and old_tag == '' and not force then
         return false
     end
 
-    local tag = '[' .. tag_name .. ']'
-    if old_tag == tag then
-        return false
+    local tag_data = tag_groups[tag_name]
+    local tag
+    if tag_data then
+        tag = '[[img=' .. tag_data.path .. ']]'
+        if old_tag == tag then
+            return false
+        end
     end
 
     if old_tag ~= '' then
@@ -56,7 +61,6 @@ local function change_player_tag(player, tag_name, silent)
         return true
     end
 
-    local tag_data = tag_groups[tag_name]
     if not tag_data then
         return false
     end
@@ -69,7 +73,7 @@ local function change_player_tag(player, tag_name, silent)
 
     players[player.index] = true
 
-    player.tag = tag
+    player.tag = '[[img=' .. tag_data.path .. ']]'
 
     local verb = tag_data.verb or default_verb
 
@@ -140,7 +144,7 @@ local function draw_main_frame_content(parent)
     grid.style.vertical_spacing = 0
 
     for tag_name, tag_data in pairs(tag_groups) do
-        local tag = '[' .. tag_name .. ']'
+        local tag = '[[img=' .. tag_data.path .. ']]'
         local players = player_tags[tag]
 
         local size = get_size(players)
@@ -230,13 +234,13 @@ local function draw_main_frame(player)
     local bottom_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align  = 'left'
+    left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
     left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.horizontal_align  = 'right'
+    right_flow.style.horizontal_align = 'right'
 
     right_flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
 
@@ -385,14 +389,14 @@ local function draw_create_tag_frame(event, tag_data)
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align  = 'left'
+    left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = close_create_tag_name, caption = 'Close'}
     Gui.set_data(close_button, frame)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.horizontal_align  = 'right'
+    right_flow.style.horizontal_align = 'right'
 
     if tag_data then
         local delete_button = right_flow.add {type = 'button', name = delete_tag_name, caption = 'Delete'}
@@ -460,7 +464,7 @@ Gui.on_click(
             return
         end
 
-        local tag = '[' .. tag_name .. ']'
+        local tag = '[[img=' .. tag_data.path .. ']]'
 
         for _, player in pairs(game.players) do
             if player.valid and player.tag == tag then
@@ -577,7 +581,8 @@ Gui.on_click(
 
         local path
         if not sprite or sprite == '' then
-            path = nil
+            player.print('Sorry, you need to choose an icon')
+            return
         elseif type == 'signal' then
             path = 'virtual-signal/' .. data.choose.elem_value.name
         else
@@ -610,22 +615,23 @@ Gui.on_click(
                 return
             end
 
-            if old_name ~= tag_name then
+            if old_name ~= tag_name or old_tag_data.path ~= tag_data.path then
                 message = player.name .. ' has edited the ' .. tag_name .. ' (formerly ' .. old_name .. ') tag group'
 
-                local old_tag = '[' .. old_name .. ']'
+                local old_tag = '[[img=' .. old_tag_data.path .. ']]'
 
                 for _, p in pairs(game.players) do
                     if p.valid and p.tag == old_tag then
-                        change_player_tag(p, tag_name, true)
+                        change_player_tag(p, tag_name, true, true)
 
                         if p.connected then
                             redraw_main_button(player, '')
                         end
                     end
                 end
-
-                tag_groups[old_name] = nil
+                if old_name ~= tag_name then
+                    tag_groups[old_name] = nil
+                end
             else
                 message = player.name .. ' has edited the ' .. tag_name .. ' tag group'
             end
@@ -674,7 +680,9 @@ local function tag_command(args)
     local tag = tag_groups[tag_name]
 
     if tag == nil then
-        Game.player_print("Tag '" .. tag_name .. "' does not exist. Create the tag first by clicking Tag -> Create Tag.")
+        Game.player_print(
+            "Tag '" .. tag_name .. "' does not exist. Create the tag first by clicking Tag -> Create Tag."
+        )
         return
     end
 
