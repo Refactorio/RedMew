@@ -1332,7 +1332,8 @@ Command.add(
         arguments = {'poll'},
         required_rank = Ranks.regular,
         allowed_by_server = true,
-        custom_help_text = '<{question = "question", answers = {"answer 1", "answer 2"}, duration = 300}> - Creates a new poll (Regulars only).',
+        description = 'Creates a new poll',
+        custom_help_text = '<{question = "question", answers = {"answer 1", "answer 2"}, duration = 300}>',
         log_command = true,
         capture_excess_arguments = true
     },
