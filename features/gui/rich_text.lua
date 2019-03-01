@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 local Command = require 'utils.command'
 
 local main_button_name = Gui.uid_name()
@@ -180,8 +179,6 @@ Gui.on_elem_changed(
         frame_data.string_box = string_box
     end
 )
-
-Event.add(defines.events.on_player_joined_game, player_joined)
 
 local function rich_text_command(_, player)
     local event = {player = player}
