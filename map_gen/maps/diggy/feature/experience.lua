@@ -64,7 +64,7 @@ local gain_xp_color = Color.light_sky_blue
 local lose_xp_color = Color.red
 local unlocked_color = Color.black
 local locked_color = Color.gray
-local table_column_layout = {type = 'table', column_count = 2}
+local table_column_layout = {type = 'table', column_count = 3}
 
 local level_up_formula = (function(level_reached)
     local difficulty_scale = floor(config.difficulty_scale)
@@ -364,6 +364,7 @@ local function redraw_heading(data, header)
 
     local heading_table = frame.add(table_column_layout)
     apply_heading_style(heading_table.add({type = 'label', caption = 'Requirement'}).style, 100)
+    apply_heading_style(heading_table.add({type = 'label'}).style, 25)
     apply_heading_style(heading_table.add({type = 'label', caption = header_caption}).style, 220)
 end
 
@@ -414,12 +415,18 @@ local function redraw_table(data)
         level_column.style.minimal_width = 100
         level_column.style.font_color = color
 
+        local spacer = list.add({
+            type = 'flow'
+        })
+        spacer.style.minimal_width = 25
+
         local item_column = list.add({
             type = 'label',
-            caption = prototype.name
+            caption = '[img=item/' .. prototype.name .. '] | ' .. prototype.name
         })
-        item_column.style.minimal_width = 22
+        item_column.style.minimal_width = 200
         item_column.style.font_color = color
+        item_column.style.horizontal_align = 'left'
 
         last_level = current_item_level
     end
@@ -444,14 +451,20 @@ local function redraw_buff(data)
         level_label.style.minimal_width = 100
         level_label.style.font_color = unlocked_color
 
+        local spacer = list.add({
+            type = 'flow'
+        })
+        spacer.style.minimal_width = 25
+
         local buff_caption
         local effect_value = effects.value
+        local effect_max = effects.max
         if name == 'mining_speed' then
-            buff_caption = format('+%d mining speed', effect_value)
+            buff_caption = format('+%d%% mining speed (up to: %d00%%)', effect_value, effect_max)
         elseif name == 'inventory_slot' then
-            buff_caption = format('+%d inventory slot%s', effect_value, effect_value > 1 and 's' or '')
+            buff_caption = format('+%d inventory slot%s (up to: %d)', effect_value, effect_value > 1 and 's' or '', effect_max)
         elseif name == 'health_bonus' then
-            buff_caption = format('+%d max health', effect_value)
+            buff_caption = format('+%d max health (up to: %d)', effect_value, effect_max)
         else
             buff_caption = format('+%d %s', effect_value, name)
         end
