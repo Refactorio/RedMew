@@ -93,8 +93,8 @@ local function toast_to(player, duration, sound)
     local progressbar = frame.add({type = 'progressbar', name = toast_progress_name})
     local style = progressbar.style
     style.width = 290
-    style.height = 3
-    style.color = Color.grey
+    style.height = 4
+    style.color = Color.orange
     progressbar.value = 1 -- it starts full
 
     local id = autoincrement()
