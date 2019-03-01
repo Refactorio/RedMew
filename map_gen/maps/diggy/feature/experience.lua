@@ -226,7 +226,7 @@ local function on_player_mined_entity(event)
         return
     end
 
-    print_player_floating_text_position(player_index, format('+%s XP', exp), gain_xp_color, 0, -0.5)
+    print_player_floating_text_position(player_index, format('[img=entity/' .. name .. '] +%s XP', exp), gain_xp_color, 0, -0.5)
     add_experience(force, exp)
 end
 
@@ -248,7 +248,7 @@ local function on_research_finished(event)
         end
         exp = award_xp * research.research_unit_count
     end
-    local text = format('Research completed! +%s XP', exp)
+    local text = format('[img=item/automation-science-pack] Research completed! +%s XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
         print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
@@ -279,7 +279,7 @@ local function on_rocket_launched(event)
     local force = event.rocket.force
 
     local exp = add_experience_percentage(force, config.XP['rocket_launch'], nil, config.XP['rocket_launch_max'])
-    local text = format('Rocket launched! +%s XP', exp)
+    local text = format('[img=item/satellite] Rocket launched! +%s XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
         print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
@@ -292,6 +292,7 @@ local function on_entity_died(event)
     local entity = event.entity
     local force = event.force
     local cause = event.cause
+    local entity_name = entity.name
 
     --For bot mining and turrets
     if not cause or not cause.valid or cause.type ~= 'player' then
@@ -300,7 +301,6 @@ local function on_entity_died(event)
 
         -- stuff killed by the player force, but not the player
         if force and force.name == 'player' then
-            local entity_name = entity.name
             if cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
                 exp = config.XP['enemy_killed'] * (config.alien_experience_modifiers[entity_name] or 1)
                 floating_text_position = cause.position
@@ -318,7 +318,7 @@ local function on_entity_died(event)
         end
 
         if exp > 0 then
-            Game.print_floating_text(entity.surface, floating_text_position, format('+%s XP', exp), gain_xp_color)
+            Game.print_floating_text(entity.surface, floating_text_position, format('[img=entity/' .. entity_name .. '] +%s XP', exp), gain_xp_color)
             add_experience(force, exp)
         end
 
@@ -330,7 +330,7 @@ local function on_entity_died(event)
     end
 
     local exp = config.XP['enemy_killed'] * (config.alien_experience_modifiers[entity.name] or 1)
-    print_player_floating_text_position(cause.player.index, format('+%d XP', exp), gain_xp_color, -1, -0.5)
+    print_player_floating_text_position(cause.player.index, format('[img=entity/' .. entity_name .. '] +%s XP', exp), gain_xp_color, -1, -0.5)
     add_experience(force, exp)
 end
 
