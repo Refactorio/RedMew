@@ -1,4 +1,3 @@
-local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Command = require 'utils.command'
 
