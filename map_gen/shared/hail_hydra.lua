@@ -106,7 +106,6 @@ local on_died =
             if trigger == nil or trigger < force.evolution_factor then
                 if amount.locked then
                     evolution_factor = evolution_scaled
-                    game.print('Locked!')
                 end
                 local min = amount.min
                 local max = amount.max
