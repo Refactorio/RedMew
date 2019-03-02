@@ -339,6 +339,24 @@ global.config = {
     -- gradually informs players of features such as chat, toasts, etc.
     player_onboarding = {
         enabled = true
+    },
+    -- allows for large-scale biter attacks
+    biter_attacks = {
+        enabled = true,
+        -- whether or not to send attacks on timed intervals (against a random player)
+        timed_attacks = {
+            enabled = true,
+            -- frequency of automatic attacks (in seconds)
+            attack_frequency = 40 * 60, -- 40 minutes
+            -- difficulty of automatic attacks (easy, normal, hard, brutal)
+            attack_difficulty = 'normal'
+        },
+        -- whether or not to send attacks on rocket launches
+        launch_attacks = {
+            enabled = true,
+            -- whether to only attack on the first launch
+            first_launch_only = false
+        }
     }
 }
 
