@@ -97,7 +97,7 @@ local function teleport(event, quadrant)
         local text = '## - You are too heavy for teleportation! Empty your inventory before switching quadrant!'
         player.print(text, Color.red)
     end
-ends
+end
 
 local function redraw_chest_button(data, player)
     local left_flow = data.chest_button_left_flow
