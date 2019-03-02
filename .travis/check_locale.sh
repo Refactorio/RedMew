@@ -1,7 +1,8 @@
 #!/bin/sh
 
-echo "Chaning working directory to Refactorio/RedMew/locale"
-cd Refactorio/RedMew/locale
+cd ~/build/Refactorio/RedMew || exit
+echo "Changing working directory back to: "
+pwd
 
 
 ldiff() {
