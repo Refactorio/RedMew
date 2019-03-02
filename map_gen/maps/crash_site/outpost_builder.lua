@@ -947,10 +947,7 @@ local function update_market_upgrade_description(outpost_data)
             end
         end
 
-        str[#str + 1] = ': '
-        str[#str + 1] = format('%.2f', current_rate)
-        str[#str + 1] = ' -> '
-        str[#str + 1] = format('%.2f / sec', next_rate)
+        str[#str + 1] = concat {': ', format('%.2f', current_rate), ' -> ', format('%.2f / sec', next_rate)}
         str[#str + 1] = '\n'
     end
     str[#str] = nil
