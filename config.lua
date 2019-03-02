@@ -220,19 +220,28 @@ global.config = {
         -- ['behemoth-biter'] = {min = 0.1, max = 0.5, trigger = 0.90, locked = true}}
         hydras = {
             -- spitters
-            ['small-spitter'] = {['small-worm-turret'] = {min = 0.2, max = -1}},
-            ['medium-spitter'] = {['medium-worm-turret'] = {min = 0.2, max = -1}},
-            ['big-spitter'] = {['big-worm-turret'] = {min = 0.2, max = -1}},
-            ['behemoth-spitter'] = {['behemoth-worm-turret'] = {min = 0.2, max = -1}},
+            ['small-spitter'] = {['small-worm-turret'] = {min = 0.2, max = 1}},
+            ['medium-spitter'] = {['medium-worm-turret'] = {min = 0.2, max = 1}},
+            ['big-spitter'] = {['big-worm-turret'] = {min = 0.2, max = 1}},
+            ['behemoth-spitter'] = {['behemoth-worm-turret'] = {min = 0.2, max = 1}},
             -- biters
-            ['medium-biter'] = {['small-biter'] = {min = 1.2, max = 2}},
-            ['big-biter'] = {['medium-biter'] = {min = 1.2, max = 2}},
-            ['behemoth-biter'] = {['big-biter'] = {min = 1.2, max = 2}},
+            ['medium-biter'] = {['small-biter'] = {min = 1, max = 2}},
+            ['big-biter'] = {['medium-biter'] = {min = 1, max = 2}},
+            ['behemoth-biter'] = {['big-biter'] = {min = 1, max = 2}},
             -- worms
-            ['small-worm-turret'] = {['small-biter'] = {min = 2.5, max = -1}},
-            ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = -1}, ['medium-biter'] = {min = 0.6, max = -1}},
-            ['big-worm-turret'] = {['small-biter'] = {min = 3.8, max = -1}, ['medium-biter'] = {min = 1.3, max = -1}, ['big-biter'] = {min = 1.1, max = -1}},
-            ['behemoth-worm-turret'] = {['small-biter'] = {min = 4.5, max = -1}, ['medium-biter'] = {min = 2.5, max = -1}, ['big-biter'] = {min = 2, max = -1}, ['behemoth-biter'] = {min = 0.8, max = -1}}
+            ['small-worm-turret'] = {['small-biter'] = {min = 1.5, max = 2.5}},
+            ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = 3.5}, ['medium-biter'] = {min = 1.0, max = 2}},
+            ['big-worm-turret'] = {
+                ['small-biter'] = {min = 2.5, max = 4},
+                ['medium-biter'] = {min = 1.5, max = 2.2},
+                ['big-biter'] = {min = 0.7, max = 1.5}
+            },
+            ['behemoth-worm-turret'] = {
+                ['small-biter'] = {min = 4, max = 5.2},
+                ['medium-biter'] = {min = 2.5, max = 3.8},
+                ['big-biter'] = {min = 1.2, max = 2.4},
+                ['behemoth-biter'] = {min = 0.8, max = -1}
+            }
         }
     },
     -- grants reward coins for certain actions
