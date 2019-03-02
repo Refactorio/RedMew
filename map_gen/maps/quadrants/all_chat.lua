@@ -7,7 +7,7 @@ local function console_chat(event)
     for _, force in pairs(game.forces) do
         if (string.find(force.name, 'quadrant')) ~= nil then
             if force.name ~= player_force.name then
-                force.print(event.string)
+                force.print(player.name .. ' ' .. player.tag .. ': ' .. event.message)
             end
         end
     end
