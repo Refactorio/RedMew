@@ -6,7 +6,7 @@ local Game = require 'utils.game'
 local math = require 'utils.math'
 local Server = require 'features.server'
 local Command = require 'utils.command'
-local Color = require 'resources.color_presets'
+-- local Color = require 'resources.color_presets' -- commented to avoid lint error (secondary to desync risk)
 local Ranks = require 'resources.ranks'
 
 local insert = table.insert
@@ -19,8 +19,8 @@ local duration_slider_max = duration_max / duration_step
 local tick_duration_step = duration_step * 60
 local inv_tick_duration_step = 1 / tick_duration_step
 
-local normal_color = Color.white
-local focus_color = Color.dark_orange
+-- local normal_color = Color.white -- commented to avoid lint error (secondary to desync risk)
+-- local focus_color = Color.dark_orange -- commented to avoid lint error (secondary to desync risk)
 
 local polls = {}
 local polls_counter = {0}
@@ -87,8 +87,9 @@ end
 
 local function apply_button_style(button)
     local button_style = button.style
-    button_style.font = 'default-bold'
+    button_style.font = 'default-semibold'
     button_style.height = 26
+    button_style.minimal_width = 26
     button_style.top_padding = 0
     button_style.bottom_padding = 0
     button_style.left_padding = 2
@@ -199,7 +200,7 @@ local function redraw_poll_viewer_content(data)
         created_by_text = ''
     end
 
-    local top_flow = poll_viewer_content.add {type = 'flow', direction = 'horizontal'}
+    local top_flow = poll_viewer_content.add {type = 'flow', direction = 'vertical'}
     top_flow.add {type = 'label', caption = table.concat {'Poll #', poll.id, created_by_text}}
 
     local edited_by_players = poll.edited_by
@@ -216,7 +217,9 @@ local function redraw_poll_viewer_content(data)
         table.remove(edit_names)
         local edit_text = table.concat(edit_names)
 
-        top_flow.add {type = 'label', caption = edit_text, tooltip = edit_text}
+        local top_flow_label = top_flow.add {type = 'label', caption = edit_text, tooltip = edit_text}
+        top_flow_label.style.single_line = false
+        top_flow_label.style.horizontally_stretchable = false
     end
 
     local poll_enabled = do_remaining_time(poll, remaining_time_label)
@@ -239,12 +242,12 @@ local function redraw_poll_viewer_content(data)
 
     local question_label = question_flow.add {type = 'label', caption = poll.question}
     question_label.style.height = 32
-    question_label.style.font_color = focus_color
+    -- question_label.style.font_color = focus_color -- commented to avoid desync risk
     question_label.style.font = 'default-listbox'
 
     local grid = poll_viewer_content.add {type = 'table', column_count = 2}
 
-    local answer = voters[player.index]
+    -- local answer = voters[player.index] -- commented to avoid lint error (secondary to desync risk)
     local vote_buttons = {}
     for i, a in pairs(answers) do
         local vote_button_flow = grid.add {type = 'flow'}
@@ -270,10 +273,10 @@ local function redraw_poll_viewer_content(data)
         vote_button_style.left_padding = 0
         vote_button_style.right_padding = 0
 
-        if answer == a then
-            vote_button_style.font_color = focus_color
-            vote_button_style.disabled_font_color = focus_color
-        end
+        -- if answer == a then -- block commented to avoid desync risk
+        --     vote_button_style.font_color = focus_color
+        --     vote_button_style.disabled_font_color = focus_color
+        -- end
 
         Gui.set_data(vote_button, {answer = a, data = data})
         vote_buttons[i] = vote_button
@@ -479,7 +482,7 @@ local function redraw_create_poll_content(data)
 
     local question_textfield =
         grid.add({type = 'flow'}).add {type = 'textfield', name = create_poll_question_name, text = data.question}
-    question_textfield.style.width = 400
+    question_textfield.style.width = 175
 
     Gui.set_data(question_label, question_textfield)
     Gui.set_data(question_textfield, data)
@@ -515,7 +518,7 @@ local function redraw_create_poll_content(data)
         local textfield_flow = grid.add {type = 'flow'}
 
         local textfield = textfield_flow.add {type = 'textfield', name = create_poll_answer_name, text = answer.text}
-        textfield.style.width = 400
+        textfield.style.width = 175
         Gui.set_data(textfield, {answers = answers, count = count})
 
         if delete_button then
@@ -767,22 +770,22 @@ local function vote(event)
                     vote_button.caption = previous_vote_button_count
                     vote_button.tooltip = previous_vote_button_tooltip
 
-                    if p.index == player_index then
-                        local vote_button_style = vote_button.style
-                        vote_button_style.font_color = normal_color
-                        vote_button_style.disabled_font_color = normal_color
-                    end
+                    -- if p.index == player_index then
+                        -- local vote_button_style = vote_button.style -- block commented to avoid desync risk
+                        -- vote_button_style.font_color = normal_color
+                        -- vote_button_style.disabled_font_color = normal_color
+                    -- end
                 end
 
                 local vote_button = vote_buttons[vote_index]
                 vote_button.caption = vote_button_count
                 vote_button.tooltip = vote_button_tooltip
 
-                if p.index == player_index then
-                    local vote_button_style = vote_button.style
-                    vote_button_style.font_color = focus_color
-                    vote_button_style.disabled_font_color = focus_color
-                end
+                -- if p.index == player_index then -- block commented to avoid desync risk
+                --     local vote_button_style = vote_button.style
+                --     vote_button_style.font_color = focus_color
+                --     vote_button_style.disabled_font_color = focus_color
+                -- end
             end
         end
     end
@@ -1329,7 +1332,8 @@ Command.add(
         arguments = {'poll'},
         required_rank = Ranks.regular,
         allowed_by_server = true,
-        custom_help_text = '<{question = "question", answers = {"answer 1", "answer 2"}, duration = 300}> - Creates a new poll (Regulars only).',
+        description = 'Creates a new poll',
+        custom_help_text = '<{question = "question", answers = {"answer 1", "answer 2"}, duration = 300}>',
         log_command = true,
         capture_excess_arguments = true
     },

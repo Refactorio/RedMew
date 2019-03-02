@@ -113,27 +113,9 @@ local function do_place_hidden_tiles(data)
     end
 end
 
-local decoratives = {
-    'brown-asterisk',
-    'brown-carpet-grass',
-    'brown-fluff',
-    'brown-fluff-dry',
-    'brown-hairy-grass',
-    'garballo',
-    'garballo-mini-dry',
-    'green-asterisk',
-    'green-bush-mini',
-    'green-carpet-grass',
-    'green-hairy-grass',
-    'green-pita',
-    'green-pita-mini',
-    'green-small-grass',
-    'red-asterisk'
-}
-
 local function do_place_decoratives(data)
     if regen_decoratives then
-        data.surface.regenerate_decorative(decoratives, {{data.top_x / 32, data.top_y / 32}})
+        data.surface.regenerate_decorative(nil, {{data.top_x / 32, data.top_y / 32}})
     end
 
     local dec = data.decoratives

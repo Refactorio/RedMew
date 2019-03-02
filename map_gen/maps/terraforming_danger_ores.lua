@@ -15,6 +15,7 @@ RS.set_spawn_island_tile('grass-1')
 RS.set_map_gen_settings(
     {
         MGSP.grass_only,
+        MGSP.enable_water,
         {
             terrain_segmentation = 'normal',
             water = 'normal'

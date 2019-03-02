@@ -38,7 +38,7 @@ Event.on_init(
 )
 
 --- Locks recipes, preventing them from being enabled by research.
--- Does not check if they should be enabled/disabled by existing research.
+-- Does not check if they should be enabled/disabled by research already completed.
 -- @param tbl <table> an array of recipe strings
 function Public.lock_recipes(tbl)
     for i = 1, #tbl do
@@ -47,7 +47,7 @@ function Public.lock_recipes(tbl)
 end
 
 --- Unlocks recipes, allowing them to be enabled by research.
--- Does not check if they should be enabled/disabled by existing research.
+-- Does not check if they should be enabled/disabled by research already completed.
 -- @param tbl <table> an array of recipe strings
 function Public.unlock_recipes(tbl)
     for i = 1, #tbl do

@@ -130,7 +130,7 @@ local function walkabout(args)
 
     local character = player.character
     if character and character.valid then
-        character.walking_state = {walking = false}
+        character.walking_state = {walking = false, direction = defines.direction.north}
     end
 
     if non_colliding_pos then

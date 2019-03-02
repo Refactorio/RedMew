@@ -119,15 +119,15 @@ local function normalise(year, month, day, hour, min, sec)
 end
 
 --- Converts unix epoch timestamp into table {year: number, month: number, day: number, hour: number, min: number, sec: number}
--- @param  sec<number> unix epoch timestamp
--- @return {year: number, month: number, day: number, hour: number, min: number, sec: number}
+-- @param <number> sec unix epoch timestamp
+-- @return <table> {year: number, month: number, day: number, hour: number, min: number, sec: number}
 function Public.to_timetable(secs)
     return normalise(1970, 1, 1, 0, 0, secs)
 end
 
 --- Converts timetable into unix epoch timestamp
--- @param  timetable<table> {year: number, month: number, day: number, hour: number, min: number, sec: number}
--- @return number
+-- @param <table> timetable {year: number, month: number, day: number, hour: number, min: number, sec: number}
+-- @return <number>
 function Public.from_timetable(timetable)
     local tt = normalise(timetable.year, timetable.month, timetable.day, timetable.hour, timetable.min, timetable.sec)
 
@@ -142,11 +142,19 @@ function Public.from_timetable(timetable)
 end
 
 --- Converts unix epoch timestamp into human readable string.
--- @param  secs<type> unix epoch timestamp
--- @return string
+-- @param <number> secs unix epoch timestamp
+-- @return <string>
 function Public.to_string(secs)
     local tt = normalise(1970, 1, 1, 0, 0, secs)
     return strformat('%04u-%02u-%02u %02u:%02u:%02d', tt.year, tt.month, tt.day, tt.hour, tt.min, tt.sec)
+end
+
+--- Converts unix epoch timestamp into a date string.
+-- @param <number> secs unix epoch timestamp
+-- @return <string> With data in format YYYY-MM-DD
+function Public.to_date_string(secs)
+    local tt = normalise(1970, 1, 1, 0, 0, secs)
+    return strformat('%04u-%02u-%02u', tt.year, tt.month, tt.day)
 end
 
 return Public

@@ -10,7 +10,7 @@ global.config = {
         -- The title of the map
         map_name_key = 'This Map has no name',
         -- The long description of the map, typically 1 paragraph
-        map_description_key = "This section is supposed to be filled out on a per map basis. If you're seeing this message, ping the admin team to get a description added for this map. A 20 coin bonus is available to the first person to point this out.",
+        map_description_key = "This section is supposed to be filled out on a per map basis.\nIf you're seeing this message, ping the admin team to get a description\nadded for this map. 20 coins is rewarded to the first person that points this out.",
         -- The feature list of the map
         map_extra_info_key = 'This map has no extra information',
         -- New Scenario Features, appears in the "What's new" tab
@@ -180,7 +180,16 @@ global.config = {
                 {name = 'small-plane', count = 2},
                 {name = 'coin', count = 20000},
                 {name = 'rocket-part', count = 2},
-                {name = 'computer', count = 2}
+                {name = 'computer', count = 2},
+                {name = 'infinity-pipe', count = 10},
+                {name = 'heat-interface', count = 10},
+                {name = 'compilatron-chest', count = 5},
+                {name = 'compilatron-chest', count = 5},
+                {name = 'escape-pod-assembler', count = 5},
+                {name = 'escape-pod-lab', count = 10},
+                {name = 'escape-pod-power', count = 5},
+                {name = 'pollution', count = 5},
+                {name = 'selection-tool', count = 1}
             }
         }
     },
@@ -253,6 +262,10 @@ global.config = {
     popup = {
         enabled = true
     },
+    -- adds a command to open a gui that creates rich text
+    rich_text_gui = {
+        enabled = true
+    },
     -- adds a camera to watch another player
     camera = {
         enabled = true
@@ -269,7 +282,9 @@ global.config = {
         -- gives players entity ghosts (from destruction like biter attacks) before the required research is complete
         ghosts_before_research = true,
         -- adds craftable loaders.
-        loaders = true
+        loaders = true,
+        -- turns on entity info aka alt-mode on first joining
+        set_alt_on_create = true
     },
     -- adds a useless button with the biter percentage
     evolution_progress = {

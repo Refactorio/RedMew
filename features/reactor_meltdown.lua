@@ -10,7 +10,7 @@ local Global = require 'utils.global'
 
 local Ranks = require 'resources.ranks'
 
-local primitives = {reactors_enabled = {global.config.reactor_meltdown.on_by_default}}
+local primitives = {reactors_enabled = global.config.reactor_meltdown.on_by_default}
 local wastelands = {}
 local reactors = {}
 
@@ -141,7 +141,7 @@ local function check_wastelands()
                     name = 'nuclear-reactor'
                 }
                 if wasteland_reactors[1] then
-                    wasteland_reactors[1].destroy()
+                    wasteland_reactors[1].destroy({raise_destroy = true})
                 end
             end
         end

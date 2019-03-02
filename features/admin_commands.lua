@@ -71,12 +71,6 @@ local function toggle_cheat_mode(_, player)
     Game.player_print('Cheat mode set to ' .. tostring(player.cheat_mode))
 end
 
---- Enables all researches for a player's force
-local function all_tech(_, player)
-    player.force.research_all_technologies()
-    Game.player_print('Your force has been granted all technologies')
-end
-
 --- Promote someone to regular
 local function add_regular(args)
     local target_name = args['player']
@@ -107,8 +101,7 @@ local function remove_regular(args)
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-        print_no_target(target_name)
-        return
+        Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.regular) then
@@ -121,14 +114,13 @@ local function remove_regular(args)
     end
 end
 
---- Add or remove someone from probation
+--- Put someone on probation
 local function probation_add(args)
     local target_name = args['player']
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-        print_no_target(target_name)
-        return
+    Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.admin) then
@@ -146,13 +138,13 @@ local function probation_add(args)
     end
 end
 
+--- Remove someone from probation
 local function probation_remove(args)
     local target_name = args['player']
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-        print_no_target(target_name)
-        return
+    Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.probation) then
@@ -401,17 +393,6 @@ Command.add(
         required_rank = Ranks.admin
     },
     toggle_cheat_mode
-)
-
-Command.add(
-    'all-tech',
-    {
-        description = 'researches all technologies',
-        required_rank = Ranks.admin,
-        debug_only = true,
-        cheat_only = true
-    },
-    all_tech
 )
 
 Command.add(

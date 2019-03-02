@@ -8,6 +8,7 @@ local Queue = require 'utils.queue'
 local PriorityQueue = require 'utils.priority_queue'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
+local ErrorLogging = require 'utils.error_logging'
 
 local Task = {}
 
@@ -45,6 +46,7 @@ local function on_tick()
                     error(result)
                 else
                     log(result)
+                    ErrorLogging.generate_error_report(result)
                 end
                 Queue.pop(queue)
                 global.total_task_weight = global.total_task_weight - task.weight
@@ -64,6 +66,7 @@ local function on_tick()
                 error(result)
             else
                 log(result)
+                ErrorLogging.generate_error_report(result)
             end
         end
         PriorityQueue.pop(callbacks, comp)

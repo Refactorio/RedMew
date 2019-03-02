@@ -47,12 +47,14 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
     frame.style.minimal_width = 300
 
     local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
+    top_flow.style.horizontal_align = 'center'
+    top_flow.style.horizontally_stretchable = true
 
     local title_flow = top_flow.add {type = 'flow'}
     title_flow.style.horizontal_align  = 'center'
     title_flow.style.left_padding = 32
     title_flow.style.top_padding = 8
-    title_flow.style.horizontally_stretchable = true
+    title_flow.style.horizontally_stretchable = false
 
     local title = title_flow.add {type = 'label', caption = title_text}
     title.style.font = 'default-large-bold'
@@ -65,11 +67,11 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
     content_flow.style.bottom_padding = 16
     content_flow.style.left_padding = 24
     content_flow.style.right_padding = 24
-    content_flow.style.horizontally_stretchable = true
+    content_flow.style.horizontally_stretchable = false
 
     local sprite_flow = content_flow.add {type = 'flow'}
     sprite_flow.style.vertical_align = 'center'
-    sprite_flow.style.vertically_stretchable = true
+    sprite_flow.style.vertically_stretchable = false
 
     sprite_flow.add {type = 'sprite', sprite = sprite_path}
 
@@ -78,7 +80,7 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
     label_flow.style.top_padding = 10
     label_flow.style.left_padding = 24
 
-    label_flow.style.horizontally_stretchable = true
+    label_flow.style.horizontally_stretchable = false
     local label = label_flow.add {type = 'label', caption = message}
     label.style.single_line = false
     label.style.font = 'default-large-bold'

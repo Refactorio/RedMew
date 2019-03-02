@@ -7,6 +7,7 @@ local Utils = require 'utils.core'
 local Global = require 'utils.global'
 local table = require 'utils.table'
 local Task = require 'utils.task'
+local Game = require 'utils.game'
 local Rank = require 'features.rank_system'
 
 local config = global.config.redmew_qol
@@ -18,7 +19,12 @@ local random = math.random
 local Public = {}
 
 -- Global registers
-local enabled = {}
+local enabled = {
+    random_train_color = nil,
+    restrict_chest = nil,
+    change_backer_name = nil,
+    set_alt_on_create = nil
+}
 
 Global.register(
     {
@@ -91,6 +97,18 @@ local change_backer_name =
     end
 )
 
+--- Changes the backer name on an entity that supports having a backer name.
+local set_alt_on_create =
+    Token.register(
+    function(event)
+        local player = Game.get_player_by_index(event.player_index)
+        if not player then
+            return
+        end
+        player.game_view_settings.show_entity_info = true
+    end
+)
+
 local loaders_technology_map = {
     ['logistics'] = 'loader',
     ['logistics-2'] = 'fast-loader',
@@ -149,6 +167,15 @@ local function register_change_backer_name()
     enabled.change_backer_name = true
     Event.add_removable(defines.events.on_built_entity, change_backer_name)
     Event.add_removable(defines.events.on_robot_built_entity, change_backer_name)
+    return true
+end
+
+local function register_set_alt_on_create()
+    if enabled.set_alt_on_create then
+        return false -- already registered
+    end
+    enabled.set_alt_on_create = true
+    Event.add_removable(defines.events.on_player_created, set_alt_on_create)
     return true
 end
 
@@ -231,6 +258,24 @@ function Public.get_backer_name()
     return enabled.change_backer_name or false
 end
 
+--- Sets set_alt_on_create on or off.
+-- @param enable <boolean> true to toggle on, false for off
+-- @return <boolean> Success/failure of command
+function Public.set_set_alt_on_create(enable)
+    if enable then
+        return register_set_alt_on_create()
+    else
+        Event.remove_removable(defines.events.on_player_created, set_alt_on_create)
+        enabled.set_alt_on_create = false
+        return true
+    end
+end
+
+--- Return status of set_alt_on_create
+function Public.set_alt_on_create()
+    return enabled.set_alt_on_create or false
+end
+
 -- Initial event setup
 
 if config.random_train_color then
@@ -241,6 +286,9 @@ if config.restrict_chest then
 end
 if config.backer_name then
     register_change_backer_name()
+end
+if config.set_alt_on_create then
+    register_set_alt_on_create()
 end
 
 if config.loaders then
