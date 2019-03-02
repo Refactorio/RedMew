@@ -12,6 +12,7 @@ local allowed_entities = {
     ['splitter'] = true,
     ['fast-splitter'] = true,
     ['express-splitter'] = true,
+    ['stone-wall'] = true
 }
 
 local quadrant_bounds = {
@@ -33,7 +34,7 @@ local function on_built_entity(event)
 
     local size_x = abs(s_box.left_top.x - s_box.right_bottom.x)
     local size_y = abs(s_box.left_top.y - s_box.right_bottom.y)
-    local pos = {x = abs(entity.position.x) - (size_x/2), y = abs(entity.position.y) - (size_y/2)}
+    local pos = {x = abs(entity.position.x) - (size_x / 2), y = abs(entity.position.y) - (size_y / 2)}
     local entity_pos = entity.position
 
     local within_range = false
@@ -50,7 +51,7 @@ local function on_built_entity(event)
         end
     end
 
-    if not(pos.x <= 23 or pos.y <= 23) and (within_range) then
+    if not (pos.x <= 23 or pos.y <= 23) and (within_range) then
         return
     end
 
@@ -62,11 +63,9 @@ local function on_built_entity(event)
         ghost = true
     end
 
-
     if name == 'tile-ghost' then
         return
     end
-
 
     if allowed_entities[name] and not (pos.x < 2 or pos.y < 2) and (within_range or (pos.x <= 23 or pos.y <= 23)) then
         return
