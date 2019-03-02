@@ -231,7 +231,7 @@ global.config = {
             -- worms
             ['small-worm-turret'] = {['small-biter'] = {min = 2.5, max = -1}},
             ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = -1}, ['medium-biter'] = {min = 0.6, max = -1}},
-            ['big-worm-turret'] = {['small-biter'] = {min = 3.8, max = -1}, ['medium-biter'] = {min = 1.3, max = -1}, ['big-biter'] = {min = 1.1, max = -1}, ['behemoth-biter'] = {min = 0.1, max = -1, trigger = 0.99, locked = true}},
+            ['big-worm-turret'] = {['small-biter'] = {min = 3.8, max = -1}, ['medium-biter'] = {min = 1.3, max = -1}, ['big-biter'] = {min = 1.1, max = -1}},
             ['behemoth-worm-turret'] = {['small-biter'] = {min = 4.5, max = -1}, ['medium-biter'] = {min = 2.5, max = -1}, ['big-biter'] = {min = 2, max = -1}, ['behemoth-biter'] = {min = 0.8, max = -1}}
         }
     },
