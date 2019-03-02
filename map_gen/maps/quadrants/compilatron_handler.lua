@@ -11,7 +11,7 @@ local messages = {
         'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
         'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron',
         'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
-        'How transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
+        'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
         'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
         'I\'m really cute'
     },
@@ -21,7 +21,7 @@ local messages = {
         'You can only craft military items in this area\n\nOther areas depend on you sending military items to them',
         'Spare some change?\nGo spend your hard-earned coins here at the market',
         'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron',
-        'How transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key'
+        'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key'
     },
     ['quadrant2'] = {
         'Welcome to Intermediate and Mining!\n\nThe only producer of steel and electronic circuits!',
@@ -30,7 +30,7 @@ local messages = {
         'Rumors say:\nThis area is extra rich in resources\n\nIt\'s ideal for mining operations',
         'Spare some change?\nGo spend your hard-earned coins here at the market',
         'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron',
-        'How transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key'
+        'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key'
     },
     ['quadrant3'] = {
         'Welcome to Oil and High Tech!\n\nHome of oil processing and technology',
@@ -47,7 +47,7 @@ local messages = {
         'Did you know?\nMy siblings and I where born here',
         'Spare some change?\nGo spend your hard-earned coins here at the market',
         'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron',
-        'How transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key'
+        'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key'
     }
 }
 

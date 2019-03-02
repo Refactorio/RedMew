@@ -1,5 +1,6 @@
 require 'map_gen.maps.quadrants.switch_team'
 require 'map_gen.maps.quadrants.restrict_placement'
+require 'map_gen.maps.quadrants.all_chat'
 
 local b = require('map_gen.shared.builders')
 local Retailer = require('features.retailer')
@@ -204,7 +205,6 @@ local function spawn_compilatron()
     local pos = game.surfaces[2].find_non_colliding_position('compilatron', {-0.5, -0.5}, 1.5, 0.5)
     local compi = game.surfaces[2].create_entity {name = 'compilatron', position = pos, force = game.forces.neutral}
     CompiHandler.add_compilatron(compi, 'spawn')
-    log('ADDED!')
 end
 
 local function chunk_generated()
