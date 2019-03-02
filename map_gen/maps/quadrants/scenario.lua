@@ -25,7 +25,8 @@ Chat is restricted to your current quadrant.
 Use /shout <message> (shortcut: /s <message>) to chat with entire server
 
 The following quadrants exists:
-Science and Military, Intermediate and Mining, Oil and High Tech, Logistics and Transport.
+Science and Military, Intermediate and Mining,
+Oil and High Tech, Logistics and Transport.
 
 Common for all quadrants:
 - Basic manufacturing and power
