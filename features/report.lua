@@ -428,7 +428,7 @@ Gui.on_click(
 Command.add(
     'report',
     {
-        description = 'Reports a user to admins',
+        description = {'command_description.report'},
         arguments = {'player', 'message'},
         capture_excess_arguments = true
     },

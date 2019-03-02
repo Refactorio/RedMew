@@ -127,7 +127,7 @@ local function on_mined_tile(surface, tiles)
     Template.insert(surface, new_tiles, {})
 end
 Command.add('diggy-clear-void', {
-    description = 'Clears the void in a given area but still triggers all events Diggy would when clearing void.',
+    description = {'command_description.diggy_clear_void'},
     arguments = {'left_top_x', 'left_top_y', 'width', 'height', 'surface_index'},
     debug_only = true,
     required_rank = Ranks.admin,

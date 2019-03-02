@@ -145,7 +145,7 @@ end
 Command.add(
     'dataset-copy',
     {
-        description = 'Copies a dataset',
+        description = {'command_description.dataset_copy'},
         arguments = {'dataset', 'destination'},
         required_rank = Ranks.admin,
         debug_only = true,
@@ -157,7 +157,7 @@ Command.add(
 Command.add(
     'dataset-move',
     {
-        description = 'Moves a dataset',
+        description = {'command_description.dataset_move'},
         arguments = {'dataset', 'destination'},
         required_rank = Ranks.admin,
         debug_only = true,
@@ -169,7 +169,7 @@ Command.add(
 Command.add(
     'dataset-delete',
     {
-        description = 'Deletes a dataset',
+        description = {'command_description.dataset_delete'},
         arguments = {'dataset'},
         required_rank = Ranks.admin,
         debug_only = true,
@@ -276,7 +276,7 @@ end
 Command.add(
     'dataset-transform',
     {
-        description = 'Transforms a dataset and writes it to the target dataset. Calls global.transform_function and sends the table of entries while expecting a table to return.',
+        description = {'command_description.dataset_transform'},
         arguments = {'dataset', 'destination'},
         required_rank = Ranks.admin,
         debug_only = true,
@@ -288,7 +288,7 @@ Command.add(
 Command.add(
     'dataset-transform-test',
     {
-        description = 'Shows the resulting data set from a transform operation. See /help dataset-transform for more information.',
+        description = {'command_description.dataset_transform_test'},
         arguments = {'dataset'},
         required_rank = Ranks.admin,
         debug_only = true,

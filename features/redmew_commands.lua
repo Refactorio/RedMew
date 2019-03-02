@@ -10,7 +10,6 @@ local Rank = require 'features.rank_system'
 local Donator = require 'features.donator'
 
 local format = string.format
--- local ceil = math.ceil
 local concat = table.concat
 local pcall = pcall
 local tostring = tostring
@@ -154,59 +153,6 @@ local function server_time(_, player)
     end
 end
 
-local function search_command(arguments) -- TODO: Re-enable this when (locale) has been properly integrated
-    Game.player_print('Sorry, search is temporarily out of order')
-    return arguments -- return args so that we avoid a lint warning
-
-    --[[
-    local keyword = arguments.keyword
-    local p = Game.player_print
-    if #keyword < 2 then
-        p('Keyword should be 2 characters or more')
-        return
-    end
-
-    local per_page = 7
-    local matches = Command.search(keyword)
-    local count = #matches
-
-    if count == 0 then
-        p('---- 0 Search Results ----')
-        p(format('No commands found matching "%s"', keyword))
-        p('-------------------------')
-        return
-    end
-
-    local page = tonumber(arguments.page)
-    local pages = ceil(count / per_page)
-
-    if nil == page then
-        p('Page should be a valid number')
-        return
-    end
-
-    -- just show the last page
-    if page > pages then
-        page = pages
-    end
-
-    if page < 1 then
-        page = 1
-    end
-
-    local page_start = per_page * (page - 1) + 1
-    local page_end = per_page * page
-    page_end = page_end <= count and page_end or count
-
-    p(format('---- %d Search %s -----', count, count == 1 and 'Result' or 'Results'))
-    p(format('Searching for: "%s"', keyword))
-    for i = page_start, page_end do
-        p(format('[%d] /%s', i, matches[i]))
-    end
-    p(format('-------- Page %d / %d --------', page, pages))
-    --[[]]
-end
-
 local function list_seeds()
     local seeds = {}
     local count_of_seeds = 0
@@ -278,7 +224,7 @@ end
 Command.add(
     'kill',
     {
-        description = 'Will kill you.',
+        description = {'command_description.kill'},
         arguments = {'player'},
         default_values = {player = false},
         allowed_by_server = true
@@ -289,7 +235,7 @@ Command.add(
 Command.add(
     'afk',
     {
-        description = 'Shows how long players have been afk.',
+        description = {'command_description.afk'},
         allowed_by_server = true
     },
     afk
@@ -298,7 +244,7 @@ Command.add(
 Command.add(
     'zoom',
     {
-        description = 'Sets your zoom.',
+        description = {'command_description.zoom'},
         arguments = {'zoom'}
     },
     zoom
@@ -307,7 +253,7 @@ Command.add(
 Command.add(
     'find',
     {
-        description = 'shows an alert on the map where the player is located',
+        description = {'command_description.find'},
         arguments = {'player'}
     },
     find_player
@@ -316,7 +262,7 @@ Command.add(
 Command.add(
     'show-rail-block',
     {
-        description = 'Toggles rail block visualisation.'
+        description = {'command_description.show_rail_block'}
     },
     show_rail_block
 )
@@ -324,27 +270,16 @@ Command.add(
 Command.add(
     'server-time',
     {
-        description = "Prints the server's time.",
+        description = {"command_description.server_time"},
         allowed_by_server = true
     },
     server_time
 )
 
 Command.add(
-    'search-command',
-    {
-        description = 'Search for commands matching the keyword in name or description',
-        arguments = {'keyword', 'page'},
-        default_values = {page = 1},
-        allowed_by_server = true
-    },
-    search_command
-)
-
-Command.add(
     'seeds',
     {
-        description = 'List the seeds of all surfaces',
+        description = {'command_description.seeds'},
         allowed_by_server = true
     },
     list_seeds
@@ -353,7 +288,7 @@ Command.add(
 Command.add(
     'redmew-version',
     {
-        description = 'Prints the version of the RedMew scenario',
+        description = {'command_description.redmew_version'},
         allowed_by_server = true
     },
     print_version
@@ -362,7 +297,7 @@ Command.add(
 Command.add(
     'whois',
     {
-        description = 'provides information about a given player, admins can see the inventory of a player by adding "yes" as a second argument',
+        description = {'command_description.whois'},
         arguments = {'player', 'inventory'},
         default_values = {inventory = false},
         allowed_by_server = true
@@ -374,7 +309,7 @@ Command.add(
 Command.add(
     'redmew-setting-set',
     {
-        description = 'Set a setting for yourself',
+        description = {'command_description.redmew_setting_set'},
         arguments = {'setting_name', 'new_value'},
         capture_excess_arguments = true
     },
@@ -402,7 +337,7 @@ Command.add(
 Command.add(
     'redmew-setting-get',
     {
-        description = 'Display a setting value for yourself',
+        description = {'command_description.redmew_setting_get'},
         arguments = {'setting_name'}
     },
     function(arguments, player)
@@ -429,7 +364,7 @@ Command.add(
 Command.add(
     'redmew-setting-all',
     {
-        description = 'Display all settings for yourself'
+        description = {'command_description.redmew_setting_all'},
     },
     function(_, player)
         for name, value in pairs(Settings.all(player.index)) do
