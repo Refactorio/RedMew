@@ -124,6 +124,9 @@ end
 if config.popup.enabled then
     require 'features.gui.popup'
 end
+if config.rich_text_gui.enabled then
+    require 'features.gui.rich_text'
+end
 
 -- Debug-only modules
 if _DEBUG then

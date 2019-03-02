@@ -262,6 +262,10 @@ global.config = {
     popup = {
         enabled = true
     },
+    -- adds a command to open a gui that creates rich text
+    rich_text_gui = {
+        enabled = true
+    },
     -- adds a camera to watch another player
     camera = {
         enabled = true
