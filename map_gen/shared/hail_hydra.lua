@@ -14,24 +14,14 @@ local compound = defines.command.compound
 local logical_or = defines.compound_command.logical_or
 local attack = defines.command.attack
 local attack_area = defines.command.attack_area
-local hail_hydra_conf = global.config.hail_hydra
 
 local spawn_table = {}
 for k, v in pairs(global.config.hail_hydra.hydras) do
     spawn_table[k] = v
 end
 
-local function formula(evo)
-    evo = evo * 100
-    local value = (0.00003 * evo ^ 3 + 0.004 * evo ^ 2 + 0.3 * evo) * 0.01
-    return value <= 1 and value or 1
-end
-
 local primitives = {
-    evolution_scale = (hail_hydra_conf.evolution_scale ~= nil) and hail_hydra_conf.evolution_scale or 1,
-    evolution_scale_formula = formula,
-    online_player_scale_enabled = hail_hydra_conf.online_player_scale_enabled,
-    online_player_scale = hail_hydra_conf.online_player_scale,
+    evolution_scale = global.config.hail_hydra.evolution_scale,
     enabled = nil
 }
 
@@ -47,10 +37,6 @@ Global.register(
 )
 
 local Public = {}
-
-local function backwards_compatibility(amount)
-    return {min = amount, max = amount + primitives.evolution_scale}
-end
 
 local function create_attack_command(position, target)
     local command = {type = attack_area, destination = position, radius = 10}
@@ -81,17 +67,9 @@ local on_died =
 
         local position = entity.position
         local force = entity.force
-
-        local num_online_players = #game.connected_players
-        local player_scale = 0
-        if primitives.online_player_scale_enabled then
-            player_scale = (num_online_players - primitives.online_player_scale) * 0.01
-        end
-
-        local evolution_scaled = primitives.evolution_scale_formula(force.evolution_factor)
-        local evolution_factor = evolution_scaled + evolution_scaled * player_scale
-
+        local evolution_factor = force.evolution_factor * primitives.evolution_scale
         local cause = event.cause
+
         local surface = entity.surface
         local create_entity = surface.create_entity
         local find_non_colliding_position = surface.find_non_colliding_position
@@ -99,26 +77,7 @@ local on_died =
         local command = create_attack_command(position, cause)
 
         for hydra_spawn, amount in pairs(hydra) do
-            if (type(amount) == 'number') then
-                amount = backwards_compatibility(amount)
-            end
-            local trigger = amount.trigger
-            if trigger == nil or trigger < force.evolution_factor then
-                if amount.locked then
-                    evolution_factor = evolution_scaled
-                end
-                local min = amount.min
-                local max = amount.max
-                max = (max ~= nil and max >= min) and max or min
-                if max ~= min then
-                    amount = (max - min) * (evolution_factor / primitives.evolution_scale_formula(1)) + min
-                else
-                    amount = min
-                end
-            else
-                amount = 0
-            end
-            amount = (amount > 0) and amount or 0
+            amount = amount + evolution_factor
 
             local extra_chance = amount % 1
             if extra_chance > 0 then
@@ -175,18 +134,6 @@ end
 -- @param scale <number>
 function Public.set_evolution_scale(scale)
     primitives.evolution_scale = scale
-end
-
---- Sets the online player scale
--- @param scale <number>
-function Public.set_evolution_scale(scale)
-    primitives.online_player_scale = scale
-end
-
---- Toggles the online player scale feature
--- @param enable <boolean>
-function Public.set_evolution_scale(enabled)
-    primitives.online_player_scale_enabled = enabled
 end
 
 --- Sets the hydra spawning table
