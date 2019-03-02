@@ -107,7 +107,9 @@ local function remove_regular(args)
     if Rank.equal(target_name, Ranks.regular) then
         local _, new_rank = Rank.reset_player_rank(target_name)
         game.print({'admin_commands.regular_remove_success', Utils.get_actor(), target_name, new_rank}, Color.info)
-        target_player.print({'admin_commands.regular_remove_notify_target'}, Color.warning)
+        if target_player then
+            target_player.print({'admin_commands.regular_remove_notify_target'}, Color.warning)
+        end
     else
         local rank_name = Rank.get_player_rank_name(target_name)
         Game.player_print({'admin_commands.regular_remove_fail', target_name, rank_name}, Color.fail)
@@ -120,19 +122,23 @@ local function probation_add(args)
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-    Game.player_print({'common.warn_no_target', target_name}, Color.warning)
+        Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.admin) then
-        target_player.print({'admin_commands.probation_warn_admin', Utils.get_actor()}, Color.warning)
         Game.player_print({'admin_commands.probation_add_fail_admin'}, Color.fail)
+        if target_player then
+            target_player.print({'admin_commands.probation_warn_admin', Utils.get_actor()}, Color.warning)
+        end
         return
     end
 
     local success = Rank.decrease_player_rank_to(target_name, Ranks.probation)
     if success then
         game.print({'admin_commands.probation_add_success', Utils.get_actor(), target_name}, Color.info)
-        target_player.print({'admin_commands.probation_add_notify_target'}, Color.warning)
+        if target_player then
+            target_player.print({'admin_commands.probation_add_notify_target'}, Color.warning)
+        end
     else
         Game.player_print({'admin_commands.probation_add_fail', target_name}, Color.fail)
     end
@@ -144,13 +150,15 @@ local function probation_remove(args)
     local target_player = game.players[target_name]
 
     if not target_player or not target_player.valid then
-    Game.player_print({'common.warn_no_target', target_name}, Color.warning)
+        Game.player_print({'common.warn_no_target', target_name}, Color.warning)
     end
 
     if Rank.equal(target_name, Ranks.probation) then
         Rank.reset_player_rank(target_name)
         game.print({'admin_commands.probation_remove_success', Utils.get_actor(), target_name}, Color.info)
-        target_player.print({'admin_commands.probation_remove_notify_target'}, Color.warning)
+        if target_player then
+            target_player.print({'admin_commands.probation_remove_notify_target'}, Color.warning)
+        end
     else
         Game.player_print({'admin_commands.probation_remove_fail', target_name}, Color.fail)
     end
@@ -201,11 +209,11 @@ local redmew_commands_untempban =
 
 --- Gives a player a temporary ban
 local function tempban(args, player)
-    local target_name = args.player
-    local target = game.players[target_name]
+    local target_ident = args.player
+    local target = game.players[target_ident]
     local duration = args.minutes
     if not target then
-        print_no_target(target_name)
+        print_no_target(target_ident)
         return
     end
     if not tonumber(duration) then
@@ -213,6 +221,7 @@ local function tempban(args, player)
         return
     end
 
+    local target_name = target.name
     local group = get_tempban_group()
     local actor
     if player then
@@ -242,10 +251,10 @@ end
 
 --- Takes a target and teleports them to player
 local function invoke(args, player)
-    local target_name = args.player
-    local target = game.players[target_name]
+    local target_ident = args.player
+    local target = game.players[target_ident]
     if not target then
-        print_no_target(target_name)
+        print_no_target(target_ident)
         return
     end
     local pos = player.surface.find_non_colliding_position('player', player.position, 50, 1)
@@ -254,20 +263,22 @@ local function invoke(args, player)
         return
     end
     target.teleport({pos.x, pos.y}, player.surface)
-    game.print(args.player .. ', get your ass over here!')
+    game.print(target.name .. ', get your ass over here!')
 end
 
 --- Takes a target and teleports player to target. (admin only)
 local function teleport_player(args, player)
-    local target_name = args.player
+    local target_ident = args.player
     local target
-    if target_name then
-        target = game.players[target_name]
+    if target_ident then
+        target = game.players[target_ident]
     end
     if not target then
-        print_no_target(target_name)
+        print_no_target(target_ident)
         return
     end
+
+    local target_name = target.name
     local surface = target.surface
     local pos = surface.find_non_colliding_position('player', target.position, 50, 1)
     if not pos then
@@ -503,11 +514,11 @@ Command.add(
 Command.add(
     'tp',
     {
-        description = 'if blank, teleport to selected entity. mode = toggle tp mode where you can teleport to a placed ghost. player = teleport to player.',
+        description = {'command_description.tp'},
         arguments = {'mode|player'},
         default_values = {['mode|player'] = false},
         required_rank = Ranks.admin,
-        custom_help_text = '<blank|mode|player> 3 different uses: "/tp" to tp to selected entity. "/tp mode" to toggle tp mode. "/tp Newcott" to tp to Newcott'
+        custom_help_text = {'command_custom_help.tp'},
     },
     teleport_command
 )
