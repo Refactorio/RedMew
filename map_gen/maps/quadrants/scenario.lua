@@ -8,6 +8,7 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
 local ScenarioInfo = require 'features.gui.info'
 local Recipes = require 'map_gen.maps.quadrants.enabled_recipes'
+local CompiHandler = require 'map_gen.maps.quadrants.compilatron_handler'
 
 local abs = math.abs
 local round = math.round
@@ -95,6 +96,27 @@ local function spawn_market(surface, force, position)
     end
 
     force.add_chart_tag(surface, {icon = {type = 'item', name = 'coin'}, position = pos, text = 'Market'})
+
+    pos = surface.find_non_colliding_position('compilatron', position, 10, 1)
+
+    local compi = surface.create_entity {name = 'compilatron', position = pos, force = game.forces.neutral}
+
+    local quadrant = 'quadrant'
+    if pos.x > 0 then
+        if pos.y > 0 then
+            quadrant = quadrant .. '4'
+        else
+            quadrant = quadrant .. '1'
+        end
+    else
+        if pos.y > 0 then
+            quadrant = quadrant .. '3'
+        else
+            quadrant = quadrant .. '2'
+        end
+    end
+
+    CompiHandler.add_compilatron(compi, quadrant)
 end
 
 local function reset_recipes()
