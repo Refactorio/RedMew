@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd ~/build/Refactorio/RedMew || exit
+cd ~/build/Refactorio/RedMew/locale || exit
 echo "Changing working directory back to: "
 pwd
 
