@@ -7,12 +7,21 @@ local compilatrons = {}
 local current_messages = {}
 
 local messages = {
+    ['spawn'] = {
+        'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
+        'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron',
+        'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
+        'How transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
+        'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
+        'I\'m really cute'
+    },
     ['quadrant1'] = {
         'Welcome to Science and Military!\n\nCommand center of military and scientific advancement',
         'You can only research in this area\n\nYou would have to import some science packs from other areas',
         'You can only craft military items in this area\n\nOther areas depend on you sending military items to them',
         'Spare some change?\nGo spend your hard earned coins here at the market',
-        'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron'
+        'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron',
+        'How transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key'
     },
     ['quadrant2'] = {
         'Welcome to Intermediate and Mining!\n\nThe only producer of steel and electronic circuits!',
@@ -20,7 +29,8 @@ local messages = {
         'You can only craft circuits in this area\n\nYou need to export them other areas!',
         'Rumors say:\nThis area is extra rich in resources\n\nIt\'s ideal for mining operations',
         'Spare some change?\nGo spend your hard earned coins here at the market',
-        'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron'
+        'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron',
+        'How transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key'
     },
     ['quadrant3'] = {
         'Welcome to Oil and High Tech!\n\nHome of oil processing and technology',
@@ -28,14 +38,16 @@ local messages = {
         'You can only craft various high tech items in this ares\n\nYou may need to import a lot of intermediate products!',
         'I have heard:\nThis area is a perfect place to launch a rocket\n\nOther areas can provide you the parts you need',
         'Spare some change?\nGo spend your hard earned coins here at the market',
-        'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron'
+        'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron',
+        'How transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key'
     },
     ['quadrant4'] = {
         'Welcome to Logistics and Transport\n\nHome of spaghetti and trainyards',
         'You can only produce logistical items in this area\n\nThe success of the region depends on you exporting these!',
         'Did you know?\nMe and my siblings where born here',
         'Spare some change?\nGo spend your hard earned coins here at the market',
-        'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron'
+        'Is the world silent?\nYou need to use the /s command to chat with the entire server\n\nLike this: /s Hello World, I\'m Compilatron',
+        'How transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key'
     }
 }
 

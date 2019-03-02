@@ -9,6 +9,8 @@ local Event = require 'utils.event'
 local ScenarioInfo = require 'features.gui.info'
 local Recipes = require 'map_gen.maps.quadrants.enabled_recipes'
 local CompiHandler = require 'map_gen.maps.quadrants.compilatron_handler'
+local Token = require 'utils.token'
+local Task = require 'utils.task'
 
 local abs = math.abs
 local round = math.round
@@ -78,6 +80,8 @@ redmew_config.player_create.join_messages = {
     'Use /shout <message> (shortcut: /s <message>) to chat with entire server',
     '--------'
 }
+
+redmew_config.hail_hydra.enabled = true
 
 local function spawn_market(surface, force, position)
     position.x = round(position.x)
@@ -177,8 +181,28 @@ local function on_research_finished(event)
     reset_recipes()
 end
 
+local callback_token
+local callback
+
+local function spawn_compilatron()
+    local pos = game.surfaces[2].find_non_colliding_position('compilatron', {-0.5, -0.5}, 1.5, 0.5)
+    local compi = game.surfaces[2].create_entity {name = 'compilatron', position = pos, force = game.forces.neutral}
+    CompiHandler.add_compilatron(compi, 'spawn')
+    log('ADDED!')
+end
+
+local function chunk_generated()
+    Event.remove_removable(defines.events.on_chunk_generated, callback_token)
+    Task.set_timeout_in_ticks(300, callback)
+end
+
 Event.on_init(on_init)
 Event.add(defines.events.on_research_finished, on_research_finished)
+--Event.add(defines.events.on_player_joined_game, player_created)
+callback_token = Token.register(chunk_generated)
+callback = Token.register(spawn_compilatron)
+
+Event.add_removable(defines.events.on_chunk_generated, callback_token)
 
 local function quadrants(x, y)
     local abs_x = abs(x) - 0.5
@@ -192,7 +216,7 @@ local function quadrants(x, y)
 
         for _, entity in ipairs(entities) do
             if entity and entity.valid then
-                if entity.name ~= 'player' then
+                if entity.name ~= 'player' and entity.name ~= 'compilatron' then
                     entity.destroy()
                 end
             end
