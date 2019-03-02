@@ -8,7 +8,7 @@ local function console_chat(event)
     local player = Game.get_player_by_index(event.player_index)
     local player_force = player.force
     for _, force in pairs(game.forces) do
-        if (string.find(force.name, 'quadrant')) ~= nil then
+        if (string.find(force.name, 'quadrant')) ~= nil or force.name == 'player' then
             if force.name ~= player_force.name then
                 force.print(player.name .. ' ' .. player.tag .. ': ' .. event.message, player.chat_color)
             end
