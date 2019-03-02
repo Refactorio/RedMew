@@ -57,7 +57,7 @@ Logistics and Transport
     - Bot based
     - Train based
 
-Version: pre-v1.0
+Version: v1.0
 ]]
 )
 
