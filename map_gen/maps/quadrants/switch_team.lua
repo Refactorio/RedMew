@@ -109,7 +109,8 @@ local function redraw_chest_button(data, player)
         {
             type = 'button',
             name = 'Quadrants.Button.Toggle',
-            caption = 'Toggle inventory empty to chest. Currently: ' .. toggle_status
+            caption = 'Toggle inventory empty to chest. Currently: ' .. toggle_status,
+            tooltip = 'If on:\nYour inventory will be emptied in a chest, when you switch quadrant'
         }
     )
     button.style.font = 'default'

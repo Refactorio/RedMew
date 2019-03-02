@@ -59,7 +59,7 @@ local callback =
         local ent = data.ent
         local name = data.name
         local msg_number = data.msg_number
-        message =
+        local message =
             ent.surface.create_entity(
             {name = 'compi-speech-bubble', text = messages[name][msg_number], position = {0, 0}, source = ent}
         )
