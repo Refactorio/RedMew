@@ -25,13 +25,139 @@ RS.set_map_gen_settings(
     }
 )
 
-local military_effect_types = {
-    ['turret-attack'] = true,
-    ['ammo-damage'] = true,
-    ['gun-speed'] = true,
-    ['character-health-bonus'] = true,
-    ['follower-robot-lifetime'] = true,
-    ['artillery-range'] = true
+local military_techs = {
+    ['artillery'] = true,
+    ['artillery-shell-range-1'] = true,
+    ['artillery-shell-speed-1'] = true,
+    ['atomic-bomb'] = true,
+    ['bullet-damage-1'] = true,
+    ['bullet-damage-2'] = true,
+    ['bullet-damage-3'] = true,
+    ['bullet-damage-4'] = true,
+    ['bullet-damage-5'] = true,
+    ['bullet-damage-6'] = true,
+    ['bullet-damage-7'] = true,
+    ['bullet-speed-1'] = true,
+    ['bullet-speed-2'] = true,
+    ['bullet-speed-3'] = true,
+    ['bullet-speed-4'] = true,
+    ['bullet-speed-5'] = true,
+    ['bullet-speed-6'] = true,
+    ['cannon-shell-damage-1'] = true,
+    ['cannon-shell-damage-2'] = true,
+    ['cannon-shell-damage-3'] = true,
+    ['cannon-shell-damage-4'] = true,
+    ['cannon-shell-damage-5'] = true,
+    ['cannon-shell-damage-6'] = true,
+    ['cannon-shell-speed-1'] = true,
+    ['cannon-shell-speed-2'] = true,
+    ['cannon-shell-speed-3'] = true,
+    ['cannon-shell-speed-4'] = true,
+    ['cannon-shell-speed-5'] = true,
+    ['combat-robot-damage-1'] = true,
+    ['combat-robot-damage-2'] = true,
+    ['combat-robot-damage-3'] = true,
+    ['combat-robot-damage-4'] = true,
+    ['combat-robot-damage-5'] = true,
+    ['combat-robot-damage-6'] = true,
+    ['combat-robotics'] = true,
+    ['combat-robotics-2'] = true,
+    ['combat-robotics-3'] = true,
+    ['discharge-defense-equipment'] = true,
+    ['energy-shield-equipment'] = true,
+    ['energy-shield-mk2-equipment'] = true,
+    ['exoskeleton-equipment'] = true,
+    ['explosive-rocketry'] = true,
+    ['flamethrower'] = true,
+    ['flamethrower-damage-1'] = true,
+    ['flamethrower-damage-2'] = true,
+    ['flamethrower-damage-3'] = true,
+    ['flamethrower-damage-4'] = true,
+    ['flamethrower-damage-5'] = true,
+    ['flamethrower-damage-6'] = true,
+    ['flamethrower-damage-7'] = true,
+    ['flammables'] = true,
+    ['follower-robot-count-1'] = true,
+    ['follower-robot-count-2'] = true,
+    ['follower-robot-count-3'] = true,
+    ['follower-robot-count-4'] = true,
+    ['follower-robot-count-5'] = true,
+    ['follower-robot-count-6'] = true,
+    ['follower-robot-count-7'] = true,
+    ['grenade-damage-1'] = true,
+    ['grenade-damage-2'] = true,
+    ['grenade-damage-3'] = true,
+    ['grenade-damage-4'] = true,
+    ['grenade-damage-5'] = true,
+    ['grenade-damage-6'] = true,
+    ['grenade-damage-7'] = true,
+    ['gun-turret-damage-1'] = true,
+    ['gun-turret-damage-2'] = true,
+    ['gun-turret-damage-3'] = true,
+    ['gun-turret-damage-4'] = true,
+    ['gun-turret-damage-5'] = true,
+    ['gun-turret-damage-6'] = true,
+    ['gun-turret-damage-7'] = true,
+    ['heavy-armor'] = true,
+    ['land-mine'] = true,
+    ['laser'] = true,
+    ['laser-turret-damage-1'] = true,
+    ['laser-turret-damage-2'] = true,
+    ['laser-turret-damage-3'] = true,
+    ['laser-turret-damage-4'] = true,
+    ['laser-turret-damage-5'] = true,
+    ['laser-turret-damage-6'] = true,
+    ['laser-turret-damage-7'] = true,
+    ['laser-turret-damage-8'] = true,
+    ['laser-turret-speed-1'] = true,
+    ['laser-turret-speed-2'] = true,
+    ['laser-turret-speed-3'] = true,
+    ['laser-turret-speed-4'] = true,
+    ['laser-turret-speed-5'] = true,
+    ['laser-turret-speed-6'] = true,
+    ['laser-turret-speed-7'] = true,
+    ['laser-turrets'] = true,
+    ['military'] = true,
+    ['military-2'] = true,
+    ['military-3'] = true,
+    ['military-4'] = true,
+    ['modular-armor'] = true,
+    ['night-vision-equipment'] = true,
+    ['personal-laser-defense-equipment'] = true,
+    ['power-armor'] = true,
+    ['power-armor-2'] = true,
+    ['rocket-damage-1'] = true,
+    ['rocket-damage-2'] = true,
+    ['rocket-damage-3'] = true,
+    ['rocket-damage-4'] = true,
+    ['rocket-damage-5'] = true,
+    ['rocket-damage-6'] = true,
+    ['rocket-damage-7'] = true,
+    ['rocket-speed-1'] = true,
+    ['rocket-speed-2'] = true,
+    ['rocket-speed-3'] = true,
+    ['rocket-speed-4'] = true,
+    ['rocket-speed-5'] = true,
+    ['rocket-speed-6'] = true,
+    ['rocket-speed-7'] = true,
+    ['rocketry'] = true,
+    ['shotgun-shell-damage-1'] = true,
+    ['shotgun-shell-damage-2'] = true,
+    ['shotgun-shell-damage-3'] = true,
+    ['shotgun-shell-damage-4'] = true,
+    ['shotgun-shell-damage-5'] = true,
+    ['shotgun-shell-damage-6'] = true,
+    ['shotgun-shell-damage-7'] = true,
+    ['shotgun-shell-speed-1'] = true,
+    ['shotgun-shell-speed-2'] = true,
+    ['shotgun-shell-speed-3'] = true,
+    ['shotgun-shell-speed-4'] = true,
+    ['shotgun-shell-speed-5'] = true,
+    ['shotgun-shell-speed-6'] = true,
+    ['stone-walls'] = true,
+    ['tanks'] = true,
+    ['turrets'] = true,
+    ['uranium-ammo'] = true
 }
 
 local player_ammo_research_modifiers = {
@@ -66,30 +192,20 @@ end
 local function research_finished(event)
     local research = event.research
     local force = research.force
-    local effects = research.effects
-    local buffed
 
-    if effects then
-        for _, effect in ipairs(effects) do
-            local type = effect.type
-            if military_effect_types[type] then
-                --increase player damage
-                modify_damage(force, 1)
-                game.print('Military research complete.... you feel stronger')
-                buffed = true
-            elseif type == 'maximum-following-robots-count' then
-                -- increase robot count
-                force.maximum_following_robot_count = force.maximum_following_robot_count + 10
-                game.print('Your Plague of robots disperses........')
-                buffed = true
-            end
-        end
-    end
-
-    if not buffed then
+    if military_techs[research.name] then
+        --increase player damage
+        modify_damage(force, 1)
+        game.print('Military research complete.... you feel stronger')
+    else
         -- decrease player damage
         modify_damage(force, -1.5)
         game.print('Research complete. A feeling of weakness spreads.')
+    end
+
+    if string.find(research.name, 'follower%-robot%-count') then
+        force.maximum_following_robot_count = force.maximum_following_robot_count + 10
+        game.print('Your Plague of robots disperses........')
     end
 end
 
