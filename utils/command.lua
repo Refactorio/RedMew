@@ -310,7 +310,7 @@ end
 --- Traps command errors if not in DEBUG.
 if not _DEBUG then
     local old_add_command = commands.add_command
-    commands.add_command =
+    commands.add_command = -- luacheck: ignore 122
         function(name, desc, func)
         old_add_command(
             name,
