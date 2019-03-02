@@ -29,33 +29,33 @@ local function validPlayer(name)
 end
 
 local function guiNewPlayer(gui)
-    local frame = gui.add {type = 'frame', name = 'new_force', caption = {'gui.create-force'}, direction = 'vertical'}
-    frame.add {type = 'button', name = 'new_button', caption = {'gui.new-force'}}
+    local frame = gui.add {type = 'frame', name = 'new_force', caption = {'rusky-gui.create-force'}, direction = 'vertical'}
+    frame.add {type = 'button', name = 'new_button', caption = {'rusky-gui.new-force'}}
 end
 
 local function guiForcePlayer(gui)
-    local frame = gui.add {type = 'frame', name = 'own_force', caption = {'gui.force'}, direction = 'vertical'}
+    local frame = gui.add {type = 'frame', name = 'own_force', caption = {'rusky-gui.force'}, direction = 'vertical'}
     frame.add {type = 'textfield', name = 'inv_name'}
-    frame.add {type = 'button', name = 'inv_button', caption = {'gui.invite'}}
-    frame.add {type = 'button', name = 'leave_button', caption = {'gui.leave'}}
+    frame.add {type = 'button', name = 'inv_button', caption = {'rusky-gui.invite'}}
+    frame.add {type = 'button', name = 'leave_button', caption = {'rusky-gui.leave'}}
 end
 
 local function printNewPlayer(player)
     --player.print{"msg.info13"}
     --player.print{"msg.info14"}
-    player.print {'msg.info1'}
-    player.print {'msg.info2'}
-    player.print {'msg.info3'}
-    player.print {'msg.info4'}
-    player.print {'msg.info5'}
+    player.print {'rusky-gui.info1'}
+    player.print {'rusky-gui.info2'}
+    player.print {'rusky-gui.info3'}
+    player.print {'rusky-gui.info4'}
+    player.print {'rusky-gui.info5'}
     --player.print{"msg.info6"}
     --player.print{"msg.info7"}
     --player.print{"msg.info8"}
 end
 
 local function printForcePlayer(player)
-    player.print {'msg.info11'}
-    player.print {'msg.info12'}
+    player.print {'rusky-gui.info11'}
+    player.print {'rusky-msg.info12'}
 end
 
 Event.on_init(
@@ -120,8 +120,8 @@ Event.add(
             end
             for index, player in pairs(force.players) do
                 if player.gui.left.rocket_score == nil then
-                    local frame = player.gui.left.add {name = 'rocket_score', type = 'frame', direction = 'horizontal', caption = {'gui.score'}}
-                    frame.add {name = 'rocket_count_label', type = 'label', caption = {'', {'gui.rockets-sent'}, ':'}}
+                    local frame = player.gui.left.add {name = 'rocket_score', type = 'frame', direction = 'horizontal', caption = {'rusky-gui.score'}}
+                    frame.add {name = 'rocket_count_label', type = 'label', caption = {'', {'rusky-gui.rockets-sent'}, ':'}}
                     frame.add {name = 'rocket_count', type = 'label', caption = tostring(global.satellite_sent[force.name])}
                 else
                     player.gui.left.rocket_score.rocket_count.caption = tostring(global.satellite_sent[force.name])
@@ -129,7 +129,7 @@ Event.add(
             end
         else
             for index, player in pairs(force.players) do
-                player.print({'msg.gui-rocket-silo.rocket-launched-without-satellite'})
+                player.print({'rusky-msg.rocket-launched-without-satellite'})
             end
         end
     end
@@ -152,10 +152,10 @@ Event.add(
                 player.force.research_all_technologies()
                 gui.new_force.destroy()
                 guiForcePlayer(gui)
-                player.print {'msg.force-created'}
+                player.print {'rusky-gui.force-created'}
                 printForcePlayer(player)
             else
-                player.print {'msg.close-position'}
+                player.print {'rusky-gui.close-position'}
             end
         elseif event.element.name == 'inv_button' then
             local name = gui.own_force.inv_name.text
@@ -168,26 +168,26 @@ Event.add(
 
                 igui.new_force.destroy()
                 guiForcePlayer(igui)
-                player.print {'msg.player-invated', name}
-                iplayer.print {'msg.you-invated', player.name}
+                player.print {'rusky-gui.player-invated', name}
+                iplayer.print {'rusky-gui.you-invated', player.name}
             else
-                player.print {'msg.invalid-name'}
+                player.print {'rusky-gui.invalid-name'}
             end
         elseif event.element.name == 'leave_button' and gui.own_force.inv_name.text == 'leave' then
             if #player.force.players == 1 then
                 game.merge_forces(player.force.name, game.forces.player.name)
                 gui.own_force.destroy()
                 guiNewPlayer(gui)
-                player.print {'msg.force-destroyed'}
+                player.print {'rusky-gui.force-destroyed'}
             elseif #player.force.players > 1 then
                 player.force = game.forces.player
                 player.character.die()
                 gui.own_force.destroy()
                 guiNewPlayer(gui)
-                player.print {'msg.force-leave'}
+                player.print {'rusky-gui.force-leave'}
             end
         elseif event.element.name == 'leave_button' and gui.own_force.inv_name.text ~= 'leave' then
-            player.print {'msg.force-leave-confim'}
+            player.print {'rusky-gui.force-leave-confim'}
         end
     end
 )
