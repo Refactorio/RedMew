@@ -514,11 +514,11 @@ Command.add(
 Command.add(
     'tp',
     {
-        description = {'admin_commands.tp_description'},
+        description = {'command_description.tp'},
         arguments = {'mode|player'},
         default_values = {['mode|player'] = false},
         required_rank = Ranks.admin,
-        custom_help_text = {'admin_commands.tp_custom_help'},
+        custom_help_text = {'command_custom_help.tp'},
     },
     teleport_command
 )
