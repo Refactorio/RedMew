@@ -19,6 +19,7 @@ local filter = function(item, path)
 end
 
 local function player_joined(event)
+    game.tick_paused = true
     local dump_string = inspect(_ENV, {process = filter})
     if dump_string then
         local s = string.format('tick on join: %s\n%s', event.tick, dump_string)
@@ -27,6 +28,7 @@ local function player_joined(event)
     else
         game.print('_ENV not dumped, dump_string was nil')
     end
+    game.print('Game is paused. Use /c game.tick_paused = false to resume play')
 end
 
 Event.add(defines.events.on_player_joined_game, player_joined)
