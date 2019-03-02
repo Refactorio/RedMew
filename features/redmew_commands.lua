@@ -37,12 +37,12 @@ end
 
 --- Kill a player: admins and the server can kill others, non-admins can only kill themselves
 local function kill(args, player)
-    local target_name = args.player
+    local target_ident = args.player
     local target
-    if target_name then
-        target = game.players[target_name]
+    if target_ident then
+        target = game.players[target_ident]
         if not target then
-            Game.player_print(format('Player %s was not found.', target_name))
+            Game.player_print(format('Player %s was not found.', target.name))
             return
         end
     end
@@ -108,21 +108,22 @@ end
 
 --- Creates an alert for the player at the location of their target
 local function find_player(args, player)
-    local name = args.player
+    local target_ident = args.player
 
-    local target = game.players[name]
+    local target = game.players[target_ident]
     if not target then
-        Game.player_print('player ' .. name .. ' not found')
+        Game.player_print('player ' .. target_ident .. ' not found')
         return
     end
 
+    local target_name = target.name
     target = target.character
     if not target or not target.valid then
-        Game.player_print('player ' .. name .. ' does not have a character')
+        Game.player_print('player ' .. target_name .. ' does not have a character')
         return
     end
 
-    player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, name, true)
+    player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, target_name, true)
 end
 
 --- Turns on rail block visualization for player
@@ -234,20 +235,21 @@ end
 
 --- Prints information about the target player
 local function print_player_info(args, player)
-    local name = args.player
-    local target = game.players[name]
+    local target_ident = args.player
+    local target = game.players[target_ident]
     if not target then
         Game.player_print('Target not found')
         return
     end
 
+    local target_name = target.name
     local index = target.index
     local info_t = {
         'redmew_commands.whois_formatter',
-        {'format.1_colon_2', 'Name', target.name},
+        {'format.1_colon_2', 'Name', target_name},
         {'format.single_item', target.connected and 'Online: yes' or 'Online: no'},
         {'format.1_colon_2', 'Index', target.index},
-        {'format.1_colon_2', 'Rank', Rank.get_player_rank_name(name)},
+        {'format.1_colon_2', 'Rank', Rank.get_player_rank_name(target_name)},
         {'format.single_item', Donator.is_donator(target.name) and 'Donator: yes' or 'Donator: no'},
         {'format.1_colon_2', 'Time played', Utils.format_time(target.online_time)},
         {'format.1_colon_2', 'AFK time', Utils.format_time(target.afk_time or 0)},

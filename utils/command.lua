@@ -60,7 +60,7 @@ local function assert_existing_options(command_name, options)
     end
 
     if next(invalid) then
-        error({'command.error_bad_option', command_name, serialize(invalid)})
+        error(format("The following options were given to the command '%s' but are invalid: %s", command_name, serialize(invalid))) -- command.error_bad_option when bug fixed
     end
 end
 
@@ -113,9 +113,8 @@ function Command.add(command_name, options, callback)
     if (not _DEBUG and debug_only) and (not _CHEATS and cheat_only) then
         return
     end
-
     if not allowed_by_player and not allowed_by_server then
-        error({'command.error_no_player_no_server', command_name})
+        error(format("The command %s is not allowed by the server nor player, please enable at least one of them.", command_name)) -- command.error_no_player_no_server when bug fixed
     end
 
     for index, argument_name in pairs(arguments) do
@@ -134,7 +133,7 @@ function Command.add(command_name, options, callback)
         argument_list = format('%s<%s> ', argument_list, argument_display)
     end
 
-    local extra = {}
+    local extra = {''}
 
     if allowed_by_server and not allowed_by_player then
         extra = {'command.server_only'}
