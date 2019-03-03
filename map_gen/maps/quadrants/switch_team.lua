@@ -93,7 +93,6 @@ local function teleport(event, quadrant)
             nil,
             'Quadrants.quadrant_description'
         )
-        script.raise_event(player_switched_force, {extra = 'data'})
     else
         local text = '## - You are too heavy for teleportation! Empty your inventory before switching quadrant!'
         player.print(text, Color.red)
