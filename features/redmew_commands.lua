@@ -4,10 +4,10 @@ local Command = require 'utils.command'
 local Settings = require 'utils.redmew_settings'
 local Utils = require 'utils.core'
 local Server = require 'features.server'
-local Walkabout = require 'features.walkabout'
 local PlayerStats = require 'features.player_stats'
 local Rank = require 'features.rank_system'
 local Donator = require 'features.donator'
+local Color = require 'resources.color_presets'
 
 local format = string.format
 local concat = table.concat
@@ -15,6 +15,11 @@ local pcall = pcall
 local tostring = tostring
 local tonumber = tonumber
 local pairs = pairs
+
+--- Informs the actor that there is no target. Acts as a central place where this message can be changed.
+local function print_no_target(target_name)
+    Game.player_print({'common.fail_no_target', target_name}, Color.fail)
+end
 
 --- Kill a player with fish as the cause of death.
 local function do_fish_kill(player, suicide)
@@ -37,39 +42,29 @@ end
 --- Kill a player: admins and the server can kill others, non-admins can only kill themselves
 local function kill(args, player)
     local target_ident = args.player
-    local target
-    if target_ident then
-        target = game.players[target_ident]
+    local target, target_name = Utils.validate_player(target_ident)
+    if target_ident and not target then
         if not target then
-            Game.player_print(format('Player %s was not found.', target.name))
+            print_no_target(target_ident)
             return
         end
     end
 
-    if (player and Walkabout.is_on_walkabout(player.index)) or (target and Walkabout.is_on_walkabout(target.index)) then
-        Game.player_print("A player on walkabout cannot be killed by a mere fish, don't waste your efforts.")
-        return
-    end
-
-    if not target and player then
-        if not do_fish_kill(player, true) then
-            Game.player_print("Sorry, you don't have a character to kill.")
-        end
-    elseif player then
-        if target == player then
+    if player then
+        if not target or target == player then -- player suicide
             if not do_fish_kill(player, true) then
-                Game.player_print("Sorry, you don't have a character to kill.")
+                Game.player_print({'redmew_commands.kill_fail_suicide_no_character'})
             end
-        elseif target and player.admin then
+        elseif target and player.admin then -- admin killing target
             if not do_fish_kill(target) then
-                Game.player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
+                Game.player_print({'redmew_commands.kill_fail_target_no_character'}, target_name)
             end
-        else
-            Game.player_print("Sorry you don't have permission to use the kill command on other players.")
+        else -- player failing to kill target
+            Game.player_print({'redmew_commands.kill_fail_no_perm'})
         end
-    elseif target then
+    elseif target then -- server killing target
         if not do_fish_kill(target) then
-            Game.player_print(table.concat {"'Sorry, '", target.name, "' doesn't have a character to kill."})
+            Game.player_print({'redmew_commands.kill_fail_target_no_character'}, target_name)
         end
     end
 end
@@ -92,33 +87,33 @@ local function afk()
         end
     end
     if count == 0 then
-        Game.player_print('No players afk.')
+        Game.player_print({'redmew_commands.afk_no_afk'})
     end
 end
 
 --- Lets a player set their zoom level
 local function zoom(args, player)
-    if tonumber(args.zoom) then
-        player.zoom = tonumber(args.zoom)
+    local zoom_val = tonumber(args.zoom)
+    if zoom_val then
+        player.zoom = zoom_val
     else
-        Game.player_print('You must give zoom a number.')
+        Game.player_print({'redmew_commands.zoom_fail'})
     end
 end
 
 --- Creates an alert for the player at the location of their target
 local function find_player(args, player)
     local target_ident = args.player
+    local target, target_name = Utils.validate_player(target_ident)
 
-    local target = game.players[target_ident]
     if not target then
-        Game.player_print('player ' .. target_ident .. ' not found')
+        print_no_target(target_ident)
         return
     end
 
-    local target_name = target.name
     target = target.character
     if not target or not target.valid then
-        Game.player_print('player ' .. target_name .. ' does not have a character')
+        Game.player_print({'redmew_commands.find_player_fail_no_character', target_name})
         return
     end
 
@@ -131,7 +126,7 @@ local function show_rail_block(_, player)
     local show = not vs.show_rail_block_visualisation
     vs.show_rail_block_visualisation = show
 
-    Game.player_print('show_rail_block_visualisation set to ' .. tostring(show))
+    Game.player_print({'redmew_commands.show_rail_block_success', tostring(show)})
 end
 
 --- Provides the time on the server
@@ -147,7 +142,7 @@ local function server_time(_, player)
 
     local secs = Server.get_current_time()
     if secs == nil then
-        p('Server time is not available, is this game running on a Redmew server?')
+        p({'redmew_commands.server_time_fail'})
     else
         p(Timestamp.to_string(secs))
     end
@@ -174,7 +169,7 @@ local function print_version()
     if global.redmew_version then
         version_str = global.redmew_version
     else
-        version_str = 'This map was created from source code, only releases (zips with names) and server saves have versions'
+        version_str = {'redmew_commands.print_version_from_source'}
     end
     Game.player_print(version_str)
 end
@@ -182,14 +177,13 @@ end
 --- Prints information about the target player
 local function print_player_info(args, player)
     local target_ident = args.player
-    local target = game.players[target_ident]
+    local target, target_name, index = Utils.validate_player(target_ident)
+
     if not target then
-        Game.player_print('Target not found')
+        print_no_target(target_ident)
         return
     end
 
-    local target_name = target.name
-    local index = target.index
     local info_t = {
         'redmew_commands.whois_formatter',
         {'format.1_colon_2', 'Name', target_name},
@@ -270,7 +264,7 @@ Command.add(
 Command.add(
     'server-time',
     {
-        description = {"command_description.server_time"},
+        description = {'command_description.server_time'},
         allowed_by_server = true
     },
     server_time
@@ -316,8 +310,7 @@ Command.add(
     function(arguments, player)
         local value
         local setting_name = arguments.setting_name
-        local success,
-            data =
+        local success, data =
             pcall(
             function()
                 value = Settings.set(player.index, setting_name, arguments.new_value)
@@ -343,8 +336,7 @@ Command.add(
     function(arguments, player)
         local value
         local setting_name = arguments.setting_name
-        local success,
-            data =
+        local success, data =
             pcall(
             function()
                 value = Settings.get(player.index, setting_name)
@@ -364,7 +356,7 @@ Command.add(
 Command.add(
     'redmew-setting-all',
     {
-        description = {'command_description.redmew_setting_all'},
+        description = {'command_description.redmew_setting_all'}
     },
     function(_, player)
         for name, value in pairs(Settings.all(player.index)) do
