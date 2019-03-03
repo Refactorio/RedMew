@@ -193,7 +193,7 @@ end
 Command.add(
     'watch',
     {
-        description = 'Allows you to watch other players.',
+        description = {'command_description.watch'},
         arguments = {'target'},
         default_values = {target = false}
     },

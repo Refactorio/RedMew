@@ -78,7 +78,7 @@ end
 Command.add(
     'donator-welcome-message',
     {
-        description = 'Adds, deletes, or lists donator welcome messages.',
+        description = {'command_description.donator_welcome_message'},
         arguments = {'add|delete|list', 'value'},
         default_values = {value = false},
         capture_excess_arguments = true,
@@ -90,7 +90,7 @@ Command.add(
 Command.add(
     'donator-death-message',
     {
-        description = 'Adds, deletes, or lists donator death messages.',
+        description = {'command_description.donator_death_message'},
         arguments = {'add|delete|list', 'value'},
         default_values = {value = false},
         capture_excess_arguments = true,

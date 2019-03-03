@@ -237,8 +237,7 @@ function Command.add(command_name, options, callback)
                 else
                     server_time = ''
                 end
-
-                log({'command.log_entry', server_time, tick, (options.required_rank >= Ranks.admin) and 'Admin' or 'Player', player_name, command_name, serialize(named_arguments)})
+                log({'command.log_entry', server_time, tick, (required_rank >= Ranks.admin) and 'Admin' or 'Player', player_name, command_name, serialize(named_arguments)})
             end
 
             local success, error =

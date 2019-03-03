@@ -20,7 +20,6 @@ local focus_color = Color.dark_orange
 local unfocus_color = Color.black
 
 local reward_amount = 2
-local reward_plural_indicator = reward_amount > 1 and 's' or ''
 local reward_token = PlayerRewards.get_reward()
 local info_tab_flags = {
     0x1, -- welcome
@@ -81,8 +80,7 @@ end
 local changelog_callback = Token.register(process_changelog)
 
 local function prepare_title()
-    local welcome_title =
-        [[
+    local welcome_title = [[
 111111  1111111 111111  111    111 1111111 11     11
 11   11 11      11   11 1111  1111 11      11     11
 111111  11111   11   11 11 1111 11 11111   11  1  11
@@ -182,54 +180,29 @@ local pages = {
             parent_style = parent.style
             parent_style.vertically_stretchable = false
 
-            header_label(parent, 'Welcome to Redmew!')
-            centered_label(
-                parent,
-                [[
-Redmew is a community for players of all skill levels committed to pushing the limits of Factorio Multiplayer through custom scripts and crazy map designs.
+            header_label(parent, {'info.welcome_header'})
+            centered_label(parent, {'info.welcome_text'})
 
-We are a friendly bunch, our objective is to have as much fun as possible and we hope you will too.
-                ]]
-            )
-
-            header_label(parent, 'How To Chat')
-            centered_label(
-                parent,
-                [[
-To chat with other players, press the "grave" key on your keyboard.
-It is below the ESC key on English keyboards and looks like ~ or `
-This can be changed in options -> controls -> "toggle lua console".
-                ]]
-            )
+            header_label(parent, {'info.chatting_header'})
+            centered_label(parent, {'info.chatting_text', {'gui-menu.settings'}, {'gui-menu.controls'}, {'controls.toggle-console'}})
 
             if config_prewards.enabled and config_prewards.info_player_reward then
-                local string =
-                    format(
-                    'You have been given %s %s%s for looking at the welcome tab.\nChecking each tab will reward you %s more %s%s.\n',
-                    reward_amount,
-                    reward_token,
-                    reward_plural_indicator,
-                    reward_amount,
-                    reward_token,
-                    reward_plural_indicator
-                )
-                header_label(parent, 'Free Coins')
-                centered_label(parent, string)
+                header_label(parent, {'info.free_coin_header'})
+                centered_label(parent, {'info.free_coin_text', reward_amount, reward_token, reward_amount, reward_token})
             end
 
-            header_label(parent, 'Useful Links')
-            centered_label(parent, [[Check out our discord for new map info and to suggest new maps / ideas.]])
+            header_label(parent, {'info.links_header'})
+            centered_label(parent, {'info.links_discord'})
             local discord_textbox_flow = parent.add {type = 'flow'}
             local discord_textbox_flow_style = discord_textbox_flow.style
             discord_textbox_flow_style.horizontal_align = 'center'
             discord_textbox_flow_style.horizontally_stretchable = true
             discord_textbox_flow.add({type = 'label', caption = 'Discord: '}).style.font = 'default-bold'
-            local discord_textbox =
-                discord_textbox_flow.add {type = 'text-box', text = 'https://www.redmew.com/discord '}
+            local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'https://www.redmew.com/discord '}
             discord_textbox.read_only = true
             discord_textbox.style.width = 235
             discord_textbox.style.height = 28
-            centered_label(parent, 'Contribute to our Patreon to receive special perks and help maintain our servers.')
+            centered_label(parent, {'info.links_patreon'})
             local patreon_flow = parent.add {type = 'flow', direction = 'horizontal'}
             local patreon_flow_style = patreon_flow.style
             patreon_flow_style.horizontal_align = 'center'
@@ -239,7 +212,7 @@ This can be changed in options -> controls -> "toggle lua console".
             patreon_textbox.read_only = true
             patreon_textbox.style.width = 235
             patreon_textbox.style.height = 28
-            centered_label(parent, 'Download our maps, start and finish state, from our website.')
+            centered_label(parent, {'info.links_saves'})
             local save_textbox_flow = parent.add {type = 'flow'}
             local save_textbox_flow_style = save_textbox_flow.style
             save_textbox_flow_style.horizontal_align = 'center'
@@ -249,14 +222,13 @@ This can be changed in options -> controls -> "toggle lua console".
             save_textbox.read_only = true
             save_textbox.style.width = 235
             save_textbox.style.height = 28
-            centered_label(parent, 'View our past maps as a Google Map.')
+            centered_label(parent, {'info.links_factoriomaps'})
             local maps_textbox_flow = parent.add {type = 'flow'}
             local maps_textbox_flow_style = maps_textbox_flow.style
             maps_textbox_flow_style.horizontal_align = 'center'
             maps_textbox_flow_style.horizontally_stretchable = true
             maps_textbox_flow.add({type = 'label', caption = 'Maps: '}).style.font = 'default-bold'
-            local maps_textbox =
-                maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
+            local maps_textbox = maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
             maps_textbox.read_only = true
             maps_textbox.style.width = 315
             maps_textbox.style.height = 28
@@ -284,23 +256,14 @@ This can be changed in options -> controls -> "toggle lua console".
             parent_style.vertically_stretchable = false
             parent_style.width = 600
 
-            header_label(parent, 'Rules')
+            header_label(parent, {'info.rules_header'})
 
-            centered_label(
-                parent,
-                [[
-Have fun and play nice. Remember we are all just here to have fun so let’s keep it that way.
-
-No hateful content or personal attacks.
-
-If you suspect someone is griefing, notify the admin team by using /report or by clicking the report button next to the player in the player list.
-                ]]
-            )
+            centered_label(parent, {'info.rules_text'})
         end
     },
     {
         tab_button = function(parent)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = 'Map Info'}
+            local button = parent.add {type = 'button', name = tab_button_name, caption = {'info.map_info_button'}}
             return button
         end,
         content = function(parent, player)
@@ -312,7 +275,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
             top_flow_style.horizontal_align = 'center'
             top_flow_style.horizontally_stretchable = true
 
-            local top_label = top_flow.add {type = 'label', caption = 'Map Information'}
+            local top_label = top_flow.add {type = 'label', caption = {'info.map_info_header'}}
             local top_label_style = top_label.style
             top_label_style.font = 'default-dialog-button'
 
@@ -320,7 +283,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
             local grid_style = grid.style
             grid_style.horizontally_stretchable = true
 
-            grid.add {type = 'label', caption = 'Map name: '}
+            grid.add {type = 'label', caption = {'info.map_name_label'}}
             local map_name_textbox =
                 grid.add({type = 'flow'}).add {
                 type = 'text-box',
@@ -336,7 +299,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
 
             Gui.set_data(map_name_textbox, map_name_key)
 
-            grid.add {type = 'label', caption = 'Map description: '}
+            grid.add {type = 'label', caption = {'info.map_desc_label'}}
             local map_description_textbox =
                 grid.add({type = 'flow'}).add {
                 type = 'text-box',
@@ -354,7 +317,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
 
             Gui.set_data(map_description_textbox, map_description_key)
 
-            grid.add {type = 'label', caption = 'Extra Info: '}
+            grid.add {type = 'label', caption = {'info.map_extra_info_label'}}
             local map_extra_info_textbox =
                 grid.add({type = 'flow'}).add {
                 type = 'text-box',
@@ -373,7 +336,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
     },
     {
         tab_button = function(parent)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = 'Scenario Mods'}
+            local button = parent.add {type = 'button', name = tab_button_name, caption = {'info.softmods_button'}}
             return button
         end,
         content = function(parent, player)
@@ -391,7 +354,7 @@ If you suspect someone is griefing, notify the admin team by using /report or by
             parent_style = parent.style
             parent_style.vertically_stretchable = true
 
-            header_label(parent, 'Soft Mods and Server Plugins')
+            header_label(parent, {'info.softmods_header'})
 
             local grid = parent.add {type = 'table', column_count = 3}
             local grid_style = grid.style
@@ -407,16 +370,12 @@ If you suspect someone is griefing, notify the admin team by using /report or by
             local ranks_label =
                 ranks_flow.add {
                 type = 'label',
-                caption = [[
-We have a basic rank system to prevent griefing. You can't use nukes or the
-deconstruction planner if you are a guest. If you play for a couple of hours an
-admin will promote you to regular. You may also ask an admin for a promotion if
-you're working on a project which requires it.]]
+                caption = {'info.softmods_rank_text'}
             }
             local ranks_label_style = ranks_label.style
             ranks_label_style.single_line = false
             local player_rank_flow = ranks_flow.add {type = 'flow', direction = 'horizontal'}
-            player_rank_flow.add {type = 'label', caption = 'Your rank is:'}
+            player_rank_flow.add {type = 'label', caption = {'info.softmods_rank_is'}}
             local player_name = player.name
 
             local rank_label = player_rank_flow.add {type = 'label', caption = Rank.get_player_rank_name(player_name)}
@@ -428,61 +387,47 @@ you're working on a project which requires it.]]
             end
 
             grid.add {type = 'sprite', sprite = 'entity/market'}
-            local market = grid.add {type = 'label', caption = 'Market'}
+            local market = grid.add {type = 'label', caption = {'info.softmods_market_label'}}
             market.style.font = 'default-listbox'
             local market_label =
                 grid.add {
                 type = 'label',
-                caption = [[
-On most maps you will find a market near spawn where you can use coins to
-make purchases. Coins are acquired by chopping trees, hand crafting items and
-destroying biter nests. Most items in the market are constant but some are
-map-specific (usually landfill) and will rotate in and out from time to time.]]
+                caption = {'info.softmods_market_text'}
             }
             market_label.style.single_line = false
 
             grid.add {type = 'sprite', sprite = 'item/small-plane'}
-            local train_savior = grid.add {type = 'label', caption = 'Train\nsavior'}
+            local train_savior = grid.add {type = 'label', caption = {'info.softmods_saviour_label'}}
             local train_savior_style = train_savior.style
             train_savior_style.font = 'default-listbox'
             train_savior_style.single_line = false
             local train_savior_label =
                 grid.add {
                 type = 'label',
-                caption = [[
-Trains are a factorio players' worst enemy. If you have at least one small plane
-in your inventory and would be killed by a train, your life will be spared
-but you will lose a small plane. You can get planes from the market.
-                ]]
+                caption = {'info.softmods_saviour_text'}
             }
             train_savior_label.style.single_line = false
 
             if config.player_list.enabled then
                 grid.add {type = 'sprite', sprite = 'entity/player'}
-                local player_list = grid.add {type = 'label', caption = 'Player\nlist'}
+                local player_list = grid.add {type = 'label', caption = {'info.softmods_plist_label'}}
                 player_list.style.font = 'default-listbox'
                 player_list.style.single_line = false
                 local player_list_label =
                     grid.add {
                     type = 'label',
-                    caption = [[
-Lists all players on the server and shows some stats. You can sort the list by
-clicking on the column headers. You can also poke people, which throws a random
-noun in the chat.]]
+                    caption = {'info.softmods_plist_text'}
                 }
                 player_list_label.style.single_line = false
             end
             if config.poll.enabled then
                 grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
-                local poll = grid.add {type = 'label', caption = 'Polls'}
+                local poll = grid.add {type = 'label', caption = {'info.softmods_polls_label'}}
                 poll.style.font = 'default-listbox'
                 local poll_label =
                     grid.add {
                     type = 'label',
-                    caption = [[
-Polls help players get consensus for major actions. Want to improve an important
-build? Make a poll to check everyone is ok with that. You need to be a regular
-to make new polls.]]
+                    caption = {'info.softmods_polls_text'}
                 }
                 poll_label.style.single_line = false
             end
@@ -492,36 +437,31 @@ to make new polls.]]
                 local tag_button_style = tag_button.style
                 tag_button_style.font = 'default-listbox'
                 tag_button_style.font_color = Color.black
-                local tag = grid.add {type = 'label', caption = 'Tags'}
+                local tag = grid.add {type = 'label', caption = {'info.softmods_tags_label'}}
                 tag.style.font = 'default-listbox'
                 local tag_label =
                     grid.add {
                     type = 'label',
-                    caption = [[
-You can assign yourself a role with tags to let other players know what you are
-doing. Or just use the tag as decoration. Regulars can create new custom tags,
-be sure to show off your creatively.]]
+                    caption = {'info.softmods_tags_text'}
                 }
                 tag_label.style.single_line = false
             end
 
             if config.tasklist.enabled then
                 grid.add {type = 'sprite', sprite = 'item/repair-pack'}
-                local task = grid.add {type = 'label', caption = 'Tasks'}
+                local task = grid.add {type = 'label', caption = {'info.softmods_tasks_label'}}
                 task.style.font = 'default-listbox'
                 local task_label =
                     grid.add {
                     type = 'label',
-                    caption = [[
-Not sure what you should be working on, why not look at the tasks and see what
-needs doing. Regulars can add new tasks.]]
+                    caption = {'info.softmods_tasks_text'}
                 }
                 task_label.style.single_line = false
             end
 
             if config.blueprint_helper.enabled then
                 grid.add {type = 'sprite', sprite = 'item/blueprint'}
-                local blueprint = grid.add {type = 'label', caption = 'BP\nhelper'}
+                local blueprint = grid.add {type = 'label', caption = {'info.softmods_bp_label'}}
                 local blueprint_style = blueprint.style
                 blueprint_style.font = 'default-listbox'
                 blueprint_style.single_line = false
@@ -529,22 +469,19 @@ needs doing. Regulars can add new tasks.]]
                 local blueprint_label =
                     grid.add {
                     type = 'label',
-                    caption = [[
-The Blueprint helper™ lets you flip blueprints horizontally or vertically and lets you
-converter the entities used in the blueprint e.g. turn yellow belts into red belts.]]
+                    caption = {'info.softmods_bp_text'}
                 }
                 blueprint_label.style.single_line = false
             end
 
             if config.score.enabled then
                 grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
-                local score = grid.add {type = 'label', caption = 'Score'}
+                local score = grid.add {type = 'label', caption = {'info.softmods_score_label'}}
                 score.style.font = 'default-listbox'
                 local score_label =
                     grid.add {
                     type = 'label',
-                    caption = [[
-Shows number of rockets launched and biters liberated.]]
+                    caption = {'info.softmods_score_text'}
                 }
                 score_label.style.single_line = false
             end
@@ -552,7 +489,7 @@ Shows number of rockets launched and biters liberated.]]
     },
     {
         tab_button = function(parent)
-            local button = parent.add {type = 'button', name = tab_button_name, caption = "What's New"}
+            local button = parent.add {type = 'button', name = tab_button_name, caption = {'info.whats_new_button'}}
             return button
         end,
         content = function(parent, player)
@@ -667,7 +604,7 @@ local function draw_main_frame(center, player)
     bottom_flow_style.top_padding = 8
     bottom_flow_style.horizontally_stretchable = true
 
-    bottom_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
+    bottom_flow.add {type = 'button', name = main_button_name, caption = {'common.close_button'}}
 
     player.opened = frame
 end
@@ -793,15 +730,8 @@ Gui.on_click(
         Gui.clear(content)
 
         pages[index].content(content, player)
-        local string =
-            format(
-            '%s %s%s awarded for reading a tab on the info screen.',
-            reward_amount,
-            reward_token,
-            reward_plural_indicator
-        )
         if rewarded_players[player.index] then
-            reward_player(player, index, string)
+            reward_player(player, index, {'info.free_coin_print', reward_amount, reward_token})
         end
     end
 )

@@ -376,7 +376,7 @@ Event.add(defines.events.on_built_entity, built_entity)
 Command.add(
     'a',
     {
-        description = 'Admin chat. Messages all other admins.',
+        description = {'command_description.a'},
         arguments = {'msg'},
         required_rank = Ranks.admin,
         capture_excess_arguments = true,
@@ -388,7 +388,7 @@ Command.add(
 Command.add(
     'dc',
     {
-        description = 'silent-command',
+        description = {'command_description.dc'},
         arguments = {'str'},
         required_rank = Ranks.admin,
         capture_excess_arguments = true,
@@ -400,7 +400,7 @@ Command.add(
 Command.add(
     'hax',
     {
-        description = 'Toggles your hax (makes recipes cost nothing)',
+        description = {'command_description.hax'},
         required_rank = Ranks.admin
     },
     toggle_cheat_mode
@@ -409,7 +409,7 @@ Command.add(
 Command.add(
     'regular',
     {
-        description = 'Gives a player the regualar rank.',
+        description = {'command_description.regular'},
         arguments = {'player'},
         required_rank = Ranks.admin,
         allowed_by_server = true
@@ -420,7 +420,7 @@ Command.add(
 Command.add(
     'regular-remove',
     {
-        description = 'Demotes a player from regular to the next lowest rank',
+        description = {'command_description.regular_remove'},
         arguments = {'player'},
         required_rank = Ranks.admin,
         allowed_by_server = true
@@ -431,7 +431,7 @@ Command.add(
 Command.add(
     'probation',
     {
-        description = 'Put player on probation. (They will be unable to use redmew commands and will never gain auto-trusted rank.)',
+        description = {'command_description.probation'},
         arguments = {'player'},
         required_rank = Ranks.admin,
         allowed_by_server = true
@@ -442,7 +442,7 @@ Command.add(
 Command.add(
     'probation-remove',
     {
-        description = 'Remove player from probation.',
+        description = {'command_description.probation_remove'},
         arguments = {'player'},
         required_rank = Ranks.admin,
         allowed_by_server = true
@@ -453,7 +453,7 @@ Command.add(
 Command.add(
     'showreports',
     {
-        description = 'Shows user reports',
+        description = {'command_description.showreports'},
         required_rank = Ranks.admin
     },
     show_reports
@@ -462,7 +462,7 @@ Command.add(
 Command.add(
     'jail',
     {
-        description = 'Puts a player in jail',
+        description = {'command_description.jail'},
         arguments = {'player'},
         required_rank = Ranks.admin,
         allowed_by_server = true
@@ -473,7 +473,7 @@ Command.add(
 Command.add(
     'unjail',
     {
-        description = 'Removes a player from jail',
+        description = {'command_description.unjail'},
         arguments = {'player'},
         required_rank = Ranks.admin,
         allowed_by_server = true
@@ -484,7 +484,7 @@ Command.add(
 Command.add(
     'tempban',
     {
-        description = 'Temporarily bans a player',
+        description = {'command_description.tempban'},
         arguments = {'player', 'minutes'},
         required_rank = Ranks.admin,
         allowed_by_server = true
@@ -495,7 +495,7 @@ Command.add(
 Command.add(
     'pool',
     {
-        description = 'Spawns a pool of water',
+        description = {'command_description.pool'},
         required_rank = Ranks.admin
     },
     pool
@@ -504,7 +504,7 @@ Command.add(
 Command.add(
     'invoke',
     {
-        description = 'Teleports the player to you.',
+        description = {'command_description.invoke'},
         arguments = {'player'},
         required_rank = Ranks.admin
     },
@@ -526,7 +526,7 @@ Command.add(
 Command.add(
     'revive-ghosts',
     {
-        description = 'Revives the ghosts within the provided radius around you',
+        description = {'command_description.revive_ghosts'},
         arguments = {'radius'},
         default_values = {radius = 10},
         required_rank = Ranks.admin
@@ -537,7 +537,7 @@ Command.add(
 Command.add(
     'destroy',
     {
-        description = 'Destroys the entity under your cursor when you run this command',
+        description = {'command_description.destroy'},
         required_rank = Ranks.admin
     },
     destroy_selected

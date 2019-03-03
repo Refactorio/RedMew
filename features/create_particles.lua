@@ -53,7 +53,7 @@ Event.on_nth_tick(63, function ()
 end)
 
 Command.add('particle-scale', {
-    description = 'Provide a fraction between 0 and 1 to lower or increase the amount of (max) particles. Leave empty to view the current values.',
+    description = {'command_description.particle_scale'},
     arguments = {'fraction'},
     default_values = {fraction = false},
     required_rank = Ranks.admin,

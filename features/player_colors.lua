@@ -43,7 +43,7 @@ end
 Command.add(
     'redmew-color',
     {
-        description = 'Set will save your current color for future maps. Reset will erase your saved color. Random will give you a random color.',
+        description = {'command_description.redmew_color'},
         arguments = {'set-reset-random'},
         required_rank = Ranks.regular
     },
@@ -56,16 +56,16 @@ Command.add(
                 chat_color = player.chat_color
             }
             Server.set_data('colors', player_name, data)
-            player.print('Your color has been saved. Any time you join a redmew server your color will automatically be set.')
-            Utils.print_except(player_name .. ' has saved their color server-side for future maps. You can do the same! Check out /help redmew-color', player)
+            player.print({'player_colors.color_saved'})
+            Utils.print_except({'player_colors.color_saved_advert, player'})
         elseif arg == 'reset' then
             Server.set_data('colors', player_name, nil)
-            player.print('Your saved color (if you had one) has been removed.')
+            player.print({'player_colors.color_reset'})
         elseif arg == 'random' then
             local color_data = Public.set_random_color(player)
-            player.print('Your color has been changed to: ' .. serialize(color_data))
+            player.print({'player_colors.color_random', serialize(color_data)})
         else
-            player.print('Only set, reset, and random are accepted arguments')
+            player.print({'player_colors.fail_wrong_argument'})
         end
     end
 )
