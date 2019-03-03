@@ -107,6 +107,7 @@ local core_on_nth_tick = EventCore.on_nth_tick
 local stage_load = _STAGE.load
 local script_on_event = script.on_event
 local script_on_nth_tick = script.on_nth_tick
+local generate_event_name = script.generate_event_name
 
 local Event = {}
 
@@ -266,10 +267,7 @@ function Event.add_removable_function(event_name, func)
     end
 
     if Debug.is_closure(func) then
-        error(
-            'func cannot be a closure as that is a desync risk. Consider using Event.add_removable(event_name, token) instead.',
-            2
-        )
+        error('func cannot be a closure as that is a desync risk. Consider using Event.add_removable(event_name, token) instead.', 2)
     end
 
     local funcs = function_handlers[event_name]
@@ -376,10 +374,7 @@ function Event.add_removable_nth_tick_function(tick, func)
     end
 
     if Debug.is_closure(func) then
-        error(
-            'func cannot be a closure as that is a desync risk. Consider using Event.add_removable_nth_tick(tick, token) instead.',
-            2
-        )
+        error('func cannot be a closure as that is a desync risk. Consider using Event.add_removable_nth_tick(tick, token) instead.', 2)
     end
 
     local funcs = function_nth_tick_handlers[tick]
@@ -417,6 +412,20 @@ function Event.remove_removable_nth_tick_function(tick, func)
     if #handlers == 0 then
         script_on_nth_tick(tick, nil)
     end
+end
+
+--- Generate a new, unique event ID.
+-- @param <string> name of the event/variable that is exposed
+function Event.generate_event_name(name)
+    local event_id = generate_event_name()
+
+    defines.events[name] = event_id -- luacheck: ignore 122
+
+    return event_id
+end
+-- If we're not in debug, we just turn the above function into an alias of script.generate_event_name
+if not _DEBUG then
+    Event.generate_event_name = generate_event_name
 end
 
 local function add_handlers()

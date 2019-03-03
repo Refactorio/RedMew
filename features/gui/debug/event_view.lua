@@ -107,7 +107,7 @@ function Public.show(container)
     end
 end
 
-Event.add(events.on_gui_checked_state_changed, on_gui_checked_state_changed)
+Gui.on_checked_state_changed(checkbox_name, on_gui_checked_state_changed)
 
 -- Event registers (TODO: turn to removable hooks.. maybe)
 for name, id in pairs(events) do

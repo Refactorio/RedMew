@@ -12,7 +12,7 @@ local ForceControl = {}
 ForceControl.events = {
     --- triggered when the force levels up
     --- uses event = {level_reached = number, force = LuaForce}
-    on_level_up = script.generate_event_name()
+    on_level_up = Event.generate_event_name('on_level_up')
 }
 
 -- the builder, can only be accessed through ForceControl.register() and should be avoided used run-time

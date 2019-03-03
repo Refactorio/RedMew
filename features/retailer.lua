@@ -74,7 +74,7 @@ Retailer.events = {
     --        player = player,
     --        group_name = group_name,
     --    }
-    on_market_purchase = script.generate_event_name(),
+    on_market_purchase = Event.generate_event_name('on_market_purchase'),
 }
 
 Retailer.item_types = {
