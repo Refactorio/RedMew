@@ -61,7 +61,7 @@ Version: v1.0
 ]]
 )
 
-redmew_config.paint.enabled = false
+redmew_config.paint.enabled = true
 
 redmew_config.player_create.starting_items = {
     {name = 'iron-plate', count = 7},
@@ -82,8 +82,17 @@ redmew_config.hail_hydra.hydras = {
     -- worms
     ['small-worm-turret'] = {['small-biter'] = {min = 1.5, max = 2.5}},
     ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = 3.5}, ['medium-biter'] = {min = 1.0, max = 2}},
-    ['big-worm-turret'] = {['small-biter'] = {min = 2.5, max = 4.5}, ['medium-biter'] = {min = 1.5, max = 2.2}, ['big-biter'] = {min = 0.7, max = 1.5}},
-    ['behemoth-worm-turret'] = {['small-biter'] = {min = 4.5, max = -1}, ['medium-biter'] = {min = 2.5, max = 3.8}, ['big-biter'] = {min = 1.2, max = 2.4}, ['behemoth-biter'] = {min = 0.8, max = -1}}
+    ['big-worm-turret'] = {
+        ['small-biter'] = {min = 2.5, max = 4.5},
+        ['medium-biter'] = {min = 1.5, max = 2.2},
+        ['big-biter'] = {min = 0.7, max = 1.5}
+    },
+    ['behemoth-worm-turret'] = {
+        ['small-biter'] = {min = 4.5, max = -1},
+        ['medium-biter'] = {min = 2.5, max = 3.8},
+        ['big-biter'] = {min = 1.2, max = 2.4},
+        ['behemoth-biter'] = {min = 0.8, max = -1}
+    }
 }
 
 local function spawn_market(surface, force, position)
@@ -102,8 +111,6 @@ local function spawn_market(surface, force, position)
             Retailer.set_item(pos.x .. 'fish_market' .. pos.y, prototype)
         end
     end
-
-    force.add_chart_tag(surface, {icon = {type = 'item', name = 'coin'}, position = pos, text = 'Market'})
 
     pos = surface.find_non_colliding_position('compilatron', position, 10, 1)
 
@@ -153,14 +160,14 @@ local function on_init()
 
     reset_recipes()
     for _, force in pairs(game.forces) do
-        if (string.find(force.name, 'quadrant')) ~= nil then
+        if (string.find(force.name, 'quadrant')) ~= nil or force.name == 'player' then
             force.share_chart = true
 
             if force.name ~= 'quadrant1' then
                 force.disable_research()
             end
             for _, friend_force in pairs(game.forces) do
-                if (string.find(friend_force.name, 'quadrant')) ~= nil then
+                if (string.find(friend_force.name, 'quadrant')) ~= nil or friend_force.name == 'player' then
                     if friend_force ~= force then
                         force.set_friend(friend_force, true)
                     end
@@ -168,6 +175,10 @@ local function on_init()
             end
         end
     end
+
+    game.map_settings.enemy_evolution.time_factor = 0.0002
+    game.map_settings.enemy_evolution.destroy_factor = 0.0010
+    game.map_settings.enemy_evolution.pollution_factor = 0.0005
 end
 
 local function on_research_finished(event)
@@ -186,11 +197,32 @@ end
 
 local callback_token
 local callback
+local tile_numbers = {
+    [-26] = {22, -22, -21, -20, -19},
+    [-27] = {22, -22},
+    [-28] = {22, -22},
+    [-29] = {22, -22, -21, -20, -19},
+    [-30] = {22, -19},
+    [-31] = {22, -19},
+    [-32] = {22, -22, -21, -20, -19},
+    [25] = {19, 22, -22, -21, -20, -19},
+    [26] = {19, 22, -19},
+    [27] = {19, 22, -19},
+    [28] = {19, 20, 21, 22, -22, -21, -20, -19},
+    [29] = {22, -19},
+    [30] = {22, -19},
+    [31] = {22, -22, -21, -20, -19},
+}
 
 local function spawn_compilatron()
     local pos = game.surfaces[2].find_non_colliding_position('compilatron', {-0.5, -0.5}, 1.5, 0.5)
     local compi = game.surfaces[2].create_entity {name = 'compilatron', position = pos, force = game.forces.neutral}
     CompiHandler.add_compilatron(compi, 'spawn')
+    for y, x_table in pairs(tile_numbers) do
+        for _, x in pairs(x_table) do
+            game.surfaces[2].set_tiles({{name = 'lab-white', position = {x = x, y = y}}}, true)
+        end
+    end
 end
 
 local function chunk_generated()

@@ -104,7 +104,7 @@ local function teleport(event, quadrant)
     end
 end
 
-local function redraw_quadrant_button(data, player)
+local function redraw_quadrant_button(data)
     local left_flow = data.left_flow_btn1
     local right_flow = data.right_flow_btn1
     Gui.clear(left_flow)
@@ -114,14 +114,16 @@ local function redraw_quadrant_button(data, player)
         {
             type = 'button',
             name = 'Quadrants.Button.2',
-            caption = 'Intermediate and Mining (' .. #game.forces['quadrant2'].players .. ')'
+            caption = 'Intermediate and Mining (' .. #game.forces['quadrant2'].players .. ')',
+            tooltip = 'This is quadrant number 2'
         }
     )
     right_flow.add(
         {
             type = 'button',
             name = 'Quadrants.Button.1',
-            caption = 'Science and Military (' .. #game.forces['quadrant1'].players .. ')'
+            caption = 'Science and Military (' .. #game.forces['quadrant1'].players .. ')',
+            tooltip = 'This is quadrant number 1'
         }
     )
 
@@ -134,14 +136,16 @@ local function redraw_quadrant_button(data, player)
         {
             type = 'button',
             name = 'Quadrants.Button.3',
-            caption = 'Oil and High Tech (' .. #game.forces['quadrant3'].players .. ')'
+            caption = 'Oil and High Tech (' .. #game.forces['quadrant3'].players .. ')',
+            tooltip = 'This is quadrant number 3'
         }
     )
     right_flow.add(
         {
             type = 'button',
             name = 'Quadrants.Button.4',
-            caption = 'Logistics and Transport (' .. #game.forces['quadrant4'].players .. ')'
+            caption = 'Logistics and Transport (' .. #game.forces['quadrant4'].players .. ')',
+            tooltip = 'This is quadrant number 4aw'
         }
     )
 end
@@ -233,7 +237,7 @@ local function toggle(event)
         chest_button_left_flow = chest_button_left_flow
     }
 
-    redraw_quadrant_button(data, player)
+    redraw_quadrant_button(data)
     redraw_chest_button(data, player)
 
     Gui.set_data(frame, data)
@@ -307,7 +311,7 @@ end
 
 Event.add(
     player_switched_force,
-    function(event)
+    function()
         update_gui(nil, true)
     end
 )

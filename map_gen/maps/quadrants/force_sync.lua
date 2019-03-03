@@ -33,7 +33,7 @@ local function console_chat(event)
     end
 end
 
---[[local function create_tag(creating_force, data, remove)
+local function create_tag(creating_force, data, remove)
     local surface = RS.get_surface()
     local tags
     for _, force in pairs(game.forces) do
@@ -48,17 +48,22 @@ end
                     if remove then
                         old_tag.destroy()
                     else
-                        old_tag.icon = data.icon
-                        old_tag.last_user = data.last_user
-                        old_tag.text = data.text
+                        if data.icon ~= nil then
+                            old_tag.icon = data.icon
+                        end
+                        if data.last_user ~= nil then
+                            old_tag.last_user = data.last_user
+                        end
+                        if data.text ~= nil then
+                            old_tag.text = data.text
+                        end
                     end
-                else
+                elseif not remove then
                     force.add_chart_tag(surface, data)
                 end
             end
         end
     end
-    return tags
 end
 
 local function chart_tag_event(event, remove)
@@ -72,7 +77,7 @@ local function chart_tag_event(event, remove)
     if string.find(force.name, 'quadrant') == nil then
         return
     end
-    if chart_tags.position ~= nil and not modify then
+    if chart_tags.position ~= nil and not modify and not remove then
         if chart_tags.position.x == tag.position.x and chart_tags.position.y == tag.position.y then
             return
         end
@@ -80,6 +85,9 @@ local function chart_tag_event(event, remove)
         return
     end
     chart_tags = {icon = tag.icon, position = tag.position, text = tag.text, last_user = tag.last_user}
+    if remove then
+        chart_tags['remove'] = remove
+    end
     create_tag(force, chart_tags, remove)
 end
 
@@ -88,12 +96,27 @@ local function chart_tag_modified(event)
 end
 
 local function chart_tag_remove(event)
-    chart_tags = {}
     chart_tag_event(event, true)
 end
 
 Event.add(defines.events.on_chart_tag_added, chart_tag_event)
 Event.add(defines.events.on_chart_tag_modified, chart_tag_modified)
-Event.add(defines.events.on_chart_tag_removed, chart_tag_remove)]]
+Event.add(defines.events.on_chart_tag_removed, chart_tag_remove)
+local function research_finished(event)
+    if event.by_script then
+        return
+    end
+    local technology = event.research
+    local player_force = technology.force
+
+    for _, force in pairs(game.forces) do
+        if (string.find(force.name, 'quadrant')) ~= nil then
+            force.print(
+                '[img=item/automation-science-pack] New research complete: [technology=' .. technology.name .. ']'
+            )
+        end
+    end
+end
 
 Event.add(defines.events.on_console_chat, console_chat)
+Event.add(defines.events.on_research_finished, research_finished)
