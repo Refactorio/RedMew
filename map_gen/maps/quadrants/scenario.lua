@@ -341,7 +341,9 @@ local function quadrants(x, y)
         if (abs_x < 2 or abs_y < 2) then
             return false
         end
-
+        if abs_x >= 384 or abs_y >= 384 then
+            return false
+        end
         return true
     end
 

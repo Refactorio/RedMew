@@ -5,8 +5,6 @@ local pow = math.pow
 
 local rail_locations = {26, 208}
 
-local player_switched_force = require 'map_gen.maps.quadrants.switch_team'.get_event()
-
 local function clear_inventory_train(event)
     local player = Game.get_player_by_index(event.player_index)
     if (not player.driving and event.trigger == nil) or (player.driving and event.trigger) then
@@ -93,7 +91,6 @@ local function clear_inventory(event)
     end
 
     player.force = game.forces['quadrant' .. quadrant]
-    script.raise_event(player_switched_force, {extra = 'data'})
 end
 
 Event.add(defines.events.on_player_driving_changed_state, clear_inventory)

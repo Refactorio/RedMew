@@ -28,8 +28,6 @@ Global.register(
     end
 )
 
-local player_switched_force = script.generate_event_name()
-
 local quadrant_message = {
     {
         title = 'Research and command center',
@@ -250,9 +248,9 @@ local function update_gui(_, force_update)
         local frame = p.gui.left['Quadrants.Switch_Team']
         local data = {player = p}
 
-        if frame and frame.valid and (abs(p.position.x) >= 128 or abs(p.position.y) >= 128) then
+        if frame and frame.valid and (abs(p.position.x) >= 160 or abs(p.position.y) >= 160) then
             toggle(data)
-        elseif not frame and not (abs(p.position.x) > 128 or abs(p.position.y) > 128) then
+        elseif not frame and not (abs(p.position.x) > 160 or abs(p.position.y) > 160) then
             toggle(data)
         elseif frame and frame.valid and force_update then
         data['trigger'] = true
@@ -309,18 +307,14 @@ local function on_player_created(event)
     toggle(event)
 end
 
-Event.add(
-    player_switched_force,
-    function()
+
+local function changed_force()
         update_gui(nil, true)
-    end
-)
+end
+
 
 Event.add(defines.events.on_player_created, on_player_created)
 Event.on_nth_tick(61, update_gui)
-
-function gui.get_event()
-    return player_switched_force
-end
+Event.add(defines.events.on_player_changed_force, changed_force)
 
 return gui
