@@ -177,9 +177,9 @@ local function on_init()
         end
     end
 
-    game.map_settings.enemy_evolution.time_factor = 0.0002
-    game.map_settings.enemy_evolution.destroy_factor = 0.0010
-    game.map_settings.enemy_evolution.pollution_factor = 0.0005
+    game.map_settings.enemy_evolution.time_factor = 0.000002
+    game.map_settings.enemy_evolution.destroy_factor = 0.000010
+    game.map_settings.enemy_evolution.pollution_factor = 0.000005
 end
 
 local function on_research_finished(event)
