@@ -62,7 +62,7 @@ Version: v1.0
 ]]
 )
 
-redmew_config.paint.enabled = true
+redmew_config.paint.enabled = false
 
 redmew_config.player_create.starting_items = {
     {name = 'iron-plate', count = 7},
@@ -96,7 +96,7 @@ redmew_config.hail_hydra.hydras = {
     }
 }
 
-local function spawn_market(surface, force, position)
+local function spawn_market(surface, position)
     position.x = round(position.x)
     position.y = round(position.y - 4)
 
@@ -306,7 +306,7 @@ local function quadrants(x, y)
     end
 
     if (abs_x == 132) and (abs_y == 132) then
-        spawn_market(RS.get_surface(), game.forces.player, {x = x, y = y})
+        spawn_market(RS.get_surface(), {x = x, y = y})
     end
 
     if (abs_x >= 144 and abs_x <= 176 and abs_y >= 144 and abs_y <= 176) then

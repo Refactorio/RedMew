@@ -35,7 +35,6 @@ end
 
 local function create_tag(creating_force, data, remove)
     local surface = RS.get_surface()
-    local tags
     for _, force in pairs(game.forces) do
         if (string.find(force.name, 'quadrant')) ~= nil then
             if force.name ~= creating_force.name then
@@ -107,7 +106,6 @@ local function research_finished(event)
         return
     end
     local technology = event.research
-    local player_force = technology.force
 
     for _, force in pairs(game.forces) do
         if (string.find(force.name, 'quadrant')) ~= nil then

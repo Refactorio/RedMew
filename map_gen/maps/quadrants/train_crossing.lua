@@ -1,12 +1,11 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Item_to_chest = require 'map_gen.maps.quadrants.item_to_chest'
-local RS = require 'map_gen.shared.redmew_surface'
 local pow = math.pow
 
 local rail_locations = {26, 208}
 
-player_switched_force = require 'map_gen.maps.quadrants.switch_team'.get_event()
+local player_switched_force = require 'map_gen.maps.quadrants.switch_team'.get_event()
 
 local function clear_inventory_train(event)
     local player = Game.get_player_by_index(event.player_index)
