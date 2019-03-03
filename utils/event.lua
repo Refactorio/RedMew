@@ -419,12 +419,13 @@ end
 function Event.generate_event_name(name)
     local event_id = generate_event_name()
 
-    -- If we're in debug, we add the event to defines.events in order to list it via the debugger.
-    if _DEBUG then
-        defines.events[name] = event_id -- luacheck: ignore 122
-    end
+    defines.events[name] = event_id -- luacheck: ignore 122
 
     return event_id
+end
+-- If we're not in debug, we just turn the above function into an alias of script.generate_event_name
+if not _DEBUG then
+    Event.generate_event_name = generate_event_name
 end
 
 local function add_handlers()
