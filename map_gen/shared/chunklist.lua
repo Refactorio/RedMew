@@ -26,7 +26,7 @@ local Public = {
             surface :: LuaSurface: The surface the chunk is on
             chunk_index :: the index of the chunk in Chunklist's table
         ]]
-        on_chunk_registered = script.generate_event_name()
+        on_chunk_registered = Event.generate_event_name('on_chunk_registered')
     }
 }
 

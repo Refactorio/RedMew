@@ -58,7 +58,7 @@ local Public = {
             ghost :: boolean indicating if the entity was a ghost
             stack :: LuaItemStack
         ]]
-        on_pre_restricted_entity_destroyed = script.generate_event_name(),
+        on_pre_restricted_entity_destroyed = Event.generate_event_name('on_pre_restricted_entity_destroyed'),
         --[[
         on_restricted_entity_destroyed
         Called when an entity is destroyed by this script
@@ -70,7 +70,7 @@ local Public = {
             ghost :: boolean indicating if the entity was a ghost
             item_returned :: boolean indicating if a refund of the item was attempted
         ]]
-        on_restricted_entity_destroyed = script.generate_event_name()
+        on_restricted_entity_destroyed = Event.generate_event_name('on_restricted_entity_destroyed')
     }
 }
 
