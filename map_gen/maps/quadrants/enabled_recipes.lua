@@ -34,7 +34,8 @@ local recipes = {
             ['stone-wall'] = true,
             ['gate'] = true,
             ['gun-turret'] = true,
-            ['iron-gear-wheel'] = true
+            ['iron-gear-wheel'] = true,
+            ['iron-chest'] = true
         }
     },
 
@@ -188,7 +189,6 @@ local recipes = {
 
     quadrant4 = {
         recipe = {
-            ['iron-chest'] = true,
             ['steel-chest'] = true,
             ['fast-transport-belt'] = true,
             ['express-transport-belt'] = true,

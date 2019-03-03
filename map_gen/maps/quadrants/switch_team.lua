@@ -145,7 +145,7 @@ local function redraw_quadrant_button(data)
             type = 'button',
             name = 'Quadrants.Button.4',
             caption = 'Logistics and Transport (' .. #game.forces['quadrant4'].players .. ')',
-            tooltip = 'This is quadrant number 4aw'
+            tooltip = 'This is quadrant number 4'
         }
     )
 end
@@ -254,7 +254,7 @@ local function update_gui(_, force_update)
             toggle(data)
         elseif not frame and not (abs(p.position.x) > 128 or abs(p.position.y) > 128) then
             toggle(data)
-        elseif force_update then
+        elseif frame and frame.valid and force_update then
         data['trigger'] = true
             toggle(data)
         end
@@ -318,5 +318,9 @@ Event.add(
 
 Event.add(defines.events.on_player_created, on_player_created)
 Event.on_nth_tick(61, update_gui)
+
+function gui.get_event()
+    return player_switched_force
+end
 
 return gui

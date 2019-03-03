@@ -1,6 +1,7 @@
 require 'map_gen.maps.quadrants.switch_team'
 require 'map_gen.maps.quadrants.restrict_placement'
 require 'map_gen.maps.quadrants.force_sync'
+require 'map_gen.maps.quadrants.train_crossing'
 
 local b = require('map_gen.shared.builders')
 local Retailer = require('features.retailer')
@@ -211,7 +212,7 @@ local tile_numbers = {
     [28] = {19, 20, 21, 22, -22, -21, -20, -19},
     [29] = {22, -19},
     [30] = {22, -19},
-    [31] = {22, -22, -21, -20, -19},
+    [31] = {22, -22, -21, -20, -19}
 }
 
 local function spawn_compilatron()
@@ -238,9 +239,40 @@ callback = Token.register(spawn_compilatron)
 
 Event.add_removable(defines.events.on_chunk_generated, callback_token)
 
+local function rail_create(data)
+    local pos = data.pos
+    local direction = data.direction
+    local rail =
+        game.surfaces[2].create_entity {
+        name = 'straight-rail',
+        position = pos,
+        force = game.forces.neutral,
+        direction = direction
+    }
+    if rail and rail.valid then
+        rail.minable = false
+        rail.destructible = false
+    end
+end
+
+local rail_callback = Token.register(rail_create)
+
 local function quadrants(x, y)
     local abs_x = abs(x) - 0.5
     local abs_y = abs(y) - 0.5
+
+    if true then
+        local pos = {x = x, y = y}
+        if x > -24 and x < 24 and (y == 211.5 or y == 205.5) then
+            Task.set_timeout_in_ticks(300, rail_callback, {pos = pos, direction = defines.direction.east})
+        elseif x > -24 and x < 24 and (y == -211.5 or y == -205.5) then
+            Task.set_timeout_in_ticks(300, rail_callback, {pos = pos, direction = defines.direction.east})
+        elseif y > -24 and y < 24 and (x == 211.5 or x == 205.5) then
+            Task.set_timeout_in_ticks(300, rail_callback, {pos = pos, direction = defines.direction.north})
+        elseif y > -24 and y < 24 and (x == -211.5 or x == -205.5) then
+            Task.set_timeout_in_ticks(300, rail_callback, {pos = pos, direction = defines.direction.north})
+        end
+    end
 
     if (abs_x <= 200 and abs_y <= 200) then
         if game.surfaces[2].get_tile(x, y).collides_with('water-tile') then
@@ -250,7 +282,7 @@ local function quadrants(x, y)
 
         for _, entity in ipairs(entities) do
             if entity and entity.valid then
-                if entity.name ~= 'player' and entity.name ~= 'compilatron' then
+                if entity.name ~= 'player' and entity.name ~= 'compilatron' and entity.name ~= 'straight-rail' then
                     entity.destroy()
                 end
             end
@@ -273,11 +305,11 @@ local function quadrants(x, y)
         end
     end
 
-    if (abs_x == 100) and (abs_y == 100) then
+    if (abs_x == 132) and (abs_y == 132) then
         spawn_market(RS.get_surface(), game.forces.player, {x = x, y = y})
     end
 
-    if (abs_x >= 112 and abs_x <= 144 and abs_y >= 112 and abs_y <= 144) then
+    if (abs_x >= 144 and abs_x <= 176 and abs_y >= 144 and abs_y <= 176) then
         game.surfaces[2].set_tiles({{name = 'water', position = {x, y}}}, true)
     end
 
@@ -312,6 +344,7 @@ local function quadrants(x, y)
 
         return true
     end
+
     return true
 end
 
@@ -319,7 +352,7 @@ local rectangle = b.rectangle(32, 32)
 local tree_rectangle = b.rectangle(64, 16)
 local tree_rectangle_1 = b.throttle_world_xy(tree_rectangle, 1, 3, 1, 3)
 local tree_rectangle_2 = b.rotate(tree_rectangle_1, math.pi / 2)
-local oil_rectangle = b.throttle_xy(tree_rectangle, 1, 5, 1, 5)
+local oil_rectangle = b.throttle_world_xy(tree_rectangle, 1, 5, 1, 5)
 
 local function constant(x)
     return function()
@@ -327,15 +360,15 @@ local function constant(x)
     end
 end
 
-local base_x = 48
-local base_y = 48
+local base_x = 80
+local base_y = 80
 
-local start_iron = b.resource(rectangle, 'iron-ore', constant(750))
-local start_copper = b.resource(rectangle, 'copper-ore', constant(600))
-local start_stone = b.resource(rectangle, 'stone', constant(300))
-local start_coal = b.resource(rectangle, 'coal', constant(450))
+local start_iron = b.resource(rectangle, 'iron-ore', constant(600))
+local start_copper = b.resource(rectangle, 'copper-ore', constant(450))
+local start_stone = b.resource(rectangle, 'stone', constant(150))
+local start_coal = b.resource(rectangle, 'coal', constant(300))
 local start_tree_1 = b.entity(tree_rectangle_1, 'tree-01')
-local start_oil = b.resource(oil_rectangle, 'crude-oil', b.exponential_value(100000, 0, 1))
+local start_oil = b.resource(oil_rectangle, 'crude-oil', b.exponential_value(50000, 0, 1))
 local start_tree_2 = b.entity(tree_rectangle_2, 'tree-01')
 
 start_iron =
@@ -381,8 +414,8 @@ start_coal =
     }
 )
 
-base_x = 64
-base_y = 128
+base_x = 96
+base_y = 160
 start_tree_1 =
     b.any(
     {
@@ -393,8 +426,8 @@ start_tree_1 =
     }
 )
 
-base_x = 128
-base_y = 64
+base_x = 160
+base_y = 96
 start_tree_2 =
     b.any(
     {
