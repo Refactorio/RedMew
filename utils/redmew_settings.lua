@@ -12,7 +12,7 @@ local settings_type = {
         input = tonumber(input)
 
         if input == nil then
-            return false, 'fraction setting type requires the input to be a valid number between 0 and 1.'
+            return false, {'redmew_settings.fraction_invalid_value'}
         end
 
         if input < 0 then
@@ -39,7 +39,7 @@ local settings_type = {
             return true, tostring(input)
         end
 
-        return false, 'string setting type requires the input to be either a valid string or something that can be converted to a string.'
+        return false, {'redmew_settings.string_invalid_value'}
     end,
     boolean = function (input)
         local input_type = type(input)
@@ -63,7 +63,7 @@ local settings_type = {
             return true, input ~= 0
         end
 
-        return false, 'boolean setting type requires the input to be either a boolean, number or string that can be transformed to a boolean.'
+        return false, {'redmew_settings.boolean_invalid_value'}
     end,
 }
 
@@ -87,8 +87,8 @@ Public.types = {fraction = 'fraction', string = 'string', boolean = 'boolean'}
 ---
 ---@param name string
 ---@param setting_type string
----@param default mixed
-function Public.register(name, setting_type, default)
+---@param default any
+function Public.register(name, setting_type, default, localisation_key)
     if _LIFECYCLE ~= _STAGE.control then
         error(format('You can only register setting names in the control stage, i.e. not inside events. Tried setting "%s" with type "%s".', name, setting_type), 2)
     end
@@ -103,13 +103,33 @@ function Public.register(name, setting_type, default)
     end
 
     local setting = {
+        type = setting_type,
         default = default,
         callback = callback,
+        localisation_key = localisation_key,
     }
 
     settings[name] = setting
 
     return setting
+end
+
+---Validates whether a given value is valid for a given setting.
+---@param name string
+---@param value any
+function Public.validate(name, value)
+    local setting = settings[name]
+    if not setting then
+        return format('Setting "%s" does not exist.', name)
+    end
+
+    local success, sanitized_value = setting.callback(value)
+
+    if not success then
+        return sanitized_value
+    end
+
+    return nil
 end
 
 ---Sets a setting to a specific value for a player.
@@ -118,11 +138,11 @@ end
 ---
 ---@param player_index number
 ---@param name string
----@param value mixed
+---@param value any
 function Public.set(player_index, name, value)
     local setting = settings[name]
     if not setting then
-        return error(format('Setting "%s" does not exist.', name), 2)
+        error(format('Setting "%s" does not exist.', name), 2)
     end
 
     local success, sanitized_value = setting.callback(value)
@@ -173,6 +193,12 @@ function Public.all(player_index)
     end
 
     return output
+end
+
+---Returns the full settings data, note that this is a reference, do not modify
+---this data unless you know what you're doing!
+function Public.get_setting_metadata()
+    return settings
 end
 
 return Public
