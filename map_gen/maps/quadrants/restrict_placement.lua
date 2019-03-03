@@ -12,7 +12,9 @@ local allowed_entities = {
     ['splitter'] = true,
     ['fast-splitter'] = true,
     ['express-splitter'] = true,
-    ['stone-wall'] = true
+    ['stone-wall'] = true,
+    ['pipe'] = true,
+    ['pipe-to-ground'] = true
 }
 
 local quadrant_bounds = {

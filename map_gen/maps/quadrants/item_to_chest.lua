@@ -58,5 +58,6 @@ end
 
 Event.add(defines.events.on_gui_closed, on_gui_closed)
 Event.add(defines.events.on_selected_entity_changed, ctrl_empty)
+Event.add(defines.events.on_pre_player_mined_item)
 
 return Public

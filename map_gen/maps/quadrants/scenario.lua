@@ -1,6 +1,6 @@
 require 'map_gen.maps.quadrants.switch_team'
 require 'map_gen.maps.quadrants.restrict_placement'
-require 'map_gen.maps.quadrants.all_chat'
+require 'map_gen.maps.quadrants.force_sync'
 
 local b = require('map_gen.shared.builders')
 local Retailer = require('features.retailer')
@@ -200,7 +200,7 @@ end
 
 Event.on_init(on_init)
 Event.add(defines.events.on_research_finished, on_research_finished)
---Event.add(defines.events.on_player_joined_game, player_created)
+
 callback_token = Token.register(chunk_generated)
 callback = Token.register(spawn_compilatron)
 

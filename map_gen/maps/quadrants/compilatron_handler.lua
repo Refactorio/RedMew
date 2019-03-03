@@ -11,7 +11,9 @@ local messages = {
         'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
         'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
         'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
-        'I\'m really cute'
+        'I\'m really cute',
+        'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
+        'Have you been silenced?\nYou can chat using the key below ESC\n\nYou can change this in Settings -> Controls -> Toggle Lua console'
     },
     ['quadrant1'] = {
         'Welcome to Science and Military!\n\nCommand center of military and scientific advancement',
@@ -20,7 +22,9 @@ local messages = {
         'Spare some change?\nGo spend your hard-earned coins here at the market',
         'Welcome to Science and Military!\n\nCommand center of military and scientific advancement',
         'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
-        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch'
+        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch',
+        'Have you been silenced?\nYou can chat using the key below ESC\n\nYou can change this in Settings -> Controls -> Toggle Lua console',
+        'Can\'t remove some chests?\nPlayers that switch area can leave behind a chest\n\nYou can empty it to remove it'
     },
     ['quadrant2'] = {
         'Welcome to Intermediate and Mining!\n\nThe only producer of steel and electronic circuits!',
@@ -30,7 +34,9 @@ local messages = {
         'Welcome to Intermediate and Mining!\n\nThe only producer of steel and electronic circuits!',
         'Spare some change?\nGo spend your hard-earned coins here at the market',
         'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
-        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch'
+        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch',
+        'Have you been silenced?\nYou can chat using the key below ESC\n\nYou can change this in Settings -> Controls -> Toggle Lua console',
+        'Can\'t remove some chests?\nPlayers that switch area can leave behind a chest\n\nYou can empty it to remove it'
     },
     ['quadrant3'] = {
         'Welcome to Oil and High Tech!\n\nHome of oil processing and technology',
@@ -40,16 +46,20 @@ local messages = {
         'Welcome to Oil and High Tech!\n\nHome of oil processing and technology',
         'Spare some change?\nGo spend your hard-earned coins here at the market',
         'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
-        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch'
+        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch',
+        'Have you been silenced?\nYou can chat using the key below ESC\n\nYou can change this in Settings -> Controls -> Toggle Lua console',
+        'Can\'t remove some chests?\nPlayers that switch area can leave behind a chest\n\nYou can empty it to remove it'
     },
     ['quadrant4'] = {
         'Welcome to Logistics and Transport\n\nHome of spaghetti and trainyards',
         'You can only produce logistical items in this area\n\nThe success of the region depends on you exporting these!',
-        'Did you know?\nMy siblings and I where born here',
+        'Did you know?\nMy siblings and I were born here',
         'Spare some change?\nGo spend your hard-earned coins here at the market',
         'Welcome to Logistics and Transport\n\nHome of spaghetti and trainyards',
         'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
-        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch'
+        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch',
+        'Have you been silenced?\nYou can chat using the key below ESC\n\nYou can change this in Settings -> Controls -> Toggle Lua console',
+        'Can\'t remove some chests?\nPlayers that switch area can leave behind a chest\n\nYou can empty it to remove it'
     }
 }
 

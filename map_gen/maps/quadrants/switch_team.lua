@@ -28,6 +28,8 @@ Global.register(
     end
 )
 
+local player_switched_force = script.generate_event_name()
+
 local quadrant_message = {
     {
         title = 'Research and command center',
@@ -93,10 +95,55 @@ local function teleport(event, quadrant)
             nil,
             'Quadrants.quadrant_description'
         )
+        script.raise_event(player_switched_force, {extra = 'data'})
     else
         local text = '## - You are too heavy for teleportation! Empty your inventory before switching quadrant!'
         player.print(text, Color.red)
+        text = '## - You may need to move of the bridge'
+        player.print(text, Color.red)
     end
+end
+
+local function redraw_quadrant_button(data, player)
+    local left_flow = data.left_flow_btn1
+    local right_flow = data.right_flow_btn1
+    Gui.clear(left_flow)
+    Gui.clear(right_flow)
+
+    left_flow.add(
+        {
+            type = 'button',
+            name = 'Quadrants.Button.2',
+            caption = 'Intermediate and Mining (' .. #game.forces['quadrant2'].players .. ')'
+        }
+    )
+    right_flow.add(
+        {
+            type = 'button',
+            name = 'Quadrants.Button.1',
+            caption = 'Science and Military (' .. #game.forces['quadrant1'].players .. ')'
+        }
+    )
+
+    left_flow = data.left_flow_btn2
+    right_flow = data.right_flow_btn2
+    Gui.clear(left_flow)
+    Gui.clear(right_flow)
+
+    left_flow.add(
+        {
+            type = 'button',
+            name = 'Quadrants.Button.3',
+            caption = 'Oil and High Tech (' .. #game.forces['quadrant3'].players .. ')'
+        }
+    )
+    right_flow.add(
+        {
+            type = 'button',
+            name = 'Quadrants.Button.4',
+            caption = 'Logistics and Transport (' .. #game.forces['quadrant4'].players .. ')'
+        }
+    )
 end
 
 local function redraw_chest_button(data, player)
@@ -126,6 +173,7 @@ local function toggle(event)
         return
     elseif (frame) then
         local data = Gui.get_data(frame)
+        redraw_quadrant_button(data, player)
         redraw_chest_button(data, player)
         return
     end
@@ -152,29 +200,23 @@ local function toggle(event)
 
     content_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
-    local left_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align = 'left'
-    left_flow.style.horizontally_stretchable = false
+    local left_flow_btn1 = content_flow.add {type = 'flow', direction = 'horizontal'}
+    left_flow_btn1.style.horizontal_align = 'left'
+    left_flow_btn1.style.horizontally_stretchable = false
 
-    local right_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.horizontal_align = 'right'
-    right_flow.style.horizontally_stretchable = false
-
-    left_flow.add({type = 'button', name = 'Quadrants.Button.2', caption = 'Intermediate and Mining'})
-    right_flow.add({type = 'button', name = 'Quadrants.Button.1', caption = 'Science and Military'})
+    local right_flow_btn1 = content_flow.add {type = 'flow', direction = 'horizontal'}
+    right_flow_btn1.style.horizontal_align = 'right'
+    right_flow_btn1.style.horizontally_stretchable = false
 
     content_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
-    left_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align = 'left'
-    left_flow.style.horizontally_stretchable = false
+    local left_flow_btn2 = content_flow.add {type = 'flow', direction = 'horizontal'}
+    left_flow_btn2.style.horizontal_align = 'left'
+    left_flow_btn2.style.horizontally_stretchable = false
 
-    right_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.horizontal_align = 'right'
-    right_flow.style.horizontally_stretchable = false
-
-    left_flow.add({type = 'button', name = 'Quadrants.Button.3', caption = 'Oil and High Tech'})
-    right_flow.add({type = 'button', name = 'Quadrants.Button.4', caption = 'Logistics and Transport'})
+    local right_flow_btn2 = content_flow.add {type = 'flow', direction = 'horizontal'}
+    right_flow_btn2.style.horizontal_align = 'right'
+    right_flow_btn2.style.horizontally_stretchable = false
 
     content_flow = frame.add {type = 'flow', direction = 'horizontal'}
     local chest_button_left_flow = content_flow.add {type = 'flow', direction = 'horizontal'}
@@ -184,15 +226,20 @@ local function toggle(event)
 
     local data = {
         frame = frame,
+        left_flow_btn1 = left_flow_btn1,
+        right_flow_btn1 = right_flow_btn1,
+        left_flow_btn2 = left_flow_btn2,
+        right_flow_btn2 = right_flow_btn2,
         chest_button_left_flow = chest_button_left_flow
     }
 
+    redraw_quadrant_button(data, player)
     redraw_chest_button(data, player)
 
     Gui.set_data(frame, data)
 end
 
-local function update_gui()
+local function update_gui(_, force_update)
     local players = game.connected_players
     for i = #players, 1, -1 do
         local p = players[i]
@@ -202,6 +249,9 @@ local function update_gui()
         if frame and frame.valid and (abs(p.position.x) >= 128 or abs(p.position.y) >= 128) then
             toggle(data)
         elseif not frame and not (abs(p.position.x) > 128 or abs(p.position.y) > 128) then
+            toggle(data)
+        elseif force_update then
+        data['trigger'] = true
             toggle(data)
         end
     end
@@ -254,6 +304,13 @@ local function on_player_created(event)
     toggle_chest_status[event.player_index] = 'OFF'
     toggle(event)
 end
+
+Event.add(
+    player_switched_force,
+    function(event)
+        update_gui(nil, true)
+    end
+)
 
 Event.add(defines.events.on_player_created, on_player_created)
 Event.on_nth_tick(61, update_gui)
