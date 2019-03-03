@@ -2,7 +2,7 @@ local Command = require 'utils.command'
 local Ranks = require 'resources.ranks'
 
 Command.add(
-    'reveal',
+    'debug-reveal',
     {
         description = {'command_description.reveal'},
         arguments = {'radius'},
