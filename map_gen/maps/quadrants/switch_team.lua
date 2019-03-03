@@ -114,7 +114,7 @@ local function redraw_quadrant_button(data)
         {
             type = 'button',
             name = 'Quadrants.Button.2',
-            caption = 'Intermediate and Mining (' .. #game.forces['quadrant2'].players .. ')',
+            caption = 'Intermediate and Mining (' .. #game.forces['quadrant2'].connected_players .. ')',
             tooltip = 'This is quadrant number 2'
         }
     )
@@ -122,7 +122,7 @@ local function redraw_quadrant_button(data)
         {
             type = 'button',
             name = 'Quadrants.Button.1',
-            caption = 'Science and Military (' .. #game.forces['quadrant1'].players .. ')',
+            caption = 'Science and Military (' .. #game.forces['quadrant1'].connected_players .. ')',
             tooltip = 'This is quadrant number 1'
         }
     )
@@ -136,7 +136,7 @@ local function redraw_quadrant_button(data)
         {
             type = 'button',
             name = 'Quadrants.Button.3',
-            caption = 'Oil and High Tech (' .. #game.forces['quadrant3'].players .. ')',
+            caption = 'Oil and High Tech (' .. #game.forces['quadrant3'].connected_players .. ')',
             tooltip = 'This is quadrant number 3'
         }
     )
@@ -144,7 +144,7 @@ local function redraw_quadrant_button(data)
         {
             type = 'button',
             name = 'Quadrants.Button.4',
-            caption = 'Logistics and Transport (' .. #game.forces['quadrant4'].players .. ')',
+            caption = 'Logistics and Transport (' .. #game.forces['quadrant4'].connected_players .. ')',
             tooltip = 'This is quadrant number 4'
         }
     )
