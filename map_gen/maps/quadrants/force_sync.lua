@@ -109,8 +109,7 @@ local function research_finished(event)
 
     for _, force in pairs(game.forces) do
         if (string.find(force.name, 'quadrant')) ~= nil then
-            force.print(
-                '[img=item/automation-science-pack] New research complete: [technology=' .. technology.name .. ']'
+            force.print({'quadrants.force_sync_research', technology.name}
             )
         end
     end

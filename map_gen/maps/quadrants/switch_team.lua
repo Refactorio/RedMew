@@ -30,42 +30,20 @@ Global.register(
 
 local quadrant_message = {
     {
-        title = 'Research and command center',
-        msg = [[
-                Our main objective is to provide the region with new scientific discoveries
-
-                Secondary we are the central command hub
-                We provide the region with military equipment
-        ]]
+        title = {'quadrants.popup_quadrant1_title'},
+        msg = {'quadrants.popup_quadrant1'}
     },
     {
-        title = 'Intermediate production and mining',
-        msg = [[
-                Our main objective is to provide the region with intermediate products
-
-                We primarily supply electronic circuits in various densities
-                We're also the area with the highest quality steel!
-
-                Initial survey shows increased resources in this area
-        ]]
+        title = {'quadrants.popup_quadrant2_title'},
+        msg = {'quadrants.popup_quadrant2'}
     },
     {
-        title = 'Oil and high tech production',
-        msg = [[
-                Our main objective is to provide the region with oil based products
-
-                Secondary we are the regions technological leader
-                We provide the region with various high technology (and radioactive) products
-        ]]
+        title = {'quadrants.popup_quadrant3_title'},
+        msg = {'quadrants.popup_quadrant3'}
     },
     {
-        title = 'Logistical production',
-        msg = [[
-                Our main objective is to provide the region with logistical solutions
-
-                We primarily supply belt and bot based solutions
-                We're also specialized in high performance train networks!
-        ]]
+        title = {'quadrants.popup_quadrant4_title'},
+        msg = {'quadrants.popup_quadrant4'}
     }
 }
 
@@ -76,7 +54,7 @@ local function teleport(event, quadrant)
         (abs(player.position.x) <= 4 and abs(player.position.y) <= 4) or
             (player.get_inventory(defines.inventory.player_main).is_empty() and
                 player.get_inventory(defines.inventory.player_trash).is_empty()) or
-            ((abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status == 'ON' and
+            ((abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status and
                 Item_to_chest.transfer_inventory(
                     player.index,
                     {defines.inventory.player_main, defines.inventory.player_trash}
@@ -94,10 +72,8 @@ local function teleport(event, quadrant)
             'Quadrants.quadrant_description'
         )
     else
-        local text = '## - You are too heavy for teleportation! Empty your inventory before switching quadrant!'
-        player.print(text, Color.red)
-        text = '## - You may need to move of the bridge'
-        player.print(text, Color.red)
+        player.print({'quadrants.switch_notice1'}, Color.red)
+        player.print({'quadrants.switch_notice1'}, Color.red)
     end
 end
 
@@ -111,16 +87,16 @@ local function redraw_quadrant_button(data)
         {
             type = 'button',
             name = 'Quadrants.Button.2',
-            caption = 'Intermediate and Mining (' .. #game.forces['quadrant2'].connected_players .. ')',
-            tooltip = 'This is quadrant number 2'
+            caption = {'quadrants.switch_quadrant2', #game.forces['quadrant2'].connected_players},
+            tooltip = {'quadrants.switch_quadrant2_tip'}
         }
     )
     right_flow.add(
         {
             type = 'button',
             name = 'Quadrants.Button.1',
-            caption = 'Science and Military (' .. #game.forces['quadrant1'].connected_players .. ')',
-            tooltip = 'This is quadrant number 1'
+            caption = {'quadrants.switch_quadrant1', #game.forces['quadrant1'].connected_players},
+            tooltip = {'quadrants.switch_quadrant1_tip'}
         }
     )
 
@@ -133,23 +109,23 @@ local function redraw_quadrant_button(data)
         {
             type = 'button',
             name = 'Quadrants.Button.3',
-            caption = 'Oil and High Tech (' .. #game.forces['quadrant3'].connected_players .. ')',
-            tooltip = 'This is quadrant number 3'
+            caption = {'quadrants.switch_quadrant3', #game.forces['quadrant3'].connected_players},
+            tooltip = {'quadrants.switch_quadrant3_tip'}
         }
     )
     right_flow.add(
         {
             type = 'button',
             name = 'Quadrants.Button.4',
-            caption = 'Logistics and Transport (' .. #game.forces['quadrant4'].connected_players .. ')',
-            tooltip = 'This is quadrant number 4'
+            caption = {'quadrants.switch_quadrant4', #game.forces['quadrant4'].connected_players},
+            tooltip = {'quadrants.switch_quadrant4_tip'}
         }
     )
 end
 
 local function redraw_chest_button(data, player)
     local left_flow = data.chest_button_left_flow
-    local toggle_status = toggle_chest_status[player.index]
+    local toggle_status = toggle_chest_status[player.index] and {'quadrants.on'} or {'quadrants.off'}
     Gui.clear(left_flow)
 
     local button =
@@ -157,8 +133,8 @@ local function redraw_chest_button(data, player)
         {
             type = 'button',
             name = 'Quadrants.Button.Toggle',
-            caption = 'Toggle inventory empty to chest. Currently: ' .. toggle_status,
-            tooltip = 'If on:\nYour inventory will be emptied in a chest, when you switch quadrant'
+            caption = {'quadrants.switch_chest', toggle_status},
+            tooltip = {'quadrants.switch_chest_tip'}
         }
     )
     button.style.font = 'default'
@@ -185,17 +161,17 @@ local function toggle(event)
     local label_flow = content_flow.add {type = 'flow'}
 
     label_flow.style.horizontally_stretchable = false
-    local label = label_flow.add {type = 'label', caption = 'Welcome to Redmew - Quadrants!'}
+    local label = label_flow.add {type = 'label', caption = {'quadrants.switch_welcome'}}
     label.style.single_line = false
     label.style.font = 'default-large-bold'
 
     label_flow = content_flow.add {type = 'flow'}
-    label = label_flow.add {type = 'label', caption = 'While in spawn, you can switch quadrant!'}
+    label = label_flow.add {type = 'label', caption = {'quadrants.switch_desc'}}
     label.style.single_line = false
     label.style.font = 'default'
 
     label_flow = content_flow.add {type = 'flow'}
-    label = label_flow.add {type = 'label', caption = "Go ahead and pick a quadrant you'd like to help out!"}
+    label = label_flow.add {type = 'label', caption = {'quadrants.switch_msg'}}
     label.style.single_line = false
     label.style.font = 'default'
 
@@ -260,10 +236,10 @@ end
 
 local function toggle_chest(event)
     local toggle_status = toggle_chest_status[event.player.index]
-    if toggle_status == 'OFF' then
-        toggle_chest_status[event.player.index] = 'ON'
+    if not toggle_status then
+        toggle_chest_status[event.player.index] = true
     else
-        toggle_chest_status[event.player.index] = 'OFF'
+        toggle_chest_status[event.player.index] = false
     end
     event.trigger = true
     toggle(event)
@@ -302,7 +278,7 @@ Gui.on_click(
 
 local function on_player_created(event)
     event.player = Game.get_player_by_index(event.player_index)
-    toggle_chest_status[event.player_index] = 'OFF'
+    toggle_chest_status[event.player_index] = true
     toggle(event)
 end
 

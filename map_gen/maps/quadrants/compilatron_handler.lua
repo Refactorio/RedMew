@@ -8,58 +8,58 @@ local current_messages = {}
 
 local messages = {
     ['spawn'] = {
-        'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
-        'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
-        'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
-        'I\'m really cute',
-        'Welcome to Redmew - Quadrants!\n\nUse the GUI in your top left corner to play!',
-        'Have you been silenced?\nYou can chat using the key below ESC\n\nYou can change this in Settings -> Controls -> Toggle Lua console'
+        {'quadrants.compi_spawn_welcome'},
+        {'quadrants.compi_common_transfer_item'},
+        {'quadrants.compi_spawn_welcome'},
+        {'quadrants.compi_spawn_cute'},
+        {'quadrants.compi_spawn_welcome'},
+        {'quadrants.compi_common_chat'}
     },
     ['quadrant1'] = {
-        'Welcome to Science and Military!\n\nCommand center of military and scientific advancement',
-        'You can only research in this area\n\nYou would have to import some science packs from other areas',
-        'You can only craft military items in this area\n\nOther areas depend on you sending military items to them',
-        'Spare some change?\nGo spend your hard-earned coins here at the market',
-        'Welcome to Science and Military!\n\nCommand center of military and scientific advancement',
-        'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
-        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch',
-        'Have you been silenced?\nYou can chat using the key below ESC\n\nYou can change this in Settings -> Controls -> Toggle Lua console',
-        'Can\'t remove some chests?\nPlayers that switch area can leave behind a chest\n\nYou can empty it to remove it'
-    },
+		{'quadrants.compi_quadrant1_welcome'},
+		{'quadrants.compi_quadrant1_science'},
+		{'quadrants.compi_quadrant1_military'},
+		{'quadrants.compi_common_market'},
+		{'quadrants.compi_quadrant1_welcome'},
+		{'quadrants.compi_common_transfer_item'},
+		{'quadrants.compi_common_switch'},
+		{'quadrants.compi_common_chat'},
+		{'quadrants.compi_common_chests'}
+	},
     ['quadrant2'] = {
-        'Welcome to Intermediate and Mining!\n\nThe only producer of steel and electronic circuits!',
-        'You can only produce steel in this area\n\nOther areas depend on you sending steel to them',
-        'You can only craft circuits in this area\n\nYou need to export them other areas!',
-        'Rumors say:\nThis area is extra rich in resources\n\nIt\'s ideal for mining operations',
-        'Welcome to Intermediate and Mining!\n\nThe only producer of steel and electronic circuits!',
-        'Spare some change?\nGo spend your hard-earned coins here at the market',
-        'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
-        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch',
-        'Have you been silenced?\nYou can chat using the key below ESC\n\nYou can change this in Settings -> Controls -> Toggle Lua console',
-        'Can\'t remove some chests?\nPlayers that switch area can leave behind a chest\n\nYou can empty it to remove it'
+		{'quadrants.compi_quadrant2_welcome'},
+		{'quadrants.compi_quadrant2_steel'},
+		{'quadrants.compi_quadrant2_circuits'},
+		{'quadrants.compi_quadrant2_resources'},
+		{'quadrants.compi_common_market'},
+		{'quadrants.compi_quadrant2_welcome'},
+		{'quadrants.compi_common_transfer_item'},
+		{'quadrants.compi_common_switch'},
+		{'quadrants.compi_common_chat'},
+		{'quadrants.compi_common_chests'}
     },
     ['quadrant3'] = {
-        'Welcome to Oil and High Tech!\n\nHome of oil processing and technology',
-        'You can only process crude oil in this area\n\nYou may need to import crude oil from other areas',
-        'You can only craft various high tech items in this ares\n\nYou may need to import a lot of intermediate products!',
-        'I have heard:\nThis area is a perfect place to launch a rocket\n\nOther areas can provide you the parts you need',
-        'Welcome to Oil and High Tech!\n\nHome of oil processing and technology',
-        'Spare some change?\nGo spend your hard-earned coins here at the market',
-        'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
-        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch',
-        'Have you been silenced?\nYou can chat using the key below ESC\n\nYou can change this in Settings -> Controls -> Toggle Lua console',
-        'Can\'t remove some chests?\nPlayers that switch area can leave behind a chest\n\nYou can empty it to remove it'
+		{'quadrants.compi_quadrant3_welcome'},
+		{'quadrants.compi_quadrant3_oil'},
+		{'quadrants.compi_quadrant3_tech'},
+		{'quadrants.compi_quadrant3_rocket'},
+		{'quadrants.compi_common_market'},
+		{'quadrants.compi_quadrant3_welcome'},
+		{'quadrants.compi_common_transfer_item'},
+		{'quadrants.compi_common_switch'},
+		{'quadrants.compi_common_chat'},
+		{'quadrants.compi_common_chests'}
     },
     ['quadrant4'] = {
-        'Welcome to Logistics and Transport\n\nHome of spaghetti and trainyards',
-        'You can only produce logistical items in this area\n\nThe success of the region depends on you exporting these!',
-        'Did you know?\nMy siblings and I were born here',
-        'Spare some change?\nGo spend your hard-earned coins here at the market',
-        'Welcome to Logistics and Transport\n\nHome of spaghetti and trainyards',
-        'How to transfer items?\nYou can use underground belts to reach the other side\n\nYou can also drop items across, just use the ´Z´ key',
-        'You can switch area!\nAll it takes is that you have an empty inventory\n\nJust stand near me and use the gui in the top left corner to switch',
-        'Have you been silenced?\nYou can chat using the key below ESC\n\nYou can change this in Settings -> Controls -> Toggle Lua console',
-        'Can\'t remove some chests?\nPlayers that switch area can leave behind a chest\n\nYou can empty it to remove it'
+		{'quadrants.compi_quadrant4_welcome'},
+		{'quadrants.compi_quadrant4_logistic'},
+		{'quadrants.compi_quadrant4_born'},
+		{'quadrants.compi_common_market'},
+		{'quadrants.compi_quadrant4_welcome'},
+		{'quadrants.compi_common_transfer_item'},
+		{'quadrants.compi_common_switch'},
+		{'quadrants.compi_common_chat'},
+		{'quadrants.compi_common_chests'}
     }
 }
 
