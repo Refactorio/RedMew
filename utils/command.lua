@@ -12,7 +12,6 @@ local insert = table.insert
 local format = string.format
 local next = next
 local serialize = serpent.line
-local match = string.match
 local gmatch = string.gmatch
 local get_rank_name = Rank.get_rank_name
 
