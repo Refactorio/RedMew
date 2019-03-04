@@ -2,6 +2,7 @@ local Gui = require 'utils.gui'
 local Token = require 'utils.token'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local Global = require 'utils.global'
 local Server = require 'features.server'
 local Toast = require 'features.gui.toast'
 local Settings = require 'utils.redmew_settings'
@@ -15,6 +16,19 @@ local save_changes_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 
 local Public = {}
+
+local primitives = {
+    remote_server = nil
+}
+
+Global.register(
+    {
+        primitives = primitives
+    },
+    function(tbl)
+        primitives = tbl.primitives
+    end
+)
 
 local on_player_settings_get = Token.register(function (data)
     local player = game.players[data.key]
@@ -51,14 +65,14 @@ local function player_created(event)
     })
 
     -- disable the button if the remote server is used, won't be available until the settings are loaded
-    if global.config.redmew_settings.use_remote_server then
+    if primitives.remote_server then
         button.enabled = false
         button.tooltip = {'redmew_settings_gui.menu_item_tooltip_loading'}
     end
 end
 
 local function player_joined(event)
-    if not global.config.redmew_settings.use_remote_server then
+    if not primitives.remote_server then
         return
     end
 
@@ -67,7 +81,7 @@ local function player_joined(event)
         return
     end
 
-    Server.try_get_data('player_settings', player.name, on_player_settings_get);
+    Server.try_get_data('player_settings', player.name, on_player_settings_get)
 end
 
 local function get_element_value(element)
@@ -216,8 +230,8 @@ local function save_changes(event)
 
     Toast.toast_player(player, 5, {'redmew_settings_gui.save_success_toast_message'})
 
-    if global.config.redmew_settings.use_remote_server then
-        Server.set_data('player_settings', player.name, Settings.all(player_index));
+    if primitives.remote_server then
+        Server.set_data('player_settings', player.name, Settings.all(player_index))
     end
 
     local main_frame = player.gui.center[main_frame_name]
@@ -225,6 +239,10 @@ local function save_changes(event)
     if main_frame then
         Gui.destroy(main_frame)
     end
+end
+
+local function enable_server()
+    primitives.remote_server = true
 end
 
 Gui.on_custom_close(main_frame_name, function(event)
@@ -237,5 +255,6 @@ Gui.on_click(main_button_name, toggle)
 Gui.on_click(save_changes_button_name, save_changes)
 Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
+Event.add(Server.events.on_server_started, enable_server)
 
 return Public

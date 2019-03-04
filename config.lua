@@ -369,8 +369,7 @@ global.config = {
     },
     -- enables the redmew settings GUI
     redmew_settings = {
-        enabled = true,
-        use_remote_server = true,
+        enabled = true
     }
 }
 
