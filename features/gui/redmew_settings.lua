@@ -34,7 +34,7 @@ local on_player_settings_get = Token.register(function (data)
 
     local button = player.gui.top[main_button_name]
     button.enabled = true
-    button.tooltip = {'redmew_settings.menu_item_tooltip'}
+    button.tooltip = {'redmew_settings_gui.menu_item_tooltip'}
 end)
 
 local function player_created(event)
@@ -47,13 +47,13 @@ local function player_created(event)
         type = 'sprite-button',
         name = main_button_name,
         sprite = 'item/iron-gear-wheel',
-        tooltip = {'redmew_settings.menu_item_tooltip'}
+        tooltip = {'redmew_settings_gui.menu_item_tooltip'}
     })
 
     -- disable the button if the remote server is used, won't be available until the settings are loaded
     if global.config.redmew_settings.use_remote_server then
         button.enabled = false
-        button.tooltip = {'redmew_settings.menu_item_tooltip_loading'}
+        button.tooltip = {'redmew_settings_gui.menu_item_tooltip_loading'}
     end
 end
 
@@ -100,7 +100,7 @@ local function draw_main_frame(center, player)
         type = 'frame',
         name = main_frame_name,
         direction = 'vertical',
-        caption = {'redmew_settings.frame_title'},
+        caption = {'redmew_settings_gui.frame_title'},
     })
 
     local settings_frame_style = settings_frame.style
@@ -149,13 +149,13 @@ local function draw_main_frame(center, player)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local close_button = left_flow.add({type = 'button', name = main_button_name, caption = {'redmew_settings.button_cancel'}})
+    local close_button = left_flow.add({type = 'button', name = main_button_name, caption = {'redmew_settings_gui.button_cancel'}})
     close_button.style = 'back_button'
 
     local right_flow = bottom_flow.add({type = 'flow'})
     right_flow.style.horizontal_align = 'right'
 
-    local save_button = right_flow.add({type = 'button', name = save_changes_button_name, caption = {'redmew_settings.button_save_changes'}})
+    local save_button = right_flow.add({type = 'button', name = save_changes_button_name, caption = {'redmew_settings_gui.button_save_changes'}})
     save_button.style = 'confirm_button'
 
     Gui.set_data(save_button, data)
@@ -214,7 +214,7 @@ local function save_changes(event)
         Settings.set(player_index, name, value)
     end
 
-    Toast.toast_player(player, 5, {'redmew_settings.save_success_toast_message'})
+    Toast.toast_player(player, 5, {'redmew_settings_gui.save_success_toast_message'})
 
     if global.config.redmew_settings.use_remote_server then
         Server.set_data('player_settings', player.name, Settings.all(player_index));

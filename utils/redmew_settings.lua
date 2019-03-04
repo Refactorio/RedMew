@@ -12,7 +12,7 @@ local settings_type = {
         input = tonumber(input)
 
         if input == nil then
-            return false, {'redmew_settings.fraction_invalid_value'}
+            return false, {'redmew_settings_util.fraction_invalid_value'}
         end
 
         if input < 0 then
@@ -39,7 +39,7 @@ local settings_type = {
             return true, tostring(input)
         end
 
-        return false, {'redmew_settings.string_invalid_value'}
+        return false, {'redmew_settings_util.string_invalid_value'}
     end,
     boolean = function (input)
         local input_type = type(input)
@@ -63,7 +63,7 @@ local settings_type = {
             return true, input ~= 0
         end
 
-        return false, {'redmew_settings.boolean_invalid_value'}
+        return false, {'redmew_settings_util.boolean_invalid_value'}
     end,
 }
 
