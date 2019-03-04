@@ -24,7 +24,7 @@ ldiff() {
 }
 
 echo "##############################"
-echo" Checking locale for misplaced/missing keys."
+echo "Checking locale for misplaced/missing keys."
 for dir in *; do
     if [ "$dir" != "en" ]; then
         ls en | ldiff $dir
