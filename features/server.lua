@@ -1,6 +1,7 @@
 --- See documentation at https://github.com/Refactorio/RedMew/pull/469
 
 local Token = require 'utils.token'
+local Task = require 'utils.task'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
@@ -13,6 +14,7 @@ local concat = table.concat
 local remove = table.remove
 local tostring = tostring
 local raw_print = Print.raw_print
+local next = next
 
 local serialize_options = {sparse = true, compact = true}
 
@@ -20,12 +22,17 @@ local Public = {}
 
 local server_time = {secs = nil, tick = 0}
 ErrorLogging.server_time = server_time
+local requests = {}
 
 Global.register(
-    server_time,
+    {
+        server_time = server_time,
+        requests = requests
+    },
     function(tbl)
-        server_time = tbl
-        ErrorLogging.server_time = tbl
+        server_time = tbl.server_time
+        ErrorLogging.server_time = server_time
+        requests = tbl.requests
     end
 )
 
@@ -217,6 +224,38 @@ function Public.set_data(data_set, key, value)
     raw_print(message)
 end
 
+local function send_try_get_data(data_set, key, callback_token)
+    data_set = double_escape(data_set)
+    key = double_escape(key)
+
+    local message = concat {data_get_tag, callback_token, ' {', 'data_set:"', data_set, '",key:"', key, '"}'}
+    raw_print(message)
+end
+
+local cancelable_callback_token =
+    Token.register(
+    function(data)
+        local data_set = data.data_Set
+        local keys = requests[data_set]
+        if not keys then
+            return
+        end
+
+        local key = data.key
+        local callbacks = keys[key]
+        if not callbacks then
+            return
+        end
+
+        keys[key] = nil
+
+        for c, _ in next, callbacks do
+            local func = Token.get(c)
+            func(data)
+        end
+    end
+)
+
 --- Gets data from the web server's persistent data storage.
 -- The callback is passed a table {data_set: string, key: string, value: any}.
 -- If the value is nil, it means there is no stored data for that data_set key pair.
@@ -250,11 +289,126 @@ function Public.try_get_data(data_set, key, callback_token)
         error('callback_token must be a number', 2)
     end
 
-    data_set = double_escape(data_set)
-    key = double_escape(key)
+    send_try_get_data(data_set, key, callback_token)
+end
 
-    local message = concat {data_get_tag, callback_token, ' {', 'data_set:"', data_set, '",key:"', key, '"}'}
-    raw_print(message)
+function Public.is_try_get_data_request_cancelable(data_set, key, callback_token)
+    local keys = requests[data_set]
+    if not keys then
+        keys = {}
+        requests[data_set] = keys
+    end
+
+    local callbacks = keys[key]
+    if not callbacks then
+        callbacks = {}
+        keys[key] = callbacks
+    end
+
+    return callbacks[callback_token] or false
+end
+
+local function try_get_data_cancelable(data_set, key, callback_token)
+    local keys = requests[data_set]
+    if not keys then
+        keys = {}
+        requests[data_set] = keys
+    end
+
+    local callbacks = keys[key]
+    if not callbacks then
+        callbacks = {}
+        keys[key] = callbacks
+    end
+
+    if callbacks[callback_token] then
+        return
+    end
+
+    if next(callbacks) then
+        callbacks[callback_token] = true
+    else
+        callbacks[callback_token] = true
+        send_try_get_data(data_set, key, cancelable_callback_token)
+    end
+end
+
+function Public.try_get_data_cancelable(data_set, key, callback_token)
+    if type(data_set) ~= 'string' then
+        error('data_set must be a string', 2)
+    end
+    if type(key) ~= 'string' then
+        error('key must be a string', 2)
+    end
+    if type(callback_token) ~= 'number' then
+        error('callback_token must be a number', 2)
+    end
+
+    try_get_data_cancelable(data_set, key, callback_token)
+end
+
+local function cancel_try_get_data(data_set, key, callback_token)
+    local keys = requests[data_set]
+    if not keys then
+        return false
+    end
+
+    local callbacks = keys[key]
+    if not callbacks then
+        return false
+    end
+
+    if callbacks[callback_token] then
+        callbacks[callback_token] = nil
+
+        local func = Token.get(callback_token)
+        func()
+
+        return true
+    else
+        return false
+    end
+end
+
+function Public.cancel_try_get_data(data_set, key, callback_token)
+    if type(data_set) ~= 'string' then
+        error('data_set must be a string', 2)
+    end
+    if type(key) ~= 'string' then
+        error('key must be a string', 2)
+    end
+    if type(callback_token) ~= 'number' then
+        error('callback_token must be a number', 2)
+    end
+
+    cancel_try_get_data(data_set, key, callback_token)
+end
+
+local timeout_token =
+    Token.register(
+    function(data)
+        cancel_try_get_data(data.data_set, data.key, data.callback_token)
+    end
+)
+
+function Public.try_get_data_timeout(data_set, key, callback_token, timeout_ticks)
+    if type(data_set) ~= 'string' then
+        error('data_set must be a string', 2)
+    end
+    if type(key) ~= 'string' then
+        error('key must be a string', 2)
+    end
+    if type(callback_token) ~= 'number' then
+        error('callback_token must be a number', 2)
+    end
+
+    try_get_data_cancelable(data_set, key, callback_token)
+
+    Task.set_timeout_in_ticks(
+        timeout_ticks,
+        timeout_token,
+        {data_set = data_set, key = key, callback_token = callback_token}
+    )
 end
 
 --- Gets all the data for the data_set from the web server's persistent data storage.
