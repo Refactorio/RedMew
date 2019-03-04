@@ -145,7 +145,7 @@ end
 Command.add(
     'popup',
     {
-        description = 'Shows a popup to all connected players',
+        description = {'command_description.popup'},
         arguments = {'message'},
         required_rank = Ranks.admin,
         capture_excess_arguments = true,
@@ -157,7 +157,7 @@ Command.add(
 Command.add(
     'popup-update',
     {
-        description = 'Shows an update popup to all connected players',
+        description = {'command_description.popup_update'},
         arguments = {'version'},
         required_rank = Ranks.admin,
         capture_excess_arguments = true,
@@ -169,7 +169,7 @@ Command.add(
 Command.add(
     'popup-player',
     {
-        description = 'Shows a popup to the player.',
+        description = {'command_description.popup_player'},
         arguments = {'player', 'message'},
         required_rank = Ranks.admin,
         capture_excess_arguments = true,

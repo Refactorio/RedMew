@@ -65,9 +65,6 @@ end
 if config.reactor_meltdown.enabled then
     require 'features.reactor_meltdown'
 end
-if config.walkabout.enabled then
-    require 'features.walkabout'
-end
 if config.performance.enabled then
     require 'features.performance'
 end

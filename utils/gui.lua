@@ -205,7 +205,7 @@ Event.add(
             type = 'button',
             name = toggle_button_name,
             caption = '<',
-            tooltip = 'Shows / hides the Redmew Gui buttons.'
+            tooltip = {'gui_util.button_tooltip'}
         }
         local style = b.style
         style.width = 18

@@ -688,7 +688,7 @@ end
 Command.add(
     'tag',
     {
-        description = "Sets a player's tag",
+        description = {"command_description.tag"},
         arguments = {'player', 'tag'},
         required_rank = Ranks.admin,
         capture_excess_arguments = true,

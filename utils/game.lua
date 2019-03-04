@@ -64,20 +64,20 @@ function Game.get_player_from_any(obj)
 end
 
 --- Prints to player or console.
--- @param str <string|table> table if locale is used
+-- @param msg <string|table> table if locale is used
 -- @param color <table> defaults to white
-function Game.player_print(str, color)
+function Game.player_print(msg, color)
     color = color or Color.white
     if game.player then
-        game.player.print(str, color)
+        game.player.print(msg, color)
     else
-        print(str)
+        print(msg)
     end
 end
 
 --[[
     @param Position String to display at
-    @param text String to display
+    @param text <string|table> table if locale is used
     @param color table in {r = 0~1, g = 0~1, b = 0~1}, defaults to white.
     @param surface LuaSurface
 

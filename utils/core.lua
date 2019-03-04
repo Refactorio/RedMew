@@ -65,7 +65,7 @@ function Module.print_admins(msg, source)
         source_name = 'Server'
         chat_color = Color.yellow
     end
-    local formatted_msg = {'utils_core.print_admins',prefix, source_name, msg}
+    local formatted_msg = {'utils_core.print_admins', prefix, source_name, msg}
     log(formatted_msg)
     for _, p in pairs(game.connected_players) do
         if p.admin then
@@ -220,6 +220,34 @@ function Module.silent_action_warning(warning_prefix, msg, player)
     msg = format('%s %s', warning_prefix, msg)
     log(msg)
     Server.to_discord_bold(msg)
+end
+
+--- Takes a string, number, or LuaPlayer and returns a valid LuaPlayer or nil.
+-- Intended for commands as there are extra checks in place.
+-- @param <string|number|LuaPlayer>
+-- @return <LuaPlayer|nil> <string|nil> <number|nil> the LuaPlayer, their name, and their index
+function Module.validate_player(player_ident)
+    local data_type = type(player_ident)
+    local player
+
+    if data_type == 'table' and player_ident.valid then
+        local is_player = player_ident.is_player()
+        if is_player then
+            player = player_ident
+        end
+    elseif data_type == 'number' then
+        player = Game.get_player_by_index(player_ident)
+    elseif data_type == 'string' then
+        player = game.players[player_ident]
+    else
+        return
+    end
+
+    if not player.valid then
+        return
+    end
+
+    return player, player.name, player.index
 end
 
 -- add utility functions that exist in base factorio/util

@@ -105,7 +105,7 @@ Event.add(defines.events.on_built_entity, function(event)
 end)
 
 Command.add('lazy-bastard-bootstrap', {
-    description = 'Puts down the minimum requirements to get started',
+    description = {'command_description.lazy_bastard_bootstrap'},
     required_rank = Ranks.admin,
 }, function(_, player)
     local surface = player.surface

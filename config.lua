@@ -279,10 +279,6 @@ global.config = {
     player_colors = {
         enabled = true
     },
-    -- adds a command that switches a player to the enemy force and teleports them far away for some time to calm down
-    walkabout = {
-        enabled = true
-    },
     -- adds a command to generate a popup dialog box for players to see, useful for important announcements
     popup = {
         enabled = true
