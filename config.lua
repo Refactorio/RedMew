@@ -331,6 +331,10 @@ global.config = {
     -- enables a command which allows for an end-game event
     apocalypse = {
         enabled = true
+    },
+    -- gradually informs players of features such as chat, toasts, etc.
+    player_onboarding = {
+        enabled = true
     }
 }
 
