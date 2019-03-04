@@ -265,31 +265,6 @@ function Command.add(command_name, options, callback)
     )
 end
 
-function Command.search(keyword)
-    local matches = {}
-    local count = 0
-    keyword = keyword:lower()
-
-    -- commands use LocalisedString, which cannot be translated until player.print is called
-    for name in pairs(commands.commands) do
-        name = name
-        if match(name:lower(), keyword) then
-            count = count + 1
-            matches[count] = name
-        end
-    end
-
-    for name in pairs(commands.game_commands) do
-        name = name
-        if match(name:lower(), keyword) then
-            count = count + 1
-            matches[count] = name
-        end
-    end
-
-    return matches
-end
-
 --- Trigger messages on deprecated or defined commands, ignores the server
 local function on_command(event)
     if not event.player_index then
