@@ -335,7 +335,7 @@ if config.loaders then
 end
 
 if config.save_bots then
-Event.add(defines.events.on_selected_entity_changed, preserve_bot)
+    Event.add(defines.events.on_selected_entity_changed, preserve_bot)
 end
 
 return Public
