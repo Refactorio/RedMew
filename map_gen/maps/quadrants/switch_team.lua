@@ -240,7 +240,7 @@ local function toggle(event)
     Gui.set_data(frame, data)
 end
 
-local function update_gui(_, force_update)
+local function update_gui(force_update)
     local players = game.connected_players
     for i = #players, 1, -1 do
         local p = players[i]
@@ -308,7 +308,7 @@ end
 
 
 local function changed_force()
-        update_gui(nil, true)
+        update_gui(true)
 end
 
 
