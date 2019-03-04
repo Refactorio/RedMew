@@ -86,6 +86,10 @@ end
 -- This will also gives us a measure of how many players engage in chat in a map.
 local function on_player_chat(event)
     local player_index = event.player_index
+    if not player_index then
+        return
+    end
+
     local player = Game.get_player_by_index(player_index)
     if not player or not player.valid then
         return
