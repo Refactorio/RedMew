@@ -224,6 +224,18 @@ function Public.set_data(data_set, key, value)
     raw_print(message)
 end
 
+local function validate_arguments(data_set, key, callback_token)
+    if type(data_set) ~= 'string' then
+        error('data_set must be a string', 3)
+    end
+    if type(key) ~= 'string' then
+        error('key must be a string', 3)
+    end
+    if type(callback_token) ~= 'number' then
+        error('callback_token must be a number', 3)
+    end
+end
+
 local function send_try_get_data(data_set, key, callback_token)
     data_set = double_escape(data_set)
     key = double_escape(key)
@@ -235,7 +247,7 @@ end
 local cancelable_callback_token =
     Token.register(
     function(data)
-        local data_set = data.data_Set
+        local data_set = data.data_set
         local keys = requests[data_set]
         if not keys then
             return
@@ -279,33 +291,9 @@ local cancelable_callback_token =
 --
 -- Server.try_get_data('my data set', 'key 1', callback)
 function Public.try_get_data(data_set, key, callback_token)
-    if type(data_set) ~= 'string' then
-        error('data_set must be a string', 2)
-    end
-    if type(key) ~= 'string' then
-        error('key must be a string', 2)
-    end
-    if type(callback_token) ~= 'number' then
-        error('callback_token must be a number', 2)
-    end
+    validate_arguments(data_set, key, callback_token)
 
     send_try_get_data(data_set, key, callback_token)
-end
-
-function Public.is_try_get_data_request_cancelable(data_set, key, callback_token)
-    local keys = requests[data_set]
-    if not keys then
-        keys = {}
-        requests[data_set] = keys
-    end
-
-    local callbacks = keys[key]
-    if not callbacks then
-        callbacks = {}
-        keys[key] = callbacks
-    end
-
-    return callbacks[callback_token] or false
 end
 
 local function try_get_data_cancelable(data_set, key, callback_token)
@@ -333,16 +321,17 @@ local function try_get_data_cancelable(data_set, key, callback_token)
     end
 end
 
+--- Same Server.try_get_data but the request can be cancelled by calling
+-- Server.cancel_try_get_data(data_set, key, callback_token)
+-- If the request is cancelled before it is complete the callback will be called with nil.
+-- It is safe to cancel a non-existent or completed request, in either case the callback will not be called.
+-- There can only be one request per data_set, key, callback_token combo. If there is already an ongoing request
+-- an attempt to make a new one will be ignored.
+-- @param  data_set<string>
+-- @param  key<string>
+-- @param  callback_token<token>
 function Public.try_get_data_cancelable(data_set, key, callback_token)
-    if type(data_set) ~= 'string' then
-        error('data_set must be a string', 2)
-    end
-    if type(key) ~= 'string' then
-        error('key must be a string', 2)
-    end
-    if type(callback_token) ~= 'number' then
-        error('callback_token must be a number', 2)
-    end
+    validate_arguments(data_set, key, callback_token)
 
     try_get_data_cancelable(data_set, key, callback_token)
 end
@@ -370,18 +359,17 @@ local function cancel_try_get_data(data_set, key, callback_token)
     end
 end
 
+--- Cancels the request. Returns false if the request could not be cnacled, either because there is no request
+-- to cancel or it has been completed or cancled already. Otherwise returns true.
+-- If the request is cancelled before it is complete the callback will be called with nil.
+-- It is safe to cancel a non-existent or completed request, in either case the callback will not be called.
+-- @param  data_set<string>
+-- @param  key<string>
+-- @param  callback_token<token>
 function Public.cancel_try_get_data(data_set, key, callback_token)
-    if type(data_set) ~= 'string' then
-        error('data_set must be a string', 2)
-    end
-    if type(key) ~= 'string' then
-        error('key must be a string', 2)
-    end
-    if type(callback_token) ~= 'number' then
-        error('callback_token must be a number', 2)
-    end
+    validate_arguments(data_set, key, callback_token)
 
-    cancel_try_get_data(data_set, key, callback_token)
+    return cancel_try_get_data(data_set, key, callback_token)
 end
 
 local timeout_token =
@@ -391,16 +379,35 @@ local timeout_token =
     end
 )
 
+--- Same as Server.try_get_data but the request is cancelled if the timeout expires before the request is complete.
+-- If the request is cancelled before it is complete the callback will be called with nil.
+-- There can only be one request per data_set, key, callback_token combo. If there is already an ongoing request
+-- an attempt to make a new one will be ignored.
+-- @param  data_set<string>
+-- @param  key<string>
+-- @param  callback_token<token>
+-- @usage
+-- local Server = require 'features.server'
+-- local Token = require 'utils.token'
+--
+-- local callback =
+--     Token.register(
+--     function(data)
+--         if not data then
+--             return -- The request timed out.
+--         end
+--
+--         local data_set = data.data_set
+--         local key = data.key
+--         local value = data.value -- will be nil if no data
+--
+--         game.print(data_set .. ':' .. key .. ':' .. tostring(value))
+--     end
+-- )
+--
+-- Server.try_get_data_timeout('my data set', 'key 1', callback, 60)
 function Public.try_get_data_timeout(data_set, key, callback_token, timeout_ticks)
-    if type(data_set) ~= 'string' then
-        error('data_set must be a string', 2)
-    end
-    if type(key) ~= 'string' then
-        error('key must be a string', 2)
-    end
-    if type(callback_token) ~= 'number' then
-        error('callback_token must be a number', 2)
-    end
+    validate_arguments(data_set, key, callback_token)
 
     try_get_data_cancelable(data_set, key, callback_token)
 
