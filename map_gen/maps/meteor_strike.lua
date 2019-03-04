@@ -70,7 +70,7 @@ local function get_resource(x, y)
     return {name = name, position = {x, y}, amount = value}
 end
 
-function run_combined_module(event) -- luacheck: ignore global run_combined_module
+function run_combined_module(event) -- luacheck: globals run_combined_module
     if not global.blocks then
         init_blocks()
     end

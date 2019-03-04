@@ -1,4 +1,4 @@
---luacheck:ignore global table
+--luacheck: globals table
 local random = math.random
 local floor = math.floor
 local remove = table.remove
