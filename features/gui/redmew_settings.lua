@@ -9,7 +9,6 @@ local Settings = require 'utils.redmew_settings'
 local Color = require 'resources.color_presets'
 
 local pairs = pairs
-local table_size = table.size
 
 local main_button_name = Gui.uid_name()
 local save_changes_button_name = Gui.uid_name()
@@ -122,8 +121,8 @@ local function draw_main_frame(center, player)
 
     local scroll_pane = settings_frame.add({type = 'scroll-pane'})
     local scroll_style = scroll_pane.style
+    scroll_style.vertically_squashable = true
     scroll_style.maximal_height = 800
-    scroll_style.minimal_height = 35 * table_size(settings)
     scroll_style.bottom_padding = 5
     scroll_style.left_padding = 5
     scroll_style.right_padding = 5
@@ -135,17 +134,12 @@ local function draw_main_frame(center, player)
     local data = {}
 
     for name, setting in pairs(settings) do
-        local caption = name
-
-        if setting.localisation_key then
-            caption = {setting.localisation_key}
-        end
-
         local label = setting_grid.add({
             type = 'label',
-            caption = caption,
+            caption = setting.localised_string,
         })
         label.style.horizontally_stretchable = true
+        label.style.height = 35
 
         local value = Settings.get(player_index, name)
         local input = create_input_element(setting_grid, setting.type, value)

@@ -106,7 +106,7 @@ function Public.register(name, setting_type, default, localisation_key)
         type = setting_type,
         default = default,
         callback = callback,
-        localisation_key = localisation_key,
+        localised_string = localisation_key and {localisation_key} or name,
     }
 
     settings[name] = setting
