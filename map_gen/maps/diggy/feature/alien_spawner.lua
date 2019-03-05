@@ -178,7 +178,7 @@ function AlienSpawner.register(config)
             return
         end
 
-        spawn_aliens(get_aliens(create_spawner_request(3), force.evolution_factor), force, event.surface, x, y)
+        spawn_aliens(get_aliens(create_spawner_request(2), force.evolution_factor), force, event.surface, x, y)
     end)
 end
 
