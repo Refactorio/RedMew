@@ -277,7 +277,7 @@ local Config = {
                 ['small-spitter'] = {['small-worm-turret'] = {min = 0.1, max = 0.8}},
                 ['medium-spitter'] = {['medium-worm-turret'] = {min = 0.1, max = 0.8}},
                 ['big-spitter'] = {['big-worm-turret'] = {min = 0.1, max = 0.8}},
-                ['behemoth-spitter'] = {['big-worm-turret'] = {min = 0.2, max = 1}},
+                ['behemoth-spitter'] = {['behemoth-worm-turret'] = {min = 0.2, max = 0.8}},
                 -- biters
                 ['medium-biter'] = {['small-biter'] = {min = 0.6, max = 1.5}},
                 ['big-biter'] = {['medium-biter'] = {min = 0.6, max = 1.5}},
