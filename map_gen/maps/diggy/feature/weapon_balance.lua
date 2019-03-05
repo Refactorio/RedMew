@@ -1,5 +1,4 @@
 local Event = require 'utils.event'
-local ceil = math.ceil
 local floor = math.floor
 
 local player_ammo_starting_modifiers = {
