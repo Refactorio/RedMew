@@ -1075,7 +1075,7 @@ Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 Command.add(
     'task',
     {
-        description = 'Creates a new task.',
+        description = {'command_description.task'},
         arguments = {'task'},
         required_rank = Ranks.regular,
         allowed_by_server = true,

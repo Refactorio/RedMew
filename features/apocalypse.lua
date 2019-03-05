@@ -103,8 +103,8 @@ end
 Command.add(
     'apocalypse',
     {
-        description = "This really ends the map. When you first run it, the game will save. When run a second time, the apocalypse will begin.",
-        required_rank = Ranks.admin,
+        description = {'command_description.apocalypse'},
+        required_rank = Ranks.admin
     },
     Public.begin_apocalypse
 )

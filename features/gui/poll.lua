@@ -1329,11 +1329,11 @@ end
 Command.add(
     'poll',
     {
+        description = {'command_description.poll'},
         arguments = {'poll'},
         required_rank = Ranks.regular,
         allowed_by_server = true,
-        description = 'Creates a new poll',
-        custom_help_text = '<{question = "question", answers = {"answer 1", "answer 2"}, duration = 300}>',
+        custom_help_text = {'command_custom_help.poll'},
         log_command = true,
         capture_excess_arguments = true
     },
@@ -1343,7 +1343,7 @@ Command.add(
 Command.add(
     'poll-result',
     {
-        description = 'Prints the result for the given poll number.',
+        description = {'command_description.poll_result'},
         arguments = {'poll'},
         allowed_by_server = true
     },

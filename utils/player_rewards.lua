@@ -108,7 +108,7 @@ end
 Command.add(
     'reward',
     {
-        description = 'Gives a reward to a target player (removes if quantity is negative)',
+        description = {'command_description.reward'},
         arguments = {'target', 'quantity', 'reason'},
         default_values = {reason = false},
         required_rank = Ranks.admin,

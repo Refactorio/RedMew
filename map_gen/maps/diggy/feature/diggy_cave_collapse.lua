@@ -91,14 +91,14 @@ DiggyCaveCollapse.events = {
          - surface LuaSurface
          - player_index Number (index of player that caused the collapse)
     ]]
-    on_collapse_triggered = script.generate_event_name(),
+    on_collapse_triggered = Event.generate_event_name('on_collapse_triggered'),
     --[[--
         After a collapse
          - position LuaPosition
          - surface LuaSurface
          - player_index Number (index of player that caused the collapse)
     ]]
-    on_collapse = script.generate_event_name()
+    on_collapse = Event.generate_event_name('on_collapse')
 }
 
 local function create_collapse_template(positions, surface)

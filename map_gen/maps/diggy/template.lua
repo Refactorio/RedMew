@@ -1,6 +1,7 @@
 -- dependencies
 local Task = require 'utils.task'
 local Token = require 'utils.token'
+local Event = require 'utils.event'
 local min = math.min
 local ceil = math.ceil
 local raise_event = script.raise_event
@@ -19,14 +20,14 @@ Template.events = {
         When an entity is placed via the template function.
          - event.entity LuaEntity
     ]]
-    on_placed_entity = script.generate_event_name(),
+    on_placed_entity = Event.generate_event_name('on_placed_entity'),
 
     --[[--
         Triggers when an 'out-of-map' tile is replaced by something else.
 
         {surface, old_tile={name, position={x, y}}}
     ]]
-    on_void_removed = script.generate_event_name(),
+    on_void_removed = Event.generate_event_name('on_void_removed'),
 }
 
 local on_void_removed = Template.events.on_void_removed

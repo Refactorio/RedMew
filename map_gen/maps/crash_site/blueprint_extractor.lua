@@ -207,7 +207,7 @@ local function extract4(args, player)
 end
 
 Command.add(
-    'extract1',
+    'crash-site-extract1',
     {
         arguments = {'size'},
         default_values = {size = 6},
@@ -216,7 +216,7 @@ Command.add(
     extract1
 )
 Command.add(
-    'extract4',
+    'crash-site-extract4',
     {
         arguments = {'size'},
         default_values = {size = 6},

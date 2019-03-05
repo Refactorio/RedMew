@@ -65,9 +65,6 @@ end
 if config.reactor_meltdown.enabled then
     require 'features.reactor_meltdown'
 end
-if config.walkabout.enabled then
-    require 'features.walkabout'
-end
 if config.performance.enabled then
     require 'features.performance'
 end
@@ -88,6 +85,9 @@ if config.day_night.enabled then
 end
 if config.apocalypse.enabled then
     require 'features.apocalypse'
+end
+if config.player_onboarding.enabled then
+    require 'features.player_onboarding'
 end
 
 -- GUIs

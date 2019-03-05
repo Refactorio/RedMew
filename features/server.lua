@@ -66,7 +66,7 @@ local data_set_handlers = {}
 -- function()
 --      Server.try_get_all_data('regulars', callback)
 -- end)
-Public.events = {on_server_started = script.generate_event_name()}
+Public.events = {on_server_started = Event.generate_event_name('on_server_started')}
 
 --- Sends a message to the linked discord channel. The message is sanitized of markdown server side.
 -- @param  message<string> message to send.

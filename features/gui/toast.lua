@@ -11,7 +11,6 @@ local Ranks = require 'resources.ranks'
 
 local pairs = pairs
 local next = next
-local format = string.format
 
 local toast_volume_name = 'toast-volume'
 Settings.register(toast_volume_name, 'fraction', 1.0)
@@ -255,7 +254,7 @@ end
 Command.add(
     'toast',
     {
-        description = 'Sends a toast to all players',
+        description = {'command_description.toast'},
         arguments = {'msg'},
         capture_excess_arguments = true,
         required_rank = Ranks.admin,
@@ -263,14 +262,14 @@ Command.add(
     },
     function(args)
         Public.toast_all_players(15, args.msg)
-        Utils.print_admins(format('%s sent a toast to all players', Utils.get_actor()))
+        Utils.print_admins({'command_description.sent_all_toast', Utils.get_actor()})
     end
 )
 
 Command.add(
     'toast-player',
     {
-        description = 'Sends a toast to a specific player',
+        description = {'command_description.toast_player'},
         arguments = {'player', 'msg'},
         capture_excess_arguments = true,
         required_rank = Ranks.admin,
@@ -281,7 +280,7 @@ Command.add(
         local target = game.players[target_name]
         if target then
             Public.toast_player(target, 15, args.msg)
-            Utils.print_admins(format('%s sent a toast to %s', Utils.get_actor(), target_name))
+            Utils.print_admins({'command_description.sent_player_toast', Utils.get_actor(), target_name})
         else
             Game.player_print({'common.fail_no_target', target_name}, Color.yellow)
         end

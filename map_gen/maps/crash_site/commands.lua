@@ -47,10 +47,10 @@ callback =
 )
 
 Command.add(
-    'restart',
+    'crash-site-restart',
     {
-        description = 'Restarts the crashsite scenario.',
-        arguments = {'scenario_name'},
+        description = {'command_description.'},
+        arguments = {'scenario_name.crash_site_restart'},
         default_values = {scenario_name = 'crashsite'},
         required_rank = Ranks.admin,
         allowed_by_server = true
@@ -81,9 +81,9 @@ Command.add(
 )
 
 Command.add(
-    'abort',
+    'crash-site-restart-abort',
     {
-        description = 'Aborts the restart of the crashsite scenario.',
+        description = {'command_description.crash_site_restart_abort'},
         required_rank = Ranks.admin,
         allowed_by_server = true
     },
