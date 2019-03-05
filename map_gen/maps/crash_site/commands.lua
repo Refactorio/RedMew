@@ -49,8 +49,8 @@ callback =
 Command.add(
     'crash-site-restart',
     {
-        description = {'command_description.'},
-        arguments = {'scenario_name.crash_site_restart'},
+        description = {'command_description.crash_site_restart'},
+        arguments = {'scenario_name'},
         default_values = {scenario_name = 'crashsite'},
         required_rank = Ranks.admin,
         allowed_by_server = true
