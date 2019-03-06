@@ -72,27 +72,61 @@ redmew_config.player_create.starting_items = {
 redmew_config.hail_hydra.enabled = true
 redmew_config.hail_hydra.hydras = {
     -- spitters
-    ['small-spitter'] = {['small-worm-turret'] = {min = 0.2, max = 1}},
-    ['medium-spitter'] = {['medium-worm-turret'] = {min = 0.2, max = 1}},
-    ['big-spitter'] = {['big-worm-turret'] = {min = 0.2, max = 1}},
-    ['behemoth-spitter'] = {['behemoth-worm-turret'] = {min = 0.2, max = 1}},
+    ['small-spitter'] = {
+        ['small-biter'] = {min = 0.8, max = 2.5}
+    },
+    ['medium-spitter'] = {
+        ['medium-biter'] = {min = 0.8, max = 2.5}},
+    ['big-spitter'] = {
+        ['big-biter'] = {min = 0.8, max = 2.5}
+    },
+    ['behemoth-spitter'] = {
+        ['behemoth-biter'] = {min = 0.8, max = 2.5}
+    },
     -- biters
-    ['medium-biter'] = {['small-biter'] = {min = 1, max = 2}},
-    ['big-biter'] = {['medium-biter'] = {min = 1, max = 2}},
-    ['behemoth-biter'] = {['big-biter'] = {min = 1, max = 2}},
+    ['medium-biter'] = {
+        ['small-biter'] = {min = 1.2, max = 3.2},
+        ['small-spitter'] = {min = 0.8, max = 2.5}
+    },
+    ['big-biter'] = {
+        ['medium-biter'] = {min = 1.2, max = 3.2},
+        ['medium-spitter'] = {min = 0.8, max = 2.5}
+    },
+    ['behemoth-biter'] = {
+        ['big-biter'] = {min = 1.2, max = 3.2},
+        ['big-spitter'] = {min = 0.8, max = 2.5}
+    },
     -- worms
-    ['small-worm-turret'] = {['small-biter'] = {min = 1.5, max = 2.5}},
-    ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = 3.5}, ['medium-biter'] = {min = 1.0, max = 2}},
+    ['small-worm-turret'] = {
+        ['small-biter'] = {min = 3, max = 6},
+        ['small-spitter'] = {min = 1.6, max = 4}
+    },
+    ['medium-worm-turret'] = {
+        --['small-biter'] = {min = 1, max = 3.5},
+        --['small-spitter'] = {min = 2.5, max = 3.5},
+        ['medium-biter'] = {min = 1.5, max = 3},
+        ['medium-spitter'] = {min = 0.8, max = 2},
+        ['medium-worm-turret'] = {min = 1, max = -1}
+    },
     ['big-worm-turret'] = {
-        ['small-biter'] = {min = 2.5, max = 4.5},
-        ['medium-biter'] = {min = 1.5, max = 2.2},
-        ['big-biter'] = {min = 0.7, max = 1.5}
+        --['small-biter'] = {min = 2.5, max = 4.5},
+        --['small-spitter'] = {min = 2.5, max = 4.5},
+        --['medium-biter'] = {min = 1.5, max = 2.2},
+        --['medium-spitter'] = {min = 1.5, max = 2.2},
+        ['big-biter'] = {min = 1.5, max = 3},
+        ['big-spitter'] = {min = 0.8, max = 2},
+        ['big-worm-turret'] = {min = 1, max = -1}
     },
     ['behemoth-worm-turret'] = {
-        ['small-biter'] = {min = 4.5, max = -1},
-        ['medium-biter'] = {min = 2.5, max = 3.8},
-        ['big-biter'] = {min = 1.2, max = 2.4},
-        ['behemoth-biter'] = {min = 0.8, max = -1}
+        --['small-biter'] = {min = 4.5, max = -1},
+        --['small-spitter'] = {min = 4.5, max = -1},
+        --['medium-biter'] = {min = 2.5, max = 3.8},
+        --['medium-spitter'] = {min = 2.5, max = 3.8},
+        --['big-biter'] = {min = 1.2, max = 2.4},
+        --['big-spitter'] = {min = 1.2, max = 2.4},
+        ['behemoth-biter'] = {min = 1.5, max = 3},
+        ['behemoth-spitter'] = {min = 0.8, max = 2},
+        ['behemoth-worm-turret'] = {min = 1, max = -1}
     }
 }
 
@@ -190,6 +224,7 @@ local function on_research_finished(event)
         if (string.find(force.name, 'quadrant')) ~= nil then
             if force.name ~= 'quadrant1' then
                 force.technologies[event.research.name].researched = true
+                force.disable_research()
             end
         end
     end
