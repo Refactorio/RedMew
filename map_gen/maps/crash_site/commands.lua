@@ -46,6 +46,41 @@ callback =
     end
 )
 
+local function restart(args, player)
+    player = player or server_player
+
+    if global_data.restarting then
+        player.print('Restart already in progress')
+        return
+    end
+
+    global_data.restarting = true
+
+    double_print('#################-Attention-#################')
+    double_print('Server restart initiated by ' .. player.name)
+    double_print('###########################################')
+
+    for k, v in pairs(game.players) do
+        if v.admin then
+            game.print('Abort restart with /abort')
+        end
+    end
+    print('Abort restart with /abort')
+
+    Task.set_timeout_in_ticks(60, callback, {name = player.name, scenario_name = args.scenario_name, state = 10})
+end
+
+local function abort(_, player)
+    player = player or server_player
+
+    if global_data.restarting then
+        global_data.restarting = nil
+        double_print('Restart aborted by ' .. player.name)
+    else
+        player.print('Cannot abort a restart that is not in progress.')
+    end
+end
+
 Command.add(
     'crash-site-restart',
     {
@@ -55,29 +90,7 @@ Command.add(
         required_rank = Ranks.admin,
         allowed_by_server = true
     },
-    function(args, player)
-        player = player or server_player
-
-        if global_data.restarting then
-            player.print('Restart already in progress')
-            return
-        end
-
-        global_data.restarting = true
-
-        double_print('#################-Attention-#################')
-        double_print('Server restart initiated by ' .. player.name)
-        double_print('###########################################')
-
-        for k, v in pairs(game.players) do
-            if v.admin then
-                game.print('Abort restart with /abort')
-            end
-        end
-        print('Abort restart with /abort')
-
-        Task.set_timeout_in_ticks(60, callback, {name = player.name, scenario_name = args.scenario_name, state = 10})
-    end
+    restart
 )
 
 Command.add(
@@ -87,14 +100,27 @@ Command.add(
         required_rank = Ranks.admin,
         allowed_by_server = true
     },
-    function(_, player)
-        player = player or server_player
+    abort
+)
 
-        if global_data.restarting then
-            global_data.restarting = nil
-            double_print('Restart aborted by ' .. player.name)
-        else
-            player.print('Cannot abort a restart that is not in progress.')
-        end
-    end
+Command.add(
+    'restart',
+    {
+        description = {'command_description.crash_site_restart'},
+        arguments = {'scenario_name'},
+        default_values = {scenario_name = 'crashsite'},
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    restart
+)
+
+Command.add(
+    'abort',
+    {
+        description = {'command_description.crash_site_restart_abort'},
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    abort
 )
