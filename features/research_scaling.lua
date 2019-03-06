@@ -8,7 +8,8 @@ local scale_value = config.scale_value
 
 local multipliers = {
     current_multiplier = 0,
-    old_multiplier = 0
+    old_multiplier = 0,
+    old_setting = 0
 }
 
 Global.register(
@@ -30,7 +31,11 @@ local function update_research_cost()
     multipliers.current_multiplier = modifier
 
     -- setting new modifier by subtracting old multiplier from setting and adding the new
-    modifier = setting - multipliers.old_multiplier + modifier
+    if setting == multipliers.old_setting then
+        modifier = setting - multipliers.old_multiplier + modifier
+    else -- if the setting was changed in between add the modifier a new.
+        modifier = setting + modifier
+    end
     game.difficulty_settings.technology_price_multiplier = modifier
 
 end
