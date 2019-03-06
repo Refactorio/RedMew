@@ -340,7 +340,7 @@ global.config = {
     },
     -- increases technology price multiplier with number of connected players
     research_scaling = {
-        enabled = true,
+        enabled = false,
         -- the increase in the multiplier with every player
         scale_value = 0.05
     }
