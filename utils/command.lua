@@ -1,3 +1,4 @@
+-- luacheck: globals commands
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Utils = require 'utils.core'
@@ -290,7 +291,8 @@ end
 --- Traps command errors if not in DEBUG.
 if not _DEBUG then
     local old_add_command = commands.add_command
-    commands.add_command = function(name, desc, func) -- luacheck: ignore 122
+    commands.add_command =
+        function(name, desc, func)
         old_add_command(
             name,
             desc,

@@ -160,8 +160,8 @@ local function linkportals()
     end
 end
 
-commands.add_command('linkchests', 'Select a chest to link to another. Run this command again to select the other one.', linkchests)
-commands.add_command('linkportals', 'Select a portal to link to another. Run this command again to select the other one.', linkportals)
+commands.add_command('linkchests', 'Select a chest to link to another. Run this command again to select the other one.', linkchests) -- luacheck: ignore
+commands.add_command('linkportals', 'Select a portal to link to another. Run this command again to select the other one.', linkportals) -- luacheck: ignore
 Event.add(defines.events.on_tick, dim_on_tick)
 
 return Public

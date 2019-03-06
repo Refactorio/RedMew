@@ -1,3 +1,4 @@
+-- luacheck: globals script
 --- This Module allows for registering multiple handlers to the same event, overcoming the limitation of script.register.
 --
 -- ** Event.add(event_name, handler) **
