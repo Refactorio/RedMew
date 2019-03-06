@@ -104,18 +104,18 @@ redmew_config.hail_hydra.hydras = {
     ['medium-worm-turret'] = {
         --['small-biter'] = {min = 1, max = 3.5},
         --['small-spitter'] = {min = 2.5, max = 3.5},
+        ['small-worm-turret'] = {min = 1, max = -1},
         ['medium-biter'] = {min = 1.5, max = 3},
-        ['medium-spitter'] = {min = 0.8, max = 2},
-        ['medium-worm-turret'] = {min = 1, max = -1}
+        ['medium-spitter'] = {min = 0.8, max = 2}
     },
     ['big-worm-turret'] = {
         --['small-biter'] = {min = 2.5, max = 4.5},
         --['small-spitter'] = {min = 2.5, max = 4.5},
         --['medium-biter'] = {min = 1.5, max = 2.2},
         --['medium-spitter'] = {min = 1.5, max = 2.2},
+        ['medium-worm-turret'] = {min = 1, max = -1},
         ['big-biter'] = {min = 1.5, max = 3},
-        ['big-spitter'] = {min = 0.8, max = 2},
-        ['big-worm-turret'] = {min = 1, max = -1}
+        ['big-spitter'] = {min = 0.8, max = 2}
     },
     ['behemoth-worm-turret'] = {
         --['small-biter'] = {min = 4.5, max = -1},
@@ -124,9 +124,9 @@ redmew_config.hail_hydra.hydras = {
         --['medium-spitter'] = {min = 2.5, max = 3.8},
         --['big-biter'] = {min = 1.2, max = 2.4},
         --['big-spitter'] = {min = 1.2, max = 2.4},
+        ['big-worm-turret'] = {min = 1, max = -1},
         ['behemoth-biter'] = {min = 1.5, max = 3},
-        ['behemoth-spitter'] = {min = 0.8, max = 2},
-        ['behemoth-worm-turret'] = {min = 1, max = -1}
+        ['behemoth-spitter'] = {min = 0.8, max = 2}
     }
 }
 
