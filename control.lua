@@ -127,6 +127,9 @@ end
 if config.rich_text_gui.enabled then
     require 'features.gui.rich_text'
 end
+if config.research_scaling.enabled then
+    require 'features.research_scaling'
+end
 
 -- Debug-only modules
 if _DEBUG then
