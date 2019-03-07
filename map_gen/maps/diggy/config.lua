@@ -268,7 +268,7 @@ local Config = {
             -- minimum distance from spawn before aliens can spawn
             alien_minimum_distance = 40,
             -- chance of spawning aliens when mining from 0 to 1
-            alien_probability = 0.08,
+            alien_probability = 0.05,
             -- spawns the following units when they die. To disable, remove the contents
             -- any non-rounded number will turn into a chance to spawn an additional alien
             -- example: 2.5 would spawn 2 for sure and 50% chance to spawn one additionally
