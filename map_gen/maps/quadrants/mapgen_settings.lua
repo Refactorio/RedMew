@@ -1,4 +1,4 @@
-settings = {
+local settings = {
     ores = {
         autoplace_controls = {
             coal = {
