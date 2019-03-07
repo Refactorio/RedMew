@@ -26,9 +26,11 @@ local Config = {
                 {name = 'iron-gear-wheel', count = 8},
                 {name = 'iron-plate', count = 16}
             },
-            -- applied when cheat_mode is set to true. It's recommended to tweak this to your needs
+            -- applied when _CHEATS is set to true and _DEBUG is NOT true. It's recommended to tweak this to your needs
             -- when playing with cheats on (recommended for single player or LAN with limited players)
+            -- see config.lua -> config.player_create.cheats for available options
             cheats = {
+                enabled = true,
                 -- Sets the manual mining speed for the player force. A value of 1 = 100% faster. Setting it
                 -- to 0.5 would make it 50% faster than the base speed.
                 manual_mining_speed_modifier = 1000,
@@ -38,6 +40,8 @@ local Config = {
                 character_running_speed_modifier = 2,
                 -- a flat health bonus to the player force
                 character_health_bonus = 1000000,
+                -- starts with a fully slotted power armor mk2
+                start_with_power_armor = true,
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {}
             }
@@ -291,7 +295,7 @@ local Config = {
                 ['big-worm-turret'] = {
                     ['small-biter'] = {min = 1, max = 2.5},
                     ['medium-biter'] = {min = 0.7, max = 1.5},
-                    ['big-biter'] = {min = 0.7, max = 2},
+                    ['big-biter'] = {min = 0.7, max = 2}
                 },
                 ['behemoth-worm-turret'] = {
                     ['small-biter'] = {min = 1.5, max = 3},
