@@ -178,6 +178,85 @@ local function preserve_bot(event)
     entity.minable = false
 end
 
+-- radius from player to count tiles for landfill_detect
+local search_radius = 11
+-- tiles to count for landfill_detect
+local check_tiles = {
+    'water',
+    'deepwater',
+    'dirt-1',
+    'dry-dirt',
+    'grass-1',
+    'red_desert-0',
+    'sand-1',
+    'dirt-2',
+    'dirt-3',
+    'dirt-4',
+    'dirt-5',
+    'dirt-6',
+    'dirt-7',
+    'grass-2',
+    'grass-3',
+    'grass-4',
+    'red_desert-1',
+    'red_desert-2',
+    'red_desert-3',
+    'sand-2',
+    'sand-3'
+}
+
+-- helper function for landfill_detect, creates a bounding box
+-- from a position and a radius
+local function create_bounding_box(position, radius)
+    return {{position.x - radius, position.y - radius}, {position.x + radius, position.y + radius}}
+end
+
+--- Changes landfill tiles from grass-1 to another tile based on the surroundings
+local function landfill_detect(event)
+    local item = event.item
+    if not item then
+        return
+    end
+    if item.name ~= 'landfill' then
+        return
+    end
+
+    local player = Game.get_player_by_index(event.player_index)
+    local surface = game.surfaces[event.surface_index]
+
+    local position = player.position
+    local area = create_bounding_box(position, search_radius)
+
+    local tiles = event.tiles
+    local num_tiles = #tiles
+    local max_tiles = 4 * (search_radius * search_radius) - num_tiles
+    local tile = {count = 0}
+    for i, tile_name in ipairs(check_tiles) do
+        local count =
+            surface.count_tiles_filtered {
+            area = area,
+            name = tile_name
+        }
+        if tile_name == 'grass-1' then
+            count = count - num_tiles
+            count = count >= 0 and count or 0
+        end
+        local water = string.find(tile_name, 'water')
+        if not water and max_tiles / 2 < count and tile.count < count then
+            tile = {name = tile_name, count = count}
+            break
+        elseif not water and tile.count < count then
+            tile = {name = tile_name, count = count}
+        end
+        max_tiles = max_tiles - count
+    end
+
+    for i = 1, num_tiles do
+        tiles[i].name = tile.name
+    end
+    surface.set_tiles(tiles)
+end
+
 -- Event registers
 
 local function register_random_train_color()
@@ -336,6 +415,10 @@ end
 
 if config.save_bots then
     Event.add(defines.events.on_selected_entity_changed, preserve_bot)
+end
+
+if config.landfill_detect then
+    Event.add(defines.events.on_player_built_tile, landfill_detect)
 end
 
 return Public

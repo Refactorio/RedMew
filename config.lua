@@ -307,7 +307,9 @@ global.config = {
         -- turns on entity info aka alt-mode on first joining
         set_alt_on_create = true,
         -- prevents personal construction robots from being mined by other players
-        save_bots = true
+        save_bots = true,
+        -- enables dynamic changing of landfill tiles
+        landfill_detect = true
     },
     -- adds a useless button with the biter percentage
     evolution_progress = {
