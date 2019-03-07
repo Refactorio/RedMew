@@ -160,7 +160,7 @@ local function spawn_market(surface, position)
     local quadrant = 'quadrant'
     if pos.x > 0 then
         if pos.y > 0 then
-            quadrant = quadrant .. '4'a
+            quadrant = quadrant .. '4'
         else
             quadrant = quadrant .. '1'
         end
