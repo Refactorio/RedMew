@@ -13,10 +13,14 @@ local Recipes = require 'map_gen.maps.quadrants.enabled_recipes'
 local CompiHandler = require 'map_gen.maps.quadrants.compilatron_handler'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
+local MapgenSettings = require 'map_gen.maps.quadrants.mapgen_settings'
+local Color = require 'resources.color_presets'
 
 local abs = math.abs
 local round = math.round
 local redmew_config = global.config
+
+RS.set_map_gen_settings({MapgenSettings.ores, MapgenSettings.water, MapgenSettings.enemy})
 
 ScenarioInfo.set_map_name('Quadrants')
 ScenarioInfo.set_map_description('Take control over an area and work together as a region!')
@@ -139,6 +143,8 @@ local function spawn_market(surface, position)
     local market = surface.create_entity({name = 'market', position = pos})
     market.destructible = false
 
+    rendering.draw_text{text = {"retailer.market_name"}, surface = surface, target = market, target_offset = {-1, 1}, color = Color.yellow, scale = 2}
+
     Retailer.add_market(pos.x .. 'fish_market' .. pos.y, market)
 
     if table.size(Retailer.get_items(pos.x .. 'fish_market' .. pos.y)) == 0 then
@@ -154,7 +160,7 @@ local function spawn_market(surface, position)
     local quadrant = 'quadrant'
     if pos.x > 0 then
         if pos.y > 0 then
-            quadrant = quadrant .. '4'
+            quadrant = quadrant .. '4'a
         else
             quadrant = quadrant .. '1'
         end
@@ -333,7 +339,7 @@ local function quadrants(x, y)
             }
             for _, resource in pairs(resources) do
                 if resource.name ~= 'crude-oil' then
-                    local amount = b.euclidean_value(1, 0.002)
+                    local amount = b.euclidean_value(1, 0.0012)
                     resource.amount = resource.amount * amount(x, y)
                 end
             end
@@ -387,9 +393,10 @@ end
 
 local rectangle = b.rectangle(32, 32)
 local tree_rectangle = b.rectangle(64, 16)
+local oil_rectangle = b.rectangle(64, 20)
 local tree_rectangle_1 = b.throttle_world_xy(tree_rectangle, 1, 3, 1, 3)
 local tree_rectangle_2 = b.rotate(tree_rectangle_1, math.pi / 2)
-local oil_rectangle = b.throttle_world_xy(tree_rectangle, 1, 5, 1, 5)
+oil_rectangle = b.throttle_xy(oil_rectangle, 1, 6, 1, 6)
 
 local function constant(x)
     return function()
@@ -405,7 +412,7 @@ local start_copper = b.resource(rectangle, 'copper-ore', constant(450))
 local start_stone = b.resource(rectangle, 'stone', constant(150))
 local start_coal = b.resource(rectangle, 'coal', constant(300))
 local start_tree_1 = b.entity(tree_rectangle_1, 'tree-01')
-local start_oil = b.resource(oil_rectangle, 'crude-oil', b.exponential_value(50000, 0, 1))
+local start_oil = b.resource(oil_rectangle, 'crude-oil', b.exponential_value(80000, 0, 1), true)
 local start_tree_2 = b.entity(tree_rectangle_2, 'tree-01')
 
 start_iron =
