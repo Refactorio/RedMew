@@ -556,7 +556,8 @@ local function init()
     local worms = {
         'small-worm-turret',
         'medium-worm-turret',
-        'big-worm-turret'
+        'big-worm-turret',
+        'behemoth-worm-turret'
     }
 
     local max_spawner_chance = 1 / 256
@@ -599,14 +600,17 @@ local function init()
                     if d < 512 then
                         max_lvl = 2
                         min_lvl = 1
-                    else
+                    elseif d < 768 then
                         max_lvl = 3
+                        min_lvl = 2
+                    else
+                        max_lvl = 4
                         min_lvl = 2
                     end
                     local lvl = math.random() ^ (384 / d) * max_lvl
                     lvl = math.ceil(lvl)
                     --local lvl = math.floor(d / 256) + 1
-                    lvl = math.clamp(lvl, min_lvl, 3)
+                    lvl = math.clamp(lvl, min_lvl, 4)
                     return {name = worms[lvl]}
                 end
             end
