@@ -663,7 +663,7 @@ Event.add(defines.events.on_player_left_game, player_left)
 
 Gui.on_click(main_button_name, toggle)
 
-Gui.on_click(
+Gui.on_checked_state_changed(
     notify_checkbox_name,
     function(event)
         local player_index = event.player_index
