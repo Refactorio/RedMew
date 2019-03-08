@@ -4,11 +4,9 @@ local Color = require 'resources.color_presets'
 
 local Public = {}
 
-local market_signal = {type = 'virtual', name = 'signal-O'}
-
 local find_outpost_name = Gui.uid_name()
 
-function Public.do_outpost_toast(market, outpost_name, message)
+function Public.do_outpost_toast(market, message)
     Toast.toast_all_players_template(
         15,
         function(container)

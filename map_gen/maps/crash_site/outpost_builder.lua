@@ -982,7 +982,7 @@ local function do_outpost_upgrade(event)
     local outpost_name = Retailer.get_market_group_label(outpost_id)
     local message = concat {outpost_name, ' has been upgraded to level ', level}
 
-    CrashSiteToast.do_outpost_toast(outpost_data.market, outpost_name, message)
+    CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
 
     for i = 1, #outpost_magic_crafters do
@@ -1058,7 +1058,7 @@ local function do_capture_outpost(outpost_data)
     end
 
     local message = 'Outpost captured: ' .. name
-    CrashSiteToast.do_outpost_toast(outpost_data.market, name, message)
+    CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
 
     activate_market_upgrade(outpost_data)
