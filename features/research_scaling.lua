@@ -42,7 +42,7 @@ local function update_research_cost()
         modifier = setting + modifier
     end
     game.difficulty_settings.technology_price_multiplier = modifier
-
+    multipliers.old_setting = modifier
 end
 
 Event.add(defines.events.on_research_finished, update_research_cost)
