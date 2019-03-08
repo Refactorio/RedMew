@@ -17,6 +17,7 @@ local concat = table.concat
 local floor = math.floor
 local format = string.format
 local tostring = tostring
+local draw_text = rendering.draw_text
 
 local b = require 'map_gen.shared.builders'
 
@@ -1750,6 +1751,51 @@ local function coin_mined(event)
     end
 end
 
+local function market_selected(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    local selected = player.selected
+
+    if not selected or not selected.valid or selected.name ~= 'market' then
+        return
+    end
+
+    local group = Retailer.get_market_group_name(selected)
+    local prototype = Retailer.get_items(group)['upgrade']
+
+    if prototype.disabled then
+        return
+    end
+
+    local args = {
+        text = nil,
+        target = selected,
+        target_offset = nil,
+        alignment = 'center',
+        surface = selected.surface,
+        color = {1, 1, 1},
+        players = {player},
+        scale = 1.5,
+        scale_with_zoom = true,
+        time_to_live = 180
+    }
+
+    args.text = prototype.name_label
+    args.target_offset = {0, -5}
+    draw_text(args)
+
+    args.text = 'Price: ' .. prototype.price
+    args.target_offset = {0, -4}
+    draw_text(args)
+
+    args.text = prototype.description
+    args.target_offset = {0, -3}
+    draw_text(args)
+end
+
 Event.add(defines.events.on_tick, tick)
 Event.add(defines.events.on_entity_died, turret_died)
 
@@ -1762,5 +1808,7 @@ Event.on_init(
 Event.add(defines.events.on_player_mined_item, coin_mined)
 
 Event.add(Retailer.events.on_market_purchase, do_outpost_upgrade)
+
+Event.add(defines.events.on_selected_entity_changed, market_selected)
 
 return Public
