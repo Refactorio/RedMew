@@ -8,7 +8,9 @@ local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 
-global.config.lazy_bastard.enabled = true
+require 'map_gen.shared.danger_ore_banned_entities'
+
+global.config.lazy_bastard.enabled = false
 
 RS.set_first_player_position_check_override(true)
 RS.set_spawn_island_tile('grass-1')
@@ -160,7 +162,7 @@ local function ore(x, y, world)
     return entity
 end
 
-local worm_names = {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret'}
+local worm_names = {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret', 'behemoth-worm-turret'}
 local spawner_names = {'biter-spawner', 'spitter-spawner'}
 local factor = 10 / (768 * 32)
 local max_chance = 1 / 6
@@ -189,8 +191,10 @@ local function enemy(x, y, world)
             lvl = 1
         elseif d < 650 then
             lvl = 2
-        else
+        elseif d < 900 then
             lvl = 3
+        else
+            lvl = 4
         end
 
         local chance = math.min(max_chance, d * factor)
@@ -203,7 +207,6 @@ local function enemy(x, y, world)
             else
                 worm_id = math.random(lvl)
             end
-
             return {name = worm_names[worm_id]}
         end
     else
