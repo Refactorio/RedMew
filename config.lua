@@ -307,7 +307,9 @@ global.config = {
         -- turns on entity info aka alt-mode on first joining
         set_alt_on_create = true,
         -- prevents personal construction robots from being mined by other players
-        save_bots = true
+        save_bots = true,
+        -- enable research_queue
+        research_queue = true
     },
     -- adds a useless button with the biter percentage
     evolution_progress = {
