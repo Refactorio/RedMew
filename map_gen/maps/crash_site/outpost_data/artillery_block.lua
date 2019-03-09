@@ -1,7 +1,7 @@
 local ob = require 'map_gen.maps.crash_site.outpost_builder'
 
 return ob.make_1_way {
-    turret = {callback = ob.refill_turret_callback, data = ob.artillery_shell_ammo},
+    turret = {callback = ob.refill_artillery_turret_callback, data = ob.artillery_shell_ammo},
     [1] = {tile = 'refined-concrete'},
     [2] = {tile = 'refined-concrete'},
     [3] = {tile = 'refined-concrete'},

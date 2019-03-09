@@ -586,6 +586,12 @@ function Retailer.add_market(group_name, market_entity)
     set_market_group_name(market_entity.position, group_name)
 end
 
+---Returns the group name of the market, nil if not registered.
+---@param market_entity LuaEntity
+function Retailer.get_market_group_name(market_entity)
+    return get_market_group_name(market_entity.position)
+end
+
 ---Sets an item for all the group_name markets.
 ---@param group_name string
 ---@param prototype table with item name and price
