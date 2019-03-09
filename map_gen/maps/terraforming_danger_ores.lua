@@ -76,6 +76,9 @@ Global.register_init(
         game.difficulty_settings.technology_price_multiplier = 50
         game.forces.player.technologies.logistics.researched = true
         game.forces.player.technologies.automation.researched = true
+        game.map_settings.enemy_evolution.time_factor = 0.000002
+        game.map_settings.enemy_evolution.destroy_factor = 0.000010
+        game.map_settings.enemy_evolution.pollution_factor = 0.000005
     end,
     function(tbl)
         local seed = tbl.seed
