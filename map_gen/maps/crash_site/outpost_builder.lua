@@ -18,6 +18,7 @@ local floor = math.floor
 local format = string.format
 local tostring = tostring
 local draw_text = rendering.draw_text
+local render_mode_game = defines.render_mode.game
 
 local b = require 'map_gen.shared.builders'
 
@@ -935,7 +936,9 @@ local function update_market_upgrade_description(outpost_data)
     prototype.price = upgrade_base_cost * #outpost_magic_crafters * upgrade_cost_base ^ (level - 1)
     prototype.name_label = 'Upgrade Outpost to level ' .. tostring(level + 1)
 
-    local str = {''}
+    local tooltip_str = {''}
+    local mapview_str = {''}
+    local count = 2
     for k, v in pairs(base_outputs) do
         local base_rate = v * 60
         local upgrade_per_level = base_rate * upgrade_rate
@@ -944,23 +947,37 @@ local function update_market_upgrade_description(outpost_data)
 
         local name = game.item_prototypes[k]
         if name then
-            str[#str + 1] = name.localised_name
+            tooltip_str[count] = concat {'[item=', k, ']'}
+            mapview_str[count] = name.localised_name
         else
             name = game.fluid_prototypes[k]
             if name then
-                str[#str + 1] = name.localised_name
+                tooltip_str[count] = concat {'[fluid=', k, ']'}
+                mapview_str[count] = name.localised_name
             else
-                str[#str + 1] = k
+                tooltip_str[count] = k
+                mapview_str[count] = k
             end
         end
+        count = count + 1
 
-        str[#str + 1] = concat {': ', format('%.2f', current_rate), ' -> ', format('%.2f / sec', next_rate)}
-        str[#str + 1] = '\n'
+        local str = concat {': ', format('%.2f', current_rate), ' -> ', format('%.2f / sec', next_rate)}
+
+        tooltip_str[count] = str
+        tooltip_str[count + 1] = '\n'
+
+        mapview_str[count] = str
+        mapview_str[count + 1] = ', '
+
+        count = count + 2
     end
-    str[#str] = nil
+    tooltip_str[count - 1] = nil
+    mapview_str[count - 1] = nil
 
-    prototype.description = str
+    prototype.description = tooltip_str
     prototype.disabled = false
+
+    prototype.mapview_description = mapview_str
 
     Retailer.set_item(outpost_id, prototype)
 end
@@ -1757,6 +1774,10 @@ local function market_selected(event)
         return
     end
 
+    if player.render_mode == render_mode_game then
+        return
+    end
+
     local selected = player.selected
 
     if not selected or not selected.valid or selected.name ~= 'market' then
@@ -1784,15 +1805,15 @@ local function market_selected(event)
     }
 
     args.text = prototype.name_label
-    args.target_offset = {0, -5}
+    args.target_offset = {0, -6.5}
     draw_text(args)
 
     args.text = 'Price: ' .. prototype.price
-    args.target_offset = {0, -4}
+    args.target_offset = {0, -5}
     draw_text(args)
 
-    args.text = prototype.description
-    args.target_offset = {0, -3}
+    args.text = prototype.mapview_description
+    args.target_offset = {0, -3.5}
     draw_text(args)
 end
 
