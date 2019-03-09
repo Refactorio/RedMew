@@ -38,6 +38,7 @@ function Public.show(container)
     local input_text_box_style = input_text_box.style
     input_text_box_style.horizontally_stretchable = true
     input_text_box_style.height = 32
+    input_text_box_style.maximal_width = 1000
 
     local refresh_button =
         right_top_flow.add {type = 'sprite-button', name = refresh_name, sprite = 'utility/reset', tooltip = 'refresh'}
@@ -46,13 +47,14 @@ function Public.show(container)
     refresh_button_style.height = 32
 
     local right_panel = right_flow.add {type = 'text-box', name = right_panel_name}
-    right_panel.word_wrap = true
     right_panel.read_only = true
     right_panel.selectable = true
 
     local right_panel_style = right_panel.style
     right_panel_style.vertically_stretchable = true
     right_panel_style.horizontally_stretchable = true
+    right_panel_style.maximal_width = 1000
+    right_panel_style.maximal_height = 1000
 
     local data = {
         right_panel = right_panel,
