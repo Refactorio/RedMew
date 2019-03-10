@@ -265,35 +265,30 @@ end
 Gui.on_click(
     btn_q1,
     function(event)
-        game.print('here11')
         teleport(event, 1)
     end
 )
 Gui.on_click(
     btn_q2,
     function(event)
-        game.print('here12')
         teleport(event, 2)
     end
 )
 Gui.on_click(
     btn_q3,
     function(event)
-        game.print('here13')
         teleport(event, 3)
     end
 )
 Gui.on_click(
     btn_q4,
     function(event)
-        game.print('here14')
         teleport(event, 4)
     end
 )
 Gui.on_click(
     btn_toggle,
     function(event)
-        game.print('here15')
         toggle_chest(event)
     end
 )
