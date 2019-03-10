@@ -50,18 +50,27 @@ local quadrant_message = {
 local function teleport(event, quadrant)
     local player = event.player
     local toggle_status = toggle_chest_status[player.index]
-    if
-        (abs(player.position.x) <= 4 and abs(player.position.y) <= 4) or
-            (player.get_inventory(defines.inventory.player_main).is_empty() and
-                player.get_inventory(defines.inventory.player_trash).is_empty()) or
-            ((abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status and
+    local within_spawn = abs(player.position.x) <= 4 and abs(player.position.y) <= 4
+    local empty_inventory =
+        player.get_inventory(defines.inventory.player_main).is_empty() and
+        player.get_inventory(defines.inventory.player_trash).is_empty()
+    local can_empty_inventory = (abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status
+
+    if within_spawn or empty_inventory or can_empty_inventory then
+        if not within_spawn and not empty_inventory then
+            local chest =
                 Item_to_chest.transfer_inventory(
-                    player.index,
-                    {defines.inventory.player_main, defines.inventory.player_trash}
-                ))
-     then
+                player.index,
+                {defines.inventory.player_main, defines.inventory.player_trash},
+                nil,
+                0
+            )
+            player.print({'quadrants.switch_notice3', chest.x .. ', ' .. chest.y})
+        end
+
         local pos =
             RS.get_surface().find_non_colliding_position('player', spawn_locations['quadrant_' .. quadrant], 5, 1)
+
         player.teleport(pos)
         player.force = game.forces['quadrant' .. quadrant]
         Popup.player(
@@ -73,7 +82,9 @@ local function teleport(event, quadrant)
         )
     else
         player.print({'quadrants.switch_notice1'}, Color.red)
-        player.print({'quadrants.switch_notice1'}, Color.red)
+        if not can_empty_inventory and toggle_status then
+            player.print({'quadrants.switch_notice2'}, Color.red)
+        end
     end
 end
 
@@ -228,7 +239,7 @@ local function update_gui(force_update)
         elseif not frame and not (abs(p.position.x) > 160 or abs(p.position.y) > 160) then
             toggle(data)
         elseif frame and frame.valid and force_update then
-        data['trigger'] = true
+            data['trigger'] = true
             toggle(data)
         end
     end
@@ -282,11 +293,9 @@ local function on_player_created(event)
     toggle(event)
 end
 
-
 local function changed_force()
-        update_gui(true)
+    update_gui(true)
 end
-
 
 Event.add(defines.events.on_player_created, on_player_created)
 Event.on_nth_tick(61, update_gui)

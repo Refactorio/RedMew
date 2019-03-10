@@ -1,12 +1,17 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
+local Color = require 'resources.color_presets'
 local Item_to_chest = require 'map_gen.maps.quadrants.item_to_chest'
 local pow = math.pow
 
-local rail_locations = {26, 208}
+local rail_locations = {24, 32, 192, 224}
+
+--192 to 224
+--32 to 24
 
 local function clear_inventory_train(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player_index = event.player_index
+    local player = Game.get_player_by_index(player_index)
     if (not player.driving and event.trigger == nil) or (player.driving and event.trigger) then
         return false
     end
@@ -19,26 +24,34 @@ local function clear_inventory_train(event)
         if (force.name == 'quadrant1') then
             within_range = (pos.x >= 0 and pos.y <= 0)
             rail_location = {
-                {x = rail_locations[1], y = -rail_locations[2]},
-                {x = rail_locations[2], y = -rail_locations[1]}
+                {{x = rail_locations[3], y = -rail_locations[2]}, {x = rail_locations[4], y = -rail_locations[1]}},
+                {{x = rail_locations[1], y = -rail_locations[3]}, {x = rail_locations[2], y = -rail_locations[4]}},
+                {{x = rail_locations[1], y = -rail_locations[1]}, {x = rail_locations[4], y = -rail_locations[4]}},
+                'Quadrant #1'
             }
         elseif (force.name == 'quadrant2') then
             within_range = (pos.x <= 0 and pos.y <= 0)
             rail_location = {
-                {x = -rail_locations[1], y = -rail_locations[2]},
-                {x = -rail_locations[2], y = -rail_locations[1]}
+                {{x = -rail_locations[3], y = -rail_locations[2]}, {x = -rail_locations[4], y = -rail_locations[1]}},
+                {{x = -rail_locations[1], y = -rail_locations[3]}, {x = -rail_locations[2], y = -rail_locations[4]}},
+                {{x = -rail_locations[1], y = -rail_locations[1]}, {x = -rail_locations[4], y = -rail_locations[4]}},
+                'Quadrant #2'
             }
         elseif (force.name == 'quadrant3') then
             within_range = (pos.x <= 0 and pos.y >= 0)
             rail_location = {
-                {x = -rail_locations[1], y = rail_locations[2]},
-                {x = -rail_locations[2], y = rail_locations[1]}
+                {{x = -rail_locations[3], y = rail_locations[2]}, {x = -rail_locations[4], y = rail_locations[1]}},
+                {{x = -rail_locations[1], y = rail_locations[3]}, {x = -rail_locations[2], y = rail_locations[4]}},
+                {{x = -rail_locations[1], y = rail_locations[1]}, {x = -rail_locations[4], y = rail_locations[4]}},
+                'Quadrant #3'
             }
         elseif (force.name == 'quadrant4') then
             within_range = (pos.x >= 0 and pos.y >= 0)
             rail_location = {
-                {x = rail_locations[1], y = rail_locations[2]},
-                {x = rail_locations[2], y = rail_locations[1]}
+                {{x = rail_locations[3], y = rail_locations[2]}, {x = rail_locations[4], y = rail_locations[1]}},
+                {{x = rail_locations[1], y = rail_locations[3]}, {x = rail_locations[2], y = rail_locations[4]}},
+                {{x = rail_locations[1], y = rail_locations[1]}, {x = rail_locations[4], y = rail_locations[4]}},
+                'Quadrant #4'
             }
         end
     end
@@ -54,22 +67,33 @@ local function clear_inventory_train(event)
         return true
     end
 
-    local distance1 = pow(pow(rail_location[1].x - pos.x, 2) + pow(rail_location[1].y - pos.y, 2), 0.5)
-    local distance2 = pow(pow(rail_location[2].x - pos.x, 2) + pow(rail_location[2].y - pos.y, 2), 0.5)
-    if distance1 <= distance2 then
-        Item_to_chest.transfer_inventory(
-            event.player_index,
+    local distance1 = pow(pow(rail_location[1][1].x - pos.x, 2) + pow(rail_location[1][1].y - pos.y, 2), 0.5)
+    local distance2 = pow(pow(rail_location[2][1].x - pos.x, 2) + pow(rail_location[2][1].y - pos.y, 2), 0.5)
+
+    local function wrap_transfer(bounding_box, radius)
+        return Item_to_chest.transfer_inventory(
+            player_index,
             {defines.inventory.player_main, defines.inventory.player_trash},
-            rail_location[1]
-        )
-    else
-        Item_to_chest.transfer_inventory(
-            event.player_index,
-            {defines.inventory.player_main, defines.inventory.player_trash},
-            rail_location[2]
+            nil,
+            radius,
+            bounding_box
         )
     end
-    return true
+
+    local success
+    if distance1 <= distance2 then
+        success = wrap_transfer(rail_location[1]) or wrap_transfer(rail_location[2])
+    else
+        wrap_transfer(rail_location[2])
+        success = wrap_transfer(rail_location[2]) or wrap_transfer(rail_location[1])
+    end
+
+    if not success then
+        success = wrap_transfer(rail_location[3]) or wrap_transfer(nil, 0)
+    end
+
+    player.print({'quadrants.train_notice1', rail_location[4], success.x .. ', ' .. success.y}, Color.red)
+    return success
 end
 
 local function clear_inventory(event)
