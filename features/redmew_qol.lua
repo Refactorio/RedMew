@@ -156,7 +156,7 @@ local function preserve_bot(event)
 
     if logistic_network == nil or not logistic_network.valid then
         --prevents an orphan bot from being unremovable
-        entity.minable = false
+        entity.minable = true
         return
     end
 
@@ -166,6 +166,7 @@ local function preserve_bot(event)
 
     --checks if construction-robot is part of a mobile logistic network
     if owner.name ~= 'player' then
+        entity.minable = true
         return
     end
 
@@ -417,8 +418,17 @@ if config.save_bots then
     Event.add(defines.events.on_selected_entity_changed, preserve_bot)
 end
 
+
 if config.landfill_detect then
     Event.add(defines.events.on_player_built_tile, landfill_detect)
+end
+  
+if config.research_queue then
+    Event.on_init(
+        function()
+            game.forces.player.research_queue_enabled = true
+        end
+    )
 end
 
 return Public

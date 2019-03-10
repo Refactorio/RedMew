@@ -309,7 +309,9 @@ global.config = {
         -- prevents personal construction robots from being mined by other players
         save_bots = true,
         -- enables dynamic changing of landfill tiles
-        landfill_detect = true
+        landfill_detect = true,
+        -- enable research_queue
+        research_queue = true
     },
     -- adds a useless button with the biter percentage
     evolution_progress = {

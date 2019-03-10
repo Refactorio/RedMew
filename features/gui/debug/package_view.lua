@@ -54,15 +54,18 @@ function Public.show(container)
     local top_panel = right_flow.add {type = 'scroll-pane', name = top_panel_name}
     local top_panel_style = top_panel.style
     top_panel_style.height = 200
+    top_panel_style.maximal_width = 1000
+    top_panel_style.horizontally_stretchable = true
 
     local text_box = right_flow.add {type = 'text-box', name = text_box_name}
-    text_box.word_wrap = true
     text_box.read_only = true
     text_box.selectable = true
 
     local text_box_style = text_box.style
     text_box_style.vertically_stretchable = true
     text_box_style.horizontally_stretchable = true
+    text_box_style.maximal_width = 1000
+    text_box_style.maximal_height = 1000
 
     local data = {
         left_panel = left_panel,

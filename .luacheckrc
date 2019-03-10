@@ -960,6 +960,13 @@ stds.factorio_defines = {
                         'waiting_for_space_in_destination',
                     }
                 },
+                render_mode = {
+                    fields = {
+                        'game',
+                        'chart',
+                        'chart_zoomed_in'
+                    }
+                },
                 events = {
                     fields = {
                         'on_ai_command_completed',
