@@ -302,7 +302,7 @@ local function quadrants(x, y)
     local abs_x = abs(x) - 0.5
     local abs_y = abs(y) - 0.5
 
-    if true then
+    if true then -- placeholder for setting train crossings on/off
         local pos = {x = x, y = y}
         if x > -24 and x < 24 and (y == 211.5 or y == 205.5) then
             Task.set_timeout_in_ticks(300, rail_callback, {pos = pos, direction = defines.direction.east})

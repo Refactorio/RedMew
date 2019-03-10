@@ -10,6 +10,12 @@ local Global = require 'utils.global'
 
 local gui = {}
 
+local btn_q1 = Gui.uid_name()
+local btn_q2 = Gui.uid_name()
+local btn_q3 = Gui.uid_name()
+local btn_q4 = Gui.uid_name()
+local btn_toggle = Gui.uid_name()
+
 local spawn_locations = {
     quadrant_1 = {64, -64},
     quadrant_2 = {-64, -64},
@@ -55,9 +61,8 @@ local function teleport(event, quadrant)
         player.get_inventory(defines.inventory.player_main).is_empty() and
         player.get_inventory(defines.inventory.player_trash).is_empty()
     local can_empty_inventory = (abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status
-
     if within_spawn or empty_inventory or can_empty_inventory then
-        if not within_spawn and not empty_inventory then
+        if can_empty_inventory and not within_spawn and not empty_inventory then
             local chest =
                 Item_to_chest.transfer_inventory(
                 player.index,
@@ -98,7 +103,7 @@ local function redraw_quadrant_button(data)
     left_flow.add(
         {
             type = 'button',
-            name = 'Quadrants.Button.2',
+            name = btn_q2,
             caption = {'quadrants.switch_quadrant2', #game.forces['quadrant2'].connected_players},
             tooltip = {'quadrants.switch_quadrant2_tip'}
         }
@@ -106,7 +111,7 @@ local function redraw_quadrant_button(data)
     right_flow.add(
         {
             type = 'button',
-            name = 'Quadrants.Button.1',
+            name = btn_q1,
             caption = {'quadrants.switch_quadrant1', #game.forces['quadrant1'].connected_players},
             tooltip = {'quadrants.switch_quadrant1_tip'}
         }
@@ -120,7 +125,7 @@ local function redraw_quadrant_button(data)
     left_flow.add(
         {
             type = 'button',
-            name = 'Quadrants.Button.3',
+            name = btn_q3,
             caption = {'quadrants.switch_quadrant3', #game.forces['quadrant3'].connected_players},
             tooltip = {'quadrants.switch_quadrant3_tip'}
         }
@@ -128,7 +133,7 @@ local function redraw_quadrant_button(data)
     right_flow.add(
         {
             type = 'button',
-            name = 'Quadrants.Button.4',
+            name = btn_q4,
             caption = {'quadrants.switch_quadrant4', #game.forces['quadrant4'].connected_players},
             tooltip = {'quadrants.switch_quadrant4_tip'}
         }
@@ -144,7 +149,7 @@ local function redraw_chest_button(data, player)
         left_flow.add(
         {
             type = 'button',
-            name = 'Quadrants.Button.Toggle',
+            name = btn_toggle,
             caption = {'quadrants.switch_chest', toggle_status},
             tooltip = {'quadrants.switch_chest_tip'}
         }
@@ -258,32 +263,37 @@ local function toggle_chest(event)
 end
 
 Gui.on_click(
-    'Quadrants.Button.1',
+    btn_q1,
     function(event)
+        game.print('here11')
         teleport(event, 1)
     end
 )
 Gui.on_click(
-    'Quadrants.Button.2',
+    btn_q2,
     function(event)
+        game.print('here12')
         teleport(event, 2)
     end
 )
 Gui.on_click(
-    'Quadrants.Button.3',
+    btn_q3,
     function(event)
+        game.print('here13')
         teleport(event, 3)
     end
 )
 Gui.on_click(
-    'Quadrants.Button.4',
+    btn_q4,
     function(event)
+        game.print('here14')
         teleport(event, 4)
     end
 )
 Gui.on_click(
-    'Quadrants.Button.Toggle',
+    btn_toggle,
     function(event)
+        game.print('here15')
         toggle_chest(event)
     end
 )
