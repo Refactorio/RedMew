@@ -422,7 +422,7 @@ end
 if config.landfill_detect then
     Event.add(defines.events.on_player_built_tile, landfill_detect)
 end
-  
+
 if config.research_queue then
     Event.on_init(
         function()
