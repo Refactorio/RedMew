@@ -29,10 +29,7 @@ function Public.transfer_inventory(player_index, inventories, position, radius, 
         return 'You need to specify a player index and a table of define.inventory'
     end
     local player = Game.get_player_by_index(player_index)
-    local chest = create_chest(player, position, radius, bounding_box)
-    if not chest then
-        return false
-    end
+    local chest
 
     for _, inventory in pairs(inventories) do
         inventory = player.get_inventory(inventory)
@@ -40,8 +37,8 @@ function Public.transfer_inventory(player_index, inventories, position, radius, 
             local ItemStack = {name = name, count = count}
             inventory.remove(ItemStack)
             while count > 0 do
-                if not chest.can_insert(ItemStack) then
-                    chest = create_chest(player, nil, radius, bounding_box)
+                if not chest or not chest.can_insert(ItemStack) then
+                    chest = create_chest(player, position, radius, bounding_box)
                     if not chest then
                         return false
                     end
@@ -51,7 +48,9 @@ function Public.transfer_inventory(player_index, inventories, position, radius, 
             end
         end
     end
-
+    if not chest then
+        return false
+    end
     return chest.position
 end
 

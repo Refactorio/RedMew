@@ -71,6 +71,7 @@ local function teleport(event, quadrant)
         local pos =
             RS.get_surface().find_non_colliding_position('player', spawn_locations['quadrant_' .. quadrant], 5, 1)
 
+        player.driving = false
         player.teleport(pos)
         player.force = game.forces['quadrant' .. quadrant]
         Popup.player(

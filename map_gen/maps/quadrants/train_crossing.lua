@@ -84,7 +84,6 @@ local function clear_inventory_train(event)
     if distance1 <= distance2 then
         success = wrap_transfer(rail_location[1]) or wrap_transfer(rail_location[2])
     else
-        wrap_transfer(rail_location[2])
         success = wrap_transfer(rail_location[2]) or wrap_transfer(rail_location[1])
     end
 
