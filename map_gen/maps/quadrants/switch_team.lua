@@ -55,6 +55,7 @@ local quadrant_message = {
 
 local function teleport(event, quadrant)
     local player = event.player
+    player.clean_cursor()
     local toggle_status = toggle_chest_status[player.index]
     local within_spawn = abs(player.position.x) <= 4 and abs(player.position.y) <= 4
     local empty_inventory =

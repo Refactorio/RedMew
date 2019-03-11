@@ -30,8 +30,8 @@ function Public.transfer_inventory(player_index, inventories, position, radius, 
     end
     local player = Game.get_player_by_index(player_index)
     player.clean_cursor()
-    while game.player.crafting_queue_size ~= 0 do
-        game.player.cancel_crafting(game.player.crafting_queue[1])
+    while player.crafting_queue_size ~= 0 do
+        player.cancel_crafting(player.crafting_queue[1])
     end
 
     local chest
