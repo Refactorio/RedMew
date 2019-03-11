@@ -60,7 +60,8 @@ local function teleport(event, quadrant)
     local within_spawn = abs(player.position.x) <= 4 and abs(player.position.y) <= 4
     local empty_inventory =
         player.get_inventory(defines.inventory.player_main).is_empty() and
-        player.get_inventory(defines.inventory.player_trash).is_empty()
+        player.get_inventory(defines.inventory.player_trash).is_empty() and
+        player.crafting_queue_size == 0
     local can_empty_inventory = (abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status
     if within_spawn or empty_inventory or can_empty_inventory then
         if can_empty_inventory and not within_spawn and not empty_inventory then
