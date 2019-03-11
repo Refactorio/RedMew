@@ -29,8 +29,12 @@ function Public.transfer_inventory(player_index, inventories, position, radius, 
         return 'You need to specify a player index and a table of define.inventory'
     end
     local player = Game.get_player_by_index(player_index)
-    local chest
+    player.clean_cursor()
+    while game.player.crafting_queue_size ~= 0 do
+        game.player.cancel_crafting(game.player.crafting_queue[1])
+    end
 
+    local chest
     for _, inventory in pairs(inventories) do
         inventory = player.get_inventory(inventory)
         for name, count in pairs(inventory.get_contents()) do
