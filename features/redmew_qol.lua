@@ -247,6 +247,11 @@ local function landfill_detect(event)
         end
         max_tiles = max_tiles - count
     end
+
+    if tile.count == 0 then
+        tile.name = 'landfill'
+    end
+
     for i = 1, num_tiles do
         tiles[i].name = tile.name
     end
