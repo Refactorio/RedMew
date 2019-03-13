@@ -188,7 +188,7 @@ local check_tiles = {
     'dirt-1',
     'dry-dirt',
     'grass-1',
-    'red_desert-0',
+    'red-desert-0',
     'sand-1',
     'dirt-2',
     'dirt-3',
@@ -199,9 +199,9 @@ local check_tiles = {
     'grass-2',
     'grass-3',
     'grass-4',
-    'red_desert-1',
-    'red_desert-2',
-    'red_desert-3',
+    'red-desert-1',
+    'red-desert-2',
+    'red-desert-3',
     'sand-2',
     'sand-3'
 }
@@ -238,10 +238,6 @@ local function landfill_detect(event)
             area = area,
             name = tile_name
         }
-        if tile_name == 'grass-1' then
-            count = count - num_tiles
-            count = count >= 0 and count or 0
-        end
         local water = string.find(tile_name, 'water')
         if not water and max_tiles / 2 < count and tile.count < count then
             tile = {name = tile_name, count = count}
@@ -251,7 +247,6 @@ local function landfill_detect(event)
         end
         max_tiles = max_tiles - count
     end
-
     for i = 1, num_tiles do
         tiles[i].name = tile.name
     end
