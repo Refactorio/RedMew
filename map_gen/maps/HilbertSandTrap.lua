@@ -91,6 +91,7 @@ RS.set_map_gen_settings(
     {
         MGSP.cliff_none,
 		MGSP.grass_only,
+		MGSP.enable_water,
 		MGSP.enemy_very_high,
 		MGSP.starting_area_very_low,
 		ore_settings,
