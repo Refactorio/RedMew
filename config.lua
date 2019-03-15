@@ -348,14 +348,14 @@ global.config = {
             enabled = true,
             -- frequency of automatic attacks (in seconds)
             attack_frequency = 40 * 60, -- 40 minutes
-            -- difficulty of automatic attacks (easy, normal, hard, brutal)
-            attack_difficulty = 'normal'
+            -- difficulty of automatic attacks (1-easy, 3-normal, 10-hard, 40-brutal)
+            attack_difficulty = 3
         },
         -- whether or not to send attacks on rocket launches
         launch_attacks = {
             enabled = true,
             -- whether to only attack on the first launch
-            first_launch_only = false
+            first_launch_only = true
         }
     }
 }

@@ -28,12 +28,6 @@ local insert = table.insert
 local ceil = math.ceil
 
 -- Constants
-local difficulty_settings = {
-    easy = 1,
-    normal = 3,
-    hard = 10,
-    brutal = 40
-}
 local defaults = {
     total_scan_radius = 5000,
     individual_scan_radius = 500 -- a 500 radius scan is < 0.5ms on avg
@@ -85,8 +79,7 @@ end
 --- Calculates the number of biters to send for timed attacks according to the difficulty selected
 -- @return <number>
 local function calculate_biters()
-    local difficulty = global.config.biter_attacks.timed_attacks.attack_difficulty
-    local multiplier = difficulty_settings[difficulty]
+    local multiplier = global.config.biter_attacks.timed_attacks.attack_difficulty
     return ceil((game.forces.enemy.evolution_factor * 100 * multiplier))
 end
 
