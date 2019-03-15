@@ -14,12 +14,14 @@ local CompiHandler = require 'map_gen.maps.quadrants.compilatron_handler'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local MapgenSettings = require 'map_gen.maps.quadrants.mapgen_settings'
+local MapSettings = require 'map_gen.maps.quadrants.map_settings'
 local Color = require 'resources.color_presets'
 
 local abs = math.abs
 local round = math.round
 local redmew_config = global.config
 
+RS.set_map_settings({MapSettings.enemy_debuff})
 RS.set_map_gen_settings({MapgenSettings.ores, MapgenSettings.water, MapgenSettings.enemy})
 
 ScenarioInfo.set_map_name('Quadrants')
@@ -216,10 +218,6 @@ local function on_init()
             end
         end
     end
-
-    game.map_settings.enemy_evolution.time_factor = 0.000002
-    game.map_settings.enemy_evolution.destroy_factor = 0.000010
-    game.map_settings.enemy_evolution.pollution_factor = 0.0000075
 end
 
 local function on_research_finished(event)
