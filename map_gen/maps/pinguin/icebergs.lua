@@ -1,0 +1,3 @@
+--most features will be time-based, controlled by scenario.lua with one new feature enabled per hour
+--some will be tied to evolution (marathon mode) or on_research_complete (armor switch) and will be enabled from map start
+--golden goose is an exception
