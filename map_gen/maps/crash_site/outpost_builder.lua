@@ -1116,6 +1116,34 @@ local artillery_target_entities = {
     'fluid-wagon',
     'artillery-wagon'
 }
+
+local artillery_target_callback =
+    Token.register(
+    function(data)
+        local position = data.position
+        local entity = data.entity
+
+        if not entity.valid then
+            return
+        end
+
+        local tx, ty = position.x, position.y
+
+        local pos = entity.position
+        local x, y = pos.x, pos.y
+        local dx, dy = tx - x, ty - y
+        local d = dx * dx + dy * dy
+        if d >= 1024 then -- 32 ^ 2
+            entity.surface.create_entity {
+                name = 'artillery-projectile',
+                position = position,
+                target = entity,
+                speed = 1.5
+            }
+        end
+    end
+)
+
 local function do_artillery_turrets_targets()
     local index = artillery_outposts.index
 
@@ -1129,7 +1157,7 @@ local function do_artillery_turrets_targets()
     local outpost = artillery_outposts[index]
 
     local now = game.tick
-    if now - outpost.last_fire_tick < 300 then
+    if now - outpost.last_fire_tick < 480 then
         return
     end
 
@@ -1159,24 +1187,13 @@ local function do_artillery_turrets_targets()
         return
     end
 
-    local postion = turret.position
-    local tx, ty = postion.x, postion.y
+    local position = turret.position
 
     for i = 1, count do
         local entity = entities[math.random(#entities)]
         if entity and entity.valid then
-            local pos = entity.position
-            local x, y = pos.x, pos.y
-            local dx, dy = tx - x, ty - y
-            local d = dx * dx + dy * dy
-            if d >= 1024 then -- 32 ^ 2
-                surface.create_entity {
-                    name = 'artillery-projectile',
-                    position = postion,
-                    target = entity,
-                    speed = 1.5
-                }
-            end
+            local data = {position = position, entity = entity}
+            Task.set_timeout_in_ticks(i * 60, artillery_target_callback, data)
         end
     end
 end
@@ -1199,6 +1216,10 @@ local function do_magic_crafters()
         local entity = data.entity
         if not entity.valid then
             fast_remove(magic_crafters, index)
+            limit = limit - 1
+            if limit == 0 then
+                return
+            end
         else
             index = index + 1
 
@@ -1239,6 +1260,10 @@ local function do_magic_fluid_crafters()
         local entity = data.entity
         if not entity.valid then
             fast_remove(magic_fluid_crafters, index)
+            limit = limit - 1
+            if limit == 0 then
+                return
+            end
         else
             index = index + 1
 
@@ -1320,7 +1345,7 @@ Public.refill_artillery_turret_callback =
 
             local pos = turret.position
             local x, y = pos.x, pos.y
-            outpost_data.artillery_area = {{x - 128, y - 128}, {x + 128, y + 128}}
+            outpost_data.artillery_area = {{x - 112, y - 112}, {x + 112, y + 112}}
             outpost_data.last_fire_tick = 0
 
             artillery_outposts[#artillery_outposts + 1] = outpost_data
