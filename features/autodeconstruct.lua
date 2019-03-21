@@ -7,10 +7,12 @@ local Task = require 'utils.task'
 local function is_depleted(drill, entity)
     local position = drill.position
     local area
-    if drill.name == 'electric-mining-drill' then
-        area = {{position.x - 2.5, position.y - 2.5}, {position.x + 2.5, position.y + 2.5}}
-    else
-        area = {{position.x - 1, position.y - 1}, {position.x + 1, position.y + 1}}
+    local radius
+
+    -- use prototype to get drill radius
+    if drill.prototype.mining_drill_radius then
+        radius = drill.prototype.mining_drill_radius
+        area = {{position.x - radius, position.y - radius}, {position.x + radius, position.y + radius}}
     end
 
     for _, resource in pairs(drill.surface.find_entities_filtered {type = 'resource', area = area}) do
@@ -18,6 +20,7 @@ local function is_depleted(drill, entity)
             return false
         end
     end
+
     return true
 end
 
@@ -32,7 +35,7 @@ local callback =
 
 local function on_resource_depleted(event)
     local entity = event.entity
-    if entity.name == 'uranium-ore' then
+    if entity.minable.fluid_amount then
         return nil
     end
 
