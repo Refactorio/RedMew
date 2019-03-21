@@ -89,6 +89,9 @@ end
 if config.player_onboarding.enabled then
     require 'features.player_onboarding'
 end
+if config.biter_corpse_util.enabled then
+    require 'features.biter_corpse_util'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.
