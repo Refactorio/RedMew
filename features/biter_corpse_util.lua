@@ -1,7 +1,7 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 
-local biter_utils_conf = global.config.biter_utils
+local biter_utils_conf = global.config.biter_corpse_util
 
 local biter_corpses = {}
 
@@ -16,7 +16,7 @@ Global.register(
 
 local function biter_died(event)
     local entity = event.entity
-    if entity.valie then
+    if entity.valid then
         local dying_force = entity.force
         -- ignore player owned entities
         if dying_force == 'player' then
@@ -26,9 +26,9 @@ local function biter_died(event)
         local corpse_names = entity.prototype.corpses
 
         -- put corpse name in global list of biter/enemies
-        for _, corpse_name in pairs(corpse_names) do
+        for corpse_name, _ in pairs(corpse_names) do
             if not biter_corpses[corpse_name] then
-                biter_corpses.insert(corpse_name)
+                table.insert(biter_corpses, corpse_name)
             end
         end
 
@@ -53,10 +53,10 @@ local function biter_died(event)
                 surface.find_entities_filtered {
                     area = area_to_search,
                     type = 'corpse',
-                    name = biter_corpses,
+                    name = biter_corpses
                 }
             ) do
-                if corpse.valid and k % 2 == 1 then
+                if k % 2 == 1 then
                     corpse.destroy()
                 end
             end
