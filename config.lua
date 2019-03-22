@@ -344,8 +344,7 @@ global.config = {
     biter_corpse_util = {
         enabled = true,
         radius = 32, -- radius to search around dying entities
-        corpse_threshold = 100, -- number of corpses allowed on surface, inside radius
-        number_of_corpses_to_remove = 66 -- number of corpses to remove once threshold is reached
+        corpse_threshold = 100 -- number of corpses allowed on surface, inside radius
     }
 }
 
