@@ -59,7 +59,7 @@ local level3 =
     [12] = {tile = 'stone-path'},
     [13] = {tile = 'concrete'},
     [14] = {tile = 'concrete'},
-    [15] = {entity = {name = 'oil-refinery', callback = 'factory'}, tile = 'concrete'},
+    [15] = {entity = {name = 'oil-refinery', direction = 4, callback = 'factory'}, tile = 'concrete'},
     [16] = {tile = 'concrete'},
     [17] = {tile = 'concrete'},
     [18] = {tile = 'stone-path'},
