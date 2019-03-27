@@ -79,7 +79,7 @@ Global.register_init(
         game.map_settings.enemy_evolution.time_factor = 0.000005 -- Increased time factor
         game.map_settings.enemy_evolution.destroy_factor = 0.000010
         game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution
-        game.draw_resource_selection  = false
+        game.draw_resource_selection = false
     end,
     function(tbl)
         local seed = tbl.seed
@@ -134,14 +134,13 @@ local ores_neg_x_neg_y = {
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
 }
 
-
-local weighted_ores = b.prepare_weighted_array(ores)
+-- local weighted_ores = b.prepare_weighted_array(ores)
 local weighted_ores_pos_x_pos_y = b.prepare_weighted_array(ores_pos_x_pos_y)
 local weighted_ores_pos_x_neg_y = b.prepare_weighted_array(ores_pos_x_neg_y)
 local weighted_ores_neg_x_pos_y = b.prepare_weighted_array(ores_neg_x_pos_y)
 local weighted_ores_neg_x_neg_y = b.prepare_weighted_array(ores_neg_x_neg_y)
 
-local total_ores = weighted_ores.total
+-- local total_ores = weighted_ores.total
 local total_ores_pos_x_pos_y = weighted_ores_pos_x_pos_y.total
 local total_ores_pos_x_neg_y = weighted_ores_pos_x_neg_y.total
 local total_ores_neg_x_pos_y = weighted_ores_neg_x_pos_y.total
