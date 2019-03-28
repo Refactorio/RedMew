@@ -102,13 +102,6 @@ local oil_resource = b.resource(oil_shape, 'crude-oil', value(250000, 150))
 
 local uranium_resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1))
 
-local ores = {
-    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 60},
-    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 60},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 12},
-    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 12}
-}
-
 local ores_pos_x_pos_y = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
@@ -134,13 +127,11 @@ local ores_neg_x_neg_y = {
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
 }
 
--- local weighted_ores = b.prepare_weighted_array(ores)
 local weighted_ores_pos_x_pos_y = b.prepare_weighted_array(ores_pos_x_pos_y)
 local weighted_ores_pos_x_neg_y = b.prepare_weighted_array(ores_pos_x_neg_y)
 local weighted_ores_neg_x_pos_y = b.prepare_weighted_array(ores_neg_x_pos_y)
 local weighted_ores_neg_x_neg_y = b.prepare_weighted_array(ores_neg_x_neg_y)
 
--- local total_ores = weighted_ores.total
 local total_ores_pos_x_pos_y = weighted_ores_pos_x_pos_y.total
 local total_ores_pos_x_neg_y = weighted_ores_pos_x_neg_y.total
 local total_ores_neg_x_pos_y = weighted_ores_neg_x_pos_y.total
