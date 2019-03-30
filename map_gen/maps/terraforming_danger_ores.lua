@@ -328,7 +328,76 @@ local function water_shape(x, y)
     elseif water_noise >= water_threshold then
         return 'water'
     else
-        return 'grass-1'
+        -- Control the tiles at X quadrant
+        if x > 31 and y > 31 then
+            -- southeast
+            return 'sand-' .. math.ceil(math.random(3))
+        elseif x > 0 and y < 31 and y > 0 then
+            -- southeast to northeast
+            if math.random(100) < 50 + y * 2 then
+                return 'sand-' .. math.ceil(math.random(3))
+            else
+                return 'grass-' .. math.ceil(math.random(4))
+            end
+        elseif x > 0 and y >= 0 then
+            -- southeast to southwest
+            if math.random(100) < 50 + x * 2 then
+                return 'sand-' .. math.ceil(math.random(3))
+            else
+                return 'red-desert-' .. math.floor(math.random(3))
+            end
+        elseif x > 31 and y < -31 then
+            -- northeast
+            return 'grass-' .. math.ceil(math.random(4))
+        elseif x > 0 and x < 31 and y <= 0 then
+            -- northeast to northwest
+            if math.random(100) < 50 + x * 2 then
+                return 'grass-' .. math.ceil(math.random(4))
+            else
+                return 'dirt-' .. math.ceil(math.random(7))
+            end
+        elseif x > 0 and y < 0 then
+            -- northeast to southeast
+            if math.random(100) < 50 - y * 2 then
+                return 'grass-' .. math.ceil(math.random(4))
+            else
+                return 'sand-' .. math.ceil(math.random(3))
+            end
+        elseif x < -31 and y < -31 then
+            -- northwest
+            return 'dirt-' .. math.ceil(math.random(7))
+        elseif x > -31 and x < 0 and y <= 0 then
+            -- northwest to northeast
+            if math.random(100) < 50 - x * 2 then
+              return 'dirt-' .. math.ceil(math.random(7))
+            else
+              return 'grass-' .. math.ceil(math.random(4))
+            end
+        elseif x < 0 and y > -31 and y < 0 then
+            -- northwest to southwest
+            if math.random(100) < ( 50 - y * 2 ) then
+                return 'dirt-' .. math.ceil(math.random(7))
+            else
+                return 'red-desert-' .. math.floor(math.random(3))
+            end
+        elseif x < -31 and y > 31 then
+            -- southwest
+            return 'red-desert-' .. math.floor(math.random(3))
+        elseif x < 0 and y > 0 and y < 32 then
+            -- southwest to northwest
+            if math.random(100) < ( 50 + y * 2 ) then
+              return 'red-desert-' .. math.floor(math.random(3))
+            else
+              return 'dirt-' .. math.ceil(math.random(7))
+            end
+        elseif x < 0 and y > 0 then
+            -- southwest to southeast
+            if math.random(100) < 50 - x * 2  then
+                return 'red-desert-' .. math.floor(math.random(3))
+            else
+                return 'sand-' .. math.ceil(math.random(3))
+            end
+        end
     end
 end
 
