@@ -60,7 +60,7 @@ local tree_threshold = -0.25
 local tree_chance = 0.125
 
 local start_chunks_half_size = 3
-global.min_pollution = 2500
+global.min_pollution = 650
 
 local chunk_list = {index = 1}
 local surface
