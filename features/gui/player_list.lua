@@ -148,7 +148,7 @@ local column_builders = {
         sort = function(a, b)
             return a.name:lower() < b.name:lower()
         end,
-        draw_heading = function(parent, data, sort_symbol)
+        draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.name_caption', sort_symbol}
             local label = parent.add {type = 'label', name = player_name_heading_name, caption = caption}
             local label_style = label.style
@@ -183,7 +183,7 @@ local column_builders = {
         sort = function(a, b)
             return a < b
         end,
-        draw_heading = function(parent, data, sort_symbol)
+        draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.time_caption', sort_symbol}
             local label = parent.add {type = 'label', name = time_heading_name, caption = caption}
             local label_style = label.style
@@ -218,7 +218,7 @@ local column_builders = {
             end
             return a_rank < b_rank
         end,
-        draw_heading = function(parent, data, sort_symbol)
+        draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.rank_caption', sort_symbol}
             local label = parent.add {type = 'label', name = rank_heading_name, caption = caption}
             local label_style = label.style
@@ -261,7 +261,7 @@ local column_builders = {
         sort = function(a, b)
             return a < b
         end,
-        draw_heading = function(parent, data, sort_symbol)
+        draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.distance_caption', sort_symbol}
             local label = parent.add {type = 'label', name = distance_heading_name, caption = caption}
             local label_style = label.style
@@ -297,7 +297,7 @@ local column_builders = {
                 return a_coin_earned < b_coin_earned
             end
         end,
-        draw_heading = function(parent, data, sort_symbol)
+        draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.coins_caption', sort_symbol}
             local label =
                 parent.add {
@@ -334,7 +334,7 @@ local column_builders = {
         sort = function(a, b)
             return a.count < b.count
         end,
-        draw_heading = function(parent, data, sort_symbol)
+        draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.deaths_caption', sort_symbol}
             local label = parent.add {type = 'label', name = deaths_heading_name, caption = caption}
             local label_style = label.style
@@ -370,7 +370,7 @@ local column_builders = {
         sort = function(a, b)
             return a.poke_count < b.poke_count
         end,
-        draw_heading = function(parent, data, sort_symbol)
+        draw_heading = function(parent, sort_symbol, data)
             local caption = {'player_list.poke_caption', sort_symbol}
             local label = parent.add {type = 'label', name = poke_name_heading_name, caption = caption}
             local label_style = label.style
@@ -413,7 +413,7 @@ local column_builders = {
         sort = function(a, b)
             return a.name:lower() < b.name:lower()
         end,
-        draw_heading = function(parent, data, sort_symbol)
+        draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.report_caption', sort_symbol}
             local label =
                 parent.add {
@@ -506,7 +506,7 @@ local function redraw_headings(data)
             sort_symbol = sort > 0 and symbol_asc or symbol_desc
         end
 
-        local heading = column_builders[c].draw_heading(heading_table, data, sort_symbol)
+        local heading = column_builders[c].draw_heading(heading_table, sort_symbol, data)
 
         Gui.set_data(heading, {data = data, index = i})
     end
