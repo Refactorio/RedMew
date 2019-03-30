@@ -315,9 +315,9 @@ local function tree_shape(x, y)
     return {name = trees[math.random(trees_count)]}
 end
 
-local water = b.circle(8)
+local water = b.circle(16)
 water = b.change_tile(water, true, 'water')
-water = b.any {b.rectangle(16, 4), b.rectangle(4, 16), water}
+water = b.any {b.rectangle(32, 4), b.rectangle(4, 32), water}
 
 local start = b.if_else(water, b.full_shape)
 start = b.change_map_gen_collision_tile(start, 'water-tile', 'grass-1')
