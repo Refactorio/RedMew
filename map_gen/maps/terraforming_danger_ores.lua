@@ -8,6 +8,52 @@ local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 
+local ScenarioInfo = require 'features.gui.info'
+
+ScenarioInfo.set_map_name('Danger Ore Quadrants')
+ScenarioInfo.set_map_description(
+    [[
+Clear the ore to expand the base,
+focus mining efforts on specific quadrants to ensure
+proper material ratios, expand the map with pollution!
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+This map is split in four quadrants. Each quadrant has a main resource.
+ [item=iron-ore] north east, [item=copper-ore] south west, [item=coal] north west, [item=stone] south east
+
+You may not build the factory on ore patches. Exceptions:
+ [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank]
+ [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt]
+
+The map size is restricted to the pollution generated. A significant amount of
+pollution must affect a section of the map before it is revealed. Pollution
+does not affect biter evolution.]]
+)
+
+ScenarioInfo.set_map_description(
+    [[
+Clear the ore to expand the base,
+focus mining efforts on specific quadrants to ensure
+proper material ratios, expand the map with pollution!
+]]
+)
+ScenarioInfo.set_new_info(
+    [[
+2019-03-30:
+ - Uranium ore patch threshold increased slightly
+ - Bug fix: Cars and tanks can now be placed onto ore!
+ - Starting minimum pollution to expand map set to 650
+    View current pollution via Debug Settings [F4] show-pollution-values,
+    then open map and turn on pollution via the red box.
+ - Starting water at spawn increased from radius 8 to radius 16 circle.
+
+2019-03-27:
+ - Ore arranged into quadrants to allow for more controlled resource gathering.
+]]
+)
+
 require 'map_gen.shared.danger_ore_banned_entities'
 
 global.config.lazy_bastard.enabled = false
