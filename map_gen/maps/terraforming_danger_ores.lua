@@ -45,7 +45,7 @@ local oil_scale = 1 / 64
 local oil_threshold = 0.6
 
 local uranium_scale = 1 / 128
-local uranium_threshold = 0.65
+local uranium_threshold = 0.6
 
 local density_scale = 1 / 48
 local density_threshold = 0.5
