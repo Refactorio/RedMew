@@ -8,6 +8,52 @@ local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 
+local ScenarioInfo = require 'features.gui.info'
+
+ScenarioInfo.set_map_name('Danger Ore Quadrants')
+ScenarioInfo.set_map_description(
+    [[
+Clear the ore to expand the base,
+focus mining efforts on specific quadrants to ensure
+proper material ratios, expand the map with pollution!
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+This map is split in four quadrants. Each quadrant has a main resource.
+ [item=iron-ore] north east, [item=copper-ore] south west, [item=coal] north west, [item=stone] south east
+
+You may not build the factory on ore patches. Exceptions:
+ [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank]
+ [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt]
+
+The map size is restricted to the pollution generated. A significant amount of
+pollution must affect a section of the map before it is revealed. Pollution
+does not affect biter evolution.]]
+)
+
+ScenarioInfo.set_map_description(
+    [[
+Clear the ore to expand the base,
+focus mining efforts on specific quadrants to ensure
+proper material ratios, expand the map with pollution!
+]]
+)
+ScenarioInfo.set_new_info(
+    [[
+2019-03-30:
+ - Uranium ore patch threshold increased slightly
+ - Bug fix: Cars and tanks can now be placed onto ore!
+ - Starting minimum pollution to expand map set to 650
+    View current pollution via Debug Settings [F4] show-pollution-values,
+    then open map and turn on pollution via the red box.
+ - Starting water at spawn increased from radius 8 to radius 16 circle.
+
+2019-03-27:
+ - Ore arranged into quadrants to allow for more controlled resource gathering.
+]]
+)
+
 require 'map_gen.shared.danger_ore_banned_entities'
 
 global.config.lazy_bastard.enabled = false
@@ -60,6 +106,7 @@ local tree_threshold = -0.25
 local tree_chance = 0.125
 
 local start_chunks_half_size = 3
+
 local max_pollution = 2500
 local pollution_increment = 2
 global.min_pollution = 300
@@ -117,19 +164,19 @@ local ores_pos_x_pos_y = {
 local ores_pos_x_neg_y = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 60},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 10},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
 }
 local ores_neg_x_pos_y = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 60},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 10},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
 }
 local ores_neg_x_neg_y = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 10},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
 }
 
@@ -182,13 +229,13 @@ local function ore(x, y, world)
     local resource
 
     if x > 0 and y > 0 then
-        i = math.random() * total_ores_pos_x_pos_y
-        index = table.binary_search(weighted_ores_pos_x_pos_y, i)
-        if (index < 0) then
-            index = bit32.bnot(index)
-        end
+      i = math.random() * total_ores_pos_x_pos_y
+      index = table.binary_search(weighted_ores_pos_x_pos_y, i)
+      if (index < 0) then
+          index = bit32.bnot(index)
+      end
 
-        resource = ores_pos_x_pos_y[index].resource
+      resource = ores_pos_x_pos_y[index].resource
     elseif x > 0 and y < 0 then
         i = math.random() * total_ores_pos_x_neg_y
         index = table.binary_search(weighted_ores_pos_x_neg_y, i)
@@ -204,13 +251,13 @@ local function ore(x, y, world)
         end
         resource = ores_neg_x_pos_y[index].resource
     else
-        i = math.random() * total_ores_neg_x_neg_y
-        index = table.binary_search(weighted_ores_neg_x_neg_y, i)
-        if (index < 0) then
-            index = bit32.bnot(index)
-        end
+      i = math.random() * total_ores_neg_x_neg_y
+      index = table.binary_search(weighted_ores_neg_x_neg_y, i)
+      if (index < 0) then
+          index = bit32.bnot(index)
+      end
 
-        resource = ores_neg_x_neg_y[index].resource
+      resource = ores_neg_x_neg_y[index].resource
     end
 
     local entity = resource(x, y, world)
@@ -287,7 +334,76 @@ local function water_shape(x, y)
     elseif water_noise >= water_threshold then
         return 'water'
     else
-        return 'grass-1'
+        -- Control the tiles at X quadrant
+        if x > 31 and y > 31 then
+            -- southeast
+            return 'sand-' .. math.ceil(math.random(3))
+        elseif x > 0 and y < 31 and y > 0 then
+            -- southeast to northeast
+            if math.random(100) < 50 + y * 2 then
+                return 'sand-' .. math.ceil(math.random(3))
+            else
+                return 'grass-' .. math.ceil(math.random(4))
+            end
+        elseif x > 0 and y >= 0 then
+            -- southeast to southwest
+            if math.random(100) < 50 + x * 2 then
+                return 'sand-' .. math.ceil(math.random(3))
+            else
+                return 'red-desert-' .. math.floor(math.random(3))
+            end
+        elseif x > 31 and y < -31 then
+            -- northeast
+            return 'grass-' .. math.ceil(math.random(4))
+        elseif x > 0 and x < 31 and y <= 0 then
+            -- northeast to northwest
+            if math.random(100) < 50 + x * 2 then
+                return 'grass-' .. math.ceil(math.random(4))
+            else
+                return 'dirt-' .. math.ceil(math.random(7))
+            end
+        elseif x > 0 and y < 0 then
+            -- northeast to southeast
+            if math.random(100) < 50 - y * 2 then
+                return 'grass-' .. math.ceil(math.random(4))
+            else
+                return 'sand-' .. math.ceil(math.random(3))
+            end
+        elseif x < -31 and y < -31 then
+            -- northwest
+            return 'dirt-' .. math.ceil(math.random(7))
+        elseif x > -31 and x < 0 and y <= 0 then
+            -- northwest to northeast
+            if math.random(100) < 50 - x * 2 then
+              return 'dirt-' .. math.ceil(math.random(7))
+            else
+              return 'grass-' .. math.ceil(math.random(4))
+            end
+        elseif x < 0 and y > -31 and y < 0 then
+            -- northwest to southwest
+            if math.random(100) < ( 50 - y * 2 ) then
+                return 'dirt-' .. math.ceil(math.random(7))
+            else
+                return 'red-desert-' .. math.floor(math.random(3))
+            end
+        elseif x < -31 and y > 31 then
+            -- southwest
+            return 'red-desert-' .. math.floor(math.random(3))
+        elseif x < 0 and y > 0 and y < 32 then
+            -- southwest to northwest
+            if math.random(100) < ( 50 + y * 2 ) then
+              return 'red-desert-' .. math.floor(math.random(3))
+            else
+              return 'dirt-' .. math.ceil(math.random(7))
+            end
+        elseif x < 0 and y > 0 then
+            -- southwest to southeast
+            if math.random(100) < 50 - x * 2  then
+                return 'red-desert-' .. math.floor(math.random(3))
+            else
+                return 'sand-' .. math.ceil(math.random(3))
+            end
+        end
     end
 end
 
@@ -320,9 +436,9 @@ local function tree_shape(x, y)
     return {name = trees[math.random(trees_count)]}
 end
 
-local water = b.circle(8)
+local water = b.circle(16)
 water = b.change_tile(water, true, 'water')
-water = b.any {b.rectangle(16, 4), b.rectangle(4, 16), water}
+water = b.any {b.rectangle(32, 4), b.rectangle(4, 32), water}
 
 local start = b.if_else(water, b.full_shape)
 start = b.change_map_gen_collision_tile(start, 'water-tile', 'grass-1')
