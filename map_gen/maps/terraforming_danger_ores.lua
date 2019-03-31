@@ -44,8 +44,8 @@ local tree_seed
 local oil_scale = 1 / 64
 local oil_threshold = 0.6
 
-local uranium_scale = 1 / 128
-local uranium_threshold = 0.65
+local uranium_scale = 1 / 72
+local uranium_threshold = 0.63
 
 local density_scale = 1 / 48
 local density_threshold = 0.5
@@ -60,7 +60,9 @@ local tree_threshold = -0.25
 local tree_chance = 0.125
 
 local start_chunks_half_size = 3
-global.min_pollution = 500
+local max_pollution = 2500
+local pollution_increment = 2
+global.min_pollution = 300
 
 local chunk_list = {index = 1}
 local surface
@@ -73,12 +75,17 @@ Global.register_init(
         local s = RS.get_surface()
         tbl.seed = s.map_gen_settings.seed
         tbl.surface = s
-        game.difficulty_settings.technology_price_multiplier = 50
+        game.difficulty_settings.technology_price_multiplier = 20
         game.forces.player.technologies.logistics.researched = true
         game.forces.player.technologies.automation.researched = true
-        game.map_settings.enemy_evolution.time_factor = 0.000002
+        game.forces.player.technologies['mining-productivity-1'].enabled = false
+        game.forces.player.technologies['mining-productivity-2'].enabled = false
+        game.forces.player.technologies['mining-productivity-3'].enabled = false
+        game.forces.player.technologies['mining-productivity-4'].enabled = false
+        game.map_settings.enemy_evolution.time_factor = 0.000005 -- Increased time factor
         game.map_settings.enemy_evolution.destroy_factor = 0.000010
-        game.map_settings.enemy_evolution.pollution_factor = 0.000005
+        game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution
+        game.draw_resource_selection = false
     end,
     function(tbl)
         local seed = tbl.seed
@@ -101,23 +108,48 @@ local oil_resource = b.resource(oil_shape, 'crude-oil', value(250000, 150))
 
 local uranium_resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1))
 
-local ores = {
-    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 60},
-    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 40},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
+local ores_pos_x_pos_y = {
+    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
+    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 40},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
 }
+local ores_pos_x_neg_y = {
+    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 60},
+    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 10},
+    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
+}
+local ores_neg_x_pos_y = {
+    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
+    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 60},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 10},
+    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
+}
+local ores_neg_x_neg_y = {
+    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
+    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 10},
+    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
+}
 
-local weighted_ores = b.prepare_weighted_array(ores)
-local total_ores = weighted_ores.total
+local weighted_ores_pos_x_pos_y = b.prepare_weighted_array(ores_pos_x_pos_y)
+local weighted_ores_pos_x_neg_y = b.prepare_weighted_array(ores_pos_x_neg_y)
+local weighted_ores_neg_x_pos_y = b.prepare_weighted_array(ores_neg_x_pos_y)
+local weighted_ores_neg_x_neg_y = b.prepare_weighted_array(ores_neg_x_neg_y)
+
+local total_ores_pos_x_pos_y = weighted_ores_pos_x_pos_y.total
+local total_ores_pos_x_neg_y = weighted_ores_pos_x_neg_y.total
+local total_ores_neg_x_pos_y = weighted_ores_neg_x_pos_y.total
+local total_ores_neg_x_neg_y = weighted_ores_neg_x_neg_y.total
 
 local spawn_zone = b.circle(64)
 
 local ore_circle = b.circle(68)
 local start_ores = {
     b.resource(ore_circle, 'iron-ore', value(125, 0)),
-    b.resource(ore_circle, 'copper-ore', value(125, 0)),
     b.resource(ore_circle, 'coal', value(125, 0)),
+    b.resource(ore_circle, 'copper-ore', value(125, 0)),
     b.resource(ore_circle, 'stone', value(125, 0))
 }
 
@@ -134,7 +166,6 @@ local function ore(x, y, world)
     end
 
     local oil_x, oil_y = x * oil_scale, y * oil_scale
-
     local oil_noise = perlin_noise(oil_x, oil_y, oil_seed)
     if oil_noise > oil_threshold then
         return oil_resource(x, y, world)
@@ -146,13 +177,41 @@ local function ore(x, y, world)
         return uranium_resource(x, y, world)
     end
 
-    local i = math.random() * total_ores
-    local index = table.binary_search(weighted_ores, i)
-    if (index < 0) then
-        index = bit32.bnot(index)
-    end
+    local i
+    local index
+    local resource
 
-    local resource = ores[index].resource
+    if x > 0 and y > 0 then
+        i = math.random() * total_ores_pos_x_pos_y
+        index = table.binary_search(weighted_ores_pos_x_pos_y, i)
+        if (index < 0) then
+            index = bit32.bnot(index)
+        end
+
+        resource = ores_pos_x_pos_y[index].resource
+    elseif x > 0 and y < 0 then
+        i = math.random() * total_ores_pos_x_neg_y
+        index = table.binary_search(weighted_ores_pos_x_neg_y, i)
+        if (index < 0) then
+            index = bit32.bnot(index)
+        end
+        resource = ores_pos_x_neg_y[index].resource
+    elseif x < 0 and y > 0 then
+        i = math.random() * total_ores_neg_x_pos_y
+        index = table.binary_search(weighted_ores_neg_x_pos_y, i)
+        if (index < 0) then
+            index = bit32.bnot(index)
+        end
+        resource = ores_neg_x_pos_y[index].resource
+    else
+        i = math.random() * total_ores_neg_x_neg_y
+        index = table.binary_search(weighted_ores_neg_x_neg_y, i)
+        if (index < 0) then
+            index = bit32.bnot(index)
+        end
+
+        resource = ores_neg_x_neg_y[index].resource
+    end
 
     local entity = resource(x, y, world)
     local density_x, density_y = x * density_scale, y * density_scale
@@ -311,12 +370,19 @@ local function on_tick()
     local pos = chunk_list[index]
     local pollution = surface.get_pollution(pos)
 
-    if pollution > global.min_pollution then
+    local current_min_pollution = global.min_pollution
+
+    if pollution > current_min_pollution then
         fast_remove(chunk_list, index)
 
         local area = {left_top = pos, right_bottom = {pos.x + 32, pos.y + 32}}
         local event = {surface = surface, area = area}
         Generate.schedule_chunk(event)
+
+        if current_min_pollution < max_pollution then
+            global.min_pollution = current_min_pollution + pollution_increment
+        end
+
         return
     end
 
