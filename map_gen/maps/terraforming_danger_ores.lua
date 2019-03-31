@@ -90,8 +90,8 @@ local tree_seed
 local oil_scale = 1 / 64
 local oil_threshold = 0.6
 
-local uranium_scale = 1 / 128
-local uranium_threshold = 0.6
+local uranium_scale = 1 / 72
+local uranium_threshold = 0.63
 
 local density_scale = 1 / 48
 local density_threshold = 0.5
@@ -106,7 +106,10 @@ local tree_threshold = -0.25
 local tree_chance = 0.125
 
 local start_chunks_half_size = 3
-global.min_pollution = 650
+
+local max_pollution = 2500
+local pollution_increment = 2
+global.min_pollution = 300
 
 local chunk_list = {index = 1}
 local surface
@@ -122,6 +125,10 @@ Global.register_init(
         game.difficulty_settings.technology_price_multiplier = 20
         game.forces.player.technologies.logistics.researched = true
         game.forces.player.technologies.automation.researched = true
+        game.forces.player.technologies['mining-productivity-1'].enabled = false
+        game.forces.player.technologies['mining-productivity-2'].enabled = false
+        game.forces.player.technologies['mining-productivity-3'].enabled = false
+        game.forces.player.technologies['mining-productivity-4'].enabled = false
         game.map_settings.enemy_evolution.time_factor = 0.000005 -- Increased time factor
         game.map_settings.enemy_evolution.destroy_factor = 0.000010
         game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution
@@ -157,19 +164,19 @@ local ores_pos_x_pos_y = {
 local ores_pos_x_neg_y = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 60},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 20},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
 }
 local ores_neg_x_pos_y = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 60},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 20},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
 }
 local ores_neg_x_neg_y = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 20},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
 }
 
@@ -206,7 +213,6 @@ local function ore(x, y, world)
     end
 
     local oil_x, oil_y = x * oil_scale, y * oil_scale
-
     local oil_noise = perlin_noise(oil_x, oil_y, oil_seed)
     if oil_noise > oil_threshold then
         return oil_resource(x, y, world)
@@ -480,12 +486,19 @@ local function on_tick()
     local pos = chunk_list[index]
     local pollution = surface.get_pollution(pos)
 
-    if pollution > global.min_pollution then
+    local current_min_pollution = global.min_pollution
+
+    if pollution > current_min_pollution then
         fast_remove(chunk_list, index)
 
         local area = {left_top = pos, right_bottom = {pos.x + 32, pos.y + 32}}
         local event = {surface = surface, area = area}
         Generate.schedule_chunk(event)
+
+        if current_min_pollution < max_pollution then
+            global.min_pollution = current_min_pollution + pollution_increment
+        end
+
         return
     end
 
