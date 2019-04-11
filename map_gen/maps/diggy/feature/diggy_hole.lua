@@ -11,6 +11,7 @@ local ScoreTable = require 'map_gen.maps.diggy.score_table'
 local Command = require 'utils.command'
 local CreateParticles = require 'features.create_particles'
 local Ranks = require 'resources.ranks'
+local TilePicker = require 'map_gen.maps.diggy.feature.tile_picker'
 
 local random = math.random
 local tonumber = tonumber
@@ -89,7 +90,8 @@ local function diggy_hole(entity)
 
     for i = #out_of_map_found, 1, -1 do
         local void_position = out_of_map_found[i]
-        tiles[i] = {name = 'dirt-' .. random(1, 7), position = void_position}
+        local tile_name = TilePicker.get_tile(void_position.x, void_position.y)
+        tiles[i] = {name = tile_name, position = void_position}
         local predicted = random()
         if predicted < 0.2 then
             rocks[i] = {name = 'rock-huge', position = void_position}
@@ -120,7 +122,8 @@ local function on_mined_tile(surface, tiles)
     for _, tile in pairs(tiles) do
         if (artificial_tiles[tile.old_tile.name]) then
             count = count + 1
-            new_tiles[count] = {name = 'dirt-' .. random(1, 7), position = tile.position}
+            local tile_name = TilePicker.get_tile(tile.position.x, tile.position.y)
+            new_tiles[count] = {name = tile_name, position = tile.position}
         end
     end
 
@@ -141,7 +144,8 @@ Command.add('diggy-clear-void', {
     for x = 0, width do
         for y = 0, height do
             count = count + 1
-            tiles[count] = {name = 'dirt-' .. random(1, 7), position = {x = x + left_top_x, y = y + left_top_y}}
+            local tile_name = TilePicker.get_tile(x + left_top_x, y + left_top_y)
+            tiles[count] = {name = tile_name, position = {x = x + left_top_x, y = y + left_top_y}}
         end
     end
 

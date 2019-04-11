@@ -448,6 +448,17 @@ local Config = {
                 ['behemoth-spitter'] = 7,
             },
         },
+        -- perlin noise for dirt generation
+        tile_picker = {
+            -- uses perlin noise when true, random when false
+            enabled = true,
+
+            -- tiles to pick from
+            tiles = {'dirt-1', 'dirt-2', 'dirt-3', 'dirt-4', 'dirt-5', 'dirt-6', 'dirt-7'},
+
+            -- value between 0 and 1, higher values means smaller areas with same tile
+            noise_variance = 0.03
+        }
     },
 }
 
