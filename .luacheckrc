@@ -329,6 +329,7 @@ stds.factorio_control = {
                 "check_prototype_translations",
                 "count_pipe_groups",
                 "create_force",
+                "create_profiler",
                 "create_random_generator",
                 "create_surface",
                 "delete_surface",
