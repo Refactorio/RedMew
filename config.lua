@@ -357,6 +357,10 @@ global.config = {
             -- whether to only attack on the first launch
             first_launch_only = true
         }
+    },
+    -- allows the saving and automatic loading of quickbars between maps
+    player_quick_bars = {
+        enabled = true
     }
 }
 
