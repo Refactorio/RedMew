@@ -47,17 +47,6 @@ local function save_bars(_, player)
     Game.player_print({'player_quick_bars.save_bars'}, Color.success)
 end
 
---- Erases server-side data stored for this player's quickbar_slots
-local function reset_bars(_, player)
-    if not primitives.server_available then
-        Game.player_print({'common.server_unavailable'}, Color.fail)
-        return
-    end
-
-    Server.set_data(data_set_name, player.name, nil)
-    Game.player_print({'player_quick_bars.reset_bars'}, Color.success)
-end
-
 --- Returns a valid entity prototype string name or nil.
 -- For invalid items, a message will be printed to the player.
 local function validate_entry(item, proto_table, player)
@@ -109,7 +98,7 @@ local function load_bars(_, player)
     Game.player_print({'player_quick_bars.load_bars'})
 end
 
-local player_join =
+local player_created =
     Token.register(
     function(event)
         local p = game.get_player(event.player_index)
@@ -122,16 +111,27 @@ local player_join =
 )
 
 --- Registers the event only when the server is available.
-local function register_player_join()
+local function register_player_create()
     if not primitives.server_available then
-        Event.add_removable(defines.events.on_player_joined_game, player_join)
+        Event.add_removable(defines.events.on_player_created, player_created)
         primitives.server_available = true
     end
 end
 
+--- Erases server-side data stored for this player's quickbar_slots
+local function delete_bars(_, player)
+    if not primitives.server_available then
+        Game.player_print({'common.server_unavailable'}, Color.fail)
+        return
+    end
+
+    Server.set_data(data_set_name, player.name, nil)
+    Game.player_print({'player_quick_bars.delete_bars'}, Color.success)
+end
+
 -- Events
 
-Event.add(Server.events.on_server_started, register_player_join)
+Event.add(Server.events.on_server_started, register_player_create)
 
 -- Commands
 
@@ -159,5 +159,5 @@ Command.add(
         description = {'command_description.quick_bar_delete'},
         required_rank = Ranks.regular
     },
-    reset_bars
+    delete_bars
 )
