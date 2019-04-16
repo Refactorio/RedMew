@@ -55,11 +55,12 @@ local function try_generate_report(str)
     local server_time = Public.server_time.secs
 
     local server_time_str = '(Server time: unavailable)'
-    local file_name = 'redmew_errors.log'
+    local file_name = 'redmew_errors'
     if server_time then
         server_time_str = format('(Server time: %s)', Timestamp.to_string(server_time))
-        file_name = Timestamp.to_date_string(server_time) .. '_' .. file_name
+        file_name = file_name .. '_' .. Timestamp.to_date_string(server_time) .. '.log'
     else
+        file_name = file_name .. '.log'
         game.write_file(file_name, '', false, 0)
     end
 
