@@ -89,6 +89,9 @@ end
 if config.player_onboarding.enabled then
     require 'features.player_onboarding'
 end
+if config.biter_attacks then
+    require 'map_gen.shared.biter_attacks'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.

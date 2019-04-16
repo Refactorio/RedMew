@@ -17,7 +17,9 @@ RestrictEntities.add_allowed(
         'substation',
         'electric-mining-drill',
         'burner-mining-drill',
-        'pumpjack'
+        'pumpjack',
+        'car',
+        'tank'
     }
 )
 
