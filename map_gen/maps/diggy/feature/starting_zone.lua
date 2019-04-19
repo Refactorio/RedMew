@@ -8,9 +8,9 @@ local Template = require 'map_gen.maps.diggy.template'
 local Retailer = require 'features.retailer'
 local DiggyCaveCollapse = require 'map_gen.maps.diggy.feature.diggy_cave_collapse'
 local RS = require 'map_gen.shared.redmew_surface'
+local TilePicker = require 'map_gen.maps.diggy.feature.tile_picker'
 
 local insert = table.insert
-local random = math.random
 local sqrt = math.sqrt
 local floor = math.floor
 local pairs = pairs
@@ -51,13 +51,18 @@ function StartingZone.register(config)
         local rock_range = starting_zone_size - 2
         local stress_hack = floor(starting_zone_size * 0.1)
 
+        -- init tile picker
+        local seed = surface.map_gen_settings.seed + surface.index + 300
+        TilePicker.set_seed(seed)
+
         for x = -starting_zone_size, starting_zone_size do
             for y = -starting_zone_size, starting_zone_size do
                 local distance = floor(sqrt(x * x + y * y))
 
                 if (distance < starting_zone_size) then
                     if (distance > dirt_range) then
-                        insert(tiles, {name = 'dirt-' .. random(1, 7), position = {x = x, y = y}})
+                        local tile_name = TilePicker.get_tile(x, y)
+                        insert(tiles, {name = tile_name, position = {x = x, y = y}})
                     else
                         insert(tiles, {name = 'stone-path', position = {x = x, y = y}})
                     end
