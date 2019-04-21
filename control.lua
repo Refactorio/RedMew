@@ -89,7 +89,7 @@ end
 if config.player_onboarding.enabled then
     require 'features.player_onboarding'
 end
-if config.biter_attacks then
+if config.biter_attacks.enabled then
     require 'map_gen.shared.biter_attacks'
 end
 if config.player_quick_bars.enabled then
