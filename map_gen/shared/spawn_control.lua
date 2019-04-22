@@ -249,9 +249,9 @@ Event.add(defines.events.on_player_joined_game, player_joined_game)
 Event.add(defines.events.on_player_left_game, player_left_game)
 Event.add(defines.events.on_player_respawned, player_respawned)
 
-commands.add_command('tpspawn', '<player> <spawn_name> teleports a player to the spawn point (Admins only)', tp_spawn_command)
-commands.add_command('changespawn', '<player> <spawn_name> changes the spawn point for a player (Admins only)', change_spawn_command)
-commands.add_command('printspawns', 'prints info on all spawn points (Admins only)', print_spawns_command)
-commands.add_command('printplayersforspawn', '<spawn_name> prints all the connected players for a spawn (Admins only)', print_players_for_spawn_command)
+commands.add_command('tpspawn', '<player> <spawn_name> teleports a player to the spawn point (Admins only)', tp_spawn_command) -- luacheck: ignore
+commands.add_command('changespawn', '<player> <spawn_name> changes the spawn point for a player (Admins only)', change_spawn_command) -- luacheck: ignore
+commands.add_command('printspawns', 'prints info on all spawn points (Admins only)', print_spawns_command) -- luacheck: ignore
+commands.add_command('printplayersforspawn', '<spawn_name> prints all the connected players for a spawn (Admins only)', print_players_for_spawn_command) -- luacheck: ignore
 
 return Module

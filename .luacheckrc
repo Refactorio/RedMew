@@ -1,3 +1,11 @@
+--[[
+    This is a RedMew-customized version of Nexala's luacheckrc and differs in
+    the following ways:
+    - RedMew adds its own globals. See: globals, or search for "RedMew-specific globals"
+    - Removes entries for certain LuaBootstrap (aka script) functions as they should
+    be used through the event module
+]]
+
 -------------------------------------------------------------------------------
 --[LICENSE]--
 -------------------------------------------------------------------------------
@@ -180,8 +188,9 @@ stds.factorio_control = {
         -- @commands@:
         commands = {
             fields = {
-                "add_command", "commands", "game_commands", "remove_command"
+                "commands", "game_commands", "remove_command"
             },
+            other_fields = false,
         },
 
         -- @settings@:
@@ -198,8 +207,8 @@ stds.factorio_control = {
         -- (http://lua-api.factorio.com/latest/LuaBootstrap.html)
         script = {
             fields = {
-                "on_event", "on_nth_tick", "on_configuration_changed", "on_init", "on_load", "generate_event_name",
-                "raise_event", "get_event_handler", "mod_name", "get_event_order"
+                "on_configuration_changed", "raise_event",
+                "get_event_handler", "mod_name", "get_event_order"
             },
             other_fields = false,
         },
@@ -320,6 +329,7 @@ stds.factorio_control = {
                 "check_prototype_translations",
                 "count_pipe_groups",
                 "create_force",
+                "create_profiler",
                 "create_random_generator",
                 "create_surface",
                 "delete_surface",
@@ -327,6 +337,7 @@ stds.factorio_control = {
                 "direction_to_string",
                 "disable_replay",
                 "disable_tips_and_tricks",
+                "draw_resource_selection",
                 "force_crc",
                 "get_active_entities_count",
                 "get_entity_by_tag",
@@ -949,6 +960,13 @@ stds.factorio_defines = {
                         'missing_science_packs',
                         'waiting_for_source_items',
                         'waiting_for_space_in_destination',
+                    }
+                },
+                render_mode = {
+                    fields = {
+                        'game',
+                        'chart',
+                        'chart_zoomed_in'
                     }
                 },
                 events = {

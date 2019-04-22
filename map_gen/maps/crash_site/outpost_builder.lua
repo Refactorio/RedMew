@@ -17,6 +17,8 @@ local concat = table.concat
 local floor = math.floor
 local format = string.format
 local tostring = tostring
+local draw_text = rendering.draw_text
+local render_mode_game = defines.render_mode.game
 
 local b = require 'map_gen.shared.builders'
 
@@ -55,6 +57,7 @@ local turret_to_outpost = {}
 local magic_crafters = {index = 1}
 local magic_fluid_crafters = {index = 1}
 local outposts = {}
+local artillery_outposts = {index = 1}
 local outpost_count = 0
 
 Global.register(
@@ -64,7 +67,8 @@ Global.register(
         turret_to_outpost = turret_to_outpost,
         magic_crafters = magic_crafters,
         magic_fluid_crafters = magic_fluid_crafters,
-        outposts = outposts
+        outposts = outposts,
+        artillery_outposts = artillery_outposts
     },
     function(tbl)
         refill_turrets = tbl.refil_turrets
@@ -73,6 +77,7 @@ Global.register(
         magic_crafters = tbl.magic_crafters
         magic_fluid_crafters = tbl.magic_fluid_crafters
         outposts = tbl.outposts
+        artillery_outposts = tbl.artillery_outposts
     end
 )
 
@@ -675,7 +680,10 @@ local function to_shape(blocks, part_size, on_init)
             level = 1,
             upgrade_rate = nil,
             upgrade_base_cost = nil,
-            upgrade_cost_base = nil
+            upgrade_cost_base = nil,
+            artillery_area = nil,
+            artillery_turrets = nil,
+            last_fire_tick = nil
         }
     end
 
@@ -928,7 +936,9 @@ local function update_market_upgrade_description(outpost_data)
     prototype.price = upgrade_base_cost * #outpost_magic_crafters * upgrade_cost_base ^ (level - 1)
     prototype.name_label = 'Upgrade Outpost to level ' .. tostring(level + 1)
 
-    local str = {''}
+    local tooltip_str = {''}
+    local mapview_str = {''}
+    local count = 2
     for k, v in pairs(base_outputs) do
         local base_rate = v * 60
         local upgrade_per_level = base_rate * upgrade_rate
@@ -937,23 +947,37 @@ local function update_market_upgrade_description(outpost_data)
 
         local name = game.item_prototypes[k]
         if name then
-            str[#str + 1] = name.localised_name
+            tooltip_str[count] = concat {'[item=', k, ']'}
+            mapview_str[count] = name.localised_name
         else
             name = game.fluid_prototypes[k]
             if name then
-                str[#str + 1] = name.localised_name
+                tooltip_str[count] = concat {'[fluid=', k, ']'}
+                mapview_str[count] = name.localised_name
             else
-                str[#str + 1] = k
+                tooltip_str[count] = k
+                mapview_str[count] = k
             end
         end
+        count = count + 1
 
-        str[#str + 1] = concat {': ', format('%.2f', current_rate), ' -> ', format('%.2f / sec', next_rate)}
-        str[#str + 1] = '\n'
+        local str = concat {': ', format('%.2f', current_rate), ' -> ', format('%.2f / sec', next_rate)}
+
+        tooltip_str[count] = str
+        tooltip_str[count + 1] = '\n'
+
+        mapview_str[count] = str
+        mapview_str[count + 1] = ', '
+
+        count = count + 2
     end
-    str[#str] = nil
+    tooltip_str[count - 1] = nil
+    mapview_str[count - 1] = nil
 
-    prototype.description = str
+    prototype.description = tooltip_str
     prototype.disabled = false
+
+    prototype.mapview_description = mapview_str
 
     Retailer.set_item(outpost_id, prototype)
 end
@@ -975,7 +999,7 @@ local function do_outpost_upgrade(event)
     local outpost_name = Retailer.get_market_group_label(outpost_id)
     local message = concat {outpost_name, ' has been upgraded to level ', level}
 
-    CrashSiteToast.do_outpost_toast(outpost_data.market, outpost_name, message)
+    CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
 
     for i = 1, #outpost_magic_crafters do
@@ -1051,7 +1075,7 @@ local function do_capture_outpost(outpost_data)
     end
 
     local message = 'Outpost captured: ' .. name
-    CrashSiteToast.do_outpost_toast(outpost_data.market, name, message)
+    CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
 
     activate_market_upgrade(outpost_data)
@@ -1083,6 +1107,97 @@ local function do_refill_turrets()
     end
 end
 
+local artillery_target_entities = {
+    'player',
+    'tank',
+    'car',
+    'locomotive',
+    'cargo-wagon',
+    'fluid-wagon',
+    'artillery-wagon'
+}
+
+local artillery_target_callback =
+    Token.register(
+    function(data)
+        local position = data.position
+        local entity = data.entity
+
+        if not entity.valid then
+            return
+        end
+
+        local tx, ty = position.x, position.y
+
+        local pos = entity.position
+        local x, y = pos.x, pos.y
+        local dx, dy = tx - x, ty - y
+        local d = dx * dx + dy * dy
+        if d >= 1024 then -- 32 ^ 2
+            entity.surface.create_entity {
+                name = 'artillery-projectile',
+                position = position,
+                target = entity,
+                speed = 1.5
+            }
+        end
+    end
+)
+
+local function do_artillery_turrets_targets()
+    local index = artillery_outposts.index
+
+    if index > #artillery_outposts then
+        artillery_outposts.index = 1
+        return
+    end
+
+    artillery_outposts.index = index + 1
+
+    local outpost = artillery_outposts[index]
+
+    local now = game.tick
+    if now - outpost.last_fire_tick < 480 then
+        return
+    end
+
+    local turrets = outpost.artillery_turrets
+    for i = #turrets, 1, -1 do
+        local turret = turrets[i]
+        if not turret.valid then
+            fast_remove(turrets, i)
+        end
+    end
+
+    local count = #turrets
+    if count == 0 then
+        fast_remove(artillery_outposts, index)
+        return
+    end
+
+    outpost.last_fire_tick = now
+
+    local turret = turrets[1]
+    local area = outpost.artillery_area
+    local surface = turret.surface
+
+    local entities = surface.find_entities_filtered {area = area, name = artillery_target_entities}
+
+    if #entities == 0 then
+        return
+    end
+
+    local position = turret.position
+
+    for i = 1, count do
+        local entity = entities[math.random(#entities)]
+        if entity and entity.valid then
+            local data = {position = position, entity = entity}
+            Task.set_timeout_in_ticks(i * 60, artillery_target_callback, data)
+        end
+    end
+end
+
 local function do_magic_crafters()
     local limit = #magic_crafters
     if limit == 0 then
@@ -1101,6 +1216,10 @@ local function do_magic_crafters()
         local entity = data.entity
         if not entity.valid then
             fast_remove(magic_crafters, index)
+            limit = limit - 1
+            if limit == 0 then
+                return
+            end
         else
             index = index + 1
 
@@ -1141,6 +1260,10 @@ local function do_magic_fluid_crafters()
         local entity = data.entity
         if not entity.valid then
             fast_remove(magic_fluid_crafters, index)
+            limit = limit - 1
+            if limit == 0 then
+                return
+            end
         else
             index = index + 1
 
@@ -1170,6 +1293,7 @@ end
 
 local function tick()
     do_refill_turrets()
+    do_artillery_turrets_targets()
     do_magic_crafters()
     do_magic_fluid_crafters()
 end
@@ -1200,6 +1324,34 @@ Public.refill_liquid_turret_callback =
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
+    end
+)
+
+Public.refill_artillery_turret_callback =
+    Token.register(
+    function(turret, data)
+        local outpost_id = data.outpost_id
+
+        refill_turrets[#refill_turrets + 1] = {turret = turret, data = data.callback_data}
+        turret_to_outpost[turret.unit_number] = outpost_id
+
+        local outpost_data = outposts[outpost_id]
+        outpost_data.turret_count = outpost_data.turret_count + 1
+
+        local artillery_turrets = outpost_data.artillery_turrets
+        if not artillery_turrets then
+            artillery_turrets = {}
+            outpost_data.artillery_turrets = artillery_turrets
+
+            local pos = turret.position
+            local x, y = pos.x, pos.y
+            outpost_data.artillery_area = {{x - 112, y - 112}, {x + 112, y + 112}}
+            outpost_data.last_fire_tick = 0
+
+            artillery_outposts[#artillery_outposts + 1] = outpost_data
+        end
+
+        artillery_turrets[#artillery_turrets + 1] = turret
     end
 )
 
@@ -1641,6 +1793,55 @@ local function coin_mined(event)
     end
 end
 
+local function market_selected(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    if player.render_mode == render_mode_game then
+        return
+    end
+
+    local selected = player.selected
+
+    if not selected or not selected.valid or selected.name ~= 'market' then
+        return
+    end
+
+    local group = Retailer.get_market_group_name(selected)
+    local prototype = Retailer.get_items(group)['upgrade']
+
+    if prototype.disabled then
+        return
+    end
+
+    local args = {
+        text = nil,
+        target = selected,
+        target_offset = nil,
+        alignment = 'center',
+        surface = selected.surface,
+        color = {1, 1, 1},
+        players = {player},
+        scale = 1.5,
+        scale_with_zoom = true,
+        time_to_live = 180
+    }
+
+    args.text = prototype.name_label
+    args.target_offset = {0, -6.5}
+    draw_text(args)
+
+    args.text = 'Price: ' .. prototype.price
+    args.target_offset = {0, -5}
+    draw_text(args)
+
+    args.text = prototype.mapview_description
+    args.target_offset = {0, -3.5}
+    draw_text(args)
+end
+
 Event.add(defines.events.on_tick, tick)
 Event.add(defines.events.on_entity_died, turret_died)
 
@@ -1653,5 +1854,7 @@ Event.on_init(
 Event.add(defines.events.on_player_mined_item, coin_mined)
 
 Event.add(Retailer.events.on_market_purchase, do_outpost_upgrade)
+
+Event.add(defines.events.on_selected_entity_changed, market_selected)
 
 return Public

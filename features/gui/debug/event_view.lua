@@ -84,11 +84,10 @@ end
 
 -- Create a table with events sorted by their names
 local grid_builder = {}
-for name, id in pairs(events) do
-    grid_builder[id] = name
+for name, _ in pairs(events) do
+    grid_builder[#grid_builder + 1] = name
 end
-grid_builder[#grid_builder + 1] = grid_builder[0]
-grid_builder[0] = nil
+
 table.sort(grid_builder)
 
 function Public.show(container)

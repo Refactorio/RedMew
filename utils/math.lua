@@ -1,4 +1,4 @@
---luacheck:ignore global math
+--luacheck: globals math
 local _sin = math.sin
 local _cos = math.cos
 

@@ -78,7 +78,7 @@ Gui.on_click(
         end
 
         local selected_tab_button = frame_data.selected_tab_button
-        selected_tab_button.style.font_color = Color.white
+        selected_tab_button.style.font_color = Color.black
 
         frame_data.selected_tab_button = element
         frame_data.selected_index = index
