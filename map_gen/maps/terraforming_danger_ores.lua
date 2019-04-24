@@ -327,6 +327,40 @@ local function enemy(x, y, world)
     end
 end
 
+local tiles_iron = {
+  [1] = 'grass-1',
+  [2] = 'grass-2',
+  [3] = 'grass-3',
+  [4] = 'grass-4'
+}
+
+local tiles_copper = {
+  [1] = 'red-desert-0',
+  [2] = 'red-desert-1',
+  [3] = 'red-desert-2',
+  [4] = 'red-desert-3'
+}
+
+local tiles_coal  = {
+  [1] = 'dirt-1',
+  [2] = 'dirt-2',
+  [3] = 'dirt-3',
+  [4] = 'dirt-4',
+  [5] = 'dirt-5',
+  [6] = 'dirt-6',
+  [7] = 'dirt-7'
+}
+
+local tiles_stone = {
+  [1] = 'sand-1',
+  [2] = 'sand-2',
+  [3] = 'sand-3'
+}
+local tiles_iron_count = #tiles_iron
+local tiles_copper_count = #tiles_copper
+local tiles_coal_count = #tiles_coal
+local tiles_stone_count = #tiles_stone
+
 local function water_shape(x, y)
     local water_noise = perlin_noise(x * water_scale, y * water_scale, water_seed)
     if water_noise >= deepwater_threshold then
@@ -337,71 +371,71 @@ local function water_shape(x, y)
         -- Control the tiles at X quadrant
         if x > 31 and y > 31 then
             -- southeast
-            return 'sand-' .. math.ceil(math.random(3))
+            return tiles_stone[ math.ceil(math.random(tiles_stone_count)) ]
         elseif x > 0 and y < 31 and y > 0 then
             -- southeast to northeast
             if math.random(100) < 50 + y * 2 then
-                return 'sand-' .. math.ceil(math.random(3))
+              return tiles_stone[ math.ceil(math.random(tiles_stone_count)) ]
             else
-                return 'grass-' .. math.ceil(math.random(4))
+              return tiles_iron[ math.ceil(math.random(tiles_iron_count)) ]
             end
         elseif x > 0 and y >= 0 then
             -- southeast to southwest
             if math.random(100) < 50 + x * 2 then
-                return 'sand-' .. math.ceil(math.random(3))
+              return tiles_stone[ math.ceil(math.random(tiles_stone_count)) ]
             else
-                return 'red-desert-' .. math.floor(math.random(3))
+              return tiles_copper[ math.ceil(math.random(tiles_copper_count)) ]
             end
         elseif x > 31 and y < -31 then
             -- northeast
-            return 'grass-' .. math.ceil(math.random(4))
+            return tiles_iron[ math.ceil(math.random(tiles_iron_count)) ]
         elseif x > 0 and x < 31 and y <= 0 then
             -- northeast to northwest
             if math.random(100) < 50 + x * 2 then
-                return 'grass-' .. math.ceil(math.random(4))
+              return tiles_iron[ math.ceil(math.random(tiles_iron_count)) ]
             else
-                return 'dirt-' .. math.ceil(math.random(7))
+              return tiles_coal[ math.ceil(math.random(tiles_coal_count)) ]
             end
         elseif x > 0 and y < 0 then
             -- northeast to southeast
             if math.random(100) < 50 - y * 2 then
-                return 'grass-' .. math.ceil(math.random(4))
+              return tiles_iron[ math.ceil(math.random(tiles_iron_count)) ]
             else
-                return 'sand-' .. math.ceil(math.random(3))
+              return tiles_stone[ math.ceil(math.random(tiles_stone_count)) ]
             end
         elseif x < -31 and y < -31 then
             -- northwest
-            return 'dirt-' .. math.ceil(math.random(7))
+            return tiles_coal[ math.ceil(math.random(tiles_coal_count)) ]
         elseif x > -31 and x < 0 and y <= 0 then
             -- northwest to northeast
             if math.random(100) < 50 - x * 2 then
-              return 'dirt-' .. math.ceil(math.random(7))
+              return tiles_coal[ math.ceil(math.random(tiles_coal_count)) ]
             else
-              return 'grass-' .. math.ceil(math.random(4))
+              return tiles_iron[ math.ceil(math.random(tiles_iron_count)) ]
             end
         elseif x < 0 and y > -31 and y < 0 then
             -- northwest to southwest
             if math.random(100) < ( 50 - y * 2 ) then
-                return 'dirt-' .. math.ceil(math.random(7))
+              return tiles_coal[ math.ceil(math.random(tiles_coal_count)) ]
             else
-                return 'red-desert-' .. math.floor(math.random(3))
+                return tiles_copper[ math.ceil(math.random(tiles_copper_count)) ]
             end
         elseif x < -31 and y > 31 then
             -- southwest
-            return 'red-desert-' .. math.floor(math.random(3))
+            return tiles_copper[ math.ceil(math.random(tiles_copper_count)) ]
         elseif x < 0 and y > 0 and y < 32 then
             -- southwest to northwest
             if math.random(100) < ( 50 + y * 2 ) then
-              return 'red-desert-' .. math.floor(math.random(3))
+              return tiles_copper[ math.ceil(math.random(tiles_copper_count)) ]
             else
-              return 'dirt-' .. math.ceil(math.random(7))
+              return tiles_coal[ math.ceil(math.random(tiles_coal_count)) ]
             end
         elseif x < 0 and y > 0 then
             -- southwest to southeast
             if math.random(100) < 50 - x * 2  then
-                return 'red-desert-' .. math.floor(math.random(3))
+                return tiles_copper[ math.ceil(math.random(tiles_copper_count)) ]
             else
-                return 'sand-' .. math.ceil(math.random(3))
+              return tiles_stone[ math.ceil(math.random(tiles_stone_count)) ]
             end
         end
     end
