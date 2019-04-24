@@ -155,30 +155,73 @@ local oil_resource = b.resource(oil_shape, 'crude-oil', value(250000, 150))
 
 local uranium_resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1))
 
-local ores_pos_x_pos_y = {
+
+local tiles_iron = {
+  [1] = 'grass-1',
+  [2] = 'grass-2',
+  [3] = 'grass-3',
+  [4] = 'grass-4'
+}
+
+local tiles_copper = {
+  [1] = 'red-desert-0',
+  [2] = 'red-desert-1',
+  [3] = 'red-desert-2',
+  [4] = 'red-desert-3'
+}
+
+local tiles_coal  = {
+  [1] = 'dirt-1',
+  [2] = 'dirt-2',
+  [3] = 'dirt-3',
+  [4] = 'dirt-4',
+  [5] = 'dirt-5',
+  [6] = 'dirt-6',
+  [7] = 'dirt-7'
+}
+
+local tiles_stone = {
+  [1] = 'sand-1',
+  [2] = 'sand-2',
+  [3] = 'sand-3'
+}
+local tiles_iron_count = #tiles_iron
+local tiles_copper_count = #tiles_copper
+local tiles_coal_count = #tiles_coal
+local tiles_stone_count = #tiles_stone
+
+local ratios_stone = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 40},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 30},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
 }
-local ores_pos_x_neg_y = {
+
+local ratios_iron = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 60},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
 }
-local ores_neg_x_pos_y = {
+
+local ratios_copper = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 60},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
 }
-local ores_neg_x_neg_y = {
+
+local ratios_coal = {
     {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
     {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
+    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
 }
+
+local ores_pos_x_pos_y = ratios_stone
+local ores_pos_x_neg_y = ratios_iron
+local ores_neg_x_pos_y = ratios_copper
+local ores_neg_x_neg_y = ratios_coal
 
 local weighted_ores_pos_x_pos_y = b.prepare_weighted_array(ores_pos_x_pos_y)
 local weighted_ores_pos_x_neg_y = b.prepare_weighted_array(ores_pos_x_neg_y)
@@ -326,40 +369,6 @@ local function enemy(x, y, world)
         end
     end
 end
-
-local tiles_iron = {
-  [1] = 'grass-1',
-  [2] = 'grass-2',
-  [3] = 'grass-3',
-  [4] = 'grass-4'
-}
-
-local tiles_copper = {
-  [1] = 'red-desert-0',
-  [2] = 'red-desert-1',
-  [3] = 'red-desert-2',
-  [4] = 'red-desert-3'
-}
-
-local tiles_coal  = {
-  [1] = 'dirt-1',
-  [2] = 'dirt-2',
-  [3] = 'dirt-3',
-  [4] = 'dirt-4',
-  [5] = 'dirt-5',
-  [6] = 'dirt-6',
-  [7] = 'dirt-7'
-}
-
-local tiles_stone = {
-  [1] = 'sand-1',
-  [2] = 'sand-2',
-  [3] = 'sand-3'
-}
-local tiles_iron_count = #tiles_iron
-local tiles_copper_count = #tiles_copper
-local tiles_coal_count = #tiles_coal
-local tiles_stone_count = #tiles_stone
 
 local function water_shape(x, y)
     local water_noise = perlin_noise(x * water_scale, y * water_scale, water_seed)
