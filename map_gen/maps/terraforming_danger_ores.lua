@@ -218,6 +218,16 @@ local ratios_coal = {
     {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
 }
 
+
+local tiles_pos_x_pos_y = tiles_stone
+local tiles_pos_x_pos_y_count = tiles_stone_count
+local tiles_pos_x_neg_y = tiles_iron
+local tiles_pos_x_neg_y_count = tiles_iron_count
+local tiles_neg_x_pos_y = tiles_copper
+local tiles_neg_x_pos_y_count = tiles_copper_count
+local tiles_neg_x_neg_y = tiles_coal
+local tiles_neg_x_neg_y_count = tiles_coal_count
+
 local ores_pos_x_pos_y = ratios_stone
 local ores_pos_x_neg_y = ratios_iron
 local ores_neg_x_pos_y = ratios_copper
@@ -370,6 +380,9 @@ local function enemy(x, y, world)
     end
 end
 
+
+
+
 local function water_shape(x, y)
     local water_noise = perlin_noise(x * water_scale, y * water_scale, water_seed)
     if water_noise >= deepwater_threshold then
@@ -380,71 +393,71 @@ local function water_shape(x, y)
         -- Control the tiles at X quadrant
         if x > 31 and y > 31 then
             -- southeast
-            return tiles_stone[ math.ceil(math.random(tiles_stone_count)) ]
+            return tiles_pos_x_pos_y[ math.ceil(math.random(tiles_pos_x_pos_y_count)) ]
         elseif x > 0 and y < 31 and y > 0 then
             -- southeast to northeast
             if math.random(100) < 50 + y * 2 then
-              return tiles_stone[ math.ceil(math.random(tiles_stone_count)) ]
+              return tiles_pos_x_pos_y[ math.ceil(math.random(tiles_pos_x_pos_y_count)) ]
             else
-              return tiles_iron[ math.ceil(math.random(tiles_iron_count)) ]
+              return tiles_pos_x_neg_y[ math.ceil(math.random(tiles_pos_x_neg_y_count)) ]
             end
         elseif x > 0 and y >= 0 then
             -- southeast to southwest
             if math.random(100) < 50 + x * 2 then
-              return tiles_stone[ math.ceil(math.random(tiles_stone_count)) ]
+              return tiles_pos_x_pos_y[ math.ceil(math.random(tiles_pos_x_pos_y_count)) ]
             else
-              return tiles_copper[ math.ceil(math.random(tiles_copper_count)) ]
+              return tiles_neg_x_pos_y[ math.ceil(math.random(tiles_neg_x_pos_y_count)) ]
             end
         elseif x > 31 and y < -31 then
             -- northeast
-            return tiles_iron[ math.ceil(math.random(tiles_iron_count)) ]
+            return tiles_pos_x_neg_y[ math.ceil(math.random(tiles_pos_x_neg_y_count)) ]
         elseif x > 0 and x < 31 and y <= 0 then
             -- northeast to northwest
             if math.random(100) < 50 + x * 2 then
-              return tiles_iron[ math.ceil(math.random(tiles_iron_count)) ]
+              return tiles_pos_x_neg_y[ math.ceil(math.random(tiles_pos_x_neg_y_count)) ]
             else
-              return tiles_coal[ math.ceil(math.random(tiles_coal_count)) ]
+              return tiles_neg_x_neg_y[ math.ceil(math.random(tiles_neg_x_neg_y_count)) ]
             end
         elseif x > 0 and y < 0 then
             -- northeast to southeast
             if math.random(100) < 50 - y * 2 then
-              return tiles_iron[ math.ceil(math.random(tiles_iron_count)) ]
+              return tiles_pos_x_neg_y[ math.ceil(math.random(tiles_pos_x_neg_y_count)) ]
             else
-              return tiles_stone[ math.ceil(math.random(tiles_stone_count)) ]
+              return tiles_pos_x_pos_y[ math.ceil(math.random(tiles_pos_x_pos_y_count)) ]
             end
         elseif x < -31 and y < -31 then
             -- northwest
-            return tiles_coal[ math.ceil(math.random(tiles_coal_count)) ]
+            return tiles_neg_x_neg_y[ math.ceil(math.random(tiles_neg_x_neg_y_count)) ]
         elseif x > -31 and x < 0 and y <= 0 then
             -- northwest to northeast
             if math.random(100) < 50 - x * 2 then
-              return tiles_coal[ math.ceil(math.random(tiles_coal_count)) ]
+              return tiles_neg_x_neg_y[ math.ceil(math.random(tiles_neg_x_neg_y_count)) ]
             else
-              return tiles_iron[ math.ceil(math.random(tiles_iron_count)) ]
+              return tiles_pos_x_neg_y[ math.ceil(math.random(tiles_pos_x_neg_y_count)) ]
             end
         elseif x < 0 and y > -31 and y < 0 then
             -- northwest to southwest
             if math.random(100) < ( 50 - y * 2 ) then
-              return tiles_coal[ math.ceil(math.random(tiles_coal_count)) ]
+              return tiles_neg_x_neg_y[ math.ceil(math.random(tiles_neg_x_neg_y_count)) ]
             else
-                return tiles_copper[ math.ceil(math.random(tiles_copper_count)) ]
+                return tiles_neg_x_pos_y[ math.ceil(math.random(tiles_neg_x_pos_y_count)) ]
             end
         elseif x < -31 and y > 31 then
             -- southwest
-            return tiles_copper[ math.ceil(math.random(tiles_copper_count)) ]
+            return tiles_neg_x_pos_y[ math.ceil(math.random(tiles_neg_x_pos_y_count)) ]
         elseif x < 0 and y > 0 and y < 32 then
             -- southwest to northwest
             if math.random(100) < ( 50 + y * 2 ) then
-              return tiles_copper[ math.ceil(math.random(tiles_copper_count)) ]
+              return tiles_neg_x_pos_y[ math.ceil(math.random(tiles_neg_x_pos_y_count)) ]
             else
-              return tiles_coal[ math.ceil(math.random(tiles_coal_count)) ]
+              return tiles_neg_x_neg_y[ math.ceil(math.random(tiles_neg_x_neg_y_count)) ]
             end
         elseif x < 0 and y > 0 then
             -- southwest to southeast
             if math.random(100) < 50 - x * 2  then
-                return tiles_copper[ math.ceil(math.random(tiles_copper_count)) ]
+                return tiles_neg_x_pos_y[ math.ceil(math.random(tiles_neg_x_pos_y_count)) ]
             else
-              return tiles_stone[ math.ceil(math.random(tiles_stone_count)) ]
+              return tiles_pos_x_pos_y[ math.ceil(math.random(tiles_pos_x_pos_y_count)) ]
             end
         end
     end
