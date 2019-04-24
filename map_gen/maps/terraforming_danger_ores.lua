@@ -41,6 +41,11 @@ proper material ratios, expand the map with pollution!
 )
 ScenarioInfo.set_new_info(
     [[
+2019-04-24:
+ - Stone ore density reduced by 1/2
+ - Ore quadrants randomized
+ - Increased time factor of biter evolution from 5 to 7
+
 2019-03-30:
  - Uranium ore patch threshold increased slightly
  - Bug fix: Cars and tanks can now be placed onto ore!
@@ -116,6 +121,106 @@ local surface
 
 local start_size = start_chunks_half_size * 64
 
+local value = b.euclidean_value
+
+local quadrant_config = {
+  ['iron-ore'] = {
+    ['tiles'] = {
+      [1] = 'grass-1',
+      [2] = 'grass-2',
+      [3] = 'grass-3',
+      [4] = 'grass-4'
+    },
+    ['ratios'] = {
+      {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 60},
+      {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+      {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
+      {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
+    }
+  },
+  ['copper-ore'] = {
+    ['tiles'] = {
+      [1] = 'red-desert-0',
+      [2] = 'red-desert-1',
+      [3] = 'red-desert-2',
+      [4] = 'red-desert-3'
+    },
+    ['ratios'] = {
+      {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
+      {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 60},
+      {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
+      {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
+    }
+  },
+  ['coal'] = {
+    ['tiles'] = {
+      [1] = 'dirt-1',
+      [2] = 'dirt-2',
+      [3] = 'dirt-3',
+      [4] = 'dirt-4',
+      [5] = 'dirt-5',
+      [6] = 'dirt-6',
+      [7] = 'dirt-7'
+    },
+    ['ratios'] = {
+      {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
+      {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+      {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
+      {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
+    }
+  },
+  ['stone'] = {
+    ['tiles'] = {
+      [1] = 'sand-1',
+      [2] = 'sand-2',
+      [3] = 'sand-3'
+    },
+    ['ratios'] = {
+      {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
+      {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+      {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 30},
+      {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
+    }
+  }
+}
+
+
+local tile_quadrants = {
+  [1] = 'stone',
+  [2] = 'iron-ore',
+  [3] = 'copper-ore',
+  [4] = 'coal'
+}
+
+local tiles_pos_x_pos_y
+local tiles_pos_x_pos_y_count
+local tiles_pos_x_neg_y
+local tiles_pos_x_neg_y_count
+local tiles_neg_x_pos_y
+local tiles_neg_x_pos_y_count
+local tiles_neg_x_neg_y
+local tiles_neg_x_neg_y_count
+
+local ores_pos_x_pos_y
+local ores_pos_x_neg_y
+local ores_neg_x_pos_y
+local ores_neg_x_neg_y
+
+local weighted_ores_pos_x_pos_y
+local weighted_ores_pos_x_neg_y
+local weighted_ores_neg_x_pos_y
+local weighted_ores_neg_x_neg_y
+
+local total_ores_pos_x_pos_y
+local total_ores_pos_x_neg_y
+local total_ores_neg_x_pos_y
+local total_ores_neg_x_neg_y
+
+local ore_circle = b.circle(68)
+local start_ores
+local start_segment
+
+
 Global.register_init(
     {chunk_list = chunk_list},
     function(tbl)
@@ -129,7 +234,7 @@ Global.register_init(
         game.forces.player.technologies['mining-productivity-2'].enabled = false
         game.forces.player.technologies['mining-productivity-3'].enabled = false
         game.forces.player.technologies['mining-productivity-4'].enabled = false
-        game.map_settings.enemy_evolution.time_factor = 0.000005 -- Increased time factor
+        game.map_settings.enemy_evolution.time_factor = 0.000007
         game.map_settings.enemy_evolution.destroy_factor = 0.000010
         game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution
         game.draw_resource_selection = false
@@ -145,115 +250,51 @@ Global.register_init(
 
         chunk_list = tbl.chunk_list
         surface = tbl.surface
+
+        table.shuffle_table(tile_quadrants)
+
+        tiles_pos_x_pos_y = quadrant_config[ tile_quadrants[1] ]['tiles']
+        tiles_pos_x_pos_y_count = #quadrant_config[ tile_quadrants[1] ]['tiles']
+        tiles_pos_x_neg_y = quadrant_config[ tile_quadrants[2] ]['tiles']
+        tiles_pos_x_neg_y_count = #quadrant_config[ tile_quadrants[2] ]['tiles']
+        tiles_neg_x_pos_y = quadrant_config[ tile_quadrants[3] ]['tiles']
+        tiles_neg_x_pos_y_count = #quadrant_config[ tile_quadrants[3] ]['tiles']
+        tiles_neg_x_neg_y = quadrant_config[ tile_quadrants[4] ]['tiles']
+        tiles_neg_x_neg_y_count = #quadrant_config[ tile_quadrants[4] ]['tiles']
+
+        ores_pos_x_pos_y = quadrant_config[ tile_quadrants[1] ]['ratios']
+        ores_pos_x_neg_y = quadrant_config[ tile_quadrants[2] ]['ratios']
+        ores_neg_x_pos_y = quadrant_config[ tile_quadrants[3] ]['ratios']
+        ores_neg_x_neg_y = quadrant_config[ tile_quadrants[4] ]['ratios']
+
+        weighted_ores_pos_x_pos_y = b.prepare_weighted_array(ores_pos_x_pos_y)
+        weighted_ores_pos_x_neg_y = b.prepare_weighted_array(ores_pos_x_neg_y)
+        weighted_ores_neg_x_pos_y = b.prepare_weighted_array(ores_neg_x_pos_y)
+        weighted_ores_neg_x_neg_y = b.prepare_weighted_array(ores_neg_x_neg_y)
+
+        total_ores_pos_x_pos_y = weighted_ores_pos_x_pos_y.total
+        total_ores_pos_x_neg_y = weighted_ores_pos_x_neg_y.total
+        total_ores_neg_x_pos_y = weighted_ores_neg_x_pos_y.total
+        total_ores_neg_x_neg_y = weighted_ores_neg_x_neg_y.total
+
+        start_ores = {
+           b.resource(ore_circle, tile_quadrants[2], value(125, 0)),
+           b.resource(ore_circle, tile_quadrants[4], value(125, 0)),
+           b.resource(ore_circle, tile_quadrants[3], value(125, 0)),
+           b.resource(ore_circle, tile_quadrants[1], value(125, 0))
+       }
+
+       start_segment = b.segment_pattern(start_ores)
+
     end
 )
-
-local value = b.euclidean_value
 
 local oil_shape = b.throttle_world_xy(b.full_shape, 1, 7, 1, 7)
 local oil_resource = b.resource(oil_shape, 'crude-oil', value(250000, 150))
 
 local uranium_resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1))
 
-
-local tiles_iron = {
-  [1] = 'grass-1',
-  [2] = 'grass-2',
-  [3] = 'grass-3',
-  [4] = 'grass-4'
-}
-
-local tiles_copper = {
-  [1] = 'red-desert-0',
-  [2] = 'red-desert-1',
-  [3] = 'red-desert-2',
-  [4] = 'red-desert-3'
-}
-
-local tiles_coal  = {
-  [1] = 'dirt-1',
-  [2] = 'dirt-2',
-  [3] = 'dirt-3',
-  [4] = 'dirt-4',
-  [5] = 'dirt-5',
-  [6] = 'dirt-6',
-  [7] = 'dirt-7'
-}
-
-local tiles_stone = {
-  [1] = 'sand-1',
-  [2] = 'sand-2',
-  [3] = 'sand-3'
-}
-local tiles_iron_count = #tiles_iron
-local tiles_copper_count = #tiles_copper
-local tiles_coal_count = #tiles_coal
-local tiles_stone_count = #tiles_stone
-
-local ratios_stone = {
-    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 30},
-    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
-}
-
-local ratios_iron = {
-    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 60},
-    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
-    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
-}
-
-local ratios_copper = {
-    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 60},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
-    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
-}
-
-local ratios_coal = {
-    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
-    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
-}
-
-
-local tiles_pos_x_pos_y = tiles_stone
-local tiles_pos_x_pos_y_count = tiles_stone_count
-local tiles_pos_x_neg_y = tiles_iron
-local tiles_pos_x_neg_y_count = tiles_iron_count
-local tiles_neg_x_pos_y = tiles_copper
-local tiles_neg_x_pos_y_count = tiles_copper_count
-local tiles_neg_x_neg_y = tiles_coal
-local tiles_neg_x_neg_y_count = tiles_coal_count
-
-local ores_pos_x_pos_y = ratios_stone
-local ores_pos_x_neg_y = ratios_iron
-local ores_neg_x_pos_y = ratios_copper
-local ores_neg_x_neg_y = ratios_coal
-
-local weighted_ores_pos_x_pos_y = b.prepare_weighted_array(ores_pos_x_pos_y)
-local weighted_ores_pos_x_neg_y = b.prepare_weighted_array(ores_pos_x_neg_y)
-local weighted_ores_neg_x_pos_y = b.prepare_weighted_array(ores_neg_x_pos_y)
-local weighted_ores_neg_x_neg_y = b.prepare_weighted_array(ores_neg_x_neg_y)
-
-local total_ores_pos_x_pos_y = weighted_ores_pos_x_pos_y.total
-local total_ores_pos_x_neg_y = weighted_ores_pos_x_neg_y.total
-local total_ores_neg_x_pos_y = weighted_ores_neg_x_pos_y.total
-local total_ores_neg_x_neg_y = weighted_ores_neg_x_neg_y.total
-
 local spawn_zone = b.circle(64)
-
-local ore_circle = b.circle(68)
-local start_ores = {
-    b.resource(ore_circle, 'iron-ore', value(125, 0)),
-    b.resource(ore_circle, 'coal', value(125, 0)),
-    b.resource(ore_circle, 'copper-ore', value(125, 0)),
-    b.resource(ore_circle, 'stone', value(125, 0))
-}
-
-local start_segment = b.segment_pattern(start_ores)
 
 local function ore(x, y, world)
     if spawn_zone(x, y) then
@@ -379,9 +420,6 @@ local function enemy(x, y, world)
         end
     end
 end
-
-
-
 
 local function water_shape(x, y)
     local water_noise = perlin_noise(x * water_scale, y * water_scale, water_seed)
