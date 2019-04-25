@@ -45,6 +45,7 @@ ScenarioInfo.set_new_info(
  - Stone ore density reduced by 1/2
  - Ore quadrants randomized
  - Increased time factor of biter evolution from 5 to 7
+ - Added win conditions (+5% evolution every 5 rockets until 100%, +100 rockets until biters are wiped)
 
 2019-03-30:
  - Uranium ore patch threshold increased slightly
@@ -220,7 +221,6 @@ local ore_circle = b.circle(68)
 local start_ores
 local start_segment
 
-
 Global.register_init(
     {chunk_list = chunk_list},
     function(tbl)
@@ -373,7 +373,15 @@ local max_chance = 1 / 6
 local scale_factor = 32
 local sf = 1 / scale_factor
 local m = 1 / 850
+
+local win_condition_evolution_rocket_maxed = -1
+local win_condition_biters_disabled = false
+
 local function enemy(x, y, world)
+    if win_condition_biters_disabled == true then
+      return nil
+    end
+
     local d = math.sqrt(world.x * world.x + world.y * world.y)
 
     if d < 64 then
@@ -546,6 +554,58 @@ map = b.fish(map, 0.025)
 
 local bounds = b.rectangle(start_size, start_size)
 
+local function rocket_launched(event)
+  local entity = event.rocket
+
+  if not entity or not entity.valid or not entity.force == 'player' then
+      return
+  end
+
+  local inventory = entity.get_inventory(defines.inventory.rocket)
+  if not inventory or not inventory.valid then
+      return
+  end
+
+  local satellite_count = game.forces.player.get_item_launched('satellite')
+  if satellite_count == 0 then
+      return
+  end
+
+  -- Increase enemy_evolution
+  local current_evolution = game.forces.enemy.evolution_factor
+  local message
+
+  if win_condition_biters_disabled == false then
+    if (satellite_count % 5) == 0 and win_condition_evolution_rocket_maxed == -1 then
+      message = 'Continued launching of satellites has angered the local biter population, evolution increasing...'
+      game.print(message)
+
+      current_evolution = current_evolution + 0.05
+    end
+
+    if current_evolution >= 1 and win_condition_evolution_rocket_maxed == -1 then
+      current_evolution = 1
+      win_condition_evolution_rocket_maxed = satellite_count
+
+      message = 'Biters at maximum evolution! Protect the base for an additional 100 rockets to wipe them out forever.'
+      game.print(message)
+    end
+
+    game.forces.enemy.evolution_factor = current_evolution
+    if win_condition_evolution_rocket_maxed > 0 and satellite_count >= (win_condition_evolution_rocket_maxed + 100) then
+      message = 'Congratulations! Biters have been wiped from the map!'
+      game.print(message)
+
+      win_condition_evolution_rocket_maxed = true
+
+      for key, entity in pairs(surface.find_entities_filtered({force="enemy"})) do
+      	entity.destroy()
+      end
+    end
+  end
+end
+
+
 local function on_chunk(event)
     if surface ~= event.surface then
         return
@@ -600,6 +660,7 @@ local function on_tick()
 end
 
 Event.add(defines.events.on_chunk_generated, on_chunk)
+Event.add(defines.events.on_rocket_launched, rocket_launched)
 Event.on_nth_tick(1, on_tick)
 
 return map
