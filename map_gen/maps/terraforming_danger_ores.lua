@@ -237,6 +237,8 @@ Global.register_init(
         game.map_settings.enemy_evolution.destroy_factor = 0.000010
         game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution
         game.draw_resource_selection = false
+
+        tbl.random = game.create_random_generator(tbl.seed)
     end,
     function(tbl)
         local seed = tbl.seed
@@ -250,7 +252,9 @@ Global.register_init(
         chunk_list = tbl.chunk_list
         surface = tbl.surface
 
-        table.shuffle_table(tile_quadrants)
+        local random = tbl.random
+        random.re_seed(seed)
+        table.shuffle_table(tile_quadrants, random)
 
         tiles_pos_x_pos_y = quadrant_config[tile_quadrants[1]]['tiles']
         tiles_pos_x_pos_y_count = #quadrant_config[tile_quadrants[1]]['tiles']
