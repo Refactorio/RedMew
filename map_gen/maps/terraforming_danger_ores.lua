@@ -376,11 +376,11 @@ local scale_factor = 32
 local sf = 1 / scale_factor
 local m = 1 / 850
 
-local win_condition_evolution_rocket_maxed = -1
-local win_condition_biters_disabled = false
+global.win_condition_evolution_rocket_maxed = -1
+global.win_condition_biters_disabled = false
 
 local function enemy(x, y, world)
-    if win_condition_biters_disabled == true then
+    if global.win_condition_biters_disabled == true then
         return nil
     end
 
@@ -577,8 +577,8 @@ local function rocket_launched(event)
     local current_evolution = game.forces.enemy.evolution_factor
     local message
 
-    if win_condition_biters_disabled == false then
-        if (satellite_count % 5) == 0 and win_condition_evolution_rocket_maxed == -1 then
+    if global.win_condition_biters_disabled == false then
+        if (satellite_count % 5) == 0 and global.win_condition_evolution_rocket_maxed == -1 then
             message =
                 'Continued launching of satellites has angered the local biter population, evolution increasing...'
             game.print(message)
@@ -586,9 +586,9 @@ local function rocket_launched(event)
             current_evolution = current_evolution + 0.05
         end
 
-        if current_evolution >= 1 and win_condition_evolution_rocket_maxed == -1 then
+        if current_evolution >= 1 and global.win_condition_evolution_rocket_maxed == -1 then
             current_evolution = 1
-            win_condition_evolution_rocket_maxed = satellite_count
+            global.win_condition_evolution_rocket_maxed = satellite_count
 
             message =
                 'Biters at maximum evolution! Protect the base for an additional 100 rockets to wipe them out forever.'
@@ -596,14 +596,14 @@ local function rocket_launched(event)
         end
 
         game.forces.enemy.evolution_factor = current_evolution
-        if win_condition_evolution_rocket_maxed > 0 and satellite_count >= (win_condition_evolution_rocket_maxed + 100) then
+        if global.win_condition_evolution_rocket_maxed > 0 and satellite_count >= (global.win_condition_evolution_rocket_maxed + 100) then
             message = 'Congratulations! Biters have been wiped from the map!'
             game.print(message)
 
-            win_condition_evolution_rocket_maxed = true
+            global.win_condition_biters_disabled = true
 
-            for key, entity in pairs(surface.find_entities_filtered({force = 'enemy'})) do
-                entity.destroy()
+            for key, enemy_entity in pairs(surface.find_entities_filtered({force = 'enemy'})) do
+                enemy_entity.destroy()
             end
         end
     end
