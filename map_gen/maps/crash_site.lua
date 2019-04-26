@@ -14,6 +14,7 @@ local ScenarioInfo = require 'features.gui.info'
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local config = require 'config'
 
 local degrees = math.degrees
 
@@ -22,8 +23,8 @@ RS.set_map_gen_settings(
         MGSP.grass_only,
         MGSP.enable_water,
         {
-            terrain_segmentation = 'normal',
-            water = 'normal'
+            terrain_segmentation = 6,
+            water = 0.25
         },
         MGSP.starting_area_very_low,
         MGSP.ore_oil_none,
@@ -39,7 +40,8 @@ ScenarioInfo.add_map_extra_info(
     '- Outposts have enemy turrets defending them.\n- Outposts have loot and provide a steady stream of resources.\n- Outpost markets to purchase items and outpost upgrades.\n- Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.\n- Biters have more health and deal more damage.\n- Biters and spitters spawn on death of entities.'
 )
 
-global.config.market.enabled = false
+config.market.enabled = false
+config.biter_attacks.enabled = false
 
 -- leave seeds nil to have them filled in based on the map seed.
 local outpost_seed = nil --91000
@@ -556,7 +558,8 @@ local function init()
     local worms = {
         'small-worm-turret',
         'medium-worm-turret',
-        'big-worm-turret'
+        'big-worm-turret',
+        'behemoth-worm-turret'
     }
 
     local max_spawner_chance = 1 / 256
@@ -599,14 +602,17 @@ local function init()
                     if d < 512 then
                         max_lvl = 2
                         min_lvl = 1
-                    else
+                    elseif d < 768 then
                         max_lvl = 3
+                        min_lvl = 2
+                    else
+                        max_lvl = 4
                         min_lvl = 2
                     end
                     local lvl = math.random() ^ (384 / d) * max_lvl
                     lvl = math.ceil(lvl)
                     --local lvl = math.floor(d / 256) + 1
-                    lvl = math.clamp(lvl, min_lvl, 3)
+                    lvl = math.clamp(lvl, min_lvl, 4)
                     return {name = worms[lvl]}
                 end
             end
@@ -763,7 +769,6 @@ Global.register_init(
         local seed = RS.get_surface().map_gen_settings.seed
         tbl.outpost_seed = outpost_seed or seed
         tbl.ore_seed = ore_seed or seed
-        global.config.market.enable = false
     end,
     function(tbl)
         outpost_seed = tbl.outpost_seed

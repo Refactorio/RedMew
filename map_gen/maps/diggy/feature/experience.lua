@@ -64,7 +64,7 @@ local gain_xp_color = Color.light_sky_blue
 local lose_xp_color = Color.red
 local unlocked_color = Color.black
 local locked_color = Color.gray
-local table_column_layout = {type = 'table', column_count = 2}
+local table_column_layout = {type = 'table', column_count = 3}
 
 local level_up_formula = (function(level_reached)
     local difficulty_scale = floor(config.difficulty_scale)
@@ -226,7 +226,7 @@ local function on_player_mined_entity(event)
         return
     end
 
-    print_player_floating_text_position(player_index, format('+%s XP', exp), gain_xp_color, 0, -0.5)
+    print_player_floating_text_position(player_index, format('[img=entity/' .. name .. '] +%s XP', exp), gain_xp_color, 0, -0.5)
     add_experience(force, exp)
 end
 
@@ -248,7 +248,7 @@ local function on_research_finished(event)
         end
         exp = award_xp * research.research_unit_count
     end
-    local text = format('Research completed! +%s XP', exp)
+    local text = format('[img=item/automation-science-pack] Research completed! +%s XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
         print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
@@ -277,8 +277,9 @@ end
 ---@param event LuaEvent
 local function on_rocket_launched(event)
     local force = event.rocket.force
-    local exp = add_experience_percentage(force, config.XP['rocket_launch'])
-    local text = format('Rocket launched! +%s XP', exp)
+
+    local exp = add_experience_percentage(force, config.XP['rocket_launch'], nil, config.XP['rocket_launch_max'])
+    local text = format('[img=item/satellite] Rocket launched! +%s XP', exp)
     for _, p in pairs(game.connected_players) do
         local player_index = p.index
         print_player_floating_text_position(player_index, text, gain_xp_color, -1, -0.5)
@@ -291,6 +292,7 @@ local function on_entity_died(event)
     local entity = event.entity
     local force = event.force
     local cause = event.cause
+    local entity_name = entity.name
 
     --For bot mining and turrets
     if not cause or not cause.valid or cause.type ~= 'player' then
@@ -299,7 +301,6 @@ local function on_entity_died(event)
 
         -- stuff killed by the player force, but not the player
         if force and force.name == 'player' then
-            local entity_name = entity.name
             if cause and (cause.name == 'artillery-turret' or cause.name == 'gun-turret' or cause.name == 'laser-turret' or cause.name == 'flamethrower-turret') then
                 exp = config.XP['enemy_killed'] * (config.alien_experience_modifiers[entity_name] or 1)
                 floating_text_position = cause.position
@@ -317,7 +318,7 @@ local function on_entity_died(event)
         end
 
         if exp > 0 then
-            Game.print_floating_text(entity.surface, floating_text_position, format('+%s XP', exp), gain_xp_color)
+            Game.print_floating_text(entity.surface, floating_text_position, format('[img=entity/' .. entity_name .. '] +%s XP', exp), gain_xp_color)
             add_experience(force, exp)
         end
 
@@ -329,7 +330,7 @@ local function on_entity_died(event)
     end
 
     local exp = config.XP['enemy_killed'] * (config.alien_experience_modifiers[entity.name] or 1)
-    print_player_floating_text_position(cause.player.index, format('+%d XP', exp), gain_xp_color, -1, -0.5)
+    print_player_floating_text_position(cause.player.index, format('[img=entity/' .. entity_name .. '] +%s XP', exp), gain_xp_color, -1, -0.5)
     add_experience(force, exp)
 end
 
@@ -338,7 +339,7 @@ end
 local function on_player_respawned(event)
     local player = get_player_by_index(event.player_index)
     local exp = remove_experience_percentage(player.force, config.XP['death-penalty'], 50)
-    local text = format('-%s XP', exp)
+    local text = format('[img=entity.player] -%s XP', exp)
     game.print(format('%s drained %s experience.', player.name, exp), lose_xp_color)
     for _, p in pairs(game.connected_players) do
         print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
@@ -364,6 +365,7 @@ local function redraw_heading(data, header)
 
     local heading_table = frame.add(table_column_layout)
     apply_heading_style(heading_table.add({type = 'label', caption = 'Requirement'}).style, 100)
+    apply_heading_style(heading_table.add({type = 'label'}).style, 25)
     apply_heading_style(heading_table.add({type = 'label', caption = header_caption}).style, 220)
 end
 
@@ -414,12 +416,18 @@ local function redraw_table(data)
         level_column.style.minimal_width = 100
         level_column.style.font_color = color
 
+        local spacer = list.add({
+            type = 'flow'
+        })
+        spacer.style.minimal_width = 25
+
         local item_column = list.add({
             type = 'label',
-            caption = prototype.name
+            caption = '[img=item/' .. prototype.name .. '] | ' .. prototype.name
         })
-        item_column.style.minimal_width = 22
+        item_column.style.minimal_width = 200
         item_column.style.font_color = color
+        item_column.style.horizontal_align = 'left'
 
         last_level = current_item_level
     end
@@ -444,14 +452,20 @@ local function redraw_buff(data)
         level_label.style.minimal_width = 100
         level_label.style.font_color = unlocked_color
 
+        local spacer = list.add({
+            type = 'flow'
+        })
+        spacer.style.minimal_width = 25
+
         local buff_caption
         local effect_value = effects.value
+        local effect_max = effects.max
         if name == 'mining_speed' then
-            buff_caption = format('+%d mining speed', effect_value)
+            buff_caption = format('+%d%% mining speed (up to: %d00%%)', effect_value, effect_max)
         elseif name == 'inventory_slot' then
-            buff_caption = format('+%d inventory slot%s', effect_value, effect_value > 1 and 's' or '')
+            buff_caption = format('+%d inventory slot%s (up to: %d)', effect_value, effect_value > 1 and 's' or '', effect_max)
         elseif name == 'health_bonus' then
-            buff_caption = format('+%d max health', effect_value)
+            buff_caption = format('+%d max health (up to: %d)', effect_value, effect_max)
         else
             buff_caption = format('+%d %s', effect_value, name)
         end

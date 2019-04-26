@@ -50,7 +50,7 @@ end
 function Game.get_player_from_any(obj)
     local o_type = type(obj)
     local p
-    if type == 'number' then
+    if o_type == 'number' then
         p = Game.get_player_by_index(obj)
     elseif o_type == 'string' then
         p = game.players[obj]

@@ -200,6 +200,10 @@ Gui.on_click(
     filter_element_name,
     function(event)
         local element = event.element
+        if not element or not element.valid then
+            return
+        end
+
         local frame = Gui.get_data(element)
         local filter_button = Gui.get_data(frame)
 

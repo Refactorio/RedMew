@@ -307,7 +307,9 @@ global.config = {
         -- turns on entity info aka alt-mode on first joining
         set_alt_on_create = true,
         -- prevents personal construction robots from being mined by other players
-        save_bots = true
+        save_bots = true,
+        -- enable research_queue
+        research_queue = true
     },
     -- adds a useless button with the biter percentage
     evolution_progress = {
@@ -345,6 +347,28 @@ global.config = {
         scale_value = 0.05,
         -- max increase in research price multiplier (-1 for disabled)
         limit = -1
+    },
+    -- allows for large-scale biter attacks
+    biter_attacks = {
+        enabled = true,
+        -- whether or not to send attacks on timed intervals (against a random player)
+        timed_attacks = {
+            enabled = true,
+            -- frequency of automatic attacks (in seconds)
+            attack_frequency = 40 * 60, -- 40 minutes
+            -- difficulty of automatic attacks (1-easy, 3-normal, 10-hard, 40-brutal)
+            attack_difficulty = 3
+        },
+        -- whether or not to send attacks on rocket launches
+        launch_attacks = {
+            enabled = true,
+            -- whether to only attack on the first launch
+            first_launch_only = true
+        }
+    },
+    -- allows the saving and automatic loading of quickbars between maps
+    player_quick_bars = {
+        enabled = true
     }
 }
 

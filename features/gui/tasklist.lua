@@ -730,7 +730,7 @@ Gui.on_click(
     end
 )
 
-Gui.on_click(
+Gui.on_checked_state_changed(
     notify_checkbox_name,
     function(event)
         local checkbox = event.element
