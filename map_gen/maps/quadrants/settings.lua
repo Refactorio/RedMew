@@ -1,4 +1,15 @@
 local settings = {
+    features = {
+        train_crossings = {
+            enabled = false
+        },
+        train_rails = {
+            enabled = true
+        },
+        walls = {
+            enabled = true
+        }
+    },
     map = {
         enemy_debuff = {
             enemy_evolution = {

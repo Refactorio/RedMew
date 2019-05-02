@@ -1,3 +1,8 @@
+local Settings = require 'map_gen.maps.quadrants.settings'
+local FeatureSettings = Settings.features
+local MapgenSettings = Settings.mapgen
+local MapSettings = Settings.map
+
 require 'map_gen.maps.quadrants.switch_team'
 require 'map_gen.maps.quadrants.restrict_placement'
 require 'map_gen.maps.quadrants.force_sync'
@@ -13,9 +18,6 @@ local Recipes = require 'map_gen.maps.quadrants.enabled_recipes'
 local CompiHandler = require 'map_gen.maps.quadrants.compilatron_handler'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
-local Settings = require 'map_gen.maps.quadrants.settings'
-local MapgenSettings = Settings.mapgen
-local MapSettings = Settings.map
 local Color = require 'resources.color_presets'
 
 local abs = math.abs
@@ -147,7 +149,7 @@ local function spawn_market(surface, position)
     local market = surface.create_entity({name = 'market', position = pos})
     market.destructible = false
 
-    rendering.draw_text{text = {'retailer.market_name'}, surface = surface, target = market, target_offset = {-1, 1}, color = Color.yellow, scale = 2}
+    rendering.draw_text {text = {'retailer.market_name'}, surface = surface, target = market, target_offset = {-1, 1}, color = Color.yellow, scale = 2}
 
     Retailer.add_market(pos.x .. 'fish_market' .. pos.y, market)
 
@@ -328,7 +330,7 @@ local function quadrants(x, y)
     local abs_x = abs(x) - 0.5
     local abs_y = abs(y) - 0.5
 
-    if true then -- placeholder for setting train crossings on/off
+    if FeatureSettings.train_rails.enabled then
         local pos = {x = x, y = y}
         if x > -24 and x < 24 and (y == 211.5 or y == 205.5) then
             Task.set_timeout_in_ticks(300, rail_callback, {pos = pos, direction = defines.direction.east})
@@ -341,7 +343,7 @@ local function quadrants(x, y)
         end
     end
 
-    if true then
+    if FeatureSettings.walls.enabled then
         local pos = {x = x, y = y}
         if (abs_x == 192 and abs_y <= 192) or (abs_y == 192 and abs_x <= 192) then
             Task.set_timeout_in_ticks(350, wall_callback, {pos = pos})

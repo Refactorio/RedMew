@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Color = require 'resources.color_presets'
 local Item_to_chest = require 'map_gen.maps.quadrants.item_to_chest'
+local Settings = require 'map_gen.maps.quadrants.settings'
 local pow = math.pow
 
 local rail_locations = {24, 32, 192, 224}
@@ -14,6 +15,9 @@ local function clear_inventory_train(event)
     local player = Game.get_player_by_index(player_index)
     if (not player.driving and event.trigger == nil) or (player.driving and event.trigger) then
         return false
+    end
+    if not(Settings.features.train_crossings.enabled) then
+        return true
     end
     local pos = player.position
     local force = player.force
