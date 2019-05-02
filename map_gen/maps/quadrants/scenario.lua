@@ -222,6 +222,8 @@ local function on_init()
             end
         end
     end
+    local radius = 193
+    game.forces.player.chart(surface, {{0-radius, 0-radius}, {0+radius, 0+radius}})
 end
 
 local function on_research_finished(event)

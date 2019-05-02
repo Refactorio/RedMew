@@ -1,5 +1,4 @@
 local RS = require 'map_gen.shared.redmew_surface'
-local Game = require 'utils.game'
 local Event = require 'utils.event'
 
 local Public = {}

@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local RS = require 'map_gen.shared.redmew_surface'
 
 local chart_tags = {}

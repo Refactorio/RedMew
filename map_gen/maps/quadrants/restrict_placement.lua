@@ -1,5 +1,4 @@
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local abs = math.abs
 
 local allowed_entities = {

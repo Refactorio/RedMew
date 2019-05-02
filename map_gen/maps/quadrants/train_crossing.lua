@@ -1,5 +1,4 @@
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Color = require 'resources.color_presets'
 local Item_to_chest = require 'map_gen.maps.quadrants.item_to_chest'
 local Settings = require 'map_gen.maps.quadrants.settings'

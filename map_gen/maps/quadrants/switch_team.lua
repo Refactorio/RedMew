@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 local abs = math.abs
 local Color = require 'resources.color_presets'
 local Popup = require 'features.gui.popup'
