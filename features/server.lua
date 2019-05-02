@@ -4,7 +4,6 @@ local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Timestamp = require 'utils.timestamp'
 local Print = require('utils.print_override')
 local ErrorLogging = require 'utils.error_logging'
@@ -695,7 +694,7 @@ Event.add(Public.events.on_server_started, set_scenario_version)
 Event.add(
     defines.events.on_player_joined_game,
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if not player then
             return
         end
@@ -707,12 +706,43 @@ Event.add(
 Event.add(
     defines.events.on_player_left_game,
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if not player then
             return
         end
 
         raw_print(player_leave_tag .. player.name)
+    end
+)
+
+Event.add(
+    defines.events.on_player_died,
+    function(event)
+        local player = game.get_player(event.player_index)
+
+        if not player or not player.valid then
+            return
+        end
+
+        local cause = event.cause
+
+        local message = {discord_bold_tag, player.name}
+        if cause and cause.valid then
+            message[#message + 1] = ' was killed by '
+
+            local name = cause.name
+            if name == 'player' then
+                name = cause.player.name
+            end
+
+            message[#message + 1] = name
+            message[#message + 1] = '.'
+        else
+            message[#message + 1] = ' has died.'
+        end
+
+        message = concat(message)
+        raw_print(message)
     end
 )
 
