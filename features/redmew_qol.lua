@@ -181,6 +181,9 @@ end
 
 -- radius from player to count tiles for landfill_detect
 local search_radius = 11
+local num_max_tiles = 4 * (search_radius * search_radius)
+
+local find = string.find
 -- tiles to count for landfill_detect
 local check_tiles = {
     'water',
@@ -215,14 +218,11 @@ end
 --- Changes landfill tiles from grass-1 to another tile based on the surroundings
 local function landfill_detect(event)
     local item = event.item
-    if not item then
-        return
-    end
-    if item.name ~= 'landfill' then
+    if not item or item.name ~= 'landfill' then
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local surface = game.surfaces[event.surface_index]
 
     local position = player.position
@@ -230,7 +230,7 @@ local function landfill_detect(event)
 
     local tiles = event.tiles
     local num_tiles = #tiles
-    local max_tiles = 4 * (search_radius * search_radius) - num_tiles
+    local max_tiles = num_max_tiles - num_tiles
     local tile = {count = 0}
     for i, tile_name in ipairs(check_tiles) do
         local count =
@@ -238,7 +238,7 @@ local function landfill_detect(event)
             area = area,
             name = tile_name
         }
-        local water = string.find(tile_name, 'water')
+        local water = find(tile_name, 'water')
         if not water and max_tiles / 2 < count and tile.count < count then
             tile = {name = tile_name, count = count}
             break
