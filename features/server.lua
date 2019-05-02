@@ -731,7 +731,7 @@ Event.add(
             message[#message + 1] = ' was killed by '
 
             local name = cause.name
-            if name == 'player' then
+            if name == 'character' then
                 name = cause.player.name
             end
 
