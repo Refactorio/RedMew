@@ -12,7 +12,7 @@ local rail_locations = {24, 32, 192, 224}
 
 local function clear_inventory_train(event)
     local player_index = event.player_index
-    local player = Game.get_player_by_index(player_index)
+    local player = game.get_player(player_index)
     if (not player.driving and event.trigger == nil) or (player.driving and event.trigger) then
         return false
     end
@@ -104,7 +104,7 @@ local function clear_inventory(event)
     if not clear_inventory_train(event) then
         return
     end
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local pos = player.position
     local quadrant
     if (pos.x >= 0 and pos.y <= 0) then

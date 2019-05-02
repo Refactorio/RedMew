@@ -296,7 +296,7 @@ Gui.on_click(
 )
 
 local function on_player_created(event)
-    event.player = Game.get_player_by_index(event.player_index)
+    event.player = game.get_player(event.player_index)
     toggle_chest_status[event.player_index] = true
     toggle(event)
 end

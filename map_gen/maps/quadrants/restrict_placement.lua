@@ -73,7 +73,7 @@ local function on_built_entity(event)
         return
     end
 
-    local p = Game.get_player_by_index(event.player_index)
+    local p = game.get_player(event.player_index)
     if not p or not p.valid then
         return
     end

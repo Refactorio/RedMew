@@ -28,7 +28,7 @@ function Public.transfer_inventory(player_index, inventories, position, radius, 
     if inventories == nil or player_index == nil then
         return 'You need to specify a player index and a table of define.inventory'
     end
-    local player = Game.get_player_by_index(player_index)
+    local player = game.get_player(player_index)
     player.clean_cursor()
     while player.crafting_queue_size ~= 0 do
         player.cancel_crafting(player.crafting_queue[1])
