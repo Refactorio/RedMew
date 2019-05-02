@@ -13,8 +13,9 @@ local Recipes = require 'map_gen.maps.quadrants.enabled_recipes'
 local CompiHandler = require 'map_gen.maps.quadrants.compilatron_handler'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
-local MapgenSettings = require 'map_gen.maps.quadrants.mapgen_settings'
-local MapSettings = require 'map_gen.maps.quadrants.map_settings'
+local Settings = require 'map_gen.maps.quadrants.settings'
+local MapgenSettings = Settings.mapgen
+local MapSettings = Settings.map
 local Color = require 'resources.color_presets'
 
 local abs = math.abs
@@ -82,7 +83,8 @@ redmew_config.hail_hydra.hydras = {
         ['small-biter'] = {min = 0.8, max = 2.5}
     },
     ['medium-spitter'] = {
-        ['medium-biter'] = {min = 0.8, max = 2.5}},
+        ['medium-biter'] = {min = 0.8, max = 2.5}
+    },
     ['big-spitter'] = {
         ['big-biter'] = {min = 0.8, max = 2.5}
     },
@@ -145,7 +147,7 @@ local function spawn_market(surface, position)
     local market = surface.create_entity({name = 'market', position = pos})
     market.destructible = false
 
-    rendering.draw_text{text = {"retailer.market_name"}, surface = surface, target = market, target_offset = {-1, 1}, color = Color.yellow, scale = 2}
+    rendering.draw_text{text = {'retailer.market_name'}, surface = surface, target = market, target_offset = {-1, 1}, color = Color.yellow, scale = 2}
 
     Retailer.add_market(pos.x .. 'fish_market' .. pos.y, market)
 
@@ -278,6 +280,18 @@ callback = Token.register(spawn_compilatron)
 
 Event.add_removable(defines.events.on_chunk_generated, callback_token)
 
+local function get_quadrant_number(pos)
+    if (pos.x >= 0 and pos.y <= 0) then
+        return 1
+    elseif (pos.x <= 0 and pos.y <= 0) then
+        return 2
+    elseif (pos.x <= 0 and pos.y >= 0) then
+        return 3
+    elseif (pos.x >= 0 and pos.y >= 0) then
+        return 4
+    end
+end
+
 local function rail_create(data)
     local pos = data.pos
     local direction = data.direction
@@ -296,6 +310,20 @@ end
 
 local rail_callback = Token.register(rail_create)
 
+local function wall_create(data)
+    local pos = data.pos
+    if (abs(pos.x) < 2 or abs(pos.y) < 2) then
+        return
+    end
+    game.surfaces[2].create_entity {
+        name = 'stone-wall',
+        position = pos,
+        force = game.forces['quadrant' .. get_quadrant_number(pos)]
+    }
+end
+
+local wall_callback = Token.register(wall_create)
+
 local function quadrants(x, y)
     local abs_x = abs(x) - 0.5
     local abs_y = abs(y) - 0.5
@@ -310,6 +338,13 @@ local function quadrants(x, y)
             Task.set_timeout_in_ticks(300, rail_callback, {pos = pos, direction = defines.direction.north})
         elseif y > -24 and y < 24 and (x == -211.5 or x == -205.5) then
             Task.set_timeout_in_ticks(300, rail_callback, {pos = pos, direction = defines.direction.north})
+        end
+    end
+
+    if true then
+        local pos = {x = x, y = y}
+        if (abs_x == 192 and abs_y <= 192) or (abs_y == 192 and abs_x <= 192) then
+            Task.set_timeout_in_ticks(350, wall_callback, {pos = pos})
         end
     end
 
