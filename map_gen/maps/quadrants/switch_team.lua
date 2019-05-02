@@ -58,8 +58,8 @@ local function teleport(event, quadrant)
     local toggle_status = toggle_chest_status[player.index]
     local within_spawn = abs(player.position.x) <= 4 and abs(player.position.y) <= 4
     local empty_inventory =
-        player.get_inventory(defines.inventory.player_main).is_empty() and
-        player.get_inventory(defines.inventory.player_trash).is_empty() and
+        player.get_inventory(defines.inventory.character_main).is_empty() and
+        player.get_inventory(defines.inventory.character_trash).is_empty() and
         player.crafting_queue_size == 0
     local can_empty_inventory = (abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status
     if within_spawn or empty_inventory or can_empty_inventory then
@@ -67,7 +67,7 @@ local function teleport(event, quadrant)
             local chest =
                 Item_to_chest.transfer_inventory(
                 player.index,
-                {defines.inventory.player_main, defines.inventory.player_trash},
+                {defines.inventory.character_main, defines.inventory.character_trash},
                 nil,
                 0
             )
