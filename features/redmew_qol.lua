@@ -165,7 +165,7 @@ local function preserve_bot(event)
     local owner = cell.owner
 
     --checks if construction-robot is part of a mobile logistic network
-    if owner.name ~= 'player' then
+    if owner.name ~= 'character' then
         entity.minable = true
         return
     end
