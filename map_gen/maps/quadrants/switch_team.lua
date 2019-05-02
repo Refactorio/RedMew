@@ -52,12 +52,12 @@ local function teleport(event, quadrant)
     local toggle_status = toggle_chest_status[player.index]
     if
         (abs(player.position.x) <= 4 and abs(player.position.y) <= 4) or
-            (player.get_inventory(defines.inventory.player_main).is_empty() and
-                player.get_inventory(defines.inventory.player_trash).is_empty()) or
+            (player.get_inventory(defines.inventory.character_main).is_empty() and
+                player.get_inventory(defines.inventory.character_trash).is_empty()) or
             ((abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status and
                 Item_to_chest.transfer_inventory(
                     player.index,
-                    {defines.inventory.player_main, defines.inventory.player_trash}
+                    {defines.inventory.character_main, defines.inventory.character_trash}
                 ))
      then
         local pos =
