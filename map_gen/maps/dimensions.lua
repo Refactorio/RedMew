@@ -51,7 +51,7 @@ end
 
 local function generate_nihil(event)
     for _, e in pairs(event.surface.find_entities_filtered {}) do
-        if e.type ~= 'player' then
+        if e.type ~= 'character' then
             e.destroy()
         end
     end
@@ -74,7 +74,7 @@ function Public.run_combined_module(event)
 end
 
 local function teleport_nearby_players(portal)
-    for _, player_character in pairs(portal.source.find_entities_filtered {area = {{portal.position.x - global.portal_radius, portal.position.y - global.portal_radius}, {portal.position.x + global.portal_radius, portal.position.y + global.portal_radius}}, name = 'player', type = 'player'}) do
+    for _, player_character in pairs(portal.source.find_entities_filtered {area = {{portal.position.x - global.portal_radius, portal.position.y - global.portal_radius}, {portal.position.x + global.portal_radius, portal.position.y + global.portal_radius}}, name = 'character', type = 'character'}) do
         local player = player_character.player
         if not global.last_tp[player.name] or global.last_tp[player.name] + global.teleport_cooldown * 60 < game.tick then
             player.teleport(portal.target, portal.target_surface)

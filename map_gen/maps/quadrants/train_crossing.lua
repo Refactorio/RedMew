@@ -48,8 +48,8 @@ local function clear_inventory_train(event)
     end
     player.clean_cursor()
     if
-        player.get_inventory(defines.inventory.player_main).is_empty() and
-            player.get_inventory(defines.inventory.player_trash).is_empty()
+        player.get_inventory(defines.inventory.character_main).is_empty() and
+            player.get_inventory(defines.inventory.character_trash).is_empty()
      then
         return true
     end
@@ -59,13 +59,13 @@ local function clear_inventory_train(event)
     if distance1 <= distance2 then
         Item_to_chest.transfer_inventory(
             event.player_index,
-            {defines.inventory.player_main, defines.inventory.player_trash},
+            {defines.inventory.character_main, defines.inventory.character_trash},
             rail_location[1]
         )
     else
         Item_to_chest.transfer_inventory(
             event.player_index,
-            {defines.inventory.player_main, defines.inventory.player_trash},
+            {defines.inventory.character_main, defines.inventory.character_trash},
             rail_location[2]
         )
     end
