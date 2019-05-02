@@ -1,11 +1,14 @@
 local settings = {
     features = {
+        -- handles item to chests for players when the cross rails
         train_crossings = {
             enabled = false
         },
+        -- places rails across the gaps
         train_rails = {
             enabled = true
         },
+        -- creates a perimeter of walls around the four quadrants
         walls = {
             enabled = true
         }
