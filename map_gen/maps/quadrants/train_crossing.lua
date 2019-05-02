@@ -64,8 +64,8 @@ local function clear_inventory_train(event)
     end
     player.clean_cursor()
     if
-        player.get_inventory(defines.inventory.player_main).is_empty() and
-            player.get_inventory(defines.inventory.player_trash).is_empty()
+        player.get_inventory(defines.inventory.character_main).is_empty() and
+            player.get_inventory(defines.inventory.character_trash).is_empty()
      then
         return true
     end
@@ -76,7 +76,7 @@ local function clear_inventory_train(event)
     local function wrap_transfer(bounding_box, radius)
         return Item_to_chest.transfer_inventory(
             player_index,
-            {defines.inventory.player_main, defines.inventory.player_trash},
+            {defines.inventory.character_main, defines.inventory.character_trash},
             nil,
             radius,
             bounding_box
