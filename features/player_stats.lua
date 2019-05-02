@@ -82,7 +82,7 @@ end
 local function get_cause_name(cause)
     if cause then
         local name = cause.name
-        if name == 'player' then
+        if name == 'character' then
             local player = cause.player
             if player and player.valid then
                 return player.name
