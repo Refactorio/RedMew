@@ -295,7 +295,7 @@ local function on_entity_died(event)
     local entity_name = entity.name
 
     --For bot mining and turrets
-    if not cause or not cause.valid or cause.type ~= 'player' then
+    if not cause or not cause.valid or cause.type ~= 'character' then
         local exp = 0
         local floating_text_position
 

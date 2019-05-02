@@ -203,7 +203,7 @@ local function print_player_info(args, player)
     Game.player_print(info_t)
 
     if (not player or player.admin) and args.inventory then
-        local m_inventory = target.get_inventory(defines.inventory.player_main)
+        local m_inventory = target.get_inventory(defines.inventory.character_main)
         m_inventory = m_inventory.get_contents()
         Game.player_print('Main and hotbar inventories: ')
         Game.player_print(serpent.line(m_inventory))

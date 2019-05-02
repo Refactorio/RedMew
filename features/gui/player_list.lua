@@ -632,7 +632,7 @@ local function player_joined(event)
     local top = gui.top
 
     if not top[main_button_name] then
-        top.add {type = 'sprite-button', name = main_button_name, sprite = 'entity/player'}
+        top.add {type = 'sprite-button', name = main_button_name, sprite = 'entity/character'}
     end
 
     for _, p in ipairs(game.connected_players) do
