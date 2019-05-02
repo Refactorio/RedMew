@@ -360,7 +360,7 @@ local function quadrants(x, y)
 
         for _, entity in ipairs(entities) do
             if entity and entity.valid then
-                if entity.name ~= 'player' and entity.name ~= 'compilatron' and entity.name ~= 'straight-rail' then
+                if entity.name ~= 'character' and entity.name ~= 'compilatron' and entity.name ~= 'straight-rail' then
                     entity.destroy()
                 end
             end
@@ -398,7 +398,7 @@ local function quadrants(x, y)
         local entities = game.surfaces[2].find_entities({{x - 0.5, y - 0.5}, {x + 0.5, y + 0.5}})
         for _, entity in ipairs(entities) do
             if entity and entity.valid then
-                if entity.name ~= 'player' then
+                if entity.name ~= 'character' then
                     entity.destroy()
                 end
             end

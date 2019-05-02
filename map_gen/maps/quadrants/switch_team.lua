@@ -75,7 +75,7 @@ local function teleport(event, quadrant)
         end
 
         local pos =
-            RS.get_surface().find_non_colliding_position('player', spawn_locations['quadrant_' .. quadrant], 5, 1)
+            RS.get_surface().find_non_colliding_position('character', spawn_locations['quadrant_' .. quadrant], 5, 1)
 
         player.driving = false
         player.teleport(pos)
