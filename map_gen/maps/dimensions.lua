@@ -51,7 +51,7 @@ end
 
 local function generate_nihil(event)
     for _, e in pairs(event.surface.find_entities_filtered {}) do
-        if e.type ~= 'player' then
+        if e.type ~= 'character' then
             e.destroy()
         end
     end

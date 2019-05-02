@@ -274,7 +274,7 @@ local function on_entity_died(event)
         local player_index
         if not is_diggy_rock(name) then
             local cause = event.cause
-            player_index = cause and cause.type == 'player' and cause.player and cause.player.index or nil
+            player_index = cause and cause.type == 'character' and cause.player and cause.player.index or nil
         end
         stress_map_add(entity.surface, entity.position, strength, false, player_index)
     end

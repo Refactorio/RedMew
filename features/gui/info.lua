@@ -409,7 +409,7 @@ local pages = {
             train_savior_label.style.single_line = false
 
             if config.player_list.enabled then
-                grid.add {type = 'sprite', sprite = 'entity/player'}
+                grid.add {type = 'sprite', sprite = 'entity/character'}
                 local player_list = grid.add {type = 'label', caption = {'info.softmods_plist_label'}}
                 player_list.style.font = 'default-listbox'
                 player_list.style.single_line = false

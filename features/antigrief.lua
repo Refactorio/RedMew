@@ -124,7 +124,7 @@ Event.add(
     defines.events.on_entity_died,
     function(event)
         --is a player on the same force as the destroyed object
-        if event.entity and event.entity.valid and event.entity.force.name == 'player' and event.cause and event.cause.force == event.entity.force and event.cause.type == 'player' then
+        if event.entity and event.entity.valid and event.entity.force.name == 'player' and event.cause and event.cause.force == event.entity.force and event.cause.type == 'character' then
             local new_entity = place_entity_on_surface(event.entity, global.ag_surface, true, event.cause.player)
             if new_entity and event.entity.type == 'container' then
                 local items = event.entity.get_inventory(defines.inventory.chest).get_contents()
