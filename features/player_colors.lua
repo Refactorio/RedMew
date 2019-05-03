@@ -57,7 +57,7 @@ Command.add(
             }
             Server.set_data('colors', player_name, data)
             player.print({'player_colors.color_saved'})
-            Utils.print_except({'player_colors.color_saved_advert', player})
+            Utils.print_except({'player_colors.color_saved_advert', player_name})
         elseif arg == 'reset' then
             Server.set_data('colors', player_name, nil)
             player.print({'player_colors.color_reset'})
