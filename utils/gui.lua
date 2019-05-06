@@ -2,6 +2,7 @@ local Token = require 'utils.token'
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Global = require 'utils.global'
+local mod_gui = require 'mod-gui'
 
 local Gui = {}
 
@@ -179,7 +180,7 @@ Gui.on_player_show_top = custom_handler_factory(on_visible_handlers)
 Gui.on_pre_player_hide_top = custom_handler_factory(on_pre_hidden_handlers)
 
 --- Allows the player to show / hide this element.
--- The element must be part in gui.top.
+-- The element must be in Gui.get_top_element_flow(player)
 -- This function must be called in the control stage, i.e not inside an event.
 -- @param element_name<string> This name must be globally unique.
 function Gui.allow_player_to_toggle_top_element_visibility(element_name)
@@ -187,6 +188,15 @@ function Gui.allow_player_to_toggle_top_element_visibility(element_name)
         error('can only be called during the control stage', 2)
     end
     top_elements[#top_elements + 1] = element_name
+end
+
+--- Returns the flow where top elements can be added and will be effected by google visibility
+-- For the toggle to work it must be registed with Gui.allow_player_to_toggle_top_element_visibility(element_name)
+-- @tparam player LuaPlayer pointer to the player who has the gui
+-- @treturn LuaGuiEelement the top element flow
+function Gui.get_top_element_flow(player)
+    player = Game.get_player_from_any(player)
+    return mod_gui.get_button_flow(player)
 end
 
 local toggle_button_name = Gui.uid_name()
@@ -200,16 +210,18 @@ Event.add(
             return
         end
 
-        local b =
-            player.gui.top.add {
+        local top = Gui.get_top_element_flow(player)
+
+        local b = top.add {
             type = 'button',
             name = toggle_button_name,
+            style = mod_gui.button_style,
             caption = '<',
             tooltip = {'gui_util.button_tooltip'}
         }
         local style = b.style
         style.width = 18
-        style.height = 38
+        style.height = 36
         style.left_padding = 0
         style.top_padding = 0
         style.right_padding = 0
@@ -223,7 +235,7 @@ Gui.on_click(
     function(event)
         local button = event.element
         local player = event.player
-        local top = player.gui.top
+        local top = Gui.get_top_element_flow(player)
 
         if button.caption == '<' then
             for i = 1, #top_elements do
@@ -252,7 +264,7 @@ Gui.on_click(
             end
 
             button.caption = '<'
-            button.style.height = 38
+            button.style.height = 36
         end
     end
 )
