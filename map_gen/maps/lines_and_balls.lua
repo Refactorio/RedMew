@@ -1,9 +1,10 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
 local table = require 'utils.table'
-local math = require "utils.math"
+local math = require 'utils.math'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local Global = require 'utils.global'
 
 local degrees = math.degrees
 
@@ -14,8 +15,21 @@ RS.set_map_gen_settings(
     }
 )
 
-local seed1 = 17000
-local seed2 = seed1 * 2
+local seed1 = nil
+local seed2 = nil
+
+Global.register_init(
+    {seed1 = seed1, seed2 = seed2},
+    function(tbl)
+        local seed = RS.get_surface().map_gen_settings.seed
+        tbl.seed1 = seed1 or seed
+        tbl.seed2 = seed2 or seed * 2
+    end,
+    function(tbl)
+        seed1 = tbl.seed1
+        seed2 = tbl.seed2
+    end
+)
 
 local ore_blocks = 100
 local ore_block_size = 32
@@ -120,44 +134,59 @@ arc = b.scale(arc, 6, 2)
 local rectangle = b.rectangle(25, 40)
 
 local function h_arc()
-    local circle = b.circle(100)
-    circle = b.apply_entity(circle, map_ores)
-    local ball1 = b.translate(circle, 0, 410)
-    local ball2 = b.translate(circle, -460, 370)
-    local ball3 = b.translate(circle, 460, 370)
     local arm1 = b.translate(rectangle, 0, 310)
     local arm2 = b.translate(rectangle, -460, 270)
     local arm3 = b.translate(rectangle, 460, 270)
 
-    return b.any {arc, ball1, ball2, ball3, arm1, arm2, arm3}
+    return b.any {arc, arm1, arm2, arm3}
+end
+
+local function h_balls()
+    local circle = b.circle(100)
+    local ball1 = b.translate(circle, 0, 410)
+    local ball2 = b.translate(circle, -460, 370)
+    local ball3 = b.translate(circle, 460, 370)
+
+    return b.any {ball1, ball2, ball3}
 end
 
 local div_100_sqrt2 = 100 / math.sqrt2
 local function v_arc()
-    local circle = b.circle(div_100_sqrt2)
-    circle = b.apply_entity(circle, map_ores)
-    local ball1 = b.translate(circle, -0, 385)
-    local ball2 = b.translate(circle, -460, 345)
-    local ball3 = b.translate(circle, 460, 345)
     local arm1 = b.translate(rectangle, 0, 305)
     local arm2 = b.translate(rectangle, -460, 265)
     local arm3 = b.translate(rectangle, 460, 265)
 
-    return b.any {arc, ball1, ball2, ball3, arm1, arm2, arm3}
+    return b.any {arc, arm1, arm2, arm3}
+end
+
+local function v_balls()
+    local circle = b.circle(div_100_sqrt2)
+    local ball1 = b.translate(circle, -0, 385)
+    local ball2 = b.translate(circle, -460, 345)
+    local ball3 = b.translate(circle, 460, 345)
+
+    return b.any {ball1, ball2, ball3}
 end
 
 local arc1 = h_arc()
 arc1 = b.single_pattern(arc1, 1380, 1380)
+local balls1 = h_balls()
+local arc1balls = b.single_pattern(balls1, 1380, 1380)
+arc1balls = b.apply_entity(arc1balls, map_ores)
 
 local arc2 = v_arc()
 arc2 = b.single_pattern(arc2, 1380, 1380)
 arc2 = b.rotate(arc2, degrees(45))
 arc2 = b.scale(arc2, math.sqrt2, math.sqrt2)
 arc2 = b.translate(arc2, -165, -688)
+local arc2balls = v_balls()
+arc2balls = b.single_pattern(arc2balls, 1380, 1380)
+arc2balls = b.rotate(arc2balls, degrees(45))
+arc2balls = b.scale(arc2balls, math.sqrt2, math.sqrt2)
+arc2balls = b.translate(arc2balls, -165, -688)
+arc2balls = b.apply_entity(arc2balls, map_ores)
 
-local map = b.any {arc1, arc2}
-
---map = b.apply_entity(map, map_ores)
+local map = b.any {arc1balls, arc2balls, arc1, arc2}
 
 map = b.translate(map, 0, -414)
 
@@ -179,6 +208,6 @@ start_shape = b.apply_entity(start_shape, start_segmented)
 start_shape = b.translate(start_shape, 0, 48)
 start_shape = b.any {start_shape, b.full_shape}
 
-map = b.choose(b.circle(100), start_shape, map)
+map = b.choose(b.circle(104), start_shape, map)
 
 return map
