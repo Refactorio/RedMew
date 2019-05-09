@@ -1108,7 +1108,7 @@ local function do_refill_turrets()
 end
 
 local artillery_target_entities = {
-    'player',
+    'character',
     'tank',
     'car',
     'locomotive',

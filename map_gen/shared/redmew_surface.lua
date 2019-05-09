@@ -211,7 +211,7 @@ local function player_created(event)
     local surface = global_data.surface
 
     local spawn_position = global_data.spawn_position or {x = 0, y = 0}
-    local pos = surface.find_non_colliding_position('player', spawn_position, 50, 1)
+    local pos = surface.find_non_colliding_position('character', spawn_position, 50, 1)
 
     if pos and not global_data.first_player_position_check_override then -- we tp to that pos
         player.teleport(pos, surface)

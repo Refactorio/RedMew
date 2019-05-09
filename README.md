@@ -8,7 +8,7 @@
 
 ### Quick note:
 
-Downloads of the repository and source code require the file `map_selection.lua.sample` to be renamed to `map_seleciton.lua`. The release assets have this file built in.
+Downloads of the repository and source code require the file `map_selection.lua.sample` to be renamed to `map_selection.lua`. The release assets have this file built in.
 
 # RedMew
 
