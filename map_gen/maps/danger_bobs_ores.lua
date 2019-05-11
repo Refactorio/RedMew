@@ -85,6 +85,7 @@ local ores = {
     'tin-ore',
     'tungsten-ore',
     'zinc-ore'
+    'thorium-ore'
 }
 local ore_oil_none = {}
 for _, v in ipairs(ores) do
