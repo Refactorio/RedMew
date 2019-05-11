@@ -84,7 +84,7 @@ local ores = {
     'sulfur',
     'tin-ore',
     'tungsten-ore',
-    'zinc-ore'
+    'zinc-ore',
     'thorium-ore'
 }
 local ore_oil_none = {}
