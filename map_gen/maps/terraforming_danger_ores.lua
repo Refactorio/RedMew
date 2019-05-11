@@ -41,6 +41,12 @@ proper material ratios, expand the map with pollution!
 )
 ScenarioInfo.set_new_info(
     [[
+2019-04-24:
+ - Stone ore density reduced by 1/2
+ - Ore quadrants randomized
+ - Increased time factor of biter evolution from 5 to 7
+ - Added win conditions (+5% evolution every 5 rockets until 100%, +100 rockets until biters are wiped)
+
 2019-03-30:
  - Uranium ore patch threshold increased slightly
  - Bug fix: Cars and tanks can now be placed onto ore!
@@ -116,6 +122,104 @@ local surface
 
 local start_size = start_chunks_half_size * 64
 
+local value = b.euclidean_value
+
+local quadrant_config = {
+    ['iron-ore'] = {
+        ['tiles'] = {
+            [1] = 'grass-1',
+            [2] = 'grass-2',
+            [3] = 'grass-3',
+            [4] = 'grass-4'
+        },
+        ['ratios'] = {
+            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 60},
+            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+            {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
+            {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
+        }
+    },
+    ['copper-ore'] = {
+        ['tiles'] = {
+            [1] = 'red-desert-0',
+            [2] = 'red-desert-1',
+            [3] = 'red-desert-2',
+            [4] = 'red-desert-3'
+        },
+        ['ratios'] = {
+            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
+            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 60},
+            {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
+            {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
+        }
+    },
+    ['coal'] = {
+        ['tiles'] = {
+            [1] = 'dirt-1',
+            [2] = 'dirt-2',
+            [3] = 'dirt-3',
+            [4] = 'dirt-4',
+            [5] = 'dirt-5',
+            [6] = 'dirt-6',
+            [7] = 'dirt-7'
+        },
+        ['ratios'] = {
+            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
+            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+            {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
+            {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
+        }
+    },
+    ['stone'] = {
+        ['tiles'] = {
+            [1] = 'sand-1',
+            [2] = 'sand-2',
+            [3] = 'sand-3'
+        },
+        ['ratios'] = {
+            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
+            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+            {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 30},
+            {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
+        }
+    }
+}
+
+local tile_quadrants = {
+    [1] = 'stone',
+    [2] = 'iron-ore',
+    [3] = 'copper-ore',
+    [4] = 'coal'
+}
+
+local tiles_pos_x_pos_y
+local tiles_pos_x_pos_y_count
+local tiles_pos_x_neg_y
+local tiles_pos_x_neg_y_count
+local tiles_neg_x_pos_y
+local tiles_neg_x_pos_y_count
+local tiles_neg_x_neg_y
+local tiles_neg_x_neg_y_count
+
+local ores_pos_x_pos_y
+local ores_pos_x_neg_y
+local ores_neg_x_pos_y
+local ores_neg_x_neg_y
+
+local weighted_ores_pos_x_pos_y
+local weighted_ores_pos_x_neg_y
+local weighted_ores_neg_x_pos_y
+local weighted_ores_neg_x_neg_y
+
+local total_ores_pos_x_pos_y
+local total_ores_pos_x_neg_y
+local total_ores_neg_x_pos_y
+local total_ores_neg_x_neg_y
+
+local ore_circle = b.circle(68)
+local start_ores
+local start_segment
+
 Global.register_init(
     {chunk_list = chunk_list},
     function(tbl)
@@ -129,10 +233,12 @@ Global.register_init(
         game.forces.player.technologies['mining-productivity-2'].enabled = false
         game.forces.player.technologies['mining-productivity-3'].enabled = false
         game.forces.player.technologies['mining-productivity-4'].enabled = false
-        game.map_settings.enemy_evolution.time_factor = 0.000005 -- Increased time factor
+        game.map_settings.enemy_evolution.time_factor = 0.000007
         game.map_settings.enemy_evolution.destroy_factor = 0.000010
         game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution
         game.draw_resource_selection = false
+
+        tbl.random = game.create_random_generator(tbl.seed)
     end,
     function(tbl)
         local seed = tbl.seed
@@ -145,62 +251,52 @@ Global.register_init(
 
         chunk_list = tbl.chunk_list
         surface = tbl.surface
+
+        local random = tbl.random
+        random.re_seed(seed)
+        table.shuffle_table(tile_quadrants, random)
+
+        tiles_pos_x_pos_y = quadrant_config[tile_quadrants[1]]['tiles']
+        tiles_pos_x_pos_y_count = #quadrant_config[tile_quadrants[1]]['tiles']
+        tiles_pos_x_neg_y = quadrant_config[tile_quadrants[2]]['tiles']
+        tiles_pos_x_neg_y_count = #quadrant_config[tile_quadrants[2]]['tiles']
+        tiles_neg_x_pos_y = quadrant_config[tile_quadrants[3]]['tiles']
+        tiles_neg_x_pos_y_count = #quadrant_config[tile_quadrants[3]]['tiles']
+        tiles_neg_x_neg_y = quadrant_config[tile_quadrants[4]]['tiles']
+        tiles_neg_x_neg_y_count = #quadrant_config[tile_quadrants[4]]['tiles']
+
+        ores_pos_x_pos_y = quadrant_config[tile_quadrants[1]]['ratios']
+        ores_pos_x_neg_y = quadrant_config[tile_quadrants[2]]['ratios']
+        ores_neg_x_pos_y = quadrant_config[tile_quadrants[3]]['ratios']
+        ores_neg_x_neg_y = quadrant_config[tile_quadrants[4]]['ratios']
+
+        weighted_ores_pos_x_pos_y = b.prepare_weighted_array(ores_pos_x_pos_y)
+        weighted_ores_pos_x_neg_y = b.prepare_weighted_array(ores_pos_x_neg_y)
+        weighted_ores_neg_x_pos_y = b.prepare_weighted_array(ores_neg_x_pos_y)
+        weighted_ores_neg_x_neg_y = b.prepare_weighted_array(ores_neg_x_neg_y)
+
+        total_ores_pos_x_pos_y = weighted_ores_pos_x_pos_y.total
+        total_ores_pos_x_neg_y = weighted_ores_pos_x_neg_y.total
+        total_ores_neg_x_pos_y = weighted_ores_neg_x_pos_y.total
+        total_ores_neg_x_neg_y = weighted_ores_neg_x_neg_y.total
+
+        start_ores = {
+            b.resource(ore_circle, tile_quadrants[2], value(125, 0)),
+            b.resource(ore_circle, tile_quadrants[4], value(125, 0)),
+            b.resource(ore_circle, tile_quadrants[3], value(125, 0)),
+            b.resource(ore_circle, tile_quadrants[1], value(125, 0))
+        }
+
+        start_segment = b.segment_pattern(start_ores)
     end
 )
-
-local value = b.euclidean_value
 
 local oil_shape = b.throttle_world_xy(b.full_shape, 1, 7, 1, 7)
 local oil_resource = b.resource(oil_shape, 'crude-oil', value(250000, 150))
 
 local uranium_resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1))
 
-local ores_pos_x_pos_y = {
-    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 40},
-    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
-}
-local ores_pos_x_neg_y = {
-    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 60},
-    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
-    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
-}
-local ores_neg_x_pos_y = {
-    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 60},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
-    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 20}
-}
-local ores_neg_x_neg_y = {
-    {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
-    {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 5},
-    {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 40}
-}
-
-local weighted_ores_pos_x_pos_y = b.prepare_weighted_array(ores_pos_x_pos_y)
-local weighted_ores_pos_x_neg_y = b.prepare_weighted_array(ores_pos_x_neg_y)
-local weighted_ores_neg_x_pos_y = b.prepare_weighted_array(ores_neg_x_pos_y)
-local weighted_ores_neg_x_neg_y = b.prepare_weighted_array(ores_neg_x_neg_y)
-
-local total_ores_pos_x_pos_y = weighted_ores_pos_x_pos_y.total
-local total_ores_pos_x_neg_y = weighted_ores_pos_x_neg_y.total
-local total_ores_neg_x_pos_y = weighted_ores_neg_x_pos_y.total
-local total_ores_neg_x_neg_y = weighted_ores_neg_x_neg_y.total
-
 local spawn_zone = b.circle(64)
-
-local ore_circle = b.circle(68)
-local start_ores = {
-    b.resource(ore_circle, 'iron-ore', value(125, 0)),
-    b.resource(ore_circle, 'coal', value(125, 0)),
-    b.resource(ore_circle, 'copper-ore', value(125, 0)),
-    b.resource(ore_circle, 'stone', value(125, 0))
-}
-
-local start_segment = b.segment_pattern(start_ores)
 
 local function ore(x, y, world)
     if spawn_zone(x, y) then
@@ -229,13 +325,13 @@ local function ore(x, y, world)
     local resource
 
     if x > 0 and y > 0 then
-      i = math.random() * total_ores_pos_x_pos_y
-      index = table.binary_search(weighted_ores_pos_x_pos_y, i)
-      if (index < 0) then
-          index = bit32.bnot(index)
-      end
+        i = math.random() * total_ores_pos_x_pos_y
+        index = table.binary_search(weighted_ores_pos_x_pos_y, i)
+        if (index < 0) then
+            index = bit32.bnot(index)
+        end
 
-      resource = ores_pos_x_pos_y[index].resource
+        resource = ores_pos_x_pos_y[index].resource
     elseif x > 0 and y < 0 then
         i = math.random() * total_ores_pos_x_neg_y
         index = table.binary_search(weighted_ores_pos_x_neg_y, i)
@@ -251,13 +347,13 @@ local function ore(x, y, world)
         end
         resource = ores_neg_x_pos_y[index].resource
     else
-      i = math.random() * total_ores_neg_x_neg_y
-      index = table.binary_search(weighted_ores_neg_x_neg_y, i)
-      if (index < 0) then
-          index = bit32.bnot(index)
-      end
+        i = math.random() * total_ores_neg_x_neg_y
+        index = table.binary_search(weighted_ores_neg_x_neg_y, i)
+        if (index < 0) then
+            index = bit32.bnot(index)
+        end
 
-      resource = ores_neg_x_neg_y[index].resource
+        resource = ores_neg_x_neg_y[index].resource
     end
 
     local entity = resource(x, y, world)
@@ -279,7 +375,15 @@ local max_chance = 1 / 6
 local scale_factor = 32
 local sf = 1 / scale_factor
 local m = 1 / 850
+
+global.win_condition_evolution_rocket_maxed = -1
+global.win_condition_biters_disabled = false
+
 local function enemy(x, y, world)
+    if global.win_condition_biters_disabled == true then
+        return nil
+    end
+
     local d = math.sqrt(world.x * world.x + world.y * world.y)
 
     if d < 64 then
@@ -337,71 +441,71 @@ local function water_shape(x, y)
         -- Control the tiles at X quadrant
         if x > 31 and y > 31 then
             -- southeast
-            return 'sand-' .. math.ceil(math.random(3))
+            return tiles_pos_x_pos_y[math.ceil(math.random(tiles_pos_x_pos_y_count))]
         elseif x > 0 and y < 31 and y > 0 then
             -- southeast to northeast
             if math.random(100) < 50 + y * 2 then
-                return 'sand-' .. math.ceil(math.random(3))
+                return tiles_pos_x_pos_y[math.ceil(math.random(tiles_pos_x_pos_y_count))]
             else
-                return 'grass-' .. math.ceil(math.random(4))
+                return tiles_pos_x_neg_y[math.ceil(math.random(tiles_pos_x_neg_y_count))]
             end
         elseif x > 0 and y >= 0 then
             -- southeast to southwest
             if math.random(100) < 50 + x * 2 then
-                return 'sand-' .. math.ceil(math.random(3))
+                return tiles_pos_x_pos_y[math.ceil(math.random(tiles_pos_x_pos_y_count))]
             else
-                return 'red-desert-' .. math.floor(math.random(3))
+                return tiles_neg_x_pos_y[math.ceil(math.random(tiles_neg_x_pos_y_count))]
             end
         elseif x > 31 and y < -31 then
             -- northeast
-            return 'grass-' .. math.ceil(math.random(4))
+            return tiles_pos_x_neg_y[math.ceil(math.random(tiles_pos_x_neg_y_count))]
         elseif x > 0 and x < 31 and y <= 0 then
             -- northeast to northwest
             if math.random(100) < 50 + x * 2 then
-                return 'grass-' .. math.ceil(math.random(4))
+                return tiles_pos_x_neg_y[math.ceil(math.random(tiles_pos_x_neg_y_count))]
             else
-                return 'dirt-' .. math.ceil(math.random(7))
+                return tiles_neg_x_neg_y[math.ceil(math.random(tiles_neg_x_neg_y_count))]
             end
         elseif x > 0 and y < 0 then
             -- northeast to southeast
             if math.random(100) < 50 - y * 2 then
-                return 'grass-' .. math.ceil(math.random(4))
+                return tiles_pos_x_neg_y[math.ceil(math.random(tiles_pos_x_neg_y_count))]
             else
-                return 'sand-' .. math.ceil(math.random(3))
+                return tiles_pos_x_pos_y[math.ceil(math.random(tiles_pos_x_pos_y_count))]
             end
         elseif x < -31 and y < -31 then
             -- northwest
-            return 'dirt-' .. math.ceil(math.random(7))
+            return tiles_neg_x_neg_y[math.ceil(math.random(tiles_neg_x_neg_y_count))]
         elseif x > -31 and x < 0 and y <= 0 then
             -- northwest to northeast
             if math.random(100) < 50 - x * 2 then
-              return 'dirt-' .. math.ceil(math.random(7))
+                return tiles_neg_x_neg_y[math.ceil(math.random(tiles_neg_x_neg_y_count))]
             else
-              return 'grass-' .. math.ceil(math.random(4))
+                return tiles_pos_x_neg_y[math.ceil(math.random(tiles_pos_x_neg_y_count))]
             end
         elseif x < 0 and y > -31 and y < 0 then
             -- northwest to southwest
-            if math.random(100) < ( 50 - y * 2 ) then
-                return 'dirt-' .. math.ceil(math.random(7))
+            if math.random(100) < (50 - y * 2) then
+                return tiles_neg_x_neg_y[math.ceil(math.random(tiles_neg_x_neg_y_count))]
             else
-                return 'red-desert-' .. math.floor(math.random(3))
+                return tiles_neg_x_pos_y[math.ceil(math.random(tiles_neg_x_pos_y_count))]
             end
         elseif x < -31 and y > 31 then
             -- southwest
-            return 'red-desert-' .. math.floor(math.random(3))
+            return tiles_neg_x_pos_y[math.ceil(math.random(tiles_neg_x_pos_y_count))]
         elseif x < 0 and y > 0 and y < 32 then
             -- southwest to northwest
-            if math.random(100) < ( 50 + y * 2 ) then
-              return 'red-desert-' .. math.floor(math.random(3))
+            if math.random(100) < (50 + y * 2) then
+                return tiles_neg_x_pos_y[math.ceil(math.random(tiles_neg_x_pos_y_count))]
             else
-              return 'dirt-' .. math.ceil(math.random(7))
+                return tiles_neg_x_neg_y[math.ceil(math.random(tiles_neg_x_neg_y_count))]
             end
         elseif x < 0 and y > 0 then
             -- southwest to southeast
-            if math.random(100) < 50 - x * 2  then
-                return 'red-desert-' .. math.floor(math.random(3))
+            if math.random(100) < 50 - x * 2 then
+                return tiles_neg_x_pos_y[math.ceil(math.random(tiles_neg_x_pos_y_count))]
             else
-                return 'sand-' .. math.ceil(math.random(3))
+                return tiles_pos_x_pos_y[math.ceil(math.random(tiles_pos_x_pos_y_count))]
             end
         end
     end
@@ -451,6 +555,59 @@ map = b.apply_entity(map, tree_shape)
 map = b.fish(map, 0.025)
 
 local bounds = b.rectangle(start_size, start_size)
+
+local function rocket_launched(event)
+    local entity = event.rocket
+
+    if not entity or not entity.valid or not entity.force == 'player' then
+        return
+    end
+
+    local inventory = entity.get_inventory(defines.inventory.rocket)
+    if not inventory or not inventory.valid then
+        return
+    end
+
+    local satellite_count = game.forces.player.get_item_launched('satellite')
+    if satellite_count == 0 then
+        return
+    end
+
+    -- Increase enemy_evolution
+    local current_evolution = game.forces.enemy.evolution_factor
+    local message
+
+    if global.win_condition_biters_disabled == false then
+        if (satellite_count % 5) == 0 and global.win_condition_evolution_rocket_maxed == -1 then
+            message =
+                'Continued launching of satellites has angered the local biter population, evolution increasing...'
+            game.print(message)
+
+            current_evolution = current_evolution + 0.05
+        end
+
+        if current_evolution >= 1 and global.win_condition_evolution_rocket_maxed == -1 then
+            current_evolution = 1
+            global.win_condition_evolution_rocket_maxed = satellite_count
+
+            message =
+                'Biters at maximum evolution! Protect the base for an additional 100 rockets to wipe them out forever.'
+            game.print(message)
+        end
+
+        game.forces.enemy.evolution_factor = current_evolution
+        if global.win_condition_evolution_rocket_maxed > 0 and satellite_count >= (global.win_condition_evolution_rocket_maxed + 100) then
+            message = 'Congratulations! Biters have been wiped from the map!'
+            game.print(message)
+
+            global.win_condition_biters_disabled = true
+
+            for key, enemy_entity in pairs(surface.find_entities_filtered({force = 'enemy'})) do
+                enemy_entity.destroy()
+            end
+        end
+    end
+end
 
 local function on_chunk(event)
     if surface ~= event.surface then
@@ -506,6 +663,7 @@ local function on_tick()
 end
 
 Event.add(defines.events.on_chunk_generated, on_chunk)
+Event.add(defines.events.on_rocket_launched, rocket_launched)
 Event.on_nth_tick(1, on_tick)
 
 return map
