@@ -1,5 +1,6 @@
 local b = require 'map_gen.shared.builders'
 local Perlin = require 'map_gen.shared.perlin_noise'
+local table = require 'utils.table'
 
 local random = math.random
 local floor = math.floor
