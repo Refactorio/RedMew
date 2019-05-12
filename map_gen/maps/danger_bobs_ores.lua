@@ -21,12 +21,11 @@ proper material ratios, expand the map with pollution!
 )
 ScenarioInfo.add_map_extra_info(
     [[
-This map is split in four quadrants. Each quadrant has a main resource.
- [item=iron-ore] north east, [item=copper-ore] south west, [item=coal] north west, [item=stone] south east
+This map is split in 17 sectors. Each sector has a main resource.
 
 You may not build the factory on ore patches. Exceptions:
  [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank]
- [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt]
+ [item=basic-transport-belt] [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt] [item=turbo-transport-belt] [item=ultimate-transport-belt] [item=basic-underground-belt] [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=turbo-underground-belt] [item=ultimate-underground-belt]
 
 The map size is restricted to the pollution generated. A significant amount of
 pollution must affect a section of the map before it is revealed. Pollution
@@ -36,36 +35,16 @@ does not affect biter evolution.]]
 ScenarioInfo.set_map_description(
     [[
 Clear the ore to expand the base,
-focus mining efforts on specific quadrants to ensure
+focus mining efforts on specific sector to ensure
 proper material ratios, expand the map with pollution!
 ]]
 )
-ScenarioInfo.set_new_info(
-    [[
-2019-04-24:
- - Stone ore density reduced by 1/2
- - Ore quadrants randomized
- - Increased time factor of biter evolution from 5 to 7
- - Added win conditions (+5% evolution every 5 rockets until 100%, +100 rockets until biters are wiped)
 
-2019-03-30:
- - Uranium ore patch threshold increased slightly
- - Bug fix: Cars and tanks can now be placed onto ore!
- - Starting minimum pollution to expand map set to 650
-    View current pollution via Debug Settings [F4] show-pollution-values,
-    then open map and turn on pollution via the red box.
- - Starting water at spawn increased from radius 8 to radius 16 circle.
-
-2019-03-27:
- - Ore arranged into quadrants to allow for more controlled resource gathering.
-]]
-)
-
-require 'map_gen.shared.danger_ore_banned_entities'
+require 'map_gen.maps.danger_bobs_ores.banned_entities'
 
 global.config.lazy_bastard.enabled = false
 
-local ores = {
+local ores_names = {
     'coal',
     'copper-ore',
     'crude-oil',
@@ -88,7 +67,7 @@ local ores = {
     'thorium-ore'
 }
 local ore_oil_none = {}
-for _, v in ipairs(ores) do
+for _, v in ipairs(ores_names) do
     ore_oil_none[v] = {
         frequency = 1,
         richness = 1,
@@ -135,9 +114,9 @@ local start_size = start_chunks_half_size * 64
 
 local ores
 
-local pollution_increment = 2
+local pollution_increment = 4
 global.min_pollution = 400
-global.max_pollution = 4000
+global.max_pollution = 20000
 global.win_condition_evolution_rocket_maxed = -1
 global.win_condition_biters_disabled = false
 
