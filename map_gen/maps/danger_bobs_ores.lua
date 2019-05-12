@@ -52,8 +52,6 @@ local ores_names = {
     'stone',
     'uranium-ore',
     'bauxite-ore',
-    'cobalt-ore',
-    'gem-ore',
     'gold-ore',
     'lead-ore',
     'nickel-ore',

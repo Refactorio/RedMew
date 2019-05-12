@@ -23,6 +23,12 @@ local uranium_threshold = 0.63
 local thorium_scale = 1 / 72
 local thorium_threshold = 0.63
 
+local gem_scale = 1 / 72
+local gem_threshold = 0.63
+
+local cobalt_scale = 1 / 72
+local cobalt_threshold = 0.63
+
 local density_scale = 1 / 48
 local density_threshold = 0.5
 local density_multiplier = 50
@@ -43,8 +49,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -72,8 +76,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -104,8 +106,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 67},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -132,8 +132,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 67},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -161,69 +159,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 100},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'quartz', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'rutile-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'silver-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'sulfur', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'tin-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'tungsten-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 10}
-        }
-    },
-    ['cobalt-ore'] = {
-        ['tiles'] = {
-            [1] = 'red-desert-0',
-            [2] = 'red-desert-1',
-            [3] = 'red-desert-2',
-            [4] = 'red-desert-3'
-        },
-        ['start'] = value(125, 0),
-        ['non_mixed_value'] = value(0, 0.5),
-        ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
-            {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 100},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'quartz', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'rutile-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'silver-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'sulfur', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'tin-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'tungsten-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 10}
-        }
-    },
-    ['gem-ore'] = {
-        ['tiles'] = {
-            [1] = 'dirt-1',
-            [2] = 'dirt-2',
-            [3] = 'dirt-3',
-            [4] = 'dirt-4',
-            [5] = 'dirt-5',
-            [6] = 'dirt-6',
-            [7] = 'dirt-7'
-        },
-        ['start'] = value(125, 0),
-        ['non_mixed_value'] = value(0, 0.5),
-        ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
-            {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 100},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -250,8 +185,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 100},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -279,8 +212,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 100},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -308,8 +239,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 100},
@@ -340,8 +269,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -368,8 +295,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -397,8 +322,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -426,8 +349,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -458,8 +379,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -486,8 +405,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -515,8 +432,6 @@ local ores = {
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 2},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'bauxite-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'cobalt-ore', value(0, 0.5)), weight = 10},
-            {resource = b.resource(b.full_shape, 'gem-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'gold-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'lead-ore', value(0, 0.5)), weight = 10},
             {resource = b.resource(b.full_shape, 'nickel-ore', value(0, 0.5)), weight = 10},
@@ -536,12 +451,16 @@ local oil_resource = b.resource(oil_shape, 'crude-oil', value(250000, 150))
 
 local uranium_resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1))
 local thorium_resource = b.resource(b.full_shape, 'thorium-ore', value(200, 1))
+local gem_resource = b.resource(b.full_shape, 'gem-ore', value(200, 1))
+local cobalt_resource = b.resource(b.full_shape, 'cobalt-ore', value(200, 1))
 
 local function init(seed)
     local oil_seed = seed * 2
     local uranium_seed = seed * 3
     local density_seed = seed * 4
     local thorium_seed = seed * 5
+    local gem_seed = seed * 6
+    local cobalt_seed = seed * 7
 
     local function tile_builder(tiles)
         local count = #tiles / 2
@@ -578,6 +497,18 @@ local function init(seed)
             local thorium_noise = perlin_noise(thorium_x, thorium_y, thorium_seed)
             if thorium_noise > thorium_threshold then
                 return thorium_resource(x, y, world)
+            end
+
+            local gem_x, gem_y = x * gem_scale, y * gem_scale
+            local gem_noise = perlin_noise(gem_x, gem_y, gem_seed)
+            if gem_noise > gem_threshold then
+                return gem_resource(x, y, world)
+            end
+
+            local cobalt_x, cobalt_y = x * cobalt_scale, y * cobalt_scale
+            local cobalt_noise = perlin_noise(cobalt_x, cobalt_y, cobalt_seed)
+            if cobalt_noise > cobalt_threshold then
+                return cobalt_resource(x, y, world)
             end
 
             local i = random() * total
@@ -625,6 +556,18 @@ local function init(seed)
             local thorium_noise = perlin_noise(thorium_x, thorium_y, thorium_seed)
             if thorium_noise > thorium_threshold then
                 return thorium_resource(x, y, world)
+            end
+
+            local gem_x, gem_y = x * gem_scale, y * gem_scale
+            local gem_noise = perlin_noise(gem_x, gem_y, gem_seed)
+            if gem_noise > gem_threshold then
+                return gem_resource(x, y, world)
+            end
+
+            local cobalt_x, cobalt_y = x * cobalt_scale, y * cobalt_scale
+            local cobalt_noise = perlin_noise(cobalt_x, cobalt_y, cobalt_seed)
+            if cobalt_noise > cobalt_threshold then
+                return cobalt_resource(x, y, world)
             end
 
             local entity = resource(x, y, world)
