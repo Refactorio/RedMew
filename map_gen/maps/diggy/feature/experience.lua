@@ -339,7 +339,7 @@ end
 local function on_player_respawned(event)
     local player = get_player_by_index(event.player_index)
     local exp = remove_experience_percentage(player.force, config.XP['death-penalty'], 50)
-    local text = format('[img=entity.player] -%s XP', exp)
+    local text = format('[img=entity.character] -%s XP', exp)
     game.print(format('%s drained %s experience.', player.name, exp), lose_xp_color)
     for _, p in pairs(game.connected_players) do
         print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
