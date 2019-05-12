@@ -103,6 +103,7 @@ local spawn_circle = b.circle(96)
 local water_scale = 1 / 96
 local water_threshold = 0.5
 local deepwater_threshold = 0.55
+local non_water_zone = b.circle(102)
 
 local tree_scale = 1 / 64
 local tree_threshold = -0.25
@@ -132,7 +133,7 @@ Global.register_init(
         local s = RS.get_surface()
         tbl.seed = s.map_gen_settings.seed
         tbl.surface = s
-        game.difficulty_settings.technology_price_multiplier = 20
+        game.difficulty_settings.technology_price_multiplier = 5
         game.forces.player.technologies.logistics.researched = true
         game.forces.player.technologies.automation.researched = true
         game.forces.player.technologies['mining-productivity-1'].enabled = false
@@ -161,6 +162,7 @@ Global.register_init(
         random.re_seed(seed)
         table.shuffle_table(ores_shapes, random)
 
+        --ores = b.circular_spiral_pattern(32, 32, ores_shapes)
         ores = b.segment_pattern(ores_shapes)
     end
 )
@@ -227,6 +229,10 @@ local function enemy(x, y, world)
 end
 
 local function water_shape(x, y)
+    if non_water_zone(x, y) then
+        return false
+    end
+
     local water_noise = perlin_noise(x * water_scale, y * water_scale, water_seed)
     if water_noise >= deepwater_threshold then
         return 'deepwater'
