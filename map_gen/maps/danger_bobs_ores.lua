@@ -52,6 +52,8 @@ local ores_names = {
     'stone',
     'uranium-ore',
     'bauxite-ore',
+    'cobalt-ore',
+    'gem-ore',
     'gold-ore',
     'lead-ore',
     'nickel-ore',
@@ -160,8 +162,7 @@ Global.register_init(
         random.re_seed(seed)
         table.shuffle_table(ores_shapes, random)
 
-        --ores = b.circular_spiral_pattern(32, 32, ores_shapes)
-        ores = b.segment_pattern(ores_shapes)
+        ores = b.segment_weighted_pattern(ores_shapes)
     end
 )
 
