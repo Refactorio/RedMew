@@ -276,10 +276,10 @@ local function redraw_poll_viewer_content(data)
 
         if answer == a then
             vote_button_style.font_color = focus_color
-            --vote_button_style.disabled_font_color = focus_color
+            vote_button_style.disabled_font_color = focus_color
         else
             vote_button_style.font_color = normal_color
-            --vote_button_style.disabled_font_color = normal_color
+            vote_button_style.disabled_font_color = normal_color
         end
 
         Gui.set_data(vote_button, {answer = a, data = data})
@@ -777,7 +777,7 @@ local function vote(event)
                     if p.index == player_index then
                         local vote_button_style = vote_button.style
                         vote_button_style.font_color = normal_color
-                        --vote_button_style.disabled_font_color = normal_color
+                        vote_button_style.disabled_font_color = normal_color
                     end
                 end
 
@@ -788,7 +788,7 @@ local function vote(event)
                 if p.index == player_index then
                     local vote_button_style = vote_button.style
                     vote_button_style.font_color = focus_color
-                    --vote_button_style.disabled_font_color = focus_color
+                    vote_button_style.disabled_font_color = focus_color
                 end
             end
         end
