@@ -106,6 +106,20 @@ function table.set(t, index, element)
     error('Index out of bounds', 2)
 end
 
+--- Returns an array of keys for a table.
+--@param tbl <table>
+function table.keys(tbl)
+    local n = 1
+    local keys = {}
+
+    for k in pairs(tbl) do
+        keys[n] = k
+        n = n + 1
+    end
+
+    return keys
+end
+
 --- Chooses a random entry from a table
 -- because this uses math.random, it cannot be used outside of events
 -- @param t <table>
