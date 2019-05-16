@@ -59,7 +59,7 @@ end
 
 local function on_entity_changed(event)
     local entity = event.entity or event.destination
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if player.admin or not entity.valid then
         return
     end --Freebees for admins
@@ -109,7 +109,7 @@ Event.add(
                 name = entity.name,
                 position = entity.position,
                 mock = true,
-                last_user = Game.get_player_by_index(1),
+                last_user = game.get_player(1),
                 force = entity.force,
                 direction = get_pre_rotate_direction(entity)
             }
@@ -156,7 +156,7 @@ Module.undo =
     if type(player) == 'nil' or type(player) == 'string' then
         return --No support for strings!
     elseif type(player) == 'number' then
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     end
 
     --Remove all items from all surfaces that player placed an entity on

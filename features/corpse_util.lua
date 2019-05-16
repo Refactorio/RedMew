@@ -16,7 +16,7 @@ Global.register(
 
 local function player_died(event)
     local player_index = event.player_index
-    local player = Game.get_player_by_index(player_index)
+    local player = game.get_player(player_index)
 
     if not player or not player.valid then
         return
@@ -113,8 +113,8 @@ local function mined_entity(event)
         return
     end
 
-    local player = Game.get_player_by_index(player_index)
-    local corpse_owner = Game.get_player_by_index(corpse_owner_index)
+    local player = game.get_player(player_index)
+    local corpse_owner = game.get_player(corpse_owner_index)
 
     if player and corpse_owner then
         local message = table.concat {player.name, ' has looted ', corpse_owner.name, "'s corpse"}
@@ -135,8 +135,8 @@ local function on_gui_opened(event)
         return
     end
 
-    local player = Game.get_player_by_index(player_index)
-    local corpse_owner = Game.get_player_by_index(corpse_owner_index)
+    local player = game.get_player(player_index)
+    local corpse_owner = game.get_player(corpse_owner_index)
 
     if player and corpse_owner then
         local message = table.concat {player.name, ' is looting ', corpse_owner.name, "'s corpse"}

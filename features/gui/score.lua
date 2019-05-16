@@ -22,7 +22,7 @@ local descriptions = {
 }
 
 local function create_score_gui(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player then
         return
     end

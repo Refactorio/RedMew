@@ -251,7 +251,7 @@ Event.add(
 Event.add(
     defines.events.on_player_died,
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         set_timeout_in_ticks(1, spawn_player, player)
     end
 )

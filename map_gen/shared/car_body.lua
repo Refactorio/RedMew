@@ -27,7 +27,7 @@ local function transfer_body(player)
 end
 
 local function player_created(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local permissions = game.permissions
 
     -- We want to create a permission group to stop players leaving their vehicles.
@@ -58,7 +58,7 @@ end
 
 local function revive_player(event)
     -- When a player's car dies, return them to spawn and create a new car for them.
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     -- This check prevents a loop when we put them into a car.
     if not player.driving then
         transfer_body(player)

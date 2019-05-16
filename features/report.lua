@@ -55,10 +55,10 @@ local function draw_report(parent, report_id)
         return
     end
 
-    local reported_player_name = Game.get_player_by_index(report.reported_player_index).name
+    local reported_player_name = game.get_player(report.reported_player_index).name
     local reporting_player_name = '<script>'
     if report.reporting_player_index then
-        reporting_player_name = Game.get_player_by_index(report.reporting_player_index).name
+        reporting_player_name = game.get_player(report.reporting_player_index).name
     end
     local time = Utils.format_time(report.tick)
     local time_ago = Utils.format_time(game.tick - report.tick)
@@ -67,7 +67,7 @@ local function draw_report(parent, report_id)
     Gui.clear(parent)
 
     local permission_group = game.permissions.get_group(jail_name)
-    local jail_offender_button_caption = (Game.get_player_by_index(report.reported_player_index).permission_group == permission_group) and 'Unjail ' .. reported_player_name or 'Jail ' .. reported_player_name
+    local jail_offender_button_caption = (game.get_player(report.reported_player_index).permission_group == permission_group) and 'Unjail ' .. reported_player_name or 'Jail ' .. reported_player_name
 
     parent.add {type = 'label', caption = 'Offender: ' .. reported_player_name}
     local msg_label_pane = parent.add {type = 'scroll-pane', vertical_scroll_policy = 'auto-and-reserve-space', horizontal_scroll_policy = 'never'}
@@ -115,7 +115,7 @@ Module.show_reports =
             button_cell.add {
                 type = 'button',
                 name = report_tab_button_name,
-                caption = Game.get_player_by_index(report.reported_player_index).name
+                caption = game.get_player(report.reported_player_index).name
             }
         end
     end
@@ -418,9 +418,9 @@ Gui.on_click(
         local print = event.player.print
 
         Gui.destroy(frame)
-        Module.report(event.player, Game.get_player_by_index(reported_player_index), msg)
+        Module.report(event.player, game.get_player(reported_player_index), msg)
         print(prefix)
-        print('You have successfully reported: ' .. Game.get_player_by_index(reported_player_index).name)
+        print('You have successfully reported: ' .. game.get_player(reported_player_index).name)
         print(prefix_e)
     end
 )

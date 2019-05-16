@@ -56,7 +56,7 @@ local function is_trusted(player)
 end
 
 local function ammo_changed(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if is_trusted(player) then
         return
     end
@@ -77,7 +77,7 @@ local function ammo_changed(event)
 end
 
 local function on_player_deconstructed_area(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if is_trusted(player) then
         return
     end
@@ -108,8 +108,8 @@ local function on_player_deconstructed_area(event)
         Utils.print_admins('Warning! ' .. player.name .. ' just tried to deconstruct ' .. tostring(#entities) .. ' entities!', nil)
     end
     for _, entity in pairs(entities) do
-        if entity.valid and entity.to_be_deconstructed(Game.get_player_by_index(event.player_index).force) then
-            entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
+        if entity.valid and entity.to_be_deconstructed(game.get_player(event.player_index).force) then
+            entity.cancel_deconstruction(game.get_player(event.player_index).force)
         end
     end
 end
@@ -125,7 +125,7 @@ end
 
 local function on_capsule_used(event)
     local item = event.item
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
 
     if not player or not player.valid then
         return

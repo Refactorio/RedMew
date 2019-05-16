@@ -101,7 +101,7 @@ local change_backer_name =
 local set_alt_on_create =
     Token.register(
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if not player then
             return
         end
@@ -142,7 +142,7 @@ local loader_check_token =
 --- Sets construction robots that are not part of a roboport to unminabe
 -- if the player selecting them are not the owner of them.
 local function preserve_bot(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local entity = player.selected
 
     if entity == nil or not entity.valid then

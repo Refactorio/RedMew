@@ -157,7 +157,7 @@ local on_built_token =
 
         -- Check if we issue a refund: make sure refund is enabled, make sure we're not refunding a ghost,
         -- and revalidate the stack since we sent it to the raised event
-        local player = Game.get_player_by_index(index)
+        local player = game.get_player(index)
         local item_returned
         if player and player.valid and primitives.refund and not ghost and stack.valid then
             player.insert(stack)

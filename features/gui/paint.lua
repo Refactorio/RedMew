@@ -66,7 +66,7 @@ local function player_build_tile(event)
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player.gui.left[main_frame_name] then
         return
     end
@@ -90,7 +90,7 @@ local function player_build_tile(event)
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end

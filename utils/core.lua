@@ -92,11 +92,19 @@ end
 
 function Module.find_entities_by_last_user(player, surface, filters)
     if type(player) == 'string' or not player then
-        error("bad argument #1 to '" .. debug.getinfo(1, 'n').name .. "' (number or LuaPlayer expected, got " .. type(player) .. ')', 1)
+        error(
+            "bad argument #1 to '" ..
+                debug.getinfo(1, 'n').name .. "' (number or LuaPlayer expected, got " .. type(player) .. ')',
+            1
+        )
         return
     end
     if type(surface) ~= 'table' and type(surface) ~= 'number' then
-        error("bad argument #2 to '" .. debug.getinfo(1, 'n').name .. "' (number or LuaSurface expected, got " .. type(surface) .. ')', 1)
+        error(
+            "bad argument #2 to '" ..
+                debug.getinfo(1, 'n').name .. "' (number or LuaSurface expected, got " .. type(surface) .. ')',
+            1
+        )
         return
     end
     local entities = {}
@@ -105,7 +113,7 @@ function Module.find_entities_by_last_user(player, surface, filters)
         surface = game.surfaces[surface]
     end
     if type(player) == 'number' then
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     end
     filter.force = player.force.name
     for _, e in pairs(surface.find_entities_filtered(filter)) do
@@ -235,15 +243,13 @@ function Module.validate_player(player_ident)
         if is_player then
             player = player_ident
         end
-    elseif data_type == 'number' then
-        player = Game.get_player_by_index(player_ident)
-    elseif data_type == 'string' then
-        player = game.players[player_ident]
+    elseif data_type == 'number' or data_type == 'string' then
+        player = game.get_player(player_ident)
     else
         return
     end
 
-    if not player.valid then
+    if not player or not player.valid then
         return
     end
 

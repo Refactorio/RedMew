@@ -273,7 +273,7 @@ local function on_command(event)
 
     local alternative = deprecated_command_alternatives[event.command]
     if alternative then
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if player then
             player.print({'command.warn_deprecated_command', event.command, alternative})
         end
@@ -281,7 +281,7 @@ local function on_command(event)
 
     local notification = notify_on_commands[event.command]
     if notification and event.player_index then
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if player then
             player.print(notification)
         end

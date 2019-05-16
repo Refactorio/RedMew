@@ -180,7 +180,7 @@ local function redraw_poll_viewer_content(data)
     end
 
     for player_index, answer in pairs(voters) do
-        local p = Game.get_player_by_index(player_index)
+        local p = game.get_player(player_index)
         insert(tooltips[answer], p.name)
     end
 
@@ -207,7 +207,7 @@ local function redraw_poll_viewer_content(data)
     if next(edited_by_players) then
         local edit_names = {'Edited by '}
         for pi, _ in pairs(edited_by_players) do
-            local p = Game.get_player_by_index(pi)
+            local p = game.get_player(pi)
             if p and p.valid then
                 insert(edit_names, p.name)
                 insert(edit_names, ', ')
@@ -720,7 +720,7 @@ local function update_vote(voters, answer, direction)
     local tooltip = {}
     for pi, a in pairs(voters) do
         if a == answer then
-            local player = Game.get_player_by_index(pi)
+            local player = game.get_player(pi)
             insert(tooltip, player.name)
         end
     end
@@ -792,7 +792,7 @@ local function vote(event)
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end

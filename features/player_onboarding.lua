@@ -39,7 +39,7 @@ local toast_token =
             return
         end
 
-        local player = Game.get_player_by_index(player_index)
+        local player = game.get_player(player_index)
         if not player or not player.valid or not player.connected then
             return
         end
@@ -50,7 +50,7 @@ local toast_token =
 
 local function on_player_created(event)
     local player_index = event.player_index
-    local player = Game.get_player_by_index(player_index)
+    local player = game.get_player(player_index)
     if not player or not player.valid then
         return
     end
@@ -90,7 +90,7 @@ local function on_player_chat(event)
         return
     end
 
-    local player = Game.get_player_by_index(player_index)
+    local player = game.get_player(player_index)
     if not player or not player.valid then
         return
     end

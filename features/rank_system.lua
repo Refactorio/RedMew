@@ -122,7 +122,7 @@ local sync_ranks_callback =
 
 local function on_player_joined(event)
     local index = event.player_index
-    local player = Game.get_player_by_index(index)
+    local player = game.get_player(index)
     if not player then
         return
     end

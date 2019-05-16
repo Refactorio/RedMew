@@ -274,7 +274,7 @@ local function built_entity(event)
             return
         end
 
-        Game.get_player_by_index(index).teleport(entity.position)
+        game.get_player(index).teleport(entity.position)
         entity.destroy()
     end
 end
