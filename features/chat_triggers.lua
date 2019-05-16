@@ -1,6 +1,5 @@
 -- This feature auto-responds to key words or phrases. We use the name/actor Hodor because it is Redmew's beloved discord bot.
 
-local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Color = require 'resources.color_presets'
 local table = require 'utils.table'
@@ -23,7 +22,7 @@ local function get_player(event)
     if not player_index then
         return nil
     end
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return nil
     end
@@ -88,7 +87,7 @@ local function mentions(event)
                     word = 'admin'
                 end
                 if admin_call and p.admin then
-                    local message = {'chat_triggers.mention_success', prefix, Game.get_player_by_index(event.player_index).name, word}
+                    local message = {'chat_triggers.mention_success', prefix, game.get_player(event.player_index).name, word}
                     p.print(message, Color.yellow)
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
                     success = true
@@ -101,7 +100,7 @@ local function mentions(event)
                         success = true
                         break
                     end
-                    p.print(prefix .. Game.get_player_by_index(event.player_index).name .. ' mentioned you!', Color.yellow)
+                    p.print(prefix .. game.get_player(event.player_index).name .. ' mentioned you!', Color.yellow)
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
                     success = true
                     if _DEBUG then

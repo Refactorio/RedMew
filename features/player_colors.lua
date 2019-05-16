@@ -1,5 +1,4 @@
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Server = require 'features.server'
 local Token = require 'utils.token'
@@ -73,7 +72,7 @@ Command.add(
 Event.add(
     defines.events.on_player_joined_game,
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if not player or not player.valid then
             return
         end

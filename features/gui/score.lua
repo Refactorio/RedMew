@@ -1,5 +1,4 @@
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local PlayerStats = require 'features.player_stats'
 local Gui = require 'utils.gui'
 local Color = require 'resources.color_presets'
@@ -22,7 +21,7 @@ local descriptions = {
 }
 
 local function create_score_gui(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player then
         return
     end

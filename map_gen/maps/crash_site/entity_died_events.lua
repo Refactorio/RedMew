@@ -2,7 +2,6 @@ local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local math = require 'utils.math'
 
 local random = math.random
@@ -251,7 +250,7 @@ Event.add(
 Event.add(
     defines.events.on_player_died,
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         set_timeout_in_ticks(1, spawn_player, player)
     end
 )

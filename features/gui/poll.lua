@@ -6,7 +6,7 @@ local Game = require 'utils.game'
 local math = require 'utils.math'
 local Server = require 'features.server'
 local Command = require 'utils.command'
--- local Color = require 'resources.color_presets' -- commented to avoid lint error (secondary to desync risk)
+local Color = require 'resources.color_presets'
 local Ranks = require 'resources.ranks'
 
 local insert = table.insert
@@ -19,8 +19,8 @@ local duration_slider_max = duration_max / duration_step
 local tick_duration_step = duration_step * 60
 local inv_tick_duration_step = 1 / tick_duration_step
 
--- local normal_color = Color.white -- commented to avoid lint error (secondary to desync risk)
--- local focus_color = Color.dark_orange -- commented to avoid lint error (secondary to desync risk)
+local normal_color = Color.white
+local focus_color = Color.dark_orange
 
 local polls = {}
 local polls_counter = {0}
@@ -180,7 +180,7 @@ local function redraw_poll_viewer_content(data)
     end
 
     for player_index, answer in pairs(voters) do
-        local p = Game.get_player_by_index(player_index)
+        local p = game.get_player(player_index)
         insert(tooltips[answer], p.name)
     end
 
@@ -207,7 +207,7 @@ local function redraw_poll_viewer_content(data)
     if next(edited_by_players) then
         local edit_names = {'Edited by '}
         for pi, _ in pairs(edited_by_players) do
-            local p = Game.get_player_by_index(pi)
+            local p = game.get_player(pi)
             if p and p.valid then
                 insert(edit_names, p.name)
                 insert(edit_names, ', ')
@@ -241,13 +241,14 @@ local function redraw_poll_viewer_content(data)
     end
 
     local question_label = question_flow.add {type = 'label', caption = poll.question}
-    question_label.style.height = 32
-    -- question_label.style.font_color = focus_color -- commented to avoid desync risk
-    question_label.style.font = 'default-listbox'
+    local question_label_style = question_label.style
+    question_label_style.height = 32
+    question_label_style.font_color = focus_color
+    question_label_style.font = 'default-listbox'
 
     local grid = poll_viewer_content.add {type = 'table', column_count = 2}
 
-    -- local answer = voters[player.index] -- commented to avoid lint error (secondary to desync risk)
+    local answer = voters[player.index]
     local vote_buttons = {}
     for i, a in pairs(answers) do
         local vote_button_flow = grid.add {type = 'flow'}
@@ -273,10 +274,13 @@ local function redraw_poll_viewer_content(data)
         vote_button_style.left_padding = 0
         vote_button_style.right_padding = 0
 
-        -- if answer == a then -- block commented to avoid desync risk
-        --     vote_button_style.font_color = focus_color
-        --     vote_button_style.disabled_font_color = focus_color
-        -- end
+        if answer == a then
+            vote_button_style.font_color = focus_color
+            vote_button_style.disabled_font_color = focus_color
+        else
+            vote_button_style.font_color = normal_color
+            vote_button_style.disabled_font_color = normal_color
+        end
 
         Gui.set_data(vote_button, {answer = a, data = data})
         vote_buttons[i] = vote_button
@@ -367,14 +371,14 @@ local function draw_main_frame(left, player)
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow'}
-    left_flow.style.horizontal_align  = 'left'
+    left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
     apply_button_style(close_button)
 
     local right_flow = bottom_flow.add {type = 'flow'}
-    right_flow.style.horizontal_align  = 'right'
+    right_flow.style.horizontal_align = 'right'
 
     if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         local create_poll_button =
@@ -602,7 +606,7 @@ local function draw_create_poll_frame(parent, player, previous_data)
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow'}
-    left_flow.style.horizontal_align  = 'left'
+    left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = create_poll_close_name, caption = 'Close'}
@@ -614,7 +618,7 @@ local function draw_create_poll_frame(parent, player, previous_data)
     Gui.set_data(clear_button, data)
 
     local right_flow = bottom_flow.add {type = 'flow'}
-    right_flow.style.horizontal_align  = 'right'
+    right_flow.style.horizontal_align = 'right'
 
     if edit_mode then
         local delete_button = right_flow.add {type = 'button', name = create_poll_delete_name, caption = 'Delete'}
@@ -720,7 +724,7 @@ local function update_vote(voters, answer, direction)
     local tooltip = {}
     for pi, a in pairs(voters) do
         if a == answer then
-            local player = Game.get_player_by_index(pi)
+            local player = game.get_player(pi)
             insert(tooltip, player.name)
         end
     end
@@ -770,29 +774,29 @@ local function vote(event)
                     vote_button.caption = previous_vote_button_count
                     vote_button.tooltip = previous_vote_button_tooltip
 
-                    -- if p.index == player_index then
-                        -- local vote_button_style = vote_button.style -- block commented to avoid desync risk
-                        -- vote_button_style.font_color = normal_color
-                        -- vote_button_style.disabled_font_color = normal_color
-                    -- end
+                    if p.index == player_index then
+                        local vote_button_style = vote_button.style
+                        vote_button_style.font_color = normal_color
+                        vote_button_style.disabled_font_color = normal_color
+                    end
                 end
 
                 local vote_button = vote_buttons[vote_index]
                 vote_button.caption = vote_button_count
                 vote_button.tooltip = vote_button_tooltip
 
-                -- if p.index == player_index then -- block commented to avoid desync risk
-                --     local vote_button_style = vote_button.style
-                --     vote_button_style.font_color = focus_color
-                --     vote_button_style.disabled_font_color = focus_color
-                -- end
+                if p.index == player_index then
+                    local vote_button_style = vote_button.style
+                    vote_button_style.font_color = focus_color
+                    vote_button_style.disabled_font_color = focus_color
+                end
             end
         end
     end
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end

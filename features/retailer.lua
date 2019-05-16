@@ -45,7 +45,6 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Schedule = require 'utils.task'
 local PlayerStats = require 'features.player_stats'
-local Game = require 'utils.game'
 local math = require 'utils.math'
 local Color = require 'resources.color_presets'
 local format = string.format
@@ -233,7 +232,7 @@ local function redraw_market_items(data)
     local count = data.count
     local market_items = data.market_items
     local player_index = data.player_index
-    local player_coins = Game.get_player_by_index(player_index).get_item_count('coin')
+    local player_coins = game.get_player(player_index).get_item_count('coin')
 
     if size(market_items) == 0 then
         grid.add({type = 'label', caption = 'No items available at this time'})
@@ -434,7 +433,7 @@ Event.add(defines.events.on_gui_opened, function (event)
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -471,7 +470,7 @@ Gui.on_click(market_frame_close_button_name, function (event)
 end)
 
 Event.add(defines.events.on_player_died, function (event)
-    local player = Game.get_player_by_index(event.player_index or 0)
+    local player = game.get_player(event.player_index or 0)
 
     if not player or not player.valid then
         return
@@ -675,7 +674,7 @@ do_update_market_gui = Token.register(function(params)
 
     for player_index, view_data in pairs(memory.players_in_market_view) do
         if group_name == view_data.group_name then
-            local player = Game.get_player_by_index(player_index)
+            local player = game.get_player(player_index)
             if player and player.valid then
                 local frame = player.gui.center[market_frame_name]
                 if not frame or not frame.valid then
@@ -697,7 +696,7 @@ end)
 
 Event.on_nth_tick(37, function()
     for player_index, view_data in pairs(memory.players_in_market_view) do
-        local player = Game.get_player_by_index(player_index)
+        local player = game.get_player(player_index)
         if player and player.valid then
             local player_position = player.position
             local market_position = view_data.position

@@ -1,5 +1,4 @@
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
@@ -95,7 +94,7 @@ Event.add(defines.events.on_built_entity, function(event)
         entity.destroy()
 
         -- attempt to give the item back to the player
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if not player or not player.valid then
             return
         end

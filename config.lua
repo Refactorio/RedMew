@@ -342,7 +342,7 @@ global.config = {
     },
     -- allows for large-scale biter attacks
     biter_attacks = {
-        enabled = true,
+        enabled = false,
         -- whether or not to send attacks on timed intervals (against a random player)
         timed_attacks = {
             enabled = true,

@@ -9,7 +9,6 @@ local Debug = require 'map_gen.maps.diggy.debug'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local CreateParticles = require 'features.create_particles'
 local RS = require 'map_gen.shared.redmew_surface'
 local table = require 'utils.table'
@@ -397,7 +396,7 @@ function DiggyCaveCollapse.register(cfg)
             end
 
             if name == 'deconstructible-tile-proxy' or nil ~= support_beam_entities[name] then
-                entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
+                entity.cancel_deconstruction(game.get_player(event.player_index).force)
             end
         end
     )
@@ -419,7 +418,7 @@ function DiggyCaveCollapse.register(cfg)
 
             if (nil ~= support_beam_entities[event.entity.name]) then
                 require 'features.gui.popup'.player(
-                    Game.get_player_by_index(player_index),
+                    game.get_player(player_index),
                     [[
 Mining entities such as walls, stone paths, concrete
 and rocks, can cause a cave-in, be careful miner!

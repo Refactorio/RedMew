@@ -61,7 +61,6 @@
 -- Dependencies
 require 'util'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 local config = global.config.redmew_surface
 
@@ -207,7 +206,7 @@ end
 
 --- Teleport the player to the redmew surface and if there is no suitable location, create an island
 local function player_created(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local surface = global_data.surface
 
     local spawn_position = global_data.spawn_position or {x = 0, y = 0}

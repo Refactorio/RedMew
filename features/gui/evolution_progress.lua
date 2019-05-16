@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Toast = require 'features.gui.toast'
 local round = math.round
@@ -81,7 +80,7 @@ local function update_gui(player)
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end

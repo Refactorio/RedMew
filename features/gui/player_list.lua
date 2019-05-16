@@ -6,7 +6,6 @@ local Donator = require 'features.donator'
 local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.core'
 local Report = require 'features.report'
-local Game = require 'utils.game'
 local table = require 'utils.table'
 local Color = require 'resources.color_presets'
 
@@ -623,7 +622,7 @@ local function tick()
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end

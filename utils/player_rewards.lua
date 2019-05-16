@@ -59,7 +59,7 @@ Public.give_reward = function(player, amount, message)
     local player_index
     if type(player) == 'number' then
         player_index = player
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     else
         player_index = player.index
     end
@@ -90,7 +90,7 @@ Public.remove_reward = function(player, amount, message)
     local player_index
     if type(player) == 'number' then
         player_index = player
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     else
         player_index = player.index
     end

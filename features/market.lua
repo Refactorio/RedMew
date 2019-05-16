@@ -3,7 +3,6 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local PlayerStats = require 'features.player_stats'
-local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Global = require 'utils.global'
 local Retailer = require 'features.retailer'
@@ -117,7 +116,7 @@ end
 
 local function fish_earned(event, amount)
     local player_index = event.player_index
-    local player = Game.get_player_by_index(player_index)
+    local player = game.get_player(player_index)
 
     local stack = {name = currency, count = amount}
     local inserted = player.insert(stack)
@@ -270,7 +269,7 @@ nth_tick_token =
         local tick = game.tick
         for k, v in pairs(speed_records) do
             if tick - v.start_tick > 3000 then
-                local player = Game.get_player_by_index(k)
+                local player = game.get_player(k)
                 if player and player.valid and player.connected and player.character then
                     reset_player_running_speed(player)
                 end
@@ -279,7 +278,7 @@ nth_tick_token =
 
         for k, v in pairs(mining_records) do
             if tick - v.start_tick > 6000 then
-                local player = Game.get_player_by_index(k)
+                local player = game.get_player(k)
                 if player and player.valid and player.connected and player.character then
                     reset_player_mining_speed(player)
                 end
@@ -299,7 +298,7 @@ local function fish_player_crafted_item(event)
 end
 
 local function player_created(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
 
     if not player or not player.valid then
         return

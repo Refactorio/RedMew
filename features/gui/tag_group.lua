@@ -90,7 +90,7 @@ local function get_size(players, show_offline)
         size = table.size(players)
     else
         for pi, _ in pairs(players) do
-            local player = Game.get_player_by_index(pi)
+            local player = game.get_player(pi)
             if player and player.valid and player.connected then
                 size = size + 1
             end
@@ -122,7 +122,7 @@ local delete_tag_name = Gui.uid_name()
 local close_create_tag_name = Gui.uid_name()
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -183,11 +183,11 @@ local function draw_main_frame_content(parent)
 
         if players then
             for k, _ in pairs(players) do
-                local p = Game.get_player_by_index(k)
+                local p = game.get_player(k)
                 if p and p.valid and p.connected then
                     local color = {r = 0.4 + 0.6 * p.color.r, g = 0.4 + 0.6 * p.color.g, b = 0.4 + 0.6 * p.color.b}
 
-                    local label = list.add {type = 'label', caption = Game.get_player_by_index(k).name}
+                    local label = list.add {type = 'label', caption = game.get_player(k).name}
                     label.style.top_padding = 8
                     label.style.font_color = color
                 end

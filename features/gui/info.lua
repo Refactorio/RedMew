@@ -3,7 +3,6 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Donator = require 'features.donator'
 local Rank = require 'features.rank_system'
-local Game = require 'utils.game'
 local PlayerRewards = require 'utils.player_rewards'
 local Server = require 'features.server'
 local Token = require 'utils.token'
@@ -665,7 +664,7 @@ local function toggle(event)
 end
 
 local function player_created(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end

@@ -209,7 +209,6 @@ map = b.translate(map, 0, 30)
 -- -- Enable this section when the entity restriction modules is finalized
 -- -- Make sure this works on tiles if needed, otherwise keep function below
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 --Ban entities from sand-1, including tile ghosts. This currently prevents us from using entity_placement_restriction.lua as of 2019-02-22
 -- Convert to using entity_replacement_restriction.lua once it is possible to do so
 Event.add(
@@ -230,7 +229,7 @@ Event.add(
         local area = entity.bounding_box
         local left_top = area.left_top
         local right_bottom = area.right_bottom
-        local p = Game.get_player_by_index(event.player_index)
+        local p = game.get_player(event.player_index)
 		--check for sand under all tiles in bounding box
         for x = math.floor(left_top.x), math.floor(right_bottom.x), 1 do
             for y = math.floor(left_top.y), math.floor(right_bottom.y), 1 do
@@ -258,7 +257,7 @@ Event.add(
 Event.add(
     defines.events.on_player_built_tile,
     function(event)
-		local player = Game.get_player_by_index(event.player_index)
+		local player = game.get_player(event.player_index)
 		if not player or not player.valid then
 			return
 		end

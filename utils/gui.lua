@@ -1,6 +1,5 @@
 local Token = require 'utils.token'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 
 local Gui = {}
@@ -88,7 +87,7 @@ local function handler_factory(event_id)
             return
         end
 
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if not player or not player.valid then
             return
         end
@@ -194,7 +193,7 @@ local toggle_button_name = Gui.uid_name()
 Event.add(
     defines.events.on_player_created,
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
 
         if not player or not player.valid then
             return
