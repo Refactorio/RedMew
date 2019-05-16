@@ -98,7 +98,7 @@ Generate.enable_register_events = false
 local perlin_noise = Perlin.noise
 local fast_remove = table.fast_remove
 
-local spawn_circle = b.circle(96)
+local spawn_circle = b.circle(80)
 
 local water_scale = 1 / 96
 local water_threshold = 0.5

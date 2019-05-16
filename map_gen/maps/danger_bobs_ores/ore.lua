@@ -9,10 +9,10 @@ local binary_search = table.binary_search
 local bnot = bit32.bnot
 local perlin_noise = Perlin.noise
 
-local mixed_ores = false
+local mixed_ores = true
 
 local tile_scale = 1 / 64
-local spawn_zone = b.circle(102)
+local spawn_zone = b.circle(85)
 
 local oil_scale = 1 / 64
 local oil_threshold = 0.6
