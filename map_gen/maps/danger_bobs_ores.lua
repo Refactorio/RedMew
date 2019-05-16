@@ -8,7 +8,7 @@ local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local ores_init = require 'map_gen.maps.danger_bobs_ores.ore'
-local biter_attacks = require 'map_gen.shared.biter_attacks'
+local RocketLaunched = require 'map_gen.maps.danger_bobs_ores.rocket_launched'
 
 local ScenarioInfo = require 'features.gui.info'
 
@@ -119,15 +119,11 @@ local ores
 local pollution_increment = 4
 global.min_pollution = 400
 global.max_pollution = 20000
-global.win_condition_evolution_rocket_maxed = -1
-global.win_condition_biters_disabled = false
 
 local enemy_seed
 local water_seed
 local tree_seed
 local chunk_list = {index = 1}
-local recent_chunks = {} -- Keeps track of recently revealed chunks
-local recent_chunks_max = 10 -- Maximum number of chunks to track
 local surface
 
 Global.register_init(
@@ -171,8 +167,6 @@ Global.register_init(
 
 local worm_names = {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret', 'behemoth-worm-turret'}
 local spawner_names = {'biter-spawner', 'spitter-spawner'}
-local biter_names = {'small-biter', 'medium-biter', 'big-biter','behemoth-biter'}
-local spitter_names = {'small-spitter', 'medium-spitter', 'big-spitter','behemoth-spitter'}
 local factor = 10 / (768 * 32)
 local max_chance = 1 / 6
 
@@ -294,84 +288,6 @@ map = b.fish(map, 0.025)
 
 local bounds = b.rectangle(start_size, start_size)
 
-local function enemy_spawn(x, y, world)
-    if global.win_condition_biters_disabled == true then
-        return nil
-    end
-
-    local current_evolution = game.forces.enemy.evolution_factor
-    local lvl = 1
-
-    if current_evolution > .9 then
-      lvl = 4
-    elseif current_evolution > .5 then
-      lvl = 3
-    elseif current_evolution > .4 then
-      lvl = 2
-    end
-
-    -- How many per chunk ? How about # of rockets!
-    local num_enemies = game.forces.player.get_item_launched('satellite')
-
-end
-
-
-local function rocket_launched(event)
-    local entity = event.rocket
-
-    if not entity or not entity.valid or not entity.force == 'player' then
-        return
-    end
-
-    local inventory = entity.get_inventory(defines.inventory.rocket)
-    if not inventory or not inventory.valid then
-        return
-    end
-
-    local satellite_count = game.forces.player.get_item_launched('satellite')
-    if satellite_count == 0 then
-        return
-    end
-
-    -- Increase enemy_evolution
-    local current_evolution = game.forces.enemy.evolution_factor
-    local message
-
-    if global.win_condition_biters_disabled == false then
-        if (satellite_count % 5) == 0 and global.win_condition_evolution_rocket_maxed == -1 then
-            message =
-                'Continued launching of satellites has angered the local biter population, evolution increasing...'
-            game.print(message)
-
-            current_evolution = current_evolution + 0.05
-        end
-
-        if current_evolution >= 1 and global.win_condition_evolution_rocket_maxed == -1 then
-            current_evolution = 1
-            global.win_condition_evolution_rocket_maxed = satellite_count
-
-            message =
-                'Biters at maximum evolution! Protect the base for an additional 100 rockets to wipe them out forever.'
-            game.print(message)
-        end
-
-        game.forces.enemy.evolution_factor = current_evolution
-        if
-            global.win_condition_evolution_rocket_maxed > 0 and
-                satellite_count >= (global.win_condition_evolution_rocket_maxed + 100)
-         then
-            message = 'Congratulations! Biters have been wiped from the map!'
-            game.print(message)
-
-            global.win_condition_biters_disabled = true
-
-            for key, enemy_entity in pairs(surface.find_entities_filtered({force = 'enemy'})) do
-                enemy_entity.destroy()
-            end
-        end
-    end
-end
-
 local function on_chunk(event)
     if surface ~= event.surface then
         return
@@ -410,14 +326,11 @@ local function on_tick()
 
     if pollution > current_min_pollution then
         fast_remove(chunk_list, index)
-        table.insert(recent_chunks, pos)
-        while ( #recent_chunks > recent_chunks_max ) do
-          table.remove(recent_chunks, 1)
-        end
 
         local area = {left_top = pos, right_bottom = {pos.x + 32, pos.y + 32}}
         local event = {surface = surface, area = area}
         Generate.schedule_chunk(event)
+        RocketLaunched.chunk_unlocked(event)
 
         if current_min_pollution < global.max_pollution then
             global.min_pollution = current_min_pollution + pollution_increment
@@ -430,7 +343,6 @@ local function on_tick()
 end
 
 Event.add(defines.events.on_chunk_generated, on_chunk)
-Event.add(defines.events.on_rocket_launched, rocket_launched)
 Event.on_nth_tick(1, on_tick)
 
 return map
