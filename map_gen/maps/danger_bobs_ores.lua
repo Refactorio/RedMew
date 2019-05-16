@@ -8,6 +8,7 @@ local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local ores_init = require 'map_gen.maps.danger_bobs_ores.ore'
+local biter_attacks = require 'map_gen.shared.biter_attacks'
 
 local ScenarioInfo = require 'features.gui.info'
 
@@ -125,6 +126,8 @@ local enemy_seed
 local water_seed
 local tree_seed
 local chunk_list = {index = 1}
+local recent_chunks = {} -- Keeps track of recently revealed chunks
+local recent_chunks_max = 10 -- Maximum number of chunks to track
 local surface
 
 Global.register_init(
@@ -168,6 +171,8 @@ Global.register_init(
 
 local worm_names = {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret', 'behemoth-worm-turret'}
 local spawner_names = {'biter-spawner', 'spitter-spawner'}
+local biter_names = {'small-biter', 'medium-biter', 'big-biter','behemoth-biter'}
+local spitter_names = {'small-spitter', 'medium-spitter', 'big-spitter','behemoth-spitter'}
 local factor = 10 / (768 * 32)
 local max_chance = 1 / 6
 
@@ -289,6 +294,28 @@ map = b.fish(map, 0.025)
 
 local bounds = b.rectangle(start_size, start_size)
 
+local function enemy_spawn(x, y, world)
+    if global.win_condition_biters_disabled == true then
+        return nil
+    end
+
+    local current_evolution = game.forces.enemy.evolution_factor
+    local lvl = 1
+
+    if current_evolution > .9 then
+      lvl = 4
+    elseif current_evolution > .5 then
+      lvl = 3
+    elseif current_evolution > .4 then
+      lvl = 2
+    end
+
+    -- How many per chunk ? How about # of rockets!
+    local num_enemies = game.forces.player.get_item_launched('satellite')
+
+end
+
+
 local function rocket_launched(event)
     local entity = event.rocket
 
@@ -383,6 +410,10 @@ local function on_tick()
 
     if pollution > current_min_pollution then
         fast_remove(chunk_list, index)
+        table.insert(recent_chunks, pos)
+        while ( #recent_chunks > recent_chunks_max ) do
+          table.remove(recent_chunks, 1)
+        end
 
         local area = {left_top = pos, right_bottom = {pos.x + 32, pos.y + 32}}
         local event = {surface = surface, area = area}
