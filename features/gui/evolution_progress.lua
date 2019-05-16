@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Toast = require 'features.gui.toast'
 local round = math.round

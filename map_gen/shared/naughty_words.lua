@@ -1,4 +1,3 @@
-local Game = require 'utils.game'
 local Event = require 'utils.event'
 
 global.naughty_words = require('resources.naughty_words')

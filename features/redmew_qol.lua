@@ -7,7 +7,6 @@ local Utils = require 'utils.core'
 local Global = require 'utils.global'
 local table = require 'utils.table'
 local Task = require 'utils.task'
-local Game = require 'utils.game'
 local Rank = require 'features.rank_system'
 
 local config = global.config.redmew_qol

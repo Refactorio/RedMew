@@ -3,7 +3,6 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 
 local player_filters = {}
 

@@ -2,7 +2,6 @@ local Module = {}
 
 local Gui = require 'utils.gui'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 
 local main_button_name = Gui.uid_name()

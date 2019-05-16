@@ -6,7 +6,6 @@ local Donator = require 'features.donator'
 local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.core'
 local Report = require 'features.report'
-local Game = require 'utils.game'
 local table = require 'utils.table'
 local Color = require 'resources.color_presets'
 

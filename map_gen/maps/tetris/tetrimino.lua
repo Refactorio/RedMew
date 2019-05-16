@@ -19,7 +19,6 @@ local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Queue = require 'utils.queue'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 
 local insert = table.insert
 

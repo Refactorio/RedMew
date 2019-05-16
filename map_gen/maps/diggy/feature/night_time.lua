@@ -6,7 +6,6 @@
 
 -- dependencies
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local RS = require 'map_gen.shared.redmew_surface'
 
 -- this

@@ -2,7 +2,6 @@ local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local math = require 'utils.math'
 
 local random = math.random

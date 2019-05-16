@@ -12,7 +12,6 @@
 local Event = require 'utils.event'
 local mod_gui = require 'mod-gui'
 local Command = require 'utils.command'
-local Game = require 'utils.game'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 

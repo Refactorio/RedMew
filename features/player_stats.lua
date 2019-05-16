@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 require 'utils.table'
 local pairs = pairs
 local sqrt = math.sqrt

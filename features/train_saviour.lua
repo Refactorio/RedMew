@@ -3,7 +3,6 @@ local market_items = require 'resources.market_items'
 local Global = require 'utils.global'
 local DonatorPerks = require 'resources.donator_perks'
 local Donator = require 'features.donator'
-local Game = require 'utils.game'
 local train_perk_flag = DonatorPerks.train
 
 local saviour_token_name = 'small-plane' -- item name for what saves players

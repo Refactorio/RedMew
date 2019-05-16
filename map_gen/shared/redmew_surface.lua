@@ -61,7 +61,6 @@
 -- Dependencies
 require 'util'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 local config = global.config.redmew_surface
 

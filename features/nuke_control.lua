@@ -1,7 +1,6 @@
 local Event = require 'utils.event'
 local Rank = require 'features.rank_system'
 local Utils = require 'utils.core'
-local Game = require 'utils.game'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'

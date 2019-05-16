@@ -209,7 +209,6 @@ map = b.translate(map, 0, 30)
 -- -- Enable this section when the entity restriction modules is finalized
 -- -- Make sure this works on tiles if needed, otherwise keep function below
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 --Ban entities from sand-1, including tile ghosts. This currently prevents us from using entity_placement_restriction.lua as of 2019-02-22
 -- Convert to using entity_replacement_restriction.lua once it is possible to do so
 Event.add(

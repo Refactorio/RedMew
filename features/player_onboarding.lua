@@ -3,7 +3,6 @@
 ]]
 -- Dependencies
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Rank = require 'features.rank_system'
 local Task = require 'utils.task'

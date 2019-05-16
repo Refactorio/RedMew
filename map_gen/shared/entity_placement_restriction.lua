@@ -37,7 +37,6 @@
     )
 ]]
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
 local table = require 'utils.table'

@@ -45,7 +45,6 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Schedule = require 'utils.task'
 local PlayerStats = require 'features.player_stats'
-local Game = require 'utils.game'
 local math = require 'utils.math'
 local Color = require 'resources.color_presets'
 local format = string.format

@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Utils = require 'utils.core'
-local Game = require 'utils.game'
 local RS = require 'map_gen.shared.redmew_surface'
 
 global.original_last_users_by_ent_pos = {}

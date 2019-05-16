@@ -1,6 +1,5 @@
 -- This feature auto-responds to key words or phrases. We use the name/actor Hodor because it is Redmew's beloved discord bot.
 
-local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Color = require 'resources.color_presets'
 local table = require 'utils.table'

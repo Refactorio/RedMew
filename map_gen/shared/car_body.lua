@@ -1,5 +1,4 @@
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 
 local drivers_group = 'Drivers'
 local random = math.random

@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 
 local brush_tool = 'refined-hazard-concrete'

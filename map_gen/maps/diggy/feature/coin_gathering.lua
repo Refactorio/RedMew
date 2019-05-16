@@ -4,7 +4,6 @@
 
 -- dependencies
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local ScoreTable = require 'map_gen.maps.diggy.score_table'
 local Debug = require 'map_gen.maps.diggy.debug'
 local Template = require 'map_gen.maps.diggy.template'
