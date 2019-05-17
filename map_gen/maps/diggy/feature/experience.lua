@@ -21,7 +21,6 @@ local add_experience_percentage = ForceControl.add_experience_percentage
 local remove_experience_percentage = ForceControl.remove_experience_percentage
 local print_player_floating_text_position = Game.print_player_floating_text_position
 local get_force_data = ForceControl.get_force_data
-local get_player_by_index = game.get_player
 local set_item = Retailer.set_item
 local disable_item = Retailer.disable_item
 local enable_item = Retailer.enable_item
@@ -211,7 +210,7 @@ local function on_player_mined_entity(event)
     local entity = event.entity
     local name = entity.name
     local player_index = event.player_index
-    local force = get_player_by_index(player_index).force
+    local force = game.get_player(player_index).force
     local level = get_force_data(force).current_level
     local exp = 0
     if name == 'sand-rock-big' then
@@ -337,7 +336,7 @@ end
 ---Deducts experience when a player respawns, based on a percentage of total experience
 ---@param event LuaEvent
 local function on_player_respawned(event)
-    local player = get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local exp = remove_experience_percentage(player.force, config.XP['death-penalty'], 50)
     local text = format('[img=entity.character] -%s XP', exp)
     game.print(format('%s drained %s experience.', player.name, exp), lose_xp_color)
@@ -526,7 +525,7 @@ local function toggle(event)
 end
 
 local function on_player_created(event)
-    get_player_by_index(event.player_index).gui.top.add({
+    game.get_player(event.player_index).gui.top.add({
         name = 'Diggy.Experience.Button',
         type = 'sprite-button',
         sprite = 'entity/market',
