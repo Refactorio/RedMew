@@ -7,14 +7,15 @@ local Task = require 'utils.task'
 local Token = require 'utils.token'
 
 local recent_chunks = Queue.new() -- Keeps track of recently revealed chunks
-local recent_chunks_max = 10 -- Maximum number of chunks to track
+local recent_chunks_max = 5 -- Maximum number of chunks to track
 local ticks_between_waves = 60 * 30 - recent_chunks_max
+local enemy_factor = 5
+local max_enemies_per_wave_per_chunk = 60
 
 local Public = {}
 
 global.win_condition_evolution_rocket_maxed = -1
 global.win_condition_biters_disabled = false
-global.max_enemies_per_wave_per_chunk = 20
 
 Global.register(
     recent_chunks,
@@ -23,12 +24,32 @@ Global.register(
     end
 )
 
-local command = {
-    type = defines.command.attack_area,
-    destination = {0, 0},
-    radius = 1500,
-    distraction = defines.distraction.by_damage
-}
+local function give_command(group, data)
+    local target = data.target
+
+    if target and target.valid then
+        local command = {
+            type = defines.command.attack,
+            target = target,
+            distraction = defines.distraction.by_damage
+        }
+        group.set_command(command)
+        group.start_moving()
+    else
+        local command = {
+            type = defines.command.attack_area,
+            destination = data.position,
+            radius = 32,
+            distraction = defines.distraction.by_damage
+        }
+
+        local members = group.members
+        for i = 1, #members do
+            local entitiy = members[i]
+            entitiy.set_command(command)
+        end
+    end
+end
 
 local do_waves
 local do_wave
@@ -45,7 +66,7 @@ do_wave =
     function(data)
         local wave = data.wave
         local last_wave = data.last_wave
-        game.print('wave: ' .. wave .. '/' .. last_wave)
+        --game.print('wave: ' .. wave .. '/' .. last_wave)
 
         local chunk_index = data.chunk_index
         local chunk = data.chunks[chunk_index]
@@ -72,15 +93,17 @@ do_wave =
 
         for name, count in pairs(aliens) do
             for i = 1, count do
-                local pos = find_non_colliding_position(name, center, 16, 1)
+                local pos = find_non_colliding_position(name, center, 32, 1)
+                if pos then
+                    local e = {name = name, position = pos, force = 'enemy', center = center, radius = 16, 1}
+                    local ent = create_entity(e)
 
-                local e = {name = name, position = pos, force = 'enemy', center = center, radius = 16, 1}
-                local ent = create_entity(e)
-
-                add_member(ent)
-                ent.set_command(command)
+                    add_member(ent)
+                end
             end
         end
+
+        give_command(group, data)
 
         if chunk_index < recent_chunks_max then
             data.chunk_index = chunk_index + 1
@@ -97,22 +120,32 @@ do_wave =
     end
 )
 
-local function start_waves()
-    game.print('something something waves started.')
-
-    local num_enemies = game.forces.player.get_item_launched('satellite')
-    local number_of_waves = math.ceil(num_enemies / global.max_enemies_per_wave_per_chunk)
+local function start_waves(event)
+    local num_enemies = enemy_factor * game.forces.player.get_item_launched('satellite')
+    local number_of_waves = math.ceil(num_enemies / max_enemies_per_wave_per_chunk)
     local num_enemies_per_wave_per_chunk = math.ceil(num_enemies / number_of_waves)
+
+    local target = event.rocket_silo
+    local position
+    if target and target.valid then
+        position = target.position
+    else
+        position = {0, 0}
+    end
 
     local data = {
         spawner = AlienEvolutionProgress.create_spawner_request(num_enemies_per_wave_per_chunk),
         wave = 1,
         last_wave = number_of_waves,
         chunk_index = 1,
-        chunks = Queue.to_array(recent_chunks)
+        chunks = Queue.to_array(recent_chunks),
+        target = target,
+        position = position
     }
 
     Task.set_timeout_in_ticks(1, do_waves, data)
+
+    game.print('Warning incomming biter attack! Number of waves: ' .. number_of_waves)
 end
 
 local function rocket_launched(event)
@@ -145,8 +178,6 @@ local function rocket_launched(event)
             current_evolution = current_evolution + 0.05
         end
 
-        start_waves()
-
         if current_evolution >= 1 and global.win_condition_evolution_rocket_maxed == -1 then
             current_evolution = 1
             global.win_condition_evolution_rocket_maxed = satellite_count
@@ -169,6 +200,8 @@ local function rocket_launched(event)
             for key, enemy_entity in pairs(RS.get_surface().find_entities_filtered({force = 'enemy'})) do
                 enemy_entity.destroy()
             end
+        else
+            start_waves(event)
         end
     end
 end
