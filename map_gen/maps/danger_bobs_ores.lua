@@ -9,6 +9,8 @@ local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local ores_init = require 'map_gen.maps.danger_bobs_ores.ore'
 local RocketLaunched = require 'map_gen.maps.danger_bobs_ores.rocket_launched'
+local concat = table.concat
+local format = string.format
 
 local ScenarioInfo = require 'features.gui.info'
 
@@ -307,7 +309,7 @@ local function on_chunk(event)
         end
         surface.set_tiles(tiles, true)
 
-        chunk_list[#chunk_list + 1] = left_top
+        chunk_list[#chunk_list + 1] = {left_top = left_top, id = nil}
     end
 end
 
@@ -319,7 +321,9 @@ local function on_tick()
         return
     end
 
-    local pos = chunk_list[index]
+    local data = chunk_list[index]
+    local pos = data.left_top
+    local x, y = pos.x, pos.y
     local pollution = surface.get_pollution(pos)
 
     local current_min_pollution = global.min_pollution
@@ -327,7 +331,12 @@ local function on_tick()
     if pollution > current_min_pollution then
         fast_remove(chunk_list, index)
 
-        local area = {left_top = pos, right_bottom = {pos.x + 32, pos.y + 32}}
+        local id = data.id
+        if id then
+            rendering.destroy(id)
+        end
+
+        local area = {left_top = pos, right_bottom = {x + 32, y + 32}}
         local event = {surface = surface, area = area}
         Generate.schedule_chunk(event)
         RocketLaunched.chunk_unlocked(event)
@@ -337,6 +346,25 @@ local function on_tick()
         end
 
         return
+    else
+        local text = concat {format('%i', pollution), ' / ', current_min_pollution}
+        local complete = pollution / current_min_pollution
+        local color = {r = 1 - complete, g = complete, b = 0}
+
+        local id = data.id
+        if not id then
+            data.id =
+                rendering.draw_text {
+                text = text,
+                surface = surface,
+                target = {x + 16, y + 16},
+                color = color,
+                scale = 5
+            }
+        else
+            rendering.set_text(id, text)
+            rendering.set_color(id, color)
+        end
     end
 
     chunk_list.index = index + 1
