@@ -1,6 +1,5 @@
 local b = require 'map_gen.shared.builders'
 require 'map_gen.shared.car_body'
-local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local ScenarioInfo = require 'features.gui.info'
 
