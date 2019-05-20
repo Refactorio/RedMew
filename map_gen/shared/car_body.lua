@@ -1,5 +1,5 @@
 local Event = require 'utils.event'
-local RS = require 'map_gen.shared.redmew_surface'
+require 'map_gen.shared.redmew_surface'
 
 local drivers_group = 'Drivers'
 local random = math.random
