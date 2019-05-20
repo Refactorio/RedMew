@@ -6,6 +6,7 @@ local map_entities = {
 
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local ScenarioInfo = require 'features.gui.info'
 
 ScenarioInfo.set_map_name('Rocky Road')
 ScenarioInfo.set_map_description('We want a vanilla map, they said.\nYou might get the vanilla terrain,\nBut not the vanilla character! Enjoy driving yourself crazy with this one :D')
