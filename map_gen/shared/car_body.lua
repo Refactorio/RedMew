@@ -1,21 +1,17 @@
 local Event = require 'utils.event'
+require 'map_gen.shared.redmew_surface'
 
 local drivers_group = 'Drivers'
 local random = math.random
 
 local function transfer_body(player)
-    -- Remove the player from their character and place them in a car.
+    --Place player in a car.
     local surface = player.surface
     local force = player.force
     local pos = force.get_spawn_position(surface)
 
     -- Choose a random direction for the car to face
     local dir = random(0, 7)
-
-    -- Remove the players' character
-    if player.character then
-        player.character.destroy()
-    end
 
     --Find a place for a car, place a car, and place fuel+ammo in it
     local car_pos = surface.find_non_colliding_position('car', pos, 0, 3)
