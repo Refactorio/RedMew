@@ -22,6 +22,16 @@ local water_noise_level = noise_level * 1.35
 local perlin_seed_1 = nil
 local perlin_seed_2 = nil
 
+-- Bright
+-- 10 minute cycle, 4m of full light, 4m light to dark, 6s full dark, 2m dark to light
+local day_night_cycle = {
+    ['ticks_per_day'] = 36000,
+    ['dusk'] = 0.2,
+    ['evening'] = 0.59,
+    ['morning'] = 0.6,
+    ['dawn'] = 0.8
+}
+
 RS.set_map_gen_settings(
     {
         MGSP.ore_oil_none,
