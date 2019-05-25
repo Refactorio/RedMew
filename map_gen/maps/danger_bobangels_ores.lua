@@ -126,7 +126,7 @@ Global.register_init(
         tbl.seed = s.map_gen_settings.seed
         tbl.surface = s
         game.difficulty_settings.technology_price_multiplier = 20
-        game.forces.player.technologies.logistics.researched = true
+        game.forces.player.technologies.logistics-0.researched = true
         game.forces.player.technologies.automation.researched = true
         game.forces.player.technologies['mining-productivity-1'].enabled = false
         game.forces.player.technologies['mining-productivity-2'].enabled = false
