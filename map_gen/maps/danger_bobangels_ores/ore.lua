@@ -110,12 +110,12 @@ local oil_resource = b.resource(oil_shape, 'crude-oil', value(250000, 150))
 local fissure_scale = 1 / 100
 local fissure_threshold = 0.6
 local fissure_shape = b.throttle_world_xy(b.full_shape, 1, 7, 1, 7)
-local fissure_resource = b.resource(fissure_shape, 'angels-fissure', value(250000, 150))
+local fissure_resource = b.resource(fissure_shape, 'angels-fissure', value(25000, 150))
 
 local gas_well_scale = 1 / 64
 local gas_well_threshold = 0.6
 local gas_well_shape = b.throttle_world_xy(b.full_shape, 1, 7, 1, 7)
-local gas_well_resource = b.resource(gas_well_shape, 'angels-natural-gas', value(250000, 150))
+local gas_well_resource = b.resource(gas_well_shape, 'angels-natural-gas', value(25000, 150))
 
 local thorium_scale = 1 / 72
 local thorium_threshold = 0.63
@@ -126,6 +126,9 @@ local function init(seed)
     local uranium_seed = seed * 3
     local density_seed = seed * 4
     local thorium_seed = seed * 5
+    local fissure_seed = seed * 6
+    local gas_well_seed = seed * 7
+
 
     local function tile_builder(tiles)
         local count = #tiles / 2
