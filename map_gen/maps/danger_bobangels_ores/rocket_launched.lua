@@ -16,7 +16,7 @@ local Public = {}
 
 global.win_condition_evolution_rocket_maxed = -1
 global.win_condition_biters_disabled = false
-global.win_condition_extra_rockets = 1000
+global.win_condition_extra_rockets = 10000
 
 
 Global.register(

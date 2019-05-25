@@ -246,14 +246,21 @@ local function init(seed)
         local ore
         if mixed_ores then
             local ratios = {
-              {resource = b.resource(b.full_shape, ore_name, value(0, 0.5)), weight = ( ratio_mixed  * v.weight ) }
+              {resource = b.resource(b.full_shape, ore_name, value(0, 0.5)), weight = ( ratio_mixed ) }
             }
+            local other_ratios = 0
+            for ore2_name, v2 in pairs(ores) do
+              if ore2_name ~= ore_name then
+                other_ratios = other_ratios + v2.weight
+              end
+            end
+
             local pos = 0
             for ore2_name, v2 in pairs(ores) do
               Debug.print('Attempting to add ' .. ore2_name .. ' to ratio')
               pos = pos + 1
               if ore2_name ~= ore_name then
-                table.insert(ratios, {resource = b.resource(b.full_shape, ore2_name, value(0, 0.5)), weight = ( ( 100 - ratio_mixed)  * v2.weight ) })
+                table.insert(ratios, {resource = b.resource(b.full_shape, ore2_name, value(0, 0.5)), weight = ( ( 100 - ratio_mixed)  * ( v2.weight / other_ratios ) ) })
               end
             end
 
