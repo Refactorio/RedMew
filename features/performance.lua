@@ -1,7 +1,35 @@
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
+local Global = require 'utils.global'
+
 local format = string.format
 
 local Performance = {}
+
+local mining_efficiency = {
+    active_modifier = 0
+}
+
+local craft_bonus = {
+    active_modifier = 0
+}
+
+local running_bonus = {
+    active_modifier = 0
+}
+
+Global.register(
+    {
+        mining_efficiency = mining_efficiency,
+        craft_bonus = craft_bonus,
+        running_bonus = running_bonus
+    },
+    function(tbl)
+        mining_efficiency = tbl.mining_efficiency
+        craft_bonus = tbl.craft_bonus
+        running_bonus = tbl.running_bonus
+    end
+)
 
 ---Sets the scale of performance.
 ---1 means the game runs at normal game speed with normal walking speed
@@ -16,9 +44,12 @@ function Performance.set_time_scale(scale)
 
     local stat_mod = Performance.get_player_stat_modifier()
     for _, force in pairs(game.forces) do
-        force.character_running_speed_modifier = stat_mod - 1
-        force.manual_mining_speed_modifier = stat_mod - 1
-        force.manual_crafting_speed_modifier = stat_mod - 1
+        force.character_running_speed_modifier = force.character_running_speed_modifier - running_bonus.active_modifier + stat_mod - 1
+        running_bonus.active_modifier = stat_mod - 1
+        force.manual_mining_speed_modifier = force.manual_mining_speed_modifier - mining_efficiency.active_modifier + stat_mod - 1
+        mining_efficiency.active_modifier = stat_mod - 1
+        force.manual_crafting_speed_modifier = force.manual_crafting_speed_modifier - craft_bonus.active_modifier + stat_mod - 1
+        craft_bonus.active_modifier = stat_mod - 1
     end
 end
 
@@ -35,39 +66,39 @@ end
 Command.add(
     'performance-scale-set',
     {
-        description = 'Sets the performance scale between 0.05 and 1. Will alter the game speed, manual mining speed, manual crafting speed and character running speed per force.',
+        description = {'command_description.performance_scale_set'},
         arguments = {'scale'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         allowed_by_server = true
     },
     function(arguments, player)
         local scale = tonumber(arguments.scale)
         if scale == nil or scale < 0.05 or scale > 1 then
-            player.print('Scale must be a valid number ranging from 0.05 to 1')
+            player.print({'performance.fail_wrong_argument'})
             return
         end
 
         Performance.set_time_scale(scale)
         local p = game.print
         local stat_mod = Performance.get_player_stat_modifier()
-        p('## - Game speed changed to compensate for UPS drops and players trying to catch up.')
-        p(format('## - Game speed: %.2f', Performance.get_time_scale()))
-        p(format('## - Running speed: %.2f', stat_mod))
-        p(format('## - Manual mining speed: %.2f', stat_mod))
-        p(format('## - Manual crafting speed: %.2f', stat_mod))
+        p({'performance.stat_preamble'})
+        p({'performance.generic_stat', {'performance.game_speed'}, format('%.2f', Performance.get_time_scale())})
+        local stat_string = format('%.2f', stat_mod)
+        p({'performance.output_formatter', {'performance.game_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
     end
 )
 
 Command.add(
     'performance-scale-get',
     {
-        description = 'Shows the current performance scale.'
+        description = {'command_description.performance_scale_get'}
     },
     function(_, player)
         local p = player.print
         local stat_mod = Performance.get_player_stat_modifier()
-        p(format('Game speed: %.2f', Performance.get_time_scale()))
-        p(format('Running speed: %.2f -- mining speed: %.2f -- crafting speed: %.2f', stat_mod, stat_mod, stat_mod))
+        p({'performance.generic_stat', {'performance.game_speed'}, format('%.2f', Performance.get_time_scale())})
+        local stat_string = format('%.2f', stat_mod)
+        p({'performance.output_formatter', {'performance.game_speed'}, stat_string, {'performance.manual_mining_speed'}, stat_string, {'performance.manual_crafting_speed'}, stat_string})
     end
 )
 

@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 require 'utils.table'
 local pairs = pairs
 local sqrt = math.sqrt
@@ -69,7 +68,7 @@ Global.register(
 local function player_created(event)
     local index = event.player_index
 
-    player_last_position[index] = Game.get_player_by_index(index).position
+    player_last_position[index] = game.get_player(index).position
     player_walk_distances[index] = 0
     player_coin_earned[index] = 0
     player_coin_spent[index] = 0
@@ -82,7 +81,7 @@ end
 local function get_cause_name(cause)
     if cause then
         local name = cause.name
-        if name == 'player' then
+        if name == 'character' then
             local player = cause.player
             if player and player.valid then
                 return player.name

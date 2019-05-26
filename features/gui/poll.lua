@@ -1,12 +1,13 @@
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Game = require 'utils.game'
 local math = require 'utils.math'
 local Server = require 'features.server'
 local Command = require 'utils.command'
 local Color = require 'resources.color_presets'
+local Ranks = require 'resources.ranks'
 
 local insert = table.insert
 
@@ -86,8 +87,9 @@ end
 
 local function apply_button_style(button)
     local button_style = button.style
-    button_style.font = 'default-bold'
+    button_style.font = 'default-semibold'
     button_style.height = 26
+    button_style.minimal_width = 26
     button_style.top_padding = 0
     button_style.bottom_padding = 0
     button_style.left_padding = 2
@@ -178,7 +180,7 @@ local function redraw_poll_viewer_content(data)
     end
 
     for player_index, answer in pairs(voters) do
-        local p = Game.get_player_by_index(player_index)
+        local p = game.get_player(player_index)
         insert(tooltips[answer], p.name)
     end
 
@@ -198,14 +200,14 @@ local function redraw_poll_viewer_content(data)
         created_by_text = ''
     end
 
-    local top_flow = poll_viewer_content.add {type = 'flow', direction = 'horizontal'}
+    local top_flow = poll_viewer_content.add {type = 'flow', direction = 'vertical'}
     top_flow.add {type = 'label', caption = table.concat {'Poll #', poll.id, created_by_text}}
 
     local edited_by_players = poll.edited_by
     if next(edited_by_players) then
         local edit_names = {'Edited by '}
         for pi, _ in pairs(edited_by_players) do
-            local p = Game.get_player_by_index(pi)
+            local p = game.get_player(pi)
             if p and p.valid then
                 insert(edit_names, p.name)
                 insert(edit_names, ', ')
@@ -215,14 +217,16 @@ local function redraw_poll_viewer_content(data)
         table.remove(edit_names)
         local edit_text = table.concat(edit_names)
 
-        top_flow.add {type = 'label', caption = edit_text, tooltip = edit_text}
+        local top_flow_label = top_flow.add {type = 'label', caption = edit_text, tooltip = edit_text}
+        top_flow_label.style.single_line = false
+        top_flow_label.style.horizontally_stretchable = false
     end
 
     local poll_enabled = do_remaining_time(poll, remaining_time_label)
 
     local question_flow = poll_viewer_content.add {type = 'table', column_count = 2}
 
-    if player.admin or UserGroups.is_regular(player.name) then
+    if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         local edit_button =
             question_flow.add {
             type = 'sprite-button',
@@ -237,9 +241,10 @@ local function redraw_poll_viewer_content(data)
     end
 
     local question_label = question_flow.add {type = 'label', caption = poll.question}
-    question_label.style.height = 32
-    question_label.style.font_color = focus_color
-    question_label.style.font = 'default-listbox'
+    local question_label_style = question_label.style
+    question_label_style.height = 32
+    question_label_style.font_color = focus_color
+    question_label_style.font = 'default-listbox'
 
     local grid = poll_viewer_content.add {type = 'table', column_count = 2}
 
@@ -272,6 +277,9 @@ local function redraw_poll_viewer_content(data)
         if answer == a then
             vote_button_style.font_color = focus_color
             vote_button_style.disabled_font_color = focus_color
+        else
+            vote_button_style.font_color = normal_color
+            vote_button_style.disabled_font_color = normal_color
         end
 
         Gui.set_data(vote_button, {answer = a, data = data})
@@ -363,16 +371,16 @@ local function draw_main_frame(left, player)
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow'}
-    left_flow.style.align = 'left'
+    left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
     apply_button_style(close_button)
 
     local right_flow = bottom_flow.add {type = 'flow'}
-    right_flow.style.align = 'right'
+    right_flow.style.horizontal_align = 'right'
 
-    if player.admin or UserGroups.is_regular(player.name) then
+    if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         local create_poll_button =
             right_flow.add {type = 'button', name = create_poll_button_name, caption = 'Create Poll'}
         apply_button_style(create_poll_button)
@@ -478,7 +486,7 @@ local function redraw_create_poll_content(data)
 
     local question_textfield =
         grid.add({type = 'flow'}).add {type = 'textfield', name = create_poll_question_name, text = data.question}
-    question_textfield.style.width = 400
+    question_textfield.style.width = 175
 
     Gui.set_data(question_label, question_textfield)
     Gui.set_data(question_textfield, data)
@@ -514,7 +522,7 @@ local function redraw_create_poll_content(data)
         local textfield_flow = grid.add {type = 'flow'}
 
         local textfield = textfield_flow.add {type = 'textfield', name = create_poll_answer_name, text = answer.text}
-        textfield.style.width = 400
+        textfield.style.width = 175
         Gui.set_data(textfield, {answers = answers, count = count})
 
         if delete_button then
@@ -598,7 +606,7 @@ local function draw_create_poll_frame(parent, player, previous_data)
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow'}
-    left_flow.style.align = 'left'
+    left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = create_poll_close_name, caption = 'Close'}
@@ -610,7 +618,7 @@ local function draw_create_poll_frame(parent, player, previous_data)
     Gui.set_data(clear_button, data)
 
     local right_flow = bottom_flow.add {type = 'flow'}
-    right_flow.style.align = 'right'
+    right_flow.style.horizontal_align = 'right'
 
     if edit_mode then
         local delete_button = right_flow.add {type = 'button', name = create_poll_delete_name, caption = 'Delete'}
@@ -716,7 +724,7 @@ local function update_vote(voters, answer, direction)
     local tooltip = {}
     for pi, a in pairs(voters) do
         if a == answer then
-            local player = Game.get_player_by_index(pi)
+            local player = game.get_player(pi)
             insert(tooltip, player.name)
         end
     end
@@ -788,7 +796,7 @@ local function vote(event)
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -801,7 +809,12 @@ local function player_joined(event)
             update_poll_viewer(data)
         end
     else
-        gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'item/programmable-speaker'}
+        gui.top.add({
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'item/programmable-speaker',
+            tooltip = {'poll.tooltip'}
+        })
     end
 end
 
@@ -1108,7 +1121,7 @@ Gui.on_click(
     end
 )
 
-Gui.on_click(
+Gui.on_checked_state_changed(
     notify_checkbox_name,
     function(event)
         local player_index = event.player_index
@@ -1325,10 +1338,11 @@ end
 Command.add(
     'poll',
     {
+        description = {'command_description.poll'},
         arguments = {'poll'},
-        regular_only = true,
+        required_rank = Ranks.regular,
         allowed_by_server = true,
-        custom_help_text = '<{question = "question", answers = {"answer 1", "answer 2"}, duration = 300}> - Creates a new poll (Regulars only).',
+        custom_help_text = {'command_custom_help.poll'},
         log_command = true,
         capture_excess_arguments = true
     },
@@ -1338,7 +1352,7 @@ Command.add(
 Command.add(
     'poll-result',
     {
-        description = 'Prints the result for the given poll number.',
+        description = {'command_description.poll_result'},
         arguments = {'poll'},
         allowed_by_server = true
     },

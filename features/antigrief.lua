@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Utils = require 'utils.core'
-local Game = require 'utils.game'
 local RS = require 'map_gen.shared.redmew_surface'
 
 global.original_last_users_by_ent_pos = {}
@@ -59,7 +58,7 @@ end
 
 local function on_entity_changed(event)
     local entity = event.entity or event.destination
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if player.admin or not entity.valid then
         return
     end --Freebees for admins
@@ -109,7 +108,7 @@ Event.add(
                 name = entity.name,
                 position = entity.position,
                 mock = true,
-                last_user = Game.get_player_by_index(1),
+                last_user = game.get_player(1),
                 force = entity.force,
                 direction = get_pre_rotate_direction(entity)
             }
@@ -124,7 +123,7 @@ Event.add(
     defines.events.on_entity_died,
     function(event)
         --is a player on the same force as the destroyed object
-        if event.entity and event.entity.valid and event.entity.force.name == 'player' and event.cause and event.cause.force == event.entity.force and event.cause.type == 'player' then
+        if event.entity and event.entity.valid and event.entity.force.name == 'player' and event.cause and event.cause.force == event.entity.force and event.cause.type == 'character' then
             local new_entity = place_entity_on_surface(event.entity, global.ag_surface, true, event.cause.player)
             if new_entity and event.entity.type == 'container' then
                 local items = event.entity.get_inventory(defines.inventory.chest).get_contents()
@@ -156,7 +155,7 @@ Module.undo =
     if type(player) == 'nil' or type(player) == 'string' then
         return --No support for strings!
     elseif type(player) == 'number' then
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     end
 
     --Remove all items from all surfaces that player placed an entity on

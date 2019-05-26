@@ -51,7 +51,7 @@ end
 
 local function generate_nihil(event)
     for _, e in pairs(event.surface.find_entities_filtered {}) do
-        if e.type ~= 'player' then
+        if e.type ~= 'character' then
             e.destroy()
         end
     end
@@ -74,7 +74,7 @@ function Public.run_combined_module(event)
 end
 
 local function teleport_nearby_players(portal)
-    for _, player_character in pairs(portal.source.find_entities_filtered {area = {{portal.position.x - global.portal_radius, portal.position.y - global.portal_radius}, {portal.position.x + global.portal_radius, portal.position.y + global.portal_radius}}, name = 'player', type = 'player'}) do
+    for _, player_character in pairs(portal.source.find_entities_filtered {area = {{portal.position.x - global.portal_radius, portal.position.y - global.portal_radius}, {portal.position.x + global.portal_radius, portal.position.y + global.portal_radius}}, name = 'character', type = 'character'}) do
         local player = player_character.player
         if not global.last_tp[player.name] or global.last_tp[player.name] + global.teleport_cooldown * 60 < game.tick then
             player.teleport(portal.target, portal.target_surface)
@@ -160,8 +160,8 @@ local function linkportals()
     end
 end
 
-commands.add_command('linkchests', 'Select a chest to link to another. Run this command again to select the other one.', linkchests)
-commands.add_command('linkportals', 'Select a portal to link to another. Run this command again to select the other one.', linkportals)
+commands.add_command('linkchests', 'Select a chest to link to another. Run this command again to select the other one.', linkchests) -- luacheck: ignore
+commands.add_command('linkportals', 'Select a portal to link to another. Run this command again to select the other one.', linkportals) -- luacheck: ignore
 Event.add(defines.events.on_tick, dim_on_tick)
 
 return Public

@@ -4,12 +4,9 @@ local Color = require 'resources.color_presets'
 
 local Public = {}
 
-local market_signal = {type = 'virtual', name = 'signal-O'}
-
 local find_outpost_name = Gui.uid_name()
 
-function Public.do_outpost_toast(market, outpost_name, message)
-    local data = {market = market, outpost_name = outpost_name}
+function Public.do_outpost_toast(market, message)
     Toast.toast_all_players_template(
         15,
         function(container)
@@ -21,7 +18,7 @@ function Public.do_outpost_toast(market, outpost_name, message)
                 style = 'slot_button'
             }
 
-            Gui.set_data(sprite, data)
+            Gui.set_data(sprite, market.position)
 
             local label =
                 container.add {
@@ -41,11 +38,9 @@ Gui.on_click(
     function(event)
         local player = event.player
         local element = event.element
-        local data = Gui.get_data(element)
-        local market = data.market
-        local outpost_name = data.outpost_name
+        local position = Gui.get_data(element)
 
-        player.add_custom_alert(market, market_signal, outpost_name, true)
+        player.zoom_to_world(position, 0.5)
     end
 )
 

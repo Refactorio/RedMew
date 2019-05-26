@@ -9,6 +9,7 @@ local pages = {
     require 'features.gui.debug.package_view',
     require 'features.gui.debug._g_view',
     require 'features.gui.debug.gui_data_view'
+    require 'features.gui.debug.event_view'
 }
 
 local main_frame_name = Gui.uid_name()
@@ -16,13 +17,21 @@ local close_name = Gui.uid_name()
 local tab_name = Gui.uid_name()
 
 function Public.open_dubug(player)
+    for i = 1, #pages do
+        local page = pages[i]
+        local callback = page.on_open_debug
+        if callback then
+            callback()
+        end
+    end
+
     local center = player.gui.center
     local frame = center[main_frame_name]
     if frame then
         return
     end
 
-    frame = center.add {type = 'frame', name = main_frame_name, caption = 'Debuggertron 3000', direction = 'vertical'}
+    frame = center.add {type = 'frame', name = main_frame_name, caption = 'Debuggertron 3001', direction = 'vertical'}
     local frame_style = frame.style
     frame_style.height = 600
     frame_style.width = 900
@@ -70,7 +79,7 @@ Gui.on_click(
         end
 
         local selected_tab_button = frame_data.selected_tab_button
-        selected_tab_button.style.font_color = Color.white
+        selected_tab_button.style.font_color = Color.black
 
         frame_data.selected_tab_button = element
         frame_data.selected_index = index

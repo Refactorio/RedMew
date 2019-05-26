@@ -1,4 +1,5 @@
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 
 local insert = table.insert
 
@@ -206,20 +207,20 @@ local function extract4(args, player)
 end
 
 Command.add(
-    'extract1',
+    'crash-site-extract1',
     {
         arguments = {'size'},
         default_values = {size = 6},
-        admin_only = true
+        required_rank = Ranks.admin
     },
     extract1
 )
 Command.add(
-    'extract4',
+    'crash-site-extract4',
     {
         arguments = {'size'},
         default_values = {size = 6},
-        admin_only = true
+        required_rank = Ranks.admin
     },
     extract4
 )

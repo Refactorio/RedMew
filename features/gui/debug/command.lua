@@ -10,8 +10,8 @@ local log = log
 Command.add(
     'debug',
     {
-        debug_only = true,
-        description = 'Opens the debugger'
+        description = {'command_descriptiondebuger'},
+        debug_only = true
     },
     function(_, player)
         DebugView.open_dubug(player)

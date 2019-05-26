@@ -1,12 +1,5 @@
 -- Map by grilledham & Jayefuu
 
--- Set scenario generation cliffs to none.
--- Load blueprint from scenarios\RedMew\map_gen\data\presets\tetris\
--- Obtain items using silent commands from scenarios\RedMew\map_gen\data\presets\tetris\
--- Place the blueprint on the island south of spawn
--- Teleport to centre of island and run the second command in tetris_theme_items_command.txt
--- Excellent tetris themed music generated from midi files, credit to mgabor of miditorio.com
-
 local b = require 'map_gen.shared.builders'
 local math = require 'utils.math'
 local table = require 'utils.table'

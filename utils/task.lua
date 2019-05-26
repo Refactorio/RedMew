@@ -8,6 +8,7 @@ local Queue = require 'utils.queue'
 local PriorityQueue = require 'utils.priority_queue'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
+local ErrorLogging = require 'utils.error_logging'
 
 local Task = {}
 
@@ -45,6 +46,7 @@ local function on_tick()
                     error(result)
                 else
                     log(result)
+                    ErrorLogging.generate_error_report(result)
                 end
                 Queue.pop(queue)
                 global.total_task_weight = global.total_task_weight - task.weight
@@ -64,6 +66,7 @@ local function on_tick()
                 error(result)
             else
                 log(result)
+                ErrorLogging.generate_error_report(result)
             end
         end
         PriorityQueue.pop(callbacks, comp)
@@ -77,6 +80,9 @@ end
 -- @param func_token <number> a token for a function store via the token system
 -- @param params <any> the argument to send to the tokened function
 function Task.set_timeout_in_ticks(ticks, func_token, params)
+    if not game then
+        error('cannot call when game is not available', 2)
+    end
     local time = game.tick + ticks
     local callback = {time = time, func_token = func_token, params = params}
     PriorityQueue.push(global.callbacks, callback, comp)
@@ -88,6 +94,9 @@ end
 -- @param func_token <number> a token for a function store via the token system
 -- @param params <any> the argument to send to the tokened function
 function Task.set_timeout(sec, func_token, params)
+    if not game then
+        error('cannot call when game is not available', 2)
+    end
     Task.set_timeout_in_ticks(60 * sec, func_token, params)
 end
 

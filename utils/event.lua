@@ -1,3 +1,4 @@
+-- luacheck: globals script
 --- This Module allows for registering multiple handlers to the same event, overcoming the limitation of script.register.
 --
 -- ** Event.add(event_name, handler) **
@@ -104,6 +105,10 @@ local core_add = EventCore.add
 local core_on_init = EventCore.on_init
 local core_on_load = EventCore.on_load
 local core_on_nth_tick = EventCore.on_nth_tick
+local stage_load = _STAGE.load
+local script_on_event = script.on_event
+local script_on_nth_tick = script.on_nth_tick
+local generate_event_name = script.generate_event_name
 
 local Event = {}
 
@@ -205,6 +210,9 @@ function Event.add_removable(event_name, token)
     if type(token) ~= 'number' then
         error('token must be a number', 2)
     end
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
 
     local tokens = token_handlers[event_name]
     if not tokens then
@@ -225,6 +233,9 @@ end
 -- @param  event_name<number>
 -- @param  token<number>
 function Event.remove_removable(event_name, token)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     local tokens = token_handlers[event_name]
 
     if not tokens then
@@ -238,7 +249,7 @@ function Event.remove_removable(event_name, token)
     remove(handlers, handler)
 
     if #handlers == 0 then
-        script.on_event(event_name, nil)
+        script_on_event(event_name, nil)
     end
 end
 
@@ -249,15 +260,15 @@ end
 -- @param  event_name<number>
 -- @param  func<function>
 function Event.add_removable_function(event_name, func)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     if type(func) ~= 'function' then
         error('func must be a function', 2)
     end
 
     if Debug.is_closure(func) then
-        error(
-            'func cannot be a closure as that is a desync risk. Consider using Event.add_removable(event_name, token) instead.',
-            2
-        )
+        error('func cannot be a closure as that is a desync risk. Consider using Event.add_removable(event_name, token) instead.', 2)
     end
 
     local funcs = function_handlers[event_name]
@@ -278,6 +289,9 @@ end
 -- @param  event_name<number>
 -- @param  func<function>
 function Event.remove_removable_function(event_name, func)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     local funcs = function_handlers[event_name]
 
     if not funcs then
@@ -290,7 +304,7 @@ function Event.remove_removable_function(event_name, func)
     remove(handlers, func)
 
     if #handlers == 0 then
-        script.on_event(event_name, nil)
+        script_on_event(event_name, nil)
     end
 end
 
@@ -300,6 +314,9 @@ end
 -- @param  tick<number>
 -- @param  token<number>
 function Event.add_removable_nth_tick(tick, token)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     if type(token) ~= 'number' then
         error('token must be a number', 2)
     end
@@ -323,6 +340,9 @@ end
 -- @param  tick<number>
 -- @param  token<number>
 function Event.remove_removable_nth_tick(tick, token)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     local tokens = token_nth_tick_handlers[tick]
 
     if not tokens then
@@ -336,7 +356,7 @@ function Event.remove_removable_nth_tick(tick, token)
     remove(handlers, handler)
 
     if #handlers == 0 then
-        script.on_nth_tick(tick, nil)
+        script_on_nth_tick(tick, nil)
     end
 end
 
@@ -347,15 +367,15 @@ end
 -- @param  tick<number>
 -- @param  func<function>
 function Event.add_removable_nth_tick_function(tick, func)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     if type(func) ~= 'function' then
         error('func must be a function', 2)
     end
 
     if Debug.is_closure(func) then
-        error(
-            'func cannot be a closure as that is a desync risk. Consider using Event.add_removable_nth_tick(tick, token) instead.',
-            2
-        )
+        error('func cannot be a closure as that is a desync risk. Consider using Event.add_removable_nth_tick(tick, token) instead.', 2)
     end
 
     local funcs = function_nth_tick_handlers[tick]
@@ -376,6 +396,9 @@ end
 -- @param  tick<number>
 -- @param  func<function>
 function Event.remove_removable_nth_tick_function(tick, func)
+    if _LIFECYCLE == stage_load then
+        error('cannot call during on_load', 2)
+    end
     local funcs = function_nth_tick_handlers[tick]
 
     if not funcs then
@@ -388,8 +411,21 @@ function Event.remove_removable_nth_tick_function(tick, func)
     remove(handlers, func)
 
     if #handlers == 0 then
-        script.on_nth_tick(tick, nil)
+        script_on_nth_tick(tick, nil)
     end
+end
+
+--- Generate a new, unique event ID.
+-- @param <string> name of the event/variable that is exposed
+function Event.generate_event_name(name)
+    local event_id = generate_event_name()
+
+    -- If we're in debug, add the event ID into defines.events for the debuggertron's event module
+    if _DEBUG then
+        defines.events[name] = event_id -- luacheck: ignore 122
+    end
+
+    return event_id
 end
 
 local function add_handlers()

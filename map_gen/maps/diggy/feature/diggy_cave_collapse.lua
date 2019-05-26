@@ -9,7 +9,6 @@ local Debug = require 'map_gen.maps.diggy.debug'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local CreateParticles = require 'features.create_particles'
 local RS = require 'map_gen.shared.redmew_surface'
 local table = require 'utils.table'
@@ -91,14 +90,14 @@ DiggyCaveCollapse.events = {
          - surface LuaSurface
          - player_index Number (index of player that caused the collapse)
     ]]
-    on_collapse_triggered = script.generate_event_name(),
+    on_collapse_triggered = Event.generate_event_name('on_collapse_triggered'),
     --[[--
         After a collapse
          - position LuaPosition
          - surface LuaSurface
          - player_index Number (index of player that caused the collapse)
     ]]
-    on_collapse = script.generate_event_name()
+    on_collapse = Event.generate_event_name('on_collapse')
 }
 
 local function create_collapse_template(positions, surface)
@@ -274,7 +273,7 @@ local function on_entity_died(event)
         local player_index
         if not is_diggy_rock(name) then
             local cause = event.cause
-            player_index = cause and cause.type == 'player' and cause.player and cause.player.index or nil
+            player_index = cause and cause.type == 'character' and cause.player and cause.player.index or nil
         end
         stress_map_add(entity.surface, entity.position, strength, false, player_index)
     end
@@ -397,7 +396,7 @@ function DiggyCaveCollapse.register(cfg)
             end
 
             if name == 'deconstructible-tile-proxy' or nil ~= support_beam_entities[name] then
-                entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
+                entity.cancel_deconstruction(game.get_player(event.player_index).force)
             end
         end
     )
@@ -419,7 +418,7 @@ function DiggyCaveCollapse.register(cfg)
 
             if (nil ~= support_beam_entities[event.entity.name]) then
                 require 'features.gui.popup'.player(
-                    Game.get_player_by_index(player_index),
+                    game.get_player(player_index),
                     [[
 Mining entities such as walls, stone paths, concrete
 and rocks, can cause a cave-in, be careful miner!

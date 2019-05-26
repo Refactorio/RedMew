@@ -45,7 +45,6 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Schedule = require 'utils.task'
 local PlayerStats = require 'features.player_stats'
-local Game = require 'utils.game'
 local math = require 'utils.math'
 local Color = require 'resources.color_presets'
 local format = string.format
@@ -74,7 +73,7 @@ Retailer.events = {
     --        player = player,
     --        group_name = group_name,
     --    }
-    on_market_purchase = script.generate_event_name(),
+    on_market_purchase = Event.generate_event_name('on_market_purchase'),
 }
 
 Retailer.item_types = {
@@ -233,7 +232,7 @@ local function redraw_market_items(data)
     local count = data.count
     local market_items = data.market_items
     local player_index = data.player_index
-    local player_coins = Game.get_player_by_index(player_index).get_item_count('coin')
+    local player_coins = game.get_player(player_index).get_item_count('coin')
 
     if size(market_items) == 0 then
         grid.add({type = 'label', caption = 'No items available at this time'})
@@ -298,11 +297,11 @@ local function redraw_market_items(data)
         if disabled then
             insert(tooltip, '\n\n' .. (item.disabled_reason or 'Not available'))
         elseif is_missing_coins then
-            insert(tooltip, '\n\n' .. format('Missing %d coins to buy %d', missing_coins, stack_count))
+            insert(tooltip, '\n\n' .. format('Missing %s coins to buy %s', missing_coins, stack_count))
         end
 
         if has_player_limit then
-            insert(tooltip, '\n\n' .. format('You have bought this item %d out of %d times', item.player_limit - player_limit, item.player_limit))
+            insert(tooltip, '\n\n' .. format('You have bought this item %s out of %s times', item.player_limit - player_limit, item.player_limit))
         end
 
         local button = grid.add({type = 'flow'}).add({
@@ -406,16 +405,16 @@ local function draw_market_frame(player, group_name)
 end
 
 ---Returns the group name of the market at the given position, nil if not registered.
----@param position Position
+---@param position <table> Position
 local function get_market_group_name(position)
-    return memory.markets[position.x .. ',' .. position.y]
+    return memory.markets[(position.x or position[1]) .. ',' .. (position.y or position[2])]
 end
 
 ---Sets the group name for a market at a given position.
----@param position Position
----@param group_name string
+---@param position <table> Position
+---@param group_name <string>
 local function set_market_group_name(position, group_name)
-    memory.markets[position.x .. ',' .. position.y] = group_name
+    memory.markets[(position.x or position[1]) .. ',' .. (position.y or position[2])] = group_name
 end
 
 Event.add(defines.events.on_gui_opened, function (event)
@@ -434,7 +433,7 @@ Event.add(defines.events.on_gui_opened, function (event)
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -471,7 +470,7 @@ Gui.on_click(market_frame_close_button_name, function (event)
 end)
 
 Event.add(defines.events.on_player_died, function (event)
-    local player = Game.get_player_by_index(event.player_index or 0)
+    local player = game.get_player(event.player_index or 0)
 
     if not player or not player.valid then
         return
@@ -586,6 +585,12 @@ function Retailer.add_market(group_name, market_entity)
     set_market_group_name(market_entity.position, group_name)
 end
 
+---Returns the group name of the market, nil if not registered.
+---@param market_entity LuaEntity
+function Retailer.get_market_group_name(market_entity)
+    return get_market_group_name(market_entity.position)
+end
+
 ---Sets an item for all the group_name markets.
 ---@param group_name string
 ---@param prototype table with item name and price
@@ -669,7 +674,7 @@ do_update_market_gui = Token.register(function(params)
 
     for player_index, view_data in pairs(memory.players_in_market_view) do
         if group_name == view_data.group_name then
-            local player = Game.get_player_by_index(player_index)
+            local player = game.get_player(player_index)
             if player and player.valid then
                 local frame = player.gui.center[market_frame_name]
                 if not frame or not frame.valid then
@@ -691,7 +696,7 @@ end)
 
 Event.on_nth_tick(37, function()
     for player_index, view_data in pairs(memory.players_in_market_view) do
-        local player = Game.get_player_by_index(player_index)
+        local player = game.get_player(player_index)
         if player and player.valid then
             local player_position = player.position
             local market_position = view_data.position

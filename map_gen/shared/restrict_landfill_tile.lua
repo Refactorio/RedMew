@@ -1,12 +1,16 @@
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 
 global.allowed_landfill_tiles = {}
 
 Event.add(
     defines.events.on_player_built_tile,
     function(event)
-        local item_name = event.item.name
+        local item = event.item
+        if not item then
+            return
+        end
+
+        local item_name = item.name
         if item_name ~= 'landfill' then
             return
         end
@@ -30,7 +34,7 @@ Event.add(
         local surface = game.surfaces[event.surface_index]
         surface.set_tiles(new_tiles)
 
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         player.insert {name = item_name, count = count}
     end
 )

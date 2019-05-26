@@ -2,7 +2,6 @@ local Module = {}
 
 local Gui = require 'utils.gui'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 
 local main_button_name = Gui.uid_name()
@@ -189,14 +188,14 @@ local function toggle(player)
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
 
     if player.gui.top[main_button_name] ~= nil then
         return
     end
 
     player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'utility/force_editor_icon'}
-    toggle(Game.get_player_by_index(event.player_index))
+    toggle(game.get_player(event.player_index))
 end
 
 Gui.on_click(

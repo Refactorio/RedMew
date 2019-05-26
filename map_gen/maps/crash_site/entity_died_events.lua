@@ -2,7 +2,6 @@ local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local math = require 'utils.math'
 
 local random = math.random
@@ -31,7 +30,8 @@ local entity_drop_amount = {
     ['spitter-spawner'] = {low = 8, high = 24},
     ['small-worm-turret'] = {low = 3, high = 10},
     ['medium-worm-turret'] = {low = 8, high = 24},
-    ['big-worm-turret'] = {low = 15, high = 30}
+    ['big-worm-turret'] = {low = 15, high = 30},
+    ['behemoth-worm-turret'] = {low = 25, high = 45}
 }
 
 local spill_items =
@@ -51,6 +51,7 @@ local entity_spawn_map = {
     ['behemoth-spitter'] = {name = 'big-worm-turret', count = 1, chance = 0.2},
     ['biter-spawner'] = {type = 'biter', count = 5, chance = 1},
     ['spitter-spawner'] = {type = 'spitter', count = 5, chance = 1},
+    ['behemoth-worm-turret'] = {name = 'behemoth-spitter', count = 2, chance = 1},
     ['stone-furnace'] = {type = 'cause', count = 2, chance = 1},
     ['steel-furnace'] = {type = 'cause', count = 2, chance = 1},
     ['electric-furnace'] = {type = 'cause', count = 4, chance = 1},
@@ -97,7 +98,8 @@ local unit_levels = {
 local worms = {
     ['small-worm-turret'] = true,
     ['medium-worm-turret'] = true,
-    ['big-worm-turret'] = true
+    ['big-worm-turret'] = true,
+    ['behemoth-worm-turret'] = true
 }
 
 local allowed_cause_source = {
@@ -248,7 +250,7 @@ Event.add(
 Event.add(
     defines.events.on_player_died,
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         set_timeout_in_ticks(1, spawn_player, player)
     end
 )

@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 
 local brush_tool = 'refined-hazard-concrete'
@@ -52,7 +51,12 @@ Global.register(
 )
 
 local function player_build_tile(event)
-    if event.item.name ~= brush_tool then
+    local item = event.item
+    if not item then
+        return
+    end
+
+    if item.name ~= brush_tool then
         return
     end
 
@@ -61,15 +65,17 @@ local function player_build_tile(event)
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player.gui.left[main_frame_name] then
         return
     end
 
     local tiles = event.tiles
     local count = 0
-    for _, tile_data in ipairs(tiles) do
+    for i = 1, #tiles do
+        local tile_data = tiles[i]
         tile_data.name = replace_tile
+
         if tile_data.old_tile.name == replace_tile then
             count = count + 1
         end
@@ -83,7 +89,7 @@ local function player_build_tile(event)
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -92,7 +98,12 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'utility/spray_icon'}
+    player.gui.top.add({
+        name = main_button_name,
+        type = 'sprite-button',
+        sprite = 'utility/spray_icon',
+        tooltip = {'paint.tooltip'}
+    })
 end
 
 local function draw_filters_table(event)
@@ -193,6 +204,10 @@ Gui.on_click(
     filter_element_name,
     function(event)
         local element = event.element
+        if not element or not element.valid then
+            return
+        end
+
         local frame = Gui.get_data(element)
         local filter_button = Gui.get_data(frame)
 

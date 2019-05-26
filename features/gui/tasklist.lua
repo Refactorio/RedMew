@@ -1,12 +1,12 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Utils = require 'utils.core'
-local Game = require 'utils.game'
-local Color = require 'resources.color_presets'
 local math = require 'utils.math'
 local Command = require 'utils.command'
+local Color = require 'resources.color_presets'
+local Ranks = require 'resources.ranks'
 
 local normal_color = Color.white
 local focus_color = Color.dark_orange
@@ -115,7 +115,7 @@ local function get_editing_players_message(players)
     local message = {'Editing players: '}
 
     for pi, _ in pairs(players) do
-        local name = Game.get_player_by_index(pi).name
+        local name = game.get_player(pi).name
         table.insert(message, name)
         table.insert(message, ', ')
     end
@@ -311,7 +311,7 @@ local function redraw_tasks(data, enabled)
 end
 
 local function draw_main_frame(left, player)
-    local enabled = player.admin or UserGroups.is_regular(player.name)
+    local enabled = Rank.equal_or_greater_than(player.name, Ranks.regular)
 
     local data = {}
 
@@ -353,7 +353,7 @@ local function draw_main_frame(left, player)
 
     local announcements_textbox = frame.add {type = 'text-box', text = announcements.text}
     announcements_textbox.read_only = true
-    announcements_textbox.word_wrap = true
+    --announcements_textbox.word_wrap = true
     local announcements_textbox_style = announcements_textbox.style
     announcements_textbox_style.width = 450
     announcements_textbox_style.height = 100
@@ -537,7 +537,7 @@ local function create_new_tasks(task_name, player)
             local frame_data = Gui.get_data(frame)
             frame_data.tasks_updated_label.caption = update_message
 
-            local enabled = p.admin or UserGroups.is_regular(p.name)
+            local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
             redraw_tasks(frame_data, enabled)
         elseif notify then
             draw_main_frame(left, p)
@@ -585,7 +585,7 @@ local function draw_create_task_frame(left, previous_task)
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -605,7 +605,7 @@ local function player_joined(event)
         label.caption = last_edit_message
         label.tooltip = last_edit_message
 
-        local enabled = player.admin or UserGroups.is_regular(player.name)
+        local enabled = Rank.equal_or_greater_than(player.name, Ranks.regular)
         redraw_tasks(data, enabled)
     end
 
@@ -626,12 +626,17 @@ local function player_joined(event)
 
     local top = gui.top
     if not top[main_button_name] then
-        top.add {type = 'sprite-button', name = main_button_name, sprite = 'item/repair-pack'}
+        top.add({
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'item/repair-pack',
+            tooltip = {'tasklist.tooltip'}
+        })
     end
 end
 
 local function player_left(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local left = player.gui.left
 
     local frame = left[edit_announcements_frame_name]
@@ -693,7 +698,7 @@ Gui.on_click(
         local editing_players_label = top_flow.add {type = 'label'}
 
         local textbox = frame.add {type = 'text-box', name = edit_announcements_textbox_name, text = announcements.edit_text}
-        textbox.word_wrap = true
+        --textbox.word_wrap = true
         local textbox_style = textbox.style
         textbox_style.width = 450
         textbox_style.height = 100
@@ -729,7 +734,7 @@ Gui.on_click(
     end
 )
 
-Gui.on_click(
+Gui.on_checked_state_changed(
     notify_checkbox_name,
     function(event)
         local checkbox = event.element
@@ -821,7 +826,7 @@ Gui.on_click(
             local frame = left[main_frame_name]
             if frame and frame.valid then
                 local data = Gui.get_data(frame)
-                local enabled = p.admin or UserGroups.is_regular(p.name)
+                local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
                 redraw_tasks(data, enabled)
             elseif notify then
                 draw_main_frame(left, p)
@@ -876,7 +881,7 @@ local function do_direction(event, sign)
         local frame = p.gui.left[main_frame_name]
         if frame and frame.valid then
             local data = Gui.get_data(frame)
-            local enabled = p.admin or UserGroups.is_regular(p.name)
+            local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
             redraw_tasks(data, enabled)
         end
     end
@@ -1056,7 +1061,7 @@ Gui.on_click(
                 local main_frame_data = Gui.get_data(main_frame)
 
                 main_frame_data.tasks_updated_label.caption = update_message
-                local enabled = p.admin or UserGroups.is_regular(p.name)
+                local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
                 redraw_tasks(main_frame_data, enabled)
             elseif notify then
                 draw_main_frame(left, p)
@@ -1074,9 +1079,9 @@ Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 Command.add(
     'task',
     {
-        description = 'Creates a new task.',
+        description = {'command_description.task'},
         arguments = {'task'},
-        regular_only = true,
+        required_rank = Ranks.regular,
         allowed_by_server = true,
         log_command = true,
         capture_excess_arguments = true,

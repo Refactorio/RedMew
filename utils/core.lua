@@ -32,10 +32,10 @@ function Module.distance(pos1, pos2)
 end
 
 --- Takes msg and prints it to all players except provided player
--- @param msg <string> The message to print
--- @param color <table> the color to use for the message
+-- @param msg <string|table> table if locale is used
 -- @param player <LuaPlayer> the player not to send the message to
-function Module.print_except(msg, color, player)
+-- @param color <table> the color to use for the message, defaults to white
+function Module.print_except(msg, player, color)
     if not color then
         color = Color.white
     end
@@ -48,8 +48,8 @@ function Module.print_except(msg, color, player)
 end
 
 --- Prints a message to all online admins
---@param msg <string> The message to print
---@param source <LuaPlayer|string|nil> string must be the name of a player, nil for server.
+-- @param msg <string|table> table if locale is used
+-- @param source <LuaPlayer|string|nil> string must be the name of a player, nil for server.
 function Module.print_admins(msg, source)
     local source_name
     local chat_color
@@ -65,8 +65,8 @@ function Module.print_admins(msg, source)
         source_name = 'Server'
         chat_color = Color.yellow
     end
-    local formatted_msg = format('%s(ADMIN) %s: %s', prefix, source_name, msg) -- to the server
-    print(formatted_msg)
+    local formatted_msg = {'utils_core.print_admins', prefix, source_name, msg}
+    log(formatted_msg)
     for _, p in pairs(game.connected_players) do
         if p.admin then
             p.print(formatted_msg, chat_color)
@@ -92,11 +92,19 @@ end
 
 function Module.find_entities_by_last_user(player, surface, filters)
     if type(player) == 'string' or not player then
-        error("bad argument #1 to '" .. debug.getinfo(1, 'n').name .. "' (number or LuaPlayer expected, got " .. type(player) .. ')', 1)
+        error(
+            "bad argument #1 to '" ..
+                debug.getinfo(1, 'n').name .. "' (number or LuaPlayer expected, got " .. type(player) .. ')',
+            1
+        )
         return
     end
     if type(surface) ~= 'table' and type(surface) ~= 'number' then
-        error("bad argument #2 to '" .. debug.getinfo(1, 'n').name .. "' (number or LuaSurface expected, got " .. type(surface) .. ')', 1)
+        error(
+            "bad argument #2 to '" ..
+                debug.getinfo(1, 'n').name .. "' (number or LuaSurface expected, got " .. type(surface) .. ')',
+            1
+        )
         return
     end
     local entities = {}
@@ -105,7 +113,7 @@ function Module.find_entities_by_last_user(player, surface, filters)
         surface = game.surfaces[surface]
     end
     if type(player) == 'number' then
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     end
     filter.force = player.force.name
     for _, e in pairs(surface.find_entities_filtered(filter)) do
@@ -216,10 +224,36 @@ end
 -- @param warning_prefix <string> The name of the module/warning
 -- @param player <LuaPlayer> the player not to send the message to
 function Module.silent_action_warning(warning_prefix, msg, player)
-    Module.print_except(prefix .. msg, Color.yellow, player)
+    Module.print_except(prefix .. msg, player, Color.yellow)
     msg = format('%s %s', warning_prefix, msg)
     log(msg)
     Server.to_discord_bold(msg)
+end
+
+--- Takes a string, number, or LuaPlayer and returns a valid LuaPlayer or nil.
+-- Intended for commands as there are extra checks in place.
+-- @param <string|number|LuaPlayer>
+-- @return <LuaPlayer|nil> <string|nil> <number|nil> the LuaPlayer, their name, and their index
+function Module.validate_player(player_ident)
+    local data_type = type(player_ident)
+    local player
+
+    if data_type == 'table' and player_ident.valid then
+        local is_player = player_ident.is_player()
+        if is_player then
+            player = player_ident
+        end
+    elseif data_type == 'number' or data_type == 'string' then
+        player = game.get_player(player_ident)
+    else
+        return
+    end
+
+    if not player or not player.valid then
+        return
+    end
+
+    return player, player.name, player.index
 end
 
 -- add utility functions that exist in base factorio/util

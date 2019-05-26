@@ -50,7 +50,8 @@ local ignore = {
     script = true,
     util = true,
     mod_gui = true,
-    game = true
+    game = true,
+    rendering = true
 }
 
 local header_name = Gui.uid_name()
@@ -75,13 +76,14 @@ function Public.show(container)
     end
 
     local right_panel = main_flow.add {type = 'text-box', name = right_panel_name}
-    right_panel.word_wrap = true
     right_panel.read_only = true
     right_panel.selectable = true
 
     local right_panel_style = right_panel.style
     right_panel_style.vertically_stretchable = true
     right_panel_style.horizontally_stretchable = true
+    right_panel_style.maximal_width = 1000
+    right_panel_style.maximal_height = 1000
 
     Gui.set_data(left_panel, {right_panel = right_panel, selected_header = nil})
 end

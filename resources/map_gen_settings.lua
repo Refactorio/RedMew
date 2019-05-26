@@ -14,85 +14,75 @@ return {
     default = {
         autoplace_controls = {
             coal = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
+                frequency = 1,
+                richness = 1,
+                size = 1
             },
             ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
+                frequency = 1,
+                richness = 1,
+                size = 1
             },
             ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            desert = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            dirt = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
+                frequency = 1,
+                richness = 1,
+                size = 1
             },
             ['enemy-base'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            grass = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
+                frequency = 1,
+                richness = 1,
+                size = 1
             },
             ['iron-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
-            },
-            sand = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
+                frequency = 1,
+                richness = 1,
+                size = 1
             },
             stone = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
+                frequency = 1,
+                richness = 1,
+                size = 1
             },
             trees = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
+                frequency = 1,
+                richness = 1,
+                size = 1
             },
             ['uranium-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'normal'
+                frequency = 1,
+                richness = 1,
+                size = 1
             }
         },
+        autoplace_settings = {},
         cliff_settings = {
             cliff_elevation_0 = 10,
-            cliff_elevation_interval = 10,
-            name = 'cliff'
+            cliff_elevation_interval = 40,
+            name = 'cliff',
+            richness = 1
         },
         height = 2000000,
         peaceful_mode = false,
-        starting_area = 'normal',
-        terrain_segmentation = 'normal',
-        water = 'normal',
+        property_expression_names = {},
+        seed = nil,
+        starting_area = 1,
+        starting_points = {
+            {
+                x = 0,
+                y = 0
+            }
+        },
+        terrain_segmentation = 1,
+        water = 1,
         width = 2000000
     },
     -- no enemies
     enemy_none = {
         autoplace_controls = {
             ['enemy-base'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             }
         }
     },
@@ -100,9 +90,9 @@ return {
     enemy_high = {
         autoplace_controls = {
             ['enemy-base'] = {
-                frequency = 'high',
-                richness = 'normal',
-                size = 'high'
+                frequency = 1.41,
+                richness = 1,
+                size = 1.41
             }
         }
     },
@@ -110,9 +100,9 @@ return {
     enemy_very_high = {
         autoplace_controls = {
             ['enemy-base'] = {
-                frequency = 'very-high',
-                richness = 'normal',
-                size = 'very-high'
+                frequency = 2,
+                richness = 1,
+                size = 2
             }
         }
     },
@@ -120,29 +110,29 @@ return {
     ore_none = {
         autoplace_controls = {
             coal = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             },
             ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             },
             ['iron-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             },
             stone = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             },
             ['uranium-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             }
         }
     },
@@ -150,9 +140,9 @@ return {
     oil_none = {
         autoplace_controls = {
             ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             }
         }
     },
@@ -160,46 +150,56 @@ return {
     ore_oil_none = {
         autoplace_controls = {
             coal = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             },
             ['copper-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             },
             ['crude-oil'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             },
             ['iron-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             },
             stone = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             },
             ['uranium-ore'] = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             }
         }
     },
     -- no water
     water_none = {
-        terrain_segmentation = 'very-low',
-        water = 'none'
+        autoplace_settings = {
+            tile = {
+                settings = {
+                    ['deepwater'] = {frequency = 1, size = 0, richness = 1},
+                    ['deepwater-green'] = {frequency = 1, size = 0, richness = 1},
+                    ['water'] = {frequency = 1, size = 0, richness = 1},
+                    ['water-green'] = {frequency = 1, size = 0, richness = 1},
+                    ['water-mud'] = {frequency = 1, size = 0, richness = 1},
+                    ['water-shallow'] = {frequency = 1, size = 0, richness = 1}
+                }
+            }
+        }
     },
     -- very low water
     water_very_low = {
-        terrain_segmentation = 'very-low',
-        water = 'very-low'
+        terrain_segmentation = 0.5,
+        water = 0.5
     },
     -- no cliffs
     cliff_none = {
@@ -215,6 +215,14 @@ return {
         cliff_elevation_0 = 10,
         cliff_elevation_interval = 10
     },
+    -- cliffs to high frequency, big size
+    cliff_high = {
+        cliff_settings = {
+            cliff_elevation_0 = 5,
+            cliff_elevation_interval = 5,
+            name = 'cliff'
+        }
+    },
     -- cliffs to very high frequency, very big size
     cliff_very_high = {
         cliff_settings = {
@@ -227,9 +235,9 @@ return {
     tree_none = {
         autoplace_controls = {
             trees = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+                frequency = 1,
+                richness = 1,
+                size = 0
             }
         }
     },
@@ -237,88 +245,121 @@ return {
     tree_very_high = {
         autoplace_controls = {
             trees = {
-                frequency = 'very-high',
-                richness = 'very-high',
-                size = 'very-high'
+                frequency = 2,
+                richness = 2,
+                size = 2
             }
         }
     },
     -- starting area to very low
     starting_area_very_low = {
-        starting_area = 'very-low'
+        starting_area = 0
     },
     -- peaceful mode on
     peaceful_mode_on = {
-        peaceful_mode = false
+        peaceful_mode = true
     },
     -- random seed, in case you need/want the seed to be unique from nauvis
     unique_seed = {
         seed = nil
     },
-    -- grass only
-    grass_only = {
-        autoplace_controls = {
-            grass = {frequency = 'normal', size = 'normal', richness = 'normal'},
-            desert = {frequency = 'normal', size = 'none', richness = 'normal'},
-            dirt = {frequency = 'normal', size = 'none', richness = 'normal'},
-            sand = {frequency = 'normal', size = 'none', richness = 'normal'}
-        }
-    },
-    -- desert only
-    desert_only = {
-        autoplace_controls = {
-            grass = {frequency = 'normal', size = 'none', richness = 'normal'},
-            desert = {frequency = 'normal', size = 'normal', richness = 'normal'},
-            dirt = {frequency = 'normal', size = 'none', richness = 'normal'},
-            sand = {frequency = 'normal', size = 'none', richness = 'normal'}
-        }
-    },
-    -- dirt only
-    dirt_only = {
-        autoplace_controls = {
-            grass = {frequency = 'normal', size = 'none', richness = 'normal'},
-            desert = {frequency = 'normal', size = 'none', richness = 'normal'},
-            dirt = {frequency = 'normal', size = 'normal', richness = 'normal'},
-            sand = {frequency = 'normal', size = 'none', richness = 'normal'}
-        }
-    },
-    -- sand only
-    sand_only = {
-        autoplace_controls = {
-            grass = {frequency = 'normal', size = 'none', richness = 'normal'},
-            desert = {frequency = 'normal', size = 'none', richness = 'normal'},
-            dirt = {frequency = 'normal', size = 'none', richness = 'normal'},
-            sand = {frequency = 'normal', size = 'normal', richness = 'normal'}
-        }
-    },
-    -- will generate a world with only water (useful for maps that want full terrain control and no entities on the surface)
-    waterworld = {
-        autoplace_controls = {
-            desert = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            dirt = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            grass = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
-            },
-            sand = {
-                frequency = 'normal',
-                richness = 'normal',
-                size = 'none'
+    -- grass1 only (no water, you will need to add enabled_water if you want water)
+    grass1_only = {
+        autoplace_settings = {
+            tile = {
+                treat_missing_as_default = false,
+                settings = {
+                    ['grass-1'] = {frequency = 1, size = 1, richness = 1}
+                }
             }
-        },
-        starting_points = {
-            {
-                x = 0,
-                y = 0
+        }
+    },
+    -- grass only (no water, you will need to add enabled_water if you want water)
+    grass_only = {
+        autoplace_settings = {
+            tile = {
+                treat_missing_as_default = false,
+                settings = {
+                    ['grass-1'] = {frequency = 1, size = 1, richness = 1},
+                    ['grass-2'] = {frequency = 1, size = 1, richness = 1},
+                    ['grass-3'] = {frequency = 1, size = 1, richness = 1},
+                    ['grass-4'] = {frequency = 1, size = 1, richness = 1}
+                }
+            }
+        }
+    },
+    -- desert only (no water, you will need to add enabled_water if you want water)
+    desert_only = {
+        autoplace_settings = {
+            tile = {
+                treat_missing_as_default = false,
+                settings = {
+                    ['red-desert-0'] = {frequency = 1, size = 1, richness = 1},
+                    ['red-desert-1'] = {frequency = 1, size = 1, richness = 1},
+                    ['red-desert-2'] = {frequency = 1, size = 1, richness = 1},
+                    ['red-desert-3'] = {frequency = 1, size = 1, richness = 1}
+                }
+            }
+        }
+    },
+    -- dirt only (no water, you will need to add enabled_water if you want water)
+    dirt_only = {
+        autoplace_settings = {
+            tile = {
+                treat_missing_as_default = false,
+                settings = {
+                    ['dirt-1'] = {frequency = 1, size = 1, richness = 1},
+                    ['dirt-2'] = {frequency = 1, size = 1, richness = 1},
+                    ['dirt-3'] = {frequency = 1, size = 1, richness = 1},
+                    ['dirt-4'] = {frequency = 1, size = 1, richness = 1},
+                    ['dirt-5'] = {frequency = 1, size = 1, richness = 1},
+                    ['dirt-6'] = {frequency = 1, size = 1, richness = 1},
+                    ['dirt-7'] = {frequency = 1, size = 1, richness = 1}
+                }
+            }
+        }
+    },
+    -- sand only (no water, you will need to add enabled_water if you want water)
+    sand_only = {
+        autoplace_settings = {
+            tile = {
+                treat_missing_as_default = false,
+                settings = {
+                    ['sand-1'] = {frequency = 1, size = 1, richness = 1},
+                    ['sand-2'] = {frequency = 1, size = 1, richness = 1},
+                    ['sand-3'] = {frequency = 1, size = 1, richness = 1}
+                }
+            }
+        }
+    },
+    -- adds water to *_only maps
+    enable_water = {
+        autoplace_settings = {
+            tile = {
+                settings = {
+                    ['deepwater'] = {frequency = 1, size = 1, richness = 1},
+                    ['deepwater-green'] = {frequency = 1, size = 1, richness = 1},
+                    ['water'] = {frequency = 1, size = 1, richness = 1},
+                    ['water-green'] = {frequency = 1, size = 1, richness = 1},
+                    ['water-mud'] = {frequency = 1, size = 1, richness = 1},
+                    ['water-shallow'] = {frequency = 1, size = 1, richness = 1}
+                }
+            }
+        }
+    },
+    -- will generate a world with only water (useful for maps that want full terrain control and no entities on the surface) (non-functional in 0.17)
+    waterworld = {
+        autoplace_settings = {
+            tile = {
+                treat_missing_as_default = false,
+                settings = {
+                    ['deepwater'] = {frequency = 1, size = 1, richness = 1},
+                    ['deepwater-green'] = {frequency = 1, size = 1, richness = 1},
+                    ['water'] = {frequency = 1, size = 1, richness = 1},
+                    ['water-green'] = {frequency = 1, size = 1, richness = 1},
+                    ['water-mud'] = {frequency = 1, size = 1, richness = 1},
+                    ['water-shallow'] = {frequency = 1, size = 1, richness = 1}
+                }
             }
         }
     },
@@ -326,5 +367,11 @@ return {
     void = {
         height = 1,
         width = 1
+    },
+    -- The starting area plateau surrounded by an endless ocean
+    starting_plateau = {
+        property_expression_names = {
+            elevation = '0_17-starting-plateau'
+        }
     }
 }

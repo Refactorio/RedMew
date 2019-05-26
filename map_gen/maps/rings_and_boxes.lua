@@ -13,7 +13,7 @@ box = b.any{box, line}
 
 local boxes = {}
 for i = 0, 3 do
-    local b = b.rotate(box, degrees(i*90)) -- luacheck:ignore 421
+    local b = b.rotate(box, degrees(i*90)) -- luacheck: ignore 421
     table.insert(boxes, b)
 end
 

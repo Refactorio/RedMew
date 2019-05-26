@@ -12,7 +12,7 @@ local ForceControl = {}
 ForceControl.events = {
     --- triggered when the force levels up
     --- uses event = {level_reached = number, force = LuaForce}
-    on_level_up = script.generate_event_name()
+    on_level_up = Event.generate_event_name('on_level_up')
 }
 
 -- the builder, can only be accessed through ForceControl.register() and should be avoided used run-time
@@ -76,7 +76,7 @@ end
 ---@param callback function function(number level_reached, LuaForce force)
 ---@param lua_force_name string|nil only register for this force (optional)
 function ForceControlBuilder.register(level_matches, callback, lua_force_name)
-    if game then
+    if _LIFECYCLE > _STAGE.control then
         error('You can only register level up callbacks before the game is initialized')
     end
     assert_type('function', level_matches, 'level_matches of function ForceControl.register_reward')
@@ -207,10 +207,12 @@ end
 ---@param lua_force_or_name LuaForce|string
 ---@param percentage number percentage of total obtained experience to remove
 ---@param min_experience number minimum amount of experience to remove (optional)
+---@param max_experience number maximum amount of experience to remove (optional)
 ---@return number the experience being removed
 ---@see ForceControl.remove_experience
-function ForceControl.remove_experience_percentage(lua_force_or_name, percentage, min_experience)
+function ForceControl.remove_experience_percentage(lua_force_or_name, percentage, min_experience, max_experience)
     min_experience = min_experience ~= nil and min_experience or 0
+    max_experience = max_experience ~= nil and max_experience or 0
     local force = get_valid_force(lua_force_or_name)
     if not force then
         return
@@ -222,6 +224,7 @@ function ForceControl.remove_experience_percentage(lua_force_or_name, percentage
 
     local penalty = force_config.total_experience * percentage
     penalty = (penalty >= min_experience) and ceil(penalty) or ceil(min_experience)
+    penalty = (penalty <= max_experience or max_experience == 0) and penalty or ceil(max_experience)
     return ForceControl.remove_experience(lua_force_or_name, penalty)
 end
 
@@ -269,10 +272,12 @@ end
 ---@param lua_force_or_name LuaForce|string
 ---@param percentage number percentage of total obtained experience to add
 ---@param min_experience number minimum amount of experience to add (optional)
+---@param max_experience number maximum amount of experience to add (optional)
 ---@return number the experience being added
 ---@see ForceControl.add_experience
-function ForceControl.add_experience_percentage(lua_force_or_name, percentage, min_experience)
+function ForceControl.add_experience_percentage(lua_force_or_name, percentage, min_experience, max_experience)
     min_experience = min_experience ~= nil and min_experience or 0
+    max_experience = max_experience ~= nil and max_experience or 0
     local force = get_valid_force(lua_force_or_name)
     if not force then
         return
@@ -284,6 +289,7 @@ function ForceControl.add_experience_percentage(lua_force_or_name, percentage, m
 
     local reward = force_config.total_experience * percentage
     reward = (reward >= min_experience) and ceil(reward) or ceil(min_experience)
+    reward = (reward <= max_experience or max_experience == 0) and reward or ceil(max_experience)
     ForceControl.add_experience(lua_force_or_name, reward)
     return reward
 end
@@ -322,7 +328,7 @@ function ForceControl.get_formatted_force_data(lua_force_or_name)
     end
 
     return format(
-        'Current experience: %d Total experience: %d Current level: %d  Next level at: %d Percentage to level up: %d%%',
+        'Current experience: %s Total experience: %s Current level: %d  Next level at: %s Percentage to level up: %d%%',
         force_config.current_experience,
         force_config.total_experience,
         force_config.current_level,

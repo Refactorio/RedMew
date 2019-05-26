@@ -2,14 +2,18 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
 local Token = require 'utils.token'
+local Command = require 'utils.command'
+local Utils = require 'utils.core'
+local Game = require 'utils.game'
 local Settings = require 'utils.redmew_settings'
 local Color = require 'resources.color_presets'
+local Ranks = require 'resources.ranks'
 
 local pairs = pairs
 local next = next
 
 local toast_volume_name = 'toast-volume'
-Settings.register(toast_volume_name, 'fraction', 1.0)
+Settings.register(toast_volume_name, Settings.types.fraction, 1.0, 'toast.toast_volume_setting_label')
 
 local Public = {}
 
@@ -88,8 +92,8 @@ local function toast_to(player, duration, sound)
     local progressbar = frame.add({type = 'progressbar', name = toast_progress_name})
     local style = progressbar.style
     style.width = 290
-    style.height = 3
-    style.color = Color.grey
+    style.height = 4
+    style.color = Color.orange
     progressbar.value = 1 -- it starts full
 
     local id = autoincrement()
@@ -246,5 +250,41 @@ function Public.toast_all_players(duration, message)
         Public.toast_player(player, duration, message)
     end
 end
+
+Command.add(
+    'toast',
+    {
+        description = {'command_description.toast'},
+        arguments = {'msg'},
+        capture_excess_arguments = true,
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    function(args)
+        Public.toast_all_players(15, args.msg)
+        Utils.print_admins({'command_description.sent_all_toast', Utils.get_actor()})
+    end
+)
+
+Command.add(
+    'toast-player',
+    {
+        description = {'command_description.toast_player'},
+        arguments = {'player', 'msg'},
+        capture_excess_arguments = true,
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    function(args)
+        local target_name = args.player
+        local target = game.players[target_name]
+        if target then
+            Public.toast_player(target, 15, args.msg)
+            Utils.print_admins({'command_description.sent_player_toast', Utils.get_actor(), target_name})
+        else
+            Game.player_print({'common.fail_no_target', target_name}, Color.yellow)
+        end
+    end
+)
 
 return Public

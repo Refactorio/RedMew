@@ -12,7 +12,6 @@
 local Event = require 'utils.event'
 local mod_gui = require 'mod-gui'
 local Command = require 'utils.command'
-local Game = require 'utils.game'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 
@@ -58,7 +57,7 @@ local function create_camera(args, player)
 
     if not mainframe then
         mainframe = mainframeflow.add {type = 'frame', name = mainframeid, direction = 'vertical', style = 'captionless_frame'}
-        mainframe.style.visible = true
+        mainframe.visible = true
     end
 
     local headerframe = mainframe.headerframe
@@ -71,7 +70,7 @@ local function create_camera(args, player)
         mainframe.add {type = 'frame', name = 'cameraframe', style = 'captionless_frame'}
     end
 
-    mainframe.add {type = 'label', caption = 'Following: ' .. args.target}
+    mainframe.add {type = 'label', caption = 'Following: ' .. target.name}
     local close_button = mainframe.add {type = 'button', name = main_button_name, caption = 'Close'}
     apply_button_style(close_button)
     local target_index = target.index
@@ -122,7 +121,7 @@ local function update_camera_render(target, targetframe, zoom, size, visible)
     camera.position = position
     camera.surface_index = surface_index
     camera.zoom = zoom
-    camera.style.visible = visible
+    camera.visible = visible
     camera.style.minimal_width = preview_size
     camera.style.minimal_height = preview_size
     camera.style.maximal_width = preview_size
@@ -169,8 +168,8 @@ local function on_tick()
         return
     end
     for table_key, camera_table in pairs(camera_users) do
-        local player = Game.get_player_by_index(table_key)
-        local target = Game.get_player_by_index(camera_table)
+        local player = game.get_player(table_key)
+        local target = game.get_player(camera_table)
         if not target.connected then
             destroy_camera({player = player})
             player.print('Target is offline, camera closed')
@@ -193,7 +192,7 @@ end
 Command.add(
     'watch',
     {
-        description = 'Allows you to watch other players.',
+        description = {'command_description.watch'},
         arguments = {'target'},
         default_values = {target = false}
     },

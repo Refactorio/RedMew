@@ -46,5 +46,14 @@ return {
         evening = 0.275,
         morning = 0.725,
         dawn = 0.775
+    },
+    -- 6 hour cycle based on Feb 3 London, England for the day/night/twilight times:
+    -- Day: 2h15m Night: 2h45m Day to night and night to day: 30m each Map starts mid-day
+    feb3 = {
+        ticks_per_day = 1296000,
+        dusk = 4.5 / 24,
+        evening = 15.5 / 24,
+        morning = 17.5 / 24,
+        dawn = 19.5 / 24
     }
 }

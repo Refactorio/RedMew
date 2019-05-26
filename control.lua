@@ -1,7 +1,11 @@
 -- If you're looking to configure anything, you want config.lua. Nearly everything in this file is dictated by the config.
 
 -- Info on the data lifecycle and how we use it: https://github.com/Refactorio/RedMew/wiki/The-data-lifecycle
-_LIFECYCLE = 4 -- Control stage
+require 'resources.data_stages'
+_LIFECYCLE = _STAGE.control -- Control stage
+
+-- Overrides the _G.print function
+require 'utils.print_override'
 
 -- Omitting the math library is a very bad idea
 require 'utils.math'
@@ -21,7 +25,7 @@ require 'features.server_commands'
 -- Library modules
 -- If missing, will cause other feature modules to fail
 require 'features.player_create'
-require 'features.user_groups'
+require 'features.rank_system'
 
 -- Feature modules
 -- Each can be disabled safely
@@ -46,8 +50,8 @@ end
 if config.redmew_commands.enabled then
     require 'features.redmew_commands'
 end
-if config.donator_messages.enabled then
-    require 'features.donator_messages'
+if config.donator_commands.enabled then
+    require 'features.donator_commands'
 end
 if config.market.enabled then
     require 'features.market'
@@ -60,9 +64,6 @@ if config.player_colors.enabled then
 end
 if config.reactor_meltdown.enabled then
     require 'features.reactor_meltdown'
-end
-if config.walkabout.enabled then
-    require 'features.walkabout'
 end
 if config.performance.enabled then
     require 'features.performance'
@@ -81,6 +82,18 @@ if config.camera.enabled then
 end
 if config.day_night.enabled then
     require 'map_gen.shared.day_night'
+end
+if config.apocalypse.enabled then
+    require 'features.apocalypse'
+end
+if config.player_onboarding.enabled then
+    require 'features.player_onboarding'
+end
+if config.biter_attacks.enabled then
+    require 'map_gen.shared.biter_attacks'
+end
+if config.player_quick_bars.enabled then
+    require 'features.player_quick_bars'
 end
 
 -- GUIs
@@ -117,7 +130,17 @@ end
 if config.popup.enabled then
     require 'features.gui.popup'
 end
+if config.rich_text_gui.enabled then
+    require 'features.gui.rich_text'
+end
+if config.redmew_settings.enabled then
+    require 'features.gui.redmew_settings'
+end
 
+-- Debug-only modules
+if _DEBUG then
+    require 'features.scenario_data_manipulation'
+end
 -- Needs to be at bottom so tokens are registered last.
 if _DUMP_ENV then
     require 'utils.dump_env'

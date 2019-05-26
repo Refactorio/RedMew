@@ -1,5 +1,4 @@
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local PlayerStats = require 'features.player_stats'
 local Gui = require 'utils.gui'
 local Color = require 'resources.color_presets'
@@ -10,8 +9,19 @@ local concat = table.concat
 local main_frame_name = Gui.uid_name()
 local main_button_name = Gui.uid_name()
 
+local descriptions = {
+    {disc = 'Satellites launched', icon = '[img=item.satellite]'},
+    {disc = 'Biters liberated', icon = '[img=entity.medium-biter]'},
+    {disc = 'Buildings by hand', icon = '[img=utility.hand]'},
+    {disc = 'Buildings by robots', icon = '[img=item.construction-robot]'},
+    {disc = 'Trees chopped', icon = '[img=entity.tree-02]'},
+    {disc = 'Rocks smashed', icon = '[img=entity.rock-huge]'},
+    {disc = 'Kills by train', icon = '[img=item.locomotive]'},
+    {disc = 'Coins spent', icon = '[img=item.coin]'},
+}
+
 local function create_score_gui(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player then
         return
     end
@@ -19,7 +29,12 @@ local function create_score_gui(event)
     local top = player.gui.top
 
     if not top[main_button_name] then
-        top.add({type = 'sprite-button', name = main_button_name, sprite = 'achievement/there-is-no-spoon'})
+        top.add({
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'achievement/there-is-no-spoon',
+            tooltip = {'score.tooltip'}
+        })
     end
 end
 
@@ -27,14 +42,14 @@ local function refresh_score()
     local players = game.connected_players
     local count = game.forces.player.get_item_launched('satellite')
 
-    local satellites_launched = concat {'Satellites launched: ', count, ' '}
-    local biters_liberated = concat {'Biters liberated: ', PlayerStats.get_total_biter_kills(), ' '}
-    local buildings_by_hand = concat {'Buildings by hand: ', PlayerStats.get_total_player_built_entities(), ' '}
-    local buildings_by_robot = concat {'Buildings by robots: ', PlayerStats.get_total_robot_built_entities(), ' '}
-    local trees_chopped = concat {'Trees chopped: ', PlayerStats.get_total_player_trees_mined(), ' '}
-    local rocks_smashed = concat {'Rocks smashed: ', PlayerStats.get_total_player_rocks_mined(), ' '}
-    local kills_by_train = concat {'Kills by train: ', PlayerStats.get_total_train_kills(), ' '}
-    local coins_spent = concat {'Coins spent: ', PlayerStats.get_total_coins_spent(), ' '}
+    local satellites_launched = concat {descriptions[1].icon .. ' ', count, ' '}
+    local biters_liberated = concat {descriptions[2].icon .. ' ', PlayerStats.get_total_biter_kills(), ' '}
+    local buildings_by_hand = concat {descriptions[3].icon .. ' ', PlayerStats.get_total_player_built_entities(), ' '}
+    local buildings_by_robot = concat {descriptions[4].icon .. ' ', PlayerStats.get_total_robot_built_entities(), ' '}
+    local trees_chopped = concat {descriptions[5].icon .. ' ', PlayerStats.get_total_player_trees_mined(), ' '}
+    local rocks_smashed = concat {descriptions[6].icon .. ' ', PlayerStats.get_total_player_rocks_mined(), ' '}
+    local kills_by_train = concat {descriptions[7].icon .. ' ', PlayerStats.get_total_train_kills(), ' '}
+    local coins_spent = concat {descriptions[8].icon .. ' ', PlayerStats.get_total_coins_spent(), ' '}
 
     for i = 1, #players do
         local player = players[i]
@@ -64,7 +79,7 @@ local function score_show(top)
     local count = game.forces.player.get_item_launched('satellite')
 
     local frame = top.add {type = 'frame', name = main_frame_name}
-    local score_table = frame.add {type = 'table', name = 'score_table', column_count = 4}
+    local score_table = frame.add {type = 'table', name = 'score_table', column_count = 8}
     local style = score_table.style
     style.vertical_spacing = 4
     style.horizontal_spacing = 16
@@ -73,23 +88,26 @@ local function score_show(top)
         score_table.add {
         type = 'label',
         name = 'label_satellites_launched',
-        caption = concat {'Satellites launched: ', count, ' '}
+        caption = concat {descriptions[1].icon .. ' ', count, ' '},
+        tooltip = descriptions[1].disc
     }
-    score_label_style(label, Color.orange)
+    score_label_style(label, Color.white)
 
     label =
         score_table.add {
         type = 'label',
         name = 'label_biters_killed',
-        caption = concat {'Biters liberated: ', PlayerStats.get_total_biter_kills(), ' '}
+        caption = concat {descriptions[2].icon .. ' ', PlayerStats.get_total_biter_kills(), ' '},
+        tooltip = descriptions[2].disc
     }
-    score_label_style(label, Color.red)
+    score_label_style(label, Color.white)
 
     label =
         score_table.add {
         type = 'label',
         name = 'label_player_built_entities',
-        caption = concat {'Buildings by hand: ', PlayerStats.get_total_player_built_entities(), ' '}
+        caption = concat {descriptions[3].icon .. ' ', PlayerStats.get_total_player_built_entities(), ' '},
+        tooltip = descriptions[3].disc
     }
     score_label_style(label, Color.white)
 
@@ -97,7 +115,8 @@ local function score_show(top)
         score_table.add {
         type = 'label',
         name = 'label_robot_built_entities',
-        caption = concat {'Buildings by robots: ', PlayerStats.get_total_robot_built_entities(), ' '}
+        caption = concat {descriptions[4].icon .. ' ', PlayerStats.get_total_robot_built_entities(), ' '},
+        tooltip = descriptions[4].disc
     }
     score_label_style(label, Color.white)
 
@@ -105,33 +124,37 @@ local function score_show(top)
         score_table.add {
         type = 'label',
         name = 'label_player_mined_trees',
-        caption = concat {'Trees chopped: ', PlayerStats.get_total_player_trees_mined(), ' '}
+        caption = concat {descriptions[5].icon .. ' ', PlayerStats.get_total_player_trees_mined(), ' '},
+        tooltip = descriptions[5].disc
     }
-    score_label_style(label, Color.lime)
+    score_label_style(label, Color.white)
 
     label =
         score_table.add {
         type = 'label',
         name = 'label_player_mined_stones',
-        caption = concat {'Rocks smashed: ', PlayerStats.get_total_player_rocks_mined(), ' '}
+        caption = concat {descriptions[6].icon .. ' ', PlayerStats.get_total_player_rocks_mined(), ' '},
+        tooltip = descriptions[6].disc
     }
-    score_label_style(label, Color.lime)
+    score_label_style(label, Color.white)
 
     label =
         score_table.add {
         type = 'label',
         name = 'label_kills_by_train',
-        caption = concat {'Kills by train: ', PlayerStats.get_total_train_kills(), ' '}
+        caption = concat {descriptions[7].icon .. ' ', PlayerStats.get_total_train_kills(), ' '},
+        tooltip = descriptions[7].disc
     }
-    score_label_style(label, Color.yellow)
+    score_label_style(label, Color.white)
 
     label =
         score_table.add {
         type = 'label',
         name = 'label_coins_spent',
-        caption = concat {'Coins spent: ', PlayerStats.get_total_coins_spent(), ' '}
+        caption = concat {descriptions[8].icon .. ' ', PlayerStats.get_total_coins_spent(), ' '},
+        tooltip = descriptions[8].disc
     }
-    score_label_style(label, Color.yellow)
+    score_label_style(label, Color.white)
 end
 
 local function rocket_launched(event)

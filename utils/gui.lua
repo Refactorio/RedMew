@@ -1,6 +1,5 @@
 local Token = require 'utils.token'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 
 local tostring = tostring
@@ -123,7 +122,7 @@ local function handler_factory(event_id)
             return
         end
 
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if not player or not player.valid then
             return
         end
@@ -218,6 +217,9 @@ Gui.on_pre_player_hide_top = custom_handler_factory(on_pre_hidden_handlers)
 -- This function must be called in the control stage, i.e not inside an event.
 -- @param element_name<string> This name must be globally unique.
 function Gui.allow_player_to_toggle_top_element_visibility(element_name)
+    if _LIFECYCLE ~= _STAGE.control then
+        error('can only be called during the control stage', 2)
+    end
     top_elements[#top_elements + 1] = element_name
 end
 
@@ -226,7 +228,7 @@ local toggle_button_name = Gui.uid_name()
 Event.add(
     defines.events.on_player_created,
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
 
         if not player or not player.valid then
             return
@@ -237,7 +239,7 @@ Event.add(
             type = 'button',
             name = toggle_button_name,
             caption = '<',
-            tooltip = 'Shows / hides the Redmew Gui buttons.'
+            tooltip = {'gui_util.button_tooltip'}
         }
         local style = b.style
         style.width = 18
@@ -262,14 +264,9 @@ Gui.on_click(
                 local name = top_elements[i]
                 local ele = top[name]
                 if ele and ele.valid then
-                    local style = ele.style
-
-                    -- if visible is not set it has the value of nil.
-                    -- Hence nil is treated as is visible.
-                    local v = style.visible
-                    if v or v == nil then
+                    if ele.visible then
                         custom_raise(on_pre_hidden_handlers, ele, player)
-                        style.visible = false
+                        ele.visible = false
                     end
                 end
             end
@@ -281,10 +278,8 @@ Gui.on_click(
                 local name = top_elements[i]
                 local ele = top[name]
                 if ele and ele.valid then
-                    local style = ele.style
-
-                    if not style.visible then
-                        style.visible = true
+                    if not ele.visible then
+                        ele.visible = true
                         custom_raise(on_visible_handlers, ele, player)
                     end
                 end

@@ -1,5 +1,7 @@
+-- luacheck: globals script
 -- This module exists to break the circular dependency between event.lua and global.lua.
 -- It is not expected that any user code would require this module instead event.lua should be required.
+local ErrorLogging = require 'utils.error_logging'
 
 local Public = {}
 
@@ -11,16 +13,27 @@ local event_handlers = {}
 -- map of nth_tick to handlers[]
 local on_nth_tick_event_handlers = {}
 
-local function call_handlers(handlers, event)
-    if _DEBUG then
-        for _, handler in ipairs(handlers) do
+local pcall = pcall
+local log = log
+local script_on_event = script.on_event
+local script_on_nth_tick = script.on_nth_tick
+
+local call_handlers
+if _DEBUG then
+    function call_handlers(handlers, event)
+        for i = 1, #handlers do
+            local handler = handlers[i]
             handler(event)
         end
-    else
-        for _, handler in ipairs(handlers) do
+    end
+else
+    function call_handlers(handlers, event)
+        for i = 1, #handlers do
+            local handler = handlers[i]
             local success, error = pcall(handler, event)
             if not success then
                 log(error)
+                ErrorLogging.generate_error_report(error)
             end
         end
     end
@@ -63,11 +76,11 @@ function Public.add(event_name, handler)
     local handlers = event_handlers[event_name]
     if not handlers then
         event_handlers[event_name] = {handler}
-        script.on_event(event_name, on_event)
+        script_on_event(event_name, on_event)
     else
         table.insert(handlers, handler)
         if #handlers == 1 then
-            script.on_event(event_name, on_event)
+            script_on_event(event_name, on_event)
         end
     end
 end
@@ -105,11 +118,11 @@ function Public.on_nth_tick(tick, handler)
     local handlers = on_nth_tick_event_handlers[tick]
     if not handlers then
         on_nth_tick_event_handlers[tick] = {handler}
-        script.on_nth_tick(tick, on_nth_tick_event)
+        script_on_nth_tick(tick, on_nth_tick_event)
     else
         table.insert(handlers, handler)
         if #handlers == 1 then
-            script.on_nth_tick(tick, on_nth_tick_event)
+            script_on_nth_tick(tick, on_nth_tick_event)
         end
     end
 end

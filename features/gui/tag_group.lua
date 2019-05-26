@@ -1,13 +1,13 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
-
-local deafult_verb = 'expanded'
-
+local Ranks = require 'resources.ranks'
 local tag_groups = require 'resources.tag_groups'
+
+local default_verb = 'expanded'
 local player_tags = {}
 local no_notify_players = {}
 
@@ -21,7 +21,9 @@ Global.register(
 )
 
 local function notify_players(message)
-    for _, p in ipairs(game.connected_players) do
+    local players = game.connected_players
+    for i=1, #players do
+        local p = players[i]
         if p.valid and not no_notify_players[p.index] then
             p.print(message)
         end
@@ -69,7 +71,7 @@ local function change_player_tag(player, tag_name, silent)
 
     player.tag = tag
 
-    local verb = tag_data.verb or deafult_verb
+    local verb = tag_data.verb or default_verb
 
     if not silent then
         notify_players(tag .. ' squad has `' .. verb .. '` with ' .. player.name)
@@ -88,7 +90,7 @@ local function get_size(players, show_offline)
         size = table.size(players)
     else
         for pi, _ in pairs(players) do
-            local player = Game.get_player_by_index(pi)
+            local player = game.get_player(pi)
             if player and player.valid and player.connected then
                 size = size + 1
             end
@@ -120,7 +122,7 @@ local delete_tag_name = Gui.uid_name()
 local close_create_tag_name = Gui.uid_name()
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -129,7 +131,12 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'sprite-button', caption = 'tag'}
+    player.gui.top.add({
+        name = main_button_name,
+        type = 'sprite-button',
+        caption = 'tag',
+        tooltip = {'tag_group.tooltip'}
+    })
 end
 
 local function draw_main_frame_content(parent)
@@ -147,7 +154,7 @@ local function draw_main_frame_content(parent)
         local row = grid.add {type = 'table', column_count = 4}
         row.style.horizontal_spacing = 0
 
-        if player.admin or UserGroups.is_regular(player.name) then
+        if Rank.equal_or_greater_than(player.name, Ranks.regular) then
             local edit_button =
                 row.add {
                 type = 'sprite-button',
@@ -181,11 +188,11 @@ local function draw_main_frame_content(parent)
 
         if players then
             for k, _ in pairs(players) do
-                local p = Game.get_player_by_index(k)
+                local p = game.get_player(k)
                 if p and p.valid and p.connected then
                     local color = {r = 0.4 + 0.6 * p.color.r, g = 0.4 + 0.6 * p.color.g, b = 0.4 + 0.6 * p.color.b}
 
-                    local label = list.add {type = 'label', caption = Game.get_player_by_index(k).name}
+                    local label = list.add {type = 'label', caption = game.get_player(k).name}
                     label.style.top_padding = 8
                     label.style.font_color = color
                 end
@@ -228,17 +235,17 @@ local function draw_main_frame(player)
     local bottom_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.align = 'left'
+    left_flow.style.horizontal_align  = 'left'
     left_flow.style.horizontally_stretchable = true
 
     left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.align = 'right'
+    right_flow.style.horizontal_align  = 'right'
 
     right_flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
 
-    if player.admin or UserGroups.is_regular(player.name) then
+    if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         right_flow.add {type = 'button', name = create_tag_button_name, caption = 'Create Tag'}
     end
 end
@@ -383,14 +390,14 @@ local function draw_create_tag_frame(event, tag_data)
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.align = 'left'
+    left_flow.style.horizontal_align  = 'left'
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = close_create_tag_name, caption = 'Close'}
     Gui.set_data(close_button, frame)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.align = 'right'
+    right_flow.style.horizontal_align  = 'right'
 
     if tag_data then
         local delete_button = right_flow.add {type = 'button', name = delete_tag_name, caption = 'Delete'}
@@ -495,7 +502,7 @@ Gui.on_click(
     end
 )
 
-Gui.on_click(
+Gui.on_checked_state_changed(
     notify_checkbox_name,
     function(event)
         local player_index = event.player_index
@@ -589,7 +596,7 @@ Gui.on_click(
 
         local verb = data.verb.text
         if verb == '' then
-            verb = deafult_verb
+            verb = default_verb
         end
 
         Gui.remove_data_recursively(frame)
@@ -686,9 +693,9 @@ end
 Command.add(
     'tag',
     {
-        description = "Sets a player's tag",
+        description = {"command_description.tag"},
         arguments = {'player', 'tag'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },

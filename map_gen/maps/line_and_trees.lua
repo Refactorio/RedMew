@@ -1,6 +1,7 @@
 local b = require "map_gen.shared.builders"
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
+local Event = require 'utils.event'
 local MGSP = require 'resources.map_gen_settings'
 
 local degrees = require "utils.math".degrees
@@ -130,5 +131,10 @@ map = b.change_map_gen_collision_tile(map, "water-tile", "grass-1")
 
 map = b.rotate(map, degrees(90))
 map = b.scale(map, 3, 3)
+
+local function on_init()
+    game.forces['player'].technologies['landfill'].enabled = false
+end
+Event.on_init(on_init)
 
 return map

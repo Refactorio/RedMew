@@ -4,7 +4,6 @@
 
 -- dependencies
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local ScoreTable = require 'map_gen.maps.diggy.score_table'
 local Debug = require 'map_gen.maps.diggy.debug'
 local Template = require 'map_gen.maps.diggy.template'
@@ -69,10 +68,11 @@ local function toggle(event)
 end
 
 local function on_player_created(event)
-    Game.get_player_by_index(event.player_index).gui.top.add({
+    game.get_player(event.player_index).gui.top.add({
         name = 'Diggy.CoinGathering.Button',
         type = 'sprite-button',
-        sprite = 'item/steel-axe',
+        sprite = 'item/coin',
+        tooltip = 'Diggy scoretable'
     })
 end
 

@@ -2,7 +2,6 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local CaveCollapse = require 'map_gen.maps.diggy.feature.diggy_cave_collapse'
-local Game = require 'utils.game'
 local Report = require 'features.report'
 local format = string.format
 
@@ -45,7 +44,7 @@ Event.add(CaveCollapse.events.on_collapse, function(event)
         local count = player_collapses[player_index] or 0
         count = count + 1
         player_collapses[player_index] = count
-        local player = Game.get_player_by_index(player_index)
+        local player = game.get_player(player_index)
         if global_primitives.autojail and count > allowed_collapses_first_hour and player.online_time < 216000 and not jailed_players[player_index] then
             Report.jail(player)
             Report.report(nil, player, format('Caused %d collapses in the first hour', count))

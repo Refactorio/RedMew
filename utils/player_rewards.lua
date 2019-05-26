@@ -2,6 +2,7 @@ local Global = require 'utils.global'
 local Game = require 'utils.game'
 local PlayerStats = require 'features.player_stats'
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 
 local format = string.format
 local abs = math.abs
@@ -58,7 +59,7 @@ Public.give_reward = function(player, amount, message)
     local player_index
     if type(player) == 'number' then
         player_index = player
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     else
         player_index = player.index
     end
@@ -89,7 +90,7 @@ Public.remove_reward = function(player, amount, message)
     local player_index
     if type(player) == 'number' then
         player_index = player
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     else
         player_index = player.index
     end
@@ -107,10 +108,10 @@ end
 Command.add(
     'reward',
     {
-        description = 'Gives a reward to a target player (removes if quantity is negative)',
+        description = {'command_description.reward'},
         arguments = {'target', 'quantity', 'reason'},
         default_values = {reason = false},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true,
         allowed_by_player = true

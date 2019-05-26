@@ -7,8 +7,10 @@ local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Global = require 'utils.global'
+local Ranks = require 'resources.ranks'
+local Color = require 'resources.color_presets'
 
-local primitives = {reactors_enabled = {global.config.reactor_meltdown.on_by_default}}
+local primitives = {reactors_enabled = global.config.reactor_meltdown.on_by_default}
 local wastelands = {}
 local reactors = {}
 
@@ -139,7 +141,7 @@ local function check_wastelands()
                     name = 'nuclear-reactor'
                 }
                 if wasteland_reactors[1] then
-                    wasteland_reactors[1].destroy()
+                    wasteland_reactors[1].destroy({raise_destroy = true})
                 end
             end
         end
@@ -162,40 +164,48 @@ local function entity_build(event)
     end
 end
 
-local function reactor_toggle()
-    primitives.reactors_enabled = not primitives.reactors_enabled
+--- Prints whether meltdown is on or off
+local function get_meltdown()
     if primitives.reactors_enabled then
-        game.print('Reactor meltdown activated.')
+        Game.player_print({'meltdown.is_enabled'})
     else
-        game.print('Reactor meltdown deactivated.')
+        Game.player_print({'meltdown.is_disabled'})
     end
 end
 
-local function is_meltdown()
-    if primitives.reactors_enabled then
-        Game.player_print('Reactor meltdown is enabled.')
+--- Toggles meltdown on or off
+local function set_meltdown(args)
+    local on_off = args['on|off']
+    if on_off == 'on' then
+        primitives.reactors_enabled = true
+        game.print({'meltdown.enable'})
+    elseif on_off == 'off' then
+        primitives.reactors_enabled = nil
+        game.print({'meltdown.disable'})
     else
-        Game.player_print('Reactor meltdown is disabled.')
+        Game.player_print({'meltdown.error_not_on_off'}, Color.fail)
     end
 end
+
 Command.add(
-    'meltdown',
+    'meltdown-get',
     {
-        description = 'Toggles if reactors blow up',
-        admin_only = true,
-        allowed_by_server = true,
-        log_command = true
+        description = {'command_description.meltdown_get'},
+        allowed_by_server = true
     },
-    reactor_toggle
+    get_meltdown
 )
 
 Command.add(
-    'is-meltdown',
+    'meltdown-set',
     {
-        description = 'Prints if meltdown is enabled',
-        allowed_by_server = true
+        description = {'command_description.meltdown_set'},
+        arguments = {'on|off'},
+        allowed_by_server = true,
+        required_rank = Ranks.admin,
+        log_command = true
     },
-    is_meltdown
+    set_meltdown
 )
 
 Event.on_nth_tick(60, on_tick)

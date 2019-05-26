@@ -4,10 +4,10 @@ local Token = require 'utils.token'
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 75, distance_factor = 1 / 20}, weight = 5},
-    {stack = {name = 'science-pack-1', count = 100, distance_factor = 1 / 10}, weight = 5},
-    {stack = {name = 'science-pack-2', count = 50, distance_factor = 1 / 10}, weight = 5},
+    {stack = {name = 'automation-science-pack', count = 100, distance_factor = 1 / 10}, weight = 5},
+    {stack = {name = 'logistic-science-pack', count = 50, distance_factor = 1 / 10}, weight = 5},
     {stack = {name = 'military-science-pack', count = 25, distance_factor = 1 / 10}, weight = 5},
-    {stack = {name = 'science-pack-3', count = 25, distance_factor = 1 / 10}, weight = 5}
+    {stack = {name = 'chemical-science-pack', count = 25, distance_factor = 1 / 10}, weight = 5}
 }
 
 local weights = ob.prepare_weighted_loot(loot)
@@ -30,8 +30,8 @@ local factory = {
 local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'science-pack-3',
-        output = {min_rate = 0.125 / 60, distance_factor = 0.125 / 60 / 512, item = 'science-pack-3'}
+        recipe = 'chemical-science-pack',
+        output = {min_rate = 0.125 / 60, distance_factor = 0.125 / 60 / 512, item = 'chemical-science-pack'}
     }
 }
 
@@ -43,13 +43,13 @@ local market = {
         upgrade_base_cost = 500,
         upgrade_cost_base = 2,
         {
-            name = 'science-pack-1',
+            name = 'automation-science-pack',
             price = 10,
             distance_factor = 5 / 512,
             min_price = 1
         },
         {
-            name = 'science-pack-2',
+            name = 'logistic-science-pack',
             price = 20,
             distance_factor = 10 / 512,
             min_price = 2
@@ -61,7 +61,7 @@ local market = {
             min_price = 4
         },
         {
-            name = 'science-pack-3',
+            name = 'chemical-science-pack',
             price = 60,
             distance_factor = 30 / 512,
             min_price = 6

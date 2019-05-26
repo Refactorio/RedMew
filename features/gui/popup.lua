@@ -2,6 +2,7 @@ local Gui = require 'utils.gui'
 local Utils = require 'utils.core'
 local Game = require 'utils.game'
 local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 
 local close_name = Gui.uid_name()
 
@@ -46,45 +47,47 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
     frame.style.minimal_width = 300
 
     local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
+    top_flow.style.horizontal_align = 'center'
+    top_flow.style.horizontally_stretchable = true
 
     local title_flow = top_flow.add {type = 'flow'}
-    title_flow.style.align = 'center'
+    title_flow.style.horizontal_align  = 'center'
     title_flow.style.left_padding = 32
     title_flow.style.top_padding = 8
-    title_flow.style.horizontally_stretchable = true
+    title_flow.style.horizontally_stretchable = false
 
     local title = title_flow.add {type = 'label', caption = title_text}
     title.style.font = 'default-large-bold'
 
     local close_button_flow = top_flow.add {type = 'flow'}
-    close_button_flow.style.align = 'right'
+    close_button_flow.style.horizontal_align  = 'right'
 
     local content_flow = frame.add {type = 'flow', direction = 'horizontal'}
     content_flow.style.top_padding = 16
     content_flow.style.bottom_padding = 16
     content_flow.style.left_padding = 24
     content_flow.style.right_padding = 24
-    content_flow.style.horizontally_stretchable = true
+    content_flow.style.horizontally_stretchable = false
 
     local sprite_flow = content_flow.add {type = 'flow'}
     sprite_flow.style.vertical_align = 'center'
-    sprite_flow.style.vertically_stretchable = true
+    sprite_flow.style.vertically_stretchable = false
 
     sprite_flow.add {type = 'sprite', sprite = sprite_path}
 
     local label_flow = content_flow.add {type = 'flow'}
-    label_flow.style.align = 'left'
+    label_flow.style.horizontal_align  = 'left'
     label_flow.style.top_padding = 10
     label_flow.style.left_padding = 24
 
-    label_flow.style.horizontally_stretchable = true
+    label_flow.style.horizontally_stretchable = false
     local label = label_flow.add {type = 'label', caption = message}
     label.style.single_line = false
     label.style.font = 'default-large-bold'
 
     local ok_button_flow = frame.add {type = 'flow'}
     ok_button_flow.style.horizontally_stretchable = true
-    ok_button_flow.style.align = 'center'
+    ok_button_flow.style.horizontal_align  = 'center'
 
     local ok_button = ok_button_flow.add {type = 'button', name = close_name, caption = 'OK'}
     Gui.set_data(ok_button, frame)
@@ -142,9 +145,9 @@ end
 Command.add(
     'popup',
     {
-        description = 'Shows a popup to all connected players',
+        description = {'command_description.popup'},
         arguments = {'message'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },
@@ -154,9 +157,9 @@ Command.add(
 Command.add(
     'popup-update',
     {
-        description = 'Shows an update popup to all connected players',
+        description = {'command_description.popup_update'},
         arguments = {'version'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },
@@ -166,9 +169,9 @@ Command.add(
 Command.add(
     'popup-player',
     {
-        description = 'Shows a popup to the player.',
+        description = {'command_description.popup_player'},
         arguments = {'player', 'message'},
-        admin_only = true,
+        required_rank = Ranks.admin,
         capture_excess_arguments = true,
         allowed_by_server = true
     },

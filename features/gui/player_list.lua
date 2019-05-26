@@ -1,40 +1,34 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
-local Donators = require 'resources.donators'
-local UserGroups = require 'features.user_groups'
+local Rank = require 'features.rank_system'
+local Donator = require 'features.donator'
 local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.core'
 local Report = require 'features.report'
-local Game = require 'utils.game'
-local Color = require 'resources.color_presets'
 local table = require 'utils.table'
+local Color = require 'resources.color_presets'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
 
 local random = math.random
+local get_rank_color = Rank.get_rank_color
+local get_rank_name = Rank.get_rank_name
+local get_player_rank = Rank.get_player_rank
+local donator_is_donator = Donator.is_donator
 
 local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
 local symbol_asc = ' ▲'
 local symbol_desc = ' ▼'
 local focus_color = Color.dark_orange
-local rank_colors = {
-    Color.white, -- Guest
-    Color.regular, -- Regular
-    Color.donator, -- Donator
-    Color.admin -- Admin
-}
+local donator_color = Color.donator
+
+local rank_column_width = 100
 
 local inv_sprite_time_step = 1 / sprite_time_step
-local rank_perk_flag = Donators.donator_perk_flags.rank
-local rank_names = {
-    'Guest',
-    'Regular',
-    'Donator',
-    'Admin'
-}
+local donator_label_caption = {'', '(', {'ranks.donator_abbreviation'}, ')'}
 
 local player_poke_cooldown = {}
 local player_pokes = {}
@@ -91,21 +85,6 @@ local function format_distance(tiles)
     return math.round(tiles * 0.001, 1) .. ' km'
 end
 
-local function get_rank_level(player)
-    if player.admin then
-        return 4
-    end
-
-    local name = player.name
-    if UserGroups.player_has_donator_perk(name, rank_perk_flag) then
-        return 3
-    elseif UserGroups.is_regular(name) then
-        return 2
-    end
-
-    return 1
-end
-
 local function do_poke_spam_protection(player)
     if player.admin then
         return true
@@ -124,7 +103,7 @@ end
 local function apply_heading_style(style)
     style.font_color = focus_color
     style.font = 'default-bold'
-    style.align = 'center'
+    style.horizontal_align  = 'center'
 end
 
 local column_builders = {
@@ -155,7 +134,7 @@ local column_builders = {
                 sprite = player_sprites[cell_data]
             }
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 32
 
             return label
@@ -168,8 +147,9 @@ local column_builders = {
         sort = function(a, b)
             return a.name:lower() < b.name:lower()
         end,
-        draw_heading = function(parent)
-            local label = parent.add {type = 'label', name = player_name_heading_name, caption = 'Name'}
+        draw_heading = function(parent, sort_symbol)
+            local caption = {'player_list.name_caption', sort_symbol}
+            local label = parent.add {type = 'label', name = player_name_heading_name, caption = caption}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 150
@@ -189,7 +169,7 @@ local column_builders = {
             }
             local label_style = label.style
             label_style.font_color = color
-            label_style.align = 'left'
+            label_style.horizontal_align  = 'left'
             label_style.width = 150
 
             return label
@@ -202,8 +182,9 @@ local column_builders = {
         sort = function(a, b)
             return a < b
         end,
-        draw_heading = function(parent)
-            local label = parent.add {type = 'label', name = time_heading_name, caption = 'Time'}
+        draw_heading = function(parent, sort_symbol)
+            local caption = {'player_list.time_caption', sort_symbol}
+            local label = parent.add {type = 'label', name = time_heading_name, caption = caption}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 125
@@ -215,33 +196,61 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = time_cell_name, caption = text}
             local label_style = label.style
-            label_style.align = 'left'
+            label_style.horizontal_align  = 'left'
             label_style.width = 125
 
             return label
         end
     },
     [rank_heading_name] = {
-        create_data = get_rank_level,
-        sort = function(a, b)
-            return a < b
+        create_data = function(player)
+            local player_name = player.name
+            return {
+                rank = get_player_rank(player_name),
+                is_donator = donator_is_donator(player_name)
+            }
         end,
-        draw_heading = function(parent)
-            local label = parent.add {type = 'label', name = rank_heading_name, caption = 'Rank'}
+        sort = function(a, b)
+            local a_rank, b_rank = a.rank, b.rank
+            if a_rank == b_rank then
+                return b.is_donator and not a.is_donator
+            end
+            return a_rank < b_rank
+        end,
+        draw_heading = function(parent, sort_symbol)
+            local caption = {'player_list.rank_caption', sort_symbol}
+            local label = parent.add {type = 'label', name = rank_heading_name, caption = caption}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 50
+            label_style.width = rank_column_width
 
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local label = parent.add {type = 'label', name = rank_cell_name, caption = rank_names[cell_data]}
-            local label_style = label.style
-            label_style.align = 'center'
-            label_style.font_color = rank_colors[cell_data]
-            label_style.width = 50
+            local is_donator = cell_data.is_donator
+            local rank = cell_data.rank
+            if is_donator then
+                local flow = parent.add {type = 'flow', name = rank_cell_name, direction = 'horizontal'}
+                local flow_style = flow.style
+                flow_style.horizontal_align  = 'left'
+                flow_style.width = rank_column_width
 
-            return label
+                local label_rank = flow.add {type = 'label', caption = get_rank_name(rank)}
+                label_rank.style.font_color = get_rank_color(rank)
+
+                local label_donator = flow.add {type = 'label', caption = donator_label_caption}
+                label_donator.style.font_color = donator_color
+
+                return flow
+            else
+                local label = parent.add {type = 'label', name = rank_cell_name, caption = get_rank_name(rank)}
+                local label_style = label.style
+                label_style.horizontal_align  = 'left'
+                label_style.font_color = get_rank_color(rank)
+                label_style.width = rank_column_width
+
+                return label
+            end
         end
     },
     [distance_heading_name] = {
@@ -251,8 +260,9 @@ local column_builders = {
         sort = function(a, b)
             return a < b
         end,
-        draw_heading = function(parent)
-            local label = parent.add {type = 'label', name = distance_heading_name, caption = 'Distance'}
+        draw_heading = function(parent, sort_symbol)
+            local caption = {'player_list.distance_caption', sort_symbol}
+            local label = parent.add {type = 'label', name = distance_heading_name, caption = caption}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 70
@@ -264,7 +274,7 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = distance_cell_name, caption = text}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 70
 
             return label
@@ -286,12 +296,13 @@ local column_builders = {
                 return a_coin_earned < b_coin_earned
             end
         end,
-        draw_heading = function(parent)
+        draw_heading = function(parent, sort_symbol)
+            local caption = {'player_list.coins_caption', sort_symbol}
             local label =
                 parent.add {
                 type = 'label',
                 name = coin_heading_name,
-                caption = 'Coins',
+                caption = caption,
                 tooltip = 'Coins earned / spent.'
             }
             local label_style = label.style
@@ -305,7 +316,7 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = coin_cell_name, caption = text}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 80
 
             return label
@@ -322,8 +333,9 @@ local column_builders = {
         sort = function(a, b)
             return a.count < b.count
         end,
-        draw_heading = function(parent)
-            local label = parent.add {type = 'label', name = deaths_heading_name, caption = 'Deaths'}
+        draw_heading = function(parent, sort_symbol)
+            local caption = {'player_list.deaths_caption', sort_symbol}
+            local label = parent.add {type = 'label', name = deaths_heading_name, caption = caption}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 60
@@ -344,7 +356,7 @@ local column_builders = {
             local label =
                 parent.add {type = 'label', name = deaths_cell_name, caption = cell_data.count, tooltip = tooltip}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.width = 60
 
             return label
@@ -357,8 +369,9 @@ local column_builders = {
         sort = function(a, b)
             return a.poke_count < b.poke_count
         end,
-        draw_heading = function(parent, data)
-            local label = parent.add {type = 'label', name = poke_name_heading_name, caption = 'Poke'}
+        draw_heading = function(parent, sort_symbol, data)
+            local caption = {'player_list.poke_caption', sort_symbol}
+            local label = parent.add {type = 'label', name = poke_name_heading_name, caption = caption}
             local label_style = label.style
             apply_heading_style(label_style)
             label_style.width = 60
@@ -372,11 +385,11 @@ local column_builders = {
 
             local parent_style = parent.style
             parent_style.width = 64
-            parent_style.align = 'center'
+            parent_style.horizontal_align  = 'center'
 
             local label = parent.add {type = 'button', name = poke_cell_name, caption = cell_data.poke_count}
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.minimal_width = 32
             label_style.height = 24
             label_style.font = 'default-bold'
@@ -399,13 +412,14 @@ local column_builders = {
         sort = function(a, b)
             return a.name:lower() < b.name:lower()
         end,
-        draw_heading = function(parent)
+        draw_heading = function(parent, sort_symbol)
+            local caption = {'player_list.report_caption', sort_symbol}
             local label =
                 parent.add {
                 type = 'label',
                 name = report_heading_name,
-                caption = 'Report',
-                tooltip = 'Report player to the admin team for griefing or breaking the rules.'
+                caption = caption,
+                tooltip = {'player_list.report_tooltip'}
             }
             local label_style = label.style
             apply_heading_style(label_style)
@@ -416,17 +430,17 @@ local column_builders = {
         draw_cell = function(parent, cell_data)
             local parent_style = parent.style
             parent_style.width = 58
-            parent_style.align = 'center'
+            parent_style.horizontal_align  = 'center'
 
             local label =
                 parent.add {
                 type = 'sprite-button',
                 name = report_cell_name,
                 sprite = 'utility/force_editor_icon',
-                tooltip = 'Report ' .. cell_data.name
+                tooltip = {'player_list.report_button_tooltip', cell_data.name}
             }
             local label_style = label.style
-            label_style.align = 'center'
+            label_style.horizontal_align  = 'center'
             label_style.minimal_width = 32
             label_style.height = 24
             label_style.font = 'default-bold'
@@ -470,9 +484,7 @@ local function redraw_title(data)
     local online_count = #game.connected_players
     local total_count = PlayerStats.get_total_player_count()
 
-    local title = table.concat {'Player list - Online: ', online_count, ' Total: ' .. total_count}
-
-    frame.caption = title
+    frame.caption = {'player_list.title', online_count, total_count}
 end
 
 local function redraw_headings(data)
@@ -481,24 +493,19 @@ local function redraw_headings(data)
     local sort = settings.sort
     local sort_column = math.abs(sort)
 
-    local sort_symbol
-    if sort > 0 then
-        sort_symbol = symbol_asc
-    else
-        sort_symbol = symbol_desc
-    end
-
     local heading_table_flow = data.heading_table_flow
     Gui.clear(heading_table_flow)
 
     local heading_table = heading_table_flow.add {type = 'table', column_count = #columns}
 
     for i, c in ipairs(settings.columns) do
-        local heading = column_builders[c].draw_heading(heading_table, data)
+        local sort_symbol = ''
 
         if i == sort_column then
-            heading.caption = heading.caption .. sort_symbol
+            sort_symbol = sort > 0 and symbol_asc or symbol_desc
         end
+
+        local heading = column_builders[c].draw_heading(heading_table, sort_symbol, data)
 
         Gui.set_data(heading, {data = data, index = i})
     end
@@ -563,11 +570,11 @@ local function draw_main_frame(left, player)
         type = 'checkbox',
         name = notify_checkbox_name,
         state = not no_notify_players[player_index],
-        caption = 'Notify me when pokes happen.',
-        tooltip = 'Receive a message when a player pokes another player.'
+        caption = {'player_list.poke_notify_caption'},
+        tooltip = {'player_list.poke_notify_tooltip'}
     }
 
-    frame.add {type = 'button', name = main_button_name, caption = 'Close'}
+    frame.add {type = 'button', name = main_button_name, caption = {'player_list.close_caption'}}
 
     local settings = player_settings[player_index] or get_default_player_settings()
     local data = {
@@ -615,7 +622,7 @@ local function tick()
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -624,7 +631,12 @@ local function player_joined(event)
     local top = gui.top
 
     if not top[main_button_name] then
-        top.add {type = 'sprite-button', name = main_button_name, sprite = 'entity/player'}
+        top.add({
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'entity/character',
+            tooltip = {'player_list.tooltip'}
+        })
     end
 
     for _, p in ipairs(game.connected_players) do
@@ -656,7 +668,7 @@ Event.add(defines.events.on_player_left_game, player_left)
 
 Gui.on_click(main_button_name, toggle)
 
-Gui.on_click(
+Gui.on_checked_state_changed(
     notify_checkbox_name,
     function(event)
         local player_index = event.player_index
