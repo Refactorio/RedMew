@@ -1,10 +1,12 @@
 local Global = require 'utils.global'
+local Event = require 'utils.event'
 local type = type
 local error = error
 local tonumber = tonumber
 local tostring = tostring
 local pairs = pairs
 local format = string.format
+local raise_event = script.raise_event
 
 --- Contains a set of callables that will attempt to sanitize and transform the input
 local settings_type = {
@@ -73,6 +75,17 @@ local memory = {}
 Global.register(memory, function (tbl) memory = tbl end)
 
 local Public = {}
+
+Public.events = {
+    --- Triggered when a setting is set or updated. Old value may be null if never set before
+    -- Event {
+    --        name = name,
+    --        old_value = old_value,
+    --        new_value = new_value,
+    --        player_index = player_index,
+    --    }
+    on_setting_set = Event.generate_event_name('on_setting_set'),
+}
 
 Public.types = {fraction = 'fraction', string = 'string', boolean = 'boolean'}
 
@@ -158,7 +171,17 @@ function Public.set(player_index, name, value)
         memory[player_index] = player_settings
     end
 
+    local old_value = player_settings[name]
     player_settings[name] = sanitized_value
+
+    raise_event(Public.events.on_setting_set, {
+        setting = {
+            name = name,
+            old_value = old_value,
+            new_value = sanitized_value,
+            player_index = player_index,
+        }
+    })
 
     return sanitized_value
 end
