@@ -98,7 +98,12 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'utility/spray_icon'}
+    player.gui.top.add({
+        name = main_button_name,
+        type = 'sprite-button',
+        sprite = 'utility/spray_icon',
+        tooltip = {'paint.tooltip'}
+    })
 end
 
 local function draw_filters_table(event)

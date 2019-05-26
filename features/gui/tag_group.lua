@@ -131,7 +131,12 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'sprite-button', caption = 'tag'}
+    player.gui.top.add({
+        name = main_button_name,
+        type = 'sprite-button',
+        caption = 'tag',
+        tooltip = {'tag_group.tooltip'}
+    })
 end
 
 local function draw_main_frame_content(parent)

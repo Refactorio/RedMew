@@ -276,7 +276,12 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'item/blueprint'}
+    player.gui.top.add({
+        name = main_button_name,
+        type = 'sprite-button',
+        sprite = 'item/blueprint',
+        tooltip = {'blueprint_helper.tooltip'}
+    })
 end
 
 local function draw_filters_table(event)

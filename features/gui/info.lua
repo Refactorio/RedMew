@@ -670,7 +670,12 @@ local function player_created(event)
     end
 
     local gui = player.gui
-    gui.top.add {type = 'sprite-button', name = main_button_name, sprite = 'virtual-signal/signal-info'}
+    gui.top.add({
+        type = 'sprite-button',
+        name = main_button_name,
+        sprite = 'virtual-signal/signal-info',
+        tooltip = {'info.tooltip'}
+    })
 
     rewarded_players[player.index] = 0
     reward_player(player, info_tab_flags[1])

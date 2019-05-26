@@ -529,6 +529,7 @@ local function on_player_created(event)
         name = 'Diggy.Experience.Button',
         type = 'sprite-button',
         sprite = 'entity/market',
+        tooltip = 'Diggy leveling progress',
     })
 end
 

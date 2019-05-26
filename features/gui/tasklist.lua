@@ -626,7 +626,12 @@ local function player_joined(event)
 
     local top = gui.top
     if not top[main_button_name] then
-        top.add {type = 'sprite-button', name = main_button_name, sprite = 'item/repair-pack'}
+        top.add({
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'item/repair-pack',
+            tooltip = {'tasklist.tooltip'}
+        })
     end
 end
 

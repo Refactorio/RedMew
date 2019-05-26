@@ -29,7 +29,12 @@ local function create_score_gui(event)
     local top = player.gui.top
 
     if not top[main_button_name] then
-        top.add({type = 'sprite-button', name = main_button_name, sprite = 'achievement/there-is-no-spoon'})
+        top.add({
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'achievement/there-is-no-spoon',
+            tooltip = {'score.tooltip'}
+        })
     end
 end
 
