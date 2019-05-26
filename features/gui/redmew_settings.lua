@@ -1,8 +1,6 @@
 local Gui = require 'utils.gui'
 local Token = require 'utils.token'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
-local Global = require 'utils.global'
 local Server = require 'features.server'
 local Toast = require 'features.gui.toast'
 local Settings = require 'utils.redmew_settings'
@@ -16,23 +14,18 @@ local main_frame_name = Gui.uid_name()
 
 local Public = {}
 
-local primitives = {
-    remote_server = nil
-}
-
-Global.register(
-    {
-        primitives = primitives
-    },
-    function(tbl)
-        primitives = tbl.primitives
-    end
-)
-
 local on_player_settings_get = Token.register(function (data)
     local player = game.get_player(data.key)
 
     if not player or not player.valid then
+        return
+    end
+
+    local button = player.gui.top[main_button_name]
+    button.enabled = true
+    button.tooltip = {'redmew_settings_gui.tooltip'}
+
+    if data.cancelled then
         return
     end
 
@@ -44,10 +37,6 @@ local on_player_settings_get = Token.register(function (data)
             Settings.set(player_index, key, value)
         end
     end
-
-    local button = player.gui.top[main_button_name]
-    button.enabled = true
-    button.tooltip = {'redmew_settings_gui.tooltip'}
 end)
 
 local function player_created(event)
@@ -56,31 +45,22 @@ local function player_created(event)
         return
     end
 
-    local button = player.gui.top.add({
+    player.gui.top.add({
         type = 'sprite-button',
         name = main_button_name,
         sprite = 'item/iron-gear-wheel',
-        tooltip = {'redmew_settings_gui.tooltip'}
+        tooltip = {'redmew_settings_gui.tooltip_loading'},
+        enabled = false,
     })
-
-    -- disable the button if the remote server is used, won't be available until the settings are loaded
-    if primitives.remote_server then
-        button.enabled = false
-        button.tooltip = {'redmew_settings_gui.tooltip_loading'}
-    end
 end
 
 local function player_joined(event)
-    if not primitives.remote_server then
-        return
-    end
-
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
 
-    Server.try_get_data('player_settings', player.name, on_player_settings_get)
+    Server.try_get_data_timeout('player_settings', player.name, on_player_settings_get, 30)
 end
 
 local function get_element_value(element)
@@ -223,20 +203,13 @@ local function save_changes(event)
     end
 
     Toast.toast_player(player, 5, {'redmew_settings_gui.save_success_toast_message'})
-
-    if primitives.remote_server then
-        Server.set_data('player_settings', player.name, Settings.all(player_index))
-    end
+    Server.set_data('player_settings', player.name, Settings.all(player_index))
 
     local main_frame = player.gui.center[main_frame_name]
 
     if main_frame then
         Gui.destroy(main_frame)
     end
-end
-
-local function enable_server()
-    primitives.remote_server = true
 end
 
 Gui.on_custom_close(main_frame_name, function(event)
@@ -249,6 +222,5 @@ Gui.on_click(main_button_name, toggle)
 Gui.on_click(save_changes_button_name, save_changes)
 Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
-Event.add(Server.events.on_server_started, enable_server)
 
 return Public
