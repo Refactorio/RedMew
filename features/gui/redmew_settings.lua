@@ -2,7 +2,6 @@ local Gui = require 'utils.gui'
 local Event = require 'utils.event'
 local Toast = require 'features.gui.toast'
 local Settings = require 'utils.redmew_settings'
-local SettingsSync = require 'features.redmew_settings_sync'
 local Color = require 'resources.color_presets'
 local pairs = pairs
 
@@ -22,8 +21,7 @@ local function player_created(event)
         type = 'sprite-button',
         name = main_button_name,
         sprite = 'item/iron-gear-wheel',
-        tooltip = {'redmew_settings_gui.tooltip_loading'},
-        enabled = false,
+        tooltip = {'redmew_settings_gui.tooltip'}
     })
 end
 
@@ -38,10 +36,6 @@ local function player_joined(event)
     if main_frame then
         Gui.destroy(main_frame)
     end
-
-    local button = player.gui.top[main_button_name]
-    button.tooltip = {'redmew_settings_gui.tooltip_loading'}
-    button.enabled = false
 end
 
 local function get_element_value(element)
@@ -53,6 +47,21 @@ local function get_element_value(element)
     end
     if element.type == 'checkbox' then
         return element.state
+    end
+end
+
+local function set_element_value(element, value)
+    if element.type == 'text-box' then
+        element.text = value
+        return
+    end
+    if element.type == 'slider' then
+        element.slider_value = value
+        return
+    end
+    if element.type == 'checkbox' then
+        element.state = value
+        return
     end
 end
 
@@ -128,6 +137,7 @@ local function draw_main_frame(center, player)
     save_button.style = 'confirm_button'
 
     Gui.set_data(save_button, data)
+    Gui.set_data(settings_frame, data)
 
     player.opened = settings_frame
 end
@@ -192,10 +202,41 @@ local function save_changes(event)
     end
 end
 
-local function synced_from_server(event)
-    local button = event.player.gui.top[main_button_name]
-    button.tooltip = {'redmew_settings_gui.tooltip'}
-    button.enabled = true
+local function setting_set(event)
+    local setting = event.setting
+    if not setting.value_changed then
+        return
+    end
+
+    local player = game.get_player(setting.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    local main_frame = player.gui.center[main_frame_name]
+    if not main_frame or not main_frame.valid then
+        return
+    end
+
+    local data = Gui.get_data(main_frame)
+    if not data then
+        return
+    end
+
+    local setting_name = setting.name
+    local element_data = data[setting_name]
+
+    if not element_data then
+        return
+    end
+
+    local input = element_data.input
+    if not input or not input.valid then
+        -- for some reason it has been removed already
+        return
+    end
+    set_element_value(input, setting.new_value)
+    element_data.previous_value = setting.old_value
 end
 
 Gui.on_custom_close(main_frame_name, function(event)
@@ -208,6 +249,6 @@ Gui.on_click(main_button_name, toggle)
 Gui.on_click(save_changes_button_name, save_changes)
 Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
-Event.add(SettingsSync.events.on_synced_from_server, synced_from_server)
+Event.add(Settings.events.on_setting_set, setting_set)
 
 return Public

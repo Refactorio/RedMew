@@ -11,7 +11,7 @@ local raise_event = script.raise_event
 local Public = {}
 
 Public.events = {
-    --- Triggered when the settings are synced back from the server
+    --- Triggered when the settings are synced back to the server
     -- Event {
     --     player = player
     -- }
@@ -70,8 +70,7 @@ local function setting_set(event)
     end
 
     local setting = event.setting
-    if setting.old_value == setting.new_value then
-        -- setting value has not been changed, ignore
+    if not setting.value_changed then
         return
     end
 
