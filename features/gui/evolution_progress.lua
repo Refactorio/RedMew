@@ -98,7 +98,8 @@ local function player_joined(event)
                 name = main_button_name,
                 type = 'sprite-button',
                 sprite = 'entity/' .. alien_name,
-                number = evolution_factor * 100
+                number = evolution_factor * 100,
+                tooltip = {'evolution_progress.tooltip'}
             }
         ).enabled = false
 end
