@@ -93,15 +93,14 @@ local function player_joined(event)
     local evolution_factor = get_evolution_percentage()
     local alien_name = get_alien_name(evolution_factor)
 
-    player.gui.top.add(
-            {
-                name = main_button_name,
-                type = 'sprite-button',
-                sprite = 'entity/' .. alien_name,
-                number = evolution_factor * 100,
-                tooltip = {'evolution_progress.tooltip'}
-            }
-        ).enabled = false
+    player.gui.top.add({
+        name = main_button_name,
+        type = 'sprite-button',
+        sprite = 'entity/' .. alien_name,
+        number = evolution_factor * 100,
+        tooltip = {'evolution_progress.tooltip'},
+        enabled = false
+    })
 end
 
 local function on_nth_tick()
