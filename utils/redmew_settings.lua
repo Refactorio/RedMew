@@ -88,6 +88,7 @@ Public.types = {fraction = 'fraction', string = 'string', boolean = 'boolean'}
 ---@param name string
 ---@param setting_type string
 ---@param default any
+---@param localisation_key|table
 function Public.register(name, setting_type, default, localisation_key)
     if _LIFECYCLE ~= _STAGE.control then
         error(format('You can only register setting names in the control stage, i.e. not inside events. Tried setting "%s" with type "%s".', name, setting_type), 2)

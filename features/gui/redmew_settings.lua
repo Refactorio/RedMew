@@ -51,7 +51,7 @@ local on_player_settings_get = Token.register(function (data)
 end)
 
 local function player_created(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.players[event.player_index]
     if not player or not player.valid then
         return
     end
@@ -75,7 +75,7 @@ local function player_joined(event)
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.players[event.player_index]
     if not player or not player.valid then
         return
     end
