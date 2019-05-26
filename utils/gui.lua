@@ -10,23 +10,14 @@ local Gui = {}
 local data = {}
 local element_map = {}
 
-if _DEBUG then
-    Gui.token =
-        Global.register(
-        {data = data, element_map = element_map},
-        function(tbl)
-            data = tbl.data
-            element_map = tbl.element_map
-        end
-    )
-else
+Gui.token =
     Global.register(
-        data,
-        function(tbl)
-            data = tbl
-        end
-    )
-end
+    {data = data, element_map = element_map},
+    function(tbl)
+        data = tbl.data
+        element_map = tbl.element_map
+    end
+)
 
 local top_elements = {}
 local on_visible_handlers = {}
@@ -351,8 +342,13 @@ if _DEBUG then
     end
     set_data = Gui.set_data
 
-    Gui.data = data
-    Gui.element_map = element_map
+    function Gui.data()
+        return data
+    end
+
+    function Gui.element_map()
+        return element_map
+    end
 end
 
 return Gui

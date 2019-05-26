@@ -23,7 +23,7 @@ Public.name = 'Gui Data'
 local function draw_player_headers(player_panel, selected_index)
     local selected_header = nil
 
-    for player_index, values in pairs(Gui.data) do
+    for player_index, values in pairs(Gui.data()) do
         local player = game.get_player(player_index)
         local player_name
         if not player then
@@ -112,7 +112,7 @@ end
 
 local function draw_element_headers(element_panel, values, selected_index)
     local selected_header = nil
-    local element_map = Gui.element_map
+    local element_map = Gui.element_map()
     local name_map = Gui.names
 
     for ei, stored_data in pairs(values) do
