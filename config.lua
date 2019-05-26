@@ -361,6 +361,10 @@ global.config = {
     -- allows the saving and automatic loading of quickbars between maps
     player_quick_bars = {
         enabled = true
+    },
+    -- enables the redmew settings GUI
+    redmew_settings = {
+        enabled = true
     }
 }
 

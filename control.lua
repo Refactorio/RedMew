@@ -133,6 +133,9 @@ end
 if config.rich_text_gui.enabled then
     require 'features.gui.rich_text'
 end
+if config.redmew_settings.enabled then
+    require 'features.gui.redmew_settings'
+end
 
 -- Debug-only modules
 if _DEBUG then
