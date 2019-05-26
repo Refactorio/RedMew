@@ -66,6 +66,10 @@ local function player_joined(event)
         Gui.destroy(main_frame)
     end
 
+    local button = player.gui.top[main_button_name]
+    button.tooltip = {'redmew_settings_gui.tooltip_loading'}
+    button.enabled = false
+
     Server.try_get_data_timeout('player_settings', player.name, on_player_settings_get, 30)
 end
 
