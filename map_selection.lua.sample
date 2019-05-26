@@ -1,4 +1,4 @@
-return require 'map_gen.maps.beach'
+return require 'map_gen.maps.default'
 --[[
     Replace the word default in the quotes above with the name of the map you want to play then save this file.
     Example: If you want to play beach, line 1 should look like:
