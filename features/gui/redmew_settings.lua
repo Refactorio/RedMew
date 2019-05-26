@@ -1,11 +1,9 @@
 local Gui = require 'utils.gui'
-local Token = require 'utils.token'
 local Event = require 'utils.event'
-local Server = require 'features.server'
 local Toast = require 'features.gui.toast'
 local Settings = require 'utils.redmew_settings'
+local SettingsSync = require 'features.redmew_settings_sync'
 local Color = require 'resources.color_presets'
-
 local pairs = pairs
 
 local main_button_name = Gui.uid_name()
@@ -13,31 +11,6 @@ local save_changes_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
 
 local Public = {}
-
-local on_player_settings_get = Token.register(function (data)
-    local player = game.get_player(data.key)
-
-    if not player or not player.valid then
-        return
-    end
-
-    local button = player.gui.top[main_button_name]
-    button.enabled = true
-    button.tooltip = {'redmew_settings_gui.tooltip'}
-
-    if data.cancelled then
-        return
-    end
-
-    local settings = data.value
-
-    if settings ~= nil then
-        local player_index = player.index
-        for key, value in pairs(settings) do
-            Settings.set(player_index, key, value)
-        end
-    end
-end)
 
 local function player_created(event)
     local player = game.get_player(event.player_index)
@@ -69,8 +42,6 @@ local function player_joined(event)
     local button = player.gui.top[main_button_name]
     button.tooltip = {'redmew_settings_gui.tooltip_loading'}
     button.enabled = false
-
-    Server.try_get_data_timeout('player_settings', player.name, on_player_settings_get, 30)
 end
 
 local function get_element_value(element)
@@ -208,7 +179,7 @@ local function save_changes(event)
         return
     end
 
-    for name, value in pairs (values) do
+    for name, value in pairs(values) do
         Settings.set(player_index, name, value)
     end
 
@@ -221,6 +192,12 @@ local function save_changes(event)
     end
 end
 
+local function synced_from_server(event)
+    local button = event.player.gui.top[main_button_name]
+    button.tooltip = {'redmew_settings_gui.tooltip'}
+    button.enabled = true
+end
+
 Gui.on_custom_close(main_frame_name, function(event)
     Gui.destroy(event.element)
 end)
@@ -231,5 +208,6 @@ Gui.on_click(main_button_name, toggle)
 Gui.on_click(save_changes_button_name, save_changes)
 Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
+Event.add(SettingsSync.events.on_synced_from_server, synced_from_server)
 
 return Public

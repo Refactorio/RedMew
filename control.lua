@@ -26,6 +26,7 @@ require 'features.server_commands'
 -- If missing, will cause other feature modules to fail
 require 'features.player_create'
 require 'features.rank_system'
+require 'features.redmew_settings_sync'
 
 -- Feature modules
 -- Each can be disabled safely
@@ -94,9 +95,6 @@ if config.biter_attacks.enabled then
 end
 if config.player_quick_bars.enabled then
     require 'features.player_quick_bars'
-end
-if config.redmew_settings_sync.enabled then
-    require 'features.redmew_settings_sync'
 end
 
 -- GUIs

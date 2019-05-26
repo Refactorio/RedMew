@@ -365,10 +365,6 @@ global.config = {
     -- enables the redmew settings GUI
     redmew_settings = {
         enabled = true
-    },
-    -- enables syncing settings to the server
-    redmew_settings_sync = {
-        enabled = true
     }
 }
 
