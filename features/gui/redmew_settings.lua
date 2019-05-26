@@ -47,7 +47,7 @@ local on_player_settings_get = Token.register(function (data)
 
     local button = player.gui.top[main_button_name]
     button.enabled = true
-    button.tooltip = {'redmew_settings_gui.menu_item_tooltip'}
+    button.tooltip = {'redmew_settings_gui.tooltip'}
 end)
 
 local function player_created(event)
@@ -60,13 +60,13 @@ local function player_created(event)
         type = 'sprite-button',
         name = main_button_name,
         sprite = 'item/iron-gear-wheel',
-        tooltip = {'redmew_settings_gui.menu_item_tooltip'}
+        tooltip = {'redmew_settings_gui.tooltip'}
     })
 
     -- disable the button if the remote server is used, won't be available until the settings are loaded
     if primitives.remote_server then
         button.enabled = false
-        button.tooltip = {'redmew_settings_gui.menu_item_tooltip_loading'}
+        button.tooltip = {'redmew_settings_gui.tooltip_loading'}
     end
 end
 
