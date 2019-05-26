@@ -141,10 +141,12 @@ end
 if _DEBUG then
     require 'features.scenario_data_manipulation'
 end
--- Needs to be at bottom so tokens are registered last.
+
 if _DUMP_ENV then
     require 'utils.dump_env'
 end
+
+-- Needs to be at bottom so tokens are registered last.
 if _DEBUG then
     require 'features.gui.debug.command'
 end

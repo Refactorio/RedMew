@@ -8,13 +8,25 @@ local next = next
 local Gui = {}
 
 local data = {}
+local element_map = {}
 
-Global.register(
-    data,
-    function(tbl)
-        data = tbl
-    end
-)
+if _DEBUG then
+    Gui.token =
+        Global.register(
+        {data = data, element_map = element_map},
+        function(tbl)
+            data = tbl.data
+            element_map = tbl.element_map
+        end
+    )
+else
+    Global.register(
+        data,
+        function(tbl)
+            data = tbl
+        end
+    )
+end
 
 local top_elements = {}
 local on_visible_handlers = {}
@@ -310,7 +322,37 @@ if _DEBUG then
         return token
     end
 
+    function Gui.set_data(element, value)
+        local player_index = element.player_index
+        local values = data[player_index]
+
+        if value == nil then
+            if not values then
+                return
+            end
+
+            local index = element.index
+            values[index] = nil
+            element_map[index] = nil
+
+            if next(values) == nil then
+                data[player_index] = nil
+            end
+        else
+            if not values then
+                values = {}
+                data[player_index] = values
+            end
+
+            local index = element.index
+            values[index] = value
+            element_map[index] = element
+        end
+    end
+    set_data = Gui.set_data
+
     Gui.data = data
+    Gui.element_map = element_map
 end
 
 return Gui
