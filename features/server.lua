@@ -322,7 +322,7 @@ end
 
 --- Same Server.try_get_data but the request can be cancelled by calling
 -- Server.cancel_try_get_data(data_set, key, callback_token)
--- If the request is cancelled before it is complete the callback will be called with nil.
+-- If the request is cancelled before it is complete the callback will be called with data.cancelled = true.
 -- It is safe to cancel a non-existent or completed request, in either case the callback will not be called.
 -- There can only be one request per data_set, key, callback_token combo. If there is already an ongoing request
 -- an attempt to make a new one will be ignored.
@@ -350,7 +350,8 @@ local function cancel_try_get_data(data_set, key, callback_token)
         callbacks[callback_token] = nil
 
         local func = Token.get(callback_token)
-        func()
+        local data = {data_set = data_set, key = key, cancelled = true}
+        func(data)
 
         return true
     else
@@ -360,7 +361,7 @@ end
 
 --- Cancels the request. Returns false if the request could not be cnacled, either because there is no request
 -- to cancel or it has been completed or cancled already. Otherwise returns true.
--- If the request is cancelled before it is complete the callback will be called with nil.
+-- If the request is cancelled before it is complete the callback will be called with data.cancelled = true.
 -- It is safe to cancel a non-existent or completed request, in either case the callback will not be called.
 -- @param  data_set<string>
 -- @param  key<string>
@@ -379,7 +380,7 @@ local timeout_token =
 )
 
 --- Same as Server.try_get_data but the request is cancelled if the timeout expires before the request is complete.
--- If the request is cancelled before it is complete the callback will be called with nil.
+-- If the request is cancelled before it is complete the callback will be called with data.cancelled = true.
 -- There can only be one request per data_set, key, callback_token combo. If there is already an ongoing request
 -- an attempt to make a new one will be ignored.
 -- @param  data_set<string>
@@ -392,15 +393,19 @@ local timeout_token =
 -- local callback =
 --     Token.register(
 --     function(data)
---         if not data then
---             return -- The request timed out.
---         end
---
 --         local data_set = data.data_set
 --         local key = data.key
+--
+--          game.print('data_set: ' .. data_set .. ', key: ' .. key)
+--
+--         if data.cancelled then
+--             game.print('Timed out')
+--             return
+--         end
+--
 --         local value = data.value -- will be nil if no data
 --
---         game.print(data_set .. ':' .. key .. ':' .. tostring(value))
+--         game.print('value: ' .. tostring(value))
 --     end
 -- )
 --
