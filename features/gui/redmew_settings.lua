@@ -60,6 +60,12 @@ local function player_joined(event)
         return
     end
 
+    local main_frame = player.gui.center[main_frame_name]
+
+    if main_frame then
+        Gui.destroy(main_frame)
+    end
+
     Server.try_get_data_timeout('player_settings', player.name, on_player_settings_get, 30)
 end
 
