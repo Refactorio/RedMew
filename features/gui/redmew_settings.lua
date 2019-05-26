@@ -213,7 +213,6 @@ local function save_changes(event)
     end
 
     Toast.toast_player(player, 5, {'redmew_settings_gui.save_success_toast_message'})
-    Server.set_data('player_settings', player.name, Settings.all(player_index))
 
     local main_frame = player.gui.center[main_frame_name]
 
