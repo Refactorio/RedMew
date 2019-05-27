@@ -26,6 +26,7 @@ require 'features.server_commands'
 -- If missing, will cause other feature modules to fail
 require 'features.player_create'
 require 'features.rank_system'
+require 'features.redmew_settings_sync'
 
 -- Feature modules
 -- Each can be disabled safely
