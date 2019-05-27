@@ -9,7 +9,7 @@ local tag_groups = require 'resources.tag_groups'
 local Settings = require 'utils.redmew_settings'
 
 local notify_name = 'notify_tag_group'
-Settings.register(notify_name, Settings.types.boolean, true)
+Settings.register(notify_name, Settings.types.boolean, true, 'tag_group.notify_caption_short')
 
 local default_verb = 'expanded'
 local player_tags = {}
@@ -235,9 +235,9 @@ local function draw_main_frame(player)
         main_frame.add {
         type = 'checkbox',
         name = notify_checkbox_name,
-        caption = 'Notify me when tag groups change.',
         state = not no_notify_players[player.index],
-        tooltip = 'Receive a message when a player enters or leaves a tag group or when a tag group is created, edited or deleted.'
+        caption = {'tag_group.notify_caption'},
+        tooltip = {'tag_group.notify_tooltip'}
     }
 
     local bottom_flow = main_frame.add {type = 'flow', direction = 'horizontal'}

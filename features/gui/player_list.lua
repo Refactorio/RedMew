@@ -27,7 +27,7 @@ local focus_color = Color.dark_orange
 local donator_color = Color.donator
 
 local notify_name = 'notify_poke'
-Settings.register(notify_name, Settings.types.boolean, true)
+Settings.register(notify_name, Settings.types.boolean, true, 'player_list.poke_notify_caption_short')
 
 local rank_column_width = 100
 

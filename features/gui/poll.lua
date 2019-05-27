@@ -24,7 +24,7 @@ local normal_color = Color.white
 local focus_color = Color.dark_orange
 
 local notify_name = 'notify_poll'
-Settings.register(notify_name, Settings.types.boolean, true)
+Settings.register(notify_name, Settings.types.boolean, true, 'poll.notify_caption_short')
 
 local polls = {}
 local polls_counter = {0}
@@ -370,9 +370,9 @@ local function draw_main_frame(left, player)
         frame.add {
         type = 'checkbox',
         name = notify_checkbox_name,
-        caption = 'Notify me about polls.',
         state = state,
-        tooltip = 'Receive a message when new polls are created and popup the poll.'
+        caption = {'poll.notify_caption'},
+        tooltip = {'poll.notify_tooltip'}
     }
     data.notify_checkbox = notify_checkbox
 

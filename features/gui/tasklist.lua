@@ -13,7 +13,7 @@ local normal_color = Color.white
 local focus_color = Color.dark_orange
 
 local notify_name = 'notify_task'
-Settings.register(notify_name, Settings.types.boolean, true)
+Settings.register(notify_name, Settings.types.boolean, true, 'tasklist.notify_caption_short')
 
 local server_player = {
     valid = true,
@@ -408,8 +408,9 @@ local function draw_main_frame(left, player)
         frame.add {
         type = 'checkbox',
         name = notify_checkbox_name,
-        caption = 'Notify me about new announcements or tasks',
-        state = state
+        state = state,
+        caption = {'tasklist.notify_caption'},
+        tooltip = {'tasklist.notify_tooltip'}
     }
     data.notify_checkbox = notify_checkbox
 
