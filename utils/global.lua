@@ -14,6 +14,8 @@ function Global.register(tbl, callback)
             callback(Token.get_global(token))
         end
     )
+
+    return token
 end
 
 function Global.register_init(tbl, init_handler, callback)
@@ -34,6 +36,8 @@ function Global.register_init(tbl, init_handler, callback)
             callback(Token.get_global(token))
         end
     )
+
+    return token
 end
 
 if _DEBUG then
@@ -53,6 +57,8 @@ if _DEBUG then
                 callback(Token.get_global(token))
             end
         )
+
+        return token
     end
 
     function Global.register_init(tbl, init_handler, callback)
@@ -73,6 +79,8 @@ if _DEBUG then
                 callback(Token.get_global(token))
             end
         )
+
+        return token
     end
 end
 

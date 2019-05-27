@@ -8,6 +8,7 @@ local pages = {
     require 'features.gui.debug.global_view',
     require 'features.gui.debug.package_view',
     require 'features.gui.debug._g_view',
+    require 'features.gui.debug.gui_data_view',
     require 'features.gui.debug.event_view'
 }
 
@@ -30,7 +31,7 @@ function Public.open_dubug(player)
         return
     end
 
-    frame = center.add {type = 'frame', name = main_frame_name, caption = 'Debuggertron 3001', direction = 'vertical'}
+    frame = center.add {type = 'frame', name = main_frame_name, caption = 'Debuggertron 3002', direction = 'vertical'}
     local frame_style = frame.style
     frame_style.height = 600
     frame_style.width = 900
