@@ -235,7 +235,7 @@ local function draw_main_frame(player)
         main_frame.add {
         type = 'checkbox',
         name = notify_checkbox_name,
-        state = not no_notify_players[player.index],
+        state = state,
         caption = {'tag_group.notify_caption'},
         tooltip = {'tag_group.notify_tooltip'}
     }
