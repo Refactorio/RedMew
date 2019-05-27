@@ -205,7 +205,11 @@ function Public.get(player_index, name)
     end
 
     local player_setting = player_settings[name]
-    return player_setting ~= nil and player_setting or setting.default
+    if player_setting == nil then
+        return setting.default
+    end
+
+    return player_setting
 end
 
 ---Returns a table of all settings for a given player in a key => value setup
@@ -214,7 +218,12 @@ function Public.all(player_index)
     local player_settings = memory[player_index] or {}
     local output = {}
     for name, data in pairs(settings) do
-        output[name] = player_settings[name] or data.default
+        local setting_value = player_settings[name]
+        if setting_value == nil then
+            output[name] = data.default
+        else
+            output[name] = setting_value
+        end
     end
 
     return output
