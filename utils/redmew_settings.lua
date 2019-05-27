@@ -158,7 +158,11 @@ end
 function Public.set(player_index, name, value)
     local setting = settings[name]
     if not setting then
-        error(format('Setting "%s" does not exist.', name), 2)
+        setting = {
+            callback = function (input)
+                return true, input
+            end
+        }
     end
 
     local success, sanitized_value = setting.callback(value)
@@ -196,7 +200,7 @@ end
 function Public.get(player_index, name)
     local setting = settings[name]
     if not setting then
-        return error(format('Setting "%s" does not exist.', name), 2)
+        return nil
     end
 
     local player_settings = memory[player_index]
@@ -226,7 +230,38 @@ function Public.all(player_index)
         end
     end
 
+    -- not all settings might be mapped, edge-case is triggered when the
+    -- server contains settings that are not known in this instance
+    for name, value in pairs(player_settings) do
+        if output[name] == nil then
+            output[name] = value
+        end
+    end
+
     return output
+end
+
+---Removes a value for a setting for a given name, giving it the default value.
+---
+---@param player_index number
+---@param name string
+function Public.unset(player_index, name)
+    local player_settings = memory[player_index]
+    if not player_settings then
+        player_settings = {}
+        memory[player_index] = player_settings
+    end
+
+    local old_value = player_settings[name]
+    player_settings[name] = nil
+
+    raise_event(Public.events.on_setting_set, {
+        setting_name = name,
+        old_value = old_value,
+        new_value = nil,
+        player_index = player_index,
+        value_changed = old_value ~= nil
+    })
 end
 
 ---Returns the full settings data, note that this is a reference, do not modify
