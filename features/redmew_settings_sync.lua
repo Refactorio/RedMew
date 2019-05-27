@@ -69,12 +69,11 @@ local function setting_set(event)
         return
     end
 
-    local setting = event.setting
-    if not setting.value_changed then
+    if not event.value_changed then
         return
     end
 
-    schedule_sync_to_server(setting.player_index)
+    schedule_sync_to_server(event.player_index)
 end
 
 local on_player_settings_get = Token.register(function (data)

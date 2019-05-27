@@ -80,7 +80,7 @@ Public.events = {
     --- Triggered when a setting is set or updated. Old value may be null if never set before
     --- if the value hasn't changed, value_changed = false
     -- Event {
-    --        name = name,
+    --        setting_name = setting_name,
     --        old_value = old_value,
     --        new_value = new_value,
     --        player_index = player_index,
@@ -177,13 +177,11 @@ function Public.set(player_index, name, value)
     player_settings[name] = sanitized_value
 
     raise_event(Public.events.on_setting_set, {
-        setting = {
-            name = name,
-            old_value = old_value,
-            new_value = sanitized_value,
-            player_index = player_index,
-            value_changed = old_value ~= sanitized_value
-        }
+        setting_name = name,
+        old_value = old_value,
+        new_value = sanitized_value,
+        player_index = player_index,
+        value_changed = old_value ~= sanitized_value
     })
 
     return sanitized_value

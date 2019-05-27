@@ -203,12 +203,11 @@ local function save_changes(event)
 end
 
 local function setting_set(event)
-    local setting = event.setting
-    if not setting.value_changed then
+    if not event.value_changed then
         return
     end
 
-    local player = game.get_player(setting.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -223,8 +222,7 @@ local function setting_set(event)
         return
     end
 
-    local setting_name = setting.name
-    local element_data = data[setting_name]
+    local element_data = data[event.setting_name]
 
     if not element_data then
         return
@@ -235,8 +233,8 @@ local function setting_set(event)
         -- for some reason it has been removed already
         return
     end
-    set_element_value(input, setting.new_value)
-    element_data.previous_value = setting.old_value
+    set_element_value(input, event.new_value)
+    element_data.previous_value = event.old_value
 end
 
 Gui.on_custom_close(main_frame_name, function(event)
