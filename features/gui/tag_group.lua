@@ -6,6 +6,10 @@ local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Ranks = require 'resources.ranks'
 local tag_groups = require 'resources.tag_groups'
+local Settings = require 'utils.redmew_settings'
+
+local notify_name = 'notify_tag_group'
+Settings.register(notify_name, Settings.types.boolean, true)
 
 local default_verb = 'expanded'
 local player_tags = {}
@@ -22,7 +26,7 @@ Global.register(
 
 local function notify_players(message)
     local players = game.connected_players
-    for i=1, #players do
+    for i = 1, #players do
         local p = players[i]
         if p.valid and not no_notify_players[p.index] then
             p.print(message)
@@ -131,12 +135,14 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add({
-        name = main_button_name,
-        type = 'sprite-button',
-        caption = 'tag',
-        tooltip = {'tag_group.tooltip'}
-    })
+    player.gui.top.add(
+        {
+            name = main_button_name,
+            type = 'sprite-button',
+            caption = 'tag',
+            tooltip = {'tag_group.tooltip'}
+        }
+    )
 end
 
 local function draw_main_frame_content(parent)
@@ -224,7 +230,9 @@ local function draw_main_frame(player)
 
     draw_main_frame_content(scroll_pane)
 
-    main_frame.add {
+    local state = Settings.get(player.index, notify_name)
+    local notify_checkbox =
+        main_frame.add {
         type = 'checkbox',
         name = notify_checkbox_name,
         caption = 'Notify me when tag groups change.',
@@ -235,19 +243,21 @@ local function draw_main_frame(player)
     local bottom_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align  = 'left'
+    left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
     left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.horizontal_align  = 'right'
+    right_flow.style.horizontal_align = 'right'
 
     right_flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
 
     if Rank.equal_or_greater_than(player.name, Ranks.regular) then
         right_flow.add {type = 'button', name = create_tag_button_name, caption = 'Create Tag'}
     end
+
+    Gui.set_data(main_frame, notify_checkbox)
 end
 
 local function redraw_main_frame()
@@ -390,14 +400,14 @@ local function draw_create_tag_frame(event, tag_data)
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
     local left_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    left_flow.style.horizontal_align  = 'left'
+    left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
     local close_button = left_flow.add {type = 'button', name = close_create_tag_name, caption = 'Close'}
     Gui.set_data(close_button, frame)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
-    right_flow.style.horizontal_align  = 'right'
+    right_flow.style.horizontal_align = 'right'
 
     if tag_data then
         local delete_button = right_flow.add {type = 'button', name = delete_tag_name, caption = 'Delete'}
@@ -507,15 +517,17 @@ Gui.on_checked_state_changed(
     function(event)
         local player_index = event.player_index
         local checkbox = event.element
+        local state = checkbox.state
 
-        local new_state
-        if checkbox.state then
-            new_state = nil
+        local no_notify
+        if state then
+            no_notify = nil
         else
-            new_state = true
+            no_notify = true
         end
 
-        no_notify_players[player_index] = new_state
+        no_notify_players[player_index] = no_notify
+        Settings.set(player_index, notify_name, state)
     end
 )
 
@@ -665,6 +677,39 @@ Gui.on_custom_close(
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
+Event.add(
+    Settings.events.on_setting_set,
+    function(event)
+        if event.setting_name ~= notify_name then
+            return
+        end
+
+        local player_index = event.player_index
+        local player = game.get_player(player_index)
+        if not player or not player.valid then
+            return
+        end
+
+        local state = event.new_value
+        local no_notify
+        if state then
+            no_notify = nil
+        else
+            no_notify = true
+        end
+
+        no_notify_players[player_index] = no_notify
+
+        local frame = player.gui.left[main_frame_name]
+        if not frame then
+            return
+        end
+
+        local checkbox = Gui.get_data(frame)
+        checkbox.state = state
+    end
+)
+
 Event.add(defines.events.on_player_joined_game, player_joined)
 
 local function tag_command(args)
@@ -679,7 +724,9 @@ local function tag_command(args)
     local tag = tag_groups[tag_name]
 
     if tag == nil then
-        Game.player_print("Tag '" .. tag_name .. "' does not exist. Create the tag first by clicking Tag -> Create Tag.")
+        Game.player_print(
+            "Tag '" .. tag_name .. "' does not exist. Create the tag first by clicking Tag -> Create Tag."
+        )
         return
     end
 
@@ -693,7 +740,7 @@ end
 Command.add(
     'tag',
     {
-        description = {"command_description.tag"},
+        description = {'command_description.tag'},
         arguments = {'player', 'tag'},
         required_rank = Ranks.admin,
         capture_excess_arguments = true,
