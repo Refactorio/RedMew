@@ -8,6 +8,7 @@ local Utils = require 'utils.core'
 local Report = require 'features.report'
 local table = require 'utils.table'
 local Color = require 'resources.color_presets'
+local Settings = require 'utils.redmew_settings'
 
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
@@ -24,6 +25,9 @@ local symbol_asc = ' ▲'
 local symbol_desc = ' ▼'
 local focus_color = Color.dark_orange
 local donator_color = Color.donator
+
+local notify_name = 'notify_poke'
+Settings.register(notify_name, Settings.types.boolean, true)
 
 local rank_column_width = 100
 
@@ -103,7 +107,7 @@ end
 local function apply_heading_style(style)
     style.font_color = focus_color
     style.font = 'default-bold'
-    style.horizontal_align  = 'center'
+    style.horizontal_align = 'center'
 end
 
 local column_builders = {
@@ -134,7 +138,7 @@ local column_builders = {
                 sprite = player_sprites[cell_data]
             }
             local label_style = label.style
-            label_style.horizontal_align  = 'center'
+            label_style.horizontal_align = 'center'
             label_style.width = 32
 
             return label
@@ -169,7 +173,7 @@ local column_builders = {
             }
             local label_style = label.style
             label_style.font_color = color
-            label_style.horizontal_align  = 'left'
+            label_style.horizontal_align = 'left'
             label_style.width = 150
 
             return label
@@ -196,7 +200,7 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = time_cell_name, caption = text}
             local label_style = label.style
-            label_style.horizontal_align  = 'left'
+            label_style.horizontal_align = 'left'
             label_style.width = 125
 
             return label
@@ -232,7 +236,7 @@ local column_builders = {
             if is_donator then
                 local flow = parent.add {type = 'flow', name = rank_cell_name, direction = 'horizontal'}
                 local flow_style = flow.style
-                flow_style.horizontal_align  = 'left'
+                flow_style.horizontal_align = 'left'
                 flow_style.width = rank_column_width
 
                 local label_rank = flow.add {type = 'label', caption = get_rank_name(rank)}
@@ -245,7 +249,7 @@ local column_builders = {
             else
                 local label = parent.add {type = 'label', name = rank_cell_name, caption = get_rank_name(rank)}
                 local label_style = label.style
-                label_style.horizontal_align  = 'left'
+                label_style.horizontal_align = 'left'
                 label_style.font_color = get_rank_color(rank)
                 label_style.width = rank_column_width
 
@@ -274,7 +278,7 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = distance_cell_name, caption = text}
             local label_style = label.style
-            label_style.horizontal_align  = 'center'
+            label_style.horizontal_align = 'center'
             label_style.width = 70
 
             return label
@@ -316,7 +320,7 @@ local column_builders = {
 
             local label = parent.add {type = 'label', name = coin_cell_name, caption = text}
             local label_style = label.style
-            label_style.horizontal_align  = 'center'
+            label_style.horizontal_align = 'center'
             label_style.width = 80
 
             return label
@@ -356,7 +360,7 @@ local column_builders = {
             local label =
                 parent.add {type = 'label', name = deaths_cell_name, caption = cell_data.count, tooltip = tooltip}
             local label_style = label.style
-            label_style.horizontal_align  = 'center'
+            label_style.horizontal_align = 'center'
             label_style.width = 60
 
             return label
@@ -385,11 +389,11 @@ local column_builders = {
 
             local parent_style = parent.style
             parent_style.width = 64
-            parent_style.horizontal_align  = 'center'
+            parent_style.horizontal_align = 'center'
 
             local label = parent.add {type = 'button', name = poke_cell_name, caption = cell_data.poke_count}
             local label_style = label.style
-            label_style.horizontal_align  = 'center'
+            label_style.horizontal_align = 'center'
             label_style.minimal_width = 32
             label_style.height = 24
             label_style.font = 'default-bold'
@@ -430,7 +434,7 @@ local column_builders = {
         draw_cell = function(parent, cell_data)
             local parent_style = parent.style
             parent_style.width = 58
-            parent_style.horizontal_align  = 'center'
+            parent_style.horizontal_align = 'center'
 
             local label =
                 parent.add {
@@ -440,7 +444,7 @@ local column_builders = {
                 tooltip = {'player_list.report_button_tooltip', cell_data.name}
             }
             local label_style = label.style
-            label_style.horizontal_align  = 'center'
+            label_style.horizontal_align = 'center'
             label_style.minimal_width = 32
             label_style.height = 24
             label_style.font = 'default-bold'
@@ -566,10 +570,12 @@ local function draw_main_frame(left, player)
     local cell_table_scroll_pane = frame.add {type = 'scroll-pane'}
     cell_table_scroll_pane.style.maximal_height = 400
 
-    frame.add {
+    local state = Settings.get(player.index, notify_name)
+    local notify_checkbox =
+        frame.add {
         type = 'checkbox',
         name = notify_checkbox_name,
-        state = not no_notify_players[player_index],
+        state = state,
         caption = {'player_list.poke_notify_caption'},
         tooltip = {'player_list.poke_notify_tooltip'}
     }
@@ -581,7 +587,8 @@ local function draw_main_frame(left, player)
         frame = frame,
         heading_table_flow = heading_table_flow,
         cell_table_scroll_pane = cell_table_scroll_pane,
-        settings = settings
+        settings = settings,
+        notify_checkbox = notify_checkbox
     }
 
     redraw_title(data)
@@ -631,12 +638,14 @@ local function player_joined(event)
     local top = gui.top
 
     if not top[main_button_name] then
-        top.add({
-            type = 'sprite-button',
-            name = main_button_name,
-            sprite = 'entity/character',
-            tooltip = {'player_list.tooltip'}
-        })
+        top.add(
+            {
+                type = 'sprite-button',
+                name = main_button_name,
+                sprite = 'entity/character',
+                tooltip = {'player_list.tooltip'}
+            }
+        )
     end
 
     for _, p in ipairs(game.connected_players) do
@@ -673,15 +682,17 @@ Gui.on_checked_state_changed(
     function(event)
         local player_index = event.player_index
         local checkbox = event.element
+        local state = checkbox.state
 
-        local new_state
-        if checkbox.state then
-            new_state = nil
+        local no_notify
+        if state then
+            no_notify = nil
         else
-            new_state = true
+            no_notify = true
         end
 
-        no_notify_players[player_index] = new_state
+        no_notify_players[player_index] = no_notify
+        Settings.set(player_index, notify_name, state)
     end
 )
 
@@ -776,3 +787,38 @@ Gui.on_click(
 )
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
+
+Event.add(
+    Settings.events.on_setting_set,
+    function(event)
+        if event.setting_name ~= notify_name then
+            return
+        end
+
+        local player_index = event.player_index
+        local player = game.get_player(player_index)
+        if not player or not player.valid then
+            return
+        end
+
+        local state = event.new_value
+        local no_notify
+        if state then
+            no_notify = nil
+        else
+            no_notify = true
+        end
+
+        no_notify_players[player_index] = no_notify
+
+        local frame = player.gui.left[main_frame_name]
+        if not frame then
+            return
+        end
+
+        local data = Gui.get_data(frame)
+        local checkbox = data.notify_checkbox
+
+        checkbox.state = state
+    end
+)
