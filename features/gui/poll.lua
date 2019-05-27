@@ -1191,8 +1191,7 @@ Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 Event.add(
     Settings.events.on_setting_set,
     function(event)
-        event = event.setting
-        if event.name ~= notify_name then
+        if event.setting_name ~= notify_name then
             return
         end
 
