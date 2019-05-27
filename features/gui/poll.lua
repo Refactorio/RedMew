@@ -1138,14 +1138,14 @@ Gui.on_checked_state_changed(
         local checkbox = event.element
         local state = checkbox.state
 
-        local notify
+        local no_notify
         if state then
-            notify = nil
+            no_notify = nil
         else
-            notify = true
+            no_notify = true
         end
 
-        no_notify_players[player_index] = notify
+        no_notify_players[player_index] = no_notify
         Settings.set(player_index, notify_name, state)
     end
 )
@@ -1201,24 +1201,25 @@ Event.add(
             return
         end
 
+        local state = event.new_value
+        local no_notify
+        if state then
+            no_notify = nil
+        else
+            no_notify = true
+        end
+
+        no_notify_players[player_index] = no_notify
+
         local frame = player.gui.left[main_frame_name]
         if not frame then
             return
         end
 
-        local state = event.new_value
         local data = Gui.get_data(frame)
         local checkbox = data.notify_checkbox
 
-        local notify
-        if state then
-            notify = nil
-        else
-            notify = true
-        end
-
         checkbox.state = state
-        no_notify_players[player_index] = notify
     end
 )
 
