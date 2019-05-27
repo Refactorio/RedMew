@@ -4,7 +4,6 @@
 -- -Orange 27 May 2019
 
 local b = require "map_gen.shared.builders"
-local RS = require 'map_gen.shared.redmew_surface'
 local ScenarioInfo = require 'features.gui.info'
 
 --Special thanks to the following beta testers for their help with the map and map info: T-A-R
