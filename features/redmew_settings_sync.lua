@@ -29,7 +29,7 @@ Public.events = {
 
 local memory = {
     -- when already scheduled, no new schedules have to be added
-    sync_scheduled = false,
+    sync_scheduled = {},
 
     -- when locked it won't schedule anything to prevent recursion syncing back to server
     locked = false,
@@ -43,13 +43,16 @@ local function schedule_sync_to_server(player_index)
     set_timeout_in_ticks(1, do_sync_settings_to_server, {
         player_index = player_index
     })
-    memory.sync_scheduled = true
+    memory.sync_scheduled[player_index] = true
 end
 
 do_sync_settings_to_server = Token.register(function(params)
     local player_index = params.player_index;
     local player = game.get_player(player_index)
     if not player or not player.valid then
+        -- The player doesn't exist or got removed, ensure it's reset so it doesn't
+        -- stay on scheduled
+        memory.sync_scheduled[player_index] = nil
         return
     end
 
@@ -57,7 +60,7 @@ do_sync_settings_to_server = Token.register(function(params)
     Server.set_data('player_settings', player.name, Settings.all(player_index))
 
     -- mark it as updated
-    memory.sync_scheduled = false
+    memory.sync_scheduled[player_index] = nil
 
     raise_event(Public.events.on_synced_to_server, {
         player = player
@@ -65,7 +68,8 @@ do_sync_settings_to_server = Token.register(function(params)
 end)
 
 local function setting_set(event)
-    if memory.locked or memory.sync_scheduled then
+    local player_index = event.player_index
+    if memory.locked or memory.sync_scheduled[player_index] then
         return
     end
 
@@ -73,7 +77,7 @@ local function setting_set(event)
         return
     end
 
-    schedule_sync_to_server(event.player_index)
+    schedule_sync_to_server(player_index)
 end
 
 local on_player_settings_get = Token.register(function (data)
