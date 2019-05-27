@@ -71,6 +71,11 @@ local settings_type = {
 
 local settings = {}
 local memory = {}
+local raw_callback_setting = {
+    callback = function (input)
+        return true, input
+    end
+}
 
 Global.register(memory, function (tbl) memory = tbl end)
 
@@ -158,11 +163,7 @@ end
 function Public.set(player_index, name, value)
     local setting = settings[name]
     if not setting then
-        setting = {
-            callback = function (input)
-                return true, input
-            end
-        }
+        setting = raw_callback_setting
     end
 
     local success, sanitized_value = setting.callback(value)
