@@ -8,6 +8,7 @@ local Server = require 'features.server'
 local Command = require 'utils.command'
 local Color = require 'resources.color_presets'
 local Ranks = require 'resources.ranks'
+local Settings = require 'utils.redmew_settings'
 
 local insert = table.insert
 
@@ -21,6 +22,9 @@ local inv_tick_duration_step = 1 / tick_duration_step
 
 local normal_color = Color.white
 local focus_color = Color.dark_orange
+
+local notify_name = 'notify_poll'
+Settings.register(notify_name, Settings.types.boolean, true)
 
 local polls = {}
 local polls_counter = {0}
@@ -351,7 +355,8 @@ local function draw_main_frame(left, player)
         poll_index_label = poll_index_label,
         poll_viewer_content = poll_viewer_content,
         remaining_time_label = remaining_time_label,
-        poll_index = poll_index
+        poll_index = poll_index,
+        notify_checkbox = nil
     }
 
     Gui.set_data(frame, data)
@@ -360,13 +365,16 @@ local function draw_main_frame(left, player)
 
     update_poll_viewer(data)
 
-    frame.add {
+    local state = Settings.get(player.index, notify_name)
+    local notify_checkbox =
+        frame.add {
         type = 'checkbox',
         name = notify_checkbox_name,
         caption = 'Notify me about polls.',
-        state = not no_notify_players[player.index],
+        state = state,
         tooltip = 'Receive a message when new polls are created and popup the poll.'
     }
+    data.notify_checkbox = notify_checkbox
 
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
@@ -809,12 +817,14 @@ local function player_joined(event)
             update_poll_viewer(data)
         end
     else
-        gui.top.add({
-            type = 'sprite-button',
-            name = main_button_name,
-            sprite = 'item/programmable-speaker',
-            tooltip = {'poll.tooltip'}
-        })
+        gui.top.add(
+            {
+                type = 'sprite-button',
+                name = main_button_name,
+                sprite = 'item/programmable-speaker',
+                tooltip = {'poll.tooltip'}
+            }
+        )
     end
 end
 
@@ -1126,15 +1136,17 @@ Gui.on_checked_state_changed(
     function(event)
         local player_index = event.player_index
         local checkbox = event.element
+        local state = checkbox.state
 
-        local new_state
-        if checkbox.state then
-            new_state = nil
+        local notify
+        if state then
+            notify = nil
         else
-            new_state = true
+            notify = true
         end
 
-        no_notify_players[player_index] = new_state
+        no_notify_players[player_index] = notify
+        Settings.set(player_index, notify_name, state)
     end
 )
 
@@ -1175,6 +1187,41 @@ Gui.on_click(
 Gui.on_click(poll_view_vote_name, vote)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
+
+Event.add(
+    Settings.events.on_setting_set,
+    function(event)
+        event = event.setting
+        if event.name ~= notify_name then
+            return
+        end
+
+        local player_index = event.player_index
+        local player = game.get_player(player_index)
+        if not player or not player.valid then
+            return
+        end
+
+        local frame = player.gui.left[main_frame_name]
+        if not frame then
+            return
+        end
+
+        local state = event.new_value
+        local data = Gui.get_data(frame)
+        local checkbox = data.notify_checkbox
+
+        local notify
+        if state then
+            notify = nil
+        else
+            notify = true
+        end
+
+        checkbox.state = state
+        no_notify_players[player_index] = notify
+    end
+)
 
 local Class = {}
 
