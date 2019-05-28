@@ -1,10 +1,22 @@
 --Author: MewMew
--- !! ATTENTION !!
+--[[
+    !! ATTENTION !!
+    This map is DEPRECATED and is no longer updated.
+    If you wish to update parts of the scenario, you are free to do so and submit a PR on discord.
+    Current bugs include:
+    -starting area can still be under attack
+    -copper ore never spawns without bugs
+    -map balance is hard early game and easy afterwards
+    -some turrets are unpowered
+    -small ship wrecks are not accessible
+   -general performance is not very good in MP
+]]
 -- Use water only in starting area as map setting!!!
 local perlin = require 'map_gen.shared.perlin_noise'
 local Token = require 'utils.token'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local ScenarioInfo = require 'features.gui.info'
 
 local insert = table.insert
 local random = math.random
@@ -38,6 +50,10 @@ local wreck_item_pool = {
     {name = 'energy-shield-equipment', count = 1},
     {name = 'explosive-rocket', count = 32}
 }
+
+ScenarioInfo.set_map_name('Borg Planet (Deprecated)')
+ScenarioInfo.set_map_description('Welcome in a world filled with dangers.\nIf you want to stay alive you must stay between the lines.\nResistance is futile.')
+ScenarioInfo.set_map_extra_info('Lootable crash parts with items inside.\nEnemy turrets defending some parts of the world.')
 
 RS.set_map_gen_settings({MGSP.water_none})
 
