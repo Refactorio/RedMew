@@ -74,6 +74,7 @@ config.hail_hydra.hydras = {
 }
 
 -- Scenario info
+--Special thanks to the following beta testers for their help with the map and map info: T-A-R
 local map_extra_info = [[
 - There are infinite ores in every direction.
 - You have done basic research into how to build a factory.
