@@ -89,6 +89,15 @@ local function draw_main_frame(center, player)
     local settings_frame_style = settings_frame.style
     settings_frame_style.width = 400
 
+    local info_text = settings_frame.add({type = 'label', caption = {'redmew_settings_gui.setting_info'}})
+    local info_text_style = info_text.style
+    info_text_style.single_line = false
+    info_text_style.bottom_padding = 5
+    info_text_style.left_padding = 5
+    info_text_style.right_padding = 5
+    info_text_style.top_padding = 5
+    info_text_style.width = 370
+
     local scroll_pane = settings_frame.add({type = 'scroll-pane'})
     local scroll_style = scroll_pane.style
     scroll_style.vertically_squashable = true
@@ -108,11 +117,18 @@ local function draw_main_frame(center, player)
             type = 'label',
             caption = setting.localised_string,
         })
-        label.style.horizontally_stretchable = true
-        label.style.height = 35
+
+        local label_style = label.style
+        label_style.horizontally_stretchable = true
+        label_style.height = 35
+        label_style.vertical_align = 'center'
 
         local value = Settings.get(player_index, name)
-        local input = create_input_element(setting_grid, setting.type, value)
+        local input_container = setting_grid.add({type = 'flow'})
+        local input_container_style = input_container.style
+        input_container_style.height = 35
+        input_container_style.vertical_align = 'center'
+        local input = create_input_element(input_container, setting.type, value)
 
         data[name] = {
             label = label,
