@@ -23,6 +23,7 @@ RS.set_map_gen_settings(
         MGSP.cliff_none
     }
 )
+global.config.market.create_standard_market = false
 
 ScenarioInfo.set_map_name('Christmas Tree of Terror')
 ScenarioInfo.set_map_description("Triangle of death's Christmas cousin!\nThe further you go down the tree, the better your presents get. Have you been a good factory worker this year?")
