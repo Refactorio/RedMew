@@ -1,84 +1,75 @@
 local Event = require 'utils.event'
-local Command = require 'utils.command'
 local Server = require 'features.server'
 local Token = require 'utils.token'
-local Utils = require 'utils.core'
-local Ranks = require 'resources.ranks'
+local Settings = require 'utils.redmew_settings'
 
-local serialize = serpent.line
+local player_color_name = 'player-color'
+local player_chat_color_name = 'player-chat-color'
+Settings.register(player_color_name, Settings.types.color, nil, 'player_colors.player_color_setting_label')
+Settings.register(player_chat_color_name, Settings.types.color, nil, 'player_colors.player_chat_color_setting_label')
 
 local Public = {}
 
-local color_callback =
-    Token.register(
-    function(data)
-        local key = data.key
-        local value = data.value
-        if not value then
-            return
-        end
-        local player = game.players[key]
-        if not player then
-            return
-        end
-        player.chat_color = value.chat_color
-        player.color = value.color
-    end
-)
+-- left in for migration purposes, remove at a later point
+local color_callback = Token.register(function(data)
+    local key = data.key
+    local value = data.value
 
---- Attempts to retrieve and get the saved color of a LuaPlayer
-function Public.recall_player_color(player)
+    if not value then
+        return
+    end
+
+    local player = game.players[key]
+    if not player then
+        return
+    end
+
+    Settings.set(player.index, player_color_name, value.color)
+    Settings.set(player.index, player_chat_color_name, value.chat_color)
+
+end)
+
+local function setting_set(event)
+    local value = event.new_value
+    if not value then
+        return
+    end
+
+    local setting_name = event.setting_name
+    if setting_name ~= player_color_name and setting_name ~= player_chat_color_name then
+        return
+    end
+
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    if setting_name == player_color_name then
+        player.color = value
+    end
+
+    if setting_name == player_chat_color_name then
+        player.chat_color = value
+    end
+end
+
+local function player_joined_game(event)
+    local player_index = event.player_index
+    local player = game.get_player(player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    -- already migrated
+    if Settings.get(player_index, player_color_name) then
+        return
+    end
+
     Server.try_get_data('colors', player.name, color_callback)
 end
 
---- Assigns LuaPlayer random RGB values for color and player_color and returns the RGB table.
-function Public.set_random_color(player)
-    return {
-        chat_color = Utils.set_and_return(player, 'chat_color', Utils.random_RGB()),
-        color = Utils.set_and_return(player, 'color', Utils.random_RGB())
-    }
-end
-
-Command.add(
-    'redmew-color',
-    {
-        description = {'command_description.redmew_color'},
-        arguments = {'set-reset-random'},
-        required_rank = Ranks.regular
-    },
-    function(args, player)
-        local player_name = player.name
-        local arg = args['set-reset-random']
-        if arg == 'set' then
-            local data = {
-                color = player.color,
-                chat_color = player.chat_color
-            }
-            Server.set_data('colors', player_name, data)
-            player.print({'player_colors.color_saved'})
-            Utils.print_except({'player_colors.color_saved_advert', player_name})
-        elseif arg == 'reset' then
-            Server.set_data('colors', player_name, nil)
-            player.print({'player_colors.color_reset'})
-        elseif arg == 'random' then
-            local color_data = Public.set_random_color(player)
-            player.print({'player_colors.color_random', serialize(color_data)})
-        else
-            player.print({'player_colors.fail_wrong_argument'})
-        end
-    end
-)
-
-Event.add(
-    defines.events.on_player_joined_game,
-    function(event)
-        local player = game.get_player(event.player_index)
-        if not player or not player.valid then
-            return
-        end
-
-        Public.recall_player_color(player)
-    end
-)
+Event.add(defines.events.on_player_joined_game, player_joined_game)
+Event.add(Settings.events.on_setting_set, setting_set)
 
 return Public

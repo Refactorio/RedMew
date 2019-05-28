@@ -276,9 +276,6 @@ global.config = {
     donator_commands = {
         enabled = true
     },
-    player_colors = {
-        enabled = true
-    },
     -- adds a command to generate a popup dialog box for players to see, useful for important announcements
     popup = {
         enabled = true

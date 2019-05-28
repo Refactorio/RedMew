@@ -27,6 +27,7 @@ require 'features.server_commands'
 require 'features.player_create'
 require 'features.rank_system'
 require 'features.redmew_settings_sync'
+require 'features.player_colors'
 
 -- Feature modules
 -- Each can be disabled safely
@@ -59,9 +60,6 @@ if config.market.enabled then
 end
 if config.nuke_control.enabled then
     require 'features.nuke_control'
-end
-if config.player_colors.enabled then
-    require 'features.player_colors'
 end
 if config.reactor_meltdown.enabled then
     require 'features.reactor_meltdown'

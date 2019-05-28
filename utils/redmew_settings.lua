@@ -1,80 +1,29 @@
 local Global = require 'utils.global'
 local Event = require 'utils.event'
-local type = type
 local error = error
-local tonumber = tonumber
-local tostring = tostring
 local pairs = pairs
 local format = string.format
+local tostring = tostring
+local type = type
 local raise_event = script.raise_event
 
 --- Contains a set of callables that will attempt to sanitize and transform the input
-local settings_type = {
-    fraction = function (input)
-        input = tonumber(input)
-
-        if input == nil then
-            return false, {'redmew_settings_util.fraction_invalid_value'}
-        end
-
-        if input < 0 then
-            input = 0
-        end
-
-        if input > 1 then
-            input = 1
-        end
-
-        return true, input
-    end,
-    string = function (input)
-        if input == nil then
-            return true, ''
-        end
-
-        local input_type = type(input)
-        if input_type == 'string' then
-            return true, input
-        end
-
-        if input_type == 'number' or input_type == 'boolean' then
-            return true, tostring(input)
-        end
-
-        return false, {'redmew_settings_util.string_invalid_value'}
-    end,
-    boolean = function (input)
-        local input_type = type(input)
-
-        if input_type == 'boolean' then
-            return true, input
-        end
-
-        if input_type == 'string' then
-            if input == '0' or input == '' or input == 'false' or input == 'no' then
-                return true, false
-            end
-            if input == '1' or input == 'true' or input == 'yes' then
-                return true, true
-            end
-
-            return true, tonumber(input) ~= nil
-        end
-
-        if input_type == 'number' then
-            return true, input ~= 0
-        end
-
-        return false, {'redmew_settings_util.boolean_invalid_value'}
-    end,
-}
-
+local settings_type = require 'resources.setting_types'
 local settings = {}
 local memory = {}
-local raw_callback_setting = {
-    callback = function (input)
-        return true, input
-    end
+local missing_setting = {
+    data_transformation = {
+        toScalar = function(input)
+            if type(input) ~= 'table' then
+                return input
+            end
+
+            return tostring(input)
+        end,
+        sanitizer = function (input)
+            return true, input
+        end
+    }
 }
 
 Global.register(memory, function (tbl) memory = tbl end)
@@ -94,7 +43,7 @@ Public.events = {
     on_setting_set = Event.generate_event_name('on_setting_set'),
 }
 
-Public.types = {fraction = 'fraction', string = 'string', boolean = 'boolean'}
+Public.types = {fraction = 'fraction', string = 'string', boolean = 'boolean', color = 'color'}
 
 ---Register a specific setting with a sensitization setting type.
 ---
@@ -118,15 +67,15 @@ function Public.register(name, setting_type, default, localisation_key)
         error(format('Trying to register setting for "%s" while it has already been registered.', name), 2)
     end
 
-    local callback = settings_type[setting_type]
-    if not callback then
-        error(format('Trying to register setting for "%s" with type "%s" while this type does not exist.', name, setting_type), 2)
+    local data_transformation = settings_type[setting_type]
+    if not data_transformation then
+        error(format('Trying to register data_transformation for "%s" with type "%s" while this type does not exist.', name, setting_type), 2)
     end
 
     local setting = {
         type = setting_type,
         default = default,
-        callback = callback,
+        data_transformation = data_transformation,
         localised_string = localisation_key and {localisation_key} or name,
     }
 
@@ -144,7 +93,7 @@ function Public.validate(name, value)
         return format('Setting "%s" does not exist.', name)
     end
 
-    local success, sanitized_value = setting.callback(value)
+    local success, sanitized_value = setting.data_transformation.sanitizer(value)
 
     if not success then
         return sanitized_value
@@ -163,10 +112,10 @@ end
 function Public.set(player_index, name, value)
     local setting = settings[name]
     if not setting then
-        setting = raw_callback_setting
+        setting = missing_setting
     end
 
-    local success, sanitized_value = setting.callback(value)
+    local success, sanitized_value = setting.data_transformation.sanitizer(value)
 
     if not success then
         error(format('Setting "%s" failed: %s', name, sanitized_value), 2)
@@ -215,6 +164,19 @@ function Public.get(player_index, name)
     end
 
     return player_setting
+end
+
+---Returns the string representation of a given value based on a setting name.
+---
+---@param name string
+---@param raw_value any
+function Public.toScalar(name, raw_value)
+    local setting = settings[name]
+    if not setting then
+        setting = missing_setting
+    end
+
+    return setting.data_transformation.toScalar(raw_value)
 end
 
 ---Returns a table of all settings for a given player in a key => value setup

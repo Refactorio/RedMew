@@ -15,6 +15,8 @@ local next = next
 local serialize = serpent.line
 local gmatch = string.gmatch
 local get_rank_name = Rank.get_rank_name
+local pairs = pairs
+local pcall = pcall
 
 local Command = {}
 
@@ -24,12 +26,11 @@ local deprecated_command_alternatives = {
     ['tpplayer'] = 'tp <player>',
     ['tppos'] = 'tp',
     ['tpmode'] = 'tp mode',
-    ['color-redmew'] = 'redmew-color'
 }
 
 local notify_on_commands = {
     ['version'] = 'RedMew has a version as well, accessible via /redmew-version',
-    ['color'] = 'RedMew allows color saving and a color randomizer: check out /redmew-color',
+    ['color'] = 'You can also use the Redmew Settings (gear icon) to set the character and chat colors, this will be synchronized to all Redmew servers',
     ['ban'] = 'In case your forgot: please remember to include a message on how to appeal a ban'
 }
 
