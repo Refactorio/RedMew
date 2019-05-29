@@ -44,8 +44,7 @@ local function color_sanitizer(input)
 
     if input_type == 'string' then
         local color = Color[input]
-        if color and tonumber(input) == nil then
-            -- we have some numeric keys in there
+        if color then
             return true, color
         end
 
