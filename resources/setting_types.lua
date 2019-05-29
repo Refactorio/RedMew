@@ -54,11 +54,17 @@ local function color_sanitizer(input)
             index = index + 1
             if index < 5 then
                 value = tonumber(value)
-                if value == nil or value < 0 or value > 255 then
+                if value == nil then
                     return false, {'redmew_settings_util.color_invalid_string_value'}
                 end
+                if value < 0 then
+                    value = 0
+                end
+                if value > 255 then
+                    value = 255
+                end
 
-                data[color_key_table[index]] = value
+                data[color_key_table[index]] = floor(value * 1000) * 0.001
             end
         end
 
@@ -75,12 +81,12 @@ local function color_sanitizer(input)
         end
 
         local data = {
-            r = input.r,
-            g = input.g,
-            b = input.b
+            r = floor(input.r * 1000) * 0.001,
+            g = floor(input.g * 1000) * 0.001,
+            b = floor(input.b * 1000) * 0.001,
         }
         if input.a then
-            data.a = input.a
+            data.a = floor(input.a * 1000) * 0.001
         end
 
         return true, data

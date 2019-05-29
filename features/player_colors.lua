@@ -81,16 +81,13 @@ local function on_command(event)
         return
     end
 
-    local color = event.parameters
-    local error = Settings.validate(player_color_name, color)
-    if error then
-        player.print(error, Color.fail)
-        return
-    end
-
     player.print({'player_colors.gui_setting_reference_message'}, Color.success)
-    Settings.set(player_index, player_color_name, color)
-    Settings.set(player_index, player_chat_color_name, color)
+    Settings.set(player_index, player_color_name, player.color)
+
+    local error = Settings.validate(player_chat_color_name, player.chat_color)
+    if not error then
+        Settings.set(player_index, player_chat_color_name, player.chat_color)
+    end
 end
 
 Event.add(defines.events.on_player_joined_game, player_joined_game)
