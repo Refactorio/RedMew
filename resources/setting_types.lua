@@ -11,11 +11,32 @@ local floor = math.floor
 
 local color_key_table = {'r', 'g', 'b', 'a'}
 
+local function to_valid_rgba_table(input_table)
+    local output = {
+        r = input_table.r or input_table[1] or 0,
+        g = input_table.g or input_table[2] or 0,
+        b = input_table.b or input_table[3] or 0,
+        a = input_table.a or input_table[4],
+    }
+
+    if output.r <= 1 and output.g <= 1 and output.b <= 1 and (output.a and output.a <= 1 or not output.a) then
+        output.r = floor(output.r * 255)
+        output.g = floor(output.g * 255)
+        output.b = floor(output.b * 255)
+
+        if output.a and output.a <= 1 then
+            output.a = floor(output.a * 255)
+        end
+    end
+
+    return output
+end
+
 local function raw(input)
     return input
 end
 
-local function color_toScalar(input)
+local function color_to_scalar(input)
     if type(input) ~= 'table' then
         return ''
     end
@@ -43,9 +64,9 @@ local function color_sanitizer(input)
     local input_type = type(input)
 
     if input_type == 'string' then
-        local color = Color[input]
+        local color = Color[input:match('^%s*(.-)%s*$'):gsub(' ', '_')]
         if color then
-            return true, color
+            return true, to_valid_rgba_table(color)
         end
 
         local data = {}
@@ -64,7 +85,7 @@ local function color_sanitizer(input)
                     value = 255
                 end
 
-                data[color_key_table[index]] = floor(value * 1000) * 0.001
+                data[color_key_table[index]] = value
             end
         end
 
@@ -72,24 +93,21 @@ local function color_sanitizer(input)
             return false, {'redmew_settings_util.color_invalid_string_value'}
         end
 
-        return true, data
+        return true, to_valid_rgba_table(data)
     end
 
     if input_type == 'table' then
-        if size(input) > 4 or not input.r or not input.g or not input.b then
+        local table_size = size(input)
+        if table_size < 3 or table_size > 4 then
             return false, {'redmew_settings_util.color_invalid_table_value'}
         end
 
-        local data = {
-            r = floor(input.r * 1000) * 0.001,
-            g = floor(input.g * 1000) * 0.001,
-            b = floor(input.b * 1000) * 0.001,
-        }
-        if input.a then
-            data.a = floor(input.a * 1000) * 0.001
-        end
-
-        return true, data
+        return true, to_valid_rgba_table({
+            r = input.r,
+            g = input.g,
+            b = input.b,
+            a = input.a,
+        })
     end
 
     return false, {'redmew_settings_util.invalid_color_value'}
@@ -166,18 +184,23 @@ return {
         end
     },
     color = {
-        toScalar = color_toScalar,
+        toScalar = color_to_scalar,
         sanitizer = color_sanitizer
     },
     chat_color = {
-        toScalar = color_toScalar,
+        toScalar = color_to_scalar,
         sanitizer = function(input)
             local suc, value = color_sanitizer(input)
             if not suc then
                 return false, value
             end
 
+            if not value then
+                return true, nil
+            end
+
             local r, g, b = value.r, value.g, value.b
+
             local brightness = sqrt(0.241 * r * r + 0.691 * g * g, 0.068 * b * b)
             brightness = floor(brightness)
 
