@@ -7,7 +7,7 @@ local Color = require 'resources.color_presets'
 local player_color_name = 'player-color'
 local player_chat_color_name = 'player-chat-color'
 Settings.register(player_color_name, Settings.types.color, nil, 'player_colors.player_color_setting_label')
-Settings.register(player_chat_color_name, Settings.types.color, nil, 'player_colors.player_chat_color_setting_label')
+Settings.register(player_chat_color_name, Settings.types.chat_color, nil, 'player_colors.player_chat_color_setting_label')
 
 local Public = {}
 

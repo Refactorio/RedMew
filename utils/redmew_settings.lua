@@ -43,7 +43,13 @@ Public.events = {
     on_setting_set = Event.generate_event_name('on_setting_set'),
 }
 
-Public.types = {fraction = 'fraction', string = 'string', boolean = 'boolean', color = 'color'}
+Public.types = {
+    fraction = 'fraction',
+    string = 'string',
+    boolean = 'boolean',
+    color = 'color',
+    chat_color = 'chat_color'
+}
 
 ---Register a specific setting with a sensitization setting type.
 ---
