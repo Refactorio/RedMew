@@ -53,7 +53,8 @@ RestrictEntities.add_allowed(
         'car',
         'tank',
         'bob-tank-2',
-        'bob-tank-3'
+        'bob-tank-3',
+        'thermal-water-extractor'
     }
 )
 
