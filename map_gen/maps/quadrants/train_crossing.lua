@@ -94,7 +94,7 @@ local function clear_inventory_train(event)
         success = wrap_transfer(rail_location[3]) or wrap_transfer(nil, 0)
     end
 
-    player.print({'quadrants.train_notice1', rail_location[4], success.x .. ', ' .. success.y}, Color.red)
+    player.print({"", {'quadrants.train_notice1', rail_location[4]}, " [gps=" .. success.x .. ', ' .. success.y .. "]"}, Color.red)
     return success
 end
 

@@ -83,7 +83,8 @@ local Config = {
                 ['refined-hazard-concrete'] = 0.06
             },
             cracking_sounds = {
-                'R U N,  Y O U   F O O L S !'
+                {'diggy.cracking_sound_1'},
+                {'diggy.cracking_sound_2'}
             }
         },
         -- Adds the ability to drop coins and track how many are sent into space

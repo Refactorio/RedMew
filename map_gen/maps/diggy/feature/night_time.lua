@@ -20,14 +20,7 @@ local function on_built_entity(event)
     local entity = event.created_entity
     if (entity.name == 'solar-panel') then
         require 'features.gui.popup'.player(
-            player,[[
-Placing solar panels underground does not seem
-to have an effect on power production!
-Studies show, that the same applies to the portable version!
-
-Foreman's advice: Solar Panels are only useful in crafting
-satellites
-]]
+            player, {'diggy.night_time_warning'}
         )
     end
 end

@@ -71,7 +71,7 @@ local function teleport(event, quadrant)
                 nil,
                 0
             )
-            player.print({'quadrants.switch_notice3', chest.x .. ', ' .. chest.y})
+            player.print({"", {'quadrants.switch_notice3'}, " [gps=".. chest.x .. ', ' .. chest.y .. "]"})
         end
 
         local pos =
