@@ -521,7 +521,7 @@ local function toggle(event)
     local buff_scroll_pane = frame.add({type = 'scroll-pane'})
     buff_scroll_pane.style.maximal_height = 100
 
-    frame.add({type = 'button', name = 'Diggy.Experience.Button', caption = 'Close'})
+    frame.add({type = 'button', name = 'Diggy.Experience.Button', caption = {'diggy.gui_close_btn'}})
 
     local data = {
         frame = frame,
