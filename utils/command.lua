@@ -30,7 +30,6 @@ local deprecated_command_alternatives = {
 
 local notify_on_commands = {
     ['version'] = 'RedMew has a version as well, accessible via /redmew-version',
-    ['color'] = 'You can also use the Redmew Settings (gear icon) to set the character and chat colors, this will be synchronized to all Redmew servers',
     ['ban'] = 'In case your forgot: please remember to include a message on how to appeal a ban'
 }
 
