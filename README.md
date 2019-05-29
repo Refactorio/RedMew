@@ -3,6 +3,7 @@
 [![Downloads](https://img.shields.io/github/downloads/Refactorio/RedMew/total.svg)](https://github.com/Refactorio/RedMew/releases)
 [![License](https://img.shields.io/github/license/Refactorio/Redmew.svg)](LICENSE)
 [![Activity Level](https://img.shields.io/github/commit-activity/m/Refactorio/RedMew.svg)](https://github.com/Refactorio/RedMew/pulse/monthly)
+[![Crowdin](https://d322cqt584bo4o.cloudfront.net/redmew/localized.svg)](https://crowdin.com/project/redmew)
 
 [![RedMew](redmew_git_banner.png)](http://redmew.com)
 

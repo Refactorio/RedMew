@@ -10,7 +10,6 @@ local Gui = require 'utils.gui'
 local Utils = require 'utils.core'
 local Color = require 'resources.color_presets'
 
-local format = string.format
 local floor = math.floor
 local log = math.log
 local max = math.max
