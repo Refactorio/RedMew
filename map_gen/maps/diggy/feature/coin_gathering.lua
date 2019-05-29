@@ -72,7 +72,7 @@ local function on_player_created(event)
         name = 'Diggy.CoinGathering.Button',
         type = 'sprite-button',
         sprite = 'item/coin',
-        tooltip = 'Diggy scoretable'
+        tooltip = {'diggy.gui_coin_button_tip'}
     })
 end
 
@@ -113,7 +113,7 @@ function CoinGathering.register(config)
         local coins = event.rocket.get_inventory(defines.inventory.rocket).get_item_count('coin')
         if coins > 0 then
             local sum = ScoreTable.add('Coins sent to space', coins)
-            game.print('sent ' .. coins .. ' coins into space! The space station is now holding ' .. sum .. ' coins.')
+            game.print({'diggy.gui_coin_sent', coins, sum})
         end
     end)
 

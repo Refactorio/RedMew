@@ -135,7 +135,7 @@ end
 local function create_collapse_alert(surface, position)
     local target = surface.create_entity({position = position, name = 'rock-big'})
     for _, player in pairs(game.connected_players) do
-        player.add_custom_alert(target, collapse_alert, 'Cave collapsed!', true)
+        player.add_custom_alert(target, collapse_alert, {'diggy.cave_collapse'}, true)
     end
     target.destroy()
 end
@@ -419,14 +419,7 @@ function DiggyCaveCollapse.register(cfg)
             if (nil ~= support_beam_entities[event.entity.name]) then
                 require 'features.gui.popup'.player(
                     game.get_player(player_index),
-                    [[
-Mining entities such as walls, stone paths, concrete
-and rocks, can cause a cave-in, be careful miner!
-
-Foreman's advice: Place a wall every 4th tile to
-prevent a cave-in. Use stone paths and concrete
-to reinforce it further.
-]]
+{'diggy.cave_collapse_warning'}
                 )
                 show_deconstruction_alert_message[player_index] = nil
             end
