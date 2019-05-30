@@ -4,7 +4,7 @@
 -- dependencies
 local Event = require 'utils.event'
 local Template = require 'map_gen.maps.diggy.template'
-local ScoreTable = require 'map_gen.maps.diggy.score_table'
+local ScoreTracker = require 'utils.score_tracker'
 local Debug = require 'map_gen.maps.diggy.debug'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
@@ -12,13 +12,11 @@ local Global = require 'utils.global'
 local CreateParticles = require 'features.create_particles'
 local RS = require 'map_gen.shared.redmew_surface'
 local table = require 'utils.table'
-
 local random = math.random
 local floor = math.floor
 local pairs = pairs
 local pcall = pcall
 local is_diggy_rock = Template.is_diggy_rock
-local increment_score = ScoreTable.increment
 local template_insert = Template.insert
 local raise_event = script.raise_event
 local set_timeout = Task.set_timeout
@@ -27,6 +25,7 @@ local ceiling_crumble = CreateParticles.ceiling_crumble
 local clear_table = table.clear_table
 local collapse_rocks = Template.diggy_rocks
 local collapse_rocks_size = #collapse_rocks
+local cave_collapses_name = 'cave-collapses'
 
 -- this
 local DiggyCaveCollapse = {}
@@ -173,7 +172,7 @@ local function collapse(args)
     template_insert(surface, {}, create_collapse_template(positions, surface))
 
     raise_event(DiggyCaveCollapse.events.on_collapse, args)
-    increment_score('Cave collapse')
+    ScoreTracker.change_for_global(cave_collapses_name, 1)
 end
 
 local on_collapse_timeout_finished = Token.register(collapse)
@@ -336,6 +335,11 @@ end
     @param global_config Table {@see Diggy.Config}.
 ]]
 function DiggyCaveCollapse.register(cfg)
+    ScoreTracker.register(cave_collapses_name, {'diggy.score_cave_collapses'}, '[img=entity.assembler-wreck]')
+
+    local global_to_show = global.config.score.global_to_show
+    global_to_show[#global_to_show + 1] = cave_collapses_name
+
     config = cfg
     support_beam_entities = config.support_beam_entities
 
@@ -360,8 +364,6 @@ function DiggyCaveCollapse.register(cfg)
         support_beam_entities['refined-hazard-concrete-left'] = nil
         support_beam_entities['refined-hazard-concrete-right'] = nil
     end
-
-    ScoreTable.reset('Cave collapse')
 
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
     Event.add(defines.events.on_robot_built_entity, on_built_entity)

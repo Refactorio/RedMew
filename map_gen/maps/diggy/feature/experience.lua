@@ -4,12 +4,11 @@ local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Toast = require 'features.gui.toast'
 local ForceControl = require 'features.force_control'
-local ScoreTable = require 'map_gen.maps.diggy.score_table'
+local ScoreTracker = require 'utils.score_tracker'
 local Retailer = require 'features.retailer'
 local Gui = require 'utils.gui'
 local Utils = require 'utils.core'
 local Color = require 'resources.color_presets'
-
 local floor = math.floor
 local log = math.log
 local max = math.max
@@ -23,6 +22,7 @@ local get_force_data = ForceControl.get_force_data
 local set_item = Retailer.set_item
 local disable_item = Retailer.disable_item
 local enable_item = Retailer.enable_item
+local experience_lost_name = 'experience-lost'
 
 -- this
 local Experience = {}
@@ -336,7 +336,7 @@ local function on_player_respawned(event)
     for _, p in pairs(game.connected_players) do
         print_player_floating_text_position(p.index, text, lose_xp_color, -1, -0.5)
     end
-    ScoreTable.add('Experience lost', exp)
+    ScoreTracker.change_for_global(experience_lost_name, exp)
 end
 
 local function redraw_title(data)
@@ -580,9 +580,12 @@ local function update_gui()
 end
 
 function Experience.register(cfg)
-    config = cfg
+    ScoreTracker.register(experience_lost_name, {'diggy.score_experience_lost'}, '[img=recipe.artillery-targeting-remote]')
 
-    ScoreTable.reset('Experience lost')
+    local global_to_show = global.config.score.global_to_show
+    global_to_show[#global_to_show + 1] = experience_lost_name
+
+    config = cfg
 
     --Adds the function on how to calculate level caps (When to level up)
     local ForceControlBuilder = ForceControl.register(level_up_formula)
