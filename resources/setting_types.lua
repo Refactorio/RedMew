@@ -36,6 +36,36 @@ local function raw(input)
     return input
 end
 
+local function equals_by_value(a, b)
+    return a == b
+end
+
+local function equals_by_table_values(a, b)
+    if type(a) ~= 'table' or type(b) ~= 'table' then
+        return a == b
+    end
+
+    if size(a) ~= size(b) then
+        return false
+    end
+
+    for index, value in pairs(a) do
+        local value_b = b[index]
+        if value_b == nil or value ~= value_b then
+            return false
+        end
+    end
+
+    for index, value in pairs(b) do
+        local value_a = a[index]
+        if value_a == nil or value ~= value_a then
+            return false
+        end
+    end
+
+    return true
+end
+
 local function color_to_scalar(input)
     if type(input) ~= 'table' then
         return ''
@@ -118,6 +148,7 @@ end
 --- to_string = takes stored input and converts it to its string representation
 return {
     fraction = {
+        equals = equals_by_value,
         toScalar = raw,
         sanitizer = function(input)
             input = tonumber(input)
@@ -138,6 +169,7 @@ return {
         end
     },
     string = {
+        equals = equals_by_value,
         toScalar = raw,
         sanitizer = function(input)
             if input == nil then
@@ -157,6 +189,7 @@ return {
         end
     },
     boolean = {
+        equals = equals_by_value,
         toScalar = raw,
         sanitizer = function(input)
             local input_type = type(input)
@@ -184,10 +217,12 @@ return {
         end
     },
     color = {
+        equals = equals_by_table_values,
         toScalar = color_to_scalar,
         sanitizer = color_sanitizer
     },
     chat_color = {
+        equals = equals_by_table_values,
         toScalar = color_to_scalar,
         sanitizer = function(input)
             local suc, value = color_sanitizer(input)

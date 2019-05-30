@@ -121,7 +121,8 @@ function Public.set(player_index, name, value)
         setting = missing_setting
     end
 
-    local success, sanitized_value = setting.data_transformation.sanitizer(value)
+    local data_transformation = setting.data_transformation
+    local success, sanitized_value = data_transformation.sanitizer(value)
 
     if not success then
         error(format('Setting "%s" failed: %s', name, sanitized_value), 2)
@@ -141,7 +142,7 @@ function Public.set(player_index, name, value)
         old_value = old_value,
         new_value = sanitized_value,
         player_index = player_index,
-        value_changed = old_value ~= sanitized_value
+        value_changed = not data_transformation.equals(old_value, sanitized_value)
     })
 
     return sanitized_value
