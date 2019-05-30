@@ -21,7 +21,7 @@ local Builders = {}
 local function add_entity(tile, entity)
     if type(tile) == 'table' then
         if tile.entities then
-            tile.entities [#tile.entities + 1] = entity
+            tile.entities[#tile.entities + 1] = entity
         else
             tile.entities = {entity}
         end
@@ -35,8 +35,29 @@ local function add_entity(tile, entity)
     return tile
 end
 
+local function add_decorative(tile, decorative)
+    if type(tile) == 'table' then
+        if tile.decoratives then
+            tile.decoratives[#tile.decoratives + 1] = decorative
+        else
+            tile.decoratives = {decorative}
+        end
+    elseif tile then
+        tile = {
+            tile = tile,
+            decoratives = {decorative}
+        }
+    end
+
+    return tile
+end
+
 function Builders.add_entity(tile, entity)
     return add_entity(tile, entity)
+end
+
+function Builders.add_decorative(tile, decorative)
+    return add_decorative(tile, decorative)
 end
 
 -- shape builders
@@ -683,6 +704,23 @@ function Builders.entity_func(shape, func)
     end
 end
 
+-- Decorative generation
+function Builders.decorative(shape, name, amount)
+    return function(x, y, world)
+        if shape(x, y, world) then
+            return {name = name, amount = amount or 1}
+        end
+    end
+end
+
+function Builders.decorative_func(shape, func)
+    return function(x, y, world)
+        if shape(x, y, world) then
+            return func(x, y, world)
+        end
+    end
+end
+
 function Builders.resource(shape, resource_type, amount_function, always_place)
     amount_function = amount_function or function()
             return 404
@@ -734,6 +772,42 @@ function Builders.apply_entities(shape, entity_shapes)
     end
 end
 
+function Builders.apply_decorative(shape, decorative_shape)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if not tile then
+            return false
+        end
+
+        local d = decorative_shape(x, y, world)
+        if d then
+            tile = add_decorative(tile, d)
+        end
+
+        return tile
+    end
+end
+
+function Builders.apply_decoratives(shape, decorative_shapes)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if not tile then
+            return false
+        end
+
+        for _, ds in ipairs(decorative_shapes) do
+            local d = ds(x, y, world)
+            if d then
+                tile = add_decorative(tile, d)
+            end
+        end
+
+        return tile
+    end
+end
+
 -- pattern builders.
 function Builders.single_pattern(shape, width, height)
     shape = shape or Builders.empty_shape
@@ -767,11 +841,9 @@ function Builders.single_pattern_overlap(shape, width, height)
         y = ((y + half_height) % height) - half_height
         x = ((x + half_width) % width) - half_width
 
-        return shape(x, y, world) or
-        shape(x + width, y, world) or
-        shape(x - width, y, world) or
-        shape(x, y + height, world) or
-        shape(x, y - height, world)
+        return shape(x, y, world) or shape(x + width, y, world) or shape(x - width, y, world) or
+            shape(x, y + height, world) or
+            shape(x, y - height, world)
     end
 end
 
