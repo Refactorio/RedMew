@@ -23,7 +23,7 @@ local format = string.format
 
 local config = global.config
 
-local amount = 255 -- Change to make decoratives more "opaque" (Min 0, Max 255)
+local decs_amount = 255 -- Change to make decoratives more "opaque" (Min 0, Max 255)
 
 local tech_cost = 1000
 -- Startup bonus
@@ -375,13 +375,13 @@ map = b.apply_entity(map, enemy)
 
 local function decs()
     if math.random(1, 99) >= 50 then
-        return {name = 'green-carpet-grass', amount = amount}
+        return {name = 'green-carpet-grass', amount = decs_amount}
     else
-        return {name = 'brown-carpet-grass', amount = amount}
+        return {name = 'brown-carpet-grass', amount = decs_amount}
     end
 end
 
-decs = b.throttle_world_xy(decs, 1, 2, 1, 3)
+decs = b.throttle_world_xy(decs, 1, 2, 1, 2)
 
 map = b.apply_decorative(map, decs)
 
