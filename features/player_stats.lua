@@ -1,24 +1,40 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
+local ScoreTracker = require 'utils.score_tracker'
 require 'utils.table'
 local pairs = pairs
 local sqrt = math.sqrt
 
+local rocks_smashed_name = 'rocks-smashed'
+local trees_cut_name = 'trees-cut'
+local player_count_name = 'player-count'
+local kills_by_trains_name = 'kills-by-trains'
+local built_by_robots_name = 'built-by-robots'
+local built_by_players_name = 'built-by-players'
+local aliens_killed_name = 'aliens-killed'
+local coins_spent_name = 'coins-spent'
+local coins_earned_name = 'coins-earned'
+local player_deaths_name = 'player-deaths'
+local player_console_chats_name = 'player-console-chats'
+local player_items_crafted_name = 'player-items-crafted'
+local player_distance_walked_name = 'player-distance_walked'
+
+ScoreTracker.register(rocks_smashed_name, {'Rocks smashed'}, '[img=entity.rock-huge]')
+ScoreTracker.register(trees_cut_name, {'Trees cut down'}, '[img=entity.tree-02]')
+ScoreTracker.register(player_count_name, {'Total players'})
+ScoreTracker.register(kills_by_trains_name, {'Kills by trains'}, '[img=item.locomotive]')
+ScoreTracker.register(built_by_players_name, {'Built by hand'}, '[img=utility.hand]')
+ScoreTracker.register(built_by_robots_name, {'Built by robots'}, '[img=item.construction-robot]')
+ScoreTracker.register(aliens_killed_name, {'Aliens liberated'}, '[img=entity.medium-biter]')
+ScoreTracker.register(coins_earned_name, {'Coins earned'}, '[img=item.coin]')
+ScoreTracker.register(coins_spent_name, {'Coins spent'}, '[img=item.coin]')
+ScoreTracker.register(player_deaths_name, {'Player deaths'})
+ScoreTracker.register(player_console_chats_name, {'Player console chats'})
+ScoreTracker.register(player_items_crafted_name, {'Player items crafted'})
+ScoreTracker.register(player_distance_walked_name, {'Player distance walked'})
+
 local player_last_position = {}
-local player_walk_distances = {}
-local player_coin_earned = {}
-local player_coin_spent = {}
-local player_crafted_items = {}
-local player_console_chats = {}
-local player_deaths = {}
-local total_players = {0}
-local total_train_kills = {0}
-local total_player_trees_mined = {0}
-local total_player_rocks_mined = {0}
-local total_robot_built_entities = {0}
-local total_player_built_entities = {0}
-local total_biter_kills = {0}
-local total_coins_spent = {0}
+local player_death_causes = {}
 
 local train_kill_causes = {
     ['locomotive'] = true,
@@ -30,37 +46,11 @@ local train_kill_causes = {
 Global.register(
     {
         player_last_position = player_last_position,
-        player_walk_distances = player_walk_distances,
-        player_coin_earned = player_coin_earned,
-        player_coin_spent = player_coin_spent,
-        player_deaths = player_deaths,
-        total_players = total_players,
-        total_train_kills = total_train_kills,
-        total_player_trees_mined = total_player_trees_mined,
-        total_player_rocks_mined = total_player_rocks_mined,
-        player_crafted_items = player_crafted_items,
-        player_console_chats = player_console_chats,
-        total_robot_built_entities = total_robot_built_entities,
-        total_player_built_entities = total_player_built_entities,
-        total_biter_kills = total_biter_kills,
-        total_coins_spent = total_coins_spent
+        player_death_causes = player_death_causes,
     },
     function(tbl)
         player_last_position = tbl.player_last_position
-        player_walk_distances = tbl.player_walk_distances
-        player_coin_earned = tbl.player_coin_earned
-        player_coin_spent = tbl.player_coin_spent
-        player_deaths = tbl.player_deaths
-        total_players = tbl.total_players
-        total_train_kills = tbl.total_train_kills
-        total_player_trees_mined = tbl.total_player_trees_mined
-        total_player_rocks_mined = tbl.total_player_rocks_mined
-        player_crafted_items = tbl.player_crafted_items
-        player_console_chats = tbl.player_console_chats
-        total_robot_built_entities = tbl.total_robot_built_entities
-        total_player_built_entities = tbl.total_player_built_entities
-        total_biter_kills = tbl.total_biter_kills
-        total_coins_spent = tbl.total_coins_spent
+        player_death_causes = tbl.player_death_causes
     end
 )
 
@@ -69,13 +59,8 @@ local function player_created(event)
     local index = event.player_index
 
     player_last_position[index] = game.get_player(index).position
-    player_walk_distances[index] = 0
-    player_coin_earned[index] = 0
-    player_coin_spent[index] = 0
-    player_crafted_items[index] = 0
-    player_console_chats[index] = 0
-    player_deaths[index] = {causes = {}, count = 0}
-    total_players[1] = total_players[1] + 1
+    player_death_causes[index] = {}
+    ScoreTracker.changeForGlobal(player_count_name, 1)
 end
 
 local function get_cause_name(cause)
@@ -97,60 +82,55 @@ local function player_died(event)
     local player_index = event.player_index
     local cause = get_cause_name(event.cause)
 
-    local data = player_deaths[player_index]
-    data.count = data.count + 1
-
-    local causes = data.causes
+    local causes = player_death_causes[player_index]
     local cause_count = causes[cause] or 0
     causes[cause] = cause_count + 1
 
+    ScoreTracker.changeForPlayer(player_index, player_deaths_name, 1)
     if train_kill_causes[cause] then
-        total_train_kills[1] = total_train_kills[1] + 1
+        ScoreTracker.changeForGlobal(kills_by_trains_name, 1)
     end
 end
 
 local function picked_up_item(event)
     local stack = event.item_stack
     if stack.name == 'coin' then
-        local player_index = event.player_index
-        player_coin_earned[player_index] = player_coin_earned[player_index] + stack.count
+        ScoreTracker.changeForPlayer(event.player_index, coins_earned_name, stack.count)
     end
 end
 
 local function player_mined_item(event)
     if event.entity.type == 'simple-entity' then -- Cheap check for rock, may have other side effects
-        total_player_rocks_mined[1] = total_player_rocks_mined[1] + 1
+        ScoreTracker.changeForGlobal(rocks_smashed_name, 1)
         return
     end
     if event.entity.type == 'tree' then
-        total_player_trees_mined[1] = total_player_trees_mined[1] + 1
+        ScoreTracker.changeForGlobal(trees_cut_name, 1)
     end
 end
 
 local function player_crafted_item(event)
-    local stack = event.item_stack
-    local player_index = event.player_index
-    player_crafted_items[player_index] = player_crafted_items[player_index] + stack.count
+    ScoreTracker.changeForPlayer(event.player_index, player_items_crafted_name, event.item_stack.count)
 end
 
 local function player_console_chat(event)
     local player_index = event.player_index
     if player_index then
-        player_console_chats[player_index] = player_console_chats[player_index] + 1
+        ScoreTracker.changeForPlayer(player_index, player_console_chats_name, 1)
     end
 end
 
 local function player_built_entity()
-    total_player_built_entities[1] = total_player_built_entities[1] + 1
+    ScoreTracker.changeForGlobal(built_by_players_name, 1)
 end
 
 local function robot_built_entity()
-    total_robot_built_entities[1] = total_robot_built_entities[1] + 1
+    ScoreTracker.changeForGlobal(built_by_robots_name, 1)
 end
 
 local function biter_kill_counter(event)
     if event.entity.force.name == 'enemy' then
-        total_biter_kills[1] = total_biter_kills[1] + 1
+        ScoreTracker.changeForGlobal(aliens_killed_name, 1)
     end
 end
 
@@ -164,8 +144,8 @@ local function tick()
             local d_x = last_pos.x - pos.x
             local d_y = last_pos.y - pos.y
 
-            player_walk_distances[index] = player_walk_distances[index] + sqrt(d_x * d_x + d_y * d_y)
             player_last_position[index] = pos
+            ScoreTracker.changeForPlayer(index, player_distance_walked_name, sqrt(d_x * d_x + d_y * d_y))
         end
     end
 end
@@ -186,85 +166,73 @@ Event.on_nth_tick(62, tick)
 local Public = {}
 
 function Public.get_walk_distance(player_index)
-    return player_walk_distances[player_index]
+    return ScoreTracker.getForPlayer(player_index, player_distance_walked_name)
 end
 
 function Public.get_coin_earned(player_index)
-    return player_coin_earned[player_index]
-end
-
-function Public.set_coin_earned(player_index, value)
-    player_coin_earned[player_index] = value
+    return ScoreTracker.getForPlayer(player_index, coins_earned_name)
 end
 
 function Public.change_coin_earned(player_index, amount)
-    player_coin_earned[player_index] = player_coin_earned[player_index] + amount
+    ScoreTracker.changeForPlayer(player_index, coins_earned_name, amount)
 end
 
 function Public.get_coin_spent(player_index)
-    return player_coin_spent[player_index]
-end
-
-function Public.set_coin_spent(player_index, value)
-    local old_value = player_coin_spent[player_index]
-    player_coin_spent[player_index] = value
-
-    local diff = value - old_value
-    total_coins_spent[1] = total_coins_spent[1] + diff
+    return ScoreTracker.getForPlayer(player_index, coins_spent_name)
 end
 
 function Public.change_coin_spent(player_index, amount)
-    player_coin_spent[player_index] = player_coin_spent[player_index] + amount
-    total_coins_spent[1] = total_coins_spent[1] + amount
+    ScoreTracker.changeForPlayer(player_index, coins_spent_name, amount)
+    ScoreTracker.changeForGlobal(coins_spent_name, amount)
 end
 
 function Public.get_death_count(player_index)
-    return player_deaths[player_index].count
+    return ScoreTracker.getForPlayer(player_index, player_deaths_name)
 end
 
 function Public.get_crafted_item(player_index)
-    return player_crafted_items[player_index]
+    return ScoreTracker.getForPlayer(player_index, player_items_crafted_name)
 end
 
 function Public.get_console_chat(player_index)
-    return player_console_chats[player_index]
+    return ScoreTracker.getForPlayer(player_index, player_console_chats_name)
 end
 
 -- Returns a dictionary of cause_name -> count
-function Public.get_all_death_counts_by_cause(player_index)
-    return player_deaths[player_index].causes or {}
+function Public.get_all_death_causes_by_player(player_index)
+    return player_death_causes[player_index] or {}
 end
 
 function Public.get_total_player_count()
-    return total_players[1]
+    return ScoreTracker.getForGlobal(player_count_name)
 end
 
 function Public.get_total_train_kills()
-    return total_train_kills[1]
+    return ScoreTracker.getForGlobal(kills_by_trains_name)
 end
 
 function Public.get_total_player_trees_mined()
-    return total_player_trees_mined[1]
+    return ScoreTracker.getForGlobal(trees_cut_name)
 end
 
 function Public.get_total_player_rocks_mined()
-    return total_player_rocks_mined[1]
+    return ScoreTracker.getForGlobal(rocks_smashed_name)
 end
 
 function Public.get_total_robot_built_entities()
-    return total_robot_built_entities[1]
+    return ScoreTracker.getForGlobal(built_by_robots_name)
 end
 
 function Public.get_total_player_built_entities()
-    return total_player_built_entities[1]
+    return ScoreTracker.getForGlobal(built_by_players_name)
 end
 
 function Public.get_total_biter_kills()
-    return total_biter_kills[1]
+    return ScoreTracker.getForGlobal(aliens_killed_name)
 end
 
 function Public.get_total_coins_spent()
-    return total_coins_spent[1]
+    return ScoreTracker.getForGlobal(coins_spent_name)
 end
 
 return Public

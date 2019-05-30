@@ -2,8 +2,8 @@ local Event = require 'utils.event'
 local PlayerStats = require 'features.player_stats'
 local Gui = require 'utils.gui'
 local Color = require 'resources.color_presets'
-local Server = require('features.server')
-
+local Server = require 'features.server'
+local ScoreTracker = require 'utils.score_tracker'
 local concat = table.concat
 
 local main_frame_name = Gui.uid_name()
