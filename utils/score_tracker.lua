@@ -20,12 +20,14 @@ Public.events = {
     --     old_value = old_value
     --     new_value = new_value
     --     player_index = player_index
+    --     value_changed = value_changed
     --  }
     on_player_score_changed = Event.generate_event_name('on_player_score_changed'),
     -- Event {
     --     score_name = score_name
     --     old_value = old_value
     --     new_value = new_value
+    --     value_changed = value_changed
     --  }
     on_global_score_changed = Event.generate_event_name('on_global_score_changed'),
 }
@@ -62,7 +64,7 @@ end
 ---@param player_index number
 ---@param score_name string
 ---@param value number|nil number to subtract or add
-function Public.changeForPlayer(player_index, score_name, value)
+function Public.change_for_player(player_index, score_name, value)
     local setting = score_metadata[score_name]
     if not setting then
         if _DEBUG then
@@ -85,7 +87,8 @@ function Public.changeForPlayer(player_index, score_name, value)
         score_name = score_name,
         old_value = old_value,
         new_value = new_value,
-        player_index = player_index
+        player_index = player_index,
+        value_changed = old_value ~= new_value
     })
 end
 
@@ -93,7 +96,7 @@ end
 ---
 ---@param score_name string
 ---@param value number|nil number to subtract or add
-function Public.changeForGlobal(score_name, value)
+function Public.change_for_global(score_name, value)
     local setting = score_metadata[score_name]
     if not setting then
         if _DEBUG then
@@ -109,7 +112,8 @@ function Public.changeForGlobal(score_name, value)
     raise_event(Public.events.on_global_score_changed, {
         score_name = score_name,
         old_value = old_value,
-        new_value = new_value
+        new_value = new_value,
+        value_changed = old_value ~= new_value
     })
 end
 
@@ -117,7 +121,7 @@ end
 ---
 ---@param player_index number
 ---@param score_name string
-function Public.getForPlayer(player_index, score_name)
+function Public.get_for_player(player_index, score_name)
     local setting = score_metadata[score_name]
     if not setting then
         return nil
@@ -134,7 +138,7 @@ end
 ---Returns the value of the game score.
 ---
 ---@param score_name string
-function Public.getForGlobal(score_name)
+function Public.get_for_global(score_name)
     local setting = score_metadata[score_name]
     if not setting then
         return 0
