@@ -295,7 +295,8 @@ local function redraw_market_items(data)
         end
 
         if disabled then
-            insert(tooltip, '\n\n' .. (item.disabled_reason or 'Not available'))
+            insert(tooltip, '\n\n')
+            insert(tooltip, (item.disabled_reason or {'Not available locale string'}))
         elseif is_missing_coins then
             insert(tooltip, '\n\n' .. format('Missing %s coins to buy %s', missing_coins, stack_count))
         end
