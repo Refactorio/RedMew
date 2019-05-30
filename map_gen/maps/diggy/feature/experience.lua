@@ -58,7 +58,7 @@ Global.register(
     end
 )
 
-local config = {}
+local config
 
 local gain_xp_color = Color.light_sky_blue
 local lose_xp_color = Color.red
@@ -263,8 +263,6 @@ local function on_research_finished(event)
     Experience.update_inventory_slots(force, 0)
     Experience.update_mining_speed(force, 0)
     Experience.update_health_bonus(force, 0)
-
-    game.forces.player.technologies['landfill'].enabled = false
 end
 
 ---Awards experience when a rocket has been launched based on percentage of total experience
