@@ -2,6 +2,7 @@ local table = require 'utils.table'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Info = require 'features.gui.info'
+local pairs = pairs
 
 local get_random_weighted = table.get_random_weighted
 

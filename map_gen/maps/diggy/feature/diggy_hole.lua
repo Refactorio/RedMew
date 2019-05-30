@@ -11,7 +11,6 @@ local ScoreTable = require 'map_gen.maps.diggy.score_table'
 local Command = require 'utils.command'
 local CreateParticles = require 'features.create_particles'
 local Ranks = require 'resources.ranks'
-
 local random = math.random
 local tonumber = tonumber
 local pairs = pairs
@@ -23,6 +22,7 @@ local raise_event = script.raise_event
 
 -- this
 local DiggyHole = {}
+local config
 
 -- keeps track of the amount of times per player when they mined with a full inventory in a row
 local full_inventory_mining_cache = {}
@@ -151,8 +151,9 @@ end)
 --[[--
     Registers all event handlers.
 ]]
-function DiggyHole.register(config)
-    robot_mining.damage = config.robot_initial_mining_damage
+function DiggyHole.register(cfg)
+    config = cfg
+    robot_mining.damage = cfg.robot_initial_mining_damage
     ScoreTable.set('Robot mining damage', robot_mining.damage)
     ScoreTable.reset('Mine size')
 
@@ -241,7 +242,7 @@ function DiggyHole.register(config)
         increment_score('Mine size')
     end)
 
-    local robot_damage_per_mining_prod_level = config.robot_damage_per_mining_prod_level
+    local robot_damage_per_mining_prod_level = cfg.robot_damage_per_mining_prod_level
     Event.add(defines.events.on_research_finished, function (event)
         local new_modifier = event.research.force.mining_drill_productivity_bonus * 50 * robot_damage_per_mining_prod_level
 
@@ -256,7 +257,7 @@ function DiggyHole.register(config)
 end
 
 function DiggyHole.on_init()
-    game.forces.player.technologies['landfill'].enabled = false
+    game.forces.player.technologies['landfill'].enabled = config.allow_landfill_research
     game.forces.player.technologies['atomic-bomb'].enabled = false
 end
 

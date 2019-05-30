@@ -31,7 +31,7 @@ local collapse_rocks_size = #collapse_rocks
 -- this
 local DiggyCaveCollapse = {}
 
-local config = {}
+local config
 
 local n = 9
 local radius = 0

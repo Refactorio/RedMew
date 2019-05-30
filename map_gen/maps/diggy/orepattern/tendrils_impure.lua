@@ -198,8 +198,8 @@ return {
             },
         },
         weights = {
-            ['skip']        = 997,
-            ['crude-oil']   =   3,
+            ['skip']        = 990,
+            ['crude-oil']   =  10,
         },
         distances = {
             ['crude-oil']   = 57,

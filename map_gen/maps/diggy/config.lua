@@ -26,8 +26,11 @@ local Config = {
                 {name = 'iron-gear-wheel', count = 8},
                 {name = 'iron-plate', count = 16}
             },
-            -- applied when _CHEATS is set to true and _DEBUG is NOT true. It's recommended to tweak this to your needs
-            -- when playing with cheats on (recommended for single player or LAN with limited players)
+
+            -- 0.01 bonus equals 1% in game. This value is recommended to be tweaked for single player
+            initial_mining_speed_bonus = 1,
+
+            -- applied when _CHEATS is set to true and _DEBUG is NOT true.
             -- see config.lua -> config.player_create.cheats for available options
             cheats = {
                 enabled = true,
@@ -52,7 +55,10 @@ local Config = {
             -- initial damage per tick it damages a rock to mine, can be enhanced by robot_damage_per_mining_prod_level
             robot_initial_mining_damage = 4,
             -- damage added per level of mining productivity level research
-            robot_damage_per_mining_prod_level = 1
+            robot_damage_per_mining_prod_level = 1,
+
+            -- turn this setting on if you want to bring back landfill research, default is off due to griefing
+            allow_landfill_research = false,
         },
         -- adds the ability to collapse caves
         diggy_cave_collapse = {

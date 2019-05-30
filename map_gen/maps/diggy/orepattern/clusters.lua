@@ -38,7 +38,7 @@ return {
             ['iron-ore']    = 389,
             ['stone']       = 212,
             ['uranium-ore'] =  21,
-            ['crude-oil']   =   3,
+            ['crude-oil']   =   8,
         },
         distances = {
             ['coal']        = 16,
