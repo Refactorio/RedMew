@@ -374,7 +374,7 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(
         defines.events.on_player_built_tile,
         function(event)
-            on_built_tile(game.surfaces[event.surface_index], event.item, event.tiles)
+            on_built_tile(game.surfaces[event.surface_index], event.tile, event.tiles)
         end
     )
     Event.add(defines.events.on_robot_mined_tile, on_robot_mined_tile)
