@@ -368,4 +368,16 @@ local map = b.choose(ore_circle, start, b.full_shape)
 map = b.apply_entity(map, ore)
 map = b.apply_entity(map, enemy)
 
+local function decs()
+    if math.random(1, 99) >= 50 then
+        return {name = 'green-carpet-grass', amount = 255}
+    else
+        return {name = 'brown-carpet-grass', amount = 255}
+    end
+end
+
+decs = b.throttle_world_xy(decs, 1, 3, 1, 3)
+
+map = b.apply_decorative(map, decs)
+
 return map
