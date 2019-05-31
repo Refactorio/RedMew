@@ -331,7 +331,7 @@ local column_builders = {
             local player_index = player.index
             return {
                 count = PlayerStats.get_death_count(player_index),
-                causes = PlayerStats.get_all_death_counts_by_cause(player_index)
+                causes = PlayerStats.get_all_death_causes_by_player(player_index)
             }
         end,
         sort = function(a, b)

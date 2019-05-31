@@ -85,7 +85,19 @@ global.config = {
     },
     -- enables score and tracking thereof
     score = {
-        enabled = true
+        enabled = true,
+
+        -- the global score trackers to show
+        global_to_show = {
+            'satellites-launched',
+            'aliens-killed',
+            'built-by-players',
+            'built-by-robots',
+            'trees-cut',
+            'rocks-smashed',
+            'kills-by-trains',
+            'coins-spent'
+        }
     },
     -- adds a paint brush
     paint = {

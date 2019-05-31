@@ -7,7 +7,7 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Template = require 'map_gen.maps.diggy.template'
-local ScoreTable = require 'map_gen.maps.diggy.score_table'
+local ScoreTracker = require 'utils.score_tracker'
 local Command = require 'utils.command'
 local CreateParticles = require 'features.create_particles'
 local Ranks = require 'resources.ranks'
@@ -17,8 +17,8 @@ local pairs = pairs
 local is_diggy_rock = Template.is_diggy_rock
 local destroy_rock = CreateParticles.destroy_rock
 local mine_rock = CreateParticles.mine_rock
-local increment_score = ScoreTable.increment
 local raise_event = script.raise_event
+local mine_size_name = 'mine-size'
 
 -- this
 local DiggyHole = {}
@@ -51,8 +51,6 @@ local function update_robot_mining_damage()
 
     -- add the new active modifier to the non-buffed modifier
     robot_mining.damage = old_modifier + robot_mining.active_modifier
-
-    ScoreTable.set('Robot mining damage', robot_mining.damage)
 end
 
 ---Triggers a diggy diggy hole for a given sand-rock-big, rock-big or rock-huge.
@@ -152,10 +150,13 @@ end)
     Registers all event handlers.
 ]]
 function DiggyHole.register(cfg)
+    ScoreTracker.register(mine_size_name, {'diggy.score_mine_size'}, '[img=tile.out-of-map]')
+
+    local global_to_show = global.config.score.global_to_show
+    global_to_show[#global_to_show + 1] = mine_size_name
+
     config = cfg
     robot_mining.damage = cfg.robot_initial_mining_damage
-    ScoreTable.set('Robot mining damage', robot_mining.damage)
-    ScoreTable.reset('Mine size')
 
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
@@ -239,7 +240,7 @@ function DiggyHole.register(cfg)
     end)
 
     Event.add(Template.events.on_void_removed, function ()
-        increment_score('Mine size')
+        ScoreTracker.change_for_global(mine_size_name, 1)
     end)
 
     local robot_damage_per_mining_prod_level = cfg.robot_damage_per_mining_prod_level

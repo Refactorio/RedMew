@@ -26,7 +26,6 @@ Public.events = {
     on_synced_from_server = Event.generate_event_name('on_synced_from_server'),
 }
 
-
 local memory = {
     -- when already scheduled, no new schedules have to be added
     sync_scheduled = {},
@@ -35,18 +34,9 @@ local memory = {
     locked = false,
 }
 
-local do_sync_settings_to_server -- token
-
 Global.register(memory, function (tbl) memory = tbl end)
 
-local function schedule_sync_to_server(player_index)
-    set_timeout_in_ticks(1, do_sync_settings_to_server, {
-        player_index = player_index
-    })
-    memory.sync_scheduled[player_index] = true
-end
-
-do_sync_settings_to_server = Token.register(function(params)
+local do_sync_settings_to_server = Token.register(function(params)
     local player_index = params.player_index;
     local player = game.get_player(player_index)
     if not player or not player.valid then
@@ -66,6 +56,13 @@ do_sync_settings_to_server = Token.register(function(params)
         player = player
     })
 end)
+
+local function schedule_sync_to_server(player_index)
+    set_timeout_in_ticks(1, do_sync_settings_to_server, {
+        player_index = player_index
+    })
+    memory.sync_scheduled[player_index] = true
+end
 
 local function setting_set(event)
     local player_index = event.player_index

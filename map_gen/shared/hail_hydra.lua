@@ -4,11 +4,11 @@ local CreateParticles = require 'features.create_particles'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 local table = require 'utils.table'
-
 local random = math.random
 local floor = math.floor
 local ceil = math.ceil
 local pairs = pairs
+local type = type
 local clear_table = table.clear_table
 local compound = defines.command.compound
 local logical_or = defines.compound_command.logical_or
