@@ -118,10 +118,6 @@ local function score_show(top)
 end
 
 local function global_score_changed(event)
-    if not event.value_changed then
-        return
-    end
-
     local found = false
     for index = 1, #scores_to_show do
         if scores_to_show[index] then
@@ -139,7 +135,7 @@ local function global_score_changed(event)
         return
     end
 
-    count = event.new_value
+    local count = event.new_value
 
     if (count < 10) or ((count < 50) and ((count % 5) == 0)) or ((count % 25) == 0) then
         local message = 'A satellite has been launched! Total count: ' .. count

@@ -5,32 +5,34 @@ local format = string.format
 local raise_event = script.raise_event
 
 local score_metadata = {}
-local memory = {
-    players = {},
-    global = {}
-}
 
-Global.register(memory, function (tbl) memory = tbl end)
+local memory_players = {}
+local memory_global = {}
+
+Global.register({
+    memory_players = memory_players,
+    memory_global = memory_global
+}, function (tbl)
+    memory_players = tbl.memory_players
+    memory_global = tbl.memory_global
+end)
 
 local Public = {}
 
 Public.events = {
     -- Event {
     --     score_name = score_name
-    --     old_value = old_value
-    --     new_value = new_value
     --     player_index = player_index
-    --     value_changed = value_changed
     --  }
     on_player_score_changed = Event.generate_event_name('on_player_score_changed'),
     -- Event {
     --     score_name = score_name
-    --     old_value = old_value
-    --     new_value = new_value
-    --     value_changed = value_changed
     --  }
     on_global_score_changed = Event.generate_event_name('on_global_score_changed'),
 }
+
+local on_player_score_changed = Public.events.on_player_score_changed
+local on_global_score_changed = Public.events.on_global_score_changed
 
 ---Register a specific score.
 ---
@@ -65,6 +67,10 @@ end
 ---@param score_name string
 ---@param value number|nil number to subtract or add
 function Public.change_for_player(player_index, score_name, value)
+    if not value or value == 0 then
+        return
+    end
+
     local setting = score_metadata[score_name]
     if not setting then
         if _DEBUG then
@@ -73,22 +79,17 @@ function Public.change_for_player(player_index, score_name, value)
         return
     end
 
-    local player_score = memory.players[player_index]
+    local player_score = memory_players[player_index]
     if not player_score then
         player_score = {}
-        memory.players[player_index] = player_score
+        memory_players[player_index] = player_score
     end
 
-    local old_value = player_score[score_name] or 0
-    local new_value = old_value + value
-    player_score[score_name] = new_value
+    player_score[score_name] = (player_score[score_name] or 0) + value
 
-    raise_event(Public.events.on_player_score_changed, {
+    raise_event(on_player_score_changed, {
         score_name = score_name,
-        old_value = old_value,
-        new_value = new_value,
-        player_index = player_index,
-        value_changed = old_value ~= new_value
+        player_index = player_index
     })
 end
 
@@ -97,6 +98,10 @@ end
 ---@param score_name string
 ---@param value number|nil number to subtract or add
 function Public.change_for_global(score_name, value)
+    if not value or value == 0 then
+        return
+    end
+
     local setting = score_metadata[score_name]
     if not setting then
         if _DEBUG then
@@ -105,15 +110,10 @@ function Public.change_for_global(score_name, value)
         return
     end
 
-    local old_value = memory.global[score_name] or 0
-    local new_value = old_value + value
-    memory.global[score_name] = new_value
+    memory_global[score_name] = (memory_global[score_name] or 0) + value
 
-    raise_event(Public.events.on_global_score_changed, {
-        score_name = score_name,
-        old_value = old_value,
-        new_value = new_value,
-        value_changed = old_value ~= new_value
+    raise_event(on_global_score_changed, {
+        score_name = score_name
     })
 end
 
@@ -127,7 +127,7 @@ function Public.get_for_player(player_index, score_name)
         return nil
     end
 
-    local player_scores = memory.players[player_index]
+    local player_scores = memory_players[player_index]
     if not player_scores then
         return 0
     end
@@ -144,7 +144,7 @@ function Public.get_for_global(score_name)
         return 0
     end
 
-    return memory.global[score_name] or 0
+    return memory_global[score_name] or 0
 end
 
 ---Returns the full score metadata, note that this is a reference, do not modify

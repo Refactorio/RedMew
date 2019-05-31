@@ -4,6 +4,10 @@ local ScoreTracker = require 'utils.score_tracker'
 require 'utils.table'
 local pairs = pairs
 local sqrt = math.sqrt
+local change_for_global = ScoreTracker.change_for_global
+local get_for_global = ScoreTracker.get_for_global
+local change_for_player = ScoreTracker.change_for_player
+local get_for_player = ScoreTracker.get_for_player
 
 local rocks_smashed_name = 'rocks-smashed'
 local trees_cut_down_name = 'trees-cut'
@@ -42,20 +46,25 @@ local train_kill_causes = {
     ['artillery-wagon'] = true
 }
 
-local memory = {
-    player_last_position = {},
-    player_death_causes = {}
-}
+local player_last_position = {}
+local player_death_causes = {}
 
-Global.register(memory, function(tbl) memory = tbl end)
+Global.register({
+    player_last_position = player_last_position,
+    player_death_causes = player_death_causes
+}, function(tbl)
+    player_last_position = tbl.player_last_position
+    player_death_causes = tbl.player_death_causes
+end)
+
 
 --- When the player first logs on, initialize their stats and pull their former playtime
 local function player_created(event)
     local index = event.player_index
 
-    memory.player_last_position[index] = game.get_player(index).position
-    memory.player_death_causes[index] = {}
-    ScoreTracker.change_for_global(player_count_name, 1)
+    player_last_position[index] = game.get_player(index).position
+    player_death_causes[index] = {}
+    change_for_global(player_count_name, 1)
 end
 
 local function get_cause_name(cause)
@@ -77,55 +86,55 @@ local function player_died(event)
     local player_index = event.player_index
     local cause = get_cause_name(event.cause)
 
-    local causes = memory.player_death_causes[player_index]
+    local causes = player_death_causes[player_index]
     local cause_count = causes[cause] or 0
     causes[cause] = cause_count + 1
 
-    ScoreTracker.change_for_player(player_index, player_deaths_name, 1)
+    change_for_player(player_index, player_deaths_name, 1)
     if train_kill_causes[cause] then
-        ScoreTracker.change_for_global(kills_by_trains_name, 1)
+        change_for_global(kills_by_trains_name, 1)
     end
 end
 
 local function picked_up_item(event)
     local stack = event.item_stack
     if stack.name == 'coin' then
-        ScoreTracker.change_for_player(event.player_index, coins_earned_name, stack.count)
+        change_for_player(event.player_index, coins_earned_name, stack.count)
     end
 end
 
 local function player_mined_item(event)
     if event.entity.type == 'simple-entity' then -- Cheap check for rock, may have other side effects
-        ScoreTracker.change_for_global(rocks_smashed_name, 1)
+        change_for_global(rocks_smashed_name, 1)
         return
     end
     if event.entity.type == 'tree' then
-        ScoreTracker.change_for_global(trees_cut_down_name, 1)
+        change_for_global(trees_cut_down_name, 1)
     end
 end
 
 local function player_crafted_item(event)
-    ScoreTracker.change_for_player(event.player_index, player_items_crafted_name, event.item_stack.count)
+    change_for_player(event.player_index, player_items_crafted_name, event.item_stack.count)
 end
 
 local function player_console_chat(event)
     local player_index = event.player_index
     if player_index then
-        ScoreTracker.change_for_player(player_index, player_console_chats_name, 1)
+        change_for_player(player_index, player_console_chats_name, 1)
     end
 end
 
 local function player_built_entity()
-    ScoreTracker.change_for_global(built_by_players_name, 1)
+    change_for_global(built_by_players_name, 1)
 end
 
 local function robot_built_entity()
-    ScoreTracker.change_for_global(built_by_robots_name, 1)
+    change_for_global(built_by_robots_name, 1)
 end
 
 local function biter_kill_counter(event)
     if event.entity.force.name == 'enemy' then
-        ScoreTracker.change_for_global(aliens_killed_name, 1)
+        change_for_global(aliens_killed_name, 1)
     end
 end
 
@@ -146,21 +155,21 @@ local function rocket_launched(event)
         return
     end
 
-    ScoreTracker.change_for_global(satellites_launched_name, 1)
+    change_for_global(satellites_launched_name, 1)
 end
 
 local function tick()
     for _, p in pairs(game.connected_players) do
         if (p.afk_time < 30 or p.walking_state.walking) and p.vehicle == nil then
             local index = p.index
-            local last_pos = memory.player_last_position[index]
+            local last_pos = player_last_position[index]
             local pos = p.position
 
             local d_x = last_pos.x - pos.x
             local d_y = last_pos.y - pos.y
 
-            memory.player_last_position[index] = pos
-            ScoreTracker.change_for_player(index, player_distance_walked_name, sqrt(d_x * d_x + d_y * d_y))
+            player_last_position[index] = pos
+            change_for_player(index, player_distance_walked_name, sqrt(d_x * d_x + d_y * d_y))
         end
     end
 end
@@ -182,73 +191,73 @@ Event.on_nth_tick(62, tick)
 local Public = {}
 
 function Public.get_walk_distance(player_index)
-    return ScoreTracker.get_for_player(player_index, player_distance_walked_name)
+    return get_for_player(player_index, player_distance_walked_name)
 end
 
 function Public.get_coin_earned(player_index)
-    return ScoreTracker.get_for_player(player_index, coins_earned_name)
+    return get_for_player(player_index, coins_earned_name)
 end
 
 function Public.change_coin_earned(player_index, amount)
-    ScoreTracker.change_for_player(player_index, coins_earned_name, amount)
+    change_for_player(player_index, coins_earned_name, amount)
 end
 
 function Public.get_coin_spent(player_index)
-    return ScoreTracker.get_for_player(player_index, coins_spent_name)
+    return get_for_player(player_index, coins_spent_name)
 end
 
 function Public.change_coin_spent(player_index, amount)
-    ScoreTracker.change_for_player(player_index, coins_spent_name, amount)
-    ScoreTracker.change_for_global(coins_spent_name, amount)
+    change_for_player(player_index, coins_spent_name, amount)
+    change_for_global(coins_spent_name, amount)
 end
 
 function Public.get_death_count(player_index)
-    return ScoreTracker.get_for_player(player_index, player_deaths_name)
+    return get_for_player(player_index, player_deaths_name)
 end
 
 function Public.get_crafted_item(player_index)
-    return ScoreTracker.get_for_player(player_index, player_items_crafted_name)
+    return get_for_player(player_index, player_items_crafted_name)
 end
 
 function Public.get_console_chat(player_index)
-    return ScoreTracker.get_for_player(player_index, player_console_chats_name)
+    return get_for_player(player_index, player_console_chats_name)
 end
 
 -- Returns a dictionary of cause_name -> count
 function Public.get_all_death_causes_by_player(player_index)
-    return memory.player_death_causes[player_index] or {}
+    return player_death_causes[player_index] or {}
 end
 
 function Public.get_total_player_count()
-    return ScoreTracker.get_for_global(player_count_name)
+    return get_for_global(player_count_name)
 end
 
 function Public.get_total_train_kills()
-    return ScoreTracker.get_for_global(kills_by_trains_name)
+    return get_for_global(kills_by_trains_name)
 end
 
 function Public.get_total_player_trees_mined()
-    return ScoreTracker.get_for_global(trees_cut_down_name)
+    return get_for_global(trees_cut_down_name)
 end
 
 function Public.get_total_player_rocks_mined()
-    return ScoreTracker.get_for_global(rocks_smashed_name)
+    return get_for_global(rocks_smashed_name)
 end
 
 function Public.get_total_robot_built_entities()
-    return ScoreTracker.get_for_global(built_by_robots_name)
+    return get_for_global(built_by_robots_name)
 end
 
 function Public.get_total_player_built_entities()
-    return ScoreTracker.get_for_global(built_by_players_name)
+    return get_for_global(built_by_players_name)
 end
 
 function Public.get_total_biter_kills()
-    return ScoreTracker.get_for_global(aliens_killed_name)
+    return get_for_global(aliens_killed_name)
 end
 
 function Public.get_total_coins_spent()
-    return ScoreTracker.get_for_global(coins_spent_name)
+    return get_for_global(coins_spent_name)
 end
 
 return Public

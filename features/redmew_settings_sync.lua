@@ -26,7 +26,6 @@ Public.events = {
     on_synced_from_server = Event.generate_event_name('on_synced_from_server'),
 }
 
-
 local memory = {
     -- when already scheduled, no new schedules have to be added
     sync_scheduled = {},
@@ -34,7 +33,6 @@ local memory = {
     -- when locked it won't schedule anything to prevent recursion syncing back to server
     locked = false,
 }
-
 
 Global.register(memory, function (tbl) memory = tbl end)
 
