@@ -6,6 +6,7 @@ local Gui = require 'utils.gui'
 local Color = require 'resources.color_presets'
 local Server = require 'features.server'
 local ScoreTracker = require 'utils.score_tracker'
+local format_number = require 'util'.format_number
 local pairs = pairs
 local scores_to_show = global.config.score.global_to_show
 local set_timeout_in_ticks = Schedule.set_timeout_in_ticks
@@ -36,7 +37,7 @@ local function get_global_score_labels()
             end
 
             scores[score_name] = {
-                caption = label_text .. ScoreTracker.get_for_global(score_name),
+                caption = label_text .. format_number(ScoreTracker.get_for_global(score_name), true),
                 tooltip = score_metadata.localised_string
             }
         end
