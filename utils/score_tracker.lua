@@ -67,7 +67,7 @@ end
 ---@param score_name string
 ---@param value number to subtract or add
 function Public.change_for_player(player_index, score_name, value)
-    if not value or value == 0 then
+    if value == 0 then
         return
     end
 
@@ -98,7 +98,7 @@ end
 ---@param score_name string
 ---@param value number to subtract or add
 function Public.change_for_global(score_name, value)
-    if not value or value == 0 then
+    if value == 0 then
         return
     end
 
