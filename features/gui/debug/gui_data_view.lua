@@ -109,11 +109,16 @@ function Public.show(container)
 end
 
 local function draw_element_headers(element_panel, values, selected_index)
+    local copy = {}
+    for k, v in pairs(values) do
+        copy[k] = v
+    end
+
     local selected_header = nil
     local element_map = Gui.element_map()
     local name_map = Gui.names
 
-    for ei, stored_data in pairs(values) do
+    for ei, stored_data in pairs(copy) do
         local ele = element_map[ei]
         local ele_name = ''
         if ele and ele.valid then
@@ -123,6 +128,10 @@ local function draw_element_headers(element_panel, values, selected_index)
         local gui_name = name_map[ele_name]
         if gui_name then
             ele_name = gui_name
+        end
+
+        if ele_name:match('%d* %- features/gui/debug') then
+            goto continue
         end
 
         local middle_header =
@@ -137,6 +146,8 @@ local function draw_element_headers(element_panel, values, selected_index)
         if ei == selected_index then
             selected_header = middle_header
         end
+
+        ::continue::
     end
 
     return selected_header
@@ -171,12 +182,7 @@ Gui.on_click(
             return
         end
 
-        local copy = {}
-        for k, v in pairs(values) do
-            copy[k] = v
-        end
-
-        draw_element_headers(element_panel, copy)
+        draw_element_headers(element_panel, values)
     end
 )
 
@@ -260,12 +266,7 @@ Gui.on_click(
             local player_header_data = Gui.get_data(selected_player_header)
             local values = player_header_data.values
 
-            local copy = {}
-            for k, v in pairs(values) do
-                copy[k] = v
-            end
-
-            local selected_element_header = draw_element_headers(element_panel, copy, selected_element_index)
+            local selected_element_header = draw_element_headers(element_panel, values, selected_element_index)
             data.selected_element_header = selected_element_header
             if selected_element_header then
                 selected_element_header.style.font_color = Color.orange
