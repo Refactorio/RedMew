@@ -44,6 +44,11 @@ global.config = {
         time_for_trust = 3 * 60 * 60 * 60, -- 3 hours
         everyone_is_regular = false
     },
+    -- allows syncing player colors from and to the server. Disable this if you want to enforce custom colors
+    -- when enabled, /color will also be synced to the player settings
+    player_colors = {
+        enabled = true,
+    },
     -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
     train_saviour = {
         enabled = true
@@ -274,9 +279,6 @@ global.config = {
     },
     -- adds commands for donators
     donator_commands = {
-        enabled = true
-    },
-    player_colors = {
         enabled = true
     },
     -- adds a command to generate a popup dialog box for players to see, useful for important announcements

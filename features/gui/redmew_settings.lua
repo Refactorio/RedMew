@@ -123,7 +123,7 @@ local function draw_main_frame(center, player)
         label_style.height = 35
         label_style.vertical_align = 'center'
 
-        local value = Settings.get(player_index, name)
+        local value = Settings.toScalar(name, Settings.get(player_index, name))
         local input_container = setting_grid.add({type = 'flow'})
         local input_container_style = input_container.style
         input_container_style.height = 35
@@ -238,7 +238,8 @@ local function setting_set(event)
         return
     end
 
-    local element_data = data[event.setting_name]
+    local setting_name = event.setting_name
+    local element_data = data[setting_name]
 
     if not element_data then
         return
@@ -249,8 +250,8 @@ local function setting_set(event)
         -- for some reason it has been removed already
         return
     end
-    set_element_value(input, event.new_value)
-    element_data.previous_value = event.old_value
+    set_element_value(input, Settings.toScalar(setting_name, event.new_value))
+    element_data.previous_value = Settings.toScalar(setting_name, event.old_value)
 end
 
 Gui.on_custom_close(main_frame_name, function(event)
