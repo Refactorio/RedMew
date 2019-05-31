@@ -135,7 +135,7 @@ local function global_score_changed(event)
         return
     end
 
-    local count = event.new_value
+    local count = ScoreTracker.get_for_global('satellites-launched')
 
     if (count < 10) or ((count < 50) and ((count % 5) == 0)) or ((count % 25) == 0) then
         local message = 'A satellite has been launched! Total count: ' .. count

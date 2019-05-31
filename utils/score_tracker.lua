@@ -65,7 +65,7 @@ end
 ---
 ---@param player_index number
 ---@param score_name string
----@param value number|nil number to subtract or add
+---@param value number to subtract or add
 function Public.change_for_player(player_index, score_name, value)
     if not value or value == 0 then
         return
@@ -96,7 +96,7 @@ end
 ---Sets a setting to a specific value for a player.
 ---
 ---@param score_name string
----@param value number|nil number to subtract or add
+---@param value number to subtract or add
 function Public.change_for_global(score_name, value)
     if not value or value == 0 then
         return
