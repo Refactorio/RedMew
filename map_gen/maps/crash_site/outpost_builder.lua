@@ -4,11 +4,13 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Retailer = require 'features.retailer'
-local PlayerStats = require 'features.player_stats'
 local Donator = require 'features.donator'
 local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local CrashSiteToast = require 'map_gen.maps.crash_site.crash_site_toast'
+local ScoreTracker = require 'utils.score_tracker'
+local change_for_player = ScoreTracker.change_for_player
+local coins_earned_name = 'coins-earned'
 
 local table = require 'utils.table'
 --local next = next
@@ -1789,7 +1791,7 @@ end
 local function coin_mined(event)
     local stack = event.item_stack
     if stack.name == 'coin' then
-        PlayerStats.change_coin_earned(event.player_index, stack.count)
+        change_for_player(event.player_index, coins_earned_name, stack.count)
     end
 end
 

@@ -3,15 +3,22 @@ local Timestamp = require 'utils.timestamp'
 local Command = require 'utils.command'
 local Utils = require 'utils.core'
 local Server = require 'features.server'
-local PlayerStats = require 'features.player_stats'
 local Rank = require 'features.rank_system'
 local Donator = require 'features.donator'
 local Color = require 'resources.color_presets'
-
+local ScoreTracker = require 'utils.score_tracker'
+local get_for_player = ScoreTracker.get_for_player
+local coins_spent_name = 'coins-spent'
+local coins_earned_name = 'coins-earned'
+local player_deaths_name = 'player-deaths'
+local player_console_chats_name = 'player-console-chats'
+local player_items_crafted_name = 'player-items-crafted'
+local player_distance_walked_name = 'player-distance-walked'
 local concat = table.concat
 local tostring = tostring
 local tonumber = tonumber
 local pairs = pairs
+local floor = math.floor
 
 --- Informs the actor that there is no target. Acts as a central place where this message can be changed.
 local function print_no_target(target_name)
@@ -70,16 +77,17 @@ end
 local function afk()
     local count = 0
     for _, v in pairs(game.players) do
-        if v.afk_time > 300 then
+        local afk_time = v.afk_time
+        if afk_time > 300 then
             count = count + 1
             local time = ' '
-            if v.afk_time > 21600 then
-                time = time .. math.floor(v.afk_time / 216000) .. ' hours '
+            if afk_time > 21600 then
+                time = time .. floor(afk_time / 216000) .. ' hours '
             end
-            if v.afk_time > 3600 then
-                time = time .. math.floor(v.afk_time / 3600) % 60 .. ' minutes and '
+            if afk_time > 3600 then
+                time = time .. floor(afk_time / 3600) % 60 .. ' minutes and '
             end
-            time = time .. math.floor(v.afk_time / 60) % 60 .. ' seconds.'
+            time = time .. floor(v.afk_time / 60) % 60 .. ' seconds.'
             Game.player_print(v.name .. ' has been afk for' .. time)
         end
     end
@@ -193,12 +201,12 @@ local function print_player_info(args, player)
         {'format.1_colon_2', 'Force', target.force.name},
         {'format.1_colon_2', 'Surface', target.surface.name},
         {'format.1_colon_2', 'Tag', target.tag},
-        {'format.1_colon_2', 'Distance walked', PlayerStats.get_walk_distance(index)},
-        {'format.1_colon_2', 'Coin earned', PlayerStats.get_coin_earned(index)},
-        {'format.1_colon_2', 'Coin spent', PlayerStats.get_coin_spent(index)},
-        {'format.1_colon_2', 'Deaths', PlayerStats.get_death_count(index)},
-        {'format.1_colon_2', 'Crafted items', PlayerStats.get_crafted_item(index)},
-        {'format.1_colon_2', 'Chat messages', PlayerStats.get_console_chat(index)}
+        {'format.1_colon_2', 'Distance walked', get_for_player(index, player_distance_walked_name)},
+        {'format.1_colon_2', 'Coin earned', get_for_player(index, coins_earned_name)},
+        {'format.1_colon_2', 'Coin spent', get_for_player(index, coins_spent_name)},
+        {'format.1_colon_2', 'Deaths', get_for_player(index, player_deaths_name)},
+        {'format.1_colon_2', 'Crafted items', get_for_player(index, player_items_crafted_name)},
+        {'format.1_colon_2', 'Chat messages', get_for_player(index, player_console_chats_name)}
     }
     Game.player_print(info_t)
 
