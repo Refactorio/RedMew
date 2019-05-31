@@ -77,7 +77,7 @@ local function get_cause_name(cause)
             return name
         end
     end
-    return 'unspecified'
+    return 'player_stats.unknown_death_cause'
 end
 
 local function player_died(event)

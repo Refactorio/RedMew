@@ -21,8 +21,12 @@ local player_deaths_name = 'player-deaths'
 local player_distance_walked_name = 'player-distance-walked'
 local random = math.random
 local ipairs = ipairs
+local pairs = pairs
 local abs = math.abs
 local round = math.round
+local remove = table.remove
+local insert = table.insert
+local concat = table.concat
 local get_rank_color = Rank.get_rank_color
 local get_rank_name = Rank.get_rank_name
 local get_player_rank = Rank.get_player_rank
@@ -47,6 +51,7 @@ local player_poke_cooldown = {}
 local player_pokes = {}
 local player_settings = {}
 local no_notify_players = {}
+local prototype_localised_string_cache = {}
 
 Global.register(
     {
@@ -325,7 +330,7 @@ local column_builders = {
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local text = table.concat({cell_data.coin_earned, '/', cell_data.coin_spent})
+            local text = concat({cell_data.coin_earned, '/', cell_data.coin_spent})
 
             local label = parent.add {type = 'label', name = coin_cell_name, caption = text}
             local label_style = label.style
@@ -356,15 +361,24 @@ local column_builders = {
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local tooltip = {}
+            local tooltip = {''}
             for name, count in pairs(cell_data.causes) do
-                table.insert(tooltip, name)
-                table.insert(tooltip, ': ')
-                table.insert(tooltip, count)
-                table.insert(tooltip, '\n')
+                if not prototype_localised_string_cache[name] then
+                    local prototype = game.entity_prototypes[name]
+                    if not prototype then
+                        prototype = game.item_prototypes[name]
+                    end
+                    prototype_localised_string_cache[name] = prototype and prototype.localised_name or {name}
+                end
+
+                insert(tooltip, prototype_localised_string_cache[name])
+                insert(tooltip, ': ')
+                insert(tooltip, count)
+                insert(tooltip, '\n')
             end
-            table.remove(tooltip)
-            tooltip = table.concat(tooltip)
+            if #tooltip > 1 then
+                remove(tooltip)
+            end
 
             local label =
                 parent.add {type = 'label', name = deaths_cell_name, caption = cell_data.count, tooltip = tooltip}
@@ -554,10 +568,10 @@ local function redraw_cells(data)
 
         for _, c in ipairs(columns) do
             local cell_data = column_builders[c].create_data(p)
-            table.insert(row, cell_data)
+            insert(row, cell_data)
         end
 
-        table.insert(list_data, row)
+        insert(list_data, row)
     end
 
     table.sort(list_data, comp)
@@ -751,7 +765,7 @@ Gui.on_click(
         player_pokes[poke_player_index] = count
 
         local poke_str = poke_messages[random(#poke_messages)]
-        local message = table.concat({'>> ', player.name, ' has poked ', poke_player.name, ' with ', poke_str, ' <<'})
+        local message = concat({'>> ', player.name, ' has poked ', poke_player.name, ' with ', poke_str, ' <<'})
 
         for _, p in ipairs(game.connected_players) do
             local frame = p.gui.left[main_frame_name]
