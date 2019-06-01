@@ -82,7 +82,6 @@ Retailer.item_types = {
     item_package = 'item_package',
 }
 
-local market_gui_close_distance_squared = 6 * 6 + 6 * 6
 local do_update_market_gui -- token
 
 ---Global storage
@@ -704,7 +703,8 @@ Event.on_nth_tick(37, function()
             local delta_x = player_position.x - market_position.x
             local delta_y = player_position.y - market_position.y
 
-            if delta_x * delta_x + delta_y * delta_y > market_gui_close_distance_squared then
+            local reach_distance = player.reach_distance * 1.05
+            if delta_x * delta_x + delta_y * delta_y > reach_distance * reach_distance then
                 close_market_gui(player)
             end
         else
