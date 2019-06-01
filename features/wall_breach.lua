@@ -2,13 +2,11 @@ local Event = require 'utils.event'
 local RS = require 'map_gen.shared.redmew_surface'
 
 local function valid(obj)
-    game.print("Invalid")
     return obj and obj.valid
 end
 
 local function is_a_biter(entity)
     if not valid(entity) then
-        game.print("Not a biter")
         return false
     end
 
@@ -32,7 +30,6 @@ local function heal(entity, damage, percentage, max)
 end
 
 local function create_damaged_alert(target, entity)
-    game.print("Creating alert!")
     for _, player in pairs(game.connected_players) do
         player.add_custom_alert(target, {type = 'item', name = "stone-wall"}, {'', 'a ', entity.localised_name, ' is breaking through a weak spot in our defences!'}, true)
     end
@@ -61,12 +58,10 @@ local function entity_damaged(event)
     local strength = wall_strength(entity)
     local amount = 921 / strength --Walls and gates have resistance.
     if strength >= 6 then
-        game.print("To strong for big")
         if cause_name == 'behemoth-biter' and not strength >= 10 then
             damage(amount * 0.75, force)
             create_damaged_alert(entity, cause)
         else
-            game.print("To strong for all")
             local dmg_dealt = event.final_damage_amount
             if cause_name == 'behemoth-biter' then
                 heal(entity, dmg_dealt, 0.035 * strength - 12, 0.5)
@@ -79,7 +74,6 @@ local function entity_damaged(event)
             end
         end
     else
-        game.print("To strong for medium")
         if cause_name == 'behemoth-biter' then
             damage(amount * 1.2, force)
             create_damaged_alert(entity, cause)
@@ -87,7 +81,6 @@ local function entity_damaged(event)
             damage(amount * 0.5, force)
             create_damaged_alert(entity, cause)
         else
-            game.print("not a big")
             local dmg_dealt = event.final_damage_amount
             if cause_name == 'medium-biter' then
                 heal(entity, dmg_dealt, 0.035 * strength - 2, 0.75)
@@ -98,30 +91,4 @@ local function entity_damaged(event)
     end
 end
 
---[[ocal function entity_died(event)
-    local entity = event.entity
-    if not valid(entity) then
-        return
-    end
-    local name = entity.name
-    if not (name == 'stone-wall' or name == 'gate') then
-        return
-    end
-    local strength = wall_strength(entity)
-    local cause = event.cause
-    if valid(cause) then
-        local cause_name = cause.name
-        if strength < 6 then
-            if cause_name == 'big-biter' or cause_name == 'behemoth-biter' then
-                    create_destroyed_alert(entity, cause)
-            end
-        else
-            if cause_name == 'behemoth-biter' then
-                create_destroyed_alert(entity, cause)
-            end
-        end
-    end
-end ]]
-
 Event.add(defines.events.on_entity_damaged, entity_damaged)
---Event.add(defines.events.on_entity_died, entity_died)
