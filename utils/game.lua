@@ -1,5 +1,6 @@
 local Global = require 'utils.global'
 local Color = require 'resources.color_presets'
+local print = print
 
 local Game = {}
 
@@ -31,8 +32,9 @@ end
 -- @param color <table> defaults to white
 function Game.player_print(msg, color)
     color = color or Color.white
-    if game.player then
-        game.player.print(msg, color)
+    local player = game.player
+    if player then
+        player.print(msg, color)
     else
         print(msg)
     end

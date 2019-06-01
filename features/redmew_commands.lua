@@ -7,13 +7,9 @@ local Rank = require 'features.rank_system'
 local Donator = require 'features.donator'
 local Color = require 'resources.color_presets'
 local ScoreTracker = require 'utils.score_tracker'
-local get_for_player = ScoreTracker.get_for_player
-local coins_spent_name = 'coins-spent'
-local coins_earned_name = 'coins-earned'
-local player_deaths_name = 'player-deaths'
-local player_console_chats_name = 'player-console-chats'
-local player_items_crafted_name = 'player-items-crafted'
-local player_distance_walked_name = 'player-distance-walked'
+local format_number = require 'util'.format_number
+local player_data_to_show = global.config.redmew_commands.whois.player_data_to_show
+local print_to_player = Game.player_print
 local concat = table.concat
 local tostring = tostring
 local tonumber = tonumber
@@ -22,7 +18,7 @@ local floor = math.floor
 
 --- Informs the actor that there is no target. Acts as a central place where this message can be changed.
 local function print_no_target(target_name)
-    Game.player_print({'common.fail_no_target', target_name}, Color.fail)
+    print_to_player({'common.fail_no_target', target_name}, Color.fail)
 end
 
 --- Kill a player with fish as the cause of death.
@@ -57,18 +53,18 @@ local function kill(args, player)
     if player then
         if not target or target == player then -- player suicide
             if not do_fish_kill(player, true) then
-                Game.player_print({'redmew_commands.kill_fail_suicide_no_character'})
+                print_to_player({'redmew_commands.kill_fail_suicide_no_character'})
             end
         elseif target and player.admin then -- admin killing target
             if not do_fish_kill(target) then
-                Game.player_print({'redmew_commands.kill_fail_target_no_character'}, target_name)
+                print_to_player({'redmew_commands.kill_fail_target_no_character'}, target_name)
             end
         else -- player failing to kill target
-            Game.player_print({'redmew_commands.kill_fail_no_perm'})
+            print_to_player({'redmew_commands.kill_fail_no_perm'})
         end
     elseif target then -- server killing target
         if not do_fish_kill(target) then
-            Game.player_print({'redmew_commands.kill_fail_target_no_character'}, target_name)
+            print_to_player({'redmew_commands.kill_fail_target_no_character'}, target_name)
         end
     end
 end
@@ -88,11 +84,11 @@ local function afk()
                 time = time .. floor(afk_time / 3600) % 60 .. ' minutes and '
             end
             time = time .. floor(v.afk_time / 60) % 60 .. ' seconds.'
-            Game.player_print(v.name .. ' has been afk for' .. time)
+            print_to_player(v.name .. ' has been afk for' .. time)
         end
     end
     if count == 0 then
-        Game.player_print({'redmew_commands.afk_no_afk'})
+        print_to_player({'redmew_commands.afk_no_afk'})
     end
 end
 
@@ -102,7 +98,7 @@ local function zoom(args, player)
     if zoom_val then
         player.zoom = zoom_val
     else
-        Game.player_print({'redmew_commands.zoom_fail'})
+        print_to_player({'redmew_commands.zoom_fail'})
     end
 end
 
@@ -118,7 +114,7 @@ local function find_player(args, player)
 
     target = target.character
     if not target or not target.valid then
-        Game.player_print({'redmew_commands.find_player_fail_no_character', target_name})
+        print_to_player({'redmew_commands.find_player_fail_no_character', target_name})
         return
     end
 
@@ -131,7 +127,7 @@ local function show_rail_block(_, player)
     local show = not vs.show_rail_block_visualisation
     vs.show_rail_block_visualisation = show
 
-    Game.player_print({'redmew_commands.show_rail_block_success', tostring(show)})
+    print_to_player({'redmew_commands.show_rail_block_success', tostring(show)})
 end
 
 --- Provides the time on the server
@@ -166,7 +162,7 @@ local function list_seeds()
 
     seeds[#seeds] = nil
     seeds = concat(seeds)
-    Game.player_print(seeds)
+    print_to_player(seeds)
 end
 
 local function print_version()
@@ -176,45 +172,43 @@ local function print_version()
     else
         version_str = {'redmew_commands.print_version_from_source'}
     end
-    Game.player_print(version_str)
+    print_to_player(version_str)
 end
 
 --- Prints information about the target player
 local function print_player_info(args, player)
     local target_ident = args.player
-    local target, target_name, index = Utils.validate_player(target_ident)
+    local target, target_name, player_index = Utils.validate_player(target_ident)
 
     if not target then
         print_no_target(target_ident)
         return
     end
 
-    local info_t = {
-        'redmew_commands.whois_formatter',
-        {'format.1_colon_2', 'Name', target_name},
-        {'format.single_item', target.connected and 'Online: yes' or 'Online: no'},
-        {'format.1_colon_2', 'Index', target.index},
-        {'format.1_colon_2', 'Rank', Rank.get_player_rank_name(target_name)},
-        {'format.single_item', Donator.is_donator(target.name) and 'Donator: yes' or 'Donator: no'},
-        {'format.1_colon_2', 'Time played', Utils.format_time(target.online_time)},
-        {'format.1_colon_2', 'AFK time', Utils.format_time(target.afk_time or 0)},
-        {'format.1_colon_2', 'Force', target.force.name},
-        {'format.1_colon_2', 'Surface', target.surface.name},
-        {'format.1_colon_2', 'Tag', target.tag},
-        {'format.1_colon_2', 'Distance walked', get_for_player(index, player_distance_walked_name)},
-        {'format.1_colon_2', 'Coin earned', get_for_player(index, coins_earned_name)},
-        {'format.1_colon_2', 'Coin spent', get_for_player(index, coins_spent_name)},
-        {'format.1_colon_2', 'Deaths', get_for_player(index, player_deaths_name)},
-        {'format.1_colon_2', 'Crafted items', get_for_player(index, player_items_crafted_name)},
-        {'format.1_colon_2', 'Chat messages', get_for_player(index, player_console_chats_name)}
-    }
-    Game.player_print(info_t)
+    local sep = ': '
+    print_to_player({'', {'common.player_name'}, sep, target_name})
+    print_to_player({'', {'common.connection_status'}, sep, {target.connected and 'common.online' or 'common.offline'}})
+    print_to_player({'', {'common.player_index'}, sep, target.index})
+    print_to_player({'', {'common.player_rank'}, sep, Rank.get_player_rank_name(target_name)})
+    print_to_player({'', {'ranks.donator'}, sep, {Donator.is_donator(target.name) and 'common.yes' or 'common.no'}})
+    print_to_player({'', {'common.time_played'}, sep, Utils.format_time(target.online_time)})
+    print_to_player({'', {'common.afk_time'}, sep, Utils.format_time(target.afk_time or 0)})
+    print_to_player({'', {'common.current_force'}, sep, target.force.name})
+    print_to_player({'', {'common.current_surface'}, sep, target.surface.name})
+    print_to_player({'', {'common.player_tag'}, sep, target.tag})
+
+    local scores = ScoreTracker.get_player_scores_with_metadata(player_index, player_data_to_show)
+
+    for i = 1, #scores do
+        local score_data = scores[i]
+        print_to_player({'', score_data.locale_string, sep, format_number(score_data.value, true)})
+    end
 
     if (not player or player.admin) and args.inventory then
         local m_inventory = target.get_inventory(defines.inventory.character_main)
         m_inventory = m_inventory.get_contents()
-        Game.player_print('Main and hotbar inventories: ')
-        Game.player_print(serpent.line(m_inventory))
+        print_to_player('Main and hotbar inventories: ')
+        print_to_player(serpent.line(m_inventory))
     end
 end
 

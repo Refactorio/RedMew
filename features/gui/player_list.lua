@@ -51,7 +51,7 @@ local player_poke_cooldown = {}
 local player_pokes = {}
 local player_settings = {}
 local no_notify_players = {}
-local prototype_localised_string_cache = {}
+local prototype_locale_string_cache = {}
 
 Global.register(
     {
@@ -363,15 +363,15 @@ local column_builders = {
         draw_cell = function(parent, cell_data)
             local tooltip = {''}
             for name, count in pairs(cell_data.causes) do
-                if not prototype_localised_string_cache[name] then
+                if not prototype_locale_string_cache[name] then
                     local prototype = game.entity_prototypes[name]
                     if not prototype then
                         prototype = game.item_prototypes[name]
                     end
-                    prototype_localised_string_cache[name] = prototype and prototype.localised_name or {name}
+                    prototype_locale_string_cache[name] = prototype and prototype.localised_name or {name}
                 end
 
-                insert(tooltip, prototype_localised_string_cache[name])
+                insert(tooltip, prototype_locale_string_cache[name])
                 insert(tooltip, ': ')
                 insert(tooltip, count)
                 insert(tooltip, '\n')

@@ -39,9 +39,9 @@ local on_global_score_changed = Public.events.on_global_score_changed
 --- This function must be called in the control stage, i.e. not inside an event.
 ---
 ---@param name string
----@param localisation_string table
+---@param locale_string table
 ---@param icon string
-function Public.register(name, localisation_string, icon)
+function Public.register(name, locale_string, icon)
     if _LIFECYCLE ~= _STAGE.control then
         error(format('You can only register score types in the control stage, i.e. not inside events. Tried setting "%s".', name), 2)
     end
@@ -53,7 +53,7 @@ function Public.register(name, localisation_string, icon)
     local score = {
         name = name,
         icon = icon,
-        localised_string = localisation_string
+        locale_string = locale_string
     }
 
     score_metadata[name] = score
@@ -145,6 +145,56 @@ function Public.get_for_global(score_name)
     end
 
     return memory_global[score_name] or 0
+end
+
+---Returns all metadata merged with the values for this player for the given score names.
+---
+---@param player_index number
+---@param score_names table
+function Public.get_player_scores_with_metadata(player_index, score_names)
+    local scores = {}
+    local size = 0
+    for i = 1, #score_names do
+        local score_name = score_names[i]
+        local metadata = score_metadata[score_name]
+        if metadata then
+            local player_scores = memory_players[player_index]
+            if player_scores then
+                size = size + 1
+                scores[size] = {
+                    name = metadata.name,
+                    locale_string = metadata.locale_string,
+                    icon = metadata.icon,
+                    value = player_scores[score_name] or 0
+                }
+            end
+        end
+    end
+
+    return scores
+end
+
+---Returns all metadata merged with the values of the global scores for the given score names.
+---
+---@param score_names table
+function Public.get_global_scores_with_metadata(score_names)
+    local scores = {}
+    local size = 0
+    for i = 1, #score_names do
+        local score_name = score_names[i]
+        local metadata = score_metadata[score_name]
+        if metadata then
+            size = size + 1
+            scores[size] = {
+                name = metadata.name,
+                locale_string = metadata.locale_string,
+                icon = metadata.icon,
+                value = memory_global[score_name] or 0
+            }
+        end
+    end
+
+    return scores
 end
 
 ---Returns the full score metadata, note that this is a reference, do not modify

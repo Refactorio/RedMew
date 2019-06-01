@@ -82,7 +82,7 @@ function Public.register(name, setting_type, default, localisation_key)
         type = setting_type,
         default = default,
         data_transformation = data_transformation,
-        localised_string = localisation_key and {localisation_key} or name,
+        locale_string = localisation_key and {localisation_key} or name,
     }
 
     settings[name] = setting
