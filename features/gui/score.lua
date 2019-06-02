@@ -6,7 +6,9 @@ local Gui = require 'utils.gui'
 local Color = require 'resources.color_presets'
 local Server = require 'features.server'
 local ScoreTracker = require 'utils.score_tracker'
+local format_number = require 'util'.format_number
 local pairs = pairs
+local concat = table.concat
 local scores_to_show = global.config.score.global_to_show
 local set_timeout_in_ticks = Schedule.set_timeout_in_ticks
 local main_frame_name = Gui.uid_name()
@@ -22,27 +24,18 @@ Global.register(memory, function(tbl) memory = tbl end)
 
 ---Creates a map of score name => {captain, tooltip}
 local function get_global_score_labels()
-    local metadata = ScoreTracker.get_score_metadata()
-    local scores = {}
+    local scores = ScoreTracker.get_global_scores_with_metadata(scores_to_show)
+    local score_labels = {}
 
-    for index = 1, #scores_to_show do
-        local score_name = scores_to_show[index]
-        local score_metadata = metadata[score_name]
-        if score_metadata then
-            local icon = score_metadata.icon
-            local label_text = ''
-            if icon then
-                label_text = icon .. ' '
-            end
-
-            scores[score_name] = {
-                caption = label_text .. ScoreTracker.get_for_global(score_name),
-                tooltip = score_metadata.localised_string
-            }
-        end
+    for index = 1, #scores do
+        local score_data = scores[index]
+        score_labels[score_data.name] = {
+            caption = concat({score_data.icon, format_number(score_data.value, true)}, ' '),
+            tooltip = score_data.locale_string
+        }
     end
 
-    return scores
+    return score_labels
 end
 
 local do_redraw_score = Token.register(function()

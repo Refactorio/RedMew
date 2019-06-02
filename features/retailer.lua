@@ -44,14 +44,17 @@ local Gui = require 'utils.gui'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Schedule = require 'utils.task'
-local PlayerStats = require 'features.player_stats'
 local math = require 'utils.math'
 local Color = require 'resources.color_presets'
+local ScoreTracker = require 'utils.score_tracker'
 local format = string.format
 local size = table.size
 local insert = table.insert
 local pairs = pairs
 local tonumber = tonumber
+local change_for_global = ScoreTracker.change_for_global
+local change_for_player = ScoreTracker.change_for_player
+local coins_spent_name = 'coins-spent'
 local set_timeout_in_ticks = Schedule.set_timeout_in_ticks
 local clamp = math.clamp
 local floor = math.floor
@@ -567,7 +570,8 @@ Gui.on_click(item_button_name, function (event)
     end
 
     redraw_market_items(data)
-    PlayerStats.change_coin_spent(player.index, cost)
+    change_for_player(player.index, coins_spent_name, cost)
+    change_for_global(coins_spent_name, cost)
     do_coin_label(coin_count - cost, data.coin_label)
 
     raise_event(Retailer.events.on_market_purchase, {

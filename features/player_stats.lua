@@ -5,9 +5,7 @@ require 'utils.table'
 local pairs = pairs
 local sqrt = math.sqrt
 local change_for_global = ScoreTracker.change_for_global
-local get_for_global = ScoreTracker.get_for_global
 local change_for_player = ScoreTracker.change_for_player
-local get_for_player = ScoreTracker.get_for_player
 
 local rocks_smashed_name = 'rocks-smashed'
 local trees_cut_down_name = 'trees-cut'
@@ -79,7 +77,7 @@ local function get_cause_name(cause)
             return name
         end
     end
-    return 'unspecified'
+    return 'player_stats.unknown_death_cause'
 end
 
 local function player_died(event)
@@ -190,74 +188,9 @@ Event.on_nth_tick(62, tick)
 
 local Public = {}
 
-function Public.get_walk_distance(player_index)
-    return get_for_player(player_index, player_distance_walked_name)
-end
-
-function Public.get_coin_earned(player_index)
-    return get_for_player(player_index, coins_earned_name)
-end
-
-function Public.change_coin_earned(player_index, amount)
-    change_for_player(player_index, coins_earned_name, amount)
-end
-
-function Public.get_coin_spent(player_index)
-    return get_for_player(player_index, coins_spent_name)
-end
-
-function Public.change_coin_spent(player_index, amount)
-    change_for_player(player_index, coins_spent_name, amount)
-    change_for_global(coins_spent_name, amount)
-end
-
-function Public.get_death_count(player_index)
-    return get_for_player(player_index, player_deaths_name)
-end
-
-function Public.get_crafted_item(player_index)
-    return get_for_player(player_index, player_items_crafted_name)
-end
-
-function Public.get_console_chat(player_index)
-    return get_for_player(player_index, player_console_chats_name)
-end
-
 -- Returns a dictionary of cause_name -> count
 function Public.get_all_death_causes_by_player(player_index)
     return player_death_causes[player_index] or {}
-end
-
-function Public.get_total_player_count()
-    return get_for_global(player_count_name)
-end
-
-function Public.get_total_train_kills()
-    return get_for_global(kills_by_trains_name)
-end
-
-function Public.get_total_player_trees_mined()
-    return get_for_global(trees_cut_down_name)
-end
-
-function Public.get_total_player_rocks_mined()
-    return get_for_global(rocks_smashed_name)
-end
-
-function Public.get_total_robot_built_entities()
-    return get_for_global(built_by_robots_name)
-end
-
-function Public.get_total_player_built_entities()
-    return get_for_global(built_by_players_name)
-end
-
-function Public.get_total_biter_kills()
-    return get_for_global(aliens_killed_name)
-end
-
-function Public.get_total_coins_spent()
-    return get_for_global(coins_spent_name)
 end
 
 return Public

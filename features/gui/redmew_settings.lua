@@ -115,7 +115,7 @@ local function draw_main_frame(center, player)
     for name, setting in pairs(settings) do
         local label = setting_grid.add({
             type = 'label',
-            caption = setting.localised_string,
+            caption = setting.locale_string,
         })
 
         local label_style = label.style

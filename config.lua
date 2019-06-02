@@ -283,7 +283,17 @@ global.config = {
     },
     -- adds many commands for users and admins alike
     redmew_commands = {
-        enabled = true
+        enabled = true,
+        whois = {
+            player_data_to_show = {
+                'player-distance-walked',
+                'coins-earned',
+                'coins-spent',
+                'player-deaths',
+                'player-items-crafted',
+                'player-console-chats'
+            }
+        }
     },
     -- adds many commands for admins
     admin_commands = {

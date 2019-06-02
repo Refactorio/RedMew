@@ -2,7 +2,6 @@
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
-local PlayerStats = require 'features.player_stats'
 local Command = require 'utils.command'
 local Global = require 'utils.global'
 local Retailer = require 'features.retailer'
@@ -10,6 +9,10 @@ local Ranks = require 'resources.ranks'
 local RS = require 'map_gen.shared.redmew_surface'
 local market_items = require 'resources.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
+local ScoreTracker = require 'utils.score_tracker'
+local change_for_player = ScoreTracker.change_for_player
+local get_for_player = ScoreTracker.get_for_player
+local coins_earned_name = 'coins-earned'
 
 -- localized functions
 local pairs = pairs
@@ -127,9 +130,8 @@ local function fish_earned(event, amount)
         player.surface.spill_item_stack(player.position, stack, true)
     end
 
-    PlayerStats.change_coin_earned(player_index, amount)
-
-    if PlayerStats.get_coin_earned(player_index) % 70 == 0 and player and player.valid then
+    change_for_player(player_index, coins_earned_name, amount)
+    if get_for_player(player_index, coins_earned_name) % 70 == 0 and player and player.valid then
         local message = fish_market_bonus_message[random(#fish_market_bonus_message)]
         player.print(message)
     end
