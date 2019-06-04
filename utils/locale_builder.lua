@@ -11,23 +11,22 @@ local getmetatable = getmetatable
 --
 -- @usage
 --  LocaleBuilder = require 'utils.locale_builder'
---  local locale_string = LocaleBuilder
---      .add({'common.fail_no_target', 'player_name'})
+--
+--  local locale_string = LocaleBuilder({'common.fail_no_target', 'player_name'})
 --      :add({'', '- a literal string'})
 --      :add('- short hand for literal string')
 --      :add(3):add(true) -- also works if convertable to string
 --
--- Notice use of :add rather than .add for chaining calls.
---
+-- Or construct multiple LocalisedStrings in parts and combine them.
 -- local part1 = {'', 'part', ' ', 'one'}
--- local part2 = LocaleBuilder.add('part'):add(' '):add('two')
--- local part3 = LocaleBuilder.add('part'):add(' '):add('three')
+-- local part2 = LocaleBuilder('part'):add(' '):add('two')
+-- local part3 = LocaleBuilder('part'):add(' '):add('three')
 --
--- local result = LocaleBuilder.add(part1):add(part2):add(part3)
+-- local result = LocaleBuilder(part1):add(part2):add(part3)
 --
 -- If you store the LocalisedStrings in global, when you fetch from global you need to restore
 -- the metatable to be able to use :add calls. To do that use
--- LocaleBuilder.add(global_stored_locale_string)
+-- LocaleBuilder(global.stored_locale_string)
 local Public = {}
 
 local add
@@ -87,5 +86,9 @@ function add(self, item)
 end
 
 Public.add = add
+function Public.__call(f, item)
+    return add(nil, item)
+end
+setmetatable(Public, Public)
 
 return Public
