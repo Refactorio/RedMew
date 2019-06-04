@@ -42,13 +42,14 @@ local function biter_died(event)
             force = 'neutral'
         }
 
-    local num_to_remove = #corpse_list - biter_utils_conf.corpse_threshold
-    local random_offset = random(#corpse_list)
+    local corpse_list_len = #corpse_list
+    local num_to_remove = corpse_list_len - biter_utils_conf.corpse_threshold
+    local random_offset = random(corpse_list_len)
 
     -- Starting at a random number, remove enough entities to be under the threshold
     for i = random_offset, num_to_remove + random_offset do
         --modulus + 1 to ensure we are not past the end of the table
-        corpse_list[(i % #corpse_list) + 1].destroy()
+        corpse_list[(i % corpse_list_len) + 1].destroy()
     end
 end
 
