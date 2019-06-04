@@ -12,9 +12,13 @@ local function biter_died(event)
         return
     end
 
-    local dying_force = entity.force
-    -- ignore player owned entities
-    if dying_force == 'player' then
+    -- ignore non-enemy entities
+    if entity.force.name ~= 'enemy' then
+        return
+    end
+
+    -- Only trigger on units
+    if entity.type ~= 'unit' then
         return
     end
 
