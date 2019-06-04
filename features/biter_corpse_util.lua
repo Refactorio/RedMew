@@ -38,12 +38,7 @@ local function biter_died(event)
             -- Starting at a random number, remove enough entities to be under the threshold
             for i = random_offset, num_to_remove + random_offset do
                 --modulus + 1 to ensure we are not past the end of the table
-                if entity == corpse_list[(i % #corpse_list) + 1] then
-                    game.print('Collision')
-                else
-                    corpse_list[(i % #corpse_list) + 1].destroy()
-                end
-
+                corpse_list[(i % #corpse_list) + 1].destroy()
             end
         end
     end
