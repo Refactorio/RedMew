@@ -389,6 +389,12 @@ global.config = {
     -- enables the redmew settings GUI
     redmew_settings = {
         enabled = true
+    },
+    -- when biter corpses in an area are above a threshold, remove the desired amount
+    biter_corpse_util = {
+        enabled = true,
+        radius = 3, -- radius to search around dying entities
+        corpse_threshold = 10 -- number of corpses allowed on surface, inside radius
     }
 }
 

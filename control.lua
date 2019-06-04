@@ -97,6 +97,9 @@ end
 if config.player_quick_bars.enabled then
     require 'features.player_quick_bars'
 end
+if config.biter_corpse_util.enabled then
+    require 'features.biter_corpse_util'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.
