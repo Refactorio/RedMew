@@ -24,23 +24,20 @@ local function biter_died(event)
 
     local surface = entity.surface
 
+    local filter = {
+        position = entity.position,
+        radius = biter_utils_conf.radius,
+        type = 'corpse',
+        force = 'neutral'
+    }
+
     -- More than the desired number of corpses?
-    if not (surface.count_entities_filtered {
-            position = entity.position,
-            radius = biter_utils_conf.radius,
-            type = 'corpse',
-            force = 'neutral'
-            } > biter_utils_conf.corpse_threshold) then
+    if not (surface.count_entities_filtered(filter)  > biter_utils_conf.corpse_threshold) then
         return
     end
 
     -- Get the actual entities
-    local corpse_list = surface.find_entities_filtered {
-            position = entity.position,
-            radius = biter_utils_conf.radius,
-            type = 'corpse',
-            force = 'neutral'
-        }
+    local corpse_list = surface.find_entities_filtered (filter)
 
     local corpse_list_len = #corpse_list
     local num_to_remove = corpse_list_len - biter_utils_conf.corpse_threshold
