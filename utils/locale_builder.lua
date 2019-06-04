@@ -1,6 +1,7 @@
 local type = type
 local tostring = tostring
 local setmetatable = setmetatable
+local getmetatable = getmetatable
 
 local Public = {}
 
