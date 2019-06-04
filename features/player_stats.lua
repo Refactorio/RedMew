@@ -189,8 +189,10 @@ Event.on_nth_tick(62, tick)
 local Public = {}
 
 -- Returns a dictionary of cause_name -> count
-function Public.get_all_death_causes_by_player(player_index)
-    return player_death_causes[player_index] or {}
+--function Public.get_all_death_causes_by_player(player_index)
+--    return player_death_causes[player_index] or {}
+--end
+function Public.get_all_death_causes_by_player()
+    return {}
 end
-
 return Public
