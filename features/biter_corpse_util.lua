@@ -22,6 +22,11 @@ local function biter_died(event)
         return
     end
 
+    -- Only a chance of cleanup
+    if biter_utils_conf.cleanup_chance_percent < random(100) then
+        return
+    end
+
     local surface = entity.surface
 
     local filter = {

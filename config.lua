@@ -394,7 +394,8 @@ global.config = {
     biter_corpse_util = {
         enabled = true,
         radius = 3, -- radius to search around dying entities
-        corpse_threshold = 10 -- number of corpses allowed on surface, inside radius
+        corpse_threshold = 10, -- number of corpses allowed on surface inside radius
+        cleanup_chance_percent = 10 -- 100 means check on every biter death, 50 means every second death, etc.
     }
 }
 
