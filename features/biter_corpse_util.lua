@@ -37,7 +37,7 @@ local function biter_died(event)
     }
 
     -- More than the desired number of corpses?
-    if not (surface.count_entities_filtered(filter)  > biter_utils_conf.corpse_threshold) then
+    if surface.count_entities_filtered(filter) <= biter_utils_conf.corpse_threshold then
         return
     end
 
