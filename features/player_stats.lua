@@ -190,7 +190,8 @@ local Public = {}
 
 -- Returns a dictionary of cause_name -> count
 function Public.get_all_death_causes_by_player(player_index)
-    return player_death_causes[player_index] or {}
+    --return player_death_causes[player_index] or {}
+    return {}
 end
 
 return Public
