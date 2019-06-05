@@ -55,7 +55,7 @@ local function localise(item)
 end
 
 function add(self, item)
-    if not item then
+    if item == nil then
         item = self
         self = nil
     end
@@ -68,9 +68,13 @@ function add(self, item)
 
     local tail = self.tail
     if not tail then
-        tail = {'', self}
-        self = new(tail)
-        set_tail(self, tail)
+        if self[1] == '' then
+            tail = self
+        else
+            tail = {'', self}
+            self = new(tail)
+            set_tail(self, tail)
+        end
     end
 
     local count = #tail
@@ -87,6 +91,10 @@ end
 
 Public.add = add
 function Public.__call(_, item)
+    if item == nil then
+        item = {''}
+    end
+
     return add(nil, item)
 end
 setmetatable(Public, Public)
