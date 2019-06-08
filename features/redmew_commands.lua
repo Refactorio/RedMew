@@ -212,6 +212,15 @@ local function print_player_info(args, player)
     end
 end
 
+local function skip_cutscene(_, player)
+    if not player or not player.valid then
+        return
+    end
+    if player.controller_type == defines.controllers.cutscene then
+        require 'features.cutscene.cutscene_controller'.terminate_cutscene(player.index)
+    end
+end
+
 -- Command registrations
 
 Command.add(
@@ -296,4 +305,13 @@ Command.add(
         allowed_by_server = true
     },
     print_player_info
+)
+
+Command.add(
+    'skip',
+    {
+        description = {'command_description.skip'},
+        allowed_by_server = false
+    },
+    skip_cutscene
 )

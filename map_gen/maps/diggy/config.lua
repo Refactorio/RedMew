@@ -18,6 +18,10 @@ local Config = {
         night_time = {
             enabled = true -- true = No Daylight, false = Day/night circle (Solar panels work)
         },
+        -- controls the introduction cutscene
+        cutscene = {
+            enabled =  true
+        },
         -- controls setting up the players
         setup_player = {
             enabled = true,
