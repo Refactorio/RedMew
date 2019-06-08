@@ -72,9 +72,9 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
     local offset_x = offset.x * width_scalar * tile_scalar
     local offset_y = offset.y * height_scalar * tile_scalar
 
-    local left_top_x = left_top.x * tile_scalar * height_scalar
+    local left_top_x = left_top.x * tile_scalar * width_scalar
     local left_top_y = left_top.y * tile_scalar * height_scalar
-    local right_bottom_x = right_bottom.x * tile_scalar * height_scalar
+    local right_bottom_x = right_bottom.x * tile_scalar * width_scalar
     local right_bottom_y = right_bottom.y * tile_scalar * height_scalar
 
     local target_left = {x = player.position.x + left_top_x + offset_x, y = player.position.y + left_top_y + offset_y}
@@ -98,8 +98,8 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
 end
 
 function Public.blackout(player, zoom, ttl, color)
-    local left_top = {x = -50, y = -25}
-    local right_bottom = {x = 50, y = 25}
+    local left_top = {x = -40, y = -22.5}
+    local right_bottom = {x = 40, y = 22.5}
     Public.draw_rectangle({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 0}, left_top, right_bottom, ttl, color, player)
 end
 
