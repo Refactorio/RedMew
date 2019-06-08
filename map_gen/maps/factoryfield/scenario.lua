@@ -91,7 +91,8 @@ local waypoints = {
         position = {x = 0, y = 0},
         transition_time = 180,
         time_to_wait = 180,
-        zoom = 3
+        zoom = 0.025,
+        chart_mode_cutoff = 1
     },
     {
         position = {x = -10, y = 0},

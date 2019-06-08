@@ -98,8 +98,8 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
 end
 
 function Public.blackout(player, zoom, ttl, color)
-    local left_top = {x = -40, y = -22.5}
-    local right_bottom = {x = 40, y = 22.5}
+    local left_top = {x = -50, y = -25}
+    local right_bottom = {x = 50, y = 25}
     Public.draw_rectangle({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 0}, left_top, right_bottom, ttl, color, player)
 end
 

@@ -2,7 +2,6 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Global = require 'utils.global'
-local insert = table.insert
 
 local Public = {}
 local handler
@@ -103,6 +102,7 @@ handler = function(event)
     if not current_waypoint then
         --game.print('Not current waypoint! Could be last waypoint, defaulting to index one')
         current_waypoint = running_cutscene.waypoints[1]
+        running_cutscenes[player_index] = nil
     end
     local params = {
         position = current_waypoint.position,
