@@ -311,6 +311,10 @@ global.config = {
     rich_text_gui = {
         enabled = true
     },
+    -- adds a command to open a gui that can play sounds from a list
+    radio = {
+        enabled = false
+    },
     -- adds a camera to watch another player
     camera = {
         enabled = true
