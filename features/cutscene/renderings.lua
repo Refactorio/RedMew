@@ -5,6 +5,25 @@ local Public = {}
 --At zoom level 1 a tile is 32x32 pixels
 --tile size is calculated by 32 * zoom level.
 
+local function create_background_params(params)
+    local background_params = params.background
+    --game.print(serpent.block(params.background))
+    if background_params then
+        for k, v in pairs(params) do
+            --game.print(k)
+            if k ~= 'background' then
+                if not background_params[k] then
+                    background_params[k] = v
+                end
+            end
+        end
+    else
+        background_params = params
+    end
+    --game.print(serpent.block(background_params))
+    return background_params
+end
+
 function Public.draw_text(original_resolution, original_zoom, player_zoom, offset, text, scale, player, params, draw_background)
     local height_scalar = player.display_resolution.height / original_resolution.height
     local width_scalar = player.display_resolution.width / original_resolution.width
@@ -24,12 +43,12 @@ function Public.draw_text(original_resolution, original_zoom, player_zoom, offse
     --game.print('x: ' .. offset_x .. ' | y: ' .. offset_y)
 
     if draw_background then
-        local left_top = {x = -40, y = -size * 0.68 / tile_scalar}
-        local right_bottom = {x = 40, y = size * 0.75 / tile_scalar}
+        local left_top = {x = -40, y = -(size * 0.68) / tile_scalar}
+        local right_bottom = {x = 40, y = (size * 0.75) / tile_scalar}
         --offset.y = offset_y / height_scalar / tile_scalar
         --game.print('left_top: ' .. serpent.block(left_top) .. ' | right_bottom: ' .. serpent.block(right_bottom))
-        local background_params = params.background
-        background_params = background_params or params
+        --game.print('Testing: ' .. serpent.block(params))
+        local background_params = create_background_params(params)
         Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, background_params)
     end
 
@@ -99,8 +118,7 @@ function Public.draw_multi_line_text(original_resolution, original_zoom, player_
     if draw_background then
         local left_top = {x = -40, y = -size / tile_scalar / height_scalar}
         local right_bottom = {x = 40, y = ((size * 1.5) / tile_scalar / height_scalar) * #texts}
-        local background_params = params.background
-        background_params = background_params or params
+        local background_params = create_background_params(params)
         table.insert(ids, Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, background_params))
         draw_background = false
     end
@@ -132,7 +150,6 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
     local target_right = {x = player.position.x + right_bottom_x + offset_x, y = player.position.y + right_bottom_y + offset_y}
     --game.print('target_left: ' .. serpent.block(target_left))
     --game.print('target_right: ' .. serpent.block(target_right))
-
 
     local color = params.color
     color = color and color or {}

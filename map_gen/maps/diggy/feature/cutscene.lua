@@ -42,7 +42,7 @@ local function cutscene_function(player_index, waypoint_index, params)
     local ttw = params.time_to_wait
     local zoom = params.zoom
     --game.print('index: ' .. waypoint_index .. ' | position:' .. serpent.block(params.position) .. ' | trans_time: ' .. params.transition_time .. ' | ttw: ' .. ttw .. ' | zoom: ' .. zoom)
-    if waypoint_index ~= -1 or waypoint_index ~= 6 then
+    if waypoint_index ~= -1 then
         play_sound(player, 'utility/list_box_click', 1)
     --play_sound(player, 'utility/inventory_move', 1, 10)
     end
@@ -51,13 +51,12 @@ local function cutscene_function(player_index, waypoint_index, params)
         play_sound(player, 'ambient/first-light', 1, 400)
         Cutscene.register_rendering_id(player_index, Rendering.blackout(player, zoom, ttw + 1))
         Cutscene.register_rendering_id(player_index, Rendering.draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -16}, 'Diggy', 10, player, {time_to_live = ttw, color = Color.yellow}, false))
-        local multi_params = {time_to_live = ttw}
         Cutscene.register_rendering_id(
             player_index,
-            Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -5}, {'Welcome to Diggy', '---------------------', 'This is a custom scenario developed by Redmew', 'Join us at www.redmew.com/discord'}, 5, player, multi_params, multi_params, false)
+            Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -5}, {'Welcome to Diggy', '---------------------', 'This is a custom scenario developed by Redmew', 'Join us at www.redmew.com/discord'}, 5, player, {time_to_live = ttw}, false)
         )
         Cutscene.register_rendering_id(player_index, Rendering.draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 10}, 'The following introduction will help you get started!', 3, player, {time_to_live = ttw}, false))
-        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 13}, {'Use the /skip command if you wish to skip this introduction', 'You can always replay this introduction by using the /replay command'}, 1.5, player, {time_to_live = ttw}, {time_to_live = ttw}, false))
+        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 13}, {'Use the /skip command if you wish to skip this introduction', 'You can always replay this introduction by using the /replay command'}, 1.5, player, {time_to_live = ttw}, false))
     end
     cases[0] = function()
         Cutscene.register_rendering_id(player_index, Rendering.draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, 'This is the starting area', 2.5, player, {time_to_live = ttw}, true))
@@ -76,11 +75,11 @@ local function cutscene_function(player_index, waypoint_index, params)
         end
     end
     cases[1] = function()
-        play_sound(player, 'utility/build_small')
+        play_sound(player, 'utility/build_small', 1, 25)
         Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'Expanding the mine is dangerous!', '', 'Walls are used to keep the cave roof from crushing us'}, 2.5, player, {time_to_live = ttw}, true))
     end
     cases[2] = function()
-        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'The market provides extra supplies', '', 'You unlock new items when you level up'}, 2.5, player, {time_to_live = ttw}, true))
+        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'The market provides extra supplies in exchange of coins', '', 'You unlock new items when you level up'}, 2.5, player, {time_to_live = ttw}, true))
     end
     cases[3] = function()
         Cutscene.register_rendering_id(
@@ -116,13 +115,19 @@ local function cutscene_function(player_index, waypoint_index, params)
         )
     end
     cases[5] = function()
-        play_sound(player, 'utility/axe_fighting', 4, 25, 10)
-        play_sound(player, 'worm-sends-biters', 1, 60)
-        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'The native population is lurking in the dark', '', 'Be wary when digging, always bring along some defences'}, 2.5, player, {time_to_live = ttw}, true))
+        local exp = 2500
+        local text = {'', '[img=item/automation-science-pack] ', {'diggy.float_xp_gained_research', exp}}
+        player.create_local_flying_text{position = params.position, text = text, color = Color.light_sky_blue, time_to_live = ttw / 3}
+        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'Most actions gives experience!', '', 'The floating text indicates the quantity and cause of the experience'}, 2.5, player, {time_to_live = ttw}, true)
     end
     cases[6] = function()
+        play_sound(player, 'utility/axe_fighting', 5, 25, 10)
+        play_sound(player, 'worm-sends-biters', 1, 70)
+        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'The native population is lurking in the dark', '', 'Be wary when digging, always bring along some defences'}, 2.5, player, {time_to_live = ttw}, true))
+    end
+    cases[7] = function()
         Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'This concludes the introduction', '', 'Have fun and keep digging!'}, 2.5, player, {time_to_live = ttw}, true))
-        play_sound(player, 'utility/tutorial_notice', 1)
+        --play_sound(player, 'utility/tutorial_notice', 1)
     end
     local case = cases[waypoint_index]
     if case then
@@ -169,13 +174,20 @@ local waypoints = {
     -- inserting case 4
     {
         -- case 5
+        position = {x = 0, y = -2},
+        transition_time = 120,
+        time_to_wait = 300,
+        zoom = 1.5
+    },
+    {
+        -- case 6
         position = {x = 0, y = 0},
         transition_time = 120,
         time_to_wait = 300,
         zoom = 0.3
     },
     {
-        -- case 6
+        -- case 7
         position = {x = 0, y = 0},
         transition_time = 120,
         time_to_wait = 300,
