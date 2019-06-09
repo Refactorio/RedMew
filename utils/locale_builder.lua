@@ -90,6 +90,7 @@ function add(self, item)
 end
 
 Public.add = add
+
 function Public.__call(_, item)
     if item == nil then
         item = {''}
@@ -97,6 +98,15 @@ function Public.__call(_, item)
 
     return add(nil, item)
 end
+
+function Public.new(item)
+    if item == nil then
+        item = {''}
+    end
+
+    return add(nil, item)
+end
+
 setmetatable(Public, Public)
 
 return Public
