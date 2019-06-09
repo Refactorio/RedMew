@@ -23,6 +23,16 @@ local function valid(entity)
     return entity and entity.valid
 end
 
+local remove_renderings = Token.register(function(renderings)
+    for _, v in pairs(renderings) do
+        --game.print('before valid: ' .. v)
+        if rendering.is_valid(v) then
+            --game.print('after valid: ' .. v)
+            rendering.destroy(v)
+        end
+    end
+end)
+
 ---Asserts if a given variable is of the expected type using type().
 ---
 ---@param expected_type string
@@ -59,6 +69,12 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
 
     local waypoints = cutscene_function.waypoints
     if not waypoints then
+        return
+    end
+
+    local running_cutscene = running_cutscenes[player_index]
+    if running_cutscene then
+        player.print('Can not start cutscene, you need to finish your current one. Try /skip')
         return
     end
 
@@ -187,14 +203,7 @@ local reconnect_character =
             if func then
                 Token.get(func)(player_index)
             end
-            --game.print(serpent.block(params.rendering))
-            for _, v in pairs(params.rendering) do
-                --game.print('before valid: ' .. v)
-                if rendering.is_valid(v) then
-                    --game.print('after valid: ' .. v)
-                    rendering.destroy(v)
-                end
-            end
+            Token.get(remove_renderings)(params.rendering)
             running_cutscenes[player_index] = nil
         end
     end
