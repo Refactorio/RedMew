@@ -103,8 +103,12 @@ local function draw_radio(event)
     for type, sound in pairs(sounds) do
         for i = 1, #sound do
             local name = (type == 'default') and sound[i] or type .. '/' .. sound[i]
-            main_table.add {type = 'label', caption = type .. '/' .. sound[i]}
-            main_table.add {type = 'button', name = 'radio_play:' .. name, caption = 'Play'}
+            local textbox = main_table.add {type = 'text-box', text = type .. '/' .. sound[i]}
+            textbox.read_only = true
+            textbox.style.height = 28
+            textbox.style.width = 250
+            local button = main_table.add {type = 'button', name = 'radio_play:' .. name, caption = 'Play'}
+            button.style.width = 54
         end
     end
 
