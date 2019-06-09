@@ -1,9 +1,11 @@
+local RS = require 'map_gen.shared.redmew_surface'
+
 local Public = {}
 
 --At zoom level 1 a tile is 32x32 pixels
 --tile size is calculated by 32 * zoom level.
 
-function Public.draw_text(original_resolution, original_zoom, player_zoom, offset, text, scale, ttl, player, draw_background)
+function Public.draw_text(original_resolution, original_zoom, player_zoom, offset, text, scale, player, params, draw_background)
     local height_scalar = player.display_resolution.height / original_resolution.height
     local width_scalar = player.display_resolution.width / original_resolution.width
 
@@ -26,24 +28,69 @@ function Public.draw_text(original_resolution, original_zoom, player_zoom, offse
         local right_bottom = {x = 40, y = size * 0.75 / tile_scalar}
         --offset.y = offset_y / height_scalar / tile_scalar
         --game.print('left_top: ' .. serpent.block(left_top) .. ' | right_bottom: ' .. serpent.block(right_bottom))
-        Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, ttl, nil, player)
+        local background_params = params.background
+        background_params = background_params or params
+        Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, background_params)
     end
 
     local target = {x = player.position.x + offset_x, y = player.position.y + offset_y}
+
+    local color = params.color
+    color = color and color or {r = 255, g = 255, b = 255}
+
+    local font = params.font
+
+    local surface = params.surface
+    surface = surface or RS.get_surface()
+
+    local ttl = params.time_to_live
+    ttl = ttl and ttl or -1
+
+    local forces = params.forces
+
+    local players = params.players
+    players = players or {}
+
+    table.insert(players, player)
+
+    local visible = params.visible
+    visible = visible or true
+
+    local dog = params.draw_on_ground
+    dog = dog or false
+
+    local orientation = params.orientation
+    orientation = orientation or 0
+
+    local alignment = params.alignment
+    alignment = alignment or 'center'
+
+    local swz = params.scale_with_zoom
+    swz = swz or true
+
+    local oiam = params.only_in_alt_mode
+    oiam = oiam or false
+
     rendering.draw_text {
         text = {'', text},
-        color = {r = 255, g = 255, b = 255},
+        color = color,
         target = target,
-        scale_with_zoom = true,
-        surface = game.surfaces[2],
+        scale_with_zoom = swz,
+        surface = surface,
         time_to_live = ttl,
-        alignment = 'center',
-        players = {player},
-        scale = scale
+        alignment = alignment,
+        players = players,
+        scale = scale,
+        forces = forces,
+        visible = visible,
+        draw_on_ground = dog,
+        only_in_alt_mode = oiam,
+        orientation = orientation,
+        font = font
     }
 end
 
-function Public.draw_multi_line_text(original_resolution, original_zoom, player_zoom, offset, texts, scale, ttl, player, draw_background)
+function Public.draw_multi_line_text(original_resolution, original_zoom, player_zoom, offset, texts, scale, player, params, draw_background)
     local height_scalar = player.display_resolution.height / original_resolution.height
     local size = (0.0065 * player.display_resolution.height * scale) / (player_zoom * 32)
     local tile_scalar = (original_zoom * 32) / (player_zoom * 32)
@@ -51,17 +98,19 @@ function Public.draw_multi_line_text(original_resolution, original_zoom, player_
     if draw_background then
         local left_top = {x = -40, y = -size / tile_scalar / height_scalar}
         local right_bottom = {x = 40, y = ((size * 1.5) / tile_scalar / height_scalar) * #texts}
-        Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, ttl, nil, player)
+        local background_params = params.background
+        background_params = background_params or params
+        Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, background_params)
         draw_background = false
     end
 
     for i = 1, #texts do
-        Public.draw_text(original_resolution, original_zoom, player_zoom, offset, texts[i], scale, ttl, player, draw_background)
+        Public.draw_text(original_resolution, original_zoom, player_zoom, offset, texts[i], scale, player, params, draw_background)
         offset.y = offset.y + (size * 1.5) / tile_scalar / height_scalar
     end
 end
 
-function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, ttl, color, player)
+function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, params)
     local height_scalar = player.display_resolution.height / original_resolution.height
     local width_scalar = player.display_resolution.width / original_resolution.width
     --game.print('scalar: ' .. height_scalar .. ' | ' .. width_scalar)
@@ -82,25 +131,58 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
     --game.print('target_left: ' .. serpent.block(target_left))
     --game.print('target_right: ' .. serpent.block(target_right))
 
-    if not color then
-        color = {}
-    end
+
+    local color = params.color
+    color = color and color or {}
+
+    local width = params.width
+    width = width and width or 0
+
+    local filled = params.filled
+    filled = filled and filled or true
+
+    local surface = params.surface
+    surface = surface or RS.get_surface()
+
+    local ttl = params.time_to_live
+    ttl = ttl and ttl or -1
+
+    local forces = params.forces
+
+    local players = params.players
+    players = players or {}
+
+    table.insert(players, player)
+
+    local visible = params.visible
+    visible = visible or true
+
+    local dog = params.draw_on_ground
+    dog = dog or false
+
+    local oiam = params.only_in_alt_mode
+    oiam = oiam or false
 
     rendering.draw_rectangle {
         color = color,
-        filled = true,
+        width = width,
+        filled = filled,
         left_top = target_left,
         right_bottom = target_right,
-        surface = game.surfaces[2],
+        surface = surface,
         time_to_live = ttl,
-        players = {player}
+        forces = forces,
+        players = players,
+        visible = visible,
+        draw_on_ground = dog,
+        only_in_alt_mode = oiam
     }
 end
 
 function Public.blackout(player, zoom, ttl, color)
     local left_top = {x = -40, y = -22.5}
     local right_bottom = {x = 40, y = 22.5}
-    Public.draw_rectangle({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 0}, left_top, right_bottom, ttl, color, player)
+    Public.draw_rectangle({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 0}, left_top, right_bottom, player, {color = color, time_to_live = ttl})
 end
 
 return Public

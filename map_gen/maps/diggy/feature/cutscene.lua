@@ -4,29 +4,33 @@ local Task = require 'utils.task'
 local Cutscene = require 'features.cutscene.cutscene_controller'
 local Rendering = require 'features.cutscene.renderings'
 local RS = require 'map_gen.shared.redmew_surface'
+local Color = require 'resources.color_presets'
 
 local DiggyCutscene = {}
 
 local function cutscene_function(player_index, waypoint_index, params)
     local cases = {}
     local player = game.players[player_index]
-    game.print('index: ' .. waypoint_index .. ' | position:' .. serpent.block(params.position) .. ' | trans_time: ' .. params.transition_time .. ' | ttw: ' .. params.time_to_wait .. ' | zoom: ' .. params.zoom)
+    local ttw = params.time_to_wait
+    local zoom = params.zoom
+    --game.print('index: ' .. waypoint_index .. ' | position:' .. serpent.block(params.position) .. ' | trans_time: ' .. params.transition_time .. ' | ttw: ' .. ttw .. ' | zoom: ' .. zoom)
 
     cases[-1] = function()
         player.clear_console()
         player.gui.center.clear()
-        Rendering.blackout(player, params.zoom, params.time_to_wait + 1)
-        Rendering.draw_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = -16}, 'Diggy', 10, params.time_to_wait, player, false)
-        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = -5}, {'Welcome to Diggy', '---------------------', 'This is a custom scenario developed by Redmew', 'Join us at www.redmew.com/discord'}, 5, params.time_to_wait, player, false)
-        Rendering.draw_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = 10}, 'The following introduction will help you get started!', 3, params.time_to_wait, player, false)
+        Rendering.blackout(player, zoom, ttw + 1)
+        Rendering.draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -16}, 'Diggy', 10, player, {time_to_live = ttw, color = Color.yellow}, false)
+        local multi_params = {time_to_live = ttw}
+        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -5}, {'Welcome to Diggy', '---------------------', 'This is a custom scenario developed by Redmew', 'Join us at www.redmew.com/discord'}, 5, player, multi_params, multi_params, false)
+        Rendering.draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 10}, 'The following introduction will help you get started!', 3, player, {time_to_live = ttw}, false)
     end
     cases[0] = function()
-        Rendering.draw_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = 18}, 'This is the starting area', 2.5, params.time_to_wait, player, true)
+        Rendering.draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, 'This is the starting area', 2.5, player, {time_to_live = ttw}, true)
         local entity = RS.get_surface().find_entities_filtered {name = 'stone-wall', limit = 1}
         if entity[1] then
-            game.print('Found wall')
+            --game.print('Found wall')
             local position = entity[1].position
-            waypoint = {
+            local waypoint = {
                 -- case 1
                 position = position,
                 transition_time = 120,
@@ -35,16 +39,15 @@ local function cutscene_function(player_index, waypoint_index, params)
             }
             Cutscene.inject_waypoint(player_index, waypoint, 3, true)
         end
-
     end
     cases[1] = function()
-        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = 18}, {'Expanding the mine is dangerous!', '', 'Walls are used to keep the cave roof from crushing us'}, 2.5, params.time_to_wait, player, true)
+        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'Expanding the mine is dangerous!', '', 'Walls are used to keep the cave roof from crushing us'}, 2.5, player, {time_to_live = ttw}, true)
     end
     cases[2] = function()
-        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = 18}, {'The market provides extra supplies', '', 'You unlock new items when you level up'}, 2.5, params.time_to_wait, player, true)
+        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'The market provides extra supplies', '', 'You unlock new items when you level up'}, 2.5, player, {time_to_live = ttw}, true)
     end
     cases[3] = function()
-        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = 18}, {"Cave ins happens frequently when you don't add supports", '', 'Different types of brick and concrete can reinforce our support pillars!'}, 2.5, params.time_to_wait, player, true)
+        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {"Cave ins happens frequently when you don't add supports", '', 'Different types of brick and concrete can reinforce our support pillars!'}, 2.5, player, {time_to_live = ttw}, true)
         local position = RS.get_surface().find_entities_filtered {name = 'rock-big', limit = 1}[1].position
         local waypoint = {
             -- case 4
@@ -56,13 +59,13 @@ local function cutscene_function(player_index, waypoint_index, params)
         Cutscene.inject_waypoint(player_index, waypoint, 6)
     end
     cases[4] = function()
-        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = 18}, {'This world contains brittle rocks', '', 'Our tools are too powerful to preserve any resources from destroying them'}, 2.5, params.time_to_wait, player, true)
+        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'This world contains brittle rocks', '', 'Our tools are too powerful to preserve any resources from destroying them'}, 2.5, player, {time_to_live = ttw}, true)
     end
     cases[5] = function()
-        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = 18}, {'The native population is lurking in the dark', '', 'Be wary when digging, always bring along some defences'}, 2.5, params.time_to_wait, player, true)
+        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'The native population is lurking in the dark', '', 'Be wary when digging, always bring along some defences'}, 2.5, player, {time_to_live = ttw}, true)
     end
     cases[6] = function()
-        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = 18}, {'This concludes the introduction', '', 'Have fun and keep digging!'}, 2.5, params.time_to_wait, player, true)
+        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'This concludes the introduction', '', 'Have fun and keep digging!'}, 2.5, player, {time_to_live = ttw}, true)
     end
     local case = cases[waypoint_index]
     if case then
@@ -125,9 +128,12 @@ local waypoints = {
 
 Cutscene.register_cutscene_function('Diggy_Welcome', waypoints, Token.register(cutscene_function))
 
-local start_cutscene = Token.register(function(params)
-    Cutscene.register_running_cutscene(params.event.player_index, 'Diggy_Welcome', 120)
-end)
+local start_cutscene =
+    Token.register(
+    function(params)
+        Cutscene.register_running_cutscene(params.event.player_index, 'Diggy_Welcome', 120)
+    end
+)
 
 function DiggyCutscene.register()
     Event.add(

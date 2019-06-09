@@ -84,7 +84,7 @@ local function restart_cutscene(player_index, waypoints, start_index)
     current_running.update = false
     local character = current_running.character
 
-    game.print(character.position)
+    --game.print(character.position)
     local end_waypoint = {
         -- end waypoint
         position = character.position,
@@ -177,7 +177,7 @@ local reconnect_character =
 function Public.terminate_cutscene(player_index, ticks)
     local running_cutscene = running_cutscenes[player_index]
     if not running_cutscene then
-        game.print("Error terminating!")
+        --game.print("Error terminating!")
         return
     end
     ticks = ticks and ticks or 1
@@ -196,7 +196,7 @@ handler = function(event)
     local player_index = event.player_index
     local waypoint_index = event.waypoint_index
 
-    game.print('Waypoint: ' .. waypoint_index)
+    --game.print('Waypoint: ' .. waypoint_index)
 
     local running_cutscene = running_cutscenes[player_index]
     if not running_cutscene then
@@ -206,7 +206,7 @@ handler = function(event)
 
     local update = running_cutscene.update
     if update then
-        game.print('Updating!')
+        --game.print('Updating!')
         restart_cutscene(player_index, update, waypoint_index)
         return
     end
