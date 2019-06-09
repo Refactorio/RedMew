@@ -18,10 +18,6 @@ local Config = {
         night_time = {
             enabled = true -- true = No Daylight, false = Day/night circle (Solar panels work)
         },
-        -- controls the introduction cutscene
-        cutscene = {
-            enabled =  true
-        },
         -- controls setting up the players
         setup_player = {
             enabled = true,
@@ -52,6 +48,10 @@ local Config = {
                 -- adds additional items to the player force when starting in addition to defined in start_items above
                 starting_items = {}
             }
+        },
+        -- controls the introduction cutscene
+        cutscene = {
+            enabled =  true
         },
         -- core feature
         diggy_hole = {

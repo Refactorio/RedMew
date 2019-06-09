@@ -71,7 +71,7 @@ function Public.draw_text(original_resolution, original_zoom, player_zoom, offse
     local oiam = params.only_in_alt_mode
     oiam = oiam or false
 
-    rendering.draw_text {
+    return rendering.draw_text {
         text = {'', text},
         color = color,
         target = target,
@@ -91,6 +91,7 @@ function Public.draw_text(original_resolution, original_zoom, player_zoom, offse
 end
 
 function Public.draw_multi_line_text(original_resolution, original_zoom, player_zoom, offset, texts, scale, player, params, draw_background)
+    local ids = {}
     local height_scalar = player.display_resolution.height / original_resolution.height
     local size = (0.0065 * player.display_resolution.height * scale) / (player_zoom * 32)
     local tile_scalar = (original_zoom * 32) / (player_zoom * 32)
@@ -100,14 +101,15 @@ function Public.draw_multi_line_text(original_resolution, original_zoom, player_
         local right_bottom = {x = 40, y = ((size * 1.5) / tile_scalar / height_scalar) * #texts}
         local background_params = params.background
         background_params = background_params or params
-        Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, background_params)
+        table.insert(ids, Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, background_params))
         draw_background = false
     end
 
     for i = 1, #texts do
-        Public.draw_text(original_resolution, original_zoom, player_zoom, offset, texts[i], scale, player, params, draw_background)
+        table.insert(ids, Public.draw_text(original_resolution, original_zoom, player_zoom, offset, texts[i], scale, player, params, draw_background))
         offset.y = offset.y + (size * 1.5) / tile_scalar / height_scalar
     end
+    return ids
 end
 
 function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, params)
@@ -163,7 +165,7 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
     local oiam = params.only_in_alt_mode
     oiam = oiam or false
 
-    rendering.draw_rectangle {
+    return rendering.draw_rectangle {
         color = color,
         width = width,
         filled = filled,
@@ -182,7 +184,7 @@ end
 function Public.blackout(player, zoom, ttl, color)
     local left_top = {x = -40, y = -22.5}
     local right_bottom = {x = 40, y = 22.5}
-    Public.draw_rectangle({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 0}, left_top, right_bottom, player, {color = color, time_to_live = ttl})
+    return Public.draw_rectangle({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 0}, left_top, right_bottom, player, {color = color, time_to_live = ttl})
 end
 
 return Public

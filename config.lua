@@ -170,6 +170,7 @@ global.config = {
             'Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord',
             'Click the question mark in the top left corner for server information and map details.'
         },
+        cutscene = false,
         -- format is a table: {{message, weight}, {message, weight}}, where a higher weight has more chance to be shown
         random_join_message_set = require 'resources.join_messages',
         -- applied when cheat_mode is set to true

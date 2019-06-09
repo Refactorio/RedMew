@@ -35,37 +35,47 @@ local function assert_type(expected_type, given, variable_reference_message)
     end
 end
 
-function Public.register_cutscene_function(identifier, waypoints, func)
+function Public.register_cutscene_function(identifier, waypoints, func, terminate_func)
     assert_type('string', identifier, 'identifier of function cutscene_controller.register_cutscene_function')
     assert_type('number', func, 'func of function cutscene_controller.register_cutscene_function')
     assert_type('table', waypoints, 'waypoints of function cutscene_controller.register_cutscene_function')
 
-    cutscene_functions[identifier] = {func = func, waypoints = waypoints, update = false}
+    cutscene_functions[identifier] = {func = func, waypoints = waypoints, update = false, terminate_func = terminate_func}
 end
 
 function Public.register_running_cutscene(player_index, identifier, final_transition_time)
     assert_type('number', player_index, 'player_index of function cutscene_controller.register_running_cutscene')
     assert_type('string', identifier, 'identifier of function cutscene_controller.register_running_cutscene')
 
-    running_cutscenes[player_index] = cutscene_functions[identifier]
     local player = game.get_player(player_index)
     if not valid(player) then
         return
     end
-    if player.controller_type == defines.controllers.cutscene then
-        player.exit_cutscene()
-    end
-    running_cutscenes[player_index].character = player.character
-    player.set_controller {type = defines.controllers.ghost}
 
     local cutscene_function = cutscene_functions[identifier]
     if not cutscene_function then
         return
     end
+
     local waypoints = cutscene_function.waypoints
     if not waypoints then
         return
     end
+
+    running_cutscenes[player_index] = {
+        func = cutscene_function.func,
+        waypoints = waypoints,
+        update = cutscene_function.update,
+        final_transition_time = final_transition_time,
+        character = player.character,
+        terminate_func = cutscene_function.terminate_func,
+        rendering = {}
+    }
+    if player.controller_type == defines.controllers.cutscene then
+        player.exit_cutscene()
+    end
+    player.set_controller {type = defines.controllers.ghost}
+
     final_transition_time = final_transition_time >= 0 and final_transition_time or 60
     running_cutscenes[player_index].final_transition_time = final_transition_time
     running_cutscenes[player_index].identifier = identifier
@@ -101,7 +111,9 @@ local function restart_cutscene(player_index, waypoints, start_index)
         waypoints = waypoints,
         update = false,
         final_transition_time = final_transition_time,
-        character = character
+        character = character,
+        terminate_func = current_running.terminate_func,
+        rendering = current_running.rendering
     }
 
     local player = game.get_player(player_index)
@@ -165,11 +177,25 @@ local callback_function =
 local reconnect_character =
     Token.register(
     function(params)
-        local player = game.get_player(params.player_index)
+        local player_index = params.player_index
+        local player = game.get_player(player_index)
         local character = params.character
+        local func = params.func
         if valid(player) and valid(character) then
             player.exit_cutscene()
             player.set_controller {type = defines.controllers.character, character = character}
+            if func then
+                Token.get(func)(player_index)
+            end
+            --game.print(serpent.block(params.rendering))
+            for _, v in pairs(params.rendering) do
+                --game.print('before valid: ' .. v)
+                if rendering.is_valid(v) then
+                    --game.print('after valid: ' .. v)
+                    rendering.destroy(v)
+                end
+            end
+            running_cutscenes[player_index] = nil
         end
     end
 )
@@ -187,9 +213,30 @@ function Public.terminate_cutscene(player_index, ticks)
         reconnect_character,
         {
             player_index = player_index,
-            character = running_cutscene.character
+            character = running_cutscene.character,
+            func = running_cutscene.terminate_func,
+            rendering = running_cutscene.rendering
         }
     )
+end
+
+function Public.register_rendering_id(player_index, render_id)
+    if type(render_id) ~= 'table' then
+        render_id = {render_id}
+    end
+    local running_cutscene = running_cutscenes[player_index]
+    for _, id in pairs(render_id) do
+        --game.print('before valid: ' .. id)
+        if rendering.is_valid(id) then
+            --game.print('after valid: ' .. id)
+            if not running_cutscene then
+                --game.print('Error adding rendering id! ' .. id)
+                rendering.destroy(id)
+            else
+                table.insert(running_cutscenes[player_index].rendering, id)
+            end
+        end
+    end
 end
 
 handler = function(event)
