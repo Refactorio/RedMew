@@ -55,6 +55,9 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
     if player.controller_type == defines.controllers.cutscene then
         player.exit_cutscene()
     end
+    running_cutscenes[player_index].character = player.character
+    player.set_controller {type = defines.controllers.ghost}
+
     local cutscene_function = cutscene_functions[identifier]
     if not cutscene_function then
         return
@@ -66,7 +69,6 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
     final_transition_time = final_transition_time >= 0 and final_transition_time or 60
     running_cutscenes[player_index].final_transition_time = final_transition_time
     running_cutscenes[player_index].identifier = identifier
-    running_cutscenes[player_index].character = player.character
     player.set_controller {
         type = defines.controllers.cutscene,
         waypoints = waypoints,
@@ -80,13 +82,26 @@ local function restart_cutscene(player_index, waypoints, start_index)
     local current_running = running_cutscenes[player_index]
     local final_transition_time = current_running.final_transition_time
     current_running.update = false
+    local character = current_running.character
+
+    game.print(character.position)
+    local end_waypoint = {
+        -- end waypoint
+        position = character.position,
+        transition_time = final_transition_time,
+        time_to_wait = 1,
+        zoom = 1,
+        terminate = true
+    }
+
+    table.insert(waypoints, end_waypoint)
 
     running_cutscenes[player_index] = {
         func = current_running.func,
         waypoints = waypoints,
         update = false,
         final_transition_time = final_transition_time,
-        character = current_running.character
+        character = character
     }
 
     local player = game.get_player(player_index)
@@ -95,7 +110,9 @@ local function restart_cutscene(player_index, waypoints, start_index)
     end
 
     if player.controller_type == defines.controllers.cutscene then
+        player.exit_cutscene()
         player.set_controller {type = defines.controllers.ghost}
+    --player.set_controller {type = defines.controllers.character, character = current_running.character}
     end
 
     player.set_controller {
@@ -149,32 +166,37 @@ local reconnect_character =
     Token.register(
     function(params)
         local player = game.get_player(params.player_index)
-        player.set_controller {type = defines.controllers.character, character = params.character}
+        local character = params.character
+        if valid(player) and valid(character) then
+            player.exit_cutscene()
+            player.set_controller {type = defines.controllers.character, character = character}
+        end
     end
 )
 
-function Public.terminate_cutscene(player_index)
+function Public.terminate_cutscene(player_index, ticks)
     local running_cutscene = running_cutscenes[player_index]
     if not running_cutscene then
+        game.print("Error terminating!")
         return
     end
+    ticks = ticks and ticks or 1
 
     Task.set_timeout_in_ticks(
-            0,
-            reconnect_character,
-            {
-                player_index = player_index,
-                character = running_cutscene.character
-            }
-        )
-
+        ticks,
+        reconnect_character,
+        {
+            player_index = player_index,
+            character = running_cutscene.character
+        }
+    )
 end
 
 handler = function(event)
     local player_index = event.player_index
     local waypoint_index = event.waypoint_index
 
-    --game.print('Waypoint: ' .. waypoint_index)
+    game.print('Waypoint: ' .. waypoint_index)
 
     local running_cutscene = running_cutscenes[player_index]
     if not running_cutscene then
@@ -184,7 +206,7 @@ handler = function(event)
 
     local update = running_cutscene.update
     if update then
-        --game.print('Updating!')
+        game.print('Updating!')
         restart_cutscene(player_index, update, waypoint_index)
         return
     end
@@ -200,18 +222,11 @@ handler = function(event)
         return
     end
     local current_waypoint = running_cutscene.waypoints[waypoint_index + 2]
-    if not current_waypoint then
+    if not current_waypoint or current_waypoint.terminate then
         --game.print('Not current waypoint! Could be last waypoint, defaulting to index one')
-        current_waypoint = running_cutscene.waypoints[1]
-        Task.set_timeout_in_ticks(
-            ticks,
-            reconnect_character,
-            {
-                player_index = player_index,
-                character = running_cutscene.character
-            }
-        )
+        Public.terminate_cutscene(player_index, ticks)
         running_cutscenes[player_index] = nil
+        return
     end
     local params = {
         position = current_waypoint.position,
@@ -223,6 +238,12 @@ handler = function(event)
     Task.set_timeout_in_ticks(ticks, callback_function, {func = running_cutscene.func, player_index = player_index, waypoint_index = waypoint_index, params = params})
 end
 
+local function restore(event)
+    Public.terminate_cutscene(event.player_index)
+end
+
 Event.add(defines.events.on_cutscene_waypoint_reached, handler)
+Event.add(defines.events.on_pre_player_left_game, restore)
+Event.add(defines.events.on_player_joined_game, restore)
 
 return Public

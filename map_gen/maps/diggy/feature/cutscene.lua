@@ -10,7 +10,7 @@ local DiggyCutscene = {}
 local function cutscene_function(player_index, waypoint_index, params)
     local cases = {}
     local player = game.players[player_index]
-    --game.print('index: ' .. waypoint_index .. ' | position:' .. serpent.block(params.position) .. ' | trans_time: ' .. params.transition_time .. ' | ttw: ' .. params.time_to_wait .. ' | zoom: ' .. params.zoom)
+    game.print('index: ' .. waypoint_index .. ' | position:' .. serpent.block(params.position) .. ' | trans_time: ' .. params.transition_time .. ' | ttw: ' .. params.time_to_wait .. ' | zoom: ' .. params.zoom)
 
     cases[-1] = function()
         player.clear_console()
@@ -23,24 +23,19 @@ local function cutscene_function(player_index, waypoint_index, params)
     cases[0] = function()
         Rendering.draw_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = 18}, 'This is the starting area', 2.5, params.time_to_wait, player, true)
         local entity = RS.get_surface().find_entities_filtered {name = 'stone-wall', limit = 1}
-        local waypoint = {
-            -- case 3
-            position = {x = 0, y = 0},
-            transition_time = 120,
-            time_to_wait = 300,
-            zoom = 2
-        }
         if entity[1] then
+            game.print('Found wall')
             local position = entity[1].position
             waypoint = {
-                -- case 3
+                -- case 1
                 position = position,
                 transition_time = 120,
                 time_to_wait = 300,
                 zoom = 5
             }
+            Cutscene.inject_waypoint(player_index, waypoint, 3, true)
         end
-        Cutscene.inject_waypoint(player_index, waypoint, 3)
+
     end
     cases[1] = function()
         Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, params.zoom, {x = 0, y = 18}, {'Expanding the mine is dangerous!', '', 'Walls are used to keep the cave roof from crushing us'}, 2.5, params.time_to_wait, player, true)
@@ -92,19 +87,25 @@ local waypoints = {
     },
     {
         -- case 1
+        position = {x = 0, y = 0},
+        transition_time = 120,
+        time_to_wait = 300,
+        zoom = 1.5
+    },
+    {
+        -- case 2
         position = {x = 0.5, y = 3.5},
         transition_time = 120,
         time_to_wait = 300,
         zoom = 5
     },
     {
-        -- case 2
+        -- case 3
         position = {x = 0, y = 0},
         transition_time = 120,
         time_to_wait = 300,
         zoom = 2
     },
-    -- inserting case 3
     -- inserting case 4
     {
         -- case 5
