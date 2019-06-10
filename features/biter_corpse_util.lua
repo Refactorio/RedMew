@@ -91,8 +91,8 @@ local function biter_died(event)
     end
 
     --Calculate the hash position
-    local x = entity.position.x - (entity.position.x % biter_utils_conf.radius)
-    local y = entity.position.y - (entity.position.y % biter_utils_conf.radius)
+    local x = entity.position.x - (entity.position.x % biter_utils_conf.chunk_size)
+    local y = entity.position.y - (entity.position.y % biter_utils_conf.chunk_size)
     local hash_position = x .. "_" .. y
 
     -- check global table has this position, add if not

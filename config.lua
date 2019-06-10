@@ -393,8 +393,8 @@ global.config = {
     -- when biter corpses in an area are above a threshold, remove the desired amount
     biter_corpse_util = {
         enabled = true,
-        radius = 3, -- radius to search around dying entities
-        corpse_threshold = 10 -- number of corpses allowed on surface inside radius
+        chunk_size = 3, -- size of chunk in tiles
+        corpse_threshold = 10 -- number of corpses allowed on surface inside chunk
     }
 }
 
