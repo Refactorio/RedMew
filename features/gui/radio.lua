@@ -5,7 +5,6 @@ local Event = require 'utils.event'
 local main_button_name = Gui.uid_name()
 local radio_frame = Gui.uid_name()
 local close_radio = Gui.uid_name()
-local play_sound = Gui.uid_name()
 
 local sounds = {
     ['ambient'] = {
@@ -97,6 +96,7 @@ local function draw_radio(event)
         vertical_scroll_policy = 'auto-and-reserve-space',
         horizontal_scroll_policy = 'never'
     }
+    Gui.set_data(scroll_pane, frame)
 
     local main_table = scroll_pane.add {type = 'table', column_count = 4}
 
@@ -120,6 +120,7 @@ local function draw_radio(event)
     }
     information_pane.style.horizontally_stretchable = true
     information_pane.style.horizontal_align = 'center'
+    Gui.set_data(information_pane, frame)
 
     local text =
         [[
@@ -149,9 +150,6 @@ local function draw_radio(event)
     local close_button = left_flow.add {type = 'button', name = close_radio, caption = 'Close'}
     Gui.set_data(close_button, frame)
 
-    local data = {}
-    Gui.set_data(frame, data)
-
     player.opened = frame
 end
 
@@ -164,13 +162,6 @@ Gui.on_click(
 
         Gui.remove_data_recursively(frame)
         frame.destroy()
-    end
-)
-
-Gui.on_click(
-    play_sound,
-    function(_)
-        game.print('Play_sound')
     end
 )
 

@@ -4,12 +4,15 @@ local Task = require 'utils.task'
 local Global = require 'utils.global'
 local Command = require 'utils.command'
 local Debug = require 'utils.debug'
+local Gui = require 'utils.gui'
 
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local debug_print = Debug.print
 
 local is_valid_sound_path
 local get_player
+
+local skip_btn_name = Gui.uid_name()
 
 local Public = {}
 local handler
@@ -145,6 +148,16 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         final_transition_time = final_transition_time
     }
 
+    local btn = player.gui.top.add {type = 'sprite-button', name = skip_btn_name, caption = 'Skip cutscene'}
+    btn.style.minimal_height = 28
+    btn.style.minimal_width = 150
+    btn.style.font = 'default-large-bold'
+    btn.style.margin = 0
+    btn.style.top_margin = 0
+    btn.style.bottom_margin = 0
+    btn.style.font_color = {r = 255, g = 215, b = 0}
+    running_cutscene.btn = btn
+
     handler({player_index = player_index, waypoint_index = -1})
 end
 
@@ -176,7 +189,8 @@ local function restart_cutscene(player_index, waypoints, start_index)
         final_transition_time = final_transition_time,
         character = character,
         terminate_func = current_running.terminate_func,
-        rendering = current_running.rendering
+        rendering = current_running.rendering,
+        btn = current_running.btn
     }
 
     debug_print('Updating cutscene for player_index ' .. player_index)
@@ -231,7 +245,12 @@ end
 local callback_function =
     Token.register(
     function(params)
-        Token.get(params.func)(params.player_index, params.waypoint_index, params.params)
+        local player_index = params.player_index
+        if (running_cutscenes[player_index]) then
+            Token.get(params.func)(player_index, params.waypoint_index, params.params)
+        else
+            debug_print('Skipping callback function. Cutscene got terminated!')
+        end
     end
 )
 
@@ -240,15 +259,17 @@ local reconnect_character =
     function(params)
         local player_index = params.player_index
         local player = get_player(player_index)
-        local character = params.character
-        local func = params.func
+        local running_cutscene = params.running_cutscene
+        local character = running_cutscene.character
+        local func = running_cutscene.terminate_func
         if valid(player) and valid(character) then
             player.exit_cutscene()
             player.set_controller {type = defines.controllers.character, character = character}
             if func then
                 Token.get(func)(player_index)
             end
-            Token.get(remove_renderings)(params.rendering)
+            Token.get(remove_renderings)(running_cutscene.rendering)
+            running_cutscene.btn.destroy()
             running_cutscenes[player_index] = nil
         end
     end
@@ -267,9 +288,7 @@ function Public.terminate_cutscene(player_index, ticks)
         reconnect_character,
         {
             player_index = player_index,
-            character = running_cutscene.character,
-            func = running_cutscene.terminate_func,
-            rendering = running_cutscene.rendering
+            running_cutscene = running_cutscene
         }
     )
 end
@@ -399,6 +418,13 @@ Command.add(
         allowed_by_server = false
     },
     skip_cutscene
+)
+
+Gui.on_click(
+    skip_btn_name,
+    function(event)
+        skip_cutscene(nil, get_player(event.player_index))
+    end
 )
 
 return Public
