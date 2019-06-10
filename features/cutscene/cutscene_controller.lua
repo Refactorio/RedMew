@@ -9,9 +9,6 @@ local Gui = require 'utils.gui'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local debug_print = Debug.print
 
-local is_valid_sound_path
-local get_player
-
 local skip_btn_name = Gui.uid_name()
 
 local Public = {}
@@ -48,7 +45,7 @@ local play_sound_delayed =
 )
 
 function Public.play_sound(player, path, times, delay, initial_delay)
-    if not is_valid_sound_path(path) then
+    if not game.is_valid_sound_path(path) then
         debug_print('Provided SoundPath is invalid. Try opening /radio and browse for a valid path')
         return
     end
@@ -105,7 +102,7 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
     assert_type('string', identifier, 'identifier of function cutscene_controller.register_running_cutscene')
     assert_type('number', final_transition_time, 'identifier of function cutscene_controller.register_running_cutscene', true)
 
-    local player = get_player(player_index)
+    local player = game.get_player(player_index)
     if not valid(player) then
         return
     end
@@ -196,7 +193,7 @@ local function restart_cutscene(player_index, waypoints, start_index)
     debug_print('Updating cutscene for player_index ' .. player_index)
     debug_print(running_cutscenes[player_index])
 
-    local player = get_player(player_index)
+    local player = game.get_player(player_index)
     if not valid(player) then
         return
     end
@@ -258,7 +255,7 @@ local reconnect_character =
     Token.register(
     function(params)
         local player_index = params.player_index
-        local player = get_player(player_index)
+        local player = game.get_player(player_index)
         local running_cutscene = params.running_cutscene
         local character = running_cutscene.character
         local func = running_cutscene.terminate_func
@@ -368,13 +365,6 @@ Event.add(defines.events.on_cutscene_waypoint_reached, handler)
 Event.add(defines.events.on_pre_player_left_game, restore)
 Event.add(defines.events.on_player_joined_game, restore)
 
-Event.on_init(
-    function()
-        is_valid_sound_path = game.is_valid_sound_path
-        get_player = game.get_player
-    end
-)
-
 local replay_cutscene =
     Token.register(
     function(params)
@@ -422,7 +412,7 @@ Command.add(
 Gui.on_click(
     skip_btn_name,
     function(event)
-        skip_cutscene(nil, get_player(event.player_index))
+        skip_cutscene(nil, game.get_player(event.player_index))
     end
 )
 
