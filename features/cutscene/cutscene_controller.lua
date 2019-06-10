@@ -19,7 +19,10 @@ local handler
 
 local cutscene_functions = {}
 local running_cutscenes = {}
-local replay = {}
+local replay = {
+    identifier = nil,
+    final_transition_time = nil
+}
 Global.register(
     {
         cutscene_functions = cutscene_functions,
@@ -308,10 +311,9 @@ function Public.register_rendering_id(player_index, render_id)
 end
 
 function Public.register_replay(identifier, final_transition_time)
-    replay = {
-        identifier = identifier,
-        final_transition_time = final_transition_time
-    }
+    replay.identifier = identifier
+    replay.final_transition_time = final_transition_time
+    debug_print('Identifier ' .. identifier .. ' registered as replay cutscene')
 end
 
 handler = function(event)

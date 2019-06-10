@@ -12,7 +12,6 @@ local play_sound = Cutscene.play_sound
 local draw_text = Rendering.draw_text
 local draw_multi_line = Rendering.draw_multi_line_text
 
-
 local DiggyCutscene = {}
 
 local function cutscene_function(player_index, waypoint_index, params)
@@ -31,14 +30,14 @@ local function cutscene_function(player_index, waypoint_index, params)
         register_rendering(player_index, draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -16}, 'Diggy', 10, player, {time_to_live = ttw, color = Color.yellow}, false))
         register_rendering(
             player_index,
-            draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -5}, {{'diggy.cutscene_case_line2', 'Diggy'}, '---------------------', {'diggy.cutscene_case_line4', 'Redmew'}, {'diggy.cutscene_case_line5' ,'www.redmew.com/discord'}}, 5, player, {time_to_live = ttw}, false)
+            draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -5}, {{'diggy.cutscene_case_line2', 'Diggy'}, '---------------------', {'diggy.cutscene_case_line4', 'Redmew'}, {'diggy.cutscene_case_line5', 'www.redmew.com/discord'}}, 5, player, {time_to_live = ttw}, false)
         )
         register_rendering(player_index, draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 10}, {'diggy.cutscene_case_line6'}, 3, player, {time_to_live = ttw}, false))
         register_rendering(player_index, draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 13}, {{'diggy.cutscene_case_line7', '/skip'}, {'diggy.cutscene_case_line8', '/replay'}}, 1.5, player, {time_to_live = ttw}, false))
     end
     cases[0] = function()
         register_rendering(player_index, draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'diggy.cutscene_case0_line1'}, 2.5, player, {time_to_live = ttw}, true))
-        local entity = RS.get_surface().find_entities_filtered {position = {0,0}, radius = 20, name = 'stone-wall', limit = 1}
+        local entity = RS.get_surface().find_entities_filtered {position = {0, 0}, radius = 20, name = 'stone-wall', limit = 1}
         if entity[1] then
             local position = entity[1].position
             local waypoint = {
@@ -60,18 +59,15 @@ local function cutscene_function(player_index, waypoint_index, params)
         register_rendering(player_index, draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case2_line1'}, '', {'diggy.cutscene_case2_line3'}}, 2.5, player, {time_to_live = ttw}, true))
     end
     cases[3] = function()
-        register_rendering(
-            player_index,
-            draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case3_line1'}, '', {'diggy.cutscene_case3_line3'}}, 2.5, player, {time_to_live = ttw}, true)
-        )
+        register_rendering(player_index, draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case3_line1'}, '', {'diggy.cutscene_case3_line3'}}, 2.5, player, {time_to_live = ttw}, true))
         local radius = 10
         local entity
         repeat
-        entity = RS.get_surface().find_entities_filtered {position = {0,0}, radius = radius, name = 'rock-big', limit = 1}
-        if radius <= 10 then
-            radius = 0
-        end
-        radius = radius + 25
+            entity = RS.get_surface().find_entities_filtered {position = {0, 0}, radius = radius, name = 'rock-big', limit = 1}
+            if radius <= 10 then
+                radius = 0
+            end
+            radius = radius + 25
         until entity[1] or radius >= 200
         local position = {0, 3.5}
         local way_zoom = 0.4
@@ -91,16 +87,13 @@ local function cutscene_function(player_index, waypoint_index, params)
     end
     cases[4] = function()
         play_sound(player, 'utility/axe_mining_ore', 3, 35)
-        register_rendering(
-            player_index,
-            draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case4_line1'}, '', {'diggy.cutscene_case4_line3'}}, 2.5, player, {time_to_live = ttw}, true)
-        )
+        register_rendering(player_index, draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case4_line1'}, '', {'diggy.cutscene_case4_line3'}}, 2.5, player, {time_to_live = ttw}, true))
     end
     cases[5] = function()
         play_sound(player, 'utility/research_completed', 1, 5)
         local exp = 2500
         local text = {'', '[img=item/automation-science-pack] ', {'diggy.float_xp_gained_research', exp}}
-        player.create_local_flying_text{position = params.position, text = text, color = Color.light_sky_blue, time_to_live = ttw / 3}
+        player.create_local_flying_text {position = params.position, text = text, color = Color.light_sky_blue, time_to_live = ttw / 3}
         draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case5_line1'}, '', {'diggy.cutscene_case5_line3'}}, 2.5, player, {time_to_live = ttw}, true)
     end
     cases[6] = function()
