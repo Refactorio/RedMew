@@ -33,7 +33,13 @@ local function draw_text_auto_replacing(original_resolution, original_zoom, play
         params.background.time_to_live = time - between_time
     end
     for i = 1, #texts do
-        Task.set_timeout_in_ticks(time * (i - 1), delayed_draw_text, {original_resolution = original_resolution, original_zoom = original_zoom, player_zoom = player_zoom, offset = offset, text = texts[i], scale = scale, player = player, params = params, draw_background = draw_background, play_sound = i})
+        if texts[i] ~= '' then
+            Task.set_timeout_in_ticks(
+                time * (i - 1),
+                delayed_draw_text,
+                {original_resolution = original_resolution, original_zoom = original_zoom, player_zoom = player_zoom, offset = offset, text = texts[i], scale = scale, player = player, params = params, draw_background = draw_background, play_sound = i}
+            )
+        end
     end
 end
 
@@ -55,8 +61,8 @@ local function cutscene_function(player_index, waypoint_index, params)
             player_index,
             draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -5}, {{'diggy.cutscene_case_line2', 'Diggy'}, '---------------------', {'diggy.cutscene_case_line4', 'Redmew'}, {'diggy.cutscene_case_line5', 'www.redmew.com/discord'}}, 5, player, {time_to_live = ttw}, false)
         )
-        register_rendering(player_index, draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 10}, {'diggy.cutscene_case_line6'}, 3, player, {time_to_live = ttw}, false))
-        --register_rendering(player_index, draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 13}, {{'diggy.cutscene_case_line7', '/skip'}, {'diggy.cutscene_case_line8', '/replay'}}, 1.5, player, {time_to_live = ttw}, false))
+        draw_text_auto_replacing({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 10}, {'', {'diggy.cutscene_case_line6'}}, 3, player, {}, false, ttw, 0)
+        draw_text_auto_replacing({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 16}, {'', '', {'diggy.cutscene_case_line7'}}, 1, player, {}, false, ttw, 0)
     end
     cases[0] = function()
         draw_text_auto_replacing({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case0_line1'}, {'diggy.cutscene_case0_line3'}}, 2.5, player, {}, true, ttw)
@@ -70,7 +76,7 @@ local function cutscene_function(player_index, waypoint_index, params)
                 time_to_wait = 275,
                 zoom = 5
             }
-            Debug.print_position(position, 'position of wall ')
+            Debug.print_position(position, 'position of wall')
             Cutscene.inject_waypoint(player_index, waypoint, 3, true)
         end
     end
