@@ -37,14 +37,14 @@ function Public.draw_text(original_resolution, original_zoom, player_zoom, offse
     local tile_scalar = (original_zoom * 32) / (player_zoom * 32)
 
     scale = scale * height_scalar
-    local size = (0.0065 * player.display_resolution.height * scale) / (player_zoom * 32)
+    local size = (0.0065 * player.display_resolution.height * scale) / 32 -- First part is pixel height of text, result is size in number of tiles
 
     local offset_x = offset.x * width_scalar * tile_scalar
-    local offset_y = (offset.y * height_scalar * tile_scalar) - size
+    local offset_y = (offset.y * height_scalar * tile_scalar) - (size / player_zoom)
 
     if draw_background then
-        local left_top = {x = -40, y = -(size * 0.75) / tile_scalar}
-        local right_bottom = {x = 40, y = (size) / tile_scalar}
+        local left_top = {x = -40, y = -(size) * 1.75 / height_scalar}
+        local right_bottom = {x = 40, y = (size) * 2 / height_scalar}
         local background_params = create_background_params(params)
         Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, background_params)
     end
@@ -52,7 +52,7 @@ function Public.draw_text(original_resolution, original_zoom, player_zoom, offse
     local target = {x = player.position.x + offset_x, y = player.position.y + offset_y}
 
     local color = params.color
-    color = color and color or {r = 255, g = 255, b = 255}
+    color = color and color or {}
 
     local font = params.font
 
@@ -149,7 +149,7 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
     local target_right = {x = player.position.x + right_bottom_x + offset_x, y = player.position.y + right_bottom_y + offset_y}
 
     local color = params.color
-    color = color and color or {}
+    color = color and color or {r = 255, g = 255, b = 255}
 
     local width = params.width
     width = width and width or 0
