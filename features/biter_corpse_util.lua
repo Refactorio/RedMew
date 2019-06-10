@@ -1,6 +1,7 @@
 -- dependencies
 local Event = require 'utils.event'
 local Global = require 'utils.global'
+local table = require 'utils.table'
 
 local biter_utils_conf = global.config.biter_corpse_util
 
