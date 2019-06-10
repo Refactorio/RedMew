@@ -152,9 +152,6 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
     btn.style.minimal_height = 28
     btn.style.minimal_width = 150
     btn.style.font = 'default-large-bold'
-    btn.style.margin = 0
-    btn.style.top_margin = 0
-    btn.style.bottom_margin = 0
     btn.style.font_color = {r = 255, g = 215, b = 0}
     running_cutscene.btn = btn
 
