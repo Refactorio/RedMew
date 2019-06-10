@@ -1,47 +1,25 @@
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
+local Debug = require 'utils.debug'
 local Cutscene = require 'features.cutscene.cutscene_controller'
 local Rendering = require 'features.cutscene.renderings'
 local RS = require 'map_gen.shared.redmew_surface'
 local Color = require 'resources.color_presets'
 local PC = require 'features.player_create'
-local Command = require 'utils.command'
+local register_rendering = Cutscene.register_rendering_id
+local play_sound = Cutscene.play_sound
+local draw_text = Rendering.draw_text
+local draw_multi_line = Rendering.draw_multi_line_text
+
 
 local DiggyCutscene = {}
-
-local play_sound_delayed =
-    Token.register(
-    function(params)
-        params.player.play_sound {path = params.path}
-    end
-)
-
-local function play_sound(player, path, times, delay, initial_delay)
-    if not game.is_valid_sound_path(path) then
-        return
-    end
-    times = times or 1
-    if times == 1 and not delay and initial_delay then
-        delay = initial_delay
-    end
-    if times > 1 or delay then
-        delay = delay or 20
-        initial_delay = initial_delay or 0
-        for i = 1, times, 1 do
-            Task.set_timeout_in_ticks(initial_delay + delay * i, play_sound_delayed, {player = player, path = path})
-        end
-    else
-        player.play_sound {path = path}
-    end
-end
 
 local function cutscene_function(player_index, waypoint_index, params)
     local cases = {}
     local player = game.players[player_index]
     local ttw = params.time_to_wait
     local zoom = params.zoom
-    --game.print('index: ' .. waypoint_index .. ' | position:' .. serpent.block(params.position) .. ' | trans_time: ' .. params.transition_time .. ' | ttw: ' .. ttw .. ' | zoom: ' .. zoom)
     if waypoint_index ~= -1 then
         play_sound(player, 'utility/list_box_click', 1)
     --play_sound(player, 'utility/inventory_move', 1, 10)
@@ -49,20 +27,19 @@ local function cutscene_function(player_index, waypoint_index, params)
     cases[-1] = function()
         play_sound(player, 'utility/game_won')
         play_sound(player, 'ambient/first-light', 1, 400)
-        Cutscene.register_rendering_id(player_index, Rendering.blackout(player, zoom, ttw + 1))
-        Cutscene.register_rendering_id(player_index, Rendering.draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -16}, 'Diggy', 10, player, {time_to_live = ttw, color = Color.yellow}, false))
-        Cutscene.register_rendering_id(
+        register_rendering(player_index, Rendering.blackout(player, zoom, ttw + 1))
+        register_rendering(player_index, draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -16}, 'Diggy', 10, player, {time_to_live = ttw, color = Color.yellow}, false))
+        register_rendering(
             player_index,
-            Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -5}, {'Welcome to Diggy', '---------------------', 'This is a custom scenario developed by Redmew', 'Join us at www.redmew.com/discord'}, 5, player, {time_to_live = ttw}, false)
+            draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = -5}, {{'diggy.cutscene_case_line2', 'Diggy'}, '---------------------', {'diggy.cutscene_case_line4', 'Redmew'}, {'diggy.cutscene_case_line5' ,'www.redmew.com/discord'}}, 5, player, {time_to_live = ttw}, false)
         )
-        Cutscene.register_rendering_id(player_index, Rendering.draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 10}, 'The following introduction will help you get started!', 3, player, {time_to_live = ttw}, false))
-        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 13}, {'Use the /skip command if you wish to skip this introduction', 'You can always replay this introduction by using the /replay command'}, 1.5, player, {time_to_live = ttw}, false))
+        register_rendering(player_index, draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 10}, {'diggy.cutscene_case_line6'}, 3, player, {time_to_live = ttw}, false))
+        register_rendering(player_index, draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 13}, {{'diggy.cutscene_case_line7', '/skip'}, {'diggy.cutscene_case_line8', '/replay'}}, 1.5, player, {time_to_live = ttw}, false))
     end
     cases[0] = function()
-        Cutscene.register_rendering_id(player_index, Rendering.draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, 'This is the starting area', 2.5, player, {time_to_live = ttw}, true))
+        register_rendering(player_index, draw_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'diggy.cutscene_case0_line1'}, 2.5, player, {time_to_live = ttw}, true))
         local entity = RS.get_surface().find_entities_filtered {position = {0,0}, radius = 20, name = 'stone-wall', limit = 1}
         if entity[1] then
-            --game.print('Found wall')
             local position = entity[1].position
             local waypoint = {
                 -- case 1
@@ -71,25 +48,29 @@ local function cutscene_function(player_index, waypoint_index, params)
                 time_to_wait = 300,
                 zoom = 5
             }
+            Debug.print_position(position, 'position of wall ')
             Cutscene.inject_waypoint(player_index, waypoint, 3, true)
         end
     end
     cases[1] = function()
         play_sound(player, 'utility/build_small', 1, 25)
-        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'Expanding the mine is dangerous!', '', 'Walls are used to keep the cave roof from crushing us'}, 2.5, player, {time_to_live = ttw}, true))
+        register_rendering(player_index, draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case1_line1'}, '', {'diggy.cutscene_case1_line3'}}, 2.5, player, {time_to_live = ttw}, true))
     end
     cases[2] = function()
-        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'The market provides extra supplies in exchange of coins', '', 'You unlock new items when you level up'}, 2.5, player, {time_to_live = ttw}, true))
+        register_rendering(player_index, draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case2_line1'}, '', {'diggy.cutscene_case2_line3'}}, 2.5, player, {time_to_live = ttw}, true))
     end
     cases[3] = function()
-        Cutscene.register_rendering_id(
+        register_rendering(
             player_index,
-            Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {"Cave ins happens frequently when you don't add supports", '', 'Different types of brick and concrete can reinforce our support pillars!'}, 2.5, player, {time_to_live = ttw}, true)
+            draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case3_line1'}, '', {'diggy.cutscene_case3_line3'}}, 2.5, player, {time_to_live = ttw}, true)
         )
-        local radius = 25
+        local radius = 10
         local entity
         repeat
         entity = RS.get_surface().find_entities_filtered {position = {0,0}, radius = radius, name = 'rock-big', limit = 1}
+        if radius <= 10 then
+            radius = 0
+        end
         radius = radius + 25
         until entity[1] or radius >= 200
         local position = {0, 3.5}
@@ -97,6 +78,7 @@ local function cutscene_function(player_index, waypoint_index, params)
         if entity[1] then
             position = entity[1].position
             way_zoom = 5
+            Debug.print_position(position, 'position of rock')
         end
         local waypoint = {
             -- case 4
@@ -109,24 +91,25 @@ local function cutscene_function(player_index, waypoint_index, params)
     end
     cases[4] = function()
         play_sound(player, 'utility/axe_mining_ore', 3, 35)
-        Cutscene.register_rendering_id(
+        register_rendering(
             player_index,
-            Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'This world contains brittle rocks', '', 'Our tools are too powerful to preserve any resources from destroying them'}, 2.5, player, {time_to_live = ttw}, true)
+            draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case4_line1'}, '', {'diggy.cutscene_case4_line3'}}, 2.5, player, {time_to_live = ttw}, true)
         )
     end
     cases[5] = function()
+        play_sound(player, 'utility/research_completed', 1, 5)
         local exp = 2500
         local text = {'', '[img=item/automation-science-pack] ', {'diggy.float_xp_gained_research', exp}}
         player.create_local_flying_text{position = params.position, text = text, color = Color.light_sky_blue, time_to_live = ttw / 3}
-        Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'Most actions gives experience!', '', 'The floating text indicates the quantity and cause of the experience'}, 2.5, player, {time_to_live = ttw}, true)
+        draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case5_line1'}, '', {'diggy.cutscene_case5_line3'}}, 2.5, player, {time_to_live = ttw}, true)
     end
     cases[6] = function()
         play_sound(player, 'utility/axe_fighting', 5, 25, 10)
         play_sound(player, 'worm-sends-biters', 1, 70)
-        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'The native population is lurking in the dark', '', 'Be wary when digging, always bring along some defences'}, 2.5, player, {time_to_live = ttw}, true))
+        register_rendering(player_index, draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case6_line1'}, '', {'diggy.cutscene_case6_line3'}}, 2.5, player, {time_to_live = ttw}, true))
     end
     cases[7] = function()
-        Cutscene.register_rendering_id(player_index, Rendering.draw_multi_line_text({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {'This concludes the introduction', '', 'Have fun and keep digging!'}, 2.5, player, {time_to_live = ttw}, true))
+        register_rendering(player_index, draw_multi_line({height = 1440, width = 2560}, 1, zoom, {x = 0, y = 18}, {{'diggy.cutscene_case7_line1'}, '', {'diggy.cutscene_case7_line3'}}, 2.5, player, {time_to_live = ttw}, true))
         --play_sound(player, 'utility/tutorial_notice', 1)
     end
     local case = cases[waypoint_index]
@@ -200,6 +183,7 @@ local function terminate_function(player_index)
 end
 
 Cutscene.register_cutscene_function('Diggy_Welcome', waypoints, Token.register(cutscene_function), Token.register(terminate_function))
+Cutscene.register_replay('Diggy_Welcome', 120)
 
 local start_cutscene =
     Token.register(
@@ -218,20 +202,5 @@ function DiggyCutscene.register()
         end
     )
 end
-
-local function replay_handler(_, player)
-    Token.get(start_cutscene)({event = {player_index = player.index}})
-end
-
-Command.add(
-    'replay',
-    {
-        description = 'Replays the introduction cutscene',
-        capture_excess_arguments = false,
-        allowed_by_server = false
-    },
-    replay_handler
-)
-
 
 return DiggyCutscene

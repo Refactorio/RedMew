@@ -7,7 +7,6 @@ local Rank = require 'features.rank_system'
 local Donator = require 'features.donator'
 local Color = require 'resources.color_presets'
 local ScoreTracker = require 'utils.score_tracker'
-local Cutscene = require 'features.cutscene.cutscene_controller'
 local format_number = require 'util'.format_number
 local player_data_to_show = global.config.redmew_commands.whois.player_data_to_show
 local print_to_player = Game.player_print
@@ -213,15 +212,6 @@ local function print_player_info(args, player)
     end
 end
 
-local function skip_cutscene(_, player)
-    if not player or not player.valid then
-        return
-    end
-    if player.controller_type == defines.controllers.cutscene then
-        Cutscene.terminate_cutscene(player.index)
-    end
-end
-
 -- Command registrations
 
 Command.add(
@@ -306,13 +296,4 @@ Command.add(
         allowed_by_server = true
     },
     print_player_info
-)
-
-Command.add(
-    'skip',
-    {
-        description = {'command_description.skip'},
-        allowed_by_server = false
-    },
-    skip_cutscene
 )

@@ -1,4 +1,13 @@
 local RS = require 'map_gen.shared.redmew_surface'
+local Debug = require 'utils.debug'
+
+local toggle_debug = false --Set to true if you wish to get spammed with debug messages from the rendering module (Requires _DEBUG = true)
+
+local function debug_print(message, trace_levels)
+    if toggle_debug then
+        Debug.print(message, trace_levels)
+    end
+end
 
 local Public = {}
 
@@ -7,10 +16,8 @@ local Public = {}
 
 local function create_background_params(params)
     local background_params = params.background
-    --game.print(serpent.block(params.background))
     if background_params then
         for k, v in pairs(params) do
-            --game.print(k)
             if k ~= 'background' then
                 if not background_params[k] then
                     background_params[k] = v
@@ -20,7 +27,6 @@ local function create_background_params(params)
     else
         background_params = params
     end
-    --game.print(serpent.block(background_params))
     return background_params
 end
 
@@ -28,26 +34,17 @@ function Public.draw_text(original_resolution, original_zoom, player_zoom, offse
     local height_scalar = player.display_resolution.height / original_resolution.height
     local width_scalar = player.display_resolution.width / original_resolution.width
 
-    --game.print('scalar: ' .. height_scalar .. ' | ' .. width_scalar)
-
     local tile_scalar = (original_zoom * 32) / (player_zoom * 32)
-    --game.print('tile: ' .. tile_scalar)
 
     scale = scale * height_scalar
     local size = (0.0065 * player.display_resolution.height * scale) / (player_zoom * 32)
-    --game.print('size: ' .. size .. " | scale: " .. scale)
 
     local offset_x = offset.x * width_scalar * tile_scalar
     local offset_y = (offset.y * height_scalar * tile_scalar) - size
 
-    --game.print('x: ' .. offset_x .. ' | y: ' .. offset_y)
-
     if draw_background then
-        local left_top = {x = -40, y = -(size * 0.68) / tile_scalar}
-        local right_bottom = {x = 40, y = (size * 0.75) / tile_scalar}
-        --offset.y = offset_y / height_scalar / tile_scalar
-        --game.print('left_top: ' .. serpent.block(left_top) .. ' | right_bottom: ' .. serpent.block(right_bottom))
-        --game.print('Testing: ' .. serpent.block(params))
+        local left_top = {x = -40, y = -(size * 0.75) / tile_scalar}
+        local right_bottom = {x = 40, y = (size) / tile_scalar}
         local background_params = create_background_params(params)
         Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, background_params)
     end
@@ -90,7 +87,7 @@ function Public.draw_text(original_resolution, original_zoom, player_zoom, offse
     local oiam = params.only_in_alt_mode
     oiam = oiam or false
 
-    return rendering.draw_text {
+    local rendering_params = {
         text = {'', text},
         color = color,
         target = target,
@@ -107,6 +104,10 @@ function Public.draw_text(original_resolution, original_zoom, player_zoom, offse
         orientation = orientation,
         font = font
     }
+
+    debug_print(rendering_params)
+
+    return rendering.draw_text(rendering_params)
 end
 
 function Public.draw_multi_line_text(original_resolution, original_zoom, player_zoom, offset, texts, scale, player, params, draw_background)
@@ -133,10 +134,8 @@ end
 function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, offset, left_top, right_bottom, player, params)
     local height_scalar = player.display_resolution.height / original_resolution.height
     local width_scalar = player.display_resolution.width / original_resolution.width
-    --game.print('scalar: ' .. height_scalar .. ' | ' .. width_scalar)
 
     local tile_scalar = (original_zoom * 32) / (player_zoom * 32)
-    --game.print('tile: ' .. tile_scalar)
 
     local offset_x = offset.x * width_scalar * tile_scalar
     local offset_y = offset.y * height_scalar * tile_scalar
@@ -148,8 +147,6 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
 
     local target_left = {x = player.position.x + left_top_x + offset_x, y = player.position.y + left_top_y + offset_y}
     local target_right = {x = player.position.x + right_bottom_x + offset_x, y = player.position.y + right_bottom_y + offset_y}
-    --game.print('target_left: ' .. serpent.block(target_left))
-    --game.print('target_right: ' .. serpent.block(target_right))
 
     local color = params.color
     color = color and color or {}
@@ -182,7 +179,7 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
     local oiam = params.only_in_alt_mode
     oiam = oiam or false
 
-    return rendering.draw_rectangle {
+    local rendering_params = {
         color = color,
         width = width,
         filled = filled,
@@ -196,6 +193,10 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
         draw_on_ground = dog,
         only_in_alt_mode = oiam
     }
+
+    debug_print(rendering_params)
+
+    return rendering.draw_rectangle(rendering_params)
 end
 
 function Public.blackout(player, zoom, ttl, color)
