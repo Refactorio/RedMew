@@ -52,7 +52,7 @@ function Public.draw_text(original_resolution, original_zoom, player_zoom, offse
     local target = {x = player.position.x + offset_x, y = player.position.y + offset_y}
 
     local color = params.color
-    color = color and color or {}
+    color = color and color or {r = 255, g = 255, b = 255}
 
     local font = params.font
 
@@ -149,7 +149,7 @@ function Public.draw_rectangle(original_resolution, original_zoom, player_zoom, 
     local target_right = {x = player.position.x + right_bottom_x + offset_x, y = player.position.y + right_bottom_y + offset_y}
 
     local color = params.color
-    color = color and color or {r = 255, g = 255, b = 255}
+    color = color and color or {}
 
     local width = params.width
     width = width and width or 0
