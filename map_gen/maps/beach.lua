@@ -5,7 +5,9 @@ local math = require 'utils.math'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local table = require 'utils.table'
-
+local Config = require 'config'
+local bright_cycle = require 'resources.day_night_cycles'.bright
+local use_custom_day_night_cycle = false
 
 local sand_width = 512
 local sand_width_inv = math.tau / sand_width
@@ -23,21 +25,17 @@ local water_noise_level = noise_level * 1.35
 local perlin_seed_1 = nil
 local perlin_seed_2 = nil
 
--- Bright
--- 10 minute cycle, 4m of full light, 4m light to dark, 6s full dark, 2m dark to light
---local day_night_cycle = require "resources.day_night_cycles".beach
---local Config = require 'config'
---local day_night_cycle
---local Config.day_night_cycle.day_night_cycle = day_night_cycle {
+if use_custom_day_night_cycle then
+    -- Set the day/night cycle to the "Bright" preset. See resources.day_night_cycles for details.
+    Config.day_night = {
+        enabled = true,
+        use_day_night_cycle = true,
+        day_night_cycle = bright_cycle,
+        use_fixed_brightness = false
+    }
+end
 
-    --['ticks_per_day'] = 36000,
-    --['dusk'] = 0.2,
-    --['evening'] = 0.59,
-  --  ['morning'] = 0.6,
-  --  ['dawn'] = 0.8,}
-
-RS.set_map_gen_settings(
-    {
+RS.set_map_gen_settings(    {
         MGSP.ore_oil_none,
         MGSP.cliff_none
     }
