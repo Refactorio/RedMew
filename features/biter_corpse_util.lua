@@ -20,8 +20,7 @@ Global.register(
 )
 
 -- cleans up the stored list of corpses and chunks
-local function remove_outdated_corpses()
-    local now = game.tick
+local function remove_outdated_corpses(now)
     -- loop each stored chunk
     for cci, corpse_chunk in pairs(corpse_chunks) do
         local count = corpse_chunk.count
@@ -86,9 +85,11 @@ local function biter_died(event)
         return
     end
 
+    local tick = event.tick
+
     -- Chance to clean up old corpses and chunks
-    if game.tick % 60 == 0 then
-        remove_outdated_corpses()
+    if tick % 60 == 0 then
+        remove_outdated_corpses(tick)
     end
 
     --Calculate the hash position
@@ -110,7 +111,7 @@ local function biter_died(event)
     corpse_chunk.count = count
     corpse_chunk.corpses[count] = {
         entity = entity,
-        tick = game.tick + max_corpse_age
+        tick = tick + max_corpse_age
     }
 
     -- Call cleanup if above threshold
