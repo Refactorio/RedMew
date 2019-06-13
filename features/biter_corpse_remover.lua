@@ -5,7 +5,7 @@ local table = require 'utils.table'
 local fast_remove = table.fast_remove
 local pairs = pairs
 
-local biter_utils_conf = global.config.biter_corpse_util
+local biter_utils_conf = global.config.biter_corpse_remover
 
 -- Factorio removes corpses that hit 15 minutes anyway
 local max_corpse_age = 15 * 60 * 60

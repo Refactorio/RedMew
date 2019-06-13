@@ -391,7 +391,7 @@ global.config = {
         enabled = true
     },
     -- when biter corpses in an area are above a threshold, remove the desired amount
-    biter_corpse_util = {
+    biter_corpse_remover = {
         enabled = true,
         chunk_size = 3, -- size of chunk in tiles
         corpse_threshold = 3 -- number of corpses allowed on surface inside chunk
