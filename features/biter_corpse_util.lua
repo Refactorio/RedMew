@@ -2,73 +2,53 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local table = require 'utils.table'
+local fast_remove = table.fast_remove
+local pairs = pairs
 
 local biter_utils_conf = global.config.biter_corpse_util
 
-local corpse_chunks = {}
-
 -- Factorio removes corpses that hit 15 minutes anyway
 local max_corpse_age = 15 * 60 * 60
+local kills_per_cleanup = 500
+
+-- x -> y -> array of {entity, tick}
+local corpse_chunks = {}
+local cleanup_count = {kills_per_cleanup}
 
 Global.register(
     {
-        corpse_chunks = corpse_chunks
+        corpse_chunks = corpse_chunks,
+        cleanup_count = cleanup_count
     },
     function(tbl)
         corpse_chunks = tbl.corpse_chunks
+        cleanup_count = tbl.cleanup_count
     end
 )
 
 -- cleans up the stored list of corpses and chunks
 local function remove_outdated_corpses(now)
     -- loop each stored chunk
-    for cci, corpse_chunk in pairs(corpse_chunks) do
-        local count = corpse_chunk.count
+    for x, column in pairs(corpse_chunks) do
+        for y, corpses in pairs(column) do
+            local count = #corpses
 
-        -- loop stored corpses
-        local corpses = corpse_chunk.corpses
-        local i = 1
-        local corpse = corpses[i]
-        while corpse ~= nil do
-            if corpse.tick < now then
-                table.fast_remove(corpses, i)
-                count = count - 1
-            else
-                i = i + 1
+            for i = count, 1, -1 do
+                if corpses[i].tick < now then
+                    fast_remove(corpses, i)
+                    count = count - 1
+                end
             end
-            corpse = corpses[i]
+
+            if count == 0 then
+                column[y] = nil
+            end
         end
 
-        corpse_chunk.count = count
-
-        -- remove tracked chunk if no corpses
-        if count < 1 then
-            corpse_chunks[cci] = nil
+        if #column == 0 then
+            corpse_chunks[x] = nil
         end
     end
-end
-
---Remove extra corpses that are in this area
-local function corpse_cleanup(hash_position)
-
-    local corpse_chunk = corpse_chunks[hash_position]
-    local count = corpse_chunk.count
-    local corpses = corpse_chunk.corpses
-    local num_to_remove = count - biter_utils_conf.corpse_threshold
-
-    -- remove enough entities to be under the threshold
-    for i = 1, num_to_remove do
-        local corpse = corpses[i]
-        if corpse.entity.valid then
-            corpse.entity.destroy()
-        end
-
-        table.fast_remove(corpses, i)
-        count = count -1
-    end
-
-    corpse_chunk.count = count
-
 end
 
 local function biter_died(event)
@@ -88,35 +68,50 @@ local function biter_died(event)
     local tick = event.tick
 
     -- Chance to clean up old corpses and chunks
-    if tick % 60 == 0 then
+    local cuc = cleanup_count[1] - 1
+    if cuc <= 0 then
         remove_outdated_corpses(tick)
+        cleanup_count[1] = kills_per_cleanup
+    else
+        cleanup_count[1] = cuc
     end
 
-    --Calculate the hash position
-    local x = entity.position.x - (entity.position.x % biter_utils_conf.chunk_size)
-    local y = entity.position.y - (entity.position.y % biter_utils_conf.chunk_size)
-    local hash_position = x .. "_" .. y
+    --Calculate the chunk position
+    local chunk_size = biter_utils_conf.chunk_size
+    local pos = entity.position
+    local x, y = pos.x, pos.y
+    x = x - (x % chunk_size)
+    y = y - (y % chunk_size)
 
     -- check global table has this position, add if not
-    if corpse_chunks[hash_position] == nil then
-        corpse_chunks[hash_position] = {
-            count = 0,
-            corpses = {}
-        }
+    local corpse_chunks_column = corpse_chunks[x]
+    if corpse_chunks_column == nil then
+        corpse_chunks_column = {}
+        corpse_chunks[x] = corpse_chunks_column
     end
 
-    -- get and increment this chunk, add this entity
-    local corpse_chunk = corpse_chunks[hash_position];
-    local count = corpse_chunk.count + 1
-    corpse_chunk.count = count
-    corpse_chunk.corpses[count] = {
+    local corpses = corpse_chunks_column[y]
+    if corpses == nil then
+        corpses = {}
+        corpse_chunks_column[y] = corpses
+    end
+
+    -- Add this entity
+    local count = #corpses + 1
+    corpses[count] = {
         entity = entity,
         tick = tick + max_corpse_age
     }
 
-    -- Call cleanup if above threshold
-    if corpse_chunk.count > biter_utils_conf.corpse_threshold then
-        corpse_cleanup(hash_position)
+    -- Cleanup old corpse if above threshold
+    if count > biter_utils_conf.corpse_threshold then
+        local old_entity = corpses[1].entity
+
+        if old_entity.valid then
+            old_entity.destroy()
+        end
+
+        fast_remove(corpses, 1)
     end
 end
 
