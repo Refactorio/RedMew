@@ -46,12 +46,12 @@ local function fit_to_screen(percentage, coordinates)
         local tile = percentage.tile
         for _, pos in pairs(coordinates) do
             if type(pos) == 'number' then
-                coordinates.x = coordinates.x * height
-                coordinates.y = coordinates.y * width
+                coordinates.x = coordinates.x * width
+                coordinates.y = coordinates.y * height
                 break
             else
-                pos.x = pos.x * height
-                pos.y = pos.y * width
+                pos.x = pos.x * width
+                pos.y = pos.y * height
             end
         end
         for _, pos in pairs(coordinates) do
@@ -283,7 +283,7 @@ function Public.draw_arrow(settings, offset, player, params)
     params.players = players
 
     params.surface = RS.get_surface()
-
+    Debug.print(vertices)
     return Rendering.draw_polygon(vertices, params)
 end
 

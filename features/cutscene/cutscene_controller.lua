@@ -10,6 +10,8 @@ local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local debug_print = Debug.print
 
 local skip_btn_name = Gui.uid_name()
+local backward_btn_name = Gui.uid_name()
+local forward_btn_name = Gui.uid_name()
 
 local Public = {}
 local handler
@@ -37,18 +39,70 @@ local function valid(entity)
     return entity and entity.valid
 end
 
-local play_sound_delayed =
+local function waypoint_still_active(tick, player_index)
+    local running_cutscene = running_cutscenes[player_index]
+    tick = tick or -1
+    if tick == -1 then
+        debug_print('Tick was nil', 5)
+    end
+    if not running_cutscene or tick < running_cutscene.start_tick then
+        return false
+    end
+    return true
+end
+
+local toggle_gui_delayed =
     Token.register(
     function(params)
-        params.player.play_sound {path = params.path}
+        local player = params.player
+        if not waypoint_still_active(params.tick, player.index) then
+            debug_print('Cutscene is no longer active. Skipping toggle_gui')
+            return
+        end
+        local event = {player = player}
+        local clear = params.clear
+        if clear == 'left' then
+            player.gui.left.clear()
+        elseif clear == 'top' then
+            player.gui.top.clear()
+        elseif clear == 'center' then
+            player.gui.center.clear()
+        end
+        params.gui.toggle(event)
     end
 )
 
-function Public.play_sound(player, path, times, delay, initial_delay)
+function Public.toggle_gui(tick, player, gui, initial_delay, clear)
+    --[[if type(gui) == 'table' then
+        debug_print('Provided GUI is invalid.')
+        return
+    end]]
+    set_timeout_in_ticks(initial_delay, toggle_gui_delayed, {tick = tick, player = player, gui = gui, clear = clear})
+end
+
+local play_sound_delayed =
+    Token.register(
+    function(params)
+        local player = params.player
+        if not waypoint_still_active(params.tick, player.index) then
+            debug_print('Cutscene is no longer active. Skipping play_sound')
+            return
+        end
+        player.play_sound {path = params.path}
+    end
+)
+
+function Public.play_sound(tick, player, path, times, delay, initial_delay)
     if not game.is_valid_sound_path(path) then
         debug_print('Provided SoundPath is invalid. Try opening /radio and browse for a valid path')
         return
     end
+
+    if not waypoint_still_active(tick, player.index) then
+        debug_print('Cutscene is no longer active. Skipping play_sound')
+        return
+    end
+
     times = times or 1
     if times == 1 and not delay and initial_delay then
         delay = initial_delay
@@ -57,7 +111,7 @@ function Public.play_sound(player, path, times, delay, initial_delay)
         delay = delay or 20
         initial_delay = initial_delay or 0
         for i = 1, times, 1 do
-            set_timeout_in_ticks(initial_delay + delay * i, play_sound_delayed, {player = player, path = path})
+            set_timeout_in_ticks(initial_delay + delay * i, play_sound_delayed, {tick = tick, player = player, path = path})
         end
     else
         player.play_sound {path = path}
@@ -129,7 +183,9 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         final_transition_time = final_transition_time,
         character = player.character,
         terminate_func = cutscene_function.terminate_func,
-        rendering = {}
+        rendering = {},
+        current_index = -1,
+        start_tick = 0
     }
     local running_cutscene = running_cutscenes[player_index]
 
@@ -148,14 +204,28 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
         final_transition_time = final_transition_time
     }
 
-    local btn = player.gui.top.add {type = 'sprite-button', name = skip_btn_name, caption = 'Skip cutscene'}
+    local flow = player.gui.top.add {type = 'flow'}
+    running_cutscene.btn = flow
+
+    local btn = flow.add {type = 'sprite-button', name = skip_btn_name, caption = 'Skip cutscene'}
     btn.style.minimal_height = 28
     btn.style.minimal_width = 150
     btn.style.font = 'default-large-bold'
     btn.style.font_color = {r = 255, g = 215, b = 0}
-    running_cutscene.btn = btn
 
-    handler({player_index = player_index, waypoint_index = -1})
+    local back_btn = flow.add {type = 'sprite-button', name = backward_btn_name, caption = 'Go back'}
+    back_btn.style.minimal_height = 28
+    back_btn.style.minimal_width = 100
+    back_btn.style.font = 'default-large-bold'
+    back_btn.style.font_color = {r = 255, g = 215, b = 0}
+
+    local forward_btn = flow.add {type = 'sprite-button', name = forward_btn_name, caption = 'Go forward'}
+    forward_btn.style.minimal_height = 28
+    forward_btn.style.minimal_width = 100
+    forward_btn.style.font = 'default-large-bold'
+    forward_btn.style.font_color = {r = 255, g = 215, b = 0}
+
+    handler({player_index = player_index, waypoint_index = -1, tick = game.tick})
 end
 
 local function restart_cutscene(player_index, waypoints, start_index)
@@ -187,7 +257,9 @@ local function restart_cutscene(player_index, waypoints, start_index)
         character = character,
         terminate_func = current_running.terminate_func,
         rendering = current_running.rendering,
-        btn = current_running.btn
+        btn = current_running.btn,
+        current_index = current_running.current_index,
+        start_tick = current_running.start_tick
     }
 
     debug_print('Updating cutscene for player_index ' .. player_index)
@@ -215,7 +287,7 @@ local function restart_cutscene(player_index, waypoints, start_index)
         start_index = -1
     end
 
-    handler({player_index = player_index, waypoint_index = start_index})
+    handler({player_index = player_index, waypoint_index = start_index, tick = game.tick})
 end
 
 function Public.inject_waypoint(player_index, waypoint, waypoint_index, override)
@@ -243,8 +315,9 @@ local callback_function =
     Token.register(
     function(params)
         local player_index = params.player_index
-        if (running_cutscenes[player_index]) then
-            Token.get(params.func)(player_index, params.waypoint_index, params.params)
+        local func_params = params.params
+        if waypoint_still_active(func_params.tick, player_index) then
+            Token.get(params.func)(player_index, params.waypoint_index, func_params)
         else
             debug_print('Skipping callback function. Cutscene got terminated!')
         end
@@ -290,14 +363,14 @@ function Public.terminate_cutscene(player_index, ticks)
     )
 end
 
-function Public.register_rendering_id(player_index, render_id)
+function Public.register_rendering_id(player_index, tick, render_id)
     if type(render_id) ~= 'table' then
         render_id = {render_id}
     end
     local running_cutscene = running_cutscenes[player_index]
     for _, id in pairs(render_id) do
         if rendering.is_valid(id) then
-            if not running_cutscene then
+            if not waypoint_still_active(tick, player_index) then
                 debug_print('The rendering with id ' .. id .. ' was not added. Destroying it instead')
                 rendering.destroy(id)
             else
@@ -316,13 +389,16 @@ end
 handler = function(event)
     local player_index = event.player_index
     local waypoint_index = event.waypoint_index
+    local tick = event.tick
 
-    debug_print('Waypoint_index ' .. waypoint_index .. ' has finished')
+    debug_print('Waypoint_index ' .. waypoint_index .. ' has finished at tick: ' .. tick)
 
     local running_cutscene = running_cutscenes[player_index]
     if not running_cutscene then
         return
     end
+    running_cutscene.current_index = waypoint_index + 1
+    running_cutscene.start_tick = tick
 
     local update = running_cutscene.update
     if update then
@@ -350,12 +426,25 @@ handler = function(event)
         time_to_wait = current_waypoint.time_to_wait,
         transition_time = current_waypoint.transition_time,
         zoom = current_waypoint.zoom,
-        name = current_waypoint.name
+        name = current_waypoint.name,
+        tick = tick
     }
 
     debug_print('Waypoint_index ' .. waypoint_index + 1 .. ' (waypoint #' .. waypoint_index + 2 .. ') callback in ' .. ticks .. ' ticks')
 
     set_timeout_in_ticks(ticks, callback_function, {func = running_cutscene.func, player_index = player_index, waypoint_index = waypoint_index, params = params})
+end
+
+function Public.goTo(player_index, waypoint_index)
+    local running_cutscene = running_cutscenes[player_index]
+    if waypoint_index < 0 or waypoint_index > #running_cutscene.waypoints - 2 then
+        return false
+    end
+    Token.get(remove_renderings)(running_cutscene.rendering)
+    game.get_player(player_index).jump_to_cutscene_waypoint(waypoint_index)
+    handler({player_index = player_index, waypoint_index = waypoint_index - 1, tick = game.tick})
+    running_cutscene.current_index = waypoint_index
+    return true
 end
 
 local function restore(event)
@@ -414,6 +503,26 @@ Gui.on_click(
     skip_btn_name,
     function(event)
         skip_cutscene(nil, game.get_player(event.player_index))
+    end
+)
+
+Gui.on_click(
+    backward_btn_name,
+    function(event)
+        local player_index = event.player_index
+        if Public.goTo(player_index, running_cutscenes[player_index].current_index - 1) == false then
+            game.get_player(player_index).print("Cutscene: You're already at the beginning")
+        end
+    end
+)
+
+Gui.on_click(
+    forward_btn_name,
+    function(event)
+        local player_index = event.player_index
+        if Public.goTo(event.player_index, running_cutscenes[player_index].current_index + 1) == false then
+            game.get_player(player_index).print("Cutscene: You're already at the end")
+        end
     end
 )
 

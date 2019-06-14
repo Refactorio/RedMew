@@ -77,13 +77,15 @@ local fade_token =
 function Public.fade(id, time, ticks)
     ticks = ticks or 20
     local count = (time - time % ticks) / ticks
-    local color = rendering.get_color(id)
-    local a = color.a or 1
-    local decrement = a / count
-    for i = 1, count do
-        a = a - decrement
-        a = a >= 0 and a or 0
-        Task.set_timeout_in_ticks(ticks * i, fade_token, {id = id, color = {r = color.r, b = color.b, g = color.g, a = a}})
+    if rendering.is_valid(id) then
+        local color = rendering.get_color(id)
+        local a = color.a or 1
+        local decrement = a / count
+        for i = 1, count do
+            a = a - decrement
+            a = a >= 0 and a or 0
+            Task.set_timeout_in_ticks(ticks * i, fade_token, {id = id, color = {r = color.r, b = color.b, g = color.g, a = a}})
+        end
     end
 end
 
@@ -100,10 +102,12 @@ local blink_token =
 function Public.blink(id, rate, time)
     local count = (time - time % rate) / rate
     rate = (time / count) * 2
-    local visible = rendering.get_visible(id)
-    for i = 1, count do
-        visible = not visible
-        Task.set_timeout_in_ticks(rate * i, blink_token, {id = id, visible = visible})
+    if rendering.is_valid(id) then
+        local visible = rendering.get_visible(id)
+        for i = 1, count do
+            visible = not visible
+            Task.set_timeout_in_ticks(rate * i, blink_token, {id = id, visible = visible})
+        end
     end
 end
 
