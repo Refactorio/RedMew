@@ -489,7 +489,7 @@ local function redraw_buff(data)
     end
 end
 
-local function toggle(event)
+function Experience.toggle(event)
     local player = event.player
     local left = player.gui.left
     local frame = left['Diggy.Experience.Frame']
@@ -551,7 +551,7 @@ end
 
 Gui.allow_player_to_toggle_top_element_visibility('Diggy.Experience.Button')
 
-Gui.on_click('Diggy.Experience.Button', toggle)
+Gui.on_click('Diggy.Experience.Button', Experience.toggle)
 Gui.on_custom_close(
     'Diggy.Experience.Frame',
     function(event)
@@ -568,7 +568,7 @@ local function update_gui()
 
         if frame and frame.valid then
             local data = {player = p, trigger = 'update_gui'}
-            toggle(data)
+            Experience.toggle(data)
         end
     end
 

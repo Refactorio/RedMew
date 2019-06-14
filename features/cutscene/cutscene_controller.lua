@@ -349,7 +349,8 @@ handler = function(event)
         position = current_waypoint.position,
         time_to_wait = current_waypoint.time_to_wait,
         transition_time = current_waypoint.transition_time,
-        zoom = current_waypoint.zoom
+        zoom = current_waypoint.zoom,
+        name = current_waypoint.name
     }
 
     debug_print('Waypoint_index ' .. waypoint_index + 1 .. ' (waypoint #' .. waypoint_index + 2 .. ') callback in ' .. ticks .. ' ticks')
