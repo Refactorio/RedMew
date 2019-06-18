@@ -2,8 +2,9 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local table = require 'utils.table'
-local fast_remove = table.fast_remove
+local remove = table.remove
 local pairs = pairs
+local next = next
 
 local biter_utils_conf = global.config.biter_corpse_remover
 
@@ -35,7 +36,7 @@ local function remove_outdated_corpses(now)
 
             for i = count, 1, -1 do
                 if corpses[i].tick < now then
-                    fast_remove(corpses, i)
+                    remove(corpses, i)
                     count = count - 1
                 end
             end
@@ -45,7 +46,7 @@ local function remove_outdated_corpses(now)
             end
         end
 
-        if #column == 0 then
+        if next(column) == nil then
             corpse_chunks[x] = nil
         end
     end
@@ -105,13 +106,11 @@ local function biter_died(event)
 
     -- Cleanup old corpse if above threshold
     if count > biter_utils_conf.corpse_threshold then
-        local old_entity = corpses[1].entity
+        local old_entity = remove(corpses, 1).entity
 
         if old_entity.valid then
             old_entity.destroy()
         end
-
-        fast_remove(corpses, 1)
     end
 end
 
