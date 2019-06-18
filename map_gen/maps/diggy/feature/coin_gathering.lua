@@ -59,6 +59,10 @@ function CoinGathering.register(config)
 
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
+        if not entity or not entity.valid then
+            return
+        end
+
         local force = entity.force
         if force.name ~= 'enemy' or random() > alien_coin_drop_chance then
             return
