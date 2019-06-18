@@ -1,4 +1,5 @@
 -- Map by Jayefuu, based on Triangle of Death map by grilledham
+--TODO: rebalance and then enable market.
 
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
@@ -23,11 +24,12 @@ RS.set_map_gen_settings(
         MGSP.cliff_none
     }
 )
-global.config.market.create_standard_market = false
+--disables the market and coin features. set line 28 to "true" instead of "false" to negate this.
+global.config.market.enabled = false
 
 ScenarioInfo.set_map_name('Christmas Tree of Terror')
-ScenarioInfo.set_map_description("Triangle of death's Christmas cousin!\nThe further you go down the tree, the better your presents get. Have you been a good factory worker this year?")
-ScenarioInfo.add_map_extra_info('Christmas tree shaped death world with plenty of loot to fight for.\nCan you reach the presents at the base of the tree?')
+ScenarioInfo.set_map_description("Triangle of death's Christmas cousin")
+ScenarioInfo.add_map_extra_info('Christmas tree shaped death world.\nChristmas themed ore patches.\nLoot scattered in cars throughout the map.\nStandard market disabled.')
 
 local generator
 local ammos = {
@@ -49,6 +51,7 @@ local ammos = {
     'shotgun-shell'
 }
 
+--Sets player ammo damage at a disadvantage. Change the number on line 59 to a less negative or positive integer to negate this.
 local function init_weapon_damage()
     local p_force = game.forces.player
 
@@ -57,6 +60,7 @@ local function init_weapon_damage()
     end
 end
 
+--Syncs ammo and turret damage techs between the player force and enemy.
 Event.add(
     defines.events.on_research_finished,
     function(event)
