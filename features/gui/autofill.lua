@@ -8,7 +8,7 @@ local enabled_style = 'green_slot_button'
 local disabled_style = 'red_slot_button'
 
 local style_map = {[true] = enabled_style, [false] = disabled_style}
-local enabled_locale_map = {[true] = {'autofill.enabled'}, [false] = {'autofill.disabled'}}
+local enabled_locale_map = {[true] = {'common.enabled'}, [false] = {'common.disabled'}}
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
