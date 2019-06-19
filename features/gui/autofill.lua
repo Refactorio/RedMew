@@ -86,7 +86,7 @@ local function toggle_main_frame(event)
             Gui.set_data(button, name)
         end
 
-        local close_button = frame.add {type = 'button', name = main_button_name, caption = 'Close'}
+        frame.add {type = 'button', name = main_button_name, caption = 'Close'}
 
         local data = {
             enabled_checkbox = enabled_checkbox,
@@ -126,8 +126,6 @@ local function ammo_count_changed(event)
     local data = Gui.get_data(element)
     local ammo_count_label = data.ammo_count_label
 
-    local color, label_color, tooltip
-
     local valid = Autofill.set_ammo_count(event.player_index, element.text)
     set_ammo_count_elements_validation(element, ammo_count_label, valid)
 end
@@ -145,7 +143,7 @@ local function enabled_ammos_changed(event)
 end
 
 local function settings_changed(event)
-    local settings_name = event.setting_name
+    local setting_name = event.setting_name
 
     if setting_name == Autofill.enable_autofill_name then
         local player_index = event.player_index
@@ -163,7 +161,7 @@ local function settings_changed(event)
         local checkbox = data.enabled_checkbox
 
         checkbox.state = event.new_value
-    elseif settings_name == Autofill.ammo_count_name then
+    elseif setting_name == Autofill.ammo_count_name then
         local player_index = event.player_index
         local player = game.get_player(player_index)
         if not player or not player.valid then

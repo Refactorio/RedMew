@@ -3,7 +3,7 @@ local Task = require 'utils.task'
 local Token = require 'utils.token'
 
 local config = require 'config'
-turret_types = config.turret_active_delay.turret_types
+local turret_types = config.turret_active_delay.turret_types
 
 local tau = 2 * math.pi
 local start_angle = -tau / 4
