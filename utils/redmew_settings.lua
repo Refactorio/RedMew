@@ -45,6 +45,8 @@ Public.events = {
 
 Public.types = {
     fraction = 'fraction',
+    integer = 'integer',
+    positive_integer = 'positive_integer',
     string = 'string',
     boolean = 'boolean',
     color = 'color',

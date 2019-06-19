@@ -133,11 +133,11 @@ local function color_sanitizer(input)
         end
 
         return true, to_valid_rgba_table({
-            r = input.r,
-            g = input.g,
-            b = input.b,
-            a = input.a,
-        })
+                r = input.r,
+                g = input.g,
+                b = input.b,
+                a = input.a,
+            })
     end
 
     return false, {'redmew_settings_util.invalid_color_value'}
@@ -166,6 +166,32 @@ return {
             end
 
             return true, input
+        end
+    },
+    integer = {
+        equals = equals_by_value,
+        toScalar = raw,
+        sanitizer = function(input)
+            input = tonumber(input)
+
+            if input == nil then
+                return false, {'redmew_settings_util.integer_invalid_value'}
+            end
+
+            return true, floor(input)
+        end
+    },
+    positive_integer = {
+        equals = equals_by_value,
+        toScalar = raw,
+        sanitizer = function(input)
+            input = tonumber(input)
+
+            if input == nil or input <= 0 then
+                return false, {'redmew_settings_util.integer_invalid_value'}
+            end
+
+            return true, floor(input)
         end
     },
     string = {

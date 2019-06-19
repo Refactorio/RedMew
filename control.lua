@@ -100,6 +100,12 @@ end
 if config.biter_corpse_remover.enabled then
     require 'features.biter_corpse_remover'
 end
+if config.turret_active_delay.enabled then
+    require 'features.turret_active_delay'
+end
+if config.autofill then
+    require 'features.gui.autofill'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.

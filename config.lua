@@ -23,13 +23,9 @@ global.config = {
         -- the number of 'tiles' that are calculated per tick
         ['tiles_per_tick'] = 32,
         -- the entity modules to load (takes a list of requires), example included
-        ['entity_modules'] = {
-            --function() return require('map_gen.entities.fluffy_rainbows') end
-        },
+        ['entity_modules'] = {},
         -- the terrain modules to load (takes a list of requires), example included
-        ['terrain_modules'] = {
-            --function() return require('map_gen.terrain.tris_chunk_grid') end
-        },
+        ['terrain_modules'] = {}
     },
     -- redmew_surface allows a map preset to control world generation as well as map and difficulty settings
     -- the entire module can be toggled or just individual parts
@@ -47,7 +43,7 @@ global.config = {
     -- allows syncing player colors from and to the server. Disable this if you want to enforce custom colors
     -- when enabled, /color will also be synced to the player settings
     player_colors = {
-        enabled = true,
+        enabled = true
     },
     -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
     train_saviour = {
@@ -86,7 +82,6 @@ global.config = {
     -- enables score and tracking thereof
     score = {
         enabled = true,
-
         -- the global score trackers to show
         global_to_show = {
             'satellites-launched',
@@ -101,6 +96,10 @@ global.config = {
     },
     -- adds a paint brush
     paint = {
+        enabled = true
+    },
+    -- autofill turrets with ammo
+    autofill = {
         enabled = true
     },
     -- adds a market
@@ -395,6 +394,23 @@ global.config = {
         enabled = true,
         chunk_size = 3, -- size of chunk in tiles
         corpse_threshold = 3 -- number of corpses allowed on surface inside chunk
+    },
+    turret_active_delay = {
+        enabled = true,
+        -- delay for turret type in ticks
+        turret_types = {
+            ['ammo-turret'] = 60 * 30,
+            ['electric-turret'] = 60 * 15,
+            ['fluid-turret'] = 60 * 20,
+            ['artillery-turret'] = 60 * 10
+        },
+        -- reduce delay for each level of the tech
+        techs = {
+            ['weapon-shooting-speed'] = {{turret_type = 'ammo-turret', amount = 60 * 26 / 6}},
+            ['laser-turret-speed'] = {{turret_type = 'electric-turret', amount = 60 * 12 / 7}},
+            ['refined-flammables'] = {{turret_type = 'fluid-turret', amount = 60 * 17 / 7}},
+            ['artillery-shell-speed'] = {{turret_type = 'artillery-turret', amount = 60 * 2}}
+        }
     }
 }
 
