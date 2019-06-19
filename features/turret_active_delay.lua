@@ -23,6 +23,12 @@ entity_built_callback =
             return
         end
 
+        if entity.health == 0 then
+            entity.active = true
+            entity.die('enemy')
+            return
+        end
+
         local tick = data.tick
         local now = game.tick
         if now >= tick then
