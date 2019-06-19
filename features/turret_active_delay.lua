@@ -4,6 +4,7 @@ local Token = require 'utils.token'
 
 local config = require 'config'
 local turret_types = config.turret_active_delay.turret_types
+local techs = config.turret_active_delay.techs
 
 local tau = 2 * math.pi
 local start_angle = -tau / 4
@@ -63,7 +64,7 @@ local function entity_built(event)
     end
 
     local delay = turret_types[entity.type]
-    if not delay then
+    if not delay or delay <= 0 then
         return
     end
 
@@ -75,5 +76,24 @@ local function entity_built(event)
     )
 end
 
+local function research_finished(event)
+    local research = event.research
+    local name = research.name:gsub('%-%d', '')
+
+    local data = techs[name]
+    if not data then
+        return
+    end
+
+    for _, turret_data in pairs(data) do
+        local turret_type = turret_data.turret_type
+        local amount = turret_data.amount
+
+        local old = turret_types[turret_type]
+        turret_types[turret_type] = math.max(old - amount, 0)
+    end
+end
+
 Event.add(defines.events.on_built_entity, entity_built)
 Event.add(defines.events.on_robot_built_entity, entity_built)
+Event.add(defines.events.on_research_finished, research_finished)
