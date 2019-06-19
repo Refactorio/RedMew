@@ -88,8 +88,8 @@ local function entity_built(event)
 
     local stack = {name = nil, count = settings_get(player_index, ammo_count_name)}
 
-    for name, enabled in pairs(get_player_ammos(player_index)) do
-        if not enabled then
+    for name, ammo_enabled in pairs(get_player_ammos(player_index)) do
+        if not ammo_enabled then
             goto continue
         end
 
