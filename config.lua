@@ -98,6 +98,10 @@ global.config = {
     paint = {
         enabled = true
     },
+    -- autofill turrets with ammo
+    autofill = {
+        enabled = true
+    },
     -- adds a market
     market = {
         enabled = true,
