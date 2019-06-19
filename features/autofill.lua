@@ -98,7 +98,13 @@ local function entity_built(event)
 
         if removed > 0 then
             stack.count = removed
-            entity.insert(stack)
+
+            local inserted = entity.insert(stack)
+            local diff = removed - inserted
+            if diff > 0 then
+                stack.count = diff
+                inventory.insert(stack)
+            end
 
             local remaining_count = inventory.get_item_count(name)
 
@@ -106,7 +112,7 @@ local function entity_built(event)
                 {
                     name = 'flying-text',
                     position = entity.position,
-                    text = {'autofill.insert_item', removed, ammo_locales[name], remaining_count}
+                    text = {'autofill.insert_item', inserted, ammo_locales[name], remaining_count}
                 }
             )
 
@@ -124,7 +130,7 @@ function Public.get_enabled(player_index)
 end
 
 function Public.set_enabled(player_index, value)
-    Settings_set(player_index, enable_autofill_name, value)
+    settings_set(player_index, enable_autofill_name, value)
 end
 
 function Public.get_ammo_count(player_index)
