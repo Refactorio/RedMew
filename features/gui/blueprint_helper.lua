@@ -296,7 +296,13 @@ local function draw_filters_table(event)
         return
     end
 
-    local frame = center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = 'Set Filter'}
+    local frame =
+        center.add {
+        type = 'frame',
+        name = filters_table_name,
+        direction = 'vertical',
+        caption = {'blueprint_helper.set_filter_caption'}
+    }
 
     local t = frame.add {type = 'table', column_count = 10}
     t.style.horizontal_spacing = 0
