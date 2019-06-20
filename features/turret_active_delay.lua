@@ -1,6 +1,7 @@
 local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
+local Global = require 'utils.global'
 
 local config = require 'config'
 local turret_types = config.turret_active_delay.turret_types
@@ -13,6 +14,13 @@ local time_to_live = update_rate + 1
 
 local draw_arc = rendering.draw_arc
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
+
+Global.register(
+    turret_types,
+    function(tbl)
+        turret_types = tbl
+    end
+)
 
 local entity_built_callback
 entity_built_callback =
