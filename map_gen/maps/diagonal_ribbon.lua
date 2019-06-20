@@ -9,6 +9,7 @@ local Global = require 'utils.global'
 local math = require 'utils.math'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local ScenarioInfo = require 'features.gui.info'
 
 local play_area_width = 50 -- The approximate width of the play area
 local oob_tile = 'out-of-map' -- The tiles that make up the out of bounds/world border. Recommended are out-of-map or water.
@@ -26,7 +27,12 @@ local perlin_seed_2 = nil
 
 local custom_oregen = {
     autoplace_controls = {
-        coal = {
+        ['coal'] = {
+            frequency = 'high',
+            richness = 'poor',
+            size = 'low'
+        },
+        ['stone'] = {
             frequency = 'high',
             richness = 'poor',
             size = 'low'
@@ -62,6 +68,10 @@ RS.set_map_gen_settings(
         custom_oregen
     }
 )
+--Special thanks to the following following beta testers for their help with the map and map info: sockmeistr
+ScenarioInfo.set_map_name('Diagonal Ribbon')
+ScenarioInfo.set_map_description('The terrain is spaghetti, make a base that fits it!')
+ScenarioInfo.set_map_extra_info('Variable-length ribbon world stretching diagonally.\nResources have a higher frequency but lower richness.\nAverage usable space of 50 tiles.')
 
 Global.register_init(
     {},
