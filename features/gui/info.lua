@@ -79,7 +79,8 @@ end
 local changelog_callback = Token.register(process_changelog)
 
 local function prepare_title()
-    local welcome_title = [[
+    local welcome_title =
+        [[
 111111  1111111 111111  111    111 1111111 11     11
 11   11 11      11   11 1111  1111 11      11     11
 111111  11111   11   11 11 1111 11 11111   11  1  11
@@ -183,11 +184,17 @@ local pages = {
             centered_label(parent, {'info.welcome_text'})
 
             header_label(parent, {'info.chatting_header'})
-            centered_label(parent, {'info.chatting_text', {'gui-menu.settings'}, {'gui-menu.controls'}, {'controls.toggle-console'}})
+            centered_label(
+                parent,
+                {'info.chatting_text', {'gui-menu.settings'}, {'gui-menu.controls'}, {'controls.toggle-console'}}
+            )
 
             if config_prewards.enabled and config_prewards.info_player_reward then
                 header_label(parent, {'info.free_coin_header'})
-                centered_label(parent, {'info.free_coin_text', reward_amount, reward_token, reward_amount, reward_token})
+                centered_label(
+                    parent,
+                    {'info.free_coin_text', reward_amount, reward_token, reward_amount, reward_token}
+                )
             end
 
             header_label(parent, {'info.links_header'})
@@ -197,7 +204,8 @@ local pages = {
             discord_textbox_flow_style.horizontal_align = 'center'
             discord_textbox_flow_style.horizontally_stretchable = true
             discord_textbox_flow.add({type = 'label', caption = 'Discord: '}).style.font = 'default-bold'
-            local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'https://www.redmew.com/discord '}
+            local discord_textbox =
+                discord_textbox_flow.add {type = 'text-box', text = 'https://www.redmew.com/discord '}
             discord_textbox.read_only = true
             discord_textbox.style.width = 235
             discord_textbox.style.height = 28
@@ -227,7 +235,8 @@ local pages = {
             maps_textbox_flow_style.horizontal_align = 'center'
             maps_textbox_flow_style.horizontally_stretchable = true
             maps_textbox_flow.add({type = 'label', caption = 'Maps: '}).style.font = 'default-bold'
-            local maps_textbox = maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
+            local maps_textbox =
+                maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
             maps_textbox.read_only = true
             maps_textbox.style.width = 315
             maps_textbox.style.height = 28
@@ -652,13 +661,20 @@ end
 
 local function toggle(event)
     local player = event.player
-    local center = player.gui.center
+    local gui = player.gui
+    local center = gui.center
     local main_frame = center[main_frame_name]
+    local main_button = gui.top[main_button_name]
 
     if main_frame then
         upload_changelog(event)
         Gui.destroy(main_frame)
+        main_button.style = 'icon_button'
     else
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
         draw_main_frame(center, player)
     end
 end
@@ -670,12 +686,14 @@ local function player_created(event)
     end
 
     local gui = player.gui
-    gui.top.add({
-        type = 'sprite-button',
-        name = main_button_name,
-        sprite = 'virtual-signal/signal-info',
-        tooltip = {'info.tooltip'}
-    })
+    gui.top.add(
+        {
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'virtual-signal/signal-info',
+            tooltip = {'info.tooltip'}
+        }
+    )
 
     rewarded_players[player.index] = 0
     reward_player(player, info_tab_flags[1])
@@ -756,6 +774,9 @@ Gui.on_custom_close(
     function(event)
         upload_changelog(event)
         Gui.destroy(event.element)
+
+        local main_button = event.player.gui.top[main_button_name]
+        main_button.style = 'icon_button'
     end
 )
 

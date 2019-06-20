@@ -35,6 +35,9 @@ local function player_joined(event)
 
     if main_frame then
         Gui.destroy(main_frame)
+
+        local main_button = player.gui.top[main_button_name]
+        main_button.style = 'icon_button'
     end
 end
 
@@ -160,13 +163,21 @@ end
 
 local function toggle(event)
     local player = event.player
-    local center = player.gui.center
+    local gui = player.gui
+    local center = gui.center
     local main_frame = center[main_frame_name]
+    local main_button = gui.top[main_button_name]
 
     if main_frame then
         Gui.destroy(main_frame)
+        main_button.style = 'icon_button'
     else
         draw_main_frame(center, player)
+
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
     end
 end
 
@@ -215,6 +226,9 @@ local function save_changes(event)
 
     if main_frame then
         Gui.destroy(main_frame)
+
+        local main_button = player.gui.top[main_button_name]
+        main_button.style = 'icon_button'
     end
 end
 
@@ -256,6 +270,9 @@ end
 
 Gui.on_custom_close(main_frame_name, function(event)
     Gui.destroy(event.element)
+
+    local main_button = event.player.gui.top[main_button_name]
+    main_button.style = 'icon_button'
 end)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
