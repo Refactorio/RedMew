@@ -491,11 +491,14 @@ end
 
 local function toggle(event)
     local player = event.player
-    local left = player.gui.left
+    local gui = player.gui
+    local left = gui.left
     local frame = left['Diggy.Experience.Frame']
+    local main_button = gui.top['Diggy.Experience.Button']
 
     if (frame and event.trigger == nil) then
         Gui.destroy(frame)
+        main_button.style = 'icon_button'
         return
     elseif (frame) then
         local data = Gui.get_data(frame)
@@ -504,6 +507,11 @@ local function toggle(event)
         redraw_table(data)
         return
     end
+
+    main_button.style = 'selected_slot_button'
+    local style = main_button.style
+    style.width = 38
+    style.height = 38
 
     frame = left.add({name = 'Diggy.Experience.Frame', type = 'frame', direction = 'vertical'})
 

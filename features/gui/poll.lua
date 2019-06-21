@@ -429,13 +429,22 @@ local function remove_main_frame(main_frame, left, player)
 end
 
 local function toggle(event)
-    local left = event.player.gui.left
+    local player = event.player
+    local gui = player.gui
+    local left = gui.left
     local main_frame = left[main_frame_name]
+    local main_button = gui.top[main_button_name]
 
     if main_frame then
         remove_main_frame(main_frame, left, event.player)
+        main_button.style = 'icon_button'
     else
         draw_main_frame(left, event.player)
+
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
     end
 end
 

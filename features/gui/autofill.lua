@@ -43,12 +43,20 @@ end
 local function toggle_main_frame(event)
     local player = event.player
     local player_index = player.index
-    local left = player.gui.left
-
+    local gui = player.gui
+    local left = gui.left
     local frame = left[main_frame_name]
+    local main_button = gui.top[main_button_name]
+
     if frame then
         Gui.destroy(frame)
+        main_button.style = 'icon_button'
     else
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
+
         frame =
             left.add {type = 'frame', name = main_frame_name, caption = {'autofill.frame_name'}, direction = 'vertical'}
 

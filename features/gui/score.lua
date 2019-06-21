@@ -142,14 +142,20 @@ Gui.on_click(
     main_button_name,
     function(event)
         local player = event.player
-
         local top = player.gui.top
         local frame = top[main_frame_name]
+        local main_button = top[main_button_name]
 
         if not frame then
             score_show(top)
+
+            main_button.style = 'selected_slot_button'
+            local style = main_button.style
+            style.width = 38
+            style.height = 38
         else
             frame.destroy()
+            main_button.style = 'icon_button'
         end
     end
 )
