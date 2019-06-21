@@ -78,6 +78,24 @@ end
 
 local changelog_callback = Token.register(process_changelog)
 
+--- Uploads the contents of new info tab to the server.
+-- Is triggered on closing the info window by clicking the close button or by pressing escape.
+local function upload_changelog(player)
+    if not player or not player.valid or not player.admin then
+        return
+    end
+
+    if editable_info[new_info_key] ~= config_mapinfo.new_info_key and primitives.info_edited then
+        Server.set_data('misc', 'changelog', editable_info[new_info_key])
+        primitives.info_edited = nil
+    end
+end
+
+--- Tries to download the latest changelog
+local function download_changelog()
+    Server.try_get_data('misc', 'changelog', changelog_callback)
+end
+
 local function prepare_title()
     local welcome_title =
         [[
@@ -617,6 +635,12 @@ local function draw_main_frame(center, player)
     player.opened = frame
 end
 
+local function close_main_frame(frame, player)
+    upload_changelog(player)
+    Gui.destroy(frame)
+    player.gui.top[main_button_name].style = 'icon_button'
+end
+
 local function reward_player(player, index, message)
     if not config_prewards.enabled or not config_prewards.info_player_reward then
         return
@@ -640,25 +664,6 @@ local function reward_player(player, index, message)
     end
 end
 
---- Uploads the contents of new info tab to the server.
--- Is triggered on closing the info window by clicking the close button or by pressing escape.
-local function upload_changelog(event)
-    local player = event.player
-    if not player or not player.valid or not player.admin then
-        return
-    end
-
-    if editable_info[new_info_key] ~= config_mapinfo.new_info_key and primitives.info_edited then
-        Server.set_data('misc', 'changelog', editable_info[new_info_key])
-        primitives.info_edited = nil
-    end
-end
-
---- Tries to download the latest changelog
-local function download_changelog()
-    Server.try_get_data('misc', 'changelog', changelog_callback)
-end
-
 local function toggle(event)
     local player = event.player
     local gui = player.gui
@@ -667,14 +672,13 @@ local function toggle(event)
     local main_button = gui.top[main_button_name]
 
     if main_frame then
-        upload_changelog(event)
-        Gui.destroy(main_frame)
-        main_button.style = 'icon_button'
+        close_main_frame(main_frame, player)
     else
         main_button.style = 'selected_slot_button'
         local style = main_button.style
         style.width = 38
         style.height = 38
+
         draw_main_frame(center, player)
     end
 end
@@ -772,11 +776,7 @@ Gui.on_text_changed(
 Gui.on_custom_close(
     main_frame_name,
     function(event)
-        upload_changelog(event)
-        Gui.destroy(event.element)
-
-        local main_button = event.player.gui.top[main_button_name]
-        main_button.style = 'icon_button'
+        close_main_frame(event.element, event.player)
     end
 )
 
