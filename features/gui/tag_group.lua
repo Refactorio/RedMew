@@ -34,15 +34,20 @@ local function notify_players(message)
     end
 end
 
-local function change_player_tag(player, tag_name, silent)
+local function change_player_tag(player, tag_name, silent, force)
     local old_tag = player.tag
-    if tag_name == '' and old_tag == '' then
+
+    if tag_name == '' and old_tag == '' and not force then
         return false
     end
 
-    local tag = '[' .. tag_name .. ']'
-    if old_tag == tag then
-        return false
+    local tag_data = tag_groups[tag_name]
+    local tag
+    if tag_data then
+        tag = '[[img=' .. tag_data.path .. ']]'
+        if old_tag == tag then
+            return false
+        end
     end
 
     if old_tag ~= '' then
@@ -60,7 +65,6 @@ local function change_player_tag(player, tag_name, silent)
         return true
     end
 
-    local tag_data = tag_groups[tag_name]
     if not tag_data then
         return false
     end
@@ -73,7 +77,7 @@ local function change_player_tag(player, tag_name, silent)
 
     players[player.index] = true
 
-    player.tag = tag
+    player.tag = '[[img=' .. tag_data.path .. ']]'
 
     local verb = tag_data.verb or default_verb
 
@@ -151,7 +155,7 @@ local function draw_main_frame_content(parent)
     grid.style.vertical_spacing = 0
 
     for tag_name, tag_data in pairs(tag_groups) do
-        local tag = '[' .. tag_name .. ']'
+        local tag = '[[img=' .. tag_data.path .. ']]'
         local players = player_tags[tag]
 
         local size = get_size(players)
@@ -475,7 +479,7 @@ Gui.on_click(
             return
         end
 
-        local tag = '[' .. tag_name .. ']'
+        local tag = '[[img=' .. tag_data.path .. ']]'
 
         for _, player in pairs(game.players) do
             if player.valid and player.tag == tag then
@@ -594,7 +598,8 @@ Gui.on_click(
 
         local path
         if not sprite or sprite == '' then
-            path = nil
+            player.print('Sorry, you need to choose an icon')
+            return
         elseif type == 'signal' then
             path = 'virtual-signal/' .. data.choose.elem_value.name
         else
@@ -627,22 +632,23 @@ Gui.on_click(
                 return
             end
 
-            if old_name ~= tag_name then
+            if old_name ~= tag_name or old_tag_data.path ~= tag_data.path then
                 message = player.name .. ' has edited the ' .. tag_name .. ' (formerly ' .. old_name .. ') tag group'
 
-                local old_tag = '[' .. old_name .. ']'
+                local old_tag = '[[img=' .. old_tag_data.path .. ']]'
 
                 for _, p in pairs(game.players) do
                     if p.valid and p.tag == old_tag then
-                        change_player_tag(p, tag_name, true)
+                        change_player_tag(p, tag_name, true, true)
 
                         if p.connected then
                             redraw_main_button(player, '')
                         end
                     end
                 end
-
-                tag_groups[old_name] = nil
+                if old_name ~= tag_name then
+                    tag_groups[old_name] = nil
+                end
             else
                 message = player.name .. ' has edited the ' .. tag_name .. ' tag group'
             end
