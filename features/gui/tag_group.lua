@@ -9,6 +9,7 @@ local tag_groups = require 'resources.tag_groups'
 local Settings = require 'utils.redmew_settings'
 local LocaleBuilder = require 'utils.locale_builder'
 local table = require 'utils.table'
+local concat = table.concat
 
 local notify_name = 'notify_tag_group'
 Settings.register(notify_name, Settings.types.boolean, true, 'tag_group.notify_caption_short')
@@ -160,6 +161,8 @@ local function draw_main_frame_content(parent)
     local grid = parent.add {type = 'table', column_count = 1}
     grid.style.vertical_spacing = 0
 
+    local can_edit = Rank.equal_or_greater_than(player.name, Ranks.regular)
+
     for tag_name, tag_data in pairs(tag_groups) do
         local tag = '[' .. tag_name .. ']'
         local players = player_tags[tag]
@@ -170,13 +173,13 @@ local function draw_main_frame_content(parent)
         local row = grid.add {type = 'table', column_count = 4}
         row.style.horizontal_spacing = 0
 
-        if Rank.equal_or_greater_than(player.name, Ranks.regular) then
+        if can_edit then
             local edit_button =
                 row.add {
                 type = 'sprite-button',
                 name = edit_tag_button_name,
                 sprite = 'utility/rename_icon_normal',
-                tooltip = 'Edit tag group'
+                tooltip = {'tag_group.edit_group'}
             }
             edit_button.style.top_padding = 0
             edit_button.style.bottom_padding = 0
@@ -222,7 +225,12 @@ end
 local function draw_main_frame(player)
     local left = player.gui.left
     local main_frame =
-        left.add {type = 'frame', name = main_frame_name, caption = 'Choose your tag', direction = 'vertical'}
+        left.add {
+        type = 'frame',
+        name = main_frame_name,
+        caption = {'tag_group.choose_your_tag'},
+        direction = 'vertical'
+    }
 
     main_frame.style.maximal_height = 500
     main_frame.style.maximal_width = 500
@@ -256,15 +264,15 @@ local function draw_main_frame(player)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
+    left_flow.add {type = 'button', name = main_button_name, caption = {'common.close_button'}}
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
     right_flow.style.horizontal_align = 'right'
 
-    right_flow.add {type = 'button', name = clear_button_name, caption = 'Clear Tag'}
+    right_flow.add {type = 'button', name = clear_button_name, caption = {'tag_group.clear_tag'}}
 
     if Rank.equal_or_greater_than(player.name, Ranks.regular) then
-        right_flow.add {type = 'button', name = create_tag_button_name, caption = 'Create Tag'}
+        right_flow.add {type = 'button', name = create_tag_button_name, caption = {'tag_group.create_tag'}}
     end
 
     Gui.set_data(main_frame, notify_checkbox)
@@ -344,15 +352,15 @@ local function draw_create_tag_frame(event, tag_data)
             path = nil
         end
 
-        frame_caption = 'Edit Tag'
-        confirm_caption = 'Edit'
+        frame_caption = {'tag_group.edit_tag_title'}
+        confirm_caption = {'common.edit'}
     else
         name = ''
         join_message = default_join_message
         leave_message = default_leave_message
         spirte_type = choices[1]
-        frame_caption = 'Create A New Tag'
-        confirm_caption = 'Create'
+        frame_caption = {'tag_group.create_tag_title'}
+        confirm_caption = {'common.create'}
     end
 
     local player = event.player
@@ -367,11 +375,11 @@ local function draw_create_tag_frame(event, tag_data)
     frame = center.add({type = 'frame', name = create_tag_frame_name, caption = frame_caption, direction = 'vertical'})
 
     if tag_data then
-        local text = LocaleBuilder.new('Created by: '):add(tag_data.created_by or '<Server>')
+        local text = LocaleBuilder.new({'common.created_by', tag_data.created_by or '<Server>'})
 
         local edited_by = tag_data.edited_by
         if edited_by then
-            text = text:add(', Edited by: '):add(table.concat(edited_by, ', '))
+            text = text:add(', '):add({'common.edited_by', concat(edited_by, ', ')})
         end
 
         frame.add({type = 'label', caption = text})
@@ -379,11 +387,11 @@ local function draw_create_tag_frame(event, tag_data)
 
     local main_table = frame.add {type = 'table', column_count = 2}
 
-    main_table.add {type = 'label', caption = 'Name'}
+    main_table.add {type = 'label', caption = {'common.name'}}
     local name_field = main_table.add {type = 'textfield', text = name}
     Gui.set_data(name_field, frame)
 
-    main_table.add {type = 'label', caption = 'Icon'}
+    main_table.add {type = 'label', caption = {'common.icon'}}
     local icons_flow = main_table.add {type = 'flow', direction = 'horizontal'}
     local selection_flow = icons_flow.add {type = 'flow'}
 
@@ -417,12 +425,12 @@ local function draw_create_tag_frame(event, tag_data)
 
     Gui.set_data(choose, frame)
 
-    main_table.add {type = 'label', caption = 'Join Message'}
+    main_table.add {type = 'label', caption = {'tag_group.join_message'}}
     local join_message_field = main_table.add {type = 'textfield', text = join_message}
     join_message_field.style.minimal_width = 353
     Gui.set_data(join_message_field, frame)
 
-    main_table.add {type = 'label', caption = 'Leave Message'}
+    main_table.add {type = 'label', caption = {'tag_group.leave_message'}}
     local leave_message_field = main_table.add {type = 'textfield', text = leave_message}
     leave_message_field.style.minimal_width = 353
     Gui.set_data(leave_message_field, frame)
@@ -433,14 +441,15 @@ local function draw_create_tag_frame(event, tag_data)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local close_button = left_flow.add {type = 'button', name = close_create_tag_name, caption = 'Close'}
+    local close_button =
+        left_flow.add {type = 'button', name = close_create_tag_name, caption = {'common.close_button'}}
     Gui.set_data(close_button, frame)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
     right_flow.style.horizontal_align = 'right'
 
     if tag_data then
-        local delete_button = right_flow.add {type = 'button', name = delete_tag_name, caption = 'Delete'}
+        local delete_button = right_flow.add {type = 'button', name = delete_tag_name, caption = {'common.delete'}}
         Gui.set_data(delete_button, frame)
     end
 
@@ -502,7 +511,7 @@ Gui.on_click(
         frame.destroy()
 
         if not tag_groups[tag_name] then
-            event.player.print("Sorry, Tag name '" .. tag_name .. "' not found.")
+            event.player.print({'tag_group.tag_not_found', tag_name})
             return
         end
 
@@ -522,7 +531,7 @@ Gui.on_click(
 
         redraw_main_frame()
 
-        notify_players(event.player.name .. ' has deleted the ' .. tag_name .. ' tag group')
+        notify_players({'tag_group.player_delete_tag_group', event.player.name, tag_name})
     end
 )
 
@@ -533,7 +542,7 @@ Gui.on_click(
 
         local tag_data = tag_groups[tag_name]
         if not tag_data then
-            event.player.print("Sorry, Tag name '" .. tag_name .. "' not found.")
+            event.player.print({'tag_group.tag_not_found', tag_name})
             return
         end
 
@@ -611,12 +620,12 @@ Gui.on_click(
         local tag_name = data.name.text
 
         if tag_name == '' then
-            player.print('Sorry, the tag needs a name')
+            player.print({'tag_group.tag_needs_name'})
             return
         end
 
         if not old_tag_data and tag_groups[tag_name] then
-            player.print('Sorry, tag ' .. tag_name .. ' is already in use.')
+            player.print({'tag_group.tag_name_already_in_use', tag_name})
             return
         end
 
@@ -633,7 +642,7 @@ Gui.on_click(
         end
 
         if path and not frame.gui.is_valid_sprite_path(path) then
-            player.print('Sorry, ' .. path .. ' is not a valid sprite')
+            player.print({'tag_group.sprite_not_valid', path})
             return
         end
 
@@ -687,8 +696,7 @@ Gui.on_click(
             end
 
             if old_name ~= tag_name then
-                print_message =
-                    player.name .. ' has edited the ' .. tag_name .. ' (formerly ' .. old_name .. ') tag group'
+                print_message = {'tag_group.player_edit_tag_group_name_change', player.name, tag_name, old_name}
 
                 local old_tag = '[' .. old_name .. ']'
 
@@ -704,10 +712,10 @@ Gui.on_click(
 
                 tag_groups[old_name] = nil
             else
-                print_message = player.name .. ' has edited the ' .. tag_name .. ' tag group'
+                print_message = {'tag_group.player_edit_tag_group', player.name, tag_name}
             end
         else
-            print_message = player.name .. ' has made a new tag group called ' .. tag_name
+            print_message = {'tag_group.player_create_tag_group', player.name, tag_name}
         end
 
         redraw_main_frame()
@@ -776,7 +784,7 @@ local function tag_command(args)
     local target_player = game.players[args.player]
 
     if not target_player then
-        Game.player_print('Player does not exist.')
+        Game.player_print({'common.fail_no_target', target_player})
         return
     end
 
@@ -784,16 +792,14 @@ local function tag_command(args)
     local tag = tag_groups[tag_name]
 
     if tag == nil then
-        Game.player_print(
-            "Tag '" .. tag_name .. "' does not exist. Create the tag first by clicking Tag -> Create Tag."
-        )
+        Game.player_print({'tag_group.tag_does_not_exist', tag_name})
         return
     end
 
     if change_player_tag(target_player, tag_name) then
         redraw_main_frame()
     else
-        Game.player_print(target_player.name .. ' already has ' .. tag_name .. ' tag')
+        Game.player_print({'tag_group.player_already_has_tag', target_player.name, tag_name})
     end
 end
 
