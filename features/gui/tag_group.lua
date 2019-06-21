@@ -7,20 +7,23 @@ local Command = require 'utils.command'
 local Ranks = require 'resources.ranks'
 local tag_groups = require 'resources.tag_groups'
 local Settings = require 'utils.redmew_settings'
+local LocaleBuilder = require 'utils.locale_builder'
+local table = require 'utils.table'
 
 local notify_name = 'notify_tag_group'
 Settings.register(notify_name, Settings.types.boolean, true, 'tag_group.notify_caption_short')
 
-local default_verb = 'expanded'
+local default_join_message = '{tag} has expanded with {player}'
+local default_leave_message = '{player} has left the {tag} squad'
 local player_tags = {}
 local no_notify_players = {}
 
 Global.register(
     {tag_groups = tag_groups, player_tags = player_tags, no_notify_players = no_notify_players},
-    function(data)
-        tag_groups = data.tag_groups
-        player_tags = data.player_tags
-        no_notify_players = data.no_notify_players
+    function(tbl)
+        tag_groups = tbl.tag_groups
+        player_tags = tbl.player_tags
+        no_notify_players = tbl.no_notify_players
     end
 )
 
@@ -55,7 +58,13 @@ local function change_player_tag(player, tag_name, silent)
     if tag_name == '' then
         player.tag = ''
         if not silent then
-            notify_players(player.name .. ' has left the ' .. old_tag .. ' squad')
+            local old_tag_name = old_tag:sub(2, -2)
+            local old_tag_data = tag_groups[old_tag_name]
+            if old_tag_data then
+                local leave_message = old_tag_data.leave_message or default_leave_message
+                leave_message = leave_message:gsub('{tag}', old_tag):gsub('{player}', player.name)
+                notify_players(leave_message)
+            end
         end
         return true
     end
@@ -75,10 +84,11 @@ local function change_player_tag(player, tag_name, silent)
 
     player.tag = tag
 
-    local verb = tag_data.verb or default_verb
+    local join_message = tag_data.join_message or default_join_message
+    join_message = join_message:gsub('{tag}', tag):gsub('{player}', player.name)
 
     if not silent then
-        notify_players(tag .. ' squad has `' .. verb .. '` with ' .. player.name)
+        notify_players(join_message)
     end
     return true
 end
@@ -311,14 +321,16 @@ local choices = {
 
 local function draw_create_tag_frame(event, tag_data)
     local name
-    local verb
+    local join_message
+    local leave_message
     local path
     local spirte_type
     local frame_caption
     local confirm_caption
     if tag_data then
         name = tag_data.name
-        verb = tag_data.verb
+        join_message = tag_data.join_message
+        leave_message = tag_data.leave_message
         path = tag_data.path
 
         if path and path ~= '' then
@@ -336,7 +348,8 @@ local function draw_create_tag_frame(event, tag_data)
         confirm_caption = 'Edit'
     else
         name = ''
-        verb = 'expanded'
+        join_message = default_join_message
+        leave_message = default_leave_message
         spirte_type = choices[1]
         frame_caption = 'Create A New Tag'
         confirm_caption = 'Create'
@@ -351,7 +364,18 @@ local function draw_create_tag_frame(event, tag_data)
         frame.destroy()
     end
 
-    frame = center.add {type = 'frame', name = create_tag_frame_name, caption = frame_caption, direction = 'vertical'}
+    frame = center.add({type = 'frame', name = create_tag_frame_name, caption = frame_caption, direction = 'vertical'})
+
+    if tag_data then
+        local text = LocaleBuilder.new('Created by: '):add(tag_data.created_by or '<Server>')
+
+        local edited_by = tag_data.edited_by
+        if edited_by then
+            text = text:add(', Edited by: '):add(table.concat(edited_by, ', '))
+        end
+
+        frame.add({type = 'label', caption = text})
+    end
 
     local main_table = frame.add {type = 'table', column_count = 2}
 
@@ -393,9 +417,15 @@ local function draw_create_tag_frame(event, tag_data)
 
     Gui.set_data(choose, frame)
 
-    main_table.add {type = 'label', caption = 'Verb'}
-    local verb_field = main_table.add {type = 'textfield', text = verb}
-    Gui.set_data(verb_field, frame)
+    main_table.add {type = 'label', caption = 'Join Message'}
+    local join_message_field = main_table.add {type = 'textfield', text = join_message}
+    join_message_field.style.minimal_width = 353
+    Gui.set_data(join_message_field, frame)
+
+    main_table.add {type = 'label', caption = 'Leave Message'}
+    local leave_message_field = main_table.add {type = 'textfield', text = leave_message}
+    leave_message_field.style.minimal_width = 353
+    Gui.set_data(leave_message_field, frame)
 
     local bottom_flow = frame.add {type = 'flow', direction = 'horizontal'}
 
@@ -422,7 +452,8 @@ local function draw_create_tag_frame(event, tag_data)
         choose = choose,
         icons_flow = icons_flow,
         name = name_field,
-        verb = verb_field,
+        join_message = join_message_field,
+        leave_message = leave_message_field,
         tag_data = tag_data
     }
     Gui.set_data(frame, data)
@@ -606,29 +637,58 @@ Gui.on_click(
             return
         end
 
-        local verb = data.verb.text
-        if verb == '' then
-            verb = default_verb
+        local join_message = data.join_message.text
+        if join_message == '' then
+            join_message = default_join_message
         end
 
-        Gui.remove_data_recursively(frame)
-        frame.destroy()
+        local leave_message = data.leave_message.text
+        if leave_message == '' then
+            leave_message = default_leave_message
+        end
+
+        Gui.destroy(frame)
 
         local tag_data = {
             path = path,
-            verb = verb
+            join_message = join_message,
+            leave_message = leave_message,
+            created_by = nil,
+            edited_by = nil
         }
+
+        if old_tag_data then
+            tag_data.created_by = old_tag_data.created_by
+
+            local edited_by = tag_data.edited_by
+            if not edited_by then
+                edited_by = {}
+                tag_data.edited_by = edited_by
+            end
+
+            local name = player.name
+            if not table.array_contains(edited_by, name) then
+                edited_by[#edited_by + 1] = name
+            end
+        else
+            tag_data.created_by = player.name
+        end
+
         tag_groups[tag_name] = tag_data
 
-        local message
+        local print_message
         if old_tag_data then
             local old_name = old_tag_data.name
-            if old_name == tag_name and old_tag_data.path == path and old_tag_data.verb == verb then
+            if
+                old_name == tag_name and old_tag_data.path == path and old_tag_data.join_message == join_message and
+                    old_tag_data.leave_message == leave_message
+             then
                 return
             end
 
             if old_name ~= tag_name then
-                message = player.name .. ' has edited the ' .. tag_name .. ' (formerly ' .. old_name .. ') tag group'
+                print_message =
+                    player.name .. ' has edited the ' .. tag_name .. ' (formerly ' .. old_name .. ') tag group'
 
                 local old_tag = '[' .. old_name .. ']'
 
@@ -644,15 +704,15 @@ Gui.on_click(
 
                 tag_groups[old_name] = nil
             else
-                message = player.name .. ' has edited the ' .. tag_name .. ' tag group'
+                print_message = player.name .. ' has edited the ' .. tag_name .. ' tag group'
             end
         else
-            message = player.name .. ' has made a new tag group called ' .. tag_name
+            print_message = player.name .. ' has made a new tag group called ' .. tag_name
         end
 
         redraw_main_frame()
 
-        notify_players(message)
+        notify_players(print_message)
     end
 )
 

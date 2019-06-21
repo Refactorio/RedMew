@@ -4,50 +4,62 @@
 return {
     ['Trooper'] = {
         path = 'item/tank',
-        verb = 'strengthened'
+        join_message = '{tag} has strengthened with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Mining'] = {
         path = 'item/electric-mining-drill',
-        verb = 'enriched'
+        join_message = '{tag} has enriched with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Smelting'] = {
         path = 'item/stone-furnace',
-        verb = 'fused'
+        join_message = '{tag} has fused with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Production'] = {
         path = 'item/assembling-machine-2',
-        verb = 'enhanced'
+        join_message = '{tag} has enhanced with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Science'] = {
         path = 'item/chemical-science-pack',
-        verb = 'advanced'
+        join_message = '{tag} has advanced with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Wizard'] = {
         path = 'item/green-wire',
-        verb = 'combinated'
+        join_message = '{tag} has combinated with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Trains'] = {
         path = 'item/locomotive',
-        verb = 'derailed'
+        join_message = '{tag} has derailed with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Oil'] = {
         path = 'fluid/crude-oil',
-        verb = 'lubricated'
+        join_message = '{tag} has lubricated with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Powah!'] = {
         path = 'item/steam-engine',
-        verb = 'electrified'
+        join_message = '{tag} has electrified with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Spaceman'] = {
         path = 'item/rocket-silo',
-        verb = 'warped'
+        join_message = '{tag} has warped with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Cat'] = {
         path = 'item/raw-fish',
-        verb = 'mewed'
+        join_message = '{tag} has mewed with {player}',
+        leave_message = '{player} has left the {tag} squad'
     },
     ['Dog'] = {
         path = 'entity/medium-biter',
-        verb = 'woofed'
+        join_message = '{tag} has woofed with {player}',
+        leave_message = '{player} has left the {tag} squad'
     }
 }
