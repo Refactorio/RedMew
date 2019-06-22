@@ -98,12 +98,14 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add({
-        name = main_button_name,
-        type = 'sprite-button',
-        sprite = 'utility/spray_icon',
-        tooltip = {'paint.tooltip'}
-    })
+    player.gui.top.add(
+        {
+            name = main_button_name,
+            type = 'sprite-button',
+            sprite = 'utility/spray_icon',
+            tooltip = {'paint.tooltip'}
+        }
+    )
 end
 
 local function draw_filters_table(event)
@@ -137,13 +139,21 @@ local function draw_filters_table(event)
 end
 
 local function toggle(event)
-    local left = event.player.gui.left
+    local player = event.player
+    local gui = player.gui
+    local left = gui.left
     local main_frame = left[main_frame_name]
+    local main_button = gui.top[main_button_name]
 
     if main_frame and main_frame.valid then
-        Gui.remove_data_recursively(main_frame)
-        main_frame.destroy()
+        Gui.destroy(main_frame)
+        main_button.style = 'icon_button'
     else
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
+
         main_frame =
             left.add {
             type = 'frame',

@@ -1,18 +1,18 @@
 return {
     {
         name = 'temporary-running-speed-bonus',
-        name_label = 'Temporary running speed bonus',
+        name_label = {'market_items.running_speed_bonus_name_label'},
         type = 'temporary-buff',
-        description = 'Increases running speed by one level for a short period',
+        description = {'market_items.running_speed_bonus_description'},
         sprite = 'technology/exoskeleton-equipment',
         stack_limit = 1,
         price = 10,
     },
     {
         name = 'temporary-mining-speed-bonus',
-        name_label = 'Temporary mining speed bonus',
+        name_label = {'market_items.mining_speed_bonus_name_label'},
         type = 'temporary-buff',
-        description = 'Increases manual mining speed by one level for a short period',
+        description = {'market_items.mining_speed_bonus_description'},
         sprite = 'technology/mining-productivity-1',
         stack_limit = 1,
         price = 10,

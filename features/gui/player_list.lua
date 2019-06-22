@@ -5,6 +5,7 @@ local Rank = require 'features.rank_system'
 local Donator = require 'features.donator'
 local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.core'
+local LocaleBuilder = require 'utils.locale_builder'
 local Report = require 'features.report'
 local table = require 'utils.table'
 local Color = require 'resources.color_presets'
@@ -24,13 +25,14 @@ local ipairs = ipairs
 local pairs = pairs
 local abs = math.abs
 local round = math.round
-local remove = table.remove
 local insert = table.insert
 local concat = table.concat
 local get_rank_color = Rank.get_rank_color
 local get_rank_name = Rank.get_rank_name
 local get_player_rank = Rank.get_player_rank
 local donator_is_donator = Donator.is_donator
+
+local tooltip_lines_cap = 53
 
 local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
@@ -361,23 +363,30 @@ local column_builders = {
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local tooltip = {''}
-            for name, count in pairs(cell_data.causes) do
+            local tooltip = LocaleBuilder.new()
+
+            local causes = cell_data.causes
+            local lines = 1
+            for name, count in pairs(causes) do
+                if lines > tooltip_lines_cap then
+                    break
+                end
+                lines = lines + 1
+
                 if not prototype_locale_string_cache[name] then
                     local prototype = game.entity_prototypes[name]
                     if not prototype then
                         prototype = game.item_prototypes[name]
                     end
-                    prototype_locale_string_cache[name] = prototype and prototype.localised_name or {name}
+                    prototype_locale_string_cache[name] = prototype and prototype.localised_name or {'', name}
                 end
 
-                insert(tooltip, prototype_locale_string_cache[name])
-                insert(tooltip, ': ')
-                insert(tooltip, count)
-                insert(tooltip, '\n')
-            end
-            if #tooltip > 1 then
-                remove(tooltip)
+                local str = ': ' .. count
+                if next(causes, name) ~= nil then
+                    str = str .. '\n'
+                end
+
+                tooltip = tooltip:add(prototype_locale_string_cache[name]):add(str)
             end
 
             local label =
@@ -630,12 +639,20 @@ end
 
 local function toggle(event)
     local player = event.player
-    local left = player.gui.left
+    local gui = player.gui
+    local left = gui.left
     local main_frame = left[main_frame_name]
+    local main_button = gui.top[main_button_name]
 
     if main_frame then
         remove_main_frame(main_frame, player)
+        main_button.style = 'icon_button'
     else
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
+
         draw_main_frame(left, player)
     end
 end

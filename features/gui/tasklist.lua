@@ -437,8 +437,11 @@ end
 
 local function toggle(event)
     local player = event.player
-    local left = player.gui.left
+    local gui = player.gui
+    local left = gui.left
     local frame = left[main_frame_name]
+    local main_button = gui.top[main_button_name]
+
     if frame and frame.valid then
         Gui.destroy(frame)
         frame = left[edit_announcements_frame_name]
@@ -449,8 +452,15 @@ local function toggle(event)
         if frame and frame.valid then
             Gui.destroy(frame)
         end
+
+        main_button.style = 'icon_button'
     else
         draw_main_frame(left, player)
+
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
     end
 end
 
