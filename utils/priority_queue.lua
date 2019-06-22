@@ -36,7 +36,7 @@ local function heapify_from_end_to_start(self)
     local comparator = self._comparator
     local pos = #self
     while pos > 1 do
-        local parent = floor(pos / 2)
+        local parent = floor(pos * 0.5)
         local a, b = self[pos], self[parent]
         if comparator(a, b) then
             self[pos], self[parent] = b, a
