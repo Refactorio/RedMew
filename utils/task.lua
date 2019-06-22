@@ -46,8 +46,8 @@ Global.register(
     end
 )
 
-local function get_task_per_tick()
-    if game.tick % 300 == 0 then
+local function get_task_per_tick(tick)
+    if tick % 300 == 0 then
         local size = primitives.total_task_weight
         local task_per_tick = floor(log10(size + 1)) * primitives.task_queue_speed
         if task_per_tick < 1 then
@@ -61,7 +61,9 @@ local function get_task_per_tick()
 end
 
 local function on_tick()
-    for i = 1, get_task_per_tick() do
+    local tick = game.tick
+
+    for i = 1, get_task_per_tick(tick) do
         local task = Queue_peek(task_queue)
         if task ~= nil then
             -- result is error if not success else result is a boolean for if the task should stay in the queue.
@@ -83,7 +85,7 @@ local function on_tick()
     end
 
     local callback = PriorityQueue_peek(callbacks)
-    while callback ~= nil and game.tick >= callback.time do
+    while callback ~= nil and tick >= callback.time do
         local success, result = pcall(Token_get(callback.func_token), callback.params)
         if not success then
             if _DEBUG then
