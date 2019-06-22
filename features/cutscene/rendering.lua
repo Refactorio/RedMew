@@ -69,6 +69,29 @@ local function fit_to_screen(percentage, coordinates)
     return coordinates
 end
 
+local function fit_to_screen_edges(settings, player_resolution, coordinates)
+    if not coordinates.fitted then
+        local tile = settings.original_zoom * 32
+        local player_tile = settings.player_zoom * 32
+
+        local player_height = (player_resolution.height / player_tile) * 0.5
+        local player_width = (player_resolution.width / player_tile) * 0.5
+
+        for _, pos in pairs(coordinates) do
+            if type(pos) == 'number' then
+                coordinates.y = -player_height + ((coordinates.y * tile) / player_tile)
+                coordinates.x = -player_width + ((coordinates.x * tile) / player_tile)
+                break
+            else
+                pos.y = -player_height + ((pos.y * tile) / player_tile)
+                pos.x = -player_width + ((pos.x * tile) / player_tile)
+            end
+        end
+        coordinates.fitted = true
+    end
+    return coordinates
+end
+
 local function create_background_params(params)
     local background_params = params.background
     if background_params then
@@ -95,21 +118,26 @@ local function text_background(settings, offset, player, percentages, size, numb
     return Public.draw_rectangle(settings, offset, left_top, right_bottom, player, background_params)
 end
 
-function Public.draw_text(settings, offset, text, player, params, draw_background)
+function Public.draw_text(settings, offset, text, player, params, draw_background, fit_to_edge)
     local ids = {}
-    local percentages = calculate_percentages(settings, player.display_resolution)
+    local player_resolution = player.display_resolution
+    local percentages = calculate_percentages(settings, player_resolution)
     local scale = params.scale
 
     if draw_background ~= -1 then
         scale = text_scale(percentages, scale)
         local size = text_height_in_tiles(scale, settings.player_zoom)
-        offset = fit_to_screen(percentages, offset)
+        if fit_to_edge then
+            offset = fit_to_screen_edges(settings, player_resolution, offset)
+        else
+            offset = fit_to_screen(percentages, offset)
+        end
         offset.y = offset.y - size * 0.5
     end
     local size = text_height_in_tiles(scale, settings.player_zoom)
 
     if draw_background == true then
-        insert(ids, text_background(settings, offset, player, percentages, size, 1, params))
+        insert(ids, text_background(settings, offset, player, percentages, size, 1, params, fit_to_edge))
     end
 
     local target = {x = player.position.x + offset.x, y = player.position.y + offset.y}
@@ -174,34 +202,47 @@ function Public.draw_text(settings, offset, text, player, params, draw_backgroun
     return ids
 end
 
-function Public.draw_multi_line_text(settings, offset, texts, player, params, draw_background)
+function Public.draw_multi_line_text(settings, offset, texts, player, params, draw_background, fit_to_edge)
     local ids = {}
-    local percentages = calculate_percentages(settings, player.display_resolution)
+    local player_resolution = player.display_resolution
+    local percentages = calculate_percentages(settings, player_resolution)
     local scale = params.scale
 
     scale = text_scale(percentages, scale)
     local size = text_height_in_tiles(scale, settings.player_zoom)
 
-    offset = fit_to_screen(percentages, offset)
+    if fit_to_edge then
+        offset = fit_to_screen_edges(settings, player_resolution, offset)
+    else
+        offset = fit_to_screen(percentages, offset)
+    end
+
     offset.y = offset.y - size * 0.5
 
     if draw_background then
-        insert(ids, text_background(settings, offset, player, percentages, size, #texts, params))
+        insert(ids, text_background(settings, offset, player, percentages, size, #texts, params, fit_to_edge))
         draw_background = -1
     end
 
     for i = 1, #texts do
-        insert(ids, Public.draw_text(settings, offset, texts[i], player, params, draw_background)[1])
+        insert(ids, Public.draw_text(settings, offset, texts[i], player, params, draw_background, fit_to_edge)[1])
         offset.y = offset.y + (size * 1.5)
     end
     return ids
 end
 
-function Public.draw_rectangle(settings, offset, left_top, right_bottom, player, params)
-    local percentages = calculate_percentages(settings, player.display_resolution)
-    offset = fit_to_screen(percentages, offset)
-    left_top = fit_to_screen(percentages, left_top)
-    right_bottom = fit_to_screen(percentages, right_bottom)
+function Public.draw_rectangle(settings, offset, left_top, right_bottom, player, params, fit_to_edge)
+    local player_resolution = player.display_resolution
+    local percentages = calculate_percentages(settings, player_resolution)
+    if fit_to_edge then
+        offset = fit_to_screen_edges(settings, player_resolution, offset)
+        left_top = fit_to_screen_edges(settings, player_resolution, left_top)
+        right_bottom = fit_to_screen_edges(settings, player_resolution, right_bottom)
+    else
+        offset = fit_to_screen(percentages, offset)
+        left_top = fit_to_screen(percentages, left_top)
+        right_bottom = fit_to_screen(percentages, right_bottom)
+    end
 
     local target_left = {x = player.position.x + left_top.x + offset.x, y = player.position.y + left_top.y + offset.y}
     local target_right = {x = player.position.x + right_bottom.x + offset.x, y = player.position.y + right_bottom.y + offset.y}
@@ -265,9 +306,15 @@ function Public.blackout(player, zoom, ttl, color)
     return Public.draw_rectangle(blackout_settings, {x = 0, y = 0}, left_top, right_bottom, player, {color = color, time_to_live = ttl})
 end
 
-function Public.draw_arrow(settings, offset, player, params)
-    local percentages = calculate_percentages(settings, player.display_resolution)
-    fit_to_screen(percentages, offset)
+function Public.draw_arrow(settings, offset, player, params, fit_to_edge)
+    local player_resolution = player.display_resolution
+    local percentages = calculate_percentages(settings, player_resolution)
+    if fit_to_edge then
+        game.print('True, fit_to_edge')
+        offset = fit_to_screen_edges(settings, player_resolution, offset)
+    else
+        offset = fit_to_screen(percentages, offset)
+    end
 
     local vertices = Rendering.scale(Vertices.arrow, percentages.tile, percentages.tile)
     vertices = Rendering.rotate(vertices, params.rotation)
@@ -283,7 +330,7 @@ function Public.draw_arrow(settings, offset, player, params)
     params.players = players
 
     params.surface = RS.get_surface()
-    Debug.print(vertices)
+    --Debug.print(vertices)
     return Rendering.draw_polygon(vertices, params)
 end
 

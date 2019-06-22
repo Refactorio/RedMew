@@ -25,11 +25,11 @@ local delayed_draw_text =
         if params.play_sound > 1 then
             play_sound(tick, player, 'utility/list_box_click', 1)
         end
-        register_rendering(player.index, tick, draw_text(params.settings, params.offset, params.text, params.player, params.params, params.draw_background))
+        register_rendering(player.index, tick, draw_text(params.settings, params.offset, params.text, params.player, params.params, params.draw_background, params.fit_to_edge))
     end
 )
 
-local function draw_text_auto_replacing(tick, settings, offset, texts, player, params, draw_background, time, between_time)
+local function draw_text_auto_replacing(tick, settings, offset, texts, player, params, draw_background, fit_to_edge, time, between_time)
     time = time or 400
     time = time / #texts
     between_time = between_time or 30
@@ -39,7 +39,7 @@ local function draw_text_auto_replacing(tick, settings, offset, texts, player, p
     end
     for i = 1, #texts do
         if texts[i] ~= '' then
-            Task.set_timeout_in_ticks(time * (i - 1), delayed_draw_text, {tick = tick, settings = settings, offset = offset, text = texts[i], player = player, params = params, draw_background = draw_background, play_sound = i})
+            Task.set_timeout_in_ticks(time * (i - 1), delayed_draw_text, {tick = tick, settings = settings, offset = offset, text = texts[i], player = player, params = params, draw_background = draw_background, fit_to_edge = fit_to_edge, play_sound = i})
         end
     end
 end
@@ -51,7 +51,7 @@ local delayed_draw_arrow =
         local tick = params.tick
         params = params.params
         local rendering_parmas = params.params
-        local id = CS_Rendering.draw_arrow(params.settings, params.offset, player, rendering_parmas)
+        local id = CS_Rendering.draw_arrow(params.settings, params.offset, player, rendering_parmas, params.fit_to_edge)
         register_rendering(player.index, tick, id)
         Rendering.blink(id, 20, rendering_parmas.time_to_live)
     end
@@ -91,48 +91,48 @@ local function cutscene_function(player_index, waypoint_index, params)
         play_sound(tick, player, 'utility/game_won')
         play_sound(tick, player, 'ambient/first-light', 1, 550)
         register_rendering(player_index, tick, CS_Rendering.blackout(player, zoom, ttw + 1))
-        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -16}, 'Diggy', player, {scale = 10, time_to_live = ttw, color = Color.yellow}, false))
+        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -16}, 'Diggy', player, {scale = 10, time_to_live = ttw, color = Color.yellow}, false, false))
         register_rendering(
             player_index,
             tick,
             draw_multi_line(settings, {x = 0, y = -5}, {{'diggy.cutscene_case_line2', 'Diggy'}, '---------------------', {'diggy.cutscene_case_line4', 'Redmew'}, {'diggy.cutscene_case_line5', 'www.redmew.com/discord'}}, player, {scale = 5, time_to_live = ttw}, false)
         )
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 10}, {'', {'diggy.cutscene_case_line6'}}, player, {scale = 3}, false, ttw, 0)
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 16}, {'', '', {'diggy.cutscene_case_line7'}}, player, {scale = 1}, false, ttw, 0)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 10}, {'', {'diggy.cutscene_case_line6'}}, player, {scale = 3}, false, false, ttw, 0)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 16}, {'', '', {'diggy.cutscene_case_line7'}}, player, {scale = 1}, false, false, ttw, 0)
     end
     cases[0] = function()
         register_rendering(player_index, tick, CS_Rendering.blackout(player, zoom, ttw + 1))
-        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = 0}, 'Redmew - Diggy', player, {scale = 10, time_to_live = ttw - 60, color = Color.red}, false))
-        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -5}, 'Introduction', player, {scale = 5, time_to_live = ttw - 60}, false))
+        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = 0}, 'Redmew - Diggy', player, {scale = 10, time_to_live = ttw - 60, color = Color.red}, false, false))
+        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -5}, 'Introduction', player, {scale = 5, time_to_live = ttw - 60}, false, false))
 
-        delayed_function(delayed_draw_arrow, player, tick,  {settings = settings, offset = {x = -33, y = -20}, params = {rotation = rad(-45), time_to_live = 275 * 3 - 30}}, 0)
+        delayed_function(delayed_draw_arrow, player, tick,  {settings = settings, offset = {x = 7, y = 2.5}, params = {rotation = rad(-45), time_to_live = 275 * 3 - 30}, fit_to_edge = true}, 0)
 
-        draw_text_auto_replacing(tick, settings, {x = -31.5, y = -19.5}, {'This is our toolbar!'}, player, {scale = 2.5, alignment = 'left'}, false, 275)
+        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'This is our toolbar!'}, player, {scale = 2.5, alignment = 'left'}, false, true, 275)
 
-        draw_text_auto_replacing(tick, settings, {x = -31.5, y = -19.5}, {'', "Here you'll find a wide range of tools and informations about us!"}, player, {scale = 2.5, alignment = 'left'}, false, 275 * 2)
+        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'', "Here you'll find a wide range of tools and informations about us!"}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 2)
 
-        draw_text_auto_replacing(tick, settings, {x = -31.5, y = -19.5}, {'', '', 'Hover your mouse over them for more information'}, player, {scale = 2.5, alignment = 'left'}, false, 275 * 3)
+        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'', '', 'Hover your mouse over them for more information'}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 3)
 
-        delayed_function(delayed_draw_arrow, player, tick,  {settings = settings, offset = {x = -38.5, y = -20}, params = {rotation = rad(-45), time_to_live = 275 - 30}}, 275 * 3)
+        delayed_function(delayed_draw_arrow, player, tick,  {settings = settings, offset = {x = 1, y = 2.5}, params = {rotation = rad(-45), time_to_live = 275 - 30}, fit_to_edge = true}, 275 * 3)
 
-        draw_text_auto_replacing(tick, settings, {x = -37, y = -19.5}, {'', '', '', 'You can toggle our toolbar with this button'}, player, {scale = 2.5, alignment = 'left'}, false, 275 * 4)
+        draw_text_auto_replacing(tick, settings, {x = 2.5, y = 3}, {'', '', '', 'You can toggle our toolbar with this button'}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 4)
 
-        delayed_function(delayed_draw_arrow, player, tick,  {settings = settings, offset = {x = -36, y = -20}, params = {rotation = rad(-45), time_to_live = 275 - 30}}, 275 * 4.5)
+        delayed_function(delayed_draw_arrow, player, tick,  {settings = settings, offset = {x = 3.5, y = 2.5}, params = {rotation = rad(-45), time_to_live = 275 - 30}, fit_to_edge = true}, 275 * 4.5)
 
-        draw_text_auto_replacing(tick, settings, {x = -34.5, y = -19.5}, {'', '', '', '', 'This is the Diggy experience menu'}, player, {scale = 2.5, alignment = 'left'}, false, 275 * 5.5)
+        draw_text_auto_replacing(tick, settings, {x = 5, y = 3}, {'', '', '', '', 'This is the Diggy experience menu'}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 5.5)
 
-        delayed_function(delayed_draw_arrow, player, tick,  {settings = settings, offset = {x = -26, y = -13}, params = {rotation = rad(-90), time_to_live = 275 - 30}}, 275 * 5.5)
+        delayed_function(delayed_draw_arrow, player, tick,  {settings = settings, offset = {x = 15, y = 9}, params = {rotation = rad(-90), time_to_live = 275 - 30}, fit_to_edge = true}, 275 * 5.5)
 
         Cutscene.toggle_gui(tick, player, Experience, 275 * 5.5, 'left')
 
-        draw_text_auto_replacing(tick, settings, {x = -24, y = -13.2}, {'', '', '', '', '', 'Here you can see the current progress of the mine'}, player, {scale = 2.5, alignment = 'left'}, false, 275 * 6.5)
+        draw_text_auto_replacing(tick, settings, {x = 17, y = 8.7}, {'', '', '', '', '', 'Here you can see the current progress of the mine'}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 6.5)
 
         Cutscene.toggle_gui(tick, player, Experience, 275 * 6.5)
 
         delayed_function(delayed_fade_blackout, player, tick,  {zoom = zoom, time_to_live = 120 + 61, color = {0, 0, 0, 1}}, ttw - 61)
     end
     cases[1] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case0_line1'}, {'diggy.cutscene_case0_line3'}}, player, {scale = 2.5}, true, ttw)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case0_line1'}, {'diggy.cutscene_case0_line3'}}, player, {scale = 2.5}, true, false, ttw)
         local entity = RS.get_surface().find_entities_filtered {position = {0, 0}, radius = 20, name = 'stone-wall', limit = 1}
         if entity[1] then
             local position = entity[1].position
@@ -149,13 +149,13 @@ local function cutscene_function(player_index, waypoint_index, params)
     end
     cases[2] = function()
         --play_sound(tick, player, 'utility/build_small', 1, 25)
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case1_line1'}}, player, {scale = 2.5}, true, ttw)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case1_line1'}}, player, {scale = 2.5}, true, false, ttw)
     end
     cases[3] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case2_line1'}, {'diggy.cutscene_case2_line3'}}, player, {scale = 2.5}, true, ttw)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case2_line1'}, {'diggy.cutscene_case2_line3'}}, player, {scale = 2.5}, true, false, ttw)
     end
     cases[4] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case3_line1'}, {'diggy.cutscene_case3_line3'}}, player, {scale = 2.5}, true, ttw)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case3_line1'}, {'diggy.cutscene_case3_line3'}}, player, {scale = 2.5}, true, false, ttw)
         local radius = 10
         local entity
         repeat
@@ -186,22 +186,22 @@ local function cutscene_function(player_index, waypoint_index, params)
     end
     cases[5] = function()
         play_sound(waypoint_index, player, 'utility/axe_mining_ore', 3, 35)
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case4_line1'}, {'diggy.cutscene_case4_line3'}}, player, {scale = 2.5}, true, ttw)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case4_line1'}, {'diggy.cutscene_case4_line3'}}, player, {scale = 2.5}, true, false, ttw)
     end
     cases[6] = function()
         play_sound(tick, player, 'utility/research_completed', 1, 5)
         local exp = 2500
         local text = {'', '[img=item/automation-science-pack] ', {'diggy.float_xp_gained_research', exp}}
         player.create_local_flying_text {position = params.position, text = text, color = Color.light_sky_blue, time_to_live = ttw / 3}
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case5_line1'}, {'diggy.cutscene_case5_line3'}}, player, {scale = 2.5}, true, ttw)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case5_line1'}, {'diggy.cutscene_case5_line3'}}, player, {scale = 2.5}, true, false, ttw)
     end
     cases[7] = function()
         play_sound(tick, player, 'utility/axe_fighting', 5, 25, 10)
         play_sound(tick, player, 'worm-sends-biters', 1, 70)
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case6_line1'}, {'diggy.cutscene_case6_line3'}}, player, {scale = 2.5}, true, ttw)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case6_line1'}, {'diggy.cutscene_case6_line3'}}, player, {scale = 2.5}, true, false, ttw)
     end
     cases[8] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case7_line1'}, {'diggy.cutscene_case7_line3'}}, player, {scale = 2.5}, true, ttw)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'diggy.cutscene_case7_line1'}, {'diggy.cutscene_case7_line3'}}, player, {scale = 2.5}, true, false, ttw)
         --play_sound(tick, player, 'utility/tutorial_notice', 1)
     end
     local case = cases[waypoint_index]
