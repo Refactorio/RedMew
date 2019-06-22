@@ -736,15 +736,26 @@ local function init()
         }
     }
 
+    local inserter = {
+        callback = Token.register(
+            function(entity)
+                entity.insert({name = 'rocket-fuel', count = 1})
+            end
+        )
+    }
+
     local spawn = {
         size = 2,
         [1] = {
             market = market,
-            [15] = {entity = {name = 'market', callback = 'market'}}
+            [15] = {entity = {name = 'market', callback = 'market'}},
+            [18] = {entity = {name = 'wooden-chest', force = 'player'}}
         },
         [2] = {
             force = 'player',
             factory = factory,
+            inserter = inserter,
+            [13] = {entity = {name = 'burner-inserter', direction = 2, callback = 'inserter'}},
             [15] = {entity = {name = 'electric-furnace', callback = 'factory'}}
         }
     }

@@ -32,7 +32,7 @@ local train_names = {
 local function save_player(player)
     player.character.health = 1
 
-    local pos = player.surface.find_non_colliding_position('player', player.position, 100, 2)
+    local pos = player.surface.find_non_colliding_position('character', player.position, 100, 2)
     if not pos then
         return
     end
