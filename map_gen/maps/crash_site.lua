@@ -749,7 +749,7 @@ local function init()
         [1] = {
             market = market,
             [15] = {entity = {name = 'market', callback = 'market'}},
-            [18] = {entity = {name = 'wooden-chest'}}
+            [18] = {entity = {name = 'wooden-chest', force = 'player'}}
         },
         [2] = {
             force = 'player',
