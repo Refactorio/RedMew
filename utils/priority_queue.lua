@@ -10,7 +10,8 @@ end
 
 --- Min heap implementation of a priority queue. Smaller elements, as determined by the comparator,
 -- have a higher priority.
--- @param comparator <function|nil> the comparator function used to compare elements
+-- @param comparator <function|nil> the comparator function used to compare elements, if nil the
+-- deafult comparator is used.
 -- @usage
 -- local PriorityQueue = require 'utils.priority_queue'
 --
@@ -86,6 +87,7 @@ function PriorityQueue.push(self, element)
 end
 
 -- Removes and returns the highest priority element from the priority queue.
+-- If the priority queue is empty returns nil.
 function PriorityQueue.pop(self)
     local element = self[1]
 
@@ -97,6 +99,7 @@ function PriorityQueue.pop(self)
 end
 
 -- Returns, without removing, the highest priority element from the priority queue.
+-- If the priority queue is empty returns nil.
 function PriorityQueue.peek(self)
     return self[1]
 end
