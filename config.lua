@@ -357,7 +357,9 @@ global.config = {
     },
     -- enables a command which allows for an end-game event
     apocalypse = {
-        enabled = true
+        enabled = true,
+        -- chance behemoth biters and spitters will double on death.
+        duplicate_chance = 0.05
     },
     -- gradually informs players of features such as chat, toasts, etc.
     player_onboarding = {
