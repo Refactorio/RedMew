@@ -389,6 +389,10 @@ function Public.start_game(surface, top_left_position, size, update_rate, max_fo
         error('Snake game is already running you must end the game first.', 2)
     end
 
+    if not surface then
+        error('Surface must be set.', 2)
+    end
+
     new_game(surface, top_left_position, size, update_rate or board.update_rate, max_food or board.max_food)
 end
 
