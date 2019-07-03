@@ -14,7 +14,7 @@ local peek_index = Queue.peek_index
 local queue_size = Queue.size
 local queue_pairs = Queue.pairs
 local pairs = pairs
-set_timeout_in_ticks = Task.set_timeout_in_ticks
+local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 local snakes = {} -- player_index -> snake_data {is_marked_for_destroy:bool, queue :Queue of {entity, cord} }
 local board = {
@@ -398,7 +398,7 @@ end
 
 function Public.end_game()
     for index, snake in pairs(snakes) do
-        destroy_snake(i, snakes[i])
+        destroy_snake(index, snake)
     end
 
     destroy_food()
