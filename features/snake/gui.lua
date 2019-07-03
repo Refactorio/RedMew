@@ -13,7 +13,7 @@ local function show_gui_for_player(player)
 
     local top = player.gui.top
     if not top[main_button_name] then
-        top.add {type = 'button', name = main_button_name, caption = 'Snake'}
+        top.add {type = 'button', name = main_button_name, caption = {'snake.name'}}
     end
 end
 

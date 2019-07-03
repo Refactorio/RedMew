@@ -62,7 +62,7 @@ local function destroy_snake(index, snake)
         return
     end
 
-    game.print(table.concat {player.name, ' has been destroyed with a score of ', queue_size(snake.queue), '.'})
+    game.print({'snake.snake_destroyed', player.name, queue_size(snake.queue)})
 end
 
 local function destroy_dead_snakes()
@@ -347,7 +347,7 @@ local function new_snake(player)
     local cord, pos = find_new_snake_position()
 
     if not cord then
-        player.print('Unable to spawn snake, please try again.')
+        player.print({'snake.spawn_snake_fail'})
         return
     end
 
