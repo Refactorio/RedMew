@@ -1,5 +1,5 @@
 local Global = require 'utils.global'
-local Task = require 'utils.task'
+local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Queue = require 'utils.queue'
 
@@ -14,7 +14,6 @@ local peek_index = Queue.peek_index
 local queue_size = Queue.size
 local queue_pairs = Queue.pairs
 local pairs = pairs
-local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 local snakes = {} -- player_index -> snake_data {is_marked_for_destroy:bool, queue :Queue of {entity, cord} }
 local board = {
@@ -242,20 +241,13 @@ local function check_snakes_for_collisions()
     end
 end
 
-local tick
-tick =
+local tick =
     Token.register(
     function()
-        if not board.is_running then
-            return
-        end
-
         tick_snakes()
         check_snakes_for_collisions()
         destroy_dead_snakes()
         spawn_food()
-
-        set_timeout_in_ticks(board.update_rate, tick)
     end
 )
 
@@ -379,7 +371,7 @@ local function new_game(surface, position, size, update_rate, max_food)
 
     board.is_running = true
 
-    set_timeout_in_ticks(board.update_rate, tick)
+    Event.add_removable_nth_tick(board.update_rate, tick)
 end
 
 local Public = {}
@@ -402,6 +394,8 @@ function Public.end_game()
     end
 
     destroy_food()
+
+    Event.remove_removable_nth_tick(board.update_rate, tick)
 
     board.is_running = false
 end
