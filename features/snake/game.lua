@@ -351,7 +351,7 @@ local function new_snake(player)
         return
     end
 
-    player.teleport(pos)
+    player.teleport(pos, board.surface)
     player.create_character()
     character = player.character
     character.character_running_speed_modifier = -1
