@@ -13,6 +13,8 @@ local peek_start = Queue.peek_start
 local peek_index = Queue.peek_index
 local queue_size = Queue.size
 local queue_pairs = Queue.pairs
+local pairs = pairs
+set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 local snakes = {} -- player_index -> snake_data {is_marked_for_destroy:bool, queue :Queue of {entity, cord} }
 local board = {
@@ -79,7 +81,7 @@ local function spawn_food()
 
     local food_count = board.food_count
     local max_food = board.max_food
-    local tries = max_food + 10
+    local tries = max_food - food_count + 10
 
     while food_count < max_food and tries > 0 do
         while tries > 0 do
@@ -102,9 +104,7 @@ local function spawn_food()
             entity.active = false
             food_count = food_count + 1
 
-            do
-                break
-            end
+            break
 
             ::continue::
         end
@@ -203,6 +203,8 @@ local function tick_snake(index, snake)
     player.character = nil
     player.character = tail_entity
     tail_entity.walking_state = walking_state
+    head.entity.active = false
+    tail_entity.active = true
 
     local entity = find_entity('compilatron', new_head_position)
     if entity and entity.valid then
@@ -211,6 +213,8 @@ local function tick_snake(index, snake)
         entity =
             surface.create_entity {name = 'character', position = cords_map[tail_cord.x][tail_cord.y], force = 'player'}
         entity.character_running_speed_modifier = -1
+        entity.color = player.color
+        entity.active = false
         push_to_end(snake_queue, {entity = entity, cord = tail_cord})
 
         board.food_count = board.food_count - 1
@@ -251,7 +255,7 @@ tick =
         destroy_dead_snakes()
         spawn_food()
 
-        Task.set_timeout_in_ticks(board.update_rate, tick)
+        set_timeout_in_ticks(board.update_rate, tick)
     end
 )
 
@@ -293,6 +297,35 @@ local function make_board()
     surface.set_tiles(tiles)
 end
 
+local function find_new_snake_position()
+    local size = board.size
+    local find_entity = board.surface.find_entity
+
+    local min = math.min(4, size)
+    local max = math.max(1, size - 4)
+
+    if min > max then
+        min, max = max, min
+    elseif min == max then
+        min = 1
+        max = size
+    end
+
+    local tries = 10
+
+    while tries > 0 do
+        tries = tries - 1
+
+        local x, y = random(min, max), random(min, max)
+        local pos = cords_map[x][y]
+
+        local entity = find_entity('character', pos) or find_entity('compilatron', pos)
+        if not entity then
+            return {x = x, y = y}, pos
+        end
+    end
+end
+
 local function new_snake(player)
     if not board.is_running then
         return
@@ -311,30 +344,34 @@ local function new_snake(player)
         character.destroy()
     end
 
-    local size = board.size
-    local center = math.ceil(size / 2)
+    local cord, pos = find_new_snake_position()
 
-    player.teleport(cords_map[center][center])
+    if not cord then
+        player.print('Unable to spawn snake, please try again.')
+        return
+    end
 
+    player.teleport(pos)
     player.create_character()
     character = player.character
     character.character_running_speed_modifier = -1
 
     local queue = queue_new()
-    push(queue, {entity = character, cord = {x = center, y = center}})
+    push(queue, {entity = character, cord = cord})
     local snake = {queue = queue}
 
     snakes[player.index] = snake
 end
 
 local function new_game(surface, position, size, update_rate, max_food)
-    board.size = size
+    board.size = size or 15
     board.surface = surface
-    position.x = position.x
-    position.y = position.y
+    position = position or {x = 1, y = 1}
+    position.x = position.x or position[1]
+    position.y = position.y or position[2]
     board.position = position
-    board.update_rate = update_rate
-    board.max_food = max_food
+    board.update_rate = update_rate or 30
+    board.max_food = max_food or 6
 
     make_board()
     destroy_food()
@@ -342,7 +379,7 @@ local function new_game(surface, position, size, update_rate, max_food)
 
     board.is_running = true
 
-    Task.set_timeout_in_ticks(board.update_rate, tick)
+    set_timeout_in_ticks(board.update_rate, tick)
 end
 
 local Public = {}
@@ -356,7 +393,7 @@ function Public.start_game(surface, top_left_position, size, update_rate, max_fo
 end
 
 function Public.end_game()
-    for i = 1, #snakes do
+    for index, snake in pairs(snakes) do
         destroy_snake(i, snakes[i])
     end
 
