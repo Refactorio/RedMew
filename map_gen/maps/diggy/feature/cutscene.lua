@@ -164,9 +164,7 @@ local function cutscene_function(player_index, waypoint_index, params)
                 radius = 0
             end
             radius = radius + 25
-            game.print('radius: ' .. radius)
         until entity[1] or radius >= 200
-        game.print(entity[1].name)
         local position = {0, 3.5}
         local way_zoom = 0.4
         entity = entity[1]
