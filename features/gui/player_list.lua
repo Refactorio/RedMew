@@ -5,19 +5,34 @@ local Rank = require 'features.rank_system'
 local Donator = require 'features.donator'
 local PlayerStats = require 'features.player_stats'
 local Utils = require 'utils.core'
+local LocaleBuilder = require 'utils.locale_builder'
 local Report = require 'features.report'
 local table = require 'utils.table'
 local Color = require 'resources.color_presets'
 local Settings = require 'utils.redmew_settings'
-
 local poke_messages = require 'resources.poke_messages'
 local player_sprites = require 'resources.player_sprites'
-
+local ScoreTracker = require 'utils.score_tracker'
+local get_for_global = ScoreTracker.get_for_global
+local get_for_player = ScoreTracker.get_for_player
+local player_count_name = 'player-count'
+local coins_spent_name = 'coins-spent'
+local coins_earned_name = 'coins-earned'
+local player_deaths_name = 'player-deaths'
+local player_distance_walked_name = 'player-distance-walked'
 local random = math.random
+local ipairs = ipairs
+local pairs = pairs
+local abs = math.abs
+local round = math.round
+local insert = table.insert
+local concat = table.concat
 local get_rank_color = Rank.get_rank_color
 local get_rank_name = Rank.get_rank_name
 local get_player_rank = Rank.get_player_rank
 local donator_is_donator = Donator.is_donator
+
+local tooltip_lines_cap = 53
 
 local poke_cooldown_time = 240 -- in ticks.
 local sprite_time_step = 54000 -- in ticks
@@ -38,6 +53,7 @@ local player_poke_cooldown = {}
 local player_pokes = {}
 local player_settings = {}
 local no_notify_players = {}
+local prototype_locale_string_cache = {}
 
 Global.register(
     {
@@ -86,7 +102,7 @@ local function lighten_color(color)
 end
 
 local function format_distance(tiles)
-    return math.round(tiles * 0.001, 1) .. ' km'
+    return round(tiles * 0.001, 1) .. ' km'
 end
 
 local function do_poke_spam_protection(player)
@@ -259,7 +275,7 @@ local column_builders = {
     },
     [distance_heading_name] = {
         create_data = function(player)
-            return PlayerStats.get_walk_distance(player.index)
+            return get_for_player(player.index, player_distance_walked_name)
         end,
         sort = function(a, b)
             return a < b
@@ -288,8 +304,8 @@ local column_builders = {
         create_data = function(player)
             local index = player.index
             return {
-                coin_earned = PlayerStats.get_coin_earned(index),
-                coin_spent = PlayerStats.get_coin_spent(index)
+                coin_earned = get_for_player(index, coins_earned_name),
+                coin_spent = get_for_player(index, coins_spent_name)
             }
         end,
         sort = function(a, b)
@@ -316,7 +332,7 @@ local column_builders = {
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local text = table.concat({cell_data.coin_earned, '/', cell_data.coin_spent})
+            local text = concat({cell_data.coin_earned, '/', cell_data.coin_spent})
 
             local label = parent.add {type = 'label', name = coin_cell_name, caption = text}
             local label_style = label.style
@@ -330,7 +346,7 @@ local column_builders = {
         create_data = function(player)
             local player_index = player.index
             return {
-                count = PlayerStats.get_death_count(player_index),
+                count = get_for_player(player_index, player_deaths_name),
                 causes = PlayerStats.get_all_death_causes_by_player(player_index)
             }
         end,
@@ -347,15 +363,31 @@ local column_builders = {
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local tooltip = {}
-            for name, count in pairs(cell_data.causes) do
-                table.insert(tooltip, name)
-                table.insert(tooltip, ': ')
-                table.insert(tooltip, count)
-                table.insert(tooltip, '\n')
+            local tooltip = LocaleBuilder.new()
+
+            local causes = cell_data.causes
+            local lines = 1
+            for name, count in pairs(causes) do
+                if lines > tooltip_lines_cap then
+                    break
+                end
+                lines = lines + 1
+
+                if not prototype_locale_string_cache[name] then
+                    local prototype = game.entity_prototypes[name]
+                    if not prototype then
+                        prototype = game.item_prototypes[name]
+                    end
+                    prototype_locale_string_cache[name] = prototype and prototype.localised_name or {'', name}
+                end
+
+                local str = ': ' .. count
+                if next(causes, name) ~= nil then
+                    str = str .. '\n'
+                end
+
+                tooltip = tooltip:add(prototype_locale_string_cache[name]):add(str)
             end
-            table.remove(tooltip)
-            tooltip = table.concat(tooltip)
 
             local label =
                 parent.add {type = 'label', name = deaths_cell_name, caption = cell_data.count, tooltip = tooltip}
@@ -486,7 +518,7 @@ local function redraw_title(data)
     local frame = data.frame
 
     local online_count = #game.connected_players
-    local total_count = PlayerStats.get_total_player_count()
+    local total_count = get_for_global(player_count_name)
 
     frame.caption = {'player_list.title', online_count, total_count}
 end
@@ -495,7 +527,7 @@ local function redraw_headings(data)
     local settings = data.settings
     local columns = settings.columns
     local sort = settings.sort
-    local sort_column = math.abs(sort)
+    local sort_column = abs(sort)
 
     local heading_table_flow = data.heading_table_flow
     Gui.clear(heading_table_flow)
@@ -519,7 +551,7 @@ local function redraw_cells(data)
     local settings = data.settings
     local columns = settings.columns
     local sort = settings.sort
-    local sort_column = math.abs(sort)
+    local sort_column = abs(sort)
     local column_name = columns[sort_column]
     local column_sort = column_builders[column_name].sort
 
@@ -545,10 +577,10 @@ local function redraw_cells(data)
 
         for _, c in ipairs(columns) do
             local cell_data = column_builders[c].create_data(p)
-            table.insert(row, cell_data)
+            insert(row, cell_data)
         end
 
-        table.insert(list_data, row)
+        insert(list_data, row)
     end
 
     table.sort(list_data, comp)
@@ -607,12 +639,20 @@ end
 
 local function toggle(event)
     local player = event.player
-    local left = player.gui.left
+    local gui = player.gui
+    local left = gui.left
     local main_frame = left[main_frame_name]
+    local main_button = gui.top[main_button_name]
 
     if main_frame then
         remove_main_frame(main_frame, player)
+        main_button.style = 'icon_button'
     else
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
+
         draw_main_frame(left, player)
     end
 end
@@ -703,7 +743,7 @@ local function headings_click(event)
     local index = heading_data.index
 
     local sort = settings.sort
-    local sort_column = math.abs(sort)
+    local sort_column = abs(sort)
 
     if sort_column == index then
         sort = -sort
@@ -742,7 +782,7 @@ Gui.on_click(
         player_pokes[poke_player_index] = count
 
         local poke_str = poke_messages[random(#poke_messages)]
-        local message = table.concat({'>> ', player.name, ' has poked ', poke_player.name, ' with ', poke_str, ' <<'})
+        local message = concat({'>> ', player.name, ' has poked ', poke_player.name, ' with ', poke_str, ' <<'})
 
         for _, p in ipairs(game.connected_players) do
             local frame = p.gui.left[main_frame_name]
@@ -756,7 +796,7 @@ Gui.on_click(
                     local columns = settings.columns
                     local sort = settings.sort
 
-                    local sorted_column = columns[math.abs(sort)]
+                    local sorted_column = columns[abs(sort)]
                     if sorted_column == poke_name_heading_name then
                         redraw_cells(frame_data)
                     else

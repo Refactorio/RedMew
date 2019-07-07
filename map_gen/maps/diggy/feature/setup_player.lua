@@ -23,6 +23,7 @@ end
 
 function SetupPlayer.on_init()
     game.forces.player.manual_mining_speed_modifier = config.initial_mining_speed_bonus
+    game.forces.player.character_resource_reach_distance_bonus = 1
 end
 
 return SetupPlayer

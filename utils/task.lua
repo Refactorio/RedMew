@@ -9,38 +9,65 @@ local PriorityQueue = require 'utils.priority_queue'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local ErrorLogging = require 'utils.error_logging'
+local Global = require 'utils.global'
+
+local floor = math.floor
+local log10 = math.log10
+local Token_get = Token.get
+local pcall = pcall
+local Queue_peek = Queue.peek
+local Queue_pop = Queue.pop
+local Queue_push = Queue.push
+local PriorityQueue_peek = PriorityQueue.peek
+local PriorityQueue_pop = PriorityQueue.pop
+local PriorityQueue_push = PriorityQueue.push
 
 local Task = {}
 
-global.callbacks = global.callbacks or PriorityQueue.new()
-global.next_async_callback_time = -1
-global.task_queue = global.task_queue or Queue.new()
-global.total_task_weight = 0
-global.task_queue_speed = 1
-
-local function comp(a, b)
+local function comparator(a, b)
     return a.time < b.time
 end
 
-global.tpt = global.task_queue_speed
-local function get_task_per_tick()
-    if game.tick % 300 == 0 then
-        local size = global.total_task_weight
-        global.tpt = math.floor(math.log10(size + 1)) * global.task_queue_speed
-        if global.tpt < 1 then
-            global.tpt = 1
-        end
+local callbacks = PriorityQueue.new(comparator)
+local task_queue = Queue.new()
+local primitives = {
+    next_async_callback_time = -1,
+    total_task_weight = 0,
+    task_queue_speed = 1,
+    task_per_tick = 1
+}
+
+Global.register(
+    {callbacks = callbacks, task_queue = task_queue, primitives = primitives},
+    function(tbl)
+        callbacks = tbl.callbacks
+        task_queue = tbl.task_queue
+        primitives = tbl.primitives
     end
-    return global.tpt
+)
+
+local function get_task_per_tick(tick)
+    if tick % 300 == 0 then
+        local size = primitives.total_task_weight
+        local task_per_tick = floor(log10(size + 1)) * primitives.task_queue_speed
+        if task_per_tick < 1 then
+            task_per_tick = 1
+        end
+
+        primitives.task_per_tick = task_per_tick
+        return task_per_tick
+    end
+    return primitives.task_per_tick
 end
 
 local function on_tick()
-    local queue = global.task_queue
-    for i = 1, get_task_per_tick() do
-        local task = Queue.peek(queue)
+    local tick = game.tick
+
+    for i = 1, get_task_per_tick(tick) do
+        local task = Queue_peek(task_queue)
         if task ~= nil then
             -- result is error if not success else result is a boolean for if the task should stay in the queue.
-            local success, result = pcall(Token.get(task.func_token), task.params)
+            local success, result = pcall(Token_get(task.func_token), task.params)
             if not success then
                 if _DEBUG then
                     error(result)
@@ -48,19 +75,18 @@ local function on_tick()
                     log(result)
                     ErrorLogging.generate_error_report(result)
                 end
-                Queue.pop(queue)
-                global.total_task_weight = global.total_task_weight - task.weight
+                Queue_pop(task_queue)
+                primitives.total_task_weight = primitives.total_task_weight - task.weight
             elseif not result then
-                Queue.pop(queue)
-                global.total_task_weight = global.total_task_weight - task.weight
+                Queue_pop(task_queue)
+                primitives.total_task_weight = primitives.total_task_weight - task.weight
             end
         end
     end
 
-    local callbacks = global.callbacks
-    local callback = PriorityQueue.peek(callbacks)
-    while callback ~= nil and game.tick >= callback.time do
-        local success, result = pcall(Token.get(callback.func_token), callback.params)
+    local callback = PriorityQueue_peek(callbacks)
+    while callback ~= nil and tick >= callback.time do
+        local success, result = pcall(Token_get(callback.func_token), callback.params)
         if not success then
             if _DEBUG then
                 error(result)
@@ -69,8 +95,8 @@ local function on_tick()
                 ErrorLogging.generate_error_report(result)
             end
         end
-        PriorityQueue.pop(callbacks, comp)
-        callback = PriorityQueue.peek(callbacks)
+        PriorityQueue_pop(callbacks)
+        callback = PriorityQueue_peek(callbacks)
     end
 end
 
@@ -85,7 +111,7 @@ function Task.set_timeout_in_ticks(ticks, func_token, params)
     end
     local time = game.tick + ticks
     local callback = {time = time, func_token = func_token, params = params}
-    PriorityQueue.push(global.callbacks, callback, comp)
+    PriorityQueue_push(callbacks, callback)
 end
 
 --- Allows you to set a timer (in seconds) after which the tokened function will be run with params given as an argument
@@ -109,8 +135,21 @@ end
 -- Ex. if the task is expected to repeat multiple times (ie. the function returns true and loops several ticks)
 function Task.queue_task(func_token, params, weight)
     weight = weight or 1
-    global.total_task_weight = global.total_task_weight + weight
-    Queue.push(global.task_queue, {func_token = func_token, params = params, weight = weight})
+    primitives.total_task_weight = primitives.total_task_weight + weight
+    Queue_push(task_queue, {func_token = func_token, params = params, weight = weight})
+end
+
+function Task.get_queue_speed()
+    return primitives.task_queue_speed
+end
+
+function Task.set_queue_speed(value)
+    value = value or 1
+    if value < 0 then
+        value = 0
+    end
+
+    primitives.task_queue_speed = value
 end
 
 Event.add(defines.events.on_tick, on_tick)

@@ -11,18 +11,25 @@ local main_frame_name = Gui.uid_name()
 
 local Public = {}
 
+local function close_main_frame(frame, player)
+    Gui.destroy(frame)
+    player.gui.top[main_button_name].style = 'icon_button'
+end
+
 local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
 
-    player.gui.top.add({
-        type = 'sprite-button',
-        name = main_button_name,
-        sprite = 'item/iron-gear-wheel',
-        tooltip = {'redmew_settings_gui.tooltip'}
-    })
+    player.gui.top.add(
+        {
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'item/iron-gear-wheel',
+            tooltip = {'redmew_settings_gui.tooltip'}
+        }
+    )
 end
 
 local function player_joined(event)
@@ -34,7 +41,7 @@ local function player_joined(event)
     local main_frame = player.gui.center[main_frame_name]
 
     if main_frame then
-        Gui.destroy(main_frame)
+        close_main_frame(main_frame, player)
     end
 end
 
@@ -79,12 +86,15 @@ end
 
 local function draw_main_frame(center, player)
     local settings = Settings.get_setting_metadata()
-    local settings_frame = center.add({
-        type = 'frame',
-        name = main_frame_name,
-        direction = 'vertical',
-        caption = {'redmew_settings_gui.frame_title'},
-    })
+    local settings_frame =
+        center.add(
+        {
+            type = 'frame',
+            name = main_frame_name,
+            direction = 'vertical',
+            caption = {'redmew_settings_gui.frame_title'}
+        }
+    )
 
     local settings_frame_style = settings_frame.style
     settings_frame_style.width = 400
@@ -113,10 +123,13 @@ local function draw_main_frame(center, player)
     local data = {}
 
     for name, setting in pairs(settings) do
-        local label = setting_grid.add({
-            type = 'label',
-            caption = setting.localised_string,
-        })
+        local label =
+            setting_grid.add(
+            {
+                type = 'label',
+                caption = setting.locale_string
+            }
+        )
 
         local label_style = label.style
         label_style.horizontally_stretchable = true
@@ -133,7 +146,7 @@ local function draw_main_frame(center, player)
         data[name] = {
             label = label,
             input = input,
-            previous_value = value,
+            previous_value = value
         }
     end
 
@@ -143,13 +156,17 @@ local function draw_main_frame(center, player)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local close_button = left_flow.add({type = 'button', name = main_button_name, caption = {'redmew_settings_gui.button_cancel'}})
+    local close_button =
+        left_flow.add({type = 'button', name = main_button_name, caption = {'redmew_settings_gui.button_cancel'}})
     close_button.style = 'back_button'
 
     local right_flow = bottom_flow.add({type = 'flow'})
     right_flow.style.horizontal_align = 'right'
 
-    local save_button = right_flow.add({type = 'button', name = save_changes_button_name, caption = {'redmew_settings_gui.button_save_changes'}})
+    local save_button =
+        right_flow.add(
+        {type = 'button', name = save_changes_button_name, caption = {'redmew_settings_gui.button_save_changes'}}
+    )
     save_button.style = 'confirm_button'
 
     Gui.set_data(save_button, data)
@@ -160,13 +177,20 @@ end
 
 local function toggle(event)
     local player = event.player
-    local center = player.gui.center
+    local gui = player.gui
+    local center = gui.center
     local main_frame = center[main_frame_name]
+    local main_button = gui.top[main_button_name]
 
     if main_frame then
-        Gui.destroy(main_frame)
+        close_main_frame(main_frame, player)
     else
         draw_main_frame(center, player)
+
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
     end
 end
 
@@ -214,7 +238,7 @@ local function save_changes(event)
     local main_frame = player.gui.center[main_frame_name]
 
     if main_frame then
-        Gui.destroy(main_frame)
+        close_main_frame(main_frame, player)
     end
 end
 
@@ -254,9 +278,12 @@ local function setting_set(event)
     element_data.previous_value = Settings.toScalar(setting_name, event.old_value)
 end
 
-Gui.on_custom_close(main_frame_name, function(event)
-    Gui.destroy(event.element)
-end)
+Gui.on_custom_close(
+    main_frame_name,
+    function(event)
+        close_main_frame(event.element, event.player)
+    end
+)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
