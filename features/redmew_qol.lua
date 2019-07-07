@@ -231,7 +231,8 @@ local function landfill_detect(event)
     local num_tiles = #tiles
     local max_tiles = num_max_tiles - num_tiles
     local tile = {count = 0}
-    for i, tile_name in ipairs(check_tiles) do
+    for i = 1, #check_tiles do
+        local tile_name = check_tiles[i]
         local count =
             surface.count_tiles_filtered {
             area = area,
