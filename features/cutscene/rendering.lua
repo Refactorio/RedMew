@@ -73,18 +73,19 @@ local function fit_to_screen_edges(settings, player_resolution, coordinates)
     if not coordinates.fitted then
         local tile = settings.original_zoom * 32
         local player_tile = settings.player_zoom * 32
+        local display_scale = player_resolution.scale or 1
 
         local player_height = (player_resolution.height / player_tile) * 0.5
         local player_width = (player_resolution.width / player_tile) * 0.5
 
         for _, pos in pairs(coordinates) do
             if type(pos) == 'number' then
-                coordinates.y = -player_height + ((coordinates.y * tile) / player_tile)
-                coordinates.x = -player_width + ((coordinates.x * tile) / player_tile)
+                coordinates.y = -player_height + (((coordinates.y * tile) / player_tile) * display_scale)
+                coordinates.x = -player_width + (((coordinates.x * tile) / player_tile) * display_scale)
                 break
             else
-                pos.y = -player_height + ((pos.y * tile) / player_tile)
-                pos.x = -player_width + ((pos.x * tile) / player_tile)
+                pos.y = -player_height + (((pos.y * tile) / player_tile) * display_scale)
+                pos.x = -player_width + (((pos.x * tile) / player_tile) * display_scale)
             end
         end
         coordinates.fitted = true
@@ -121,6 +122,7 @@ end
 function Public.draw_text(settings, offset, text, player, params, draw_background, fit_to_edge)
     local ids = {}
     local player_resolution = player.display_resolution
+    player_resolution.scale = player.display_scale
     local percentages = calculate_percentages(settings, player_resolution)
     local scale = params.scale
 
@@ -205,6 +207,7 @@ end
 function Public.draw_multi_line_text(settings, offset, texts, player, params, draw_background, fit_to_edge)
     local ids = {}
     local player_resolution = player.display_resolution
+    player_resolution.scale = player.display_scale
     local percentages = calculate_percentages(settings, player_resolution)
     local scale = params.scale
 
@@ -233,6 +236,7 @@ end
 
 function Public.draw_rectangle(settings, offset, left_top, right_bottom, player, params, fit_to_edge)
     local player_resolution = player.display_resolution
+    player_resolution.scale = player.display_scale
     local percentages = calculate_percentages(settings, player_resolution)
     if fit_to_edge then
         offset = fit_to_screen_edges(settings, player_resolution, offset)
@@ -308,9 +312,9 @@ end
 
 function Public.draw_arrow(settings, offset, player, params, fit_to_edge)
     local player_resolution = player.display_resolution
+    player_resolution.scale = player.display_scale
     local percentages = calculate_percentages(settings, player_resolution)
     if fit_to_edge then
-        game.print('True, fit_to_edge')
         offset = fit_to_screen_edges(settings, player_resolution, offset)
     else
         offset = fit_to_screen(percentages, offset)
