@@ -13,7 +13,7 @@ local pairs = pairs
 local next = next
 
 local toast_volume_name = 'toast-volume'
-Settings.register(toast_volume_name, 'fraction', 1.0)
+Settings.register(toast_volume_name, Settings.types.fraction, 1.0, 'toast.toast_volume_setting_label')
 
 local Public = {}
 

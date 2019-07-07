@@ -1,3 +1,8 @@
+local Settings = require 'map_gen.maps.quadrants.settings'
+local FeatureSettings = Settings.features
+local MapgenSettings = Settings.mapgen
+local MapSettings = Settings.map
+
 require 'map_gen.maps.quadrants.switch_team'
 require 'map_gen.maps.quadrants.restrict_placement'
 require 'map_gen.maps.quadrants.force_sync'
@@ -13,10 +18,14 @@ local Recipes = require 'map_gen.maps.quadrants.enabled_recipes'
 local CompiHandler = require 'map_gen.maps.quadrants.compilatron_handler'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
+local Color = require 'resources.color_presets'
 
 local abs = math.abs
 local round = math.round
 local redmew_config = global.config
+
+RS.set_map_settings({MapSettings.enemy_debuff})
+RS.set_map_gen_settings({MapgenSettings.ores, MapgenSettings.water, MapgenSettings.enemy})
 
 ScenarioInfo.set_map_name('Quadrants')
 ScenarioInfo.set_map_description('Take control over an area and work together as a region!')
@@ -72,27 +81,62 @@ redmew_config.player_create.starting_items = {
 redmew_config.hail_hydra.enabled = true
 redmew_config.hail_hydra.hydras = {
     -- spitters
-    ['small-spitter'] = {['small-worm-turret'] = {min = 0.2, max = 1}},
-    ['medium-spitter'] = {['medium-worm-turret'] = {min = 0.2, max = 1}},
-    ['big-spitter'] = {['big-worm-turret'] = {min = 0.2, max = 1}},
-    ['behemoth-spitter'] = {['behemoth-worm-turret'] = {min = 0.2, max = 1}},
+    ['small-spitter'] = {
+        ['small-biter'] = {min = 0.8, max = 2.5}
+    },
+    ['medium-spitter'] = {
+        ['medium-biter'] = {min = 0.8, max = 2.5}
+    },
+    ['big-spitter'] = {
+        ['big-biter'] = {min = 0.8, max = 2.5}
+    },
+    ['behemoth-spitter'] = {
+        ['behemoth-biter'] = {min = 0.8, max = 2.5}
+    },
     -- biters
-    ['medium-biter'] = {['small-biter'] = {min = 1, max = 2}},
-    ['big-biter'] = {['medium-biter'] = {min = 1, max = 2}},
-    ['behemoth-biter'] = {['big-biter'] = {min = 1, max = 2}},
+    ['medium-biter'] = {
+        ['small-biter'] = {min = 1.2, max = 3.2},
+        ['small-spitter'] = {min = 0.8, max = 2.5}
+    },
+    ['big-biter'] = {
+        ['medium-biter'] = {min = 1.2, max = 3.2},
+        ['medium-spitter'] = {min = 0.8, max = 2.5}
+    },
+    ['behemoth-biter'] = {
+        ['big-biter'] = {min = 1.2, max = 3.2},
+        ['big-spitter'] = {min = 0.8, max = 2.5}
+    },
     -- worms
-    ['small-worm-turret'] = {['small-biter'] = {min = 1.5, max = 2.5}},
-    ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = 3.5}, ['medium-biter'] = {min = 1.0, max = 2}},
+    ['small-worm-turret'] = {
+        ['small-biter'] = {min = 3, max = 6},
+        ['small-spitter'] = {min = 1.6, max = 4}
+    },
+    ['medium-worm-turret'] = {
+        --['small-biter'] = {min = 1, max = 3.5},
+        --['small-spitter'] = {min = 2.5, max = 3.5},
+        ['small-worm-turret'] = {min = 1, max = -1},
+        ['medium-biter'] = {min = 1.5, max = 3},
+        ['medium-spitter'] = {min = 0.8, max = 2}
+    },
     ['big-worm-turret'] = {
-        ['small-biter'] = {min = 2.5, max = 4.5},
-        ['medium-biter'] = {min = 1.5, max = 2.2},
-        ['big-biter'] = {min = 0.7, max = 1.5}
+        --['small-biter'] = {min = 2.5, max = 4.5},
+        --['small-spitter'] = {min = 2.5, max = 4.5},
+        --['medium-biter'] = {min = 1.5, max = 2.2},
+        --['medium-spitter'] = {min = 1.5, max = 2.2},
+        ['medium-worm-turret'] = {min = 1, max = -1},
+        ['big-biter'] = {min = 1.5, max = 3},
+        ['big-spitter'] = {min = 0.8, max = 2}
     },
     ['behemoth-worm-turret'] = {
-        ['small-biter'] = {min = 4.5, max = -1},
-        ['medium-biter'] = {min = 2.5, max = 3.8},
-        ['big-biter'] = {min = 1.2, max = 2.4},
-        ['behemoth-biter'] = {min = 0.8, max = -1}
+        --['small-biter'] = {min = 4.5, max = -1},
+        --['small-spitter'] = {min = 4.5, max = -1},
+        --['medium-biter'] = {min = 2.5, max = 3.8},
+        --['medium-spitter'] = {min = 2.5, max = 3.8},
+        --['big-biter'] = {min = 1.2, max = 2.4},
+        --['big-spitter'] = {min = 1.2, max = 2.4},
+        ['big-worm-turret'] = {min = 1, max = -1},
+        ['behemoth-biter'] = {min = 1.5, max = 3},
+        ['behemoth-spitter'] = {min = 0.8, max = 2}
     }
 }
 
@@ -104,6 +148,8 @@ local function spawn_market(surface, position)
 
     local market = surface.create_entity({name = 'market', position = pos})
     market.destructible = false
+
+    rendering.draw_text {text = {'retailer.market_name'}, surface = surface, target = market, target_offset = {-1, 1}, color = Color.yellow, scale = 2}
 
     Retailer.add_market(pos.x .. 'fish_market' .. pos.y, market)
 
@@ -176,10 +222,8 @@ local function on_init()
             end
         end
     end
-
-    game.map_settings.enemy_evolution.time_factor = 0.000002
-    game.map_settings.enemy_evolution.destroy_factor = 0.000010
-    game.map_settings.enemy_evolution.pollution_factor = 0.000005
+    local radius = 193
+    game.forces.player.chart(surface, {{0-radius, 0-radius}, {0+radius, 0+radius}})
 end
 
 local function on_research_finished(event)
@@ -190,6 +234,7 @@ local function on_research_finished(event)
         if (string.find(force.name, 'quadrant')) ~= nil then
             if force.name ~= 'quadrant1' then
                 force.technologies[event.research.name].researched = true
+                force.disable_research()
             end
         end
     end
@@ -239,6 +284,18 @@ callback = Token.register(spawn_compilatron)
 
 Event.add_removable(defines.events.on_chunk_generated, callback_token)
 
+local function get_quadrant_number(pos)
+    if (pos.x >= 0 and pos.y <= 0) then
+        return 1
+    elseif (pos.x <= 0 and pos.y <= 0) then
+        return 2
+    elseif (pos.x <= 0 and pos.y >= 0) then
+        return 3
+    elseif (pos.x >= 0 and pos.y >= 0) then
+        return 4
+    end
+end
+
 local function rail_create(data)
     local pos = data.pos
     local direction = data.direction
@@ -257,11 +314,25 @@ end
 
 local rail_callback = Token.register(rail_create)
 
+local function wall_create(data)
+    local pos = data.pos
+    if (abs(pos.x) < 2 or abs(pos.y) < 2) then
+        return
+    end
+    game.surfaces[2].create_entity {
+        name = 'stone-wall',
+        position = pos,
+        force = game.forces['quadrant' .. get_quadrant_number(pos)]
+    }
+end
+
+local wall_callback = Token.register(wall_create)
+
 local function quadrants(x, y)
     local abs_x = abs(x) - 0.5
     local abs_y = abs(y) - 0.5
 
-    if true then
+    if FeatureSettings.train_rails.enabled then
         local pos = {x = x, y = y}
         if x > -24 and x < 24 and (y == 211.5 or y == 205.5) then
             Task.set_timeout_in_ticks(300, rail_callback, {pos = pos, direction = defines.direction.east})
@@ -274,6 +345,13 @@ local function quadrants(x, y)
         end
     end
 
+    if FeatureSettings.walls.enabled then
+        local pos = {x = x, y = y}
+        if (abs_x == 192 and abs_y <= 192) or (abs_y == 192 and abs_x <= 192) then
+            Task.set_timeout_in_ticks(350, wall_callback, {pos = pos})
+        end
+    end
+
     if (abs_x <= 200 and abs_y <= 200) then
         if game.surfaces[2].get_tile(x, y).collides_with('water-tile') then
             game.surfaces[2].set_tiles({{name = 'grass-1', position = {x, y}}}, true)
@@ -282,7 +360,7 @@ local function quadrants(x, y)
 
         for _, entity in ipairs(entities) do
             if entity and entity.valid then
-                if entity.name ~= 'player' and entity.name ~= 'compilatron' and entity.name ~= 'straight-rail' then
+                if entity.name ~= 'character' and entity.name ~= 'compilatron' and entity.name ~= 'straight-rail' then
                     entity.destroy()
                 end
             end
@@ -298,7 +376,7 @@ local function quadrants(x, y)
             }
             for _, resource in pairs(resources) do
                 if resource.name ~= 'crude-oil' then
-                    local amount = b.euclidean_value(1, 0.002)
+                    local amount = b.euclidean_value(1, 0.0012)
                     resource.amount = resource.amount * amount(x, y)
                 end
             end
@@ -320,7 +398,7 @@ local function quadrants(x, y)
         local entities = game.surfaces[2].find_entities({{x - 0.5, y - 0.5}, {x + 0.5, y + 0.5}})
         for _, entity in ipairs(entities) do
             if entity and entity.valid then
-                if entity.name ~= 'player' then
+                if entity.name ~= 'character' then
                     entity.destroy()
                 end
             end
@@ -352,9 +430,10 @@ end
 
 local rectangle = b.rectangle(32, 32)
 local tree_rectangle = b.rectangle(64, 16)
+local oil_rectangle = b.rectangle(64, 20)
 local tree_rectangle_1 = b.throttle_world_xy(tree_rectangle, 1, 3, 1, 3)
 local tree_rectangle_2 = b.rotate(tree_rectangle_1, math.pi / 2)
-local oil_rectangle = b.throttle_world_xy(tree_rectangle, 1, 5, 1, 5)
+oil_rectangle = b.throttle_xy(oil_rectangle, 1, 6, 1, 6)
 
 local function constant(x)
     return function()
@@ -370,7 +449,7 @@ local start_copper = b.resource(rectangle, 'copper-ore', constant(450))
 local start_stone = b.resource(rectangle, 'stone', constant(150))
 local start_coal = b.resource(rectangle, 'coal', constant(300))
 local start_tree_1 = b.entity(tree_rectangle_1, 'tree-01')
-local start_oil = b.resource(oil_rectangle, 'crude-oil', b.exponential_value(50000, 0, 1))
+local start_oil = b.resource(oil_rectangle, 'crude-oil', b.exponential_value(80000, 0, 1), true)
 local start_tree_2 = b.entity(tree_rectangle_2, 'tree-01')
 
 start_iron =

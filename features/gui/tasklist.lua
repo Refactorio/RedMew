@@ -3,14 +3,17 @@ local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 local Rank = require 'features.rank_system'
 local Utils = require 'utils.core'
-local Game = require 'utils.game'
 local math = require 'utils.math'
 local Command = require 'utils.command'
 local Color = require 'resources.color_presets'
 local Ranks = require 'resources.ranks'
+local Settings = require 'utils.redmew_settings'
 
 local normal_color = Color.white
 local focus_color = Color.dark_orange
+
+local notify_name = 'notify_task'
+Settings.register(notify_name, Settings.types.boolean, true, 'tasklist.notify_caption_short')
 
 local server_player = {
     valid = true,
@@ -116,7 +119,7 @@ local function get_editing_players_message(players)
     local message = {'Editing players: '}
 
     for pi, _ in pairs(players) do
-        local name = Game.get_player_by_index(pi).name
+        local name = game.get_player(pi).name
         table.insert(message, name)
         table.insert(message, ', ')
     end
@@ -230,7 +233,8 @@ local function redraw_tasks(data, enabled)
         delete_button_tooltip = 'Delete task.'
         edit_button_tooltip = 'Edit task.'
         up_button_tooltip = 'Move the task up, right click moves 5 spaces, shift click moves the task to the top.'
-        down_button_tooltip = 'Move the task down, right click moves 5 spaces, shift click moves the task to the bottom.'
+        down_button_tooltip =
+            'Move the task down, right click moves 5 spaces, shift click moves the task to the bottom.'
     else
         delete_button_tooltip = 'Sorry, you have to be a regular to delete tasks.'
         edit_button_tooltip = 'Sorry, you have to be a regular to edit tasks.'
@@ -399,12 +403,16 @@ local function draw_main_frame(left, player)
 
     redraw_tasks(data, enabled)
 
-    frame.add {
+    local state = Settings.get(player.index, notify_name)
+    local notify_checkbox =
+        frame.add {
         type = 'checkbox',
         name = notify_checkbox_name,
-        caption = 'Notify me about new announcements or tasks',
-        state = not no_notify_players[left.player_index]
+        state = state,
+        caption = {'tasklist.notify_caption'},
+        tooltip = {'tasklist.notify_tooltip'}
     }
+    data.notify_checkbox = notify_checkbox
 
     frame.add {type = 'button', name = main_button_name, caption = 'Close'}
 end
@@ -429,8 +437,11 @@ end
 
 local function toggle(event)
     local player = event.player
-    local left = player.gui.left
+    local gui = player.gui
+    local left = gui.left
     local frame = left[main_frame_name]
+    local main_button = gui.top[main_button_name]
+
     if frame and frame.valid then
         Gui.destroy(frame)
         frame = left[edit_announcements_frame_name]
@@ -441,8 +452,15 @@ local function toggle(event)
         if frame and frame.valid then
             Gui.destroy(frame)
         end
+
+        main_button.style = 'icon_button'
     else
         draw_main_frame(left, player)
+
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
     end
 end
 
@@ -567,7 +585,8 @@ local function draw_create_task_frame(left, previous_task)
         confirm_button_caption = 'Create Task'
     end
 
-    local frame = left.add {type = 'frame', name = create_task_frame_name, caption = frame_caption, direction = 'vertical'}
+    local frame =
+        left.add {type = 'frame', name = create_task_frame_name, caption = frame_caption, direction = 'vertical'}
     frame.style.width = 470
 
     local textbox = frame.add {type = 'textfield', text = text}
@@ -581,12 +600,13 @@ local function draw_create_task_frame(left, previous_task)
     local clear_button = bottom_flow.add {type = 'button', name = create_task_clear_button_name, caption = 'Clear'}
     Gui.set_data(clear_button, textbox)
     bottom_flow.add({type = 'flow'}).style.horizontally_stretchable = true
-    local confirm_button = bottom_flow.add {type = 'button', name = confirm_button_name, caption = confirm_button_caption}
+    local confirm_button =
+        bottom_flow.add {type = 'button', name = confirm_button_name, caption = confirm_button_caption}
     Gui.set_data(confirm_button, {frame = frame, textbox = textbox, previous_task = previous_task})
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -627,12 +647,19 @@ local function player_joined(event)
 
     local top = gui.top
     if not top[main_button_name] then
-        top.add {type = 'sprite-button', name = main_button_name, sprite = 'item/repair-pack'}
+        top.add(
+            {
+                type = 'sprite-button',
+                name = main_button_name,
+                sprite = 'item/repair-pack',
+                tooltip = {'tasklist.tooltip'}
+            }
+        )
     end
 end
 
 local function player_left(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local left = player.gui.left
 
     local frame = left[edit_announcements_frame_name]
@@ -693,7 +720,8 @@ Gui.on_click(
         local last_edit_player_label = top_flow.add {type = 'label'}
         local editing_players_label = top_flow.add {type = 'label'}
 
-        local textbox = frame.add {type = 'text-box', name = edit_announcements_textbox_name, text = announcements.edit_text}
+        local textbox =
+            frame.add {type = 'text-box', name = edit_announcements_textbox_name, text = announcements.edit_text}
         --textbox.word_wrap = true
         local textbox_style = textbox.style
         textbox_style.width = 450
@@ -733,13 +761,19 @@ Gui.on_click(
 Gui.on_checked_state_changed(
     notify_checkbox_name,
     function(event)
-        local checkbox = event.element
         local player_index = event.player_index
-        if checkbox.state then
-            no_notify_players[player_index] = nil
+        local checkbox = event.element
+        local state = checkbox.state
+
+        local no_notify
+        if state then
+            no_notify = nil
         else
-            no_notify_players[player_index] = true
+            no_notify = true
         end
+
+        no_notify_players[player_index] = no_notify
+        Settings.set(player_index, notify_name, state)
     end
 )
 
@@ -1072,6 +1106,41 @@ Gui.on_click(
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
+Event.add(
+    Settings.events.on_setting_set,
+    function(event)
+        if event.setting_name ~= notify_name then
+            return
+        end
+
+        local player_index = event.player_index
+        local player = game.get_player(player_index)
+        if not player or not player.valid then
+            return
+        end
+
+        local state = event.new_value
+        local no_notify
+        if state then
+            no_notify = nil
+        else
+            no_notify = true
+        end
+
+        no_notify_players[player_index] = no_notify
+
+        local frame = player.gui.left[main_frame_name]
+        if not frame then
+            return
+        end
+
+        local data = Gui.get_data(frame)
+        local checkbox = data.notify_checkbox
+
+        checkbox.state = state
+    end
+)
+
 Command.add(
     'task',
     {
@@ -1080,7 +1149,7 @@ Command.add(
         required_rank = Ranks.regular,
         allowed_by_server = true,
         log_command = true,
-        capture_excess_arguments = true,
+        capture_excess_arguments = true
     },
     function(args, player)
         create_new_tasks(args.task, player or server_player)

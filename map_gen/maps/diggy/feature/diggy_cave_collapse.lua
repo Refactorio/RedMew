@@ -4,22 +4,19 @@
 -- dependencies
 local Event = require 'utils.event'
 local Template = require 'map_gen.maps.diggy.template'
-local ScoreTable = require 'map_gen.maps.diggy.score_table'
+local ScoreTracker = require 'utils.score_tracker'
 local Debug = require 'map_gen.maps.diggy.debug'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local CreateParticles = require 'features.create_particles'
 local RS = require 'map_gen.shared.redmew_surface'
 local table = require 'utils.table'
-
 local random = math.random
 local floor = math.floor
 local pairs = pairs
 local pcall = pcall
 local is_diggy_rock = Template.is_diggy_rock
-local increment_score = ScoreTable.increment
 local template_insert = Template.insert
 local raise_event = script.raise_event
 local set_timeout = Task.set_timeout
@@ -28,11 +25,12 @@ local ceiling_crumble = CreateParticles.ceiling_crumble
 local clear_table = table.clear_table
 local collapse_rocks = Template.diggy_rocks
 local collapse_rocks_size = #collapse_rocks
+local cave_collapses_name = 'cave-collapses'
 
 -- this
 local DiggyCaveCollapse = {}
 
-local config = {}
+local config
 
 local n = 9
 local radius = 0
@@ -136,7 +134,7 @@ end
 local function create_collapse_alert(surface, position)
     local target = surface.create_entity({position = position, name = 'rock-big'})
     for _, player in pairs(game.connected_players) do
-        player.add_custom_alert(target, collapse_alert, 'Cave collapsed!', true)
+        player.add_custom_alert(target, collapse_alert, {'diggy.cave_collapse'}, true)
     end
     target.destroy()
 end
@@ -174,7 +172,7 @@ local function collapse(args)
     template_insert(surface, {}, create_collapse_template(positions, surface))
 
     raise_event(DiggyCaveCollapse.events.on_collapse, args)
-    increment_score('Cave collapse')
+    ScoreTracker.change_for_global(cave_collapses_name, 1)
 end
 
 local on_collapse_timeout_finished = Token.register(collapse)
@@ -274,7 +272,7 @@ local function on_entity_died(event)
         local player_index
         if not is_diggy_rock(name) then
             local cause = event.cause
-            player_index = cause and cause.type == 'player' and cause.player and cause.player.index or nil
+            player_index = cause and cause.type == 'character' and cause.player and cause.player.index or nil
         end
         stress_map_add(entity.surface, entity.position, strength, false, player_index)
     end
@@ -337,6 +335,11 @@ end
     @param global_config Table {@see Diggy.Config}.
 ]]
 function DiggyCaveCollapse.register(cfg)
+    ScoreTracker.register(cave_collapses_name, {'diggy.score_cave_collapses'}, '[img=entity.assembler-wreck]')
+
+    local global_to_show = global.config.score.global_to_show
+    global_to_show[#global_to_show + 1] = cave_collapses_name
+
     config = cfg
     support_beam_entities = config.support_beam_entities
 
@@ -362,8 +365,6 @@ function DiggyCaveCollapse.register(cfg)
         support_beam_entities['refined-hazard-concrete-right'] = nil
     end
 
-    ScoreTable.reset('Cave collapse')
-
     Event.add(DiggyCaveCollapse.events.on_collapse_triggered, on_collapse_triggered)
     Event.add(defines.events.on_robot_built_entity, on_built_entity)
     Event.add(
@@ -375,7 +376,7 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(
         defines.events.on_player_built_tile,
         function(event)
-            on_built_tile(game.surfaces[event.surface_index], event.item, event.tiles)
+            on_built_tile(game.surfaces[event.surface_index], event.tile, event.tiles)
         end
     )
     Event.add(defines.events.on_robot_mined_tile, on_robot_mined_tile)
@@ -397,7 +398,7 @@ function DiggyCaveCollapse.register(cfg)
             end
 
             if name == 'deconstructible-tile-proxy' or nil ~= support_beam_entities[name] then
-                entity.cancel_deconstruction(Game.get_player_by_index(event.player_index).force)
+                entity.cancel_deconstruction(game.get_player(event.player_index).force)
             end
         end
     )
@@ -419,15 +420,8 @@ function DiggyCaveCollapse.register(cfg)
 
             if (nil ~= support_beam_entities[event.entity.name]) then
                 require 'features.gui.popup'.player(
-                    Game.get_player_by_index(player_index),
-                    [[
-Mining entities such as walls, stone paths, concrete
-and rocks, can cause a cave-in, be careful miner!
-
-Foreman's advice: Place a wall every 4th tile to
-prevent a cave-in. Use stone paths and concrete
-to reinforce it further.
-]]
+                    game.get_player(player_index),
+{'diggy.cave_collapse_warning'}
                 )
                 show_deconstruction_alert_message[player_index] = nil
             end

@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Toast = require 'features.gui.toast'
 local round = math.round
@@ -81,7 +80,7 @@ local function update_gui(player)
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -94,14 +93,14 @@ local function player_joined(event)
     local evolution_factor = get_evolution_percentage()
     local alien_name = get_alien_name(evolution_factor)
 
-    player.gui.top.add(
-            {
-                name = main_button_name,
-                type = 'sprite-button',
-                sprite = 'entity/' .. alien_name,
-                number = evolution_factor * 100
-            }
-        ).enabled = false
+    player.gui.top.add({
+        name = main_button_name,
+        type = 'sprite-button',
+        sprite = 'entity/' .. alien_name,
+        number = evolution_factor * 100,
+        tooltip = {'evolution_progress.tooltip'},
+        enabled = false
+    })
 end
 
 local function on_nth_tick()

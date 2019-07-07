@@ -66,7 +66,7 @@ local enemy_ammo_starting_modifiers = {
 
 local enemy_ammo_evolution_modifiers = {
     ['artillery-shell'] = 1,
-    ['biological'] = 2,
+    ['biological'] = 1,
     ['bullet'] = 1,
     --['cannon-shell'] = 1,
     --['capsule'] = 1,

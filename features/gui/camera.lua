@@ -12,7 +12,6 @@
 local Event = require 'utils.event'
 local mod_gui = require 'mod-gui'
 local Command = require 'utils.command'
-local Game = require 'utils.game'
 local Gui = require 'utils.gui'
 local Global = require 'utils.global'
 
@@ -169,8 +168,8 @@ local function on_tick()
         return
     end
     for table_key, camera_table in pairs(camera_users) do
-        local player = Game.get_player_by_index(table_key)
-        local target = Game.get_player_by_index(camera_table)
+        local player = game.get_player(table_key)
+        local target = game.get_player(camera_table)
         if not target.connected then
             destroy_camera({player = player})
             player.print('Target is offline, camera closed')

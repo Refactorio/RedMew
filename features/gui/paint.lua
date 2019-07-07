@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 
 local brush_tool = 'refined-hazard-concrete'
@@ -66,7 +65,7 @@ local function player_build_tile(event)
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player.gui.left[main_frame_name] then
         return
     end
@@ -90,7 +89,7 @@ local function player_build_tile(event)
 end
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -99,7 +98,14 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'utility/spray_icon'}
+    player.gui.top.add(
+        {
+            name = main_button_name,
+            type = 'sprite-button',
+            sprite = 'utility/spray_icon',
+            tooltip = {'paint.tooltip'}
+        }
+    )
 end
 
 local function draw_filters_table(event)
@@ -133,13 +139,21 @@ local function draw_filters_table(event)
 end
 
 local function toggle(event)
-    local left = event.player.gui.left
+    local player = event.player
+    local gui = player.gui
+    local left = gui.left
     local main_frame = left[main_frame_name]
+    local main_button = gui.top[main_button_name]
 
     if main_frame and main_frame.valid then
-        Gui.remove_data_recursively(main_frame)
-        main_frame.destroy()
+        Gui.destroy(main_frame)
+        main_button.style = 'icon_button'
     else
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
+
         main_frame =
             left.add {
             type = 'frame',
@@ -200,6 +214,10 @@ Gui.on_click(
     filter_element_name,
     function(event)
         local element = event.element
+        if not element or not element.valid then
+            return
+        end
+
         local frame = Gui.get_data(element)
         local filter_button = Gui.get_data(frame)
 

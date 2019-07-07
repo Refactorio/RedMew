@@ -25,7 +25,7 @@ local icons = {
 
 local function show_popup(player, message, title_text, sprite_path, popup_name)
     --Default title and icon
-    title_text = (title_text ~= nil) and title_text or 'NOTICE!'
+    title_text = (title_text ~= nil) and title_text or {'popup.default_title'}
     if type(sprite_path) == 'number' then
         sprite_path = (sprite_path ~= nil) and icons[sprite_path] or icons[4]
     else
@@ -89,7 +89,7 @@ local function show_popup(player, message, title_text, sprite_path, popup_name)
     ok_button_flow.style.horizontally_stretchable = true
     ok_button_flow.style.horizontal_align  = 'center'
 
-    local ok_button = ok_button_flow.add {type = 'button', name = close_name, caption = 'OK'}
+    local ok_button = ok_button_flow.add {type = 'button', name = close_name, caption = {'popup.confirm_btn'}}
     Gui.set_data(ok_button, frame)
 end
 

@@ -1,30 +1,29 @@
 local Event = require 'utils.event'
 
 local SetupPlayer = {}
+local config
 
-global.SetupPlayer = {
-    first_player_spawned = false,
-}
+function SetupPlayer.register(cfg)
+    config = cfg
+    Event.add(
+        defines.events.on_player_created,
+        function()
+            local redmew_player_create = global.config.player_create
 
-function SetupPlayer.register(config)
-    Event.add(defines.events.on_player_created, function ()
-        local redmew_player_create = global.config.player_create
+            if #cfg.starting_items > 0 then
+                redmew_player_create.starting_items = cfg.starting_items
+            end
 
-        if #config.starting_items > 0 then
-            redmew_player_create.starting_items = config.starting_items
+            if not _DEBUG then
+                redmew_player_create.cheats = cfg.cheats
+            end
         end
+    )
+end
 
-        local cheats = config.cheats
-        local redmew_cheats = redmew_player_create.cheats
-        redmew_cheats.manual_mining_speed_modifier = cheats.manual_mining_speed_modifier
-        redmew_cheats.character_inventory_slots_bonus = cheats.character_inventory_slots_bonus
-        redmew_cheats.character_running_speed_modifier = cheats.character_running_speed_modifier
-        redmew_cheats.character_health_bonus = cheats.character_health_bonus
-
-        if #cheats.starting_items > 0 then
-            redmew_cheats.starting_items = cheats.starting_items
-        end
-    end)
+function SetupPlayer.on_init()
+    game.forces.player.manual_mining_speed_modifier = config.initial_mining_speed_bonus
+    game.forces.player.character_resource_reach_distance_bonus = 1
 end
 
 return SetupPlayer

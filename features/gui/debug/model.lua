@@ -87,6 +87,7 @@ function Public.dump(data)
     return inspect(data, inspect_options)
 end
 local dump = Public.dump
+_G.dump = dump
 
 function Public.dump_ignore_builder(ignore)
     local function process(item)

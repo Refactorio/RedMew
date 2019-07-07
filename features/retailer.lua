@@ -29,12 +29,12 @@
     Items support the following structure:
     {
         name: the (raw) item inserted in inventory, does nothing when type is not item
-        name_label: the name shown in the GUI. If omitted and a prototype exists for 'name', it will use that LocalisedString
+        name_label: the name shown in the GUI. If omitted and a prototype exists for 'name', it will use that LocalisedString, can be a LocalisedString
         sprite: a custom sprite, will use 'item/<name>' if omitted
         price: the price of an item, supports floats (0.95 for example)
-        description: an additional description displayed in the tooltip
+        description: an additional description displayed in the tooltip, can be a LocalisedString
         disabled: whether or not the item should be disabled by default
-        disabled_reason: the reason the item is disabled
+        disabled_reason: the reason the item is disabled, can be a LocalisedString
     }
 ]]
 
@@ -44,15 +44,21 @@ local Gui = require 'utils.gui'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Schedule = require 'utils.task'
-local PlayerStats = require 'features.player_stats'
-local Game = require 'utils.game'
 local math = require 'utils.math'
 local Color = require 'resources.color_presets'
+local ScoreTracker = require 'utils.score_tracker'
+local LocaleBuilder = require 'utils.locale_builder'
+local format_number = require 'util'.format_number
 local format = string.format
 local size = table.size
-local insert = table.insert
 local pairs = pairs
 local tonumber = tonumber
+local type = type
+local change_for_global = ScoreTracker.change_for_global
+local change_for_player = ScoreTracker.change_for_player
+local coins_spent_name = 'coins-spent'
+local currency_name = 'coin'
+local currency_item_name = {'item-name.coin'}
 local set_timeout_in_ticks = Schedule.set_timeout_in_ticks
 local clamp = math.clamp
 local floor = math.floor
@@ -63,6 +69,9 @@ local market_frame_close_button_name = Gui.uid_name()
 local item_button_name = Gui.uid_name()
 local count_slider_name = Gui.uid_name()
 local count_text_name = Gui.uid_name()
+local price_format = '%.2f'
+local translate_single_newline = {'', '\n'}
+local translate_double_newline = {'', '\n\n'}
 
 local Retailer = {}
 
@@ -83,7 +92,6 @@ Retailer.item_types = {
     item_package = 'item_package',
 }
 
-local market_gui_close_distance_squared = 6 * 6 + 6 * 6
 local do_update_market_gui -- token
 
 ---Global storage
@@ -233,10 +241,10 @@ local function redraw_market_items(data)
     local count = data.count
     local market_items = data.market_items
     local player_index = data.player_index
-    local player_coins = Game.get_player_by_index(player_index).get_item_count('coin')
+    local player_coins = game.get_player(player_index).get_item_count(currency_name)
 
     if size(market_items) == 0 then
-        grid.add({type = 'label', caption = 'No items available at this time'})
+        grid.add({type = 'label', caption = {'retailer.no_items_in_market'}})
         return
     end
 
@@ -267,42 +275,53 @@ local function redraw_market_items(data)
 
         local player_bought_max_total = has_player_limit and stack_count == 0
         local price = item.price
-        local tooltip = {'', item.name_label}
+        local tooltip = LocaleBuilder({'', item.name_label})
         local description = item.description
         local total_price = ceil(price * stack_count)
         local disabled = item.disabled == true
         local message
 
         if total_price == 0 and player_limit == 0 then
-            message = 'SOLD!'
+            message = {'retailer.item_sold_out'}
         elseif total_price == 0 then
-            message = 'FREE!'
-        elseif total_price == 1 then
-            message = '1 coin'
+            message = {'retailer.item_is_free'}
         else
-            message = total_price .. ' coins'
+            message = {'', '[img=item.', currency_name, '] ', format_number(total_price, true)}
         end
 
         local missing_coins = total_price - player_coins
         local is_missing_coins = missing_coins > 0
 
         if price ~= 0 then
-            insert(tooltip, format('\nprice: %.2f', price))
+            tooltip = tooltip
+                :add(translate_single_newline)
+                :add({'', currency_item_name, ': ', format(price_format, price)})
         end
 
         if description then
-            insert(tooltip, '\n')
-            insert(tooltip, item.description)
+            tooltip = tooltip:add(translate_single_newline)
+            if type(description) == 'table' then
+                tooltip = tooltip:add(description)
+            else
+                tooltip = tooltip:add({'', description})
+            end
         end
 
         if disabled then
-            insert(tooltip, '\n\n' .. (item.disabled_reason or 'Not available'))
+            tooltip = tooltip
+                :add(translate_double_newline)
+                :add(item.disabled_reason or {'retailer.generic_item_disabled_message'})
         elseif is_missing_coins then
-            insert(tooltip, '\n\n' .. format('Missing %s coins to buy %s', missing_coins, stack_count))
+            tooltip = tooltip
+                :add(translate_double_newline)
+                :add({'retailer.not_enough_currency', missing_coins, currency_item_name, stack_count})
         end
 
         if has_player_limit then
-            insert(tooltip, '\n\n' .. format('You have bought this item %s out of %s times', item.player_limit - player_limit, item.player_limit))
+            local item_player_limit = item.player_limit
+            tooltip = tooltip
+                :add(translate_double_newline)
+                :add({'retailer.item_with_player_limit_description', item_player_limit - player_limit, item_player_limit})
         end
 
         local button = grid.add({type = 'flow'}).add({
@@ -334,11 +353,7 @@ local function redraw_market_items(data)
 end
 
 local function do_coin_label(coin_count, label)
-    if coin_count == 1 then
-        label.caption = '1 coin available'
-    else
-        label.caption = coin_count .. ' coins available'
-    end
+    label.caption = {'', coin_count, ' ', currency_item_name, ' ', {'common.available'}}
     label.style.font = 'default-bold'
 end
 
@@ -357,7 +372,7 @@ local function draw_market_frame(player, group_name)
     local grid = scroll_pane.add({type = 'table', column_count = 10})
 
     local market_items = Retailer.get_items(group_name)
-    local player_coins = player.get_item_count('coin')
+    local player_coins = player.get_item_count(currency_name)
     local data = {
         grid = grid,
         count = 1,
@@ -374,7 +389,7 @@ local function draw_market_frame(player, group_name)
 
     local bottom_grid = frame.add({type = 'table', column_count = 2})
 
-    bottom_grid.add({type = 'label', caption = 'Quantity: '}).style.font = 'default-bold'
+    bottom_grid.add({type = 'label', caption = {'', {'common.quantity'}, ': '}}).style.font = 'default-bold'
 
     local count_text = bottom_grid.add({
         type = 'text-box',
@@ -434,7 +449,7 @@ Event.add(defines.events.on_gui_opened, function (event)
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -471,7 +486,7 @@ Gui.on_click(market_frame_close_button_name, function (event)
 end)
 
 Event.add(defines.events.on_player_died, function (event)
-    local player = Game.get_player_by_index(event.player_index or 0)
+    local player = game.get_player(event.player_index or 0)
 
     if not player or not player.valid then
         return
@@ -526,12 +541,12 @@ Gui.on_click(item_button_name, function (event)
     local item = data.market_items[button_data.index]
 
     if not item then
-        player.print('This item is no longer available in the market')
+        player.print({'retailer.item_no_longer_available'})
         return
     end
 
     if item.disabled then
-        player.print({'', item.name_label, ' is disabled. ', item.disabled_reason or ''})
+        player.print({'retailer.item_disabled_reason', item.name_label, {item.disabled_reason or ''}})
         return
     end
 
@@ -539,10 +554,10 @@ Gui.on_click(item_button_name, function (event)
     local price = item.price
 
     local cost = ceil(price * stack_count)
-    local coin_count = player.get_item_count('coin')
+    local coin_count = player.get_item_count(currency_name)
 
     if cost > coin_count then
-        player.print('Insufficient coins')
+        player.print({'retailer.not_enough_currency', cost - coin_count, currency_item_name, cost})
         return
     end
 
@@ -555,7 +570,7 @@ Gui.on_click(item_button_name, function (event)
     if item.type == 'item' then
         local inserted = player.insert({name = name, count = stack_count})
         if inserted < stack_count then
-            player.print('Insufficient inventory space')
+            player.print({'retailer.no_inventory_space'})
             if inserted > 0 then
                 player.remove_item({name = name, count = inserted})
             end
@@ -564,11 +579,12 @@ Gui.on_click(item_button_name, function (event)
     end
 
     if cost > 0 then
-        player.remove_item({name = 'coin', count = cost})
+        player.remove_item({name = currency_name, count = cost})
     end
 
     redraw_market_items(data)
-    PlayerStats.change_coin_spent(player.index, cost)
+    change_for_player(player.index, coins_spent_name, cost)
+    change_for_global(coins_spent_name, cost)
     do_coin_label(coin_count - cost, data.coin_label)
 
     raise_event(Retailer.events.on_market_purchase, {
@@ -675,7 +691,7 @@ do_update_market_gui = Token.register(function(params)
 
     for player_index, view_data in pairs(memory.players_in_market_view) do
         if group_name == view_data.group_name then
-            local player = Game.get_player_by_index(player_index)
+            local player = game.get_player(player_index)
             if player and player.valid then
                 local frame = player.gui.center[market_frame_name]
                 if not frame or not frame.valid then
@@ -697,14 +713,15 @@ end)
 
 Event.on_nth_tick(37, function()
     for player_index, view_data in pairs(memory.players_in_market_view) do
-        local player = Game.get_player_by_index(player_index)
+        local player = game.get_player(player_index)
         if player and player.valid then
             local player_position = player.position
             local market_position = view_data.position
             local delta_x = player_position.x - market_position.x
             local delta_y = player_position.y - market_position.y
 
-            if delta_x * delta_x + delta_y * delta_y > market_gui_close_distance_squared then
+            local reach_distance = player.reach_distance * 1.05
+            if delta_x * delta_x + delta_y * delta_y > reach_distance * reach_distance then
                 close_market_gui(player)
             end
         else

@@ -1,14 +1,14 @@
 local table = require 'utils.table'
-local Game = require 'utils.game'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Info = require 'features.gui.info'
+local pairs = pairs
 
 local get_random_weighted = table.get_random_weighted
 
 local function player_created(event)
     local config = global.config.player_create
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
 
     if not player or not player.valid then
         return
@@ -76,7 +76,7 @@ if _CHEATS then
 
     local function player_created_cheat_mode(event)
         local config = global.config.player_create
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
 
         if not player or not player.valid then
             return

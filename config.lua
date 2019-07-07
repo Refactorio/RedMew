@@ -23,13 +23,9 @@ global.config = {
         -- the number of 'tiles' that are calculated per tick
         ['tiles_per_tick'] = 32,
         -- the entity modules to load (takes a list of requires), example included
-        ['entity_modules'] = {
-            --function() return require('map_gen.entities.fluffy_rainbows') end
-        },
+        ['entity_modules'] = {},
         -- the terrain modules to load (takes a list of requires), example included
-        ['terrain_modules'] = {
-            --function() return require('map_gen.terrain.tris_chunk_grid') end
-        },
+        ['terrain_modules'] = {}
     },
     -- redmew_surface allows a map preset to control world generation as well as map and difficulty settings
     -- the entire module can be toggled or just individual parts
@@ -43,6 +39,11 @@ global.config = {
     rank_system = {
         time_for_trust = 3 * 60 * 60 * 60, -- 3 hours
         everyone_is_regular = false
+    },
+    -- allows syncing player colors from and to the server. Disable this if you want to enforce custom colors
+    -- when enabled, /color will also be synced to the player settings
+    player_colors = {
+        enabled = true
     },
     -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
     train_saviour = {
@@ -80,10 +81,25 @@ global.config = {
     },
     -- enables score and tracking thereof
     score = {
-        enabled = true
+        enabled = true,
+        -- the global score trackers to show
+        global_to_show = {
+            'satellites-launched',
+            'aliens-killed',
+            'built-by-players',
+            'built-by-robots',
+            'trees-cut',
+            'rocks-smashed',
+            'kills-by-trains',
+            'coins-spent'
+        }
     },
     -- adds a paint brush
     paint = {
+        enabled = true
+    },
+    -- autofill turrets with ammo
+    autofill = {
         enabled = true
     },
     -- adds a market
@@ -266,7 +282,17 @@ global.config = {
     },
     -- adds many commands for users and admins alike
     redmew_commands = {
-        enabled = true
+        enabled = true,
+        whois = {
+            player_data_to_show = {
+                'player-distance-walked',
+                'coins-earned',
+                'coins-spent',
+                'player-deaths',
+                'player-items-crafted',
+                'player-console-chats'
+            }
+        }
     },
     -- adds many commands for admins
     admin_commands = {
@@ -274,9 +300,6 @@ global.config = {
     },
     -- adds commands for donators
     donator_commands = {
-        enabled = true
-    },
-    player_colors = {
         enabled = true
     },
     -- adds a command to generate a popup dialog box for players to see, useful for important announcements
@@ -336,11 +359,62 @@ global.config = {
     },
     -- enables a command which allows for an end-game event
     apocalypse = {
-        enabled = true
+        enabled = true,
+        -- chance behemoth biters and spitters will double on death.
+        duplicate_chance = 0.05
     },
     -- gradually informs players of features such as chat, toasts, etc.
     player_onboarding = {
         enabled = true
+    },
+    -- allows for large-scale biter attacks
+    biter_attacks = {
+        enabled = false,
+        -- whether or not to send attacks on timed intervals (against a random player)
+        timed_attacks = {
+            enabled = true,
+            -- frequency of automatic attacks (in seconds)
+            attack_frequency = 40 * 60, -- 40 minutes
+            -- difficulty of automatic attacks (1-easy, 3-normal, 10-hard, 40-brutal)
+            attack_difficulty = 3
+        },
+        -- whether or not to send attacks on rocket launches
+        launch_attacks = {
+            enabled = true,
+            -- whether to only attack on the first launch
+            first_launch_only = true
+        }
+    },
+    -- allows the saving and automatic loading of quickbars between maps
+    player_quick_bars = {
+        enabled = true
+    },
+    -- enables the redmew settings GUI
+    redmew_settings = {
+        enabled = true
+    },
+    -- when biter corpses in an area are above a threshold, remove the desired amount
+    biter_corpse_remover = {
+        enabled = true,
+        chunk_size = 3, -- size of chunk in tiles
+        corpse_threshold = 3 -- number of corpses allowed on surface inside chunk
+    },
+    turret_active_delay = {
+        enabled = true,
+        -- delay for turret type in ticks
+        turret_types = {
+            ['ammo-turret'] = 60 * 30,
+            ['electric-turret'] = 60 * 15,
+            ['fluid-turret'] = 60 * 20,
+            ['artillery-turret'] = 60 * 10
+        },
+        -- reduce delay for each level of the tech
+        techs = {
+            ['weapon-shooting-speed'] = {{turret_type = 'ammo-turret', amount = 60 * 26 / 6}},
+            ['laser-turret-speed'] = {{turret_type = 'electric-turret', amount = 60 * 12 / 7}},
+            ['refined-flammables'] = {{turret_type = 'fluid-turret', amount = 60 * 17 / 7}},
+            ['artillery-shell-speed'] = {{turret_type = 'artillery-turret', amount = 60 * 2}}
+        }
     }
 }
 

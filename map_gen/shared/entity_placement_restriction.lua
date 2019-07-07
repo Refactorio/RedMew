@@ -37,7 +37,6 @@
     )
 ]]
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
 local table = require 'utils.table'
@@ -126,7 +125,14 @@ local on_built_token =
         -- Takes the keep_alive_callback function and runs it with the entity as an argument
         -- If true is returned, we exit. If false, we destroy the entity.
         local keep_alive_callback = primitives.keep_alive_callback
-        if not banned_entities[name] and keep_alive_callback and keep_alive_callback(entity) then
+
+        -- return in these cases:
+        -- not banned and no callback function
+        -- not banned and callback function and saved by callback
+        -- destroy in these cases:
+        -- all banned ents
+        -- not banned and callback function and not saved by callback
+        if not banned_entities[name] and (not keep_alive_callback or keep_alive_callback(entity)) then
             return
         end
 
@@ -150,7 +156,7 @@ local on_built_token =
 
         -- Check if we issue a refund: make sure refund is enabled, make sure we're not refunding a ghost,
         -- and revalidate the stack since we sent it to the raised event
-        local player = Game.get_player_by_index(index)
+        local player = game.get_player(index)
         local item_returned
         if player and player.valid and primitives.refund and not ghost and stack.valid then
             player.insert(stack)
@@ -196,7 +202,7 @@ end
 -- @param keep_alive_callback <function>
 function Public.set_keep_alive_callback(keep_alive_callback)
     if type(keep_alive_callback) ~= 'function' then
-        error('Sending a non-funciton')
+        error('Sending a non-function')
     end
     primitives.keep_alive_callback = keep_alive_callback
     check_event_status()

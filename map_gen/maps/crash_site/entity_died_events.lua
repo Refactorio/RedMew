@@ -2,12 +2,20 @@ local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local math = require 'utils.math'
+local table = require 'utils.table'
 
 local random = math.random
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local ceil = math.ceil
+local draw_arc = rendering.draw_arc
+local fast_remove = table.fast_remove
+
+local tau = 2 * math.pi
+local start_angle = -tau / 4
+local update_rate = 4 -- ticks between updates
+local time_to_live = update_rate + 1
+local pole_respawn_time = 60 * 60
 
 local no_coin_entity = {}
 
@@ -170,6 +178,91 @@ local spawn_player =
     end
 )
 
+local function has_valid_turret(turrets)
+    for i = #turrets, 1, -1 do
+        local turret = turrets[i]
+        if turret.valid then
+            return true
+        else
+            fast_remove(turrets, i)
+        end
+    end
+
+    return false
+end
+
+local pole_callback
+pole_callback =
+    Token.register(
+    function(data)
+        if not has_valid_turret(data.turrets) then
+            return
+        end
+
+        local tick = data.tick
+        local now = game.tick
+
+        if now >= tick then
+            data.surface.create_entity({name = data.name, force = 'enemy', position = data.position})
+            return
+        end
+
+        local fraction = ((now - tick) / pole_respawn_time) + 1
+
+        draw_arc(
+            {
+                color = {1 - fraction, fraction, 0},
+                max_radius = 0.5,
+                min_radius = 0.4,
+                start_angle = start_angle,
+                angle = fraction * tau,
+                target = data.position,
+                surface = data.surface,
+                time_to_live = time_to_live
+            }
+        )
+
+        set_timeout_in_ticks(update_rate, pole_callback, data)
+    end
+)
+
+local filter = {area = nil, name = 'laser-turret', force = 'enemy'}
+
+local function do_pole(entity)
+    if entity.type ~= 'electric-pole' then
+        return
+    end
+
+    local supply_area_distance = entity.prototype.supply_area_distance
+    if not supply_area_distance then
+        return
+    end
+
+    local surface = entity.surface
+    local position = entity.position
+    local x, y = position.x, position.y
+    local d = supply_area_distance / 2
+    filter.area = {{x - d, y - d}, {x + d, y + d}}
+
+    local turrets = surface.find_entities_filtered(filter)
+
+    if #turrets == 0 then
+        return
+    end
+
+    set_timeout_in_ticks(
+        update_rate,
+        pole_callback,
+        {
+            name = entity.name,
+            position = position,
+            surface = surface,
+            tick = game.tick + pole_respawn_time,
+            turrets = turrets
+        }
+    )
+end
+
 Event.add(
     defines.events.on_entity_died,
     function(event)
@@ -181,9 +274,11 @@ Event.add(
         local entity_force = entity.force
         local entity_name = entity.name
 
-        local factor = turret_evolution_factor[entity_name]
-        if factor then
-            if entity_force.name == 'enemy' then
+        if entity_force.name == 'enemy' then
+            do_pole(entity)
+
+            local factor = turret_evolution_factor[entity_name]
+            if factor then
                 local old = entity_force.evolution_factor
                 local new = old + (1 - old) * factor
                 entity_force.evolution_factor = math.min(new, 1)
@@ -251,7 +346,7 @@ Event.add(
 Event.add(
     defines.events.on_player_died,
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         set_timeout_in_ticks(1, spawn_player, player)
     end
 )

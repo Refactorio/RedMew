@@ -19,7 +19,6 @@ local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Queue = require 'utils.queue'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 
 local insert = table.insert
 
@@ -190,7 +189,7 @@ local function move_qchunk(surface, x, y, x_offset, y_offset)
     surface.set_tiles(new_tiles)
     erase_qchunk(surface, x, y)
     for player_index, position in pairs(player_positions) do
-        Game.get_player_by_index(player_index).teleport(position)
+        game.get_player(player_index).teleport(position)
     end
 end
 

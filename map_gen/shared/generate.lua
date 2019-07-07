@@ -93,6 +93,9 @@ local function do_row(row, data, shape)
             local decoratives = tile.decoratives
             if decoratives then
                 for _, decorative in ipairs(decoratives) do
+                    if not decorative.position then
+                        decorative.position = pos
+                    end
                     insert(data.decoratives, decorative)
                 end
             end

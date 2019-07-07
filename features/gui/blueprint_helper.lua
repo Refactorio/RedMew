@@ -3,16 +3,13 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 
 local player_filters = {}
 
 Global.register(
-    {
-        player_filters = player_filters
-    },
+    player_filters,
     function(tbl)
-        player_filters = tbl.player_filters
+        player_filters = tbl
     end
 )
 
@@ -28,124 +25,166 @@ local function getBlueprintCursorStack(player)
 end
 
 local function flip_v(cursor)
-    local ents = cursor.get_blueprint_entities()
-    if ents then
-        for i = 1, #ents do
-            local dir = ents[i].direction or 0
-            if ents[i].name == 'curved-rail' then
-                ents[i].direction = (13 - dir) % 8
-            elseif ents[i].name == 'storage-tank' then
-                if ents[i].direction == 2 or ents[i].direction == 6 then
-                    ents[i].direction = 4
+    local entities = cursor.get_blueprint_entities()
+    if entities ~= nil then
+        for i = 1, #entities do
+            local entity = entities[i]
+            local dir = entity.direction or 0
+
+            if entity.name == 'curved-rail' then
+                entity.direction = (13 - dir) % 8
+            elseif entity.name == 'storage-tank' then
+                if entity.direction == 2 or entity.direction == 6 then
+                    entity.direction = 4
                 else
-                    ents[i].direction = 2
+                    entity.direction = 2
                 end
-            elseif ents[i].name == 'rail-signal' or ents[i].name == 'rail-chain-signal' then
+            elseif entity.name == 'rail-signal' or entity.name == 'rail-chain-signal' then
                 if dir == 1 then
-                    ents[i].direction = 7
+                    entity.direction = 7
                 elseif dir == 2 then
-                    ents[i].direction = 6
+                    entity.direction = 6
                 elseif dir == 3 then
-                    ents[i].direction = 5
+                    entity.direction = 5
                 elseif dir == 5 then
-                    ents[i].direction = 3
+                    entity.direction = 3
                 elseif dir == 6 then
-                    ents[i].direction = 2
+                    entity.direction = 2
                 elseif dir == 7 then
-                    ents[i].direction = 1
+                    entity.direction = 1
                 end
-            elseif ents[i].name == 'train-stop' then
+            elseif entity.name == 'train-stop' then
                 if dir == 2 then
-                    ents[i].direction = 6
+                    entity.direction = 6
                 elseif dir == 6 then
-                    ents[i].direction = 2
+                    entity.direction = 2
                 end
             else
-                ents[i].direction = (12 - dir) % 8
+                entity.direction = (12 - dir) % 8
             end
-            ents[i].position.y = -ents[i].position.y
-            if ents[i].drop_position then
-                ents[i].drop_position.y = -ents[i].drop_position.y
+
+            entity.position.y = -entity.position.y
+
+            if entity.drop_position then
+                entity.drop_position.y = -entity.drop_position.y
             end
-            if ents[i].pickup_position then
-                ents[i].pickup_position.y = -ents[i].pickup_position.y
+            if entity.pickup_position then
+                entity.pickup_position.y = -entity.pickup_position.y
+            end
+
+            local input_priority = entity.input_priority
+            if input_priority == 'left' then
+                entity.input_priority = 'right'
+            elseif input_priority == 'right' then
+                entity.input_priority = 'left'
+            end
+            local output_priority = entity.output_priority
+            if output_priority == 'left' then
+                entity.output_priority = 'right'
+            elseif output_priority == 'right' then
+                entity.output_priority = 'left'
             end
         end
-        cursor.set_blueprint_entities(ents)
+
+        cursor.set_blueprint_entities(entities)
     end
-    if cursor.get_blueprint_tiles() ~= nil then
-        ents = cursor.get_blueprint_tiles()
-        for i = 1, #ents do
-            local dir = ents[i].direction or 0
-            ents[i].direction = (12 - dir) % 8
-            ents[i].position.y = -ents[i].position.y
+
+    local tiles = cursor.get_blueprint_tiles()
+    if tiles ~= nil then
+        for i = 1, #tiles do
+            local tile = tiles[i]
+            local dir = tile.direction or 0
+            tile.direction = (12 - dir) % 8
+            tile.position.y = -tile.position.y
         end
-        cursor.set_blueprint_tiles(ents)
+
+        cursor.set_blueprint_tiles(entities)
     end
 end
 
 local function flip_h(cursor)
-    local ents = cursor.get_blueprint_entities()
-    if ents then
-        for i = 1, #ents do
-            local dir = ents[i].direction or 0
-            if ents[i].name == 'curved-rail' then
-                ents[i].direction = (9 - dir) % 8
-            elseif ents[i].name == 'storage-tank' then
-                if ents[i].direction == 2 or ents[i].direction == 6 then
-                    ents[i].direction = 4
+    local entities = cursor.get_blueprint_entities()
+    if entities ~= nil then
+        for i = 1, #entities do
+            local entity = entities[i]
+            local dir = entity.direction or 0
+
+            if entity.name == 'curved-rail' then
+                entity.direction = (9 - dir) % 8
+            elseif entity.name == 'storage-tank' then
+                if entity.direction == 2 or entity.direction == 6 then
+                    entity.direction = 4
                 else
-                    ents[i].direction = 2
+                    entity.direction = 2
                 end
-            elseif ents[i].name == 'rail-signal' or ents[i].name == 'rail-chain-signal' then
+            elseif entity.name == 'rail-signal' or entity.name == 'rail-chain-signal' then
                 if dir == 0 then
-                    ents[i].direction = 4
+                    entity.direction = 4
                 elseif dir == 1 then
-                    ents[i].direction = 3
+                    entity.direction = 3
                 elseif dir == 3 then
-                    ents[i].direction = 1
+                    entity.direction = 1
                 elseif dir == 4 then
-                    ents[i].direction = 0
+                    entity.direction = 0
                 elseif dir == 5 then
-                    ents[i].direction = 7
+                    entity.direction = 7
                 elseif dir == 7 then
-                    ents[i].direction = 5
+                    entity.direction = 5
                 end
-            elseif ents[i].name == 'train-stop' then
+            elseif entity.name == 'train-stop' then
                 if dir == 0 then
-                    ents[i].direction = 4
+                    entity.direction = 4
                 elseif dir == 4 then
-                    ents[i].direction = 0
+                    entity.direction = 0
                 end
             else
-                ents[i].direction = (16 - dir) % 8
+                entity.direction = (16 - dir) % 8
             end
-            ents[i].position.x = -ents[i].position.x
-            if ents[i].drop_position then
-                ents[i].drop_position.x = -ents[i].drop_position.x
+
+            entity.position.x = -entity.position.x
+
+            if entity.drop_position then
+                entity.drop_position.x = -entity.drop_position.x
             end
-            if ents[i].pickup_position then
-                ents[i].pickup_position.x = -ents[i].pickup_position.x
+            if entity.pickup_position then
+                entity.pickup_position.x = -entity.pickup_position.x
+            end
+
+            local input_priority = entity.input_priority
+            if input_priority == 'left' then
+                entity.input_priority = 'right'
+            elseif input_priority == 'right' then
+                entity.input_priority = 'left'
+            end
+            local output_priority = entity.output_priority
+            if output_priority == 'left' then
+                entity.output_priority = 'right'
+            elseif output_priority == 'right' then
+                entity.output_priority = 'left'
             end
         end
-        cursor.set_blueprint_entities(ents)
+
+        cursor.set_blueprint_entities(entities)
     end
-    if cursor.get_blueprint_tiles() ~= nil then
-        ents = cursor.get_blueprint_tiles()
-        for i = 1, #ents do
-            local dir = ents[i].direction or 0
-            ents[i].direction = (16 - dir) % 8
-            ents[i].position.x = -ents[i].position.x
+
+    local tiles = cursor.get_blueprint_tiles()
+    if tiles ~= nil then
+        for i = 1, #tiles do
+            local tile = tiles[i]
+            local dir = tile.direction or 0
+            tile.direction = (16 - dir) % 8
+            tile.position.x = -tile.position.x
         end
-        cursor.set_blueprint_tiles(ents)
+
+        cursor.set_blueprint_tiles(tiles)
     end
 end
 
 local function build_filters(data)
     local filters = {}
     for _, filter in pairs(data) do
-        local from = filter.from.tooltip
-        local to = filter.to.tooltip
+        local from = filter.from.parent.caption
+        local to = filter.to.parent.caption
 
         if from ~= '' and to ~= '' then
             filters[from] = to
@@ -171,88 +210,51 @@ local function convert(cursor, filters)
     cursor.set_blueprint_entities(entities)
 end
 
-local valid_filters = {
-    'wooden-chest',
-    'iron-chest',
-    'steel-chest',
-    'storage-tank',
-    'transport-belt',
-    'fast-transport-belt',
-    'express-transport-belt',
-    'underground-belt',
-    'fast-underground-belt',
-    'express-underground-belt',
-    'splitter',
-    'fast-splitter',
-    'express-splitter',
-    'loader',
-    'fast-loader',
-    'express-loader',
-    'burner-inserter',
-    'inserter',
-    'long-handed-inserter',
-    'fast-inserter',
-    'filter-inserter',
-    'stack-inserter',
-    'stack-filter-inserter',
-    'small-electric-pole',
-    'medium-electric-pole',
-    'big-electric-pole',
-    'substation',
-    'pipe',
-    'pipe-to-ground',
-    'pump',
-    'curved-rail',
-    'straight-rail',
-    'train-stop',
-    'rail-signal',
-    'rail-chain-signal',
-    'logistic-chest-active-provider',
-    'logistic-chest-passive-provider',
-    'logistic-chest-storage',
-    'logistic-chest-buffer',
-    'logistic-chest-requester',
-    'roboport',
-    'small-lamp',
-    'arithmetic-combinator',
-    'decider-combinator',
-    'constant-combinator',
-    'power-switch',
-    'programmable-speaker',
-    'boiler',
-    'steam-engine',
-    'steam-turbine',
-    'solar-panel',
-    'accumulator',
-    'nuclear-reactor',
-    'heat-exchanger',
-    'heat-pipe',
-    'burner-mining-drill',
-    'electric-mining-drill',
-    'offshore-pump',
-    'pumpjack',
-    'stone-furnace',
-    'steel-furnace',
-    'electric-furnace',
-    'assembling-machine-1',
-    'assembling-machine-2',
-    'assembling-machine-3',
-    'oil-refinery',
-    'chemical-plant',
-    'centrifuge',
-    'lab',
-    'beacon',
-    'stone-wall',
-    'gate',
-    'gun-turret',
-    'laser-turret',
-    'flamethrower-turret',
-    'artillery-turret',
-    'radar',
-    'rocket-silo'
+local filter_blacklist = {
+    ['escape-pod-assembler'] = true,
+    ['escape-pod-lab'] = true,
+    ['infinity-chest'] = true,
+    ['simple-entity-with-force'] = true,
+    ['simple-entity-with-owner'] = true,
+    ['electric-energy-interface'] = true,
+    ['heat-interface'] = true,
+    ['infinity-pipe'] = true,
+    ['player-port'] = true,
+    ['escape-pod-power'] = true,
+    ['bait-chest'] = true,
+    ['cutscene-gun-turret'] = true,
+    ['blue-chest'] = true,
+    ['market'] = true,
+    ['red-chest'] = true
 }
 
+local cached_valid_filters = nil
+
+local function build_valid_filters()
+    local filters = {}
+    local count = 0
+
+    for name, data in pairs(game.entity_prototypes) do
+        local has_flag = data.has_flag
+        if has_flag('player-creation') and not has_flag('placeable-off-grid') and not filter_blacklist[name] then
+            count = count + 1
+            filters[count] = name
+        end
+    end
+
+    return filters
+end
+
+local function get_valid_filters()
+    if cached_valid_filters == nil then
+        cached_valid_filters = build_valid_filters()
+    end
+
+    return cached_valid_filters
+end
+
 -- Gui implementation.
+local minimal_width = 400
 
 local main_button_name = Gui.uid_name()
 local main_frame_name = Gui.uid_name()
@@ -268,7 +270,7 @@ local filter_table_clear_name = Gui.uid_name()
 local clear_all_filters_name = Gui.uid_name()
 
 local function player_joined(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -277,7 +279,14 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'item/blueprint'}
+    player.gui.top.add(
+        {
+            name = main_button_name,
+            type = 'sprite-button',
+            sprite = 'item/blueprint',
+            tooltip = {'blueprint_helper.tooltip'}
+        }
+    )
 end
 
 local function draw_filters_table(event)
@@ -287,25 +296,40 @@ local function draw_filters_table(event)
         return
     end
 
-    local frame = center.add {type = 'frame', name = filters_table_name, direction = 'vertical', caption = 'Set Filter'}
+    local frame =
+        center.add {
+        type = 'frame',
+        name = filters_table_name,
+        direction = 'vertical',
+        caption = {'blueprint_helper.set_filter_caption'}
+    }
 
     local t = frame.add {type = 'table', column_count = 10}
     t.style.horizontal_spacing = 0
     t.style.vertical_spacing = 0
 
-    for _, v in ipairs(valid_filters) do
-        local flow = t.add {type = 'flow'}
-        local b = flow.add {type = 'sprite-button', name = filter_element_name, sprite = 'entity/' .. v, tooltip = v}
+    local prototypes = game.entity_prototypes
+
+    for _, v in ipairs(get_valid_filters()) do
+        local flow = t.add {type = 'flow', caption = v}
+        local b =
+            flow.add {
+            type = 'sprite-button',
+            name = filter_element_name,
+            sprite = 'entity/' .. v,
+            tooltip = prototypes[v].localised_name or v
+        }
         Gui.set_data(b, frame)
         b.style = 'slot_button'
     end
 
     local flow = frame.add {type = 'flow'}
 
-    local close = flow.add {type = 'button', name = filter_table_close_button_name, caption = 'Close'}
+    local close = flow.add {type = 'button', name = filter_table_close_button_name, caption = {'common.close_button'}}
     Gui.set_data(close, frame)
 
-    local clear = flow.add {type = 'button', name = filter_table_clear_name, caption = 'Clear Filter'}
+    local clear =
+        flow.add {type = 'button', name = filter_table_clear_name, caption = {'blueprint_helper.clear_filters'}}
     Gui.set_data(clear, frame)
 
     event.player.opened = frame
@@ -324,19 +348,20 @@ local function toggle(event)
     end
 
     local player = event.player
-    local left = player.gui.left
+    local gui = player.gui
+    local left = gui.left
     local main_frame = left[main_frame_name]
+    local main_button = gui.top[main_button_name]
 
     if main_frame and main_frame.valid then
         local filters = Gui.get_data(main_frame)
 
         for i, f in pairs(filters) do
-            p_filters[i].from = f.from.tooltip
-            p_filters[i].to = f.to.tooltip
+            p_filters[i].from = f.from.parent.caption
+            p_filters[i].to = f.to.parent.caption
         end
 
-        Gui.remove_data_recursively(main_frame)
-        main_frame.destroy()
+        Gui.destroy(main_frame)
 
         if player.opened_gui_type == defines.gui_type.custom then
             local opened = player.opened
@@ -345,13 +370,20 @@ local function toggle(event)
                 opened.destroy()
             end
         end
+
+        main_button.style = 'icon_button'
     else
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
+
         main_frame =
             left.add {
             type = 'frame',
             name = main_frame_name,
             direction = 'vertical',
-            caption = 'Blueprint Helper'
+            caption = {'blueprint_helper.tooltip'}
         }
         local scroll_pane =
             main_frame.add {type = 'scroll-pane', direction = 'vertical', vertical_scroll_policy = 'auto'}
@@ -359,14 +391,14 @@ local function toggle(event)
 
         -- Flipper.
 
-        local flipper_frame = scroll_pane.add {type = 'frame', caption = 'Flipper', direction = 'vertical'}
+        local flipper_frame =
+            scroll_pane.add {type = 'frame', caption = {'blueprint_helper.flipper_caption'}, direction = 'vertical'}
+        flipper_frame.style.minimal_width = minimal_width
 
         local label =
             flipper_frame.add {
             type = 'label',
-            caption = [[
-Place blueprint on buttons below to flip blueprint.
-Obviously this wont work correctly with refineries or chemical plants.]]
+            caption = {'blueprint_helper.flipper_label'}
         }
         label.style.single_line = false
 
@@ -375,52 +407,67 @@ Obviously this wont work correctly with refineries or chemical plants.]]
         flow.add {
             type = 'button',
             name = flip_h_button_name,
-            caption = 'Flip Horizontal ⇄'
+            caption = {'blueprint_helper.flip_horizontal'}
         }
         flow.add {
             type = 'button',
             name = flip_v_button_name,
-            caption = 'Flip Vertical ⇵'
+            caption = {'blueprint_helper.flip_vertical'}
         }
 
         -- Converter.
 
-        local filter_frame = scroll_pane.add {type = 'frame', caption = 'Entity Converter', direction = 'vertical'}
+        local filter_frame =
+            scroll_pane.add {
+            type = 'frame',
+            caption = {'blueprint_helper.entity_converter_caption'},
+            direction = 'vertical'
+        }
+        filter_frame.style.minimal_width = minimal_width
 
         filter_frame.add {
             type = 'label',
-            -- The empty space is a hacky way to line this frame up with the above frame.
-            caption = 'Set filters then place blueprint on convert button to apply filters.          '
+            caption = {'blueprint_helper.entity_converter_label'}
         }
 
         local filter_table = filter_frame.add {type = 'table', column_count = 12}
 
         local filters = {}
 
+        local prototypes = game.entity_prototypes
+
         for i = 1, 9 do
             local filler = filter_table.add {type = 'label'}
             filler.style.minimal_width = 16
 
-            local from_tooltip = p_filters[i].from
-            local to_tooltip = p_filters[i].to
+            local from = p_filters[i].from
+            local to = p_filters[i].to
+
+            local from_tooltip, to_tooltip
+            if from ~= '' then
+                from_tooltip = prototypes[from].localised_name or from
+            end
+            if to ~= '' then
+                to_tooltip = prototypes[to].localised_name or to
+            end
 
             local from_filter =
-                filter_table.add({type = 'flow'}).add {
+                filter_table.add({type = 'flow', caption = from}).add {
                 type = 'sprite-button',
                 name = filter_button_name,
                 tooltip = from_tooltip,
-                sprite = from_tooltip ~= '' and 'entity/' .. from_tooltip or nil
+                sprite = from ~= '' and 'entity/' .. from or nil
             }
             from_filter.style = 'slot_button'
 
             filter_table.add {type = 'label', caption = '→'}
 
             local to_filter =
-                filter_table.add({type = 'flow'}).add {
+                filter_table.add({type = 'flow', caption = to}).add {
                 type = 'sprite-button',
                 name = filter_button_name,
                 tooltip = to_tooltip,
-                sprite = to_tooltip ~= '' and 'entity/' .. to_tooltip or nil
+                sprite = to ~= '' and 'entity/' .. to or nil
             }
             to_filter.style = 'slot_button'
 
@@ -430,14 +477,22 @@ Obviously this wont work correctly with refineries or chemical plants.]]
         local converter_buttons_flow = filter_frame.add {type = 'flow'}
 
         local clear_button =
-            converter_buttons_flow.add {type = 'button', name = clear_all_filters_name, caption = 'Clear Filters'}
+            converter_buttons_flow.add {
+            type = 'button',
+            name = clear_all_filters_name,
+            caption = {'blueprint_helper.clear_filters'}
+        }
         Gui.set_data(clear_button, filters)
 
         local filter_button =
-            converter_buttons_flow.add {type = 'button', name = convert_button_name, caption = 'Convert'}
+            converter_buttons_flow.add {
+            type = 'button',
+            name = convert_button_name,
+            caption = {'blueprint_helper.convert'}
+        }
         Gui.set_data(filter_button, filters)
 
-        main_frame.add {type = 'button', name = main_button_name, caption = 'Close'}
+        main_frame.add {type = 'button', name = main_button_name, caption = {'common.close_button'}}
         Gui.set_data(main_frame, filters)
     end
 end
@@ -453,7 +508,7 @@ Gui.on_click(
         if cursor then
             flip_h(cursor)
         else
-            player.print('Click the button with a blueprint or blueprint book.')
+            player.print({'blueprint_helper.empty_cursor_error_message'})
         end
     end
 )
@@ -467,7 +522,7 @@ Gui.on_click(
         if cursor then
             flip_v(cursor)
         else
-            player.print('Click the button with a blueprint or blueprint book.')
+            player.print({'blueprint_helper.empty_cursor_error_message'})
         end
     end
 )
@@ -479,6 +534,7 @@ Gui.on_click(
             local element = event.element
             element.sprite = 'utility/pump_cannot_connect_icon'
             element.tooltip = ''
+            element.parent.caption = ''
         else
             draw_filters_table(event)
         end
@@ -495,10 +551,10 @@ Gui.on_click(
         if filter_button and filter_button.valid then
             filter_button.sprite = element.sprite
             filter_button.tooltip = element.tooltip
+            filter_button.parent.caption = element.parent.caption
         end
 
-        Gui.remove_data_recursively(frame)
-        frame.destroy()
+        Gui.destroy(frame)
     end
 )
 
@@ -506,9 +562,7 @@ Gui.on_click(
     filter_table_close_button_name,
     function(event)
         local frame = Gui.get_data(event.element)
-
-        Gui.remove_data_recursively(frame)
-        frame.destroy()
+        Gui.destroy(frame)
     end
 )
 
@@ -520,9 +574,9 @@ Gui.on_click(
 
         filter_button.sprite = 'utility/pump_cannot_connect_icon'
         filter_button.tooltip = ''
+        filter_button.parent.caption = ''
 
-        Gui.remove_data_recursively(frame)
-        frame.destroy()
+        Gui.destroy(frame)
     end
 )
 
@@ -537,8 +591,10 @@ Gui.on_click(
 
             from.sprite = 'utility/pump_cannot_connect_icon'
             from.tooltip = ''
+            from.parent.caption = ''
             to.sprite = 'utility/pump_cannot_connect_icon'
             to.tooltip = ''
+            to.parent.caption = ''
         end
     end
 )
@@ -550,7 +606,7 @@ Gui.on_click(
 
         local cursor = getBlueprintCursorStack(player)
         if not cursor then
-            player.print('Click the button with a blueprint or blueprint book.')
+            player.print({'blueprint_helper.empty_cursor_error_message'})
             return
         end
 
@@ -558,7 +614,7 @@ Gui.on_click(
         local filters = build_filters(data)
 
         if next(filters) == nil then
-            player.print('No filters have been set')
+            player.print({'blueprint_helper.no_filters_error_message'})
         end
 
         convert(cursor, filters)
@@ -569,8 +625,7 @@ Gui.on_custom_close(
     filters_table_name,
     function(event)
         local element = event.element
-        Gui.remove_data_recursively(element)
-        element.destroy()
+        Gui.destroy(element)
     end
 )
 

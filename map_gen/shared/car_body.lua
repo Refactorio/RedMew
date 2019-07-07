@@ -1,22 +1,17 @@
 local Event = require 'utils.event'
-local Game = require 'utils.game'
+require 'map_gen.shared.redmew_surface'
 
 local drivers_group = 'Drivers'
 local random = math.random
 
 local function transfer_body(player)
-    -- Remove the player from their character and place them in a car.
+    --Place player in a car.
     local surface = player.surface
     local force = player.force
     local pos = force.get_spawn_position(surface)
 
     -- Choose a random direction for the car to face
     local dir = random(0, 7)
-
-    -- Remove the players' character
-    if player.character then
-        player.character.destroy()
-    end
 
     --Find a place for a car, place a car, and place fuel+ammo in it
     local car_pos = surface.find_non_colliding_position('car', pos, 0, 3)
@@ -27,7 +22,7 @@ local function transfer_body(player)
 end
 
 local function player_created(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local permissions = game.permissions
 
     -- We want to create a permission group to stop players leaving their vehicles.
@@ -58,7 +53,7 @@ end
 
 local function revive_player(event)
     -- When a player's car dies, return them to spawn and create a new car for them.
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     -- This check prevents a loop when we put them into a car.
     if not player.driving then
         transfer_body(player)

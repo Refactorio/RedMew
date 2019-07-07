@@ -2,8 +2,6 @@
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
-local PlayerStats = require 'features.player_stats'
-local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Global = require 'utils.global'
 local Retailer = require 'features.retailer'
@@ -11,6 +9,10 @@ local Ranks = require 'resources.ranks'
 local RS = require 'map_gen.shared.redmew_surface'
 local market_items = require 'resources.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
+local ScoreTracker = require 'utils.score_tracker'
+local change_for_player = ScoreTracker.change_for_player
+local get_for_player = ScoreTracker.get_for_player
+local coins_earned_name = 'coins-earned'
 
 -- localized functions
 local pairs = pairs
@@ -117,7 +119,7 @@ end
 
 local function fish_earned(event, amount)
     local player_index = event.player_index
-    local player = Game.get_player_by_index(player_index)
+    local player = game.get_player(player_index)
 
     local stack = {name = currency, count = amount}
     local inserted = player.insert(stack)
@@ -128,9 +130,8 @@ local function fish_earned(event, amount)
         player.surface.spill_item_stack(player.position, stack, true)
     end
 
-    PlayerStats.change_coin_earned(player_index, amount)
-
-    if PlayerStats.get_coin_earned(player_index) % 70 == 0 and player and player.valid then
+    change_for_player(player_index, coins_earned_name, amount)
+    if get_for_player(player_index, coins_earned_name) % 70 == 0 and player and player.valid then
         local message = fish_market_bonus_message[random(#fish_market_bonus_message)]
         player.print(message)
     end
@@ -270,7 +271,7 @@ nth_tick_token =
         local tick = game.tick
         for k, v in pairs(speed_records) do
             if tick - v.start_tick > 3000 then
-                local player = Game.get_player_by_index(k)
+                local player = game.get_player(k)
                 if player and player.valid and player.connected and player.character then
                     reset_player_running_speed(player)
                 end
@@ -279,7 +280,7 @@ nth_tick_token =
 
         for k, v in pairs(mining_records) do
             if tick - v.start_tick > 6000 then
-                local player = Game.get_player_by_index(k)
+                local player = game.get_player(k)
                 if player and player.valid and player.connected and player.character then
                     reset_player_mining_speed(player)
                 end
@@ -299,7 +300,7 @@ local function fish_player_crafted_item(event)
 end
 
 local function player_created(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
 
     if not player or not player.valid then
         return

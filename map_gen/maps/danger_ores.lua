@@ -1,10 +1,12 @@
 local b = require 'map_gen.shared.builders'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local Global = require 'utils.global'
-local math = require "utils.math"
+local math = require 'utils.math'
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+
+require 'map_gen.shared.danger_ore_banned_entities'
 
 local oil_seed
 local uranium_seed
@@ -39,6 +41,9 @@ Global.register_init(
         oil_seed = seed
         uranium_seed = seed * 2
         density_seed = seed * 3
+        game.map_settings.enemy_evolution.time_factor = 0.000002
+        game.map_settings.enemy_evolution.destroy_factor = 0.000010
+        game.map_settings.enemy_evolution.pollution_factor = 0.000075
     end
 )
 
@@ -116,7 +121,8 @@ end
 local worms = {
     'small-worm-turret',
     'medium-worm-turret',
-    'big-worm-turret'
+    'big-worm-turret',
+    'behemoth-worm-turret'
 }
 
 local max_worm_chance = 1 / 384
@@ -141,13 +147,16 @@ local function enemy(_, _, world)
                 if d < 768 then
                     max_lvl = 2
                     min_lvl = 1
-                else
+                elseif d < 960 then
                     max_lvl = 3
                     min_lvl = 2
+                else
+                    max_lvl = 4
+                    min_lvl = 3
                 end
                 local lvl = math.random() ^ (768 / d) * max_lvl
                 lvl = math.ceil(lvl)
-                lvl = math.clamp(lvl, min_lvl, 3)
+                lvl = math.clamp(lvl, min_lvl, 4)
                 return {name = worms[lvl]}
             end
         end

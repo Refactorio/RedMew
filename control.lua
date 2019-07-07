@@ -26,6 +26,11 @@ require 'features.server_commands'
 -- If missing, will cause other feature modules to fail
 require 'features.player_create'
 require 'features.rank_system'
+require 'features.redmew_settings_sync'
+
+if config.player_colors.enabled then
+    require 'features.player_colors'
+end
 
 -- Feature modules
 -- Each can be disabled safely
@@ -59,9 +64,6 @@ end
 if config.nuke_control.enabled then
     require 'features.nuke_control'
 end
-if config.player_colors.enabled then
-    require 'features.player_colors'
-end
 if config.reactor_meltdown.enabled then
     require 'features.reactor_meltdown'
 end
@@ -88,6 +90,21 @@ if config.apocalypse.enabled then
 end
 if config.player_onboarding.enabled then
     require 'features.player_onboarding'
+end
+if config.biter_attacks.enabled then
+    require 'map_gen.shared.biter_attacks'
+end
+if config.player_quick_bars.enabled then
+    require 'features.player_quick_bars'
+end
+if config.biter_corpse_remover.enabled then
+    require 'features.biter_corpse_remover'
+end
+if config.turret_active_delay.enabled then
+    require 'features.turret_active_delay'
+end
+if config.autofill then
+    require 'features.gui.autofill'
 end
 
 -- GUIs
@@ -127,15 +144,22 @@ end
 if config.rich_text_gui.enabled then
     require 'features.gui.rich_text'
 end
+if config.redmew_settings.enabled then
+    require 'features.gui.redmew_settings'
+end
+
+require 'features.snake.control'
 
 -- Debug-only modules
 if _DEBUG then
     require 'features.scenario_data_manipulation'
 end
--- Needs to be at bottom so tokens are registered last.
+
 if _DUMP_ENV then
     require 'utils.dump_env'
 end
+
+-- Needs to be at bottom so tokens are registered last.
 if _DEBUG then
     require 'features.gui.debug.command'
 end

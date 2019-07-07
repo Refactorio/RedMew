@@ -217,7 +217,7 @@ local function invoke(args, player)
         return
     end
 
-    local pos = player.surface.find_non_colliding_position('player', player.position, 50, 1)
+    local pos = player.surface.find_non_colliding_position('character', player.position, 50, 1)
     if not pos then
         Game.player_print({'admin_commands.invoke_fail_no_location'})
         return
@@ -238,7 +238,7 @@ local function teleport_player(args, player)
 
     local target_name = target.name
     local surface = target.surface
-    local pos = surface.find_non_colliding_position('player', target.position, 50, 1)
+    local pos = surface.find_non_colliding_position('character', target.position, 50, 1)
     if not pos then
         Game.player_print({'admin_commands.tp_fail_no_location'})
         return
@@ -254,7 +254,7 @@ local function teleport_location(_, player)
         Game.player_print({'admin_commands.tp_ent_fail_no_ent'})
         return
     end
-    local pos = player.surface.find_non_colliding_position('player', player.selected.position, 50, 1)
+    local pos = player.surface.find_non_colliding_position('character', player.selected.position, 50, 1)
     if not pos then
         Game.player_print({'admin_commands.tp_fail_no_location'})
         return
@@ -274,7 +274,7 @@ local function built_entity(event)
             return
         end
 
-        Game.get_player_by_index(index).teleport(entity.position)
+        game.get_player(index).teleport(entity.position)
         entity.destroy()
     end
 end

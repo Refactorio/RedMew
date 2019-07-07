@@ -4,11 +4,13 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Retailer = require 'features.retailer'
-local PlayerStats = require 'features.player_stats'
 local Donator = require 'features.donator'
 local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local CrashSiteToast = require 'map_gen.maps.crash_site.crash_site_toast'
+local ScoreTracker = require 'utils.score_tracker'
+local change_for_player = ScoreTracker.change_for_player
+local coins_earned_name = 'coins-earned'
 
 local table = require 'utils.table'
 --local next = next
@@ -1108,7 +1110,7 @@ local function do_refill_turrets()
 end
 
 local artillery_target_entities = {
-    'player',
+    'character',
     'tank',
     'car',
     'locomotive',
@@ -1116,6 +1118,34 @@ local artillery_target_entities = {
     'fluid-wagon',
     'artillery-wagon'
 }
+
+local artillery_target_callback =
+    Token.register(
+    function(data)
+        local position = data.position
+        local entity = data.entity
+
+        if not entity.valid then
+            return
+        end
+
+        local tx, ty = position.x, position.y
+
+        local pos = entity.position
+        local x, y = pos.x, pos.y
+        local dx, dy = tx - x, ty - y
+        local d = dx * dx + dy * dy
+        if d >= 1024 then -- 32 ^ 2
+            entity.surface.create_entity {
+                name = 'artillery-projectile',
+                position = position,
+                target = entity,
+                speed = 1.5
+            }
+        end
+    end
+)
+
 local function do_artillery_turrets_targets()
     local index = artillery_outposts.index
 
@@ -1129,7 +1159,7 @@ local function do_artillery_turrets_targets()
     local outpost = artillery_outposts[index]
 
     local now = game.tick
-    if now - outpost.last_fire_tick < 300 then
+    if now - outpost.last_fire_tick < 480 then
         return
     end
 
@@ -1159,24 +1189,13 @@ local function do_artillery_turrets_targets()
         return
     end
 
-    local postion = turret.position
-    local tx, ty = postion.x, postion.y
+    local position = turret.position
 
     for i = 1, count do
         local entity = entities[math.random(#entities)]
         if entity and entity.valid then
-            local pos = entity.position
-            local x, y = pos.x, pos.y
-            local dx, dy = tx - x, ty - y
-            local d = dx * dx + dy * dy
-            if d >= 1024 then -- 32 ^ 2
-                surface.create_entity {
-                    name = 'artillery-projectile',
-                    position = postion,
-                    target = entity,
-                    speed = 1.5
-                }
-            end
+            local data = {position = position, entity = entity}
+            Task.set_timeout_in_ticks(i * 60, artillery_target_callback, data)
         end
     end
 end
@@ -1199,6 +1218,10 @@ local function do_magic_crafters()
         local entity = data.entity
         if not entity.valid then
             fast_remove(magic_crafters, index)
+            limit = limit - 1
+            if limit == 0 then
+                return
+            end
         else
             index = index + 1
 
@@ -1239,6 +1262,10 @@ local function do_magic_fluid_crafters()
         local entity = data.entity
         if not entity.valid then
             fast_remove(magic_fluid_crafters, index)
+            limit = limit - 1
+            if limit == 0 then
+                return
+            end
         else
             index = index + 1
 
@@ -1320,7 +1347,7 @@ Public.refill_artillery_turret_callback =
 
             local pos = turret.position
             local x, y = pos.x, pos.y
-            outpost_data.artillery_area = {{x - 128, y - 128}, {x + 128, y + 128}}
+            outpost_data.artillery_area = {{x - 112, y - 112}, {x + 112, y + 112}}
             outpost_data.last_fire_tick = 0
 
             artillery_outposts[#artillery_outposts + 1] = outpost_data
@@ -1764,7 +1791,7 @@ end
 local function coin_mined(event)
     local stack = event.item_stack
     if stack.name == 'coin' then
-        PlayerStats.change_coin_earned(event.player_index, stack.count)
+        change_for_player(event.player_index, coins_earned_name, stack.count)
     end
 end
 

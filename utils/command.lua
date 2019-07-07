@@ -15,6 +15,8 @@ local next = next
 local serialize = serpent.line
 local gmatch = string.gmatch
 local get_rank_name = Rank.get_rank_name
+local pairs = pairs
+local pcall = pcall
 
 local Command = {}
 
@@ -24,12 +26,10 @@ local deprecated_command_alternatives = {
     ['tpplayer'] = 'tp <player>',
     ['tppos'] = 'tp',
     ['tpmode'] = 'tp mode',
-    ['color-redmew'] = 'redmew-color'
 }
 
 local notify_on_commands = {
     ['version'] = 'RedMew has a version as well, accessible via /redmew-version',
-    ['color'] = 'RedMew allows color saving and a color randomizer: check out /redmew-color',
     ['ban'] = 'In case your forgot: please remember to include a message on how to appeal a ban'
 }
 
@@ -273,7 +273,7 @@ local function on_command(event)
 
     local alternative = deprecated_command_alternatives[event.command]
     if alternative then
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if player then
             player.print({'command.warn_deprecated_command', event.command, alternative})
         end
@@ -281,7 +281,7 @@ local function on_command(event)
 
     local notification = notify_on_commands[event.command]
     if notification and event.player_index then
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if player then
             player.print(notification)
         end

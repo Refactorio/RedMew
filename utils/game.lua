@@ -1,6 +1,6 @@
 local Global = require 'utils.global'
 local Color = require 'resources.color_presets'
-local pairs = pairs
+local print = print
 
 local Game = {}
 
@@ -12,54 +12,18 @@ Global.register(
     end
 )
 
---[[
-    Due to a bug in the Factorio api the following expression isn't guaranteed to be true.
-    game.players[player.index] == player
-    get_player_by_index(index) will always return the correct player.
-    When looking up players by name or iterating through all players use game.players instead.
-]]
-function Game.get_player_by_index(index)
-    local p = game.players[index]
-
-    if not p then
-        return nil
-    end
-    if p.index == index then
-        return p
-    end
-
-    p = bad_name_players[index]
-    if p then
-        if p.valid then
-            return p
-        else
-            return nil
-        end
-    end
-
-    for k, v in pairs(game.players) do
-        if k == index then
-            bad_name_players[index] = v
-            return v
-        end
-    end
-end
-
 --- Returns a valid LuaPlayer if given a number, string, or LuaPlayer. Returns nil otherwise.
 -- obj <number|string|LuaPlayer>
 function Game.get_player_from_any(obj)
     local o_type = type(obj)
     local p
-    if type == 'number' then
-        p = Game.get_player_by_index(obj)
-    elseif o_type == 'string' then
-        p = game.players[obj]
+    if o_type == 'number' or o_type == 'string' then
+        p = game.get_player(obj)
+        if p and p.valid then
+            return p
+        end
     elseif o_type == 'table' and obj.valid and obj.is_player() then
         return obj
-    end
-
-    if p and p.valid then
-        return p
     end
 end
 
@@ -68,8 +32,9 @@ end
 -- @param color <table> defaults to white
 function Game.player_print(msg, color)
     color = color or Color.white
-    if game.player then
-        game.player.print(msg, color)
+    local player = game.player
+    if player then
+        player.print(msg, color)
     else
         print(msg)
     end
@@ -104,7 +69,7 @@ end
     @return the created entity
 ]]
 function Game.print_player_floating_text_position(player_index, text, color, x_offset, y_offset)
-    local player = Game.get_player_by_index(player_index)
+    local player = game.get_player(player_index)
     if not player or not player.valid then
         return
     end

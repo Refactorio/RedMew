@@ -1,16 +1,21 @@
 local Token = require 'utils.token'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local Global = require 'utils.global'
+
+local tostring = tostring
+local next = next
 
 local Gui = {}
 
 local data = {}
+local element_map = {}
 
-Global.register(
-    data,
+Gui.token =
+    Global.register(
+    {data = data, element_map = element_map},
     function(tbl)
-        data = tbl
+        data = tbl.data
+        element_map = tbl.element_map
     end
 )
 
@@ -24,17 +29,46 @@ end
 
 -- Associates data with the LuaGuiElement. If data is nil then removes the data
 function Gui.set_data(element, value)
-    data[element.player_index * 0x100000000 + element.index] = value
+    local player_index = element.player_index
+    local values = data[player_index]
+
+    if value == nil then
+        if not values then
+            return
+        end
+
+        values[element.index] = nil
+
+        if next(values) == nil then
+            data[player_index] = nil
+        end
+    else
+        if not values then
+            values = {}
+            data[player_index] = values
+        end
+
+        values[element.index] = value
+    end
 end
+local set_data = Gui.set_data
 
 -- Gets the Associated data with this LuaGuiElement if any.
 function Gui.get_data(element)
-    return data[element.player_index * 0x100000000 + element.index]
+    local player_index = element.player_index
+
+    local values = data[player_index]
+    if not values then
+        return nil
+    end
+
+    return values[element.index]
 end
 
+local remove_data_recursively
 -- Removes data associated with LuaGuiElement and its children recursively.
 function Gui.remove_data_recursively(element)
-    Gui.set_data(element, nil)
+    set_data(element, nil)
 
     local children = element.children
 
@@ -42,13 +76,15 @@ function Gui.remove_data_recursively(element)
         return
     end
 
-    for _, child in ipairs(children) do
+    for _, child in next, children do
         if child.valid then
-            Gui.remove_data_recursively(child)
+            remove_data_recursively(child)
         end
     end
 end
+remove_data_recursively = Gui.remove_data_recursively
 
+local remove_children_data
 function Gui.remove_children_data(element)
     local children = element.children
 
@@ -56,21 +92,22 @@ function Gui.remove_children_data(element)
         return
     end
 
-    for _, child in ipairs(children) do
+    for _, child in next, children do
         if child.valid then
-            Gui.set_data(child, nil)
-            Gui.remove_children_data(child)
+            set_data(child, nil)
+            remove_children_data(child)
         end
     end
 end
+remove_children_data = Gui.remove_children_data
 
 function Gui.destroy(element)
-    Gui.remove_data_recursively(element)
+    remove_data_recursively(element)
     element.destroy()
 end
 
 function Gui.clear(element)
-    Gui.remove_children_data(element)
+    remove_children_data(element)
     element.clear()
 end
 
@@ -88,7 +125,7 @@ local function handler_factory(event_id)
             return
         end
 
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if not player or not player.valid then
             return
         end
@@ -194,7 +231,7 @@ local toggle_button_name = Gui.uid_name()
 Event.add(
     defines.events.on_player_created,
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
 
         if not player or not player.valid then
             return
@@ -274,6 +311,43 @@ if _DEBUG then
         names[token] = name
 
         return token
+    end
+
+    function Gui.set_data(element, value)
+        local player_index = element.player_index
+        local values = data[player_index]
+
+        if value == nil then
+            if not values then
+                return
+            end
+
+            local index = element.index
+            values[index] = nil
+            element_map[index] = nil
+
+            if next(values) == nil then
+                data[player_index] = nil
+            end
+        else
+            if not values then
+                values = {}
+                data[player_index] = values
+            end
+
+            local index = element.index
+            values[index] = value
+            element_map[index] = element
+        end
+    end
+    set_data = Gui.set_data
+
+    function Gui.data()
+        return data
+    end
+
+    function Gui.element_map()
+        return element_map
     end
 end
 

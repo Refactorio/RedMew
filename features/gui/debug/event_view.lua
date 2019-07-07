@@ -19,13 +19,16 @@ local name_lookup = {}
 
 -- GUI names
 local checkbox_name = Gui.uid_name()
+local filter_name = Gui.uid_name()
+local clear_filter_name = Gui.uid_name()
 
 -- global tables
 local enabled = {}
 local last_events = {}
 global.debug_event_view = {
     enabled = enabled,
-    last_events = last_events
+    last_events = last_events,
+    filter = ''
 }
 
 function Public.on_open_debug()
@@ -84,30 +87,78 @@ end
 
 -- Create a table with events sorted by their names
 local grid_builder = {}
-for name, id in pairs(events) do
-    grid_builder[id] = name
+for name, _ in pairs(events) do
+    grid_builder[#grid_builder + 1] = name
 end
-grid_builder[#grid_builder + 1] = grid_builder[0]
-grid_builder[0] = nil
+
 table.sort(grid_builder)
 
-function Public.show(container)
-    local main_frame_flow = container.add({type = 'flow', direction = 'vertical'})
-    local scroll_pane = main_frame_flow.add({type = 'scroll-pane'})
-    local gui_table = scroll_pane.add({type = 'table', column_count = 3, draw_horizontal_lines = true})
-
+local function redraw_event_table(gui_table, filter)
     for _, event_name in pairs(grid_builder) do
-        local index = events[event_name]
-        gui_table.add({type = 'flow'}).add {
-            name = checkbox_name,
-            type = 'checkbox',
-            state = enabled[index] or false,
-            caption = event_name
-        }
+        if filter == '' or event_name:find(filter) then
+            local index = events[event_name]
+            gui_table.add({type = 'flow'}).add {
+                name = checkbox_name,
+                type = 'checkbox',
+                state = enabled[index] or false,
+                caption = event_name
+            }
+        end
     end
 end
 
+function Public.show(container)
+    local filter = global.debug_event_view.filter
+
+    local main_frame_flow = container.add({type = 'flow', direction = 'vertical'})
+
+    local filter_flow = main_frame_flow.add({type = 'flow', direction = 'horizontal'})
+    filter_flow.add({type = 'label', caption = 'filter'})
+    local filter_textfield = filter_flow.add({type = 'textfield', name = filter_name, text = filter})
+    local clear_button = filter_flow.add({type = 'button', name = clear_filter_name, caption = 'clear'})
+
+    local scroll_pane = main_frame_flow.add({type = 'scroll-pane'})
+    local gui_table = scroll_pane.add({type = 'table', column_count = 3, draw_horizontal_lines = true})
+
+    Gui.set_data(filter_textfield, gui_table)
+    Gui.set_data(clear_button, {gui_table = gui_table, filter_textfield = filter_textfield})
+
+    redraw_event_table(gui_table, filter)
+end
+
 Gui.on_checked_state_changed(checkbox_name, on_gui_checked_state_changed)
+
+Gui.on_text_changed(
+    filter_name,
+    function(event)
+        local element = event.element
+        local gui_table = Gui.get_data(element)
+
+        local filter = element.text:gsub(' ', '_')
+
+        global.debug_event_view.filter = filter
+        element.text = filter
+
+        gui_table.clear()
+        redraw_event_table(gui_table, filter)
+    end
+)
+
+Gui.on_click(
+    clear_filter_name,
+    function(event)
+        local element = event.element
+        local data = Gui.get_data(element)
+        local filter_textfield = data.filter_textfield
+        local gui_table = data.gui_table
+
+        filter_textfield.text = ''
+        global.debug_event_view.filter = ''
+
+        gui_table.clear()
+        redraw_event_table(gui_table, '')
+    end
+)
 
 -- Event registers (TODO: turn to removable hooks.. maybe)
 for name, id in pairs(events) do

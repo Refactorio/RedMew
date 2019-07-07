@@ -12,6 +12,7 @@ local AlienEvolutionProgress = require 'utils.alien_evolution_progress'
 local Debug = require 'map_gen.maps.diggy.debug'
 local Template = require 'map_gen.maps.diggy.template'
 local CreateParticles = require 'features.create_particles'
+local format_number = require 'util'.format_number
 local random = math.random
 local floor = math.floor
 local ceil = math.ceil
@@ -25,6 +26,8 @@ local destroy_rock = CreateParticles.destroy_rock
 
 -- this
 local AlienSpawner = {}
+
+local config
 
 local memory = {
     alien_collision_boxes = {},
@@ -155,10 +158,12 @@ end
 --[[--
     Registers all event handlers.
 ]]
-function AlienSpawner.register(config)
-    local alien_minimum_distance_square = config.alien_minimum_distance ^ 2
-    local alien_probability = config.alien_probability
-    local hail_hydra = config.hail_hydra
+function AlienSpawner.register(cfg)
+    config = cfg
+    local alien_minimum_distance_square = cfg.alien_minimum_distance ^ 2
+    local alien_probability = cfg.alien_probability
+    local hail_hydra = cfg.hail_hydra
+    local evolution_per_void_removed = cfg.evolution_per_void_removed
 
     if size(hail_hydra) > 0 then
         global.config.hail_hydra.enabled = true
@@ -168,7 +173,7 @@ function AlienSpawner.register(config)
     Event.add(Template.events.on_void_removed, function (event)
         local force = game.forces.enemy
         local evolution_factor = force.evolution_factor
-        force.evolution_factor = evolution_factor + 0.0000024
+        force.evolution_factor = evolution_factor + evolution_per_void_removed
 
         local position = event.position
         local x = position.x
@@ -178,20 +183,25 @@ function AlienSpawner.register(config)
             return
         end
 
-        spawn_aliens(get_aliens(create_spawner_request(3), force.evolution_factor), force, event.surface, x, y)
+        spawn_aliens(get_aliens(create_spawner_request(2), force.evolution_factor), force, event.surface, x, y)
     end)
 end
 
-function AlienSpawner.get_extra_map_info(config)
+function AlienSpawner.get_extra_map_info(cfg)
+    local multiplier = 10000
+
     return [[Alien Spawner, aliens might spawn when mining!
-Spawn chance: ]] .. (config.alien_probability * 100) .. [[%
-Minimum spawn distance: ]] .. config.alien_minimum_distance .. ' tiles'
+Spawn chance: ]] .. (cfg.alien_probability * 100) .. [[%
+Minimum spawn distance: ]] .. cfg.alien_minimum_distance .. [[ tiles
+Evolution is increased by ]] ..(multiplier * cfg.evolution_per_void_removed * 100)  .. '% per ' .. format_number(multiplier, true) .. [[ mine size
+]]
 end
 
 function AlienSpawner.on_init()
-    -- base factorio =                time_factor = 0.000004
-    game.map_settings.enemy_evolution.time_factor = 0.000008
-    game.forces.enemy.evolution_factor = 0.1
+    if config.evolution_over_time_factor then
+        game.map_settings.enemy_evolution.time_factor = config.evolution_over_time_factor
+    end
+    game.forces.enemy.evolution_factor = config.initial_evolution * 0.01
     game.map_settings.pollution.enabled = false
 end
 

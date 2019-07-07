@@ -1,105 +1,20 @@
 --[[-- info
-    Provides the ability to collect coins and send them to space.
+    Provides the ability to collect coins.
 ]]
 
 -- dependencies
 local Event = require 'utils.event'
-local Game = require 'utils.game'
-local ScoreTable = require 'map_gen.maps.diggy.score_table'
 local Debug = require 'map_gen.maps.diggy.debug'
 local Template = require 'map_gen.maps.diggy.template'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local random = math.random
 local ceil = math.ceil
 local pairs = pairs
-local Gui = require 'utils.gui'
-local utils = require 'utils.core'
 
 -- this
 local CoinGathering = {}
 
--- some GUI stuff
-local function redraw_table(data)
-    local list = data.list
-    Gui.clear(list)
-
-    data.frame.caption = 'Scoretable'
-
-    for name, value in pairs(ScoreTable.all()) do
-        local table = list.add({type = 'table', column_count = 2})
-
-        local key = table.add({type = 'label', name = 'Diggy.CoinGathering.Frame.List.Key', caption = name})
-        key.style.minimal_width = 175
-
-        local val = table.add({type = 'label', name = 'Diggy.CoinGathering.Frame.List.Val', caption = utils.comma_value(value)})
-        val.style.minimal_width = 225
-    end
-end
-
-
-local function toggle(event)
-    local player = event.player
-    local center = player.gui.left
-    local frame = center['Diggy.CoinGathering.Frame']
-
-    if (frame and event.trigger == nil) then
-        Gui.destroy(frame)
-        return
-    elseif (frame) then
-        local data = Gui.get_data(frame)
-        redraw_table(data)
-        return
-    end
-
-    frame = center.add({name = 'Diggy.CoinGathering.Frame', type = 'frame', direction = 'vertical'})
-
-    local scroll_pane = frame.add({type = 'scroll-pane'})
-    scroll_pane.style.maximal_height = 400
-
-    frame.add({type = 'button', name = 'Diggy.CoinGathering.Button', caption = 'Close'})
-
-    local data = {
-        frame = frame,
-        list = scroll_pane
-    }
-
-    redraw_table(data)
-
-    Gui.set_data(frame, data)
-end
-
-local function on_player_created(event)
-    Game.get_player_by_index(event.player_index).gui.top.add({
-        name = 'Diggy.CoinGathering.Button',
-        type = 'sprite-button',
-        sprite = 'item/coin',
-    })
-end
-
-Gui.allow_player_to_toggle_top_element_visibility('Diggy.CoinGathering.Button')
-
-Gui.on_click('Diggy.CoinGathering.Button', toggle)
-Gui.on_custom_close('Diggy.CoinGathering.Frame', function (event)
-    event.element.destroy()
-end)
-
-function CoinGathering.update_gui()
-    for _, p in pairs(game.connected_players) do
-        local frame = p.gui.left['Diggy.CoinGathering.Frame']
-
-        if frame and frame.valid then
-            local data = {player = p, trigger = 'update_gui'}
-            toggle(data)
-        end
-    end
-end
-
 function CoinGathering.register(config)
-    Event.add(defines.events.on_player_created, on_player_created)
-    Event.on_nth_tick(61, CoinGathering.update_gui)
-
-    ScoreTable.reset('Coins sent to space')
-
     local seed
     local noise_variance = config.noise_variance
     local function get_noise(surface, x, y)
@@ -108,14 +23,6 @@ function CoinGathering.register(config)
     end
 
     local distance_required = config.minimal_treasure_chest_distance * config.minimal_treasure_chest_distance
-
-    Event.add(defines.events.on_rocket_launched, function (event)
-        local coins = event.rocket.get_inventory(defines.inventory.rocket).get_item_count('coin')
-        if coins > 0 then
-            local sum = ScoreTable.add('Coins sent to space', coins)
-            game.print('sent ' .. coins .. ' coins into space! The space station is now holding ' .. sum .. ' coins.')
-        end
-    end)
 
     local treasure_chest_noise_threshold = config.treasure_chest_noise_threshold
     Event.add(Template.events.on_void_removed, function (event)

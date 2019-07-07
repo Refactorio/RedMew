@@ -3,7 +3,6 @@ local market_items = require 'resources.market_items'
 local Global = require 'utils.global'
 local DonatorPerks = require 'resources.donator_perks'
 local Donator = require 'features.donator'
-local Game = require 'utils.game'
 local train_perk_flag = DonatorPerks.train
 
 local saviour_token_name = 'small-plane' -- item name for what saves players
@@ -33,7 +32,7 @@ local train_names = {
 local function save_player(player)
     player.character.health = 1
 
-    local pos = player.surface.find_non_colliding_position('player', player.position, 100, 2)
+    local pos = player.surface.find_non_colliding_position('character', player.position, 100, 2)
     if not pos then
         return
     end
@@ -52,7 +51,7 @@ local function on_pre_death(event)
     end
 
     local player_index = event.player_index
-    local player = Game.get_player_by_index(player_index)
+    local player = game.get_player(player_index)
     if not player or not player.valid then
         return
     end

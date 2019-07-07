@@ -7,7 +7,6 @@ local Utils = require 'utils.core'
 local Global = require 'utils.global'
 local table = require 'utils.table'
 local Task = require 'utils.task'
-local Game = require 'utils.game'
 local Rank = require 'features.rank_system'
 
 local config = global.config.redmew_qol
@@ -101,7 +100,7 @@ local change_backer_name =
 local set_alt_on_create =
     Token.register(
     function(event)
-        local player = Game.get_player_by_index(event.player_index)
+        local player = game.get_player(event.player_index)
         if not player then
             return
         end
@@ -142,7 +141,7 @@ local loader_check_token =
 --- Sets construction robots that are not part of a roboport to unminabe
 -- if the player selecting them are not the owner of them.
 local function preserve_bot(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local entity = player.selected
 
     if entity == nil or not entity.valid then
@@ -165,7 +164,7 @@ local function preserve_bot(event)
     local owner = cell.owner
 
     --checks if construction-robot is part of a mobile logistic network
-    if owner.name ~= 'player' then
+    if owner.name ~= 'character' then
         entity.minable = true
         return
     end

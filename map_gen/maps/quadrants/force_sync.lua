@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local Game = require 'utils.game'
 local RS = require 'map_gen.shared.redmew_surface'
 
 local chart_tags = {}
@@ -18,7 +17,7 @@ local function console_chat(event)
     if not event.player_index or event.player_index == nil then
         return
     end
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local player_force = player.force
     for _, force in pairs(game.forces) do
         if (string.find(force.name, 'quadrant')) ~= nil or force.name == 'player' then
@@ -38,11 +37,7 @@ local function create_tag(creating_force, data, remove)
     for _, force in pairs(game.forces) do
         if (string.find(force.name, 'quadrant')) ~= nil then
             if force.name ~= creating_force.name then
-                local old_tag =
-                    force.find_chart_tags(
-                    surface,
-                    {{data.position.x - 0.5, data.position.y - 0.5}, {data.position.x + 0.5, data.position.y + 0.5}}
-                )[1]
+                local old_tag = force.find_chart_tags(surface, {{data.position.x - 0.5, data.position.y - 0.5}, {data.position.x + 0.5, data.position.y + 0.5}})[1]
                 if old_tag and old_tag.valid then
                     if remove then
                         old_tag.destroy()
@@ -109,8 +104,7 @@ local function research_finished(event)
 
     for _, force in pairs(game.forces) do
         if (string.find(force.name, 'quadrant')) ~= nil then
-            force.print({'quadrants.force_sync_research', technology.name}
-            )
+            force.print({"", '[img=item/automation-science-pack] ', {'quadrants.force_sync_research'}, ' [technology=' .. technology.name .. ']'})
         end
     end
 end

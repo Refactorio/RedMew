@@ -1,9 +1,10 @@
 local Global = require 'utils.global'
 local Game = require 'utils.game'
-local PlayerStats = require 'features.player_stats'
 local Command = require 'utils.command'
 local Ranks = require 'resources.ranks'
-
+local ScoreTracker = require 'utils.score_tracker'
+local change_for_player = ScoreTracker.change_for_player
+local coins_earned_name = 'coins-earned'
 local format = string.format
 local abs = math.abs
 local concat = table.concat
@@ -59,7 +60,7 @@ Public.give_reward = function(player, amount, message)
     local player_index
     if type(player) == 'number' then
         player_index = player
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     else
         player_index = player.index
     end
@@ -72,7 +73,7 @@ Public.give_reward = function(player, amount, message)
     end
     local coin_difference = player.insert(reward)
     if reward_token[1] == 'coin' then
-        PlayerStats.change_coin_earned(player_index, coin_difference)
+        change_for_player(player_index, coins_earned_name, coin_difference)
     end
     return coin_difference
 end
@@ -90,7 +91,7 @@ Public.remove_reward = function(player, amount, message)
     local player_index
     if type(player) == 'number' then
         player_index = player
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     else
         player_index = player.index
     end
@@ -100,7 +101,7 @@ Public.remove_reward = function(player, amount, message)
     end
     local coin_difference = player.remove_item(unreward)
     if reward_token[1] == 'coin' then
-        PlayerStats.change_coin_earned(player_index, -coin_difference)
+        change_for_player(player_index, coins_earned_name, -coin_difference)
     end
     return coin_difference
 end

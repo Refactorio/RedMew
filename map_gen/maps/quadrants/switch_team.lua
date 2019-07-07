@@ -1,6 +1,5 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
 local abs = math.abs
 local Color = require 'resources.color_presets'
 local Popup = require 'features.gui.popup'
@@ -9,6 +8,12 @@ local Item_to_chest = require 'map_gen.maps.quadrants.item_to_chest'
 local Global = require 'utils.global'
 
 local gui = {}
+
+local btn_q1 = Gui.uid_name()
+local btn_q2 = Gui.uid_name()
+local btn_q3 = Gui.uid_name()
+local btn_q4 = Gui.uid_name()
+local btn_toggle = Gui.uid_name()
 
 local spawn_locations = {
     quadrant_1 = {64, -64},
@@ -49,19 +54,30 @@ local quadrant_message = {
 
 local function teleport(event, quadrant)
     local player = event.player
+    player.clean_cursor()
     local toggle_status = toggle_chest_status[player.index]
-    if
-        (abs(player.position.x) <= 4 and abs(player.position.y) <= 4) or
-            (player.get_inventory(defines.inventory.player_main).is_empty() and
-                player.get_inventory(defines.inventory.player_trash).is_empty()) or
-            ((abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status and
+    local within_spawn = abs(player.position.x) <= 4 and abs(player.position.y) <= 4
+    local empty_inventory =
+        player.get_inventory(defines.inventory.character_main).is_empty() and
+        player.get_inventory(defines.inventory.character_trash).is_empty() and
+        player.crafting_queue_size == 0
+    local can_empty_inventory = (abs(player.position.x) >= 23 and (abs(player.position.y) >= 23)) and toggle_status
+    if within_spawn or empty_inventory or can_empty_inventory then
+        if can_empty_inventory and not within_spawn and not empty_inventory then
+            local chest =
                 Item_to_chest.transfer_inventory(
-                    player.index,
-                    {defines.inventory.player_main, defines.inventory.player_trash}
-                ))
-     then
+                player.index,
+                {defines.inventory.character_main, defines.inventory.character_trash},
+                nil,
+                0
+            )
+            player.print({"", {'quadrants.switch_notice3'}, " [gps=".. chest.x .. ', ' .. chest.y .. "]"})
+        end
+
         local pos =
-            RS.get_surface().find_non_colliding_position('player', spawn_locations['quadrant_' .. quadrant], 5, 1)
+            RS.get_surface().find_non_colliding_position('character', spawn_locations['quadrant_' .. quadrant], 5, 1)
+
+        player.driving = false
         player.teleport(pos)
         player.force = game.forces['quadrant' .. quadrant]
         Popup.player(
@@ -73,7 +89,9 @@ local function teleport(event, quadrant)
         )
     else
         player.print({'quadrants.switch_notice1'}, Color.red)
-        player.print({'quadrants.switch_notice1'}, Color.red)
+        if not can_empty_inventory and toggle_status then
+            player.print({'quadrants.switch_notice2'}, Color.red)
+        end
     end
 end
 
@@ -86,7 +104,7 @@ local function redraw_quadrant_button(data)
     left_flow.add(
         {
             type = 'button',
-            name = 'Quadrants.Button.2',
+            name = btn_q2,
             caption = {'quadrants.switch_quadrant2', #game.forces['quadrant2'].connected_players},
             tooltip = {'quadrants.switch_quadrant2_tip'}
         }
@@ -94,7 +112,7 @@ local function redraw_quadrant_button(data)
     right_flow.add(
         {
             type = 'button',
-            name = 'Quadrants.Button.1',
+            name = btn_q1,
             caption = {'quadrants.switch_quadrant1', #game.forces['quadrant1'].connected_players},
             tooltip = {'quadrants.switch_quadrant1_tip'}
         }
@@ -108,7 +126,7 @@ local function redraw_quadrant_button(data)
     left_flow.add(
         {
             type = 'button',
-            name = 'Quadrants.Button.3',
+            name = btn_q3,
             caption = {'quadrants.switch_quadrant3', #game.forces['quadrant3'].connected_players},
             tooltip = {'quadrants.switch_quadrant3_tip'}
         }
@@ -116,7 +134,7 @@ local function redraw_quadrant_button(data)
     right_flow.add(
         {
             type = 'button',
-            name = 'Quadrants.Button.4',
+            name = btn_q4,
             caption = {'quadrants.switch_quadrant4', #game.forces['quadrant4'].connected_players},
             tooltip = {'quadrants.switch_quadrant4_tip'}
         }
@@ -132,7 +150,7 @@ local function redraw_chest_button(data, player)
         left_flow.add(
         {
             type = 'button',
-            name = 'Quadrants.Button.Toggle',
+            name = btn_toggle,
             caption = {'quadrants.switch_chest', toggle_status},
             tooltip = {'quadrants.switch_chest_tip'}
         }
@@ -228,7 +246,7 @@ local function update_gui(force_update)
         elseif not frame and not (abs(p.position.x) > 160 or abs(p.position.y) > 160) then
             toggle(data)
         elseif frame and frame.valid and force_update then
-        data['trigger'] = true
+            data['trigger'] = true
             toggle(data)
         end
     end
@@ -246,47 +264,45 @@ local function toggle_chest(event)
 end
 
 Gui.on_click(
-    'Quadrants.Button.1',
+    btn_q1,
     function(event)
         teleport(event, 1)
     end
 )
 Gui.on_click(
-    'Quadrants.Button.2',
+    btn_q2,
     function(event)
         teleport(event, 2)
     end
 )
 Gui.on_click(
-    'Quadrants.Button.3',
+    btn_q3,
     function(event)
         teleport(event, 3)
     end
 )
 Gui.on_click(
-    'Quadrants.Button.4',
+    btn_q4,
     function(event)
         teleport(event, 4)
     end
 )
 Gui.on_click(
-    'Quadrants.Button.Toggle',
+    btn_toggle,
     function(event)
         toggle_chest(event)
     end
 )
 
 local function on_player_created(event)
-    event.player = Game.get_player_by_index(event.player_index)
+    event.player = game.get_player(event.player_index)
     toggle_chest_status[event.player_index] = true
     toggle(event)
 end
 
-
 local function changed_force()
-        update_gui(true)
+    update_gui(true)
 end
-
 
 Event.add(defines.events.on_player_created, on_player_created)
 Event.on_nth_tick(61, update_gui)

@@ -6,7 +6,6 @@
 
 -- dependencies
 local Event = require 'utils.event'
-local Game = require 'utils.game'
 local RS = require 'map_gen.shared.redmew_surface'
 
 -- this
@@ -17,18 +16,11 @@ local NightTime = {}
 -- @param event table containing the on_built_entity event specific attributes
 --
 local function on_built_entity(event)
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     local entity = event.created_entity
     if (entity.name == 'solar-panel') then
         require 'features.gui.popup'.player(
-            player,[[
-Placing solar panels underground does not seem
-to have an effect on power production!
-Studies show, that the same applies to the portable version!
-
-Foreman's advice: Solar Panels are only useful in crafting
-satellites
-]]
+            player, {'diggy.night_time_warning'}
         )
     end
 end

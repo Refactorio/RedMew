@@ -347,20 +347,10 @@ return {
             }
         }
     },
-    -- will generate a world with only water (useful for maps that want full terrain control and no entities on the surface) (non-functional in 0.17)
+    -- will generate a world with only water (useful for maps that want full terrain control and no entities on the surface)
     waterworld = {
-        autoplace_settings = {
-            tile = {
-                treat_missing_as_default = false,
-                settings = {
-                    ['deepwater'] = {frequency = 1, size = 1, richness = 1},
-                    ['deepwater-green'] = {frequency = 1, size = 1, richness = 1},
-                    ['water'] = {frequency = 1, size = 1, richness = 1},
-                    ['water-green'] = {frequency = 1, size = 1, richness = 1},
-                    ['water-mud'] = {frequency = 1, size = 1, richness = 1},
-                    ['water-shallow'] = {frequency = 1, size = 1, richness = 1}
-                }
-            }
+        property_expression_names = {
+            elevation = '-1'
         }
     },
     -- creates a 1x1 world border, this will prevent chunks from being generated
