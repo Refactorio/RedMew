@@ -334,8 +334,9 @@ end
 
     @param global_config Table {@see Diggy.Config}.
 ]]
+--Special thanks to justarandomgeek from the main factorio discord guild for helping to teach orange how image classes work.
 function DiggyCaveCollapse.register(cfg)
-    ScoreTracker.register(cave_collapses_name, {'diggy.score_cave_collapses'}, '[img=entity.assembler-wreck]')
+    ScoreTracker.register(cave_collapses_name, {'diggy.score_cave_collapses'}, '[img=entity.small-remnants]')
 
     local global_to_show = global.config.score.global_to_show
     global_to_show[#global_to_show + 1] = cave_collapses_name

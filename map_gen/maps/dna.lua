@@ -3,6 +3,8 @@ local math = require 'utils.math'
 local degrees = math.degrees
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local ScenarioInfo = require 'features.gui.info'
+local Event = require 'utils.event'
 
 RS.set_map_gen_settings(
     {
@@ -10,6 +12,12 @@ RS.set_map_gen_settings(
         MGSP.cliff_none
     }
 )
+
+
+--Special thanks to the following beta testers for their help with the map and map info: melechkibitzer
+ScenarioInfo.set_map_name('DNA')
+ScenarioInfo.set_map_description('Help research the gigantic genome, and turn this molecule into a megafactory.\nThe mutations in this DNA have blessed you with generous ore patches.')
+ScenarioInfo.set_map_extra_info('Double-helix shaped map generation.\nCircular ore patches with rich cores, connected by thin land strips.\nLandfill disabled.')
 
 local ball_r = 16
 local big_circle = b.circle(ball_r)
@@ -151,5 +159,9 @@ map = b.choose(big_circle, start, map)
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 
 map = b.scale(map, 5, 5)
+
+Event.on_init(function()
+    game.forces['player'].technologies['landfill'].enabled = false
+end)
 
 return map
