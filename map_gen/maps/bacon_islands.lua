@@ -7,6 +7,7 @@ local Global = require 'utils.global'
 local degrees = require 'utils.math'.degrees
 local pig = b.picture(require 'map_gen.data.presets.pig')
 local ham = b.picture(require 'map_gen.data.presets.ham')
+local ScenarioInfo = require 'features.gui.info'
 
 local ore_seed = nil
 
@@ -16,6 +17,10 @@ RS.set_map_gen_settings(
         MGSP.cliff_none
     }
 )
+
+ScenarioInfo.set_map_name('Bacon Islands')
+ScenarioInfo.set_map_description('Chew your way through resources and cook up a factory with some bacon strips!\nEnjoy the pig and ham themed resource patches - the circle of life, in Factorio.')
+ScenarioInfo.set_map_extra_info('Infinite island world with bacon-strip shaped islands.\nPig and ham shaped resource patches.\nIsland strips connected with thin pieces of land, so landfill is disabled.')
 
 local function build_map()
     local wave = b.sine_wave(64, 16, 4)
