@@ -34,15 +34,15 @@ local factory = {
 local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        recipe = 'sulfuric-acid',
-        output = {min_rate = 10 / 60, distance_factor = 10 / 60 / 512, item = 'sulfuric-acid', fluidbox_index = 2}
+        recipe = 'explosives',
+        output = {min_rate = 2 / 60, distance_factor = 1 / 60 / 512, item = 'explosives'}
     }
 }
 local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'rocket-fuel',
-        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'rocket-fuel'}
+        output = {min_rate = 0.7 / 60, distance_factor = 0.7 / 60 / 512, item = 'rocket-fuel'}
     }
 }
 
@@ -120,7 +120,7 @@ local level3 =
     {
         factory = factory,
         fallback = level2,
-        max_count = 6
+        max_count = 5
     }
 )
 
@@ -130,7 +130,7 @@ local level3b =
     {
         factory = factory_b,
         fallback = level3,
-        max_count = 3
+        max_count = 4
     }
 )
 

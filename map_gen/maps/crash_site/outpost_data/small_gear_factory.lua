@@ -83,10 +83,46 @@ local market = {
             min_price = 40
         },
         {
+            name = 'locomotive',
+            price = 100,
+            distance_factor = 50 / 512,
+            min_price = 40
+        },
+        {
+            name = 'cargo-wagon',
+            price = 20,
+            distance_factor = 10 / 512,
+            min_price = 10
+        },
+        {
+            name = 'fluid-wagon',
+            price = 40,
+            distance_factor = 20 / 512,
+            min_price = 20
+        },
+        {
             name = 'rail',
-            price = 1,
+            price = 0.5,
             distance_factor = 0.5 / 512,
             min_price = 0.1
+        },
+        {
+            name = 'rail-signal',
+            price = 2,
+            distance_factor = 1 / 512,
+            min_price = 0.1
+        },
+        {
+            name = 'rail-chain-signal',
+            price = 2,
+            distance_factor = 1 / 512,
+            min_price = 0.1
+        },
+        {
+            name = 'train-stop',
+            price = 20,
+            distance_factor = 10 / 512,
+            min_price = 2
         }
     }
 }

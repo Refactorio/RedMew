@@ -9,6 +9,7 @@ local loot = {
     {stack = {name = 'iron-gear-wheel', count = 1500, distance_factor = 1}, weight = 10},
     {stack = {name = 'engine-unit', count = 200, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'electric-engine-unit', count = 100, distance_factor = 1 / 2}, weight = 5},
+    {stack = {name = 'flying-robot-frame', count = 50, distance_factor = 1 / 2}, weight = 5},
     {stack = {name = 'rail', count = 500, distance_factor = 1}, weight = 2},
     {stack = {name = 'tank', count = 1, distance_factor = 1 / 128}, weight = 2},
     {stack = {name = 'locomotive', count = 5, distance_factor = 1 / 128}, weight = 2},
@@ -87,6 +88,12 @@ local market = {
             min_price = 0.8
         },
         {
+            name = 'flying-robot-frame',
+            price = 12,
+            distance_factor = 4 / 512,
+            min_price = 1.2
+        },
+        {
             name = 'car',
             price = 50,
             distance_factor = 25 / 512,
@@ -118,9 +125,27 @@ local market = {
         },
         {
             name = 'rail',
-            price = 1,
+            price = 0.5,
             distance_factor = 0.5 / 512,
             min_price = 0.1
+        },
+        {
+            name = 'rail-signal',
+            price = 2,
+            distance_factor = 1 / 512,
+            min_price = 0.1
+        },
+        {
+            name = 'rail-chain-signal',
+            price = 2,
+            distance_factor = 1 / 512,
+            min_price = 0.1
+        },
+        {
+            name = 'train-stop',
+            price = 20,
+            distance_factor = 10 / 512,
+            min_price = 2
         }
     }
 }
