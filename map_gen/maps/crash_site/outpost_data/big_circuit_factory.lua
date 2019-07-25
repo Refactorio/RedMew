@@ -40,7 +40,7 @@ local factory_d = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'rocket-control-unit',
-        output = {min_rate = 0.05 / 60, distance_factor = 0.05 / 60 / 512, item = 'rocket-control-unit'}
+        output = {min_rate = 0.5 / 60, distance_factor = 0.5 / 60 / 512, item = 'rocket-control-unit'}
     }
 }
 

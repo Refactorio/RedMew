@@ -40,7 +40,7 @@ local factory_c = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'low-density-structure',
-        output = {min_rate = 0.1 / 60, distance_factor = 0.1 / 60 / 512, item = 'low-density-structure'}
+        output = {min_rate = 0.35 / 60, distance_factor = 0.35 / 60 / 512, item = 'low-density-structure'}
     }
 }
 
