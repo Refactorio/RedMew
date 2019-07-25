@@ -23,7 +23,7 @@ local factory_b = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'advanced-circuit',
-        output = {min_rate = 0.5 / 600, distance_factor = 0.5 / 600 / 512, item = 'advanced-circuit'}
+        output = {min_rate = 2.5 / 600, distance_factor = 2.5 / 600 / 512, item = 'advanced-circuit'}
     }
 }
 
