@@ -82,18 +82,6 @@ local function abort(_, player)
 end
 
 Command.add(
-    'crash-site-restart',
-    {
-        description = {'command_description.crash_site_restart'},
-        arguments = {'scenario_name'},
-        default_values = {scenario_name = 'crashsite'},
-        required_rank = Ranks.admin,
-        allowed_by_server = true
-    },
-    restart
-)
-
-Command.add(
     'crash-site-restart-abort',
     {
         description = {'command_description.crash_site_restart_abort'},
@@ -101,18 +89,6 @@ Command.add(
         allowed_by_server = true
     },
     abort
-)
-
-Command.add(
-    'restart',
-    {
-        description = {'command_description.crash_site_restart'},
-        arguments = {'scenario_name'},
-        default_values = {scenario_name = 'crashsite'},
-        required_rank = Ranks.admin,
-        allowed_by_server = true
-    },
-    restart
 )
 
 Command.add(
@@ -124,3 +100,34 @@ Command.add(
     },
     abort
 )
+
+local Public = {}
+
+function Public.control(config)
+    local default_name = config.scenario_name or 'crashsite'
+    Command.add(
+        'crash-site-restart',
+        {
+            description = {'command_description.crash_site_restart'},
+            arguments = {'scenario_name'},
+            default_values = {scenario_name = default_name},
+            required_rank = Ranks.admin,
+            allowed_by_server = true
+        },
+        restart
+    )
+
+    Command.add(
+        'restart',
+        {
+            description = {'command_description.crash_site_restart'},
+            arguments = {'scenario_name'},
+            default_values = {scenario_name = default_name},
+            required_rank = Ranks.admin,
+            allowed_by_server = true
+        },
+        restart
+    )
+end
+
+return Public
