@@ -4,10 +4,10 @@ local Token = require 'utils.token'
 local loot = {
     {weight = 10},
     {stack = {name = 'coin', count = 50, distance_factor = 1 / 20}, weight = 5},
-    {stack = {name = 'crude-oil-barrel', count = 100, distance_factor = 1 / 20}, weight = 2},
+    {stack = {name = 'crude-oil-barrel', count = 100, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'heavy-oil-barrel', count = 100, distance_factor = 1 / 20}, weight = 2},
     {stack = {name = 'light-oil-barrel', count = 100, distance_factor = 1 / 20}, weight = 2},
-    {stack = {name = 'petroleum-gas-barrel', count = 100, distance_factor = 1 / 20}, weight = 2},
+    {stack = {name = 'petroleum-gas-barrel', count = 100, distance_factor = 1 / 20}, weight = 5},
     {stack = {name = 'lubricant-barrel', count = 100, distance_factor = 1 / 20}, weight = 1},
     {stack = {name = 'sulfuric-acid-barrel', count = 100, distance_factor = 1 / 20}, weight = 1}
 }
@@ -41,9 +41,7 @@ local factory = {
         recipe = 'basic-oil-processing',
         keep_active = true,
         output = {
-            {min_rate = 3.75 / 60, distance_factor = 3.75 / 60 / 512, item = 'heavy-oil', fluidbox_index = 2},
-            {min_rate = 3.75 / 60, distance_factor = 3.75 / 60 / 512, item = 'light-oil', fluidbox_index = 3},
-            {min_rate = 5 / 60, distance_factor = 5 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 4}
+            {min_rate = 4.5 / 60, distance_factor = 4.5 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 2}
         }
     }
 }
