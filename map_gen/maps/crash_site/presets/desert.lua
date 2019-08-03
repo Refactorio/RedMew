@@ -15,8 +15,12 @@ local config = {
         MGSP.cliff_none,
         {
             property_expression_names = {
-                ['control-setting:moisture:bias'] = '-0.500000',
-                ['control-setting:moisture:frequency:multiplier'] = '6.000000'
+                ['control-setting:moisture:bias'] = '-0.500000'
+            },
+            trees = {
+                frequency = 6,
+                richness = 1,
+                size = 0.1666666716337204
             }
         }
     }
