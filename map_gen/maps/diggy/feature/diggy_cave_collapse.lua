@@ -334,7 +334,7 @@ end
 
     @param global_config Table {@see Diggy.Config}.
 ]]
---Special thanks to justarandomgeek from the main factorio discord guild for helping to teach orange how image classes work. 
+--Special thanks to justarandomgeek from the main factorio discord guild for helping to teach orange how image classes work.
 function DiggyCaveCollapse.register(cfg)
     ScoreTracker.register(cave_collapses_name, {'diggy.score_cave_collapses'}, '[img=entity.small-remnants]')
 
