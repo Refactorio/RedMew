@@ -49,10 +49,6 @@ local Config = {
                 starting_items = {}
             }
         },
-        -- controls the introduction cutscene
-        cutscene = {
-            enabled =  true
-        },
         -- core feature
         diggy_hole = {
             enabled = true,

@@ -144,9 +144,6 @@ end
 if config.rich_text_gui.enabled then
     require 'features.gui.rich_text'
 end
-if config.radio.enabled or _DEBUG then
-    require 'features.gui.radio'
-end
 if config.redmew_settings.enabled then
     require 'features.gui.redmew_settings'
 end
