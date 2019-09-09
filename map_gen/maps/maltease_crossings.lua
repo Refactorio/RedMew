@@ -5,8 +5,40 @@ local b = require 'map_gen.shared.builders'
 local math = require 'utils.math'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local Event = require 'utils.event'
 
 local degrees = math.rad
+
+local ScenarioInfo = require 'features.gui.info'
+
+ScenarioInfo.set_map_name('Maltease Crossing')
+ScenarioInfo.set_map_description(
+    [[
+A throughput limited map in the shape of a Maltese Cross, where you must manage
+the flow of resources from quadrant to quadrant via a central hub to facilitate
+manufacture. Beware the worm infested islands, bot transfer is not as appealing
+as it looks!
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+This map is split in four quadrants. Each quadrant has a main resource.
+
+The central hub has a limited amount of belt transfer lanes making upgrading of
+belts for clever belt weaving essential.
+
+Worm covered spokes prevent early expansion via bots though can be cleared with
+effort and technology.
+]]
+)
+
+ScenarioInfo.set_new_info(
+    [[
+2019-09-09
+- Added automatic disabling of landfill tech instead of manual disable by player
+- Updated map description
+]]
+)
 
 RS.set_map_gen_settings(
     {
@@ -22,16 +54,6 @@ local function value(base, mult, pow)
         local d_sq = x * x + y * y
         return base + mult * d_sq ^ (pow / 2) -- d ^ pow
     end
-end
-
-local function no_trees(world, tile)
-    if not tile then
-        return
-    end
-    for _, e in ipairs(world.surface.find_entities_filtered({type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
-        e.destroy()
-    end
-    return tile
 end
 
 local starting_area = 59
@@ -121,16 +143,10 @@ worm_island =
     b.translate(worm_island_end, 0, -300)
 }
 worm_island = b.change_tile(worm_island, true, 'grass-1')
- --
 
---[[
-local worm_names = {
-    'small-worm-turret',
-    'medium-worm-turret',
-    'big-worm-turret'
-}
-]] local max_worm_chance = 64 / 128
+local max_worm_chance = 64 / 128
 local worm_chance_factor = 1 --/ (192 * 512)
+
 local function worms(_, _, world)
     local wx, wy = world.x, world.y
     local d = math.sqrt(wx * wx + wy * wy)
@@ -145,7 +161,6 @@ local function worms(_, _, world)
 end
 
 worm_island = b.apply_entity(worm_island, worms)
-worm_island = b.apply_effect(worm_island, no_trees)
 
 local worm_islands =
     b.any {
@@ -163,11 +178,19 @@ local start_area =
 }
 
 -- finalising some bits
-start_area = b.apply_entity(start_area, starting_resources) -- adds a different density ore patch to start
+start_area = b.apply_entity(start_area, starting_resources)         -- adds a different density ore patch to start
 maltese_cross = b.change_tile(maltese_cross, true, 'grass-1')
-maltese_cross = b.apply_entity(maltese_cross, resources) -- adds our custom ore gen
-local sea = b.change_tile(b.full_shape, true, 'water') -- turn the void to water
-sea = b.fish(sea, 0.00125) -- feesh!
-local map = b.any {worm_islands, start_area, maltese_cross, sea} -- combine everything
+maltese_cross = b.apply_entity(maltese_cross, resources)            -- adds our custom ore gen
+local sea = b.change_tile(b.full_shape, true, 'water')              -- turn the void to water
+sea = b.fish(sea, 0.00125)                                          -- feesh!
+local map = b.any {worm_islands, start_area, maltese_cross, sea}    -- combine everything
+map = b.translate(map,0,-28)                                        -- translate the map so the 0,0 co-ord is not at the centre of the ore patch, moving the market off the coal
+
+-- Disable landfill technology
+local function on_init()
+    local player_force = game.forces.player
+    player_force.technologies['landfill'].enabled = false           -- disable landfill
+end
+Event.on_init(on_init)
 
 return map
