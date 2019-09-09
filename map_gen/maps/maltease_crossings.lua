@@ -11,7 +11,7 @@ local degrees = math.rad
 
 local ScenarioInfo = require 'features.gui.info'
 
-ScenarioInfo.set_map_name('Maltease Crossing')
+ScenarioInfo.set_map_name('Maltease Crossings')
 ScenarioInfo.set_map_description(
     [[
 A throughput limited map in the shape of a Maltese Cross, where you must manage
