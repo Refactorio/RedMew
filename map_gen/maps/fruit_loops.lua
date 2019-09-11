@@ -3,6 +3,7 @@ local math = require 'utils.math'
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local ScenarioInfo = require 'features.gui.info'
 
 -- change these to change the pattern.
 local seed1 = 17000
@@ -15,6 +16,30 @@ RS.set_map_gen_settings(
         MGSP.water_none
     }
 )
+
+ScenarioInfo.set_map_name('Fruit Loops')
+ScenarioInfo.set_map_description(
+    [[
+Colourful fruity loop ore filled islands in a sea of..... not milk.
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+Donut shaped islands populated with ores, stone, trees and.... WORMS!
+
+A well balanced map which needs connecting of islands by landfill then careful
+removal of worms to open up new islands for exploitation. The RedMew market and
+wise spending of coins eases strategic expansion.
+]]
+)
+
+ScenarioInfo.set_new_info(
+    [[
+2019-09-11 - Jayefuu
+- Updated map descriptions
+]]
+)
+
 
 local function value(base, mult, pow)
     return function(x, y)

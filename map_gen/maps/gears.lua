@@ -3,12 +3,32 @@ local pic = require "map_gen.data.presets.gears"
 
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local ScenarioInfo = require 'features.gui.info'
 
 RS.set_map_gen_settings(
     {
         MGSP.water_none,
         MGSP.cliff_none
     }
+)
+
+ScenarioInfo.set_map_name('Gears')
+ScenarioInfo.set_map_description(
+    [[
+Large gear shaped islands
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+Vanilla play on a gear shaped map.
+]]
+)
+
+ScenarioInfo.set_new_info(
+    [[
+2019-09-11 - Jayefuu
+- Updated map descriptions
+]]
 )
 
 pic = b.decompress(pic)
