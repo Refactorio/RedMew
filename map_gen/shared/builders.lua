@@ -1497,6 +1497,32 @@ function Builders.change_map_gen_tile(shape, old_tile, new_tile)
     end
 end
 
+-- only changes tiles made by the factorio map generator.
+function Builders.change_map_gen_tiles(shape, new_tile_map)
+    return function(x, y, world)
+        local function handle_tile(tile)
+            if type(tile) == 'boolean' and tile then
+                local gen_tile = world.surface.get_tile(world.x, world.y).name
+                local new_tile = new_tile_map[gen_tile]
+                if new_tile ~= nil then
+                    return new_tile
+                end
+            end
+            return tile
+        end
+
+        local tile = shape(x, y, world)
+
+        if type(tile) == 'table' then
+            tile.tile = handle_tile(tile.tile)
+        else
+            tile = handle_tile(tile)
+        end
+
+        return tile
+    end
+end
+
 function Builders.change_map_gen_hidden_tile(shape, old_tile, hidden_tile)
     return function(x, y, world)
         local function is_collides()

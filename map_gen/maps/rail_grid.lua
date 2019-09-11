@@ -75,18 +75,14 @@ local no_water_grid = b.choose(is_not_water_tile, grid, b.full_shape)
 local map = b.if_else(no_water_grid, b.full_shape)
 map = b.translate(map,1,1)
 
-
+-- replace grass tiles with dirt so that the rail grid is much
 local tile_map ={
     ['grass-1'] = 'dirt-1',
     ['grass-2'] = 'dirt-2',
     ['grass-3'] = 'dirt-3',
     ['grass-4'] = 'dirt-4',
 }
-
--- replace grass tiles with dirt so that the rail grid is much
-for old_tile, new_tile in pairs(tile_map) do
-    map = b.change_map_gen_tile(map, old_tile, new_tile)
-end
+map = b.change_map_gen_tiles(map, tile_map)
 
 -- This event removes rail and curve rail entities and removes them unless they are placed on landfill
 Event.add(
