@@ -175,10 +175,15 @@ local spawn_player =
     Token.register(
     function(player)
         if player and player.valid then
+          local respawn_delay
+          if global.config.player_respawn_time.enabled then
             local decrement_amount = round(game.forces.enemy.evolution_factor * global.config.player_respawn_time.decrement_amount)
             local adjusted_respawn = global.config.player_respawn_time.max_time - decrement_amount
-            local respawn_delay = max(global.config.player_respawn_time.min_time, adjusted_respawn) -- limit smallest delay to min_time, if evolution goes above 100%
-            player.ticks_to_respawn =  respawn_delay
+            respawn_delay = max(global.config.player_respawn_time.min_time, adjusted_respawn) -- limit smallest delay to min_time, if evolution goes above 100%
+          else
+            respawn_delay = global.config.player_respawn_time.max_time
+          end
+          player.ticks_to_respawn =  respawn_delay
         end
     end
 )
