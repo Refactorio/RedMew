@@ -206,14 +206,16 @@ global.config = {
                 }
             }
         },
-        -- settings for controlling length of delay before player respawn
+        -- settings for controlling length of delay before player respawn - the delay goes *down* over time
         -- respawn time is determined by biter progression:
-        --   min_time + (increment_amount * biter_progression )
+        --   respawn_delay = max_time - (decrement_amount * biter_progression)
+        --   respawn_time = max( min_time, respawn_delay )
         -- min_time default is 10 seconds
-        -- increment_amount default of 3000 will add ~5 seconds per 10% evolution and max at 60 seconds
+        -- decrement_amount default of 3000 will remove ~5 seconds per 10% evolution
         player_respawn_time = {
           min_time = 600,
-          increment_amount = 3000
+          max_time = 3600,
+          decrement_amount = 3000
         },
     -- spawns more units when one dies
     hail_hydra = {
