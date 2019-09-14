@@ -8,6 +8,7 @@ local raise_event = script.raise_event
 local queue_task = Task.queue_task
 local pairs = pairs
 local pcall = pcall
+local string_find = string.find
 
 -- this
 local Template = {}
@@ -41,6 +42,9 @@ local function insert_next_tiles(data)
     local tiles = {}
     local tile_count = 0
     local tile_iterator = data.tile_iterator
+    local teleported = {}
+    local teleported_count = 0
+    local teleport_offset = tiles_per_call + 5
 
     pcall(function()
         --use pcall to assure tile_iterator is always incremented, to avoid endless loops
@@ -48,12 +52,24 @@ local function insert_next_tiles(data)
             local new_tile = data.tiles[i]
             tile_count = tile_count + 1
             tiles[tile_count] = new_tile
+            local tile_pos = new_tile.position
 
             if new_tile.name ~= 'out-of-map' then
-                local current_tile = get_tile(new_tile.position.x, new_tile.position.y)
+                local current_tile = get_tile(tile_pos.x, tile_pos.y)
                 if current_tile.name == 'out-of-map' then
                     void_removed_count = void_removed_count + 1
                     void_removed[void_removed_count] = {surface = surface, position = current_tile.position}
+                end
+            end
+            if string_find(new_tile.name, "water", 1, true) then --maybe check prototype's collision mask instead?
+                local entities = surface.find_entities{{tile_pos.x, tile_pos.y}, {tile_pos.x + 1, tile_pos.y + 1}}
+                for _, entity in pairs(entities) do
+                    if entity.teleport({entity.position.x + teleport_offset, entity.position.y}) then
+                        teleported_count = teleported_count + 1
+                        teleported[teleported_count] = entity
+                    else
+                        print("WARNING: entity " .. entity.name .. " failed to teleport out of the way at " .. serpent.line(entity.position))
+                    end
                 end
             end
         end
@@ -62,6 +78,11 @@ local function insert_next_tiles(data)
     data.tile_iterator = tile_iterator + tiles_per_call
 
     surface.set_tiles(tiles)
+
+    for i = 1, teleported_count do
+        local entity = teleported[i]
+        entity.teleport({entity.position.x - teleport_offset, entity.position.y})
+    end
 
     for i = 1, void_removed_count do
         raise_event(on_void_removed, void_removed[i])
