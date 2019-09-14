@@ -6,6 +6,7 @@ local math = require 'utils.math'
 local table = require 'utils.table'
 
 local random = math.random
+local round = math.round
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local ceil = math.ceil
 local draw_arc = rendering.draw_arc
@@ -173,7 +174,8 @@ local spawn_player =
     Token.register(
     function(player)
         if player and player.valid then
-            player.ticks_to_respawn = 3600
+            local increment = round(game.forces.enemy.evolution_factor * global.config.player_respawn_time.increment_amount)
+            player.ticks_to_respawn = global.config.player_respawn_time.min_time + increment
         end
     end
 )

@@ -203,9 +203,18 @@ global.config = {
                 {name = 'compilatron-chest', count = 5},
                 {name = 'compilatron-chest', count = 5},
                 {name = 'selection-tool', count = 1}
+                }
             }
-        }
-    },
+        },
+        -- settings for controlling length of delay before player respawn
+        -- respawn time is determined by biter progression:
+        --   min_time + (increment_amount * biter_progression )
+        -- min_time default is 10 seconds
+        -- increment_amount default of 3000 will add ~5 seconds per 10% evolution and max at 60 seconds
+        player_respawn_time = {
+          min_time = 600,
+          increment_amount = 3000
+        },
     -- spawns more units when one dies
     hail_hydra = {
         enabled = false,
