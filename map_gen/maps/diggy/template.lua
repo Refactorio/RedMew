@@ -64,8 +64,8 @@ local function insert_next_tiles(data)
             end
             if string_find(new_tile.name, "water", 1, true) then --maybe check prototype's collision mask instead?
                 local entities = find_entities{tile_pos, {tile_pos.x + 1, tile_pos.y + 1}}
-                for i = 1, #entities do
-                    local entity = entities[i]
+                for k = 1, #entities do
+                    local entity = entities[k]
                     --entity.teleport(x, y) offsets the entity by specified values
                     if entity.teleport(teleport_offset) then
                         teleported_count = teleported_count + 1
