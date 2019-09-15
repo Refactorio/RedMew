@@ -45,6 +45,7 @@ local function insert_next_tiles(data)
     local teleported = {}
     local teleported_count = 0
     local teleport_offset = tiles_per_call + 5
+    local find_entities = surface.find_entities
 
     pcall(function()
         --use pcall to assure tile_iterator is always incremented, to avoid endless loops
@@ -62,13 +63,15 @@ local function insert_next_tiles(data)
                 end
             end
             if string_find(new_tile.name, "water", 1, true) then --maybe check prototype's collision mask instead?
-                local entities = surface.find_entities{{tile_pos.x, tile_pos.y}, {tile_pos.x + 1, tile_pos.y + 1}}
-                for _, entity in pairs(entities) do
-                    if entity.teleport({entity.position.x + teleport_offset, entity.position.y}) then
+                local entities = find_entities{tile_pos, {tile_pos.x + 1, tile_pos.y + 1}}
+                for i = 1, #entities do
+                    local entity = entities[i]
+                    --entity.teleport(x, y) offsets the entity by specified values
+                    if entity.teleport(teleport_offset) then
                         teleported_count = teleported_count + 1
                         teleported[teleported_count] = entity
                     else
-                        print("WARNING: entity " .. entity.name .. " failed to teleport out of the way at " .. serpent.line(entity.position))
+                        log("WARNING: entity " .. entity.name .. " failed to teleport out of the way at " .. serpent.line(entity.position))
                     end
                 end
             end
@@ -81,7 +84,7 @@ local function insert_next_tiles(data)
 
     for i = 1, teleported_count do
         local entity = teleported[i]
-        entity.teleport({entity.position.x - teleport_offset, entity.position.y})
+        entity.teleport(-teleport_offset)
     end
 
     for i = 1, void_removed_count do
