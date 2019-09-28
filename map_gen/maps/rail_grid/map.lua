@@ -33,7 +33,7 @@ local no_water_grid = b.choose(is_not_water_tile, grid, b.full_shape)
 
 local map = b.if_else(no_water_grid, b.full_shape)
 
--- replace grass tiles with dirt so that the rail grid is much
+-- replace grass tiles with dirt so that the rail grid is more clear.
 local tile_map = {
     ['grass-1'] = 'dirt-1',
     ['grass-2'] = 'dirt-2',
