@@ -4,7 +4,7 @@ local rad = math.rad
 -- x and y must be even numbers else rail grid is misaligned.
 local spawn_position = {x = 20, y = 20}
 
-local function is_not_water_tile(x, y, world)
+local function is_not_water_tile(_, _, world)
     local gen_tile = world.surface.get_tile(world.x, world.y)
     return not gen_tile.collides_with('water-tile')
 end
