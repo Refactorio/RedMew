@@ -14,15 +14,13 @@ RestrictEntities.add_allowed(
         'fast-underground-belt',
         'express-underground-belt',
         'small-electric-pole',
-        'medium-electric-pole',
-        'big-electric-pole',
-        'substation',
-        'electric-mining-drill',
         'burner-mining-drill',
         'pumpjack',
         'car',
         'tank',
-        'pumpjack'
+        'pipe',
+        'pipe-to-ground',
+        'offshore-pump'
     }
 )
 
@@ -45,11 +43,45 @@ local tiles_tier_3 = {
 
 local tier_2 = {
     ['oil-refinery'] = true,
-    ['chemical-plant'] = true
+    ['chemical-plant'] = true,
+    ['storage-tank'] = true,
+    ['straight-rail'] = true,
+    ['curved-rail'] = true,
+    ['train-stop'] = true,
+    ['solar-panel'] = true,
+    ['flamethrower-turret'] = true,
+    ['assembling-machine-2'] = true,
+    ['steel-furnace'] = true,
+    ['iron-chest'] = true,
+    ['fast-inserter'] = true,
+    ['filter-inserter'] = true,
+    ['accumulator'] = true,
+    ['big-electric-pole'] = true
+
 }
 
 local tier_3 = {
-    ['rocket-silo'] = true
+    ['rocket-silo'] = true,
+    ['nuclear-reactor'] = true,
+    ['centrifuge'] = true,
+    ['heat-exchanger'] = true,
+    ['heat-pipe'] = true,
+    ['steam-turbine'] = true,
+    ['artillery-turret'] = true,
+    ['roboport'] = true,
+    ['beacon'] = true,
+    ['assembling-machine-3'] = true,
+    ['electric-furnace'] = true,
+    ['substation'] = true,
+    ['laser-turret'] = true,
+    ['steel-chest'] = true,
+    ['stack-inserter'] = true,
+    ['stack-filter-inserter'] = true,
+    ['logistic-chest-active-provider'] = true,
+    ['logistic-chest-passive-provider'] = true,
+    ['logistic-chest-buffer'] = true,
+    ['logistic-chest-storage'] = true,
+    ['logistic-chest-requester'] = true
 }
 
 --- The logic for checking that there are resources under the entity's position
