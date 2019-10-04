@@ -6,6 +6,8 @@ local math = require "utils.math"
 local RS = require 'map_gen.shared.redmew_surface'
 local table = require 'utils.table'
 
+require 'map_gen.shared.danger_ore_banned_entities'
+
 local match = string.match
 local remove = table.remove
 
@@ -53,6 +55,7 @@ Event.add(
 
         if r.name == 'flamethrower' then
             p_force.recipes['flamethrower'].enabled = false
+            p_force.recipes['flamethrower-ammo'].enabled = false
             p_force.recipes['flamethrower-turret'].enabled = false
         end
     end
