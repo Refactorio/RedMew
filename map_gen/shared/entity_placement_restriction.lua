@@ -84,6 +84,7 @@ local banned_entities = {}
 local primitives = {
     event = nil, -- if the event is registered or not
     refund = true, -- if we issue a refund or not
+    prevent_tile_bp = false, -- prevents players from placing blueprints with tiles
     keep_alive_callback = nil -- the function to process entities through
 }
 
@@ -113,6 +114,9 @@ local on_built_token =
 
         local name = entity.name
         if name == 'tile-ghost' then
+            if entity.ghost_name ~= 'landfill' and primitives.prevent_tile_bp and entity.valid then
+                entity.destroy()
+            end
             return
         end
 
@@ -274,6 +278,16 @@ end
 --- Disables the returning of items that are destroyed by this module
 function Public.set_refund()
     primitives.refund = false
+end
+
+--- Enables the returning of items that are destroyed by this module
+function Public.enable_tile_bp()
+    primitives.prevent_tile_bp = false
+end
+
+--- Disables the returning of items that are destroyed by this module
+function Public.set_tile_bp()
+    primitives.prevent_tile_bp = true
 end
 
 return Public

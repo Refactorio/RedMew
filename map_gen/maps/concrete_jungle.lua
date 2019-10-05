@@ -180,6 +180,8 @@ Thanks to Sangria_Louie for the map suggestion!
 ]]
 )
 
+RestrictEntities.set_tile_bp()
+
 --- The logic for checking that there are the correct ground support under the entity's position
 RestrictEntities.set_keep_alive_callback(
     Token.register(
@@ -305,7 +307,15 @@ local function player_built_tile(event)
         local tiles = {}
         local oldTiles = event.tiles
 
-        local player = game.get_player(event.player_index)
+        local index = event.player_index
+        local robot = event.robot
+        local player
+        if index then
+            player = game.get_player(index)
+        else
+            player = robot
+        end
+
         local surface = game.surfaces[event.surface_index]
 
         for _, oldTile in pairs(oldTiles) do
@@ -326,6 +336,7 @@ local function player_built_tile(event)
                 end
                 local item = {name = newName}
                 if player.can_insert(item) then
+                    game.print('Can insert')
                     player.insert(item)
                 end
             end
@@ -334,10 +345,15 @@ local function player_built_tile(event)
     end
 end
 
+local function robot_built_tile(event)
+    player_built_tile(event) --Items are lost
+end
+
 Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, on_destroy)
 Event.add(defines.events.on_player_mined_tile, player_mined_tile)
 Event.add(defines.events.on_marked_for_deconstruction, marked_for_deconstruction)
 Event.add(defines.events.on_player_built_tile, player_built_tile)
+Event.add(defines.events.on_robot_built_tile, robot_built_tile)
 Event.on_init(on_init)
 
 --Creating the starting circle
