@@ -193,7 +193,7 @@ Thanks to Sangria_Louie for the map suggestion!
 ]]
 )
 
---RestrictEntities.set_tile_bp()
+RestrictEntities.set_tile_bp()
 
 --- The logic for checking that there are the correct ground support under the entity's position
 RestrictEntities.set_keep_alive_callback(
