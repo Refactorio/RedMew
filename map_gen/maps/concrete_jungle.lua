@@ -6,6 +6,7 @@ local Token = require 'utils.token'
 local Color = require 'resources.color_presets'
 local Retailer = require 'features.retailer'
 local Task = require 'utils.task'
+local Popup = require 'features.gui.popup'
 
 local redmew_config = global.config
 
@@ -360,11 +361,29 @@ local function player_built_tile(event)
     end
 end
 
+local function first_time(event)
+    local p = game.get_player(event.player_index)
+    Popup.player(p, '[color=yellow]Hello ' .. p.name .. '[/color]' ..
+[[
+
+
+Most items can't be placed on the ground!
+
+Place stone brick, concrete or reinforced concrete on the ground,
+before placing items and machines!
+
+More information can be found in the [color=red]Map Info[/color] tab
+in [virtual-signal=signal-info] [color=red]Redmew Info[/color]
+]],
+'Welcome to Concrete Jungle', nil, 'concrete_jungle_intro')
+end
+
 Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, on_destroy)
 Event.add(defines.events.on_player_mined_tile, player_mined_tile)
 Event.add(defines.events.on_marked_for_deconstruction, marked_for_deconstruction)
 Event.add(defines.events.on_player_built_tile, player_built_tile)
 Event.add(defines.events.on_robot_built_tile, player_built_tile)
+Event.add(defines.events.on_player_created, first_time)
 Event.on_init(on_init)
 
 --Creating the starting circle
