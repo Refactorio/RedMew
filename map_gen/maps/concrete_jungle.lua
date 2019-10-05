@@ -2,6 +2,8 @@ local floor = math.floor
 local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
+local Token = require 'utils.token'
+local Color = require 'resources.color_presets'
 
 local redmew_config = global.config
 
@@ -93,7 +95,7 @@ local entity_tiers = {
 }
 
 --Creates rich text icons of the tiered entities
-local tier_2_items = ""
+local tier_2_items = ''
 local tier_3_items = ''
 
 local tier_2_counter = 0
@@ -108,7 +110,6 @@ for k, v in pairs(entity_tiers) do
         tier_2_counter = tier_2_counter + 1
     end
 
-
     if tier_3_counter > 14 then
         tier_3_counter = 0
         tier_3_items = tier_3_items .. '\n'
@@ -118,7 +119,7 @@ for k, v in pairs(entity_tiers) do
     end
 end
 
-local tile_tiers_entities = "You may only build the factory on:\n"
+local tile_tiers_entities = 'You may only build the factory on:\n'
 local tile_tiers_entities_counter = 0
 
 for k, _ in pairs(tile_tiers) do
@@ -131,8 +132,8 @@ for k, _ in pairs(tile_tiers) do
 end
 
 ScenarioInfo.add_map_extra_info(
-tile_tiers_entities ..
-[[
+    tile_tiers_entities ..
+        [[
 
 
 Exceptions:
@@ -144,7 +145,7 @@ but some require better ground support!
 
 Ground support minimum concrete:
 ]] ..
-        tier_2_items .. [[
+            tier_2_items .. [[
 
 Ground support minimum refined concrete:
 ]] .. tier_3_items
@@ -152,30 +153,45 @@ Ground support minimum refined concrete:
 
 --- The logic for checking that there are the correct ground support under the entity's position
 RestrictEntities.set_keep_alive_callback(
-    function(entity)
-        local get_tile = entity.surface.get_tile
-        local area = entity.bounding_box
-        local left_top = area.left_top
-        local right_bottom = area.right_bottom
-        local name = entity.name
+    Token.register(
+        function(entity)
+            local get_tile = entity.surface.get_tile
+            local area = entity.bounding_box
+            local left_top = area.left_top
+            local right_bottom = area.right_bottom
+            local name = entity.name
 
-        if name == 'entity-ghost' then
-            name = entity.ghost_name
-        end
+            if name == 'entity-ghost' then
+                name = entity.ghost_name
+            end
 
-        for x = floor(left_top.x), floor(right_bottom.x) do
-            for y = floor(left_top.y), floor(right_bottom.y) do
-                local tile_name = get_tile(x, y).name
-                local tier = tile_tiers[tile_name]
+            for x = floor(left_top.x), floor(right_bottom.x) do
+                for y = floor(left_top.y), floor(right_bottom.y) do
+                    local tile_name = get_tile(x, y).name
+                    local tier = tile_tiers[tile_name]
 
-                if not((entity_tiers[name] or 1) <= (tier or 0)) then
-                    return false
+                    if not ((entity_tiers[name] or 1) <= (tier or 0)) then
+                        return false
+                    end
                 end
             end
+            return true
         end
-        return true
-    end
+    )
 )
+
+local function print_floating_text(player, entity, text, color)
+    color = color or Color.white
+    local surface = player.surface
+    local position = entity.position
+
+    return surface.create_entity {
+        name = 'tutorial-flying-text',
+        color = color,
+        text = text,
+        position = position
+    }
+end
 
 --- Warning for players when their entities are destroyed (needs to be pre because of the stack)
 local function on_destroy(event)
@@ -183,13 +199,16 @@ local function on_destroy(event)
     local name = event.stack.name
     if p and p.valid then
         if not (name == 'blueprint') then
-            local tier = 'stone path'
+            local entity = event.created_entity
+            local tier = '[tile=stone-path]'
             if (entity_tiers[name] == 2) then
-                tier = 'concrete'
+                tier = '[tile=concrete]'
             elseif (entity_tiers[name] == 3) then
-                tier = 'refined concrete'
+                tier = '[tile=refined-concrete]'
             end
-            p.print('[color=yellow]This [/color][color=red]' .. name .. '[/color][color=yellow] cannot be placed here, it needs ground support of at least [/color][color=red]' .. tier .. '[/color]')
+            local text = 'Requires at least ' .. tier
+            --local text = '[color=yellow]This [/color][item=' .. name .. '][color=yellow] cannot be placed here, it needs ground support of at least [/color]' .. tier
+            print_floating_text(p, entity, text)
         else
             p.print('[color=yellow]Some parts of this [/color][color=red]blueprint[/color][color=yellow] cannot be placed here, they need better ground support![/color]')
         end

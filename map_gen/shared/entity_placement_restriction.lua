@@ -9,6 +9,8 @@
     This means you can use any custom logic you want to determine whether an entity should be destroyed or not.
     The callback function is supplied a valid LuaEntity as an argument.
     A return of true indicates the entity should be kept alive, while false or nil indicate it should be destroyed.
+    This function must be a registered with the Token module and the keep_alive_callback function will take the Token-id as parameter
+    This is to prevent upvalue errors
 
     Refunds for items that were placed can be toggled on or off via the enable and disable_refund functions
 
@@ -24,16 +26,18 @@
     -- The function provided does nothing but return nil
     -- every entity will be destroyed except those on the allowed list
     RestrictEntities.add_allowed({'transport-belt'})
-    RestrictEntities.set_keep_alive_callback(function() end)
+    RestrictEntities.set_keep_alive_callback(Token.register(function() end))
 
     -- Danger ores (a lot of important code omitted for the sake of a brief example)
     RestrictEntities.add_allowed({belts, power_poles, mining_drills, 'pumpjack'})
     RestrictEntities.set_keep_alive_callback(
-        function(entity)
-            if entity.surface.count_entities_filtered {area = entity.bounding_box, type = 'resource', limit = 1} == 0 then
-                return true
+        Token.register(
+            function(entity)
+                if entity.surface.count_entities_filtered {area = entity.bounding_box, type = 'resource', limit = 1} == 0 then
+                    return true
+                end
             end
-        end
+        )
     )
 ]]
 local Event = require 'utils.event'
@@ -132,7 +136,7 @@ local on_built_token =
         -- destroy in these cases:
         -- all banned ents
         -- not banned and callback function and not saved by callback
-        if not banned_entities[name] and (not keep_alive_callback or keep_alive_callback(entity)) then
+        if not banned_entities[name] and (not keep_alive_callback or Token.get(keep_alive_callback)(entity)) then
             return
         end
 
@@ -201,8 +205,8 @@ end
 -- logic on what entities should and should not be destroyed.
 -- @param keep_alive_callback <function>
 function Public.set_keep_alive_callback(keep_alive_callback)
-    if type(keep_alive_callback) ~= 'function' then
-        error('Sending a non-function')
+    if type(keep_alive_callback) ~= 'number' then
+        error('Sending a non-token function')
     end
     primitives.keep_alive_callback = keep_alive_callback
     check_event_status()
