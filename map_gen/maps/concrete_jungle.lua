@@ -336,7 +336,6 @@ local function player_built_tile(event)
                 end
                 local item = {name = newName}
                 if player.can_insert(item) then
-                    game.print('Can insert')
                     player.insert(item)
                 end
             end
