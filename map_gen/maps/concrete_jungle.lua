@@ -273,6 +273,10 @@ local function player_mined_tile(event)
         table.insert(tiles, {name = name, position = oldTile.position})
         if name == 'stone-path' then
             name = 'stone-brick'
+        elseif name == 'hazard-concrete-left' or name == 'hazard-concrete-right' then
+            name = 'hazard-concrete'
+        elseif name == 'refined-hazard-concrete-left' or name == 'refined-hazard-concrete-right' then
+            name = 'refined-hazard-concrete'
         end
         player.remove_item({name = name})
     end
