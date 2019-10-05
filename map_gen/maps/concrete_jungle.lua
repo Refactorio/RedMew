@@ -3,16 +3,34 @@ local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
 
+local redmew_config = global.config
+
+-- Needed because refined hazard concrete is needed and must not be changed by this module
+redmew_config.paint.enabled = false
+
 local ScenarioInfo = require 'features.gui.info'
 
 ScenarioInfo.set_map_name('Concrete Jungle')
 ScenarioInfo.set_map_description([[
-Extensive underground mining have resulted in brittle soil.
-New regulations require heavy objects being placed on top,
-proper materials to support the soil!
+Extensive underground mining has resulted in brittle soil.
+New regulations requires heavy objects to being placed on top of,
+proper materials to support the ground!
 ]])
 
---- Items explicitly allowed on ores
+-- Tiers of tiles definition (tier 0 is default)
+local tile_tiers = {
+    ['stone-path'] = 1,
+    ['concrete'] = 2,
+    ['refined-concrete'] = 3,
+    ['hazard-concrete-right'] = 2,
+    ['hazard-concrete-left'] = 2,
+    ['refined-hazard-concrete-right'] = 3,
+    ['refined-hazard-concrete-left'] = 3
+}
+
+--- Items explicitly allowed everywhere (tier 0 and up)
+--- The RestrictEntities module auto skips all checks for these entities
+--- They do not trigger set_keep_alive_callback or the on_pre_restricted_entity_destroyed event
 RestrictEntities.add_allowed(
     {
         'transport-belt',
@@ -32,105 +50,107 @@ RestrictEntities.add_allowed(
     }
 )
 
-local tiles_tier_1 = {
-    ['stone-path'] = true
+-- Items only allowed on tiles of tier 2 or higher (tier 1 is the default)
+local entity_tiers = {
+    -- Tier 2
+    ['oil-refinery'] = 2,
+    ['chemical-plant'] = 2,
+    ['storage-tank'] = 2,
+    ['straight-rail'] = 2,
+    ['curved-rail'] = 2,
+    ['train-stop'] = 2,
+    ['solar-panel'] = 2,
+    ['flamethrower-turret'] = 2,
+    ['assembling-machine-2'] = 2,
+    ['steel-furnace'] = 2,
+    ['iron-chest'] = 2,
+    ['fast-inserter'] = 2,
+    ['filter-inserter'] = 2,
+    ['accumulator'] = 2,
+    ['big-electric-pole'] = 2,
+    -- Tier 3
+    ['rocket-silo'] = 3,
+    ['nuclear-reactor'] = 3,
+    ['centrifuge'] = 3,
+    ['heat-exchanger'] = 3,
+    ['heat-pipe'] = 3,
+    ['steam-turbine'] = 3,
+    ['artillery-turret'] = 3,
+    ['roboport'] = 3,
+    ['beacon'] = 3,
+    ['assembling-machine-3'] = 3,
+    ['electric-furnace'] = 3,
+    ['substation'] = 3,
+    ['laser-turret'] = 3,
+    ['steel-chest'] = 3,
+    ['stack-inserter'] = 3,
+    ['stack-filter-inserter'] = 3,
+    ['logistic-chest-active-provider'] = 3,
+    ['logistic-chest-passive-provider'] = 3,
+    ['logistic-chest-buffer'] = 3,
+    ['logistic-chest-storage'] = 3,
+    ['logistic-chest-requester'] = 3
 }
 
-local tiles_tier_2 = {
-    ['concrete'] = true,
-    ['hazard-concrete-right'] = true,
-    ['hazard-concrete-left'] = true
-}
-
-local tiles_tier_3 = {
-    ['refined-concrete'] = true,
-    ['refined-hazard-concrete-right'] = true,
-    ['refined-hazard-concrete-left'] = true
-}
-
-local tier_2 = {
-    ['oil-refinery'] = true,
-    ['chemical-plant'] = true,
-    ['storage-tank'] = true,
-    ['straight-rail'] = true,
-    ['curved-rail'] = true,
-    ['train-stop'] = true,
-    ['solar-panel'] = true,
-    ['flamethrower-turret'] = true,
-    ['assembling-machine-2'] = true,
-    ['steel-furnace'] = true,
-    ['iron-chest'] = true,
-    ['fast-inserter'] = true,
-    ['filter-inserter'] = true,
-    ['accumulator'] = true,
-    ['big-electric-pole'] = true
-}
-
-local tier_3 = {
-    ['rocket-silo'] = true,
-    ['nuclear-reactor'] = true,
-    ['centrifuge'] = true,
-    ['heat-exchanger'] = true,
-    ['heat-pipe'] = true,
-    ['steam-turbine'] = true,
-    ['artillery-turret'] = true,
-    ['roboport'] = true,
-    ['beacon'] = true,
-    ['assembling-machine-3'] = true,
-    ['electric-furnace'] = true,
-    ['substation'] = true,
-    ['laser-turret'] = true,
-    ['steel-chest'] = true,
-    ['stack-inserter'] = true,
-    ['stack-filter-inserter'] = true,
-    ['logistic-chest-active-provider'] = true,
-    ['logistic-chest-passive-provider'] = true,
-    ['logistic-chest-buffer'] = true,
-    ['logistic-chest-storage'] = true,
-    ['logistic-chest-requester'] = true
-}
-
-local tier_2_items = '[item=rail]'
-
-for k, _ in pairs(tier_2) do
-    if not (k == 'straight-rail' or k == 'curved-rail') then
-        tier_2_items = tier_2_items .. ' [item=' .. k .. ']'
-    end
-end
-
+--Creates rich text icons of the tiered entities
+local tier_2_items = ""
 local tier_3_items = ''
 
+local tier_2_counter = 0
 local tier_3_counter = 0
-for k, _ in pairs(tier_3) do
-    tier_3_items = tier_3_items .. ' [item=' .. k .. ']'
-    tier_3_counter = tier_3_counter + 1
+
+for k, v in pairs(entity_tiers) do
+    if (v == 3) then
+        tier_3_items = tier_3_items .. ' [entity=' .. k .. ']'
+        tier_3_counter = tier_3_counter + 1
+    elseif (v == 2) then
+        tier_2_items = tier_2_items .. ' [entity=' .. k .. ']'
+        tier_2_counter = tier_2_counter + 1
+    end
+
+
     if tier_3_counter > 14 then
         tier_3_counter = 0
         tier_3_items = tier_3_items .. '\n'
+    elseif tier_2_counter > 14 then
+        tier_2_counter = 0
+        tier_2_items = tier_2_items .. '\n'
+    end
+end
+
+local tile_tiers_entities = "You may only build the factory on:\n"
+local tile_tiers_entities_counter = 0
+
+for k, _ in pairs(tile_tiers) do
+    tile_tiers_entities = tile_tiers_entities .. ' [tile=' .. k .. '] ' .. k
+    tile_tiers_entities_counter = tile_tiers_entities_counter + 1
+    if tile_tiers_entities_counter == 3 or tile_tiers_entities_counter == 5 then
+        --tile_tiers_entities_counter = 0
+        tile_tiers_entities = tile_tiers_entities .. '\n'
     end
 end
 
 ScenarioInfo.add_map_extra_info(
-    [[
-You may only build the factory on [item=stone-brick] [item=concrete] [item=refined-concrete].
+tile_tiers_entities ..
+[[
+
 
 Exceptions:
  [item=burner-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=car] [item=tank] [item=pipe] [item=pipe-to-ground] [item=offshore-pump]
  [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt]
 
-Some buildings/entities require better ground support!
-
+Stone bricks provide ground support for most buildings/entities,
+but some require better ground support!
 
 Ground support minimum concrete:
 ]] ..
         tier_2_items .. [[
 
-
 Ground support minimum refined concrete:
 ]] .. tier_3_items
 )
 
---- The logic for checking that there are resources under the entity's position
+--- The logic for checking that there are the correct ground support under the entity's position
 RestrictEntities.set_keep_alive_callback(
     function(entity)
         local get_tile = entity.surface.get_tile
@@ -143,24 +163,13 @@ RestrictEntities.set_keep_alive_callback(
             name = entity.ghost_name
         end
 
-        local is_tier_2 = tier_2[name]
-        local is_tier_3 = tier_3[name]
-
         for x = floor(left_top.x), floor(right_bottom.x) do
             for y = floor(left_top.y), floor(right_bottom.y) do
                 local tile_name = get_tile(x, y).name
-                if is_tier_2 then
-                    if not (tiles_tier_2[tile_name] or tiles_tier_3[tile_name]) then
-                        return false
-                    end
-                elseif is_tier_3 then
-                    if not (tiles_tier_3[tile_name]) then
-                        return false
-                    end
-                else
-                    if not (tiles_tier_1[tile_name] or tiles_tier_2[tile_name] or tiles_tier_3[tile_name]) then
-                        return false
-                    end
+                local tier = tile_tiers[tile_name]
+
+                if not((entity_tiers[name] or 1) <= (tier or 0)) then
+                    return false
                 end
             end
         end
@@ -175,9 +184,9 @@ local function on_destroy(event)
     if p and p.valid then
         if not (name == 'blueprint') then
             local tier = 'stone path'
-            if (tier_2[name]) then
+            if (entity_tiers[name] == 2) then
                 tier = 'concrete'
-            elseif (tier_3[name]) then
+            elseif (entity_tiers[name] == 3) then
                 tier = 'refined concrete'
             end
             p.print('[color=yellow]This [/color][color=red]' .. name .. '[/color][color=yellow] cannot be placed here, it needs ground support of at least [/color][color=red]' .. tier .. '[/color]')
@@ -189,6 +198,7 @@ end
 
 Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, on_destroy)
 
+--Creating the starting circle
 local shape = b.circle(50)
 local stone_path = b.tile('stone-path')
 
