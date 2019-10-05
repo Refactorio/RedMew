@@ -176,6 +176,9 @@ but some require better ground support!
 ]] .. tier_3_items .. [[
 
 
+Due to security messures you can not remove ground support nor downgrade it!
+
+
 Thanks to Sangria_Louie for the map suggestion!
 ]]
 )
