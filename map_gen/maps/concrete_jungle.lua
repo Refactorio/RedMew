@@ -37,8 +37,8 @@ local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Concrete Jungle')
 ScenarioInfo.set_map_description([[
 Extensive underground mining has resulted in brittle soil.
-New regulations requires heavy objects to being placed on top of,
-proper materials to support the ground!
+New regulations requires that heavy objects are placed
+on top of proper materials, to support the ground!
 ]])
 
 -- Tiers of tiles definition (tier 0 is default)
@@ -144,7 +144,7 @@ for k, v in pairs(entity_tiers) do
     end
 end
 
-local tile_tiers_entities = 'You may only build the factory on:\n'
+local tile_tiers_entities = '[font=default-bold]You may only build the factory on:[/font]\n'
 local tile_tiers_entities_counter = 0
 
 for k, _ in pairs(tile_tiers) do
@@ -223,7 +223,8 @@ local function print_floating_text(player, entity, text, color)
         name = 'tutorial-flying-text',
         color = color,
         text = text,
-        position = position
+        position = position,
+        render_player_index = player.index
     }
 end
 
@@ -249,11 +250,44 @@ local function on_destroy(event)
     end
 end
 
+local function player_mined_tile(event)
+    local player_index = event.player_index
+    local surface = game.surfaces[event.surface_index]
+    local oldTiles = event.tiles
+    local tiles = {}
+
+    local player = game.get_player(player_index)
+    player.clean_cursor()
+
+    for _, oldTile in pairs(oldTiles) do
+        local name = oldTile.old_tile.name
+        table.insert(tiles, {name = name, position = oldTile.position})
+        if name == 'stone-path' then
+            name = 'stone-brick'
+        end
+        player.remove_item({name = name})
+    end
+
+    surface.set_tiles(tiles, true)
+end
+
+local function marked_for_deconstruction(event)
+    local entity = event.entity
+
+    if entity.name == 'deconstructible-tile-proxy' then
+        if entity and entity.valid then
+            entity.destroy()
+        end
+    end
+end
+
 Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, on_destroy)
+Event.add(defines.events.on_player_mined_tile, player_mined_tile)
+Event.add(defines.events.on_marked_for_deconstruction, marked_for_deconstruction)
 Event.on_init(on_init)
 
 --Creating the starting circle
-local circle = b.circle(50)
+local circle = b.circle(6)
 local stone_circle = b.change_tile(circle, true, 'stone-path')
 
 local map = b.if_else(stone_circle, b.full_shape)
