@@ -165,12 +165,14 @@ RestrictEntities.set_keep_alive_callback(
                 name = entity.ghost_name
             end
 
+            local entity_tier = entity_tiers[name] or 1
+
             for x = floor(left_top.x), floor(right_bottom.x) do
                 for y = floor(left_top.y), floor(right_bottom.y) do
                     local tile_name = get_tile(x, y).name
-                    local tier = tile_tiers[tile_name]
+                    local tile_tier = tile_tiers[tile_name] or 0
 
-                    if not ((entity_tiers[name] or 1) <= (tier or 0)) then
+                    if entity_tier > tile_tier then
                         return false
                     end
                 end
@@ -218,10 +220,9 @@ end
 Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, on_destroy)
 
 --Creating the starting circle
-local shape = b.circle(50)
-local stone_path = b.tile('stone-path')
+local circle = b.circle(50)
+local stone_circle = b.change_tile(circle, true, 'stone-path')
 
-shape = b.invert(shape)
-local map = b.if_else(shape, stone_path)
+local map = b.if_else(stone_circle, b.full_shape)
 
 return map
