@@ -10,6 +10,28 @@ local redmew_config = global.config
 -- Needed because refined hazard concrete is needed and must not be changed by this module
 redmew_config.paint.enabled = false
 
+local concrete_unlocker = true -- Set to false to disable early unlocking of concrete
+
+local function on_init() --Out comment stuff you don't want to enable
+    game.difficulty_settings.technology_price_multiplier = 4
+    --game.forces.player.technologies.logistics.researched = true
+    game.forces.player.technologies.automation.researched = true
+end
+
+if concrete_unlocker then
+    Event.add(
+        defines.events.on_research_finished,
+        function(event)
+            local p_force = game.forces.player
+            local r = event.research
+
+            if r.name == 'advanced-material-processing' then
+                p_force.recipes['concrete'].enabled = true
+            end
+        end
+    )
+end
+
 local ScenarioInfo = require 'features.gui.info'
 
 ScenarioInfo.set_map_name('Concrete Jungle')
@@ -58,6 +80,7 @@ local entity_tiers = {
     ['oil-refinery'] = 2,
     ['chemical-plant'] = 2,
     ['storage-tank'] = 2,
+    ['rail'] = 2,
     ['straight-rail'] = 2,
     ['curved-rail'] = 2,
     ['train-stop'] = 2,
@@ -102,20 +125,22 @@ local tier_2_counter = 0
 local tier_3_counter = 0
 
 for k, v in pairs(entity_tiers) do
-    if (v == 3) then
-        tier_3_items = tier_3_items .. ' [entity=' .. k .. ']'
-        tier_3_counter = tier_3_counter + 1
-    elseif (v == 2) then
-        tier_2_items = tier_2_items .. ' [entity=' .. k .. ']'
-        tier_2_counter = tier_2_counter + 1
-    end
+    if not (k == 'rail') then
+        if (v == 3) then
+            tier_3_items = tier_3_items .. ' [entity=' .. k .. ']'
+            tier_3_counter = tier_3_counter + 1
+        elseif (v == 2) then
+            tier_2_items = tier_2_items .. ' [entity=' .. k .. ']'
+            tier_2_counter = tier_2_counter + 1
+        end
 
-    if tier_3_counter > 14 then
-        tier_3_counter = 0
-        tier_3_items = tier_3_items .. '\n'
-    elseif tier_2_counter > 14 then
-        tier_2_counter = 0
-        tier_2_items = tier_2_items .. '\n'
+        if tier_3_counter > 14 then
+            tier_3_counter = 0
+            tier_3_items = tier_3_items .. '\n'
+        elseif tier_2_counter > 14 then
+            tier_2_counter = 0
+            tier_2_items = tier_2_items .. '\n'
+        end
     end
 end
 
@@ -136,25 +161,32 @@ ScenarioInfo.add_map_extra_info(
         [[
 
 
-Exceptions:
+[font=default-bold]Exceptions:[/font]
  [item=burner-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=car] [item=tank] [item=pipe] [item=pipe-to-ground] [item=offshore-pump]
  [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt]
 
 Stone bricks provide ground support for most buildings/entities,
 but some require better ground support!
 
-Ground support minimum concrete:
+[font=default-bold]Ground support minimum concrete:[/font]
 ]] ..
             tier_2_items .. [[
 
-Ground support minimum refined concrete:
-]] .. tier_3_items
+[font=default-bold]Ground support minimum refined concrete:[/font]
+]] .. tier_3_items .. [[
+
+
+Thanks to Sangria_Louie for the map suggestion!
+]]
 )
 
 --- The logic for checking that there are the correct ground support under the entity's position
 RestrictEntities.set_keep_alive_callback(
     Token.register(
         function(entity)
+            if not (entity and entity.valid) then
+                return false
+            end
             local get_tile = entity.surface.get_tile
             local area = entity.bounding_box
             local left_top = area.left_top
@@ -202,13 +234,13 @@ local function on_destroy(event)
     if p and p.valid then
         if not (name == 'blueprint') then
             local entity = event.created_entity
-            local tier = '[tile=stone-path]'
+            local tier = '[tile=stone-path] stone path'
             if (entity_tiers[name] == 2) then
-                tier = '[tile=concrete]'
+                tier = '[tile=concrete] concrete'
             elseif (entity_tiers[name] == 3) then
-                tier = '[tile=refined-concrete]'
+                tier = '[tile=refined-concrete] refined concrete'
             end
-            local text = 'Requires at least ' .. tier
+            local text = '[item=' .. name .. '] requires at least ' .. tier
             --local text = '[color=yellow]This [/color][item=' .. name .. '][color=yellow] cannot be placed here, it needs ground support of at least [/color]' .. tier
             print_floating_text(p, entity, text)
         else
@@ -218,6 +250,7 @@ local function on_destroy(event)
 end
 
 Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, on_destroy)
+Event.on_init(on_init)
 
 --Creating the starting circle
 local circle = b.circle(50)
