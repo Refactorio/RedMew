@@ -231,10 +231,19 @@ end
 --- Warning for players when their entities are destroyed (needs to be pre because of the stack)
 local function on_destroy(event)
     local p = game.get_player(event.player_index)
-    local name = event.stack.name
+    local stack = event.stack
+    local entity = event.created_entity
+    local name
+
+    if stack.valid_for_read then
+    name = stack.name
+    else
+        name = entity.name
+    end
+
     if p and p.valid then
         if not (name == 'blueprint') then
-            local entity = event.created_entity
+
             local tier = '[tile=stone-path] stone path'
             if (entity_tiers[name] == 2) then
                 tier = '[tile=concrete] concrete'
