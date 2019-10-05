@@ -103,6 +103,10 @@ Global.register(
 
 -- Local functions
 
+local function spill_item_stack(entity, item)
+    entity.surface.spill_item_stack(entity.position, item, true, entity.force, false)
+end
+
 --- Token for the on_built event callback, checks if an entity should be destroyed.
 local on_built_token =
     Token.register(
@@ -159,6 +163,35 @@ local on_built_token =
 
         -- Need to revalidate the entity since we sent it to the raised event
         if entity.valid then
+            local type = entity.type
+            if entity.has_items_inside() then
+                if type == 'container' or type == 'logistic-container' then
+                    for item, count in pairs(entity.get_inventory(defines.inventory.chest).get_contents()) do
+                        spill_item_stack(entity, {name = item, count = count})
+                    end
+
+                elseif type == 'furnace' then
+                    for item, count in pairs(entity.get_inventory(defines.inventory.fuel).get_contents()) do
+                        spill_item_stack(entity, {name = item, count = count})
+                    end
+                    for item, count in pairs(entity.get_inventory(defines.inventory.furnace_result).get_contents()) do
+                        spill_item_stack(entity, {name = item, count = count})
+                    end
+                    for item, count in pairs(entity.get_inventory(defines.inventory.furnace_source).get_contents()) do
+                        spill_item_stack(entity, {name = item, count = count})
+                    end
+                elseif type == 'assembling-machine' then
+                    for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()) do
+                        spill_item_stack(entity, {name = item, count = count})
+                    end
+                    for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_modules).get_contents()) do
+                        spill_item_stack(entity, {name = item, count = count})
+                    end
+                    for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_output).get_contents()) do
+                        spill_item_stack(entity, {name = item, count = count})
+                    end
+                end
+            end
             entity.destroy()
         end
 

@@ -4,6 +4,8 @@ local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
 local Token = require 'utils.token'
 local Color = require 'resources.color_presets'
+local Retailer = require 'features.retailer'
+local Task = require 'utils.task'
 
 local redmew_config = global.config
 
@@ -12,10 +14,18 @@ redmew_config.paint.enabled = false
 
 local concrete_unlocker = true -- Set to false to disable early unlocking of concrete
 
+local market_remove_concrete =
+    Token.register(
+    function()
+        Retailer.remove_item('fish_market', 'refined-hazard-concrete')
+    end
+)
+
 local function on_init() --Out comment stuff you don't want to enable
     game.difficulty_settings.technology_price_multiplier = 4
     --game.forces.player.technologies.logistics.researched = true
     game.forces.player.technologies.automation.researched = true
+    Task.set_timeout_in_ticks(100, market_remove_concrete)
 end
 
 if concrete_unlocker then
@@ -183,7 +193,7 @@ Thanks to Sangria_Louie for the map suggestion!
 ]]
 )
 
-RestrictEntities.set_tile_bp()
+--RestrictEntities.set_tile_bp()
 
 --- The logic for checking that there are the correct ground support under the entity's position
 RestrictEntities.set_keep_alive_callback(
@@ -326,7 +336,8 @@ local function player_built_tile(event)
             local tile_tier = tile_tiers[name] or 0
             if (tile_tier ~= 0 and tile_tier > tier) then
                 local newName = newTile.name
-                table.insert(tiles, {name = name, position = oldTile.position})
+                local position = oldTile.position
+                table.insert(tiles, {name = name, position = position})
 
                 remove_tile_from_player(name, player)
 
@@ -340,6 +351,8 @@ local function player_built_tile(event)
                 local item = {name = newName}
                 if player.can_insert(item) then
                     player.insert(item)
+                else
+                    player.surface.spill_item_stack(position, item, true, player.force, false)
                 end
             end
         end
@@ -347,21 +360,37 @@ local function player_built_tile(event)
     end
 end
 
-local function robot_built_tile(event)
-    player_built_tile(event) --Items are lost
-end
-
 Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, on_destroy)
 Event.add(defines.events.on_player_mined_tile, player_mined_tile)
 Event.add(defines.events.on_marked_for_deconstruction, marked_for_deconstruction)
 Event.add(defines.events.on_player_built_tile, player_built_tile)
-Event.add(defines.events.on_robot_built_tile, robot_built_tile)
+Event.add(defines.events.on_robot_built_tile, player_built_tile)
 Event.on_init(on_init)
 
 --Creating the starting circle
 local circle = b.circle(6)
+local square = b.rectangle(3, 3)
+local concrete_square = b.change_tile(square, true, 'hazard-concrete-left')
 local stone_circle = b.change_tile(circle, true, 'stone-path')
+stone_circle = b.if_else(concrete_square, stone_circle)
 
-local map = b.if_else(stone_circle, b.full_shape)
+local water_circle = b.circle(250)
+local land_circle = b.circle(200)
+
+water_circle = b.subtract(water_circle, land_circle)
+
+local cross = b.add(b.line_x(4), b.line_y(4))
+cross = b.change_tile(cross, true, 'landfill')
+
+cross = b.subtract(cross, b.invert(water_circle))
+
+water_circle = b.change_tile(water_circle, true, 'water')
+water_circle = b.fish(water_circle, 0.0025)
+
+local map = b.if_else(water_circle, b.full_shape)
+
+map = b.if_else(cross, map)
+
+map = b.if_else(stone_circle, map)
 
 return map
