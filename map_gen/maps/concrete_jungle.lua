@@ -236,14 +236,13 @@ local function on_destroy(event)
     local name
 
     if stack.valid_for_read then
-    name = stack.name
+        name = stack.name
     else
         name = entity.name
     end
 
     if p and p.valid then
         if not (name == 'blueprint') then
-
             local tier = '[tile=stone-path] stone path'
             if (entity_tiers[name] == 2) then
                 tier = '[tile=concrete] concrete'
@@ -259,6 +258,17 @@ local function on_destroy(event)
     end
 end
 
+local function remove_tile_from_player(name, player)
+    if name == 'stone-path' then
+        name = 'stone-brick'
+    elseif name == 'hazard-concrete-left' or name == 'hazard-concrete-right' then
+        name = 'hazard-concrete'
+    elseif name == 'refined-hazard-concrete-left' or name == 'refined-hazard-concrete-right' then
+        name = 'refined-hazard-concrete'
+    end
+    player.remove_item({name = name})
+end
+
 local function player_mined_tile(event)
     local player_index = event.player_index
     local surface = game.surfaces[event.surface_index]
@@ -271,14 +281,7 @@ local function player_mined_tile(event)
     for _, oldTile in pairs(oldTiles) do
         local name = oldTile.old_tile.name
         table.insert(tiles, {name = name, position = oldTile.position})
-        if name == 'stone-path' then
-            name = 'stone-brick'
-        elseif name == 'hazard-concrete-left' or name == 'hazard-concrete-right' then
-            name = 'hazard-concrete'
-        elseif name == 'refined-hazard-concrete-left' or name == 'refined-hazard-concrete-right' then
-            name = 'refined-hazard-concrete'
-        end
-        player.remove_item({name = name})
+        remove_tile_from_player(name, player)
     end
 
     surface.set_tiles(tiles, true)
@@ -294,9 +297,47 @@ local function marked_for_deconstruction(event)
     end
 end
 
+local function player_built_tile(event)
+    local newTile = event.tile
+    local tier = tile_tiers[newTile.name]
+
+    if (tier) then
+        local tiles = {}
+        local oldTiles = event.tiles
+
+        local player = game.get_player(event.player_index)
+        local surface = game.surfaces[event.surface_index]
+
+        for _, oldTile in pairs(oldTiles) do
+            local name = oldTile.old_tile.name
+            local tile_tier = tile_tiers[name] or 0
+            if (tile_tier ~= 0 and tile_tier > tier) then
+                local newName = newTile.name
+                table.insert(tiles, {name = name, position = oldTile.position})
+
+                remove_tile_from_player(name, player)
+
+                if newName == 'stone-path' then
+                    newName = 'stone-brick'
+                elseif newName == 'hazard-concrete-left' or name == 'hazard-concrete-right' then
+                    newName = 'hazard-concrete'
+                elseif newName == 'refined-hazard-concrete-left' or name == 'refined-hazard-concrete-right' then
+                    newName = 'refined-hazard-concrete'
+                end
+                local item = {name = newName}
+                if player.can_insert(item) then
+                    player.insert(item)
+                end
+            end
+        end
+        surface.set_tiles(tiles, true)
+    end
+end
+
 Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, on_destroy)
 Event.add(defines.events.on_player_mined_tile, player_mined_tile)
 Event.add(defines.events.on_marked_for_deconstruction, marked_for_deconstruction)
+Event.add(defines.events.on_player_built_tile, player_built_tile)
 Event.on_init(on_init)
 
 --Creating the starting circle
