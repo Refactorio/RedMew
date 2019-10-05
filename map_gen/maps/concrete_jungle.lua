@@ -40,7 +40,6 @@ local tiles_tier_3 = {
     ['refined-hazard-concrete-left'] = true
 }
 
-
 local tier_2 = {
     ['oil-refinery'] = true,
     ['chemical-plant'] = true,
@@ -57,7 +56,6 @@ local tier_2 = {
     ['filter-inserter'] = true,
     ['accumulator'] = true,
     ['big-electric-pole'] = true
-
 }
 
 local tier_3 = {
@@ -105,17 +103,14 @@ RestrictEntities.set_keep_alive_callback(
                 local tile_name = get_tile(x, y).name
                 if is_tier_2 then
                     if not (tiles_tier_2[tile_name] or tiles_tier_3[tile_name]) then
-                        game.print('tier_2')
                         return false
                     end
                 elseif is_tier_3 then
                     if not (tiles_tier_3[tile_name]) then
-                        game.print('tier_3')
                         return false
                     end
                 else
                     if not (tiles_tier_1[tile_name] or tiles_tier_2[tile_name] or tiles_tier_3[tile_name]) then
-                        game.print('tier_1: ' .. tile_name)
                         return false
                     end
                 end
@@ -127,13 +122,24 @@ RestrictEntities.set_keep_alive_callback(
 
 --- Warning for players when their entities are destroyed
 local function on_destroy(event)
-    local p = event.player
+    local p = game.get_player(event.player_index)
+    local name = event.stack.name
     if p and p.valid then
-        p.print('You can only build that on top of stone-paths or better. Only belts, mining drills, and power poles are allowed elsewhere.')
+        if not(name == 'blueprint') then
+            local tier = 'stone path'
+            if (tier_2[name]) then
+                tier = 'concrete'
+            elseif (tier_3[name]) then
+                tier = 'refined concrete'
+            end
+            p.print('[color=yellow]This [/color][color=red]' .. name .. '[/color][color=yellow] cannot be placed here, it needs ground support of at least [/color][color=red]' .. tier .. '[/color]')
+        else
+            p.print('[color=yellow]Some parts of this [/color][color=red]blueprint[/color][color=yellow] cannot be placed here, they need better ground support![/color]')
+        end
     end
 end
 
-Event.add(RestrictEntities.events.on_restricted_entity_destroyed, on_destroy)
+Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, on_destroy)
 
 local shape = b.circle(50)
 local stone_path = b.tile('stone-path')
