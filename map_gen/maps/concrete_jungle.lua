@@ -7,6 +7,8 @@ local Color = require 'resources.color_presets'
 local Retailer = require 'features.retailer'
 local Task = require 'utils.task'
 local Popup = require 'features.gui.popup'
+local Global = require 'utils.global'
+local Report = require 'features.report'
 
 local redmew_config = global.config
 
@@ -42,6 +44,16 @@ if concrete_unlocker then
         end
     )
 end
+
+local times_spilled = {}
+Global.register(
+    {
+        times_spilled = times_spilled
+    },
+    function(tbl)
+        times_spilled = tbl.times_spilled
+    end
+)
 
 local ScenarioInfo = require 'features.gui.info'
 
@@ -195,6 +207,7 @@ Thanks to Sangria_Louie for the map suggestion!
 )
 
 RestrictEntities.set_tile_bp()
+RestrictEntities.enable_spill()
 
 --- The logic for checking that there are the correct ground support under the entity's position
 RestrictEntities.set_keep_alive_callback(
@@ -230,6 +243,56 @@ RestrictEntities.set_keep_alive_callback(
     )
 )
 
+local clean_cursor_delay =
+    Token.register(
+    function(params)
+        params.player.clean_cursor()
+    end
+)
+
+--- Anti griefing
+
+local anti_grief_tries = 3 -- Change this number to change how many 'shots' a player has got
+local forgiveness_time = 432000 -- Time before previous offences are forgiven, in ticks (60 ticks/sec)
+local anti_grief_kick_tries = math.ceil(anti_grief_tries / 2) -- Tries before kick warning
+
+RestrictEntities.set_anti_grief_callback(
+    Token.register(
+        function(_, player)
+            Popup.player(player, [[
+Look out!
+
+You are trying to replace entities which have items inside!
+This is causing the items to spill out on the ground.
+
+Please be careful!
+]], nil, nil, 'entity_placement_restriction_inventory_warning')
+            local player_stat = times_spilled[player.index]
+            local number_of_spilled = player_stat and player_stat.count or 0
+
+            local last_offence = player_stat and player_stat.tick or 0
+            local time_since_last_offence = game.tick - last_offence
+
+            if (last_offence > 0 and time_since_last_offence >= forgiveness_time) then
+                game.print('Forgiven!')
+                number_of_spilled = 0
+            end
+
+            if number_of_spilled >= anti_grief_tries then
+                Report.jail(player, nil)
+                player.print({'', '[color=yellow]', {'concrete_jungle.anti_grief_jail_reason'}, '[/color]'})
+                Report.report(nil, player, 'Spilling too many items on the ground')
+                times_spilled[player.index] = nil
+                return
+            elseif number_of_spilled == anti_grief_kick_tries then
+                game.kick_player(player, {'concrete_jungle.anti_grief_kick_reason'})
+            end
+            times_spilled[player.index] = {count = number_of_spilled + 1, tick = game.tick}
+            Task.set_timeout_in_ticks(1, clean_cursor_delay, {player = player})
+        end
+    )
+)
+
 local function print_floating_text(player, entity, text, color)
     color = color or Color.white
     local surface = player.surface
@@ -259,17 +322,17 @@ local function on_destroy(event)
 
     if p and p.valid then
         if not (name == 'blueprint') then
-            local tier = '[tile=stone-path] stone path'
+            local tier = {'item-name.stone-path'}
             if (entity_tiers[name] == 2) then
-                tier = '[tile=concrete] concrete'
+                tier = {'item-name.concrete'}
             elseif (entity_tiers[name] == 3) then
-                tier = '[tile=refined-concrete] refined concrete'
+                tier = {'item-name.refined-concrete'}
             end
-            local text = '[item=' .. name .. '] requires at least ' .. tier
+            local text = {'concrete_jungle.entity_not_enough_ground_support', '[item=' .. name .. ']', tier}
             --local text = '[color=yellow]This [/color][item=' .. name .. '][color=yellow] cannot be placed here, it needs ground support of at least [/color]' .. tier
             print_floating_text(p, entity, text)
         else
-            p.print('[color=yellow]Some parts of this [/color][color=red]blueprint[/color][color=yellow] cannot be placed here, they need better ground support![/color]')
+            p.print({'', '[color=yellow]', {'concrete_jungle.blueprint_not_enough_ground_support', {'', '[/color][color=red]', {'concrete_jungle.blueprint'}, '[/color][color=yellow]'}}, '[/color]'})
         end
     end
 end
@@ -361,32 +424,44 @@ local function player_built_tile(event)
     end
 end
 
-local function first_time(event)
-    local p = game.get_player(event.player_index)
-    Popup.player(p, '[color=yellow]Hello ' .. p.name .. '[/color]' ..
-[[
-
-
-Most items can't be placed on the ground!
-
-Place stone brick, concrete or reinforced concrete on the ground,
-before placing items and machines!
-
-More information can be found in the [color=red]Map Info[/color] tab
-in [virtual-signal=signal-info] [color=red]Redmew Info[/color]
-]],
-'Welcome to Concrete Jungle', nil, 'concrete_jungle_intro')
-end
+local first_time =
+    Token.register(
+    function(params)
+        local p = game.get_player(params.event.player_index)
+        Popup.player(
+            p,
+            {
+                '',
+                '[color=yellow]',
+                {'concrete_jungle.welcome_popup_player_name', p.name},
+                '[/color]\n\n',
+                {'concrete_jungle.welcome_popup_line_1'},
+                '\n\n',
+                {'concrete_jungle.welcome_popup_line_2'},
+                '\n\n',
+                {'concrete_jungle.welcome_popup_line_3', '[color=red]Map Info[/color]', '[color=red]Redmew Info[/color]', '[virtual-signal=signal-info]'}
+            },
+            {'concrete_jungle.welcome_popup_title'},
+            nil,
+            'concrete_jungle_intro'
+        )
+    end
+)
 
 Event.add(RestrictEntities.events.on_pre_restricted_entity_destroyed, on_destroy)
 Event.add(defines.events.on_player_mined_tile, player_mined_tile)
 Event.add(defines.events.on_marked_for_deconstruction, marked_for_deconstruction)
 Event.add(defines.events.on_player_built_tile, player_built_tile)
 Event.add(defines.events.on_robot_built_tile, player_built_tile)
-Event.add(defines.events.on_player_created, first_time)
+Event.add(
+    defines.events.on_player_created,
+    function(event)
+        Task.set_timeout_in_ticks(900, first_time, {event = event})
+    end
+)
 Event.on_init(on_init)
 
---Creating the starting circle
+--- Creating the starting circle (Map_gen)
 local circle = b.circle(6)
 local square = b.rectangle(3, 3)
 local concrete_square = b.change_tile(square, true, 'hazard-concrete-left')

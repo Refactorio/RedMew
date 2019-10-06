@@ -44,8 +44,6 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
 local table = require 'utils.table'
-local Popup = require 'features.gui.popup'
-local Report = require 'features.report'
 
 -- Localized functions
 local raise_event = script.raise_event
@@ -87,29 +85,64 @@ local primitives = {
     event = nil, -- if the event is registered or not
     refund = true, -- if we issue a refund or not
     prevent_tile_bp = false, -- prevents players from placing blueprints with tiles
-    keep_alive_callback = nil -- the function to process entities through
+    spill = false, -- spills items from entities with inventories to prevent destroying items when upgrading
+    keep_alive_callback = nil, -- the token registered function to process entities through
+    anti_grief_callback = nil -- the token registered function to process anti griefing through
 }
-local times_spilled = {}
 
 Global.register(
     {
         allowed_entities = allowed_entities,
         banned_entities = banned_entities,
-        primitives = primitives,
-        times_spilled = times_spilled
+        primitives = primitives
     },
     function(tbl)
         allowed_entities = tbl.allowed_entities
         banned_entities = tbl.banned_entities
         primitives = tbl.primitives
-        times_spilled = tbl.times_spilled
     end
 )
 
 -- Local functions
 
+--- Spill items stacks
+-- @param entity <LuaEntity> the entity from which the items should be spilled
+-- @param item <ItemStackSpecification> the item stack that should be spilled
 local function spill_item_stack(entity, item)
     entity.surface.spill_item_stack(entity.position, item, true, entity.force, false)
+end
+--- Checks if entity has an inventory with items inside, and spills them on the ground
+local function entities_with_inventory(entity, player)
+    if primitives.spill and entity.has_items_inside() then
+        local type = entity.type
+        if type == 'container' or type == 'logistic-container' then
+            for item, count in pairs(entity.get_inventory(defines.inventory.chest).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+        elseif type == 'furnace' then
+            for item, count in pairs(entity.get_inventory(defines.inventory.fuel).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+            for item, count in pairs(entity.get_inventory(defines.inventory.furnace_result).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+            for item, count in pairs(entity.get_inventory(defines.inventory.furnace_source).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+        elseif type == 'assembling-machine' then
+            for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+            for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_modules).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+            for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_output).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+        end
+
+        Token.get(primitives.anti_grief_callback)(entity, player)
+    end
 end
 
 --- Token for the on_built event callback, checks if an entity should be destroyed.
@@ -170,49 +203,8 @@ local on_built_token =
 
         -- Need to revalidate the entity since we sent it to the raised event
         if entity.valid then
-            local type = entity.type
-            if entity.has_items_inside() then
-                if type == 'container' or type == 'logistic-container' then
-                    for item, count in pairs(entity.get_inventory(defines.inventory.chest).get_contents()) do
-                        spill_item_stack(entity, {name = item, count = count})
-                    end
-                elseif type == 'furnace' then
-                    for item, count in pairs(entity.get_inventory(defines.inventory.fuel).get_contents()) do
-                        spill_item_stack(entity, {name = item, count = count})
-                    end
-                    for item, count in pairs(entity.get_inventory(defines.inventory.furnace_result).get_contents()) do
-                        spill_item_stack(entity, {name = item, count = count})
-                    end
-                    for item, count in pairs(entity.get_inventory(defines.inventory.furnace_source).get_contents()) do
-                        spill_item_stack(entity, {name = item, count = count})
-                    end
-                elseif type == 'assembling-machine' then
-                    for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()) do
-                        spill_item_stack(entity, {name = item, count = count})
-                    end
-                    for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_modules).get_contents()) do
-                        spill_item_stack(entity, {name = item, count = count})
-                    end
-                    for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_output).get_contents()) do
-                        spill_item_stack(entity, {name = item, count = count})
-                    end
-                end
-                Popup.player(player, [[
-Look out!
-
-You are trying to replace entities which have items inside!
-This is causing the items to spill out on the ground.
-
-Please be careful!
-]], nil, nil, 'entity_placement_restriction_inventory_warning')
-                local number_of_spilled = times_spilled[player.index] or 0
-                times_spilled[player.index] = number_of_spilled + 1
-                if number_of_spilled >= 3 then
-                    Report.jail(player, nil)
-                    player.print('[color=yellow]You have spilled too many items on the ground, contact an admin[/color]')
-                    Report.report(nil, player, 'Spilling too many items on the ground')
-                end
-            end
+            -- Checking if the entity has an inventory and spills the content on the ground to prevent destroying those too
+            entities_with_inventory(entity, player)
             entity.destroy()
         end
 
@@ -275,6 +267,21 @@ function Public.remove_keep_alive_callback()
     check_event_status()
 end
 
+--- Sets the anti_grief_callback function. This function is used to provide
+-- logic on what entities should and should not be destroyed.
+-- @param anti_grief_callback <function>
+function Public.set_anti_grief_callback(anti_grief_callback)
+    if type(anti_grief_callback) ~= 'number' then
+        error('Sending a non-token function')
+    end
+    primitives.anti_grief_callback = anti_grief_callback
+end
+
+--- Removes the anti_grief_callback function
+function Public.remove_anti_grief_callback()
+    primitives.anti_grief_callback = nil
+end
+
 --- Adds to the list of allowed entities
 -- @param ents <table> array of string entity names
 function Public.add_allowed(ents)
@@ -333,14 +340,24 @@ function Public.set_refund()
     primitives.refund = false
 end
 
---- Enables the returning of items that are destroyed by this module
+--- Enables the ability to blueprint tiles (Landfill always enabled)
 function Public.enable_tile_bp()
     primitives.prevent_tile_bp = false
 end
 
---- Disables the returning of items that are destroyed by this module
+--- Disables the ability to blueprint tiles (Landfill always enabled)
 function Public.set_tile_bp()
     primitives.prevent_tile_bp = true
+end
+
+--- Enables the spill function
+function Public.enable_spill()
+    primitives.spill = true
+end
+
+--- Disables the spill function
+function Public.set_spill()
+    primitives.spill = false
 end
 
 return Public
