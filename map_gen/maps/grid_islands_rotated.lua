@@ -202,6 +202,8 @@ map = b.rotate(map,degrees(45))
 local function on_init()
     local player_force = game.forces.player
     player_force.technologies['landfill'].enabled = false           -- disable landfill
+    player_force.character_running_speed_modifier = 1.5
+    game.difficulty_settings.technology_price_multiplier = 2
 end
 Event.on_init(on_init)
 
