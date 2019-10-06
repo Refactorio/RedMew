@@ -45,6 +45,7 @@ local Global = require 'utils.global'
 local Token = require 'utils.token'
 local table = require 'utils.table'
 local Popup = require 'features.gui.popup'
+local Report = require 'features.report'
 
 -- Localized functions
 local raise_event = script.raise_event
@@ -88,17 +89,20 @@ local primitives = {
     prevent_tile_bp = false, -- prevents players from placing blueprints with tiles
     keep_alive_callback = nil -- the function to process entities through
 }
+local times_spilled = {}
 
 Global.register(
     {
         allowed_entities = allowed_entities,
         banned_entities = banned_entities,
-        primitives = primitives
+        primitives = primitives,
+        times_spilled = times_spilled
     },
     function(tbl)
         allowed_entities = tbl.allowed_entities
         banned_entities = tbl.banned_entities
         primitives = tbl.primitives
+        times_spilled = tbl.times_spilled
     end
 )
 
@@ -172,7 +176,6 @@ local on_built_token =
                     for item, count in pairs(entity.get_inventory(defines.inventory.chest).get_contents()) do
                         spill_item_stack(entity, {name = item, count = count})
                     end
-
                 elseif type == 'furnace' then
                     for item, count in pairs(entity.get_inventory(defines.inventory.fuel).get_contents()) do
                         spill_item_stack(entity, {name = item, count = count})
@@ -194,8 +197,7 @@ local on_built_token =
                         spill_item_stack(entity, {name = item, count = count})
                     end
                 end
-                Popup.player(player,
-[[
+                Popup.player(player, [[
 Look out!
 
 You are trying to replace entities which have items inside!
@@ -203,6 +205,13 @@ This is causing the items to spill out on the ground.
 
 Please be careful!
 ]], nil, nil, 'entity_placement_restriction_inventory_warning')
+                local number_of_spilled = times_spilled[player.index] or 0
+                times_spilled[player.index] = number_of_spilled + 1
+                if number_of_spilled >= 3 then
+                    Report.jail(player, nil)
+                    player.print('[color=yellow]You have spilled too many items on the ground, contact an admin[/color]')
+                    Report.report(nil, player, 'Spilling too many items on the ground')
+                end
             end
             entity.destroy()
         end
