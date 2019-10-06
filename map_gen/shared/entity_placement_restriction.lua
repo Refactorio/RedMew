@@ -111,14 +111,31 @@ Global.register(
 local function spill_item_stack(entity, item)
     entity.surface.spill_item_stack(entity.position, item, true, entity.force, false)
 end
+
+local Task = require 'utils.task'
+
+--- Cleans the players cursor to prevent from spam replacing entities with inventory
+-- Somehow required to have a 1 tick delay before cleaning the players cursor
+local delay_clean_cursor = Token.register(function(param)
+    param.player.clean_cursor()
+end)
+
 --- Checks if entity has an inventory with items inside, and spills them on the ground
 local function entities_with_inventory(entity, player)
     if primitives.spill and entity.has_items_inside() then
+        Task.set_timeout_in_ticks(1, delay_clean_cursor, {player = player})
         local type = entity.type
-        if type == 'container' or type == 'logistic-container' then
+        if type == 'container' then
             for item, count in pairs(entity.get_inventory(defines.inventory.chest).get_contents()) do
-                spill_item_stack(entity, {name = item, count = count})
+                    spill_item_stack(entity, {name = item, count = count})
             end
+        elseif type == 'logistic-container' then
+            entity.surface.create_entity{name = 'steel-chest', position = entity.position, direction = entity.direction, force = entity.force, fast_replace = true, spill = false}
+            if player and player.valid and primitives.refund then -- refunding materials required to make a logistic container minus the "free" steel-chest generated above
+                player.insert({name='electronic-circuit', count = 3})
+                player.insert({name='advanced-circuit', count = 1})
+            end
+            return true
         elseif type == 'furnace' then
             for item, count in pairs(entity.get_inventory(defines.inventory.fuel).get_contents()) do
                 spill_item_stack(entity, {name = item, count = count})
@@ -143,6 +160,7 @@ local function entities_with_inventory(entity, player)
 
         Token.get(primitives.anti_grief_callback)(entity, player)
     end
+    return false
 end
 
 --- Token for the on_built event callback, checks if an entity should be destroyed.
@@ -204,8 +222,11 @@ local on_built_token =
         -- Need to revalidate the entity since we sent it to the raised event
         if entity.valid then
             -- Checking if the entity has an inventory and spills the content on the ground to prevent destroying those too
-            entities_with_inventory(entity, player)
-            entity.destroy()
+            if entities_with_inventory(entity, player) then
+                ghost = true -- Cheating to prevent refunds
+            else
+                entity.destroy()
+            end
         end
 
         -- Check if we issue a refund: make sure refund is enabled, make sure we're not refunding a ghost,

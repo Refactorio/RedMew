@@ -9,6 +9,8 @@ local Task = require 'utils.task'
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
 local Report = require 'features.report'
+local Rank = require 'features.rank_system'
+local Ranks = require 'resources.ranks'
 
 local redmew_config = global.config
 
@@ -75,27 +77,27 @@ local tile_tiers = {
     ['refined-hazard-concrete-left'] = 3
 }
 
+local tier_0 = {
+    'transport-belt',
+    'fast-transport-belt',
+    'express-transport-belt',
+    'underground-belt',
+    'fast-underground-belt',
+    'express-underground-belt',
+    'small-electric-pole',
+    'burner-mining-drill',
+    'pumpjack',
+    'car',
+    'tank',
+    'pipe',
+    'pipe-to-ground',
+    'offshore-pump'
+}
+
 --- Items explicitly allowed everywhere (tier 0 and up)
 --- The RestrictEntities module auto skips all checks for these entities
 --- They do not trigger set_keep_alive_callback or the on_pre_restricted_entity_destroyed event
-RestrictEntities.add_allowed(
-    {
-        'transport-belt',
-        'fast-transport-belt',
-        'express-transport-belt',
-        'underground-belt',
-        'fast-underground-belt',
-        'express-underground-belt',
-        'small-electric-pole',
-        'burner-mining-drill',
-        'pumpjack',
-        'car',
-        'tank',
-        'pipe',
-        'pipe-to-ground',
-        'offshore-pump'
-    }
-)
+RestrictEntities.add_allowed(tier_0)
 
 -- Items only allowed on tiles of tier 2 or higher (tier 1 is the default)
 local entity_tiers = {
@@ -111,7 +113,6 @@ local entity_tiers = {
     ['flamethrower-turret'] = 2,
     ['assembling-machine-2'] = 2,
     ['steel-furnace'] = 2,
-    ['iron-chest'] = 2,
     ['fast-inserter'] = 2,
     ['filter-inserter'] = 2,
     ['accumulator'] = 2,
@@ -130,7 +131,6 @@ local entity_tiers = {
     ['electric-furnace'] = 3,
     ['substation'] = 3,
     ['laser-turret'] = 3,
-    ['steel-chest'] = 3,
     ['stack-inserter'] = 3,
     ['stack-filter-inserter'] = 3,
     ['logistic-chest-active-provider'] = 3,
@@ -141,6 +141,18 @@ local entity_tiers = {
 }
 
 --Creates rich text icons of the tiered entities
+local tier_0_items = ''
+local tier_0_counter = 0
+
+for _, v in pairs(tier_0) do
+    tier_0_items = tier_0_items .. ' [entity=' .. v .. ']'
+    tier_0_counter = tier_0_counter + 1
+    if tier_0_counter > 10 then
+        tier_0_counter = 0
+        tier_0_items = tier_0_items .. '\n'
+    end
+end
+
 local tier_2_items = ''
 local tier_3_items = ''
 
@@ -185,8 +197,9 @@ ScenarioInfo.add_map_extra_info(
 
 
 [font=default-bold]Exceptions:[/font]
- [item=burner-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=car] [item=tank] [item=pipe] [item=pipe-to-ground] [item=offshore-pump]
- [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt]
+]] ..
+            tier_0_items .. [[
+
 
 Stone bricks provide ground support for most buildings/entities,
 but some require better ground support!
@@ -195,14 +208,12 @@ but some require better ground support!
 ]] ..
             tier_2_items .. [[
 
+
 [font=default-bold]Ground support minimum refined concrete:[/font]
 ]] .. tier_3_items .. [[
 
 
 Due to security messures you can not remove ground support nor downgrade it!
-
-
-Thanks to Sangria_Louie for the map suggestion!
 ]]
 )
 
@@ -243,12 +254,6 @@ RestrictEntities.set_keep_alive_callback(
     )
 )
 
-local clean_cursor_delay =
-    Token.register(
-    function(params)
-        params.player.clean_cursor()
-    end
-)
 
 --- Anti griefing
 
@@ -267,28 +272,29 @@ This is causing the items to spill out on the ground.
 
 Please be careful!
 ]], nil, nil, 'entity_placement_restriction_inventory_warning')
-            local player_stat = times_spilled[player.index]
-            local number_of_spilled = player_stat and player_stat.count or 0
 
-            local last_offence = player_stat and player_stat.tick or 0
-            local time_since_last_offence = game.tick - last_offence
+            if not (Rank.equal_or_greater_than(player.name, Ranks.regular)) then
+                local player_stat = times_spilled[player.index]
+                local number_of_spilled = player_stat and player_stat.count or 0
 
-            if (last_offence > 0 and time_since_last_offence >= forgiveness_time) then
-                game.print('Forgiven!')
-                number_of_spilled = 0
+                local last_offence = player_stat and player_stat.tick or 0
+                local time_since_last_offence = game.tick - last_offence
+
+                if (last_offence > 0 and time_since_last_offence >= forgiveness_time) then
+                    number_of_spilled = 0
+                end
+
+                if number_of_spilled >= anti_grief_tries then
+                    Report.jail(player, nil)
+                    player.print({'', '[color=yellow]', {'concrete_jungle.anti_grief_jail_reason'}, '[/color]'})
+                    Report.report(nil, player, 'Spilling too many items on the ground')
+                    times_spilled[player.index] = nil
+                    return
+                elseif number_of_spilled == anti_grief_kick_tries then
+                    game.kick_player(player, {'concrete_jungle.anti_grief_kick_reason'})
+                end
+                times_spilled[player.index] = {count = number_of_spilled + 1, tick = game.tick}
             end
-
-            if number_of_spilled >= anti_grief_tries then
-                Report.jail(player, nil)
-                player.print({'', '[color=yellow]', {'concrete_jungle.anti_grief_jail_reason'}, '[/color]'})
-                Report.report(nil, player, 'Spilling too many items on the ground')
-                times_spilled[player.index] = nil
-                return
-            elseif number_of_spilled == anti_grief_kick_tries then
-                game.kick_player(player, {'concrete_jungle.anti_grief_kick_reason'})
-            end
-            times_spilled[player.index] = {count = number_of_spilled + 1, tick = game.tick}
-            Task.set_timeout_in_ticks(1, clean_cursor_delay, {player = player})
         end
     )
 )
