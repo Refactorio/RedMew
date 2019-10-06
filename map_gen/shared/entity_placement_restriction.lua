@@ -44,6 +44,7 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Token = require 'utils.token'
 local table = require 'utils.table'
+local Popup = require 'features.gui.popup'
 
 -- Localized functions
 local raise_event = script.raise_event
@@ -161,6 +162,8 @@ local on_built_token =
             }
         )
 
+        local player = game.get_player(index)
+
         -- Need to revalidate the entity since we sent it to the raised event
         if entity.valid then
             local type = entity.type
@@ -191,13 +194,21 @@ local on_built_token =
                         spill_item_stack(entity, {name = item, count = count})
                     end
                 end
+                Popup.player(player,
+[[
+Look out!
+
+You are trying to replace entities which have items inside!
+This is causing the items to spill out on the ground.
+
+Please be careful!
+]], nil, nil, 'entity_placement_restriction_inventory_warning')
             end
             entity.destroy()
         end
 
         -- Check if we issue a refund: make sure refund is enabled, make sure we're not refunding a ghost,
         -- and revalidate the stack since we sent it to the raised event
-        local player = game.get_player(index)
         local item_returned
         if player and player.valid and primitives.refund and not ghost and stack.valid then
             player.insert(stack)
