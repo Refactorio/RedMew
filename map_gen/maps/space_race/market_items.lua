@@ -65,12 +65,16 @@ return {
         disabled = true,
         disabled_reason = {'', 'DISABLED'}
     },
-    {price = 2, name = 'raw-fish'},
-    {price = 200, name = 'tank', disabled = true, disabled_reason = {'', 'DISABLED'}}
+    {
+        name = 'tank',
+        name_label = {'', 'Tank'},
+        type = 'custom_item',
+        description = {'', 'Tanks can only be purchased'},
+        sprite = 'item/tank',
+        stack_limit = 1,
+        price = 200,
+        disabled = true,
+        disabled_reason = {'', 'Research tanks to unlock'}
+    },
+    {price = 1, name = 'raw-fish'},
 }
-
---[[
-The retailer can only register the same item once, meaning that you can't disable for one force but enable for the other
-You'll need two market_items one with a prefix for the one force, and one with the prefix for the other force
-For ITEMS you need to award the item through the on_market_purchase event.
-]]

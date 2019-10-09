@@ -8,7 +8,10 @@ local Market_Items = require 'map_gen.maps.space_race.market_items'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 
+local floor = math.floor
+
 require 'map_gen.maps.space_race.map_info'
+require 'map_gen.maps.space_race.market_handler'
 
 local config = global.config
 
@@ -35,12 +38,12 @@ local player_ports = {
 }
 
 local disabled_research = {
-    ['military'] = {player = 1, entity = 5},
-    ['military-2'] = {player = 5, entity = 25, unlocks = 'military'},
-    ['military-3'] = {player = 10, entity = 50, unlocks = 'military-2'},
-    ['military-4'] = {player = 20, entity = 100, unlocks = 'military-3'},
-    ['stone-walls'] = {player = 1, entity = 5, invert = true},
-    ['heavy-armor'] = {player = 10, entity = 25, invert = true},
+    ['military'] = {player = 2, entity = 8},
+    ['military-2'] = {player = 6, entity = 24, unlocks = 'military'},
+    ['military-3'] = {player = 12, entity = 48, unlocks = 'military-2'},
+    ['military-4'] = {player = 24, entity = 96, unlocks = 'military-3'},
+    ['stone-walls'] = {player = 2, entity = 8, invert = true},
+    ['heavy-armor'] = {player = 12, entity = 48, invert = true},
     ['artillery-shell-range-1'] = nil
 }
 
@@ -96,6 +99,19 @@ local remove_permission_group =
     end
 )
 
+local function deepcopy(orig)
+    local copy
+    if type(orig) == 'table' then
+        copy = {}
+        for orig_key, orig_value in pairs(orig) do
+            copy[deepcopy(orig_key)] = deepcopy(orig_value)
+        end
+    else
+        copy = orig
+    end
+    return copy
+end
+
 Event.on_init(
     function()
         game.difficulty_settings.technology_price_multiplier = 0.5
@@ -144,19 +160,51 @@ Event.on_init(
         Retailer.add_market('USA_market', market)
 
         if table.size(Retailer.get_items('USSR_market')) == 0 then
-            for _, prototype in pairs(Market_Items) do
-                prototype.price = (disabled_research[prototype.name] and disabled_research[prototype.name].player) and disabled_research[prototype.name].player * player_kill_reward or prototype.price
+            local items = deepcopy(Market_Items)
+            for _, prototype in pairs(items) do
+                local name = prototype.name
+                prototype.price = (disabled_research[name] and disabled_research[name].player) and disabled_research[name].player * player_kill_reward or prototype.price
+                local unlock_requires = disabled_research[name]
+                if prototype.disabled and unlock_requires then
+                    if unlock_requires.invert then
+                        prototype.disabled_reason = {'', 'Unlocks when ' .. unlock_requires.player .. ' players have been killed or\n' .. unlock_requires.entity .. ' entities have been destroyed'}
+                    else
+                        prototype.disabled_reason = {'', 'To unlock kill ' .. unlock_requires.player .. ' players or\ndestroy ' .. unlock_requires.entity .. ' entities'}
+                    end
+                end
                 Retailer.set_item('USSR_market', prototype)
             end
         end
 
         if table.size(Retailer.get_items('USA_market')) == 0 then
-            for _, prototype in pairs(Market_Items) do
-                prototype.price = (disabled_research[prototype.name] and disabled_research[prototype.name].player) and disabled_research[prototype.name].player * player_kill_reward or prototype.price
+            local items = deepcopy(Market_Items)
+            for _, prototype in pairs(items) do
+                local name = prototype.name
+                prototype.price = (disabled_research[name] and disabled_research[name].player) and disabled_research[name].player * player_kill_reward or prototype.price
+                local unlock_requires = disabled_research[name]
+                if prototype.disabled and unlock_requires then
+                    if unlock_requires.invert then
+                        prototype.disabled_reason = {'', 'Unlocks when ' .. unlock_requires.player .. ' players have been killed or\n ' .. unlock_requires.entity .. ' entities have been destroyed'}
+                    else
+                        prototype.disabled_reason = {'', 'To unlock kill ' .. unlock_requires.player .. ' players or\n destroy ' .. unlock_requires.entity .. ' entities'}
+                    end
+                end
                 Retailer.set_item('USA_market', prototype)
             end
         end
 
+        --[[
+            Items support the following structure:
+    {
+        name: the (raw) item inserted in inventory, does nothing when type is not item
+        name_label: the name shown in the GUI. If omitted and a prototype exists for 'name', it will use that LocalisedString, can be a LocalisedString
+        sprite: a custom sprite, will use 'item/<name>' if omitted
+        price: the price of an item, supports floats (0.95 for example)
+        description: an additional description displayed in the tooltip, can be a LocalisedString
+        disabled: whether or not the item should be disabled by default
+        disabled_reason: the reason the item is disabled, can be a LocalisedString
+    }
+        ]]
         --ensures that the spawn points are not water
         surface.set_tiles(
             {
@@ -227,7 +275,9 @@ local function unlock_market_item(force, item_name)
     end
     if group_name then
         Retailer.enable_item(group_name, item_name)
-        --Debug.print('Unlocked: ' .. item_name .. ' | For: ' .. group_name)
+        if not (item_name == 'tank') then
+            Debug.print('Unlocked: ' .. item_name .. ' | For: ' .. group_name)
+        end
     end
 end
 
@@ -237,34 +287,35 @@ local function check_for_market_unlocks(force)
 
     for research, conditions in pairs(disabled_research) do
         local _force = force
-        local inverted = conditions.inverted
-        local unlocks = conditions.unlock_reason
+        local inverted = conditions.invert
+        local unlocks = conditions.unlocks
 
         if inverted then
             _force = invert_force(_force)
         end
-        if _force == force_USA then
+
+        if force == force_USA then
             if conditions.player <= unlock_progress.force_USA.players_killed or conditions.entity <= unlock_progress.force_USA.entities_killed then
-                unlock_market_item(force, research)
-            end
-            if unlocks then
-                unlock_market_item(invert_force(force), unlocks)
-            end
-        elseif _force == force_USSR then
-            if conditions.player <= unlock_progress.force_USSR.players_killed or conditions.entity <= unlock_progress.force_USSR.entities_killed then
-                unlock_market_item(force, research)
+                unlock_market_item(_force, research)
                 if unlocks then
-                    unlock_market_item(invert_force(force), unlocks)
+                    unlock_market_item(invert_force(_force), unlocks)
+                end
+            end
+        elseif force == force_USSR then
+            if conditions.player <= unlock_progress.force_USSR.players_killed or conditions.entity <= unlock_progress.force_USSR.entities_killed then
+                unlock_market_item(_force, research)
+                if unlocks then
+                    unlock_market_item(invert_force(_force), unlocks)
                 end
             end
         end
     end
 
     if force_USA.technologies.tanks.researched then
-        unlock_market_item(invert_force(force_USA), 'tank')
+        unlock_market_item(force_USA, 'tank')
     end
     if force_USSR.technologies.tanks.researched then
-        unlock_market_item(invert_force(force_USSR), 'tank')
+        unlock_market_item(force_USSR, 'tank')
     end
 end
 
@@ -409,11 +460,10 @@ local function on_built_entity(event)
         return
     end
 
-
     local name = entity.name
     if name == 'artillery-turret' or name == 'artillery-wagon' or name == 'tank' then
         local position = entity.position
-        game.print({'', '[gps=' .. position.x .. ',' .. position.y .. '] [color=yellow]', {'entity-name.' .. name}, ' has been deployed![/color]'})
+        game.print({'', '[gps=' .. floor(position.x) .. ', ' .. floor(position.y) .. '] [color=yellow]Warning! ', {'entity-name.' .. name}, ' has been deployed![/color]'})
     end
 end
 
