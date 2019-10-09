@@ -704,6 +704,41 @@ function Builders.entity_func(shape, func)
     end
 end
 
+--- Removes entities in shape filtered by names
+--- Needs to be applied to a shape with Builders.entity_func(shape, func)
+--- @param names <string> or <table> names to filter by, can be an array of strings
+function Builders.remove_entities_by_names(names)
+    return function(_, _, world)
+        local pos = {world.x - 0.5, world.y - 0.5}
+        local radius = 2
+        local entities = world.surface.find_entities_filtered {position = pos, name = names, radius = radius}
+        for i = 1, #entities do
+            entities[i].destroy()
+        end
+        return true
+    end
+end
+
+--- Removes entities in shape filtered by types
+--- Needs to be applied to a shape with Builders.entity_func(shape, func)
+--- @param types <string> or <table> types to filter by, can be an array of strings
+--- @param rocks <boolean> set to true to remove all rocks (simple-entity does not guarantee they will be removed)
+function Builders.remove_entities_by_type(types, rocks)
+    return function(_, _, world)
+        local pos = {world.x - 0.5, world.y - 0.5}
+        local radius = 2
+        if rocks then
+            local names = {'rock-huge', 'rock-big', 'sand-rock-big'}
+            Builders.remove_entities_by_names(names)(_, _, world)
+        end
+        local entities = world.surface.find_entities_filtered {position = pos, type = types, radius = radius}
+        for i = 1, #entities do
+            entities[i].destroy()
+        end
+        return true
+    end
+end
+
 -- Decorative generation
 function Builders.decorative(shape, name, amount)
     return function(x, y, world)
