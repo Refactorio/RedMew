@@ -25,11 +25,4 @@ Event.on_init(function()
     Task.set_timeout_in_ticks(60, snake_generate)
 end)
 
-local function on_snake_player_died(event)
-    local player = event.player
-    player.set_controller{type = defines.controllers.spectator}
-end
-
-Event.add(Snake.events.on_snake_player_died, on_snake_player_died)
-
 return b.change_tile(b.rectangle(4, 4), true, 'concrete')
