@@ -5,6 +5,37 @@ local Global = require 'utils.global'
 local math = require "utils.math"
 local RS = require 'map_gen.shared.redmew_surface'
 local table = require 'utils.table'
+local MGSP = require 'resources.map_gen_settings'
+
+local ScenarioInfo = require 'features.gui.info'
+
+ScenarioInfo.set_map_name('Toxic Danger Ore Jungle')
+ScenarioInfo.set_map_description(
+    [[
+Clear the trees to access the ground ores,
+exploit them to expand the base!
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+This map is covered in a swamplike forest and sprinkled with ores!
+
+You may not build the factory on ore patches. Exceptions:
+ [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank]
+ [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt]
+]]
+)
+
+require 'map_gen.shared.danger_ore_banned_entities'
+
+RS.set_map_gen_settings(
+    {
+        MGSP.starting_area_very_low,
+        MGSP.ore_oil_none,
+        MGSP.enemy_none,
+        MGSP.cliff_none
+    }
+)
 
 local match = string.match
 local remove = table.remove
@@ -28,6 +59,7 @@ Global.register_init(
     {},
     function(tbl)
         tbl.seed = RS.get_surface().map_gen_settings.seed
+        game.draw_resource_selection = false
     end,
     function(tbl)
         local seed = tbl.seed
@@ -53,6 +85,7 @@ Event.add(
 
         if r.name == 'flamethrower' then
             p_force.recipes['flamethrower'].enabled = false
+            p_force.recipes['flamethrower-ammo'].enabled = false
             p_force.recipes['flamethrower-turret'].enabled = false
         end
     end

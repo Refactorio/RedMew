@@ -11,6 +11,7 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local CreateParticles = require 'features.create_particles'
 local RS = require 'map_gen.shared.redmew_surface'
+local Popup = require 'features.gui.popup'
 local table = require 'utils.table'
 local random = math.random
 local floor = math.floor
@@ -420,7 +421,7 @@ function DiggyCaveCollapse.register(cfg)
             end
 
             if (nil ~= support_beam_entities[event.entity.name]) then
-                require 'features.gui.popup'.player(
+                Popup.player(
                     game.get_player(player_index),
 {'diggy.cave_collapse_warning'}
                 )

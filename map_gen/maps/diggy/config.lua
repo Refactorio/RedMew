@@ -172,11 +172,8 @@ local Config = {
             -- minimum distance and noise range required for water to spawn
             room_noise_minimum_distance = 9,
             room_noise_ranges = {
-                {name = 'water', min = 0.84, max = 0.96},
-                {name = 'water', min = 0.73, max = 0.81},
-                {name = 'water', min = 0.54, max = 0.7},
-                {name = 'dirt', min = 0.46, max = 0.53},
-                {name = 'dirt', min = 0.37, max = 0.45}
+                {name = 'water', min = 0.54, max = 1},
+                {name = 'dirt', min = 0.37, max = 0.54}
             }
         },
         -- responsible for resource spawning
