@@ -15,6 +15,8 @@ local queue_size = Queue.size
 local queue_pairs = Queue.pairs
 local pairs = pairs
 
+local Public = {}
+
 local snakes = {} -- player_index -> snake_data {is_marked_for_destroy:bool, queue :Queue of {entity, cord} }
 local board = {
     size = 0,
@@ -62,6 +64,9 @@ local function destroy_snake(index, snake)
     end
 
     game.print({'snake.snake_destroyed', player.name, queue_size(snake.queue)})
+    script.raise_event(Public.events.on_snake_player_died, {
+        player = player
+    })
 end
 
 local function destroy_dead_snakes()
@@ -374,7 +379,19 @@ local function new_game(surface, position, size, update_rate, max_food)
     Event.add_removable_nth_tick(board.update_rate, tick)
 end
 
-local Public = {}
+Public = {
+    events = {
+        --[[
+        on_snake_player_died
+        Called when a player have died in a game of snake
+        Contains
+            name :: defines.events: Identifier of the event
+            tick :: uint: Tick the event was generated.
+            player :: LuaPlayer
+        ]]
+        on_snake_player_died = Event.generate_event_name('on_snake_player_died')
+    }
+}
 
 function Public.start_game(surface, top_left_position, size, update_rate, max_food)
     if board.is_running then
