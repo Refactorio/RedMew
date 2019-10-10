@@ -5,7 +5,7 @@ local b = require 'map_gen.shared.builders'
 local RS = require 'map_gen.shared.redmew_surface'
 local floor = math.floor
 local Snake = require 'features.snake.game'
-local Snake_Gui = require 'features.snake.gui'
+local Snake_Control = require 'features.snake.control'
 
 
 local config = global.config
@@ -17,8 +17,7 @@ local snake_generate = Token.register(function()
     local position = {x = -floor(size), y = 5}
     local max_food = 8
     local speed = 30
-    Snake.start_game(RS.get_surface(), position, size, speed, max_food)
-    Snake_Gui.show()
+    Snake_Control.start_game(RS.get_surface(), position, size, speed, max_food)
     -- An alternative is to use: remote.call('snake', 'start_game', RS.get_surface(), position, size, speed, max_food)
 end)
 
