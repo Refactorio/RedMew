@@ -20,6 +20,12 @@ RS.set_map_gen_settings(
     }
 )
 
+local allowed_landfill_tiles = {
+    ['water'] = true
+}
+
+require 'map_gen.shared.restrict_landfill_tile'(allowed_landfill_tiles)
+
 local function no_enemies(_, _, world, tile)
     for _, e in ipairs(world.surface.find_entities_filtered({force = 'enemy', position = {world.x, world.y}})) do
         e.destroy()
