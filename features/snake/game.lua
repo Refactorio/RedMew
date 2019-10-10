@@ -63,8 +63,11 @@ local function destroy_snake(index, snake)
         return
     end
 
+    player.set_controller{type = defines.controllers.spectator}
+
     local score = queue_size(snake.queue)
     game.print({'snake.snake_destroyed', player.name, score})
+
     script.raise_event(Public.events.on_snake_player_died, {
         player = player,
         score = score
