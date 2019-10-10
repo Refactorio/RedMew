@@ -704,6 +704,31 @@ function Builders.entity_func(shape, func)
     end
 end
 
+local function destroy_entities(entities)
+    for i = 1, #entities do
+        entities[i].destroy()
+    end
+end
+
+--- Removes forces.enemy units in shape
+--- Needs to be applied to a shape with Builders.entity_func(shape, func)
+--- More efficient than using Builders.remove_entities_by_type and Builders.remove_entities_by_name
+--- @param units_to_remove <table> unit names to exclude (optional)
+--- format is {['small-biter'] = true, ['small-spitter'] = false}
+function Builders.remove_units(units_to_remove)
+    return function(_, _, world)
+        local pos = {world.x - 0.5, world.y - 0.5}
+        local radius = 2
+        local entities = world.surface.find_enemy_units(pos, radius)
+        for i = 1, #entities do
+            local entity = entities[i]
+            if not units_to_remove or units_to_remove(entity.name) then
+                entity.destroy()
+            end
+        end
+    end
+end
+
 --- Removes entities in shape filtered by names
 --- Needs to be applied to a shape with Builders.entity_func(shape, func)
 --- @param names <string> or <table> names to filter by, can be an array of strings
@@ -712,9 +737,7 @@ function Builders.remove_entities_by_names(names)
         local pos = {world.x - 0.5, world.y - 0.5}
         local radius = 2
         local entities = world.surface.find_entities_filtered {position = pos, name = names, radius = radius}
-        for i = 1, #entities do
-            entities[i].destroy()
-        end
+        destroy_entities(entities)
         return true
     end
 end
@@ -727,9 +750,7 @@ function Builders.remove_entities_by_type(types)
         local pos = {world.x - 0.5, world.y - 0.5}
         local radius = 2
         local entities = world.surface.find_entities_filtered {position = pos, type = types, radius = radius}
-        for i = 1, #entities do
-            entities[i].destroy()
-        end
+        destroy_entities(entities)
         return true
     end
 end
