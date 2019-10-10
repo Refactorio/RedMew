@@ -108,6 +108,7 @@ local function spawn_food()
             entity =
                 surface.create_entity({name = 'compilatron', position = pos, force = 'neutral', direction = random(7)})
             entity.active = false
+            entity.destructible = false
             food_count = food_count + 1
 
             break
@@ -221,6 +222,7 @@ local function tick_snake(index, snake)
         entity.character_running_speed_modifier = -1
         entity.color = player.color
         entity.active = false
+        entity.destructible = false
         push_to_end(snake_queue, {entity = entity, cord = tail_cord})
 
         board.food_count = board.food_count - 1
@@ -354,6 +356,7 @@ local function new_snake(player)
     player.create_character()
     character = player.character
     character.character_running_speed_modifier = -1
+    character.destructible = false
 
     local queue = queue_new()
     push(queue, {entity = character, cord = cord})
@@ -387,7 +390,7 @@ Public = {
         on_snake_player_died
         Called when a player have died in a game of snake
         Contains
-            name :: defines.events: Identifier of the event
+            name :: uint: Unique identifier of the event
             tick :: uint: Tick the event was generated.
             player :: LuaPlayer
             score :: uint: Score reached
