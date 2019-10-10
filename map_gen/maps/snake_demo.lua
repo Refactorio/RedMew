@@ -4,7 +4,6 @@ local Task = require 'utils.task'
 local b = require 'map_gen.shared.builders'
 local RS = require 'map_gen.shared.redmew_surface'
 local floor = math.floor
-local Snake = require 'features.snake.game'
 local Snake_Control = require 'features.snake.control'
 
 
