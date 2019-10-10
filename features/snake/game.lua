@@ -63,9 +63,11 @@ local function destroy_snake(index, snake)
         return
     end
 
-    game.print({'snake.snake_destroyed', player.name, queue_size(snake.queue)})
+    local score = queue_size(snake.queue)
+    game.print({'snake.snake_destroyed', player.name, score})
     script.raise_event(Public.events.on_snake_player_died, {
-        player = player
+        player = player,
+        score = score
     })
 end
 
@@ -388,6 +390,7 @@ Public = {
             name :: defines.events: Identifier of the event
             tick :: uint: Tick the event was generated.
             player :: LuaPlayer
+            score :: uint: Score reached
         ]]
         on_snake_player_died = Event.generate_event_name('on_snake_player_died')
     }
