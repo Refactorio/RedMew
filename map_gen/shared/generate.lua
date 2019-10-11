@@ -1,7 +1,6 @@
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Event = require 'utils.event'
-local Global = require 'utils.global'
 
 local insert = table.insert
 
