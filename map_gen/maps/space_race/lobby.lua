@@ -16,7 +16,7 @@ Generate.get_surfaces()['snake'] = shape
 
 local delay_snake_checker
 
-local players_needed = 1
+local players_needed = 4
 
 local size = 45
 

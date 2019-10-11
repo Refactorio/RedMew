@@ -30,8 +30,9 @@ config.turret_active_delay.turret_types = {
 }
 config.turret_active_delay.techs = {}
 config.player_create.show_info_at_start = false
+config.camera.enabled = false
 
-local players_needed = 1
+local players_needed = 4
 local player_kill_reward = 25
 local entity_kill_reward = 1
 local startup_timer = 60 * 60 * 2
@@ -641,6 +642,9 @@ check_map_gen_is_done =
 )
 
 local function check_ready_to_start()
+    if not primitives.game_started then
+        return
+    end
     local num_usa_players = #primitives.force_USA.connected_players
     local num_ussr_players = #primitives.force_USSR.connected_players
     local num_players = num_usa_players + num_ussr_players

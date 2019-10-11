@@ -39,7 +39,7 @@ local entity_drop_amount = {--NEEDS BALANCING!
     ['small-worm-turret'] = {low = 2, high = 5, chance = 0.5},
     ['medium-worm-turret'] = {low = 5, high = 7, chance = 0.5},
     ['big-worm-turret'] = {low = 5, high = 10, chance = 0.5},
-    ['behemoth-worm-turret'] = {low = 5, high = 15, chance = 0.5},
+    ['behemoth-worm-turret'] = {low = 5, high = 15, chance = 0.4},
     -- default is 0, no chance of coins dropping from biters/spitters
     ['small-biter'] = {low = 1, high = 2, chance = 0.05},
     ['small-spitter'] = {low = 2, high = 3, chance = 0.05},
