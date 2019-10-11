@@ -12,6 +12,9 @@ local floor = math.floor
 
 require 'map_gen.maps.space_race.map_info'
 require 'map_gen.maps.space_race.market_handler'
+local Lobby = require 'map_gen.maps.space_race.lobby'
+
+local Public = {}
 
 local config = global.config
 
@@ -26,15 +29,16 @@ config.turret_active_delay.turret_types = {
     ['artillery-turret'] = 60 * 60
 }
 config.turret_active_delay.techs = {}
+config.player_create.show_info_at_start = false
 
 local players_needed = 1
 local player_kill_reward = 25
 local entity_kill_reward = 1
-local startup_timer = 60 * 60 * 10
+local startup_timer = 60 * 60 * 2
 
 local player_ports = {
-    USA = {{x = -397, y = 0}, {x = -380, y = 0}},
-    USSR = {{x = 397, y = 0}, {x = 380, y = 0}}
+    USA = {{x = -409, y = 0}, {x = -380, y = 0}},
+    USSR = {{x = 409, y = 0}, {x = 380, y = 0}}
 }
 
 local disabled_research = {
@@ -56,9 +60,12 @@ local disabled_recipes = {
 
 local primitives = {
     game_started = false,
+    game_generating = false,
+    started_tick = 0,
     force_USA = nil,
     force_USSR = nil,
-    lobby_permissions = nil
+    lobby_permissions = nil,
+    won = nil
 }
 
 local unlock_progress = {
@@ -121,8 +128,8 @@ Event.on_init(
 
         local surface = RS.get_surface()
 
-        force_USSR.set_spawn_position({x = 397, y = 0}, surface)
-        force_USA.set_spawn_position({x = -397, y = 0}, surface)
+        force_USSR.set_spawn_position({x = 409, y = 0}, surface)
+        force_USA.set_spawn_position({x = -409, y = 0}, surface)
 
         force_USSR.laboratory_speed_modifier = 1
         force_USA.laboratory_speed_modifier = 1
@@ -130,8 +137,8 @@ Event.on_init(
         local lobby_permissions = game.permissions.create_group('lobby')
         lobby_permissions.set_allows_action(defines.input_action.start_walking, false)
 
-        --game.forces.player.chart(RS.get_surface(), {{x = 380, y = 16}, {x = 400, y = -16}})
-        --game.forces.player.chart(RS.get_surface(), {{x = -380, y = 16}, {x = -400, y = -16}})
+        force_USSR.chart(RS.get_surface(), {{x = 380, y = 16}, {x = 420, y = -16}})
+        force_USA.chart(RS.get_surface(), {{x = -380, y = 16}, {x = -420, y = -16}})
 
         --game.forces.player.chart(RS.get_surface(), {{x = 400, y = 65}, {x = -400, y = -33}})
         local silo
@@ -208,14 +215,14 @@ Event.on_init(
         --ensures that the spawn points are not water
         surface.set_tiles(
             {
-                {name = 'stone-path', position = {x = 397.5, y = 0.5}},
-                {name = 'stone-path', position = {x = 397.5, y = -0.5}},
-                {name = 'stone-path', position = {x = 396.5, y = -0.5}},
-                {name = 'stone-path', position = {x = 396.5, y = 0.5}},
-                {name = 'stone-path', position = {x = -397.5, y = 0.5}},
-                {name = 'stone-path', position = {x = -397.5, y = -0.5}},
-                {name = 'stone-path', position = {x = -396.5, y = -0.5}},
-                {name = 'stone-path', position = {x = -396.5, y = 0.5}}
+                {name = 'stone-path', position = {x = 409.5, y = 0.5}},
+                {name = 'stone-path', position = {x = 409.5, y = -0.5}},
+                {name = 'stone-path', position = {x = 408.5, y = -0.5}},
+                {name = 'stone-path', position = {x = 408.5, y = 0.5}},
+                {name = 'stone-path', position = {x = -409.5, y = 0.5}},
+                {name = 'stone-path', position = {x = -409.5, y = -0.5}},
+                {name = 'stone-path', position = {x = -408.5, y = -0.5}},
+                {name = 'stone-path', position = {x = -408.5, y = 0.5}}
             }
         )
 
@@ -361,6 +368,8 @@ end
 
 local function start_game()
     primitives.game_started = true
+    primitives.started_tick = game.tick
+    game.forces.enemy.evolution_factor = 0
     for _, player in pairs(primitives.force_USA.players) do
         restore_character(player)
     end
@@ -370,7 +379,9 @@ local function start_game()
 end
 
 local function victory(force)
+    primitives.won = force
     game.print('Congratulations to ' .. force.name .. '. You have gained factory dominance!')
+    Lobby.all_to_lobby()
 end
 
 local function lost(force)
@@ -392,6 +403,10 @@ local function on_entity_died(event)
     local force = entity.force
     if entity.name == 'rocket-silo' then
         lost(force)
+    end
+
+    if force == 'player' or force == 'neutral' or force == 'enemy' then
+        return
     end
 
     local cause = event.cause
@@ -420,18 +435,6 @@ local function on_rocket_launched(event)
     victory(event.entity.force)
 end
 
-local function to_lobby(player_index)
-    local player = game.get_player(player_index)
-    primitives.lobby_permissions.add_player(player)
-    player.character.destroy()
-    player.set_controller {type = defines.controllers.ghost}
-    player.print('Waiting for lobby!')
-end
-
-local function on_player_created(event)
-    to_lobby(event.player_index)
-end
-
 local function on_research_finished(event)
     check_for_market_unlocks(event.research.force)
     remove_recipes()
@@ -439,7 +442,6 @@ end
 
 Event.add(defines.events.on_entity_died, on_entity_died)
 Event.add(defines.events.on_rocket_launched, on_rocket_launched)
-Event.add(defines.events.on_player_created, on_player_created)
 Event.add(defines.events.on_research_finished, on_research_finished)
 
 local function on_player_died(event)
@@ -500,7 +502,7 @@ local function teleport(_, player)
         player.print('[color=yellow]Could not warp, you are not part of a team yet![/color]')
         return
     end
-    local tick = game.tick
+    local tick = game.tick - primitives.started_tick
     if tick < startup_timer then
         local time_left = startup_timer - tick
         if time_left > 60 then
@@ -511,7 +513,7 @@ local function teleport(_, player)
             seconds = seconds - seconds % 1
             time_left = minutes .. ' minutes and ' .. seconds .. ' seconds left'
         else
-            local seconds = time_left % 60
+            local seconds = (time_left - (time_left % 60)) / 60
             time_left = seconds .. ' seconds left'
         end
         player.print('[color=yellow]Could not warp, in setup fase![/color] [color=red]' .. time_left .. '[/color]')
@@ -532,12 +534,121 @@ end
 
 Command.add('warp', {description = 'Use to switch between PVP and Safe-zone in Space Race', capture_excess_arguments = false, allowed_by_server = false}, teleport)
 
+local Gui = require 'utils.gui'
+
+local function loading_gui(event)
+    local frame
+    local player = game.get_player(event.player_index)
+    local center = player.gui.center
+    local gui = center['Space-Race-Waiting']
+    if (gui) then
+        Gui.destroy(gui)
+    end
+
+    frame = player.gui.center.add {name = 'Space-Race-Waiting', type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+
+    frame.style.minimal_width = 300
+
+    --Header
+    local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
+    top_flow.style.horizontal_align = 'center'
+    top_flow.style.horizontally_stretchable = true
+
+    local title_flow = top_flow.add {type = 'flow'}
+    title_flow.style.horizontal_align = 'center'
+    title_flow.style.top_padding = 8
+    title_flow.style.horizontally_stretchable = false
+
+    local title = title_flow.add {type = 'label', caption = 'Welcome to Space Race'}
+    title.style.font = 'default-large-bold'
+
+    --Body
+
+    local content_flow = frame.add {type = 'flow'}
+    content_flow.style.top_padding = 8
+    content_flow.style.horizontal_align = 'center'
+    content_flow.style.horizontally_stretchable = true
+
+    local label_flow = content_flow.add {type = 'flow', direction = 'vertical'}
+    label_flow.style.horizontal_align = 'center'
+
+    label_flow.style.horizontally_stretchable = true
+    local label = label_flow.add {type = 'label', caption = 'Waiting for map to generate\nPlease wait\n'}
+    label.style.horizontal_align = 'center'
+    label.style.single_line = false
+    label.style.font = 'default'
+    label.style.font_color = Color.yellow
+
+    local time = game.tick - primitives.started_tick
+
+    if time > 60 then
+        local minutes = (time / 3600)
+        minutes = minutes - minutes % 1
+        time = time - (minutes * 3600)
+        local seconds = (time / 60)
+        seconds = seconds - seconds % 1
+        time = minutes .. ' minutes and ' .. seconds .. ' seconds'
+    else
+        local seconds = (time - (time % 60)) / 60
+        time = seconds .. ' seconds'
+    end
+
+    label = label_flow.add {type = 'label', caption = '[color=blue]Time elapsed: ' .. time .. ' [/color]'}
+    label.style.horizontal_align = 'center'
+    label.style.single_line = false
+    label.style.font = 'default'
+end
+
+local function show_waiting_gui()
+    for _, player in pairs(game.connected_players) do
+        loading_gui({player_index = player.index})
+    end
+end
+
+local function remove_waiting_gui()
+    for _, player in pairs(game.connected_players) do
+        local center = player.gui.center
+        local gui = center['Space-Race-Waiting']
+        if (gui) then
+            Gui.destroy(gui)
+        end
+    end
+end
+
+local check_map_gen_is_done
+check_map_gen_is_done =
+    Token.register(
+    function()
+        local num_usa_players = #primitives.force_USA.connected_players
+        local num_ussr_players = #primitives.force_USSR.connected_players
+        local num_players = num_usa_players + num_ussr_players
+        if not primitives.game_started and num_players >= players_needed then
+            local surface = RS.get_surface()
+            if surface.get_tile({388.5, 0}).name == 'landfill' and surface.get_tile({-388.5, 0}).name == 'landfill' then
+                primitives.started_tick = 0
+                remove_waiting_gui()
+                Event.remove_removable_nth_tick(60, check_map_gen_is_done)
+                start_game()
+                return
+            end
+            show_waiting_gui()
+        else
+            primitives.started_tick = 0
+            remove_waiting_gui()
+            Event.remove_removable_nth_tick(60, check_map_gen_is_done)
+        end
+    end
+)
+
 local function check_ready_to_start()
-    local num_usa_players = #primitives.force_USA.players
-    local num_ussr_players = #primitives.force_USSR.players
+    local num_usa_players = #primitives.force_USA.connected_players
+    local num_ussr_players = #primitives.force_USSR.connected_players
     local num_players = num_usa_players + num_ussr_players
     if not primitives.game_started and num_players >= players_needed then
-        start_game()
+        if primitives.started_tick == 0 then
+            primitives.started_tick = game.tick
+            Event.add_removable_nth_tick(60, check_map_gen_is_done)
+        end
     else
         game.print(
             '[color=yellow]' ..
@@ -553,56 +664,76 @@ local function check_player_balance(force)
     local force_USSR = primitives.force_USSR
     local force_USA = primitives.force_USA
 
+    local usa_players = #force_USA.players
+    local ussr_players = #force_USSR.players
+
+    local usa_connected = #force_USA.connected_players
+    local ussr_connected = #force_USSR.connected_players
+
     if force == force_USSR then
-        return #force_USSR.players <= #force_USA.players
+        return ussr_players - 2 <= usa_players and ussr_connected <= usa_connected
     elseif force == force_USA then
-        return #force_USSR.players >= #force_USA.players
+        return ussr_players >= usa_players - 2 and ussr_connected >= usa_connected
     end
 end
 
-local function join_usa(_, player)
+function Public.join_usa(_, player)
     local force_USA = primitives.force_USA
     local force_USSR = primitives.force_USSR
 
     local force = player.force
     if not check_player_balance(force_USA) then
         player.print('[color=red]Failed to join [/color][color=yellow]United Factory Workers,[/color][color=red] teams would become unbalanced![/color]')
-        return
+        return false
     end
     if not primitives.game_started or (force ~= force_USSR and force ~= force_USA) then
         player.force = force_USA
         player.print('[color=green]You have joined United Factory Workers![/color]')
         restore_character(player)
-        player.teleport(get_teleport_location(force_USA, true))
+        player.teleport(get_teleport_location(force_USA, true), RS.get_surface())
         check_ready_to_start()
-        return
+        return true
     end
     player.print('Failed to join new team, do not be a spy!')
 end
 
-Command.add('join-UFW', {description = 'Use to join United Factory Workers in Space Race', capture_excess_arguments = false, allowed_by_server = false}, join_usa)
+Command.add('join-UFW', {description = 'Use to join United Factory Workers in Space Race', capture_excess_arguments = false, allowed_by_server = false}, Public.join_usa)
 
-local function join_ussr(_, player)
+function Public.join_ussr(_, player)
     local force_USA = primitives.force_USA
     local force_USSR = primitives.force_USSR
 
     local force = player.force
     if not check_player_balance(force_USSR) then
         player.print('[color=red]Failed to join [/color][color=yellow]Union of Factory Employees[/color][color=red], teams would become unbalanced![/color]')
-        return
+        return false
     end
     if not primitives.game_started or (force ~= force_USSR and force ~= force_USA) then
         player.force = force_USSR
         player.print('[color=green]You have joined Union of Factory Employees![/color]')
         restore_character(player)
-        player.teleport(get_teleport_location(force_USSR, true))
+        player.teleport(get_teleport_location(force_USSR, true), RS.get_surface())
         check_ready_to_start()
-        return
+        return true
     end
     player.print('Failed to join new team, do not be a spy!')
 end
 
-Command.add('join-UFE', {description = 'Use to join Union of Factory Employees in Space Race', capture_excess_arguments = false, allowed_by_server = false}, join_ussr)
+Command.add('join-UFE', {description = 'Use to join Union of Factory Employees in Space Race', capture_excess_arguments = false, allowed_by_server = false}, Public.join_ussr)
+
+function Public.get_won()
+    return primitives.won
+end
+
+function Public.get_teams()
+    return {primitives.force_USA, primitives.force_USSR}
+end
+
+function Public.get_game_status()
+    return primitives.game_started
+end
+
+remote.add_interface('space-race', Public)
 
 --[[TODO
 

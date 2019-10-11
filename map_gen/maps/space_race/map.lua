@@ -30,7 +30,7 @@ local uranium_none = {
 
 RS.set_map_gen_settings({Map_gen_presets.oil_none, uranium_none})
 
-local width_1 = 256
+local width_1 = 256 -- Do not reduce this, it prevents artillary spam
 
 local wilderness_shallow_water = b.line_y(width_1)
 wilderness_shallow_water = b.change_tile(wilderness_shallow_water, true, 'water-shallow') -- water-mud is also walkable
@@ -39,6 +39,7 @@ local inf = function()
     return 100000000
 end
 
+-- Remove vanilla ores from this area
 local function no_ores(_, _, world, tile)
     if not tile then
         return
@@ -80,6 +81,8 @@ local function oil_transform(shape)
     shape = b.throttle_world_xy(shape, 1, 6, 1, 6)
     return shape
 end
+
+-- Add mirrored oil patches to give each team a fair chance
 local ores = {
     {weight = 100},
     {transform = oil_transform, resource = 'crude-oil', value = value(180000, 50, 1.1), weight = 33}
@@ -126,6 +129,8 @@ for r = 1, p_rows do
     end
 end
 local oil = b.grid_pattern_full_overlap(pattern, p_cols, p_rows, width_2, 64)
+-- end oil generation
+
 
 local safe_zone = b.translate(b.circle(256), -(width_2 / 2 + width_3 / 2), 0)
 
@@ -172,6 +177,13 @@ local start_stone = b.resource(small_circle, 'stone', constant(600))
 local start_coal = b.resource(small_circle, 'coal', constant(600))
 local start_segmented = b.segment_pattern({start_iron, start_copper, start_stone, start_coal})
 local start_resources = b.apply_entity(small_circle, start_segmented)
+
+local water = b.rectangle(10, 10)
+water = b.change_tile(water, true, 'water')
+water = b.translate(water, -35, 0)
+
+start_resources = b.add(start_resources, water)
+
 start_resources = b.translate(start_resources, -(width_2 / 2 + width_3 / 2 + 59), 0)
 start_resources = b.change_map_gen_collision_tile(start_resources, 'water-tile', 'landfill')
 start_resources = b.apply_effect(start_resources, no_biters)
