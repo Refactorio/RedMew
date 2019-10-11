@@ -1,12 +1,22 @@
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Event = require 'utils.event'
+local Global = require 'utils.global'
 
 local insert = table.insert
 
 local tiles_per_tick
 local regen_decoratives
-local surfaces
+local surfaces = {}
+
+Global.register(
+    {
+        surfaces = surfaces,
+    },
+    function(tbl)
+        surfaces = tbl.surfaces
+    end
+)
 
 local total_calls
 
@@ -282,7 +292,9 @@ end
 function Public.init(args)
     tiles_per_tick = args.tiles_per_tick or 32
     regen_decoratives = args.regen_decoratives or false
-    surfaces = args.surfaces or {}
+    for surface_name, shape in pairs(args.surfaces) do
+        surfaces[surface_name] = shape
+    end
 
     total_calls = math.ceil(1024 / tiles_per_tick) + 5
 end
