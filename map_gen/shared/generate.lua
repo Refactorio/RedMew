@@ -9,15 +9,6 @@ local tiles_per_tick
 local regen_decoratives
 local surfaces = {}
 
-Global.register(
-    {
-        surfaces = surfaces,
-    },
-    function(tbl)
-        surfaces = tbl.surfaces
-    end
-)
-
 local total_calls
 
 local Public = {}
@@ -324,6 +315,7 @@ function Public.register()
 end
 
 --- Returns the surfaces that the generate functions will act on
+-- Warning! Changing this table after on_init or on_load has run will cause desyncs!
 -- @return dictionary of surface_name -> shape function
 function Public.get_surfaces()
     return surfaces
