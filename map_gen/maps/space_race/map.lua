@@ -208,9 +208,8 @@ local wilderness_ditch_right = b.translate(b.rotate(wilderness_ditch, math.pi), 
 local wilderness = b.any({wilderness_shallow_water, wilderness_ditch_left, wilderness_ditch_right, wilderness_land_left, wilderness_land_right})
 
 local limited_safe_zone = b.rectangle(512, 512)
---limited_safe_zone = b.invert(limited_safe_zone)
-limited_safe_zone_right = b.translate(limited_safe_zone, -(256 + width_1/2 + width_2), 0)
-limited_safe_zone_left = b.translate(limited_safe_zone, 256 + width_1/2 + width_2, 0)
+local limited_safe_zone_right = b.translate(limited_safe_zone, -(256 + width_1/2 + width_2), 0)
+local limited_safe_zone_left = b.translate(limited_safe_zone, 256 + width_1/2 + width_2, 0)
 
 limited_safe_zone = b.add(limited_safe_zone_right, limited_safe_zone_left)
 --limited_safe_zone = b.change_tile(limited_safe_zone, true, 'out-of-map')
