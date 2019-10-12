@@ -25,8 +25,6 @@ Global.register(
     end
 )
 
-
-
 local config = require 'map_gen.maps.space_race.config'
 
 local entity_kill_rewards = config.entity_kill_rewards
@@ -247,11 +245,12 @@ local function insert_coins(event)
                 1,
                 spill_items,
                 {
-                    count = math.floor(count/2),
+                    count = math.floor(count / 2),
                     surface = entity.surface,
                     position = entity.position
                 }
             )
+            return
         end
     end
 
@@ -260,8 +259,11 @@ local function insert_coins(event)
             cause_force = cause.force
             if not (force == cause_force) then
                 local coins_inserted = cause.insert({name = 'coin', count = count})
-                ScoreTracker.change_for_player(cause.index, 'coins-earned', coins_inserted)
-                update_unlock_progress(cause_force, unlock_reasons.entity_killed)
+                local player = cause.player
+                if player and player.valid then
+                    ScoreTracker.change_for_player(player.index, 'coins-earned', coins_inserted)
+                    update_unlock_progress(cause_force, unlock_reasons.entity_killed)
+                end
             end
         end
     end

@@ -236,7 +236,7 @@ local function restore_character(player)
         player.create_character()
         Task.set_timeout_in_ticks(1, remove_permission_group, {permission_group = primitives.lobby_permissions, player = player})
         game.permissions.get_group('Default').add_player(player)
-        for _, item in pairs(config.player_create.starting_items) do
+        for _, item in pairs(redmew_config.player_create.starting_items) do
             player.insert(item)
         end
     end

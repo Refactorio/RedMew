@@ -163,7 +163,7 @@ wilderness_land = b.add(safe_zone, wilderness_land)
 
 wilderness_land = b.add(landfill_water, wilderness_land)
 
-local small_circle = b.circle(24)
+local small_circle = b.rectangle(40, 40)
 
 local function constant(x)
     return function()
@@ -175,7 +175,7 @@ local start_iron = b.resource(small_circle, 'iron-ore', constant(750))
 local start_copper = b.resource(small_circle, 'copper-ore', constant(600))
 local start_stone = b.resource(small_circle, 'stone', constant(600))
 local start_coal = b.resource(small_circle, 'coal', constant(600))
-local start_segmented = b.segment_pattern({start_iron, start_copper, start_stone, start_coal})
+local start_segmented = b.segment_pattern({start_iron, start_iron, start_copper, start_copper, start_iron, start_iron, start_stone, start_coal})
 local start_resources = b.apply_entity(small_circle, start_segmented)
 
 local water = b.rectangle(10, 10)
@@ -184,7 +184,7 @@ water = b.translate(water, -35, 0)
 
 start_resources = b.add(start_resources, water)
 
-start_resources = b.translate(start_resources, -(width_2 / 2 + width_3 / 2 + 59), 0)
+start_resources = b.translate(start_resources, -math.floor(width_2 / 2 + width_3 / 2 + 60), 0)
 start_resources = b.change_map_gen_collision_tile(start_resources, 'water-tile', 'landfill')
 start_resources = b.apply_effect(start_resources, no_biters)
 

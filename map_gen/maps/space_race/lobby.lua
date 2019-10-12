@@ -186,4 +186,6 @@ function Public.to_lobby(player_index)
     to_lobby(player_index)
 end
 
+remote.add_interface('space-race-lobby', Public)
+
 return Public

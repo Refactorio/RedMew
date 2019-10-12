@@ -42,7 +42,7 @@ function Public.show_gui(event)
     label_flow.style.horizontal_align = 'center'
 
     label_flow.style.horizontally_stretchable = true
-    local label = label_flow.add {type = 'label', caption = 'Waiting for map to generate\nPlease wait\n'}
+    local label = label_flow.add {type = 'label', caption = 'Waiting for map to generate\n\n... Please wait ...\n'}
     label.style.horizontal_align = 'center'
     label.style.single_line = false
     label.style.font = 'default'

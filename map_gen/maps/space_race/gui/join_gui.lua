@@ -102,7 +102,7 @@ Gui.on_click(
         if remote.call('space-race', 'join_usa', nil, player) then
             Gui.remove_data_recursively(frame)
             frame.destroy()
-            Public.update_gui()
+            remote.call('space-race-lobby' ,'update_gui')
         end
     end
 )
@@ -116,7 +116,7 @@ Gui.on_click(
         if remote.call('space-race', 'join_ussr', nil, player) then
             Gui.remove_data_recursively(frame)
             frame.destroy()
-            Public.update_gui()
+            remote.call('space-race-lobby' ,'update_gui')
         end
     end
 )
