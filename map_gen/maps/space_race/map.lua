@@ -30,7 +30,7 @@ local uranium_none = {
     }
 }
 
-RS.set_map_gen_settings({Map_gen_presets.oil_none, uranium_none})
+RS.set_map_gen_settings({Map_gen_presets.oil_none, uranium_none, Map_gen_presets.cliff_none})
 
 local width_1 = 256 -- Do not reduce this, it prevents artillary spam
 

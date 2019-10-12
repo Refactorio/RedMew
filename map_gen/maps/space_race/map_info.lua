@@ -49,6 +49,7 @@ Current Version: ]] .. config.version
 ScenarioInfo.set_new_info(
     [[
 2019-10-12  v0.3
+- Cliffs around rocket silo
 - Market prices changed
 - Wooden chests are now minable for both forces
 - Refactoring of code
