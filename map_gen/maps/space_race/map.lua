@@ -7,6 +7,8 @@ local table = require 'utils.table'
 local Random = require 'map_gen.shared.random'
 local Event = require 'utils.event'
 
+local cliffs = require 'map_gen.maps.space_race.cliff_generator'
+
 local seed1 = 17000
 local seed2 = seed1 * 2
 
@@ -190,10 +192,12 @@ start_resources = b.apply_effect(start_resources, no_biters)
 
 wilderness_land = b.add(start_resources, wilderness_land)
 
+wilderness_land = b.apply_entity(wilderness_land, cliffs.cliff)
+
 local wilderness_land_left = b.translate(wilderness_land, -(width_1 + width_2) / 2, 0)
 local wilderness_land_right = b.translate(b.flip_x(wilderness_land), (width_1 + width_2) / 2, 0)
 local wilderness_ditch = b.line_y(width_3)
-wilderness_ditch = b.change_tile(wilderness_ditch, true, 'out-of-map')
+wilderness_ditch = b.if_else(b.change_tile(b.translate(b.line_y(width_3 - 1), -1, 0), true, 'out-of-map'), wilderness_ditch)
 wilderness_ditch = b.if_else(b.change_tile(b.rectangle(3, 17), true, 'landfill'), wilderness_ditch)
 local rocket_silo_shape = b.rectangle(9, 9)
 rocket_silo_shape = b.change_tile(rocket_silo_shape, true, 'landfill')
@@ -203,6 +207,16 @@ local wilderness_ditch_left = b.translate(wilderness_ditch, -(width_1 / 2 + widt
 local wilderness_ditch_right = b.translate(b.rotate(wilderness_ditch, math.pi), (width_1 / 2 + width_2 + width_3 / 2), 0)
 local wilderness = b.any({wilderness_shallow_water, wilderness_ditch_left, wilderness_ditch_right, wilderness_land_left, wilderness_land_right})
 
-local map = b.if_else(wilderness, b.full_shape)
+local limited_safe_zone = b.rectangle(512, 512)
+--limited_safe_zone = b.invert(limited_safe_zone)
+limited_safe_zone_right = b.translate(limited_safe_zone, -(256 + width_1/2 + width_2), 0)
+limited_safe_zone_left = b.translate(limited_safe_zone, 256 + width_1/2 + width_2, 0)
+
+limited_safe_zone = b.add(limited_safe_zone_right, limited_safe_zone_left)
+--limited_safe_zone = b.change_tile(limited_safe_zone, true, 'out-of-map')
+
+local map = b.add(wilderness, limited_safe_zone)
+
+--map = b.if_else(wilderness, b.full_shape)
 
 return map

@@ -120,6 +120,19 @@ Event.on_init(
         silo = surface.create_entity {name = 'rocket-silo', position = {x = -388.5, y = 0.5}, force = force_USA}
         silo.minable = false
 
+        local wall
+        wall = surface.create_entity{name = 'stone-wall', position = {x = 384.5, y = 18.5}, always_place = true, force = 'neutral'}
+        wall.destructible = false
+
+        wall = surface.create_entity{name = 'stone-wall', position = {x = 384.5, y = -17.5}, always_place = true, force = 'neutral'}
+        wall.destructible = false
+
+        wall = surface.create_entity{name = 'stone-wall', position = {x = -384.5, y = 18.5}, always_place = true, force = 'neutral'}
+        wall.destructible = false
+
+        wall = surface.create_entity{name = 'stone-wall', position = {x = -384.5, y = -17.5}, always_place = true, force = 'neutral'}
+        wall.destructible = false
+
         local gun_turret
         gun_turret = surface.create_entity {name = 'gun-turret', position = {x = 383, y = 0}, force = force_USSR}
         gun_turret.insert({name = 'firearm-magazine', count = 200})
