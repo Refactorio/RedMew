@@ -7,6 +7,8 @@ local Retailer = require 'features.retailer'
 local Market_Items = require 'map_gen.maps.space_race.market_items'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
+local config = require 'map_gen.maps.space_race.config'
+local Table = require 'utils.table'
 
 local floor = math.floor
 
@@ -14,50 +16,42 @@ require 'map_gen.maps.space_race.map_info'
 require 'map_gen.maps.space_race.market_handler'
 local Lobby = require 'map_gen.maps.space_race.lobby'
 
+-- GUIs
+
+local load_gui = require 'map_gen.maps.space_race.gui.load_gui'
+
 local Public = {}
 
-local config = global.config
+local redmew_config = global.config
 
-config.market.enabled = false
-config.score.enabled = false
-config.player_rewards.enabled = false
-config.apocalypse.enabled = false
-config.turret_active_delay.turret_types = {
+redmew_config.market.enabled = false
+redmew_config.score.enabled = false
+redmew_config.player_rewards.enabled = false
+redmew_config.apocalypse.enabled = false
+redmew_config.turret_active_delay.turret_types = {
     ['ammo-turret'] = 60 * 3,
     ['electric-turret'] = 60 * 10,
     ['fluid-turret'] = 60 * 5,
     ['artillery-turret'] = 60 * 60
 }
-config.turret_active_delay.techs = {}
-config.player_create.show_info_at_start = false
-config.camera.enabled = false
+redmew_config.turret_active_delay.techs = {}
+redmew_config.player_create.show_info_at_start = false
+redmew_config.camera.enabled = false
 
-local players_needed = 4
-local player_kill_reward = 25
-local entity_kill_reward = 1
-local startup_timer = 60 * 60 * 2
+local players_needed = config.players_needed_to_start_game
+local player_kill_reward = config.player_kill_reward
+local startup_timer = config.bootstrap_period
 
 local player_ports = {
     USA = {{x = -409, y = 0}, {x = -380, y = 0}},
     USSR = {{x = 409, y = 0}, {x = 380, y = 0}}
 }
 
-local disabled_research = {
-    ['military'] = {player = 2, entity = 8},
-    ['military-2'] = {player = 6, entity = 24, unlocks = 'military'},
-    ['military-3'] = {player = 12, entity = 48, unlocks = 'military-2'},
-    ['military-4'] = {player = 24, entity = 96, unlocks = 'military-3'},
-    ['stone-walls'] = {player = 2, entity = 8, invert = true},
-    ['heavy-armor'] = {player = 12, entity = 48, invert = true},
-    ['artillery-shell-range-1'] = nil
-}
+local disabled_research = config.disabled_research
 
 local researched_tech = {}
 
-local disabled_recipes = {
-    'tank',
-    'rocket-silo'
-}
+local disabled_recipes = config.disabled_recipes
 
 local primitives = {
     game_started = false,
@@ -69,29 +63,16 @@ local primitives = {
     won = nil
 }
 
-local unlock_progress = {
-    force_USA = {
-        players_killed = 0,
-        entities_killed = 0
-    },
-    force_USSR = {
-        players_killed = 0,
-        entities_killed = 0
-    }
-}
-
 Global.register(
     {
         primitives = primitives,
-        unlock_progress = unlock_progress
     },
     function(tbl)
         primitives = tbl.primitives
-        unlock_progress = tbl.unlock_progress
     end
 )
 
-local function remove_recipes()
+function Public.remove_recipes()
     local USA_recipe = primitives.force_USA.recipes
     local USSR_recipe = primitives.force_USSR.recipes
     for _, recipe in pairs(disabled_recipes) do
@@ -106,19 +87,6 @@ local remove_permission_group =
         params.permission_group.remove_player(params.player)
     end
 )
-
-local function deepcopy(orig)
-    local copy
-    if type(orig) == 'table' then
-        copy = {}
-        for orig_key, orig_value in pairs(orig) do
-            copy[deepcopy(orig_key)] = deepcopy(orig_value)
-        end
-    else
-        copy = orig
-    end
-    return copy
-end
 
 Event.on_init(
     function()
@@ -135,11 +103,14 @@ Event.on_init(
         force_USSR.laboratory_speed_modifier = 1
         force_USA.laboratory_speed_modifier = 1
 
+        force_USSR.research_queue_enabled = true
+        force_USA.research_queue_enabled = true
+
         local lobby_permissions = game.permissions.create_group('lobby')
         lobby_permissions.set_allows_action(defines.input_action.start_walking, false)
 
-        force_USSR.chart(RS.get_surface(), {{x = 380, y = 16}, {x = 420, y = -16}})
-        force_USA.chart(RS.get_surface(), {{x = -380, y = 16}, {x = -420, y = -16}})
+        force_USSR.chart(RS.get_surface(), {{x = 380, y = 64}, {x = 420, y = -64}})
+        force_USA.chart(RS.get_surface(), {{x = -380, y = 64}, {x = -420, y = -64}})
 
         --game.forces.player.chart(RS.get_surface(), {{x = 400, y = 65}, {x = -400, y = -33}})
         local silo
@@ -168,7 +139,7 @@ Event.on_init(
         Retailer.add_market('USA_market', market)
 
         if table.size(Retailer.get_items('USSR_market')) == 0 then
-            local items = deepcopy(Market_Items)
+            local items = Table.deep_copy(Market_Items)
             for _, prototype in pairs(items) do
                 local name = prototype.name
                 prototype.price = (disabled_research[name] and disabled_research[name].player) and disabled_research[name].player * player_kill_reward or prototype.price
@@ -185,7 +156,7 @@ Event.on_init(
         end
 
         if table.size(Retailer.get_items('USA_market')) == 0 then
-            local items = deepcopy(Market_Items)
+            local items = Table.deep_copy(Market_Items)
             for _, prototype in pairs(items) do
                 local name = prototype.name
                 prototype.price = (disabled_research[name] and disabled_research[name].player) and disabled_research[name].player * player_kill_reward or prototype.price
@@ -255,105 +226,9 @@ Event.on_init(
 
         primitives.lobby_permissions = lobby_permissions
 
-        remove_recipes()
+        Public.remove_recipes()
     end
 )
-
-local function invert_force(force)
-    local force_USA = primitives.force_USA
-    local force_USSR = primitives.force_USSR
-    if force == force_USA then
-        return force_USSR
-    elseif force == force_USSR then
-        return force_USA
-    end
-end
-
-local unlock_reasons = {
-    player_killed = 1,
-    entity_killed = 2
-}
-
-local function unlock_market_item(force, item_name)
-    local group_name
-    if force == primitives.force_USA then
-        group_name = 'USA_market'
-    elseif force == primitives.force_USSR then
-        group_name = 'USSR_market'
-    end
-    if group_name then
-        Retailer.enable_item(group_name, item_name)
-        if not (item_name == 'tank') then
-            Debug.print('Unlocked: ' .. item_name .. ' | For: ' .. group_name)
-        end
-    end
-end
-
-local function check_for_market_unlocks(force)
-    local force_USA = primitives.force_USA
-    local force_USSR = primitives.force_USSR
-
-    for research, conditions in pairs(disabled_research) do
-        local _force = force
-        local inverted = conditions.invert
-        local unlocks = conditions.unlocks
-
-        if inverted then
-            _force = invert_force(_force)
-        end
-
-        if force == force_USA then
-            if conditions.player <= unlock_progress.force_USA.players_killed or conditions.entity <= unlock_progress.force_USA.entities_killed then
-                unlock_market_item(_force, research)
-                if unlocks then
-                    unlock_market_item(invert_force(_force), unlocks)
-                end
-            end
-        elseif force == force_USSR then
-            if conditions.player <= unlock_progress.force_USSR.players_killed or conditions.entity <= unlock_progress.force_USSR.entities_killed then
-                unlock_market_item(_force, research)
-                if unlocks then
-                    unlock_market_item(invert_force(_force), unlocks)
-                end
-            end
-        end
-    end
-
-    if force_USA.technologies.tanks.researched then
-        unlock_market_item(force_USA, 'tank')
-    end
-    if force_USSR.technologies.tanks.researched then
-        unlock_market_item(force_USSR, 'tank')
-    end
-end
-
-local function update_unlock_progress(force, unlock_reason)
-    local players_killed
-    local entities_killed
-    local force_USA = primitives.force_USA
-    local force_USSR = primitives.force_USSR
-    if force == force_USA then
-        players_killed = unlock_progress.force_USA.players_killed
-        entities_killed = unlock_progress.force_USA.entities_killed
-        if unlock_reason == unlock_reasons.player_killed then
-            unlock_progress.force_USA.players_killed = players_killed + 1
-        elseif unlock_reason == unlock_reasons.entity_killed then
-            unlock_progress.force_USA.entities_killed = entities_killed + 1
-        end
-    elseif force == force_USSR then
-        players_killed = unlock_progress.force_USSR.players_killed
-        entities_killed = unlock_progress.force_USSR.entities_killed
-        if unlock_reason == unlock_reasons.player_killed then
-            unlock_progress.force_USSR.players_killed = players_killed + 1
-        elseif unlock_reason == unlock_reasons.entity_killed then
-            unlock_progress.force_USSR.entities_killed = entities_killed + 1
-        end
-    else
-        return
-    end
-
-    check_for_market_unlocks(force)
-end
 
 local function restore_character(player)
     if primitives.game_started then
@@ -385,7 +260,7 @@ local function victory(force)
     Lobby.all_to_lobby()
 end
 
-local function lost(force)
+function Public.lost(force)
     local force_USA = primitives.force_USA
     if force == force_USA then
         victory(primitives.force_USSR)
@@ -394,67 +269,11 @@ local function lost(force)
     end
 end
 
-local function on_entity_died(event)
-    local entity = event.entity
-
-    if entity.type == 'character' then
-        return
-    end
-
-    local force = entity.force
-    if entity.name == 'rocket-silo' then
-        lost(force)
-    end
-
-    if force == 'player' or force == 'neutral' or force == 'enemy' then
-        return
-    end
-
-    local cause = event.cause
-    local cause_force = event.force
-
-    if cause_force then
-        if not (cause and cause.valid) then
-            local force_USA = primitives.force_USA
-            cause_force = (force == force_USA) and primitives.force_USSR or force_USA
-            cause = entity.surface.find_entities_filtered {position = entity.position, radius = 50, type = 'character', force = cause_force, limit = 1}[1]
-        end
-    end
-
-    if cause and cause.valid then
-        if cause.prototype.name == 'character' then
-            cause_force = cause.force
-            if not (force == cause_force) then
-                cause.insert({name = 'coin', count = entity_kill_reward})
-                update_unlock_progress(cause_force, unlock_reasons.entity_killed)
-            end
-        end
-    end
-end
-
 local function on_rocket_launched(event)
     victory(event.entity.force)
 end
 
-local function on_research_finished(event)
-    check_for_market_unlocks(event.research.force)
-    remove_recipes()
-end
-
-Event.add(defines.events.on_entity_died, on_entity_died)
 Event.add(defines.events.on_rocket_launched, on_rocket_launched)
-Event.add(defines.events.on_research_finished, on_research_finished)
-
-local function on_player_died(event)
-    local cause = event.cause
-    if cause and cause.valid and cause.type == 'character' then
-        local cause_force = cause.force
-        if not (game.get_player(event.player_index).force == cause_force) then
-            cause.insert({name = 'coin', count = player_kill_reward})
-            update_unlock_progress(cause_force, unlock_reasons.player_killed)
-        end
-    end
-end
 
 local function on_built_entity(event)
     local entity = event.created_entity
@@ -464,13 +283,18 @@ local function on_built_entity(event)
     end
 
     local name = entity.name
-    if name == 'artillery-turret' or name == 'artillery-wagon' or name == 'tank' then
+
+    if config.neutral_entities[name] then
+        entity.force = 'neutral'
+        return
+    end
+
+    if config.warning_on_built[name] then
         local position = entity.position
         game.print({'', '[gps=' .. floor(position.x) .. ', ' .. floor(position.y) .. '] [color=yellow]Warning! ', {'entity-name.' .. name}, ' has been deployed![/color]'})
     end
 end
 
-Event.add(defines.events.on_player_died, on_player_died)
 Event.add(defines.events.on_built_entity, on_built_entity)
 
 local function allow_teleport(force, position)
@@ -479,7 +303,7 @@ local function allow_teleport(force, position)
     elseif force == primitives.force_USSR and position.x < 0 then
         return false
     end
-    return math.abs(position.x) > 377 and math.abs(position.x) < 400 and position.y > -10 and position.y < 10
+    return math.abs(position.x) > 377 and math.abs(position.x) < 410 and position.y > -10 and position.y < 10
 end
 
 local function get_teleport_location(force, to_safe_zone)
@@ -535,87 +359,6 @@ end
 
 Command.add('warp', {description = 'Use to switch between PVP and Safe-zone in Space Race', capture_excess_arguments = false, allowed_by_server = false}, teleport)
 
-local Gui = require 'utils.gui'
-
-local function loading_gui(event)
-    local frame
-    local player = game.get_player(event.player_index)
-    local center = player.gui.center
-    local gui = center['Space-Race-Waiting']
-    if (gui) then
-        Gui.destroy(gui)
-    end
-
-    frame = player.gui.center.add {name = 'Space-Race-Waiting', type = 'frame', direction = 'vertical', style = 'captionless_frame'}
-
-    frame.style.minimal_width = 300
-
-    --Header
-    local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
-    top_flow.style.horizontal_align = 'center'
-    top_flow.style.horizontally_stretchable = true
-
-    local title_flow = top_flow.add {type = 'flow'}
-    title_flow.style.horizontal_align = 'center'
-    title_flow.style.top_padding = 8
-    title_flow.style.horizontally_stretchable = false
-
-    local title = title_flow.add {type = 'label', caption = 'Welcome to Space Race'}
-    title.style.font = 'default-large-bold'
-
-    --Body
-
-    local content_flow = frame.add {type = 'flow'}
-    content_flow.style.top_padding = 8
-    content_flow.style.horizontal_align = 'center'
-    content_flow.style.horizontally_stretchable = true
-
-    local label_flow = content_flow.add {type = 'flow', direction = 'vertical'}
-    label_flow.style.horizontal_align = 'center'
-
-    label_flow.style.horizontally_stretchable = true
-    local label = label_flow.add {type = 'label', caption = 'Waiting for map to generate\nPlease wait\n'}
-    label.style.horizontal_align = 'center'
-    label.style.single_line = false
-    label.style.font = 'default'
-    label.style.font_color = Color.yellow
-
-    local time = game.tick - primitives.started_tick
-
-    if time > 60 then
-        local minutes = (time / 3600)
-        minutes = minutes - minutes % 1
-        time = time - (minutes * 3600)
-        local seconds = (time / 60)
-        seconds = seconds - seconds % 1
-        time = minutes .. ' minutes and ' .. seconds .. ' seconds'
-    else
-        local seconds = (time - (time % 60)) / 60
-        time = seconds .. ' seconds'
-    end
-
-    label = label_flow.add {type = 'label', caption = '[color=blue]Time elapsed: ' .. time .. ' [/color]'}
-    label.style.horizontal_align = 'center'
-    label.style.single_line = false
-    label.style.font = 'default'
-end
-
-local function show_waiting_gui()
-    for _, player in pairs(game.connected_players) do
-        loading_gui({player_index = player.index})
-    end
-end
-
-local function remove_waiting_gui()
-    for _, player in pairs(game.connected_players) do
-        local center = player.gui.center
-        local gui = center['Space-Race-Waiting']
-        if (gui) then
-            Gui.destroy(gui)
-        end
-    end
-end
-
 local check_map_gen_is_done
 check_map_gen_is_done =
     Token.register(
@@ -625,24 +368,24 @@ check_map_gen_is_done =
         local num_players = num_usa_players + num_ussr_players
         if not primitives.game_started and num_players >= players_needed then
             local surface = RS.get_surface()
-            if surface.get_tile({388.5, 0}).name == 'landfill' and surface.get_tile({-388.5, 0}).name == 'landfill' then
+            if surface.get_tile({388.5, 0}).name == 'landfill' and surface.get_tile({-388.5, 0}).name == 'landfill' and surface.get_tile({388.5, 60}).name == 'out-of-map' and surface.get_tile({-388.5, 60}).name == 'out-of-map' then
                 primitives.started_tick = 0
-                remove_waiting_gui()
+                load_gui.remove_gui()
                 Event.remove_removable_nth_tick(60, check_map_gen_is_done)
                 start_game()
                 return
             end
-            show_waiting_gui()
+            load_gui.show_gui_to_all()
         else
             primitives.started_tick = 0
-            remove_waiting_gui()
+            load_gui.remove_gui()
             Event.remove_removable_nth_tick(60, check_map_gen_is_done)
         end
     end
 )
 
 local function check_ready_to_start()
-    if not primitives.game_started then
+    if primitives.game_started then
         return
     end
     local num_usa_players = #primitives.force_USA.connected_players
@@ -725,6 +468,16 @@ end
 
 Command.add('join-UFE', {description = 'Use to join Union of Factory Employees in Space Race', capture_excess_arguments = false, allowed_by_server = false}, Public.join_ussr)
 
+local function print_player_num(_, player)
+    local force_USA = primitives.force_USA
+    local force_USSR = primitives.force_USSR
+
+    player.print('West: ' .. #force_USA.connected_players ..' online /' .. #force_USA.players .. ' total')
+    player.print('East: ' .. #force_USSR.connected_players ..' online /' .. #force_USSR.players .. ' total')
+end
+
+Command.add('team_players', {description = 'Use to get number of players on both teams', capture_excess_arguments = false, allowed_by_server = false}, print_player_num)
+
 function Public.get_won()
     return primitives.won
 end
@@ -737,11 +490,13 @@ function Public.get_game_status()
     return primitives.game_started
 end
 
+function Public.get_started_tick()
+    return primitives.started_tick
+end
+
 remote.add_interface('space-race', Public)
 
 --[[TODO
-
-Introduction / Map information
 
 Starting trees!
 

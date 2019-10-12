@@ -1,4 +1,8 @@
 local ScenarioInfo = require 'features.gui.info'
+local config = require 'map_gen.maps.space_race.config'
+
+local entity_kill_rewards = config.entity_kill_rewards
+local entity_drop_amount = config.entity_drop_amount
 
 ScenarioInfo.set_map_name('RedMew - Space Race')
 --ScenarioInfo.set_map_description('World at War! This is not a cold war, it is a radioative hot war')
@@ -13,14 +17,21 @@ ScenarioInfo.add_map_extra_info(
 - Explore, exploit and defend the wilderness for extra resources and coins
 - Engage in PVP and PVE to earn coins to enable research
     - Enemy structures:     (balance coming soon)
-        Turrets             1 coin
-        Radars              1 coin
-        Others              1 coin
-    - Enemy players:        25 coins
+        Turrets             ]] .. entity_kill_rewards['gun-turret'] .. '-' .. entity_kill_rewards['artillery-turret'] ..  ' coins\n' ..
+[[
+        Radars              ]] .. entity_kill_rewards['radar'] .. ' coins\n' ..
+[[
+        Others              ]] .. entity_kill_rewards['default'] .. ' coin\n' ..
+[[
+    - Enemy players:        ]] .. config.player_kill_reward .. ' coins\n' ..
+[[
     - Natives:
-        Units               1-15 coins, 5% chance
-        Worms               2-15 coins, 50% chance
-        Spawners            2-10 coins, 100 % chance
+        Units               ]] .. entity_drop_amount['small-biter'].low .. '-' .. entity_drop_amount['behemoth-spitter'].high .. ' coins ' .. entity_drop_amount['small-biter'].chance * 100 .. '% chance\n' ..
+[[
+        Worms               ]] .. entity_drop_amount['small-worm-turret'].low .. '-' .. entity_drop_amount['behemoth-worm-turret'].high .. ' coins ' .. entity_drop_amount['small-worm-turret'].chance * 100 .. '% chance\n' ..
+[[
+        Spawners            ]] .. entity_drop_amount['spitter-spawner'].low .. '-' .. entity_drop_amount['biter-spawner'].high .. ' coins ' .. entity_drop_amount['biter-spawner'].chance * 100 .. '% chance\n' ..
+[[
 - Sabotage enemy wilderness structures to slow the enemy team
 
 Coming Soon:
@@ -38,6 +49,11 @@ Current Version: v0.2
 
 ScenarioInfo.set_new_info(
     [[
+2019-10-12  v0.3
+- Market prices changed
+- Wooden chests are now minable for both forces
+- Refactoring of code
+- Added central config file
 2019-10-11  v0.2
 - Added water near spawn
 - Changed biter coin drop rate

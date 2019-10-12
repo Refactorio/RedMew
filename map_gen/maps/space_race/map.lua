@@ -206,7 +206,3 @@ local wilderness = b.any({wilderness_shallow_water, wilderness_ditch_left, wilde
 local map = b.if_else(wilderness, b.full_shape)
 
 return map
-
---[[local function dummy_map(x, y, world)
-    return map(x, y, world)
-end]]
