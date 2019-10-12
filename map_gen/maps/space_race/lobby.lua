@@ -29,8 +29,7 @@ local players_needed = config.players_needed_to_start_game
 
 local function check_snake_map_gen()
     local surface = game.get_surface('snake')
-    return surface.get_tile({snake_check_x, -snake_check_y}).name == 'out-of-map'
-        and surface.get_tile({snake_check_x, snake_check_y}).name == 'out-of-map'
+    return surface.get_tile({snake_check_x, -snake_check_y}).name == 'out-of-map' and surface.get_tile({snake_check_x, snake_check_y}).name == 'out-of-map'
 end
 
 local snake_generate =
@@ -41,7 +40,9 @@ local snake_generate =
             local position = {x = -floor(size), y = 5}
             local max_food = config.snake.max_food
             local speed = config.snake.speed
-            snake_game.start_game(surface, position, size, speed, max_food)
+            if not snake_game.is_running() then
+                snake_game.start_game(surface, position, size, speed, max_food)
+            end
         else
             Task.set_timeout_in_ticks(5, delay_snake_checker)
         end

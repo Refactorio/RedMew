@@ -397,13 +397,11 @@ local function check_ready_to_start()
             Event.add_removable_nth_tick(60, check_map_gen_is_done)
         end
     else
-        game.print(
-            '[color=yellow]' ..
-                primitives.force_USA.name ..
-                    ' has [/color][color=red]' ..
-                        num_usa_players ..
-                            '[/color][color=yellow] players | ' .. primitives.force_USSR.name .. ' has [/color][color=red]' .. num_ussr_players .. '[/color][color=yellow] players | [/color][color=red]' .. players_needed - num_players .. '[/color][color=yellow] more players needed to start! [/color]'
-        )
+        local message = primitives.force_USA.name ..
+            ' has ' ..
+                num_usa_players ..
+                    ' players\n ' .. primitives.force_USSR.name .. ' has ' .. num_ussr_players .. ' players\n\n' .. players_needed - num_players .. ' more players needed to start!'
+        load_gui.show_gui_to_all(message)
     end
 end
 

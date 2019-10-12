@@ -5,16 +5,19 @@ local Public = {}
 
 -- <Load GUI start>
 
-function Public.show_gui(event)
+function Public.show_gui(event, message)
     local frame
     local player = game.get_player(event.player_index)
     local center = player.gui.center
-    local gui = center['Space-Race-Waiting']
+    local gui = center['Space-Race-Lobby']
     if (gui) then
         Gui.destroy(gui)
     end
 
-    frame = player.gui.center.add {name = 'Space-Race-Waiting', type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+    local show_timer = message == nil
+    local caption = message or 'Waiting for map to generate\n\n... Please wait ...\n'
+
+    frame = player.gui.center.add {name = 'Space-Race-Lobby', type = 'frame', direction = 'vertical', style = 'captionless_frame'}
 
     frame.style.minimal_width = 300
 
@@ -42,45 +45,49 @@ function Public.show_gui(event)
     label_flow.style.horizontal_align = 'center'
 
     label_flow.style.horizontally_stretchable = true
-    local label = label_flow.add {type = 'label', caption = 'Waiting for map to generate\n\n... Please wait ...\n'}
+    local label = label_flow.add {type = 'label', caption = caption}
     label.style.horizontal_align = 'center'
     label.style.single_line = false
     label.style.font = 'default'
     label.style.font_color = Color.yellow
 
-    local started_tick = remote.call('space-race', 'get_started_tick')
-    local time = game.tick - started_tick
+    if show_timer then
+        local started_tick = remote.call('space-race', 'get_started_tick')
+        local time = game.tick - started_tick
 
-    if time > 60 then
-        local minutes = (time / 3600)
-        minutes = minutes - minutes % 1
-        time = time - (minutes * 3600)
-        local seconds = (time / 60)
-        seconds = seconds - seconds % 1
-        time = minutes .. ' minutes and ' .. seconds .. ' seconds'
-    else
-        local seconds = (time - (time % 60)) / 60
-        time = seconds .. ' seconds'
+        if time > 60 then
+            local minutes = (time / 3600)
+            minutes = minutes - minutes % 1
+            time = time - (minutes * 3600)
+            local seconds = (time / 60)
+            seconds = seconds - seconds % 1
+            time = minutes .. ' minutes and ' .. seconds .. ' seconds'
+        else
+            local seconds = (time - (time % 60)) / 60
+            time = seconds .. ' seconds'
+        end
+
+        label = label_flow.add {type = 'label', caption = '[color=blue]Time elapsed: ' .. time .. ' [/color]'}
+        label.style.horizontal_align = 'center'
+        label.style.single_line = false
+        label.style.font = 'default'
     end
-
-    label = label_flow.add {type = 'label', caption = '[color=blue]Time elapsed: ' .. time .. ' [/color]'}
-    label.style.horizontal_align = 'center'
-    label.style.single_line = false
-    label.style.font = 'default'
 end
 
 -- <Load GUI end>
 
-function Public.show_gui_to_all()
+function Public.show_gui_to_all(message)
     for _, player in pairs(game.connected_players) do
-        Public.show_gui({player_index = player.index})
+        if player.force ~= 'player' then
+            Public.show_gui({player_index = player.index}, message)
+        end
     end
 end
 
 function Public.remove_gui()
-    for _, player in pairs(game.connected_players) do
+    for _, player in pairs(game.players) do
         local center = player.gui.center
-        local gui = center['Space-Race-Waiting']
+        local gui = center['Space-Race-Lobby']
         if (gui) then
             Gui.destroy(gui)
         end

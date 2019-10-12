@@ -43,8 +43,7 @@ Coming Soon:
         - Capture the Flag
         - Team Death Match (Lol. NO)
 
-Current Version: v0.2
-]]
+Current Version: ]] .. config.version
 )
 
 ScenarioInfo.set_new_info(
