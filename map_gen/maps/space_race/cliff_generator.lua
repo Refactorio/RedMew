@@ -27,18 +27,28 @@ function Public.cliff(_, _, world)
     local world_x = math.abs(world.x) -- 0 = 0
     local world_y = world.y + 0.5 -- 0 = 0.5
 
-    local x = cliffs[world_x]
-    if x then
-        local y = x[world_y]
-        if y then
-            local cliff_orientation = y[1]
+    local _x = cliffs[world_x]
+    if _x then
+        local _y = _x[world_y]
+        if _y then
+            local cliff_orientation = _y[1]
             if world.x < 0 then
-                local flipped_orientation = orientation[y[1]]
+                local flipped_orientation = orientation[_y[1]]
                 if flipped_orientation then
                     cliff_orientation = flipped_orientation
                 end
             end
-            return {name = 'cliff', cliff_orientation = cliff_orientation, always_place = true, enable_cliff_removal = true}
+            return {name = 'cliff', cliff_orientation = cliff_orientation, always_place = true}
+        end
+    end
+end
+
+function Public.generate_cliffs(surface)
+    for _x, ys in pairs(cliffs) do
+        for _y, cliff_orientation in pairs(ys) do
+            surface.create_entity{name = 'cliff', position = {x = _x, y = _y}, cliff_orientation = cliff_orientation[1]}
+            --inverting
+            surface.create_entity{name = 'cliff', position = {x = -_x, y = _y}, cliff_orientation = orientation[cliff_orientation[1]] or cliff_orientation[1]}
         end
     end
 end

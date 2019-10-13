@@ -16,6 +16,8 @@ require 'map_gen.maps.space_race.map_info'
 require 'map_gen.maps.space_race.market_handler'
 local Lobby = require 'map_gen.maps.space_race.lobby'
 
+local cliff = require 'map_gen.maps.space_race.cliff_generator'
+
 -- GUIs
 
 local load_gui = require 'map_gen.maps.space_race.gui.load_gui'
@@ -265,6 +267,7 @@ local function start_game()
     for _, player in pairs(primitives.force_USSR.players) do
         restore_character(player)
     end
+    cliff.generate_cliffs(RS.get_surface())
 end
 
 local function victory(force)

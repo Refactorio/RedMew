@@ -111,7 +111,7 @@ function Public.update_gui()
         local player = players[i]
         local center = player.gui.center
         local gui = center['Space-Race-Lobby']
-        if (gui) then
+        if (gui) and player.force.name == 'player' then
             Public.show_gui({player_index = player.index})
         end
     end

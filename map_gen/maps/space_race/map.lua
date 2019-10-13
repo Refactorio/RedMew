@@ -30,7 +30,7 @@ local uranium_none = {
     }
 }
 
-RS.set_map_gen_settings({Map_gen_presets.oil_none, uranium_none, Map_gen_presets.cliff_none})
+RS.set_map_gen_settings({Map_gen_presets.oil_none, uranium_none})
 
 local width_1 = 256 -- Do not reduce this, it prevents artillary spam
 
@@ -47,6 +47,16 @@ local function no_ores(_, _, world, tile)
         return
     end
     for _, e in ipairs(world.surface.find_entities_filtered({type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
+        e.destroy()
+    end
+    return tile
+end
+
+local function no_cliffs(_, _, world, tile)
+    if not tile then
+        return
+    end
+    for _, e in ipairs(world.surface.find_entities_filtered({name = 'cliff', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
         e.destroy()
     end
     return tile
@@ -154,16 +164,27 @@ end
 
 safe_zone = b.apply_effect(safe_zone, no_biters)
 
-local landfill_water = b.translate(b.circle(128), -(width_2 / 2 + width_3 / 2), 0)
-landfill_water = b.change_map_gen_collision_tile(landfill_water, 'water-tile', 'landfill')
+local landfill_water = b.circle(128)
+
+local no_cliff_rectangle = b.rectangle(150, 75)
+no_cliff_rectangle = b.translate(no_cliff_rectangle, -32, 0)
+no_cliff_rectangle = b.apply_effect(no_cliff_rectangle, no_cliffs)
+
+landfill_water = b.add(no_cliff_rectangle, landfill_water)
+
+landfill_water = b.translate(landfill_water, -(width_2 / 2 + width_3 / 2), 0)
 
 landfill_water = b.apply_effect(landfill_water, no_biters)
+
+landfill_water = b.change_map_gen_collision_tile(landfill_water, 'water-tile', 'landfill')
 
 wilderness_land = b.apply_entity(wilderness_land, oil)
 
 wilderness_land = b.add(safe_zone, wilderness_land)
 
 wilderness_land = b.add(landfill_water, wilderness_land)
+
+
 
 local small_circle = b.rectangle(40, 40)
 
@@ -191,8 +212,6 @@ start_resources = b.change_map_gen_collision_tile(start_resources, 'water-tile',
 start_resources = b.apply_effect(start_resources, no_biters)
 
 wilderness_land = b.add(start_resources, wilderness_land)
-
-wilderness_land = b.apply_entity(wilderness_land, cliffs.cliff)
 
 local wilderness_land_left = b.translate(wilderness_land, -(width_1 + width_2) / 2, 0)
 local wilderness_land_right = b.translate(b.flip_x(wilderness_land), (width_1 + width_2) / 2, 0)
