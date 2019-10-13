@@ -713,7 +713,7 @@ end
 --- Removes entities in shape filtered by names
 --- Needs to be applied to a shape with Builders.entity_func(shape, func)
 --- @param names <string> or <table> names to filter by, can be an array of strings
-function Builders.remove_entities_by_names(names)
+function Builders.remove_entities_by_name(names)
     return function(_, _, world, tile)
         if not tile then
             return
