@@ -24,16 +24,6 @@ local function value(base, mult, pow)
     end
 end
 
-local function no_trees(world, tile)
-    if not tile then
-        return
-    end
-    for _, e in ipairs(world.surface.find_entities_filtered({type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}})) do
-        e.destroy()
-    end
-    return tile
-end
-
 local starting_area = 59
 
 local gradient = 0.05
@@ -145,7 +135,7 @@ local function worms(_, _, world)
 end
 
 worm_island = b.apply_entity(worm_island, worms)
-worm_island = b.apply_effect(worm_island, no_trees)
+worm_island = b.remove_map_gen_trees(worm_island)
 
 local worm_islands =
     b.any {
