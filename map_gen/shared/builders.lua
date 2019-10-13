@@ -2,6 +2,7 @@
 -- https://github.com/Refactorio/RedMew/wiki/Using-the-Builders
 
 local math = require 'utils.math'
+local table = require 'utils.table'
 
 local pi = math.pi
 local random = math.random
