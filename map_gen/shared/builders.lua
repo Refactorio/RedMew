@@ -773,9 +773,7 @@ local function destroy_entities(entities)
     end
 end
 
---- Removes map gen entities by filter.
--- see https://lua-api.factorio.com/latest/LuaSurface.html#LuaSurface.find_entities_filtered for valid filters.
---- Docs: MISSING
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_entities_by_filter
 function Builders.remove_map_gen_entities_by_filter(shape, filter)
     filter = shallow_copy(filter)
     return function(x, y, world)
@@ -792,7 +790,7 @@ function Builders.remove_map_gen_entities_by_filter(shape, filter)
     end
 end
 
---- Docs: MISSING
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_entities_by_name
 function Builders.remove_entities_by_name(shape, names)
     if type(names) ~= 'table' then
         names = {names}
@@ -822,7 +820,7 @@ function Builders.remove_entities_by_name(shape, names)
     end
 end
 
---- Docs: MISSING
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_resources
 function Builders.remove_map_gen_resources(shape)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -840,7 +838,7 @@ function Builders.remove_map_gen_resources(shape)
     end
 end
 
---- Docs: MISSING
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_trees
 function Builders.remove_map_gen_trees(shape)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -858,7 +856,7 @@ function Builders.remove_map_gen_trees(shape)
     end
 end
 
---- Docs: MISSING
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_enemies
 function Builders.remove_map_gen_enemies(shape)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -1069,7 +1067,7 @@ function Builders.single_grid_pattern(shape, width, height)
     end
 end
 
---- Docs: MISSINGhttps://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_x_pattern
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_x_pattern
 function Builders.grid_x_pattern(pattern, columns, width)
     local half_width = width / 2
 
@@ -1097,7 +1095,7 @@ function Builders.grid_y_pattern(pattern, rows, height)
     end
 end
 
---- Docs: MISSINGhttps://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_pattern
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_pattern
 function Builders.grid_pattern(pattern, columns, rows, width, height)
     local half_width = width / 2
     local half_height = height / 2
