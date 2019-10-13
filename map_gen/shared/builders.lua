@@ -1,3 +1,6 @@
+-- View the docs on the wiki.
+-- https://github.com/Refactorio/RedMew/wiki/Using-the-Builders
+
 local math = require 'utils.math'
 
 local pi = math.pi
@@ -12,6 +15,8 @@ local cos = math.cos
 local atan2 = math.atan2
 local tau = math.tau
 local loga = math.log
+local shallow_copy = table.shallow_copy
+local remove = table.remove
 
 -- helpers
 local inv_pi = 1 / pi
@@ -710,32 +715,100 @@ local function destroy_entities(entities)
     end
 end
 
---- Removes entities in shape filtered by names
---- Needs to be applied to a shape with Builders.entity_func(shape, func)
---- @param names <string> or <table> names to filter by, can be an array of strings
-function Builders.remove_entities_by_name(names)
-    return function(_, _, world, tile)
+--- Removes map gen entities by filter.
+-- see https://lua-api.factorio.com/latest/LuaSurface.html#LuaSurface.find_entities_filtered for valid filters.
+function Builders.remove_map_gen_entities_by_filter(shape, filter)
+    filter = shallow_copy(filter)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
         if not tile then
             return
         end
-        local area = {{world.x, world.y}, {world.x + 1, world.y + 1}}
-        local entities = world.surface.find_entities_filtered {area = area, name = names}
+
+        local wx, wy = world.x, world.y
+        filter.area = {{wx, wy}, {wx + 1, wy + 1}}
+        local entities = world.surface.find_entities_filtered(filter)
         destroy_entities(entities)
         return tile
     end
 end
 
---- Removes entities in shape filtered by types
---- Needs to be applied to a shape with Builders.entity_func(shape, func)
---- @param types <string> or <table> types to filter by, can be an array of strings
-function Builders.remove_entities_by_type(types)
-    return function(_, _, world, tile)
-        if not tile then
-            return
+function Builders.remove_entities_by_name(shape, names)
+    if type(names) ~= 'table' then
+        names = {names}
+    end
+
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+        if type(tile) ~= 'table' then
+            return tile
         end
-        local area = {{world.x, world.y}, {world.x + 1, world.y + 1}}
-        local entities = world.surface.find_entities_filtered {area = area, type = types}
+
+        local entities = tile.entities
+        if not entities then
+            return tile
+        end
+
+        for e_index = #entities, 1, -1 do
+            local entity_name = entities[e_index].name
+            for n_index = 1, #names do
+                if entity_name == names[n_index] then
+                    remove(entities, e_index)
+                end
+            end
+        end
+
+        return tile
+    end
+end
+
+function Builders.remove_map_gen_resources(shape)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if not tile then
+            return tile
+        end
+
+        local wx, wy = world.x, world.y
+        local area = {{wx, wy}, {wx + 1, wy + 1}}
+        local entities = world.surface.find_entities_filtered {area = area, type = 'resource'}
         destroy_entities(entities)
+
+        return tile
+    end
+end
+
+function Builders.remove_map_gen_trees(shape)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if not tile then
+            return tile
+        end
+
+        local wx, wy = world.x, world.y
+        local area = {{wx, wy}, {wx + 1, wy + 1}}
+        local entities = world.surface.find_entities_filtered {area = area, type = 'tree'}
+        destroy_entities(entities)
+
+        return tile
+    end
+end
+
+function Builders.remove_map_gen_enemies(shape)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if not tile then
+            return tile
+        end
+
+        local wx, wy = world.x, world.y
+        local area = {{wx, wy}, {wx + 1, wy + 1}}
+        local entities = world.surface.find_entities_filtered {area = area, force = 'enemy'}
+        destroy_entities(entities)
+
         return tile
     end
 end
