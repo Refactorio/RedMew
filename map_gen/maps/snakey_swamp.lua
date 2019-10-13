@@ -62,13 +62,13 @@ local ore_rectangle = b.rectangle(min(path_width-2, max_height), min(quarter_hei
 local ore_spacing = min(quarter_height, max_height+2)
 local function amount(a)
     return
-        function (x,y)
+        function (_, _)
             return ceil(a /min(path_width-2, max_height) /min(quarter_height-2, max_width))
         end
 end
 
 --Clean area of other ressources
-local function no_resources(_, _, world, tile)
+local function no_resources(_, _, world, t)
     for _, e in ipairs(
         world.surface.find_entities_filtered(
             {type = 'resource', area = {{world.x, world.y}, {world.x+1, world.y+1}}}
@@ -76,7 +76,7 @@ local function no_resources(_, _, world, tile)
     ) do
         e.destroy()
     end
-    return tile
+    return t
 end
 
 ore_rectangle = b.apply_effect(ore_rectangle, no_resources)
@@ -94,4 +94,4 @@ coal = b.resource(coal, "coal", amount(350000))
 
 map = b.apply_entities(map, {iron, copper, stone, coal})
 
-return b.fish(map, 0.0025) 
+return b.fish(map, 0.0025)
