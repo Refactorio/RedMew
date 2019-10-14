@@ -98,15 +98,15 @@ stone = b.resource(stone, 'stone', amount(250000))
 local coal = b.translate(ore_rectangle, -(ore_spacing * 1.5 + divider_width/2 + path_width), 0)
 coal = b.resource(coal, 'coal', amount(350000))
 
-local starting_resources = 
+local starting_resources =
     {
-        iron, 
-        copper, 
-        stone, 
+        iron,
+        copper,
+        stone,
         coal
     }
 
 map = b.apply_entities(map, starting_resources)
 
 map = b.translate(map, -divider_width, 0) -- Move spawn somewhere with land
-return b.fish(map, 0.0025) 
+return b.fish(map, 0.0025)
