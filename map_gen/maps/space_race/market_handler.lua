@@ -34,6 +34,55 @@ local entity_drop_amount = config.entity_drop_amount
 
 local player_kill_reward = config.player_kill_reward
 
+local research_tiers = {
+    ['automation-science-pack'] = 1,
+    ['logistic-science-pack'] = 2,
+    ['military-science-pack'] = 3,
+    ['chemical-science-pack'] = 4,
+    ['production-science-pack'] = 5,
+    ['utility-science-pack'] = 6,
+    --['space-science-pack'] = 7 -- Only researches mining productivity
+}
+
+local function check_research_tier(tech, tier)
+    local ingredients = tech.research_unit_ingredients
+    if tier <= 2 then
+        return #ingredients == tier
+    end
+    for i = 1, #ingredients do
+        if research_tiers[ingredients[i].name] > tier then
+            return false
+        end
+    end
+    return true
+end
+
+local function random_tech(tier, force, group_name)
+    local techs = force.technologies
+    local tech_unlocked = false
+    local techs_left = false
+    local tier_name = 'random-tier-' .. tier
+    for _, technology in pairs(techs) do
+        local in_tier = check_research_tier(technology, tier)
+        if (in_tier and technology.researched == false and technology.enabled == true) then
+            if not tech_unlocked then
+                tech_unlocked = true
+                technology.researched = true
+                force.print('[technology=' .. technology.name .. '] has been purchased and unlocked!')
+                local items = Retailer.get_items(group_name)
+                items[tier_name].price = math.ceil(items['random-tier-' .. tier].price * 1.05)
+            elseif tech_unlocked then
+                game.print(technology.name)
+                techs_left = true
+                break
+            end
+        end
+    end
+    if not techs_left then
+        Retailer.remove_item(group_name, tier_name)
+    end
+end
+
 local function on_market_purchase(event)
     local item = event.item
     local name = item.name
@@ -46,10 +95,15 @@ local function on_market_purchase(event)
         return
     end
 
+    local group_name = event.group_name
     local research = force.technologies[name]
     if research and research.valid then
         research.enabled = true
-        Retailer.remove_item(event.group_name, name)
+        Retailer.remove_item(group_name, name)
+    end
+
+    if item.type == 'random-research' then
+        random_tech(tonumber(string.sub(item.name, -1)), force, group_name)
     end
 end
 
@@ -289,8 +343,35 @@ end
 
 Events.add(defines.events.on_player_died, on_player_died)
 
+local function check_random_research_unlock(research)
+    local tier = research_tiers[research.name]
+
+    if tier then
+        local force = research.force
+
+        local teams = remote.call('space-race', 'get_teams')
+
+        local force_USSR = teams[2]
+        local force_USA = teams[1]
+
+        local group_name
+
+        if force == force_USA then
+            group_name = 'USA_market'
+        elseif force == force_USSR then
+            group_name = 'USSR_market'
+        end
+
+        if group_name then
+            Retailer.enable_item(group_name, 'random-tier-' .. tier)
+        end
+    end
+end
+
 local function on_research_finished(event)
-    check_for_market_unlocks(event.research.force)
+    local research = event.research
+    check_for_market_unlocks(research.force)
+    check_random_research_unlock(research)
     remote.call('space-race', 'remove_recipes')
 end
 
