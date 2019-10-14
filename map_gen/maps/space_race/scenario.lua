@@ -67,7 +67,7 @@ local primitives = {
 
 Global.register(
     {
-        primitives = primitives,
+        primitives = primitives
     },
     function(tbl)
         primitives = tbl.primitives
@@ -123,17 +123,21 @@ Event.on_init(
         silo.minable = false
 
         local wall
-        wall = surface.create_entity{name = 'stone-wall', position = {x = 384.5, y = 18.5}, always_place = true, force = 'neutral'}
+        wall = surface.create_entity {name = 'stone-wall', position = {x = 384.5, y = 18.5}, always_place = true, force = 'neutral'}
         wall.destructible = false
+        wall.minable = false
 
-        wall = surface.create_entity{name = 'stone-wall', position = {x = 384.5, y = -17.5}, always_place = true, force = 'neutral'}
+        wall = surface.create_entity {name = 'stone-wall', position = {x = 384.5, y = -17.5}, always_place = true, force = 'neutral'}
         wall.destructible = false
+        wall.minable = false
 
-        wall = surface.create_entity{name = 'stone-wall', position = {x = -384.5, y = 18.5}, always_place = true, force = 'neutral'}
+        wall = surface.create_entity {name = 'stone-wall', position = {x = -384.5, y = 18.5}, always_place = true, force = 'neutral'}
         wall.destructible = false
+        wall.minable = false
 
-        wall = surface.create_entity{name = 'stone-wall', position = {x = -384.5, y = -17.5}, always_place = true, force = 'neutral'}
+        wall = surface.create_entity {name = 'stone-wall', position = {x = -384.5, y = -17.5}, always_place = true, force = 'neutral'}
         wall.destructible = false
+        wall.minable = false
 
         local gun_turret
         gun_turret = surface.create_entity {name = 'gun-turret', position = {x = 383, y = 0}, force = force_USSR}
@@ -257,6 +261,24 @@ local function restore_character(player)
     end
 end
 
+local tiles = {}
+
+local out_of_map_x = 388
+local out_of_map_height = 512
+local ignored_height = 18
+local insert = table.insert
+
+for i = -out_of_map_height / 2, out_of_map_height / 2, 1 do
+    if i < -ignored_height / 2 or i > ignored_height / 2 then
+        insert(tiles, {name = 'out-of-map', position = {x = out_of_map_x + 1, y = i}})
+        insert(tiles, {name = 'out-of-map', position = {x = -(out_of_map_x + 1), y = i}})
+        insert(tiles, {name = 'out-of-map', position = {x = out_of_map_x - 1, y = i}})
+        insert(tiles, {name = 'out-of-map', position = {x = -(out_of_map_x - 1), y = i}})
+        insert(tiles, {name = 'out-of-map', position = {x = out_of_map_x, y = i}})
+        insert(tiles, {name = 'out-of-map', position = {x = -(out_of_map_x), y = i}})
+    end
+end
+
 local function start_game()
     primitives.game_started = true
     primitives.started_tick = game.tick
@@ -267,7 +289,9 @@ local function start_game()
     for _, player in pairs(primitives.force_USSR.players) do
         restore_character(player)
     end
-    cliff.generate_cliffs(RS.get_surface())
+    local surface = RS.get_surface()
+    cliff.generate_cliffs(surface)
+    surface.set_tiles(tiles)
 end
 
 local function victory(force)
@@ -413,10 +437,7 @@ local function check_ready_to_start()
             Event.add_removable_nth_tick(60, check_map_gen_is_done)
         end
     else
-        local message = primitives.force_USA.name ..
-            ' has ' ..
-                num_usa_players ..
-                    ' players\n ' .. primitives.force_USSR.name .. ' has ' .. num_ussr_players .. ' players\n\n' .. players_needed - num_players .. ' more players needed to start!'
+        local message = primitives.force_USA.name .. ' has ' .. num_usa_players .. ' players\n ' .. primitives.force_USSR.name .. ' has ' .. num_ussr_players .. ' players\n\n' .. players_needed - num_players .. ' more players needed to start!'
         load_gui.show_gui_to_all(message)
     end
 end
@@ -486,8 +507,8 @@ local function print_player_num(_, player)
     local force_USA = primitives.force_USA
     local force_USSR = primitives.force_USSR
 
-    player.print('West: ' .. #force_USA.connected_players ..' online /' .. #force_USA.players .. ' total')
-    player.print('East: ' .. #force_USSR.connected_players ..' online /' .. #force_USSR.players .. ' total')
+    player.print('West: ' .. #force_USA.connected_players .. ' online /' .. #force_USA.players .. ' total')
+    player.print('East: ' .. #force_USSR.connected_players .. ' online /' .. #force_USSR.players .. ' total')
 end
 
 Command.add('team_players', {description = 'Use to get number of players on both teams', capture_excess_arguments = false, allowed_by_server = false}, print_player_num)
