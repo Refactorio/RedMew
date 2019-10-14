@@ -67,18 +67,7 @@ local function amount(a)
 end
 
 --Clean area of other ressources
-local function no_resources(_, _, world, t)
-    for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {type = 'resource', area = {{world.x, world.y}, {world.x+1, world.y+1}}}
-        )
-    ) do
-        e.destroy()
-    end
-    return t
-end
-
-ore_rectangle = b.apply_effect(ore_rectangle, no_resources)
+ore_rectangle = b.remove_map_gen_entities_by_filter(ore_rectangle, {type = "resource"})
 
 -- Spawn in starting ressources
 
