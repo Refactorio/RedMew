@@ -56,13 +56,8 @@ local sand_shape_right = b.rotate(sand_shape, -math.pi/2)
 
 local beach = b.line_y(16)
 local beach_right = b.subtract(beach, sand_shape_right)
-beach_right = b.change_tile(beach_right, true, 'sand-1')
-
-beach_right = b.if_else(beach_right, beach)
-
 
 local beach_left = b.flip_xy(beach_right)
-beach_left = b.change_tile(beach_left, true, 'water-shallow')
 
 beach_left = b.translate(beach_left, -8, 0)
 beach_right = b.translate(beach_right, 8, 0)
@@ -73,10 +68,12 @@ local water_transition_left = b.flip_xy(water_transition_right)
 water_transition_right = b.translate(water_transition_right, floor(width_1 / 2), 0)
 water_transition_left = b.translate(water_transition_left, -floor(width_1 / 2), 0)
 
-local wilderness_shallow_water = b.line_y(width_1 - 32)
+local water_transition = b.add(water_transition_right, water_transition_left)
+
+local wilderness_shallow_water = b.line_y(width_1)
 wilderness_shallow_water = b.change_tile(wilderness_shallow_water, true, 'water-shallow') -- water-mud is also walkable but doesn't have any tile transitions
 
-wilderness_shallow_water = b.any({water_transition_right, water_transition_left, wilderness_shallow_water})
+wilderness_shallow_water = b.if_else(water_transition, wilderness_shallow_water)
 
 local inf = function()
     return 100000000
