@@ -7,10 +7,9 @@ local min = math.min
 
 -- Disable Landfill by default
 local Event = require 'utils.event'
-Event.add(
-    defines.events.on_player_created,
+Event.on_init(
     function()
-        game.player.force.technologies["landfill"].enable = false
+       game.forces["player"].technologies["landfill"].enabled = false
     end
 )
 
