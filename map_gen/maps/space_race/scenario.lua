@@ -115,36 +115,6 @@ Event.on_init(
         force_USA.chart(RS.get_surface(), {{x = -380, y = 64}, {x = -420, y = -64}})
 
         --game.forces.player.chart(RS.get_surface(), {{x = 400, y = 65}, {x = -400, y = -33}})
-        local silo
-        silo = surface.create_entity {name = 'rocket-silo', position = {x = 388.5, y = -0.5}, force = force_USSR}
-        silo.minable = false
-
-        silo = surface.create_entity {name = 'rocket-silo', position = {x = -388.5, y = 0.5}, force = force_USA}
-        silo.minable = false
-
-        local wall
-        wall = surface.create_entity {name = 'stone-wall', position = {x = 384.5, y = 18.5}, always_place = true, force = 'neutral'}
-        wall.destructible = false
-        wall.minable = false
-
-        wall = surface.create_entity {name = 'stone-wall', position = {x = 384.5, y = -17.5}, always_place = true, force = 'neutral'}
-        wall.destructible = false
-        wall.minable = false
-
-        wall = surface.create_entity {name = 'stone-wall', position = {x = -384.5, y = 18.5}, always_place = true, force = 'neutral'}
-        wall.destructible = false
-        wall.minable = false
-
-        wall = surface.create_entity {name = 'stone-wall', position = {x = -384.5, y = -17.5}, always_place = true, force = 'neutral'}
-        wall.destructible = false
-        wall.minable = false
-
-        local gun_turret
-        gun_turret = surface.create_entity {name = 'gun-turret', position = {x = 383, y = 0}, force = force_USSR}
-        gun_turret.insert({name = 'firearm-magazine', count = 200})
-
-        gun_turret = surface.create_entity {name = 'gun-turret', position = {x = -383, y = 0}, force = force_USA}
-        gun_turret.insert({name = 'firearm-magazine', count = 200})
 
         local market
         market = surface.create_entity {name = 'market', position = {x = 404, y = 0}, force = force_USSR}
@@ -279,6 +249,44 @@ for i = -out_of_map_height / 2, out_of_map_height / 2, 1 do
     end
 end
 
+local function generate_structures()
+    local surface = RS.get_surface()
+
+    local force_USSR = primitives.force_USSR
+    local force_USA = primitives.force_USA
+
+    local silo
+    silo = surface.create_entity {name = 'rocket-silo', position = {x = 388.5, y = -0.5}, force = force_USSR}
+    silo.minable = false
+
+    silo = surface.create_entity {name = 'rocket-silo', position = {x = -388.5, y = 0.5}, force = force_USA}
+    silo.minable = false
+
+    local wall
+    wall = surface.create_entity {name = 'stone-wall', position = {x = 384.5, y = 18.5}, always_place = true, force = 'neutral'}
+    wall.destructible = false
+    wall.minable = false
+
+    wall = surface.create_entity {name = 'stone-wall', position = {x = 384.5, y = -17.5}, always_place = true, force = 'neutral'}
+    wall.destructible = false
+    wall.minable = false
+
+    wall = surface.create_entity {name = 'stone-wall', position = {x = -384.5, y = 18.5}, always_place = true, force = 'neutral'}
+    wall.destructible = false
+    wall.minable = false
+
+    wall = surface.create_entity {name = 'stone-wall', position = {x = -384.5, y = -17.5}, always_place = true, force = 'neutral'}
+    wall.destructible = false
+    wall.minable = false
+
+    local gun_turret
+    gun_turret = surface.create_entity {name = 'gun-turret', position = {x = 383, y = 0}, force = force_USSR}
+    gun_turret.insert({name = 'firearm-magazine', count = 200})
+
+    gun_turret = surface.create_entity {name = 'gun-turret', position = {x = -383, y = 0}, force = force_USA}
+    gun_turret.insert({name = 'firearm-magazine', count = 200})
+end
+
 local function start_game()
     primitives.game_started = true
     primitives.started_tick = game.tick
@@ -292,6 +300,7 @@ local function start_game()
     local surface = RS.get_surface()
     cliff.generate_cliffs(surface)
     surface.set_tiles(tiles)
+    generate_structures()
 end
 
 local function victory(force)
