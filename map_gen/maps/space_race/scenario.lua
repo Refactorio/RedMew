@@ -148,7 +148,7 @@ Event.on_init(
             local items = Table.deep_copy(Market_Items)
             for _, prototype in pairs(items) do
                 local name = prototype.name
-                prototype.price = (disabled_research[name] and disabled_research[name].player) and disabled_research[name].player * player_kill_reward or prototype.price
+                --prototype.price = (disabled_research[name] and disabled_research[name].player) and disabled_research[name].player * player_kill_reward or prototype.price
                 local unlock_requires = disabled_research[name]
                 if prototype.disabled and unlock_requires then
                     if unlock_requires.invert then
@@ -161,18 +161,6 @@ Event.on_init(
             end
         end
 
-        --[[
-            Items support the following structure:
-    {
-        name: the (raw) item inserted in inventory, does nothing when type is not item
-        name_label: the name shown in the GUI. If omitted and a prototype exists for 'name', it will use that LocalisedString, can be a LocalisedString
-        sprite: a custom sprite, will use 'item/<name>' if omitted
-        price: the price of an item, supports floats (0.95 for example)
-        description: an additional description displayed in the tooltip, can be a LocalisedString
-        disabled: whether or not the item should be disabled by default
-        disabled_reason: the reason the item is disabled, can be a LocalisedString
-    }
-        ]]
         --ensures that the spawn points are not water
         surface.set_tiles(
             {

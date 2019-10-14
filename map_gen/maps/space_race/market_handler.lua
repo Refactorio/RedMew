@@ -17,12 +17,16 @@ local unlock_progress = {
     }
 }
 
+local saved_prices = {}
+
 Global.register(
     {
-        unlock_progress = unlock_progress
+        unlock_progress = unlock_progress,
+        saved_prices = saved_prices
     },
     function(tbl)
         unlock_progress = tbl.unlock_progress
+        saved_prices = tbl.saved_prices
     end
 )
 
@@ -82,12 +86,7 @@ local function random_tech(tier, force, group_name)
     if not techs_left then
         local items = Retailer.get_items(group_name)
         local price = items[tier_name].price
-        for _, prototype in pairs(MarketItems) do
-            if prototype.name == tier_name then
-                prototype.price = price
-                break
-            end
-        end
+        saved_prices[force.name][tier_name] = price
         Retailer.remove_item(group_name, tier_name)
     end
 end
@@ -124,6 +123,7 @@ local function on_market_purchase(event)
         if not Retailer.get_items(group_name)[tier_name] then
             for _, prototype in pairs(MarketItems) do
                 if prototype.name == tier_name then
+                    prototype.price = saved_prices[force.name][tier_name]
                     Retailer.set_item(group_name, prototype)
                     break
                 end
