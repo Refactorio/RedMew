@@ -774,6 +774,8 @@ local function init()
     local bounds = b.rectangle(grid_block_size * (grid_number_of_blocks) + 1)
     map = b.choose(bounds, map, b.empty_shape)
 
+    map = b.remove_entities_by_name(map, 'stone-wall')
+
     return map
 end
 

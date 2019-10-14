@@ -14,14 +14,6 @@ RS.set_map_gen_settings(
     }
 )
 
-local function no_enemies(_, _, world, tile)
-    for _, e in ipairs(world.surface.find_entities_filtered({force = 'enemy', position = {world.x, world.y}})) do
-        e.destroy()
-    end
-
-    return tile
-end
-
 local ball = b.circle(16)
 local line1 = b.translate(b.rectangle(42, 8), 34, 0)
 local line2 = b.translate(b.rectangle(8, 42), 0, -34)
@@ -114,7 +106,7 @@ local function strip(x, y)
     return x > -95 and (y > -(thickness - 1) and y <= thickness - 1)
 end
 
-strip = b.apply_effect(strip, no_enemies)
+strip = b.remove_map_gen_enemies(strip)
 
 local function outer_strip(x, y)
     return x > -96 and (y > -thickness and y <= thickness)
