@@ -263,6 +263,18 @@ table.size = table_size
 -- @return <table> the copied object
 table.deep_copy = table.deepcopy
 
+--- Creates a shallow copy of a table. Does not copy Metatables.
+-- Shallow copies meaning it copies the reference to the object instead of the object itself.
+-- @param object <table> the object to copy
+-- @return <table> the copied object
+function table.shallow_copy(tbl)
+    local copy = {}
+    for k, v in pairs(tbl) do
+        copy[k] = v
+    end
+    return copy
+end
+
 --- Merges multiple tables. Tables later in the list will overwrite entries from tables earlier in the list.
 -- Ex. merge({{1, 2, 3}, {[2] = 0}, {[3] = 0}}) will return {1, 0, 0}
 -- @param tables <table> takes a table of tables to merge
