@@ -99,7 +99,9 @@ local function spawn_market(args, player)
         maket_spawn_pos = player.position
         maket_spawn_pos.y = round(maket_spawn_pos.y - 4)
         maket_spawn_pos.x = round(maket_spawn_pos.x)
-        player.print('Market added. To remove it, highlight it with your cursor and use the /destroy command, or use /market removeall to remove all markets placed.')
+        player.print(
+            'Market added. To remove it, highlight it with your cursor and use the /destroy command, or use /market removeall to remove all markets placed.'
+        )
     end
 
     local market = surface.create_entity({name = 'market', position = maket_spawn_pos})
@@ -326,19 +328,25 @@ Event.add(defines.events.on_entity_died, fish_drop_entity_died)
 Event.add(Retailer.events.on_market_purchase, market_item_purchased)
 Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
 Event.add(defines.events.on_player_created, player_created)
+
 if market_config.create_standard_market then
-    local function delay_spawn_market()
+    local delay_spawn_market = function()
         spawn_market()
     end
-    local spawn_market_token = Token.register(delay_spawn_market)
-    Event.on_init(
-        function()
-            local delay = market_config.delay
-            if delay then
+
+    local delay = market_config.delay
+    if delay then
+        local spawn_market_token = Token.register(delay_spawn_market)
+        Event.on_init(
+            function()
                 Task.set_timeout_in_ticks(delay, spawn_market_token)
-            else
+            end
+        )
+    else
+        Event.on_init(
+            function()
                 delay_spawn_market()
             end
-        end
-    )
+        )
+    end
 end
