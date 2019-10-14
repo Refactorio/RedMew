@@ -4,6 +4,7 @@ local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Global = require 'utils.global'
 local ScoreTracker = require 'utils.score_tracker'
+local MarketItems = require 'map_gen.maps.space_race.market_items'
 
 local unlock_progress = {
     force_USA = {
@@ -40,7 +41,7 @@ local research_tiers = {
     ['military-science-pack'] = 3,
     ['chemical-science-pack'] = 4,
     ['production-science-pack'] = 5,
-    ['utility-science-pack'] = 6,
+    ['utility-science-pack'] = 6
     --['space-science-pack'] = 7 -- Only researches mining productivity
 }
 
@@ -70,7 +71,7 @@ local function random_tech(tier, force, group_name)
                 technology.researched = true
                 force.print('[technology=' .. technology.name .. '] has been purchased and unlocked!')
                 local items = Retailer.get_items(group_name)
-                items[tier_name].price = math.ceil(items['random-tier-' .. tier].price * 1.05)
+                items[tier_name].price = math.ceil(items[tier_name].price * 1.05)
             elseif tech_unlocked then
                 game.print(technology.name)
                 techs_left = true
@@ -79,8 +80,26 @@ local function random_tech(tier, force, group_name)
         end
     end
     if not techs_left then
+        local items = Retailer.get_items(group_name)
+        local price = items[tier_name].price
+        for _, prototype in pairs(MarketItems) do
+            if prototype.name == tier_name then
+                prototype.price = price
+                break
+            end
+        end
         Retailer.remove_item(group_name, tier_name)
     end
+end
+
+local function check_heighest_tier(tech)
+    local ingredients = tech.research_unit_ingredients
+    local tier = 1
+    for i = 1, #ingredients do
+        local ingredient_tier = research_tiers[ingredients[i].name]
+        tier = ingredient_tier > tier and ingredient_tier or tier
+    end
+    return tier
 end
 
 local function on_market_purchase(event)
@@ -100,6 +119,16 @@ local function on_market_purchase(event)
     if research and research.valid then
         research.enabled = true
         Retailer.remove_item(group_name, name)
+        local tier = check_heighest_tier(research)
+        local tier_name = 'random-tier-' .. tier
+        if not Retailer.get_items(group_name)[tier_name] then
+            for _, prototype in pairs(MarketItems) do
+                if prototype.name == tier_name then
+                    Retailer.set_item(group_name, prototype)
+                    break
+                end
+            end
+        end
     end
 
     if item.type == 'random-research' then
