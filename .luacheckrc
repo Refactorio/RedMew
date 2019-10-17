@@ -169,14 +169,14 @@ stds.factorio = {
                 "add_shift", "merge", "premul_color", "encode", "decode", "insert_safe",
                 table = {
                     fields = {
-                        "compare", "deepcopy"
+                        "compare", "deepcopy", "shallow_copy"
                     },
                 },
             },
         },
         table = {
             fields = {
-                "compare", "deepcopy"
+                "compare", "deepcopy", "shallow_copy"
             },
         },
     },

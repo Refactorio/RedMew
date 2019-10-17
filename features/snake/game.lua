@@ -15,6 +15,8 @@ local queue_size = Queue.size
 local queue_pairs = Queue.pairs
 local pairs = pairs
 
+local Public = {}
+
 local snakes = {} -- player_index -> snake_data {is_marked_for_destroy:bool, queue :Queue of {entity, cord} }
 local board = {
     size = 0,
@@ -61,7 +63,15 @@ local function destroy_snake(index, snake)
         return
     end
 
-    game.print({'snake.snake_destroyed', player.name, queue_size(snake.queue)})
+    player.set_controller{type = defines.controllers.spectator}
+
+    local score = queue_size(snake.queue)
+    game.print({'snake.snake_destroyed', player.name, score})
+
+    script.raise_event(Public.events.on_snake_player_died, {
+        player = player,
+        score = score
+    })
 end
 
 local function destroy_dead_snakes()
@@ -101,6 +111,7 @@ local function spawn_food()
             entity =
                 surface.create_entity({name = 'compilatron', position = pos, force = 'neutral', direction = random(7)})
             entity.active = false
+            entity.destructible = false
             food_count = food_count + 1
 
             break
@@ -214,6 +225,7 @@ local function tick_snake(index, snake)
         entity.character_running_speed_modifier = -1
         entity.color = player.color
         entity.active = false
+        entity.destructible = false
         push_to_end(snake_queue, {entity = entity, cord = tail_cord})
 
         board.food_count = board.food_count - 1
@@ -344,9 +356,11 @@ local function new_snake(player)
     end
 
     player.teleport(pos, board.surface)
+    player.set_controller{type = defines.controllers.god}
     player.create_character()
     character = player.character
     character.character_running_speed_modifier = -1
+    character.destructible = false
 
     local queue = queue_new()
     push(queue, {entity = character, cord = cord})
@@ -374,7 +388,20 @@ local function new_game(surface, position, size, update_rate, max_food)
     Event.add_removable_nth_tick(board.update_rate, tick)
 end
 
-local Public = {}
+Public = {
+    events = {
+        --[[
+        on_snake_player_died
+        Called when a player have died in a game of snake
+        Contains
+            name :: uint: Unique identifier of the event
+            tick :: uint: Tick the event was generated.
+            player :: LuaPlayer
+            score :: uint: Score reached
+        ]]
+        on_snake_player_died = Event.generate_event_name('on_snake_player_died')
+    }
+}
 
 function Public.start_game(surface, top_left_position, size, update_rate, max_food)
     if board.is_running then

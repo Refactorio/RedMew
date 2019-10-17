@@ -3,6 +3,7 @@ local math = require 'utils.math'
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local ScenarioInfo = require 'features.gui.info'
 
 local degrees = math.degrees
 
@@ -18,6 +19,28 @@ RS.set_map_gen_settings(
         MGSP.water_none
     }
 )
+
+ScenarioInfo.set_map_name('Fish Islands')
+ScenarioInfo.set_map_description(
+[[
+What a lovely day for a fishing trip.
+I hope we brought enough Soy Sauce!
+]]
+)
+ScenarioInfo.set_map_extra_info(
+[[
+Fish islands are spread around in the water
+
+The fishes heads contains high amount of resources
+
+Some one placed worms around the lit of our soy sauce
+Exterminate them so we can enjoy our fish with some delicious
+soy sauce! (Not sponsered by Kikkoman)
+
+(Kikkoman is a registered trademark under Kikkoman Corporation, Japan)
+]]
+)
+
 
 local value = b.exponential_value
 

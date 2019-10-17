@@ -160,6 +160,7 @@ local function worms(_, _, world)
     end
 end
 
+worm_island = b.remove_map_gen_trees(worm_island)
 worm_island = b.apply_entity(worm_island, worms)
 
 local worm_islands =

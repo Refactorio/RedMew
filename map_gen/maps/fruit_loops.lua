@@ -3,6 +3,7 @@ local math = require 'utils.math'
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local ScenarioInfo = require 'features.gui.info'
 
 -- change these to change the pattern.
 local seed1 = 17000
@@ -14,6 +15,15 @@ RS.set_map_gen_settings(
         MGSP.peaceful_mode_on,
         MGSP.water_none
     }
+)
+
+ScenarioInfo.set_map_name('Fruit Loops')
+ScenarioInfo.set_map_description(
+[[
+It's like swimming in a bowl of cereal!
+[...]
+What monster uses water in their cereal?
+]]
 )
 
 local function value(base, mult, pow)
