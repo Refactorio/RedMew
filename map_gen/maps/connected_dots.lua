@@ -26,14 +26,6 @@ local allowed_landfill_tiles = {
 
 require 'map_gen.shared.restrict_landfill_tile'(allowed_landfill_tiles)
 
-local function no_enemies(_, _, world, tile)
-    for _, e in ipairs(world.surface.find_entities_filtered({force = 'enemy', position = {world.x, world.y}})) do
-        e.destroy()
-    end
-
-    return tile
-end
-
 local small_ore_patch = b.circle(12)
 local medium_ore_patch = b.circle(24)
 local big_ore_patch = b.subtract(b.circle(36), b.circle(16))
@@ -224,7 +216,7 @@ d2_arm = b.rotate(d2_arm, degrees(-45))
 local arms2 = b.any {d1_arm, d2_arm}
 
 local shape = b.any {b.translate(arms2, 480, 0), b.translate(arms2, -480, 0), mediumn_dot, arms}
-shape = b.apply_effect(shape, no_enemies)
+shape = b.remove_map_gen_enemies(shape)
 
 local shape2 = b.all {big_dot, b.invert(small_dot)}
 shape2 = b.choose(big_dot, shape2, b.any {arms, arms2})

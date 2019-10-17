@@ -23,18 +23,6 @@ local function value(base, mult, pow)
     end
 end
 
--- Removes vanilla resources when called
-local function no_resources(_, _, world, tile)
-    for _, e in ipairs(
-        world.surface.find_entities_filtered(
-            {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
-        )
-    ) do
-        e.destroy()
-    end
-    return tile
-end
-
 local m_t_width = 12 -- map size in number of tiles
 local t_width = 16 -- tile width
 local t_h_width = t_width / 2
@@ -348,7 +336,7 @@ local music_island = b.translate(b.rotate(tet_I,degrees(90)),0, 2*t_width)
 map = b.add(map,music_island)
 map = b.translate(map, 0, -t_width / 2 + 24)
 
-map = b.apply_effect(map, no_resources)
+map = b.remove_map_gen_resources(map)
 
 local bounds = t_width * 2
 
