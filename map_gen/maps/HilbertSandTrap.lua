@@ -146,7 +146,7 @@ pattern =
     b.translate(b.rotate(line_1, degrees(90)), 40, 30)
 }
 -- Tile map in X direction
-local function ribbon(y)
+local function ribbon(_, y)
     local abs_y = math.abs(y)
     return (abs_y < 40)
 end
