@@ -3,12 +3,22 @@ local pic = require "map_gen.data.presets.gears"
 
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local ScenarioInfo = require 'features.gui.info'
 
 RS.set_map_gen_settings(
     {
         MGSP.water_none,
         MGSP.cliff_none
     }
+)
+
+ScenarioInfo.set_map_name('Gears')
+ScenarioInfo.set_map_description(
+[[
+Am I inside an assembling machine?
+
+This is like a huge maze of never ending gears!
+]]
 )
 
 pic = b.decompress(pic)

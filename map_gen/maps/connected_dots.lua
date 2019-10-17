@@ -20,6 +20,12 @@ RS.set_map_gen_settings(
     }
 )
 
+local allowed_landfill_tiles = {
+    ['water'] = true
+}
+
+require 'map_gen.shared.restrict_landfill_tile'(allowed_landfill_tiles)
+
 local small_ore_patch = b.circle(12)
 local medium_ore_patch = b.circle(24)
 local big_ore_patch = b.subtract(b.circle(36), b.circle(16))

@@ -1,6 +1,7 @@
 local b = require 'map_gen.shared.builders'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local ScenarioInfo = require 'features.gui.info'
 
 local degrees = require 'utils.math'.degrees
 
@@ -9,6 +10,14 @@ RS.set_map_gen_settings(
         MGSP.cliff_none,
         MGSP.water_none
     }
+)
+
+ScenarioInfo.set_map_name('Fractal Balls')
+ScenarioInfo.set_map_description(
+[[
+These balls just keeps on going!
+Always part of something bigger.
+]]
 )
 
 local function value(base, mult)
