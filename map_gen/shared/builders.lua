@@ -1,4 +1,12 @@
+-- View the docs on the wiki.
+-- https://github.com/Refactorio/RedMew/wiki/Using-the-Builders
+-- The docs sometimes include examples
+
+-- Some functions may not have been documented, you could always try to search
+-- the repository for uses of them.
+
 local math = require 'utils.math'
+local table = require 'utils.table'
 
 local pi = math.pi
 local random = math.random
@@ -12,8 +20,11 @@ local cos = math.cos
 local atan2 = math.atan2
 local tau = math.tau
 local loga = math.log
+local shallow_copy = table.shallow_copy
+local remove = table.remove
 
 -- helpers
+
 local inv_pi = 1 / pi
 
 local Builders = {}
@@ -52,33 +63,41 @@ local function add_decorative(tile, decorative)
     return tile
 end
 
+--- Docs: MISSING
 function Builders.add_entity(tile, entity)
     return add_entity(tile, entity)
 end
 
+--- Docs: MISSING
 function Builders.add_decorative(tile, decorative)
     return add_decorative(tile, decorative)
 end
 
 -- shape builders
+
+--- Docs: MISSING
 function Builders.empty_shape()
     return false
 end
 
+--- Docs: MISSING
 function Builders.full_shape()
     return true
 end
 
+--- Docs: MISSING
 function Builders.no_entity()
     return nil
 end
 
+--- Docs: MISSING
 function Builders.tile(tile)
     return function()
         return tile
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderspath
 function Builders.path(thickness, optional_thickness_height)
     local width = thickness / 2
     local thickness2 = optional_thickness_height or thickness
@@ -88,6 +107,7 @@ function Builders.path(thickness, optional_thickness_height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersrectangle
 function Builders.rectangle(width, height)
     width = width / 2
     if height then
@@ -100,6 +120,7 @@ function Builders.rectangle(width, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersline_x
 function Builders.line_x(thickness)
     thickness = thickness / 2
     return function(_, y)
@@ -107,6 +128,7 @@ function Builders.line_x(thickness)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersline_y
 function Builders.line_y(thickness)
     thickness = thickness / 2
     return function(x, _)
@@ -114,6 +136,7 @@ function Builders.line_y(thickness)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssquare_diamond
 function Builders.square_diamond(size)
     size = size / 2
     return function(x, y)
@@ -121,6 +144,7 @@ function Builders.square_diamond(size)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersrectangle_diamond
 local rot = sqrt(2) / 2 -- 45 degree rotation.
 function Builders.rectangle_diamond(width, height)
     width = width / 2
@@ -132,6 +156,7 @@ function Builders.rectangle_diamond(width, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderscircle
 function Builders.circle(radius)
     local rr = radius * radius
     return function(x, y)
@@ -139,6 +164,7 @@ function Builders.circle(radius)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersoval
 function Builders.oval(x_radius, y_radius)
     local x_rr = x_radius * x_radius
     local y_rr = y_radius * y_radius
@@ -147,6 +173,7 @@ function Builders.oval(x_radius, y_radius)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssine_fill
 function Builders.sine_fill(width, height)
     local width_inv = tau / width
     local height_inv = -2 / height
@@ -161,6 +188,7 @@ function Builders.sine_fill(width, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssine_wave
 function Builders.sine_wave(width, height, thickness)
     local width_inv = tau / width
     local height_inv = 2 / height
@@ -175,6 +203,7 @@ function Builders.sine_wave(width, height, thickness)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersrectangular_spiral
 function Builders.rectangular_spiral(x_size, optional_y_size)
     optional_y_size = optional_y_size or x_size
 
@@ -193,6 +222,7 @@ function Builders.rectangular_spiral(x_size, optional_y_size)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderscircular_spiral
 function Builders.circular_spiral(in_thickness, total_thickness)
     local half_total_thickness = total_thickness * 0.5
     return function(x, y)
@@ -205,6 +235,7 @@ function Builders.circular_spiral(in_thickness, total_thickness)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderscircular_spiral_grow
 function Builders.circular_spiral_grow(in_thickness, total_thickness, grow_factor)
     local half_total_thickness = total_thickness * 0.5
     local inv_grow_factor = 1 / grow_factor
@@ -223,6 +254,7 @@ function Builders.circular_spiral_grow(in_thickness, total_thickness, grow_facto
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderscircular_spiral_n_threads
 function Builders.circular_spiral_n_threads(in_thickness, total_thickness, n_threads)
     local half_total_thickness = total_thickness * 0.5 * n_threads
     return function(x, y)
@@ -235,6 +267,7 @@ function Builders.circular_spiral_n_threads(in_thickness, total_thickness, n_thr
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderscircular_spiral_grow_n_threads
 function Builders.circular_spiral_grow_n_threads(in_thickness, total_thickness, grow_factor, n_threads)
     local half_total_thickness = total_thickness * 0.5 * n_threads
     local inv_grow_factor = 1 / grow_factor
@@ -289,6 +322,7 @@ local tile_map = {
     [33] = 'water'
 }
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersdecompress
 function Builders.decompress(pic)
     local data = pic.data
     local width = pic.width
@@ -315,6 +349,7 @@ function Builders.decompress(pic)
     return {width = width, height = height, data = uncompressed}
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderspicture
 function Builders.picture(pic)
     local data = pic.data
     local width = pic.width
@@ -338,12 +373,15 @@ function Builders.picture(pic)
 end
 
 -- transforms and shape helpers
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderstranslate
 function Builders.translate(shape, x_offset, y_offset)
     return function(x, y, world)
         return shape(x - x_offset, y - y_offset, world)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersscale
 function Builders.scale(shape, x_scale, y_scale)
     y_scale = y_scale or x_scale
 
@@ -355,6 +393,7 @@ function Builders.scale(shape, x_scale, y_scale)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersrotate
 function Builders.rotate(shape, angle)
     local qx = cos(angle)
     local qy = sin(angle)
@@ -365,24 +404,28 @@ function Builders.rotate(shape, angle)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersflip_x
 function Builders.flip_x(shape)
     return function(x, y, world)
         return shape(-x, y, world)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersflip_y
 function Builders.flip_y(shape)
     return function(x, y, world)
         return shape(x, -y, world)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersflip_xy
 function Builders.flip_xy(shape)
     return function(x, y, world)
         return shape(-x, -y, world)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersany
 function Builders.any(shapes)
     return function(x, y, world)
         for _, s in ipairs(shapes) do
@@ -395,6 +438,7 @@ function Builders.any(shapes)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersall
 function Builders.all(shapes)
     return function(x, y, world)
         local tile
@@ -408,6 +452,7 @@ function Builders.all(shapes)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderscombine
 function Builders.combine(shapes)
     return function(x, y, world)
         local function combine_table(tile, index)
@@ -460,12 +505,14 @@ function Builders.combine(shapes)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersadd
 function Builders.add(shape1, shape2)
     return function(x, y, world)
         return shape1(x, y, world) or shape2(x, y, world)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssubtract
 function Builders.subtract(shape, minus_shape)
     return function(x, y, world)
         if minus_shape(x, y, world) then
@@ -476,12 +523,14 @@ function Builders.subtract(shape, minus_shape)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersinvert
 function Builders.invert(shape)
     return function(x, y, world)
         return not shape(x, y, world)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersthrottle_x
 function Builders.throttle_x(shape, x_in, x_size)
     return function(x, y, world)
         if x % x_size < x_in then
@@ -492,6 +541,7 @@ function Builders.throttle_x(shape, x_in, x_size)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersthrottle_y
 function Builders.throttle_y(shape, y_in, y_size)
     return function(x, y, world)
         if y % y_size < y_in then
@@ -502,6 +552,7 @@ function Builders.throttle_y(shape, y_in, y_size)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersthrottle_xy
 function Builders.throttle_xy(shape, x_in, x_size, y_in, y_size)
     return function(x, y, world)
         if x % x_size < x_in and y % y_size < y_in then
@@ -512,6 +563,7 @@ function Builders.throttle_xy(shape, x_in, x_size, y_in, y_size)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersthrottle_world_xy
 function Builders.throttle_world_xy(shape, x_in, x_size, y_in, y_size)
     return function(x, y, world)
         if world.x % x_size < x_in and world.y % y_size < y_in then
@@ -522,6 +574,7 @@ function Builders.throttle_world_xy(shape, x_in, x_size, y_in, y_size)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderschoose
 function Builders.choose(condition, true_shape, false_shape)
     return function(x, y, world)
         if condition(x, y, world) then
@@ -532,12 +585,14 @@ function Builders.choose(condition, true_shape, false_shape)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersif_else
 function Builders.if_else(shape, else_shape)
     return function(x, y, world)
         return shape(x, y, world) or else_shape(x, y, world)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderslinear_grow
 function Builders.linear_grow(shape, size)
     return function(x, y, world)
         local t = ceil((y / size) + 0.5)
@@ -552,6 +607,7 @@ function Builders.linear_grow(shape, size)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrow
 function Builders.grow(in_shape, out_shape, size, offset)
     local half_size = size / 2
     return function(x, y, world)
@@ -583,6 +639,7 @@ function Builders.grow(in_shape, out_shape, size, offset)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersproject
 function Builders.project(shape, size, r)
     local ln_r = loga(r)
     local r2 = 1 / (r - 1)
@@ -605,6 +662,7 @@ function Builders.project(shape, size, r)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersproject_pattern
 function Builders.project_pattern(pattern, size, r, columns, rows)
     local ln_r = loga(r)
     local r2 = 1 / (r - 1)
@@ -637,6 +695,7 @@ function Builders.project_pattern(pattern, size, r, columns, rows)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersproject_overlap
 function Builders.project_overlap(shape, size, r)
     local ln_r = loga(r)
     local r2 = 1 / (r - 1)
@@ -688,6 +747,8 @@ function Builders.project_overlap(shape, size, r)
 end
 
 -- Entity generation
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersentity
 function Builders.entity(shape, name)
     return function(x, y, world)
         if shape(x, y, world) then
@@ -696,6 +757,7 @@ function Builders.entity(shape, name)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersentity_func
 function Builders.entity_func(shape, func)
     return function(x, y, world)
         if shape(x, y, world) then
@@ -704,7 +766,117 @@ function Builders.entity_func(shape, func)
     end
 end
 
+-- Helper function
+local function destroy_entities(entities)
+    for i = 1, #entities do
+        entities[i].destroy()
+    end
+end
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_entities_by_filter
+function Builders.remove_map_gen_entities_by_filter(shape, filter)
+    filter = shallow_copy(filter)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+        if not tile then
+            return
+        end
+
+        local wx, wy = world.x, world.y
+        filter.area = {{wx, wy}, {wx + 1, wy + 1}}
+        local entities = world.surface.find_entities_filtered(filter)
+        destroy_entities(entities)
+        return tile
+    end
+end
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_entities_by_name
+function Builders.remove_entities_by_name(shape, names)
+    if type(names) ~= 'table' then
+        names = {names}
+    end
+
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+        if type(tile) ~= 'table' then
+            return tile
+        end
+
+        local entities = tile.entities
+        if not entities then
+            return tile
+        end
+
+        for e_index = #entities, 1, -1 do
+            local entity_name = entities[e_index].name
+            for n_index = 1, #names do
+                if entity_name == names[n_index] then
+                    remove(entities, e_index)
+                end
+            end
+        end
+
+        return tile
+    end
+end
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_resources
+function Builders.remove_map_gen_resources(shape)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if not tile then
+            return tile
+        end
+
+        local wx, wy = world.x, world.y
+        local area = {{wx, wy}, {wx + 1, wy + 1}}
+        local entities = world.surface.find_entities_filtered {area = area, type = 'resource'}
+        destroy_entities(entities)
+
+        return tile
+    end
+end
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_trees
+function Builders.remove_map_gen_trees(shape)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if not tile then
+            return tile
+        end
+
+        local wx, wy = world.x, world.y
+        local area = {{wx, wy}, {wx + 1, wy + 1}}
+        local entities = world.surface.find_entities_filtered {area = area, type = 'tree'}
+        destroy_entities(entities)
+
+        return tile
+    end
+end
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_enemies
+function Builders.remove_map_gen_enemies(shape)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if not tile then
+            return tile
+        end
+
+        local wx, wy = world.x, world.y
+        local area = {{wx, wy}, {wx + 1, wy + 1}}
+        local entities = world.surface.find_entities_filtered {area = area, force = 'enemy'}
+        destroy_entities(entities)
+
+        return tile
+    end
+end
+
 -- Decorative generation
+
+--- Docs: MISSING
 function Builders.decorative(shape, name, amount)
     return function(x, y, world)
         if shape(x, y, world) then
@@ -713,6 +885,7 @@ function Builders.decorative(shape, name, amount)
     end
 end
 
+--- Docs: MISSING
 function Builders.decorative_func(shape, func)
     return function(x, y, world)
         if shape(x, y, world) then
@@ -721,6 +894,7 @@ function Builders.decorative_func(shape, func)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersresource
 function Builders.resource(shape, resource_type, amount_function, always_place)
     amount_function = amount_function or function()
             return 404
@@ -736,6 +910,7 @@ function Builders.resource(shape, resource_type, amount_function, always_place)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersapply_entity
 function Builders.apply_entity(shape, entity_shape)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -753,6 +928,7 @@ function Builders.apply_entity(shape, entity_shape)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersapply_entities
 function Builders.apply_entities(shape, entity_shapes)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -772,6 +948,7 @@ function Builders.apply_entities(shape, entity_shapes)
     end
 end
 
+--- Docs: MISSING
 function Builders.apply_decorative(shape, decorative_shape)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -789,6 +966,7 @@ function Builders.apply_decorative(shape, decorative_shape)
     end
 end
 
+--- Docs: MISSING
 function Builders.apply_decoratives(shape, decorative_shapes)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -808,7 +986,9 @@ function Builders.apply_decoratives(shape, decorative_shapes)
     end
 end
 
--- pattern builders.
+-- pattern builders
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssingle_pattern
 function Builders.single_pattern(shape, width, height)
     shape = shape or Builders.empty_shape
     local half_width = width / 2
@@ -827,6 +1007,7 @@ function Builders.single_pattern(shape, width, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssingle_pattern_overlap
 function Builders.single_pattern_overlap(shape, width, height)
     shape = shape or Builders.empty_shape
     local half_width = width / 2
@@ -847,6 +1028,7 @@ function Builders.single_pattern_overlap(shape, width, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssingle_x_pattern
 function Builders.single_x_pattern(shape, width)
     shape = shape or Builders.empty_shape
     local half_width = width / 2
@@ -858,6 +1040,7 @@ function Builders.single_x_pattern(shape, width)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssingle_y_pattern
 function Builders.single_y_pattern(shape, height)
     shape = shape or Builders.empty_shape
     local half_height = height / 2
@@ -869,6 +1052,7 @@ function Builders.single_y_pattern(shape, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssingle_grid_pattern
 function Builders.single_grid_pattern(shape, width, height)
     shape = shape or Builders.empty_shape
 
@@ -883,6 +1067,7 @@ function Builders.single_grid_pattern(shape, width, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_x_pattern
 function Builders.grid_x_pattern(pattern, columns, width)
     local half_width = width / 2
 
@@ -896,6 +1081,7 @@ function Builders.grid_x_pattern(pattern, columns, width)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_y_pattern
 function Builders.grid_y_pattern(pattern, rows, height)
     local half_height = height / 2
 
@@ -909,6 +1095,7 @@ function Builders.grid_y_pattern(pattern, rows, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_pattern
 function Builders.grid_pattern(pattern, columns, rows, width, height)
     local half_width = width / 2
     local half_height = height / 2
@@ -928,6 +1115,7 @@ function Builders.grid_pattern(pattern, columns, rows, width, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_pattern_overlap
 function Builders.grid_pattern_overlap(pattern, columns, rows, width, height)
     local half_width = width / 2
     local half_height = height / 2
@@ -979,6 +1167,7 @@ function Builders.grid_pattern_overlap(pattern, columns, rows, width, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_pattern_full_overlap
 function Builders.grid_pattern_full_overlap(pattern, columns, rows, width, height)
     local half_width = width / 2
     local half_height = height / 2
@@ -1056,6 +1245,7 @@ function Builders.grid_pattern_full_overlap(pattern, columns, rows, width, heigh
 end
 
 -- Tile a shape in a circular pattern
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderscircular_pattern
 function Builders.circular_pattern(shape, quantity, radius)
     local pattern = {}
     local angle = tau / quantity
@@ -1076,6 +1266,7 @@ local function is_spiral(x, y)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssingle_spiral_pattern
 function Builders.single_spiral_pattern(shape, width, height)
     local inv_width = 1 / width
     local inv_height = 1 / height
@@ -1129,6 +1320,7 @@ local function spiral_rotation(x, y)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssingle_spiral_rotate_pattern
 function Builders.single_spiral_rotate_pattern(shape, width, optional_height)
     optional_height = optional_height or width
 
@@ -1150,6 +1342,7 @@ function Builders.single_spiral_rotate_pattern(shape, width, optional_height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderscircular_spiral_pattern
 function Builders.circular_spiral_pattern(in_thickness, total_thickness, pattern)
     local n_threads = #pattern
     total_thickness = total_thickness * n_threads
@@ -1176,6 +1369,7 @@ function Builders.circular_spiral_pattern(in_thickness, total_thickness, pattern
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderscircular_spiral_grow_pattern
 function Builders.circular_spiral_grow_pattern(in_thickness, total_thickness, grow_factor, pattern)
     local n_threads = #pattern
     total_thickness = total_thickness * n_threads
@@ -1209,6 +1403,7 @@ function Builders.circular_spiral_grow_pattern(in_thickness, total_thickness, gr
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssegment_pattern
 function Builders.segment_pattern(pattern)
     local count = #pattern
 
@@ -1220,6 +1415,7 @@ function Builders.segment_pattern(pattern)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderspyramid_pattern
 function Builders.pyramid_pattern(pattern, columns, rows, width, height)
     local half_width = width / 2
     local half_height = height / 2
@@ -1247,6 +1443,7 @@ function Builders.pyramid_pattern(pattern, columns, rows, width, height)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderspyramid_pattern_inner_overlap
 function Builders.pyramid_pattern_inner_overlap(pattern, columns, rows, width, height)
     local half_width = width / 2
     local half_height = height / 2
@@ -1349,6 +1546,7 @@ function Builders.pyramid_pattern_inner_overlap(pattern, columns, rows, width, h
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_pattern_offset
 function Builders.grid_pattern_offset(pattern, columns, rows, width, height)
     local half_width = width / 2
     local half_height = height / 2
@@ -1372,6 +1570,8 @@ function Builders.grid_pattern_offset(pattern, columns, rows, width, height)
 end
 
 -- tile converters
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderschange_tile
 function Builders.change_tile(shape, old_tile, new_tile)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -1402,6 +1602,7 @@ local path_tiles = {
 
 Builders.path_tiles = path_tiles
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersset_hidden_tile
 function Builders.set_hidden_tile(shape, hidden_tile)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -1453,6 +1654,7 @@ local collision_map = {
     ['refined-hazard-concrete-right'] = 'ground-tile'
 }
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderschange_collision_tile
 function Builders.change_collision_tile(shape, collides, new_tile)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -1472,6 +1674,7 @@ function Builders.change_collision_tile(shape, collides, new_tile)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderschange_map_gen_tile
 -- only changes tiles made by the factorio map generator.
 function Builders.change_map_gen_tile(shape, old_tile, new_tile)
     return function(x, y, world)
@@ -1497,6 +1700,34 @@ function Builders.change_map_gen_tile(shape, old_tile, new_tile)
     end
 end
 
+--- Docs: MISSING
+-- only changes tiles made by the factorio map generator.
+function Builders.change_map_gen_tiles(shape, new_tile_map)
+    return function(x, y, world)
+        local function handle_tile(tile)
+            if type(tile) == 'boolean' and tile then
+                local gen_tile = world.surface.get_tile(world.x, world.y).name
+                local new_tile = new_tile_map[gen_tile]
+                if new_tile ~= nil then
+                    return new_tile
+                end
+            end
+            return tile
+        end
+
+        local tile = shape(x, y, world)
+
+        if type(tile) == 'table' then
+            tile.tile = handle_tile(tile.tile)
+        else
+            tile = handle_tile(tile)
+        end
+
+        return tile
+    end
+end
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderschange_map_gen_hidden_tile
 function Builders.change_map_gen_hidden_tile(shape, old_tile, hidden_tile)
     return function(x, y, world)
         local function is_collides()
@@ -1518,6 +1749,7 @@ function Builders.change_map_gen_hidden_tile(shape, old_tile, hidden_tile)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderschange_map_gen_collision_tile
 -- only changes tiles made by the factorio map generator.
 function Builders.change_map_gen_collision_tile(shape, collides, new_tile)
     return function(x, y, world)
@@ -1543,6 +1775,7 @@ function Builders.change_map_gen_collision_tile(shape, collides, new_tile)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderschange_map_gen_collision_hidden_tile
 function Builders.change_map_gen_collision_hidden_tile(shape, collides, hidden_tile)
     return function(x, y, world)
         local function is_collides()
@@ -1572,6 +1805,7 @@ local bad_tiles = {
     ['deepwater-green'] = true
 }
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersoverlay_tile_land
 function Builders.overlay_tile_land(shape, tile_shape)
     return function(x, y, world)
         local function handle_tile(tile)
@@ -1605,6 +1839,7 @@ local water_tiles = {
     ['deepwater-green'] = true
 }
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersfish
 function Builders.fish(shape, spawn_rate)
     return function(x, y, world)
         local function handle_tile(tile)
@@ -1640,6 +1875,7 @@ function Builders.fish(shape, spawn_rate)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersapply_effect
 function Builders.apply_effect(shape, func)
     return function(x, y, world)
         local tile = shape(x, y, world)
@@ -1652,18 +1888,21 @@ function Builders.apply_effect(shape, func)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersmanhattan_value
 function Builders.manhattan_value(base, mult)
     return function(x, y)
         return mult * (abs(x) + abs(y)) + base
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderseuclidean_value
 function Builders.euclidean_value(base, mult)
     return function(x, y)
         return mult * sqrt(x * x + y * y) + base
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersexponential_value
 function Builders.exponential_value(base, mult, pow)
     return function(x, y)
         local d_sq = x * x + y * y
@@ -1671,6 +1910,7 @@ function Builders.exponential_value(base, mult, pow)
     end
 end
 
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersprepare_weighted_array
 function Builders.prepare_weighted_array(array)
     local total = 0
     local weights = {}

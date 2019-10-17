@@ -99,28 +99,7 @@ RS.set_map_gen_settings(
 		water_settings
     }
 )
---remove resources from sand
-local function no_resources(_, _, world, tile)
-    local entites =
-        world.surface.find_entities_filtered(
-        {type = 'resource', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
-    )
-    for i = 1, #entites do
-        entites[i].destroy()
-    end
-    return tile
-end
---remove trees from sand
-local function no_trees(_, _, world, tile)
-    local entites =
-        world.surface.find_entities_filtered(
-        {type = 'tree', area = {{world.x, world.y}, {world.x + 1, world.y + 1}}}
-    )
-    for i = 1, #entites do
-        entites[i].destroy()
-    end
-    return tile
-end
+
 --start hilbert design. Note: The following code does contain bugs. Jayefuu and R.Nukem are aware of
 --this and will look into fixing it at a later date. For now keep hilbert_levels = 2
 --The following values can be changed to adjust the width of the maze and sand
@@ -173,8 +152,8 @@ local function ribbon(y)
 end
 
 ribbon = b.change_tile(ribbon, true, 'sand-1')
-ribbon = b.apply_effect(ribbon, no_resources)
-ribbon = b.apply_effect(ribbon, no_trees)
+ribbon = b.remove_map_gen_resources(ribbon)
+ribbon = b.remove_map_gen_trees(ribbon)
 ribbon = b.translate(ribbon, 0, 6)
 pattern = b.translate(pattern, 0, 5)
 local hilbert = b.single_x_pattern(pattern, 80)
@@ -186,7 +165,7 @@ map = b.scale(map, scale_factor, scale_factor)
 local start_region = b.rectangle(block_length * scale_factor,block_width * scale_factor)
 map = b.subtract(map, start_region)
 start_region = b.change_tile(start_region,true, 'grass-1')
-start_region = b.apply_effect(start_region, no_resources)
+start_region = b.remove_map_gen_resources(start_region)
 local start_water = b.change_tile(b.circle(5),true, 'water')
 map = b.any{start_water,start_region,map}
 --make starting ores

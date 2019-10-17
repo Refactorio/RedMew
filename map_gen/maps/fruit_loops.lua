@@ -20,7 +20,8 @@ RS.set_map_gen_settings(
 ScenarioInfo.set_map_name('Fruit Loops')
 ScenarioInfo.set_map_description(
     [[
-Colourful fruity loop ore filled islands in a sea of..... not milk.
+Colourful fruity loop ore filled islands
+It's like swimming in a sea of ... not milk.
 ]]
 )
 ScenarioInfo.add_map_extra_info(
@@ -39,7 +40,6 @@ ScenarioInfo.set_new_info(
 - Updated map descriptions
 ]]
 )
-
 
 local function value(base, mult, pow)
     return function(x, y)

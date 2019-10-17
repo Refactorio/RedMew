@@ -18,7 +18,7 @@ return {
             enabled = true,
             time_factor = 0.000004,
             destroy_factor = 0.002,
-            pollution_factor = 0.000015
+            pollution_factor = 0.0000009
         },
         enemy_expansion = {
             enabled = true,
