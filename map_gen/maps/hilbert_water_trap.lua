@@ -157,7 +157,8 @@ local function ribbon(_, y)
     return (abs_y < 40)
 end
 
-ribbon = b.change_tile(ribbon, true, 'water-mud')
+ribbon = b.change_tile(ribbon, true, 'water-shallow')
+ribbon = b.remove_map_gen_decoratives_by_filter(ribbon)
 ribbon = b.remove_map_gen_resources(ribbon)
 ribbon = b.remove_map_gen_trees(ribbon)
 ribbon = b.translate(ribbon, 0, 6)
