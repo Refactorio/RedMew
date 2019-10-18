@@ -16,7 +16,7 @@ ScenarioInfo.set_map_name('Gears')
 ScenarioInfo.set_map_description(
     [[
 Large gear shaped islands
-  
+
 This is like a huge maze of never ending gears!
 ]]
 )
