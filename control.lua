@@ -103,7 +103,7 @@ end
 if config.turret_active_delay.enabled then
     require 'features.turret_active_delay'
 end
-if config.autofill then
+if config.autofill.enabled then
     require 'features.gui.autofill'
 end
 
