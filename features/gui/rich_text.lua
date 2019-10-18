@@ -1,8 +1,6 @@
 local Gui = require 'utils.gui'
 local Command = require 'utils.command'
 
-local main_button_name = Gui.uid_name()
-
 local rich_text_frame = Gui.uid_name()
 local rich_text_choose_image = Gui.uid_name()
 local rich_text_image_type = Gui.uid_name()
@@ -22,11 +20,8 @@ local choices = {
     'technology'
 }
 local function draw_rich_text(event)
-    local spirte_type
-    local frame_caption
-
-    spirte_type = choices[1]
-    frame_caption = 'Rich Text'
+    local sprite_type = choices[1]
+    local frame_caption = 'Rich Text'
     local player = event.player
     local center = player.gui.center
 
@@ -61,10 +56,10 @@ local function draw_rich_text(event)
             type = 'radiobutton',
             name = rich_text_image_type,
             caption = value,
-            state = value == spirte_type
+            state = value == sprite_type
         }
 
-        if value == spirte_type then
+        if value == sprite_type then
             focus = radio
         end
 
@@ -75,7 +70,7 @@ local function draw_rich_text(event)
         icons_flow.add {
         type = 'choose-elem-button',
         name = rich_text_choose_image,
-        elem_type = spirte_type
+        elem_type = sprite_type
     }
 
     Gui.set_data(choose, frame)
@@ -111,8 +106,6 @@ local function draw_rich_text(event)
 
     player.opened = frame
 end
-
-Gui.on_click(main_button_name, draw_rich_text)
 
 Gui.on_click(
     rich_text_image_type,
