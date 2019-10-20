@@ -779,7 +779,7 @@ function Builders.remove_map_gen_entities_by_filter(shape, filter)
     return function(x, y, world)
         local tile = shape(x, y, world)
         if not tile then
-            return
+            return tile
         end
 
         local wx, wy = world.x, world.y
@@ -821,21 +821,21 @@ function Builders.remove_entities_by_name(shape, names)
 end
 
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders/_edit#buildersremove_map_gen_decoratives_by_filter
-function Builders.remove_map_gen_decoratives_by_filter(shape, filter)
-    if filter then
-        filter = shallow_copy(filter)
+function Builders.remove_map_gen_decoratives_by_filter(shape, optional_filter)
+    if optional_filter then
+        optional_filter = shallow_copy(optional_filter)
     else
-        filter = {}
+        optional_filter = {}
     end
     return function(x, y, world)
         local tile = shape(x, y, world)
         if not tile then
-            return
+            return tile
         end
 
         local wx, wy = world.x, world.y
-        filter.area = {{wx, wy}, {wx + 1, wy + 1}}
-        world.surface.destroy_decoratives(filter)
+        optional_filter.area = {{wx, wy}, {wx + 1, wy + 1}}
+        world.surface.destroy_decoratives(optional_filter)
         return tile
     end
 end
@@ -857,11 +857,11 @@ function Builders.remove_decoratives_by_name(shape, names)
             return tile
         end
 
-        for e_index = #decoratives, 1, -1 do
-            local decorative_name = decoratives[e_index].name
+        for d_index = #decoratives, 1, -1 do
+            local decorative_name = decoratives[d_index].name
             for n_index = 1, #names do
                 if decorative_name == names[n_index] then
-                    remove(decoratives, e_index)
+                    remove(decoratives, d_index)
                 end
             end
         end
