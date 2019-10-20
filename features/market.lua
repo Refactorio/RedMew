@@ -326,6 +326,17 @@ Event.add(defines.events.on_entity_died, fish_drop_entity_died)
 Event.add(Retailer.events.on_market_purchase, market_item_purchased)
 Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
 Event.add(defines.events.on_player_created, player_created)
-if global.config.market.create_standard_market then
-    Event.on_init(spawn_market)
+
+if market_config.create_standard_market then
+    local delay = market_config.delay
+    if delay then
+        local spawn_market_token = Token.register(spawn_market)
+        Event.on_init(
+            function()
+                Task.set_timeout_in_ticks(delay, spawn_market_token)
+            end
+        )
+    else
+        Event.on_init(spawn_market)
+    end
 end

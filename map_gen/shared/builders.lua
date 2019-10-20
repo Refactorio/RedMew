@@ -779,7 +779,7 @@ function Builders.remove_map_gen_entities_by_filter(shape, filter)
     return function(x, y, world)
         local tile = shape(x, y, world)
         if not tile then
-            return
+            return tile
         end
 
         local wx, wy = world.x, world.y
@@ -812,6 +812,56 @@ function Builders.remove_entities_by_name(shape, names)
             for n_index = 1, #names do
                 if entity_name == names[n_index] then
                     remove(entities, e_index)
+                end
+            end
+        end
+
+        return tile
+    end
+end
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_decoratives
+function Builders.remove_map_gen_decoratives(shape, optional_filter)
+    if optional_filter then
+        optional_filter = shallow_copy(optional_filter)
+    else
+        optional_filter = {}
+    end
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+        if not tile then
+            return tile
+        end
+
+        local wx, wy = world.x, world.y
+        optional_filter.area = {{wx, wy}, {wx + 1, wy + 1}}
+        world.surface.destroy_decoratives(optional_filter)
+        return tile
+    end
+end
+
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders/#buildersremove_decoratives_by_name
+function Builders.remove_decoratives_by_name(shape, names)
+    if type(names) ~= 'table' then
+        names = {names}
+    end
+
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+        if type(tile) ~= 'table' then
+            return tile
+        end
+
+        local decoratives = tile.decoratives
+        if not decoratives then
+            return tile
+        end
+
+        for d_index = #decoratives, 1, -1 do
+            local decorative_name = decoratives[d_index].name
+            for n_index = 1, #names do
+                if decorative_name == names[n_index] then
+                    remove(decoratives, d_index)
                 end
             end
         end
@@ -1022,9 +1072,7 @@ function Builders.single_pattern_overlap(shape, width, height)
         y = ((y + half_height) % height) - half_height
         x = ((x + half_width) % width) - half_width
 
-        return shape(x, y, world) or shape(x + width, y, world) or shape(x - width, y, world) or
-            shape(x, y + height, world) or
-            shape(x, y - height, world)
+        return shape(x, y, world) or shape(x + width, y, world) or shape(x - width, y, world) or shape(x, y + height, world) or shape(x, y - height, world)
     end
 end
 
