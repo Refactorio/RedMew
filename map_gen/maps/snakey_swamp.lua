@@ -39,7 +39,8 @@ local path =
     b.translate(divider, (path_width + divider_width) / 2, path_width / 2),
     b.translate(divider, -(path_width + divider_width) / 2, -path_width / 2)
 }
-path = b.change_tile(path, true, 'water-shallow')
+path = b.change_tile(path, true, 'water-mud')
+path = b.remove_decoratives(path)
 
 -- Water Border
 local water_rectangle = b.rectangle(tile_width, water_height)

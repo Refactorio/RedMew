@@ -13,9 +13,9 @@ Event.on_init(
     end
 )
 --input
-local divider_tile = 'water-shallow'
+local divider_tile = 'water-mud'
 local path_width = 30
-local path_length = 100
+local path_length = 120
 local turns = 6 -- must be even; 0 makes a normal ribbon world
 local divider_width = 10
 local water_height = 60 -- setting it to 0 will eliminate the water border; make sure to add another source of water if you do so
@@ -58,6 +58,7 @@ local path = b.any
     }
 
 path = b.change_tile(path, true, divider_tile)
+path = b.remove_decoratives(path)
 
 -- Water Border
 local water_rectangle = b.rectangle(tile_width, water_height)
