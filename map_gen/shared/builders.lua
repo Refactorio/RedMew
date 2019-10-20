@@ -820,7 +820,7 @@ function Builders.remove_entities_by_name(shape, names)
     end
 end
 
---- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders/_edit#buildersremove_map_gen_decoratives
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_decoratives
 function Builders.remove_map_gen_decoratives(shape, optional_filter)
     if optional_filter then
         optional_filter = shallow_copy(optional_filter)
@@ -840,7 +840,7 @@ function Builders.remove_map_gen_decoratives(shape, optional_filter)
     end
 end
 
---- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders/_edit#buildersremove_decoratives_by_name
+--- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders/#buildersremove_decoratives_by_name
 function Builders.remove_decoratives_by_name(shape, names)
     if type(names) ~= 'table' then
         names = {names}
