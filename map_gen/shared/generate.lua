@@ -282,7 +282,7 @@ end
 function Public.init(args)
     tiles_per_tick = args.tiles_per_tick or 32
     regen_decoratives = args.regen_decoratives or false
-    for surface_name, shape in pairs(args.surfaces) do
+    for surface_name, shape in pairs(args.surfaces or {}) do
         surfaces[surface_name] = shape
     end
 
