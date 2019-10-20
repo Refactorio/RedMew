@@ -1,36 +1,41 @@
 --Hilbert Water Trap Map, by SimonFlapse, based on Hilbert Sand Trap by Jayefuu, R. Nukem, and grilledham
 
 local b = require 'map_gen.shared.builders'
-local degrees = require "utils.math".degrees
+local degrees = require 'utils.math'.degrees
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local redmew_config = global.config
 --https://www.fractalus.com/kerry/tutorials/hilbert/hilbert-tutorial.html
 -- Setup the scenario map information because everyone gets upset if you don't
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Hilbert\'s Sand Trap')
-ScenarioInfo.set_map_description('You have crash landed in the middle of Hilbert\'s Labyrinth! Surrounded by quicksand and biters you must survive long enough to launch a rocket.')
-ScenarioInfo.set_map_extra_info('Only the native grasses are suitable to build on. Ores and trees have sunk into the sand, but biters have adapted to live happily in the barren landscape. Some even speak of a Hydra living deep within the desert. \n\n Map created by R. Nukem and Jayefuu, with help from grilledham and the rest of the Redmew admin team.')
+ScenarioInfo.set_map_name("Hilbert's Sand Trap")
+ScenarioInfo.set_map_description("You have crash landed in the middle of Hilbert's Labyrinth! Surrounded by quicksand and biters you must survive long enough to launch a rocket.")
+ScenarioInfo.set_map_extra_info(
+    'Only the native grasses are suitable to build on. Ores and trees have sunk into the sand, but biters have adapted to live happily in the barren landscape. Some even speak of a Hydra living deep within the desert. \n\n Map created by R. Nukem and Jayefuu, with help from grilledham and the rest of the Redmew admin team.'
+)
 --enable Hydra
 local hail_hydra = redmew_config.hail_hydra
 hail_hydra.enabled = true
 --tweak hydra settings. Default settings are WAY too hard (circa 2019-02-22 hydra)
 --This section will need updated in the future pending changes to how hydra is configured (PR #795)
 hail_hydra.hydras = {
-            -- spitters
-            ['small-spitter'] = {['small-worm-turret'] = 0.05}, --default 0.2
-            ['medium-spitter'] = {['medium-worm-turret'] = 0.05}, --defualt 0.2
-            ['big-spitter'] = {['big-worm-turret'] = 0.05}, --defualt 0.2
-            ['behemoth-spitter'] = {['big-worm-turret'] = 0.2}, --default 0.4
-            -- biters
-            ['medium-biter'] = {['small-biter'] = 0.4}, --default 1.2
-            ['big-biter'] = {['medium-biter'] = 0.4},--default 1.2
-            ['behemoth-biter'] = {['big-biter'] = 0.4},--default 1.2
-            -- worms
-            ['small-worm-turret'] = {['small-biter'] = .75},--defualt 2.5
-            ['medium-worm-turret'] = {['small-biter'] = .75, ['medium-biter'] = 0.3}, --default 2.5, .6
-            ['big-worm-turret'] = {['small-biter'] = 2.0, ['medium-biter'] = 1.0, ['big-biter'] = 0.5} --defualt 3.8, 1.3, 1.1
-			}
+    -- spitters
+    ['small-spitter'] = {['small-worm-turret'] = 0.05}, --default 0.2
+    ['medium-spitter'] = {['medium-worm-turret'] = 0.05}, --defualt 0.2
+    ['big-spitter'] = {['big-worm-turret'] = 0.05}, --defualt 0.2
+    ['behemoth-spitter'] = {['big-worm-turret'] = 0.2}, --default 0.4
+    -- biters
+    ['medium-biter'] = {['small-biter'] = 0.4}, --default 1.2
+    ['big-biter'] = {['medium-biter'] = 0.4},
+     --default 1.2
+    ['behemoth-biter'] = {['big-biter'] = 0.4},
+     --default 1.2
+    -- worms
+    ['small-worm-turret'] = {['small-biter'] = .75},
+     --defualt 2.5
+    ['medium-worm-turret'] = {['small-biter'] = .75, ['medium-biter'] = 0.3}, --default 2.5, .6
+    ['big-worm-turret'] = {['small-biter'] = 2.0, ['medium-biter'] = 1.0, ['big-biter'] = 0.5} --defualt 3.8, 1.3, 1.1
+}
 hail_hydra.evolution_scale = .7
 
 local market_config = redmew_config.market
@@ -42,67 +47,67 @@ market_config.delay = 5 -- delays spawning the market by 5 ticks
 --Ore settings. I feel very-high frequency is required to keep the sand from eating all the ores
 -- Richness and size can be changed to tweak balance a bit.
 local ore_settings = {
-	autoplace_controls = {
-		coal = {
-			frequency = 'very-high',
-			richness = 'normal',
-			size = 'normal'
-		},
-		['copper-ore'] = {
-			frequency = 'very-high',
-			richness = 'normal',
-			size = 'normal'
-		},
-		['crude-oil'] = {
-			frequency = 'very-high',
-			richness = 'normal',
-			size = 'normal'
-		},
-		['iron-ore'] = {
-			frequency = 'very-high',
-			richness = 'normal',
-			size = 'normal'
-		},
-		stone = {
-			frequency = 'very-high',
-			richness = 'normal',
-			size = 'normal'
-		},
-		['uranium-ore'] = {
-			frequency = 'very-high',
-			richness = 'very-low',
-			size = 'very-small'
-		}
-	}
+    autoplace_controls = {
+        coal = {
+            frequency = 'very-high',
+            richness = 'normal',
+            size = 'normal'
+        },
+        ['copper-ore'] = {
+            frequency = 'very-high',
+            richness = 'normal',
+            size = 'normal'
+        },
+        ['crude-oil'] = {
+            frequency = 'very-high',
+            richness = 'normal',
+            size = 'normal'
+        },
+        ['iron-ore'] = {
+            frequency = 'very-high',
+            richness = 'normal',
+            size = 'normal'
+        },
+        stone = {
+            frequency = 'very-high',
+            richness = 'normal',
+            size = 'normal'
+        },
+        ['uranium-ore'] = {
+            frequency = 'very-high',
+            richness = 'very-low',
+            size = 'very-small'
+        }
+    }
 }
 -- Another section that can be used for balance. Setting richness above normal is not recommended
 local tree_settings = {
-	autoplace_controls = {
-		trees = {
-			frequency = 'very-high',
-			richness = 'normal',
-			size = 'normal'
-		}
+    autoplace_controls = {
+        trees = {
+            frequency = 'very-high',
+            richness = 'normal',
+            size = 'normal'
+        }
     }
 }
 
 -- This seems to be a decent balance between small pools of water and not blocking entire sections
 -- of the maze near spawn by lakes
 local water_settings = {
-	terrain_segmentation = 'high',
+    terrain_segmentation = 'high',
     water = 'low'
 }
 --Set map settings
 RS.set_map_gen_settings(
     {
         MGSP.cliff_none,
-		MGSP.grass_only,
-		MGSP.enable_water,
-		MGSP.enemy_very_high,
-		MGSP.starting_area_very_low,
-		ore_settings,
-		tree_settings,
-		water_settings
+        MGSP.grass_only,
+        MGSP.enable_water,
+        MGSP.enemy_very_high,
+        MGSP.starting_area_very_low,
+        ore_settings,
+        tree_settings,
+        water_settings
     }
 )
 
@@ -169,12 +174,12 @@ local map = b.any {hilbert, ribbon}
 
 map = b.scale(map, scale_factor, scale_factor)
 -- make starting area
-local start_region = b.rectangle(block_length * scale_factor,block_width * scale_factor)
+local start_region = b.rectangle(block_length * scale_factor, block_width * scale_factor)
 map = b.subtract(map, start_region)
 start_region = b.change_map_gen_collision_tile(start_region, 'water-tile', 'landfill')
 start_region = b.remove_map_gen_resources(start_region)
 local start_water = b.change_tile(b.circle(5), true, 'water')
-map = b.any{start_water,start_region,map}
+map = b.any {start_water, start_region, map}
 --make starting ores
 local value = b.manhattan_value
 local ore_shape = b.scale(b.circle(30), 0.15)
