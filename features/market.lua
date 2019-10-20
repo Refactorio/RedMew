@@ -330,23 +330,15 @@ Event.add(defines.events.on_player_crafted_item, fish_player_crafted_item)
 Event.add(defines.events.on_player_created, player_created)
 
 if market_config.create_standard_market then
-    local delay_spawn_market = function()
-        spawn_market()
-    end
-
     local delay = market_config.delay
     if delay then
-        local spawn_market_token = Token.register(delay_spawn_market)
+        local spawn_market_token = Token.register(spawn_market)
         Event.on_init(
             function()
                 Task.set_timeout_in_ticks(delay, spawn_market_token)
             end
         )
     else
-        Event.on_init(
-            function()
-                delay_spawn_market()
-            end
-        )
+        Event.on_init(spawn_market)
     end
 end
