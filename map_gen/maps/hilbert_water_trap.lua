@@ -1,9 +1,10 @@
---Hilbert Sand Trap Map, by Jayefuu, R. Nukem, and grilledham
+--Hilbert Water Trap Map, by SimonFlapse, based on Hilbert Sand Trap by Jayefuu, R. Nukem, and grilledham
 
 local b = require 'map_gen.shared.builders'
 local degrees = require 'utils.math'.degrees
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local redmew_config = global.config
 --https://www.fractalus.com/kerry/tutorials/hilbert/hilbert-tutorial.html
 -- Setup the scenario map information because everyone gets upset if you don't
 local ScenarioInfo = require 'features.gui.info'
@@ -13,9 +14,9 @@ ScenarioInfo.set_map_extra_info(
     'Only the native grasses are suitable to build on. Ores and trees have sunk into the sand, but biters have adapted to live happily in the barren landscape. Some even speak of a Hydra living deep within the desert. \n\n Map created by R. Nukem and Jayefuu, with help from grilledham and the rest of the Redmew admin team.'
 )
 --enable Hydra
-local hail_hydra = global.config.hail_hydra
+local hail_hydra = redmew_config.hail_hydra
 hail_hydra.enabled = true
---tweak hydra settings. Defualt settings are WAY too hard (circa 2019-02-22 hydra)
+--tweak hydra settings. Default settings are WAY too hard (circa 2019-02-22 hydra)
 --This section will need updated in the future pending changes to how hydra is configured (PR #795)
 hail_hydra.hydras = {
     -- spitters
@@ -36,6 +37,11 @@ hail_hydra.hydras = {
     ['big-worm-turret'] = {['small-biter'] = 2.0, ['medium-biter'] = 1.0, ['big-biter'] = 0.5} --defualt 3.8, 1.3, 1.1
 }
 hail_hydra.evolution_scale = .7
+
+local market_config = redmew_config.market
+market_config.standard_market_location = {0, -7} -- Some how the market gets removed
+market_config.delay = 5 -- delays spawning the market by 5 ticks
+
 -- define map settings
 
 --Ore settings. I feel very-high frequency is required to keep the sand from eating all the ores
@@ -156,7 +162,8 @@ local function ribbon(_, y)
     return (abs_y < 40)
 end
 
-ribbon = b.change_tile(ribbon, true, 'sand-1')
+ribbon = b.change_tile(ribbon, true, 'water-shallow')
+ribbon = b.remove_map_gen_decoratives_by_filter(ribbon)
 ribbon = b.remove_map_gen_resources(ribbon)
 ribbon = b.remove_map_gen_trees(ribbon)
 ribbon = b.translate(ribbon, 0, 6)
@@ -169,7 +176,7 @@ map = b.scale(map, scale_factor, scale_factor)
 -- make starting area
 local start_region = b.rectangle(block_length * scale_factor, block_width * scale_factor)
 map = b.subtract(map, start_region)
-start_region = b.change_tile(start_region, true, 'grass-1')
+start_region = b.change_map_gen_collision_tile(start_region, 'water-tile', 'landfill')
 start_region = b.remove_map_gen_resources(start_region)
 local start_water = b.change_tile(b.circle(5), true, 'water')
 map = b.any {start_water, start_region, map}
@@ -189,78 +196,4 @@ map = b.apply_entity(map, ore_shape)
 --shift spawn so player doesn't die to start water
 map = b.translate(map, 0, 30)
 
--- -- Untested Code for not building on sand. However, this requires plague's entity restriction module
--- -- Enable this section when the entity restriction modules is finalized
--- -- Make sure this works on tiles if needed, otherwise keep function below
-local Event = require 'utils.event'
---Ban entities from sand-1, including tile ghosts. This currently prevents us from using entity_placement_restriction.lua as of 2019-02-22
--- Convert to using entity_replacement_restriction.lua once it is possible to do so
-Event.add(
-    defines.events.on_built_entity,
-    function(event)
-        local entity = event.created_entity
-        if not entity or not entity.valid then
-            return
-        end
-        local name = entity.name
-        local ghost = false
-        if name == 'tile-ghost' or name == 'entity-ghost' then
-            ghost = true
-        end
-
-        -- Check the bounding box for the tile
-        local status = true
-        local area = entity.bounding_box
-        local left_top = area.left_top
-        local right_bottom = area.right_bottom
-        local p = game.get_player(event.player_index)
-        --check for sand under all tiles in bounding box
-        for x = math.floor(left_top.x), math.floor(right_bottom.x), 1 do
-            for y = math.floor(left_top.y), math.floor(right_bottom.y), 1 do
-                if p.surface.get_tile(x, y).name == 'sand-1' then
-                    status = false
-                    break
-                end
-            end
-        end
-        if status == true then
-            return
-        else
-            --destroy entity and return to player
-            if not p or not p.valid then
-                return
-            end
-            entity.destroy()
-            if not ghost then
-                p.insert(event.stack)
-            end
-        end
-    end
-)
--- Hotfix to ban tiles by grilledham
-Event.add(
-    defines.events.on_player_built_tile,
-    function(event)
-        local player = game.get_player(event.player_index)
-        if not player or not player.valid then
-            return
-        end
-        local tiles = event.tiles
-        local replace_tiles = {}
-        local refund_count = 0
-        for i = 1, #tiles do
-            local tile = tiles[i]
-            local old_name = tile.old_tile.name
-            if old_name == 'sand-1' then
-                tile.name = 'sand-1'
-                replace_tiles[#replace_tiles + 1] = tile
-                refund_count = refund_count + 1
-            end
-        end
-        if #replace_tiles > 0 then
-            player.surface.set_tiles(replace_tiles, true)
-            player.insert {name = event.item.name, count = refund_count}
-        end
-    end
-)
 return map
