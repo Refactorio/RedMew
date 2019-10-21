@@ -1,4 +1,4 @@
--- Snakey Swamp by Soggs
+-- Snakier Swamp by Soggs
 local b = require 'map_gen.shared.builders'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
@@ -79,9 +79,10 @@ local max_width = 50
 local ore_rectangle = b.rectangle(min(path_width-2, max_height), min(path_width-2, max_width))
 local ore_spacing = min(path_width, max_height+2)
 local function amount(a)
+    local value = ceil(a /min(path_width-2, max_height) /min(path_width-2, max_width))
     return
         function (_, _)
-            return ceil(a /min(path_width-2, max_height) /min(path_width-2, max_width))
+            return value
         end
 end
 
