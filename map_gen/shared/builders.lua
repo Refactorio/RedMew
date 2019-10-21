@@ -1036,22 +1036,6 @@ function Builders.apply_decoratives(shape, decorative_shapes)
     end
 end
 
---- Removes the decoratives in the given shape
---- This is useful for example when using shapes of 'water-shallow'
-function Builders.remove_decoratives(shape)
-    return function(x, y, world)
-        local tile = shape(x, y, world)
-
-        if not tile then
-            return false
-        end
-
-        world.surface.destroy_decoratives({position = {x=world.x, y=world.y}})
-
-        return tile
-    end
-end
-
 -- pattern builders
 
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssingle_pattern

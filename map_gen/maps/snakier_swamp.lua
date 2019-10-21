@@ -58,7 +58,7 @@ local path = b.any
     }
 
 path = b.change_tile(path, true, divider_tile)
-path = b.remove_decoratives(path)
+path = b.remove_map_gen_decoratives(path)
 
 -- Water Border
 local water_rectangle = b.rectangle(tile_width, water_height)
