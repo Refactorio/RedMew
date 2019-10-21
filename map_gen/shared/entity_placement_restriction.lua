@@ -116,9 +116,12 @@ local Task = require 'utils.task'
 
 --- Cleans the players cursor to prevent from spam replacing entities with inventory
 -- Somehow required to have a 1 tick delay before cleaning the players cursor
-local delay_clean_cursor = Token.register(function(param)
-    param.player.clean_cursor()
-end)
+local delay_clean_cursor =
+    Token.register(
+    function(param)
+        param.player.clean_cursor()
+    end
+)
 
 --- Checks if entity has an inventory with items inside, and spills them on the ground
 local function entities_with_inventory(entity, player)
@@ -127,13 +130,13 @@ local function entities_with_inventory(entity, player)
         local type = entity.type
         if type == 'container' then
             for item, count in pairs(entity.get_inventory(defines.inventory.chest).get_contents()) do
-                    spill_item_stack(entity, {name = item, count = count})
+                spill_item_stack(entity, {name = item, count = count})
             end
         elseif type == 'logistic-container' then
-            entity.surface.create_entity{name = 'steel-chest', position = entity.position, direction = entity.direction, force = entity.force, fast_replace = true, spill = false}
+            entity.surface.create_entity {name = 'steel-chest', position = entity.position, direction = entity.direction, force = entity.force, fast_replace = true, spill = false}
             if player and player.valid and primitives.refund then -- refunding materials required to make a logistic container minus the "free" steel-chest generated above
-                player.insert({name='electronic-circuit', count = 3})
-                player.insert({name='advanced-circuit', count = 1})
+                player.insert({name = 'electronic-circuit', count = 3})
+                player.insert({name = 'advanced-circuit', count = 1})
             end
             return true
         elseif type == 'furnace' then
@@ -156,6 +159,11 @@ local function entities_with_inventory(entity, player)
             for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_output).get_contents()) do
                 spill_item_stack(entity, {name = item, count = count})
             end
+        elseif type == 'ammo-turret' then
+            for item, count in pairs(entity.get_inventory(defines.inventory.turret_ammo).get_contents()) do
+                player.insert({name = item, count = count})
+            end
+            return -- Prevents triggering when autofill is enabled
         end
 
         Token.get(primitives.anti_grief_callback)(entity, player)
@@ -174,7 +182,7 @@ local on_built_token =
 
         local name = entity.name
         if name == 'tile-ghost' then
-            if entity.ghost_name ~= 'landfill' and primitives.prevent_tile_bp and entity.valid then
+            if primitives.prevent_tile_bp and entity.ghost_name ~= 'landfill' then
                 entity.destroy()
             end
             return

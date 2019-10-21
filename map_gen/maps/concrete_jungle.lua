@@ -91,7 +91,11 @@ local tier_0 = {
     'tank',
     'pipe',
     'pipe-to-ground',
-    'offshore-pump'
+    'offshore-pump',
+    'locomotive',
+    'cargo-wagon',
+    'fluid-wagon',
+    'artillery-wagon'
 }
 
 --- Items explicitly allowed everywhere (tier 0 and up)
@@ -198,7 +202,8 @@ ScenarioInfo.add_map_extra_info(
 
 [font=default-bold]Exceptions:[/font]
 ]] ..
-            tier_0_items .. [[
+            tier_0_items ..
+                [[
 
 
 Stone bricks provide ground support for most buildings/entities,
@@ -206,14 +211,14 @@ but some require better ground support!
 
 [font=default-bold]Ground support minimum concrete:[/font]
 ]] ..
-            tier_2_items .. [[
+                    tier_2_items .. [[
 
 
 [font=default-bold]Ground support minimum refined concrete:[/font]
 ]] .. tier_3_items .. [[
 
 
-Due to security messures you can not remove ground support nor downgrade it!
+Due to security measures you can not remove ground support nor downgrade it!
 ]]
 )
 
@@ -254,7 +259,6 @@ RestrictEntities.set_keep_alive_callback(
     )
 )
 
-
 --- Anti griefing
 
 local anti_grief_tries = 3 -- Change this number to change how many 'shots' a player has got
@@ -273,7 +277,7 @@ This is causing the items to spill out on the ground.
 Please be careful!
 ]], nil, nil, 'entity_placement_restriction_inventory_warning')
 
-            if not (Rank.equal_or_greater_than(player.name, Ranks.regular)) then
+            if not (Rank.equal_or_greater_than(player.name, Ranks.auto_trusted)) then
                 local player_stat = times_spilled[player.index]
                 local number_of_spilled = player_stat and player_stat.count or 0
 
@@ -327,7 +331,11 @@ local function on_destroy(event)
     end
 
     if p and p.valid then
-        if not (name == 'blueprint') then
+        if not (name == 'blueprint' or name == 'blueprint-book') then
+            if name == 'entity-ghost' then
+                name = entity.ghost_name
+            end
+
             local tier = {'item-name.stone-path'}
             if (entity_tiers[name] == 2) then
                 tier = {'item-name.concrete'}
@@ -335,7 +343,6 @@ local function on_destroy(event)
                 tier = {'item-name.refined-concrete'}
             end
             local text = {'concrete_jungle.entity_not_enough_ground_support', '[item=' .. name .. ']', tier}
-            --local text = '[color=yellow]This [/color][item=' .. name .. '][color=yellow] cannot be placed here, it needs ground support of at least [/color]' .. tier
             print_floating_text(p, entity, text)
         else
             p.print({'', '[color=yellow]', {'concrete_jungle.blueprint_not_enough_ground_support', {'', '[/color][color=red]', {'concrete_jungle.blueprint'}, '[/color][color=yellow]'}}, '[/color]'})
