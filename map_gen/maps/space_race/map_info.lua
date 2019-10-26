@@ -48,6 +48,11 @@ Current Version: ]] .. config.version
 
 ScenarioInfo.set_new_info(
     [[
+2019-10-27  v0.4
+- Custom ore generation
+- King of the hill game mode added
+- Random research purchasable in the market
+- More refactoring
 2019-10-12  v0.3
 - Cliffs around rocket silo
 - Market prices changed

@@ -58,7 +58,7 @@ local disabled_recipes = config.disabled_recipes
 local primitives = {
     game_started = false,
     game_generating = false,
-    started_tick = 0,
+    started_tick = nil,
     force_USA = nil,
     force_USSR = nil,
     lobby_permissions = nil,
@@ -414,7 +414,7 @@ check_map_gen_is_done =
             end
             load_gui.show_gui_to_all()
         else
-            primitives.started_tick = 0
+            primitives.started_tick = nil
             load_gui.remove_gui()
             Event.remove_removable_nth_tick(60, check_map_gen_is_done)
         end
@@ -429,7 +429,7 @@ local function check_ready_to_start()
     local num_ussr_players = #primitives.force_USSR.connected_players
     local num_players = num_usa_players + num_ussr_players
     if not primitives.game_started and num_players >= players_needed then
-        if primitives.started_tick == 0 then
+        if primitives.started_tick == nil then
             primitives.started_tick = game.tick
             Event.add_removable_nth_tick(60, check_map_gen_is_done)
         end
@@ -537,12 +537,8 @@ NOTES:
 
 Mapgen is slow (a loading screen would be nice)
 
-Beach sine wave to break the hard line between shallow water and land
-
 Tiny islands in shallow water, space for a couple of turrets but not much
 
 Weapon damage balance -> Testing, testing, testing
-
-Worms and biters can kill turrets at the spawns
 
 ]]

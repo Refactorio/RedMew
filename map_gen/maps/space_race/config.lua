@@ -1,6 +1,6 @@
 local Config = {
-    version = 'v0.3',
-    players_needed_to_start_game = 1,
+    version = 'v0.4',
+    players_needed_to_start_game = 4,
     bootstrap_period = 60 * 60 * 10, -- 10 minutes
     player_kill_reward = 25,
     entity_kill_rewards = {
@@ -70,6 +70,9 @@ local Config = {
         width_1 = 256,
         width_2 = 256,
         width_3 = 9
+    },
+    game_mode = {
+        king_of_the_hill = true
     }
 }
 
