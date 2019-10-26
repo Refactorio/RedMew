@@ -126,7 +126,9 @@ global.config = {
             ['medium-biter'] = {low = 1, high = 3, chance = 0},
             ['big-biter'] = {low = 1, high = 5, chance = 0},
             ['behemoth-biter'] = {low = 1, high = 10, chance = 0}
-        }
+        },
+        -- will delay the creating of the market in ticks
+        delay = nil
     },
     -- adds anti-nuke griefing
     nuke_control = {

@@ -42,8 +42,8 @@ Global.register_init(
         uranium_seed = seed * 2
         density_seed = seed * 3
         game.map_settings.enemy_evolution.time_factor = 0.000002
-        game.map_settings.enemy_evolution.destroy_factor = 0.000010
-        game.map_settings.enemy_evolution.pollution_factor = 0.000075
+        game.map_settings.enemy_evolution.destroy_factor = 0.0009
+        game.map_settings.enemy_evolution.pollution_factor = 0.0000015
     end
 )
 
