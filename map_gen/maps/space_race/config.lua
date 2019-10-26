@@ -1,6 +1,6 @@
 local Config = {
     version = 'v0.3',
-    players_needed_to_start_game = 4,
+    players_needed_to_start_game = 1,
     bootstrap_period = 60 * 60 * 10, -- 10 minutes
     player_kill_reward = 25,
     entity_kill_rewards = {
@@ -65,6 +65,11 @@ local Config = {
         size = 45,
         max_food = 8,
         speed = 30
+    },
+    map_gen = { -- Does not yet support being changed!
+        width_1 = 256,
+        width_2 = 256,
+        width_3 = 9
     }
 }
 

@@ -38,7 +38,7 @@ function Public.cliff(_, _, world)
                     cliff_orientation = flipped_orientation
                 end
             end
-            return {name = 'cliff', cliff_orientation = cliff_orientation, always_place = true}
+            return {name = 'cliff', cliff_orientation = cliff_orientation, always_place = true, destructible = false}
         end
     end
 end
@@ -46,9 +46,11 @@ end
 function Public.generate_cliffs(surface)
     for _x, ys in pairs(cliffs) do
         for _y, cliff_orientation in pairs(ys) do
-            surface.create_entity{name = 'cliff', position = {x = _x, y = _y}, cliff_orientation = cliff_orientation[1]}
+            local cliff = surface.create_entity{name = 'cliff', position = {x = _x, y = _y}, cliff_orientation = cliff_orientation[1]}
+            cliff.destructible = false
             --inverting
-            surface.create_entity{name = 'cliff', position = {x = -_x, y = _y}, cliff_orientation = orientation[cliff_orientation[1]] or cliff_orientation[1]}
+            cliff = surface.create_entity{name = 'cliff', position = {x = -_x, y = _y}, cliff_orientation = orientation[cliff_orientation[1]] or cliff_orientation[1]}
+            cliff.destructible = false
         end
     end
 end
