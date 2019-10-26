@@ -8,17 +8,15 @@ local Game_mode_config = (require 'map_gen.maps.space_race.config').game_mode
 local island_1_offset = 0
 local island_2_offset = -128
 local island_3_offset = 128
-if Game_mode_config.king_of_the_hill then
-    local crafters = {}
-    Global.register(
-        {
-            crafters = crafters
-        },
-        function(tbl)
-            crafters = tbl.crafters
-        end
-    )
-end
+local crafters = {}
+Global.register(
+    {
+        crafters = crafters
+    },
+    function(tbl)
+        crafters = tbl.crafters
+    end
+)
 
 local inf = function()
     return 100000000

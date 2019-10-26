@@ -100,8 +100,7 @@ Gui.on_click(
         local player = event.player
 
         if remote.call('space-race', 'join_usa', nil, player) then
-            Gui.remove_data_recursively(frame)
-            frame.destroy()
+            Gui.destroy(frame)
             remote.call('space-race-lobby' ,'update_gui')
         end
     end

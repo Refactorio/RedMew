@@ -78,8 +78,7 @@ Gui.on_click(
             game.permissions.get_group('lobby').remove_player(player)
             snake_game.new_snake(player)
 
-            Gui.remove_data_recursively(frame)
-            frame.destroy()
+            Gui.destroy(frame)
         end
     end
 )
