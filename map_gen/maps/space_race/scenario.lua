@@ -183,7 +183,7 @@ Event.on_init(
                 force = force_USSR
             end
             for _, port in pairs(ports) do
-                rendering.draw_text {text = {'', 'Use the /warp command to teleport across'}, surface = surface, target = port, color = Color.red, forces = {force}, alignment = 'center', scale = 0.5}
+                rendering.draw_text {text = {'', 'Use the /warp command to teleport across'}, surface = surface, target = port, color = Color.red, forces = {force}, alignment = 'center', scale = 0.75}
             end
         end
 
@@ -209,6 +209,10 @@ Event.on_init(
 
 local function restore_character(player)
     if primitives.game_started then
+        local character = player.character
+        if character then
+            character.destroy()
+        end
         player.set_controller {type = defines.controllers.god}
         player.create_character()
         Task.set_timeout_in_ticks(1, remove_permission_group, {permission_group = primitives.lobby_permissions, player = player})
@@ -397,6 +401,19 @@ end
 Command.add('warp', {description = 'Use to switch between PVP and Safe-zone in Space Race', capture_excess_arguments = false, allowed_by_server = false}, teleport)
 
 local check_map_gen_is_done
+
+local start_game_delayed =
+    Token.register(
+    function()
+        if primitives.started_tick == -1 then
+            primitives.started_tick = 0
+            load_gui.remove_gui()
+            Event.remove_removable_nth_tick(60, check_map_gen_is_done)
+            start_game()
+        end
+    end
+)
+
 check_map_gen_is_done =
     Token.register(
     function()
@@ -405,12 +422,14 @@ check_map_gen_is_done =
         local num_players = num_usa_players + num_ussr_players
         if not primitives.game_started and num_players >= players_needed then
             local surface = RS.get_surface()
-            if surface.get_tile({388.5, 0}).name == 'landfill' and surface.get_tile({-388.5, 0}).name == 'landfill' and surface.get_tile({388.5, 60}).name == 'out-of-map' and surface.get_tile({-388.5, 60}).name == 'out-of-map' then
-                primitives.started_tick = 0
-                load_gui.remove_gui()
-                Event.remove_removable_nth_tick(60, check_map_gen_is_done)
-                start_game()
-                return
+            if
+                primitives.started_tick ~= -1 and surface.get_tile({388.5, 0}).name == 'landfill' and surface.get_tile({-388.5, 0}).name == 'landfill' and surface.get_tile({388.5, 60}).name == 'out-of-map' and surface.get_tile({-388.5, 60}).name == 'out-of-map' and
+                    surface.get_tile({-479.5, 0}).name == 'water' and
+                    surface.get_tile({479.5, 0}).name == 'water'
+             then
+                primitives.started_tick = -1
+                game.print('[color=yellow]Game starts in 10 seconds![/color]')
+                Task.set_timeout_in_ticks(599, start_game_delayed, {})
             end
             load_gui.show_gui_to_all()
         else
@@ -443,16 +462,18 @@ local function check_player_balance(force)
     local force_USSR = primitives.force_USSR
     local force_USA = primitives.force_USA
 
-    local usa_players = #force_USA.players
-    local ussr_players = #force_USSR.players
+    --local usa_players = #force_USA.players
+    --local ussr_players = #force_USSR.players
 
     local usa_connected = #force_USA.connected_players
     local ussr_connected = #force_USSR.connected_players
 
     if force == force_USSR then
-        return ussr_players - 2 <= usa_players and ussr_connected <= usa_connected
+        --return ussr_players - 2 <= usa_players and ussr_connected <= usa_connected
+        return usa_connected - ussr_connected
     elseif force == force_USA then
-        return ussr_players >= usa_players - 2 and ussr_connected >= usa_connected
+        -- return ussr_players >= usa_players - 2 and ussr_connected >= usa_connected
+        return ussr_connected - usa_connected
     end
 end
 
@@ -461,16 +482,38 @@ function Public.join_usa(_, player)
     local force_USSR = primitives.force_USSR
 
     local force = player.force
-    if not check_player_balance(force_USA) then
+    local balance = check_player_balance(force_USA)
+    local allow_switching_team = balance >= 2
+    if balance < 0 then
         player.print('[color=red]Failed to join [/color][color=yellow]United Factory Workers,[/color][color=red] teams would become unbalanced![/color]')
         return false
     end
-    if not primitives.game_started or (force ~= force_USSR and force ~= force_USA) then
+    if not primitives.game_started or (force ~= force_USSR and force ~= force_USA) or allow_switching_team then
+        if force == force_USA then
+            player.print('[color=red]Failed to join [/color][color=yellow]United Factory Workers,[/color][color=red] you are already part of this team![/color]')
+            return false
+        end
+
+        if allow_switching_team then
+            local empty_inventory =
+            player.get_inventory(defines.inventory.character_main).is_empty() and
+            player.get_inventory(defines.inventory.character_trash).is_empty() and
+            player.get_inventory(defines.inventory.character_ammo).is_empty() and
+            player.get_inventory(defines.inventory.character_armor).is_empty() and
+            player.get_inventory(defines.inventory.character_guns).is_empty() and
+            player.crafting_queue_size == 0
+            if not empty_inventory then
+                player.print('[color=red]Failed to join [/color][color=yellow]United Factory Workers,[/color][color=red] you need an empty inventory![/color]')
+                return false
+            end
+        end
+
         player.force = force_USA
         player.print('[color=green]You have joined United Factory Workers![/color]')
         restore_character(player)
         player.teleport(get_teleport_location(force_USA, true), RS.get_surface())
         check_ready_to_start()
+        remote.call('space-race-lobby', 'update_gui')
         return true
     end
     player.print('Failed to join new team, do not be a spy!')
@@ -483,16 +526,37 @@ function Public.join_ussr(_, player)
     local force_USSR = primitives.force_USSR
 
     local force = player.force
-    if not check_player_balance(force_USSR) then
+    local balance = check_player_balance(force_USSR)
+    local allow_switching_team = balance >= 2
+    if balance < 0 then
         player.print('[color=red]Failed to join [/color][color=yellow]Union of Factory Employees[/color][color=red], teams would become unbalanced![/color]')
         return false
     end
-    if not primitives.game_started or (force ~= force_USSR and force ~= force_USA) then
+    if not primitives.game_started or (force ~= force_USSR and force ~= force_USA) or allow_switching_team then
+        if force == force_USSR then
+            player.print('[color=red]Failed to join [/color][color=yellow]United Factory Workers,[/color][color=red] you are already part of this team![/color]')
+            return false
+        end
+
+        if allow_switching_team then
+            local empty_inventory =
+            player.get_inventory(defines.inventory.character_main).is_empty() and
+            player.get_inventory(defines.inventory.character_trash).is_empty() and
+            player.get_inventory(defines.inventory.character_ammo).is_empty() and
+            player.get_inventory(defines.inventory.character_armor).is_empty() and
+            player.get_inventory(defines.inventory.character_guns).is_empty() and
+            player.crafting_queue_size == 0
+            if not empty_inventory then
+                player.print('[color=red]Failed to join [/color][color=yellow]United Factory Workers,[/color][color=red] you need an empty inventory![/color]')
+                return false
+            end
+        end
         player.force = force_USSR
         player.print('[color=green]You have joined Union of Factory Employees![/color]')
         restore_character(player)
         player.teleport(get_teleport_location(force_USSR, true), RS.get_surface())
         check_ready_to_start()
+        remote.call('space-race-lobby', 'update_gui')
         return true
     end
     player.print('Failed to join new team, do not be a spy!')

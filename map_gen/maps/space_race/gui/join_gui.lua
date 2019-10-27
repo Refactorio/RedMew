@@ -96,27 +96,22 @@ end
 Gui.on_click(
     join_USA,
     function(event)
-        local frame = Gui.get_data(event.element)
+        --local frame = Gui.get_data(event.element)
         local player = event.player
-
-        if remote.call('space-race', 'join_usa', nil, player) then
-            Gui.destroy(frame)
-            remote.call('space-race-lobby' ,'update_gui')
-        end
+        --Gui.destroy(frame)
+        remote.call('space-race', 'join_usa', nil, player)
+        remote.call('space-race-lobby', 'update_gui')
     end
 )
 
 Gui.on_click(
     join_USSR,
     function(event)
-        local frame = Gui.get_data(event.element)
+        --local frame = Gui.get_data(event.element)
         local player = event.player
-
-        if remote.call('space-race', 'join_ussr', nil, player) then
-            Gui.remove_data_recursively(frame)
-            frame.destroy()
-            remote.call('space-race-lobby' ,'update_gui')
-        end
+        --Gui.destroy(frame)
+        remote.call('space-race', 'join_ussr', nil, player)
+        remote.call('space-race-lobby', 'update_gui')
     end
 )
 

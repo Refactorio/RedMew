@@ -77,8 +77,13 @@ end
 -- <Load GUI end>
 
 function Public.show_gui_to_all(message)
+    local teams = remote.call('space-race', 'get_teams')
+
+    local force_USSR = teams[2]
+    local force_USA = teams[1]
     for _, player in pairs(game.connected_players) do
-        if player.force ~= 'player' then
+        local force = player.force
+        if force == force_USSR or force == force_USA then
             Public.show_gui({player_index = player.index}, message)
         end
     end

@@ -76,7 +76,7 @@ delay_snake_checker =
 
 Event.on_init(
     function()
-        local snake_surface = game.create_surface('snake')
+        local snake_surface = game.create_surface('snake', {height = 1, width = 1})
         game.forces.player.set_spawn_position({x = 0, y = 0}, snake_surface)
         local y = 128
         local x = 128
