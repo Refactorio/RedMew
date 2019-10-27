@@ -4,6 +4,7 @@ local Task = require 'utils.task'
 local b = require 'map_gen.shared.builders'
 local snake_game = require 'features.snake.game'
 local config = require 'map_gen.maps.space_race.config'
+local Gui = require 'utils.gui'
 
 --Guis
 local join_gui = require 'map_gen.maps.space_race.gui.join_gui'
@@ -111,8 +112,12 @@ function Public.update_gui()
         local player = players[i]
         local center = player.gui.center
         local gui = center['Space-Race-Lobby']
-        if (gui) and player.force.name == 'player' then
-            Public.show_gui({player_index = player.index})
+        if (gui) then
+            if player.force.name == 'player' then
+                Public.show_gui({player_index = player.index})
+            else
+                Gui.destroy(gui)
+            end
         end
     end
 end

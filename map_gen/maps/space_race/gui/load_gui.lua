@@ -9,7 +9,7 @@ function Public.show_gui(event, message)
     local frame
     local player = game.get_player(event.player_index)
     local center = player.gui.center
-    local gui = center['Space-Race-Lobby']
+    local gui = center['Space-Race-Wait']
     if (gui) then
         Gui.destroy(gui)
     end
@@ -17,7 +17,7 @@ function Public.show_gui(event, message)
     local show_timer = message == nil
     local caption = message or 'Waiting for map to generate\n\n... Please wait ...\n'
 
-    frame = player.gui.center.add {name = 'Space-Race-Lobby', type = 'frame', direction = 'vertical', style = 'captionless_frame'}
+    frame = player.gui.center.add {name = 'Space-Race-Wait', type = 'frame', direction = 'vertical', style = 'captionless_frame'}
 
     frame.style.minimal_width = 300
 
@@ -92,7 +92,7 @@ end
 function Public.remove_gui()
     for _, player in pairs(game.players) do
         local center = player.gui.center
-        local gui = center['Space-Race-Lobby']
+        local gui = center['Space-Race-Wait']
         if (gui) then
             Gui.destroy(gui)
         end

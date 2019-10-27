@@ -31,9 +31,9 @@ redmew_config.score.enabled = false
 redmew_config.player_rewards.enabled = false
 redmew_config.apocalypse.enabled = false
 redmew_config.turret_active_delay.turret_types = {
-    ['ammo-turret'] = 60 * 3,
-    ['electric-turret'] = 60 * 10,
-    ['fluid-turret'] = 60 * 5,
+    ['ammo-turret'] = 60 * 10,
+    ['electric-turret'] = 60 * 20,
+    ['fluid-turret'] = 60 * 15,
     ['artillery-turret'] = 60 * 60
 }
 redmew_config.turret_active_delay.techs = {}
@@ -148,7 +148,7 @@ Event.on_init(
             local items = Table.deep_copy(Market_Items)
             for _, prototype in pairs(items) do
                 local name = prototype.name
-                --prototype.price = (disabled_research[name] and disabled_research[name].player) and disabled_research[name].player * player_kill_reward or prototype.price
+                prototype.price = (disabled_research[name] and disabled_research[name].player) and disabled_research[name].player * player_kill_reward or prototype.price
                 local unlock_requires = disabled_research[name]
                 if prototype.disabled and unlock_requires then
                     if unlock_requires.invert then
@@ -382,7 +382,7 @@ local function teleport(_, player)
             local seconds = (time_left - (time_left % 60)) / 60
             time_left = seconds .. ' seconds left'
         end
-        player.print('[color=yellow]Could not warp, in setup fase![/color] [color=red]' .. time_left .. '[/color]')
+        player.print('[color=yellow]Could not warp, in setup phase![/color] [color=red]' .. time_left .. '[/color]')
         return
     end
     local position = character.position
@@ -538,7 +538,7 @@ function Public.join_ussr(_, player)
             return false
         end
 
-        if allow_switching_team then
+        if allow_switching_team and player.character then
             local empty_inventory =
             player.get_inventory(defines.inventory.character_main).is_empty() and
             player.get_inventory(defines.inventory.character_trash).is_empty() and

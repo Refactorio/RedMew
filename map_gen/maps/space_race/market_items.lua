@@ -6,7 +6,7 @@ return {
         description = {'', 'Unlocks stone walls research'},
         sprite = 'technology/stone-walls',
         stack_limit = 1,
-        price = 500,
+        price = 50,
         disabled = true,
         disabled_reason = {'', 'DISABLED'}
     },
@@ -17,7 +17,7 @@ return {
         description = {'', 'Unlocks heavy armor research'},
         sprite = 'technology/heavy-armor',
         stack_limit = 1,
-        price = 1000,
+        price = 100,
         disabled = true,
         disabled_reason = {'', 'DISABLED'}
     },
@@ -28,7 +28,7 @@ return {
         description = {'', 'Unlocks military research'},
         sprite = 'technology/military',
         stack_limit = 1,
-        price = 1000,
+        price = 100,
         disabled = true,
         disabled_reason = {'', 'DISABLED'}
     },
@@ -39,7 +39,7 @@ return {
         description = {'', 'Unlocks military 2 research'},
         sprite = 'technology/military-2',
         stack_limit = 1,
-        price = 10000,
+        price = 1500,
         disabled = true,
         disabled_reason = {'', 'DISABLED'}
     },
@@ -50,7 +50,7 @@ return {
         description = {'', 'Unlocks military 3 research'},
         sprite = 'technology/military-3',
         stack_limit = 1,
-        price = 25000,
+        price = 2500,
         disabled = true,
         disabled_reason = {'', 'DISABLED'}
     },
@@ -61,7 +61,7 @@ return {
         description = {'', 'Unlocks military 4 research'},
         sprite = 'technology/military-3',
         stack_limit = 1,
-        price = 50000,
+        price = 5000,
         disabled = true,
         disabled_reason = {'', 'DISABLED'}
     },
@@ -72,7 +72,7 @@ return {
         description = {'', 'Tanks can only be purchased'},
         sprite = 'item/tank',
         stack_limit = 1,
-        price = 2000,
+        price = 200,
         disabled = true,
         disabled_reason = {'', 'Research tanks to unlock'}
     },
