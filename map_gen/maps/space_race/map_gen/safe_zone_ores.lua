@@ -9,6 +9,12 @@ local seed2 = seed1 * 2
 
 local width_2 = Map_gen_config.width_2
 
+local pic = require 'map_gen.data.presets.life'
+pic = b.decompress(pic)
+
+local life_shape = b.picture(pic)
+life_shape = b.scale(life_shape, 0.05, 0.05)
+
 local function value(base, mult, pow)
     return function(x, y)
         local d = math.sqrt(x * x + y * y)
@@ -21,8 +27,8 @@ local function non_transform(shape)
 end
 
 local ores = {
-    {weight = 150},
-    {transform = non_transform, resource = 'iron-ore', value = value(500, 0.75, 1.2), weight = 16},
+    {weight = 275},
+    {transform = non_transform, resource = 'iron-ore', value = value(500, 0.75, 1.2), weight = 12},
     {transform = non_transform, resource = 'copper-ore', value = value(400, 0.75, 1.2), weight = 10},
     {transform = non_transform, resource = 'stone', value = value(250, 0.3, 1.05), weight = 3},
     {transform = non_transform, resource = 'coal', value = value(400, 0.8, 1.075), weight = 8}
@@ -56,8 +62,7 @@ for r = 1, p_rows do
         if not transform then
             row[c] = b.no_entity
         else
-            local shape = b.circle(16)
-            local ore_shape = transform(shape)
+            local ore_shape = transform(life_shape)
 
             local x = random_ore:next_int(-16, 16)
             local y = random_ore:next_int(-16, 16)

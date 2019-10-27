@@ -9,6 +9,12 @@ local seed2 = seed1 * 2
 
 local width_2 = Map_gen_config.width_2
 
+local pic = require 'map_gen.data.presets.death'
+pic = b.decompress(pic)
+
+local death_shape = b.picture(pic)
+death_shape = b.scale(death_shape, 0.075, 0.075)
+
 local function value(base, mult, pow)
     return function(x, y)
         local d = math.sqrt(x * x + y * y)
@@ -21,12 +27,11 @@ local function non_transform(shape)
 end
 
 local function uranium_transform(shape)
-    return b.scale(shape, 0.5)
+    return b.scale(shape, 0.75)
 end
 
 local function oil_transform(shape)
-    shape = b.scale(shape, 0.5)
-    shape = b.throttle_world_xy(shape, 1, 5, 1, 5)
+    shape = b.throttle_xy(shape, 1, 5, 1, 5)
     return shape
 end
 
@@ -36,14 +41,14 @@ local function water_transform(shape)
 end
 
 local ores = {
-    {weight = 50},
-    {transform = non_transform, resource = 'iron-ore', value = value(500, 0.75, 1.2), weight = 16},
+    {weight = 200},
+    {transform = non_transform, resource = 'iron-ore', value = value(500, 0.75, 1.2), weight = 12},
     {transform = non_transform, resource = 'copper-ore', value = value(400, 0.75, 1.2), weight = 10},
     {transform = non_transform, resource = 'stone', value = value(250, 0.3, 1.05), weight = 3},
     {transform = non_transform, resource = 'coal', value = value(400, 0.8, 1.075), weight = 8},
-    {transform = uranium_transform, resource = 'uranium-ore', value = value(200, 0.3, 1.025), weight = 3},
+    {transform = uranium_transform, resource = 'uranium-ore', value = value(100, 0.3, 1.015), weight = 3},
     {transform = oil_transform, resource = 'crude-oil', value = value(180000, 50, 1.1), weight = 6},
-    {transform = water_transform, weight = 100}
+    {transform = water_transform, weight = 20}
 }
 
 local total_ore_weights = {}
@@ -77,13 +82,18 @@ for r = 1, p_rows do
         if not transform then
             row[c] = b.no_entity
         else
-            local shape = b.circle(8)
-            local ore_shape = transform(shape)
+            local resource = ore_data.resource
+
+            local ore_shape
+            if resource == 'crude-oil' then
+                ore_shape = transform(b.rectangle(24, 24))
+            else
+                ore_shape = transform(death_shape)
+            end
 
             local x = random_ore:next_int(-16, 16)
             local y = random_ore:next_int(-16, 16)
             ore_shape = b.translate(ore_shape, x, y)
-            local resource = ore_data.resource
 
             if not resource then
                 water_row[c] = ore_shape
