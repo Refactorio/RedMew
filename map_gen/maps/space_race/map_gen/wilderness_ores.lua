@@ -1,11 +1,13 @@
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
 local table = require 'utils.table'
+local Global = require 'utils.global'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local Map_gen_config = (require 'map_gen.maps.space_race.config').map_gen
 
-local seed1 = 17000
-local seed2 = seed1 * 2
+local seed = nil -- set to number to force seed
+local seed_2 = nil -- set to number to force seed
 
 local width_2 = Map_gen_config.width_2
 
@@ -58,7 +60,7 @@ for _, v in ipairs(ores) do
     table.insert(total_ore_weights, ore_t)
 end
 
-local random_ore = Random.new(seed1, seed2)
+local random_ore = Random.new(seed, seed_2)
 local ore_pattern = {}
 local water_pattern = {}
 
@@ -108,5 +110,17 @@ end
 
 local mirrored_ore = b.grid_pattern_full_overlap(ore_pattern, p_cols, p_rows, 48, 48)
 local mirrored_water = b.grid_pattern_full_overlap(water_pattern, p_cols, p_rows, 48, 48)
+
+Global.register_init(
+    {},
+    function(tbl)
+        tbl.seed = seed or RS.get_surface().map_gen_settings.seed
+        tbl.seed_2 = seed_2 or tbl.seed * 2
+    end,
+    function(tbl)
+        seed = tbl.seed
+        seed_2 = tbl.seed_2
+    end
+)
 
 return {mirrored_ore, mirrored_water}
