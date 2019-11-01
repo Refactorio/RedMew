@@ -52,15 +52,22 @@ local spill_items =
 )
 
 local entity_spawn_map = {
-    ['medium-biter'] = {name = 'small-biter', count = 2, chance = 1},
-    ['big-biter'] = {name = 'medium-biter', count = 2, chance = 1},
-    ['behemoth-biter'] = {name = 'big-biter', count = 2, chance = 1},
+    ['medium-biter'] = {name = 'small-worm-turret', count = 1, chance = 0.2},
+    ['big-biter'] = {name = 'medium-worm-turret', count = 1, chance = 0.2},
+    ['behemoth-biter'] = {name = 'big-worm-turret', count = 1, chance = 0.2},
     ['medium-spitter'] = {name = 'small-worm-turret', count = 1, chance = 0.2},
     ['big-spitter'] = {name = 'medium-worm-turret', count = 1, chance = 0.2},
     ['behemoth-spitter'] = {name = 'big-worm-turret', count = 1, chance = 0.2},
     ['biter-spawner'] = {type = 'biter', count = 5, chance = 1},
     ['spitter-spawner'] = {type = 'spitter', count = 5, chance = 1},
-    ['behemoth-worm-turret'] = {name = 'behemoth-spitter', count = 2, chance = 1},
+    ['behemoth-worm-turret'] = {
+        type = 'compound',
+        spawns = {
+            {name = 'behemoth-spitter', count = 2},
+            {name = 'behemoth-biter', count = 2}
+        },
+        chance = 1
+    },
     ['stone-furnace'] = {type = 'cause', count = 2, chance = 1},
     ['steel-furnace'] = {type = 'cause', count = 2, chance = 1},
     ['electric-furnace'] = {type = 'cause', count = 4, chance = 1},
@@ -291,7 +298,7 @@ Event.add(
             if no_coin_entity[unit_number] then
                 no_coin_entity[unit_number] = nil
             else
-                local count = math.random(bounds.low, bounds.high)
+                local count = random(bounds.low, bounds.high)
 
                 if count > 0 then
                     set_timeout_in_ticks(
@@ -304,41 +311,44 @@ Event.add(
         end
 
         local spawn = entity_spawn_map[entity_name]
+        if not spawn then
+            return
+        end
 
-        if spawn then
-            local chance = spawn.chance
-            if chance == 1 or random() <= chance then
-                local name = spawn.name
-                if name == nil then
-                    local type = spawn.type
-                    if type == 'cause' then
-                        local cause = event.cause
-                        if not cause then
-                            return
-                        end
-                        name = cause.name
-                        if not allowed_cause_source[cause.name] then
-                            return
-                        end
-                    else
-                        name = unit_levels[type][get_level()]
-                    end
-                end
+        local chance = spawn.chance
+        if chance ~= 1 and random() > chance then
+            return
+        end
 
-                if worms[name] then
-                    set_timeout_in_ticks(
-                        5,
-                        spawn_worm,
-                        {surface = entity.surface, name = name, position = entity.position}
-                    )
-                else
-                    set_timeout_in_ticks(
-                        5,
-                        spawn_units,
-                        {surface = entity.surface, name = name, position = entity.position, count = spawn.count}
-                    )
+        local name = spawn.name
+        if name == nil then
+            local type = spawn.type
+            if type == 'cause' then
+                local cause = event.cause
+                if not cause then
+                    return
                 end
+                name = cause.name
+                if not allowed_cause_source[cause.name] then
+                    return
+                end
+            elseif type == 'compound' then
+                local spawns = spawn.spawns
+                spawn = spawns[random(#spawns)]
+                name = spawn.name
+            else
+                name = unit_levels[type][get_level()]
             end
+        end
+
+        if worms[name] then
+            set_timeout_in_ticks(5, spawn_worm, {surface = entity.surface, name = name, position = entity.position})
+        else
+            set_timeout_in_ticks(
+                5,
+                spawn_units,
+                {surface = entity.surface, name = name, position = entity.position, count = spawn.count}
+            )
         end
     end
 )
