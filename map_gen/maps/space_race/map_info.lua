@@ -48,6 +48,10 @@ Current Version: ]] .. config.version
 
 ScenarioInfo.set_new_info(
     [[
+2019-10-27  v0.4.6
+- Fixes to coin drops
+- Fixes for market unlocks
+- Total darkness at night
 2019-10-27  v0.4.5
 - Use /join-UF* to switch team when unbalanced
 - 10 seconds buffer before game start after map generation has finished

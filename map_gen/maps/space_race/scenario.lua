@@ -99,6 +99,8 @@ Event.on_init(
 
         local surface = RS.get_surface()
 
+        surface.min_brightness = 0;
+
         force_USSR.set_spawn_position({x = 409, y = 0}, surface)
         force_USA.set_spawn_position({x = -409, y = 0}, surface)
 
