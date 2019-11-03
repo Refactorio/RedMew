@@ -494,7 +494,7 @@ function Public.join_usa(_, player)
             return false
         end
 
-        if allow_switching_team then
+        if allow_switching_team and player.character then
             local empty_inventory =
             player.get_inventory(defines.inventory.character_main).is_empty() and
             player.get_inventory(defines.inventory.character_trash).is_empty() and

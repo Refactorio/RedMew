@@ -77,7 +77,6 @@ local function random_tech(tier, force, group_name)
                 local items = Retailer.get_items(group_name)
                 items[tier_name].price = math.ceil(items[tier_name].price * 1.05)
             elseif tech_unlocked then
-                game.print(technology.name)
                 techs_left = true
                 break
             end
@@ -265,6 +264,11 @@ local function spill_coins(event)
         return
     end
 
+    local force = event.cause.force or event.force
+    if not force or entity.force == force then
+        return
+    end
+
     local bounds = entity_drop_amount[entity.name]
     if not bounds then
         return
@@ -364,7 +368,8 @@ local function on_player_died(event)
     if cause and cause.valid and cause.type == 'character' then
         local cause_force = cause.force
         if not (game.get_player(event.player_index).force == cause_force) then
-            cause.insert({name = 'coin', count = player_kill_reward})
+            local coins_inserted = cause.insert({name = 'coin', count = player_kill_reward})
+            ScoreTracker.change_for_player(cause.index, 'coins-earned', coins_inserted)
             update_unlock_progress(cause_force, unlock_reasons.player_killed)
         end
     end
