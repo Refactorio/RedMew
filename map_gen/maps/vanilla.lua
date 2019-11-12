@@ -3,7 +3,7 @@ local b = require 'map_gen.shared.builders'
 local pic = require 'map_gen.data.presets.vanilla'
 local ore_mask = require 'map_gen.data.presets.vanilla-ore-mask'
 
-local tiny_ores = require('map_gen.ores.tiny_ores')(256)
+local tiny_ores = require('map_gen.entities.tiny_ores')(256)
 
 local map = b.picture(pic)
 
