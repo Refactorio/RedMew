@@ -28,7 +28,7 @@ local map = b.grid_pattern(pattern, 2, 2, pic.width - 1, pic.height - 1)
 
 map = b.translate(map, 222, 64)
 
-local rainbows = require 'map_gen.ores.fluffy_rainbows'
+local rainbows = require 'map_gen.entities.fluffy_rainbows'
 
 local rainbow1 = b.translate(rainbows, 1000000, 1000000)
 local rainbow2 = b.translate(rainbows, 2000000, 2000000)
