@@ -48,6 +48,8 @@ Current Version: ]] .. config.version
 
 ScenarioInfo.set_new_info(
     [[
+2019-11-16  v0.4.7
+- Reduced player movement during combat
 2019-10-27  v0.4.6
 - Fixes to coin drops
 - Fixes for market unlocks

@@ -364,6 +364,25 @@ local function get_teleport_location(force, to_safe_zone)
     return position
 end
 
+local function check_damaged_players()
+    for k, player in pairs (game.connected_players) do
+        if player.character and player.character.health ~= nil then
+            local health_missing = 1 - math.ceil(player.character.health) / (250 + player.character.character_health_bonus)
+            if health_missing > 0 then
+	            local current_modifier = 0
+				local hurt_speed_percent = 80
+				local reduction = 1 - hurt_speed_percent / 100
+				player.character_running_speed_modifier = (1 - health_missing * reduction) * (current_modifier + 1) - 1
+			end
+		end
+	end
+end
+--yea
+Event.on_nth_tick(20, check_damaged_players)
+--[[
+so save and load that?
+
+]]
 local function teleport(_, player)
     local character = player.character
     if not character or not character.valid then

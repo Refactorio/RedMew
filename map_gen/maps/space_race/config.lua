@@ -1,5 +1,5 @@
 local Config = {
-    version = 'v0.4.5',
+    version = 'v0.4.7',
     players_needed_to_start_game = 4,
     bootstrap_period = 60 * 60 * 30, -- 30 minutes
     player_kill_reward = 25,
