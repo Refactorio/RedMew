@@ -377,12 +377,9 @@ local function check_damaged_players()
 		end
 	end
 end
---yea
-Event.on_nth_tick(20, check_damaged_players)
---[[
-so save and load that?
 
-]]
+Event.on_nth_tick(20, check_damaged_players)
+
 local function teleport(_, player)
     local character = player.character
     if not character or not character.valid then
