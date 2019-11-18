@@ -154,7 +154,6 @@ local waypoints_redmew = {
 local function cutscene_function_outpost(player_index, waypoint_index, params)
     local cases = {}
     local player = game.players[player_index]
-    local ttw = params.time_to_wait
     local zoom = params.zoom
     local tick = params.tick
     local settings = {original_resolution = original_resolution, original_zoom = original_zoom, player_zoom = zoom}
