@@ -105,7 +105,7 @@ local function cutscene_function_redmew(player_index, waypoint_index, params)
         draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene1_case2_line1'}}, player, {scale = 2.5}, true, false, 300)
     end
     cases[3] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene1_case3_line1'}}, player, {scale = 3}, true, false, 300)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene1_case3_line1'}}, player, {scale = 3}, true, false, 400)
     end
     local case = cases[waypoint_index]
     if case then
@@ -145,9 +145,9 @@ local waypoints_redmew = {
     {
         -- case 3
         position = {x = 0, y = 0},
-        transition_time = 60,
-        time_to_wait = 120,
-        zoom = 0.7
+        transition_time = 90,
+        time_to_wait = 400,
+        zoom = 0.2
     }
 }
 
