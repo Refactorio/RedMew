@@ -1,7 +1,6 @@
 require 'map_gen.maps.crash_site.blueprint_extractor'
 require 'map_gen.maps.crash_site.entity_died_events'
 require 'map_gen.maps.crash_site.weapon_balance'
-require 'map_gen.maps.crash_site.cutscene'
 
 local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
@@ -15,6 +14,7 @@ local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local RedmewConfig = require 'config'
+local Cutscene = require 'map_gen.maps.crash_site.cutscene'
 
 local degrees = math.degrees
 
@@ -187,6 +187,7 @@ local function init()
     game.surfaces.cutscene.request_to_generate_chunks({0,0}, 2)
     game.surfaces.cutscene.force_generate_chunk_requests()
     cutscene_outpost()
+    Cutscene.register()
 
     local stage1a = {
         small_iron_plate_factory,
