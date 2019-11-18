@@ -167,7 +167,7 @@ local function cutscene_function_outpost(player_index, waypoint_index, params)
         draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case_line1'}, {'crashsite.cutscene2_case_line2'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 375 * 2)
     end
     cases[0] = function()
-        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case0_line1'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 375)
+        draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case0_line1'}, {'crashsite.cutscene2_case0_line2'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 375 * 2)
     end
     cases[1] = function()
         draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene2_case1_line1'}}, player, {scale = 2.5, surface = "cutscene"}, true, false, 500)
@@ -202,7 +202,7 @@ local waypoints_outpost = {
         -- case 0
         position = {x = 0, y = -10},
         transition_time = 120,
-        time_to_wait = 375,
+        time_to_wait = 375 * 2,
         zoom = 1.5
     },
     {
