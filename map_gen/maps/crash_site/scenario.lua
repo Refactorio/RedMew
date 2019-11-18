@@ -1,6 +1,7 @@
 require 'map_gen.maps.crash_site.blueprint_extractor'
 require 'map_gen.maps.crash_site.entity_died_events'
 require 'map_gen.maps.crash_site.weapon_balance'
+require 'map_gen.maps.crash_site.cutscene'
 
 local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
@@ -135,12 +136,57 @@ local spawn_callback =
     end
 )
 
+local function cutscene_builder(name, x, y)
+    game.surfaces.cutscene.create_entity{name = name, position = {x, y}, force = game.forces.enemy}
+end
+local function cutscene_loot()
+    for i = -2, 2 do
+        for j = 3, 5 do
+            local box = game.surfaces.cutscene.create_entity{name = 'steel-chest', position = {i, j}, force = game.forces.enemy}
+            box.insert{name = "iron-plate", count = 50}
+        end
+    end
+end
+local function cutscene_outpost()
+    local tiles = {}
+    for i = -11, 12 do
+        for j = -11, 12 do
+            table.insert(tiles, {name = "stone-path", position = {i, j}})
+        end
+    end
+    for i = 0, 22 do
+        cutscene_builder('stone-wall', -11, -10+i)
+        cutscene_builder('stone-wall', -12, -10+i)
+        cutscene_builder('stone-wall', -12+i, -11)
+        cutscene_builder('stone-wall', -12+i, -12)
+        cutscene_builder('stone-wall', 11, -12+i)
+        cutscene_builder('stone-wall', 12, -12+i)
+        cutscene_builder('stone-wall', -10+i, 11)
+        cutscene_builder('stone-wall', -10+i, 12)
+        if i%4 == 0 and i ~= 20 and i ~= 0 then
+            cutscene_builder('gun-turret', -8, -8+i)
+            cutscene_builder('gun-turret', 10, -8+i)
+            cutscene_builder('gun-turret', -9+i, -8)
+            cutscene_builder('gun-turret', -9+i, 10)
+        end
+    end
+    cutscene_loot()
+    game.surfaces.cutscene.create_entity{name = "market", position = {-4, 0}, force = game.forces.enemy}
+    game.surfaces.cutscene.create_entity{name = "electric-furnace", position = {4, 0}, force = game.forces.enemy}
+    game.surfaces.cutscene.set_tiles(tiles)
+end
+
 local function init()
     local on_init = (_LIFECYCLE == _STAGE.init)
 
     local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
 
     local outpost_builder = OutpostBuilder.new(outpost_random)
+    
+    game.create_surface('cutscene')
+    game.surfaces.cutscene.request_to_generate_chunks({0,0}, 2)
+    game.surfaces.cutscene.force_generate_chunk_requests()
+    cutscene_outpost()
 
     local stage1a = {
         small_iron_plate_factory,
