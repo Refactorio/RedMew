@@ -182,7 +182,7 @@ local function init()
     local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
 
     local outpost_builder = OutpostBuilder.new(outpost_random)
-    
+
     game.create_surface('cutscene')
     game.surfaces.cutscene.request_to_generate_chunks({0,0}, 2)
     game.surfaces.cutscene.force_generate_chunk_requests()
