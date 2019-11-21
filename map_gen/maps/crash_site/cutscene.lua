@@ -14,11 +14,18 @@ local Rendering = require 'utils.rendering'
 
 local CrashsiteCutscene = {}
 
+local function valid(entity)
+    return entity and entity.valid
+end
+
 local delayed_draw_text =
     Token.register(
         function(params)
-            local tick = params.tick
             local player = params.player
+            if (not valid(player)) then
+                return
+            end
+            local tick = params.tick
             if params.play_sound > 1 then
                 play_sound(tick, player, 'utility/list_box_click', 1)
             end
@@ -44,6 +51,9 @@ local delayed_draw_arrow =
     Token.register(
         function(params)
             local player = params.player
+            if (not valid(player)) then
+                return
+            end
             local tick = params.tick
             params = params.params
             local rendering_parmas = params.params
@@ -53,6 +63,9 @@ local delayed_draw_arrow =
         end
 )
 local function delayed_function(func, player, tick, params, offset_time)
+    if (not valid(player)) then
+        return
+    end
     Task.set_timeout_in_ticks(offset_time, func, {player = player, tick = tick, params = params})
 end
 
@@ -60,8 +73,11 @@ local original_resolution = {height = 1440, width = 2560}
 local original_zoom = 1
 
 local function cutscene_function_redmew(player_index, waypoint_index, params)
-    local cases = {}
     local player = game.players[player_index]
+    if (not valid(player)) then
+        return
+    end
+    local cases = {}
     local ttw = params.time_to_wait
     local zoom = params.zoom
     local tick = params.tick
@@ -152,8 +168,11 @@ local waypoints_redmew = {
 }
 
 local function cutscene_function_outpost(player_index, waypoint_index, params)
-    local cases = {}
     local player = game.players[player_index]
+    if (not valid(player)) then
+        return
+    end
+    local cases = {}
     local zoom = params.zoom
     local tick = params.tick
     local settings = {original_resolution = original_resolution, original_zoom = original_zoom, player_zoom = zoom}
@@ -246,6 +265,9 @@ local start_cutscene_outpost =
     Token.register(
         function(player_index)
             local player = game.get_player(player_index)
+            if (not valid(player)) then
+                return
+            end
             player.teleport({0, 30}, 'cutscene')
             Cutscene.register_running_cutscene(player_index, 'Crashsite_Outpost', 60)
         end
@@ -256,6 +278,9 @@ end
 
 local function terminate_function_outpost(player_index)
     local player = game.get_player(player_index)
+    if (not valid(player)) then
+        return
+    end
     player.teleport({0, 0}, 'redmew')
     PC.show_start_up(player)
     player.print({'crashsite.replay_cutscene', '/replay'}, Color.yellow)
