@@ -139,14 +139,7 @@ local spawn_callback =
 local function cutscene_builder(name, x, y)
     game.surfaces.cutscene.create_entity{name = name, position = {x, y}, force = game.forces.enemy}
 end
-local function cutscene_loot()
-    for i = -2, 2 do
-        for j = 3, 5 do
-            local box = game.surfaces.cutscene.create_entity{name = 'steel-chest', position = {i, j}, force = game.forces.enemy}
-            box.insert{name = "iron-plate", count = 50}
-        end
-    end
-end
+
 local function cutscene_outpost()
     local tiles = {}
     for i = -11, 12 do
@@ -170,9 +163,14 @@ local function cutscene_outpost()
             cutscene_builder('gun-turret', -9+i, 10)
         end
     end
-    cutscene_loot()
-    game.surfaces.cutscene.create_entity{name = "market", position = {-4, 0}, force = game.forces.enemy}
-    game.surfaces.cutscene.create_entity{name = "electric-furnace", position = {4, 0}, force = game.forces.enemy}
+    for i = -2, 2 do
+        for j = 3, 5 do
+            local loot_box = cutscene_builder('steel-chest', i, j)
+            loot_box.insert{name = "iron-plate", count = 50}
+        end
+    end
+    cutscene_builder('market', -4, 0)
+    cutscene_builder('electric-furnace', 4, 0)
     game.surfaces.cutscene.set_tiles(tiles)
 end
 
