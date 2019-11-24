@@ -123,7 +123,7 @@ global.config.market.standard_market_location = {x = startx, y = starty}
 --local function on_init()
 local surface = RS.get_surface()local spawn_position = {x = startx, y = starty-3}
 RS.set_spawn_position(spawn_position, surface)
-end
+--end
    --Ore generation                                                                                                     -- Copy for "void gears' - altered seeds to create nice starting area - reduced amount of ore patches
     local seed1 = 1410                                                                                               -- random seeds (ore gears)         --6666
     local seed2 = 12900                                                                                             --9999
