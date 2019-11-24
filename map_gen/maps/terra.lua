@@ -245,7 +245,7 @@ small_patches[#small_patches + 1] = {
     1
 }
 local random = Random.new(seed1, seed2)
-local p_cols = 50
+local q_cols = 50
 local p_rows = 50
 local function do_patches(patches, offset)
     local total_weights = {}
@@ -255,7 +255,7 @@ local function do_patches(patches, offset)
         table.insert(total_weights, t)
     end
     local orepattern = {}
-    for _ = 1, p_cols do
+    for _ = 1, q_cols do
         local row = {}
         table.insert(orepattern, row)
         for _ = 1, p_rows do
@@ -274,11 +274,11 @@ local function do_patches(patches, offset)
     return orepattern
 end
 big_patches = do_patches(big_patches, 192)                                                                                  --96           increased numbers to reduce generated patches
-big_patches = b.grid_pattern_full_overlap(big_patches, p_cols, p_rows, 192, 192)
+big_patches = b.grid_pattern_full_overlap(big_patches, q_cols, p_rows, 192, 192)
 medium_patches = do_patches(medium_patches, 128)                                                                 --64
-medium_patches = b.grid_pattern_full_overlap(medium_patches, p_cols, p_rows, 128, 128)
+medium_patches = b.grid_pattern_full_overlap(medium_patches, q_cols, p_rows, 128, 128)
 small_patches = do_patches(small_patches, 128)                                                                          --32
-small_patches = b.grid_pattern_full_overlap(small_patches, p_cols, p_rows, 64, 64)
+small_patches = b.grid_pattern_full_overlap(small_patches, q_cols, p_rows, 64, 64)
 
 --map = b.apply_entity(map, small_patches)
 map = b.apply_entities(map, {big_patches, medium_patches, small_patches})
