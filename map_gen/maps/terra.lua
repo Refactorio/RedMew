@@ -98,11 +98,11 @@ local botland = b.any({shape5, shape1, shape2, shape3, shape4})
 --pave the shape
 botland = b.scale(botland, 2.2,2.2)
 botland = b.change_tile(botland, true, 'lab-dark-2')                                                --replace to  'landfill'  to absorb pollution
-local pattern = {
+local mappattern = {
     {corner, map1},
     {map2,botland}
 }
-local map = b.grid_pattern_overlap(pattern, 2, 2, 499,500)
+local map = b.grid_pattern_overlap(mappattern, 2, 2, 499,500)
 map = b.scale(map, 1.9,1.9)                                                                                     --Final map scaler#########
 -- this sets the tile outside the bounds of the map to water, remove this and it will be void.
 map = b.change_tile(map, false, "water")                                                               --"deepwater" shows borders (for debugging purposes)
