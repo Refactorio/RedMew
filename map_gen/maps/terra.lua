@@ -6,13 +6,13 @@ local gear = require 'map_gen.data.presets.gear_96by96'
 local Random = require 'map_gen.shared.random'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
-        --Map info 
+        --Map info
 ScenarioInfo.set_map_name('Terra')
 ScenarioInfo.set_map_description('The latest experiments has resulted in infinite gears for infinite factory expansion.')
 ScenarioInfo.add_map_extra_info(
     [[
 Tar's additional info about gears:
-      
+
 You start off on familiar grounds, but you must obtain robot technology
 in order to explore beyond the grid.
 
@@ -120,7 +120,7 @@ local starty = 0
     --market
 global.config.market.standard_market_location = {x = startx, y = starty}
  --player
-local function on_init()
+--local function on_init()
 local surface = RS.get_surface()local spawn_position = {x = startx, y = starty-3}
 RS.set_spawn_position(spawn_position, surface)
 end
@@ -131,7 +131,6 @@ gear = b.decompress(gear)
 local gear_big = b.picture(gear)
 local gear_medium = b.scale(gear_big, 2 / 3)
 local gear_small = b.scale(gear_big, 1 / 3)
-local shape = map
 local value = b.manhattan_value
 local ores = {
     {resource_type = 'iron-ore', value = value(250, 1.5)},
@@ -320,16 +319,10 @@ local start_iron =
 local start_segmented = b.segment_pattern({start_stone, start_coal, start_copper, start_iron})
 local start_gear = b.apply_entity(gear_big, start_segmented)                                                                       
 start_gear = b.change_tile(start_gear, true, "grass-3")
-
-
-
-
 map = b.if_else(start_gear, map)
 map = b.if_else(centre, map)        
         --Starting equipment
-
 local player_create = global.config.player_create
-
 player_create.starting_items = {
  --   {name = 'power-armor', count = 1},                                                                --Small biters cant bite this
  --   {name = 'fusion-reactor-equipment', count = 1},                                            --and modular wont with this combined with legs
