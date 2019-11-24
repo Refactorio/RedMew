@@ -137,7 +137,7 @@ local spawn_callback =
 )
 
 local function cutscene_builder(name, x, y)
-    game.surfaces.cutscene.create_entity{name = name, position = {x, y}, force = game.forces.enemy}
+    return game.surfaces.cutscene.create_entity{name = name, position = {x, y}, force = game.forces.enemy}
 end
 
 local function cutscene_outpost()
@@ -148,19 +148,19 @@ local function cutscene_outpost()
         end
     end
     for i = 0, 22 do
-        cutscene_builder('stone-wall', -11, -10+i)
-        cutscene_builder('stone-wall', -12, -10+i)
-        cutscene_builder('stone-wall', -12+i, -11)
-        cutscene_builder('stone-wall', -12+i, -12)
-        cutscene_builder('stone-wall', 11, -12+i)
-        cutscene_builder('stone-wall', 12, -12+i)
-        cutscene_builder('stone-wall', -10+i, 11)
-        cutscene_builder('stone-wall', -10+i, 12)
-        if i%4 == 0 and i ~= 20 and i ~= 0 then
-            cutscene_builder('gun-turret', -8, -8+i)
-            cutscene_builder('gun-turret', 10, -8+i)
-            cutscene_builder('gun-turret', -9+i, -8)
-            cutscene_builder('gun-turret', -9+i, 10)
+        cutscene_builder('stone-wall', -11, -10 + i)
+        cutscene_builder('stone-wall', -12, -10 + i)
+        cutscene_builder('stone-wall', -12 + i, -11)
+        cutscene_builder('stone-wall', -12 + i, -12)
+        cutscene_builder('stone-wall', 11, -12 + i)
+        cutscene_builder('stone-wall', 12, -12 + i)
+        cutscene_builder('stone-wall', -10 + i, 11)
+        cutscene_builder('stone-wall', -10 + i, 12)
+        if i % 4 == 0 and i ~= 20 and i ~= 0 then
+            cutscene_builder('gun-turret', -8, -8 + i)
+            cutscene_builder('gun-turret', 10, -8 + i)
+            cutscene_builder('gun-turret', -9 + i, -8)
+            cutscene_builder('gun-turret', -9 + i, 10)
         end
     end
     for i = -2, 2 do
@@ -170,7 +170,8 @@ local function cutscene_outpost()
         end
     end
     cutscene_builder('market', -4, 0)
-    cutscene_builder('electric-furnace', 4, 0)
+    local furnace = cutscene_builder('electric-furnace', 4, 0)
+    furnace.insert('iron-ore')
     game.surfaces.cutscene.set_tiles(tiles)
 end
 
@@ -181,11 +182,15 @@ local function init()
 
     local outpost_builder = OutpostBuilder.new(outpost_random)
 
-    game.create_surface('cutscene')
-    game.surfaces.cutscene.request_to_generate_chunks({0,0}, 2)
-    game.surfaces.cutscene.force_generate_chunk_requests()
-    cutscene_outpost()
-    Cutscene.register()
+    if on_init then
+        game.create_surface('cutscene')
+        game.surfaces.cutscene.request_to_generate_chunks({0,0}, 2)
+        game.surfaces.cutscene.force_generate_chunk_requests()
+        cutscene_outpost()
+        Cutscene.on_init()
+    else
+        Cutscene.on_load()
+    end
 
     local stage1a = {
         small_iron_plate_factory,
