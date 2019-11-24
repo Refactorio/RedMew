@@ -297,15 +297,19 @@ local start_cutscene =
             Cutscene.register_running_cutscene(params.event.player_index, 'Crashsite_Welcome', 120)
         end
 )
-function CrashsiteCutscene.register()
-    global.config.player_create.cutscene = true
 
+function CrashsiteCutscene.on_init()
+    global.config.player_create.cutscene = true
+    CrashsiteCutscene.on_load()
+end
+
+function CrashsiteCutscene.on_load()
     Event.add(
         defines.events.on_player_created,
         function(event)
             Task.set_timeout_in_ticks(60, start_cutscene, {event = event})
         end
-)
+    )
 end
 
 return CrashsiteCutscene
