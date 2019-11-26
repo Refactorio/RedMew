@@ -33,80 +33,52 @@ RS.set_map_gen_settings(
         MGSP.ore_oil_none,
         MGSP.cliff_none,
         MGSP.water_none,
-      --MGSP.enemy_none,
     }
     )
---[[RS.set_difficulty_settings({{technology_price_multiplier = 1}})                             --Set these on launch
-RS.set_map_settings({map_settings})
-
---Biter settings
-local map_settings = {
-    pollution = {
-        enabled = true
-    },
-    enemy_evolution = {
-        enabled = true,
-        time_factor = (0.0000001),
-        destroy_factor = (0.0002),
-        pollution_factor = (0.0000015)
-    },
-    enemy_expansion = {
-            enabled = true,
-            max_expansion_distance = 7,
-            friendly_base_influence_radius = 2,
-            enemy_building_influence_radius = 2,
-            building_coefficient = 0.1,
-            other_base_coefficient = 2.0,
-            neighbouring_chunk_coefficient = 0.5,
-            neighbouring_base_chunk_coefficient = 0.4,
-            max_colliding_tiles_coefficient = 0.9,
-            settler_group_min_size = 5,
-            settler_group_max_size = 20,
-            min_expansion_cooldown = 60 * 3600,
-            max_expansion_cooldown = 180 * 3600
-        }
-}]]
 --Terraforming
-local pic1 = require "map_gen.data.presets.factorio_logo2" --921x153
+local pic1 = require "map_gen.data.presets.factorio_logo2"
+--picture size 921x153
 pic1 = b.decompress(pic1)
-local map1file = b.picture(pic1)                                                                                --Logo2
-local fillerblock = b.translate(b.rectangle(14,12), 248,2)                                          --land bridge to connect the logo  gear island
-fillerblock = b.change_tile(fillerblock, true, "grass-4")                                               -- same color as picture shade= 'grass-4'
+local map1file = b.picture(pic1)
+--land to connect the logo gear island
+local fillerblock = b.translate(b.rectangle(14,12), 248,2)
+fillerblock = b.change_tile(fillerblock, true, "grass-4")
 local map1 = b.add(fillerblock, map1file)
 map1 = b.scale(map1, 1, 1)
 -- Rotated logo's
 local map2 = b.rotate (map1, math.pi/2)
---Square minus corner pieces
+--Square minus corner pieces, size is related to ''factorio_logo2"
 local shap1 = b.translate(b.rectangle_diamond(26, 24), pic1.height/2,pic1.height/2)
 local shap2 = b.rotate((shap1), math.pi/2)
 local shap3 = b.rotate((shap2), math.pi/2)
 local shap4 = b.rotate((shap3), math.pi/2)
-local shap5 = b.invert(b.rectangle(pic1.height+1, pic1.height+1))                       --size is related to ''factorio_logo2"
+local shap5 = b.invert(b.rectangle(pic1.height+1, pic1.height+1))
 --Combining using all
-local chamfer = b.invert(b.any({shap1, shap2, shap3, shap4, shap5}))                --starter tile is a chamfered square
+local chamfer = b.invert(b.any({shap1, shap2, shap3, shap4, shap5}))
 local corner = chamfer
 corner = b.change_tile(corner, true, "grass-4")
 --Botland (robo islands)
--- creating shapes
-local shape1 = b.translate(b.rectangle(250, 40), 74, 0)                                         --bridge land
+local shape1 = b.translate(b.rectangle(250, 40), 74, 0)
 local shape2 = b.rotate((shape1), math.pi/2)
 local shape3 = b.rotate((shape2), math.pi/2)
 local shape4 = b.rotate((shape3), math.pi/2)
-local shape5 = b.scale((chamfer), 1.4,1.4)                                                              --scaled up starter tile
+local shape5 = b.scale((chamfer), 1.4,1.4)
 --Combining using all
 local botland = b.any({shape5, shape1, shape2, shape3, shape4})
 --pave the shape
 botland = b.scale(botland, 2.2,2.2)
-botland = b.change_tile(botland, true, 'lab-dark-2')                                                --replace to  'landfill'  to absorb pollution
+botland = b.change_tile(botland, true, 'lab-dark-2')
+--replace to  'landfill'  to absorb pollution
 local mappattern = {
     {corner, map1},
     {map2,botland}
 }
 local map = b.grid_pattern_overlap(mappattern, 2, 2, 499,500)
-map = b.scale(map, 1.9,1.9)                                                                                     --Final map scaler#########
+--Final map scaler
+map = b.scale(map, 1.9,1.9)
 -- this sets the tile outside the bounds of the map to water, remove this and it will be void.
-map = b.change_tile(map, false, "water")                                                               --"deepwater" shows borders (for debugging purposes)
-map = b.fish(map, 0.0025)                                                                                       --So long
+map = b.change_tile(map, false, "water")
+map = b.fish(map, 0.0025)
 
 local centre =b.circle(18)
 --local centre = b.rectangle(5,5)
@@ -119,13 +91,12 @@ local starty = 0
     --market
 global.config.market.standard_market_location = {x = startx, y = starty}
  --player
-
 local surface = RS.get_surface()local spawn_position = {x = startx, y = starty-3}
 RS.set_spawn_position(spawn_position, surface)
 
-   --Ore generation                                                                                                     -- Copy for "void gears' - altered seeds to create nice starting area - reduced amount of ore patches
-    local seed1 = 1410                                                                                               -- random seeds (ore gears)         --6666
-    local seed2 = 12900                                                                                             --9999
+   --Ore generation: Copy for "void gears' - altered seeds to create nice starting area
+    local seed1 = 1410
+    local seed2 = 12900
 gear = b.decompress(gear)
 local gear_big = b.picture(gear)
 local gear_medium = b.scale(gear_big, 2 / 3)
@@ -155,7 +126,7 @@ local function striped(shape) -- luacheck: ignore 431
         }
     end
 end
-local function sprinkle(shape) -- luacheck: ignore 43
+local function sprinkle(shape) -- luacheck: ignore 431
     return function(x, y, world)
         if not shape(x, y) then
             return nil
@@ -273,14 +244,13 @@ local function do_patches(patches, offset)
     end
     return orepattern
 end
-big_patches = do_patches(big_patches, 192)                                                                                  --96           increased numbers to reduce generated patches
+big_patches = do_patches(big_patches, 192)
 big_patches = b.grid_pattern_full_overlap(big_patches, p_cols, p_rows, 192, 192)
-medium_patches = do_patches(medium_patches, 128)                                                                 --64
+medium_patches = do_patches(medium_patches, 128)
 medium_patches = b.grid_pattern_full_overlap(medium_patches, p_cols, p_rows, 128, 128)
-small_patches = do_patches(small_patches, 128)                                                                          --32
+small_patches = do_patches(small_patches, 128)
 small_patches = b.grid_pattern_full_overlap(small_patches, p_cols, p_rows, 64, 64)
 
---map = b.apply_entity(map, small_patches)
 map = b.apply_entities(map, {big_patches, medium_patches, small_patches})
 
 local start_stone =
@@ -323,8 +293,6 @@ map = b.if_else(centre, map)
         --Starting equipment
 local player_create = global.config.player_create
 player_create.starting_items = {
- --   {name = 'power-armor', count = 1},                                                                --Small biters cant bite this
- --   {name = 'fusion-reactor-equipment', count = 1},                                            --and modular wont with this combined with legs
     {name = 'modular-armor', count = 1},
     {name = 'solar-panel-equipment', count = 7},
     {name = 'battery-mk2-equipment', count = 1},
@@ -342,8 +310,6 @@ player_create.join_messages = {
     'Click the question mark in the top left corner for server information and map details.'
 }
         --Starting Techs
-
-
 Event.on_init(
     function()
 local force = game.forces.player
@@ -352,6 +318,5 @@ local force = game.forces.player
         force.technologies['landfill'].enabled = false -- disable landfill
    end
 )
-
 
 return map
