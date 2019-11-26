@@ -290,7 +290,8 @@ local function terminate_function_outpost(player_index)
     if (not valid(player)) then
         return
     end
-    player.teleport({0, 0}, 'redmew')
+    local pos = game.surfaces.cutscene.find_non_colliding_position('character', {0, 0}, 0, 1)
+    player.teleport(pos, 'redmew')
     PC.show_start_up(player)
     player.print({'crashsite.replay_cutscene', '/replay'}, Color.yellow)
 end
