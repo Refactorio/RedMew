@@ -272,7 +272,16 @@ local start_cutscene_outpost =
             Cutscene.register_running_cutscene(player_index, 'Crashsite_Outpost', 60)
         end
 )
-local function terminate_function_redmew(player_index)
+local function terminate_function_redmew(player_index,skip_btn_flag)
+    if skip_btn_flag then
+        local player = game.get_player(player_index)
+        if (not valid(player)) then
+            return
+        end
+        PC.show_start_up(player)
+        player.print({'crashsite.replay_cutscene', '/replay'}, Color.yellow)
+        return
+    end
     Task.set_timeout_in_ticks(1, start_cutscene_outpost, player_index)
 end
 
