@@ -3,8 +3,9 @@ local Random = require 'map_gen.shared.random'
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
-
+local Event = require 'utils.event'
 local degrees = require "utils.math".degrees
+local ScenarioInfo = require 'features.gui.info'
 
 local ore_seed1 = 1000
 local ore_seed2 = ore_seed1 * 2
@@ -14,6 +15,29 @@ RS.set_map_gen_settings(
         MGSP.ore_oil_none,
         MGSP.cliff_none
     }
+)
+
+ScenarioInfo.set_map_name('Grid Islands')
+ScenarioInfo.set_map_description(
+    [[
+Large islands linked by multiple land bridges for rails
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+- Custom ore generation
+- Square, circle and diamond islands
+- Islands linked by causeways
+- Encourages rail use to transport materials for manufacture
+]]
+)
+
+ScenarioInfo.set_new_info(
+    [[
+2019-09-09
+- Added automatic disabling of landfill tech instead of manual disable by player
+- Updated map description
+]]
 )
 
 local h_track = {
@@ -169,9 +193,14 @@ local paths =
 
 local sea = b.tile('deepwater')
 sea = b.fish(sea, 0.0025)
-
 map = b.any {map, paths, sea}
-
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
+
+-- Disable landfill technology
+local function on_init()
+    local player_force = game.forces.player
+    player_force.technologies['landfill'].enabled = false           -- disable landfill
+end
+Event.on_init(on_init)
 
 return map

@@ -48,6 +48,13 @@ local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Grid Bot Islands')
 ScenarioInfo.set_map_description('Grid islands with island-based ore mining and deathworld biter settings')
 ScenarioInfo.set_map_extra_info('- Mine the islands with your bots\n- Buy more bots and chests from the market\n- Defend from the hordes of biters!!\n- Earn gold from killing worms and nests and mining trees and rocks')
+ScenarioInfo.set_new_info(
+    [[
+2019-09-09
+- Added automatic disabling of landfill tech instead of manual disable by player
+- Updated map description
+]]
+)
 
 -- Modify the player starting items to kickstart island mining
 local player_create = global.config.player_create
@@ -375,6 +382,8 @@ local function on_init()
     local item_market_1 = surface.create_entity({name = 'market', position = {0, 0}})
     item_market_1.destructible = false
     Retailer.add_market('items', item_market_1)
+
+    player_force.technologies['landfill'].enabled = false           -- disable landfill
 end
 Event.on_init(on_init)
 
