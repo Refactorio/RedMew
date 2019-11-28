@@ -14,7 +14,7 @@ RS.set_map_gen_settings(
 Event.add(
     defines.events.on_tick,
     function(event)
-	    if event.tick % 60*600 == 0 then
+	    if event.tick % 36000 == 0 then
             local message = turkey_message_random[math.random(#turkey_message_random)]
             game.print(message)
 	    end
