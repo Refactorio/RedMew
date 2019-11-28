@@ -16,7 +16,7 @@ Event.add(
     function(event)
 	    if event.tick % 36000 == 0 then
             local message = turkey_message_random[math.random(#turkey_message_random)]
-            game.print(message)
+            game.print('[color=yellow][font=compi]' .. message .. '[/font][/color]')
 	    end
     end
 )
