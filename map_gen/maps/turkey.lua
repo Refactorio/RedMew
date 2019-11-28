@@ -10,6 +10,7 @@ local turkey_message_random = require 'resources.turkey_messages'
 
 RS.set_map_gen_settings(
     {
+	MGSP.ore_oil_none,
         MGSP.cliff_none
     }
 )
