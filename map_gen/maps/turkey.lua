@@ -1,3 +1,4 @@
+--RedMew's 2019 turkey/thanksgiving map! Thanks to all the contributors from world_map_thanksgiving.lua and to TheKidOZ.
 local b = require "map_gen.shared.builders"
 local Random = require 'map_gen.shared.random'
 local table = require 'utils.table'
@@ -13,6 +14,8 @@ RS.set_map_gen_settings(
     }
 )
 
+
+--everything from here to line 145 is all to generate the fancy ore; it should prob be cleaned up at some point.
 local ore_seed = 3000
 
 local turkey_pic = require 'map_gen.data.presets.turkey_bw'
@@ -142,7 +145,7 @@ local ore_grid = b.grid_pattern_full_overlap(ore_pattern, 50, 50, 96, 96)
 
 ore_grid = b.translate(ore_grid, -60, -20)
 
-
+--spews a random turkey fact in chat every 10 minutes.
 Event.add(
     defines.events.on_tick,
     function(event)
@@ -156,6 +159,7 @@ Event.add(
 
 pic = b.decompress(pic)
 
+--idk why this works but it does, played whack a mole/whack a variable to get it to clear all errors
 local shape = b.picture(pic)
 shape = b.scale(shape, 4, 4)
 shape = b.translate(shape, -300, 500)
