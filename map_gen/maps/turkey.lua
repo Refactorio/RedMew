@@ -159,5 +159,5 @@ pic = b.decompress(pic)
 local shape = b.picture(pic)
 shape = b.scale(shape, 4, 4)
 shape = b.translate(shape, -300, 500)
-
+shape = b.apply_entity(shape, ore_grid)
 return shape
