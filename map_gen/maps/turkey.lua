@@ -149,7 +149,7 @@ ore_grid = b.translate(ore_grid, -60, -20)
 --spews a random turkey fact in chat every 10 minutes.
 
 Event.on_nth_tick(36000,
-    function(event)
+    function()
             local message = turkey_message_random[math.random(#turkey_message_random)]
             game.print('[color=yellow][font=compi]' .. message .. '[/font][/color]')
     end
