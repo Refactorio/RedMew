@@ -17,11 +17,18 @@ local Rendering = require 'utils.rendering'
 
 local DiggyCutscene = {}
 
+local function valid(entity)
+    return entity and entity.valid
+end
+
 local delayed_draw_text =
     Token.register(
     function(params)
-        local tick = params.tick
         local player = params.player
+        if (not valid(player)) then
+            return
+        end
+        local tick = params.tick
         if params.play_sound > 1 then
             play_sound(tick, player, 'utility/list_box_click', 1)
         end
@@ -48,6 +55,9 @@ local delayed_draw_arrow =
     Token.register(
     function(params)
         local player = params.player
+        if (not valid(player)) then
+            return
+        end
         local tick = params.tick
         params = params.params
         local rendering_parmas = params.params
@@ -58,15 +68,22 @@ local delayed_draw_arrow =
 )
 
 local function delayed_function(func, player, tick, params, offset_time)
+    if (not valid(player)) then
+        return
+    end
     Task.set_timeout_in_ticks(offset_time, func, {player = player, tick = tick, params = params})
 end
 
 local delayed_fade_blackout =
     Token.register(
     function(params)
+        local player = params.player
+        if (not valid(player)) then
+            return
+        end
         local render_params = params.params
-        local id = CS_Rendering.blackout(params.player, render_params.zoom, render_params.time_to_live, render_params.color)
-        register_rendering(params.player.index, params.tick, id)
+        local id = CS_Rendering.blackout(player, render_params.zoom, render_params.time_to_live, render_params.color)
+        register_rendering(player.index, params.tick, id)
         Rendering.fade(id, render_params.time_to_live - 1, 10)
     end
 )

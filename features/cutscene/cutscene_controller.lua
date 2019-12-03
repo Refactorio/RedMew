@@ -55,6 +55,9 @@ local toggle_gui_delayed =
     Token.register(
     function(params)
         local player = params.player
+        if (not valid(player)) then
+            return
+        end
         if not waypoint_still_active(params.tick, player.index) then
             debug_print('Cutscene is no longer active. Skipping toggle_gui')
             return
@@ -77,6 +80,9 @@ function Public.toggle_gui(tick, player, gui, initial_delay, clear)
         debug_print('Provided GUI is invalid.')
         return
     end]]
+    if (not valid(player)) then
+        return
+    end
     set_timeout_in_ticks(initial_delay, toggle_gui_delayed, {tick = tick, player = player, gui = gui, clear = clear})
 end
 
@@ -84,6 +90,9 @@ local play_sound_delayed =
     Token.register(
     function(params)
         local player = params.player
+        if (not valid(player)) then
+            return
+        end
         if not waypoint_still_active(params.tick, player.index) then
             debug_print('Cutscene is no longer active. Skipping play_sound')
             return
@@ -93,6 +102,9 @@ local play_sound_delayed =
 )
 
 function Public.play_sound(tick, player, path, times, delay, initial_delay)
+    if (not valid(player)) then
+        return
+    end
     if not game.is_valid_sound_path(path) then
         debug_print('Provided SoundPath is invalid. Try opening /radio and browse for a valid path')
         return
