@@ -348,7 +348,7 @@ local reconnect_character =
             player.exit_cutscene()
             player.set_controller {type = defines.controllers.character, character = character}
             if func then
-                Token.get(func)(player_index)
+                Token.get(func)(player_index, params.skip_btn_flag)
             end
             Token.get(remove_renderings)(running_cutscene.rendering)
             running_cutscene.btn.destroy()
@@ -357,20 +357,25 @@ local reconnect_character =
     end
 )
 
-function Public.terminate_cutscene(player_index, ticks)
+function Public.terminate_cutscene(player_index, ticks,skip_btn_flag)
     local running_cutscene = running_cutscenes[player_index]
     if not running_cutscene then
         return
     end
     ticks = ticks and ticks or 1
     debug_print('Terminating cutscene in ' .. ticks .. ' Ticks')
+    if skip_btn_flag == nil then
+        skip_btn_flag = false
+    end
+    debug_print('Is terminate_func ignored = ' .. tostring(skip_btn_flag))
 
     set_timeout_in_ticks(
         ticks,
         reconnect_character,
         {
             player_index = player_index,
-            running_cutscene = running_cutscene
+            running_cutscene = running_cutscene,
+            skip_btn_flag = skip_btn_flag
         }
     )
 end
@@ -460,7 +465,7 @@ function Public.goTo(player_index, waypoint_index)
 end
 
 local function restore(event)
-    Public.terminate_cutscene(event.player_index)
+    Public.terminate_cutscene(event.player_index, 1, true)
 end
 
 Event.add(defines.events.on_cutscene_waypoint_reached, handler)
@@ -497,7 +502,7 @@ local function skip_cutscene(_, player)
         return
     end
     if player.controller_type == defines.controllers.cutscene then
-        Public.terminate_cutscene(player.index)
+        Public.terminate_cutscene(player.index, 1, true)
     end
 end
 
