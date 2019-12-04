@@ -82,7 +82,7 @@ local function cutscene_function_redmew(player_index, waypoint_index, params)
     local zoom = params.zoom
     local tick = params.tick
     local settings = {original_resolution = original_resolution, original_zoom = original_zoom, player_zoom = zoom}
-    
+
     player.game_view_settings.show_entity_info = true
     if waypoint_index ~= -1 then
         play_sound(tick, player, 'utility/list_box_click', 1)
