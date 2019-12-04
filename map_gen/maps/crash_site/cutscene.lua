@@ -101,19 +101,19 @@ local function cutscene_function_redmew(player_index, waypoint_index, params)
     cases[0] = function()
         register_rendering(player_index, tick, CS_Rendering.blackout(player, zoom, ttw + 1))
         register_rendering(player_index, tick, draw_text(settings, {x = 0, y = 0}, 'Redmew - Crashsite', player, {scale = 10, time_to_live = ttw - 60, color = Color.red}, false, false))
-        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -5}, 'Introduction', player, {scale = 5, time_to_live = ttw - 60}, false, false))
+        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -5}, {{'crashsite.cutscene1_case0_line2'}}, player, {scale = 5, time_to_live = ttw - 60}, false, false))
 
         delayed_function(delayed_draw_arrow, player, tick, {settings = settings, offset = {x = 7, y = 2.5}, params = {rotation = rad(-45), time_to_live = 275 * 3 - 30}, fit_to_edge = true}, 0)
 
-        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'This is our toolbar!'}, player, {scale = 2.5, alignment = 'left'}, false, true, 275)
+        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {{'crashsite.cutscene1_case0_line3'}}, player, {scale = 2.5, alignment = 'left'}, false, true, 275)
 
-        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'', "Here you'll find a wide range of tools and informations about us!"}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 2)
+        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'', {'crashsite.cutscene1_case0_line4'}}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 2)
 
-        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'', '', 'Hover your mouse over them for more information'}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 3)
+        draw_text_auto_replacing(tick, settings, {x = 8.5, y = 3}, {'', '', {'crashsite.cutscene1_case0_line5'}}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 3)
 
         delayed_function(delayed_draw_arrow, player, tick, {settings = settings, offset = {x = 1, y = 2.5}, params = {rotation = rad(-45), time_to_live = 275 - 30}, fit_to_edge = true}, 275 * 3)
 
-        draw_text_auto_replacing(tick, settings, {x = 2.5, y = 3}, {'', '', '', 'You can toggle our toolbar with this button'}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 4)
+        draw_text_auto_replacing(tick, settings, {x = 2.5, y = 3}, {'', '', '', {'crashsite.cutscene1_case0_line6'}}, player, {scale = 2.5, alignment = 'left'}, false, true, 275 * 4)
     end
     cases[1] = function()
         draw_text_auto_replacing(tick, settings, {x = 0, y = 18}, {{'crashsite.cutscene1_case1_line1'}, {'crashsite.cutscene1_case1_line2'}, {'crashsite.cutscene1_case1_line3'}}, player, {scale = 2.5}, true, false, 400 * 3)
