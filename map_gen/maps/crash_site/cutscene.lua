@@ -82,7 +82,8 @@ local function cutscene_function_redmew(player_index, waypoint_index, params)
     local zoom = params.zoom
     local tick = params.tick
     local settings = {original_resolution = original_resolution, original_zoom = original_zoom, player_zoom = zoom}
-
+    
+    player.game_view_settings.show_entity_info = true
     if waypoint_index ~= -1 then
         play_sound(tick, player, 'utility/list_box_click', 1)
     end
@@ -177,6 +178,7 @@ local function cutscene_function_outpost(player_index, waypoint_index, params)
     local tick = params.tick
     local settings = {original_resolution = original_resolution, original_zoom = original_zoom, player_zoom = zoom}
 
+    player.game_view_settings.show_entity_info = true
     if waypoint_index ~= -1 then
         play_sound(tick, player, 'utility/list_box_click', 1)
     end
@@ -268,7 +270,8 @@ local start_cutscene_outpost =
             if (not valid(player)) then
                 return
             end
-            player.teleport({0, 30}, 'cutscene')
+            local pos = game.surfaces.cutscene.find_non_colliding_position('character', {0, 30}, 0, 1)
+            player.teleport(pos, 'cutscene')
             Cutscene.register_running_cutscene(player_index, 'Crashsite_Outpost', 60)
         end
 )
@@ -290,7 +293,7 @@ local function terminate_function_outpost(player_index)
     if (not valid(player)) then
         return
     end
-    local pos = game.surfaces.cutscene.find_non_colliding_position('character', {0, 0}, 0, 1)
+    local pos = game.surfaces.redmew.find_non_colliding_position('character', {0, 0}, 0, 1)
     player.teleport(pos, 'redmew')
     PC.show_start_up(player)
     player.print({'crashsite.replay_cutscene', '/replay'}, Color.yellow)
