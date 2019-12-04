@@ -101,7 +101,7 @@ local function cutscene_function_redmew(player_index, waypoint_index, params)
     cases[0] = function()
         register_rendering(player_index, tick, CS_Rendering.blackout(player, zoom, ttw + 1))
         register_rendering(player_index, tick, draw_text(settings, {x = 0, y = 0}, 'Redmew - Crashsite', player, {scale = 10, time_to_live = ttw - 60, color = Color.red}, false, false))
-        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -5}, {{'crashsite.cutscene1_case0_line2'}}, player, {scale = 5, time_to_live = ttw - 60}, false, false))
+        register_rendering(player_index, tick, draw_text(settings, {x = 0, y = -5}, 'Introduction', player, {scale = 5, time_to_live = ttw - 60}, false, false))
 
         delayed_function(delayed_draw_arrow, player, tick, {settings = settings, offset = {x = 7, y = 2.5}, params = {rotation = rad(-45), time_to_live = 275 * 3 - 30}, fit_to_edge = true}, 0)
 
