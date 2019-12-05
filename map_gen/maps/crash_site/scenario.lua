@@ -14,6 +14,7 @@ local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local RedmewConfig = require 'config'
+local Cutscene = require 'map_gen.maps.crash_site.cutscene'
 
 local degrees = math.degrees
 
@@ -135,12 +136,61 @@ local spawn_callback =
     end
 )
 
+local function cutscene_builder(name, x, y)
+    return game.surfaces.cutscene.create_entity{name = name, position = {x, y}, force = game.forces.enemy}
+end
+
+local function cutscene_outpost()
+    local tiles = {}
+    for i = -11, 12 do
+        for j = -11, 12 do
+            table.insert(tiles, {name = "stone-path", position = {i, j}})
+        end
+    end
+    for i = 0, 22 do
+        cutscene_builder('stone-wall', -11, -10 + i)
+        cutscene_builder('stone-wall', -12, -10 + i)
+        cutscene_builder('stone-wall', -12 + i, -11)
+        cutscene_builder('stone-wall', -12 + i, -12)
+        cutscene_builder('stone-wall', 11, -12 + i)
+        cutscene_builder('stone-wall', 12, -12 + i)
+        cutscene_builder('stone-wall', -10 + i, 11)
+        cutscene_builder('stone-wall', -10 + i, 12)
+        if i % 4 == 0 and i ~= 20 and i ~= 0 then
+            cutscene_builder('gun-turret', -8, -8 + i)
+            cutscene_builder('gun-turret', 10, -8 + i)
+            cutscene_builder('gun-turret', -9 + i, -8)
+            cutscene_builder('gun-turret', -9 + i, 10)
+        end
+    end
+    for i = -2, 2 do
+        for j = 3, 5 do
+            local loot_box = cutscene_builder('steel-chest', i, j)
+            loot_box.insert{name = "iron-plate", count = 50}
+        end
+    end
+    cutscene_builder('market', -4, 0)
+    local furnace = cutscene_builder('electric-furnace', 4, 0)
+    furnace.insert('iron-ore')
+    game.surfaces.cutscene.set_tiles(tiles)
+end
+
 local function init()
     local on_init = (_LIFECYCLE == _STAGE.init)
 
     local outpost_random = Random.new(outpost_seed, outpost_seed * 2)
 
     local outpost_builder = OutpostBuilder.new(outpost_random)
+
+    if on_init then
+        game.create_surface('cutscene')
+        game.surfaces.cutscene.request_to_generate_chunks({0,0}, 2)
+        game.surfaces.cutscene.force_generate_chunk_requests()
+        cutscene_outpost()
+        Cutscene.on_init()
+    else
+        Cutscene.on_load()
+    end
 
     local stage1a = {
         small_iron_plate_factory,
