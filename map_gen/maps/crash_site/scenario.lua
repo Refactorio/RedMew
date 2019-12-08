@@ -183,7 +183,8 @@ local function init()
     local outpost_builder = OutpostBuilder.new(outpost_random)
 
     if on_init then
-        game.create_surface('cutscene')
+        game.create_surface('cutscene', default_map_gen_settings)
+	    game.surfaces.cutscene.always_day = true
         game.surfaces.cutscene.request_to_generate_chunks({0,0}, 2)
         game.surfaces.cutscene.force_generate_chunk_requests()
         cutscene_outpost()
