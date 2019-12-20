@@ -172,7 +172,10 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
     if not valid(player) then
         return
     end
-
+    if player.controller_type ~= 1 then
+        player.print('Cannot start cutscene without a character')
+        return
+    end
     local cutscene_function = cutscene_functions[identifier]
     if not cutscene_function then
         return
@@ -344,9 +347,15 @@ local reconnect_character =
         local running_cutscene = params.running_cutscene
         local character = running_cutscene.character
         local func = running_cutscene.terminate_func
-        if valid(player) and valid(character) then
+        if valid(player) then
             player.exit_cutscene()
-            player.set_controller {type = defines.controllers.character, character = character}
+            if valid(character) then
+                player.set_controller {type = defines.controllers.character, character = character}
+            else
+                params.skip_btn_flag = true
+                player.ticks_to_respawn = 3600
+                player.print('[color=red][font=compi]Oops - You Died! Please go to a safe location and restart the cutscene[/font][/color]')
+            end
             if func then
                 Token.get(func)(player_index, params.skip_btn_flag)
             end
