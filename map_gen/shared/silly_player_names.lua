@@ -50,25 +50,25 @@ end
 -- @param player_name string with player's name
 -- @returns string with player's silly name
 -- TODO: Config option to set the name style
-local function create_name(words_table, player_name)
+local function create_name(words_table)
     local adverb, adjective , noun
     adverb = words_table.adverbs[random(#words_table.adverbs)]
     adjective = words_table.adjectives[random(#words_table.adjectives)]
     noun = words_table.nouns[random(#words_table.nouns)]
-    local name = format('%s_%s_%s', adverb, adjective, noun)
-    return string.gsub(name, "%s+", "_")
+    local name = format('%s%s%s', adverb, adjective, noun)
+    return name
 end
 
 --- Calls create_name until a unique name is returned
 -- @param words_table including adverbs, adjectives, and nouns
 -- @param player_name string with player's name
 -- @returns string with player's silly name
-local function create_unique_name(words_table, player_name)
+local function create_unique_name(words_table)
     local silly_names = data_silly_names.silly_names
-    local name = create_name(words_table, player_name)
+    local name = create_name(words_table)
 
     while table.contains(silly_names, name) do
-        name = create_name(words_table, player_name)
+        name = create_name(words_table)
     end
     return name
 end
@@ -93,7 +93,7 @@ local function name_player(player)
         data_silly_names.silly_names_count[1] = 0
     end
 
-    local name = create_unique_name(naming_words, real_name)
+    local name = create_unique_name(naming_words)
     data_silly_names.silly_names[#data_silly_names.silly_names + 1] = name
     data_silly_names.silly_names_count[1] = data_silly_names.silly_names_count[1] + 1
 
@@ -127,7 +127,7 @@ end
 
 --- Passes _event_ on to name_players
 local function player_joined(event)
-    local player = Game.get_player(event.player_index)
+    local player = game.get_player(event.player_index)
     if data_silly_names.silly_name_store[event.player_index] then
         player.name = data_silly_names.silly_name_store[event.player_index]
     else
