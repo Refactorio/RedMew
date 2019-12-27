@@ -27,7 +27,8 @@ RS.set_map_gen_settings(
     }
 )
 --disables the market and coin features. set line 28 to "true" instead of "false" to negate this.
-global.config.market.create_standard_market = false
+global.config.market.enabled = false
+global.config.biter_attacks.enabled = true
 
 ScenarioInfo.set_map_name('Christmas Tree of Terror')
 ScenarioInfo.set_map_description("Triangle of death's Christmas cousin!\nThe further you go down the tree, the better your presents get. Have you been a good factory worker this year?")
