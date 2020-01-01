@@ -106,7 +106,7 @@ end
 if config.autofill.enabled then
     require 'features.gui.autofill'
 end
-if config.research_printer then
+if config.research_printer.enabled then
     require 'features.research_printer'
 end
 
