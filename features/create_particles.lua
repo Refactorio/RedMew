@@ -114,31 +114,31 @@ local function scale_floor(count)
 end
 
 local on_play_particle = Token.register(function (params)
-    params.surface.create_entity(params.prototype)
+    params.surface.create_particle(params.prototype)
 end)
 
 local function play_particle_sequence(surface, sequences)
-    local create_entity = surface.create_entity
+    local create_particle = surface.create_particle
     for i = 1, #sequences do
         local sequence = sequences[i]
         local frame = sequence.frame
         if frame == 1 then
-            create_entity(sequence.prototype)
+            create_particle(sequence.prototype)
         else
             Task.set_timeout_in_ticks(frame, on_play_particle, {surface = surface, prototype = sequence.prototype})
         end
     end
 end
 
----@param create_entity function a reference to a surface.create_entity
+---@param create_entity function a reference to a surface.create_particle fixed 0.18
 ---@param particle_count number particle count to spawn
 ---@param position Position
-function CreateParticles.destroy_rock(create_entity, particle_count, position)
+function CreateParticles.destroy_rock(create_particle, particle_count, position)
     for _ = scale_floor(particle_count), 1, -1 do
         settings.particles_spawned_buffer = settings.particles_spawned_buffer + 1
-        create_entity({
+        create_particle({
+		    name  = 'stone-particle',
             position = position,
-            name = 'stone-particle',
             movement = {random(-5, 5) * 0.01, random(-5, 5) * 0.01},
             frame_speed = 1,
             vertical_speed = random(12, 14) * 0.01,
@@ -147,14 +147,14 @@ function CreateParticles.destroy_rock(create_entity, particle_count, position)
     end
 end
 
----@param create_entity function a reference to a surface.create_entity
+---@param create_entity function a reference to a surface.create_particle fixed 0.18
 ---@param particle_count number particle count to spawn
 ---@param position Position
-function CreateParticles.blood_explosion(create_entity, particle_count, position)
+function CreateParticles.blood_explosion(create_particle, particle_count, position)
     for _ = particle_count, 1, -1 do
-        create_entity({
+        create_particle({
+			name  = 'blood-particle',
             position = position,
-            name = 'blood-particle',
             movement = {random(-5, 5) * 0.01, random(-5, 5) * 0.01},
             frame_speed = 1,
             vertical_speed = random(10, 12) * 0.01,
@@ -166,12 +166,12 @@ end
 ---@param create_entity function a reference to a surface.create_entity
 ---@param particle_count number particle count to spawn
 ---@param position Position
-function CreateParticles.mine_rock(create_entity, particle_count, position)
+function CreateParticles.mine_rock(create_particle, particle_count, position)
     for _ = scale_floor(particle_count), 1, -1 do
         settings.particles_spawned_buffer = settings.particles_spawned_buffer + 1
-        create_entity({
+        create_particle({
+		    name  = 'stone-particle',
             position = position,
-            name = 'stone-particle',
             movement = {random(-5, 5) * 0.01, random(-5, 5) * 0.01},
             frame_speed = 1,
             vertical_speed = random(8, 10) * 0.01,
@@ -181,13 +181,13 @@ function CreateParticles.mine_rock(create_entity, particle_count, position)
 end
 
 
----Creates a prototype for LuaSurface.create_entity
+---Creates a prototype for LuaSurface.create_particle fixed 0.18
 ---@param particle string name of the particle
 ---@param x number
 ---@param y number
 local function create_ceiling_prototype(particle, x, y)
     return {
-        name = particle,
+	    name = particle,
         position = {x = x + random(0, 1), y = y + random(0, 1)},
         movement = {random(-5, 5) * 0.002, random(-5, 5) * 0.002},
         frame_speed = 1,
@@ -199,6 +199,7 @@ end
 ---Creates a crumbling effect from the ceiling
 ---@param surface LuaSurface
 ---@param position table
+
 function CreateParticles.ceiling_crumble(surface, position)
     local sequences = {}
     local x = position.x
@@ -208,7 +209,6 @@ function CreateParticles.ceiling_crumble(surface, position)
 
     -- pre-calculate how many particles will be spawned. Prevents spawning too many particles over ticks.
     local particles = settings.particles_spawned_buffer
-
     for i = 1, smoke_scale do
         particles = particles + 1
         sequences[i] = {frame = i*random(1,15), prototype = create_ceiling_prototype('explosion-remnants-particle', x, y)}
@@ -217,10 +217,9 @@ function CreateParticles.ceiling_crumble(surface, position)
         particles = particles + 1
         sequences[i] = {frame = i*random(1,15), prototype = create_ceiling_prototype('stone-particle', x, y)}
     end
-
     settings.particles_spawned_buffer = particles
-
     play_particle_sequence(surface, sequences)
 end
+
 
 return CreateParticles
