@@ -130,7 +130,7 @@ local function play_particle_sequence(surface, sequences)
     end
 end
 
----@param create_entity function a reference to a surface.create_particle fixed 0.18
+---@param create_entity function a reference to a surface.create_particle
 ---@param particle_count number particle count to spawn
 ---@param position Position
 function CreateParticles.destroy_rock(create_particle, particle_count, position)
@@ -147,7 +147,7 @@ function CreateParticles.destroy_rock(create_particle, particle_count, position)
     end
 end
 
----@param create_entity function a reference to a surface.create_particle fixed 0.18
+---@param create_entity function a reference to a surface.create_particle
 ---@param particle_count number particle count to spawn
 ---@param position Position
 function CreateParticles.blood_explosion(create_particle, particle_count, position)
