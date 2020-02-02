@@ -228,7 +228,7 @@ function DiggyHole.register(cfg)
         event.buffer.clear()
 
         diggy_hole(entity)
-        mine_rock(entity.surface.create_entity, 6, entity.position)
+        mine_rock(entity.surface.create_particle, 6, entity.position)
     end)
 
     Event.add(defines.events.on_robot_mined_tile, function (event)
