@@ -115,6 +115,7 @@ local artificial_tiles = {
 local function on_mined_tile(surface, tiles)
     local new_tiles = {}
     local count = 0
+    local surface = entity.surface
     for _, tile in pairs(tiles) do
         if (artificial_tiles[tile.old_tile.name]) then
             count = count + 1
@@ -124,6 +125,7 @@ local function on_mined_tile(surface, tiles)
 
     Template.insert(surface, new_tiles, {})
 end
+
 Command.add('diggy-clear-void', {
     description = {'command_description.diggy_clear_void'},
     arguments = {'left_top_x', 'left_top_y', 'width', 'height', 'surface_index'},
@@ -229,7 +231,7 @@ function DiggyHole.register(cfg)
         event.buffer.clear()
 
         diggy_hole(entity)
-        mine_rock(entity.surface.create_particle, 6, entity.position)
+        mine_rock(create_particle, 6, entity.position)
     end)
 
     Event.add(defines.events.on_robot_mined_tile, function (event)
