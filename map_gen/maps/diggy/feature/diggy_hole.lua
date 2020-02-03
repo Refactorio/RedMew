@@ -199,7 +199,8 @@ function DiggyHole.register(cfg)
         event.buffer.clear()
 
         local graphics_variation = entity.graphics_variation
-        local create_entity = entity.surface.create_entity
+	    local create_entity = surface.create_entity
+        local create_particle = entity.surface.create_particle
         local position = entity.position
         local force = event.robot.force
 
