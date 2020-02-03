@@ -57,7 +57,7 @@ local rocks_to_find = Template.diggy_rocks
 local do_alien_mining = Token.register(function(params)
     local surface = params.surface
     local create_entity = surface.create_entity
-	local create_particle = surface.create_particle
+    local create_particle = surface.create_particle
     local find_non_colliding_position = surface.find_non_colliding_position
 
     local rocks = surface.find_entities_filtered({area = params.clear_area, name = rocks_to_find})
