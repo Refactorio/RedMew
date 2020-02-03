@@ -200,14 +200,14 @@ function DiggyHole.register(cfg)
         event.buffer.clear()
 
         local graphics_variation = entity.graphics_variation
-	    local create_entity = surface.create_entity
+	local create_entity = surface.create_entity
         local create_particle = entity.surface.create_particle
         local position = entity.position
         local force = event.robot.force
 
         if health < 1 then
             raise_event(defines.events.on_entity_died, {entity = entity, force = force})
-            mine_rock(create_entity, 6, position)
+            mine_rock(create_particle, 6, position)
             entity.destroy()
             return
         end
