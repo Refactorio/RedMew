@@ -187,7 +187,7 @@ end
 ---@param y number
 local function create_ceiling_prototype(particle, x, y)
     return {
-	    name = particle,
+	name = particle,
         position = {x = x + random(0, 1), y = y + random(0, 1)},
         movement = {random(-5, 5) * 0.002, random(-5, 5) * 0.002},
         frame_speed = 1,
