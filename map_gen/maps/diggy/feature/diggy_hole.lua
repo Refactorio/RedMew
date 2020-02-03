@@ -115,7 +115,6 @@ local artificial_tiles = {
 local function on_mined_tile(surface, tiles)
     local new_tiles = {}
     local count = 0
-    local surface = entity.surface
     for _, tile in pairs(tiles) do
         if (artificial_tiles[tile.old_tile.name]) then
             count = count + 1
