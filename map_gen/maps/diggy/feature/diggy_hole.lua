@@ -115,7 +115,6 @@ local artificial_tiles = {
 local function on_mined_tile(surface, tiles)
     local new_tiles = {}
     local count = 0
-    	
     for _, tile in pairs(tiles) do
         if (artificial_tiles[tile.old_tile.name]) then
             count = count + 1
@@ -202,13 +201,12 @@ function DiggyHole.register(cfg)
 
         local graphics_variation = entity.graphics_variation
 	local create_entity = surface.create_entity
-        local create_particle = entity.surface.create_particle
         local position = entity.position
         local force = event.robot.force
 
         if health < 1 then
             raise_event(defines.events.on_entity_died, {entity = entity, force = force})
-            mine_rock(create_particle, 6, position)
+            mine_rock(create_entity, 6, position)
             entity.destroy()
             return
         end
