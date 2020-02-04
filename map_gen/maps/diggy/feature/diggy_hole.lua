@@ -166,7 +166,7 @@ function DiggyHole.register(cfg)
         end
         diggy_hole(entity)
         if event.cause then
-            destroy_rock(entity.surface.create_entity, 10, entity.position)
+            destroy_rock(entity.surface.create_particle, 10, entity.position)
         end
     end)
 
