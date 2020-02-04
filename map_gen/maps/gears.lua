@@ -14,10 +14,22 @@ RS.set_map_gen_settings(
 
 ScenarioInfo.set_map_name('Gears')
 ScenarioInfo.set_map_description(
-[[
-Am I inside an assembling machine?
+    [[
+Large gear shaped islands
 
 This is like a huge maze of never ending gears!
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+Vanilla play on a gear shaped map.
+]]
+)
+
+ScenarioInfo.set_new_info(
+    [[
+2019-09-11 - Jayefuu
+- Updated map descriptions
 ]]
 )
 

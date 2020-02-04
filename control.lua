@@ -106,6 +106,9 @@ end
 if config.autofill.enabled then
     require 'features.gui.autofill'
 end
+if config.research_printer.enabled then
+    require 'features.research_printer'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.

@@ -19,10 +19,25 @@ RS.set_map_gen_settings(
 
 ScenarioInfo.set_map_name('Fruit Loops')
 ScenarioInfo.set_map_description(
-[[
-It's like swimming in a bowl of cereal!
-[...]
-What monster uses water in their cereal?
+    [[
+Colourful fruity loop ore filled islands
+It's like swimming in a sea of ... not milk.
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+Donut shaped islands populated with ores, stone, trees and.... WORMS!
+
+A well balanced map which needs connecting of islands by landfill then careful
+removal of worms to open up new islands for exploitation. The RedMew market and
+wise spending of coins eases strategic expansion.
+]]
+)
+
+ScenarioInfo.set_new_info(
+    [[
+2019-09-11 - Jayefuu
+- Updated map descriptions
 ]]
 )
 
