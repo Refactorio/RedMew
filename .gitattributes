@@ -1,2 +1,4 @@
 *.lua text eol=lf
 *.md text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf

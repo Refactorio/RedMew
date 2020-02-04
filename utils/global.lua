@@ -1,46 +1,87 @@
-local Event = require 'utils.event'
+local Event = require 'utils.event_core'
 local Token = require 'utils.token'
 
 local Global = {}
 
-local load_data = {}
-local init_data = {}
-
 function Global.register(tbl, callback)
+    if _LIFECYCLE ~= _STAGE.control then
+        error('can only be called during the control stage', 2)
+    end
     local token = Token.register_global(tbl)
-    table.insert(load_data, {callback = callback, token = token})
+
+    Event.on_load(
+        function()
+            callback(Token.get_global(token))
+        end
+    )
+
+    return token
 end
 
 function Global.register_init(tbl, init_handler, callback)
+    if _LIFECYCLE ~= _STAGE.control then
+        error('can only be called during the control stage', 2)
+    end
     local token = Token.register_global(tbl)
-    table.insert(load_data, {callback = callback, token = token})
 
-    table.insert(init_data, {token = token, init_handler = init_handler, callback = callback})
+    Event.on_init(
+        function()
+            init_handler(tbl)
+            callback(tbl)
+        end
+    )
+
+    Event.on_load(
+        function()
+            callback(Token.get_global(token))
+        end
+    )
+
+    return token
 end
 
-Event.on_load(
-    function()
-        for _, d in ipairs(load_data) do
-            local tbl = Token.get_global(d.token)
-            d.callback(tbl)
-        end
+if _DEBUG then
+    local concat = table.concat
 
-        load_data = nil
-        init_data = nil
+    local names = {}
+    Global.names = names
+
+    function Global.register(tbl, callback)
+        local filepath = debug.getinfo(2, 'S').source:match('^.+/currently%-playing/(.+)$'):sub(1, -5)
+        local token = Token.register_global(tbl)
+
+        names[token] = concat {token, ' - ', filepath}
+
+        Event.on_load(
+            function()
+                callback(Token.get_global(token))
+            end
+        )
+
+        return token
     end
-)
 
-Event.on_init(
-    function()
-        for _, d in ipairs(init_data) do
-            local tbl = Token.get_global(d.token)
-            d.init_handler(tbl)
-            d.callback(tbl)
-        end
+    function Global.register_init(tbl, init_handler, callback)
+        local filepath = debug.getinfo(2, 'S').source:match('^.+/currently%-playing/(.+)$'):sub(1, -5)
+        local token = Token.register_global(tbl)
 
-        load_data = nil
-        init_data = nil
+        names[token] = concat {token, ' - ', filepath}
+
+        Event.on_init(
+            function()
+                init_handler(tbl)
+                callback(tbl)
+            end
+        )
+
+        Event.on_load(
+            function()
+                callback(Token.get_global(token))
+            end
+        )
+
+        return token
     end
-)
+end
 
 return Global

@@ -1,17 +1,17 @@
 -- This feature auto-responds to key words or phrases. We use the name/actor Hodor because it is Redmew's beloved discord bot.
 
-local Game = require 'utils.game'
 local Event = require 'utils.event'
-require 'utils.table'
+local Color = require 'resources.color_presets'
+local table = require 'utils.table'
 local Hodor = require 'resources.hodor_messages'
 
 local prefix = '## - '
 
 local auto_replies = {
-    ['discord'] = {'Did you ask about our discord server?', 'You can find it here: redmew.com/discord'},
-    ['patreon'] = {'Did you ask about our patreon?', 'You can find it here: patreon.com/redmew'},
-    ['donate'] = {'Did you ask about donating to the server?', 'You can find our patreon here: patreon.com/redmew'},
-    ['grief'] = {'To report grief please use the /report function.', 'If no admins are online use #moderation-requests on the discord and make sure the @mention the appropriate role.'}
+    ['discord'] = {{'chat_triggers.discord'}},
+    ['patreon'] = {{'chat_triggers.patreon'}},
+    ['donate'] = {{'chat_triggers.donate'}},
+    ['grief'] = {{'chat_triggers.grief'}}
 }
 
 --- Check for player and get player
@@ -22,7 +22,7 @@ local function get_player(event)
     if not player_index then
         return nil
     end
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return nil
     end
@@ -34,7 +34,7 @@ local function hodor(event)
     -- first check for a match, since 99% of messages aren't a match for 'hodor'
     local message = event.message:lower()
     if message:match('hodor') then
-        game.print('Hodor: ' .. table.get_random_weighted(Hodor, 1, 2))
+        game.print('Hodor: ' .. table.get_random_weighted(Hodor))
     end
 end
 
@@ -43,7 +43,7 @@ local function auto_respond(event)
     local message = event.message:lower()
     local player = get_player(event)
 
-    if player and not player.admin then
+    if player and player.valid and not player.admin then
         for trigger, replies in pairs(auto_replies) do
             if message:match(trigger) then
                 for _, reply in pairs(replies) do
@@ -87,24 +87,24 @@ local function mentions(event)
                     word = 'admin'
                 end
                 if admin_call and p.admin then
-                    local message = string.format('%s%s mentioned %s!', prefix, Game.get_player_by_index(event.player_index).name, word )
-                    p.print(message, {r = 1, g = 1, b = 0, a = 1})
+                    local message = {'chat_triggers.mention_success', prefix, game.get_player(event.player_index).name, word}
+                    p.print(message, Color.yellow)
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
                     success = true
                 end
                 if not admin_call and (p.name:lower() == word_front_trim or p.name:lower() == word_back_trim or p.name:lower() == word_back_double_trim or p.name:lower() == word_front_back_trim) then
                     if p.name == player.name then
                         if _DEBUG then
-                            player.print(prefix .. "Can't mention yourself!", {r = 1, g = 0, b = 0, a = 1})
+                            player.print({'chat_triggers.mention_fail_mention_self', prefix}, Color.red)
                         end
                         success = true
                         break
                     end
-                    p.print(prefix .. Game.get_player_by_index(event.player_index).name .. ' mentioned you!', {r = 1, g = 1, b = 0, a = 1})
+                    p.print(prefix .. game.get_player(event.player_index).name .. ' mentioned you!', Color.yellow)
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
                     success = true
                     if _DEBUG then
-                        player.print(prefix .. 'Successful mentioned ' .. p.name, {r = 0, g = 1, b = 0, a = 1})
+                        player.print(prefix .. 'Successful mentioned ' .. p.name, Color.red)
                     end
                     break
                 end
@@ -124,9 +124,9 @@ local function mentions(event)
     if missing_player_string ~= nil then
         missing_player_string = string.sub(missing_player_string, 1, (string.len(missing_player_string) - 2))
         if not_found > 1 then
-            player.print(prefix .. 'Players not found: ' .. missing_player_string, {r = 1, g = 1, b = 0, a = 1})
+            player.print({'chat_triggers.mention_not_found_plural', prefix, missing_player_string}, Color.yellow)
         else
-            player.print(prefix .. 'Player not found: ' .. missing_player_string, {r = 1, g = 1, b = 0, a = 1})
+            player.print({'chat_triggers.mention_not_found_singular', prefix, missing_player_string}, Color.yellow)
         end
     end
 end

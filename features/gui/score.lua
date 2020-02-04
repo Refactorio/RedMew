@@ -1,100 +1,166 @@
+local Global = require 'utils.global'
 local Event = require 'utils.event'
-local Game = require 'utils.game'
+local Token = require 'utils.token'
+local Schedule = require 'utils.task'
+local Gui = require 'utils.gui'
+local Color = require 'resources.color_presets'
+local Server = require 'features.server'
+local ScoreTracker = require 'utils.score_tracker'
+local format_number = require 'util'.format_number
+local pairs = pairs
+local concat = table.concat
+local scores_to_show = global.config.score.global_to_show
+local set_timeout_in_ticks = Schedule.set_timeout_in_ticks
+local main_frame_name = Gui.uid_name()
+local main_button_name = Gui.uid_name()
 
-if not global.score_rockets_launched then
-    global.score_rockets_launched = 0
-end
+local memory = {
+    redraw_score_scheduled = false,
+    player_last_position = {},
+    player_death_causes = {}
+}
 
-local function create_score_gui(event)
-    local player = Game.get_player_by_index(event.player_index)
+Global.register(memory, function(tbl) memory = tbl end)
 
-    if player.gui.top.score == nil then
-        local button = player.gui.top.add({type = 'sprite-button', name = 'score', sprite = 'item/rocket-silo'})
-        button.style.minimal_height = 38
-        button.style.minimal_width = 38
-        button.style.top_padding = 2
-        button.style.left_padding = 4
-        button.style.right_padding = 4
-        button.style.bottom_padding = 2
+---Creates a map of score name => {captain, tooltip}
+local function get_global_score_labels()
+    local scores = ScoreTracker.get_global_scores_with_metadata(scores_to_show)
+    local score_labels = {}
+
+    for index = 1, #scores do
+        local score_data = scores[index]
+        score_labels[score_data.name] = {
+            caption = concat({score_data.icon, format_number(score_data.value, true)}, ' '),
+            tooltip = score_data.locale_string
+        }
     end
+
+    return score_labels
 end
 
-local function refresh_score()
-    local x = 1
-    while (Game.get_player_by_index(x) ~= nil) do
-        local player = Game.get_player_by_index(x)
-        local frame = player.gui.top['score_panel']
+local do_redraw_score = Token.register(function()
+    local players = game.connected_players
+    local scores = get_global_score_labels()
 
-        if (frame) then
-            frame.score_table.label_rockets_launched.caption = 'Rockets launched: ' .. global.score_rockets_launched
-            frame.score_table.label_biters_killed.caption = 'Biters liberated: ' .. global.score_biter_total_kills
-        --              frame.score_table.label_score_polls_created.caption = "Polls created: " .. global.score_total_polls_created
+    for i = 1, #players do
+        local player = players[i]
+        local frame = player.gui.top[main_frame_name]
+
+        if frame and frame.valid then
+            local score_table = frame.score_table
+            for score_name, textual_display in pairs(scores) do
+                score_table[score_name].caption = textual_display.caption
+            end
         end
-        x = x + 1
     end
-end
 
-local function score_show(player)
-    local rocket_score_value_string = tostring(global.score_rockets_launched)
+    memory.redraw_score_scheduled = false
+end)
 
-    local frame = player.gui.top.add {type = 'frame', name = 'score_panel'}
-
-    local score_table = frame.add {type = 'table', column_count = 5, name = 'score_table'}
-    local label = score_table.add {type = 'label', caption = '', name = 'label_rockets_launched'}
-    label.style.font = 'default-bold'
-    label.style.font_color = {r = 0.98, g = 0.66, b = 0.22}
-    label.style.top_padding = 2
-    label.style.left_padding = 4
-    label.style.right_padding = 4
-
-    score_table.add {type = 'label', caption = '|'}
-
-    local label = score_table.add {type = 'label', caption = '', name = 'label_biters_killed'}
-    label.style.font = 'default-bold'
-    label.style.font_color = {r = 0.98, g = 0.11, b = 0.11}
-    label.style.top_padding = 2
-    label.style.left_padding = 4
-    label.style.right_padding = 4
-    --[[
-    if global.score_total_polls_created then
-        score_table.add { type = "label", caption = "|"}
-
-        local label = score_table.add { type = "label", caption = "", name = "label_score_polls_created" }
-        label.style.font = "default-bold"
-        label.style.font_color = { r=0.80, g=0.80, b=0.80}
-        label.style.top_padding = 2
-        label.style.left_padding = 4
-        label.style.right_padding = 4
-    end
---]]
-    refresh_score()
-end
-
-local function on_gui_click(event)
-    if not (event and event.element and event.element.valid) then
+local function schedule_redraw_score()
+    if memory.redraw_score_scheduled then
         return
     end
 
-    local player = Game.get_player_by_index(event.element.player_index)
-    local name = event.element.name
-    local frame = player.gui.top['score_panel']
+    -- throttle redraws
+    set_timeout_in_ticks(30, do_redraw_score)
+    memory.redraw_score_scheduled = true
+end
 
-    if (name == 'score') and (frame == nil) then
-        score_show(player)
-    else
-        if (name == 'score') then
-            frame.destroy()
-        end
+local function player_joined_game(event)
+    local player = game.get_player(event.player_index)
+    if not player then
+        return
+    end
+
+    local top = player.gui.top
+
+    if not top[main_button_name] then
+        top.add({
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'achievement/there-is-no-spoon',
+            tooltip = {'score.tooltip'}
+        })
     end
 end
 
-local function rocket_launched(event)
-    global.score_rockets_launched = global.score_rockets_launched + 1
-    game.print('A rocket has been launched!')
-    refresh_score()
+local function score_label_style(label, color)
+    local style = label.style
+    style.font = 'default-bold'
+    style.font_color = color
 end
 
-Event.add(defines.events.on_entity_died, refresh_score)
-Event.add(defines.events.on_gui_click, on_gui_click)
-Event.add(defines.events.on_player_joined_game, create_score_gui)
-Event.add(defines.events.on_rocket_launched, rocket_launched)
+local function score_show(top)
+    local scores = get_global_score_labels()
+    local frame = top.add {type = 'frame', name = main_frame_name}
+    local score_table = frame.add {type = 'table', name = 'score_table', column_count = 8}
+    local style = score_table.style
+    style.vertical_spacing = 4
+    style.horizontal_spacing = 16
+
+    for score_name, textual_display in pairs(scores) do
+        local label = score_table.add({
+            type = 'label',
+            name = score_name,
+            caption = textual_display.caption,
+            tooltip = textual_display.tooltip
+        })
+        score_label_style(label, Color.white)
+    end
+end
+
+local function global_score_changed(event)
+    local found = false
+    for index = 1, #scores_to_show do
+        if scores_to_show[index] then
+            found = true
+        end
+    end
+
+    if not found then
+        return
+    end
+
+    schedule_redraw_score()
+
+    if event.score_name ~= 'satellites-launched' then
+        return
+    end
+
+    local count = ScoreTracker.get_for_global('satellites-launched')
+
+    if (count < 10) or ((count < 50) and ((count % 5) == 0)) or ((count % 25) == 0) then
+        local message = 'A satellite has been launched! Total count: ' .. count
+
+        game.print(message)
+        Server.to_discord_bold(message)
+    end
+end
+
+Gui.on_click(
+    main_button_name,
+    function(event)
+        local player = event.player
+        local top = player.gui.top
+        local frame = top[main_frame_name]
+        local main_button = top[main_button_name]
+
+        if not frame then
+            score_show(top)
+
+            main_button.style = 'selected_slot_button'
+            local style = main_button.style
+            style.width = 38
+            style.height = 38
+        else
+            frame.destroy()
+            main_button.style = 'icon_button'
+        end
+    end
+)
+
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
+
+Event.add(defines.events.on_player_joined_game, player_joined_game)
+Event.add(ScoreTracker.events.on_global_score_changed, global_score_changed)

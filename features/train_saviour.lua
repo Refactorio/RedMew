@@ -1,25 +1,26 @@
 local Event = require 'utils.event'
-local Market_items = require 'resources.market_items'
+local market_items = require 'resources.market_items'
 local Global = require 'utils.global'
-local Donators = require 'resources.donators'
-local UserGroups = require 'features.user_groups'
-local Game = require 'utils.game'
-local train_perk_flag = Donators.donator_perk_flags.train
+local DonatorPerks = require 'resources.donator_perks'
+local Donator = require 'features.donator'
+local train_perk_flag = DonatorPerks.train
 
 local saviour_token_name = 'small-plane' -- item name for what saves players
 local saviour_timeout = 180 -- number of ticks players are train immune after getting hit (roughly)
 
-table.insert(Market_items, 3, {price = {{Market_items.market_item, 100}}, offer = {type = 'nothing', effect_description = 'Train Immunity (+1 ' .. saviour_token_name .. ')\nEach ' .. saviour_token_name .. ' in your inventory will save you\nfrom being killed by a train once\n\nPrice: 100 ' .. Market_items.market_item .. 's'}, item = saviour_token_name})
+table.insert(market_items, 3, {
+    price = 100,
+    name = saviour_token_name,
+    name_label = 'Train Immunity (1x use)',
+    description = 'Each ' .. saviour_token_name .. ' in your inventory will save you from being killed by a train once.',
+})
 
 local remove_stack = {name = saviour_token_name, count = 1}
-
 local saved_players = {}
-Global.register(
-    saved_players,
-    function(tbl)
-        saved_players = tbl
-    end
-)
+
+Global.register(saved_players, function(tbl)
+    saved_players = tbl
+end)
 
 local train_names = {
     ['locomotive'] = true,
@@ -31,7 +32,7 @@ local train_names = {
 local function save_player(player)
     player.character.health = 1
 
-    local pos = player.surface.find_non_colliding_position('player', player.position, 100, 2)
+    local pos = player.surface.find_non_colliding_position('character', player.position, 100, 2)
     if not pos then
         return
     end
@@ -50,7 +51,7 @@ local function on_pre_death(event)
     end
 
     local player_index = event.player_index
-    local player = Game.get_player_by_index(player_index)
+    local player = game.get_player(player_index)
     if not player or not player.valid then
         return
     end
@@ -64,7 +65,7 @@ local function on_pre_death(event)
 
     local player_name = player.name
 
-    if UserGroups.player_has_donator_perk(player_name, train_perk_flag) then
+    if Donator.player_has_donator_perk(player_name, train_perk_flag) then
         saved_players[player_index] = game_tick
         save_player(player)
 
@@ -80,17 +81,8 @@ local function on_pre_death(event)
 
     player.remove_item(remove_stack)
     saved_players[player_index] = game_tick
-
     save_player(player)
-
-    game.print(
-        table.concat {
-            player_name,
-            ' has been saved from a train death. Their ',
-            saviour_token_name,
-            ' survival item has been consumed.'
-        }
-    )
+    game.print(player_name .. ' has been saved from a train death. One of their Train Immunity items has been consumed.')
 end
 
 Event.add(defines.events.on_pre_player_died, on_pre_death)
