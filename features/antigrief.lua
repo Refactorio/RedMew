@@ -1,6 +1,6 @@
 local Event = require 'utils.event'
-local Utils = require 'utils.utils'
-local Game = require 'utils.game'
+local Utils = require 'utils.core'
+local RS = require 'map_gen.shared.redmew_surface'
 
 global.original_last_users_by_ent_pos = {}
 
@@ -58,7 +58,7 @@ end
 
 local function on_entity_changed(event)
     local entity = event.entity or event.destination
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if player.admin or not entity.valid then
         return
     end --Freebees for admins
@@ -108,7 +108,7 @@ Event.add(
                 name = entity.name,
                 position = entity.position,
                 mock = true,
-                last_user = Game.get_player_by_index(1),
+                last_user = game.get_player(1),
                 force = entity.force,
                 direction = get_pre_rotate_direction(entity)
             }
@@ -123,7 +123,7 @@ Event.add(
     defines.events.on_entity_died,
     function(event)
         --is a player on the same force as the destroyed object
-        if event.entity and event.entity.valid and event.entity.force.name == 'player' and event.cause and event.cause.force == event.entity.force and event.cause.type == 'player' then
+        if event.entity and event.entity.valid and event.entity.force.name == 'player' and event.cause and event.cause.force == event.entity.force and event.cause.type == 'character' then
             local new_entity = place_entity_on_surface(event.entity, global.ag_surface, true, event.cause.player)
             if new_entity and event.entity.type == 'container' then
                 local items = event.entity.get_inventory(defines.inventory.chest).get_contents()
@@ -155,7 +155,7 @@ Module.undo =
     if type(player) == 'nil' or type(player) == 'string' then
         return --No support for strings!
     elseif type(player) == 'number' then
-        player = Game.get_player_by_index(player)
+        player = game.get_player(player)
     end
 
     --Remove all items from all surfaces that player placed an entity on
@@ -173,11 +173,11 @@ Module.undo =
         if e.last_user == player then
             --Place removed entity IF no collision is detected
             local last_user = global.original_last_users_by_ent_pos[get_position_str(e.position)]
-            local new_entity = place_entity_on_surface(e, game.surfaces.nauvis, false, last_user)
+            local new_entity = place_entity_on_surface(e, RS.get_surface(), false, last_user)
             --Transfer items
             if new_entity then
-                local player = Utils.ternary(new_entity.last_user, new_entity.last_user, game.player)
-                local event = {created_entity = new_entity, player_index = player.index, stack = {}}
+                local event_player = Utils.ternary(new_entity.last_user, new_entity.last_user, game.player)
+                local event = {created_entity = new_entity, player_index = event_player.index, stack = {}}
                 script.raise_event(defines.events.on_built_entity, event)
 
                 if e.type == 'container' then
@@ -197,7 +197,7 @@ end
 Module.antigrief_surface_tp = function()
     if game.player then
         if game.player.surface == global.ag_surface then
-            game.player.teleport(game.player.position, game.surfaces.nauvis)
+            game.player.teleport(game.player.position, RS.get_surface())
         else
             game.player.teleport(game.player.position, global.ag_surface)
         end

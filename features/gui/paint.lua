@@ -1,6 +1,6 @@
 local Event = require 'utils.event'
 local Gui = require 'utils.gui'
-local Game = require 'utils.game'
+local Global = require 'utils.global'
 
 local brush_tool = 'refined-hazard-concrete'
 
@@ -39,29 +39,43 @@ local filter_element_name = Gui.uid_name()
 local filters_table_name = Gui.uid_name()
 local filter_table_close_button_name = Gui.uid_name()
 
-global.paint_brushes_by_player = {}
-local function player_build_tile(event)
-    if not global.config.paint.enable then
-        return
+local paint_brushes_by_player = {}
+
+Global.register(
+    {
+        paint_brushes_by_player = paint_brushes_by_player
+    },
+    function(tbl)
+        paint_brushes_by_player = tbl.paint_brushes_by_player
     end
-    if event.item.name ~= brush_tool then
+)
+
+local function player_build_tile(event)
+    local item = event.item
+    if not item then
         return
     end
 
-    local replace_tile = global.paint_brushes_by_player[event.player_index]
+    if item.name ~= brush_tool then
+        return
+    end
+
+    local replace_tile = paint_brushes_by_player[event.player_index]
     if not replace_tile then
         return
     end
 
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player.gui.left[main_frame_name] then
         return
     end
 
     local tiles = event.tiles
     local count = 0
-    for _, tile_data in ipairs(tiles) do
+    for i = 1, #tiles do
+        local tile_data = tiles[i]
         tile_data.name = replace_tile
+
         if tile_data.old_tile.name == replace_tile then
             count = count + 1
         end
@@ -75,10 +89,7 @@ local function player_build_tile(event)
 end
 
 local function player_joined(event)
-    if not global.config.paint.enable then
-        return
-    end
-    local player = Game.get_player_by_index(event.player_index)
+    local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
@@ -87,7 +98,14 @@ local function player_joined(event)
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'utility/spray_icon'}
+    player.gui.top.add(
+        {
+            name = main_button_name,
+            type = 'sprite-button',
+            sprite = 'utility/spray_icon',
+            tooltip = {'paint.tooltip'}
+        }
+    )
 end
 
 local function draw_filters_table(event)
@@ -121,13 +139,21 @@ local function draw_filters_table(event)
 end
 
 local function toggle(event)
-    local left = event.player.gui.left
+    local player = event.player
+    local gui = player.gui
+    local left = gui.left
     local main_frame = left[main_frame_name]
+    local main_button = gui.top[main_button_name]
 
     if main_frame and main_frame.valid then
-        Gui.remove_data_recursivly(main_frame)
-        main_frame.destroy()
+        Gui.destroy(main_frame)
+        main_button.style = 'icon_button'
     else
+        main_button.style = 'selected_slot_button'
+        local style = main_button.style
+        style.width = 38
+        style.height = 38
+
         main_frame =
             left.add {
             type = 'frame',
@@ -135,12 +161,8 @@ local function toggle(event)
             direction = 'vertical',
             caption = 'Paint Brush'
         }
-        main_frame.add {
-            type = 'label',
-            caption = 'Choose a replacement tile for Refined hazard concrete'
-        }
 
-        local tooltip = global.paint_brushes_by_player[event.player_index] or ''
+        local tooltip = paint_brushes_by_player[event.player_index] or ''
 
         local brush =
             main_frame.add({type = 'flow'}).add {
@@ -155,8 +177,8 @@ local function toggle(event)
 
         buttons_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
 
-        local clear_bursh = buttons_flow.add {type = 'button', name = filter_clear_name, caption = 'Clear Brush'}
-        Gui.set_data(clear_bursh, brush)
+        local clear_brush = buttons_flow.add {type = 'button', name = filter_clear_name, caption = 'Clear Brush'}
+        Gui.set_data(clear_brush, brush)
     end
 end
 
@@ -166,7 +188,7 @@ Gui.on_click(
     filter_button_name,
     function(event)
         if event.button == defines.mouse_button_type.right then
-            global.paint_brushes_by_player[event.player_index] = nil
+            paint_brushes_by_player[event.player_index] = nil
             local element = event.element
             element.sprite = 'utility/pump_cannot_connect_icon'
             element.tooltip = ''
@@ -184,7 +206,7 @@ Gui.on_click(
         brush.sprite = 'utility/pump_cannot_connect_icon'
         brush.tooltip = ''
 
-        global.paint_brushes_by_player[event.player_index] = nil
+        paint_brushes_by_player[event.player_index] = nil
     end
 )
 
@@ -192,14 +214,18 @@ Gui.on_click(
     filter_element_name,
     function(event)
         local element = event.element
+        if not element or not element.valid then
+            return
+        end
+
         local frame = Gui.get_data(element)
         local filter_button = Gui.get_data(frame)
 
-        global.paint_brushes_by_player[event.player_index] = element.tooltip
+        paint_brushes_by_player[event.player_index] = element.tooltip
         filter_button.sprite = element.sprite
         filter_button.tooltip = element.tooltip
 
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 )
@@ -208,7 +234,7 @@ Gui.on_click(
     filter_table_close_button_name,
     function(event)
         local frame = Gui.get_data(event.element)
-        Gui.remove_data_recursivly(frame)
+        Gui.remove_data_recursively(frame)
         frame.destroy()
     end
 )
@@ -217,10 +243,12 @@ Gui.on_custom_close(
     filters_table_name,
     function(event)
         local element = event.element
-        Gui.remove_data_recursivly(element)
+        Gui.remove_data_recursively(element)
         element.destroy()
     end
 )
+
+Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_player_built_tile, player_build_tile)

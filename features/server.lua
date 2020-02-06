@@ -1,13 +1,39 @@
 --- See documentation at https://github.com/Refactorio/RedMew/pull/469
 
-local Token = require 'utils.global_token'
+local Token = require 'utils.token'
+local Task = require 'utils.task'
+local Global = require 'utils.global'
+local Event = require 'utils.event'
+local Timestamp = require 'utils.timestamp'
+local Print = require('utils.print_override')
+local ErrorLogging = require 'utils.error_logging'
+
+local serialize = serpent.serialize
+local concat = table.concat
+local remove = table.remove
+local tostring = tostring
+local raw_print = Print.raw_print
+local next = next
+
+local serialize_options = {sparse = true, compact = true}
 
 local Public = {}
 
-local raw_print = print
-function print(str)
-    raw_print('[PRINT] ' .. str)
-end
+local server_time = {secs = nil, tick = 0}
+ErrorLogging.server_time = server_time
+local requests = {}
+
+Global.register(
+    {
+        server_time = server_time,
+        requests = requests
+    },
+    function(tbl)
+        server_time = tbl.server_time
+        ErrorLogging.server_time = server_time
+        requests = tbl.requests
+    end
+)
 
 local discord_tag = '[DISCORD]'
 local discord_raw_tag = '[DISCORD-RAW]'
@@ -24,6 +50,11 @@ local data_set_tag = '[DATA-SET]'
 local data_get_tag = '[DATA-GET]'
 local data_get_all_tag = '[DATA-GET-ALL]'
 local data_tracked_tag = '[DATA-TRACKED]'
+local ban_sync_tag = '[BAN-SYNC]'
+local unbanned_sync_tag = '[UNBANNED-SYNC]'
+local query_players_tag = '[QUERY-PLAYERS]'
+local player_join_tag = '[PLAYER-JOIN]'
+local player_leave_tag = '[PLAYER-LEAVE]'
 
 Public.raw_print = raw_print
 
@@ -41,7 +72,7 @@ local data_set_handlers = {}
 -- function()
 --      Server.try_get_all_data('regulars', callback)
 -- end)
-Public.events = {on_server_started = script.generate_event_name()}
+Public.events = {on_server_started = Event.generate_event_name('on_server_started')}
 
 --- Sends a message to the linked discord channel. The message is sanitized of markdown server side.
 -- @param  message<string> message to send.
@@ -122,7 +153,7 @@ local default_ping_token =
         local now = game.tick
         local diff = now - sent_tick
 
-        local message = table.concat({'Pong in ', diff, ' tick(s) ', 'sent tick: ', sent_tick, ' received tick: ', now})
+        local message = concat({'Pong in ', diff, ' tick(s) ', 'sent tick: ', sent_tick, ' received tick: ', now})
         game.print(message)
     end
 )
@@ -131,8 +162,13 @@ local default_ping_token =
 -- @param  func_token<token> The function that is called when the web server replies.
 -- The function is passed the tick that the ping was sent.
 function Public.ping(func_token)
-    local message = table.concat({ping_tag, func_token or default_ping_token, ' ', game.tick})
+    local message = concat({ping_tag, func_token or default_ping_token, ' ', game.tick})
     raw_print(message)
+end
+
+local function double_escape(str)
+    -- Excessive escaping because the data is serialized twice.
+    return str:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"'):gsub('\n', '\\\\n')
 end
 
 --- Sets the web server's persistent data storage. If you pass nil for the value removes the data.
@@ -151,44 +187,85 @@ end
 -- Server.set_data('my data set', 'key 2', 'def') -- this will change the value for 'key 2' to 'def'
 function Public.set_data(data_set, key, value)
     if type(data_set) ~= 'string' then
-        error('data_set must be a string')
+        error('data_set must be a string', 2)
     end
     if type(key) ~= 'string' then
-        error('key must be a string')
+        error('key must be a string', 2)
     end
 
-    -- Excessive escaping because the data is serialized twice.
-    data_set = data_set:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
-    key = key:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+    data_set = double_escape(data_set)
+    key = double_escape(key)
 
     local message
     local vt = type(value)
     if vt == 'nil' then
-        message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '"}'})
+        message = concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '"}'})
     elseif vt == 'string' then
-        -- Excessive escaping because the data is serialized twice.
-        value = value:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+        value = double_escape(value)
 
-        message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"\\"', value, '\\""}'})
+        message = concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"\\"', value, '\\""}'})
     elseif vt == 'number' then
-        message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"', value, '"}'})
+        message = concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"', value, '"}'})
     elseif vt == 'boolean' then
-        message =
-            table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"', tostring(value), '"}'})
+        message = concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, '",value:"', tostring(value), '"}'})
     elseif vt == 'function' then
-        error('value cannot be a function')
+        error('value cannot be a function', 2)
     else -- table
-        value = serpent.line(value)
+        value = serialize(value, serialize_options)
 
         -- Less escaping than the string case as serpent provides one level of escaping.
         -- Need to escape single quotes as serpent uses double quotes for strings.
         value = value:gsub('\\', '\\\\'):gsub("'", "\\'")
 
-        message = table.concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, "\",value:'", value, "'}"})
+        message = concat({data_set_tag, '{data_set:"', data_set, '",key:"', key, "\",value:'", value, "'}"})
     end
 
     raw_print(message)
 end
+
+local function validate_arguments(data_set, key, callback_token)
+    if type(data_set) ~= 'string' then
+        error('data_set must be a string', 3)
+    end
+    if type(key) ~= 'string' then
+        error('key must be a string', 3)
+    end
+    if type(callback_token) ~= 'number' then
+        error('callback_token must be a number', 3)
+    end
+end
+
+local function send_try_get_data(data_set, key, callback_token)
+    data_set = double_escape(data_set)
+    key = double_escape(key)
+
+    local message = concat {data_get_tag, callback_token, ' {', 'data_set:"', data_set, '",key:"', key, '"}'}
+    raw_print(message)
+end
+
+local cancelable_callback_token =
+    Token.register(
+    function(data)
+        local data_set = data.data_set
+        local keys = requests[data_set]
+        if not keys then
+            return
+        end
+
+        local key = data.key
+        local callbacks = keys[key]
+        if not callbacks then
+            return
+        end
+
+        keys[key] = nil
+
+        for c, _ in next, callbacks do
+            local func = Token.get(c)
+            func(data)
+        end
+    end
+)
 
 --- Gets data from the web server's persistent data storage.
 -- The callback is passed a table {data_set: string, key: string, value: any}.
@@ -198,7 +275,7 @@ end
 -- @param  callback_token<token>
 -- @usage
 -- local Server = require 'features.server'
--- local Token = require 'utils.global_token'
+-- local Token = require 'utils.token'
 --
 -- local callback =
 --     Token.register(
@@ -213,22 +290,136 @@ end
 --
 -- Server.try_get_data('my data set', 'key 1', callback)
 function Public.try_get_data(data_set, key, callback_token)
-    if type(data_set) ~= 'string' then
-        error('data_set must be a string')
-    end
-    if type(key) ~= 'string' then
-        error('key must be a string')
-    end
-    if type(callback_token) ~= 'number' then
-        error('callback_token must be a number')
+    validate_arguments(data_set, key, callback_token)
+
+    send_try_get_data(data_set, key, callback_token)
+end
+
+local function try_get_data_cancelable(data_set, key, callback_token)
+    local keys = requests[data_set]
+    if not keys then
+        keys = {}
+        requests[data_set] = keys
     end
 
-    -- Excessive escaping because the data is serialized twice.
-    data_set = data_set:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
-    key = key:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+    local callbacks = keys[key]
+    if not callbacks then
+        callbacks = {}
+        keys[key] = callbacks
+    end
 
-    local message = table.concat {data_get_tag, callback_token, ' {', 'data_set:"', data_set, '",key:"', key, '"}'}
-    raw_print(message)
+    if callbacks[callback_token] then
+        return
+    end
+
+    if next(callbacks) then
+        callbacks[callback_token] = true
+    else
+        callbacks[callback_token] = true
+        send_try_get_data(data_set, key, cancelable_callback_token)
+    end
+end
+
+--- Same Server.try_get_data but the request can be cancelled by calling
+-- Server.cancel_try_get_data(data_set, key, callback_token)
+-- If the request is cancelled before it is complete the callback will be called with data.cancelled = true.
+-- It is safe to cancel a non-existent or completed request, in either case the callback will not be called.
+-- There can only be one request per data_set, key, callback_token combo. If there is already an ongoing request
+-- an attempt to make a new one will be ignored.
+-- @param  data_set<string>
+-- @param  key<string>
+-- @param  callback_token<token>
+function Public.try_get_data_cancelable(data_set, key, callback_token)
+    validate_arguments(data_set, key, callback_token)
+
+    try_get_data_cancelable(data_set, key, callback_token)
+end
+
+local function cancel_try_get_data(data_set, key, callback_token)
+    local keys = requests[data_set]
+    if not keys then
+        return false
+    end
+
+    local callbacks = keys[key]
+    if not callbacks then
+        return false
+    end
+
+    if callbacks[callback_token] then
+        callbacks[callback_token] = nil
+
+        local func = Token.get(callback_token)
+        local data = {data_set = data_set, key = key, cancelled = true}
+        func(data)
+
+        return true
+    else
+        return false
+    end
+end
+
+--- Cancels the request. Returns false if the request could not be cnacled, either because there is no request
+-- to cancel or it has been completed or cancled already. Otherwise returns true.
+-- If the request is cancelled before it is complete the callback will be called with data.cancelled = true.
+-- It is safe to cancel a non-existent or completed request, in either case the callback will not be called.
+-- @param  data_set<string>
+-- @param  key<string>
+-- @param  callback_token<token>
+function Public.cancel_try_get_data(data_set, key, callback_token)
+    validate_arguments(data_set, key, callback_token)
+
+    return cancel_try_get_data(data_set, key, callback_token)
+end
+
+local timeout_token =
+    Token.register(
+    function(data)
+        cancel_try_get_data(data.data_set, data.key, data.callback_token)
+    end
+)
+
+--- Same as Server.try_get_data but the request is cancelled if the timeout expires before the request is complete.
+-- If the request is cancelled before it is complete the callback will be called with data.cancelled = true.
+-- There can only be one request per data_set, key, callback_token combo. If there is already an ongoing request
+-- an attempt to make a new one will be ignored.
+-- @param  data_set<string>
+-- @param  key<string>
+-- @param  callback_token<token>
+-- @usage
+-- local Server = require 'features.server'
+-- local Token = require 'utils.token'
+--
+-- local callback =
+--     Token.register(
+--     function(data)
+--         local data_set = data.data_set
+--         local key = data.key
+--
+--          game.print('data_set: ' .. data_set .. ', key: ' .. key)
+--
+--         if data.cancelled then
+--             game.print('Timed out')
+--             return
+--         end
+--
+--         local value = data.value -- will be nil if no data
+--
+--         game.print('value: ' .. tostring(value))
+--     end
+-- )
+--
+-- Server.try_get_data_timeout('my data set', 'key 1', callback, 60)
+function Public.try_get_data_timeout(data_set, key, callback_token, timeout_ticks)
+    validate_arguments(data_set, key, callback_token)
+
+    try_get_data_cancelable(data_set, key, callback_token)
+
+    Task.set_timeout_in_ticks(
+        timeout_ticks,
+        timeout_token,
+        {data_set = data_set, key = key, callback_token = callback_token}
+    )
 end
 
 --- Gets all the data for the data_set from the web server's persistent data storage.
@@ -238,7 +429,7 @@ end
 -- @param  callback_token<token>
 -- @usage
 -- local Server = require 'features.server'
--- local Token = require 'utils.global_token'
+-- local Token = require 'utils.token'
 --
 -- local callback =
 --     Token.register(
@@ -253,16 +444,15 @@ end
 -- Server.try_get_all_data('my data set', callback)
 function Public.try_get_all_data(data_set, callback_token)
     if type(data_set) ~= 'string' then
-        error('data_set must be a string')
+        error('data_set must be a string', 2)
     end
     if type(callback_token) ~= 'number' then
-        error('callback_token must be a number')
+        error('callback_token must be a number', 2)
     end
 
-    -- Excessive escaping because the data is serialized twice.
-    data_set = data_set:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+    data_set = double_escape(data_set)
 
-    local message = table.concat {data_get_all_tag, callback_token, ' {', 'data_set:"', data_set, '"}'}
+    local message = concat {data_get_all_tag, callback_token, ' {', 'data_set:"', data_set, '"}'}
     raw_print(message)
 end
 
@@ -277,7 +467,8 @@ local function data_set_changed(data)
             local success, err = pcall(handler, data)
             if not success then
                 log(err)
-                error(err)
+                ErrorLogging.generate_error_report(err)
+                error(err, 2)
             end
         end
     else
@@ -285,6 +476,7 @@ local function data_set_changed(data)
             local success, err = pcall(handler, data)
             if not success then
                 log(err)
+                ErrorLogging.generate_error_report(err)
             end
         end
     end
@@ -310,8 +502,11 @@ end
 --     end
 -- )
 function Public.on_data_set_changed(data_set, handler)
+    if _LIFECYCLE == _STAGE.runtime then
+        error('cannot call during runtime', 2)
+    end
     if type(data_set) ~= 'string' then
-        error('data_set must be a string')
+        error('data_set must be a string', 2)
     end
 
     local handlers = data_set_handlers[data_set]
@@ -319,7 +514,7 @@ function Public.on_data_set_changed(data_set, handler)
         handlers = {handler}
         data_set_handlers[data_set] = handlers
     else
-        table.insert(handlers, handler)
+        handlers[#handlers + 1] = handler
     end
 end
 
@@ -331,23 +526,229 @@ function Public.get_tracked_data_sets()
     local message = {data_tracked_tag, '['}
 
     for k, _ in pairs(data_set_handlers) do
-        -- Excessive escaping because the data is serialized twice.
-        k = k:gsub('\\', '\\\\\\\\'):gsub('"', '\\\\\\"')
+        k = double_escape(k)
 
-        table.insert(message, '"')
-        table.insert(message, k)
-        table.insert(message, '"')
-        table.insert(message, ',')
+        local message_length = #message
+        message[message_length + 1] = '"'
+        message[message_length + 2] = k
+        message[message_length + 3] = '"'
+        message[message_length + 4] = ','
     end
 
     if message[#message] == ',' then
-        table.remove(message)
+        remove(message)
     end
 
-    table.insert(message, ']')
+    message[#message + 1] = ']'
 
-    message = table.concat(message)
+    message = concat(message)
     raw_print(message)
 end
+
+local function escape(str)
+    return str:gsub('\\', '\\\\'):gsub('"', '\\"')
+end
+
+--- If the player exists bans the player.
+-- Regardless of whether or not the player exists the name is synchronized with other servers
+-- and stored in the database.
+-- @param  username<string>
+-- @param  reason<string?> defaults to empty string.
+-- @param  admin<string?> admin's name, defaults to '<script>'
+function Public.ban_sync(username, reason, admin)
+    if type(username) ~= 'string' then
+        error('username must be a string', 2)
+    end
+
+    if reason == nil then
+        reason = ''
+    elseif type(reason) ~= 'string' then
+        error('reason must be a string or nil', 2)
+    end
+
+    if admin == nil then
+        admin = '<script>'
+    elseif type(admin) ~= 'string' then
+        error('admin must be a string or nil', 2)
+    end
+
+    -- game.ban_player errors if player not found.
+    -- However we may still want to use this function to ban player names.
+    local player = game.players[username]
+    if player then
+        game.ban_player(player, reason)
+    end
+
+    username = escape(username)
+    reason = escape(reason)
+    admin = escape(admin)
+
+    local message = concat({ban_sync_tag, '{username:"', username, '",reason:"', reason, '",admin:"', admin, '"}'})
+    raw_print(message)
+end
+
+--- If the player exists bans the player else throws error.
+-- The ban is not synchronized with other servers or stored in the database.
+-- @param  PlayerSpecification
+-- @param  reason<string?> defaults to empty string.
+function Public.ban_non_sync(PlayerSpecification, reason)
+    game.ban_player(PlayerSpecification, reason)
+end
+
+--- If the player exists unbans the player.
+-- Regardless of whether or not the player exists the name is synchronized with other servers
+-- and removed from the database.
+-- @param  username<string>
+-- @param  admin<string?> admin's name, defaults to '<script>'. This name is stored in the logs for who removed the ban.
+function Public.unban_sync(username, admin)
+    if type(username) ~= 'string' then
+        error('username must be a string', 2)
+    end
+
+    if admin == nil then
+        admin = '<script>'
+    elseif type(admin) ~= 'string' then
+        error('admin must be a string or nil', 2)
+    end
+
+    -- game.unban_player errors if player not found.
+    -- However we may still want to use this function to unban player names.
+    local player = game.players[username]
+    if player then
+        game.unban_player(username)
+    end
+
+    username = escape(username)
+    admin = escape(admin)
+
+    local message = concat({unbanned_sync_tag, '{username:"', username, '",admin:"', admin, '"}'})
+    raw_print(message)
+end
+
+--- If the player exists unbans the player else throws error.
+-- The ban is not synchronized with other servers or removed from the database.
+-- @param  PlayerSpecification
+function Public.unban_non_sync(PlayerSpecification)
+    game.unban_player(PlayerSpecification)
+end
+
+--- Called by the web server to set the server time.
+-- @param  secs<number> unix epoch timestamp
+function Public.set_time(secs)
+    server_time.secs = secs
+    server_time.tick = game.tick
+end
+
+--- Gets a table {secs:number?, tick:number} with secs being the unix epoch timestamp
+-- for the server time and ticks the number of game ticks ago it was set.
+-- @return table
+function Public.get_time_data_raw()
+    return server_time
+end
+
+--- Gets an estimate of the current server time as a unix epoch timestamp.
+-- If the server time has not been set returns nil.
+-- The estimate may be slightly off if within the last minute the game has been paused, saving or overwise,
+-- or the game speed has been changed.
+-- @return number?
+function Public.get_current_time()
+    local secs = server_time.secs
+    if secs == nil then
+        return nil
+    end
+
+    local diff = game.tick - server_time.tick
+    return math.floor(secs + diff / game.speed / 60)
+end
+
+--- Called be the web server to re sync which players are online.
+function Public.query_online_players()
+    local message = {query_players_tag, '['}
+
+    for _, p in ipairs(game.connected_players) do
+        message[#message + 1] = '"'
+        local name = escape(p.name)
+        message[#message + 1] = name
+        message[#message + 1] = '",'
+    end
+
+    if message[#message] == '",' then
+        message[#message] = '"'
+    end
+
+    message[#message + 1] = ']'
+
+    message = concat(message)
+    raw_print(message)
+end
+
+--- Sets the server time as the scenario version. Imperfect since we ideally want the commit,
+-- but an easy way to at least establish a baseline.
+local function set_scenario_version()
+    -- A 1 hour buffer is in place to account for potential playtime pre-upload.
+    if game.tick < 216000 and not global.redmew_version then
+        local time_string = Timestamp.to_string(Public.get_current_time())
+        global.redmew_version = string.format('Time of map launch: %s UTC', time_string)
+    end
+end
+
+Event.add(Public.events.on_server_started, set_scenario_version)
+
+--- The [JOIN] nad [LEAVE] messages Factorio sends to stdout aren't sent in all cases of
+--  players joining or leaving. So we send our own [PLAYER-JOIN] and [PLAYER-LEAVE] tags.
+Event.add(
+    defines.events.on_player_joined_game,
+    function(event)
+        local player = game.get_player(event.player_index)
+        if not player then
+            return
+        end
+
+        raw_print(player_join_tag .. player.name)
+    end
+)
+
+Event.add(
+    defines.events.on_player_left_game,
+    function(event)
+        local player = game.get_player(event.player_index)
+        if not player then
+            return
+        end
+
+        raw_print(player_leave_tag .. player.name)
+    end
+)
+
+Event.add(
+    defines.events.on_player_died,
+    function(event)
+        local player = game.get_player(event.player_index)
+
+        if not player or not player.valid then
+            return
+        end
+
+        local cause = event.cause
+
+        local message = {discord_bold_tag, player.name}
+        if cause and cause.valid then
+            message[#message + 1] = ' was killed by '
+
+            local name = cause.name
+            if name == 'character' then
+                name = cause.player.name
+            end
+
+            message[#message + 1] = name
+            message[#message + 1] = '.'
+        else
+            message[#message + 1] = ' has died.'
+        end
+
+        message = concat(message)
+        raw_print(message)
+    end
+)
 
 return Public
