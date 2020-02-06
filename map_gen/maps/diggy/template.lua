@@ -45,10 +45,11 @@ local function insert_next_tiles(data)
     local teleported = {}
     local teleported_count = 0
     local teleport_offset = tiles_per_call + 5
-    local find_entities = surface.find_entities
+    local find_entities_filtered = surface.find_entities_filtered
 
     pcall(function()
         --use pcall to assure tile_iterator is always incremented, to avoid endless loops
+        local rocks_lookup = Template.diggy_rocks
         for i = tile_iterator, min(tile_iterator + tiles_per_call - 1, data.tiles_n) do
             local new_tile = data.tiles[i]
             tile_count = tile_count + 1
@@ -63,7 +64,7 @@ local function insert_next_tiles(data)
                 end
             end
             if string_find(new_tile.name, "water", 1, true) then --maybe check prototype's collision mask instead?
-                local entities = find_entities{tile_pos, {tile_pos.x + 1, tile_pos.y + 1}}
+                local entities = find_entities_filtered{area = {tile_pos, {tile_pos.x + 1, tile_pos.y + 1}}, name = rocks_lookup}
                 for k = 1, #entities do
                     local entity = entities[k]
                     --entity.teleport(x, y) offsets the entity by specified values
