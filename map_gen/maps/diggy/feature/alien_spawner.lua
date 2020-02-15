@@ -57,6 +57,7 @@ local rocks_to_find = Template.diggy_rocks
 local do_alien_mining = Token.register(function(params)
     local surface = params.surface
     local create_entity = surface.create_entity
+    local create_particle = surface.create_particle
     local find_non_colliding_position = surface.find_non_colliding_position
 
     local rocks = surface.find_entities_filtered({area = params.clear_area, name = rocks_to_find})
@@ -76,7 +77,7 @@ local do_alien_mining = Token.register(function(params)
         for rock_index = rock_count, 1, -1 do
             local rock = rocks[rock_index]
             raise_event(defines.events.on_entity_died, {entity = rock})
-            destroy_rock(create_entity, particle_count, rock.position)
+            destroy_rock(create_particle, particle_count, rock.position)
             rock.destroy()
         end
     end

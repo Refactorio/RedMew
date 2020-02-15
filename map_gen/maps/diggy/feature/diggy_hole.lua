@@ -166,7 +166,7 @@ function DiggyHole.register(cfg)
         end
         diggy_hole(entity)
         if event.cause then
-            destroy_rock(entity.surface.create_entity, 10, entity.position)
+            destroy_rock(entity.surface.create_particle, 10, entity.position)
         end
     end)
 
@@ -200,19 +200,20 @@ function DiggyHole.register(cfg)
 
         local graphics_variation = entity.graphics_variation
         local create_entity = entity.surface.create_entity
+        local create_particle = entity.surface.create_particle
         local position = entity.position
         local force = event.robot.force
 
         if health < 1 then
             raise_event(defines.events.on_entity_died, {entity = entity, force = force})
-            mine_rock(create_entity, 6, position)
+            mine_rock(create_particle, 6, position)
             entity.destroy()
             return
         end
         entity.destroy()
 
         local rock = create_entity({name = name, position = position})
-        mine_rock(create_entity, 1, position)
+        mine_rock(create_particle, 1, position)
         rock.graphics_variation = graphics_variation
         rock.order_deconstruction(force)
         rock.health = health
@@ -228,7 +229,7 @@ function DiggyHole.register(cfg)
         event.buffer.clear()
 
         diggy_hole(entity)
-        mine_rock(entity.surface.create_entity, 6, entity.position)
+        mine_rock(entity.surface.create_particle, 6, entity.position)
     end)
 
     Event.add(defines.events.on_robot_mined_tile, function (event)
