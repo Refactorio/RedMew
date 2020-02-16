@@ -38,8 +38,8 @@ end
 local function overcrowded_resource(surface, position, resource_name, min_gap)
     local d = min_gap
     local bounding_box = {{x = position.x - d + 1, y = position.y - d + 1}, {x = position.x + d, y = position.y + d}}
-    local found_resources = surface.find_entities_filtered{area = bounding_box, name = resource_name}
-    if #found_resources == 0 then
+    local found_resources = surface.count_entities_filtered{area = bounding_box, name = resource_name, limit = 1}
+    if found_resources == 0 then
         return false
     else
         return true
