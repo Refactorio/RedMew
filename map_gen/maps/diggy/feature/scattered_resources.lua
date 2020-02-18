@@ -144,8 +144,8 @@ function ScatteredResources.register(config)
         local position = {x = x, y = y}
         if resource_name == 'crude-oil' then
             -- min_gap default is 2.  Represents minimum tile gap between resources in cluster.
-            -- Can be >=0, but keep value small in relation to expected resource patch width. 
-            local min_gap = 2  
+            -- Can be >=0, but keep value small in relation to expected resource patch width.
+            local min_gap = 2
             if overcrowded_resource(surface, position, resource_name, min_gap) then
                 return false  --when overcrowded_resource is true, skip this resource spawn
             end
