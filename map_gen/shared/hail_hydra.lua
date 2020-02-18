@@ -94,6 +94,7 @@ local on_died =
         local cause = event.cause
         local surface = entity.surface
         local create_entity = surface.create_entity
+        local create_particle = surface.create_particle
         local find_non_colliding_position = surface.find_non_colliding_position
 
         local command = create_attack_command(position, cause)
@@ -136,7 +137,7 @@ local on_died =
                 particle_count = amount * 15
             end
 
-            CreateParticles.blood_explosion(create_entity, particle_count, position)
+            CreateParticles.blood_explosion(create_particle, particle_count, position)
 
             for _ = amount, 1, -1 do
                 position = find_non_colliding_position(hydra_spawn, position, 2, 0.4) or position

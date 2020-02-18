@@ -1887,6 +1887,8 @@ local water_tiles = {
     ['deepwater-green'] = true
 }
 
+Builders.water_tiles = water_tiles
+
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersfish
 function Builders.fish(shape, spawn_rate)
     return function(x, y, world)
