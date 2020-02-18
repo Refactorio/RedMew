@@ -36,14 +36,9 @@ end
 
 --overcrowded_resource returns true if one or more entity <resource_name> is found within <min_gap> tiles from <position>
 local function overcrowded_resource(surface, position, resource_name, min_gap)
-    local d = min_gap
-    local bounding_box = {{x = position.x - d + 1, y = position.y - d + 1}, {x = position.x + d, y = position.y + d}}
+    local bounding_box = {{x = position.x - min_gap + 1, y = position.y - min_gap + 1}, {x = position.x + min_gap, y = position.y + min_gap}}
     local found_resources = surface.count_entities_filtered{area = bounding_box, name = resource_name, limit = 1}
-    if found_resources == 0 then
-        return false
-    else
-        return true
-    end
+    return found_resources ~= 0
 end
 
 --[[--
@@ -148,7 +143,7 @@ function ScatteredResources.register(config)
 
         local position = {x = x, y = y}
         if resource_name == 'crude-oil' then
-            local min_gap = 2  --must be at least this many tiles between crude-oil patches
+            local min_gap = 2  --default is 2.  Represents minimum tile gap between resources.
             if overcrowded_resource(surface, position, resource_name, min_gap) then
                 return false  --when overcrowded_resource is true, skip this resource spawn
             end
