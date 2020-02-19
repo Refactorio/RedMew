@@ -34,6 +34,13 @@ local function get_name_by_weight(collection, sum)
     Debug.print('Current \'' .. current .. '\' should be higher or equal to random \'' .. target .. '\'')
 end
 
+--overcrowded_resource returns true if one or more entity <resource_name> is found within <min_gap> tiles from <position>
+local function overcrowded_resource(surface, position, resource_name, min_gap)
+    local bounding_box = {{x = position.x - min_gap + 1, y = position.y - min_gap + 1}, {x = position.x + min_gap, y = position.y + min_gap}}
+    local found_resources = surface.count_entities_filtered{area = bounding_box, name = resource_name, limit = 1}
+    return found_resources ~= 0
+end
+
 --[[--
     Registers all event handlers.
 ]]
@@ -134,6 +141,16 @@ function ScatteredResources.register(config)
             return false
         end
 
+        local position = {x = x, y = y}
+        if resource_name == 'crude-oil' then
+            -- min_gap default is 2.  Represents minimum tile gap between resources in cluster.
+            -- Can be >=0, but keep value small in relation to expected resource patch width.
+            local min_gap = 2
+            if overcrowded_resource(surface, position, resource_name, min_gap) then
+                return false  --when overcrowded_resource is true, skip this resource spawn
+            end
+        end
+
         local range = resource_richness_values[get_name_by_weight(resource_richness_weights, resource_richness_weights_sum)]
         local amount = random(range[1], range[2]) * (1 + ((distance / cluster.distance_richness) * 0.01)) * cluster.yield
 
@@ -141,7 +158,7 @@ function ScatteredResources.register(config)
             amount = amount * resource_type_scalar[resource_name]
         end
 
-        template_resources(surface, {{name = resource_name, position = {x = x, y = y}, amount = ceil(amount)}})
+        template_resources(surface, {{name = resource_name, position = position, amount = ceil(amount)}})
         return true
     end
 
