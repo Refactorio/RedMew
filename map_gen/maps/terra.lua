@@ -21,12 +21,9 @@ in order to explore beyond the grid.
     [entity=small-biter] Biter activity high
     [item=landfill] Landfill disabled
 
-Coded with love, but without lua experience: Blame Tar[technology=optics]  for bugs.
+Coded with love, but without much lua experience: Blame Tar[technology=optics]  for bugs.
      ]])
-ScenarioInfo.set_new_info([[
-This map! This map is new!
 
-T-A-R will be thankful for any feedback on discord or as PM at the Factorio-Forums]])
 --Map generation settings
 RS.set_map_gen_settings(
     {
@@ -75,7 +72,7 @@ local mappattern = {
 }
 local map = b.grid_pattern_overlap(mappattern, 2, 2, 499,500)
 --Final map scaler
-map = b.scale(map, 1.9,1.9)
+map = b.scale(map, 1,1)
 -- this sets the tile outside the bounds of the map to water, remove this and it will be void.
 map = b.change_tile(map, false, "water")
 map = b.fish(map, 0.0025)
@@ -285,7 +282,7 @@ local start_iron =
         return 1600
     end
 )
-local start_segmented = b.segment_pattern({start_stone, start_coal, start_copper, start_iron})
+local start_segmented = b.segment_pattern({start_stone, start_coal, start_iron, start_copper})
 local start_gear = b.apply_entity(gear_big, start_segmented)
 start_gear = b.change_tile(start_gear, true, "grass-3")
 map = b.if_else(start_gear, map)
@@ -301,9 +298,7 @@ player_create.starting_items = {
     {name = 'exoskeleton-equipment', count = 1},
     {name = 'iron-gear-wheel', count = 8},
     {name = 'iron-plate', count = 40},
-    {name = 'copper-plate', count = 20},
-    {name = 'car', count = 1},
-    {name = 'coal', count = 5}
+    {name = 'copper-plate', count = 20}
 }
 player_create.join_messages = {
             'Welcome to this map created by the RedMew community. You can join the discord at: redmew.com/discord',
