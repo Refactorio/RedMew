@@ -67,7 +67,7 @@ local shape5 = b.scale((chamfer), 1.4,1.4)
 local botland = b.any({shape5, shape1, shape2, shape3, shape4})
 --pave the shape
 botland = b.scale(botland, 2.2,2.2)
-botland = b.change_tile(botland, true, 'lab-dark-2')
+botland = b.change_tile(botland, true, 'landfill')
 --replace to  'landfill'  to absorb pollution
 local mappattern = {
     {corner, map1},
