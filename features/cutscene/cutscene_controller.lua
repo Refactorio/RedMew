@@ -55,6 +55,9 @@ local toggle_gui_delayed =
     Token.register(
     function(params)
         local player = params.player
+        if (not valid(player)) then
+            return
+        end
         if not waypoint_still_active(params.tick, player.index) then
             debug_print('Cutscene is no longer active. Skipping toggle_gui')
             return
@@ -77,6 +80,9 @@ function Public.toggle_gui(tick, player, gui, initial_delay, clear)
         debug_print('Provided GUI is invalid.')
         return
     end]]
+    if (not valid(player)) then
+        return
+    end
     set_timeout_in_ticks(initial_delay, toggle_gui_delayed, {tick = tick, player = player, gui = gui, clear = clear})
 end
 
@@ -84,6 +90,9 @@ local play_sound_delayed =
     Token.register(
     function(params)
         local player = params.player
+        if (not valid(player)) then
+            return
+        end
         if not waypoint_still_active(params.tick, player.index) then
             debug_print('Cutscene is no longer active. Skipping play_sound')
             return
@@ -93,6 +102,9 @@ local play_sound_delayed =
 )
 
 function Public.play_sound(tick, player, path, times, delay, initial_delay)
+    if (not valid(player)) then
+        return
+    end
     if not game.is_valid_sound_path(path) then
         debug_print('Provided SoundPath is invalid. Try opening /radio and browse for a valid path')
         return
@@ -160,7 +172,10 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
     if not valid(player) then
         return
     end
-
+    if player.controller_type ~= 1 then
+        player.print('Cannot start cutscene without a character')
+        return
+    end
     local cutscene_function = cutscene_functions[identifier]
     if not cutscene_function then
         return
@@ -332,11 +347,17 @@ local reconnect_character =
         local running_cutscene = params.running_cutscene
         local character = running_cutscene.character
         local func = running_cutscene.terminate_func
-        if valid(player) and valid(character) then
+        if valid(player) then
             player.exit_cutscene()
-            player.set_controller {type = defines.controllers.character, character = character}
+            if valid(character) then
+                player.set_controller {type = defines.controllers.character, character = character}
+            else
+                params.skip_btn_flag = true
+                player.ticks_to_respawn = 3600
+                player.print('[color=red][font=compi]Oops - You Died! Please go to a safe location and restart the cutscene[/font][/color]')
+            end
             if func then
-                Token.get(func)(player_index)
+                Token.get(func)(player_index, params.skip_btn_flag)
             end
             Token.get(remove_renderings)(running_cutscene.rendering)
             running_cutscene.btn.destroy()
@@ -345,20 +366,25 @@ local reconnect_character =
     end
 )
 
-function Public.terminate_cutscene(player_index, ticks)
+function Public.terminate_cutscene(player_index, ticks,skip_btn_flag)
     local running_cutscene = running_cutscenes[player_index]
     if not running_cutscene then
         return
     end
     ticks = ticks and ticks or 1
     debug_print('Terminating cutscene in ' .. ticks .. ' Ticks')
+    if skip_btn_flag == nil then
+        skip_btn_flag = false
+    end
+    debug_print('Is terminate_func ignored = ' .. tostring(skip_btn_flag))
 
     set_timeout_in_ticks(
         ticks,
         reconnect_character,
         {
             player_index = player_index,
-            running_cutscene = running_cutscene
+            running_cutscene = running_cutscene,
+            skip_btn_flag = skip_btn_flag
         }
     )
 end
@@ -448,7 +474,7 @@ function Public.goTo(player_index, waypoint_index)
 end
 
 local function restore(event)
-    Public.terminate_cutscene(event.player_index)
+    Public.terminate_cutscene(event.player_index, 1, true)
 end
 
 Event.add(defines.events.on_cutscene_waypoint_reached, handler)
@@ -485,7 +511,7 @@ local function skip_cutscene(_, player)
         return
     end
     if player.controller_type == defines.controllers.cutscene then
-        Public.terminate_cutscene(player.index)
+        Public.terminate_cutscene(player.index, 1, true)
     end
 end
 

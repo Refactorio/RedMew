@@ -12,6 +12,9 @@ local Ranks = require 'resources.ranks'
 local format = string.format
 local match = string.match
 
+-- capsule antigreif player entities threshold.
+local capsule_bomb_threshold = 8
+
 local players_warned = {}
 local entities_allowed_to_bomb = {
     ['stone-wall'] = true,
@@ -83,8 +86,14 @@ local function on_player_deconstructed_area(event)
     player.remove_item({name = 'deconstruction-planner', count = 1000})
 
     --Make them think they arent noticed
-    Utils.silent_action_warning('[Deconstruct]', player.name .. ' tried to deconstruct something, but instead deconstructed themself.', player)
-    player.print('Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.')
+    Utils.silent_action_warning(
+        '[Deconstruct]',
+        player.name .. ' tried to deconstruct something, but instead deconstructed themself.',
+        player
+    )
+    player.print(
+        'Only regulars can mark things for deconstruction, if you want to deconstruct something you may ask an admin to promote you.'
+    )
 
     local character = player.character
     if character and character.valid then
@@ -104,7 +113,10 @@ local function on_player_deconstructed_area(event)
 
     local entities = player.surface.find_entities_filtered {area = area, force = player.force}
     if #entities > 1000 then
-        Utils.print_admins('Warning! ' .. player.name .. ' just tried to deconstruct ' .. tostring(#entities) .. ' entities!', nil)
+        Utils.print_admins(
+            'Warning! ' .. player.name .. ' just tried to deconstruct ' .. tostring(#entities) .. ' entities!',
+            nil
+        )
     end
     for _, entity in pairs(entities) do
         if entity.valid and entity.to_be_deconstructed(game.get_player(event.player_index).force) then
@@ -115,11 +127,55 @@ end
 
 local function item_not_sanctioned(item)
     local name = item.name
-    return (name:find('capsule') or name == 'cliff-explosives' or name == 'raw-fish' or name == 'discharge-defense-remote')
+    if name:find('capsule') or name == 'cliff-explosives' or name == 'discharge-defense-remote' then
+        return true
+    end
+
+    local capsule_action = item.capsule_action
+    if capsule_action and capsule_action.type == 'use-on-self' then
+        return true
+    end
+
+    return false
 end
 
-local function entity_allowed_to_bomb(entity)
-    return entities_allowed_to_bomb[entity.name]
+local function entity_allowed_to_bomb(entity_name)
+    return entities_allowed_to_bomb[entity_name]
+end
+
+local function list_damaged_entities(item_name, entities)
+    local set = {}
+    for i = 1, #entities do
+        local e = entities[i]
+        local name = e.name
+
+        if name ~= item_name then
+            local count = set[name]
+            if count then
+                set[name] = count + 1
+            else
+                set[name] = 1
+            end
+        end
+    end
+
+    local list = {}
+    local i = 1
+    for k, v in pairs(set) do
+        list[i] = k
+        i = i + 1
+        list[i] = '('
+        i = i + 1
+        list[i] = v
+        i = i + 1
+        list[i] = ')'
+        i = i + 1
+        list[i] = ', '
+        i = i + 1
+    end
+    list[i - 1] = nil
+
+    return table.concat(list)
 end
 
 local function on_capsule_used(event)
@@ -144,30 +200,54 @@ local function on_capsule_used(event)
         return
     end
 
-    if item_not_sanctioned(item) then
+    if is_trusted(player) or item_not_sanctioned(item) then
         return
     end
 
-    if not is_trusted(player) then
-        local area = {{event.position.x - 5, event.position.y - 5}, {event.position.x + 5, event.position.y + 5}}
-        local count = 0
-        local entities = player.surface.find_entities_filtered {force = player.force, area = area}
-        for _, e in pairs(entities) do
-            if not entity_allowed_to_bomb(e) then
-                count = count + 1
-            end
+    local position = event.position
+    local x, y = position.x, position.y
+    local surface = player.surface
+
+    if surface.count_entities_filtered({force = 'enemy', area = {{x - 10, y - 10}, {x + 10, y + 10}}, limit = 1}) > 0 then
+        return
+    end
+
+    local count = 0
+    local entities =
+        player.surface.find_entities_filtered {force = player.force, area = {{x - 5, y - 5}, {x + 5, y + 5}}}
+
+    local item_name = item.name
+    for i = 1, #entities do
+        local e = entities[i]
+        local entity_name = e.name
+        if entity_name ~= item_name and not entity_allowed_to_bomb(entity_name) then
+            count = count + 1
         end
-        if count > 8 then
-            if players_warned[event.player_index] then
-                if nuke_control.enable_autoban then
-                    Server.ban_sync(player.name, format('Damaged %i entities with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord.', count, item.name), '<script>')
-                end
-            else
-                players_warned[event.player_index] = true
-                if nuke_control.enable_autokick then
-                    game.kick_player(player, format('Damaged %i entities with %s -Antigrief', count, item.name))
-                end
-            end
+    end
+
+    if count <= capsule_bomb_threshold then
+        return
+    end
+
+    if players_warned[event.player_index] then
+        if nuke_control.enable_autoban then
+            Server.ban_sync(
+                player.name,
+                format(
+                    'Damaged entities: %s with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord',
+                    list_damaged_entities(item_name, entities),
+                    item_name
+                ),
+                '<script>'
+            )
+        end
+    else
+        players_warned[event.player_index] = true
+        if nuke_control.enable_autokick then
+            game.kick_player(
+                player,
+                format('Damaged entities: %s with %s -Antigrief', list_damaged_entities(item_name, entities), item_name)
+            )
         end
     end
 end

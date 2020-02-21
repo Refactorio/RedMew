@@ -1,19 +1,15 @@
 -- Map by grilledham, modified by Jayefuu
 -- This variation on grid_islands.lua has 1) Greater island separation 2) 4 not 2 rail tracks 3) Whole map rotated 45 degrees
 
--- For best balance run the following commands after map generation:
--- /silent-command game.forces["player"].technologies["landfill"].enabled = false
--- /silent-command game.forces.player.character_running_speed_modifier = 1.5
--- /silent-command game.difficulty_settings.technology_price_multiplier=2
-
 local b = require 'map_gen.shared.builders'
 local Random = require 'map_gen.shared.random'
 local math = require "utils.math"
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
-
+local Event = require 'utils.event'
 local degrees = math.rad
+local ScenarioInfo = require 'features.gui.info'
 
 local ore_seed1 = 1000
 local ore_seed2 = ore_seed1 * 2
@@ -25,6 +21,30 @@ RS.set_map_gen_settings(
         MGSP.cliff_none
     }
 )
+
+ScenarioInfo.set_map_name('Grid Islands Rotated')
+ScenarioInfo.set_map_description(
+    [[
+Large islands with diagonal rail bridges
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+- Custom ore generation
+- Square, circle and diamond islands
+- Islands linked by causeways
+- Encourages rail use to transport materials for manufacture
+]]
+)
+
+ScenarioInfo.set_new_info(
+    [[
+2019-09-09
+- Added automatic disabling of landfill tech instead of manual disable by player
+- Updated map description
+]]
+)
+
 
 local track = {
     b.translate(b.line_x(3), 0, -3),
@@ -176,5 +196,17 @@ map = b.any {map, paths, sea}
 
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 map = b.rotate(map,degrees(45))
+
+
+-- Disable landfill technology
+local function on_init()
+    local player_force = game.forces.player
+    player_force.technologies['landfill'].enabled = false           -- disable landfill
+    player_force.character_running_speed_modifier = 1.5
+    game.difficulty_settings.technology_price_multiplier = 2
+end
+Event.on_init(on_init)
+
+
 
 return map

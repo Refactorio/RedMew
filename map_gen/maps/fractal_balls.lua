@@ -1,12 +1,13 @@
 local b = require 'map_gen.shared.builders'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local degrees = require "utils.math".degrees
 local ScenarioInfo = require 'features.gui.info'
-
-local degrees = require 'utils.math'.degrees
+local Event = require 'utils.event'
 
 RS.set_map_gen_settings(
     {
+        MGSP.ore_oil_none,    -- Comment this if you want to enable vanilla ore generation in some of the rings.
         MGSP.cliff_none,
         MGSP.water_none
     }
@@ -14,9 +15,31 @@ RS.set_map_gen_settings(
 
 ScenarioInfo.set_map_name('Fractal Balls')
 ScenarioInfo.set_map_description(
-[[
-These balls just keeps on going!
-Always part of something bigger.
+    [[
+Circular groups of ore islands linked by paths arranged in a fractal,
+expanding pattern.
+]]
+)
+ScenarioInfo.add_map_extra_info(
+    [[
+A space limited start leads players to explore larger and larger rings of
+biter infested map.
+
+Each ore patch upon its own island must be belted out to a production area
+or loaded on to trains.
+
+This map encourages use of trains similar to RSO due to the spread out nature of
+the ores, with islands only accessible by bots encouraging the player to revisit
+exhausted ore areas later in the game to extract more resources.
+]]
+)
+
+ScenarioInfo.set_new_info(
+    [[
+2019-09-11 - Jayefuu
+- Updated map descriptions
+- Disabled landfill to prevent cheating
+- Added config example to disable vanilla ores. Balances map better if the rings aren't full of ore.
 ]]
 )
 
@@ -157,5 +180,12 @@ map = b.scale(map, 2, 2)
 map = b.change_map_gen_collision_tile(map, 'water-tile', 'grass-1')
 map = b.change_tile(map, false, 'water')
 map = b.fish(map, 0.0025)
+
+-- Disable landfill technology
+local function on_init()
+    local player_force = game.forces.player
+    player_force.technologies['landfill'].enabled = false           -- disable landfill
+end
+Event.on_init(on_init)
 
 return map

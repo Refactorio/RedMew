@@ -378,7 +378,7 @@ local Config = {
                 {level = 10, price = 85, name = 'shotgun'},
                 {level = 10, price = 4, name = 'shotgun-shell'},
                 {level = 12, price = 200, name = 'heavy-armor'},
-                {level = 14, price = 35, name = 'landfill'},
+                {level = 14, price = 25, name = 'landfill'}, --Decreased to 25 from 35
                 {level = 15, price = 85, name = 'submachine-gun'},
                 {level = 18, price = 10, name = 'piercing-rounds-magazine'},
                 {level = 18, price = 8, name = 'piercing-shotgun-shell'},
