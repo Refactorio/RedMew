@@ -6,6 +6,7 @@ local gear = require 'map_gen.data.presets.gear_96by96'
 local Random = require 'map_gen.shared.random'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
+local TerraConfig = require 'config'
         --Map info
 ScenarioInfo.set_map_name('Terra')
 ScenarioInfo.set_map_description('The latest experiments has resulted in infinite gears for infinite factory expansion.')
@@ -32,6 +33,8 @@ RS.set_map_gen_settings(
         MGSP.water_none,
     }
     )
+TerraConfig.turret_active_delay.enabled = false
+
 --Terraforming
 local pic1 = require "map_gen.data.presets.factorio_logo2"
 --picture size 921x153
