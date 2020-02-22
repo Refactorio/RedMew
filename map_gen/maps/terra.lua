@@ -65,7 +65,6 @@ local botland = b.any({shape5, shape1, shape2, shape3, shape4})
 --pave the shape
 botland = b.scale(botland, 2.2,2.2)
 botland = b.change_tile(botland, true, 'landfill')
---replace to  'landfill'  to absorb pollution
 local mappattern = {
     {corner, map1},
     {map2,botland}
@@ -77,7 +76,7 @@ map = b.scale(map, 1,1)
 map = b.change_tile(map, false, "water")
 map = b.fish(map, 0.0025)
 
-local centre =b.circle(18)
+local centre =b.circle(12)
 --local centre = b.rectangle(5,5)
 --local centre = b.scale(chamfer, 0.08,0.08)
 map = b.if_else(centre, map)
@@ -252,7 +251,7 @@ map = b.apply_entities(map, {big_patches, medium_patches, small_patches})
 
 local start_stone =
     b.resource(
-    gear_big,
+    gear_medium,
     'stone',
     function()
         return 400
@@ -260,7 +259,7 @@ local start_stone =
 )
 local start_coal =
     b.resource(
-    gear_big,
+    gear_medium,
     'coal',
     function()
         return 800
@@ -268,7 +267,7 @@ local start_coal =
 )
 local start_copper =
     b.resource(
-    gear_big,
+    gear_medium,
     'copper-ore',
     function()
         return 800
@@ -276,14 +275,14 @@ local start_copper =
 )
 local start_iron =
     b.resource(
-    gear_big,
+    gear_medium,
     'iron-ore',
     function()
         return 1600
     end
 )
 local start_segmented = b.segment_pattern({start_stone, start_coal, start_iron, start_copper})
-local start_gear = b.apply_entity(gear_big, start_segmented)
+local start_gear = b.apply_entity(gear_medium, start_segmented)
 start_gear = b.change_tile(start_gear, true, "grass-3")
 map = b.if_else(start_gear, map)
 map = b.if_else(centre, map)
