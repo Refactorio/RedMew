@@ -6,8 +6,8 @@ local gear = require 'map_gen.data.presets.gear_96by96'
 local Random = require 'map_gen.shared.random'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
-local TerraConfig = require 'config'
-        --Map info
+
+--Map info
 ScenarioInfo.set_map_name('Terra')
 ScenarioInfo.set_map_description('The latest experiments has resulted in infinite gears for infinite factory expansion.')
 ScenarioInfo.add_map_extra_info(
@@ -33,7 +33,6 @@ RS.set_map_gen_settings(
         MGSP.water_none,
     }
     )
-TerraConfig.turret_active_delay.enabled = false
 
 --Terraforming
 local pic1 = require "map_gen.data.presets.factorio_logo2"
@@ -68,6 +67,7 @@ local botland = b.any({shape5, shape1, shape2, shape3, shape4})
 --pave the shape
 botland = b.scale(botland, 2.2,2.2)
 botland = b.change_tile(botland, true, 'landfill')
+botland = b.remove_map_gen_enemies(botland)
 local mappattern = {
     {corner, map1},
     {map2,botland}
