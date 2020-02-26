@@ -74,7 +74,7 @@ local mappattern = {
 }
 local map = b.grid_pattern_overlap(mappattern, 2, 2, 499,500)
 --Final map scaler
-map = b.scale(map, 1,1)
+map = b.scale(map, 1.2,1.2)
 -- this sets the tile outside the bounds of the map to water, remove this and it will be void.
 map = b.change_tile(map, false, "water")
 map = b.fish(map, 0.0025)
@@ -95,7 +95,8 @@ RS.set_spawn_position(spawn_position, surface)
 
    --Ore generation: Copy for "void gears' - altered seeds to create nice starting area
     local seed1 = 1410
-    local seed2 = 12900
+    local seed2 = 11880
+    --11900 --11830
 gear = b.decompress(gear)
 local gear_big = b.picture(gear)
 local gear_medium = b.scale(gear_big, 2 / 3)
@@ -103,10 +104,10 @@ local gear_small = b.scale(gear_big, 1 / 3)
 local value = b.manhattan_value
 local ores = {
     {resource_type = 'iron-ore', value = value(250, 1.5)},
-    {resource_type = 'copper-ore', value = value(250, 1.5)},
+    {resource_type = 'copper-ore', value = value(250, 1.6)},
     {resource_type = 'stone', value = value(250, 1)},
     {resource_type = 'coal', value = value(250, 1)},
-    {resource_type = 'uranium-ore', value = value(125, 1)},
+    {resource_type = 'uranium-ore', value = value(125, 0.8)},
     {resource_type = 'crude-oil', value = value(50000, 250)}
 }
 local function striped(shape) -- luacheck: ignore 431
@@ -243,12 +244,12 @@ local function do_patches(patches, offset)
     end
     return orepattern
 end
-big_patches = do_patches(big_patches, 192)
-big_patches = b.grid_pattern_full_overlap(big_patches, p_cols, p_rows, 192, 192)
-medium_patches = do_patches(medium_patches, 128)
-medium_patches = b.grid_pattern_full_overlap(medium_patches, p_cols, p_rows, 128, 128)
+big_patches = do_patches(big_patches, 256)
+big_patches = b.grid_pattern_full_overlap(big_patches, p_cols, p_rows, 256, 256)
+medium_patches = do_patches(medium_patches, 192)
+medium_patches = b.grid_pattern_full_overlap(medium_patches, p_cols, p_rows, 192, 192)
 small_patches = do_patches(small_patches, 128)
-small_patches = b.grid_pattern_full_overlap(small_patches, p_cols, p_rows, 64, 64)
+small_patches = b.grid_pattern_full_overlap(small_patches, p_cols, p_rows, 128, 128)
 
 map = b.apply_entities(map, {big_patches, medium_patches, small_patches})
 
