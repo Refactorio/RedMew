@@ -154,7 +154,7 @@ if config.redmew_settings.enabled then
     require 'features.gui.redmew_settings'
 end
 
-require 'features.snake.control'
+--require 'features.snake.control'
 
 -- Debug-only modules
 if _DEBUG then

@@ -48,13 +48,19 @@ local function player_created(event)
     gui.top.style = 'slot_table_spacing_horizontal_flow'
     gui.left.style = 'slot_table_spacing_vertical_flow'
 
+    if not config.cutscene then
+        Public.show_start_up(player)
+    end
+
+    local character = player.character
+    if not character or not character.valid then
+        return
+    end
+
     local player_insert = player.insert
 
     for _, item in pairs(config.starting_items) do
         player_insert(item)
-    end
-    if not config.cutscene then
-        Public.show_start_up(player)
     end
 end
 
@@ -89,6 +95,20 @@ if _CHEATS then
         player.cheat_mode = true
         local cheats = config.cheats
 
+        if not memory.forces_initialized[force.name] then
+            force.manual_mining_speed_modifier = cheats.manual_mining_speed_modifier
+            force.character_inventory_slots_bonus = cheats.character_inventory_slots_bonus
+            force.character_running_speed_modifier = cheats.character_running_speed_modifier
+            force.character_health_bonus = cheats.character_health_bonus
+        end
+
+        memory.forces_initialized[force.name] = true
+
+        local character = player.character
+        if not character or not character.valid then
+            return
+        end
+
         local player_insert = player.insert
 
         if cheats.start_with_power_armor then
@@ -114,15 +134,6 @@ if _CHEATS then
         for _, item in pairs(cheats.starting_items) do
             player_insert(item)
         end
-
-        if not memory.forces_initialized[force.name] then
-            force.manual_mining_speed_modifier = cheats.manual_mining_speed_modifier
-            force.character_inventory_slots_bonus = cheats.character_inventory_slots_bonus
-            force.character_running_speed_modifier = cheats.character_running_speed_modifier
-            force.character_health_bonus = cheats.character_health_bonus
-        end
-
-        memory.forces_initialized[force.name] = true
     end
 
     Event.add(defines.events.on_player_created, player_created_cheat_mode)

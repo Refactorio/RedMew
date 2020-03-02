@@ -6,7 +6,7 @@ local insert = table.insert
 
 local tiles_per_tick
 local regen_decoratives
-local surfaces
+local surfaces = {}
 
 local total_calls
 
@@ -282,7 +282,9 @@ end
 function Public.init(args)
     tiles_per_tick = args.tiles_per_tick or 32
     regen_decoratives = args.regen_decoratives or false
-    surfaces = args.surfaces or {}
+    for surface_name, shape in pairs(args.surfaces or {}) do
+        surfaces[surface_name] = shape
+    end
 
     total_calls = math.ceil(1024 / tiles_per_tick) + 5
 end
@@ -312,8 +314,12 @@ function Public.register()
 end
 
 --- Returns the surfaces that the generate functions will act on
+-- Warning! Changing this table after on_init or on_load has run will cause desyncs!
 -- @return dictionary of surface_name -> shape function
 function Public.get_surfaces()
+    if _LIFECYCLE == 8 then
+        error('Calling Generate.get_surfaces after on_init() or on_load() has run is a desync risk.', 2)
+    end
     return surfaces
 end
 
