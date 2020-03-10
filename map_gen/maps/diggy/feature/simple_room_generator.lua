@@ -10,7 +10,8 @@ local Task = require 'utils.task'
 local Token = require 'utils.token'
 local raise_event = script.raise_event
 local pairs = pairs
-local perlin_noise = require 'map_gen.shared.perlin_noise'.noise
+local Perlin = require 'map_gen.shared.perlin_noise'
+local Simplex = require 'map_gen.shared.simplex_noise'
 local template_insert = Template.insert
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local on_entity_died = defines.events.on_entity_died
@@ -79,7 +80,7 @@ function SimpleRoomGenerator.register(config)
             elseif settings.type == 'one' then
                 noise = noise + settings.weight * 1
             elseif settings.type == 'perlin' then
-                noise = noise + settings.weight * perlin_noise(x/settings.variance, y/settings.variance,
+                noise = noise + settings.weight * Perlin.noise(x/settings.variance, y/settings.variance,
                             base_seed + 2000*index + settings.offset)
             elseif settings.type == 'simplex' then
                 noise = noise + settings.weight * Simplex.d2(x/settings.variance, y/settings.variance,
@@ -91,7 +92,7 @@ function SimpleRoomGenerator.register(config)
         return noise
     end
 
-    function get_room_noise_cfg(x, y)
+    local function get_room_noise_cfg(x, y)
         local distance_sq = x * x + y * y
         if (distance_sq <= room_noise_minimum_distance_sq) then
             return nil
