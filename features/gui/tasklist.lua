@@ -249,7 +249,7 @@ local function redraw_tasks(data, enabled)
             parent.add({type = 'flow'}).add {
             type = 'sprite-button',
             name = delete_task_button_name,
-            sprite = 'utility/remove',
+            sprite = 'utility/trash',
             tooltip = delete_button_tooltip
         }
         delete_button.enabled = enabled
