@@ -518,7 +518,7 @@ local function redraw_create_poll_content(data)
                 delete_flow.add {
                 type = 'sprite-button',
                 name = create_poll_delete_answer_name,
-                sprite = 'utility/remove',
+                sprite = 'utility/trash',
                 tooltip = 'Delete answer field.'
             }
             delete_button.style.height = 26
