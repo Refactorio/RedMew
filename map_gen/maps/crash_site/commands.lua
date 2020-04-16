@@ -34,6 +34,7 @@ callback =
         if state == 0 then
             Server.start_scenario(data.scenario_name)
             double_print('restarting')
+            global_data.restarting = nil
             return
         elseif state == 1 then
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
