@@ -1,23 +1,59 @@
 local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
 local b = require 'map_gen.shared.builders'
+local MGSP = require 'resources.map_gen_settings'
+RS.set_map_gen_settings(
+    {
+        MGSP.ore_oil_none,
+        MGSP.peaceful_mode_on,
+        MGSP.water_none
+    }
+)
 
--- Height and width should always be odd numbers
-local maze_width = 53
-local maze_height = 53
--- room_sizes must always be odd
+-- Height and width should always be even numbers
+local maze_width = 194
+local maze_height = 194
+-- room_sizes must always be odd, and they must always be smaller than the map
 local min_room_size = 5
-local max_room_size = 31
-local spawn_room_size = 21
+local max_room_size = 21
+local spawn_room_size = 7
 -- Number of rooms to try to place, if a room overlaps another one it will be skipped meaning this is the max
-local num_room_attempts = 50
+local num_room_attempts = 1500
 -- The number of extra connections to try to add after the map is already fully connected
 -- set to 0 for no loops, higher numbers will make more loops
-local extra_connection_attempts = 10
+local extra_connection_attempts = 20
 -- The number of factorio tiles per maze tile
-local tile_scale = 10
+local tile_scale = 14
+-- The ore probabilities
+-- Change weight to edit how likely ores are to spawn at every dead end
+value = b.manhattan_value
+local ores = {
+    {letter = 'i', resource = 'iron-ore', value = value(500, 0.75, 1.1), weight = 16},
+    {letter = 'c', resource = 'copper-ore', value = value(400, 0.75, 1.1), weight = 10},
+    {letter = 's', resource = 'stone', value = value(250, 0.3, 1.05), weight = 3},
+    {letter = 'f', resource = 'coal', value = value(400, 0.8, 1.075), weight = 5},
+    {letter = 'u', resource = 'uranium-ore', value = value(200, 0.3, 1.025), weight = 3},
+    {letter = 'o', resource = 'crude-oil', value = value(60000, 50, 1.025), weight = 6},
+    {letter = ' ', weight = 0} -- No ore
+}
 
 local random
+
+local total_ore_weight = 0
+for _, v in ipairs(ores) do
+    total_ore_weight = total_ore_weight + v.weight
+    v.accumulated_weight = total_ore_weight
+end
+local function get_random_ore_letter()
+    local r = random(total_ore_weight)
+    for _, v in ipairs(ores) do
+        if r <= v.accumulated_weight then
+            return v.letter
+        end
+    end
+    error('the random number ' .. r .. ' did not result in any ore given the weights')
+end
+
 -- A number that keeps track of which region of the map something is.
 -- When adding rooms and mazes, a region that is connected will have the same number on all its tiles
 -- Used when connecting regions later on
@@ -101,6 +137,9 @@ local function print_map(map)
             elseif map[y][x] == false then
                 --s = s .. '■'
                 s = s .. 'X'
+            elseif not tonumber(map[y][x]) then
+                --s = s .. ' '
+                s = s .. map[y][x]
             else
                 --s = s .. map[y][x]
                 s = s .. ' '
@@ -156,8 +195,8 @@ local function add_spawn_room(map)
     local center_x = (maze_width + 1) / 2
     local center_y = (maze_height + 1) / 2
     local room_radius = (room_size - 1) / 2
-    local x = center_x - room_radius
-    local y = center_y - room_radius
+    local x = math.floor(center_x - room_radius)
+    local y = math.floor(center_y - room_radius)
     if x % 2 == 0 then
         x = x + 1
     end
@@ -270,22 +309,23 @@ local function connect_regions(map, extra_connection_attempts)
     end
 end
 
+local function get_neighbours_with_ground(map, x, y)
+    local neighbours_with_ground = {}
+    for _, dir in pairs(dirs) do
+        local xx = x + dir.x / 2
+        local yy = y + dir.y / 2
+        if map[yy] and map[yy][xx] then
+            neighbours_with_ground[#neighbours_with_ground + 1] = {x = xx, y = yy}
+        end
+    end
+    return neighbours_with_ground
+end
+
 -- Goes through the map and finds dead ends (tiles with 3 walls around them) and fills them in
 -- does this recursivly until every tile has at least 2 ground neighbours
 local function remove_all_dead_ends(map)
-    local function get_neighbours_with_ground(x, y)
-        local neighbours_with_ground = {}
-        for _, dir in pairs(dirs) do
-            local xx = x + dir.x / 2
-            local yy = y + dir.y / 2
-            if map[yy] and map[yy][xx] then
-                neighbours_with_ground[#neighbours_with_ground + 1] = {x = xx, y = yy}
-            end
-        end
-        return neighbours_with_ground
-    end
     local function fill_dead_end(x, y)
-        local neighbours_with_ground = get_neighbours_with_ground(x, y)
+        local neighbours_with_ground = get_neighbours_with_ground(map, x, y)
         if #neighbours_with_ground == 1 then
             map[y][x] = false
             local neighbour = neighbours_with_ground[1]
@@ -295,6 +335,18 @@ local function remove_all_dead_ends(map)
     for y = 1, #map do
         for x = 1, #map[y] do
             fill_dead_end(x, y)
+        end
+    end
+end
+
+local function add_ores_at_dead_ends(map)
+    for y = 1, #map do
+        for x = 1, #map[y] do
+            -- If it is a ground tile with only one ground neighbour it is a dead end
+            if map[y][x] and #get_neighbours_with_ground(map, x, y) == 1 then
+                local ore_letter = get_random_ore_letter()
+                map[y][x] = ore_letter
+            end
         end
     end
 end
@@ -309,21 +361,25 @@ local function create_map()
     add_rooms(map, num_room_attempts, min_room_size, max_room_size)
     fill_with_mazes(map)
     connect_regions(map, extra_connection_attempts)
-    remove_all_dead_ends(map)
+    map[1][maze_width] = true
+    map[maze_height][1] = true
+    add_ores_at_dead_ends(map)
+    --remove_all_dead_ends(map)
 end
 
--- Returns true if the position is ground, returns false if it's a wall
-local function has_ground_at(x, y)
-    x = math.floor(x)
-    y = math.floor(y)
-    if map[y] == nil or map[y][x] == nil then
-        -- Outside the map
-        return false
+-- Takes a filter_function(tile)->boolean
+-- Returns a builder function which will return the value of the filter_function for the tile at those coordinates
+local function builder_generator(filter_function, return_value_for_out_of_bounds)
+    return_value_for_out_of_bounds = return_value_for_out_of_bounds or false
+    return function(x, y)
+        x = math.floor(x)
+        y = math.floor(y)
+        if map[y] == nil or map[y][x] == nil then
+            -- Outside the map
+            return return_value_for_out_of_bounds
+        end
+        return filter_function(map[y][x])
     end
-    if map[y][x] == false then
-        return false
-    end
-    return true
 end
 
 --[[
@@ -348,6 +404,32 @@ Global.register_init(
     end
 )
 
--- Translate the map so that players spawn in the spawn_room
+-- Returns true if the position is ground, returns false if it's a wall
+local factorio_map =
+    builder_generator(
+    function(tile)
+        if tile == false then
+            return false
+        end
+        return true
+    end
+)
+-- Add all ores to factorio_map
+for _, ore_data in pairs(ores) do
+    local ore_shape =
+        builder_generator(
+        function(tile)
+            return tile == ore_data.letter
+        end
+    )
+    local ore = b.resource(ore_shape, ore_data.resource, ore_data.value)
+    factorio_map = b.apply_entity(factorio_map, ore)
+end
+
+-- Translate the map so that players spawn in the spawn_room and so that the pattern will work
+factorio_map = b.translate(factorio_map, -maze_width / 2 - 1, -maze_height / 2 - 1)
+-- Apply pattern so the maze is repeted infinitly
+factorio_map = b.single_pattern(factorio_map, maze_width, maze_height)
 -- Scale the map using the tile_scale variable
-return b.scale(b.translate(has_ground_at, -maze_width / 2, -maze_height / 2), tile_scale, tile_scale)
+factorio_map = b.scale(factorio_map, tile_scale, tile_scale)
+return factorio_map
