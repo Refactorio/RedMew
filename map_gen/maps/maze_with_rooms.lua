@@ -1,12 +1,13 @@
+local Event = require 'utils.event'
 local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
 local b = require 'map_gen.shared.builders'
 local MGSP = require 'resources.map_gen_settings'
 RS.set_map_gen_settings(
     {
-        MGSP.ore_oil_none,
-        MGSP.peaceful_mode_on,
-        MGSP.water_none
+        MGSP.ore_oil_none
+        --MGSP.peaceful_mode_on
+        --MGSP.water_none
     }
 )
 
@@ -16,24 +17,24 @@ local maze_height = 194
 -- room_sizes must always be odd, and they must always be smaller than the map
 local min_room_size = 5
 local max_room_size = 21
-local spawn_room_size = 7
+local spawn_room_size = 9
 -- Number of rooms to try to place, if a room overlaps another one it will be skipped meaning this is the max
 local num_room_attempts = 1500
 -- The number of extra connections to try to add after the map is already fully connected
 -- set to 0 for no loops, higher numbers will make more loops
-local extra_connection_attempts = 20
+local extra_connection_attempts = 40
 -- The number of factorio tiles per maze tile
 local tile_scale = 14
 -- The ore probabilities
 -- Change weight to edit how likely ores are to spawn at every dead end
-value = b.manhattan_value
+value = b.exponential_value
 local ores = {
-    {letter = 'i', resource = 'iron-ore', value = value(500, 0.75, 1.1), weight = 16},
-    {letter = 'c', resource = 'copper-ore', value = value(400, 0.75, 1.1), weight = 10},
-    {letter = 's', resource = 'stone', value = value(250, 0.3, 1.05), weight = 3},
-    {letter = 'f', resource = 'coal', value = value(400, 0.8, 1.075), weight = 5},
-    {letter = 'u', resource = 'uranium-ore', value = value(200, 0.3, 1.025), weight = 3},
-    {letter = 'o', resource = 'crude-oil', value = value(60000, 50, 1.025), weight = 6},
+    {letter = 'i', resource = 'iron-ore', value = value(300, 0.75 * 5, 1.1), weight = 16},
+    {letter = 'c', resource = 'copper-ore', value = value(200, 0.75 * 5, 1.1), weight = 10},
+    {letter = 's', resource = 'stone', value = value(150, 0.3 * 5, 1.05), weight = 8},
+    {letter = 'f', resource = 'coal', value = value(200, 0.8 * 5, 1.075), weight = 8},
+    {letter = 'u', resource = 'uranium-ore', value = value(100, 0.3 * 5, 1.025), weight = 3},
+    {letter = 'o', resource = 'crude-oil', value = value(10000, 50 * 5, 1.025), weight = 4},
     {letter = ' ', weight = 0} -- No ore
 }
 
@@ -205,6 +206,15 @@ local function add_spawn_room(map)
     end
 
     try_place_room(map, x, y, room_size)
+    --[[
+    local cx = math.floor(center_x)
+    local cy = math.floor(center_y)
+    map[cy + 1][cx + 1] = 'i'
+    map[cy - 1][cx + 1] = 'c'
+    map[cy + 1][cx - 1] = 's'
+    map[cy - 1][cx - 1] = 'f'
+
+    ]]
 end
 
 -- Connects all different regions by making random walls between different regions into ground
@@ -343,9 +353,12 @@ local function add_ores_at_dead_ends(map)
     for y = 1, #map do
         for x = 1, #map[y] do
             -- If it is a ground tile with only one ground neighbour it is a dead end
-            if map[y][x] and #get_neighbours_with_ground(map, x, y) == 1 then
+            local neighbours = get_neighbours_with_ground(map, x, y)
+            if map[y][x] and #neighbours == 1 then
                 local ore_letter = get_random_ore_letter()
                 map[y][x] = ore_letter
+                local n = neighbours[1]
+                map[n.y][n.x] = ore_letter
             end
         end
     end
@@ -396,10 +409,12 @@ Global.register_init(
     function(tbl)
         -- this is call on init event
         tbl.seed = RS.get_surface().map_gen_settings.seed
+        tbl.random = game.create_random_generator(tbl.seed)
     end,
     function(tbl)
         -- this is called after on init and load event
-        random = game.create_random_generator(tbl.seed)
+        random = tbl.random
+        random.re_seed(tbl.seed)
         create_map()
     end
 )
@@ -430,6 +445,44 @@ end
 factorio_map = b.translate(factorio_map, -maze_width / 2 - 1, -maze_height / 2 - 1)
 -- Apply pattern so the maze is repeted infinitly
 factorio_map = b.single_pattern(factorio_map, maze_width, maze_height)
+
+local start_patch = b.rectangle(1, 1)
+local start_iron_patch =
+    b.resource(
+    b.translate(start_patch, -1, -1),
+    'iron-ore',
+    function()
+        return 15000
+    end
+)
+local start_copper_patch =
+    b.resource(
+    b.translate(start_patch, 1, -1),
+    'copper-ore',
+    function()
+        return 12000
+    end
+)
+local start_stone_patch =
+    b.resource(
+    b.translate(start_patch, -1, 1),
+    'stone',
+    function()
+        return 6000
+    end
+)
+local start_coal_patch =
+    b.resource(
+    b.translate(start_patch, 1, 1),
+    'coal',
+    function()
+        return 13500
+    end
+)
+
+local start_resources = b.any({start_iron_patch, start_copper_patch, start_stone_patch, start_coal_patch})
+local factorio_map = b.apply_entity(factorio_map, start_resources)
+
 -- Scale the map using the tile_scale variable
 factorio_map = b.scale(factorio_map, tile_scale, tile_scale)
 return factorio_map
