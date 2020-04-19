@@ -1,3 +1,7 @@
+local Global = require 'utils.global'
+local RS = require 'map_gen.shared.redmew_surface'
+local b = require 'map_gen.shared.builders'
+
 -- Height and width should always be odd numbers
 local maze_width = 53
 local maze_height = 53
@@ -268,8 +272,8 @@ end
 
 -- Goes through the map and finds dead ends (tiles with 3 walls around them) and fills them in
 -- does this recursivly until every tile has at least 2 ground neighbours
-local function remove_dead_ends(map)
-    function get_neighbours_with_ground(x, y)
+local function remove_all_dead_ends(map)
+    local function get_neighbours_with_ground(x, y)
         local neighbours_with_ground = {}
         for _, dir in pairs(dirs) do
             local xx = x + dir.x / 2
@@ -280,17 +284,17 @@ local function remove_dead_ends(map)
         end
         return neighbours_with_ground
     end
-    function remove_dead_end(x, y)
+    local function fill_dead_end(x, y)
         local neighbours_with_ground = get_neighbours_with_ground(x, y)
         if #neighbours_with_ground == 1 then
             map[y][x] = false
             local neighbour = neighbours_with_ground[1]
-            remove_dead_end(neighbour.x, neighbour.y)
+            fill_dead_end(neighbour.x, neighbour.y)
         end
     end
     for y = 1, #map do
         for x = 1, #map[y] do
-            remove_dead_end(x, y)
+            fill_dead_end(x, y)
         end
     end
 end
@@ -305,7 +309,7 @@ local function create_map()
     add_rooms(map, num_room_attempts, min_room_size, max_room_size)
     fill_with_mazes(map)
     connect_regions(map, extra_connection_attempts)
-    remove_dead_ends(map)
+    remove_all_dead_ends(map)
 end
 
 -- Returns true if the position is ground, returns false if it's a wall
@@ -331,11 +335,6 @@ print_map(map)
 --[[
     Uncomment below to run in factorio
 ]]
-local Global = require 'utils.global'
-local RS = require 'map_gen.shared.redmew_surface'
-local b = require 'map_gen.shared.builders'
-local Event = require 'utils.event'
-
 Global.register_init(
     {},
     function(tbl)
