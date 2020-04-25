@@ -283,7 +283,14 @@ end
 local bot_spawn_whitelist = {
     ['gun-turret'] = true,
     ['laser-turret'] = true,
-    ['flamethrower-turret'] = true
+    ['flamethrower-turret'] = true,
+    ['artillery-turret'] = true
+}
+
+local bot_cause_whitelist = {
+    ['character'] = true,
+    ['artillery-turret'] = true,
+    ['artillery-wagon'] = true,
 }
 
 local function do_bot_spawn(entity_name, entity, event)
@@ -292,8 +299,7 @@ local function do_bot_spawn(entity_name, entity, event)
     local entity_force = entity.force
     local ef = entity_force.evolution_factor
 
-    -- Remove 'character' condition so that attack form any entity such as artillery will cause the bots to spawn.
-    if not bot_spawn_whitelist[entity_name] or (cause.name ~= 'character') or ef <= 0.2 then
+    if not bot_spawn_whitelist[entity_name] or not bot_cause_whitelist[cause.name] or ef <= 0.2 then
         return
     end
 
@@ -308,7 +314,6 @@ local function do_bot_spawn(entity_name, entity, event)
         target = cause,
         force = entity_force
     }
-
     if entity_name == 'gun-turret' then
         for i = 1, repeat_cycle do
             spawn_entity.name = 'defender'
@@ -327,13 +332,23 @@ local function do_bot_spawn(entity_name, entity, event)
             create_entity(spawn_entity)
             create_entity(spawn_entity)
         end
-    else
+    elseif entity_name == 'flamethrower-turret' then
         for i = 1, repeat_cycle do
             spawn_entity.name = 'distractor-capsule'
             spawn_entity.speed = 0
             create_entity(spawn_entity)
         end
     end
+    else
+        for i = 1, 10 do
+            spawn_entity.name = 'defender'
+            create_entity(spawn_entity)
+            create_entity(spawn_entity)
+
+            spawn_entity.name = 'destroyer'
+            create_entity(spawn_entity)
+            create_entity(spawn_entity)
+        end
 end
 
 local function do_coin_drop(entity_name, entity)
