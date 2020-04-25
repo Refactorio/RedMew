@@ -314,7 +314,23 @@ local function do_bot_spawn(entity_name, entity, event)
         target = cause,
         force = entity_force
     }
-    if entity_name == 'gun-turret' then
+    
+    if cause.name ~= 'character' then
+        if entity_name == 'artillery-turret' then
+            repeat_cycle = 15
+        else
+            repeat_cycle = 4
+        end
+        for i = 1, repeat_cycle do
+            spawn_entity.name = 'defender'
+            create_entity(spawn_entity)
+            create_entity(spawn_entity)
+
+            spawn_entity.name = 'destroyer'
+            create_entity(spawn_entity)
+            create_entity(spawn_entity)
+        end
+    elseif entity_name == 'gun-turret' then
         for i = 1, repeat_cycle do
             spawn_entity.name = 'defender'
             create_entity(spawn_entity)
@@ -332,23 +348,13 @@ local function do_bot_spawn(entity_name, entity, event)
             create_entity(spawn_entity)
             create_entity(spawn_entity)
         end
-    elseif entity_name == 'flamethrower-turret' then
+    else
         for i = 1, repeat_cycle do
             spawn_entity.name = 'distractor-capsule'
             spawn_entity.speed = 0
             create_entity(spawn_entity)
         end
     end
-    else
-        for i = 1, 10 do
-            spawn_entity.name = 'defender'
-            create_entity(spawn_entity)
-            create_entity(spawn_entity)
-
-            spawn_entity.name = 'destroyer'
-            create_entity(spawn_entity)
-            create_entity(spawn_entity)
-        end
 end
 
 local function do_coin_drop(entity_name, entity)
