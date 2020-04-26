@@ -11,6 +11,11 @@ local enemy_seed = 420420
 local Event = require 'utils.event'
 local Retailer = require 'features.retailer'
 
+-- stop standard market from spawning
+local config = global.config
+config.market.create_standard_market = false 
+
+--change surface settings to remove oil, cliffs, etc
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 RS.set_map_gen_settings(

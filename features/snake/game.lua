@@ -289,7 +289,7 @@ local function make_board()
             if x == 0 or x == size or y == 0 or y == size then
                 tile_name = 'deepwater'
             elseif x % 2 == 1 and y % 2 == 1 then
-                tile_name = 'grass-1'
+                tile_name = 'landfill'
             else
                 tile_name = 'water'
             end

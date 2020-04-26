@@ -1,0 +1,145 @@
+return {
+    {
+        name = 'stone-walls',
+        name_label = {'', 'Stone Walls research'},
+        type = 'research',
+        description = {'', 'Unlocks stone walls research'},
+        sprite = 'technology/stone-walls',
+        stack_limit = 1,
+        price = 50,
+        disabled = true,
+        disabled_reason = {'', 'DISABLED'}
+    },
+    {
+        name = 'heavy-armor',
+        name_label = {'', 'Heavy Armor research'},
+        type = 'research',
+        description = {'', 'Unlocks heavy armor research'},
+        sprite = 'technology/heavy-armor',
+        stack_limit = 1,
+        price = 100,
+        disabled = true,
+        disabled_reason = {'', 'DISABLED'}
+    },
+    {
+        name = 'military',
+        name_label = {'', 'Military 1 research'},
+        type = 'research',
+        description = {'', 'Unlocks military research'},
+        sprite = 'technology/military',
+        stack_limit = 1,
+        price = 100,
+        disabled = true,
+        disabled_reason = {'', 'DISABLED'}
+    },
+    {
+        name = 'military-2',
+        name_label = {'', 'Military 2 research'},
+        type = 'research',
+        description = {'', 'Unlocks military 2 research'},
+        sprite = 'technology/military-2',
+        stack_limit = 1,
+        price = 1500,
+        disabled = true,
+        disabled_reason = {'', 'DISABLED'}
+    },
+    {
+        name = 'military-3',
+        name_label = {'', 'Military 3 research'},
+        type = 'research',
+        description = {'', 'Unlocks military 3 research'},
+        sprite = 'technology/military-3',
+        stack_limit = 1,
+        price = 2500,
+        disabled = true,
+        disabled_reason = {'', 'DISABLED'}
+    },
+    {
+        name = 'military-4',
+        name_label = {'', 'Military 4 research'},
+        type = 'research',
+        description = {'', 'Unlocks military 4 research'},
+        sprite = 'technology/military-3',
+        stack_limit = 1,
+        price = 5000,
+        disabled = true,
+        disabled_reason = {'', 'DISABLED'}
+    },
+    {
+        name = 'tank',
+        name_label = {'', 'Tank'},
+        type = 'custom_item',
+        description = {'', 'Tanks can only be purchased'},
+        sprite = 'item/tank',
+        stack_limit = 1,
+        price = 200,
+        disabled = true,
+        disabled_reason = {'', 'Research tanks to unlock'}
+    },
+    {price = 10, name = 'raw-fish'},
+    {price = 10, name = 'repair-pack'},
+    {
+        name = 'random-tier-1',
+        name_label = {'', 'Random Science [item=automation-science-pack]'},
+        type = 'random-research',
+        description = {'', 'Purchase a random research with max tier: Automation Science Packs'},
+        sprite = 'item/automation-science-pack',
+        stack_limit = 1,
+        price = 100,
+    },
+    {
+        name = 'random-tier-2',
+        name_label = {'', 'Random Science [item=logistic-science-pack]'},
+        type = 'random-research',
+        description = {'', 'Purchase a random research with max tier: Logistic Science Pack'},
+        sprite = 'item/logistic-science-pack',
+        stack_limit = 1,
+        price = 200,
+        disabled = true,
+        disabled_reason = {'', 'Research Logistic Science Pack to unlock'}
+    },
+    {
+        name = 'random-tier-3',
+        name_label = {'', 'Random Science [item=military-science-pack]'},
+        type = 'random-research',
+        description = {'', 'Purchase a random research with max tier: Military Science Pack'},
+        sprite = 'item/military-science-pack',
+        stack_limit = 1,
+        price = 400,
+        disabled = true,
+        disabled_reason = {'', 'Research Military Science Pack to unlock'}
+    },
+    {
+        name = 'random-tier-4',
+        name_label = {'', 'Random Science [item=chemical-science-pack]'},
+        type = 'random-research',
+        description = {'', 'Purchase a random research with max tier: Chemical Science Pack'},
+        sprite = 'item/chemical-science-pack',
+        stack_limit = 1,
+        price = 800,
+        disabled = true,
+        disabled_reason = {'', 'Research Chemical Science Pack to unlock'}
+    },
+    {
+        name = 'random-tier-5',
+        name_label = {'', 'Random Science [item=production-science-pack]'},
+        type = 'random-research',
+        description = {'', 'Purchase a random research with max tier: Production Science Pack'},
+        sprite = 'item/production-science-pack',
+        stack_limit = 1,
+        price = 1600,
+        disabled = true,
+        disabled_reason = {'', 'Research Production Science Pack to unlock'}
+    },
+    {
+        name = 'random-tier-6',
+        name_label = {'', 'Random Science [item=utility-science-pack]'},
+        type = 'random-research',
+        description = {'', 'Purchase a random research with max tier: Utility Science Pack'},
+        sprite = 'item/utility-science-pack',
+        stack_limit = 1,
+        price = 3600,
+        disabled = true,
+        disabled_reason = {'', 'Research Utility Science Pack to unlock'}
+    }
+}
