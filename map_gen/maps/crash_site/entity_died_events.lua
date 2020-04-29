@@ -384,7 +384,7 @@ local function do_coin_drop(entity_name, entity)
     end
 end
 
-local function do_spawn_entity(entity_name, entity)
+local function do_spawn_entity(entity_name, entity, event)
     local spawn = entity_spawn_map[entity_name]
     if not spawn then
         return
@@ -459,7 +459,7 @@ Event.add(
             do_bot_spawn(entity_name, entity, event)
         end
 
-        do_spawn_entity(entity_name, entity)
+        do_spawn_entity(entity_name, entity, event)
     end
 )
 
