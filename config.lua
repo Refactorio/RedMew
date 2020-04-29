@@ -202,8 +202,6 @@ global.config = {
                 {name = 'computer', count = 2},
                 {name = 'infinity-pipe', count = 10},
                 {name = 'heat-interface', count = 10},
-                {name = 'compilatron-chest', count = 5},
-                {name = 'compilatron-chest', count = 5},
                 {name = 'selection-tool', count = 1}
             }
         }
