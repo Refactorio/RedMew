@@ -9,6 +9,8 @@
     This means you can use any custom logic you want to determine whether an entity should be destroyed or not.
     The callback function is supplied a valid LuaEntity as an argument.
     A return of true indicates the entity should be kept alive, while false or nil indicate it should be destroyed.
+    This function must be a registered with the Token module and the keep_alive_callback function will take the Token-id as parameter
+    This is to prevent upvalue errors
 
     Refunds for items that were placed can be toggled on or off via the enable and disable_refund functions
 
@@ -24,16 +26,18 @@
     -- The function provided does nothing but return nil
     -- every entity will be destroyed except those on the allowed list
     RestrictEntities.add_allowed({'transport-belt'})
-    RestrictEntities.set_keep_alive_callback(function() end)
+    RestrictEntities.set_keep_alive_callback(Token.register(function() end))
 
     -- Danger ores (a lot of important code omitted for the sake of a brief example)
     RestrictEntities.add_allowed({belts, power_poles, mining_drills, 'pumpjack'})
     RestrictEntities.set_keep_alive_callback(
-        function(entity)
-            if entity.surface.count_entities_filtered {area = entity.bounding_box, type = 'resource', limit = 1} == 0 then
-                return true
+        Token.register(
+            function(entity)
+                if entity.surface.count_entities_filtered {area = entity.bounding_box, type = 'resource', limit = 1} == 0 then
+                    return true
+                end
             end
-        end
+        )
     )
 ]]
 local Event = require 'utils.event'
@@ -80,7 +84,10 @@ local banned_entities = {}
 local primitives = {
     event = nil, -- if the event is registered or not
     refund = true, -- if we issue a refund or not
-    keep_alive_callback = nil -- the function to process entities through
+    prevent_tile_bp = false, -- prevents players from placing blueprints with tiles
+    spill = false, -- spills items from entities with inventories to prevent destroying items when upgrading
+    keep_alive_callback = nil, -- the token registered function to process entities through
+    anti_grief_callback = nil -- the token registered function to process anti griefing through
 }
 
 Global.register(
@@ -98,6 +105,72 @@ Global.register(
 
 -- Local functions
 
+--- Spill items stacks
+-- @param entity <LuaEntity> the entity from which the items should be spilled
+-- @param item <ItemStackSpecification> the item stack that should be spilled
+local function spill_item_stack(entity, item)
+    entity.surface.spill_item_stack(entity.position, item, true, entity.force, false)
+end
+
+local Task = require 'utils.task'
+
+--- Cleans the players cursor to prevent from spam replacing entities with inventory
+-- Somehow required to have a 1 tick delay before cleaning the players cursor
+local delay_clean_cursor =
+    Token.register(
+    function(param)
+        param.player.clean_cursor()
+    end
+)
+
+--- Checks if entity has an inventory with items inside, and spills them on the ground
+local function entities_with_inventory(entity, player)
+    if primitives.spill and entity.has_items_inside() then
+        Task.set_timeout_in_ticks(1, delay_clean_cursor, {player = player})
+        local type = entity.type
+        if type == 'container' then
+            for item, count in pairs(entity.get_inventory(defines.inventory.chest).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+        elseif type == 'logistic-container' then
+            entity.surface.create_entity {name = 'steel-chest', position = entity.position, direction = entity.direction, force = entity.force, fast_replace = true, spill = false}
+            if player and player.valid and primitives.refund then -- refunding materials required to make a logistic container minus the "free" steel-chest generated above
+                player.insert({name = 'electronic-circuit', count = 3})
+                player.insert({name = 'advanced-circuit', count = 1})
+            end
+            return true
+        elseif type == 'furnace' then
+            for item, count in pairs(entity.get_inventory(defines.inventory.fuel).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+            for item, count in pairs(entity.get_inventory(defines.inventory.furnace_result).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+            for item, count in pairs(entity.get_inventory(defines.inventory.furnace_source).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+        elseif type == 'assembling-machine' then
+            for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+            for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_modules).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+            for item, count in pairs(entity.get_inventory(defines.inventory.assembling_machine_output).get_contents()) do
+                spill_item_stack(entity, {name = item, count = count})
+            end
+        elseif type == 'ammo-turret' then
+            for item, count in pairs(entity.get_inventory(defines.inventory.turret_ammo).get_contents()) do
+                player.insert({name = item, count = count})
+            end
+            return -- Prevents triggering when autofill is enabled
+        end
+
+        Token.get(primitives.anti_grief_callback)(entity, player)
+    end
+    return false
+end
+
 --- Token for the on_built event callback, checks if an entity should be destroyed.
 local on_built_token =
     Token.register(
@@ -109,6 +182,9 @@ local on_built_token =
 
         local name = entity.name
         if name == 'tile-ghost' then
+            if primitives.prevent_tile_bp and entity.ghost_name ~= 'landfill' then
+                entity.destroy()
+            end
             return
         end
 
@@ -132,7 +208,7 @@ local on_built_token =
         -- destroy in these cases:
         -- all banned ents
         -- not banned and callback function and not saved by callback
-        if not banned_entities[name] and (not keep_alive_callback or keep_alive_callback(entity)) then
+        if not banned_entities[name] and (not keep_alive_callback or Token.get(keep_alive_callback)(entity)) then
             return
         end
 
@@ -149,14 +225,20 @@ local on_built_token =
             }
         )
 
+        local player = game.get_player(index)
+
         -- Need to revalidate the entity since we sent it to the raised event
         if entity.valid then
-            entity.destroy()
+            -- Checking if the entity has an inventory and spills the content on the ground to prevent destroying those too
+            if entities_with_inventory(entity, player) then
+                ghost = true -- Cheating to prevent refunds
+            else
+                entity.destroy()
+            end
         end
 
         -- Check if we issue a refund: make sure refund is enabled, make sure we're not refunding a ghost,
         -- and revalidate the stack since we sent it to the raised event
-        local player = game.get_player(index)
         local item_returned
         if player and player.valid and primitives.refund and not ghost and stack.valid then
             player.insert(stack)
@@ -201,8 +283,8 @@ end
 -- logic on what entities should and should not be destroyed.
 -- @param keep_alive_callback <function>
 function Public.set_keep_alive_callback(keep_alive_callback)
-    if type(keep_alive_callback) ~= 'function' then
-        error('Sending a non-function')
+    if type(keep_alive_callback) ~= 'number' then
+        error('Sending a non-token function')
     end
     primitives.keep_alive_callback = keep_alive_callback
     check_event_status()
@@ -212,6 +294,21 @@ end
 function Public.remove_keep_alive_callback()
     primitives.keep_alive_callback = nil
     check_event_status()
+end
+
+--- Sets the anti_grief_callback function. This function is used to provide
+-- logic on what entities should and should not be destroyed.
+-- @param anti_grief_callback <function>
+function Public.set_anti_grief_callback(anti_grief_callback)
+    if type(anti_grief_callback) ~= 'number' then
+        error('Sending a non-token function')
+    end
+    primitives.anti_grief_callback = anti_grief_callback
+end
+
+--- Removes the anti_grief_callback function
+function Public.remove_anti_grief_callback()
+    primitives.anti_grief_callback = nil
 end
 
 --- Adds to the list of allowed entities
@@ -270,6 +367,26 @@ end
 --- Disables the returning of items that are destroyed by this module
 function Public.set_refund()
     primitives.refund = false
+end
+
+--- Enables the ability to blueprint tiles (Landfill always enabled)
+function Public.enable_tile_bp()
+    primitives.prevent_tile_bp = false
+end
+
+--- Disables the ability to blueprint tiles (Landfill always enabled)
+function Public.set_tile_bp()
+    primitives.prevent_tile_bp = true
+end
+
+--- Enables the spill function
+function Public.enable_spill()
+    primitives.spill = true
+end
+
+--- Disables the spill function
+function Public.set_spill()
+    primitives.spill = false
 end
 
 return Public

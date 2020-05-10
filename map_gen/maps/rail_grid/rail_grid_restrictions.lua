@@ -2,6 +2,7 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 local Popup = require 'features.gui.popup'
+local Token = require 'utils.token'
 
 local floor = math.floor
 
@@ -37,20 +38,21 @@ local function all_on_landfill(entity)
 end
 
 RestrictEntities.set_keep_alive_callback(
-    function(entity)
-        local name = entity.name
-        if name == 'entity-ghost' then
-            name = entity.ghost_name
-        end
+    Token.register(
+        function(entity)
+            local name = entity.name
+            if name == 'entity-ghost' then
+                name = entity.ghost_name
+            end
 
-        if not rail_entities[name] then
-            return true
-        end
+            if not rail_entities[name] then
+                return true
+            end
 
-        return all_on_landfill(entity)
-    end
+            return all_on_landfill(entity)
+        end
+    )
 )
-
 -- On first time player places rail entity on invalid tile, show popup explaining the rail mechanic.
 local function restricted_entity_destroyed(event)
     local p = event.player
@@ -74,10 +76,7 @@ local function player_joined_game(event)
         return
     end
 
-    player.print(
-        "Welcome to RedMew's Rail Grids Map. Rails can only be built on green tiles.",
-        {r = 0, g = 1, b = 0, a = 1}
-    )
+    player.print("Welcome to RedMew's Rail Grids Map. Rails can only be built on green tiles.", {r = 0, g = 1, b = 0, a = 1})
 end
 
 Event.add(RestrictEntities.events.on_restricted_entity_destroyed, restricted_entity_destroyed)

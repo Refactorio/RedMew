@@ -169,7 +169,7 @@ global.config = {
         -- prints messages when the player joins
         join_messages = {
             'Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord',
-            'Click the question mark in the top left corner for server information and map details.'
+            'Click the infomation icon in the top left corner for server information and map details.'
         },
         cutscene = false,
         -- format is a table: {{message, weight}, {message, weight}}, where a higher weight has more chance to be shown
