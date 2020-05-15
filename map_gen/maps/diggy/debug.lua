@@ -79,6 +79,10 @@ function Debug.print_grid_value(value, surface, position, scale, offset, immutab
         end
     end
 
+	if not(surface and surface.valid) then
+		return
+	end
+
     if not immutable then
         local text_entity = surface.find_entity('flying-text', position)
 
