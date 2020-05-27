@@ -17,7 +17,6 @@ local pairs = pairs
 local is_diggy_rock = Template.is_diggy_rock
 local destroy_rock = CreateParticles.destroy_rock
 local mine_rock = CreateParticles.mine_rock
-local raise_event = script.raise_event
 local mine_size_name = 'mine-size'
 
 -- this
@@ -181,9 +180,7 @@ function DiggyHole.register(cfg)
         if not is_diggy_rock(name) then
             return
         end
-
-        raise_event(defines.events.on_entity_died, {entity = entity, cause = event.cause, force = event.force})
-        entity.destroy()
+        entity.die(force)
     end)
 
     Event.add(defines.events.on_robot_mined_entity, function (event)
@@ -205,18 +202,16 @@ function DiggyHole.register(cfg)
         local force = event.robot.force
 
         if health < 1 then
-            raise_event(defines.events.on_entity_died, {entity = entity, force = force})
             mine_rock(create_particle, 6, position)
+            entity.die(force)
+        else
             entity.destroy()
-            return
+            local rock = create_entity({name = name, position = position})
+            mine_rock(create_particle, 1, position)
+            rock.graphics_variation = graphics_variation
+            rock.order_deconstruction(force)
+            rock.health = health
         end
-        entity.destroy()
-
-        local rock = create_entity({name = name, position = position})
-        mine_rock(create_particle, 1, position)
-        rock.graphics_variation = graphics_variation
-        rock.order_deconstruction(force)
-        rock.health = health
     end)
 
     Event.add(defines.events.on_player_mined_entity, function (event)

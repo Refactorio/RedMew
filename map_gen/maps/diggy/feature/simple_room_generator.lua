@@ -8,7 +8,6 @@ local Event = require 'utils.event'
 local Debug = require 'map_gen.maps.diggy.debug'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
-local raise_event = script.raise_event
 local pairs = pairs
 local perlin_noise = require 'map_gen.shared.perlin_noise'.noise
 local template_insert = Template.insert
@@ -35,8 +34,7 @@ local do_mine = Token.register(function(params)
 
     for i = rock_count, 1, -1 do
         local rock = rocks[i]
-        raise_event(on_entity_died, {entity = rock})
-        rock.destroy()
+        rock.die(force)
     end
 end)
 
@@ -68,6 +66,12 @@ function SimpleRoomGenerator.register(config)
         seed = seed or surface.map_gen_settings.seed + surface.index + 100
         return perlin_noise(x * noise_variance, y * noise_variance, seed)
     end
+
+    Event.add(defines.events.on_entity_died, function (event)
+        if (event.loot and event.loot.valid) then
+            event.loot.clear()
+        end
+    end, {{filter = "type", type = "simple-entity"}})
 
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.position
