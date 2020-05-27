@@ -34,7 +34,7 @@ local do_mine = Token.register(function(params)
 
     for i = rock_count, 1, -1 do
         local rock = rocks[i]
-        rock.die(force)
+        rock.die("neutral")
     end
 end)
 

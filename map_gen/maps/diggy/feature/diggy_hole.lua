@@ -180,7 +180,7 @@ function DiggyHole.register(cfg)
         if not is_diggy_rock(name) then
             return
         end
-        entity.die(force)
+        entity.die(event.force, event.cause)
     end)
 
     Event.add(defines.events.on_robot_mined_entity, function (event)

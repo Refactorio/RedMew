@@ -76,7 +76,7 @@ local do_alien_mining = Token.register(function(params)
         for rock_index = rock_count, 1, -1 do
             local rock = rocks[rock_index]
             destroy_rock(create_particle, particle_count, rock.position)
-            rock.die(force)
+            rock.die("enemy")
         end
     end
 
