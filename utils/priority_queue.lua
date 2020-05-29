@@ -1,6 +1,6 @@
-local Debug = require 'utils.debug'
-local is_closure = Debug.is_closure
 local floor = math.floor
+local getmetatable = getmetatable
+local setmetatable = setmetatable
 
 local PriorityQueue = {}
 
@@ -26,15 +26,30 @@ end
 function PriorityQueue.new(comparator)
     if comparator == nil then
         comparator = default_comparator
-    elseif is_closure(comparator) then
-        error('comparator cannot be a closure.', 2)
     end
 
-    return {_comparator = comparator}
+    local mt = {comparator = comparator}
+
+    return setmetatable({}, mt)
+end
+
+function PriorityQueue.load(self, comparator)
+    if comparator == nil then
+        comparator = default_comparator
+    end
+
+    local mt = {comparator = comparator}
+
+    return setmetatable(self or {}, mt)
+end
+
+local function get_comparator(self)
+    local mt = getmetatable(self)
+    return mt.comparator
 end
 
 local function heapify_from_end_to_start(self)
-    local comparator = self._comparator
+    local comparator = get_comparator(self)
     local pos = #self
     while pos > 1 do
         local parent = floor(pos * 0.5)
@@ -49,7 +64,7 @@ local function heapify_from_end_to_start(self)
 end
 
 local function heapify_from_start_to_end(self)
-    local comparator = self._comparator
+    local comparator = get_comparator(self)
     local parent = 1
     local smallest = 1
     local count = #self
