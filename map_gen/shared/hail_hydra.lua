@@ -29,7 +29,6 @@ end
 
 local primitives = {
     evolution_scale = (hail_hydra_conf.evolution_scale ~= nil) and hail_hydra_conf.evolution_scale or 1,
-    evolution_scale_formula = formula,
     online_player_scale_enabled = hail_hydra_conf.online_player_scale_enabled,
     online_player_scale = hail_hydra_conf.online_player_scale,
     enabled = nil
@@ -88,7 +87,7 @@ local on_died =
             player_scale = (num_online_players - primitives.online_player_scale) * 0.01
         end
 
-        local evolution_scaled = primitives.evolution_scale_formula(force.evolution_factor)
+        local evolution_scaled = formula(force.evolution_factor)
         local evolution_factor = evolution_scaled + evolution_scaled * player_scale
 
         local cause = event.cause
@@ -112,7 +111,7 @@ local on_died =
                 local max = amount.max
                 max = (max ~= nil and max >= min) and max or min
                 if max ~= min then
-                    amount = (max - min) * (evolution_factor / primitives.evolution_scale_formula(1)) + min
+                    amount = (max - min) * (evolution_factor / formula(1)) + min
                 else
                     amount = min
                 end
