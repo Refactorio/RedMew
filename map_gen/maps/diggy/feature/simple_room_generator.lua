@@ -11,6 +11,7 @@ local Token = require 'utils.token'
 local pairs = pairs
 local perlin_noise = require 'map_gen.shared.perlin_noise'.noise
 local template_insert = Template.insert
+local is_diggy_rock = Template.is_diggy_rock
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local on_entity_died = defines.events.on_entity_died
 -- this
@@ -68,10 +69,10 @@ function SimpleRoomGenerator.register(config)
     end
 
     Event.add(defines.events.on_entity_died, function (event)
-        if (event.loot and event.loot.valid) then
+        if is_diggy_rock(event.entity.name) and event.force.name == "neutral" and event.loot then
             event.loot.clear()
         end
-    end, {{filter = "type", type = "simple-entity"}})
+    end)
 
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.position

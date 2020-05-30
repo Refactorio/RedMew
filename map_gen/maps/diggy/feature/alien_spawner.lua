@@ -22,6 +22,7 @@ local get_aliens = AlienEvolutionProgress.get_aliens
 local create_spawner_request = AlienEvolutionProgress.create_spawner_request
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local destroy_rock = CreateParticles.destroy_rock
+local is_diggy_rock = Template.is_diggy_rock
 
 -- this
 local AlienSpawner = {}
@@ -168,6 +169,12 @@ function AlienSpawner.register(cfg)
         global.config.hail_hydra.enabled = true
         global.config.hail_hydra.hydras = hail_hydra
     end
+
+    Event.add(defines.events.on_entity_died, function (event)
+        if is_diggy_rock(event.entity.name) and event.force.name == "enemy" and event.loot then
+            event.loot.clear()
+        end
+    end)
 
     Event.add(Template.events.on_void_removed, function (event)
         local force = game.forces.enemy
