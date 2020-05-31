@@ -56,8 +56,10 @@ local Config = {
         -- core feature
         diggy_hole = {
             enabled = true,
-            -- initial damage per tick it damages a rock to mine, can be enhanced by robot_damage_per_mining_prod_level
-            robot_initial_mining_damage = 4,
+            -- delay in ticks between robot mining rock and rock being marked again for deconstruction
+            robot_mining_delay = 10,
+            -- This value is multiplied with robot_mining_delay to determine mining damage applied.  Can be enhanced by robot_damage_per_mining_prod_level
+            robot_per_tick_damage = 4,
             -- damage added per level of mining productivity level research
             robot_damage_per_mining_prod_level = 1,
 

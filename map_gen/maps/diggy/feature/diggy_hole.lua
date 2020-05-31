@@ -11,13 +11,15 @@ local ScoreTracker = require 'utils.score_tracker'
 local Command = require 'utils.command'
 local CreateParticles = require 'features.create_particles'
 local Ranks = require 'resources.ranks'
+local Token = require 'utils.token'
+local Task = require 'utils.task'
+local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local random = math.random
 local tonumber = tonumber
 local pairs = pairs
 local is_diggy_rock = Template.is_diggy_rock
 local destroy_rock = CreateParticles.destroy_rock
 local mine_rock = CreateParticles.mine_rock
-local raise_event = script.raise_event
 local mine_size_name = 'mine-size'
 
 -- this
@@ -32,7 +34,26 @@ local robot_mining = {
     damage = 0,
     active_modifier = 0,
     research_modifier = 0,
+    delay = 0
 }
+
+-- Used in conjunction with set_timeout_in_ticks(robot_mining_delay...  to control bot mining frequency
+-- Robot_mining.damage is equal to robot_mining_delay * robot_per_tick_damage
+-- So for example if robot_mining delay is doubled, robot_mining.damage gets doubled to compensate.
+local metered_bot_mining = Token.register(function(params)
+    local entity = params.entity
+    local force = params.force
+    local health_update = params.health_update
+    if entity.valid then
+        local health = entity.health
+        --If health of entity didn't change during delay apply bot mining damage and re-order order_deconstruction
+        --If rock was damaged during the delay the bot gets scared off and stops mining this particular rock.
+        if health_update == health - robot_mining.damage then
+            entity.health = health_update
+            entity.order_deconstruction(force)
+        end
+    end
+end)
 
 Global.register({
     full_inventory_mining_cache = full_inventory_mining_cache,
@@ -156,7 +177,8 @@ function DiggyHole.register(cfg)
     global_to_show[#global_to_show + 1] = mine_size_name
 
     config = cfg
-    robot_mining.damage = cfg.robot_initial_mining_damage
+    robot_mining.delay = cfg.robot_mining_delay
+    robot_mining.damage = cfg.robot_per_tick_damage * robot_mining.delay
 
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
@@ -181,9 +203,7 @@ function DiggyHole.register(cfg)
         if not is_diggy_rock(name) then
             return
         end
-
-        raise_event(defines.events.on_entity_died, {entity = entity, cause = event.cause, force = event.force})
-        entity.destroy()
+        entity.die(event.force, event.cause)
     end)
 
     Event.add(defines.events.on_robot_mined_entity, function (event)
@@ -195,7 +215,7 @@ function DiggyHole.register(cfg)
         end
 
         local health = entity.health
-        health = health - robot_mining.damage
+        local health_update = health - robot_mining.damage
         event.buffer.clear()
 
         local graphics_variation = entity.graphics_variation
@@ -204,19 +224,19 @@ function DiggyHole.register(cfg)
         local position = entity.position
         local force = event.robot.force
 
-        if health < 1 then
-            raise_event(defines.events.on_entity_died, {entity = entity, force = force})
+        if health_update < 1 then
             mine_rock(create_particle, 6, position)
+            entity.die(force)
+        else
             entity.destroy()
-            return
+            local rock = create_entity({name = name, position = position})
+            mine_rock(create_particle, 1, position)
+            rock.graphics_variation = graphics_variation
+            rock.health = health
+            --Mark replaced rock for de-construction and apply health_update after delay.  Health verified and
+            --update applied after delay to help prevent more rapid damage if someone were to spam deconstruction blueprints
+            set_timeout_in_ticks(robot_mining.delay, metered_bot_mining, {entity = rock, force = force, health_update = health_update})
         end
-        entity.destroy()
-
-        local rock = create_entity({name = name, position = position})
-        mine_rock(create_particle, 1, position)
-        rock.graphics_variation = graphics_variation
-        rock.order_deconstruction(force)
-        rock.health = health
     end)
 
     Event.add(defines.events.on_player_mined_entity, function (event)
