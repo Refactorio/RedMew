@@ -163,6 +163,9 @@ function DiggyHole.register(cfg)
         if not is_diggy_rock(name) then
             return
         end
+        if event.force.name == "remove_loot" then
+            event.loot.clear()
+        end
         diggy_hole(entity)
         if event.cause then
             destroy_rock(entity.surface.create_particle, 10, entity.position)
@@ -203,7 +206,7 @@ function DiggyHole.register(cfg)
 
         if health < 1 then
             mine_rock(create_particle, 6, position)
-            entity.die(force)
+            entity.die("remove_loot")
         else
             entity.destroy()
             local rock = create_entity({name = name, position = position})
@@ -256,6 +259,9 @@ end
 function DiggyHole.on_init()
     game.forces.player.technologies['landfill'].enabled = config.allow_landfill_research
     game.forces.player.technologies['atomic-bomb'].enabled = false
+    -- remove_loot force name used to identify entities that have died using entity.die()
+    -- that need loot removed when handling event on_entity_died
+    game.create_force("remove_loot")  
 end
 
 return DiggyHole

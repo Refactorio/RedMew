@@ -35,7 +35,8 @@ local do_mine = Token.register(function(params)
 
     for i = rock_count, 1, -1 do
         local rock = rocks[i]
-        rock.die("neutral")
+        -- diggy_hole.lua will handle removing loot from entities that died with force set to "remove_loot"
+        rock.die("remove_loot")
     end
 end)
 
@@ -67,12 +68,6 @@ function SimpleRoomGenerator.register(config)
         seed = seed or surface.map_gen_settings.seed + surface.index + 100
         return perlin_noise(x * noise_variance, y * noise_variance, seed)
     end
-
-    Event.add(defines.events.on_entity_died, function (event)
-        if is_diggy_rock(event.entity.name) and event.force.name == "neutral" and event.loot then
-            event.loot.clear()
-        end
-    end)
 
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.position

@@ -22,7 +22,6 @@ local get_aliens = AlienEvolutionProgress.get_aliens
 local create_spawner_request = AlienEvolutionProgress.create_spawner_request
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local destroy_rock = CreateParticles.destroy_rock
-local is_diggy_rock = Template.is_diggy_rock
 
 -- this
 local AlienSpawner = {}
@@ -77,7 +76,8 @@ local do_alien_mining = Token.register(function(params)
         for rock_index = rock_count, 1, -1 do
             local rock = rocks[rock_index]
             destroy_rock(create_particle, particle_count, rock.position)
-            rock.die("enemy")
+            -- diggy_hole.lua will handle removing loot from entities that died with force set to "remove_loot"
+            rock.die("remove_loot")
         end
     end
 
@@ -169,12 +169,6 @@ function AlienSpawner.register(cfg)
         global.config.hail_hydra.enabled = true
         global.config.hail_hydra.hydras = hail_hydra
     end
-
-    Event.add(defines.events.on_entity_died, function (event)
-        if is_diggy_rock(event.entity.name) and event.force.name == "enemy" and event.loot then
-            event.loot.clear()
-        end
-    end)
 
     Event.add(Template.events.on_void_removed, function (event)
         local force = game.forces.enemy
