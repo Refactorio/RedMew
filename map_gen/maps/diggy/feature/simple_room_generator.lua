@@ -11,7 +11,6 @@ local Token = require 'utils.token'
 local pairs = pairs
 local perlin_noise = require 'map_gen.shared.perlin_noise'.noise
 local template_insert = Template.insert
-local is_diggy_rock = Template.is_diggy_rock
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local on_entity_died = defines.events.on_entity_died
 -- this
