@@ -8,6 +8,7 @@ local Event = require 'utils.event'
 local Debug = require 'map_gen.maps.diggy.debug'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
+local raise_event = script.raise_event
 local pairs = pairs
 local perlin_noise = require 'map_gen.shared.perlin_noise'.noise
 local template_insert = Template.insert
@@ -34,8 +35,8 @@ local do_mine = Token.register(function(params)
 
     for i = rock_count, 1, -1 do
         local rock = rocks[i]
-        -- diggy_hole.lua will handle removing loot from entities that died with force set to "remove_loot"
-        rock.die("remove_loot")
+        raise_event(defines.events.script_raised_destroy, {entity = rock, cause = "room_clearing"})
+        rock.destroy()
     end
 end)
 

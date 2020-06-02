@@ -18,6 +18,7 @@ local floor = math.floor
 local ceil = math.ceil
 local size = table.size
 local pairs = pairs
+local raise_event = script.raise_event
 local get_aliens = AlienEvolutionProgress.get_aliens
 local create_spawner_request = AlienEvolutionProgress.create_spawner_request
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
@@ -75,9 +76,9 @@ local do_alien_mining = Token.register(function(params)
 
         for rock_index = rock_count, 1, -1 do
             local rock = rocks[rock_index]
+            raise_event(defines.events.script_raised_destroy, {entity = rock, cause = "alien_emerges"}) 
             destroy_rock(create_particle, particle_count, rock.position)
-            -- diggy_hole.lua will handle removing loot from entities that died with force set to "remove_loot"
-            rock.die("remove_loot")
+            rock.destroy()
         end
     end
 
