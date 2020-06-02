@@ -17,6 +17,7 @@ local pairs = pairs
 local is_diggy_rock = Template.is_diggy_rock
 local destroy_rock = CreateParticles.destroy_rock
 local mine_rock = CreateParticles.mine_rock
+local raise_event = script.raise_event
 local mine_size_name = 'mine-size'
 
 -- this
@@ -189,9 +190,8 @@ function DiggyHole.register(cfg)
         if not is_diggy_rock(name) then
             return
         end
-
         -- better performance than entity.die() especially when large amounts of rocks are damaged, i.e. due to damaged reactor or nuke
-        script.raise_event(defines.events.script_raised_destroy, {entity = entity, cause = "die_faster"})
+        raise_event(defines.events.script_raised_destroy, {entity = entity, cause = "die_faster"})
         destroy_rock(entity.surface.create_particle, 10, entity.position)
         entity.destroy()
     end)
@@ -269,9 +269,6 @@ end
 function DiggyHole.on_init()
     game.forces.player.technologies['landfill'].enabled = config.allow_landfill_research
     game.forces.player.technologies['atomic-bomb'].enabled = false
-    -- remove_loot force name used to tag entities that have died using entity.die()
-    -- that need loot removed when handling event on_entity_died
-    game.create_force("remove_loot")
 end
 
 return DiggyHole
