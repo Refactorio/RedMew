@@ -217,14 +217,15 @@ function DiggyHole.register(cfg)
         if health < 1 then
             mine_rock(create_particle, 6, position)
             entity.die(force)
-        else
-            entity.destroy()
-            local rock = create_entity({name = name, position = position})
-            mine_rock(create_particle, 1, position)
-            rock.graphics_variation = graphics_variation
-            rock.order_deconstruction(force)
-            rock.health = health
+            return
         end
+
+        entity.destroy()
+        local rock = create_entity({name = name, position = position})
+        mine_rock(create_particle, 1, position)
+        rock.graphics_variation = graphics_variation
+        rock.order_deconstruction(force)
+        rock.health = health
     end)
 
     Event.add(defines.events.on_player_mined_entity, function (event)
