@@ -171,13 +171,13 @@ function DiggyHole.register(cfg)
     end)
 
     Event.add(defines.events.script_raised_destroy, function (event)
-            local entity = event.entity
-            local name = entity.name
-            if not is_diggy_rock(name) then
-                return
-            end
-            diggy_hole(entity)
-        end)
+        local entity = event.entity
+        local name = entity.name
+        if not is_diggy_rock(name) then
+            return
+        end
+        diggy_hole(entity)
+    end)
 
     -- Checks for when a diggy rock is about to die due to damage and destroys it instead
     -- better performance than entity.die() especially when large amounts of rocks are damaged, i.e. due to damaged reactor or nuke
@@ -192,6 +192,7 @@ function DiggyHole.register(cfg)
         if not is_diggy_rock(name) then
             return
         end
+        
         raise_event(defines.events.script_raised_destroy, {entity = entity, cause = "die_faster"})
         destroy_rock(entity.surface.create_particle, 10, entity.position)
         entity.destroy()
