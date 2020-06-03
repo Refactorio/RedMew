@@ -20,6 +20,7 @@ local pairs = pairs
 local is_diggy_rock = Template.is_diggy_rock
 local destroy_rock = CreateParticles.destroy_rock
 local mine_rock = CreateParticles.mine_rock
+local raise_event = script.raise_event
 local mine_size_name = 'mine-size'
 local ceil = math.ceil
 
@@ -247,7 +248,7 @@ function DiggyHole.register(cfg)
         entity.destroy()
 
         local rock = create_entity({name = name, position = position})
-        mine_rock(create_particle, ceil(delay / 3), position)
+        mine_rock(create_particle, ceil(delay / 2), position)
         rock.graphics_variation = graphics_variation
         rock.health = health
         --Mark replaced rock for de-construction and apply health_update after delay.  Health verified and

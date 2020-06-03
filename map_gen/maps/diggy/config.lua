@@ -57,7 +57,7 @@ local Config = {
         diggy_hole = {
             enabled = true,
             -- delay in ticks between robot mining rock and rock being marked again for deconstruction
-            robot_mining_delay = 10,
+            robot_mining_delay = 6,
             -- This value is multiplied with robot_mining_delay to determine mining damage applied.  Can be enhanced by robot_damage_per_mining_prod_level
             robot_per_tick_damage = 4,
             -- damage added per level of mining productivity level research
