@@ -97,12 +97,7 @@ local entity_spawn_map = {
 }
 
 local unit_levels = {
-    biter = {
-        'small-biter',
-        'medium-biter',
-        'big-biter',
-        'behemoth-biter'
-    },
+    biter = {'small-biter', 'medium-biter', 'big-biter', 'behemoth-biter'},
     spitter = {
         'small-spitter',
         'medium-spitter',
@@ -210,7 +205,13 @@ pole_callback =
         local now = game.tick
 
         if now >= tick then
-            data.surface.create_entity({name = data.name, force = 'enemy', position = data.position})
+            data.surface.create_entity(
+                {
+                    name = data.name,
+                    force = 'enemy',
+                    position = data.position
+                }
+            )
             return
         end
 
@@ -270,6 +271,176 @@ local function do_pole(entity)
     )
 end
 
+local function do_evolution(entity_name, entity_force)
+    local factor = turret_evolution_factor[entity_name]
+    if factor then
+        local old = entity_force.evolution_factor
+        local new = old + (1 - old) * factor
+        entity_force.evolution_factor = math.min(new, 1)
+    end
+end
+
+local bot_spawn_whitelist = {
+    ['gun-turret'] = true,
+    ['laser-turret'] = true,
+    ['flamethrower-turret'] = true,
+    ['artillery-turret'] = true
+}
+
+local bot_cause_whitelist = {
+    ['character'] = true,
+    ['artillery-turret'] = true,
+    ['artillery-wagon'] = true,
+}
+
+local function do_bot_spawn(entity_name, entity, event)
+    local cause = event.cause
+    local position = entity.position
+    local entity_force = entity.force
+    local ef = entity_force.evolution_factor
+
+    if not bot_spawn_whitelist[entity_name] or not bot_cause_whitelist[cause.name] or ef <= 0.2 then
+        return
+    end
+
+    local create_entity = entity.surface.create_entity
+    local repeat_cycle = 1 -- The number of times a squad of robots are spawned default must be 1
+    if ef > .95 then
+        repeat_cycle = 2
+    end
+
+    local spawn_entity = {
+        position = position,
+        target = cause,
+        force = entity_force
+    }
+    
+    if cause.name ~= 'character' then
+        if entity_name == 'artillery-turret' then
+            repeat_cycle = 15
+        else
+            repeat_cycle = 4
+        end
+        for i = 1, repeat_cycle do
+            spawn_entity.name = 'defender'
+            create_entity(spawn_entity)
+            create_entity(spawn_entity)
+
+            spawn_entity.name = 'destroyer'
+            create_entity(spawn_entity)
+            create_entity(spawn_entity)
+        end
+    elseif entity_name == 'gun-turret' then
+        for i = 1, repeat_cycle do
+            spawn_entity.name = 'defender'
+            create_entity(spawn_entity)
+            create_entity(spawn_entity)
+
+            spawn_entity.name = 'destroyer'
+            create_entity(spawn_entity)
+        end
+    elseif entity_name == 'laser-turret' then
+        for i = 1, repeat_cycle do
+            spawn_entity.name = 'defender'
+            create_entity(spawn_entity)
+
+            spawn_entity.name = 'destroyer'
+            create_entity(spawn_entity)
+            create_entity(spawn_entity)
+        end
+    else
+        for i = 1, repeat_cycle do
+            spawn_entity.name = 'distractor-capsule'
+            spawn_entity.speed = 0
+            create_entity(spawn_entity)
+        end
+    end
+end
+
+local function do_coin_drop(entity_name, entity)
+    local position = entity.position
+    local bounds = entity_drop_amount[entity_name]
+    if not bounds then
+        return
+    end
+
+    local unit_number = entity.unit_number
+    if no_coin_entity[unit_number] then
+        no_coin_entity[unit_number] = nil
+        return
+    end
+
+    local count = random(bounds.low, bounds.high)
+    if count > 0 then
+        set_timeout_in_ticks(
+            1,
+            spill_items,
+            {
+                count = count,
+                surface = entity.surface,
+                position = position
+            }
+        )
+    end
+end
+
+local function do_spawn_entity(entity_name, entity, event)
+    local spawn = entity_spawn_map[entity_name]
+    if not spawn then
+        return
+    end
+
+    local chance = spawn.chance
+    if chance ~= 1 and random() > chance then
+        return
+    end
+
+    local name = spawn.name
+    if name == nil then
+        local type = spawn.type
+        if type == 'cause' then
+            local cause = event.cause
+            if not cause then
+                return
+            end
+            name = cause.name
+            if not allowed_cause_source[cause.name] then
+                return
+            end
+        elseif type == 'compound' then
+            local spawns = spawn.spawns
+            spawn = spawns[random(#spawns)]
+            name = spawn.name
+        else
+            name = unit_levels[type][get_level()]
+        end
+    end
+
+    local position = entity.position
+    if worms[name] then
+        set_timeout_in_ticks(
+            5,
+            spawn_worm,
+            {
+                surface = entity.surface,
+                name = name,
+                position = position
+            }
+        )
+    else
+        set_timeout_in_ticks(
+            5,
+            spawn_units,
+            {
+                surface = entity.surface,
+                name = name,
+                position = position,
+                count = spawn.count
+            }
+        )
+    end
+end
+
 Event.add(
     defines.events.on_entity_died,
     function(event)
@@ -283,73 +454,12 @@ Event.add(
 
         if entity_force.name == 'enemy' then
             do_pole(entity)
-
-            local factor = turret_evolution_factor[entity_name]
-            if factor then
-                local old = entity_force.evolution_factor
-                local new = old + (1 - old) * factor
-                entity_force.evolution_factor = math.min(new, 1)
-            end
+            do_evolution(entity_name, entity_force)
+            do_coin_drop(entity_name, entity)
+            do_bot_spawn(entity_name, entity, event)
         end
 
-        local bounds = entity_drop_amount[entity_name]
-        if bounds then
-            local unit_number = entity.unit_number
-            if no_coin_entity[unit_number] then
-                no_coin_entity[unit_number] = nil
-            else
-                local count = random(bounds.low, bounds.high)
-
-                if count > 0 then
-                    set_timeout_in_ticks(
-                        1,
-                        spill_items,
-                        {count = count, surface = entity.surface, position = entity.position}
-                    )
-                end
-            end
-        end
-
-        local spawn = entity_spawn_map[entity_name]
-        if not spawn then
-            return
-        end
-
-        local chance = spawn.chance
-        if chance ~= 1 and random() > chance then
-            return
-        end
-
-        local name = spawn.name
-        if name == nil then
-            local type = spawn.type
-            if type == 'cause' then
-                local cause = event.cause
-                if not cause then
-                    return
-                end
-                name = cause.name
-                if not allowed_cause_source[cause.name] then
-                    return
-                end
-            elseif type == 'compound' then
-                local spawns = spawn.spawns
-                spawn = spawns[random(#spawns)]
-                name = spawn.name
-            else
-                name = unit_levels[type][get_level()]
-            end
-        end
-
-        if worms[name] then
-            set_timeout_in_ticks(5, spawn_worm, {surface = entity.surface, name = name, position = entity.position})
-        else
-            set_timeout_in_ticks(
-                5,
-                spawn_units,
-                {surface = entity.surface, name = name, position = entity.position, count = spawn.count}
-            )
-        end
+        do_spawn_entity(entity_name, entity, event)
     end
 )
 

@@ -4,8 +4,8 @@ local Event = require 'utils.event'
 local Settings = require 'utils.redmew_settings'
 local Color = require 'resources.color_presets'
 
-local enabled_style = 'green_slot_button'
-local disabled_style = 'red_slot_button'
+local enabled_style = 'working_weapon_button'
+local disabled_style = 'not_working_weapon_button'
 
 local style_map = {[true] = enabled_style, [false] = disabled_style}
 local enabled_locale_map = {[true] = {'common.enabled'}, [false] = {'common.disabled'}}
@@ -52,7 +52,7 @@ local function toggle_main_frame(event)
         Gui.destroy(frame)
         main_button.style = 'icon_button'
     else
-        main_button.style = 'selected_slot_button'
+        main_button.style = 'slot_sized_button'
         local style = main_button.style
         style.width = 38
         style.height = 38

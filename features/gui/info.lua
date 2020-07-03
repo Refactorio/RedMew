@@ -294,7 +294,6 @@ local pages = {
         end,
         content = function(parent, player)
             local read_only = not player.admin
-            local text_width = 490
 
             local top_flow = parent.add {type = 'flow'}
             local top_flow_style = top_flow.style
@@ -320,7 +319,7 @@ local pages = {
             --map_name_textbox.word_wrap = true
 
             local map_name_textbox_style = map_name_textbox.style
-            map_name_textbox_style.width = text_width
+            map_name_textbox_style.width = 200
             map_name_textbox_style.maximal_height = 30
 
             Gui.set_data(map_name_textbox, map_name_key)
@@ -336,7 +335,7 @@ local pages = {
             --map_description_textbox.word_wrap = true
 
             local map_description_textbox_style = map_description_textbox.style
-            map_description_textbox_style.width = text_width
+            map_description_textbox_style.width = 400
             map_description_textbox_style.minimal_height = 80
             map_description_textbox_style.vertically_stretchable = true
             map_description_textbox_style.maximal_height = 100
@@ -354,7 +353,7 @@ local pages = {
             --map_extra_info_textbox.word_wrap = true
 
             local map_extra_info_textbox_style = map_extra_info_textbox.style
-            map_extra_info_textbox_style.width = text_width
+            map_extra_info_textbox_style.width = 490
             map_extra_info_textbox_style.height = 210
 
             Gui.set_data(map_extra_info_textbox, map_extra_info_key)
@@ -612,7 +611,7 @@ local function draw_main_frame(center, player)
 
     line_bar(frame)
 
-    local content = frame.add {type = 'frame', direction = 'vertical', style = 'image_frame'}
+    local content = frame.add {type = 'frame', direction = 'vertical', style = 'inside_shallow_frame'}
     local content_style = content.style
     content_style.horizontally_stretchable = true
     content_style.vertically_stretchable = true
@@ -674,7 +673,7 @@ local function toggle(event)
     if main_frame then
         close_main_frame(main_frame, player)
     else
-        main_button.style = 'selected_slot_button'
+        main_button.style = 'slot_sized_button'
         local style = main_button.style
         style.width = 38
         style.height = 38

@@ -441,7 +441,7 @@ local function toggle(event)
     else
         draw_main_frame(left, event.player)
 
-        main_button.style = 'selected_slot_button'
+        main_button.style = 'slot_sized_button'
         local style = main_button.style
         style.width = 38
         style.height = 38
@@ -518,7 +518,7 @@ local function redraw_create_poll_content(data)
                 delete_flow.add {
                 type = 'sprite-button',
                 name = create_poll_delete_answer_name,
-                sprite = 'utility/remove',
+                sprite = 'utility/trash',
                 tooltip = 'Delete answer field.'
             }
             delete_button.style.height = 26

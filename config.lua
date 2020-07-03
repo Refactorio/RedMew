@@ -10,11 +10,15 @@ global.config = {
         -- The title of the map
         map_name_key = 'This Map has no name',
         -- The long description of the map, typically 1 paragraph
-        map_description_key = "This section is supposed to be filled out on a per map basis.\nIf you're seeing this message, ping the admin team to get a description\nadded for this map. 20 coins is rewarded to the first person that points this out.",
+        map_description_key = "This section is supposed to be filled out on a per map basis.\nIf you're seeing this message, ping the admin team to get\na description added for this map (20 coin reward).",
         -- The feature list of the map
         map_extra_info_key = 'This map has no extra information',
         -- New Scenario Features, appears in the "What's new" tab
-        new_info_key = 'Nothing is new. The world is at peace'
+        new_info_key = 'Nothing is new. The world is at peace',
+        -- Creator of the map
+        map_primary_creator_key = 'The Refactorio Team',
+        -- Secondary creator of the map
+        map_secondary_creator_key = nil
     },
     -- map generation settings for redmew's maps (only applies to maps that use 'shapes')
     map_generation = {
@@ -169,7 +173,7 @@ global.config = {
         -- prints messages when the player joins
         join_messages = {
             'Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord',
-            'Click the question mark in the top left corner for server information and map details.'
+            'Click the infomation icon in the top left corner for server information and map details.'
         },
         cutscene = false,
         -- format is a table: {{message, weight}, {message, weight}}, where a higher weight has more chance to be shown
@@ -202,8 +206,6 @@ global.config = {
                 {name = 'computer', count = 2},
                 {name = 'infinity-pipe', count = 10},
                 {name = 'heat-interface', count = 10},
-                {name = 'compilatron-chest', count = 5},
-                {name = 'compilatron-chest', count = 5},
                 {name = 'selection-tool', count = 1}
             }
         }
