@@ -9,6 +9,7 @@ return require 'map_gen.maps.default'
     Names of some popular maps:
     diggy
     crash_site
+    crash_site_world
     beach
     connected_dots
     crosses
