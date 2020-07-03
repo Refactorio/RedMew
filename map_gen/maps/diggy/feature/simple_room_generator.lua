@@ -35,7 +35,7 @@ local do_mine = Token.register(function(params)
 
     for i = rock_count, 1, -1 do
         local rock = rocks[i]
-        raise_event(on_entity_died, {entity = rock})
+        raise_event(defines.events.script_raised_destroy, {entity = rock, cause = "room_clearing"})
         rock.destroy()
     end
 end)

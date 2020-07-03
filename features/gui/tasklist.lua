@@ -457,7 +457,7 @@ local function toggle(event)
     else
         draw_main_frame(left, player)
 
-        main_button.style = 'selected_slot_button'
+        main_button.style = 'slot_sized_button'
         local style = main_button.style
         style.width = 38
         style.height = 38

@@ -116,6 +116,7 @@ end
 -- Some map presets will add GUI modules themselves.
 if config.map_info.enabled then
     require 'features.gui.info'
+    require 'features.gui.description_generator'
 end
 if config.player_list.enabled then
     require 'features.gui.player_list'

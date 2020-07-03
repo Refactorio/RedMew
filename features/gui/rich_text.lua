@@ -1,27 +1,27 @@
 local Gui = require 'utils.gui'
 local Command = require 'utils.command'
 
-local main_button_name = Gui.uid_name()
-
 local rich_text_frame = Gui.uid_name()
 local rich_text_choose_image = Gui.uid_name()
 local rich_text_image_type = Gui.uid_name()
 local close_rich_text = Gui.uid_name()
 
 local choices = {
-    'tile',
     'item',
+    'tile',
     'entity',
-    'fluid',
     'signal',
-    'recipe'
+    'fluid',
+    'recipe',
+    'decorative',
+    'item-group',
+    'achievement',
+    'equipment',
+    'technology'
 }
 local function draw_rich_text(event)
-    local spirte_type
-    local frame_caption
-
-    spirte_type = choices[1]
-    frame_caption = 'Rich Text'
+    local sprite_type = choices[1]
+    local frame_caption = 'Rich Text'
     local player = event.player
     local center = player.gui.center
 
@@ -42,16 +42,24 @@ local function draw_rich_text(event)
     selection_flow.style.top_margin = 7
 
     local focus
+    local count = 0
     for _, value in ipairs(choices) do
+        count = count + 1
+        if count > 6 then
+            count = 0
+            icons_flow = main_table.add {type = 'flow', direction = 'horizontal'}
+            selection_flow = icons_flow.add {type = 'flow'}
+            selection_flow.style.top_margin = 7
+        end
         local radio =
             selection_flow.add({type = 'flow'}).add {
             type = 'radiobutton',
             name = rich_text_image_type,
             caption = value,
-            state = value == spirte_type
+            state = value == sprite_type
         }
 
-        if value == spirte_type then
+        if value == sprite_type then
             focus = radio
         end
 
@@ -62,7 +70,7 @@ local function draw_rich_text(event)
         icons_flow.add {
         type = 'choose-elem-button',
         name = rich_text_choose_image,
-        elem_type = spirte_type
+        elem_type = sprite_type
     }
 
     Gui.set_data(choose, frame)
@@ -98,8 +106,6 @@ local function draw_rich_text(event)
 
     player.opened = frame
 end
-
-Gui.on_click(main_button_name, draw_rich_text)
 
 Gui.on_click(
     rich_text_image_type,
@@ -158,19 +164,29 @@ Gui.on_elem_changed(
         local sprite = choose.elem_value
 
         local path
+        local text
         if not sprite or sprite == '' then
-            path = 'Pick an image'
+            text = 'Pick an image'
         elseif type == 'signal' then
-            path = 'virtual-signal/' .. choose.elem_value.name
+            local name = sprite.name
+            if string.sub(name, 1, 6) == 'signal' then
+                path = 'virtual-signal/' .. name
+            else
+                text = 'Pick a signal or another image type'
+            end
         else
-            path = type .. '/' .. choose.elem_value
+            path = type .. '/' .. sprite
+        end
+
+        if not text then
+            text = '[img=' .. path .. '] | ' .. path
         end
 
         local string_box = frame_data.string_box
         Gui.remove_data_recursively(string_box)
         string_box.destroy()
 
-        string_box = frame_data.string_flow.add {type = 'text-box', text = ' [img=' .. path .. '] | ' .. path}
+        string_box = frame_data.string_flow.add {type = 'text-box', text = text}
         string_box.read_only = true
         string_box.word_wrap = false
         string_box.style.width = 352
