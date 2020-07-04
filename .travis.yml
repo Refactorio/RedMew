@@ -14,7 +14,7 @@ before_install:
 install:
   - luarocks install luacheck
 script:
-  - "if [[ $TRAVIS_EVENT_TYPE != 'cron' && $TRAVIS_EVENT_TYPE != 'api' ]]; then luacheck . --only 0; fi"
+  - "if [[ $TRAVIS_EVENT_TYPE != 'cron' && $TRAVIS_EVENT_TYPE != 'api' ]]; then luacheck . --only 0 --cache; fi"
 before_deploy:
   - ./.travis/check_locale.sh
   - git config --local user.name "$github_user_name"
