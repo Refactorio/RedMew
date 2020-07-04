@@ -52,3 +52,9 @@ deploy:
   skip_cleanup: true
   prerelease: true
   name: "$RELEASE_NAME"
+  
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+cache:
+  directories:
+  - $HOME/.cache/pip
