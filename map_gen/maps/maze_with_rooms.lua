@@ -82,8 +82,8 @@ local function initialize_grid(w, h)
 end
 
 -- average of a and b
-local function avg(a, b)
-    return (a + b) / 2
+local function avg(c, d)
+    return (c + d) / 2
 end
 
 local dirs = {
@@ -177,15 +177,15 @@ local function try_place_room(map, top_left_x, top_left_y, room_size)
 end
 
 -- Attempts to place num_room_attemts number of rooms at random sizes, rooms are always placed at odd cordinates
-local function add_rooms(map, num_room_attempts, min_room_size, max_room_size)
+local function add_rooms(map, num_room_attempts2, min_room_size2, max_room_size2)
     -- room_size must be odd
-    for attempt = 1, num_room_attempts do
+    for attempt = 1, num_room_attempts2 do
         -- Generates a random odd number between min_room_size and max_room_size (inclusive both)
-        local room_size = min_room_size + random(0, (max_room_size - min_room_size) / 2) * 2
+        local room_size2 = min_room_size2 + random(0, (max_room_size2 - min_room_size2) / 2) * 2
         -- Generates a random odd top_left corner cordinate which would fit the room within the map
-        local x = random(1, (#map[1] - room_size + 2) / 2) * 2 - 1
-        local y = random(1, (#map - room_size + 2) / 2) * 2 - 1
-        try_place_room(map, x, y, room_size)
+        local x = random(1, (#map[1] - room_size2 + 2) / 2) * 2 - 1
+        local y = random(1, (#map - room_size2 + 2) / 2) * 2 - 1
+        try_place_room(map, x, y, room_size2)
     end
 end
 
@@ -218,7 +218,7 @@ local function add_spawn_room(map)
 end
 
 -- Connects all different regions by making random walls between different regions into ground
-local function connect_regions(map, extra_connection_attempts)
+local function connect_regions(map, extra_connection_attempts2)
     -- Returns false if the pos is not a connector (wall with 2 different regions next to it)
     -- Returns a table with the two neigbours if it is a connector
     local function check_connector(x, y)
@@ -312,7 +312,7 @@ local function connect_regions(map, extra_connection_attempts)
         possible_connectors = find_possible_connectors()
     end
     -- Add extra connections to make it imperfect
-    for i = 1, extra_connection_attempts do
+    for i = 1, extra_connection_attempts2 do
         local connector = connectors[random(#connectors)]
         local pos = connector.pos
         map[pos.y][pos.x] = true
@@ -442,9 +442,9 @@ for _, ore_data in pairs(ores) do
 end
 
 -- Translate the map so that players spawn in the spawn_room and so that the pattern will work
-factorio_map = b.translate(factorio_map, -maze_width / 2 - 1, -maze_height / 2 - 1)
+factorio_map2 = b.translate(factorio_map, -maze_width / 2 - 1, -maze_height / 2 - 1)
 -- Apply pattern so the maze is repeted infinitly
-factorio_map = b.single_pattern(factorio_map, maze_width, maze_height)
+factorio_map3 = b.single_pattern(factorio_map2, maze_width, maze_height)
 
 local start_patch = b.rectangle(1, 1)
 local start_iron_patch =
@@ -481,8 +481,8 @@ local start_coal_patch =
 )
 
 local start_resources = b.any({start_iron_patch, start_copper_patch, start_stone_patch, start_coal_patch})
-local factorio_map = b.apply_entity(factorio_map, start_resources)
+local factorio_map4 = b.apply_entity(factorio_map3, start_resources)
 
 -- Scale the map using the tile_scale variable
-factorio_map = b.scale(factorio_map, tile_scale, tile_scale)
+factorio_map = b.scale(factorio_map4, tile_scale, tile_scale)
 return factorio_map
