@@ -13,7 +13,7 @@ local pairs = pairs
 local perlin_noise = require 'map_gen.shared.perlin_noise'.noise
 local template_insert = Template.insert
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
-local on_entity_died = defines.events.on_entity_died
+--local on_entity_died = defines.events.on_entity_died
 -- this
 local SimpleRoomGenerator = {}
 

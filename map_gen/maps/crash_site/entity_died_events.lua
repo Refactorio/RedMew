@@ -22,7 +22,7 @@ local no_coin_entity = {}
 Global.register(
     {no_coin_entity = no_coin_entity},
     function(tbl)
-        no_coin_entity = tbl.no_coin_entity
+		no_coin_entity = tbl.no_coin_entity
     end
 )
 
@@ -314,7 +314,6 @@ local function do_bot_spawn(entity_name, entity, event)
         target = cause,
         force = entity_force
     }
-    
     if cause.name ~= 'character' then
         if entity_name == 'artillery-turret' then
             repeat_cycle = 15

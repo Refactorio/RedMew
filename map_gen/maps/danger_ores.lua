@@ -12,18 +12,15 @@ local ScenarioInfo = require 'features.gui.info'
 --setting map info
 ScenarioInfo.set_map_name('Danger Ores')
 ScenarioInfo.set_map_description(
-    [[
-Clear the ore to expand the base:
-build extensive mining efforts, create large smelting arrays, 
-use proper material ratios, and defend from enemies!
-]]
+[[Clear the ore to expand the base:
+build extensive mining efforts, create large smelting arrays,
+use proper material ratios, and defend from enemies!]]
 )
 ScenarioInfo.add_map_extra_info(
-    [[You may not build the factory on ore patches. Exceptions:
+[[You may not build the factory on ore patches. Exceptions:
  [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank]
  [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt]]
-) 
-
+)
 local oil_seed
 local uranium_seed
 local density_seed
