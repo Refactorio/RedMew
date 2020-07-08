@@ -31,7 +31,7 @@ before_deploy:
   - ./.travis/release_builder.sh
 deploy:
   on:
-    condition: $TRAVIS_EVENT_TYPE = cron || $TRAVIS_EVENT_TYPE = api
+    condition: $TRAVIS_EVENT_TYPE = api
     repo: Refactorio/RedMew
     branch: develop
   provider: releases
