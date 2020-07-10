@@ -71,12 +71,10 @@ end
 -- builds a width-by-height grid of false
 local function initialize_grid(w, h)
     local grid = {}
-	local ww = w
-	local hh = h
-    for i = 1, hh do
+    for i = 1, h do
         local row = {}
         grid[i] = row
-        for j = 1, ww do
+        for j = 1, w do
             row[j] = false
         end
     end
