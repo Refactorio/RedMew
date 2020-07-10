@@ -287,7 +287,7 @@ local function script_raised_destroy(event)
     local entity = event.entity
     local name = entity.name
     local strength = support_beam_entities[name]
-	local player_index = event.player_index
+    local player_index = event.player_index
     if strength then
         stress_map_add(entity.surface, entity.position, strength, false, player_index)
     end
