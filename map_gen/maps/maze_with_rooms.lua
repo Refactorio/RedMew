@@ -96,9 +96,6 @@ local dirs = {
 
 -- Adds perfect mazes in the remaining space of the map, each new number gets a unique region index
 local function fill_with_mazes(map)
-    --local h = #map
-    --local w = #map[1]
-
     local walk
     walk = function(x, y)
         map[y][x] = region_index
