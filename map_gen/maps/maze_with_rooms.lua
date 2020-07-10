@@ -1,4 +1,3 @@
---local Event = require 'utils.event'
 local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
 local b = require 'map_gen.shared.builders'
