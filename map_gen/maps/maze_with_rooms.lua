@@ -1,3 +1,4 @@
+--local Event = require 'utils.event'
 local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
 local b = require 'map_gen.shared.builders'
@@ -14,26 +15,26 @@ RS.set_map_gen_settings(
 local maze_width = 194
 local maze_height = 194
 -- room_sizes must always be odd, and they must always be smaller than the map
-local min_room_size = 5
-local max_room_size = 21
+local maze_min_room_size = 5
+local maze_max_room_size = 21
 local spawn_room_size = 9
 -- Number of rooms to try to place, if a room overlaps another one it will be skipped meaning this is the max
-local num_room_attempts = 1500
+local maze_num_room_attempts = 1500
 -- The number of extra connections to try to add after the map is already fully connected
 -- set to 0 for no loops, higher numbers will make more loops
-local extra_connection_attempts = 40
+local maze_extra_connection_attempts = 40
 -- The number of factorio tiles per maze tile
 local tile_scale = 14
 -- The ore probabilities
 -- Change weight to edit how likely ores are to spawn at every dead end
-
+local e_value = b.exponential_value
 local ores = {
-    {letter = 'i', resource = 'iron-ore', value = b.exponential_value(300, 0.75 * 5, 1.1), weight = 16},
-    {letter = 'c', resource = 'copper-ore', value = b.exponential_value(200, 0.75 * 5, 1.1), weight = 10},
-    {letter = 's', resource = 'stone', value = b.exponential_value(150, 0.3 * 5, 1.05), weight = 8},
-    {letter = 'f', resource = 'coal', value = b.exponential_value(200, 0.8 * 5, 1.075), weight = 8},
-    {letter = 'u', resource = 'uranium-ore', value = b.exponential_value(100, 0.3 * 5, 1.025), weight = 3},
-    {letter = 'o', resource = 'crude-oil', value = b.exponential_value(10000, 50 * 5, 1.025), weight = 4},
+    {letter = 'i', resource = 'iron-ore', value = e_value(300, 0.75 * 5, 1.1), weight = 16},
+    {letter = 'c', resource = 'copper-ore', value = e_value(200, 0.75 * 5, 1.1), weight = 10},
+    {letter = 's', resource = 'stone', value = e_value(150, 0.3 * 5, 1.05), weight = 8},
+    {letter = 'f', resource = 'coal', value = e_value(200, 0.8 * 5, 1.075), weight = 8},
+    {letter = 'u', resource = 'uranium-ore', value = e_value(100, 0.3 * 5, 1.025), weight = 3},
+    {letter = 'o', resource = 'crude-oil', value = e_value(10000, 50 * 5, 1.025), weight = 4},
     {letter = ' ', weight = 0} -- No ore
 }
 
@@ -94,6 +95,9 @@ local dirs = {
 
 -- Adds perfect mazes in the remaining space of the map, each new number gets a unique region index
 local function fill_with_mazes(map)
+    --local h = #map
+    --local w = #map[1]
+
     local walk
     walk = function(x, y)
         map[y][x] = region_index
@@ -174,16 +178,16 @@ local function try_place_room(map, top_left_x, top_left_y, room_size)
 end
 
 -- Attempts to place num_room_attemts number of rooms at random sizes, rooms are always placed at odd cordinates
-local function add_rooms(map, num_room_attempts2, min_room_size2, max_room_size2)
+local function add_rooms(map, num_room_attempts, min_room_size, max_room_size)
     -- room_size must be odd
-	local _nn = num_room_attempts2
+	local _nn = num_room_attempts
     for _ = 1, _nn do
         -- Generates a random odd number between min_room_size and max_room_size (inclusive both)
-        local room_size2 = min_room_size2 + random(0, (max_room_size2 - min_room_size2) / 2) * 2
+        local room_size = min_room_size + random(0, (max_room_size - min_room_size) / 2) * 2
         -- Generates a random odd top_left corner cordinate which would fit the room within the map
-        local x = random(1, (#map[1] - room_size2 + 2) / 2) * 2 - 1
-        local y = random(1, (#map - room_size2 + 2) / 2) * 2 - 1
-        try_place_room(map, x, y, room_size2)
+        local x = random(1, (#map[1] - room_size + 2) / 2) * 2 - 1
+        local y = random(1, (#map - room_size + 2) / 2) * 2 - 1
+        try_place_room(map, x, y, room_size)
     end
 end
 
@@ -216,7 +220,7 @@ local function add_spawn_room(map)
 end
 
 -- Connects all different regions by making random walls between different regions into ground
-local function connect_regions(map, extra_connection_attempts2)
+local function connect_regions(map, extra_connection_attempts)
     -- Returns false if the pos is not a connector (wall with 2 different regions next to it)
     -- Returns a table with the two neigbours if it is a connector
     local function check_connector(x, y)
@@ -310,7 +314,7 @@ local function connect_regions(map, extra_connection_attempts2)
         possible_connectors = find_possible_connectors()
     end
     -- Add extra connections to make it imperfect
-    for i = 1, extra_connection_attempts2 do
+    for i = 1, extra_connection_attempts do
         local connector = connectors[random(#connectors)]
         local pos = connector.pos
         map[pos.y][pos.x] = true
@@ -370,9 +374,9 @@ local function create_map()
     -- A matrix with true if there is land and false if there is void
     map = initialize_grid(maze_width, maze_height)
     add_spawn_room(map)
-    add_rooms(map, num_room_attempts, min_room_size, max_room_size)
+    add_rooms(map, maze_num_room_attempts, maze_min_room_size, maze_max_room_size)
     fill_with_mazes(map)
-    connect_regions(map, extra_connection_attempts)
+    connect_regions(map, maze_extra_connection_attempts)
     map[1][maze_width] = true
     map[maze_height][1] = true
     add_ores_at_dead_ends(map)
