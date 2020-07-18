@@ -112,7 +112,7 @@ local function cutscene_function(player_index, waypoint_index, params)
         register_rendering(
             player_index,
             tick,
-            draw_multi_line(settings, {x = 0, y = -5}, {{'diggy.cutscene_case_line2', 'Diggy'}, '---------------------', {'diggy.cutscene_case_line4', 'Redmew'}, {'diggy.cutscene_case_line5', 'www.redmew.com/discord'}}, player, {scale = 5, time_to_live = ttw}, false)
+            draw_multi_line(settings, {x = 0, y = -5}, {{'diggy.cutscene_case_line2', 'Diggy'}, '---------------------', {'diggy.cutscene_case_line4', 'Redmew'}, {'diggy.cutscene_case_line5', 'redmew.com/discord'}}, player, {scale = 5, time_to_live = ttw}, false)
         )
         draw_text_auto_replacing(tick, settings, {x = 0, y = 10}, {'', {'diggy.cutscene_case_line6'}}, player, {scale = 3}, false, false, ttw, 0)
         draw_text_auto_replacing(tick, settings, {x = 0, y = 16}, {'', '', {'diggy.cutscene_case_line7'}}, player, {scale = 1}, false, false, ttw, 0)
