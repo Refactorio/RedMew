@@ -94,7 +94,7 @@ local function cutscene_function_redmew(player_index, waypoint_index, params)
         register_rendering(
             player_index,
             tick,
-            draw_multi_line(settings, {x = 0, y = -5}, {{'crashsite.cutscene1_case_line2', 'Crashsite'}, '---------------------', {'crashsite.cutscene1_case_line4', 'Redmew'}, {'crashsite.cutscene1_case_line5', 'www.redmew.com/discord'}}, player, {scale = 5, time_to_live = ttw}, false)
+            draw_multi_line(settings, {x = 0, y = -5}, {{'crashsite.cutscene1_case_line2', 'Crashsite'}, '---------------------', {'crashsite.cutscene1_case_line4', 'Redmew'}, {'crashsite.cutscene1_case_line5', 'redmew.com/discord'}}, player, {scale = 5, time_to_live = ttw}, false)
         )
         draw_text_auto_replacing(tick, settings, {x = 0, y = 10}, {'', {'crashsite.cutscene1_case_line6'}}, player, {scale = 3}, false, false, ttw, 0)
     end
