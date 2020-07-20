@@ -290,16 +290,23 @@ local bot_spawn_whitelist = {
 local bot_cause_whitelist = {
     ['character'] = true,
     ['artillery-turret'] = true,
-    ['artillery-wagon'] = true,
+    ['artillery-wagon'] = true
 }
 
 local function do_bot_spawn(entity_name, entity, event)
+    if not bot_spawn_whitelist[entity_name] then
+        return
+    end
+
     local cause = event.cause
-    local position = entity.position
+    if not cause or not bot_cause_whitelist[cause.name] then
+        return
+    end
+
     local entity_force = entity.force
     local ef = entity_force.evolution_factor
 
-    if not bot_spawn_whitelist[entity_name] or not bot_cause_whitelist[cause.name] or ef <= 0.2 then
+    if ef <= 0.2 then
         return
     end
 
@@ -310,11 +317,11 @@ local function do_bot_spawn(entity_name, entity, event)
     end
 
     local spawn_entity = {
-        position = position,
+        position = entity.position,
         target = cause,
         force = entity_force
     }
-    
+
     if cause.name ~= 'character' then
         if entity_name == 'artillery-turret' then
             repeat_cycle = 15
