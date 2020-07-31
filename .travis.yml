@@ -5,7 +5,6 @@ env:
     - LUA="lua=5.2"
 branches:
   only:
-    - master
     - develop
 before_install:
   - pip install hererocks
@@ -23,10 +22,10 @@ before_deploy:
   - export DATE_FORMATTED
   - COMMIT_SHA=$(git log --format=%h -1)
   - export COMMIT_SHA
-  - TRAVIS_TAG="nightly/"$DATE_FORMATTED-$COMMIT_SHA
+  - TRAVIS_TAG="monthly/"$DATE_FORMATTED-$COMMIT_SHA
   - export TRAVIS_TAG
   - git tag "$TRAVIS_TAG"
-  - RELEASE_NAME='Nightly release - '"$DATE_FORMATTED"' - '"$COMMIT_SHA"
+  - RELEASE_NAME='Monthly release - '"$DATE_FORMATTED"' - '"$COMMIT_SHA"
   - export RELEASE_NAME
   - ./.travis/release_builder.sh
 deploy:
