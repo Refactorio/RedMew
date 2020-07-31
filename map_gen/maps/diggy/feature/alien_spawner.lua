@@ -76,7 +76,7 @@ local do_alien_mining = Token.register(function(params)
 
         for rock_index = rock_count, 1, -1 do
             local rock = rocks[rock_index]
-            raise_event(defines.events.script_raised_destroy, {entity = rock, cause = "alien_emerges"}) 
+            raise_event(defines.events.script_raised_destroy, {entity = rock, cause = "alien_emerges"})
             destroy_rock(create_particle, particle_count, rock.position)
             rock.destroy()
         end
