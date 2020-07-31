@@ -288,7 +288,7 @@ local function script_raised_destroy(event)
     local name = entity.name
     local strength = support_beam_entities[name]
     if strength then
-        stress_map_add(entity.surface, entity.position, strength, false, player_index)
+        stress_map_add(entity.surface, entity.position, strength, false, player_index) -- luacheck: ignore 113
     end
 end
 

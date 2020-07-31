@@ -1,4 +1,3 @@
-local Event = require 'utils.event'
 local Global = require 'utils.global'
 local RS = require 'map_gen.shared.redmew_surface'
 local b = require 'map_gen.shared.builders'
@@ -27,14 +26,14 @@ local extra_connection_attempts = 40
 local tile_scale = 14
 -- The ore probabilities
 -- Change weight to edit how likely ores are to spawn at every dead end
-value = b.exponential_value
+local exp_value = b.exponential_value
 local ores = {
-    {letter = 'i', resource = 'iron-ore', value = value(300, 0.75 * 5, 1.1), weight = 16},
-    {letter = 'c', resource = 'copper-ore', value = value(200, 0.75 * 5, 1.1), weight = 10},
-    {letter = 's', resource = 'stone', value = value(150, 0.3 * 5, 1.05), weight = 8},
-    {letter = 'f', resource = 'coal', value = value(200, 0.8 * 5, 1.075), weight = 8},
-    {letter = 'u', resource = 'uranium-ore', value = value(100, 0.3 * 5, 1.025), weight = 3},
-    {letter = 'o', resource = 'crude-oil', value = value(10000, 50 * 5, 1.025), weight = 4},
+    {letter = 'i', resource = 'iron-ore', value = exp_value(300, 0.75 * 5, 1.1), weight = 16},
+    {letter = 'c', resource = 'copper-ore', value = exp_value(200, 0.75 * 5, 1.1), weight = 10},
+    {letter = 's', resource = 'stone', value = exp_value(150, 0.3 * 5, 1.05), weight = 8},
+    {letter = 'f', resource = 'coal', value = exp_value(200, 0.8 * 5, 1.075), weight = 8},
+    {letter = 'u', resource = 'uranium-ore', value = exp_value(100, 0.3 * 5, 1.025), weight = 3},
+    {letter = 'o', resource = 'crude-oil', value = exp_value(10000, 50 * 5, 1.025), weight = 4},
     {letter = ' ', weight = 0} -- No ore
 }
 
@@ -82,8 +81,8 @@ local function initialize_grid(w, h)
 end
 
 -- average of a and b
-local function avg(a, b)
-    return (a + b) / 2
+local function avg(num_a, num_b)
+    return (num_a + num_b) / 2
 end
 
 local dirs = {
@@ -95,9 +94,6 @@ local dirs = {
 
 -- Adds perfect mazes in the remaining space of the map, each new number gets a unique region index
 local function fill_with_mazes(map)
-    local h = #map
-    local w = #map[1]
-
     local walk
     walk = function(x, y)
         map[y][x] = region_index
@@ -123,39 +119,6 @@ local function fill_with_mazes(map)
     end
 end
 
-local function print_map(map)
-    local s = ''
-    for i = 1, #map[1] + 2 do
-        s = s .. '+'
-    end
-    print(s)
-    s = ''
-    for y = 1, #map do
-        s = s .. '+'
-        for x = 1, #(map[y]) do
-            if map[y][x] == true then
-                s = s .. ' '
-            elseif map[y][x] == false then
-                --s = s .. '■'
-                s = s .. 'X'
-            elseif not tonumber(map[y][x]) then
-                --s = s .. ' '
-                s = s .. map[y][x]
-            else
-                --s = s .. map[y][x]
-                s = s .. ' '
-            end
-        end
-        s = s .. '+'
-        print(s)
-        s = ''
-    end
-    for i = 1, #map[1] + 2 do
-        s = s .. '+'
-    end
-    print(s)
-end
-
 -- Places a room if it fits in the map, each tile in the room will get a unique number from the region index
 local function try_place_room(map, top_left_x, top_left_y, room_size)
     for y = top_left_y, top_left_y + room_size - 1 do
@@ -177,9 +140,9 @@ local function try_place_room(map, top_left_x, top_left_y, room_size)
 end
 
 -- Attempts to place num_room_attemts number of rooms at random sizes, rooms are always placed at odd cordinates
-local function add_rooms(map, num_room_attempts, min_room_size, max_room_size)
+local function add_rooms(map, num_room_attempts, min_room_size, max_room_size) -- luacheck: ignore 431
     -- room_size must be odd
-    for attempt = 1, num_room_attempts do
+    for _ = 1, num_room_attempts do
         -- Generates a random odd number between min_room_size and max_room_size (inclusive both)
         local room_size = min_room_size + random(0, (max_room_size - min_room_size) / 2) * 2
         -- Generates a random odd top_left corner cordinate which would fit the room within the map
@@ -218,7 +181,7 @@ local function add_spawn_room(map)
 end
 
 -- Connects all different regions by making random walls between different regions into ground
-local function connect_regions(map, extra_connection_attempts)
+local function connect_regions(map, extra_connection_attempts) -- luacheck: ignore 431
     -- Returns false if the pos is not a connector (wall with 2 different regions next to it)
     -- Returns a table with the two neigbours if it is a connector
     local function check_connector(x, y)
@@ -286,7 +249,6 @@ local function connect_regions(map, extra_connection_attempts)
         local possible_connectors = {}
         for _, connector in ipairs(connectors) do
             local neighbours = connector.neighbours
-            local pos = connector.pos
             if is_connected(neighbours[1]) and not is_connected(neighbours[2]) then
                 possible_connectors[#possible_connectors + 1] = connector
             end
@@ -333,21 +295,6 @@ end
 
 -- Goes through the map and finds dead ends (tiles with 3 walls around them) and fills them in
 -- does this recursivly until every tile has at least 2 ground neighbours
-local function remove_all_dead_ends(map)
-    local function fill_dead_end(x, y)
-        local neighbours_with_ground = get_neighbours_with_ground(map, x, y)
-        if #neighbours_with_ground == 1 then
-            map[y][x] = false
-            local neighbour = neighbours_with_ground[1]
-            fill_dead_end(neighbour.x, neighbour.y)
-        end
-    end
-    for y = 1, #map do
-        for x = 1, #map[y] do
-            fill_dead_end(x, y)
-        end
-    end
-end
 
 local function add_ores_at_dead_ends(map)
     for y = 1, #map do
@@ -377,7 +324,6 @@ local function create_map()
     map[1][maze_width] = true
     map[maze_height][1] = true
     add_ores_at_dead_ends(map)
-    --remove_all_dead_ends(map)
 end
 
 -- Takes a filter_function(tile)->boolean
@@ -397,6 +343,38 @@ end
 
 --[[
     Uncomment below to run this file separatly and print result
+local function print_map(map)
+    local s = ''
+    for i = 1, #map[1] + 2 do
+        s = s .. '+'
+    end
+    print(s)
+    s = ''
+    for y = 1, #map do
+        s = s .. '+'
+        for x = 1, #(map[y]) do
+            if map[y][x] == true then
+                s = s .. ' '
+            elseif map[y][x] == false then
+                --s = s .. '■'
+                s = s .. 'X'
+            elseif not tonumber(map[y][x]) then
+                --s = s .. ' '
+                s = s .. map[y][x]
+            else
+                --s = s .. map[y][x]
+                s = s .. ' '
+            end
+        end
+        s = s .. '+'
+        print(s)
+        s = ''
+    end
+    for i = 1, #map[1] + 2 do
+        s = s .. '+'
+    end
+    print(s)
+end
 random = math.random
 create_map()
 print_map(map)
@@ -481,7 +459,7 @@ local start_coal_patch =
 )
 
 local start_resources = b.any({start_iron_patch, start_copper_patch, start_stone_patch, start_coal_patch})
-local factorio_map = b.apply_entity(factorio_map, start_resources)
+factorio_map = b.apply_entity(factorio_map, start_resources)
 
 -- Scale the map using the tile_scale variable
 factorio_map = b.scale(factorio_map, tile_scale, tile_scale)
