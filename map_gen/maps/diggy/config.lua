@@ -171,15 +171,35 @@ local Config = {
         -- automatically opens areas
         simple_room_generator = {
             enabled = true,
-            -- value between 0 and 1, higher value means stronger variance between coordinates
-            noise_variance = 0.066,
+
+            --distance in tiles that the room noise pattern changes to enable large room (cave) generation
+            --if large caves are not desired, this number can be set to a large distance, i.e. 100000
+            large_room_minimum_distance = 128,
+
+            noise_settings = {
+                -- higher numbers for variance actually have less variance  i.e. larger room features.
+                -- Similar system used ores in scattered_resources.lua.  Here we are using two noise patterns for rooms (caves)
+                -- starting_sources is noise pattern used near spawn to generate small rooms similar to traditional Diggy
+                -- distant_sources is noise pattern used after large_room_minimum_distance to sometimes generate large caves
+                starting_sources = {
+                    {variance = 60, weight = 0, offset = 000, type = "perlin"},
+                    {variance = 20, weight = 1, offset = 150, type = "perlin"},
+                    {variance = 8, weight = 0.2, offset = 300, type = "perlin"}
+                },
+                distant_sources = {
+                    {variance = 60, weight = 1, offset = 000, type = "perlin"},
+                    {variance = 20, weight = 0.3, offset = 150, type = "perlin"},
+                    {variance = 8, weight = 0.1, offset = 300, type = "perlin"}
+                }
+            },
             -- shows where rooms are located
             display_room_locations = false,
             -- minimum distance and noise range required for water to spawn
             room_noise_minimum_distance = 9,
             room_noise_ranges = {
-                {name = 'water', min = 0.54, max = 1},
-                {name = 'dirt', min = 0.37, max = 0.54}
+                {name = 'deep', min = 0.6, max = 3},
+                {name = 'water', min = 0.56, max = 0.6},
+                {name = 'dirt', min = 0.34, max = 0.56}
             }
         },
         -- responsible for resource spawning
