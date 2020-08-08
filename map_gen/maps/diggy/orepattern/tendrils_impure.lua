@@ -40,9 +40,9 @@ return {
             }
         },
         weights = {
-            ['iron-ore']    = 860,
-            ['coal']        = 85,
-            ['stone']       = 55,
+            ['iron-ore']    = 900,
+            ['coal']        = 61,
+            ['stone']       = 39,
         },
         distances = {
             ['coal']        = 16,
@@ -51,9 +51,10 @@ return {
         },
     },
     { -- tendril medium large impure copper
-        yield=0.92,
+      -- 07/09/2000 start with a little less yeild near origin but grow in richness faster with distance
+        yield=0.85,
         min_distance=25,
-        distance_richness=9,
+        distance_richness=6,
         color={r=255/255, g=55/255, b=0/255},
         noise_settings = {
             type = "connected_tendril",
@@ -66,9 +67,9 @@ return {
             }
         },
         weights = {
-            ['copper-ore']  = 860,
-            ['coal']        = 85,
-            ['stone']       = 55,
+            ['copper-ore']  = 900,
+            ['coal']        = 61,
+            ['stone']       = 39,
         },
         distances = {
             ['coal']        = 16,
@@ -77,9 +78,9 @@ return {
         },
     },
     { -- tendril medium impure coal
-        yield=0.5,
+        yield=0.55,
         min_distance=25,
-        distance_richness=9,
+        distance_richness=11,
         color={r=0/255, g=0/255, b=0/255},
         noise_settings = {
             type = "connected_tendril",
@@ -103,9 +104,9 @@ return {
         },
     },
     { -- tendril medium impure stone
-        yield=0.35,
+        yield=0.38,
         min_distance=25,
-        distance_richness=9,
+        distance_richness=11,
         color={r=100/255, g=100/255, b=100/255},
         noise_settings = {
             type = "connected_tendril",
@@ -130,8 +131,8 @@ return {
     },
     { -- tendril small uranium
         yield=0.2,
-        min_distance=86,
-        distance_richness=9,
+        min_distance=128,
+        distance_richness=12,
         color={r=0/255, g=0/255, b=0/255},
         noise_settings = {
             type = "connected_tendril",
@@ -151,9 +152,9 @@ return {
         },
     },
     { -- scattered tendril fragments
-        yield=0.2,
+        yield=0.22,
         min_distance=10,
-        distance_richness=7,
+        distance_richness=12,
         color={r=0/255, g=0/255, b=0/255},
         noise_settings = {
             type = "fragmented_tendril",
@@ -186,7 +187,7 @@ return {
         },
     },
     { -- crude oil
-        yield=1.7,
+        yield=1.2,
         min_distance=57,
         distance_richness=9,
         color={r=0/255, g=255/255, b=255/255},

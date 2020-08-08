@@ -143,8 +143,10 @@ local on_died =
                 local spawned = create_entity({name = hydra_spawn, force = force, position = position})
                 if spawned and spawned.type == 'unit' then
                     spawned.set_command(command)
-                elseif spawned and cause and cause.valid and cause.force then
-                    spawned.shooting_target = cause
+                elseif spawned and cause and cause.valid and cause.force and cause.force.valid then
+                    if cause.name ~= 'tank' then
+                        spawned.shooting_target = cause
+                    end
                 end
             end
         end

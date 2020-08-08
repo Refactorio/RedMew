@@ -117,7 +117,14 @@ local function create_collapse_template(positions, surface)
                     if strength then
                         do_insert = false
                     else
-                        entity.die()
+                        if entity.name ~= 'tank' then
+                            entity.die()
+                        else
+                            entity.health = entity.health - 100
+                            if entity.health == 0 then
+                                entity.die()
+                            end
+                        end
                     end
                 end
             )
@@ -288,7 +295,7 @@ local function script_raised_destroy(event)
     local name = entity.name
     local strength = support_beam_entities[name]
     if strength then
-        stress_map_add(entity.surface, entity.position, strength, false, player_index)
+        stress_map_add(entity.surface, entity.position, strength, false)
     end
 end
 

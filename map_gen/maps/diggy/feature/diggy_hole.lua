@@ -166,7 +166,7 @@ Command.add('diggy-clear-void', {
         end
     end
 
-    Template.insert(game.surfaces[arguments.surface_index], tiles, {})
+    Template.insert(game.surfaces[tonumber(arguments.surface_index)], tiles, {})
 end)
 
 --[[--
@@ -209,17 +209,19 @@ function DiggyHole.register(cfg)
         local entity = event.entity
         local name = entity.name
 
-        if entity.health ~= 0 then
-            return
-        end
-
         if not is_diggy_rock(name) then
             return
         end
 
-        raise_event(defines.events.script_raised_destroy, {entity = entity, cause = "die_faster"})
-        destroy_rock(entity.surface.create_particle, 10, entity.position)
-        entity.destroy()
+        local cause = event.cause
+        local health = entity.health
+
+        -- Diggy rock is destroyed if health is zero or less than 1500 when damaged by a tank (tank buff)
+        if health == 0 or (cause and cause.name == "tank" and health < 1500 and event.damage_type.valid and event.damage_type.name ~= 'fire') then
+            raise_event(defines.events.script_raised_destroy, {entity = entity, cause = "die_faster"})
+            destroy_rock(entity.surface.create_particle, 10, entity.position)
+            entity.destroy()
+        end
     end)
 
     Event.add(defines.events.on_robot_mined_entity, function (event)
