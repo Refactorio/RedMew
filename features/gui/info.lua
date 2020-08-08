@@ -223,7 +223,7 @@ local pages = {
             discord_textbox_flow_style.horizontally_stretchable = true
             discord_textbox_flow.add({type = 'label', caption = 'Discord: '}).style.font = 'default-bold'
             local discord_textbox =
-                discord_textbox_flow.add {type = 'text-box', text = 'https://www.redmew.com/discord '}
+                discord_textbox_flow.add {type = 'text-box', text = 'https://redmew.com/discord '}
             discord_textbox.read_only = true
             discord_textbox.style.width = 235
             discord_textbox.style.height = 28
@@ -243,7 +243,7 @@ local pages = {
             save_textbox_flow_style.horizontal_align = 'center'
             save_textbox_flow_style.horizontally_stretchable = true
             save_textbox_flow.add({type = 'label', caption = 'Saves: '}).style.font = 'default-bold'
-            local save_textbox = save_textbox_flow.add {type = 'text-box', text = 'http://www.redmew.com/saves/ '}
+            local save_textbox = save_textbox_flow.add {type = 'text-box', text = 'http://redmew.com/saves/ '}
             save_textbox.read_only = true
             save_textbox.style.width = 235
             save_textbox.style.height = 28
