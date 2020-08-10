@@ -147,6 +147,12 @@ local function on_mined_tile(surface, tiles)
 
     Template.insert(surface, new_tiles, {})
 end
+
+--[[--
+    diggy-clear-void is a debugging command that can be used in game to clear void area.  Arguments: left_top_x left_top_y width height surface_index
+    Example:  /diggy-clear-void -50 -50 100 100 redmew    This will clear a square area 100 x 100 centered on the spawn point.
+    Note: The command will not automatically generate new chunks.
+]]
 Command.add('diggy-clear-void', {
     description = {'command_description.diggy_clear_void'},
     arguments = {'left_top_x', 'left_top_y', 'width', 'height', 'surface_index'},
@@ -166,7 +172,7 @@ Command.add('diggy-clear-void', {
         end
     end
 
-    Template.insert(game.surfaces[tonumber(arguments.surface_index)], tiles, {})
+    Template.insert(game.surfaces[arguments.surface_index], tiles, {})
 end)
 
 --[[--
