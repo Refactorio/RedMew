@@ -149,7 +149,7 @@ local on_died =
             end
         end
     end
-    )
+)
 
 local function register_event()
     if not primitives.enabled then
