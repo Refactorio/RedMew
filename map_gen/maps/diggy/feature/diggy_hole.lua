@@ -147,6 +147,12 @@ local function on_mined_tile(surface, tiles)
 
     Template.insert(surface, new_tiles, {})
 end
+
+--[[--
+    diggy-clear-void is a debugging command that can be used in game to clear void area.  Arguments: left_top_x left_top_y width height surface_index
+    Example:  /diggy-clear-void -50 -50 100 100 redmew    This will clear a square area 100 x 100 centered on the spawn point.
+    Note: The command will not automatically generate new chunks.
+]]
 Command.add('diggy-clear-void', {
     description = {'command_description.diggy_clear_void'},
     arguments = {'left_top_x', 'left_top_y', 'width', 'height', 'surface_index'},
@@ -209,17 +215,19 @@ function DiggyHole.register(cfg)
         local entity = event.entity
         local name = entity.name
 
-        if entity.health ~= 0 then
-            return
-        end
-
         if not is_diggy_rock(name) then
             return
         end
 
-        raise_event(defines.events.script_raised_destroy, {entity = entity, cause = "die_faster"})
-        destroy_rock(entity.surface.create_particle, 10, entity.position)
-        entity.destroy()
+        local cause = event.cause
+        local health = entity.health
+
+        -- Diggy rock is destroyed if health is zero or less than 1500 when damaged by a tank (tank buff)
+        if health == 0 or (cause and cause.name == "tank" and health < 1500 and event.damage_type.valid and event.damage_type.name ~= 'fire') then
+            raise_event(defines.events.script_raised_destroy, {entity = entity, cause = "die_faster"})
+            destroy_rock(entity.surface.create_particle, 10, entity.position)
+            entity.destroy()
+        end
     end)
 
     Event.add(defines.events.on_robot_mined_entity, function (event)

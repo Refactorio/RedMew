@@ -83,6 +83,7 @@ local Config = {
             collapse_threshold_total_strength = 16,
             support_beam_entities = {
                 ['market'] = 9,
+                ['nuclear-reactor'] = 4,
                 ['stone-wall'] = 3,
                 ['sand-rock-big'] = 2,
                 ['rock-big'] = 2,

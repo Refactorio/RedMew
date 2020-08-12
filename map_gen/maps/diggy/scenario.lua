@@ -73,9 +73,6 @@ function Scenario.register()
         end
     )
 
-    local landfill_tiles = {'dirt-1','dirt-2','dirt-3','dirt-4','dirt-5','dirt-6','dirt-7'}
-    require ('map_gen.shared.change_landfill_tile')(landfill_tiles)
-
     ScenarioInfo.set_map_name('Diggy')
     ScenarioInfo.set_map_description('Dig your way through!')
 
