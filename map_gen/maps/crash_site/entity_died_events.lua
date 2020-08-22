@@ -290,7 +290,8 @@ local bot_spawn_whitelist = {
 local bot_cause_whitelist = {
     ['character'] = true,
     ['artillery-turret'] = true,
-    ['artillery-wagon'] = true
+    ['artillery-wagon'] = true,
+    ['spidertron'] = true
 }
 
 local function do_bot_spawn(entity_name, entity, event)
