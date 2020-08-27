@@ -6,18 +6,18 @@ local pic = require "map_gen.data.presets.venice"
 ScenarioInfo.set_map_name('Venice')
 ScenarioInfo.set_map_description(
     [[
-A terrain full of beautiful water channels and numerous bridges 
+A terrain full of beautiful water channels and numerous bridges
 poses a nice logistical puzzle when planning a good rail network.
 ]]
 )
 ScenarioInfo.add_map_extra_info(
     [[
-Pollution spreads faster over water and slows down considerably in forests. 
-Will you take advantage of the effect of the forests when it comes to expanding, 
-or do you prefer to go hunting for the most mineral-rich mines, devastating 
+Pollution spreads faster over water and slows down considerably in forests.
+Will you take advantage of the effect of the forests when it comes to expanding,
+or do you prefer to go hunting for the most mineral-rich mines, devastating
 any enemy you find in your path?
-Will you use the larger bridges to get your trains into the central area 
-or do you prefer to leave the train stations on the outskirts and use 
+Will you use the larger bridges to get your trains into the central area
+or do you prefer to leave the train stations on the outskirts and use
 conveyor belts and/or robots for the journey inside?
 ]]
 )
