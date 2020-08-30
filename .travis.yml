@@ -1,19 +1,11 @@
 language: python
-sudo: false
-env:
-  matrix:
-    - LUA="lua=5.2"
+os: linux
+dist: xenial
 branches:
   only:
     - develop
-before_install:
-  - pip install hererocks
-  - hererocks ~/build/lua_install -r^ --$LUA
-  - export PATH=$PATH:~/build/lua_install/bin
-install:
-  - luarocks install luacheck
-script:
-  - "if [[ $TRAVIS_EVENT_TYPE != 'cron' && $TRAVIS_EVENT_TYPE != 'api' ]]; then luacheck .; fi"
+install: skip
+script: skip
 before_deploy:
   - ./.travis/check_locale.sh
   - git config --local user.name "$github_user_name"
@@ -22,19 +14,18 @@ before_deploy:
   - export DATE_FORMATTED
   - COMMIT_SHA=$(git log --format=%h -1)
   - export COMMIT_SHA
-  - TRAVIS_TAG="monthly/"$DATE_FORMATTED-$COMMIT_SHA
+  - TRAVIS_TAG="release/"$DATE_FORMATTED-$COMMIT_SHA
   - export TRAVIS_TAG
   - git tag "$TRAVIS_TAG"
-  - RELEASE_NAME='Monthly release - '"$DATE_FORMATTED"' - '"$COMMIT_SHA"
+  - RELEASE_NAME='Release - '"$DATE_FORMATTED"' - '"$COMMIT_SHA"
   - export RELEASE_NAME
   - ./.travis/release_builder.sh
 deploy:
   on:
-    condition: $TRAVIS_EVENT_TYPE = cron || $TRAVIS_EVENT_TYPE = api
     repo: Refactorio/RedMew
     branch: develop
   provider: releases
-  api_key:
+  token:
     secure: SZsTjOLenetur34FEDCOrOw1jCI0xoZ0KyCrsrBpieQ0+P0hlVgRjEhyg74IiKC5cX5+HS329jUiIs7dUts2mGF09gCdYTPtKtkjmbhZK61DkMSplUIUDJDv5lCsR9BQTSX0x38+olkCTZAgFnU6T449auwd4Htsw6NOKI1V0h33K5YX4QJeMwnFQUorQ5lIl9+aEz/PVKHV0Glqnfp52O/Tn2nqfZxBI48UXRkJJIJLfVi74gPpD0HjspSYoCig3u6j9Rq2HcML+/geyJeM0aL6vZUsZhADIBT2x2MSZtN5KGRby+HEGnyj1u8Bp7BNpbioXtVZ3e57hrqTIbNzMx/8p4rqip9lm7ClP6uPTlgMfHKsnFYKOWiyuMGeFtJxcb/3KzMt4wXxZQQAkoJ4BnsYcm0G7H3EkAMbIF0piOwp2Fn8MCrmUSJcb+dOEe2ixe8p00vi9ffnvBr4Qz+nyqQU6D1aq3DNafmQn2eshuqrhB6+s86uj/3F9fFaPD+GhjL9t7zGgkX/RuLDPxdM7Xo7lc6yUhrFGA2yrkROqPq4M7bCmMcegRyvl27mGsh1R6FTwAEShHa7CU5/8bnnSxsp1YIdHoMWhCBEeFrm3lz6w+gly+iAxjkc0lzREjf/nYmjWSqB1TXUMbssg/G0czCgmTYlq9G7QhhPaWd0D2I=
   file:
     - RedMew.zip
@@ -48,6 +39,5 @@ deploy:
     - Hub_Spiral.zip
     - Bacon_Islands.zip
     - Triangle_of_Death.zip
-  skip_cleanup: true
-  prerelease: true
+  prerelease: false
   name: "$RELEASE_NAME"
