@@ -76,6 +76,9 @@ exclude_files = {
     '**/combat-tester/',
     '**/test-maker/',
     '**/trailer/',
+    
+    --Ignore map luas
+    '**/map_gen/data/presets/',
 }
 
 -------------------------------------------------------------------------------
