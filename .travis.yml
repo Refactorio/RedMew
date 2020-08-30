@@ -39,5 +39,5 @@ deploy:
     - Hub_Spiral.zip
     - Bacon_Islands.zip
     - Triangle_of_Death.zip
-  prerelease: true
+  prerelease: false
   name: "$RELEASE_NAME"
