@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Refactorio/RedMew.svg?branch=develop)](https://travis-ci.org/Refactorio/RedMew)
+[![Build Status](https://travis-ci.com/Refactorio/RedMew.svg?branch=develop)](https://travis-ci.org/Refactorio/RedMew)
 [![Discord](https://img.shields.io/discord/432567222481846283.svg)](https://redmew.com/discord)
 [![Downloads](https://img.shields.io/github/downloads/Refactorio/RedMew/total.svg)](https://github.com/Refactorio/RedMew/releases)
 [![License](https://img.shields.io/github/license/Refactorio/Redmew.svg)](LICENSE)
