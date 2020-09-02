@@ -114,7 +114,12 @@ local function player_mined_item(event)
 end
 
 local function player_crafted_item(event)
-    change_for_player(event.player_index, player_items_crafted_name, event.item_stack.count)
+    local item_stack = event.item_stack
+    if not item_stack or not item_stack.valid_for_read then
+        return
+    end
+
+    change_for_player(event.player_index, player_items_crafted_name, item_stack.count)
 end
 
 local function player_console_chat(event)
