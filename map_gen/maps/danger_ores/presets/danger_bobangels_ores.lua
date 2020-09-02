@@ -128,6 +128,9 @@ rocket_launched(
     shared_globals
 )
 
+local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
+container_dump({entity_name = 'coal'})
+
 local config = {
     spawn_shape = b.circle(80),
     start_ore_shape = b.circle(86),
