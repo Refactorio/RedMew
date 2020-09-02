@@ -4,6 +4,7 @@ local Perlin = require 'map_gen.shared.perlin_noise'
 local table = require 'utils.table'
 local math = require 'utils.math'
 local seed_provider = require 'map_gen.maps.danger_ores.modules.seed_provider'
+local RS = require 'map_gen.shared.redmew_surface'
 
 local binary_search = table.binary_search
 local perlin_noise = Perlin.noise
@@ -85,7 +86,7 @@ return function(config, shared_globals)
     Global.register_init(
         {},
         function(tbl)
-            tbl.seed = seed_provider()
+            tbl.seed = RS.get_surface().map_gen_settings.seed
             tbl.random = game.create_random_generator(tbl.seed)
         end,
         function(tbl)
