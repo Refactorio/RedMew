@@ -102,6 +102,8 @@ Event.on_init(
         game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
         game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
         game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
+
+        RS.get_surface().always_day = true
     end
 )
 
