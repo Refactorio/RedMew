@@ -102,7 +102,7 @@ local function spawn_market(args, player)
         player.print('Market added. To remove it, highlight it with your cursor and use the /destroy command, or use /market removeall to remove all markets placed.')
     end
 
-    local market = surface.create_entity({name = 'market', position = maket_spawn_pos})
+    local market = surface.create_entity({name = 'market', position = maket_spawn_pos, force = 'neutral'})
     markets[#markets + 1] = market
     market.destructible = false
 
