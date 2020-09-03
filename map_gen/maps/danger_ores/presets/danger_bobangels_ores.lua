@@ -58,11 +58,11 @@ local ores_names = {
     'angels-ore4', -- Crotinium
     'angels-ore5', -- rubyte
     'angels-ore6', -- bobmonium
-      'angels-fissure',
-      'angels-natural-gas', -- gas well
-      'coal',
-      'crude-oil'
-  }
+    'angels-fissure',
+    'angels-natural-gas', -- gas well
+    'coal',
+    'crude-oil'
+}
 local ore_oil_none = {}
 for _, v in pairs(ores_names) do
     ore_oil_none[v] = {
@@ -84,7 +84,8 @@ RS.set_map_gen_settings(
         MGSP.starting_area_very_low,
         ore_oil_none,
         MGSP.enemy_none,
-        MGSP.cliff_none
+        MGSP.cliff_none,
+        MGSP.tree_none
     }
 )
 
@@ -145,8 +146,8 @@ local config = {
     no_water_shape = b.circle(102),
     trees = trees,
     trees_scale = 1 / 64,
-    trees_threshold = -0.25,
-    trees_chance = 0.125,
+    trees_threshold = 0.4,
+    trees_chance = 0.875,
     enemy = enemy,
     enemy_factor = 10 / (768 * 32),
     enemy_max_chance = 1 / 6,
