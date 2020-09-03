@@ -58,6 +58,9 @@ Event.on_init(
     end
 )
 
+local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
+container_dump({entity_name = 'coal'})
+
 local config = {
     spawn_shape = b.circle(64),
     start_ore_shape = b.circle(68),

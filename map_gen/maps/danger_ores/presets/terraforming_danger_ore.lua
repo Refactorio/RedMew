@@ -52,6 +52,9 @@ ScenarioInfo.set_new_info(
 
 2019-03-27:
  - Ore arranged into quadrants to allow for more controlled resource gathering.
+
+2020-09-02
+ - Destroyed chests dump their content as coal ore.
 ]]
 )
 
@@ -128,6 +131,9 @@ rocket_launched(
     },
     shared_globals
 )
+
+local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
+container_dump({entity_name = 'coal'})
 
 local config = {
     spawn_shape = b.circle(64),
