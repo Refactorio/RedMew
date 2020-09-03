@@ -33,7 +33,7 @@ return function(config)
 
     return function(x, y)
         local tree_noise = perlin_noise(x * scale, y * scale, seed)
-        if tree_noise > threshold or random() > chance then
+        if tree_noise < threshold or random() < chance then
             return nil
         end
 
