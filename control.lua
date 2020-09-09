@@ -40,6 +40,9 @@ end
 if config.infinite_storage_chest.enabled then
     require 'features.infinite_storage_chest'
 end
+if config.landfill_remover.enabled then
+    require 'features.landfill_remover'
+end
 if config.autodeconstruct.enabled then
     require 'features.autodeconstruct'
 end

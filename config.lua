@@ -58,6 +58,12 @@ global.config = {
         enabled = false,
         cost = 100
     },
+    -- Allows removing landfill using the deconstruction planner.
+    landfill_remover = {
+        enabled = true,
+        -- The tile that is used to replace landfill when it is removed.
+        revert_tile = 'water-mud'
+    },
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
         enabled = true
