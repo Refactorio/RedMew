@@ -138,7 +138,12 @@ local function robot_built_entity()
 end
 
 local function biter_kill_counter(event)
-    if event.entity.force.name == 'enemy' then
+    local entity = event.entity
+    if not entity or not entity.valid then
+        return
+    end
+
+    if entity.force.name == 'enemy' then
         change_for_global(aliens_killed_name, 1)
     end
 end

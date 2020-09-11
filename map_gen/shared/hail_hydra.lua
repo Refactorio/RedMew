@@ -71,6 +71,10 @@ local on_died =
     Token.register(
     function(event)
         local entity = event.entity
+        if not entity or not entity.valid then
+            return
+        end
+
         local name = entity.name
 
         local hydra = spawn_table[name]
