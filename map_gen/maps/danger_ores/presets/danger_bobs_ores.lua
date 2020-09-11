@@ -2,7 +2,6 @@ local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
-local Token = require 'utils.token'
 
 local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Terraforming Danger Ore')
@@ -34,10 +33,6 @@ focus mining efforts on specific quadrants to ensure
 proper material ratios, expand the map with pollution!
 ]]
 )
-
-local shared_globals = {}
-Token.register_global(shared_globals)
-_G.danger_ore_shared_globals = shared_globals
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.bob_ores'
@@ -136,8 +131,7 @@ rocket_launched(
         enemy_factor = 5,
         max_enemies_per_wave_per_chunk = 60,
         extra_rockets = 100
-    },
-    shared_globals
+    }
 )
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
@@ -170,4 +164,4 @@ local config = {
     dense_patches_multiplier = 50
 }
 
-return map(config, shared_globals)
+return map(config)

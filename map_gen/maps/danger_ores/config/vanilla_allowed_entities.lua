@@ -14,5 +14,11 @@ return {
     'pumpjack',
     'car',
     'tank',
-    'spidertron'
+    'spidertron',
+    'straight-rail',
+    'curved-rail',
+    'locomotive',
+    'cargo-wagon',
+    'fluid-wagon',
+    'artillery-wagon'
 }

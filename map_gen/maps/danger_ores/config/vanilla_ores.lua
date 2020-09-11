@@ -31,8 +31,8 @@ return {
         ['start'] = value(75, 0),
         ['weight'] = 1,
         ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 25},
+            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 15},
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 3},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 57}
         }
@@ -62,8 +62,8 @@ return {
         ['start'] = value(75, 0),
         ['weight'] = 1,
         ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 20},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 20},
+            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.5)), weight = 25},
+            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.5)), weight = 15},
             {resource = b.resource(b.full_shape, 'stone', value(0, 0.5)), weight = 50},
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.5)), weight = 10}
         }
