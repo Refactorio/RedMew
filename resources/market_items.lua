@@ -76,5 +76,6 @@ return {
     {price = 25,   name = 'construction-robot'},
     {price = 350,  name = 'energy-shield-equipment'},
     {price = 750,  name = 'personal-laser-defense-equipment'},
+    {price = 1,    name = 'refined-concrete'},
     {price = 1,    name = 'refined-hazard-concrete'},
 }

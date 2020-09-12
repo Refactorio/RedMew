@@ -94,7 +94,7 @@ local function toggle_main_frame(event)
             Gui.set_data(button, name)
         end
 
-        frame.add {type = 'button', name = main_button_name, caption = 'Close'}
+        frame.add {type = 'button', name = main_button_name, caption = {'common.close_button'}}
 
         local data = {
             enabled_checkbox = enabled_checkbox,

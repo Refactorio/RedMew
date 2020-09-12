@@ -106,7 +106,10 @@ global.config = {
     },
     -- adds a paint brush
     paint = {
-        enabled = true
+        enabled = true,
+        -- Sometimes the hidden tile information is lost, the fallback tile will be used when removing those tiles.
+        fallback_hidden_tile = 'dirt-6',
+        prevent_on_landfill = true
     },
     -- autofill turrets with ammo
     autofill = {
