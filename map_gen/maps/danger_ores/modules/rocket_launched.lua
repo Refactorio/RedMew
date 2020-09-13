@@ -7,8 +7,9 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Server = require 'features.server'
+local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 
-return function(config, shared_globals)
+return function(config)
     local recent_chunks = Queue.new() -- Keeps track of recently revealed chunks
     local recent_chunks_max = config.recent_chunks_max or 10 -- Maximum number of chunks to track
     local ticks_between_waves = config.ticks_between_waves or 60 * 30
@@ -20,8 +21,7 @@ return function(config, shared_globals)
         extra_rockets = config.extra_rockets or 100
     }
 
-    shared_globals.biters_disabled = false
-
+    ShareGlobals.data.biters_disabled = false
     _G.rocket_launched_win_data = win_data
 
     Global.register(
@@ -72,7 +72,7 @@ return function(config, shared_globals)
     do_wave =
         Token.register(
         function(data)
-            if shared_globals.biters_disabled then
+            if ShareGlobals.data.biters_disabled then
                 return false
             end
 
@@ -177,7 +177,7 @@ return function(config, shared_globals)
             return
         end
 
-        if shared_globals.biters_disabled then
+        if ShareGlobals.data.biters_disabled then
             return
         end
 
@@ -219,9 +219,10 @@ return function(config, shared_globals)
         game.print(win_message)
         Server.to_discord_bold(win_message)
 
-        shared_globals.biters_disabled = true
+        ShareGlobals.data.biters_disabled = true
 
-        for key, enemy_entity in pairs(RS.get_surface().find_entities_filtered({force = 'enemy'})) do
+        game.forces.enemy.kill_all_units()
+        for _, enemy_entity in pairs(RS.get_surface().find_entities_filtered({force = 'enemy'})) do
             enemy_entity.destroy()
         end
     end

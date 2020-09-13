@@ -2,7 +2,6 @@ local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
-local Token = require 'utils.token'
 
 local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Danger Ores')
@@ -18,10 +17,6 @@ ScenarioInfo.add_map_extra_info(
  [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank]
  [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] ]]
 )
-
-local shared_globals = {}
-Token.register_global(shared_globals)
-_G.danger_ore_shared_globals = shared_globals
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ores'
@@ -48,7 +43,7 @@ Event.on_init(
         game.forces.player.technologies['mining-productivity-3'].enabled = false
         game.forces.player.technologies['mining-productivity-4'].enabled = false
 
-        game.difficulty_settings.technology_price_multiplier = 20
+        game.difficulty_settings.technology_price_multiplier = 25
         game.forces.player.technologies.logistics.researched = true
         game.forces.player.technologies.automation.researched = true
 
@@ -66,6 +61,7 @@ local config = {
     start_ore_shape = b.circle(68),
     main_ores = main_ores_config,
     --main_ores_shuffle_order = true,
+    --main_ores_rotate = 45,
     resource_patches = resource_patches,
     resource_patches_config = resource_patches_config,
     dense_patches = dense_patches,
@@ -74,4 +70,4 @@ local config = {
     dense_patches_multiplier = 50
 }
 
-return map(config, shared_globals)
+return map(config)

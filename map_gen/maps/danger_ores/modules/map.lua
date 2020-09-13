@@ -47,7 +47,7 @@ local function empty_builder()
     return b.empty_shape
 end
 
-return function(config, shared_globals)
+return function(config)
     local start_ore_shape
     local resource_patches
     local dense_patches
@@ -94,9 +94,10 @@ return function(config, shared_globals)
             local water_shape = (config.water or empty_builder)(config)
             local tile_builder = tile_builder_factory(config)
             local trees_shape = (config.trees or no_op)(config)
-            local enemy_shape = (config.enemy or no_op)(config, shared_globals)
+            local enemy_shape = (config.enemy or no_op)(config)
             local fish_spawn_rate = config.fish_spawn_rate
             local main_ores = config.main_ores
+            local main_ores_rotate = config.main_ores_rotate or 0
 
             start_ore_shape = config.start_ore_shape or b.circle(68)
             resource_patches = (config.resource_patches or no_op)(config) or b.empty_shape
@@ -125,6 +126,10 @@ return function(config, shared_globals)
             end
 
             local ores = b.segment_weighted_pattern(shapes)
+
+            if main_ores_rotate ~= 0 then
+                ores = b.rotate(ores, math.rad(main_ores_rotate))
+            end
 
             map = b.any {spawn_shape, water_shape, ores}
 

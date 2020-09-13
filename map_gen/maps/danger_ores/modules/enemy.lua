@@ -1,4 +1,5 @@
 local Perlin = require 'map_gen.shared.perlin_noise'
+local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 local math = require 'utils.math'
 local seed_provider = require 'map_gen.maps.danger_ores.modules.seed_provider'
 
@@ -9,7 +10,7 @@ local ceil = math.ceil
 local perlin_noise = Perlin.noise
 local random = math.random
 
-return function(config, shared_globals)
+return function(config)
     local worm_names =
         config.worm_names or {'small-worm-turret', 'medium-worm-turret', 'big-worm-turret', 'behemoth-worm-turret'}
     local spawner_names = config.spawner_names or {'biter-spawner', 'spitter-spawner'}
@@ -22,7 +23,7 @@ return function(config, shared_globals)
     local m = 1 / 850
 
     return function(x, y, world)
-        if shared_globals.biters_disabled then
+        if ShareGlobals.data.biters_disabled then
             return nil
         end
 

@@ -2,7 +2,6 @@ local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
-local Token = require 'utils.token'
 
 local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Terraforming Danger Ore')
@@ -16,11 +15,11 @@ proper material ratios, expand the map with pollution!
 ScenarioInfo.add_map_extra_info(
     [[
 This map is split in four quadrants. Each quadrant has a main resource.
- [item=iron-ore] north east, [item=copper-ore] south west, [item=coal] north west, [item=stone] south east
+ [item=iron-ore] north, [item=copper-ore] south, [item=coal] east, [item=stone] west
 
 You may not build the factory on ore patches. Exceptions:
- [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank]
- [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt]
+ [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron]
+ [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail]
 
 The map size is restricted to the pollution generated. A significant amount of
 pollution must affect a section of the map before it is revealed. Pollution
@@ -57,10 +56,6 @@ ScenarioInfo.set_new_info(
  - Destroyed chests dump their content as coal ore.
 ]]
 )
-
-local shared_globals = {}
-Token.register_global(shared_globals)
-_G.danger_ore_shared_globals = shared_globals
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ores'
@@ -99,7 +94,7 @@ Event.on_init(
         game.forces.player.technologies['mining-productivity-3'].enabled = false
         game.forces.player.technologies['mining-productivity-4'].enabled = false
 
-        game.difficulty_settings.technology_price_multiplier = 20
+        game.difficulty_settings.technology_price_multiplier = 25
         game.forces.player.technologies.logistics.researched = true
         game.forces.player.technologies.automation.researched = true
 
@@ -116,7 +111,7 @@ terraforming(
     {
         start_size = 8 * 32,
         min_pollution = 400,
-        max_pollution = 3500,
+        max_pollution = 4000,
         pollution_increment = 2.5
     }
 )
@@ -126,11 +121,10 @@ rocket_launched(
     {
         recent_chunks_max = 10,
         ticks_between_waves = 60 * 30,
-        enemy_factor = 2,
-        max_enemies_per_wave_per_chunk = 60,
+        enemy_factor = 3,
+        max_enemies_per_wave_per_chunk = 80,
         extra_rockets = 100
-    },
-    shared_globals
+    }
 )
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
@@ -141,6 +135,7 @@ local config = {
     start_ore_shape = b.circle(68),
     main_ores = main_ores_config,
     --main_ores_shuffle_order = true,
+    main_ores_rotate = 45,
     resource_patches = resource_patches,
     resource_patches_config = resource_patches_config,
     water = water,
@@ -158,8 +153,8 @@ local config = {
     fish_spawn_rate = 0.025,
     dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
-    dense_patches_threshold = 0.5,
+    dense_patches_threshold = 0.55,
     dense_patches_multiplier = 50
 }
 
-return map(config, shared_globals)
+return map(config)

@@ -7,7 +7,7 @@ return {
     {
         scale = 1 / 64,
         threshold = 0.6,
-        resource = b.resource(oil_shape, 'crude-oil', value(250000, 150))
+        resource = b.resource(oil_shape, 'crude-oil', value(375000, 225))
     },
     {
         scale = 1 / 72,
