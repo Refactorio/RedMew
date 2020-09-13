@@ -6,6 +6,8 @@ local math = require 'utils.math'
 local seed_provider = require 'map_gen.maps.danger_ores.modules.seed_provider'
 local RS = require 'map_gen.shared.redmew_surface'
 
+local deafult_main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores'
+
 local binary_search = table.binary_search
 local perlin_noise = Perlin.noise
 local floor = math.floor
@@ -96,42 +98,15 @@ return function(config)
             local trees_shape = (config.trees or no_op)(config)
             local enemy_shape = (config.enemy or no_op)(config)
             local fish_spawn_rate = config.fish_spawn_rate
-            local main_ores = config.main_ores
-            local main_ores_rotate = config.main_ores_rotate or 0
+            local main_ores_builder = (config.main_ores_builder or deafult_main_ores_builder)(config)
 
             start_ore_shape = config.start_ore_shape or b.circle(68)
             resource_patches = (config.resource_patches or no_op)(config) or b.empty_shape
             dense_patches = (config.dense_patches or no_op)(config) or no_op
 
-            local shapes = {}
-
-            for ore_name, ore_data in pairs(main_ores) do
-                local tiles = ore_data.tiles
-                local land = tile_builder(tiles)
-
-                local ratios = ore_data.ratios
-                local weighted = b.prepare_weighted_array(ratios)
-                local amount = ore_data.start
-
-                local ore = ore_builder(ore_name, amount, ratios, weighted)
-
-                local shape = b.apply_entity(land, ore)
-                shapes[#shapes + 1] = {shape = shape, weight = ore_data.weight}
-            end
-
-            if config.main_ores_shuffle_order then
-                local random_gen = tbl.random
-                random_gen.re_seed(tbl.seed)
-                table.shuffle_table(shapes, random_gen)
-            end
-
-            local ores = b.segment_weighted_pattern(shapes)
-
-            if main_ores_rotate ~= 0 then
-                ores = b.rotate(ores, math.rad(main_ores_rotate))
-            end
-
-            map = b.any {spawn_shape, water_shape, ores}
+            local random_gen = tbl.random
+            random_gen.re_seed(tbl.seed)
+            map = main_ores_builder(tile_builder, ore_builder, spawn_shape, water_shape, random_gen)
 
             if enemy_shape then
                 map = b.apply_entity(map, enemy_shape)

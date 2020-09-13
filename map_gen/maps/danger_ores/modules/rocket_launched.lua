@@ -227,7 +227,14 @@ return function(config)
         end
     end
 
+    local bad_tiles = {'deepwater-green', 'deepwater', 'out-of-map', 'water-green', 'water'}
+
     local function chunk_unlocked(chunk)
+        local count = chunk.surface.count_tiles_filtered({area = chunk.area, name = bad_tiles, limit = 1})
+        if count > 0 then
+            return
+        end
+
         Queue.push(recent_chunks, chunk)
 
         while Queue.size(recent_chunks) > recent_chunks_max do
