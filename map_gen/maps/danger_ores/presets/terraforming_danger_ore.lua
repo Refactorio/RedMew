@@ -2,7 +2,6 @@ local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
-local Token = require 'utils.token'
 
 local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Terraforming Danger Ore')
