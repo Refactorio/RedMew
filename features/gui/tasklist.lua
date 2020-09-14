@@ -414,7 +414,7 @@ local function draw_main_frame(left, player)
     }
     data.notify_checkbox = notify_checkbox
 
-    frame.add {type = 'button', name = main_button_name, caption = 'Close'}
+    frame.add {type = 'button', name = main_button_name, caption = {'common.close_button'}, style = 'back_button'}
 end
 
 local function close_edit_announcements_frame(frame)
@@ -595,7 +595,13 @@ local function draw_create_task_frame(left, previous_task)
 
     local bottom_flow = frame.add {type = 'flow'}
 
-    local close_button = bottom_flow.add {type = 'button', name = create_task_close_button_name, caption = 'Close'}
+    local close_button =
+        bottom_flow.add {
+        type = 'button',
+        name = create_task_close_button_name,
+        caption = {'common.close_button'},
+        style = 'back_button'
+    }
     Gui.set_data(close_button, frame)
     local clear_button = bottom_flow.add {type = 'button', name = create_task_clear_button_name, caption = 'Clear'}
     Gui.set_data(clear_button, textbox)
@@ -605,15 +611,29 @@ local function draw_create_task_frame(left, previous_task)
     Gui.set_data(confirm_button, {frame = frame, textbox = textbox, previous_task = previous_task})
 end
 
+local function player_created(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    player.gui.top.add(
+        {
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'item/repair-pack',
+            tooltip = {'tasklist.tooltip'}
+        }
+    )
+end
+
 local function player_joined(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
 
-    local gui = player.gui
-
-    local frame = gui.left[main_frame_name]
+    local frame = player.gui.left[main_frame_name]
     if frame and frame.valid then
         local text = announcements.edit_text
         local last_edit_message = get_announcements_updated_by_message()
@@ -643,18 +663,6 @@ local function player_joined(event)
                 end
             end
         end
-    end
-
-    local top = gui.top
-    if not top[main_button_name] then
-        top.add(
-            {
-                type = 'sprite-button',
-                name = main_button_name,
-                sprite = 'item/repair-pack',
-                tooltip = {'tasklist.tooltip'}
-            }
-        )
     end
 end
 
@@ -686,6 +694,7 @@ local function on_tick()
     end
 end
 
+Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_player_left_game, player_left)
 Event.on_nth_tick(3600, on_tick)
@@ -731,7 +740,13 @@ Gui.on_click(
 
         local bottom_flow = frame.add {type = 'flow'}
 
-        local close_button = bottom_flow.add {type = 'button', name = edit_close_button_name, caption = 'Close'}
+        local close_button =
+            bottom_flow.add {
+            type = 'button',
+            name = edit_close_button_name,
+            caption = {'common.close_button'},
+            style = 'back_button'
+        }
         local clear_button = bottom_flow.add {type = 'button', name = edit_clear_button_name, caption = 'Clear'}
         local reset_button = bottom_flow.add {type = 'button', name = edit_reset_button_name, caption = 'Reset'}
         bottom_flow.add({type = 'flow'}).style.horizontally_stretchable = true

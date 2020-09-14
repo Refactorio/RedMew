@@ -1,12 +1,22 @@
-local Poll = {send_poll_result_to_discord = function () end}
-if global.config.poll.enabled then
-    Poll = require 'features.gui.poll'
-end
-
+local Poll = {send_poll_result_to_discord = function() end}
 local Rank = require 'features.rank_system'
 local Token = require 'utils.token'
 local Server = require 'features.server'
 local Donator = require 'features.donator'
+
+if global.config.poll.enabled then
+    local Event = require 'utils.event'
+
+    local function set_poll()
+        -- Hack to prevent poll being required before control.lua finishes.
+        -- This is so that the top gui buttons are in the order they are
+        -- required in control.lua.
+        Poll = _G.package.loaded['features.gui.poll']
+    end
+
+    Event.on_init(set_poll)
+    Event.on_load(set_poll)
+end
 
 --- This module is for the web server to call functions and raise events.
 -- Not intended to be called by scripts.

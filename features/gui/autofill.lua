@@ -18,7 +18,6 @@ local enabled_ammo_button = Gui.uid_name()
 
 local function player_created(event)
     local player = game.get_player(event.player_index)
-
     if not player or not player.valid then
         return
     end
@@ -94,7 +93,7 @@ local function toggle_main_frame(event)
             Gui.set_data(button, name)
         end
 
-        frame.add {type = 'button', name = main_button_name, caption = {'common.close_button'}}
+        frame.add {type = 'button', name = main_button_name, caption = {'common.close_button'}, style = 'back_button'}
 
         local data = {
             enabled_checkbox = enabled_checkbox,

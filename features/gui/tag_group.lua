@@ -136,13 +136,9 @@ local confirm_create_tag_name = Gui.uid_name()
 local delete_tag_name = Gui.uid_name()
 local close_create_tag_name = Gui.uid_name()
 
-local function player_joined(event)
+local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
-        return
-    end
-
-    if player.gui.top[main_button_name] ~= nil then
         return
     end
 
@@ -264,7 +260,7 @@ local function draw_main_frame(player)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    left_flow.add {type = 'button', name = main_button_name, caption = {'common.close_button'}}
+    left_flow.add {type = 'button', name = main_button_name, caption = {'common.close_button'}, style = 'back_button'}
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
     right_flow.style.horizontal_align = 'right'
@@ -450,7 +446,12 @@ local function draw_create_tag_frame(event, tag_data)
     left_flow.style.horizontally_stretchable = true
 
     local close_button =
-        left_flow.add {type = 'button', name = close_create_tag_name, caption = {'common.close_button'}}
+        left_flow.add {
+        type = 'button',
+        name = close_create_tag_name,
+        caption = {'common.close_button'},
+        style = 'back_button'
+    }
     Gui.set_data(close_button, frame)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
@@ -786,7 +787,7 @@ Event.add(
     end
 )
 
-Event.add(defines.events.on_player_joined_game, player_joined)
+Event.add(defines.events.on_player_created, player_created)
 
 local function tag_command(args)
     local target_player = game.players[args.player]

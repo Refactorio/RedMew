@@ -106,9 +106,6 @@ end
 if config.turret_active_delay.enabled then
     require 'features.turret_active_delay'
 end
-if config.autofill.enabled then
-    require 'features.gui.autofill'
-end
 if config.research_printer.enabled then
     require 'features.research_printer'
 end
@@ -123,6 +120,12 @@ if config.map_info.enabled then
 end
 if config.player_list.enabled then
     require 'features.gui.player_list'
+end
+if config.redmew_settings.enabled then
+    require 'features.gui.redmew_settings'
+end
+if config.autofill.enabled then
+    require 'features.gui.autofill'
 end
 if config.evolution_progress.enabled then
     require 'features.gui.evolution_progress'
@@ -142,9 +145,6 @@ end
 if config.paint.enabled then
     require 'features.gui.paint'
 end
-if config.score.enabled then
-    require 'features.gui.score'
-end
 if config.popup.enabled then
     require 'features.gui.popup'
 end
@@ -154,8 +154,9 @@ end
 if config.radio.enabled or _DEBUG then
     require 'features.gui.radio'
 end
-if config.redmew_settings.enabled then
-    require 'features.gui.redmew_settings'
+
+if config.score.enabled then
+    require 'features.gui.score'
 end
 
 --require 'features.snake.control'

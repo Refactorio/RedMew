@@ -269,13 +269,9 @@ local filter_table_close_button_name = Gui.uid_name()
 local filter_table_clear_name = Gui.uid_name()
 local clear_all_filters_name = Gui.uid_name()
 
-local function player_joined(event)
+local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
-        return
-    end
-
-    if player.gui.top[main_button_name] ~= nil then
         return
     end
 
@@ -325,7 +321,13 @@ local function draw_filters_table(event)
 
     local flow = frame.add {type = 'flow'}
 
-    local close = flow.add {type = 'button', name = filter_table_close_button_name, caption = {'common.close_button'}}
+    local close =
+        flow.add {
+        type = 'button',
+        name = filter_table_close_button_name,
+        caption = {'common.close_button'},
+        style = 'back_button'
+    }
     Gui.set_data(close, frame)
 
     local clear =
@@ -492,7 +494,12 @@ local function toggle(event)
         }
         Gui.set_data(filter_button, filters)
 
-        main_frame.add {type = 'button', name = main_button_name, caption = {'common.close_button'}}
+        main_frame.add {
+            type = 'button',
+            name = main_button_name,
+            caption = {'common.close_button'},
+            style = 'back_button'
+        }
         Gui.set_data(main_frame, filters)
     end
 end
@@ -631,4 +638,4 @@ Gui.on_custom_close(
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
-Event.add(defines.events.on_player_joined_game, player_joined)
+Event.add(defines.events.on_player_created, player_created)
