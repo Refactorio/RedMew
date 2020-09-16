@@ -1,4 +1,5 @@
 local b = require 'map_gen.shared.builders'
+local table = require 'utils.table'
 
 return function(config)
     local main_ores = config.main_ores
