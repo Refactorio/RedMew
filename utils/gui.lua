@@ -23,6 +23,8 @@ local top_elements = {}
 local on_visible_handlers = {}
 local on_pre_hidden_handlers = {}
 
+Gui._top_elements = top_elements
+
 function Gui.uid_name()
     return tostring(Token.uid())
 end

@@ -169,7 +169,7 @@ if _DUMP_ENV then
     require 'utils.dump_env'
 end
 
-require 'tests'
+require 'utils.test.main'
 
 -- Needs to be at bottom so tokens are registered last.
 if _DEBUG then

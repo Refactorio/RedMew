@@ -1,8 +1,8 @@
-local TestFramework = require 'utils.test.framework'
+local ModuleStore = require 'utils.test.module_store'
 
 local Public = {}
 
-Public.module = TestFramework.module
-Public.test = TestFramework.test
+Public.module = ModuleStore.module
+Public.test = ModuleStore.test
 
 return Public
