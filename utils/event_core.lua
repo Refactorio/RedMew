@@ -135,4 +135,6 @@ function Public.get_on_nth_tick_event_handlers()
     return on_nth_tick_event_handlers
 end
 
+Public.on_event = on_event
+
 return Public
