@@ -2,15 +2,16 @@ local Public = {}
 Public.__index = Public
 
 function Public.new()
-    return setmetatable({_child = nil, _func = nil, _delay = nil}, Public)
+    return setmetatable({}, Public)
 end
 
-function Public.next(self, func, delay)
-    local context = Public.new()
-    self._child = context
-    self._func = func
-    self._delay = delay
-    return context
+function Public.timeout(self, delay, func)
+    self[#self + 1] = {func = func, delay = delay or 1}
+    return self
+end
+
+function Public.next(self, func)
+    return self:timeout(1, func)
 end
 
 return Public

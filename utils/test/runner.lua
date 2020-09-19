@@ -9,7 +9,7 @@ local Public = {}
 
 local function build_tests_inner(module, tests)
     for name, func in pairs(module.tests) do
-        tests[#tests + 1] = {name = name, func = func, context = Steps.new()}
+        tests[#tests + 1] = {name = name, func = func, steps = Steps.new(), current_step = 0}
     end
 
     for _, child in pairs(module.children) do
@@ -32,15 +32,22 @@ local function print_success(test_name)
 end
 
 local function run_test(test)
-    local success, return_value = pcall(test.func, test.context)
+    local steps = test.steps
+    local current_step = test.current_step
+    local func
+    if current_step == 0 then
+        func = test.func
+    else
+        func = steps[current_step].func
+    end
+    local success, return_value = pcall(func, steps)
 
     if not success then
         print_error(test.name, return_value)
         return false
     end
 
-    local next_func = test.context._func
-    if not next_func then
+    if current_step == #steps then
         print_success(test.name)
         return true
     end
@@ -80,10 +87,10 @@ local function run_tests(data)
         return
     end
 
-    local context = test.context
-    test.func = context._func
-    test.context = context._child
-    Task.set_timeout_in_ticks(context._delay or 1, run_tests_token, data)
+    local step_index = test.current_step + 1
+    test.current_step = step_index
+    local step = test.steps[step_index]
+    Task.set_timeout_in_ticks(step.delay or 1, run_tests_token, data)
 end
 
 run_tests_token = Token.register(run_tests)
