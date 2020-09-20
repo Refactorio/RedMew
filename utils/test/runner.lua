@@ -1,26 +1,56 @@
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local ModuleStore = require 'utils.test.module_store'
-local Steps = require 'utils.test.steps'
+local Builder = require 'utils.test.builder'
+local Event = require 'utils.event'
 
 local pcall = pcall
 
 local Public = {}
 
-local function build_tests_inner(module, tests)
-    for name, func in pairs(module.tests) do
-        tests[#tests + 1] = {name = name, func = func, steps = Steps.new(), current_step = 0}
-    end
+Public.events = {
+    tests_run_finished = Event.generate_event_name('test_run_finished')
+}
 
-    for _, child in pairs(module.children) do
-        build_tests_inner(child, tests)
-    end
+local function print_summary(count, fail_count)
+    local pass_count = count - fail_count
+    game.print(table.concat {pass_count, ' of ', count, ' tests passed.'})
 end
 
-local function build_tests(module)
-    local tests = {}
-    build_tests_inner(module, tests)
-    return tests
+local function mark_module_for_passed(module)
+    local any_fails = false
+    local all_ran = true
+
+    for _, child in pairs(module.children) do
+        local module_any_fails, module_all_ran = mark_module_for_passed(child)
+        any_fails = any_fails or module_any_fails
+        all_ran = all_ran and module_all_ran
+    end
+
+    for _, test in pairs(module.tests) do
+        any_fails = any_fails or (test.passed == false)
+        all_ran = all_ran and (test.passed ~= nil)
+    end
+
+    if any_fails then
+        module.passed = false
+    elseif all_ran then
+        module.passed = true
+    else
+        module.passed = nil
+    end
+
+    return any_fails, all_ran
+end
+
+local function mark_modules_for_passed()
+    mark_module_for_passed(ModuleStore.root_module)
+end
+
+local function finish_test_run(data)
+    print_summary(data.count, data.fail_count)
+    mark_modules_for_passed()
+    script.raise_event(Public.events.tests_run_finished, {})
 end
 
 local function print_error(test_name, error_message)
@@ -44,20 +74,18 @@ local function run_test(test)
 
     if not success then
         print_error(test.name, return_value)
+        test.passed = false
+        test.error = return_value
         return false
     end
 
     if current_step == #steps then
         print_success(test.name)
+        test.passed = true
         return true
     end
 
     return nil
-end
-
-local function print_summary(count, fail_count)
-    local pass_count = count - fail_count
-    game.print(table.concat {pass_count, ' of ', count, ' tests passed.'})
 end
 
 local run_tests_token
@@ -66,7 +94,7 @@ local function run_tests(data)
 
     local test = data.tests[index]
     if test == nil then
-        print_summary(data.count, data.fail_count)
+        finish_test_run(data)
         return
     end
 
@@ -95,11 +123,18 @@ end
 
 run_tests_token = Token.register(run_tests)
 
-function Public.run(module)
-    local tests = build_tests(module or ModuleStore.root_module)
+local function run(tests)
     run_tests({tests = tests, index = 1, count = 0, fail_count = 0})
 end
 
-_G.run_tests = Public.run
+function Public.run_module(module)
+    local tests = Builder.build_module_for_run(module or ModuleStore.root_module)
+    run(tests)
+end
+
+function Public.run_test(test)
+    Builder.build_test_for_run(test)
+    run({test})
+end
 
 return Public

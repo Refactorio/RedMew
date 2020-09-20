@@ -1,6 +1,19 @@
 local Public = {}
 
-local root_module = {name = nil, children = {}, tests = {}}
+local function new_module(module_name)
+    return {
+        name = module_name,
+        children = {},
+        test_funcs = {},
+        tests = nil,
+        is_open = true,
+        depth = nil,
+        count = nil,
+        passed = nil
+    }
+end
+
+local root_module = new_module(nil)
 Public.root_module = root_module
 
 local parent_module = nil
@@ -10,7 +23,7 @@ local function add_module(module_name, module_func, parent)
     local module = parent_children[module_name]
 
     if not module then
-        module = {name = module_name, children = {}, tests = {}}
+        module = new_module(module_name)
         parent_children[module_name] = module
     end
 
@@ -48,8 +61,8 @@ function Public.test(test_name, test_func)
         error('test_func must be of type function.')
     end
 
-    local tests = parent_module.tests
-    if tests[test_name] then
+    local test_funcs = parent_module.test_funcs
+    if test_funcs[test_name] then
         error(
             table.concat {
                 "test '",
@@ -59,7 +72,7 @@ function Public.test(test_name, test_func)
         )
     end
 
-    tests[test_name] = test_func
+    test_funcs[test_name] = test_func
 end
 
 return Public
