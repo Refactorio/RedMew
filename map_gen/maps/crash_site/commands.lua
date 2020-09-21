@@ -117,7 +117,7 @@ end
 Command.add(
     'crash-site-restart-check_bitter',
     {
-        description = {'command_description.crash_site_restart_abort'},
+        description = {'command_description.crash_site_restart'},
         required_rank = Ranks.regular,
         allowed_by_server = true
     },
@@ -127,7 +127,7 @@ Command.add(
 Command.add(
     'check_bitter',
     {
-        description = {'command_description.crash_site_restart_abort'},
+        description = {'command_description.crash_site_restart'},
         required_rank = Ranks.regular,
         allowed_by_server = true
     },
