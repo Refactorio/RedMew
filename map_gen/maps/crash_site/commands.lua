@@ -104,9 +104,10 @@ Command.add(
 
 local function check_bitter(_, player)
 	player = player or server_player
-    if game.player.surface.count_entities_filtered{force= "enemy"} then
+	local bitter_count =  game.player.surface.count_entities_filtered{force= "enemy"}
+    	if (bitter_count = 0)  then
         global_data.restarting = true
-        double_print('Restarting map by' .. player.name)
+        double_print('Restarting map by' ..' '.. player.name)
 		restart(_,player.name)
     else
         player.print('Cannot abort a restart that is not in progress.')
