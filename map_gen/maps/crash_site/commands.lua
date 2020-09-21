@@ -110,7 +110,7 @@ local function check_bitter(_, player)
         double_print('Restarting map by '..player.name)
 		restart(_,player.name)
     else
-        player.print('Cannot abort a restart that is not in progress.')
+        player.print('Too meny bitters around '.. bitter_count)
     end
 end
 
