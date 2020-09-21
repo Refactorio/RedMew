@@ -102,6 +102,38 @@ Command.add(
     abort
 )
 
+local function check_bitter(_, player)
+	player = player or server_player
+    if game.player.surface.count_entities_filtered{force= "enemy"} then
+        global_data.restarting = true
+        double_print('Restarting map by' .. player.name)
+		restart(_,player.name)
+    else
+        player.print('Cannot abort a restart that is not in progress.')
+    end
+end
+
+Command.add(
+    'crash-site-restart-check_bitter',
+    {
+        description = {'command_description.crash_site_restart_abort'},
+        required_rank = Ranks.regular,
+        allowed_by_server = true
+    },
+    check_bitter
+)
+
+Command.add(
+    'check_bitter',
+    {
+        description = {'command_description.crash_site_restart_abort'},
+        required_rank = Ranks.regular,
+        allowed_by_server = true
+    },
+    check_bitter
+)
+
+
 local Public = {}
 
 function Public.control(config)
