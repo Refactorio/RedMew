@@ -3,6 +3,8 @@ local EventFactory = require 'utils.test.event_factory'
 local Gui = require 'utils.gui'
 local Assert = require 'utils.test.assert'
 
+require 'features.landfill_remover_test'
+
 Declare.module(
     'Gui top buttons',
     function()

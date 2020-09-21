@@ -216,7 +216,9 @@ Gui.on_click(
         table.clear_table(selected_modules)
         table.clear_table(selected_tests)
 
-        selected_modules[module] = is_selected
+        if is_selected then
+            selected_modules[module] = is_selected
+        end
 
         local error_text_box = get_error_text_box(event.player)
         error_text_box.text = ''
@@ -238,7 +240,9 @@ Gui.on_click(
         table.clear_table(selected_modules)
         table.clear_table(selected_tests)
 
-        selected_tests[test] = is_selected
+        if is_selected then
+            selected_tests[test] = is_selected
+        end
 
         local error_text_box = get_error_text_box(event.player)
         if is_selected then
