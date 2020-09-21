@@ -102,7 +102,7 @@ Command.add(
     abort
 )
 
-local function check_bitter(_, player)
+local function check_biter(_, player)
 	player = player or server_player
 	local bitter_count = game.player.surface.count_entities_filtered{force= "enemy"}
     if (bitter_count == 0)then
@@ -127,7 +127,6 @@ function Public.control(config)
         },
         restart
     )
-
     Command.add(
         'restart',
         {
@@ -139,9 +138,8 @@ function Public.control(config)
         },
         restart
     )
-	
 	Command.add(
-    'crash-site-restart-check_bitter',
+    'crash-site-restart-check_biter',
 		{
 			description = {'command_description.crash_site_check_bitter'},
 			arguments = {'scenario_name'},
@@ -149,11 +147,10 @@ function Public.control(config)
 			required_rank = Ranks.regular,
 			allowed_by_server = true
 		},
-		check_bitter
+		check_biter
 	)
-
 	Command.add(
-		'check_bitter',
+		'check_biter',
 		{
 			description = {'command_description.crash_site_check_bitter'},
 			arguments = {'scenario_name'},
@@ -161,7 +158,7 @@ function Public.control(config)
 			required_rank = Ranks.regular,
 			allowed_by_server = true
 		},
-		check_bitter
+		check_biter
 	)
 end
 
