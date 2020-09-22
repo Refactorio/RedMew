@@ -8,15 +8,27 @@ return function(config)
     local scale = config.water_scale or 1 / 96
     local water_threshold = config.water_threshold or 0.5
     local deepwater_threshold = config.deepwater_threshold or 0.55
+
+    local scale_function
+    if type(scale) == 'function' then
+        scale_function = scale
+    else
+        scale_function = function()
+            return scale
+        end
+    end
+
     local no_water_shape = config.no_water_shape or b.circle(96)
     local seed = config.water_seed or seed_provider()
 
-    return function(x, y)
-        if no_water_shape(x, y) then
+    return function(x, y, world)
+        if no_water_shape(x, y, world) then
             return false
         end
 
-        local water_noise = perlin_noise(x * scale, y * scale, seed)
+        local s = scale_function(x, y, world)
+
+        local water_noise = perlin_noise(x * s, y * s, seed)
         if water_noise >= deepwater_threshold then
             return 'deepwater'
         elseif water_noise >= water_threshold then

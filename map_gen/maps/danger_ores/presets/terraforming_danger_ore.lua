@@ -110,8 +110,8 @@ local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming(
     {
         start_size = 8 * 32,
-        min_pollution = 400,
-        max_pollution = 4000,
+        min_pollution = 300,
+        max_pollution = 5000,
         pollution_increment = 2.5
     }
 )
@@ -122,7 +122,7 @@ rocket_launched(
         recent_chunks_max = 10,
         ticks_between_waves = 60 * 30,
         enemy_factor = 3,
-        max_enemies_per_wave_per_chunk = 80,
+        max_enemies_per_wave_per_chunk = 60,
         extra_rockets = 100
     }
 )

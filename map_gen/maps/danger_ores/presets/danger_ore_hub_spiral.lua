@@ -57,8 +57,6 @@ ScenarioInfo.set_new_info(
 ]]
 )
 
-global.config.redmew_qol.loaders = false
-
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ores'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
@@ -96,7 +94,7 @@ Event.on_init(
         game.forces.player.technologies['mining-productivity-3'].enabled = false
         game.forces.player.technologies['mining-productivity-4'].enabled = false
 
-        game.difficulty_settings.technology_price_multiplier = 30
+        game.difficulty_settings.technology_price_multiplier = 20
         game.forces.player.technologies.logistics.researched = true
         game.forces.player.technologies.automation.researched = true
 
@@ -113,11 +111,10 @@ terraforming(
     {
         start_size = 8 * 32,
         min_pollution = 400,
-        max_pollution = 6000,
+        max_pollution = 5000,
         pollution_increment = 2.5
     }
 )
-
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched'
 rocket_launched(
     {
@@ -125,28 +122,36 @@ rocket_launched(
         ticks_between_waves = 60 * 30,
         enemy_factor = 3,
         max_enemies_per_wave_per_chunk = 60,
-        extra_rockets = 150
+        extra_rockets = 100
     }
 )
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
 
+local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_hub_spiral'
+
+local sqrt = math.sqrt
+
 local config = {
     spawn_shape = b.circle(64),
     start_ore_shape = b.circle(68),
+    main_ores_builder = main_ores_builder,
     main_ores = main_ores_config,
     --main_ores_shuffle_order = true,
-    main_ores_rotate = 45,
+    --main_ores_rotate = 45,
     resource_patches = resource_patches,
     resource_patches_config = resource_patches_config,
     water = water,
-    water_scale = 1 / 96,
-    water_threshold = 0.5,
-    deepwater_threshold = 0.55,
+    water_scale = function(x, y)
+        local d = sqrt(x * x + y * y)
+        return 1 / (24 + (0.1 * d))
+    end,
+    water_threshold = 0.35,
+    deepwater_threshold = 0.4,
     trees = trees,
     trees_scale = 1 / 64,
-    trees_threshold = 0.4,
+    trees_threshold = 0.35,
     trees_chance = 0.875,
     enemy = enemy,
     enemy_factor = 10 / (768 * 32),
