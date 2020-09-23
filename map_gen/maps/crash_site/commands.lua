@@ -1,10 +1,12 @@
 local Command = require 'utils.command'
+local Rank = require 'features.rank_system'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Server = require 'features.server'
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
 local Ranks = require 'resources.ranks'
+local Utils = require 'utils.core'
 
 local server_player = {name = '<server>', print = print}
 
@@ -55,6 +57,16 @@ local function restart(args, player)
         return
     end
 
+    if Rank.less_than(player.name, Ranks.admin) then
+        -- Check enemy count
+        local enemy_count = game.player.surface.count_entities_filtered{force= "enemy"}
+        
+        if (enemy_count ~= 0) then
+            game.player.print('All enemy spawners, worms, buildings, biters and spitters must be cleared for non-admin restart. Current enemy count: '.. enemy_count)
+            return
+        end 
+    end
+    
     global_data.restarting = true
 
     double_print('#################-Attention-#################')
@@ -67,7 +79,7 @@ local function restart(args, player)
         end
     end
     print('Abort restart with /abort')
-
+    
     Task.set_timeout_in_ticks(60, callback, {name = player.name, scenario_name = args.scenario_name, state = 10})
 end
 
@@ -124,7 +136,7 @@ function Public.control(config)
             description = {'command_description.crash_site_restart'},
             arguments = {'scenario_name'},
             default_values = {scenario_name = default_name},
-            required_rank = Ranks.admin,
+            required_rank = Ranks.guest,
             allowed_by_server = true
         },
         restart
