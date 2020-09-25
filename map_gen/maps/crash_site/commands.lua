@@ -59,10 +59,10 @@ local function restart(args, player)
 
     if Rank.less_than(player.name, Ranks.admin) then
         -- Check enemy count
-        local enemy_count = game.player.surface.count_entities_filtered{force= "enemy"}
+        local enemy_count = game.player.surface.count_entities_filtered{force= "enemy", limit=1}
         
         if (enemy_count ~= 0) then
-            game.player.print('All enemy spawners, worms, buildings, biters and spitters must be cleared for non-admin restart. Current enemy count: '.. enemy_count)
+            game.player.print('All enemy spawners, worms, buildings, biters and spitters must be cleared for non-admin restart.')
             return
         end 
     end
@@ -136,7 +136,7 @@ function Public.control(config)
             description = {'command_description.crash_site_restart'},
             arguments = {'scenario_name'},
             default_values = {scenario_name = default_name},
-            required_rank = Ranks.guest,
+            required_rank = Ranks.auto_trusted,
             allowed_by_server = true
         },
         restart
