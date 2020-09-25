@@ -8,6 +8,20 @@ local config = global.config.landfill_remover
 Declare.module(
     'landfill remover',
     function()
+        Declare.module_startup(
+            function()
+                game.print('landfill remover startup')
+                error('landfill remover startup')
+            end
+        )
+
+        Declare.module_teardown(
+            function()
+                game.print('landfill remover teardown')
+                error('landfill remover teardown')
+            end
+        )
+
         Declare.test(
             'can remove landfill',
             function()

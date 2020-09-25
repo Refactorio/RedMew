@@ -3,7 +3,16 @@ local Public = {}
 local function new_module(module_name)
     return {
         name = module_name,
+        parent = nil,
         children = {},
+        startup_func = nil,
+        startup_steps = nil,
+        startup_current_step = nil,
+        startup_error = nil,
+        teardown_func = nil,
+        teardown_steps = nil,
+        teardown_current_step = nil,
+        teardown_error = nil,
         test_funcs = {},
         tests = nil,
         is_open = true,
@@ -25,6 +34,7 @@ local function add_module(module_name, module_func, parent)
     if not module then
         module = new_module(module_name)
         parent_children[module_name] = module
+        module.parent = parent_module
     end
 
     parent_module = module
@@ -73,6 +83,38 @@ function Public.test(test_name, test_func)
     end
 
     test_funcs[test_name] = test_func
+end
+
+function Public.module_startup(startup_func)
+    if type(startup_func) ~= 'function' then
+        error('startup_func must be of type function.')
+    end
+
+    if parent_module == nil then
+        error('root module can not have startup_func.')
+    end
+
+    if parent_module.startup_func ~= nil then
+        error('startup_func can not be declared twice for the same module.')
+    end
+
+    parent_module.startup_func = startup_func
+end
+
+function Public.module_teardown(teardown_func)
+    if type(teardown_func) ~= 'function' then
+        error('teardown_func must be of type function.')
+    end
+
+    if parent_module == nil then
+        error('root module can not have teardown_func.')
+    end
+
+    if parent_module.teardown_func ~= nil then
+        error('teardown_func can not be declared twice for the same module.')
+    end
+
+    parent_module.teardown_func = teardown_func
 end
 
 return Public

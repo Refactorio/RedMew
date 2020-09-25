@@ -23,6 +23,15 @@ local error_test_box_name = Gui.uid_name()
 local selected_modules = {}
 local selected_tests = {}
 
+local function get_module_state(module)
+    local passed = module.passed
+    if passed == false or module.startup_error or module.teardown_error then
+        return false
+    end
+
+    return passed
+end
+
 local function set_selected_style(style, selected)
     if selected then
         style.font_color = Color.orange
@@ -77,7 +86,7 @@ local function draw_tests_module(container, module)
     local is_selected = selected_modules[module]
     set_selected_style(label_style, is_selected)
     if not is_selected then
-        set_passed_style(label_style, module.passed)
+        set_passed_style(label_style, get_module_state(module))
     end
 
     Gui.set_data(label, {module = module, container = container})
@@ -221,7 +230,22 @@ Gui.on_click(
         end
 
         local error_text_box = get_error_text_box(event.player)
-        error_text_box.text = ''
+        if is_selected then
+            local errors = {}
+            if module.startup_error then
+                errors[#errors + 1] = 'startup error: '
+                errors[#errors + 1] = module.startup_error
+                errors[#errors + 1] = '\n\n'
+            end
+            if module.teardown_error then
+                errors[#errors + 1] = 'teardown error: '
+                errors[#errors + 1] = module.teardown_error
+            end
+
+            error_text_box.text = table.concat(errors)
+        else
+            error_text_box.text = ''
+        end
 
         redraw_tests(container)
     end
