@@ -1,6 +1,7 @@
 local Declare = require 'utils.test.declare'
 local EventFactory = require 'utils.test.event_factory'
 local Assert = require 'utils.test.assert'
+local Helper = require 'utils.test.helper'
 
 local main_inventory = defines.inventory.character_main
 local config = global.config.landfill_remover
@@ -8,17 +9,18 @@ local config = global.config.landfill_remover
 Declare.module(
     'landfill remover',
     function()
+        local teardown
+
         Declare.module_startup(
-            function()
-                game.print('landfill remover startup')
-                error('landfill remover startup')
+            function(context)
+                local player = game.get_player(1)
+                teardown = Helper.startup_test_surface(context, player)
             end
         )
 
         Declare.module_teardown(
             function()
-                game.print('landfill remover teardown')
-                error('landfill remover teardown')
+                teardown()
             end
         )
 
@@ -29,6 +31,7 @@ Declare.module(
                 local player = game.get_player(1)
                 local surface = player.surface
                 local position = {2, 2}
+
                 surface.set_tiles({{name = 'landfill', position = position}})
 
                 local inventory = player.get_inventory(main_inventory)

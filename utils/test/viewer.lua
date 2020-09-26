@@ -32,6 +32,39 @@ local function get_module_state(module)
     return passed
 end
 
+local function get_test_error(test)
+    return test.error or ''
+end
+
+local function get_module_error(module)
+    local errors = {}
+    if module.startup_error then
+        errors[#errors + 1] = 'startup error: '
+        errors[#errors + 1] = module.startup_error
+        errors[#errors + 1] = '\n\n'
+    end
+    if module.teardown_error then
+        errors[#errors + 1] = 'teardown error: '
+        errors[#errors + 1] = module.teardown_error
+    end
+
+    return table.concat(errors)
+end
+
+local function get_text_box_error()
+    local selected_test = next(selected_tests)
+    if selected_test then
+        return get_test_error(selected_test)
+    end
+
+    local selected_module = next(selected_modules)
+    if selected_module then
+        return get_module_error(selected_module)
+    end
+
+    return ''
+end
+
 local function set_selected_style(style, selected)
     if selected then
         style.font_color = Color.orange
@@ -128,11 +161,7 @@ local function draw_tests(container)
 end
 
 local function draw_error_text_box(container)
-    local selected_test = next(selected_tests)
-    local text = ''
-    if selected_test then
-        text = selected_test.error
-    end
+    local text = get_text_box_error()
 
     local text_box = container.add {type = 'text-box', name = error_test_box_name, text = text}
     local style = text_box.style
@@ -231,18 +260,7 @@ Gui.on_click(
 
         local error_text_box = get_error_text_box(event.player)
         if is_selected then
-            local errors = {}
-            if module.startup_error then
-                errors[#errors + 1] = 'startup error: '
-                errors[#errors + 1] = module.startup_error
-                errors[#errors + 1] = '\n\n'
-            end
-            if module.teardown_error then
-                errors[#errors + 1] = 'teardown error: '
-                errors[#errors + 1] = module.teardown_error
-            end
-
-            error_text_box.text = table.concat(errors)
+            error_text_box.text = get_module_error(module)
         else
             error_text_box.text = ''
         end
@@ -270,7 +288,7 @@ Gui.on_click(
 
         local error_text_box = get_error_text_box(event.player)
         if is_selected then
-            error_text_box.text = test.error or ''
+            error_text_box.text = get_test_error(test)
         else
             error_text_box.text = ''
         end

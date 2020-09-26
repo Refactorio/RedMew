@@ -103,11 +103,14 @@ end
 local function do_hook(hook, data)
     local hook_success = run_hook(hook)
     if hook_success == nil then
-        hook.current_step = hook.current_step + 1
-    else
-        data.index = data.index + 1
+        local step_index = hook.current_step + 1
+        local step = hook.steps[step_index]
+        hook.current_step = step_index
+        Task.set_timeout_in_ticks(step.delay or 1, run_tests_token, data)
+        return
     end
 
+    data.index = data.index + 1
     Task.set_timeout_in_ticks(1, run_tests_token, data)
     return
 end
