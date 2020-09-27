@@ -90,7 +90,7 @@ RS.set_map_gen_settings(
 
 Event.on_init(
     function()
-        game.draw_resource_selection = false
+        --game.draw_resource_selection = false
         game.forces.player.technologies['mining-productivity-1'].enabled = false
         game.forces.player.technologies['mining-productivity-2'].enabled = false
         game.forces.player.technologies['mining-productivity-3'].enabled = false
@@ -99,6 +99,8 @@ Event.on_init(
         game.difficulty_settings.technology_price_multiplier = 30
         game.forces.player.technologies.logistics.researched = true
         game.forces.player.technologies.automation.researched = true
+        game.forces.player.technologies['logistic-system'].enabled = false
+        game.forces.player.technologies['warehouse-logistics-research-2'].enabled = false
 
         game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
         game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
@@ -113,7 +115,7 @@ terraforming(
     {
         start_size = 8 * 32,
         min_pollution = 400,
-        max_pollution = 6000,
+        max_pollution = 8000,
         pollution_increment = 2.5
     }
 )
@@ -125,7 +127,7 @@ rocket_launched(
         ticks_between_waves = 60 * 30,
         enemy_factor = 3,
         max_enemies_per_wave_per_chunk = 60,
-        extra_rockets = 150
+        extra_rockets = 100
     }
 )
 
