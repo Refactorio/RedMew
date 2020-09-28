@@ -73,6 +73,7 @@ function Public.startup_test_surface(context, options)
     local player = context.player
     local old_surface = player.surface
     local old_position = player.position
+    local old_character = player.character
 
     local surface =
         game.create_surface(
@@ -97,12 +98,19 @@ function Public.startup_test_surface(context, options)
 
             surface.destroy_decoratives {area = {{-32, -32}, {32, 32}}}
 
+            player.character = nil
             player.teleport({0, 0}, surface)
+            player.create_character()
         end
     )
 
     return function()
         player.teleport(old_position, old_surface)
+
+        if old_character and old_character.valid then
+            player.character = old_character
+        end
+
         game.delete_surface(surface)
     end
 end
