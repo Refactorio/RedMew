@@ -65,11 +65,12 @@ local cliff_settings = {
     name = 'cliff'
 }
 
-function Public.startup_test_surface(context, player, options)
+function Public.startup_test_surface(context, options)
     options = options or {}
     local name = options.name or get_surface_name()
     local area = options.area or {64, 64}
 
+    local player = context.player
     local old_surface = player.surface
     local old_position = player.position
 

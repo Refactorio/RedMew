@@ -13,8 +13,7 @@ Declare.module(
 
         Declare.module_startup(
             function(context)
-                local player = game.get_player(1)
-                teardown = Helper.startup_test_surface(context, player)
+                teardown = Helper.startup_test_surface(context)
             end
         )
 
@@ -26,9 +25,9 @@ Declare.module(
 
         Declare.test(
             'can remove landfill',
-            function()
+            function(context)
                 -- Arrange
-                local player = game.get_player(1)
+                local player = context.player
                 local surface = player.surface
                 local position = {2, 2}
 
@@ -65,9 +64,9 @@ Declare.module(
         for _, item_name in pairs(items) do
             Declare.test(
                 'can remove landfill when covered by ' .. item_name,
-                function()
+                function(context)
                     -- Arrange
-                    local player = game.get_player(1)
+                    local player = context.player
                     local surface = player.surface
                     local position = {2, 2}
                     surface.set_tiles({{name = 'landfill', position = position}})

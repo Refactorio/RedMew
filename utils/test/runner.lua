@@ -12,7 +12,7 @@ Public.events = {
     tests_run_finished = Event.generate_event_name('test_run_finished')
 }
 
-local run_tests_token
+local run_runnables_token
 
 local function print_summary(count, fail_count)
     local pass_count = count - fail_count
@@ -52,7 +52,7 @@ end
 local function finish_test_run(data)
     print_summary(data.count, data.fail_count)
     mark_modules_for_passed()
-    script.raise_event(Public.events.tests_run_finished, {})
+    script.raise_event(Public.events.tests_run_finished, {player = data.player})
 end
 
 local function print_error(test_name, error_message)
@@ -76,7 +76,8 @@ local function record_hook_error_in_module(hook)
 end
 
 local function run_hook(hook)
-    local steps = hook.steps
+    local context = hook.context
+    local steps = context._steps
     local current_step = hook.current_step
     local func
     if current_step == 0 then
@@ -84,7 +85,7 @@ local function run_hook(hook)
     else
         func = steps[current_step].func
     end
-    local success, return_value = pcall(func, steps)
+    local success, return_value = pcall(func, context)
 
     if not success then
         hook.error = return_value
@@ -104,19 +105,20 @@ local function do_hook(hook, data)
     local hook_success = run_hook(hook)
     if hook_success == nil then
         local step_index = hook.current_step + 1
-        local step = hook.steps[step_index]
+        local step = hook.context._steps[step_index]
         hook.current_step = step_index
-        Task.set_timeout_in_ticks(step.delay or 1, run_tests_token, data)
+        Task.set_timeout_in_ticks(step.delay or 1, run_runnables_token, data)
         return
     end
 
     data.index = data.index + 1
-    Task.set_timeout_in_ticks(1, run_tests_token, data)
+    Task.set_timeout_in_ticks(1, run_runnables_token, data)
     return
 end
 
 local function run_test(test)
-    local steps = test.steps
+    local context = test.context
+    local steps = context._steps
     local current_step = test.current_step
     local func
     if current_step == 0 then
@@ -124,7 +126,7 @@ local function run_test(test)
     else
         func = steps[current_step].func
     end
-    local success, return_value = pcall(func, steps)
+    local success, return_value = pcall(func, context)
 
     if not success then
         print_error(test.name, return_value)
@@ -149,24 +151,24 @@ local function do_test(test, data)
         data.count = data.count + 1
         data.fail_count = data.fail_count + 1
         data.index = data.index + 1
-        Task.set_timeout_in_ticks(1, run_tests_token, data)
+        Task.set_timeout_in_ticks(1, run_runnables_token, data)
         return
     end
 
     if success == true then
         data.count = data.count + 1
         data.index = data.index + 1
-        Task.set_timeout_in_ticks(1, run_tests_token, data)
+        Task.set_timeout_in_ticks(1, run_runnables_token, data)
         return
     end
 
     local step_index = test.current_step + 1
     test.current_step = step_index
-    local step = test.steps[step_index]
-    Task.set_timeout_in_ticks(step.delay or 1, run_tests_token, data)
+    local step = test.context._steps[step_index]
+    Task.set_timeout_in_ticks(step.delay or 1, run_runnables_token, data)
 end
 
-local function run_tests(data)
+local function run_runnables(data)
     local index = data.index
     local runnable = data.runnables[index]
 
@@ -183,20 +185,20 @@ local function run_tests(data)
     do_test(runnable, data)
 end
 
-run_tests_token = Token.register(run_tests)
+run_runnables_token = Token.register(run_runnables)
 
-local function run(runnables)
-    run_tests({runnables = runnables, index = 1, count = 0, fail_count = 0})
+local function run(runnables, player)
+    run_runnables({runnables = runnables, player = player, index = 1, count = 0, fail_count = 0})
 end
 
-function Public.run_module(module)
-    local runnables = Builder.build_module_for_run(module or ModuleStore.root_module)
-    run(runnables)
+function Public.run_module(module, player)
+    local runnables = Builder.build_module_for_run(module or ModuleStore.root_module, player)
+    run(runnables, player)
 end
 
-function Public.run_test(test)
-    local runnables = Builder.build_test_for_run(test)
-    run(runnables)
+function Public.run_test(test, player)
+    local runnables = Builder.build_test_for_run(test, player)
+    run(runnables, player)
 end
 
 return Public

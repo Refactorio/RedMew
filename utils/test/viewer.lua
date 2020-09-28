@@ -5,11 +5,19 @@ local Color = require 'resources.color_presets'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Event = require 'utils.event'
+local Global = require 'utils.global'
 
 local Public = {}
 
+local info_type_test = {}
+local info_type_module = {}
+
 local down_arrow = '▼'
 local right_arrow = '►'
+local color_success = {g = 1}
+local color_failure = {r = 1}
+local color_selected = Color.orange
+local color_default = Color.white
 
 local main_frame_name = Gui.uid_name()
 local close_main_frame_name = Gui.uid_name()
@@ -20,8 +28,16 @@ local run_all_button_name = Gui.uid_name()
 local run_selected_button_name = Gui.uid_name()
 local error_test_box_name = Gui.uid_name()
 
-local selected_modules = {}
-local selected_tests = {}
+local selected_test_info_by_player_index = {}
+
+Global.register(
+    {
+        selected_test_info_by_player_index = selected_test_info_by_player_index
+    },
+    function(tbl)
+        selected_test_info_by_player_index = tbl.selected_test_info_by_player_index
+    end
+)
 
 local function get_module_state(module)
     local passed = module.passed
@@ -51,36 +67,65 @@ local function get_module_error(module)
     return table.concat(errors)
 end
 
-local function get_text_box_error()
-    local selected_test = next(selected_tests)
-    if selected_test then
-        return get_test_error(selected_test)
+local function get_text_box_error(player_index)
+    local test_info = selected_test_info_by_player_index[player_index]
+    if test_info == nil then
+        return ''
     end
 
-    local selected_module = next(selected_modules)
-    if selected_module then
-        return get_module_error(selected_module)
-    end
+    local info_type = test_info.type
 
-    return ''
+    if info_type == info_type_test then
+        return get_test_error(test_info.test)
+    elseif info_type == info_type_module then
+        return get_module_error(test_info.module)
+    end
 end
 
 local function set_selected_style(style, selected)
     if selected then
-        style.font_color = Color.orange
+        style.font_color = color_selected
     else
-        style.font_color = Color.white
+        style.font_color = color_default
     end
 end
 
 local function set_passed_style(style, passed)
     if passed == true then
-        style.font_color = Color.green
+        style.font_color = color_success
     elseif passed == false then
-        style.font_color = Color.red
+        style.font_color = color_failure
     else
-        style.font_color = Color.white
+        style.font_color = color_default
     end
+end
+
+local function is_test_selected(test, player_index)
+    local info = selected_test_info_by_player_index[player_index]
+    if not info then
+        return false
+    end
+
+    local info_test = info.test
+    if not info_test then
+        return false
+    end
+
+    return info_test.id == test.id
+end
+
+local function is_module_selected(module, player_index)
+    local info = selected_test_info_by_player_index[player_index]
+    if not info then
+        return false
+    end
+
+    local info_module = info.module
+    if not info_module then
+        return false
+    end
+
+    return info_module.id == module.id
 end
 
 local function draw_tests_test(container, test, depth)
@@ -89,7 +134,7 @@ local function draw_tests_test(container, test, depth)
     local label = flow.add {type = 'label', name = test_label_name, caption = test.name}
     local label_style = label.style
 
-    local is_selected = selected_tests[test]
+    local is_selected = is_test_selected(test, container.player_index)
     set_selected_style(label_style, is_selected)
     if not is_selected then
         set_passed_style(label_style, test.passed)
@@ -116,7 +161,7 @@ local function draw_tests_module(container, module)
     local label = flow.add {type = 'label', name = module_label_name, caption = caption}
 
     local label_style = label.style
-    local is_selected = selected_modules[module]
+    local is_selected = is_module_selected(module, container.player_index)
     set_selected_style(label_style, is_selected)
     if not is_selected then
         set_passed_style(label_style, get_module_state(module))
@@ -178,9 +223,8 @@ local function create_main_frame(center)
     frame_style.height = 600
 
     local top_flow = frame.add {type = 'flow', direction = 'horizontal'}
-    local run_all_button = top_flow.add {type = 'button', name = run_all_button_name, caption = 'Run All'}
-    local run_selected_button =
-        top_flow.add {
+    top_flow.add {type = 'button', name = run_all_button_name, caption = 'Run All'}
+    top_flow.add {
         type = 'button',
         name = run_selected_button_name,
         caption = 'Run Selected'
@@ -207,15 +251,15 @@ end
 
 local run_module_token =
     Token.register(
-    function(module)
-        Runner.run_module(module)
+    function(data)
+        Runner.run_module(data.module, data.player)
     end
 )
 
 local run_test_token =
     Token.register(
-    function(test)
-        Runner.run_test(test)
+    function(data)
+        Runner.run_test(data.test, data.player)
     end
 )
 
@@ -248,14 +292,13 @@ Gui.on_click(
         local data = Gui.get_data(element)
         local module = data.module
         local container = data.container
+        local player_index = event.player_index
 
-        local is_selected = not selected_modules[module]
-
-        table.clear_table(selected_modules)
-        table.clear_table(selected_tests)
+        local is_selected = not is_module_selected(module, player_index)
+        selected_test_info_by_player_index[player_index] = nil
 
         if is_selected then
-            selected_modules[module] = is_selected
+            selected_test_info_by_player_index[player_index] = {type = info_type_module, module = module}
         end
 
         local error_text_box = get_error_text_box(event.player)
@@ -276,14 +319,13 @@ Gui.on_click(
         local data = Gui.get_data(element)
         local test = data.test
         local container = data.container
+        local player_index = event.player_index
 
-        local is_selected = not selected_tests[test]
-
-        table.clear_table(selected_modules)
-        table.clear_table(selected_tests)
+        local is_selected = not is_test_selected(test, player_index)
+        selected_test_info_by_player_index[player_index] = nil
 
         if is_selected then
-            selected_tests[test] = is_selected
+            selected_test_info_by_player_index[player_index] = {type = info_type_test, test = test}
         end
 
         local error_text_box = get_error_text_box(event.player)
@@ -302,20 +344,23 @@ Gui.on_click(
     function(event)
         local frame = event.player.gui.center[main_frame_name]
         close_main_frame(frame)
-        Task.set_timeout_in_ticks(1, run_module_token, nil)
+        Task.set_timeout_in_ticks(1, run_module_token, {module = nil, player = event.player})
     end
 )
 
 Gui.on_click(
     run_selected_button_name,
     function(event)
-        local selected_module = next(selected_modules)
-        local selected_test = next(selected_tests)
+        local test_info = selected_test_info_by_player_index[event.player_index]
+        if test_info == nil then
+            return
+        end
 
-        if selected_module then
-            Task.set_timeout_in_ticks(1, run_module_token, selected_module)
-        elseif selected_test then
-            Task.set_timeout_in_ticks(1, run_test_token, selected_test)
+        local info_type = test_info.type
+        if info_type == info_type_module then
+            Task.set_timeout_in_ticks(1, run_module_token, {module = test_info.module, player = event.player})
+        elseif info_type == info_type_test then
+            Task.set_timeout_in_ticks(1, run_test_token, {test = test_info.test, player = event.player})
         else
             return
         end
@@ -327,14 +372,12 @@ Gui.on_click(
 
 Event.add(
     Runner.events.tests_run_finished,
-    function()
-        local player = game.get_player(1)
-        Public.open(player)
+    function(event)
+        Public.open(event.player)
     end
 )
 
 function Public.open(player)
-    player = player or game.player
     local center = player.gui.center
     local frame = center[main_frame_name]
     if frame then

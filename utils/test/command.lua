@@ -12,10 +12,15 @@ Command.add(
     function(args, player)
         local open = args.open
         if open == 'open' or open == 'o' then
+            if player == nil then
+                print('Can not open test runner from server console.')
+                return
+            end
+
             Viewer.open(player)
             return
         end
 
-        Runner.run_module()
+        Runner.run_module(nil, player)
     end
 )

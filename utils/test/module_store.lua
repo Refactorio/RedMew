@@ -2,6 +2,7 @@ local Public = {}
 
 local function new_module(module_name)
     return {
+        id = nil,
         name = module_name,
         parent = nil,
         children = {},

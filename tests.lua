@@ -15,8 +15,8 @@ Declare.module(
         for _, name in pairs(Gui._top_elements) do
             Declare.test(
                 'can toggle - ' .. Gui.names[name],
-                function(steps)
-                    local player = game.get_player(1)
+                function(context)
+                    local player = context.player
                     local element = player.gui.top[name]
                     local event = EventFactory.on_gui_click(element, player.index)
                     local click_action = function()
@@ -34,7 +34,7 @@ Declare.module(
                     )
 
                     -- Close
-                    steps:next(click_action):next(
+                    context:next(click_action):next(
                         function()
                             local after_close_count = count_gui_elements(player.gui)
                             Assert.equal(
