@@ -26,16 +26,20 @@ local module_label_name = Gui.uid_name()
 local test_label_name = Gui.uid_name()
 local run_all_button_name = Gui.uid_name()
 local run_selected_button_name = Gui.uid_name()
+local stop_on_error_checkbox_name = Gui.uid_name()
 local error_test_box_name = Gui.uid_name()
 
 local selected_test_info_by_player_index = {}
+local stop_on_first_error_by_player_index = {}
 
 Global.register(
     {
-        selected_test_info_by_player_index = selected_test_info_by_player_index
+        selected_test_info_by_player_index = selected_test_info_by_player_index,
+        stop_on_first_error_by_player_index = stop_on_first_error_by_player_index
     },
     function(tbl)
         selected_test_info_by_player_index = tbl.selected_test_info_by_player_index
+        stop_on_first_error_by_player_index = tbl.stop_on_first_error_by_player_index
     end
 )
 
@@ -206,7 +210,7 @@ local function draw_tests(container)
 end
 
 local function draw_error_text_box(container)
-    local text = get_text_box_error()
+    local text = get_text_box_error(container.player_index)
 
     local text_box = container.add {type = 'text-box', name = error_test_box_name, text = text}
     local style = text_box.style
@@ -229,6 +233,12 @@ local function create_main_frame(center)
         name = run_selected_button_name,
         caption = 'Run Selected'
     }
+    top_flow.add {
+        type = 'checkbox',
+        name = stop_on_error_checkbox_name,
+        caption = 'Stop on first error',
+        state = stop_on_first_error_by_player_index[center.player_index] or false
+    }
 
     draw_tests(frame)
 
@@ -249,17 +259,21 @@ local function get_error_text_box(player)
     return frame_data.error_text_box
 end
 
+local function make_options(player_index)
+    return {stop_on_first_error = stop_on_first_error_by_player_index[player_index]}
+end
+
 local run_module_token =
     Token.register(
     function(data)
-        Runner.run_module(data.module, data.player)
+        Runner.run_module(data.module, data.player, data.options)
     end
 )
 
 local run_test_token =
     Token.register(
     function(data)
-        Runner.run_test(data.test, data.player)
+        Runner.run_test(data.test, data.player, data.options)
     end
 )
 
@@ -344,7 +358,9 @@ Gui.on_click(
     function(event)
         local frame = event.player.gui.center[main_frame_name]
         close_main_frame(frame)
-        Task.set_timeout_in_ticks(1, run_module_token, {module = nil, player = event.player})
+
+        local options = make_options(event.player_index)
+        Task.set_timeout_in_ticks(1, run_module_token, {module = nil, player = event.player, options = options})
     end
 )
 
@@ -356,17 +372,34 @@ Gui.on_click(
             return
         end
 
+        local options = make_options(event.player_index)
+
         local info_type = test_info.type
         if info_type == info_type_module then
-            Task.set_timeout_in_ticks(1, run_module_token, {module = test_info.module, player = event.player})
+            Task.set_timeout_in_ticks(
+                1,
+                run_module_token,
+                {module = test_info.module, player = event.player, options = options}
+            )
         elseif info_type == info_type_test then
-            Task.set_timeout_in_ticks(1, run_test_token, {test = test_info.test, player = event.player})
+            Task.set_timeout_in_ticks(
+                1,
+                run_test_token,
+                {test = test_info.test, player = event.player, options = options}
+            )
         else
             return
         end
 
         local frame = event.player.gui.center[main_frame_name]
         close_main_frame(frame)
+    end
+)
+
+Gui.on_checked_state_changed(
+    stop_on_error_checkbox_name,
+    function(event)
+        stop_on_first_error_by_player_index[event.player_index] = event.element.state or nil
     end
 )
 
