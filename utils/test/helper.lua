@@ -105,6 +105,7 @@ function Public.startup_test_surface(context, options)
     )
 
     return function()
+        player.character = nil
         player.teleport(old_position, old_surface)
 
         if old_character and old_character.valid then

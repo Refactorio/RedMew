@@ -15,8 +15,4 @@ function Public.next(self, func)
     return self:timeout(1, func)
 end
 
-function Public.get_step(self, index)
-    return self._steps[index]
-end
-
 return Public

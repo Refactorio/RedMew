@@ -3,6 +3,13 @@ local concat = table.concat
 
 local Public = {}
 
+local function append_optional_message(main_message, optional_message)
+    if optional_message then
+        return concat {main_message, ' - ', optional_message}
+    end
+    return main_message
+end
+
 function Public.equal(a, b, optional_message)
     if a == b then
         return
@@ -21,6 +28,24 @@ end
 function Public.is_true(condition, optional_message)
     if not condition then
         error(optional_message or 'condition was not true', 2)
+    end
+end
+
+function Public.valid(lua_object, optional_message)
+    if not lua_object then
+        error(append_optional_message('lua_object was nil', optional_message))
+    end
+
+    if not lua_object.valid then
+        error(append_optional_message('lua_object was not valid', optional_message))
+    end
+end
+
+function Public.is_lua_object_with_name(lua_object, name, optional_message)
+    Public.valid(lua_object, optional_message)
+
+    if lua_object.name ~= name then
+        error(append_optional_message("lua_object did not have name '" .. tostring(name) .. "'", optional_message))
     end
 end
 
