@@ -6,7 +6,6 @@ local Server = require 'features.server'
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
 local Ranks = require 'resources.ranks'
-local Utils = require 'utils.core'
 
 local Public = {}
 
@@ -55,9 +54,10 @@ callback =
 
 local entities_to_check = {
     'spitter-spawner','biter-spawner',
-    'small-worm-turret', 'medium-worm-turret','big-worm-turret', 'behemoth-worm-turret', 
-    'small-spitter', 'medium-spitter', 'big-spitter', 'behemoth-spitter', 
-    'small-biter', 'medium-biter', 'big-biter', 'behemoth-biter'
+    'small-worm-turret', 'medium-worm-turret','big-worm-turret', 'behemoth-worm-turret',
+    'small-spitter', 'medium-spitter', 'big-spitter', 'behemoth-spitter',
+    'small-biter', 'medium-biter', 'big-biter', 'behemoth-biter',
+    'gun-turret', 'laser-turret', 'artillery-turret', 'flamethrower-turret'
 }
 
 local function map_cleared()
@@ -81,18 +81,18 @@ local function restart(args, player)
         return
     end
 
-    if Rank.less_than(player.name, Ranks.admin) then
-        -- Check enemy count      
+    if player ~= server_player and Rank.less_than(player.name, Ranks.admin) then
+        -- Check enemy count
         if not map_cleared() then
-            game.player.print('All enemy spawners, worms, buildings, biters and spitters must be cleared for non-admin restart.')
+            player.print('All enemy spawners, worms, buildings, biters and spitters must be cleared for non-admin restart.')
             return
-        end 
+        end
 
         -- Limit the ability of non-admins to call the restart function with arguments to change the scenario
         -- If not an admin, restart the same scenario always
         sanitised_scenario = config.scenario_name
     end
-    
+
     global_data.restarting = true
 
     double_print('#################-Attention-#################')
@@ -105,7 +105,7 @@ local function restart(args, player)
         end
     end
     print('Abort restart with /abort')
-      
+
     Task.set_timeout_in_ticks(60, callback, {name = player.name, scenario_name = sanitised_scenario, state = 10})
 end
 
