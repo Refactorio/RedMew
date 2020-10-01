@@ -8,6 +8,10 @@ local Global = require 'utils.global'
 local Ranks = require 'resources.ranks'
 local Utils = require 'utils.core'
 
+local Public = {}
+
+function Public.control(config)
+
 local server_player = {name = '<server>', print = print}
 
 local global_data = {restarting = nil}
@@ -49,8 +53,28 @@ callback =
     end
 )
 
+local entities_to_check = {
+    'spitter-spawner','biter-spawner',
+    'small-worm-turret', 'medium-worm-turret','big-worm-turret', 'behemoth-worm-turret', 
+    'small-spitter', 'medium-spitter', 'big-spitter', 'behemoth-spitter', 
+    'small-biter', 'medium-biter', 'big-biter', 'behemoth-biter'
+}
+
+local function map_cleared()
+
+    local get_entity_count = game.forces["enemy"].get_entity_count
+    for i = 1, #entities_to_check do
+        local name = entities_to_check[i]
+        if get_entity_count(name) > 0 then
+            return false
+        end
+    end
+    return true
+end
+
 local function restart(args, player)
     player = player or server_player
+    local sanitised_scenario = args.scenario_name
 
     if global_data.restarting then
         player.print('Restart already in progress')
@@ -58,13 +82,15 @@ local function restart(args, player)
     end
 
     if Rank.less_than(player.name, Ranks.admin) then
-        -- Check enemy count
-        local enemy_count = game.player.surface.count_entities_filtered{force= "enemy", limit=1}
-        
-        if (enemy_count ~= 0) then
+        -- Check enemy count      
+        if not map_cleared() then
             game.player.print('All enemy spawners, worms, buildings, biters and spitters must be cleared for non-admin restart.')
             return
         end 
+
+        -- Limit the ability of non-admins to call the restart function with arguments to change the scenario
+        -- If not an admin, restart the same scenario always
+        sanitised_scenario = config.scenario_name
     end
     
     global_data.restarting = true
@@ -79,8 +105,8 @@ local function restart(args, player)
         end
     end
     print('Abort restart with /abort')
-    
-    Task.set_timeout_in_ticks(60, callback, {name = player.name, scenario_name = args.scenario_name, state = 10})
+      
+    Task.set_timeout_in_ticks(60, callback, {name = player.name, scenario_name = sanitised_scenario, state = 10})
 end
 
 local function abort(_, player)
@@ -114,9 +140,7 @@ Command.add(
     abort
 )
 
-local Public = {}
 
-function Public.control(config)
     local default_name = config.scenario_name or 'crashsite'
     Command.add(
         'crash-site-restart',
