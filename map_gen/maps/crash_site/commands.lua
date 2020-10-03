@@ -61,7 +61,6 @@ local entities_to_check = {
 }
 
 local function map_cleared()
-
     local get_entity_count = game.forces["enemy"].get_entity_count
     for i = 1, #entities_to_check do
         local name = entities_to_check[i]
@@ -99,9 +98,9 @@ local function restart(args, player)
     double_print('Server restart initiated by ' .. player.name)
     double_print('###########################################')
 
-    for k, v in pairs(game.players) do
-        if v.admin then
-            game.print('Abort restart with /abort')
+    for _, p in pairs(game.players) do
+        if p.admin then
+            p.print('Abort restart with /abort')
         end
     end
     print('Abort restart with /abort')
