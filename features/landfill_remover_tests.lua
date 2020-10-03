@@ -15,7 +15,7 @@ local tile_items = {
 }
 
 Declare.module(
-    'landfill remover',
+    {'features', 'landfill remover'},
     function()
         local teardown
 
@@ -31,6 +31,18 @@ Declare.module(
             end
         )
 
+        local function setup_player_with_default_deconstruction_planner(player)
+            local inventory = player.get_inventory(main_inventory)
+            inventory.clear()
+            inventory.insert('deconstruction-planner')
+            local stack = inventory.find_item_stack('deconstruction-planner')
+
+            local cursor = player.cursor_stack
+            cursor.set_stack(stack)
+
+            return cursor
+        end
+
         local function setup_player_with_valid_deconstruction_planner(player)
             local inventory = player.get_inventory(main_inventory)
             inventory.clear()
@@ -38,6 +50,34 @@ Declare.module(
             local stack = inventory.find_item_stack('deconstruction-planner')
             stack.set_tile_filter(1, 'landfill')
             stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.only
+
+            local cursor = player.cursor_stack
+            cursor.set_stack(stack)
+
+            return cursor
+        end
+
+        local function setup_player_with_tile_filter_whitelist_deconstruction_planner(player)
+            local inventory = player.get_inventory(main_inventory)
+            inventory.clear()
+            inventory.insert('deconstruction-planner')
+            local stack = inventory.find_item_stack('deconstruction-planner')
+            stack.set_tile_filter(1, 'landfill')
+            stack.tile_filter_mode = defines.deconstruction_item.tile_filter_mode.whitelist
+
+            local cursor = player.cursor_stack
+            cursor.set_stack(stack)
+
+            return cursor
+        end
+
+        local function setup_player_with_tile_filter_blacklist_deconstruction_planner(player)
+            local inventory = player.get_inventory(main_inventory)
+            inventory.clear()
+            inventory.insert('deconstruction-planner')
+            local stack = inventory.find_item_stack('deconstruction-planner')
+            stack.set_tile_filter(1, 'landfill')
+            stack.tile_filter_mode = defines.deconstruction_item.tile_filter_mode.blacklist
 
             local cursor = player.cursor_stack
             cursor.set_stack(stack)
@@ -93,6 +133,50 @@ Declare.module(
             inventory.insert('deconstruction-planner')
             local stack = inventory.find_item_stack('deconstruction-planner')
             stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.only
+
+            local cursor = player.cursor_stack
+            cursor.set_stack(stack)
+
+            return cursor
+        end
+
+        local function setup_player_with_trees_and_rocks_only_deconstruction_planner(player)
+            local inventory = player.get_inventory(main_inventory)
+            inventory.clear()
+            inventory.insert('deconstruction-planner')
+            local stack = inventory.find_item_stack('deconstruction-planner')
+            stack.set_tile_filter(1, 'landfill')
+            stack.trees_and_rocks_only = true
+
+            local cursor = player.cursor_stack
+            cursor.set_stack(stack)
+
+            return cursor
+        end
+
+        local function setup_player_with_entity_filter_whitelist_deconstruction_planner(player)
+            local inventory = player.get_inventory(main_inventory)
+            inventory.clear()
+            inventory.insert('deconstruction-planner')
+            local stack = inventory.find_item_stack('deconstruction-planner')
+            stack.set_tile_filter(1, 'landfill')
+            stack.set_entity_filter(1, 'iron-chest')
+            stack.entity_filter_mode = defines.deconstruction_item.entity_filter_mode.whitelist
+
+            local cursor = player.cursor_stack
+            cursor.set_stack(stack)
+
+            return cursor
+        end
+
+        local function setup_player_with_entity_filter_blacklist_deconstruction_planner(player)
+            local inventory = player.get_inventory(main_inventory)
+            inventory.clear()
+            inventory.insert('deconstruction-planner')
+            local stack = inventory.find_item_stack('deconstruction-planner')
+            stack.set_tile_filter(1, 'landfill')
+            stack.set_entity_filter(1, 'iron-chest')
+            stack.entity_filter_mode = defines.deconstruction_item.entity_filter_mode.blacklist
 
             local cursor = player.cursor_stack
             cursor.set_stack(stack)
@@ -276,6 +360,46 @@ Declare.module(
             )
         end
 
+        Declare.test(
+            'does not remove landfill when trees and rocks only',
+            function(context)
+                -- Arrange
+                local player = context.player
+                local surface = player.surface
+                local position = {2, 2}
+                local area = {{2.1, 2.1}, {2.9, 2.9}}
+                surface.set_tiles({{name = 'landfill', position = position}})
+                local cursor = setup_player_with_trees_and_rocks_only_deconstruction_planner(player)
+
+                -- Act
+                EventFactory.do_player_deconstruct_area(cursor, player, area)
+
+                -- Assert
+                local tile = surface.get_tile(position[1], position[2])
+                Assert.equal('landfill', tile.name)
+            end
+        )
+
+        Declare.test(
+            'does not remove landfill when default deconstruction planner',
+            function(context)
+                -- Arrange
+                local player = context.player
+                local surface = player.surface
+                local position = {2, 2}
+                local area = {{2.1, 2.1}, {2.9, 2.9}}
+                surface.set_tiles({{name = 'landfill', position = position}})
+                local cursor = setup_player_with_default_deconstruction_planner(player)
+
+                -- Act
+                EventFactory.do_player_deconstruct_area(cursor, player, area)
+
+                -- Assert
+                local tile = surface.get_tile(position[1], position[2])
+                Assert.equal('landfill', tile.name)
+            end
+        )
+
         local tile_mode_test_cases = {
             {
                 name = 'only',
@@ -328,6 +452,43 @@ Declare.module(
             )
         end
 
+        local tile_filter_test_cases = {
+            {
+                name = 'whitelist',
+                setup = setup_player_with_tile_filter_whitelist_deconstruction_planner,
+                should_remove = true
+            },
+            {
+                name = 'blacklist',
+                setup = setup_player_with_tile_filter_blacklist_deconstruction_planner,
+                should_remove = false
+            }
+        }
+
+        for _, test_case in pairs(tile_filter_test_cases) do
+            Declare.test(
+                'tile filter ' ..
+                    test_case.name .. ' should ' .. (test_case.should_remove and '' or 'not ') .. 'remove landfill',
+                function(context)
+                    -- Arrange
+                    local player = context.player
+                    local surface = player.surface
+                    local cursor = test_case.setup(player)
+                    local position = {2, 2}
+                    local area = {{2.1, 2.1}, {2.9, 2.9}}
+                    surface.set_tiles({{name = 'landfill', position = position}})
+                    local expected_tile = test_case.should_remove and config.revert_tile or 'landfill'
+
+                    -- Act
+                    EventFactory.do_player_deconstruct_area(cursor, player, area)
+
+                    -- Assert
+                    local tile = surface.get_tile(position[1], position[2])
+                    Assert.equal(expected_tile, tile.name)
+                end
+            )
+        end
+
         local tile_mode_with_entity_test_cases = {
             {
                 name = 'only',
@@ -359,6 +520,112 @@ Declare.module(
         for _, test_case in pairs(tile_mode_with_entity_test_cases) do
             Declare.test(
                 'tile mode ' ..
+                    test_case.name ..
+                        ' with entity should ' .. (test_case.should_remove and '' or 'not ') .. 'remove landfill',
+                function(context)
+                    -- Arrange
+                    local player = context.player
+                    local surface = player.surface
+
+                    local position1 = {2, 2}
+                    local position2 = {3, 2}
+                    local area = {{2.1, 2.1}, {3.9, 2.9}}
+                    surface.set_tiles(
+                        {{name = 'landfill', position = position1}, {name = 'landfill', position = position2}}
+                    )
+                    local expected_tile = test_case.should_remove and config.revert_tile or 'landfill'
+
+                    -- Place entity.
+                    local cursor = player.cursor_stack
+                    cursor.set_stack('iron-chest')
+                    player.build_from_cursor({position = position1})
+
+                    cursor = test_case.setup(player)
+
+                    -- Act
+                    EventFactory.do_player_deconstruct_area(cursor, player, area)
+
+                    -- Assert
+                    local tile = surface.get_tile(position2[1], position2[2])
+                    Assert.equal(expected_tile, tile.name)
+
+                    local entities = surface.find_entities(area)
+                    local entity = entities[1]
+                    Assert.is_lua_object_with_name(entity, 'iron-chest', 'iron-chest was not valid.')
+                    entity.destroy()
+                end
+            )
+        end
+
+        local tile_filter_with_entity_test_cases = {
+            {
+                name = 'whitelist',
+                setup = setup_player_with_tile_filter_whitelist_deconstruction_planner,
+                should_remove = false
+            },
+            {
+                name = 'blacklist',
+                setup = setup_player_with_tile_filter_blacklist_deconstruction_planner,
+                should_remove = false
+            }
+        }
+
+        for _, test_case in pairs(tile_filter_with_entity_test_cases) do
+            Declare.test(
+                'tile mode ' ..
+                    test_case.name ..
+                        ' with entity should ' .. (test_case.should_remove and '' or 'not ') .. 'remove landfill',
+                function(context)
+                    -- Arrange
+                    local player = context.player
+                    local surface = player.surface
+
+                    local position1 = {2, 2}
+                    local position2 = {3, 2}
+                    local area = {{2.1, 2.1}, {3.9, 2.9}}
+                    surface.set_tiles(
+                        {{name = 'landfill', position = position1}, {name = 'landfill', position = position2}}
+                    )
+                    local expected_tile = test_case.should_remove and config.revert_tile or 'landfill'
+
+                    -- Place entity.
+                    local cursor = player.cursor_stack
+                    cursor.set_stack('iron-chest')
+                    player.build_from_cursor({position = position1})
+
+                    cursor = test_case.setup(player)
+
+                    -- Act
+                    EventFactory.do_player_deconstruct_area(cursor, player, area)
+
+                    -- Assert
+                    local tile = surface.get_tile(position2[1], position2[2])
+                    Assert.equal(expected_tile, tile.name)
+
+                    local entities = surface.find_entities(area)
+                    local entity = entities[1]
+                    Assert.is_lua_object_with_name(entity, 'iron-chest', 'iron-chest was not valid.')
+                    entity.destroy()
+                end
+            )
+        end
+
+        local entity_filter_with_entity_test_cases = {
+            {
+                name = 'whitelist',
+                setup = setup_player_with_entity_filter_whitelist_deconstruction_planner,
+                should_remove = false
+            },
+            {
+                name = 'blacklist',
+                setup = setup_player_with_entity_filter_blacklist_deconstruction_planner,
+                should_remove = true
+            }
+        }
+
+        for _, test_case in pairs(entity_filter_with_entity_test_cases) do
+            Declare.test(
+                'entity filter ' ..
                     test_case.name ..
                         ' with entity should ' .. (test_case.should_remove and '' or 'not ') .. 'remove landfill',
                 function(context)
