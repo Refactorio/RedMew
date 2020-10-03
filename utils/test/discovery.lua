@@ -1,12 +1,5 @@
-local require = require
-local pcall = pcall
+local include = require 'utils.test.include'
 
-function find_all_tests()
-    local loaded = _G.package.loaded
-
-    for name in pairs(loaded) do
-        pcall(require, name .. '_tests')
-    end
+for name in pairs(_G.package.loaded) do
+    include(name .. '_tests')
 end
-
-find_all_tests()

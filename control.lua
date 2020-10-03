@@ -170,7 +170,7 @@ if _DUMP_ENV then
 end
 
 if _DEBUG then
-    require 'utils.test.main'
+    require('utils.test.main')
 end
 
 -- Needs to be at bottom so tokens are registered last.

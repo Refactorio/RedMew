@@ -4,7 +4,7 @@ local Gui = require 'utils.gui'
 local Assert = require 'utils.test.assert'
 
 Declare.module(
-    'Gui',
+    {'utils', 'Gui'},
     function()
         Declare.module(
             'can toggle top buttons',
