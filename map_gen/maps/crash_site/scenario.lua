@@ -17,6 +17,7 @@ local RedmewConfig = require 'config'
 local Cutscene = require 'map_gen.maps.crash_site.cutscene'
 
 local degrees = math.degrees
+local cutscene_force_name = 'cutscene'
 
 local default_map_gen_settings = {
     MGSP.grass_only,
@@ -140,7 +141,7 @@ local spawn_callback =
 )
 
 local function cutscene_builder(name, x, y)
-    return game.surfaces.cutscene.create_entity {name = name, position = {x, y}, force = game.forces.enemy}
+    return game.surfaces.cutscene.create_entity {name = name, position = {x, y}, force = cutscene_force_name}
 end
 
 local function cutscene_outpost()
@@ -838,6 +839,11 @@ local map
 Global.register_init(
     {},
     function(tbl)
+        game.create_force(cutscene_force_name)
+        local surface = game.surfaces[1]
+        surface.map_gen_settings = {width = 2, height = 2}
+        surface.clear()
+
         local seed = RS.get_surface().map_gen_settings.seed
         tbl.outpost_seed = outpost_seed or seed
         tbl.ore_seed = ore_seed or seed
