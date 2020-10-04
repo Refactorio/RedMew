@@ -908,6 +908,25 @@ function Builders.remove_map_gen_trees(shape)
     end
 end
 
+-- Removes simple entities such as rocks: https://wiki.factorio.com/Data.raw#simple-entity
+-- Looking for a remove_rocks function? You're welcome ~ Jayefuu
+function Builders.remove_map_gen_simple_entity(shape)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if not tile then
+            return tile
+        end
+
+        local wx, wy = world.x, world.y
+        local area = {{wx, wy}, {wx + 1, wy + 1}}
+        local entities = world.surface.find_entities_filtered {area = area, type = 'simple-entity'}
+        destroy_entities(entities)
+
+        return tile
+    end
+end
+
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_enemies
 function Builders.remove_map_gen_enemies(shape)
     return function(x, y, world)
