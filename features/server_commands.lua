@@ -11,7 +11,7 @@ if global.config.poll.enabled then
         -- Hack to prevent poll being required before control.lua finishes.
         -- This is so that the top gui buttons are in the order they are
         -- required in control.lua.
-        Poll = _G.package.loaded['features.gui.poll']
+        Poll = _G.package.loaded['features.gui.poll'] or Poll
     end
 
     Event.on_init(set_poll)
