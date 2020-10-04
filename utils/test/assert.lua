@@ -33,11 +33,11 @@ end
 
 function Public.valid(lua_object, optional_message)
     if not lua_object then
-        error(append_optional_message('lua_object was nil', optional_message))
+        error(append_optional_message('lua_object was nil', optional_message), 2)
     end
 
     if not lua_object.valid then
-        error(append_optional_message('lua_object was not valid', optional_message))
+        error(append_optional_message('lua_object was not valid', optional_message), 2)
     end
 end
 
@@ -45,7 +45,7 @@ function Public.is_lua_object_with_name(lua_object, name, optional_message)
     Public.valid(lua_object, optional_message)
 
     if lua_object.name ~= name then
-        error(append_optional_message("lua_object did not have name '" .. tostring(name) .. "'", optional_message))
+        error(append_optional_message("lua_object did not have name '" .. tostring(name) .. "'", optional_message), 2)
     end
 end
 
