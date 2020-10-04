@@ -1,6 +1,15 @@
+local Global = require 'utils.global'
+
 local Public = {}
 
 local surface_count = 0
+
+Global.register(
+    {surface_count = surface_count},
+    function(tbl)
+        surface_count = tbl.surface_count
+    end
+)
 
 local function get_surface_name()
     surface_count = surface_count + 1
