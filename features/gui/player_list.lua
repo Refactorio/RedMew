@@ -684,7 +684,7 @@ local function player_created(event)
     )
 end
 
-local function update_player_list(event)
+local function update_player_list()
     for _, p in ipairs(game.connected_players) do
         local frame = p.gui.left[main_frame_name]
 

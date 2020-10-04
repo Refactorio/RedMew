@@ -32,16 +32,6 @@ local zoomlevellabels = {'100%', '75%', '50%', '40%', '30%', '25%', '20%', '15%'
 local sizelevels = {0, 100, 200, 250, 300, 350, 400, 450, 500}
 local sizelevellabels = {'hide', '100x100', '200x200', '250x250', '300x300', '350x350', '400x400', '450x450', '500x500'}
 
-local function apply_button_style(button)
-    local button_style = button.style
-    button_style.font = 'default-bold'
-    button_style.height = 26
-    button_style.top_padding = 0
-    button_style.bottom_padding = 0
-    button_style.left_padding = 2
-    button_style.right_padding = 2
-end
-
 --- Takes args and a LuaPlayer and creates a camera GUI element
 local function create_camera(args, player)
     local player_index = player.index
