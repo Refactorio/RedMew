@@ -71,8 +71,7 @@ local function create_camera(args, player)
     end
 
     mainframe.add {type = 'label', caption = 'Following: ' .. target.name}
-    local close_button = mainframe.add {type = 'button', name = main_button_name, caption = 'Close'}
-    apply_button_style(close_button)
+    Gui.make_close_button(mainframe, main_button_name)
     local target_index = target.index
     camera_users[player_index] = target_index
 end

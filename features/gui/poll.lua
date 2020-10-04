@@ -98,6 +98,7 @@ local function apply_button_style(button)
     button_style.bottom_padding = 0
     button_style.left_padding = 2
     button_style.right_padding = 2
+    button_style.font_color = {0, 0, 0}
 end
 
 local function do_remaining_time(poll, remaining_time_label)

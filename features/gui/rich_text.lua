@@ -92,7 +92,7 @@ local function draw_rich_text(event)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local close_button = left_flow.add {type = 'button', name = close_rich_text, caption = 'Close'}
+    local close_button = Gui.make_close_button(left_flow, close_rich_text)
     Gui.set_data(close_button, frame)
 
     local data = {

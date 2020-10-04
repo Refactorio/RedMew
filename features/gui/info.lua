@@ -628,7 +628,7 @@ local function draw_main_frame(center, player)
     bottom_flow_style.top_padding = 8
     bottom_flow_style.horizontally_stretchable = true
 
-    bottom_flow.add {type = 'button', name = main_button_name, caption = {'common.close_button'}, style = 'back_button'}
+    Gui.make_close_button(bottom_flow, main_button_name)
 
     player.opened = frame
 end

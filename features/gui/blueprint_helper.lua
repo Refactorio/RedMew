@@ -321,14 +321,8 @@ local function draw_filters_table(event)
 
     local flow = frame.add {type = 'flow'}
 
-    local close =
-        flow.add {
-        type = 'button',
-        name = filter_table_close_button_name,
-        caption = {'common.close_button'},
-        style = 'back_button'
-    }
-    Gui.set_data(close, frame)
+    local close_button = Gui.make_close_button(flow, filter_table_close_button_name)
+    Gui.set_data(close_button, frame)
 
     local clear =
         flow.add {type = 'button', name = filter_table_clear_name, caption = {'blueprint_helper.clear_filters'}}
@@ -494,12 +488,8 @@ local function toggle(event)
         }
         Gui.set_data(filter_button, filters)
 
-        main_frame.add {
-            type = 'button',
-            name = main_button_name,
-            caption = {'common.close_button'},
-            style = 'back_button'
-        }
+        Gui.make_close_button(main_frame, main_button_name)
+
         Gui.set_data(main_frame, filters)
     end
 end

@@ -232,14 +232,8 @@ local function draw_filters_table(event)
 
     local flow = frame.add {type = 'flow'}
 
-    local close =
-        flow.add {
-        type = 'button',
-        name = filter_table_close_button_name,
-        caption = {'common.close_button'},
-        style = 'back_button'
-    }
-    Gui.set_data(close, frame)
+    local close_button = Gui.make_close_button(flow, filter_table_close_button_name)
+    Gui.set_data(close_button, frame)
 
     event.player.opened = frame
 
@@ -291,12 +285,7 @@ local function toggle(event)
 
         local buttons_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
 
-        buttons_flow.add {
-            type = 'button',
-            name = main_button_name,
-            caption = {'common.close_button'},
-            style = 'back_button'
-        }
+        Gui.make_close_button(buttons_flow, main_button_name)
 
         local clear_brush =
             buttons_flow.add {type = 'button', name = filter_clear_name, caption = {'paint.clear_brush'}}

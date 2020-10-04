@@ -213,7 +213,7 @@ local function draw_gui(event)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local close_button = left_flow.add {type = 'button', name = close_gui, caption = 'Close'}
+    local close_button = Gui.make_close_button(left_flow, close_gui)
     Gui.set_data(close_button, frame)
 
     local data = {

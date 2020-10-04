@@ -414,7 +414,7 @@ local function draw_main_frame(left, player)
     }
     data.notify_checkbox = notify_checkbox
 
-    frame.add {type = 'button', name = main_button_name, caption = {'common.close_button'}, style = 'back_button'}
+    Gui.make_close_button(frame, main_button_name)
 end
 
 local function close_edit_announcements_frame(frame)
@@ -595,17 +595,14 @@ local function draw_create_task_frame(left, previous_task)
 
     local bottom_flow = frame.add {type = 'flow'}
 
-    local close_button =
-        bottom_flow.add {
-        type = 'button',
-        name = create_task_close_button_name,
-        caption = {'common.close_button'},
-        style = 'back_button'
-    }
+    local close_button = Gui.make_close_button(bottom_flow, create_task_close_button_name)
     Gui.set_data(close_button, frame)
+
     local clear_button = bottom_flow.add {type = 'button', name = create_task_clear_button_name, caption = 'Clear'}
     Gui.set_data(clear_button, textbox)
+
     bottom_flow.add({type = 'flow'}).style.horizontally_stretchable = true
+
     local confirm_button =
         bottom_flow.add {type = 'button', name = confirm_button_name, caption = confirm_button_caption}
     Gui.set_data(confirm_button, {frame = frame, textbox = textbox, previous_task = previous_task})
@@ -740,13 +737,7 @@ Gui.on_click(
 
         local bottom_flow = frame.add {type = 'flow'}
 
-        local close_button =
-            bottom_flow.add {
-            type = 'button',
-            name = edit_close_button_name,
-            caption = {'common.close_button'},
-            style = 'back_button'
-        }
+        local close_button = Gui.make_close_button(bottom_flow, edit_close_button_name)
         local clear_button = bottom_flow.add {type = 'button', name = edit_clear_button_name, caption = 'Clear'}
         local reset_button = bottom_flow.add {type = 'button', name = edit_reset_button_name, caption = 'Reset'}
         bottom_flow.add({type = 'flow'}).style.horizontally_stretchable = true

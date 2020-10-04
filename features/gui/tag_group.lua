@@ -260,7 +260,7 @@ local function draw_main_frame(player)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    left_flow.add {type = 'button', name = main_button_name, caption = {'common.close_button'}, style = 'back_button'}
+    Gui.make_close_button(left_flow, main_button_name)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
     right_flow.style.horizontal_align = 'right'
@@ -445,13 +445,7 @@ local function draw_create_tag_frame(event, tag_data)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local close_button =
-        left_flow.add {
-        type = 'button',
-        name = close_create_tag_name,
-        caption = {'common.close_button'},
-        style = 'back_button'
-    }
+    local close_button = Gui.make_close_button(left_flow, close_create_tag_name)
     Gui.set_data(close_button, frame)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}

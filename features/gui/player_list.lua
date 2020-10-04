@@ -612,7 +612,7 @@ local function draw_main_frame(left, player)
         tooltip = {'player_list.poke_notify_tooltip'}
     }
 
-    frame.add {type = 'button', name = main_button_name, caption = {'common.close_button'}, style = 'back_button'}
+    Gui.make_close_button(frame, main_button_name)
 
     local settings = player_settings[player_index] or get_default_player_settings()
     local data = {

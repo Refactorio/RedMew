@@ -1,6 +1,7 @@
 local Token = require 'utils.token'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
+local Styles = require 'resources.styles'
 
 local tostring = tostring
 local next = next
@@ -295,6 +296,20 @@ Gui.on_click(
         end
     end
 )
+
+function Gui.make_close_button(parent, name)
+    local button =
+        parent.add {
+        type = 'button',
+        name = name,
+        caption = {'common.close_button'},
+        style = 'back_button'
+    }
+
+    Styles.default_close(button.style)
+
+    return button
+end
 
 if _DEBUG then
     local concat = table.concat
