@@ -126,6 +126,7 @@ wilderness_ditch = b.if_else(b.change_tile(b.translate(b.rectangle(2, 17), -1, 0
 local rocket_silo_shape = b.rectangle(9, 9)
 rocket_silo_shape = b.change_tile(rocket_silo_shape, true, 'landfill')
 rocket_silo_shape = b.remove_map_gen_trees(rocket_silo_shape)
+rocket_silo_shape = b.remove_map_gen_simple_entity(rocket_silo_shape)   -- Removes rocks.
 wilderness_ditch = b.if_else(rocket_silo_shape, wilderness_ditch)
 
 local wilderness_ditch_left = b.translate(wilderness_ditch, -(width_1 / 2 + width_2 + width_3 / 2), 0)
