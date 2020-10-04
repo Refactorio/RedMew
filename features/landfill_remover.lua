@@ -56,9 +56,7 @@ local function can_select_landfill_tiles(cursor, surface, area)
         entity_filters[#entity_filters + 1] = 'character'
     end
 
-    if surface.count_entities_filtered({area = area, name = entity_filters, invert = invert, limit = 1}) > 0 then
-        return false
-    end
+    return surface.count_entities_filtered({area = area, name = entity_filters, invert = invert, limit = 1}) == 0
 end
 
 local function within_reach(tile_position, player_position, radius_squared)
