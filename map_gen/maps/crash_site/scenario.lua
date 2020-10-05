@@ -15,6 +15,7 @@ local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local RedmewConfig = require 'config'
 local Cutscene = require 'map_gen.maps.crash_site.cutscene'
+local cutscene_surface_settings = require 'map_gen.maps.crash_site.cutscene_surface_settings'
 
 local degrees = math.degrees
 local cutscene_force_name = 'cutscene'
@@ -187,7 +188,7 @@ local function init(config)
     local outpost_builder = OutpostBuilder.new(outpost_random)
 
     if on_init then
-        game.create_surface('cutscene', default_map_gen_settings)
+        game.create_surface('cutscene', cutscene_surface_settings)
         game.surfaces.cutscene.always_day = true
         game.surfaces.cutscene.request_to_generate_chunks({0, 0}, 2)
         game.surfaces.cutscene.force_generate_chunk_requests()
