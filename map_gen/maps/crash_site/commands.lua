@@ -52,21 +52,40 @@ callback =
     end
 )
 
-local entities_to_check = {
+local static_entities_to_check = {
     'spitter-spawner','biter-spawner',
     'small-worm-turret', 'medium-worm-turret','big-worm-turret', 'behemoth-worm-turret',
-    'small-spitter', 'medium-spitter', 'big-spitter', 'behemoth-spitter',
-    'small-biter', 'medium-biter', 'big-biter', 'behemoth-biter',
     'gun-turret', 'laser-turret', 'artillery-turret', 'flamethrower-turret'
 }
 
-local function map_cleared()
+local biter_entities_to_check = {
+    'small-spitter', 'medium-spitter', 'big-spitter', 'behemoth-spitter',
+    'small-biter', 'medium-biter', 'big-biter', 'behemoth-biter'
+}
+
+local function map_cleared(player)
+    player = player or server_player
     local get_entity_count = game.forces["enemy"].get_entity_count
-    for i = 1, #entities_to_check do
-        local name = entities_to_check[i]
+    -- Check how many of each turrets, worms and spawners are left and return false if there are any of each left.
+    for i = 1, #static_entities_to_check do
+        local name = static_entities_to_check[i]
         if get_entity_count(name) > 0 then
+            player.print('All enemy spawners, worms, buildings, biters and spitters must be cleared before crashsite can be restarted.')
             return false
         end
+    end
+
+    -- Count all the remaining biters and spitters
+    local biter_total = 0;
+    for i = 1, #biter_entities_to_check do
+        local name = biter_entities_to_check[i]
+        biter_total = biter_total + get_entity_count(name)
+    end
+
+    -- Return false if more than 20 left. Players have had problems finding the last few biters so set to a reasonable value.
+    if biter_total > 20 then
+       player.print('All enemy spawners, worms, buildings are dead. Crashsite can be restarted when all biters and spitters are killed.')
+       return false
     end
     return true
 end
@@ -82,8 +101,7 @@ local function restart(args, player)
 
     if player ~= server_player and Rank.less_than(player.name, Ranks.admin) then
         -- Check enemy count
-        if not map_cleared() then
-            player.print('All enemy spawners, worms, buildings, biters and spitters must be cleared for non-admin restart.')
+        if not map_cleared(player) then
             return
         end
 
