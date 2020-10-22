@@ -42,6 +42,10 @@ callback =
             global_data.restarting = nil
             return
         elseif state == 1 then
+            local game_seconds = math.floor(game.ticks_played / 60) -- should probably account for game speed changes, but we rarely (if ever?) change crash site performance scale. This is good enough?
+            local game_hours = math.floor(game_seconds / 3600)
+            local game_min_remainder = math.floor((game_seconds - (game_hours * 3600)) / 60)
+            Server.to_discord_raw('<@&762441731194748958> Crash Site has just restarted!! Previous map lasted: ' .. game_hours .. ' hours, ' .. game_min_remainder .. ' minutes')
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
         end
 
