@@ -6,6 +6,7 @@ local Server = require 'features.server'
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
 local Ranks = require 'resources.ranks'
+local Core = require 'utils.core'
 
 local Public = {}
 
@@ -42,10 +43,10 @@ callback =
             global_data.restarting = nil
             return
         elseif state == 1 then
-            local game_seconds = math.floor(game.ticks_played / 60) -- should probably account for game speed changes, but we rarely (if ever?) change crash site performance scale. This is good enough?
-            local game_hours = math.floor(game_seconds / 3600)
-            local game_min_remainder = math.floor((game_seconds - (game_hours * 3600)) / 60)
-            Server.to_discord_raw('<@&762441731194748958> Crash Site has just restarted!! Previous map lasted: ' .. game_hours .. ' hours, ' .. game_min_remainder .. ' minutes')
+            local time_string = Core.format_time(game.ticks_played)
+            local discord_crashsite_role = '<@&762441731194748958>' -- @crash_site
+            --local discord_crashsite_role = '<@&593534612051984431>' -- @test
+            Server.to_discord_raw(discord_crashsite_role .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
         end
 
@@ -127,6 +128,7 @@ local function restart(args, player)
     end
     print('Abort restart with /abort')
 
+    --Server.to_discord_raw('<@&762441731194748958> Crash site is restarting!')
     Task.set_timeout_in_ticks(60, callback, {name = player.name, scenario_name = sanitised_scenario, state = 10})
 end
 
