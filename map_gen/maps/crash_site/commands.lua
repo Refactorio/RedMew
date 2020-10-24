@@ -6,6 +6,7 @@ local Server = require 'features.server'
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
 local Ranks = require 'resources.ranks'
+local Core = require 'utils.core'
 
 local Public = {}
 
@@ -42,6 +43,10 @@ callback =
             global_data.restarting = nil
             return
         elseif state == 1 then
+            local time_string = Core.format_time(game.ticks_played)
+            local discord_crashsite_role = '<@&762441731194748958>' -- @crash_site
+            --local discord_crashsite_role = '<@&593534612051984431>' -- @test
+            Server.to_discord_raw(discord_crashsite_role .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
         end
 
@@ -122,7 +127,6 @@ local function restart(args, player)
         end
     end
     print('Abort restart with /abort')
-
     Task.set_timeout_in_ticks(60, callback, {name = player.name, scenario_name = sanitised_scenario, state = 10})
 end
 
