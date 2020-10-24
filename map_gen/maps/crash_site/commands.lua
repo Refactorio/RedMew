@@ -127,8 +127,6 @@ local function restart(args, player)
         end
     end
     print('Abort restart with /abort')
-
-    --Server.to_discord_raw('<@&762441731194748958> Crash site is restarting!')
     Task.set_timeout_in_ticks(60, callback, {name = player.name, scenario_name = sanitised_scenario, state = 10})
 end
 
