@@ -47,11 +47,11 @@ callback =
             local discord_crashsite_role = '<@&762441731194748958>' -- @crash_site
             --local discord_crashsite_role = '<@&593534612051984431>' -- @test
             Server.to_discord_raw(discord_crashsite_role .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
-                
+
             local unix_time = Server.get_current_time()
             local game_time = game.ticks_played
             Server.set_data('crash_site_data', tostring(unix_time),  game_time) -- Store the server unix time as key and total game ticks in the Scenario Data
-                
+
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
         end
 
