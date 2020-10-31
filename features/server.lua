@@ -13,6 +13,7 @@ local remove = table.remove
 local tostring = tostring
 local raw_print = Print.raw_print
 local next = next
+local type = type
 
 local serialize_options = {sparse = true, compact = true}
 
@@ -37,6 +38,11 @@ local discord_embed_tag = '[DISCORD-EMBED]'
 local discord_embed_raw_tag = '[DISCORD-EMBED-RAW]'
 local discord_admin_embed_tag = '[DISCORD-ADMIN-EMBED]'
 local discord_admin_embed_raw_tag = '[DISCORD-ADMIN-EMBED-RAW]'
+local discord_named_tag = '[DISCORD-NAMED]'
+local discord_named_raw_tag = '[DISCORD-NAMED-RAW]'
+local discord_named_bold_tag = '[DISCORD-NAMED-BOLD]'
+local discord_named_embed_tag = '[DISCORD-NAMED-EMBED]'
+local discord_named_embed_raw_tag = '[DISCORD-NAMED-EMBED-RAW]'
 local start_scenario_tag = '[START-SCENARIO]'
 local ping_tag = '[PING]'
 local data_set_tag = '[DATA-SET]'
@@ -52,6 +58,20 @@ local player_leave_tag = '[PLAYER-LEAVE]'
 Public.raw_print = raw_print
 
 local data_set_handlers = {}
+
+local function assert_non_empty_string_and_no_spaces(str, argument_name)
+    if type(str) ~= 'string' then
+        error(argument_name .. ' must be a string', 3)
+    end
+
+    if #str == 0 then
+        error(argument_name .. ' must not be an empty string', 3)
+    end
+
+    if str:match(' ') then
+        error(argument_name .. " must not contain space ' ' character.", 3)
+    end
+end
 
 --- The event id for the on_server_started event.
 -- The event is raised whenever the server goes from the starting state to the running state.
@@ -100,19 +120,19 @@ function Public.to_admin_raw(message)
     raw_print(discord_admin_raw_tag .. message)
 end
 
---- Sends a embed message to the linked discord channel. The message is sanitized of markdown server side.
+--- Sends an embed message to the linked discord channel. The message is sanitized of markdown server side.
 -- @param  message<string> the content of the embed.
 function Public.to_discord_embed(message)
     raw_print(discord_embed_tag .. message)
 end
 
---- Sends a embed message to the linked discord channel. The message is not sanitized of markdown.
+--- Sends an embed message to the linked discord channel. The message is not sanitized of markdown.
 -- @param  message<string> the content of the embed.
 function Public.to_discord_embed_raw(message)
     raw_print(discord_embed_raw_tag .. message)
 end
 
---- Sends a embed message to the linked admin discord channel. The message is sanitized of markdown server side.
+--- Sends an embed message to the linked admin discord channel. The message is sanitized of markdown server side.
 -- @param  message<string> the content of the embed.
 function Public.to_admin_embed(message)
     raw_print(discord_admin_embed_tag .. message)
@@ -122,6 +142,41 @@ end
 -- @param  message<string> the content of the embed.
 function Public.to_admin_embed_raw(message)
     raw_print(discord_admin_embed_raw_tag .. message)
+end
+
+--- Sends a message to the named discord channel. The message is sanitized of markdown server side.
+-- @param  message<string> message to send.
+function Public.to_discord_named(channel_name, message)
+    assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
+    raw_print(concat({discord_named_tag, channel_name, ' ', message}))
+end
+
+--- Sends a message to the named discord channel. The message is not sanitized of markdown.
+-- @param  message<string> message to send.
+function Public.to_discord_named_raw(channel_name, message)
+    assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
+    raw_print(concat({discord_named_raw_tag, channel_name, ' ', message}))
+end
+
+--- Sends a message to the named discord channel. The message is sanitized of markdown server side, then made bold.
+-- @param  message<string> message to send.
+function Public.to_discord_named_bold(channel_name, message)
+    assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
+    raw_print(concat({discord_named_bold_tag, channel_name, ' ', message}))
+end
+
+--- Sends an embed message to the named discord channel. The message is sanitized of markdown server side.
+-- @param  message<string> the content of the embed.
+function Public.to_discord_named_embed(channel_name, message)
+    assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
+    raw_print(concat({discord_named_embed_tag, channel_name, ' ', message}))
+end
+
+--- Sends an embed message to the named discord channel. The message is not sanitized of markdown.
+-- @param  message<string> the content of the embed.
+function Public.to_discord_named_embed_raw(channel_name, message)
+    assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
+    raw_print(concat({discord_named_embed_raw_tag, channel_name, ' ', message}))
 end
 
 --- Stops and saves the factorio server and starts the named scenario.
