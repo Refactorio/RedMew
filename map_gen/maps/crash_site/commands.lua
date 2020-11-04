@@ -150,12 +150,12 @@ local function spy(args, player)
     local player_name = player.name
     local coin_count = player.get_item_count("coin")
 
-    -- Parse the values from the location string 
+    -- Parse the values from the location string
     -- {location = "[gps=-110,-17,redmew]"}
     local location_string = args.location
     local coords = {}
     local coord_count = 0
-    for m in string.gmatch( location_string, "%-?%d+" ) do 
+    for m in string.gmatch( location_string, "%-?%d+" ) do
         table.insert(coords, tonumber(m))
         coord_count = coord_count + 1
     end
@@ -170,10 +170,10 @@ local function spy(args, player)
     else
         local xpos=coords[1]
         local ypos=coords[2]
-        local xrad=16 yrad=16 
-        game.player.force.chart(game.player.surface, {{xpos-xrad, ypos-yrad}, {xpos+xrad, ypos+yrad}})
+        local rad=16
+        game.player.force.chart(game.player.surface, {{xpos-rad, ypos-rad}, {xpos+rad, ypos+rad}})
         game.print("[color=red]Jayefuu used the /spy command and spent 1000 coins to train a fish to spy on the enemy [gps=" .. xpos .. "," .. ypos .. ",redmew][/color]")
-        inv = game.player.get_inventory(1)
+        local inv = game.player.get_inventory(1)
         inv.remove("coin")
         player.insert({name="coin", count=coin_count-1000})
     end
