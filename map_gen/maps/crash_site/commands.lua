@@ -146,6 +146,39 @@ local function abort(_, player)
     end
 end
 
+local function spy(args, player)
+    local player_name = player.name
+    local coin_count = player.get_item_count("coin")
+
+    -- Parse the values from the location string 
+    -- {location = "[gps=-110,-17,redmew]"}
+    local location_string = args.location
+    local coords = {}
+    local coord_count = 0
+    for m in string.gmatch( location_string, "%-?%d+" ) do 
+        table.insert(coords, tonumber(m))
+        coord_count = coord_count + 1
+    end
+
+    -- Do some checks then reveal the pinged map and remove 1000 coins
+    if coord_count ~= 2 then
+        game.players[player_name].print("[color=red]You need to add a valid location to send a spy fish. e.g /spy [gps=-110,-17,redmew][/color]")
+        return
+    elseif coin_count < 1000 then
+        game.players[player_name].print("[color=red]Training these spy fish ain't cheap! You need more coins![/color]")
+        return
+    else
+        local xpos=coords[1]
+        local ypos=coords[2]
+        local xrad=16 yrad=16 
+        game.player.force.chart(game.player.surface, {{xpos-xrad, ypos-yrad}, {xpos+xrad, ypos+yrad}})
+        game.print("[color=red]Jayefuu used the /spy command and spent 1000 coins to train a fish to spy on the enemy [gps=" .. xpos .. "," .. ypos .. ",redmew][/color]")
+        inv = game.player.get_inventory(1)
+        inv.remove("coin")
+        player.insert({name="coin", count=coin_count-1000})
+    end
+end
+
 Command.add(
     'crash-site-restart-abort',
     {
@@ -167,30 +200,41 @@ Command.add(
 )
 
 
-    local default_name = config.scenario_name or 'crashsite'
-    Command.add(
-        'crash-site-restart',
-        {
-            description = {'command_description.crash_site_restart'},
-            arguments = {'scenario_name'},
-            default_values = {scenario_name = default_name},
-            required_rank = Ranks.admin,
-            allowed_by_server = true
-        },
-        restart
-    )
+local default_name = config.scenario_name or 'crashsite'
+Command.add(
+    'crash-site-restart',
+    {
+        description = {'command_description.crash_site_restart'},
+        arguments = {'scenario_name'},
+        default_values = {scenario_name = default_name},
+        required_rank = Ranks.admin,
+        allowed_by_server = true
+    },
+    restart
+)
 
-    Command.add(
-        'restart',
-        {
-            description = {'command_description.crash_site_restart'},
-            arguments = {'scenario_name'},
-            default_values = {scenario_name = default_name},
-            required_rank = Ranks.auto_trusted,
-            allowed_by_server = true
-        },
-        restart
-    )
+Command.add(
+    'restart',
+    {
+        description = {'command_description.crash_site_restart'},
+        arguments = {'scenario_name'},
+        default_values = {scenario_name = default_name},
+        required_rank = Ranks.auto_trusted,
+        allowed_by_server = true
+    },
+    restart
+)
+
+Command.add(
+    'spy',
+    {
+        description = {'command_description.crash_site_spy'},
+        arguments = {'location'},
+        required_rank = Ranks.auto_trusted,
+        allowed_by_server = false
+    },
+    spy
+)
 end
 
 return Public
