@@ -450,6 +450,42 @@ local function do_spawn_entity(entity_name, entity, event)
     end
 end
 
+-- damageable-spider-leg lua module
+-- adapted from mod: https://mods.factorio.com/mod/damageable-spider-leg
+-- by x2605
+
+local damageable_spider_leg = {}
+local debugging = false
+local damage_modifier = 1/6
+
+local register_spider =  function(entity)
+  if not entity then return end
+  if not entity.valid then return end
+  if entity.type ~= 'spider-vehicle' then return end
+  if not global.damageable_spider_leg then
+    global.damageable_spider_leg = {}
+  end
+  local data = {}
+  local spider = entity
+  local surface = spider.surface
+  local legs = surface.find_entities_filtered{
+    position = spider.position,
+    radius = 10,
+    type = 'spider-leg'
+  }
+  for _, leg in pairs(legs) do
+    if not leg.destructible then
+      leg.destructible = true
+      data[#data + 1] = leg
+    end
+  end
+  global.damageable_spider_leg[tostring(spider.unit_number)] = data
+  script.register_on_entity_destroyed(spider)
+  if debugging then
+    game.print{"",'legs=',#data,' ',spider.name,spider.unit_number}
+  end
+end
+
 Event.add(
     defines.events.on_entity_died,
     function(event)
@@ -493,3 +529,86 @@ Event.add(
     end
 )
 
+Event.add(
+    defines.events.on_entity_damaged,
+    function(event)
+        if not event.entity then return end
+        if not event.entity.valid then return end
+        if event.entity.type ~= 'spider-leg' then return end
+        local leg = event.entity
+        local torsos = event.entity.surface.find_entities_filtered{
+          position = leg.position,
+          radius = 10,
+          type = 'spider-vehicle'
+        }
+        local unit_number = nil
+        for _, torso in pairs(torsos) do
+          unit_number = tostring(torso.unit_number)
+          if global.damageable_spider_leg[unit_number] then
+            for _, entity in pairs(global.damageable_spider_leg[unit_number]) do
+              if entity == leg then
+                leg.health = leg.prototype.max_health
+                local damage = event.original_damage_amount * damage_modifier
+                -- If there is a resistance reduction value, modify it and then add it to the damage again.
+                if torso.prototype.resistances then
+                  if torso.prototype.resistances[event.damage_type.name] then
+                    damage = damage + torso.prototype.resistances[event.damage_type.name].decrease * (1 - damage_modifier)
+                    if damage > event.original_damage_amount then
+                      damage = event.original_damage_amount
+                    end
+                  end
+                end
+                if event.cause and event.cause.valid then
+                  torso.damage(
+                    damage,
+                    event.force,
+                    event.damage_type.name,
+                    event.cause
+                  )
+                else
+                  torso.damage(
+                    damage,
+                    event.force,
+                    event.damage_type.name
+                  )
+                end
+                return
+              end
+            end
+          end
+        end
+    end
+)
+
+Event.add(
+    defines.events.on_entity_destroyed,
+    function(event)
+        if debugging then
+            local check = nil
+            if global.damageable_spider_leg[tostring(event.unit_number)] then check = event.unit_number end
+            game.print{"",'removed ',check}
+          end
+          global.damageable_spider_leg[tostring(event.unit_number)] = nil
+    end
+)
+
+Event.add(
+    defines.events.on_robot_built_entity,
+    function(event)
+    register_spider(event.created_entity)
+  end
+)
+
+Event.add(
+    defines.events.on_built_entity,
+    function(event)
+    register_spider(event.created_entity)
+  end
+)
+
+Event.add(
+    defines.events.on_entity_cloned,
+    function(event)
+    register_spider(event.destination)
+  end
+)
