@@ -216,9 +216,21 @@ global.config = {
                 {name = 'infinity-pipe', count = 10},
                 {name = 'heat-interface', count = 10},
                 {name = 'selection-tool', count = 1}
+                }
             }
-        }
-    },
+        },
+        -- settings for controlling length of delay before player respawn - the delay goes *down* over time
+        -- respawn time is determined by biter progression:
+        --   respawn_delay = max_time - (decrement_amount * biter_progression)
+        --   respawn_time = max( min_time, respawn_delay )
+        -- min_time default is 10 seconds
+        -- decrement_amount default of 3000 will remove ~5 seconds per 10% evolution
+        player_respawn_time = {
+          enabled = false,
+          min_time = 600,
+          max_time = 3600,
+          decrement_amount = 3000
+        },
     -- spawns more units when one dies
     hail_hydra = {
         enabled = false,

@@ -5,7 +5,9 @@ local Global = require 'utils.global'
 local math = require 'utils.math'
 local table = require 'utils.table'
 
+local max = math.max
 local random = math.random
+local round = math.round
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local ceil = math.ceil
 local draw_arc = rendering.draw_arc
@@ -175,7 +177,15 @@ local spawn_player =
     Token.register(
     function(player)
         if player and player.valid then
-            player.ticks_to_respawn = 3600
+          local respawn_delay
+          if global.config.player_respawn_time.enabled then
+            local decrement_amount = round(game.forces.enemy.evolution_factor * global.config.player_respawn_time.decrement_amount)
+            local adjusted_respawn = global.config.player_respawn_time.max_time - decrement_amount
+            respawn_delay = max(global.config.player_respawn_time.min_time, adjusted_respawn) -- limit smallest delay to min_time, if evolution goes above 100%
+          else
+            respawn_delay = global.config.player_respawn_time.max_time
+          end
+          player.ticks_to_respawn =  respawn_delay
         end
     end
 )
