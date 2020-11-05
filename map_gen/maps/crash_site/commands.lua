@@ -7,6 +7,7 @@ local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
 local Ranks = require 'resources.ranks'
 local Core = require 'utils.core'
+local Color = require 'resources.color_presets'
 
 local Public = {}
 
@@ -148,34 +149,33 @@ end
 
 local function spy(args, player)
     local player_name = player.name
-    local coin_count = player.get_item_count("coin")
+    local inv = game.player.get_inventory(1)
+    local coin_count = inv.get_item_count("coin")
 
     -- Parse the values from the location string
     -- {location = "[gps=-110,-17,redmew]"}
     local location_string = args.location
     local coords = {}
-    local coord_count = 0
+ 
     for m in string.gmatch( location_string, "%-?%d+" ) do
         table.insert(coords, tonumber(m))
-        coord_count = coord_count + 1
     end
 
     -- Do some checks then reveal the pinged map and remove 1000 coins
-    if coord_count ~= 2 then
-        game.players[player_name].print("[color=red]You need to add a valid location to send a spy fish. e.g /spy [gps=-110,-17,redmew][/color]")
+    if #coords ~= 2 then
+        game.players[player_name].print({'command_description.crash_site_spy_invalid'}, Color.fail)
         return
     elseif coin_count < 1000 then
-        game.players[player_name].print("[color=red]Training these spy fish ain't cheap! You need more coins![/color]")
+        game.players[player_name].print({'command_description.crash_site_spy_funds'}, Color.fail)
         return
     else
         local xpos=coords[1]
         local ypos=coords[2]
         local rad=16
-        game.player.force.chart(game.player.surface, {{xpos-rad, ypos-rad}, {xpos+rad, ypos+rad}})
-        game.print("[color=red]Jayefuu used the /spy command and spent 1000 coins to train a fish to spy on the enemy [gps=" .. xpos .. "," .. ypos .. ",redmew][/color]")
-        local inv = game.player.get_inventory(1)
-        inv.remove("coin")
-        player.insert({name="coin", count=coin_count-1000})
+        player.force.chart(player.surface, {{xpos-rad, ypos-rad}, {xpos+rad, ypos+rad}})
+        game.players[player_name].print({'command_description.crash_site_spy_success', xpos,ypos}, Color.success)
+        
+        inv.remove({name = "coin", count = 1000})
     end
 end
 
@@ -230,7 +230,8 @@ Command.add(
     {
         description = {'command_description.crash_site_spy'},
         arguments = {'location'},
-        required_rank = Ranks.auto_trusted,
+        capture_excess_arguments = true,
+        required_rank = Ranks.guest,
         allowed_by_server = false
     },
     spy
