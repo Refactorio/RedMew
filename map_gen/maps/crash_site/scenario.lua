@@ -1,5 +1,5 @@
 require 'map_gen.maps.crash_site.blueprint_extractor'
-require 'map_gen.maps.crash_site.entity_died_events'
+require 'map_gen.maps.crash_site.events'
 require 'map_gen.maps.crash_site.weapon_balance'
 
 local b = require 'map_gen.shared.builders'
