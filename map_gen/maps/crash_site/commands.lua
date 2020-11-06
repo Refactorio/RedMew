@@ -156,7 +156,7 @@ local function spy(args, player)
     -- {location = "[gps=-110,-17,redmew]"}
     local location_string = args.location
     local coords = {}
- 
+
     for m in string.gmatch( location_string, "%-?%d+" ) do
         table.insert(coords, tonumber(m))
     end
@@ -174,7 +174,6 @@ local function spy(args, player)
         local rad=16
         player.force.chart(player.surface, {{xpos-rad, ypos-rad}, {xpos+rad, ypos+rad}})
         game.print({'command_description.crash_site_spy_success', player_name, xpos,ypos}, Color.success)
-        
         inv.remove({name = "coin", count = 1000})
     end
 end
