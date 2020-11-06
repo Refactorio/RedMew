@@ -173,7 +173,7 @@ local function spy(args, player)
         local ypos=coords[2]
         local rad=16
         player.force.chart(player.surface, {{xpos-rad, ypos-rad}, {xpos+rad, ypos+rad}})
-        game.players[player_name].print({'command_description.crash_site_spy_success', xpos,ypos}, Color.success)
+        game.print({'command_description.crash_site_spy_success', player_name, xpos,ypos}, Color.success)
         
         inv.remove({name = "coin", count = 1000})
     end
