@@ -365,7 +365,6 @@ local function do_bot_spawn(entity_name, entity, event)
     end
 end
 
--- Drops coins when biter/spitter spawners and worms are killed
 local function do_coin_drop(entity_name, entity)
     local position = entity.position
     local bounds = entity_drop_amount[entity_name]
@@ -479,17 +478,3 @@ Event.add(
         set_timeout_in_ticks(1, spawn_player, player)
     end
 )
-
-Event.add(
-    defines.events.on_combat_robot_expired,
-    function(event)
-
-        local entity = event.robot
-        local position = entity.position
-        if entity.force.name == 'enemy' then
-            entity.surface.create_entity{name = "cluster-grenade", position=position, target=position, speed=1}
-        end
-
-    end
-)
-
