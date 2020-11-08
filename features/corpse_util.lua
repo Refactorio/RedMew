@@ -49,6 +49,14 @@ local function player_died(event)
         return
     end
 
+    player.force.print({
+        'corpse_util.marked_tag',
+        player.name,
+        string.format('%.1f', position.x),
+        string.format('%.1f', position.y),
+        player.surface.name
+    })
+
     player_corpses[player_index * 0x100000000 + tick] = tag
 end
 

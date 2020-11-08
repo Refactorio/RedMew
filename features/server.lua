@@ -719,6 +719,15 @@ Event.add(defines.events.on_player_died, function(event)
         message[#message + 1] = ' has died.'
     end
 
+    local position = player.position
+    message[#message + 1] = ' [gps='
+    message[#message + 1] = string.format('%.1f', position.x)
+    message[#message + 1] = ','
+    message[#message + 1] = string.format('%.1f', position.y)
+    message[#message + 1] = ','
+    message[#message + 1] = player.surface.name
+    message[#message + 1] = ']'
+
     message = concat(message)
     raw_print(message)
 end)
