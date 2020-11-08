@@ -149,7 +149,7 @@ end
 
 local function spy(args, player)
     local player_name = player.name
-    local inv = game.player.get_inventory(1)
+    local inv = game.player.get_inventory(defines.inventory.character_main)
     local coin_count = inv.get_item_count("coin")
 
     -- Parse the values from the location string
@@ -171,8 +171,8 @@ local function spy(args, player)
     else
         local xpos=coords[1]
         local ypos=coords[2]
-        local rad=16
-        player.force.chart(player.surface, {{xpos-rad, ypos-rad}, {xpos+rad, ypos+rad}})
+        -- reveal 3x3 chunks centred on chunk containing pinged location
+        player.force.chart(player.surface, {{xpos-32, ypos-32}, {xpos+32, ypos+32}})
         game.print({'command_description.crash_site_spy_success', player_name, xpos,ypos}, Color.success)
         inv.remove({name = "coin", count = 1000})
     end
