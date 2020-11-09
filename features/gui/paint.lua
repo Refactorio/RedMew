@@ -187,13 +187,9 @@ local function get_tile_localised_name(tile_name)
     end
 end
 
-local function player_joined(event)
+local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
-        return
-    end
-
-    if player.gui.top[main_button_name] ~= nil then
         return
     end
 
@@ -236,8 +232,8 @@ local function draw_filters_table(event)
 
     local flow = frame.add {type = 'flow'}
 
-    local close = flow.add {type = 'button', name = filter_table_close_button_name, caption = {'common.close_button'}}
-    Gui.set_data(close, frame)
+    local close_button = Gui.make_close_button(flow, filter_table_close_button_name)
+    Gui.set_data(close_button, frame)
 
     event.player.opened = frame
 
@@ -289,7 +285,7 @@ local function toggle(event)
 
         local buttons_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
 
-        buttons_flow.add {type = 'button', name = main_button_name, caption = {'common.close_button'}}
+        Gui.make_close_button(buttons_flow, main_button_name)
 
         local clear_brush =
             buttons_flow.add {type = 'button', name = filter_clear_name, caption = {'paint.clear_brush'}}
@@ -364,6 +360,6 @@ Gui.on_custom_close(
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
-Event.add(defines.events.on_player_joined_game, player_joined)
+Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_built_tile, player_build_tile)
 Event.add(defines.events.on_robot_built_tile, robot_built_tile)

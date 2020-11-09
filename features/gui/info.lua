@@ -222,8 +222,7 @@ local pages = {
             discord_textbox_flow_style.horizontal_align = 'center'
             discord_textbox_flow_style.horizontally_stretchable = true
             discord_textbox_flow.add({type = 'label', caption = 'Discord: '}).style.font = 'default-bold'
-            local discord_textbox =
-                discord_textbox_flow.add {type = 'text-box', text = 'https://redmew.com/discord '}
+            local discord_textbox = discord_textbox_flow.add {type = 'text-box', text = 'https://redmew.com/discord '}
             discord_textbox.read_only = true
             discord_textbox.style.width = 235
             discord_textbox.style.height = 28
@@ -629,7 +628,7 @@ local function draw_main_frame(center, player)
     bottom_flow_style.top_padding = 8
     bottom_flow_style.horizontally_stretchable = true
 
-    bottom_flow.add {type = 'button', name = main_button_name, caption = {'common.close_button'}}
+    Gui.make_close_button(bottom_flow, main_button_name)
 
     player.opened = frame
 end
@@ -688,8 +687,7 @@ local function player_created(event)
         return
     end
 
-    local gui = player.gui
-    gui.top.add(
+    player.gui.top.add(
         {
             type = 'sprite-button',
             name = main_button_name,

@@ -79,28 +79,34 @@ local function update_gui(player)
     end
 end
 
-local function player_joined(event)
+local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
-        return
-    end
-
-    if player.gui.top[main_button_name] ~= nil then
-        update_gui(player)
         return
     end
 
     local evolution_factor = get_evolution_percentage()
     local alien_name = get_alien_name(evolution_factor)
 
-    player.gui.top.add({
-        name = main_button_name,
-        type = 'sprite-button',
-        sprite = 'entity/' .. alien_name,
-        number = evolution_factor * 100,
-        tooltip = {'evolution_progress.tooltip'},
-        enabled = false
-    })
+    player.gui.top.add(
+        {
+            name = main_button_name,
+            type = 'sprite-button',
+            sprite = 'entity/' .. alien_name,
+            number = evolution_factor * 100,
+            tooltip = {'evolution_progress.tooltip'},
+            enabled = false
+        }
+    )
+end
+
+local function player_joined(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    update_gui(player)
 end
 
 local function on_nth_tick()
@@ -140,5 +146,6 @@ end
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
+Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.on_nth_tick(207, on_nth_tick)

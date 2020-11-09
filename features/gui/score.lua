@@ -20,7 +20,12 @@ local memory = {
     player_death_causes = {}
 }
 
-Global.register(memory, function(tbl) memory = tbl end)
+Global.register(
+    memory,
+    function(tbl)
+        memory = tbl
+    end
+)
 
 ---Creates a map of score name => {captain, tooltip}
 local function get_global_score_labels()
@@ -38,24 +43,27 @@ local function get_global_score_labels()
     return score_labels
 end
 
-local do_redraw_score = Token.register(function()
-    local players = game.connected_players
-    local scores = get_global_score_labels()
+local do_redraw_score =
+    Token.register(
+    function()
+        local players = game.connected_players
+        local scores = get_global_score_labels()
 
-    for i = 1, #players do
-        local player = players[i]
-        local frame = player.gui.top[main_frame_name]
+        for i = 1, #players do
+            local player = players[i]
+            local frame = player.gui.top[main_frame_name]
 
-        if frame and frame.valid then
-            local score_table = frame.score_table
-            for score_name, textual_display in pairs(scores) do
-                score_table[score_name].caption = textual_display.caption
+            if frame and frame.valid then
+                local score_table = frame.score_table
+                for score_name, textual_display in pairs(scores) do
+                    score_table[score_name].caption = textual_display.caption
+                end
             end
         end
-    end
 
-    memory.redraw_score_scheduled = false
-end)
+        memory.redraw_score_scheduled = false
+    end
+)
 
 local function schedule_redraw_score()
     if memory.redraw_score_scheduled then
@@ -67,22 +75,20 @@ local function schedule_redraw_score()
     memory.redraw_score_scheduled = true
 end
 
-local function player_joined_game(event)
+local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player then
         return
     end
 
-    local top = player.gui.top
-
-    if not top[main_button_name] then
-        top.add({
+    player.gui.top.add(
+        {
             type = 'sprite-button',
             name = main_button_name,
             sprite = 'achievement/there-is-no-spoon',
             tooltip = {'score.tooltip'}
-        })
-    end
+        }
+    )
 end
 
 local function score_label_style(label, color)
@@ -100,12 +106,15 @@ local function score_show(top)
     style.horizontal_spacing = 16
 
     for score_name, textual_display in pairs(scores) do
-        local label = score_table.add({
-            type = 'label',
-            name = score_name,
-            caption = textual_display.caption,
-            tooltip = textual_display.tooltip
-        })
+        local label =
+            score_table.add(
+            {
+                type = 'label',
+                name = score_name,
+                caption = textual_display.caption,
+                tooltip = textual_display.tooltip
+            }
+        )
         score_label_style(label, Color.white)
     end
 end
@@ -162,5 +171,5 @@ Gui.on_click(
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
-Event.add(defines.events.on_player_joined_game, player_joined_game)
+Event.add(defines.events.on_player_created, player_created)
 Event.add(ScoreTracker.events.on_global_score_changed, global_score_changed)
