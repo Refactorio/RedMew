@@ -149,7 +149,7 @@ end
 
 local function spy(args, player)
     local player_name = player.name
-    local inv = game.player.get_inventory(defines.inventory.character_main)
+    local inv = player.get_inventory(defines.inventory.character_main)
     local coin_count = inv.get_item_count("coin")
 
     -- Parse the values from the location string
@@ -160,13 +160,12 @@ local function spy(args, player)
     for m in string.gmatch( location_string, "%-?%d+" ) do
         table.insert(coords, tonumber(m))
     end
-
     -- Do some checks then reveal the pinged map and remove 1000 coins
-    if #coords ~= 2 then
-        game.players[player_name].print({'command_description.crash_site_spy_invalid'}, Color.fail)
+    if #coords < 2 then
+        player.print({'command_description.crash_site_spy_invalid'}, Color.fail)
         return
     elseif coin_count < 1000 then
-        game.players[player_name].print({'command_description.crash_site_spy_funds'}, Color.fail)
+        player.print({'command_description.crash_site_spy_funds'}, Color.fail)
         return
     else
         local xpos=coords[1]
