@@ -195,6 +195,7 @@ function Module.jail(target_player, player)
 
     -- Add player to jail group
     permission_group.add_player(target_player)
+    
     -- If in vehicle, kick them out and set the speed to 0.
     local vehicle = target_player.vehicle
     if vehicle then
