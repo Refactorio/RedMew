@@ -70,7 +70,7 @@ function Public.do_player_deconstruct_area(cursor, player, area, optional_skip_f
 end
 
 function Public.on_player_died(player_index)
-    return {name = defines.events.on_player_died, tick = game.tick, player_index = player_index, cause = nils}
+    return {name = defines.events.on_player_died, tick = game.tick, player_index = player_index, cause = nil}
 end
 
 return Public

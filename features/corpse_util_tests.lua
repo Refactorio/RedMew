@@ -64,7 +64,7 @@ Declare.module({'features', 'corpse_util'}, function()
     end
 
     declare_test('ping player corpse location when died', function(context)
-        -- Arrange.        
+        -- Arrange.
         local player = context.player
 
         local actual_text
@@ -88,7 +88,7 @@ Declare.module({'features', 'corpse_util'}, function()
     end)
 
     declare_test('ping other player corpse location when other player died', function(context)
-        -- Arrange.        
+        -- Arrange.
         local player = context.player
         local force = player.force
 
