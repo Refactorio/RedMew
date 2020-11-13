@@ -206,7 +206,7 @@ function Module.jail(target_player, player)
             -- spidertron's can't have their speed set and will stop if a player is driving and exits
             -- if the player uses spidertron remote then the spidertron will continue without the player
             -- so set the spidertron autopilot position to its current position before kicking hte player
-            vehicle.autopilot_destination = vehicle.position 
+            vehicle.autopilot_destination = vehicle.position
         else
             vehicle.speed = 0
         end
