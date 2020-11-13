@@ -1,3 +1,4 @@
+local table = require 'utils.table'
 local error = error
 local concat = table.concat
 
@@ -23,6 +24,28 @@ function Public.equal(a, b, optional_message)
 
     message = concat(message)
     error(message, 2)
+end
+
+function Public.is_nil(value, optional_message)
+    if value == nil then
+        return
+    end
+
+    local message = {tostring(value), ' was not nil'}
+    if optional_message then
+        message[#message + 1] = ' - '
+        message[#message + 1] = optional_message
+    end
+
+    message = concat(message)
+    error(message, 2)
+end
+
+function Public.table_equal(a, b)
+    -- Todo write own table equal
+    if not table.equals(a, b) then
+        error('tables not equal', 2)
+    end
 end
 
 function Public.is_true(condition, optional_message)

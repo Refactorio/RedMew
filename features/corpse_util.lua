@@ -3,6 +3,18 @@ local Global = require 'utils.global'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Utils = require 'utils.core'
+local Settings = require 'utils.redmew_settings'
+
+local Public = {}
+
+local ping_own_death_name = 'corpse_util.ping_own_death'
+local ping_other_death_name = 'corpse_util.ping_other_death'
+
+Public.ping_own_death_name = ping_own_death_name
+Public.ping_other_death_name = ping_other_death_name
+
+Settings.register(ping_own_death_name, Settings.types.boolean, true, 'corpse_util.ping_own_death')
+Settings.register(ping_other_death_name, Settings.types.boolean, false, 'corpse_util.ping_other_death')
 
 local player_corpses = {}
 
@@ -49,13 +61,26 @@ local function player_died(event)
         return
     end
 
-    player.force.print({
-        'corpse_util.marked_tag',
-        player.name,
-        string.format('%.1f', position.x),
-        string.format('%.1f', position.y),
-        player.surface.name
-    })
+    if Settings.get(player_index, ping_own_death_name) then
+        player.print({
+            'corpse_util.own_corpse_location',
+            string.format('%.1f', position.x),
+            string.format('%.1f', position.y),
+            player.surface.name
+        })
+    end
+
+    for _, other_player in pairs(player.force.players) do
+        if other_player ~= player and Settings.get(other_player.index, ping_other_death_name) then
+            other_player.print({
+                'corpse_util.other_corpse_location',
+                player.name,
+                string.format('%.1f', position.x),
+                string.format('%.1f', position.y),
+                player.surface.name
+            })
+        end
+    end
 
     player_corpses[player_index * 0x100000000 + tick] = tag
 end
@@ -144,3 +169,11 @@ Event.add(defines.events.on_player_died, player_died)
 Event.add(defines.events.on_character_corpse_expired, corpse_expired)
 Event.add(defines.events.on_pre_player_mined_item, mined_entity)
 Event.add(defines.events.on_gui_opened, on_gui_opened)
+
+function Public.clear()
+    table.clear_table(player_corpses)
+end
+
+Public._player_died = player_died
+
+return Public

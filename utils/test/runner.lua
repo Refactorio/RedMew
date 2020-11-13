@@ -8,9 +8,7 @@ local pcall = pcall
 
 local Public = {}
 
-Public.events = {
-    tests_run_finished = Event.generate_event_name('test_run_finished')
-}
+Public.events = {tests_run_finished = Event.generate_event_name('test_run_finished')}
 
 local run_runnables_token
 
@@ -67,6 +65,10 @@ local function print_hook_error(hook)
     hook.context.player.print(table.concat {'Failed ', hook.name, " hook -':", tostring(hook.error)}, {r = 1})
 end
 
+local function print_teardown_error(context, name, error_message)
+    context.player.print(table.concat {'Failed ', name, " teardown -':", error_message}, {r = 1})
+end
+
 local function record_hook_error_in_module(hook)
     if hook.name == 'startup' then
         hook.module.startup_error = hook.error
@@ -84,6 +86,32 @@ local function do_termination(data)
     finish_test_run(data)
     data.index = -1
     return true
+end
+
+local function run_teardown(teardown, errors)
+    local success, error_message = pcall(teardown)
+
+    if not success then
+        errors[#errors + 1] = error_message
+    end
+end
+
+local function do_teardowns(context, name)
+    local teardowns = context._teardowns
+    local errors = {}
+
+    for i = 1, #teardowns do
+        run_teardown(teardowns[i], errors)
+    end
+
+    if #errors > 0 then
+        local error_message = table.concat(errors, '\n')
+        print_teardown_error(context, name, error_message)
+
+        return error_message
+    end
+
+    return nil
 end
 
 local function run_hook(hook)
@@ -104,14 +132,22 @@ local function run_hook(hook)
         hook.error = return_value
         print_hook_error(hook)
         record_hook_error_in_module(hook)
+        do_teardowns(context, hook.name)
         return false
     end
 
-    if current_step == #steps then
-        return true
+    if current_step ~= #steps then
+        return nil
     end
 
-    return nil
+    local error_message = do_teardowns(context, hook.name)
+    if error_message then
+        hook.error = error_message
+        record_hook_error_in_module(hook)
+        return false
+    end
+
+    return true
 end
 
 local function do_hook(hook, data)
@@ -152,16 +188,24 @@ local function run_test(test)
         print_error(context.player, test.name, return_value)
         test.passed = false
         test.error = return_value
+        do_teardowns(context, test.name)
         return false
     end
 
-    if current_step == #steps then
-        print_success(context.player, test.name)
-        test.passed = true
-        return true
+    if current_step ~= #steps then
+        return nil
     end
 
-    return nil
+    local error_message = do_teardowns(context, test.name)
+    if error_message then
+        test.passed = false
+        test.error = error_message
+        return false
+    end
+
+    print_success(context.player, test.name)
+    test.passed = true
+    return true
 end
 
 local function do_test(test, data)
@@ -219,16 +263,14 @@ end
 
 local function run(runnables, player, options)
     options = validate_options(options)
-    run_runnables(
-        {
-            runnables = runnables,
-            player = player,
-            index = 1,
-            count = 0,
-            fail_count = 0,
-            stop_on_first_error = options.stop_on_first_error
-        }
-    )
+    run_runnables({
+        runnables = runnables,
+        player = player,
+        index = 1,
+        count = 0,
+        fail_count = 0,
+        stop_on_first_error = options.stop_on_first_error
+    })
 end
 
 function Public.run_module(module, player, options)
