@@ -711,6 +711,8 @@ Event.add(defines.events.on_player_died, function(event)
         local name = cause.name
         if name == 'character' then
             name = cause.player.name
+        else
+            message[#message + 1] = 'a '
         end
 
         message[#message + 1] = name
