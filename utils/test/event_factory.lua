@@ -57,18 +57,20 @@ function Public.on_player_deconstructed_area(player_index, surface, area, item)
 end
 
 function Public.do_player_deconstruct_area(cursor, player, area, optional_skip_fog_of_war)
-    cursor.deconstruct_area(
-        {
-            surface = player.surface,
-            force = player.force,
-            area = area,
-            by_player = player,
-            skip_fog_of_war = optional_skip_fog_of_war
-        }
-    )
+    cursor.deconstruct_area({
+        surface = player.surface,
+        force = player.force,
+        area = area,
+        by_player = player,
+        skip_fog_of_war = optional_skip_fog_of_war
+    })
 
     local event = Public.on_player_deconstructed_area(player.index, player.surface, area, cursor.name)
     Public.raise(event)
+end
+
+function Public.on_player_died(player_index)
+    return {name = defines.events.on_player_died, tick = game.tick, player_index = player_index, cause = nil}
 end
 
 return Public

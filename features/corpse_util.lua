@@ -2,16 +2,26 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
+local table = require 'utils.table'
 local Utils = require 'utils.core'
+local Settings = require 'utils.redmew_settings'
+
+local Public = {}
+
+local ping_own_death_name = 'corpse_util.ping_own_death'
+local ping_other_death_name = 'corpse_util.ping_other_death'
+
+Public.ping_own_death_name = ping_own_death_name
+Public.ping_other_death_name = ping_other_death_name
+
+Settings.register(ping_own_death_name, Settings.types.boolean, true, 'corpse_util.ping_own_death')
+Settings.register(ping_other_death_name, Settings.types.boolean, false, 'corpse_util.ping_other_death')
 
 local player_corpses = {}
 
-Global.register(
-    player_corpses,
-    function(tbl)
-        player_corpses = tbl
-    end
-)
+Global.register(player_corpses, function(tbl)
+    player_corpses = tbl
+end)
 
 local function player_died(event)
     local player_index = event.player_index
@@ -22,8 +32,7 @@ local function player_died(event)
     end
 
     local pos = player.position
-    local entities =
-        player.surface.find_entities_filtered {
+    local entities = player.surface.find_entities_filtered {
         area = {{pos.x - 0.5, pos.y - 0.5}, {pos.x + 0.5, pos.y + 0.5}},
         name = 'character-corpse'
     }
@@ -43,14 +52,35 @@ local function player_died(event)
 
     local text = player.name .. "'s corpse"
     local position = entity.position
-    local tag =
-        player.force.add_chart_tag(
-        player.surface,
-        {icon = {type = 'item', name = 'power-armor-mk2'}, position = position, text = text}
-    )
+    local tag = player.force.add_chart_tag(player.surface, {
+        icon = {type = 'item', name = 'power-armor-mk2'},
+        position = position,
+        text = text
+    })
 
     if not tag then
         return
+    end
+
+    if Settings.get(player_index, ping_own_death_name) then
+        player.print({
+            'corpse_util.own_corpse_location',
+            string.format('%.1f', position.x),
+            string.format('%.1f', position.y),
+            player.surface.name
+        })
+    end
+
+    for _, other_player in pairs(player.force.players) do
+        if other_player ~= player and Settings.get(other_player.index, ping_other_death_name) then
+            other_player.print({
+                'corpse_util.other_corpse_location',
+                player.name,
+                string.format('%.1f', position.x),
+                string.format('%.1f', position.y),
+                player.surface.name
+            })
+        end
     end
 
     player_corpses[player_index * 0x100000000 + tick] = tag
@@ -77,14 +107,11 @@ local function corpse_expired(event)
     end
 end
 
-local corpse_util_mined_entity =
-    Token.register(
-    function(data)
-        if not data.entity.valid then
-            remove_tag(data.player_index, data.tick)
-        end
+local corpse_util_mined_entity = Token.register(function(data)
+    if not data.entity.valid then
+        remove_tag(data.player_index, data.tick)
     end
-)
+end)
 
 local function mined_entity(event)
     local entity = event.entity
@@ -95,15 +122,11 @@ local function mined_entity(event)
 
     -- The corpse may be mined but not removed (if player doesn't have inventory space)
     -- so we wait one tick to see if the corpse is gone.
-    Task.set_timeout_in_ticks(
-        1,
-        corpse_util_mined_entity,
-        {
-            entity = entity,
-            player_index = entity.character_corpse_player_index,
-            tick = entity.character_corpse_tick_of_death
-        }
-    )
+    Task.set_timeout_in_ticks(1, corpse_util_mined_entity, {
+        entity = entity,
+        player_index = entity.character_corpse_player_index,
+        tick = entity.character_corpse_tick_of_death
+    })
 
     local player_index = event.player_index
     local corpse_owner_index = entity.character_corpse_player_index
@@ -147,3 +170,11 @@ Event.add(defines.events.on_player_died, player_died)
 Event.add(defines.events.on_character_corpse_expired, corpse_expired)
 Event.add(defines.events.on_pre_player_mined_item, mined_entity)
 Event.add(defines.events.on_gui_opened, on_gui_opened)
+
+function Public.clear()
+    table.clear_table(player_corpses)
+end
+
+Public._player_died = player_died
+
+return Public

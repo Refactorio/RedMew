@@ -1,5 +1,4 @@
 --- See documentation at https://github.com/Refactorio/RedMew/pull/469
-
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Global = require 'utils.global'
@@ -23,17 +22,11 @@ local server_time = {secs = nil, tick = 0}
 ErrorLogging.server_time = server_time
 local requests = {}
 
-Global.register(
-    {
-        server_time = server_time,
-        requests = requests
-    },
-    function(tbl)
-        server_time = tbl.server_time
-        ErrorLogging.server_time = server_time
-        requests = tbl.requests
-    end
-)
+Global.register({server_time = server_time, requests = requests}, function(tbl)
+    server_time = tbl.server_time
+    ErrorLogging.server_time = server_time
+    requests = tbl.requests
+end)
 
 local discord_tag = '[DISCORD]'
 local discord_raw_tag = '[DISCORD-RAW]'
@@ -147,16 +140,13 @@ function Public.start_scenario(scenario_name)
     raw_print(message)
 end
 
-local default_ping_token =
-    Token.register(
-    function(sent_tick)
-        local now = game.tick
-        local diff = now - sent_tick
+local default_ping_token = Token.register(function(sent_tick)
+    local now = game.tick
+    local diff = now - sent_tick
 
-        local message = concat({'Pong in ', diff, ' tick(s) ', 'sent tick: ', sent_tick, ' received tick: ', now})
-        game.print(message)
-    end
-)
+    local message = concat({'Pong in ', diff, ' tick(s) ', 'sent tick: ', sent_tick, ' received tick: ', now})
+    game.print(message)
+end)
 
 --- Pings the web server.
 -- @param  func_token<token> The function that is called when the web server replies.
@@ -243,29 +233,26 @@ local function send_try_get_data(data_set, key, callback_token)
     raw_print(message)
 end
 
-local cancelable_callback_token =
-    Token.register(
-    function(data)
-        local data_set = data.data_set
-        local keys = requests[data_set]
-        if not keys then
-            return
-        end
-
-        local key = data.key
-        local callbacks = keys[key]
-        if not callbacks then
-            return
-        end
-
-        keys[key] = nil
-
-        for c, _ in next, callbacks do
-            local func = Token.get(c)
-            func(data)
-        end
+local cancelable_callback_token = Token.register(function(data)
+    local data_set = data.data_set
+    local keys = requests[data_set]
+    if not keys then
+        return
     end
-)
+
+    local key = data.key
+    local callbacks = keys[key]
+    if not callbacks then
+        return
+    end
+
+    keys[key] = nil
+
+    for c, _ in next, callbacks do
+        local func = Token.get(c)
+        func(data)
+    end
+end)
 
 --- Gets data from the web server's persistent data storage.
 -- The callback is passed a table {data_set: string, key: string, value: any}.
@@ -372,12 +359,9 @@ function Public.cancel_try_get_data(data_set, key, callback_token)
     return cancel_try_get_data(data_set, key, callback_token)
 end
 
-local timeout_token =
-    Token.register(
-    function(data)
-        cancel_try_get_data(data.data_set, data.key, data.callback_token)
-    end
-)
+local timeout_token = Token.register(function(data)
+    cancel_try_get_data(data.data_set, data.key, data.callback_token)
+end)
 
 --- Same as Server.try_get_data but the request is cancelled if the timeout expires before the request is complete.
 -- If the request is cancelled before it is complete the callback will be called with data.cancelled = true.
@@ -415,11 +399,8 @@ function Public.try_get_data_timeout(data_set, key, callback_token, timeout_tick
 
     try_get_data_cancelable(data_set, key, callback_token)
 
-    Task.set_timeout_in_ticks(
-        timeout_ticks,
-        timeout_token,
-        {data_set = data_set, key = key, callback_token = callback_token}
-    )
+    Task.set_timeout_in_ticks(timeout_ticks, timeout_token,
+        {data_set = data_set, key = key, callback_token = callback_token})
 end
 
 --- Gets all the data for the data_set from the web server's persistent data storage.
@@ -696,59 +677,61 @@ Event.add(Public.events.on_server_started, set_scenario_version)
 
 --- The [JOIN] nad [LEAVE] messages Factorio sends to stdout aren't sent in all cases of
 --  players joining or leaving. So we send our own [PLAYER-JOIN] and [PLAYER-LEAVE] tags.
-Event.add(
-    defines.events.on_player_joined_game,
-    function(event)
-        local player = game.get_player(event.player_index)
-        if not player then
-            return
-        end
-
-        raw_print(player_join_tag .. player.name)
+Event.add(defines.events.on_player_joined_game, function(event)
+    local player = game.get_player(event.player_index)
+    if not player then
+        return
     end
-)
 
-Event.add(
-    defines.events.on_player_left_game,
-    function(event)
-        local player = game.get_player(event.player_index)
-        if not player then
-            return
-        end
+    raw_print(player_join_tag .. player.name)
+end)
 
-        raw_print(player_leave_tag .. player.name)
+Event.add(defines.events.on_player_left_game, function(event)
+    local player = game.get_player(event.player_index)
+    if not player then
+        return
     end
-)
 
-Event.add(
-    defines.events.on_player_died,
-    function(event)
-        local player = game.get_player(event.player_index)
+    raw_print(player_leave_tag .. player.name)
+end)
 
-        if not player or not player.valid then
-            return
-        end
+Event.add(defines.events.on_player_died, function(event)
+    local player = game.get_player(event.player_index)
 
-        local cause = event.cause
+    if not player or not player.valid then
+        return
+    end
 
-        local message = {discord_bold_tag, player.name}
-        if cause and cause.valid then
-            message[#message + 1] = ' was killed by '
+    local cause = event.cause
 
-            local name = cause.name
-            if name == 'character' then
-                name = cause.player.name
-            end
+    local message = {discord_bold_tag, player.name}
+    if cause and cause.valid then
+        message[#message + 1] = ' was killed by '
 
-            message[#message + 1] = name
-            message[#message + 1] = '.'
+        local name = cause.name
+        if name == 'character' then
+            name = cause.player.name
         else
-            message[#message + 1] = ' has died.'
+            message[#message + 1] = 'a '
         end
 
-        message = concat(message)
-        raw_print(message)
+        message[#message + 1] = name
+        message[#message + 1] = '.'
+    else
+        message[#message + 1] = ' has died.'
     end
-)
+
+    local position = player.position
+    message[#message + 1] = ' [gps='
+    message[#message + 1] = string.format('%.1f', position.x)
+    message[#message + 1] = ','
+    message[#message + 1] = string.format('%.1f', position.y)
+    message[#message + 1] = ','
+    message[#message + 1] = player.surface.name
+    message[#message + 1] = ']'
+
+    message = concat(message)
+    raw_print(message)
+end)
 
 return Public
