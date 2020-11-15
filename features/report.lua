@@ -441,7 +441,7 @@ Gui.on_click(reporting_submit_button_name, function(event)
     print(prefix_e)
 end)
 
-local function restore_non_character_unjailed_players(event)
+local function restore_player_jailed_state(event)
     local player_index = event.player_index
     local player = game.get_player(player_index)
     if not player or not player.valid then
@@ -475,8 +475,20 @@ local function restore_non_character_unjailed_players(event)
     end
 end
 
-Event.add(defines.events.on_player_joined_game, restore_non_character_unjailed_players)
-Event.add(defines.events.on_player_respawned, restore_non_character_unjailed_players)
+Event.add(defines.events.on_player_joined_game, restore_player_jailed_state)
+Event.add(defines.events.on_player_respawned, restore_player_jailed_state)
+
+Event.add(defines.events.on_player_joined_game, function(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid or not player.admin then
+        return
+    end
+
+    local report_frame = player.gui.center[report_frame_name]
+    if report_frame and report_frame.valid then
+        Module.show_reports(player)
+    end
+end)
 
 Command.add('report', {
     description = {'command_description.report'},
