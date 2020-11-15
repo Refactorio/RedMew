@@ -5,6 +5,7 @@ local Global = require 'utils.global'
 local Command = require 'utils.command'
 local Popup = require 'features.gui.popup'
 local Color = require 'resources.color_presets'
+local Event = require 'utils.event'
 
 local format = string.format
 
@@ -23,17 +24,17 @@ local Module = {}
 -- Global registered locals
 local report_data = {}
 local jail_data = {}
+local non_character_unjailed_players = {}
 
-Global.register(
-    {
-        report_data = report_data,
-        jail_data = jail_data
-    },
-    function(tbl)
-        report_data = tbl.report_data
-        jail_data = tbl.jail_data
-    end
-)
+Global.register({
+    report_data = report_data,
+    jail_data = jail_data,
+    non_character_unjailed_players = non_character_unjailed_players
+}, function(tbl)
+    report_data = tbl.report_data
+    jail_data = tbl.jail_data
+    non_character_unjailed_players = tbl.non_character_unjailed_players
+end)
 
 local function report_command(args, player)
     local reported_player_name = args.player
@@ -67,13 +68,23 @@ local function draw_report(parent, report_id)
     Gui.clear(parent)
 
     local permission_group = game.permissions.get_group(jail_name)
-    local jail_offender_button_caption = (game.get_player(report.reported_player_index).permission_group == permission_group) and 'Unjail ' .. reported_player_name or 'Jail ' .. reported_player_name
+    local jail_offender_button_caption = (game.get_player(report.reported_player_index).permission_group
+                                             == permission_group) and 'Unjail ' .. reported_player_name or 'Jail '
+                                             .. reported_player_name
 
     parent.add {type = 'label', caption = 'Offender: ' .. reported_player_name}
-    local msg_label_pane = parent.add {type = 'scroll-pane', vertical_scroll_policy = 'auto-and-reserve-space', horizontal_scroll_policy = 'never'}
+    local msg_label_pane = parent.add {
+        type = 'scroll-pane',
+        vertical_scroll_policy = 'auto-and-reserve-space',
+        horizontal_scroll_policy = 'never'
+    }
     msg_label_pane.style.maximal_height = 400
     local msg_label = msg_label_pane.add {type = 'label', caption = 'Message: ' .. message}
-    local jail_offender_button = parent.add {type = 'button', name = jail_offender_button_name, caption = jail_offender_button_caption}
+    local jail_offender_button = parent.add {
+        type = 'button',
+        name = jail_offender_button_name,
+        caption = jail_offender_button_caption
+    }
     jail_offender_button.style.height = 24
     jail_offender_button.style.font = 'default-small'
     jail_offender_button.style.top_padding = 0
@@ -86,8 +97,7 @@ local function draw_report(parent, report_id)
     parent.add {type = 'label', caption = 'Reported by: ' .. reporting_player_name}
 end
 
-Module.show_reports =
-    function(player)
+Module.show_reports = function(player)
     local reports = report_data
 
     local center = player.gui.center
@@ -97,8 +107,7 @@ Module.show_reports =
         Gui.destroy(report_frame)
     end
 
-    report_frame =
-        center.add {
+    report_frame = center.add {
         type = 'frame',
         name = report_frame_name,
         direction = 'vertical',
@@ -108,7 +117,11 @@ Module.show_reports =
     player.opened = report_frame
 
     if #reports > 1 then
-        local scroll_pane = report_frame.add {type = 'scroll-pane', horizontal_scroll_policy = 'auto-and-reserve-space', vertical_scroll_policy = 'never'}
+        local scroll_pane = report_frame.add {
+            type = 'scroll-pane',
+            horizontal_scroll_policy = 'auto-and-reserve-space',
+            vertical_scroll_policy = 'never'
+        }
         local tab_flow = scroll_pane.add {type = 'flow'}
         for k, report in pairs(reports) do
             local button_cell = tab_flow.add {type = 'flow', caption = 'reportuid' .. k}
@@ -119,7 +132,12 @@ Module.show_reports =
             }
         end
     end
-    local report_body = report_frame.add {type = 'scroll-pane', name = report_body_name, horizontal_scroll_policy = 'never', vertical_scroll_policy = 'never'}
+    local report_body = report_frame.add {
+        type = 'scroll-pane',
+        name = report_body_name,
+        horizontal_scroll_policy = 'never',
+        vertical_scroll_policy = 'never'
+    }
     report_frame.add {type = 'button', name = report_close_button_name, caption = 'Close'}
 
     draw_report(report_body, #reports)
@@ -131,7 +149,12 @@ function Module.report(reporting_player, reported_player, message)
         player_index = reporting_player.index
         reporting_player.print('Your report has been sent.')
     end
-    table.insert(report_data, {reporting_player_index = player_index, reported_player_index = reported_player.index, message = message, tick = game.tick})
+    table.insert(report_data, {
+        reporting_player_index = player_index,
+        reported_player_index = reported_player.index,
+        message = message,
+        tick = game.tick
+    })
 
     local notified = false
     for _, p in pairs(game.players) do
@@ -247,11 +270,14 @@ function Module.jail(target_player, player)
             chat_color = target_player.chat_color
         }
 
+        non_character_unjailed_players[target_player.index] = nil
+
         target_player.color = Color.white
         target_player.chat_color = Color.white
     else
         -- Let admin know it didn't work.
-        print(format('Something went wrong in the jailing of %s. You can still change their group via /permissions.', target_name))
+        print(format('Something went wrong in the jailing of %s. You can still change their group via /permissions.',
+            target_name))
     end
 end
 
@@ -296,9 +322,18 @@ function Module.unjail(target_player, player)
 
     -- Restore player's state from stored data
     local character = target_player.character
-    if character and character.valid then
-        character.destructible = target_jail_data.char_dest
+    local former_char_dest = target_jail_data.char_dest
+    if former_char_dest ~= nil then
+        if character and character.valid then
+            character.destructible = former_char_dest
+        else
+            -- The player had a character before but doesn't have one now.
+            -- This probably means they have left the game, we will restore
+            -- their character's destructible state when they rejoin.
+            non_character_unjailed_players[target_index] = former_char_dest
+        end
     end
+
     target_player.color = target_jail_data.color
     target_player.chat_color = target_jail_data.chat_color
     jail_data[target_index] = nil
@@ -314,69 +349,57 @@ function Module.unjail(target_player, player)
         Utils.log_command(Utils.get_actor(), 'unjail', target_name)
     else
         -- Let admin know it didn't work.
-        Game.player_print(format('Something went wrong in the unjailing of %s. You can still change their group via /permissions and inform them.', target_name))
+        Game.player_print(format(
+            'Something went wrong in the unjailing of %s. You can still change their group via /permissions and inform them.',
+            target_name))
     end
 end
 
-Gui.on_custom_close(
-    report_frame_name,
-    function(event)
-        Gui.destroy(event.element)
-    end
-)
+Gui.on_custom_close(report_frame_name, function(event)
+    Gui.destroy(event.element)
+end)
 
-Gui.on_click(
-    report_close_button_name,
-    function(event)
-        Gui.destroy(event.element.parent)
-    end
-)
+Gui.on_click(report_close_button_name, function(event)
+    Gui.destroy(event.element.parent)
+end)
 
-Gui.on_click(
-    jail_offender_button_name,
-    function(event)
-        local target_name = string.sub(event.element.caption, 6)
-        local target = game.players[target_name]
+Gui.on_click(jail_offender_button_name, function(event)
+    local target_name = string.sub(event.element.caption, 6)
+    local target = game.players[target_name]
+    if target then
+        Module.jail(target, event.player)
+    else
+        target_name = string.sub(event.element.caption, 8)
+        target = game.players[target_name]
         if target then
-            Module.jail(target, event.player)
-        else
-            target_name = string.sub(event.element.caption, 8)
-            target = game.players[target_name]
-            if target then
-                Module.unjail(target, event.player)
-            end
+            Module.unjail(target, event.player)
         end
-        Module.show_reports(event.player)
-        Module.show_reports(event.player) -- Double toggle, first destroy then draw.
     end
-)
+    Module.show_reports(event.player)
+    Module.show_reports(event.player) -- Double toggle, first destroy then draw.
+end)
 
-Gui.on_click(
-    report_tab_button_name,
-    function(event)
-        local center = event.player.gui.center
-        local report_frame = center[report_frame_name]
-        local report_uid_str = string.sub(event.element.parent.caption, 10)
-        local report_uid = tonumber(report_uid_str)
-        draw_report(report_frame[report_body_name], report_uid)
-    end
-)
+Gui.on_click(report_tab_button_name, function(event)
+    local center = event.player.gui.center
+    local report_frame = center[report_frame_name]
+    local report_uid_str = string.sub(event.element.parent.caption, 10)
+    local report_uid = tonumber(report_uid_str)
+    draw_report(report_frame[report_body_name], report_uid)
+end)
 
 local reporting_popup_name = Gui.uid_name()
 local reporting_cancel_button_name = Gui.uid_name()
 local reporting_submit_button_name = Gui.uid_name()
 local reporting_input_name = Gui.uid_name()
 
-Module.spawn_reporting_popup =
-    function(player, reported_player)
+Module.spawn_reporting_popup = function(player, reported_player)
     local center = player.gui.center
 
     local reporting_popup = center[reporting_popup_name]
     if reporting_popup and reporting_popup.valid then
         Gui.destroy(reporting_popup)
     end
-    reporting_popup =
-        center.add {
+    reporting_popup = center.add {
         type = 'frame',
         name = reporting_popup_name,
         direction = 'vertical',
@@ -386,10 +409,7 @@ Module.spawn_reporting_popup =
 
     reporting_popup.style.maximal_width = 500
     player.opened = reporting_popup
-    reporting_popup.add {
-        type = 'label',
-        caption = 'Report message:'
-    }
+    reporting_popup.add {type = 'label', caption = 'Report message:'}
     local input = reporting_popup.add {type = 'text-box', name = reporting_input_name}
     input.style.width = 400
     input.style.height = 85
@@ -398,46 +418,70 @@ Module.spawn_reporting_popup =
     button_flow.add {type = 'button', name = reporting_cancel_button_name, caption = 'Cancel'}
 end
 
-Gui.on_custom_close(
-    reporting_popup_name,
-    function(event)
-        Gui.destroy(event.element)
+Gui.on_custom_close(reporting_popup_name, function(event)
+    Gui.destroy(event.element)
+end)
+
+Gui.on_click(reporting_cancel_button_name, function(event)
+    local frame = event.element.parent.parent
+    Gui.destroy(frame)
+end)
+
+Gui.on_click(reporting_submit_button_name, function(event)
+    local frame = event.element.parent.parent
+    local msg = frame[reporting_input_name].text
+    local data = Gui.get_data(frame)
+    local reported_player_index = data['reported_player_index']
+    local print = event.player.print
+
+    Gui.destroy(frame)
+    Module.report(event.player, game.get_player(reported_player_index), msg)
+    print(prefix)
+    print('You have successfully reported: ' .. game.get_player(reported_player_index).name)
+    print(prefix_e)
+end)
+
+local function restore_non_character_unjailed_players(event)
+    local player_index = event.player_index
+    local player = game.get_player(player_index)
+    if not player or not player.valid then
+        return
     end
-)
 
-Gui.on_click(
-    reporting_cancel_button_name,
-    function(event)
-        local frame = event.element.parent.parent
-        Gui.destroy(frame)
+    local character = player.character
+    local player_jail_data = jail_data[player_index]
+
+    if player_jail_data then
+        if character and character.valid then
+            if player_jail_data.char_dest == nil then
+                player_jail_data.char_dest = character.destructible
+            end
+
+            character.destructible = false
+        end
+
+        non_character_unjailed_players[player_index] = nil
+        return
     end
-)
 
-Gui.on_click(
-    reporting_submit_button_name,
-    function(event)
-        local frame = event.element.parent.parent
-        local msg = frame[reporting_input_name].text
-        local data = Gui.get_data(frame)
-        local reported_player_index = data['reported_player_index']
-        local print = event.player.print
-
-        Gui.destroy(frame)
-        Module.report(event.player, game.get_player(reported_player_index), msg)
-        print(prefix)
-        print('You have successfully reported: ' .. game.get_player(reported_player_index).name)
-        print(prefix_e)
+    local character_destructible = non_character_unjailed_players[player_index]
+    if character_destructible == nil then
+        return
     end
-)
 
-Command.add(
-    'report',
-    {
-        description = {'command_description.report'},
-        arguments = {'player', 'message'},
-        capture_excess_arguments = true
-    },
-    report_command
-)
+    non_character_unjailed_players[player_index] = nil
+    if character and character.valid then
+        character.destructible = character_destructible
+    end
+end
+
+Event.add(defines.events.on_player_joined_game, restore_non_character_unjailed_players)
+Event.add(defines.events.on_player_respawned, restore_non_character_unjailed_players)
+
+Command.add('report', {
+    description = {'command_description.report'},
+    arguments = {'player', 'message'},
+    capture_excess_arguments = true
+}, report_command)
 
 return Module
