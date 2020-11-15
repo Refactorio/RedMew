@@ -785,7 +785,7 @@ local function init(config)
             {name = 'utility-science-pack', price = 125},
             {
                 price = 100,
-                name = 'small-plane',
+                name = 'player-port',
                 name_label = 'Train Immunity (1x use)',
                 description = 'Each small plane in your inventory will save you from being killed by a train once.'
             }

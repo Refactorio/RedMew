@@ -420,7 +420,7 @@ local pages = {
             }
             market_label.style.single_line = false
 
-            grid.add {type = 'sprite', sprite = 'item/small-plane'}
+            grid.add {type = 'sprite', sprite = 'item/player-port'}
             local train_savior = grid.add {type = 'label', caption = {'info.softmods_saviour_label'}}
             local train_savior_style = train_savior.style
             train_savior_style.font = 'default-listbox'

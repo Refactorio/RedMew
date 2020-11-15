@@ -49,7 +49,7 @@ global.config = {
     player_colors = {
         enabled = true
     },
-    -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
+    -- saves players' lives if they have a player-port in their inventory, also adds the player-port to the market and must therefor be loaded first
     train_saviour = {
         enabled = true
     },
@@ -209,7 +209,7 @@ global.config = {
                 {name = 'substation', count = 50},
                 {name = 'roboport', count = 10},
                 {name = 'infinity-chest', count = 10},
-                {name = 'small-plane', count = 2},
+                {name = 'player-port', count = 2},
                 {name = 'coin', count = 20000},
                 {name = 'rocket-part', count = 2},
                 {name = 'computer', count = 2},
