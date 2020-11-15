@@ -227,10 +227,10 @@ local function check_for_market_unlocks(force)
         end
     end
 
-    if force_USA.technologies.tanks.researched then
+    if force_USA.technologies.tank.researched then
         unlock_market_item(force_USA, 'tank')
     end
-    if force_USSR.technologies.tanks.researched then
+    if force_USSR.technologies.tank.researched then
         unlock_market_item(force_USSR, 'tank')
     end
 end

@@ -21,7 +21,7 @@ local Config = {
         ['military-2'] = {player = 6, entity = 24, unlocks = 'military'},
         ['military-3'] = {player = 12, entity = 48, unlocks = 'military-2'},
         ['military-4'] = {player = 24, entity = 96, unlocks = 'military-3'},
-        ['stone-walls'] = {player = 2, entity = 8, invert = true},
+        ['stone-wall'] = {player = 2, entity = 8, invert = true},
         ['heavy-armor'] = {player = 12, entity = 48, invert = true},
         ['artillery-shell-range-1'] = nil
     },

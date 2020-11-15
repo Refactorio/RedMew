@@ -423,7 +423,7 @@ global.config = {
         -- reduce delay for each level of the tech
         techs = {
             ['weapon-shooting-speed'] = {{turret_type = 'ammo-turret', amount = 60 * 26 / 6}},
-            ['laser-turret-speed'] = {{turret_type = 'electric-turret', amount = 60 * 12 / 7}},
+            ['laser-shooting-speed'] = {{turret_type = 'electric-turret', amount = 60 * 12 / 7}},
             ['refined-flammables'] = {{turret_type = 'fluid-turret', amount = 60 * 17 / 7}},
             ['artillery-shell-speed'] = {{turret_type = 'artillery-turret', amount = 60 * 2}}
         }
