@@ -221,7 +221,6 @@ local filter_blacklist = {
     ['infinity-pipe'] = true,
     ['player-port'] = true,
     ['escape-pod-power'] = true,
-    ['bait-chest'] = true,
     ['cutscene-gun-turret'] = true,
     ['blue-chest'] = true,
     ['market'] = true,

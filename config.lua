@@ -211,8 +211,6 @@ global.config = {
                 {name = 'infinity-chest', count = 10},
                 {name = 'player-port', count = 2},
                 {name = 'coin', count = 20000},
-                {name = 'rocket-part', count = 2},
-                {name = 'computer', count = 2},
                 {name = 'infinity-pipe', count = 10},
                 {name = 'heat-interface', count = 10},
                 {name = 'selection-tool', count = 1}

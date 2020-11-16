@@ -40,7 +40,6 @@ local ammos = {
     'landmine',
     'laser-turret',
     'melee',
-    'railgun',
     'rocket',
     'shotgun-shell'
 }
@@ -205,7 +204,6 @@ local item_pool = {
     {name = 'logistic-science-pack', count = 200, weight = 100},
     {name = 'grenade', count = 100, weight = 500},
     {name = 'defender-capsule', count = 50, weight = 500},
-    {name = 'railgun-dart', count = 100, weight = 500},
     {name = 'piercing-shotgun-shell', count = 200, weight = 312.5},
     {name = 'submachine-gun', count = 1, weight = 166.6667},
     {name = 'shotgun', count = 1, weight = 166.6667},
@@ -213,7 +211,6 @@ local item_pool = {
     {name = 'cannon-shell', count = 100, weight = 166.6667},
     {name = 'rocket', count = 100, weight = 166.6667},
     {name = 'distractor-capsule', count = 25, weight = 166.6667},
-    {name = 'railgun', count = 1, weight = 100},
     {name = 'flamethrower-ammo', count = 50, weight = 100},
     {name = 'military-science-pack', count = 200, weight = 100},
     {name = 'chemical-science-pack', count = 200, weight = 100},

@@ -15,7 +15,6 @@ local player_ammo_starting_modifiers = {
     ['landmine'] = -0.33,
     ['laser-turret'] = -0.75,
     ['melee'] = 1,
-    ['railgun'] = 0,
     ['rocket'] = -0.5,
     ['shotgun-shell'] = -0.20
 }
@@ -34,7 +33,6 @@ local player_ammo_research_modifiers = {
     ['landmine'] = -0.5,
     ['laser-turret'] = -0.75,
     ['melee'] = -0.5,
-    ['railgun'] = -0.5,
     ['rocket'] = -0.5,
     ['shotgun-shell'] = -0.20
 }
@@ -59,7 +57,6 @@ local enemy_ammo_starting_modifiers = {
     ['landmine'] = 0,
     ['laser-turret'] = 0,
     ['melee'] = 0,
-    ['railgun'] = 0,
     ['rocket'] = 0,
     ['shotgun-shell'] = 0
 }
@@ -78,12 +75,9 @@ local enemy_ammo_evolution_modifiers = {
     --['landmine'] = 1,
     ['laser-turret'] = 2,
     ['melee'] = 2
-    --['railgun'] = 1,
     --['rocket'] = 1,
     --['shotgun-shell'] = 1
 }
-
-
 
 local function init_weapon_damage()
     local forces = game.forces

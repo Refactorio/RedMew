@@ -15,7 +15,6 @@ local player_ammo_starting_modifiers = {
     ['landmine'] = -0.33,
     ['laser-turret'] = -0.50,
     ['melee'] = 1,
-    ['railgun'] = 0,
     ['rocket'] = -0.4,
     ['shotgun-shell'] = -0.20
 }
@@ -34,7 +33,6 @@ local player_ammo_research_modifiers = {
     ['landmine'] = -0.5,
     ['laser-turret'] = -0.50,
     ['melee'] = -0.5,
-    ['railgun'] = -0.5,
     ['rocket'] = -0.4,
     ['shotgun-shell'] = -0.20
 }
