@@ -8,6 +8,7 @@ local Global = require 'utils.global'
 local Ranks = require 'resources.ranks'
 local Core = require 'utils.core'
 local Color = require 'resources.color_presets'
+local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 local Public = {}
 
@@ -177,6 +178,64 @@ local function spy(args, player)
     end
 end
 
+local spawn_poison_callback = Token.register(function(data)      
+    local r = data.r
+    data.s.create_entity{name = "poison-capsule", position={0,0}, target={data.xpos + math.random(-r,r), data.ypos + math.random(-r,r)}, speed=10}
+end)
+
+local function strike(args, player)
+    local player_name = player.name
+    local s = player.surface
+    local location_string = args.location
+    local coords = {}
+    local strikeCost = 100
+
+
+    for m in string.gmatch( location_string, "%-?%d+" ) do
+        table.insert(coords, tonumber(m))
+    end
+    -- Do some checks then reveal the pinged map and remove 1000 coins
+    if #coords < 2 then
+        player.print({'command_description.crash_site_strike_invalid'}, Color.fail)
+        return
+    end
+
+    local entities = s.find_entities_filtered {position = {-0.5, -3.5}, type 'container', limit=1}
+    dropbox = entities[1]
+    if dropbox == nil then
+        player.print("Someone removed the chest. Replace it here: [gps=-0.5,-3.5,redmew] ")
+        return
+    end
+
+    local inv = dropbox.get_inventory(defines.inventory.chest)
+    capCount = inv.get_item_count("poison-capsule")
+    
+    if capCount < strikeCost then 
+        player.print("To send an air strike, load " .. strikeCost - capCount .. " more poison capsules into the payment chest [gps=-0.5,-3.5,redmew]")
+        return
+    end
+
+    local xpos=coords[1]
+    local ypos=coords[2]
+    local r = 20
+    inv.remove({name = "poison-capsule", count = 100})
+    game.print(player.name .. " called an air strike [gps=" .. xpos .. "," .. ypos ..",redmew]")
+    player.force.chart(s, {{xpos-32, ypos-32}, {xpos+32, ypos+32}})
+    for j=1,15 do
+    --    s.create_entity{name = "poison-capsule", position={0,0}, target={xpos + math.random(-r,r), ypos + math.random(-r,r)}, speed=10}
+    set_timeout_in_ticks(
+            30*j,
+            spawn_poison_callback,
+            {s = s, xpos = xpos, ypos=ypos, count = count, r=r}
+        )
+    end
+
+    
+end
+
+
+    
+
 Command.add(
     'crash-site-restart-abort',
     {
@@ -233,6 +292,18 @@ Command.add(
         allowed_by_server = false
     },
     spy
+)
+
+Command.add(
+    'strike',
+    {
+        description = {'command_description.strike'},
+        arguments = {'location'},
+        capture_excess_arguments = true,
+        required_rank = Ranks.guest,
+        allowed_by_server = false
+    },
+    strike
 )
 end
 
