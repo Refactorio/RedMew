@@ -5,6 +5,8 @@ local Token = require 'utils.token'
 local Server = require 'features.server'
 local Popup = require 'features.gui.popup'
 local Global = require 'utils.global'
+local Event = require 'utils.event'
+local Retailer = require 'features.retailer'
 local Ranks = require 'resources.ranks'
 local Core = require 'utils.core'
 local Color = require 'resources.color_presets'
@@ -17,11 +19,15 @@ function Public.control(config)
 local server_player = {name = '<server>', print = print}
 
 local global_data = {restarting = nil}
+local airstrike_data = {radius = 10, count = 10}
 
-Global.register(
-    global_data,
+Global.register({
+    global_data = global_data,
+    airstrike_data = airstrike_data
+},
     function(tbl)
-        global_data = tbl
+        global_data = tbl.global_data
+        airstrike_data = tbl.airstrike_data
     end
 )
 
@@ -190,6 +196,8 @@ local function strike(args, player)
     local coords = {}
     local strikeCost = 100
 
+    local radius = airstrike_data.radius
+    local count = airstrike_data.count
 
     for m in string.gmatch( location_string, "%-?%d+" ) do
         table.insert(coords, tonumber(m))
@@ -229,12 +237,33 @@ local function strike(args, player)
             {s = s, xpos = xpos, ypos=ypos, count = count, r=r}
         )
     end
-
-    
 end
 
+Event.add(Retailer.events.on_market_purchase, function(event)
+    local market_id = event.group_name
+    local group_label = Retailer.get_market_group_label(market_id)
+    if group_label ~= 'Spawn' then
+        return
+    end
 
-    
+    local item = event.item
+    if item.type ~= 'airstrike' then
+        return
+    end
+
+    local name = item.name
+    if name == 'airstrike_radius' then
+        airstrike_data.radius = airstrike_data.radius + 2
+
+        item.price = 2 * item.price
+        Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
+    elseif name == 'airstrike_damage' then
+        airstrike_data.count = airstrike_data.count + 2
+
+        item.price = 2 * item.price
+        Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
+    end
+end)
 
 Command.add(
     'crash-site-restart-abort',

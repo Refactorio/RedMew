@@ -1651,7 +1651,7 @@ Public.market_set_items_callback =
 
             Retailer.set_item(
                 market_id,
-                {name = item.name, price = price, name_label = item.name_label, description = item.description}
+                {name = item.name, type = item.type, price = price, name_label = item.name_label, sprite = item.sprite, description = item.description}
             )
         end
     end

@@ -772,30 +772,21 @@ local function init(config)
             upgrade_base_cost = 500,
             upgrade_cost_base = 2,
             {
-                price = 10000,
-                name = 'poison-capsule',
+                price = 100,
+                type = 'airstrike',
+                name = 'airstrike_radius',
                 name_label = 'Airstrike Radius',
+                sprite = 'item-group/production',
                 description = 'Upgrade the airstrike radius. Use /strike'
             },
             {
-                price = 10000,
-                name = 'artillery-targeting-remote',
+                price = 100,
+                type= 'airstrike',
+                name = 'airstrike_damage',
                 name_label = 'Airstrike Damage',
+                sprite = 'item-group/production',
                 description = 'Upgrade the airstrike damage. Use /strike'
             },
-            --https://github.com/Refactorio/RedMew/blob/38a5948cb463d6fa10553d403868c76f216ca33a/features/market.lua
-            --[[local function market_item_purchased(event)
-                local item_name = event.item.name
-                if item_name == 'temporary-running-speed-bonus' then
-                    boost_player_running_speed(event.player)
-                    return
-                end
-            
-                if item_name == 'temporary-mining-speed-bonus' then
-                    boost_player_mining_speed(event.player)
-                    return
-                end
-            end]]--
             {name = 'wood', price = 1},
             {name = 'iron-plate', price = 2},
             {name = 'stone', price = 2},
