@@ -1116,7 +1116,8 @@ local artillery_target_entities = {
     'locomotive',
     'cargo-wagon',
     'fluid-wagon',
-    'artillery-wagon'
+    'artillery-wagon',
+    'spidertron'
 }
 
 local artillery_target_callback =
@@ -1142,6 +1143,16 @@ local artillery_target_callback =
                 target = entity,
                 speed = 1.5
             }
+            if entity.name == "spidertron" then
+                -- fire a rocket as well as artillery-projectile since artillery-projectile doesn't damage spidertrons
+                -- Balance note: 1 rocket per artillery kills spidertron shield fast but takes ~ 1 minute to kill the spidertron
+                entity.surface.create_entity {
+                    name = 'rocket',
+                    position = position,
+                    target = entity,
+                    speed = 1.5
+                }
+            end
         end
     end
 )
