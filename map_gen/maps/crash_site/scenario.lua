@@ -772,20 +772,20 @@ local function init(config)
             upgrade_base_cost = 500,
             upgrade_cost_base = 2,
             {
-                price = 100,
-                type = 'airstrike',
-                name = 'airstrike_radius',
-                name_label = 'Airstrike Radius',
-                sprite = 'item-group/production',
-                description = 'Upgrade the airstrike radius. Use /strike'
-            },
-            {
-                price = 100,
+                price = 1000,
                 type= 'airstrike',
                 name = 'airstrike_damage',
-                name_label = 'Airstrike Damage',
+                name_label = 'Airstrike Damage 1',
                 sprite = 'item-group/production',
-                description = 'Upgrade the airstrike damage. Use /strike'
+                description = 'Upgrade the airstrike damage to  to level 1. Damage upgrades increase the number of poison capsules launched by airstrike. Use /strike with a gps position'
+            },
+            {
+                price = 1000,
+                type = 'airstrike',
+                name = 'airstrike_radius',
+                name_label = 'Airstrike Radius 1',
+                sprite = 'item-group/production',
+                description = 'Upgrade the airstrike radius to level 1.\n\nUse /strike with a gps position'
             },
             {name = 'wood', price = 1},
             {name = 'iron-plate', price = 2},
