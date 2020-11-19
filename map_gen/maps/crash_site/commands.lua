@@ -155,7 +155,7 @@ local function abort(_, player)
     end
 end
 
-local chart_area_callback = Token.register(function(data)      
+local chart_area_callback = Token.register(function(data)
     local xpos = data.xpos
     local ypos = data.ypos
     local player = data.player
@@ -200,20 +200,19 @@ local function spy(args, player)
     end
 end
 
-local spawn_poison_callback = Token.register(function(data)      
+local spawn_poison_callback = Token.register(function(data)
     local r = data.r
     data.s.create_entity{name = "poison-capsule", position={0,0}, target={data.xpos + math.random(-r,r), data.ypos + math.random(-r,r)}, speed=10}
 end)
 
 local function strike(args, player)
-    local player_name = player.name
     local s = player.surface
     local location_string = args.location
     local coords = {}
- 
+
     local radius_level = airstrike_data.radius_level    -- max radius of the strike area
     local count_level = airstrike_data.count_level      -- the number of poison capsules launched at the enemy
-    if count_level == 1 then 
+    if count_level == 1 then
         player.print("You have not researched airstrike yet. Visit the market at the spawn [gps=-3,-3,redmew]")
         return
     end
@@ -221,7 +220,7 @@ local function strike(args, player)
     local radius = 5+(radius_level*3)
     local count = (count_level-1)*5+3
     local strikeCost = count * 3            -- the number of poison-capsules required in the chest as payment
-    
+
     -- parse GPS coordinates from map ping
     for m in string.gmatch( location_string, "%-?%d+" ) do
         table.insert(coords, tonumber(m))
@@ -237,7 +236,7 @@ local function strike(args, player)
 
     -- Check the chest is still there. Better than making destructible and mineable false because then players can upgrade the chest
     local entities = s.find_entities_filtered {position = {-0.5, -3.5}, type = 'container', limit=1}
-    dropbox = entities[1]
+    local dropbox = entities[1]
     if dropbox == nil then
         player.print("Someone removed the chest. Replace it here: [gps=-0.5,-3.5,redmew] ")
         return
@@ -245,9 +244,9 @@ local function strike(args, player)
 
     -- Check the contents of the chest by spawn for enough poison capsules to use as payment
     local inv = dropbox.get_inventory(defines.inventory.chest)
-    capCount = inv.get_item_count("poison-capsule")
+    local capCount = inv.get_item_count("poison-capsule")
     
-    if capCount < strikeCost then 
+    if capCount < strikeCost then
         player.print("To send an air strike, load " .. strikeCost - capCount .. " more poison capsules into the payment chest [gps=-0.5,-3.5,redmew]")
         return
     end
@@ -264,7 +263,6 @@ local function strike(args, player)
             end
         end
         return
-        
     end
 
     inv.remove({name = "poison-capsule", count = strikeCost})
@@ -301,7 +299,7 @@ Event.add(Retailer.events.on_market_purchase, function(event)
     local count_level = airstrike_data.count_level      -- the number of poison capsules launched at the enemy
     local radius = 5+(radius_level*3)
     local count = (count_level-1)*5+3
-    local strikeCost = count * 4   
+    local strikeCost = count * 4
 
     local name = item.name
     if name == 'airstrike_damage' then
@@ -312,8 +310,6 @@ Event.add(Retailer.events.on_market_purchase, function(event)
         item.price = math.floor(math.exp(airstrike_data.count_level^0.8)/2)*1000
         item.description = {'command_description.crash_site_airstrike_count',  (count_level + 1), count_level, count, strikeCost}
         Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
-        local toast_message = player.name .. "has upgraded airstrike damage to level " .. airstrike_data.count_level
-        Toast.toast_all_players(2, "test")
     elseif name == 'airstrike_radius' then
         airstrike_data.radius_level = airstrike_data.radius_level + 1
         Toast.toast_all_players(2, "Airstrike radius has been upgraded to level " .. radius_level)
@@ -321,8 +317,6 @@ Event.add(Retailer.events.on_market_purchase, function(event)
         item.description = {'command_description.crash_site_airstrike_radius', (radius_level + 1), radius_level, radius}
         item.price = math.floor(math.exp(airstrike_data.radius_level^0.8)/2)*1000
         Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
-        local toast_message = player.name .. " has upgraded airstrike radius to level " .. airstrike_data.radius_level
-        Toast.toast_all_players(2, "test")
     end
 end)
 
