@@ -823,12 +823,17 @@ local function init(config)
         )
     }
 
+    local chest = {
+        callback = outpost_builder.scenario_chest_callback
+    }
+
     local spawn = {
         size = 2,
         [1] = {
             market = market,
+            chest = chest,
             [15] = {entity = {name = 'market', force = 'neutral', callback = 'market'}},
-            [18] = {entity = {name = 'wooden-chest', force = 'player', destructible=false, minable=false}}
+            [18] = {entity = {name = 'wooden-chest', force = 'player', callback = 'chest'}}
         },
         [2] = {
             force = 'player',

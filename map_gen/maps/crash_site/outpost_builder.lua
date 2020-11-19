@@ -1560,6 +1560,16 @@ Public.deactivate_callback =
     end
 )
 
+
+Public.scenario_chest_callback = Token.register(function(chest)
+    if not chest or not chest.valid then
+        return
+    end
+
+    chest.destructible = false
+    chest.minable = false
+end)
+
 local function turret_died(event)
     local entity = event.entity
     if not entity or not entity.valid then
