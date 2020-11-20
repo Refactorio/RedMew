@@ -253,8 +253,7 @@ local function strike(args, player)
 
     -- Do a simple check to make sure the player isn't trying to grief the base
     --local enemyEntities = s.find_entities_filtered {position = {xpos, ypos}, radius = radius, force = "enemy"}
-    local enemyEntities = game.player.surface.find_entities_filtered {area={{100,-100},{-100,100}}, force = "enemy"}
-    game.print(#enemyEntities)
+    local enemyEntities = player.surface.find_entities_filtered {position = {xpos,ypos}, radius=radius+30, force = "enemy"}
     if #enemyEntities < 1 then
         player.print("You don't want to do that, no enemies found in the target area.")
         for _, p in pairs(game.players) do
