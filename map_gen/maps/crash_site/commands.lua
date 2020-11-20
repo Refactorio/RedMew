@@ -245,7 +245,7 @@ local function strike(args, player)
     -- Check the contents of the chest by spawn for enough poison capsules to use as payment
     local inv = dropbox.get_inventory(defines.inventory.chest)
     local capCount = inv.get_item_count("poison-capsule")
-    
+
     if capCount < strikeCost then
         player.print("To send an air strike, load " .. strikeCost - capCount .. " more poison capsules into the payment chest [gps=-0.5,-3.5,redmew]")
         return
@@ -282,7 +282,7 @@ local function strike(args, player)
 end
 
 Event.add(Retailer.events.on_market_purchase, function(event)
-    
+
     local market_id = event.group_name
     local group_label = Retailer.get_market_group_label(market_id)
     if group_label ~= 'Spawn' then
