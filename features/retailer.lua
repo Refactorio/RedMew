@@ -508,7 +508,7 @@ Gui.on_value_changed(count_slider_name, function (event)
     end
 
     data.count = count
-    data.text.text = count
+    data.text.text = tostring(count)
 
     redraw_market_items(data)
 end)

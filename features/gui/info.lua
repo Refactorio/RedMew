@@ -636,7 +636,7 @@ end
 local function close_main_frame(frame, player)
     upload_changelog(player)
     Gui.destroy(frame)
-    player.gui.top[main_button_name].style = 'icon_button'
+    player.gui.top[main_button_name].style = 'slot_button'
 end
 
 local function reward_player(player, index, message)
@@ -672,10 +672,11 @@ local function toggle(event)
     if main_frame then
         close_main_frame(main_frame, player)
     else
-        main_button.style = 'slot_sized_button'
+        main_button.style = 'highlighted_tool_button'
         local style = main_button.style
-        style.width = 38
-        style.height = 38
+        style.width = 40
+        style.height = 40
+        style.padding = 0
 
         draw_main_frame(center, player)
     end

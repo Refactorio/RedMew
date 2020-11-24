@@ -249,7 +249,7 @@ Event.add(
         }
         local style = b.style
         style.width = 18
-        style.height = 38
+        style.height = 40
         style.left_padding = 0
         style.top_padding = 0
         style.right_padding = 0

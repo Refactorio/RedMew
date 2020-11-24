@@ -158,13 +158,14 @@ Gui.on_click(
         if not frame then
             score_show(top)
 
-            main_button.style = 'slot_sized_button'
+            main_button.style = 'highlighted_tool_button'
             local style = main_button.style
-            style.width = 38
-            style.height = 38
+            style.width = 40
+            style.height = 40
+            style.padding = 0
         else
             frame.destroy()
-            main_button.style = 'icon_button'
+            main_button.style = 'slot_button'
         end
     end
 )

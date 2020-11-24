@@ -79,6 +79,8 @@ function Debug.print_grid_value(value, surface, position, scale, offset, immutab
         end
     end
 
+    text = tostring(text)
+
     if not immutable then
         local text_entity = surface.find_entity('flying-text', position)
 
@@ -152,6 +154,8 @@ function Debug.print_colored_grid_value(value, surface, position, offset, immuta
             text = '0.00'
         end
     end
+
+    text = tostring(text)
 
     if not immutable then
         local text_entity = surface.find_entity('flying-text', position)

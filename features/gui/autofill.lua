@@ -49,12 +49,13 @@ local function toggle_main_frame(event)
 
     if frame then
         Gui.destroy(frame)
-        main_button.style = 'icon_button'
+        main_button.style = 'slot_button'
     else
-        main_button.style = 'slot_sized_button'
+        main_button.style = 'highlighted_tool_button'
         local style = main_button.style
-        style.width = 38
-        style.height = 38
+        style.width = 40
+        style.height = 40
+        style.padding = 0
 
         frame =
             left.add {type = 'frame', name = main_frame_name, caption = {'autofill.frame_name'}, direction = 'vertical'}
@@ -73,7 +74,7 @@ local function toggle_main_frame(event)
             ammo_count_flow.add {
             type = 'textfield',
             name = ammo_count_name,
-            text = Autofill.get_ammo_count(player_index)
+            text = tostring(Autofill.get_ammo_count(player_index))
         }
 
         local enabled_ammos_flow = frame.add {type = 'flow', direction = 'horizontal'}
@@ -184,7 +185,7 @@ local function settings_changed(event)
         local ammo_count_label = data.ammo_count_label
         local ammo_count_textfield = data.ammo_count_textfield
 
-        ammo_count_textfield.text = event.new_value
+        ammo_count_textfield.text = tostring(event.new_value)
         set_ammo_count_elements_validation(ammo_count_textfield, ammo_count_label, true)
     end
 end

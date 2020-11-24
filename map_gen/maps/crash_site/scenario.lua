@@ -787,7 +787,7 @@ local function init(config)
                 price = 100,
                 name = 'player-port',
                 name_label = 'Train Immunity (1x use)',
-                description = 'Each small plane in your inventory will save you from being killed by a train once.'
+                description = 'Each player port in your inventory will save you from being killed by a train once.'
             }
         }
     }
