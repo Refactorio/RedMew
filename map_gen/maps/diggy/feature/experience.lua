@@ -509,6 +509,10 @@ function Experience.toggle(event)
     end
 
     main_button.style = 'highlighted_tool_button'
+    local style = main_button.style
+    style.width = 40
+    style.height = 40
+    style.padding = 0
 
     frame = left.add({name = 'Diggy.Experience.Frame', type = 'frame', direction = 'vertical'})
 
