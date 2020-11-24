@@ -166,8 +166,6 @@ local player_ammo_research_modifiers = {
     ['bullet'] = 0.045,
     ['cannon-shell'] = 0.12,
     ['capsule'] = 0,
-    ['combat-robot-beam'] = 0.01,
-    ['combat-robot-laser'] = 0.01,
     ['electric'] = 0.025,
     ['flamethrower'] = 0.01,
     ['grenade'] = 0.00,
@@ -175,7 +173,7 @@ local player_ammo_research_modifiers = {
     ['melee'] = 0.025,
     ['rocket'] = 0.08,
     ['shotgun-shell'] = 0.00,
-    ['laser-turret'] = 0.12
+    ['laser'] = 0.12
 }
 
 local function modify_damage(force, mult)
