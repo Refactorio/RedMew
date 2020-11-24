@@ -36,8 +36,6 @@ Declare.module({'utils', 'Gui'}, function()
                     Assert.equal(before_count, after_close_count, 'after close count should be equal to before count.')
                 end)
             end)
-
-            ::continue::
         end
     end)
 end)
