@@ -85,10 +85,6 @@ global.config = {
     tasklist = {
         enabled = true
     },
-    -- enables the blueprint helper
-    blueprint_helper = {
-        enabled = true
-    },
     -- enables score and tracking thereof
     score = {
         enabled = true,

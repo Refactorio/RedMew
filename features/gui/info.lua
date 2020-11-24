@@ -483,21 +483,6 @@ local pages = {
                 task_label.style.single_line = false
             end
 
-            if config.blueprint_helper.enabled then
-                grid.add {type = 'sprite', sprite = 'item/blueprint'}
-                local blueprint = grid.add {type = 'label', caption = {'info.softmods_bp_label'}}
-                local blueprint_style = blueprint.style
-                blueprint_style.font = 'default-listbox'
-                blueprint_style.single_line = false
-                blueprint_style.width = 55
-                local blueprint_label =
-                    grid.add {
-                    type = 'label',
-                    caption = {'info.softmods_bp_text'}
-                }
-                blueprint_label.style.single_line = false
-            end
-
             if config.score.enabled then
                 grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
                 local score = grid.add {type = 'label', caption = {'info.softmods_score_label'}}

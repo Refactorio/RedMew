@@ -139,9 +139,6 @@ end
 if config.tasklist.enabled then
     require 'features.gui.tasklist'
 end
-if config.blueprint_helper.enabled then
-    require 'features.gui.blueprint_helper'
-end
 if config.paint.enabled then
     require 'features.gui.paint'
 end
