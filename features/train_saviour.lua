@@ -86,7 +86,7 @@ end
 --- Cleans the players cursor to prevent from spamming saviour_entity_token_name
 -- Somehow required to have a 1 tick delay before cleaning the players cursor
 local delay_clear_cursor = Token.register(function(param)
-    param.player.clean_cursor()
+    param.player.clear_cursor()
 end)
 
 local function built_entity(event)
