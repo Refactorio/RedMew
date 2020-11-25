@@ -250,8 +250,8 @@ local function strike(args, player)
 
     -- Do a simple check to make sure the player isn't trying to grief the base
     --local enemyEntities = s.find_entities_filtered {position = {xpos, ypos}, radius = radius, force = "enemy"}
-    local enemyEntities = player.surface.find_entities_filtered {position = {xpos,ypos}, radius=radius+30, force = "enemy"}
-    if #enemyEntities < 1 then
+    local enemyEntities = player.surface.count_entities_filtered {position = {xpos,ypos}, radius=radius+30, force = "enemy"}
+    if enemyEntities < 1 then
         player.print({'command_description.crash_site_airstrike_friendly_fire_error'}, Color.fail)
         Utils.print_admins(player.name .. " tried to airstrike the base here: [gps=" .. xpos .. "," .. ypos ..",redmew]", nil)
         return
