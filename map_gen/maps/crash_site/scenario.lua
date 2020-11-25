@@ -785,7 +785,7 @@ local function init(config)
                 name = 'airstrike_radius',
                 name_label = {'command_description.crash_site_airstrike_radius_name_label', 1},
                 sprite = 'item-group/production',
-                description = {'command_description.crash_site_airstrike_radius', 1, 0, "n/a"}
+                description = {'command_description.crash_site_airstrike_radius', 1, 0, 5}
             },
             {name = 'wood', price = 1},
             {name = 'iron-plate', price = 2},

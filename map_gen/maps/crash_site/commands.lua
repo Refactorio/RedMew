@@ -235,14 +235,6 @@ local function strike(args, player)
     local xpos=coords[1]
     local ypos=coords[2]
 
-    -- Check the chest is still there. Better than making destructible and mineable false because then players can upgrade the chest
-    local entities = s.find_entities_filtered {position = {-0.5, -3.5}, type = 'container', limit=1}
-    local dropbox = entities[1]
-    if dropbox == nil then
-        player.print({'command_description.crash_site_airstrike_chest_removed_error'}, Color.fail)
-        return
-    end
-
     -- Check the contents of the chest by spawn for enough poison capsules to use as payment
     local inv = dropbox.get_inventory(defines.inventory.chest)
     local capCount = inv.get_item_count("poison-capsule")
