@@ -11,6 +11,7 @@ local Ranks = require 'resources.ranks'
 local Core = require 'utils.core'
 local Color = require 'resources.color_presets'
 local Toast = require 'features.gui.toast'
+local Utils = require 'utils.core'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 local Public = {}
@@ -213,22 +214,22 @@ local function strike(args, player)
     local radius_level = airstrike_data.radius_level    -- max radius of the strike area
     local count_level = airstrike_data.count_level      -- the number of poison capsules launched at the enemy
     if count_level == 1 then
-        player.print("You have not researched airstrike yet. Visit the market at the spawn [gps=-3,-3,redmew]")
+        player.print({'command_description.crash_site_airstrike_not_researched'}, Color.fail)
         return
     end
 
     local radius = 5+(radius_level*3)
     local count = (count_level-1)*5+3
-    local strikeCost = count * 3            -- the number of poison-capsules required in the chest as payment
+    local strikeCost = count * 4            -- the number of poison-capsules required in the chest as payment
 
     -- parse GPS coordinates from map ping
     for m in string.gmatch( location_string, "%-?%d+" ) do
         table.insert(coords, tonumber(m))
     end
 
-    -- Do some checks then reveal the pinged map and remove 1000 coins
+    -- Do some checks on the coordinates passed in the argument
     if #coords < 2 then
-        player.print({'command_description.crash_site_strike_invalid'}, Color.fail)
+        player.print({'command_description.crash_site_airstrike_invalid'}, Color.fail)
         return
     end
     local xpos=coords[1]
@@ -238,7 +239,7 @@ local function strike(args, player)
     local entities = s.find_entities_filtered {position = {-0.5, -3.5}, type = 'container', limit=1}
     local dropbox = entities[1]
     if dropbox == nil then
-        player.print("Someone removed the chest. Replace it here: [gps=-0.5,-3.5,redmew] ")
+        player.print({'command_description.crash_site_airstrike_chest_removed_error'}, Color.fail)
         return
     end
 
@@ -247,7 +248,7 @@ local function strike(args, player)
     local capCount = inv.get_item_count("poison-capsule")
 
     if capCount < strikeCost then
-        player.print("To send an air strike, load " .. strikeCost - capCount .. " more poison capsules into the payment chest [gps=-0.5,-3.5,redmew]")
+        player.print({'command_description.crash_site_airstrike_insufficient_currency_error',strikeCost - capCount}, Color.fail)
         return
     end
 
@@ -255,17 +256,13 @@ local function strike(args, player)
     --local enemyEntities = s.find_entities_filtered {position = {xpos, ypos}, radius = radius, force = "enemy"}
     local enemyEntities = player.surface.find_entities_filtered {position = {xpos,ypos}, radius=radius+30, force = "enemy"}
     if #enemyEntities < 1 then
-        player.print("You don't want to do that, no enemies found in the target area.")
-        for _, p in pairs(game.players) do
-            if p.admin then
-                p.print(player.name .. " tried to airstrike the base here: [gps=" .. xpos .. "," .. ypos ..",redmew]")
-            end
-        end
+        player.print({'command_description.crash_site_airstrike_friendly_fire_error'}, Color.fail)
+        --Utils.print_admins(player.name .. " tried to airstrike the base here: [gps=" .. xpos .. "," .. ypos ..",redmew]", nil)
         return
     end
 
     inv.remove({name = "poison-capsule", count = strikeCost})
-    game.print(player.name .. " called an air strike [gps=" .. xpos .. "," .. ypos ..",redmew]")
+    game.print({'command_description.crash_site_airstrike_success', player.name, xpos, ypos})
     for j=1,count do
         set_timeout_in_ticks(
             30*j,
@@ -304,15 +301,15 @@ Event.add(Retailer.events.on_market_purchase, function(event)
     if name == 'airstrike_damage' then
         airstrike_data.count_level = airstrike_data.count_level + 1
 
-        Toast.toast_all_players(2, "Airstrike damage has been upgraded to level " .. count_level)
-        item.name_label = "Airstrike Damage ".. (count_level + 1)
+        Toast.toast_all_players(15, {'command_description.crash_site_airstrike_damage_upgrade_success', count_level})
+        item.name_label = {'command_description.crash_site_airstrike_count_name_label', (count_level + 1)}
         item.price = math.floor(math.exp(airstrike_data.count_level^0.8)/2)*1000
-        item.description = {'command_description.crash_site_airstrike_count',  (count_level + 1), count_level, count, strikeCost}
+        item.description = {'command_description.crash_site_airstrike_count',  (count_level + 1), count_level, count, tostring(strikeCost) .. ' poison capsules'}
         Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
     elseif name == 'airstrike_radius' then
         airstrike_data.radius_level = airstrike_data.radius_level + 1
-        Toast.toast_all_players(2, "Airstrike radius has been upgraded to level " .. radius_level)
-        item.name_label = "Airstrike Radius " .. (radius_level + 1)
+        Toast.toast_all_players(15, {'command_description.crash_site_airstrike_radius_upgrade_success', radius_level})
+        item.name_label = {'command_description.crash_site_airstrike_radius_name_label', (radius_level + 1)}
         item.description = {'command_description.crash_site_airstrike_radius', (radius_level + 1), radius_level, radius}
         item.price = math.floor(math.exp(airstrike_data.radius_level^0.8)/2)*1000
         Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
