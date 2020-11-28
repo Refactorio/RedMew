@@ -1205,7 +1205,7 @@ stds.factorio_defines = {
                         'change_train_stop_station',
                         'change_train_wait_condition',
                         'change_train_wait_condition_data',
-                        'clean_cursor_stack',
+                        'clear_cursor_stack',
                         'clear_selected_blueprint',
                         'clear_selected_deconstruction_item',
                         'clear_selected_upgrade_item',

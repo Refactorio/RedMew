@@ -47,37 +47,21 @@ end
 
 if Game_mode_config.king_of_the_hill then
     local outpost_1 = {
-        {name = 'crash-site-lab-broken', position = {0.5, -7.5}},
-        {name = 'crash-site-generator', position = {0.5, -3}},
-        {name = 'crash-site-assembling-machine-1-broken', position = {-6.5, 0}},
-        {name = 'assembling-machine-2', position = {0, 0.5}, recipe = 'low-density-structure'},
-        {name = 'crash-site-electric-pole', position = {0.25, -1.48828125}},
-        {name = 'crash-site-assembling-machine-1-broken', position = {6.5, 0}},
-        {name = 'crash-site-assembling-machine-2-broken', position = {0, 6.5}}
+        -- crash-site entities were removed in 1.1.
     }
 
     local outpost_2 = {
-        {name = 'crash-site-lab-broken', position = {0.5, -7.5}},
-        {name = 'crash-site-generator', position = {0.5, -3}},
-        {name = 'crash-site-assembling-machine-1-broken', position = {-6.5, 0}},
-        {name = 'crash-site-assembling-machine-2-repaired', position = {0, 0.5}, recipe = 'rocket-control-unit'},
-        {name = 'crash-site-electric-pole', position = {0.25, -1.48828125}},
-        {name = 'crash-site-assembling-machine-1-broken', position = {6.5, 0}},
-        {name = 'crash-site-assembling-machine-2-broken', position = {0, 6.5}}
+        -- crash-site entities were removed in 1.1.
     }
 
     local outpost_3 = {
-        {name = 'crash-site-generator', position = {x = 0.5, y = -7}, direction = 0},
         {name = 'assembling-machine-3', position = {x = -0.5, y = -3.5}, direction = 4, recipe = 'rocket-fuel'},
-        {name = 'crash-site-electric-pole', position = {x = 0.37109375, y = -5.46875}, direction = 0},
         {name = 'storage-tank-remnants', position = {x = -3.5, y = -0.5}, direction = 0},
         {name = 'pipe-to-ground', position = {x = -0.5, y = -1.5}, direction = 0},
-        {name = 'crash-site-electric-pole', position = {x = -0.61328125, y = -0.35546875}, direction = 0},
         {name = 'storage-tank-remnants', position = {x = 2.5, y = -0.5}, direction = 0},
         {name = 'oil-refinery', position = {x = -0.5, y = 3.5}, direction = 0},
         {name = 'pipe-to-ground', position = {x = -0.5, y = 0.5}, direction = 4},
         {name = 'offshore-pump', position = {x = -8.5, y = 6.5}, direction = 6},
-        {name = 'crash-site-electric-pole', position = {x = 2.35546875, y = 4.5546875}, direction = 0},
         --{name = 'crude-oil', position = {x = 6.5, y = 5.5}, direction = 0, amount = 1000}, -- Not working somehow
         {name = 'pumpjack', position = {x = 6.5, y = 5.5}, direction = 6},
         {name = 'pipe', position = {x = -6.5, y = 6.5}, direction = 0},
@@ -87,8 +71,7 @@ if Game_mode_config.king_of_the_hill then
         {name = 'pipe', position = {x = -1.5, y = 6.5}, direction = 0},
         {name = 'pipe', position = {x = 0.5, y = 6.5}, direction = 0},
         {name = 'pipe-to-ground', position = {x = 1.5, y = 6.5}, direction = 6},
-        {name = 'pipe-to-ground', position = {x = 4.5, y = 6.5}, direction = 2},
-        {name = 'crash-site-electric-pole', position = {x = 6.51171875, y = 7.5546875}, direction = 0}
+        {name = 'pipe-to-ground', position = {x = 4.5, y = 6.5}, direction = 2}
     }
 
     local function register_crafter(entity)

@@ -368,7 +368,7 @@ local function player_mined_tile(event)
     local tiles = {}
 
     local player = game.get_player(player_index)
-    player.clean_cursor()
+    player.clear_cursor()
 
     for _, oldTile in pairs(oldTiles) do
         local name = oldTile.old_tile.name

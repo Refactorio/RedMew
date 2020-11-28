@@ -7,15 +7,12 @@ local player_ammo_starting_modifiers = {
     ['bullet'] = -0.25,
     ['cannon-shell'] = -0.75,
     ['capsule'] = -0.5,
-    ['combat-robot-beam'] = -0.5,
-    ['combat-robot-laser'] = -0.5,
     ['electric'] = -0.5,
     ['flamethrower'] = -0.75,
     ['grenade'] = -0.5,
     ['landmine'] = -0.33,
-    ['laser-turret'] = -0.75,
+    ['laser'] = -0.75,
     ['melee'] = 1,
-    ['railgun'] = 0,
     ['rocket'] = -0.5,
     ['shotgun-shell'] = -0.20
 }
@@ -26,15 +23,12 @@ local player_ammo_research_modifiers = {
     ['bullet'] = -0.20,
     ['cannon-shell'] = -0.75,
     ['capsule'] = -0.5,
-    ['combat-robot-beam'] = -0.5,
-    ['combat-robot-laser'] = -0.5,
     ['electric'] = -0.6,
     ['flamethrower'] = -0.75,
     ['grenade'] = -0.5,
     ['landmine'] = -0.5,
-    ['laser-turret'] = -0.75,
+    ['laser'] = -0.75,
     ['melee'] = -0.5,
-    ['railgun'] = -0.5,
     ['rocket'] = -0.5,
     ['shotgun-shell'] = -0.20
 }
@@ -51,15 +45,12 @@ local enemy_ammo_starting_modifiers = {
     ['bullet'] = 0,
     ['cannon-shell'] = 0,
     ['capsule'] = 0,
-    ['combat-robot-beam'] = .2,
-    ['combat-robot-laser'] = .4,
     ['electric'] = 0,
     ['flamethrower'] = 0,
     ['grenade'] = 0,
     ['landmine'] = 0,
-    ['laser-turret'] = 0,
+    ['laser'] = 0,
     ['melee'] = 0,
-    ['railgun'] = 0,
     ['rocket'] = 0,
     ['shotgun-shell'] = 0
 }
@@ -70,20 +61,15 @@ local enemy_ammo_evolution_modifiers = {
     ['bullet'] = 1,
     --['cannon-shell'] = 1,
     --['capsule'] = 1,
-    ['combat-robot-beam'] = .25,
-    ['combat-robot-laser'] = .125,
     --['electric'] = 1,
     ['flamethrower'] = 2,
     --['grenade'] = 1,
     --['landmine'] = 1,
-    ['laser-turret'] = 2,
+    ['laser'] = 2,
     ['melee'] = 2
-    --['railgun'] = 1,
     --['rocket'] = 1,
     --['shotgun-shell'] = 1
 }
-
-
 
 local function init_weapon_damage()
     local forces = game.forces

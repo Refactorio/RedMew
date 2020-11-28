@@ -453,14 +453,15 @@ local function toggle(event)
             Gui.destroy(frame)
         end
 
-        main_button.style = 'icon_button'
+        main_button.style = 'slot_button'
     else
         draw_main_frame(left, player)
 
-        main_button.style = 'slot_sized_button'
+        main_button.style = 'highlighted_tool_button'
         local style = main_button.style
-        style.width = 38
-        style.height = 38
+        style.width = 40
+        style.height = 40
+        style.padding = 0
     end
 end
 

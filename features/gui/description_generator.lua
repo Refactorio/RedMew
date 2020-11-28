@@ -70,7 +70,7 @@ local desc_community_info = [[
 ]]
 
 local desc_modded_info = [[
-[img=entity/crash-site-lab-repaired]│[font=default-large-bold] Modded gameplay[/font]
+[img=entity/lab]│[font=default-large-bold] Modded gameplay[/font]
 [virtual-signal=signal-dot]│ This server contains modded gameplay
 [virtual-signal=signal-dot]│ Visit [color=blue]#modded[/color] in our discord to learn more!
 ]]

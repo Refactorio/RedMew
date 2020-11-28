@@ -1,10 +1,10 @@
 return {
     {
-        name = 'stone-walls',
+        name = 'stone-wall',
         name_label = {'', 'Stone Walls research'},
         type = 'research',
         description = {'', 'Unlocks stone walls research'},
-        sprite = 'technology/stone-walls',
+        sprite = 'technology/stone-wall',
         stack_limit = 1,
         price = 50,
         disabled = true,

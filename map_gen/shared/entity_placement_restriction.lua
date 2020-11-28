@@ -116,17 +116,17 @@ local Task = require 'utils.task'
 
 --- Cleans the players cursor to prevent from spam replacing entities with inventory
 -- Somehow required to have a 1 tick delay before cleaning the players cursor
-local delay_clean_cursor =
+local delay_clear_cursor =
     Token.register(
     function(param)
-        param.player.clean_cursor()
+        param.player.clear_cursor()
     end
 )
 
 --- Checks if entity has an inventory with items inside, and spills them on the ground
 local function entities_with_inventory(entity, player)
     if primitives.spill and entity.has_items_inside() then
-        Task.set_timeout_in_ticks(1, delay_clean_cursor, {player = player})
+        Task.set_timeout_in_ticks(1, delay_clear_cursor, {player = player})
         local type = entity.type
         if type == 'container' then
             for item, count in pairs(entity.get_inventory(defines.inventory.chest).get_contents()) do

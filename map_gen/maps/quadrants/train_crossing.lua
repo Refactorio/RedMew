@@ -62,7 +62,7 @@ local function clear_inventory_train(event)
     if within_range then
         return false
     end
-    player.clean_cursor()
+    player.clear_cursor()
     if
         player.get_inventory(defines.inventory.character_main).is_empty() and
             player.get_inventory(defines.inventory.character_trash).is_empty()
