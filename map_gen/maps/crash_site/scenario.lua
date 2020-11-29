@@ -771,6 +771,22 @@ local function init(config)
             upgrade_rate = 0.5,
             upgrade_base_cost = 500,
             upgrade_cost_base = 2,
+            {
+                price = 1000,
+                type= 'airstrike',
+                name = 'airstrike_damage',
+                name_label = {'command_description.crash_site_airstrike_count_name_label', 1},
+                sprite = 'item-group/production',
+                description = {'command_description.crash_site_airstrike_count', 1, 0, "n/a", "n/a"}
+            },
+            {
+                price = 1000,
+                type = 'airstrike',
+                name = 'airstrike_radius',
+                name_label = {'command_description.crash_site_airstrike_radius_name_label', 1},
+                sprite = 'item-group/production',
+                description = {'command_description.crash_site_airstrike_radius', 1, 0, 5}
+            },
             {name = 'wood', price = 1},
             {name = 'iron-plate', price = 2},
             {name = 'stone', price = 2},
@@ -807,12 +823,17 @@ local function init(config)
         )
     }
 
+    local chest = {
+        callback = outpost_builder.scenario_chest_callback
+    }
+
     local spawn = {
         size = 2,
         [1] = {
             market = market,
+            chest = chest,
             [15] = {entity = {name = 'market', force = 'neutral', callback = 'market'}},
-            [18] = {entity = {name = 'wooden-chest', force = 'player'}}
+            [18] = {entity = {name = 'wooden-chest', force = 'player', callback = 'chest'}}
         },
         [2] = {
             force = 'player',
