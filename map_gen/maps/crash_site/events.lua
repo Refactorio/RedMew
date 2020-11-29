@@ -345,7 +345,7 @@ local function do_bot_spawn(entity_name, entity, event)
             repeat_cycle = 4
         end
         for i = 1, repeat_cycle do
-            if (cause.name == 'artillery-turret') or (cause.name == 'artillery-wagon') then 
+            if (cause.name == 'artillery-turret') or (cause.name == 'artillery-wagon') then
                 spawn_entity.target = cause.position    -- Overwrite target. Artillery turrets/wagons don't move so send them to entity position. Stops players from picking up the arty and the bots stopping dead.
                 spawn_entity.speed = 0.2
 
