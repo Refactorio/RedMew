@@ -235,9 +235,14 @@ local function strike(args, player)
     local xpos=coords[1]
     local ypos=coords[2]
 
-    -- Check the chest is still there. Better than making destructible and mineable false because then players can upgrade the chest
+    -- Check that the chest is where it should be.
     local entities = s.find_entities_filtered {position = {-0.5, -3.5}, type = 'container', limit=1}
     local dropbox = entities[1]
+
+    if dropbox == nil then
+        player.print("Chest not found. Replace it here: [gps=-0.5,-3.5,redmew]")
+        return
+    end
 
     -- Check the contents of the chest by spawn for enough poison capsules to use as payment
     local inv = dropbox.get_inventory(defines.inventory.chest)
