@@ -523,7 +523,7 @@ Gui.on_text_changed(count_text_name, function (event)
         count = floor(count)
         count = clamp(count, 1, 1000)
         data.count = count
-        data.text.text = count
+        data.text.text = tostring(count)
     else
         data.count = 1
     end
