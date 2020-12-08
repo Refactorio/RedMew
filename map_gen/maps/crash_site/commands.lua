@@ -203,7 +203,7 @@ end
 
 local spawn_poison_callback = Token.register(function(data)
     local r = data.r
-    data.s.create_entity{name = "poison-capsule", position={0,0}, target={data.xpos + math.random(-r,r), data.ypos + math.random(-r,r)}, speed=10}
+    data.s.create_entity{name = "poison-capsule", position={0,0}, target={data.xpos + math.random(-r,r), data.ypos + math.random(-r,r)}, speed=10, max_range=1400}
 end)
 
 local function strike(args, player)
