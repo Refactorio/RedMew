@@ -295,27 +295,20 @@ local bot_cause_whitelist = {
 }
 
 local function do_bot_spawn(entity_name, entity, event)
+    -- Return if the entity killed is not on the white list
     if not bot_spawn_whitelist[entity_name] then
-        return
+            return
     end
 
-    local cause = event.cause
-    if not cause or not bot_cause_whitelist[cause.name] then
-        return
-    end
-
+    -- Return if the evolution is too low
     local entity_force = entity.force
     local ef = entity_force.evolution_factor
-
     if ef <= 0.2 then
         return
     end
 
+    local cause = event.cause
     local create_entity = entity.surface.create_entity
-    local repeat_cycle = 1 -- The number of times a squad of robots are spawned default must be 1
-    if ef > .95 then
-        repeat_cycle = 2
-    end
 
     local spawn_entity = {
         position = entity.position,
@@ -323,20 +316,56 @@ local function do_bot_spawn(entity_name, entity, event)
         force = entity_force
     }
 
+    -- Cbeck if there is a cause for the entity's death
+    -- If there is no cause then the player probably picked up an artillery turret before the projectile hit the entity.
+    -- This causes no bots to spawn because there is no cause. Punish the player for the behaviour by sending some bots to spawn instead of their location
+    if not cause then
+        for i = 1, 30 do
+            spawn_entity.name = 'destroyer-capsule'
+            spawn_entity.speed = 0.4
+            spawn_entity.target = {0,0}
+            create_entity(spawn_entity)
+        end
+        return
+    end
+
+    -- Now we have checked for no cause, check for if the cause was on the cause whitelist (players, artillery, spidertrons)
+    if not bot_cause_whitelist[cause.name] then
+        return
+    end
+
+    local repeat_cycle = 1 -- The number of times a squad of robots are spawned default must be 1
+    if ef > .95 then
+        repeat_cycle = 2
+    end
+
     if cause.name ~= 'character' then
-        if entity_name == 'artillery-turret' then
+        if (entity_name == 'artillery-turret') then
             repeat_cycle = 15
         else
             repeat_cycle = 4
         end
         for i = 1, repeat_cycle do
-            spawn_entity.name = 'defender'
-            create_entity(spawn_entity)
-            create_entity(spawn_entity)
+            if (cause.name == 'artillery-turret') or (cause.name == 'artillery-wagon') then
+                spawn_entity.target = cause.position    -- Overwrite target. Artillery turrets/wagons don't move so send them to entity position. Stops players from picking up the arty and the bots stopping dead.
+                spawn_entity.speed = 0.2
+                -- This is particularly risky for players to do because defender-capsule quantities are not limited by the player force's follower robot count.
+                spawn_entity.name = 'defender-capsule'  -- use 'defender-capsule' (projectile) not 'defender' (entity) since a projectile can target a position but a capsule entity must have another entity as target
+                create_entity(spawn_entity)
+                create_entity(spawn_entity)
 
-            spawn_entity.name = 'destroyer'
-            create_entity(spawn_entity)
-            create_entity(spawn_entity)
+                spawn_entity.name = 'destroyer-capsule'
+                create_entity(spawn_entity)
+                create_entity(spawn_entity)
+            else
+                spawn_entity.name = 'defender'
+                create_entity(spawn_entity)
+                create_entity(spawn_entity)
+
+                spawn_entity.name = 'destroyer'
+                create_entity(spawn_entity)
+                create_entity(spawn_entity)
+            end
         end
     elseif entity_name == 'gun-turret' then
         for i = 1, repeat_cycle do
