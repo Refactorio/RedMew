@@ -295,21 +295,20 @@ local bot_cause_whitelist = {
 }
 
 local function do_bot_spawn(entity_name, entity, event)
-
-    local cause = event.cause
-    local entity_force = entity.force
-    local ef = entity_force.evolution_factor
-    local create_entity = entity.surface.create_entity
-
+    -- Return if the entity killed is not on the white list
     if not bot_spawn_whitelist[entity_name] then
-        if cause then
             return
-        end
     end
 
+    -- Return if the evolution is too low
+    local entity_force = entity.force
+    local ef = entity_force.evolution_factor
     if ef <= 0.2 then
         return
     end
+
+    local cause = event.cause
+    local create_entity = entity.surface.create_entity
 
     local spawn_entity = {
         position = entity.position,
@@ -317,10 +316,11 @@ local function do_bot_spawn(entity_name, entity, event)
         force = entity_force
     }
 
+    -- Cbeck if there is a cause for the entity's death
+    -- If there is no cause then the player probably picked up an artillery turret before the projectile hit the entity.
+    -- This causes no bots to spawn because there is no cause. Punish the player for the behaviour by sending some bots to spawn instead of their location
     if not cause then
-        -- If we reach here then the player might have picked up the artillery turret before the projectile hit the entity and killed it.
-        -- We therefore won't know the location of the artillery turret/wagon that killed the turret, so let's punish them and send even more bots, straight at spawn?
-        for i = 1, 60 do
+        for i = 1, 30 do
             spawn_entity.name = 'destroyer-capsule'
             spawn_entity.speed = 0.2
             spawn_entity.target = {0,0}
@@ -329,6 +329,7 @@ local function do_bot_spawn(entity_name, entity, event)
         return
     end
 
+    -- Now we have checked for no cause, check for if the cause was on the cause whitelist (players, artillery, spidertrons)
     if not bot_cause_whitelist[cause.name] then
         return
     end
@@ -358,7 +359,7 @@ local function do_bot_spawn(entity_name, entity, event)
                 create_entity(spawn_entity)
             else
                 -- projectiles don't have AI so won't track/follow a player
-                -- if the cause wasn't artillery turret/wagon then spawn a capsule entity not projectile
+                -- if the cause wasn't artillery turret/wagon then spawn a capsule entity not projectile so that it will track the spidertron
                 spawn_entity.name = 'defender'  -- use defender-capsule (projectile) not defender (entity) since a projectile can target a position but a capsule entity must have another entity as target
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
