@@ -219,7 +219,7 @@ local function strike(args, player)
     end
 
     local radius = 5+(radius_level*3)
-    local count = (count_level-1)*5+3
+    local count = (count_level-2)*5+3
     local strikeCost = count * 4            -- the number of poison-capsules required in the chest as payment
 
     -- parse GPS coordinates from map ping
