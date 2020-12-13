@@ -322,7 +322,7 @@ local function do_bot_spawn(entity_name, entity, event)
     if not cause then
         for i = 1, 30 do
             spawn_entity.name = 'destroyer-capsule'
-            spawn_entity.speed = 0.2
+            spawn_entity.speed = 0.4
             spawn_entity.target = {0,0}
             create_entity(spawn_entity)
         end
@@ -340,7 +340,7 @@ local function do_bot_spawn(entity_name, entity, event)
     end
 
     if cause.name ~= 'character' then
-        if (entity_name == 'artillery-turret') or (entity_name == 'artillery-wagon') then
+        if (entity_name == 'artillery-turret') then
             repeat_cycle = 15
         else
             repeat_cycle = 4
@@ -359,8 +359,8 @@ local function do_bot_spawn(entity_name, entity, event)
                 create_entity(spawn_entity)
             else
                 -- projectiles don't have AI so won't track/follow a player
-                -- if the cause wasn't artillery turret/wagon then spawn a capsule entity not projectile so that it will track the spidertron
-                spawn_entity.name = 'defender'  -- use defender-capsule (projectile) not defender (entity) since a projectile can target a position but a capsule entity must have another entity as target
+                -- if the cause wasn't artillery turret/wagon then spawn a capsule entity not projectile so that it will track the spidertron/player
+                spawn_entity.name = 'defender'  -- use defender (entity) not defender-capsule (projectile) since an entity can track the player and is more fun to kite/dodge
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
 
