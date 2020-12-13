@@ -358,9 +358,7 @@ local function do_bot_spawn(entity_name, entity, event)
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
             else
-                -- projectiles don't have AI so won't track/follow a player
-                -- if the cause wasn't artillery turret/wagon then spawn a capsule entity not projectile so that it will track the spidertron/player
-                spawn_entity.name = 'defender'  -- use defender (entity) not defender-capsule (projectile) since an entity can track the player and is more fun to kite/dodge
+                spawn_entity.name = 'defender'
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
 
