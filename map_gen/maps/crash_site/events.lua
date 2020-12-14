@@ -320,12 +320,12 @@ local function do_bot_spawn(entity_name, entity, event)
     -- If there is no cause then the player probably picked up an artillery turret before the projectile hit the entity.
     -- This causes no bots to spawn because there is no cause. Punish the player for the behaviour by sending some bots to spawn instead of their location
     if not cause then
-        for i = 1, 30 do
+        --[[for i = 1, 30 do
             spawn_entity.name = 'destroyer-capsule'
             spawn_entity.speed = 0.4
             spawn_entity.target = {0,0}
             create_entity(spawn_entity)
-        end
+        end]]
         return
     end
 
