@@ -408,14 +408,15 @@ local function player_craft_loaders(event, loader_type)
     local button = event.button -- int
     local shift = event.shift -- bool
     local player = event.player
+    local count = 0
     if button == defines.mouse_button_type.left then
         if shift then
-            local count = 4294967295 -- uint highest value. Factorio crafts as many as able
+            count = 4294967295 -- uint highest value. Factorio crafts as many as able
         else
-            local count = 1
+            count = 1
         end
     elseif button == defines.mouse_button_type.right then
-        local count = 5
+        count = 5
     else
         return
     end
