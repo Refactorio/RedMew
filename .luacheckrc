@@ -1238,7 +1238,7 @@ stds.factorio_defines = {
                         'trains_gui',
                         'transport_belt_gui',
                         'upgrade_item_gui',
-                        'wall_gui
+                        'wall_gui'
                     }
                 },
                 input_action = {
