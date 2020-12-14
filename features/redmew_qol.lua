@@ -341,16 +341,14 @@ local function draw_loader_frame_for_player(parent, research_level)
     end
     local anchor = {gui = defines.relative_gui_type.controller_gui, position = defines.relative_gui_position.right}
     local frame = parent.add {type = 'frame', name = loader_crafter_frame_for_player_name, anchor = anchor}
-    if research_level == 1 then
+    if research_level >= 1 then
         frame.add {type = 'sprite-button', name = player_craft_loader_1, sprite = 'recipe/loader'}
-    elseif research_level == 2 then
-        frame.add {type = 'sprite-button', name = player_craft_loader_1, sprite = 'recipe/loader'}
+    end
+    if research_level >= 2 then
         frame.add {type = 'sprite-button', name = player_craft_loader_2, sprite = 'recipe/fast-loader'}
-    elseif research_level == 3 then
-        frame.add {type = 'sprite-button', name = player_craft_loader_1, sprite = 'recipe/loader'}
-        frame.add {type = 'sprite-button', name = player_craft_loader_2, sprite = 'recipe/fast-loader'}
+    end
+    if research_level == 3 then
         frame.add {type = 'sprite-button', name = player_craft_loader_3, sprite = 'recipe/express-loader'}
-    else
     end
 end
 
@@ -408,7 +406,7 @@ Event.add(defines.events.on_gui_opened, function(event)
     draw_loader_frame_for_assembly_machine(panel, entity)
 end)
 
-Gui.on_click(player_craft_loader_1, function(event)
+local function player_craft_loaders(event, loader_type)
     local button = event.button -- int
     local shift = event.shift -- bool
     local player = event.player
@@ -424,7 +422,19 @@ Gui.on_click(player_craft_loader_1, function(event)
     else
         return
     end
-    player.begin_crafting {count = count, recipe = 'loader'}
+    player.begin_crafting {count = count, recipe = loader_type}
+end
+
+Gui.on_click(player_craft_loader_1, function(event)
+    player_craft_loaders(event, "loader")
+end)
+
+Gui.on_click(player_craft_loader_2, function(event)
+    player_craft_loaders(event, "fast-loader")
+end)
+
+Gui.on_click(player_craft_loader_3, function(event)
+    player_craft_loaders(event, "express-loader")
 end)
 
 Gui.on_click(machine_craft_button, function(event)
@@ -452,18 +462,16 @@ Event.add(defines.events.on_research_finished, function(event)
         end
     end
     if research == "logistics-2" then
-        -- To finish
         for _, p in pairs(game.players) do
         local panel = p.gui.relative
             draw_loader_frame_for_player(panel, 2)
         end
     end
     if research == "logistics-3" then
-        -- To finish
-        --for _, p in pairs(game.players) do
-        --    local panel = p.gui.relative
-        --    draw_loader_frame_for_player(panel, 3)
-        --end
+        for _, p in pairs(game.players) do
+            local panel = p.gui.relative
+            draw_loader_frame_for_player(panel, 3)
+        end
     end
 end)
 
