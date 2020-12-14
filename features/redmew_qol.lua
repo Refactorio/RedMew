@@ -466,6 +466,18 @@ Event.add(defines.events.on_player_created, function(event)
     draw_loader_frame_for_player(panel)
 end)
 
+Event.add(defines.events.on_gui_closed, function(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    local panel = player.gui.relative[loader_crafter_frame_for_assembly_machine_name]
+    if panel and panel.valid then
+        Gui.destroy(panel)
+    end
+end)
+
 Event.add(defines.events.on_research_finished, function(event)
     local research = event.research.name
     if (research == "logistics") or (research == "logistics-2") or (research == "logistics-3") then
