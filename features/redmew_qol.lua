@@ -320,7 +320,9 @@ local loader_crafter_frame_for_assembly_machine_name = Gui.uid_name()
 local player_craft_loader_1 = Gui.uid_name()
 local player_craft_loader_2 = Gui.uid_name()
 local player_craft_loader_3 = Gui.uid_name()
-local machine_craft_button = Gui.uid_name()
+local machine_craft_loader_1 = Gui.uid_name()
+local machine_craft_loader_2 = Gui.uid_name()
+local machine_craft_loader_3 = Gui.uid_name()
 
 local open_gui_token = Token.register(function(data)
     local player = data.player
@@ -334,25 +336,28 @@ local close_gui_token = Token.register(function(data)
     player.opened = nil
 end)
 
-local function draw_loader_frame_for_player(parent, research_level)
+local function draw_loader_frame_for_player(parent)
+    local player_force = game.forces["player"]
     local frame = parent[loader_crafter_frame_for_player_name]
     if frame and frame.valid then
         Gui.destroy(frame)
     end
     local anchor = {gui = defines.relative_gui_type.controller_gui, position = defines.relative_gui_position.right}
-    local frame = parent.add {type = 'frame', name = loader_crafter_frame_for_player_name, anchor = anchor}
-    if research_level >= 1 then
-        frame.add {type = 'sprite-button', name = player_craft_loader_1, sprite = 'recipe/loader'}
+    local frame = parent.add {type = 'frame', name = loader_crafter_frame_for_player_name, anchor = anchor, direction='vertical'}
+    local button = frame.add {type = 'choose-elem-button', name = player_craft_loader_1, elem_type='recipe', recipe = 'loader'}
+    button.locked = true
+    if player_force.technologies['logistics-2'].researched then
+        local button = frame.add {type = 'choose-elem-button', name = player_craft_loader_2, locked = true, elem_type='recipe', recipe = 'fast-loader'}
+        button.locked = true
     end
-    if research_level >= 2 then
-        frame.add {type = 'sprite-button', name = player_craft_loader_2, sprite = 'recipe/fast-loader'}
-    end
-    if research_level == 3 then
-        frame.add {type = 'sprite-button', name = player_craft_loader_3, sprite = 'recipe/express-loader'}
+    if player_force.technologies['logistics-3'].researched then
+        local button = frame.add {type = 'choose-elem-button', name = player_craft_loader_3, locked = true, elem_type='recipe', recipe = 'express-loader'}
+        button.locked = true
     end
 end
 
 local function draw_loader_frame_for_assembly_machine(parent, entity)
+    local player_force = game.forces["player"]
     local frame = parent[loader_crafter_frame_for_assembly_machine_name]
     if frame and frame.valid then
         Gui.destroy(frame)
@@ -362,28 +367,22 @@ local function draw_loader_frame_for_assembly_machine(parent, entity)
         gui = defines.relative_gui_type.assembling_machine_select_recipe_gui,
         position = defines.relative_gui_position.right
     }
-    local frame = parent.add {type = 'frame', name = loader_crafter_frame_for_assembly_machine_name, anchor = anchor}
+    local frame = parent.add {type = 'frame', name = loader_crafter_frame_for_assembly_machine_name, anchor = anchor, direction='vertical'}
 
-    local button = frame.add {type = 'sprite-button', name = machine_craft_button, sprite = 'recipe/loader'}
+    local button = frame.add {type = 'choose-elem-button', name = machine_craft_loader_1, elem_type='recipe', recipe = 'loader'}
+    button.locked = true
     Gui.set_data(button, entity)
+    if player_force.technologies['logistics-2'].researched then
+        local button = frame.add {type = 'choose-elem-button', name = machine_craft_loader_2, locked = true, elem_type='recipe', recipe = 'fast-loader'}
+        button.locked = true
+        Gui.set_data(button, entity)
+    end
+    if player_force.technologies['logistics-3'].researched then
+        local button = frame.add {type = 'choose-elem-button', name = machine_craft_loader_3, locked = true, elem_type='recipe', recipe = 'express-loader'}
+        button.locked = true
+        Gui.set_data(button, entity)
+    end
 end
-
---[[ Event.add(defines.events.on_gui_opened, function(event)
-    if event.gui_type ~= defines.gui_type.controller then
-        return
-    end
-
-    local player = game.get_player(event.player_index)
-    local panel = player.gui.relative
-
-    local loader_frame = panel[loader_crafter_name]
-    if loader_frame and loader_frame.valid then
-        return
-    end
-
-    --[[ local anchor = {gui = defines.relative_gui_type.controller_gui, position = defines.relative_gui_position.right}
-    draw_loader_frame(panel, anchor) 
-end) ]]
 
 Event.add(defines.events.on_gui_opened, function(event)
     local player_force = game.forces.player
@@ -400,6 +399,7 @@ Event.add(defines.events.on_gui_opened, function(event)
         return
     end
 
+    
     local player = game.get_player(event.player_index)
     local panel = player.gui.relative
 
@@ -437,15 +437,30 @@ Gui.on_click(player_craft_loader_3, function(event)
     player_craft_loaders(event, "express-loader")
 end)
 
-Gui.on_click(machine_craft_button, function(event)
+Gui.on_click(machine_craft_loader_1, function(event)
     local entity = Gui.get_data(event.element)
     entity.set_recipe('loader')
     Task.set_timeout_in_ticks(1, close_gui_token, {player = event.player, entity = entity})
     Task.set_timeout_in_ticks(2, open_gui_token, {player = event.player, entity = entity})
 end)
 
+Gui.on_click(machine_craft_loader_2, function(event)
+    local entity = Gui.get_data(event.element)
+    entity.set_recipe('fast-loader')
+    Task.set_timeout_in_ticks(1, close_gui_token, {player = event.player, entity = entity})
+    Task.set_timeout_in_ticks(2, open_gui_token, {player = event.player, entity = entity})
+end)
+
+Gui.on_click(machine_craft_loader_3, function(event)
+    local entity = Gui.get_data(event.element)
+    entity.set_recipe('express-loader')
+    Task.set_timeout_in_ticks(1, close_gui_token, {player = event.player, entity = entity})
+    Task.set_timeout_in_ticks(2, open_gui_token, {player = event.player, entity = entity})
+end)
+
 Event.add(defines.events.on_player_created, function(event)
-    local player_force = game.forces.player
+    local player = game.get_player(event.player_index)
+    local player_force = player.force
     if not player_force.technologies['logistics'].researched then
         return
     end
@@ -455,22 +470,10 @@ end)
 
 Event.add(defines.events.on_research_finished, function(event)
     local research = event.research.name
-    if research == "logistics" then
+    if (research == "logistics") or (research == "logistics-2") or (research == "logistics-3") then
         for _, p in pairs(game.players) do
             local panel = p.gui.relative
-            draw_loader_frame_for_player(panel, 1)
-        end
-    end
-    if research == "logistics-2" then
-        for _, p in pairs(game.players) do
-        local panel = p.gui.relative
-            draw_loader_frame_for_player(panel, 2)
-        end
-    end
-    if research == "logistics-3" then
-        for _, p in pairs(game.players) do
-            local panel = p.gui.relative
-            draw_loader_frame_for_player(panel, 3)
+            draw_loader_frame_for_player(panel)
         end
     end
 end)
