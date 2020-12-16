@@ -1,5 +1,5 @@
 -- This feature allows players to remove landfill.
--- To use, create a deconstruction planner with the landfill tile filter and select tiles only mode. 
+-- To use, create a deconstruction planner with the landfill tile filter and select tiles only mode.
 -- Use the decon planner within range of the landfill to remove it
 
 local Event = require 'utils.event'
