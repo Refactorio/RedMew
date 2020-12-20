@@ -88,15 +88,6 @@ local loaders_technology_map = {
     ['logistics-3'] = 'express-loader'
 }
 
--- Enables loaders when prerequisite technology is researched.
-local function enable_loaders(event)
-    local research = event.research
-    local recipe = loaders_technology_map[research.name]
-    if recipe then
-        research.force.recipes[recipe].enabled = true
-    end
-end
-
 --- After init, checks if any of the loader techs have been researched
 -- and enables loaders if appropriate.
 local loader_check_token = Token.register(function()
@@ -301,10 +292,6 @@ if config.set_alt_on_create then
     register_set_alt_on_create()
 end
 
-if config.loaders then
-    Event.add(defines.events.on_research_finished, enable_loaders)
-end
-
 if config.save_bots then
     Event.add(defines.events.on_selected_entity_changed, preserve_bot)
 end
@@ -345,11 +332,11 @@ local function draw_loader_frame_for_player(parent)
     frame = parent.add {type = 'frame', name = loader_crafter_frame_for_player_name, anchor = anchor, direction='vertical'}
     local button = frame.add {type = 'choose-elem-button', name = player_craft_loader_1, elem_type='recipe', recipe = 'loader'}
     button.locked = true
-    if player_force.technologies['logistics-2'].researched then
+    if player_force.recipes['fast-loader'].enabled then
         button = frame.add {type = 'choose-elem-button', name = player_craft_loader_2, locked = true, elem_type='recipe', recipe = 'fast-loader'}
         button.locked = true
     end
-    if player_force.technologies['logistics-3'].researched then
+    if player_force.recipes['express-loader'].enabled then
         button = frame.add {type = 'choose-elem-button', name = player_craft_loader_3, locked = true, elem_type='recipe', recipe = 'express-loader'}
         button.locked = true
     end
@@ -371,38 +358,54 @@ local function draw_loader_frame_for_assembly_machine(parent, entity)
     local button = frame.add {type = 'choose-elem-button', name = machine_craft_loader_1, elem_type='recipe', recipe = 'loader'}
     button.locked = true
     Gui.set_data(button, entity)
-    if player_force.technologies['logistics-2'].researched then
+    if player_force.recipes['fast-loader'].enabled then
         button = frame.add {type = 'choose-elem-button', name = machine_craft_loader_2, locked = true, elem_type='recipe', recipe = 'fast-loader'}
         button.locked = true
         Gui.set_data(button, entity)
     end
-    if player_force.technologies['logistics-3'].researched then
+    if player_force.recipes['express-loader'].enabled then
          button = frame.add {type = 'choose-elem-button', name = machine_craft_loader_3, locked = true, elem_type='recipe', recipe = 'express-loader'}
         button.locked = true
         Gui.set_data(button, entity)
     end
 end
 
-Event.add(defines.events.on_gui_opened, function(event)
-    local player_force = game.forces.player
-    if not player_force.technologies['logistics'].researched then
-        return
-    end
+if config.loaders then
+    Event.add(defines.events.on_research_finished, function(event)
+        local research = event.research
+        local recipe = loaders_technology_map[research.name]
+        if recipe then
+            research.force.recipes[recipe].enabled = true
+            for _, p in pairs(game.players) do
+                local panel = p.gui.relative
+                draw_loader_frame_for_player(panel)
+            end
+        end
+    end)
+end
 
-    local entity = event.entity
-    if not entity or not entity.valid then
-        return
-    end
+if config.loaders then
+    Event.add(defines.events.on_gui_opened, function(event)
+        local player_force = game.forces.player
+        if not player_force.recipes['loader'].enabled then
+            return
+        end
 
-    if entity.type ~= 'assembling-machine' then
-        return
-    end
+        local entity = event.entity
+        if not entity or not entity.valid then
+            return
+        end
 
-    local player = game.get_player(event.player_index)
-    local panel = player.gui.relative
+        if entity.type ~= 'assembling-machine' then
+            return
+        end
 
-    draw_loader_frame_for_assembly_machine(panel, entity)
-end)
+        local player = game.get_player(event.player_index)
+        local panel = player.gui.relative
+
+        draw_loader_frame_for_assembly_machine(panel, entity)
+    end)
+end
 
 local function player_craft_loaders(event, loader_type)
     local button = event.button -- int
@@ -435,59 +438,46 @@ Gui.on_click(player_craft_loader_3, function(event)
     player_craft_loaders(event, "express-loader")
 end)
 
-Gui.on_click(machine_craft_loader_1, function(event)
+local function set_assembly_machine_recipe(event, loader_name)
     local entity = Gui.get_data(event.element)
-    entity.set_recipe('loader')
+    entity.set_recipe(loader_name)
     Task.set_timeout_in_ticks(1, close_gui_token, {player = event.player, entity = entity})
     Task.set_timeout_in_ticks(2, open_gui_token, {player = event.player, entity = entity})
+end
+
+Gui.on_click(machine_craft_loader_1, function(event)
+    set_assembly_machine_recipe(event, 'loader')
 end)
 
 Gui.on_click(machine_craft_loader_2, function(event)
-    local entity = Gui.get_data(event.element)
-    entity.set_recipe('fast-loader')
-    Task.set_timeout_in_ticks(1, close_gui_token, {player = event.player, entity = entity})
-    Task.set_timeout_in_ticks(2, open_gui_token, {player = event.player, entity = entity})
+    set_assembly_machine_recipe(event, 'fast-loader')
 end)
 
 Gui.on_click(machine_craft_loader_3, function(event)
-    local entity = Gui.get_data(event.element)
-    entity.set_recipe('express-loader')
-    Task.set_timeout_in_ticks(1, close_gui_token, {player = event.player, entity = entity})
-    Task.set_timeout_in_ticks(2, open_gui_token, {player = event.player, entity = entity})
+    set_assembly_machine_recipe(event, 'express-loader')
 end)
 
-Event.add(defines.events.on_player_created, function(event)
-    local player = game.get_player(event.player_index)
-    local player_force = player.force
-    if not player_force.technologies['logistics'].researched then
-        return
-    end
-    local panel = player.gui.relative
-    draw_loader_frame_for_player(panel)
-end)
-
-Event.add(defines.events.on_gui_closed, function(event)
-    local player = game.get_player(event.player_index)
-    if not player or not player.valid then
-        return
-    end
-
-    local panel = player.gui.relative[loader_crafter_frame_for_assembly_machine_name]
-    if panel and panel.valid then
-        Gui.destroy(panel)
-    end
-end)
-
-Event.add(defines.events.on_research_finished, function(event)
-    local research = event.research.name
-    if (research == "logistics") or (research == "logistics-2") or (research == "logistics-3") then
-        for _, p in pairs(game.players) do
-            local panel = p.gui.relative
-            draw_loader_frame_for_player(panel)
+if config.loaders then
+    Event.add(defines.events.on_player_created, function(event)
+        local player = game.get_player(event.player_index)
+        local player_force = player.force
+        if not player_force.recipes['loader'].enabled then
+            return
         end
-    end
-end)
+        local panel = player.gui.relative
+        draw_loader_frame_for_player(panel)
+    end)
 
+    Event.add(defines.events.on_gui_closed, function(event)
+        local player = game.get_player(event.player_index)
+        if not player or not player.valid then
+            return
+        end
 
-
+        local panel = player.gui.relative[loader_crafter_frame_for_assembly_machine_name]
+        if panel and panel.valid then
+            Gui.destroy(panel)
+        end
+    end)
+end
 return Public
