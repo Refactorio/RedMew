@@ -441,7 +441,7 @@ end)
 local function set_assembly_machine_recipe(event, loader_name)
     local entity = Gui.get_data(event.element)
     entity.set_recipe(loader_name)
-    Task.set_timeout_in_ticks(1, close_gui_token, {player = event.player, entity = entity})
+    Task.set_timeout_in_ticks(1, close_gui_token, {player = event.player})
     Task.set_timeout_in_ticks(2, open_gui_token, {player = event.player, entity = entity})
 end
 
