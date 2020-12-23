@@ -12,6 +12,7 @@ local Core = require 'utils.core'
 local Color = require 'resources.color_presets'
 local Toast = require 'features.gui.toast'
 local Utils = require 'utils.core'
+local DiscordChannelNames = require 'resources.discord_channel_names'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 local Public = {}
@@ -56,7 +57,7 @@ callback =
             local time_string = Core.format_time(game.ticks_played)
             local discord_crashsite_role = '<@&762441731194748958>' -- @crash_site
             --local discord_crashsite_role = '<@&593534612051984431>' -- @test
-            Server.to_discord_raw(discord_crashsite_role .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
+            Server.to_discord_named_raw(DiscordChannelNames.map_promotion, discord_crashsite_role .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
 
             local unix_time = Server.get_current_time()
             local game_time = game.ticks_played
