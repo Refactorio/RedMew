@@ -6,6 +6,12 @@ local Command = require 'utils.command'
 local Popup = require 'features.gui.popup'
 local Color = require 'resources.color_presets'
 local Event = require 'utils.event'
+local Server = require 'features.server'
+local Discord = require 'resources.discord'
+
+local helpdesk_channel = Discord.channel_names.helpdesk
+local moderation_log_channel = Discord.channel_names.moderation_log
+local moderator_role_mention = Discord.role_mentions.moderator
 
 local format = string.format
 
@@ -143,6 +149,29 @@ Module.show_reports = function(player)
     draw_report(report_body, #reports)
 end
 
+local function send_report_to_discord(reporting_player, reported_player, message)
+    local text = {}
+    if reporting_player and reporting_player.valid then
+        text[#text + 1] = reporting_player.name
+    else
+        text[#text + 1] = '<script>'
+    end
+
+    text[#text + 1] = ' reported '
+    text[#text + 1] = reported_player.name
+    text[#text + 1] = ' - game time '
+    text[#text + 1] = Utils.format_time(game.tick)
+    text[#text + 1] = ':\\n\\n'
+    text[#text + 1] = message
+
+    text = table.concat(text)
+
+    Server.to_discord_named_embed(helpdesk_channel, text)
+    Server.to_discord_named_raw(helpdesk_channel, moderator_role_mention)
+
+    Server.to_discord_named_embed(moderation_log_channel, text)
+end
+
 function Module.report(reporting_player, reported_player, message)
     local player_index
     if reporting_player then
@@ -155,6 +184,8 @@ function Module.report(reporting_player, reported_player, message)
         message = message,
         tick = game.tick
     })
+
+    send_report_to_discord(reporting_player, reported_player, message)
 
     local notified = false
     for _, p in pairs(game.players) do
@@ -173,6 +204,17 @@ function Module.report(reporting_player, reported_player, message)
             end
         end
     end
+end
+
+local function send_jail_to_discord(target_player, player)
+    local message = table.concat {
+        target_player.name,
+        ' has been jailed by ',
+        player.name,
+        ' - game time ',
+        Utils.format_time(game.tick)
+    }
+    Server.to_discord_named_embed(moderation_log_channel, message)
 end
 
 --- Places a target in jail
@@ -274,6 +316,8 @@ function Module.jail(target_player, player)
 
         target_player.color = Color.white
         target_player.chat_color = Color.white
+
+        send_jail_to_discord(target_player, player)
     else
         -- Let admin know it didn't work.
         print(format('Something went wrong in the jailing of %s. You can still change their group via /permissions.',

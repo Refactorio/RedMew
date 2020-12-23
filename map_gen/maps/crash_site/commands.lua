@@ -12,9 +12,12 @@ local Core = require 'utils.core'
 local Color = require 'resources.color_presets'
 local Toast = require 'features.gui.toast'
 local Utils = require 'utils.core'
-local DiscordChannelNames = require 'resources.discord_channel_names'
+local Discord = require 'resources.discord'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local ScoreTracker = require 'utils.score_tracker'
+
+local map_promotion_channel = Discord.channel_names.map_promotion
+local crash_site_role_mention = Discord.role_mentions.crash_site
 
 local Public = {}
 
@@ -86,9 +89,7 @@ function Public.control(config)
             return
         elseif state == 1 then
             local time_string = Core.format_time(game.ticks_played)
-            local discord_crashsite_role = '<@&762441731194748958>' -- @crash_site
-            -- local discord_crashsite_role = '<@&593534612051984431>' -- @test
-            Server.to_discord_named_raw(DiscordChannelNames.map_promotion, discord_crashsite_role
+            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention
                 .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
 
             local end_epoch = Server.get_current_time()
