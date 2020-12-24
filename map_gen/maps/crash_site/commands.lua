@@ -20,8 +20,12 @@ local Public = {}
 function Public.control(config)
 
 local server_player = {name = '<server>', print = print}
+local start_epoch = Server.get_current_time()
+if start_epoch == nil then
+    start_epoch = 0      -- for if a save was made locally so it doesn't crash
+end
 
-local global_data = {restarting = nil}
+local global_data = {restarting = nil, start_epoch = start_epoch}
 local airstrike_data = {radius_level = 1, count_level = 1}
 
 Global.register({
@@ -37,6 +41,31 @@ Global.register({
 local function double_print(str)
     game.print(str)
     print(str)
+end
+
+local static_entities_to_check = {
+    'spitter-spawner','biter-spawner',
+    'small-worm-turret', 'medium-worm-turret','big-worm-turret', 'behemoth-worm-turret',
+    'gun-turret', 'laser-turret', 'artillery-turret', 'flamethrower-turret'
+}
+
+local biter_entities_to_check = {
+    'small-spitter', 'medium-spitter', 'big-spitter', 'behemoth-spitter',
+    'small-biter', 'medium-biter', 'big-biter', 'behemoth-biter'
+}
+
+local function count_enemy_entities()
+    local get_entity_count = game.forces["enemy"].get_entity_count
+    local entity_count = 0;
+    for i = 1, #static_entities_to_check do
+        local name = static_entities_to_check[i]
+        entity_count = entity_count + get_entity_count(name)
+    end
+    for i = 1, #biter_entities_to_check do
+        local name = biter_entities_to_check[i]
+        entity_count = entity_count + get_entity_count(name)
+    end
+    return entity_count
 end
 
 local callback
@@ -59,10 +88,20 @@ callback =
             --local discord_crashsite_role = '<@&593534612051984431>' -- @test
             Server.to_discord_named_raw(DiscordChannelNames.map_promotion, discord_crashsite_role .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
 
-            local unix_time = Server.get_current_time()
-            local game_time = game.ticks_played
-            Server.set_data('crash_site_data', tostring(unix_time),  game_time) -- Store the server unix time as key and total game ticks in the Scenario Data
+            local end_epoch = Server.get_current_time()
+            if end_epoch == nil then
+                end_epoch = -1       -- for if a save was made locally so it doesn't crash on restart
+            end
 
+            local statistics = {
+                start_epoch = start_epoch,
+                end_epoch = end_epoch,  -- stored as key already, useful to have it as part of same structure
+                game_ticks = game.ticks_played,
+                enemy_entities = count_enemy_entities(),
+                biters_killed = ScoreTracker.get_for_global('aliens-killed'),
+                total_players = #game.players
+            }
+            Server.set_data('crash_site_data_test', tostring(end_epoch),  statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
         end
 
@@ -72,17 +111,6 @@ callback =
         Task.set_timeout_in_ticks(60, callback, data)
     end
 )
-
-local static_entities_to_check = {
-    'spitter-spawner','biter-spawner',
-    'small-worm-turret', 'medium-worm-turret','big-worm-turret', 'behemoth-worm-turret',
-    'gun-turret', 'laser-turret', 'artillery-turret', 'flamethrower-turret'
-}
-
-local biter_entities_to_check = {
-    'small-spitter', 'medium-spitter', 'big-spitter', 'behemoth-spitter',
-    'small-biter', 'medium-biter', 'big-biter', 'behemoth-biter'
-}
 
 local function map_cleared(player)
     player = player or server_player
@@ -97,11 +125,7 @@ local function map_cleared(player)
     end
 
     -- Count all the remaining biters and spitters
-    local biter_total = 0;
-    for i = 1, #biter_entities_to_check do
-        local name = biter_entities_to_check[i]
-        biter_total = biter_total + get_entity_count(name)
-    end
+    local biter_total = count_enemy_entities()
 
     -- Return false if more than 20 left. Players have had problems finding the last few biters so set to a reasonable value.
     if biter_total > 20 then
