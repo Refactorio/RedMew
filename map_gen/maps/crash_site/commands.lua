@@ -14,6 +14,7 @@ local Toast = require 'features.gui.toast'
 local Utils = require 'utils.core'
 local DiscordChannelNames = require 'resources.discord_channel_names'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
+local ScoreTracker = require 'utils.score_tracker'
 
 local Public = {}
 
