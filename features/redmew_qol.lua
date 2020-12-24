@@ -322,98 +322,114 @@ local close_gui_token = Token.register(function(data)
     player.opened = nil
 end)
 
+local function any_loader_enabled(recipes)
+    return recipes['loader'].enabled or recipes['fast-loader'].enabled or recipes['express-loader'].enabled
+end
+
 local function draw_loader_frame_for_player(parent, player)
-    local recipes = player.force.recipes
     local frame = parent[loader_crafter_frame_for_player_name]
     if frame and frame.valid then
         Gui.destroy(frame)
     end
 
+    local recipes = player.force.recipes
+    if not any_loader_enabled(recipes) then
+        return
+    end
+
     local anchor = {gui = defines.relative_gui_type.controller_gui, position = defines.relative_gui_position.right}
-    frame = parent.add {type = 'frame', name = loader_crafter_frame_for_player_name, anchor = anchor, direction='vertical'}
+    frame = parent.add {
+        type = 'frame',
+        name = loader_crafter_frame_for_player_name,
+        anchor = anchor,
+        direction = 'vertical'
+    }
 
     if recipes['loader'].enabled then
-        local button = frame.add {type = 'choose-elem-button', name = player_craft_loader_1, elem_type = 'recipe', recipe = 'loader'}
+        local button = frame.add {
+            type = 'choose-elem-button',
+            name = player_craft_loader_1,
+            elem_type = 'recipe',
+            recipe = 'loader'
+        }
         button.locked = true
     end
 
     if recipes['fast-loader'].enabled then
-        local button = frame.add {type = 'choose-elem-button', name = player_craft_loader_2, elem_type = 'recipe', recipe = 'fast-loader'}
+        local button = frame.add {
+            type = 'choose-elem-button',
+            name = player_craft_loader_2,
+            elem_type = 'recipe',
+            recipe = 'fast-loader'
+        }
         button.locked = true
     end
 
     if recipes['express-loader'].enabled then
-        local button = frame.add {type = 'choose-elem-button', name = player_craft_loader_3, elem_type = 'recipe', recipe = 'express-loader'}
+        local button = frame.add {
+            type = 'choose-elem-button',
+            name = player_craft_loader_3,
+            elem_type = 'recipe',
+            recipe = 'express-loader'
+        }
         button.locked = true
     end
 end
 
 local function draw_loader_frame_for_assembly_machine(parent, entity, player)
-    local recipes = player.force.recipes
     local frame = parent[loader_crafter_frame_for_assembly_machine_name]
     if frame and frame.valid then
         Gui.destroy(frame)
+    end
+
+    local recipes = player.force.recipes
+    if not any_loader_enabled(recipes) then
+        return
     end
 
     local anchor = {
         gui = defines.relative_gui_type.assembling_machine_select_recipe_gui,
         position = defines.relative_gui_position.right
     }
-    frame = parent.add {type = 'frame', name = loader_crafter_frame_for_assembly_machine_name, anchor = anchor, direction='vertical'}
+    frame = parent.add {
+        type = 'frame',
+        name = loader_crafter_frame_for_assembly_machine_name,
+        anchor = anchor,
+        direction = 'vertical'
+    }
 
     if recipes['loader'].enabled then
-        local button = frame.add {type = 'choose-elem-button', name = machine_craft_loader_1, elem_type='recipe', recipe = 'loader'}
+        local button = frame.add {
+            type = 'choose-elem-button',
+            name = machine_craft_loader_1,
+            elem_type = 'recipe',
+            recipe = 'loader'
+        }
         button.locked = true
         Gui.set_data(button, entity)
     end
 
     if recipes['fast-loader'].enabled then
-        local button = frame.add {type = 'choose-elem-button', name = machine_craft_loader_2, elem_type='recipe', recipe = 'fast-loader'}
+        local button = frame.add {
+            type = 'choose-elem-button',
+            name = machine_craft_loader_2,
+            elem_type = 'recipe',
+            recipe = 'fast-loader'
+        }
         button.locked = true
         Gui.set_data(button, entity)
     end
 
     if recipes['express-loader'].enabled then
-        local button = frame.add {type = 'choose-elem-button', name = machine_craft_loader_3, elem_type='recipe', recipe = 'express-loader'}
+        local button = frame.add {
+            type = 'choose-elem-button',
+            name = machine_craft_loader_3,
+            elem_type = 'recipe',
+            recipe = 'express-loader'
+        }
         button.locked = true
         Gui.set_data(button, entity)
     end
-end
-
-if config.loaders then
-    Event.add(defines.events.on_research_finished, function(event)
-        local research = event.research
-        local recipe = loaders_technology_map[research.name]
-        if not recipe then
-            return
-        end
-
-        research.force.recipes[recipe].enabled = true
-        for _, player in pairs(game.players) do
-            local panel = player.gui.relative
-            local frame = panel[loader_crafter_frame_for_player_name]
-            if frame and frame.valid then
-                draw_loader_frame_for_player(panel, player)
-            end
-        end
-    end)
-end
-
-if config.loaders then
-    Event.add(defines.events.on_gui_opened, function(event)
-        local player = game.get_player(event.player_index)
-        if not player or not player.valid then
-            return
-        end
-
-        local panel = player.gui.relative
-        local entity = event.entity
-        if entity and entity.valid and entity.type == 'assembling-machine' then
-            draw_loader_frame_for_assembly_machine(panel, entity, player)
-        elseif event.gui_type == defines.gui_type.controller then
-            draw_loader_frame_for_player(panel, player)
-        end
-    end)
 end
 
 local function player_craft_loaders(event, loader_name)
@@ -476,6 +492,37 @@ Gui.on_click(machine_craft_loader_3, function(event)
 end)
 
 if config.loaders then
+    Event.add(defines.events.on_research_finished, function(event)
+        local research = event.research
+        local recipe = loaders_technology_map[research.name]
+        if not recipe then
+            return
+        end
+
+        research.force.recipes[recipe].enabled = true
+        for _, player in pairs(game.players) do
+            if player.opened_gui_type == defines.gui_type.controller then
+                local panel = player.gui.relative
+                draw_loader_frame_for_player(panel, player)
+            end
+        end
+    end)
+
+    Event.add(defines.events.on_gui_opened, function(event)
+        local player = game.get_player(event.player_index)
+        if not player or not player.valid then
+            return
+        end
+
+        local panel = player.gui.relative
+        local entity = event.entity
+        if entity and entity.valid and entity.type == 'assembling-machine' then
+            draw_loader_frame_for_assembly_machine(panel, entity, player)
+        elseif event.gui_type == defines.gui_type.controller then
+            draw_loader_frame_for_player(panel, player)
+        end
+    end)
+
     Event.add(defines.events.on_gui_closed, function(event)
         local player = game.get_player(event.player_index)
         if not player or not player.valid then
@@ -494,4 +541,5 @@ if config.loaders then
         end
     end)
 end
+
 return Public
