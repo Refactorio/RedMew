@@ -1,6 +1,8 @@
 require 'map_gen.maps.crash_site.blueprint_extractor'
 require 'map_gen.maps.crash_site.events'
 require 'map_gen.maps.crash_site.weapon_balance'
+require 'map_gen.maps.crash_site.rocket_tanks'
+
 
 local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
@@ -16,6 +18,8 @@ local MGSP = require 'resources.map_gen_settings'
 local RedmewConfig = require 'config'
 local Cutscene = require 'map_gen.maps.crash_site.cutscene'
 local cutscene_surface_settings = require 'map_gen.maps.crash_site.cutscene_surface_settings'
+
+
 
 local degrees = math.degrees
 local cutscene_force_name = 'cutscene'
@@ -786,6 +790,14 @@ local function init(config)
                 name_label = {'command_description.crash_site_airstrike_radius_name_label', 1},
                 sprite = 'item-group/production',
                 description = {'command_description.crash_site_airstrike_radius', 1, 0, 5}
+            },
+            {
+                price = 5000,
+                type = 'rocket_tanks',
+                name = 'rocket_tanks_fire_rate',
+                name_label = {'command_description.crash_site_rocket_tanks_name_label', 1},
+                sprite = 'item-group/production',
+                description = 'Upgrade the tank rocket firing rate to reduce the rocket interval.\n\nPlace rockets in the tank inventory to have them automatically target enemy worms and nests.'
             },
             {name = 'wood', price = 1},
             {name = 'iron-plate', price = 2},
