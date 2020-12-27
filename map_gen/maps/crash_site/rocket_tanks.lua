@@ -104,7 +104,7 @@ Event.add(Retailer.events.on_market_purchase, function(event)
         Toast.toast_all_players(15, {'command_description.crash_site_rocket_tank_upgrade_success', interval_level})
         item.name_label = {'command_description.crash_site_rocket_tanks_name_label', (interval_level + 1)}
         item.price = (interval_level + 1) * 7500
-        Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.    
+        Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
     end
     if interval_level >= 4 then -- update label, set price to 0, disable further purchases
         item.price = 0
