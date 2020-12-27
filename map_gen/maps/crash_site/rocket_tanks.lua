@@ -54,37 +54,18 @@ local static_entities_to_check = {
     'big-worm-turret',
     'behemoth-worm-turret'
 }
---[[local function on_tick()
-    for k, v in pairs(tank_entities) do
-        local unit_number = k
-        local tank = v
-        local s = game.surfaces["redmew"]
-        if tank.get_driver() then   -- only allow tanks to fire rockets when the tank has a driver
-            local inv = tank.get_inventory(defines.inventory.car_trunk)
-            local rocket_count = inv.get_item_count("rocket")
-            if rocket_count > 0 then
-                local target = s.find_entities_filtered {
-                    position = tank.position,
-                    radius = 30,
-                    force = "enemy",
-                    name = static_entities_to_check,
-                    limit = 1
-                }
-                if target[1] then
-                    s.create_entity {name = "rocket", position = tank.position, target = target[1], speed = 0.2}
-                    inv.remove({name = "rocket", count = 1})
-                end
-            end
-        end
-    end
-end]]
+
 local on_tick
 on_tick = Token.register(
     function()
-    for k, v in pairs(tank_entities) do
-        local unit_number = k
-        local tank = v
-        local s = game.surfaces["redmew"]
+    local s = game.surfaces["redmew"]
+    for _, tank in pairs(tank_entities) do
+        if not tank then
+            return
+        end
+        if not tank.valid then
+            return
+        end
         if tank.get_driver() then   -- only allow tanks to fire rockets when the tank has a driver
             local inv = tank.get_inventory(defines.inventory.car_trunk)
             local rocket_count = inv.get_item_count("rocket")
@@ -110,11 +91,8 @@ local rocket_tank_level_intervals = {
     [2] = 180,
     [3] = 120,
     [4] = 60,
-    [5] = 30 
+    [5] = 30
 }
-
---Event.on_nth_tick(180, on_tick)
---Event.on_nth_tick(rocket_tank_level_intervals[tank_research.interval_level], on_tick)
 
 Event.add(Retailer.events.on_market_purchase, function(event)
 
@@ -138,16 +116,16 @@ Event.add(Retailer.events.on_market_purchase, function(event)
         Toast.toast_all_players(15, {'command_description.crash_site_rocket_tank_upgrade_success', interval_level})
         item.name_label = {'command_description.crash_site_rocket_tanks_name_label', (interval_level + 1)}
         item.price = (interval_level+1)*7500
-        item.description = 'Upgrade the tank rocket firing rate to reduce the rocket interval.\n\nPlace rockets in the tank inventory to have them automatically target enemy worms and nests.'
         Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
     end
-    if interval_level == 5 then
-        -- This doesn't work....
-        Retailer.remove_item('Spawn', 'rocket_tanks_fire_rate')
+    if interval_level >= 4 then -- update label, set price to 0, disable further purchases
+        item.price = 0
+        item.name_label = {'command_description.crash_site_rocket_tanks_name_label', '(MAX LVL)'}
+        Retailer.set_item(market_id, item)
+        Retailer.get_items(market_id)['rocket_tanks_fire_rate'].disabled = true
     end
     if interval_level > 2 then
         Event.remove_removable_nth_tick(rocket_tank_level_intervals[tank_research.interval_level-1], on_tick)
     end
     Event.add_removable_nth_tick(rocket_tank_level_intervals[tank_research.interval_level], on_tick)
-
 end)

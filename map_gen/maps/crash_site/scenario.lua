@@ -792,13 +792,12 @@ local function init(config)
                 description = {'command_description.crash_site_airstrike_radius', 1, 0, 5}
             },
             {
-                price = 5000,
+                price = 7500,
                 type = 'rocket_tanks',
                 name = 'rocket_tanks_fire_rate',
                 name_label = {'command_description.crash_site_rocket_tanks_name_label', 1},
                 sprite = 'item-group/production',
-                description = 'Upgrade the tank rocket firing rate to reduce the rocket interval.\n\nPlace rockets in the tank inventory to have them automatically target enemy worms and nests.'
-            },
+                description = {'command_description.crash_site_rocket_tanks_description'}            },
             {name = 'wood', price = 1},
             {name = 'iron-plate', price = 2},
             {name = 'stone', price = 2},
