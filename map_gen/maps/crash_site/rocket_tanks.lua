@@ -92,7 +92,7 @@ Event.add(Retailer.events.on_market_purchase, function(event)
     end
 
     local item = event.item
-    if item.type ~= 'rocket_tanks' and event.name ~= 'rocket_tanks_fire_rate' then
+    if item.type ~= 'rocket_tanks' or item.name ~= 'rocket_tanks_fire_rate' then
         return
     end
 
