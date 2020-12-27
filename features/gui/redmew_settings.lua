@@ -97,7 +97,7 @@ local function draw_main_frame(center, player)
     )
 
     local settings_frame_style = settings_frame.style
-    settings_frame_style.width = 400
+    settings_frame_style.width = 500
 
     local info_text = settings_frame.add({type = 'label', caption = {'redmew_settings_gui.setting_info'}})
     local info_text_style = info_text.style
