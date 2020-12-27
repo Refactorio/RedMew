@@ -21,8 +21,7 @@ local Public = {}
 function Public.control(config)
 
     local server_player = {name = '<server>', print = print}
-    local start_epoch = nil
-    local global_data = {restarting = nil, start_epoch = start_epoch}
+    local global_data = {restarting = nil, start_epoch = nil}
     local airstrike_data = {radius_level = 1, count_level = 1}
 
     Global.register({global_data = global_data, airstrike_data = airstrike_data}, function(tbl)
@@ -94,7 +93,7 @@ function Public.control(config)
 
             local end_epoch = Server.get_current_time()
             if end_epoch == nil then
-                end_epoch = -1 -- for if a save was made locally so it doesn't crash on restart
+                end_epoch = -1 -- end_epoch is nil if the restart command is used locally rather than on the server
             end
 
             local statistics = {
@@ -314,7 +313,6 @@ function Public.control(config)
     Event.add(Server.events.on_server_started, function()
         if not global_data.start_epoch then
             global_data.start_epoch = Server.get_current_time()
-            game.print("Start epoch: " .. global_data.start_epoch)
         end
     end)
 
