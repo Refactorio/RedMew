@@ -777,6 +777,7 @@ local function init(config)
             upgrade_cost_base = 2,
             {
                 price = 1000,
+                stack_limit = 1,
                 type= 'airstrike',
                 name = 'airstrike_damage',
                 name_label = {'command_description.crash_site_airstrike_count_name_label', 1},
@@ -785,6 +786,7 @@ local function init(config)
             },
             {
                 price = 1000,
+                stack_limit = 1,
                 type = 'airstrike',
                 name = 'airstrike_radius',
                 name_label = {'command_description.crash_site_airstrike_radius_name_label', 1},
@@ -793,11 +795,13 @@ local function init(config)
             },
             {
                 price = 7500,
+                stack_limit = 1,
                 type = 'rocket_tanks',
                 name = 'rocket_tanks_fire_rate',
                 name_label = {'command_description.crash_site_rocket_tanks_name_label', 1},
-                sprite = 'item-group/production',
-                description = {'command_description.crash_site_rocket_tanks_description'}            },
+                sprite = 'entity/tank',
+                description = {'command_description.crash_site_rocket_tanks_description'}
+            },
             {name = 'wood', price = 1},
             {name = 'iron-plate', price = 2},
             {name = 'stone', price = 2},
