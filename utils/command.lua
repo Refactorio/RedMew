@@ -21,8 +21,7 @@ local pcall = pcall
 local Command = {}
 
 local deprecated_command_alternatives = {
-    ['silent-command'] = 'dc',
-    ['sc'] = 'dc',
+    ['dc'] = 'sc',
     ['tpplayer'] = 'tp <player>',
     ['tppos'] = 'tp',
     ['tpmode'] = 'tp mode',

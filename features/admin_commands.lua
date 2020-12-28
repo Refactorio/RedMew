@@ -8,8 +8,6 @@ local Command = require 'utils.command'
 local Color = require 'resources.color_presets'
 local Ranks = require 'resources.ranks'
 
-local loadstring = loadstring
-
 --- A table of players with tpmode turned on
 local tp_players = {}
 
@@ -30,36 +28,6 @@ end
 --- Sends a message to all online admins
 local function admin_chat(args, player)
     Utils.print_admins(args.msg, player)
-end
-
---- Runs a command silently. Traps and prints errors for the player/server
-local function silent_command(args, player)
-    local p
-    if player then
-        p = player.print
-    else
-        p = print
-    end
-
-    local func, err = loadstring(args.str)
-    if not func then
-        p(err)
-        return
-    end
-
-    local _, err2 = pcall(func)
-    if err2 then
-        local i = err2:find('\n')
-        if i then
-            p(err2:sub(1, i))
-            return
-        end
-
-        i = err2:find('%s')
-        if i then
-            p(err2:sub(i + 1))
-        end
-    end
 end
 
 --- Toggles cheat mode for a player
@@ -341,18 +309,6 @@ Command.add(
         allowed_by_server = true
     },
     admin_chat
-)
-
-Command.add(
-    'dc',
-    {
-        description = {'command_description.dc'},
-        arguments = {'str'},
-        required_rank = Ranks.admin,
-        capture_excess_arguments = true,
-        allowed_by_server = true
-    },
-    silent_command
 )
 
 Command.add(
