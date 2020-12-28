@@ -82,8 +82,6 @@ local on_tick = Token.register(function()
     end
 end)
 
-local rocket_tank_level_intervals = {[2] = 180, [3] = 120, [4] = 60, [5] = 30}
-
 Event.add(Retailer.events.on_market_purchase, function(event)
     local market_id = event.group_name
     local group_label = Retailer.get_market_group_label(market_id)
@@ -103,7 +101,7 @@ Event.add(Retailer.events.on_market_purchase, function(event)
 
         Toast.toast_all_players(15, {'command_description.crash_site_rocket_tank_upgrade_success', interval_level})
         item.name_label = {'command_description.crash_site_rocket_tanks_name_label', (interval_level + 1)}
-        item.price = (interval_level + 1) * 7500
+        item.price = (interval_level + 1) * 4000
         Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
     end
     if interval_level >= 4 then -- update label, set price to 0, disable further purchases
@@ -114,8 +112,9 @@ Event.add(Retailer.events.on_market_purchase, function(event)
         Retailer.set_item(market_id, item)
     end
 
+    -- Interval for each level should decrease 30 from 120 ticks each level. 120, 90, 60, 30.
     if interval_level > 2 then
-        Event.remove_removable_nth_tick(rocket_tank_level_intervals[tank_research.interval_level - 1], on_tick)
+        Event.remove_removable_nth_tick((120-(((interval_level-1)-2)*30)), on_tick)
     end
-    Event.add_removable_nth_tick(rocket_tank_level_intervals[tank_research.interval_level], on_tick)
+    Event.add_removable_nth_tick((120-((interval_level-2)*30)), on_tick)
 end)
