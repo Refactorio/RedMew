@@ -1672,7 +1672,16 @@ Public.market_set_items_callback =
 
             Retailer.set_item(
                 market_id,
-                {name = item.name, type = item.type, price = price, name_label = item.name_label, sprite = item.sprite, description = item.description}
+                {
+                    name = item.name,
+                    type = item.type,
+                    price = price,
+                    stack_limit = item.stack_limit,
+                    name_label = item.name_label,
+                    sprite = item.sprite,
+                    disabled = item.disabled,
+                    disabled_reason = item.disabled_reason,
+                    description = item.description}
             )
         end
     end

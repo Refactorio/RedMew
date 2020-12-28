@@ -210,8 +210,12 @@ stds.factorio_control = {
         -- (http://lua-api.factorio.com/latest/LuaBootstrap.html)
         script = {
             fields = {
-                "on_configuration_changed", "raise_event",
-                "get_event_handler", "mod_name", "get_event_order"
+                'on_configuration_changed',
+                'raise_event',
+                'get_event_handler',
+                'mod_name',
+                'get_event_order',
+                'register_on_entity_destroyed'
             },
             other_fields = false,
         },
@@ -1002,6 +1006,7 @@ stds.factorio_defines = {
                         'on_entity_cloned',
                         'on_entity_damaged',
                         'on_entity_died',
+                        'on_entity_destroyed',
                         'on_entity_renamed',
                         'on_entity_settings_pasted',
                         'on_entity_spawned',
