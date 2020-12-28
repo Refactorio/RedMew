@@ -26,7 +26,7 @@ local function spawn_builder(config)
 end
 
 local function tile_builder_factory(config)
-    local tile_builder_scale = config.tile_builder_scale or 1 / 64
+    local tile_builder_scale = config.tile_builder_scale or (1 / 64)
     local seed = seed_provider()
 
     return function(tiles)
