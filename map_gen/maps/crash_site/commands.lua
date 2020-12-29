@@ -105,7 +105,7 @@ function Public.control(config)
                 biters_killed = ScoreTracker.get_for_global('aliens-killed'),
                 total_players = #game.players
             }
-            Server.set_data('crash_site_data_test', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
+            Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
         end
 
