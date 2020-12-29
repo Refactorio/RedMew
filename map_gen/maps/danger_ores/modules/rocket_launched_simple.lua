@@ -26,7 +26,7 @@ return function(config)
             win_satellite_count,
             ' satellites to win the map.'
         }
-        game.print({'danger_ore.biters_disabled', win_satellite_count})
+        game.print({'danger_ores.biters_disabled', win_satellite_count})
         Server.to_discord_bold(message)
     end
 
@@ -37,7 +37,7 @@ return function(config)
 
         ShareGlobals.data.map_won = true
         local message = 'Congratulations! The map has been won. Restart the map with /restart'
-        game.print({'danger_ore.win'})
+        game.print({'danger_ores.win'})
         Server.to_discord_bold(message)
     end
 
@@ -48,7 +48,7 @@ return function(config)
         end
 
         local message = table.concat {'Launch another ', remaining_count, ' satellites to win the map.'}
-        game.print({'danger_ore.satellite_launch', remaining_count})
+        game.print({'danger_ores.satellite_launch', remaining_count})
         Server.to_discord_bold(message)
     end
 
