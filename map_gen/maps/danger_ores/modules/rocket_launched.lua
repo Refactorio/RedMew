@@ -12,7 +12,7 @@ local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 return function(config)
     local recent_chunks = Queue.new() -- Keeps track of recently revealed chunks
     local recent_chunks_max = config.recent_chunks_max or 10 -- Maximum number of chunks to track
-    local ticks_between_waves = config.ticks_between_waves or 60 * 30
+    local ticks_between_waves = config.ticks_between_waves or (60 * 30)
     local enemy_factor = config.enemy_factor or 5
     local max_enemies_per_wave_per_chunk = config.max_enemies_per_wave_per_chunk or 60
 
