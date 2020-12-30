@@ -20,12 +20,14 @@ local serialize_options = {sparse = true, compact = true}
 local Public = {}
 
 local server_time = {secs = nil, tick = 0}
+local start_data = {server_id = nil, server_name = nil, start_time = nil}
 ErrorLogging.server_time = server_time
 local requests = {}
 
-Global.register({server_time = server_time, requests = requests}, function(tbl)
+Global.register({server_time = server_time, start_data = start_data, requests = requests}, function(tbl)
     server_time = tbl.server_time
     ErrorLogging.server_time = server_time
+    start_data = tbl.start_data
     requests = tbl.requests
 end)
 
@@ -695,6 +697,40 @@ function Public.get_current_time()
 
     local diff = game.tick - server_time.tick
     return math.floor(secs + diff / game.speed / 60)
+end
+
+--- Called by the web server to set the server start data.
+function Public.set_start_data(data)
+    start_data.server_id = data.server_id
+    start_data.server_name = data.server_name
+
+    local start_time = start_data.start_time
+    if not start_time then
+        -- Only set start time if it has not been set already, so that we keep the first start time.
+        start_data.start_time = data.start_time
+    end
+end
+
+--- Gets the server's id e.g. '7'. Empty string if not known.
+-- This is the current server's id, in the case the save has been loaded on multiple servers.
+-- @return string
+function Public.get_server_id()
+    return start_data.server_id or ''
+end
+
+--- Gets the server's name e.g. '[color=red]RedMew[/color] - Crash Site Desert'. Empty string if not known.
+-- This is the current server's name, in the case the save has been loaded on multiple servers.
+-- @return string
+function Public.get_server_name()
+    return start_data.server_name or ''
+end
+
+--- Gets the server's start time as a unix epoch timestamp. nil if not known.
+-- This is the time that the save was fist started/loaded on any Redmew server in the
+-- case that the save has been loaded multiple times.
+-- @return number?
+function Public.get_start_time()
+    return start_data.start_time
 end
 
 --- Called be the web server to re sync which players are online.

@@ -24,7 +24,7 @@ local Public = {}
 function Public.control(config)
 
     local server_player = {name = '<server>', print = print}
-    local global_data = {restarting = nil, start_epoch = nil}
+    local global_data = {restarting = nil}
     local airstrike_data = {radius_level = 1, count_level = 1}
 
     Global.register({global_data = global_data, airstrike_data = airstrike_data}, function(tbl)
@@ -98,7 +98,7 @@ function Public.control(config)
             end
 
             local statistics = {
-                start_epoch = global_data.start_epoch,
+                start_epoch = Server.get_start_time(),
                 end_epoch = end_epoch, -- stored as key already, useful to have it as part of same structure
                 game_ticks = game.ticks_played,
                 enemy_entities = count_enemy_entities(),
@@ -310,12 +310,6 @@ function Public.control(config)
             set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
         end
     end
-
-    Event.add(Server.events.on_server_started, function()
-        if not global_data.start_epoch then
-            global_data.start_epoch = Server.get_current_time()
-        end
-    end)
 
     Event.add(Retailer.events.on_market_purchase, function(event)
 
