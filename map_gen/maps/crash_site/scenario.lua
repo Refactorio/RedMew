@@ -794,7 +794,7 @@ local function init(config)
                 description = {'command_description.crash_site_airstrike_radius', 1, 0, 5}
             },
             {
-                price = 4000,
+                price = 1000,
                 stack_limit = 1,
                 type = 'rocket_tanks',
                 name = 'rocket_tanks_fire_rate',
