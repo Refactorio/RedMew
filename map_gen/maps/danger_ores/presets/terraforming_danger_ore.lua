@@ -95,10 +95,10 @@ Event.on_init(function()
 end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 8 * 32, min_pollution = 300, max_pollution = 6000, pollution_increment = 2.5})
+terraforming({start_size = 8 * 32, min_pollution = 300, max_pollution = 12000, pollution_increment = 3})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 1000})
+rocket_launched({win_satellite_count = 500})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
 restart_command({scenario_name = 'terraforming-danger-ore'})
@@ -116,8 +116,8 @@ local config = {
     resource_patches_config = resource_patches_config,
     water = water,
     water_scale = 1 / 96,
-    water_threshold = 0.5,
-    deepwater_threshold = 0.55,
+    water_threshold = 0.45,
+    deepwater_threshold = 0.5,
     trees = trees,
     trees_scale = 1 / 64,
     trees_threshold = 0.4,
@@ -130,7 +130,7 @@ local config = {
     dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
-    dense_patches_multiplier = 50
+    dense_patches_multiplier = 25
 }
 
 return map(config)

@@ -7,11 +7,11 @@ return {
     {
         scale = 1 / 64,
         threshold = 0.6,
-        resource = b.resource(oil_shape, 'crude-oil', value(375000, 225))
+        resource = b.resource(oil_shape, 'crude-oil', value(450000, 225))
     },
     {
-        scale = 1 / 72,
-        threshold = 0.63,
-        resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1))
+        scale = 1 / 80,
+        threshold = 0.68,
+        resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1.2))
     }
 }
