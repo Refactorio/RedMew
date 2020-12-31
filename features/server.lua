@@ -741,13 +741,28 @@ Event.add(defines.events.on_player_joined_game, function(event)
     raw_print(player_join_tag .. player.name)
 end)
 
+local leave_reason_map = {
+    [defines.disconnect_reason.quit] = '',
+    [defines.disconnect_reason.dropped] = ' (Dropped)',
+    [defines.disconnect_reason.reconnect] = ' (Reconnect)',
+    [defines.disconnect_reason.wrong_input] = ' (Wrong input)',
+    [defines.disconnect_reason.desync_limit_reached] = ' (Desync limit reached)',
+    [defines.disconnect_reason.cannot_keep_up] = ' (Cannot keep up)',
+    [defines.disconnect_reason.afk] = ' (AFK)',
+    [defines.disconnect_reason.kicked] = ' (Kicked)',
+    [defines.disconnect_reason.kicked_and_deleted] = ' (Kicked)',
+    [defines.disconnect_reason.banned] = ' (Banned)',
+    [defines.disconnect_reason.switching_servers] = ' (Switching servers)'
+}
+
 Event.add(defines.events.on_player_left_game, function(event)
     local player = game.get_player(event.player_index)
     if not player then
         return
     end
 
-    raw_print(player_leave_tag .. player.name)
+    local reason = leave_reason_map[event.reason] or ''
+    raw_print(player_leave_tag .. player.name .. reason)
 end)
 
 Event.add(defines.events.on_player_died, function(event)
