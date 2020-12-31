@@ -348,12 +348,10 @@ local column_builders = {
     [kills_heading_name] = {
         create_data = function(player)
             local player_index = player.index
-            return {
-                count = get_for_player(player_index, player_total_kills_name),
-            }
+            return get_for_player(player_index, player_total_kills_name)
         end,
         sort = function(a, b)
-            return a.count < b.count
+            return a < b
         end,
         draw_heading = function(parent, sort_symbol)
             local caption = {'player_list.kills_caption', sort_symbol}
@@ -365,9 +363,7 @@ local column_builders = {
             return label
         end,
         draw_cell = function(parent, cell_data)
-            local text = concat({cell_data.count})
-
-            local label = parent.add {type = 'label', name = kills_cell_name, caption = text}
+            local label = parent.add {type = 'label', name = kills_cell_name, caption = cell_data}
             local label_style = label.style
             label_style.horizontal_align = 'center'
             label_style.width = 80
