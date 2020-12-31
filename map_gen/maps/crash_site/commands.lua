@@ -90,22 +90,42 @@ function Public.control(config)
         elseif state == 1 then
             local time_string = Core.format_time(game.ticks_played)
             Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention
-                .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
+               .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
 
             local end_epoch = Server.get_current_time()
             if end_epoch == nil then
                 end_epoch = -1 -- end_epoch is nil if the restart command is used locally rather than on the server
             end
 
+            local player_data = {}
+            for _, p in pairs(game.players) do
+                player_data[p.index] = {
+                    name = p.name,
+                    total_kills = ScoreTracker.get_for_player(p.index, 'player-total-kills'),
+                    spawners_killed =  ScoreTracker.get_for_player(p.index, 'player-spawners-killed'),
+                    worms_killed = ScoreTracker.get_for_player(p.index, 'player-worms-killed'),
+                    units_killed = ScoreTracker.get_for_player(p.index, 'player-units-killed'),
+                    turrets_killed = ScoreTracker.get_for_player(p.index, 'player-turrets-killed'),
+                    distance_walked = ScoreTracker.get_for_player(p.index, 'player-distance-walked'),
+                    player_deaths = ScoreTracker.get_for_player(p.index, 'player-deaths'),
+                    coins_earned = ScoreTracker.get_for_player(p.index, 'coins-earned'),
+                    entities_built = ScoreTracker.get_for_player(p.index, 'built-by-players'),
+                    time_played = p.online_time
+                }
+            end
+
             local statistics = {
+                scenario = data.scenario_name,
                 start_epoch = Server.get_start_time(),
                 end_epoch = end_epoch, -- stored as key already, useful to have it as part of same structure
                 game_ticks = game.ticks_played,
                 enemy_entities = count_enemy_entities(),
                 biters_killed = ScoreTracker.get_for_global('aliens-killed'),
-                total_players = #game.players
+                total_players = #game.players,
+                player_data = player_data
             }
-            Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
+
+            Server.set_data('crash_site_data_test', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
         end
 

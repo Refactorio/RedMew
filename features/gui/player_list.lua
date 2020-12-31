@@ -20,6 +20,7 @@ local coins_spent_name = 'coins-spent'
 local coins_earned_name = 'coins-earned'
 local player_deaths_name = 'player-deaths'
 local player_distance_walked_name = 'player-distance-walked'
+local player_total_kills_name = 'player-total-kills'
 local random = math.random
 local ipairs = ipairs
 local pairs = pairs
@@ -80,6 +81,7 @@ local time_heading_name = Gui.uid_name()
 local rank_heading_name = Gui.uid_name()
 local distance_heading_name = Gui.uid_name()
 local coin_heading_name = Gui.uid_name()
+local kills_heading_name = Gui.uid_name()
 local deaths_heading_name = Gui.uid_name()
 local poke_name_heading_name = Gui.uid_name()
 local report_heading_name = Gui.uid_name()
@@ -90,6 +92,7 @@ local time_cell_name = Gui.uid_name()
 local rank_cell_name = Gui.uid_name()
 local distance_cell_name = Gui.uid_name()
 local coin_cell_name = Gui.uid_name()
+local kills_cell_name = Gui.uid_name()
 local deaths_cell_name = Gui.uid_name()
 local poke_cell_name = Gui.uid_name()
 local report_cell_name = Gui.uid_name()
@@ -342,6 +345,36 @@ local column_builders = {
             return label
         end
     },
+    [kills_heading_name] = {
+        create_data = function(player)
+            local player_index = player.index
+            return {
+                count = get_for_player(player_index, player_total_kills_name),
+            }
+        end,
+        sort = function(a, b)
+            return a.count < b.count
+        end,
+        draw_heading = function(parent, sort_symbol)
+            local caption = {'player_list.kills_caption', sort_symbol}
+            local label = parent.add {type = 'label', name = kills_heading_name, caption = caption}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 60
+
+            return label
+        end,
+        draw_cell = function(parent, cell_data)
+            local text = concat({cell_data.count})
+
+            local label = parent.add {type = 'label', name = kills_cell_name, caption = text}
+            local label_style = label.style
+            label_style.horizontal_align = 'center'
+            label_style.width = 80
+
+            return label
+        end
+    },
     [deaths_heading_name] = {
         create_data = function(player)
             local player_index = player.index
@@ -505,12 +538,13 @@ local function get_default_player_settings()
         columns[6] = coin_heading_name
         offset = 7
     end
-    columns[offset] = deaths_heading_name
-    columns[offset + 1] = poke_name_heading_name
-    columns[offset + 2] = report_heading_name
+    columns[offset] = kills_heading_name
+    columns[offset + 1] = deaths_heading_name
+    columns[offset + 2] = poke_name_heading_name
+    columns[offset + 3] = report_heading_name
     return {
         columns = columns,
-        sort = -3
+        sort = -4
     }
 end
 
