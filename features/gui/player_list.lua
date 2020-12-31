@@ -360,7 +360,7 @@ local column_builders = {
             local label = parent.add {type = 'label', name = kills_heading_name, caption = caption}
             local label_style = label.style
             apply_heading_style(label_style)
-            label_style.width = 60
+            label_style.width = 80
 
             return label
         end,
@@ -531,20 +531,20 @@ local function get_default_player_settings()
         player_name_heading_name,
         time_heading_name,
         rank_heading_name,
-        distance_heading_name
+        distance_heading_name,
+        kills_heading_name,
+        deaths_heading_name,
+        poke_name_heading_name,
+        report_heading_name,
     }
-    local offset = 6
+
     if global.config.player_list.show_coin_column then
-        columns[6] = coin_heading_name
-        offset = 7
+        table.insert(columns, 6, coin_heading_name)
     end
-    columns[offset] = kills_heading_name
-    columns[offset + 1] = deaths_heading_name
-    columns[offset + 2] = poke_name_heading_name
-    columns[offset + 3] = report_heading_name
+
     return {
         columns = columns,
-        sort = -4
+        sort = -3
     }
 end
 

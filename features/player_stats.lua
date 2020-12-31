@@ -21,7 +21,7 @@ local player_console_chats_name = 'player-console-chats'
 local player_items_crafted_name = 'player-items-crafted'
 local player_distance_walked_name = 'player-distance-walked'
 local satellites_launched_name = 'satellites-launched'
-local player_units_killed_name = 'player-units-killed'  --biters and spitters
+local player_units_killed_name = 'player-units-killed' -- biters and spitters
 local player_worms_killed_name = 'player-worms-killed'
 local player_spawners_killed_name = 'player-spawners-killed'
 local player_total_kills_name = 'player-total-kills'
@@ -54,54 +54,46 @@ local train_kill_causes = {
     ['artillery-wagon'] = true
 }
 
-local spawners = {
-    ['biter-spawner'] = true,
-    ['spitter-spawner'] = true
-}
+local entity_to_category_map = {
+    -- spawners
+    ['biter-spawner'] = player_spawners_killed_name,
+    ['spitter-spawner'] = player_spawners_killed_name,
 
-local worms = {
-    ['small-worm-turret'] = true,
-    ['medium-worm-turret'] = true,
-    ['big-worm-turret'] = true,
-    ['behemoth-worm-turret'] = true
-}
+    -- worms
+    ['small-worm-turret'] = player_worms_killed_name,
+    ['medium-worm-turret'] = player_worms_killed_name,
+    ['big-worm-turret'] = player_worms_killed_name,
+    ['behemoth-worm-turret'] = player_worms_killed_name,
 
-local units = {
-    ['small-biter'] = true,
-    ['medium-biter'] = true,
-    ['big-biter'] = true,
-    ['behemoth-biter'] = true,
-    ['small-spitter'] = true,
-    ['medium-spitter'] = true,
-    ['big-spitter'] = true,
-    ['behemoth-spitter'] = true
-}
+    -- units
+    ['small-biter'] = player_units_killed_name,
+    ['medium-biter'] = player_units_killed_name,
+    ['big-biter'] = player_units_killed_name,
+    ['behemoth-biter'] = player_units_killed_name,
+    ['small-spitter'] = player_units_killed_name,
+    ['medium-spitter'] = player_units_killed_name,
+    ['big-spitter'] = player_units_killed_name,
+    ['behemoth-spitter'] = player_units_killed_name,
 
-local turrets = {
-    ['gun-turret'] = true,
-    ['laser-turret'] = true,
-    ['artillery-turret'] = true,
-    ['flamethrower-turret'] = true
-}
+    -- turrets
+    ['gun-turret'] = player_turrets_killed_name,
+    ['laser-turret'] = player_turrets_killed_name,
+    ['artillery-turret'] = player_turrets_killed_name,
+    ['flamethrower-turret'] = player_turrets_killed_name,
 
-local others = {
-    ['defender'] = true,
-    ['destroyer'] = true
+    -- others
+    ['defender'] = false,
+    ['distractor'] = false,
+    ['destroyer'] = false
 }
 
 local player_last_position = {}
 local player_death_causes = {}
 
-Global.register(
-    {
-        player_last_position = player_last_position,
-        player_death_causes = player_death_causes
-    },
-    function(tbl)
-        player_last_position = tbl.player_last_position
-        player_death_causes = tbl.player_death_causes
-    end
-)
+Global.register({player_last_position = player_last_position, player_death_causes = player_death_causes}, function(tbl)
+    player_last_position = tbl.player_last_position
+    player_death_causes = tbl.player_death_causes
+end)
 
 --- When the player first logs on, initialize their stats and pull their former playtime
 local function player_created(event)
@@ -182,26 +174,30 @@ local function robot_built_entity()
     change_for_global(built_by_robots_name, 1)
 end
 
-local function biter_kill_counter(event)
-    if event.entity.force.name == 'enemy' then
-        change_for_global(aliens_killed_name, 1)
-        -- Only store for players if its an allowed entity (ie not for walls, chests etc)
-        if (event.cause.name == 'character') and (worms[event.entity.name] or turrets[event.entity.name] or spawners[event.entity.name] or units[event.entity.name] or others[event.entity.name]) then
-            local player_index = event.cause.player.index
-            change_for_player(player_index, player_total_kills_name,1)
-            if worms[event.entity.name] then
-                change_for_player(player_index, player_worms_killed_name,1)
-            end
-            if turrets[event.entity.name ] then
-                change_for_player(player_index, player_turrets_killed_name,1)
-            end
-            if spawners[event.entity.name ] then
-                change_for_player(player_index, player_spawners_killed_name ,1)
-            end
-            if units[event.entity.name ] then
-                change_for_player(player_index, player_units_killed_name,1)
-            end
-        end
+local function entity_died(event)
+    local entity = event.entity
+    if not entity or not entity.valid or entity.force.name ~= 'enemy' then
+        return
+    end
+
+    change_for_global(aliens_killed_name, 1)
+
+    local cause = event.cause
+    if not cause or not cause.valid or cause.name ~= 'character' then -- What about players inside vehicles?
+        return
+    end
+
+    -- Only store for players if its an allowed entity (ie not for walls, chests etc)
+    local category = entity_to_category_map[entity.name]
+    if category == nil then
+        return
+    end
+
+    local player_index = cause.player.index
+    change_for_player(player_index, player_total_kills_name, 1)
+
+    if category then
+        change_for_player(player_index, category, 1)
     end
 end
 
@@ -250,7 +246,7 @@ Event.add(defines.events.on_player_crafted_item, player_crafted_item)
 Event.add(defines.events.on_console_chat, player_console_chat)
 Event.add(defines.events.on_built_entity, player_built_entity)
 Event.add(defines.events.on_robot_built_entity, robot_built_entity)
-Event.add(defines.events.on_entity_died, biter_kill_counter)
+Event.add(defines.events.on_entity_died, entity_died)
 Event.add(defines.events.on_rocket_launched, rocket_launched)
 
 Event.on_nth_tick(62, tick)
