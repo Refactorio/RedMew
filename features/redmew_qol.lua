@@ -582,15 +582,28 @@ if config.loaders then
 
         local force = entity.force
 
+        local get_filter = entity.get_filter
+        local filters = {}
+        local filter_count = 5
+        for i = 1, filter_count do
+            filters[i] = get_filter(i)
+        end
+
         entity.destroy({raise_destroy = true})
-        surface.create_entity {
+        local new_entity = surface.create_entity {
             name = name,
             position = pos,
             direction = direction,
             type = 'output',
-            force = force,
-            raise_built = true
+            force = force
         }
+
+        local set_filter = new_entity.set_filter
+        for i = 1, filter_count do
+            set_filter(i, filters[i])
+        end
+
+        script.raise_script_built({entity = new_entity})
     end)
 end
 
