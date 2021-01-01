@@ -584,7 +584,7 @@ if config.loaders then
 
         local get_filter = entity.get_filter
         local filters = {}
-        local filter_count = 5
+        local filter_count = entity.filter_slot_count
         for i = 1, filter_count do
             filters[i] = get_filter(i)
         end
