@@ -328,22 +328,26 @@ end
 
 local function draw_loader_frame_for_player(parent, player)
     local frame = parent[loader_crafter_frame_for_player_name]
-    if frame and frame.valid then
-        Gui.destroy(frame)
-    end
 
     local recipes = player.force.recipes
     if not any_loader_enabled(recipes) then
+        if frame and frame.valid then
+            Gui.destroy(frame)
+        end
         return
     end
 
-    local anchor = {gui = defines.relative_gui_type.controller_gui, position = defines.relative_gui_position.right}
-    frame = parent.add {
-        type = 'frame',
-        name = loader_crafter_frame_for_player_name,
-        anchor = anchor,
-        direction = 'vertical'
-    }
+    if frame and frame.valid then
+        Gui.clear(frame)
+    else
+        local anchor = {gui = defines.relative_gui_type.controller_gui, position = defines.relative_gui_position.right}
+        frame = parent.add {
+            type = 'frame',
+            name = loader_crafter_frame_for_player_name,
+            anchor = anchor,
+            direction = 'vertical'
+        }
+    end
 
     if recipes['loader'].enabled then
         local button = frame.add {
@@ -378,25 +382,29 @@ end
 
 local function draw_loader_frame_for_assembly_machine(parent, entity, player)
     local frame = parent[loader_crafter_frame_for_assembly_machine_name]
-    if frame and frame.valid then
-        Gui.destroy(frame)
-    end
 
     local recipes = player.force.recipes
     if not any_loader_enabled(recipes) then
+        if frame and frame.valid then
+            Gui.destroy(frame)
+        end
         return
     end
 
-    local anchor = {
-        gui = defines.relative_gui_type.assembling_machine_select_recipe_gui,
-        position = defines.relative_gui_position.right
-    }
-    frame = parent.add {
-        type = 'frame',
-        name = loader_crafter_frame_for_assembly_machine_name,
-        anchor = anchor,
-        direction = 'vertical'
-    }
+    if frame and frame.valid then
+        Gui.clear(frame)
+    else
+        local anchor = {
+            gui = defines.relative_gui_type.assembling_machine_select_recipe_gui,
+            position = defines.relative_gui_position.right
+        }
+        frame = parent.add {
+            type = 'frame',
+            name = loader_crafter_frame_for_assembly_machine_name,
+            anchor = anchor,
+            direction = 'vertical'
+        }
+    end
 
     if recipes['loader'].enabled then
         local button = frame.add {
@@ -532,12 +540,7 @@ if config.loaders then
         local relative = player.gui.relative
         local panel = relative[loader_crafter_frame_for_assembly_machine_name]
         if panel and panel.valid then
-            Gui.destroy(panel)
-        end
-
-        panel = relative[loader_crafter_frame_for_player_name]
-        if panel and panel.valid then
-            Gui.destroy(panel)
+            Gui.remove_data_recursively(panel)
         end
     end)
 end
