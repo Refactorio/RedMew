@@ -150,6 +150,9 @@ Module.show_reports = function(player)
 end
 
 local function send_report_to_discord(reporting_player, reported_player, message)
+    local server_id = Server.get_server_id()
+    local server_name = Server.get_server_name()
+
     local text = {}
     if reporting_player and reporting_player.valid then
         text[#text + 1] = reporting_player.name
@@ -159,7 +162,15 @@ local function send_report_to_discord(reporting_player, reported_player, message
 
     text[#text + 1] = ' reported '
     text[#text + 1] = reported_player.name
-    text[#text + 1] = ' - game time '
+
+    if server_id ~= '' then
+        text[#text + 1] = ' s'
+        text[#text + 1] = server_id
+        text[#text + 1] = '-'
+        text[#text + 1] = server_name
+    end
+
+    text[#text + 1] = ' Game time '
     text[#text + 1] = Utils.format_time(game.tick)
     text[#text + 1] = ':\\n\\n'
     text[#text + 1] = message
@@ -207,13 +218,22 @@ function Module.report(reporting_player, reported_player, message)
 end
 
 local function send_jail_to_discord(target_player, player)
-    local message = table.concat {
-        target_player.name,
-        ' has been jailed by ',
-        player.name,
-        ' - game time ',
-        Utils.format_time(game.tick)
-    }
+    local server_id = Server.get_server_id()
+    local server_name = Server.get_server_name()
+
+    local text = {target_player.name, ' has been jailed by ', player.name}
+
+    if server_id ~= '' then
+        text[#text + 1] = ' s'
+        text[#text + 1] = server_id
+        text[#text + 1] = '-'
+        text[#text + 1] = server_name
+    end
+
+    text[#text + 1] = ' Game time '
+    text[#text + 1] = Utils.format_time(game.tick)
+
+    local message = table.concat(text)
     Server.to_discord_named_embed(moderation_log_channel, message)
 end
 
