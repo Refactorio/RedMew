@@ -115,7 +115,7 @@ function Public.control(config)
             end
 
             local statistics = {
-                scenario = data.scenario_name,
+                scenario = config.scenario_name,
                 start_epoch = Server.get_start_time(),
                 end_epoch = end_epoch, -- stored as key already, useful to have it as part of same structure
                 game_ticks = game.ticks_played,
@@ -125,7 +125,7 @@ function Public.control(config)
                 player_data = player_data
             }
 
-            Server.set_data('crash_site_data_test', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
+            Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
         end
 

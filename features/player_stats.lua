@@ -183,7 +183,7 @@ local function entity_died(event)
     change_for_global(aliens_killed_name, 1)
 
     local cause = event.cause
-    if not cause or not cause.valid or cause.name ~= 'character' then -- What about players inside vehicles?
+    if not cause or not cause.valid then
         return
     end
 
@@ -193,11 +193,43 @@ local function entity_died(event)
         return
     end
 
-    local player_index = cause.player.index
-    change_for_player(player_index, player_total_kills_name, 1)
-
-    if category then
-        change_for_player(player_index, category, 1)
+    local player_index = nil
+    if (cause.type == 'car') or (cause.type == 'spider-vehicle') then
+        local driver = cause.get_driver()
+        local passenger = cause.get_passenger()
+        if not driver and not passenger then
+            return -- for empty spidertrons
+        end
+        local damage_type = event.damage_type.name
+        local spidertron_targetting_paramers = false
+        if cause.type == 'spider-vehicle' then
+            spidertron_targetting_paramers = cause.vehicle_automatic_targeting_parameters.auto_target_with_gunner -- if targetting is automatic then the driver gets the kill unless they're not in the spider
+        end
+        if damage_type == 'impact' then -- damage type is impact when a vehicle runs over an entity
+            if driver then -- to check if the driver jumped out before the kill
+                player_index = driver.player.index
+            end
+        else
+            if not passenger then
+                player_index = driver.player.index
+            else
+                if driver and (cause.driver_is_gunner or spidertron_targetting_paramers) then -- the if driver allows autotarget kills to go to the passenger when they're in spidertron
+                    player_index = driver.player.index
+                else
+                    player_index = passenger.player.index
+                end
+            end
+        end
+    elseif (cause.name == 'character') then
+        player_index = cause.player.index
+    else
+        return
+    end
+    if player_index then
+        change_for_player(player_index, player_total_kills_name, 1)
+        if category then
+            change_for_player(player_index, category, 1)
+        end
     end
 end
 
