@@ -178,8 +178,8 @@ local get_player_rank_name = Public.get_player_rank_name
 -- @param player_name <string>
 -- @return <table>
 function Public.get_player_rank_color(player_name)
-    local rank_name = get_player_rank_name(player_name)
-    return Colors[rank_name]
+    local rank = get_player_rank(player_name)
+    return Colors[rank]
 end
 
 --- Returns the rank's name.

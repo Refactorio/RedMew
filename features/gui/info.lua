@@ -38,10 +38,7 @@ local map_extra_info_key = 3
 local new_info_key = 4
 
 local rewarded_players = {}
-local primitives = {
-    map_extra_info_lock = nil,
-    info_edited = nil
-}
+local primitives = {map_extra_info_lock = nil, info_edited = nil}
 
 local editable_info = {
     [map_name_key] = config_mapinfo.map_name_key,
@@ -50,18 +47,12 @@ local editable_info = {
     [new_info_key] = config_mapinfo.new_info_key
 }
 
-Global.register(
-    {
-        rewarded_players = rewarded_players,
-        editable_info = editable_info,
-        primitives = primitives
-    },
+Global.register({rewarded_players = rewarded_players, editable_info = editable_info, primitives = primitives},
     function(tbl)
         rewarded_players = tbl.rewarded_players
         editable_info = tbl.editable_info
         primitives = tbl.primitives
-    end
-)
+    end)
 
 --- Sets the "new info" according to the changelog located on the server
 local function process_changelog(data)
@@ -97,8 +88,7 @@ local function download_changelog()
 end
 
 local function prepare_title()
-    local welcome_title =
-        [[
+    local welcome_title = [[
 111111  1111111 111111  111    111 1111111 11     11
 11   11 11      11   11 1111  1111 11      11     11
 111111  11111   11   11 11 1111 11 11111   11  1  11
@@ -189,8 +179,7 @@ local pages = {
             parent_style.left_padding = 0
             parent_style.top_padding = 1
 
-            parent =
-                parent.add {
+            parent = parent.add {
                 type = 'scroll-pane',
                 vertical_scroll_policy = 'auto-and-reserve-space',
                 horizontal_scroll_policy = 'never'
@@ -202,17 +191,16 @@ local pages = {
             centered_label(parent, {'info.welcome_text'})
 
             header_label(parent, {'info.chatting_header'})
-            centered_label(
-                parent,
-                {'info.chatting_text', {'gui-menu.settings'}, {'gui-menu.controls'}, {'controls.toggle-console'}}
-            )
+            centered_label(parent, {
+                'info.chatting_text',
+                {'gui-menu.settings'},
+                {'gui-menu.controls'},
+                {'controls.toggle-console'}
+            })
 
             if config_prewards.enabled and config_prewards.info_player_reward then
                 header_label(parent, {'info.free_coin_header'})
-                centered_label(
-                    parent,
-                    {'info.free_coin_text', reward_amount, reward_token, reward_amount, reward_token}
-                )
+                centered_label(parent, {'info.free_coin_text', reward_amount, reward_token, reward_amount, reward_token})
             end
 
             header_label(parent, {'info.links_header'})
@@ -252,8 +240,10 @@ local pages = {
             maps_textbox_flow_style.horizontal_align = 'center'
             maps_textbox_flow_style.horizontally_stretchable = true
             maps_textbox_flow.add({type = 'label', caption = 'Maps: '}).style.font = 'default-bold'
-            local maps_textbox =
-                maps_textbox_flow.add {type = 'text-box', text = 'https://factoriomaps.com/browse/redmew.html '}
+            local maps_textbox = maps_textbox_flow.add {
+                type = 'text-box',
+                text = 'https://factoriomaps.com/browse/redmew.html '
+            }
             maps_textbox.read_only = true
             maps_textbox.style.width = 315
             maps_textbox.style.height = 28
@@ -272,11 +262,7 @@ local pages = {
             parent_style.left_padding = 0
             parent_style.top_padding = 1
 
-            parent =
-                parent.add {
-                type = 'flow',
-                direction = 'vertical'
-            }
+            parent = parent.add {type = 'flow', direction = 'vertical'}
             parent_style = parent.style
             parent_style.vertically_stretchable = false
             parent_style.width = 600
@@ -294,6 +280,11 @@ local pages = {
         content = function(parent, player)
             local read_only = not player.admin
 
+            local parent_style = parent.style
+            parent_style.right_padding = 8
+            parent_style.left_padding = 8
+            parent_style.top_padding = 1
+
             local top_flow = parent.add {type = 'flow'}
             local top_flow_style = top_flow.style
             top_flow_style.horizontal_align = 'center'
@@ -308,33 +299,30 @@ local pages = {
             grid_style.horizontally_stretchable = true
 
             grid.add {type = 'label', caption = {'info.map_name_label'}}
-            local map_name_textbox =
-                grid.add({type = 'flow'}).add {
+            local map_name_textbox = grid.add({type = 'flow'}).add {
                 type = 'text-box',
                 name = editable_textbox_name,
                 text = editable_info[map_name_key]
             }
             map_name_textbox.read_only = read_only
-            --map_name_textbox.word_wrap = true
 
             local map_name_textbox_style = map_name_textbox.style
-            map_name_textbox_style.width = 200
+            map_name_textbox_style.width = 490
             map_name_textbox_style.maximal_height = 30
 
             Gui.set_data(map_name_textbox, map_name_key)
 
             grid.add {type = 'label', caption = {'info.map_desc_label'}}
-            local map_description_textbox =
-                grid.add({type = 'flow'}).add {
+            local map_description_textbox = grid.add({type = 'flow'}).add {
                 type = 'text-box',
                 name = editable_textbox_name,
                 text = editable_info[map_description_key]
             }
             map_description_textbox.read_only = read_only
-            --map_description_textbox.word_wrap = true
+            map_description_textbox.word_wrap = true
 
             local map_description_textbox_style = map_description_textbox.style
-            map_description_textbox_style.width = 400
+            map_description_textbox_style.width = 490
             map_description_textbox_style.minimal_height = 80
             map_description_textbox_style.vertically_stretchable = true
             map_description_textbox_style.maximal_height = 100
@@ -342,18 +330,17 @@ local pages = {
             Gui.set_data(map_description_textbox, map_description_key)
 
             grid.add {type = 'label', caption = {'info.map_extra_info_label'}}
-            local map_extra_info_textbox =
-                grid.add({type = 'flow'}).add {
+            local map_extra_info_textbox = grid.add({type = 'flow'}).add {
                 type = 'text-box',
                 name = editable_textbox_name,
                 text = editable_info[map_extra_info_key]
             }
             map_extra_info_textbox.read_only = read_only
-            --map_extra_info_textbox.word_wrap = true
+            map_extra_info_textbox.word_wrap = true
 
             local map_extra_info_textbox_style = map_extra_info_textbox.style
             map_extra_info_textbox_style.width = 490
-            map_extra_info_textbox_style.height = 210
+            map_extra_info_textbox_style.height = 248
 
             Gui.set_data(map_extra_info_textbox, map_extra_info_key)
         end
@@ -369,13 +356,14 @@ local pages = {
             parent_style.left_padding = 0
             parent_style.top_padding = 1
 
-            parent =
-                parent.add {
+            parent = parent.add {
                 type = 'scroll-pane',
                 vertical_scroll_policy = 'auto-and-reserve-space',
                 horizontal_scroll_policy = 'never'
             }
             parent_style = parent.style
+            parent_style.right_padding = 8
+            parent_style.left_padding = 8
             parent_style.vertically_stretchable = true
 
             header_label(parent, {'info.softmods_header'})
@@ -391,19 +379,16 @@ local pages = {
             local ranks = grid.add {type = 'label', caption = 'Ranks'}
             ranks.style.font = 'default-listbox'
             local ranks_flow = grid.add {type = 'flow', direction = 'vertical'}
-            local ranks_label =
-                ranks_flow.add {
-                type = 'label',
-                caption = {'info.softmods_rank_text'}
-            }
+            local ranks_label = ranks_flow.add {type = 'label', caption = {'info.softmods_rank_text'}}
             local ranks_label_style = ranks_label.style
             ranks_label_style.single_line = false
             local player_rank_flow = ranks_flow.add {type = 'flow', direction = 'horizontal'}
             player_rank_flow.add {type = 'label', caption = {'info.softmods_rank_is'}}
             local player_name = player.name
 
-            local rank_label = player_rank_flow.add {type = 'label', caption = Rank.get_player_rank_name(player_name)}
-            rank_label.style.font_color = Rank.get_player_rank_color(player_name)
+            local rank = Rank.get_player_rank(player_name)
+            local rank_label = player_rank_flow.add {type = 'label', caption = Rank.get_rank_name(rank)}
+            rank_label.style.font_color = Rank.get_rank_color(rank)
 
             if Donator.is_donator(player_name) then
                 local donator_label = player_rank_flow.add {type = 'label', caption = {'ranks.donator'}}
@@ -413,11 +398,7 @@ local pages = {
             grid.add {type = 'sprite', sprite = 'entity/market'}
             local market = grid.add {type = 'label', caption = {'info.softmods_market_label'}}
             market.style.font = 'default-listbox'
-            local market_label =
-                grid.add {
-                type = 'label',
-                caption = {'info.softmods_market_text'}
-            }
+            local market_label = grid.add {type = 'label', caption = {'info.softmods_market_text'}}
             market_label.style.single_line = false
 
             grid.add {type = 'sprite', sprite = 'item/player-port'}
@@ -425,11 +406,7 @@ local pages = {
             local train_savior_style = train_savior.style
             train_savior_style.font = 'default-listbox'
             train_savior_style.single_line = false
-            local train_savior_label =
-                grid.add {
-                type = 'label',
-                caption = {'info.softmods_saviour_text'}
-            }
+            local train_savior_label = grid.add {type = 'label', caption = {'info.softmods_saviour_text'}}
             train_savior_label.style.single_line = false
 
             if config.player_list.enabled then
@@ -437,22 +414,14 @@ local pages = {
                 local player_list = grid.add {type = 'label', caption = {'info.softmods_plist_label'}}
                 player_list.style.font = 'default-listbox'
                 player_list.style.single_line = false
-                local player_list_label =
-                    grid.add {
-                    type = 'label',
-                    caption = {'info.softmods_plist_text'}
-                }
+                local player_list_label = grid.add {type = 'label', caption = {'info.softmods_plist_text'}}
                 player_list_label.style.single_line = false
             end
             if config.poll.enabled then
                 grid.add {type = 'sprite', sprite = 'item/programmable-speaker'}
                 local poll = grid.add {type = 'label', caption = {'info.softmods_polls_label'}}
                 poll.style.font = 'default-listbox'
-                local poll_label =
-                    grid.add {
-                    type = 'label',
-                    caption = {'info.softmods_polls_text'}
-                }
+                local poll_label = grid.add {type = 'label', caption = {'info.softmods_polls_text'}}
                 poll_label.style.single_line = false
             end
 
@@ -463,11 +432,7 @@ local pages = {
                 tag_button_style.font_color = Color.black
                 local tag = grid.add {type = 'label', caption = {'info.softmods_tags_label'}}
                 tag.style.font = 'default-listbox'
-                local tag_label =
-                    grid.add {
-                    type = 'label',
-                    caption = {'info.softmods_tags_text'}
-                }
+                local tag_label = grid.add {type = 'label', caption = {'info.softmods_tags_text'}}
                 tag_label.style.single_line = false
             end
 
@@ -475,11 +440,7 @@ local pages = {
                 grid.add {type = 'sprite', sprite = 'item/repair-pack'}
                 local task = grid.add {type = 'label', caption = {'info.softmods_tasks_label'}}
                 task.style.font = 'default-listbox'
-                local task_label =
-                    grid.add {
-                    type = 'label',
-                    caption = {'info.softmods_tasks_text'}
-                }
+                local task_label = grid.add {type = 'label', caption = {'info.softmods_tasks_text'}}
                 task_label.style.single_line = false
             end
 
@@ -487,11 +448,7 @@ local pages = {
                 grid.add {type = 'sprite', sprite = 'item/rocket-silo'}
                 local score = grid.add {type = 'label', caption = {'info.softmods_score_label'}}
                 score.style.font = 'default-listbox'
-                local score_label =
-                    grid.add {
-                    type = 'label',
-                    caption = {'info.softmods_score_text'}
-                }
+                local score_label = grid.add {type = 'label', caption = {'info.softmods_score_text'}}
                 score_label.style.single_line = false
             end
         end
@@ -504,13 +461,17 @@ local pages = {
         content = function(parent, player)
             local read_only = not player.admin
 
+            local parent_style = parent.style
+            parent_style.right_padding = 8
+            parent_style.left_padding = 8
+            parent_style.top_padding = 1
+
             header_label(parent, 'New Features')
 
             local new_info_flow = parent.add {name = 'whatsNew_new_info_flow', type = 'flow'}
             new_info_flow.style.horizontal_align = 'center'
 
-            local new_info_textbox =
-                new_info_flow.add {
+            local new_info_textbox = new_info_flow.add {
                 type = 'text-box',
                 name = editable_textbox_name,
                 text = editable_info[new_info_key]
@@ -518,7 +479,7 @@ local pages = {
             new_info_textbox.read_only = read_only
 
             local new_info_textbox_style = new_info_textbox.style
-            new_info_textbox_style.width = 600
+            new_info_textbox_style.width = 590
             new_info_textbox_style.height = 360
             new_info_textbox_style.left_margin = 2
 
@@ -568,10 +529,7 @@ local function draw_main_frame(center, player)
 
     local tab_buttons = {}
     local active_tab = 1
-    local data = {
-        tab_buttons = tab_buttons,
-        active_tab = active_tab
-    }
+    local data = {tab_buttons = tab_buttons, active_tab = active_tab}
 
     local tab_flow = frame.add {type = 'flow', direction = 'horizontal'}
     local tab_flow_style = tab_flow.style
@@ -673,14 +631,12 @@ local function player_created(event)
         return
     end
 
-    player.gui.top.add(
-        {
-            type = 'sprite-button',
-            name = main_button_name,
-            sprite = 'virtual-signal/signal-info',
-            tooltip = {'info.tooltip'}
-        }
-    )
+    player.gui.top.add({
+        type = 'sprite-button',
+        name = main_button_name,
+        sprite = 'virtual-signal/signal-info',
+        tooltip = {'info.tooltip'}
+    })
 
     rewarded_players[player.index] = 0
     reward_player(player, info_tab_flags[1])
@@ -712,56 +668,47 @@ Server.on_data_set_changed('misc', process_changelog)
 
 Gui.on_click(main_button_name, toggle)
 
-Gui.on_click(
-    tab_button_name,
-    function(event)
-        local button = event.element
-        local player = event.player
+Gui.on_click(tab_button_name, function(event)
+    local button = event.element
+    local player = event.player
 
-        local button_data = Gui.get_data(button)
-        local index = button_data.index
-        local data = button_data.data
-        local active_tab = data.active_tab
+    local button_data = Gui.get_data(button)
+    local index = button_data.index
+    local data = button_data.data
+    local active_tab = data.active_tab
 
-        if active_tab == index then
-            return
-        end
-
-        local tab_buttons = data.tab_buttons
-        local old_button = tab_buttons[active_tab]
-
-        old_button.style.font_color = unfocus_color
-        button.style.font_color = focus_color
-
-        data.active_tab = index
-
-        local content = data.content
-        Gui.clear(content)
-
-        pages[index].content(content, player)
-        if rewarded_players[player.index] then
-            reward_player(player, index, {'info.free_coin_print', reward_amount, reward_token})
-        end
+    if active_tab == index then
+        return
     end
-)
 
-Gui.on_text_changed(
-    editable_textbox_name,
-    function(event)
-        local textbox = event.element
-        local key = Gui.get_data(textbox)
+    local tab_buttons = data.tab_buttons
+    local old_button = tab_buttons[active_tab]
 
-        editable_info[key] = textbox.text
-        primitives.info_edited = true
+    old_button.style.font_color = unfocus_color
+    button.style.font_color = focus_color
+
+    data.active_tab = index
+
+    local content = data.content
+    Gui.clear(content)
+
+    pages[index].content(content, player)
+    if rewarded_players[player.index] then
+        reward_player(player, index, {'info.free_coin_print', reward_amount, reward_token})
     end
-)
+end)
 
-Gui.on_custom_close(
-    main_frame_name,
-    function(event)
-        close_main_frame(event.element, event.player)
-    end
-)
+Gui.on_text_changed(editable_textbox_name, function(event)
+    local textbox = event.element
+    local key = Gui.get_data(textbox)
+
+    editable_info[key] = textbox.text
+    primitives.info_edited = true
+end)
+
+Gui.on_custom_close(main_frame_name, function(event)
+    close_main_frame(event.element, event.player)
+end)
 
 Gui.allow_player_to_toggle_top_element_visibility(main_button_name)
 
