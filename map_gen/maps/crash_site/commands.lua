@@ -13,8 +13,9 @@ local Color = require 'resources.color_presets'
 local Toast = require 'features.gui.toast'
 local Utils = require 'utils.core'
 local Discord = require 'resources.discord'
-local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local ScoreTracker = require 'utils.score_tracker'
+local PlayerStats = require 'features.player_stats'
+local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 local map_promotion_channel = Discord.channel_names.map_promotion
 local crash_site_role_mention = Discord.role_mentions.crash_site
@@ -101,15 +102,15 @@ function Public.control(config)
             for _, p in pairs(game.players) do
                 player_data[p.index] = {
                     name = p.name,
-                    total_kills = ScoreTracker.get_for_player(p.index, 'player-total-kills'),
-                    spawners_killed =  ScoreTracker.get_for_player(p.index, 'player-spawners-killed'),
-                    worms_killed = ScoreTracker.get_for_player(p.index, 'player-worms-killed'),
-                    units_killed = ScoreTracker.get_for_player(p.index, 'player-units-killed'),
-                    turrets_killed = ScoreTracker.get_for_player(p.index, 'player-turrets-killed'),
-                    distance_walked = ScoreTracker.get_for_player(p.index, 'player-distance-walked'),
-                    player_deaths = ScoreTracker.get_for_player(p.index, 'player-deaths'),
-                    coins_earned = ScoreTracker.get_for_player(p.index, 'coins-earned'),
-                    entities_built = ScoreTracker.get_for_player(p.index, 'built-by-players'),
+                    total_kills = ScoreTracker.get_for_player(p.index, PlayerStats.player_total_kills_name),
+                    spawners_killed = ScoreTracker.get_for_player(p.index, PlayerStats.player_spawners_killed_name),
+                    worms_killed = ScoreTracker.get_for_player(p.index, PlayerStats.player_worms_killed_name),
+                    units_killed = ScoreTracker.get_for_player(p.index, PlayerStats.player_units_killed_name),
+                    turrets_killed = ScoreTracker.get_for_player(p.index, PlayerStats.player_turrets_killed_name),
+                    distance_walked = ScoreTracker.get_for_player(p.index,PlayerStats.player_distance_walked_name),
+                    player_deaths = ScoreTracker.get_for_player(p.index, PlayerStats.player_deaths_name),
+                    coins_earned = ScoreTracker.get_for_player(p.index, PlayerStats.coins_earned_name),
+                    entities_built = ScoreTracker.get_for_player(p.index,PlayerStats.built_by_players_name),
                     time_played = p.online_time
                 }
             end
@@ -120,7 +121,7 @@ function Public.control(config)
                 end_epoch = end_epoch, -- stored as key already, useful to have it as part of same structure
                 game_ticks = game.ticks_played,
                 enemy_entities = count_enemy_entities(),
-                biters_killed = ScoreTracker.get_for_global('aliens-killed'),
+                biters_killed = ScoreTracker.get_for_global(PlayerStats.aliens_killed_name),
                 total_players = #game.players,
                 player_data = player_data
             }

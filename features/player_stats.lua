@@ -293,7 +293,27 @@ Event.add(defines.events.on_rocket_launched, rocket_launched)
 
 Event.on_nth_tick(62, tick)
 
-local Public = {}
+local Public = {
+    rocks_smashed_name = rocks_smashed_name,
+    trees_cut_down_name = trees_cut_down_name,
+    player_count_name = player_count_name,
+    kills_by_trains_name = kills_by_trains_name,
+    built_by_robots_name = built_by_robots_name,
+    built_by_players_name = built_by_players_name,
+    aliens_killed_name = aliens_killed_name,
+    coins_spent_name = coins_spent_name,
+    coins_earned_name = coins_earned_name,
+    player_deaths_name = player_deaths_name,
+    player_console_chats_name = player_console_chats_name,
+    player_items_crafted_name = player_items_crafted_name,
+    player_distance_walked_name = player_distance_walked_name,
+    satellites_launched_name = satellites_launched_name,
+    player_units_killed_name = player_units_killed_name,
+    player_worms_killed_name = player_worms_killed_name,
+    player_spawners_killed_name = player_spawners_killed_name,
+    player_total_kills_name = player_total_kills_name,
+    player_turrets_killed_name = player_turrets_killed_name
+}
 
 -- Returns a dictionary of cause_name -> count
 function Public.get_all_death_causes_by_player(player_index)
