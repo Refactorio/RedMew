@@ -918,6 +918,21 @@ stds.factorio_defines = {
                         }
                     }
                 },
+                disconnect_reason = {
+                    fields = {
+                        'quit',
+                        'dropped',
+                        'reconnect',
+                        'wrong_input',
+                        'desync_limit_reached',
+                        'cannot_keep_up',
+                        'afk',
+                        'kicked',
+                        'kicked_and_deleted',
+                        'banned',
+                        'switching_servers'
+                    }
+                },
                 difficulty = {
                     fields = {
                         'easy',
