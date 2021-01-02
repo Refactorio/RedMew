@@ -543,6 +543,71 @@ if config.loaders then
             Gui.remove_data_recursively(panel)
         end
     end)
+
+    local direction_to_offset = {
+        [0] = {x = 0, y = 1.5},
+        [2] = {x = -1.5, y = 0},
+        [4] = {x = 0, y = -1.5},
+        [6] = {x = 1.5, y = 0}
+    }
+
+    local loaders = {['loader'] = true, ['fast-loader'] = true, ['express-loader'] = true}
+
+    local container_types = {'container', 'logistic-container'}
+
+    Event.add(defines.events.on_player_rotated_entity, function(event)
+        local entity = event.entity
+        if not entity or not entity.valid then
+            return
+        end
+
+        local name = entity.name
+        if not loaders[entity.name] then
+            return
+        end
+
+        if entity.loader_container then
+            -- loader is already connected.
+            return
+        end
+
+        local direction = entity.direction
+        local offset = direction_to_offset[direction]
+
+        local pos = entity.position
+        local target_pos = {pos.x + offset.x, pos.y + offset.y}
+
+        local surface = entity.surface
+        local target = surface.find_entities_filtered({position = target_pos, type = container_types})[1]
+        if not target then
+            return
+        end
+
+        local force = entity.force
+
+        local get_filter = entity.get_filter
+        local filters = {}
+        local filter_count = entity.filter_slot_count
+        for i = 1, filter_count do
+            filters[i] = get_filter(i)
+        end
+
+        entity.destroy({raise_destroy = true})
+        local new_entity = surface.create_entity {
+            name = name,
+            position = pos,
+            direction = direction,
+            type = 'output',
+            force = force
+        }
+
+        local set_filter = new_entity.set_filter
+        for i = 1, filter_count do
+            set_filter(i, filters[i])
+        end
+
+        script.raise_script_built({entity = new_entity})
+    end)
 end
 
 return Public
