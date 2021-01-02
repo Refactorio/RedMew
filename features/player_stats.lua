@@ -174,6 +174,47 @@ local function robot_built_entity()
     change_for_global(built_by_robots_name, 1)
 end
 
+local function get_player_index_from_cause(cause, event)
+    if cause.name == 'character' then
+        return cause.player.index
+    end
+
+    local cause_type = cause.type
+    if cause_type ~= 'car' and cause_type ~= 'spider-vehicle' then
+        return nil
+    end
+
+    local driver = cause.get_driver()
+    local passenger = cause.get_passenger()
+    if not driver and not passenger then
+        return nil -- for empty vehicle
+    end
+
+    local damage_type = event.damage_type.name
+    local spidertron_targetting_paramers = false
+    if cause_type == 'spider-vehicle' then
+        spidertron_targetting_paramers = cause.vehicle_automatic_targeting_parameters.auto_target_with_gunner -- if targetting is automatic then the driver gets the kill unless they're not in the spider
+    end
+
+    if damage_type == 'impact' then -- damage type is impact when a vehicle runs over an entity
+        if driver then -- to check if the driver jumped out before the kill
+            return driver.player.index
+        end
+
+        return nil
+    end
+
+    if not passenger then
+        return driver.player.index
+    end
+
+    if driver and (cause.driver_is_gunner or spidertron_targetting_paramers) then -- the if driver allows autotarget kills to go to the passenger when they're in spidertron
+        return driver.player.index
+    else
+        return passenger.player.index
+    end
+end
+
 local function entity_died(event)
     local entity = event.entity
     if not entity or not entity.valid or entity.force.name ~= 'enemy' then
@@ -193,38 +234,7 @@ local function entity_died(event)
         return
     end
 
-    local player_index = nil
-    if (cause.type == 'car') or (cause.type == 'spider-vehicle') then
-        local driver = cause.get_driver()
-        local passenger = cause.get_passenger()
-        if not driver and not passenger then
-            return -- for empty spidertrons
-        end
-        local damage_type = event.damage_type.name
-        local spidertron_targetting_paramers = false
-        if cause.type == 'spider-vehicle' then
-            spidertron_targetting_paramers = cause.vehicle_automatic_targeting_parameters.auto_target_with_gunner -- if targetting is automatic then the driver gets the kill unless they're not in the spider
-        end
-        if damage_type == 'impact' then -- damage type is impact when a vehicle runs over an entity
-            if driver then -- to check if the driver jumped out before the kill
-                player_index = driver.player.index
-            end
-        else
-            if not passenger then
-                player_index = driver.player.index
-            else
-                if driver and (cause.driver_is_gunner or spidertron_targetting_paramers) then -- the if driver allows autotarget kills to go to the passenger when they're in spidertron
-                    player_index = driver.player.index
-                else
-                    player_index = passenger.player.index
-                end
-            end
-        end
-    elseif (cause.name == 'character') then
-        player_index = cause.player.index
-    else
-        return
-    end
+    local player_index = get_player_index_from_cause(cause, event)
     if player_index then
         change_for_player(player_index, player_total_kills_name, 1)
         if category then
