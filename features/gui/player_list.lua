@@ -15,11 +15,12 @@ local player_sprites = require 'resources.player_sprites'
 local ScoreTracker = require 'utils.score_tracker'
 local get_for_global = ScoreTracker.get_for_global
 local get_for_player = ScoreTracker.get_for_player
-local player_count_name = 'player-count'
-local coins_spent_name = 'coins-spent'
-local coins_earned_name = 'coins-earned'
-local player_deaths_name = 'player-deaths'
-local player_distance_walked_name = 'player-distance-walked'
+local player_count_name = PlayerStats.player_count_name
+local coins_spent_name = PlayerStats.coins_spent_name
+local coins_earned_name = PlayerStats.coins_earned_name
+local player_deaths_name = PlayerStats.player_deaths_name
+local player_distance_walked_name = PlayerStats.player_distance_walked_name
+local player_total_kills_name = PlayerStats.player_total_kills_name
 local random = math.random
 local ipairs = ipairs
 local pairs = pairs
@@ -80,6 +81,7 @@ local time_heading_name = Gui.uid_name()
 local rank_heading_name = Gui.uid_name()
 local distance_heading_name = Gui.uid_name()
 local coin_heading_name = Gui.uid_name()
+local kills_heading_name = Gui.uid_name()
 local deaths_heading_name = Gui.uid_name()
 local poke_name_heading_name = Gui.uid_name()
 local report_heading_name = Gui.uid_name()
@@ -90,6 +92,7 @@ local time_cell_name = Gui.uid_name()
 local rank_cell_name = Gui.uid_name()
 local distance_cell_name = Gui.uid_name()
 local coin_cell_name = Gui.uid_name()
+local kills_cell_name = Gui.uid_name()
 local deaths_cell_name = Gui.uid_name()
 local poke_cell_name = Gui.uid_name()
 local report_cell_name = Gui.uid_name()
@@ -342,6 +345,32 @@ local column_builders = {
             return label
         end
     },
+    [kills_heading_name] = {
+        create_data = function(player)
+            local player_index = player.index
+            return get_for_player(player_index, player_total_kills_name)
+        end,
+        sort = function(a, b)
+            return a < b
+        end,
+        draw_heading = function(parent, sort_symbol)
+            local caption = {'player_list.kills_caption', sort_symbol}
+            local label = parent.add {type = 'label', name = kills_heading_name, caption = caption}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 80
+
+            return label
+        end,
+        draw_cell = function(parent, cell_data)
+            local label = parent.add {type = 'label', name = kills_cell_name, caption = cell_data}
+            local label_style = label.style
+            label_style.horizontal_align = 'center'
+            label_style.width = 80
+
+            return label
+        end
+    },
     [deaths_heading_name] = {
         create_data = function(player)
             local player_index = player.index
@@ -498,16 +527,17 @@ local function get_default_player_settings()
         player_name_heading_name,
         time_heading_name,
         rank_heading_name,
-        distance_heading_name
+        distance_heading_name,
+        kills_heading_name,
+        deaths_heading_name,
+        poke_name_heading_name,
+        report_heading_name,
     }
-    local offset = 6
+
     if global.config.player_list.show_coin_column then
-        columns[6] = coin_heading_name
-        offset = 7
+        table.insert(columns, 6, coin_heading_name)
     end
-    columns[offset] = deaths_heading_name
-    columns[offset + 1] = poke_name_heading_name
-    columns[offset + 2] = report_heading_name
+
     return {
         columns = columns,
         sort = -3

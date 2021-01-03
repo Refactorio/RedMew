@@ -13,8 +13,9 @@ local Color = require 'resources.color_presets'
 local Toast = require 'features.gui.toast'
 local Utils = require 'utils.core'
 local Discord = require 'resources.discord'
-local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local ScoreTracker = require 'utils.score_tracker'
+local PlayerStats = require 'features.player_stats'
+local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 local map_promotion_channel = Discord.channel_names.map_promotion
 local crash_site_role_mention = Discord.role_mentions.crash_site
@@ -90,21 +91,41 @@ function Public.control(config)
         elseif state == 1 then
             local time_string = Core.format_time(game.ticks_played)
             Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention
-                .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
+               .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
 
             local end_epoch = Server.get_current_time()
             if end_epoch == nil then
                 end_epoch = -1 -- end_epoch is nil if the restart command is used locally rather than on the server
             end
 
+            local player_data = {}
+            for _, p in pairs(game.players) do
+                player_data[p.index] = {
+                    name = p.name,
+                    total_kills = ScoreTracker.get_for_player(p.index, PlayerStats.player_total_kills_name),
+                    spawners_killed = ScoreTracker.get_for_player(p.index, PlayerStats.player_spawners_killed_name),
+                    worms_killed = ScoreTracker.get_for_player(p.index, PlayerStats.player_worms_killed_name),
+                    units_killed = ScoreTracker.get_for_player(p.index, PlayerStats.player_units_killed_name),
+                    turrets_killed = ScoreTracker.get_for_player(p.index, PlayerStats.player_turrets_killed_name),
+                    distance_walked = ScoreTracker.get_for_player(p.index,PlayerStats.player_distance_walked_name),
+                    player_deaths = ScoreTracker.get_for_player(p.index, PlayerStats.player_deaths_name),
+                    coins_earned = ScoreTracker.get_for_player(p.index, PlayerStats.coins_earned_name),
+                    entities_built = ScoreTracker.get_for_player(p.index,PlayerStats.built_by_players_name),
+                    time_played = p.online_time
+                }
+            end
+
             local statistics = {
+                scenario = config.scenario_name,
                 start_epoch = Server.get_start_time(),
                 end_epoch = end_epoch, -- stored as key already, useful to have it as part of same structure
                 game_ticks = game.ticks_played,
                 enemy_entities = count_enemy_entities(),
-                biters_killed = ScoreTracker.get_for_global('aliens-killed'),
-                total_players = #game.players
+                biters_killed = ScoreTracker.get_for_global(PlayerStats.aliens_killed_name),
+                total_players = #game.players,
+                player_data = player_data
             }
+
             Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
         end
