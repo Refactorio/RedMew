@@ -1,8 +1,5 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
-local Toast = require 'features.gui.toast'
-local Retailer = require 'features.retailer'
-local Token = require 'utils.token'
 
 local car_entities = {}
 
