@@ -89,9 +89,6 @@ function Public.control(config)
             global_data.restarting = nil
             return
         elseif state == 1 then
-            local time_string = Core.format_time(game.ticks_played)
-            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention
-               .. ' **Crash Site has just restarted! Previous map lasted: ' .. time_string .. '!**')
 
             local end_epoch = Server.get_current_time()
             if end_epoch == nil then
@@ -125,6 +122,77 @@ function Public.control(config)
                 total_players = #game.players,
                 player_data = player_data
             }
+
+            local awards = {
+                ['total_kills'] = {value = 0, player = nil},
+                ['units_killed'] = {value = 0, player = nil},
+                ['spawners_killed'] = {value = 0, player = nil},
+                ['worms_killed'] = {value = 0, player = nil},
+                ['player_deaths'] = {value = 0, player = nil},
+                ['time_played'] = {value = 0, player = nil},
+                ['entities_built'] = {value = 0, player = nil},
+                ['distance_walked'] = {value = 0, player = nil},
+                ['coins_earned'] = {value = 0, player = nil}
+            }
+
+            for k, v in pairs(statistics.player_data) do
+                if v.total_kills > awards.total_kills.value then
+                    awards.total_kills.value = v.total_kills
+                    awards.total_kills.player = v.name
+                end
+                if v.units_killed > awards.units_killed.value then
+                    awards.units_killed.value = v.units_killed
+                    awards.units_killed.player = v.name
+                end
+                if v.spawners_killed > awards.spawners_killed.value then
+                    awards.spawners_killed.value = v.spawners_killed
+                    awards.spawners_killed.player = v.name
+                end
+                if v.worms_killed > awards.worms_killed.value then
+                    awards.worms_killed.value = v.worms_killed
+                    awards.worms_killed.player = v.name
+                end
+                if v.player_deaths > awards.player_deaths.value then
+                    awards.player_deaths.value = v.player_deaths
+                    awards.player_deaths.player = v.name
+                end
+                if v.time_played > awards.time_played.value then
+                    awards.time_played.value = v.time_played
+                    awards.time_played.player = v.name
+                end
+                -- This stat not working
+                --if v.entities_built > awards.entities_built.value then
+                --    awards.entities_built.value = v.entities_built
+                --    awards.entities_built.player = v.name
+                --end
+                if v.distance_walked > awards.distance_walked.value then
+                    awards.distance_walked.value = v.distance_walked
+                    awards.distance_walked.player = v.name
+                end
+                if v.coins_earned > awards.coins_earned.value then
+                    awards.coins_earned.value = v.coins_earned
+                    awards.coins_earned.player = v.name
+                end
+            end
+
+            local time_string = Core.format_time(game.ticks_played)
+            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention
+               .. ' **Crash Site has just restarted!!**\n\n'
+               .. 'Statistics:\n'
+               .. 'Map time: '..time_string..'\n'
+               .. 'Total kills: '..statistics.enemy_entities..'\n'
+               .. 'Players: '..statistics.total_players..'\n\n'
+               .. 'Awards:\n'
+               .. 'Most kills overall: '..awards.total_kills.player..'('..awards.total_kills.player..')\n'
+               .. 'Most biters/spitters killed: '..awards.units_killed.player..'('..awards.units_killed.player..')\n'
+               .. 'Most spawners killed: '..awards.spawners_killed.player..'('..awards.spawners_killed.player..')\n'
+               .. 'Most worms killed: '..awards.worms_killed.player..'('..awards.worms_killed.player..')\n'
+               .. 'Most deaths: '..awards.player_deaths.player..'('..awards.player_deaths.player..')\n'
+               .. 'Most time played: '..awards.time_played.player..'('..awards.time_played.player..')\n'
+               .. 'Furthest walked: '..awards.distance_walked.player..'('..awards.distance_walked.player..')\n'
+               .. 'Most coins earned: '..awards.coins_earned.player..'('..awards.coins_earned.player..')\n'      
+            )
+
 
             Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
