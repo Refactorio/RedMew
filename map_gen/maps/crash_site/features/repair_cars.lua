@@ -7,34 +7,28 @@ Global.register({car_entities = car_entities}, function(tbl)
     car_entities = tbl.car_entities
 end)
 
-local function register_car(entity)
-    if not entity then
-        return
-    end
-    if not entity.valid then
-        return
-    end
-    if entity.name ~= 'car' then
-        return
-    end
-    car_entities[entity.unit_number] = entity
-    script.register_on_entity_destroyed(entity)
-end
-
 Event.add(defines.events.on_entity_destroyed, function(event)
     car_entities[event.unit_number] = nil
 end)
 
-Event.add(defines.events.on_robot_built_entity, function(event)
-    register_car(event.created_entity)
-end)
-
-Event.add(defines.events.on_built_entity, function(event)
-    register_car(event.created_entity)
-end)
-
-Event.add(defines.events.on_entity_cloned, function(event)
-    register_car(event.destination)
+Event.add(defines.events.on_player_driving_changed_state, function(event)
+    local entity = event.entity
+    if (entity.name ~= 'car') or not entity or not entity.valid then
+        return
+    else
+        if not entity.get_driver() then -- no driver? Remove that car from the table to check
+            car_entities[entity.unit_number] = nil
+        else
+            local player = game.get_player(event.player_index)
+            local driver = entity.get_driver()
+            if player ~= driver.player then -- if the player that got in the vehicle is not the driver then return
+                return
+            else
+                car_entities[entity.unit_number] = entity
+                script.register_on_entity_destroyed(entity)
+            end
+        end
+    end
 end)
 
 local turrets = {
@@ -46,7 +40,7 @@ local turrets = {
 
 local function on_nth_tick()
     for _, car in pairs(car_entities) do
-        if not car.valid or not car.get_driver() or car.speed ~= 0 then -- only allow cars to repair if they have a driver and are not moving
+        if not car.valid or car.speed ~= 0 then -- only allow cars to repair if they have a driver and are not moving
             goto continue
         end
 
