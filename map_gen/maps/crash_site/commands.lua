@@ -190,7 +190,7 @@ function Public.control(config)
                .. 'Most deaths: '..awards.player_deaths.player..'('..awards.player_deaths.player..')\n'
                .. 'Most time played: '..awards.time_played.player..'('..awards.time_played.player..')\n'
                .. 'Furthest walked: '..awards.distance_walked.player..'('..awards.distance_walked.player..')\n'
-               .. 'Most coins earned: '..awards.coins_earned.player..'('..awards.coins_earned.player..')\n'      
+               .. 'Most coins earned: '..awards.coins_earned.player..'('..awards.coins_earned.player..')\n'
             )
 
 
