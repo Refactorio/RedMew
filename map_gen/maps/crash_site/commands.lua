@@ -124,15 +124,15 @@ function Public.control(config)
             }
 
             local awards = {
-                ['total_kills'] = {value = 0, player = nil},
-                ['units_killed'] = {value = 0, player = nil},
-                ['spawners_killed'] = {value = 0, player = nil},
-                ['worms_killed'] = {value = 0, player = nil},
-                ['player_deaths'] = {value = 0, player = nil},
-                ['time_played'] = {value = 0, player = nil},
-                ['entities_built'] = {value = 0, player = nil},
-                ['distance_walked'] = {value = 0, player = nil},
-                ['coins_earned'] = {value = 0, player = nil}
+                ['total_kills'] = {value = 0, player = ""},
+                ['units_killed'] = {value = 0, player = ""},
+                ['spawners_killed'] = {value = 0, player = ""},
+                ['worms_killed'] = {value = 0, player = ""},
+                ['player_deaths'] = {value = 0, player = ""},
+                ['time_played'] = {value = 0, player = ""},
+                ['entities_built'] = {value = 0, player = ""},
+                ['distance_walked'] = {value = 0, player = ""},
+                ['coins_earned'] = {value = 0, player = ""}
             }
 
             for k, v in pairs(statistics.player_data) do
@@ -176,23 +176,33 @@ function Public.control(config)
             end
 
             local time_string = Core.format_time(game.ticks_played)
-            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention
-               .. ' **Crash Site has just restarted!!**\n\n'
-               .. 'Statistics:\n'
-               .. 'Map time: '..time_string..'\n'
-               .. 'Total kills: '..statistics.enemy_entities..'\n'
-               .. 'Players: '..statistics.total_players..'\n\n'
-               .. 'Awards:\n'
-               .. 'Most kills overall: '..awards.total_kills.player..'('..awards.total_kills.player..')\n'
-               .. 'Most biters/spitters killed: '..awards.units_killed.player..'('..awards.units_killed.player..')\n'
-               .. 'Most spawners killed: '..awards.spawners_killed.player..'('..awards.spawners_killed.player..')\n'
-               .. 'Most worms killed: '..awards.worms_killed.player..'('..awards.worms_killed.player..')\n'
-               .. 'Most deaths: '..awards.player_deaths.player..'('..awards.player_deaths.player..')\n'
-               .. 'Most time played: '..awards.time_played.player..'('..awards.time_played.player..')\n'
-               .. 'Furthest walked: '..awards.distance_walked.player..'('..awards.distance_walked.player..')\n'
-               .. 'Most coins earned: '..awards.coins_earned.player..'('..awards.coins_earned.player..')\n'
-            )
-
+            if statistics.enemy_entities < 1000 then
+                Server.to_discord_named_embed(map_promotion_channel, 'Crash Site map won!\\n\\n'
+                .. 'Statistics:\\n'
+                .. 'Map time: '..time_string..'\\n'
+                .. 'Total kills: '..statistics.biters_killed..'\\n'
+                .. 'Biters remaining on map: '..statistics.enemy_entities..'\\n'
+                .. 'Players: '..statistics.total_players..'\\n\\n'
+                .. 'Awards:\\n'
+                .. 'Most kills overall: '..awards.total_kills.player..' ('..awards.total_kills.value..')\\n'
+                .. 'Most biters/spitters killed: '..awards.units_killed.player..' ('..awards.units_killed.value..')\\n'
+                .. 'Most spawners killed: '..awards.spawners_killed.player..' ('..awards.spawners_killed.value..')\\n'
+                .. 'Most worms killed: '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
+                .. 'Most deaths: '..awards.player_deaths.player..' ('..awards.player_deaths.value..')\\n'
+                .. 'Most time played: '..awards.time_played.player..' ('..Core.format_time(awards.time_played.value)..')\\n'
+                .. 'Furthest walked: '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'
+                .. 'Most coins earned: '..awards.coins_earned.player..' ('..awards.coins_earned.value..')\\n'
+                )
+            else
+                Server.to_discord_named_embed(map_promotion_channel, 'Crash Site map failed!\\n\\n'
+                .. 'Statistics:\\n'
+                .. 'Map time: '..time_string..'\\n'
+                .. 'Total kills: '..statistics.biters_killed..'\\n'
+                .. 'Biters remaining on map: '..statistics.enemy_entities..'\\n'
+                .. 'Players: '..statistics.total_players..'\\n'
+                )
+            end
+            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention .. ' **Crash Site has just restarted!!**')
 
             Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
