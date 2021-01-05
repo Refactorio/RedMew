@@ -33,14 +33,16 @@ local Scenario = require 'map_gen.maps.crash_site.scenario'
 ScenarioInfo.set_map_name('Crashsite Desert')
 ScenarioInfo.set_map_description('A desert version of Crash Site. Capture outposts and defend against the biters.')
 ScenarioInfo.add_map_extra_info(
-    '- A desert version of Crash Site, with sandy terrain, scattered oases and few trees\n'
-    .. '- Outposts have enemy turrets defending them.\n'
-    .. '- Outposts have loot and provide a steady stream of resources.\n'
-    .. '- Outpost markets to purchase items and outpost upgrades.\n'
-    .. '- Capturing outposts increases evolution.\n'
-    .. '- Reduced damage by all player weapons, turrets, and ammo.\n'
-    .. '- Biters have more health and deal more damage.\n'
-    .. '- Biters and spitters spawn on death of entities.'
+    [[
+    A desert version of Crash Site, with sandy terrain, scattered oases and few trees.
+    - Outposts have enemy turrets defending them.
+    - Outposts have loot and provide a steady stream of resources.
+    - Outpost markets to purchase items and outpost upgrades.
+    - Capturing outposts increases evolution.
+    - Reduced damage by all player weapons, turrets, and ammo.
+    - Biters have more health and deal more damage.
+    - Biters and spitters spawn on death of entities.
+    ]]
 )
 
 return Scenario.init(config)

@@ -1,3 +1,4 @@
+-- This module allows cars and tanks (any vehicle of type == car) to repair friendly structures
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 
@@ -13,20 +14,19 @@ end)
 
 Event.add(defines.events.on_player_driving_changed_state, function(event)
     local entity = event.entity
-    if (entity.name ~= 'car') or not entity or not entity.valid then
+    if (entity.type ~= 'car') or not entity or not entity.valid then
         return
+    end
+    if not entity.get_driver() then -- no driver? Remove that car from the table to check
+        car_entities[entity.unit_number] = nil
     else
-        if not entity.get_driver() then -- no driver? Remove that car from the table to check
-            car_entities[entity.unit_number] = nil
+        local player = game.get_player(event.player_index)
+        local driver = entity.get_driver()
+        if player ~= driver.player then -- if the player that got in the vehicle is not the driver then return
+            return
         else
-            local player = game.get_player(event.player_index)
-            local driver = entity.get_driver()
-            if player ~= driver.player then -- if the player that got in the vehicle is not the driver then return
-                return
-            else
-                car_entities[entity.unit_number] = entity
-                script.register_on_entity_destroyed(entity)
-            end
+            car_entities[entity.unit_number] = entity
+            script.register_on_entity_destroyed(entity)
         end
     end
 end)
@@ -57,7 +57,7 @@ local function on_nth_tick()
         local repair_amount = 150
         for i, entity in pairs(targets) do
             if entity.unit_number and (entity.get_health_ratio() or 1) < 1 then
-                -- Rules for when car can repair:
+                -- Rules for when cars/tanks can repair:
                 -- if the damaged entity is a turret, the turret cooldown must be complete (entity.active == true) to help reduce turret creeping
                 -- if the damaged entity is not the car. Cars can heal other cars but not themselves.
                 -- if the damaged entity is not a character

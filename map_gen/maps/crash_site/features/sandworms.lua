@@ -6,8 +6,8 @@ local Task = require 'utils.task'
 local Token = require 'utils.token'
 
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
-local min_worm_period_secs = 360 -- 6 minutes
-local max_worm_period_secs = 1200 -- 20 minutes
+local min_worm_period_secs = 300 -- 5 minutes
+local max_worm_period_secs = 900 -- 15 minutes
 local max_worm_spawn_radius = 30
 
 local roboports = {}
@@ -17,31 +17,32 @@ Global.register({roboports = roboports}, function(tbl)
 end)
 
 local sandworms = {
+    ['small-worm-turret'] = {evo_min = 0, evo_max = 0.4},
     ['medium-worm-turret'] = {evo_min = 0.4, evo_max = 0.6},
     ['big-worm-turret'] = {evo_min = 0.6, evo_max = 0.9},
     ['behemoth-worm-turret'] = {evo_min = 0.9, evo_max = 1}
 }
 
 local sandworm_biters = {
-    ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = 3.5}, ['medium-biter'] = {min = 1.0, max = 2}},
+    ['small-worm-turret'] = {['small-biter'] = {min = 2.5, max = 3.5}, ['medium-biter'] = {min = 1.0, max = 2}},
+    ['medium-worm-turret'] = {['small-biter'] = {min = 2.5, max = 6.5}, ['medium-biter'] = {min = 1.0, max = 5}},
     ['big-worm-turret'] = {
         ['small-biter'] = {min = 2.5, max = 4},
         ['medium-biter'] = {min = 1.5, max = 2.2},
-        ['medium-spitter'] = {min = 1.5, max = 2.2}
+        ['medium-spitter'] = {min = 1.5, max = 2.2},
+        ['big-biter'] = {min = 1.5, max = 2.2}
     },
     ['behemoth-worm-turret'] = {
         ['small-biter'] = {min = 4, max = 5.2},
         ['medium-biter'] = {min = 2.5, max = 3.8},
         ['big-biter'] = {min = 1.2, max = 2.4},
-        ['big-spitter'] = {min = 1.2, max = 2.4}
+        ['big-spitter'] = {min = 1.2, max = 2.4},
+        ['behemoth-biter'] = {min = 1.2, max = 2.4}
     }
 }
 
 local function spawn_sandworms(entity)
     local evolution = game.forces["enemy"].evolution_factor
-    if evolution < 0.4 then
-        return
-    end
     for index, worm_type in pairs(sandworms) do
         -- Determine which worm type to spawn based on the evolution
         if (evolution > worm_type.evo_min) and (evolution <= worm_type.evo_max) then
@@ -50,9 +51,9 @@ local function spawn_sandworms(entity)
                 entity.position.x + math.random(max_worm_spawn_radius * -1, max_worm_spawn_radius),
                 entity.position.y + math.random(max_worm_spawn_radius * -1, max_worm_spawn_radius)
             }
-            worm_position = s.find_non_colliding_position(index, worm_position, 5, 1)
+            worm_position = s.find_non_colliding_position(index, worm_position, 20, 1)
             if worm_position then
-                s.create_entity {name = index, position = worm_position, force = "enemy"}
+                local spawned_worm = s.create_entity {name = index, position = worm_position, force = "enemy"}
             end
             -- For the appropriate worm for each evolution region, spawn some accompanying biters to attack the roboport
             for worm, biters in pairs(sandworm_biters) do
@@ -68,7 +69,7 @@ local function spawn_sandworms(entity)
                             end
                         end
                         for _ = 1, amount do
-                           local pos = s.find_non_colliding_position(biter, worm_position, 5, 1)
+                           local pos = s.find_non_colliding_position(biter, worm_position, 20, 1)
                            if pos then
                             local spawned_biter = s.create_entity {name = biter, position = pos, force = "enemy"}
                             spawned_biter.set_command({type = defines.command.attack, target = entity})
@@ -94,6 +95,9 @@ worm_callback = Token.register(function(entity)
         spawn_sandworms(entity)
         local callback_timer = math.random(min_worm_period_secs * 60, max_worm_period_secs * 60)
         set_timeout_in_ticks(callback_timer, worm_callback, entity)
+        for i = 1, 5 do -- repeat thump text 30 seconds before worm will arrive to give players visual reminder they need to protect roboports
+            set_timeout_in_ticks(callback_timer-1800+(120*i), thump_text_callback, entity)
+        end
     end
 end)
 
@@ -104,14 +108,13 @@ local function start_worm_attacks(entity)
     local callback_timer = math.random(min_worm_period_secs * 60, max_worm_period_secs * 60)
     set_timeout_in_ticks(callback_timer, worm_callback, entity)
     for i = 1, 5 do
-        set_timeout_in_ticks(60*i, thump_text_callback, entity)
+        set_timeout_in_ticks(120*i, thump_text_callback, entity)
     end
 end
 
 Event.add(defines.events.on_robot_built_entity, function(event)
     if event.created_entity.name == 'roboport' then
         start_worm_attacks(event.created_entity)
-        
     end
 end)
 
