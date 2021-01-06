@@ -1,5 +1,5 @@
 require 'map_gen.maps.crash_site.features.sandworms'
-require 'map_gen.maps.crash_site.features.repair_cars'
+require 'map_gen.maps.crash_site.features.vehicle_repair_beams'
 
 local ScenarioInfo = require 'features.gui.info'
 local MGSP = require 'resources.map_gen_settings'

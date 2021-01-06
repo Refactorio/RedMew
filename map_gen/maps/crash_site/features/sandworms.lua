@@ -53,7 +53,7 @@ local function spawn_sandworms(entity)
             }
             worm_position = s.find_non_colliding_position(index, worm_position, 20, 1)
             if worm_position then
-                local spawned_worm = s.create_entity {name = index, position = worm_position, force = "enemy"}
+                s.create_entity {name = index, position = worm_position, force = "enemy"}
             end
             -- For the appropriate worm for each evolution region, spawn some accompanying biters to attack the roboport
             for worm, biters in pairs(sandworm_biters) do
@@ -84,6 +84,9 @@ end
 
 local thump_text_callback
 thump_text_callback = Token.register(function(entity)
+    if not entity.valid then
+        return
+    end
     local s = entity.surface
     local entity_position = entity.position
     s.create_entity{name="flying-text", position={(entity_position.x + math.random(-3,3)),(entity_position.y + math.random(0,3))}, text="*thump*", color={r=0.6,g=0.4,b=0}}
@@ -91,7 +94,7 @@ end)
 
 local worm_callback
 worm_callback = Token.register(function(entity)
-    if entity then -- stops the callback if the roboport has been removed
+    if entity.valid then -- stops the callback if the roboport has been removed
         spawn_sandworms(entity)
         local callback_timer = math.random(min_worm_period_secs * 60, max_worm_period_secs * 60)
         set_timeout_in_ticks(callback_timer, worm_callback, entity)
@@ -102,7 +105,7 @@ worm_callback = Token.register(function(entity)
 end)
 
 local function start_worm_attacks(entity)
-    if not entity then
+    if not entity.valid then
         return
     end
     local callback_timer = math.random(min_worm_period_secs * 60, max_worm_period_secs * 60)
@@ -113,13 +116,13 @@ local function start_worm_attacks(entity)
 end
 
 Event.add(defines.events.on_robot_built_entity, function(event)
-    if event.created_entity.name == 'roboport' then
+    if event.created_entity.name == 'roboport' and event.created_entity.valid then
         start_worm_attacks(event.created_entity)
     end
 end)
 
 Event.add(defines.events.on_built_entity, function(event)
-    if event.created_entity.name == 'roboport' then
+    if event.created_entity.name == 'roboport' and event.created_entity.valid then
         start_worm_attacks(event.created_entity)
         local player = game.get_player(event.player_index)
         player.print("A sandworm approaches.....")
@@ -127,7 +130,7 @@ Event.add(defines.events.on_built_entity, function(event)
 end)
 
 Event.add(defines.events.on_entity_cloned, function(event)
-    if event.created_entity.name == 'roboport' then
+    if event.created_entity.name == 'roboport' and event.created_entity.valid then
         start_worm_attacks(event.created_entity)
     end
 end)
