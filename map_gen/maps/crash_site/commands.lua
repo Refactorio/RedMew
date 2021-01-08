@@ -338,10 +338,12 @@ function Public.control(config)
         local strikeCost = count * 4
 
         local name = item.name
+        local player_name = event.player.name
         if name == 'airstrike_damage' then
             airstrike_data.count_level = airstrike_data.count_level + 1
 
-            Toast.toast_all_players(15, {'command_description.crash_site_airstrike_damage_upgrade_success', count_level})
+            Toast.toast_all_players(15, {'command_description.crash_site_airstrike_damage_upgrade_success', player_name, count_level})
+            Server.to_discord_bold('*** '..player_name..' has upgraded Airstrike Damage to level '..count_level..' ***')
             item.name_label = {'command_description.crash_site_airstrike_count_name_label', (count_level + 1)}
             item.price = math.floor(math.exp(airstrike_data.count_level ^ 0.8) / 2) * 1000
             item.description = {
@@ -354,8 +356,8 @@ function Public.control(config)
             Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
         elseif name == 'airstrike_radius' then
             airstrike_data.radius_level = airstrike_data.radius_level + 1
-            Toast.toast_all_players(15,
-                {'command_description.crash_site_airstrike_radius_upgrade_success', radius_level})
+            Toast.toast_all_players(15, {'command_description.crash_site_airstrike_radius_upgrade_success', player_name, radius_level})
+            Server.to_discord_bold('*** '..player_name..' has upgraded Airstrike Radius to level '..radius_level..' ***')
             item.name_label = {'command_description.crash_site_airstrike_radius_name_label', (radius_level + 1)}
             item.description = {
                 'command_description.crash_site_airstrike_radius',
