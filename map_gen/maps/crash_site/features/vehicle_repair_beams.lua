@@ -14,7 +14,7 @@ end)
 
 Event.add(defines.events.on_player_driving_changed_state, function(event)
     local entity = event.entity
-    if (entity.type ~= 'car') or not entity or not entity.valid then
+    if not entity or not entity.valid or (entity.type ~= 'car') then
         return
     end
     if not entity.get_driver() then -- no driver? Remove that car from the table to check

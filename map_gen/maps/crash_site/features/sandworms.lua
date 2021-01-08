@@ -116,21 +116,15 @@ local function start_worm_attacks(entity)
 end
 
 Event.add(defines.events.on_robot_built_entity, function(event)
-    if event.created_entity.name == 'roboport' and event.created_entity.valid then
+    if event.created_entity.valid and event.created_entity.name == 'roboport' then
         start_worm_attacks(event.created_entity)
     end
 end)
 
 Event.add(defines.events.on_built_entity, function(event)
-    if event.created_entity.name == 'roboport' and event.created_entity.valid then
+    if event.created_entity.valid and event.created_entity.name == 'roboport' then
         start_worm_attacks(event.created_entity)
         local player = game.get_player(event.player_index)
         player.print("A sandworm approaches.....")
-    end
-end)
-
-Event.add(defines.events.on_entity_cloned, function(event)
-    if event.created_entity.name == 'roboport' and event.created_entity.valid then
-        start_worm_attacks(event.created_entity)
     end
 end)
