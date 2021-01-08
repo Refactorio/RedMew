@@ -202,7 +202,7 @@ function Public.control(config)
                 .. 'Most worms killed: '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
                 .. 'Most deaths: '..awards.player_deaths.player..' ('..awards.player_deaths.value..')\\n'
                 .. 'Most items crafted: '..awards.entities_crafted.player..' ('..awards.entities_crafted.value..')\\n'
-                .. 'Most entities built: '..awards.entities_built.player..' ('..awards.entities_built.value..')\\n' 
+                .. 'Most entities built: '..awards.entities_built.player..' ('..awards.entities_built.value..')\\n'
                 .. 'Most time played: '..awards.time_played.player..' ('..Core.format_time(awards.time_played.value)..')\\n'
                 .. 'Furthest walked: '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'
                 .. 'Most coins earned: '..awards.coins_earned.player..' ('..awards.coins_earned.value..')\\n'
