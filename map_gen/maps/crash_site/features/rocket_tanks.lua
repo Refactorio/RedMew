@@ -3,6 +3,7 @@ local Global = require 'utils.global'
 local Toast = require 'features.gui.toast'
 local Retailer = require 'features.retailer'
 local Token = require 'utils.token'
+local Server = require 'features.server'
 
 local tank_entities = {}
 local tank_research = {interval_level = 1}
@@ -99,6 +100,7 @@ Event.add(Retailer.events.on_market_purchase, function(event)
     if interval_level < max_level then
         tank_research.interval_level = tank_research.interval_level + 1
         Toast.toast_all_players(15, {'command_description.crash_site_rocket_tank_upgrade_success', event.player.name, interval_level})
+        Server.to_discord_bold('*** '..event.player.name..' has upgraded Rocket Tanks to level '..interval_level..' ***') -- doesn't need locale string
         item.name_label = {'command_description.crash_site_rocket_tanks_name_label', (interval_level + 1)}
         item.price = (interval_level + 1) * 1000
         Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
