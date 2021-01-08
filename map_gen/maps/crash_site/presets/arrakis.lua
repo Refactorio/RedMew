@@ -1,18 +1,18 @@
-local MGSP = require 'resources.map_gen_settings'
+require 'map_gen.maps.crash_site.features.sandworms'
+require 'map_gen.maps.crash_site.features.vehicle_repair_beams'
+
 local ScenarioInfo = require 'features.gui.info'
+local MGSP = require 'resources.map_gen_settings'
 
 local config = {
-    scenario_name = 'crashsite-desert',
+    scenario_name = 'crashsite-arrakis',
     map_gen_settings = {
         MGSP.sand_only,
-        MGSP.enable_water,
-        {
-            terrain_segmentation = 6,
-            water = 0.25
-        },
+        MGSP.water_none,
         MGSP.starting_area_very_low,
         MGSP.ore_oil_none,
         MGSP.enemy_none,
+        MGSP.tree_none,
         MGSP.cliff_none,
         {
             property_expression_names = {
@@ -30,18 +30,18 @@ local config = {
 }
 
 local Scenario = require 'map_gen.maps.crash_site.scenario'
-ScenarioInfo.set_map_name('Crashsite Desert')
-ScenarioInfo.set_map_description('A desert version of Crash Site. Capture outposts and defend against the biters.')
+ScenarioInfo.set_map_name('Crashsite Arrakis')
+ScenarioInfo.set_map_description('Capture outposts and defend against the biters. Even drier than desert, sandworms roam the desert and will attack roboports on sight.')
 ScenarioInfo.add_map_extra_info(
     [[
-    A desert version of Crash Site, with sandy terrain, scattered oases and few trees.
+    - Arrakis is even drier than crash site Desert.
+    - Sandworms are attracted to the vibration caused by roboports and will spawn intermittently to neutralise this threat to their peace.
+    - Cars have repair beams.
     - Outposts have enemy turrets defending them.
     - Outposts have loot and provide a steady stream of resources.
     - Outpost markets to purchase items and outpost upgrades.
-    - Capturing outposts increases evolution.
-    - Reduced damage by all player weapons, turrets, and ammo.
-    - Biters have more health and deal more damage.
-    - Biters and spitters spawn on death of entities.
+    - Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.
+    - Biters have more health and deal more damage.\n- Biters and spitters spawn on death of entities.
     ]]
 )
 

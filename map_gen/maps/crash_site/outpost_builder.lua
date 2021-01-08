@@ -998,8 +998,10 @@ local function do_outpost_upgrade(event)
     local level = outpost_data.level + 1
     outpost_data.level = level
 
+
+    local player_name = event.player.name
     local outpost_name = Retailer.get_market_group_label(outpost_id)
-    local message = concat {outpost_name, ' has been upgraded to level ', level}
+    local message = concat {player_name, ' has upgraded ', outpost_name, ' to level ', level}
 
     CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
