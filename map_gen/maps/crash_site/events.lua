@@ -4,6 +4,7 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local math = require 'utils.math'
 local table = require 'utils.table'
+local game = require "utils.game"
 
 local random = math.random
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
@@ -18,13 +19,13 @@ local time_to_live = update_rate + 1
 local pole_respawn_time = 60 * 60
 
 local no_coin_entity = {}
+local artillery_pickup_data = {}
 
-Global.register(
-    {no_coin_entity = no_coin_entity},
-    function(tbl)
-        no_coin_entity = tbl.no_coin_entity
-    end
-)
+Global.register({no_coin_entity = no_coin_entity, artillery_pickup_data = artillery_pickup_data}, function(tbl)
+    no_coin_entity = tbl.no_coin_entity
+    artillery_pickup_data = tbl.artillery_pickup_data
+end)
+artillery_pickup_data.index = 0
 
 local entity_drop_amount = {
     --[[['small-biter'] = {low = -62, high = 1},
@@ -43,13 +44,10 @@ local entity_drop_amount = {
     ['behemoth-worm-turret'] = {low = 25, high = 45}
 }
 
-local spill_items =
-    Token.register(
-    function(data)
-        local stack = {name = 'coin', count = data.count}
-        data.surface.spill_item_stack(data.position, stack, true)
-    end
-)
+local spill_items = Token.register(function(data)
+    local stack = {name = 'coin', count = data.count}
+    data.surface.spill_item_stack(data.position, stack, true)
+end)
 
 local entity_spawn_map = {
     ['medium-biter'] = {name = 'small-worm-turret', count = 1, chance = 0.2},
@@ -62,10 +60,7 @@ local entity_spawn_map = {
     ['spitter-spawner'] = {type = 'spitter', count = 5, chance = 1},
     ['behemoth-worm-turret'] = {
         type = 'compound',
-        spawns = {
-            {name = 'behemoth-spitter', count = 2},
-            {name = 'behemoth-biter', count = 2}
-        },
+        spawns = {{name = 'behemoth-spitter', count = 2}, {name = 'behemoth-biter', count = 2}},
         chance = 1
     },
     ['stone-furnace'] = {type = 'cause', count = 2, chance = 1},
@@ -98,12 +93,7 @@ local entity_spawn_map = {
 
 local unit_levels = {
     biter = {'small-biter', 'medium-biter', 'big-biter', 'behemoth-biter'},
-    spitter = {
-        'small-spitter',
-        'medium-spitter',
-        'big-spitter',
-        'behemoth-spitter'
-    }
+    spitter = {'small-spitter', 'medium-spitter', 'big-spitter', 'behemoth-spitter'}
 }
 
 local worms = {
@@ -131,21 +121,18 @@ local turret_evolution_factor = {
     ['artillery-turret'] = 0.004
 }
 
-local spawn_worm =
-    Token.register(
-    function(data)
-        local surface = data.surface
-        local name = data.name
-        local position = data.position
+local spawn_worm = Token.register(function(data)
+    local surface = data.surface
+    local name = data.name
+    local position = data.position
 
-        local p = surface.find_non_colliding_position(name, position, 8, 1)
+    local p = surface.find_non_colliding_position(name, position, 8, 1)
 
-        if p then
-            local entity = surface.create_entity({name = data.name, position = data.position})
-            no_coin_entity[entity.unit_number] = true
-        end
+    if p then
+        local entity = surface.create_entity({name = data.name, position = data.position})
+        no_coin_entity[entity.unit_number] = true
     end
-)
+end)
 
 local function get_level()
     local ef = game.forces.enemy.evolution_factor
@@ -156,29 +143,23 @@ local function get_level()
     end
 end
 
-local spawn_units =
-    Token.register(
-    function(data)
-        local surface = data.surface
-        local name = data.name
-        local position = data.position
-        for _ = 1, data.count do
-            local p = surface.find_non_colliding_position(name, position, 8, 1)
-            if p then
-                surface.create_entity {name = name, position = p}
-            end
+local spawn_units = Token.register(function(data)
+    local surface = data.surface
+    local name = data.name
+    local position = data.position
+    for _ = 1, data.count do
+        local p = surface.find_non_colliding_position(name, position, 8, 1)
+        if p then
+            surface.create_entity {name = name, position = p}
         end
     end
-)
+end)
 
-local spawn_player =
-    Token.register(
-    function(player)
-        if player and player.valid then
-            player.ticks_to_respawn = 3600
-        end
+local spawn_player = Token.register(function(player)
+    if player and player.valid then
+        player.ticks_to_respawn = 3600
     end
-)
+end)
 
 local function has_valid_turret(turrets)
     for i = #turrets, 1, -1 do
@@ -194,45 +175,34 @@ local function has_valid_turret(turrets)
 end
 
 local pole_callback
-pole_callback =
-    Token.register(
-    function(data)
-        if not has_valid_turret(data.turrets) then
-            return
-        end
-
-        local tick = data.tick
-        local now = game.tick
-
-        if now >= tick then
-            data.surface.create_entity(
-                {
-                    name = data.name,
-                    force = 'enemy',
-                    position = data.position
-                }
-            )
-            return
-        end
-
-        local fraction = ((now - tick) / pole_respawn_time) + 1
-
-        draw_arc(
-            {
-                color = {1 - fraction, fraction, 0},
-                max_radius = 0.5,
-                min_radius = 0.4,
-                start_angle = start_angle,
-                angle = fraction * tau,
-                target = data.position,
-                surface = data.surface,
-                time_to_live = time_to_live
-            }
-        )
-
-        set_timeout_in_ticks(update_rate, pole_callback, data)
+pole_callback = Token.register(function(data)
+    if not has_valid_turret(data.turrets) then
+        return
     end
-)
+
+    local tick = data.tick
+    local now = game.tick
+
+    if now >= tick then
+        data.surface.create_entity({name = data.name, force = 'enemy', position = data.position})
+        return
+    end
+
+    local fraction = ((now - tick) / pole_respawn_time) + 1
+
+    draw_arc({
+        color = {1 - fraction, fraction, 0},
+        max_radius = 0.5,
+        min_radius = 0.4,
+        start_angle = start_angle,
+        angle = fraction * tau,
+        target = data.position,
+        surface = data.surface,
+        time_to_live = time_to_live
+    })
+
+    set_timeout_in_ticks(update_rate, pole_callback, data)
+end)
 
 local filter = {area = nil, name = 'laser-turret', force = 'enemy'}
 
@@ -258,17 +228,13 @@ local function do_pole(entity)
         return
     end
 
-    set_timeout_in_ticks(
-        update_rate,
-        pole_callback,
-        {
-            name = entity.name,
-            position = position,
-            surface = surface,
-            tick = game.tick + pole_respawn_time,
-            turrets = turrets
-        }
-    )
+    set_timeout_in_ticks(update_rate, pole_callback, {
+        name = entity.name,
+        position = position,
+        surface = surface,
+        tick = game.tick + pole_respawn_time,
+        turrets = turrets
+    })
 end
 
 local function do_evolution(entity_name, entity_force)
@@ -297,7 +263,7 @@ local bot_cause_whitelist = {
 local function do_bot_spawn(entity_name, entity, event)
     -- Return if the entity killed is not on the white list
     if not bot_spawn_whitelist[entity_name] then
-            return
+        return
     end
 
     -- Return if the evolution is too low
@@ -310,23 +276,19 @@ local function do_bot_spawn(entity_name, entity, event)
     local cause = event.cause
     local create_entity = entity.surface.create_entity
 
-    local spawn_entity = {
-        position = entity.position,
-        target = cause,
-        force = entity_force
-    }
+    local spawn_entity = {position = entity.position, target = cause, force = entity_force}
 
     -- Cbeck if there is a cause for the entity's death
     -- If there is no cause then the player probably picked up an artillery turret before the projectile hit the entity.
     -- This causes no bots to spawn because there is no cause. Punish the player for the behaviour by sending some bots to spawn instead of their location
     if not cause then
-        --[[for i = 1, 30 do
-            spawn_entity.name = 'destroyer-capsule'
-            spawn_entity.speed = 0.4
-            spawn_entity.target = {0,0}
-            create_entity(spawn_entity)
-        end]]
-        return
+        if artillery_pickup_data.index == 0 then -- no artillery were recently picked up so the cause is probably nil because it died
+            return
+        elseif artillery_pickup_data.index == 1 then
+            -- continue
+        else -- more than 1 artillery picked up recently, we probably can't decide where to send it fairly so.....
+            return
+        end
     end
 
     -- Now we have checked for no cause, check for if the cause was on the cause whitelist (players, artillery, spidertrons)
@@ -340,21 +302,31 @@ local function do_bot_spawn(entity_name, entity, event)
     end
 
     if cause.name ~= 'character' then
-        if (entity_name == 'artillery-turret') then
+        if (entity_name == 'artillery-turret') or not cause then
             repeat_cycle = 15
         else
             repeat_cycle = 4
         end
         for i = 1, repeat_cycle do
             if (cause.name == 'artillery-turret') or (cause.name == 'artillery-wagon') then
-                spawn_entity.target = cause.position    -- Overwrite target. Artillery turrets/wagons don't move so send them to entity position. Stops players from picking up the arty and the bots stopping dead.
+                spawn_entity.target = cause.position -- Overwrite target. Artillery turrets/wagons don't move so send them to entity position. Stops players from picking up the arty and the bots stopping dead.
                 spawn_entity.speed = 0.2
                 -- This is particularly risky for players to do because defender-capsule quantities are not limited by the player force's follower robot count.
-                spawn_entity.name = 'defender-capsule'  -- use 'defender-capsule' (projectile) not 'defender' (entity) since a projectile can target a position but a capsule entity must have another entity as target
+                spawn_entity.name = 'defender-capsule' -- use 'defender-capsule' (projectile) not 'defender' (entity) since a projectile can target a position but a capsule entity must have another entity as target
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
 
                 spawn_entity.name = 'destroyer-capsule'
+                create_entity(spawn_entity)
+                create_entity(spawn_entity)
+            elseif not cause then
+                spawn_entity.target = artillery_pickup_data.data[1].player
+
+                spawn_entity.name = 'defender'
+                create_entity(spawn_entity)
+                create_entity(spawn_entity)
+
+                spawn_entity.name = 'destroyer'
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
             else
@@ -409,15 +381,7 @@ local function do_coin_drop(entity_name, entity)
 
     local count = random(bounds.low, bounds.high)
     if count > 0 then
-        set_timeout_in_ticks(
-            1,
-            spill_items,
-            {
-                count = count,
-                surface = entity.surface,
-                position = position
-            }
-        )
+        set_timeout_in_ticks(1, spill_items, {count = count, surface = entity.surface, position = position})
     end
 end
 
@@ -455,71 +419,76 @@ local function do_spawn_entity(entity_name, entity, event)
 
     local position = entity.position
     if worms[name] then
-        set_timeout_in_ticks(
-            5,
-            spawn_worm,
-            {
-                surface = entity.surface,
-                name = name,
-                position = position
-            }
-        )
+        set_timeout_in_ticks(5, spawn_worm, {surface = entity.surface, name = name, position = position})
     else
-        set_timeout_in_ticks(
-            5,
-            spawn_units,
-            {
-                surface = entity.surface,
-                name = name,
-                position = position,
-                count = spawn.count
-            }
-        )
+        set_timeout_in_ticks(5, spawn_units,
+            {surface = entity.surface, name = name, position = position, count = spawn.count})
     end
 end
 
-Event.add(
-    defines.events.on_entity_died,
-    function(event)
-        local entity = event.entity
-        if not entity or not entity.valid then
-            return
-        end
+local unregister_artillery_pickup_callback
+unregister_artillery_pickup_callback = Token.register(function(index)
+    artillery_pickup_data[index] = nil
+    artillery_pickup_data.index = artillery_pickup_data.index - 1
+end)
 
-        local entity_force = entity.force
-        local entity_name = entity.name
-
-        if entity_force.name == 'enemy' then
-            do_pole(entity)
-            do_evolution(entity_name, entity_force)
-            do_coin_drop(entity_name, entity)
-            do_bot_spawn(entity_name, entity, event)
-        end
-
-        do_spawn_entity(entity_name, entity, event)
+local function register_artillery_pickup_player(event)
+    local entity_name = event.item_stack.name
+    if entity_name ~= 'artillery-turret' then
+        return
     end
-)
-
-Event.add(
-    defines.events.on_player_died,
-    function(event)
-        local player = game.get_player(event.player_index)
-        set_timeout_in_ticks(1, spawn_player, player)
+    local player = game.get_player(event.player_index)
+    if player and player.valid then
+        local index = artillery_pickup_data.index + 1 -- so we have a unique key
+        artillery_pickup_data.index = index
+        artillery_pickup_data.data[index] = {
+            position = player.position, -- the position of the player when they picked up the entity
+            player = player -- the player LuaPlayer, in case they run away fast or die
+        }
+        set_timeout_in_ticks(120, unregister_artillery_pickup_callback, index) -- remove the artillery from the table after 3 seconds
     end
-)
+end
 
-Event.add(
-    defines.events.on_combat_robot_expired,
-    function(event)
-        local entity = event.robot
-        local position = entity.position
-        local owner = event.owner
-        if owner == nil or not owner.valid then
-            return
-        end
-        if entity.force.name == 'enemy' and owner.name == "artillery-wagon" then
-            -- only create a grenade entity if an artillery wagon (the event owner) killed the target that spawned the combabt robot
-            entity.surface.create_entity{name = "cluster-grenade", position=position, target=position, speed=1}
-        end
+local function register_artillery_pickup_bot(event)
+    -- decide what to do here as bots could be used to pick them up quickly? Or not quick enough for players to work it out?
+end
+
+Event.add(defines.events.on_entity_died, function(event)
+    local entity = event.entity
+    if not entity or not entity.valid then
+        return
     end
-)
+
+    local entity_force = entity.force
+    local entity_name = entity.name
+
+    if entity_force.name == 'enemy' then
+        do_pole(entity)
+        do_evolution(entity_name, entity_force)
+        do_coin_drop(entity_name, entity)
+        do_bot_spawn(entity_name, entity, event)
+    end
+
+    do_spawn_entity(entity_name, entity, event)
+end)
+
+Event.add(defines.events.on_player_mined_item, register_artillery_pickup_player)
+Event.add(defines.events.on_bot_mined_item, register_artillery_pickup_bot)
+
+Event.add(defines.events.on_player_died, function(event)
+    local player = game.get_player(event.player_index)
+    set_timeout_in_ticks(1, spawn_player, player)
+end)
+
+Event.add(defines.events.on_combat_robot_expired, function(event)
+    local entity = event.robot
+    local position = entity.position
+    local owner = event.owner
+    if owner == nil or not owner.valid then
+        return
+    end
+    if entity.force.name == 'enemy' and owner.name == "artillery-wagon" then
+        -- only create a grenade entity if an artillery wagon (the event owner) killed the target that spawned the combabt robot
+        entity.surface.create_entity {name = "cluster-grenade", position = position, target = position, speed = 1}
+    end
+end)
