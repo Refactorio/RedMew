@@ -26,6 +26,7 @@ local player_worms_killed_name = 'player-worms-killed'
 local player_spawners_killed_name = 'player-spawners-killed'
 local player_total_kills_name = 'player-total-kills'
 local player_turrets_killed_name = 'player-turrets-killed'
+local player_entities_built_name = 'player_entities_built'
 
 ScoreTracker.register(rocks_smashed_name, {'player_stats.rocks_smashed'}, '[img=entity.rock-huge]')
 ScoreTracker.register(trees_cut_down_name, {'player_stats.trees_cut_down'}, '[img=entity.tree-02]')
@@ -46,6 +47,7 @@ ScoreTracker.register(player_worms_killed_name, {'player_stats.player_worms_kill
 ScoreTracker.register(player_spawners_killed_name, {'player_stats.player_spawners_killed'})
 ScoreTracker.register(player_turrets_killed_name, {'player_stats.player_turrets_killed'})
 ScoreTracker.register(player_total_kills_name, {'player_stats.player_total_kills'})
+ScoreTracker.register(player_entities_built_name, {'player_stats.player_entities_built'})
 
 local train_kill_causes = {
     ['locomotive'] = true,
@@ -166,12 +168,23 @@ local function player_console_chat(event)
     end
 end
 
-local function player_built_entity()
+local function player_built_entity(event)
     change_for_global(built_by_players_name, 1)
+    local player_index = event.player_index
+    if player_index and (event.created_entity.is_registered_for_construction() == false)then -- only register it as built once a robot builds it
+        change_for_player(player_index, player_entities_built_name, 1)
+    end
 end
 
-local function robot_built_entity()
+local function robot_built_entity(event)
     change_for_global(built_by_robots_name, 1)
+    local entity = event.created_entity
+    local player = entity.last_user
+    -- When item gets built, add to the total entities built for the player that placed the ghost
+    if player.index then
+        change_for_player(player.index, player_entities_built_name, 1)
+    end
+
 end
 
 local function get_player_index_from_cause(cause, event)
@@ -312,7 +325,8 @@ local Public = {
     player_worms_killed_name = player_worms_killed_name,
     player_spawners_killed_name = player_spawners_killed_name,
     player_total_kills_name = player_total_kills_name,
-    player_turrets_killed_name = player_turrets_killed_name
+    player_turrets_killed_name = player_turrets_killed_name,
+    player_entities_built_name = player_entities_built_name
 }
 
 -- Returns a dictionary of cause_name -> count

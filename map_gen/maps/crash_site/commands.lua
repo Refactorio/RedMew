@@ -17,8 +17,13 @@ local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
+-- Use these settings for live
 local map_promotion_channel = Discord.channel_names.map_promotion
 local crash_site_role_mention = Discord.role_mentions.crash_site
+-- Use these settings for testing
+--local map_promotion_channel = Discord.channel_names.bot_playground
+--local crash_site_role_mention = Discord.role_mentions.test
+
 
 local Public = {}
 
@@ -107,7 +112,8 @@ function Public.control(config)
                     distance_walked = ScoreTracker.get_for_player(p.index,PlayerStats.player_distance_walked_name),
                     player_deaths = ScoreTracker.get_for_player(p.index, PlayerStats.player_deaths_name),
                     coins_earned = ScoreTracker.get_for_player(p.index, PlayerStats.coins_earned_name),
-                    entities_built = ScoreTracker.get_for_player(p.index,PlayerStats.built_by_players_name),
+                    entities_built = ScoreTracker.get_for_player(p.index,PlayerStats.player_entities_built_name),
+                    entities_crafted = ScoreTracker.get_for_player(p.index,PlayerStats.player_items_crafted_name),
                     time_played = p.online_time
                 }
             end
@@ -120,6 +126,7 @@ function Public.control(config)
                 enemy_entities = count_enemy_entities(),
                 biters_killed = ScoreTracker.get_for_global(PlayerStats.aliens_killed_name),
                 total_players = #game.players,
+                entities_built = ScoreTracker.get_for_global(PlayerStats.built_by_players_name),
                 player_data = player_data
             }
 
@@ -131,6 +138,7 @@ function Public.control(config)
                 ['player_deaths'] = {value = 0, player = ""},
                 ['time_played'] = {value = 0, player = ""},
                 ['entities_built'] = {value = 0, player = ""},
+                ['entities_crafted'] = {value = 0, player = ""},
                 ['distance_walked'] = {value = 0, player = ""},
                 ['coins_earned'] = {value = 0, player = ""}
             }
@@ -160,11 +168,14 @@ function Public.control(config)
                     awards.time_played.value = v.time_played
                     awards.time_played.player = v.name
                 end
-                -- This stat not working
-                --if v.entities_built > awards.entities_built.value then
-                --    awards.entities_built.value = v.entities_built
-                --    awards.entities_built.player = v.name
-                --end
+                if v.entities_built > awards.entities_built.value then
+                    awards.entities_built.value = v.entities_built
+                    awards.entities_built.player = v.name
+                end
+                if v.entities_crafted > awards.entities_crafted.value then
+                    awards.entities_crafted.value = v.entities_crafted
+                    awards.entities_crafted.player = v.name
+                end
                 if v.distance_walked > awards.distance_walked.value then
                     awards.distance_walked.value = v.distance_walked
                     awards.distance_walked.player = v.name
@@ -182,13 +193,16 @@ function Public.control(config)
                 .. 'Map time: '..time_string..'\\n'
                 .. 'Total kills: '..statistics.biters_killed..'\\n'
                 .. 'Biters remaining on map: '..statistics.enemy_entities..'\\n'
-                .. 'Players: '..statistics.total_players..'\\n\\n'
+                .. 'Players: '..statistics.total_players..'\\n'
+                .. 'Total entities built: '..statistics.entities_built..'\\n\\n'
                 .. 'Awards:\\n'
                 .. 'Most kills overall: '..awards.total_kills.player..' ('..awards.total_kills.value..')\\n'
                 .. 'Most biters/spitters killed: '..awards.units_killed.player..' ('..awards.units_killed.value..')\\n'
                 .. 'Most spawners killed: '..awards.spawners_killed.player..' ('..awards.spawners_killed.value..')\\n'
                 .. 'Most worms killed: '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
                 .. 'Most deaths: '..awards.player_deaths.player..' ('..awards.player_deaths.value..')\\n'
+                .. 'Most items crafted: '..awards.entities_crafted.player..' ('..awards.entities_crafted.value..')\\n'
+                .. 'Most entities built: '..awards.entities_built.player..' ('..awards.entities_built.value..')\\n' 
                 .. 'Most time played: '..awards.time_played.player..' ('..Core.format_time(awards.time_played.value)..')\\n'
                 .. 'Furthest walked: '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'
                 .. 'Most coins earned: '..awards.coins_earned.player..' ('..awards.coins_earned.value..')\\n'
