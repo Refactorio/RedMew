@@ -840,7 +840,7 @@ local function init(config)
             market = market,
             chest = chest,
             [15] = {entity = {name = 'market', force = 'neutral', callback = 'market'}},
-            [18] = {entity = {name = 'wooden-chest', force = 'player', callback = 'chest'}}
+            [18] = {entity = {name = 'steel-chest', force = 'player', callback = 'chest'}}
         },
         [2] = {
             force = 'player',
