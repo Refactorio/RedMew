@@ -17,8 +17,19 @@ Global.register(corpse_queue, function(tbl)
     corpse_queue = tbl
 end)
 
+local enemy_units = {
+    ['small-biter'] = true,
+    ['medium-biter'] = true,
+    ['big-biter'] = true,
+    ['behemoth-biter'] = true,
+    ['small-spitter'] = true,
+    ['medium-spitter'] = true,
+    ['big-spitter'] = true,
+    ['behemoth-spitter'] = true
+}
+
 local function entity_died(event)
-    if not event.unit_number then
+    if not event.unit_number or not enemy_units[event.prototype.name] then
         return
     end
 
