@@ -8,7 +8,7 @@ return function(config)
 
     local start_ore_shape = config.start_ore_shape or b.circle(68)
 
-    return function(tile_builder, ore_builder, spawn_shape, water_shape, random_gen)
+    return function(tile_builder, _, spawn_shape, water_shape, random_gen)
         local pattern = {}
         for ore_name, data in pairs(main_ores) do
             pattern[#pattern + 1] = {ore_name = ore_name, data = data}
@@ -31,8 +31,8 @@ return function(config)
 
         local start_ores = b.segment_pattern(start_ore_shapes)
         start_ores = b.rotate(start_ores, math.rad(45))
-        local main_ores = b.gradient_pattern(ore_pattern)
-        local ores = b.choose(start_ore_shape, start_ores, main_ores)
+        local main_ores_shape = b.gradient_pattern(ore_pattern)
+        local ores = b.choose(start_ore_shape, start_ores, main_ores_shape)
 
         local map = b.apply_entity(land, ores)
 
