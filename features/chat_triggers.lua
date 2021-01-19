@@ -100,8 +100,11 @@ local function mentions(event)
                         success = true
                         break
                     end
+
                     p.print(prefix .. game.get_player(event.player_index).name .. ' mentioned you!', Color.yellow)
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
+                    local message = game.get_player(event.player_index).name .. ' mentioned you!'
+                    rendering.draw_text({text =  message, target_offset  = {0,-3},surface = p.surface, target = p.character, time_to_live = 180, alignment="center", scale=2, players={p.name}, color= {1, 1, 1, 1}})
                     success = true
                     if _DEBUG then
                         player.print(prefix .. 'Successful mentioned ' .. p.name, Color.red)
