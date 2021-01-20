@@ -422,7 +422,6 @@ function Public.control(config)
         end
 
         inv.remove({name = "poison-capsule", count = strikeCost})
-        player.print({'command_description.crash_site_airstrike_success', xpos, ypos})
 
         for j = 1, count do
             set_timeout_in_ticks(30 * j, spawn_poison_callback,
