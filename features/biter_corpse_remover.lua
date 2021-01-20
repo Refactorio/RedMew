@@ -15,6 +15,7 @@ local corpse_queue = Queue.new()
 
 Global.register(corpse_queue, function(tbl)
     corpse_queue = tbl
+    biter_corpse_remover = global.config.biter_corpse_remover
 end)
 
 local function entity_died(event)
