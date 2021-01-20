@@ -337,6 +337,26 @@ function Public.control(config)
         }
     end)
 
+    local map_chart_tag_clear_callback = Token.register(function(tag)
+        if not tag then
+            return -- in case a player deleted the tag manually
+        end
+        tag.destroy()
+    end)
+
+    -- This is needed for if players use /strike on an uncharted area. A map tag cannot be placed on void.
+    local map_chart_tag_place_callback = Token.register(function(data)
+        local xpos = data.xpos
+        local ypos = data.ypos
+        local player = data.player
+        local tag = player.force.add_chart_tag(player.surface, {
+            icon = {type = 'item', name = 'poison-capsule'},
+            position = {xpos,ypos},
+            text = player.name
+        })
+        set_timeout_in_ticks(60*30, map_chart_tag_clear_callback, tag) -- To clear the tag after 30 seconds
+    end)
+
     local function strike(args, player)
         local s = player.surface
         local location_string = args.location
@@ -402,12 +422,15 @@ function Public.control(config)
         end
 
         inv.remove({name = "poison-capsule", count = strikeCost})
-        game.print({'command_description.crash_site_airstrike_success', player.name, xpos, ypos})
+        player.print({'command_description.crash_site_airstrike_success', xpos, ypos})
+
         for j = 1, count do
             set_timeout_in_ticks(30 * j, spawn_poison_callback,
                 {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
             set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
         end
+        player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
+        set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos})
     end
 
     Event.add(Retailer.events.on_market_purchase, function(event)
