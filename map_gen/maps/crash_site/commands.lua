@@ -338,7 +338,7 @@ function Public.control(config)
     end)
 
     local map_chart_tag_clear_callback = Token.register(function(tag)
-        if not tag then
+        if not tag or not tag.valid then
             return -- in case a player deleted the tag manually
         end
         tag.destroy()
