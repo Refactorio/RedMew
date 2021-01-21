@@ -101,10 +101,14 @@ local function mentions(event)
                         break
                     end
 
-                    p.print({'chat_triggers.mention_success_target', prefix, game.get_player(event.player_index).name}, Color.yellow)
+                    --p.print({'chat_triggers.mention_success_target', prefix, game.get_player(event.player_index).name}, Color.yellow)
+                    p.print({'chat_triggers.mention_success_target', prefix, player.name}, Color.yellow)
                     p.play_sound {path = 'utility/new_objective', volume_modifier = 1}
-                    local message = {'chat_triggers.mention_success_target_floating', game.get_player(event.player_index).name}
-                    rendering.draw_text({text =  message, target_offset  = {0,-3},surface = p.surface, target = p.character, time_to_live = 180, alignment="center", scale=2, players={p.name}, color= {1, 1, 1, 1}})
+                    if p.character and p.character.valid then   -- If player is dead and they don't have a character then they won't get the hovering notification.
+                        --local message = {'chat_triggers.mention_success_target_floating', game.get_player(event.player_index).name}
+                        local message = {'chat_triggers.mention_success_target_floating', player.name}
+                        rendering.draw_text({text =  message, target_offset  = {0,-3},surface = p.surface, target = p.character, time_to_live = 360, alignment="center", scale=3, players={p.name}, color= {1, 1, 1, 1}})
+                    end
                     success = true
                     if _DEBUG then
                         player.print(prefix .. 'Successful mentioned ' .. p.name, Color.red)
