@@ -302,6 +302,7 @@ function Public.control(config)
         -- {location = "[gps=-110,-17,redmew]"}
         local location_string = args.location
         local coords = {}
+        local spy_cost = 100
 
         for m in string.gmatch(location_string, "%-?%d+") do
             table.insert(coords, tonumber(m))
@@ -310,7 +311,7 @@ function Public.control(config)
         if #coords < 2 then
             player.print({'command_description.crash_site_spy_invalid'}, Color.fail)
             return
-        elseif coin_count < 1000 then
+        elseif coin_count < spy_cost then
             player.print({'command_description.crash_site_spy_funds'}, Color.fail)
             return
         else
@@ -322,7 +323,7 @@ function Public.control(config)
                 set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
             end
             game.print({'command_description.crash_site_spy_success', player_name, xpos, ypos}, Color.success)
-            inv.remove({name = "coin", count = 1000})
+            inv.remove({name = "coin", count = spy_cost})
         end
     end
 
