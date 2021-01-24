@@ -322,7 +322,7 @@ function Public.control(config)
             for j = 1, 15 do
                 set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
             end
-            game.print({'command_description.crash_site_spy_success', player_name, xpos, ypos}, Color.success)
+            game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos}, Color.success)
             inv.remove({name = "coin", count = spy_cost})
         end
     end
