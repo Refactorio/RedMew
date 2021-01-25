@@ -358,20 +358,23 @@ function Public.control(config)
         set_timeout_in_ticks(60*30, map_chart_tag_clear_callback, tag) -- To clear the tag after 30 seconds
     end)
 
-    local function render_crosshair(position)
+    local function render_crosshair(data)
         local red = {r = 0.5, g = 0, b = 0, a = 0.5}
         local timeout = 5*60
         local line_width = 10
         local line_length = 2
-        rendering.draw_circle{color=red, radius=1.5, width=line_width, filled=false, target=position, surface="redmew", time_to_live=timeout, forces={"player"}}
-        rendering.draw_line{color=red, width=line_width, from={position.x-line_length, position.y}, to={position.x+line_length, position.y}, surface="redmew", time_to_live=timeout, forces={"player"}}
-        rendering.draw_line{color=red, width=line_width, from={position.x, position.y-line_length}, to={position.x, position.y+line_length}, surface="redmew", time_to_live=timeout, forces={"player"}}
+        local s = data.player.surface
+        local f = data.player.force
+        rendering.draw_circle{color=red, radius=1.5, width=line_width, filled=false, target=data.position, surface=s, time_to_live=timeout, forces={f}}
+        rendering.draw_line{color=red, width=line_width, from={data.position.x-line_length, data.position.y}, to={data.position.x+line_length, data.position.y}, surface=s, time_to_live=timeout, forces={f}}
+        rendering.draw_line{color=red, width=line_width, from={data.position.x, data.position.y-line_length}, to={data.position.x, data.position.y+line_length}, surface=s, time_to_live=timeout, forces={f}}
+        s.create_entity{name="flying-text", position={data.position.x+3, data.position.y}, text = "[item=poison-capsule] "..data.player.name, color = {r = 1, g = 1, b = 1, a = 1}  }
     end
 
     local function render_radius(data)
         local timeout = 20*60
         local blue = {r = 0, g = 0, b = 0.1, a = 0.1}
-        rendering.draw_circle{color=blue, radius=data.radius+10, filled=true, target=data.position, surface="redmew", time_to_live=timeout, players={data.player}}
+        rendering.draw_circle{color=blue, radius=data.radius+10, filled=true, target=data.position, surface=data.player.surface, time_to_live=timeout, players={data.player}}
     end
 
     local function strike(args, player)
@@ -446,7 +449,7 @@ function Public.control(config)
             set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
         end
         player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
-        render_crosshair({x = xpos, y = ypos})
+        render_crosshair({position = {x = xpos, y = ypos}, player = player})
         render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius})
         set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos})
     end
