@@ -52,9 +52,10 @@ local function spawn_sandworms(entity)
                 entity.position.y + math.random(max_worm_spawn_radius * -1, max_worm_spawn_radius)
             }
             worm_position = s.find_non_colliding_position(index, worm_position, 20, 1)
-            if worm_position then
-                s.create_entity {name = index, position = worm_position, force = "enemy"}
+            if not worm_position then
+                return
             end
+            s.create_entity {name = index, position = worm_position, force = "enemy"}
             -- For the appropriate worm for each evolution region, spawn some accompanying biters to attack the roboport
             for worm, biters in pairs(sandworm_biters) do
                 if worm == index then
