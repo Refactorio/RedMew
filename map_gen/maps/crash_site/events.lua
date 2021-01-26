@@ -316,16 +316,7 @@ local function do_bot_spawn(entity_name, entity, event)
         force = entity_force
     }
 
-    -- Cbeck if there is a cause for the entity's death
-    -- If there is no cause then the player probably picked up an artillery turret before the projectile hit the entity.
-    -- This causes no bots to spawn because there is no cause. Punish the player for the behaviour by sending some bots to spawn instead of their location
     if not cause then
-        --[[for i = 1, 30 do
-            spawn_entity.name = 'destroyer-capsule'
-            spawn_entity.speed = 0.4
-            spawn_entity.target = {0,0}
-            create_entity(spawn_entity)
-        end]]
         return
     end
 
@@ -345,9 +336,13 @@ local function do_bot_spawn(entity_name, entity, event)
         else
             repeat_cycle = 4
         end
+
+        local random_x = math.random(-10,10) -- calculate before the for loop so all go to the same place
+        local random_y = math.random(-10,10)
+
         for i = 1, repeat_cycle do
             if (cause.name == 'artillery-turret') or (cause.name == 'artillery-wagon') then
-                spawn_entity.target = {cause.position.x + math.random(-10,10), cause.position.y + math.random(-10,10)}    -- Overwrite target. Artillery turrets/wagons don't move so send them to entity position. Stops players from picking up the arty and the bots stopping dead.
+                spawn_entity.target = {cause.position.x + random_x, cause.position.y + random_y}    -- Overwrite target. Artillery turrets/wagons don't move so send them to entity position. Stops players from picking up the arty and the bots stopping dead.
                 spawn_entity.speed = 0.2
                 -- This is particularly risky for players to do because defender-capsule quantities are not limited by the player force's follower robot count.
                 spawn_entity.name = 'defender-capsule'  -- use 'defender-capsule' (projectile) not 'defender' (entity) since a projectile can target a position but a capsule entity must have another entity as target
