@@ -172,6 +172,8 @@ local function send_report_to_discord(reporting_player, reported_player, message
 
     text[#text + 1] = ' Game time '
     text[#text + 1] = Utils.format_time(game.tick)
+    text[#text + 1] = ', Player online time '
+    text[#text + 1] = Utils.format_time(reported_player.online_time)
     text[#text + 1] = ':\\n\\n'
     text[#text + 1] = message
 
@@ -232,6 +234,8 @@ local function send_jail_to_discord(target_player, player)
 
     text[#text + 1] = ' Game time '
     text[#text + 1] = Utils.format_time(game.tick)
+    text[#text + 1] = ', Player online time '
+    text[#text + 1] = Utils.format_time(target_player.online_time)
 
     local message = table.concat(text)
     Server.to_discord_named_embed(moderation_log_channel, message)
