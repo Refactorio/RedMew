@@ -51,11 +51,11 @@ local function spawn_sandworms(entity)
                 entity.position.x + math.random(max_worm_spawn_radius * -1, max_worm_spawn_radius),
                 entity.position.y + math.random(max_worm_spawn_radius * -1, max_worm_spawn_radius)
             }
-            worm_position = s.find_non_colliding_position(index, worm_position, 20, 1)
-            if not worm_position then
+            local free_worm_position = s.find_non_colliding_position(index, worm_position, 20, 1)
+            if not free_worm_position then
                 return
             end
-            s.create_entity {name = index, position = worm_position, force = "enemy"}
+            s.create_entity {name = index, position = free_worm_position, force = "enemy"}
             -- For the appropriate worm for each evolution region, spawn some accompanying biters to attack the roboport
             for worm, biters in pairs(sandworm_biters) do
                 if worm == index then
@@ -70,7 +70,7 @@ local function spawn_sandworms(entity)
                             end
                         end
                         for _ = 1, amount do
-                           local pos = s.find_non_colliding_position(biter, worm_position, 20, 1)
+                           local pos = s.find_non_colliding_position(biter, free_worm_position, 20, 1)
                            if pos then
                             local spawned_biter = s.create_entity {name = biter, position = pos, force = "enemy"}
                             spawned_biter.set_command({type = defines.command.attack, target = entity})
