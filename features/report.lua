@@ -162,19 +162,21 @@ local function send_report_to_discord(reporting_player, reported_player, message
 
     text[#text + 1] = ' reported '
     text[#text + 1] = reported_player.name
+    text[#text + 1] = '\\n'
 
     if server_id ~= '' then
-        text[#text + 1] = ' s'
+        text[#text + 1] = 'Server: s'
         text[#text + 1] = server_id
-        text[#text + 1] = '-'
+        text[#text + 1] = ' - '
         text[#text + 1] = server_name
+        text[#text + 1] = '\\n'
     end
 
-    text[#text + 1] = ' Game time '
+    text[#text + 1] = ' Game time: '
     text[#text + 1] = Utils.format_time(game.tick)
-    text[#text + 1] = ', Player online time '
+    text[#text + 1] = '\\nPlayer online time: '
     text[#text + 1] = Utils.format_time(reported_player.online_time)
-    text[#text + 1] = ':\\n\\n'
+    text[#text + 1] = '\\nMessage: '
     text[#text + 1] = message
 
     text = table.concat(text)
@@ -223,18 +225,19 @@ local function send_jail_to_discord(target_player, player)
     local server_id = Server.get_server_id()
     local server_name = Server.get_server_name()
 
-    local text = {target_player.name, ' has been jailed by ', player.name}
+    local text = {player.name, ' has jailed ', target_player.name,'\\n'}
 
     if server_id ~= '' then
-        text[#text + 1] = ' s'
+        text[#text + 1] = 'Server: s'
         text[#text + 1] = server_id
-        text[#text + 1] = '-'
+        text[#text + 1] = ' - '
         text[#text + 1] = server_name
+        text[#text + 1] = '\\n'
     end
 
-    text[#text + 1] = ' Game time '
+    text[#text + 1] = 'Game time: '
     text[#text + 1] = Utils.format_time(game.tick)
-    text[#text + 1] = ', Player online time '
+    text[#text + 1] = '\\nPlayer online time: '
     text[#text + 1] = Utils.format_time(target_player.online_time)
 
     local message = table.concat(text)
