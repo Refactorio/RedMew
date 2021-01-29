@@ -374,7 +374,7 @@ local function do_bot_spawn(entity_name, entity, event)
                 spawn_entity.name = 'destroyer'
                 local destroyer = create_entity(spawn_entity)
                 set_timeout_in_ticks(120 + random(30,60), destroyer_callback, {destroyer = destroyer, entity = cause})
-                local destroyer = create_entity(spawn_entity)
+                destroyer = create_entity(spawn_entity)
                 set_timeout_in_ticks(120 + random(30,60), destroyer_callback, {destroyer = destroyer, entity = cause})
             else
                 spawn_entity.name = 'defender'
