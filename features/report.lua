@@ -149,11 +149,22 @@ Module.show_reports = function(player)
     draw_report(report_body, #reports)
 end
 
+local  sensitive_characters = { "\\", "*", "_", "~", "`", "|", ">" }
+
+local function sanitise_message(message)
+    for _, sensitive_character in pairs(sensitive_characters) do
+        message = string.gsub(message, sensitive_character, '\\'..sensitive_character)
+    end
+    message = string.gsub(message, '@', '@\\u200B')
+    return message
+end
+
 local function send_report_to_discord(reporting_player, reported_player, message)
     local server_id = Server.get_server_id()
     local server_name = Server.get_server_name()
+    local sanitised_message = sanitise_message(message)
 
-    local text = {}
+    local text = {'**'}
     if reporting_player and reporting_player.valid then
         text[#text + 1] = reporting_player.name
     else
@@ -162,7 +173,7 @@ local function send_report_to_discord(reporting_player, reported_player, message
 
     text[#text + 1] = ' reported '
     text[#text + 1] = reported_player.name
-    text[#text + 1] = '\\n'
+    text[#text + 1] = '**\\n'
 
     if server_id ~= '' then
         text[#text + 1] = 'Server: s'
@@ -177,14 +188,14 @@ local function send_report_to_discord(reporting_player, reported_player, message
     text[#text + 1] = '\\nPlayer online time: '
     text[#text + 1] = Utils.format_time(reported_player.online_time)
     text[#text + 1] = '\\nMessage: '
-    text[#text + 1] = message
+    text[#text + 1] = sanitised_message
 
     text = table.concat(text)
 
-    Server.to_discord_named_embed(helpdesk_channel, text)
+    Server.to_discord_named_embed_raw(helpdesk_channel, text)
     Server.to_discord_named_raw(helpdesk_channel, moderator_role_mention)
 
-    Server.to_discord_named_embed(moderation_log_channel, text)
+    Server.to_discord_named_embed_raw(moderation_log_channel, text)
 end
 
 function Module.report(reporting_player, reported_player, message)
@@ -225,7 +236,7 @@ local function send_jail_to_discord(target_player, player)
     local server_id = Server.get_server_id()
     local server_name = Server.get_server_name()
 
-    local text = {player.name, ' has jailed ', target_player.name,'\\n'}
+    local text = {'**'..player.name, ' has jailed ', target_player.name,'**\\n'}
 
     if server_id ~= '' then
         text[#text + 1] = 'Server: s'
@@ -241,7 +252,7 @@ local function send_jail_to_discord(target_player, player)
     text[#text + 1] = Utils.format_time(target_player.online_time)
 
     local message = table.concat(text)
-    Server.to_discord_named_embed(moderation_log_channel, message)
+    Server.to_discord_named_embed_raw(moderation_log_channel, message)
 end
 
 --- Places a target in jail
