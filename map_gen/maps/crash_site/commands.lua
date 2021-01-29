@@ -311,7 +311,7 @@ function Public.control(config)
             player.print({'command_description.crash_site_spy_invalid'}, Color.fail)
             return
         end
-        
+
         -- process each set of coordinates
         local i = 1
         local xpos = coords[i]
@@ -417,11 +417,11 @@ function Public.control(config)
             return
         end
 
-        -- process each set of coordinates
+        -- process each set of coordinates with a 10 strike limit
         local i = 1
         local xpos = coords[i]
         local ypos = coords[i+1]
-        while xpos ~= nil and ypos ~= nil do
+        while xpos ~= nil and ypos ~= nil and i < 20 do
         -- Check that the chest is where it should be.
         local entities = s.find_entities_filtered {position = {-0.5, -3.5}, type = 'container', limit = 1}
         local dropbox = entities[1]
