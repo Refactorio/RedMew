@@ -9,6 +9,7 @@ local Config = {
         -- creates a starting zone
         starting_zone = {
             enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.starting_zone') end,
             -- initial starting position size, higher values are not recommended
             starting_size = 8,
             -- where the market should spawn
@@ -16,11 +17,13 @@ local Config = {
         },
         -- controls the Daylight (Default diggy: enabled = true)
         night_time = {
-            enabled = true -- true = No Daylight, false = Day/night circle (Solar panels work)
+            enabled = true, -- true = No Daylight, false = Day/night circle (Solar panels work)
+            load = function() return require('map_gen.maps.diggy.feature.night_time') end
         },
         -- controls setting up the players
         setup_player = {
             enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.setup_player') end,
             starting_items = {
                 {name = 'stone-wall', count = 12},
                 {name = 'iron-gear-wheel', count = 8},
@@ -51,11 +54,13 @@ local Config = {
         },
         -- controls the introduction cutscene
         cutscene = {
-            enabled =  true
+            enabled =  true,
+            load = function() return require('map_gen.maps.diggy.feature.cutscene') end
         },
         -- core feature
         diggy_hole = {
             enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.diggy_hole') end,
             -- delay in ticks between robot mining rock and rock being marked again for deconstruction
             robot_mining_delay = 6,
             -- This value is multiplied with robot_mining_delay to determine mining damage applied.  Can be enhanced by robot_damage_per_mining_prod_level
@@ -69,6 +74,7 @@ local Config = {
         -- adds the ability to collapse caves
         diggy_cave_collapse = {
             enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.diggy_cave_collapse') end,
             -- adds per tile what the current stress is
             enable_stress_grid = false,
             -- shows the mask on spawn
@@ -103,6 +109,7 @@ local Config = {
         -- Adds the ability to drop coins and track how many are sent into space
         coin_gathering = {
             enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.coin_gathering') end,
             -- value between 0 and 1, higher value means stronger variance between coordinates
             noise_variance = 0.75,
             -- minimum noise value to spawn a treasure chest, works best with a very high noise variance,
@@ -167,11 +174,13 @@ local Config = {
         },
         -- replaces the chunks with void
         refresh_map = {
-            enabled = true
+            enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.refresh_map') end
         },
         -- automatically opens areas
         simple_room_generator = {
             enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.simple_room_generator') end,
             -- value between 0 and 1, higher value means stronger variance between coordinates
             noise_variance = 0.066,
             -- shows where rooms are located
@@ -186,6 +195,7 @@ local Config = {
         -- responsible for resource spawning
         scattered_resources = {
             enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.scattered_resources') end,
             -- determines how distance is measured
             distance = function(x, y)
                 return abs(x) + abs(y)
@@ -280,6 +290,7 @@ local Config = {
         -- controls the alien spawning mechanic
         alien_spawner = {
             enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.alien_spawner') end,
 
             -- minimum distance from spawn before aliens can spawn
             alien_minimum_distance = 40,
@@ -331,11 +342,13 @@ local Config = {
         --Tracks players causing collapses
         antigrief = {
             enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.antigrief') end,
             autojail = true,
             allowed_collapses_first_hour = 4
         },
         experience = {
             enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.experience') end,
             -- controls the formula for calculating level up costs in stone sent to surface
             difficulty_scale = 20, -- Diggy default 15. Higher increases experience requirement climb
             first_lvl_xp = 350, -- Diggy default 350. This sets the price for the first level.
@@ -429,7 +442,8 @@ local Config = {
             }
         },
         weapon_balance = {
-            enabled = true
+            enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.weapon_balance') end
         }
     }
 }
