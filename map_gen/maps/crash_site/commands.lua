@@ -303,7 +303,7 @@ function Public.control(config)
         local coords = {}
         local spy_cost = 100
 
-        for m in string.gmatch(location_string, "%-?%d+") do
+        for m in string.gmatch(location_string, "%-?%d+") do -- Assuming the surface name isn't a valid number.
             table.insert(coords, tonumber(m))
         end
         -- Do some checks on the coordinates passed in the argument
@@ -321,17 +321,17 @@ function Public.control(config)
 
             -- Make sure player has enough coin to cover spying cost
             if coin_count < spy_cost then
-            player.print({'command_description.crash_site_spy_funds'}, Color.fail)
-            return
-        else
-            -- reveal 3x3 chunks centred on chunk containing pinged location
-            -- make sure it lasts 15 seconds
-            for j = 1, 15 do
-                set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                player.print({'command_description.crash_site_spy_funds'}, Color.fail)
+                return
+            else
+                -- reveal 3x3 chunks centred on chunk containing pinged location
+                -- make sure it lasts 15 seconds
+                for j = 1, 15 do
+                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                end
+                game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos}, Color.success)
+                inv.remove({name = "coin", count = spy_cost})
             end
-            game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos}, Color.success)
-            inv.remove({name = "coin", count = spy_cost})
-        end
 
             -- move to the next set of coordinates
             i = i+2
@@ -407,7 +407,7 @@ function Public.control(config)
         local strikeCost = count * 4 -- the number of poison-capsules required in the chest as payment
 
         -- parse GPS coordinates from map ping
-        for m in string.gmatch(location_string, "%-?%d+") do
+        for m in string.gmatch(location_string, "%-?%d+") do -- Assuming the surface name isn't a valid number.
             table.insert(coords, tonumber(m))
         end
 
@@ -417,11 +417,6 @@ function Public.control(config)
             return
         end
 
-        -- process each set of coordinates with a 10 strike limit
-        local i = 1
-        local xpos = coords[i]
-        local ypos = coords[i+1]
-        while xpos ~= nil and ypos ~= nil and i < 20 do
         -- Check that the chest is where it should be.
         local entities = s.find_entities_filtered {position = {-0.5, -3.5}, type = 'container', limit = 1}
         local dropbox = entities[1]
@@ -431,43 +426,48 @@ function Public.control(config)
             return
         end
 
-        -- Check the contents of the chest by spawn for enough poison capsules to use as payment
-        local inv = dropbox.get_inventory(defines.inventory.chest)
-        local capCount = inv.get_item_count("poison-capsule")
+        -- process each set of coordinates with a 10 strike limit
+        local i = 1
+        local xpos = coords[i]
+        local ypos = coords[i+1]
+        while xpos ~= nil and ypos ~= nil and i < 20 do
+            -- Check the contents of the chest by spawn for enough poison capsules to use as payment
+            local inv = dropbox.get_inventory(defines.inventory.chest)
+            local capCount = inv.get_item_count("poison-capsule")
 
-        if capCount < strikeCost then
-            player.print(
-                {'command_description.crash_site_airstrike_insufficient_currency_error', strikeCost - capCount},
-                Color.fail)
-            return
-        end
+            if capCount < strikeCost then
+                player.print(
+                    {'command_description.crash_site_airstrike_insufficient_currency_error', strikeCost - capCount},
+                    Color.fail)
+                return
+            end
 
-        -- Do a simple check to make sure the player isn't trying to grief the base
-        -- local enemyEntities = s.find_entities_filtered {position = {xpos, ypos}, radius = radius, force = "enemy"}
-        local enemyEntities = player.surface.count_entities_filtered {
-            position = {xpos, ypos},
-            radius = radius + 30,
-            force = "enemy",
-            limit = 1
-        }
-        if enemyEntities < 1 then
-            player.print({'command_description.crash_site_airstrike_friendly_fire_error'}, Color.fail)
-            Utils.print_admins(player.name .. " tried to airstrike the base here: [gps=" .. xpos .. "," .. ypos
-                                   .. ",redmew]", nil)
-            return
-        end
+            -- Do a simple check to make sure the player isn't trying to grief the base
+            -- local enemyEntities = s.find_entities_filtered {position = {xpos, ypos}, radius = radius, force = "enemy"}
+            local enemyEntities = player.surface.count_entities_filtered {
+                position = {xpos, ypos},
+                radius = radius + 30,
+                force = "enemy",
+                limit = 1
+            }
+            if enemyEntities < 1 then
+                player.print({'command_description.crash_site_airstrike_friendly_fire_error'}, Color.fail)
+                Utils.print_admins(player.name .. " tried to airstrike the base here: [gps=" .. xpos .. "," .. ypos
+                                       .. ",redmew]", nil)
+                return
+            end
 
-        inv.remove({name = "poison-capsule", count = strikeCost})
+            inv.remove({name = "poison-capsule", count = strikeCost})
 
-        for j = 1, count do
-            set_timeout_in_ticks(30 * j, spawn_poison_callback,
-                {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
-            set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
-        end
-        player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
-        render_crosshair({position = {x = xpos, y = ypos}, player = player})
-        render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius})
-        set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos})
+            for j = 1, count do
+                set_timeout_in_ticks(30 * j, spawn_poison_callback,
+                    {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
+                set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+            end
+            player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
+            render_crosshair({position = {x = xpos, y = ypos}, player = player})
+            render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius})
+            set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos})
 
             -- move to the next set of coordinates
             i = i+2
