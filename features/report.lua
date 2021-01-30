@@ -149,37 +149,26 @@ Module.show_reports = function(player)
     draw_report(report_body, #reports)
 end
 
-local  sensitive_characters = { "\\", "*", "_", "~", "`", "|", ">" }
-
-local function sanitise_message(message)
-    for _, sensitive_character in pairs(sensitive_characters) do
-        message = string.gsub(message, sensitive_character, '\\'..sensitive_character)
-    end
-    message = string.gsub(message, '@', '@\\u200B')
-    return message
-end
-
 local function send_report_to_discord(reporting_player, reported_player, message)
     local server_id = Server.get_server_id()
     local server_name = Server.get_server_name()
-    local sanitised_message = sanitise_message(message)
 
     local text = {'**'}
     if reporting_player and reporting_player.valid then
-        text[#text + 1] = reporting_player.name
+        text[#text + 1] = Utils.sanitise_string_for_discord(reporting_player.name)
     else
         text[#text + 1] = '<script>'
     end
 
     text[#text + 1] = ' reported '
-    text[#text + 1] = reported_player.name
+    text[#text + 1] = Utils.sanitise_string_for_discord(reported_player.name)
     text[#text + 1] = '**\\n'
 
     if server_id ~= '' then
         text[#text + 1] = 'Server: s'
-        text[#text + 1] = server_id
+        text[#text + 1] = Utils.sanitise_string_for_discord(server_id)
         text[#text + 1] = ' - '
-        text[#text + 1] = server_name
+        text[#text + 1] = Utils.sanitise_string_for_discord(server_name)
         text[#text + 1] = '\\n'
     end
 
@@ -188,7 +177,7 @@ local function send_report_to_discord(reporting_player, reported_player, message
     text[#text + 1] = '\\nPlayer online time: '
     text[#text + 1] = Utils.format_time(reported_player.online_time)
     text[#text + 1] = '\\nMessage: '
-    text[#text + 1] = sanitised_message
+    text[#text + 1] = Utils.sanitise_string_for_discord(message)
 
     text = table.concat(text)
 
@@ -236,13 +225,17 @@ local function send_jail_to_discord(target_player, player)
     local server_id = Server.get_server_id()
     local server_name = Server.get_server_name()
 
-    local text = {'**'..player.name, ' has jailed ', target_player.name,'**\\n'}
+    local text = {'**'}
+    text[#text+ 1] = Utils.sanitise_string_for_discord(player.name)
+    text[#text+ 1] = ' has jailed '
+    text[#text+ 1] = Utils.sanitise_string_for_discord(target_player.name)
+    text[#text+ 1] = '**\\n'
 
     if server_id ~= '' then
         text[#text + 1] = 'Server: s'
-        text[#text + 1] = server_id
+        text[#text + 1] = Utils.sanitise_string_for_discord(server_id)
         text[#text + 1] = ' - '
-        text[#text + 1] = server_name
+        text[#text + 1] = Utils.sanitise_string_for_discord(server_name)
         text[#text + 1] = '\\n'
     end
 
