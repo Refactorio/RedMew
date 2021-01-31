@@ -56,7 +56,7 @@ function Scenario.register()
 
     each_enabled_feature(
         function(feature_name, feature_config)
-            local feature = require ('map_gen.maps.diggy.feature.' .. feature_name)
+            local feature = feature_config.load()
             if ('function' ~= type(feature.register)) then
                 error('Feature ' .. feature_name .. ' did not define a register function.')
             end
