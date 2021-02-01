@@ -295,8 +295,9 @@ local bot_cause_whitelist = {
 }
 
 -- https://en.wikipedia.org/wiki/Euclidean_distance#Two_dimensions
-local function euclidean_distance(p, q)
-    local distance = math.sqrt((p.x-q.x)^2 + (p.y-q.y)^2)
+-- math.sqrt is computationally expensive so we compare to the distance squared instead
+local function euclidean_distance_squared(p, q)
+    local distance = (p.x-q.x)^2 + (p.y-q.y)^2
     return distance
 end
 
@@ -309,7 +310,8 @@ destroyer_callback =
         if not destroyer or not destroyer.valid or not entity or not entity.valid then
             return
         end
-        if euclidean_distance(destroyer.position, entity.position) < 10 then
+        local distance = 10
+        if euclidean_distance_squared(destroyer.position, entity.position) < distance^2 then
             entity.surface.create_entity{name = "laser", position=destroyer.position, target=entity, speed=1}
         end
         set_timeout_in_ticks(30, destroyer_callback, data)
