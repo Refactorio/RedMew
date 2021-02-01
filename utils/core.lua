@@ -256,6 +256,29 @@ function Module.validate_player(player_ident)
     return player, player.name, player.index
 end
 
+local non_breaking_space = '​' -- This is \u200B an invisible space charcater.
+local sensitive_characters_map = {
+    ['\\'] = '\\\\',
+    ['*'] = '\\*',
+    ['_'] = '\\_',
+    ['~'] = '\\~',
+    ['`'] = '\\`',
+    ['|'] = '\\|',
+    ['>'] = '\\>',
+    ['@'] = '@' .. non_breaking_space
+}
+
+--- Escapes markdown characters mentions. Intended to make it safe to send user input to discord.
+-- @param message <string>
+-- @return <string>
+function Module.sanitise_string_for_discord(message)
+    for character, replace in pairs(sensitive_characters_map) do
+        message = string.gsub(message, character, replace)
+    end
+
+    return message
+end
+
 -- add utility functions that exist in base factorio/util
 require 'util'
 
