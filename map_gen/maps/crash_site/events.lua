@@ -294,6 +294,12 @@ local bot_cause_whitelist = {
     ['spidertron'] = true
 }
 
+-- https://en.wikipedia.org/wiki/Euclidean_distance#Two_dimensions
+local function euclidean_distance(p, q)
+    local distance = math.sqrt((p.x-q.x)^2 + (p.y-q.y)^2)
+    return distance
+end
+
 local destroyer_callback
 destroyer_callback =
     Token.register(
@@ -303,8 +309,10 @@ destroyer_callback =
         if not destroyer or not destroyer.valid or not entity or not entity.valid then
             return
         end
-        data.entity.surface.create_entity{name = "laser", position=destroyer.position, target=entity, speed=1}
-        set_timeout_in_ticks(30, destroyer_callback, {destroyer = destroyer, entity = entity})
+        if euclidean_distance(destroyer.position, entity.position) < 10 then
+            entity.surface.create_entity{name = "laser", position=destroyer.position, target=entity, speed=1}
+        end
+        set_timeout_in_ticks(30, destroyer_callback, data)
     end
 )
 
@@ -373,9 +381,9 @@ local function do_bot_spawn(entity_name, entity, event)
 
                 spawn_entity.name = 'destroyer'
                 local destroyer = create_entity(spawn_entity)
-                set_timeout_in_ticks(120 + random(30,60), destroyer_callback, {destroyer = destroyer, entity = cause})
+                set_timeout_in_ticks(random(30,60), destroyer_callback, {destroyer = destroyer, entity = cause})
                 destroyer = create_entity(spawn_entity)
-                set_timeout_in_ticks(120 + random(30,60), destroyer_callback, {destroyer = destroyer, entity = cause})
+                set_timeout_in_ticks(random(30,60), destroyer_callback, {destroyer = destroyer, entity = cause})
             else
                 spawn_entity.name = 'defender'
                 create_entity(spawn_entity)
