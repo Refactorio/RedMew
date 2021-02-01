@@ -294,6 +294,30 @@ local bot_cause_whitelist = {
     ['spidertron'] = true
 }
 
+-- https://en.wikipedia.org/wiki/Euclidean_distance#Two_dimensions
+-- math.sqrt is computationally expensive so we compare to the distance squared instead
+local function euclidean_distance_squared(p, q)
+    local distance = (p.x-q.x)^2 + (p.y-q.y)^2
+    return distance
+end
+
+local destroyer_callback
+destroyer_callback =
+    Token.register(
+    function(data)
+        local entity = data.entity
+        local destroyer = data.destroyer
+        if not destroyer or not destroyer.valid or not entity or not entity.valid then
+            return
+        end
+        local distance = 10
+        if euclidean_distance_squared(destroyer.position, entity.position) < distance^2 then
+            entity.surface.create_entity{name = "laser", position=destroyer.position, target=entity, speed=1}
+        end
+        set_timeout_in_ticks(30, destroyer_callback, data)
+    end
+)
+
 local function do_bot_spawn(entity_name, entity, event)
     -- Return if the entity killed is not on the white list
     if not bot_spawn_whitelist[entity_name] then
@@ -320,12 +344,6 @@ local function do_bot_spawn(entity_name, entity, event)
     -- If there is no cause then the player probably picked up an artillery turret before the projectile hit the entity.
     -- This causes no bots to spawn because there is no cause. Punish the player for the behaviour by sending some bots to spawn instead of their location
     if not cause then
-        --[[for i = 1, 30 do
-            spawn_entity.name = 'destroyer-capsule'
-            spawn_entity.speed = 0.4
-            spawn_entity.target = {0,0}
-            create_entity(spawn_entity)
-        end]]
         return
     end
 
@@ -346,7 +364,7 @@ local function do_bot_spawn(entity_name, entity, event)
             repeat_cycle = 4
         end
         for i = 1, repeat_cycle do
-            if (cause.name == 'artillery-turret') or (cause.name == 'artillery-wagon') then
+            if (cause.name == 'artillery-turret') then
                 spawn_entity.target = cause.position    -- Overwrite target. Artillery turrets/wagons don't move so send them to entity position. Stops players from picking up the arty and the bots stopping dead.
                 spawn_entity.speed = 0.2
                 -- This is particularly risky for players to do because defender-capsule quantities are not limited by the player force's follower robot count.
@@ -357,6 +375,17 @@ local function do_bot_spawn(entity_name, entity, event)
                 spawn_entity.name = 'destroyer-capsule'
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
+
+            elseif (cause.name == 'artillery-wagon') then
+                spawn_entity.name = 'defender'
+                create_entity(spawn_entity)
+                create_entity(spawn_entity)
+
+                spawn_entity.name = 'destroyer'
+                local destroyer = create_entity(spawn_entity)
+                set_timeout_in_ticks(random(30,60), destroyer_callback, {destroyer = destroyer, entity = cause})
+                destroyer = create_entity(spawn_entity)
+                set_timeout_in_ticks(random(30,60), destroyer_callback, {destroyer = destroyer, entity = cause})
             else
                 spawn_entity.name = 'defender'
                 create_entity(spawn_entity)
@@ -505,21 +534,5 @@ Event.add(
     function(event)
         local player = game.get_player(event.player_index)
         set_timeout_in_ticks(1, spawn_player, player)
-    end
-)
-
-Event.add(
-    defines.events.on_combat_robot_expired,
-    function(event)
-        local entity = event.robot
-        local position = entity.position
-        local owner = event.owner
-        if owner == nil or not owner.valid then
-            return
-        end
-        if entity.force.name == 'enemy' and owner.name == "artillery-wagon" then
-            -- only create a grenade entity if an artillery wagon (the event owner) killed the target that spawned the combabt robot
-            entity.surface.create_entity{name = "cluster-grenade", position=position, target=position, speed=1}
-        end
     end
 )
