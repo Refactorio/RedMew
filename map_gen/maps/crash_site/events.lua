@@ -367,6 +367,7 @@ local function do_bot_spawn(entity_name, entity, event)
             if (cause.name == 'artillery-turret') then
                 spawn_entity.target = cause.position    -- Overwrite target. Artillery turrets/wagons don't move so send them to entity position. Stops players from picking up the arty and the bots stopping dead.
                 spawn_entity.speed = 0.2
+                spawn_entity.max_range = 10000          -- Entities of type projectile have a default max range that's lower than late game artillery range.
                 -- This is particularly risky for players to do because defender-capsule quantities are not limited by the player force's follower robot count.
                 spawn_entity.name = 'defender-capsule'  -- use 'defender-capsule' (projectile) not 'defender' (entity) since a projectile can target a position but a capsule entity must have another entity as target
                 create_entity(spawn_entity)
