@@ -1,4 +1,6 @@
 --local Random = require 'map_gen.shared.random'
+local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
@@ -61,6 +63,7 @@ local magic_fluid_crafters = {index = 1}
 local outposts = {}
 local artillery_outposts = {index = 1}
 local outpost_count = 0
+local pollution_multiplier = 0
 
 Global.register(
     {
@@ -70,7 +73,9 @@ Global.register(
         magic_crafters = magic_crafters,
         magic_fluid_crafters = magic_fluid_crafters,
         outposts = outposts,
-        artillery_outposts = artillery_outposts
+        artillery_outposts = artillery_outposts,
+        pollution_multiplier = pollution_multiplier
+
     },
     function(tbl)
         refill_turrets = tbl.refil_turrets
@@ -80,6 +85,7 @@ Global.register(
         magic_fluid_crafters = tbl.magic_fluid_crafters
         outposts = tbl.outposts
         artillery_outposts = tbl.artillery_outposts
+        pollution_multiplier = tbl.pollution_multiplier
     end
 )
 
@@ -1213,6 +1219,31 @@ local function do_artillery_turrets_targets()
     end
 end
 
+local function set_pollution_multiplier(args, player)
+    game.print(args.multiplier)
+    
+    local multipliers = {}
+    for m in string.gmatch(args.multiplier, "%-?%d+") do -- Assuming the surface name isn't a valid number.
+        table.insert(multipliers, tonumber(m))
+    end
+    if not multipliers or #multipliers ~= 1 then
+        game.player.print("Fail")
+        return
+    end
+
+    local old_multiplier = pollution_multiplier
+    pollution_multiplier = multipliers[1]
+    for _, p in pairs(game.players) do
+        if p.admin then
+            p.print(player.name..' changed magic crafter pollution multiplier from '..old_multiplier..' to '..pollution_multiplier)
+        end
+    end
+end
+
+local function get_pollution_multiplier(player)
+    game.player.print('Current pollution multiplier is: '..pollution_multiplier)
+end
+
 local function do_magic_crafters()
     local limit = #magic_crafters
     if limit == 0 then
@@ -1247,7 +1278,11 @@ local function do_magic_crafters()
             local fcount = floor(count)
 
             if fcount > 0 then
-                entity.get_output_inventory().insert {name = data.item, count = fcount}
+                if entity.get_output_inventory().can_insert(data.item) then -- No pollution once full. Taking items out of crafters makes pollution
+                    local pollution_amount = pollution_multiplier * 0.01
+                    entity.surface.pollute(entity.position, pollution_amount)
+                    entity.get_output_inventory().insert {name = data.item, count = fcount}
+                end
                 data.last_tick = tick - (count - fcount) / rate
             end
         end
@@ -1890,5 +1925,28 @@ Event.add(defines.events.on_player_mined_item, coin_mined)
 Event.add(Retailer.events.on_market_purchase, do_outpost_upgrade)
 
 Event.add(defines.events.on_selected_entity_changed, market_selected)
+
+Command.add(
+    'set_pollution_multiplier',
+    {
+        description = {'command_description.set_pollution_multiplier'},
+        arguments = {'multiplier'},
+        required_rank = Ranks.admin,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    set_pollution_multiplier
+)
+
+Command.add(
+    'get_pollution_multiplier',
+    {
+        description = {'command_description.get_pollution_multiplier'},
+        required_rank = Ranks.admin,
+        capture_excess_arguments = true,
+        allowed_by_server = false
+    },
+    get_pollution_multiplier
+)
 
 return Public
