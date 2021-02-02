@@ -1221,7 +1221,7 @@ end
 
 local function set_pollution_multiplier(args, player)
     game.print(args.multiplier)
-    
+
     local multipliers = {}
     for m in string.gmatch(args.multiplier, "%-?%d+") do -- Assuming the surface name isn't a valid number.
         table.insert(multipliers, tonumber(m))
@@ -1241,7 +1241,7 @@ local function set_pollution_multiplier(args, player)
 end
 
 local function get_pollution_multiplier(player)
-    game.player.print('Current pollution multiplier is: '..pollution_multiplier)
+    player.print('Current pollution multiplier is: '..pollution_multiplier)
 end
 
 local function do_magic_crafters()
