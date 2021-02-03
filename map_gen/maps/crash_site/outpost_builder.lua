@@ -63,7 +63,7 @@ local magic_fluid_crafters = {index = 1}
 local outposts = {}
 local artillery_outposts = {index = 1}
 local outpost_count = 0
-local pollution_multiplier = 0
+local pollution_multiplier = {value = 0}
 
 Global.register(
     {
@@ -1226,16 +1226,19 @@ local function set_pollution_multiplier(args, player)
         return
     end   
 
-    local old_multiplier = pollution_multiplier
-    pollution_multiplier = multipliers[1]
+    local old_multiplier = pollution_multiplier.value
+    pollution_multiplier.value = multiplier
+    local message = {player.name, ' changed magic crafter pollution multiplier from ', old_multiplier, ' to ', pollution_multiplier}
     for _, p in pairs(game.players) do
         if p.admin then
-            p.print(player.name..' changed magic crafter pollution multiplier from '..old_multiplier..' to '..pollution_multiplier)
+            p.print(message)
         end
     end
 end
 
+local server_player = {name = '<server>', print = print}
 local function get_pollution_multiplier(player)
+    player = player or server_player
     player.print('Current pollution multiplier is: '..pollution_multiplier)
 end
 
@@ -1273,10 +1276,11 @@ local function do_magic_crafters()
             local fcount = floor(count)
 
             if fcount > 0 then
-                if entity.get_output_inventory().can_insert(data.item) then -- No pollution once full. Taking items out of crafters makes pollution
-                    local pollution_amount = pollution_multiplier * 0.01
+                local output_inv = entity.get_output_inventory()
+                if output_inv.can_insert(data.item) then -- No pollution if full. Taking items out of crafters makes pollution
+                    local pollution_amount = pollution_multiplier.value * 0.01
                     entity.surface.pollute(entity.position, pollution_amount)
-                    entity.get_output_inventory().insert {name = data.item, count = fcount}
+                    output_inv.insert {name = data.item, count = fcount}
                 end
                 data.last_tick = tick - (count - fcount) / rate
             end
@@ -1475,14 +1479,21 @@ Public.magic_item_crafting_callback =
         entity.operable = false
 
         local recipe = callback_data.recipe
-        if recipe then
+        local has_fluid_output = callback_data.keep_active
+        if recipe and not has_fluid_output then -- to avoid trying to put an item into a fluid inventory
             entity.set_recipe(recipe)
-        else
-            local furance_item = callback_data.furance_item
-            if furance_item then
+            local output_inv = entity.get_output_inventory()
+            output_inv.insert {name = callback_data.output.item, count = 200}
+        elseif not recipe then
+            local furnace_item = callback_data.furnace_item
+            if furnace_item then
                 local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
-                inv.insert(furance_item)
+                inv.insert {name = furnace_item, count = 200}
+                local output_inv = entity.get_output_inventory()
+                output_inv.insert {name = callback_data.output.item, count = 200 }
             end
+        else
+            entity.set_recipe(recipe) -- for oil refineries
         end
 
         local p = entity.position
@@ -1533,11 +1544,15 @@ Public.magic_item_crafting_callback_weighted =
         local recipe = stack.recipe
         if recipe then
             entity.set_recipe(recipe)
+            local output_inv = entity.get_output_inventory()
+            output_inv.insert {name = stack.output.item, count = 200}
         else
-            local furance_item = stack.furance_item
-            if furance_item then
+            local furnace_item = stack.furnace_item
+            if furnace_item then
                 local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
-                inv.insert(furance_item)
+                inv.insert {name = furnace_item, count = 200}
+                local output_inv = entity.get_output_inventory()
+                output_inv.insert {name = stack.output.item, count = 200 }
             end
         end
 
@@ -1939,7 +1954,7 @@ Command.add(
         description = {'command_description.get_pollution_multiplier'},
         required_rank = Ranks.admin,
         capture_excess_arguments = true,
-        allowed_by_server = false
+        allowed_by_server = true
     },
     get_pollution_multiplier
 )
