@@ -1220,16 +1220,11 @@ local function do_artillery_turrets_targets()
 end
 
 local function set_pollution_multiplier(args, player)
-    game.print(args.multiplier)
-
-    local multipliers = {}
-    for m in string.gmatch(args.multiplier, "%-?%d+") do -- Assuming the surface name isn't a valid number.
-        table.insert(multipliers, tonumber(m))
-    end
-    if not multipliers or #multipliers ~= 1 then
-        game.player.print("Fail")
+    local multiplier = tonumber(args.multiplier)
+    if not multiplier then
+        player.print("Fail")
         return
-    end
+    end   
 
     local old_multiplier = pollution_multiplier
     pollution_multiplier = multipliers[1]
