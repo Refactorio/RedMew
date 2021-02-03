@@ -1224,7 +1224,7 @@ local function set_pollution_multiplier(args, player)
     if not multiplier then
         player.print("Fail")
         return
-    end   
+    end
 
     local old_multiplier = pollution_multiplier.value
     pollution_multiplier.value = multiplier
