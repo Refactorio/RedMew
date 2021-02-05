@@ -1228,7 +1228,7 @@ local function set_pollution_multiplier(args, player)
 
     local old_multiplier = pollution_multiplier.value
     pollution_multiplier.value = multiplier
-    local message = {player.name, ' changed magic crafter pollution multiplier from ', old_multiplier, ' to ', pollution_multiplier}
+    local message = player.name..' changed magic crafter pollution multiplier from '..old_multiplier..' to '..pollution_multiplier
     for _, p in pairs(game.players) do
         if p.admin then
             p.print(message)
@@ -1239,7 +1239,7 @@ end
 local server_player = {name = '<server>', print = print}
 local function get_pollution_multiplier(player)
     player = player or server_player
-    player.print('Current pollution multiplier is: '..pollution_multiplier)
+    player.print('Current pollution multiplier is: '..pollution_multiplier.value)
 end
 
 local function do_magic_crafters()
@@ -1479,21 +1479,18 @@ Public.magic_item_crafting_callback =
         entity.operable = false
 
         local recipe = callback_data.recipe
-        local has_fluid_output = callback_data.keep_active
-        if recipe and not has_fluid_output then -- to avoid trying to put an item into a fluid inventory
+        if recipe then
             entity.set_recipe(recipe)
-            local output_inv = entity.get_output_inventory()
-            output_inv.insert {name = callback_data.output.item, count = 200}
-        elseif not recipe then
+            if not callback_data.keep_active then -- to avoid trying to put an item into a fluid inventory
+                entity.get_output_inventory().insert(callback_data.output.item)
+            end
+        else
             local furnace_item = callback_data.furnace_item
             if furnace_item then
                 local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
-                inv.insert {name = furnace_item, count = 200}
-                local output_inv = entity.get_output_inventory()
-                output_inv.insert {name = callback_data.output.item, count = 200 }
+                inv.insert(furnace_item)                
+                entity.get_output_inventory().insert(callback_data.output.item)
             end
-        else
-            entity.set_recipe(recipe) -- for oil refineries
         end
 
         local p = entity.position
@@ -1510,7 +1507,7 @@ Public.magic_item_crafting_callback =
             end
         end
 
-        if not callback_data.keep_active then
+        if not callback_data.has_fluid_output then
             Task.set_timeout_in_ticks(2, set_inactive_token, entity) -- causes problems with refineries.
         end
     end
@@ -1570,7 +1567,7 @@ Public.magic_item_crafting_callback_weighted =
             end
         end
 
-        if not callback_data.keep_active then
+        if not callback_data.has_fluid_output then
             Task.set_timeout_in_ticks(2, set_inactive_token, entity) -- causes problems with refineries.
         end
     end

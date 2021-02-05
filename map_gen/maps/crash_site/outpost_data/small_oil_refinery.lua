@@ -39,7 +39,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'basic-oil-processing',
-        keep_active = true,
+        has_fluid_output = true,
         output = {
             {min_rate = 4.5 / 60, distance_factor = 4.5 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 2}
         }
