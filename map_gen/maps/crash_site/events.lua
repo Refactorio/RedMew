@@ -359,7 +359,7 @@ local function do_bot_spawn(entity_name, entity, event)
 
     if cause.name ~= 'character' then
         if (entity_name == 'artillery-turret') then
-            repeat_cycle = 15
+            repeat_cycle = 8
         else
             repeat_cycle = 4
         end
