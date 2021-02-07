@@ -1481,7 +1481,7 @@ Public.magic_item_crafting_callback =
         local recipe = callback_data.recipe
         if recipe then
             entity.set_recipe(recipe)
-            if not callback_data.keep_active then -- to avoid trying to put an item into a fluid inventory
+            if not callback_data.has_fluid_output then -- to avoid trying to put an item into a fluid inventory
                 entity.get_output_inventory().insert(callback_data.output.item)
             end
         else
