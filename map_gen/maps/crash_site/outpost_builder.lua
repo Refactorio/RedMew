@@ -1237,7 +1237,7 @@ local function set_pollution_multiplier(args, player)
 end
 
 local server_player = {name = '<server>', print = print}
-local function get_pollution_multiplier(args, player)
+local function get_pollution_multiplier(_, player)
     player = player or server_player
     player.print('Current pollution multiplier is: '..pollution_multiplier.value)
 end
