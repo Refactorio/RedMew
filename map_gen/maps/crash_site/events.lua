@@ -438,23 +438,31 @@ local function do_coin_drop(entity_name, entity, cause)
     end
 
     local count = random(bounds.low, bounds.high)
-    if count > 0 then
-        local coins = {name="coin", count = count}
-        if cause and cause.player and cause.name == 'character'  and cause.player.can_insert(coins) then
-            cause.player.insert(coins)
-            entity.surface.create_entity{name="flying-text", position = {position.x-1, position.y}, text="+"..count.." [img=item.coin]", color={1, 0.8, 0, 0.5}, render_player_index=cause.player.index}
-        else -- spill them on the floor
-            set_timeout_in_ticks(
-                1,
-                spill_items,
-                {
-                    count = count,
-                    surface = entity.surface,
-                    position = position
-                }
-            )
+    if count <= 0 then
+        return
+    end
+
+    if cause and cause.name == 'character' then
+        local player = cause.player
+        if player and player.valid then
+            local coins = {name = "coin", count = count}
+            if player.can_insert(coins) then
+                entity.surface.create_entity{name="flying-text", position = {position.x - 1, position.y}, text = "+" .. count .. " [img=item.coin]", color = {1, 0.8, 0, 0.5}, render_player_index = player.index}
+                return
+            end
         end
     end
+
+    -- spill them on the floor
+    set_timeout_in_ticks(
+        1,
+        spill_items,
+        {
+            count = count,
+            surface = entity.surface,
+            position = position
+        }
+    )
 end
 
 local function do_spawn_entity(entity_name, entity, event)
