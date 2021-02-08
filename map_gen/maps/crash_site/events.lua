@@ -424,7 +424,7 @@ local function do_bot_spawn(entity_name, entity, event)
     end
 end
 
-local function do_coin_drop(entity_name, entity)
+local function do_coin_drop(entity_name, entity, cause)
     local position = entity.position
     local bounds = entity_drop_amount[entity_name]
     if not bounds then
@@ -439,15 +439,20 @@ local function do_coin_drop(entity_name, entity)
 
     local count = random(bounds.low, bounds.high)
     if count > 0 then
-        set_timeout_in_ticks(
-            1,
-            spill_items,
-            {
-                count = count,
-                surface = entity.surface,
-                position = position
-            }
-        )
+        if cause.name == 'character' and cause.player.can_insert({name="coin", count = count}) then -- try put coins into inventory
+            cause.player.insert{name="coin", count = count}
+            entity.surface.create_entity{name="flying-text", position = {entity.position.x-1, entity.position.y}, text="+"..count.." [img=item.coin]", color={1, 0.8, 0, 0.5}, render_player_index=cause.player.index}
+        else -- spill them on the floor
+            set_timeout_in_ticks(
+                1,
+                spill_items,
+                {
+                    count = count,
+                    surface = entity.surface,
+                    position = position
+                }
+            )
+        end
     end
 end
 
@@ -518,11 +523,12 @@ Event.add(
 
         local entity_force = entity.force
         local entity_name = entity.name
+        local cause = event.cause
 
         if entity_force.name == 'enemy' then
             do_pole(entity)
             do_evolution(entity_name, entity_force)
-            do_coin_drop(entity_name, entity)
+            do_coin_drop(entity_name, entity, cause)
             do_bot_spawn(entity_name, entity, event)
         end
 
