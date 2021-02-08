@@ -1228,7 +1228,7 @@ local function set_pollution_multiplier(args, player)
 
     local old_multiplier = pollution_multiplier.value
     pollution_multiplier.value = multiplier
-    local message = player.name..' changed magic crafter pollution multiplier from '..old_multiplier..' to '..pollution_multiplier
+    local message = player.name..' changed magic crafter pollution multiplier from '..old_multiplier..' to '..pollution_multiplier.value
     for _, p in pairs(game.players) do
         if p.admin then
             p.print(message)
@@ -1237,7 +1237,7 @@ local function set_pollution_multiplier(args, player)
 end
 
 local server_player = {name = '<server>', print = print}
-local function get_pollution_multiplier(player)
+local function get_pollution_multiplier(args, player)
     player = player or server_player
     player.print('Current pollution multiplier is: '..pollution_multiplier.value)
 end
@@ -1934,7 +1934,7 @@ Event.add(Retailer.events.on_market_purchase, do_outpost_upgrade)
 Event.add(defines.events.on_selected_entity_changed, market_selected)
 
 Command.add(
-    'set_pollution_multiplier',
+    'set-pollution-multiplier',
     {
         description = {'command_description.set_pollution_multiplier'},
         arguments = {'multiplier'},
@@ -1946,7 +1946,7 @@ Command.add(
 )
 
 Command.add(
-    'get_pollution_multiplier',
+    'get-pollution-multiplier',
     {
         description = {'command_description.get_pollution_multiplier'},
         required_rank = Ranks.admin,
