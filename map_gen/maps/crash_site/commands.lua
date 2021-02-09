@@ -224,7 +224,7 @@ function Public.control(config)
                 .. 'Players: '..statistics.total_players..'\\n'
                 )
             end
-            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention .. ' **'..config.scenario_name..' has just restarted!!**')
+            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention .. ' **'..scenario_display_name[config.scenario_name]..' has just restarted!!**')
 
             Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
