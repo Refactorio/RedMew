@@ -282,7 +282,7 @@ end
 local function capsule_used(event)
     local item = event.item
 
-    if not item or not item.valid or not item.name == 'raw-fish' then
+    if not item or not item.valid or item.name ~= 'raw-fish' then
         return
     end
 
