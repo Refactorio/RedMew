@@ -2,6 +2,7 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local ScoreTracker = require 'utils.score_tracker'
 require 'utils.table'
+
 local pairs = pairs
 local sqrt = math.sqrt
 local change_for_global = ScoreTracker.change_for_global
@@ -169,20 +170,24 @@ local function player_console_chat(event)
 end
 
 local function player_built_entity(event)
-    change_for_global(built_by_players_name, 1)
     local player_index = event.player_index
     if player_index and (event.created_entity.is_registered_for_construction() == false)then -- only register it as built once a robot builds it
+        change_for_global(built_by_players_name, 1)
         change_for_player(player_index, player_entities_built_name, 1)
     end
 end
 
 local function robot_built_entity(event)
     change_for_global(built_by_robots_name, 1)
+    local robot = event.robot
     local entity = event.created_entity
     local player = entity.last_user
-    -- When item gets built, add to the total entities built for the player that placed the ghost
-    if player.index then
-        change_for_player(player.index, player_entities_built_name, 1)
+
+    
+    -- When item gets built, add to the total entities built for the player whose robot built the entity NOT for the player who placed the ghost
+    local robot_owner = robot.logistic_network.cells[1].owner
+    if robot_owner.player then  -- nil if the robot owner is a roboport
+        change_for_player(robot_owner.player.index, player_entities_built_name, 1)
     end
 
 end

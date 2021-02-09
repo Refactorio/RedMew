@@ -24,7 +24,6 @@ local crash_site_role_mention = Discord.role_mentions.crash_site
 --local map_promotion_channel = Discord.channel_names.bot_playground
 --local crash_site_role_mention = Discord.role_mentions.test
 
-
 local Public = {}
 
 function Public.control(config)
@@ -81,6 +80,14 @@ function Public.control(config)
         return entity_count
     end
 
+    -- Scenario display name for printing new scenario to discord
+    local scenario_display_name = {
+        ['crashsite'] = 'Crash Site',
+        ['crashsite-world'] = 'Crash Site World Map',
+        ['crashsite-desert'] = 'Crash Site Desert',
+        ['crashsite-arrakis'] = 'Crash Site Arrakis'
+        }
+
     local callback
     callback = Token.register(function(data)
         if not global_data.restarting then
@@ -88,8 +95,9 @@ function Public.control(config)
         end
 
         local state = data.state
+        local next_scenario = data.scenario_name
         if state == 0 then
-            Server.start_scenario(data.scenario_name)
+            Server.start_scenario(next_scenario)
             double_print('restarting')
             global_data.restarting = nil
             return
@@ -216,7 +224,7 @@ function Public.control(config)
                 .. 'Players: '..statistics.total_players..'\\n'
                 )
             end
-            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention .. ' **Crash Site has just restarted!!**')
+            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention .. ' **'..scenario_display_name[next_scenario]..' has just restarted!!**')
 
             Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
