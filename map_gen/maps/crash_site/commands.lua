@@ -122,6 +122,7 @@ function Public.control(config)
                     coins_earned = ScoreTracker.get_for_player(p.index, PlayerStats.coins_earned_name),
                     entities_built = ScoreTracker.get_for_player(p.index,PlayerStats.player_entities_built_name),
                     entities_crafted = ScoreTracker.get_for_player(p.index,PlayerStats.player_items_crafted_name),
+                    fish_eaten = ScoreTracker.get_for_player(p.index,PlayerStats.player_fish_eaten_name),
                     time_played = p.online_time
                 }
             end
@@ -148,7 +149,8 @@ function Public.control(config)
                 ['entities_built'] = {value = 0, player = ""},
                 ['entities_crafted'] = {value = 0, player = ""},
                 ['distance_walked'] = {value = 0, player = ""},
-                ['coins_earned'] = {value = 0, player = ""}
+                ['coins_earned'] = {value = 0, player = ""},
+                ['fish_eaten'] = {value = 0, player = ""}
             }
 
             for k, v in pairs(statistics.player_data) do
@@ -192,6 +194,10 @@ function Public.control(config)
                     awards.coins_earned.value = v.coins_earned
                     awards.coins_earned.player = v.name
                 end
+                if v.fish_eaten > awards.fish_eaten.value then
+                    awards.fish_eaten.value = v.fish_eaten
+                    awards.fish_eaten.player = v.name
+                end
             end
 
             local time_string = Core.format_time(game.ticks_played)
@@ -214,9 +220,10 @@ function Public.control(config)
                 .. 'Most time played: '..awards.time_played.player..' ('..Core.format_time(awards.time_played.value)..')\\n'
                 .. 'Furthest walked: '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'
                 .. 'Most coins earned: '..awards.coins_earned.player..' ('..awards.coins_earned.value..')\\n'
+                .. 'Seafood lover: '..awards.fish_eaten.player..' ('..awards.fish_eaten.value..' fish eaten)\\n'
                 )
             else
-                Server.to_discord_named_embed(map_promotion_channel, 'Crash Site map failed!\\n\\n'
+                 Server.to_discord_named_embed(map_promotion_channel, 'Crash Site map failed!\\n\\n'
                 .. 'Statistics:\\n'
                 .. 'Map time: '..time_string..'\\n'
                 .. 'Total kills: '..statistics.biters_killed..'\\n'
