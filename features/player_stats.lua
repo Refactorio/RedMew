@@ -181,7 +181,7 @@ local function robot_built_entity(event)
     change_for_global(built_by_robots_name, 1)
     local robot = event.robot
 
-    if not robot then
+    if not robot.valid then
         return
     end
 

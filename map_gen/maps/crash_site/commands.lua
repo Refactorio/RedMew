@@ -31,6 +31,7 @@ function Public.control(config)
     local server_player = {name = '<server>', print = print}
     local global_data = {restarting = nil}
     local airstrike_data = {radius_level = 1, count_level = 1}
+    local default_name = config.scenario_name or 'crashsite'
 
     Global.register({global_data = global_data, airstrike_data = airstrike_data}, function(tbl)
         global_data = tbl.global_data
@@ -224,7 +225,7 @@ function Public.control(config)
                 .. 'Players: '..statistics.total_players..'\\n'
                 )
             end
-            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention .. ' **'..scenario_display_name[config.scenario_name]..' has just restarted!!**')
+            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention .. ' **'..scenario_display_name[default_name]..' has just restarted!!**')
 
             Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
@@ -495,7 +496,6 @@ function Public.control(config)
         allowed_by_server = true
     }, abort)
 
-    local default_name = config.scenario_name or 'crashsite'
     Command.add('crash-site-restart', {
         description = {'command_description.crash_site_restart'},
         arguments = {'scenario_name'},
