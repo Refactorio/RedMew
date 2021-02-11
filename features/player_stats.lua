@@ -2,6 +2,7 @@ local Global = require 'utils.global'
 local Event = require 'utils.event'
 local ScoreTracker = require 'utils.score_tracker'
 require 'utils.table'
+
 local pairs = pairs
 local sqrt = math.sqrt
 local change_for_global = ScoreTracker.change_for_global
@@ -26,6 +27,7 @@ local player_worms_killed_name = 'player-worms-killed'
 local player_spawners_killed_name = 'player-spawners-killed'
 local player_total_kills_name = 'player-total-kills'
 local player_turrets_killed_name = 'player-turrets-killed'
+local player_entities_built_name = 'player_entities_built'
 
 ScoreTracker.register(rocks_smashed_name, {'player_stats.rocks_smashed'}, '[img=entity.rock-huge]')
 ScoreTracker.register(trees_cut_down_name, {'player_stats.trees_cut_down'}, '[img=entity.tree-02]')
@@ -46,6 +48,7 @@ ScoreTracker.register(player_worms_killed_name, {'player_stats.player_worms_kill
 ScoreTracker.register(player_spawners_killed_name, {'player_stats.player_spawners_killed'})
 ScoreTracker.register(player_turrets_killed_name, {'player_stats.player_turrets_killed'})
 ScoreTracker.register(player_total_kills_name, {'player_stats.player_total_kills'})
+ScoreTracker.register(player_entities_built_name, {'player_stats.player_entities_built'})
 
 local train_kill_causes = {
     ['locomotive'] = true,
@@ -166,12 +169,28 @@ local function player_console_chat(event)
     end
 end
 
-local function player_built_entity()
-    change_for_global(built_by_players_name, 1)
+local function player_built_entity(event)
+    local player_index = event.player_index
+    if event.created_entity.is_registered_for_construction() == false then -- When is_registered_for_construction() is true we only register the entity as built once a robot builds it
+        change_for_global(built_by_players_name, 1)
+        change_for_player(player_index, player_entities_built_name, 1)
+    end
 end
 
-local function robot_built_entity()
+local function robot_built_entity(event)
     change_for_global(built_by_robots_name, 1)
+    local robot = event.robot
+
+    if not robot.valid then
+        return
+    end
+
+    -- When item gets built, add to the total entities built for the player whose robot built the entity NOT for the player who placed the ghost
+    local robot_owner = robot.logistic_network.cells[1].owner
+    if robot_owner.player then  -- nil if the robot owner is a roboport
+        change_for_player(robot_owner.player.index, player_entities_built_name, 1)
+    end
+
 end
 
 local function get_player_index_from_cause(cause, event)
@@ -312,7 +331,8 @@ local Public = {
     player_worms_killed_name = player_worms_killed_name,
     player_spawners_killed_name = player_spawners_killed_name,
     player_total_kills_name = player_total_kills_name,
-    player_turrets_killed_name = player_turrets_killed_name
+    player_turrets_killed_name = player_turrets_killed_name,
+    player_entities_built_name = player_entities_built_name
 }
 
 -- Returns a dictionary of cause_name -> count
