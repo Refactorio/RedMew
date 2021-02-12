@@ -402,8 +402,7 @@ global.config = {
     -- when biter corpses in an area are above a threshold, remove the desired amount
     biter_corpse_remover = {
         enabled = true,
-        chunk_size = 3, -- size of chunk in tiles
-        corpse_threshold = 3 -- number of corpses allowed on surface inside chunk
+        max_queue_size = 200 -- The number of corpses to keep in the queue before removing the oldest.
     },
     turret_active_delay = {
         enabled = true,

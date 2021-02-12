@@ -1503,6 +1503,62 @@ function Builders.segment_weighted_pattern(pattern)
     end
 end
 
+local function rotate_cords(angle)
+    local qx = cos(angle)
+    local qy = sin(angle)
+
+    return function(x, y)
+        local rot_x = qx * x - qy * y
+        local rot_y = qy * x + qx * y
+        return rot_x, rot_y
+    end
+end
+
+function Builders.gradient_pattern(pattern)
+    local count = #pattern
+    local tau_by_count = tau / count
+
+    local values = {}
+
+    local rotations = {}
+    for i = 1, count do
+        rotations[i] = rotate_cords(tau_by_count * (i - 1))
+    end
+
+    return function(x, y, world)
+        for i = 1, count do
+            local rot_x, rot_y = rotations[i](x, y)
+
+            local angle = atan2(rot_x, rot_y)
+            local normalised = angle * inv_pi
+
+            if normalised < 0 then
+                normalised = -normalised
+            end
+
+            values[i] = pattern[i].weight(normalised)
+        end
+
+        local sum = 0
+        for i = 1, count do
+            sum = sum + values[i]
+        end
+
+        local rand = random() * sum
+
+        for i = 1, count - 1 do
+            local v = values[i]
+            if rand < v then
+                return pattern[i].shape(x, y, world)
+            end
+
+            rand = rand - v
+        end
+
+        return pattern[count].shape(x, y, world)
+    end
+end
+
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderspyramid_pattern
 function Builders.pyramid_pattern(pattern, columns, rows, width, height)
     local half_width = width / 2

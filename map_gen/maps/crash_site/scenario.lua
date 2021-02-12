@@ -1,7 +1,7 @@
 require 'map_gen.maps.crash_site.blueprint_extractor'
 require 'map_gen.maps.crash_site.events'
 require 'map_gen.maps.crash_site.weapon_balance'
-require 'map_gen.maps.crash_site.rocket_tanks'
+require 'map_gen.maps.crash_site.features.rocket_tanks'
 
 
 local b = require 'map_gen.shared.builders'
@@ -11,7 +11,6 @@ local OutpostBuilder = require 'map_gen.maps.crash_site.outpost_builder'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local math = require 'utils.math'
-local ScenarioInfo = require 'features.gui.info'
 local table = require 'utils.table'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
@@ -47,13 +46,6 @@ local function control(config)
     local map_gen_settings = config.map_gen_settings or default_map_gen_settings
     RS.set_map_gen_settings(map_gen_settings)
 end
-
--- Comment out this block if you're getting scenario info from another source.
-ScenarioInfo.set_map_name('Crashsite')
-ScenarioInfo.set_map_description('Capture outposts and defend against the biters.')
-ScenarioInfo.add_map_extra_info(
-    '- Outposts have enemy turrets defending them.\n- Outposts have loot and provide a steady stream of resources.\n- Outpost markets to purchase items and outpost upgrades.\n- Capturing outposts increases evolution.\n- Reduced damage by all player weapons, turrets, and ammo.\n- Biters have more health and deal more damage.\n- Biters and spitters spawn on death of entities.'
-)
 
 RedmewConfig.market.enabled = false
 RedmewConfig.biter_attacks.enabled = false
@@ -848,7 +840,7 @@ local function init(config)
             market = market,
             chest = chest,
             [15] = {entity = {name = 'market', force = 'neutral', callback = 'market'}},
-            [18] = {entity = {name = 'wooden-chest', force = 'player', callback = 'chest'}}
+            [18] = {entity = {name = 'steel-chest', force = 'player', callback = 'chest'}}
         },
         [2] = {
             force = 'player',

@@ -21,7 +21,7 @@ local loot_callback =
 local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        furance_item = 'iron-ore',
+        furnace_item = 'iron-ore',
         output = {min_rate = 2 / 60, distance_factor = 2 / 60 / 512, item = 'iron-plate'}
     }
 }
@@ -52,7 +52,7 @@ local turrets = require 'map_gen.maps.crash_site.outpost_data.light_gun_turrets'
 local worms = require 'map_gen.maps.crash_site.outpost_data.big_worm_turrets'
 worms = ob.extend_walls(worms, {max_count = 2, fallback = turrets})
 
-local base_factory = require 'map_gen.maps.crash_site.outpost_data.small_furance'
+local base_factory = require 'map_gen.maps.crash_site.outpost_data.small_furnace'
 
 local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})
 local level3 =

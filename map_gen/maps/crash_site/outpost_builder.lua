@@ -1,4 +1,6 @@
 --local Random = require 'map_gen.shared.random'
+local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
@@ -61,6 +63,7 @@ local magic_fluid_crafters = {index = 1}
 local outposts = {}
 local artillery_outposts = {index = 1}
 local outpost_count = 0
+local pollution_multiplier = {value = 0}
 
 Global.register(
     {
@@ -70,7 +73,9 @@ Global.register(
         magic_crafters = magic_crafters,
         magic_fluid_crafters = magic_fluid_crafters,
         outposts = outposts,
-        artillery_outposts = artillery_outposts
+        artillery_outposts = artillery_outposts,
+        pollution_multiplier = pollution_multiplier
+
     },
     function(tbl)
         refill_turrets = tbl.refil_turrets
@@ -80,6 +85,7 @@ Global.register(
         magic_fluid_crafters = tbl.magic_fluid_crafters
         outposts = tbl.outposts
         artillery_outposts = tbl.artillery_outposts
+        pollution_multiplier = tbl.pollution_multiplier
     end
 )
 
@@ -998,8 +1004,10 @@ local function do_outpost_upgrade(event)
     local level = outpost_data.level + 1
     outpost_data.level = level
 
+
+    local player_name = event.player.name
     local outpost_name = Retailer.get_market_group_label(outpost_id)
-    local message = concat {outpost_name, ' has been upgraded to level ', level}
+    local message = concat {player_name, ' has upgraded ', outpost_name, ' to level ', level}
 
     CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
@@ -1211,6 +1219,29 @@ local function do_artillery_turrets_targets()
     end
 end
 
+local function set_pollution_multiplier(args, player)
+    local multiplier = tonumber(args.multiplier)
+    if not multiplier then
+        player.print("Fail")
+        return
+    end
+
+    local old_multiplier = pollution_multiplier.value
+    pollution_multiplier.value = multiplier
+    local message = player.name..' changed magic crafter pollution multiplier from '..old_multiplier..' to '..pollution_multiplier.value
+    for _, p in pairs(game.players) do
+        if p.admin then
+            p.print(message)
+        end
+    end
+end
+
+local server_player = {name = '<server>', print = print}
+local function get_pollution_multiplier(_, player)
+    player = player or server_player
+    player.print('Current pollution multiplier is: '..pollution_multiplier.value)
+end
+
 local function do_magic_crafters()
     local limit = #magic_crafters
     if limit == 0 then
@@ -1245,7 +1276,12 @@ local function do_magic_crafters()
             local fcount = floor(count)
 
             if fcount > 0 then
-                entity.get_output_inventory().insert {name = data.item, count = fcount}
+                local output_inv = entity.get_output_inventory()
+                if output_inv.can_insert(data.item) then -- No pollution if full. Taking items out of crafters makes pollution
+                    local pollution_amount = pollution_multiplier.value * 0.01
+                    entity.surface.pollute(entity.position, pollution_amount)
+                    output_inv.insert {name = data.item, count = fcount}
+                end
                 data.last_tick = tick - (count - fcount) / rate
             end
         end
@@ -1445,11 +1481,15 @@ Public.magic_item_crafting_callback =
         local recipe = callback_data.recipe
         if recipe then
             entity.set_recipe(recipe)
+            if not callback_data.has_fluid_output then -- to avoid trying to put an item into a fluid inventory
+                entity.get_output_inventory().insert(callback_data.output.item)
+            end
         else
-            local furance_item = callback_data.furance_item
-            if furance_item then
+            local furnace_item = callback_data.furnace_item
+            if furnace_item then
                 local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
-                inv.insert(furance_item)
+                inv.insert(furnace_item)
+                entity.get_output_inventory().insert(callback_data.output.item)
             end
         end
 
@@ -1467,7 +1507,7 @@ Public.magic_item_crafting_callback =
             end
         end
 
-        if not callback_data.keep_active then
+        if not callback_data.has_fluid_output then
             Task.set_timeout_in_ticks(2, set_inactive_token, entity) -- causes problems with refineries.
         end
     end
@@ -1501,11 +1541,15 @@ Public.magic_item_crafting_callback_weighted =
         local recipe = stack.recipe
         if recipe then
             entity.set_recipe(recipe)
+            local output_inv = entity.get_output_inventory()
+            output_inv.insert {name = stack.output.item, count = 200}
         else
-            local furance_item = stack.furance_item
-            if furance_item then
+            local furnace_item = stack.furnace_item
+            if furnace_item then
                 local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
-                inv.insert(furance_item)
+                inv.insert {name = furnace_item, count = 200}
+                local output_inv = entity.get_output_inventory()
+                output_inv.insert {name = stack.output.item, count = 200 }
             end
         end
 
@@ -1523,7 +1567,7 @@ Public.magic_item_crafting_callback_weighted =
             end
         end
 
-        if not callback_data.keep_active then
+        if not callback_data.has_fluid_output then
             Task.set_timeout_in_ticks(2, set_inactive_token, entity) -- causes problems with refineries.
         end
     end
@@ -1888,5 +1932,28 @@ Event.add(defines.events.on_player_mined_item, coin_mined)
 Event.add(Retailer.events.on_market_purchase, do_outpost_upgrade)
 
 Event.add(defines.events.on_selected_entity_changed, market_selected)
+
+Command.add(
+    'set-pollution-multiplier',
+    {
+        description = {'command_description.set_pollution_multiplier'},
+        arguments = {'multiplier'},
+        required_rank = Ranks.admin,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    set_pollution_multiplier
+)
+
+Command.add(
+    'get-pollution-multiplier',
+    {
+        description = {'command_description.get_pollution_multiplier'},
+        required_rank = Ranks.admin,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    get_pollution_multiplier
+)
 
 return Public

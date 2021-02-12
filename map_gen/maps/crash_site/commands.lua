@@ -31,6 +31,7 @@ function Public.control(config)
     local server_player = {name = '<server>', print = print}
     local global_data = {restarting = nil}
     local airstrike_data = {radius_level = 1, count_level = 1}
+    local default_name = config.scenario_name or 'crashsite'
 
     Global.register({global_data = global_data, airstrike_data = airstrike_data}, function(tbl)
         global_data = tbl.global_data
@@ -231,7 +232,7 @@ function Public.control(config)
                 .. 'Players: '..statistics.total_players..'\\n'
                 )
             end
-            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention .. ' **'..scenario_display_name[next_scenario]..' has just restarted!!**')
+            Server.to_discord_named_raw(map_promotion_channel, crash_site_role_mention .. ' **'..scenario_display_name[default_name]..' has just restarted!!**')
 
             Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
             Popup.all('\nServer restarting!\nInitiated by ' .. data.name .. '\n')
@@ -325,33 +326,47 @@ function Public.control(config)
     local function spy(args, player)
         local player_name = player.name
         local inv = player.get_inventory(defines.inventory.character_main)
-        local coin_count = inv.get_item_count("coin")
 
         -- Parse the values from the location string
         -- {location = "[gps=-110,-17,redmew]"}
         local location_string = args.location
         local coords = {}
+        local spy_cost = 100
 
-        for m in string.gmatch(location_string, "%-?%d+") do
+        for m in string.gmatch(location_string, "%-?%d+") do -- Assuming the surface name isn't a valid number.
             table.insert(coords, tonumber(m))
         end
-        -- Do some checks then reveal the pinged map and remove 1000 coins
+        -- Do some checks on the coordinates passed in the argument
         if #coords < 2 then
             player.print({'command_description.crash_site_spy_invalid'}, Color.fail)
             return
-        elseif coin_count < 1000 then
-            player.print({'command_description.crash_site_spy_funds'}, Color.fail)
-            return
-        else
-            local xpos = coords[1]
-            local ypos = coords[2]
-            -- reveal 3x3 chunks centred on chunk containing pinged location
-            -- make sure it lasts 15 seconds
-            for j = 1, 15 do
-                set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+        end
+
+        -- process each set of coordinates
+        local i = 1
+        local xpos = coords[i]
+        local ypos = coords[i+1]
+        while xpos ~= nil and ypos ~= nil do
+            local coin_count = inv.get_item_count("coin")
+
+            -- Make sure player has enough coin to cover spying cost
+            if coin_count < spy_cost then
+                player.print({'command_description.crash_site_spy_funds'}, Color.fail)
+                return
+            else
+                -- reveal 3x3 chunks centred on chunk containing pinged location
+                -- make sure it lasts 15 seconds
+                for j = 1, 15 do
+                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                end
+                game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos}, Color.success)
+                inv.remove({name = "coin", count = spy_cost})
             end
-            game.print({'command_description.crash_site_spy_success', player_name, xpos, ypos}, Color.success)
-            inv.remove({name = "coin", count = 1000})
+
+            -- move to the next set of coordinates
+            i = i+2
+            xpos = coords[i]
+            ypos = coords[i+1]
         end
     end
 
@@ -365,6 +380,45 @@ function Public.control(config)
             max_range = 100000
         }
     end)
+
+    local map_chart_tag_clear_callback = Token.register(function(tag)
+        if not tag or not tag.valid then
+            return -- in case a player deleted the tag manually
+        end
+        tag.destroy()
+    end)
+
+    -- This is needed for if players use /strike on an uncharted area. A map tag cannot be placed on void.
+    local map_chart_tag_place_callback = Token.register(function(data)
+        local xpos = data.xpos
+        local ypos = data.ypos
+        local player = data.player
+        local tag = player.force.add_chart_tag(player.surface, {
+            icon = {type = 'item', name = 'poison-capsule'},
+            position = {xpos,ypos},
+            text = player.name
+        })
+        set_timeout_in_ticks(60*30, map_chart_tag_clear_callback, tag) -- To clear the tag after 30 seconds
+    end)
+
+    local function render_crosshair(data)
+        local red = {r = 0.5, g = 0, b = 0, a = 0.5}
+        local timeout = 5*60
+        local line_width = 10
+        local line_length = 2
+        local s = data.player.surface
+        local f = data.player.force
+        rendering.draw_circle{color=red, radius=1.5, width=line_width, filled=false, target=data.position, surface=s, time_to_live=timeout, forces={f}}
+        rendering.draw_line{color=red, width=line_width, from={data.position.x-line_length, data.position.y}, to={data.position.x+line_length, data.position.y}, surface=s, time_to_live=timeout, forces={f}}
+        rendering.draw_line{color=red, width=line_width, from={data.position.x, data.position.y-line_length}, to={data.position.x, data.position.y+line_length}, surface=s, time_to_live=timeout, forces={f}}
+        s.create_entity{name="flying-text", position={data.position.x+3, data.position.y}, text = "[item=poison-capsule] "..data.player.name, color = {r = 1, g = 1, b = 1, a = 1}  }
+    end
+
+    local function render_radius(data)
+        local timeout = 20*60
+        local blue = {r = 0, g = 0, b = 0.1, a = 0.1}
+        rendering.draw_circle{color=blue, radius=data.radius+10, filled=true, target=data.position, surface=data.player.surface, time_to_live=timeout, players={data.player}}
+    end
 
     local function strike(args, player)
         local s = player.surface
@@ -383,7 +437,7 @@ function Public.control(config)
         local strikeCost = count * 4 -- the number of poison-capsules required in the chest as payment
 
         -- parse GPS coordinates from map ping
-        for m in string.gmatch(location_string, "%-?%d+") do
+        for m in string.gmatch(location_string, "%-?%d+") do -- Assuming the surface name isn't a valid number.
             table.insert(coords, tonumber(m))
         end
 
@@ -392,8 +446,6 @@ function Public.control(config)
             player.print({'command_description.crash_site_airstrike_invalid'}, Color.fail)
             return
         end
-        local xpos = coords[1]
-        local ypos = coords[2]
 
         -- Check that the chest is where it should be.
         local entities = s.find_entities_filtered {position = {-0.5, -3.5}, type = 'container', limit = 1}
@@ -404,38 +456,53 @@ function Public.control(config)
             return
         end
 
-        -- Check the contents of the chest by spawn for enough poison capsules to use as payment
-        local inv = dropbox.get_inventory(defines.inventory.chest)
-        local capCount = inv.get_item_count("poison-capsule")
+        -- process each set of coordinates with a 10 strike limit
+        local i = 1
+        local xpos = coords[i]
+        local ypos = coords[i+1]
+        while xpos ~= nil and ypos ~= nil and i < 20 do
+            -- Check the contents of the chest by spawn for enough poison capsules to use as payment
+            local inv = dropbox.get_inventory(defines.inventory.chest)
+            local capCount = inv.get_item_count("poison-capsule")
 
-        if capCount < strikeCost then
-            player.print(
-                {'command_description.crash_site_airstrike_insufficient_currency_error', strikeCost - capCount},
-                Color.fail)
-            return
-        end
+            if capCount < strikeCost then
+                player.print(
+                    {'command_description.crash_site_airstrike_insufficient_currency_error', strikeCost - capCount},
+                    Color.fail)
+                return
+            end
 
-        -- Do a simple check to make sure the player isn't trying to grief the base
-        -- local enemyEntities = s.find_entities_filtered {position = {xpos, ypos}, radius = radius, force = "enemy"}
-        local enemyEntities = player.surface.count_entities_filtered {
-            position = {xpos, ypos},
-            radius = radius + 30,
-            force = "enemy",
-            limit = 1
-        }
-        if enemyEntities < 1 then
-            player.print({'command_description.crash_site_airstrike_friendly_fire_error'}, Color.fail)
-            Utils.print_admins(player.name .. " tried to airstrike the base here: [gps=" .. xpos .. "," .. ypos
-                                   .. ",redmew]", nil)
-            return
-        end
+            -- Do a simple check to make sure the player isn't trying to grief the base
+            -- local enemyEntities = s.find_entities_filtered {position = {xpos, ypos}, radius = radius, force = "enemy"}
+            local enemyEntities = player.surface.count_entities_filtered {
+                position = {xpos, ypos},
+                radius = radius + 30,
+                force = "enemy",
+                limit = 1
+            }
+            if enemyEntities < 1 then
+                player.print({'command_description.crash_site_airstrike_friendly_fire_error'}, Color.fail)
+                Utils.print_admins(player.name .. " tried to airstrike the base here: [gps=" .. xpos .. "," .. ypos
+                                       .. ",redmew]", nil)
+                return
+            end
 
-        inv.remove({name = "poison-capsule", count = strikeCost})
-        game.print({'command_description.crash_site_airstrike_success', player.name, xpos, ypos})
-        for j = 1, count do
-            set_timeout_in_ticks(30 * j, spawn_poison_callback,
-                {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
-            set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+            inv.remove({name = "poison-capsule", count = strikeCost})
+
+            for j = 1, count do
+                set_timeout_in_ticks(30 * j, spawn_poison_callback,
+                    {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
+                set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+            end
+            player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
+            render_crosshair({position = {x = xpos, y = ypos}, player = player})
+            render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius})
+            set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos})
+
+            -- move to the next set of coordinates
+            i = i+2
+            xpos = coords[i]
+            ypos = coords[i+1]
         end
     end
 
@@ -460,10 +527,12 @@ function Public.control(config)
         local strikeCost = count * 4
 
         local name = item.name
+        local player_name = event.player.name
         if name == 'airstrike_damage' then
             airstrike_data.count_level = airstrike_data.count_level + 1
 
-            Toast.toast_all_players(15, {'command_description.crash_site_airstrike_damage_upgrade_success', count_level})
+            Toast.toast_all_players(15, {'command_description.crash_site_airstrike_damage_upgrade_success', player_name, count_level})
+            Server.to_discord_bold('*** '..player_name..' has upgraded Airstrike Damage to level '..count_level..' ***')
             item.name_label = {'command_description.crash_site_airstrike_count_name_label', (count_level + 1)}
             item.price = math.floor(math.exp(airstrike_data.count_level ^ 0.8) / 2) * 1000
             item.description = {
@@ -476,8 +545,8 @@ function Public.control(config)
             Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
         elseif name == 'airstrike_radius' then
             airstrike_data.radius_level = airstrike_data.radius_level + 1
-            Toast.toast_all_players(15,
-                {'command_description.crash_site_airstrike_radius_upgrade_success', radius_level})
+            Toast.toast_all_players(15, {'command_description.crash_site_airstrike_radius_upgrade_success', player_name, radius_level})
+            Server.to_discord_bold('*** '..player_name..' has upgraded Airstrike Radius to level '..radius_level..' ***')
             item.name_label = {'command_description.crash_site_airstrike_radius_name_label', (radius_level + 1)}
             item.description = {
                 'command_description.crash_site_airstrike_radius',
@@ -502,7 +571,6 @@ function Public.control(config)
         allowed_by_server = true
     }, abort)
 
-    local default_name = config.scenario_name or 'crashsite'
     Command.add('crash-site-restart', {
         description = {'command_description.crash_site_restart'},
         arguments = {'scenario_name'},
@@ -528,7 +596,7 @@ function Public.control(config)
     }, spy)
 
     Command.add('strike', {
-        description = {'command_description.strike'},
+        description = {'command_description.crash_site_airstrike'},
         arguments = {'location'},
         capture_excess_arguments = true,
         required_rank = Ranks.guest,

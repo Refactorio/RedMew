@@ -173,7 +173,7 @@ end
 
 local function player_built_entity(event)
     local player_index = event.player_index
-    if player_index and (event.created_entity.is_registered_for_construction() == false)then -- only register it as built once a robot builds it
+    if event.created_entity.is_registered_for_construction() == false then -- When is_registered_for_construction() is true we only register the entity as built once a robot builds it
         change_for_global(built_by_players_name, 1)
         change_for_player(player_index, player_entities_built_name, 1)
     end
@@ -181,6 +181,11 @@ end
 
 local function robot_built_entity(event)
     change_for_global(built_by_robots_name, 1)
+    local robot = event.robot
+
+    if not robot.valid then
+        return
+    end
 
     -- When item gets built, add to the total entities built for the player whose robot built the entity NOT for the player who placed the ghost
     local robot_owner = event.robot.logistic_network.cells[1].owner
