@@ -188,7 +188,7 @@ local function robot_built_entity(event)
     end
 
     -- When item gets built, add to the total entities built for the player whose robot built the entity NOT for the player who placed the ghost
-    local robot_owner = event.robot.logistic_network.cells[1].owner
+    local robot_owner = robot.logistic_network.cells[1].owner
     if robot_owner.player then  -- nil if the robot owner is a roboport
         change_for_player(robot_owner.player.index, player_entities_built_name, 1)
     end
