@@ -1477,6 +1477,7 @@ Public.magic_item_crafting_callback =
         entity.minable = false
         entity.destructible = false
         entity.operable = false
+        entity.force = 'player'
 
         local recipe = callback_data.recipe
         if recipe then
@@ -1522,6 +1523,7 @@ Public.magic_item_crafting_callback_weighted =
         entity.minable = false
         entity.destructible = false
         entity.operable = false
+        entity.force = 'player'
 
         local weights = callback_data.weights
         local loot = callback_data.loot
@@ -1796,6 +1798,7 @@ function Public.do_random_fluid_loot(entity, weights, loot)
 
     entity.operable = false
     entity.destructible = false
+    entity.force = 'player'
 
     local i = math.random() * weights.total
 
@@ -1831,6 +1834,7 @@ function Public.do_factory_loot(entity, weights, loot)
 
     entity.operable = false
     entity.destructible = false
+    entity.force = 'player'
 
     local i = math.random() * weights.total
 
