@@ -2,7 +2,7 @@ require 'map_gen.maps.crash_site.blueprint_extractor'
 require 'map_gen.maps.crash_site.events'
 require 'map_gen.maps.crash_site.weapon_balance'
 require 'map_gen.maps.crash_site.features.rocket_tanks'
-
+require 'map_gen.maps.crash_site.features.vehicle_repair_beams'
 
 local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
