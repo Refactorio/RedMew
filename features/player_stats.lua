@@ -28,6 +28,7 @@ local player_spawners_killed_name = 'player-spawners-killed'
 local player_total_kills_name = 'player-total-kills'
 local player_turrets_killed_name = 'player-turrets-killed'
 local player_entities_built_name = 'player_entities_built'
+local player_fish_eaten_name = 'player_fish_eaten'
 
 ScoreTracker.register(rocks_smashed_name, {'player_stats.rocks_smashed'}, '[img=entity.rock-huge]')
 ScoreTracker.register(trees_cut_down_name, {'player_stats.trees_cut_down'}, '[img=entity.tree-02]')
@@ -49,6 +50,7 @@ ScoreTracker.register(player_spawners_killed_name, {'player_stats.player_spawner
 ScoreTracker.register(player_turrets_killed_name, {'player_stats.player_turrets_killed'})
 ScoreTracker.register(player_total_kills_name, {'player_stats.player_total_kills'})
 ScoreTracker.register(player_entities_built_name, {'player_stats.player_entities_built'})
+ScoreTracker.register(player_fish_eaten_name, {'player_stats.player_fish_eaten'})
 
 local train_kill_causes = {
     ['locomotive'] = true,
@@ -282,6 +284,15 @@ local function rocket_launched(event)
     change_for_global(satellites_launched_name, 1)
 end
 
+local function capsule_used(event)
+    local item = event.item
+
+    if not item or not item.valid or item.name ~= 'raw-fish' then
+        return
+    end
+
+    change_for_player(event.player_index, player_fish_eaten_name, 1)
+end
 local function tick()
     for _, p in pairs(game.connected_players) do
         if (p.afk_time < 30 or p.walking_state.walking) and p.vehicle == nil then
@@ -309,6 +320,7 @@ Event.add(defines.events.on_built_entity, player_built_entity)
 Event.add(defines.events.on_robot_built_entity, robot_built_entity)
 Event.add(defines.events.on_entity_died, entity_died)
 Event.add(defines.events.on_rocket_launched, rocket_launched)
+Event.add(defines.events.on_player_used_capsule, capsule_used)
 
 Event.on_nth_tick(62, tick)
 
@@ -332,7 +344,8 @@ local Public = {
     player_spawners_killed_name = player_spawners_killed_name,
     player_total_kills_name = player_total_kills_name,
     player_turrets_killed_name = player_turrets_killed_name,
-    player_entities_built_name = player_entities_built_name
+    player_entities_built_name = player_entities_built_name,
+    player_fish_eaten_name = player_fish_eaten_name
 }
 
 -- Returns a dictionary of cause_name -> count
