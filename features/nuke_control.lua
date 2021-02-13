@@ -4,13 +4,11 @@ local Utils = require 'utils.core'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local Server = require 'features.server'
 local Report = require 'features.report'
 local Popup = require 'features.gui.popup'
 local Ranks = require 'resources.ranks'
 
 local format = string.format
-local match = string.match
 
 -- capsule antigreif player entities threshold.
 local capsule_bomb_threshold = 8
@@ -231,15 +229,12 @@ local function on_capsule_used(event)
 
     if players_warned[event.player_index] then
         if nuke_control.enable_autoban then
-            Server.ban_sync(
-                player.name,
-                format(
-                    'Damaged entities: %s with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord',
-                    list_damaged_entities(item_name, entities),
-                    item_name
-                ),
-                '<script>'
+            local reason = format(
+                'Damaged entities: %s with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord',
+                list_damaged_entities(item_name, entities),
+                item_name
             )
+            Report.ban_player(player, reason)
         end
     else
         players_warned[event.player_index] = true
@@ -249,13 +244,6 @@ local function on_capsule_used(event)
                 format('Damaged entities: %s with %s -Antigrief', list_damaged_entities(item_name, entities), item_name)
             )
         end
-    end
-end
-
-local function on_player_joined(event)
-    local player = game.players[event.player_index]
-    if match(player.name, '^[Ili1|]+$') then
-        Server.ban_sync(player.name, '', '<script>') --No reason given, to not give them any hints to change their name
     end
 end
 
@@ -330,7 +318,6 @@ local function on_entity_died(event)
 end
 
 Event.add(defines.events.on_player_ammo_inventory_changed, ammo_changed)
-Event.add(defines.events.on_player_joined_game, on_player_joined)
 Event.add(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
 Event.add(defines.events.on_player_used_capsule, on_capsule_used)
 Event.add(defines.events.on_entity_died, on_entity_died)

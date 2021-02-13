@@ -51,8 +51,6 @@ local data_set_tag = '[DATA-SET]'
 local data_get_tag = '[DATA-GET]'
 local data_get_all_tag = '[DATA-GET-ALL]'
 local data_tracked_tag = '[DATA-TRACKED]'
-local ban_sync_tag = '[BAN-SYNC]'
-local unbanned_sync_tag = '[UNBANNED-SYNC]'
 local query_players_tag = '[QUERY-PLAYERS]'
 local player_join_tag = '[PLAYER-JOIN]'
 local player_leave_tag = '[PLAYER-LEAVE]'
@@ -585,89 +583,6 @@ end
 
 local function escape(str)
     return str:gsub('\\', '\\\\'):gsub('"', '\\"')
-end
-
---- If the player exists bans the player.
--- Regardless of whether or not the player exists the name is synchronized with other servers
--- and stored in the database.
--- @param  username<string>
--- @param  reason<string?> defaults to empty string.
--- @param  admin<string?> admin's name, defaults to '<script>'
-function Public.ban_sync(username, reason, admin)
-    if type(username) ~= 'string' then
-        error('username must be a string', 2)
-    end
-
-    if reason == nil then
-        reason = ''
-    elseif type(reason) ~= 'string' then
-        error('reason must be a string or nil', 2)
-    end
-
-    if admin == nil then
-        admin = '<script>'
-    elseif type(admin) ~= 'string' then
-        error('admin must be a string or nil', 2)
-    end
-
-    -- game.ban_player errors if player not found.
-    -- However we may still want to use this function to ban player names.
-    local player = game.players[username]
-    if player then
-        game.ban_player(player, reason)
-    end
-
-    username = escape(username)
-    reason = escape(reason)
-    admin = escape(admin)
-
-    local message = concat({ban_sync_tag, '{username:"', username, '",reason:"', reason, '",admin:"', admin, '"}'})
-    raw_print(message)
-end
-
---- If the player exists bans the player else throws error.
--- The ban is not synchronized with other servers or stored in the database.
--- @param  PlayerSpecification
--- @param  reason<string?> defaults to empty string.
-function Public.ban_non_sync(PlayerSpecification, reason)
-    game.ban_player(PlayerSpecification, reason)
-end
-
---- If the player exists unbans the player.
--- Regardless of whether or not the player exists the name is synchronized with other servers
--- and removed from the database.
--- @param  username<string>
--- @param  admin<string?> admin's name, defaults to '<script>'. This name is stored in the logs for who removed the ban.
-function Public.unban_sync(username, admin)
-    if type(username) ~= 'string' then
-        error('username must be a string', 2)
-    end
-
-    if admin == nil then
-        admin = '<script>'
-    elseif type(admin) ~= 'string' then
-        error('admin must be a string or nil', 2)
-    end
-
-    -- game.unban_player errors if player not found.
-    -- However we may still want to use this function to unban player names.
-    local player = game.players[username]
-    if player then
-        game.unban_player(username)
-    end
-
-    username = escape(username)
-    admin = escape(admin)
-
-    local message = concat({unbanned_sync_tag, '{username:"', username, '",admin:"', admin, '"}'})
-    raw_print(message)
-end
-
---- If the player exists unbans the player else throws error.
--- The ban is not synchronized with other servers or removed from the database.
--- @param  PlayerSpecification
-function Public.unban_non_sync(PlayerSpecification)
-    game.unban_player(PlayerSpecification)
 end
 
 --- Called by the web server to set the server time.
