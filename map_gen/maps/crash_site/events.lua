@@ -447,6 +447,7 @@ local function do_coin_drop(entity_name, entity, cause)
         if player and player.valid then
             local coins = {name = "coin", count = count}
             if player.can_insert(coins) then
+                player.insert(coins)
                 entity.surface.create_entity{name="flying-text", position = {position.x - 1, position.y}, text = "+" .. count .. " [img=item.coin]", color = {1, 0.8, 0, 0.5}, render_player_index = player.index}
                 return
             end
