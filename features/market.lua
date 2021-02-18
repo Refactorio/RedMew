@@ -123,6 +123,7 @@ local function fish_earned(event, amount)
 
     local stack = {name = currency, count = amount}
     local inserted = player.insert(stack)
+    player.surface.create_entity{name="flying-text", position = {player.position.x - 1, player.position.y}, text = "+" .. amount .. " [img=item.coin]", color = {1, 0.8, 0, 0.5}, render_player_index = player.index}
 
     local diff = amount - inserted
     if diff > 0 then

@@ -145,13 +145,20 @@ local function picked_up_item(event)
     end
 end
 
-local function player_mined_item(event)
+local function pre_player_mined_item(event)
     if event.entity.type == 'simple-entity' then -- Cheap check for rock, may have other side effects
         change_for_global(rocks_smashed_name, 1)
         return
     end
     if event.entity.type == 'tree' then
         change_for_global(trees_cut_down_name, 1)
+    end
+    if event.entity.type == 'container'  and event.entity.operable == false then-- We have to do it here because we can't check the entity from player_mined_item
+        local inv = event.entity.get_inventory(defines.inventory.chest)
+        local coin_count = inv.get_item_count("coin")
+        if coin_count then
+            change_for_player(event.player_index, coins_earned_name, coin_count)
+        end
     end
 end
 
@@ -310,9 +317,8 @@ end
 
 Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_died, player_died)
-Event.add(defines.events.on_player_mined_item, picked_up_item)
 Event.add(defines.events.on_picked_up_item, picked_up_item)
-Event.add(defines.events.on_pre_player_mined_item, player_mined_item)
+Event.add(defines.events.on_pre_player_mined_item, pre_player_mined_item)
 Event.add(defines.events.on_player_crafted_item, player_crafted_item)
 Event.add(defines.events.on_console_chat, player_console_chat)
 Event.add(defines.events.on_built_entity, player_built_entity)
