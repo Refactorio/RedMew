@@ -10,7 +10,6 @@ local Donator = require 'features.donator'
 local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local CrashSiteToast = require 'map_gen.maps.crash_site.crash_site_toast'
-local ScoreTracker = require 'utils.score_tracker'
 
 local table = require 'utils.table'
 --local next = next
