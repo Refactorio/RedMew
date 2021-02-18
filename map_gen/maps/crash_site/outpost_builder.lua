@@ -11,8 +11,6 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local CrashSiteToast = require 'map_gen.maps.crash_site.crash_site_toast'
 local ScoreTracker = require 'utils.score_tracker'
-local change_for_player = ScoreTracker.change_for_player
-local coins_earned_name = 'coins-earned'
 
 local table = require 'utils.table'
 --local next = next
