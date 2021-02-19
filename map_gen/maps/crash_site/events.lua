@@ -321,8 +321,7 @@ destroyer_callback =
 local artillery_cooldown_callback
 artillery_cooldown_callback =
     Token.register(
-    function(data)
-        local entity = data.entity
+    function(entity)
         entity.minable = true
     end
 )
@@ -375,7 +374,7 @@ local function do_bot_spawn(entity_name, entity, event)
         for i = 1, repeat_cycle do
             if (cause.name == 'artillery-turret') then
                 cause.minable = false
-                set_timeout_in_ticks(300, artillery_cooldown_callback, {entity = cause})
+                set_timeout_in_ticks(300, artillery_cooldown_callback, cause)
                 spawn_entity.name = 'defender'
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
@@ -386,7 +385,7 @@ local function do_bot_spawn(entity_name, entity, event)
 
             elseif (cause.name == 'artillery-wagon') then
                 cause.minable = false
-                set_timeout_in_ticks(300, artillery_cooldown_callback, {entity = cause})
+                set_timeout_in_ticks(300, artillery_cooldown_callback, cause)
                 spawn_entity.name = 'defender'
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
