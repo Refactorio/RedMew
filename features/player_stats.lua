@@ -146,15 +146,17 @@ local function picked_up_item(event)
 end
 
 local function pre_player_mined_item(event)
-    if event.entity.type == 'simple-entity' then -- Cheap check for rock, may have other side effects
+    local entity = event.entity
+    if entity.type == 'simple-entity' then -- Cheap check for rock, may have other side effects
         change_for_global(rocks_smashed_name, 1)
         return
     end
-    if event.entity.type == 'tree' then
+    if entity.type == 'tree' then
         change_for_global(trees_cut_down_name, 1)
+        return
     end
-    if event.entity.type == 'container'  and event.entity.operable == false then-- We have to do it here because we can't check the entity from player_mined_item
-        local inv = event.entity.get_inventory(defines.inventory.chest)
+    if entity.type == 'container'  and entity.operable == false then -- We check the container is not operable as these are used as loot chests in Crash Site and players can't add coins to them.
+        local inv = entity.get_inventory(defines.inventory.chest)
         local coin_count = inv.get_item_count("coin")
         if coin_count then
             change_for_player(event.player_index, coins_earned_name, coin_count)

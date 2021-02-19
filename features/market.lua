@@ -10,6 +10,7 @@ local RS = require 'map_gen.shared.redmew_surface'
 local market_items = require 'resources.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
 local ScoreTracker = require 'utils.score_tracker'
+local Color = require 'resources.color_presets'
 local change_for_player = ScoreTracker.change_for_player
 local get_for_player = ScoreTracker.get_for_player
 local coins_earned_name = 'coins-earned'
@@ -123,7 +124,7 @@ local function fish_earned(event, amount)
 
     local stack = {name = currency, count = amount}
     local inserted = player.insert(stack)
-    player.surface.create_entity{name="flying-text", position = {player.position.x - 1, player.position.y}, text = "+" .. amount .. " [img=item.coin]", color = {1, 0.8, 0, 0.5}, render_player_index = player.index}
+    player.surface.create_entity{name="flying-text", position = {player.position.x - 1, player.position.y}, text = "+" .. amount .. " [img=item.coin]", color = Color.gold, render_player_index = player.index}
 
     local diff = amount - inserted
     if diff > 0 then
