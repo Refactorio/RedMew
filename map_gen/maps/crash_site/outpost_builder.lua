@@ -1224,7 +1224,7 @@ local server_player = {name = '<server>', print = print}
 local function set_pollution_multiplier(args, player)
     local multiplier = tonumber(args.multiplier)
     player = player or server_player
-    
+
     if not multiplier then
         player.print("Fail")
         return
