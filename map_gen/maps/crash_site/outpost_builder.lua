@@ -1223,12 +1223,13 @@ local server_player = {name = '<server>', print = print}
 
 local function set_pollution_multiplier(args, player)
     local multiplier = tonumber(args.multiplier)
+    player = player or server_player
+    
     if not multiplier then
         player.print("Fail")
         return
     end
 
-    player = player or server_player
     local old_multiplier = pollution_multiplier.value
     pollution_multiplier.value = multiplier
     local message = player.name..' changed magic crafter pollution multiplier from '..old_multiplier..' to '..pollution_multiplier.value
@@ -1955,7 +1956,7 @@ Command.add(
     'get-pollution-multiplier',
     {
         description = {'command_description.get_pollution_multiplier'},
-        required_rank = Ranks.regular,
+        required_rank = Ranks.guest,
         capture_excess_arguments = true,
         allowed_by_server = true
     },

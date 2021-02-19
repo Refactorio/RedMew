@@ -322,6 +322,10 @@ local artillery_cooldown_callback
 artillery_cooldown_callback =
     Token.register(
     function(entity)
+        if not entity.valid then
+            return
+        end
+
         entity.minable = true
     end
 )
