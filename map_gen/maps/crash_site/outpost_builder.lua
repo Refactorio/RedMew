@@ -10,9 +10,6 @@ local Donator = require 'features.donator'
 local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local CrashSiteToast = require 'map_gen.maps.crash_site.crash_site_toast'
-local ScoreTracker = require 'utils.score_tracker'
-local change_for_player = ScoreTracker.change_for_player
-local coins_earned_name = 'coins-earned'
 
 local table = require 'utils.table'
 --local next = next
@@ -1869,13 +1866,6 @@ function Public.do_factory_loot(entity, weights, loot)
     entity.get_output_inventory().insert {name = name, count = count}
 end
 
-local function coin_mined(event)
-    local stack = event.item_stack
-    if stack.name == 'coin' then
-        change_for_player(event.player_index, coins_earned_name, stack.count)
-    end
-end
-
 local function market_selected(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
@@ -1933,8 +1923,6 @@ Event.on_init(
         game.forces.neutral.recipes['steel-plate'].enabled = true
     end
 )
-
-Event.add(defines.events.on_player_mined_item, coin_mined)
 
 Event.add(Retailer.events.on_market_purchase, do_outpost_upgrade)
 
