@@ -1219,8 +1219,12 @@ local function do_artillery_turrets_targets()
     end
 end
 
+local server_player = {name = '<server>', print = print}
+
 local function set_pollution_multiplier(args, player)
     local multiplier = tonumber(args.multiplier)
+    player = player or server_player
+
     if not multiplier then
         player.print("Fail")
         return
@@ -1236,7 +1240,6 @@ local function set_pollution_multiplier(args, player)
     end
 end
 
-local server_player = {name = '<server>', print = print}
 local function get_pollution_multiplier(_, player)
     player = player or server_player
     player.print('Current pollution multiplier is: '..pollution_multiplier.value)
@@ -1953,7 +1956,7 @@ Command.add(
     'get-pollution-multiplier',
     {
         description = {'command_description.get_pollution_multiplier'},
-        required_rank = Ranks.admin,
+        required_rank = Ranks.guest,
         capture_excess_arguments = true,
         allowed_by_server = true
     },

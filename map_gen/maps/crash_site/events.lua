@@ -318,6 +318,18 @@ destroyer_callback =
     end
 )
 
+local artillery_cooldown_callback
+artillery_cooldown_callback =
+    Token.register(
+    function(entity)
+        if not entity.valid then
+            return
+        end
+
+        entity.minable = true
+    end
+)
+
 local function do_bot_spawn(entity_name, entity, event)
     -- Return if the entity killed is not on the white list
     if not bot_spawn_whitelist[entity_name] then
@@ -365,19 +377,19 @@ local function do_bot_spawn(entity_name, entity, event)
         end
         for i = 1, repeat_cycle do
             if (cause.name == 'artillery-turret') then
-                spawn_entity.target = cause.position    -- Overwrite target. Artillery turrets/wagons don't move so send them to entity position. Stops players from picking up the arty and the bots stopping dead.
-                spawn_entity.speed = 0.2
-                spawn_entity.max_range = 10000          -- Entities of type projectile have a default max range that's lower than late game artillery range.
-                -- This is particularly risky for players to do because defender-capsule quantities are not limited by the player force's follower robot count.
-                spawn_entity.name = 'defender-capsule'  -- use 'defender-capsule' (projectile) not 'defender' (entity) since a projectile can target a position but a capsule entity must have another entity as target
+                cause.minable = false
+                set_timeout_in_ticks(300, artillery_cooldown_callback, cause)
+                spawn_entity.name = 'defender'
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
 
-                spawn_entity.name = 'destroyer-capsule'
+                spawn_entity.name = 'destroyer'
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
 
             elseif (cause.name == 'artillery-wagon') then
+                cause.minable = false
+                set_timeout_in_ticks(300, artillery_cooldown_callback, cause)
                 spawn_entity.name = 'defender'
                 create_entity(spawn_entity)
                 create_entity(spawn_entity)
