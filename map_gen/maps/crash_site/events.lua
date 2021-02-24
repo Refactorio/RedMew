@@ -4,12 +4,14 @@ local Token = require 'utils.token'
 local Global = require 'utils.global'
 local math = require 'utils.math'
 local table = require 'utils.table'
+local Color = require 'resources.color_presets'
 
 local random = math.random
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local ceil = math.ceil
 local draw_arc = rendering.draw_arc
 local fast_remove = table.fast_remove
+local round = math.round
 
 local tau = 2 * math.pi
 local start_angle = -tau / 4
@@ -271,12 +273,17 @@ local function do_pole(entity)
     )
 end
 
-local function do_evolution(entity_name, entity_force)
+local function do_evolution(entity, entity_name, entity_force)
     local factor = turret_evolution_factor[entity_name]
     if factor then
         local old = entity_force.evolution_factor
-        local new = old + (1 - old) * factor
-        entity_force.evolution_factor = math.min(new, 1)
+        local extra = (1 - old) * factor
+        local new = old + extra
+        if new < 1 then
+            entity_force.evolution_factor = new
+            local position = entity.position
+            entity.surface.create_entity{name="flying-text", position = {position.x - 1, position.y}, text = "+" .. round(extra*100,2) .. "% evo", color = Color.plum}
+        end
     end
 end
 
@@ -549,7 +556,7 @@ Event.add(
 
         if entity_force.name == 'enemy' then
             do_pole(entity)
-            do_evolution(entity_name, entity_force)
+            do_evolution(entity, entity_name, entity_force)
             do_coin_drop(entity_name, entity, cause)
             do_bot_spawn(entity_name, entity, event)
         end
