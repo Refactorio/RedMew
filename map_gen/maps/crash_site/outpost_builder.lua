@@ -1920,7 +1920,7 @@ Event.add(defines.events.on_entity_died, turret_died)
 
 Event.on_init(
     function()
-        game.forces.neutral.recipes['steel-plate'].enabled = true
+        game.forces.player.recipes['steel-plate'].enabled = true
     end
 )
 
