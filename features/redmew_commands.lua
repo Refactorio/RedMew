@@ -15,6 +15,7 @@ local tostring = tostring
 local tonumber = tonumber
 local pairs = pairs
 local floor = math.floor
+local Ranks = require 'resources.ranks'
 
 --- Informs the actor that there is no target. Acts as a central place where this message can be changed.
 local function print_no_target(target_name)
@@ -238,7 +239,8 @@ Command.add(
     'zoom',
     {
         description = {'command_description.zoom'},
-        arguments = {'zoom'}
+        arguments = {'zoom'},
+        required_rank = Ranks.admin
     },
     zoom
 )
