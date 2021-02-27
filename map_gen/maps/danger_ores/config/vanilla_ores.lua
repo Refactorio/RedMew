@@ -9,13 +9,13 @@ return {
             [3] = 'red-desert-2',
             [4] = 'red-desert-3'
         },
-        ['start'] = value(40, 0),
+        ['start'] = value(50, 0),
         ['weight'] = 1,
         ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.6)), weight = 15},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.6)), weight = 70},
-            {resource = b.resource(b.full_shape, 'stone', value(0, 0.6)), weight = 5},
-            {resource = b.resource(b.full_shape, 'coal', value(0, 0.6)), weight = 10}
+            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.75)), weight = 15},
+            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.75)), weight = 70},
+            {resource = b.resource(b.full_shape, 'stone', value(0, 0.75)), weight = 5},
+            {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 10}
         }
     },
     ['coal'] = {
@@ -28,13 +28,13 @@ return {
             [6] = 'dirt-6',
             [7] = 'dirt-7'
         },
-        ['start'] = value(40, 0),
+        ['start'] = value(50, 0),
         ['weight'] = 1,
         ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.6)), weight = 25},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.6)), weight = 10},
-            {resource = b.resource(b.full_shape, 'stone', value(0, 0.6)), weight = 5},
-            {resource = b.resource(b.full_shape, 'coal', value(0, 0.6)), weight = 60}
+            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.75)), weight = 25},
+            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.75)), weight = 10},
+            {resource = b.resource(b.full_shape, 'stone', value(0, 0.75)), weight = 5},
+            {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 60}
         }
     },
     ['iron-ore'] = {
@@ -44,13 +44,13 @@ return {
             [3] = 'grass-3',
             [4] = 'grass-4'
         },
-        ['start'] = value(40, 0),
+        ['start'] = value(50, 0),
         ['weight'] = 1,
         ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.6)), weight = 70},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.6)), weight = 15},
-            {resource = b.resource(b.full_shape, 'stone', value(0, 0.6)), weight = 5},
-            {resource = b.resource(b.full_shape, 'coal', value(0, 0.6)), weight = 10}
+            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.75)), weight = 70},
+            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.75)), weight = 15},
+            {resource = b.resource(b.full_shape, 'stone', value(0, 0.75)), weight = 5},
+            {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 10}
         }
     },
     ['stone'] = {
@@ -59,13 +59,13 @@ return {
             [2] = 'sand-2',
             [3] = 'sand-3'
         },
-        ['start'] = value(40, 0),
+        ['start'] = value(50, 0),
         ['weight'] = 1,
         ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.6)), weight = 25},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.6)), weight = 10},
-            {resource = b.resource(b.full_shape, 'stone', value(0, 0.6)), weight = 60},
-            {resource = b.resource(b.full_shape, 'coal', value(0, 0.6)), weight = 5}
+            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.75)), weight = 25},
+            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.75)), weight = 10},
+            {resource = b.resource(b.full_shape, 'stone', value(0, 0.75)), weight = 60},
+            {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 5}
         }
     }
 }
