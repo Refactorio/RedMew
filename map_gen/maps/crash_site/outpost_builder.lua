@@ -1468,6 +1468,12 @@ local set_inactive_token =
     end
 )
 
+local change_to_player_force_callback = Token.register(function(entity)
+    if entity.valid then
+        entity.force = 'player'
+    end
+end)
+
 Public.magic_item_crafting_callback =
     Token.register(
     function(entity, data)
@@ -1477,7 +1483,10 @@ Public.magic_item_crafting_callback =
         entity.minable = false
         entity.destructible = false
         entity.operable = false
-        entity.force = 'player'
+
+        -- This is so the recipe is set for furnaces even if the player force hasn't unlocked them yet.
+        entity.force = 'neutral'
+        Task.set_timeout_in_ticks(1, change_to_player_force_callback, entity)
 
         local recipe = callback_data.recipe
         if recipe then
@@ -1523,7 +1532,10 @@ Public.magic_item_crafting_callback_weighted =
         entity.minable = false
         entity.destructible = false
         entity.operable = false
-        entity.force = 'player'
+
+        -- This is so the recipe is set for furnaces even if the player force hasn't unlocked them yet.
+        entity.force = 'neutral'
+        Task.set_timeout_in_ticks(1, change_to_player_force_callback, entity)
 
         local weights = callback_data.weights
         local loot = callback_data.loot
