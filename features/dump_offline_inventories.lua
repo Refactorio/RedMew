@@ -1,4 +1,4 @@
--- This feature allows you to turn on anti-hoarding so that X minutes after a player leaves the game 
+-- This feature allows you to turn on anti-hoarding so that X minutes after a player leaves the game
 -- the resources in their inventory are returned to the teams
 
 -- To do
@@ -56,7 +56,7 @@ local spawn_player_corpse =
                     position = position,
                     text = text
                 })
-                
+
                 corpse_util.player_corpses[player.index * 0x100000000 + game.tick] = tag
         end
     end
