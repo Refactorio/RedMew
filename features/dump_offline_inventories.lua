@@ -22,44 +22,6 @@ config.dump_offline_inventories = {
     offline_timout_mins = 1,   -- time after which a player logs off that their inventory is provided to the team
 }]]--
 
-/sc
-local player = game.players["Tigress88"]
-local inv_main = player.get_inventory(defines.inventory.character_main)
-local inv_trash = player.get_inventory(defines.inventory.character_trash)
-local inv_main_contents = inv_main.get_contents()
-local inv_trash_contents = inv_trash.get_contents()
-local inv_corpse_size = (#inv_main - inv_main.count_empty_stacks()) + (#inv_trash - inv_trash.count_empty_stacks())
-local position = player.position
-local corpse = player.surface.create_entity{name="character-corpse", position=position, inventory_size = inv_corpse_size, player_index = 2}
-corpse.active = false
-
-local inv_corpse = corpse.get_inventory(defines.inventory.character_corpse)
-
-local success_main = true
-local success_trash = true
-local inserted = nil
-
-
-for item_name, count in pairs(inv_main_contents) do
-    inv_corpse.insert({name = item_name, count = count})
-end
-for item_name, count in pairs(inv_trash_contents) do
-    inv_corpse.insert({name = item_name, count = count})
-end
-
-
-inv_main.clear()
-inv_trash.clear()
-
-local text = player.name .. "'s inventory (offline)"
-local tag = player.force.add_chart_tag(player.surface, {
-    icon = {type = 'item', name = 'modular-armor'},
-    position = position,
-    text = text
-})
-
-
-
 local spawn_player_corpse =
     Token.register(
     function(player)
