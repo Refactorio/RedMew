@@ -1,10 +1,6 @@
 -- This feature allows you to turn on anti-hoarding so that X minutes after a player leaves the game
--- the resources in their inventory are returned to the teams
-
--- To do
--- What if player has no body when they leave?
--- What if players is kicked?
--- Do we want to allow donators and admins to keep their inventories as a perk? Or is that too pay to win?
+-- the resources in their inventory are returned to the teams. A corpse will spawn on the player's last
+-- position and remain until they log back in to claim it or someone else mines it.
 
 local Event = require 'utils.event'
 local Task = require 'utils.task'
@@ -66,7 +62,6 @@ Event.add(
     defines.events.on_player_joined_game,
     function(event)
         offline_player_queue[event.player_index] = nil -- ensures they're not in the offline_player_queue for wealth redistribution
-        game.print("Player rejoined. Removed from offline list")
     end
 )
 
@@ -78,7 +73,6 @@ Event.add(
         if player.character then -- if player leaves before respawning they wont have a character and we don't need to add them to the list
             offline_player_queue[player_index] = true
             set_timeout_in_ticks(offline_timout_mins*60*60, spawn_player_corpse, player)
-            game.print("Player left. Added to offline list")
         end
     end
 )
