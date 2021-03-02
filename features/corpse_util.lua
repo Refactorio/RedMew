@@ -138,7 +138,7 @@ local function mined_entity(event)
     local player = game.get_player(player_index)
     local corpse_owner = game.get_player(corpse_owner_index)
 
-    if player and corpse_owner then
+    if player and corpse_owner and entity.active == true then
         local message = table.concat {player.name, ' has looted ', corpse_owner.name, "'s corpse"}
         Utils.action_warning('[Corpse]', message)
     end
@@ -176,5 +176,6 @@ function Public.clear()
 end
 
 Public._player_died = player_died
+Public.player_corpses = player_corpses
 
 return Public
