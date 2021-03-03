@@ -84,8 +84,8 @@ global.config = {
     -- enables dumping of inventories of offline players to a corpse near spawn
     -- This feature is dependant upon corpse_util and will enable it
     dump_offline_inventories = {
-        enabled = true,
-        offline_timout_mins = 1,   -- time after which a player logs off that their inventory is provided to the team
+        enabled = false,
+        offline_timout_mins = 15,   -- time after which a player logs off that their inventory is provided to the team
     },
     -- enables players to create and prioritize tasks
     tasklist = {

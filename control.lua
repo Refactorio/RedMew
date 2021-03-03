@@ -53,10 +53,6 @@ if config.corpse_util.enabled then
     require 'features.corpse_util'
 end
 if config.dump_offline_inventories.enabled  then
-    if not config.corpse_util.enabled then
-        config.corpse_util.enabled = true
-        require 'features.corpse_util'
-    end
     require 'features.dump_offline_inventories'
 end
 if config.admin_commands.enabled then
