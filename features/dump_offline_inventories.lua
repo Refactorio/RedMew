@@ -68,7 +68,6 @@ Event.add(
     defines.events.on_player_joined_game,
     function(event)
         offline_player_queue[event.player_index] = nil -- ensures they're not in the offline_player_queue for wealth redistribution
-        game.print("Debug: player removed from queue")
     end
 )
 
@@ -79,7 +78,6 @@ Event.add(
         local player = game.get_player(player_index)
         if player and player.valid and player.character then -- if player leaves before respawning they wont have a character and we don't need to add them to the list
             offline_player_queue[player_index] = game.tick  -- tick is used to check that the callback happens after X minutes as multiple callbacks may be active if the player logs off and on multiple times
-            game.print("Debug: player added to queue")
             set_timeout_in_ticks(offline_timout_mins*60*60, spawn_player_corpse, {player = player, tick = game.tick})
         end
     end
