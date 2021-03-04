@@ -33,6 +33,10 @@ local spawn_player_corpse =
 
         offline_player_queue[player_index] = nil
 
+        if player.connected then
+            return
+        end
+
         local inv_main = player.get_inventory(defines.inventory.character_main)
         local inv_trash = player.get_inventory(defines.inventory.character_trash)
 
