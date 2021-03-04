@@ -68,6 +68,8 @@ local spawn_player_corpse =
             text = text
         })
 
+        game.print("[gps="..position.x..","..position.y..",redmew] "..player.name.." has been offline "..offline_timout_mins.." minutes. Their inventory is now available.")
+
         if tag then
             CorpseUtil.add_tag(tag, player_index, game.tick)
         end
