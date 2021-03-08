@@ -49,8 +49,8 @@ end
 if config.hodor.enabled or config.auto_respond.enabled or config.mentions.enabled then
     require 'features.chat_triggers'
 end
-if config.corpse_util.enabled then
-    require 'features.corpse_util'
+if config.death_corpse_tags.enabled then
+    require 'features.death_corpse_tags'
 end
 if config.dump_offline_inventories.enabled  then
     require 'features.dump_offline_inventories'
