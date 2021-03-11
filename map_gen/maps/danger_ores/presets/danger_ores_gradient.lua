@@ -4,7 +4,7 @@ local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Terraforming Danger Ore')
+ScenarioInfo.set_map_name('Gradient Danger Ore')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific quadrants to ensure
