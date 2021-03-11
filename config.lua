@@ -81,10 +81,9 @@ global.config = {
     tag_group = {
         enabled = true
     },
-    -- enables dumping of inventories of offline players to a corpse near spawn
-    -- This feature is dependant upon corpse_util and will enable it
+    -- enables dumping of inventories of offline players to a corpse at the player's last location
     dump_offline_inventories = {
-        enabled = false,
+        enabled = true,
         offline_timout_mins = 15,   -- time after which a player logs off that their inventory is provided to the team
     },
     -- enables players to create and prioritize tasks
@@ -287,7 +286,7 @@ global.config = {
         enabled = true
     },
     -- when a player dies, leaves a map marker until the corpse expires or is looted
-    corpse_util = {
+    death_corpse_tags = {
         enabled = true
     },
     -- adds many commands for users and admins alike

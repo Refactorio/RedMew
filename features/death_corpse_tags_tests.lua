@@ -4,6 +4,7 @@ local Assert = require 'utils.test.assert'
 local Helper = require 'utils.test.helper'
 local Settings = require 'utils.redmew_settings'
 local CorpseUtil = require 'features.corpse_util'
+local DeathCorpseTags = require 'features.death_corpse_tags'
 
 local function test_teardown(context)
     context:add_teardown(CorpseUtil.clear)
@@ -18,7 +19,7 @@ local function declare_test(name, func)
     Declare.test(name, test_func)
 end
 
-Declare.module({'features', 'corpse_util'}, function()
+Declare.module({'features', 'death_corpse_tags'}, function()
     local teardown
 
     Declare.module_startup(function(context)
@@ -46,18 +47,24 @@ Declare.module({'features', 'corpse_util'}, function()
         end)
     end
 
-    local function fake_death(player)
+    local function fake_death(player, has_items)
         local surface = player.surface
         local position = player.position
 
         local entity = surface.create_entity {
             name = 'character-corpse',
             position = position,
-            player_index = player.index
+            player_index = player.index,
+            inventory_size = has_items and 1 or nil
         }
 
         if not entity or not entity.valid then
             error('no corpse')
+        end
+
+        if has_items then
+            local inventory = entity.get_inventory(defines.inventory.character_corpse)
+            inventory.insert('iron-plate')
         end
 
         return EventFactory.on_player_died(player.index)
@@ -77,13 +84,13 @@ Declare.module({'features', 'corpse_util'}, function()
             return player
         end)
 
-        local event = fake_death(player)
+        local event = fake_death(player, true)
 
         -- Act.
-        CorpseUtil._player_died(event)
+        DeathCorpseTags._player_died(event)
 
         -- Assert.
-        local expected = {'corpse_util.own_corpse_location', '0.0', '0.0', player.surface.name}
+        local expected = {'death_corpse_tags.own_corpse_location', '0.0', '0.0', player.surface.name}
         Assert.table_equal(expected, actual_text)
     end)
 
@@ -105,7 +112,7 @@ Declare.module({'features', 'corpse_util'}, function()
             position = EventFactory.position({1, 1})
         }
 
-        change_settings_for_test(context, CorpseUtil.ping_other_death_name, true)
+        change_settings_for_test(context, DeathCorpseTags.ping_other_death_name, true)
 
         Helper.modify_lua_object(context, game, 'get_player', function(index)
             if index == player.index then
@@ -123,20 +130,20 @@ Declare.module({'features', 'corpse_util'}, function()
             actual_text = text
         end)
 
-        local event = fake_death(second_player)
+        local event = fake_death(second_player, true)
 
         -- Act.
-        CorpseUtil._player_died(event)
+        DeathCorpseTags._player_died(event)
 
         -- Assert.
-        local expected = {'corpse_util.other_corpse_location', second_player.name, '1.0', '1.0', player.surface.name}
+        local expected = {'death_corpse_tags.other_corpse_location', second_player.name, '1.0', '1.0', player.surface.name}
         Assert.table_equal(expected, actual_text)
     end)
 
     declare_test('do not ping player corpse location when died and setting disabled', function(context)
         -- Arrange.
         local player = context.player
-        change_settings_for_test(context, CorpseUtil.ping_own_death_name, false)
+        change_settings_for_test(context, DeathCorpseTags.ping_own_death_name, false)
 
         local actual_text
 
@@ -148,10 +155,10 @@ Declare.module({'features', 'corpse_util'}, function()
             return player
         end)
 
-        local event = fake_death(player)
+        local event = fake_death(player, true)
 
         -- Act.
-        CorpseUtil._player_died(event)
+        DeathCorpseTags._player_died(event)
 
         -- Assert.
         Assert.is_nil(actual_text)
@@ -176,7 +183,7 @@ Declare.module({'features', 'corpse_util'}, function()
                 position = EventFactory.position({1, 1})
             }
 
-            change_settings_for_test(context, CorpseUtil.ping_other_death_name, false)
+            change_settings_for_test(context, DeathCorpseTags.ping_other_death_name, false)
 
             Helper.modify_lua_object(context, game, 'get_player', function(index)
                 if index == player.index then
@@ -194,10 +201,10 @@ Declare.module({'features', 'corpse_util'}, function()
                 actual_text = text
             end)
 
-            local event = fake_death(second_player)
+            local event = fake_death(second_player, true)
 
             -- Act.
-            CorpseUtil._player_died(event)
+            DeathCorpseTags._player_died(event)
 
             -- Assert.
             Assert.is_nil(actual_text)
@@ -210,8 +217,8 @@ Declare.module({'features', 'corpse_util'}, function()
 
         local actual_text
 
-        change_settings_for_test(context, CorpseUtil.ping_own_death_name, false)
-        change_settings_for_test(context, CorpseUtil.ping_other_death_name, true)
+        change_settings_for_test(context, DeathCorpseTags.ping_own_death_name, false)
+        change_settings_for_test(context, DeathCorpseTags.ping_other_death_name, true)
 
         Helper.modify_lua_object(context, game, 'get_player', function()
             return player
@@ -224,12 +231,44 @@ Declare.module({'features', 'corpse_util'}, function()
             actual_text = text
         end)
 
-        local event = fake_death(player)
+        local event = fake_death(player, true)
 
         -- Act.
-        CorpseUtil._player_died(event)
+        DeathCorpseTags._player_died(event)
 
         -- Assert.
         Assert.is_nil(actual_text)
+    end)
+
+    declare_test('corpse removed and empty message when corpse is empty', function(context)
+        -- Arrange.
+        local player = context.player
+        player.teleport({5, 5})
+
+        context:add_teardown(function()
+            player.teleport({0, 0})
+        end)
+
+        local actual_text
+
+        Helper.modify_lua_object(context, player, 'print', function(text)
+            actual_text = text
+        end)
+
+        Helper.modify_lua_object(context, game, 'get_player', function()
+            return player
+        end)
+
+        local event = fake_death(player, false)
+
+        -- Act.
+        DeathCorpseTags._player_died(event)
+
+        -- Assert.
+        local corpses = player.surface.find_entities_filtered({name = 'character-corpse', position = player.position, radius = 1})
+        Assert.equal(0, #corpses)
+
+        local expected = {'death_corpse_tags.empty_corpse'}
+        Assert.table_equal(expected, actual_text)
     end)
 end)
