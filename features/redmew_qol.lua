@@ -544,47 +544,42 @@ if config.loaders then
         end
     end)
 
-    local direction_to_offset = {
+    local direction_to_offset_back = {
         [0] = {x = 0, y = 1.5},
         [2] = {x = -1.5, y = 0},
         [4] = {x = 0, y = -1.5},
         [6] = {x = 1.5, y = 0}
     }
 
+    local direction_to_offset_front = {
+        [0] = {x = 0, y = -1.5},
+        [2] = {x = 1.5, y = 0},
+        [4] = {x = 0, y = 1.5},
+        [6] = {x = -1.5, y = 0}
+    }
+
     local loaders = {['loader'] = true, ['fast-loader'] = true, ['express-loader'] = true}
 
     local container_types = {'container', 'logistic-container'}
 
-    Event.add(defines.events.on_player_rotated_entity, function(event)
-        local entity = event.entity
+    local function is_valid_unconnected_loader(entity)
         if not entity or not entity.valid then
-            return
+            return false
         end
 
-        local name = entity.name
         if not loaders[entity.name] then
-            return
+            return false
         end
 
         if entity.loader_container then
             -- loader is already connected.
-            return
+            return false
         end
 
-        local direction = entity.direction
-        local offset = direction_to_offset[direction]
+        return true
+    end
 
-        local pos = entity.position
-        local target_pos = {pos.x + offset.x, pos.y + offset.y}
-
-        local surface = entity.surface
-        local target = surface.find_entities_filtered({position = target_pos, type = container_types})[1]
-        if not target then
-            return
-        end
-
-        local force = entity.force
-
+    local function replace_loader(entity, input_type)
         local get_filter = entity.get_filter
         local filters = {}
         local filter_count = entity.filter_slot_count
@@ -592,14 +587,25 @@ if config.loaders then
             filters[i] = get_filter(i)
         end
 
+        local name = entity.name
+        local position = entity.position
+        local direction = entity.direction
+        local force = entity.force
+        local surface = entity.surface
+
         entity.destroy({raise_destroy = true})
+
         local new_entity = surface.create_entity {
             name = name,
-            position = pos,
+            position = position,
             direction = direction,
-            type = 'output',
+            type = input_type,
             force = force
         }
+
+        if not new_entity then
+            return
+        end
 
         local set_filter = new_entity.set_filter
         for i = 1, filter_count do
@@ -607,6 +613,73 @@ if config.loaders then
         end
 
         script.raise_script_built({entity = new_entity})
+    end
+
+    local function loader_rotate(entity)
+        if not is_valid_unconnected_loader(entity) then
+            return
+        end
+
+        local direction = entity.direction
+        local offset = direction_to_offset_back[direction]
+
+        local pos = entity.position
+        local target_pos = {pos.x + offset.x, pos.y + offset.y}
+
+        local surface = entity.surface
+        local target = surface.find_entities_filtered({position = target_pos, type = container_types})[1]
+        if target then
+            replace_loader(entity, 'output')
+            return
+        end
+
+        offset = direction_to_offset_front[direction]
+        target_pos = {pos.x + offset.x, pos.y + offset.y}
+
+        target = surface.find_entities_filtered({position = target_pos, type = container_types})[1]
+        if target then
+            replace_loader(entity, 'input')
+        end
+    end
+
+    local function loader_built(entity)
+        if not is_valid_unconnected_loader(entity) then
+            return
+        end
+
+        local direction = entity.direction
+        local offset = direction_to_offset_back[direction]
+
+        local pos = entity.position
+        local target_pos = {pos.x + offset.x, pos.y + offset.y}
+
+        local surface = entity.surface
+        local target = surface.find_entities_filtered({position = target_pos, type = container_types})[1]
+        if target then
+            -- loader is already connected. When the loader is first built it isn't connected yet,
+            -- so we look for a container that it will connect to.
+            return
+        end
+
+        offset = direction_to_offset_front[direction]
+        target_pos = {pos.x + offset.x, pos.y + offset.y}
+
+        target = surface.find_entities_filtered({position = target_pos, type = container_types})[1]
+        if target then
+            replace_loader(entity, 'input')
+        end
+    end
+
+    Event.add(defines.events.on_player_rotated_entity, function(event)
+        loader_rotate(event.entity)
+    end)
+
+    Event.add(defines.events.on_built_entity, function(event)
+        loader_built(event.created_entity)
+    end)
+
+    Event.add(defines.events.on_robot_built_entity, function(event)
+        loader_built(event.created_entity)
     end)
 end
 

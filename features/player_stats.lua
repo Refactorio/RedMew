@@ -181,8 +181,13 @@ local function player_console_chat(event)
 end
 
 local function player_built_entity(event)
+    local entity = event.created_entity
+    if not entity or not entity.valid then
+        return
+    end
+
     local player_index = event.player_index
-    if event.created_entity.is_registered_for_construction() == false then -- When is_registered_for_construction() is true we only register the entity as built once a robot builds it
+    if entity.is_registered_for_construction() == false then -- When is_registered_for_construction() is true we only register the entity as built once a robot builds it
         change_for_global(built_by_players_name, 1)
         change_for_player(player_index, player_entities_built_name, 1)
     end
