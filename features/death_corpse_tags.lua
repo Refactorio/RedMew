@@ -1,17 +1,7 @@
 local Event = require 'utils.event'
-local Settings = require 'utils.redmew_settings'
 local CorpseUtil = require 'features.corpse_util'
 
 local Public = {}
-
-local ping_own_death_name = 'death_corpse_tags.ping_own_death'
-local ping_other_death_name = 'death_corpse_tags.ping_other_death'
-
-Public.ping_own_death_name = ping_own_death_name
-Public.ping_other_death_name = ping_other_death_name
-
-Settings.register(ping_own_death_name, Settings.types.boolean, true, 'death_corpse_tags.ping_own_death')
-Settings.register(ping_other_death_name, Settings.types.boolean, false, 'death_corpse_tags.ping_other_death')
 
 local function player_died(event)
     local player_index = event.player_index
@@ -61,27 +51,6 @@ local function player_died(event)
 
     if not tag then
         return
-    end
-
-    if Settings.get(player_index, ping_own_death_name) then
-        player.print({
-            'death_corpse_tags.own_corpse_location',
-            string.format('%.1f', position.x),
-            string.format('%.1f', position.y),
-            player.surface.name
-        })
-    end
-
-    for _, other_player in pairs(player.force.players) do
-        if other_player ~= player and Settings.get(other_player.index, ping_other_death_name) then
-            other_player.print({
-                'death_corpse_tags.other_corpse_location',
-                player.name,
-                string.format('%.1f', position.x),
-                string.format('%.1f', position.y),
-                player.surface.name
-            })
-        end
     end
 
     CorpseUtil.add_tag(tag, player_index, tick, true)
