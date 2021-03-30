@@ -14,6 +14,12 @@ local draw_text = CS_Rendering.draw_text
 local draw_multi_line = CS_Rendering.draw_multi_line_text
 local rad = math.rad
 local Rendering = require 'utils.rendering'
+local Settings = require 'utils.redmew_settings'
+
+local auto_play_cutscene_setting_name = 'diggy.auto_play_cutscene'
+
+Settings.register(auto_play_cutscene_setting_name, Settings.types.boolean, true, auto_play_cutscene_setting_name)
+Cutscene.set_auto_play_cutscene_setting_name(auto_play_cutscene_setting_name)
 
 local DiggyCutscene = {}
 
@@ -304,7 +310,10 @@ Cutscene.register_replay('Diggy_Welcome', 120)
 local start_cutscene =
     Token.register(
     function(params)
-        Cutscene.register_running_cutscene(params.event.player_index, 'Diggy_Welcome', 120)
+        local player_index = params.event.player_index
+        if Settings.get(player_index, auto_play_cutscene_setting_name) then
+            Cutscene.register_running_cutscene(params.event.player_index, 'Diggy_Welcome', 120)
+        end
     end
 )
 

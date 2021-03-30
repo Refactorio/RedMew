@@ -5,6 +5,7 @@ local Global = require 'utils.global'
 local Command = require 'utils.command'
 local Debug = require 'utils.debug'
 local Gui = require 'utils.gui'
+local Settings = require 'utils.redmew_settings'
 
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local debug_print = Debug.print
@@ -12,9 +13,12 @@ local debug_print = Debug.print
 local skip_btn_name = Gui.uid_name()
 local backward_btn_name = Gui.uid_name()
 local forward_btn_name = Gui.uid_name()
+local auto_play_cutscene_checkbox_name = Gui.uid_name()
 
 local Public = {}
 local handler
+
+local auto_play_cutscene_setting_name
 
 local cutscene_functions = {}
 local running_cutscenes = {}
@@ -34,6 +38,22 @@ Global.register(
         replay = tbl.replay
     end
 )
+
+function Public.set_auto_play_cutscene_setting_name(name)
+    if _LIFECYCLE == _STAGE.runtime then
+        error('Cannot set during runtime', 2)
+    end
+
+    if type(auto_play_cutscene_setting_name) == nil then
+        error('Cannot set more than once', 2)
+    end
+
+    if type(name) ~= 'string' then
+        error('name must be of type string', 2)
+    end
+
+    auto_play_cutscene_setting_name = name
+end
 
 local function valid(entity)
     return entity and entity.valid
@@ -239,6 +259,21 @@ function Public.register_running_cutscene(player_index, identifier, final_transi
     forward_btn.style.minimal_width = 100
     forward_btn.style.font = 'default-large-bold'
     forward_btn.style.font_color = {r = 255, g = 215, b = 0}
+
+    if auto_play_cutscene_setting_name then
+        local auto_play_cutscene_checkbox = flow.add
+        {
+            type = 'checkbox',
+            name = auto_play_cutscene_checkbox_name,
+            caption = 'Auto play cutscene',
+            state = Settings.get(player_index, auto_play_cutscene_setting_name)
+        }
+
+        auto_play_cutscene_checkbox.style.top_margin = 8
+        auto_play_cutscene_checkbox.style.left_margin = 3
+
+        running_cutscene.auto_play_cutscene_checkbox = auto_play_cutscene_checkbox
+    end
 
     handler({player_index = player_index, waypoint_index = -1, tick = game.tick})
 end
@@ -551,5 +586,23 @@ Gui.on_click(
         end
     end
 )
+
+Gui.on_checked_state_changed(auto_play_cutscene_checkbox_name, function(event)
+    local checkbox = event.element
+    Settings.set(event.player_index, auto_play_cutscene_setting_name, checkbox.state)
+end)
+
+Event.add(Settings.events.on_setting_set, function(event)
+    if auto_play_cutscene_setting_name == nil or event.setting_name ~= auto_play_cutscene_setting_name then
+        return
+    end
+
+    local running_cutscene = running_cutscenes[event.player_index]
+    if not running_cutscene then
+        return
+    end
+
+    running_cutscene.auto_play_cutscene_checkbox.state = event.new_value
+end)
 
 return Public
