@@ -3,9 +3,16 @@
 -- Use the decon planner within range of the landfill to remove it
 
 local Event = require 'utils.event'
+local Rank = require 'features.rank_system'
+local Ranks = require 'resources.ranks'
 local table = require 'utils.table'
 local math = require 'utils.math'
 local config = global.config.landfill_remover
+
+local Public = {}
+
+local rank_too_low_message = {'landfill_remover.rank_too_low'}
+Public.rank_too_low_message  =rank_too_low_message
 
 local floor = math.floor
 local ceil = math.ceil
@@ -153,6 +160,11 @@ Event.add(
             return
         end
 
+        if Rank.less_than(player.name, Ranks.auto_trusted) then
+            player.print(rank_too_low_message)
+            return
+        end
+
         local count_entities_filtered = surface.count_entities_filtered
         local tiles_to_add = {}
         local revert_tile = config.revert_tile or 'water-mud'
@@ -179,3 +191,5 @@ Event.add(
         end
     end
 )
+
+return Public
