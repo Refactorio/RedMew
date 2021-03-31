@@ -21,16 +21,20 @@ Declare.module(
     {'features', 'landfill remover'},
     function()
         local teardown
+        local old_landfill_researched
 
         Declare.module_startup(
             function(context)
                 teardown = Helper.startup_test_surface(context)
+                old_landfill_researched = context.player.force.technologies['landfill'].researched
+                context.player.force.technologies['landfill'].researched = true
             end
         )
 
         Declare.module_teardown(
-            function()
+            function(context)
                 teardown()
+                context.player.force.technologies['landfill'].researched = old_landfill_researched
             end
         )
 
@@ -739,6 +743,44 @@ Declare.module(
                 Assert.equal('landfill', tile.name)
 
                 Assert.array_contains(messages, LandfillRemover.rank_too_low_message)
+            end
+        )
+
+        Declare.test(
+            'can not remove landfill when landfill tech not researched',
+            function(context)
+                -- Arrange
+                local player = context.player
+                local surface = player.surface
+                local cursor = setup_player_with_valid_deconstruction_planner(player)
+                local position = {2, 2}
+                local area = {{2.1, 2.1}, {2.9, 2.9}}
+                surface.set_tiles({{name = 'landfill', position = position}})
+
+                player.force.technologies['landfill'].researched = false
+
+                context:add_teardown(function()
+                    player.force.technologies['landfill'].researched = true
+                end)
+
+                local messages = {}
+
+                Helper.modify_lua_object(context, player, 'print', function(text)
+                    messages[#messages+1] = text
+                end)
+
+                Helper.modify_lua_object(context, game, 'get_player', function()
+                    return player
+                end)
+
+                -- Act
+                EventFactory.do_player_deconstruct_area(cursor, player, area)
+
+                -- Assert
+                local tile = surface.get_tile(position[1], position[2])
+                Assert.equal('landfill', tile.name)
+
+                Assert.array_contains(messages, LandfillRemover.missing_research_message)
             end
         )
     end

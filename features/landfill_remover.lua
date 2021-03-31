@@ -14,6 +14,9 @@ local Public = {}
 local rank_too_low_message = {'landfill_remover.rank_too_low'}
 Public.rank_too_low_message  =rank_too_low_message
 
+local missing_research_message = {'landfill_remover.missing_research'}
+Public.missing_research_message = missing_research_message
+
 local floor = math.floor
 local ceil = math.ceil
 local fast_remove = table.fast_remove
@@ -157,6 +160,11 @@ Event.add(
 
         local tiles_iter = try_get_landfill_tiles(surface, area, player)
         if not tiles_iter then
+            return
+        end
+
+        if not player.force.technologies['landfill'].researched then
+            player.print(missing_research_message)
             return
         end
 
