@@ -48,6 +48,16 @@ function Public.table_equal(a, b)
     end
 end
 
+function Public.array_contains(array, item)
+    for _, v in pairs(array) do
+        if v == item then
+            return
+        end
+    end
+
+    error('array does not contain ' .. _G.dump(item), 2)
+end
+
 function Public.is_true(condition, optional_message)
     if not condition then
         error(optional_message or 'condition was not true', 2)

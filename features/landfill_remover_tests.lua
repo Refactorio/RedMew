@@ -2,6 +2,9 @@ local Declare = require 'utils.test.declare'
 local EventFactory = require 'utils.test.event_factory'
 local Assert = require 'utils.test.assert'
 local Helper = require 'utils.test.helper'
+local Rank = require 'features.rank_system'
+local Ranks = require 'resources.ranks'
+local LandfillRemover = require 'features.landfill_remover'
 
 local main_inventory = defines.inventory.character_main
 local config = global.config.landfill_remover
@@ -695,6 +698,47 @@ Declare.module(
                     local tile = surface.get_tile(pos[1], pos[2])
                     Assert.equal(config.revert_tile, tile.name)
                 end
+            end
+        )
+
+        Declare.test(
+            'can not remove landfill when guest',
+            function(context)
+                -- Arrange
+                local player = context.player
+                local surface = player.surface
+                local cursor = setup_player_with_valid_deconstruction_planner(player)
+                local position = {2, 2}
+                local area = {{2.1, 2.1}, {2.9, 2.9}}
+                surface.set_tiles({{name = 'landfill', position = position}})
+
+                player.admin = false
+                local old_rank = Rank.get_player_rank(player.name)
+                Rank.set_player_rank(player.name, Ranks.guest)
+
+                context:add_teardown(function()
+                    player.admin = true
+                    Rank.set_player_rank(player.name, old_rank)
+                end)
+
+                local messages = {}
+
+                Helper.modify_lua_object(context, player, 'print', function(text)
+                    messages[#messages+1] = text
+                end)
+
+                Helper.modify_lua_object(context, game, 'get_player', function()
+                    return player
+                end)
+
+                -- Act
+                EventFactory.do_player_deconstruct_area(cursor, player, area)
+
+                -- Assert
+                local tile = surface.get_tile(position[1], position[2])
+                Assert.equal('landfill', tile.name)
+
+                Assert.array_contains(messages, LandfillRemover.rank_too_low_message)
             end
         )
     end
