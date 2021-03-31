@@ -184,6 +184,10 @@ function Public.register_cutscene_function(identifier, waypoints, func, terminat
 end
 
 function Public.register_running_cutscene(player_index, identifier, final_transition_time)
+    if _NO_CUTSCENE then
+        return
+    end
+
     assert_type('number', player_index, 'player_index of function cutscene_controller.register_running_cutscene')
     assert_type('string', identifier, 'identifier of function cutscene_controller.register_running_cutscene')
     assert_type('number', final_transition_time, 'identifier of function cutscene_controller.register_running_cutscene', true)
