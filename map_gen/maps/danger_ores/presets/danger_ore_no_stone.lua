@@ -2,6 +2,7 @@ local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
+local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Terraforming Danger Ore')
@@ -75,6 +76,10 @@ RS.set_map_gen_settings({
     MGSP.cliff_none,
     MGSP.tree_none
 })
+
+Config.market.enabled = false
+Config.player_rewards.enabled = false
+Config.player_create.starting_items = {}
 
 Event.on_init(function()
     game.draw_resource_selection = false

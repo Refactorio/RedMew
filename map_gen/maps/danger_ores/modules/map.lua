@@ -16,13 +16,15 @@ local bnot = bit32.bnot
 
 local function spawn_builder(config)
     local spawn_circle = config.spawn_shape or b.circle(64)
+    local spawn_tile = config.spawn_tile or 'grass-1'
 
     local water = b.circle(16)
     water = b.change_tile(water, true, 'water')
     water = b.any {b.rectangle(32, 4), b.rectangle(4, 32), water}
 
     local start = b.if_else(water, spawn_circle)
-    return b.change_map_gen_collision_tile(start, 'water-tile', 'grass-1')
+    start = b.change_tile(start, true, spawn_tile)
+    return b.change_map_gen_collision_tile(start, 'water-tile', spawn_tile)
 end
 
 local function tile_builder_factory(config)

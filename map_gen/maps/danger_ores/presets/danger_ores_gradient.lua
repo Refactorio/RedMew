@@ -2,6 +2,7 @@ local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local Event = require 'utils.event'
 local b = require 'map_gen.shared.builders'
+local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Gradient Danger Ore')
@@ -76,6 +77,10 @@ RS.set_map_gen_settings({
     MGSP.tree_none
 })
 
+Config.market.enabled = false
+Config.player_rewards.enabled = false
+Config.player_create.starting_items = {}
+
 Event.on_init(function()
     game.draw_resource_selection = false
     game.forces.player.technologies['mining-productivity-1'].enabled = false
@@ -95,7 +100,7 @@ Event.on_init(function()
 end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 8 * 32, min_pollution = 300, max_pollution = 12000, pollution_increment = 3})
+terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 4})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
 rocket_launched({win_satellite_count = 500})
