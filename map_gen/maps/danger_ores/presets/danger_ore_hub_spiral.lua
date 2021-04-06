@@ -59,7 +59,7 @@ ScenarioInfo.set_new_info(
 )
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ores'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ore_no_stone'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
 local resource_patches_config = require 'map_gen.maps.danger_ores.config.vanilla_resource_patches'
 local water = require 'map_gen.maps.danger_ores.modules.water'
@@ -112,14 +112,14 @@ Event.on_init(
 )
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming(
+--[[ terraforming(
     {
         start_size = 8 * 32,
         min_pollution = 400,
         max_pollution = 5000,
         pollution_increment = 2.5
     }
-)
+) ]]
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched'
 rocket_launched(
     {
@@ -148,12 +148,9 @@ local config = {
     resource_patches = resource_patches,
     resource_patches_config = resource_patches_config,
     water = water,
-    water_scale = function(x, y)
-        local d = sqrt(x * x + y * y)
-        return 1 / (24 + (0.1 * d))
-    end,
-    water_threshold = 0.35,
-    deepwater_threshold = 0.4,
+    water_scale = 1 / 96,
+    water_threshold = 0.4,
+    deepwater_threshold = 0.45,
     trees = trees,
     trees_scale = 1 / 64,
     trees_threshold = 0.35,

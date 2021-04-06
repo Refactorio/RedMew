@@ -17,7 +17,7 @@ This map is split in four quadrants. Each quadrant has a main resource.
 
 You may not build the factory on ore patches. Exceptions:
  [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron]
- [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail]
+ [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail] [item=rail-signal] [item=rail-chain-signal] [item=train-stop]
 
 The map size is restricted to the pollution generated. A significant amount of
 pollution must affect a section of the map before it is revealed. Pollution
@@ -106,7 +106,7 @@ local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launche
 rocket_launched({win_satellite_count = 500})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'terraforming-danger-ore'})
+restart_command({scenario_name = 'danger-ore-next'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
