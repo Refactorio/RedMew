@@ -8,26 +8,21 @@ local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Terraforming Danger Ore')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
-focus mining efforts on specific quadrants to ensure
+focus mining efforts on specific sectors to ensure
 proper material ratios, expand the map with pollution!
 ]])
 ScenarioInfo.add_map_extra_info([[
-This map is split in four quadrants. Each quadrant has a main resource.
- [item=iron-ore] north, [item=copper-ore] south, [item=coal] east, [item=stone] west
+This map is split in three sectors [item=iron-ore] [item=copper-ore] [item=coal].
+Each sector has a main resource and the other resources at a lower ratio.
 
 You may not build the factory on ore patches. Exceptions:
- [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron]
- [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail]
+ [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron] [item=locomotive] [item=cargo-wagon] [item=fluid-wagon] [item=artillery-wagon]
+ [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail] [item=rail-signal] [item=rail-chain-signal] [item=train-stop]
 
 The map size is restricted to the pollution generated. A significant amount of
 pollution must affect a section of the map before it is revealed. Pollution
 does not affect biter evolution.]])
 
-ScenarioInfo.set_map_description([[
-Clear the ore to expand the base,
-focus mining efforts on specific quadrants to ensure
-proper material ratios, expand the map with pollution!
-]])
 ScenarioInfo.set_new_info([[
 2019-04-24:
  - Stone ore density reduced by 1/2
@@ -50,7 +45,10 @@ ScenarioInfo.set_new_info([[
  - Destroyed chests dump their content as coal ore.
 
 2020-12-28:
- - Changed win condition. First satellite kills all biters, launch 1000 to win the map.
+ - Changed win condition. First satellite kills all biters, launch 500 to win the map.
+
+2021-04-06:
+ - Rail signals and train stations now allowed on ore.
 ]])
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
@@ -80,6 +78,10 @@ RS.set_map_gen_settings({
 Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_create.starting_items = {}
+Config.dump_offline_inventories = {
+    enabled = true,
+    offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
+}
 
 Event.on_init(function()
     game.draw_resource_selection = false
@@ -106,7 +108,7 @@ local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launche
 rocket_launched({win_satellite_count = 500})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'terraforming-danger-ore'})
+restart_command({scenario_name = 'danger-ore-next'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
@@ -116,13 +118,13 @@ local config = {
     start_ore_shape = b.circle(68),
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
-    main_ores_rotate = 45,
+    main_ores_rotate = 30,
     resource_patches = resource_patches,
     resource_patches_config = resource_patches_config,
     water = water,
     water_scale = 1 / 96,
-    water_threshold = 0.45,
-    deepwater_threshold = 0.5,
+    water_threshold = 0.4,
+    deepwater_threshold = 0.45,
     trees = trees,
     trees_scale = 1 / 64,
     trees_threshold = 0.4,

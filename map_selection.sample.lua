@@ -13,7 +13,7 @@ return require 'map_gen.maps.default'
 
     For some of our scenarios such as diggy, crash site and danger ores, they are more configurable and have presets. Look in the presets folder for each scenario you want to play, you can choose from them like this:
     return require 'map_gen.maps.danger_ores.presets.terraforming_danger_ore'
-    return require 'map_gen.maps.danger_ores.presets.danger_ores_gradient'
+    return require 'map_gen.maps.danger_ores.presets.danger_ore_gradient'
     return require 'map_gen.maps.crash_site.presets.normal'
     return require 'map_gen.maps.crash_site.presets.desert'
     return require 'map_gen.maps.diggy.scenario'

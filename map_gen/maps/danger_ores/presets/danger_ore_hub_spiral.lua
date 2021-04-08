@@ -5,37 +5,25 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Terraforming Danger Ore')
-ScenarioInfo.set_map_description(
-    [[
+ScenarioInfo.set_map_name('Danger Ore Hub Spiral')
+ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
-focus mining efforts on specific quadrants to ensure
+focus mining efforts on specific sectors to ensure
 proper material ratios, expand the map with pollution!
-]]
-)
-ScenarioInfo.add_map_extra_info(
-    [[
-This map is split in four quadrants. Each quadrant has a main resource.
- [item=iron-ore] north, [item=copper-ore] south, [item=coal] east, [item=stone] west
+]])
+ScenarioInfo.add_map_extra_info([[
+This map is split in three sectors [item=iron-ore] [item=copper-ore] [item=coal].
+Each sector has a main resource and the other resources at a lower ratio.
 
 You may not build the factory on ore patches. Exceptions:
- [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron]
- [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail]
+ [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron] [item=locomotive] [item=cargo-wagon] [item=fluid-wagon] [item=artillery-wagon]
+ [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail] [item=rail-signal] [item=rail-chain-signal] [item=train-stop]
 
 The map size is restricted to the pollution generated. A significant amount of
 pollution must affect a section of the map before it is revealed. Pollution
-does not affect biter evolution.]]
-)
+does not affect biter evolution.]])
 
-ScenarioInfo.set_map_description(
-    [[
-Clear the ore to expand the base,
-focus mining efforts on specific quadrants to ensure
-proper material ratios, expand the map with pollution!
-]]
-)
-ScenarioInfo.set_new_info(
-    [[
+ScenarioInfo.set_new_info([[
 2019-04-24:
  - Stone ore density reduced by 1/2
  - Ore quadrants randomized
@@ -53,10 +41,15 @@ ScenarioInfo.set_new_info(
 2019-03-27:
  - Ore arranged into quadrants to allow for more controlled resource gathering.
 
-2020-09-02
+2020-09-02:
  - Destroyed chests dump their content as coal ore.
-]]
-)
+
+2020-12-28:
+ - Changed win condition. First satellite kills all biters, launch 500 to win the map.
+
+2021-04-06:
+ - Rail signals and train stations now allowed on ore.
+]])
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ores'
@@ -90,6 +83,10 @@ RS.set_map_gen_settings(
 Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_create.starting_items = {}
+Config.dump_offline_inventories = {
+    enabled = true,
+    offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
+}
 
 Event.on_init(
     function()
@@ -112,24 +109,13 @@ Event.on_init(
 )
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming(
-    {
-        start_size = 8 * 32,
-        min_pollution = 400,
-        max_pollution = 5000,
-        pollution_increment = 2.5
-    }
-)
-local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched'
-rocket_launched(
-    {
-        recent_chunks_max = 10,
-        ticks_between_waves = 60 * 30,
-        enemy_factor = 3,
-        max_enemies_per_wave_per_chunk = 60,
-        extra_rockets = 100
-    }
-)
+terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 4})
+
+local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
+rocket_launched({win_satellite_count = 500})
+
+local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
+restart_command({scenario_name = 'danger-ore-next'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
@@ -143,7 +129,7 @@ local config = {
     start_ore_shape = b.circle(68),
     main_ores_builder = main_ores_builder,
     main_ores = main_ores_config,
-    --main_ores_shuffle_order = true,
+    main_ores_shuffle_order = true,
     --main_ores_rotate = 45,
     resource_patches = resource_patches,
     resource_patches_config = resource_patches_config,

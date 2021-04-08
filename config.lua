@@ -83,7 +83,7 @@ global.config = {
     },
     -- enables dumping of inventories of offline players to a corpse at the player's last location
     dump_offline_inventories = {
-        enabled = true,
+        enabled = false,
         offline_timout_mins = 15,   -- time after which a player logs off that their inventory is provided to the team
     },
     -- enables players to create and prioritize tasks

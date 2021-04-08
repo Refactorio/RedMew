@@ -1,1 +1,1 @@
-return require 'map_gen.maps.danger_ores.presets.danger_ores'
+return require 'map_gen.maps.danger_ores.presets.danger_ore'

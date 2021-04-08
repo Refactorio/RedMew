@@ -11,7 +11,7 @@ local Core = require 'utils.core'
 local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 
 return function(config)
-    local default_name = config.scenario_name or 'terraforming-danger-ore'
+    local default_name = config.scenario_name or 'danger-ore-next'
 
     local map_promotion_channel = Discord.channel_names.map_promotion
     local danger_ore_role_mention = Discord.role_mentions.danger_ore
