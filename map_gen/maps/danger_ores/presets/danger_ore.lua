@@ -6,18 +6,46 @@ local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Danger Ores')
-ScenarioInfo.set_map_description(
-    [[
-Clear the ore to expand the base:
-build extensive mining efforts, create large smelting arrays,
-use proper material ratios, and defend from enemies!
-]]
-)
-ScenarioInfo.add_map_extra_info(
-    [[You may not build the factory on ore patches. Exceptions:
- [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank]
- [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] ]]
-)
+ScenarioInfo.set_map_description([[
+Clear the ore to expand the base,
+focus mining efforts on specific sectors to ensure
+proper material ratios
+]])
+ScenarioInfo.add_map_extra_info([[
+This map is split in three sectors [item=iron-ore] [item=copper-ore] [item=coal].
+Each sector has a main resource and the other resources at a lower ratio.
+
+You may not build the factory on ore patches. Exceptions:
+ [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron] [item=locomotive] [item=cargo-wagon] [item=fluid-wagon] [item=artillery-wagon]
+ [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail] [item=rail-signal] [item=rail-chain-signal] [item=train-stop]
+]])
+ScenarioInfo.set_new_info([[
+2019-04-24:
+ - Stone ore density reduced by 1/2
+ - Ore quadrants randomized
+ - Increased time factor of biter evolution from 5 to 7
+ - Added win conditions (+5% evolution every 5 rockets until 100%, +100 rockets until biters are wiped)
+
+2019-03-30:
+ - Uranium ore patch threshold increased slightly
+ - Bug fix: Cars and tanks can now be placed onto ore!
+ - Starting minimum pollution to expand map set to 650
+    View current pollution via Debug Settings [F4] show-pollution-values,
+    then open map and turn on pollution via the red box.
+ - Starting water at spawn increased from radius 8 to radius 16 circle.
+
+2019-03-27:
+ - Ore arranged into quadrants to allow for more controlled resource gathering.
+
+2020-09-02:
+ - Destroyed chests dump their content as coal ore.
+
+2020-12-28:
+ - Changed win condition. First satellite kills all biters, launch 500 to win the map.
+
+2021-04-06:
+ - Rail signals and train stations now allowed on ore.
+]])
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ores'
