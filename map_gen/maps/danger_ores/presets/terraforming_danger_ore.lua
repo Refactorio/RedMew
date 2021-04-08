@@ -80,6 +80,10 @@ RS.set_map_gen_settings({
 Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_create.starting_items = {}
+Config.dump_offline_inventories = {
+    enabled = true,
+    offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
+}
 
 Event.on_init(function()
     game.draw_resource_selection = false
@@ -106,7 +110,7 @@ local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launche
 rocket_launched({win_satellite_count = 500})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'terraforming-danger-ore'})
+restart_command({scenario_name = 'danger-ore-next'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
@@ -116,13 +120,13 @@ local config = {
     start_ore_shape = b.circle(68),
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
-    main_ores_rotate = 45,
+    main_ores_rotate = 30,
     resource_patches = resource_patches,
     resource_patches_config = resource_patches_config,
     water = water,
     water_scale = 1 / 96,
-    water_threshold = 0.45,
-    deepwater_threshold = 0.5,
+    water_threshold = 0.4,
+    deepwater_threshold = 0.45,
     trees = trees,
     trees_scale = 1 / 64,
     trees_threshold = 0.4,

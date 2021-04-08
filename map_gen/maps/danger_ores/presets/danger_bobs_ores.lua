@@ -99,6 +99,10 @@ RS.set_map_gen_settings(
 Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_create.starting_items = {}
+Config.dump_offline_inventories = {
+    enabled = true,
+    offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
+}
 
 Event.on_init(
     function()
@@ -138,6 +142,9 @@ rocket_launched(
         extra_rockets = 100
     }
 )
+
+local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
+restart_command({scenario_name = 'danger-ore-next'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
