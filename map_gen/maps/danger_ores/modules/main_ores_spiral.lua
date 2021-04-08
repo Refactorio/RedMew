@@ -27,12 +27,12 @@ return function(config)
             table.shuffle_table(shapes, random_gen)
         end
 
-        local ores = b.circular_spiral_grow_pattern(24, 32, 384, shapes)
+        local ores = b.circular_spiral_grow_pattern(24, 24, 384, shapes)
 
         if main_ores_rotate ~= 0 then
             ores = b.rotate(ores, math.rad(main_ores_rotate))
         end
 
-        return b.any {spawn_shape, ores, water_shape}
+        return b.any {spawn_shape, water_shape, ores}
     end
 end

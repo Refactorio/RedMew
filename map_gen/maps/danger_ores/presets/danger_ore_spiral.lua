@@ -59,10 +59,9 @@ ScenarioInfo.set_new_info(
 )
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ores'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ore_landfill'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
 local resource_patches_config = require 'map_gen.maps.danger_ores.config.vanilla_resource_patches'
-local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
@@ -127,26 +126,18 @@ restart_command({scenario_name = 'danger-ore-next'})
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
 
-local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_hub_spiral'
-
-local sqrt = math.sqrt
+local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_spiral'
 
 local config = {
     spawn_shape = b.circle(64),
     start_ore_shape = b.circle(68),
+    spawn_tile = 'landfill',
     main_ores_builder = main_ores_builder,
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
     --main_ores_rotate = 45,
     resource_patches = resource_patches,
     resource_patches_config = resource_patches_config,
-    water = water,
-    water_scale = function(x, y)
-        local d = sqrt(x * x + y * y)
-        return 1 / (24 + (0.1 * d))
-    end,
-    water_threshold = 0.35,
-    deepwater_threshold = 0.4,
     trees = trees,
     trees_scale = 1 / 64,
     trees_threshold = 0.35,
