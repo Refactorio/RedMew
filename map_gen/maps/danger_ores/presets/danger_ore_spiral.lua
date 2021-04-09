@@ -99,8 +99,8 @@ Event.on_init(
         game.forces.player.technologies.logistics.researched = true
         game.forces.player.technologies.automation.researched = true
 
-        game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
-        game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
+        game.map_settings.enemy_evolution.time_factor = 0.0000077 -- default 0.000004
+        game.map_settings.enemy_evolution.destroy_factor = 0.000011 -- default 0.002
         game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
 
         RS.get_surface().always_day = true
@@ -108,7 +108,7 @@ Event.on_init(
 )
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 4})
+terraforming({start_size = 8 * 32, min_pollution = 350, max_pollution = 14000, pollution_increment = 3.5})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
 rocket_launched({win_satellite_count = 500})
@@ -137,7 +137,7 @@ local config = {
     trees_chance = 0.875,
     enemy = enemy,
     enemy_factor = 10 / (768 * 32),
-    enemy_max_chance = 1 / 6,
+    enemy_max_chance = 1 / 5,
     enemy_scale_factor = 32,
     fish_spawn_rate = 0.025,
     dense_patches = dense_patches,
