@@ -20,7 +20,7 @@ return function(config)
     local seed = config.enemy_seed or seed_provider()
 
     local sf = 1 / scale_factor
-    local m = 1 / 850
+    local m = 1 / 768
 
     return function(x, y, world)
         if ShareGlobals.data.biters_disabled then
@@ -34,7 +34,7 @@ return function(config)
         end
 
         local threshold = 1 - d * m
-        threshold = max(threshold, 0.35)
+        threshold = max(threshold, 0.3)
 
         x, y = x * sf, y * sf
         if perlin_noise(x, y, seed) <= threshold then
