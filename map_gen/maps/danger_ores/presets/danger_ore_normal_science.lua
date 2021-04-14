@@ -83,6 +83,37 @@ Config.dump_offline_inventories = {
     offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
 }
 
+local hail_hydra = Config.hail_hydra
+hail_hydra.enabled = true
+hail_hydra.online_player_scale_enabled = false
+hail_hydra.hydras = {
+    -- spitters
+    ['medium-spitter'] = {['small-worm-turret'] = {min = 0.25, max = 0.5}},
+    ['big-spitter'] = {['big-worm-turret'] = {min = 0.25, max = 0.5}},
+    ['behemoth-spitter'] = {['big-worm-turret'] = {min = 0.25, max = 0.5}},
+    -- biters
+    ['medium-biter'] = {['small-worm-turret'] = {min = 0.25, max = 0.5}},
+    ['big-biter'] = {['big-worm-turret'] = {min = 0.25, max = 0.5}},
+    ['behemoth-biter'] = {['big-worm-turret'] = {min = 0.25, max = 0.5}},
+    -- worms
+    ['small-worm-turret'] = {
+        ['small-biter'] = {min = 0.125, max = 0.25},
+        ['small-spitter'] = {min = 0.125, max = 0.25}
+    },
+    ['medium-worm-turret'] = {
+        ['medium-biter'] = {min = 0.125, max = 0.25},
+        ['medium-spitter'] = {min = 0.125, max = 0.25}
+    },
+    ['big-worm-turret'] = {
+        ['big-biter'] = {min = 0.125, max = 0.25},
+        ['big-spitter'] = {min = 0.125, max = 0.25}
+    },
+    ['behemoth-worm-turret'] = {
+        ['behemoth-biter'] = {min = 0.125, max = 0.25},
+        ['behemoth-spitter'] = {min = 0.125, max = 0.25}
+    }
+}
+
 Event.on_init(function()
     game.draw_resource_selection = false
     game.forces.player.technologies['mining-productivity-1'].enabled = false
