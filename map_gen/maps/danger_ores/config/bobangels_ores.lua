@@ -5,8 +5,9 @@ local ratio_mixed = 80 -- % purity in the ore
 local main_value = value(0, 0.5)
 
 local ores = {
-    ['angels-ore1'] = {
+    {
         -- Saphirite
+        name = 'angels-ore1',
         ['tiles'] = {
             [1] = 'grass-1',
             [2] = 'grass-2',
@@ -17,8 +18,9 @@ local ores = {
         ['weight'] = 15,
         ['ratios'] = {}
     },
-    ['angels-ore2'] = {
+    {
         -- Jivolite
+        name = 'angels-ore2',
         ['tiles'] = {
             [1] = 'dirt-1',
             [2] = 'dirt-2',
@@ -28,8 +30,9 @@ local ores = {
         ['weight'] = 10,
         ['ratios'] = {}
     },
-    ['angels-ore3'] = {
+    {
         -- Stiratite
+        name = 'angels-ore3',
         ['tiles'] = {
             [1] = 'red-desert-0',
             [2] = 'red-desert-1',
@@ -40,8 +43,9 @@ local ores = {
         ['weight'] = 10,
         ['ratios'] = {}
     },
-    ['angels-ore4'] = {
+    {
         -- crotinnium
+        name = 'angels-ore4',
         ['tiles'] = {
             [1] = 'grass-3',
             [2] = 'grass-4'
@@ -50,8 +54,9 @@ local ores = {
         ['weight'] = 10,
         ['ratios'] = {}
     },
-    ['angels-ore5'] = {
+    {
         -- rubyte
+        name = 'angels-ore5',
         ['tiles'] = {
             [1] = 'grass-1',
             [2] = 'grass-2'
@@ -60,8 +65,9 @@ local ores = {
         ['weight'] = 10,
         ['ratios'] = {}
     },
-    ['angels-ore6'] = {
+    {
         -- bobmonium-ore
+        name = 'angels-ore6',
         ['tiles'] = {
             [1] = 'sand-1',
             [2] = 'sand-2',
@@ -71,7 +77,8 @@ local ores = {
         ['weight'] = 10,
         ['ratios'] = {}
     },
-    ['coal'] = {
+    {
+        name = 'coal',
         ['tiles'] = {
             [1] = 'dirt-5',
             [2] = 'dirt-6',
@@ -83,7 +90,8 @@ local ores = {
     }
 }
 
-for ore_name, ore_data in pairs(ores) do
+for _, ore_data in pairs(ores) do
+    local ore_name = ore_data.ore_name
     local ratios = {
         {resource = b.resource(b.full_shape, ore_name, main_value), weight = ratio_mixed}
     }

@@ -2,8 +2,9 @@ local b = require 'map_gen.shared.builders'
 local value = b.euclidean_value
 
 return {
-    ['angels-ore1'] = {
+    {
         -- Saphirite
+        name = 'angels-ore1',
         ['tiles'] = {
             [1] = 'grass-1',
             [2] = 'grass-2',
@@ -16,8 +17,9 @@ return {
             {resource = b.resource(b.full_shape, 'angels-ore1', value(0, 0.5)), weight = 1}
         }
     },
-    ['angels-ore2'] = {
+    {
         -- Jivolite
+        name = 'angels-ore2',
         ['tiles'] = {
             [1] = 'dirt-1',
             [2] = 'dirt-2',
@@ -29,8 +31,9 @@ return {
             {resource = b.resource(b.full_shape, 'angels-ore2', value(0, 0.5)), weight = 1}
         }
     },
-    ['angels-ore3'] = {
+    {
         -- Stiratite
+        name = 'angels-ore3',
         ['tiles'] = {
             [1] = 'red-desert-0',
             [2] = 'red-desert-1',
@@ -43,8 +46,9 @@ return {
             {resource = b.resource(b.full_shape, 'angels-ore3', value(0, 0.5)), weight = 1}
         }
     },
-    ['angels-ore4'] = {
+    {
         -- crotinnium
+        name = 'angels-ore4',
         ['tiles'] = {
             [1] = 'grass-3',
             [2] = 'grass-4'
@@ -55,8 +59,9 @@ return {
             {resource = b.resource(b.full_shape, 'angels-ore4', value(0, 0.5)), weight = 1}
         }
     },
-    ['angels-ore5'] = {
+    {
         -- rubyte
+        name = 'angels-ore5',
         ['tiles'] = {
             [1] = 'grass-1',
             [2] = 'grass-2'
@@ -67,8 +72,9 @@ return {
             {resource = b.resource(b.full_shape, 'angels-ore5', value(0, 0.5)), weight = 1}
         }
     },
-    ['angels-ore6'] = {
+    {
         -- bobmonium-ore
+        name = 'angels-ore6',
         ['tiles'] = {
             [1] = 'sand-1',
             [2] = 'sand-2',
@@ -80,7 +86,8 @@ return {
             {resource = b.resource(b.full_shape, 'angels-ore6', value(0, 0.5)), weight = 1}
         }
     },
-    ['coal'] = {
+    {
+        name = 'coal',
         ['tiles'] = {
             [1] = 'dirt-5',
             [2] = 'dirt-6',
