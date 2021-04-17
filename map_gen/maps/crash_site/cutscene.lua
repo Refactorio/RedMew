@@ -79,7 +79,7 @@ local original_resolution = {height = 1440, width = 2560}
 local original_zoom = 1
 
 local function cutscene_function_redmew(player_index, waypoint_index, params)
-    local player = game.players[player_index]
+    local player = game.get_player(player_index)
     if (not valid(player)) then
         return
     end
@@ -175,7 +175,7 @@ local waypoints_redmew = {
 }
 
 local function cutscene_function_outpost(player_index, waypoint_index, params)
-    local player = game.players[player_index]
+    local player = game.get_player(player_index)
     if (not valid(player)) then
         return
     end

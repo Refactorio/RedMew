@@ -100,7 +100,7 @@ local original_zoom = 1
 local function cutscene_function(player_index, waypoint_index, params)
     local cases = {}
 
-    local player = game.players[player_index]
+    local player = game.get_player(player_index)
     local ttw = params.time_to_wait
     local zoom = params.zoom
     local tick = params.tick

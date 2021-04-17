@@ -785,7 +785,7 @@ Event.add(
 Event.add(defines.events.on_player_created, player_created)
 
 local function tag_command(args)
-    local target_player = game.players[args.player]
+    local target_player = game.get_player(args.player)
 
     if not target_player then
         Game.player_print({'common.fail_no_target', target_player})

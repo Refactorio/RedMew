@@ -130,7 +130,7 @@ end
 -- Creates a popup dialog for the specifically targetted player
 local function popup_player(args)
     local target_name = args.player
-    local target = game.players[target_name]
+    local target = game.get_player(target_name)
     if not target then
         Game.player_print('Player ' .. target_name .. ' not found.')
         return
