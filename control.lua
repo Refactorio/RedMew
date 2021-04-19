@@ -4,11 +4,12 @@
 require 'resources.data_stages'
 _LIFECYCLE = _STAGE.control -- Control stage
 
+-- Util libraries, omitting is a very bad idea
+require 'utils.math'
+require 'utils.string'
+
 -- Overrides the _G.print function
 require 'utils.print_override'
-
--- Omitting the math library is a very bad idea
-require 'utils.math'
 
 -- Global Debug and make sure our version file is registered
 Debug = require 'utils.debug'
@@ -160,6 +161,10 @@ if config.score.enabled then
 end
 
 --require 'features.snake.control'
+
+_G.Server = require 'features.server'
+
+require 'features.restart_command'
 
 -- Debug-only modules
 if _DEBUG then

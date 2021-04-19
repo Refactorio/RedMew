@@ -1,4 +1,5 @@
 local Global = require 'utils.global'
+local EventFactory = require 'utils.test.event_factory'
 
 local Public = {}
 
@@ -96,6 +97,72 @@ function Public.modify_lua_object(context, object, key, value)
     context:add_teardown(function()
         rawset(object, key, old_value)
     end)
+end
+
+local function get_gui_element_by_name(parent, name)
+    if parent.name == name then
+        return parent
+    end
+
+    for _, child in pairs(parent.children) do
+        local found = get_gui_element_by_name(child, name)
+        if found then
+            return found
+        end
+    end
+end
+
+function Public.get_gui_element_by_name(parent, name)
+    if name == nil or name == '' then
+        return nil
+    end
+
+    return get_gui_element_by_name(parent, name)
+end
+
+function Public.click(element)
+    local element_type = element.type
+
+    if element_type == 'checkbox' then
+        element.state = not element.state
+        local state_event = EventFactory.on_gui_checked_state_changed(element)
+        EventFactory.raise(state_event)
+    elseif element_type == 'radiobutton' and not element.state then
+        element.state = true
+        local state_event = EventFactory.on_gui_checked_state_changed(element)
+        EventFactory.raise(state_event)
+    end
+
+    local click_event = EventFactory.on_gui_click(element)
+    EventFactory.raise(click_event)
+end
+
+function Public.set_checkbox(element, state)
+    if element.type ~= 'checkbox' then
+        error('element is not a checkbox', 2)
+    end
+
+    local old_state = not not element.state
+    if old_state == state then
+        return
+    end
+
+    element.state = state
+    local state_event = EventFactory.on_gui_checked_state_changed(element)
+    EventFactory.raise(state_event)
+
+    local click_event = EventFactory.on_gui_click(element)
+    EventFactory.raise(click_event)
+end
+
+function Public.set_text(element, text)
+    if element.text == text then
+        return
+    end
+
+    element.text = text
+    local text_event = EventFactory.on_gui_text_changed(element, text)
+    EventFactory.raise(text_event)
 end
 
 return Public

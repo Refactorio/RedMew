@@ -46,6 +46,7 @@ local discord_named_bold_tag = '[DISCORD-NAMED-BOLD]'
 local discord_named_embed_tag = '[DISCORD-NAMED-EMBED]'
 local discord_named_embed_raw_tag = '[DISCORD-NAMED-EMBED-RAW]'
 local start_scenario_tag = '[START-SCENARIO]'
+local start_game_tag ='[START-GAME]'
 local ping_tag = '[PING]'
 local data_set_tag = '[DATA-SET]'
 local data_get_tag = '[DATA-GET]'
@@ -193,6 +194,25 @@ function Public.start_scenario(scenario_name)
     local message = start_scenario_tag .. scenario_name
 
     raw_print(message)
+end
+
+--- Stops the server and starts a new game.
+-- @params start_game_data either string which is the scenario name or a table with the following fields
+-- type:string<scenario|save> optional defaults to scenario.
+-- name:string the name of the scenario or save to start.
+-- mod_pack:string optional the name of the mod pack to use.
+function Public.start_game(start_game_data)
+    local data
+    if type(start_game_data) == 'string' then
+        data = {type = 'scenario', name = start_game_data}
+    elseif type(start_game_data) == 'table' then
+        data = start_game_data
+    else
+        error('start_game_data must be a string or table')
+    end
+
+    local json = game.table_to_json(data)
+    raw_print(start_game_tag .. json)
 end
 
 local default_ping_token = Token.register(function(sent_tick)

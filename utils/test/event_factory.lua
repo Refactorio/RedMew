@@ -31,16 +31,35 @@ function Public.area(area)
     return area
 end
 
-function Public.on_gui_click(element, player_index)
+function Public.on_gui_click(element)
     return {
         name = defines.events.on_gui_click,
         tick = game.tick,
         element = element,
-        player_index = player_index,
+        player_index = element.player_index,
         button = defines.mouse_button_type.left,
         alt = false,
         control = false,
         shift = false
+    }
+end
+
+function Public.on_gui_text_changed(element, text)
+    return {
+        name = defines.events.on_gui_text_changed,
+        tick = game.tick,
+        element = element,
+        player_index = element.player_index,
+        text = text
+    }
+end
+
+function Public.on_gui_checked_state_changed(element)
+    return {
+        name = defines.events.on_gui_checked_state_changed,
+        tick = game.tick,
+        element = element,
+        player_index = element.player_index
     }
 end
 
