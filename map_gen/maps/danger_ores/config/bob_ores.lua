@@ -2,7 +2,8 @@ local b = require 'map_gen.shared.builders'
 local value = b.euclidean_value
 
 return {
-    ['iron-ore'] = {
+    {
+        name = 'iron-ore',
         ['tiles'] = {
             [1] = 'grass-1',
             [2] = 'grass-2',
@@ -31,7 +32,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['copper-ore'] = {
+    {
+        name = 'copper-ore',
         ['tiles'] = {
             [1] = 'red-desert-0',
             [2] = 'red-desert-1',
@@ -60,7 +62,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['coal'] = {
+    {
+        name = 'coal',
         ['tiles'] = {
             [1] = 'dirt-1',
             [2] = 'dirt-2',
@@ -92,7 +95,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['stone'] = {
+    {
+        name = 'stone',
         ['tiles'] = {
             [1] = 'sand-1',
             [2] = 'sand-2',
@@ -120,7 +124,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['bauxite-ore'] = {
+    {
+        name = 'bauxite-ore',
         ['tiles'] = {
             [1] = 'grass-1',
             [2] = 'grass-2',
@@ -149,7 +154,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['cobalt-ore'] = {
+    {
+        name = 'cobalt-ore',
         ['tiles'] = {
             [1] = 'red-desert-0',
             [2] = 'red-desert-1',
@@ -178,7 +184,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['gem-ore'] = {
+    {
+        name = 'gem-ore',
         ['tiles'] = {
             [1] = 'dirt-1',
             [2] = 'dirt-2',
@@ -210,7 +217,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['gold-ore'] = {
+    {
+        name = 'gold-ore',
         ['tiles'] = {
             [1] = 'sand-1',
             [2] = 'sand-2',
@@ -238,7 +246,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['lead-ore'] = {
+    {
+        name = 'lead-ore',
         ['tiles'] = {
             [1] = 'grass-1',
             [2] = 'grass-2',
@@ -267,7 +276,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['nickel-ore'] = {
+    {
+        name = 'nickel-ore',
         ['tiles'] = {
             [1] = 'red-desert-0',
             [2] = 'red-desert-1',
@@ -296,7 +306,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['quartz'] = {
+    {
+        name = 'quartz',
         ['tiles'] = {
             [1] = 'dirt-1',
             [2] = 'dirt-2',
@@ -328,7 +339,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['rutile-ore'] = {
+    {
+        name = 'rutile-ore',
         ['tiles'] = {
             [1] = 'sand-1',
             [2] = 'sand-2',
@@ -356,7 +368,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['silver-ore'] = {
+    {
+        name = 'silver-ore',
         ['tiles'] = {
             [1] = 'grass-1',
             [2] = 'grass-2',
@@ -385,7 +398,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['sulfur'] = {
+    {
+        name = 'sulfur',
         ['tiles'] = {
             [1] = 'red-desert-0',
             [2] = 'red-desert-1',
@@ -414,7 +428,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['tin-ore'] = {
+    {
+        name = 'tin-ore',
         ['tiles'] = {
             [1] = 'dirt-1',
             [2] = 'dirt-2',
@@ -446,7 +461,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['tungsten-ore'] = {
+    {
+        name = 'tungsten-ore',
         ['tiles'] = {
             [1] = 'sand-1',
             [2] = 'sand-2',
@@ -474,7 +490,8 @@ return {
             {resource = b.resource(b.full_shape, 'zinc-ore', value(0, 0.5)), weight = 3}
         }
     },
-    ['zinc-ore'] = {
+    {
+        name = 'zinc-ore',
         ['tiles'] = {
             [1] = 'grass-1',
             [2] = 'grass-2',

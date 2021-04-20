@@ -2,7 +2,8 @@ local b = require 'map_gen.shared.builders'
 local value = b.euclidean_value
 
 return {
-    ['copper-ore'] = {
+    {
+        name = 'copper-ore',
         ['tiles'] = {
             [1] = 'red-desert-0',
             [2] = 'red-desert-1',
@@ -18,7 +19,8 @@ return {
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 7}
         }
     },
-    ['coal'] = {
+    {
+        name = 'coal',
         ['tiles'] = {
             [1] = 'dirt-1',
             [2] = 'dirt-2',
@@ -37,7 +39,8 @@ return {
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 65}
         }
     },
-    ['iron-ore'] = {
+    {
+        name = 'iron-ore',
         ['tiles'] = {
             [1] = 'grass-1',
             [2] = 'grass-2',
@@ -53,7 +56,8 @@ return {
             {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 7}
         }
     },
-    --[[ ['stone'] = {
+    --[[ {
+        name = 'stone',
         ['tiles'] = {
             [1] = 'sand-1',
             [2] = 'sand-2',

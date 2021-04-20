@@ -5,14 +5,14 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Terraforming Danger Ore')
+ScenarioInfo.set_map_name('Danger Ore Split')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
 proper material ratios, expand the map with pollution!
 ]])
 ScenarioInfo.add_map_extra_info([[
-This map is split in three sectors [item=iron-ore] [item=copper-ore] [item=coal].
+This map is split in multiple sectors [item=iron-ore] [item=copper-ore] [item=coal].
 Each sector has a main resource and the other resources at a lower ratio.
 
 You may not build the factory on ore patches. Exceptions:
@@ -117,8 +117,9 @@ local config = {
     spawn_shape = b.circle(64),
     start_ore_shape = b.circle(68),
     main_ores = main_ores_config,
-    main_ores_shuffle_order = true,
-    main_ores_rotate = 30,
+    main_ores_shuffle_order = false,
+    main_ores_rotate = 0,
+    main_ores_split_count = 4,
     resource_patches = resource_patches,
     resource_patches_config = resource_patches_config,
     water = water,
