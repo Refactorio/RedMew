@@ -1184,6 +1184,20 @@ function Builders.grid_pattern(pattern, columns, rows, width, height)
     end
 end
 
+function Builders.grid_pattern_no_offset(pattern, columns, rows, width, height)
+    return function(x, y, world)
+        local row_pos = floor(y / height + 0.5)
+        local row_i = row_pos % rows + 1
+        local row = pattern[row_i] or {}
+
+        local col_pos = floor(x / width + 0.5)
+        local col_i = col_pos % columns + 1
+
+        local shape = row[col_i] or Builders.empty_shape
+        return shape(x, y, world)
+    end
+end
+
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_pattern_overlap
 function Builders.grid_pattern_overlap(pattern, columns, rows, width, height)
     local half_width = width / 2
