@@ -305,7 +305,7 @@ local Config = {
             initial_evolution = 10,
 
             -- evolution over time value, leave nil to use vanilla settings
-            evolution_over_time_factor = 0.000008,
+            evolution_over_time_factor = 0.000006,
 
             -- spawns the following units when they die. To disable, remove the contents
             -- any non-rounded number will turn into a chance to spawn an additional alien
@@ -406,6 +406,7 @@ local Config = {
                 {level = 23, price = 15, name = 'train-stop'},
                 {level = 24, price = 35, name = 'cargo-wagon'},
                 {level = 24, price = 35, name = 'fluid-wagon'},
+                {level = 26, price = 150, name = 'tank'},
                 {level = 29, price = 750, name = 'power-armor'},
                 {level = 30, price = 30, name = 'logistic-robot'},
                 {level = 31, price = 200, name = 'personal-roboport-equipment'},
@@ -423,6 +424,7 @@ local Config = {
                 {level = 63, price = 40, name = 'rocket'},
                 {level = 71, price = 80, name = 'explosive-rocket'},
                 {level = 78, price = 1000, name = 'satellite'},
+                {level = 100, price = 2500, name = 'spidertron'},
                 {level = 100, price = 1, name = 'iron-stick'}
             },
             -- modifies the experience per alien type, higher is more xp
