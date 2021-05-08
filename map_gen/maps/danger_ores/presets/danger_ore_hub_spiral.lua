@@ -87,6 +87,7 @@ Config.dump_offline_inventories = {
     enabled = true,
     offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
 }
+Config.paint.enabled = false
 
 Event.on_init(
     function()
@@ -119,6 +120,9 @@ restart_command({scenario_name = 'danger-ore-next'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
+
+local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
+concrete_on_landfill({tile = 'blue-refined-concrete'})
 
 local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_hub_spiral'
 
