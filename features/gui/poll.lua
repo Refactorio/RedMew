@@ -1416,7 +1416,7 @@ Command.add(
     {
         description = {'command_description.poll'},
         arguments = {'poll'},
-        required_rank = Ranks.regular,
+        required_rank = Ranks.admin,
         allowed_by_server = true,
         custom_help_text = {'command_custom_help.poll'},
         log_command = true,
