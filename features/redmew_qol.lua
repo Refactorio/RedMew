@@ -592,6 +592,7 @@ if config.loaders then
         local direction = entity.direction
         local force = entity.force
         local surface = entity.surface
+        local last_user = entity.last_user
 
         entity.destroy({raise_destroy = true})
 
@@ -600,7 +601,8 @@ if config.loaders then
             position = position,
             direction = direction,
             type = input_type,
-            force = force
+            force = force,
+            player = last_user
         }
 
         if not new_entity then
