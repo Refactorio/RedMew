@@ -162,10 +162,6 @@ end
 
 --require 'features.snake.control'
 
-_G.Server = require 'features.server'
-
-require 'features.restart_command'
-
 -- Debug-only modules
 if _DEBUG then
     require 'features.scenario_data_manipulation'

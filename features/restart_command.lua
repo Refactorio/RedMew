@@ -288,7 +288,9 @@ local function draw_main_frame(player)
 
     local name_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
     name_flow.add {type = 'label', caption = 'Name:'}
-    name_flow.add {type = 'textfield', name = name_textfield_name, text = start_game_data.name}
+    local name_textfield = name_flow.add {type = 'textfield', name = name_textfield_name, text = start_game_data.name}
+    name_textfield.style.horizontally_stretchable = true
+    name_textfield.style.maximal_width = 600
 
     local is_set_mod_pack = start_game_data.mod_pack ~= nil
     local set_mod_pack_checkbox = main_frame.add {

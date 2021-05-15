@@ -113,9 +113,6 @@ restart_command({scenario_name = 'danger-ore-landfill'})
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
 
-local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
-concrete_on_landfill({tile = 'blue-refined-concrete'})
-
 local config = {
     spawn_shape = b.circle(64),
     start_ore_shape = b.circle(68),
