@@ -349,7 +349,7 @@ end
 --- Launches a biter attack
 local function biter_attack(args)
     local target_name = args.player
-    local target = game.players[target_name]
+    local target = game.get_player(target_name)
     if not target or not target.valid then
         Game.player_print({'common.fail_no_target', target_name}, Color.fail)
         return

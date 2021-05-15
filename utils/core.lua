@@ -56,7 +56,7 @@ function Module.print_admins(msg, source)
     if source then
         if type(source) == 'string' then
             source_name = source
-            chat_color = game.players[source].chat_color
+            chat_color = game.get_player(source).chat_color
         else
             source_name = source.name
             chat_color = source.chat_color

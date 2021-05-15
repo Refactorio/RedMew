@@ -132,7 +132,7 @@ local function send_poll_result_to_discord(poll)
     if next(edited_by_players) then
         insert(result, ' Edited by ')
         for pi, _ in pairs(edited_by_players) do
-            local p = game.players[pi]
+            local p = game.get_player(pi)
             if p and p.valid then
                 insert(result, p.name)
                 insert(result, ', ')

@@ -20,7 +20,7 @@ local color_callback = Token.register(function(data)
         return
     end
 
-    local player = game.players[key]
+    local player = game.get_player(key)
     if not player then
         return
     end

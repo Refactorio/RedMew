@@ -1,7 +1,7 @@
 local Declare = require 'utils.test.declare'
-local EventFactory = require 'utils.test.event_factory'
 local Gui = require 'utils.gui'
 local Assert = require 'utils.test.assert'
+local Helper = require 'utils.test.helper'
 
 Declare.module({'utils', 'Gui'}, function()
     Declare.module('can toggle top buttons', function()
@@ -18,9 +18,8 @@ Declare.module({'utils', 'Gui'}, function()
                     return
                 end
 
-                local event = EventFactory.on_gui_click(element, player.index)
                 local click_action = function()
-                    EventFactory.raise(event)
+                    Helper.click(element)
                 end
 
                 local before_count = count_gui_elements(player.gui)

@@ -44,7 +44,7 @@ end)
 
 local function report_command(args, player)
     local reported_player_name = args.player
-    local reported_player = game.players[reported_player_name]
+    local reported_player = game.get_player(reported_player_name)
 
     if not reported_player then
         Game.player_print(reported_player_name .. ' does not exist.')
@@ -482,12 +482,12 @@ end)
 
 Gui.on_click(jail_offender_button_name, function(event)
     local target_name = string.sub(event.element.caption, 6)
-    local target = game.players[target_name]
+    local target = game.get_player(target_name)
     if target then
         Module.jail(target, event.player)
     else
         target_name = string.sub(event.element.caption, 8)
-        target = game.players[target_name]
+        target = game.get_player(target_name)
         if target then
             Module.unjail(target, event.player)
         end

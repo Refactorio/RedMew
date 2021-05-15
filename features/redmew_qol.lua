@@ -49,7 +49,7 @@ end)
 --- Selects a name from the entity backer name, game.players, and regulars
 local function pick_name()
     -- Create a weight table comprised of the backer name, a player's name, and a regular's name
-    local random_player = game.players[random(#game.players)]
+    local random_player = game.get_player(random(#game.players))
     if not random_player then
         return
     end

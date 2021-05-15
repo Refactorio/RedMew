@@ -150,7 +150,7 @@ rocket_launched(
 )
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'danger-ore-next'})
+restart_command({scenario_name = 'danger-bobs-ores'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})

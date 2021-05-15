@@ -108,13 +108,10 @@ local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launche
 rocket_launched({win_satellite_count = 500})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'danger-ore-next'})
+restart_command({scenario_name = 'danger-ore-landfill'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
-
-local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
-concrete_on_landfill({tile = 'blue-refined-concrete'})
 
 local config = {
     spawn_shape = b.circle(64),

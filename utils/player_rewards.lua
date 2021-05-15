@@ -124,7 +124,7 @@ Command.add(
         end
 
         local target_name = args.target
-        local target = game.players[target_name]
+        local target = game.get_player(target_name)
         if not target then
             player.print('Target not found.')
             return

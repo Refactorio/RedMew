@@ -39,7 +39,7 @@ local function create_camera(args, player)
     local mainframeid = 'mainframe_' .. player_index
     local mainframe = mainframeflow[mainframeid]
 
-    local target = game.players[args.target]
+    local target = game.get_player(args.target)
     if not target then
         player.print('Not a valid target')
         return

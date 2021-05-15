@@ -277,7 +277,7 @@ Command.add(
     },
     function(args)
         local target_name = args.player
-        local target = game.players[target_name]
+        local target = game.get_player(target_name)
         if target then
             Public.toast_player(target, 15, args.msg)
             Utils.print_admins({'command_description.sent_player_toast', Utils.get_actor(), target_name})
