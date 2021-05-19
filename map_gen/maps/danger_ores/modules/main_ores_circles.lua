@@ -14,7 +14,7 @@ return function(config)
     local start_ore_shape = config.start_ore_shape
 
     main_ores = Helper.split_ore(main_ores, main_ores_split_count)
-    
+
     if config.main_ores_shuffle_order then
       table.shuffle_table(main_ores)
     end
@@ -60,7 +60,8 @@ return function(config)
 
       local ores = b.any(shapes)
 
-      local starting_ores = b.segment_pattern(starting_ores_list)  
+      local starting_ores = b.change_collision_tile(start_ore_shape, 'water-tile', 'grass-1') -- For some reason that does not always overwrite water tiles?
+      starting_ores = b.apply_entity(starting_ores, b.segment_pattern(starting_ores_list))  
 
       return b.any {spawn_shape, starting_ores ,water_shape, ores}
     end
