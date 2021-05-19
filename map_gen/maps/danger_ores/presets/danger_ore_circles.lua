@@ -5,7 +5,7 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Danger Ore Waves')
+ScenarioInfo.set_map_name('Danger Ore Circles')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
