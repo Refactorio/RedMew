@@ -45,7 +45,7 @@ return function(config)
           local ore_name = ore_data.name
           local tiles = ore_data.tiles
           local land = tile_builder(tiles)
-          
+
           table.insert(starting_ores_list, b.resource(start_ore_shape, ore_name, value(100, 0)))
 
           local ratios = ore_data.ratios
@@ -61,7 +61,7 @@ return function(config)
       local ores = b.any(shapes)
 
       local starting_ores = b.change_collision_tile(start_ore_shape, 'water-tile', 'grass-1') -- For some reason that does not always overwrite water tiles?
-      starting_ores = b.apply_entity(starting_ores, b.segment_pattern(starting_ores_list))  
+      starting_ores = b.apply_entity(starting_ores, b.segment_pattern(starting_ores_list))
 
       return b.any {spawn_shape, starting_ores ,water_shape, ores}
     end
