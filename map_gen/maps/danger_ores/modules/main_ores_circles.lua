@@ -45,7 +45,7 @@ return function(config)
           local amount = ore_data.start
 
           local ore = ore_builder(ore_name, amount, ratios, weighted)
-          local condition = condition_factory(config, ore_name)
+          local condition = condition_factory(ore_name)
           local shape = b.choose(condition, b.apply_entity(land, ore), b.empty_shape)
           table.insert(shapes, shape)
       end
