@@ -60,7 +60,7 @@ return function(config)
 
       local ores = b.any(shapes)
 
-      local starting_ores = b.change_collision_tile(start_ore_shape, 'water-tile', 'grass-1') -- For some reason that does not always overwrite water tiles?
+      local starting_ores = b.change_map_gen_collision_tile(start_ore_shape, 'water-tile', 'grass-1')
       starting_ores = b.apply_entity(starting_ores, b.segment_pattern(starting_ores_list))
 
       return b.any {spawn_shape, starting_ores ,water_shape, ores}
