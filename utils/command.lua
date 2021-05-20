@@ -149,7 +149,13 @@ function Command.add(command_name, options, callback)
         help_text,
         function(command)
             local print  -- custom print reference in case no player is present
-            local player = game.get_player(command.player_index)
+            local player_index = command.player_index
+            local player = nil
+
+            if player_index ~= nil and player_index ~= 0 then
+                player = game.get_player(player_index)
+            end
+
             local player_name = player and player.valid and player.name or '<server>'
             if not player or not player.valid then
                 print = log
