@@ -15,9 +15,9 @@ return function(config)
 
     main_ores = Helper.split_ore(main_ores, main_ores_split_count)
 
-    if config.main_ores_shuffle_order then
-      table.shuffle_table(main_ores)
-    end
+    --if config.main_ores_shuffle_order then
+    --  table.shuffle_table(main_ores)
+    --end
 
     local function condition_factory(ore_name)
       local scale = config.circle_scale or 1
