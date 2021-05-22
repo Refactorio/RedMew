@@ -15,15 +15,11 @@ return function(config)
 
     main_ores = Helper.split_ore(main_ores, main_ores_split_count)
 
-    --if config.main_ores_shuffle_order then
-    --  table.shuffle_table(main_ores)
-    --end
-
-    local function condition_factory(ore_name)
+    local function condition_factory(ore_name, ores)
       local scale = config.circle_scale or 1
       --local randomize_scale = config.randomize_scale or false
       local ore_table = {}
-      for _, ore_data in pairs(main_ores) do
+      for _, ore_data in pairs(ores) do
         table.insert(ore_table, {name = ore_data.name, weight = ore_data.weight})
       end
       local weighted = b.prepare_weighted_array(ore_table)
@@ -37,7 +33,11 @@ return function(config)
       end
     end
 
-    return function(tile_builder, ore_builder, spawn_shape, water_shape, _)
+    return function(tile_builder, ore_builder, spawn_shape, water_shape, random_gen)
+
+      if config.main_ores_shuffle_order then
+        table.shuffle_table(main_ores, random_gen)
+      end
 
       local shapes = {}
       local starting_ores_list = {}
@@ -53,7 +53,7 @@ return function(config)
           local amount = ore_data.start
 
           local ore = ore_builder(ore_name, amount, ratios, weighted)
-          local condition = condition_factory(ore_name)
+          local condition = condition_factory(ore_name, main_ores)
           local shape = b.choose(condition, b.apply_entity(land, ore), b.empty_shape)
           table.insert(shapes, shape)
       end
