@@ -594,6 +594,12 @@ function Builders.if_else(shape, else_shape)
     end
 end
 
+function Builders.use_world_as_local(shape)
+    return function (_, _, world)
+        return shape(world.x, world.y, world)
+    end
+end
+
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderslinear_grow
 function Builders.linear_grow(shape, size)
     return function(x, y, world)
@@ -991,7 +997,7 @@ function Builders.apply_entity(shape, entity_shape)
         end
 
         local e = entity_shape(x, y, world)
-        if e then
+        if e and e ~= true then
             tile = add_entity(tile, e)
         end
 
@@ -1010,7 +1016,7 @@ function Builders.apply_entities(shape, entity_shapes)
 
         for _, es in ipairs(entity_shapes) do
             local e = es(x, y, world)
-            if e then
+            if e and e ~= true then
                 tile = add_entity(tile, e)
             end
         end

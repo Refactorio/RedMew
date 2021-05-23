@@ -66,7 +66,7 @@ return function(config)
             end
 
             local resource_patches_entity = resource_patches(x, y, world)
-            if resource_patches_entity ~= false then
+            if resource_patches_entity then
                 return resource_patches_entity
             end
 
