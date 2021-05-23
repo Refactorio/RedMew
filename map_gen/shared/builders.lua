@@ -1531,9 +1531,8 @@ end
 function Builders.ring_weighted_pattern(pattern, thickness)
     local weights = Builders.prepare_weighted_array(pattern)
     local total = weights.total
-
-    --local count = #pattern
     local scale = 1 / thickness
+
     return function(x, y, world)
         local d = sqrt(x * x + y * y)
         local i = (d * scale) % total
