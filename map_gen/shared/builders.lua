@@ -1517,6 +1517,43 @@ function Builders.segment_weighted_pattern(pattern)
     end
 end
 
+function Builders.ring_pattern(pattern, thickness)
+    local count = #pattern
+    local scale = 1 / thickness
+    return function(x, y, world)
+        local d = sqrt(x * x + y * y)
+        local index = floor(d * scale) % count + 1
+        local shape = pattern[index] or Builders.empty_shape
+        return shape(x, y, world)
+    end
+end
+
+function Builders.ring_weighted_pattern(pattern, thickness)
+    local weights = Builders.prepare_weighted_array(pattern)
+    local total = weights.total
+    local scale = 1 / thickness
+
+    return function(x, y, world)
+        local d = sqrt(x * x + y * y)
+        local i = (d * scale) % total
+
+        local index = binary_search(weights, i)
+        if index < 0 then
+            index = bnot(index)
+        end
+
+        local data = pattern[index]
+        local shape
+        if data then
+            shape = data.shape
+        end
+
+        shape = shape or Builders.empty_shape
+
+        return shape(x, y, world)
+    end
+end
+
 local function rotate_cords(angle)
     local qx = cos(angle)
     local qy = sin(angle)

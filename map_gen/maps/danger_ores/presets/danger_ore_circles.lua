@@ -109,7 +109,7 @@ local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launche
 rocket_launched({win_satellite_count = 500})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'danger-ore-gradient'})
+restart_command({scenario_name = 'danger-ore-circles'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
@@ -125,7 +125,7 @@ local config = {
     main_ores_builder = main_ores_builder,
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
-    main_ores_rotate = 0,
+    main_ores_rotate = 30,
     resource_patches = resource_patches,
     resource_patches_config = resource_patches_config,
     water = water,
@@ -145,7 +145,7 @@ local config = {
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
     dense_patches_multiplier = 25,
-    circle_scale = 1/16 -- regulates the width of each circle
+    circle_thickness = 16 -- Thickness of the rings at weight 1
 }
 
 return map(config)
