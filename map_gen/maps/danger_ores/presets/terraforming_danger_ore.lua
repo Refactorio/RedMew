@@ -58,7 +58,7 @@ local resource_patches_config = require 'map_gen.maps.danger_ores.config.vanilla
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
-local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
+--local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
 local allowed_entities = require 'map_gen.maps.danger_ores.config.vanilla_allowed_entities'
