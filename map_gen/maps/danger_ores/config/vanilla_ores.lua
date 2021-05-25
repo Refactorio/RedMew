@@ -1,5 +1,6 @@
 local b = require 'map_gen.shared.builders'
-local value = b.euclidean_value
+local start_value = b.euclidean_value(24, 0)
+local value = b.exponential_value(0, 0.07, 1.415)
 
 return {
     {
@@ -10,13 +11,13 @@ return {
             [3] = 'red-desert-2',
             [4] = 'red-desert-3'
         },
-        ['start'] = value(50, 0),
+        ['start'] = start_value,
         ['weight'] = 1,
         ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.75)), weight = 15},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.75)), weight = 70},
-            {resource = b.resource(b.full_shape, 'stone', value(0, 0.75)), weight = 10},
-            {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 5}
+            {resource = b.resource(b.full_shape, 'iron-ore', value), weight = 15},
+            {resource = b.resource(b.full_shape, 'copper-ore', value), weight = 70},
+            {resource = b.resource(b.full_shape, 'stone', value), weight = 10},
+            {resource = b.resource(b.full_shape, 'coal', value), weight = 5}
         }
     },
     {
@@ -30,13 +31,13 @@ return {
             [6] = 'dirt-6',
             [7] = 'dirt-7'
         },
-        ['start'] = value(50, 0),
+        ['start'] = start_value,
         ['weight'] = 1,
         ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.75)), weight = 18},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.75)), weight = 9},
-            {resource = b.resource(b.full_shape, 'stone', value(0, 0.75)), weight = 8},
-            {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 65}
+            {resource = b.resource(b.full_shape, 'iron-ore', value), weight = 18},
+            {resource = b.resource(b.full_shape, 'copper-ore', value), weight = 9},
+            {resource = b.resource(b.full_shape, 'stone', value), weight = 8},
+            {resource = b.resource(b.full_shape, 'coal', value), weight = 65}
         }
     },
     {
@@ -47,13 +48,13 @@ return {
             [3] = 'grass-3',
             [4] = 'grass-4'
         },
-        ['start'] = value(50, 0),
+        ['start'] = start_value,
         ['weight'] = 1,
         ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.75)), weight = 75},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.75)), weight = 13},
-            {resource = b.resource(b.full_shape, 'stone', value(0, 0.75)), weight = 7},
-            {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 5}
+            {resource = b.resource(b.full_shape, 'iron-ore', value), weight = 75},
+            {resource = b.resource(b.full_shape, 'copper-ore', value), weight = 13},
+            {resource = b.resource(b.full_shape, 'stone', value), weight = 7},
+            {resource = b.resource(b.full_shape, 'coal', value), weight = 5}
         }
     },
     --[[ {
@@ -63,13 +64,13 @@ return {
             [2] = 'sand-2',
             [3] = 'sand-3'
         },
-        ['start'] = value(50, 0),
+        ['start'] = start_value,
         ['weight'] = 1,
         ['ratios'] = {
-            {resource = b.resource(b.full_shape, 'iron-ore', value(0, 0.75)), weight = 25},
-            {resource = b.resource(b.full_shape, 'copper-ore', value(0, 0.75)), weight = 10},
-            {resource = b.resource(b.full_shape, 'stone', value(0, 0.75)), weight = 60},
-            {resource = b.resource(b.full_shape, 'coal', value(0, 0.75)), weight = 5}
+            {resource = b.resource(b.full_shape, 'iron-ore', value), weight = 25},
+            {resource = b.resource(b.full_shape, 'copper-ore', value), weight = 10},
+            {resource = b.resource(b.full_shape, 'stone', value), weight = 60},
+            {resource = b.resource(b.full_shape, 'coal', value), weight = 5}
         }
     } ]]
 }

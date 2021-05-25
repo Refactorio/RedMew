@@ -58,7 +58,7 @@ local resource_patches_config = require 'map_gen.maps.danger_ores.config.vanilla
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
-local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
+--local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
 local allowed_entities = require 'map_gen.maps.danger_ores.config.vanilla_allowed_entities'
@@ -99,6 +99,8 @@ Event.on_init(function()
     game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
     game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
 
+    game.forces.player.manual_mining_speed_modifier = 1
+
     RS.get_surface().always_day = true
 end)
 
@@ -118,8 +120,8 @@ local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_
 concrete_on_landfill({tile = 'blue-refined-concrete'})
 
 local config = {
-    spawn_shape = b.circle(64),
-    start_ore_shape = b.circle(68),
+    spawn_shape = b.circle(56),
+    start_ore_shape = b.circle(60),
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
     main_ores_rotate = 30,
@@ -138,7 +140,7 @@ local config = {
     enemy_max_chance = 1 / 6,
     enemy_scale_factor = 32,
     fish_spawn_rate = 0.025,
-    dense_patches = dense_patches,
+    --dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
     dense_patches_multiplier = 25

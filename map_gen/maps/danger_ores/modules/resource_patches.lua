@@ -1,5 +1,6 @@
 local Perlin = require 'map_gen.shared.perlin_noise'
 local seed_provider = require 'map_gen.maps.danger_ores.modules.seed_provider'
+local b = require 'map_gen.shared.builders'
 
 local perlin_noise = Perlin.noise
 
@@ -22,20 +23,11 @@ return function(config)
                 return resource(x, y, world)
             end
 
-            return false
+            return nil
         end
 
         entities[#entities + 1] = entity_shape
     end
 
-    return function(x, y, world)
-        for i = 1, #entities do
-            local e = entities[i](x, y, world)
-            if e ~= false then
-                return e
-            end
-        end
-
-        return false
-    end
+    return b.any(entities)
 end
