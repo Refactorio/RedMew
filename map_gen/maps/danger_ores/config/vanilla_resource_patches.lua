@@ -12,8 +12,8 @@ return {
         resource = b.any{b.resource(oil_shape, 'crude-oil', value(200000, 2500)), full_oil_shape}
     },
     {
-        scale = 1 / 80,
-        threshold = 0.68,
+        scale = 1 / 72,
+        threshold = 0.66,
         resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1.5))
     }
 }
