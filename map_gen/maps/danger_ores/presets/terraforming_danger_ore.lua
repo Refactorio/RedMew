@@ -120,8 +120,9 @@ local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_
 concrete_on_landfill({tile = 'blue-refined-concrete'})
 
 local config = {
-    spawn_shape = b.circle(56),
-    start_ore_shape = b.circle(60),
+    spawn_shape = b.circle(36),
+    start_ore_shape = b.circle(44),
+    no_resource_patch_shape = b.circle(80),
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
     main_ores_rotate = 30,

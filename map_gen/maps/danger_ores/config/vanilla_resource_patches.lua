@@ -9,11 +9,11 @@ return {
     {
         scale = 1 / 64,
         threshold = 0.6,
-        resource = b.any{b.resource(oil_shape, 'crude-oil', value(200000, 2500)), full_oil_shape}
+        resource = b.any{b.resource(oil_shape, 'crude-oil', value(100000, 2500)), full_oil_shape}
     },
     {
         scale = 1 / 72,
         threshold = 0.66,
-        resource = b.resource(b.full_shape, 'uranium-ore', value(200, 1.5))
+        resource = b.resource(b.full_shape, 'uranium-ore', value(100, 1.5))
     }
 }

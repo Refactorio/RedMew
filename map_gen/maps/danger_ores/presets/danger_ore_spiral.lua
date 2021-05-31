@@ -57,7 +57,7 @@ local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patc
 local resource_patches_config = require 'map_gen.maps.danger_ores.config.vanilla_resource_patches'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
-local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
+--local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
 local allowed_entities = require 'map_gen.maps.danger_ores.config.vanilla_allowed_entities'
@@ -146,7 +146,7 @@ local config = {
     enemy_max_chance = 1 / 5,
     enemy_scale_factor = 32,
     fish_spawn_rate = 0.025,
-    dense_patches = dense_patches,
+    --dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
     dense_patches_multiplier = 50

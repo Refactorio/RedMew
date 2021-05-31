@@ -1,6 +1,6 @@
 local b = require 'map_gen.shared.builders'
-local start_value = b.euclidean_value(24, 0)
-local value = b.exponential_value(0, 0.07, 1.415)
+local start_value = b.euclidean_value(0, 0.35)
+local value = b.exponential_value(0, 0.07, 1.45)
 
 return {
     {
