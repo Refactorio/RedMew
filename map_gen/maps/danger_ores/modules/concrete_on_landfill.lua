@@ -95,6 +95,24 @@ return function(config)
         on_tile_built(event, inventory)
     end
 
+    local function built_entity(event)
+        local entity = event.created_entity
+        if not entity or not entity.valid or entity.name ~= 'tile-ghost' then
+            return
+        end
+
+        local item = event.item
+        if not item or not item.valid or not brush_tools[item.name] then
+            return
+        end
+
+        local tile = entity.surface.get_tile(entity.position)
+        if tile and tile.valid and tile.name == replace_tile then
+            entity.destroy()
+        end
+    end
+
     Event.add(defines.events.on_player_built_tile, player_built_tile)
     Event.add(defines.events.on_robot_built_tile, robot_built_tile)
+    Event.add(defines.events.on_built_entity, built_entity)
 end
