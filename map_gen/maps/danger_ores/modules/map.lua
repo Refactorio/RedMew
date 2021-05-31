@@ -54,6 +54,7 @@ end
 return function(config)
     local start_ore_shape
     local resource_patches
+    local no_resource_patch_shape
     local dense_patches
 
     local function ore_builder(ore_name, amount, ratios, weighted)
@@ -65,9 +66,11 @@ return function(config)
                 return start_ore(x, y, world)
             end
 
-            local resource_patches_entity = resource_patches(x, y, world)
-            if resource_patches_entity then
-                return resource_patches_entity
+            if not no_resource_patch_shape(x, y) then
+                local resource_patches_entity = resource_patches(x, y, world)
+                if resource_patches_entity then
+                    return resource_patches_entity
+                end
             end
 
             local i = random() * total
@@ -104,6 +107,7 @@ return function(config)
 
             start_ore_shape = config.start_ore_shape or b.circle(68)
             resource_patches = (config.resource_patches or no_op)(config) or b.empty_shape
+            no_resource_patch_shape = config.no_resource_patch_shape or b.empty_shape
             dense_patches = (config.dense_patches or no_op)(config) or no_op
 
             local random_gen = tbl.random
