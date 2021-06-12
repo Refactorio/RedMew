@@ -97,12 +97,7 @@ return function(config)
 
     local function built_entity(event)
         local entity = event.created_entity
-        if not entity or not entity.valid or entity.name ~= 'tile-ghost' then
-            return
-        end
-
-        local item = event.item
-        if not item or not item.valid or not brush_tools[item.name] then
+        if not entity or not entity.valid or entity.name ~= 'tile-ghost' or not brush_tools[entity.ghost_name] then
             return
         end
 
