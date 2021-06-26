@@ -289,13 +289,13 @@ Please be careful!
                 end
 
                 if number_of_spilled >= anti_grief_tries then
-                    Report.jail(player, nil)
+                    Report.jail(player, '<script>')
                     player.print({'', '[color=yellow]', {'concrete_jungle.anti_grief_jail_reason'}, '[/color]'})
                     Report.report(nil, player, 'Spilling too many items on the ground')
                     times_spilled[player.index] = nil
                     return
                 elseif number_of_spilled == anti_grief_kick_tries then
-                    game.kick_player(player, {'concrete_jungle.anti_grief_kick_reason'})
+                    Report.kick_player(player, 'Spilling too many items on the ground')
                 end
                 times_spilled[player.index] = {count = number_of_spilled + 1, tick = game.tick}
             end
