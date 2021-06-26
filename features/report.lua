@@ -250,13 +250,13 @@ end
 
 --- Places a target in jail
 -- @param target_player <LuaPlayer> the target to jail
--- @param player <LuaPlayer|nil> the admin as LuaPlayer or server as nil
+-- @param player <LuaPlayer|'<script>'|nil> the admin as LuaPlayer or '<script>' or server as nil
 function Module.jail(target_player, player)
     local print
-    if player then
+    if type(player) == 'table' then
         print = player.print
     else
-        player = {name = 'server'}
+        player = {name = player or '<server>'}
         print = log
     end
 
@@ -470,6 +470,50 @@ function Module.ban_player(player, reason)
 
     text = table.concat(text)
     Server.to_discord_named_embed_raw(moderation_log_channel, text)
+    Server.to_discord_named_raw(moderation_log_channel, moderator_role_mention)
+end
+
+--- kicks the player and reports the kick to moderation log channel.
+-- @param  player<LuaPlayer>
+-- @param  reason<string?> defaults to empty string.
+function Module.kick_player(player, reason)
+    if not player or not player.valid then
+        return
+    end
+
+    if reason == nil then
+        reason = ''
+    elseif type(reason) ~= 'string' then
+        error('reason must be a string or nil', 2)
+    end
+
+    game.kick_player(player, reason)
+
+    local server_id = Server.get_server_id()
+    local server_name = Server.get_server_name()
+
+    local text = {'**'}
+    text[#text + 1] = Utils.sanitise_string_for_discord(player.name)
+    text[#text + 1] = ' was kicked by <script>**\\n'
+
+    if server_id ~= '' then
+        text[#text + 1] = 'Server: s'
+        text[#text + 1] = Utils.sanitise_string_for_discord(server_id)
+        text[#text + 1] = ' - '
+        text[#text + 1] = Utils.sanitise_string_for_discord(server_name)
+        text[#text + 1] = '\\n'
+    end
+
+    text[#text + 1] = ' Game time: '
+    text[#text + 1] = Utils.format_time(game.tick)
+    text[#text + 1] = '\\nPlayer online time: '
+    text[#text + 1] = Utils.format_time(player.online_time)
+    text[#text + 1] = '\\nReason: '
+    text[#text + 1] = Utils.sanitise_string_for_discord(reason)
+
+    text = table.concat(text)
+    Server.to_discord_named_embed_raw(moderation_log_channel, text)
+    Server.to_discord_named_raw(moderation_log_channel, moderator_role_mention)
 end
 
 Gui.on_custom_close(report_frame_name, function(event)

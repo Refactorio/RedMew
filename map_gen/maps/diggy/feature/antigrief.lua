@@ -46,7 +46,7 @@ Event.add(CaveCollapse.events.on_collapse, function(event)
         player_collapses[player_index] = count
         local player = game.get_player(player_index)
         if global_primitives.autojail and count > allowed_collapses_first_hour and player.online_time < 216000 and not jailed_players[player_index] then
-            Report.jail(player)
+            Report.jail(player, '<script>')
             Report.report(nil, player, format('Caused %d collapses in the first hour', count))
             jailed_players[player_index] = true
         end

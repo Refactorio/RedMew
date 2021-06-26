@@ -239,10 +239,8 @@ local function on_capsule_used(event)
     else
         players_warned[event.player_index] = true
         if nuke_control.enable_autokick then
-            game.kick_player(
-                player,
-                format('Damaged entities: %s with %s -Antigrief', list_damaged_entities(item_name, entities), item_name)
-            )
+            local reason = format('Damaged entities: %s with %s -Antigrief', list_damaged_entities(item_name, entities), item_name)
+            Report.kick_player(player, reason)
         end
     end
 end
@@ -299,7 +297,8 @@ local function on_entity_died(event)
                 train.manual_mode = false
                 Task.set_timeout_in_ticks(30, train_to_manual, train)
                 if players_warned[player.index] and num_passengers == 1 then -- jail for later offenses if they're solely guilty
-                    Report.jail(player)
+                    Report.jail(player, '<script>')
+                    Report.report(nil, player, player.name .. ' used a train to destroy another train and has been jailed.')
                     Utils.print_admins({'nuke_control.train_jailing', player.name})
                 else -- warn for first offense or if there's someone else in the train
                     players_warned[player.index] = true
