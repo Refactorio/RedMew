@@ -279,8 +279,8 @@ local function do_evolution(entity, entity_name, entity_force)
         local old = entity_force.evolution_factor
         local extra = (1 - old) * factor
         local new = old + extra
+        entity_force.evolution_factor = math.min(new,1)
         if new < 1 then
-            entity_force.evolution_factor = new
             local position = entity.position
             entity.surface.create_entity{name="flying-text", position = {position.x - 1, position.y}, text = "+" .. round(extra*100,2) .. "% evo", color = Color.plum}
         end
