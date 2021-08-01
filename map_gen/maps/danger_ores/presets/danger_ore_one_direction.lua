@@ -132,7 +132,7 @@ concrete_on_landfill({tile = 'blue-refined-concrete'})
 
 local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_one_direction'
 
-local function post_map_func(map)
+local function post_map_func(map_shape)
     local function map_bounds(x, y)
         return x > -44 and y > -48 and y < 48
     end
@@ -144,7 +144,7 @@ local function post_map_func(map)
     local water_border = b.tile('water')
     water_border = b.choose(water_bounds, water_border, b.empty_shape)
 
-    return b.choose(map_bounds, map, water_border)
+    return b.choose(map_bounds, map_shape, water_border)
 end
 
 local config = {
