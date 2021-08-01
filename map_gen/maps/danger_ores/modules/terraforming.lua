@@ -14,6 +14,7 @@ return function(config)
     Generate.enable_register_events = false
 
     local start_size = config.start_size
+    local outer_bounds = config.bounds or b.full_shape
 
     local pollution_data = {
         min_pollution = config.min_pollution or 400,
@@ -26,17 +27,13 @@ return function(config)
     local chunk_list = {index = 1}
     local surface
 
-    Global.register_init(
-        {chunk_list = chunk_list, pollution_data = pollution_data},
-        function(tbl)
-            tbl.surface = RS.get_surface()
-        end,
-        function(tbl)
-            chunk_list = tbl.chunk_list
-            pollution_data = tbl.pollution_data
-            surface = tbl.surface
-        end
-    )
+    Global.register_init({chunk_list = chunk_list, pollution_data = pollution_data}, function(tbl)
+        tbl.surface = RS.get_surface()
+    end, function(tbl)
+        chunk_list = tbl.chunk_list
+        pollution_data = tbl.pollution_data
+        surface = tbl.surface
+    end)
 
     local bounds = b.rectangle(start_size, start_size)
 
@@ -59,7 +56,9 @@ return function(config)
             end
             surface.set_tiles(tiles, true)
 
-            chunk_list[#chunk_list + 1] = {left_top = left_top, id = nil}
+            if (outer_bounds(x + 0.5, y + 0.5)) then
+                chunk_list[#chunk_list + 1] = {left_top = left_top, id = nil}
+            end
         end
     end
 
@@ -102,8 +101,7 @@ return function(config)
 
             local id = data.id
             if not id then
-                data.id =
-                    rendering.draw_text {
+                data.id = rendering.draw_text {
                     text = text,
                     surface = surface,
                     target = {x + 16, y + 16},

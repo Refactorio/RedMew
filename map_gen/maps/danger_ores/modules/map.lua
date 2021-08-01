@@ -90,43 +90,44 @@ return function(config)
     end
 
     local map
-    Global.register_init(
-        {},
-        function(tbl)
-            tbl.seed = RS.get_surface().map_gen_settings.seed
-            tbl.random = game.create_random_generator(tbl.seed)
-        end,
-        function(tbl)
-            local spawn_shape = spawn_builder(config)
-            local water_shape = (config.water or empty_builder)(config)
-            local tile_builder = tile_builder_factory(config)
-            local trees_shape = (config.trees or no_op)(config)
-            local enemy_shape = (config.enemy or no_op)(config)
-            local fish_spawn_rate = config.fish_spawn_rate
-            local main_ores_builder = (config.main_ores_builder or deafult_main_ores_builder)(config)
+    Global.register_init({}, function(tbl)
+        tbl.seed = RS.get_surface().map_gen_settings.seed
+        tbl.random = game.create_random_generator(tbl.seed)
+    end, function(tbl)
+        local spawn_shape = spawn_builder(config)
+        local water_shape = (config.water or empty_builder)(config)
+        local tile_builder = tile_builder_factory(config)
+        local trees_shape = (config.trees or no_op)(config)
+        local enemy_shape = (config.enemy or no_op)(config)
+        local fish_spawn_rate = config.fish_spawn_rate
+        local main_ores_builder = (config.main_ores_builder or deafult_main_ores_builder)(config)
+        local post_map_func = config.post_map_func
 
-            start_ore_shape = config.start_ore_shape or b.circle(68)
-            resource_patches = (config.resource_patches or no_op)(config) or b.empty_shape
-            no_resource_patch_shape = config.no_resource_patch_shape or b.empty_shape
-            dense_patches = (config.dense_patches or no_op)(config) or no_op
+        start_ore_shape = config.start_ore_shape or b.circle(68)
+        resource_patches = (config.resource_patches or no_op)(config) or b.empty_shape
+        no_resource_patch_shape = config.no_resource_patch_shape or b.empty_shape
+        dense_patches = (config.dense_patches or no_op)(config) or no_op
 
-            local random_gen = tbl.random
-            random_gen.re_seed(tbl.seed)
-            map = main_ores_builder(tile_builder, ore_builder, spawn_shape, water_shape, random_gen)
+        local random_gen = tbl.random
+        random_gen.re_seed(tbl.seed)
+        map = main_ores_builder(tile_builder, ore_builder, spawn_shape, water_shape, random_gen)
 
-            if enemy_shape then
-                map = b.apply_entity(map, enemy_shape)
-            end
-
-            if trees_shape then
-                map = b.apply_entity(map, trees_shape)
-            end
-
-            if fish_spawn_rate then
-                map = b.fish(map, fish_spawn_rate)
-            end
+        if enemy_shape then
+            map = b.apply_entity(map, enemy_shape)
         end
-    )
+
+        if trees_shape then
+            map = b.apply_entity(map, trees_shape)
+        end
+
+        if fish_spawn_rate then
+            map = b.fish(map, fish_spawn_rate)
+        end
+
+        if post_map_func then
+            map = post_map_func(map)
+        end
+    end)
 
     return function(x, y, world)
         return map(x, y, world)
