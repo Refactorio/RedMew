@@ -1170,6 +1170,31 @@ function Builders.grid_y_pattern(pattern, rows, height)
     end
 end
 
+function Builders.grid_y_no_repeat_weighted_pattern(pattern, height)
+    local weights = Builders.prepare_weighted_array(pattern)
+    local total = weights.total
+    local scale = 1 / height
+
+    return function(x, y, world)
+        local i = ((y * scale) -0.5) % total
+
+        local index = binary_search(weights, i)
+        if index < 0 then
+            index = bnot(index)
+        end
+
+        local data = pattern[index]
+        local shape
+        if data then
+            shape = data.shape
+        end
+
+        shape = shape or Builders.empty_shape
+
+        return shape(x, y, world)
+    end
+end
+
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_pattern
 function Builders.grid_pattern(pattern, columns, rows, width, height)
     local half_width = width / 2
