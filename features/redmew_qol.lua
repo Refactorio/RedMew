@@ -560,7 +560,7 @@ if config.loaders then
 
     local loaders = {['loader'] = true, ['fast-loader'] = true, ['express-loader'] = true}
 
-    local container_types = {'container', 'logistic-container'}
+    local container_types = {'container', 'logistic-container', 'assembling-machine', 'furnace'}
 
     local function is_valid_unconnected_loader(entity)
         if not entity or not entity.valid then
