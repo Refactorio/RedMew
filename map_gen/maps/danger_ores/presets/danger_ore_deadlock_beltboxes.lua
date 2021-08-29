@@ -54,7 +54,7 @@ ScenarioInfo.set_new_info([[
 global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ores'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_ores'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
 local resource_patches_config = require 'map_gen.maps.danger_ores.config.vanilla_resource_patches'
 local water = require 'map_gen.maps.danger_ores.modules.water'
@@ -63,78 +63,56 @@ local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 --local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
-local allowed_entities = require 'map_gen.maps.danger_ores.config.vanilla_allowed_entities'
+local allowed_entities = require 'map_gen.maps.danger_ores.config.deadlock_betlboxes_allowed_entities'
 banned_entities(allowed_entities)
 
-RS.set_map_gen_settings(
-    {
-        MGSP.grass_only,
-        MGSP.enable_water,
-        {
-            terrain_segmentation = 'normal',
-            water = 'normal'
-        },
-        MGSP.starting_area_very_low,
-        MGSP.ore_oil_none,
-        MGSP.enemy_none,
-        MGSP.cliff_none,
-        MGSP.tree_none
-    }
-)
+RS.set_map_gen_settings({
+    MGSP.grass_only,
+    MGSP.enable_water,
+    {terrain_segmentation = 'normal', water = 'normal'},
+    MGSP.starting_area_very_low,
+    MGSP.ore_oil_none,
+    MGSP.enemy_none,
+    MGSP.cliff_none,
+    MGSP.tree_none
+})
 
 Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_create.starting_items = {}
 Config.dump_offline_inventories = {
     enabled = true,
-    offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
+    offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
 
-Event.on_init(
-    function()
-        --game.draw_resource_selection = false
-        game.forces.player.technologies['mining-productivity-1'].enabled = false
-        game.forces.player.technologies['mining-productivity-2'].enabled = false
-        game.forces.player.technologies['mining-productivity-3'].enabled = false
-        game.forces.player.technologies['mining-productivity-4'].enabled = false
+Event.on_init(function()
+    game.draw_resource_selection = false
+    game.forces.player.technologies['mining-productivity-1'].enabled = false
+    game.forces.player.technologies['mining-productivity-2'].enabled = false
+    game.forces.player.technologies['mining-productivity-3'].enabled = false
+    game.forces.player.technologies['mining-productivity-4'].enabled = false
 
-        game.difficulty_settings.technology_price_multiplier = 30
-        game.forces.player.technologies.logistics.researched = true
-        game.forces.player.technologies.automation.researched = true
-        game.forces.player.technologies['logistic-system'].enabled = false
-        game.forces.player.technologies['warehouse-logistics-research-2'].enabled = false
+    game.difficulty_settings.technology_price_multiplier = 35
+    game.forces.player.technologies.logistics.researched = true
+    game.forces.player.technologies.automation.researched = true
+    --game.forces.player.technologies['logistic-system'].enabled = false
+    --game.forces.player.technologies['warehouse-logistics-research-2'].enabled = false
 
-        game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
-        game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
-        game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
+    game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
+    game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
+    game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
 
-        game.forces.player.manual_mining_speed_modifier = 1
+    game.forces.player.manual_mining_speed_modifier = 1
 
-        RS.get_surface().always_day = true
-    end
-)
+    RS.get_surface().always_day = true
+end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming(
-    {
-        start_size = 8 * 32,
-        min_pollution = 400,
-        max_pollution = 8000,
-        pollution_increment = 2.5
-    }
-)
+terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 5})
 
-local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched'
-rocket_launched(
-    {
-        recent_chunks_max = 10,
-        ticks_between_waves = 60 * 30,
-        enemy_factor = 3,
-        max_enemies_per_wave_per_chunk = 60,
-        extra_rockets = 100
-    }
-)
+local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
+rocket_launched({win_satellite_count = 500})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
 restart_command({scenario_name = 'danger-ore-deadlock-beltboxes'})
@@ -146,8 +124,9 @@ local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_
 concrete_on_landfill({tile = 'blue-refined-concrete'})
 
 local config = {
-    spawn_shape = b.circle(64),
-    start_ore_shape = b.circle(68),
+    spawn_shape = b.circle(36),
+    start_ore_shape = b.circle(44),
+    no_resource_patch_shape = b.circle(80),
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
     main_ores_rotate = 30,
@@ -155,8 +134,8 @@ local config = {
     resource_patches_config = resource_patches_config,
     water = water,
     water_scale = 1 / 96,
-    water_threshold = 0.5,
-    deepwater_threshold = 0.55,
+    water_threshold = 0.4,
+    deepwater_threshold = 0.45,
     trees = trees,
     trees_scale = 1 / 64,
     trees_threshold = 0.4,
@@ -169,7 +148,7 @@ local config = {
     --dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
-    dense_patches_multiplier = 50
+    dense_patches_multiplier = 25
 }
 
 return map(config)
