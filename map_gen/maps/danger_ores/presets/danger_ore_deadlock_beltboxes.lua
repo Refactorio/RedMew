@@ -56,7 +56,7 @@ global.config.redmew_qol.loaders = false
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_ores'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
-local resource_patches_config = require 'map_gen.maps.danger_ores.config.vanilla_resource_patches'
+local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
@@ -87,7 +87,7 @@ Config.dump_offline_inventories = {
 Config.paint.enabled = false
 
 Event.on_init(function()
-    game.draw_resource_selection = false
+    --game.draw_resource_selection = false
     game.forces.player.technologies['mining-productivity-1'].enabled = false
     game.forces.player.technologies['mining-productivity-2'].enabled = false
     game.forces.player.technologies['mining-productivity-3'].enabled = false
@@ -106,13 +106,14 @@ Event.on_init(function()
     game.forces.player.manual_mining_speed_modifier = 1
 
     RS.get_surface().always_day = true
+    RS.get_surface().peaceful_mode = true
 end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 5})
+terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 6})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 500})
+rocket_launched({win_satellite_count = 1000})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
 restart_command({scenario_name = 'danger-ore-deadlock-beltboxes'})
