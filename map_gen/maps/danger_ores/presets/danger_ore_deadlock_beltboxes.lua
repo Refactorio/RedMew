@@ -93,7 +93,7 @@ Event.on_init(function()
     game.forces.player.technologies['mining-productivity-3'].enabled = false
     game.forces.player.technologies['mining-productivity-4'].enabled = false
 
-    game.difficulty_settings.technology_price_multiplier = 35
+    game.difficulty_settings.technology_price_multiplier = 40
     game.forces.player.technologies.logistics.researched = true
     game.forces.player.technologies.automation.researched = true
     --game.forces.player.technologies['logistic-system'].enabled = false
