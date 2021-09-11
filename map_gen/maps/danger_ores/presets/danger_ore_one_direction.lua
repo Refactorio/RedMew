@@ -111,15 +111,15 @@ end
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({
-    start_size = 8 * 32,
-    min_pollution = 100,
+    start_size = 12 * 32,
+    min_pollution = 200,
     max_pollution = 16000,
     pollution_increment = 4,
     bounds = terraforming_bounds
 })
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 500})
+rocket_launched({win_satellite_count = 250})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
 restart_command({scenario_name = 'terraforming-danger-ore'})
@@ -164,7 +164,7 @@ local config = {
     deepwater_threshold = 0.45,
     trees = trees,
     trees_scale = 1 / 64,
-    trees_threshold = 0.4,
+    trees_threshold = 0.3,
     trees_chance = 0.875,
     enemy = enemy,
     enemy_factor = 10 / (768 * 32),
