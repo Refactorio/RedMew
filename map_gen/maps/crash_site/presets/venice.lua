@@ -7,7 +7,6 @@ local path_tiles = b.path_tiles
 
 local pic = require 'map_gen.data.presets.venice'
 local world_map = b.picture(pic)
-local degrees = require "utils.math".degrees
 
 local x_offset, y_offset = 0, 180
 world_map = b.translate(world_map, x_offset, y_offset)
