@@ -51,6 +51,8 @@ ScenarioInfo.set_new_info([[
  - Rail signals and train stations now allowed on ore.
 ]])
 
+global.config.redmew_qol.loaders = false
+
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.one_direction_beltboxes_ores'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
