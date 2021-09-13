@@ -5,7 +5,7 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Danger Ore One Direction')
+ScenarioInfo.set_map_name('Danger Ore One Direction Beltboxes')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
@@ -52,16 +52,16 @@ ScenarioInfo.set_new_info([[
 ]])
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ores_one_direction'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.one_direction_beltboxes_ores'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
-local resource_patches_config = require 'map_gen.maps.danger_ores.config.vanilla_resource_patches'
+local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
 -- local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 -- local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
-local allowed_entities = require 'map_gen.maps.danger_ores.config.vanilla_allowed_entities'
+local allowed_entities = require 'map_gen.maps.danger_ores.config.deadlock_betlboxes_allowed_entities'
 banned_entities(allowed_entities)
 
 RS.set_map_gen_settings({
@@ -92,7 +92,7 @@ Event.on_init(function()
     game.forces.player.technologies['mining-productivity-3'].enabled = false
     game.forces.player.technologies['mining-productivity-4'].enabled = false
 
-    game.difficulty_settings.technology_price_multiplier = 25
+    game.difficulty_settings.technology_price_multiplier = 35
     game.forces.player.technologies.logistics.researched = true
     game.forces.player.technologies.automation.researched = true
 
@@ -112,17 +112,17 @@ end
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({
     start_size = 12 * 32,
-    min_pollution = 200,
+    min_pollution = 300,
     max_pollution = 16000,
-    pollution_increment = 4,
+    pollution_increment = 6,
     bounds = terraforming_bounds
 })
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 250})
+rocket_launched({win_satellite_count = 1000})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'danger-ore-one-direction'})
+restart_command({scenario_name = 'danger-ore-one-direction-beltboxes'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
