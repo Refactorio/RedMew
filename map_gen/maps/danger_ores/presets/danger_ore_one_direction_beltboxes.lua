@@ -88,7 +88,6 @@ Config.dump_offline_inventories = {
 Config.paint.enabled = false
 
 Event.on_init(function()
-    game.draw_resource_selection = false
     game.forces.player.technologies['mining-productivity-1'].enabled = false
     game.forces.player.technologies['mining-productivity-2'].enabled = false
     game.forces.player.technologies['mining-productivity-3'].enabled = false
