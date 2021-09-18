@@ -77,7 +77,9 @@ function Public.control(config)
         ['crashsite'] = 'Crash Site',
         ['crashsite-world'] = 'Crash Site World Map',
         ['crashsite-desert'] = 'Crash Site Desert',
-        ['crashsite-arrakis'] = 'Crash Site Arrakis'
+        ['crashsite-arrakis'] = 'Crash Site Arrakis',
+        ['crashsite-venice'] = 'Crash Site Venice',
+        ['crashsite-manhattan'] = 'Crash Site Manhattan'
     }
 
     local function can_restart(player)
@@ -242,8 +244,8 @@ function Public.control(config)
         local new_map_name = start_game_data.name
 
         Server.to_discord_named_raw(map_promotion_channel,
-            crash_site_role_mention .. ' **' .. scenario_display_name[config.scenario_name] .. ' has just restarted!!\\n'
-                .. 'Next map: ' .. new_map_name .. '**')
+            crash_site_role_mention .. ' **' .. (scenario_display_name[config.scenario_name] or config.scenario_name) .. ' has just restarted!!\\n'
+                .. 'Next map: ' .. (scenario_display_name[new_map_name] or new_map_name) .. '**')
 
         Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
     end
