@@ -775,7 +775,7 @@ local function init(config)
                 type= 'airstrike',
                 name = 'airstrike_damage',
                 name_label = {'command_description.crash_site_airstrike_count_name_label', 1},
-                sprite = 'item-group/production',
+                sprite = 'virtual-signal/signal-A',
                 description = {'command_description.crash_site_airstrike_count', 1, 0, "n/a", "n/a"}
             },
             {
@@ -784,7 +784,7 @@ local function init(config)
                 type = 'airstrike',
                 name = 'airstrike_radius',
                 name_label = {'command_description.crash_site_airstrike_radius_name_label', 1},
-                sprite = 'item-group/production',
+                sprite = 'virtual-signal/signal-A',
                 description = {'command_description.crash_site_airstrike_radius', 1, 0, 5}
             },
             {
@@ -793,15 +793,16 @@ local function init(config)
                 type = 'rocket_tanks',
                 name = 'rocket_tanks_fire_rate',
                 name_label = {'command_description.crash_site_rocket_tanks_name_label', 1},
-                sprite = 'entity/tank',
+                sprite = 'virtual-signal/signal-T',
                 description = {'command_description.crash_site_rocket_tanks_description'}
             },
             {name = 'wood', price = 1},
-            {name = 'iron-plate', price = 2},
-            {name = 'stone', price = 2},
             {name = 'coal', price = 1.25},
+            {name = 'stone', price = 2},
+            {name = 'iron-plate', price = 2},
+            {name = 'copper-plate', price = 2},
+            {name = 'steel-plate', price = 10},
             {name = 'raw-fish', price = 4},
-            {name = 'firearm-magazine', price = 5},
             {name = 'automation-science-pack', price = 10},
             {name = 'logistic-science-pack', price = 25},
             {name = 'military-science-pack', price = 50},
