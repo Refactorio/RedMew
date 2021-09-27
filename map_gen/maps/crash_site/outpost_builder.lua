@@ -60,7 +60,8 @@ local magic_fluid_crafters = {index = 1}
 local outposts = {}
 local artillery_outposts = {index = 1}
 local outpost_count = 0
-local pollution_multiplier = {value = 0}
+local base_pollution_multiplier = 10
+local pollution_multiplier = {value = 10}
 
 Global.register(
     {
@@ -1226,6 +1227,11 @@ local function set_pollution_multiplier(args, player)
         player.print("Fail")
         return
     end
+
+    if multiplier < base_pollution_multiplier then
+        pollution_multiplier.value = base_pollution_multiplier
+        player.print("Cannot set the multiplier lower than the base multiplier of " .. base_pollution_multiplier)
+    end 
 
     local old_multiplier = pollution_multiplier.value
     pollution_multiplier.value = multiplier
