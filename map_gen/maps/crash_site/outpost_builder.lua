@@ -1231,7 +1231,7 @@ local function set_pollution_multiplier(args, player)
     if multiplier < base_pollution_multiplier then
         pollution_multiplier.value = base_pollution_multiplier
         player.print("Cannot set the multiplier lower than the base multiplier of " .. base_pollution_multiplier)
-    end 
+    end
 
     local old_multiplier = pollution_multiplier.value
     pollution_multiplier.value = multiplier
