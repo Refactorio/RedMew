@@ -80,7 +80,7 @@ function Public.control(config)
         ['crashsite-arrakis'] = 'Crash Site Arrakis',
         ['crashsite-venice'] = 'Crash Site Venice',
         ['crashsite-manhattan'] = 'Crash Site Manhattan',
-        ['crashsite-UK'] = 'Crash United Kingdom'
+        ['crashsite-UK'] = 'Crash Site United Kingdom'
     }
 
     local function can_restart(player)
