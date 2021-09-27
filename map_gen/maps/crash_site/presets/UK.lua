@@ -23,7 +23,7 @@ local bounds = b.rectangle(width, height)
 bounds = b.translate(bounds, x_offset * scale, y_offset * scale)
 
 local config = {
-    scenario_name = 'crashsite-brexit',
+    scenario_name = 'crashsite-UK',
     map_gen_settings = {
         MGSP.starting_area_very_low,
         MGSP.ore_oil_none,

@@ -79,7 +79,8 @@ function Public.control(config)
         ['crashsite-desert'] = 'Crash Site Desert',
         ['crashsite-arrakis'] = 'Crash Site Arrakis',
         ['crashsite-venice'] = 'Crash Site Venice',
-        ['crashsite-manhattan'] = 'Crash Site Manhattan'
+        ['crashsite-manhattan'] = 'Crash Site Manhattan',
+        ['crashsite-UK'] = 'Crash Site United Kingdom'
     }
 
     local function can_restart(player)
