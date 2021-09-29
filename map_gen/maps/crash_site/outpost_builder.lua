@@ -1228,10 +1228,14 @@ local function set_pollution_multiplier(args, player)
         return
     end
 
-    if multiplier < base_pollution_multiplier then
-        pollution_multiplier.value = base_pollution_multiplier
-        player.print("Cannot set the multiplier lower than the base multiplier of " .. base_pollution_multiplier)
-        return
+    if multiplier < base_pollution_multiplier then  
+        if base_pollution_multiplier == pollution_multiplier.value then -- no change, so not necessary to message all admins and update the value
+            player.print("Magic crafter pollution is already at minimum value of " .. base_pollution_multiplier)
+            return
+        else -- update the value to the minimum and continue to message all admins
+            player.print("Setting magic crafter pollution multiplier to the minimum value of " .. base_pollution_multiplier)
+            multiplier = base_pollution_multiplier
+        end
     end
 
     local old_multiplier = pollution_multiplier.value
