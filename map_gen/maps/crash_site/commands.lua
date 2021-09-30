@@ -29,9 +29,11 @@ function Public.control(config)
     Restart.set_start_game_data({type = Restart.game_types.scenario, name = config.scenario_name or 'crashsite'})
 
     local airstrike_data = {radius_level = 1, count_level = 1}
+    local barrage_data = {radius_level = 1, count_level = 1}
 
-    Global.register({airstrike_data = airstrike_data}, function(tbl)
+    Global.register({airstrike_data = airstrike_data, barrage_data = barrage_data}, function(tbl)
         airstrike_data = tbl.airstrike_data
+        barrage_data = tbl.barrage_data
     end)
 
     local static_entities_to_check = {
@@ -333,7 +335,7 @@ function Public.control(config)
         local ypos = data.ypos
         local player = data.player
         local tag = player.force.add_chart_tag(player.surface, {
-            icon = {type = 'item', name = 'poison-capsule'},
+            icon = {type = 'item', name = data.item},
             position = {xpos, ypos},
             text = player.name
         })
@@ -341,15 +343,15 @@ function Public.control(config)
     end)
 
     local function render_crosshair(data)
-        local red = {r = 0.5, g = 0, b = 0, a = 0.5}
-        local timeout = 5 * 60
-        local line_width = 10
-        local line_length = 2
+        local red = {r = 0.5, g = 0, b = 0, a = 1}
+        local timeout = 20 * 60
+        local line_width = 5
+        local line_length = 1.8
         local s = data.player.surface
         local f = data.player.force
         rendering.draw_circle {
             color = red,
-            radius = 1.5,
+            radius = 1.2,
             width = line_width,
             filled = false,
             target = data.position,
@@ -378,17 +380,18 @@ function Public.control(config)
         s.create_entity {
             name = "flying-text",
             position = {data.position.x + 3, data.position.y},
-            text = "[item=poison-capsule] " .. data.player.name,
+            text = "[item=" .. data.item .. "] " .. data.player.name,
+            speed = 1/180,
+            time_to_live = 60*5,
             color = {r = 1, g = 1, b = 1, a = 1}
         }
     end
 
     local function render_radius(data)
         local timeout = 20 * 60
-        local blue = {r = 0, g = 0, b = 0.1, a = 0.1}
         rendering.draw_circle {
-            color = blue,
-            radius = data.radius + 10,
+            color = data.color,
+            radius = data.radius,
             filled = true,
             target = data.position,
             surface = data.player.surface,
@@ -425,18 +428,19 @@ function Public.control(config)
         end
 
         -- Check that the chest is where it should be.
-        local entities = s.find_entities_filtered {position = {-0.5, -3.5}, type = 'container', limit = 1}
+        local entities = s.find_entities_filtered {position = {2.5, -7.5}, type = 'logistic-container', limit = 1}
         local dropbox = entities[1]
 
         if dropbox == nil then
-            player.print("Chest not found. Replace it here: [gps=-0.5,-3.5,redmew]")
+            player.print("Chest not found. Replace it here: [gps=2.5,-7.5,redmew]")
             return
         end
 
-        -- process each set of coordinates with a 10 strike limit
+        -- process each set of coordinates with a 20 strike limit
         local i = 1
         local xpos = coords[i]
         local ypos = coords[i + 1]
+        -- This while loop lets players add multiple GPS coordinates to the /strike command arguments to strike more than one place at once. Up to a maximum of 20
         while xpos ~= nil and ypos ~= nil and i < 20 do
             -- Check the contents of the chest by spawn for enough poison capsules to use as payment
             local inv = dropbox.get_inventory(defines.inventory.chest)
@@ -449,33 +453,117 @@ function Public.control(config)
                 }, Color.fail)
                 return
             end
-
-            -- Do a simple check to make sure the player isn't trying to grief the base
-            -- local enemyEntities = s.find_entities_filtered {position = {xpos, ypos}, radius = radius, force = "enemy"}
-            local enemyEntities = player.surface.count_entities_filtered {
-                position = {xpos, ypos},
-                radius = radius + 30,
-                force = "enemy",
-                limit = 1
-            }
-            if enemyEntities < 1 then
-                player.print({'command_description.crash_site_airstrike_friendly_fire_error'}, Color.fail)
-                Utils.print_admins(player.name .. " tried to airstrike the base here: [gps=" .. xpos .. "," .. ypos
-                                       .. ",redmew]", nil)
-                return
-            end
-
+            
             inv.remove({name = "poison-capsule", count = strikeCost})
+            player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
 
             for j = 1, count do
                 set_timeout_in_ticks(30 * j, spawn_poison_callback,
                     {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
                 set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
             end
+            render_crosshair({position = {x = xpos, y = ypos}, player = player, item = "poison-capsule"})
+            render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius+10, color = {r = 0, g = 0, b = 0.1, a = 0.1}})
+            set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'poison-capsule'})
+
+            -- move to the next set of coordinates
+            i = i + 2
+            xpos = coords[i]
+            ypos = coords[i + 1]
+        end
+    end
+
+    local spawn_rocket_callback = Token.register(function(data)
+        data.s.create_entity {
+            name = "explosive-rocket",
+            position = {0, 0},
+            target = {data.xpos, data.ypos},
+            speed = 10,
+            max_range = 100000
+        }
+    end)
+
+    local function barrage(args, player)
+        local s = player.surface
+        local location_string = args.location
+        local coords = {}
+
+        local radius_level = barrage_data.radius_level -- max radius of the strike area
+        local count_level = barrage_data.count_level -- the number of poison capsules launched at the enemy
+        if count_level == 1 then
+            player.print({'command_description.crash_site_barrage_not_researched'}, Color.fail)
+            return
+        end
+
+        local radius = 25 + (radius_level * 5)
+        local count = count_level * 6
+
+        -- parse GPS coordinates from map ping
+        for m in string.gmatch(location_string, "%-?%d+") do -- Assuming the surface name isn't a valid number.
+            table.insert(coords, tonumber(m))
+        end
+
+        -- Do some checks on the coordinates passed in the argument
+        if #coords < 2 then
+            player.print({'command_description.crash_site_airstrike_invalid'}, Color.fail)
+            return
+        end
+
+        -- Check that the chest is where it should be.
+        local entities = s.find_entities_filtered {position = {2.5, -1.5}, type = 'logistic-container', limit = 1}
+        local dropbox = entities[1]
+
+        if dropbox == nil then
+            player.print("Chest not found. Replace it here: [gps=2.5,-1.5,redmew]")
+            return
+        end
+
+        -- process each set of coordinates from the arguments with a 20 strike limit
+        local i = 1
+        local xpos = coords[i]
+        local ypos = coords[i + 1]
+        -- This while loop lets players add multiple GPS coordinates to the /strike command arguments to strike more than one place at once. Up to a maximum of 20
+        while xpos ~= nil and ypos ~= nil and i < 20 do
+            -- Check the contents of the chest by spawn for enough poison capsules to use as payment
+            local inv = dropbox.get_inventory(defines.inventory.chest)
+            local capCount = inv.get_item_count("explosive-rocket")
+
+            if capCount < count then
+                player.print({
+                    'command_description.crash_site_barrage_insufficient_currency_error',
+                    count - capCount
+                }, Color.fail)
+                return
+            end
+
+            local nests = player.surface.find_entities_filtered {
+                position = {xpos, ypos},
+                radius = radius,
+                force = "enemy",
+                type = "unit-spawner"
+            }
+
+            local nest_count = #nests
+            inv.remove({name = "explosive-rocket", count = count})
             player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
-            render_crosshair({position = {x = xpos, y = ypos}, player = player})
-            render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius})
-            set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos})
+            if nest_count == 0 then
+                player.print({'command_description.crash_site_barrage_no_nests',}, Color.fail)
+                return
+            end
+
+            -- draw radius
+            set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'explosive-rocket'})
+            render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius, color = {r = 0.1, g = 0, b = 0, a = 0.1}})
+            for i, nest in pairs(nests) do
+                render_crosshair({position = {x = nest.position.x, y = nest.position.y}, player = player, item = "explosive-rocket"})
+                -- send number of rockets
+            end
+
+            for j = 1, count do
+
+                set_timeout_in_ticks(60 * j + math.random(0, 30), spawn_rocket_callback, {s = s, xpos = nests[(j%nest_count)+1].position.x, ypos = nests[(j%nest_count)+1].position.y})
+                set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+            end
 
             -- move to the next set of coordinates
             i = i + 2
@@ -493,57 +581,107 @@ function Public.control(config)
         end
 
         local item = event.item
-        if item.type ~= 'airstrike' then
+        if item.type ~= 'airstrike' and item.type~= 'barrage' then
             return
         end
 
-        -- airstrike stuff
-        local radius_level = airstrike_data.radius_level -- max radius of the strike area
-        local count_level = airstrike_data.count_level -- the number of poison capsules launched at the enemy
-        local radius = 5 + (radius_level * 3)
-        local count = (count_level - 1) * 5 + 3
-        local strikeCost = count * 4
+        if item.type == 'airstrike' then
+            local radius_level = airstrike_data.radius_level -- max radius of the strike area
+            local count_level = airstrike_data.count_level -- the number of poison capsules launched at the enemy
+            local radius = 5 + (radius_level * 3)
+            local count = (count_level - 1) * 5 + 3
+            local strikeCost = count * 4
 
-        local name = item.name
-        local player_name = event.player.name
-        if name == 'airstrike_damage' then
-            airstrike_data.count_level = airstrike_data.count_level + 1
+            local name = item.name
+            local player_name = event.player.name
+            if name == 'airstrike_damage' then
+                airstrike_data.count_level = airstrike_data.count_level + 1
 
-            Toast.toast_all_players(15, {
-                'command_description.crash_site_airstrike_damage_upgrade_success',
-                player_name,
-                count_level
-            })
-            Server.to_discord_bold('*** ' .. player_name .. ' has upgraded Airstrike Damage to level ' .. count_level
-                                       .. ' ***')
-            item.name_label = {'command_description.crash_site_airstrike_count_name_label', (count_level + 1)}
-            item.price = math.floor(math.exp(airstrike_data.count_level ^ 0.8) / 2) * 1000
-            item.description = {
-                'command_description.crash_site_airstrike_count',
-                (count_level + 1),
-                count_level,
-                count,
-                tostring(strikeCost) .. ' poison capsules'
-            }
-            Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
-        elseif name == 'airstrike_radius' then
-            airstrike_data.radius_level = airstrike_data.radius_level + 1
-            Toast.toast_all_players(15, {
-                'command_description.crash_site_airstrike_radius_upgrade_success',
-                player_name,
-                radius_level
-            })
-            Server.to_discord_bold('*** ' .. player_name .. ' has upgraded Airstrike Radius to level ' .. radius_level
-                                       .. ' ***')
-            item.name_label = {'command_description.crash_site_airstrike_radius_name_label', (radius_level + 1)}
-            item.description = {
-                'command_description.crash_site_airstrike_radius',
-                (radius_level + 1),
-                radius_level,
-                radius
-            }
-            item.price = math.floor(math.exp(airstrike_data.radius_level ^ 0.8) / 2) * 1000
-            Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
+                Toast.toast_all_players(15, {
+                    'command_description.crash_site_airstrike_damage_upgrade_success',
+                    player_name,
+                    count_level
+                })
+                Server.to_discord_bold('*** ' .. player_name .. ' has upgraded Airstrike Damage to level ' .. count_level
+                                        .. ' ***')
+                item.name_label = {'command_description.crash_site_airstrike_count_name_label', (count_level + 1)}
+                item.price = math.floor(math.exp(airstrike_data.count_level ^ 0.8) / 2) * 1000
+                item.description = {
+                    'command_description.crash_site_airstrike_count',
+                    (count_level + 1),
+                    count_level,
+                    count,
+                    tostring(strikeCost) .. ' poison capsules'
+                }
+                Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
+            elseif name == 'airstrike_radius' then
+                airstrike_data.radius_level = airstrike_data.radius_level + 1
+                Toast.toast_all_players(15, {
+                    'command_description.crash_site_airstrike_radius_upgrade_success',
+                    player_name,
+                    radius_level
+                })
+                Server.to_discord_bold('*** ' .. player_name .. ' has upgraded Airstrike Radius to level ' .. radius_level
+                                        .. ' ***')
+                item.name_label = {'command_description.crash_site_airstrike_radius_name_label', (radius_level + 1)}
+                item.description = {
+                    'command_description.crash_site_airstrike_radius',
+                    (radius_level + 1),
+                    radius_level,
+                    radius
+                }
+                item.price = math.floor(math.exp(airstrike_data.radius_level ^ 0.8) / 2) * 1000
+                Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
+            end
+        end
+        if item.type == 'barrage' then
+            local radius_level = barrage_data.radius_level -- max radius of the strike area
+            local count_level = barrage_data.count_level -- the number of poison capsules launched at the enemy
+            local radius = 5 + (radius_level * 3)
+            local count = (count_level - 1) * 5 + 3
+            local strikeCost = count * 4
+
+            local name = item.name
+            local player_name = event.player.name
+            if name == 'barrage_damage' then
+                barrage_data.count_level = barrage_data.count_level + 1
+
+                Toast.toast_all_players(15, {
+                    'command_description.crash_site_barrage_damage_upgrade_success',
+                    player_name,
+                    count_level
+                })
+                Server.to_discord_bold('*** ' .. player_name .. ' has upgraded Rocket Barrage Damage to level ' .. count_level
+                                        .. ' ***')
+                item.name_label = {'command_description.crash_site_barrage_count_name_label', (count_level + 1)}
+                item.price = math.floor(math.exp(barrage_data.count_level ^ 0.8) / 2) * 1000
+                item.description = {
+                    'command_description.crash_site_barrage_count',
+                    (count_level + 1),
+                    count_level,
+                    count,
+                    tostring(strikeCost) .. ' explosive rockets'
+                }
+                Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
+            elseif name == 'barrage_radius' then
+                barrage_data.radius_level = barrage_data.radius_level + 1
+                Toast.toast_all_players(15, {
+                    'command_description.crash_site_barrage_radius_upgrade_success',
+                    player_name,
+                    radius_level
+                })
+                Server.to_discord_bold('*** ' .. player_name .. ' has upgraded Rocket Barrage Radius to level ' .. radius_level
+                                        .. ' ***')
+                item.name_label = {'command_description.crash_site_barrage_radius_name_label', (radius_level + 1)}
+                item.description = {
+                    'command_description.crash_site_barrage_radius',
+                    (radius_level + 1),
+                    radius_level,
+                    radius
+                }
+                item.price = math.floor(math.exp(barrage_data.radius_level ^ 0.8) / 2) * 1000
+                Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
+            end
         end
     end)
 
@@ -562,6 +700,14 @@ function Public.control(config)
         required_rank = Ranks.guest,
         allowed_by_server = false
     }, strike)
+
+    Command.add('barrage', {
+        description = {'command_description.crash_site_barrage'},
+        arguments = {'location'},
+        capture_excess_arguments = true,
+        required_rank = Ranks.guest,
+        allowed_by_server = false
+    }, barrage)
 end
 
 return Public

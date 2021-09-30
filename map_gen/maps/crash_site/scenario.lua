@@ -790,10 +790,28 @@ local function init(config)
             {
                 price = 1000,
                 stack_limit = 1,
+                type= 'barrage',
+                name = 'barrage_damage',
+                name_label = {'command_description.crash_site_barrage_count_name_label', 1},
+                sprite = 'virtual-signal/signal-B',
+                description = {'command_description.crash_site_barrage_count', 1, 0, "n/a", "n/a"}
+            },
+            {
+                price = 1000,
+                stack_limit = 1,
+                type = 'barrage',
+                name = 'barrage_radius',
+                name_label = {'command_description.crash_site_barrage_radius_name_label', 1},
+                sprite = 'virtual-signal/signal-B',
+                description = {'command_description.crash_site_barrage_radius', 1, 0, 5}
+            },
+            {
+                price = 1000,
+                stack_limit = 1,
                 type = 'rocket_tanks',
                 name = 'rocket_tanks_fire_rate',
                 name_label = {'command_description.crash_site_rocket_tanks_name_label', 1},
-                sprite = 'virtual-signal/signal-T',
+                sprite = 'virtual-signal/signal-R',
                 description = {'command_description.crash_site_rocket_tanks_description'}
             },
             {name = 'wood', price = 1},
@@ -842,19 +860,22 @@ local function init(config)
         [1] = {
             market = market,
             chest = chest,
-            [15] = {entity = {name = 'market', force = 'neutral', callback = 'market'}},
-            [18] = {entity = {name = 'steel-chest', force = 'player', callback = 'chest'}}
+            [29] = {entity = {name = 'market', force = 'neutral', callback = 'market'}},
+            [32] = {entity = {name = 'steel-chest', force = 'player', callback = 'chest'}}
         },
         [2] = {
             force = 'player',
             factory = factory,
             inserter = inserter,
-            [13] = {entity = {name = 'burner-inserter', direction = 2, callback = 'inserter'}},
-            [15] = {entity = {name = 'electric-furnace', callback = 'factory'}}
+            chest = chest,
+            [3] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}},
+            [25] = {entity = {name = 'burner-inserter', direction = 2, callback = 'inserter'}},
+            [27] = {entity = {name = 'electric-furnace', callback = 'factory'}},
+            [51] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}}
         }
     }
 
-    local spawn_shape = outpost_builder.to_shape(spawn, 6, on_init)
+    local spawn_shape = outpost_builder.to_shape(spawn, 8, on_init)
     spawn_shape = b.change_tile(spawn_shape, false, 'stone-path')
     spawn_shape = b.change_map_gen_collision_hidden_tile(spawn_shape, 'water-tile', 'grass-1')
 
@@ -872,6 +893,11 @@ Global.register_init(
     {},
     function(tbl)
         game.create_force(cutscene_force_name)
+
+        -- Sprites for the spawn chests. Is there a better place for these?
+        rendering.draw_sprite{sprite = "item.poison-capsule", target = {2.5, -8.5}, surface = game.surfaces["redmew"], tint={1, 1, 1, 0.1}}
+        rendering.draw_sprite{sprite = "item.explosive-rocket", target = {2.5, -2.5}, surface = game.surfaces["redmew"], tint={1, 1, 1, 0.1}}
+
         local surface = game.surfaces[1]
         surface.map_gen_settings = {width = 2, height = 2}
         surface.clear()
@@ -895,6 +921,8 @@ function Public.init(config)
     return function(x, y, world)
         return map(x, y, world)
     end
+
+    
 end
 
 return Public
