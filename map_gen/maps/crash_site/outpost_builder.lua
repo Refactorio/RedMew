@@ -1235,7 +1235,7 @@ local function set_pollution_multiplier(args, player)
         end
         -- update the value to the minimum and continue to message all admins
         player.print("Setting magic crafter pollution multiplier to the minimum value of " .. base_pollution_multiplier)
-        multiplier = base_pollution_multiplier        
+        multiplier = base_pollution_multiplier
     end
 
     local old_multiplier = pollution_multiplier.value
