@@ -921,8 +921,6 @@ function Public.init(config)
     return function(x, y, world)
         return map(x, y, world)
     end
-
-    
 end
 
 return Public
