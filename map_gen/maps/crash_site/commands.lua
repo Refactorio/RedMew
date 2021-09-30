@@ -9,7 +9,6 @@ local Ranks = require 'resources.ranks'
 local Core = require 'utils.core'
 local Color = require 'resources.color_presets'
 local Toast = require 'features.gui.toast'
-local Utils = require 'utils.core'
 local Discord = require 'resources.discord'
 local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
@@ -453,7 +452,7 @@ function Public.control(config)
                 }, Color.fail)
                 return
             end
-            
+
             inv.remove({name = "poison-capsule", count = strikeCost})
             player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
 
@@ -488,8 +487,9 @@ function Public.control(config)
         local location_string = args.location
         local coords = {}
 
-        local radius_level = barrage_data.radius_level -- max radius of the strike area
-        local count_level = barrage_data.count_level -- the number of poison capsules launched at the enemy
+        local radius_level = barrage_data.radius_level -- max radius of the barrage area
+        local count_level = barrage_data.count_level -- the number of rockets launched at the enemy
+
         if count_level == 1 then
             player.print({'command_description.crash_site_barrage_not_researched'}, Color.fail)
             return
@@ -524,7 +524,7 @@ function Public.control(config)
         local ypos = coords[i + 1]
         -- This while loop lets players add multiple GPS coordinates to the /strike command arguments to strike more than one place at once. Up to a maximum of 20
         while xpos ~= nil and ypos ~= nil and i < 20 do
-            -- Check the contents of the chest by spawn for enough poison capsules to use as payment
+            -- Check the contents of the chest by spawn for enough rockets to use as payment
             local inv = dropbox.get_inventory(defines.inventory.chest)
             local capCount = inv.get_item_count("explosive-rocket")
 
@@ -554,13 +554,11 @@ function Public.control(config)
             -- draw radius
             set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'explosive-rocket'})
             render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius, color = {r = 0.1, g = 0, b = 0, a = 0.1}})
-            for i, nest in pairs(nests) do
+            for _, nest in pairs(nests) do
                 render_crosshair({position = {x = nest.position.x, y = nest.position.y}, player = player, item = "explosive-rocket"})
-                -- send number of rockets
             end
 
             for j = 1, count do
-
                 set_timeout_in_ticks(60 * j + math.random(0, 30), spawn_rocket_callback, {s = s, xpos = nests[(j%nest_count)+1].position.x, ypos = nests[(j%nest_count)+1].position.y})
                 set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
             end
