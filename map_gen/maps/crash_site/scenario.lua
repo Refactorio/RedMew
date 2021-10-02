@@ -803,7 +803,8 @@ local function init(config)
                 name = 'barrage_radius',
                 name_label = {'command_description.crash_site_barrage_radius_name_label', 1},
                 sprite = 'virtual-signal/signal-B',
-                description = {'command_description.crash_site_barrage_radius', 1, 0, 5}
+                description = {'command_description.crash_site_barrage_radius', 1, 0, 25}
+
             },
             {
                 price = 1000,

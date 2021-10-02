@@ -496,7 +496,8 @@ function Public.control(config)
         end
 
         local radius = 25 + (radius_level * 5)
-        local count = count_level * 6
+        local count = (count_level-1) * 6
+        local strikeCost = count * 4
 
         -- parse GPS coordinates from map ping
         for m in string.gmatch(location_string, "%-?%d+") do -- Assuming the surface name isn't a valid number.
@@ -531,7 +532,7 @@ function Public.control(config)
             if capCount < count then
                 player.print({
                     'command_description.crash_site_barrage_insufficient_currency_error',
-                    count - capCount
+                    strikeCost - capCount
                 }, Color.fail)
                 return
             end
@@ -544,12 +545,13 @@ function Public.control(config)
             }
 
             local nest_count = #nests
-            inv.remove({name = "explosive-rocket", count = count})
-            player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
+            inv.remove({name = "explosive-rocket", count = strikeCost})
             if nest_count == 0 then
                 player.print({'command_description.crash_site_barrage_no_nests',}, Color.fail)
                 return
             end
+
+            player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
 
             -- draw radius
             set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'explosive-rocket'})
@@ -635,8 +637,8 @@ function Public.control(config)
         if item.type == 'barrage' then
             local radius_level = barrage_data.radius_level -- max radius of the strike area
             local count_level = barrage_data.count_level -- the number of poison capsules launched at the enemy
-            local radius = 5 + (radius_level * 3)
-            local count = (count_level - 1) * 5 + 3
+            local radius = 25 + (radius_level * 5)
+            local count = count_level  * 6
             local strikeCost = count * 4
 
             local name = item.name
