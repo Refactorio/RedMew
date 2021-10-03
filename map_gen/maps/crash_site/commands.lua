@@ -435,12 +435,11 @@ function Public.control(config)
             return
         end
 
-        -- process each set of coordinates with a 20 strike limit
+        -- process each set of coordinates from the arguments with a 20 coordinate, 10 strike limit.
         local i = 1
         local xpos = coords[i]
         local ypos = coords[i + 1]
-        -- This while loop lets players add multiple GPS coordinates to the /strike command arguments to strike more than one place at once. Up to a maximum of 20
-        while xpos ~= nil and ypos ~= nil and i < 20 do
+        while xpos ~= nil and ypos ~= nil and i < 20 do -- Process multiple GPS coordinates in the /strike command arguments to strike more than one place at once.
             -- Check the contents of the chest by spawn for enough poison capsules to use as payment
             local inv = dropbox.get_inventory(defines.inventory.chest)
             local capCount = inv.get_item_count("poison-capsule")
@@ -519,12 +518,11 @@ function Public.control(config)
             return
         end
 
-        -- process each set of coordinates from the arguments with a 20 strike limit
+        -- process each set of coordinates from the arguments with a 20 coordinate, 10 barrage limit
         local i = 1
         local xpos = coords[i]
         local ypos = coords[i + 1]
-        -- This while loop lets players add multiple GPS coordinates to the /strike command arguments to strike more than one place at once. Up to a maximum of 20
-        while xpos ~= nil and ypos ~= nil and i < 20 do
+        while xpos ~= nil and ypos ~= nil and i < 20 do -- Process multiple GPS coordinates in the /barrage command arguments to strike more than one place at once.
             -- Check the contents of the chest by spawn for enough rockets to use as payment
             local inv = dropbox.get_inventory(defines.inventory.chest)
             local capCount = inv.get_item_count("explosive-rocket")
