@@ -18,7 +18,7 @@ local random = math.random
 local Public = {}
 
 -- Global registers
-local enabled = {random_train_color = nil, restrict_chest = nil, change_backer_name = nil, set_alt_on_create = nil}
+local enabled = {random_train_color = nil, restrict_chest = nil, change_backer_name = nil, set_alt_on_create = nil, inserter_drops_pickup = nil}
 
 Global.register({enabled = enabled}, function(tbl)
     enabled = tbl.enabled
@@ -80,6 +80,26 @@ local set_alt_on_create = Token.register(function(event)
         return
     end
     player.game_view_settings.show_entity_info = true
+end)
+
+local controllers_with_inventory = {
+	[defines.controllers.character] = true,
+	[defines.controllers.god] = true,
+	[defines.controllers.editor] = true,
+}
+
+--- Pickup the item an inserter put on the ground when the inserter is mined
+local inserter_drops_pickup = Token.register(function(event)
+	local inserter = event.entity
+	if (not inserter.valid) or (inserter.type ~= "inserter") or inserter.drop_target then return end
+
+	local item_entity = inserter.surface.find_entity("item-on-ground", inserter.drop_position)
+	if item_entity then
+		local player = game.get_player(event.player_index)
+		if controllers_with_inventory[player.controller_type] then
+			player.mine_entity(item_entity)
+		end
+	end
 end)
 
 local loaders_technology_map = {
@@ -180,6 +200,15 @@ local function register_set_alt_on_create()
     return true
 end
 
+local function register_inserter_drops_pickup()
+	if enabled.inserter_drops_pickup then
+        return false -- already registered
+	end
+	enabled.inserter_drops_pickup = true
+    Event.add_removable(defines.events.on_player_mined_entity, inserter_drops_pickup)
+	return true
+end
+
 local function on_init()
     -- Set player force's ghost_time_to_live to an hour. Giving the players ghosts before the research of robots is a nice QOL improvement.
     if config.ghosts_before_research then
@@ -273,9 +302,28 @@ function Public.set_set_alt_on_create(enable)
 end
 
 --- Return status of set_alt_on_create
-function Public.set_alt_on_create()
+function Public.get_set_alt_on_create()
     return enabled.set_alt_on_create or false
 end
+
+--- Sets inserter_drops_pickup on or off.
+-- @param enable <boolean> true to toggle on, false for off
+-- @return <boolean> Success/failure of command
+function Public.set_inserter_drops_pickup(enable)
+	if enable then
+		return register_inserter_drops_pickup()
+	else
+        Event.remove_removable(defines.events.on_player_mined_entity, inserter_drops_pickup)
+		enabled.inserter_drops_pickup = false
+		return true
+	end
+end
+
+--- Return status of inserter_drops_pickup
+function Public.get_inserter_drops_pickup()
+	return enabled.inserter_drops_pickup or false
+end
+
 
 -- Initial event setup
 
@@ -290,6 +338,9 @@ if config.backer_name then
 end
 if config.set_alt_on_create then
     register_set_alt_on_create()
+end
+if config.inserter_drops_pickup then
+    register_inserter_drops_pickup()
 end
 
 if config.save_bots then
