@@ -83,23 +83,23 @@ local set_alt_on_create = Token.register(function(event)
 end)
 
 local controllers_with_inventory = {
-	[defines.controllers.character] = true,
-	[defines.controllers.god] = true,
-	[defines.controllers.editor] = true,
+    [defines.controllers.character] = true,
+    [defines.controllers.god] = true,
+    [defines.controllers.editor] = true,
 }
 
 --- Pickup the item an inserter put on the ground when the inserter is mined
 local inserter_drops_pickup = Token.register(function(event)
-	local inserter = event.entity
-	if (not inserter.valid) or (inserter.type ~= "inserter") or inserter.drop_target then return end
+    local inserter = event.entity
+    if (not inserter.valid) or (inserter.type ~= "inserter") or inserter.drop_target then return end
 
-	local item_entity = inserter.surface.find_entity("item-on-ground", inserter.drop_position)
-	if item_entity then
-		local player = game.get_player(event.player_index)
-		if controllers_with_inventory[player.controller_type] then
-			player.mine_entity(item_entity)
-		end
-	end
+    local item_entity = inserter.surface.find_entity("item-on-ground", inserter.drop_position)
+    if item_entity then
+        local player = game.get_player(event.player_index)
+        if controllers_with_inventory[player.controller_type] then
+            player.mine_entity(item_entity)
+        end
+    end
 end)
 
 local loaders_technology_map = {
@@ -201,12 +201,12 @@ local function register_set_alt_on_create()
 end
 
 local function register_inserter_drops_pickup()
-	if enabled.inserter_drops_pickup then
+    if enabled.inserter_drops_pickup then
         return false -- already registered
-	end
-	enabled.inserter_drops_pickup = true
+    end
+    enabled.inserter_drops_pickup = true
     Event.add_removable(defines.events.on_player_mined_entity, inserter_drops_pickup)
-	return true
+    return true
 end
 
 local function on_init()
@@ -310,18 +310,18 @@ end
 -- @param enable <boolean> true to toggle on, false for off
 -- @return <boolean> Success/failure of command
 function Public.set_inserter_drops_pickup(enable)
-	if enable then
-		return register_inserter_drops_pickup()
-	else
+    if enable then
+        return register_inserter_drops_pickup()
+    else
         Event.remove_removable(defines.events.on_player_mined_entity, inserter_drops_pickup)
-		enabled.inserter_drops_pickup = false
-		return true
-	end
+        enabled.inserter_drops_pickup = false
+        return true
+    end
 end
 
 --- Return status of inserter_drops_pickup
 function Public.get_inserter_drops_pickup()
-	return enabled.inserter_drops_pickup or false
+    return enabled.inserter_drops_pickup or false
 end
 
 
