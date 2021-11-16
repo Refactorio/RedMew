@@ -41,7 +41,7 @@ local factory = {
         recipe = 'basic-oil-processing',
         has_fluid_output = true,
         output = {
-            {min_rate = 4.5 / 60, distance_factor = 4.5 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 2}
+            {min_rate = 30 / 60, distance_factor = 30 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 2}
         }
     }
 }
