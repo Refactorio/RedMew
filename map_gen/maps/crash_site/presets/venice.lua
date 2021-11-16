@@ -12,7 +12,7 @@ local x_offset, y_offset = 0, 180
 world_map = b.translate(world_map, x_offset, y_offset)
 
 
-local scale = 1
+local scale = 0.75
 local height = 4000 * scale
 local width = 4000 * scale
 
