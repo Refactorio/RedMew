@@ -1,1 +1,1 @@
-return require 'map_gen.maps.danger_ores.presets.danger_ore_one_direction_beltboxes_ore_only'
+return require 'map_gen.maps.danger_ores.presets.danger_ore_deadlock_beltboxes_ore_only'
