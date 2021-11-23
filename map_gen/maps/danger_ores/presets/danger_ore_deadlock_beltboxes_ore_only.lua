@@ -5,7 +5,7 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Deadlock Beltboxes Danger Ore')
+ScenarioInfo.set_map_name('Deadlock Beltboxes Danger Ore (ore only)')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
@@ -60,7 +60,7 @@ local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadloc
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
---local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
+-- local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
 local allowed_entities = require 'map_gen.maps.danger_ores.config.deadlock_betlboxes_allowed_entities'
@@ -87,17 +87,17 @@ Config.dump_offline_inventories = {
 Config.paint.enabled = false
 
 Event.on_init(function()
-    --game.draw_resource_selection = false
+    -- game.draw_resource_selection = false
     game.forces.player.technologies['mining-productivity-1'].enabled = false
     game.forces.player.technologies['mining-productivity-2'].enabled = false
     game.forces.player.technologies['mining-productivity-3'].enabled = false
     game.forces.player.technologies['mining-productivity-4'].enabled = false
 
-    game.difficulty_settings.technology_price_multiplier = 40
+    game.difficulty_settings.technology_price_multiplier = 35
     game.forces.player.technologies.logistics.researched = true
     game.forces.player.technologies.automation.researched = true
-    --game.forces.player.technologies['logistic-system'].enabled = false
-    --game.forces.player.technologies['warehouse-logistics-research-2'].enabled = false
+    -- game.forces.player.technologies['logistic-system'].enabled = false
+    -- game.forces.player.technologies['warehouse-logistics-research-2'].enabled = false
 
     game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
     game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
@@ -109,14 +109,51 @@ Event.on_init(function()
     RS.get_surface().peaceful_mode = true
 end)
 
+local allowed_recipes = {
+    ["deadlock-stacks-stack-iron-ore"] = true,
+    ["deadlock-stacks-unstack-iron-ore"] = true,
+    ["deadlock-stacks-stack-copper-ore"] = true,
+    ["deadlock-stacks-unstack-copper-ore"] = true,
+    ["deadlock-stacks-stack-stone"] = true,
+    ["deadlock-stacks-unstack-stone"] = true,
+    ["deadlock-stacks-stack-coal"] = true,
+    ["deadlock-stacks-unstack-coal"] = true,
+    ["deadlock-stacks-stack-uranium-ore"] = true,
+    ["deadlock-stacks-unstack-uranium-ore"] = true
+}
+
+Event.add(defines.events.on_research_finished, function(event)
+    local research = event.research
+    if not research.valid then
+        return
+    end
+
+    for _, effect in pairs(research.effects) do
+        if effect.type ~= 'unlock-recipe' then
+            goto continue
+        end
+
+        local name = effect.recipe
+        if allowed_recipes[name] then
+            goto continue
+        end
+
+        if name:sub(1, #'deadlock-stacks') == 'deadlock-stacks' then
+            game.forces.player.recipes[name].enabled = false
+        end
+
+        ::continue::
+    end
+end)
+
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 6})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 1000})
+rocket_launched({win_satellite_count = 850})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'danger-ore-deadlock-beltboxes'})
+restart_command({scenario_name = 'danger-ore-deadlock-beltboxes-ore-only'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
@@ -146,7 +183,7 @@ local config = {
     enemy_max_chance = 1 / 6,
     enemy_scale_factor = 32,
     fish_spawn_rate = 0.025,
-    --dense_patches = dense_patches,
+    -- dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
     dense_patches_multiplier = 25
