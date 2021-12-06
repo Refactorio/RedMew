@@ -54,7 +54,7 @@ ScenarioInfo.set_new_info([[
 global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.one_direction_beltboxes_ores'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.one_direction_beltboxes_ores_xmas'
 --local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
 --local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
 --local water = require 'map_gen.maps.danger_ores.modules.water'
@@ -90,6 +90,9 @@ Config.dump_offline_inventories = {
     offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
+Config.day_night.enabled = true
+Config.day_night.use_fixed_brightness = true
+Config.day_night.fixed_brightness = 0.70
 
 Event.on_init(
     function()
@@ -195,7 +198,7 @@ local config = {
     enemy_factor = 10 / (768 * 32),
     enemy_max_chance = 1 / 6,
     enemy_scale_factor = 32,
-    fish_spawn_rate = 0.0125,
+    fish_spawn_rate = 0.00625,
     --dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
