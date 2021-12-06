@@ -5,7 +5,7 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Danger Ore Hub Spiral Deadlock Beltboxes (ore only)')
+ScenarioInfo.set_map_name('Danger Ore Christmas Tree Deadlock Beltboxes (ore only)')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
@@ -54,10 +54,10 @@ ScenarioInfo.set_new_info([[
 global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_ores'
-local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
-local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
-local water = require 'map_gen.maps.danger_ores.modules.water'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.one_direction_beltboxes_ores_xmas'
+--local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
+--local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
+--local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 --local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
@@ -90,6 +90,9 @@ Config.dump_offline_inventories = {
     offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
+Config.day_night.enabled = true
+Config.day_night.use_fixed_brightness = true
+Config.day_night.fixed_brightness = 0.70
 
 Event.on_init(
     function()
@@ -98,6 +101,7 @@ Event.on_init(
         game.forces.player.technologies['mining-productivity-2'].enabled = false
         game.forces.player.technologies['mining-productivity-3'].enabled = false
         game.forces.player.technologies['mining-productivity-4'].enabled = false
+        game.forces.player.technologies['landfill'].enabled = false
 
         game.difficulty_settings.technology_price_multiplier = 25
         game.forces.player.technologies.logistics.researched = true
@@ -109,7 +113,7 @@ Event.on_init(
 
         game.forces.player.manual_mining_speed_modifier = 1
 
-        RS.get_surface().always_day = true
+        --RS.get_surface().always_day = true
         RS.get_surface().peaceful_mode = true
     end
 )
@@ -152,13 +156,13 @@ Event.add(defines.events.on_research_finished, function(event)
 end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 6})
+terraforming({start_size = 12 * 32, min_pollution = 250, max_pollution = 16000, pollution_increment = 6})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
 rocket_launched({win_satellite_count = 500})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'danger-ore-hub-spiral-beltboxes-ore-only'})
+restart_command({scenario_name = 'danger-ore-xmas-tree-beltboxes-ore-only'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
@@ -166,26 +170,26 @@ container_dump({entity_name = 'coal'})
 local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
 concrete_on_landfill({tile = 'blue-refined-concrete'})
 
-local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_hub_spiral'
+local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_xmas_tree'
 
-local sqrt = math.sqrt
+--local sqrt = math.sqrt
 
 local config = {
-    spawn_shape = b.circle(64),
-    start_ore_shape = b.circle(68),
+    spawn_shape = b.circle(72),
+    start_ore_shape = b.circle(76),
     main_ores_builder = main_ores_builder,
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
     --main_ores_rotate = 45,
-    resource_patches = resource_patches,
-    resource_patches_config = resource_patches_config,
-    water = water,
-    water_scale = function(x, y)
+    --resource_patches = resource_patches,
+    --resource_patches_config = resource_patches_config,
+    --water = water,
+    --[[water_scale = function(x, y)
         local d = sqrt(x * x + y * y)
         return 1 / (24 + (0.1 * d))
-    end,
-    water_threshold = 0.35,
-    deepwater_threshold = 0.4,
+    end,]]
+    --water_threshold = 0.35,
+    --deepwater_threshold = 0.4,
     trees = trees,
     trees_scale = 1 / 64,
     trees_threshold = 0.35,
@@ -194,7 +198,7 @@ local config = {
     enemy_factor = 10 / (768 * 32),
     enemy_max_chance = 1 / 6,
     enemy_scale_factor = 32,
-    fish_spawn_rate = 0.025,
+    fish_spawn_rate = 0.00625,
     --dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,

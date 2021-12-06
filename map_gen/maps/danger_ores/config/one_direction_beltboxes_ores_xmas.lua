@@ -26,10 +26,9 @@ return {
             [1] = 'dirt-1',
             [2] = 'dirt-2',
             [3] = 'dirt-3',
-            [4] = 'dirt-4',
-            [5] = 'dirt-5',
-            [6] = 'dirt-6',
-            [7] = 'dirt-7'
+            [4] = 'dirt-5',
+            [5] = 'dirt-6',
+            [6] = 'dirt-7'
         },
         ['start'] = start_value,
         ['weight'] = 1,
@@ -43,10 +42,9 @@ return {
     {
         name = 'iron-ore',
         ['tiles'] = {
-            [1] = 'grass-1',
-            [2] = 'grass-2',
-            [3] = 'grass-3',
-            [4] = 'grass-4'
+            [1] = 'grass-2',
+            [2] = 'grass-3',
+            [3] = 'grass-4'
         },
         ['start'] = start_value,
         ['weight'] = 1,
