@@ -114,43 +114,6 @@ Event.on_init(
     end
 )
 
-local allowed_recipes = {
-    ["deadlock-stacks-stack-iron-ore"] = true,
-    ["deadlock-stacks-unstack-iron-ore"] = true,
-    ["deadlock-stacks-stack-copper-ore"] = true,
-    ["deadlock-stacks-unstack-copper-ore"] = true,
-    ["deadlock-stacks-stack-stone"] = true,
-    ["deadlock-stacks-unstack-stone"] = true,
-    ["deadlock-stacks-stack-coal"] = true,
-    ["deadlock-stacks-unstack-coal"] = true,
-    ["deadlock-stacks-stack-uranium-ore"] = true,
-    ["deadlock-stacks-unstack-uranium-ore"] = true
-}
-
-Event.add(defines.events.on_research_finished, function(event)
-    local research = event.research
-    if not research.valid then
-        return
-    end
-
-    for _, effect in pairs(research.effects) do
-        if effect.type ~= 'unlock-recipe' then
-            goto continue
-        end
-
-        local name = effect.recipe
-        if allowed_recipes[name] then
-            goto continue
-        end
-
-        if name:sub(1, #'deadlock-stacks') == 'deadlock-stacks' then
-            game.forces.player.recipes[name].enabled = false
-        end
-
-        ::continue::
-    end
-end)
-
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 6})
 
@@ -165,6 +128,9 @@ container_dump({entity_name = 'coal'})
 
 local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
 concrete_on_landfill({tile = 'blue-refined-concrete'})
+
+local remove_non_ore_stacked_recipes = require 'map_gen.maps.danger_ores.modules.remove_non_ore_stacked_recipes'
+remove_non_ore_stacked_recipes()
 
 local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_hub_spiral'
 
