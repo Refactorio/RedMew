@@ -1,3 +1,4 @@
+local table = _G.table
 local random = math.random
 local floor = math.floor
 local remove = table.remove
