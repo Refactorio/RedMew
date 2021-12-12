@@ -17,7 +17,7 @@ return function(config)
 
     local start_ore_shape = config.start_ore_shape or b.circle(68)
 
-    local function apply_resource_patches(x,y, world, entity)
+    local function apply_resource_patches(x, y, world, entity)
         local resource_patches_entity = resource_patches(x, y, world)
         if resource_patches_entity ~= false then
             return resource_patches_entity
@@ -31,7 +31,8 @@ return function(config)
 
     return function(tile_builder, _, spawn_shape, water_shape, random_gen)
         if shuffle_order then
-            table.shuffle_table(main_ores, random_gen)
+            local rot = random_gen(#main_ores)
+            main_ores = table.rotate_table(main_ores, rot)
         end
 
         local start_ore_shapes = {}
