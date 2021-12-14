@@ -13,8 +13,16 @@ local set_data = Server.set_data
 local random = math.random
 
 local donator_data_set = 'donators'
-
 local donators = {} -- global register
+local donator_perks_perm = {} -- buffs to the force that will remain even when the donator is offline (T5)
+local donatator_perks_temp = {} -- buffs to the force that are only applied while the donator is online (T2, T3, T4)
+local donator_tiers = {
+                        [1] = {name = "[img=item.wood]", count = 0, max = 2}, -- keeps track of how many have been applied so we can limit the amount of donators contributing to buffs
+                        [2] = {name = "[img=item.coal]", count = 0, max = 2}, 
+                        [3] = {name = "[img=item.solid-fuel]", count = 0, max = 2}, 
+                        [4] = {name = "[img=item.rocket-fuel]", count = 0, max = 2}, 
+                        [5] = {name = "[img=item.nuclear-fuel]", count = 0, max = 2}
+                    }
 
 Global.register(
     {
@@ -52,19 +60,104 @@ local function player_joined(event)
         return nil
     end
 
+    local perk_flag = d.perk_flags
+    if perk_flag < 2 then
+        return
+    end
+
     local messages = d.welcome_messages
-    if not messages then
-        return
-    end
-
     local count = #messages
-    if count == 0 then
+    if count ~= 0 and count then
+        local message = messages[random(count)]
+        message = concat({'*** ', message, ' ***'})
+        Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})    
+    end
+
+    -- Update team perks
+    if not donatator_perks_temp[player.name] then
+        local donator_perk_msg = concat({"Donator Tier: ",donator_tiers[perk_flag].name, ". Team bonuses: "})
+        if perk_flag >= 2 and donator_tiers[2].count < donator_tiers[2].max then  -- Apply tier 2 (Coal) reward: +10 % team manual mining bonus per online tier 2+ donator
+            player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier + 0.1
+            donator_tiers[2].count = donator_tiers[2].count + 1
+            donator_perk_msg = concat({donator_perk_msg, "+10% hand mining"})
+        end
+        if perk_flag >= 3 and donator_tiers[3].count < donator_tiers[3].max then  -- Apply tier 3 (Solid Fuel) reward: + 10 % team manual crafting bonus per online tier 3+ donator
+            player.force.manual_crafting_speed_modifier = player.force.manual_crafting_speed_modifier + 0.1
+            donator_tiers[3].count = donator_tiers[3].count + 1
+            donator_perk_msg = concat({donator_perk_msg, ", +10% hand crafting"})
+        end
+        if perk_flag >= 4 and donator_tiers[4].count < donator_tiers[4].max  then  -- Apply Tier 4 (Rocket Fuel) reward: + 10 % team running speed bonus per online tier 4+ donator
+            player.force.character_running_speed_modifier = player.force.character_running_speed_modifier + 0.1
+            donator_tiers[4].count = donator_tiers[4].count + 1
+            donator_perk_msg = concat({donator_perk_msg, ", +10% run speed"})
+        end
+        donatator_perks_temp[player.name] = perk_flag
+        if perk_flag >= 5 and not donator_perks_perm[player.name] and donator_tiers[5].count < donator_tiers[5].max  then
+            player.force.character_inventory_slots_bonus = player.force.character_inventory_slots_bonus + 5
+            donator_tiers[5].count = donator_tiers[5].count + 1
+            donator_perk_msg = concat({donator_perk_msg, ", +5 inventory slots"})
+            donator_perks_perm[player.name] = true
+        end
+        donator_perk_msg = concat({donator_perk_msg, "."})
+        Task.set_timeout_in_ticks(80, print_after_timeout, {player = player, message = donator_perk_msg})
+    end
+end
+
+-- clears all the buffs from donator perk tiers 2 to 4. Call when server loads after a crash or restart.
+local function clear_donator_perks(event)
+    for k, v in pairs(donatator_perks_temp) do
+        local player = game.get_player(k)
+        if player and not player.connected then
+            local perk_flag = v
+            if perk_flag >= 2 and donator_tiers[2].count > 0 then
+                player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier - 0.1
+                donator_tiers[2].count = donator_tiers[2].count - 1
+            end
+            if perk_flag >= 3 and donator_tiers[2].count > 0 then
+                player.force.manual_crafting_speed_modifier = player.force.manual_crafting_speed_modifier - 0.1
+                donator_tiers[3].count = donator_tiers[4].count - 1
+            end
+            if perk_flag >= 4 and donator_tiers[2].count > 0 then
+                player.force.character_running_speed_modifier = player.force.character_running_speed_modifier - 0.1
+                donator_tiers[4].count = donator_tiers[4].count - 1
+            end
+            donatator_perks_temp[k] = nil -- remove player name from list of those it's been applied for
+        end
+    end
+end
+
+local function player_left(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then
         return
     end
 
-    local message = messages[random(count)]
-    message = concat({'*** ', message, ' ***'})
-    Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
+    local d = donators[player.name]
+    if not d then
+        return nil
+    end
+
+    local perk_flag = d.perk_flags
+    if perk_flag < 2 then
+        return
+    end
+
+    if donatator_perks_temp[player.name] then
+        if perk_flag >= 2 then
+            player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier - 0.1
+            donator_tiers[2].count = donator_tiers[2].count - 1
+        end
+        if perk_flag >= 3 then
+            player.force.manual_crafting_speed_modifier = player.force.manual_crafting_speed_modifier - 0.1
+            donator_tiers[3].count = donator_tiers[4].count - 1
+        end
+        if perk_flag >= 4 then
+            player.force.character_running_speed_modifier = player.force.character_running_speed_modifier - 0.1
+            donator_tiers[4].count = donator_tiers[4].count - 1
+        end
+        donatator_perks_temp[player.name] = nil
+    end
+
 end
 
 --- Prints a message on donator death
@@ -244,6 +337,10 @@ Server.on_data_set_changed(
 
 Event.add(defines.events.on_player_joined_game, player_joined)
 
+Event.add(defines.events.on_player_left_game, player_left)
+
 Event.add(defines.events.on_player_died, player_died)
+
+--Event.add(defines.events.on_load, clear_donator_perks)
 
 return Public
