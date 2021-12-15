@@ -18,18 +18,24 @@ local donator_perks_perm = {} -- buffs to the force that will remain even when t
 local donatator_perks_temp = {} -- buffs to the force that are only applied while the donator is online (T2, T3, T4)
 local donator_tiers = {
                         [1] = {name = "[img=item.wood]", count = 0, max = 2}, -- keeps track of how many have been applied so we can limit the amount of donators contributing to buffs
-                        [2] = {name = "[img=item.coal]", count = 0, max = 2}, 
-                        [3] = {name = "[img=item.solid-fuel]", count = 0, max = 2}, 
-                        [4] = {name = "[img=item.rocket-fuel]", count = 0, max = 2}, 
+                        [2] = {name = "[img=item.coal]", count = 0, max = 2},
+                        [3] = {name = "[img=item.solid-fuel]", count = 0, max = 2},
+                        [4] = {name = "[img=item.rocket-fuel]", count = 0, max = 2},
                         [5] = {name = "[img=item.nuclear-fuel]", count = 0, max = 2}
                     }
 
 Global.register(
     {
-        donators = donators
+        donators = donators,
+        donator_perks_perm = donator_perks_perm,
+        donatator_perks_temp = donatator_perks_temp,
+        donator_tiers = donator_tiers
     },
     function(tbl)
         donators = tbl.donators
+        donator_perks_perm = tbl.donator_perks_perm
+        donatator_perks_temp = tbl.donatator_perks_temp
+        donator_tiers = tbl.donator_tiers
     end
 )
 
@@ -70,7 +76,7 @@ local function player_joined(event)
     if count ~= 0 and count then
         local message = messages[random(count)]
         message = concat({'*** ', message, ' ***'})
-        Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})    
+        Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
     end
 
     -- Update team perks
