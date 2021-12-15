@@ -17,11 +17,11 @@ local donators = {} -- global register
 local donator_perks_perm = {} -- buffs to the force that will remain even when the donator is offline (T5)
 local donatator_perks_temp = {} -- buffs to the force that are only applied while the donator is online (T2, T3, T4)
 local donator_tiers = {
-                        [1] = {name = "[img=item.wood]", count = 0, max = 2}, -- keeps track of how many have been applied so we can limit the amount of donators contributing to buffs
-                        [2] = {name = "[img=item.coal]", count = 0, max = 2},
-                        [3] = {name = "[img=item.solid-fuel]", count = 0, max = 2},
-                        [4] = {name = "[img=item.rocket-fuel]", count = 0, max = 2},
-                        [5] = {name = "[img=item.nuclear-fuel]", count = 0, max = 2}
+                        [1] = {name = "[img=item.wood]", count = 0, max = 10}, -- keeps track of how many have been applied so we can limit the amount of donators contributing to buffs
+                        [2] = {name = "[img=item.coal]", count = 0, max = 10},
+                        [3] = {name = "[img=item.solid-fuel]", count = 0, max = 10},
+                        [4] = {name = "[img=item.rocket-fuel]", count = 0, max = 10},
+                        [5] = {name = "[img=item.nuclear-fuel]", count = 0, max = 6}
                     }
 
 Global.register(
@@ -109,29 +109,6 @@ local function player_joined(event)
     end
 end
 
--- clears all the buffs from donator perk tiers 2 to 4. Call when server loads after a crash or restart.
-local function clear_donator_perks(event)
-    for k, v in pairs(donatator_perks_temp) do
-        local player = game.get_player(k)
-        if player and not player.connected then
-            local perk_flag = v
-            if perk_flag >= 2 and donator_tiers[2].count > 0 then
-                player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier - 0.1
-                donator_tiers[2].count = donator_tiers[2].count - 1
-            end
-            if perk_flag >= 3 and donator_tiers[2].count > 0 then
-                player.force.manual_crafting_speed_modifier = player.force.manual_crafting_speed_modifier - 0.1
-                donator_tiers[3].count = donator_tiers[4].count - 1
-            end
-            if perk_flag >= 4 and donator_tiers[2].count > 0 then
-                player.force.character_running_speed_modifier = player.force.character_running_speed_modifier - 0.1
-                donator_tiers[4].count = donator_tiers[4].count - 1
-            end
-            donatator_perks_temp[k] = nil -- remove player name from list of those it's been applied for
-        end
-    end
-end
-
 local function player_left(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
@@ -201,6 +178,12 @@ end
 -- @return <table>
 function Public.get_donators_table()
     return donators
+end
+
+--- Returns the table of active perks
+-- @return <table>
+function Public.get_donator_perks_table()
+    return donator_tiers
 end
 
 --- Checks if a player is a donator
@@ -346,7 +329,5 @@ Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_player_left_game, player_left)
 
 Event.add(defines.events.on_player_died, player_died)
-
---Event.add(defines.events.on_load, clear_donator_perks)
 
 return Public
