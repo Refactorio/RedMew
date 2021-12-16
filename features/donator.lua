@@ -174,6 +174,36 @@ local function player_died(event)
     game.print(message, player.chat_color)
 end
 
+local reset_run_speed =
+    Token.register(
+    function(player)
+        if not player.valid then
+            return
+        end
+        player.character_running_speed_modifier = player.character_running_speed_modifier - 1
+    end
+)
+
+local function player_respawned(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    local d = donators[player.name]
+    if not d then
+        return nil
+    end
+
+    local perk_flag = d.perk_flags
+    if perk_flag < 4 then
+        return
+    end
+
+    player.character_running_speed_modifier = player.character_running_speed_modifier + 1
+    Task.set_timeout_in_ticks(60*60, reset_run_speed, player)
+end
+
 --- Returns the table of donators
 -- @return <table>
 function Public.get_donators_table()
@@ -329,5 +359,7 @@ Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_player_left_game, player_left)
 
 Event.add(defines.events.on_player_died, player_died)
+
+Event.add(defines.events.on_player_respawned, player_respawned)
 
 return Public
