@@ -6,7 +6,7 @@ local Event = require 'utils.event'
 local pairs = pairs
 
 
-local restart_command = require 'map_gen.maps.diggy.modules.restart_command'
+local restart_command = require 'map_gen.maps.diggy.feature.restart_command'
 restart_command({scenario_name = 'diggy'})
 
 require 'utils.table'
