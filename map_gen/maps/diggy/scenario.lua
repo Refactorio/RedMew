@@ -4,7 +4,7 @@ local ScenarioInfo = require 'features.gui.info'
 local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
 local pairs = pairs
-type = type
+local type = type
 
 local restart_command = require 'map_gen.maps.diggy.feature.restart_command'
 restart_command({scenario_name = 'diggy'})
