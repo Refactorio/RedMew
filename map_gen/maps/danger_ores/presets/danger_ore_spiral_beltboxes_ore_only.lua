@@ -54,7 +54,7 @@ ScenarioInfo.set_new_info([[
 global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_ores'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_ores_landfill'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
 local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
