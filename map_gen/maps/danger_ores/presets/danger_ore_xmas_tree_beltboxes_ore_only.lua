@@ -119,7 +119,7 @@ Event.on_init(
 )
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 12 * 32, min_pollution = 250, max_pollution = 16000, pollution_increment = 6})
+terraforming({start_size = 12 * 32, min_pollution = 300, max_pollution = 16000, pollution_increment = 9})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
 rocket_launched({win_satellite_count = 500})
