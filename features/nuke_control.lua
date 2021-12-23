@@ -38,7 +38,9 @@ local entities_allowed_to_bomb = {
     ['defender'] = true,
     ['destroyer'] = true,
     ['distractor'] = true,
-    ['artillery-flare'] = true
+    ['artillery-flare'] = true,
+    ['poison-cloud'] = true,
+    ['poison-cloud-visual-dummy'] = true
 }
 
 Global.register(
