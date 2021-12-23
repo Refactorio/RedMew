@@ -79,7 +79,7 @@ local function print_perks(_, player)
     if not config.enabled then
         player.print("Donator perks have been disabled for this map. It may be multiplayer or affect balance.")
         return
-    end 
+    end
 
     local donator_tiers = Donator.get_donator_perks_table()
     player.print("Currently active team perks: +"..(donator_tiers[2].count*10).."% manual mining speed (max +"..(donator_tiers[2].max*10).."%), +"

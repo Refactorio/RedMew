@@ -153,7 +153,6 @@ local function player_left(event)
             else
                 player.force.character_running_speed_modifier = 0
             end
-            
             donator_tiers[4].count = donator_tiers[4].count - 1
         end
         donatator_perks_temp[player.name] = nil
