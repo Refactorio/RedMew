@@ -155,7 +155,6 @@ end
 if config.radio.enabled or _DEBUG then
     require 'features.gui.radio'
 end
-
 if config.score.enabled then
     require 'features.gui.score'
 end

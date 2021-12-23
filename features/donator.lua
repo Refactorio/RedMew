@@ -11,6 +11,7 @@ local concat = table.concat
 local remove = table.remove
 local set_data = Server.set_data
 local random = math.random
+local config = global.config.donator_perks
 
 local donator_data_set = 'donators'
 local donators = {} -- global register
@@ -79,6 +80,10 @@ local function player_joined(event)
         Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
     end
 
+    if not config.enabled then
+        return
+    end
+
     -- Update team perks
     if not donatator_perks_temp[player.name] then
         local donator_perk_msg = concat({"Donator Tier: ",donator_tiers[perk_flag].name, ". Team bonuses: "})
@@ -111,7 +116,7 @@ end
 
 local function player_left(event)
     local player = game.get_player(event.player_index)
-    if not player or not player.valid then
+    if not player or not player.valid or not config.enabled then
         return
     end
 
@@ -127,15 +132,28 @@ local function player_left(event)
 
     if donatator_perks_temp[player.name] then
         if perk_flag >= 2 then
-            player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier - 0.1
+            if player.force.manual_mining_speed_modifier  >= 0.1 then
+                player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier - 0.1
+            else
+                player.force.manual_mining_speed_modifier =  0
+            end
             donator_tiers[2].count = donator_tiers[2].count - 1
         end
         if perk_flag >= 3 then
-            player.force.manual_crafting_speed_modifier = player.force.manual_crafting_speed_modifier - 0.1
+            if player.force.manual_crafting_speed_modifier >= 0.1 then
+                player.force.manual_crafting_speed_modifier = player.force.manual_crafting_speed_modifier - 0.1
+            else
+                player.force.manual_crafting_speed_modifier = 0
+            end
             donator_tiers[3].count = donator_tiers[4].count - 1
         end
-        if perk_flag >= 4 then
-            player.force.character_running_speed_modifier = player.force.character_running_speed_modifier - 0.1
+        if perk_flag >= 4 and player.force.character_running_speed_modifier >= 0.1  then
+            if player.force.character_running_speed_modifier >= 0.1 then
+                player.force.character_running_speed_modifier = player.force.character_running_speed_modifier - 0.1
+            else
+                player.force.character_running_speed_modifier = 0
+            end
+            
             donator_tiers[4].count = donator_tiers[4].count - 1
         end
         donatator_perks_temp[player.name] = nil
@@ -186,7 +204,7 @@ local reset_run_speed =
 
 local function player_respawned(event)
     local player = game.get_player(event.player_index)
-    if not player or not player.valid then
+    if not player or not player.valid or not config.enabled then
         return
     end
 

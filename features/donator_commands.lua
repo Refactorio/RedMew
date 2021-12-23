@@ -5,6 +5,7 @@ local Donator = require 'features.donator'
 local Color = require 'resources.color_presets'
 
 local format = string.format
+local config = global.config.donator_perks
 
 -- Local functions
 
@@ -75,6 +76,11 @@ end
 
 -- Prints a list of currently active perks to the player
 local function print_perks(_, player)
+    if not config.enabled then
+        player.print("Donator perks have been disabled for this map. It may be multiplayer or affect balance.")
+        return
+    end 
+
     local donator_tiers = Donator.get_donator_perks_table()
     player.print("Currently active team perks: +"..(donator_tiers[2].count*10).."% manual mining speed (max +"..(donator_tiers[2].max*10).."%), +"
         ..(donator_tiers[3].count*10).."% manual mining speed (max +"..(donator_tiers[3].max*10).."%), +"
