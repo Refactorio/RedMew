@@ -11,10 +11,8 @@ local function capsule_used(event)
         return
     end
 
-    local dx = math.abs(event.position.x - player.position.x)
-    local dy = math.abs(event.position.y - player.position.y)
-
-    if dx > 0.5 or dy > 1 then  -- Only want to create the flying text if the player clicks near their character for healing
+    local health_ratio = player.character.get_health_ratio()
+    if health_ratio == 1 then -- to stop people spamming it
         return
     end
 
