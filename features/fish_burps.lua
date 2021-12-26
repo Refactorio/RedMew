@@ -7,7 +7,7 @@ local function capsule_used(event)
     end
 
     local player =  game.get_player(event.player_index)
-    if not player or not player.valid then
+    if not player or not player.valid or not player.character or not player.character.valid then
         return
     end
 
