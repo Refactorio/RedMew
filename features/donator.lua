@@ -11,7 +11,7 @@ local concat = table.concat
 local remove = table.remove
 local set_data = Server.set_data
 local random = math.random
-local config = global.config.donator_perks
+local config = global.config.donator.donator_perks
 
 local donator_data_set = 'donators'
 local donators = {} -- global register
@@ -37,6 +37,7 @@ Global.register(
         donator_perks_perm = tbl.donator_perks_perm
         donatator_perks_temp = tbl.donatator_perks_temp
         donator_tiers = tbl.donator_tiers
+        config = tbl.global.config.donator.donator_perks
     end
 )
 

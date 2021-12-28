@@ -3,9 +3,20 @@ local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Donator = require 'features.donator'
 local Color = require 'resources.color_presets'
+local Global = require 'utils.global'
 
 local format = string.format
-local config = global.config.donator_perks
+local config = global.config.donator.donator_perks
+
+
+Global.register(
+    {
+        config = config
+    },
+    function(tbl)
+        config = tbl.global.config.donator.donator_perks
+    end
+)
 
 -- Local functions
 
