@@ -3,7 +3,7 @@ local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 
-return function(allowed_entities)
+return function(allowed_entities, message)
     --- Items explicitly allowed on ores
     RestrictEntities.add_allowed(allowed_entities)
 
@@ -29,7 +29,7 @@ return function(allowed_entities)
     local function on_destroy(event)
         local p = event.player
         if p and p.valid then
-            p.print('You cannot build that on top of ores, only belts, mining drills, and power poles are allowed.')
+            p.print(message or 'You cannot build that on top of ores, only belts, mining drills, and power poles are allowed.')
         end
     end
 
