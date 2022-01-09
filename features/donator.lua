@@ -6,14 +6,16 @@ local Token = require 'utils.token'
 local table = require 'utils.table'
 local Global = require 'utils.global'
 local Task = require 'utils.task'
+local DonatorPerks = require 'resources.donator_perks'
 
 local concat = table.concat
 local remove = table.remove
 local set_data = Server.set_data
 local random = math.random
-local config = global.config.donator.donator_perks
+local config = global.config.donator
 
-local donator_data_set = 'donators'
+--local donator_data_set = 'donators'
+local donator_data_set = 'donators_test'
 local donators = {} -- global register
 local donator_perks_perm = {} -- buffs to the force that will remain even when the donator is offline (T5)
 local donatator_perks_temp = {} -- buffs to the force that are only applied while the donator is online (T2, T3, T4)
@@ -43,6 +45,24 @@ Global.register(
 
 local Public = {}
 
+--- Checks if a player has a specific donator perk
+-- @param player_name <string>
+-- @param perf_flag <number>
+-- @return <boolean>
+function Public.player_has_donator_perk(player_name, perk_flag)
+    local d = donators[player_name]
+    if not d then
+        return false
+    end
+
+    local flags = d.perk_flags
+    if not flags then
+        return false
+    end
+
+    return bit32.band(flags, perk_flag) == perk_flag
+end
+
 --- Prints the donator message with the color returned from the server
 local print_after_timeout =
     Token.register(
@@ -68,49 +88,63 @@ local function player_joined(event)
         return nil
     end
 
+    game.print("Debug: "..player.name.." Perk Flag:"..d.perk_flags..", Patreon Tier: "..d.patreon_tier)
+
     local perk_flag = d.perk_flags
     if perk_flag < 2 then
         return
     end
 
-    local messages = d.welcome_messages
-    local count = #messages
-    if count ~= 0 and count then
-        local message = messages[random(count)]
-        message = concat({'*** ', message, ' ***'})
-        Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
+    if Public.player_has_donator_perk(player.name, DonatorPerks.welcome_msg) then
+        local messages = d.welcome_messages
+        if messages then
+            local count = #messages
+            if count ~= 0 and count then
+                local message = messages[random(count)]
+                message = concat({'*** ', message, ' ***'})
+                Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
+            end
+        end
     end
 
-    if not config.enabled then
+    if not config.donator_perks.enabled then
         return
     end
 
+    local mining_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_mining)
+    local crafting_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_crafting)
+    local running_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_run)
+    local inventory_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_inventory)
+
+    if not mining_flag and not crafting_flag and not running_flag and not inventory_flag then
+        return
+   end
+
     -- Update team perks
-    if not donatator_perks_temp[player.name] then
-        local donator_perk_msg = concat({"Donator Tier: ",donator_tiers[perk_flag].name, ". Team bonuses: "})
-        if perk_flag >= 2 and donator_tiers[2].count < donator_tiers[2].max then  -- Apply tier 2 (Coal) reward: +10 % team manual mining bonus per online tier 2+ donator
+    if not donatator_perks_temp[player.name] then -- check they're not already in donator_perks_temp table, this keeps track of bonuses that are added and removed as players join and leave
+        local donator_perk_msg = concat({"Donator Tier: ",donator_tiers[d.patreon_tier].name, ". Team bonuses applied: "})
+        if mining_flag and donator_tiers[2].count < donator_tiers[2].max then  -- Apply tier 2 (Coal) reward: +10 % team manual mining bonus per online tier 2+ donator
             player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier + 0.1
             donator_tiers[2].count = donator_tiers[2].count + 1
-            donator_perk_msg = concat({donator_perk_msg, "+10% hand mining"})
+            donator_perk_msg = concat({donator_perk_msg, "+10% hand mining. "})
         end
-        if perk_flag >= 3 and donator_tiers[3].count < donator_tiers[3].max then  -- Apply tier 3 (Solid Fuel) reward: + 10 % team manual crafting bonus per online tier 3+ donator
+        if crafting_flag and donator_tiers[3].count < donator_tiers[3].max then  -- Apply tier 3 (Solid Fuel) reward: + 10 % team manual crafting bonus per online tier 3+ donator
             player.force.manual_crafting_speed_modifier = player.force.manual_crafting_speed_modifier + 0.1
             donator_tiers[3].count = donator_tiers[3].count + 1
-            donator_perk_msg = concat({donator_perk_msg, ", +10% hand crafting"})
+            donator_perk_msg = concat({donator_perk_msg, "+10% hand crafting. "})
         end
-        if perk_flag >= 4 and donator_tiers[4].count < donator_tiers[4].max  then  -- Apply Tier 4 (Rocket Fuel) reward: + 10 % team running speed bonus per online tier 4+ donator
+        if running_flag and donator_tiers[4].count < donator_tiers[4].max  then  -- Apply Tier 4 (Rocket Fuel) reward: + 10 % team running speed bonus per online tier 4+ donator
             player.force.character_running_speed_modifier = player.force.character_running_speed_modifier + 0.1
             donator_tiers[4].count = donator_tiers[4].count + 1
-            donator_perk_msg = concat({donator_perk_msg, ", +10% run speed"})
+            donator_perk_msg = concat({donator_perk_msg, "+10% run speed. "})
         end
         donatator_perks_temp[player.name] = perk_flag
-        if perk_flag >= 5 and not donator_perks_perm[player.name] and donator_tiers[5].count < donator_tiers[5].max  then
+        if inventory_flag and not donator_perks_perm[player.name] and donator_tiers[5].count < donator_tiers[5].max  then
             player.force.character_inventory_slots_bonus = player.force.character_inventory_slots_bonus + 5
             donator_tiers[5].count = donator_tiers[5].count + 1
-            donator_perk_msg = concat({donator_perk_msg, ", +5 inventory slots"})
+            donator_perk_msg = concat({donator_perk_msg, "+5 inventory slots. "})
             donator_perks_perm[player.name] = true
         end
-        donator_perk_msg = concat({donator_perk_msg, "."})
         Task.set_timeout_in_ticks(80, print_after_timeout, {player = player, message = donator_perk_msg})
     end
 end
@@ -127,12 +161,18 @@ local function player_left(event)
     end
 
     local perk_flag = d.perk_flags
-    if perk_flag < 2 then
+
+   local mining_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_mining)
+   local crafting_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_crafting)
+   local running_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_run)
+
+   -- To do: What happens if an admin changes the players donator status or flags while they're online?
+    if not mining_flag and not crafting_flag and not running_flag then
         return
     end
 
     if donatator_perks_temp[player.name] then
-        if perk_flag >= 2 then
+        if mining_flag then
             if player.force.manual_mining_speed_modifier  >= 0.1 then
                 player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier - 0.1
             else
@@ -140,7 +180,7 @@ local function player_left(event)
             end
             donator_tiers[2].count = donator_tiers[2].count - 1
         end
-        if perk_flag >= 3 then
+        if crafting_flag then
             if player.force.manual_crafting_speed_modifier >= 0.1 then
                 player.force.manual_crafting_speed_modifier = player.force.manual_crafting_speed_modifier - 0.1
             else
@@ -148,7 +188,7 @@ local function player_left(event)
             end
             donator_tiers[3].count = donator_tiers[4].count - 1
         end
-        if perk_flag >= 4 and player.force.character_running_speed_modifier >= 0.1  then
+        if running_flag and player.force.character_running_speed_modifier >= 0.1  then
             if player.force.character_running_speed_modifier >= 0.1 then
                 player.force.character_running_speed_modifier = player.force.character_running_speed_modifier - 0.1
             else
@@ -156,7 +196,7 @@ local function player_left(event)
             end
             donator_tiers[4].count = donator_tiers[4].count - 1
         end
-        donatator_perks_temp[player.name] = nil
+        donatator_perks_temp[player.name] = nil -- remove them from the table
     end
 
 end
@@ -173,6 +213,9 @@ local function player_died(event)
         return nil
     end
 
+    if not Public.player_has_donator_perk(player.name, DonatorPerks.death_msg) then
+        return
+    end
     local messages = d.death_messages
     if not messages then
         return
@@ -213,13 +256,13 @@ local function player_respawned(event)
         return nil
     end
 
-    local perk_flag = d.perk_flags
-    if perk_flag < 4 then
+    local respawn_flag = Public.player_has_donator_perk(player.name, DonatorPerks.respawn_boost)
+    if not respawn_flag then
         return
     end
 
     player.character_running_speed_modifier = player.character_running_speed_modifier + 1
-    Task.set_timeout_in_ticks(60*60, reset_run_speed, player)
+    Task.set_timeout_in_ticks(30*60, reset_run_speed, player)
 end
 
 --- Returns the table of donators
@@ -239,24 +282,6 @@ end
 -- @return <boolean>
 function Public.is_donator(player_name)
     return donators[player_name] ~= nil
-end
-
---- Checks if a player has a specific donator perk
--- @param player_name <string>
--- @param perf_flag <number>
--- @return <boolean>
-function Public.player_has_donator_perk(player_name, perk_flag)
-    local d = donators[player_name]
-    if not d then
-        return false
-    end
-
-    local flags = d.perk_flags
-    if not flags then
-        return false
-    end
-
-    return bit32.band(flags, perk_flag) == perk_flag
 end
 
 --- Sets the data for a donator, all existing data for the entry is removed
