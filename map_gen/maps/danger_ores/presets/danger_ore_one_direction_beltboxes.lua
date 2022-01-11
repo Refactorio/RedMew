@@ -104,6 +104,7 @@ Event.on_init(function()
     game.forces.player.manual_mining_speed_modifier = 1
 
     RS.get_surface().always_day = true
+    RS.get_surface().peaceful_mode = true
 end)
 
 local function terraforming_bounds(x, y)
