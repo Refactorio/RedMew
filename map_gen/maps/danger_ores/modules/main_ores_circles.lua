@@ -8,6 +8,7 @@ return function(config)
     local main_ores_rotate = config.main_ores_rotate or 0
     local start_ore_shape = config.start_ore_shape
     local circle_thickenss = config.circle_thickness or 16
+    local circle_grow_factor = config.circle_grow_factor or 768
 
     main_ores = Helper.split_ore(main_ores, main_ores_split_count)
 
@@ -39,7 +40,7 @@ return function(config)
         end
 
         local starting_ores = b.segment_weighted_pattern(starting_ores_list)
-        local ores = b.ring_weighted_pattern(shapes, circle_thickenss)
+        local ores = b.ring_weighted_grow_pattern(shapes, circle_thickenss, circle_grow_factor)
 
         if main_ores_rotate ~= 0 then
             -- Only makes sense to rotate starting ores as the main ores are a circle.
