@@ -5,7 +5,7 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Danger Ore Circles')
+ScenarioInfo.set_map_name('Danger Ore Circles Beltboxes (ore only)')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
@@ -51,17 +51,19 @@ ScenarioInfo.set_new_info([[
  - Rail signals and train stations now allowed on ore.
 ]])
 
+global.config.redmew_qol.loaders = false
+
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.vanilla_ores'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_ores'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
-local resource_patches_config = require 'map_gen.maps.danger_ores.config.vanilla_resource_patches'
+local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 -- local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
-local allowed_entities = require 'map_gen.maps.danger_ores.config.vanilla_allowed_entities'
+local allowed_entities = require 'map_gen.maps.danger_ores.config.deadlock_betlboxes_allowed_entities'
 banned_entities(allowed_entities)
 
 RS.set_map_gen_settings({
@@ -85,13 +87,13 @@ Config.dump_offline_inventories = {
 Config.paint.enabled = false
 
 Event.on_init(function()
-    game.draw_resource_selection = false
+    --game.draw_resource_selection = false
     game.forces.player.technologies['mining-productivity-1'].enabled = false
     game.forces.player.technologies['mining-productivity-2'].enabled = false
     game.forces.player.technologies['mining-productivity-3'].enabled = false
     game.forces.player.technologies['mining-productivity-4'].enabled = false
 
-    game.difficulty_settings.technology_price_multiplier = 25
+    game.difficulty_settings.technology_price_multiplier = 35
     game.forces.player.technologies.logistics.researched = true
     game.forces.player.technologies.automation.researched = true
 
@@ -102,22 +104,26 @@ Event.on_init(function()
     game.forces.player.manual_mining_speed_modifier = 1
 
     RS.get_surface().always_day = true
+    RS.get_surface().peaceful_mode = true
 end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 4})
+terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 6})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 500})
+rocket_launched({win_satellite_count = 850})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'danger-ore-circles'})
+restart_command({scenario_name = 'danger-ore-circles-beltboxes-ore-only'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
 
 local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
 concrete_on_landfill({tile = 'blue-refined-concrete'})
+
+local remove_non_ore_stacked_recipes = require 'map_gen.maps.danger_ores.modules.remove_non_ore_stacked_recipes'
+remove_non_ore_stacked_recipes()
 
 local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_circles'
 
