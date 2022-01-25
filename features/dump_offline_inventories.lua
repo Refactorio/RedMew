@@ -29,10 +29,24 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
     local inv_main = player.get_inventory(defines.inventory.character_main)
     local inv_trash = player.get_inventory(defines.inventory.character_trash)
 
-    local inv_main_contents = inv_main.get_contents()
-    local inv_trash_contents = inv_trash.get_contents()
+    local inv_main_contents
+    if inv_main and inv_main.valid then
+        inv_main_contents = inv_main.get_contents()
+    end
 
-    local inv_corpse_size = (#inv_main - inv_main.count_empty_stacks()) + (#inv_trash - inv_trash.count_empty_stacks())
+    local inv_trash_contents
+    if inv_trash and inv_trash.valid then
+        inv_trash_contents = inv_trash.get_contents()
+    end
+
+    local inv_corpse_size = 0
+    if inv_main_contents then
+        inv_corpse_size = inv_corpse_size + (#inv_main - inv_main.count_empty_stacks())
+    end
+
+    if inv_trash_contents then
+        inv_corpse_size = inv_corpse_size + (#inv_trash - inv_trash.count_empty_stacks())
+    end
 
     if inv_corpse_size <= 0 then
         return
@@ -49,15 +63,19 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
 
     local inv_corpse = corpse.get_inventory(defines.inventory.character_corpse)
 
-    for item_name, count in pairs(inv_main_contents) do
+    for item_name, count in pairs(inv_main_contents or {}) do
         inv_corpse.insert({name = item_name, count = count})
     end
-    for item_name, count in pairs(inv_trash_contents) do
+    for item_name, count in pairs(inv_trash_contents or {}) do
         inv_corpse.insert({name = item_name, count = count})
     end
 
-    inv_main.clear()
-    inv_trash.clear()
+    if inv_main_contents then
+        inv_main.clear()
+    end
+    if inv_trash_contents then
+        inv_trash.clear()
+    end
 
     local text = player.name .. "'s inventory (offline)"
     local tag = player.force.add_chart_tag(player.surface, {
