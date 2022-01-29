@@ -55,68 +55,61 @@ global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.one_direction_beltboxes_ores_xmas'
---local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
---local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
---local water = require 'map_gen.maps.danger_ores.modules.water'
+-- local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
+-- local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
+-- local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
---local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
+-- local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
 local allowed_entities = require 'map_gen.maps.danger_ores.config.deadlock_betlboxes_allowed_entities'
 banned_entities(allowed_entities)
 
-RS.set_map_gen_settings(
-    {
-        MGSP.grass_only,
-        MGSP.enable_water,
-        {
-            terrain_segmentation = 'normal',
-            water = 'normal'
-        },
-        MGSP.starting_area_very_low,
-        MGSP.ore_oil_none,
-        MGSP.enemy_none,
-        MGSP.cliff_none,
-        MGSP.tree_none
-    }
-)
+RS.set_map_gen_settings({
+    MGSP.grass_only,
+    MGSP.enable_water,
+    {terrain_segmentation = 'normal', water = 'normal'},
+    MGSP.starting_area_very_low,
+    MGSP.ore_oil_none,
+    MGSP.enemy_none,
+    MGSP.cliff_none,
+    MGSP.tree_none
+})
 
 Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_create.starting_items = {}
 Config.dump_offline_inventories = {
     enabled = true,
-    offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
+    offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
 Config.day_night.enabled = true
 Config.day_night.use_fixed_brightness = true
 Config.day_night.fixed_brightness = 0.70
 
-Event.on_init(
-    function()
-        --game.draw_resource_selection = false
-        game.forces.player.technologies['mining-productivity-1'].enabled = false
-        game.forces.player.technologies['mining-productivity-2'].enabled = false
-        game.forces.player.technologies['mining-productivity-3'].enabled = false
-        game.forces.player.technologies['mining-productivity-4'].enabled = false
-        game.forces.player.technologies['landfill'].enabled = false
+Event.on_init(function()
+    -- game.draw_resource_selection = false
+    game.forces.player.technologies['mining-productivity-1'].enabled = false
+    game.forces.player.technologies['mining-productivity-2'].enabled = false
+    game.forces.player.technologies['mining-productivity-3'].enabled = false
+    game.forces.player.technologies['mining-productivity-4'].enabled = false
+    game.forces.player.technologies['landfill'].enabled = false
 
-        game.difficulty_settings.technology_price_multiplier = 25
-        game.forces.player.technologies.logistics.researched = true
-        game.forces.player.technologies.automation.researched = true
+    game.difficulty_settings.technology_price_multiplier = 25
+    game.forces.player.technologies.logistics.researched = true
+    game.forces.player.technologies.automation.researched = true
 
-        game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
-        game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
-        game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
+    game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
+    game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
+    game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
 
-        game.forces.player.manual_mining_speed_modifier = 1
+    game.forces.player.manual_mining_speed_modifier = 1
 
-        --RS.get_surface().always_day = true
-        RS.get_surface().peaceful_mode = true
-    end
-)
+    -- RS.get_surface().always_day = true
+    RS.get_surface().peaceful_mode = true
+end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({start_size = 12 * 32, min_pollution = 300, max_pollution = 16000, pollution_increment = 9})
@@ -140,7 +133,7 @@ require 'map_gen.maps.danger_ores.modules.map_poll'
 
 local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_xmas_tree'
 
---local sqrt = math.sqrt
+-- local sqrt = math.sqrt
 
 local config = {
     spawn_shape = b.circle(72),
@@ -148,16 +141,16 @@ local config = {
     main_ores_builder = main_ores_builder,
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
-    --main_ores_rotate = 45,
-    --resource_patches = resource_patches,
-    --resource_patches_config = resource_patches_config,
-    --water = water,
+    -- main_ores_rotate = 45,
+    -- resource_patches = resource_patches,
+    -- resource_patches_config = resource_patches_config,
+    -- water = water,
     --[[water_scale = function(x, y)
         local d = sqrt(x * x + y * y)
         return 1 / (24 + (0.1 * d))
     end,]]
-    --water_threshold = 0.35,
-    --deepwater_threshold = 0.4,
+    -- water_threshold = 0.35,
+    -- deepwater_threshold = 0.4,
     trees = trees,
     trees_scale = 1 / 64,
     trees_threshold = 0.35,
@@ -167,7 +160,7 @@ local config = {
     enemy_max_chance = 1 / 6,
     enemy_scale_factor = 32,
     fish_spawn_rate = 0.00625,
-    --dense_patches = dense_patches,
+    -- dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
     dense_patches_multiplier = 50

@@ -55,9 +55,10 @@ global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_coal'
-local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
-local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
-local main_ore_resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_main_ore_resource_patches'
+-- local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
+-- local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
+local main_ore_resource_patches_config =
+    require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_main_ore_resource_patches'
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
@@ -65,7 +66,8 @@ local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
 local allowed_entities = require 'map_gen.maps.danger_ores.config.patches_deadlock_betlboxes_allowed_entities'
-banned_entities(allowed_entities, 'You cannot build that on top of ores, only express belts and mining drills are allowed.')
+banned_entities(allowed_entities,
+    'You cannot build that on top of ores, only express belts and mining drills are allowed.')
 
 RS.set_map_gen_settings({
     MGSP.grass_only,
@@ -88,7 +90,7 @@ Config.dump_offline_inventories = {
 Config.paint.enabled = false
 
 Event.on_init(function()
-    --game.draw_resource_selection = false
+    -- game.draw_resource_selection = false
     game.forces.player.technologies['mining-productivity-1'].enabled = false
     game.forces.player.technologies['mining-productivity-2'].enabled = false
     game.forces.player.technologies['mining-productivity-3'].enabled = false
@@ -138,8 +140,8 @@ local config = {
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
     -- main_ores_rotate = 0,
-    resource_patches = resource_patches,
-    resource_patches_config = resource_patches_config,
+    -- resource_patches = resource_patches,
+    -- resource_patches_config = resource_patches_config,
     main_ore_resource_patches_config = main_ore_resource_patches_config,
     water = water,
     water_scale = 1 / 96,

@@ -55,8 +55,8 @@ global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_ores'
-local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
-local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
+-- local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
+-- local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
@@ -87,7 +87,7 @@ Config.dump_offline_inventories = {
 Config.paint.enabled = false
 
 Event.on_init(function()
-    --game.draw_resource_selection = false
+    -- game.draw_resource_selection = false
     game.forces.player.technologies['mining-productivity-1'].enabled = false
     game.forces.player.technologies['mining-productivity-2'].enabled = false
     game.forces.player.technologies['mining-productivity-3'].enabled = false
@@ -137,8 +137,8 @@ local config = {
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
     main_ores_rotate = 30,
-    resource_patches = resource_patches,
-    resource_patches_config = resource_patches_config,
+    -- resource_patches = resource_patches,
+    -- resource_patches_config = resource_patches_config,
     water = water,
     water_scale = 1 / 96,
     water_threshold = 0.45,

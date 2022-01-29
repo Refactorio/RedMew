@@ -46,7 +46,7 @@ return function(config)
         local icons = {baubel_1, baubel_2, baubel_3, baubel_4}
 
         local icons_count = #icons
-        local value = b.euclidean_value
+        -- local value = b.euclidean_value
         local ore_value = b.exponential_value(0, 0.3, 1.3)
 
         local function non_transform(shape)
@@ -66,9 +66,9 @@ return function(config)
             {transform = non_transform, resource = 'copper-ore', value = ore_value, weight = 10},
             {transform = non_transform, resource = 'stone', value = ore_value, weight = 2},
             {transform = non_transform, resource = 'coal', value = ore_value, weight = 10},
-            {transform = non_transform, resource = 'uranium-ore', value = value(100, 1.55), weight = 5},
-            {transform = non_transform, resource = 'crude-oil', value = value(100000, 3500), weight = 15},
-            {transform = empty_transform, weight = 100}
+            -- {transform = non_transform, resource = 'uranium-ore', value = value(100, 1.55), weight = 5},
+            -- {transform = non_transform, resource = 'crude-oil', value = value(100000, 3500), weight = 15},
+            {transform = empty_transform, weight = 80}
         }
 
         local total_weights = {}
