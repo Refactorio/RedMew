@@ -55,12 +55,12 @@ global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_gradient_ores'
-local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
-local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
+-- local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
+-- local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
---local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
+-- local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
 local allowed_entities = require 'map_gen.maps.danger_ores.config.deadlock_betlboxes_allowed_entities'
@@ -82,12 +82,12 @@ Config.player_rewards.enabled = false
 Config.player_create.starting_items = {}
 Config.dump_offline_inventories = {
     enabled = true,
-    offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
+    offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
 
 Event.on_init(function()
-    --game.draw_resource_selection = false
+    -- game.draw_resource_selection = false
     game.forces.player.technologies['mining-productivity-1'].enabled = false
     game.forces.player.technologies['mining-productivity-2'].enabled = false
     game.forces.player.technologies['mining-productivity-3'].enabled = false
@@ -137,8 +137,8 @@ local config = {
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
     main_ores_rotate = 0,
-    resource_patches = resource_patches,
-    resource_patches_config = resource_patches_config,
+    -- resource_patches = resource_patches,
+    -- resource_patches_config = resource_patches_config,
     water = water,
     water_scale = 1 / 96,
     water_threshold = 0.45,
@@ -152,7 +152,7 @@ local config = {
     enemy_max_chance = 1 / 6,
     enemy_scale_factor = 32,
     fish_spawn_rate = 0.025,
-    --dense_patches = dense_patches,
+    -- dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
     dense_patches_multiplier = 25
