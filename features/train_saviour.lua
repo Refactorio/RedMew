@@ -63,7 +63,7 @@ local function on_pre_death(event)
 
     local player_name = player.name
 
-    if Donator.player_has_donator_perk(player_name, train_perk_flag) then
+    if Donator.player_has_donator_perk_enabled(player_name, train_perk_flag) then
         saved_players[player_index] = game_tick
         save_player(player)
 

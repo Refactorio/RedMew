@@ -6,6 +6,7 @@ local Token = require 'utils.token'
 local table = require 'utils.table'
 local Global = require 'utils.global'
 local Task = require 'utils.task'
+local DonatorPerks = require 'resources.donator_perks'
 
 local concat = table.concat
 local remove = table.remove
@@ -25,10 +26,41 @@ Global.register(
     end
 )
 
+--[[
+    TODO:
+    [ ] static list of different donator levels that the player can have
+    [ ] add team handcrafting bonus if donator level is rocket fuel+
+    [ ] add team run bonus if donator level is nuclear fuel+
+    [ ] add get 5 inventory slot bonus for team if level is uranium
+    [ ] add 10% discount on coin purchases at market or outpost upgrades
+    [ ] handling of events if a player donator status changes when they are connected
+]]
+
 local Public = {}
 
---- Prints the donator message with the color returned from the server
-local print_after_timeout =
+--- Checks if a player has a specific donator perk enabled
+-- @param player_name <string>
+-- @param perk_flag <number>
+-- @return <boolean>
+function Public.player_has_donator_perk_enabled(player_name, perk_flag)
+    local d = donators[player_name]
+    if not d then
+        return false
+    end
+
+    local flags = d.perk_flags
+    if not flags then
+        return false
+    end
+
+    -- TODO: check if the player has sufficient roles for this, so that enabled flags can still bestored even if the player changes their status
+
+    -- this is a table of numbers mapping to true or false, depending on what the player l
+    return flags[perk_flag] or false
+end
+
+--- Prints the donator message with the color returned from the server and gives free fish to the player if they have the rank
+local actions_after_timeout =
     Token.register(
     function(data)
         local player = data.player
@@ -37,6 +69,16 @@ local print_after_timeout =
         end
 
         game.print(data.message, player.chat_color)
+
+        -- check if a player has been online for less than 120s (first time joining) and has the initial items perk
+        if player.online_time < 120 and Public.player_has_donator_perk_enabled(player.name, DonatorPerks.initial_items) then
+            -- add fish + furnaces if the player has the sufficient tier
+            local inv = player.get_main_inventory()
+            -- TODO: check item names here
+            inv.insert{name = "raw-fish", count = 100}
+            inv.insert{name = "burner-mining-drill", count = 20}
+            inv.insert{name = "stone-furnace", count = 20}
+        end
     end
 )
 
@@ -64,7 +106,7 @@ local function player_joined(event)
 
     local message = messages[random(count)]
     message = concat({'*** ', message, ' ***'})
-    Task.set_timeout_in_ticks(60, print_after_timeout, {player = player, message = message})
+    Task.set_timeout_in_ticks(60, actions_after_timeout, {player = player, message = message})
 end
 
 --- Prints a message on donator death
@@ -109,24 +151,6 @@ end
 -- @return <boolean>
 function Public.is_donator(player_name)
     return donators[player_name] ~= nil
-end
-
---- Checks if a player has a specific donator perk
--- @param player_name <string>
--- @param perf_flag <number>
--- @return <boolean>
-function Public.player_has_donator_perk(player_name, perk_flag)
-    local d = donators[player_name]
-    if not d then
-        return false
-    end
-
-    local flags = d.perk_flags
-    if not flags then
-        return false
-    end
-
-    return bit32.band(flags, perk_flag) == perk_flag
 end
 
 --- Sets the data for a donator, all existing data for the entry is removed
