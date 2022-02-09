@@ -5,7 +5,7 @@ local DonatorPerks = require 'resources.donator_perks'
 local Donator = require 'features.donator'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
-local train_perk_flag = DonatorPerks.train
+local train_perk_flag = DonatorPerks.flags.train
 
 local saviour_token_name = 'player-port' -- item name for what saves players
 local saviour_entity_token_name = 'player-port' -- entity name for the saviour_token_name, or nil if the item cannot be placed.

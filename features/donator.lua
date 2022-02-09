@@ -34,9 +34,39 @@ Global.register(
     [ ] add get 5 inventory slot bonus for team if level is uranium
     [ ] add 10% discount on coin purchases at market or outpost upgrades
     [ ] handling of events if a player donator status changes when they are connected
+    [ ] fetch donator status for players when they join
 ]]
 
+
+--[[
+    player: {
+        welcome_messages: string[]
+        perk_flags: nil | flags,
+        level: number
+    }
+]]
 local Public = {}
+
+--- Checks if a player has a required donator level to perform an action
+-- @param player_name <string>
+-- @param perk_flag <number>
+-- @return boolean
+function Public.has_required_donator_level(player_name, perk_flag)
+    local d = donators[player_name]
+    if not d then return false end
+    for level, tier in pairs(DonatorPerks.tiers) do
+        -- if the flag is present, then we perform the check
+        if tier[perk_flag] then
+            if tonumber(level) > d.level then
+                -- the level of the perk is higher than the level of the player, so no perms for them
+                return false
+            end
+            -- the player has sufficient level of donator for this
+            return true
+        end
+    end
+    return false -- the perk flag was not found so something is broken here
+end
 
 --- Checks if a player has a specific donator perk enabled
 -- @param player_name <string>
@@ -53,9 +83,12 @@ function Public.player_has_donator_perk_enabled(player_name, perk_flag)
         return false
     end
 
-    -- TODO: check if the player has sufficient roles for this, so that enabled flags can still bestored even if the player changes their status
+    -- if the player doesn't have the required level of donator, we don't care about it being turned on or off
+    if not Public.has_required_donator_level(player_name, perk_flag) then return false end 
 
     -- this is a table of numbers mapping to true or false, depending on what the player l
+    log(serpent.line(flags))
+    log(perk_flag)
     return flags[perk_flag] or false
 end
 
@@ -68,10 +101,12 @@ local actions_after_timeout =
             return
         end
 
-        game.print(data.message, player.chat_color)
+        if data.message then
+            game.print(data.message, player.chat_color)
+        end
 
         -- check if a player has been online for less than 120s (first time joining) and has the initial items perk
-        if player.online_time < 120 and Public.player_has_donator_perk_enabled(player.name, DonatorPerks.initial_items) then
+        if player.online_time < 90 and Public.player_has_donator_perk_enabled(player.name, DonatorPerks.flags.initial_items) then
             -- add fish + furnaces if the player has the sufficient tier
             local inv = player.get_main_inventory()
             -- TODO: check item names here
@@ -91,6 +126,7 @@ local function player_joined(event)
 
     local d = donators[player.name]
     if not d then
+        -- player is not a donator, as it is guaranteed that the player is saved in the donator list
         return nil
     end
 
@@ -100,12 +136,9 @@ local function player_joined(event)
     end
 
     local count = #messages
-    if count == 0 then
-        return
-    end
 
-    local message = messages[random(count)]
-    message = concat({'*** ', message, ' ***'})
+    -- if the player has any messages, then we create the data for it, otherwise it's nil
+    local message = count and concat({'*** ', messages[random(count)], ' ***'}) or nil
     Task.set_timeout_in_ticks(60, actions_after_timeout, {player = player, message = message})
 end
 
@@ -230,6 +263,13 @@ local sync_donators_callback =
     function(data)
         table.clear_table(donators)
         for k, v in pairs(data.entries) do
+            -- for easier editing in the web interface, set perk_flags to nil and they are set here
+            if v and v.perk_flags == nil or type(v.perk_flags) ~= "table" then
+                v.perk_flags = {}
+                for _, perk_name in pairs(DonatorPerks.flags) do
+                    v.perk_flags[perk_name] = true
+                end
+            end
             donators[k] = v
         end
     end
