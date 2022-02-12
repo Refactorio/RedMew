@@ -16,23 +16,28 @@ local random = math.random
 local donator_data_set = 'donators'
 
 local donators = {} -- global register
+local bonuses = {} -- global register
 
 Global.register(
     {
-        donators = donators
+        donators = donators,
+        bonuses = bonuses
     },
     function(tbl)
         donators = tbl.donators
+        bonuses = tbl.bonuses
     end
 )
 
 --[[
     TODO:
-    [ ] static list of different donator levels that the player can have
-    [ ] add team handcrafting bonus if donator level is rocket fuel+
-    [ ] add team run bonus if donator level is nuclear fuel+
-    [ ] add get 5 inventory slot bonus for team if level is uranium
+    [X] static list of different donator levels that the player can have
+    [X] player initial items
+    [X] add team handcrafting bonus if do.nator level is rocket fuel+
+    [X] add team run bonus if donator level is nuclear fuel+
+    [X] add get 5 inventory slot bonus for team if level is uranium
     [ ] add 10% discount on coin purchases at market or outpost upgrades
+    [ ] add extra running bonus on player respawn
     [ ] handling of events if a player donator status changes when they are connected
     [ ] fetch donator status for players when they join
 ]]
@@ -87,8 +92,6 @@ function Public.player_has_donator_perk_enabled(player_name, perk_flag)
     if not Public.has_required_donator_level(player_name, perk_flag) then return false end 
 
     -- this is a table of numbers mapping to true or false, depending on what the player l
-    log(serpent.line(flags))
-    log(perk_flag)
     return flags[perk_flag] or false
 end
 
@@ -109,13 +112,63 @@ local actions_after_timeout =
         if player.online_time < 90 and Public.player_has_donator_perk_enabled(player.name, DonatorPerks.flags.initial_items) then
             -- add fish + furnaces if the player has the sufficient tier
             local inv = player.get_main_inventory()
-            -- TODO: check item names here
             inv.insert{name = "raw-fish", count = 100}
             inv.insert{name = "burner-mining-drill", count = 20}
             inv.insert{name = "stone-furnace", count = 20}
         end
     end
 )
+
+--- Re-calculate bonuses for the players
+local function recalc_bonuses()
+    for _, force in pairs(game.forces) do
+        if not bonuses[force.name] then bonuses[force.name] = {} end
+        local mining = bonuses[force.name].mining or 0.0
+        local crafting = bonuses[force.name].crafting or 0.0
+        local running = bonuses[force.name].running or 0.0
+        local inventory = bonuses[force.name].inventory or 0.0
+
+
+        -- change the bonuses of the forces back
+        -- removes only bonuses added by this module, so other bonuses should not be affected
+        force.manual_mining_speed_modifier = force.manual_mining_speed_modifier - mining
+        force.manual_crafting_speed_modifier = force.manual_crafting_speed_modifier - crafting
+        force.character_running_speed_modifier = force.character_running_speed_modifier - running
+        force.character_inventory_slots_bonus = force.character_inventory_slots_bonus - inventory
+
+        mining = 0.0
+        crafting = 0.0
+        inventory = 0.0
+        running = 0.0
+
+        -- for each player of a tier, the modifier is increased
+        for _, player in pairs(force.players) do
+            if Public.player_has_donator_perk_enabled(player.name, DonatorPerks.flags.team_mining) then
+                mining = math.min(mining + 0.10, 100)
+            end
+            if Public.player_has_donator_perk_enabled(player.name, DonatorPerks.flags.team_crafting) then
+                crafting = math.min(crafting + 0.10, 100)
+            end
+            if Public.player_has_donator_perk_enabled(player.name, DonatorPerks.flags.team_inventory) then
+                inventory = math.min(inventory + 5, 100)
+            end
+            if Public.player_has_donator_perk_enabled(player.name, DonatorPerks.flags.team_run) then
+                running = math.min(running + 0.1, 100)
+            end
+        end
+
+        -- actually set the modifier values for the force
+        force.manual_mining_speed_modifier = force.manual_mining_speed_modifier + mining
+        force.manual_crafting_speed_modifier = force.manual_crafting_speed_modifier + crafting
+        force.character_running_speed_modifier = force.character_running_speed_modifier + running
+        force.character_inventory_slots_bonus = force.character_inventory_slots_bonus + inventory
+        
+        bonuses[force.name].mining = mining
+        bonuses[force.name].crafting = crafting
+        bonuses[force.name].running = running
+        bonuses[force.name].inventory = inventory
+    end
+end
 
 --- When a player joins, set a 1s timer to retrieve their color before printing their welcome message
 local function player_joined(event)
@@ -130,16 +183,11 @@ local function player_joined(event)
         return nil
     end
 
-    local messages = d.welcome_messages
-    if not messages then
-        return
-    end
-
-    local count = #messages
-
+    local count = d.welcome_messages and  #d.welcome_messages or false
     -- if the player has any messages, then we create the data for it, otherwise it's nil
-    local message = count and concat({'*** ', messages[random(count)], ' ***'}) or nil
+    local message = count and concat({'*** ', d.welcome_messages[random(count)], ' ***'}) or nil
     Task.set_timeout_in_ticks(60, actions_after_timeout, {player = player, message = message})
+    recalc_bonuses()
 end
 
 --- Prints a message on donator death
@@ -171,6 +219,7 @@ local function player_died(event)
     local message = messages[random(count)]
     message = concat({'*** ', message, ' ***'})
     game.print(message, player.chat_color)
+    recalc_bonuses()
 end
 
 --- Returns the table of donators
@@ -272,6 +321,7 @@ local sync_donators_callback =
             end
             donators[k] = v
         end
+        recalc_bonuses()
     end
 )
 
@@ -303,6 +353,7 @@ Server.on_data_set_changed(
     donator_data_set,
     function(data)
         donators[data.key] = data.value
+        -- TODO: recalc the donator for this player only
     end
 )
 
