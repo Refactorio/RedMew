@@ -37,7 +37,7 @@ Global.register(
     [X] add team run bonus if donator level is nuclear fuel+
     [X] add get 5 inventory slot bonus for team if level is uranium
     [ ] add 10% discount on coin purchases at market or outpost upgrades
-    [ ] add extra running bonus on player respawn
+    [X] add extra running bonus on player respawn
     [ ] handling of events if a player donator status changes when they are connected
     [ ] fetch donator status for players when they join
 ]]
@@ -190,6 +190,24 @@ local function player_joined(event)
     recalc_bonuses()
 end
 
+local reduce_player_speed_back =
+    Token.register(
+    function(data)
+        local player = data.player
+        if not player.valid then return end
+        player.character_running_speed_modifier = player.character_running_speed_modifier - 1
+    end
+    )
+local increase_player_speed =
+    Token.register(
+    function(data)
+        local player = data.player
+        if not player.valid then return end
+        player.character_running_speed_modifier = player.character_running_speed_modifier + 1
+        Task.set_timeout_in_ticks(60*60, reduce_player_speed_back, data)
+    end
+    )
+
 --- Prints a message on donator death
 local function player_died(event)
     local player = game.get_player(event.player_index)
@@ -201,6 +219,11 @@ local function player_died(event)
     if not d then
         return nil
     end
+
+    -- make player faster for 60s by 100% and then reduces it back to before after 60s
+    -- this is 10s 1 tick because the player spawns on 10s and factorio has issues
+    Task.set_timeout_in_ticks(10*60 + 1, increase_player_speed, {player = player})
+
 
     local messages = d.death_messages
     if not messages then
