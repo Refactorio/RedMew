@@ -31,7 +31,8 @@ Event.add(Server.events.on_server_started, function()
             'spiral (without void)',
             'landfill (all tiles)',
             'patches (ore islands in coal)',
-            'xmas tree (triangle)'
+            'xmas tree (triangle)',
+            'bob\'s mod (default map)'
         }
     })
 end)
