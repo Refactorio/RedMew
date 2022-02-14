@@ -42,14 +42,6 @@ Global.register(
     [ ] fetch donator status for players when they join
 ]]
 
-
---[[
-    player: {
-        welcome_messages: string[]
-        perk_flags: nil | flags,
-        level: number
-    }
-]]
 local Public = {}
 
 --- Checks if a player has a required donator level to perform an action
@@ -207,6 +199,15 @@ local increase_player_speed =
         Task.set_timeout_in_ticks(60*60, reduce_player_speed_back, data)
     end
     )
+-- this is to prevent from other code affecting the respawn, such as crash site scenario changing the timeout to 60s
+local pre_increase_player_speed = 
+    Token.register(
+    function(data)
+        local player = data.player
+        if not player.valid then return end
+        Task.set_timeout_in_ticks(player.ticks_to_respawn + 1, increase_player_speed, {player = player})
+    end
+    )
 
 --- Prints a message on donator death
 local function player_died(event)
@@ -221,9 +222,8 @@ local function player_died(event)
     end
 
     -- make player faster for 60s by 100% and then reduces it back to before after 60s
-    -- this is 10s 1 tick because the player spawns on 10s and factorio has issues
-    Task.set_timeout_in_ticks(10*60 + 1, increase_player_speed, {player = player})
-
+    -- has a 5tick offset before doing so to allow other scenario code to modify the player respawn time
+    Task.set_timeout_in_ticks(5, pre_increase_player_speed, {player = player})
 
     local messages = d.death_messages
     if not messages then
