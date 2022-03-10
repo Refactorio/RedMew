@@ -546,23 +546,22 @@ function Public.control(config)
             inv.remove({name = "explosive-rocket", count = strikeCost})
             if nest_count == 0 then
                 player.print({'command_description.crash_site_barrage_no_nests',}, Color.fail)
-                return
+            else
+
+                player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
+
+                -- draw radius
+                set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'explosive-rocket'})
+                render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius, color = {r = 0.1, g = 0, b = 0, a = 0.1}})
+                for _, nest in pairs(nests) do
+                    render_crosshair({position = {x = nest.position.x, y = nest.position.y}, player = player, item = "explosive-rocket"})
+                end
+
+                for j = 1, count do
+                    set_timeout_in_ticks(60 * j + math.random(0, 30), spawn_rocket_callback, {s = s, xpos = nests[(j%nest_count)+1].position.x, ypos = nests[(j%nest_count)+1].position.y})
+                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                end
             end
-
-            player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
-
-            -- draw radius
-            set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'explosive-rocket'})
-            render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius, color = {r = 0.1, g = 0, b = 0, a = 0.1}})
-            for _, nest in pairs(nests) do
-                render_crosshair({position = {x = nest.position.x, y = nest.position.y}, player = player, item = "explosive-rocket"})
-            end
-
-            for j = 1, count do
-                set_timeout_in_ticks(60 * j + math.random(0, 30), spawn_rocket_callback, {s = s, xpos = nests[(j%nest_count)+1].position.x, ypos = nests[(j%nest_count)+1].position.y})
-                set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
-            end
-
             -- move to the next set of coordinates
             i = i + 2
             xpos = coords[i]
