@@ -862,7 +862,7 @@ local function init(config)
         [1] = {
             market = market,
             chest = chest,
-            [5] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}},
+            [4] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}},
             [29] = {entity = {name = 'market', force = 'neutral', callback = 'market'}},
             [32] = {entity = {name = 'steel-chest', force = 'player', callback = 'chest'}}
         },
@@ -871,7 +871,7 @@ local function init(config)
             factory = factory,
             inserter = inserter,
             chest = chest,
-            [3] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}},
+            [4] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}},
             [25] = {entity = {name = 'burner-inserter', direction = 2, callback = 'inserter'}},
             [27] = {entity = {name = 'electric-furnace', callback = 'factory'}},
         }
@@ -897,8 +897,8 @@ Global.register_init(
         game.create_force(cutscene_force_name)
 
         -- Sprites for the spawn chests. Is there a better place for these?
-        rendering.draw_sprite{sprite = "item.poison-capsule", target = {2.5, -8.5}, surface = game.surfaces["redmew"], tint={1, 1, 1, 0.1}}
-        rendering.draw_sprite{sprite = "item.explosive-rocket", target = {-3.5, -8.5}, surface = game.surfaces["redmew"], tint={1, 1, 1, 0.1}}
+        rendering.draw_sprite{sprite = "item.poison-capsule", target = {3.5, -8.5}, surface = game.surfaces["redmew"], tint={1, 1, 1, 0.1}}
+        rendering.draw_sprite{sprite = "item.explosive-rocket", target = {-4.5, -8.5}, surface = game.surfaces["redmew"], tint={1, 1, 1, 0.1}}
 
         local surface = game.surfaces[1]
         surface.map_gen_settings = {width = 2, height = 2}

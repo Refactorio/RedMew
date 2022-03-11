@@ -427,11 +427,11 @@ function Public.control(config)
         end
 
         -- Check that the chest is where it should be.
-        local entities = s.find_entities_filtered {position = {2.5, -7.5}, type = 'logistic-container', limit = 1}
+        local entities = s.find_entities_filtered {position = {3.5, -7.5}, type = 'logistic-container', limit = 1}
         local dropbox = entities[1]
 
         if dropbox == nil then
-            player.print("Chest not found. Replace it here: [gps=2.5,-7.5,redmew]")
+            player.print("Chest not found. Replace it here: [gps=3.5,-7.5,redmew]")
             return
         end
 
@@ -510,11 +510,11 @@ function Public.control(config)
         end
 
         -- Check that the chest is where it should be.
-        local entities = s.find_entities_filtered {position = {-3.5, -7.5}, type = 'logistic-container', limit = 1}
+        local entities = s.find_entities_filtered {position = {-4.5, -7.5}, type = 'logistic-container', limit = 1}
         local dropbox = entities[1]
 
         if dropbox == nil then
-            player.print("Chest not found. Replace it here: [gps=-3.5,-7.5,redmew]")
+            player.print("Chest not found. Replace it here: [gps=-4.5,-7.5,redmew]")
             return
         end
 
