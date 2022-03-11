@@ -545,7 +545,7 @@ function Public.control(config)
             local nest_count = #nests
             inv.remove({name = "explosive-rocket", count = strikeCost})
             if nest_count == 0 then
-                player.print({'command_description.crash_site_barrage_no_nests',}, Color.fail)
+                player.print({'command_description.crash_site_barrage_no_nests',xpos, ypos,s.name}, Color.fail)
             else
 
                 player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
