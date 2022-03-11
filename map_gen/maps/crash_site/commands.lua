@@ -399,7 +399,6 @@ function Public.control(config)
         }
     end
 
-    
     local function strike(args, player)
         local s = player.surface
         local location_string = args.location
