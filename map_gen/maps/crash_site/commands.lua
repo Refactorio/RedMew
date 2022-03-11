@@ -399,6 +399,7 @@ function Public.control(config)
         }
     end
 
+    
     local function strike(args, player)
         local s = player.surface
         local location_string = args.location
@@ -568,6 +569,14 @@ function Public.control(config)
             xpos = coords[i]
             ypos = coords[i + 1]
         end
+    end
+
+    function Public.call_strike(args, player)
+        strike(args, player)
+    end
+
+    function Public.call_barrage(args, player)
+        barrage(args, player)
     end
 
     Event.add(Retailer.events.on_market_purchase, function(event)

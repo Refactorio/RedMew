@@ -3,6 +3,7 @@ require 'map_gen.maps.crash_site.events'
 require 'map_gen.maps.crash_site.weapon_balance'
 require 'map_gen.maps.crash_site.features.rocket_tanks'
 require 'map_gen.maps.crash_site.features.vehicle_repair_beams'
+require 'map_gen.maps.crash_site.features.discharge_targetting_remote'
 require 'features.fish_burps'
 
 local b = require 'map_gen.shared.builders'
