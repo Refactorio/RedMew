@@ -6,6 +6,8 @@ local Styles = require 'resources.styles'
 local tostring = tostring
 local next = next
 
+local gui_element_prefix = "Redmew_GUI_element_"
+
 local Gui = {}
 
 local data = {}
@@ -27,7 +29,7 @@ local on_pre_hidden_handlers = {}
 Gui._top_elements = top_elements
 
 function Gui.uid_name()
-    return tostring(Token.uid())
+    return gui_element_prefix .. tostring(Token.uid())
 end
 
 -- Associates data with the LuaGuiElement. If data is nil then removes the data
@@ -327,7 +329,7 @@ if _DEBUG then
         local name = concat {token, ' - ', filepath, ':line:', line}
         names[token] = name
 
-        return token
+        return gui_element_prefix .. token
     end
 
     function Gui.set_data(element, value)
