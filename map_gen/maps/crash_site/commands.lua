@@ -570,13 +570,8 @@ function Public.control(config)
         end
     end
 
-    function Public.call_strike(args, player)
-        strike(args, player)
-    end
-
-    function Public.call_barrage(args, player)
-        barrage(args, player)
-    end
+    Public.call_strike = strike
+    Public.call_barrage= barrage
 
     Event.add(Retailer.events.on_market_purchase, function(event)
 
@@ -638,8 +633,15 @@ function Public.control(config)
                 }
                 item.price = math.floor(math.exp(airstrike_data.radius_level ^ 0.8) / 2) * 1000
                 Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
+            elseif name == 'airstrike_planner' then
+                local player = event.player
+                player.cursor_stack.import_stack("0eNpdjUEKwjAURO8y6xRMtVZzFREJ6ad8SH9Ckhal5O42Czfu5j0ezI6JXJBc0uoKB3lFb0UowezIVArLnNvmFsE8DsuzWN9c+USCARdaoCB2aRQD5yCdszGvnlAVWCZ6w+j6bNBi83fa/U4VNkr5MDD9TV/Gez8OetDn66nWL23MOqk=")
+
+                -- poison       0eNpdjUEKwjAURO8y6xRMtVZzFREJ6ad8SH9Ckhal5O42Czfu5j0ezI6JXJBc0uoKB3lFb0UowezIVArLnNvmFsE8DsuzWN9c+USCARdaoCB2aRQD5yCdszGvnlAVWCZ6w+j6bNBi83fa/U4VNkr5MDD9TV/Gez8OetDn66nWL23MOqk=
+                -- explosive    0eNpdjUEKgzAQRe/y1wqNrbXNVUopooMMjZOQjGKR3L1m0U13/z0e/B0jDV6SxmVQ9vIKrhehCLsjkSrLlMrmEsE+DsuT9K44/QSCBSvNqCD9XIi24HzilerohzcpcgWWkTZYk58FSm7/buvfbYWVYjoMbHMzl+7edK1pzfl6yvkL9yM7iw==
             end
         end
+
         if item.type == 'barrage' then
             local radius_level = barrage_data.radius_level -- max radius of the strike area
             local count_level = barrage_data.count_level -- the number of poison capsules launched at the enemy

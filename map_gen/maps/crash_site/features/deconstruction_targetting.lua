@@ -4,7 +4,7 @@ local Commands = require 'map_gen.maps.crash_site.commands'
 Event.add(defines.events. on_player_deconstructed_area , function(event)
 
     local player = game.get_player(event.player_index)
-    if not player or not player.valid then
+    if not player or not player.valid or not player.cursor_stack or not player.cursor_stack.valid then
         return
     end
 
@@ -20,18 +20,17 @@ Event.add(defines.events. on_player_deconstructed_area , function(event)
     end
 
     local icon_name = player.cursor_stack.blueprint_icons[1].signal.name
+    local left_top = event.area.left_top
+    local right_bottom = event.area.right_bottom
 
     -- only continue if they do a small click. We don't want them selecting a huge area
-    if (math.abs(event.area.left_top.x -  event.area.right_bottom.x) < 1) and (math.abs(event.area.left_top.y -  event.area.right_bottom.y) < 1)  then
+    if (math.abs(left_top.x -  right_bottom.x) < 1) and (math.abs(left_top.y -  right_bottom.y) < 1)  then
         local args = {}
-        args.location = "[gps="..math.floor(event.area.left_top.x)..","..math.floor(event.area.left_top.y)..","..player.surface.name.."]"
-
+        args.location = "[gps="..math.floor(left_top.x)..","..math.floor(left_top.y)..","..player.surface.name.."]"
         if icon_name == "poison-capsule" then
             Commands.call_strike(args,player)
         elseif icon_name == "explosive-rocket" then
             Commands.call_barrage(args,player)
         end
-
     end
-    --game.print(event.area.left_top[1].." "..event.area.left_top[2].." "..event.area.right_bottom[1].." "..event.area.right_bottom[2].." ")
 end)
