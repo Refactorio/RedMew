@@ -638,7 +638,10 @@ function Public.control(config)
                 player.clear_cursor()
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
+                cursor_stack.label = 'Poison strike targetting remote'
                 cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'poison-capsule'}}}
+                cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
+                cursor_stack.entity_filters = {'sand-rock-big'}
             end
         end
 
@@ -694,7 +697,10 @@ function Public.control(config)
                 player.clear_cursor()
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
+                cursor_stack.label = 'Barrage targetting remote'
                 cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'explosive-rocket'}}}
+                cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
+                cursor_stack.entity_filters = {'sand-rock-big'}
             end
         end
     end)

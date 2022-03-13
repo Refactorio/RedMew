@@ -79,6 +79,23 @@ local function ammo_changed(event)
     end
 end
 
+local function is_allowed_deconstruction_planner(cursor_stack)
+    if not cursor_stack or not cursor_stack.valid or not cursor_stack.valid_for_read then
+        return false
+    end
+
+    if cursor_stack.tile_selection_mode ~= defines.deconstruction_item.tile_selection_mode.never then
+        return false
+    end
+
+    local filters = cursor_stack.entity_filters
+    if #filters ~= 1 or filters[1] ~= 'sand-rock-big' then
+        return false
+    end
+
+    return true
+end
+
 local function on_player_deconstructed_area(event)
     local player = game.get_player(event.player_index)
     if is_trusted(player) then
@@ -87,7 +104,7 @@ local function on_player_deconstructed_area(event)
 
     -- Added to allow guests to use the decon planner as a targetting remote for crash site air strike or barrage commands
     -- see crash_site.features.deconstruction_targetting.lua
-    if (player.cursor_stack.blueprint_icons[1].signal.name == "poison-capsule") or (player.cursor_stack.blueprint_icons[1].signal.name == "explosive-rocket") then
+    if is_allowed_deconstruction_planner(player.cursor_stack) then
         return
     end
 

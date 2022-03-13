@@ -1,17 +1,36 @@
 local Event = require 'utils.event'
 local Commands = require 'map_gen.maps.crash_site.commands'
 
-Event.add(defines.events. on_player_deconstructed_area , function(event)
+local function is_targetting_deconstruction_planner(cursor_stack)
+    if not cursor_stack or not cursor_stack.valid or not cursor_stack.valid_for_read then
+        return false
+    end
 
+    if cursor_stack.name ~= "deconstruction-planner" then
+        return false
+    end
+
+    if cursor_stack.tile_selection_mode ~= defines.deconstruction_item.tile_selection_mode.never then
+        return false
+    end
+
+    local filters = cursor_stack.entity_filters
+    if #filters ~= 1 or filters[1] ~= 'sand-rock-big' then
+        return false
+    end
+
+    return true
+end
+
+Event.add(defines.events. on_player_deconstructed_area , function(event)
     local player = game.get_player(event.player_index)
     local cursor_stack = player.cursor_stack
-    if not player or not player.valid or not cursor_stack or not cursor_stack.valid or not cursor_stack.valid_for_read then
+    if not player or not player.valid then
         return
     end
 
-    -- check they actually have a decon planner in their cursor
-    local item_name = cursor_stack.name
-    if item_name ~= "deconstruction-planner" then
+    -- check they actually have a decon planner in their cursor that is setup to be a targetting deconstruction planner.
+    if not is_targetting_deconstruction_planner(cursor_stack) then
         return
     end
 
@@ -23,9 +42,6 @@ Event.add(defines.events. on_player_deconstructed_area , function(event)
     local icon_name = player.cursor_stack.blueprint_icons[1].signal.name
     local left_top = event.area.left_top
     local right_bottom = event.area.right_bottom
-
-    local cancel_area = {{left_top.x-1,left_top.y-1 },{right_bottom.x+1,right_bottom.y+1 }} -- make the cancel area bigger so it's min size of 1x1
-    player.surface.cancel_deconstruct_area{area=cancel_area, force=player.force} -- to stop them accidentally marking trees, tiles enemy chests for deconstruction
 
     -- only continue if they do a small click. We don't want them selecting a huge area
     if (math.abs(left_top.x -  right_bottom.x) < 1) and (math.abs(left_top.y -  right_bottom.y) < 1)  then
