@@ -324,12 +324,12 @@ if _DEBUG then
         local filepath = info.source:match('^.+/currently%-playing/(.+)$'):sub(1, -5)
         local line = info.currentline
 
-        local token = tostring(Token.uid())
+        local token = gui_element_prefix .. tostring(Token.uid())
 
         local name = concat {token, ' - ', filepath, ':line:', line}
         names[token] = name
 
-        return gui_element_prefix .. token
+        return token
     end
 
     function Gui.set_data(element, value)
