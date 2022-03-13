@@ -635,6 +635,7 @@ function Public.control(config)
                 Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
             elseif name == 'airstrike_planner' then
                 local player = event.player
+                player.clear_cursor()
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
                 cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'poison-capsule'}}}
@@ -690,6 +691,7 @@ function Public.control(config)
                 Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
             elseif name == 'barrage_planner' then
                 local player = event.player
+                player.clear_cursor()
                 local cursor_stack = player.cursor_stack
                 cursor_stack.set_stack({name = 'deconstruction-planner'})
                 cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'explosive-rocket'}}}
