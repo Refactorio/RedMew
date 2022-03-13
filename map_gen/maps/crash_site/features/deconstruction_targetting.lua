@@ -15,13 +15,16 @@ Event.add(defines.events. on_player_deconstructed_area , function(event)
     end
 
     -- check if the player has given the decon planner an icon. This is how  we will determine  their intention
-    if not player.cursor_stack.blueprint_icons[1].signal.name then
+    if not player.cursor_stack.blueprint_icons or not player.cursor_stack.blueprint_icons[1].signal.name then
         return
     end
 
     local icon_name = player.cursor_stack.blueprint_icons[1].signal.name
     local left_top = event.area.left_top
     local right_bottom = event.area.right_bottom
+
+    local cancel_area = {{left_top.x-1,left_top.y-1 },{right_bottom.x+1,right_bottom.y+1 }} -- make the cancel area bigger so it's min size of 1x1
+    player.surface.cancel_deconstruct_area{area=cancel_area, force=player.force} -- to stop them accidentally marking trees, tiles enemy chests for deconstruction
 
     -- only continue if they do a small click. We don't want them selecting a huge area
     if (math.abs(left_top.x -  right_bottom.x) < 1) and (math.abs(left_top.y -  right_bottom.y) < 1)  then
