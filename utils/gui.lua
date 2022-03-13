@@ -6,7 +6,7 @@ local Styles = require 'resources.styles'
 local tostring = tostring
 local next = next
 
-local gui_element_prefix = "Redmew_GUI_element_"
+local gui_element_prefix = "Redmew_"
 
 local Gui = {}
 
