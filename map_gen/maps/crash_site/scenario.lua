@@ -772,7 +772,7 @@ local function init(config)
             upgrade_base_cost = 500,
             upgrade_cost_base = 2,
             {
-                price = 5,
+                price = 0,
                 stack_limit = 1,
                 type= 'airstrike',
                 name = 'airstrike_planner',
@@ -799,7 +799,7 @@ local function init(config)
                 description = {'command_description.crash_site_airstrike_radius', 1, 0, 5}
             },
             {
-                price = 5,
+                price = 0,
                 stack_limit = 1,
                 type= 'barrage',
                 name = 'barrage_planner',

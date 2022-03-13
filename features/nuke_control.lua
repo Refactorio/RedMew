@@ -84,7 +84,12 @@ local function on_player_deconstructed_area(event)
     if is_trusted(player) then
         return
     end
-    player.remove_item({name = 'deconstruction-planner', count = 1000})
+
+    -- Added to allow guests to use the decon planner as a targetting remote for crash site air strike or barrage commands
+    -- see crash_site.features.deconstruction_targetting.lua
+    if (player.cursor_stack.blueprint_icons[1].signal.name == "poison-capsule") or (player.cursor_stack.blueprint_icons[1].signal.name == "explosive-rocket") then
+        return
+    end
 
     --Make them think they arent noticed
     Utils.silent_action_warning(

@@ -4,18 +4,19 @@ local Commands = require 'map_gen.maps.crash_site.commands'
 Event.add(defines.events. on_player_deconstructed_area , function(event)
 
     local player = game.get_player(event.player_index)
-    if not player or not player.valid or not player.cursor_stack or not player.cursor_stack.valid then
+    local cursor_stack = player.cursor_stack
+    if not player or not player.valid or not cursor_stack or not cursor_stack.valid or not cursor_stack.valid_for_read then
         return
     end
 
     -- check they actually have a decon planner in their cursor
-    local item_name = player.cursor_stack.name
+    local item_name = cursor_stack.name
     if item_name ~= "deconstruction-planner" then
         return
     end
 
     -- check if the player has given the decon planner an icon. This is how  we will determine  their intention
-    if not player.cursor_stack.blueprint_icons or not player.cursor_stack.blueprint_icons[1].signal.name then
+    if not cursor_stack.blueprint_icons or not cursor_stack.blueprint_icons[1] or not cursor_stack.blueprint_icons[1].signal.name then
         return
     end
 
