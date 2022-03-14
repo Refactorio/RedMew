@@ -114,7 +114,6 @@ local function set_start_data(player, str)
         return false
     end
 
-    game.print(value)
     Public.set_start_game_data(value)
 
     player.print('Start Game Data set')
