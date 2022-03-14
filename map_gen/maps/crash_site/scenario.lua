@@ -3,6 +3,7 @@ require 'map_gen.maps.crash_site.events'
 require 'map_gen.maps.crash_site.weapon_balance'
 require 'map_gen.maps.crash_site.features.rocket_tanks'
 require 'map_gen.maps.crash_site.features.vehicle_repair_beams'
+require 'map_gen.maps.crash_site.features.deconstruction_targetting'
 require 'features.fish_burps'
 
 local b = require 'map_gen.shared.builders'
@@ -771,6 +772,15 @@ local function init(config)
             upgrade_base_cost = 500,
             upgrade_cost_base = 2,
             {
+                price = 0,
+                stack_limit = 1,
+                type= 'airstrike',
+                name = 'airstrike_planner',
+                name_label = {'command_description.crash_site_airstrike_planner_label', 1},
+                sprite = 'virtual-signal/signal-A',
+                description = {'command_description.crash_site_airstrike_planner_description', 1, 0, "n/a", "n/a"},
+            },
+            {
                 price = 1000,
                 stack_limit = 1,
                 type= 'airstrike',
@@ -787,6 +797,15 @@ local function init(config)
                 name_label = {'command_description.crash_site_airstrike_radius_name_label', 1},
                 sprite = 'virtual-signal/signal-A',
                 description = {'command_description.crash_site_airstrike_radius', 1, 0, 5}
+            },
+            {
+                price = 0,
+                stack_limit = 1,
+                type= 'barrage',
+                name = 'barrage_planner',
+                name_label = {'command_description.crash_site_barrage_planner_label', 1},
+                sprite = 'virtual-signal/signal-B',
+                description = {'command_description.crash_site_barrage_planner_description', 1, 0, "n/a", "n/a"},
             },
             {
                 price = 1000,
