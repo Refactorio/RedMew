@@ -138,6 +138,26 @@ Event.on_init(function()
     RS.get_surface().peaceful_mode = true
 end)
 
+Event.add(defines.events.on_research_finished, function(event)
+    local research = event.research
+    if not research.valid then
+        return
+    end
+
+    for _, effect in pairs(research.effects) do
+        if effect.type ~= 'unlock-recipe' then
+            goto continue
+        end
+
+        local name = effect.recipe
+        if name == 'logistic-chest-requester' then
+            game.forces.player.recipes[name].enabled = false
+        end
+
+        ::continue::
+    end
+end)
+
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({start_size = 10 * 32, min_pollution = 400, max_pollution = 20000, pollution_increment = 6})
 
