@@ -29,7 +29,7 @@ function Public.control(config)
 
     local airstrike_data = {radius_level = 1, count_level = 1}
     local barrage_data = {radius_level = 1, count_level = 1}
-    local spy_message_cooldown = false
+    local spy_message_cooldown = {false}
 
     Global.register({airstrike_data = airstrike_data, barrage_data = barrage_data, spy_message_cooldown = spy_message_cooldown}, function(tbl)
         airstrike_data = tbl.airstrike_data
@@ -287,7 +287,7 @@ function Public.control(config)
     -- Prevents message spam to chat when someone uses /spy a lot
     -- Agreed over removing message as the message helps new players know they can use this command
     local spy_message_cooldown_callback = Token.register(function()
-        spy_message_cooldown = false
+        spy_message_cooldown[1] = false
     end)
 
     local function spy(args, player)
@@ -327,9 +327,9 @@ function Public.control(config)
                 for j = 1, 15 do
                     set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
                 end
-                if spy_message_cooldown == false then
+                if spy_message_cooldown[1] == false then
                     game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos},Color.success)
-                    spy_message_cooldown = true
+                    spy_message_cooldown[1] = true
                     set_timeout_in_ticks(60*30, spy_message_cooldown_callback)
                 end
                 inv.remove({name = "coin", count = spy_cost})
