@@ -18,7 +18,7 @@ local config = global.config.donator
 local donator_data_set = 'donators_test'
 local donators = {} -- global register
 local donator_perks_perm = {} -- buffs to the force that will remain even when the donator is offline (T5)
-local donatator_perks_temp = {} -- buffs to the force that are only applied while the donator is online (T2, T3, T4)
+local donator_perks_temp = {} -- buffs to the force that are only applied while the donator is online (T2, T3, T4)
 local donator_tiers = {
                         [1] = {name = "[img=item.wood]", count = 0, max = 10}, -- keeps track of how many have been applied so we can limit the amount of donators contributing to buffs
                         [2] = {name = "[img=item.coal]", count = 0, max = 10},
@@ -31,13 +31,13 @@ Global.register(
     {
         donators = donators,
         donator_perks_perm = donator_perks_perm,
-        donatator_perks_temp = donatator_perks_temp,
+        donator_perks_temp = donator_perks_temp,
         donator_tiers = donator_tiers
     },
     function(tbl)
         donators = tbl.donators
         donator_perks_perm = tbl.donator_perks_perm
-        donatator_perks_temp = tbl.donatator_perks_temp
+        donator_perks_temp = tbl.donator_perks_temp
         donator_tiers = tbl.donator_tiers
         config = tbl.global.config.donator.donator_perks
     end
@@ -76,6 +76,16 @@ local print_after_timeout =
     end
 )
 
+-- Just in case we want to turn it off mid-game, we can use /sc package.loaded['features.donator'].toggle_perks()
+function Public.toggle_perks()
+    config.donator_perks.enabled = not config.donator_perks.enabled
+    if config.donator_perks.enabled == true then
+        game.print("Donator perks now enabled")
+    else
+        game.print("Donator perks now disabled")  
+    end
+end
+
 --- When a player joins, set a 1s timer to retrieve their color before printing their welcome message
 local function player_joined(event)
     local player = game.get_player(event.player_index)
@@ -87,8 +97,6 @@ local function player_joined(event)
     if not d then
         return nil
     end
-
-    game.print("Debug: "..player.name.." Perk Flag:"..d.perk_flags..", Patreon Tier: "..d.patreon_tier)
 
     local perk_flag = d.perk_flags
     if perk_flag < 2 then
@@ -121,8 +129,8 @@ local function player_joined(event)
    end
 
     -- Update team perks
-    if not donatator_perks_temp[player.name] then -- check they're not already in donator_perks_temp table, this keeps track of bonuses that are added and removed as players join and leave
-        local donator_perk_msg = concat({"Donator Tier: ",donator_tiers[d.patreon_tier].name, ". Team bonuses applied: "})
+    if not donator_perks_temp[player.name] then -- check they're not already in donator_perks_temp table, this keeps track of bonuses that are added and removed as players join and leave
+        local donator_perk_msg = concat({"Donator Tier: ",donator_tiers[d.patreon_tier].name, ". Team bonuses applied for "..player.name..": "})
         if mining_flag and donator_tiers[2].count < donator_tiers[2].max then  -- Apply tier 2 (Coal) reward: +10 % team manual mining bonus per online tier 2+ donator
             player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier + 0.1
             donator_tiers[2].count = donator_tiers[2].count + 1
@@ -138,40 +146,44 @@ local function player_joined(event)
             donator_tiers[4].count = donator_tiers[4].count + 1
             donator_perk_msg = concat({donator_perk_msg, "+10% run speed. "})
         end
-        donatator_perks_temp[player.name] = perk_flag
+        donator_perks_temp[player.name] = perk_flag
         if inventory_flag and not donator_perks_perm[player.name] and donator_tiers[5].count < donator_tiers[5].max  then
             player.force.character_inventory_slots_bonus = player.force.character_inventory_slots_bonus + 5
             donator_tiers[5].count = donator_tiers[5].count + 1
             donator_perk_msg = concat({donator_perk_msg, "+5 inventory slots. "})
             donator_perks_perm[player.name] = true
         end
+        donator_perk_msg = donator_perk_msg .. " Use /perks to see bonuses."
         Task.set_timeout_in_ticks(80, print_after_timeout, {player = player, message = donator_perk_msg})
     end
 end
 
 local function player_left(event)
     local player = game.get_player(event.player_index)
-    if not player or not player.valid or not config.enabled then
+
+    if not player or not player.valid or not config.donator_perks.enabled then
         return
     end
 
     local d = donators[player.name]
-    if not d then
+    if donator_perks_temp[player.name] then
+        -- Do nothing. Just continue.
+        -- For if we remove a player's perks while they're in game    
+    elseif not d then
         return nil
     end
 
     local perk_flag = d.perk_flags
-
-   local mining_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_mining)
-   local crafting_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_crafting)
-   local running_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_run)
+    local mining_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_mining)
+    local crafting_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_crafting)
+    local running_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_run)
 
    -- To do: What happens if an admin changes the players donator status or flags while they're online?
     if not mining_flag and not crafting_flag and not running_flag then
         return
     end
 
-    if donatator_perks_temp[player.name] then
+    if donator_perks_temp[player.name] then
         if mining_flag then
             if player.force.manual_mining_speed_modifier  >= 0.1 then
                 player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier - 0.1
@@ -196,7 +208,7 @@ local function player_left(event)
             end
             donator_tiers[4].count = donator_tiers[4].count - 1
         end
-        donatator_perks_temp[player.name] = nil -- remove them from the table
+        donator_perks_temp[player.name] = nil -- remove them from the table
     end
 
 end
@@ -247,7 +259,7 @@ local reset_run_speed =
 
 local function player_respawned(event)
     local player = game.get_player(event.player_index)
-    if not player or not player.valid or not config.enabled then
+    if not player or not player.valid or not config.donator_perks.enabled then
         return
     end
 
