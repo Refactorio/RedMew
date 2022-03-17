@@ -457,16 +457,16 @@ function Public.control(config)
 
             -- aim of anti-grief is to stop players accidentally using it on themselves.
             -- we don't mind if there's no enemies there, we'll still take the poison capsules and do the charting so it can still be used to reveal parts of the map
-            local enemies = s.find_entities_filtered{position = {xpos, ypos}, radius=radius+10, force="enemy"}
+            local enemies = s.count_entities_filtered{position = {xpos, ypos}, radius=radius+10, force="enemy", limit=1}
 
-            if #enemies ~= 0 then
+            if enemies ~= 0 then
                 for j = 1, count do
                     set_timeout_in_ticks(30 * j, spawn_poison_callback,
                         {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
                     set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
                 end
             else
-                player.print("No enemies found at [gps="..xpos..","..ypos..","..s.name.."]. What a waste of poison capsules!",Color.fail)
+                player.print({'command_description.crash_site_airstrike_no_enemies', xpos, ypos, s.name},Color.fail)
             end
 
             -- render some items regardless as good visual feedback where their strike was.
