@@ -29,10 +29,12 @@ function Public.control(config)
 
     local airstrike_data = {radius_level = 1, count_level = 1}
     local barrage_data = {radius_level = 1, count_level = 1}
+    local spy_message_cooldown = false
 
-    Global.register({airstrike_data = airstrike_data, barrage_data = barrage_data}, function(tbl)
+    Global.register({airstrike_data = airstrike_data, barrage_data = barrage_data, spy_message_cooldown = spy_message_cooldown}, function(tbl)
         airstrike_data = tbl.airstrike_data
         barrage_data = tbl.barrage_data
+        spy_message_cooldown = tbl.spy_message_cooldown
     end)
 
     local static_entities_to_check = {
@@ -262,6 +264,32 @@ function Public.control(config)
         player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
     end)
 
+    local map_chart_tag_clear_callback = Token.register(function(tag)
+        if not tag or not tag.valid then
+            return -- in case a player deleted the tag manually
+        end
+        tag.destroy()
+    end)
+
+    -- This is needed for if players use /spy, /barrage or /strike on an uncharted area. A map tag cannot be placed on void.
+    local map_chart_tag_place_callback = Token.register(function(data)
+        local xpos = data.xpos
+        local ypos = data.ypos
+        local player = data.player
+        local tag = player.force.add_chart_tag(player.surface, {
+            icon = {type = 'item', name = data.item},
+            position = {xpos, ypos},
+            text = player.name
+        })
+        set_timeout_in_ticks(60 * 30, map_chart_tag_clear_callback, tag) -- To clear the tag after 30 seconds
+    end)
+
+    -- Prevents message spam to chat when someone uses /spy a lot
+    -- Agreed over removing message as the message helps new players know they can use this command
+    local spy_message_cooldown_callback = Token.register(function()
+        spy_message_cooldown = false
+    end)
+
     local function spy(args, player)
         local player_name = player.name
         local inv = player.get_inventory(defines.inventory.character_main)
@@ -293,13 +321,17 @@ function Public.control(config)
                 player.print({'command_description.crash_site_spy_funds'}, Color.fail)
                 return
             else
-                -- reveal 3x3 chunks centred on chunk containing pinged location
-                -- make sure it lasts 15 seconds
+                -- show a fish on the map so players can easily find where the new spy locations are from the map view
+                set_timeout_in_ticks(120, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'raw-fish'})
+                -- reveal 3x3 chunks centred on chunk containing pinged location. Use a callback to make sure it lasts 15 seconds
                 for j = 1, 15 do
                     set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
                 end
-                game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos},
-                    Color.success)
+                if spy_message_cooldown == false then
+                    game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos},Color.success)
+                    spy_message_cooldown = true
+                    set_timeout_in_ticks(60*30, spy_message_cooldown_callback)
+                end
                 inv.remove({name = "coin", count = spy_cost})
             end
 
@@ -319,26 +351,6 @@ function Public.control(config)
             speed = 10,
             max_range = 100000
         }
-    end)
-
-    local map_chart_tag_clear_callback = Token.register(function(tag)
-        if not tag or not tag.valid then
-            return -- in case a player deleted the tag manually
-        end
-        tag.destroy()
-    end)
-
-    -- This is needed for if players use /strike on an uncharted area. A map tag cannot be placed on void.
-    local map_chart_tag_place_callback = Token.register(function(data)
-        local xpos = data.xpos
-        local ypos = data.ypos
-        local player = data.player
-        local tag = player.force.add_chart_tag(player.surface, {
-            icon = {type = 'item', name = data.item},
-            position = {xpos, ypos},
-            text = player.name
-        })
-        set_timeout_in_ticks(60 * 30, map_chart_tag_clear_callback, tag) -- To clear the tag after 30 seconds
     end)
 
     local function render_crosshair(data)
