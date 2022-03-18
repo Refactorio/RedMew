@@ -81,8 +81,10 @@ function Public.toggle_perks()
     config.donator_perks.enabled = not config.donator_perks.enabled
     if config.donator_perks.enabled == true then
         game.print("Donator perks now enabled")
+        print("Donator perks now enabled") -- prints to server console
     else
-        game.print("Donator perks now disabled")  
+        game.print("Donator perks now disabled")
+        print("Donator perks now disabled")
     end
 end
 
@@ -130,7 +132,7 @@ local function player_joined(event)
 
     -- Update team perks
     if not donator_perks_temp[player.name] then -- check they're not already in donator_perks_temp table, this keeps track of bonuses that are added and removed as players join and leave
-        local donator_perk_msg = concat({"Donator Tier: ",donator_tiers[d.patreon_tier].name, ". Team bonuses applied for "..player.name..": "})
+        local donator_perk_msg = concat({"Donator Tier: ",donator_tiers[d.patreon_tier].name, ". Team bonuses applied for ", player.name,": "})
         if mining_flag and donator_tiers[2].count < donator_tiers[2].max then  -- Apply tier 2 (Coal) reward: +10 % team manual mining bonus per online tier 2+ donator
             player.force.manual_mining_speed_modifier = player.force.manual_mining_speed_modifier + 0.1
             donator_tiers[2].count = donator_tiers[2].count + 1
@@ -166,11 +168,8 @@ local function player_left(event)
     end
 
     local d = donators[player.name]
-    if donator_perks_temp[player.name] then
-        -- Do nothing. Just continue.
-        -- For if we remove a player's perks while they're in game    
-    elseif not d then
-        return nil
+    if not donator_perks_temp[player.name] and not d then
+        return
     end
 
     local perk_flag = d.perk_flags

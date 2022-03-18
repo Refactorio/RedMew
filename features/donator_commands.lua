@@ -87,14 +87,19 @@ end
 
 -- Prints a list of currently active perks to the player
 local function print_perks(_, player)
+    local print = print
+    if player and player.valid then -- allows us to call print_perks from the server console OR in-game
+        print = player.print
+    end
+
     if not config.enabled then
-        player.print("Donator perks have been disabled for this map.")
+        print("Donator perks have been disabled for this map.")
         return
     end
 
     local donator_tiers = Donator.get_donator_perks_table()
 
-    player.print("Currently active team perks: +"..(donator_tiers[2].count*10).."% manual mining speed (max +"..(donator_tiers[2].max*10).."%), +"
+    print("Currently active team perks: +"..(donator_tiers[2].count*10).."% manual mining speed (max +"..(donator_tiers[2].max*10).."%), +"
         ..(donator_tiers[3].count*10).."% manual mining speed (max +"..(donator_tiers[3].max*10).."%), +"
         ..(donator_tiers[4].count*10).."% run speed  (max +"..(donator_tiers[4].max*10).."%) and +"
         ..(donator_tiers[5].count*5).." inventory slots  (max +"..(donator_tiers[5].max*5).."%).")
