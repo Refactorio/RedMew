@@ -455,11 +455,21 @@ function Public.control(config)
             inv.remove({name = "poison-capsule", count = strikeCost})
             player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
 
-            for j = 1, count do
-                set_timeout_in_ticks(30 * j, spawn_poison_callback,
-                    {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
-                set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+            -- aim of anti-grief is to stop players accidentally using it on themselves.
+            -- we don't mind if there's no enemies there, we'll still take the poison capsules and do the charting so it can still be used to reveal parts of the map
+            local enemies = s.count_entities_filtered{position = {xpos, ypos}, radius=radius+10, force="enemy", limit=1}
+
+            if enemies ~= 0 then
+                for j = 1, count do
+                    set_timeout_in_ticks(30 * j, spawn_poison_callback,
+                        {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
+                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                end
+            else
+                player.print({'command_description.crash_site_airstrike_no_enemies', xpos, ypos, s.name},Color.fail)
             end
+
+            -- render some items regardless as good visual feedback where their strike was.
             render_crosshair({position = {x = xpos, y = ypos}, player = player, item = "poison-capsule"})
             render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius+10, color = {r = 0, g = 0, b = 0.1, a = 0.1}})
             set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'poison-capsule'})
