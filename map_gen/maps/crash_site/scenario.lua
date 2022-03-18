@@ -835,6 +835,15 @@ local function init(config)
                 sprite = 'virtual-signal/signal-R',
                 description = {'command_description.crash_site_rocket_tanks_description'}
             },
+            {
+                price = 0,
+                stack_limit = 1,
+                type = 'spidertron',
+                name = 'spidertron_planner',
+                name_label = {'command_description.crash_site_spider_army_decon_label', 1},
+                sprite = 'virtual-signal/signal-S',
+                description = {'command_description.crash_site_spider_army_decon_description'}
+            },
             {name = 'wood', price = 1},
             {name = 'coal', price = 1.25},
             {name = 'stone', price = 2},

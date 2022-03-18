@@ -114,6 +114,9 @@ end
 if config.research_printer.enabled then
     require 'features.research_printer'
 end
+if config.spidertron_group_control.enabled then
+    require 'features.spidertron_group_control'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.
@@ -156,7 +159,6 @@ end
 if config.radio.enabled or _DEBUG then
     require 'features.gui.radio'
 end
-
 if config.score.enabled then
     require 'features.gui.score'
 end

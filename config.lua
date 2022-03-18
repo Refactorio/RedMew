@@ -433,6 +433,9 @@ global.config = {
         print_to_force = true, -- print a message to force chat when that force finishes a new research.
         print_to_discord = true, -- print a message to the discord channel when the player force finishes a new research.
         ignore_script = false -- ignore researches unlocked by commands or by code.
+    },
+    spidertron_group_control = {
+        enabled = true
     }
 }
 
