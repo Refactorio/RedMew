@@ -54,7 +54,6 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
         return
     end
 
-    local icon_name = player.cursor_stack.blueprint_icons[1].signal.name
     local left_top = event.area.left_top
     local right_bottom = event.area.right_bottom
     local width = math.abs(left_top.x -  right_bottom.x)
@@ -99,7 +98,7 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
                 end
             end
 
-            spider_army[player.name] = spidertrons 
+            spider_army[player.name] = spidertrons
             cursor_stack.label = #spidertrons..' selected. Click a spidertron for them to follow.'
         else
             cursor_stack.label = 'Select a group of your spidertrons! 0 selected.'
