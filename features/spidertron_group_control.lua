@@ -68,6 +68,7 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
                 spidertron.follow_target = target_spider[1]
             end
             spider_army[player.name] = {} -- clear spidertrons from table once they've been assigned to follow another spidey lad
+            cursor_stack.label = "Select a group of spidertrons that belong to you! 0 selected."
         else
             player.surface.create_entity {
                 name = 'flying-text',
