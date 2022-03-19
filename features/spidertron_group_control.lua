@@ -83,7 +83,7 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
         if #spidertrons > 0 then
             for i, spidertron in pairs(spidertrons) do
                 if spidertron.last_user.name == player.name then
-                    spidertrons_valid[i] = spidertron
+                    spidertrons_valid[#spidertrons_valid + 1] = spidertron
                     -- Draw a circle over the spidertron's body to show it's part of the selection.
                     rendering.draw_circle {
                         color = {r = 0.5, g = 0, b = 0, a = 1},
@@ -99,9 +99,7 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
             end
 
             spider_army[player.name] = spidertrons_valid
-            --cursor_stack.label = {#spidertrons..' selected. Click a spidertron for them to follow.'}
             cursor_stack.label = #spidertrons_valid..' selected. Click a spidertron for them to follow.'
-            --cursor_stack.label = {{'spidertron_group_control.spiders_selected_success',7}}
         else
             cursor_stack.label = "Select a group of spidertrons that belong to you! 0 selected."
         end
