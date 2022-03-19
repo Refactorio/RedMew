@@ -68,22 +68,21 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
                 spidertron.follow_target = target_spider[1]
             end
             spider_army[player.name] = {} -- clear spidertrons from table once they've been assigned to follow another spidey lad
-            cursor_stack.label = 'Select a group of your spidertrons! 0 selected.'
         else
             player.surface.create_entity {
                 name = 'flying-text',
-                text = '0 [img=item.spidertron] found',
+                text = {'spidertron_group_control.none_found'},
                 position = left_top,
                 render_player_index = player.index
             }
         end
     else -- else the area is bigger than 1x1 and so we assume the player is selecting which spiders to assign
         local spidertrons = player.surface.find_entities_filtered{area = {left_top, right_bottom}, name="spidertron"}
+        local spidertrons_valid = {}
         if #spidertrons > 0 then
             for i, spidertron in pairs(spidertrons) do
-                if spidertron.last_user.name ~= player.name then
-                    spidertrons[i] = {} -- remove a spidertron from the table of found entities if the player isn't the last user. Anti-grief.
-                else
+                if spidertron.last_user.name == player.name then
+                    spidertrons_valid[i] = spidertron
                     -- Draw a circle over the spidertron's body to show it's part of the selection.
                     rendering.draw_circle {
                         color = {r = 0.5, g = 0, b = 0, a = 1},
@@ -98,15 +97,17 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
                 end
             end
 
-            spider_army[player.name] = spidertrons
-            cursor_stack.label = #spidertrons..' selected. Click a spidertron for them to follow.'
+            spider_army[player.name] = spidertrons_valid
+            --cursor_stack.label = {#spidertrons..' selected. Click a spidertron for them to follow.'}
+            cursor_stack.label = #spidertrons_valid..' selected. Click a spidertron for them to follow.'
+            --cursor_stack.label = {{'spidertron_group_control.spiders_selected_success',7}}
         else
-            cursor_stack.label = 'Select a group of your spidertrons! 0 selected.'
+            cursor_stack.label = "Select a group of spidertrons that belong to you! 0 selected."
         end
         -- Flying text to appear at top left of selection area showing player how many spidertrons they selected
         player.surface.create_entity {
             name = 'flying-text',
-            text = '+'..#spidertrons..' [img=item.spidertron]',
+            text = {'spidertron_group_control.spidertrons_selected',#spidertrons_valid},
             position = left_top,
             render_player_index = player.index
         }
