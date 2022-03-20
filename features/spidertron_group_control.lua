@@ -61,6 +61,15 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
 
     -- A single (small area) click is interpretted as instruction to assign a group of spiders to follow a spider
     if width <= 1 and height <= 1  then
+        if not spider_army[player.name] then
+            player.surface.create_entity {
+                name = 'flying-text',
+                text = {'spidertron_group_control.none_selected'},
+                position = left_top,
+                render_player_index = player.index
+            }
+            return
+        end
         local spidertrons = spider_army[player.name]
         local target_spider = player.surface.find_entities_filtered{name="spidertron", area={{left_top.x-1,left_top.y-1}, {right_bottom.x+1,right_bottom.y+1}}, limit=1}
         if #target_spider == 1 then
@@ -68,7 +77,7 @@ Event.add(defines.events.on_player_deconstructed_area , function(event)
                 spidertron.follow_target = target_spider[1]
             end
             spider_army[player.name] = {} -- clear spidertrons from table once they've been assigned to follow another spidey lad
-            cursor_stack.label = "Select a group of spidertrons that belong to you! 0 selected."
+            cursor_stack.label = "No [img=item.spidertron] selected. Drag the planner over [img=item.spidertron] you own."
         else
             player.surface.create_entity {
                 name = 'flying-text',
