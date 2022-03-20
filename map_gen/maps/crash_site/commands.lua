@@ -702,8 +702,7 @@ function Public.control(config)
                 cursor_stack.entity_filters = {'sand-rock-big'}
             end
         end
-        if item.type == 'spidertron' then
-            if item.name=='spidertron_planner' then
+        if item.type == 'spidertron' and item.name=='spidertron_planner' then
                 local player = event.player
                 player.clear_cursor()
                 local cursor_stack = player.cursor_stack
@@ -712,7 +711,6 @@ function Public.control(config)
                 cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'spidertron'}}}
                 cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
                 cursor_stack.entity_filters = {'sand-rock-big'}
-            end
         end
     end)
 
