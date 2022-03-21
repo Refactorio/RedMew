@@ -58,7 +58,7 @@ local resource_patches_config = require 'map_gen.maps.danger_ores.config.vanilla
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
---local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
+-- local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
 local allowed_entities = require 'map_gen.maps.danger_ores.config.vanilla_allowed_entities'
@@ -80,7 +80,7 @@ Config.player_rewards.enabled = false
 Config.player_create.starting_items = {}
 Config.dump_offline_inventories = {
     enabled = true,
-    offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
+    offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
 
@@ -122,8 +122,9 @@ concrete_on_landfill({tile = 'blue-refined-concrete'})
 local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_circles'
 
 local config = {
-    spawn_shape = b.circle(64),
-    start_ore_shape = b.circle(68),
+    spawn_shape = b.circle(36),
+    start_ore_shape = b.circle(44),
+    no_resource_patch_shape = b.circle(80),
     main_ores_builder = main_ores_builder,
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
@@ -143,11 +144,12 @@ local config = {
     enemy_max_chance = 1 / 6,
     enemy_scale_factor = 32,
     fish_spawn_rate = 0.025,
-    --dense_patches = dense_patches,
+    -- dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
     dense_patches_multiplier = 25,
-    circle_thickness = 16 -- Thickness of the rings at weight 1
+    circle_thickness = 16, -- Thickness of the rings at weight 1
+    circle_grow_factor = 768 -- How much distance before the thickness doubles.
 }
 
 return map(config)

@@ -29,10 +29,12 @@ function Public.control(config)
 
     local airstrike_data = {radius_level = 1, count_level = 1}
     local barrage_data = {radius_level = 1, count_level = 1}
+    local spy_message_cooldown = {false}
 
-    Global.register({airstrike_data = airstrike_data, barrage_data = barrage_data}, function(tbl)
+    Global.register({airstrike_data = airstrike_data, barrage_data = barrage_data, spy_message_cooldown = spy_message_cooldown}, function(tbl)
         airstrike_data = tbl.airstrike_data
         barrage_data = tbl.barrage_data
+        spy_message_cooldown = tbl.spy_message_cooldown
     end)
 
     local static_entities_to_check = {
@@ -262,6 +264,32 @@ function Public.control(config)
         player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
     end)
 
+    local map_chart_tag_clear_callback = Token.register(function(tag)
+        if not tag or not tag.valid then
+            return -- in case a player deleted the tag manually
+        end
+        tag.destroy()
+    end)
+
+    -- This is needed for if players use /spy, /barrage or /strike on an uncharted area. A map tag cannot be placed on void.
+    local map_chart_tag_place_callback = Token.register(function(data)
+        local xpos = data.xpos
+        local ypos = data.ypos
+        local player = data.player
+        local tag = player.force.add_chart_tag(player.surface, {
+            icon = {type = 'item', name = data.item},
+            position = {xpos, ypos},
+            text = player.name
+        })
+        set_timeout_in_ticks(60 * 30, map_chart_tag_clear_callback, tag) -- To clear the tag after 30 seconds
+    end)
+
+    -- Prevents message spam to chat when someone uses /spy a lot
+    -- Agreed over removing message as the message helps new players know they can use this command
+    local spy_message_cooldown_callback = Token.register(function()
+        spy_message_cooldown[1] = false
+    end)
+
     local function spy(args, player)
         local player_name = player.name
         local inv = player.get_inventory(defines.inventory.character_main)
@@ -293,13 +321,17 @@ function Public.control(config)
                 player.print({'command_description.crash_site_spy_funds'}, Color.fail)
                 return
             else
-                -- reveal 3x3 chunks centred on chunk containing pinged location
-                -- make sure it lasts 15 seconds
+                -- show a fish on the map so players can easily find where the new spy locations are from the map view
+                set_timeout_in_ticks(120, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'raw-fish'})
+                -- reveal 3x3 chunks centred on chunk containing pinged location. Use a callback to make sure it lasts 15 seconds
                 for j = 1, 15 do
                     set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
                 end
-                game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos},
-                    Color.success)
+                if spy_message_cooldown[1] == false then
+                    game.print({'command_description.crash_site_spy_success', player_name, spy_cost, xpos, ypos},Color.success)
+                    spy_message_cooldown[1] = true
+                    set_timeout_in_ticks(60*30, spy_message_cooldown_callback)
+                end
                 inv.remove({name = "coin", count = spy_cost})
             end
 
@@ -319,26 +351,6 @@ function Public.control(config)
             speed = 10,
             max_range = 100000
         }
-    end)
-
-    local map_chart_tag_clear_callback = Token.register(function(tag)
-        if not tag or not tag.valid then
-            return -- in case a player deleted the tag manually
-        end
-        tag.destroy()
-    end)
-
-    -- This is needed for if players use /strike on an uncharted area. A map tag cannot be placed on void.
-    local map_chart_tag_place_callback = Token.register(function(data)
-        local xpos = data.xpos
-        local ypos = data.ypos
-        local player = data.player
-        local tag = player.force.add_chart_tag(player.surface, {
-            icon = {type = 'item', name = data.item},
-            position = {xpos, ypos},
-            text = player.name
-        })
-        set_timeout_in_ticks(60 * 30, map_chart_tag_clear_callback, tag) -- To clear the tag after 30 seconds
     end)
 
     local function render_crosshair(data)
@@ -427,11 +439,11 @@ function Public.control(config)
         end
 
         -- Check that the chest is where it should be.
-        local entities = s.find_entities_filtered {position = {2.5, -7.5}, type = 'logistic-container', limit = 1}
+        local entities = s.find_entities_filtered {position = {3.5, -7.5}, type = 'logistic-container', limit = 1}
         local dropbox = entities[1]
 
         if dropbox == nil then
-            player.print("Chest not found. Replace it here: [gps=2.5,-7.5,redmew]")
+            player.print("Chest not found. Replace it here: [gps=3.5,-7.5,redmew]")
             return
         end
 
@@ -455,11 +467,21 @@ function Public.control(config)
             inv.remove({name = "poison-capsule", count = strikeCost})
             player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
 
-            for j = 1, count do
-                set_timeout_in_ticks(30 * j, spawn_poison_callback,
-                    {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
-                set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+            -- aim of anti-grief is to stop players accidentally using it on themselves.
+            -- we don't mind if there's no enemies there, we'll still take the poison capsules and do the charting so it can still be used to reveal parts of the map
+            local enemies = s.count_entities_filtered{position = {xpos, ypos}, radius=radius+10, force="enemy", limit=1}
+
+            if enemies ~= 0 then
+                for j = 1, count do
+                    set_timeout_in_ticks(30 * j, spawn_poison_callback,
+                        {s = s, xpos = xpos, ypos = ypos, count = count, r = radius})
+                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                end
+            else
+                player.print({'command_description.crash_site_airstrike_no_enemies', xpos, ypos, s.name},Color.fail)
             end
+
+            -- render some items regardless as good visual feedback where their strike was.
             render_crosshair({position = {x = xpos, y = ypos}, player = player, item = "poison-capsule"})
             render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius+10, color = {r = 0, g = 0, b = 0.1, a = 0.1}})
             set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'poison-capsule'})
@@ -510,11 +532,11 @@ function Public.control(config)
         end
 
         -- Check that the chest is where it should be.
-        local entities = s.find_entities_filtered {position = {2.5, -1.5}, type = 'logistic-container', limit = 1}
+        local entities = s.find_entities_filtered {position = {-4.5, -7.5}, type = 'logistic-container', limit = 1}
         local dropbox = entities[1]
 
         if dropbox == nil then
-            player.print("Chest not found. Replace it here: [gps=2.5,-1.5,redmew]")
+            player.print("Chest not found. Replace it here: [gps=-4.5,-7.5,redmew]")
             return
         end
 
@@ -545,30 +567,32 @@ function Public.control(config)
             local nest_count = #nests
             inv.remove({name = "explosive-rocket", count = strikeCost})
             if nest_count == 0 then
-                player.print({'command_description.crash_site_barrage_no_nests',}, Color.fail)
-                return
+                player.print({'command_description.crash_site_barrage_no_nests',xpos, ypos,s.name}, Color.fail)
+            else
+
+                player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
+
+                -- draw radius
+                set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'explosive-rocket'})
+                render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius, color = {r = 0.1, g = 0, b = 0, a = 0.1}})
+                for _, nest in pairs(nests) do
+                    render_crosshair({position = {x = nest.position.x, y = nest.position.y}, player = player, item = "explosive-rocket"})
+                end
+
+                for j = 1, count do
+                    set_timeout_in_ticks(60 * j + math.random(0, 30), spawn_rocket_callback, {s = s, xpos = nests[(j%nest_count)+1].position.x, ypos = nests[(j%nest_count)+1].position.y})
+                    set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
+                end
             end
-
-            player.force.chart(s, {{xpos - 32, ypos - 32}, {xpos + 32, ypos + 32}})
-
-            -- draw radius
-            set_timeout_in_ticks(60, map_chart_tag_place_callback, {player = player, xpos = xpos, ypos = ypos, item = 'explosive-rocket'})
-            render_radius({position = {x = xpos, y = ypos}, player = player, radius = radius, color = {r = 0.1, g = 0, b = 0, a = 0.1}})
-            for _, nest in pairs(nests) do
-                render_crosshair({position = {x = nest.position.x, y = nest.position.y}, player = player, item = "explosive-rocket"})
-            end
-
-            for j = 1, count do
-                set_timeout_in_ticks(60 * j + math.random(0, 30), spawn_rocket_callback, {s = s, xpos = nests[(j%nest_count)+1].position.x, ypos = nests[(j%nest_count)+1].position.y})
-                set_timeout_in_ticks(60 * j, chart_area_callback, {player = player, xpos = xpos, ypos = ypos})
-            end
-
             -- move to the next set of coordinates
             i = i + 2
             xpos = coords[i]
             ypos = coords[i + 1]
         end
     end
+
+    Public.call_strike = strike
+    Public.call_barrage= barrage
 
     Event.add(Retailer.events.on_market_purchase, function(event)
 
@@ -579,7 +603,7 @@ function Public.control(config)
         end
 
         local item = event.item
-        if item.type ~= 'airstrike' and item.type~= 'barrage' then
+        if item.type ~= 'airstrike' and item.type~= 'barrage' and item.type~= 'spidertron' then
             return
         end
 
@@ -630,8 +654,18 @@ function Public.control(config)
                 }
                 item.price = math.floor(math.exp(airstrike_data.radius_level ^ 0.8) / 2) * 1000
                 Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
+            elseif name == 'airstrike_planner' then
+                local player = event.player
+                player.clear_cursor()
+                local cursor_stack = player.cursor_stack
+                cursor_stack.set_stack({name = 'deconstruction-planner'})
+                cursor_stack.label = 'Poison strike targetting remote'
+                cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'poison-capsule'}}}
+                cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
+                cursor_stack.entity_filters = {'sand-rock-big'}
             end
         end
+
         if item.type == 'barrage' then
             local radius_level = barrage_data.radius_level -- max radius of the strike area
             local count_level = barrage_data.count_level -- the number of poison capsules launched at the enemy
@@ -679,7 +713,26 @@ function Public.control(config)
                 }
                 item.price = math.floor(math.exp(barrage_data.radius_level ^ 0.8) / 2) * 1000
                 Retailer.set_item(market_id, item) -- this updates the retailer with the new item values.
+            elseif name == 'barrage_planner' then
+                local player = event.player
+                player.clear_cursor()
+                local cursor_stack = player.cursor_stack
+                cursor_stack.set_stack({name = 'deconstruction-planner'})
+                cursor_stack.label = 'Barrage targetting remote'
+                cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'explosive-rocket'}}}
+                cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
+                cursor_stack.entity_filters = {'sand-rock-big'}
             end
+        end
+        if item.type == 'spidertron' and item.name=='spidertron_planner' then
+                local player = event.player
+                player.clear_cursor()
+                local cursor_stack = player.cursor_stack
+                cursor_stack.set_stack({name = 'deconstruction-planner'})
+                cursor_stack.label = "Select a group of spidertrons that belong to you! 0 selected."
+                cursor_stack.blueprint_icons = {{index = 1, signal = {type = 'item', name = 'spidertron'}}}
+                cursor_stack.tile_selection_mode = defines.deconstruction_item.tile_selection_mode.never
+                cursor_stack.entity_filters = {'sand-rock-big'}
         end
     end)
 

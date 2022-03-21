@@ -3,6 +3,8 @@ require 'map_gen.maps.crash_site.events'
 require 'map_gen.maps.crash_site.weapon_balance'
 require 'map_gen.maps.crash_site.features.rocket_tanks'
 require 'map_gen.maps.crash_site.features.vehicle_repair_beams'
+require 'map_gen.maps.crash_site.features.deconstruction_targetting'
+require 'features.fish_burps'
 
 local b = require 'map_gen.shared.builders'
 local Global = require('utils.global')
@@ -770,6 +772,15 @@ local function init(config)
             upgrade_base_cost = 500,
             upgrade_cost_base = 2,
             {
+                price = 0,
+                stack_limit = 1,
+                type= 'airstrike',
+                name = 'airstrike_planner',
+                name_label = {'command_description.crash_site_airstrike_planner_label', 1},
+                sprite = 'virtual-signal/signal-A',
+                description = {'command_description.crash_site_airstrike_planner_description', 1, 0, "n/a", "n/a"},
+            },
+            {
                 price = 1000,
                 stack_limit = 1,
                 type= 'airstrike',
@@ -786,6 +797,15 @@ local function init(config)
                 name_label = {'command_description.crash_site_airstrike_radius_name_label', 1},
                 sprite = 'virtual-signal/signal-A',
                 description = {'command_description.crash_site_airstrike_radius', 1, 0, 5}
+            },
+            {
+                price = 0,
+                stack_limit = 1,
+                type= 'barrage',
+                name = 'barrage_planner',
+                name_label = {'command_description.crash_site_barrage_planner_label', 1},
+                sprite = 'virtual-signal/signal-B',
+                description = {'command_description.crash_site_barrage_planner_description', 1, 0, "n/a", "n/a"},
             },
             {
                 price = 1000,
@@ -814,6 +834,15 @@ local function init(config)
                 name_label = {'command_description.crash_site_rocket_tanks_name_label', 1},
                 sprite = 'virtual-signal/signal-R',
                 description = {'command_description.crash_site_rocket_tanks_description'}
+            },
+            {
+                price = 0,
+                stack_limit = 1,
+                type = 'spidertron',
+                name = 'spidertron_planner',
+                name_label = {'command_description.crash_site_spider_army_decon_label', 1},
+                sprite = 'virtual-signal/signal-S',
+                description = {'command_description.crash_site_spider_army_decon_description'}
             },
             {name = 'wood', price = 1},
             {name = 'coal', price = 1.25},
@@ -861,6 +890,7 @@ local function init(config)
         [1] = {
             market = market,
             chest = chest,
+            [4] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}},
             [29] = {entity = {name = 'market', force = 'neutral', callback = 'market'}},
             [32] = {entity = {name = 'steel-chest', force = 'player', callback = 'chest'}}
         },
@@ -869,10 +899,9 @@ local function init(config)
             factory = factory,
             inserter = inserter,
             chest = chest,
-            [3] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}},
+            [4] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}},
             [25] = {entity = {name = 'burner-inserter', direction = 2, callback = 'inserter'}},
             [27] = {entity = {name = 'electric-furnace', callback = 'factory'}},
-            [51] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}}
         }
     }
 
@@ -896,8 +925,8 @@ Global.register_init(
         game.create_force(cutscene_force_name)
 
         -- Sprites for the spawn chests. Is there a better place for these?
-        rendering.draw_sprite{sprite = "item.poison-capsule", target = {2.5, -8.5}, surface = game.surfaces["redmew"], tint={1, 1, 1, 0.1}}
-        rendering.draw_sprite{sprite = "item.explosive-rocket", target = {2.5, -2.5}, surface = game.surfaces["redmew"], tint={1, 1, 1, 0.1}}
+        rendering.draw_sprite{sprite = "item.poison-capsule", target = {3.5, -8.5}, surface = game.surfaces["redmew"], tint={1, 1, 1, 0.1}}
+        rendering.draw_sprite{sprite = "item.explosive-rocket", target = {-4.5, -8.5}, surface = game.surfaces["redmew"], tint={1, 1, 1, 0.1}}
 
         local surface = game.surfaces[1]
         surface.map_gen_settings = {width = 2, height = 2}

@@ -20,6 +20,7 @@ local format = string.format
 local tostring = tostring
 local draw_text = rendering.draw_text
 local render_mode_game = defines.render_mode.game
+local register_on_entity_destroyed = script.register_on_entity_destroyed
 
 local b = require 'map_gen.shared.builders'
 
@@ -54,7 +55,7 @@ local magic_fluid_crafters_per_tick = 8
 
 local refill_turrets = {index = 1}
 local power_sources = {}
-local turret_to_outpost = {}
+local turret_to_outpost = {} -- map of registration_number -> outpost_id
 local magic_crafters = {index = 1}
 local magic_fluid_crafters = {index = 1}
 local outposts = {}
@@ -1359,13 +1360,18 @@ local function tick()
     do_magic_fluid_crafters()
 end
 
+local function register_entity(entity, outpost_id)
+    local id = register_on_entity_destroyed(entity)
+    turret_to_outpost[id] = outpost_id
+end
+
 Public.refill_turret_callback =
     Token.register(
     function(turret, data)
         local outpost_id = data.outpost_id
 
         refill_turrets[#refill_turrets + 1] = {turret = turret, data = data.callback_data}
-        turret_to_outpost[turret.unit_number] = outpost_id
+        register_entity(turret, outpost_id)
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1381,7 +1387,7 @@ Public.refill_liquid_turret_callback =
         local outpost_id = data.outpost_id
 
         refill_turrets[#refill_turrets + 1] = {turret = turret, data = callback_data}
-        turret_to_outpost[turret.unit_number] = outpost_id
+        register_entity(turret, outpost_id)
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1394,7 +1400,7 @@ Public.refill_artillery_turret_callback =
         local outpost_id = data.outpost_id
 
         refill_turrets[#refill_turrets + 1] = {turret = turret, data = data.callback_data}
-        turret_to_outpost[turret.unit_number] = outpost_id
+        register_entity(turret, outpost_id)
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1429,7 +1435,7 @@ Public.power_source_callback =
         power_source.destructible = false
 
         power_sources[turret.unit_number] = {entity = power_source}
-        turret_to_outpost[turret.unit_number] = outpost_id
+        register_entity(turret, outpost_id)
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1441,7 +1447,7 @@ Public.worm_turret_callback =
     function(turret, data)
         local outpost_id = data.outpost_id
 
-        turret_to_outpost[turret.unit_number] = outpost_id
+        register_entity(turret, outpost_id)
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1652,12 +1658,15 @@ Public.scenario_chest_callback = Token.register(function(chest)
 end)
 
 local function turret_died(event)
-    local entity = event.entity
-    if not entity or not entity.valid then
+    local registration_number = event.registration_number
+    local outpost_id = turret_to_outpost[registration_number]
+    if not outpost_id then
         return
     end
 
-    local number = entity.unit_number
+    turret_to_outpost[registration_number] = nil
+
+    local number = event.unit_number
     if not number then
         return
     end
@@ -1673,16 +1682,12 @@ local function turret_died(event)
         end
     end
 
-    local outpost_id = turret_to_outpost[number]
-    if outpost_id then
-        local outpost_data = outposts[outpost_id]
+    local outpost_data = outposts[outpost_id]
+    local turret_count = outpost_data.turret_count - 1
+    outpost_data.turret_count = turret_count
 
-        local turret_count = outpost_data.turret_count - 1
-        outpost_data.turret_count = turret_count
-
-        if turret_count == 0 then
-            do_capture_outpost(outpost_data)
-        end
+    if turret_count == 0 then
+        do_capture_outpost(outpost_data)
     end
 end
 
@@ -1940,7 +1945,7 @@ local function market_selected(event)
 end
 
 Event.add(defines.events.on_tick, tick)
-Event.add(defines.events.on_entity_died, turret_died)
+Event.add(defines.events.on_entity_destroyed, turret_died)
 
 Event.on_init(
     function()

@@ -104,6 +104,7 @@ Event.on_init(function()
     game.forces.player.manual_mining_speed_modifier = 1
 
     RS.get_surface().always_day = true
+    RS.get_surface().peaceful_mode = true
 end)
 
 local function terraforming_bounds(x, y)
@@ -120,7 +121,7 @@ terraforming({
 })
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 1000})
+rocket_launched({win_satellite_count = 750})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
 restart_command({scenario_name = 'danger-ore-one-direction-beltboxes'})

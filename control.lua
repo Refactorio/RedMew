@@ -29,6 +29,9 @@ require 'features.player_create'
 require 'features.rank_system'
 require 'features.redmew_settings_sync'
 
+-- Always required so dumping banned player's inventories works.
+require 'features.dump_offline_inventories'
+
 if config.player_colors.enabled then
     require 'features.player_colors'
 end
@@ -53,9 +56,7 @@ end
 if config.death_corpse_tags.enabled then
     require 'features.death_corpse_tags'
 end
-if config.dump_offline_inventories.enabled  then
-    require 'features.dump_offline_inventories'
-end
+
 if config.admin_commands.enabled then
     require 'features.admin_commands'
 end
@@ -112,6 +113,9 @@ if config.turret_active_delay.enabled then
 end
 if config.research_printer.enabled then
     require 'features.research_printer'
+end
+if config.spidertron_group_control.enabled then
+    require 'features.spidertron_group_control'
 end
 
 -- GUIs

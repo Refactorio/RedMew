@@ -3,8 +3,11 @@ local Config = require 'map_gen.maps.diggy.config'
 local ScenarioInfo = require 'features.gui.info'
 local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
-local type = type
 local pairs = pairs
+local type = type
+
+local restart_command = require 'map_gen.maps.diggy.feature.restart_command'
+restart_command({scenario_name = 'diggy'})
 
 require 'utils.table'
 require 'utils.core'
@@ -78,5 +81,6 @@ function Scenario.register()
 
     global.diggy_scenario_registered = true
 end
+
 
 return Scenario

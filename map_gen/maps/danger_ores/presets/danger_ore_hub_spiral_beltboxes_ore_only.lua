@@ -55,100 +55,56 @@ global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_ores'
-local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
-local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
+-- local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
+-- local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
---local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
+-- local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
 local allowed_entities = require 'map_gen.maps.danger_ores.config.deadlock_betlboxes_allowed_entities'
 banned_entities(allowed_entities)
 
-RS.set_map_gen_settings(
-    {
-        MGSP.grass_only,
-        MGSP.enable_water,
-        {
-            terrain_segmentation = 'normal',
-            water = 'normal'
-        },
-        MGSP.starting_area_very_low,
-        MGSP.ore_oil_none,
-        MGSP.enemy_none,
-        MGSP.cliff_none,
-        MGSP.tree_none
-    }
-)
+RS.set_map_gen_settings({
+    MGSP.grass_only,
+    MGSP.enable_water,
+    {terrain_segmentation = 'normal', water = 'normal'},
+    MGSP.starting_area_very_low,
+    MGSP.ore_oil_none,
+    MGSP.enemy_none,
+    MGSP.cliff_none,
+    MGSP.tree_none
+})
 
 Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_create.starting_items = {}
 Config.dump_offline_inventories = {
     enabled = true,
-    offline_timout_mins = 30,   -- time after which a player logs off that their inventory is provided to the team
+    offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
 
-Event.on_init(
-    function()
-        --game.draw_resource_selection = false
-        game.forces.player.technologies['mining-productivity-1'].enabled = false
-        game.forces.player.technologies['mining-productivity-2'].enabled = false
-        game.forces.player.technologies['mining-productivity-3'].enabled = false
-        game.forces.player.technologies['mining-productivity-4'].enabled = false
+Event.on_init(function()
+    -- game.draw_resource_selection = false
+    game.forces.player.technologies['mining-productivity-1'].enabled = false
+    game.forces.player.technologies['mining-productivity-2'].enabled = false
+    game.forces.player.technologies['mining-productivity-3'].enabled = false
+    game.forces.player.technologies['mining-productivity-4'].enabled = false
 
-        game.difficulty_settings.technology_price_multiplier = 25
-        game.forces.player.technologies.logistics.researched = true
-        game.forces.player.technologies.automation.researched = true
+    game.difficulty_settings.technology_price_multiplier = 25
+    game.forces.player.technologies.logistics.researched = true
+    game.forces.player.technologies.automation.researched = true
 
-        game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
-        game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
-        game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
+    game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
+    game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
+    game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
 
-        game.forces.player.manual_mining_speed_modifier = 1
+    game.forces.player.manual_mining_speed_modifier = 1
 
-        RS.get_surface().always_day = true
-        RS.get_surface().peaceful_mode = true
-    end
-)
-
-local allowed_recipes = {
-    ["deadlock-stacks-stack-iron-ore"] = true,
-    ["deadlock-stacks-unstack-iron-ore"] = true,
-    ["deadlock-stacks-stack-copper-ore"] = true,
-    ["deadlock-stacks-unstack-copper-ore"] = true,
-    ["deadlock-stacks-stack-stone"] = true,
-    ["deadlock-stacks-unstack-stone"] = true,
-    ["deadlock-stacks-stack-coal"] = true,
-    ["deadlock-stacks-unstack-coal"] = true,
-    ["deadlock-stacks-stack-uranium-ore"] = true,
-    ["deadlock-stacks-unstack-uranium-ore"] = true
-}
-
-Event.add(defines.events.on_research_finished, function(event)
-    local research = event.research
-    if not research.valid then
-        return
-    end
-
-    for _, effect in pairs(research.effects) do
-        if effect.type ~= 'unlock-recipe' then
-            goto continue
-        end
-
-        local name = effect.recipe
-        if allowed_recipes[name] then
-            goto continue
-        end
-
-        if name:sub(1, #'deadlock-stacks') == 'deadlock-stacks' then
-            game.forces.player.recipes[name].enabled = false
-        end
-
-        ::continue::
-    end
+    RS.get_surface().always_day = true
+    RS.get_surface().peaceful_mode = true
 end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
@@ -166,6 +122,11 @@ container_dump({entity_name = 'coal'})
 local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
 concrete_on_landfill({tile = 'blue-refined-concrete'})
 
+local remove_non_ore_stacked_recipes = require 'map_gen.maps.danger_ores.modules.remove_non_ore_stacked_recipes'
+remove_non_ore_stacked_recipes()
+
+require 'map_gen.maps.danger_ores.modules.map_poll'
+
 local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_hub_spiral'
 
 local sqrt = math.sqrt
@@ -176,9 +137,9 @@ local config = {
     main_ores_builder = main_ores_builder,
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
-    --main_ores_rotate = 45,
-    resource_patches = resource_patches,
-    resource_patches_config = resource_patches_config,
+    -- main_ores_rotate = 45,
+    -- resource_patches = resource_patches,
+    -- resource_patches_config = resource_patches_config,
     water = water,
     water_scale = function(x, y)
         local d = sqrt(x * x + y * y)
@@ -195,7 +156,7 @@ local config = {
     enemy_max_chance = 1 / 6,
     enemy_scale_factor = 32,
     fish_spawn_rate = 0.025,
-    --dense_patches = dense_patches,
+    -- dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
     dense_patches_multiplier = 50

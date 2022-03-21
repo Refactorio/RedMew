@@ -1585,6 +1585,34 @@ function Builders.ring_weighted_pattern(pattern, thickness)
     end
 end
 
+function Builders.ring_weighted_grow_pattern(pattern, thickness, grow_factor)
+    local weights = Builders.prepare_weighted_array(pattern)
+    local total = weights.total
+    local scale = 1 / thickness
+    local inv_grow_factor = 1 / grow_factor
+
+    return function(x, y, world)
+        local d = sqrt(x * x + y * y)
+        local factor = 1 + (d * inv_grow_factor)
+        local i = (d * scale / factor) % total
+
+        local index = binary_search(weights, i)
+        if index < 0 then
+            index = bnot(index)
+        end
+
+        local data = pattern[index]
+        local shape
+        if data then
+            shape = data.shape
+        end
+
+        shape = shape or Builders.empty_shape
+
+        return shape(x, y, world)
+    end
+end
+
 local function rotate_cords(angle)
     local qx = cos(angle)
     local qy = sin(angle)
