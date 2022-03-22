@@ -14,8 +14,7 @@ local set_data = Server.set_data
 local random = math.random
 local config = global.config.donator
 
---local donator_data_set = 'donators'
-local donator_data_set = 'donators_test'
+local donator_data_set = 'donators'
 local donators = {} -- global register
 local donator_perks_perm = {} -- buffs to the force that will remain even when the donator is offline (T5)
 local donator_perks_temp = {} -- buffs to the force that are only applied while the donator is online (T2, T3, T4)

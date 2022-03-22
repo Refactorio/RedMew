@@ -99,8 +99,8 @@ local function print_perks(_, player)
 
     local donator_tiers = Donator.get_donator_perks_table()
 
-    print("Currently active team perks: +"..(donator_tiers[2].count*10).."% manual mining speed (max +"..(donator_tiers[2].max*10).."%), +"
-        ..(donator_tiers[3].count*10).."% manual mining speed (max +"..(donator_tiers[3].max*10).."%), +"
+    print("Currently active team perks: +"..(donator_tiers[2].count*10).."% hand mining speed (max +"..(donator_tiers[2].max*10).."%), +"
+        ..(donator_tiers[3].count*10).."% hand crafting speed (max +"..(donator_tiers[3].max*10).."%), +"
         ..(donator_tiers[4].count*10).."% run speed  (max +"..(donator_tiers[4].max*10).."%) and +"
         ..(donator_tiers[5].count*5).." inventory slots  (max +"..(donator_tiers[5].max*5).."%).")
 end
