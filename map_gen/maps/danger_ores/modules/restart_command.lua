@@ -5,7 +5,6 @@ local Restart = require 'features.restart_command'
 local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
-
 return function(config)
     local map_promotion_channel = Discord.channel_names.map_promotion
     local danger_ore_role_mention = Discord.role_mentions.danger_ore
@@ -65,7 +64,7 @@ return function(config)
             biters_killed = ScoreTracker.get_for_global(PlayerStats.aliens_killed_name),
             total_players = #game.players,
             entities_built = ScoreTracker.get_for_global(PlayerStats.built_by_players_name),
-            resource_tiles_exhausted = ScoreTracker.get_for_global(PlayerStats.resource_tiles_exhausted_name),
+            resources_exhausted = ScoreTracker.get_for_global(PlayerStats.resources_exhausted_name),
             resources_hand_mined = ScoreTracker.get_for_global(PlayerStats.resources_hand_mined_name),
             player_data = player_data
         }
@@ -131,22 +130,22 @@ return function(config)
         local resource_prototypes = game.get_filtered_entity_prototypes({{filter = "type", type = "resource"}})
         local total_ore = 0
         local ore_totals_message = '('
-        for ore_name,_ in pairs(resource_prototypes) do
-            if game.entity_prototypes[ore_name].resource_category == 'basic-solid' then
+        for ore_name,ore_prototype in pairs(resource_prototypes) do
+            if ore_prototype.resource_category == 'basic-solid' then
                 local count = game.forces["player"].item_production_statistics.get_input_count(ore_name)
                 total_ore = total_ore + count
                 ore_totals_message = ore_totals_message..ore_name:gsub( "-ore", "")..": "..string.format("%.2fM, ",count/1000000)
             end
         end
         ore_totals_message = ore_totals_message:sub(1, -3)..')'
-        ore_totals_message = "Total ore mined: "..string.format("%.2fM",total_ore/1000000).. " "..ore_totals_message
+        ore_totals_message = "Total ore mined: "..string.format("%.2fM",total_ore/1000000).. "\\n"..ore_totals_message
 
         Server.to_discord_named_embed(map_promotion_channel, 'Danger ores map completed!\\n\\n'
         .. 'Statistics:\\n'
         .. 'Map time: '..time_string..'\\n'
         .. 'Total entities built: '..statistics.entities_built..'\\n'
         .. 'Total ore mined:'..ore_totals_message..'\\n'
-        .. 'Total ore tiles exhausted: '..statistics.resource_tiles_exhausted..'\\n'
+        .. 'Total ore resources exhausted: '..statistics.resources_exhausted..'\\n'
         .. 'Total ore hand mined: '..statistics.resources_hand_mined..'\\n'
         .. 'Players: '..statistics.total_players..'\\n'
         .. 'Enemies killed: '..statistics.biters_killed..'\\n\\n'

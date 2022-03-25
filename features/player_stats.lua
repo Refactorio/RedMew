@@ -31,7 +31,7 @@ local player_entities_built_name = 'player_entities_built'
 local player_fish_eaten_name = 'player_fish_eaten'
 local player_resources_hand_mined_name = 'player_resources_hand_mined'
 local resources_hand_mined_name = 'resources_hand_mined'
-local resource_tiles_exhausted_name = 'resource_tiles_exhausted'
+local resources_exhausted_name = 'resources_exhausted'
 
 ScoreTracker.register(rocks_smashed_name, {'player_stats.rocks_smashed'}, '[img=entity.rock-huge]')
 ScoreTracker.register(trees_cut_down_name, {'player_stats.trees_cut_down'}, '[img=entity.tree-02]')
@@ -56,7 +56,7 @@ ScoreTracker.register(player_entities_built_name, {'player_stats.player_entities
 ScoreTracker.register(player_fish_eaten_name, {'player_stats.player_fish_eaten'})
 ScoreTracker.register(player_resources_hand_mined_name, {'player_stats.player_resources_hand_mined'})
 ScoreTracker.register(resources_hand_mined_name, {'player_stats.resources_hand_mined'})
-ScoreTracker.register(resource_tiles_exhausted_name, {'player_stats.resource_tiles_exhausted'})
+ScoreTracker.register(resources_exhausted_name, {'player_stats.resources_exhausted'})
 
 local train_kill_causes = {
     ['locomotive'] = true,
@@ -177,7 +177,7 @@ end
 local function resource_depleted(event)
     local entity = event.entity
     if entity.amount == 0 then
-        change_for_global(resource_tiles_exhausted_name, 1)
+        change_for_global(resources_exhausted_name, 1)
     end
 end
 
@@ -378,7 +378,7 @@ local Public = {
     player_fish_eaten_name = player_fish_eaten_name,
     player_resources_hand_mined_name = player_resources_hand_mined_name,
     resources_hand_mined_name = resources_hand_mined_name,
-    resource_tiles_exhausted_name = resource_tiles_exhausted_name
+    resources_exhausted_name = resources_exhausted_name
 }
 
 -- Returns a dictionary of cause_name -> count
