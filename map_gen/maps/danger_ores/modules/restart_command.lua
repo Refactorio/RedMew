@@ -125,8 +125,6 @@ return function(config)
             end
         end
 
-        local time_string = Core.format_time(game.ticks_played)
-
         local resource_prototypes = game.get_filtered_entity_prototypes({{filter = "type", type = "resource"}})
         local total_ore = 0
         local ore_totals_message = '('
