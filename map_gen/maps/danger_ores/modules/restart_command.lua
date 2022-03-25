@@ -164,9 +164,6 @@ return function(config)
 
         Server.set_data('danger_ores_data', tostring(end_epoch), statistics)
 
-        local start_game_data = Restart.get_start_game_data()
-        local new_map_name = start_game_data.name
-
         local message = {
             danger_ore_role_mention,
             ' **Danger Ore has just restarted! Previous map lasted: ',
