@@ -153,6 +153,8 @@ local function player_joined(event)
             donator_tiers[5].count = donator_tiers[5].count + 1
             donator_perk_msg = concat({donator_perk_msg, "+5 inventory slots. "})
             donator_perks_perm[player.name] = true
+        elseif donator_perks_perm[player.name] then -- for if they're already in the table. We don't want to apply the perk again but we do want to append the perk to the message.
+            donator_perk_msg = concat({donator_perk_msg, "+5 inventory slots. "})
         end
         donator_perk_msg = donator_perk_msg .. " Use /perks to see bonuses."
         Task.set_timeout_in_ticks(80, print_after_timeout, {player = player, message = donator_perk_msg})
