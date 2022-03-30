@@ -436,6 +436,11 @@ global.config = {
     },
     spidertron_group_control = {
         enabled = true
+    },
+    donator = {
+        donator_perks = {
+            enabled = true
+        }
     }
 }
 
