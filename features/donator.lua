@@ -173,7 +173,6 @@ local function player_left(event)
         return
     end
 
-    local perk_flag = d.perk_flags
     local mining_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_mining)
     local crafting_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_crafting)
     local running_flag = Public.player_has_donator_perk(player.name, DonatorPerks.team_run)
