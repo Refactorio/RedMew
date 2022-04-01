@@ -5,6 +5,8 @@ local Restart = require 'features.restart_command'
 local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
+local format_number = require 'util'.format_number
+
 return function(config)
     local map_promotion_channel = Discord.channel_names.map_promotion
     local danger_ore_role_mention = Discord.role_mentions.danger_ore
@@ -132,11 +134,11 @@ return function(config)
             if ore_prototype.resource_category == 'basic-solid' then
                 local count = game.forces["player"].item_production_statistics.get_input_count(ore_name)
                 total_ore = total_ore + count
-                ore_totals_message = ore_totals_message..ore_name:gsub( "-ore", "")..": "..string.format("%.2fM, ",count/1000000)
+                ore_totals_message = ore_totals_message..ore_name:gsub( "-ore", "")..": "..format_number(count, true)..", "
             end
         end
-        ore_totals_message = ore_totals_message:sub(1, -3)..')'
-        ore_totals_message = "Total ore mined: "..string.format("%.2fM",total_ore/1000000).. "\\n"..ore_totals_message
+        ore_totals_message = ore_totals_message:sub(1, -3)..')' -- remove the last ", " and add a bracket
+        ore_totals_message = "Total ore mined: "..format_number(total_ore, true).. "\\n"..ore_totals_message
 
         Server.to_discord_named_embed(map_promotion_channel, 'Danger ores map completed!\\n\\n'
         .. 'Statistics:\\n'
