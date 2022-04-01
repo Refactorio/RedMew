@@ -363,6 +363,7 @@ stds.factorio_control = {
                 "force_crc",
                 "get_active_entities_count",
                 "get_entity_by_tag",
+                "get_filtered_entity_prototypes",
                 "get_map_exchange_string",
                 "get_player",
                 "get_surface",
