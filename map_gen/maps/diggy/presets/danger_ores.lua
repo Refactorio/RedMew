@@ -280,13 +280,13 @@ local config = {
             -- creates compound clusters of ores defined by a layered ore-gen
             cluster_mode = true,
             -- spawns tendrils of ore with roughly 80% purity
-            ore_pattern = require 'map_gen.maps.diggy.orepattern.tendrils_impure'
+            --ore_pattern = require 'map_gen.maps.diggy.orepattern.tendrils_impure'
 
             -- spawns some smaller dedicated and bigger mixed tendrils
             --ore_pattern = require 'map_gen.maps.diggy.orepattern.tendrils',
 
             -- spawns clusters of ore similar to vanilla, but mixed
-            --ore_pattern = require 'map_gen.maps.diggy.orepattern.clusters',
+            ore_pattern = require 'map_gen.maps.diggy.orepattern.clusters',
         },
         -- controls the alien spawning mechanic
         alien_spawner = {
