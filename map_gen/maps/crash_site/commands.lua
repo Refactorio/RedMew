@@ -213,10 +213,10 @@ function Public.control(config)
                 awards.fish_eaten.player = v.name
             end
         end
-
+        local statistics_message = {}
         local time_string = Core.format_time(game.ticks_played)
         if statistics.enemy_entities < 1000 then
-            local statistics_message = 'Crash Site map won!\\n\\n'
+            statistics_message = 'Crash Site map won!\\n\\n'
             .. 'Statistics:\\n'
             .. 'Map time: '..time_string..'\\n'
             .. 'Total kills: '..statistics.biters_killed..'\\n'
@@ -235,20 +235,17 @@ function Public.control(config)
             .. 'Furthest walked: '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'
             .. 'Most coins earned: '..awards.coins_earned.player..' ('..awards.coins_earned.value..')\\n'
             .. 'Seafood lover: '..awards.fish_eaten.player..' ('..awards.fish_eaten.value..' fish eaten)\\n'
-
-            Server.to_discord_named_embed(map_promotion_channel, statistics_message)
-            Server.to_discord_named_embed(crash_site_channel, statistics_message)
         else
-            local statistics_message = 'Crash Site map failed!\\n\\n'
+            statistics_message = 'Crash Site map failed!\\n\\n'
             .. 'Statistics:\\n'
             .. 'Map time: '..time_string..'\\n'
             .. 'Total kills: '..statistics.biters_killed..'\\n'
             .. 'Biters remaining on map: '..statistics.enemy_entities..'\\n'
             .. 'Players: '..statistics.total_players..'\\n'
-
-            Server.to_discord_named_embed(map_promotion_channel, statistics_message)
-            Server.to_discord_named_embed(crash_site_channel, statistics_message)
         end
+
+        Server.to_discord_named_embed(map_promotion_channel, statistics_message)
+        Server.to_discord_named_embed(crash_site_channel, statistics_message)
 
         local start_game_data = Restart.get_start_game_data()
         local new_map_name = start_game_data.name
