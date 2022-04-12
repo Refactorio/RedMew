@@ -17,9 +17,11 @@ local set_timeout_in_ticks = Task.set_timeout_in_ticks
 
 -- Use these settings for live
 local map_promotion_channel = Discord.channel_names.map_promotion
+local crash_site_channel = Discord.channel_names.crash_site
 local crash_site_role_mention = Discord.role_mentions.crash_site
 -- Use these settings for testing
 -- local map_promotion_channel = Discord.channel_names.bot_playground
+-- local crash_site_channel = Discord.channel_names.bot_playground
 -- local crash_site_role_mention = Discord.role_mentions.test
 
 local Public = {}
@@ -214,7 +216,7 @@ function Public.control(config)
 
         local time_string = Core.format_time(game.ticks_played)
         if statistics.enemy_entities < 1000 then
-            Server.to_discord_named_embed(map_promotion_channel, 'Crash Site map won!\\n\\n'
+            local statistics_message = 'Crash Site map won!\\n\\n'
             .. 'Statistics:\\n'
             .. 'Map time: '..time_string..'\\n'
             .. 'Total kills: '..statistics.biters_killed..'\\n'
@@ -233,15 +235,19 @@ function Public.control(config)
             .. 'Furthest walked: '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'
             .. 'Most coins earned: '..awards.coins_earned.player..' ('..awards.coins_earned.value..')\\n'
             .. 'Seafood lover: '..awards.fish_eaten.player..' ('..awards.fish_eaten.value..' fish eaten)\\n'
-            )
+
+            Server.to_discord_named_embed(map_promotion_channel, statistics_message)
+            Server.to_discord_named_embed(crash_site_channel, statistics_message)
         else
-             Server.to_discord_named_embed(map_promotion_channel, 'Crash Site map failed!\\n\\n'
+            local statistics_message = 'Crash Site map failed!\\n\\n'
             .. 'Statistics:\\n'
             .. 'Map time: '..time_string..'\\n'
             .. 'Total kills: '..statistics.biters_killed..'\\n'
             .. 'Biters remaining on map: '..statistics.enemy_entities..'\\n'
             .. 'Players: '..statistics.total_players..'\\n'
-            )
+
+            Server.to_discord_named_embed(map_promotion_channel, statistics_message)
+            Server.to_discord_named_embed(crash_site_channel, statistics_message)
         end
 
         local start_game_data = Restart.get_start_game_data()

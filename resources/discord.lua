@@ -6,7 +6,9 @@ return {
         bot_playground = 'bot-playground',
         map_promotion = 'map-promotion',
         moderation_log = 'moderation-log',
-        helpdesk = 'helpdesk'
+        helpdesk = 'helpdesk',
+        danger_ores = 'danger-ores',
+        crash_site = 'crash-site'
     },
     --- The strings that mention the discord role.
     -- Has to be used with features.server.to_discord_raw variants else the mention is sanitized server side.

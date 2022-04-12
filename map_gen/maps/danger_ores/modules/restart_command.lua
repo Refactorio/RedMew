@@ -9,9 +9,11 @@ local format_number = require 'util'.format_number
 
 return function(config)
     local map_promotion_channel = Discord.channel_names.map_promotion
+    local danger_ores_channel = Discord.channel_names.danger_ores
     local danger_ore_role_mention = Discord.role_mentions.danger_ore
     -- Use these settings for testing
     --local map_promotion_channel = Discord.channel_names.bot_playground
+    --local danger_ores_channel = Discord.channel_names.bot_playground
     --local danger_ore_role_mention = Discord.role_mentions.test
 
     Restart.set_start_game_data({type = Restart.game_types.scenario, name = config.scenario_name or 'danger-ore-next'})
@@ -140,27 +142,30 @@ return function(config)
         ore_totals_message = ore_totals_message:sub(1, -3)..')' -- remove the last ", " and add a bracket
         ore_totals_message = "Total ore mined: "..format_number(total_ore, true).. "\\n"..ore_totals_message
 
-        Server.to_discord_named_embed(map_promotion_channel, 'Danger ores map completed!\\n\\n'
-        .. 'Statistics:\\n'
-        .. 'Map time: '..time_string..'\\n'
-        .. 'Total entities built: '..statistics.entities_built..'\\n'
-        .. 'Total ore mined:'..ore_totals_message..'\\n'
-        .. 'Total ore resources exhausted: '..statistics.resources_exhausted..'\\n'
-        .. 'Total ore hand mined: '..statistics.resources_hand_mined..'\\n'
-        .. 'Players: '..statistics.total_players..'\\n'
-        .. 'Enemies killed: '..statistics.biters_killed..'\\n\\n'
-        .. 'Awards:\\n'
-        .. 'Most ore hand mined:'..awards.resources_hand_mined.player..' ('..awards.resources_hand_mined.value..')\\n'
-        .. 'Most items crafted: '..awards.entities_crafted.player..' ('..awards.entities_crafted.value..')\\n'
-        .. 'Most entities built: '..awards.entities_built.player..' ('..awards.entities_built.value..')\\n'
-        .. 'Most time played: '..awards.time_played.player..' ('..Core.format_time(awards.time_played.value)..')\\n'
-        .. 'Furthest walked: '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'
-        .. 'Most deaths: '..awards.player_deaths.player..' ('..awards.player_deaths.value..')\\n'
-        .. 'Most kills overall: '..awards.total_kills.player..' ('..awards.total_kills.value..')\\n'
-        .. 'Most biters/spitters killed: '..awards.units_killed.player..' ('..awards.units_killed.value..')\\n'
-        .. 'Most spawners killed: '..awards.spawners_killed.player..' ('..awards.spawners_killed.value..')\\n'
-        .. 'Most worms killed: '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
-        )
+      local statistics_message = 'Danger ores map completed!\\n\\n'..
+        'Statistics:\\n'..
+        'Map time: '..time_string..'\\n'..
+        'Total entities built: '..statistics.entities_built..'\\n'..
+        'Total ore mined:'..ore_totals_message..'\\n'..
+        'Total ore resources exhausted: '..statistics.resources_exhausted..'\\n'..
+        'Total ore hand mined: '..statistics.resources_hand_mined..'\\n'..
+        'Players: '..statistics.total_players..'\\n'..
+        'Enemies killed: '..statistics.biters_killed..'\\n\\n'..
+        'Awards:\\n'..
+        'Most ore hand mined:'..awards.resources_hand_mined.player..' ('..awards.resources_hand_mined.value..')\\n'..
+        'Most items crafted: '..awards.entities_crafted.player..' ('..awards.entities_crafted.value..')\\n'..
+        'Most entities built: '..awards.entities_built.player..' ('..awards.entities_built.value..')\\n'..
+        'Most time played: '..awards.time_played.player..' ('..Core.format_time(awards.time_played.value)..')\\n'..
+        'Furthest walked: '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'..
+        'Most deaths: '..awards.player_deaths.player..' ('..awards.player_deaths.value..')\\n'..
+        'Most kills overall: '..awards.total_kills.player..' ('..awards.total_kills.value..')\\n'..
+        'Most biters/spitters killed: '..awards.units_killed.player..' ('..awards.units_killed.value..')\\n'..
+        'Most spawners killed: '..awards.spawners_killed.player..' ('..awards.spawners_killed.value..')\\n'..
+        'Most worms killed: '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
+        
+
+        Server.to_discord_named_embed(map_promotion_channel, statistics_message)
+        Server.to_discord_named_embed(danger_ores_channel, statistics_message)
 
         Server.set_data('danger_ores_data', tostring(end_epoch), statistics)
 
