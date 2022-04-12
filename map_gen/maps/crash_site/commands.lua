@@ -213,7 +213,7 @@ function Public.control(config)
                 awards.fish_eaten.player = v.name
             end
         end
-        local statistics_message = {}
+        local statistics_message
         local time_string = Core.format_time(game.ticks_played)
         if statistics.enemy_entities < 1000 then
             statistics_message = 'Crash Site map won!\\n\\n'
