@@ -162,7 +162,6 @@ return function(config)
         'Most biters/spitters killed: '..awards.units_killed.player..' ('..awards.units_killed.value..')\\n'..
         'Most spawners killed: '..awards.spawners_killed.player..' ('..awards.spawners_killed.value..')\\n'..
         'Most worms killed: '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
-        
 
         Server.to_discord_named_embed(map_promotion_channel, statistics_message)
         Server.to_discord_named_embed(danger_ores_channel, statistics_message)
