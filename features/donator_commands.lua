@@ -13,8 +13,8 @@ Global.register(
     {
         config = config
     },
-    function(tbl)
-        config = tbl.global.config.donator.donator_perks
+    function()
+        config = global.config.donator.donator_perks
     end
 )
 
