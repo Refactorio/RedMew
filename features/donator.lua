@@ -38,7 +38,7 @@ Global.register(
         donator_perks_perm = tbl.donator_perks_perm
         donator_perks_temp = tbl.donator_perks_temp
         donator_tiers = tbl.donator_tiers
-        config = global.config.donator.donator_perks
+        config = global.config.donator
     end
 )
 
