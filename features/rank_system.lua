@@ -144,6 +144,10 @@ end
 
 -- Exposed functions
 
+function Public.know_player(player_name)
+    return player_ranks[player_name] ~= nil
+end
+
 --- Gets a player's rank. In cases of comparison, the appropriate functions should be used.
 -- This function is exposed for the purpose of returning a numerical value for players for the
 -- purposes of sorting.
