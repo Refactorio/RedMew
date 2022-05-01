@@ -148,6 +148,11 @@ Event.add(defines.events.on_pre_player_left_game, function(event)
 end)
 
 Event.add(defines.events.on_player_banned, function(event)
+    local player_index = event.player_index
+    if not player_index then
+        return
+    end
+
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
