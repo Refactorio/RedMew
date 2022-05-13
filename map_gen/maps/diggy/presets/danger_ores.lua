@@ -469,7 +469,9 @@ local config = {
 				'tank',
 				'spidertron',
 				'stone-wall',
-				'small-lamp'
+				'small-lamp',
+				'pipe',
+				'pipe-to-ground'
 			}
 		}
     }
