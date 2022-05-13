@@ -20,7 +20,7 @@ local function banned_entities(allowed_entities)
                 if left_top.x == right_bottom.x and left_top.y == right_bottom.y then
                     return true
                 end
-                local count = entity.surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
+                local count = entity.surface.count_entities_filtered {area = area, name = {'coal', 'copper-ore', 'iron-ore', 'stone', 'uranium-ore'}, limit = 1}
                 if count == 0 then
                     return true
                 end
@@ -40,12 +40,12 @@ local function banned_entities(allowed_entities)
 end
 
 function DangerOre.register (config)
-	local allowed_entities = config.allowed_entities
+	allowed_entities = config.allowed_entities
 	banned_entities(allowed_entities)
 	ScenarioInfo.add_map_extra_info([[Danger! Ores are generally unstable to build upon.
 Only the following entities have been strengthened for building upon the ores:
  [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron]
- [item=stone-wall][item=small-lamp][item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=stone-wall] [item=small-lamp]
+ [item=stone-wall][item=small-lamp][item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=pipe] [item=pipe-to-ground]
 ]])
 end
 
