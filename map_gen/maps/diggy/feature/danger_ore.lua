@@ -40,7 +40,7 @@ local function banned_entities(allowed_entities)
 end
 
 function DangerOre.register (config)
-	allowed_entities = config.allowed_entities
+	local allowed_entities = config.allowed_entities
 	banned_entities(allowed_entities)
 	ScenarioInfo.add_map_extra_info([[Danger! Ores are generally unstable to build upon.
 Only the following entities have been strengthened for building upon the ores:
