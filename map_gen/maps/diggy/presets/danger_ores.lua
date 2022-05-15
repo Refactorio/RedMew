@@ -471,7 +471,8 @@ local config = {
 				'stone-wall',
 				'small-lamp',
 				'pipe',
-				'pipe-to-ground'
+				'pipe-to-ground',
+				'wooden-chest'
 			}
 		}
     }
