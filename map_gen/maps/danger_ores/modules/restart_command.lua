@@ -6,6 +6,7 @@ local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
 local format_number = require 'util'.format_number
+local ScenarioInfo = require 'features.gui.info'
 
 return function(config)
     local map_promotion_channel = Discord.channel_names.map_promotion
@@ -61,7 +62,7 @@ return function(config)
         end
 
         local statistics = {
-            scenario = config.scenario_name,
+            scenario = ScenarioInfo.get_map_name(),
             start_epoch = Server.get_start_time(),
             end_epoch = end_epoch, -- stored as key already, useful to have it as part of same structure
             game_ticks = game.ticks_played,
@@ -142,7 +143,7 @@ return function(config)
         ore_totals_message = ore_totals_message:sub(1, -3)..')' -- remove the last ", " and add a bracket
         ore_totals_message = "Total ore mined: "..format_number(total_ore, true).. "\\n"..ore_totals_message
 
-      local statistics_message = 'Danger ores map completed!\\n\\n'..
+      local statistics_message = statistics.scenario..' completed!\\n\\n'..
         'Statistics:\\n'..
         'Map time: '..time_string..'\\n'..
         'Total entities built: '..statistics.entities_built..'\\n'..
