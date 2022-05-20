@@ -62,7 +62,7 @@ return function(config)
         end
 
         local statistics = {
-            scenario = ScenarioInfo.get_map_name(),
+            scenario = config.scenario_name or 'Danger ore',
             start_epoch = Server.get_start_time(),
             end_epoch = end_epoch, -- stored as key already, useful to have it as part of same structure
             game_ticks = game.ticks_played,
