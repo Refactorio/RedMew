@@ -6,7 +6,6 @@ local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
 local format_number = require 'util'.format_number
-local ScenarioInfo = require 'features.gui.info'
 
 return function(config)
     local map_promotion_channel = Discord.channel_names.map_promotion
