@@ -46,7 +46,7 @@ return function(allowed_entities, message)
             end
             local str = "You cannot build that on top of ores, only "
             local strs = {};
-            for k, v in pairs(items) do
+            for k in pairs(items) do
                 table.insert(strs, "[img=item." .. k .."]")
             end
             p.print(str..table.concat(strs, " "))
