@@ -44,20 +44,12 @@ return function(allowed_entities, message)
                     end
                 end
             end
-            local i = 1
             local str = "You cannot build that on top of ores, only "
+            local strs = {};
             for k, v in pairs(items) do
-                str = str.."[img=item." .. k .."]"
-                if len == i then
-                    str = str.."."
-                elseif i == len - 1 then
-                    str = str.." and "
-                else
-                    str = str..", "
-                end
-                i = i + 1
+                table.insert(strs, "[img=item." .. k .."]")
             end
-            p.print(str)
+            p.print(str..table.concat(strs, " "))
         end
     end
 
