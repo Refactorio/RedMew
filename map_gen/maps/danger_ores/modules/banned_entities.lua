@@ -38,7 +38,7 @@ return function(allowed_entities, message)
             for _, v in pairs(allowed_entities) do
                 local entity = game.entity_prototypes[v]
                 for _, v in pairs(entity.items_to_place_this) do
-                    if not (items[v.name] ~= nil) then --- Avoid duplication for straight-rail and curved-rail, which both use rail
+                    if not items[v.name] then --- Avoid duplication for straight-rail and curved-rail, which both use rail
                         items[v.name] = v
                         len = len + 1
                     end
