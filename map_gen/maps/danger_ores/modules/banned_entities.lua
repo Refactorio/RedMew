@@ -29,7 +29,28 @@ return function(allowed_entities, message)
     local function on_destroy(event)
         local p = event.player
         if p and p.valid then
-            p.print(message or 'You cannot build that on top of ores, only belts, mining drills, and power poles are allowed.')
+            if message then
+                p.print(message)
+                return
+            end
+            local items = {}
+            local len = 0
+            local entities = RestrictEntities.get_allowed()
+            for k in pairs(entities) do
+                local entity = game.entity_prototypes[k]
+                for _, v in pairs(entity.items_to_place_this) do
+                    if not items[v.name] then --- Avoid duplication for straight-rail and curved-rail, which both use rail
+                        items[v.name] = v
+                        len = len + 1
+                    end
+                end
+            end
+            local str = "You cannot build that on top of ores, only "
+            local strs = {};
+            for k in pairs(items) do
+                table.insert(strs, "[img=item." .. k .."]")
+            end
+            p.print(str..table.concat(strs, " "))
         end
     end
 
