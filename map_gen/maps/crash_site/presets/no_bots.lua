@@ -3,7 +3,7 @@ local ScenarioInfo = require 'features.gui.info'
 local Event = require 'utils.event'
 
 local config = {
-    scenario_name = 'crashsite',
+    scenario_name = 'crashsite-nobots',
     map_gen_settings = {
         MGSP.grass_only,
         MGSP.enable_water,
@@ -19,7 +19,7 @@ local config = {
 }
 
 local Scenario = require 'map_gen.maps.crash_site.scenario_no_bots'
-ScenarioInfo.set_map_name('Crashsite')
+ScenarioInfo.set_map_name('Crashsite - No Bots')
 ScenarioInfo.set_map_description('Capture outposts and defend against the biters.')
 ScenarioInfo.add_map_extra_info(
     [[
