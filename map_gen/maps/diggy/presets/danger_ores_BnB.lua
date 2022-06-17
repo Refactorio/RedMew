@@ -3,7 +3,7 @@ local ScenarioInfo = require 'features.gui.info'
 local abs = math.abs
 
 local config = {
-    scenario_name = 'diggy-danger-ores',
+    scenario_name = 'diggy-danger-ores-BnB',
     -- a list of features to register and enable
     -- to disable a feature, change the flag
     features = {
