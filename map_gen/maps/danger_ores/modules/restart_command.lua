@@ -61,7 +61,7 @@ return function(config)
         end
 
         local statistics = {
-            scenario = config.scenario_name,
+            scenario = config.scenario_name or 'Danger ore',
             start_epoch = Server.get_start_time(),
             end_epoch = end_epoch, -- stored as key already, useful to have it as part of same structure
             game_ticks = game.ticks_played,
@@ -142,7 +142,7 @@ return function(config)
         ore_totals_message = ore_totals_message:sub(1, -3)..')' -- remove the last ", " and add a bracket
         ore_totals_message = "Total ore mined: "..format_number(total_ore, true).. "\\n"..ore_totals_message
 
-      local statistics_message = 'Danger ores map completed!\\n\\n'..
+      local statistics_message = statistics.scenario..' completed!\\n\\n'..
         'Statistics:\\n'..
         'Map time: '..time_string..'\\n'..
         'Total entities built: '..statistics.entities_built..'\\n'..

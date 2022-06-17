@@ -311,6 +311,12 @@ function Public.remove_anti_grief_callback()
     primitives.anti_grief_callback = nil
 end
 
+--- Get the list of allowed entities
+-- @return allowed_entities <table> array of string entity names
+function Public.get_allowed()
+    return allowed_entities
+end
+
 --- Adds to the list of allowed entities
 -- @param ents <table> array of string entity names
 function Public.add_allowed(ents)
