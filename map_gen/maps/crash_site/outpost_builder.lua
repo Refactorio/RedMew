@@ -767,7 +767,7 @@ function Public:do_outpost(template, on_init)
     if template == nil then
         return b.empty_shape
     end
-    
+
     local settings = template.settings
     local blocks = {size = settings.blocks}
 
