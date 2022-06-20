@@ -1,2 +1,2 @@
 -- authors Linaori, valansch
-require 'map_gen.maps.diggy.scenario'.register()
+require 'map_gen.maps.diggy.presets.normal'

@@ -88,7 +88,20 @@ local function mined_entity(event)
     local corpse_owner = game.get_player(corpse_owner_index)
 
     if player and corpse_owner then
-        local message = table.concat {player.name, ' has looted ', corpse_owner.name, "'s corpse"}
+        local position = entity.position
+        local message = table.concat {
+            player.name,
+            ' has looted ',
+            corpse_owner.name,
+            "'s corpse.",
+            ' [gps=',
+            string.format('%.1f', position.x),
+            ',',
+            string.format('%.1f', position.y),
+            ',',
+            entity.surface.name,
+            ']'
+        }
         Utils.action_warning('[Corpse]', message)
     end
 end
@@ -116,7 +129,20 @@ local function on_gui_opened(event)
     local corpse_owner = game.get_player(corpse_owner_index)
 
     if player and corpse_owner then
-        local message = table.concat {player.name, ' is looting ', corpse_owner.name, "'s corpse"}
+        local position = entity.position
+        local message = table.concat {
+            player.name,
+            ' is looting ',
+            corpse_owner.name,
+            "'s corpse.",
+            ' [gps=',
+            string.format('%.1f', position.x),
+            ',',
+            string.format('%.1f', position.y),
+            ',',
+            entity.surface.name,
+            ']'
+        }
         Utils.action_warning('[Corpse]', message)
     end
 end
@@ -154,7 +180,7 @@ end
 
 function Public.add_tag(tag, player_index, death_tick, alert_looting)
     local index = get_index(player_index, death_tick)
-    player_corpses[index] = {tag = tag, alert_looting = alert_looting}
+    player_corpses[index] = { tag = tag, alert_looting = alert_looting }
 end
 
 return Public

@@ -11,6 +11,7 @@ local auto_replies = {
     ['discord'] = {{'chat_triggers.discord'}},
     ['patreon'] = {{'chat_triggers.patreon'}},
     ['donate'] = {{'chat_triggers.donate'}},
+    ['donator'] = {{'chat_triggers.donate'}},
     ['grief'] = {{'chat_triggers.grief'}}
 }
 

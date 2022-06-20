@@ -1,8 +1,9 @@
 -- dependencies
+local ScenarioInfo = require 'features.gui.info'
 local abs = math.abs
 
--- this
-local Config = {
+local config = {
+    scenario_name = 'diggy',
     -- a list of features to register and enable
     -- to disable a feature, change the flag
     features = {
@@ -450,4 +451,8 @@ local Config = {
     }
 }
 
-return Config
+ScenarioInfo.set_map_name('Diggy')
+ScenarioInfo.set_map_description('Dig your way through!')
+
+local diggy = require 'map_gen.maps.diggy.scenario'
+return diggy.register(config)

@@ -14,12 +14,15 @@ local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
 local Restart = require 'features.restart_command'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
+local format_number = require 'util'.format_number
 
 -- Use these settings for live
 local map_promotion_channel = Discord.channel_names.map_promotion
+local crash_site_channel = Discord.channel_names.crash_site
 local crash_site_role_mention = Discord.role_mentions.crash_site
 -- Use these settings for testing
 -- local map_promotion_channel = Discord.channel_names.bot_playground
+-- local crash_site_channel = Discord.channel_names.bot_playground
 -- local crash_site_role_mention = Discord.role_mentions.test
 
 local Public = {}
@@ -114,6 +117,26 @@ function Public.control(config)
         return true
     end
 
+    local places = {'1st','2nd','3rd','4th','5th'}
+
+    -- builds a message for top 3 or 4 etc players for a given stat to use in the embedded awards
+    local function get_top_players(players_as_array, statistic_name)
+        local return_message = ""
+        table.sort(players_as_array, function (a, b) return a[statistic_name] > b[statistic_name] end )
+        for i = 1, math.min(3, #players_as_array) do
+            local data = players_as_array[i]
+            if statistic_name == "time_played" then
+                return_message = return_message..places[i].." - "..data.name.." ("..Core.format_time(data[statistic_name]).."), "
+            elseif statistic_name == "fish_eaten" then
+                return_message = return_message..places[i].." - "..data.name.." ("..format_number(data[statistic_name],true).." fish eaten), "
+            else
+                return_message = return_message..places[i].." - "..data.name.." ("..format_number(data[statistic_name],true).."), "
+            end
+        end
+        return_message = return_message:sub(1, -3) -- remove the last ", "
+        return return_message
+    end
+
     local function restart_callback()
         local end_epoch = Server.get_current_time()
         if end_epoch == nil then
@@ -151,70 +174,15 @@ function Public.control(config)
             player_data = player_data
         }
 
-        local awards = {
-            ['total_kills'] = {value = 0, player = ""},
-            ['units_killed'] = {value = 0, player = ""},
-            ['spawners_killed'] = {value = 0, player = ""},
-            ['worms_killed'] = {value = 0, player = ""},
-            ['player_deaths'] = {value = 0, player = ""},
-            ['time_played'] = {value = 0, player = ""},
-            ['entities_built'] = {value = 0, player = ""},
-            ['entities_crafted'] = {value = 0, player = ""},
-            ['distance_walked'] = {value = 0, player = ""},
-            ['coins_earned'] = {value = 0, player = ""},
-            ['fish_eaten'] = {value = 0, player = ""}
-        }
-
-        for _, v in pairs(statistics.player_data) do
-            if v.total_kills > awards.total_kills.value then
-                awards.total_kills.value = v.total_kills
-                awards.total_kills.player = v.name
-            end
-            if v.units_killed > awards.units_killed.value then
-                awards.units_killed.value = v.units_killed
-                awards.units_killed.player = v.name
-            end
-            if v.spawners_killed > awards.spawners_killed.value then
-                awards.spawners_killed.value = v.spawners_killed
-                awards.spawners_killed.player = v.name
-            end
-            if v.worms_killed > awards.worms_killed.value then
-                awards.worms_killed.value = v.worms_killed
-                awards.worms_killed.player = v.name
-            end
-            if v.player_deaths > awards.player_deaths.value then
-                awards.player_deaths.value = v.player_deaths
-                awards.player_deaths.player = v.name
-            end
-            if v.time_played > awards.time_played.value then
-                awards.time_played.value = v.time_played
-                awards.time_played.player = v.name
-            end
-            if v.entities_built > awards.entities_built.value then
-                awards.entities_built.value = v.entities_built
-                awards.entities_built.player = v.name
-            end
-            if v.entities_crafted > awards.entities_crafted.value then
-                awards.entities_crafted.value = v.entities_crafted
-                awards.entities_crafted.player = v.name
-            end
-            if v.distance_walked > awards.distance_walked.value then
-                awards.distance_walked.value = v.distance_walked
-                awards.distance_walked.player = v.name
-            end
-            if v.coins_earned > awards.coins_earned.value then
-                awards.coins_earned.value = v.coins_earned
-                awards.coins_earned.player = v.name
-            end
-            if v.fish_eaten > awards.fish_eaten.value then
-                awards.fish_eaten.value = v.fish_eaten
-                awards.fish_eaten.player = v.name
-            end
+        local players_as_array = {}
+        for _, data in pairs(player_data) do
+            players_as_array[#players_as_array+1] = data
         end
 
+        local statistics_message
         local time_string = Core.format_time(game.ticks_played)
         if statistics.enemy_entities < 1000 then
-            Server.to_discord_named_embed(map_promotion_channel, 'Crash Site map won!\\n\\n'
+            statistics_message = 'Crash Site map won!\\n\\n'
             .. 'Statistics:\\n'
             .. 'Map time: '..time_string..'\\n'
             .. 'Total kills: '..statistics.biters_killed..'\\n'
@@ -222,27 +190,29 @@ function Public.control(config)
             .. 'Players: '..statistics.total_players..'\\n'
             .. 'Total entities built: '..statistics.entities_built..'\\n\\n'
             .. 'Awards:\\n'
-            .. 'Most kills overall: '..awards.total_kills.player..' ('..awards.total_kills.value..')\\n'
-            .. 'Most biters/spitters killed: '..awards.units_killed.player..' ('..awards.units_killed.value..')\\n'
-            .. 'Most spawners killed: '..awards.spawners_killed.player..' ('..awards.spawners_killed.value..')\\n'
-            .. 'Most worms killed: '..awards.worms_killed.player..' ('..awards.worms_killed.value..')\\n'
-            .. 'Most deaths: '..awards.player_deaths.player..' ('..awards.player_deaths.value..')\\n'
-            .. 'Most items crafted: '..awards.entities_crafted.player..' ('..awards.entities_crafted.value..')\\n'
-            .. 'Most entities built: '..awards.entities_built.player..' ('..awards.entities_built.value..')\\n'
-            .. 'Most time played: '..awards.time_played.player..' ('..Core.format_time(awards.time_played.value)..')\\n'
-            .. 'Furthest walked: '..awards.distance_walked.player..' ('..math.floor(awards.distance_walked.value)..')\\n'
-            .. 'Most coins earned: '..awards.coins_earned.player..' ('..awards.coins_earned.value..')\\n'
-            .. 'Seafood lover: '..awards.fish_eaten.player..' ('..awards.fish_eaten.value..' fish eaten)\\n'
-            )
+            -- do the individual awards
+            .. 'Most kills overall: '..get_top_players(players_as_array, "total_kills")..'\\n'
+            .. 'Most biters/spitters killed: '..get_top_players(players_as_array, "units_killed")..'\\n'
+            .. 'Most spawners killed: '..get_top_players(players_as_array, "spawners_killed")..')\\n'
+            .. 'Most worms killed: '..get_top_players(players_as_array, "worms_killed")..')\\n'
+            .. 'Most deaths: '..get_top_players(players_as_array, "player_deaths")..')\\n'
+            .. 'Most items crafted: '..get_top_players(players_as_array, "entities_crafted")..')\\n'
+            .. 'Most entities built: '..get_top_players(players_as_array, "entities_built")..')\\n'
+            .. 'Most time played: '..get_top_players(players_as_array, "time_played")..')\\n'
+            .. 'Furthest walked: '..get_top_players(players_as_array, "distance_walked")..')\\n'
+            .. 'Most coins earned: '..get_top_players(players_as_array, "coins_earned")..')\\n'
+            .. 'Seafood lover: '..get_top_players(players_as_array, "fish_eaten")..'\\n'
         else
-             Server.to_discord_named_embed(map_promotion_channel, 'Crash Site map failed!\\n\\n'
+            statistics_message = 'Crash Site map failed!\\n\\n'
             .. 'Statistics:\\n'
             .. 'Map time: '..time_string..'\\n'
             .. 'Total kills: '..statistics.biters_killed..'\\n'
             .. 'Biters remaining on map: '..statistics.enemy_entities..'\\n'
             .. 'Players: '..statistics.total_players..'\\n'
-            )
         end
+
+        Server.to_discord_named_embed(map_promotion_channel, statistics_message)
+        Server.to_discord_named_embed(crash_site_channel, statistics_message)
 
         local start_game_data = Restart.get_start_game_data()
         local new_map_name = start_game_data.name

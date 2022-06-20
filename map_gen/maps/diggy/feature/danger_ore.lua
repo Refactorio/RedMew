@@ -2,8 +2,11 @@
 local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
+local ScenarioInfo = require 'features.gui.info'
 
-return function(allowed_entities, message)
+local DangerOre = {}
+
+local function banned_entities(allowed_entities)
     --- Items explicitly allowed on ores
     RestrictEntities.add_allowed(allowed_entities)
 
@@ -17,7 +20,7 @@ return function(allowed_entities, message)
                 if left_top.x == right_bottom.x and left_top.y == right_bottom.y then
                     return true
                 end
-                local count = entity.surface.count_entities_filtered {area = area, type = 'resource', limit = 1}
+                local count = entity.surface.count_entities_filtered {area = area, name = {'coal', 'copper-ore', 'iron-ore', 'stone', 'uranium-ore'}, limit = 1}
                 if count == 0 then
                     return true
                 end
@@ -29,30 +32,21 @@ return function(allowed_entities, message)
     local function on_destroy(event)
         local p = event.player
         if p and p.valid then
-            if message then
-                p.print(message)
-                return
-            end
-            local items = {}
-            local len = 0
-            local entities = RestrictEntities.get_allowed()
-            for k in pairs(entities) do
-                local entity = game.entity_prototypes[k]
-                for _, v in pairs(entity.items_to_place_this) do
-                    if not items[v.name] then --- Avoid duplication for straight-rail and curved-rail, which both use rail
-                        items[v.name] = v
-                        len = len + 1
-                    end
-                end
-            end
-            local str = "You cannot build that on top of ores, only "
-            local strs = {};
-            for k in pairs(items) do
-                table.insert(strs, "[img=item." .. k .."]")
-            end
-            p.print(str..table.concat(strs, " "))
+            p.print('You cannot build that on top of ores, only belts, mining drills, and power poles are allowed.')
         end
     end
 
     Event.add(RestrictEntities.events.on_restricted_entity_destroyed, on_destroy)
 end
+
+function DangerOre.register (config)
+	local allowed_entities = config.allowed_entities
+	banned_entities(allowed_entities)
+	ScenarioInfo.add_map_extra_info([[Danger! Ores are generally unstable to build upon.
+Only the following entities have been strengthened for building upon the ores:
+ [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron]
+ [item=stone-wall][item=small-lamp][item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=pipe] [item=pipe-to-ground]
+]])
+end
+
+return DangerOre

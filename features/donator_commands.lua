@@ -3,8 +3,20 @@ local Game = require 'utils.game'
 local Command = require 'utils.command'
 local Donator = require 'features.donator'
 local Color = require 'resources.color_presets'
+local Global = require 'utils.global'
 
 local format = string.format
+local config = global.config.donator.donator_perks
+
+
+Global.register(
+    {
+        config = config
+    },
+    function()
+        config = global.config.donator.donator_perks
+    end
+)
 
 -- Local functions
 
@@ -73,6 +85,26 @@ local function donator_death_message_command(args, player)
     command_path_decider(args, player, table_name)
 end
 
+-- Prints a list of currently active perks to the player
+local function print_perks(_, player)
+    local print = print
+    if player and player.valid then -- allows us to call print_perks from the server console OR in-game
+        print = player.print
+    end
+
+    if not config.enabled then
+        print("Donator perks have been disabled for this map.")
+        return
+    end
+
+    local donator_tiers = Donator.get_donator_perks_table()
+
+    print("Currently active team perks: +"..(donator_tiers[2].count*10).."% hand mining speed (max +"..(donator_tiers[2].max*10).."%), +"
+        ..(donator_tiers[3].count*10).."% hand crafting speed (max +"..(donator_tiers[3].max*10).."%), +"
+        ..(donator_tiers[4].count*10).."% run speed  (max +"..(donator_tiers[4].max*10).."%) and +"
+        ..(donator_tiers[5].count*5).." inventory slots  (max +"..(donator_tiers[5].max*5).."%).")
+end
+
 -- Commands
 
 Command.add(
@@ -97,4 +129,12 @@ Command.add(
         donator_only = true
     },
     donator_death_message_command
+)
+
+Command.add(
+    'perks',
+    {
+        description = {'command_description.perks'},
+    },
+    print_perks
 )

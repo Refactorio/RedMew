@@ -29,6 +29,9 @@ local player_total_kills_name = 'player-total-kills'
 local player_turrets_killed_name = 'player-turrets-killed'
 local player_entities_built_name = 'player_entities_built'
 local player_fish_eaten_name = 'player_fish_eaten'
+local player_resources_hand_mined_name = 'player_resources_hand_mined'
+local resources_hand_mined_name = 'resources_hand_mined'
+local resources_exhausted_name = 'resources_exhausted'
 
 ScoreTracker.register(rocks_smashed_name, {'player_stats.rocks_smashed'}, '[img=entity.rock-huge]')
 ScoreTracker.register(trees_cut_down_name, {'player_stats.trees_cut_down'}, '[img=entity.tree-02]')
@@ -51,6 +54,9 @@ ScoreTracker.register(player_turrets_killed_name, {'player_stats.player_turrets_
 ScoreTracker.register(player_total_kills_name, {'player_stats.player_total_kills'})
 ScoreTracker.register(player_entities_built_name, {'player_stats.player_entities_built'})
 ScoreTracker.register(player_fish_eaten_name, {'player_stats.player_fish_eaten'})
+ScoreTracker.register(player_resources_hand_mined_name, {'player_stats.player_resources_hand_mined'})
+ScoreTracker.register(resources_hand_mined_name, {'player_stats.resources_hand_mined'})
+ScoreTracker.register(resources_exhausted_name, {'player_stats.resources_exhausted'})
 
 local train_kill_causes = {
     ['locomotive'] = true,
@@ -151,6 +157,10 @@ local function pre_player_mined_item(event)
         change_for_global(rocks_smashed_name, 1)
         return
     end
+    if entity.type == 'resource' then
+        change_for_global(resources_hand_mined_name, 1)
+        change_for_player(event.player_index, player_resources_hand_mined_name, 1)
+    end
     if entity.type == 'tree' then
         change_for_global(trees_cut_down_name, 1)
         return
@@ -161,6 +171,13 @@ local function pre_player_mined_item(event)
         if coin_count then
             change_for_player(event.player_index, coins_earned_name, coin_count)
         end
+    end
+end
+
+local function resource_depleted(event)
+    local entity = event.entity
+    if entity.amount == 0 then
+        change_for_global(resources_exhausted_name, 1)
     end
 end
 
@@ -333,6 +350,7 @@ Event.add(defines.events.on_robot_built_entity, robot_built_entity)
 Event.add(defines.events.on_entity_died, entity_died)
 Event.add(defines.events.on_rocket_launched, rocket_launched)
 Event.add(defines.events.on_player_used_capsule, capsule_used)
+Event.add(defines.events.on_resource_depleted, resource_depleted)
 
 Event.on_nth_tick(62, tick)
 
@@ -357,7 +375,10 @@ local Public = {
     player_total_kills_name = player_total_kills_name,
     player_turrets_killed_name = player_turrets_killed_name,
     player_entities_built_name = player_entities_built_name,
-    player_fish_eaten_name = player_fish_eaten_name
+    player_fish_eaten_name = player_fish_eaten_name,
+    player_resources_hand_mined_name = player_resources_hand_mined_name,
+    resources_hand_mined_name = resources_hand_mined_name,
+    resources_exhausted_name = resources_exhausted_name
 }
 
 -- Returns a dictionary of cause_name -> count
