@@ -18,7 +18,7 @@ local config = {
     }
 }
 
-local Scenario = require 'map_gen.maps.crash_site.scenario_no_bots'
+local Scenario = require 'map_gen.maps.crash_site.scenario'
 ScenarioInfo.set_map_name('Crashsite - No Bots')
 ScenarioInfo.set_map_description('Capture outposts and defend against the biters.')
 ScenarioInfo.add_map_extra_info(
@@ -32,6 +32,10 @@ ScenarioInfo.add_map_extra_info(
     - Construction and logistic bots are disabled on this map.
     ]]
 )
+
+local active_outpost_types = Scenario.all_outpost_types_active
+active_outpost_types['mini_t1_robotics_factory'] = false
+config.active_outpost_types = active_outpost_types
 
 Event.on_init(function()
     game.forces.player.technologies['construction-robotics'].enabled = false

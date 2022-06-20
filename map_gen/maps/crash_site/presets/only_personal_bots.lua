@@ -18,7 +18,7 @@ local config = {
     }
 }
 
-local Scenario = require 'map_gen.maps.crash_site.scenario_no_bots'
+local Scenario = require 'map_gen.maps.crash_site.scenario'
 ScenarioInfo.set_map_name('Crashsite - Only Personal Construction Bots')
 ScenarioInfo.set_map_description('Capture outposts and defend against the biters.')
 ScenarioInfo.add_map_extra_info(
@@ -34,6 +34,10 @@ ScenarioInfo.add_map_extra_info(
     - Roboport, passive provider chest and storage chest do NOT unlock.
     ]]
 )
+
+local active_outpost_types = Scenario.all_outpost_types_active
+active_outpost_types['mini_t1_robotics_factory'] = false
+config.active_outpost_types = active_outpost_types
 
 Event.on_init(function()
   game.forces.player.technologies['logistic-robotics'].enabled = false
