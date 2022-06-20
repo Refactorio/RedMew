@@ -985,6 +985,6 @@ function Public.init(config)
     end
 end
 
-Public.all_outpost_types_active = all_outpost_types_active() 
+Public.all_outpost_types_active = all_outpost_types_active()
 
 return Public
