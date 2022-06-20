@@ -58,73 +58,95 @@ RedmewConfig.dump_offline_inventories = {
 local outpost_seed = nil --91000
 local ore_seed = nil --92000
 
-local small_iron_plate_factory = require 'map_gen.maps.crash_site.outpost_data.small_iron_plate_factory'
-local medium_iron_plate_factory = require 'map_gen.maps.crash_site.outpost_data.medium_iron_plate_factory'
-local big_iron_plate_factory = require 'map_gen.maps.crash_site.outpost_data.big_iron_plate_factory'
-
-local small_copper_plate_factory = require 'map_gen.maps.crash_site.outpost_data.small_copper_plate_factory'
-local medium_copper_plate_factory = require 'map_gen.maps.crash_site.outpost_data.medium_copper_plate_factory'
-local big_copper_plate_factory = require 'map_gen.maps.crash_site.outpost_data.big_copper_plate_factory'
-
-local small_stone_factory = require 'map_gen.maps.crash_site.outpost_data.small_stone_factory'
-local medium_stone_factory = require 'map_gen.maps.crash_site.outpost_data.medium_stone_factory'
-local big_stone_factory = require 'map_gen.maps.crash_site.outpost_data.big_stone_factory'
-
-local small_gear_factory = require 'map_gen.maps.crash_site.outpost_data.small_gear_factory'
-local medium_gear_factory = require 'map_gen.maps.crash_site.outpost_data.medium_gear_factory'
-local big_gear_factory = require 'map_gen.maps.crash_site.outpost_data.big_gear_factory'
-
-local small_circuit_factory = require 'map_gen.maps.crash_site.outpost_data.small_circuit_factory'
-local medium_circuit_factory = require 'map_gen.maps.crash_site.outpost_data.medium_circuit_factory'
-local big_circuit_factory = require 'map_gen.maps.crash_site.outpost_data.big_circuit_factory'
-
-local small_ammo_factory = require 'map_gen.maps.crash_site.outpost_data.small_ammo_factory'
-local medium_ammo_factory = require 'map_gen.maps.crash_site.outpost_data.medium_ammo_factory'
-local big_ammo_factory = require 'map_gen.maps.crash_site.outpost_data.big_ammo_factory'
-
-local small_weapon_factory = require 'map_gen.maps.crash_site.outpost_data.small_weapon_factory'
-local medium_weapon_factory = require 'map_gen.maps.crash_site.outpost_data.medium_weapon_factory'
-local big_weapon_factory = require 'map_gen.maps.crash_site.outpost_data.big_weapon_factory'
-
-local small_science_factory = require 'map_gen.maps.crash_site.outpost_data.small_science_factory'
-local medium_science_factory = require 'map_gen.maps.crash_site.outpost_data.medium_science_factory'
-local big_science_factory = require 'map_gen.maps.crash_site.outpost_data.big_science_factory'
-
-local small_oil_refinery = require 'map_gen.maps.crash_site.outpost_data.small_oil_refinery'
-local medium_oil_refinery = require 'map_gen.maps.crash_site.outpost_data.medium_oil_refinery'
-local big_oil_refinery = require 'map_gen.maps.crash_site.outpost_data.big_oil_refinery'
-
-local small_chemical_factory = require 'map_gen.maps.crash_site.outpost_data.small_chemical_factory'
-local medium_chemical_factory = require 'map_gen.maps.crash_site.outpost_data.medium_chemical_factory'
-local big_chemical_factory = require 'map_gen.maps.crash_site.outpost_data.big_chemical_factory'
-
-local small_power_factory = require 'map_gen.maps.crash_site.outpost_data.small_power_factory'
-local medium_power_factory = require 'map_gen.maps.crash_site.outpost_data.medium_power_factory'
-local big_power_factory = require 'map_gen.maps.crash_site.outpost_data.big_power_factory'
-
 local thin_walls = require 'map_gen.maps.crash_site.outpost_data.thin_walls'
 
-local mini_t1_ammo_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t1_ammo_factory'
-local mini_t2_ammo_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t2_ammo_factory'
+local outpost_paths = {}
+outpost_paths['small_iron_plate_factory'] = require 'map_gen.maps.crash_site.outpost_data.small_iron_plate_factory'
+outpost_paths['medium_iron_plate_factory'] = require 'map_gen.maps.crash_site.outpost_data.medium_iron_plate_factory'
+outpost_paths['big_iron_plate_factory'] = require 'map_gen.maps.crash_site.outpost_data.big_iron_plate_factory'
 
-local mini_t1_weapon_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t1_weapon_factory'
-local mini_t2_weapon_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t2_weapon_factory'
+outpost_paths['small_copper_plate_factory'] = require 'map_gen.maps.crash_site.outpost_data.small_copper_plate_factory'
+outpost_paths['medium_copper_plate_factory'] = require 'map_gen.maps.crash_site.outpost_data.medium_copper_plate_factory'
+outpost_paths['big_copper_plate_factory'] = require 'map_gen.maps.crash_site.outpost_data.big_copper_plate_factory'
 
-local mini_t2_logistics_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t2_logistics_factory'
-local mini_t3_logistics_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t3_logistics_factory'
+outpost_paths['small_stone_factory'] = require 'map_gen.maps.crash_site.outpost_data.small_stone_factory'
+outpost_paths['medium_stone_factory'] = require 'map_gen.maps.crash_site.outpost_data.medium_stone_factory'
+outpost_paths['big_stone_factory'] = require 'map_gen.maps.crash_site.outpost_data.big_stone_factory'
 
-local mini_t1_science_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t1_science_factory'
-local mini_t2_science_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t2_science_factory'
-local mini_t3_science_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t3_science_factory'
+outpost_paths['small_gear_factory'] = require 'map_gen.maps.crash_site.outpost_data.small_gear_factory'
+outpost_paths['medium_gear_factory'] = require 'map_gen.maps.crash_site.outpost_data.medium_gear_factory'
+outpost_paths['big_gear_factory'] = require 'map_gen.maps.crash_site.outpost_data.big_gear_factory'
 
-local mini_t1_module_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t1_module_factory'
-local mini_t2_module_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t2_module_factory'
-local mini_t3_module_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t3_module_factory'
+outpost_paths['small_circuit_factory'] = require 'map_gen.maps.crash_site.outpost_data.small_circuit_factory'
+outpost_paths['medium_circuit_factory'] = require 'map_gen.maps.crash_site.outpost_data.medium_circuit_factory'
+outpost_paths['big_circuit_factory'] = require 'map_gen.maps.crash_site.outpost_data.big_circuit_factory'
 
-local mini_t1_robotics_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t1_robotics_factory'
-local mini_t1_production_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t1_production_factory'
-local mini_t2_energy_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t2_energy_factory'
-local mini_t1_train_factory = require 'map_gen.maps.crash_site.outpost_data.mini_t1_train_factory'
+outpost_paths['small_ammo_factory'] = require 'map_gen.maps.crash_site.outpost_data.small_ammo_factory'
+outpost_paths['medium_ammo_factory'] = require 'map_gen.maps.crash_site.outpost_data.medium_ammo_factory'
+outpost_paths['big_ammo_factory'] = require 'map_gen.maps.crash_site.outpost_data.big_ammo_factory'
+
+outpost_paths['small_weapon_factory'] = require 'map_gen.maps.crash_site.outpost_data.small_weapon_factory'
+outpost_paths['medium_weapon_factory'] = require 'map_gen.maps.crash_site.outpost_data.medium_weapon_factory'
+outpost_paths['big_weapon_factory'] = require 'map_gen.maps.crash_site.outpost_data.big_weapon_factory'
+
+outpost_paths['small_science_factory'] = require 'map_gen.maps.crash_site.outpost_data.small_science_factory'
+outpost_paths['medium_science_factory'] = require 'map_gen.maps.crash_site.outpost_data.medium_science_factory'
+outpost_paths['big_science_factory'] = require 'map_gen.maps.crash_site.outpost_data.big_science_factory'
+
+outpost_paths['small_oil_refinery'] = require 'map_gen.maps.crash_site.outpost_data.small_oil_refinery'
+outpost_paths['medium_oil_refinery'] = require 'map_gen.maps.crash_site.outpost_data.medium_oil_refinery'
+outpost_paths['big_oil_refinery'] = require 'map_gen.maps.crash_site.outpost_data.big_oil_refinery'
+
+outpost_paths['small_chemical_factory'] = require 'map_gen.maps.crash_site.outpost_data.small_chemical_factory'
+outpost_paths['medium_chemical_factory'] = require 'map_gen.maps.crash_site.outpost_data.medium_chemical_factory'
+outpost_paths['big_chemical_factory'] = require 'map_gen.maps.crash_site.outpost_data.big_chemical_factory'
+
+outpost_paths['small_power_factory'] = require 'map_gen.maps.crash_site.outpost_data.small_power_factory'
+outpost_paths['medium_power_factory'] = require 'map_gen.maps.crash_site.outpost_data.medium_power_factory'
+outpost_paths['big_power_factory'] = require 'map_gen.maps.crash_site.outpost_data.big_power_factory'
+
+outpost_paths['mini_t1_ammo_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t1_ammo_factory'
+outpost_paths['mini_t2_ammo_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t2_ammo_factory'
+
+outpost_paths['mini_t1_weapon_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t1_weapon_factory'
+outpost_paths['mini_t2_weapon_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t2_weapon_factory'
+
+outpost_paths['mini_t2_logistics_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t2_logistics_factory'
+outpost_paths['mini_t3_logistics_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t3_logistics_factory'
+
+outpost_paths['mini_t1_science_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t1_science_factory'
+outpost_paths['mini_t2_science_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t2_science_factory'
+outpost_paths['mini_t3_science_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t3_science_factory'
+
+outpost_paths['mini_t1_module_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t1_module_factory'
+outpost_paths['mini_t2_module_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t2_module_factory'
+outpost_paths['mini_t3_module_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t3_module_factory'
+
+outpost_paths['mini_t1_robotics_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t1_robotics_factory'
+outpost_paths['mini_t1_production_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t1_production_factory'
+outpost_paths['mini_t2_energy_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t2_energy_factory'
+outpost_paths['mini_t1_train_factory'] = require 'map_gen.maps.crash_site.outpost_data.mini_t1_train_factory'
+
+local all_outpost_types_active = function()
+    local active_outpost_types = {}
+    for k , _ in pairs(outpost_paths) do
+        active_outpost_types[k] = true
+    end
+    return active_outpost_types
+end
+
+local function stage_builder(stage_list, active_outpost_types)
+    local stage = {}
+    local j = 1
+    for i = 1, #stage_list do
+        local k = stage_list[i]
+        if active_outpost_types[k] then
+            stage[j] = outpost_paths[k]
+            j = j + 1
+        end
+    end
+    return stage
+end
 
 local spawn_callback_callback =
     Token.register(
@@ -208,12 +230,15 @@ local function init(config)
     local mini_grid_number_of_blocks = config.mini_grid_number_of_blocks or 21
     local mini_middle = math.ceil(mini_grid_number_of_blocks / 2)
 
-    local stage1a = {
-        small_iron_plate_factory,
-        small_gear_factory,
-        small_copper_plate_factory,
-        small_stone_factory
+    local active_outpost_types = config.active_outpost_types or all_outpost_types_active()
+
+    local stage1a_list = config.stage1a_list or {
+        'small_iron_plate_factory',
+        'small_gear_factory',
+        'small_copper_plate_factory',
+        'small_stone_factory'
     }
+    local stage1a = stage_builder(stage1a_list, active_outpost_types)
 
     local stage1a_pos = {
         {middle - 1, middle},
@@ -222,13 +247,14 @@ local function init(config)
         {middle + 1, middle}
     }
 
-    local stage1b = {
-        small_circuit_factory,
-        small_science_factory,
-        small_oil_refinery,
-        small_chemical_factory,
-        small_power_factory
+    local stage1b_list = config.stage1b_list or  {
+        'small_circuit_factory',
+        'small_science_factory',
+        'small_oil_refinery',
+        'small_chemical_factory',
+        'small_power_factory'
     }
+    local stage1b = stage_builder(stage1b_list, active_outpost_types)
 
     local stage1b_pos = {
         {middle - 1, middle - 1},
@@ -241,21 +267,22 @@ local function init(config)
         {middle + 2, middle}
     }
 
-    local stage2 = {
-        medium_iron_plate_factory,
-        medium_copper_plate_factory,
-        medium_stone_factory,
-        medium_gear_factory,
-        medium_circuit_factory,
-        small_ammo_factory,
-        small_ammo_factory,
-        small_weapon_factory,
-        small_science_factory,
-        medium_science_factory,
-        medium_oil_refinery,
-        medium_chemical_factory,
-        medium_power_factory
+    local stage2_list = config.stage2_list or {
+        'medium_iron_plate_factory',
+        'medium_copper_plate_factory',
+        'medium_stone_factory',
+        'medium_gear_factory',
+        'medium_circuit_factory',
+        'small_ammo_factory',
+        'small_ammo_factory',
+        'small_weapon_factory',
+        'small_science_factory',
+        'medium_science_factory',
+        'medium_oil_refinery',
+        'medium_chemical_factory',
+        'medium_power_factory'
     }
+    local stage2 = stage_builder(stage2_list, active_outpost_types)
 
     local stage2_pos = {
         {middle - 3, middle},
@@ -276,77 +303,82 @@ local function init(config)
         {middle + 2, middle + 2}
     }
 
-    local stage3 = {
-        big_iron_plate_factory,
-        big_copper_plate_factory,
-        big_stone_factory,
-        big_gear_factory,
-        big_circuit_factory,
-        medium_ammo_factory,
-        medium_ammo_factory,
-        medium_weapon_factory,
-        medium_science_factory,
-        big_science_factory,
-        big_oil_refinery,
-        big_chemical_factory,
-        big_power_factory
+    local stage3_list = config.stage3_list or  {
+        'big_iron_plate_factory',
+        'big_copper_plate_factory',
+        'big_stone_factory',
+        'big_gear_factory',
+        'big_circuit_factory',
+        'medium_ammo_factory',
+        'medium_ammo_factory',
+        'medium_weapon_factory',
+        'medium_science_factory',
+        'big_science_factory',
+        'big_oil_refinery',
+        'big_chemical_factory',
+        'big_power_factory'
     }
+    local stage3 = stage_builder(stage3_list, active_outpost_types)
 
-    local stage4 = {
-        big_iron_plate_factory,
-        big_copper_plate_factory,
-        big_gear_factory,
-        big_circuit_factory,
-        big_ammo_factory,
-        big_ammo_factory,
-        big_ammo_factory,
-        big_weapon_factory,
-        big_weapon_factory,
-        big_weapon_factory,
-        big_science_factory,
-        big_oil_refinery,
-        big_chemical_factory
+    local stage4_list = config.stage4_list or {
+        'big_iron_plate_factory',
+        'big_copper_plate_factory',
+        'big_gear_factory',
+        'big_circuit_factory',
+        'big_ammo_factory',
+        'big_ammo_factory',
+        'big_ammo_factory',
+        'big_weapon_factory',
+        'big_weapon_factory',
+        'big_weapon_factory',
+        'big_science_factory',
+        'big_oil_refinery',
+        'big_chemical_factory'
     }
+    local stage4 = stage_builder(stage4_list, active_outpost_types)
 
-    local mini1 = {
-        mini_t1_ammo_factory,
-        mini_t1_ammo_factory,
-        mini_t1_weapon_factory,
-        mini_t1_weapon_factory,
-        mini_t2_logistics_factory,
-        mini_t2_logistics_factory,
-        mini_t1_science_factory,
-        mini_t1_science_factory,
-        mini_t1_module_factory,
-        mini_t1_production_factory,
-        mini_t2_energy_factory,
-        mini_t1_train_factory
+    local mini1_list = config.mini1_list or {
+        'mini_t1_ammo_factory',
+        'mini_t1_ammo_factory',
+        'mini_t1_weapon_factory',
+        'mini_t1_weapon_factory',
+        'mini_t2_logistics_factory',
+        'mini_t2_logistics_factory',
+        'mini_t1_science_factory',
+        'mini_t1_science_factory',
+        'mini_t1_module_factory',
+        'mini_t1_production_factory',
+        'mini_t2_energy_factory',
+        'mini_t1_train_factory'
     }
+    local mini1 = stage_builder(mini1_list, active_outpost_types)
 
-    local mini2 = {
-        mini_t2_ammo_factory,
-        mini_t2_ammo_factory,
-        mini_t2_weapon_factory,
-        mini_t2_weapon_factory,
-        mini_t3_logistics_factory,
-        mini_t3_logistics_factory,
-        mini_t2_science_factory,
-        mini_t2_science_factory,
-        mini_t2_module_factory,
-        mini_t1_robotics_factory,
-        mini_t2_energy_factory,
-        mini_t1_train_factory
+    local mini2_list = config.mini2_list or {
+        'mini_t2_ammo_factory',
+        'mini_t2_ammo_factory',
+        'mini_t2_weapon_factory',
+        'mini_t2_weapon_factory',
+        'mini_t3_logistics_factory',
+        'mini_t3_logistics_factory',
+        'mini_t2_science_factory',
+        'mini_t2_science_factory',
+        'mini_t2_module_factory',
+        'mini_t1_robotics_factory',
+        'mini_t2_energy_factory',
+        'mini_t1_train_factory'
     }
+    local mini2 = stage_builder(mini2_list, active_outpost_types)
 
-    local mini3 = {
-        mini_t2_ammo_factory,
-        mini_t2_ammo_factory,
-        mini_t2_weapon_factory,
-        mini_t2_weapon_factory,
-        mini_t3_science_factory,
-        mini_t3_module_factory,
-        mini_t1_robotics_factory
+    local mini3_list = config.mini3_list or {
+        'mini_t2_ammo_factory',
+        'mini_t2_ammo_factory',
+        'mini_t2_weapon_factory',
+        'mini_t2_weapon_factory',
+        'mini_t3_science_factory',
+        'mini_t3_module_factory',
+        'mini_t1_robotics_factory'
     }
+    local mini3 = stage_builder(mini3_list, active_outpost_types)
 
     local function fast_remove(tbl, index)
         local count = #tbl
@@ -359,7 +391,7 @@ local function init(config)
         tbl[count] = nil
     end
 
-    local function itertor_builder(arr, random)
+    local function iterator_builder(arr, random)
         local copy = {}
 
         return function()
@@ -378,16 +410,16 @@ local function init(config)
         end
     end
 
-    local stage1a_iter = itertor_builder(stage1a, outpost_random)
-    local stage1b_iter = itertor_builder(stage1b, outpost_random)
+    local stage1a_iter = iterator_builder(stage1a, outpost_random)
+    local stage1b_iter = iterator_builder(stage1b, outpost_random)
 
-    local stage2_iter = itertor_builder(stage2, outpost_random)
-    local stage3_iter = itertor_builder(stage3, outpost_random)
-    local stage4_iter = itertor_builder(stage4, outpost_random)
+    local stage2_iter = iterator_builder(stage2, outpost_random)
+    local stage3_iter = iterator_builder(stage3, outpost_random)
+    local stage4_iter = iterator_builder(stage4, outpost_random)
 
-    local mini1_iter = itertor_builder(mini1, outpost_random)
-    local mini2_iter = itertor_builder(mini2, outpost_random)
-    local mini3_iter = itertor_builder(mini3, outpost_random)
+    local mini1_iter = iterator_builder(mini1, outpost_random)
+    local mini2_iter = iterator_builder(mini2, outpost_random)
+    local mini3_iter = iterator_builder(mini3, outpost_random)
 
     local start_outpost = outpost_builder:do_outpost(thin_walls, on_init)
     start_outpost = b.change_tile(start_outpost, false, true)
@@ -952,5 +984,7 @@ function Public.init(config)
         return map(x, y, world)
     end
 end
+
+Public.all_outpost_types_active = all_outpost_types_active() 
 
 return Public
