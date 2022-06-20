@@ -393,6 +393,11 @@ local function init(config)
 
     local function iterator_builder(arr, random)
         local copy = {}
+        if #arr == 0 then
+            return function()
+                return nil
+            end
+        end
 
         return function()
             if #copy == 0 then
