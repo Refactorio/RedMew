@@ -1,0 +1,1 @@
+return require 'map_gen.maps.crash_site.presets.steam_all_the_way'
