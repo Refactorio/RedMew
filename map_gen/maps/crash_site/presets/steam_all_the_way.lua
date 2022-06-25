@@ -44,7 +44,6 @@ config.active_outpost_types = active_outpost_types
 Event.on_init(function()
   game.forces.player.technologies['nuclear-power'].enabled = false
   game.forces.player.technologies['nuclear-fuel-reprocessing'].enabled = false
-  game.forces.player.technologies['kovarex-enrichment-process'].enabled = false
 end)
 
 Event.add(defines.events.on_research_finished,
