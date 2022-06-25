@@ -37,6 +37,7 @@ ScenarioInfo.add_map_extra_info(
 Event.on_init(function()
   game.forces.player.technologies['laser'].enabled = false
   game.forces.player.technologies['personal-laser-defense-equipment'].enabled = false
+  game.forces.player.technologies['discharge-defense-equipment'].enabled = false
   game.forces.player.technologies['laser-turret'].enabled = false
   game.forces.player.technologies['laser-shooting-speed-1'].enabled = false
   game.forces.player.technologies['laser-shooting-speed-2'].enabled = false
