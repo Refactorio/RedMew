@@ -270,7 +270,7 @@ function Public.control(config)
         local coords = {}
         local spy_cost = 100
 
-        for m in string.gmatch(location_string, "(%d*%.?%d+)") do -- Assuming the surface name isn't a valid number.
+        for m in string.gmatch(location_string, "(%-?%d*%.?%d+)") do -- Assuming the surface name isn't a valid number.
             table.insert(coords, tonumber(m))
         end
         -- Do some checks on the coordinates passed in the argument
@@ -398,7 +398,7 @@ function Public.control(config)
         local strikeCost = count * 4 -- the number of poison-capsules required in the chest as payment
 
         -- parse GPS coordinates from map ping
-        for m in string.gmatch(location_string, "(%d*%.?%d+)") do -- Assuming the surface name isn't a valid number.
+        for m in string.gmatch(location_string, "(%-?%d*%.?%d+)") do -- Assuming the surface name isn't a valid number.
             table.insert(coords, tonumber(m))
         end
 
@@ -491,7 +491,7 @@ function Public.control(config)
         local strikeCost = count * 4
 
         -- parse GPS coordinates from map ping
-        for m in string.gmatch(location_string, "(%d*%.?%d+)") do -- Assuming the surface name isn't a valid number.
+        for m in string.gmatch(location_string, "(%-?%d*%.?%d+)") do -- Assuming the surface name isn't a valid number.
             table.insert(coords, tonumber(m))
         end
 
