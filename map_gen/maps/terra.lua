@@ -1,3 +1,5 @@
+--Werkbestand
+
 local b = require "map_gen.shared.builders"
 local Event = require 'utils.event'
 local ScenarioInfo = require 'features.gui.info'
@@ -6,7 +8,7 @@ local gear = require 'map_gen.data.presets.gear_96by96'
 local Random = require 'map_gen.shared.random'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
-
+local ScenarioInfo = require 'features.gui.info'
 --Map info
 ScenarioInfo.set_map_name('Terra')
 ScenarioInfo.set_map_description('The latest experiments has resulted in infinite gears for infinite factory expansion.')
@@ -18,7 +20,6 @@ You start off on familiar grounds, but you must obtain robot technology
 in order to explore beyond the grid.
 
     [item=rocket-silo] Regular rocket launch
-    [item=personal-roboport-equipment] Lazy starter equipment
     [entity=small-biter] Biter activity high
     [item=landfill] Landfill disabled
 
@@ -68,6 +69,7 @@ local botland = b.any({shape5, shape1, shape2, shape3, shape4})
 botland = b.scale(botland, 2.2,2.2)
 botland = b.change_tile(botland, true, 'landfill')
 botland = b.remove_map_gen_enemies(botland)
+
 local mappattern = {
     {corner, map1},
     {map2,botland}
@@ -252,7 +254,6 @@ small_patches = do_patches(small_patches, 128)
 small_patches = b.grid_pattern_full_overlap(small_patches, p_cols, p_rows, 128, 128)
 
 map = b.apply_entities(map, {big_patches, medium_patches, small_patches})
-
 local start_stone =
     b.resource(
     gear_medium,
@@ -293,15 +294,9 @@ map = b.if_else(centre, map)
         --Starting equipment
 local player_create = global.config.player_create
 player_create.starting_items = {
-    {name = 'modular-armor', count = 1},
-    {name = 'solar-panel-equipment', count = 7},
-    {name = 'battery-mk2-equipment', count = 1},
-    {name = 'personal-roboport-equipment', count = 1},
-    {name = 'construction-robot', count = 10},
-    {name = 'exoskeleton-equipment', count = 1},
-    {name = 'iron-gear-wheel', count = 8},
     {name = 'iron-plate', count = 40},
-    {name = 'copper-plate', count = 20}
+    {name = 'copper-plate', count = 20},
+    {name = 'coal', count = 5}
 }
 player_create.join_messages = {
             'Welcome to this map created by the RedMew community. You can join the discord at: redmew.com/discord',
