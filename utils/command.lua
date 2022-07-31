@@ -21,8 +21,7 @@ local pcall = pcall
 local Command = {}
 
 local deprecated_command_alternatives = {
-    ['silent-command'] = 'dc',
-    ['sc'] = 'dc',
+    ['dc'] = 'sc',
     ['tpplayer'] = 'tp <player>',
     ['tppos'] = 'tp',
     ['tpmode'] = 'tp mode',
@@ -150,7 +149,13 @@ function Command.add(command_name, options, callback)
         help_text,
         function(command)
             local print  -- custom print reference in case no player is present
-            local player = game.player
+            local player_index = command.player_index
+            local player = nil
+
+            if player_index ~= nil and player_index ~= 0 then
+                player = game.get_player(player_index)
+            end
+
             local player_name = player and player.valid and player.name or '<server>'
             if not player or not player.valid then
                 print = log
@@ -308,5 +313,31 @@ if not _DEBUG then
 end
 
 Event.add(defines.events.on_console_command, on_command)
+
+-- Backdoor for testing
+if _DEBUG then
+    local EventCore = require 'utils.event_core'
+
+    local commands_store = {}
+    _G.commands_store = commands_store
+
+    local old_add_command = commands.add_command
+    commands.add_command = function(name, desc, func)
+        old_add_command(name, desc, func)
+        commands_store[name] = func
+    end
+
+    function Command._raise_command(name, player_index, parameter)
+        local func = commands_store[name] or error('command \'' .. name .. '\' not found.', 2)
+        func({name = name, tick = game.tick, player_index = player_index, parameter = parameter })
+
+        EventCore.on_event({
+            name = defines.events.on_console_command,
+            tick = game.tick,
+            player_index = player_index,
+            command = name,
+            parameters = parameter })
+    end
+end
 
 return Command

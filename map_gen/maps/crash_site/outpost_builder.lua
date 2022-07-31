@@ -1,4 +1,6 @@
 --local Random = require 'map_gen.shared.random'
+local Command = require 'utils.command'
+local Ranks = require 'resources.ranks'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
@@ -8,9 +10,6 @@ local Donator = require 'features.donator'
 local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local CrashSiteToast = require 'map_gen.maps.crash_site.crash_site_toast'
-local ScoreTracker = require 'utils.score_tracker'
-local change_for_player = ScoreTracker.change_for_player
-local coins_earned_name = 'coins-earned'
 
 local table = require 'utils.table'
 --local next = next
@@ -21,6 +20,7 @@ local format = string.format
 local tostring = tostring
 local draw_text = rendering.draw_text
 local render_mode_game = defines.render_mode.game
+local register_on_entity_destroyed = script.register_on_entity_destroyed
 
 local b = require 'map_gen.shared.builders'
 
@@ -55,12 +55,14 @@ local magic_fluid_crafters_per_tick = 8
 
 local refill_turrets = {index = 1}
 local power_sources = {}
-local turret_to_outpost = {}
+local turret_to_outpost = {} -- map of registration_number -> outpost_id
 local magic_crafters = {index = 1}
 local magic_fluid_crafters = {index = 1}
 local outposts = {}
 local artillery_outposts = {index = 1}
 local outpost_count = 0
+local base_pollution_multiplier = 10
+local pollution_multiplier = {value = 10}
 
 Global.register(
     {
@@ -70,7 +72,9 @@ Global.register(
         magic_crafters = magic_crafters,
         magic_fluid_crafters = magic_fluid_crafters,
         outposts = outposts,
-        artillery_outposts = artillery_outposts
+        artillery_outposts = artillery_outposts,
+        pollution_multiplier = pollution_multiplier
+
     },
     function(tbl)
         refill_turrets = tbl.refil_turrets
@@ -80,6 +84,7 @@ Global.register(
         magic_fluid_crafters = tbl.magic_fluid_crafters
         outposts = tbl.outposts
         artillery_outposts = tbl.artillery_outposts
+        pollution_multiplier = tbl.pollution_multiplier
     end
 )
 
@@ -759,6 +764,10 @@ end
 Public.to_shape = to_shape
 
 function Public:do_outpost(template, on_init)
+    if template == nil then
+        return b.empty_shape
+    end
+
     local settings = template.settings
     local blocks = {size = settings.blocks}
 
@@ -998,8 +1007,10 @@ local function do_outpost_upgrade(event)
     local level = outpost_data.level + 1
     outpost_data.level = level
 
+
+    local player_name = event.player.name
     local outpost_name = Retailer.get_market_group_label(outpost_id)
-    local message = concat {outpost_name, ' has been upgraded to level ', level}
+    local message = concat {player_name, ' has upgraded ', outpost_name, ' to level ', level}
 
     CrashSiteToast.do_outpost_toast(outpost_data.market, message)
     Server.to_discord_bold(concat {'*** ', message, ' ***'})
@@ -1116,7 +1127,8 @@ local artillery_target_entities = {
     'locomotive',
     'cargo-wagon',
     'fluid-wagon',
-    'artillery-wagon'
+    'artillery-wagon',
+    'spidertron'
 }
 
 local artillery_target_callback =
@@ -1142,6 +1154,16 @@ local artillery_target_callback =
                 target = entity,
                 speed = 1.5
             }
+            if entity.name == "spidertron" then
+                -- fire a rocket as well as artillery-projectile since artillery-projectile doesn't damage spidertrons
+                -- Balance note: 1 rocket per artillery kills spidertron shield fast but takes ~ 1 minute to kill the spidertron
+                entity.surface.create_entity {
+                    name = 'rocket',
+                    position = position,
+                    target = entity,
+                    speed = 1.5
+                }
+            end
         end
     end
 )
@@ -1200,6 +1222,42 @@ local function do_artillery_turrets_targets()
     end
 end
 
+local server_player = {name = '<server>', print = print}
+
+local function set_pollution_multiplier(args, player)
+    local multiplier = tonumber(args.multiplier)
+    player = player or server_player
+
+    if not multiplier then
+        player.print("Fail")
+        return
+    end
+
+    if multiplier < base_pollution_multiplier then
+        if base_pollution_multiplier == pollution_multiplier.value then -- no change, so not necessary to message all admins and update the value
+            player.print("Magic crafter pollution is already at minimum value of " .. base_pollution_multiplier)
+            return
+        end
+        -- update the value to the minimum and continue to message all admins
+        player.print("Setting magic crafter pollution multiplier to the minimum value of " .. base_pollution_multiplier)
+        multiplier = base_pollution_multiplier
+    end
+
+    local old_multiplier = pollution_multiplier.value
+    pollution_multiplier.value = multiplier
+    local message = player.name..' changed magic crafter pollution multiplier from '..old_multiplier..' to '..pollution_multiplier.value
+    for _, p in pairs(game.players) do
+        if p.admin then
+            p.print(message)
+        end
+    end
+end
+
+local function get_pollution_multiplier(_, player)
+    player = player or server_player
+    player.print('Current pollution multiplier is: '..pollution_multiplier.value)
+end
+
 local function do_magic_crafters()
     local limit = #magic_crafters
     if limit == 0 then
@@ -1234,7 +1292,13 @@ local function do_magic_crafters()
             local fcount = floor(count)
 
             if fcount > 0 then
-                entity.get_output_inventory().insert {name = data.item, count = fcount}
+                local output_inv = entity.get_output_inventory()
+                if output_inv.can_insert(data.item) then -- No pollution if full. Taking items out of crafters makes pollution
+                    local pollution_amount = pollution_multiplier.value * 0.01
+                    local pollution_position = {0,0}
+                    entity.surface.pollute(pollution_position, pollution_amount)
+                    output_inv.insert {name = data.item, count = fcount}
+                end
                 data.last_tick = tick - (count - fcount) / rate
             end
         end
@@ -1300,13 +1364,18 @@ local function tick()
     do_magic_fluid_crafters()
 end
 
+local function register_entity(entity, outpost_id)
+    local id = register_on_entity_destroyed(entity)
+    turret_to_outpost[id] = outpost_id
+end
+
 Public.refill_turret_callback =
     Token.register(
     function(turret, data)
         local outpost_id = data.outpost_id
 
         refill_turrets[#refill_turrets + 1] = {turret = turret, data = data.callback_data}
-        turret_to_outpost[turret.unit_number] = outpost_id
+        register_entity(turret, outpost_id)
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1322,7 +1391,7 @@ Public.refill_liquid_turret_callback =
         local outpost_id = data.outpost_id
 
         refill_turrets[#refill_turrets + 1] = {turret = turret, data = callback_data}
-        turret_to_outpost[turret.unit_number] = outpost_id
+        register_entity(turret, outpost_id)
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1335,7 +1404,7 @@ Public.refill_artillery_turret_callback =
         local outpost_id = data.outpost_id
 
         refill_turrets[#refill_turrets + 1] = {turret = turret, data = data.callback_data}
-        turret_to_outpost[turret.unit_number] = outpost_id
+        register_entity(turret, outpost_id)
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1370,7 +1439,7 @@ Public.power_source_callback =
         power_source.destructible = false
 
         power_sources[turret.unit_number] = {entity = power_source}
-        turret_to_outpost[turret.unit_number] = outpost_id
+        register_entity(turret, outpost_id)
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1382,7 +1451,7 @@ Public.worm_turret_callback =
     function(turret, data)
         local outpost_id = data.outpost_id
 
-        turret_to_outpost[turret.unit_number] = outpost_id
+        register_entity(turret, outpost_id)
 
         local outpost_data = outposts[outpost_id]
         outpost_data.turret_count = outpost_data.turret_count + 1
@@ -1421,6 +1490,12 @@ local set_inactive_token =
     end
 )
 
+local change_to_player_force_callback = Token.register(function(entity)
+    if entity.valid then
+        entity.force = 'player'
+    end
+end)
+
 Public.magic_item_crafting_callback =
     Token.register(
     function(entity, data)
@@ -1431,14 +1506,22 @@ Public.magic_item_crafting_callback =
         entity.destructible = false
         entity.operable = false
 
+        -- This is so the recipe is set for furnaces even if the player force hasn't unlocked them yet.
+        entity.force = 'neutral'
+        Task.set_timeout_in_ticks(1, change_to_player_force_callback, entity)
+
         local recipe = callback_data.recipe
         if recipe then
             entity.set_recipe(recipe)
+            if not callback_data.has_fluid_output then -- to avoid trying to put an item into a fluid inventory
+                entity.get_output_inventory().insert(callback_data.output.item)
+            end
         else
-            local furance_item = callback_data.furance_item
-            if furance_item then
+            local furnace_item = callback_data.furnace_item
+            if furnace_item then
                 local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
-                inv.insert(furance_item)
+                inv.insert(furnace_item)
+                entity.get_output_inventory().insert(callback_data.output.item)
             end
         end
 
@@ -1456,7 +1539,7 @@ Public.magic_item_crafting_callback =
             end
         end
 
-        if not callback_data.keep_active then
+        if not callback_data.has_fluid_output then
             Task.set_timeout_in_ticks(2, set_inactive_token, entity) -- causes problems with refineries.
         end
     end
@@ -1471,6 +1554,10 @@ Public.magic_item_crafting_callback_weighted =
         entity.minable = false
         entity.destructible = false
         entity.operable = false
+
+        -- This is so the recipe is set for furnaces even if the player force hasn't unlocked them yet.
+        entity.force = 'neutral'
+        Task.set_timeout_in_ticks(1, change_to_player_force_callback, entity)
 
         local weights = callback_data.weights
         local loot = callback_data.loot
@@ -1490,11 +1577,15 @@ Public.magic_item_crafting_callback_weighted =
         local recipe = stack.recipe
         if recipe then
             entity.set_recipe(recipe)
+            local output_inv = entity.get_output_inventory()
+            output_inv.insert {name = stack.output.item, count = 200}
         else
-            local furance_item = stack.furance_item
-            if furance_item then
+            local furnace_item = stack.furnace_item
+            if furnace_item then
                 local inv = entity.get_inventory(2) -- defines.inventory.furnace_source
-                inv.insert(furance_item)
+                inv.insert {name = furnace_item, count = 200}
+                local output_inv = entity.get_output_inventory()
+                output_inv.insert {name = stack.output.item, count = 200 }
             end
         end
 
@@ -1512,7 +1603,7 @@ Public.magic_item_crafting_callback_weighted =
             end
         end
 
-        if not callback_data.keep_active then
+        if not callback_data.has_fluid_output then
             Task.set_timeout_in_ticks(2, set_inactive_token, entity) -- causes problems with refineries.
         end
     end
@@ -1560,13 +1651,26 @@ Public.deactivate_callback =
     end
 )
 
-local function turret_died(event)
-    local entity = event.entity
-    if not entity or not entity.valid then
+
+Public.scenario_chest_callback = Token.register(function(chest)
+    if not chest or not chest.valid then
         return
     end
 
-    local number = entity.unit_number
+    chest.destructible = false
+    chest.minable = false
+end)
+
+local function turret_died(event)
+    local registration_number = event.registration_number
+    local outpost_id = turret_to_outpost[registration_number]
+    if not outpost_id then
+        return
+    end
+
+    turret_to_outpost[registration_number] = nil
+
+    local number = event.unit_number
     if not number then
         return
     end
@@ -1582,16 +1686,12 @@ local function turret_died(event)
         end
     end
 
-    local outpost_id = turret_to_outpost[number]
-    if outpost_id then
-        local outpost_data = outposts[outpost_id]
+    local outpost_data = outposts[outpost_id]
+    local turret_count = outpost_data.turret_count - 1
+    outpost_data.turret_count = turret_count
 
-        local turret_count = outpost_data.turret_count - 1
-        outpost_data.turret_count = turret_count
-
-        if turret_count == 0 then
-            do_capture_outpost(outpost_data)
-        end
+    if turret_count == 0 then
+        do_capture_outpost(outpost_data)
     end
 end
 
@@ -1651,7 +1751,16 @@ Public.market_set_items_callback =
 
             Retailer.set_item(
                 market_id,
-                {name = item.name, price = price, name_label = item.name_label, description = item.description}
+                {
+                    name = item.name,
+                    type = item.type,
+                    price = price,
+                    stack_limit = item.stack_limit,
+                    name_label = item.name_label,
+                    sprite = item.sprite,
+                    disabled = item.disabled,
+                    disabled_reason = item.disabled_reason,
+                    description = item.description}
             )
         end
     end
@@ -1722,6 +1831,7 @@ function Public.do_random_fluid_loot(entity, weights, loot)
 
     entity.operable = false
     entity.destructible = false
+    entity.force = 'player'
 
     local i = math.random() * weights.total
 
@@ -1757,6 +1867,7 @@ function Public.do_factory_loot(entity, weights, loot)
 
     entity.operable = false
     entity.destructible = false
+    entity.force = 'player'
 
     local i = math.random() * weights.total
 
@@ -1786,13 +1897,6 @@ function Public.do_factory_loot(entity, weights, loot)
 
     entity.set_recipe(name)
     entity.get_output_inventory().insert {name = name, count = count}
-end
-
-local function coin_mined(event)
-    local stack = event.item_stack
-    if stack.name == 'coin' then
-        change_for_player(event.player_index, coins_earned_name, stack.count)
-    end
 end
 
 local function market_selected(event)
@@ -1845,7 +1949,7 @@ local function market_selected(event)
 end
 
 Event.add(defines.events.on_tick, tick)
-Event.add(defines.events.on_entity_died, turret_died)
+Event.add(defines.events.on_entity_destroyed, turret_died)
 
 Event.on_init(
     function()
@@ -1853,10 +1957,31 @@ Event.on_init(
     end
 )
 
-Event.add(defines.events.on_player_mined_item, coin_mined)
-
 Event.add(Retailer.events.on_market_purchase, do_outpost_upgrade)
 
 Event.add(defines.events.on_selected_entity_changed, market_selected)
+
+Command.add(
+    'set-pollution-multiplier',
+    {
+        description = {'command_description.set_pollution_multiplier'},
+        arguments = {'multiplier'},
+        required_rank = Ranks.admin,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    set_pollution_multiplier
+)
+
+Command.add(
+    'get-pollution-multiplier',
+    {
+        description = {'command_description.get_pollution_multiplier'},
+        required_rank = Ranks.guest,
+        capture_excess_arguments = true,
+        allowed_by_server = true
+    },
+    get_pollution_multiplier
+)
 
 return Public

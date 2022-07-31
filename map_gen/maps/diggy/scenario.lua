@@ -1,10 +1,11 @@
 -- dependencies
-local Config = require 'map_gen.maps.diggy.config'
 local ScenarioInfo = require 'features.gui.info'
 local RS = require 'map_gen.shared.redmew_surface'
 local Event = require 'utils.event'
-local type = type
 local pairs = pairs
+local type = type
+
+local restart_command = require 'map_gen.maps.diggy.feature.restart_command'
 
 require 'utils.table'
 require 'utils.core'
@@ -23,13 +24,13 @@ global.diggy_scenario_registered = false
 
     @param if_enabled function to be called if enabled
 ]]
-local function each_enabled_feature(if_enabled)
+local function each_enabled_feature(diggy_config, if_enabled)
     local enabled_type = type(if_enabled)
     if ('function' ~= enabled_type) then
         error('each_enabled_feature expects callback to be a function, given type: ' .. enabled_type)
     end
 
-    for current_name, feature_data in pairs(Config.features) do
+    for current_name, feature_data in pairs(diggy_config.features) do
         if (nil == feature_data.enabled) then
             error('Feature ' .. current_name .. ' did not define the enabled property.')
         end
@@ -41,7 +42,7 @@ local function each_enabled_feature(if_enabled)
 end
 
 ---Register the events required to initialize the scenario.
-function Scenario.register()
+function Scenario.register(diggy_config)
     if global.diggy_scenario_registered then
         error('Cannot register the Diggy scenario multiple times.')
         return
@@ -54,9 +55,12 @@ function Scenario.register()
     redmew_config.hodor.enabled = false
     redmew_config.paint.enabled = false
 
+    restart_command({scenario_name = diggy_config.scenario_name})
+
     each_enabled_feature(
+        diggy_config,
         function(feature_name, feature_config)
-            local feature = require ('map_gen.maps.diggy.feature.' .. feature_name)
+            local feature = feature_config.load()
             if ('function' ~= type(feature.register)) then
                 error('Feature ' .. feature_name .. ' did not define a register function.')
             end
@@ -73,13 +77,8 @@ function Scenario.register()
         end
     )
 
-    local landfill_tiles = {'dirt-1','dirt-2','dirt-3','dirt-4','dirt-5','dirt-6','dirt-7'}
-    require ('map_gen.shared.change_landfill_tile')(landfill_tiles)
-
-    ScenarioInfo.set_map_name('Diggy')
-    ScenarioInfo.set_map_description('Dig your way through!')
-
     global.diggy_scenario_registered = true
 end
+
 
 return Scenario

@@ -21,6 +21,14 @@ RS.set_map_gen_settings(
     }
 )
 
+local ScenarioInfo = require 'features.gui.info'
+-- Comment out this block if you're getting scenario info from another source.
+ScenarioInfo.set_map_name('RedMew - Prehistoric Islands')
+ScenarioInfo.set_map_description('Burner tech only!')
+ScenarioInfo.add_map_extra_info(
+    'OGG!\n OGG SMASH!\n OGG MAKE FIRE!\n(The tech for electric miners and inserters has been lost to the mists of time.) \n(You must rub sticks together, burn dinosaur guano and extract pit tar in order to launch your prehistoric rocket!)'
+)
+
 RestrictEntities.add_banned(
     {
         'inserter',

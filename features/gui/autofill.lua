@@ -4,8 +4,8 @@ local Event = require 'utils.event'
 local Settings = require 'utils.redmew_settings'
 local Color = require 'resources.color_presets'
 
-local enabled_style = 'green_slot_button'
-local disabled_style = 'red_slot_button'
+local enabled_style = 'working_weapon_button'
+local disabled_style = 'not_working_weapon_button'
 
 local style_map = {[true] = enabled_style, [false] = disabled_style}
 local enabled_locale_map = {[true] = {'common.enabled'}, [false] = {'common.disabled'}}
@@ -18,7 +18,6 @@ local enabled_ammo_button = Gui.uid_name()
 
 local function player_created(event)
     local player = game.get_player(event.player_index)
-
     if not player or not player.valid then
         return
     end
@@ -50,12 +49,13 @@ local function toggle_main_frame(event)
 
     if frame then
         Gui.destroy(frame)
-        main_button.style = 'icon_button'
+        main_button.style = 'slot_button'
     else
-        main_button.style = 'selected_slot_button'
+        main_button.style = 'highlighted_tool_button'
         local style = main_button.style
-        style.width = 38
-        style.height = 38
+        style.width = 40
+        style.height = 40
+        style.padding = 0
 
         frame =
             left.add {type = 'frame', name = main_frame_name, caption = {'autofill.frame_name'}, direction = 'vertical'}
@@ -74,7 +74,7 @@ local function toggle_main_frame(event)
             ammo_count_flow.add {
             type = 'textfield',
             name = ammo_count_name,
-            text = Autofill.get_ammo_count(player_index)
+            text = tostring(Autofill.get_ammo_count(player_index))
         }
 
         local enabled_ammos_flow = frame.add {type = 'flow', direction = 'horizontal'}
@@ -94,7 +94,7 @@ local function toggle_main_frame(event)
             Gui.set_data(button, name)
         end
 
-        frame.add {type = 'button', name = main_button_name, caption = 'Close'}
+        Gui.make_close_button(frame, main_button_name)
 
         local data = {
             enabled_checkbox = enabled_checkbox,
@@ -185,7 +185,7 @@ local function settings_changed(event)
         local ammo_count_label = data.ammo_count_label
         local ammo_count_textfield = data.ammo_count_textfield
 
-        ammo_count_textfield.text = event.new_value
+        ammo_count_textfield.text = tostring(event.new_value)
         set_ammo_count_elements_validation(ammo_count_textfield, ammo_count_label, true)
     end
 end

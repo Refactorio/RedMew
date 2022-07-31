@@ -1,5 +1,4 @@
 --- See documentation at https://github.com/Refactorio/RedMew/pull/469
-
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Global = require 'utils.global'
@@ -14,26 +13,23 @@ local remove = table.remove
 local tostring = tostring
 local raw_print = Print.raw_print
 local next = next
+local type = type
 
 local serialize_options = {sparse = true, compact = true}
 
 local Public = {}
 
 local server_time = {secs = nil, tick = 0}
+local start_data = {server_id = nil, server_name = nil, start_time = nil}
 ErrorLogging.server_time = server_time
 local requests = {}
 
-Global.register(
-    {
-        server_time = server_time,
-        requests = requests
-    },
-    function(tbl)
-        server_time = tbl.server_time
-        ErrorLogging.server_time = server_time
-        requests = tbl.requests
-    end
-)
+Global.register({server_time = server_time, start_data = start_data, requests = requests}, function(tbl)
+    server_time = tbl.server_time
+    ErrorLogging.server_time = server_time
+    start_data = tbl.start_data
+    requests = tbl.requests
+end)
 
 local discord_tag = '[DISCORD]'
 local discord_raw_tag = '[DISCORD-RAW]'
@@ -44,14 +40,18 @@ local discord_embed_tag = '[DISCORD-EMBED]'
 local discord_embed_raw_tag = '[DISCORD-EMBED-RAW]'
 local discord_admin_embed_tag = '[DISCORD-ADMIN-EMBED]'
 local discord_admin_embed_raw_tag = '[DISCORD-ADMIN-EMBED-RAW]'
+local discord_named_tag = '[DISCORD-NAMED]'
+local discord_named_raw_tag = '[DISCORD-NAMED-RAW]'
+local discord_named_bold_tag = '[DISCORD-NAMED-BOLD]'
+local discord_named_embed_tag = '[DISCORD-NAMED-EMBED]'
+local discord_named_embed_raw_tag = '[DISCORD-NAMED-EMBED-RAW]'
 local start_scenario_tag = '[START-SCENARIO]'
+local start_game_tag ='[START-GAME]'
 local ping_tag = '[PING]'
 local data_set_tag = '[DATA-SET]'
 local data_get_tag = '[DATA-GET]'
 local data_get_all_tag = '[DATA-GET-ALL]'
 local data_tracked_tag = '[DATA-TRACKED]'
-local ban_sync_tag = '[BAN-SYNC]'
-local unbanned_sync_tag = '[UNBANNED-SYNC]'
 local query_players_tag = '[QUERY-PLAYERS]'
 local player_join_tag = '[PLAYER-JOIN]'
 local player_leave_tag = '[PLAYER-LEAVE]'
@@ -59,6 +59,20 @@ local player_leave_tag = '[PLAYER-LEAVE]'
 Public.raw_print = raw_print
 
 local data_set_handlers = {}
+
+local function assert_non_empty_string_and_no_spaces(str, argument_name)
+    if type(str) ~= 'string' then
+        error(argument_name .. ' must be a string', 3)
+    end
+
+    if #str == 0 then
+        error(argument_name .. ' must not be an empty string', 3)
+    end
+
+    if str:match(' ') then
+        error(argument_name .. " must not contain space ' ' character.", 3)
+    end
+end
 
 --- The event id for the on_server_started event.
 -- The event is raised whenever the server goes from the starting state to the running state.
@@ -107,19 +121,19 @@ function Public.to_admin_raw(message)
     raw_print(discord_admin_raw_tag .. message)
 end
 
---- Sends a embed message to the linked discord channel. The message is sanitized of markdown server side.
+--- Sends an embed message to the linked discord channel. The message is sanitized of markdown server side.
 -- @param  message<string> the content of the embed.
 function Public.to_discord_embed(message)
     raw_print(discord_embed_tag .. message)
 end
 
---- Sends a embed message to the linked discord channel. The message is not sanitized of markdown.
+--- Sends an embed message to the linked discord channel. The message is not sanitized of markdown.
 -- @param  message<string> the content of the embed.
 function Public.to_discord_embed_raw(message)
     raw_print(discord_embed_raw_tag .. message)
 end
 
---- Sends a embed message to the linked admin discord channel. The message is sanitized of markdown server side.
+--- Sends an embed message to the linked admin discord channel. The message is sanitized of markdown server side.
 -- @param  message<string> the content of the embed.
 function Public.to_admin_embed(message)
     raw_print(discord_admin_embed_tag .. message)
@@ -129,6 +143,41 @@ end
 -- @param  message<string> the content of the embed.
 function Public.to_admin_embed_raw(message)
     raw_print(discord_admin_embed_raw_tag .. message)
+end
+
+--- Sends a message to the named discord channel. The message is sanitized of markdown server side.
+-- @param  message<string> message to send.
+function Public.to_discord_named(channel_name, message)
+    assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
+    raw_print(concat({discord_named_tag, channel_name, ' ', message}))
+end
+
+--- Sends a message to the named discord channel. The message is not sanitized of markdown.
+-- @param  message<string> message to send.
+function Public.to_discord_named_raw(channel_name, message)
+    assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
+    raw_print(concat({discord_named_raw_tag, channel_name, ' ', message}))
+end
+
+--- Sends a message to the named discord channel. The message is sanitized of markdown server side, then made bold.
+-- @param  message<string> message to send.
+function Public.to_discord_named_bold(channel_name, message)
+    assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
+    raw_print(concat({discord_named_bold_tag, channel_name, ' ', message}))
+end
+
+--- Sends an embed message to the named discord channel. The message is sanitized of markdown server side.
+-- @param  message<string> the content of the embed.
+function Public.to_discord_named_embed(channel_name, message)
+    assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
+    raw_print(concat({discord_named_embed_tag, channel_name, ' ', message}))
+end
+
+--- Sends an embed message to the named discord channel. The message is not sanitized of markdown.
+-- @param  message<string> the content of the embed.
+function Public.to_discord_named_embed_raw(channel_name, message)
+    assert_non_empty_string_and_no_spaces(channel_name, 'channel_name')
+    raw_print(concat({discord_named_embed_raw_tag, channel_name, ' ', message}))
 end
 
 --- Stops and saves the factorio server and starts the named scenario.
@@ -147,16 +196,32 @@ function Public.start_scenario(scenario_name)
     raw_print(message)
 end
 
-local default_ping_token =
-    Token.register(
-    function(sent_tick)
-        local now = game.tick
-        local diff = now - sent_tick
-
-        local message = concat({'Pong in ', diff, ' tick(s) ', 'sent tick: ', sent_tick, ' received tick: ', now})
-        game.print(message)
+--- Stops the server and starts a new game.
+-- @params start_game_data either string which is the scenario name or a table with the following fields
+-- type:string<scenario|save> optional defaults to scenario.
+-- name:string the name of the scenario or save to start.
+-- mod_pack:string optional the name of the mod pack to use.
+function Public.start_game(start_game_data)
+    local data
+    if type(start_game_data) == 'string' then
+        data = {type = 'scenario', name = start_game_data}
+    elseif type(start_game_data) == 'table' then
+        data = start_game_data
+    else
+        error('start_game_data must be a string or table')
     end
-)
+
+    local json = game.table_to_json(data)
+    raw_print(start_game_tag .. json)
+end
+
+local default_ping_token = Token.register(function(sent_tick)
+    local now = game.tick
+    local diff = now - sent_tick
+
+    local message = concat({'Pong in ', diff, ' tick(s) ', 'sent tick: ', sent_tick, ' received tick: ', now})
+    game.print(message)
+end)
 
 --- Pings the web server.
 -- @param  func_token<token> The function that is called when the web server replies.
@@ -243,29 +308,26 @@ local function send_try_get_data(data_set, key, callback_token)
     raw_print(message)
 end
 
-local cancelable_callback_token =
-    Token.register(
-    function(data)
-        local data_set = data.data_set
-        local keys = requests[data_set]
-        if not keys then
-            return
-        end
-
-        local key = data.key
-        local callbacks = keys[key]
-        if not callbacks then
-            return
-        end
-
-        keys[key] = nil
-
-        for c, _ in next, callbacks do
-            local func = Token.get(c)
-            func(data)
-        end
+local cancelable_callback_token = Token.register(function(data)
+    local data_set = data.data_set
+    local keys = requests[data_set]
+    if not keys then
+        return
     end
-)
+
+    local key = data.key
+    local callbacks = keys[key]
+    if not callbacks then
+        return
+    end
+
+    keys[key] = nil
+
+    for c, _ in next, callbacks do
+        local func = Token.get(c)
+        func(data)
+    end
+end)
 
 --- Gets data from the web server's persistent data storage.
 -- The callback is passed a table {data_set: string, key: string, value: any}.
@@ -372,12 +434,9 @@ function Public.cancel_try_get_data(data_set, key, callback_token)
     return cancel_try_get_data(data_set, key, callback_token)
 end
 
-local timeout_token =
-    Token.register(
-    function(data)
-        cancel_try_get_data(data.data_set, data.key, data.callback_token)
-    end
-)
+local timeout_token = Token.register(function(data)
+    cancel_try_get_data(data.data_set, data.key, data.callback_token)
+end)
 
 --- Same as Server.try_get_data but the request is cancelled if the timeout expires before the request is complete.
 -- If the request is cancelled before it is complete the callback will be called with data.cancelled = true.
@@ -415,11 +474,8 @@ function Public.try_get_data_timeout(data_set, key, callback_token, timeout_tick
 
     try_get_data_cancelable(data_set, key, callback_token)
 
-    Task.set_timeout_in_ticks(
-        timeout_ticks,
-        timeout_token,
-        {data_set = data_set, key = key, callback_token = callback_token}
-    )
+    Task.set_timeout_in_ticks(timeout_ticks, timeout_token,
+        {data_set = data_set, key = key, callback_token = callback_token})
 end
 
 --- Gets all the data for the data_set from the web server's persistent data storage.
@@ -549,89 +605,6 @@ local function escape(str)
     return str:gsub('\\', '\\\\'):gsub('"', '\\"')
 end
 
---- If the player exists bans the player.
--- Regardless of whether or not the player exists the name is synchronized with other servers
--- and stored in the database.
--- @param  username<string>
--- @param  reason<string?> defaults to empty string.
--- @param  admin<string?> admin's name, defaults to '<script>'
-function Public.ban_sync(username, reason, admin)
-    if type(username) ~= 'string' then
-        error('username must be a string', 2)
-    end
-
-    if reason == nil then
-        reason = ''
-    elseif type(reason) ~= 'string' then
-        error('reason must be a string or nil', 2)
-    end
-
-    if admin == nil then
-        admin = '<script>'
-    elseif type(admin) ~= 'string' then
-        error('admin must be a string or nil', 2)
-    end
-
-    -- game.ban_player errors if player not found.
-    -- However we may still want to use this function to ban player names.
-    local player = game.players[username]
-    if player then
-        game.ban_player(player, reason)
-    end
-
-    username = escape(username)
-    reason = escape(reason)
-    admin = escape(admin)
-
-    local message = concat({ban_sync_tag, '{username:"', username, '",reason:"', reason, '",admin:"', admin, '"}'})
-    raw_print(message)
-end
-
---- If the player exists bans the player else throws error.
--- The ban is not synchronized with other servers or stored in the database.
--- @param  PlayerSpecification
--- @param  reason<string?> defaults to empty string.
-function Public.ban_non_sync(PlayerSpecification, reason)
-    game.ban_player(PlayerSpecification, reason)
-end
-
---- If the player exists unbans the player.
--- Regardless of whether or not the player exists the name is synchronized with other servers
--- and removed from the database.
--- @param  username<string>
--- @param  admin<string?> admin's name, defaults to '<script>'. This name is stored in the logs for who removed the ban.
-function Public.unban_sync(username, admin)
-    if type(username) ~= 'string' then
-        error('username must be a string', 2)
-    end
-
-    if admin == nil then
-        admin = '<script>'
-    elseif type(admin) ~= 'string' then
-        error('admin must be a string or nil', 2)
-    end
-
-    -- game.unban_player errors if player not found.
-    -- However we may still want to use this function to unban player names.
-    local player = game.players[username]
-    if player then
-        game.unban_player(username)
-    end
-
-    username = escape(username)
-    admin = escape(admin)
-
-    local message = concat({unbanned_sync_tag, '{username:"', username, '",admin:"', admin, '"}'})
-    raw_print(message)
-end
-
---- If the player exists unbans the player else throws error.
--- The ban is not synchronized with other servers or removed from the database.
--- @param  PlayerSpecification
-function Public.unban_non_sync(PlayerSpecification)
-    game.unban_player(PlayerSpecification)
-end
-
 --- Called by the web server to set the server time.
 -- @param  secs<number> unix epoch timestamp
 function Public.set_time(secs)
@@ -659,6 +632,40 @@ function Public.get_current_time()
 
     local diff = game.tick - server_time.tick
     return math.floor(secs + diff / game.speed / 60)
+end
+
+--- Called by the web server to set the server start data.
+function Public.set_start_data(data)
+    start_data.server_id = data.server_id
+    start_data.server_name = data.server_name
+
+    local start_time = start_data.start_time
+    if not start_time then
+        -- Only set start time if it has not been set already, so that we keep the first start time.
+        start_data.start_time = data.start_time
+    end
+end
+
+--- Gets the server's id e.g. '7'. Empty string if not known.
+-- This is the current server's id, in the case the save has been loaded on multiple servers.
+-- @return string
+function Public.get_server_id()
+    return start_data.server_id or ''
+end
+
+--- Gets the server's name e.g. '[color=red]RedMew[/color] - Crash Site Desert'. Empty string if not known.
+-- This is the current server's name, in the case the save has been loaded on multiple servers.
+-- @return string
+function Public.get_server_name()
+    return start_data.server_name or ''
+end
+
+--- Gets the server's start time as a unix epoch timestamp. nil if not known.
+-- This is the time that the save was fist started/loaded on any Redmew server in the
+-- case that the save has been loaded multiple times.
+-- @return number?
+function Public.get_start_time()
+    return start_data.start_time
 end
 
 --- Called be the web server to re sync which players are online.
@@ -696,59 +703,76 @@ Event.add(Public.events.on_server_started, set_scenario_version)
 
 --- The [JOIN] nad [LEAVE] messages Factorio sends to stdout aren't sent in all cases of
 --  players joining or leaving. So we send our own [PLAYER-JOIN] and [PLAYER-LEAVE] tags.
-Event.add(
-    defines.events.on_player_joined_game,
-    function(event)
-        local player = game.get_player(event.player_index)
-        if not player then
-            return
-        end
-
-        raw_print(player_join_tag .. player.name)
+Event.add(defines.events.on_player_joined_game, function(event)
+    local player = game.get_player(event.player_index)
+    if not player then
+        return
     end
-)
 
-Event.add(
-    defines.events.on_player_left_game,
-    function(event)
-        local player = game.get_player(event.player_index)
-        if not player then
-            return
-        end
+    raw_print(player_join_tag .. player.name)
+end)
 
-        raw_print(player_leave_tag .. player.name)
+local leave_reason_map = {
+    [defines.disconnect_reason.quit] = '',
+    [defines.disconnect_reason.dropped] = ' (Dropped)',
+    [defines.disconnect_reason.reconnect] = ' (Reconnect)',
+    [defines.disconnect_reason.wrong_input] = ' (Wrong input)',
+    [defines.disconnect_reason.desync_limit_reached] = ' (Desync limit reached)',
+    [defines.disconnect_reason.cannot_keep_up] = ' (Cannot keep up)',
+    [defines.disconnect_reason.afk] = ' (AFK)',
+    [defines.disconnect_reason.kicked] = ' (Kicked)',
+    [defines.disconnect_reason.kicked_and_deleted] = ' (Kicked)',
+    [defines.disconnect_reason.banned] = ' (Banned)',
+    [defines.disconnect_reason.switching_servers] = ' (Switching servers)'
+}
+
+Event.add(defines.events.on_player_left_game, function(event)
+    local player = game.get_player(event.player_index)
+    if not player then
+        return
     end
-)
 
-Event.add(
-    defines.events.on_player_died,
-    function(event)
-        local player = game.get_player(event.player_index)
+    local reason = leave_reason_map[event.reason] or ''
+    raw_print(player_leave_tag .. player.name .. reason)
+end)
 
-        if not player or not player.valid then
-            return
-        end
+Event.add(defines.events.on_player_died, function(event)
+    local player = game.get_player(event.player_index)
 
-        local cause = event.cause
+    if not player or not player.valid then
+        return
+    end
 
-        local message = {discord_bold_tag, player.name}
-        if cause and cause.valid then
-            message[#message + 1] = ' was killed by '
+    local cause = event.cause
 
-            local name = cause.name
-            if name == 'character' then
-                name = cause.player.name
-            end
+    local message = {discord_bold_tag, player.name}
+    if cause and cause.valid then
+        message[#message + 1] = ' was killed by '
 
-            message[#message + 1] = name
-            message[#message + 1] = '.'
+        local name = cause.name
+        if name == 'character' then
+            name = cause.player.name
         else
-            message[#message + 1] = ' has died.'
+            message[#message + 1] = 'a '
         end
 
-        message = concat(message)
-        raw_print(message)
+        message[#message + 1] = name
+        message[#message + 1] = '.'
+    else
+        message[#message + 1] = ' has died.'
     end
-)
+
+    local position = player.position
+    message[#message + 1] = ' [gps='
+    message[#message + 1] = string.format('%.1f', position.x)
+    message[#message + 1] = ','
+    message[#message + 1] = string.format('%.1f', position.y)
+    message[#message + 1] = ','
+    message[#message + 1] = player.surface.name
+    message[#message + 1] = ']'
+
+    message = concat(message)
+    raw_print(message)
+end)
 
 return Public

@@ -136,13 +136,9 @@ local confirm_create_tag_name = Gui.uid_name()
 local delete_tag_name = Gui.uid_name()
 local close_create_tag_name = Gui.uid_name()
 
-local function player_joined(event)
+local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
-        return
-    end
-
-    if player.gui.top[main_button_name] ~= nil then
         return
     end
 
@@ -264,7 +260,7 @@ local function draw_main_frame(player)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    left_flow.add {type = 'button', name = main_button_name, caption = {'common.close_button'}}
+    Gui.make_close_button(left_flow, main_button_name)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
     right_flow.style.horizontal_align = 'right'
@@ -315,14 +311,15 @@ local function toggle(event)
 
     if main_frame then
         Gui.destroy(main_frame)
-        main_button.style = 'icon_button'
+        main_button.style = 'slot_button'
     else
         draw_main_frame(event.player)
 
-        main_button.style = 'selected_slot_button'
+        main_button.style = 'highlighted_tool_button'
         local style = main_button.style
-        style.width = 38
-        style.height = 38
+        style.width = 40
+        style.height = 40
+        style.padding = 0
     end
 end
 
@@ -449,8 +446,7 @@ local function draw_create_tag_frame(event, tag_data)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local close_button =
-        left_flow.add {type = 'button', name = close_create_tag_name, caption = {'common.close_button'}}
+    local close_button = Gui.make_close_button(left_flow, close_create_tag_name)
     Gui.set_data(close_button, frame)
 
     local right_flow = bottom_flow.add {type = 'flow', direction = 'horizontal'}
@@ -786,10 +782,10 @@ Event.add(
     end
 )
 
-Event.add(defines.events.on_player_joined_game, player_joined)
+Event.add(defines.events.on_player_created, player_created)
 
 local function tag_command(args)
-    local target_player = game.players[args.player]
+    local target_player = game.get_player(args.player)
 
     if not target_player then
         Game.player_print({'common.fail_no_target', target_player})

@@ -39,9 +39,9 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'basic-oil-processing',
-        keep_active = true,
+        has_fluid_output = true,
         output = {
-            {min_rate = 4.5 / 60, distance_factor = 4.5 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 2}
+            {min_rate = 30 / 60, distance_factor = 30 / 60 / 512, item = 'petroleum-gas', fluidbox_index = 2}
         }
     }
 }
@@ -55,39 +55,39 @@ local market = {
         upgrade_cost_base = 2,
         {
             name = 'crude-oil-barrel',
-            price = 1,
+            price = 10,
             distance_factor = 5 / 512,
-            min_price = 0.1
+            min_price = 1
         },
         {
             name = 'heavy-oil-barrel',
-            price = 1.5,
+            price = 15,
             distance_factor = 7.5 / 512,
-            min_price = 0.15
+            min_price = 1.5
         },
         {
             name = 'light-oil-barrel',
-            price = 2,
+            price = 20,
             distance_factor = 10 / 512,
-            min_price = 0.2
+            min_price = 2
         },
         {
             name = 'petroleum-gas-barrel',
-            price = 2.5,
+            price = 25,
             distance_factor = 12.5 / 512,
-            min_price = 0.25
+            min_price = 2.5
         },
         {
             name = 'lubricant-barrel',
-            price = 1.5,
+            price = 15,
             distance_factor = 7.5 / 512,
-            min_price = 0.15
+            min_price = 1.5
         },
         {
             name = 'sulfuric-acid-barrel',
-            price = 4,
+            price = 40,
             distance_factor = 20 / 512,
-            min_price = 0.4
+            min_price = 4
         }
     }
 }

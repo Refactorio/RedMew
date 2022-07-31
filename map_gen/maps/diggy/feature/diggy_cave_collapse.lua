@@ -117,7 +117,14 @@ local function create_collapse_template(positions, surface)
                     if strength then
                         do_insert = false
                     else
-                        entity.die()
+                        if entity.name ~= 'tank' then
+                            entity.die()
+                        else
+                            entity.health = entity.health - 100
+                            if entity.health == 0 then
+                                entity.die()
+                            end
+                        end
                     end
                 end
             )
@@ -279,6 +286,19 @@ local function on_entity_died(event)
     end
 end
 
+local function script_raised_destroy(event)
+    local cause = event.cause
+    if cause and not (cause == "room_clearing" or cause == "die_faster" or cause == "alien_emerges") then
+        return
+    end
+    local entity = event.entity
+    local name = entity.name
+    local strength = support_beam_entities[name]
+    if strength then
+        stress_map_add(entity.surface, entity.position, strength, false)
+    end
+end
+
 local function on_built_entity(event)
     local entity = event.created_entity
     local strength = support_beam_entities[entity.name]
@@ -386,6 +406,7 @@ function DiggyCaveCollapse.register(cfg)
     Event.add(defines.events.on_built_entity, on_built_entity)
     Event.add(Template.events.on_placed_entity, on_placed_entity)
     Event.add(defines.events.on_entity_died, on_entity_died)
+    Event.add(defines.events.script_raised_destroy, script_raised_destroy)
     Event.add(defines.events.on_player_mined_entity, on_mined_entity)
     Event.add(Template.events.on_void_removed, on_void_removed)
     Event.add(defines.events.on_surface_created, on_surface_created)

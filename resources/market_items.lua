@@ -33,7 +33,6 @@ return {
     {price = 15,   name = 'submachine-gun'},
     {price = 15,   name = 'shotgun'},
     {price = 250,  name = 'combat-shotgun'},
-    {price = 25,   name = 'railgun'},
     {price = 250,  name = 'flamethrower'},
     {price = 175,  name = 'rocket-launcher'},
     {price = 250,  name = 'tank-cannon'},
@@ -45,7 +44,6 @@ return {
     {price = 20,   name = 'uranium-rounds-magazine'},
     {price = 2,    name = 'shotgun-shell'},
     {price = 10,   name = 'piercing-shotgun-shell'},
-    {price = 5,    name = 'railgun-dart'},
     {price = 25,   name = 'flamethrower-ammo'},
     {price = 15,   name = 'rocket'},
     {price = 25,   name = 'explosive-rocket'},
@@ -76,5 +74,6 @@ return {
     {price = 25,   name = 'construction-robot'},
     {price = 350,  name = 'energy-shield-equipment'},
     {price = 750,  name = 'personal-laser-defense-equipment'},
+    {price = 1,    name = 'refined-concrete'},
     {price = 1,    name = 'refined-hazard-concrete'},
 }

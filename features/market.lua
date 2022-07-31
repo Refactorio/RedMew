@@ -10,6 +10,7 @@ local RS = require 'map_gen.shared.redmew_surface'
 local market_items = require 'resources.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
 local ScoreTracker = require 'utils.score_tracker'
+local Color = require 'resources.color_presets'
 local change_for_player = ScoreTracker.change_for_player
 local get_for_player = ScoreTracker.get_for_player
 local coins_earned_name = 'coins-earned'
@@ -102,7 +103,7 @@ local function spawn_market(args, player)
         player.print('Market added. To remove it, highlight it with your cursor and use the /destroy command, or use /market removeall to remove all markets placed.')
     end
 
-    local market = surface.create_entity({name = 'market', position = maket_spawn_pos})
+    local market = surface.create_entity({name = 'market', position = maket_spawn_pos, force = 'neutral'})
     markets[#markets + 1] = market
     market.destructible = false
 
@@ -123,6 +124,7 @@ local function fish_earned(event, amount)
 
     local stack = {name = currency, count = amount}
     local inserted = player.insert(stack)
+    player.surface.create_entity{name="flying-text", position = {player.position.x - 1, player.position.y}, text = "+" .. amount .. " [img=item.coin]", color = Color.gold, render_player_index = player.index}
 
     local diff = amount - inserted
     if diff > 0 then

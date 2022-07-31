@@ -1,30 +1,13 @@
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local error = error
-local pairs = pairs
 local format = string.format
-local tostring = tostring
-local type = type
 local raise_event = script.raise_event
 
 --- Contains a set of callables that will attempt to sanitize and transform the input
 local settings_type = require 'resources.setting_types'
 local settings = {}
 local memory = {}
-local missing_setting = {
-    data_transformation = {
-        toScalar = function(input)
-            if type(input) ~= 'table' then
-                return input
-            end
-
-            return tostring(input)
-        end,
-        sanitizer = function (input)
-            return true, input
-        end
-    }
-}
 
 Global.register(memory, function (tbl) memory = tbl end)
 
@@ -98,7 +81,7 @@ end
 function Public.validate(name, value)
     local setting = settings[name]
     if not setting then
-        return format('Setting "%s" does not exist.', name)
+        return nil
     end
 
     local success, sanitized_value = setting.data_transformation.sanitizer(value)
@@ -118,9 +101,16 @@ end
 ---@param name string
 ---@param value any
 function Public.set(player_index, name, value)
+    local player_settings = memory[player_index]
+    if not player_settings then
+        player_settings = {}
+        memory[player_index] = player_settings
+    end
+
     local setting = settings[name]
     if not setting then
-        setting = missing_setting
+        player_settings[name] = value
+        return
     end
 
     local data_transformation = setting.data_transformation
@@ -128,12 +118,6 @@ function Public.set(player_index, name, value)
 
     if not success then
         error(format('Setting "%s" failed: %s', name, sanitized_value), 2)
-    end
-
-    local player_settings = memory[player_index]
-    if not player_settings then
-        player_settings = {}
-        memory[player_index] = player_settings
     end
 
     local old_value = player_settings[name]
@@ -182,7 +166,7 @@ end
 function Public.toScalar(name, raw_value)
     local setting = settings[name]
     if not setting then
-        setting = missing_setting
+        return nil
     end
 
     return setting.data_transformation.toScalar(raw_value)
@@ -191,49 +175,7 @@ end
 ---Returns a table of all settings for a given player in a key => value setup
 ---@param player_index number
 function Public.all(player_index)
-    local player_settings = memory[player_index] or {}
-    local output = {}
-    for name, data in pairs(settings) do
-        local setting_value = player_settings[name]
-        if setting_value == nil then
-            output[name] = data.default
-        else
-            output[name] = setting_value
-        end
-    end
-
-    -- not all settings might be mapped, edge-case is triggered when the
-    -- server contains settings that are not known in this instance
-    for name, value in pairs(player_settings) do
-        if output[name] == nil then
-            output[name] = value
-        end
-    end
-
-    return output
-end
-
----Removes a value for a setting for a given name, giving it the default value.
----
----@param player_index number
----@param name string
-function Public.unset(player_index, name)
-    local player_settings = memory[player_index]
-    if not player_settings then
-        player_settings = {}
-        memory[player_index] = player_settings
-    end
-
-    local old_value = player_settings[name]
-    player_settings[name] = nil
-
-    raise_event(Public.events.on_setting_set, {
-        setting_name = name,
-        old_value = old_value,
-        new_value = nil,
-        player_index = player_index,
-        value_changed = old_value ~= nil
-    })
+    return memory[player_index] or {}
 end
 
 ---Returns the full settings data, note that this is a reference, do not modify

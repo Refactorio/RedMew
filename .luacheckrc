@@ -56,7 +56,7 @@ local STD_BASE_CONTROL = 'lua52c+factorio+factorio_control+factorio_defines+fact
 --[Assume Factorio Control stage as default]--
 -------------------------------------------------------------------------------
 std = STD_CONTROL
-globals = {'print', '_DEBUG', '_CHEATS', '_DUMP_ENV', 'ServerCommands', 'Debug', '_LIFECYCLE', '_STAGE'} -- RedMew-specific globals
+globals = {'print', '_DEBUG', '_CHEATS', '_DUMP_ENV', 'ServerCommands', 'Debug', '_LIFECYCLE', '_STAGE', '_NO_CUTSCENE'} -- RedMew-specific globals
 max_line_length = LINE_LENGTH
 
 not_globals = NOT_GLOBALS
@@ -76,6 +76,9 @@ exclude_files = {
     '**/combat-tester/',
     '**/test-maker/',
     '**/trailer/',
+    
+    --Ignore map luas
+    '**/map_gen/data/presets/',
 }
 
 -------------------------------------------------------------------------------
@@ -207,8 +210,21 @@ stds.factorio_control = {
         -- (http://lua-api.factorio.com/latest/LuaBootstrap.html)
         script = {
             fields = {
-                "on_configuration_changed", "raise_event",
-                "get_event_handler", "mod_name", "get_event_order"
+                'on_configuration_changed',
+                'raise_event',
+                'raise_console_chat',
+                'raise_player_crafted_item',
+                'raise_player_fast_transferred',
+                'raise_biter_base_built',
+                'raise_market_item_purchased',
+                'raise_script_built',
+                'raise_script_destroy',
+                'raise_script_revive',
+                'raise_script_set_tiles',
+                'get_event_handler',
+                'mod_name',
+                'get_event_order',
+                'register_on_entity_destroyed'
             },
             other_fields = false,
         },
@@ -347,8 +363,10 @@ stds.factorio_control = {
                 "force_crc",
                 "get_active_entities_count",
                 "get_entity_by_tag",
+                "get_filtered_entity_prototypes",
                 "get_map_exchange_string",
                 "get_player",
+                "get_surface",
                 "help",
                 "is_demo",
                 "is_multiplayer",
@@ -901,6 +919,21 @@ stds.factorio_defines = {
                         }
                     }
                 },
+                disconnect_reason = {
+                    fields = {
+                        'quit',
+                        'dropped',
+                        'reconnect',
+                        'wrong_input',
+                        'desync_limit_reached',
+                        'cannot_keep_up',
+                        'afk',
+                        'kicked',
+                        'kicked_and_deleted',
+                        'banned',
+                        'switching_servers'
+                    }
+                },
                 difficulty = {
                     fields = {
                         'easy',
@@ -998,6 +1031,7 @@ stds.factorio_defines = {
                         'on_entity_cloned',
                         'on_entity_damaged',
                         'on_entity_died',
+                        'on_entity_destroyed',
                         'on_entity_renamed',
                         'on_entity_settings_pasted',
                         'on_entity_spawned',
@@ -1162,6 +1196,81 @@ stds.factorio_defines = {
                         'tutorials'
                     }
                 },
+                relative_gui_position = {
+                    fields = {
+                        'top',
+                        'bottom',
+                        'left',
+                        'right'
+                    }
+                },
+                relative_gui_type = {
+                    fields = {
+                        'accumulator_gui',
+                        'achievement_gui',
+                        'additional_entity_info_gui',
+                        'admin_gui',
+                        'arithmetic_combinator_gui',
+                        'armor_gui',
+                        'assembling_machine_gui',
+                        'assembling_machine_select_recipe_gui',
+                        'beacon_gui',
+                        'blueprint_book_gui',
+                        'blueprint_library_gui',
+                        'blueprint_setup_gui',
+                        'bonus_gui',
+                        'burner_equipment_gui',
+                        'car_gui',
+                        'constant_combinator_gui',
+                        'container_gui',
+                        'controller_gui',
+                        'decider_combinator_gui',
+                        'deconstruction_item_gui',
+                        'electric_energy_interface_gui',
+                        'electric_network_gui',
+                        'entity_variations_gui',
+                        'entity_with_energy_source_gui',
+                        'equipment_grid_gui',
+                        'furnace_gui',
+                        'generic_on_off_entity_gui',
+                        'heat_interface_gui',
+                        'infinity_pipe_gui',
+                        'inserter_gui',
+                        'item_with_inventory_gui',
+                        'lab_gui',
+                        'lamp_gui',
+                        'linked_container_gui',
+                        'loader_gui',
+                        'logistic_gui',
+                        'market_gui',
+                        'mining_drill_gui',
+                        'other_player_gui',
+                        'permissions_gui',
+                        'pipe_gui',
+                        'power_switch_gui',
+                        'production_gui',
+                        'programmable_speaker_gui',
+                        'rail_chain_signal_gui',
+                        'rail_signal_gui',
+                        'reactor_gui',
+                        'rename_stop_gui',
+                        'resource_entity_gui',
+                        'roboport_gui',
+                        'rocket_silo_gui',
+                        'server_config_gui',
+                        'spider_vehicle_gui',
+                        'splitter_gui',
+                        'standalone_character_gui',
+                        'storage_tank_gui',
+                        'tile_variations_gui',
+                        'train_gui',
+                        'train_stop_gui',
+                        'trains_gui',
+                        'transport_belt_gui',
+                        'upgrade_item_gui',
+                        'wall_gui'
+                    }
+                },
                 input_action = {
                     fields = {
                         'activate_copy',
@@ -1201,7 +1310,7 @@ stds.factorio_defines = {
                         'change_train_stop_station',
                         'change_train_wait_condition',
                         'change_train_wait_condition_data',
-                        'clean_cursor_stack',
+                        'clear_cursor_stack',
                         'clear_selected_blueprint',
                         'clear_selected_deconstruction_item',
                         'clear_selected_upgrade_item',

@@ -1,4 +1,5 @@
-return {
+local b = require 'map_gen.shared.builders'
+return b.decompress({
 height = 1000,
 width = 802,
 data = {
@@ -1003,4 +1004,4 @@ data = {
     {5,802,},
     {5,802,},
 }
-}
+})

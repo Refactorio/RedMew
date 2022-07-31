@@ -15,11 +15,12 @@ local player_sprites = require 'resources.player_sprites'
 local ScoreTracker = require 'utils.score_tracker'
 local get_for_global = ScoreTracker.get_for_global
 local get_for_player = ScoreTracker.get_for_player
-local player_count_name = 'player-count'
-local coins_spent_name = 'coins-spent'
-local coins_earned_name = 'coins-earned'
-local player_deaths_name = 'player-deaths'
-local player_distance_walked_name = 'player-distance-walked'
+local player_count_name = PlayerStats.player_count_name
+local coins_spent_name = PlayerStats.coins_spent_name
+local coins_earned_name = PlayerStats.coins_earned_name
+local player_deaths_name = PlayerStats.player_deaths_name
+local player_distance_walked_name = PlayerStats.player_distance_walked_name
+local player_total_kills_name = PlayerStats.player_total_kills_name
 local random = math.random
 local ipairs = ipairs
 local pairs = pairs
@@ -80,6 +81,7 @@ local time_heading_name = Gui.uid_name()
 local rank_heading_name = Gui.uid_name()
 local distance_heading_name = Gui.uid_name()
 local coin_heading_name = Gui.uid_name()
+local kills_heading_name = Gui.uid_name()
 local deaths_heading_name = Gui.uid_name()
 local poke_name_heading_name = Gui.uid_name()
 local report_heading_name = Gui.uid_name()
@@ -90,6 +92,7 @@ local time_cell_name = Gui.uid_name()
 local rank_cell_name = Gui.uid_name()
 local distance_cell_name = Gui.uid_name()
 local coin_cell_name = Gui.uid_name()
+local kills_cell_name = Gui.uid_name()
 local deaths_cell_name = Gui.uid_name()
 local poke_cell_name = Gui.uid_name()
 local report_cell_name = Gui.uid_name()
@@ -342,6 +345,32 @@ local column_builders = {
             return label
         end
     },
+    [kills_heading_name] = {
+        create_data = function(player)
+            local player_index = player.index
+            return get_for_player(player_index, player_total_kills_name)
+        end,
+        sort = function(a, b)
+            return a < b
+        end,
+        draw_heading = function(parent, sort_symbol)
+            local caption = {'player_list.kills_caption', sort_symbol}
+            local label = parent.add {type = 'label', name = kills_heading_name, caption = caption}
+            local label_style = label.style
+            apply_heading_style(label_style)
+            label_style.width = 80
+
+            return label
+        end,
+        draw_cell = function(parent, cell_data)
+            local label = parent.add {type = 'label', name = kills_cell_name, caption = cell_data}
+            local label_style = label.style
+            label_style.horizontal_align = 'center'
+            label_style.width = 80
+
+            return label
+        end
+    },
     [deaths_heading_name] = {
         create_data = function(player)
             local player_index = player.index
@@ -498,16 +527,17 @@ local function get_default_player_settings()
         player_name_heading_name,
         time_heading_name,
         rank_heading_name,
-        distance_heading_name
+        distance_heading_name,
+        kills_heading_name,
+        deaths_heading_name,
+        poke_name_heading_name,
+        report_heading_name,
     }
-    local offset = 6
+
     if global.config.player_list.show_coin_column then
-        columns[6] = coin_heading_name
-        offset = 7
+        table.insert(columns, 6, coin_heading_name)
     end
-    columns[offset] = deaths_heading_name
-    columns[offset + 1] = poke_name_heading_name
-    columns[offset + 2] = report_heading_name
+
     return {
         columns = columns,
         sort = -3
@@ -612,7 +642,7 @@ local function draw_main_frame(left, player)
         tooltip = {'player_list.poke_notify_tooltip'}
     }
 
-    frame.add {type = 'button', name = main_button_name, caption = {'player_list.close_caption'}}
+    Gui.make_close_button(frame, main_button_name)
 
     local settings = player_settings[player_index] or get_default_player_settings()
     local data = {
@@ -646,12 +676,13 @@ local function toggle(event)
 
     if main_frame then
         remove_main_frame(main_frame, player)
-        main_button.style = 'icon_button'
+        main_button.style = 'slot_button'
     else
-        main_button.style = 'selected_slot_button'
+        main_button.style = 'highlighted_tool_button'
         local style = main_button.style
-        style.width = 38
-        style.height = 38
+        style.width = 40
+        style.height = 40
+        style.padding = 0
 
         draw_main_frame(left, player)
     end
@@ -668,38 +699,23 @@ local function tick()
     end
 end
 
-local function player_joined(event)
+local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
 
-    local gui = player.gui
-    local top = gui.top
-
-    if not top[main_button_name] then
-        top.add(
-            {
-                type = 'sprite-button',
-                name = main_button_name,
-                sprite = 'entity/character',
-                tooltip = {'player_list.tooltip'}
-            }
-        )
-    end
-
-    for _, p in ipairs(game.connected_players) do
-        local frame = p.gui.left[main_frame_name]
-
-        if frame and frame.valid then
-            local data = Gui.get_data(frame)
-            redraw_title(data)
-            redraw_cells(data)
-        end
-    end
+    player.gui.top.add(
+        {
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'entity/character',
+            tooltip = {'player_list.tooltip'}
+        }
+    )
 end
 
-local function player_left()
+local function update_player_list()
     for _, p in ipairs(game.connected_players) do
         local frame = p.gui.left[main_frame_name]
 
@@ -712,8 +728,9 @@ local function player_left()
 end
 
 Event.on_nth_tick(1800, tick)
-Event.add(defines.events.on_player_joined_game, player_joined)
-Event.add(defines.events.on_player_left_game, player_left)
+Event.add(defines.events.on_player_created, player_created)
+Event.add(defines.events.on_player_joined_game, update_player_list)
+Event.add(defines.events.on_player_left_game, update_player_list)
 
 Gui.on_click(main_button_name, toggle)
 

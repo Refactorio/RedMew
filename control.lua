@@ -4,11 +4,12 @@
 require 'resources.data_stages'
 _LIFECYCLE = _STAGE.control -- Control stage
 
+-- Util libraries, omitting is a very bad idea
+require 'utils.math'
+require 'utils.string'
+
 -- Overrides the _G.print function
 require 'utils.print_override'
-
--- Omitting the math library is a very bad idea
-require 'utils.math'
 
 -- Global Debug and make sure our version file is registered
 Debug = require 'utils.debug'
@@ -28,6 +29,9 @@ require 'features.player_create'
 require 'features.rank_system'
 require 'features.redmew_settings_sync'
 
+-- Always required so dumping banned player's inventories works.
+require 'features.dump_offline_inventories'
+
 if config.player_colors.enabled then
     require 'features.player_colors'
 end
@@ -40,15 +44,19 @@ end
 if config.infinite_storage_chest.enabled then
     require 'features.infinite_storage_chest'
 end
+if config.landfill_remover.enabled then
+    require 'features.landfill_remover'
+end
 if config.autodeconstruct.enabled then
     require 'features.autodeconstruct'
 end
 if config.hodor.enabled or config.auto_respond.enabled or config.mentions.enabled then
     require 'features.chat_triggers'
 end
-if config.corpse_util.enabled then
-    require 'features.corpse_util'
+if config.death_corpse_tags.enabled then
+    require 'features.death_corpse_tags'
 end
+
 if config.admin_commands.enabled then
     require 'features.admin_commands'
 end
@@ -103,11 +111,11 @@ end
 if config.turret_active_delay.enabled then
     require 'features.turret_active_delay'
 end
-if config.autofill.enabled then
-    require 'features.gui.autofill'
-end
 if config.research_printer.enabled then
     require 'features.research_printer'
+end
+if config.spidertron_group_control.enabled then
+    require 'features.spidertron_group_control'
 end
 
 -- GUIs
@@ -116,9 +124,16 @@ end
 -- Some map presets will add GUI modules themselves.
 if config.map_info.enabled then
     require 'features.gui.info'
+    require 'features.gui.description_generator'
 end
 if config.player_list.enabled then
     require 'features.gui.player_list'
+end
+if config.redmew_settings.enabled then
+    require 'features.gui.redmew_settings'
+end
+if config.autofill.enabled then
+    require 'features.gui.autofill'
 end
 if config.evolution_progress.enabled then
     require 'features.gui.evolution_progress'
@@ -132,14 +147,8 @@ end
 if config.tasklist.enabled then
     require 'features.gui.tasklist'
 end
-if config.blueprint_helper.enabled then
-    require 'features.gui.blueprint_helper'
-end
 if config.paint.enabled then
     require 'features.gui.paint'
-end
-if config.score.enabled then
-    require 'features.gui.score'
 end
 if config.popup.enabled then
     require 'features.gui.popup'
@@ -150,11 +159,11 @@ end
 if config.radio.enabled or _DEBUG then
     require 'features.gui.radio'
 end
-if config.redmew_settings.enabled then
-    require 'features.gui.redmew_settings'
+if config.score.enabled then
+    require 'features.gui.score'
 end
 
-require 'features.snake.control'
+--require 'features.snake.control'
 
 -- Debug-only modules
 if _DEBUG then
@@ -163,6 +172,10 @@ end
 
 if _DUMP_ENV then
     require 'utils.dump_env'
+end
+
+if _DEBUG then
+    require('utils.test.main')
 end
 
 -- Needs to be at bottom so tokens are registered last.

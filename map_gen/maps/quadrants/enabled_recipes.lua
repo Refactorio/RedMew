@@ -88,9 +88,7 @@ local recipes = {
             ['battery-mk2-equipment'] = true,
             ['personal-laser-defense-equipment'] = true,
             ['discharge-defense-equipment'] = true,
-            ['night-vision-equipment'] = true,
-            ['railgun'] = true,
-            ['railgun-dart'] = true
+            ['night-vision-equipment'] = true
         }
     },
 

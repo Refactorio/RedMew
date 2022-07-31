@@ -3,10 +3,11 @@ local Token = require 'utils.token'
 local Event = require 'utils.event'
 
 local insert = table.insert
+local raise_event = script.raise_event
 
 local tiles_per_tick
 local regen_decoratives
-local surfaces
+local surfaces = {}
 
 local total_calls
 
@@ -14,6 +15,12 @@ local Public = {}
 
 -- Set to false by modules that want to control the on_chunk_generated event themselves.
 Public.enable_register_events = true
+
+local on_chunk_generated = Event.generate_event_name('generate_on_chunk_generated')
+
+Public.events = {
+    on_chunk_generated = on_chunk_generated
+}
 
 local function do_tile_inner(tiles, tile, pos)
     if not tile then
@@ -210,6 +217,7 @@ local function map_gen_action(data)
         return true
     elseif state == 36 then
         run_chart_update(data)
+        raise_event(on_chunk_generated, data)
         return false
     end
 end
@@ -234,6 +242,7 @@ function Public.schedule_chunk(event)
         area = area,
         top_x = area.left_top.x,
         top_y = area.left_top.y,
+        position = event.position,
         surface = surface,
         tiles = {},
         hidden_tiles = {},
@@ -260,6 +269,7 @@ function Public.do_chunk(event)
         area = area,
         top_x = area.left_top.x,
         top_y = area.left_top.y,
+        position = event.position,
         surface = surface,
         tiles = {},
         hidden_tiles = {},
@@ -275,6 +285,8 @@ function Public.do_chunk(event)
     do_place_hidden_tiles(data)
     do_place_entities(data)
     do_place_decoratives(data)
+
+    raise_event(on_chunk_generated, data)
 end
 
 --- Sets the variables for the generate functions, should only be called from map_loader
@@ -282,7 +294,9 @@ end
 function Public.init(args)
     tiles_per_tick = args.tiles_per_tick or 32
     regen_decoratives = args.regen_decoratives or false
-    surfaces = args.surfaces or {}
+    for surface_name, shape in pairs(args.surfaces or {}) do
+        surfaces[surface_name] = shape
+    end
 
     total_calls = math.ceil(1024 / tiles_per_tick) + 5
 end
@@ -312,8 +326,12 @@ function Public.register()
 end
 
 --- Returns the surfaces that the generate functions will act on
+-- Warning! Changing this table after on_init or on_load has run will cause desyncs!
 -- @return dictionary of surface_name -> shape function
 function Public.get_surfaces()
+    if _LIFECYCLE == 8 then
+        error('Calling Generate.get_surfaces after on_init() or on_load() has run is a desync risk.', 2)
+    end
     return surfaces
 end
 

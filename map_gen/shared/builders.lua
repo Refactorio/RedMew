@@ -22,6 +22,8 @@ local tau = math.tau
 local loga = math.log
 local shallow_copy = table.shallow_copy
 local remove = table.remove
+local binary_search = table.binary_search
+local bnot = bit32.bnot
 
 -- helpers
 
@@ -592,6 +594,12 @@ function Builders.if_else(shape, else_shape)
     end
 end
 
+function Builders.use_world_as_local(shape)
+    return function (_, _, world)
+        return shape(world.x, world.y, world)
+    end
+end
+
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderslinear_grow
 function Builders.linear_grow(shape, size)
     return function(x, y, world)
@@ -906,6 +914,25 @@ function Builders.remove_map_gen_trees(shape)
     end
 end
 
+-- Removes simple entities such as rocks: https://wiki.factorio.com/Data.raw#simple-entity
+-- Looking for a remove_rocks function? You're welcome ~ Jayefuu
+function Builders.remove_map_gen_simple_entity(shape)
+    return function(x, y, world)
+        local tile = shape(x, y, world)
+
+        if not tile then
+            return tile
+        end
+
+        local wx, wy = world.x, world.y
+        local area = {{wx, wy}, {wx + 1, wy + 1}}
+        local entities = world.surface.find_entities_filtered {area = area, type = 'simple-entity'}
+        destroy_entities(entities)
+
+        return tile
+    end
+end
+
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersremove_map_gen_enemies
 function Builders.remove_map_gen_enemies(shape)
     return function(x, y, world)
@@ -970,7 +997,7 @@ function Builders.apply_entity(shape, entity_shape)
         end
 
         local e = entity_shape(x, y, world)
-        if e then
+        if e and e ~= true then
             tile = add_entity(tile, e)
         end
 
@@ -989,7 +1016,7 @@ function Builders.apply_entities(shape, entity_shapes)
 
         for _, es in ipairs(entity_shapes) do
             local e = es(x, y, world)
-            if e then
+            if e and e ~= true then
                 tile = add_entity(tile, e)
             end
         end
@@ -1143,6 +1170,31 @@ function Builders.grid_y_pattern(pattern, rows, height)
     end
 end
 
+function Builders.grid_y_no_repeat_weighted_pattern(pattern, height)
+    local weights = Builders.prepare_weighted_array(pattern)
+    local total = weights.total
+    local scale = 1 / height
+
+    return function(x, y, world)
+        local i = ((y * scale) -0.5) % total
+
+        local index = binary_search(weights, i)
+        if index < 0 then
+            index = bnot(index)
+        end
+
+        local data = pattern[index]
+        local shape
+        if data then
+            shape = data.shape
+        end
+
+        shape = shape or Builders.empty_shape
+
+        return shape(x, y, world)
+    end
+end
+
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#buildersgrid_pattern
 function Builders.grid_pattern(pattern, columns, rows, width, height)
     local half_width = width / 2
@@ -1160,6 +1212,20 @@ function Builders.grid_pattern(pattern, columns, rows, width, height)
 
         local shape = row[col_i] or Builders.empty_shape
         return shape(x2, y2, world)
+    end
+end
+
+function Builders.grid_pattern_no_offset(pattern, columns, rows, width, height)
+    return function(x, y, world)
+        local row_pos = floor(y / height + 0.5)
+        local row_i = row_pos % rows + 1
+        local row = pattern[row_i] or {}
+
+        local col_pos = floor(x / width + 0.5)
+        local col_i = col_pos % columns + 1
+
+        local shape = row[col_i] or Builders.empty_shape
+        return shape(x, y, world)
     end
 end
 
@@ -1454,12 +1520,152 @@ end
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssegment_pattern
 function Builders.segment_pattern(pattern)
     local count = #pattern
+    local count_by_tau = count / tau
 
     return function(x, y, world)
         local angle = atan2(-y, x)
-        local index = floor(angle / tau * count) % count + 1
+        local index = floor(angle * count_by_tau) % count + 1
         local shape = pattern[index] or Builders.empty_shape
         return shape(x, y, world)
+    end
+end
+
+function Builders.segment_weighted_pattern(pattern)
+    local weights = Builders.prepare_weighted_array(pattern)
+    local total = weights.total * 0.5
+
+    return function(x, y, world)
+        local angle = atan2(-y, x)
+        local i = (angle * inv_pi + 1) * total
+
+        local index = binary_search(weights, i)
+        if index < 0 then
+            index = bnot(index)
+        end
+
+        local shape = pattern[index].shape or Builders.empty_shape
+        return shape(x, y, world)
+    end
+end
+
+function Builders.ring_pattern(pattern, thickness)
+    local count = #pattern
+    local scale = 1 / thickness
+    return function(x, y, world)
+        local d = sqrt(x * x + y * y)
+        local index = floor(d * scale) % count + 1
+        local shape = pattern[index] or Builders.empty_shape
+        return shape(x, y, world)
+    end
+end
+
+function Builders.ring_weighted_pattern(pattern, thickness)
+    local weights = Builders.prepare_weighted_array(pattern)
+    local total = weights.total
+    local scale = 1 / thickness
+
+    return function(x, y, world)
+        local d = sqrt(x * x + y * y)
+        local i = (d * scale) % total
+
+        local index = binary_search(weights, i)
+        if index < 0 then
+            index = bnot(index)
+        end
+
+        local data = pattern[index]
+        local shape
+        if data then
+            shape = data.shape
+        end
+
+        shape = shape or Builders.empty_shape
+
+        return shape(x, y, world)
+    end
+end
+
+function Builders.ring_weighted_grow_pattern(pattern, thickness, grow_factor)
+    local weights = Builders.prepare_weighted_array(pattern)
+    local total = weights.total
+    local scale = 1 / thickness
+    local inv_grow_factor = 1 / grow_factor
+
+    return function(x, y, world)
+        local d = sqrt(x * x + y * y)
+        local factor = 1 + (d * inv_grow_factor)
+        local i = (d * scale / factor) % total
+
+        local index = binary_search(weights, i)
+        if index < 0 then
+            index = bnot(index)
+        end
+
+        local data = pattern[index]
+        local shape
+        if data then
+            shape = data.shape
+        end
+
+        shape = shape or Builders.empty_shape
+
+        return shape(x, y, world)
+    end
+end
+
+local function rotate_cords(angle)
+    local qx = cos(angle)
+    local qy = sin(angle)
+
+    return function(x, y)
+        local rot_x = qx * x - qy * y
+        local rot_y = qy * x + qx * y
+        return rot_x, rot_y
+    end
+end
+
+function Builders.gradient_pattern(pattern)
+    local count = #pattern
+    local tau_by_count = tau / count
+
+    local values = {}
+
+    local rotations = {}
+    for i = 1, count do
+        rotations[i] = rotate_cords(tau_by_count * (i - 1))
+    end
+
+    return function(x, y, world)
+        for i = 1, count do
+            local rot_x, rot_y = rotations[i](x, y)
+
+            local angle = atan2(rot_x, rot_y)
+            local normalised = angle * inv_pi
+
+            if normalised < 0 then
+                normalised = -normalised
+            end
+
+            values[i] = pattern[i].weight(normalised)
+        end
+
+        local sum = 0
+        for i = 1, count do
+            sum = sum + values[i]
+        end
+
+        local rand = random() * sum
+
+        for i = 1, count - 1 do
+            local v = values[i]
+            if rand < v then
+                return pattern[i].shape(x, y, world)
+            end
+
+            rand = rand - v
+        end
+
+        return pattern[count].shape(x, y, world)
     end
 end
 

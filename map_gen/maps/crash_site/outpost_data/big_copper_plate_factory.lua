@@ -22,7 +22,7 @@ local loot_callback =
 local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
-        furance_item = {name = 'copper-ore', count = 100},
+        furnace_item = {name = 'copper-ore', count = 100},
         output = {min_rate = 2.5 / 60, distance_factor = 2.5 / 60 / 512, item = 'copper-plate'}
     }
 }
@@ -63,7 +63,7 @@ local market = {
     }
 }
 
-local base_factory = require 'map_gen.maps.crash_site.outpost_data.medium_furance'
+local base_factory = require 'map_gen.maps.crash_site.outpost_data.medium_furnace'
 local base_factory2 = require 'map_gen.maps.crash_site.outpost_data.big_factory'
 
 local level2 = ob.extend_1_way(base_factory[1], {loot = {callback = loot_callback}})

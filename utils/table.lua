@@ -1,4 +1,4 @@
---luacheck: globals table
+local table = _G.table
 local random = math.random
 local floor = math.floor
 local remove = table.remove
@@ -183,6 +183,24 @@ function table.shuffle_table(t, rng)
         j = rand(i)
         t[i], t[j] = t[j], t[i]
     end
+end
+
+--- Returns a new table with the elements rotated by rot positions.
+-- @param t <table> to shuffle
+-- @param rot<int> how many spaces to rotate each element.
+function table.rotate_table(t, rot)
+    local size = #t
+    if size == 0 then
+        error('Not a sequential table')
+    end
+
+    local copy = {}
+    for i = 1, size do
+        local pos = (i - rot - 1) % size + 1
+        copy[i] = t[pos]
+    end
+
+    return copy
 end
 
 --- Clears all existing entries in a table

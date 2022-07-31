@@ -10,11 +10,15 @@ global.config = {
         -- The title of the map
         map_name_key = 'This Map has no name',
         -- The long description of the map, typically 1 paragraph
-        map_description_key = "This section is supposed to be filled out on a per map basis.\nIf you're seeing this message, ping the admin team to get a description\nadded for this map. 20 coins is rewarded to the first person that points this out.",
+        map_description_key = "This section is supposed to be filled out on a per map basis.\nIf you're seeing this message, ping the admin team to get\na description added for this map (20 coin reward).",
         -- The feature list of the map
         map_extra_info_key = 'This map has no extra information',
         -- New Scenario Features, appears in the "What's new" tab
-        new_info_key = 'Nothing is new. The world is at peace'
+        new_info_key = 'Nothing is new. The world is at peace',
+        -- Creator of the map
+        map_primary_creator_key = 'The Refactorio Team',
+        -- Secondary creator of the map
+        map_secondary_creator_key = nil
     },
     -- map generation settings for redmew's maps (only applies to maps that use 'shapes')
     map_generation = {
@@ -45,7 +49,7 @@ global.config = {
     player_colors = {
         enabled = true
     },
-    -- saves players' lives if they have a small-plane in their inventory, also adds the small-plane to the market and must therefor be loaded first
+    -- saves players' lives if they have a player-port in their inventory, also adds the player-port to the market and must therefor be loaded first
     train_saviour = {
         enabled = true
     },
@@ -53,6 +57,12 @@ global.config = {
     infinite_storage_chest = {
         enabled = false,
         cost = 100
+    },
+    -- Allows removing landfill using the deconstruction planner.
+    landfill_remover = {
+        enabled = true,
+        -- The tile that is used to replace landfill when it is removed.
+        revert_tile = 'water-mud'
     },
     -- adds a command to scale UPS and movement speed. Use with caution as it might break scenarios that modify movement speed
     performance = {
@@ -71,12 +81,13 @@ global.config = {
     tag_group = {
         enabled = true
     },
+    -- enables dumping of inventories of offline players to a corpse at the player's last location
+    dump_offline_inventories = {
+        enabled = false,
+        offline_timout_mins = 15,   -- time after which a player logs off that their inventory is provided to the team
+    },
     -- enables players to create and prioritize tasks
     tasklist = {
-        enabled = true
-    },
-    -- enables the blueprint helper
-    blueprint_helper = {
         enabled = true
     },
     -- enables score and tracking thereof
@@ -96,7 +107,10 @@ global.config = {
     },
     -- adds a paint brush
     paint = {
-        enabled = true
+        enabled = true,
+        -- Sometimes the hidden tile information is lost, the fallback tile will be used when removing those tiles.
+        fallback_hidden_tile = 'dirt-6',
+        prevent_on_landfill = true
     },
     -- autofill turrets with ammo
     autofill = {
@@ -169,7 +183,7 @@ global.config = {
         -- prints messages when the player joins
         join_messages = {
             'Welcome to this map created by the RedMew team. You can join our discord at: redmew.com/discord',
-            'Click the question mark in the top left corner for server information and map details.'
+            'Click the infomation icon in the top left corner for server information and map details.'
         },
         cutscene = false,
         -- format is a table: {{message, weight}, {message, weight}}, where a higher weight has more chance to be shown
@@ -196,14 +210,10 @@ global.config = {
                 {name = 'substation', count = 50},
                 {name = 'roboport', count = 10},
                 {name = 'infinity-chest', count = 10},
-                {name = 'small-plane', count = 2},
+                {name = 'player-port', count = 2},
                 {name = 'coin', count = 20000},
-                {name = 'rocket-part', count = 2},
-                {name = 'computer', count = 2},
                 {name = 'infinity-pipe', count = 10},
                 {name = 'heat-interface', count = 10},
-                {name = 'compilatron-chest', count = 5},
-                {name = 'compilatron-chest', count = 5},
                 {name = 'selection-tool', count = 1}
             }
         }
@@ -276,7 +286,7 @@ global.config = {
         enabled = true
     },
     -- when a player dies, leaves a map marker until the corpse expires or is looted
-    corpse_util = {
+    death_corpse_tags = {
         enabled = true
     },
     -- adds many commands for users and admins alike
@@ -335,7 +345,9 @@ global.config = {
         -- prevents personal construction robots from being mined by other players
         save_bots = true,
         -- enable research_queue
-        research_queue = true
+        research_queue = true,
+        -- pick up item an inserter put on the ground, when the inserter is mined
+        inserter_drops_pickup = true
     },
     -- adds a useless button with the biter percentage
     evolution_progress = {
@@ -397,8 +409,7 @@ global.config = {
     -- when biter corpses in an area are above a threshold, remove the desired amount
     biter_corpse_remover = {
         enabled = true,
-        chunk_size = 3, -- size of chunk in tiles
-        corpse_threshold = 3 -- number of corpses allowed on surface inside chunk
+        max_queue_size = 200 -- The number of corpses to keep in the queue before removing the oldest.
     },
     turret_active_delay = {
         enabled = true,
@@ -412,7 +423,7 @@ global.config = {
         -- reduce delay for each level of the tech
         techs = {
             ['weapon-shooting-speed'] = {{turret_type = 'ammo-turret', amount = 60 * 26 / 6}},
-            ['laser-turret-speed'] = {{turret_type = 'electric-turret', amount = 60 * 12 / 7}},
+            ['laser-shooting-speed'] = {{turret_type = 'electric-turret', amount = 60 * 12 / 7}},
             ['refined-flammables'] = {{turret_type = 'fluid-turret', amount = 60 * 17 / 7}},
             ['artillery-shell-speed'] = {{turret_type = 'artillery-turret', amount = 60 * 2}}
         }
@@ -422,6 +433,14 @@ global.config = {
         print_to_force = true, -- print a message to force chat when that force finishes a new research.
         print_to_discord = true, -- print a message to the discord channel when the player force finishes a new research.
         ignore_script = false -- ignore researches unlocked by commands or by code.
+    },
+    spidertron_group_control = {
+        enabled = true
+    },
+    donator = {
+        donator_perks = {
+            enabled = true
+        }
     }
 }
 

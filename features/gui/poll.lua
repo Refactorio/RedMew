@@ -98,6 +98,7 @@ local function apply_button_style(button)
     button_style.bottom_padding = 0
     button_style.left_padding = 2
     button_style.right_padding = 2
+    button_style.font_color = {0, 0, 0}
 end
 
 local function do_remaining_time(poll, remaining_time_label)
@@ -131,7 +132,7 @@ local function send_poll_result_to_discord(poll)
     if next(edited_by_players) then
         insert(result, ' Edited by ')
         for pi, _ in pairs(edited_by_players) do
-            local p = game.players[pi]
+            local p = game.get_player(pi)
             if p and p.valid then
                 insert(result, p.name)
                 insert(result, ', ')
@@ -382,7 +383,13 @@ local function draw_main_frame(left, player)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local close_button = left_flow.add {type = 'button', name = main_button_name, caption = 'Close'}
+    local close_button =
+        left_flow.add {
+        type = 'button',
+        name = main_button_name,
+        caption = {'common.close_button'},
+        style = 'back_button'
+    }
     apply_button_style(close_button)
 
     local right_flow = bottom_flow.add {type = 'flow'}
@@ -437,14 +444,15 @@ local function toggle(event)
 
     if main_frame then
         remove_main_frame(main_frame, left, event.player)
-        main_button.style = 'icon_button'
+        main_button.style = 'slot_button'
     else
         draw_main_frame(left, event.player)
 
-        main_button.style = 'selected_slot_button'
+        main_button.style = 'highlighted_tool_button'
         local style = main_button.style
-        style.width = 38
-        style.height = 38
+        style.width = 40
+        style.height = 40
+        style.padding = 0
     end
 end
 
@@ -518,7 +526,7 @@ local function redraw_create_poll_content(data)
                 delete_flow.add {
                 type = 'sprite-button',
                 name = create_poll_delete_answer_name,
-                sprite = 'utility/remove',
+                sprite = 'utility/trash',
                 tooltip = 'Delete answer field.'
             }
             delete_button.style.height = 26
@@ -626,7 +634,13 @@ local function draw_create_poll_frame(parent, player, previous_data)
     left_flow.style.horizontal_align = 'left'
     left_flow.style.horizontally_stretchable = true
 
-    local close_button = left_flow.add {type = 'button', name = create_poll_close_name, caption = 'Close'}
+    local close_button =
+        left_flow.add {
+        type = 'button',
+        name = create_poll_close_name,
+        caption = {'common.close_button'},
+        style = 'back_button'
+    }
     apply_button_style(close_button)
     Gui.set_data(close_button, frame)
 
@@ -638,7 +652,8 @@ local function draw_create_poll_frame(parent, player, previous_data)
     right_flow.style.horizontal_align = 'right'
 
     if edit_mode then
-        local delete_button = right_flow.add {type = 'button', name = create_poll_delete_name, caption = 'Delete'}
+        local delete_button =
+            right_flow.add {type = 'button', name = create_poll_delete_name, caption = {'common.delete'}}
         apply_button_style(delete_button)
         Gui.set_data(delete_button, data)
     end
@@ -812,28 +827,32 @@ local function vote(event)
     end
 end
 
+local function player_created(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then
+        return
+    end
+
+    player.gui.top.add(
+        {
+            type = 'sprite-button',
+            name = main_button_name,
+            sprite = 'item/programmable-speaker',
+            tooltip = {'poll.tooltip'}
+        }
+    )
+end
+
 local function player_joined(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
 
-    local gui = player.gui
-    if gui.top[main_button_name] ~= nil then
-        local frame = gui.left[main_frame_name]
-        if frame and frame.valid then
-            local data = Gui.get_data(frame)
-            update_poll_viewer(data)
-        end
-    else
-        gui.top.add(
-            {
-                type = 'sprite-button',
-                name = main_button_name,
-                sprite = 'item/programmable-speaker',
-                tooltip = {'poll.tooltip'}
-            }
-        )
+    local frame = player.gui.left[main_frame_name]
+    if frame and frame.valid then
+        local data = Gui.get_data(frame)
+        update_poll_viewer(data)
     end
 end
 
@@ -856,6 +875,7 @@ local function tick()
     end
 end
 
+Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.on_nth_tick(60, tick)
 
@@ -1396,7 +1416,7 @@ Command.add(
     {
         description = {'command_description.poll'},
         arguments = {'poll'},
-        required_rank = Ranks.regular,
+        required_rank = Ranks.admin,
         allowed_by_server = true,
         custom_help_text = {'command_custom_help.poll'},
         log_command = true,

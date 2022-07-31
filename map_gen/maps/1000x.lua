@@ -177,7 +177,7 @@ Event.on_init(
 
         -- Techs
         force.technologies['automation'].researched = true
-        force.technologies['turrets'].researched = true
+        force.technologies['gun-turret'].researched = true
         force.technologies['military'].researched = true
         force.technologies['logistics'].researched = true
         if config.redmew_qol.enabled and config.redmew_qol.loaders then

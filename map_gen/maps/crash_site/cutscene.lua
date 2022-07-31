@@ -11,6 +11,12 @@ local draw_text = CS_Rendering.draw_text
 local draw_multi_line = CS_Rendering.draw_multi_line_text
 local rad = math.rad
 local Rendering = require 'utils.rendering'
+local Settings = require 'utils.redmew_settings'
+
+local auto_play_cutscene_setting_name = 'crashsite.auto_play_cutscene'
+
+Settings.register(auto_play_cutscene_setting_name, Settings.types.boolean, true, auto_play_cutscene_setting_name)
+Cutscene.set_auto_play_cutscene_setting_name(auto_play_cutscene_setting_name)
 
 local CrashsiteCutscene = {}
 
@@ -73,7 +79,7 @@ local original_resolution = {height = 1440, width = 2560}
 local original_zoom = 1
 
 local function cutscene_function_redmew(player_index, waypoint_index, params)
-    local player = game.players[player_index]
+    local player = game.get_player(player_index)
     if (not valid(player)) then
         return
     end
@@ -94,7 +100,7 @@ local function cutscene_function_redmew(player_index, waypoint_index, params)
         register_rendering(
             player_index,
             tick,
-            draw_multi_line(settings, {x = 0, y = -5}, {{'crashsite.cutscene1_case_line2', 'Crashsite'}, '---------------------', {'crashsite.cutscene1_case_line4', 'Redmew'}, {'crashsite.cutscene1_case_line5', 'www.redmew.com/discord'}}, player, {scale = 5, time_to_live = ttw}, false)
+            draw_multi_line(settings, {x = 0, y = -5}, {{'crashsite.cutscene1_case_line2', 'Crashsite'}, '---------------------', {'crashsite.cutscene1_case_line4', 'Redmew'}, {'crashsite.cutscene1_case_line5', 'redmew.com/discord'}}, player, {scale = 5, time_to_live = ttw}, false)
         )
         draw_text_auto_replacing(tick, settings, {x = 0, y = 10}, {'', {'crashsite.cutscene1_case_line6'}}, player, {scale = 3}, false, false, ttw, 0)
     end
@@ -169,7 +175,7 @@ local waypoints_redmew = {
 }
 
 local function cutscene_function_outpost(player_index, waypoint_index, params)
-    local player = game.players[player_index]
+    local player = game.get_player(player_index)
     if (not valid(player)) then
         return
     end
@@ -307,7 +313,10 @@ Cutscene.register_replay('Crashsite_Welcome', 120)
 local start_cutscene =
     Token.register(
         function(params)
-            Cutscene.register_running_cutscene(params.event.player_index, 'Crashsite_Welcome', 120)
+            local player_index = params.event.player_index
+            if Settings.get(player_index, auto_play_cutscene_setting_name) then
+                Cutscene.register_running_cutscene(player_index, 'Crashsite_Welcome', 120)
+            end
         end
 )
 

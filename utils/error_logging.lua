@@ -52,6 +52,10 @@ local function format_time(ticks)
 end
 
 local function try_generate_report(str)
+    if not game then
+        return
+    end
+
     local server_time = Public.server_time.secs
 
     local server_time_str = '(Server time: unavailable)'
@@ -69,11 +73,7 @@ local function try_generate_report(str)
         first_error = nil
     end
 
-    local tick = 'pre-game'
-    if game then
-        tick = format_time(game.tick)
-    end
-    tick = 'Time of error: ' .. tick
+    local tick = 'Time of error: ' .. format_time(game.tick)
 
     local redmew_version = global.redmew_version or 'Unknown'
     redmew_version = 'RedMew version: ' .. redmew_version

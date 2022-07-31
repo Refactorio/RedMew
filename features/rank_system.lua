@@ -144,12 +144,16 @@ end
 
 -- Exposed functions
 
+function Public.know_player(player_name)
+    return player_ranks[player_name] ~= nil
+end
+
 --- Gets a player's rank. In cases of comparison, the appropriate functions should be used.
 -- This function is exposed for the purpose of returning a numerical value for players for the
 -- purposes of sorting.
 -- Is the only place player.admin should be checked.
 function Public.get_player_rank(player_name)
-    local player = game.players[player_name]
+    local player = game.get_player(player_name)
     if player and player.valid and player.admin then
         return Ranks.admin
     elseif everyone_is_regular then
@@ -178,8 +182,8 @@ local get_player_rank_name = Public.get_player_rank_name
 -- @param player_name <string>
 -- @return <table>
 function Public.get_player_rank_color(player_name)
-    local rank_name = get_player_rank_name(player_name)
-    return Colors[rank_name]
+    local rank = get_player_rank(player_name)
+    return Colors[rank]
 end
 
 --- Returns the rank's name.
@@ -319,7 +323,7 @@ function Public.set_player_rank(player_name, rank)
         player_ranks[player_name] = nil
         Server.set_data(ranking_data_set, player_name, nil)
         -- If we're dropping someone back down the guest, put them on the guests list
-        local player = game.players[player_name]
+        local player = game.get_player(player_name)
         if player and player.valid then
             guests[player.index] = player
         end
@@ -343,7 +347,7 @@ function Public.reset_player_rank(player_name)
     if Public.equal(player_name, guest_rank) then
         return false, get_rank_name(guest_rank)
     else
-        local player = game.players[player_name]
+        local player = game.get_player(player_name)
         local rank
         if player and player.valid and (player.online_time > trust_time) then
             rank = auto_trusted

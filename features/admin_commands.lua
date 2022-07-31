@@ -8,17 +8,18 @@ local Command = require 'utils.command'
 local Color = require 'resources.color_presets'
 local Ranks = require 'resources.ranks'
 
-local loadstring = loadstring
-
 --- A table of players with tpmode turned on
 local tp_players = {}
+local players_last_command = {}
 
 Global.register(
     {
-        tp_players = tp_players
+        tp_players = tp_players,
+        players_last_command = players_last_command
     },
     function(tbl)
         tp_players = tbl.tp_players
+        players_last_command = tbl.players_last_command
     end
 )
 
@@ -27,39 +28,30 @@ local function print_no_target(target_name)
     Game.player_print({'common.fail_no_target', target_name}, Color.fail)
 end
 
+local function know_player_or_rerun(player_name, actor, command_name)
+    if Rank.know_player(player_name) then
+        return true
+    end
+
+    local actor_last_command = players_last_command[actor]
+    if actor_last_command and actor_last_command.command == command_name and actor_last_command.parameters == player_name then
+        return true;
+    end
+
+    Game.player_print({'common.rerun_no_target', player_name}, Color.fail)
+    return false
+end
+
+local function console_command(event)
+    local actor = Utils.get_admin_or_server_actor(event.player_index)
+    if actor then
+        players_last_command[actor] = {command = event.command, parameters = event.parameters}
+    end
+end
+
 --- Sends a message to all online admins
 local function admin_chat(args, player)
     Utils.print_admins(args.msg, player)
-end
-
---- Runs a command silently. Traps and prints errors for the player/server
-local function silent_command(args, player)
-    local p
-    if player then
-        p = player.print
-    else
-        p = print
-    end
-
-    local func, err = loadstring(args.str)
-    if not func then
-        p(err)
-        return
-    end
-
-    local _, err2 = pcall(func)
-    if err2 then
-        local i = err2:find('\n')
-        if i then
-            p(err2:sub(1, i))
-            return
-        end
-
-        i = err2:find('%s')
-        if i then
-            p(err2:sub(i + 1))
-        end
-    end
 end
 
 --- Toggles cheat mode for a player
@@ -70,11 +62,11 @@ end
 
 --- Promote someone to regular
 local function add_regular(args)
-    local target_ident = args.player
-    local target, target_name = Utils.validate_player(target_ident)
+    local target_name = args.player
+    local maybe_target_player = game.get_player(target_name)
+    local actor = Utils.get_actor()
 
-    if not target then
-        print_no_target(target_ident)
+    if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'regular') then
         return
     end
 
@@ -85,8 +77,10 @@ local function add_regular(args)
 
     local success = Rank.increase_player_rank_to(target_name, Ranks.regular)
     if success then
-        game.print({'admin_commands.regular_add_success', Utils.get_actor(), target_name}, Color.info)
-        target.print({'admin_commands.regular_add_notify_target'}, Color.warning)
+        game.print({'admin_commands.regular_add_success', actor, target_name}, Color.info)
+        if maybe_target_player then
+            maybe_target_player.print({'admin_commands.regular_add_notify_target'}, Color.warning)
+        end
     else
         Game.player_print({'admin_commands.regular_add_fail', target_name, Rank.get_player_rank_name(target_name)}, Color.fail)
     end
@@ -94,19 +88,19 @@ end
 
 --- Demote someone from regular
 local function remove_regular(args)
-    local target_ident = args.player
-    local target, target_name = Utils.validate_player(target_ident)
+    local target_name = args.player
+    local maybe_target_player = game.get_player(target_name)
+    local actor = Utils.get_actor()
 
-    if not target then
-        print_no_target(target_ident)
+    if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'regular-remove') then
         return
     end
 
     if Rank.equal(target_name, Ranks.regular) then
         local _, new_rank = Rank.reset_player_rank(target_name)
-        game.print({'admin_commands.regular_remove_success', Utils.get_actor(), target_name, new_rank}, Color.info)
-        if target then
-            target.print({'admin_commands.regular_remove_notify_target'}, Color.warning)
+        game.print({'admin_commands.regular_remove_success', actor, target_name, new_rank}, Color.info)
+        if maybe_target_player then
+            maybe_target_player.print({'admin_commands.regular_remove_notify_target'}, Color.warning)
         end
     else
         local rank_name = Rank.get_player_rank_name(target_name)
@@ -116,27 +110,27 @@ end
 
 --- Put someone on probation
 local function probation_add(args)
-    local target_ident = args.player
-    local target, target_name = Utils.validate_player(target_ident)
+    local target_name = args.player
+    local maybe_target_player = game.get_player(target_name)
+    local actor = Utils.get_actor()
 
-    if not target then
-        print_no_target(target_ident)
+    if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'probation') then
         return
     end
 
     if Rank.equal(target_name, Ranks.admin) then
         Game.player_print({'admin_commands.probation_add_fail_admin'}, Color.fail)
-        if target then
-            target.print({'admin_commands.probation_warn_admin', Utils.get_actor()}, Color.warning)
+        if maybe_target_player then
+            maybe_target_player.print({'admin_commands.probation_warn_admin', actor}, Color.warning)
         end
         return
     end
 
     local success = Rank.decrease_player_rank_to(target_name, Ranks.probation)
     if success then
-        game.print({'admin_commands.probation_add_success', Utils.get_actor(), target_name}, Color.info)
-        if target then
-            target.print({'admin_commands.probation_add_notify_target'}, Color.warning)
+        game.print({'admin_commands.probation_add_success', actor, target_name}, Color.info)
+        if maybe_target_player then
+            maybe_target_player.print({'admin_commands.probation_add_notify_target'}, Color.warning)
         end
     else
         Game.player_print({'admin_commands.probation_add_fail', target_name}, Color.fail)
@@ -145,19 +139,19 @@ end
 
 --- Remove someone from probation
 local function probation_remove(args)
-    local target_ident = args.player
-    local target, target_name = Utils.validate_player(target_ident)
+    local target_name = args.player
+    local maybe_target_player = game.get_player(target_name)
+    local actor = Utils.get_actor()
 
-    if not target then
-        print_no_target(target_ident)
+    if not maybe_target_player and not know_player_or_rerun(target_name, actor, 'probation-remove') then
         return
     end
 
     if Rank.equal(target_name, Ranks.probation) then
         Rank.reset_player_rank(target_name)
-        game.print({'admin_commands.probation_remove_success', Utils.get_actor(), target_name}, Color.info)
-        if target then
-            target.print({'admin_commands.probation_remove_notify_target'}, Color.warning)
+        game.print({'admin_commands.probation_remove_success', actor, target_name}, Color.info)
+        if maybe_target_player then
+            maybe_target_player.print({'admin_commands.probation_remove_notify_target'}, Color.warning)
         end
     else
         Game.player_print({'admin_commands.probation_remove_fail', target_name}, Color.fail)
@@ -328,6 +322,7 @@ end
 -- Event registrations
 
 Event.add(defines.events.on_built_entity, built_entity)
+Event.add(defines.events.on_console_command, console_command)
 
 -- Command registrations
 
@@ -341,18 +336,6 @@ Command.add(
         allowed_by_server = true
     },
     admin_chat
-)
-
-Command.add(
-    'dc',
-    {
-        description = {'command_description.dc'},
-        arguments = {'str'},
-        required_rank = Ranks.admin,
-        capture_excess_arguments = true,
-        allowed_by_server = true
-    },
-    silent_command
 )
 
 Command.add(

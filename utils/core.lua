@@ -56,7 +56,7 @@ function Module.print_admins(msg, source)
     if source then
         if type(source) == 'string' then
             source_name = source
-            chat_color = game.players[source].chat_color
+            chat_color = game.get_player(source).chat_color
         else
             source_name = source.name
             chat_color = source.chat_color
@@ -80,6 +80,20 @@ function Module.get_actor()
         return game.player.name
     end
     return '<server>'
+end
+
+--- Returns a valid string with the name of the actor for a player_index if they are an admin or the server.
+function Module.get_admin_or_server_actor(player_index)
+    if not player_index then
+        return '<server>'
+    end
+
+    local player = game.get_player(player_index)
+    if player.valid and player.admin then
+        return player.name
+    end
+
+    return nil
 end
 
 function Module.cast_bool(var)
@@ -254,6 +268,29 @@ function Module.validate_player(player_ident)
     end
 
     return player, player.name, player.index
+end
+
+local non_breaking_space = '​' -- This is \u200B an invisible space charcater.
+local sensitive_characters_map = {
+    ['\\'] = '\\\\',
+    ['*'] = '\\*',
+    ['_'] = '\\_',
+    ['~'] = '\\~',
+    ['`'] = '\\`',
+    ['|'] = '\\|',
+    ['>'] = '\\>',
+    ['@'] = '@' .. non_breaking_space
+}
+
+--- Escapes markdown characters mentions. Intended to make it safe to send user input to discord.
+-- @param message <string>
+-- @return <string>
+function Module.sanitise_string_for_discord(message)
+    for character, replace in pairs(sensitive_characters_map) do
+        message = string.gsub(message, character, replace)
+    end
+
+    return message
 end
 
 -- add utility functions that exist in base factorio/util

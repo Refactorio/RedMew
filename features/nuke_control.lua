@@ -4,13 +4,11 @@ local Utils = require 'utils.core'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
 local Global = require 'utils.global'
-local Server = require 'features.server'
 local Report = require 'features.report'
 local Popup = require 'features.gui.popup'
 local Ranks = require 'resources.ranks'
 
 local format = string.format
-local match = string.match
 
 -- capsule antigreif player entities threshold.
 local capsule_bomb_threshold = 8
@@ -39,7 +37,10 @@ local entities_allowed_to_bomb = {
     ['logistic-robot'] = true,
     ['defender'] = true,
     ['destroyer'] = true,
-    ['distractor'] = true
+    ['distractor'] = true,
+    ['artillery-flare'] = true,
+    ['poison-cloud'] = true,
+    ['poison-cloud-visual-dummy'] = true
 }
 
 Global.register(
@@ -78,12 +79,34 @@ local function ammo_changed(event)
     end
 end
 
+local function is_allowed_deconstruction_planner(cursor_stack)
+    if not cursor_stack or not cursor_stack.valid or not cursor_stack.valid_for_read then
+        return false
+    end
+
+    if cursor_stack.tile_selection_mode ~= defines.deconstruction_item.tile_selection_mode.never then
+        return false
+    end
+
+    local filters = cursor_stack.entity_filters
+    if #filters ~= 1 or filters[1] ~= 'sand-rock-big' then
+        return false
+    end
+
+    return true
+end
+
 local function on_player_deconstructed_area(event)
     local player = game.get_player(event.player_index)
     if is_trusted(player) then
         return
     end
-    player.remove_item({name = 'deconstruction-planner', count = 1000})
+
+    -- Added to allow guests to use the decon planner as a targetting remote for crash site air strike or barrage commands
+    -- see crash_site.features.deconstruction_targetting.lua
+    if is_allowed_deconstruction_planner(player.cursor_stack) then
+        return
+    end
 
     --Make them think they arent noticed
     Utils.silent_action_warning(
@@ -231,31 +254,19 @@ local function on_capsule_used(event)
 
     if players_warned[event.player_index] then
         if nuke_control.enable_autoban then
-            Server.ban_sync(
-                player.name,
-                format(
-                    'Damaged entities: %s with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord',
-                    list_damaged_entities(item_name, entities),
-                    item_name
-                ),
-                '<script>'
+            local reason = format(
+                'Damaged entities: %s with %s. This action was performed automatically. If you want to contest this ban please visit redmew.com/discord',
+                list_damaged_entities(item_name, entities),
+                item_name
             )
+            Report.ban_player(player, reason)
         end
     else
         players_warned[event.player_index] = true
         if nuke_control.enable_autokick then
-            game.kick_player(
-                player,
-                format('Damaged entities: %s with %s -Antigrief', list_damaged_entities(item_name, entities), item_name)
-            )
+            local reason = format('Damaged entities: %s with %s -Antigrief', list_damaged_entities(item_name, entities), item_name)
+            Report.kick_player(player, reason)
         end
-    end
-end
-
-local function on_player_joined(event)
-    local player = game.players[event.player_index]
-    if match(player.name, '^[Ili1|]+$') then
-        Server.ban_sync(player.name, '', '<script>') --No reason given, to not give them any hints to change their name
     end
 end
 
@@ -311,7 +322,8 @@ local function on_entity_died(event)
                 train.manual_mode = false
                 Task.set_timeout_in_ticks(30, train_to_manual, train)
                 if players_warned[player.index] and num_passengers == 1 then -- jail for later offenses if they're solely guilty
-                    Report.jail(player)
+                    Report.jail(player, '<script>')
+                    Report.report(nil, player, player.name .. ' used a train to destroy another train and has been jailed.')
                     Utils.print_admins({'nuke_control.train_jailing', player.name})
                 else -- warn for first offense or if there's someone else in the train
                     players_warned[player.index] = true
@@ -330,7 +342,6 @@ local function on_entity_died(event)
 end
 
 Event.add(defines.events.on_player_ammo_inventory_changed, ammo_changed)
-Event.add(defines.events.on_player_joined_game, on_player_joined)
 Event.add(defines.events.on_player_deconstructed_area, on_player_deconstructed_area)
 Event.add(defines.events.on_player_used_capsule, on_capsule_used)
 Event.add(defines.events.on_entity_died, on_entity_died)

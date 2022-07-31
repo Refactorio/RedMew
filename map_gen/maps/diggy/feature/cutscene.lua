@@ -14,6 +14,12 @@ local draw_text = CS_Rendering.draw_text
 local draw_multi_line = CS_Rendering.draw_multi_line_text
 local rad = math.rad
 local Rendering = require 'utils.rendering'
+local Settings = require 'utils.redmew_settings'
+
+local auto_play_cutscene_setting_name = 'diggy.auto_play_cutscene'
+
+Settings.register(auto_play_cutscene_setting_name, Settings.types.boolean, true, auto_play_cutscene_setting_name)
+Cutscene.set_auto_play_cutscene_setting_name(auto_play_cutscene_setting_name)
 
 local DiggyCutscene = {}
 
@@ -94,7 +100,7 @@ local original_zoom = 1
 local function cutscene_function(player_index, waypoint_index, params)
     local cases = {}
 
-    local player = game.players[player_index]
+    local player = game.get_player(player_index)
     local ttw = params.time_to_wait
     local zoom = params.zoom
     local tick = params.tick
@@ -112,7 +118,7 @@ local function cutscene_function(player_index, waypoint_index, params)
         register_rendering(
             player_index,
             tick,
-            draw_multi_line(settings, {x = 0, y = -5}, {{'diggy.cutscene_case_line2', 'Diggy'}, '---------------------', {'diggy.cutscene_case_line4', 'Redmew'}, {'diggy.cutscene_case_line5', 'www.redmew.com/discord'}}, player, {scale = 5, time_to_live = ttw}, false)
+            draw_multi_line(settings, {x = 0, y = -5}, {{'diggy.cutscene_case_line2', 'Diggy'}, '---------------------', {'diggy.cutscene_case_line4', 'Redmew'}, {'diggy.cutscene_case_line5', 'redmew.com/discord'}}, player, {scale = 5, time_to_live = ttw}, false)
         )
         draw_text_auto_replacing(tick, settings, {x = 0, y = 10}, {'', {'diggy.cutscene_case_line6'}}, player, {scale = 3}, false, false, ttw, 0)
         draw_text_auto_replacing(tick, settings, {x = 0, y = 16}, {'', '', {'diggy.cutscene_case_line7'}}, player, {scale = 1}, false, false, ttw, 0)
@@ -304,7 +310,10 @@ Cutscene.register_replay('Diggy_Welcome', 120)
 local start_cutscene =
     Token.register(
     function(params)
-        Cutscene.register_running_cutscene(params.event.player_index, 'Diggy_Welcome', 120)
+        local player_index = params.event.player_index
+        if Settings.get(player_index, auto_play_cutscene_setting_name) then
+            Cutscene.register_running_cutscene(params.event.player_index, 'Diggy_Welcome', 120)
+        end
     end
 )
 

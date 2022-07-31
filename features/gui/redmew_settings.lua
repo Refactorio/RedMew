@@ -13,7 +13,7 @@ local Public = {}
 
 local function close_main_frame(frame, player)
     Gui.destroy(frame)
-    player.gui.top[main_button_name].style = 'icon_button'
+    player.gui.top[main_button_name].style = 'slot_button'
 end
 
 local function player_created(event)
@@ -40,7 +40,7 @@ local function player_joined(event)
 
     local main_frame = player.gui.center[main_frame_name]
 
-    if main_frame then
+    if main_frame and main_frame.valid then
         close_main_frame(main_frame, player)
     end
 end
@@ -59,7 +59,7 @@ end
 
 local function set_element_value(element, value)
     if element.type == 'text-box' then
-        element.text = value
+        element.text = tostring(value)
         return
     end
     if element.type == 'slider' then
@@ -81,7 +81,7 @@ local function create_input_element(frame, type, value)
     end
 
     -- ensure something is always added to prevent errors
-    return frame.add({type = 'text-box', text = value})
+    return frame.add({type = 'text-box', text = tostring(value)})
 end
 
 local function draw_main_frame(center, player)
@@ -97,7 +97,7 @@ local function draw_main_frame(center, player)
     )
 
     local settings_frame_style = settings_frame.style
-    settings_frame_style.width = 400
+    settings_frame_style.width = 500
 
     local info_text = settings_frame.add({type = 'label', caption = {'redmew_settings_gui.setting_info'}})
     local info_text_style = info_text.style
@@ -187,10 +187,11 @@ local function toggle(event)
     else
         draw_main_frame(center, player)
 
-        main_button.style = 'selected_slot_button'
+        main_button.style = 'highlighted_tool_button'
         local style = main_button.style
-        style.width = 38
-        style.height = 38
+        style.width = 40
+        style.height = 40
+        style.padding = 0
     end
 end
 

@@ -34,7 +34,7 @@ entity_built_callback =
 
         if entity.health == 0 then
             entity.active = true
-            entity.die('enemy')
+            entity.die('neutral')
             return
         end
 

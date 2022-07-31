@@ -11,6 +11,11 @@ local enemy_seed = 420420
 local Event = require 'utils.event'
 local Retailer = require 'features.retailer'
 
+-- stop standard market from spawning
+local config = global.config
+config.market.create_standard_market = false
+
+--change surface settings to remove oil, cliffs, etc
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 RS.set_map_gen_settings(
@@ -334,7 +339,6 @@ local function on_init()
     Retailer.set_item('items', {price = 15, name = 'submachine-gun'})
     Retailer.set_item('items', {price = 15, name = 'shotgun'})
     Retailer.set_item('items', {price = 250, name = 'combat-shotgun'})
-    Retailer.set_item('items', {price = 25, name = 'railgun'})
     Retailer.set_item('items', {price = 250, name = 'flamethrower'})
     Retailer.set_item('items', {price = 175, name = 'rocket-launcher'})
     Retailer.set_item('items', {price = 250, name = 'tank-cannon'})
@@ -344,7 +348,6 @@ local function on_init()
     Retailer.set_item('items', {price = 20, name = 'uranium-rounds-magazine'})
     Retailer.set_item('items', {price = 2, name = 'shotgun-shell'})
     Retailer.set_item('items', {price = 10, name = 'piercing-shotgun-shell'})
-    Retailer.set_item('items', {price = 5, name = 'railgun-dart'})
     Retailer.set_item('items', {price = 25, name = 'flamethrower-ammo'})
     Retailer.set_item('items', {price = 15, name = 'rocket'})
     Retailer.set_item('items', {price = 25, name = 'explosive-rocket'})
