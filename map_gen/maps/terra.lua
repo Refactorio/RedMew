@@ -2,7 +2,7 @@
 
 local b = require "map_gen.shared.builders"
 local Event = require 'utils.event'
-local ScenarioInfo = require 'features.gui.info'
+--local ScenarioInfo = require 'features.gui.info'
 local table = require 'utils.table'
 local gear = require 'map_gen.data.presets.gear_96by96'
 local Random = require 'map_gen.shared.random'
