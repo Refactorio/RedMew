@@ -6,7 +6,7 @@
 
 -- dependencies
 local Event = require 'utils.event'
-local RS = require 'map_gen.shared.redmew_surface'
+
 
 -- this
 local Flame = {}

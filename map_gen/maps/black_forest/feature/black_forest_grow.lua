@@ -41,14 +41,14 @@ local function on_tick(event)
         --local all = surface.count_entities_filtered{position = entity.position, radius = 2, type = "tree"}
         --require 'features.gui.popup'.player(
           --          player, {'True'}
-            --    ) 
+            --    )
         --game.player.print('found: ' .. all)
         if (surface.count_entities_filtered{type = "tree", position = {x,y}} == 1) then
             local get_tile = surface.get_tile
             local t = get_tile(x, y + 1).name
-            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then 
+            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then
                 if (surface.count_entities_filtered{type = {"tree","wall","market"}, position = {x,y+1}} == 0) then
-                    
+
                     for i, entityd in pairs(surface.find_entities_filtered{position = {x,y+1}, type = {"items","accumulator","ammo-category","ammo-turret","arithmetic-combinator","artillery-turret","artillery-wagon","assembling-machine","beacon","boiler","car","cargo-wagon","constant-combinator","container","curved-rail","decider-combinator","electric-pole","electric-turret","fluid-turret","fluid-wagon","furnace","gate","generator","generator-equipment","heat-pipe","infinity-container","infinity-pipe","inserter","lab","lamp","land-mine","loader","locomotive","logistic-container","mining-drill","offshore-pump","pipe","pipe-to-ground","programmable-speaker","pump","radar","rail-chain-signal","rail-remnants","rail-signal","roboport","solar-panel","splitter","straight-rail","train-stop","transport-belt","underground-belt"}}) do
                         entityd.die()
                     end
@@ -58,9 +58,9 @@ local function on_tick(event)
                 end
             end
             t = get_tile(x+1, y + 1).name
-            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then 
+            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then
                 if (surface.count_entities_filtered{type = {"tree","wall","market"}, position = {x+1,y+1}}== 0) then
-                   
+
                     for i, entityd in pairs(surface.find_entities_filtered{position = {x+1,y+1}, type = {"items","accumulator","ammo-category","ammo-turret","arithmetic-combinator","artillery-turret","artillery-wagon","assembling-machine","beacon","boiler","car","cargo-wagon","constant-combinator","container","curved-rail","decider-combinator","electric-pole","electric-turret","fluid-turret","fluid-wagon","furnace","gate","generator","generator-equipment","heat-pipe","infinity-container","infinity-pipe","inserter","lab","lamp","land-mine","loader","locomotive","logistic-container","mining-drill","offshore-pump","pipe","pipe-to-ground","programmable-speaker","pump","radar","rail-chain-signal","rail-remnants","rail-signal","roboport","solar-panel","splitter","straight-rail","train-stop","transport-belt","underground-belt"}}) do
                         entityd.die()
                     end
@@ -68,9 +68,9 @@ local function on_tick(event)
                 end
             end
             t = get_tile(x-1, y - 1).name
-            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then 
+            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then
                 if (surface.count_entities_filtered{type = {"tree","wall","market"}, position = {x-1,y-1}}== 0) then
-                   
+
                     for i, entityd in pairs(surface.find_entities_filtered{position = {x-1,y-1}, type = {"items","accumulator","ammo-category","ammo-turret","arithmetic-combinator","artillery-turret","artillery-wagon","assembling-machine","beacon","boiler","car","cargo-wagon","constant-combinator","container","curved-rail","decider-combinator","electric-pole","electric-turret","fluid-turret","fluid-wagon","furnace","gate","generator","generator-equipment","heat-pipe","infinity-container","infinity-pipe","inserter","lab","lamp","land-mine","loader","locomotive","logistic-container","mining-drill","offshore-pump","pipe","pipe-to-ground","programmable-speaker","pump","radar","rail-chain-signal","rail-remnants","rail-signal","roboport","solar-panel","splitter","straight-rail","train-stop","transport-belt","underground-belt"}}) do
                         entityd.die()
                     end
@@ -78,7 +78,7 @@ local function on_tick(event)
                 end
             end
             t = get_tile(x, y - 1).name
-            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then 
+            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then
                 if (surface.count_entities_filtered{type = {"tree","wall","market"}, position = {x,y-1}}== 0) then
                    
                     for i, entityd in pairs(surface.find_entities_filtered{position = {x,y-1}, type = {"items","accumulator","ammo-category","ammo-turret","arithmetic-combinator","artillery-turret","artillery-wagon","assembling-machine","beacon","boiler","car","cargo-wagon","constant-combinator","container","curved-rail","decider-combinator","electric-pole","electric-turret","fluid-turret","fluid-wagon","furnace","gate","generator","generator-equipment","heat-pipe","infinity-container","infinity-pipe","inserter","lab","lamp","land-mine","loader","locomotive","logistic-container","mining-drill","offshore-pump","pipe","pipe-to-ground","programmable-speaker","pump","radar","rail-chain-signal","rail-remnants","rail-signal","roboport","solar-panel","splitter","straight-rail","train-stop","transport-belt","underground-belt"}}) do
@@ -88,9 +88,9 @@ local function on_tick(event)
                 end
             end
             t = get_tile(x+1, y ).name
-            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then 
+            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then
                 if (surface.count_entities_filtered{type = {"tree","wall","market"}, position = {x+1,y}}== 0) then
-                    
+
                     for i, entityd in pairs(surface.find_entities_filtered{position = {x+1,y}, type = {"items","accumulator","ammo-category","ammo-turret","arithmetic-combinator","artillery-turret","artillery-wagon","assembling-machine","beacon","boiler","car","cargo-wagon","constant-combinator","container","curved-rail","decider-combinator","electric-pole","electric-turret","fluid-turret","fluid-wagon","furnace","gate","generator","generator-equipment","heat-pipe","infinity-container","infinity-pipe","inserter","lab","lamp","land-mine","loader","locomotive","logistic-container","mining-drill","offshore-pump","pipe","pipe-to-ground","programmable-speaker","pump","radar","rail-chain-signal","rail-remnants","rail-signal","roboport","solar-panel","splitter","straight-rail","train-stop","transport-belt","underground-belt"}}) do
                         entityd.die()
                     end
@@ -98,7 +98,7 @@ local function on_tick(event)
                 end
             end
             t = get_tile(x-1, y).name
-            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then 
+            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then
                 if (surface.count_entities_filtered{type = {"tree","wall","market"}, position = {x-1,y}}== 0) then
                     for i, entityd in pairs(surface.find_entities_filtered{position = {x-1,y}, type = {"items","accumulator","ammo-category","ammo-turret","arithmetic-combinator","artillery-turret","artillery-wagon","assembling-machine","beacon","boiler","car","cargo-wagon","constant-combinator","container","curved-rail","decider-combinator","electric-pole","electric-turret","fluid-turret","fluid-wagon","furnace","gate","generator","generator-equipment","heat-pipe","infinity-container","infinity-pipe","inserter","lab","lamp","land-mine","loader","locomotive","logistic-container","mining-drill","offshore-pump","pipe","pipe-to-ground","programmable-speaker","pump","radar","rail-chain-signal","rail-remnants","rail-signal","roboport","solar-panel","splitter","straight-rail","train-stop","transport-belt","underground-belt"}}) do
                         entityd.die()
@@ -107,7 +107,7 @@ local function on_tick(event)
                 end
             end
             t = get_tile(x-1, y + 1).name
-            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then 
+            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then
                 if (surface.count_entities_filtered{type = {"tree","wall","market"}, position = {x-1,y+1}}== 0) then
                     for i, entityd in pairs(surface.find_entities_filtered{position = {x-1,y+1}, type = {"items","accumulator","ammo-category","ammo-turret","arithmetic-combinator","artillery-turret","artillery-wagon","assembling-machine","beacon","boiler","car","cargo-wagon","constant-combinator","container","curved-rail","decider-combinator","electric-pole","electric-turret","fluid-turret","fluid-wagon","furnace","gate","generator","generator-equipment","heat-pipe","infinity-container","infinity-pipe","inserter","lab","lamp","land-mine","loader","locomotive","logistic-container","mining-drill","offshore-pump","pipe","pipe-to-ground","programmable-speaker","pump","radar","rail-chain-signal","rail-remnants","rail-signal","roboport","solar-panel","splitter","straight-rail","train-stop","transport-belt","underground-belt"}}) do
                         entityd.die()
@@ -116,7 +116,7 @@ local function on_tick(event)
                 end
             end
             t = get_tile(x+1, y - 1).name
-            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then 
+            if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then
                 if (surface.count_entities_filtered{type = {"tree","wall","market"}, position = {x+1,y-1}}== 0) then
                     for i, entityd in pairs(surface.find_entities_filtered{position = {x+1,y-1}, type = {"items","accumulator","ammo-category","ammo-turret","arithmetic-combinator","artillery-turret","artillery-wagon","assembling-machine","beacon","boiler","car","cargo-wagon","constant-combinator","container","curved-rail","decider-combinator","electric-pole","electric-turret","fluid-turret","fluid-wagon","furnace","gate","generator","generator-equipment","heat-pipe","infinity-container","infinity-pipe","inserter","lab","lamp","land-mine","loader","locomotive","logistic-container","mining-drill","offshore-pump","pipe","pipe-to-ground","programmable-speaker","pump","radar","rail-chain-signal","rail-remnants","rail-signal","roboport","solar-panel","splitter","straight-rail","train-stop","transport-belt","underground-belt"}}) do
                         entityd.die()
@@ -124,8 +124,8 @@ local function on_tick(event)
                     surface.create_entity{name = "tree-0" .. random(1, 3), position = {x+1,y-1}, force = game.forces.player}
                 end
             end
-          
-           
+
+
         --end
     --if (entity.name == 'solar-panel') then
       --  require 'features.gui.popup'.player(

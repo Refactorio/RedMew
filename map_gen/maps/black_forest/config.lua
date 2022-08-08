@@ -16,7 +16,7 @@ local Config = {
         },
         -- controls the Daylight (Default black_forest: enabled = true)
         black_forest_flame = {
-            enabled = true 
+            enabled = true
         },
         black_forest_grow = {
             enabled = true

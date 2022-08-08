@@ -39,7 +39,7 @@ function CoinGathering.register(config)
         if get_noise(surface, x, y) < treasure_chest_noise_threshold then
             return
         end
-        
+
         -- local chest = surface.create_entity({name = 'wooden-chest', position = position, force = game.forces.player})
         local chest = surface.create_entity({name = 'wooden-chest', position = position, force = 'neutral'})
         if not chest then
