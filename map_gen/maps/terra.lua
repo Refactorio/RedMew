@@ -1,28 +1,32 @@
---Werkbestand
-
+--Terra by T-A-R 2022
 local b = require "map_gen.shared.builders"
 local Event = require 'utils.event'
---local ScenarioInfo = require 'features.gui.info'
 local table = require 'utils.table'
 local gear = require 'map_gen.data.presets.gear_96by96'
 local Random = require 'map_gen.shared.random'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local ScenarioInfo = require 'features.gui.info'
+
+
+local Retailer = require 'features.retailer'
+local config = global.config
+config.market.create_standard_market = false
+
+
 --Map info
 ScenarioInfo.set_map_name('Terra')
 ScenarioInfo.set_map_description('The latest experiments has resulted in infinite gears for infinite factory expansion.')
 ScenarioInfo.add_map_extra_info(
     [[
-Tar's additional info about gears:
-
-You start off on familiar grounds, but you must obtain robot technology
+You start off on familiar grounds, but you must use robot technology
 in order to explore beyond the grid.
-
     [item=rocket-silo] Regular rocket launch
+    [item=personal-roboport-equipment] Lazy starter equipment and market
+    [entity=biter-spawner] Pollution spreads fast
     [entity=small-biter] Biter activity high
     [item=landfill] Landfill disabled
-
+    
 Coded with love, but without much lua experience: Blame Tar[technology=optics]  for bugs.
      ]])
 
@@ -34,70 +38,9 @@ RS.set_map_gen_settings(
         MGSP.water_none,
     }
     )
-
---Terraforming
-local pic1 = require "map_gen.data.presets.factorio_logo2"
---picture size 921x153
-pic1 = b.decompress(pic1)
-local map1file = b.picture(pic1)
---land to connect the logo gear island
-local fillerblock = b.translate(b.rectangle(14,12), 248,2)
-fillerblock = b.change_tile(fillerblock, true, "grass-4")
-local map1 = b.add(fillerblock, map1file)
-map1 = b.scale(map1, 1, 1)
--- Rotated logo's
-local map2 = b.rotate (map1, math.pi/2)
---Square minus corner pieces, size is related to ''factorio_logo2"
-local shap1 = b.translate(b.rectangle_diamond(26, 24), pic1.height/2,pic1.height/2)
-local shap2 = b.rotate((shap1), math.pi/2)
-local shap3 = b.rotate((shap2), math.pi/2)
-local shap4 = b.rotate((shap3), math.pi/2)
-local shap5 = b.invert(b.rectangle(pic1.height+1, pic1.height+1))
---Combining using all
-local chamfer = b.invert(b.any({shap1, shap2, shap3, shap4, shap5}))
-local corner = chamfer
-corner = b.change_tile(corner, true, "grass-4")
---Botland (robo islands)
-local shape1 = b.translate(b.rectangle(250, 40), 74, 0)
-local shape2 = b.rotate((shape1), math.pi/2)
-local shape3 = b.rotate((shape2), math.pi/2)
-local shape4 = b.rotate((shape3), math.pi/2)
-local shape5 = b.scale((chamfer), 1.4,1.4)
---Combining using all
-local botland = b.any({shape5, shape1, shape2, shape3, shape4})
---pave the shape
-botland = b.scale(botland, 2.2,2.2)
-botland = b.change_tile(botland, true, 'landfill')
-botland = b.remove_map_gen_enemies(botland)
-
-local mappattern = {
-    {corner, map1},
-    {map2,botland}
-}
-local map = b.grid_pattern_overlap(mappattern, 2, 2, 499,500)
---Final map scaler
-map = b.scale(map, 1.2,1.2)
--- this sets the tile outside the bounds of the map to water, remove this and it will be void.
-map = b.change_tile(map, false, "water")
-map = b.fish(map, 0.0025)
-
-local centre =b.circle(12)
---local centre = b.rectangle(5,5)
---local centre = b.scale(chamfer, 0.08,0.08)
-map = b.if_else(centre, map)
-centre = b.change_map_gen_collision_tile(centre, 'ground-tile', 'stone-path')
--- the coordinates at which the standard market and spawn  will be created
-local startx = 0
-local starty = 0
-    --market
-global.config.market.standard_market_location = {x = startx, y = starty}
- --player
-local surface = RS.get_surface()local spawn_position = {x = startx, y = starty-3}
-RS.set_spawn_position(spawn_position, surface)
-
-   --Ore generation: Copy for "void gears' - altered seeds to create nice starting area
-    local seed1 = 1410
-    local seed2 = 11880
+--Ore generation: Copy for "void gears' - altered seeds 
+    local seed1 = 42900
+    local seed2 = 57500
     --11900 --11830
 gear = b.decompress(gear)
 local gear_big = b.picture(gear)
@@ -253,18 +196,82 @@ medium_patches = b.grid_pattern_full_overlap(medium_patches, p_cols, p_rows, 192
 small_patches = do_patches(small_patches, 128)
 small_patches = b.grid_pattern_full_overlap(small_patches, p_cols, p_rows, 128, 128)
 
-map = b.apply_entities(map, {big_patches, medium_patches, small_patches})
+--Terraforming
+local pic1 = require "map_gen.data.presets.factorio_logo2"
+--picture size 921x153
+pic1 = b.decompress(pic1)
+local map1file = b.picture(pic1)
+--connect the gear island to the rest of the logo
+local fillerblock = b.translate(b.rectangle(14,12), 248,2)
+fillerblock = b.change_tile(fillerblock, true, "grass-4")
+local map1 = b.add(fillerblock, map1file)
+-- Rotated logo's
+local map2 = b.rotate (map1, math.pi/2)
+--The shape chamfer is the square with chamfer corners
+local shap1 = b.translate(b.rectangle_diamond(26, 24), pic1.height/2,pic1.height/2)
+local shap2 = b.rotate((shap1), math.pi/2)
+local shap3 = b.rotate((shap2), math.pi/2)
+local shap4 = b.rotate((shap3), math.pi/2)
+local shap5 = b.invert(b.rectangle(pic1.height+1, pic1.height+1))
+--Corner is the shape where players start
+local chamfer = b.invert(b.any({shap1, shap2, shap3, shap4, shap5}))
+local corner = chamfer
+corner = b.change_tile(corner, true, "grass-4")
+--Botland adds accespoints to the islands
+local shape1 = b.translate(b.rectangle(250, 40), 74, 0)
+local shape2 = b.rotate((shape1), math.pi/2)
+local shape3 = b.rotate((shape2), math.pi/2)
+local shape4 = b.rotate((shape3), math.pi/2)
+local shape5 = b.scale((chamfer), 1.4,1.4)
+local botland = b.any({shape5, shape1, shape2, shape3, shape4})
+botland = b.remove_map_gen_enemies(botland)
+botland = b.scale(botland, 2.2,2.2)
+botland = b.change_tile(botland, true, 'landfill')
+botland = b.remove_map_gen_trees(botland)
+botland = b.remove_map_gen_resources(botland)
+--Patternize shapes infinitly
+local mappattern = {
+    {corner, map1},
+    {map2,botland}
+}
+local terra = b.grid_pattern_overlap(mappattern, 2, 2, 499,499)
+--creating a shape with the ore pattern, to make ore only appear out of player reach.
+local orezone = b.scale((chamfer), 3,3)
+orezone = b.remove_map_gen_enemies(orezone)
+orezone = b.remove_map_gen_trees(orezone)
+orezone = b.change_tile(orezone, true, 'landfill')
+local oremask = b.single_pattern(orezone, 998, 998)
+oremask = b.translate(oremask, 497, 497)
+oremask = b.apply_entities(oremask, {big_patches, medium_patches, small_patches})
+local map =b.add(oremask, terra)  
+--Final map, scale defines gap between islands and the grid land. Test gaps with large poles, roboports and spidertron.
+map = b.scale(map, 1.2,1.2)
+map = b.change_tile(map, false, "water")
+map = b.fish(map, 0.0025)
+
+local centre =b.circle(17)
+map = b.if_else(centre, map)
+centre = b.change_map_gen_collision_tile(centre, 'ground-tile', 'stone-path')
+-- the coordinates at which the standard market and spawn  will be created
+local startx = 0
+local starty = 0
+ --player
+local surface = RS.get_surface()local spawn_position = {x = startx, y = starty-3}
+RS.set_spawn_position(spawn_position, surface)
+
+
+--Starting ores
 local start_stone =
     b.resource(
-    gear_medium,
+    gear_big,
     'stone',
     function()
-        return 400
+        return 800
     end
 )
 local start_coal =
     b.resource(
-    gear_medium,
+    gear_big,
     'coal',
     function()
         return 800
@@ -272,28 +279,36 @@ local start_coal =
 )
 local start_copper =
     b.resource(
-    gear_medium,
+    gear_big,
     'copper-ore',
     function()
-        return 800
+        return 1200
     end
 )
 local start_iron =
     b.resource(
-    gear_medium,
+    gear_big,
     'iron-ore',
     function()
-        return 1600
+        return 1800
     end
 )
 local start_segmented = b.segment_pattern({start_stone, start_coal, start_iron, start_copper})
-local start_gear = b.apply_entity(gear_medium, start_segmented)
+local start_gear = b.apply_entity(gear_big, start_segmented)
 start_gear = b.change_tile(start_gear, true, "grass-3")
 map = b.if_else(start_gear, map)
 map = b.if_else(centre, map)
-        --Starting equipment
+          
+   --Starting equipment
 local player_create = global.config.player_create
 player_create.starting_items = {
+    {name = 'modular-armor', count = 1},
+    {name = 'solar-panel-equipment', count = 7},
+    {name = 'battery-mk2-equipment', count = 1},
+    {name = 'personal-roboport-equipment', count = 1},
+    {name = 'construction-robot', count = 10},
+    {name = 'exoskeleton-equipment', count = 1},
+    {name = 'iron-gear-wheel', count = 8},
     {name = 'iron-plate', count = 40},
     {name = 'copper-plate', count = 20},
     {name = 'coal', count = 5}
@@ -305,11 +320,63 @@ player_create.join_messages = {
         --Starting Techs
 Event.on_init(
     function()
-local force = game.forces.player
+        surface = RS.get_surface()
+        local force = game.forces.player
         force.technologies['automation'].researched = true
         force.technologies['logistics'].researched = true
         force.technologies['landfill'].enabled = false -- disable landfill
+           
+           -- Set up non-standard market so we can add logistics network things without editing a different file
+    global.config.market.create_standard_market = false
+    Retailer.set_item('items', {price = 100, name = 'player-port'})
+    Retailer.set_item('items', {price = 15, name = 'submachine-gun'})
+    Retailer.set_item('items', {price = 250, name = 'combat-shotgun'})
+    Retailer.set_item('items', {price = 250, name = 'flamethrower'})
+    Retailer.set_item('items', {price = 175, name = 'rocket-launcher'})
+    Retailer.set_item('items', {price = 250, name = 'tank-cannon'})
+    Retailer.set_item('items', {price = 2500, name = 'artillery-wagon-cannon'})
+    Retailer.set_item('items', {price = 1, name = 'firearm-magazine'})
+    Retailer.set_item('items', {price = 5, name = 'piercing-rounds-magazine'})
+    Retailer.set_item('items', {price = 20, name = 'uranium-rounds-magazine'})
+    Retailer.set_item('items', {price = 2, name = 'shotgun-shell'})
+    Retailer.set_item('items', {price = 10, name = 'piercing-shotgun-shell'})
+    Retailer.set_item('items', {price = 25, name = 'flamethrower-ammo'})
+    Retailer.set_item('items', {price = 15, name = 'rocket'})
+    Retailer.set_item('items', {price = 25, name = 'explosive-rocket'})
+    Retailer.set_item('items', {price = 30, name = 'explosive-cannon-shell'})
+    Retailer.set_item('items', {price = 75, name = 'explosive-uranium-cannon-shell'})
+    Retailer.set_item('items', {price = 35, name = 'cluster-grenade'})
+    Retailer.set_item('items', {price = 35, name = 'poison-capsule'})
+    Retailer.set_item('items', {price = 875, name = 'power-armor'})
+    Retailer.set_item('items', {price = 2500, name = 'power-armor-mk2'})
+    Retailer.set_item('items', {price = 40, name = 'solar-panel-equipment'})
+    Retailer.set_item('items', {price = 875, name = 'fusion-reactor-equipment'})
+    Retailer.set_item('items', {price = 100, name = 'battery-equipment'})
+    Retailer.set_item('items', {price = 625, name = 'battery-mk2-equipment'})
+    Retailer.set_item('items', {price = 150, name = 'exoskeleton-equipment'})
+    Retailer.set_item('items', {price = 250, name = 'energy-shield-equipment'}) 
+    Retailer.set_item('items', {price = 750, name = 'energy-shield-mk2-equipment'}) 
+    Retailer.set_item('items', {price = 750, name = 'personal-laser-defense-equipment'})
+    Retailer.set_item('items', {price = 250, name = 'personal-roboport-equipment'}) 
+    Retailer.set_item('items', {price = 6, name = 'big-electric-pole'})
+    Retailer.set_item('items', {price = 25, name = 'substation'})
+    Retailer.set_item('items', {price = 10, name = 'construction-robot'})
+    Retailer.set_item('items', {price = 2, name = 'logistic-robot'})
+    Retailer.set_item('items', {price = 50, name = 'roboport'})
+    Retailer.set_item('items', {price = 25, name = 'logistic-chest-active-provider'})
+    Retailer.set_item('items', {price = 25, name = 'logistic-chest-passive-provider'})
+    Retailer.set_item('items', {price = 25, name = 'logistic-chest-requester'})
+    Retailer.set_item('items', {price = 25, name = 'logistic-chest-storage'})
+    Retailer.set_item('items', {price = 25, name = 'logistic-chest-buffer'})
+
+    Retailer.set_market_group_label('items', 'Items Market')
+    local item_market_1 = surface.create_entity({name = 'market', position = {0, 0}})
+    item_market_1.destructible = false
+    Retailer.add_market('items', item_market_1)
+    
+     Retailer.add_market('items', item_market)
    end
 )
+Event.on_init(on_init)
 
 return map
