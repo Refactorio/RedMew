@@ -35,7 +35,7 @@ local function on_tick(event)
     global.gtran = random(1,global.gtbase)
     --local entity = global.gttrees[global.gtran]
     --for i, entity in pairs(surface.find_entities_filtered{type = "tree"}) do
-        local eposition = global.gttrees[global.gtran].position
+        local eposition = (global.gttrees[global.gtran]).position
         local x = eposition.x
         local y = eposition.y
         --local all = surface.count_entities_filtered{position = entity.position, radius = 2, type = "tree"}
@@ -124,7 +124,6 @@ local function on_tick(event)
                     surface.create_entity{name = "tree-0" .. random(1, 3), position = {x+1,y-1}, force = game.forces.player}
                 end
             end
-
 
         --end
     --if (entity.name == 'solar-panel') then

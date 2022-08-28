@@ -15,8 +15,6 @@ local random = math.random
 local tonumber = tonumber
 local pairs = pairs
 local is_black_forest_rock = Template.is_black_forest_rock
-local destroy_rock = CreateParticles.destroy_rock
-local mine_rock = CreateParticles.mine_rock
 local raise_event = script.raise_event
 local mine_size_name = 'mine-size'
 
@@ -247,7 +245,6 @@ function black_forestHole.register(cfg)
         entity.destroy()
 
         local rock = create_entity({name = name, position = position})
-        mine_rock(create_entity, 1, position)
         rock.graphics_variation = graphics_variation
         rock.order_deconstruction(force)
         rock.health = health
@@ -263,7 +260,6 @@ function black_forestHole.register(cfg)
         --event.buffer.clear()
 
         black_forest_hole(entity)
-        mine_rock(entity.surface.create_entity, 6, entity.position)
     end)
 
     Event.add(defines.events.on_robot_mined_tile, function (event)
