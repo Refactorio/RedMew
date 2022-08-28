@@ -138,18 +138,19 @@ local Config = {
         },
         -- automatically opens areas
         simple_room_generator = {
-            enabled = false,
+            enabled = true,
             -- value between 0 and 1, higher value means stronger variance between coordinates
             noise_variance = 0.08,
             -- shows where rooms are located
-            display_room_locations = true,
+            display_room_locations = false,
             -- minimum distance and noise range required for water to spawn
             room_noise_minimum_distance = 3,
             room_noise_ranges = {
+                {name = 'dirt', min = 0.95, max = 1},
                 {name = 'water', min = 0.93, max = 0.94},
                 {name = 'deepwater', min = 0.51, max = 0.92},
                 {name = 'water', min = 0.23, max = 0.50},
-                {name = 'dirt', min = 0.20, max = 0.22}
+                {name = 'dirt', min = 0.15, max = 0.22}
             }
         },
         -- responsible for resource spawning
@@ -218,7 +219,7 @@ local Config = {
                 ['coal'] = 2,
                 ['copper-ore'] = 215,
                 ['iron-ore'] = 389,
-                ['stone'] = 212,
+                ['stone'] = 150,
                 ['uranium-ore'] = 21,
                 ['crude-oil'] = 3
             },
@@ -346,26 +347,25 @@ local Config = {
                 {level = 2, price = 5, name = 'stone-wall'},
                 {level = 3, price = 20, name = 'pistol'},
                 {level = 3, price = 5, name = 'firearm-magazine'},
+                {level = 4, price = 2, name = 'rail'},
                 {level = 4, price = 100, name = 'light-armor'},
                 {level = 5, price = 6, name = 'small-lamp'},
+                {level = 5, price = 100, name = 'locomotive'},
                 {level = 6, price = 5, name = 'raw-fish'},
                 {level = 8, price = 200, name = 'solar-panel'},
-                {level = 10, price = 85, name = 'shotgun'},
-                {level = 10, price = 4, name = 'shotgun-shell'},
+                {level = 9, price = 15, name = 'train-stop'},
+                {level = 10, price = 80, name = 'cargo-wagon'},
+                {level = 11, price = 5, name = 'rail-signal'},
+                {level = 11, price = 5, name = 'rail-chain-signal'},
                 {level = 12, price = 200, name = 'heavy-armor'},
-                {level = 14, price = 120, name = 'landfill'},
+                {level = 14, price = 175, name = 'landfill'},
                 {level = 15, price = 85, name = 'submachine-gun'},
-                {level = 18, price = 10, name = 'piercing-rounds-magazine'},
-                {level = 18, price = 8, name = 'piercing-shotgun-shell'},
-                {level = 19, price = 2, name = 'rail'},
-                {level = 20, price = 50, name = 'locomotive'},
+                {level = 18, price = 750, name = 'effectivity-module-3'},
+                {level = 20, price = 750, name = 'productivity-module-3'},
+                {level = 24, price = 750, name = 'speed-module-3'},
                 {level = 20, price = 350, name = 'modular-armor'},
                 {level = 21, price = 10000, name = 'flamethrower'},
                 {level = 21, price = 1000, name = 'flamethrower-ammo'},
-                {level = 22, price = 5, name = 'rail-signal'},
-                {level = 22, price = 5, name = 'rail-chain-signal'},
-                {level = 23, price = 15, name = 'train-stop'},
-                {level = 24, price = 35, name = 'cargo-wagon'},
                 {level = 24, price = 35, name = 'fluid-wagon'},
                 {level = 29, price = 750, name = 'power-armor'},
                 {level = 30, price = 30, name = 'logistic-robot'},
@@ -381,8 +381,8 @@ local Config = {
                 {level = 51, price = 25, name = 'uranium-rounds-magazine'},
                 {level = 63, price = 37000, name = 'flamethrower-turret'},
                 {level = 71, price = 80, name = 'explosive-rocket'},
-                {level = 78, price = 1000, name = 'satellite'}--,
-                --{level = 78, price = 1000, name = 'satellite'}
+                {level = 78, price = 1000, name = 'satellite'},
+                {level = 99, price = 1027, name = 'wood'}
             },
             -- modifies the experience per alien type, higher is more xp
             alien_experience_modifiers = {

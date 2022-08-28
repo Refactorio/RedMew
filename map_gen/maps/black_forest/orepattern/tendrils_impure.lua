@@ -42,7 +42,7 @@ return {
         weights = {
             ['iron-ore']    = 860,
             ['coal']        = 19,
-            ['stone']       = 55,
+            ['stone']       = 40,
         },
         distances = {
             ['coal']        = 40,
@@ -68,7 +68,7 @@ return {
         weights = {
             ['copper-ore']  = 860,
             ['coal']        = 19,
-            ['stone']       = 65,
+            ['stone']       = 50,
         },
         distances = {
             ['coal']        = 22,
@@ -94,7 +94,7 @@ return {
         weights = {
             ['coal']        = 180,
             ['iron-ore']    = 160,
-            ['stone']       = 50,
+            ['stone']       = 35,
         },
         distances = {
             ['coal']        = 16,
@@ -118,7 +118,7 @@ return {
             }
         },
         weights = {
-            ['stone']       = 790,
+            ['stone']       = 500,
             ['copper-ore']  = 126,
             ['coal']        = 14,
         },
@@ -176,7 +176,7 @@ return {
             ['coal']        = 10,
             ['copper-ore']  = 272,
             ['iron-ore']    = 454,
-            ['stone']       = 93,
+            ['stone']       = 80,
         },
         distances = {
             ['coal']        = 16,
