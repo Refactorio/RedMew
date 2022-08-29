@@ -140,17 +140,15 @@ local Config = {
         simple_room_generator = {
             enabled = true,
             -- value between 0 and 1, higher value means stronger variance between coordinates
-            noise_variance = 0.08,
+            noise_variance = 0.03,
             -- shows where rooms are located
             display_room_locations = false,
             -- minimum distance and noise range required for water to spawn
-            room_noise_minimum_distance = 3,
+            room_noise_minimum_distance = 50,
             room_noise_ranges = {
-                {name = 'dirt', min = 0.95, max = 1},
-                {name = 'water', min = 0.93, max = 0.94},
-                {name = 'deepwater', min = 0.51, max = 0.92},
-                {name = 'water', min = 0.23, max = 0.50},
-                {name = 'dirt', min = 0.15, max = 0.22}
+                {name = 'deepwater', min = 0.44, max = 1},
+                {name = 'water', min = 0.38, max = 0.44},
+                {name = 'dirt', min = 0.35, max = 0.38}
             }
         },
         -- responsible for resource spawning
@@ -252,7 +250,7 @@ local Config = {
             enabled = true,
 
             -- minimum distance from spawn before aliens can spawn
-            alien_minimum_distance = 40,
+            alien_minimum_distance = 55,
 
             -- chance of spawning aliens when mining from 0 to 1
             alien_probability = 0.13,
@@ -261,7 +259,7 @@ local Config = {
             evolution_per_void_removed = 0.0000027,
 
             -- initial evolution percentage, recommended to set to 0 for non-multiplayer setups
-            initial_evolution = 10,
+            initial_evolution = 1,
 
             -- evolution over time value, leave nil to use vanilla settings
             evolution_over_time_factor = 0.000008,

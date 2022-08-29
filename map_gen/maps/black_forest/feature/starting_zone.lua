@@ -49,7 +49,7 @@ function StartingZone.register(config)
 
         local dirt_range = floor(starting_zone_size * 0.5)
         local rock_range = starting_zone_size - 2
-        local stress_hack = floor(starting_zone_size * 0.1)
+        --local stress_hack = floor(starting_zone_size * 0.1)
 
         for x = -starting_zone_size, starting_zone_size do
             for y = -starting_zone_size, starting_zone_size do

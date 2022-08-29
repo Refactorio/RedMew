@@ -77,7 +77,7 @@ function Scenario.register()
     require ('map_gen.shared.change_landfill_tile')(landfill_tiles)
 
     ScenarioInfo.set_map_name('black_forest')
-    ScenarioInfo.set_map_description([[There are many trees! 
+    ScenarioInfo.set_map_description([[There are many trees!
 Trees will grow back, be careful!
 Maybe try concrete to stop them.]])
 

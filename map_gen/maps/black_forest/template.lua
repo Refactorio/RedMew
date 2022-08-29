@@ -157,11 +157,11 @@ function Template.resources(surface, resources)
     end
 end
 
-Template.black_forest_rocks = {'tree-01', 'tree-02', 'tree-03'}
+Template.black_forest_trees = {'tree-01', 'tree-02', 'tree-03'}
 
----Returns true if the entity name is that of a black_forest rock.
+---Returns true if the entity name is that of a black_forest tree.
 ---@param entity_name string
-function Template.is_black_forest_rock(entity_name)
+function Template.is_black_forest_tree(entity_name)
     return entity_name == 'tree-01' or entity_name == 'tree-02' or entity_name == 'tree-03'
 end
 

@@ -9,12 +9,11 @@ local Global = require 'utils.global'
 local Template = require 'map_gen.maps.black_forest.template'
 local ScoreTracker = require 'utils.score_tracker'
 local Command = require 'utils.command'
-local CreateParticles = require 'features.create_particles'
 local Ranks = require 'resources.ranks'
 local random = math.random
 local tonumber = tonumber
 local pairs = pairs
-local is_black_forest_rock = Template.is_black_forest_rock
+local is_black_forest_tree = Template.is_black_forest_tree
 local raise_event = script.raise_event
 local mine_size_name = 'mine-size'
 
@@ -184,7 +183,7 @@ function black_forestHole.register(cfg)
     Event.add(defines.events.on_entity_died, function (event)
         local entity = event.entity
         local name = entity.name
-        if not is_black_forest_rock(name) then
+        if not is_black_forest_tree(name) then
             return
         end
         if event.loot then
@@ -197,7 +196,7 @@ function black_forestHole.register(cfg)
     Event.add(defines.events.script_raised_destroy, function (event)
         local entity = event.entity
         local name = entity.name
-        if not is_black_forest_rock(name) then
+        if not is_black_forest_tree(name) then
             return
         end
         black_forest_hole(entity)
@@ -211,11 +210,11 @@ function black_forestHole.register(cfg)
             return
         end
 
-        if not is_black_forest_rock(name) then
+        if not is_black_forest_tree(name) then
             return
         end
         raise_event(defines.events.script_raised_destroy, {entity = entity, cause = "die_faster"})
-        destroy_rock(entity.surface.create_particle, 10, entity.position)
+
         --raise_event(defines.events.on_entity_died, {entity = entity, cause = event.cause, force = event.force})
         entity.destroy()
         return
@@ -225,7 +224,7 @@ function black_forestHole.register(cfg)
         local entity = event.entity
         local name = entity.name
 
-        if not is_black_forest_rock(name) then
+        if not is_black_forest_tree(name) then
             return
         end
 
@@ -253,7 +252,7 @@ function black_forestHole.register(cfg)
     Event.add(defines.events.on_player_mined_entity, function (event)
         local entity = event.entity
         local name = entity.name
-        if not is_black_forest_rock(name) then
+        if not is_black_forest_tree(name) then
             return
         end
 

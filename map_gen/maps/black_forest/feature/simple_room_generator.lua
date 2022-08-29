@@ -13,7 +13,6 @@ local pairs = pairs
 local perlin_noise = require 'map_gen.shared.perlin_noise'.noise
 local template_insert = Template.insert
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
-local on_entity_died = defines.events.on_entity_died
 -- this
 local SimpleRoomGenerator = {}
 
@@ -21,22 +20,22 @@ local do_spawn_tile = Token.register(function(params)
     template_insert(params.surface, {params.tile}, {})
 end)
 
-local rocks_lookup = Template.black_forest_rocks
+local trees_lookup = Template.black_forest_trees
 
 local do_mine = Token.register(function(params)
     local surface = params.surface
     local position = params.position
-    local rocks = surface.find_entities_filtered({position = position, name = rocks_lookup})
+    local trees = surface.find_entities_filtered({position = position, name = trees_lookup})
 
-    local rock_count = #rocks
-    if rock_count == 0 then
+    local tree_count = #trees
+    if tree_count == 0 then
         return
     end
-    
-    for i = rock_count, 1, -1 do
-        local rock = rocks[i]
-        raise_event(defines.events.script_raised_destroy, {entity = rock, cause = "room_clearing"})
-        rock.destroy()
+
+    for i = tree_count, 1, -1 do
+        local tree = trees[i]
+        raise_event(defines.events.script_raised_destroy, {entity = tree, cause = "room_clearing"})
+        tree.destroy()
     end
 end)
 
@@ -77,8 +76,8 @@ function SimpleRoomGenerator.register(config)
 
     Event.add(Template.events.on_void_removed, function (event)
         local position = event.position
-        local x = position.x 
-        local y = position.y 
+        local x = position.x
+        local y = position.y
 
         local distance_sq = x * x + y * y
 

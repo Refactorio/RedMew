@@ -51,7 +51,7 @@ end, function(tbl)
     memory = tbl.memory
 end)
 
-local rocks_to_find = Template.black_forest_rocks
+local trees_to_find = Template.black_forest_trees
 
 ---Triggers mining at the collision_box of the alien, to free it
 local do_alien_mining = Token.register(function(params)
@@ -59,25 +59,25 @@ local do_alien_mining = Token.register(function(params)
     local create_entity = surface.create_entity
     local find_non_colliding_position = surface.find_non_colliding_position
 
-    local rocks = surface.find_entities_filtered({area = params.clear_area, name = rocks_to_find})
+    local trees = surface.find_entities_filtered({area = params.clear_area, name = trees_to_find})
 
-    local rock_count = #rocks
-    if rock_count > 0 then
-        -- with multiple rocks opening at once, it will spawn less particles in total per rock
+    local tree_count = #trees
+    if tree_count > 0 then
+        -- with multiple trees opening at once, it will spawn less particles in total per tree
         local particle_count
-        if rock_count == 1 then
+        if tree_count == 1 then
             particle_count = 15
-        elseif rock_count == 2 then
+        elseif tree_count == 2 then
             particle_count = 10
         else
             particle_count = 5
         end
 
-        for rock_index = rock_count, 1, -1 do
-            local rock = rocks[rock_index]
-            raise_event(defines.events.on_entity_died, {entity = rock})
-            destroy_rock(create_entity, particle_count, rock.position)
-            rock.destroy()
+        for tree_index = tree_count, 1, -1 do
+            local tree = trees[tree_index]
+            raise_event(defines.events.script_raised_destroy, {entity = tree, cause = "alien_emerges"})
+            destroy_rock(create_entity, particle_count, tree.position)
+            tree.destroy()
         end
     end
 

@@ -80,7 +80,7 @@ local function on_tick(event)
             t = get_tile(x, y - 1).name
             if (t ~= 'out-of-map' and t ~= 'concrete' and t ~= 'hazard-concrete-left' and t ~= 'hazard-concrete-right' and t ~= 'refined-hazard-concrete-right' and t ~= 'refined-hazard-concrete-left' and t ~= 'refined-concrete' and t ~= 'stone-path' and t ~= 'water' and t ~= 'water-green' and t ~= 'water-mud' and t ~= 'water-shallow' and t ~= 'deepwater-green' and t ~= 'deepwater') then
                 if (surface.count_entities_filtered{type = {"tree","wall","market"}, position = {x,y-1}}== 0) then
-                   
+
                     for i, entityd in pairs(surface.find_entities_filtered{position = {x,y-1}, type = {"items","accumulator","ammo-category","ammo-turret","arithmetic-combinator","artillery-turret","artillery-wagon","assembling-machine","beacon","boiler","car","cargo-wagon","constant-combinator","container","curved-rail","decider-combinator","electric-pole","electric-turret","fluid-turret","fluid-wagon","furnace","gate","generator","generator-equipment","heat-pipe","infinity-container","infinity-pipe","inserter","lab","lamp","land-mine","loader","locomotive","logistic-container","mining-drill","offshore-pump","pipe","pipe-to-ground","programmable-speaker","pump","radar","rail-chain-signal","rail-remnants","rail-signal","roboport","solar-panel","splitter","straight-rail","train-stop","transport-belt","underground-belt"}}) do
                         entityd.die()
                     end

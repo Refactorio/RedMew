@@ -26,7 +26,7 @@ function RefreshMap.register(config)
                 local target_y = left_top_y + y
                 local tile = 'out-of-map'
                 local target_x_1000 = target_x % 1000
-                
+
                 if (config.river) then
                     if target_y > -8 and target_y < 9 then
                         tile = 'deepwater-green'
