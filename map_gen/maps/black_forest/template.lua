@@ -159,10 +159,16 @@ end
 
 Template.black_forest_trees = {'tree-01', 'tree-02', 'tree-03'}
 
+local black_forest_trees_by_name = {
+  ['tree-01'] = true,
+  ['tree-02'] = true,
+  ['tree-03'] = true,
+}
+
 ---Returns true if the entity name is that of a black_forest tree.
 ---@param entity_name string
 function Template.is_black_forest_tree(entity_name)
-    return entity_name == 'tree-01' or entity_name == 'tree-02' or entity_name == 'tree-03'
+    return black_forest_trees_by_name[entity_name]
 end
 
 return Template

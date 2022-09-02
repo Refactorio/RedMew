@@ -12,6 +12,7 @@ local AlienEvolutionProgress = require 'utils.alien_evolution_progress'
 local Debug = require 'map_gen.maps.black_forest.debug'
 local Template = require 'map_gen.maps.black_forest.template'
 local CreateParticles = require 'features.create_particles'
+local destroy_tree = CreateParticles.destroy_tree
 local format_number = require 'util'.format_number
 local random = math.random
 local floor = math.floor
@@ -22,7 +23,6 @@ local raise_event = script.raise_event
 local get_aliens = AlienEvolutionProgress.get_aliens
 local create_spawner_request = AlienEvolutionProgress.create_spawner_request
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
-local destroy_rock = CreateParticles.destroy_rock
 
 -- this
 local AlienSpawner = {}
@@ -75,9 +75,8 @@ local do_alien_mining = Token.register(function(params)
 
         for tree_index = tree_count, 1, -1 do
             local tree = trees[tree_index]
-            raise_event(defines.events.script_raised_destroy, {entity = tree, cause = "alien_emerges"})
-            destroy_rock(create_entity, particle_count, tree.position)
-            tree.destroy()
+            destroy_tree(surface.create_particle, particle_count, tree.position)
+            tree.destroy{raise_destroy = true}
         end
     end
 

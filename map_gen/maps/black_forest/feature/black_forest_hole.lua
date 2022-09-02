@@ -9,6 +9,8 @@ local Global = require 'utils.global'
 local Template = require 'map_gen.maps.black_forest.template'
 local ScoreTracker = require 'utils.score_tracker'
 local Command = require 'utils.command'
+local CreateParticles = require 'features.create_particles'
+local destroy_tree = CreateParticles.destroy_tree
 local Ranks = require 'resources.ranks'
 local random = math.random
 local tonumber = tonumber
@@ -213,11 +215,8 @@ function black_forestHole.register(cfg)
         if not is_black_forest_tree(name) then
             return
         end
-        raise_event(defines.events.script_raised_destroy, {entity = entity, cause = "die_faster"})
-
-        --raise_event(defines.events.on_entity_died, {entity = entity, cause = event.cause, force = event.force})
-        entity.destroy()
-        return
+        destroy_tree(entity.surface.create_particle, 10, entity.position)
+        entity.destroy{raise_destroy = true}
     end)
 
     Event.add(defines.events.on_robot_mined_entity, function (event)

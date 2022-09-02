@@ -150,6 +150,23 @@ end
 ---@param create_particle function a reference to a surface.create_particle
 ---@param particle_count number particle count to spawn
 ---@param position Position
+function CreateParticles.destroy_tree(create_particle, particle_count, position)
+    for _ = scale_floor(particle_count), 1, -1 do
+        settings.particles_spawned_buffer = settings.particles_spawned_buffer + 1
+        create_particle({
+            name = 'leaf-particle',
+            position = position,
+            movement = {random(-5, 5) * 0.01, random(-5, 5) * 0.01},
+            height = random(9, 11) * 0.1,
+            vertical_speed = random(12, 14) * 0.01,
+            frame_speed = 1,
+        })
+    end
+end
+
+---@param create_particle function a reference to a surface.create_particle
+---@param particle_count number particle count to spawn
+---@param position Position
 function CreateParticles.blood_explosion(create_particle, particle_count, position)
     for _ = particle_count, 1, -1 do
         create_particle({
@@ -181,7 +198,7 @@ function CreateParticles.mine_rock(create_particle, particle_count, position)
 end
 
 
----Creates a prototype for LuaSurface.create_entity
+---Creates a prototype for LuaSurface.create_particle
 ---@param particle string name of the particle
 ---@param x number
 ---@param y number

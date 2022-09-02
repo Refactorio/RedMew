@@ -34,8 +34,7 @@ local do_mine = Token.register(function(params)
 
     for i = tree_count, 1, -1 do
         local tree = trees[i]
-        raise_event(defines.events.script_raised_destroy, {entity = tree, cause = "room_clearing"})
-        tree.destroy()
+        tree.destroy{raise_destroy = true}
     end
 end)
 
