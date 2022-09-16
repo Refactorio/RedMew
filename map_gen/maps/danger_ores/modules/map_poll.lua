@@ -27,6 +27,7 @@ Event.add(Server.events.on_server_started, function()
             'chessboard uniform (fixed squares)',
             'circles (ore rings)',
             'gradient (smooth ore ratios)',
+            'split (4x sectors)',
             'hub-spiral (with void)',
             'spiral (without void)',
             'landfill (all tiles)',
