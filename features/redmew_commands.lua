@@ -19,7 +19,7 @@ local Ranks = require 'resources.ranks'
 
 --- Informs the actor that there is no target. Acts as a central place where this message can be changed.
 local function print_no_target(target_name)
-    print_to_player({'common.fail_no_target', target_name}, Color.fail)
+    print_to_player({ 'common.fail_no_target', target_name }, Color.fail)
 end
 
 --- Kill a player with fish as the cause of death.
@@ -29,7 +29,7 @@ local function do_fish_kill(player, suicide)
         return false
     end
 
-    local e = player.surface.create_entity {name = 'fish', position = player.position}
+    local e = player.surface.create_entity { name = 'fish', position = player.position }
     c.die(player.force, e)
 
     -- Don't want people killing themselves for free fish.
@@ -54,18 +54,18 @@ local function kill(args, player)
     if player then
         if not target or target == player then -- player suicide
             if not do_fish_kill(player, true) then
-                print_to_player({'redmew_commands.kill_fail_suicide_no_character'})
+                print_to_player({ 'redmew_commands.kill_fail_suicide_no_character' })
             end
         elseif target and player.admin then -- admin killing target
             if not do_fish_kill(target) then
-                print_to_player({'redmew_commands.kill_fail_target_no_character'}, target_name)
+                print_to_player({ 'redmew_commands.kill_fail_target_no_character' }, target_name)
             end
         else -- player failing to kill target
-            print_to_player({'redmew_commands.kill_fail_no_perm'})
+            print_to_player({ 'redmew_commands.kill_fail_no_perm' })
         end
     elseif target then -- server killing target
         if not do_fish_kill(target) then
-            print_to_player({'redmew_commands.kill_fail_target_no_character'}, target_name)
+            print_to_player({ 'redmew_commands.kill_fail_target_no_character' }, target_name)
         end
     end
 end
@@ -89,7 +89,7 @@ local function afk()
         end
     end
     if count == 0 then
-        print_to_player({'redmew_commands.afk_no_afk'})
+        print_to_player({ 'redmew_commands.afk_no_afk' })
     end
 end
 
@@ -99,7 +99,7 @@ local function zoom(args, player)
     if zoom_val then
         player.zoom = zoom_val
     else
-        print_to_player({'redmew_commands.zoom_fail'})
+        print_to_player({ 'redmew_commands.zoom_fail' })
     end
 end
 
@@ -115,11 +115,11 @@ local function find_player(args, player)
 
     target = target.character
     if not target or not target.valid then
-        print_to_player({'redmew_commands.find_player_fail_no_character', target_name})
+        print_to_player({ 'redmew_commands.find_player_fail_no_character', target_name })
         return
     end
 
-    player.add_custom_alert(target, {type = 'virtual', name = 'signal-F'}, target_name, true)
+    player.add_custom_alert(target, { type = 'virtual', name = 'signal-F' }, target_name, true)
 end
 
 --- Turns on rail block visualization for player
@@ -128,7 +128,7 @@ local function show_rail_block(_, player)
     local show = not vs.show_rail_block_visualisation
     vs.show_rail_block_visualisation = show
 
-    print_to_player({'redmew_commands.show_rail_block_success', tostring(show)})
+    print_to_player({ 'redmew_commands.show_rail_block_success', tostring(show) })
 end
 
 --- Provides the time on the server
@@ -144,7 +144,7 @@ local function server_time(_, player)
 
     local secs = Server.get_current_time()
     if secs == nil then
-        p({'redmew_commands.server_time_fail'})
+        p({ 'redmew_commands.server_time_fail' })
     else
         p(Timestamp.to_string(secs))
     end
@@ -171,7 +171,7 @@ local function print_version()
     if global.redmew_version then
         version_str = global.redmew_version
     else
-        version_str = {'redmew_commands.print_version_from_source'}
+        version_str = { 'redmew_commands.print_version_from_source' }
     end
     print_to_player(version_str)
 end
@@ -187,22 +187,23 @@ local function print_player_info(args, player)
     end
 
     local sep = ': '
-    print_to_player({'', {'common.player_name'}, sep, target_name})
-    print_to_player({'', {'common.connection_status'}, sep, {target.connected and 'common.online' or 'common.offline'}})
-    print_to_player({'', {'common.player_index'}, sep, target.index})
-    print_to_player({'', {'common.player_rank'}, sep, Rank.get_player_rank_name(target_name)})
-    print_to_player({'', {'ranks.donator'}, sep, {Donator.is_donator(target.name) and 'common.yes' or 'common.no'}})
-    print_to_player({'', {'common.time_played'}, sep, Utils.format_time(target.online_time)})
-    print_to_player({'', {'common.afk_time'}, sep, Utils.format_time(target.afk_time or 0)})
-    print_to_player({'', {'common.current_force'}, sep, target.force.name})
-    print_to_player({'', {'common.current_surface'}, sep, target.surface.name})
-    print_to_player({'', {'common.player_tag'}, sep, target.tag})
+    print_to_player({ '', { 'common.player_name' }, sep, target_name })
+    print_to_player({ '', { 'common.connection_status' }, sep,
+        { target.connected and 'common.online' or 'common.offline' } })
+    print_to_player({ '', { 'common.player_index' }, sep, target.index })
+    print_to_player({ '', { 'common.player_rank' }, sep, Rank.get_player_rank_name(target_name) })
+    print_to_player({ '', { 'ranks.donator' }, sep, { Donator.is_donator(target.name) and 'common.yes' or 'common.no' } })
+    print_to_player({ '', { 'common.time_played' }, sep, Utils.format_time(target.online_time) })
+    print_to_player({ '', { 'common.afk_time' }, sep, Utils.format_time(target.afk_time or 0) })
+    print_to_player({ '', { 'common.current_force' }, sep, target.force.name })
+    print_to_player({ '', { 'common.current_surface' }, sep, target.surface.name })
+    print_to_player({ '', { 'common.player_tag' }, sep, target.tag })
 
     local scores = ScoreTracker.get_player_scores_with_metadata(player_index, player_data_to_show)
 
     for i = 1, #scores do
         local score_data = scores[i]
-        print_to_player({'', score_data.locale_string, sep, format_number(score_data.value, true)})
+        print_to_player({ '', score_data.locale_string, sep, format_number(score_data.value, true) })
     end
 
     if (not player or player.admin) and args.inventory then
@@ -213,14 +214,43 @@ local function print_player_info(args, player)
     end
 end
 
+local function clear_corpses(args, player)
+    if not player or not player.valid then
+        return
+    end
+
+    local surface = player.surface
+    if not surface or not surface.valid then
+        return
+    end
+
+    local surface_arg = args.surface:lower()
+    local whole_surface = player.admin and (surface_arg == 's' or surface_arg == 'surface')
+
+    local corpses
+    if whole_surface then
+        corpses = surface.find_entities_filtered({ type = 'corpse' })
+    else
+        local pos = player.position
+        local area = { { pos.x - 128, pos.y - 128 }, { pos.x + 128, pos.y + 128 } }
+        corpses = surface.find_entities_filtered({ type = 'corpse', area = area })
+    end
+
+    for i = 1, #corpses do
+        corpses[i].destroy()
+    end
+
+    player.print({ 'redmew_commands.clear_corpses_count', #corpses })
+end
+
 -- Command registrations
 
 Command.add(
     'kill',
     {
-        description = {'command_description.kill'},
-        arguments = {'player'},
-        default_values = {player = false},
+        description = { 'command_description.kill' },
+        arguments = { 'player' },
+        default_values = { player = false },
         allowed_by_server = true
     },
     kill
@@ -229,7 +259,7 @@ Command.add(
 Command.add(
     'afk',
     {
-        description = {'command_description.afk'},
+        description = { 'command_description.afk' },
         allowed_by_server = true
     },
     afk
@@ -238,8 +268,8 @@ Command.add(
 Command.add(
     'zoom',
     {
-        description = {'command_description.zoom'},
-        arguments = {'zoom'},
+        description = { 'command_description.zoom' },
+        arguments = { 'zoom' },
         required_rank = Ranks.admin
     },
     zoom
@@ -248,8 +278,8 @@ Command.add(
 Command.add(
     'find',
     {
-        description = {'command_description.find'},
-        arguments = {'player'}
+        description = { 'command_description.find' },
+        arguments = { 'player' }
     },
     find_player
 )
@@ -257,7 +287,7 @@ Command.add(
 Command.add(
     'show-rail-block',
     {
-        description = {'command_description.show_rail_block'}
+        description = { 'command_description.show_rail_block' }
     },
     show_rail_block
 )
@@ -265,7 +295,7 @@ Command.add(
 Command.add(
     'server-time',
     {
-        description = {'command_description.server_time'},
+        description = { 'command_description.server_time' },
         allowed_by_server = true
     },
     server_time
@@ -274,7 +304,7 @@ Command.add(
 Command.add(
     'seeds',
     {
-        description = {'command_description.seeds'},
+        description = { 'command_description.seeds' },
         allowed_by_server = true
     },
     list_seeds
@@ -283,7 +313,7 @@ Command.add(
 Command.add(
     'redmew-version',
     {
-        description = {'command_description.redmew_version'},
+        description = { 'command_description.redmew_version' },
         allowed_by_server = true
     },
     print_version
@@ -292,10 +322,21 @@ Command.add(
 Command.add(
     'whois',
     {
-        description = {'command_description.whois'},
-        arguments = {'player', 'inventory'},
-        default_values = {inventory = false},
+        description = { 'command_description.whois' },
+        arguments = { 'player', 'inventory' },
+        default_values = { inventory = false },
         allowed_by_server = true
     },
     print_player_info
+)
+
+Command.add(
+    'clear_corpses',
+    {
+        description = { 'command_description.clear_corpses' },
+        arguments = { 'surface' },
+        default_values = { surface = '' },
+        required_rank = Ranks.regular
+    },
+    clear_corpses
 )

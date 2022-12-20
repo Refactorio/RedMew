@@ -5,7 +5,7 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Danger Ore Patches Beltboxes (ore only)')
+ScenarioInfo.set_map_name('Danger Ore Patches Beltboxes (ore only) restricted entities')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
@@ -16,8 +16,8 @@ This map is covered in [item=coal] with mixed dense patches containing [item=iro
 The patches alternate between [item=iron-ore] and [item=copper-ore] as the main resource.
 
 You may not build the factory on ore patches. Exceptions:
- [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron] [item=locomotive] [item=cargo-wagon] [item=fluid-wagon] [item=artillery-wagon]
- [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail] [item=rail-signal] [item=rail-chain-signal] [item=train-stop]
+ [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=car] [item=tank] [item=spidertron] [item=locomotive] [item=cargo-wagon] [item=fluid-wagon] [item=artillery-wagon]
+ [item=express-transport-belt] [item=express-underground-belt] [item=rail] [item=rail-signal] [item=rail-chain-signal] [item=train-stop]
 
 The map size is restricted to the pollution generated. A significant amount of
 pollution must affect a section of the map before it is revealed. Pollution
@@ -65,7 +65,7 @@ local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 -- local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
-local allowed_entities = require 'map_gen.maps.danger_ores.config.deadlock_betlboxes_allowed_entities'
+local allowed_entities = require 'map_gen.maps.danger_ores.config.patches_deadlock_betlboxes_allowed_entities'
 banned_entities(allowed_entities)
 
 RS.set_map_gen_settings({
@@ -116,7 +116,7 @@ local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launche
 rocket_launched({win_satellite_count = 750})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'danger-ore-patches-beltboxes-ore-only'})
+restart_command({scenario_name = 'danger-ore-patches-beltboxes-ore-only-restricted'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})

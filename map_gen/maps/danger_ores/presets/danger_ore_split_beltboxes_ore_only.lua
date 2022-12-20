@@ -5,15 +5,15 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Danger Ore Patches Beltboxes (ore only)')
+ScenarioInfo.set_map_name('Danger Ore Split Beltboxes (ore only)')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
 proper material ratios, expand the map with pollution!
 ]])
 ScenarioInfo.add_map_extra_info([[
-This map is covered in [item=coal] with mixed dense patches containing [item=iron-ore] [item=copper-ore] [item=stone].
-The patches alternate between [item=iron-ore] and [item=copper-ore] as the main resource.
+This map is split in three sectors [item=iron-ore] [item=copper-ore] [item=coal].
+Each sector has a main resource and the other resources at a lower ratio.
 
 You may not build the factory on ore patches. Exceptions:
  [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron] [item=locomotive] [item=cargo-wagon] [item=fluid-wagon] [item=artillery-wagon]
@@ -54,11 +54,9 @@ ScenarioInfo.set_new_info([[
 global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_coal'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_ores'
 -- local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
 -- local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
-local main_ore_resource_patches_config =
-    require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_main_ore_resource_patches'
 local water = require 'map_gen.maps.danger_ores.modules.water'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
@@ -98,6 +96,8 @@ Event.on_init(function()
     game.difficulty_settings.technology_price_multiplier = 35
     game.forces.player.technologies.logistics.researched = true
     game.forces.player.technologies.automation.researched = true
+    -- game.forces.player.technologies['logistic-system'].enabled = false
+    -- game.forces.player.technologies['warehouse-logistics-research-2'].enabled = false
 
     game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
     game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
@@ -113,10 +113,10 @@ local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({start_size = 8 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 6})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 750})
+rocket_launched({win_satellite_count = 850})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'danger-ore-patches-beltboxes-ore-only'})
+restart_command({scenario_name = 'danger-ore-split-beltboxes-ore-only'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
@@ -129,19 +129,16 @@ remove_non_ore_stacked_recipes()
 
 require 'map_gen.maps.danger_ores.modules.map_poll'
 
-local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_patches'
-
 local config = {
     spawn_shape = b.circle(36),
     start_ore_shape = b.circle(44),
     no_resource_patch_shape = b.circle(80),
-    main_ores_builder = main_ores_builder,
     main_ores = main_ores_config,
-    main_ores_shuffle_order = true,
-    -- main_ores_rotate = 0,
+    main_ores_shuffle_order = false,
+    main_ores_rotate = 0,
+    main_ores_split_count = 4,
     -- resource_patches = resource_patches,
     -- resource_patches_config = resource_patches_config,
-    main_ore_resource_patches_config = main_ore_resource_patches_config,
     water = water,
     water_scale = 1 / 96,
     water_threshold = 0.4,
