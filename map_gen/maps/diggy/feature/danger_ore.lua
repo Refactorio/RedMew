@@ -29,10 +29,20 @@ local function banned_entities(allowed_entities)
     )
 
     --- Warning for players when their entities are destroyed
+    --- Note: Edit to limit warning once per minute per player produced completely automatically by ChatGPT
+    local last_warning_time = {}
+
     local function on_destroy(event)
         local p = event.player
         if p and p.valid then
-            p.print('You cannot build that on top of ores, only belts, mining drills, and power poles are allowed.')
+            if not last_warning_time[p.index] then
+                last_warning_time[p.index] = 0
+            end
+            local current_time = game.tick
+            if current_time > last_warning_time[p.index] + (60 * 60) then  -- 60 seconds * 60 ticks per second
+                last_warning_time[p.index] = current_time
+                p.print('You cannot build that on top of ores, only belts, mining drills, and power poles are allowed.')
+            end
         end
     end
 
