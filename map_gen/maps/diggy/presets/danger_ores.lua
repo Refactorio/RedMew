@@ -449,32 +449,33 @@ local config = {
             load = function() return require('map_gen.maps.diggy.feature.weapon_balance') end
         },
         danger_ore = {
-			enabled = true,
-			load = function() return require('map_gen.maps.diggy.feature.danger_ore') end,
-			allowed_entities = {
-				'transport-belt',
-				'fast-transport-belt',
-				'express-transport-belt',
-				'underground-belt',
-				'fast-underground-belt',
-				'express-underground-belt',
-				'small-electric-pole',
-				'medium-electric-pole',
-				'big-electric-pole',
-				'substation',
-				'electric-mining-drill',
-				'burner-mining-drill',
-				'pumpjack',
-				'car',
-				'tank',
-				'spidertron',
-				'stone-wall',
-				'small-lamp',
-				'pipe',
-				'pipe-to-ground',
-				'wooden-chest'
-			}
-		}
+            enabled = true,
+            load = function() return require('map_gen.maps.diggy.feature.danger_ore') end,
+            allowed_entities = {
+                'transport-belt',
+                'fast-transport-belt',
+                'express-transport-belt',
+                'underground-belt',
+                'fast-underground-belt',
+                'express-underground-belt',
+                'small-electric-pole',
+                'medium-electric-pole',
+                'big-electric-pole',
+                'substation',
+                'electric-mining-drill',
+                'burner-mining-drill',
+                'pumpjack',
+                'car',
+                'tank',
+                'spidertron',
+                'stone-wall',
+                'small-lamp',
+                'pipe',
+                'pipe-to-ground',
+                'wooden-chest'
+            },
+            warning_timeout = 60 * 60  -- In game ticks -> 1 minute
+        }
     }
 }
 

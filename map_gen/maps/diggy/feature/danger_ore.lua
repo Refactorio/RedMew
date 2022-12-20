@@ -3,10 +3,18 @@ local RestrictEntities = require 'map_gen.shared.entity_placement_restriction'
 local Event = require 'utils.event'
 local Token = require 'utils.token'
 local ScenarioInfo = require 'features.gui.info'
+local Global = require 'utils.global'
 
 local DangerOre = {}
 
-local function banned_entities(allowed_entities)
+local last_warning_time = {}
+Global.register({
+        last_warning_time = last_warning_time,
+    }, function(tbl)
+        last_warning_time = tbl.last_warning_time
+end)
+
+local function banned_entities(allowed_entities, warning_timeout)
     --- Items explicitly allowed on ores
     RestrictEntities.add_allowed(allowed_entities)
 
@@ -29,10 +37,18 @@ local function banned_entities(allowed_entities)
     )
 
     --- Warning for players when their entities are destroyed
+    --- Note: Edit to limit warning once per minute per player produced with help from ChatGPT & grilledham
     local function on_destroy(event)
         local p = event.player
+        local current_time = game.tick
         if p and p.valid then
-            p.print('You cannot build that on top of ores, only belts, mining drills, and power poles are allowed.')
+            if not last_warning_time[p.index] then
+                last_warning_time[p.index] = -(warning_timeout + 1)
+            end
+            if current_time > last_warning_time[p.index] + warning_timeout then
+                last_warning_time[p.index] = current_time
+                p.print('You cannot build that on top of ores, only belts, mining drills, and power poles are allowed.')
+            end
         end
     end
 
@@ -40,9 +56,10 @@ local function banned_entities(allowed_entities)
 end
 
 function DangerOre.register (config)
-	local allowed_entities = config.allowed_entities
-	banned_entities(allowed_entities)
-	ScenarioInfo.add_map_extra_info([[Danger! Ores are generally unstable to build upon.
+    local allowed_entities = config.allowed_entities
+    local warning_timeout = config.warning_timeout
+    banned_entities(allowed_entities, warning_timeout)
+    ScenarioInfo.add_map_extra_info([[Danger! Ores are generally unstable to build upon.
 Only the following entities have been strengthened for building upon the ores:
  [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron]
  [item=stone-wall][item=small-lamp][item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=pipe] [item=pipe-to-ground]
