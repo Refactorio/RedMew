@@ -30,7 +30,7 @@ local factory = {
     callback = ob.magic_item_crafting_callback,
     data = {
         recipe = 'iron-gear-wheel',
-        output = {min_rate = 3 / 60, distance_factor = 3 / 60 / 512, item = 'iron-gear-wheel'}
+        output = {min_rate = 4.5 / 60, distance_factor = 4.5 / 60 / 512, item = 'iron-gear-wheel'}
     }
 }
 

@@ -331,7 +331,7 @@ Command.add(
 )
 
 Command.add(
-    'clear_corpses',
+    'corpses',
     {
         description = { 'command_description.clear_corpses' },
         arguments = { 'surface' },
