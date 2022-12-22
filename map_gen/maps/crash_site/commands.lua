@@ -18,7 +18,7 @@ local format_number = require 'util'.format_number
 
 -- Use these settings for live
 local map_promotion_channel = Discord.channel_names.map_promotion
-local crash_site_channel = Discord.channel_names.crash_site
+--local crash_site_channel = Discord.channel_names.crash_site
 local crash_site_role_mention = Discord.role_mentions.crash_site
 -- Use these settings for testing
 -- local map_promotion_channel = Discord.channel_names.bot_playground
@@ -212,7 +212,9 @@ function Public.control(config)
         end
 
         Server.to_discord_named_embed(map_promotion_channel, statistics_message)
-        Server.to_discord_named_embed(crash_site_channel, statistics_message)
+
+        -- Uncomment to enable posting stats to crashsite channel.
+        -- Server.to_discord_named_embed(crash_site_channel, statistics_message)
 
         local start_game_data = Restart.get_start_game_data()
         local new_map_name = start_game_data.name
