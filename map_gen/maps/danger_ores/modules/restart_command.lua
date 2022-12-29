@@ -130,14 +130,22 @@ return function(config)
         end
 
         local resource_prototypes = game.get_filtered_entity_prototypes({{filter = "type", type = "resource"}})
+        local ore_products = {}
+        for _, ore_prototype in pairs(resource_prototypes) do
+            local mineable_properties = ore_prototype.mineable_properties
+            if mineable_properties.minable and ore_prototype.resource_category == 'basic-solid' then
+                for _, product in pairs(mineable_properties.products) do
+                    ore_products[product.name] = true
+                end
+            end
+        end
+
         local total_ore = 0
         local ore_totals_message = '('
-        for ore_name,ore_prototype in pairs(resource_prototypes) do
-            if ore_prototype.resource_category == 'basic-solid' then
-                local count = game.forces["player"].item_production_statistics.get_input_count(ore_name)
-                total_ore = total_ore + count
-                ore_totals_message = ore_totals_message..ore_name:gsub( "-ore", "")..": "..format_number(count, true)..", "
-            end
+        for ore_name in pairs(ore_products) do
+            local count = game.forces["player"].item_production_statistics.get_input_count(ore_name)
+            total_ore = total_ore + count
+            ore_totals_message = ore_totals_message..ore_name:gsub( "-ore", "")..": "..format_number(count, true)..", "
         end
         ore_totals_message = ore_totals_message:sub(1, -3)..')' -- remove the last ", " and add a bracket
         ore_totals_message = "Total ore mined: "..format_number(total_ore, true).. "\\n"..ore_totals_message
