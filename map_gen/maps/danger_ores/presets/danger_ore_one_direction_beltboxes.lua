@@ -93,7 +93,7 @@ Event.on_init(function()
     game.forces.player.technologies['mining-productivity-3'].enabled = false
     game.forces.player.technologies['mining-productivity-4'].enabled = false
 
-    game.difficulty_settings.technology_price_multiplier = 35
+    game.difficulty_settings.technology_price_multiplier = 20
     game.forces.player.technologies.logistics.researched = true
     game.forces.player.technologies.automation.researched = true
 
@@ -121,7 +121,7 @@ terraforming({
 })
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 750})
+rocket_launched({win_satellite_count = 5000})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
 restart_command({scenario_name = 'danger-ore-one-direction-beltboxes'})
