@@ -121,7 +121,7 @@ terraforming({
 })
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 5000})
+rocket_launched({win_satellite_count = 1000})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
 restart_command({scenario_name = 'danger-ore-one-direction-beltboxes'})
