@@ -40,7 +40,7 @@ Global.register_init(
                     fluid_ores[name] = true
                 end
 
-                local products = props.products
+                local products = props.products or {}
                 for i = 1, #products do
                     local product = products[i]
                     if product.type == 'fluid' then
