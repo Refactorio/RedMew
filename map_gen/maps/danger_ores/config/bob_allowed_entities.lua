@@ -34,6 +34,7 @@ return {
     'bob-area-mining-drill-3',
     'bob-area-mining-drill-4',
     'burner-mining-drill',
+    'steam-mining-drill',
     'pumpjack',
     'bob-pumpjack-1',
     'bob-pumpjack-2',
