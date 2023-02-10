@@ -29,25 +29,13 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
     local inv_main = player.get_inventory(defines.inventory.character_main)
     local inv_trash = player.get_inventory(defines.inventory.character_trash)
 
-    local inv_main_contents
-    if inv_main and inv_main.valid then
-        inv_main_contents = inv_main.get_contents()
-    end
-
-    local inv_trash_contents
-    if inv_trash and inv_trash.valid then
-        inv_trash_contents = inv_trash.get_contents()
-    end
-
     local inv_corpse_size = 0
-    if inv_main_contents then
+    if inv_main and inv_main.valid and not inv_main.is_empty() then
         inv_corpse_size = inv_corpse_size + (#inv_main - inv_main.count_empty_stacks())
     end
-
-    if inv_trash_contents then
+    if inv_trash and inv_trash.valid and not inv_trash.is_empty() then
         inv_corpse_size = inv_corpse_size + (#inv_trash - inv_trash.count_empty_stacks())
     end
-
     if inv_corpse_size <= 0 then
         return
     end
@@ -63,17 +51,23 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
 
     local inv_corpse = corpse.get_inventory(defines.inventory.character_corpse)
 
-    for item_name, count in pairs(inv_main_contents or {}) do
-        inv_corpse.insert({name = item_name, count = count})
-    end
-    for item_name, count in pairs(inv_trash_contents or {}) do
-        inv_corpse.insert({name = item_name, count = count})
-    end
-
-    if inv_main_contents then
+    local i = 1 -- corpse inventory counter
+    if not inv_main.is_empty() then
+        for j = 1, #inv_main do
+            if inv_main[j].valid_to_read then
+                inv_corpse[i].transfer_stack(inv_main[j])
+                i = i + 1
+            end
+        end
         inv_main.clear()
     end
-    if inv_trash_contents then
+    if not inv_trash.is_empty() then
+        for j = 1, #inv_trash do
+            if inv_trash[j].valid_to_read then
+                inv_corpse[i].transfer_stack(inv_trash[j])
+                i = i + 1
+            end
+        end
         inv_trash.clear()
     end
 
