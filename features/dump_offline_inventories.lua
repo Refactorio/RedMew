@@ -12,7 +12,7 @@ local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local config = Config.dump_offline_inventories
 
 local ignored_items_set = {}
-for _ , k in pairs(config.ignored_items)
+for _ , k in pairs(config.ignored_items) do
     ignored_items_set[k] = true
 end
 
