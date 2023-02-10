@@ -11,12 +11,28 @@ local Config = require 'config'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local config = Config.dump_offline_inventories
 
+local ignored_items_set = {}
+for _ , k in pairs(config.ignored_items)
+    ignored_items_set[k] = true
+end
+
 local offline_player_queue = {}
 
 Global.register({offline_player_queue = offline_player_queue}, function(tbl)
     offline_player_queue = tbl.offline_player_queue
     config = Config.dump_offline_inventories
 end)
+
+local function move_items(source, target)
+    if not source.is_empty() then
+        for i = 1, #source do
+            if source[i].valid_to_read and not ignored_items_set[source[i].name] then
+                target.insert(source[i])
+                source[i].clear()
+            end
+        end
+    end
+end
 
 local function spawn_player_corpse(player, banned, timeout_minutes)
     local player_index = player.index
@@ -51,23 +67,8 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
 
     local inv_corpse = corpse.get_inventory(defines.inventory.character_corpse)
 
-    local i = 1 -- corpse inventory counter
-    if not inv_main.is_empty() then
-        for j = 1, #inv_main do
-            if inv_main[j].valid_to_read then
-                inv_corpse[i].transfer_stack(inv_main[j])
-                i = i + 1
-            end
-        end
-    end
-    if not inv_trash.is_empty() then
-        for j = 1, #inv_trash do
-            if inv_trash[j].valid_to_read then
-                inv_corpse[i].transfer_stack(inv_trash[j])
-                i = i + 1
-            end
-        end
-    end
+    move_items(inv_main, inv_corpse)
+    move_items(inv_trash, inv_corpse)
 
     local text = player.name .. "'s inventory (offline)"
     local tag = player.force.add_chart_tag(player.surface, {
