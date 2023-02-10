@@ -26,7 +26,7 @@ end)
 local function move_items(source, target)
     if not source.is_empty() then
         for i = 1, #source do
-            if source[i].valid_to_read and not ignored_items_set[source[i].name] then
+            if source[i].valid_for_read and not ignored_items_set[source[i].name] then
                 target.insert(source[i])
                 source[i].clear()
             end
