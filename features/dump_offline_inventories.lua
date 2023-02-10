@@ -27,7 +27,7 @@ local function move_items(source, target)
     if not source.is_empty() then
         for i = 1, #source do
             local stack = source[i]
-            if stack.valid_for_read and not ignored_items_set[stack.name] then
+            if stack.valid_for_read and not stack.is_selection_tool() and not stack.is_blueprint_book() and not ignored_items_set[stack.name] then
                 target.insert(stack)
                 stack.clear()
             end
