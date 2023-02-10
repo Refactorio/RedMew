@@ -26,9 +26,10 @@ end)
 local function move_items(source, target)
     if not source.is_empty() then
         for i = 1, #source do
-            if source[i].valid_for_read and not ignored_items_set[source[i].name] then
-                target.insert(source[i])
-                source[i].clear()
+            local stack = source[i]
+            if stack.valid_for_read and not ignored_items_set[stack.name] then
+                target.insert(stack)
+                stack.clear()
             end
         end
     end
