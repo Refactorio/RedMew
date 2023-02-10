@@ -59,7 +59,6 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
                 i = i + 1
             end
         end
-        inv_main.clear()
     end
     if not inv_trash.is_empty() then
         for j = 1, #inv_trash do
@@ -68,7 +67,6 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
                 i = i + 1
             end
         end
-        inv_trash.clear()
     end
 
     local text = player.name .. "'s inventory (offline)"
