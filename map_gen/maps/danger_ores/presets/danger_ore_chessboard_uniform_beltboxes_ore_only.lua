@@ -5,7 +5,7 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Danger Ore Chessboard Uniform Beltboxes (ore only')
+ScenarioInfo.set_map_name('Danger Ore Chessboard Uniform Beltboxes (ore only)')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
@@ -50,6 +50,8 @@ ScenarioInfo.set_new_info([[
 2021-04-06:
  - Rail signals and train stations now allowed on ore.
 ]])
+
+ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
 
 global.config.redmew_qol.loaders = false
 
