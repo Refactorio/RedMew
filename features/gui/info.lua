@@ -36,6 +36,7 @@ local map_name_key = 1
 local map_description_key = 2
 local map_extra_info_key = 3
 local new_info_key = 4
+local extra_rules_key = 5
 
 local rewarded_players = {}
 local primitives = {map_extra_info_lock = nil, info_edited = nil}
@@ -44,7 +45,8 @@ local editable_info = {
     [map_name_key] = config_mapinfo.map_name_key,
     [map_description_key] = config_mapinfo.map_description_key,
     [map_extra_info_key] = config_mapinfo.map_extra_info_key,
-    [new_info_key] = config_mapinfo.new_info_key
+    [new_info_key] = config_mapinfo.new_info_key,
+    [extra_rules_key] = {}
 }
 
 Global.register({rewarded_players = rewarded_players, editable_info = editable_info, primitives = primitives},
@@ -262,14 +264,27 @@ local pages = {
             parent_style.left_padding = 0
             parent_style.top_padding = 1
 
-            parent = parent.add {type = 'flow', direction = 'vertical'}
+            parent = parent.add {
+                type = 'scroll-pane',
+                vertical_scroll_policy = 'auto-and-reserve-space',
+                horizontal_scroll_policy = 'never'
+            }
             parent_style = parent.style
-            parent_style.vertically_stretchable = false
-            parent_style.width = 600
+            parent_style.right_padding = 8
+            parent_style.left_padding = 8
+            parent_style.vertically_stretchable = true
 
             header_label(parent, {'info.rules_header'})
 
             centered_label(parent, {'info.rules_text'})
+
+            local rules = editable_info[extra_rules_key]
+            for _, rule in pairs(rules) do
+                parent.add({type = 'flow'}).style.height = 16
+                centered_label(parent, rule)
+            end
+
+            parent.add({type = 'flow'}).style.height = 24
         end
     },
     {
@@ -757,6 +772,11 @@ end
 
 function Public.set_new_info(value)
     editable_info[new_info_key] = value
+end
+
+function Public.add_extra_rule(rule)
+    local rules = editable_info[extra_rules_key]
+    table.insert(rules, rule)
 end
 
 return Public

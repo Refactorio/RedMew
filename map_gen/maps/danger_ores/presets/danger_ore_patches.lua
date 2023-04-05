@@ -51,6 +51,8 @@ ScenarioInfo.set_new_info([[
  - Rail signals and train stations now allowed on ore.
 ]])
 
+ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
+
 local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.coal'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'

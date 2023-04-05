@@ -51,6 +51,8 @@ ScenarioInfo.set_new_info([[
  - Rail signals and train stations now allowed on ore.
 ]])
 
+ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
+
 global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
