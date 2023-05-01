@@ -36,9 +36,6 @@ local function default_can_restart_func(player)
     return player.valid and player.admin
 end
 
-local function default_server_restart_requested_callback()
-end
-
 local registered = false
 local server_can_restart_func = default_can_restart_func
 local server_restart_requested_callback = nil
@@ -340,7 +337,7 @@ local function draw_main_frame(player)
     Gui.set_data(set_mod_pack_checkbox, mod_pack_name_textfield)
 
     if memory.use_map_poll_result ~= nil then
-        local use_map_poll_checkbox = main_frame.add {
+        main_frame.add {
             type = 'checkbox',
             name = use_map_poll_result_checkbox_name,
             caption = 'Use map poll result',

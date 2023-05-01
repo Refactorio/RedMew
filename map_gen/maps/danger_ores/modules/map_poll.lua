@@ -74,7 +74,7 @@ local maps = {{
     display_name = 'bob\'s mod (default map)'
 }}
 
-Event.add(defines.events.on_player_joined_game, function()
+Event.add(Server.events.on_server_started, function()
     if data.created then
         return
     end
@@ -82,8 +82,8 @@ Event.add(defines.events.on_player_joined_game, function()
     data.created = true
 
     local answers = {}
-    for i, data in pairs(maps) do
-        answers[i] = data.display_name
+    for i, map_data in pairs(maps) do
+        answers[i] = map_data.display_name
     end
 
     local success, id = Poll.poll({
@@ -108,8 +108,8 @@ function Public.get_next_map()
 
     local answers = poll_data.answers
     local vote_counts = {}
-    for i, data in pairs(answers) do
-        vote_counts[i] = data.voted_count
+    for i, answer_data in pairs(answers) do
+        vote_counts[i] = answer_data.voted_count
     end
 
     local max_count = 0
