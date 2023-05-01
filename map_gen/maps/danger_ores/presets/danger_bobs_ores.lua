@@ -161,7 +161,7 @@ Event.add(defines.events.on_research_finished, function(event)
 end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 10 * 32, min_pollution = 400, max_pollution = 20000, pollution_increment = 6})
+terraforming({start_size = 10 * 32, min_pollution = 600, max_pollution = 30000, pollution_increment = 9})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
 rocket_launched({win_satellite_count = 2500})
