@@ -2,6 +2,7 @@ local Discord = require 'resources.discord'
 local Server = require 'features.server'
 local Core = require 'utils.core'
 local Restart = require 'features.restart_command'
+local MapPoll = require 'map_gen.maps.danger_ores.modules.map_poll'
 local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
@@ -17,6 +18,7 @@ return function(config)
     --local danger_ore_role_mention = Discord.role_mentions.test
 
     Restart.set_start_game_data({type = Restart.game_types.scenario, name = config.scenario_name or 'danger-ore-next'})
+    Restart.set_use_map_poll_result_option(true)
 
     local function can_restart(player)
         if player.admin then
@@ -190,5 +192,18 @@ return function(config)
         Server.to_discord_named_raw(map_promotion_channel, message)
     end
 
-    Restart.register(can_restart, restart_callback)
+    local function restart_requested()
+        if not Restart.get_use_map_poll_result_option() then
+            return
+        end
+
+        local map_data = MapPoll.get_next_map()
+        if map_data == nil then
+            return
+        end
+
+        Restart.set_start_game_data({type = Restart.game_types.scenario, name = map_data.name, mod_pack = map_data.mod_pack})
+    end
+
+    Restart.register(can_restart, restart_callback, restart_requested)
 end

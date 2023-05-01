@@ -13,10 +13,21 @@ local Public = {}
 local game_types = {scenario = 'scenario', save = 'save'}
 Public.game_types = game_types
 
-local memory = {mod_pack_text = '', restarting = nil}
-local start_game_data = {type = game_types.scenario, name = '', mod_pack = nil}
+local memory = {
+    mod_pack_text = '',
+    restarting = nil,
+    use_map_poll_result = nil
+}
+local start_game_data = {
+    type = game_types.scenario,
+    name = '',
+    mod_pack = nil
+}
 
-Global.register({start_game_data = start_game_data, memory = memory}, function(tbl)
+Global.register({
+    start_game_data = start_game_data,
+    memory = memory
+}, function(tbl)
     start_game_data = tbl.start_game_data
     memory = tbl.memory
 end)
@@ -25,8 +36,12 @@ local function default_can_restart_func(player)
     return player.valid and player.admin
 end
 
+local function default_server_restart_requested_callback()
+end
+
 local registered = false
 local server_can_restart_func = default_can_restart_func
+local server_restart_requested_callback = nil
 local server_restart_callback = nil
 
 local server_player = {name = '<server>', print = print, admin = true}
@@ -134,6 +149,10 @@ local function restart(args, player)
         return
     end
 
+    if server_restart_requested_callback then
+        server_restart_requested_callback()
+    end
+
     local str = args.str:trim()
     if str ~= '' and player.admin then
         if not set_start_data(player, str) then
@@ -168,7 +187,7 @@ local function abort(_, player)
     end
 end
 
-function Public.register(can_restart_func, restart_callback)
+function Public.register(can_restart_func, restart_callback, restart_requested_callback)
     if registered then
         error('Register can only be called once', 2)
     end
@@ -179,7 +198,16 @@ function Public.register(can_restart_func, restart_callback)
 
     registered = true
     server_can_restart_func = can_restart_func or default_can_restart_func
+    server_restart_requested_callback = restart_requested_callback
     server_restart_callback = restart_callback
+end
+
+function Public.get_use_map_poll_result_option()
+    return memory.use_map_poll_result
+end
+
+function Public.set_use_map_poll_result_option(state)
+    memory.use_map_poll_result = state
 end
 
 local main_frame_name = Gui.uid_name()
@@ -189,6 +217,7 @@ local save_radio_button_name = Gui.uid_name()
 local name_textfield_name = Gui.uid_name()
 local set_mod_pack_checkbox_name = Gui.uid_name()
 local mod_pack_name_textfield_name = Gui.uid_name()
+local use_map_poll_result_checkbox_name = Gui.uid_name()
 
 Public._main_frame_name = main_frame_name
 Public._close_button_name = close_button_name
@@ -197,6 +226,7 @@ Public._save_radio_button_name = save_radio_button_name
 Public._name_textfield_name = name_textfield_name
 Public._set_mod_pack_checkbox_name = set_mod_pack_checkbox_name
 Public._mod_pack_name_textfield_name = mod_pack_name_textfield_name
+Public._use_map_poll_result_checkbox_name = use_map_poll_result_checkbox_name
 
 local function value_of_type_or_deafult(value, value_type, default)
     if type(value) == value_type then
@@ -309,7 +339,19 @@ local function draw_main_frame(player)
 
     Gui.set_data(set_mod_pack_checkbox, mod_pack_name_textfield)
 
-    local bottom_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
+    if memory.use_map_poll_result ~= nil then
+        local use_map_poll_checkbox = main_frame.add {
+            type = 'checkbox',
+            name = use_map_poll_result_checkbox_name,
+            caption = 'Use map poll result',
+            state = memory.use_map_poll_result
+        }
+    end
+
+    local bottom_flow = main_frame.add {
+        type = 'flow',
+        direction = 'horizontal'
+    }
 
     bottom_flow.add {
         type = 'button',
@@ -358,6 +400,11 @@ Gui.on_checked_state_changed(set_mod_pack_checkbox_name, function(event)
         mod_pack_name_textfield.enabled = false
         start_game_data.mod_pack = nil
     end
+end)
+
+Gui.on_checked_state_changed(use_map_poll_result_checkbox_name, function(event)
+    local use_map_poll_result_checkbox = event.element
+    memory.use_map_poll_result = use_map_poll_result_checkbox.state
 end)
 
 Gui.on_text_changed(mod_pack_name_textfield_name, function(event)

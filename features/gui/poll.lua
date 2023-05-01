@@ -1373,6 +1373,16 @@ function Class.poll_result(id)
     return table.concat {'poll #', id, ' not found'}
 end
 
+function Class.get_poll_data(id)
+    for _, poll_data in pairs(polls) do
+        if poll_data.id == id then
+            return poll_data
+        end
+    end
+
+    return nil
+end
+
 local function poll_command(args)
     local param = args.poll
     param = 'return ' .. param
