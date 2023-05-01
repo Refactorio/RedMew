@@ -116,9 +116,9 @@ end
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({
     start_size = 12 * 32,
-    min_pollution = 300,
-    max_pollution = 16000,
-    pollution_increment = 6,
+    min_pollution = 450,
+    max_pollution = 24000,
+    pollution_increment = 9,
     bounds = terraforming_bounds
 })
 
