@@ -2,6 +2,7 @@ local Poll = require 'features.gui.poll'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local Server = require 'features.server'
+local Ranks = require 'resources.ranks'
 
 local data = {created = false}
 
@@ -19,6 +20,7 @@ Event.add(Server.events.on_server_started, function()
     Poll.poll({
         question = 'Next map? (Advisory only)',
         duration = 0,
+        edit_rank = Ranks.admin,
         answers = {
             'terraforming (default)',
             'one direction (line)',
