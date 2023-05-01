@@ -231,7 +231,8 @@ local function redraw_poll_viewer_content(data)
 
     local question_flow = poll_viewer_content.add {type = 'table', column_count = 2}
 
-    if Rank.equal_or_greater_than(player.name, Ranks.regular) then
+    local edit_rank = poll.edit_rank or Ranks.regular
+    if Rank.equal_or_greater_than(player.name, edit_rank) then
         local edit_button =
             question_flow.add {
             type = 'sprite-button',
@@ -247,8 +248,8 @@ local function redraw_poll_viewer_content(data)
 
     local question_label = question_flow.add {type = 'label', caption = poll.question}
     local question_label_style = question_label.style
-    question_label_style.height = 32
     question_label_style.font_color = focus_color
+    question_label_style.single_line = false
     question_label_style.font = 'default-listbox'
 
     local grid = poll_viewer_content.add {type = 'table', column_count = 2}
@@ -291,7 +292,7 @@ local function redraw_poll_viewer_content(data)
         vote_buttons[i] = vote_button
 
         local label = grid.add {type = 'label', caption = a.text}
-        label.style.height = 24
+        label.style.single_line = false
     end
 
     data.vote_buttons = vote_buttons
@@ -737,7 +738,8 @@ local function create_poll(event)
         end_tick = end_tick,
         duration = duration,
         created_by = event.player,
-        edited_by = {}
+        edited_by = {},
+        edit_rank = nil
     }
 
     insert(polls, poll_data)
@@ -1331,7 +1333,8 @@ function Class.poll(data)
         end_tick = end_tick,
         duration = duration,
         created_by = game.player or {name = '<server>', valid = true},
-        edited_by = {}
+        edited_by = {},
+        edit_rank = data.edit_rank or nil
     }
 
     insert(polls, poll_data)
@@ -1368,6 +1371,16 @@ function Class.poll_result(id)
     end
 
     return table.concat {'poll #', id, ' not found'}
+end
+
+function Class.get_poll_data(id)
+    for _, poll_data in pairs(polls) do
+        if poll_data.id == id then
+            return poll_data
+        end
+    end
+
+    return nil
 end
 
 local function poll_command(args)
