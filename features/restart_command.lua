@@ -16,7 +16,8 @@ Public.game_types = game_types
 local memory = {
     mod_pack_text = '',
     restarting = nil,
-    use_map_poll_result = nil
+    use_map_poll_result = nil,
+    overwrite_mod_pack = nil
 }
 local start_game_data = {
     type = game_types.scenario,
@@ -207,6 +208,14 @@ function Public.set_use_map_poll_result_option(state)
     memory.use_map_poll_result = state
 end
 
+function Public.get_overwrite_modpack_option()
+    return memory.overwrite_mod_pack
+end
+
+function Public.set_overwrite_modpack_option(state)
+    memory.overwrite_mod_pack = state
+end
+
 local main_frame_name = Gui.uid_name()
 local close_button_name = Gui.uid_name()
 local scenario_radio_button_name = Gui.uid_name()
@@ -215,6 +224,7 @@ local name_textfield_name = Gui.uid_name()
 local set_mod_pack_checkbox_name = Gui.uid_name()
 local mod_pack_name_textfield_name = Gui.uid_name()
 local use_map_poll_result_checkbox_name = Gui.uid_name()
+local overwrite_mod_pack_checkbox_name = Gui.uid_name()
 
 Public._main_frame_name = main_frame_name
 Public._close_button_name = close_button_name
@@ -224,6 +234,7 @@ Public._name_textfield_name = name_textfield_name
 Public._set_mod_pack_checkbox_name = set_mod_pack_checkbox_name
 Public._mod_pack_name_textfield_name = mod_pack_name_textfield_name
 Public._use_map_poll_result_checkbox_name = use_map_poll_result_checkbox_name
+Public._overwrite_mod_pack_checkbox_name = overwrite_mod_pack_checkbox_name
 
 local function value_of_type_or_deafult(value, value_type, default)
     if type(value) == value_type then
@@ -345,6 +356,15 @@ local function draw_main_frame(player)
         }
     end
 
+    if memory.overwrite_mod_pack ~= nil then
+        main_frame.add {
+            type = 'checkbox',
+            name = overwrite_mod_pack_checkbox_name,
+            caption = 'Overwrite map poll mod pack',
+            state = memory.overwrite_mod_pack
+        }
+    end
+
     local bottom_flow = main_frame.add {
         type = 'flow',
         direction = 'horizontal'
@@ -402,6 +422,11 @@ end)
 Gui.on_checked_state_changed(use_map_poll_result_checkbox_name, function(event)
     local use_map_poll_result_checkbox = event.element
     memory.use_map_poll_result = use_map_poll_result_checkbox.state
+end)
+
+Gui.on_checked_state_changed(overwrite_mod_pack_checkbox_name, function(event)
+    local overwrite_mod_pack_checkbox = event.element
+    memory.overwrite_mod_pack = overwrite_mod_pack_checkbox.state
 end)
 
 Gui.on_text_changed(mod_pack_name_textfield_name, function(event)
