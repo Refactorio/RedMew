@@ -7,7 +7,7 @@ Declare.module({
     'poll_utils',
     'get_poll_winner'
 }, function()
-    Declare.test('picks most voted answer', function(context)
+    Declare.test('picks most voted answer', function()
         -- Arrange
         local answers = {
             {
@@ -28,7 +28,7 @@ Declare.module({
         Assert.equal(2, actual)
     end)
 
-    Declare.test('picks from tied answers', function(context)
+    Declare.test('picks from tied answers', function()
         -- Arrange
         local answers = {
             {
@@ -57,7 +57,7 @@ Declare.module({
         Assert.equal(4, actual)
     end)
 
-    Declare.test('picks from tied answers all zero', function(context)
+    Declare.test('picks from tied answers all zero', function()
         -- Arrange
         local answers = {
             {
@@ -83,7 +83,7 @@ Declare.module({
         Assert.equal(2, actual)
     end)
 
-    Declare.test('returns nil when no answers', function(context)
+    Declare.test('returns nil when no answers', function()
         -- Arrange
         local answers = {}
 
