@@ -175,6 +175,8 @@ container_dump({entity_name = 'coal'})
 local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
 concrete_on_landfill({tile = 'blue-refined-concrete'})
 
+require 'map_gen.maps.danger_ores.modules.biter_drops'
+
 require 'map_gen.maps.danger_ores.modules.map_poll'
 
 local config = {
