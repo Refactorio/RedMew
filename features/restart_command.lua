@@ -224,7 +224,6 @@ local name_textfield_name = Gui.uid_name()
 local set_mod_pack_checkbox_name = Gui.uid_name()
 local mod_pack_name_textfield_name = Gui.uid_name()
 local use_map_poll_result_checkbox_name = Gui.uid_name()
-local overwrite_mod_pack_checkbox_name = Gui.uid_name()
 local known_mod_pack_textfield_name = Gui.uid_name()
 
 Public._main_frame_name = main_frame_name
@@ -360,7 +359,7 @@ local function draw_main_frame(player)
     if memory.known_mod_packs ~= nil then
         for mod_pack_name, mod_pack_value in pairs(memory.known_mod_packs) do
             local mod_pack_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
-            local mod_pack_name_label = mod_pack_flow.add {type = 'label', caption = mod_pack_name .. ':'}
+            mod_pack_flow.add {type = 'label', caption = mod_pack_name .. ':'}
             local mod_pack_textfield = mod_pack_flow.add {type = 'textfield', name = known_mod_pack_textfield_name, text = mod_pack_value}
             Gui.set_data(mod_pack_textfield, mod_pack_name)
         end
