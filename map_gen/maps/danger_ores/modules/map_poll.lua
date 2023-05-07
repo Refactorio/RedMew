@@ -14,7 +14,7 @@ Global.register(data, function(tbl)
     data = tbl
 end)
 
-local normal_mod_pack = 'danger_ore23'
+local normal_mod_pack = 'danger_ore24'
 local bobs_mod_pack = 'danger_ore_bobs2'
 
 local maps = {
