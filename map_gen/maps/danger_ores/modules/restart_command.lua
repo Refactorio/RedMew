@@ -18,8 +18,6 @@ return function(config)
     --local danger_ore_role_mention = Discord.role_mentions.test
 
     Restart.set_start_game_data({type = Restart.game_types.scenario, name = config.scenario_name or 'danger-ore-next'})
-    Restart.set_use_map_poll_result_option(true)
-    Restart.set_overwrite_modpack_option(false)
 
     local function can_restart(player)
         if player.admin then
@@ -203,14 +201,9 @@ return function(config)
             return
         end
 
-        local mod_pack_to_use
-        if Restart.get_overwrite_modpack_option() then
-            mod_pack_to_use = Restart.get_start_game_data().mod_pack
-        else
-            mod_pack_to_use = map_data.mod_pack
-        end
-
-        Restart.set_start_game_data({type = Restart.game_types.scenario, name = map_data.name, mod_pack = mod_pack_to_use})
+        local known_mod_packs = Restart.get_known_modpacks_option()
+        local mod_pack = known_mod_packs[map_data.mod_pack]
+        Restart.set_start_game_data({type = Restart.game_types.scenario, name = map_data.name, mod_pack = mod_pack})
     end
 
     Restart.register(can_restart, restart_callback, restart_requested)

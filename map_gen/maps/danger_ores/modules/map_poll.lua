@@ -2,6 +2,7 @@ local Poll = require 'features.gui.poll'
 local Global = require 'utils.global'
 local Event = require 'utils.event'
 local PollUtils = require 'utils.poll_utils'
+local Restart = require 'features.restart_command'
 local Server = require 'features.server'
 local Ranks = require 'resources.ranks'
 
@@ -14,8 +15,13 @@ Global.register(data, function(tbl)
     data = tbl
 end)
 
-local normal_mod_pack = 'danger_ore24'
-local bobs_mod_pack = 'danger_ore_bobs2'
+local normal_mod_pack = 'normal_mod_pack'
+local bobs_mod_pack = 'bobs_mod_pack'
+
+local mod_packs = {
+    normal_mod_pack = 'danger_ore24',
+    bobs_mod_pack = 'danger_ore_bobs2'
+}
 
 local maps = {
     {
@@ -112,6 +118,9 @@ Event.add(Server.events.on_server_started, function()
     if success then
         data.id = id
     end
+
+    Restart.set_use_map_poll_result_option(true)
+    Restart.set_known_modpacks_option(mod_packs)
 end)
 
 local Public = {}
