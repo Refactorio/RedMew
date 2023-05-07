@@ -129,6 +129,8 @@ concrete_on_landfill({tile = 'blue-refined-concrete'})
 local remove_non_ore_stacked_recipes = require 'map_gen.maps.danger_ores.modules.remove_non_ore_stacked_recipes'
 remove_non_ore_stacked_recipes()
 
+require 'map_gen.maps.danger_ores.modules.biter_drops'
+
 require 'map_gen.maps.danger_ores.modules.map_poll'
 
 local config = {
