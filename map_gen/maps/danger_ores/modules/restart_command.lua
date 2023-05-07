@@ -17,7 +17,7 @@ return function(config)
     --local danger_ores_channel = Discord.channel_names.bot_playground
     --local danger_ore_role_mention = Discord.role_mentions.test
 
-    Restart.set_start_game_data({type = Restart.game_types.scenario, name = config.scenario_name or 'danger-ore-next'})    
+    Restart.set_start_game_data({type = Restart.game_types.scenario, name = config.scenario_name or 'danger-ore-next'})
 
     local function can_restart(player)
         if player.admin then
