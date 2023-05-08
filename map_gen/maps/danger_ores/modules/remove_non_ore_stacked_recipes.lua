@@ -60,7 +60,7 @@ return function()
         end
     end)
 
-    Event.on_configuration_changed(function(event)
+    Event.on_configuration_changed(function()
         Task.set_timeout_in_ticks(1, disable_recipes_callback)
     end)
 end
