@@ -7,6 +7,7 @@ local Public = {}
 
 local init_event_name = -1
 local load_event_name = -2
+local configuration_changed_name = -3
 
 -- map of event_name to handlers[]
 local event_handlers = {}
@@ -66,6 +67,16 @@ local function on_load()
     _LIFECYCLE = 8 -- Runtime
 end
 
+local function configuration_changed()
+    _LIFECYCLE = 7 -- config_change
+    local handlers = event_handlers[configuration_changed_name]
+    call_handlers(handlers)
+
+    event_handlers[configuration_changed_name] = nil
+
+    _LIFECYCLE = 8 -- Runtime
+end
+
 local function on_nth_tick_event(event)
     local handlers = on_nth_tick_event_handlers[event.nth_tick]
     call_handlers(handlers, event)
@@ -109,6 +120,20 @@ function Public.on_load(handler)
         table.insert(handlers, handler)
         if #handlers == 1 then
             script.on_load(on_load)
+        end
+    end
+end
+
+--- Do not use this function, use Event.on_configuration_changed instead as it has safety checks.
+function Public.on_configuration_changed(handler)
+    local handlers = event_handlers[configuration_changed_name]
+    if not handlers then
+        event_handlers[configuration_changed_name] = {handler}
+        script.on_configuration_changed(configuration_changed)
+    else
+        table.insert(handlers, handler)
+        if #handlers == 1 then
+            script.on_configuration_changed(configuration_changed)
         end
     end
 end
