@@ -67,7 +67,7 @@ local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 -- local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
-local allowed_entities = require 'map_gen.maps.danger_ores.config.patches_deadlock_betlboxes_allowed_entities'
+local allowed_entities = require 'map_gen.maps.danger_ores.config.patches_deadlock_beltboxes_allowed_entities'
 banned_entities(allowed_entities)
 
 RS.set_map_gen_settings({
