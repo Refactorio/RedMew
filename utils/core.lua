@@ -16,8 +16,10 @@ local concat = table.concat
 
 -- local constants
 local prefix = '## - '
+local seconds_to_ticks = 60
 local minutes_to_ticks = 60 * 60
 local hours_to_ticks = 60 * 60 * 60
+local ticks_to_seconds = 1 / seconds_to_ticks
 local ticks_to_minutes = 1 / minutes_to_ticks
 local ticks_to_hours = 1 / hours_to_ticks
 
@@ -147,11 +149,13 @@ function Module.ternary(c, t, f)
 end
 
 --- Takes a time in ticks and returns a string with the time in format "x hour(s) x minute(s)"
-function Module.format_time(ticks)
+function Module.format_time(ticks, include_seconds)
     local result = {}
 
     local hours = floor(ticks * ticks_to_hours)
+    local has_previous = false
     if hours > 0 then
+        has_previous = true
         ticks = ticks - hours * hours_to_ticks
         insert(result, hours)
         if hours == 1 then
@@ -162,11 +166,27 @@ function Module.format_time(ticks)
     end
 
     local minutes = floor(ticks * ticks_to_minutes)
-    insert(result, minutes)
-    if minutes == 1 then
-        insert(result, 'minute')
-    else
-        insert(result, 'minutes')
+    if minutes > 0 or (not include_seconds and not has_previous) then
+        has_previous = true
+        ticks = ticks - minutes * minutes_to_ticks
+        insert(result, minutes)
+        if minutes == 1 then
+            insert(result, 'minute')
+        else
+            insert(result, 'minutes')
+        end
+    end
+
+    if include_seconds then
+        local seconds = floor(ticks * ticks_to_seconds)
+        if seconds > 0 or not has_previous then
+            insert(result, seconds)
+            if seconds == 1 then
+                insert(result, 'second')
+            else
+                insert(result, 'seconds')
+            end
+        end
     end
 
     return concat(result, ' ')

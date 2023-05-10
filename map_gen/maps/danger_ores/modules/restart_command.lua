@@ -2,6 +2,7 @@ local Discord = require 'resources.discord'
 local Server = require 'features.server'
 local Core = require 'utils.core'
 local Restart = require 'features.restart_command'
+local Poll = require 'features.gui.poll'
 local MapPoll = require 'map_gen.maps.danger_ores.modules.map_poll'
 local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 local ScoreTracker = require 'utils.score_tracker'
@@ -204,6 +205,9 @@ return function(config)
         local known_mod_packs = Restart.get_known_modpacks_option()
         local mod_pack = known_mod_packs[map_data.mod_pack]
         Restart.set_start_game_data({type = Restart.game_types.scenario, name = map_data.name, mod_pack = mod_pack})
+
+        local poll_id = MapPoll.get_map_poll_id()
+        Poll.send_poll_result_to_discord(poll_id)
     end
 
     Restart.register(can_restart, restart_callback, restart_requested)

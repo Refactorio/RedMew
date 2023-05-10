@@ -125,6 +125,10 @@ end)
 
 local Public = {}
 
+function Public.get_map_poll_id()
+    return data.id
+end
+
 function Public.get_next_map()
     local poll_data = Poll.get_poll_data(data.id)
     if poll_data == nil then
