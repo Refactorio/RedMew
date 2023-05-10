@@ -174,7 +174,7 @@ function Module.format_time(ticks, include_seconds)
         end
     end
 
-    if include_seconds then        
+    if include_seconds then
         local seconds = floor(ticks * ticks_to_seconds)
         if seconds > 0 then
             insert(result, seconds)
