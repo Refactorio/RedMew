@@ -4,6 +4,7 @@ local Event = require 'utils.event'
 local Rank = require 'features.rank_system'
 local Game = require 'utils.game'
 local math = require 'utils.math'
+local table = require 'utils.table'
 local Core = require 'utils.core'
 local Server = require 'features.server'
 local Command = require 'utils.command'
@@ -138,9 +139,9 @@ local function has_poll_finished(poll)
 end
 
 local function send_poll_result_to_discord(poll)
-    local is_active, remaning_time_message = get_active_and_remaning_time(poll)
+    local _, remaning_time_message = get_active_and_remaning_time(poll)
     local result = {'Poll #', poll.id, ' ', remaning_time_message, '\\n'}
-    
+
     local created_by_player = poll.created_by
     if created_by_player and created_by_player.valid then
         insert(result, ' Created by ')
@@ -907,7 +908,7 @@ local function tick()
             local message = table.concat {'Poll finished: Poll #', poll.id, ': ', poll.question}
             for _, p in pairs(game.connected_players) do
                 if not no_notify_players[p.index] then
-                    p.print(message)                
+                    p.print(message)
                 end
             end
         end
