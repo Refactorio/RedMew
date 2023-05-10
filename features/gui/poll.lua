@@ -4,6 +4,7 @@ local Event = require 'utils.event'
 local Rank = require 'features.rank_system'
 local Game = require 'utils.game'
 local math = require 'utils.math'
+local Core = require 'utils.core'
 local Server = require 'features.server'
 local Command = require 'utils.command'
 local Color = require 'resources.color_presets'
@@ -14,7 +15,8 @@ local insert = table.insert
 
 local default_poll_duration = 300 * 60 -- in ticks
 local duration_max = 3600 -- in seconds
-local duration_step = 15 -- in seconds
+local duration_step = 60 -- in seconds
+local ticks_in_hour = 60 * 60 * 60
 
 local duration_slider_max = duration_max / duration_step
 local tick_duration_step = duration_step * 60
@@ -28,6 +30,7 @@ Settings.register(notify_name, Settings.types.boolean, true, 'poll.notify_captio
 
 local polls = {}
 local polls_counter = {0}
+local active_polls = {}
 local no_notify_players = {}
 local player_poll_index = {}
 local player_create_poll_data = {}
@@ -36,6 +39,7 @@ Global.register(
     {
         polls = polls,
         polls_counter = polls_counter,
+        active_polls = active_polls,
         no_notify_players = no_notify_players,
         player_poll_index = player_poll_index,
         player_create_poll_data = player_create_poll_data
@@ -43,6 +47,7 @@ Global.register(
     function(tbl)
         polls = tbl.polls
         polls_counter = tbl.polls_counter
+        active_polls = tbl.active_polls
         no_notify_players = tbl.no_notify_players
         player_poll_index = tbl.player_poll_index
         player_create_poll_data = tbl.player_create_poll_data
@@ -101,27 +106,41 @@ local function apply_button_style(button)
     button_style.font_color = {0, 0, 0}
 end
 
-local function do_remaining_time(poll, remaining_time_label)
+local function get_active_and_remaning_time(poll)
     local end_tick = poll.end_tick
     if end_tick == -1 then
-        remaining_time_label.caption = 'Endless Poll.'
-        return true
+        return true, 'Endless Poll.'
     end
 
     local ticks = end_tick - game.tick
     if ticks < 0 then
-        remaining_time_label.caption = 'Poll Finished.'
-        return false
+        return false, 'Poll Finished.'
     else
-        local time = math.ceil(ticks / 60)
-        remaining_time_label.caption = 'Remaining Time: ' .. time
-        return true
+        local include_seconds = ticks < ticks_in_hour
+        return true, 'End Time: ' .. Core.format_time(ticks, include_seconds)
     end
 end
 
-local function send_poll_result_to_discord(poll)
-    local result = {'Poll #', poll.id}
+local function do_remaining_time(poll, remaining_time_label)
+    local is_active, message = get_active_and_remaning_time(poll)
+    remaining_time_label.caption = message
+    return is_active
+end
 
+local function has_poll_finished(poll)
+    local end_tick = poll.end_tick
+    if end_tick == -1 then
+        return false
+    end
+
+    local ticks = end_tick - game.tick
+    return ticks < 0
+end
+
+local function send_poll_result_to_discord(poll)
+    local is_active, remaning_time_message = get_active_and_remaning_time(poll)
+    local result = {'Poll #', poll.id, ' ', remaning_time_message, '\\n'}
+    
     local created_by_player = poll.created_by
     if created_by_player and created_by_player.valid then
         insert(result, ' Created by ')
@@ -326,7 +345,7 @@ end
 
 local function draw_main_frame(left, player)
     local frame = left.add {type = 'frame', name = main_frame_name, caption = 'Polls', direction = 'vertical'}
-    frame.style.maximal_width = 320
+    frame.style.maximal_width = 360
 
     local poll_viewer_top_flow = frame.add {type = 'table', column_count = 5}
     poll_viewer_top_flow.style.horizontal_spacing = 0
@@ -347,7 +366,7 @@ local function draw_main_frame(left, player)
 
     local poll_viewer_content = frame.add {type = 'scroll-pane'}
     poll_viewer_content.style.maximal_height = 250
-    poll_viewer_content.style.width = 300
+    poll_viewer_content.style.width = 340
 
     local poll_index = player_poll_index[player.index] or #polls
 
@@ -469,7 +488,9 @@ local function update_duration(slider)
     if value == 0 then
         label.caption = 'Endless Poll.'
     else
-        label.caption = value * duration_step .. ' seconds.'
+        local seconds = value * duration_step
+        local include_seconds = seconds < 3600
+        label.caption = Core.format_time(seconds * 60, include_seconds)
     end
 end
 
@@ -484,7 +505,7 @@ local function redraw_create_poll_content(data)
     grid.add {
         type = 'label',
         caption = 'Duration:',
-        tooltip = 'Pro tip: Use mouse wheel or arrow keys for more fine control.'
+        tooltip = 'Pro tip: Use mouse wheel for more fine control.'
     }
 
     local duration_flow = grid.add {type = 'flow', direction = 'horizontal'}
@@ -496,7 +517,7 @@ local function redraw_create_poll_content(data)
         maximum_value = duration_slider_max,
         value = math.floor(data.duration * inv_tick_duration_step)
     }
-    duration_slider.style.width = 100
+    duration_slider.style.width = 80
 
     data.duration_slider = duration_slider
 
@@ -512,7 +533,7 @@ local function redraw_create_poll_content(data)
 
     local question_textfield =
         grid.add({type = 'flow'}).add {type = 'textfield', name = create_poll_question_name, text = data.question}
-    question_textfield.style.width = 175
+    question_textfield.style.width = 215
 
     Gui.set_data(question_label, question_textfield)
     Gui.set_data(question_textfield, data)
@@ -548,7 +569,7 @@ local function redraw_create_poll_content(data)
         local textfield_flow = grid.add {type = 'flow'}
 
         local textfield = textfield_flow.add {type = 'textfield', name = create_poll_answer_name, text = answer.text}
-        textfield.style.width = 175
+        textfield.style.width = 215
         Gui.set_data(textfield, {answers = answers, count = count})
 
         if delete_button then
@@ -598,11 +619,11 @@ local function draw_create_poll_frame(parent, player, previous_data)
 
     local frame =
         parent.add {type = 'frame', name = create_poll_frame_name, caption = title_text, direction = 'vertical'}
-    frame.style.maximal_width = 320
+    frame.style.maximal_width = 360
 
     local scroll_pane = frame.add {type = 'scroll-pane', vertical_scroll_policy = 'always'}
     scroll_pane.style.maximal_height = 250
-    scroll_pane.style.maximal_width = 300
+    scroll_pane.style.width = 340
 
     local grid = scroll_pane.add {type = 'table', column_count = 3}
 
@@ -743,6 +764,7 @@ local function create_poll(event)
     }
 
     insert(polls, poll_data)
+    insert(active_polls, poll_data)
 
     show_new_poll(poll_data)
     send_poll_result_to_discord(poll_data)
@@ -871,6 +893,21 @@ local function tick()
                     for _, v in pairs(data.vote_buttons) do
                         v.enabled = poll_enabled
                     end
+                end
+            end
+        end
+    end
+
+    for i = #active_polls, 1, -1 do
+        local poll = active_polls[i]
+        if has_poll_finished(poll) then
+            table.remove(active_polls, i)
+            send_poll_result_to_discord(poll)
+
+            local message = table.concat {'Poll finished: Poll #', poll.id, ': ', poll.question}
+            for _, p in pairs(game.connected_players) do
+                if not no_notify_players[p.index] then
+                    p.print(message)                
                 end
             end
         end
@@ -1021,6 +1058,7 @@ Gui.on_click(
         for i, p in pairs(polls) do
             if p == poll then
                 table.remove(polls, i)
+                table.remove_element(active_polls, p)
                 removed_index = i
                 break
             end
@@ -1133,9 +1171,12 @@ Gui.on_click(
             end
         end
 
-        if not poll_index then
+        if not poll_index then -- In case we edit a poll that has been deleted.
             insert(polls, poll)
+            insert(active_polls, poll)
             poll_index = #polls
+        elseif not table.contains(active_polls, poll) then -- In case we edit a poll that has finished.
+            insert(active_polls, poll)
         end
 
         local message = table.concat {player.name, ' has edited Poll #', poll.id, ': ', poll.question}
@@ -1159,6 +1200,8 @@ Gui.on_click(
                 end
             end
         end
+
+        send_poll_result_to_discord(poll)
     end
 )
 
@@ -1338,6 +1381,7 @@ function Class.poll(data)
     }
 
     insert(polls, poll_data)
+    insert(active_polls, poll_data)
 
     show_new_poll(poll_data)
     send_poll_result_to_discord(poll_data)
