@@ -153,7 +153,9 @@ function Module.format_time(ticks, include_seconds)
     local result = {}
 
     local hours = floor(ticks * ticks_to_hours)
+    local has_previous = false
     if hours > 0 then
+        has_previous = true
         ticks = ticks - hours * hours_to_ticks
         insert(result, hours)
         if hours == 1 then
@@ -164,7 +166,8 @@ function Module.format_time(ticks, include_seconds)
     end
 
     local minutes = floor(ticks * ticks_to_minutes)
-    if minutes > 0 then
+    if minutes > 0 or (not include_seconds and not has_previous) then
+        has_previous = true
         ticks = ticks - minutes * minutes_to_ticks
         insert(result, minutes)
         if minutes == 1 then
@@ -176,7 +179,7 @@ function Module.format_time(ticks, include_seconds)
 
     if include_seconds then
         local seconds = floor(ticks * ticks_to_seconds)
-        if seconds > 0 then
+        if seconds > 0 or not has_previous then
             insert(result, seconds)
             if seconds == 1 then
                 insert(result, 'second')
