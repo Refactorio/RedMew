@@ -19,7 +19,7 @@ local normal_mod_pack = 'normal_mod_pack'
 local bobs_mod_pack = 'bobs_mod_pack'
 
 local mod_packs = {
-    normal_mod_pack = 'danger_ore24',
+    normal_mod_pack = 'danger_ore25',
     bobs_mod_pack = 'danger_ore_bobs2'
 }
 
