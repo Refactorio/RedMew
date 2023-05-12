@@ -35,6 +35,11 @@ local maps = {
         display_name = 'one direction (line)'
     },
     {
+        name = 'danger-ore-one-direction-wide-beltboxes-ore-only',
+        mod_pack = normal_mod_pack,
+        display_name = 'one direction wide (wider line)'
+    },
+    {
         name = 'danger-ore-3way-beltboxes-ore-only',
         mod_pack = normal_mod_pack,
         display_name = '3-way (T shape)'

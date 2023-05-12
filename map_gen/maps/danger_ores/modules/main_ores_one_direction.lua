@@ -7,6 +7,7 @@ return function(config)
     local shuffle_order = config.main_ores_shuffle_order
     local main_ores_rotate = config.main_ores_rotate or 0
     local main_ores_split_count = config.main_ores_split_count or 1
+    local ore_width = config.ore_width or 32
 
     main_ores = Helper.split_ore(main_ores, main_ores_split_count)
 
@@ -32,7 +33,7 @@ return function(config)
             table.shuffle_table(shapes, random_gen)
         end
 
-        local ores = b.grid_y_no_repeat_weighted_pattern(shapes, 32)
+        local ores = b.grid_y_no_repeat_weighted_pattern(shapes, ore_width)
 
         if main_ores_rotate ~= 0 then
             ores = b.rotate(ores, math.rad(main_ores_rotate))
