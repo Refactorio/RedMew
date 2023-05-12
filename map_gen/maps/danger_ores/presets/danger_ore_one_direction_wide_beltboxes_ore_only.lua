@@ -5,7 +5,7 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Danger Ore One Direction Beltboxes (ore only)')
+ScenarioInfo.set_map_name('Danger Ore One Direction Wide Beltboxes (ore only)')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
@@ -77,7 +77,7 @@ RS.set_map_gen_settings({
     MGSP.enemy_none,
     MGSP.cliff_none,
     MGSP.tree_none,
-    {height = 32 * 3}
+    {height = 32 * 10}
 })
 
 Config.market.enabled = false
@@ -110,12 +110,12 @@ Event.on_init(function()
 end)
 
 local function terraforming_bounds(x, y)
-    return x > -64 and y > -64 and y < 64
+    return x > -64 and y > -160 and y < 160
 end
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({
-    start_size = 12 * 32,
+    start_size = 10 * 32,
     min_pollution = 450,
     max_pollution = 24000,
     pollution_increment = 9,
@@ -126,7 +126,7 @@ local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launche
 rocket_launched({win_satellite_count = 1000})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
-restart_command({scenario_name = 'danger-ore-one-direction-beltboxes-ore-only'})
+restart_command({scenario_name = 'danger-ore-one-direction-wide-beltboxes-ore-only'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
@@ -145,11 +145,11 @@ local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_on
 
 local function post_map_func(map_shape)
     local function map_bounds(x, y)
-        return x > -44 and y > -48 and y < 48
+        return x > -28 and y > -144 and y < 144
     end
 
     local function water_bounds(x, y)
-        return x > -46 and y > -50 and y < 50
+        return x > -30 and y > -146 and y < 146
     end
 
     local water_border = b.tile('water')
@@ -160,13 +160,14 @@ local function post_map_func(map_shape)
 end
 
 local config = {
-    spawn_shape = b.rectangle(72),
-    start_ore_shape = b.rectangle(88),
+    spawn_shape = b.rectangle(40, 264),
+    start_ore_shape = b.rectangle(56, 280),
     post_map_func = post_map_func,
     main_ores_builder = main_ores_builder,
     no_resource_patch_shape = b.rectangle(160),
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
+    ore_width = 96,
     -- main_ores_rotate = 30,
     -- resource_patches = resource_patches,
     -- resource_patches_config = resource_patches_config,
