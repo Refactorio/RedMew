@@ -45,6 +45,11 @@ local maps = {
         display_name = '3-way (T shape)'
     },
     {
+        name = 'danger-ore-square-beltboxes-ore-only',
+        mod_pack = normal_mod_pack,
+        display_name = 'Square (corner start)'
+    },
+    {
         name = 'danger-ore-chessboard-beltboxes-ore-only',
         mod_pack = normal_mod_pack,
         display_name = 'chessboard (random squares)'
