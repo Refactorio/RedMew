@@ -38,18 +38,13 @@ return function(config)
             table.shuffle_table(shapes, random_gen)
         end
 
-        local ore_weight = 3
-        local additional_weight = 9
-        local total_weight = ore_weight + additional_weight
-        local rotation = math.pi
-
         shapes[#shapes + 1] = {
             shape = b.empty_shape,
-            weight = additional_weight
+            weight = 9
         }
 
         local ores = b.segment_weighted_pattern(shapes, ore_width)
-        ores = b.rotate(ores, rotation)
+        ores = b.rotate(ores, math.pi)
 
         ores = b.translate(ores, -offset, offset)
 
