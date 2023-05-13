@@ -118,7 +118,7 @@ return function(config)
 
         if trees_shape then
             map = b.apply_entity(map, trees_shape)
-        end        
+        end
 
         if post_map_func then
             map = post_map_func(map)
