@@ -147,7 +147,6 @@ local function post_map_func(map_shape)
 
     local water_border = b.tile('water')
     water_border = b.choose(water_bounds, water_border, b.empty_shape)
-    water_border = b.fish(water_border, 0.025)
 
     return b.choose(map_bounds, map_shape, water_border)
 end
