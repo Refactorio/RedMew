@@ -56,7 +56,7 @@ ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
 global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.one_direction_beltboxes_ores'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.3way_beltboxes_ores'
 -- local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
 -- local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
 -- local water = require 'map_gen.maps.danger_ores.modules.water'
