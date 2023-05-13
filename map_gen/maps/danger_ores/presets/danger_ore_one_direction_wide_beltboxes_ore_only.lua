@@ -152,9 +152,17 @@ local function post_map_func(map_shape)
         return x > -30 and y > -146 and y < 146
     end
 
+    local function line(x, y)
+        return x > 256 and y > -1 and y < 1
+    end
+
+    local water_line = b.change_tile(line, true, 'water')
+    local top_water_line = b.translate(water_line, 0, -48)
+    local bottom_water_line = b.translate(water_line, 0, 48)
+    map_shape = b.any({top_water_line, bottom_water_line, map_shape})
+
     local water_border = b.tile('water')
     water_border = b.choose(water_bounds, water_border, b.empty_shape)
-    water_border = b.fish(water_border, 0.025)
 
     return b.choose(map_bounds, map_shape, water_border)
 end

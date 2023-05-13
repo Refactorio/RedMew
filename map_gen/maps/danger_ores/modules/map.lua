@@ -120,12 +120,12 @@ return function(config)
             map = b.apply_entity(map, trees_shape)
         end
 
-        if fish_spawn_rate then
-            map = b.fish(map, fish_spawn_rate)
-        end
-
         if post_map_func then
             map = post_map_func(map)
+        end
+
+        if fish_spawn_rate then
+            map = b.fish(map, fish_spawn_rate)
         end
     end)
 
