@@ -102,7 +102,6 @@ Event.on_init(function()
     game.forces.player.technologies['mining-productivity-2'].enabled = false
     game.forces.player.technologies['mining-productivity-3'].enabled = false
     game.forces.player.technologies['mining-productivity-4'].enabled = false
-    game.forces.player.technologies['landfill'].enabled = false
 
     game.difficulty_settings.technology_price_multiplier = 20
     game.forces.player.technologies.logistics.researched = true
