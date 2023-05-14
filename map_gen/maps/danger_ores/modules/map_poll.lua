@@ -47,7 +47,7 @@ local maps = {
     {
         name = 'danger-ore-square-beltboxes-ore-only',
         mod_pack = normal_mod_pack,
-        display_name = 'Square (corner start)'
+        display_name = 'square (corner start)'
     },
     {
         name = 'danger-ore-chessboard-beltboxes-ore-only',
@@ -94,6 +94,11 @@ local maps = {
         mod_pack = normal_mod_pack,
         display_name = 'patches (ore islands in coal)'
     },
+    --[[ {
+        name = 'danger_ore_poor_mans_coal_fields',
+        mod_pack = normal_mod_pack,
+        display_name = 'poor man\'s coal fields (Alex Gaming\'s map)'
+    }, ]]
     {
         name = 'danger-ore-xmas-tree-beltboxes-ore-only',
         mod_pack = normal_mod_pack,

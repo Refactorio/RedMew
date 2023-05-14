@@ -17,9 +17,10 @@ local bnot = bit32.bnot
 local function spawn_builder(config)
     local spawn_circle = config.spawn_shape or b.circle(64)
     local spawn_tile = config.spawn_tile or 'grass-1'
+    local spawn_water_tile = config.spawn_water_tile or 'water'
 
     local water = b.circle(14)
-    water = b.change_tile(water, true, 'water')
+    water = b.change_tile(water, true, spawn_water_tile)
     water = b.any {b.rectangle(32, 4), b.rectangle(4, 32), water}
 
     local start = b.if_else(water, spawn_circle)
