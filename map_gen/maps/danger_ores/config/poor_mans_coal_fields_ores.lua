@@ -3,7 +3,7 @@ local start_value = b.euclidean_value(0, 0.35)
 local value = b.exponential_value(0, 0.06, 1.55)
 
 local function resource(primary_ore, secondary_ore)
-    return function(x, y, world)
+    return function(_, _, world)
         local v = value(world.x, world.y)
         local ore
         if v > 1500 then

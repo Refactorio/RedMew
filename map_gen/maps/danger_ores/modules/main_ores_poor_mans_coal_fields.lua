@@ -1,16 +1,13 @@
 local Helper = require 'map_gen.maps.danger_ores.modules.helper'
 local b = require 'map_gen.shared.builders'
-local table = require 'utils.table'
 
 return function(config)
     local main_ores = config.main_ores
-    local shuffle_order = config.main_ores_shuffle_order
-    local main_ores_rotate = config.main_ores_rotate or 0
     local main_ores_split_count = config.main_ores_split_count or 1
 
     main_ores = Helper.split_ore(main_ores, main_ores_split_count)
 
-    return function(tile_builder, ore_builder, spawn_shape, water_shape, random_gen)
+    return function(tile_builder, ore_builder, spawn_shape, water_shape)
         local shapes = {}
 
         for _, ore_data in pairs(main_ores) do
@@ -41,7 +38,7 @@ return function(config)
             return x >= 0 and y < 0
         end
 
-        local function coal_bounds(x, y)
+        local function coal_bounds(_, y)
             return y >= 0
         end
 

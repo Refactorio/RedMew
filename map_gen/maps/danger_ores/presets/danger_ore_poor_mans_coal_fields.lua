@@ -182,7 +182,7 @@ require 'map_gen.maps.danger_ores.modules.map_poll'
 local main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores_poor_mans_coal_fields'
 
 local config = {
-    -- spawn_shape = b.circle(36),    
+    -- spawn_shape = b.circle(36),
     -- start_ore_shape = b.circle(44),
     spawn_shape = b.rectangle(32 * 3),
     start_ore_shape = b.rectangle(32 * 3 + 15),
