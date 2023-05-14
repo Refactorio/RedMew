@@ -3,7 +3,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 
-local allowed_recipes = {
+local default_allowed_recipes = {
     ['deadlock-stacks-stack-iron-ore'] = true,
     ['deadlock-stacks-unstack-iron-ore'] = true,
     ['deadlock-stacks-stack-copper-ore'] = true,
@@ -20,22 +20,9 @@ local function is_deadlock_stacks_recipe(name)
     return name:sub(1, #'deadlock-stacks') == 'deadlock-stacks'
 end
 
-local disable_recipes_callback = Token.register(function()
-    local recipes = game.forces['player'].recipes
-    for name, recipe in pairs(recipes) do
-        if allowed_recipes[name] then
-            goto continue
-        end
+return function(config_allowed_recipes)
+    local allowed_recipes = config_allowed_recipes or default_allowed_recipes
 
-        if is_deadlock_stacks_recipe(name) then
-            recipe.enabled = false
-        end
-
-        ::continue::
-    end
-end)
-
-return function()
     Event.add(defines.events.on_research_finished, function(event)
         local research = event.research
         if not research.valid then
@@ -54,6 +41,21 @@ return function()
 
             if is_deadlock_stacks_recipe(name) then
                 game.forces.player.recipes[name].enabled = false
+            end
+
+            ::continue::
+        end
+    end)
+
+    local disable_recipes_callback = Token.register(function()
+        local recipes = game.forces['player'].recipes
+        for name, recipe in pairs(recipes) do
+            if allowed_recipes[name] then
+                goto continue
+            end
+
+            if is_deadlock_stacks_recipe(name) then
+                recipe.enabled = false
             end
 
             ::continue::
