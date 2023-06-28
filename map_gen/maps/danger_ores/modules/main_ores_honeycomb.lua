@@ -10,8 +10,8 @@ return function(config)
     local main_ores = config.main_ores
     local shuffle_order = config.main_ores_shuffle_order
     local main_ores_rotate = config.main_ores_rotate or 0
-    local resource_patches = (config.resource_patches or no_op) or b.empty_shape
-    local dense_patches = (config.dense_patches or no_op) or no_op
+    local resource_patches = (config.resource_patches or no_op)(config) or b.empty_shape
+    local dense_patches = (config.dense_patches or no_op)(config) or no_op
     local main_ores_split_count = config.main_ores_split_count or 1
 
     local map_preset = b.picture(pic)
@@ -47,7 +47,6 @@ return function(config)
         end
 
         local land = tile_builder({'sand-1', 'sand-2', 'sand-1', 'sand-2'})
-
         local start_ores = b.segment_pattern(start_ore_shapes)
         start_ores = b.rotate(start_ores, math.rad(45))
         local main_ores_shape = b.gradient_pattern(ore_pattern)
@@ -55,16 +54,14 @@ return function(config)
 
         local ores = b.choose(start_ore_shape, start_ores, main_ores_shape)
 
-        local invers_map = b.single_pattern(b.invert(map_preset),pic.width-1,pic.height-1)
-        -- land = b.subtract(land,invers_map)
+        local invers_map = b.single_pattern(b.invert(map_preset), pic.width-1, pic.height-1)
         local map = b.apply_entity(land, ores)
 
         if main_ores_rotate ~= 0 then
             map = b.rotate(map, math.rad(main_ores_rotate))
         end
-        map = b.subtract(map,invers_map)
+        map = b.subtract(map, invers_map)
         map = b.change_tile(map, false, 'water-shallow')
-        map = b.any {spawn_shape,map}
-        return map
+        return b.any{spawn_shape, map}
     end
 end
