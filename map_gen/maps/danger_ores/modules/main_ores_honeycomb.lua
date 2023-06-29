@@ -32,7 +32,7 @@ return function(config)
         return entity
     end
 
-    return function(tile_builder, _, spawn_shape, water_shape, random_gen)
+    return function(tile_builder, _, spawn_shape, _, random_gen)
         if shuffle_order then
             local rot = random_gen(#main_ores)
             main_ores = table.rotate_table(main_ores, rot)
