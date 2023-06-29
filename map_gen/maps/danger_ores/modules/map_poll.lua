@@ -70,6 +70,11 @@ local maps = {
         display_name = 'gradient (smooth ore ratios)'
     },
     {
+        name = 'danger-ore-for-the-swarm-beltboxes-ore-only',
+        mod_pack = normal_mod_pack,
+        display_name = 'Honeycomb-gradient (smooth ore ratios)'
+    },
+    {
         name = 'danger-ore-split-beltboxes-ore-only',
         mod_pack = normal_mod_pack,
         display_name = 'split (4x sectors)'
@@ -88,6 +93,11 @@ local maps = {
         name = 'danger-ore-landfill-beltboxes-ore-only',
         mod_pack = normal_mod_pack,
         display_name = 'landfill (all tiles)'
+    },
+    {
+        name = 'danger-ore-lazy-one-beltboxes-ore-only',
+        mod_pack = normal_mod_pack,
+        display_name = 'NoHandcraft-landfill (all tiles)'
     },
     {
         name = 'danger-ore-patches-beltboxes-ore-only',
