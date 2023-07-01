@@ -60,6 +60,11 @@ local maps = {
         display_name = 'chessboard uniform (fixed squares)'
     },
     {
+        name = 'danger-ore-expensive-grid-factory-beltboxes-ore-only',
+        mod_pack = normal_mod_pack,
+        display_name = 'Concrete-chessboard uniform (fixed squares)'
+    },
+    {
         name = 'danger-ore-circles-beltboxes-ore-only',
         mod_pack = normal_mod_pack,
         display_name = 'circles (ore rings)'
