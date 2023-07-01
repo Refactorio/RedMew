@@ -58,6 +58,7 @@ return function(config)
         local plus_grid = b.single_pattern(plus64, grid_tile_size, grid_tile_size)
         ores = b.choose(plus_grid, concrete_ores, ores)
 
+        -- water via throttle
         -- ores = b.translate(ores, 31, 31)
         -- local concrete_map = b.throttle_xy(ores, 62, 64, 62, 64)
         -- concrete_map = b.translate(concrete_map, -31, -31)
@@ -66,10 +67,13 @@ return function(config)
         -- spawn setup::
         local gear_shape = b.add(b.scale(gear, 1), b.circle(16))
         local square_o = b.subtract(b.rectangle(64, 64), b.rectangle(62, 62))
-        gear_shape = b.subtract(gear_shape, square_o)
-        gear_shape = b.overlay_tile_land(gear_shape, b.tile('orange-refined-concrete'))
+        gear_shape = b.subtract(gear_shape, square_o) -- trim 1 tile around
+        gear_shape = b.choose(gear_shape, b.tile('orange-refined-concrete'), b.empty_shape)
 
-        local cc_circle = b.overlay_tile_land(b.circle(31), b.tile('concrete'))
+        local cc_gear_shadow = b.choose(b.circle((grid_tile_size / 2) - 1), b.tile('concrete'), b.empty_shape)
+        local spawn_cc_rect = b.choose(b.rectangle(grid_tile_size), concrete_ores, ores) --overlay ores
+        spawn_cc_rect =  b.any({spawn_shape, gear_shape, cc_gear_shadow, spawn_cc_rect})
+
         -- walkways::
         local left_tile = b.tile('refined-hazard-concrete-left')
         local right_tile = b.tile('refined-hazard-concrete-right')
@@ -81,9 +85,9 @@ return function(config)
         }
         local water_tile = water_tiles[random_gen(#water_tiles)]
         local walk_pattern = {}
-        for i=1, grid_tile_size do
+        for i = 1, grid_tile_size do
             walk_pattern[i] = {}
-            for j=1, grid_tile_size do
+            for j = 1, grid_tile_size do
                 walk_pattern[i][j] = b.empty_shape()
                 if i == 1 or i == 64 then
                     walk_pattern[i][j] = water_tile
@@ -107,9 +111,11 @@ return function(config)
         -- right
         walk_pattern[32][64] = left_tile  -- b.tile('purple-refined-concrete')
         walk_pattern[33][64] = right_tile -- b.tile('cyan-refined-concrete')
-        local hazard_grid =  b.grid_pattern_no_offset(walk_pattern,64,64,1,1)
-        hazard_grid = b.translate(hazard_grid,33,33)
 
-        return b.any {hazard_grid, spawn_shape, gear_shape, cc_circle, ores}
+        local hazard_grid =  b.grid_pattern_no_offset(walk_pattern, 64, 64, 1, 1)
+        hazard_grid = b.translate(hazard_grid, 33, 33)
+
+        local map = b.any {hazard_grid, spawn_cc_rect, ores}
+        return b.set_hidden_tile(map, 'sand-1') -- tile below concrete
     end
 end
