@@ -91,18 +91,20 @@ local ores = {
 }
 
 for _, ore_data in pairs(ores) do
-    local ore_name = ore_data.ore_name
+    local ore_name = ore_data.name
     local ratios = {
         {resource = b.resource(b.full_shape, ore_name, main_value), weight = ratio_mixed}
     }
     local sum_other_weights = 0
-    for name, data in pairs(ores) do
+    for _, data in pairs(ores) do
+        local name = data.name
         if name ~= ore_name then
             sum_other_weights = sum_other_weights + data.weight
         end
     end
 
-    for name, data in pairs(ores) do
+    for _, data in pairs(ores) do
+        local name = data.name
         if name ~= ore_name then
             local weight = (100 - ratio_mixed) * (data.weight / sum_other_weights)
             ratios[#ratios + 1] = {resource = b.resource(b.full_shape, name, value(0, 0.5)), weight = weight}
