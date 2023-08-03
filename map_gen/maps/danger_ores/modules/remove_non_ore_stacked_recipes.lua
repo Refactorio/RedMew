@@ -13,7 +13,13 @@ local default_allowed_recipes = {
     ['deadlock-stacks-stack-coal'] = true,
     ['deadlock-stacks-unstack-coal'] = true,
     ['deadlock-stacks-stack-uranium-ore'] = true,
-    ['deadlock-stacks-unstack-uranium-ore'] = true
+    ['deadlock-stacks-unstack-uranium-ore'] = true,
+    ['deadlock-stacks-stack-iron-plate'] = true,
+    ['deadlock-stacks-unstack-iron-plate'] = true,
+    ['deadlock-stacks-stack-copper-plate'] = true,
+    ['deadlock-stacks-unstack-copper-plate'] = true,
+    ['deadlock-stacks-stack-electronic-circuit'] = true,
+    ['deadlock-stacks-unstack-electronic-circuit'] = true
 }
 
 local function is_deadlock_stacks_recipe(name)
