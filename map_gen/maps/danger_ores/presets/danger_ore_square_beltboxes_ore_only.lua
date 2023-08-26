@@ -92,9 +92,6 @@ Config.dump_offline_inventories = {
     offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
-Config.day_night.enabled = true
-Config.day_night.use_fixed_brightness = true
-Config.day_night.fixed_brightness = 0.70
 
 Event.on_init(function()
     -- game.draw_resource_selection = false
