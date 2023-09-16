@@ -140,7 +140,7 @@ Event.on_init(function()
     RS.get_surface().peaceful_mode = true
 end)
 
-Event.add(defines.events.on_research_finished, function(event)
+--[[ Event.add(defines.events.on_research_finished, function(event)
     local research = event.research
     if not research.valid then
         return
@@ -152,13 +152,13 @@ Event.add(defines.events.on_research_finished, function(event)
         end
 
         local name = effect.recipe
-        if name == 'logistic-chest-requester' then
+        if name == 'logistic-chest-requester' then -- TODO: This doesn't prevent later tier requester chests.
             game.forces.player.recipes[name].enabled = false
         end
 
         ::continue::
     end
-end)
+end) ]]
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({start_size = 10 * 32, min_pollution = 600, max_pollution = 30000, pollution_increment = 9})
