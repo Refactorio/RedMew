@@ -75,7 +75,7 @@ return {
             [7] = 'dirt-7'
         },
         ['start'] = start_value,
-        ['weight'] = 10,
+        ['weight'] = 9.55,
         ['ratios'] = {
             {resource = b.resource(b.full_shape, 'iron-ore', value), weight = 20},
             {resource = b.resource(b.full_shape, 'copper-ore', value), weight = 20},
@@ -164,7 +164,7 @@ return {
             [4] = 'red-desert-3'
         },
         ['start'] = start_value,
-        ['weight'] = 0.05,
+        ['weight'] = 0.5,
         ['ratios'] = {
             {resource = b.resource(b.full_shape, 'iron-ore', value), weight = 20},
             {resource = b.resource(b.full_shape, 'copper-ore', value), weight = 20},
