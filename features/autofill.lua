@@ -19,6 +19,13 @@ local ammo_locales = {
     ['piercing-rounds-magazine'] = {'item-name.piercing-rounds-magazine'},
     ['firearm-magazine'] = {'item-name.firearm-magazine'}
 }
+local k2_ammo_locales = {
+    ['rifle-magazine'] = {'item-name.rifle-magazine'},
+    ['armor-piercing-rifle-magazine'] = {'item-name.armor-piercing-rifle-magazine'},
+    ['uranium-rifle-magazine'] = {'item-name.uranium-rifle-magazine'},
+    ['imersite-rifle-magazine'] = {'item-name.imersite-rifle-magazine'}
+}
+if script.active_mods["Krastorio2"] then ammo_locales = k2_ammo_locales end
 Public.ammo_locales = ammo_locales
 
 local player_ammos = {} -- player_index -> dict of name -> bool
@@ -35,6 +42,14 @@ local default_ammos = {
     ['piercing-rounds-magazine'] = true,
     ['firearm-magazine'] = true
 }
+
+local k2_default_ammos = {
+    ['rifle-magazine'] = true,
+    ['armor-piercing-rifle-magazine'] = true,
+    ['uranium-rifle-magazine'] = true,
+    ['imersite-rifle-magazine'] = true
+}
+if script.active_mods["Krastorio2"] then default_ammos = k2_default_ammos end
 
 local function copy(tbl)
     local result = {}
