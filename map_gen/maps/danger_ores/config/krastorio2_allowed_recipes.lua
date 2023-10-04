@@ -43,7 +43,7 @@ local items = {
 
 local allowed_recipes = {}
 
-for ___, k in pairs(items) do 
+for _, k in pairs(items) do
   allowed_recipes['deadlock-stacks-stack-'   .. k] = true
   allowed_recipes['deadlock-stacks-unstack-' .. k] = true
 end

@@ -18,12 +18,12 @@ This map is split in four sectors [item=iron-ore] [item=copper-ore] [item=coal] 
 Each sector has a main resource and the other resources at a lower ratio.
 
 You may not build the factory on ore patches. Exceptions:
- [item=burner-mining-drill] [item=electric-mining-drill] [item=kr-electric-mining-drill-mk2] [item=kr-electric-mining-drill-mk3] [item=pumpjack] [item=kr-mineral-water-pumpjack] [item=kr-quarry-drill] 
+ [item=burner-mining-drill] [item=electric-mining-drill] [item=kr-electric-mining-drill-mk2] [item=kr-electric-mining-drill-mk3] [item=pumpjack] [item=kr-mineral-water-pumpjack] [item=kr-quarry-drill]
  [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=kr-substation-mk2]
- [item=car] [item=tank] [item=kr-advanced-tank] [item=spidertron] 
+ [item=car] [item=tank] [item=kr-advanced-tank] [item=spidertron]
  [item=locomotive] [item=kr-nuclear-locomotive] [item=cargo-wagon] [item=fluid-wagon] [item=artillery-wagon]
  [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt] [item=kr-advanced-transport-belt] [item=kr-superior-transport-belt]
- [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=kr-advanced-underground-belt] [item=kr-superior-underground-belt] 
+ [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=kr-advanced-underground-belt] [item=kr-superior-underground-belt]
  [item=rail] [item=rail-signal] [item=rail-chain-signal] [item=train-stop]
 
 The map size is restricted to the pollution generated. A significant amount of
@@ -94,7 +94,7 @@ for _, v in pairs({
     'rare-metals',
     'mineral-water',
     'imersite',
-}) do 
+}) do
     ore_oil_none.autoplace_controls[v] = { frequency = 1, richness = 1, size = 0 }
 end
 

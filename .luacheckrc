@@ -210,6 +210,7 @@ stds.factorio_control = {
         -- (http://lua-api.factorio.com/latest/LuaBootstrap.html)
         script = {
             fields = {
+                'active_mods',
                 'on_configuration_changed',
                 'raise_event',
                 'raise_console_chat',
