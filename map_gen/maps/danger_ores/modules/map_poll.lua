@@ -129,7 +129,7 @@ local maps = {
     {
         name = 'danger-ore-krastorio2',
         mod_pack = krastorio_mod_pack,
-        display_name = 'Krastorio2 mod (LazyB + landfill + terraforming)'
+        display_name = 'Krastorio2 mod (landfill + terraforming)'
     }
 }
 

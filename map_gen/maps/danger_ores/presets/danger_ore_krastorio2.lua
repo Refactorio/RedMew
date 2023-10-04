@@ -152,7 +152,7 @@ local kr_remote = Token.register(function()
 end)
 
 Event.on_init(function()
-    game.permissions.get_group("Default").set_allows_action(defines.input_action.craft, false)
+    -- game.permissions.get_group("Default").set_allows_action(defines.input_action.craft, false)
     -- game.draw_resource_selection = false
 
     local p = game.forces.player
