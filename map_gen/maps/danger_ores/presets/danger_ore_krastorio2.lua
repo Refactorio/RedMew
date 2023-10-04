@@ -112,20 +112,19 @@ RS.set_map_gen_settings({
 Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_create.starting_items = {
-    {name = 'assembling-machine-2', count = 1},
-    {name = 'boiler', count = 2},
-    {name = 'electric-mining-drill', count = 2},
-    {name = 'fast-inserter', count = 1},
+    {name = 'assembling-machine-1', count = 1},
+    {name = 'burner-mining-drill', count = 1},
+    {name = 'copper-cable', count = 200},
+    {name = 'electronic-circuit', count = 25},
+    {name = 'iron-gear-wheel', count = 35},
+    {name = 'iron-plate', count = 400},
     {name = 'kr-medium-container', count = 1},
+    {name = 'kr-sentinel', count = 5},
+    {name = 'kr-wind-turbine', count = 1},    
     {name = 'lab', count = 1},
-    {name = 'long-handed-inserter', count = 1},
-    {name = 'medium-electric-pole', count = 1},
-    {name = 'offshore-pump', count = 1},
-    {name = 'radar', count = 1},
-    {name = 'rocket-fuel', count = 1},
-    {name = 'steam-turbine', count = 1},
+    {name = 'medium-electric-pole', count = 5},
     {name = 'steel-chest', count = 1},
-    {name = 'steel-furnace', count = 1},
+    {name = 'stone-furnace', count = 1},
     {name = 'wood', count = 50},
 }
 if script.active_mods["early_construction"] then
