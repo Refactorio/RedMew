@@ -182,8 +182,10 @@ local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({start_size = 8 * 32, min_pollution = 600, max_pollution = 24000, pollution_increment = 9})
 
 --[[ Win condition in K2: build intergalactic transceiver ]]
--- local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
--- rocket_launched({win_satellite_count = 1000})
+local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_krastorio2'
+local win_condition = settings.startup['k2-danger-ores:win_condition']
+local satellite_count = win_condition and win_condition.value or 1000
+rocket_launched({win_satellite_count = satellite_count})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
 restart_command({scenario_name = 'danger-ore-krastorio2'})
