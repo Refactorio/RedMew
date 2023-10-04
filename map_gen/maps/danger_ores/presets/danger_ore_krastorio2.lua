@@ -112,25 +112,28 @@ RS.set_map_gen_settings({
 Config.market.enabled = false
 Config.player_rewards.enabled = false
 Config.player_create.starting_items = {
-    {name = 'wood', count = 50},
-    {name = 'steel-furnace', count = 1},
-    {name = 'electric-mining-drill', count = 2},
-    {name = 'medium-electric-pole', count = 1},
-    {name = 'offshore-pump', count = 1},
-    {name = 'boiler', count = 2},
-    {name = 'steam-turbine', count = 1},
     {name = 'assembling-machine-2', count = 1},
+    {name = 'boiler', count = 2},
+    {name = 'electric-mining-drill', count = 2},
     {name = 'fast-inserter', count = 1},
-    {name = 'long-handed-inserter', count = 1},
-    {name = 'steel-chest', count = 1},
     {name = 'kr-medium-container', count = 1},
     {name = 'lab', count = 1},
+    {name = 'long-handed-inserter', count = 1},
+    {name = 'medium-electric-pole', count = 1},
+    {name = 'offshore-pump', count = 1},
     {name = 'radar', count = 1},
-    {name = 'early-construction-light-armor', count = 1},
-    {name = 'early-construction-equipment', count = 1},
-    {name = 'early-construction-robot', count = 100},
-    {name = 'rocket-fuel', count = 1}
+    {name = 'rocket-fuel', count = 1},
+    {name = 'steam-turbine', count = 1},
+    {name = 'steel-chest', count = 1},
+    {name = 'steel-furnace', count = 1},
+    {name = 'wood', count = 50},
 }
+if script.active_mods["early_construction"] then
+    table.insert(Config.player_create.starting_items, {name = 'early-construction-light-armor', count = 1})
+    table.insert(Config.player_create.starting_items, {name = 'early-construction-equipment', count = 1})
+    table.insert(Config.player_create.starting_items, {name = 'early-construction-robot', count = 100})
+end
+
 Config.dump_offline_inventories = {
     enabled = true,
     offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
