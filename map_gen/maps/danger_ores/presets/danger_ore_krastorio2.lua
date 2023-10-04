@@ -166,7 +166,7 @@ Event.on_init(function()
 
     p.manual_mining_speed_modifier = 1
 
-    game.difficulty_settings.technology_price_multiplier = 20
+    game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 10
 
     game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
     game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
