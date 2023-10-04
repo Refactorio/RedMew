@@ -29,8 +29,7 @@ You may not build the factory on ore patches. Exceptions:
 The map size is restricted to the pollution generated. A significant amount of
 pollution must affect a section of the map before it is revealed. Pollution
 does not affect biter evolution.
-
-Handcrafting is disabled.]])
+]])
 
 ScenarioInfo.set_new_info([[
 2023-10-01:
