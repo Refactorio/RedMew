@@ -3,11 +3,9 @@ local RS = require 'map_gen.shared.redmew_surface'
 local Server = require 'features.server'
 local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 
-return function(config)
+return function()
     ShareGlobals.data.biters_disabled = false
     ShareGlobals.data.map_won = false
-
-    local win_satellite_count = config.win_satellite_count or 1000
 
     local function disable_biters()
         if ShareGlobals.data.biters_disabled then
@@ -26,12 +24,6 @@ return function(config)
         }
         game.print({'danger_ores.biters_disabled_k2'})
         Server.to_discord_bold(message)
-    end
-
-    local function print_satellite_message(count)
-        -- Just log the no. of satellite(s) launched
-        game.print({'danger_ores.satellite_logger', count})
-        Server.to_discord_bold('Already launched ' .. tostring(count) .. ' satellie(s)')
     end
 
     local function rocket_launched(event)
@@ -56,10 +48,6 @@ return function(config)
 
         if satellite_count == 1 then
             disable_biters()
-        end
-
-        if (satellite_count % 50) == 0 then
-            print_satellite_message(satellite_count)
         end
     end
 
