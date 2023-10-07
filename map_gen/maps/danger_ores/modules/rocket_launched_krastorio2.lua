@@ -22,11 +22,9 @@ return function(config)
 
         local message = table.concat {
             'Launching the first satellite has killed all the biters. ',
-            'Launch ',
-            win_satellite_count,
-            ' satellites to win the map.'
+            'Build and activate the intergalactic transceiver to win the map.'
         }
-        game.print({'danger_ores.biters_disabled', win_satellite_count})
+        game.print({'danger_ores.biters_disabled_k2'})
         Server.to_discord_bold(message)
     end
 
@@ -59,11 +57,6 @@ return function(config)
         if satellite_count == 1 then
             disable_biters()
         end
-
-        --if satellite_count == win_satellite_count then
-        --    win()
-        --    return
-        --end
 
         if (satellite_count % 50) == 0 then
             print_satellite_message(satellite_count)

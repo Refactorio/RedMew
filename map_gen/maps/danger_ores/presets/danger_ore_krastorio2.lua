@@ -119,7 +119,7 @@ Config.player_create.starting_items = {
     {name = 'iron-plate', count = 400},
     {name = 'kr-medium-container', count = 1},
     {name = 'kr-sentinel', count = 5},
-    {name = 'kr-wind-turbine', count = 1},    
+    {name = 'kr-wind-turbine', count = 5},
     {name = 'lab', count = 1},
     {name = 'medium-electric-pole', count = 5},
     {name = 'steel-chest', count = 1},

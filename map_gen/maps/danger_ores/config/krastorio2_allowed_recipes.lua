@@ -33,7 +33,7 @@ local items = {
   'plastic-bar',
   'rare-metals',
   'steel-plate',
-  'stone',
+  'stone-brick',
   -- intermediates
   'electronic-components',
   'electronic-circuit',
