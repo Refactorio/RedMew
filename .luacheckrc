@@ -210,6 +210,7 @@ stds.factorio_control = {
         -- (http://lua-api.factorio.com/latest/LuaBootstrap.html)
         script = {
             fields = {
+                'active_mods',
                 'on_configuration_changed',
                 'raise_event',
                 'raise_console_chat',
@@ -1130,6 +1131,7 @@ stds.factorio_defines = {
                         'on_rocket_launched',
                         'on_runtime_mod_setting_changed',
                         'on_script_path_request_finished',
+                        'on_script_trigger_effect',
                         'on_sector_scanned',
                         'on_selected_entity_changed',
                         'on_surface_cleared',

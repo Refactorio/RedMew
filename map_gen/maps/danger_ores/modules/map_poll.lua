@@ -17,10 +17,12 @@ end)
 
 local normal_mod_pack = 'normal_mod_pack'
 local bobs_mod_pack = 'bobs_mod_pack'
+local krastorio_mod_pack = 'krastorio_mod_pack'
 
 local mod_packs = {
     normal_mod_pack = 'danger_ore29',
-    bobs_mod_pack = 'danger_ore_bobs3'
+    bobs_mod_pack = 'danger_ore_bobs3',
+    krastorio_mod_pack = 'danger_ore_krastorio'
 }
 
 local maps = {
@@ -123,6 +125,11 @@ local maps = {
         name = 'danger-bobs-ores',
         mod_pack = bobs_mod_pack,
         display_name = 'bob\'s mod (default map)'
+    },
+    {
+        name = 'danger-ore-krastorio2',
+        mod_pack = krastorio_mod_pack,
+        display_name = 'Krastorio2 mod (landfill + terraforming)'
     }
 }
 
