@@ -22,7 +22,7 @@ local krastorio_mod_pack = 'krastorio_mod_pack'
 local mod_packs = {
     normal_mod_pack = 'danger_ore29',
     bobs_mod_pack = 'danger_ore_bobs3',
-    krastorio_mod_pack = 'danger_ore_krastorio'
+    krastorio_mod_pack = 'danger_ore_krastorio2'
 }
 
 local maps = {
