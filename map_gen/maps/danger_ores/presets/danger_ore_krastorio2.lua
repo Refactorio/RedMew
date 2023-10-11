@@ -32,6 +32,10 @@ does not affect biter evolution.
 ]])
 
 ScenarioInfo.set_new_info([[
+2023-10-11:
+ - Increased Uranium ore & Compact raw rare metals spawn radius to 128 tiles
+ - Reduced Compact raw rare metals yield weight (8 -> 4)
+
 2023-10-01:
  - Added K2 preset
 

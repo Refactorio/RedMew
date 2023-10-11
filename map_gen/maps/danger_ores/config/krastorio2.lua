@@ -1,6 +1,7 @@
 local b = require 'map_gen.shared.builders'
 local start_value = b.euclidean_value(0, 0.35)
 local value = b.exponential_value(0, 0.06, 1.55)
+local special_resources_radius = 32 * 4
 
 return {
     {
@@ -15,8 +16,8 @@ return {
             {resource = b.resource(b.full_shape, 'copper-ore', value), weight = 64},
             {resource = b.resource(b.full_shape, 'stone', value), weight = 9},
             {resource = b.resource(b.full_shape, 'coal', value), weight = 4},
-            {resource = b.resource(b.full_shape, 'rare-metals', value), weight = 8},
-            {resource = b.resource(b.full_shape, 'uranium-ore', value), weight = 2},
+            {resource = b.resource(b.invert(b.circle(special_resources_radius)), 'rare-metals', value), weight = 4},
+            {resource = b.resource(b.invert(b.circle(special_resources_radius)), 'uranium-ore', value), weight = 2},
         }
     },
     {
@@ -31,8 +32,8 @@ return {
             {resource = b.resource(b.full_shape, 'copper-ore', value), weight = 9},
             {resource = b.resource(b.full_shape, 'stone', value), weight = 7},
             {resource = b.resource(b.full_shape, 'coal', value), weight = 60},
-            {resource = b.resource(b.full_shape, 'rare-metals', value), weight = 8},
-            {resource = b.resource(b.full_shape, 'uranium-ore', value), weight = 2},
+            {resource = b.resource(b.invert(b.circle(special_resources_radius)), 'rare-metals', value), weight = 4},
+            {resource = b.resource(b.invert(b.circle(special_resources_radius)), 'uranium-ore', value), weight = 2},
         }
     },
     {
@@ -47,8 +48,8 @@ return {
             {resource = b.resource(b.full_shape, 'copper-ore', value), weight = 15},
             {resource = b.resource(b.full_shape, 'stone', value), weight = 6},
             {resource = b.resource(b.full_shape, 'coal', value), weight = 2},
-            {resource = b.resource(b.full_shape, 'rare-metals', value), weight = 8},
-            {resource = b.resource(b.full_shape, 'uranium-ore', value), weight = 2},
+            {resource = b.resource(b.invert(b.circle(special_resources_radius)), 'rare-metals', value), weight = 4},
+            {resource = b.resource(b.invert(b.circle(special_resources_radius)), 'uranium-ore', value), weight = 2},
         }
     },
     {
@@ -63,8 +64,8 @@ return {
             {resource = b.resource(b.full_shape, 'copper-ore', value), weight = 9},
             {resource = b.resource(b.full_shape, 'stone', value), weight = 54},
             {resource = b.resource(b.full_shape, 'coal', value), weight = 4},
-            {resource = b.resource(b.full_shape, 'rare-metals', value), weight = 8},
-            {resource = b.resource(b.full_shape, 'uranium-ore', value), weight = 2},
+            {resource = b.resource(b.invert(b.circle(special_resources_radius)), 'rare-metals', value), weight = 4},
+            {resource = b.resource(b.invert(b.circle(special_resources_radius)), 'uranium-ore', value), weight = 2},
         }
     },
 }
