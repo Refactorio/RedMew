@@ -84,7 +84,7 @@ return function(config)
             local entity = resource(x, y, world)
 
             dense_patches(x, y, entity)
-            entity.enable_tree_removal = false
+            if entity then entity.enable_tree_removal = false end
 
             return entity
         end
