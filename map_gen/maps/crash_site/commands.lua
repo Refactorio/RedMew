@@ -13,6 +13,8 @@ local Discord = require 'resources.discord'
 local ScoreTracker = require 'utils.score_tracker'
 local PlayerStats = require 'features.player_stats'
 local Restart = require 'features.restart_command'
+local Poll = require 'features.gui.poll'
+local MapPoll = require 'map_gen.maps.crash_site.map_poll'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local format_number = require 'util'.format_number
 
@@ -226,7 +228,23 @@ function Public.control(config)
         Server.set_data('crash_site_data', tostring(end_epoch), statistics) -- Store the table, with end_epoch as the key
     end
 
-    Restart.register(can_restart, restart_callback)
+    local function restart_requested()
+        if not Restart.get_use_map_poll_result_option() then
+            return
+        end
+
+        local map_data = MapPoll.get_next_map()
+        if map_data == nil then
+            return
+        end
+
+        Restart.set_start_game_data({type = Restart.game_types.scenario, name = map_data.name, mod_pack = nil})
+
+        local poll_id = MapPoll.get_map_poll_id()
+        Poll.send_poll_result_to_discord(poll_id)
+    end
+
+    Restart.register(can_restart, restart_callback, restart_requested)
 
     local chart_area_callback = Token.register(function(data)
         local xpos = data.xpos
