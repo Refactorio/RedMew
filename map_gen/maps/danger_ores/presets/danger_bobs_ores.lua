@@ -127,10 +127,10 @@ Event.on_init(function()
     game.forces.player.technologies.automation.researched = true
     game.forces.player.technologies['basic-automation'].researched = true
     game.forces.player.technologies['logistics-0'].researched = true
-    game.forces.player.technologies['logistic-system'].enabled = false
+--[[ game.forces.player.technologies['logistic-system'].enabled = false
     game.forces.player.technologies['logistic-system-2'].enabled = false
     game.forces.player.technologies['logistic-system-3'].enabled = false
-    game.forces.player.technologies['warehouse-logistics-research-2'].enabled = false
+    game.forces.player.technologies['warehouse-logistics-research-2'].enabled = false ]]
 
     game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
     game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
