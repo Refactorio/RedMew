@@ -25,6 +25,7 @@ return require 'map_gen.maps.default'
     beach
     connected_dots
     crosses
+    blackforest
     danger_ores
     diagonal_ribbon
     double_beach
