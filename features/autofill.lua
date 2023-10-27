@@ -13,20 +13,9 @@ Settings.register(enable_autofill_name, Settings.types.boolean, true, 'autofill.
 Settings.register(ammo_count_name, Settings.types.positive_integer, 10, 'autofill.ammo_count')
 
 local Public = {}
-
-local ammo_locales = {
-    ['uranium-rounds-magazine'] = {'item-name.uranium-rounds-magazine'},
-    ['piercing-rounds-magazine'] = {'item-name.piercing-rounds-magazine'},
-    ['firearm-magazine'] = {'item-name.firearm-magazine'}
-}
-local k2_ammo_locales = {
-    ['rifle-magazine'] = {'item-name.rifle-magazine'},
-    ['armor-piercing-rifle-magazine'] = {'item-name.armor-piercing-rifle-magazine'},
-    ['uranium-rifle-magazine'] = {'item-name.uranium-rifle-magazine'},
-    ['imersite-rifle-magazine'] = {'item-name.imersite-rifle-magazine'}
-}
-if script.active_mods["Krastorio2"] then ammo_locales = k2_ammo_locales end
-Public.ammo_locales = ammo_locales
+local Ammos = require 'features.autofill_compatibility'
+local default_ammos = Ammos.ammo
+Public.ammo_locales = Ammos.locale
 
 local player_ammos = {} -- player_index -> dict of name -> bool
 
@@ -36,20 +25,6 @@ Global.register(
         player_ammos = tbl
     end
 )
-
-local default_ammos = {
-    ['uranium-rounds-magazine'] = true,
-    ['piercing-rounds-magazine'] = true,
-    ['firearm-magazine'] = true
-}
-
-local k2_default_ammos = {
-    ['rifle-magazine'] = true,
-    ['armor-piercing-rifle-magazine'] = true,
-    ['uranium-rifle-magazine'] = true,
-    ['imersite-rifle-magazine'] = true
-}
-if script.active_mods["Krastorio2"] then default_ammos = k2_default_ammos end
 
 local function copy(tbl)
     local result = {}
@@ -127,7 +102,7 @@ local function entity_built(event)
                 {
                     name = 'flying-text',
                     position = entity.position,
-                    text = {'autofill.insert_item', inserted, ammo_locales[name], remaining_count}
+                    text = {'autofill.insert_item', inserted, Ammos.locale[name], remaining_count}
                 }
             )
 
