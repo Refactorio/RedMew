@@ -16,7 +16,7 @@ local weights = {
   ['ei_alien-beacon']   =   1,
 }
 
-local function draw_random(rng)
+local function draw_random()
   local weighted_table = {}
   local total = 1
   for item, weight in pairs(weights) do
@@ -25,8 +25,8 @@ local function draw_random(rng)
       total = total + 1
     end
   end
-  
-  table.shuffle_table(weighted_table, rand)
+
+  table.shuffle_table(weighted_table)
 
   return weighted_table[random:next_int(1, total)]
 end

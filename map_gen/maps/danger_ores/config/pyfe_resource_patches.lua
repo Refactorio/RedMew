@@ -7,8 +7,6 @@ full_oil_shape = b.use_world_as_local(full_oil_shape)
 local full_patch_shape = b.throttle_xy(b.full_shape, 7, 12, 7, 12)
 full_patch_shape = b.use_world_as_local(full_patch_shape)
 
-local after = function(radius) return b.invert(b.circle(radius)) end
-
 local function generate_patch(name, data)
   return {
     scale = data.scale,

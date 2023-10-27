@@ -6,13 +6,7 @@ local function cages(void, width, start, stop, shape)
   local cages = {}
   for i = 1, stop/(void+width) +1 do
     local r = i*(void+width)
-    table.insert(
-      cages, 
-      b.subtract(
-        shape(r),
-        shape(r - width)
-      )
-    )
+    table.insert(cages, b.subtract(shape(r), shape(r - width)))
   end
   local bounds = b.subtract(shape(start+stop), shape(start))
   return b.all({b.any(cages), bounds})

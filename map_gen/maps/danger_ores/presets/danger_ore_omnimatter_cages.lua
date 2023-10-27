@@ -1,8 +1,6 @@
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local Event = require 'utils.event'
-local Token = require 'utils.token'
-local Task = require 'utils.task'
 local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
@@ -50,7 +48,7 @@ local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entitie
 local allowed_entities = require 'map_gen.maps.danger_ores.config.omnimatter_allowed_entities'
 banned_entities(allowed_entities)
 
-local omni_resources_control = { 
+local omni_resources_control = {
     autoplace_controls = {
         ['omnite']          = { frequency = 1, richness = 1, size = 0 },
         ['infinite-omnite'] = { frequency = 1, richness = 1, size = 0 },

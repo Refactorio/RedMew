@@ -1073,7 +1073,7 @@ function Builders.exclusive_pattern(pattern)
             local tile = shape.shape(x, y, world)
             if tile and tile.entities then return shape.shape(x, y, world) end
         end
-        return b.empty_shape(x, y, world)
+        return Builders.empty_shape(x, y, world)
     end
 end
 
@@ -1556,7 +1556,7 @@ function Builders.segment_weighted_pattern(pattern)
         end
 
         local shape = pattern[index].shape or Builders.empty_shape
-        
+
         return shape(x, y, world)
     end
 end

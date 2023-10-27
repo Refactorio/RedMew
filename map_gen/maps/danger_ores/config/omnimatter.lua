@@ -1,7 +1,6 @@
 local b = require 'map_gen.shared.builders'
 local start_value = b.euclidean_value(0, 0.35)
 local value = b.exponential_value(0, 0.06, 1.55)
-local special_resources_radius = 32 * 4
 
 return {
   {

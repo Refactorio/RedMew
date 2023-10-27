@@ -13,7 +13,7 @@ local default = function()
     }
 end
 
-if script.active_mods['Krastorio2'] then 
+if script.active_mods['Krastorio2'] then
     return {
         ammo = {
             ['rifle-magazine'] = true,

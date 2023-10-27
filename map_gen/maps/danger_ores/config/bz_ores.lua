@@ -68,7 +68,7 @@ local estimated_consumption = {
   ['zircon']          =   8,
 }
 
---[[ 
+--[[
   Build set of resource. Each sector has weight equal to its estimated consumption.
   Then each sector has 60% of its main resource, while the remaining 40% is split among the other mixed resources,
   in proportion to each resource's expected consumption again.

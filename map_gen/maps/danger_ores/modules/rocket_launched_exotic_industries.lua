@@ -69,7 +69,7 @@ return function()
         end
     end
 
-    Event.on_nth_tick(60 * 17, on_win_condition_met) 
+    Event.on_nth_tick(60 * 17, on_win_condition_met)
     Event.add(defines.events.on_rocket_launched, rocket_launched)
 end
 
