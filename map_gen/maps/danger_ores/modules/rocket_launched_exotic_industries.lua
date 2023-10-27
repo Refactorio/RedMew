@@ -6,6 +6,7 @@ local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 return function()
     ShareGlobals.data.biters_disabled = false
     ShareGlobals.data.map_won = false
+    ShareGlobals.data.show_reset_message = true
 
     local function disable_biters()
         if ShareGlobals.data.biters_disabled then
@@ -20,9 +21,9 @@ return function()
 
         local message = table.concat {
             'Launching the first satellite has killed all the biters. ',
-            'Build and activate the Intergalactic Transceiver to win the map.'
+            'Build and activate the Black Hole to win the map.'
         }
-        game.print({'danger_ores.biters_disabled_k2'})
+        game.print({'danger_ores.biters_disabled_ei'})
         Server.to_discord_bold(message)
     end
 
@@ -62,12 +63,13 @@ return function()
         Server.to_discord_bold(message)
     end
 
-    local function on_transceiver_built(event)
-        if event.effect_id ~= "k2-transciever-activated" then return end
-        win()
+    local function on_win_condition_met()
+        if ShareGlobals.show_reset_message and game.finished_but_continuing then
+            win()
+        end
     end
 
+    Event.on_nth_tick(60 * 17, on_win_condition_met) 
     Event.add(defines.events.on_rocket_launched, rocket_launched)
-    Event.add(defines.events.on_script_trigger_effect, on_transceiver_built)
 end
 

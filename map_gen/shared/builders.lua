@@ -1065,6 +1065,18 @@ end
 
 -- pattern builders
 
+--- Loops through the shapes, if any shape is able to place any entities,
+--- it'll return that shape. Otherwise, empty shape is returned
+function Builders.exclusive_pattern(pattern)
+    return function(x, y, world)
+        for index, shape in pairs(pattern or {}) do
+            local tile = shape.shape(x, y, world)
+            if tile and tile.entities then return shape.shape(x, y, world) end
+        end
+        return b.empty_shape(x, y, world)
+    end
+end
+
 --- Docs: https://github.com/Refactorio/RedMew/wiki/Using-the-Builders#builderssingle_pattern
 function Builders.single_pattern(shape, width, height)
     shape = shape or Builders.empty_shape
@@ -1544,6 +1556,7 @@ function Builders.segment_weighted_pattern(pattern)
         end
 
         local shape = pattern[index].shape or Builders.empty_shape
+        
         return shape(x, y, world)
     end
 end

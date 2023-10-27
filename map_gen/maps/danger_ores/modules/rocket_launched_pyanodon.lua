@@ -20,9 +20,9 @@ return function()
 
         local message = table.concat {
             'Launching the first satellite has killed all the biters. ',
-            'Build and activate the Intergalactic Transceiver to win the map.'
+            'Research Pyrrhic Victory to win the game.'
         }
-        game.print({'danger_ores.biters_disabled_k2'})
+        game.print({'danger_ores.biters_disabled_py'})
         Server.to_discord_bold(message)
     end
 
@@ -62,12 +62,17 @@ return function()
         Server.to_discord_bold(message)
     end
 
-    local function on_transceiver_built(event)
-        if event.effect_id ~= "k2-transciever-activated" then return end
-        win()
+    local function on_research_finished(event)
+        local tech = event.research
+        if not tech then
+            return
+        end
+        if tech.name and tech.name == 'pyrrhic' then
+            win()
+        end
     end
 
     Event.add(defines.events.on_rocket_launched, rocket_launched)
-    Event.add(defines.events.on_script_trigger_effect, on_transceiver_built)
+    Event.add(defines.events.on_research_finished, on_research_finished)
 end
 

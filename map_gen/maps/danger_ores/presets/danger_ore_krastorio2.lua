@@ -7,7 +7,7 @@ local b = require 'map_gen.shared.builders'
 local Config = require 'config'
 
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Danger Ore Krastorio2')
+ScenarioInfo.set_map_name('Danger Ore x Krastorio2')
 ScenarioInfo.set_map_description([[
 Clear the ore to expand the base,
 focus mining efforts on specific sectors to ensure
@@ -32,42 +32,19 @@ does not affect biter evolution.
 ]])
 
 ScenarioInfo.set_new_info([[
+2023-10-26:
+ - Reduced tech multiplier (10 -> 5)
+ - Increased Uranium ore & Compact raw rare metals spawn radius (128 -> 192 tiles)
+ - Eased terraforming requirements (8 -> 10 chunks, 9 -> 8 pollution increase, 24k -> 16k max pollution, 600 -> 400 min pollution)
+ - Reduced rocket required to win (500 -> 100)
+ - Removed Expensive Warehousing from required mods
+
 2023-10-11:
  - Increased Uranium ore & Compact raw rare metals spawn radius to 128 tiles
  - Reduced Compact raw rare metals yield weight (8 -> 4)
 
 2023-10-01:
  - Added K2 preset
-
-2023-06-27:
- - disabled Crafting
- - added Starting Equipment
-
-2019-04-24:
- - Stone ore density reduced by 1/2
- - Ore quadrants randomized
- - Increased time factor of biter evolution from 5 to 7
- - Added win conditions (+5% evolution every 5 rockets until 100%, +100 rockets until biters are wiped)
-
-2019-03-30:
- - Uranium ore patch threshold increased slightly
- - Bug fix: Cars and tanks can now be placed onto ore!
- - Starting minimum pollution to expand map set to 650
-    View current pollution via Debug Settings [F4] show-pollution-values,
-    then open map and turn on pollution via the red box.
- - Starting water at spawn increased from radius 8 to radius 16 circle.
-
-2019-03-27:
- - Ore arranged into quadrants to allow for more controlled resource gathering.
-
-2020-09-02:
- - Destroyed chests dump their content as coal ore.
-
-2020-12-28:
- - Changed win condition. First satellite kills all biters, launch 500 to win the map.
-
-2021-04-06:
- - Rail signals and train stations now allowed on ore.
 ]])
 
 ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
@@ -75,12 +52,9 @@ ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
 global.config.redmew_qol.loaders = false
 
 local map = require 'map_gen.maps.danger_ores.modules.map'
-local main_ores_config = require 'map_gen.maps.danger_ores.config.krastorio2'
--- local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
--- local resource_patches_config = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_resource_patches'
+local main_ores_config = require 'map_gen.maps.danger_ores.config.krastorio2_ores'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
--- local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
 local allowed_entities = require 'map_gen.maps.danger_ores.config.krastorio2_allowed_entities'
@@ -154,8 +128,7 @@ local kr_remote = Token.register(function()
 end)
 
 Event.on_init(function()
-    -- game.permissions.get_group("Default").set_allows_action(defines.input_action.craft, false)
-    -- game.draw_resource_selection = false
+    game.draw_resource_selection = false
 
     local p = game.forces.player
     p.technologies['mining-productivity-1'].enabled = false
@@ -168,7 +141,7 @@ Event.on_init(function()
 
     p.manual_mining_speed_modifier = 1
 
-    game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 10
+    game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 5
 
     game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
     game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
@@ -181,7 +154,7 @@ Event.on_init(function()
 end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 8 * 32, min_pollution = 600, max_pollution = 24000, pollution_increment = 9})
+terraforming({start_size = 10 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 8})
 
 --[[ Win condition in K2: build intergalactic transceiver ]]
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_krastorio2'
@@ -212,8 +185,6 @@ local config = {
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
     main_ores_rotate = 45,
-    -- resource_patches = resource_patches,
-    -- resource_patches_config = resource_patches_config,
     water_scale = 1 / 96,
     water_threshold = 0.4,
     deepwater_threshold = 0.45,
@@ -226,7 +197,6 @@ local config = {
     enemy_max_chance = 1 / 6,
     enemy_scale_factor = 32,
     fish_spawn_rate = 0.025,
-    -- dense_patches = dense_patches,
     dense_patches_scale = 1 / 48,
     dense_patches_threshold = 0.55,
     dense_patches_multiplier = 25
