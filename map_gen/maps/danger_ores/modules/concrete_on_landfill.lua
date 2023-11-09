@@ -1,10 +1,11 @@
 local Event = require 'utils.event'
 
 return function(config)
+    local refund_tile = config.refund_tile or 'refined-concrete'
     local replace_tile = config.tile or 'blue-refined-concrete'
 
     local replace_tiles = {['landfill'] = true, [replace_tile] = true}
-    local brush_tools = {['refined-concrete'] = true} -- , ['refined-hazard-concrete'] = true}
+    local brush_tools = {[refund_tile] = true} -- , ['refined-hazard-concrete'] = true}
 
     local character_main = defines.inventory.character_main
     local robot_cargo = defines.inventory.robot_cargo
@@ -25,7 +26,7 @@ return function(config)
         end
 
         if inventory and inventory.valid and refund_count > 0 then
-            inventory.insert {name = 'refined-concrete', count = refund_count}
+            inventory.insert {name = refund_tile, count = refund_count}
         end
     end
 
@@ -49,7 +50,7 @@ return function(config)
 
         surface.set_tiles(new_tiles)
         if inventory and inventory.valid and refund_count > 0 then
-            inventory.insert {name = 'refined-concrete', count = refund_count}
+            inventory.insert {name = refund_tile, count = refund_count}
         end
     end
 

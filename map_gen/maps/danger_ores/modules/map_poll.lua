@@ -18,11 +18,21 @@ end)
 local normal_mod_pack = 'normal_mod_pack'
 local bobs_mod_pack = 'bobs_mod_pack'
 local krastorio_mod_pack = 'krastorio_mod_pack'
+local omnimatter_mod_pack = 'omnimatter_mod_pack'
+local bz_mod_pack = 'bz_mod_pack'
+local ei_mod_pack = 'ei_mod_pack'
+local py_short_mod_pack = 'py_short_mod_pack'
+local ir3_mod_pack = 'ir3_mod_pack'
 
 local mod_packs = {
     normal_mod_pack = 'danger_ore29',
     bobs_mod_pack = 'danger_ore_bobs3',
-    krastorio_mod_pack = 'danger_ore_krastorio2'
+    krastorio_mod_pack = 'danger_ore_krastorio3',
+    omnimatter_mod_pack = 'danger_ore_omnimatter',
+    bz_mod_pack = 'danger_ore_bz',
+    ei_mod_pack = 'danger_ore_ei',
+    py_short_mod_pack = 'danger_ore_py_short',
+    ir3_mod_pack = 'danger_ore_ir3',
 }
 
 local maps = {
@@ -129,7 +139,47 @@ local maps = {
     {
         name = 'danger-ore-krastorio2',
         mod_pack = krastorio_mod_pack,
-        display_name = 'Krastorio2 mod (landfill + terraforming)'
+        display_name = 'Krastorio2 (landfill)'
+    },
+    {
+        name = 'danger-ore-omnimatter',
+        mod_pack = omnimatter_mod_pack,
+        display_name = 'Omnimatter (default map)'
+    },
+    {
+        name = 'danger-ore-omnimatter-cages',
+        mod_pack = omnimatter_mod_pack,
+        display_name = 'Omnimatter cages (landfill + frames)'
+    },
+    {
+        name = 'danger-ore-bz',
+        mod_pack = bz_mod_pack,
+        display_name = 'Very BZ (default map)'
+    },
+    {
+        name = 'danger-ore-exotic-industries',
+        mod_pack = ei_mod_pack,
+        display_name = 'Exotic Industries (default map)'
+    },
+    {
+        name = 'danger-ore-exotic-industries-spiral',
+        mod_pack = ei_mod_pack,
+        display_name = 'Exotic Industries spiral (without void)'
+    },
+    {
+        name = 'danger-ore-pyfe',
+        mod_pack = py_short_mod_pack,
+        display_name = 'Pyanodon Short (landfill)'
+    },
+    {
+        name = 'danger-ore-industrial-revolution-3',
+        mod_pack = ir3_mod_pack,
+        display_name = 'Industrial Revolution 3 (default map)'
+    },
+    {
+        name = 'danger-ore-industrial-revolution-3-grid-factory',
+        mod_pack = ir3_mod_pack,
+        display_name = 'Industrial Revolution 3 chessboard (fixed squares)'
     }
 }
 

@@ -431,7 +431,8 @@ stds.factorio_control = {
                 ticks_played = {read_only = true, other_fields = true},
                 ticks_to_run = {read_only = false, other_fields = false},
                 tile_prototypes = {read_only = true, other_fields = true},
-                virtual_signal_prototypes = {read_only = true, other_fields = true}
+                virtual_signal_prototypes = {read_only = true, other_fields = true},
+                finished_but_continuing = {read_only = true, other_fields = false}
             },
         },
     },
