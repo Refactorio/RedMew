@@ -71,7 +71,7 @@ Config.player_create.starting_items = {
     { count =  1, name = 'stone-furnace'},
     { count =  2, name = 'burner-mining-drill' },
     { count = 50, name = 'wood' },
-    { count =  1, name = 'burner-omnitraction' },
+    { count =  1, name = 'burner-omnitractor' },
     { count =  1, name = 'burner-omniphlog' },
 }
 if script.active_mods['early_construction'] then
@@ -120,9 +120,7 @@ local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
 
 local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
-concrete_on_landfill({tile = 'blue-refined-concrete'})
-local concrete_on_landfill_omni = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill_omni'
-concrete_on_landfill_omni({tile = 'blue-refined-concrete'})
+concrete_on_landfill({tile = 'blue-refined-concrete', refund_tile = 'omnite-refined-concrete'})
 
 require 'map_gen.maps.danger_ores.modules.biter_drops'
 

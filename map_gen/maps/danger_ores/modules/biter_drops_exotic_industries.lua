@@ -1,34 +1,24 @@
 local Event = require 'utils.event'
 local Task = require 'utils.task'
 local Token = require 'utils.token'
-local table = require 'utils.table'
-local Random = require 'map_gen.shared.random'
-
-local seed1 = 1410
-local seed2 = 12900
-local random = Random.new(seed1, seed2)
 
 local weights = {
-  ['ei_energy-crystal'] =  10,
-  ['ei_gold-chunk']     =  10,
-  ['ei_alien-resin']    = 150,
-  ['ei_alien-seed']     =   4,
-  ['ei_alien-beacon']   =   1,
+    ['ei_energy-crystal'] =  10,
+    ['ei_gold-chunk']     =  10,
+    ['ei_alien-resin']    = 150,
+    ['ei_alien-seed']     =   4,
+    ['ei_alien-beacon']   =   1,
 }
+local weighted_table = {}
+
+for item, weight in pairs(weights) do
+    for _ = 1, weight do
+        weighted_table[#weighted_table + 1] = item
+    end
+end
 
 local function draw_random()
-  local weighted_table = {}
-  local total = 1
-  for item, weight in pairs(weights) do
-    for _=0, weight+1 do
-      weighted_table[total] = item
-      total = total + 1
-    end
-  end
-
-  table.shuffle_table(weighted_table)
-
-  return weighted_table[random:next_int(1, total)]
+    return weighted_table[math.random(#weighted_table)]
 end
 
 local spill_items = Token.register(function(data)
@@ -48,17 +38,17 @@ Event.add(defines.events.on_entity_died, function(event)
 
     local entity_name = entity.name
     if not(entity_name == "biter-spawner" or entity_name == 'spitter-spawner') then
-      return
+        return
     end
 
     local item = draw_random()
     if not item then
-      return
+        return
     end
 
     local stack = {
-      name = item,
-      count = 1
+        name = item,
+        count = 1
     }
 
     Task.set_timeout_in_ticks(1, spill_items, {

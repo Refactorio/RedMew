@@ -1066,14 +1066,14 @@ end
 -- pattern builders
 
 --- Loops through the shapes, if any shape is able to place any entities,
---- it'll return that shape. Otherwise, empty shape is returned
-function Builders.exclusive_pattern(pattern)
+--- it'll return that tile. Otherwise, false is returned.
+function Builders.any_entity_pattern(pattern)
     return function(x, y, world)
         for index, shape in pairs(pattern or {}) do
             local tile = shape.shape(x, y, world)
-            if tile and tile.entities then return shape.shape(x, y, world) end
+            if tile and tile.entities then return tile end
         end
-        return Builders.empty_shape(x, y, world)
+        return false
     end
 end
 

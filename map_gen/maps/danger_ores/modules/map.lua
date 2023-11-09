@@ -1,18 +1,15 @@
 local Global = require 'utils.global'
 local b = require 'map_gen.shared.builders'
 local Perlin = require 'map_gen.shared.perlin_noise'
-local table = require 'utils.table'
 local math = require 'utils.math'
 local seed_provider = require 'map_gen.maps.danger_ores.modules.seed_provider'
 local RS = require 'map_gen.shared.redmew_surface'
 
 local deafult_main_ores_builder = require 'map_gen.maps.danger_ores.modules.main_ores'
+local default_ore_builder = require 'map_gen.maps.danger_ores.modules.ore_builder'
 
-local binary_search = table.binary_search
 local perlin_noise = Perlin.noise
 local floor = math.floor
-local random = math.random
-local bnot = bit32.bnot
 
 local function spawn_builder(config)
     local spawn_circle = config.spawn_shape or b.circle(64)
@@ -53,43 +50,7 @@ local function empty_builder()
 end
 
 return function(config)
-    local start_ore_shape
-    local resource_patches
-    local no_resource_patch_shape
-    local dense_patches
-
-    local function ore_builder(ore_name, amount, ratios, weighted)
-        local start_ore = b.resource(b.full_shape, ore_name, amount)
-        local total = weighted.total
-
-        return function(x, y, world)
-            if start_ore_shape(x, y) then
-                return start_ore(x, y, world)
-            end
-
-            if not no_resource_patch_shape(x, y) then
-                local resource_patches_entity = resource_patches(x, y, world)
-                if resource_patches_entity then
-                    return resource_patches_entity
-                end
-            end
-
-            local i = random() * total
-            local index = binary_search(weighted, i)
-            if index < 0 then
-                index = bnot(index)
-            end
-
-            local resource = ratios[index].resource
-            local entity = resource(x, y, world)
-
-            dense_patches(x, y, entity)
-            if entity then entity.enable_tree_removal = false end
-
-            return entity
-        end
-    end
-
+    local ore_builder = config.ore_builder or default_ore_builder
     local map
     Global.register_init({}, function(tbl)
         tbl.seed = RS.get_surface().map_gen_settings.seed
@@ -104,14 +65,16 @@ return function(config)
         local main_ores_builder = (config.main_ores_builder or deafult_main_ores_builder)(config)
         local post_map_func = config.post_map_func
 
-        start_ore_shape = config.start_ore_shape or b.circle(68)
-        resource_patches = (config.resource_patches or no_op)(config) or b.empty_shape
-        no_resource_patch_shape = config.no_resource_patch_shape or b.empty_shape
-        dense_patches = (config.dense_patches or no_op)(config) or no_op
+        local ore_builder_config = {
+            start_ore_shape = config.start_ore_shape or b.circle(68),
+            resource_patches = (config.resource_patches or no_op)(config) or b.empty_shape,
+            no_resource_patch_shape = config.no_resource_patch_shape or b.empty_shape,
+            dense_patches = (config.dense_patches or no_op)(config) or no_op,
+        }
 
         local random_gen = tbl.random
         random_gen.re_seed(tbl.seed)
-        map = main_ores_builder(tile_builder, ore_builder, spawn_shape, water_shape, random_gen)
+        map = main_ores_builder(tile_builder, ore_builder(ore_builder_config), spawn_shape, water_shape, random_gen)
 
         if enemy_shape then
             map = b.apply_entity(map, enemy_shape)

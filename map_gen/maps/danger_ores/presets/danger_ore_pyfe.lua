@@ -36,8 +36,9 @@ ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
 
 global.config.redmew_qol.loaders = false
 
-local map = require 'map_gen.maps.danger_ores.modules.map_without_gaps'
+local map = require 'map_gen.maps.danger_ores.modules.map'
 local main_ores_config = require 'map_gen.maps.danger_ores.config.pyfe_ores'
+local ore_builder = require 'map_gen.maps.danger_ores.modules.ore_builder_without_gaps'
 local resource_patches = require 'map_gen.maps.danger_ores.modules.resource_patches'
 local resource_patches_config = require 'map_gen.maps.danger_ores.config.pyfe_resource_patches'
 local trees = require 'map_gen.maps.danger_ores.modules.trees'
@@ -138,6 +139,7 @@ local config = {
     spawn_shape = b.rectangle(100),
     start_ore_shape = b.empty_shape,
     spawn_tile = 'landfill',
+    ore_builder = ore_builder,
     main_ores = main_ores_config,
     main_ores_shuffle_order = true,
     resource_patches = resource_patches,

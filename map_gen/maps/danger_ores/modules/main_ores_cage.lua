@@ -32,7 +32,7 @@ return function(config)
             table.shuffle_table(shapes, random_gen)
         end
 
-        local ores = b.exclusive_pattern(shapes)
+        local ores = b.any_entity_pattern(shapes)
 
         if main_ores_rotate ~= 0 then
             ores = b.rotate(ores, math.rad(main_ores_rotate))
