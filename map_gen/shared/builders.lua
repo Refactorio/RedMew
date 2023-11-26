@@ -1227,7 +1227,7 @@ function Builders.grid_pattern(pattern, columns, rows, width, height)
     end
 end
 
-function Builders.grid_pattern_no_repeat(pattern, columns, rows, width, height)
+function Builders.grid_pattern_no_repeat(pattern, width, height)
     local half_width = width / 2
     local half_height = height / 2
 

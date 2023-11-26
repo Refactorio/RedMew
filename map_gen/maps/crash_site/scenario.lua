@@ -634,7 +634,7 @@ local function init(config)
     end
 
     local outposts =
-        b.grid_pattern_no_repeat(pattern, grid_number_of_blocks, grid_number_of_blocks, grid_block_size, grid_block_size)
+        b.grid_pattern_no_repeat(pattern, --[[grid_number_of_blocks, grid_number_of_blocks,]] grid_block_size, grid_block_size)
     local mini_outposts =
         b.grid_pattern(
         mini_pattern,
