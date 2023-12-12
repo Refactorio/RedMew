@@ -21,7 +21,7 @@ return function()
 
         local message = table.concat {
             'Launching the first satellite has killed all the biters. ',
-            'Build and activate the Black Hole to win the map.'
+            'Launch more satellites to the asteroids to unloch the final age'
         }
         game.print({'danger_ores.biters_disabled_ei'})
         Server.to_discord_bold(message)
@@ -48,7 +48,7 @@ return function()
         end
 
         if satellite_count == 1 then
-            disable_biters()
+            -- disable_biters()
         end
     end
 

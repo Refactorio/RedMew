@@ -108,6 +108,9 @@ Event.on_init(function()
 
     game.forces.player.manual_mining_speed_modifier = 1
 
+    game.map_settings.pollution.diffusion_ratio = 0.01
+    game.map_settings.pollution.min_to_diffuse = 300
+
     game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
     game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
     game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
@@ -117,7 +120,7 @@ Event.on_init(function()
 end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 12 * 32, min_pollution = 300, max_pollution = 16000, pollution_increment = 3})
+terraforming({start_size = 12 * 32, min_pollution = 300, max_pollution = 16000, pollution_increment = 2})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_pyanodon'
 rocket_launched()
@@ -128,11 +131,19 @@ restart_command({scenario_name = 'danger-ore-pyfe'})
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
 container_dump({entity_name = 'coal'})
 
+local tech_scaling = require 'map_gen.maps.danger_ores.modules.tech_scaling'
+tech_scaling({ effects = {
+    ['automation-science-pack'] = 1.00,
+    ['logistic-science-pack']   = 0.75,
+    ['chemical-science-pack']   = 0.50,
+    ['production-science-pack'] = 0.25,
+    ['utility-sciemce-pack']    = 0.20,
+    ['space-science-pack']      = 0.10,
+}})
 -- local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
 -- concrete_on_landfill({tile = 'blue-refined-concrete'})
 
 require 'map_gen.maps.danger_ores.modules.biter_drops'
-
 require 'map_gen.maps.danger_ores.modules.map_poll'
 
 local config = {

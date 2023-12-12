@@ -3,11 +3,12 @@ local Task = require 'utils.task'
 local Token = require 'utils.token'
 
 local weights = {
-    ['ei_energy-crystal'] =  10,
-    ['ei_gold-chunk']     =  10,
-    ['ei_alien-resin']    = 150,
-    ['ei_alien-seed']     =   4,
-    ['ei_alien-beacon']   =   1,
+    ['ei_energy-crystal']   =  10,
+    ['ei_gold-chunk']       =  10,
+    ['ei_alien-resin']      = 150,
+    ['ei_alien-seed']       =   4,
+    ['ei_alien-beacon']     =   1,
+    ['ei_alien-stabilizer'] =  10,
 }
 local weighted_table = {}
 
