@@ -21,7 +21,7 @@ local krastorio_mod_pack = 'krastorio_mod_pack'
 local omnimatter_mod_pack = 'omnimatter_mod_pack'
 local bz_mod_pack = 'bz_mod_pack'
 local ei_mod_pack = 'ei_mod_pack'
-local py_short_mod_pack = 'py_short_mod_pack'
+-- local py_short_mod_pack = 'py_short_mod_pack'
 local ir3_mod_pack = 'ir3_mod_pack'
 
 local mod_packs = {
@@ -166,11 +166,13 @@ local maps = {
         mod_pack = ei_mod_pack,
         display_name = 'Exotic Industries spiral (without void)'
     },
+    --[[ N/A until rework on data stages is finished
     {
         name = 'danger-ore-pyfe',
         mod_pack = py_short_mod_pack,
         display_name = 'Pyanodon Short (landfill)'
     },
+    ]]
     {
         name = 'danger-ore-industrial-revolution-3',
         mod_pack = ir3_mod_pack,
