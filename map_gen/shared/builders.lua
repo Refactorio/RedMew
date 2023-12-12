@@ -1227,6 +1227,25 @@ function Builders.grid_pattern(pattern, columns, rows, width, height)
     end
 end
 
+function Builders.grid_pattern_no_repeat(pattern, width, height)
+    local half_width = width / 2
+    local half_height = height / 2
+
+    return function(x, y, world)
+        local y2 = ((y + half_height) % height) - half_height
+        local row_pos = floor(y / height + 0.5)
+        local row_i = row_pos + 1
+        local row = pattern[row_i] or {}
+
+        local x2 = ((x + half_width) % width) - half_width
+        local col_pos = floor(x / width + 0.5)
+        local col_i = col_pos + 1
+
+        local shape = row[col_i] or Builders.empty_shape
+        return shape(x2, y2, world)
+    end
+end
+
 function Builders.grid_pattern_no_offset(pattern, columns, rows, width, height)
     return function(x, y, world)
         local row_pos = floor(y / height + 0.5)

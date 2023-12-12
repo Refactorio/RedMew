@@ -1,6 +1,7 @@
 local b = require 'map_gen.shared.builders'
 local ScenarioInfo = require 'features.gui.info'
 local MGSP = require 'resources.map_gen_settings'
+local degrees = require'utils.math'.degrees
 
 local type = type
 local water_tiles = b.water_tiles
@@ -8,20 +9,18 @@ local path_tiles = b.path_tiles
 
 local pic = require 'map_gen.data.presets.manhattan'
 local world_map = b.picture(pic)
-local degrees = require "utils.math".degrees
+world_map = b.choose(b.rectangle(pic.width, pic.height - 4), world_map, b.empty_shape)
 
 local x_offset, y_offset = 200, 1337
 world_map = b.translate(world_map, x_offset, y_offset)
 world_map = b.rotate(world_map, degrees(-270))
 
 local scale = 2
-local height = 8000 * scale
-local width = 8000 * scale
 
 world_map = b.scale(world_map, scale)
 
-local bounds = b.rectangle(width, height)
-bounds = b.translate(bounds, x_offset * scale, y_offset * scale)
+local bounds = b.rectangle(pic.height * scale, pic.width * scale)
+bounds = b.translate(bounds, y_offset * scale, -x_offset * scale)
 
 local config = {
     scenario_name = 'crashsite-manhattan',
@@ -31,8 +30,8 @@ local config = {
         MGSP.enemy_none,
         MGSP.cliff_none
     },
-    grid_number_of_blocks = 15,
-    mini_grid_number_of_blocks = 29,
+    grid_number_of_blocks = 65,
+    mini_grid_number_of_blocks = 123,
     bounds_shape = bounds
 }
 

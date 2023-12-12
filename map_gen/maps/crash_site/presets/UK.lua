@@ -24,8 +24,8 @@ bounds = b.translate(bounds, x_offset * scale, y_offset * scale)
 local config = {
     scenario_name = 'crashsite-UK',
     map_gen_settings = {MGSP.starting_area_very_low, MGSP.ore_oil_none, MGSP.enemy_none, MGSP.cliff_none},
-    grid_number_of_blocks = 15,
-    mini_grid_number_of_blocks = 29,
+    grid_number_of_blocks = 17,
+    mini_grid_number_of_blocks = 33,
     bounds_shape = bounds
 }
 
