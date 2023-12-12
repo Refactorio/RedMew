@@ -166,11 +166,13 @@ local maps = {
         mod_pack = ei_mod_pack,
         display_name = 'Exotic Industries spiral (without void)'
     },
+    --[[ N/A until rework on data stages is finished
     {
         name = 'danger-ore-pyfe',
         mod_pack = py_short_mod_pack,
         display_name = 'Pyanodon Short (landfill)'
     },
+    ]]
     {
         name = 'danger-ore-industrial-revolution-3',
         mod_pack = ir3_mod_pack,

@@ -1,5 +1,5 @@
 local b = require 'map_gen.shared.builders'
-local value = b.exponential_value(0, 0.07, 1.45)
+local value = b.exponential_value(0, 0.07, 1.15)
 local start_value = b.euclidean_value(0, 0.35)
 
 local function total_weight(tbl)
@@ -51,15 +51,15 @@ end
 local estimated_consumption = {
 --['crude-oil']       = 300,
 --['gas']             =   3,
-  ['aluminum-ore']    =  16,
+  ['aluminum-ore']    =  26, -- 16
   ['coal']            =  80,
   ['copper-ore']      =  12,
   ['gold-ore']        =   1,
   ['graphite']        =  37,
   ['iron-ore']        =  47, -- 37 + 10
-  ['lead-ore']        =  25,
+  ['lead-ore']        =  15, -- 25
   ['rich-copper-ore'] =  20,
-  ['salt']            =  35,
+  ['salt']            =  15, -- 35
   ['stone']           =  48, -- 51 - 3
   ['tin-ore']         =  19,
   ['titanium-ore']    =  16,

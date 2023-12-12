@@ -42,7 +42,7 @@ local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 local spawn_tile = script.active_mods['alien-biomes'] and 'volcanic-green-heat-2' or 'grass-1'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
-local allowed_entities = require 'map_gen.maps.danger_ores.config.vanilla_allowed_entities'
+local allowed_entities = require 'map_gen.maps.danger_ores.config.bz_allowed_entities'
 banned_entities(allowed_entities)
 
 local ores_names = {
@@ -112,7 +112,7 @@ Event.on_init(function()
 
     game.forces.player.manual_mining_speed_modifier = 1
 
-    game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 5
+    -- game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 5
 
     game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
     game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
@@ -126,7 +126,7 @@ local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({start_size = 10 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 4})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
-rocket_launched({win_satellite_count = 1000})
+rocket_launched({win_satellite_count = 100})
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
 restart_command({scenario_name = 'danger-ore-bz'})

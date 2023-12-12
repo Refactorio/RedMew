@@ -97,8 +97,6 @@ Event.on_init(function()
 
     p.manual_mining_speed_modifier = 1
 
-    game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 10
-
     game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
     game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
     game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
@@ -108,7 +106,7 @@ Event.on_init(function()
 end)
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
-terraforming({start_size = 8 * 32, min_pollution = 600, max_pollution = 20000, pollution_increment = 5})
+terraforming({start_size = 8 * 32, min_pollution = 600, max_pollution = 20000, pollution_increment = 10})
 
 local rocket_launched = require 'map_gen.maps.danger_ores.modules.rocket_launched_simple'
 rocket_launched({win_satellite_count = 100})
