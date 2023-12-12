@@ -19,5 +19,5 @@ return {
   generate_patch('crude-oil',     { scale = 1/32, base = 100000, mult = 2500, t = 0.60, shape = full_oil_shape }),
   generate_patch('volcanic-pipe', { scale = 1/32, base =  25000, mult =  750, t = 0.60, shape = full_patch_shape }),
   generate_patch('regolites',     { scale = 1/32, base =  25000, mult =  750, t = 0.60, shape = full_patch_shape }),
-  generate_patch('uranium-ore',   { scale = 1/96, base =    100, mult =  1.5, t = 0.66, shape = b.full_shape }),
+  generate_patch('uranium-ore',   { scale = 1/96, base =    500, mult =  1.5, t = 0.66, shape = b.full_shape }),
 }
