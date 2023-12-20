@@ -6,7 +6,6 @@ local ShareGlobals = require 'map_gen.maps.danger_ores.modules.shared_globals'
 return function()
     ShareGlobals.data.biters_disabled = false
     ShareGlobals.data.map_won = false
-    ShareGlobals.data.show_reset_message = true
 
     local function disable_biters()
         if ShareGlobals.data.biters_disabled then
@@ -57,19 +56,17 @@ return function()
             return
         end
 
+        if not game.finished_but_continuing then
+            return
+        end
+
         ShareGlobals.data.map_won = true
         local message = 'Congratulations! The map has been won. Restart the map with /restart'
         game.print({'danger_ores.win'})
         Server.to_discord_bold(message)
     end
 
-    local function on_win_condition_met()
-        if ShareGlobals.data.show_reset_message and game.finished_but_continuing then
-            win()
-        end
-    end
-
-    Event.on_nth_tick(60 * 17, on_win_condition_met)
+    Event.on_nth_tick(60 * 17, win)
     Event.add(defines.events.on_rocket_launched, rocket_launched)
 end
 
