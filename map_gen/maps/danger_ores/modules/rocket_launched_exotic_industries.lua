@@ -21,7 +21,7 @@ return function()
 
         local message = table.concat {
             'Launching the first satellite has killed all the biters. ',
-            'Launch more satellites to the asteroids to unloch the final age'
+            'Launch more Exploration Satellites to the asteroids to unlock the final age'
         }
         game.print({'danger_ores.biters_disabled_ei'})
         Server.to_discord_bold(message)
@@ -64,7 +64,7 @@ return function()
     end
 
     local function on_win_condition_met()
-        if ShareGlobals.show_reset_message and game.finished_but_continuing then
+        if ShareGlobals.data.show_reset_message and game.finished_but_continuing then
             win()
         end
     end
