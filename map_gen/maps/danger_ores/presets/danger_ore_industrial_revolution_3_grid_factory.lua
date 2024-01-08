@@ -133,6 +133,11 @@ Event.on_init(function()
     RS.get_surface().peaceful_mode = true
 end)
 
+-- Restrict use of premade blueprints
+local set_permissions = require 'map_gen.maps.danger_ores.modules.permissions'
+local actions = require 'map_gen.maps.danger_ores.config.actions'
+set_permissions({permissions = actions['no-blueprints']})
+
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({start_size = 10 * 32, min_pollution = 400, max_pollution = 16000, pollution_increment = 4})
 
