@@ -90,15 +90,12 @@ Event.on_init(function()
     Public.set_permissions()
     data.initialized_permissions = true
   end
-
-  Public.set_permissions()
-  data.initialized_permissions = true
 end)
 
 ---Init permissions for multiplayer servers
 Event.add(defines.events.on_player_joined_game, function()
   if not data.initialized_permissions
-    and Public.enabled()
+    and Public.any_preset()
     and table_size(game.connected_players) > 1
   then
     Public.set_permissions()
