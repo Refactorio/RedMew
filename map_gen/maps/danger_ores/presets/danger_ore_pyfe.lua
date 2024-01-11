@@ -91,6 +91,7 @@ Config.dump_offline_inventories = {
     offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
+Config.permissions.presets.no_blueprints = true
 
 if script.active_mods['early_construction'] then
     table.insert(Config.player_create.starting_items, { count =   1, name = 'early-construction-light-armor' })
@@ -118,11 +119,6 @@ Event.on_init(function()
     RS.get_surface().always_day = false
     RS.get_surface().peaceful_mode = true
 end)
-
--- Restrict use of premade blueprints
-local set_permissions = require 'map_gen.maps.danger_ores.modules.permissions'
-local actions = require 'map_gen.maps.danger_ores.config.actions'
-set_permissions({permissions = actions['no-blueprints']})
 
 local terraforming = require 'map_gen.maps.danger_ores.modules.terraforming'
 terraforming({start_size = 12 * 32, min_pollution = 300, max_pollution = 16000, pollution_increment = 2})

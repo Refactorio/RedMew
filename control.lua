@@ -117,6 +117,9 @@ end
 if config.spidertron_group_control.enabled then
     require 'features.spidertron_group_control'
 end
+if config.permissions.enabled then
+    require 'features.permissions'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.

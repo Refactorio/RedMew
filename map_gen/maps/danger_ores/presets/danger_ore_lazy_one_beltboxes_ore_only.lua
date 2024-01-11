@@ -108,6 +108,7 @@ Config.dump_offline_inventories = {
     offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
+Config.permissions.presets.no_blueprints = true
 
 Event.on_init(function()
     game.permissions.get_group("Default").set_allows_action(defines.input_action.craft, false)

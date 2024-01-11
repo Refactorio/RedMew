@@ -1,7 +1,7 @@
 -- defines.input_action listed at https://lua-api.factorio.com/latest/defines.html#defines.input_action
 
 return {
-  ['no-blueprints'] = {
+  no_blueprints = {
     [defines.input_action.import_blueprint] = false,
     [defines.input_action.import_blueprint_string] = false,
     [defines.input_action.import_blueprints_filtered] = false,
@@ -10,7 +10,7 @@ return {
     [defines.input_action.open_blueprint_record] = false,
     [defines.input_action.upgrade_opened_blueprint_by_record] = false,
   },
-  ['no-handcraft'] = {
+  no_handcraft = {
     [defines.input_action.craft] = false,
   }
 }
