@@ -210,6 +210,13 @@ local function update_volunteer_button(button, task)
     end
 end
 
+local function update_top_gui(player)
+    local button = player.gui.top[main_button_name]
+    if button and button.valid then
+        button.number = table_size(tasks) or 0
+    end
+end
+
 local function redraw_tasks(data, enabled)
     local parent = data.tasks_content
     Gui.clear(parent)
@@ -563,6 +570,8 @@ local function create_new_tasks(task_name, player)
             draw_main_frame(left, p)
         end
 
+        update_top_gui(p)
+
         if notify then
             p.print(message)
         end
@@ -620,7 +629,8 @@ local function player_created(event)
             type = 'sprite-button',
             name = main_button_name,
             sprite = 'item/repair-pack',
-            tooltip = {'tasklist.tooltip'}
+            tooltip = {'tasklist.tooltip'},
+            number = table_size(tasks) or 0,
         }
     )
 end
@@ -689,13 +699,15 @@ local function on_tick()
                 label.tooltip = get_task_label_tooltip(tasks[task_index], game_tick)
             end
         end
+
+        update_top_gui(p)
     end
 end
 
 Event.add(defines.events.on_player_created, player_created)
 Event.add(defines.events.on_player_joined_game, player_joined)
 Event.add(defines.events.on_player_left_game, player_left)
-Event.on_nth_tick(3600, on_tick)
+Event.on_nth_tick(60*59, on_tick)
 
 Gui.on_click(main_button_name, toggle)
 
@@ -868,6 +880,8 @@ Gui.on_click(
             elseif notify then
                 draw_main_frame(left, p)
             end
+
+            update_top_gui(p)
 
             if notify then
                 p.print(message)
@@ -1103,6 +1117,8 @@ Gui.on_click(
             elseif notify then
                 draw_main_frame(left, p)
             end
+
+            update_top_gui(p)
 
             if notify then
                 p.print(message)
