@@ -213,7 +213,7 @@ end
 local function update_top_gui(player)
     local button = player.gui.top[main_button_name]
     if button and button.valid then
-        button.number = table_size(tasks) or 0
+        button.number = #tasks or 0
     end
 end
 
@@ -630,7 +630,7 @@ local function player_created(event)
             name = main_button_name,
             sprite = 'item/repair-pack',
             tooltip = {'tasklist.tooltip'},
-            number = table_size(tasks) or 0,
+            number = #tasks or 0,
         }
     )
 end
@@ -1117,8 +1117,6 @@ Gui.on_click(
             elseif notify then
                 draw_main_frame(left, p)
             end
-
-            update_top_gui(p)
 
             if notify then
                 p.print(message)
