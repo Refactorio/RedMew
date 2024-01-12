@@ -109,6 +109,7 @@ Config.dump_offline_inventories = {
 }
 Config.paint.enabled = false
 Config.permissions.presets.no_blueprints = true
+Config.permissions.presets.no_handcraft = true
 
 Event.on_init(function()
     game.permissions.get_group("Default").set_allows_action(defines.input_action.craft, false)
