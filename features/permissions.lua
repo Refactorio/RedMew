@@ -1,15 +1,6 @@
 local Command = require 'utils.command'
 local Event = require 'utils.event'
 local Ranks = require 'resources.ranks'
-local Global = require 'utils.global'
-
-local data = {
-  initialized_permissions = false,
-}
-
-Global.register(data, function(tbl)
-  data = tbl
-end)
 
 local config = global.config.permissions
 local Public = {}
@@ -30,23 +21,17 @@ local DEFAULT_PRESETS_ACTIONS = {
   }
 }
 
-for name, actions in pairs(DEFAULT_PRESETS_ACTIONS) do
-  config.modes[name] = config.modes[name] or actions
+for preset_name, preset_actions in pairs(DEFAULT_PRESETS_ACTIONS) do
+  config.modes[preset_name] = config.modes[preset_name] or preset_actions
 end
 
 ---Returns config.preset.any(true)
 ---@return boolean
 function Public.any_preset()
-  for name, mode in pairs(config.presets or {}) do
-    if mode and config.modes[name] ~= nil then return true end
+  for preset_name, is_enabled in pairs(config.presets or {}) do
+    if is_enabled and config.modes[preset_name] ~= nil then return true end
   end
   return false
-end
-
----Requires enabled=true and at least 1 (not nil) preset to be enabled to be true
----@return boolean
-function Public.enabled()
-  return config.enabled and Public.any_preset()
 end
 
 ---Sets all permissions for the "Default" group to true
@@ -82,24 +67,11 @@ function Public.set_permissions(params)
   end
 end
 
----Init permissions
-Event.on_init(function()
-  if not data.initialized_permissions
-    and Public.enabled()
-  then
-    Public.set_permissions()
-    data.initialized_permissions = true
-  end
-end)
-
 ---Init permissions for multiplayer servers
+--- 'game.is_multiplayer()' is not available on 'on_init'
 Event.add(defines.events.on_player_joined_game, function()
-  if not data.initialized_permissions
-    and Public.any_preset()
-    and table_size(game.connected_players) > 1
-  then
+  if config.enabled and game.is_multiplayer() and Public.any_preset() then
     Public.set_permissions()
-    data.initialized_permissions = true
   end
 end)
 
