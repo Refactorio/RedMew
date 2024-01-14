@@ -441,6 +441,14 @@ global.config = {
         donator_perks = {
             enabled = true
         }
+    },
+    permissions = {
+        enabled = true,
+        presets = {
+            no_blueprints = false,
+            no_handcraft = false,
+        },
+        modes = {},
     }
 }
 

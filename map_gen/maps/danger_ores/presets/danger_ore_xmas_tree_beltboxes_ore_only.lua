@@ -90,6 +90,7 @@ Config.paint.enabled = false
 Config.day_night.enabled = true
 Config.day_night.use_fixed_brightness = true
 Config.day_night.fixed_brightness = 0.70
+Config.permissions.presets.no_blueprints = true
 
 Event.on_init(function()
     -- game.draw_resource_selection = false

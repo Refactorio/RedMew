@@ -92,6 +92,7 @@ Config.dump_offline_inventories = {
     offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
+Config.permissions.presets.no_blueprints = true
 
 if script.active_mods['early_construction'] then
     table.insert(Config.player_create.starting_items, { count =   1, name = 'early-construction-light-armor' })
