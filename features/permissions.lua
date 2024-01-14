@@ -1,6 +1,15 @@
 local Command = require 'utils.command'
 local Event = require 'utils.event'
 local Ranks = require 'resources.ranks'
+local Global = require 'utils.global'
+
+local data = {
+  initialized_permissions = false,
+}
+
+Global.register(data, function(tbl)
+  data = tbl
+end)
 
 local config = global.config.permissions
 local Public = {}
@@ -70,8 +79,13 @@ end
 ---Init permissions for multiplayer servers
 --- 'game.is_multiplayer()' is not available on 'on_init'
 Event.add(defines.events.on_player_joined_game, function()
-  if config.enabled and game.is_multiplayer() and Public.any_preset() then
+  if config.enabled
+  and not data.initialized_permissions
+  and game.is_multiplayer()
+  and Public.any_preset()
+  then
     Public.set_permissions()
+    data.initialized_permissions = true
   end
 end)
 
