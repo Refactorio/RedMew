@@ -449,6 +449,14 @@ global.config = {
             no_handcraft = false,
         },
         modes = {},
+    },
+    -- display chat messages on map surface too, as temporarily popups attached on top o players
+    popup_chat = {
+        enabled = true,
+        min_lifetime = 06 * 60, --  6s
+        max_lifetime = 20 * 60, -- 20s
+        min_length = 40, -- messages shorter than this value will still be displayed for the min_lifetime
+        max_length = 92, -- messages longer than this value will be trimmed
     }
 }
 

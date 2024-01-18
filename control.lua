@@ -120,6 +120,9 @@ end
 if config.permissions.enabled then
     require 'features.permissions'
 end
+if config.popup_chat.enabled then
+    require 'features.popup_chat'
+end
 
 -- GUIs
 -- The order determines the order they appear from left to right.
