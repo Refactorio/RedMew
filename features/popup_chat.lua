@@ -4,8 +4,8 @@ local Global = require 'utils.global'
 local config = global.config.popup_chat
 local MIN_LIFETIME = config.min_lifetime or 06 * 60 -- 06s
 local MAX_LIFETIME = config.max_lifetime or 20 * 60 -- 20s
-local MIN_MESSAGE_LENGTH = 40
-local MAX_MESSAGE_LENGTH = 92
+local MIN_MESSAGE_LENGTH = config.min_length or 40
+local MAX_MESSAGE_LENGTH = config.max_length or 92
 local TIME_PER_CHAR = 3 -- about +1 sec every 20 chars (60/20 ticks/chars)
 
 local data = {
@@ -17,7 +17,7 @@ Global.register(data, function(tbl)
 end)
 
 ---@param message string
-local function message_lifetime(message)
+local function get_message_lifetime(message)
   local length = message:len()
   if length <= MIN_MESSAGE_LENGTH then
     return MIN_LIFETIME
@@ -27,7 +27,7 @@ local function message_lifetime(message)
 end
 
 ---@param message string
-local function safe_message(message)
+local function get_safe_message(message)
   local length = message:len()
   if length <= MAX_MESSAGE_LENGTH then
     return message
@@ -43,8 +43,8 @@ local function on_console_chat(event)
     return
   end
 
-  local player = game.players[event.player_index]
-  if not (player and player.character) then
+  local player = game.players[index]
+  if not (player and player.valid and player.character) then
     return
   end
 
@@ -54,20 +54,21 @@ local function on_console_chat(event)
     data.popup_chat[popup_ID] = nil
   end
 
-  local color = table.deepcopy(player.color)
+  local safe_message = get_safe_message(message)
+  local color = player.color
   color.a = 0.9
 
   popup_ID = rendering.draw_text({
-    text = safe_message(message),
+    text = safe_message,
     surface = player.surface,
     target = player.character,
     target_offset = {0, -4},
     color = color,
     font = 'compilatron-message-font',
     scale = 1.75,
-    time_to_live = message_lifetime(message),
+    time_to_live = get_message_lifetime(safe_message),
     forces = { player.force },
-    alignment  = 'center',
+    alignment = 'center',
     use_rich_text = true,
   })
   data.popup_chat[index] = popup_ID
