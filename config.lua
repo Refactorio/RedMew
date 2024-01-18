@@ -449,6 +449,11 @@ global.config = {
             no_handcraft = false,
         },
         modes = {},
+    },
+    popup_chat = {
+        enabled = true,
+        min_lifetime = 06 * 60, --  6s
+        max_lifetime = 20 * 60, -- 20s
     }
 }
 
