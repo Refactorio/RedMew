@@ -929,7 +929,7 @@ local function init(config)
             chest = chest,
             [4] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}},
             [29] = {entity = {name = 'market', force = 'neutral', callback = 'market'}},
-            [32] = {entity = {name = 'steel-chest', force = 'player', callback = 'chest'}}
+            [32] = {entity = {name = 'logistic-chest-requester', force = 'player', callback = 'chest'}}
         },
         [2] = {
             force = 'player',
