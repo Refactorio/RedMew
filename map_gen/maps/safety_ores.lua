@@ -1,6 +1,5 @@
 ---Safety Ores, by R. Nukem, inspired by Zengief
 ---all local resources
-local b = require 'map_gen.shared.builders'
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
 local ScenarioInfo = require 'features.gui.info'
@@ -17,7 +16,7 @@ ScenarioInfo.set_new_info(
 2024-02-08 - R. Nukem
 - Initial Map Creation
 ]]
-)		
+)
 --- Market Config
 config.currency = nil
 config.market.enabled = false
