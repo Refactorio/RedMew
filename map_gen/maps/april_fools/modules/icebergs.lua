@@ -1,7 +1,7 @@
 local Event = require 'utils.event'
 local Game = require 'utils.game'
 local Color = require 'features.player_colors'
-local Item_list = require 'item_list'
+local Item_list = require 'map_gen.maps.april_fools.modules.item_list'
 local icebergs = {}
 
 -- Inserters are sometimes randomly rotated when placed by player or bots
