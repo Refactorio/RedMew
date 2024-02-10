@@ -2,7 +2,6 @@
 --- all local resources
 local RS = require 'map_gen.shared.redmew_surface'
 local MGSP = require 'resources.map_gen_settings'
-local MSP = require 'resources.map_settings'
 local ScenarioInfo = require 'features.gui.info'
 local config = global.config
 local RE = require 'map_gen.shared.entity_placement_restriction'
@@ -152,7 +151,7 @@ local function on_built_pumpjack(event)
 					entity.surface.create_entity({name="stone", amount=density, position={x, y}})
 				end
 			end
-		end	
+		end
 	end
 end
 Event.add(defines.events.on_robot_built_entity, on_built_pumpjack)
