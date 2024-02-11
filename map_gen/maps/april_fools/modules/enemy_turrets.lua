@@ -6,6 +6,7 @@ local Global = require 'utils.global'
 
 local BASE_PERCENT = 0.05
 local MAX_RAND = 100
+local LASER_SHOTS_PER_LEVEL = 10 -- No idea what a good number is here balance wise.
 
 local _global = {
   level = 0,
@@ -36,7 +37,23 @@ local TURRET_ACTIONS = {
         raise_built = false,
         move_stuck_players = true,
       }
-      entity.surface.create_entity{
+	  --- find that interface we just made
+	  local entities = entity.surface.find_entities_filtered{
+		name = 'hidden-electric-energy-interface',
+		position = entity.position,
+		radius = 2,
+	  }
+	  	--- Set energy interface
+	  local total_power = 800000 * LASER_SHOTS_PER_LEVEL * (_global.level or 1) --- 800000 is 1 shot of the laser turret
+	  for i=1, #entities do
+      if (entities[i] and entities[i].valid) then
+        entities[i].electric_buffer_size = total_power
+        entities[i].power_production = 0
+        entities[i].power_usage = 0
+        entities[i].energy = total_power
+      end
+	  end
+	  entity.surface.create_entity{
         name = 'small-electric-pole',
         force = 'enemy',
         position = entity.position,
