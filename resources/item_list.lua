@@ -1,5 +1,4 @@
--- returns a list of all items for use with pinguin icebergs
-local item_list = {
+return {
     'accumulator',
     'advanced-circuit',
     'arithmetic-combinator',
@@ -37,9 +36,6 @@ local item_list = {
     'energy-shield-equipment',
     'energy-shield-mk2-equipment',
     'engine-unit',
-    'escape-pod-assembler',
-    'escape-pod-lab',
-    'escape-pod-power',
     'exoskeleton-equipment',
     'explosives',
     'express-loader',
@@ -148,5 +144,3 @@ local item_list = {
     'wood',
     'wooden-chest',
 }
-
-return item_list
