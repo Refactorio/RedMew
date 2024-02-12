@@ -62,6 +62,7 @@ local modules = {
     require 'map_gen.maps.april_fools.modules.explosion_scare',    -- Spawns random non-damaging explosions on random players as a jump-scare
     require 'map_gen.maps.april_fools.modules.permanent_factory',  -- Chance to make an entity indestructable
     require 'map_gen.maps.april_fools.modules.meteOres',           -- Meteors fall from the sky, generating ores, and biters
+    require 'map_gen.maps.april_fools.modules.auto_build',         -- Randomly selected players will have their cursor items automatically built nearby for a time, before changing targets
 }
 
 -- if script.active_mods['redmew-data'] then
