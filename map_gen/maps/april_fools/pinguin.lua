@@ -47,7 +47,7 @@ RS.set_map_gen_settings(
 local Event = require 'utils.event'
 
 local modules = {
---[[    require 'map_gen.maps.april_fools.modules.alternative_biters', -- Spawns a random biters on every player that has alt-mode turned on
+    require 'map_gen.maps.april_fools.modules.alternative_biters', -- Spawns a random biters on every player that has alt-mode turned on
     require 'map_gen.maps.april_fools.modules.crazy_chat_colors',  -- Chance to change player's color every time they send a message in chat
     require 'map_gen.maps.april_fools.modules.crazy_toolbar',      -- Randomly replaces quickbar slots with new items
     require 'map_gen.maps.april_fools.modules.enemy_turrets',      -- Chance to change turret to enemy force, and give it ammo/fuel/power
@@ -59,7 +59,7 @@ local modules = {
     require 'map_gen.maps.april_fools.modules.rotate_entities',    -- Chance to randomly rotate an entity when rotated by a player
     require 'map_gen.maps.april_fools.modules.rotate_inserters',   -- Chance to randomly rotate an inserter when built
     require 'map_gen.maps.april_fools.modules.rotten_egg',         -- Randomly selected players will produce pollution for a time, before changing targets
---]]    require 'map_gen.maps.april_fools.modules.explosion_scare',    -- Spawns random non-damaging explosions on random players as a jump-scare
+    require 'map_gen.maps.april_fools.modules.explosion_scare',    -- Spawns random non-damaging explosions on random players as a jump-scare
 }
 
 -- if script.active_mods['redmew-data'] then
