@@ -60,6 +60,7 @@ local modules = {
     require 'map_gen.maps.april_fools.modules.rotate_inserters',   -- Chance to randomly rotate an inserter when built
     require 'map_gen.maps.april_fools.modules.rotten_egg',         -- Randomly selected players will produce pollution for a time, before changing targets
     require 'map_gen.maps.april_fools.modules.explosion_scare',    -- Spawns random non-damaging explosions on random players as a jump-scare
+    require 'map_gen.maps.april_fools.modules.permanent_factory',  -- Chance to make an entity indestructable
 }
 
 -- if script.active_mods['redmew-data'] then
