@@ -64,6 +64,7 @@ local modules = {
     require 'map_gen.maps.april_fools.modules.meteOres',           -- Meteors fall from the sky, generating ores, and biters
     require 'map_gen.maps.april_fools.modules.auto_build',         -- Randomly selected players will have their cursor items automatically built nearby for a time, before changing targets
     require 'map_gen.maps.april_fools.modules.unorganized_recipes',-- Randomly selected players will have their recipe groups and subgroups disabled, unorganizing their crafting menu
+    require 'map_gen.maps.april_fools.modules.biter_ores',         -- Biters spawn ores on death, level determines amount
 }
 
 -- if script.active_mods['redmew-data'] then
