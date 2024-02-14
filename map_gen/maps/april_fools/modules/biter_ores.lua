@@ -52,7 +52,7 @@ local function spawn_ores_on_death(event)
   local ore_type = nil
 
   --first, look for ores on the tile the biter died, and add ores to that ore if possible
-  local found_ores = surface.find_entities_filtered{position = position, radius = 1, type = 'resource'}
+  local found_ores = surface.find_entities_filtered{position = position, radius = .1, type = 'resource'}
   if #found_ores == 0 then
     --no ore found on biter tile
     found_ores = surface.find_entities_filtered{position = position, radius = ORE_SEARCH_RADIUS, type = 'resource'}
