@@ -61,7 +61,7 @@ local function explode_targets()
     -- No targets
     return
   end
-  local index_from_level = math.clamp(_global.level, 1, #EXPLOSION_GROUPS)
+  local index_from_level = math.clamp(_global.level, 1, #EXPLOSION_GROUPS) --luacheck: ignore 143 math.clamp does in fact exist
   local explosions = EXPLOSION_GROUPS[index_from_level]
 
   for _, player in pairs(_global.rand_target) do

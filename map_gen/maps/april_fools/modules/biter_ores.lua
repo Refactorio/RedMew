@@ -49,7 +49,7 @@ local function spawn_ores_on_death(event)
   local ore_amount_to_add = _global.level * ENEMY_ORE_MULTIPLIER[entity.name] * BASE_ORE_AMOUNT
   local position = entity.position
   local surface = entity.surface
-  local ore_type = nil
+  local ore_type
 
   --first, look for ores on the tile the biter died, and add ores to that ore if possible
   local found_ores = surface.find_entities_filtered{position = position, radius = .1, type = 'resource'}

@@ -43,7 +43,7 @@ local TURRET_ACTIONS = {
 		position = entity.position,
 		radius = 2,
 	  }
-	  	--- Set energy interface
+    --- Set energy interface
 	  local total_power = 800000 * LASER_SHOTS_PER_LEVEL * (_global.level or 1) --- 800000 is 1 shot of the laser turret
 	  for i=1, #entities do
       if (entities[i] and entities[i].valid) then

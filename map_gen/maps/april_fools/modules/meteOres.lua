@@ -38,7 +38,7 @@ local ALL_ORES = {'coal','stone','iron-ore','copper-ore','uranium-ore'}
 
 local function drop_meteors()
   --[[ Large function, lots of steps. May want to split out into several functions later
-      [X] Find a player to use their surface 
+      [X] Find a player to use their surface
       [X] Generate a random position on the map
       [X] Spawn a rock
       [X] Damage Nearby Entities
@@ -49,9 +49,9 @@ local function drop_meteors()
     -- Level not enabled
     return
   end
-  local player = nil
-  local surface = nil
-  for meteor_num=1, METEOR_COUNT do
+  local player
+  local surface
+  for _ = 1, METEOR_COUNT do
     -- find a random player so we can use their surface
     if #game.connected_players > 0 then
       player = game.connected_players[math.random(1, #game.connected_players)]
@@ -84,11 +84,12 @@ local function drop_meteors()
         end
       end
     end
-    
+
     -- Select ores to spawn
     local ore_selector = math.random(1,100)
-    local ores = nil
-    local ore_type = nil
+    local ores
+    local ore_type
+    local ore_amount
     if ore_selector > 100 - 5 * ORE_COMPLEXITY then
       ores = 'individual'
       ore_type = ALL_ORES[math.random(1, #ALL_ORES)]
@@ -101,8 +102,8 @@ local function drop_meteors()
     for y = -METEOR_SIZE, METEOR_SIZE do
       for x = -METEOR_SIZE, METEOR_SIZE do
         if (x * x + y * y < METEOR_SIZE * METEOR_SIZE) then
-          a = (METEOR_SIZE + 1 - math.abs(x)) * 10
-          b = (METEOR_SIZE + 1 - math.abs(y)) * 10
+          local a = (METEOR_SIZE + 1 - math.abs(x)) * 10
+          local b = (METEOR_SIZE + 1 - math.abs(y)) * 10
           if a < b then
             ore_amount = math.random(a * ORE_DENSITY - a * (ORE_DENSITY - 8), a * ORE_DENSITY + a * (ORE_DENSITY - 8))
           end

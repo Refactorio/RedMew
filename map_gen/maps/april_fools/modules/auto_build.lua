@@ -48,13 +48,13 @@ local function try_auto_build()
     -- No targets
     return
   end
--- useful functions: 
+-- useful functions:
 -- surface.find_non_colliding_position, surface.find_non_colliding_position_in_box
 -- player.can_build_from_cursor, player.build_from_cursor
 --
-  local cursor_item = nil
-  local surface = nil
-  local build_position = nil
+  local cursor_item
+  local surface
+  local build_position
   for _, player in pairs(_global.rand_targets) do
     if (player and player.valid) then
       surface = player.surface
