@@ -40,7 +40,7 @@ local trees = require 'map_gen.maps.danger_ores.modules.trees'
 local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
-local allowed_entities = require 'map_gen.maps.danger_ores.config.vanilla_allowed_entities'
+local allowed_entities = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_allowed_entities'
 banned_entities(allowed_entities)
 
 local scrap_resources_control = MGSP.ore_oil_none
@@ -92,6 +92,8 @@ Event.on_init(function()
 
     p.manual_mining_speed_modifier = 1
 
+    game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 5
+
     game.map_settings.enemy_evolution.time_factor = 0.000007 -- default 0.000004
     game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
     game.map_settings.enemy_evolution.pollution_factor = 0.000000 -- Pollution has no affect on evolution default 0.0000009
@@ -110,7 +112,7 @@ local restart_command = require 'map_gen.maps.danger_ores.modules.restart_comman
 restart_command({scenario_name = 'danger-ore-scrap'})
 
 local container_dump = require 'map_gen.maps.danger_ores.modules.container_dump'
-container_dump({entity_name = 'coal'})
+container_dump({entity_name = 'scrap'})
 
 local concrete_on_landfill = require 'map_gen.maps.danger_ores.modules.concrete_on_landfill'
 concrete_on_landfill({tile = 'blue-refined-concrete'})
