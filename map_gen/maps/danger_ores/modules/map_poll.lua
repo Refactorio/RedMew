@@ -23,6 +23,7 @@ local bz_mod_pack = 'bz_mod_pack'
 local ei_mod_pack = 'ei_mod_pack'
 -- local py_short_mod_pack = 'py_short_mod_pack'
 local ir3_mod_pack = 'ir3_mod_pack'
+local scrap_mod_pack = 'scrap_mod_pack'
 
 local mod_packs = {
     normal_mod_pack = 'danger_ore29',
@@ -33,6 +34,7 @@ local mod_packs = {
     ei_mod_pack = 'danger_ore_ei',
     py_short_mod_pack = 'danger_ore_py_short',
     ir3_mod_pack = 'danger_ore_ir3',
+    scrap_mod_pack = 'danger_ore_scrap',
 }
 
 local maps = {
@@ -182,6 +184,11 @@ local maps = {
         name = 'danger-ore-industrial-revolution-3-grid-factory',
         mod_pack = ir3_mod_pack,
         display_name = 'Industrial Revolution 3 chessboard (fixed squares)'
+    },
+    {
+        name = 'danger-ore-scrap',
+        mod_pack = scrap_mod_pack,
+        display_name = 'Scrapworld (no ores, all scraps)'
     }
 }
 
