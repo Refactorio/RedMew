@@ -110,10 +110,28 @@ local player_created =
     end
 )
 
+--- Auto loads all logistic requests for connected players when logistics gets researched
+local research_finished =
+    Token.register(
+    function(event)
+        local tech = event.research
+        if not (tech and tech.name and tech.name == 'logistic-robotics') then
+            return
+        end
+
+        for _, player in pairs(game.connected_players) do
+            if (player and player.valid and player.character and player.character.valid) then
+                load_bars(nil, player)
+            end
+        end
+    end
+)
+
 --- Registers the event only when the server is available.
 local function register_player_create()
     if not primitives.server_available then
         Event.add_removable(defines.events.on_player_created, player_created)
+        Event.add_removable(defines.events.on_research_finished, research_finished)
         primitives.server_available = true
     end
 end
@@ -129,24 +147,9 @@ local function delete_bars(_, player)
     Game.player_print({'player_logistic_requests.delete_bars'}, Color.success)
 end
 
---- Auto loads all logistic requests for connected players when logistics gets researched
-local function on_logistics_researched(event)
-    local tech = event.research
-    if not (tech and tech.name and tech.name == 'logistic-robotics') then
-        return
-    end
-
-    for _, player in pairs(game.connected_players) do
-        if (player and player.valid and player.character and player.character.valid) then
-            load_bars(nil, player)
-        end
-    end
-end
-
 -- Events
 
 Event.add(Server.events.on_server_started, register_player_create)
-Event.add(defines.events.on_research_finished, on_logistics_researched)
 
 -- Commands
 
