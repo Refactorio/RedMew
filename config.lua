@@ -398,8 +398,12 @@ global.config = {
             first_launch_only = true
         }
     },
-    -- allows the saving and automatic loading of quickbars between maps
+    -- allows the (manual) saving and then (automatic) loading of players' quickbars between maps
     player_quick_bars = {
+        enabled = true
+    },
+    -- allows the (manual) saving and then (automatic) loading of players' logistc requests between maps
+    player_logistic_requests = {
         enabled = true
     },
     -- enables the redmew settings GUI
