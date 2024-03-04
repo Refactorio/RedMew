@@ -11,11 +11,11 @@ local pic = require 'map_gen.data.presets.manhattan'
 local world_map = b.picture(pic)
 world_map = b.choose(b.rectangle(pic.width, pic.height - 4), world_map, b.empty_shape)
 
-local x_offset, y_offset = 200, 1337
+local x_offset, y_offset = 0, -400
 world_map = b.translate(world_map, x_offset, y_offset)
 world_map = b.rotate(world_map, degrees(-270))
 
-local scale = 2
+local scale = 1.6
 
 world_map = b.scale(world_map, scale)
 
@@ -30,8 +30,8 @@ local config = {
         MGSP.enemy_none,
         MGSP.cliff_none
     },
-    grid_number_of_blocks = 65,
-    mini_grid_number_of_blocks = 123,
+    grid_number_of_blocks = 33,
+    mini_grid_number_of_blocks = 51,
     bounds_shape = bounds
 }
 
