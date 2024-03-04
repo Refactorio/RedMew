@@ -15,7 +15,7 @@ local x_offset, y_offset = 0, -400
 world_map = b.translate(world_map, x_offset, y_offset)
 world_map = b.rotate(world_map, degrees(-270))
 
-local scale = 1.8
+local scale = 1.6
 
 world_map = b.scale(world_map, scale)
 
