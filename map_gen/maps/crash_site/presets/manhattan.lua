@@ -30,8 +30,8 @@ local config = {
         MGSP.enemy_none,
         MGSP.cliff_none
     },
-    grid_number_of_blocks = 30,
-    mini_grid_number_of_blocks = 50,
+    grid_number_of_blocks = 33,
+    mini_grid_number_of_blocks = 51,
     bounds_shape = bounds
 }
 
