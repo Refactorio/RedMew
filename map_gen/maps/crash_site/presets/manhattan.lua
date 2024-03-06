@@ -31,7 +31,7 @@ local config = {
         MGSP.cliff_none
     },
     grid_number_of_blocks = 33,
-    mini_grid_number_of_blocks = 51,
+    mini_grid_number_of_blocks = 65,
     bounds_shape = bounds
 }
 
