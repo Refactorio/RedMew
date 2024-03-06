@@ -635,17 +635,18 @@ local function init(config)
 
     local outposts =
         b.grid_pattern_no_repeat(pattern, --[[grid_number_of_blocks, grid_number_of_blocks,]] grid_block_size, grid_block_size)
+    outposts = b.translate(outposts, -half_total_size, -half_total_size)
+
     local mini_outposts =
-        b.grid_pattern(
+        b.grid_pattern_no_repeat(
         mini_pattern,
-        mini_grid_number_of_blocks,
-        mini_grid_number_of_blocks,
+        --mini_grid_number_of_blocks,
+        --mini_grid_number_of_blocks,
         mini_grid_block_size,
         mini_grid_block_size
     )
-    local offset = -180 -- (grid_block_size ) * 0.5
-
-    mini_outposts = b.translate(mini_outposts, offset, offset)
+    local mini_half_total_size = mini_grid_block_size * 0.5 * (mini_grid_number_of_blocks - 1)
+    mini_outposts = b.translate(mini_outposts, -mini_half_total_size, -mini_half_total_size)
 
     outposts = b.if_else(outposts, mini_outposts)
     --outposts = mini_outposts
@@ -796,8 +797,6 @@ local function init(config)
     local map = b.if_else(outposts, enemy_shape)
 
     map = b.if_else(map, b.full_shape)
-
-    map = b.translate(map, -half_total_size, -half_total_size)
 
     map = b.apply_entity(map, ore_grid)
 
