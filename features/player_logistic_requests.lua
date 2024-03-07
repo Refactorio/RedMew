@@ -40,6 +40,13 @@ local function save_bars(_, player)
         return
     end
 
+    -- Player's force doesn't have logistics
+    local force = player.force
+    if not (force and force.character_logistic_requests) then
+        Game.player_print({'player_logistic_requests.logistics_not_available'}, Color.fail)
+        return
+    end
+
     local bars = {}
 
     for i = 1, logistic_slots do
@@ -151,7 +158,7 @@ local research_finished =
 
         -- Already init. or logistics not available
         local force = tech.force
-        if force and (initialized_forces[force.name] or not force.character_logistic_requests) then
+        if not force or initialized_forces[force.name] or not force.character_logistic_requests then
             return
         end
 
