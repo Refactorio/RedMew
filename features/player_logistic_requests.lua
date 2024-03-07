@@ -18,15 +18,18 @@ local primitives = {
     server_available = nil
 }
 local initialized_players = {}
+local initialized_forces = {}
 
 Global.register(
     {
         primitives = primitives,
-        initialized_players = initialized_players
+        initialized_players = initialized_players,
+        initialized_forces = initialized_forces
     },
     function(tbl)
         primitives = tbl.primitives
         initialized_players = tbl.initialized_players
+        initialized_forces = tbl.initialized_forces
     end
 )
 
@@ -73,27 +76,23 @@ local set_bars_callback =
             return
         end
 
+        -- Invalid player
         local p_name = data.key
         local player = game.get_player(p_name)
         if not (player and player.valid )then
             return
         end
 
-        if initialized_players[player.name] then
-            return
-        end
-
         local item_prototypes = game.item_prototypes
         local item
-        local success = false
         for i = 1, logistic_slots do
             item = validate_entry(bars[i], item_prototypes, player)
             if item then
-                success = success or player.set_personal_logistic_slot(i, item) -- false if personal logistics are not researched yet.
+                player.set_personal_logistic_slot(i, item) -- false if personal logistics are not researched yet.
             end
         end
 
-        initialized_players[player.name] = success
+        initialized_players[player.name] = true
     end
 )
 
@@ -104,16 +103,35 @@ local function load_bars(_, player)
         return
     end
 
+    -- Player's force doesn't have logistics
+    local force = player.force
+    if not (force and force.character_logistic_requests) then
+        Game.player_print({'player_logistic_requests.logistics_not_available'}, Color.fail)
+        return
+    end
+
     Server.try_get_data(data_set_name, player.name, set_bars_callback)
     Game.player_print({'player_logistic_requests.load_bars'})
 end
 
 -- Auto loads all logistic requests for players joining after logistics has been researched
-local player_joined_or_created =
+local player_joined_game =
     Token.register(
     function(event)
+        -- Invalid player
         local player = game.get_player(event.player_index)
         if not (player and player.valid) then
+            return
+        end
+
+        -- Player already initialized
+        if initialized_players[player.name] then
+            return
+        end
+
+        -- Player's force doesn't have logistics
+        local force = player.force
+        if not (force and force.character_logistic_requests) then
             return
         end
 
@@ -125,24 +143,34 @@ local player_joined_or_created =
 local research_finished =
     Token.register(
     function(event)
+        -- Invalid tech
         local tech = event.research
-        if not tech or tech.name ~= 'logistic-robotics' then
+        if not (tech and tech.valid) then
             return
         end
 
-        for _, player in pairs(game.connected_players) do
+        -- Already init. or logistics not available
+        local force = tech.force
+        if force and (initialized_forces[force.name] or not force.character_logistic_requests) then
+            return
+        end
+
+        for _, player in pairs(force.connected_players) do
             if player and player.valid and player.character and player.character.valid then
-                load_bars(nil, player)
+                if not initialized_players[player.name] then
+                    Server.try_get_data(data_set_name, player.name, set_bars_callback)
+                end
             end
         end
+
+        initialized_forces[force.name] = true
     end
 )
 
 --- Registers the event only when the server is available.
 local function register_server_start_events()
     if not primitives.server_available then
-        Event.add_removable(defines.events.on_player_created, player_joined_or_created)
-        Event.add_removable(defines.events.on_player_joined_game, player_joined_or_created)
+        Event.add_removable(defines.events.on_player_joined_game, player_joined_game)
         Event.add_removable(defines.events.on_research_finished, research_finished)
         primitives.server_available = true
     end
