@@ -105,6 +105,9 @@ end
 if config.player_quick_bars.enabled then
     require 'features.player_quick_bars'
 end
+if config.player_logistic_requests.enabled then
+    require 'features.player_logistic_requests'
+end
 if config.biter_corpse_remover.enabled then
     require 'features.biter_corpse_remover'
 end
