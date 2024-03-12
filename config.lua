@@ -85,6 +85,7 @@ global.config = {
     dump_offline_inventories = {
         enabled = false,
         offline_timout_mins = 15,   -- time after which a player logs off that their inventory is provided to the team
+        ignored_items = {} -- list of prototype names that remain in the player inventory
     },
     -- enables players to create and prioritize tasks
     tasklist = {

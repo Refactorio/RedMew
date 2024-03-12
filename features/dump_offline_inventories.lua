@@ -11,12 +11,29 @@ local Config = require 'config'
 local set_timeout_in_ticks = Task.set_timeout_in_ticks
 local config = Config.dump_offline_inventories
 
+local ignored_items_set = {}
+for _ , k in pairs(config.ignored_items) do
+    ignored_items_set[k] = true
+end
+
 local offline_player_queue = {}
 
 Global.register({offline_player_queue = offline_player_queue}, function(tbl)
     offline_player_queue = tbl.offline_player_queue
     config = Config.dump_offline_inventories
 end)
+
+local function move_items(source, target)
+    if not source.is_empty() then
+        for i = 1, #source do
+            local stack = source[i]
+            if stack.valid_for_read and not stack.is_selection_tool() and not stack.is_blueprint_book() and not ignored_items_set[stack.name] then
+                target.insert(stack)
+                stack.clear()
+            end
+        end
+    end
+end
 
 local function spawn_player_corpse(player, banned, timeout_minutes)
     local player_index = player.index
@@ -29,25 +46,13 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
     local inv_main = player.get_inventory(defines.inventory.character_main)
     local inv_trash = player.get_inventory(defines.inventory.character_trash)
 
-    local inv_main_contents
-    if inv_main and inv_main.valid then
-        inv_main_contents = inv_main.get_contents()
-    end
-
-    local inv_trash_contents
-    if inv_trash and inv_trash.valid then
-        inv_trash_contents = inv_trash.get_contents()
-    end
-
     local inv_corpse_size = 0
-    if inv_main_contents then
+    if inv_main and inv_main.valid and not inv_main.is_empty() then
         inv_corpse_size = inv_corpse_size + (#inv_main - inv_main.count_empty_stacks())
     end
-
-    if inv_trash_contents then
+    if inv_trash and inv_trash.valid and not inv_trash.is_empty() then
         inv_corpse_size = inv_corpse_size + (#inv_trash - inv_trash.count_empty_stacks())
     end
-
     if inv_corpse_size <= 0 then
         return
     end
@@ -63,19 +68,8 @@ local function spawn_player_corpse(player, banned, timeout_minutes)
 
     local inv_corpse = corpse.get_inventory(defines.inventory.character_corpse)
 
-    for item_name, count in pairs(inv_main_contents or {}) do
-        inv_corpse.insert({name = item_name, count = count})
-    end
-    for item_name, count in pairs(inv_trash_contents or {}) do
-        inv_corpse.insert({name = item_name, count = count})
-    end
-
-    if inv_main_contents then
-        inv_main.clear()
-    end
-    if inv_trash_contents then
-        inv_trash.clear()
-    end
+    move_items(inv_main, inv_corpse)
+    move_items(inv_trash, inv_corpse)
 
     local text = player.name .. "'s inventory (offline)"
     local tag = player.force.add_chart_tag(player.surface, {
