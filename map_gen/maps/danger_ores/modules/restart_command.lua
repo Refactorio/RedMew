@@ -151,10 +151,15 @@ return function(config)
         end
         ore_totals_message = ore_totals_message:sub(1, -3)..')' -- remove the last ", " and add a bracket
         ore_totals_message = "Total ore mined: "..format_number(total_ore, true).. "\\n"..ore_totals_message
+        local map_won = true
+        if ShareGlobals.data.map_won_objective ~= nil then
+            map_won = ShareGlobals.data.map_won_objective
+        end
 
-      local statistics_message = statistics.scenario..' completed!\\n\\n'..
+      local statistics_message = statistics.scenario..' finished!\\n\\n'..
         'Statistics:\\n'..
         'Map time: '..time_string..'\\n'..
+        'Status: ' ..(map_won and 'Victorious!' or 'Defeated!')..'\\n'..
         'Total entities built: '..statistics.entities_built..'\\n'..
         'Total ore mined:'..ore_totals_message..'\\n'..
         'Total ore resources exhausted: '..statistics.resources_exhausted..'\\n'..
