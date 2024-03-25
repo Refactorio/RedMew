@@ -1,5 +1,5 @@
 -- Spawns ores on biter death
--- WIP
+-- Complete
 
 local Global = require 'utils.global'
 local math = require 'utils.math'

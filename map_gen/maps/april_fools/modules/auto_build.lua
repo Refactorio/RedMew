@@ -56,31 +56,38 @@ local function try_auto_build()
   local surface
   local build_position
   for _, player in pairs(_global.rand_targets) do
-    if (player and player.valid) then
-      surface = player.surface
-      if player.cursor_stack.valid_for_read then
-        cursor_item = player.cursor_stack.name
-      else
-        return --cursor not valud to read, i.e. just before spawning
-      end
-      if cursor_item == nil then
-        return -- no item in cursor
-      end
-      -- randomly pick a position near the player, check for a valid nearby location
-      build_position = {player.position.x + math.random(-5,5),player.position.y + math.random(-5,5)}
-      build_position = surface.find_non_colliding_position(cursor_item,build_position, 5, .1)
-      if build_position == nil then
-        return -- no valud build position
-      end
-      -- must be extra cautious with surface & players as they may be teleported across temporary surfaces
-      if (surface and surface.valid and build_position) then
-        if player.can_build_from_cursor{position = build_position} then
-          player.build_from_cursor{position = build_position}
-        end
+    if not (player and player.valid) then
+      goto skip
+    end
+
+    surface = player.surface
+    if player.cursor_stack.valid_for_read then
+      cursor_item = player.cursor_stack.name
+    else
+      goto skip --cursor not valud to read, i.e. just before spawning
+    end
+    if cursor_item == nil then
+      goto skip -- no item in cursor
+    end
+
+    -- randomly pick a position near the player, check for a valid nearby location
+    build_position = {player.position.x + math.random(-5,5),player.position.y + math.random(-5,5)}
+    build_position = surface.find_non_colliding_position(cursor_item,build_position, 5, .1)
+    if build_position == nil then
+      goto skip -- no valud build position
+    end
+
+    -- must be extra cautious with surface & players as they may be teleported across temporary surfaces
+    if (surface and surface.valid and build_position) then
+      if player.can_build_from_cursor{position = build_position} then
+        player.build_from_cursor{position = build_position}
       end
     end
   end
+
+  ::skip::
 end
+
 -- ============================================================================
 
 local Public = {}

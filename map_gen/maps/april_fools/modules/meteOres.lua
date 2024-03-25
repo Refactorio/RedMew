@@ -5,12 +5,12 @@ local Global = require 'utils.global'
 local math = require 'utils.math'
 
 local SPAWN_INTERVAL = _DEBUG and 60 * 1 or 60 * 180 -- 180sec
-local UNIT_COUNT = 10 -- Balance Number of units spawned per enemy listed in each ENEMY_GROUP
-local METEOR_COUNT = 1 -- meteors per spawn interval
-local METEOR_SIZE = 7 -- radius, Balance
-local METEOR_DAMAGE = 50 -- Balance
-local ORE_DENSITY = 10 -- Balance, Must be at least 8?
-local ORE_COMPLEXITY = 5 -- Percent chance for each of the 5 ore types to spawn, otherwise mixed ores without uranium will spawn.
+local UNIT_COUNT     = 10 -- Balance Number of units spawned per enemy listed in each ENEMY_GROUP
+local METEOR_COUNT   =  1 -- meteors per spawn interval
+local METEOR_SIZE    =  7 -- radius, Balance
+local METEOR_DAMAGE  = 50 -- Balance
+local ORE_DENSITY    = 10 -- Balance, Must be at least 8?
+local ORE_COMPLEXITY =  5 -- Percent chance for each of the 5 ore types to spawn, otherwise mixed ores without uranium will spawn.
 
 local _global = {
   level = 0, --1 to enabled by defualt

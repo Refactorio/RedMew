@@ -1,31 +1,31 @@
---turrets have a 90% chance of being on player force when placed
+-- turrets have a 90% chance of being on player force when placed
 -- Be sure to adjust ammo count/amount on the enemy turrets below as needed
--- Completed, beware laser turrets, as they have infinite power until destroyed
+-- Completed
 
 local Global = require 'utils.global'
 
 local BASE_PERCENT = 0.05
 local MAX_RAND = 100
 local LASER_SHOTS_PER_LEVEL = 10 -- No idea what a good number is here balance wise.
+local ENERGY_PER_SHOT = 800000 -- 1 shot of the laser turret
 
-local _global = {
-  level = 0,
-  max_level = 10,
-}
+local _global = { level = 0, max_level = 10 }
 
-Global.register(_global, function(tbl) _global = tbl end)
+Global.register(_global, function(tbl)
+  _global = tbl
+end)
 
 -- ============================================================================
 
 local TURRET_ACTIONS = {
   ['gun-turret'] = function(entity)
-    entity.insert{name = 'firearm-magazine', count = 2 * (_global.level or 1)}
+    entity.insert{ name = 'firearm-magazine', count = 2 * (_global.level or 1) }
   end,
   ['flamethrower-turret'] = function(entity)
-    entity.insert_fluid{name = 'crude-oil', amount = 6 * (_global.level or 1)}
+    entity.insert_fluid{ name = 'crude-oil', amount = 6 * (_global.level or 1) }
   end,
   ['artillery-turret'] = function(entity)
-    entity.insert{name = 'artillery-shell', count = _global.level or 1}
+    entity.insert{ name = 'artillery-shell', count = _global.level or 1 }
   end,
   ['laser-turret'] = function(entity)
     -- TODO: change e-interface to accumulator with power
@@ -35,30 +35,26 @@ local TURRET_ACTIONS = {
         force = 'enemy',
         position = entity.position,
         raise_built = false,
-        move_stuck_players = true,
+        move_stuck_players = true
       }
-	  --- find that interface we just made
-	  local entities = entity.surface.find_entities_filtered{
-		name = 'hidden-electric-energy-interface',
-		position = entity.position,
-		radius = 2,
-	  }
-    --- Set energy interface
-	  local total_power = 800000 * LASER_SHOTS_PER_LEVEL * (_global.level or 1) --- 800000 is 1 shot of the laser turret
-	  for i=1, #entities do
-      if (entities[i] and entities[i].valid) then
-        entities[i].electric_buffer_size = total_power
-        entities[i].power_production = 0
-        entities[i].power_usage = 0
-        entities[i].energy = total_power
+      -- find that interface we just made
+      local entities = entity.surface.find_entities_filtered{ name = 'hidden-electric-energy-interface', position = entity.position, radius = 2 }
+      -- Set energy interface
+      local total_power = ENERGY_PER_SHOT * LASER_SHOTS_PER_LEVEL * (_global.level or 1)
+      for i = 1, #entities do
+        if (entities[i] and entities[i].valid) then
+          entities[i].electric_buffer_size = total_power
+          entities[i].power_production = 0
+          entities[i].power_usage = 0
+          entities[i].energy = total_power
+        end
       end
-	  end
-	  entity.surface.create_entity{
+      entity.surface.create_entity{
         name = 'small-electric-pole',
         force = 'enemy',
         position = entity.position,
         raise_built = false,
-        move_stuck_players = true,
+        move_stuck_players = true
       }
     end
   end,
@@ -85,9 +81,9 @@ local function on_built_turret(event)
   local change_percent = _global.level * BASE_PERCENT
   local rand = math.random(0, MAX_RAND)
 
-  if rand >= MAX_RAND*(1 - change_percent) then
+  if rand >= MAX_RAND * (1 - change_percent) then
     fill_entity(entity)
-    entity.clone({position = entity.position, force = 'enemy'})
+    entity.clone({ position = entity.position, force = 'enemy' })
     entity.destroy()
   end
 end
@@ -104,12 +100,8 @@ local function remove_enemy_power_on_death(event)
     return
   end
 
-  local entities = entity.surface.find_entities_filtered{
-    name = 'hidden-electric-energy-interface',
-    position = entity.position,
-    radius = 2,
-  }
-  for i=1, #entities do
+  local entities = entity.surface.find_entities_filtered{ name = 'hidden-electric-energy-interface', position = entity.position, radius = 2 }
+  for i = 1, #entities do
     if (entities[i] and entities[i].valid) then
       entities[i].destroy()
     end
@@ -125,7 +117,7 @@ Public.name = 'Rogue turrets'
 Public.events = {
   [defines.events.on_robot_built_entity] = on_built_turret,
   [defines.events.on_built_entity] = on_built_turret,
-  [defines.events.on_entity_died] = remove_enemy_power_on_death,
+  [defines.events.on_entity_died] = remove_enemy_power_on_death
 }
 
 Public.level_increase = function()

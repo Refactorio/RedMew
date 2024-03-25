@@ -3,7 +3,7 @@
 -- or a rocket is launched, until its max capacity
 -- Setup the scenario map information because everyone gets upset if you don't
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Pinguin')
+ScenarioInfo.set_map_name('Pinguin Too')
 ScenarioInfo.set_map_description('You are Pinguins in Antarctica!')
 ScenarioInfo.set_map_extra_info('Watch out for Icebergs!')
 
@@ -44,18 +44,24 @@ RS.set_map_gen_settings({ MGSP.water_very_low })
 local Event = require 'utils.event'
 
 local modules = {
-  require 'map_gen.maps.april_fools.modules.alternative_biters', -- Spawns a random biters on every player that has alt-mode turned on
-  require 'map_gen.maps.april_fools.modules.crazy_chat_colors',  -- Chance to change player's color every time they send a message in chat
-  require 'map_gen.maps.april_fools.modules.crazy_toolbar',      -- Randomly replaces quickbar slots with new items
-  require 'map_gen.maps.april_fools.modules.enemy_turrets',      -- Chance to change turret to enemy force, and give it ammo/fuel/power
-  require 'map_gen.maps.april_fools.modules.floor_is_lava',      -- Does minor damage to a player when afk for a few second
-  require 'map_gen.maps.april_fools.modules.golden_goose',       -- Randomly selected players will drop coins for a time, before changing targets
-  require 'map_gen.maps.april_fools.modules.marathon_mode',      -- Enables expensive recipes and increases technology multiplier
-  require 'map_gen.maps.april_fools.modules.orphan_crafting',    -- Chance to give the player an additional single underground belt or pipe-to-ground
-  require 'map_gen.maps.april_fools.modules.random_ores',        -- Chance to change an ore to a random ore when a mining drill is placed
-  require 'map_gen.maps.april_fools.modules.rotate_entities',    -- Chance to randomly rotate an entity when rotated by a player
-  require 'map_gen.maps.april_fools.modules.rotate_inserters',   -- Chance to randomly rotate an inserter when built
-  require 'map_gen.maps.april_fools.modules.rotten_egg',         -- Randomly selected players will produce pollution for a time, before changing targets
+  require 'map_gen.maps.april_fools.modules.alternative_biters',  -- Spawns a random biters on every player that has alt-mode turned on
+  require 'map_gen.maps.april_fools.modules.auto_build',          -- Randomly selected players will have their cursor items automatically built nearby for a time, before changing targets
+  require 'map_gen.maps.april_fools.modules.biter_ores',          -- Biters spawn ores on death, level determines amount
+  require 'map_gen.maps.april_fools.modules.crazy_chat_colors',   -- Chance to change player's color every time they send a message in chat
+  require 'map_gen.maps.april_fools.modules.crazy_toolbar',       -- Randomly replaces quickbar slots with new items
+  require 'map_gen.maps.april_fools.modules.enemy_turrets',       -- Chance to change turret to enemy force, and give it ammo/fuel/power
+  require 'map_gen.maps.april_fools.modules.explosion_scare',     -- Spawns random non-damaging explosions on random players as a jump-scare
+  require 'map_gen.maps.april_fools.modules.floor_is_lava',       -- Does minor damage to a player when afk for a few second
+  require 'map_gen.maps.april_fools.modules.golden_goose',        -- Randomly selected players will drop coins for a time, before changing targets
+  require 'map_gen.maps.april_fools.modules.marathon_mode',       -- Enables expensive recipes and increases technology multiplier
+  require 'map_gen.maps.april_fools.modules.meteOres',            -- Meteors fall from the sky, generating ores, and biters
+  require 'map_gen.maps.april_fools.modules.orphan_crafting',     -- Chance to give the player an additional single underground belt or pipe-to-ground
+  require 'map_gen.maps.april_fools.modules.permanent_factory',   -- Chance to make an entity indestructable
+  require 'map_gen.maps.april_fools.modules.random_ores',         -- Chance to change an ore to a random ore when a mining drill is placed
+  require 'map_gen.maps.april_fools.modules.rotate_entities',     -- Chance to randomly rotate an entity when rotated by a player
+  require 'map_gen.maps.april_fools.modules.rotate_inserters',    -- Chance to randomly rotate an inserter when built
+  require 'map_gen.maps.april_fools.modules.rotten_egg',          -- Randomly selected players will produce pollution for a time, before changing targets
+  require 'map_gen.maps.april_fools.modules.unorganized_recipes', -- Randomly selected players will have their recipe groups and subgroups disabled, unorganizing their crafting menu
 }
 
 -- if script.active_mods['redmew-data'] then
@@ -94,7 +100,7 @@ end
 
 local Toast = require 'features.gui.toast'
 
-local ICEBERG_ENABLE_PERCENTAGE = 0.50
+local ICEBERG_ENABLE_PERCENTAGE = _DEBUG and 1 or 0.50
 local TOAST_DURATION = 10
 
 local function draw_random_effect(max_share)
