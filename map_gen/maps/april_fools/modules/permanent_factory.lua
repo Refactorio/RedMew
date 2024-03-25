@@ -1,14 +1,13 @@
--- Floor is lava, a player that is AFK for ALLOWED_AFK_TIME ticks will be damaged every DAMAGE_INTERVAL ticks
--- Complete
+-- Any placed entity has a chance to become permanent
+-- WIP
 
 local Global = require 'utils.global'
 
-local DAMAGE_INTERVAL = 60 * 5 -- 5sec
-local ALLOWED_AFK_TIME = 60 * 7 -- 7sec
-local BASE_DAMAGE = 1
+local BASE_PERCENT = 0.01
+local MAX_RAND = 100
 
 local _global = {
-  level = 0, -- 1 to enabled by defualt
+  level = 0,
   max_level = 10,
 }
 
@@ -16,21 +15,27 @@ Global.register(_global, function(tbl) _global = tbl end)
 
 -- ============================================================================
 
-local function damage_afk_players()
+local function on_built_entity(event)
+  local entity = event.created_entity
+  if not (entity and entity.valid) then
+    -- Invalid entity
+    return
+  end
+
   if not (_global and _global.level > 0) then
     -- Level not enabled
     return
   end
 
-  for _, player in pairs(game.players) do
-    if (player and player.valid and player.character and player.character.valid) then
-      if player.afk_time > ALLOWED_AFK_TIME then
-        player.character.damage(BASE_DAMAGE * _global.level, 'enemy')
-        if _global.level >= _global.max_level/2 then
-          player.surface.create_entity({name = 'fire-flame', position = player.position})
-        end
-      end
-    end
+  local permanent_percent = _global.level * BASE_PERCENT
+  local rand = math.random(0, MAX_RAND)
+
+  if rand <= MAX_RAND*(1 - permanent_percent) then
+    -- Normal construction
+    return
+  else
+    entity.destructible = false
+    entity.minable = false
   end
 end
 
@@ -38,10 +43,11 @@ end
 
 local Public = {}
 
-Public.name = 'The floor is lava'
+Public.name = 'Permanent Structures'
 
-Public.on_nth_tick = {
-  [DAMAGE_INTERVAL] = damage_afk_players,
+Public.events = {
+  [defines.events.on_robot_built_entity] = on_built_entity,
+  [defines.events.on_built_entity] = on_built_entity,
 }
 
 Public.level_increase = function()

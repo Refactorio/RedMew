@@ -59,6 +59,12 @@ local modules = {
     require 'map_gen.maps.april_fools.modules.rotate_entities',    -- Chance to randomly rotate an entity when rotated by a player
     require 'map_gen.maps.april_fools.modules.rotate_inserters',   -- Chance to randomly rotate an inserter when built
     require 'map_gen.maps.april_fools.modules.rotten_egg',         -- Randomly selected players will produce pollution for a time, before changing targets
+    require 'map_gen.maps.april_fools.modules.explosion_scare',    -- Spawns random non-damaging explosions on random players as a jump-scare
+    require 'map_gen.maps.april_fools.modules.permanent_factory',  -- Chance to make an entity indestructable
+    require 'map_gen.maps.april_fools.modules.meteOres',           -- Meteors fall from the sky, generating ores, and biters
+    require 'map_gen.maps.april_fools.modules.auto_build',         -- Randomly selected players will have their cursor items automatically built nearby for a time, before changing targets
+    require 'map_gen.maps.april_fools.modules.unorganized_recipes',-- Randomly selected players will have their recipe groups and subgroups disabled, unorganizing their crafting menu
+    require 'map_gen.maps.april_fools.modules.biter_ores',         -- Biters spawn ores on death, level determines amount
 }
 
 -- if script.active_mods['redmew-data'] then
@@ -97,7 +103,7 @@ end
 
 local Toast = require 'features.gui.toast'
 
-local ICEBERG_ENABLE_PERCENTAGE = 0.50
+local ICEBERG_ENABLE_PERCENTAGE = _DEBUG and 1 or 0.50
 local TOAST_DURATION = 10
 
 local function draw_random_effect(max_share)
