@@ -18,6 +18,7 @@ return function(config)
     local max_chance = config.enemy_max_chance or 1 / 6
     local scale_factor = config.enemy_scale_factor or 32
     local seed = config.enemy_seed or seed_provider()
+    local radius = config.enemy_radius or 64
 
     local sf = 1 / scale_factor
     local m = 1 / 768
@@ -29,7 +30,7 @@ return function(config)
 
         local d = sqrt(world.x * world.x + world.y * world.y)
 
-        if d < 64 then
+        if d < radius then
             return nil
         end
 
