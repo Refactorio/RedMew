@@ -30,6 +30,11 @@ ScenarioInfo.add_map_extra_info([[
 ]])
 
 ScenarioInfo.set_new_info([[
+  2024-03-25
+    - increased turret base power
+    - decrease science cost 20x -> 5x
+    - added evolution control module
+
   2024-03-17:
     - initial relese DO/Silo Defense
 ]])
@@ -53,7 +58,7 @@ RS.set_map_gen_settings({
   MGSP.grass_only,
   MGSP.enable_water,
   { terrain_segmentation = 'normal', water = 'normal' },
-  { starting_area = 1.75 },
+  { starting_area = 2.00 },
   MGSP.ore_oil_none,
   MGSP.enemy_none,
   MGSP.cliff_none,
@@ -105,10 +110,9 @@ local place_entity_callback = Token.register(function(data)
     move_stuck_players = true
   }
 
-  if entity.name == 'rocket-silo' and not this.silo_created then
+  if entity.name == 'rocket-silo' then
     entity.minable = false
     this.silo = entity
-    this.silo_created = true
     this.silo_position = entity.position
     this.silo_id = script.register_on_entity_destroyed(entity)
   end
@@ -119,7 +123,7 @@ local place_entity_callback = Token.register(function(data)
 end)
 
 local set_game_lost = Token.register(function()
-  ShareGlobals.data.map_won = true
+  ShareGlobals.data.map_finished = true
   ShareGlobals.data.map_won_objective = false
   local message = 'Alas! Unfortunately, the map has been lost. Restart the map with /restart'
   game.print({'danger_ores.lose'})
@@ -139,8 +143,16 @@ Global.register_init(
     tbl.this = this
 
     game.draw_resource_selection = false
-    game.forces.player.manual_mining_speed_modifier = 1
-    game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 20
+    game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 5
+    game.map_settings.enemy_evolution.time_factor = 0.000002 -- default 0.000004
+    game.map_settings.enemy_evolution.destroy_factor = 0.000010 -- default 0.002
+    game.map_settings.enemy_evolution.pollution_factor = 0.0000004 -- Pollution has no affect on evolution default 0.0000009
+
+    game.forces.player.friendly_fire = false
+    game.forces.player.set_ammo_damage_modifier('bullet', 0.16)
+    game.forces.player.set_ammo_damage_modifier('shotgun-shell', 1.00)
+    game.forces.player.set_turret_attack_modifier('gun-turret', 0.80)
+    game.forces.player.set_turret_attack_modifier('laser-turret', 1.20)
 
     local techs = game.forces.player.technologies
     techs['mining-productivity-1'].enabled = false
@@ -252,7 +264,7 @@ rocket_launched({
   ticks_between_waves = 60 * 30,
   enemy_factor = 5,
   max_enemies_per_wave_per_chunk = 60,
-  extra_rockets = 666
+  extra_rockets = 20
 })
 
 local restart_command = require 'map_gen.maps.danger_ores.modules.restart_command'
@@ -271,6 +283,7 @@ remove_non_ore_stacked_recipes()
 -- require 'map_gen.maps.danger_ores.modules.biter_drops'
 require 'map_gen.maps.danger_ores.modules.map_poll'
 require 'map_gen.maps.danger_ores.modules.memory_storage_control'
+require 'map_gen.maps.danger_ores.modules.evolution_control'
 
 local config = {
   spawn_shape = b.translate(b.rectangle(48), 5, -5),
@@ -291,7 +304,7 @@ local config = {
   enemy_factor = 10 / (768 * 32),
   enemy_max_chance = 1 / 6,
   enemy_scale_factor = 32,
-  enemy_radius = 58,
+  enemy_radius = 80,
   fish_spawn_rate = 0.05,
   dense_patches_scale = 1 / 48,
   dense_patches_threshold = 0.55,
