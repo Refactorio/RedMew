@@ -4,7 +4,7 @@
 local Global = require 'utils.global'
 local math = require 'utils.math'
 
-local SPAWN_INTERVAL = _DEBUG and 60 * 1 or 60 * 180 -- 180sec
+local SPAWN_INTERVAL = _DEBUG and 60 * 1 or 60 * 60 * 8 -- 8 mins
 local UNIT_COUNT     = 10 -- Balance Number of units spawned per enemy listed in each ENEMY_GROUP
 local METEOR_COUNT   =  1 -- meteors per spawn interval
 local METEOR_SIZE    =  7 -- radius, Balance

@@ -52,7 +52,7 @@ local Biomes = require 'resources.alien_biomes.biomes'
 
 local Public = {}
 local _this = {
-  presets = Biomes.presets 
+  presets = Biomes.presets
 }
 
 Global.register(_this, function(tbl) _this = tbl end)
@@ -60,7 +60,7 @@ Global.register(_this, function(tbl) _this = tbl end)
 -- === PRESET LIBRARY MANIPULATION ============================================
 
 --- Adds a new preset to the global table
----@param data table<{ name: string, preset: table }>
+---@param data table<{ name: tostringing, preset: table }>
 ---@return bool
 function Public.set_preset(data)
   if not (data and data.name and data.preset) then
@@ -72,10 +72,10 @@ function Public.set_preset(data)
 end
 
 --- Remove target preset from the global presets list
----@param name string
+---@param name tostringing
 ---@return bool
 function Public.remove_preset(name)
-  if not (name and type(name) == 'string') then
+  if not (name and type(name) == 'tostringing') then
     return false
   end
 
@@ -122,8 +122,8 @@ local function apply_aux(mgs)
   end
 
   mgs.property_expression_names = mgs.property_expression_names or {}
-  mgs.property_expression_names['control-setting:aux:bias'] = str(bias)
-  mgs.property_expression_names['control-setting:aux:frequency'] = str(freq)
+  mgs.property_expression_names['control-setting:aux:bias'] = tostring(bias)
+  mgs.property_expression_names['control-setting:aux:frequency'] = tostring(freq)
 end
 
 --- Adds +-25% freq and +-10% bias to Moisture autoplace
@@ -137,8 +137,8 @@ local function apply_moisture(mgs)
   end
 
   mgs.property_expression_names = mgs.property_expression_names or {}
-  mgs.property_expression_names['control-setting:moisture:bias'] = str(bias)
-  mgs.property_expression_names['control-setting:moisture:frequency'] = str(freq)
+  mgs.property_expression_names['control-setting:moisture:bias'] = tostring(bias)
+  mgs.property_expression_names['control-setting:moisture:frequency'] = tostring(freq)
 end
 
 
@@ -184,7 +184,7 @@ end
 ---- Is safe to call even for vanilla scenarios
 --@param config table
 ---@field seed? number
----@field preset_name? string
+---@field preset_name? tostringing
 ---@field map_gen_settings? MapGenSetting
 ---@return MapGenSettings
 function Public.new_from_preset(config)

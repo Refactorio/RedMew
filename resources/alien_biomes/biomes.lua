@@ -3,7 +3,7 @@ local str = tostring
 
 local Public = {}
 
--- Converts a table of settings from resources/alien_biomes/biome_settings into a valid MapGenSettings 
+-- Converts a table of settings from resources/alien_biomes/biome_settings into a valid MapGenSettings
 function Public.preset_to_mgs(preset)
   local mgs = {
     autoplace_controls = {},
@@ -102,7 +102,7 @@ Public.presets = {
     moisture = b.moisture.high,
     temperature = b.temperature.bland,
     trees = b.trees.med,
-    water = b.water.very_high,
+    water = b.water.max,
   },
   jungle = {
     aux = b.aux.very_low,

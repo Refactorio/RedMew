@@ -1,47 +1,113 @@
--- this file contains all information related to map generation and control of new features.
--- a new feature has a chance to be added or increased every time a research is completed
--- or a rocket is launched, until its max capacity
--- Setup the scenario map information because everyone gets upset if you don't
+--[[
+  Scenario info: Double Trouble
+  2024 revamped version of "Pinguin" scenario from 2019 with several addons.
+
+  Required mods:
+  - Alien Biomes v0.6.8
+  - RedMew Data  v0.2.4
+]]
+
 local ScenarioInfo = require 'features.gui.info'
-ScenarioInfo.set_map_name('Pinguin Too')
-ScenarioInfo.set_map_description('You are Pinguins in Antarctica!')
+ScenarioInfo.set_map_name('Double Trouble')
+ScenarioInfo.set_map_description('You are Pinguins in Antarctica and Miners underground!')
 ScenarioInfo.set_map_extra_info('Watch out for Icebergs!')
 
+_DEBUG = true
+
 --- Config
-local config = global.config
-config.currency = nil
-config.market.enabled = false
-config.player_rewards.enabled = false
-config.redmew_qol.set_alt_on_create = false
+local Config = global.config
+Config.redmew_surface.enabled = false
+Config.currency = 'coin'
+Config.market.enabled = false
+Config.player_rewards.enabled = false
+Config.redmew_qol.set_alt_on_create = false
+
+if _DEBUG then
+  Config.player_create.starting_items = {
+    {name = 'tunnel', count = 10},
+    {name = 'iron-plate', count = 26 },
+    {name = 'steel-chest', count = 12},
+    {name = 'power-armor-mk2', count = 1},
+    {name = 'fusion-reactor-equipment', count = 4},
+    {name = 'personal-roboport-mk2-equipment', count = 4},
+    {name = 'battery-mk2-equipment', count = 4},
+    {name = 'construction-robot', count = 50},
+    {name = 'rocket-launcher', count = 1},
+    {name = 'explosive-rocket', count = 200},
+    {name = 'green-wire', count = 200},
+    {name = 'red-wire', count = 200},
+  }
+end
 
 -- == MAP GEN =================================================================
 
-local b = require 'map_gen.shared.builders'
-local RS = require 'map_gen.shared.redmew_surface'
-local MGSP = require 'resources.map_gen_settings'
+local Event = require 'utils.event'
+local ABS = require 'resources.alien_biomes.biomes_settings'
+local Biomes = require 'resources.alien_biomes.biomes'
+local mgs = Biomes.preset_to_mgs
 
---[[
-  Scale the map.
-  The pictures are originally quite large to preserve detail.
-  Will need to scale the map differently depending on which map you use.
-  Antarctica map at .5 scale: Antarctica is 46 chunks tall
-  Earth map at .5 scale: Antarctica is 4 chunks tall
-]]
+local function on_init()
+  local spawn = {0, 0}
 
-local map_scale = _DEBUG and 0.1 or 20
-local pic = require 'map_gen.data.presets.antarctica'
--- local pic = require 'map_gen.data.presets.antarctica_earth'
+  -- Above ground
+  local islands_preset = Biomes.presets.ice
+  islands_preset.water = ABS.water.max
+  islands_preset.enemy = ABS.enemy.high
+  local islands_mgs = mgs(islands_preset)
+  for _, resource in pairs({'iron-ore', 'copper-ore', 'stone', 'coal', 'uranium-ore', 'crude-oil'}) do
+    islands_mgs.autoplace_controls[resource] = { frequency = 1, richness = 1, size = 0 }
+  end
+  local islands = game.create_surface('islands', islands_mgs)
+  islands.request_to_generate_chunks(spawn, 5)
+  islands.force_generate_chunk_requests()
+  islands.ticks_per_day = 72000
 
-local shape = b.picture(pic)
-shape = b.scale(shape, map_scale, map_scale)
+  -- Under ground
+  local mines_preset = Biomes.presets.volcano
+  mines_preset.water = ABS.water.none
+  local mines_mgs = mgs(mines_preset)
+  mines_mgs.seed = 309111855
+  mines_mgs.autoplace_settings = {
+    tile = {}
+  }
+  for _, tile in pairs({'deepwater', 'deepwater-green', 'water', 'water-green', 'water-mud', 'water-shallow'}) do
+    mines_mgs.autoplace_settings.tile[tile] = { frequency = 1, size = 0, richness = 1 }
+  end
+  for _, resource in pairs({'iron-ore', 'copper-ore', 'stone', 'coal', 'uranium-ore', 'crude-oil'}) do
+    mines_mgs.autoplace_controls[resource] = { frequency = 6.0, size = 0.5, richness = 2 }
+  end
+  local mines = game.create_surface('mines', mines_mgs)
+  mines.request_to_generate_chunks(spawn, 2)
+  mines.force_generate_chunk_requests()
+  mines.solar_power_multiplier = 0
+  mines.min_brightness = 0.11
+  mines.ticks_per_day = 72000
+  mines.daytime = 0.42
+  mines.freeze_daytime = true
+  mines.show_clouds = false
+  mines.brightness_visual_weights = {1/0.85, 1/0.85, 1/0.85}
 
-local map = b.change_tile(shape, false, 'deepwater')
--- Override map gen selections
-RS.set_map_gen_settings({ MGSP.water_very_low })
+  game.forces.player.set_spawn_position(spawn, 'islands')
+  game.forces.player.manual_mining_speed_modifier = _DEBUG and 20 or 1
+end
+
+local function on_player_created(event)
+  local player = game.get_player(event.player_index)
+  if not (player and player.valid) then
+    return
+  end
+
+  player.teleport({0,0}, 'islands')
+end
+
+Event.on_init(on_init)
+Event.add(defines.events.on_player_created, on_player_created)
+require 'map_gen.maps.april_fools.scenario.camera'
+require 'map_gen.maps.april_fools.scenario.mines'
+require 'map_gen.maps.april_fools.scenario.entity-restrictions'
+require 'map_gen.maps.april_fools.scenario.market'
 
 -- == MODULES IMPORT ==========================================================
-
-local Event = require 'utils.event'
 
 local modules = {
   require 'map_gen.maps.april_fools.modules.alternative_biters',  -- Spawns a random biters on every player that has alt-mode turned on
@@ -239,4 +305,4 @@ Command.add(
 
 -- ============================================================================
 
-return map
+--return map
