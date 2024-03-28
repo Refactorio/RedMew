@@ -169,7 +169,7 @@ stds.factorio = {
             fields = {
                 "by_pixel", "distance", "findfirstentity", "positiontostr", "formattime", "moveposition", "oppositedirection",
                 "ismoduleavailable", "multiplystripes", "format_number", "increment", "color", "conditional_return",
-                "add_shift", "merge", "premul_color", "encode", "decode", "insert_safe",
+                "add_shift", "merge", "premul_color", "encode", "decode", "insert_safe", "list_to_map",
                 table = {
                     fields = {
                         "compare", "deepcopy", "shallow_copy"

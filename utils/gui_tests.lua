@@ -10,7 +10,7 @@ Declare.module({'utils', 'Gui'}, function()
         end
 
         for _, name in pairs(Gui._top_elements) do
-            Declare.test(Gui.names[name] or name, function(context)
+            Declare.test(Gui.names and Gui.names[name] or name, function(context)
                 local player = context.player
                 local element = player.gui.top[name]
 

@@ -8,7 +8,8 @@ return {
         moderation_log = 'moderation-log',
         helpdesk = 'helpdesk',
         danger_ores = 'danger-ores',
-        crash_site = 'crash-site'
+        crash_site = 'crash-site',
+        events = 'events',
     },
     --- The strings that mention the discord role.
     -- Has to be used with features.server.to_discord_raw variants else the mention is sanitized server side.
@@ -17,6 +18,7 @@ return {
         crash_site = '<@&762441731194748958>',
         danger_ore = '<@&793231011144007730>',
         moderator = '<@&454192594633883658>',
-        diggy = '<@&921476458076061718>'
+        diggy = '<@&921476458076061718>',
+        map_update = '<@486532533220147203>',
     }
 }
