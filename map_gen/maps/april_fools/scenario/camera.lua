@@ -211,4 +211,5 @@ Event.on_nth_tick(61, on_tick)
 Gui.on_click(main_button_name, destroy_camera)
 
 Event.add(defines.events.on_lua_shortcut, on_lua_shortcut)
+-- luacheck: ignore script
 script.on_event(camera_prototype, on_lua_shortcut)

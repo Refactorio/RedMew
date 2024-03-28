@@ -12,15 +12,16 @@ ScenarioInfo.set_map_name('Double Trouble')
 ScenarioInfo.set_map_description('You are Pinguins in Antarctica and Miners underground!')
 ScenarioInfo.set_map_extra_info('Watch out for Icebergs!')
 
-_DEBUG = true
-
 --- Config
 local Config = global.config
 Config.redmew_surface.enabled = false
 Config.currency = 'coin'
 Config.market.enabled = false
-Config.player_rewards.enabled = false
+Config.player_rewards.enabled = true
 Config.redmew_qol.set_alt_on_create = false
+
+local restart_command = require 'map_gen.maps.april_fools.scenario.restart_command'
+restart_command({scenario_name = 'april-fools-2024', mod_pack = 'april_fools_2024'})
 
 if _DEBUG then
   Config.player_create.starting_items = {
@@ -36,6 +37,16 @@ if _DEBUG then
     {name = 'explosive-rocket', count = 200},
     {name = 'green-wire', count = 200},
     {name = 'red-wire', count = 200},
+  }
+else
+  Config.player_create.starting_items = {
+    {name = 'burner-mining-drill', count = 4 },
+    {name = 'stone-furnace', count = 2},
+    {name = 'iron-gear-wheel', count = 3},
+    {name = 'electronic-circuit', count = 5},
+    {name = 'pistol', count = 1},
+    {name = 'firearm-magazine', count = 20},
+    {name = 'coal', count = 34},
   }
 end
 
@@ -66,7 +77,7 @@ local function on_init()
   local mines_preset = Biomes.presets.volcano
   mines_preset.water = ABS.water.none
   local mines_mgs = mgs(mines_preset)
-  mines_mgs.seed = 309111855
+  mines_mgs.seed = _DEBUG and 309111855 or nil
   mines_mgs.autoplace_settings = {
     tile = {}
   }
@@ -74,7 +85,7 @@ local function on_init()
     mines_mgs.autoplace_settings.tile[tile] = { frequency = 1, size = 0, richness = 1 }
   end
   for _, resource in pairs({'iron-ore', 'copper-ore', 'stone', 'coal', 'uranium-ore', 'crude-oil'}) do
-    mines_mgs.autoplace_controls[resource] = { frequency = 6.0, size = 0.5, richness = 2 }
+    mines_mgs.autoplace_controls[resource] = { frequency = 12.0, size = 0.5, richness = 0.08 }
   end
   local mines = game.create_surface('mines', mines_mgs)
   mines.request_to_generate_chunks(spawn, 2)
@@ -88,7 +99,8 @@ local function on_init()
   mines.brightness_visual_weights = {1/0.85, 1/0.85, 1/0.85}
 
   game.forces.player.set_spawn_position(spawn, 'islands')
-  game.forces.player.manual_mining_speed_modifier = _DEBUG and 20 or 1
+  game.forces.player.manual_mining_speed_modifier = _DEBUG and 20 or 1.2
+  game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 2
 end
 
 local function on_player_created(event)
@@ -103,9 +115,10 @@ end
 Event.on_init(on_init)
 Event.add(defines.events.on_player_created, on_player_created)
 require 'map_gen.maps.april_fools.scenario.camera'
-require 'map_gen.maps.april_fools.scenario.mines'
 require 'map_gen.maps.april_fools.scenario.entity-restrictions'
+require 'map_gen.maps.april_fools.scenario.evolution_control'
 require 'map_gen.maps.april_fools.scenario.market'
+require 'map_gen.maps.april_fools.scenario.mines'
 
 -- == MODULES IMPORT ==========================================================
 
@@ -231,6 +244,7 @@ end
 
 Event.add(defines.events.on_research_finished, on_research_finished)
 Event.add(defines.events.on_rocket_launched, on_rocket_launched)
+require 'map_gen.maps.april_fools.scenario.rocket_launched'
 
 -- == COMMANDS ================================================================
 

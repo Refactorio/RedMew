@@ -211,7 +211,6 @@ stds.factorio_control = {
         script = {
             fields = {
                 'active_mods',
-                'on_event',
                 'on_configuration_changed',
                 'raise_event',
                 'raise_console_chat',

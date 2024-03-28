@@ -4,7 +4,7 @@ local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Global = require 'utils.global'
 local Retailer = require 'features.retailer'
-local market_items = require 'resources.market_items'
+local market_items = require 'map_gen.maps.april_fools.scenario.market_items'
 local fish_market_bonus_message = require 'resources.fish_messages'
 local ScoreTracker = require 'utils.score_tracker'
 local Color = require 'resources.color_presets'
@@ -20,7 +20,7 @@ local format = string.format
 local market_config = global.config.market
 local currency = market_config.currency
 local entity_drop_amount = market_config.entity_drop_amount
-local max_coins_earned = 0
+local max_coins_earned = 5
 
 -- local vars
 
@@ -113,7 +113,7 @@ local function spawn_market(args, player)
 end
 
 local function fish_earned(event, amount)
-  amount = math.min(max_coins_earned, amount)
+  amount = math.random(math.min(amount, max_coins_earned))
   local player_index = event.player_index
   local player = game.get_player(player_index)
 

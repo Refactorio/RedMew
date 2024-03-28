@@ -8,6 +8,7 @@ local banned_per_surface = {
   mines = {
     ['assembling-machine'] = true,
     ['solar-panel'] = true,
+    ['rocket-silo'] = true,
   }
 }
 

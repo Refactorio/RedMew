@@ -14,6 +14,9 @@ config.market.enabled = false
 config.player_rewards.enabled = false
 config.redmew_qol.set_alt_on_create = false
 
+local restart_command = require 'map_gen.maps.april_fools.scenario.restart_command'
+restart_command({scenario_name = 'april-fools-2019'})
+
 -- == MAP GEN =================================================================
 
 local b = require 'map_gen.shared.builders'
@@ -159,6 +162,7 @@ end
 
 Event.add(defines.events.on_research_finished, on_research_finished)
 Event.add(defines.events.on_rocket_launched, on_rocket_launched)
+require 'map_gen.maps.april_fools.scenario.rocket_launched'
 
 -- == COMMANDS ================================================================
 
