@@ -137,8 +137,10 @@ local function fish_earned(event, amount)
 
   change_for_player(player_index, coins_earned_name, amount)
   if get_for_player(player_index, coins_earned_name) % 70 == 0 and player and player.valid then
-    local message = fish_market_bonus_message[random(#fish_market_bonus_message)]
-    player.print(message)
+    if math.random() < 0.05 then
+      local message = fish_market_bonus_message[random(#fish_market_bonus_message)]
+      player.print(message)
+    end
   end
 end
 

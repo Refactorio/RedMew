@@ -46,6 +46,7 @@ return {
   {price =   125, name = 'heavy-armor'},
   {price =   125, name = 'night-vision-equipment'},
   {price =   125, name = 'rocket-launcher'},
+  {price =   150, name = 'dungeon-support'},
   {price =   175, name = 'exoskeleton-equipment'},
   {price =   200, name = 'belt-immunity-equipment'},
   {price =   200, name = 'energy-shield-equipment'},

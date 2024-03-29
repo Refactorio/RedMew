@@ -14,6 +14,7 @@ ScenarioInfo.set_map_extra_info('Watch out for Icebergs!')
 
 --- Config
 local Config = global.config
+Config.paint.enabled = false
 Config.redmew_surface.enabled = false
 Config.currency = 'coin'
 Config.market.enabled = false
@@ -37,6 +38,7 @@ if _DEBUG then
     {name = 'explosive-rocket', count = 200},
     {name = 'green-wire', count = 200},
     {name = 'red-wire', count = 200},
+    {name = 'dungeon-support', count = 50},
   }
 else
   Config.player_create.starting_items = {
@@ -56,6 +58,13 @@ local Event = require 'utils.event'
 local ABS = require 'resources.alien_biomes.biomes_settings'
 local Biomes = require 'resources.alien_biomes.biomes'
 local mgs = Biomes.preset_to_mgs
+
+require 'map_gen.maps.april_fools.scenario.camera'
+require 'map_gen.maps.april_fools.scenario.cave_collapse'
+require 'map_gen.maps.april_fools.scenario.entity-restrictions'
+require 'map_gen.maps.april_fools.scenario.evolution_control'
+require 'map_gen.maps.april_fools.scenario.market'
+require 'map_gen.maps.april_fools.scenario.mines'
 
 local function on_init()
   local spawn = {0, 0}
@@ -114,11 +123,6 @@ end
 
 Event.on_init(on_init)
 Event.add(defines.events.on_player_created, on_player_created)
-require 'map_gen.maps.april_fools.scenario.camera'
-require 'map_gen.maps.april_fools.scenario.entity-restrictions'
-require 'map_gen.maps.april_fools.scenario.evolution_control'
-require 'map_gen.maps.april_fools.scenario.market'
-require 'map_gen.maps.april_fools.scenario.mines'
 
 -- == MODULES IMPORT ==========================================================
 
