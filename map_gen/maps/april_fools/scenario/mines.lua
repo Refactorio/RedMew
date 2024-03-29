@@ -1,25 +1,12 @@
 local Event = require 'utils.event'
 local Perlin = require 'map_gen.shared.perlin_noise'
 local AlienEvolutionProgress = require 'utils.alien_evolution_progress'
+local Template = require 'map_gen.maps.april_fools.scenario.template'
+require 'features.harmful_mining'
 
-local rock_list = {
-  'rock-huge-volcanic',
-  'rock-big-volcanic',
-  'rock-huge-black',
-  'rock-big-black',
-  'rock-huge-grey',
-  'rock-big-grey',
-  'rock-huge-red',
-  'rock-big-red',
-  'rock-huge-white',
-  'rock-big-white',
-  'rock-huge-brown',
-  'rock-big-brown',
-  'rock-huge-dustyrose',
-  'rock-big-dustyrose',
-}
+local rock_list = Template.diggy_rocks
 local rocks = #rock_list
-local rock_map = util.list_to_map(rock_list)
+local rock_map = Template.diggy_rocks_map
 
 -- == MAP GEN =================================================================
 
