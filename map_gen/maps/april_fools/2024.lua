@@ -9,7 +9,18 @@
 
 local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Double Trouble')
-ScenarioInfo.set_map_description('You are Pinguins in Antarctica and Miners underground!')
+ScenarioInfo.set_map_description([[
+  [font=default-bold]Welcome to [color=blue]Double[/color] [color=red]Trouble[/color]![/font]
+
+  You have crash landed on a winter and adverse planet. There's nothing visible, just... Threats. You take refuge underground to build a new empire, but something goes wrong again...
+  In fact... Nothing seems to be going right.
+
+  Have fun in this new adventure. Build the infrastructure underground to return to the surface and escape this planet. Use support pylons to protect the market and avoid collapses underground. Build tunnels to move resources to the surface faster, resist adversities, and achieve victory!
+
+  Good luck, have fun.
+  The [color=red]RedMew[/color] team
+  
+]])
 ScenarioInfo.set_map_extra_info('Watch out for Icebergs!')
 
 --- Config
@@ -109,7 +120,6 @@ local function on_init()
 
   game.forces.player.set_spawn_position(spawn, 'islands')
   game.forces.player.manual_mining_speed_modifier = _DEBUG and 20 or 1.2
-  game.difficulty_settings.technology_price_multiplier = game.difficulty_settings.technology_price_multiplier * 2
 end
 
 local function on_player_created(event)
@@ -118,7 +128,9 @@ local function on_player_created(event)
     return
   end
 
-  player.teleport({0,0}, 'islands')
+  local islands = game.surfaces['islands']
+  local pos = islands.find_non_colliding_position('character', {0,0}, 20, 1)
+  player.teleport(pos, 'islands')
 end
 
 Event.on_init(on_init)
@@ -281,7 +293,7 @@ Command.add(
   {
     description = [[Prints all features's current levels]],
     arguments = {},
-    required_rank = Ranks.admin,
+    required_rank = Ranks.auto_trusted,
     allowed_by_server = true
   },
   function(_, player)

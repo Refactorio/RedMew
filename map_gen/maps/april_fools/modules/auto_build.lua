@@ -4,7 +4,7 @@
 local Global = require 'utils.global'
 
 local BASE_TARGETS = 1 -- how many targets per level
-local BUILD_INTERVAL = 60 * 5 -- 5sec
+local BUILD_INTERVAL = 60 * 25 -- 25sec
 local CHANGE_TARGET_INTERVAL = _DEBUG and 60 * 1 or 60 * 100 -- 100sec
 
 local _global = {
