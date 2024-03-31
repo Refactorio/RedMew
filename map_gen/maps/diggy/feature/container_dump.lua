@@ -29,7 +29,6 @@ end)
 local ContainerDump = {}
 
 function ContainerDump.register(config)
-  local entity_name = config.entity_name
   local resources = config.resources or default_resources
 
   Event.add(defines.events.on_entity_died, function(event)
