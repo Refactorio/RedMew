@@ -88,6 +88,7 @@ local function on_init()
   for _, resource in pairs({'iron-ore', 'copper-ore', 'stone', 'coal', 'uranium-ore', 'crude-oil'}) do
     islands_mgs.autoplace_controls[resource] = { frequency = 1, richness = 1, size = 0 }
   end
+  islands_mgs.autoplace_controls['crude-oil'] = { frequency = 1, richness = 2, size = 1.2 }
   local islands = game.create_surface('islands', islands_mgs)
   islands.request_to_generate_chunks(spawn, 5)
   islands.force_generate_chunk_requests()
