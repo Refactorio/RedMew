@@ -19,7 +19,6 @@ ScenarioInfo.set_map_description([[
 
   Good luck, have fun.
   The [color=red]RedMew[/color] team
-  
 ]])
 ScenarioInfo.set_map_extra_info('Watch out for Icebergs!')
 
