@@ -4,7 +4,7 @@
 local Global = require 'utils.global'
 local math = require 'utils.math'
 
-local SPAWN_INTERVAL = 60 * 60 -- 60sec
+local SPAWN_INTERVAL = 60 * 60 * 3 -- 3min
 local UNIT_COUNT = 1 -- Number of units spawned per enemy listed in each ENEMY_GROUP
 
 local _global = {
