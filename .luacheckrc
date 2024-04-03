@@ -1150,6 +1150,7 @@ stds.factorio_defines = {
                         'on_unit_added_to_group',
                         'on_unit_group_created',
                         'on_unit_removed_from_group',
+                        'on_unit_group_finished_gathering',
                         'script_raised_built',
                         'script_raised_destroy',
                         'script_raised_revive'

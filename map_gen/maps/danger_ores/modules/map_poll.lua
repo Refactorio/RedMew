@@ -24,6 +24,7 @@ local ei_mod_pack = 'ei_mod_pack'
 -- local py_short_mod_pack = 'py_short_mod_pack'
 local ir3_mod_pack = 'ir3_mod_pack'
 local scrap_mod_pack = 'scrap_mod_pack'
+local silo_defense_mod_pack = 'silo_defense_mod_pack'
 
 local mod_packs = {
     normal_mod_pack = 'danger_ore29',
@@ -35,6 +36,7 @@ local mod_packs = {
     py_short_mod_pack = 'danger_ore_py_short',
     ir3_mod_pack = 'danger_ore_ir3',
     scrap_mod_pack = 'danger_ore_scrap',
+    silo_defense_mod_pack = 'danger_ore_silo_defense',
 }
 
 local maps = {
@@ -189,6 +191,11 @@ local maps = {
         name = 'danger-ore-scrap',
         mod_pack = scrap_mod_pack,
         display_name = 'Scrapworld (no ores, all scraps)'
+    },
+    {
+        name = 'danger-ore-silo-defense',
+        mod_pack = silo_defense_mod_pack,
+        display_name = 'Silo Defense (wave defense style)'
     }
 }
 
