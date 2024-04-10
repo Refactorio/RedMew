@@ -32,10 +32,10 @@ local price_modifiers = {
 }
 
 ---@param config
----@field start_size              int, the width/height of the starting area. Will be ceiled to a multiple of a chunk
----@field chance_to_receive_token int, probability of coin rewards [0, 1]
----@field max_ore_price_modifier  int, max value for the ore_modifier after cmputing it with the distance_modifier
----@field price_distance_modifier int, how distance from {0,0} influence the request price
+---@field start_size              number, the width/height of the starting area. Will be ceiled to a multiple of a chunk
+---@field chance_to_receive_token number, probability of coin rewards [0, 1]
+---@field max_ore_price_modifier  number, max value for the ore_modifier after cmputing it with the distance_modifier
+---@field price_distance_modifier number, how distance from {0,0} influence the request price
 return function(config)
   Generate.enable_register_events = false
 
@@ -77,23 +77,6 @@ return function(config)
         end
       end
       surface.set_tiles(tiles, true)
-    end
-  end
-
-  local function reward_tokens(entity)
-    local chance = chance_to_receive_token % 1
-    local count = math.floor(chance_to_receive_token)
-
-    if chance > 0 then
-      chance = math.floor(chance * 1000)
-      if math.random(1, 1000) <= chance then
-        entity.surface.spill_item_stack(entity.position, { name = 'coin', count = 1 }, true, nil, false)
-      end
-    end
-    if count > 0 then
-      for _ = 1, count, 1 do
-        entity.surface.spill_item_stack(entity.position, { name = 'coin', count = 1 }, true, nil, false)
-      end
     end
   end
 
@@ -337,7 +320,9 @@ return function(config)
         end
       end
 
-      reward_tokens(entity)
+      if math.random() <= chance_to_receive_token then
+        entity.surface.spill_item_stack(entity.position, { name = 'coin', count = 1 }, true, nil, false)
+      end
       entity.destructible = true
       entity.die()
       return new_area

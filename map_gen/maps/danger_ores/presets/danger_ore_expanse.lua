@@ -11,7 +11,7 @@ ScenarioInfo.set_map_description([[
 
   Clear the ore to expand the base,
   focus mining efforts on specific sectors to ensure
-  proper material ratios, expand the map with pollution!
+  proper material ratios, consume as much resources as possible!
 
                             -- AND --
 
