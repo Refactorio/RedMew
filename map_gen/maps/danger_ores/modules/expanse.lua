@@ -320,7 +320,7 @@ return function(config)
         end
       end
 
-      if math.random() <= chance_to_receive_token then
+      if math.random() < chance_to_receive_token then
         entity.surface.spill_item_stack(entity.position, { name = 'coin', count = 1 }, true, nil, false)
       end
       entity.destructible = true
