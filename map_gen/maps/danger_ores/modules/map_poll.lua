@@ -189,7 +189,12 @@ local maps = {
         name = 'danger-ore-scrap',
         mod_pack = scrap_mod_pack,
         display_name = 'Scrapworld (no ores, all scraps)'
-    }
+    },
+    {
+        name = 'danger-ore-expanse',
+        mod_pack = normal_mod_pack,
+        display_name = 'Expanse (feed Hungry Chests to expand)'
+    },
 }
 
 Event.add(Server.events.on_server_started, function()
