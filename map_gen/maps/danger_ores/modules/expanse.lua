@@ -405,6 +405,11 @@ return function(config)
   end
 
   local function on_tick()
+    if primitives.index ~= nil and chest_data[primitives.index] == nil then
+      primitives.index = nil
+      return
+    end
+
     local idx, chest = next(chest_data, primitives.index)
     if not (chest and chest.entity) then
       primitives.index = nil
