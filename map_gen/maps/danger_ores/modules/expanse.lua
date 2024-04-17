@@ -353,8 +353,8 @@ return function(config)
     surface.request_to_generate_chunks(left_top, 0)
     surface.force_generate_chunk_requests()
 
-    local max_side = cell_size - RADIUS + 1
-    local min_side = RADIUS - 1
+    local max_side = cell_size - 1 - RADIUS
+    local min_side = RADIUS
     local positions = {
       { x = left_top.x + math.random(min_side, max_side), y = left_top.y }, -- north
       { x = left_top.x, y = left_top.y + math.random(min_side, max_side) }, -- west
