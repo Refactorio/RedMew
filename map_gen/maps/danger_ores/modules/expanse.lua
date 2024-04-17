@@ -42,7 +42,7 @@ return function(config)
   local cell_size = 32
   local start_size = config.start_size
   local chance_to_receive_token = config.chance_to_receive_token or 0.20
-  local max_ore_price_modifier  = config.max_ore_price_modifier  or 0.33
+  local max_ore_price_modifier  = config.max_ore_price_modifier  or 0.20
   local price_distance_modifier = config.price_distance_modifier or 0.006
 
   -- pad start_size to closest multiple of 32 for chunk alignment
@@ -81,20 +81,33 @@ return function(config)
   end
 
   local function get_left_top(position)
+    return {
+      x = position.x - position.x % cell_size,
+      y = position.y - position.y % cell_size,
+    }
+  end
+
+  local function get_neighbour_left_top(entity_position, out_of_map)
+    local find_empty_chunk = out_of_map or (out_of_map == nil)
     local step = 3
     local vectors = { { -step, 0 }, { step, 0 }, { 0, step }, { 0, -step } }
     table.shuffle_table(vectors) --left, right, down, up
 
     for _, v in pairs(vectors) do
-      local tile = surface.get_tile({ position.x + v[1], position.y + v[2] })
+      local tile = surface.get_tile({ entity_position.x + v[1], entity_position.y + v[2] })
 
-      if tile.name == 'out-of-map' then
-        local left_top
-        left_top = {
+      if find_empty_chunk and (tile.name == 'out-of-map') then
+        local position = tile.position
+        return {
           x = position.x - position.x % cell_size,
           y = position.y - position.y % cell_size,
         }
-        return left_top
+      elseif not find_empty_chunk and (tile.name ~= 'out-of-map') then
+        local position = tile.position
+        return {
+          x = position.x - position.x % cell_size,
+          y = position.y - position.y % cell_size,
+        }
       end
     end
     return
@@ -106,7 +119,7 @@ return function(config)
         position.x == start_size/2-1 or position.y == start_size/2-1
     end
 
-    local left_top = get_left_top(position)
+    local left_top = get_neighbour_left_top(position, true)
     if not left_top then
       return false
     end
@@ -117,6 +130,19 @@ return function(config)
       --area = { { left_top.x - 1, left_top.y - 1 }, { left_top.x + cell_size + 1, left_top.y + cell_size + 1 } },
       area = { {left_top.x, left_top.y}, {left_top.x + cell_size - 1, left_top.y + cell_size - 1} },
     }) == 0
+  end
+
+  local function destroy_and_spill_content(entity)
+    chest_data[entity.unit_number] = nil
+    local inventory = entity.get_inventory(defines.inventory.chest)
+    if not inventory.is_empty() then
+      for name, count in pairs(inventory.get_contents()) do
+        entity.surface.spill_item_stack(entity.position, { name = name, count = count }, true, nil, false)
+      end
+    end
+    inventory.clear()
+    entity.destructible = true
+    entity.die()
   end
 
   local function remove_one_render(chest, key)
@@ -235,13 +261,30 @@ return function(config)
     end
 
     local price = {}
-    local offset = -3
+    local offset = -table_size(item_stacks) / 2 + 0.5
     for k, v in pairs(item_stacks) do
       table.insert(price, { name = k, count = v, render = create_costs_render(entity, k, offset) })
       offset = offset + 1
     end
 
     chest_data[entity.unit_number] = { entity = entity, left_top = left_top, price = price }
+  end
+
+  local function on_tick_validate_chest(entity)
+    if game.tick == 0 then return true end
+
+    local step = 3
+    local vectors = { { -step, 0 }, { step, 0 }, { 0, step }, { 0, -step } }
+    local get_tile = entity.surface.get_tile
+    local position = entity.position
+
+    for _, v in pairs(vectors) do
+      local tile = get_tile({ position.x + v[1], position.y + v[2] })
+      if tile.name == 'out-of-map' then
+        return true
+      end
+    end
+    return false
   end
 
   local function process_chest(entity, budget)
@@ -255,6 +298,10 @@ return function(config)
     local container = chest_data[entity.unit_number]
     if not container or not container.entity or not container.entity.valid then
       chest_data[entity.unit_number] = nil
+      return
+    end
+    if not on_tick_validate_chest(entity) then
+      destroy_and_spill_content(entity)
       return
     end
 
@@ -288,14 +335,6 @@ return function(config)
     end
 
     if #container.price == 0 then
-      chest_data[entity.unit_number] = nil
-      if not inventory.is_empty() then
-        for name, count in pairs(inventory.get_contents()) do
-          entity.surface.spill_item_stack(entity.position, { name = name, count = count }, true, nil, false)
-        end
-      end
-      inventory.clear()
-
       -- compute new chunk to unlock
       local new_area
       local step = 3
@@ -323,8 +362,8 @@ return function(config)
       if math.random() < chance_to_receive_token then
         entity.surface.spill_item_stack(entity.position, { name = 'coin', count = 1 }, true, nil, false)
       end
-      entity.destructible = true
-      entity.die()
+      destroy_and_spill_content(entity)
+
       return new_area
     end
 
@@ -347,11 +386,12 @@ return function(config)
     surface.request_to_generate_chunks(left_top, 0)
     surface.force_generate_chunk_requests()
 
+    local max_side = cell_size - 3
     local positions = {
-      { x = left_top.x + math.random(1, cell_size - 2), y = left_top.y },
-      { x = left_top.x, y = left_top.y + math.random(1, cell_size - 2) },
-      { x = left_top.x + math.random(1, cell_size - 2), y = left_top.y + (cell_size - 1) },
-      { x = left_top.x + (cell_size - 1), y = left_top.y + math.random(1, cell_size - 2) },
+      { x = left_top.x + math.random(4, max_side), y = left_top.y }, -- north
+      { x = left_top.x, y = left_top.y + math.random(4, max_side) }, -- west
+      { x = left_top.x + math.random(4, max_side), y = left_top.y + (cell_size - 1) }, -- south
+      { x = left_top.x + (cell_size - 1), y = left_top.y + math.random(4, max_side) }, -- east
     }
 
     local chests = {}
@@ -386,16 +426,7 @@ return function(config)
       }
     }}
     for _, entity in pairs(old_chests) do
-      chest_data[entity.unit_number] = nil
-      local inventory = entity.get_inventory(defines.inventory.chest)
-      if not inventory.is_empty() then
-        for name, count in pairs(inventory.get_contents()) do
-          entity.surface.spill_item_stack(entity.position, { name = name, count = count }, true, nil, false)
-        end
-      end
-      inventory.clear()
-      entity.destructible = true
-      entity.die()
+      destroy_and_spill_content(entity)
     end
 
     -- then generate new expansion chests
