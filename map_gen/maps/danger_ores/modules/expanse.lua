@@ -89,7 +89,6 @@ return function(config)
   end
 
   local function get_empty_neighbour_left_top(entity_position)
-    local find_empty_chunk = out_of_map or (out_of_map == nil)
     local vectors = { { -RADIUS, 0 }, { RADIUS, 0 }, { 0, RADIUS }, { 0, -RADIUS } }
     --table.shuffle_table(vectors) --left, right, down, up
 
@@ -435,7 +434,7 @@ return function(config)
     end
 
     if entity.type == 'tree' then
-      for ___, corpse in pairs(surface.find_entities_filtered{
+      for _, corpse in pairs(surface.find_entities_filtered{
         position = entity.position,
         radius = 1,
         type = 'corpse'}
