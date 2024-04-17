@@ -11,12 +11,13 @@ local Token = require 'utils.token'
 local rendering = rendering
 local math_abs = math.abs
 
-local rock_resources = {
+local RADIUS = 3
+local ROCK_RESOURCES = {
   'iron-ore', 'iron-ore', 'iron-ore', 'iron-ore', 'iron-ore',
   'copper-ore', 'copper-ore', 'copper-ore',
   'coal'
 }
-local price_modifiers = {
+local PRICE_MODIFIERS = {
   ['cliff'] = -128,
   ['deepwater-green'] = -5,
   ['deepwater'] = -5,
@@ -87,27 +88,16 @@ return function(config)
     }
   end
 
-  local function get_neighbour_left_top(entity_position, out_of_map)
+  local function get_empty_neighbour_left_top(entity_position)
     local find_empty_chunk = out_of_map or (out_of_map == nil)
-    local step = 3
-    local vectors = { { -step, 0 }, { step, 0 }, { 0, step }, { 0, -step } }
-    table.shuffle_table(vectors) --left, right, down, up
+    local vectors = { { -RADIUS, 0 }, { RADIUS, 0 }, { 0, RADIUS }, { 0, -RADIUS } }
+    --table.shuffle_table(vectors) --left, right, down, up
 
     for _, v in pairs(vectors) do
       local tile = surface.get_tile({ entity_position.x + v[1], entity_position.y + v[2] })
 
-      if find_empty_chunk and (tile.name == 'out-of-map') then
-        local position = tile.position
-        return {
-          x = position.x - position.x % cell_size,
-          y = position.y - position.y % cell_size,
-        }
-      elseif not find_empty_chunk and (tile.name ~= 'out-of-map') then
-        local position = tile.position
-        return {
-          x = position.x - position.x % cell_size,
-          y = position.y - position.y % cell_size,
-        }
+      if tile.name == 'out-of-map' then
+        return get_left_top(tile.position)
       end
     end
     return
@@ -119,17 +109,7 @@ return function(config)
         position.x == start_size/2-1 or position.y == start_size/2-1
     end
 
-    local left_top = get_neighbour_left_top(position, true)
-    if not left_top then
-      return false
-    end
-
-    return surface.count_entities_filtered({
-      name = 'logistic-chest-requester',
-      force = 'neutral',
-      --area = { { left_top.x - 1, left_top.y - 1 }, { left_top.x + cell_size + 1, left_top.y + cell_size + 1 } },
-      area = { {left_top.x, left_top.y}, {left_top.x + cell_size - 1, left_top.y + cell_size - 1} },
-    }) == 0
+    return get_empty_neighbour_left_top(position) ~= nil
   end
 
   local function destroy_and_spill_content(entity)
@@ -175,13 +155,13 @@ return function(config)
     local tiles = surface.find_tiles_filtered({ area = area })
 
     for _, tile in pairs(tiles) do
-      if price_modifiers[tile.name] then
-        value = value + price_modifiers[tile.name]
+      if PRICE_MODIFIERS[tile.name] then
+        value = value + PRICE_MODIFIERS[tile.name]
       end
     end
     for _, entity in pairs(entities) do
-      if price_modifiers[entity.type] then
-        value = value + price_modifiers[entity.type]
+      if PRICE_MODIFIERS[entity.type] then
+        value = value + PRICE_MODIFIERS[entity.type]
       end
     end
 
@@ -247,15 +227,21 @@ return function(config)
 
     local cell_value = budget or get_cell_budget(left_top, entity)
     local item_stacks = {}
-    local roll_count = 3
-    for _ = 1, roll_count do
-      local value = math.floor(cell_value / roll_count)
-      local max_item_value = math.max(4, cell_value / (roll_count * 6))
-      for _, stack in pairs(Price_raffle.roll(value, 3, nil, max_item_value)) do
-        if not item_stacks[stack.name] then
-          item_stacks[stack.name] = stack.count
-        else
-          item_stacks[stack.name] = item_stacks[stack.name] + stack.count
+    if _DEBUG then
+      item_stacks = {
+        ['iron-plate'] = 1,
+      }
+    else
+      local roll_count = 3
+      for _ = 1, roll_count do
+        local value = math.floor(cell_value / roll_count)
+        local max_item_value = math.max(4, cell_value / (roll_count * 6))
+        for _, stack in pairs(Price_raffle.roll(value, 3, nil, max_item_value)) do
+          if not item_stacks[stack.name] then
+            item_stacks[stack.name] = stack.count
+          else
+            item_stacks[stack.name] = item_stacks[stack.name] + stack.count
+          end
         end
       end
     end
@@ -268,23 +254,6 @@ return function(config)
     end
 
     chest_data[entity.unit_number] = { entity = entity, left_top = left_top, price = price }
-  end
-
-  local function on_tick_validate_chest(entity)
-    if game.tick == 0 then return true end
-
-    local step = 3
-    local vectors = { { -step, 0 }, { step, 0 }, { 0, step }, { 0, -step } }
-    local get_tile = entity.surface.get_tile
-    local position = entity.position
-
-    for _, v in pairs(vectors) do
-      local tile = get_tile({ position.x + v[1], position.y + v[2] })
-      if tile.name == 'out-of-map' then
-        return true
-      end
-    end
-    return false
   end
 
   local function process_chest(entity, budget)
@@ -300,7 +269,7 @@ return function(config)
       chest_data[entity.unit_number] = nil
       return
     end
-    if not on_tick_validate_chest(entity) then
+    if game.tick > 0 and not is_container_position_valid(entity.position) then
       destroy_and_spill_content(entity)
       return
     end
@@ -337,8 +306,7 @@ return function(config)
     if #container.price == 0 then
       -- compute new chunk to unlock
       local new_area
-      local step = 3
-      local vectors = { { -step, 0 }, { step, 0 }, { 0, step }, { 0, -step } }
+      local vectors = { { -RADIUS, 0 }, { RADIUS, 0 }, { 0, RADIUS }, { 0, -RADIUS } }
       table.shuffle_table(vectors) --left, right, down, up
 
       for _, v in pairs(vectors) do
@@ -386,12 +354,13 @@ return function(config)
     surface.request_to_generate_chunks(left_top, 0)
     surface.force_generate_chunk_requests()
 
-    local max_side = cell_size - 3
+    local max_side = cell_size - RADIUS + 1
+    local min_side = RADIUS - 1
     local positions = {
-      { x = left_top.x + math.random(4, max_side), y = left_top.y }, -- north
-      { x = left_top.x, y = left_top.y + math.random(4, max_side) }, -- west
-      { x = left_top.x + math.random(4, max_side), y = left_top.y + (cell_size - 1) }, -- south
-      { x = left_top.x + (cell_size - 1), y = left_top.y + math.random(4, max_side) }, -- east
+      { x = left_top.x + math.random(min_side, max_side), y = left_top.y }, -- north
+      { x = left_top.x, y = left_top.y + math.random(min_side, max_side) }, -- west
+      { x = left_top.x + math.random(min_side, max_side), y = left_top.y + (cell_size - 1) }, -- south
+      { x = left_top.x + (cell_size - 1), y = left_top.y + math.random(min_side, max_side) }, -- east
     }
 
     local chests = {}
@@ -466,12 +435,17 @@ return function(config)
     end
 
     if entity.type == 'tree' then
-      entity.surface.create_entity{name = 'tree-0'..math.random(9), position = entity.position}
+      for ___, corpse in pairs(surface.find_entities_filtered{
+        position = entity.position,
+        radius = 1,
+        type = 'corpse'}
+      ) do corpse.destroy() end
+      surface.create_entity{name = 'tree-0'..math.random(9), position = entity.position}
     elseif entity.type == 'simple-entity' then
-      local rock = entity.surface.create_entity{name = 'rock-huge', position = entity.position, move_stuck_players = true}
+      local rock = surface.create_entity{name = 'rock-huge', position = entity.position, move_stuck_players = true}
       rock.graphics_variation = math.random(16)
-      entity.surface.spill_item_stack(entity.position, {name = rock_resources[math.random(#rock_resources)], count = math.random(80, 160)}, true, nil, true)
-      entity.surface.spill_item_stack(entity.position, {name = 'stone', count = math.random(5, 15)}, true, nil, true)
+      surface.spill_item_stack(entity.position, {name = ROCK_RESOURCES[math.random(#ROCK_RESOURCES)], count = math.random(80, 160)}, true, nil, true)
+      surface.spill_item_stack(entity.position, {name = 'stone', count = math.random(5, 15)}, true, nil, true)
     end
   end
 
