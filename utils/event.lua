@@ -280,10 +280,6 @@ function Event.add_removable_function(event_name, func)
         error('func must be a function', 2)
     end
 
-    if Debug.is_closure(func) then
-        error('func cannot be a closure as that is a desync risk. Consider using Event.add_removable(event_name, token) instead.', 2)
-    end
-
     local funcs = function_handlers[event_name]
     if not funcs then
         function_handlers[event_name] = {func}
@@ -385,10 +381,6 @@ function Event.add_removable_nth_tick_function(tick, func)
     end
     if type(func) ~= 'function' then
         error('func must be a function', 2)
-    end
-
-    if Debug.is_closure(func) then
-        error('func cannot be a closure as that is a desync risk. Consider using Event.add_removable_nth_tick(tick, token) instead.', 2)
     end
 
     local funcs = function_nth_tick_handlers[tick]
