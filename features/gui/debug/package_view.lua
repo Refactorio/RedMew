@@ -1,8 +1,6 @@
 local Gui = require 'utils.gui'
 local Color = require 'resources.color_presets'
-local Model = require 'features.gui.debug.model'
 
-local dump_function = Model.dump_function
 local loaded = _G.package.loaded
 
 local Public = {}
@@ -111,8 +109,6 @@ Gui.on_click(
                     top_panel.add({type = 'flow'}).add {type = 'label', name = variable_label_name, caption = k}
                 Gui.set_data(label, v)
             end
-        elseif file_type == 'function' then
-            text_box.text = dump_function(file)
         else
             text_box.text = tostring(file)
         end
@@ -150,11 +146,7 @@ Gui.on_click(
         element.style.font_color = Color.orange
         data.selected_variable_label = element
 
-        if variable_type == 'function' then
-            text_box.text = dump_function(variable)
-        else
-            text_box.text = tostring(variable)
-        end
+        text_box.text = tostring(variable)
     end
 )
 

@@ -104,28 +104,6 @@ function Public.dump_ignore_builder(ignore)
     end
 end
 
-function Public.dump_function(func)
-    local res = {'upvalues:\n'}
-
-    local i = 1
-    while true do
-        local n, v = debug.getupvalue(func, i)
-
-        if n == nil then
-            break
-        elseif n ~= '_ENV' then
-            res[#res + 1] = n
-            res[#res + 1] = ' = '
-            res[#res + 1] = dump(v)
-            res[#res + 1] = '\n'
-        end
-
-        i = i + 1
-    end
-
-    return concat(res)
-end
-
 function Public.dump_text(text, player)
     local func = loadstring('return ' .. text)
     if not func then
