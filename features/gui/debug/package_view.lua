@@ -1,6 +1,5 @@
 local Gui = require 'utils.gui'
 local Color = require 'resources.color_presets'
-local Model = require 'features.gui.debug.model'
 
 local loaded = _G.package.loaded
 
@@ -146,7 +145,7 @@ Gui.on_click(
 
         element.style.font_color = Color.orange
         data.selected_variable_label = element
-        
+
         text_box.text = tostring(variable)
     end
 )
