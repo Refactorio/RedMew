@@ -40,6 +40,11 @@ ScenarioInfo.set_new_info([[
   - Forked from DO/terraforming
   - Added DO/expanse
   - Lowered tech multiplier 25 > 5
+2024-04-17:
+  - Fixed incorrect request computation
+  - Fixed persistent chests on new chunk unlocks
+  - Added chests for each new expansion border
+  - Reduced pre_multiplier from 0.33 >s 0.20
 ]])
 
 ScenarioInfo.add_extra_rule({'info.rules_text_danger_ore'})
@@ -102,6 +107,7 @@ Event.on_init(function()
     game.forces.player.manual_mining_speed_modifier = 1
 
     RS.get_surface().always_day = true
+    RS.get_surface().peaceful_mode = true
 end)
 
 local expanse = require 'map_gen.maps.danger_ores.modules.expanse'
