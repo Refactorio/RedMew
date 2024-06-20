@@ -26,7 +26,7 @@ in order to explore beyond the grid.
     [entity=biter-spawner] Pollution spreads fast
     [entity=small-biter] Biter activity high
     [item=landfill] Landfill disabled
-    
+
 Coded with love, but without much lua experience: Blame Tar[technology=optics]  for bugs.
      ]])
 
@@ -38,7 +38,7 @@ RS.set_map_gen_settings(
         MGSP.water_none,
     }
     )
---Ore generation: Copy for "void gears' - altered seeds 
+--Ore generation: Copy for "void gears' - altered seeds
     local seed1 = 42900
     local seed2 = 57500
     --11900 --11830
@@ -298,7 +298,7 @@ local start_gear = b.apply_entity(gear_big, start_segmented)
 start_gear = b.change_tile(start_gear, true, "grass-3")
 map = b.if_else(start_gear, map)
 map = b.if_else(centre, map)
-          
+
    --Starting equipment
 local player_create = global.config.player_create
 player_create.starting_items = {
@@ -325,7 +325,7 @@ Event.on_init(
         force.technologies['automation'].researched = true
         force.technologies['logistics'].researched = true
         force.technologies['landfill'].enabled = false -- disable landfill
-           
+
            -- Set up non-standard market so we can add logistics network things without editing a different file
     global.config.market.create_standard_market = false
     Retailer.set_item('items', {price = 100, name = 'player-port'})
@@ -354,10 +354,10 @@ Event.on_init(
     Retailer.set_item('items', {price = 100, name = 'battery-equipment'})
     Retailer.set_item('items', {price = 625, name = 'battery-mk2-equipment'})
     Retailer.set_item('items', {price = 150, name = 'exoskeleton-equipment'})
-    Retailer.set_item('items', {price = 250, name = 'energy-shield-equipment'}) 
-    Retailer.set_item('items', {price = 750, name = 'energy-shield-mk2-equipment'}) 
+    Retailer.set_item('items', {price = 250, name = 'energy-shield-equipment'})
+    Retailer.set_item('items', {price = 750, name = 'energy-shield-mk2-equipment'})
     Retailer.set_item('items', {price = 750, name = 'personal-laser-defense-equipment'})
-    Retailer.set_item('items', {price = 250, name = 'personal-roboport-equipment'}) 
+    Retailer.set_item('items', {price = 250, name = 'personal-roboport-equipment'})
     Retailer.set_item('items', {price = 6, name = 'big-electric-pole'})
     Retailer.set_item('items', {price = 25, name = 'substation'})
     Retailer.set_item('items', {price = 10, name = 'construction-robot'})
@@ -373,7 +373,7 @@ Event.on_init(
     local item_market_1 = surface.create_entity({name = 'market', position = {0, 0}})
     item_market_1.destructible = false
     Retailer.add_market('items', item_market_1)
-    
+
      Retailer.add_market('items', item_market)
    end
 )
