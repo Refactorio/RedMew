@@ -1,5 +1,4 @@
 local b = require 'map_gen.shared.builders'
-local degrees = math.degrees
 local Event = require 'utils.event'
 local math = require 'utils.math'
 local MGSP = require 'resources.map_gen_settings'
@@ -20,13 +19,12 @@ local math_floor = math.floor
   From 'Frontier Extended' mod: https://mods.factorio.com/mod/Frontier-Extended
 ]]
 
-local ScenarioInfo = require 'features.gui.info'
 ScenarioInfo.set_map_name('Frontier')
 ScenarioInfo.set_map_description([[
   [font=default-bold]Welcome to Frontier![/font]
 
   You are stranded between an ocean and a land infested with exceptionally aggressive biters and your only defense is a mysterious wall which up until now has kept the biters from completely overrunning the land.
-  Somewhere behind the wall is a rocket silo where you can escape the nightmare of biters. 
+  Somewhere behind the wall is a rocket silo where you can escape the nightmare of biters.
 
   Good luck, have fun.
   The [color=red]RedMew[/color] team
@@ -60,7 +58,6 @@ local ore_chunk_scale = 32 -- sets how fast the ore will increase from spawn, lo
 
 -- == MAP GEN =================================================================
 
-local b = require 'map_gen.shared.builders'
 local map, water, green_water
 
 RS.set_map_gen_settings({
@@ -97,8 +94,8 @@ water = b.fish(water, 0.075)
 
 green_water = b.change_tile(bounds, true, 'deepwater-green')
 
-map = b.choose(function(x, y, world) return x < -left_water_boundary end, water, bounds)
-map = b.choose(function(x, y, world) return math_floor(x) == -(global.kraken_distance + left_water_boundary + 1) end, green_water, map)
+map = b.choose(function(x) return x < -left_water_boundary end, water, bounds)
+map = b.choose(function(x) return math_floor(x) == -(global.kraken_distance + left_water_boundary + 1) end, green_water, map)
 
 -- == EVENTS ==================================================================
 
@@ -183,7 +180,7 @@ local refresh_silo = function(on_launch, old_silos)
   local rocket_parts = 0
 
   for _, entity in pairs(old_silos) do
-    local i = nil
+    local i
     local input_inventory = {} -- We do not keep the input inventory when it jumps, otherwise it looks like we managed to get something in it after it moved
     local has_inventory = false -- Because #input_inventory is broken in lua ?!
 
@@ -252,7 +249,7 @@ local refresh_silo = function(on_launch, old_silos)
 
     -- We put a chest with the inputs so they are not lost
     if has_inventory then
-      chest = surface.create_entity { name = 'steel-chest', position = p, force = 'player', move_stuck_players = true }
+      local chest = surface.create_entity { name = 'steel-chest', position = p, force = 'player', move_stuck_players = true }
       for n, c in pairs(input_inventory) do
         chest.insert({ name = n, count = c })
       end
@@ -311,6 +308,7 @@ local refresh_silo = function(on_launch, old_silos)
 end
 
 -- Delete all kraken limit times, and recreate the boundary tiles at the new position
+--[[
 local refresh_kraken = function(old_kraken)
   seed_global_xy()
 
@@ -319,7 +317,7 @@ local refresh_kraken = function(old_kraken)
   -- If we were not given the tile array of the previous kraken, we grab all the water tiles
   local tiles = {}
   if old_kraken == nil then
-    old_tiles = surface.find_tiles_filtered { name = 'deepwater-green' }
+    local old_tiles = surface.find_tiles_filtered { name = 'deepwater-green' }
     local i = 1
     for _, t in pairs(old_tiles) do
       tiles[i] = { name = 'water', position = t.position }
@@ -339,7 +337,7 @@ local refresh_kraken = function(old_kraken)
   surface.set_tiles(tiles, true)
 
   -- put tiles for the new kraken limit
-  local tiles = {}
+  tiles = {}
   local i = 1
   for dx = -1, 0 do
     for dy = -silo_radius - 150, silo_radius + 150 do
@@ -349,6 +347,7 @@ local refresh_kraken = function(old_kraken)
   end
   surface.set_tiles(tiles, true)
 end
+]]
 
 local move_silo = function(amount, contributor, on_launch)
   seed_global_xy() -- We need to make sure that X/Y are seesed (in case someone moves the silo before moving)
@@ -403,7 +402,7 @@ local move_silo = function(amount, contributor, on_launch)
   local move_silo = ((math_abs(global.move_buffer) >= global.move_step or global.x + global.move_buffer >=
                         global.max_distance) and silo_empty)
   if move_silo then
-    local new_x = global.x
+    local new_x
     if global.x + global.move_buffer >= global.max_distance then -- We reach the "end"
       global.move_buffer = global.x + global.move_buffer - global.max_distance
       new_x = global.max_distance
@@ -418,7 +417,7 @@ local move_silo = function(amount, contributor, on_launch)
     end
 
     if new_x ~= global.x then -- If there is actually a move (if we call refresh_silo without moving X, Y will randomly jump anyway)
-      local str = ''
+      local str
       if new_x > global.x then
         str = 'Moved the silo forward by ' .. (new_x - global.x) .. ' tiles thanks to the meanness of ' ..
                   concat(global.plus_contributors, ', ')
@@ -522,6 +521,7 @@ local move_silo = function(amount, contributor, on_launch)
   end
 end
 
+--[[
 local move_kraken = function(amount, contributor)
   seed_global_xy() -- We need to make sure that X/Y are seeded (in case someone moves the silo before moving)
   local surface = RS.get_surface()
@@ -577,6 +577,7 @@ local move_kraken = function(amount, contributor)
     end
   end
 end
+]]
 
 Event.on_init(function()
   local ms = game.map_settings
@@ -630,7 +631,7 @@ Event.on_init(function()
   surface.force_generate_chunk_requests()
 
   seed_global_xy()
-  init_wall(death_world_boundary, wall_width)  
+  init_wall(death_world_boundary, wall_width)
   refresh_silo(false, nil)
 
   game.forces.player.chart(surface, { { -far_left - 32, -height * 16 }, { far_right + 32, height * 16 } })
@@ -654,7 +655,7 @@ local on_chunk_generated = function(event)
     local a
     if resource.position.x > death_world_boundary then
       a = ore_multiplier(resource.position.x - death_world_boundary)
-      -- else a = ore_multiplier(ore_base_quantity) end  
+      -- else a = ore_multiplier(ore_base_quantity) end
       if resource.prototype.resource_category == 'basic-fluid' then
         resource.amount = 3000 * 3 * a
       elseif resource.prototype.resource_category == 'basic-solid' then
@@ -766,11 +767,11 @@ Event.add(defines.events.on_rocket_launched, on_rocket_launched)
 -- == COMMANDS ================================================================
 
 Command.add('ping-silo',
-  { 
+  {
     description = 'Pings the silo\'s position on map',
     allowed_by_server = true
   },
-  function(args, player)
+  function(_, player)
     local surface = RS.get_surface()
     local msg = '[color=blue][mapkeeper][/color] Here you\'ll find a silo:'
     local silos = surface.find_entities_filtered { name = 'rocket-silo' }
