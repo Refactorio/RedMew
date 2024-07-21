@@ -9,7 +9,7 @@ local function play(players, sound_path)
     return
   end
   for _, player in pairs(players) do
-    if player and player.valid and player_wants_sounds(player.name) then
+    if player and player.valid then
       player.play_sound{ path = sound, volume_modifier = 1 }
     end
   end
