@@ -283,7 +283,6 @@ end
 
 Event.on_init(function()
   if Retailer.get_market_group_label('fish_market') ~= 'Market' then
-    log('--- CALLED ---')
     local fish_items = Retailer.get_items('fish_market')
 
     for _, prototype in pairs(fish_items) do
