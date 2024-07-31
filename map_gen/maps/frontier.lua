@@ -1,10 +1,11 @@
 local b = require 'map_gen.shared.builders'
+local Command = require 'utils.command'
 local Event = require 'utils.event'
+local Global = require 'utils.global'
 local math = require 'utils.math'
 local MGSP = require 'resources.map_gen_settings'
 local RS = require 'map_gen.shared.redmew_surface'
 local ScenarioInfo = require 'features.gui.info'
-local Command = require 'utils.command'
 
 local concat = table.concat
 local insert = table.insert
@@ -44,8 +45,8 @@ Config.player_create.starting_items = {
   { name = 'wood', count = 1 },
 }
 
-local silo_center = 1700 -- center point the silo will be to the right of spawn
-local silo_radius = 450 -- radius around center point the silo will be
+local silo_starting_x = 1700 -- center point the silo will be to the right of spawn
+--local silo_radius = 450 -- radius around center point the silo will be
 
 local height = 36 -- in chunks
 local left_boundary = 8 -- in chunks
@@ -54,7 +55,40 @@ local death_world_boundary = 11 * 32 -- point where the ores start getting riche
 local wall_width = 5
 
 local ore_base_quantity = 61 -- base ore quantity, everything is scaled up from this
-local ore_chunk_scale = 32 -- sets how fast the ore will increase from spawn, lower = faster
+local ore_chunk_scale = 32   -- sets how fast the ore will increase from spawn, lower = faster
+
+local _global = {
+  rocket_silo = nil,
+
+  -- Kraken handling
+  kraken_distance = 25, -- Where the kraken lives past the water boundary
+
+  kraken_contributors = {}, -- List of contributors so far (so that we can print when we actually move the silo)
+
+  -- Rockets/silo location management
+  rockets_to_win = 1,
+  rockets_launched = 0,
+  scenario_finished = false,
+
+  move_cost_ratio = 1,-- If the multipler is 2, you need to buy 2x the tiles to actually move 1x
+  move_step = 500, -- By default, we only move 500 tiles at a time
+
+  rocket_step = 500, -- How many "tiles" past the max distance adds a launch
+
+  rockets_per_death = 1, -- How many extra launch needed for each death
+
+  max_distance = 100000, -- By default, 100k tiles max to the right
+
+  move_cost_ratio_mult = 2, -- Be default, we increase the "cost" of a tile by 2
+  move_cost_step = 50000, -- Every 50k tiles move
+
+  move_buffer_ratio = 0, -- How many tiles we have moved since the last ratio multiplier
+  move_buffer = 0, -- How many tiles we haven't currently reflected (between +move_step and -move_step)
+  plus_contributors = {}, -- List of contributors so far (so that we can print when we actually move the silo)
+  minus_contributors = {}, -- List of contributors so far (so that we can print when we actually move the silo)
+}
+
+Global.register(_global, function(tbl) _global = tbl end)
 
 -- == MAP GEN =================================================================
 
@@ -95,51 +129,35 @@ water = b.fish(water, 0.075)
 green_water = b.change_tile(bounds, true, 'deepwater-green')
 
 map = b.choose(function(x) return x < -left_water_boundary end, water, bounds)
-map = b.choose(function(x) return math_floor(x) == -(global.kraken_distance + left_water_boundary + 1) end, green_water, map)
+map = b.choose(function(x) return math_floor(x) == -(_global.kraken_distance + left_water_boundary + 1) end, green_water, map)
 
 -- == EVENTS ==================================================================
 
--- passed the x distance from spawn and returns a number scaled up depending on how high it is
-local ore_multiplier = function(distance)
-  local a = math_max(1, math_abs(distance / ore_chunk_scale))
-  a = math_min(a, 100)
-  local multiplier = math_random(a, 4 + a)
-  return multiplier
-end
-
-local seed_global_xy = function()
-  if global.x == nil or global.y == nil then
-    -- math_random is fine for the jitter around x, but for y, we use the game tick... more random
-    global.x = silo_center + (game.tick + 12787132) % silo_radius - silo_radius / 2 -- math_random(silo_center, (silo_center+silo_radius))
-    global.y = game.tick % silo_radius - silo_radius / 2 --  math_random(-silo_radius, silo_radius)
-  end
-end
-
-local signstr = function(amount)
+local function signstr(amount)
   if amount > 0 then
     return '+' .. tostring(amount)
   end
   return tostring(amount)
 end
 
-local set_silo_tiles = function(surface)
-  -- put tiles around silo
+local function set_silo_tiles(entity)
+  local pos = entity.position
+  local surface = entity.surface
+  surface.request_to_generate_chunks(pos, 1)
+  surface.force_generate_chunk_requests()
+  
   local tiles = {}
-  local i = 1
-  for dx = -6, 6 do
-    for dy = -6, 6 do
-      tiles[i] = { name = 'concrete', position = { global.x + dx + 14, global.y + dy + 14 } }
-      i = i + 1
+  for x = -12, 12 do
+    for y = -12, 12 do
+      tiles[#tiles +1] = { name = 'hazard-concrete-left', position = { pos.x + x, pos.y + y}}
     end
   end
-  for df = -6, 6 do
-    tiles[i] = { name = 'hazard-concrete-left', position = { global.x + df + 14, global.y - 7 + 14 } }
-    tiles[i + 1] = { name = 'hazard-concrete-left', position = { global.x + df + 14, global.y + 7 + 14 } }
-    tiles[i + 2] = { name = 'hazard-concrete-left', position = { global.x - 7 + 14, global.y + df + 14 } }
-    tiles[i + 3] = { name = 'hazard-concrete-left', position = { global.x + 7 + 14, global.y + df + 14 } }
-    i = i + 4
+  for x = -8, 8 do
+    for y = -8, 8 do
+      tiles[#tiles +1] = { name = 'concrete', position = { pos.x + x, pos.y + y}}
+    end
   end
-  surface.set_tiles(tiles, true)
+  entity.surface.set_tiles(tiles, true)
 end
 
 local function init_wall(x, w)
@@ -162,24 +180,47 @@ local function init_wall(x, w)
   end
 end
 
--- Delete all silos, recreate 1 new one at the coordinate (preserve inventory)
-local refresh_silo = function(on_launch, old_silos)
-  seed_global_xy()
-
-  -- Remove all silos blindly, we count the output inventory so we don't lose science
+local function refresh_silo(on_launch)
   local surface = RS.get_surface()
+  local old_silo = _global.rocket_silo
+  local new_position = { _global.x, _global.y }
+  local new_silo
 
-  -- If we were not given a list of old silos, we work on all of them
-  if old_silos == nil then
-    old_silos = surface.find_entities_filtered { name = 'rocket-silo' }
+  for _, e in pairs(surface.find_entities_filtered{ position = new_position, radius = 20 }) do
+    if e.type == 'character' then
+      local find = surface.find_non_colliding_position
+      local pos = surface.find_non_colliding_position('character', { _global.x + 12, _global.y }, 5, 0.5),
+      if pos then
+        e.teleport(pos)
+      else
+        e.destroy()
+      end
+    else
+      e.destroy()
+    end
   end
+
+  if old_silo then
+    entity = old_silo.clone { position = new_position, force = old_silo.force, create_build_effect_smoke = true }
+    old_silo.destroy()
+  else
+    entity = surface.create_entity { name = 'rocket-silo', position = new_position, force = 'player', move_stuck_players = true }
+  end
+  entity.destructible = false
+  entity.minable = false
+  set_silo_tiles(entity)
+
+  if true then return end
+
+  local surface = RS.get_surface()
+  local entity = _global.rocket_silo
 
   local output_inventory = {}
   local rocket_inventory = {}
   local module_inventory = {}
   local rocket_parts = 0
 
-  for _, entity in pairs(old_silos) do
+  if entity and entity.valid do
     local i
     local input_inventory = {} -- We do not keep the input inventory when it jumps, otherwise it looks like we managed to get something in it after it moved
     local has_inventory = false -- Because #input_inventory is broken in lua ?!
@@ -262,7 +303,7 @@ local refresh_silo = function(on_launch, old_silos)
 
   -- Clean the destination area so we can actually create the silo there, hope you didn't have anything there
   for _, entity in pairs(surface.find_entities_filtered {
-    area = { { global.x + 10, global.y + 11 }, { global.x + 18, global.y + 19 } },
+    area = { { _global.x + 10, _global.y + 11 }, { _global.x + 18, _global.y + 19 } },
   }) do
     if entity.type ~= 'character' then
       entity.destroy()
@@ -271,7 +312,7 @@ local refresh_silo = function(on_launch, old_silos)
 
   -- Remove enemy bases
   for _, entity in pairs(game.surfaces[1].find_entities_filtered {
-    area = { { global.x + 7, global.y + 7 }, { global.x + 21, global.y + 21 } },
+    area = { { _global.x + 7, _global.y + 7 }, { _global.x + 21, _global.y + 21 } },
     force = 'enemy',
   }) do
     if entity.type ~= 'character' then
@@ -282,7 +323,7 @@ local refresh_silo = function(on_launch, old_silos)
   -- Create the silo first to create the chunk (otherwise tiles won't be settable)
   local silo = surface.create_entity {
     name = 'rocket-silo',
-    position = { global.x + 14, global.y + 14 },
+    position = { _global.x + 14, _global.y + 14 },
     force = 'player',
     move_stuck_players = true,
   }
@@ -304,65 +345,17 @@ local refresh_silo = function(on_launch, old_silos)
 
   silo.rocket_parts = rocket_parts
 
-  set_silo_tiles(surface)
+  set_silo_tiles(silo)
 end
-
--- Delete all kraken limit times, and recreate the boundary tiles at the new position
---[[
-local refresh_kraken = function(old_kraken)
-  seed_global_xy()
-
-  local surface = RS.get_surface()
-
-  -- If we were not given the tile array of the previous kraken, we grab all the water tiles
-  local tiles = {}
-  if old_kraken == nil then
-    local old_tiles = surface.find_tiles_filtered { name = 'deepwater-green' }
-    local i = 1
-    for _, t in pairs(old_tiles) do
-      tiles[i] = { name = 'water', position = t.position }
-      i = i + 1
-    end
-  else
-    -- else we fix the old tiles
-    local i = 1
-    for dx = -1, 0 do
-      for dy = -silo_radius - 150, silo_radius + 150 do
-        tiles[i] = { name = 'water', position = { -old_kraken - left_water_boundary + dx, dy } }
-        i = i + 1
-      end
-    end
-  end
-
-  surface.set_tiles(tiles, true)
-
-  -- put tiles for the new kraken limit
-  tiles = {}
-  local i = 1
-  for dx = -1, 0 do
-    for dy = -silo_radius - 150, silo_radius + 150 do
-      tiles[i] = { name = 'deepwater-green', position = { -global.kraken_distance - left_water_boundary + dx, dy } }
-      i = i + 1
-    end
-  end
-  surface.set_tiles(tiles, true)
-end
-]]
 
 local move_silo = function(amount, contributor, on_launch)
-  seed_global_xy() -- We need to make sure that X/Y are seesed (in case someone moves the silo before moving)
   local surface = RS.get_surface()
 
-  -- We limit ourselves to the last good position of the silo, to avoid 130ms worth of work
-  local old_silos = surface.find_entities_filtered {
-    area = { { global.x + 7, global.y + 7 }, { global.x + 21, global.y + 21 } },
-    name = 'rocket-silo',
-  }
+  local entity = _global.rocket_silo
+  local silo_empty = true
 
   -- Make sure that all the silos can be destroyed (we shouldn't have more than one, but just in case)
-  local silo_empty = true
   if not on_launch then -- When we do not launch (external request)
-    for _, entity in pairs(old_silos) do
       local i1 = entity.get_inventory(defines.inventory.rocket_silo_rocket)
       local i2 = entity.get_inventory(defines.inventory.assembling_machine_input)
       if (i1 ~= nil and i1.get_item_count() > 0) or -- Are there inputs (we don't move once someone puts something in it)
@@ -372,11 +365,10 @@ local move_silo = function(amount, contributor, on_launch)
           defines.entity_status.launching_rocket or (entity.rocket_parts or 0) > 0 then -- There are rocket parts made
         silo_empty = false
       end
-    end
   end
 
-  if global.x < global.max_distance then
-    local new_amount = math.floor((amount / global.move_cost_ratio) + 0.5)
+  if _global.x < _global.max_distance then
+    local new_amount = math.floor((amount / _global.move_cost_ratio) + 0.5)
     if new_amount == 0 then -- We make sure that we don't move by zero (if the donation is too small and the ratio too large)
       if amount > 0 then
         new_amount = 1
@@ -387,78 +379,58 @@ local move_silo = function(amount, contributor, on_launch)
     end
     amount = new_amount
   end -- We do not use the ratio once we are in add-rocket territory
-  global.move_buffer = global.move_buffer + amount
+  _global.move_buffer = _global.move_buffer + amount
 
-  -- Remember the caller
-  if amount ~= 0 and contributor ~= '' and contributor ~= nil then
-    if amount > 0 then
-      insert(global.plus_contributors, contributor .. '(+' .. amount .. ')')
-    else
-      insert(global.minus_contributors, contributor .. '(' .. amount .. ')')
-    end
-  end
 
   -- If it's enough to trigger a move and the silo is empty (or it was a launch in case we move "forcefully")
-  local move_silo = ((math_abs(global.move_buffer) >= global.move_step or global.x + global.move_buffer >=
-                        global.max_distance) and silo_empty)
+  local move_silo = ((math_abs(_global.move_buffer) >= _global.move_step or _global.x + _global.move_buffer >= _global.max_distance) and silo_empty)
   if move_silo then
     local new_x
-    if global.x + global.move_buffer >= global.max_distance then -- We reach the "end"
-      global.move_buffer = global.x + global.move_buffer - global.max_distance
-      new_x = global.max_distance
+    if _global.x + _global.move_buffer >= _global.max_distance then -- We reach the "end"
+      _global.move_buffer = _global.x + _global.move_buffer - _global.max_distance
+      new_x = _global.max_distance
     else
-      if global.x + global.move_buffer < -left_water_boundary + 30 then -- We are getting too close to water
-        global.move_buffer = global.x + global.move_buffer - (-left_water_boundary + 30)
+      if _global.x + _global.move_buffer < -left_water_boundary + 30 then -- We are getting too close to water
+        _global.move_buffer = _global.x + _global.move_buffer - (-left_water_boundary + 30)
         new_x = -left_water_boundary + 30
       else -- We moved "enough"
-        new_x = global.x + global.move_buffer
-        global.move_buffer = 0
+        new_x = _global.x + _global.move_buffer
+        _global.move_buffer = 0
       end
     end
 
-    if new_x ~= global.x then -- If there is actually a move (if we call refresh_silo without moving X, Y will randomly jump anyway)
-      local str
-      if new_x > global.x then
-        str = 'Moved the silo forward by ' .. (new_x - global.x) .. ' tiles thanks to the meanness of ' ..
-                  concat(global.plus_contributors, ', ')
-        if #global.minus_contributors > 0 then
-          str = str .. ' and despite the kindness of ' .. concat(global.minus_contributors, ', ')
-        end
+    if new_x ~= _global.x then -- If there is actually a move (if we call refresh-silo without moving X, Y will randomly jump anyway)
+      if new_x > _global.x then
+        game.print({'frontier.silo_forward', (new_x - _global.x)})
       else
-        str = 'Moved the silo backward by ' .. (new_x - global.x) .. ' tiles thanks to the kindness of ' ..
-                  concat(global.minus_contributors, ', ')
-        if #global.plus_contributors > 0 then
-          str = str .. ' and despite the meanness of ' .. concat(global.plus_contributors, ', ')
-        end
+        game.print({'frontier.silo_backward', (new_x - _global.x)})
       end
-      game.print(str)
 
-      global.plus_contributors = {}
-      global.minus_contributors = {}
-      global.x = new_x
-      global.y = math_random(-silo_radius, silo_radius)
-      refresh_silo(on_launch, old_silos) -- Effect the silo move
+      _global.x = new_x
+      _global.y = math_random(-silo_radius, silo_radius)
+      refresh_silo(on_launch)
 
-      if new_x >= global.max_distance then
-        game.print('We have reached the MAXIMUM DISTANCE! Every ' .. global.rocket_step ..
-                       ' tiles will now add one more launch to win.')
-        if global.move_buffer > 0 then
-          insert(global.plus_contributors, 'everyone(' .. global.move_buffer .. ')')
+      if new_x >= _global.max_distance then
+        game.print({'frontier.warning_max_distance', _global.rocket_step})
+        --[[
+        if _global.move_buffer > 0 then
+          insert(_global.plus_contributors, 'everyone(' .. _global.move_buffer .. ')')
           contributor = 'everyone'
-          amount = global.move_buffer
+          amount = _global.move_buffer
         end
+        ]]
       end
     else
-      move_silo = false -- We didn't actually move the silo
+      move_silo = false
     end
   end
 
   -- We reached the end, we now use the buffer to add rockets
-  if global.x >= global.max_distance then
-    local add_rocket = math.floor(global.move_buffer / global.rocket_step)
+  if _global.x >= _global.max_distance then
+    local add_rocket = math.floor(_global.move_buffer / _global.rocket_step)
     if add_rocket > 0 then
-      global.rockets_to_win = global.rockets_to_win + add_rocket
-      global.move_buffer = global.move_buffer % global.rocket_step
+      _global.rockets_to_win = _global.rockets_to_win + add_rocket
+      _global.move_buffer = _global.move_buffer % _global.rocket_step
 
       -- Build contributor lines
       local str_launch = tostring(add_rocket) .. ' extra launches'
@@ -466,33 +438,31 @@ local move_silo = function(amount, contributor, on_launch)
         str_launch = 'one extra launch'
       end
 
-      local str = 'Adding ' .. str_launch .. ' thanks to the meanness of ' .. concat(global.plus_contributors, ', ')
-      if #global.minus_contributors > 0 then
-        str = str .. ' and despite the kindness of ' .. concat(global.minus_contributors, ', ')
+      local str = 'Adding ' .. str_launch .. ' thanks to the meanness of ' .. concat(_global.plus_contributors, ', ')
+      if #_global.minus_contributors > 0 then
+        str = str .. ' and despite the kindness of ' .. concat(_global.minus_contributors, ', ')
       end
       game.print(str)
 
-      global.plus_contributors = {}
-      global.minus_contributors = {}
+      _global.plus_contributors = {}
+      _global.minus_contributors = {}
 
-      str = (global.rockets_to_win - global.rockets_launched) .. ' launches to go!'
-      if global.move_buffer > 0 then
-        str = str .. ' And already ' .. global.move_buffer .. ' tiles out of ' .. global.rocket_step ..
+      str = (_global.rockets_to_win - _global.rockets_launched) .. ' launches to go!'
+      if _global.move_buffer > 0 then
+        str = str .. ' And already ' .. _global.move_buffer .. ' tiles out of ' .. _global.rocket_step ..
                   ' towards an extra launch.'
       end
       game.print(str)
     else
       if amount > 0 then
-        game.print('Thanks to ' .. contributor .. ', we are now ' .. global.move_buffer .. ' (' .. amount ..
-                       ') tiles out of ' .. global.rocket_step .. ' towards the next launch.')
+        game.print('Thanks to ' .. contributor .. ', we are now ' .. _global.move_buffer .. ' (' .. amount .. ') tiles out of ' .. _global.rocket_step .. ' towards the next launch.')
       end
     end
   else -- We haven't reach the maximum distance, check if we should ack the contribution
     if amount ~= 0 and not move_silo then
-      local str1 = 'Thanks to ' .. contributor .. ', the silo will move by ' .. global.move_buffer .. ' (' ..
-                       signstr(amount) .. ') tiles'
-      if math.abs(global.move_buffer) < global.move_step then -- Below move threshold
-        game.print(str1 .. ' when we reach a total of ' .. global.move_step .. ' tiles.')
+      local str1 = 'Thanks to ' .. contributor .. ', the silo will move by ' .. _global.move_buffer .. ' (' .. signstr(amount) .. ') tiles'
+      if math.abs(_global.move_buffer) < _global.move_step then -- Below move threshold
+        game.print(str1 .. ' when we reach a total of ' .. _global.move_step .. ' tiles.')
       else
         game.print(str1 .. ' after the next launch.')
       end
@@ -500,84 +470,25 @@ local move_silo = function(amount, contributor, on_launch)
   end
 
   -- Keep track of the move forward for the purpose of multiplying cost
-  if amount ~= 0 and global.move_cost_step > 0 then
-    if global.x < global.max_distance then
-      global.move_buffer_ratio = global.move_buffer_ratio + amount
-      while global.move_buffer_ratio >= global.move_cost_step do
-        global.move_cost_ratio = global.move_cost_ratio * global.move_cost_ratio_mult
-        global.move_buffer_ratio = global.move_buffer_ratio - global.move_cost_step
-        local next_increment = global.move_cost_step - global.move_buffer_ratio
+  if amount ~= 0 and _global.move_cost_step > 0 then
+    if _global.x < _global.max_distance then
+      _global.move_buffer_ratio = _global.move_buffer_ratio + amount
+      while _global.move_buffer_ratio >= _global.move_cost_step do
+        _global.move_cost_ratio = _global.move_cost_ratio * _global.move_cost_ratio_mult
+        _global.move_buffer_ratio = _global.move_buffer_ratio - _global.move_cost_step
+        local next_increment = _global.move_cost_step - _global.move_buffer_ratio
         if next_increment < 0 then
           next_increment = 0
         end
-        game.print('You must now request ' .. global.move_cost_ratio .. ' tiles to actually move by one tile. In ' ..
-                       next_increment .. ' tiles, we\'ll multiply that cost by ' .. global.move_cost_ratio_mult ..
+        game.print('You must now request ' .. _global.move_cost_ratio .. ' tiles to actually move by one tile. In ' ..
+                       next_increment .. ' tiles, we\'ll multiply that cost by ' .. _global.move_cost_ratio_mult ..
                        ' again.')
       end
     else
-      global.move_cost_ratio = global.move_cost_ratio_mult ^ math_floor(global.max_distance / global.move_cost_step)
-      -- game.print("You must now request "..tostring(global.move_cost_ratio).." tiles to actually move by one tile. In "..tostring(next_increment).." tiles, we'll multiply that cost by "..tostring(global.move_cost_ratio_mult).." again.")
+      _global.move_cost_ratio = _global.move_cost_ratio_mult ^ math_floor(_global.max_distance / _global.move_cost_step)
     end
   end
 end
-
---[[
-local move_kraken = function(amount, contributor)
-  seed_global_xy() -- We need to make sure that X/Y are seeded (in case someone moves the silo before moving)
-  local surface = RS.get_surface()
-
-  amount = math_max(1, math_floor((amount / global.kraken_move_cost_ratio) + 0.5))
-  global.kraken_move_buffer = global.kraken_move_buffer + amount
-
-  -- Remember the caller
-  if amount ~= 0 and contributor ~= '' and contributor ~= nil then
-    insert(global.kraken_contributors, contributor .. '(+' .. amount .. ')')
-  end
-
-  -- If it's enough to trigger a move and the silo is empty (or it was a launch in case we move "forcefully")
-  local move_kraken = math_abs(global.kraken_move_buffer) >= global.kraken_move_step
-  if move_kraken then
-    local new_x = global.kraken_distance
-    local old_x = global.kraken_distance
-    -- We moved "enough"
-    new_x = global.kraken_distance + global.kraken_move_buffer
-    global.kraken_move_buffer = 0
-
-    local str = ''
-    str = 'The kraken was pushed back by ' .. (new_x - global.kraken_distance) .. ' tiles thanks to the kindness of ' ..
-              concat(global.kraken_contributors, ', ')
-    game.print(str)
-
-    global.kraken_contributors = {}
-    global.kraken_distance = new_x
-
-    refresh_kraken(old_x) -- Effect the silo move
-  else
-    if amount ~= 0 then
-      local str1 =
-          'Thanks to ' .. contributor .. ', the kraken will retreat by ' .. global.kraken_move_buffer .. ' (' ..
-              signstr(amount) .. ') tiles'
-      game.print(str1 .. ' when we reach a total of ' .. global.kraken_move_step .. ' tiles.')
-    end
-  end
-
-  -- Keep track of the move forward for the purpose of multiplying cost
-  if amount ~= 0 and global.kraken_move_cost_step > 0 then
-    global.kraken_move_buffer_ratio = global.kraken_move_buffer_ratio + amount
-    while global.kraken_move_buffer_ratio >= global.kraken_move_cost_step do
-      global.kraken_move_cost_ratio = global.kraken_move_cost_ratio * global.kraken_move_cost_ratio_mult
-      global.kraken_move_buffer_ratio = global.kraken_move_buffer_ratio - global.kraken_move_cost_step
-      local next_increment = global.kraken_move_cost_step - global.kraken_move_buffer_ratio
-      if next_increment < 0 then
-        next_increment = 0
-      end
-      game.print(
-          'You must now request ' .. global.kraken_move_cost_ratio .. ' tiles to actually move by one tile. In ' ..
-              next_increment .. ' tiles, we\'ll multiply that cost by ' .. global.move_cost_ratio_mult .. ' again.')
-    end
-  end
-end
-]]
 
 Event.on_init(function()
   local ms = game.map_settings
@@ -587,57 +498,20 @@ Event.on_init(function()
   ms.enemy_expansion.max_expansion_distance = 5
   ms.enemy_evolution.destroy_factor = 0.0001
 
-  -- Disable default victory and replace our own rocket launch screen (don't think it matters since we are replacing the silo-script entirely)
-  global.no_victory = true
-
-  -- Kraken handling
-  global.kraken_distance = 25 -- Where the kraken lives past the water boundary
-
-  global.kraken_move_cost_ratio = 10 -- If the multipler is 2, you need to buy 2x the tiles to actually move 1x
-  global.kraken_move_step = 5 -- By default, we only move 500 tiles at a time
-
-  global.kraken_move_cost_ratio_mult = 4 -- Be default, we increase the "cost" of a tile by 2
-  global.kraken_move_cost_step = 10 -- Every 50k tiles move
-
-  global.kraken_move_buffer_ratio = 0 -- How many tiles we have moved since the last ratio multiplier
-  global.kraken_move_buffer = 0 -- How many tiles we haven't currently reflected (between +move_step and -move_step)
-  global.kraken_contributors = {} -- List of contributors so far (so that we can print when we actually move the silo)
-
-  -- Rockets/silo location management
-  global.rockets_to_win = 1
-  global.rockets_launched = 0
-  global.scenario_finished = false
-
-  global.move_cost_ratio = 1 -- If the multipler is 2, you need to buy 2x the tiles to actually move 1x
-  global.move_step = 500 -- By default, we only move 500 tiles at a time
-
-  global.rocket_step = 500 -- How many "tiles" past the max distance adds a launch
-
-  global.rockets_per_death = 1 -- How many extra launch needed for each death
-
-  global.max_distance = 100000 -- By default, 100k tiles max to the right
-
-  global.move_cost_ratio_mult = 2 -- Be default, we increase the "cost" of a tile by 2
-  global.move_cost_step = 50000 -- Every 50k tiles move
-
-  global.move_buffer_ratio = 0 -- How many tiles we have moved since the last ratio multiplier
-  global.move_buffer = 0 -- How many tiles we haven't currently reflected (between +move_step and -move_step)
-  global.plus_contributors = {} -- List of contributors so far (so that we can print when we actually move the silo)
-  global.minus_contributors = {} -- List of contributors so far (so that we can print when we actually move the silo)
-
   local surface = RS.get_surface()
-  local far_left, far_right = global.kraken_distance + left_water_boundary + 1, death_world_boundary + wall_width
+  local far_left, far_right = _global.kraken_distance + left_water_boundary + 1, death_world_boundary + wall_width
   surface.request_to_generate_chunks({ x = 0, y = 0 }, math.ceil(math_max(far_left, far_right, height * 32) / 32))
   surface.force_generate_chunk_requests()
 
-  seed_global_xy()
+  local max_height = (height * 32) - 16
+  _global.x = silo_starting_x + math.random(100)
+  _global.y = math.random(-max_height, max_height)
+  refresh_silo()
   init_wall(death_world_boundary, wall_width)
-  refresh_silo(false, nil)
 
   game.forces.player.chart(surface, { { -far_left - 32, -height * 16 }, { far_right + 32, height * 16 } })
 end)
 
--- When a new chunk is created, we make sure it's the right type based on the various region of the map (water, clear space, wall and the rest)
 local on_chunk_generated = function(event)
   if event.surface.name ~= RS.get_surface().name then
     return
@@ -650,23 +524,21 @@ local on_chunk_generated = function(event)
     end
   end
 
-  -- based off Frontier scenario, it scales freshly generated ore by a scale factor
+  -- scale freshly generated ore by a scale factor
   for _, resource in pairs(event.surface.find_entities_filtered { area = event.area, type = 'resource' }) do
-    local a
     if resource.position.x > death_world_boundary then
-      a = ore_multiplier(resource.position.x - death_world_boundary)
-      -- else a = ore_multiplier(ore_base_quantity) end
+      local chunks = math.clamp(math_abs((resource.position.x - death_world_boundary) / ore_chunk_scale), 1, 100)
+      chunks = math_random(chunks, chunks + 4)
       if resource.prototype.resource_category == 'basic-fluid' then
-        resource.amount = 3000 * 3 * a
+        resource.amount = 3000 * 3 * chunks
       elseif resource.prototype.resource_category == 'basic-solid' then
-        resource.amount = ore_base_quantity * a
+        resource.amount = ore_base_quantity * chunks
       end
     end
   end
 end
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)
 
--- Make sure rocket-silo research is never enabled
 local on_research_finished = function(event)
   local recipes = event.research.force.recipes
   if recipes['rocket-silo'] then
@@ -675,8 +547,6 @@ local on_research_finished = function(event)
 end
 Event.add(defines.events.on_research_finished, on_research_finished)
 
--- Make sure we catch players going off-bound and ... KRAKEN
--- Also use the first time a player moves as our "randomness" for initial silo position
 local on_player_died = function(event)
   local player = game.get_player(event.player_index)
   local cause = event.cause
@@ -687,7 +557,7 @@ local on_player_died = function(event)
     return
   end
 
-  if global.rockets_per_death <= 0 then
+  if _global.rockets_per_death <= 0 then
     return
   end
 
@@ -696,36 +566,27 @@ local on_player_died = function(event)
     player_name = player.name
   end
 
-  -- Build player death lines
-  local add_rocket = global.rockets_per_death
-
-  global.rockets_to_win = global.rockets_to_win + add_rocket
-  if global.rockets_to_win < 1 then
-    global.rockets_to_win = 1
+  _global.rockets_to_win = _global.rockets_to_win + _global.rockets_per_death
+  if _global.rockets_to_win < 1 then
+    _global.rockets_to_win = 1
   end
 
-  -- game.print("Rocket launches to win: " .. tostring(global.rockets_to_win).." with "..tostring(global.rockets_launched).." launches so far.")
-
-  local str_launch = add_rocket .. ' extra launches'
-  if add_rocket == 1 then
-    str_launch = 'one extra launch'
-  end
-
-  game.print('Adding ' .. str_launch .. ' thanks to the death of ' .. player_name)
-  game.print((global.rockets_to_win - global.rockets_launched) .. ' launches to go!')
+  game.print({'frontier.add_rocket', _global.rockets_per_death, player_name, (_global.rockets_to_win - _global.rockets_launched)})
 end
 Event.add(defines.events.on_player_died, on_player_died)
 
--- Make sure we catch players going off-bound and ... KRAKEN
--- Also use the first time a player moves as our "randomness" for initial silo position
 local on_player_changed_position = function(event)
-  local player = game.players[event.player_index]
-  if player.position.x < (-left_water_boundary - global.kraken_distance) then
-    local player_name = 'A player'
+  local player = game.get_player(event.player_index)
+  if not (player and player.valid) then
+    return
+  end
+
+  if player.position.x < (-left_water_boundary - _global.kraken_distance) then
+    local player_name = 'a player'
     if player.character ~= nil then
       player_name = player.name
     end
-    game.print(player_name .. ' was eaten by a Kraken!!!', { sound_path = 'utility/game_lost' })
+    game.print({'frontier.kraken_eat', player_name}, { sound_path = 'utility/game_lost' })
     if player.character ~= nil then
       player.character.die()
     end
@@ -741,25 +602,21 @@ local on_rocket_launched = function(event)
 
   local force = rocket.force
 
-  global.scenario_finished = global.scenario_finished or false
-  if global.scenario_finished then
+  _global.scenario_finished = _global.scenario_finished or false
+  if _global.scenario_finished then
     return
   end
 
-  global.rockets_launched = global.rockets_launched + 1
+  _global.rockets_launched = _global.rockets_launched + 1
 
-  if global.rockets_launched >= global.rockets_to_win then
-    global.scenario_finished = true
+  if _global.rockets_launched >= _global.rockets_to_win then
+    _global.scenario_finished = true
 
     game.set_game_state { game_finished = true, player_won = true, can_continue = true, victorious_force = force }
-
-    -- No more silo moves, we are done!
     return
   end
 
-  game.print('Rocket launches so far: ' .. global.rockets_launched .. ', ' .. (global.rockets_to_win - global.rockets_launched) .. ' to go!.', { sound_path = 'utility/scenario_message'})
-
-  -- A rocket was launched, we should check if there are deferred moves to do (and we do them no matter the inventory)
+  game.print({'frontier.rocket_launched', _global.rockets_launched, (_global.rockets_to_win - _global.rockets_launched) })
   move_silo(0, '', true)
 end
 Event.add(defines.events.on_rocket_launched, on_rocket_launched)
@@ -773,7 +630,7 @@ Command.add('ping-silo',
   },
   function(_, player)
     local surface = RS.get_surface()
-    local msg = '[color=blue][mapkeeper][/color] Here you\'ll find a silo:'
+    local msg = '[color=blue][Mapkeeper][/color] Here you\'ll find a silo:'
     local silos = surface.find_entities_filtered { name = 'rocket-silo' }
     for _, s in pairs(silos) do
       msg = msg .. string.format(' [gps=%d,%d,%s]', s.position.x, s.position.y, surface.name)
