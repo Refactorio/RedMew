@@ -2,7 +2,7 @@ local b = require 'map_gen.shared.builders'
 local Event = require 'utils.event'
 local Generate = require 'map_gen.shared.generate'
 local Global = require 'utils.global'
-local Price_raffle = require 'map_gen.maps.danger_ores.modules.price_raffle'
+local PriceRaffle = require 'resources.price_raffle'
 local RS = require 'map_gen.shared.redmew_surface'
 local table = require 'utils.table'
 local Task = require 'utils.task'
@@ -142,7 +142,7 @@ return function(config)
   local function get_remaining_budget(chest)
     local budget = 0
     for _, item_stack in pairs(chest.price) do
-      budget = budget + (item_stack.count * Price_raffle.get_item_worth(item_stack.name))
+      budget = budget + (item_stack.count * PriceRaffle.get_item_worth(item_stack.name))
     end
     return budget
   end
@@ -235,7 +235,7 @@ return function(config)
       for _ = 1, roll_count do
         local value = math.floor(cell_value / roll_count)
         local max_item_value = math.max(4, cell_value / (roll_count * 6))
-        for _, stack in pairs(Price_raffle.roll(value, 3, nil, max_item_value)) do
+        for _, stack in pairs(PriceRaffle.roll(value, 3, nil, max_item_value)) do
           if not item_stacks[stack.name] then
             item_stacks[stack.name] = stack.count
           else
