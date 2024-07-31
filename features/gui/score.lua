@@ -75,7 +75,7 @@ local function schedule_redraw_score()
     memory.redraw_score_scheduled = true
 end
 
-local function get_modded_sprite()
+local function get_score_sprite()
     if script.active_mods['Krastorio2'] then
         return 'achievement/100000-matter'
     end
@@ -92,7 +92,7 @@ local function player_created(event)
         {
             type = 'sprite-button',
             name = main_button_name,
-            sprite = get_modded_sprite(),
+            sprite = get_score_sprite(),
             tooltip = {'score.tooltip'}
         }
     )
