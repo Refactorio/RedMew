@@ -444,10 +444,12 @@ return function(config)
         radius = 1,
         type = 'corpse'}
       ) do corpse.destroy() end
-      surface.create_entity{name = 'tree-0'..math.random(9), position = entity.position}
+      local tree = surface.create_entity{name = 'tree-0'..math.random(9), position = entity.position}
+      tree.destructible = false
     elseif entity.type == 'simple-entity' then
       local rock = surface.create_entity{name = 'rock-huge', position = entity.position, move_stuck_players = true}
       rock.graphics_variation = math.random(16)
+      rock.destructible = false
       surface.spill_item_stack(entity.position, {name = ROCK_RESOURCES[math.random(#ROCK_RESOURCES)], count = math.random(80, 160)}, true, nil, true)
       surface.spill_item_stack(entity.position, {name = 'stone', count = math.random(5, 15)}, true, nil, true)
     end
@@ -473,8 +475,10 @@ return function(config)
     rs.request_to_generate_chunks({0, 0}, start_size / 32 + 1)
     rs.force_generate_chunk_requests()
 
-    rs.create_entity{name = 'tree-01', position = {0, -8}}
-    rs.create_entity{name = 'rock-huge', position = {0, 8}}
+    local e = rs.create_entity{name = 'tree-01', position = {0, -8}}
+    e.destructible = false
+    e = rs.create_entity{name = 'rock-huge', position = {0, 8}}
+    e.destructible = false
     local oil = rs.create_entity{name = 'crude-oil', position = {-8, 0}}
     oil.amount, oil.initial_amount = 3e5, 3e7
 
