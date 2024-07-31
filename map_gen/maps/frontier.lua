@@ -9,8 +9,6 @@ local RS = require 'map_gen.shared.redmew_surface'
 local ScenarioInfo = require 'features.gui.info'
 local Toast = require 'features.gui.toast'
 
-local concat = table.concat
-local insert = table.insert
 local math_random = math.random
 local math_max = math.max
 local math_min = math.min
@@ -24,15 +22,32 @@ local math_floor = math.floor
 
 ScenarioInfo.set_map_name('Frontier')
 ScenarioInfo.set_map_description([[
-  [font=default-bold]Welcome to Frontier![/font]
+Key features:
+  -[font=default-bold]The Abyssal Waters[/font]: navigate the left side's vast oceans, where you can gather exotic materials and discover hidden treasures beneath the surface. Beware of the creatures that call this watery home, for they are unpredictable and vicious.
 
-  You are stranded between an ocean and a land infested with exceptionally aggressive biters and your only defense is a mysterious wall which up until now has kept the biters from completely overrunning the land.
-  Somewhere behind the wall is a rocket silo where you can escape the nightmare of biters.
+  -[font=default-bold]The Impenetrable Wall[/font]: this colossal barrier stands as both a shield and a menace. It represents safety from the constant threats of the biters, yet it is also a reminder of the dangers that lie just out of reach. Use it to your advantage—duel with enemies at the wall to protect your territory.
 
-  Good luck, have fun.
-  The [color=red]RedMew[/color] team
+  -[font=default-bold]The Biter Swamplands[/font]: venture to the right at your peril, where the land bleeds into shifting, hostile territory ruled by the biters. Strategically plan your defenses to unleash devastating counterattacks and provide a path for resource gathering.
+
+  -[font=default-bold]The Rocket Silo[/font]: strategically positioned amidst the turmoil, the Rocket Silo embodies your ambition and hope for escape. Get there and launch your escape plan, or watch as your dreams are devoured by the insatiable swarms.
+
+Prepare yourself—your journey begins now. Welcome to Frontier!
+
+The [color=red]RedMew[/color] team
 ]])
-ScenarioInfo.set_map_extra_info('Watch out for the Kraken!')
+ScenarioInfo.set_map_extra_info([[
+As you emerge in the center of this striking ribbon world, an expansive body of shimmering water stretches to your left, a serene yet foreboding reminder of the untouchable depth that lies beyond. The aquatic expanse is teeming with alien flora and fauna, a biodiversity that seems both mesmerizing and perilous. Use the resources from this lush environment wisely—freshwater and unique aquatic materials could be the keys to your survival and civilization.
+
+To the right, however, lies an ominous fate. Towering endlessly, an unforgiving wall of stone rises beneath a swirling sky, marking the boundary between your fledgling civilization and an unforgiving deathworld beyond. Beyond this monumental barrier swarms a frenzied population of biters—ferocious creatures drawn to your very existence. The relentless horde thrives in the chaotic biome that is both beautiful and horrifying, embodying the resilience and danger of an alien ecosystem. They sense the life you're trying to cultivate and will stop at nothing to obliterate your efforts.
+
+Your mission, should you choose to accept it, is to journey through this ribbon of civilization, gathering resources from your surroundings, forging alliances with the unique native species, and constructing an array of machines and defenses. Your ultimate goal is to reach the Rocket Silo located daringly in the heart of the enemy territory—a beacon of hope amidst chaos.
+
+In [font=default-bold]Frontier[/font], your wits will be tested as you evolve from a mere survivor to an engineering genius capable of taming the land and launching your final escape. Build a thriving factory, and prepare to conquer both nature and the relentless horde in a race against time. But remember, the frontier waits for no one. Will you make your mark on this alien world or become another lost tale in the void of space?
+]])
+ScenarioInfo.set_new_info([[
+  2024-07-31:
+    - Added Frontier
+]])
 
 --- Config
 local Config = global.config
@@ -135,7 +150,7 @@ local function set_silo_tiles(entity)
   local surface = entity.surface
   surface.request_to_generate_chunks(pos, 1)
   surface.force_generate_chunk_requests()
-  
+
   local tiles = {}
   for x = -12, 12 do
     for y = -12, 12 do
@@ -189,7 +204,6 @@ local function move_silo(position)
 
   for _, e in pairs(surface.find_entities_filtered{ position = new_position, radius = 15 }) do
     if e.type == 'character' then
-      local find = surface.find_non_colliding_position
       local pos = surface.find_non_colliding_position('character', { new_position.x + 12, new_position.y }, 5, 0.5)
       if pos then
         e.teleport(pos)
@@ -200,7 +214,7 @@ local function move_silo(position)
       e.destroy()
     end
   end
-  
+
   if old_silo then
     local result_inventory = old_silo.get_output_inventory().get_contents()
     new_silo = old_silo.clone { position = new_position, force = old_silo.force, create_build_effect_smoke = true }
@@ -345,9 +359,9 @@ local function on_entity_died(event)
   end
 
   if math_random(1, 128) == 1 then budget = budget * 4 end
-  if math_random(1, 256) == 1 then budget = budget * 4 end  
+  if math_random(1, 256) == 1 then budget = budget * 4 end
   budget = budget * _g.loot_richness
-  
+
   local chest = entity.surface.create_entity { name = 'steel-chest', position = entity.position, force = 'player', move_stuck_players = true }
   chest.destructible = false
   for i = 1, 3 do
@@ -425,7 +439,6 @@ local function on_rocket_launched(event)
     return
   end
 
-  local force = rocket.force
   if _g.scenario_finished then
     return
   end
