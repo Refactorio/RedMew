@@ -95,7 +95,6 @@ local function player_created(event)
             sprite = 'entity/' .. alien_name,
             number = evolution_factor * 100,
             tooltip = {'evolution_progress.tooltip'},
-            enabled = false
         }
     )
 end

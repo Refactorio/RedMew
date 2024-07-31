@@ -75,6 +75,13 @@ local function schedule_redraw_score()
     memory.redraw_score_scheduled = true
 end
 
+local function get_score_sprite()
+    if script.active_mods['Krastorio2'] then
+        return 'achievement/100000-matter'
+    end
+    return 'achievement/there-is-no-spoon'
+end
+
 local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player then
@@ -85,7 +92,7 @@ local function player_created(event)
         {
             type = 'sprite-button',
             name = main_button_name,
-            sprite = 'achievement/there-is-no-spoon',
+            sprite = get_score_sprite(),
             tooltip = {'score.tooltip'}
         }
     )
