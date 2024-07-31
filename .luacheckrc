@@ -988,6 +988,7 @@ stds.factorio_defines = {
                         'no_input_fluid',
                         'no_research_in_progress',
                         'no_minable_resources',
+                        'launching_rocket',
                         'low_input_fluid',
                         'low_power',
                         'disabled_by_control_behavior',
@@ -999,6 +1000,8 @@ stds.factorio_defines = {
                         'marked_for_deconstruction',
                         'missing_required_fluid',
                         'missing_science_packs',
+                        'preparing_rocket_for_launch',
+                        'waiting_to_launch_rocket',
                         'waiting_for_source_items',
                         'waiting_for_space_in_destination',
                     }
