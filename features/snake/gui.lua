@@ -11,10 +11,11 @@ local function show_gui_for_player(player)
         return
     end
 
-    local top = player.gui.top
-    if not top[main_button_name] then
-        top.add {type = 'button', name = main_button_name, caption = {'snake.name'}}
-    end
+    Gui.get_top_element(player, {
+        type = 'button',
+        name = main_button_name,
+        caption = {'snake.name'}
+    })
 end
 
 local function player_created(event)
@@ -34,7 +35,7 @@ end
 
 function Public.destroy()
     for _, player in pairs(game.players) do
-        local button = player.gui.top[main_button_name]
+        local button = Gui.get_top_element(player, main_button_name)
         if button and button.valid then
             button.destroy()
         end

@@ -11,18 +11,13 @@ local main_frame_name = Gui.uid_name()
 
 local Public = {}
 
-local function close_main_frame(frame, player)
-    Gui.destroy(frame)
-    player.gui.top[main_button_name].style = 'slot_button'
-end
-
 local function player_created(event)
     local player = game.get_player(event.player_index)
     if not player or not player.valid then
         return
     end
 
-    player.gui.top.add(
+    Gui.add_top_element(player,
         {
             type = 'sprite-button',
             name = main_button_name,
@@ -41,7 +36,7 @@ local function player_joined(event)
     local main_frame = player.gui.center[main_frame_name]
 
     if main_frame and main_frame.valid then
-        close_main_frame(main_frame, player)
+        Gui.destroy(main_frame)
     end
 end
 
@@ -180,18 +175,11 @@ local function toggle(event)
     local gui = player.gui
     local center = gui.center
     local main_frame = center[main_frame_name]
-    local main_button = gui.top[main_button_name]
 
     if main_frame then
-        close_main_frame(main_frame, player)
+        Gui.destroy(main_frame)
     else
         draw_main_frame(center, player)
-
-        main_button.style = 'highlighted_tool_button'
-        local style = main_button.style
-        style.width = 40
-        style.height = 40
-        style.padding = 0
     end
 end
 
@@ -239,7 +227,7 @@ local function save_changes(event)
     local main_frame = player.gui.center[main_frame_name]
 
     if main_frame then
-        close_main_frame(main_frame, player)
+        Gui.destroy(main_frame)
     end
 end
 
@@ -282,7 +270,7 @@ end
 Gui.on_custom_close(
     main_frame_name,
     function(event)
-        close_main_frame(event.element, event.player)
+        Gui.destroy(event.element)
     end
 )
 

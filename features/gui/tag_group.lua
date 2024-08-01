@@ -142,7 +142,7 @@ local function player_created(event)
         return
     end
 
-    player.gui.top.add(
+    Gui.add_top_element(player,
         {
             name = main_button_name,
             type = 'sprite-button',
@@ -219,14 +219,12 @@ local function draw_main_frame_content(parent)
 end
 
 local function draw_main_frame(player)
-    local left = player.gui.left
-    local main_frame =
-        left.add {
+    local main_frame = Gui.add_left_element(player, {
         type = 'frame',
         name = main_frame_name,
         caption = {'tag_group.choose_your_tag'},
         direction = 'vertical'
-    }
+    })
 
     main_frame.style.maximal_height = 500
     main_frame.style.maximal_width = 500
@@ -276,7 +274,7 @@ end
 
 local function redraw_main_frame()
     for _, p in pairs(game.players) do
-        local main_frame = p.gui.left[main_frame_name]
+        local main_frame = Gui.get_left_element(p, main_frame_name)
         if main_frame and main_frame.valid then
             local content = main_frame[main_frame_content_name]
 
@@ -291,7 +289,7 @@ local function redraw_main_frame()
 end
 
 local function redraw_main_button(player, path)
-    local main_button = player.gui.top[main_button_name]
+    local main_button = Gui.get_top_element(player, main_button_name)
 
     if path == '' or path == nil then
         main_button.sprite = 'utility/pump_cannot_connect_icon'
@@ -304,22 +302,12 @@ end
 
 local function toggle(event)
     local player = event.player
-    local gui = player.gui
-    local left = gui.left
-    local main_frame = left[main_frame_name]
-    local main_button = gui.top[main_button_name]
+    local main_frame = Gui.get_left_element(player, main_frame_name)
 
     if main_frame then
         Gui.destroy(main_frame)
-        main_button.style = 'slot_button'
     else
         draw_main_frame(event.player)
-
-        main_button.style = 'highlighted_tool_button'
-        local style = main_button.style
-        style.width = 40
-        style.height = 40
-        style.padding = 0
     end
 end
 
@@ -772,7 +760,7 @@ Event.add(
 
         no_notify_players[player_index] = no_notify
 
-        local frame = player.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(player, main_frame_name)
         if not frame then
             return
         end

@@ -22,12 +22,12 @@ local function player_created(event)
         return
     end
 
-    player.gui.top.add {
+    Gui.add_top_element(player, {
         type = 'sprite-button',
         name = main_button_name,
         sprite = 'item/piercing-rounds-magazine',
         tooltip = {'autofill.main_button_tooltip'}
-    }
+    })
 end
 
 local function update_ammo_button(button, name, enabled)
@@ -42,23 +42,12 @@ end
 local function toggle_main_frame(event)
     local player = event.player
     local player_index = player.index
-    local gui = player.gui
-    local left = gui.left
-    local frame = left[main_frame_name]
-    local main_button = gui.top[main_button_name]
+    local frame = Gui.get_left_element(player, main_frame_name)
 
     if frame then
         Gui.destroy(frame)
-        main_button.style = 'slot_button'
     else
-        main_button.style = 'highlighted_tool_button'
-        local style = main_button.style
-        style.width = 40
-        style.height = 40
-        style.padding = 0
-
-        frame =
-            left.add {type = 'frame', name = main_frame_name, caption = {'autofill.frame_name'}, direction = 'vertical'}
+        frame = Gui.add_left_element(player, { type = 'frame', name = main_frame_name, caption = {'autofill.frame_name'}, direction = 'vertical' })
 
         local enabled_checkbox =
             frame.add {
@@ -160,7 +149,7 @@ local function settings_changed(event)
             return
         end
 
-        local frame = player.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(player, main_frame_name)
         if not frame then
             return
         end
@@ -176,7 +165,7 @@ local function settings_changed(event)
             return
         end
 
-        local frame = player.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(player, main_frame_name)
         if not frame then
             return
         end

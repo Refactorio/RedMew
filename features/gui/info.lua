@@ -594,7 +594,6 @@ end
 local function close_main_frame(frame, player)
     upload_changelog(player)
     Gui.destroy(frame)
-    player.gui.top[main_button_name].style = 'slot_button'
 end
 
 local function reward_player(player, index, message)
@@ -625,17 +624,10 @@ local function toggle(event)
     local gui = player.gui
     local center = gui.center
     local main_frame = center[main_frame_name]
-    local main_button = gui.top[main_button_name]
 
     if main_frame then
         close_main_frame(main_frame, player)
     else
-        main_button.style = 'highlighted_tool_button'
-        local style = main_button.style
-        style.width = 40
-        style.height = 40
-        style.padding = 0
-
         draw_main_frame(center, player)
     end
 end
@@ -646,7 +638,7 @@ local function player_created(event)
         return
     end
 
-    player.gui.top.add({
+    Gui.add_top_element(player, {
         type = 'sprite-button',
         name = main_button_name,
         sprite = 'virtual-signal/signal-info',

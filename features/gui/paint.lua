@@ -89,7 +89,7 @@ local function player_build_tile(event)
         return
     end
 
-    if not player.gui.left[main_frame_name] then
+    if not Gui.get_left_element(player, main_frame_name) then
         refund_tiles(player, event.tiles)
         return
     end
@@ -193,7 +193,7 @@ local function player_created(event)
         return
     end
 
-    player.gui.top.add(
+    local b = Gui.add_top_element(player,
         {
             name = main_button_name,
             type = 'sprite-button',
@@ -201,6 +201,7 @@ local function player_created(event)
             tooltip = {'paint.tooltip'}
         }
     )
+    b.style.padding = 2
 end
 
 local function draw_filters_table(event)
@@ -242,28 +243,17 @@ end
 
 local function toggle(event)
     local player = event.player
-    local gui = player.gui
-    local left = gui.left
-    local main_frame = left[main_frame_name]
-    local main_button = gui.top[main_button_name]
+    local main_frame = Gui.get_left_element(player, main_frame_name)
 
     if main_frame and main_frame.valid then
         Gui.destroy(main_frame)
-        main_button.style = 'slot_button'
     else
-        main_button.style = 'highlighted_tool_button'
-        local style = main_button.style
-        style.width = 40
-        style.height = 40
-        style.padding = 0
-
-        main_frame =
-            left.add {
+        main_frame = Gui.add_left_element(player,  {
             type = 'frame',
             name = main_frame_name,
             direction = 'vertical',
             caption = {'paint.frame_name'}
-        }
+        })
 
         local top_flow = main_frame.add {type = 'flow', direction = 'horizontal'}
 

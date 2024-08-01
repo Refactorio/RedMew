@@ -65,7 +65,7 @@ local function get_alien_name(evolution_factor)
 end
 
 local function update_gui(player)
-    local button = player.gui.top[main_button_name]
+    local button = Gui.get_top_element(player, main_button_name)
     if button and button.valid then
         local evolution_factor = get_evolution_percentage()
         local evolution_button_number = evolution_factor * 100
@@ -88,7 +88,7 @@ local function player_created(event)
     local evolution_factor = get_evolution_percentage()
     local alien_name = get_alien_name(evolution_factor)
 
-    player.gui.top.add(
+    Gui.add_top_element(player,
         {
             name = main_button_name,
             type = 'sprite-button',

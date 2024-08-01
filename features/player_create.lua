@@ -43,11 +43,6 @@ local function player_created(event)
         return
     end
 
-    -- ensure the top menu is correctly styled
-    local gui = player.gui
-    gui.top.style = 'slot_table_spacing_horizontal_flow'
-    gui.left.style = 'slot_table_spacing_vertical_flow'
-
     if not config.cutscene then
         Public.show_start_up(player)
     end
