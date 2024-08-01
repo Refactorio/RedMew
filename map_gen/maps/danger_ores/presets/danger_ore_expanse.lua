@@ -27,15 +27,18 @@ ScenarioInfo.add_map_extra_info([[
   [item=burner-mining-drill] [item=electric-mining-drill] [item=pumpjack] [item=small-electric-pole] [item=medium-electric-pole] [item=big-electric-pole] [item=substation] [item=car] [item=tank] [item=spidertron] [item=locomotive] [item=cargo-wagon] [item=fluid-wagon] [item=artillery-wagon]
   [item=transport-belt] [item=fast-transport-belt] [item=express-transport-belt]  [item=underground-belt] [item=fast-underground-belt] [item=express-underground-belt] [item=rail] [item=rail-signal] [item=rail-chain-signal] [item=train-stop]
 
-  The map size is restricted by the Hugry Chests. Provide the requested matrials to unlock new chunks.
+  The map size is restricted by the Hungry Chests. Provide the requested materials to unlock new chunks.
   Use the Elder Tree [entity=tree-01], the Infinity Rock [entity=rock-huge], and the Precious Oil patch [entity=crude-oil] located at spawn [gps=0,0.redmew]
   to draw more resources when in need, but always favor Danger Ores first if you can.
   If you find yourself stuck with the requests, insert a Coin [item=coin] into the Hungry Chest [item=logistic-chest-requester] to reroll the request.
-  You can fulfill part of the request & then reroll to change the remeinig part (it will always reroll based on its remaining content to be fulfilled).
+  You can fulfill part of the request & then reroll to change the remaining part (it will always reroll based on its remaining content to be fulfilled).
   Unlocking new land may or may not reward you with another Coin.
 ]])
 
 ScenarioInfo.set_new_info([[
+2024-08-01:
+  - Fixed allowed entities list with Mk2-3 drills
+  - Fixed typos in description
 2024-04-08:
   - Forked from DO/terraforming
   - Added DO/expanse
@@ -59,7 +62,7 @@ local enemy = require 'map_gen.maps.danger_ores.modules.enemy'
 --local dense_patches = require 'map_gen.maps.danger_ores.modules.dense_patches'
 
 local banned_entities = require 'map_gen.maps.danger_ores.modules.banned_entities'
-local allowed_entities = require 'map_gen.maps.danger_ores.config.vanilla_allowed_entities'
+local allowed_entities = require 'map_gen.maps.danger_ores.config.deadlock_beltboxes_allowed_entities'
 banned_entities(allowed_entities)
 
 RS.set_map_gen_settings({
