@@ -105,6 +105,9 @@ local _g = {
   rocket_step = 500,        -- rocket/tiles ratio
   min_step = 500,           -- minimum tiles to move
   max_distance = 100000,    -- maximum x distance of rocket silo
+
+  -- Revived enemies
+  invincible = {}
 }
 
 if _DEBUG then
@@ -270,6 +273,38 @@ local function nuclear_explosion(entity)
   }
 end
 
+local function spawn_enemy_wave(position)
+  local surface = RS.get_surface()
+  local find_position = surface.find_non_colliding_position
+  local spawn = surface.create_entity
+  local current_tick = game.tick
+
+  local radius = 20
+  for _ = 1, 24 do
+    local name = math_random() > 0.15 and 'behemoth-worm-turret' or 'big-worm-turret'
+    local about = find_position(name, { x = position.x + math_random(), y = position.y + math_random() }, radius, 0.2)
+    if about then
+      local worm = spawn { name = name, position = about, force = 'enemy', move_stuck_players = true }
+      _g.invincible[worm.unit_number] = {
+        time_to_live = current_tick + math_random(60 * 2, 60 * (4 + _g.rockets_launched))
+      }
+    end
+  end
+
+  radius = 32
+  for _ = 1, 64 do
+    local name = math_random() > 0.3 and 'behemoth-biter' or 'behemoth-spitter'
+    local about = find_position(name, { x = position.x + math_random(), y = position.y + math_random() }, radius, 0.2)
+    if about then
+      local unit = spawn { name = name, position = about, force = 'enemy', move_stuck_players = true }
+      _g.invincible[unit.unit_number] = {
+        time_to_live = current_tick + math_random(60 * 2, 60 * (4 + _g.rockets_launched))
+      }
+    end
+  end
+end
+local spawn_enemy_wave_token = Token.register(spawn_enemy_wave)
+
 local function init_wall(x, w)
   local surface = RS.get_surface()
   local area = { { x, -_g.height * 16 }, { x + w, _g.height * 16 } }
@@ -293,6 +328,65 @@ end
 local function win()
   _g.scenario_finished = true
   game.set_game_state { game_finished = true, player_won = true, can_continue = true, victorious_force = 'player' }
+end
+
+local function on_spawner_died(event)
+  local entity = event.entity
+  local chance = math_random()
+  if chance > _g.loot_chance then
+    return
+  end
+
+  local budget = _g.loot_budget + entity.position.x * 2.75
+  budget = budget * math_random(25, 175) * 0.01
+
+  local player = event.cause and event.cause.player
+  if player and player.valid then
+    budget = budget + (_g.death_contributions[player.name] or 0) * 80
+  end
+
+  if math_random(1, 128) == 1 then budget = budget * 4 end
+  if math_random(1, 256) == 1 then budget = budget * 4 end
+  budget = budget * _g.loot_richness
+
+  local chest = entity.surface.create_entity { name = 'steel-chest', position = entity.position, force = 'player', move_stuck_players = true }
+  chest.destructible = false
+  for i = 1, 3 do
+    local item_stacks = PriceRaffle.roll(math_floor(budget / 3 ) + 1, 48)
+    for _, item_stack in pairs(item_stacks) do
+      chest.insert(item_stack)
+    end
+  end
+  if player then
+    Toast.toast_player(player, nil, {'frontier.loot_chest'})
+  end
+end
+
+local function on_enemy_died(entity)
+  local uid = entity.unit_number
+  local data = _g.invincible[uid]
+  if not data then
+    return
+  end
+
+  if data.time_to_live > game.tick then
+    return
+  end
+
+  local new_entity = entity.surface.create_entity {
+    name = entity.name,
+    position = entity.position,
+    force = entity.force,
+  }
+
+  _g.invincible[new_entity.unit_number] = {
+    time_to_live = data.time_to_live,
+  }
+  _g.invincible[uid] = nil
+
+  if new_entity.type == 'unit' then
+    new_entity.set_command(entity.command)
+  end
 end
 
 local play_sound_token = Token.register(Sounds.notify_all)
@@ -332,18 +426,18 @@ local function move_silo(position)
       for name, count in pairs(result_inventory) do
         chest.insert({ name = name, count = count })
       end
-    else
-      local spill_item_stack = surface.spill_item_stack
-      for x = -15, 15 do
-        for y = -15, 15 do
-          for _ = 1, 4 do
-            spill_item_stack({ x = old_position.x + x + math_random(), y = old_position.y + y + math_random()}, { name = 'raw-fish', count = 1 }, false, nil, true)
-          end
+    end
+    local spill_item_stack = surface.spill_item_stack
+    for x = -15, 15 do
+      for y = -15, 15 do
+        for _ = 1, 4 do
+          spill_item_stack({ x = old_position.x + x + math_random(), y = old_position.y + y + math_random()}, { name = 'raw-fish', count = 1 }, false, nil, true)
         end
       end
-      game.print({'frontier.empty_rocket'})
     end
+    game.print({'frontier.empty_rocket'})
     nuclear_explosion(chest)
+    Task.set_timeout(5, spawn_enemy_wave_token, old_position)
   else
     new_silo = surface.create_entity { name = 'rocket-silo', position = new_position, force = 'player', move_stuck_players = true }
   end
@@ -446,43 +540,20 @@ local function on_chunk_generated(event)
 end
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)
 
+
 local function on_entity_died(event)
   local entity = event.entity
   if not (entity and entity.valid) then
     return
   end
 
-  if entity.type ~= 'unit-spawner' then
-    return
-  end
-
-  local chance = math_random()
-  if chance > _g.loot_chance then
-    return
-  end
-
-  local budget = _g.loot_budget + entity.position.x * 2.75
-  budget = budget * math_random(25, 175) * 0.01
-
-  local player = event.cause and event.cause.player
-  if player and player.valid then
-    budget = budget + (_g.death_contributions[player.name] or 0) * 80
-  end
-
-  if math_random(1, 128) == 1 then budget = budget * 4 end
-  if math_random(1, 256) == 1 then budget = budget * 4 end
-  budget = budget * _g.loot_richness
-
-  local chest = entity.surface.create_entity { name = 'steel-chest', position = entity.position, force = 'player', move_stuck_players = true }
-  chest.destructible = false
-  for i = 1, 3 do
-    local item_stacks = PriceRaffle.roll(math_floor(budget / 3 ) + 1, 48)
-    for _, item_stack in pairs(item_stacks) do
-      chest.insert(item_stack)
+  local entity_type = entity.type
+  if entity_type == 'unit-spawner' then
+    on_spawner_died(entity)
+  elseif entity_type == 'unit' or entity.type == 'turret' then
+    if entity.force.name == 'enemy' then
+      on_enemy_died(entity)
     end
-  end
-  if player then
-    Toast.toast_player(player, nil, {'frontier.loot_chest'})
   end
 end
 Event.add(defines.events.on_entity_died, on_entity_died)
