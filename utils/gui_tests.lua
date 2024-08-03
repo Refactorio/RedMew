@@ -11,12 +11,21 @@ Declare.module({'utils', 'Gui'}, function()
             return #Gui.get_top_flow(player).children + #Gui.get_left_flow(player).children + #player.gui.center.children
         end
 
+        local function is_ignored_element(element)
+            local tooltip = element.tooltip
+            if type(tooltip) == 'table' and tooltip[1] == 'evolution_progress.tooltip' then
+                return true
+            end
+
+            return false
+        end
+
         for _, name in pairs(Gui._top_elements) do
             Declare.test(Gui.names and Gui.names[name] or name, function(context)
                 local player = context.player
-                local element = player.gui.top[name]
+                local element = Gui.get_top_flow(player)[name]
 
-                if not element.enabled then
+                if not element.enabled or is_ignored_element(element) then
                     return
                 end
 
