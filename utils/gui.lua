@@ -381,7 +381,6 @@ Gui.on_click(
             end
 
             button.caption = '>'
-            --button.style.height = 24
         else
             for i = 1, #top_elements do
                 local name = top_elements[i]
@@ -395,7 +394,6 @@ Gui.on_click(
             end
 
             button.caption = '<'
-            --button.style.height = 38
         end
     end
 )

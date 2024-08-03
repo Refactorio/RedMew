@@ -495,6 +495,10 @@ function Experience.toggle(event)
 
     if (frame and event.trigger == nil) then
         Gui.destroy(frame)
+        local main_button = Gui.get_top_element(player, 'Diggy.Experience.Button')
+        if main_button then
+            main_button.toggled = false
+        end
         return
     elseif (frame) then
         local data = Gui.get_data(frame)
@@ -548,7 +552,8 @@ local function on_player_created(event)
             name = 'Diggy.Experience.Button',
             type = 'sprite-button',
             sprite = 'entity/market',
-            tooltip = {'diggy.gui_experience_button_tip'}
+            tooltip = {'diggy.gui_experience_button_tip'},
+            auto_toggle = true,
         }
     )
 end

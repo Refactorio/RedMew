@@ -93,7 +93,8 @@ local function player_created(event)
             type = 'sprite-button',
             name = main_button_name,
             sprite = get_score_sprite(),
-            tooltip = {'score.tooltip'}
+            tooltip = {'score.tooltip'},
+            auto_toggle = true,
         }
     )
 end

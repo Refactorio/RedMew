@@ -26,7 +26,8 @@ local function player_created(event)
         type = 'sprite-button',
         name = main_button_name,
         sprite = 'item/piercing-rounds-magazine',
-        tooltip = {'autofill.main_button_tooltip'}
+        tooltip = {'autofill.main_button_tooltip'},
+        auto_toggle = true,
     })
 end
 
@@ -46,6 +47,8 @@ local function toggle_main_frame(event)
 
     if frame then
         Gui.destroy(frame)
+        local main_button = Gui.get_top_element(player, main_button_name)
+        main_button.toggled = false
     else
         frame = Gui.add_left_element(player, { type = 'frame', name = main_frame_name, caption = {'autofill.frame_name'}, direction = 'vertical' })
 

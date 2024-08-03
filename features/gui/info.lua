@@ -627,6 +627,8 @@ local function toggle(event)
 
     if main_frame then
         close_main_frame(main_frame, player)
+        local main_button = Gui.get_top_element(player, main_button_name)
+        main_button.toggled = false
     else
         draw_main_frame(center, player)
     end
@@ -642,7 +644,8 @@ local function player_created(event)
         type = 'sprite-button',
         name = main_button_name,
         sprite = 'virtual-signal/signal-info',
-        tooltip = {'info.tooltip'}
+        tooltip = {'info.tooltip'},
+        auto_toggle = true,
     })
 
     rewarded_players[player.index] = 0

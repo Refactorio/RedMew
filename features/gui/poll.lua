@@ -463,6 +463,8 @@ local function toggle(event)
 
     if main_frame then
         remove_main_frame(main_frame, left, event.player)
+        local main_button = Gui.get_top_element(player, main_button_name)
+        main_button.toggled = false
     else
         draw_main_frame(left, event.player)
     end
@@ -855,6 +857,7 @@ local function player_created(event)
             name = main_button_name,
             sprite = 'item/programmable-speaker',
             tooltip = {'poll.tooltip'},
+            auto_toggle = true,
         }
     )
 end

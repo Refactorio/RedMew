@@ -175,11 +175,15 @@ local function toggle(event)
     local gui = player.gui
     local center = gui.center
     local main_frame = center[main_frame_name]
+    local main_button = Gui.get_top_element(player, main_button_name)
+
 
     if main_frame then
+        main_button.toggled = false
         Gui.destroy(main_frame)
     else
         draw_main_frame(center, player)
+        main_button.toggled = true
     end
 end
 
@@ -229,6 +233,9 @@ local function save_changes(event)
     if main_frame then
         Gui.destroy(main_frame)
     end
+
+    local main_button = Gui.get_top_element(player, main_button_name)
+    main_button.toggled = false
 end
 
 local function setting_set(event)

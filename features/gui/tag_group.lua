@@ -147,7 +147,8 @@ local function player_created(event)
             name = main_button_name,
             type = 'sprite-button',
             caption = 'tag',
-            tooltip = {'tag_group.tooltip'}
+            tooltip = {'tag_group.tooltip'},
+            auto_toggle = true,
         }
     )
 end
@@ -306,6 +307,8 @@ local function toggle(event)
 
     if main_frame then
         Gui.destroy(main_frame)
+        local main_button = Gui.get_top_element(player, main_button_name)
+        main_button.toggled = false
     else
         draw_main_frame(event.player)
     end

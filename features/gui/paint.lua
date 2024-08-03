@@ -198,7 +198,8 @@ local function player_created(event)
             name = main_button_name,
             type = 'sprite-button',
             sprite = 'utility/spray_icon',
-            tooltip = {'paint.tooltip'}
+            tooltip = {'paint.tooltip'},
+            auto_toggle = true,
         }
     )
     b.style.padding = 2
@@ -247,6 +248,8 @@ local function toggle(event)
 
     if main_frame and main_frame.valid then
         Gui.destroy(main_frame)
+        local main_button = Gui.get_top_element(player, main_button_name)
+        main_button.toggled = false
     else
         main_frame = Gui.add_left_element(player,  {
             type = 'frame',

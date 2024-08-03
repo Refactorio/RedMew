@@ -457,6 +457,8 @@ local function toggle(event)
         if frame and frame.valid then
             Gui.destroy(frame)
         end
+        local main_button = Gui.get_top_element(player, main_button_name)
+        main_button.toggled = false
     else
         draw_main_frame(left, player)
     end
@@ -621,6 +623,7 @@ local function player_created(event)
             sprite = 'item/repair-pack',
             tooltip = {'tasklist.tooltip'},
             number = #tasks or 0,
+            auto_toggle = true,
         }
     )
 end
