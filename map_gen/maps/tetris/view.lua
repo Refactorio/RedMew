@@ -30,7 +30,7 @@ local button_pretty_names = {
 
 local sprites = {
     [uids.ccw_button] = 'utility/reset',
-    [uids.noop_button] = 'utility/clear',
+    [uids.noop_button] = 'utility/close_fat',
     [uids.cw_button] = 'utility/reset',
     [uids.left_button] = 'utility/left_arrow',
     [uids.down_button] = 'utility/speed_down',
@@ -114,19 +114,17 @@ local function toggle(player)
     if not player then
         return
     end
-    local left = player.gui.left
-    local main_frame = left[main_frame_name]
+    local main_frame = Gui.get_left_element(player, main_frame_name)
 
     if main_frame and main_frame.valid then
         Gui.destroy(main_frame)
     else
-        main_frame =
-            left.add {
+        main_frame = Gui.add_left_element(player, {
             type = 'frame',
             name = main_frame_name,
             direction = 'vertical',
             caption = 'Tetris'
-        }
+        })
         main_frame.style.width = 250
         main_frame.add {
             type = 'label',
@@ -189,13 +187,16 @@ end
 
 local function player_joined(event)
     local player = game.get_player(event.player_index)
-
-    if player.gui.top[main_button_name] ~= nil then
+    if not (player and player.valid) then
         return
     end
 
-    player.gui.top.add {name = main_button_name, type = 'sprite-button', sprite = 'utility/force_editor_icon'}
-    toggle(game.get_player(event.player_index))
+    if Gui.get_top_element(player, main_button_name) ~= nil then
+        return
+    end
+
+    Gui.add_top_element(player, { name = main_button_name, type = 'sprite-button', sprite = 'utility/force_editor_icon' })
+    toggle(player)
 end
 
 Gui.on_click(
@@ -219,7 +220,7 @@ end
 function Module.set_points(points)
     primitives.points = points
     for _, player in pairs(game.players) do
-        local mf = player.gui.left[main_frame_name]
+        local mf = Gui.get_left_element(player, main_frame_name)
         if mf then
             local data = Gui.get_data(mf)
             if data then
@@ -242,7 +243,7 @@ end
 -- @param vote_button_id string the uid of the button that the players name will be added to
 -- @param[opt] old_vote_button_id string the uid of the button that the players name will be removed from
 function Module.set_player_vote(player, vote_button_id, old_vote_button_id)
-    local mf = player.gui.left[main_frame_name]
+    local mf = Gui.get_left_element(player, main_frame_name)
     if mf then
         local vote_buttons = Gui.get_data(mf).vote_buttons
         if vote_button_id then
@@ -266,7 +267,7 @@ end
 function Module.enable_vote_buttons(enable)
     primitives.buttons_enabled = enable
     for _, player in pairs(game.players) do
-        local mf = player.gui.left[main_frame_name]
+        local mf = Gui.get_left_element(player, main_frame_name)
         if mf then
             local data = Gui.get_data(mf)
             if data then
@@ -302,7 +303,7 @@ end
 function Module.set_progress(progress)
     primitives.progress = progress
     for _, player in pairs(game.players) do
-        local mf = player.gui.left[main_frame_name]
+        local mf = Gui.get_left_element(player, main_frame_name)
         if mf then
             local data = Gui.get_data(mf)
             if data then

@@ -458,22 +458,15 @@ end
 
 local function toggle(event)
     local player = event.player
-    local gui = player.gui
-    local left = gui.left
+    local left = Gui.get_left_flow(player)
     local main_frame = left[main_frame_name]
-    local main_button = gui.top[main_button_name]
 
     if main_frame then
         remove_main_frame(main_frame, left, event.player)
-        main_button.style = 'slot_button'
+        local main_button = Gui.get_top_element(player, main_button_name)
+        main_button.toggled = false
     else
         draw_main_frame(left, event.player)
-
-        main_button.style = 'highlighted_tool_button'
-        local style = main_button.style
-        style.width = 40
-        style.height = 40
-        style.padding = 0
     end
 end
 
@@ -691,7 +684,7 @@ local function show_new_poll(poll_data)
         table.concat {poll_data.created_by.name, ' has created a new Poll #', poll_data.id, ': ', poll_data.question}
 
     for _, p in pairs(game.connected_players) do
-        local left = p.gui.left
+        local left = Gui.get_left_flow(p)
         local frame = left[main_frame_name]
         if no_notify_players[p.index] then
             if frame and frame.valid then
@@ -820,7 +813,7 @@ local function vote(event)
     local vote_button_count, vote_button_tooltip = update_vote(voters, answer, 1)
 
     for _, p in pairs(game.connected_players) do
-        local frame = p.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(p, main_frame_name)
         if frame and frame.valid then
             local data = Gui.get_data(frame)
 
@@ -858,12 +851,13 @@ local function player_created(event)
         return
     end
 
-    player.gui.top.add(
+    Gui.add_top_element(player,
         {
             type = 'sprite-button',
             name = main_button_name,
             sprite = 'item/programmable-speaker',
-            tooltip = {'poll.tooltip'}
+            tooltip = {'poll.tooltip'},
+            auto_toggle = true,
         }
     )
 end
@@ -874,7 +868,7 @@ local function player_joined(event)
         return
     end
 
-    local frame = player.gui.left[main_frame_name]
+    local frame = Gui.get_left_element(player, main_frame_name)
     if frame and frame.valid then
         local data = Gui.get_data(frame)
         update_poll_viewer(data)
@@ -883,7 +877,7 @@ end
 
 local function tick()
     for _, p in pairs(game.connected_players) do
-        local frame = p.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(p, main_frame_name)
         if frame and frame.valid then
             local data = Gui.get_data(frame)
             local poll = polls[data.poll_index]
@@ -925,7 +919,7 @@ Gui.on_click(
     create_poll_button_name,
     function(event)
         local player = event.player
-        local left = player.gui.left
+        local left = Gui.get_left_flow(player)
         local frame = left[create_poll_frame_name]
         if frame and frame.valid then
             remove_create_poll_frame(frame, player.index)
@@ -939,7 +933,7 @@ Gui.on_click(
     poll_view_edit_name,
     function(event)
         local player = event.player
-        local left = player.gui.left
+        local left = Gui.get_left_flow(player)
         local frame = left[create_poll_frame_name]
 
         if frame and frame.valid then
@@ -1076,7 +1070,7 @@ Gui.on_click(
                 p.print(message)
             end
 
-            local main_frame = p.gui.left[main_frame_name]
+            local main_frame = Gui.get_left_element(player, main_frame_name)
             if main_frame and main_frame.valid then
                 local main_frame_data = Gui.get_data(main_frame)
                 local poll_index = main_frame_data.poll_index
@@ -1183,7 +1177,8 @@ Gui.on_click(
         local message = table.concat {player.name, ' has edited Poll #', poll.id, ': ', poll.question}
 
         for _, p in pairs(game.connected_players) do
-            local main_frame = p.gui.left[main_frame_name]
+            local left = Gui.get_left_flow(p)
+            local main_frame = left[main_frame_name]
 
             if no_notify_players[p.index] then
                 if main_frame and main_frame.valid then
@@ -1197,7 +1192,7 @@ Gui.on_click(
                     main_frame_data.poll_index = poll_index
                     update_poll_viewer(main_frame_data)
                 else
-                    draw_main_frame(p.gui.left, p)
+                    draw_main_frame(left, p)
                 end
             end
         end
@@ -1286,7 +1281,7 @@ Event.add(
 
         no_notify_players[player_index] = no_notify
 
-        local frame = player.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(player, main_frame_name)
         if not frame then
             return
         end

@@ -669,28 +669,21 @@ end
 
 local function toggle(event)
     local player = event.player
-    local gui = player.gui
-    local left = gui.left
+    local left = Gui.get_left_flow(player)
     local main_frame = left[main_frame_name]
-    local main_button = gui.top[main_button_name]
 
     if main_frame then
         remove_main_frame(main_frame, player)
-        main_button.style = 'slot_button'
+        local main_button = Gui.get_top_element(player, main_button_name)
+        main_button.toggled = false
     else
-        main_button.style = 'highlighted_tool_button'
-        local style = main_button.style
-        style.width = 40
-        style.height = 40
-        style.padding = 0
-
         draw_main_frame(left, player)
     end
 end
 
 local function tick()
     for _, p in ipairs(game.connected_players) do
-        local frame = p.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(p, main_frame_name)
 
         if frame and frame.valid then
             local data = Gui.get_data(frame)
@@ -705,19 +698,20 @@ local function player_created(event)
         return
     end
 
-    player.gui.top.add(
+    Gui.add_top_element(player,
         {
             type = 'sprite-button',
             name = main_button_name,
             sprite = 'entity/character',
-            tooltip = {'player_list.tooltip'}
+            tooltip = {'player_list.tooltip'},
+            auto_toggle = true,
         }
     )
 end
 
 local function update_player_list()
     for _, p in ipairs(game.connected_players) do
-        local frame = p.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(p, main_frame_name)
 
         if frame and frame.valid then
             local data = Gui.get_data(frame)
@@ -802,7 +796,7 @@ Gui.on_click(
         local message = concat({'>> ', player.name, ' has poked ', poke_player.name, ' with ', poke_str, ' <<'})
 
         for _, p in ipairs(game.connected_players) do
-            local frame = p.gui.left[main_frame_name]
+            local frame = Gui.get_left_element(p, main_frame_name)
             if frame and frame.valid then
                 local frame_data = Gui.get_data(frame)
                 local poke_bottons = frame_data.poke_buttons
@@ -868,7 +862,7 @@ Event.add(
 
         no_notify_players[player_index] = no_notify
 
-        local frame = player.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(player, main_frame_name)
         if not frame then
             return
         end

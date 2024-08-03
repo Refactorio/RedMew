@@ -31,6 +31,7 @@ Global.register(
     'toast'
 )
 
+local toast_flow_name = Gui.uid_name()
 local toast_frame_name = Gui.uid_name()
 local toast_container_name = Gui.uid_name()
 local toast_progress_name = Gui.uid_name()
@@ -80,7 +81,7 @@ end
 ---@param duration number in seconds
 ---@param sound string sound to play, nil to not play anything
 local function toast_to(player, duration, sound)
-    local frame_holder = player.gui.left.add({type = 'flow'})
+    local frame_holder = Gui.add_left_element(player, { type = 'flow', name = toast_flow_name })
 
     local frame =
         frame_holder.add({type = 'frame', name = toast_frame_name, direction = 'vertical', style = 'captionless_frame'})

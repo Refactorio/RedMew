@@ -211,7 +211,7 @@ local function update_volunteer_button(button, task)
 end
 
 local function update_top_gui(player)
-    local button = player.gui.top[main_button_name]
+    local button = Gui.get_top_element(player, main_button_name)
     if button and button.valid then
         button.number = #tasks or 0
     end
@@ -444,10 +444,8 @@ end
 
 local function toggle(event)
     local player = event.player
-    local gui = player.gui
-    local left = gui.left
+    local left = Gui.get_left_flow(player)
     local frame = left[main_frame_name]
-    local main_button = gui.top[main_button_name]
 
     if frame and frame.valid then
         Gui.destroy(frame)
@@ -459,16 +457,10 @@ local function toggle(event)
         if frame and frame.valid then
             Gui.destroy(frame)
         end
-
-        main_button.style = 'slot_button'
+        local main_button = Gui.get_top_element(player, main_button_name)
+        main_button.toggled = false
     else
         draw_main_frame(left, player)
-
-        main_button.style = 'highlighted_tool_button'
-        local style = main_button.style
-        style.width = 40
-        style.height = 40
-        style.padding = 0
     end
 end
 
@@ -513,7 +505,7 @@ local function update_announcements(player)
             p.print(update_message)
         end
 
-        local left = p.gui.left
+        local left = Gui.get_left_flow(p)
         local frame = left[main_frame_name]
         if frame and frame.valid then
             local data = Gui.get_data(frame)
@@ -558,7 +550,7 @@ local function create_new_tasks(task_name, player)
 
     for _, p in ipairs(game.connected_players) do
         local notify = not no_notify_players[p.index]
-        local left = p.gui.left
+        local left = Gui.get_left_flow(p)
         local frame = left[main_frame_name]
         if frame and frame.valid then
             local frame_data = Gui.get_data(frame)
@@ -624,13 +616,14 @@ local function player_created(event)
         return
     end
 
-    player.gui.top.add(
+    Gui.add_top_element(player,
         {
             type = 'sprite-button',
             name = main_button_name,
             sprite = 'item/repair-pack',
             tooltip = {'tasklist.tooltip'},
             number = #tasks or 0,
+            auto_toggle = true,
         }
     )
 end
@@ -641,7 +634,7 @@ local function player_joined(event)
         return
     end
 
-    local frame = player.gui.left[main_frame_name]
+    local frame = Gui.get_left_element(player, main_frame_name)
     if frame and frame.valid then
         local text = announcements.edit_text
         local last_edit_message = get_announcements_updated_by_message()
@@ -661,7 +654,7 @@ local function player_joined(event)
     local tasks_for_player = player_tasks[player.index]
     if tasks_for_player and next(tasks_for_player) then
         for _, p in ipairs(game.connected_players) do
-            local main_frame = p.gui.left[main_frame_name]
+            local main_frame = Gui.get_left_element(p, main_frame_name)
             if main_frame then
                 local data = Gui.get_data(main_frame)
                 local volunteer_buttons = data.volunteer_buttons
@@ -676,9 +669,10 @@ end
 
 local function player_left(event)
     local player = game.get_player(event.player_index)
-    local left = player.gui.left
-
-    local frame = left[edit_announcements_frame_name]
+    if not (player and player.valid) then
+        return
+    end
+    local frame = Gui.get_left_element(player, edit_announcements_frame_name)
     if frame and frame.valid then
         close_edit_announcements_frame(frame)
     end
@@ -686,8 +680,7 @@ end
 
 local function on_tick()
     for _, p in ipairs(game.connected_players) do
-        local left = p.gui.left
-        local frame = left[main_frame_name]
+        local frame = Gui.get_left_element(p, main_frame_name)
 
         if frame then
             local data = Gui.get_data(frame)
@@ -715,22 +708,20 @@ Gui.on_click(
     announcements_edit_button_name,
     function(event)
         local player = event.player
-        local left = player.gui.left
 
-        local frame = left[edit_announcements_frame_name]
+        local frame = Gui.get_left_element(player, edit_announcements_frame_name)
         if frame then
             return
         end
 
         local data = {}
 
-        frame =
-            left.add {
+        frame = Gui.add_left_element(player, {
             type = 'frame',
             name = edit_announcements_frame_name,
             caption = 'Edit Announcements',
             direction = 'vertical'
-        }
+        })
         frame.style.width = 470
 
         Gui.set_data(frame, data)
@@ -871,7 +862,7 @@ Gui.on_click(
 
         for _, p in ipairs(game.connected_players) do
             local notify = not no_notify_players[p.index]
-            local left = p.gui.left
+            local left = Gui.get_left_flow(p)
             local frame = left[main_frame_name]
             if frame and frame.valid then
                 local data = Gui.get_data(frame)
@@ -894,7 +885,7 @@ Gui.on_click(
     edit_task_button_name,
     function(event)
         local previous_task = Gui.get_data(event.element)
-        local left = event.player.gui.left
+        local left = Gui.get_left_flow(event.player)
         local frame = left[create_task_frame_name]
 
         if frame then
@@ -929,7 +920,7 @@ local function do_direction(event, sign)
     table.insert(tasks, new_index, task)
 
     for _, p in ipairs(game.connected_players) do
-        local frame = p.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(p, main_frame_name)
         if frame and frame.valid then
             local data = Gui.get_data(frame)
             local enabled = Rank.equal_or_greater_than(p.name, Ranks.regular)
@@ -980,7 +971,7 @@ Gui.on_click(
         end
 
         for _, p in ipairs(game.connected_players) do
-            local frame = p.gui.left[main_frame_name]
+            local frame = Gui.get_left_element(p, main_frame_name)
             if frame and frame.valid then
                 local data = Gui.get_data(frame)
                 local volunteer_buttons = data.volunteer_buttons
@@ -994,7 +985,7 @@ Gui.on_click(
 Gui.on_click(
     add_task_button_name,
     function(event)
-        local left = event.player.gui.left
+        local left = Gui.get_left_flow(event.player)
         local frame = left[create_task_frame_name]
 
         if frame then
@@ -1105,7 +1096,7 @@ Gui.on_click(
 
         for _, p in ipairs(game.connected_players) do
             local notify = not no_notify_players[p.index]
-            local left = p.gui.left
+            local left = Gui.get_left_flow(p)
             local main_frame = left[main_frame_name]
 
             if main_frame then
@@ -1150,7 +1141,7 @@ Event.add(
 
         no_notify_players[player_index] = no_notify
 
-        local frame = player.gui.left[main_frame_name]
+        local frame = Gui.get_left_element(player, main_frame_name)
         if not frame then
             return
         end

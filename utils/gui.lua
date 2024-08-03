@@ -2,6 +2,11 @@ local Token = require 'utils.token'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
 local Styles = require 'resources.styles'
+local mod_gui = require '__core__.lualib.mod-gui'
+--[[
+    player.gui.top.mod_gui_top_frame.mod_gui_inner_frame[element_name]
+    player.gui.left.mod_gui_frame_flow[element_name]
+]]
 
 local tostring = tostring
 local next = next
@@ -70,6 +75,20 @@ function Gui.get_data(element)
     return values[element.index]
 end
 
+---@param element LuaGuiElement
+---@param style string|table
+function Gui.set_style(element, style)
+    if type(style) == string then
+        element.style = style
+    else
+        local element_style = element.style
+        for k, v in pairs(style) do
+            element_style[k] = v
+        end
+    end
+    return element
+end
+
 local remove_data_recursively
 -- Removes data associated with LuaGuiElement and its children recursively.
 function Gui.remove_data_recursively(element)
@@ -114,6 +133,85 @@ end
 function Gui.clear(element)
     remove_children_data(element)
     element.clear()
+end
+
+---@param player LuaPlayer
+function Gui.init_gui_style(player)
+    local mod_gui_top_frame = Gui.get_top_flow(player).parent
+    Gui.set_style(mod_gui_top_frame, { padding = 2 })
+end
+
+---@param player LuaPlayer
+---@return LuaGuiElement
+function Gui.get_top_flow(player)
+    return mod_gui.get_button_flow(player)
+end
+
+---@param player LuaPlayer
+---@param element_name string
+---@return LuaGuiElement?
+function Gui.get_top_element(player, element_name)
+	return Gui.get_top_flow(player)[element_name]
+end
+
+---@param player LuaPlayer
+---@param child table
+---@return LuaGuiElement
+function Gui.add_top_element(player, child)
+    local flow = Gui.get_top_flow(player)
+    local element = flow[child.name]
+	if element and element.valid then
+        return element
+	end
+	if (child.type == 'button' or child.type == 'sprite-button') and child.style == nil then
+        child.style = Styles.default_top_element.name
+        return Gui.set_style(flow.add(child), Styles.default_top_element.style)
+    else
+        return flow.add(child)
+	end
+end
+
+---@param player LuaPlayer
+function Gui.get_left_flow(player)
+    return mod_gui.get_frame_flow(player)
+end
+
+---@param player LuaPlayer
+---@param element_name string
+---@return LuaGuiElement?
+function Gui.get_left_element(player, element_name)
+    return Gui.get_left_flow(player)[element_name]
+end
+
+---@param player LuaPlayer
+---@param child table
+---@return LuaGuiElement
+function Gui.add_left_element(player, child)
+    local flow = Gui.get_left_flow(player)
+    local element = flow[child.name]
+    if element and element.valid then
+        return element
+    end
+    if child.type == 'frame' and child.style == nil then
+        return Gui.set_style(flow.add(child), Styles.default_left_element.style)
+    else
+        return flow.add(child)
+    end
+end
+
+---@param parent LuaGuiElement
+---@param direction? string, default: horizontal
+---@return LuaGuiElement
+function Gui.add_pusher(parent, direction)
+    local pusher = parent.add { type = 'empty-widget' }
+    Gui.set_style(pusher, Styles.default_pusher.style)
+    pusher.ignored_by_interaction = true
+    if direction == 'vertical' then
+        pusher.style.vertically_stretchable = true
+    else
+        pusher.style.horizontally_stretchable = true
+    end
+    return pusher
 end
 
 local function handler_factory(event_id)
@@ -242,21 +340,24 @@ Event.add(
             return
         end
 
-        local b =
-            player.gui.top.add {
+        Gui.init_gui_style(player)
+
+        local b = Gui.add_top_element(player, {
             type = 'button',
             name = toggle_button_name,
             caption = '<',
             tooltip = {'gui_util.button_tooltip'}
-        }
-        local style = b.style
-        style.width = 18
-        style.height = 40
-        style.left_padding = 0
-        style.top_padding = 0
-        style.right_padding = 0
-        style.bottom_padding = 0
-        style.font = 'default-small-bold'
+        })
+
+        Gui.set_style(b, {
+            width = 18,
+            height = Styles.default_top_element.style.minimal_height,
+            left_padding = 0,
+            top_padding = 0,
+            right_padding = 0,
+            bottom_padding = 0,
+            font = 'default-small-bold',
+        })
     end
 )
 
@@ -265,7 +366,7 @@ Gui.on_click(
     function(event)
         local button = event.element
         local player = event.player
-        local top = player.gui.top
+        local top = Gui.get_top_flow(player)
 
         if button.caption == '<' then
             for i = 1, #top_elements do
@@ -280,7 +381,6 @@ Gui.on_click(
             end
 
             button.caption = '>'
-            button.style.height = 24
         else
             for i = 1, #top_elements do
                 local name = top_elements[i]
@@ -294,7 +394,6 @@ Gui.on_click(
             end
 
             button.caption = '<'
-            button.style.height = 38
         end
     end
 )
