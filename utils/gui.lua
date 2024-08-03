@@ -351,7 +351,7 @@ Event.add(
 
         Gui.set_style(b, {
             width = 18,
-            height = 36,
+            height = Styles.default_top_element.style.minimal_height,
             left_padding = 0,
             top_padding = 0,
             right_padding = 0,

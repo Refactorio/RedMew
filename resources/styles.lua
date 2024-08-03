@@ -11,8 +11,8 @@ Public.default_top_element = {
     style = {
         font_color = { 165, 165, 165 },
         font = 'heading-3',
-        minimal_height = 36,
-        maximal_height = 36,
+        minimal_height = 40,
+        maximal_height = 40,
         minimal_width = 40,
         padding = -2,
     }

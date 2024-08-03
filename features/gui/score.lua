@@ -3,6 +3,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Schedule = require 'utils.task'
 local Gui = require 'utils.gui'
+local Styles = require 'resources.styles'
 local Color = require 'resources.color_presets'
 local Server = require 'features.server'
 local ScoreTracker = require 'utils.score_tracker'
@@ -107,9 +108,14 @@ end
 
 local function score_show(top)
     local scores = get_global_score_labels()
-    local frame = top.add { type = 'frame', name = main_frame_name, style = 'finished_game_subheader_frame' }
+    local frame = top.add {
+        type = 'frame',
+        name = main_frame_name,
+        style = 'finished_game_subheader_frame',
+        index = top[main_button_name].get_index_in_parent() + 1
+    }
     frame.location = { x = 1, y = 38 }
-	Gui.set_style(frame, { minimal_height = 36, maximal_height = 36 })
+	Gui.set_style(frame, { natural_height = Styles.default_top_element.style.minimal_height, height = Styles.default_top_element.style.minimal_height })
 
     local score_table = frame.add {type = 'table', name = 'score_table', column_count = table_size(scores)}
     local style = score_table.style
