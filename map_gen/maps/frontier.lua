@@ -4,16 +4,23 @@ local Event = require 'utils.event'
 local Global = require 'utils.global'
 local math = require 'utils.math'
 local MGSP = require 'resources.map_gen_settings'
+local Noise = require 'map_gen.shared.simplex_noise'
 local PriceRaffle = require 'features.price_raffle'
 local RS = require 'map_gen.shared.redmew_surface'
 local ScenarioInfo = require 'features.gui.info'
+local Sounds = require 'utils.sounds'
 local Toast = require 'features.gui.toast'
+local Token = require 'utils.token'
+local Task = require 'utils.task'
 
 local math_random = math.random
 local math_max = math.max
 local math_min = math.min
 local math_abs = math.abs
+local math_ceil = math.ceil
 local math_floor = math.floor
+local math_clamp = math.clamp
+local simplex = Noise.d2
 
 --[[
   Scenario info: Frontier
@@ -98,9 +105,24 @@ local _g = {
   rocket_step = 500,        -- rocket/tiles ratio
   min_step = 500,           -- minimum tiles to move
   max_distance = 100000,    -- maximum x distance of rocket silo
+
+  -- Revived enemies
+  invincible = {}
 }
 
+if _DEBUG then
+  _g.silo_starting_x = 30
+  _g.rockets_to_win = 3
+end
+
 Global.register(_g, function(tbl) _g = tbl end)
+
+local noise_weights = {
+  { modifier = 0.0042, weight = 1.000 },
+  { modifier = 0.0310, weight = 0.080 },
+  { modifier = 0.1000, weight = 0.025 },
+}
+local mixed_ores = { 'iron-ore', 'copper-ore', 'iron-ore', 'stone', 'copper-ore', 'iron-ore', 'copper-ore', 'iron-ore', 'coal', 'iron-ore', 'copper-ore', 'iron-ore', 'stone', 'copper-ore', 'coal'}
 
 -- == MAP GEN =================================================================
 
@@ -145,6 +167,77 @@ map = b.choose(function(x) return math_floor(x) == -(_g.kraken_distance + _g.lef
 
 -- == EVENTS ==================================================================
 
+local function noise_pattern(position, seed)
+  local noise, d = 0, 0
+  for i = 1, #noise_weights do
+    local nw = noise_weights[i]
+    noise = noise + simplex(position.x * nw.modifier, position.y * nw.modifier, seed) * nw.weight
+    d = d + nw.weight
+    seed = seed + 10000
+  end
+  noise = noise / d
+  return noise
+end
+
+local function mixed_resources(surface, area)
+  local left_top = { x = math_max(area.left_top.x, _g.right_boundary * 32), y = area.left_top.y }
+  local right_bottom = area.right_bottom
+  if left_top.x >= right_bottom.x then
+    return
+  end
+
+  local seed = surface.map_gen_settings.seed
+  local create_entity = surface.create_entity
+  local can_place_entity = surface.can_place_entity
+  local find_entities_filtered = surface.find_entities_filtered
+
+  local function clear_ore(position)
+    for _, resource in pairs(find_entities_filtered{
+      position = position,
+      type = 'resource'
+    }) do resource.destroy() end
+  end
+
+  local chunks = math_clamp(math_abs((left_top.x - _g.right_boundary * 32) / _g.ore_chunk_scale), 1, 100)
+  chunks = math_random(chunks, chunks + 4)
+  for x = 0, 31 do
+    for y = 0, 31 do
+      local position = { x = left_top.x + x, y = left_top.y + y }
+      if can_place_entity({ name = 'iron-ore', position = position }) then
+        local noise = noise_pattern(position, seed)
+        if math_abs(noise) > 0.67 then
+          local idx = math_floor(noise * 25 + math_abs(position.x) * 0.05) % #mixed_ores + 1
+          local amount = _g.ore_base_quantity * chunks * 3
+          clear_ore(position)
+          create_entity({ name = mixed_ores[idx], position = position, amount = amount })
+        end
+      end
+    end
+  end
+end
+
+local function clear_enemies_inside_wall(surface, area)
+  if area.right_bottom.x < (_g.right_boundary * 32 + 96) then
+    for _, entity in pairs(surface.find_entities_filtered { area = area, force = 'enemy' }) do
+      entity.destroy()
+    end
+  end
+end
+
+local function scale_resource_richness(surface, area)
+  for _, resource in pairs(surface.find_entities_filtered { area = area, type = 'resource' }) do
+    if resource.position.x > _g.right_boundary * 32 then
+      local chunks = math.clamp(math_abs((resource.position.x - _g.right_boundary * 32) / _g.ore_chunk_scale), 1, 100)
+      chunks = math_random(chunks, chunks + 4)
+      if resource.prototype.resource_category == 'basic-fluid' then
+        resource.amount = 3000 * 3 * chunks
+      elseif resource.prototype.resource_category == 'basic-solid' then
+        resource.amount = _g.ore_base_quantity * chunks
+      end
+    end
+  end
+end
+
 local function set_silo_tiles(entity)
   local pos = entity.position
   local surface = entity.surface
@@ -164,6 +257,53 @@ local function set_silo_tiles(entity)
   end
   entity.surface.set_tiles(tiles, true)
 end
+
+local function nuclear_explosion(entity)
+  local surface = entity.surface
+  local center_position = entity.position
+  local force = entity.force
+  surface.create_entity {
+    name = 'atomic-rocket',
+    position = center_position,
+    force = force,
+    source = center_position,
+    target = center_position,
+    max_range = 1,
+    speed = 0.1
+  }
+end
+
+local function spawn_enemy_wave(position)
+  local surface = RS.get_surface()
+  local find_position = surface.find_non_colliding_position
+  local spawn = surface.create_entity
+  local current_tick = game.tick
+
+  local radius = 20
+  for _ = 1, 24 do
+    local name = math_random() > 0.15 and 'behemoth-worm-turret' or 'big-worm-turret'
+    local about = find_position(name, { x = position.x + math_random(), y = position.y + math_random() }, radius, 0.2)
+    if about then
+      local worm = spawn { name = name, position = about, force = 'enemy', move_stuck_players = true }
+      _g.invincible[worm.unit_number] = {
+        time_to_live = current_tick + math_random(60 * 2, 60 * (4 + _g.rockets_launched))
+      }
+    end
+  end
+
+  radius = 32
+  for _ = 1, 64 do
+    local name = math_random() > 0.3 and 'behemoth-biter' or 'behemoth-spitter'
+    local about = find_position(name, { x = position.x + math_random(), y = position.y + math_random() }, radius, 0.2)
+    if about then
+      local unit = spawn { name = name, position = about, force = 'enemy', move_stuck_players = true }
+      _g.invincible[unit.unit_number] = {
+        time_to_live = current_tick + math_random(60 * 2, 60 * (4 + _g.rockets_launched))
+      }
+    end
+  end
+end
+local spawn_enemy_wave_token = Token.register(spawn_enemy_wave)
 
 local function init_wall(x, w)
   local surface = RS.get_surface()
@@ -189,6 +329,67 @@ local function win()
   _g.scenario_finished = true
   game.set_game_state { game_finished = true, player_won = true, can_continue = true, victorious_force = 'player' }
 end
+
+local function on_spawner_died(event)
+  local entity = event.entity
+  local chance = math_random()
+  if chance > _g.loot_chance then
+    return
+  end
+
+  local budget = _g.loot_budget + entity.position.x * 2.75
+  budget = budget * math_random(25, 175) * 0.01
+
+  local player = event.cause and event.cause.player
+  if player and player.valid then
+    budget = budget + (_g.death_contributions[player.name] or 0) * 80
+  end
+
+  if math_random(1, 128) == 1 then budget = budget * 4 end
+  if math_random(1, 256) == 1 then budget = budget * 4 end
+  budget = budget * _g.loot_richness
+
+  local chest = entity.surface.create_entity { name = 'steel-chest', position = entity.position, force = 'player', move_stuck_players = true }
+  chest.destructible = false
+  for i = 1, 3 do
+    local item_stacks = PriceRaffle.roll(math_floor(budget / 3 ) + 1, 48)
+    for _, item_stack in pairs(item_stacks) do
+      chest.insert(item_stack)
+    end
+  end
+  if player then
+    Toast.toast_player(player, nil, {'frontier.loot_chest'})
+  end
+end
+
+local function on_enemy_died(entity)
+  local uid = entity.unit_number
+  local data = _g.invincible[uid]
+  if not data then
+    return
+  end
+
+  if data.time_to_live > game.tick then
+    return
+  end
+
+  local new_entity = entity.surface.create_entity {
+    name = entity.name,
+    position = entity.position,
+    force = entity.force,
+  }
+
+  _g.invincible[new_entity.unit_number] = {
+    time_to_live = data.time_to_live,
+  }
+  _g.invincible[uid] = nil
+
+  if new_entity.type == 'unit' then
+    new_entity.set_command(entity.command)
+  end
+end
+
+local play_sound_token = Token.register(Sounds.notify_all)
 
 local function move_silo(position)
   local surface = RS.get_surface()
@@ -219,13 +420,24 @@ local function move_silo(position)
     local result_inventory = old_silo.get_output_inventory().get_contents()
     new_silo = old_silo.clone { position = new_position, force = old_silo.force, create_build_effect_smoke = true }
     old_silo.destroy()
+    local chest = surface.create_entity { name = 'steel-chest', position = old_position, force = 'player', move_stuck_players = true }
     if table_size(result_inventory) > 0 then
-      local chest = surface.create_entity { name = 'steel-chest', position = old_position, force = 'player', move_stuck_players = true }
       chest.destructible = false
       for name, count in pairs(result_inventory) do
         chest.insert({ name = name, count = count })
       end
     end
+    local spill_item_stack = surface.spill_item_stack
+    for x = -15, 15 do
+      for y = -15, 15 do
+        for _ = 1, 4 do
+          spill_item_stack({ x = old_position.x + x + math_random(), y = old_position.y + y + math_random()}, { name = 'raw-fish', count = 1 }, false, nil, true)
+        end
+      end
+    end
+    game.print({'frontier.empty_rocket'})
+    nuclear_explosion(chest)
+    Task.set_timeout(5, spawn_enemy_wave_token, old_position)
   else
     new_silo = surface.create_entity { name = 'rocket-silo', position = new_position, force = 'player', move_stuck_players = true }
   end
@@ -233,6 +445,7 @@ local function move_silo(position)
   if new_silo and new_silo.valid then
     new_silo.destructible = false
     new_silo.minable = false
+    new_silo.active = true
     new_silo.get_output_inventory().clear()
     _g.rocket_silo = new_silo
     _g.x = new_silo.position.x
@@ -248,6 +461,7 @@ local function move_silo(position)
     end
   end
 end
+local move_silo_token = Token.register(move_silo)
 
 local function compute_silo_coordinates(step)
   _g.move_buffer = _g.move_buffer + (step or 0)
@@ -309,31 +523,23 @@ Event.on_init(function()
 end)
 
 local function on_chunk_generated(event)
-  if event.surface.name ~= RS.get_surface().name then
+  local area = event.area
+  local surface = event.surface
+  if surface.name ~= RS.get_surface_name() then
     return
   end
 
   -- kill off biters inside the wall
-  if event.area.right_bottom.x < (_g.right_boundary * 32 + 96) then
-    for _, entity in pairs(event.surface.find_entities_filtered { area = event.area, force = 'enemy' }) do
-      entity.destroy()
-    end
-  end
+  clear_enemies_inside_wall(surface, area)
 
   -- scale freshly generated ore by a scale factor
-  for _, resource in pairs(event.surface.find_entities_filtered { area = event.area, type = 'resource' }) do
-    if resource.position.x > _g.right_boundary * 32 then
-      local chunks = math.clamp(math_abs((resource.position.x - _g.right_boundary * 32) / _g.ore_chunk_scale), 1, 100)
-      chunks = math_random(chunks, chunks + 4)
-      if resource.prototype.resource_category == 'basic-fluid' then
-        resource.amount = 3000 * 3 * chunks
-      elseif resource.prototype.resource_category == 'basic-solid' then
-        resource.amount = _g.ore_base_quantity * chunks
-      end
-    end
-  end
+  scale_resource_richness(surface, area)
+
+  -- add mixed patches
+  mixed_resources(surface, area)
 end
 Event.add(defines.events.on_chunk_generated, on_chunk_generated)
+
 
 local function on_entity_died(event)
   local entity = event.entity
@@ -341,37 +547,13 @@ local function on_entity_died(event)
     return
   end
 
-  if entity.type ~= 'unit-spawner' then
-    return
-  end
-
-  local chance = math_random()
-  if chance > _g.loot_chance then
-    return
-  end
-
-  local budget = _g.loot_budget + entity.position.x * 2.75
-  budget = budget * math_random(25, 175) * 0.01
-
-  local player = event.cause and event.cause.player
-  if player and player.valid then
-    budget = budget + (_g.death_contributions[player.name] or 0) * 80
-  end
-
-  if math_random(1, 128) == 1 then budget = budget * 4 end
-  if math_random(1, 256) == 1 then budget = budget * 4 end
-  budget = budget * _g.loot_richness
-
-  local chest = entity.surface.create_entity { name = 'steel-chest', position = entity.position, force = 'player', move_stuck_players = true }
-  chest.destructible = false
-  for i = 1, 3 do
-    local item_stacks = PriceRaffle.roll(math_floor(budget / 3 ) + 1, 48)
-    for _, item_stack in pairs(item_stacks) do
-      chest.insert(item_stack)
+  local entity_type = entity.type
+  if entity_type == 'unit-spawner' then
+    on_spawner_died(entity)
+  elseif entity_type == 'unit' or entity.type == 'turret' then
+    if entity.force.name == 'enemy' then
+      on_enemy_died(entity)
     end
-  end
-  if player then
-    Toast.toast_player(player, nil, {'frontier.loot_chest'})
   end
 end
 Event.add(defines.events.on_entity_died, on_entity_died)
@@ -451,7 +633,17 @@ local function on_rocket_launched(event)
 
   game.print({'frontier.rocket_launched', _g.rockets_launched, (_g.rockets_to_win - _g.rockets_launched) })
   compute_silo_coordinates(500)
-  move_silo()
+
+  local ticks = 60
+  for _, delay in pairs{60, 40, 20} do
+    for i = 1, 30 do
+      ticks = ticks + math_random(math_ceil(delay/5), delay)
+      Task.set_timeout_in_ticks(ticks, play_sound_token, 'utility/alert_destroyed')
+    end
+  end
+  Task.set_timeout_in_ticks(ticks + 30, move_silo_token)
+  local silo = event.rocket_silo
+  if silo then silo.active = false end
 end
 Event.add(defines.events.on_rocket_launched, on_rocket_launched)
 
