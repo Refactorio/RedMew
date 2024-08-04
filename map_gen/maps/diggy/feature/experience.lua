@@ -491,14 +491,14 @@ end
 
 function Experience.toggle(event)
     local player = event.player
-    local gui = player.gui
-    local left = gui.left
-    local frame = left['Diggy.Experience.Frame']
-    local main_button = gui.top['Diggy.Experience.Button']
+    local frame = Gui.get_left_element(player, 'Diggy.Experience.Frame')
 
     if (frame and event.trigger == nil) then
         Gui.destroy(frame)
-        main_button.style = 'slot_button'
+        local main_button = Gui.get_top_element(player, 'Diggy.Experience.Button')
+        if main_button then
+            main_button.toggled = false
+        end
         return
     elseif (frame) then
         local data = Gui.get_data(frame)
@@ -508,13 +508,7 @@ function Experience.toggle(event)
         return
     end
 
-    main_button.style = 'highlighted_tool_button'
-    local style = main_button.style
-    style.width = 40
-    style.height = 40
-    style.padding = 0
-
-    frame = left.add({name = 'Diggy.Experience.Frame', type = 'frame', direction = 'vertical'})
+    frame = Gui.add_left_element(player, {name = 'Diggy.Experience.Frame', type = 'frame', direction = 'vertical'})
 
     local experience_progressbars = frame.add({type = 'flow', direction = 'vertical'})
     local experience_list_heading = frame.add({type = 'flow', direction = 'horizontal'})
@@ -548,12 +542,18 @@ function Experience.toggle(event)
 end
 
 local function on_player_created(event)
-    game.get_player(event.player_index).gui.top.add(
+    local player= game.get_player(event.player_index)
+    if not (player and player.valid) then
+        return
+    end
+
+    Gui.add_top_element(player,
         {
             name = 'Diggy.Experience.Button',
             type = 'sprite-button',
             sprite = 'entity/market',
-            tooltip = {'diggy.gui_experience_button_tip'}
+            tooltip = {'diggy.gui_experience_button_tip'},
+            auto_toggle = true,
         }
     )
 end
@@ -573,7 +573,7 @@ local function update_gui()
     local players = game.connected_players
     for i = #players, 1, -1 do
         local p = players[i]
-        local frame = p.gui.left['Diggy.Experience.Frame']
+        local frame = Gui.get_left_element(p, 'Diggy.Experience.Frame')
 
         if frame and frame.valid then
             local data = {player = p, trigger = 'update_gui'}

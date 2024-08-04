@@ -3,6 +3,7 @@ local Event = require 'utils.event'
 local Token = require 'utils.token'
 local Schedule = require 'utils.task'
 local Gui = require 'utils.gui'
+local Styles = require 'resources.styles'
 local Color = require 'resources.color_presets'
 local Server = require 'features.server'
 local ScoreTracker = require 'utils.score_tracker'
@@ -51,7 +52,7 @@ local do_redraw_score =
 
         for i = 1, #players do
             local player = players[i]
-            local frame = player.gui.top[main_frame_name]
+            local frame = Gui.get_top_element(player, main_frame_name)
 
             if frame and frame.valid then
                 local score_table = frame.score_table
@@ -88,12 +89,13 @@ local function player_created(event)
         return
     end
 
-    player.gui.top.add(
+    Gui.add_top_element(player,
         {
             type = 'sprite-button',
             name = main_button_name,
             sprite = get_score_sprite(),
-            tooltip = {'score.tooltip'}
+            tooltip = {'score.tooltip'},
+            auto_toggle = true,
         }
     )
 end
@@ -106,8 +108,16 @@ end
 
 local function score_show(top)
     local scores = get_global_score_labels()
-    local frame = top.add {type = 'frame', name = main_frame_name}
-    local score_table = frame.add {type = 'table', name = 'score_table', column_count = 8}
+    local frame = top.add {
+        type = 'frame',
+        name = main_frame_name,
+        style = 'finished_game_subheader_frame',
+        index = top[main_button_name].get_index_in_parent() + 1
+    }
+    frame.location = { x = 1, y = 38 }
+	Gui.set_style(frame, { natural_height = Styles.default_top_element.style.minimal_height, height = Styles.default_top_element.style.minimal_height })
+
+    local score_table = frame.add {type = 'table', name = 'score_table', column_count = table_size(scores)}
     local style = score_table.style
     style.vertical_spacing = 4
     style.horizontal_spacing = 16
@@ -158,21 +168,13 @@ Gui.on_click(
     main_button_name,
     function(event)
         local player = event.player
-        local top = player.gui.top
+        local top = Gui.get_top_flow(player)
         local frame = top[main_frame_name]
-        local main_button = top[main_button_name]
 
         if not frame then
             score_show(top)
-
-            main_button.style = 'highlighted_tool_button'
-            local style = main_button.style
-            style.width = 40
-            style.height = 40
-            style.padding = 0
         else
             frame.destroy()
-            main_button.style = 'slot_button'
         end
     end
 )

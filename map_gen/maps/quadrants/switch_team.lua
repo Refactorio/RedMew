@@ -160,7 +160,7 @@ end
 
 local function toggle(event)
     local player = event.player
-    local left = player.gui.left
+    local left = Gui.get_left_flow(player)
     local frame = left['Quadrants.Switch_Team']
 
     if (frame and event.trigger == nil) then
@@ -238,7 +238,7 @@ local function update_gui(force_update)
     local players = game.connected_players
     for i = #players, 1, -1 do
         local p = players[i]
-        local frame = p.gui.left['Quadrants.Switch_Team']
+        local frame = Gui.get_left_element(p, 'Quadrants.Switch_Team')
         local data = {player = p}
 
         if frame and frame.valid and (abs(p.position.x) >= 160 or abs(p.position.y) >= 160) then
