@@ -117,6 +117,84 @@ function Public.change_for_global(score_name, value)
     })
 end
 
+---Sets a setting to a specific value for a player.
+---
+---@param score_name string
+---@param value number to subtract or add
+function Public.set_for_global(score_name, value)
+    if not value then
+        value = 0
+    end
+
+    local setting = score_metadata[score_name]
+    if not setting then
+        if _DEBUG then
+            error(format('Trying to set score "%s" while it has was never registered.', score_name), 2)
+        end
+        return
+    end
+
+    local previous_value = Public.get_for_global(score_name)
+    if value == previous_value then
+        return
+    end
+
+    memory_global[score_name] = value
+
+    raise_event(on_global_score_changed, {
+        score_name = score_name
+    })
+end
+
+---Sets a setting to a specific value for a player.
+---
+---@param player_index number
+---@param score_name string
+---@param value number to subtract or add
+function Public.set_for_player(player_index, score_name, value)
+    if not value then
+        value = 0
+    end
+
+    local setting = score_metadata[score_name]
+    if not setting then
+        if _DEBUG then
+            error(format('Trying to change score "%s" while it has was never registered.', score_name), 2)
+        end
+        return
+    end
+
+    local player_score = memory_players[player_index]
+    if not player_score then
+        player_score = {}
+        memory_players[player_index] = player_score
+    end
+
+    local previous_value = Public.get_for_player(player_index, score_name)
+    if value == previous_value then
+        return
+    end
+
+    player_score[score_name] = (player_score[score_name] or 0) + value
+
+    raise_event(on_player_score_changed, {
+        score_name = score_name,
+        player_index = player_index
+    })
+end
+
+--- Resets all scores
+function Public.reset()
+    for score_name, _ in pairs(memory_global) do
+        Public.set_for_global(score_name, 0)
+    end
+    for player_index, player_memory in pairs(memory_players) do
+        for score_name, _ in pairs(player_memory) do
+            Public.set_for_player(player_index, score_name, 0)
+        end
+    end
+end
+
 ---Returns the value for this player of a specific score.
 ---
 ---@param player_index number

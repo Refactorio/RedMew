@@ -461,6 +461,14 @@ global.config = {
         max_lifetime = 20 * 60, -- 20s
         min_length = 40, -- messages shorter than this value will still be displayed for the min_lifetime
         max_length = 92, -- messages longer than this value will be trimmed
+    },
+    player_shortcuts = {
+        enabled = false,
+        shortcuts = {
+            auto_stash = true,
+            clear_corpses = true,
+            battery_charge = true,
+        }
     }
 }
 
