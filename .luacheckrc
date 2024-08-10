@@ -385,6 +385,8 @@ stds.factorio_control = {
                 "reload_script",
                 "remove_offline_players",
                 "remove_path",
+                "reset_game_state",
+                "reset_time_played",
                 "save_atlas",
                 "server_save",
                 "set_game_state",

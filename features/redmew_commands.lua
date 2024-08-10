@@ -16,6 +16,7 @@ local tonumber = tonumber
 local pairs = pairs
 local floor = math.floor
 local Ranks = require 'resources.ranks'
+local ClearCorpses = require 'features.clear_corpses'
 
 --- Informs the actor that there is no target. Acts as a central place where this message can be changed.
 local function print_no_target(target_name)
@@ -215,32 +216,7 @@ local function print_player_info(args, player)
 end
 
 local function clear_corpses(args, player)
-    if not player or not player.valid then
-        return
-    end
-
-    local surface = player.surface
-    if not surface or not surface.valid then
-        return
-    end
-
-    local surface_arg = args.surface:lower()
-    local whole_surface = player.admin and (surface_arg == 's' or surface_arg == 'surface')
-
-    local corpses
-    if whole_surface then
-        corpses = surface.find_entities_filtered({ type = 'corpse' })
-    else
-        local pos = player.position
-        local area = { { pos.x - 128, pos.y - 128 }, { pos.x + 128, pos.y + 128 } }
-        corpses = surface.find_entities_filtered({ type = 'corpse', area = area })
-    end
-
-    for i = 1, #corpses do
-        corpses[i].destroy()
-    end
-
-    player.print({ 'redmew_commands.clear_corpses_count', #corpses })
+    ClearCorpses.clear_corpses(player, args)
 end
 
 -- Command registrations
