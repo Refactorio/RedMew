@@ -73,6 +73,7 @@ local Config = global.config
 Config.redmew_surface.enabled = true
 Config.market.enabled = false
 Config.player_rewards.enabled = false
+Config.player_shortcuts.enabled = true
 Config.player_create.starting_items = {
   { name = 'burner-mining-drill', count = 1 },
   { name = 'stone-furnace', count = 1 },

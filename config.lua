@@ -463,7 +463,7 @@ global.config = {
         max_length = 92, -- messages longer than this value will be trimmed
     },
     player_shortcuts = {
-        enabled = true,
+        enabled = false,
         shortcuts = {
             auto_stash = true,
             clear_corpses = true,
