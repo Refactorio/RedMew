@@ -81,10 +81,12 @@ end
 ---@param duration number in seconds
 ---@param sound string sound to play, nil to not play anything
 local function toast_to(player, duration, sound)
-    local frame_holder = Gui.add_left_element(player, { type = 'flow', name = toast_flow_name })
+    local frame_holder = Gui.add_left_element(player, { type = 'flow', name = toast_flow_name, direction = 'vertical' })
+
+    local flow_frame = frame_holder.add { type = 'flow', direction = 'vertical' }
 
     local frame =
-        frame_holder.add({type = 'frame', name = toast_frame_name, direction = 'vertical', style = 'captionless_frame'})
+        flow_frame.add({type = 'frame', name = toast_frame_name, direction = 'vertical', style = 'captionless_frame'})
     frame.style.width = 300
 
     local container = frame.add({type = 'flow', name = toast_container_name, direction = 'horizontal'})
@@ -104,7 +106,7 @@ local function toast_to(player, duration, sound)
     end
 
     Gui.set_data(
-        frame_holder,
+        flow_frame,
         {
             toast_id = id,
             progressbar = progressbar,
@@ -117,7 +119,7 @@ local function toast_to(player, duration, sound)
         Event.add_removable_nth_tick(2, on_tick)
     end
 
-    active_toasts[id] = frame_holder
+    active_toasts[id] = flow_frame
 
     if sound then
         player.play_sound({path = sound, volume_modifier = Settings.get(player.index, toast_volume_name)})
