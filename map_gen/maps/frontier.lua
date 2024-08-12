@@ -764,6 +764,7 @@ function Main.on_game_started()
   game.reset_time_played()
 
   ScoreTracker.reset()
+  ScoreTracker.set_for_global(rocket_launches_name, this.rockets_to_win)
 end
 
 Main.restart_game_token = Token.register(function()
@@ -936,6 +937,7 @@ local function on_rocket_launched(event)
   end
 
   game.print({'frontier.rocket_launched', this.rockets_launched, (this.rockets_to_win - this.rockets_launched) })
+  ScoreTracker.set_for_global(rocket_launches_name, (this.rockets_to_win - this.rockets_launched))
   Main.compute_silo_coordinates(500)
 
   local ticks = 60
