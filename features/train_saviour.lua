@@ -25,7 +25,7 @@ Global.register(saved_players, function(tbl)
     saved_players = tbl
 end)
 
-local train_names = {['locomotive'] = true, ['cargo-wagon'] = true, ['fluid-wagon'] = true, ['artillery-wagon'] = true}
+local train_types = {['locomotive'] = true, ['cargo-wagon'] = true, ['fluid-wagon'] = true, ['artillery-wagon'] = true}
 
 local function save_player(player)
     player.character.health = 1
@@ -44,7 +44,7 @@ local function on_pre_death(event)
         return
     end
 
-    if not train_names[cause.name] then
+    if not train_types[cause.type] then
         return
     end
 

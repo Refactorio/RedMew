@@ -29,7 +29,7 @@ end)
 --- When placed, locomotives will get a random color
 local random_train_color = Token.register(function(event)
     local entity = event.created_entity
-    if entity and entity.valid and entity.name == 'locomotive' then
+    if entity and entity.valid and entity.type == 'locomotive' then
         entity.color = Utils.random_RGB()
     end
 end)
