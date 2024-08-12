@@ -83,7 +83,7 @@ end
 local function toast_to(player, duration, sound)
     local frame_holder = Gui.add_left_element(player, { type = 'flow', name = toast_flow_name, direction = 'vertical' })
 
-    local flow_frame = frame_holder.add { type = 'flow', direction = 'vertical' } 
+    local flow_frame = frame_holder.add { type = 'flow', direction = 'vertical' }
 
     local frame =
         flow_frame.add({type = 'frame', name = toast_frame_name, direction = 'vertical', style = 'captionless_frame'})
