@@ -1,3 +1,4 @@
+local Color = require 'resources.color_presets'
 local table = require 'utils.table'
 local Event = require 'utils.event'
 local Global = require 'utils.global'
@@ -27,11 +28,11 @@ function Public.show_start_up(player)
     end
 
     if _DEBUG and game.is_multiplayer() then
-        game.print('THIS MULTIPLAYER MAP IS IN DEBUG!!!')
+        game.print('THIS MULTIPLAYER MAP IS IN DEBUG!!!', Color.warning)
     elseif _DEBUG then
-        game.print("DON'T LAUNCH THIS MAP! DEBUG MODE IS ENABLED!!!")
+        game.print("DON'T LAUNCH THIS MAP! DEBUG MODE IS ENABLED!!!", Color.warning)
     elseif not _DEBUG and not game.is_multiplayer() then
-        player.print('To change your name in single-player, open chat and type the following /c game.player.name = "your_name"')
+        player.print('To change your name in single-player, open chat and type the following /c game.player.name = "your_name"', Color.info)
     end
 end
 

@@ -8,6 +8,7 @@ local math = require 'utils.math'
 local MGSP = require 'resources.map_gen_settings'
 local Noise = require 'map_gen.shared.simplex_noise'
 local PriceRaffle = require 'features.price_raffle'
+local Ranks = require 'resources.ranks'
 local RS = require 'map_gen.shared.redmew_surface'
 local ScenarioInfo = require 'features.gui.info'
 local ScoreTracker = require 'utils.score_tracker'
@@ -130,6 +131,9 @@ local this = {
 
   -- Lobby
   lobby_enabled = false,
+
+  -- Debug
+  _DEBUG_AI = false,
 }
 
 Global.register(this, function(tbl) this = tbl end)
@@ -154,6 +158,28 @@ global_to_show[#global_to_show + 1] = rocket_launches_name
 ScoreTracker.register(rocket_launches_name, {'frontier.rockets_to_launch'}, '[img=item.rocket-silo]')
 
 local escape_player = false
+
+-- == DEBUG ===================================================================
+
+local Debug = {}
+
+function Debug.print_admins(msg, color)
+  for _, p in pairs(game.connected_players) do
+    if p.admin then
+      p.print(msg, color)
+    end
+  end
+end
+
+function Debug.print(msg, color)
+  for _, p in pairs(game.connected_players) do
+    p.print(msg, color)
+  end
+end
+
+function Debug.log(data)
+  log(serpent.block(data))
+end
 
 -- == LOBBY ===================================================================
 
@@ -409,7 +435,7 @@ function Terrain.create_wall(x, w)
   end
 
   for y = -this.height * 16, this.height * 16 do
-    for j = 0, w do
+    for j = 0, w - 1 do
       local e = surface.create_entity {
         name = 'stone-wall',
         position = { x + j, y },
@@ -419,6 +445,19 @@ function Terrain.create_wall(x, w)
       e.destructible = false
     end
   end
+
+  local tiles = {}
+  for j = -4, w - 1 + 4 do
+    for y = -this.height * 16, this.height * 16 do
+      tiles[#tiles +1] = { name = 'hazard-concrete-left', position = { x = x + j, y = y }}
+    end
+  end
+  for j = -1, w do
+    for y = -this.height * 16, this.height * 16 do
+      tiles[#tiles +1] = { name = 'concrete', position = { x = x + j, y = y }}
+    end
+  end
+  surface.set_tiles(tiles, true)
 end
 
 -- == Enemy ===================================================================
@@ -453,9 +492,13 @@ Enemy.commands = {
     unit_group.set_command {
       type = defines.command.go_to_location,
       destination = position,
-      radius = 32,
+      radius = 3,
       distraction = defines.distraction.by_enemy
     }
+    unit_group.start_moving()
+    if this._DEBUG_AI then
+      Debug.print_admins(string.format('AI [id=%d] | cmd: MOVE [gps=%.2f,%.2f,%s]', unit_group.group_number, position.x, position.y, unit_group.surface.name), Color.dark_gray)
+    end
   end,
   scout = function(unit_group, position)
     local data = Enemy.ai_take_control(unit_group)
@@ -468,9 +511,13 @@ Enemy.commands = {
     unit_group.set_command {
       type = defines.command.attack_area,
       destination = position,
-      radius = 32,
+      radius = 15,
       distraction = defines.distraction.by_enemy
     }
+    unit_group.start_moving()
+    if this._DEBUG_AI then
+      Debug.print_admins(string.format('AI [id=%d] | cmd: SCOUT [gps=%.2f,%.2f,%s]', unit_group.group_number, position.x, position.y, unit_group.surface.name), Color.dark_gray)
+    end
   end,
   attack = function(unit_group, target)
     local data = Enemy.ai_take_control(unit_group)
@@ -485,6 +532,9 @@ Enemy.commands = {
       target = target,
       distraction = defines.distraction.by_damage
     }
+    if this._DEBUG_AI then
+      Debug.print_admins(string.format('AI [id=%d] | cmd: ATTACK [gps=%.2f,%.2f,%s] (type = %s)', unit_group.group_number, target.position.x, target.position.y, unit_group.surface.name, target.type), Color.dark_gray)
+    end
   end
 }
 
@@ -497,21 +547,21 @@ Enemy.stages = {
 }
 
 function Enemy.ai_take_control(unit_group)
-  local data = this.unit_groups[unit_group.group_number]
-  if not data then
-    data = { unit_group = unit_group }
-    this.unit_groups[unit_group.group_number] = data
+  if not this.unit_groups[unit_group.group_number] then
+    this.unit_groups[unit_group.group_number] = {
+      unit_group = unit_group
+    }
   end
-  return data
+  return this.unit_groups[unit_group.group_number]
 end
 
 function Enemy.ai_stage_by_distance(posA, posB)
   local x_axis = posA.x - posB.x
   local y_axis = posA.y - posB.y
   local distance = math_sqrt(x_axis * x_axis + y_axis * y_axis)
-  if distance <= 32 then
+  if distance <= 15 then
     return Enemy.stages.attack
-  elseif distance <= 32 * 3 then
+  elseif distance <= 32 then
     return Enemy.stages.scout
   else
     return Enemy.stages.move
@@ -519,29 +569,38 @@ function Enemy.ai_stage_by_distance(posA, posB)
 end
 
 function Enemy.ai_processor(unit_group, result)
+  if not (unit_group and unit_group.valid) then
+    return
+  end
+
   local data = this.unit_groups[unit_group.group_number]
   if not data then
     return
   end
 
-  if not unit_group.valid or (data.failed_attempts and data.failed_attempts >= 3) then
-    goto cancel
+  if data.failed_attempts and data.failed_attempts >= 3 then
+    this.unit_groups[unit_group.group_number] = nil
+    return
   end
 
   if not result or result == defines.behavior_result.fail or result == defines.behavior_result.deleted then
-    data.stage = nil
+    data.stage = Enemy.stages.pending
+  end
+  if result == defines.behavior_result.success and (data.stage and data.stage == Enemy.stages.attack) then
+    data.stage = Enemy.stages.pending
   end
   data.stage = data.stage or Enemy.stages.pending
 
-  if data.stage = Enemy.stages.pending then
+  if data.stage == Enemy.stages.pending then
     local surface = unit_group.surface
     data.target = surface.find_nearest_enemy_entity_with_owner {
       position = unit_group.position,
-      max_distance = unit_group.position.x,
+      max_distance = this.rocket_step * 4,
       force = 'enemy',
     }
     if not (data.target and data.target.valid) then
-      goto cancel
+      this.unit_groups[unit_group.group_number] = nil
+      return
     end
     data.position = data.target.position
     data.stage = Enemy.ai_stage_by_distance(data.position, unit_group.position)
@@ -549,21 +608,24 @@ function Enemy.ai_processor(unit_group, result)
     data.stage = data.stage + 1
   end
 
+  if this._DEBUG_AI then
+    Debug.print_admins(string.format('AI [id=%d] | status: %d', unit_group.group_number, data.stage), Color.dark_gray)
+  end
+
   if data.stage == Enemy.stages.move then
-    Enemy.commands.move(unit_group, data.position)
+    Enemy.commands.move(unit_group, data.target)
   elseif data.stage == Enemy.stages.scout then
-    Enemy.commands.scout(unit_group, data.position)
+    Enemy.commands.scout(unit_group, data.target)
   elseif data.stage == Enemy.stages.attack then
     Enemy.commands.attack(unit_group, data.target)
   else
-    data.stage, data.position, data.target = nil, nil, nil
     data.failed_attempts = (data.failed_attempts or 0) + 1
+    if this._DEBUG_AI then
+      Debug.print_admins(string.format('AI [id=%d] | FAIL | stage: %d | attempts: %d', unit_group.group_number, data.stage, data.failed_attempts), Color.dark_gray)
+    end
+    data.stage, data.position, data.target = nil, nil, nil
     Enemy.ai_processor(unit_group, nil)
   end
-  return
-
-  ::cancel::
-  this.unit_groups[unit_group.group_number] = nil
 end
 
 function Enemy.spawn_enemy_wave(position)
@@ -577,8 +639,13 @@ function Enemy.spawn_enemy_wave(position)
   local max_time = math_max(MINUTE, MINUTE * math_ceil(0.5 * (this.rockets_launched ^ 0.5)))
 
   local radius = 20
-  for _ = 1, 24 do
-    local name = math_random() > 0.15 and 'behemoth-worm-turret' or 'big-worm-turret'
+  for _ = 1, 12 do
+    local name 
+    if this.rocket_launched < 3 then
+      name = math_random() > 0.15 and 'big-worm-turret' or 'medium-worm-turret'
+    else
+      name = math_random() > 0.15 and 'behemoth-worm-turret' or 'big-worm-turret'
+    end
     local about = find_position(name, { x = position.x + math_random(), y = position.y + math_random() }, radius, 0.2)
     if about then
       local worm = spawn { name = name, position = about, force = 'enemy', move_stuck_players = true }
@@ -590,7 +657,12 @@ function Enemy.spawn_enemy_wave(position)
 
   radius = 32
   for _ = 1, 20 do
-    local name = math_random() > 0.3 and 'behemoth-biter' or 'behemoth-spitter'
+    local name
+    if this.rocket_launched < 3 then
+      name = math_random() > 0.3 and 'big-biter' or 'big-spitter'
+    else
+      name = math_random() > 0.3 and 'behemoth-biter' or 'behemoth-spitter'
+    end
     local about = find_position(name, { x = position.x + math_random(), y = position.y + math_random() }, radius, 0.6)
     if about then
       local unit = spawn { name = name, position = about, force = 'enemy', move_stuck_players = true }
@@ -601,12 +673,10 @@ function Enemy.spawn_enemy_wave(position)
     end
   end
 
-  local target = surface.find_nearest_enemy_entity_with_owner {
-    position = position,
-    max_distance = position.x,
-    force = 'enemy',
-  }
-  Enemy.commands.move(unit_group, target.position)
+  if unit_group.valid then
+    Enemy.ai_take_control(unit_group)
+    Enemy.ai_processor(unit_group)
+  end
 end
 Enemy.spawn_enemy_wave_token = Token.register(Enemy.spawn_enemy_wave)
 
@@ -677,7 +747,7 @@ function Enemy.on_spawner_died(event)
 end
 
 function Enemy.spawn_turret_outpost(position)
-  if position.x < this.right_boundary + this.wall_width then
+  if position.x < this.right_boundary * 32 + this.wall_width then
     return
   end
 
@@ -749,22 +819,37 @@ function Enemy.get_target()
   return table.get_random_dictionary_entry(this.target_entities, false)
 end
 
--- == MAIN ====================================================================
-
-function Main.nuclear_explosion(entity)
+function Enemy.nuclear_explosion(entity)
   local surface = entity.surface
   local center_position = entity.position
-  local force = entity.force
   surface.create_entity {
     name = 'atomic-rocket',
     position = center_position,
-    force = force,
+    force = 'enemy',
     source = center_position,
     target = center_position,
     max_range = 1,
     speed = 0.1
   }
 end
+
+function Enemy.artillery_explosion(data)
+  local surface = game.get_surface(data.surface_name)
+  local position = data.position
+  local r = 20
+  surface.create_entity {
+    name = 'artillery-projectile',
+    position = position,
+    force = 'enemy',
+    source = position,
+    target = { x = position.x + math_random(-r, r) + math_random(), y = position.y + math_random(-r, r) + math_random() },
+    max_range = 1,
+    speed = 0.1
+  }
+end
+Enemy.artillery_explosion_token = Token.register(Enemy.artillery_explosion)
+
+-- == MAIN ====================================================================
 
 function Main.win()
   this.scenario_finished = true
@@ -830,8 +915,15 @@ function Main.move_silo(position)
       end
     end
     game.print({'frontier.empty_rocket'})
-    Main.nuclear_explosion(chest)
-    Task.set_timeout(5, Enemy.spawn_enemy_wave_token, old_position)
+    Enemy.nuclear_explosion(chest)
+
+    local spawn_target = Enemy.get_target()
+    if spawn_target then
+      for _ = 1, 12 do
+        Task.set_timeout_in_ticks(math_random(30, 4 * 60), Enemy.artillery_explosion_token, { surface_name = surface.name, position = spawn_target.position })
+      end
+      Task.set_timeout(6, Enemy.spawn_enemy_wave_token, spawn_target.position)
+    end
 
     game.forces.enemy.reset_evolution()
     local enemy_evolution = game.map_settings.enemy_evolution
@@ -938,7 +1030,7 @@ function Main.on_game_started()
 
   if _DEBUG then
     this.silo_starting_x = 30
-    this.rockets_to_win = 1
+    this.rockets_to_win = 3
   end
 
   for _, force in pairs(game.forces) do
@@ -1127,7 +1219,7 @@ local function on_rocket_launched(event)
 
   game.print({'frontier.rocket_launched', this.rockets_launched, (this.rockets_to_win - this.rockets_launched) })
   ScoreTracker.set_for_global(rocket_launches_name, (this.rockets_to_win - this.rockets_launched))
-  Main.compute_silo_coordinates(500)
+  Main.compute_silo_coordinates(this.rocket_step + math_random(200))
 
   local ticks = 60
   for _, delay in pairs{60, 40, 20} do
@@ -1165,7 +1257,7 @@ local function on_built_entity(event)
     return
   end
 
-  --Enemy.start_tracking(entity)
+  Enemy.start_tracking(entity)
 end
 Event.add(defines.events.on_built_entity, on_built_entity)
 Event.add(defines.events.on_robot_built_entity, on_built_entity)
@@ -1174,18 +1266,19 @@ local function on_entity_destroyed(event)
   local unit_number = event.unit_number
   --local registration_number = event.registration_number
 
-  --Enemy.stop_tracking({ unit_number = unit_number })
+  Enemy.stop_tracking({ unit_number = unit_number })
 end
 Event.add(defines.events.on_entity_destroyed, on_entity_destroyed)
 
 local function on_ai_command_completed(event)
   if not event.was_distracted then
     local data = this.unit_groups[event.unit_number]
-    if data then
+    if data and data.unit_group and data.unit_group.valid then
       Enemy.ai_processor(data.unit_group, event.result)
     end
   end
 end
+Event.add(defines.events.on_ai_command_completed, on_ai_command_completed)
 
 -- == COMMANDS ================================================================
 
@@ -1206,6 +1299,39 @@ Command.add('ping-silo',
     else
       game.print(msg)
     end
+  end
+)
+
+Command.add('toggle-debug-ai',
+  {
+    description = 'Toggle ON/OFF AI debug mode',
+    allowed_by_server = true,
+    required_rank = Ranks.admin,
+  },
+  function()
+    this._DEBUG_AI = not this._DEBUG_AI
+  end
+)
+
+Command.add('print-global',
+  {
+    description = 'Prints the global table',
+    allowed_by_server = false,
+    required_rank = Ranks.admin,
+  },
+  function(_, player)
+    player.print(serpent.line(this))
+  end
+)
+
+Command.add('log-global',
+  {
+    description = 'Logs the global table',
+    allowed_by_server = true,
+    required_rank = Ranks.admin,
+  },
+  function()
+    Debug.log(this)
   end
 )
 
