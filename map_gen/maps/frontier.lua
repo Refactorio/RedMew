@@ -641,7 +641,7 @@ function Enemy.spawn_enemy_wave(position)
   local radius = 20
   for _ = 1, 12 do
     local name 
-    if this.rocket_launched < 3 then
+    if this.rockets_launched < 3 then
       name = math_random() > 0.15 and 'big-worm-turret' or 'medium-worm-turret'
     else
       name = math_random() > 0.15 and 'behemoth-worm-turret' or 'big-worm-turret'
@@ -658,7 +658,7 @@ function Enemy.spawn_enemy_wave(position)
   radius = 32
   for _ = 1, 20 do
     local name
-    if this.rocket_launched < 3 then
+    if this.rockets_launched < 3 then
       name = math_random() > 0.3 and 'big-biter' or 'big-spitter'
     else
       name = math_random() > 0.3 and 'behemoth-biter' or 'behemoth-spitter'
@@ -851,6 +851,83 @@ Enemy.artillery_explosion_token = Token.register(Enemy.artillery_explosion)
 
 -- == MAIN ====================================================================
 
+local bard_messages_1 = {
+  [1] = {
+    [[The rocket has successfully launched! The Kraken has accepted your offering... for now.]],
+    [[A distant rumble echoes through the air. The Kraken stirs in the depths.]],
+    [[You can almost feel the waters shifting. What will the Kraken do with your gift?]],
+    [[The sky darkens as the rocket ascends. Is the Kraken pleased or plotting revenge?]],
+    [[You have awakened something ancient. Expect the unknown in the next moments.]],
+    [[A whisper echoes in your mind: 'You dare disturb my slumber?']],
+    [[The Kraken watches from below, its tendrils coiling in anticipation.]],
+    [[A chilling wind sweeps across your factory—a sign the Kraken is not to be trifled with.]],
+    [[The ground trembles as the rocket disappears into the sky... what price will you pay?]],
+    [[An ominous shadow looms beneath the waves. The Kraken has taken notice.]],
+  },
+  [2] = {
+    [[As the rocket pierces the sky, dark waters tremble in anticipation... something stirs.]],
+    [[A whispering gale caresses the land; the Kraken's essence begins to awaken.]],
+    [[Shadows flicker at the water's edge. The depths conceal secrets you cannot fathom.]],
+    [[Eyes unblinking watch from the abyss; your offering has been noted with curiosity... or contempt.]],
+    [[The air grows thick with foreboding. An ancient power rouses from its slumber.]],
+    [[From the deep, a voice resonates: 'What price have you paid for your hubris?']],
+    [[The ocean churns as if agitated. The Kraken's mood is as unpredictable as the tempest.]],
+    [[Unseen tendrils drift closer to your shores. What has been awakened cannot be unmade.]],
+    [[A shiver runs through the ground, as if the earth itself fears the Kraken's gaze.]],
+    [[With each second that passes, the Kraken's presence suffocates the air around you.]],
+  },
+  [3] = {
+    [[Hark! The rocket soars to the heavens, yet below, the Kraken stirs in its slumber deep, its ancient wrath looms ever near!]],
+    [[Lo, the winds whisper secrets of the abyss; the Kraken watches, its tendrils twitching in delight or dread—can you tell which it shall be?]],
+    [[By the light of the fading suns, shadows dance upon the waves. A gift offered, but at what terrible cost? Beware the storm that brews!]],
+    [[Listen well, dear traveler! For the depths grow restless, and the Kraken, master of the abyss, awakens to claim its due!]],
+    [[Oh, fear the echo of the deep! A creature of legend stirs, its gaze upon your fortress—wreathed in shadows, it feasts on your hubris!]],
+    [[Beware the churning sea, where the ancient beast stirs; your paid price may be your eternal plight—what horrors shall it unleash?]],
+    [[From depths unknown, an unsettling murmur rises, 'You dared disturb me, foolish one! Know now the depths of my disdain!']],
+    [[As the rocket ascends, the sky darkens and trembles, for the Kraken's heart beats wildly—can you sense its lurking fury?]],
+    [[Oremus, oh heed my words! For beneath the surface lies a horror awakened—a vengeful force hungering for the taste of calamity!]],
+    [[An eternal shadow looms, beckoned by your ambition! What horrors have you invited to dance upon your very threshold?]],
+  },
+}
+local bard_messages_2 = {
+  [1] = {  
+    [[The surface of the water begins to churn ominously... something awakens.]],
+    [[An unsettling roar reverberates through the land. The Kraken's wrath is near.]],
+    [[A dark cloud forms above, casting a shadow over your factory. The Kraken is displeased.]],
+    [[Tentacles rise from the deep, a harbinger of chaos approaching your base.]],
+    [[The Kraken demands retribution! Prepare for the onslaught!]],
+    [[A storm brews on the horizon; the Kraken lashes out in fury.]],
+    [[The air grows thick with tension as a monstrous wave approaches your shores.]],
+    [[All around you, the atmosphere shifts—something is very wrong.]],
+    [[The Kraken's vengeance is upon you! Brace yourself for the inevitable.]],
+    [[In its rage, the Kraken unleashes its fury! The biter swarm descends!]],
+  },
+  [2] = { 
+    [[The surface roils ominously, dark waters boiling as wrath takes form.]],
+    [[A haunting cry echoes across the landscape—an ancient beast calls for retribution.]],
+    [[Dark clouds gather like a shroud, heralding calamity born of the abyss.]],
+    [[Tendrils of shadow writhe beneath the waves—a prelude to the storm of vengeance.]],
+    [[The Kraken's disdain unfurls like a tempest, a dark promise of chaos and destruction.]],
+    [[An unnatural stillness settles, broken only by the distant crash of furious waves.]],
+    [[The deep stirs with malice. Can you hear the heartbeat of your impending doom?]],
+    [[In the twilight, the Kraken's fury eclipses all hope, a symphony of despair draws near.]],
+    [[As specters rise from the depths, their intent is clear: retribution is swift and merciless.]],
+    [[Your fate is entwined with the Kraken's ire—prepare for the inexorable tide of darkness.]],
+  },
+  [3] = {
+    [[Attend! A tempest brews upon darkened waters, rage unfurling like a ravenous beast—your time is nigh!]],
+    [[The Kraken's call resounds, echoing through the night; from the abyss it comes, cloaked in shadows and dread!]],
+    [[A shudder passes through the land, and ominous clouds converge—gaze now upon the darkening sky, for doom draws near!]],
+    [[Dread whisperings of the deep herald the coming tempest; the Kraken rises, eager to reclaim what is owed with swift malice!]],
+    [[Foul winds carry the scent of vengeance. The Kraken's ire is unbound, and soon your fortress shall feel its dark embrace!]],
+    [[In the twilight haze, a cacophony of doom stirs—behold, the tide of destruction approaches with unholy intent!]],
+    [[Tremble now, for the Kraken awakens! A chorus of despair sings forth, heralding the swarm that comes, hungry and relentless!]],
+    [[The ancient beast unleashes fury upon your path—a storm of chaos born from the depths, bringing forth a wretched tide!]],
+    [[Beware! The Kraken's wrath is a specter unshackled, and every heartbeat draws nearer to the end of your peace!]],
+    [[Thus, from beneath the waves, chaos and slaughter arise—oh, brave souls, face the horrors your hubris has conjured!]],
+  },
+}
+
 function Main.win()
   this.scenario_finished = true
   game.set_game_state { game_finished = true, player_won = true, can_continue = true, victorious_force = 'player' }
@@ -917,12 +994,15 @@ function Main.move_silo(position)
     game.print({'frontier.empty_rocket'})
     Enemy.nuclear_explosion(chest)
 
-    local spawn_target = Enemy.get_target()
-    if spawn_target then
-      for _ = 1, 12 do
-        Task.set_timeout_in_ticks(math_random(30, 4 * 60), Enemy.artillery_explosion_token, { surface_name = surface.name, position = spawn_target.position })
+    for _ = 1, 3 do
+      local spawn_target = Enemy.get_target()
+      if spawn_target and spawn_target.valid then
+        for _ = 1, 12 do
+          Task.set_timeout_in_ticks(math_random(30, 4 * 60), Enemy.artillery_explosion_token, { surface_name = surface.name, position = spawn_target.position })
+        end
+        Task.set_timeout(6, Enemy.spawn_enemy_wave_token, spawn_target.position)
+        break
       end
-      Task.set_timeout(6, Enemy.spawn_enemy_wave_token, spawn_target.position)
     end
 
     game.forces.enemy.reset_evolution()
@@ -1063,6 +1143,11 @@ Main.end_game_token = Token.register(function()
   script.raise_event(Main.events.on_game_finished, {})
 end)
 
+function Main.bard_message(list)
+  game.print('[color=orange][Bard][/color] ' .. list[math_random(#list)], { sound_path = 'utility/axe_fighting', color = Color.brown })
+end
+Main.bard_message_token = Token.register(Main.bard_message)
+
 -- == EVENTS ==================================================================
 
 local function on_init()
@@ -1137,7 +1222,7 @@ local function on_entity_died(event)
   if entity.force.name == 'enemy' then
     if entity_type == 'unit-spawner' then
       Enemy.on_spawner_died(event)
-    elseif entity_type == 'unit' or entity.type == 'turret' then
+    elseif entity_type == 'unit' or entity_type == 'turret' then
       Enemy.on_enemy_died(entity)
     end
   elseif entity_type == 'simple-entity' then
@@ -1175,7 +1260,7 @@ local function on_player_died(event)
   end
 
   this.rockets_to_win = this.rockets_to_win + this.rockets_per_death
-  ScoreTracker.set_for_global(rocket_launches_name, this.rockets_to_win - this.rocket_launched)
+  ScoreTracker.set_for_global(rocket_launches_name, this.rockets_to_win - this.rockets_launched)
 
   game.print({'frontier.add_rocket', this.rockets_per_death, player_name, (this.rockets_to_win - this.rockets_launched)})
 end
@@ -1212,13 +1297,13 @@ local function on_rocket_launched(event)
   end
 
   this.rockets_launched = this.rockets_launched + 1
+  ScoreTracker.set_for_global(rocket_launches_name, (this.rockets_to_win - this.rockets_launched))
   if this.rockets_launched >= this.rockets_to_win then
     Main.win()
     return
   end
 
   game.print({'frontier.rocket_launched', this.rockets_launched, (this.rockets_to_win - this.rockets_launched) })
-  ScoreTracker.set_for_global(rocket_launches_name, (this.rockets_to_win - this.rockets_launched))
   Main.compute_silo_coordinates(this.rocket_step + math_random(200))
 
   local ticks = 60
@@ -1228,6 +1313,8 @@ local function on_rocket_launched(event)
       Task.set_timeout_in_ticks(ticks, Main.play_sound_token, 'utility/alert_destroyed')
     end
   end
+  Task.set_timeout( 5, Main.bard_message_token, bard_messages_1[3])
+  Task.set_timeout(25, Main.bard_message_token, bard_messages_2[3])
   Task.set_timeout_in_ticks(ticks + 30, Main.move_silo_token)
   local silo = event.rocket_silo
   if silo then silo.active = false end
