@@ -61,6 +61,9 @@ Your mission, should you choose to accept it, is to journey through this ribbon 
 In [font=default-bold]Frontier[/font], your wits will be tested as you evolve from a mere survivor to an engineering genius capable of taming the land and launching your final escape. Build a thriving factory, and prepare to conquer both nature and the relentless horde in a race against time. But remember, the frontier waits for no one. Will you make your mark on this alien world or become another lost tale in the void of space?
 ]])
 ScenarioInfo.set_new_info([[
+  2024-08-15:
+    - Fixed desyncs
+    - Fixed biter waves
   2024-08-10:
     - Added enemy turrets
     - Added soft reset
