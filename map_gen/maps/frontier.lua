@@ -28,6 +28,8 @@ local simplex = Noise.d2
 local SECOND = 60
 local MINUTE =  SECOND * 60
 
+local register_on_entity_destroyed = script.register_on_entity_destroyed
+
 --[[
   Scenario info: Frontier
   From 'Frontier Extended' mod: https://mods.factorio.com/mod/Frontier-Extended
@@ -121,8 +123,13 @@ local this = {
   min_step = 500,           -- minimum tiles to move
   max_distance = 100000,    -- maximum x distance of rocket silo
 
-  -- Revived enemies
-  invincible = {}
+  -- Enemy data
+  invincible = {},
+  target_entities = {},
+  unit_groups = {},
+
+  -- Lobby
+  lobby_enabled = false,
 }
 
 Global.register(this, function(tbl) this = tbl end)
@@ -152,7 +159,6 @@ local escape_player = false
 
 local Lobby = {}
 
-Lobby.enabled = false
 Lobby.name = 'nauvis'
 Lobby.mgs = {
   water = 0,
@@ -415,28 +421,158 @@ function Terrain.create_wall(x, w)
   end
 end
 
--- == MAIN ====================================================================
+-- == Enemy ===================================================================
 
-function Main.nuclear_explosion(entity)
-  local surface = entity.surface
-  local center_position = entity.position
-  local force = entity.force
-  surface.create_entity {
-    name = 'atomic-rocket',
-    position = center_position,
-    force = force,
-    source = center_position,
-    target = center_position,
-    max_range = 1,
-    speed = 0.1
-  }
+local Enemy = {}
+
+Enemy.target_entity_types = {
+  ['accumulator'] = true,
+  ['assembling-machine'] = true,
+  ['beacon'] = true,
+  ['boiler'] = true,
+  ['furnace'] = true,
+  ['generator'] = true,
+  ['heat-interface'] = true,
+  ['lab'] = true,
+  ['mining-drill'] = true,
+  ['offshore-pump'] = true,
+  ['reactor'] = true,
+  ['roboport'] = true,
+  ['solar-panel'] = true,
+}
+
+Enemy.commands = {
+  move = function(unit_group, position)
+    local data = Enemy.ai_take_control(unit_group)
+    if not position then
+      Enemy.ai_processor(unit_group)
+      return
+    end
+    data.position = position
+    data.stage = Enemy.stages.move
+    unit_group.set_command {
+      type = defines.command.go_to_location,
+      destination = position,
+      radius = 32,
+      distraction = defines.distraction.by_enemy
+    }
+  end,
+  scout = function(unit_group, position)
+    local data = Enemy.ai_take_control(unit_group)
+    if not position then
+      Enemy.ai_processor(unit_group)
+      return
+    end
+    data.position = position
+    data.stage = Enemy.stages.scout
+    unit_group.set_command {
+      type = defines.command.attack_area,
+      destination = position,
+      radius = 32,
+      distraction = defines.distraction.by_enemy
+    }
+  end,
+  attack = function(unit_group, target)
+    local data = Enemy.ai_take_control(unit_group)
+    if not (target and target.valid) then
+      Enemy.ai_processor(unit_group)
+      return
+    end
+    data.target = target
+    data.stage = Enemy.stages.attack
+    unit_group.set_command {
+      type = defines.command.attack,
+      target = target,
+      distraction = defines.distraction.by_damage
+    }
+  end
+}
+
+Enemy.stages = {
+  pending = 1,
+  move = 2,
+  scout = 3,
+  attack = 4,
+  fail = 5,
+}
+
+function Enemy.ai_take_control(unit_group)
+  local data = this.unit_groups[unit_group.group_number]
+  if not data then
+    data = { unit_group = unit_group }
+    this.unit_groups[unit_group.group_number] = data
+  end
+  return data
 end
 
-function Main.spawn_enemy_wave(position)
+function Enemy.ai_stage_by_distance(posA, posB)
+  local x_axis = posA.x - posB.x
+  local y_axis = posA.y - posB.y
+  local distance = math_sqrt(x_axis * x_axis + y_axis * y_axis)
+  if distance <= 32 then
+    return Enemy.stages.attack
+  elseif distance <= 32 * 3 then
+    return Enemy.stages.scout
+  else
+    return Enemy.stages.move
+  end
+end
+
+function Enemy.ai_processor(unit_group, result)
+  local data = this.unit_groups[unit_group.group_number]
+  if not data then
+    return
+  end
+
+  if not unit_group.valid or (data.failed_attempts and data.failed_attempts >= 3) then
+    goto cancel
+  end
+
+  if not result or result == defines.behavior_result.fail or result == defines.behavior_result.deleted then
+    data.stage = nil
+  end
+  data.stage = data.stage or Enemy.stages.pending
+
+  if data.stage = Enemy.stages.pending then
+    local surface = unit_group.surface
+    data.target = surface.find_nearest_enemy_entity_with_owner {
+      position = unit_group.position,
+      max_distance = unit_group.position.x,
+      force = 'enemy',
+    }
+    if not (data.target and data.target.valid) then
+      goto cancel
+    end
+    data.position = data.target.position
+    data.stage = Enemy.ai_stage_by_distance(data.position, unit_group.position)
+  else
+    data.stage = data.stage + 1
+  end
+
+  if data.stage == Enemy.stages.move then
+    Enemy.commands.move(unit_group, data.position)
+  elseif data.stage == Enemy.stages.scout then
+    Enemy.commands.scout(unit_group, data.position)
+  elseif data.stage == Enemy.stages.attack then
+    Enemy.commands.attack(unit_group, data.target)
+  else
+    data.stage, data.position, data.target = nil, nil, nil
+    data.failed_attempts = (data.failed_attempts or 0) + 1
+    Enemy.ai_processor(unit_group, nil)
+  end
+  return
+
+  ::cancel::
+  this.unit_groups[unit_group.group_number] = nil
+end
+
+function Enemy.spawn_enemy_wave(position)
   local surface = RS.get_surface()
   local find_position = surface.find_non_colliding_position
   local spawn = surface.create_entity
   local current_tick = game.tick
+
+  local unit_group = surface.create_unit_group { position = position, force = 'enemy' }
 
   local max_time = math_max(MINUTE, MINUTE * math_ceil(0.5 * (this.rockets_launched ^ 0.5)))
 
@@ -461,12 +597,86 @@ function Main.spawn_enemy_wave(position)
       this.invincible[unit.unit_number] = {
         time_to_live = current_tick + math_random(MINUTE, max_time)
       }
+      unit_group.add_member(unit)
+    end
+  end
+
+  local target = surface.find_nearest_enemy_entity_with_owner {
+    position = position,
+    max_distance = position.x,
+    force = 'enemy',
+  }
+  Enemy.commands.move(unit_group, target.position)
+end
+Enemy.spawn_enemy_wave_token = Token.register(Enemy.spawn_enemy_wave)
+
+function Enemy.on_enemy_died(entity)
+  local uid = entity.unit_number
+  local data = this.invincible[uid]
+  if not data then
+    return
+  end
+
+  if game.tick > data.time_to_live then
+    this.invincible[uid] = nil
+    return
+  end
+
+  local new_entity = entity.surface.create_entity {
+    name = entity.name,
+    position = entity.position,
+    force = entity.force,
+  }
+
+  this.invincible[new_entity.unit_number] = {
+    time_to_live = data.time_to_live,
+  }
+  this.invincible[uid] = nil
+
+  if new_entity.type == 'unit' then
+    new_entity.set_command(entity.command)
+    if entity.unit_group then
+      entity.unit_group.add_member(new_entity)
     end
   end
 end
-Main.spawn_enemy_wave_token = Token.register(Main.spawn_enemy_wave)
 
-function Main.spawn_turret_outpost(position)
+function Enemy.on_spawner_died(event)
+  local entity = event.entity
+  local chance = math_random()
+  if chance > this.loot_chance then
+    return
+  end
+
+  local budget = this.loot_budget + entity.position.x * 2.75
+  budget = budget * math_random(25, 175) * 0.01
+
+  local player = false
+  if event.cause and event.cause.type == 'character' then
+    player = event.cause.player
+  end
+  if player and player.valid then
+    budget = budget + (this.death_contributions[player.name] or 0) * 80
+  end
+
+  if math_random(1, 128) == 1 then budget = budget * 4 end
+  if math_random(1, 256) == 1 then budget = budget * 4 end
+  budget = budget * this.loot_richness
+
+  local chest = entity.surface.create_entity { name = 'steel-chest', position = entity.position, force = 'player', move_stuck_players = true }
+  chest.destructible = false
+  for i = 1, 3 do
+    local item_stacks = PriceRaffle.roll(math_floor(budget / 3 ) + 1, 48)
+    for _, item_stack in pairs(item_stacks) do
+      chest.insert(item_stack)
+    end
+  end
+  if player then
+    Toast.toast_player(player, nil, {'frontier.loot_chest'})
+  end
+end
+
+function Enemy.spawn_turret_outpost(position)
   if position.x < this.right_boundary + this.wall_width then
     return
   end
@@ -518,6 +728,44 @@ function Main.spawn_turret_outpost(position)
   end
 end
 
+function Enemy.start_tracking(entity)
+  if not Enemy.target_entity_types[entity.type] then
+    return
+  end
+
+  if entity.force.name == 'enemy' or entity.force.name == 'neutral' then
+    return
+  end
+
+  register_on_entity_destroyed(entity)
+  this.target_entities[entity.unit_number] = entity
+end
+
+function Enemy.stop_tracking(entity)
+  this.target_entities[entity.unit_number] = nil
+end
+
+function Enemy.get_target()
+  return table.get_random_dictionary_entry(this.target_entities, false)
+end
+
+-- == MAIN ====================================================================
+
+function Main.nuclear_explosion(entity)
+  local surface = entity.surface
+  local center_position = entity.position
+  local force = entity.force
+  surface.create_entity {
+    name = 'atomic-rocket',
+    position = center_position,
+    force = force,
+    source = center_position,
+    target = center_position,
+    max_range = 1,
+    speed = 0.1
+  }
+end
+
 function Main.win()
   this.scenario_finished = true
   game.set_game_state { game_finished = true, player_won = true, can_continue = true, victorious_force = 'player' }
@@ -529,69 +777,6 @@ function Main.win()
   Task.set_timeout(86, Main.restart_message_token,  5)
   Task.set_timeout(91, Main.end_game_token)
   Task.set_timeout(92, Main.restart_game_token)
-end
-
-function Main.on_spawner_died(event)
-  local entity = event.entity
-  local chance = math_random()
-  if chance > this.loot_chance then
-    return
-  end
-
-  local budget = this.loot_budget + entity.position.x * 2.75
-  budget = budget * math_random(25, 175) * 0.01
-
-  local player = false
-  if event.cause and event.cause.type == 'character' then
-    player = event.cause.player
-  end
-  if player and player.valid then
-    budget = budget + (this.death_contributions[player.name] or 0) * 80
-  end
-
-  if math_random(1, 128) == 1 then budget = budget * 4 end
-  if math_random(1, 256) == 1 then budget = budget * 4 end
-  budget = budget * this.loot_richness
-
-  local chest = entity.surface.create_entity { name = 'steel-chest', position = entity.position, force = 'player', move_stuck_players = true }
-  chest.destructible = false
-  for i = 1, 3 do
-    local item_stacks = PriceRaffle.roll(math_floor(budget / 3 ) + 1, 48)
-    for _, item_stack in pairs(item_stacks) do
-      chest.insert(item_stack)
-    end
-  end
-  if player then
-    Toast.toast_player(player, nil, {'frontier.loot_chest'})
-  end
-end
-
-function Main.on_enemy_died(entity)
-  local uid = entity.unit_number
-  local data = this.invincible[uid]
-  if not data then
-    return
-  end
-
-  if game.tick > data.time_to_live then
-    this.invincible[uid] = nil
-    return
-  end
-
-  local new_entity = entity.surface.create_entity {
-    name = entity.name,
-    position = entity.position,
-    force = entity.force,
-  }
-
-  this.invincible[new_entity.unit_number] = {
-    time_to_live = data.time_to_live,
-  }
-  this.invincible[uid] = nil
-
-  if new_entity.type == 'unit' then
-    new_entity.set_command(entity.command)
-  end
 end
 
 Main.play_sound_token = Token.register(Sounds.notify_all)
@@ -646,7 +831,7 @@ function Main.move_silo(position)
     end
     game.print({'frontier.empty_rocket'})
     Main.nuclear_explosion(chest)
-    Task.set_timeout(5, Main.spawn_enemy_wave_token, old_position)
+    Task.set_timeout(5, Enemy.spawn_enemy_wave_token, old_position)
 
     game.forces.enemy.reset_evolution()
     local enemy_evolution = game.map_settings.enemy_evolution
@@ -748,6 +933,8 @@ function Main.on_game_started()
   this.rocket_silo = nil
   this.move_buffer = 0
   this.invincible = {}
+  this.target_entities = {}
+  this.unit_groups = {} 
 
   if _DEBUG then
     this.silo_starting_x = 30
@@ -772,7 +959,7 @@ Main.restart_game_token = Token.register(function()
 end)
 
 function Main.on_game_finished()
-  Lobby.enabled = true
+  this.lobby_enabled = true
   Lobby.teleport_all_to()
 
   local surface = RS.get_surface()
@@ -791,7 +978,7 @@ local function on_init()
   Main.on_game_started()
   Main.reveal_spawn_area()
 
-  Lobby.enabled = false
+  this.lobby_enabled = false
   Lobby.teleport_all_from()
 end
 Event.on_init(on_init)
@@ -800,7 +987,7 @@ local function on_game_started()
   Main.on_game_started()
   Main.reveal_spawn_area()
 
-  Lobby.enabled = false
+  this.lobby_enabled = false
   Lobby.teleport_all_from()
 end
 Event.add(Main.events.on_game_started, on_game_started)
@@ -816,7 +1003,7 @@ local function on_player_created(event)
     return
   end
 
-  if Lobby.enabled then
+  if this.lobby_enabled then
     Lobby.teleport_to(player)
   end
 end
@@ -855,12 +1042,14 @@ local function on_entity_died(event)
   end
 
   local entity_type = entity.type
-  if entity_type == 'unit-spawner' then
-    Main.on_spawner_died(event)
-  elseif entity_type == 'unit' or entity.type == 'turret' then
-    if entity.force.name == 'enemy' then
-      Main.on_enemy_died(entity)
+  if entity.force.name == 'enemy' then
+    if entity_type == 'unit-spawner' then
+      Enemy.on_spawner_died(event)
+    elseif entity_type == 'unit' or entity.type == 'turret' then
+      Enemy.on_enemy_died(entity)
     end
+  elseif entity_type == 'simple-entity' then
+    Enemy.spawn_turret_outpost(entity.position)
   end
 end
 Event.add(defines.events.on_entity_died, on_entity_died)
@@ -960,12 +1149,43 @@ local function on_entity_mined(event)
   end
 
   if entity.type == 'simple-entity' then
-    Main.spawn_turret_outpost(entity.position)
+    Enemy.spawn_turret_outpost(entity.position)
   end
 end
 Event.add(defines.events.on_robot_mined_entity, on_entity_mined)
 Event.add(defines.events.on_player_mined_entity, on_entity_mined)
 
+local function on_built_entity(event)
+  local entity = event.created_entity
+  if not (entity and entity.valid) then
+    return
+  end
+
+  if entity.name == 'entity-ghost' then
+    return
+  end
+
+  --Enemy.start_tracking(entity)
+end
+Event.add(defines.events.on_built_entity, on_built_entity)
+Event.add(defines.events.on_robot_built_entity, on_built_entity)
+
+local function on_entity_destroyed(event)
+  local unit_number = event.unit_number
+  --local registration_number = event.registration_number
+
+  --Enemy.stop_tracking({ unit_number = unit_number })
+end
+Event.add(defines.events.on_entity_destroyed, on_entity_destroyed)
+
+local function on_ai_command_completed(event)
+  if not event.was_distracted then
+    local data = this.unit_groups[event.unit_number]
+    if data then
+      Enemy.ai_processor(data.unit_group, event.result)
+    end
+  end
+end
 
 -- == COMMANDS ================================================================
 
