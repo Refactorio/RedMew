@@ -8,10 +8,12 @@ local math = require 'utils.math'
 local MGSP = require 'resources.map_gen_settings'
 local Noise = require 'map_gen.shared.simplex_noise'
 local PriceRaffle = require 'features.price_raffle'
+local Ranks = require 'resources.ranks'
 local RS = require 'map_gen.shared.redmew_surface'
 local ScenarioInfo = require 'features.gui.info'
 local ScoreTracker = require 'utils.score_tracker'
 local Sounds = require 'utils.sounds'
+local Table = require 'utils.table'
 local Toast = require 'features.gui.toast'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
@@ -27,6 +29,8 @@ local math_sqrt = math.sqrt
 local simplex = Noise.d2
 local SECOND = 60
 local MINUTE =  SECOND * 60
+
+local register_on_entity_destroyed = script.register_on_entity_destroyed
 
 --[[
   Scenario info: Frontier
@@ -58,6 +62,9 @@ Your mission, should you choose to accept it, is to journey through this ribbon 
 In [font=default-bold]Frontier[/font], your wits will be tested as you evolve from a mere survivor to an engineering genius capable of taming the land and launching your final escape. Build a thriving factory, and prepare to conquer both nature and the relentless horde in a race against time. But remember, the frontier waits for no one. Will you make your mark on this alien world or become another lost tale in the void of space?
 ]])
 ScenarioInfo.set_new_info([[
+  2024-08-15:
+    - Fixed desyncs
+    - Fixed biter waves
   2024-08-10:
     - Added enemy turrets
     - Added soft reset
@@ -121,8 +128,16 @@ local this = {
   min_step = 500,           -- minimum tiles to move
   max_distance = 100000,    -- maximum x distance of rocket silo
 
-  -- Revived enemies
-  invincible = {}
+  -- Enemy data
+  invincible = {},
+  target_entities = {},
+  unit_groups = {},
+
+  -- Lobby
+  lobby_enabled = false,
+
+  -- Debug
+  _DEBUG_AI = false,
 }
 
 Global.register(this, function(tbl) this = tbl end)
@@ -148,11 +163,32 @@ ScoreTracker.register(rocket_launches_name, {'frontier.rockets_to_launch'}, '[im
 
 local escape_player = false
 
+-- == DEBUG ===================================================================
+
+local Debug = {}
+
+function Debug.print_admins(msg, color)
+  for _, p in pairs(game.connected_players) do
+    if p.admin then
+      p.print(msg, color)
+    end
+  end
+end
+
+function Debug.print(msg, color)
+  for _, p in pairs(game.connected_players) do
+    p.print(msg, color)
+  end
+end
+
+function Debug.log(data)
+  log(serpent.block(data))
+end
+
 -- == LOBBY ===================================================================
 
 local Lobby = {}
 
-Lobby.enabled = false
 Lobby.name = 'nauvis'
 Lobby.mgs = {
   water = 0,
@@ -403,7 +439,7 @@ function Terrain.create_wall(x, w)
   end
 
   for y = -this.height * 16, this.height * 16 do
-    for j = 0, w do
+    for j = 0, w - 1 do
       local e = surface.create_entity {
         name = 'stone-wall',
         position = { x + j, y },
@@ -413,36 +449,207 @@ function Terrain.create_wall(x, w)
       e.destructible = false
     end
   end
+
+  local tiles = {}
+  for j = -4, w - 1 + 4 do
+    for y = -this.height * 16, this.height * 16 do
+      tiles[#tiles +1] = { name = 'hazard-concrete-left', position = { x = x + j, y = y }}
+    end
+  end
+  for j = -1, w do
+    for y = -this.height * 16, this.height * 16 do
+      tiles[#tiles +1] = { name = 'concrete', position = { x = x + j, y = y }}
+    end
+  end
+  surface.set_tiles(tiles, true)
 end
 
--- == MAIN ====================================================================
+-- == Enemy ===================================================================
 
-function Main.nuclear_explosion(entity)
-  local surface = entity.surface
-  local center_position = entity.position
-  local force = entity.force
-  surface.create_entity {
-    name = 'atomic-rocket',
-    position = center_position,
-    force = force,
-    source = center_position,
-    target = center_position,
-    max_range = 1,
-    speed = 0.1
-  }
+local Enemy = {}
+
+Enemy.target_entity_types = {
+  ['accumulator'] = true,
+  ['assembling-machine'] = true,
+  ['beacon'] = true,
+  ['boiler'] = true,
+  ['furnace'] = true,
+  ['generator'] = true,
+  ['heat-interface'] = true,
+  ['lab'] = true,
+  ['mining-drill'] = true,
+  ['offshore-pump'] = true,
+  ['reactor'] = true,
+  ['roboport'] = true,
+  ['solar-panel'] = true,
+}
+
+Enemy.commands = {
+  move = function(unit_group, position)
+    local data = Enemy.ai_take_control(unit_group)
+    if not position then
+      Enemy.ai_processor(unit_group)
+      return
+    end
+    data.position = position
+    data.stage = Enemy.stages.move
+    unit_group.set_command {
+      type = defines.command.go_to_location,
+      destination = position,
+      radius = 3,
+      distraction = defines.distraction.by_enemy
+    }
+    unit_group.start_moving()
+    if this._DEBUG_AI then
+      Debug.print_admins(string.format('AI [id=%d] | cmd: MOVE [gps=%.2f,%.2f,%s]', unit_group.group_number, position.x, position.y, unit_group.surface.name), Color.dark_gray)
+    end
+  end,
+  scout = function(unit_group, position)
+    local data = Enemy.ai_take_control(unit_group)
+    if not position then
+      Enemy.ai_processor(unit_group)
+      return
+    end
+    data.position = position
+    data.stage = Enemy.stages.scout
+    unit_group.set_command {
+      type = defines.command.attack_area,
+      destination = position,
+      radius = 15,
+      distraction = defines.distraction.by_enemy
+    }
+    unit_group.start_moving()
+    if this._DEBUG_AI then
+      Debug.print_admins(string.format('AI [id=%d] | cmd: SCOUT [gps=%.2f,%.2f,%s]', unit_group.group_number, position.x, position.y, unit_group.surface.name), Color.dark_gray)
+    end
+  end,
+  attack = function(unit_group, target)
+    local data = Enemy.ai_take_control(unit_group)
+    if not (target and target.valid) then
+      Enemy.ai_processor(unit_group)
+      return
+    end
+    data.target = target
+    data.stage = Enemy.stages.attack
+    unit_group.set_command {
+      type = defines.command.attack,
+      target = target,
+      distraction = defines.distraction.by_damage
+    }
+    if this._DEBUG_AI then
+      Debug.print_admins(string.format('AI [id=%d] | cmd: ATTACK [gps=%.2f,%.2f,%s] (type = %s)', unit_group.group_number, target.position.x, target.position.y, unit_group.surface.name, target.type), Color.dark_gray)
+    end
+  end
+}
+
+Enemy.stages = {
+  pending = 1,
+  move = 2,
+  scout = 3,
+  attack = 4,
+  fail = 5,
+}
+
+function Enemy.ai_take_control(unit_group)
+  if not this.unit_groups[unit_group.group_number] then
+    this.unit_groups[unit_group.group_number] = {
+      unit_group = unit_group
+    }
+  end
+  return this.unit_groups[unit_group.group_number]
 end
 
-function Main.spawn_enemy_wave(position)
+function Enemy.ai_stage_by_distance(posA, posB)
+  local x_axis = posA.x - posB.x
+  local y_axis = posA.y - posB.y
+  local distance = math_sqrt(x_axis * x_axis + y_axis * y_axis)
+  if distance <= 15 then
+    return Enemy.stages.attack
+  elseif distance <= 32 then
+    return Enemy.stages.scout
+  else
+    return Enemy.stages.move
+  end
+end
+
+function Enemy.ai_processor(unit_group, result)
+  if not (unit_group and unit_group.valid) then
+    return
+  end
+
+  local data = this.unit_groups[unit_group.group_number]
+  if not data then
+    return
+  end
+
+  if data.failed_attempts and data.failed_attempts >= 3 then
+    this.unit_groups[unit_group.group_number] = nil
+    return
+  end
+
+  if not result or result == defines.behavior_result.fail or result == defines.behavior_result.deleted then
+    data.stage = Enemy.stages.pending
+  end
+  if result == defines.behavior_result.success and (data.stage and data.stage == Enemy.stages.attack) then
+    data.stage = Enemy.stages.pending
+  end
+  data.stage = data.stage or Enemy.stages.pending
+
+  if data.stage == Enemy.stages.pending then
+    local surface = unit_group.surface
+    data.target = surface.find_nearest_enemy_entity_with_owner {
+      position = unit_group.position,
+      max_distance = this.rocket_step * 4,
+      force = 'enemy',
+    }
+    if not (data.target and data.target.valid) then
+      this.unit_groups[unit_group.group_number] = nil
+      return
+    end
+    data.position = data.target.position
+    data.stage = Enemy.ai_stage_by_distance(data.position, unit_group.position)
+  else
+    data.stage = data.stage + 1
+  end
+
+  if this._DEBUG_AI then
+    Debug.print_admins(string.format('AI [id=%d] | status: %d', unit_group.group_number, data.stage), Color.dark_gray)
+  end
+
+  if data.stage == Enemy.stages.move then
+    Enemy.commands.move(unit_group, data.target)
+  elseif data.stage == Enemy.stages.scout then
+    Enemy.commands.scout(unit_group, data.target)
+  elseif data.stage == Enemy.stages.attack then
+    Enemy.commands.attack(unit_group, data.target)
+  else
+    data.failed_attempts = (data.failed_attempts or 0) + 1
+    if this._DEBUG_AI then
+      Debug.print_admins(string.format('AI [id=%d] | FAIL | stage: %d | attempts: %d', unit_group.group_number, data.stage, data.failed_attempts), Color.dark_gray)
+    end
+    data.stage, data.position, data.target = nil, nil, nil
+    Enemy.ai_processor(unit_group, nil)
+  end
+end
+
+function Enemy.spawn_enemy_wave(position)
   local surface = RS.get_surface()
   local find_position = surface.find_non_colliding_position
   local spawn = surface.create_entity
   local current_tick = game.tick
 
+  local unit_group = surface.create_unit_group { position = position, force = 'enemy' }
+
   local max_time = math_max(MINUTE, MINUTE * math_ceil(0.5 * (this.rockets_launched ^ 0.5)))
 
   local radius = 20
-  for _ = 1, 24 do
-    local name = math_random() > 0.15 and 'behemoth-worm-turret' or 'big-worm-turret'
+  for _ = 1, 12 do
+    local name
+    if this.rockets_launched < 3 then
+      name = math_random() > 0.15 and 'big-worm-turret' or 'medium-worm-turret'
+    else
+      name = math_random() > 0.15 and 'behemoth-worm-turret' or 'big-worm-turret'
+    end
     local about = find_position(name, { x = position.x + math_random(), y = position.y + math_random() }, radius, 0.2)
     if about then
       local worm = spawn { name = name, position = about, force = 'enemy', move_stuck_players = true }
@@ -454,20 +661,97 @@ function Main.spawn_enemy_wave(position)
 
   radius = 32
   for _ = 1, 20 do
-    local name = math_random() > 0.3 and 'behemoth-biter' or 'behemoth-spitter'
+    local name
+    if this.rockets_launched < 3 then
+      name = math_random() > 0.3 and 'big-biter' or 'big-spitter'
+    else
+      name = math_random() > 0.3 and 'behemoth-biter' or 'behemoth-spitter'
+    end
     local about = find_position(name, { x = position.x + math_random(), y = position.y + math_random() }, radius, 0.6)
     if about then
       local unit = spawn { name = name, position = about, force = 'enemy', move_stuck_players = true }
       this.invincible[unit.unit_number] = {
         time_to_live = current_tick + math_random(MINUTE, max_time)
       }
+      unit_group.add_member(unit)
+    end
+  end
+
+  if unit_group.valid then
+    Enemy.ai_take_control(unit_group)
+    Enemy.ai_processor(unit_group)
+  end
+end
+Enemy.spawn_enemy_wave_token = Token.register(Enemy.spawn_enemy_wave)
+
+function Enemy.on_enemy_died(entity)
+  local uid = entity.unit_number
+  local data = this.invincible[uid]
+  if not data then
+    return
+  end
+
+  if game.tick > data.time_to_live then
+    this.invincible[uid] = nil
+    return
+  end
+
+  local new_entity = entity.surface.create_entity {
+    name = entity.name,
+    position = entity.position,
+    force = entity.force,
+  }
+
+  this.invincible[new_entity.unit_number] = {
+    time_to_live = data.time_to_live,
+  }
+  this.invincible[uid] = nil
+
+  if new_entity.type == 'unit' then
+    new_entity.set_command(entity.command)
+    if entity.unit_group then
+      entity.unit_group.add_member(new_entity)
     end
   end
 end
-Main.spawn_enemy_wave_token = Token.register(Main.spawn_enemy_wave)
 
-function Main.spawn_turret_outpost(position)
-  if position.x < this.right_boundary + this.wall_width then
+function Enemy.on_spawner_died(event)
+  local entity = event.entity
+  local chance = math_random()
+  if chance > this.loot_chance then
+    return
+  end
+
+  local budget = this.loot_budget + entity.position.x * 2.75
+  budget = budget * math_random(25, 175) * 0.01
+
+  local player = false
+  if event.cause and event.cause.type == 'character' then
+    player = event.cause.player
+  end
+  if player and player.valid then
+    budget = budget + (this.death_contributions[player.name] or 0) * 80
+  end
+
+  if math_random(1, 128) == 1 then budget = budget * 4 end
+  if math_random(1, 256) == 1 then budget = budget * 4 end
+  budget = budget * this.loot_richness
+
+  local chest = entity.surface.create_entity { name = 'steel-chest', position = entity.position, force = 'player', move_stuck_players = true }
+  chest.destructible = false
+  for i = 1, 3 do
+    local item_stacks = PriceRaffle.roll(math_floor(budget / 3 ) + 1, 48)
+    for _, item_stack in pairs(item_stacks) do
+      chest.insert(item_stack)
+    end
+  end
+  if player then
+    Toast.toast_player(player, nil, {'frontier.loot_chest'})
+  end
+end
+
+function Enemy.spawn_turret_outpost(position)
+  if position.x < this.right_boundary * 32 + this.wall_width then
     return
   end
 
@@ -518,6 +802,136 @@ function Main.spawn_turret_outpost(position)
   end
 end
 
+function Enemy.start_tracking(entity)
+  if not Enemy.target_entity_types[entity.type] then
+    return
+  end
+
+  if entity.force.name == 'enemy' or entity.force.name == 'neutral' then
+    return
+  end
+
+  register_on_entity_destroyed(entity)
+  this.target_entities[entity.unit_number] = entity
+end
+
+function Enemy.stop_tracking(entity)
+  this.target_entities[entity.unit_number] = nil
+end
+
+function Enemy.get_target()
+  return Table.get_random_dictionary_entry(this.target_entities, false)
+end
+
+function Enemy.nuclear_explosion(entity)
+  local surface = entity.surface
+  local center_position = entity.position
+  surface.create_entity {
+    name = 'atomic-rocket',
+    position = center_position,
+    force = 'enemy',
+    source = center_position,
+    target = center_position,
+    max_range = 1,
+    speed = 0.1
+  }
+end
+
+function Enemy.artillery_explosion(data)
+  local surface = game.get_surface(data.surface_name)
+  local position = data.position
+  local r = 20
+  surface.create_entity {
+    name = 'artillery-projectile',
+    position = position,
+    force = 'enemy',
+    source = position,
+    target = { x = position.x + math_random(-r, r) + math_random(), y = position.y + math_random(-r, r) + math_random() },
+    max_range = 1,
+    speed = 0.1
+  }
+end
+Enemy.artillery_explosion_token = Token.register(Enemy.artillery_explosion)
+
+-- == MAIN ====================================================================
+
+local bard_messages_1 = {
+  [1] = {
+    [[The rocket has successfully launched! The Kraken has accepted your offering... for now.]],
+    [[A distant rumble echoes through the air. The Kraken stirs in the depths.]],
+    [[You can almost feel the waters shifting. What will the Kraken do with your gift?]],
+    [[The sky darkens as the rocket ascends. Is the Kraken pleased or plotting revenge?]],
+    [[You have awakened something ancient. Expect the unknown in the next moments.]],
+    [[A whisper echoes in your mind: 'You dare disturb my slumber?']],
+    [[The Kraken watches from below, its tendrils coiling in anticipation.]],
+    [[A chilling wind sweeps across your factory—a sign the Kraken is not to be trifled with.]],
+    [[The ground trembles as the rocket disappears into the sky... what price will you pay?]],
+    [[An ominous shadow looms beneath the waves. The Kraken has taken notice.]],
+  },
+  [2] = {
+    [[As the rocket pierces the sky, dark waters tremble in anticipation... something stirs.]],
+    [[A whispering gale caresses the land; the Kraken's essence begins to awaken.]],
+    [[Shadows flicker at the water's edge. The depths conceal secrets you cannot fathom.]],
+    [[Eyes unblinking watch from the abyss; your offering has been noted with curiosity... or contempt.]],
+    [[The air grows thick with foreboding. An ancient power rouses from its slumber.]],
+    [[From the deep, a voice resonates: 'What price have you paid for your hubris?']],
+    [[The ocean churns as if agitated. The Kraken's mood is as unpredictable as the tempest.]],
+    [[Unseen tendrils drift closer to your shores. What has been awakened cannot be unmade.]],
+    [[A shiver runs through the ground, as if the earth itself fears the Kraken's gaze.]],
+    [[With each second that passes, the Kraken's presence suffocates the air around you.]],
+  },
+  [3] = {
+    [[Hark! The rocket soars to the heavens, yet below, the Kraken stirs in its slumber deep, its ancient wrath looms ever near!]],
+    [[Lo, the winds whisper secrets of the abyss; the Kraken watches, its tendrils twitching in delight or dread—can you tell which it shall be?]],
+    [[By the light of the fading suns, shadows dance upon the waves. A gift offered, but at what terrible cost? Beware the storm that brews!]],
+    [[Listen well, dear traveler! For the depths grow restless, and the Kraken, master of the abyss, awakens to claim its due!]],
+    [[Oh, fear the echo of the deep! A creature of legend stirs, its gaze upon your fortress—wreathed in shadows, it feasts on your hubris!]],
+    [[Beware the churning sea, where the ancient beast stirs; your paid price may be your eternal plight—what horrors shall it unleash?]],
+    [[From depths unknown, an unsettling murmur rises, 'You dared disturb me, foolish one! Know now the depths of my disdain!']],
+    [[As the rocket ascends, the sky darkens and trembles, for the Kraken's heart beats wildly—can you sense its lurking fury?]],
+    [[Oremus, oh heed my words! For beneath the surface lies a horror awakened—a vengeful force hungering for the taste of calamity!]],
+    [[An eternal shadow looms, beckoned by your ambition! What horrors have you invited to dance upon your very threshold?]],
+  },
+}
+local bard_messages_2 = {
+  [1] = {
+    [[The surface of the water begins to churn ominously... something awakens.]],
+    [[An unsettling roar reverberates through the land. The Kraken's wrath is near.]],
+    [[A dark cloud forms above, casting a shadow over your factory. The Kraken is displeased.]],
+    [[Tentacles rise from the deep, a harbinger of chaos approaching your base.]],
+    [[The Kraken demands retribution! Prepare for the onslaught!]],
+    [[A storm brews on the horizon; the Kraken lashes out in fury.]],
+    [[The air grows thick with tension as a monstrous wave approaches your shores.]],
+    [[All around you, the atmosphere shifts—something is very wrong.]],
+    [[The Kraken's vengeance is upon you! Brace yourself for the inevitable.]],
+    [[In its rage, the Kraken unleashes its fury! The biter swarm descends!]],
+  },
+  [2] = {
+    [[The surface roils ominously, dark waters boiling as wrath takes form.]],
+    [[A haunting cry echoes across the landscape—an ancient beast calls for retribution.]],
+    [[Dark clouds gather like a shroud, heralding calamity born of the abyss.]],
+    [[Tendrils of shadow writhe beneath the waves—a prelude to the storm of vengeance.]],
+    [[The Kraken's disdain unfurls like a tempest, a dark promise of chaos and destruction.]],
+    [[An unnatural stillness settles, broken only by the distant crash of furious waves.]],
+    [[The deep stirs with malice. Can you hear the heartbeat of your impending doom?]],
+    [[In the twilight, the Kraken's fury eclipses all hope, a symphony of despair draws near.]],
+    [[As specters rise from the depths, their intent is clear: retribution is swift and merciless.]],
+    [[Your fate is entwined with the Kraken's ire—prepare for the inexorable tide of darkness.]],
+  },
+  [3] = {
+    [[Attend! A tempest brews upon darkened waters, rage unfurling like a ravenous beast—your time is nigh!]],
+    [[The Kraken's call resounds, echoing through the night; from the abyss it comes, cloaked in shadows and dread!]],
+    [[A shudder passes through the land, and ominous clouds converge—gaze now upon the darkening sky, for doom draws near!]],
+    [[Dread whisperings of the deep herald the coming tempest; the Kraken rises, eager to reclaim what is owed with swift malice!]],
+    [[Foul winds carry the scent of vengeance. The Kraken's ire is unbound, and soon your fortress shall feel its dark embrace!]],
+    [[In the twilight haze, a cacophony of doom stirs—behold, the tide of destruction approaches with unholy intent!]],
+    [[Tremble now, for the Kraken awakens! A chorus of despair sings forth, heralding the swarm that comes, hungry and relentless!]],
+    [[The ancient beast unleashes fury upon your path—a storm of chaos born from the depths, bringing forth a wretched tide!]],
+    [[Beware! The Kraken's wrath is a specter unshackled, and every heartbeat draws nearer to the end of your peace!]],
+    [[Thus, from beneath the waves, chaos and slaughter arise—oh, brave souls, face the horrors your hubris has conjured!]],
+  },
+}
+
 function Main.win()
   this.scenario_finished = true
   game.set_game_state { game_finished = true, player_won = true, can_continue = true, victorious_force = 'player' }
@@ -529,69 +943,6 @@ function Main.win()
   Task.set_timeout(86, Main.restart_message_token,  5)
   Task.set_timeout(91, Main.end_game_token)
   Task.set_timeout(92, Main.restart_game_token)
-end
-
-function Main.on_spawner_died(event)
-  local entity = event.entity
-  local chance = math_random()
-  if chance > this.loot_chance then
-    return
-  end
-
-  local budget = this.loot_budget + entity.position.x * 2.75
-  budget = budget * math_random(25, 175) * 0.01
-
-  local player = false
-  if event.cause and event.cause.type == 'character' then
-    player = event.cause.player
-  end
-  if player and player.valid then
-    budget = budget + (this.death_contributions[player.name] or 0) * 80
-  end
-
-  if math_random(1, 128) == 1 then budget = budget * 4 end
-  if math_random(1, 256) == 1 then budget = budget * 4 end
-  budget = budget * this.loot_richness
-
-  local chest = entity.surface.create_entity { name = 'steel-chest', position = entity.position, force = 'player', move_stuck_players = true }
-  chest.destructible = false
-  for i = 1, 3 do
-    local item_stacks = PriceRaffle.roll(math_floor(budget / 3 ) + 1, 48)
-    for _, item_stack in pairs(item_stacks) do
-      chest.insert(item_stack)
-    end
-  end
-  if player then
-    Toast.toast_player(player, nil, {'frontier.loot_chest'})
-  end
-end
-
-function Main.on_enemy_died(entity)
-  local uid = entity.unit_number
-  local data = this.invincible[uid]
-  if not data then
-    return
-  end
-
-  if game.tick > data.time_to_live then
-    this.invincible[uid] = nil
-    return
-  end
-
-  local new_entity = entity.surface.create_entity {
-    name = entity.name,
-    position = entity.position,
-    force = entity.force,
-  }
-
-  this.invincible[new_entity.unit_number] = {
-    time_to_live = data.time_to_live,
-  }
-  this.invincible[uid] = nil
-
-  if new_entity.type == 'unit' then
-    new_entity.set_command(entity.command)
-  end
 end
 
 Main.play_sound_token = Token.register(Sounds.notify_all)
@@ -645,8 +996,18 @@ function Main.move_silo(position)
       end
     end
     game.print({'frontier.empty_rocket'})
-    Main.nuclear_explosion(chest)
-    Task.set_timeout(5, Main.spawn_enemy_wave_token, old_position)
+    Enemy.nuclear_explosion(chest)
+
+    for _ = 1, 3 do
+      local spawn_target = Enemy.get_target()
+      if spawn_target and spawn_target.valid then
+        for _ = 1, 12 do
+          Task.set_timeout_in_ticks(math_random(30, 4 * 60), Enemy.artillery_explosion_token, { surface_name = surface.name, position = spawn_target.position })
+        end
+        Task.set_timeout(6, Enemy.spawn_enemy_wave_token, spawn_target.position)
+        break
+      end
+    end
 
     game.forces.enemy.reset_evolution()
     local enemy_evolution = game.map_settings.enemy_evolution
@@ -748,6 +1109,8 @@ function Main.on_game_started()
   this.rocket_silo = nil
   this.move_buffer = 0
   this.invincible = {}
+  this.target_entities = {}
+  this.unit_groups = {}
 
   if _DEBUG then
     this.silo_starting_x = 30
@@ -772,17 +1135,24 @@ Main.restart_game_token = Token.register(function()
 end)
 
 function Main.on_game_finished()
-  Lobby.enabled = true
+  this.lobby_enabled = true
   Lobby.teleport_all_to()
 
   local surface = RS.get_surface()
   surface.clear(true)
-  surface.map_gen_settings.seed = surface.map_gen_settings.seed + 1
+  local mgs = table.deepcopy(surface.map_gen_settings)
+  mgs.seed = mgs.seed + 1e4
+  surface.map_gen_settings = mgs
 end
 
 Main.end_game_token = Token.register(function()
   script.raise_event(Main.events.on_game_finished, {})
 end)
+
+function Main.bard_message(list)
+  game.print('[color=orange][Bard][/color] ' .. list[math_random(#list)], { sound_path = 'utility/axe_fighting', color = Color.brown })
+end
+Main.bard_message_token = Token.register(Main.bard_message)
 
 -- == EVENTS ==================================================================
 
@@ -791,7 +1161,7 @@ local function on_init()
   Main.on_game_started()
   Main.reveal_spawn_area()
 
-  Lobby.enabled = false
+  this.lobby_enabled = false
   Lobby.teleport_all_from()
 end
 Event.on_init(on_init)
@@ -800,7 +1170,7 @@ local function on_game_started()
   Main.on_game_started()
   Main.reveal_spawn_area()
 
-  Lobby.enabled = false
+  this.lobby_enabled = false
   Lobby.teleport_all_from()
 end
 Event.add(Main.events.on_game_started, on_game_started)
@@ -816,7 +1186,7 @@ local function on_player_created(event)
     return
   end
 
-  if Lobby.enabled then
+  if this.lobby_enabled then
     Lobby.teleport_to(player)
   end
 end
@@ -855,12 +1225,14 @@ local function on_entity_died(event)
   end
 
   local entity_type = entity.type
-  if entity_type == 'unit-spawner' then
-    Main.on_spawner_died(event)
-  elseif entity_type == 'unit' or entity.type == 'turret' then
-    if entity.force.name == 'enemy' then
-      Main.on_enemy_died(entity)
+  if entity.force.name == 'enemy' then
+    if entity_type == 'unit-spawner' then
+      Enemy.on_spawner_died(event)
+    elseif entity_type == 'unit' or entity_type == 'turret' then
+      Enemy.on_enemy_died(entity)
     end
+  elseif entity_type == 'simple-entity' then
+    Enemy.spawn_turret_outpost(entity.position)
   end
 end
 Event.add(defines.events.on_entity_died, on_entity_died)
@@ -894,7 +1266,7 @@ local function on_player_died(event)
   end
 
   this.rockets_to_win = this.rockets_to_win + this.rockets_per_death
-  ScoreTracker.set_for_global(rocket_launches_name, this.rockets_to_win - this.rocket_launched)
+  ScoreTracker.set_for_global(rocket_launches_name, this.rockets_to_win - this.rockets_launched)
 
   game.print({'frontier.add_rocket', this.rockets_per_death, player_name, (this.rockets_to_win - this.rockets_launched)})
 end
@@ -931,14 +1303,14 @@ local function on_rocket_launched(event)
   end
 
   this.rockets_launched = this.rockets_launched + 1
+  ScoreTracker.set_for_global(rocket_launches_name, (this.rockets_to_win - this.rockets_launched))
   if this.rockets_launched >= this.rockets_to_win then
     Main.win()
     return
   end
 
   game.print({'frontier.rocket_launched', this.rockets_launched, (this.rockets_to_win - this.rockets_launched) })
-  ScoreTracker.set_for_global(rocket_launches_name, (this.rockets_to_win - this.rockets_launched))
-  Main.compute_silo_coordinates(500)
+  Main.compute_silo_coordinates(this.rocket_step + math_random(200))
 
   local ticks = 60
   for _, delay in pairs{60, 40, 20} do
@@ -947,6 +1319,8 @@ local function on_rocket_launched(event)
       Task.set_timeout_in_ticks(ticks, Main.play_sound_token, 'utility/alert_destroyed')
     end
   end
+  Task.set_timeout( 5, Main.bard_message_token, bard_messages_1[3])
+  Task.set_timeout(25, Main.bard_message_token, bard_messages_2[3])
   Task.set_timeout_in_ticks(ticks + 30, Main.move_silo_token)
   local silo = event.rocket_silo
   if silo then silo.active = false end
@@ -960,12 +1334,44 @@ local function on_entity_mined(event)
   end
 
   if entity.type == 'simple-entity' then
-    Main.spawn_turret_outpost(entity.position)
+    Enemy.spawn_turret_outpost(entity.position)
   end
 end
 Event.add(defines.events.on_robot_mined_entity, on_entity_mined)
 Event.add(defines.events.on_player_mined_entity, on_entity_mined)
 
+local function on_built_entity(event)
+  local entity = event.created_entity
+  if not (entity and entity.valid) then
+    return
+  end
+
+  if entity.name == 'entity-ghost' then
+    return
+  end
+
+  Enemy.start_tracking(entity)
+end
+Event.add(defines.events.on_built_entity, on_built_entity)
+Event.add(defines.events.on_robot_built_entity, on_built_entity)
+
+local function on_entity_destroyed(event)
+  local unit_number = event.unit_number
+  --local registration_number = event.registration_number
+
+  Enemy.stop_tracking({ unit_number = unit_number })
+end
+Event.add(defines.events.on_entity_destroyed, on_entity_destroyed)
+
+local function on_ai_command_completed(event)
+  if not event.was_distracted then
+    local data = this.unit_groups[event.unit_number]
+    if data and data.unit_group and data.unit_group.valid then
+      Enemy.ai_processor(data.unit_group, event.result)
+    end
+  end
+end
+Event.add(defines.events.on_ai_command_completed, on_ai_command_completed)
 
 -- == COMMANDS ================================================================
 
@@ -986,6 +1392,39 @@ Command.add('ping-silo',
     else
       game.print(msg)
     end
+  end
+)
+
+Command.add('toggle-debug-ai',
+  {
+    description = 'Toggle ON/OFF AI debug mode',
+    allowed_by_server = true,
+    required_rank = Ranks.admin,
+  },
+  function()
+    this._DEBUG_AI = not this._DEBUG_AI
+  end
+)
+
+Command.add('print-global',
+  {
+    description = 'Prints the global table',
+    allowed_by_server = false,
+    required_rank = Ranks.admin,
+  },
+  function(_, player)
+    player.print(serpent.line(this))
+  end
+)
+
+Command.add('log-global',
+  {
+    description = 'Logs the global table',
+    allowed_by_server = true,
+    required_rank = Ranks.admin,
+  },
+  function()
+    Debug.log(this)
   end
 )
 
