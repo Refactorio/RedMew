@@ -1113,7 +1113,7 @@ function Main.on_game_started()
 
   if _DEBUG then
     this.silo_starting_x = 30
-    this.rockets_to_win = 3
+    this.rockets_to_win = 1
   end
 
   for _, force in pairs(game.forces) do
@@ -1139,7 +1139,9 @@ function Main.on_game_finished()
 
   local surface = RS.get_surface()
   surface.clear(true)
-  surface.map_gen_settings.seed = surface.map_gen_settings.seed + 1
+  local mgs = table.deepcopy(surface.map_gen_settings)
+  mgs.seed = mgs.seed + 1e4
+  surface.map_gen_settings = mgs
 end
 
 Main.end_game_token = Token.register(function()
