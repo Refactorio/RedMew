@@ -13,6 +13,7 @@ local RS = require 'map_gen.shared.redmew_surface'
 local ScenarioInfo = require 'features.gui.info'
 local ScoreTracker = require 'utils.score_tracker'
 local Sounds = require 'utils.sounds'
+local Table = require 'utils.table'
 local Toast = require 'features.gui.toast'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
@@ -643,7 +644,7 @@ function Enemy.spawn_enemy_wave(position)
 
   local radius = 20
   for _ = 1, 12 do
-    local name 
+    local name
     if this.rockets_launched < 3 then
       name = math_random() > 0.15 and 'big-worm-turret' or 'medium-worm-turret'
     else
@@ -819,7 +820,7 @@ function Enemy.stop_tracking(entity)
 end
 
 function Enemy.get_target()
-  return table.get_random_dictionary_entry(this.target_entities, false)
+  return Table.get_random_dictionary_entry(this.target_entities, false)
 end
 
 function Enemy.nuclear_explosion(entity)
@@ -893,7 +894,7 @@ local bard_messages_1 = {
   },
 }
 local bard_messages_2 = {
-  [1] = {  
+  [1] = {
     [[The surface of the water begins to churn ominously... something awakens.]],
     [[An unsettling roar reverberates through the land. The Kraken's wrath is near.]],
     [[A dark cloud forms above, casting a shadow over your factory. The Kraken is displeased.]],
@@ -905,7 +906,7 @@ local bard_messages_2 = {
     [[The Kraken's vengeance is upon you! Brace yourself for the inevitable.]],
     [[In its rage, the Kraken unleashes its fury! The biter swarm descends!]],
   },
-  [2] = { 
+  [2] = {
     [[The surface roils ominously, dark waters boiling as wrath takes form.]],
     [[A haunting cry echoes across the landscape—an ancient beast calls for retribution.]],
     [[Dark clouds gather like a shroud, heralding calamity born of the abyss.]],
@@ -1109,7 +1110,7 @@ function Main.on_game_started()
   this.move_buffer = 0
   this.invincible = {}
   this.target_entities = {}
-  this.unit_groups = {} 
+  this.unit_groups = {}
 
   if _DEBUG then
     this.silo_starting_x = 30
