@@ -1688,7 +1688,10 @@ function Main.on_game_started()
   ms.enemy_expansion.max_expansion_cooldown = MINUTE * 4
   ms.enemy_expansion.max_expansion_distance = 5
   ms.enemy_evolution.destroy_factor = 0.0001
-  ms.enemy_evolution.time_factor = 0.000004
+  ms.enemy_evolution.time_factor = 0.000015
+  ms.pollution.ageing  = 0.5 --1
+  ms.pollution.diffusion_ratio = 0.04 -- 0.02
+  ms.pollution.enemy_attack_pollution_consumption_modifier = 0.5 --1
 
   this.rounds = this.rounds + 1
   this.kraken_contributors = {}
