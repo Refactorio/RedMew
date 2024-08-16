@@ -63,6 +63,9 @@ Your mission, should you choose to accept it, is to journey through this ribbon 
 In [font=default-bold]Frontier[/font], your wits will be tested as you evolve from a mere survivor to an engineering genius capable of taming the land and launching your final escape. Build a thriving factory, and prepare to conquer both nature and the relentless horde in a race against time. But remember, the frontier waits for no one. Will you make your mark on this alien world or become another lost tale in the void of space?
 ]])
 ScenarioInfo.set_new_info([[
+  2024-08-16:
+    - Added random markets
+    - Added spawn shop
   2024-08-15:
     - Fixed desyncs
     - Fixed biter waves
@@ -139,6 +142,7 @@ local this = {
 
   -- Debug
   _DEBUG_AI = false,
+  _DEBUG_SHOP = false,
 
   -- Spawn shop
   spawn_shop = nil,
@@ -166,11 +170,10 @@ local Main = {
   events = {
     on_game_started = Event.generate_event_name('on_game_started'),
     on_game_finished = Event.generate_event_name('on_game_finished'),
-    --on_upgrade_purchased = Event.generate_event_name('on_upgrade_purchased'),
   },
   scores = {
     rocket_launches = { name = 'rockets-launches-frontier', tooltip = {'frontier.rockets_to_launch'}, sprite = '[img=item.rocket-silo]' },
-    shop_funds = { name = 'shop-funds-frontier', tooltip = {'frontier.shop_funds'}, sprite = '[img=item.coin]' },
+    shop_funds      = { name = 'shop-funds-frontier',       tooltip = {'frontier.shop_funds'},        sprite = '[img=item.coin]' },
   },
 }
 
@@ -1224,11 +1227,11 @@ function SpawnShop.refresh_price(id)
 
   local nominal_cost = math_floor(VALUE_7_PACKS * PROD_PENALTY * upgrade.packs)
   local item_stacks = PriceRaffle.roll(nominal_cost, 5, Market.banned_items)
-  if _DEBUG then
+  if this._DEBUG_SHOP then
     item_stacks = {{ name = 'iron-plate', count = 1 }}
   end
 
-  if true then
+  do
     local cost_map = {}
     for _, is in pairs(item_stacks) do
       cost_map[is.name] = (cost_map[is.name] or 0) + is.count
@@ -1572,7 +1575,9 @@ function Main.move_silo(position)
         for _ = 1, 12 do
           Task.set_timeout_in_ticks(math_random(30, 4 * 60), Enemy.artillery_explosion_token, { surface_name = surface.name, position = spawn_target.position })
         end
-        Task.set_timeout(6, Enemy.spawn_enemy_wave_token, spawn_target.position)
+        for t = 1, math_clamp(math_floor((#game.connected_players) / 2 + 0.5), 1, 5) do
+          Task.set_timeout(15 * t, Enemy.spawn_enemy_wave_token, spawn_target.position)
+        end
         break
       end
     end
@@ -2066,6 +2071,17 @@ Command.add('toggle-debug-ai',
   },
   function()
     this._DEBUG_AI = not this._DEBUG_AI
+  end
+)
+
+Command.add('toggle-debug-shop',
+  {
+    description = 'Toggle ON/OFF Shop debug mode',
+    allowed_by_server = true,
+    required_rank = Ranks.admin,
+  },
+  function()
+    this._DEBUG_SHOP = not this._DEBUG_SHOP
   end
 )
 
