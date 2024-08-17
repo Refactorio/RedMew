@@ -1060,7 +1060,7 @@ local bard_refresh_messages = {
 function SpawnShop.add_render()
   local e = this.spawn_shop
   rendering.draw_sprite {
-    sprite = 'file/graphics/neon_lightning.png',
+    sprite = 'achievement/lazy-bastard',
     x_scale = 0.8,
     y_scale = 0.8,
     target = e,
