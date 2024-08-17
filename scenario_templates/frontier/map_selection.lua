@@ -1,1 +1,1 @@
-return require 'map_gen.maps.frontier'
+return require 'map_gen.maps.frontier.scenario'
