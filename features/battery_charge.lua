@@ -10,7 +10,7 @@ local Public = {}
 
 local function discharge_accumulators(surface, position, force, power_needs)
   local accumulators = surface.find_entities_filtered {
-    name = 'accumulator',
+    type = 'accumulator',
     force = force,
     position = position,
     radius = this.radius,
@@ -58,7 +58,7 @@ function Public.recharge(player)
   end
 
   local entities = player.surface.find_entities_filtered {
-    name = 'accumulator',
+    type = 'accumulator',
     force = player.force,
     position = player.position,
     radius = this.radius,

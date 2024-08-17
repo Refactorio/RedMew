@@ -363,6 +363,19 @@ local function add_recipe_products(recipe)
   end
 end
 
+function Public.get_unlocked_item_names()
+  return item_names
+end
+
+function Public.get_unlocked_item_values()
+  return item_unlocked
+end
+
+
+function Public.get_items_worth()
+  return item_worths
+end
+
 Event.on_init(function()
   for _, recipe in pairs(game.forces.player.recipes) do
     add_recipe_products(recipe)
