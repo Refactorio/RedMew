@@ -29,7 +29,7 @@ local math_clamp = math.clamp
 local math_sqrt = math.sqrt
 local simplex = Noise.d2
 local SECOND = 60
-local MINUTE =  SECOND * 60
+local MINUTE = SECOND * 60
 
 local register_on_entity_destroyed = script.register_on_entity_destroyed
 
@@ -66,6 +66,8 @@ ScenarioInfo.set_new_info([[
   2024-08-16:
     - Added random markets
     - Added spawn shop
+    - Tweaked resources distribution
+    - Tweaked rocket launches requirements
   2024-08-15:
     - Fixed desyncs
     - Fixed biter waves
@@ -105,8 +107,8 @@ local this = {
   wall_vulnerability = true,
   rock_richness = 1,        -- how many rocks/chunk
 
-  ore_base_quantity = 61,   -- base ore quantity, everything is scaled up from this
-  ore_chunk_scale = 32,     -- sets how fast the ore will increase from spawn, lower = faster
+  ore_base_quantity = 11,   -- base ore quantity, everything is scaled up from this
+  ore_chunk_scale = 32 * 20,-- sets how fast the ore will increase from spawn, lower = faster
 
   -- Kraken handling
   kraken_distance = 25,     -- where the kraken lives past the left boundary
@@ -154,12 +156,6 @@ local this = {
 
 Global.register(this, function(tbl) this = tbl end)
 
-local noise_weights = {
-  { modifier = 0.0042, weight = 1.000 },
-  { modifier = 0.0310, weight = 0.080 },
-  { modifier = 0.1000, weight = 0.025 },
-}
-local mixed_ores = { 'iron-ore', 'copper-ore', 'iron-ore', 'stone', 'copper-ore', 'iron-ore', 'copper-ore', 'iron-ore', 'coal', 'iron-ore', 'copper-ore', 'iron-ore', 'stone', 'copper-ore', 'coal'}
 local ESCAPE_PLAYER = false
 local VALUE_7_PACKS = 451
 local PROD_PENALTY = 1.2 * 1.4^5
@@ -168,7 +164,7 @@ local PROD_PENALTY = 1.2 * 1.4^5
 
 local Main = {
   events = {
-    on_game_started = Event.generate_event_name('on_game_started'),
+    on_game_started  = Event.generate_event_name('on_game_started'),
     on_game_finished = Event.generate_event_name('on_game_finished'),
   },
   scores = {
@@ -278,23 +274,40 @@ function Lobby.on_init()
   Lobby.on_chunk_generated({ area = {left_top = {-64, -64}, right_bottom = {64, 64}}, surface = surface })
 end
 
--- == MAP GEN =================================================================
+-- == MAP GEN & TERRAIN =======================================================
 
-local map, water, green_water
+local autoplace_controls = {
+  ['coal']        = { frequency = 1.1,   richness = 0.6, size = 0.75 },
+  ['copper-ore']  = { frequency = 1.2,   richness = 0.6, size = 0.75 },
+  ['crude-oil']   = { frequency = 1,     richness = 0.6, size = 0.75 },
+  ['enemy-base']  = { frequency = 6,     richness = 0.6, size = 4    },
+  ['iron-ore']    = { frequency = 1.135, richness = 0.6, size = 0.85 },
+  ['stone']       = { frequency = 1,     richness = 0.6, size = 0.65 },
+  ['trees']       = { frequency = 1,     richness = 0.6, size = 1    },
+  ['uranium-ore'] = { frequency = 0.5,   richness = 0.6, size = 0.5  },
+}
+local blacklisted_resources = {
+  ['uranium-ore'] = true,
+  ['crude-oil'] = true,
+}
+local noise_weights = {
+  { modifier = 0.0042, weight = 1.000 },
+  { modifier = 0.0310, weight = 0.080 },
+  { modifier = 0.1000, weight = 0.025 },
+}
+local mixed_ores = { 'iron-ore', 'copper-ore', 'iron-ore', 'stone', 'copper-ore', 'iron-ore', 'copper-ore', 'iron-ore', 'coal', 'iron-ore', 'copper-ore', 'iron-ore', 'stone', 'copper-ore', 'coal'}
+
+if script.active_mods['zombiesextended-core'] then
+  autoplace_controls['gold-ore']      = { frequency = 0.5, richness = 0.5, size = 0.5  }
+  autoplace_controls['vibranium-ore'] = { frequency = 0.5, richness = 0.5, size = 0.5  }
+  blacklisted_resources['gold-ore'] = true
+  blacklisted_resources['vibranium-ore'] = true
+end
 
 RS.set_map_gen_settings({
   {
-    autoplace_controls = {
-      ['coal']        = { frequency = 3,   richness = 1, size = 0.75 },
-      ['copper-ore']  = { frequency = 3,   richness = 1, size = 0.75 },
-      ['crude-oil']   = { frequency = 1,   richness = 1, size = 0.75 },
-      ['enemy-base']  = { frequency = 6,   richness = 1, size = 4    },
-      ['iron-ore']    = { frequency = 3,   richness = 1, size = 0.75 },
-      ['stone']       = { frequency = 3,   richness = 1, size = 0.75 },
-      ['trees']       = { frequency = 1,   richness = 1, size = 1    },
-      ['uranium-ore'] = { frequency = 0.5, richness = 1, size = 0.5  },
-    },
-    cliff_settings = { name = 'cliff', cliff_elevation_0 = 20, cliff_elevation_interval = 40, richness = 1 / 3 },
+    autoplace_controls = autoplace_controls,
+    cliff_settings = { name = 'cliff', cliff_elevation_0 = 20, cliff_elevation_interval = 40, richness = 0.8 },
     height = this.height * 32,
     property_expression_names = {
       ['control-setting:aux:frequency:multiplier'] = '1.333333',
@@ -307,6 +320,7 @@ RS.set_map_gen_settings({
   MGSP.water_none,
 })
 
+local map, water, green_water
 local bounds = function(x, y)
   return x > (-this.left_boundary * 32 - 320) and not ((y < -this.height * 16) or (y > this.height * 16))
 end
@@ -318,8 +332,6 @@ green_water = b.change_tile(bounds, true, 'deepwater-green')
 
 map = b.choose(function(x) return x < -this.left_boundary * 32 end, water, bounds)
 map = b.choose(function(x) return math_floor(x) == -(this.kraken_distance + this.left_boundary * 32 + 1) end, green_water, map)
-
--- == TERRAIN ==================================================================
 
 function Terrain.noise_pattern(position, seed)
   local noise, d = 0, 0
@@ -350,9 +362,12 @@ function Terrain.mixed_resources(surface, area)
       position = position,
       type = 'resource'
     }) do
-      if resource.name ~= 'uranium-ore' and resource.name ~= 'crude-oil' then
-        resource.destroy() end
+      if blacklisted_resources[resource.name] then
+        return false
       end
+      resource.destroy()
+    end
+    return true
   end
 
   local chunks = math_clamp(math_abs((left_top.x - this.right_boundary * 32) / this.ore_chunk_scale), 1, 100)
@@ -364,9 +379,10 @@ function Terrain.mixed_resources(surface, area)
         local noise = Terrain.noise_pattern(position, seed)
         if math_abs(noise) > 0.67 then
           local idx = math_floor(noise * 25 + math_abs(position.x) * 0.05) % #mixed_ores + 1
-          local amount = this.ore_base_quantity * chunks * 3
-          clear_ore(position)
-          create_entity({ name = mixed_ores[idx], position = position, amount = amount })
+          local amount = this.ore_base_quantity * chunks * 5
+          if clear_ore(position) then
+            create_entity({ name = mixed_ores[idx], position = position, amount = amount })
+          end
         end
       end
     end
@@ -389,7 +405,14 @@ function Terrain.scale_resource_richness(surface, area)
       if resource.prototype.resource_category == 'basic-fluid' then
         resource.amount = 3000 * 3 * chunks
       elseif resource.prototype.resource_category == 'basic-solid' then
-        resource.amount = this.ore_base_quantity * chunks
+        --resource.amount = this.ore_base_quantity * chunks
+        resource.amount = math_min(0.7 * resource.amount, 100 + math_random(100))
+      end
+    else
+      if resource.prototype.resource_category == 'basic-fluid' then
+        resource.amount = 800000 + math_random(400000)
+      elseif resource.prototype.resource_category == 'basic-solid' then
+        resource.amount = 3700 + math_random(1300)
       end
     end
   end
@@ -1676,8 +1699,8 @@ function Main.set_game_state(player_won)
   Task.set_timeout(61, Main.restart_message_token, 30)
   Task.set_timeout(81, Main.restart_message_token, 10)
   Task.set_timeout(86, Main.restart_message_token,  5)
-  Task.set_timeout(91, Main.end_game_token)
-  Task.set_timeout(92, Main.restart_game_token)
+  Task.set_timeout(90, Main.end_game_token)
+  Task.set_timeout(100, Main.restart_game_token)
 end
 Main.set_game_state_token = Token.register(Main.set_game_state)
 
@@ -1736,6 +1759,7 @@ end)
 function Main.on_game_finished()
   this.lobby_enabled = true
   Lobby.teleport_all_to()
+  game.print({'frontier.map_setup'})
 
   local surface = RS.get_surface()
   surface.clear(true)
