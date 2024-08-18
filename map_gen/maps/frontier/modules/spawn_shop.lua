@@ -2,14 +2,12 @@ local Color = require 'resources.color_presets'
 local Gui = require 'utils.gui'
 local math = require 'utils.math'
 local PriceRaffle = require 'features.price_raffle'
-local RS = require 'map_gen.shared.redmew_surface'
 local ScoreTracker = require 'utils.score_tracker'
 local Table = require 'utils.table'
 local Toast = require 'features.gui.toast'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Public = require 'map_gen.maps.frontier.shared.core'
-local this = Public.get()
 local math_floor = math.floor
 local math_random = math.random
 
@@ -57,9 +55,9 @@ SpawnShop.upgrades = {
 }
 
 function SpawnShop.add_render()
-  local e = this.spawn_shop
+  local e = Public.get().spawn_shop
   rendering.draw_sprite {
-    sprite = 'achievement/lazy-bastard',--'file/graphics/neon_lightning.png', --TODO: add compatibility
+    sprite = script.active_mods['redmew-data'] and 'neon-lightning' or 'achievement/lazy-bastard',
     x_scale = 0.8,
     y_scale = 0.8,
     target = e,
@@ -75,7 +73,7 @@ end
 SpawnShop.add_render_token = Token.register(SpawnShop.add_render)
 
 function SpawnShop.on_game_started()
-  local surface = RS.get_surface()
+  local surface = Public.surface()
   local position = surface.find_non_colliding_position('market', {0, 0}, 32, 0.5, true)
   local shop = surface.create_entity {
     name = 'market',
@@ -86,7 +84,7 @@ function SpawnShop.on_game_started()
     raise_built = false,
   }
   shop.minable = false
-  this.spawn_shop = shop
+  Public.get().spawn_shop = shop
   Task.set_timeout(1, SpawnShop.add_render_token)
   SpawnShop.refresh_all_prices(false)
 end
@@ -97,6 +95,8 @@ function SpawnShop.draw_gui(player)
     player.opened = frame
     return
   end
+
+  local this = Public.get()
 
   frame = player.gui.screen.add { type = 'frame', name = SpawnShop.main_frame_name, direction = 'vertical' }
   Gui.set_style(frame, {
@@ -223,7 +223,7 @@ function SpawnShop.destroy_gui(player)
   local frame = player.gui.screen[SpawnShop.main_frame_name]
   if frame then
     frame.destroy()
-    this.spawn_shop_players_in_gui_view[player.index] = nil
+    Public.get().spawn_shop_players_in_gui_view[player.index] = nil
   end
 end
 
@@ -247,6 +247,7 @@ function SpawnShop.refresh_price(id)
     return
   end
 
+  local this = Public.get()
   local nominal_cost = math_floor(Public.VALUE_7_PACKS * Public.PROD_PENALTY * upgrade.packs)
   local item_stacks = PriceRaffle.roll(nominal_cost, 5, this.banned_items)
   if this._DEBUG_SHOP then
@@ -278,6 +279,7 @@ function SpawnShop.refresh_all_prices(by_request)
 end
 
 function SpawnShop.earn_coin()
+  local this = Public.get()
   this.spawn_shop_funds = this.spawn_shop_funds + 1
   ScoreTracker.change_for_global(Public.scores.shop_funds.name, 1)
   Toast.toast_all_players(20, {'frontier.earn_coin'})
@@ -288,7 +290,7 @@ function SpawnShop.can_purchase(player, id)
     return false
   end
 
-  local data = this.spawn_shop_upgrades[id]
+  local data = Public.get().spawn_shop_upgrades[id]
   if not (data and data.price) then
     return false
   end
@@ -329,7 +331,7 @@ function SpawnShop.on_player_purchase(player, id)
     return
   end
 
-  local data = this.spawn_shop_upgrades[id]
+  local data = Public.get().spawn_shop_upgrades[id]
   if not (data and data.price) then
     return
   end
@@ -352,6 +354,7 @@ function SpawnShop.on_player_purchase(player, id)
 end
 
 function SpawnShop.on_player_refresh(player)
+  local this = Public.get()
   this.spawn_shop_funds = this.spawn_shop_funds - 1
   ScoreTracker.change_for_global(Public.scores.shop_funds.name, -1)
   player.print('[color=orange][Bard][/color] ' .. bard_refresh_messages[math_random(#bard_refresh_messages)], { sound_path = 'utility/scenario_message', color = Color.dark_grey })

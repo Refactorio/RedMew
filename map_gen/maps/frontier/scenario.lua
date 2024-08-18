@@ -13,7 +13,6 @@ local Market = require 'map_gen.maps.frontier.modules.market'
 local RocketSilo = require 'map_gen.maps.frontier.modules.rocket_silo'
 local SpawnShop = require 'map_gen.maps.frontier.modules.spawn_shop'
 local Terrain = require 'map_gen.maps.frontier.modules.terrain'
-local this = Public.get()
 local math_random = math.random
 
 --[[
@@ -92,19 +91,30 @@ local function on_init()
   Lobby.on_init()
   RocketSilo.on_game_started()
   RocketSilo.reveal_spawn_area()
+  Terrain.queue_reveal_map()
   SpawnShop.on_game_started()
 
-  this.lobby_enabled = false
+  Public.get().lobby_enabled = false
   Lobby.teleport_all_from()
 end
 Event.on_init(on_init)
 
+local function on_tick()
+  local tick = game.tick
+
+  if (tick - 1) % 90 == 0 then
+    Terrain.pop_chunk_request(24)
+  end
+end
+Event.add(defines.events.on_tick, on_tick)
+
 local function on_game_started()
   RocketSilo.on_game_started()
   RocketSilo.reveal_spawn_area()
+  Terrain.queue_reveal_map()
   SpawnShop.on_game_started()
 
-  this.lobby_enabled = false
+  Public.get().lobby_enabled = false
   Lobby.teleport_all_from()
 end
 Event.add(Public.events.on_game_started, on_game_started)
@@ -124,7 +134,7 @@ local function on_player_created(event)
     return
   end
 
-  if this.lobby_enabled then
+  if Public.get().lobby_enabled then
     Lobby.teleport_to(player)
   end
 end
@@ -138,12 +148,9 @@ local function on_chunk_generated(event)
     Lobby.on_chunk_generated(event)
   end
 
-  if surface.name ~= this.surface.name then
+  if surface.name ~= Public.surface().name then
     return
   end
-
-  -- kill off biters inside the wall
-  Terrain.clear_enemies_inside_wall(surface, area)
 
   -- scale freshly generated ore by a scale factor
   Terrain.scale_resource_richness(surface, area)
@@ -208,6 +215,7 @@ local function on_player_died(event)
     return
   end
 
+  local this = Public.get()
   if this.rockets_per_death <= 0 then
     return
   end
@@ -231,6 +239,7 @@ local function on_player_changed_position(event)
     return
   end
 
+  local this = Public.get()
   if player.position.x < (-this.left_boundary * 32 - this.kraken_distance) then
     local player_name = 'a player'
     if player.character ~= nil then
@@ -288,7 +297,7 @@ Event.add(defines.events.on_entity_destroyed, on_entity_destroyed)
 
 local function on_ai_command_completed(event)
   if not event.was_distracted then
-    local data = this.unit_groups[event.unit_number]
+    local data = Public.get().unit_groups[event.unit_number]
     if data and data.unit_group and data.unit_group.valid then
       Enemy.ai_processor(data.unit_group, event.result)
     end
@@ -311,7 +320,7 @@ local function on_gui_opened(event)
     return
   end
 
-  if entity.unit_number == this.spawn_shop.unit_number then
+  if entity.unit_number == Public.get().spawn_shop.unit_number then
     SpawnShop.draw_gui(player)
   end
 end
@@ -364,7 +373,7 @@ Command.add('ping-silo',
     allowed_by_server = true
   },
   function(_, player)
-    local surface = this.surface
+    local surface = Public.surface()
     local msg = '[color=blue][Mapkeeper][/color] Here you\'ll find a silo:'
     local silos = surface.find_entities_filtered { name = 'rocket-silo' }
     for _, s in pairs(silos) do
@@ -385,6 +394,7 @@ Command.add('toggle-debug-ai',
     required_rank = Ranks.admin,
   },
   function()
+    local this = Public.get()
     this._DEBUG_AI = not this._DEBUG_AI
   end
 )
@@ -396,6 +406,7 @@ Command.add('toggle-debug-shop',
     required_rank = Ranks.admin,
   },
   function()
+    local this = Public.get()
     this._DEBUG_SHOP = not this._DEBUG_SHOP
   end
 )
@@ -407,7 +418,7 @@ Command.add('print-global',
     required_rank = Ranks.admin,
   },
   function(_, player)
-    player.print(serpent.line(this))
+    player.print(serpent.line(Public.get()))
   end
 )
 
@@ -418,7 +429,7 @@ Command.add('log-global',
     required_rank = Ranks.admin,
   },
   function()
-    Debug.log(this)
+    Debug.log(Public.get())
   end
 )
 

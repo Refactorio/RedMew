@@ -2,15 +2,18 @@ local b = require 'map_gen.shared.builders'
 local math = require 'utils.math'
 local MGSP = require 'resources.map_gen_settings'
 local Noise = require 'map_gen.shared.simplex_noise'
+local Queue = require 'utils.queue'
 local RS = require 'map_gen.shared.redmew_surface'
 local Public = require 'map_gen.maps.frontier.shared.core'
-local this = Public.get()
 local math_abs = math.abs
 local math_clamp = math.clamp
 local math_floor = math.floor
 local math_max = math.max
 local math_min = math.min
 local math_random = math.random
+local q_size = Queue.size
+local q_push = Queue.push
+local q_pop  = Queue.pop
 local simplex = Noise.d2
 
 local autoplace_controls = {
@@ -45,7 +48,7 @@ RS.set_map_gen_settings({
   {
     autoplace_controls = autoplace_controls,
     cliff_settings = { name = 'cliff', cliff_elevation_0 = 20, cliff_elevation_interval = 40, richness = 0.8 },
-    height = this.height * 32,
+    height = Public.get().height * 32,
     property_expression_names = {
       ['control-setting:aux:frequency:multiplier'] = '1.333333',
       ['control-setting:moisture:bias'] = '-0.250000',
@@ -60,18 +63,51 @@ RS.set_map_gen_settings({
 local Terrain = {}
 
 function Terrain.get_map()
-  local map, water, green_water
+  local map
+  local this = Public.get()
+
   local bounds = function(x, y)
     return x > (-this.left_boundary * 32 - 320) and not ((y < -this.height * 16) or (y > this.height * 16))
   end
+  local water = function(x, y)
+    if x < -this.left_boundary * 32 then
+      return bounds(x, y) and 'water'
+    end
+  end
+  local green_water = function(x, y)
+    if math_floor(x) == -(this.kraken_distance + this.left_boundary * 32 + 1) then
+      return bounds(x, y) and 'deepwater-green'
+    end
+  end
+  local spawn = function(x, _)
+    return x >= -this.left_boundary * 32 and x < this.right_boundary * 32 + 96
+  end
+  spawn = b.remove_map_gen_entities_by_filter(spawn, { force = 'enemy' })
+  local wall_tile = function(x, _)
+    if x >= this.right_boundary * 32 - 1 and x <= this.right_boundary * 32 + this.wall_width + 1 then
+      return 'concrete'
+    elseif x >= this.right_boundary * 32 - 4 and x <= this.right_boundary * 32 + this.wall_width + 4 then
+      return 'hazard-concrete-left'
+    end
+  end
+  local wall = function(x, y)
+    if x >= this.right_boundary * 32 and x < this.right_boundary * 32 + this.wall_width then
+      return {
+        name = 'stone-wall',
+        position = { x = x , y = y },
+        force = 'player',
+        move_stuck_players = true,
+      }
+    end
+  end
+  wall = b.remove_map_gen_entities_by_filter(wall, { type = {'tree', 'simple-entity', 'cliff' } })
 
-  water = b.change_tile(bounds, true, 'water')
-  water = b.fish(water, 0.075)
-
-  green_water = b.change_tile(bounds, true, 'deepwater-green')
-
-  map = b.choose(function(x) return x < -this.left_boundary * 32 end, water, bounds)
-  map = b.choose(function(x) return math_floor(x) == -(this.kraken_distance + this.left_boundary * 32 + 1) end, green_water, map)
+  map = b.add(water, bounds)
+  map = b.add(green_water, map)
+  map = b.fish(map, 0.075)
+  map = b.add(spawn, map)
+  map = b.apply_entity(map, wall)
+  map = b.overlay_tile_land(map, wall_tile)
   return map
 end
 
@@ -88,6 +124,7 @@ function Terrain.noise_pattern(position, seed)
 end
 
 function Terrain.mixed_resources(surface, area)
+  local this = Public.get()
   local left_top = { x = math_max(area.left_top.x, this.right_boundary * 32), y = area.left_top.y }
   local right_bottom = area.right_bottom
   if left_top.x >= right_bottom.x then
@@ -119,9 +156,9 @@ function Terrain.mixed_resources(surface, area)
       local position = { x = left_top.x + x, y = left_top.y + y }
       if can_place_entity({ name = 'iron-ore', position = position }) then
         local noise = Terrain.noise_pattern(position, seed)
-        if math_abs(noise) > 0.67 then
+        if math_abs(noise) > 0.77 then
           local idx = math_floor(noise * 25 + math_abs(position.x) * 0.05) % #mixed_ores + 1
-          local amount = this.ore_base_quantity * chunks * 5
+          local amount = this.ore_base_quantity * chunks * 35 + math_random(100)
           if clear_ore(position) then
             create_entity({ name = mixed_ores[idx], position = position, amount = amount })
           end
@@ -131,15 +168,8 @@ function Terrain.mixed_resources(surface, area)
   end
 end
 
-function Terrain.clear_enemies_inside_wall(surface, area)
-  if area.right_bottom.x < (this.right_boundary * 32 + 96) then
-    for _, entity in pairs(surface.find_entities_filtered { area = area, force = 'enemy' }) do
-      entity.destroy()
-    end
-  end
-end
-
 function Terrain.scale_resource_richness(surface, area)
+  local this = Public.get()
   for _, resource in pairs(surface.find_entities_filtered { area = area, type = 'resource' }) do
     if resource.position.x > this.right_boundary * 32 then
       local chunks = math.clamp(math_abs((resource.position.x - this.right_boundary * 32) / this.ore_chunk_scale), 1, 100)
@@ -161,6 +191,7 @@ function Terrain.scale_resource_richness(surface, area)
 end
 
 function Terrain.rich_rocks(surface, area)
+  local this = Public.get()
   local left_top = { x = math_max(area.left_top.x, this.right_boundary * 32), y = area.left_top.y }
   local right_bottom = area.right_bottom
   if left_top.x >= right_bottom.x then
@@ -212,37 +243,33 @@ function Terrain.set_silo_tiles(entity)
   entity.surface.set_tiles(tiles, true)
 end
 
-function Terrain.create_wall(x, w)
-  local surface = RS.get_surface()
-  local area = { { x, -this.height * 16 }, { x + w, this.height * 16 } }
-  for _, entity in pairs(surface.find_entities_filtered { area = area, collision_mask = 'player-layer' }) do
-    entity.destroy()
-  end
+function Terrain.queue_reveal_map()
+  local this = Public.get()
+	local chart_queue = this.chart_queue
+	-- important to flush the queue upon resetting a map or chunk requests from previous maps could overlap
+	Queue.clear(chart_queue)
+	local size = math_max(this.left_boundary, this.right_boundary, this.height / 2) * 32 + 96
+	for x = 16, size, 32 do
+		for y = 16, size, 32 do
+			q_push(chart_queue, {{-x, -y}, {-x, -y}})
+			q_push(chart_queue, {{ x, -y}, { x, -y}})
+			q_push(chart_queue, {{-x,  y}, {-x,  y}})
+			q_push(chart_queue, {{ x,  y}, { x,  y}})
+		end
+	end
+end
 
-  for y = -this.height * 16, this.height * 16 do
-    for j = 0, w - 1 do
-      local e = surface.create_entity {
-        name = 'stone-wall',
-        position = { x + j, y },
-        force = 'player',
-        move_stuck_players = true,
-      }
-      e.destructible = this.wall_vulnerability
-    end
-  end
+function Terrain.pop_chunk_request(max_requests)
+	max_requests = max_requests or 1
+  local this = Public.get()
+	local chart_queue = this.chart_queue
+	local surface = Public.surface()
+	local players = game.forces.player
 
-  local tiles = {}
-  for j = -4, w - 1 + 4 do
-    for y = -this.height * 16, this.height * 16 do
-      tiles[#tiles +1] = { name = 'hazard-concrete-left', position = { x = x + j, y = y }}
-    end
-  end
-  for j = -1, w do
-    for y = -this.height * 16, this.height * 16 do
-      tiles[#tiles +1] = { name = 'concrete', position = { x = x + j, y = y }}
-    end
-  end
-  surface.set_tiles(tiles, true)
+	while max_requests > 0 and q_size(chart_queue) > 0 do
+		players.chart(surface, q_pop(chart_queue))
+		max_requests = max_requests - 1
+	end
 end
 
 return Terrain

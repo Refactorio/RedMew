@@ -1,9 +1,7 @@
 local math = require 'utils.math'
 local PriceRaffle = require 'features.price_raffle'
-local RS = require 'map_gen.shared.redmew_surface'
 local Table = require 'utils.table'
 local Public = require 'map_gen.maps.frontier.shared.core'
-local this = Public.get()
 local math_ceil = math.ceil
 local math_clamp = math.clamp
 local math_min = math.min
@@ -17,6 +15,7 @@ Market.cheap_items = {}
 Market.expensive_items = {}
 
 do
+  local this = Public.get()
   local market_items = PriceRaffle.get_items_worth()
   for k, _ in pairs(this.banned_items) do
     market_items[k] = nil
@@ -38,6 +37,7 @@ do
 end
 
 function Market.spawn_exchange_market(position)
+  local this = Public.get()
   if position.x < this.left_boundary * 32 + this.wall_width then
     return
   end
@@ -46,7 +46,7 @@ function Market.spawn_exchange_market(position)
     return
   end
 
-  local surface = RS.get_surface()
+  local surface = Public.surface()
   local market = surface.create_entity {
     name = 'market',
     position = position,
