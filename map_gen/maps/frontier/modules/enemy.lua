@@ -400,3 +400,5 @@ function Enemy.artillery_explosion(data)
   }
 end
 Enemy.artillery_explosion_token = Token.register(Enemy.artillery_explosion)
+
+return Enemy
