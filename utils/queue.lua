@@ -74,4 +74,11 @@ function Queue.pairs(queue)
     end
 end
 
+function Queue.clear(queue)
+    for k, _ in pairs(queue) do
+        queue[k] = nil
+    end
+    queue._head, queue._tail = 1, 1
+end
+
 return Queue

@@ -1,6 +1,5 @@
 local Config = global.config
 local Public = require 'map_gen.maps.frontier.shared.core'
-local this = Public.get()
 
 local Lobby = {}
 
@@ -40,7 +39,7 @@ function Lobby.teleport_from(player, destination)
       player.insert(stack)
     end
   end
-  local surface = this.surface
+  local surface = Public.surface()
   local position = surface.find_non_colliding_position('character', destination or {0, 0}, 0, 0.2)
   player.teleport(position, surface, true)
 end
@@ -61,18 +60,34 @@ function Lobby.on_chunk_generated(event)
   local area = event.area
   local surface = event.surface
 
+  if surface.name ~= Lobby.name then
+    return
+  end
+
   surface.build_checkerboard(area)
   for _, e in pairs(surface.find_entities_filtered{ area = area }) do
     if e.type ~= 'character' then
       e.destroy()
     end
   end
+
+  local lt = area.left_top
+  local w, h = Lobby.mgs.width / 2, Lobby.mgs.height / 2
+  local tiles = {}
+  for x = lt.x, lt.x + 31 do
+    for y = lt.y, lt.y + 31 do
+      if x > w or x < -w or y > h or y < -h then
+        tiles[#tiles +1] = {name = 'out-of-map', position = { x = x, y = y }}
+      end
+    end
+  end
+  surface.set_tiles(tiles, false)
 end
 
 function Lobby.on_init()
   local surface = Lobby.get_surface()
   surface.map_gen_settings = Lobby.mgs
-  Lobby.on_chunk_generated({ area = {left_top = {-64, -64}, right_bottom = {64, 64}}, surface = surface })
+  Lobby.on_chunk_generated({ area = {left_top = { x = -Lobby.mgs.width, y = -Lobby.mgs.height }, right_bottom = { x = Lobby.mgs.width, y = Lobby.mgs.height }}, surface = surface })
 end
 
 return Lobby

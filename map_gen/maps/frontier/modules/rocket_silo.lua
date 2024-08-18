@@ -1,6 +1,5 @@
 local Color = require 'resources.color_presets'
 local math = require 'utils.math'
-local RS = require 'map_gen.shared.redmew_surface'
 local ScoreTracker = require 'utils.score_tracker'
 local Sounds = require 'utils.sounds'
 local Token = require 'utils.token'
@@ -8,7 +7,6 @@ local Task = require 'utils.task'
 local Public = require 'map_gen.maps.frontier.shared.core'
 local Enemy = require 'map_gen.maps.frontier.modules.enemy'
 local Terrain = require 'map_gen.maps.frontier.modules.terrain'
-local this = Public.get()
 local math_abs = math.abs
 local math_ceil = math.ceil
 local math_clamp = math.clamp
@@ -110,7 +108,8 @@ end
 RocketSilo.bard_message_token = Token.register(RocketSilo.bard_message)
 
 function RocketSilo.move_silo(position)
-  local surface = RS.get_surface()
+  local this = Public.get()
+  local surface = Public.surface()
   local old_silo = this.rocket_silo
   local old_position = old_silo and old_silo.position or { x = 0, y = 0 }
   local new_silo
@@ -198,6 +197,7 @@ end
 RocketSilo.move_silo_token = Token.register(RocketSilo.move_silo)
 
 function RocketSilo.compute_silo_coordinates(step)
+  local this = Public.get()
   this.move_buffer = this.move_buffer + (step or 0)
 
   if this.x + this.move_buffer > this.max_distance then
@@ -237,20 +237,16 @@ function RocketSilo.compute_silo_coordinates(step)
 end
 
 function RocketSilo.reveal_spawn_area()
-  local surface = RS.get_surface()
-  local far_left, far_right = this.kraken_distance + this.left_boundary * 32 + 1, this.right_boundary * 32 + this.wall_width
-  surface.request_to_generate_chunks({ x = 0, y = 0 }, math.ceil(math_max(far_left, far_right, this.height * 32) / 32))
+  local surface = Public.surface()
+  surface.request_to_generate_chunks({ x = 0, y = 0 }, 1)
   surface.force_generate_chunk_requests()
 
-  RocketSilo.compute_silo_coordinates(this.silo_starting_x + math_random(100))
+  RocketSilo.compute_silo_coordinates(Public.get().silo_starting_x + math_random(100))
   RocketSilo.move_silo()
-  Terrain.create_wall(this.right_boundary * 32, this.wall_width)
-
-  game.forces.player.chart(surface, { { -far_left - 32, -this.height * 16 }, { far_right + 32, this.height * 16 } })
 end
 
 function RocketSilo.set_game_state(player_won)
-  this.scenario_finished = true
+  Public.get().scenario_finished = true
   game.set_game_state {
     game_finished = true,
     player_won = player_won or false,
@@ -280,6 +276,7 @@ function RocketSilo.on_game_started()
   ms.pollution.diffusion_ratio = 0.04 -- 0.02
   ms.pollution.enemy_attack_pollution_consumption_modifier = 0.5 --1
 
+  local this = Public.get()
   this.rounds = this.rounds + 1
   this.kraken_contributors = {}
   this.death_contributions = {}
@@ -321,10 +318,10 @@ RocketSilo.restart_game_token = Token.register(function()
 end)
 
 function RocketSilo.on_game_finished()
-  this.lobby_enabled = true
+  Public.get().lobby_enabled = true
   game.print({'frontier.map_setup'})
 
-  local surface = RS.get_surface()
+  local surface = Public.surface()
   surface.clear(true)
   local mgs = table.deepcopy(surface.map_gen_settings)
   mgs.seed = mgs.seed + 1e4
@@ -341,6 +338,7 @@ function RocketSilo.on_rocket_launched(event)
     return
   end
 
+  local this = Public.get()
   if this.scenario_finished then
     return
   end

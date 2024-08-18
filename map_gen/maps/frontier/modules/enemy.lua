@@ -2,13 +2,12 @@ local Color = require 'resources.color_presets'
 local EnemyTurret = require 'features.enemy_turret'
 local math = require 'utils.math'
 local PriceRaffle = require 'features.price_raffle'
-local RS = require 'map_gen.shared.redmew_surface'
 local Table = require 'utils.table'
 local Toast = require 'features.gui.toast'
 local Token = require 'utils.token'
 local Debug = require 'map_gen.maps.frontier.shared.debug'
 local Public = require 'map_gen.maps.frontier.shared.core'
-local this = Public.get()
+
 local register_on_entity_destroyed = script.register_on_entity_destroyed
 local math_ceil = math.ceil
 local math_clamp = math.clamp
@@ -53,7 +52,7 @@ Enemy.commands = {
       distraction = defines.distraction.by_enemy
     }
     unit_group.start_moving()
-    if this._DEBUG_AI then
+    if Public.get()._DEBUG_AI then
       Debug.print_admins(string.format('AI [id=%d] | cmd: MOVE [gps=%.2f,%.2f,%s]', unit_group.group_number, position.x, position.y, unit_group.surface.name), Color.dark_gray)
     end
   end,
@@ -72,7 +71,7 @@ Enemy.commands = {
       distraction = defines.distraction.by_enemy
     }
     unit_group.start_moving()
-    if this._DEBUG_AI then
+    if Public.get()._DEBUG_AI then
       Debug.print_admins(string.format('AI [id=%d] | cmd: SCOUT [gps=%.2f,%.2f,%s]', unit_group.group_number, position.x, position.y, unit_group.surface.name), Color.dark_gray)
     end
   end,
@@ -89,7 +88,7 @@ Enemy.commands = {
       target = target,
       distraction = defines.distraction.by_damage
     }
-    if this._DEBUG_AI then
+    if Public.get()._DEBUG_AI then
       Debug.print_admins(string.format('AI [id=%d] | cmd: ATTACK [gps=%.2f,%.2f,%s] (type = %s)', unit_group.group_number, target.position.x, target.position.y, unit_group.surface.name, target.type), Color.dark_gray)
     end
   end
@@ -104,6 +103,7 @@ Enemy.stages = {
 }
 
 function Enemy.ai_take_control(unit_group)
+  local this = Public.get()
   if not this.unit_groups[unit_group.group_number] then
     this.unit_groups[unit_group.group_number] = {
       unit_group = unit_group
@@ -130,6 +130,7 @@ function Enemy.ai_processor(unit_group, result)
     return
   end
 
+  local this = Public.get()
   local data = this.unit_groups[unit_group.group_number]
   if not data then
     return
@@ -186,10 +187,11 @@ function Enemy.ai_processor(unit_group, result)
 end
 
 function Enemy.spawn_enemy_wave(position)
-  local surface = RS.get_surface()
+  local surface = Public.surface()
   local find_position = surface.find_non_colliding_position
   local spawn = surface.create_entity
   local current_tick = game.tick
+  local this = Public.get()
 
   local unit_group = surface.create_unit_group { position = position, force = 'enemy' }
 
@@ -239,6 +241,7 @@ Enemy.spawn_enemy_wave_token = Token.register(Enemy.spawn_enemy_wave)
 
 function Enemy.on_enemy_died(entity)
   local uid = entity.unit_number
+  local this = Public.get()
   local data = this.invincible[uid]
   if not data then
     return
@@ -270,7 +273,7 @@ end
 
 function Enemy.on_spawner_died(event)
   local entity = event.entity
-
+  local this = Public.get()
   local budget = this.loot_budget + entity.position.x * 2.75
   budget = budget * math_random(25, 175) * 0.01
 
@@ -300,6 +303,7 @@ function Enemy.on_spawner_died(event)
 end
 
 function Enemy.spawn_turret_outpost(position)
+  local this = Public.get()
   if position.x < this.right_boundary * 32 + this.wall_width then
     return
   end
@@ -309,7 +313,7 @@ function Enemy.spawn_turret_outpost(position)
     return
   end
 
-  local surface = RS.get_surface()
+  local surface = Public.surface()
 
   if Public.ESCAPE_PLAYER then
     for _, player in pairs(surface.find_entities_filtered{type = 'character'}) do
@@ -361,19 +365,19 @@ function Enemy.start_tracking(entity)
   end
 
   register_on_entity_destroyed(entity)
-  this.target_entities[entity.unit_number] = entity
+  Public.get().target_entities[entity.unit_number] = entity
 end
 
 function Enemy.stop_tracking(entity)
-  this.target_entities[entity.unit_number] = nil
+  Public.get().target_entities[entity.unit_number] = nil
 end
 
 function Enemy.get_target()
-  return Table.get_random_dictionary_entry(this.target_entities, false)
+  return Table.get_random_dictionary_entry(Public.get().target_entities, false)
 end
 
 function Enemy.nuclear_explosion(position)
-  RS.get_surface().create_entity {
+  Public.surface().create_entity {
     name = 'atomic-rocket',
     position = position,
     force = 'enemy',

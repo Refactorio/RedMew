@@ -1,5 +1,6 @@
 local Event = require 'utils.event'
 local Global = require 'utils.global'
+local Queue = require 'utils.queue'
 local RS = require 'map_gen.shared.redmew_surface'
 
 local Public = {}
@@ -21,13 +22,13 @@ Public.PROD_PENALTY = 1.2 * 1.4^5
 local this = {
   rounds = 0,
   -- Map gen
+  chart_queue = Queue.new(),
   silo_starting_x = 1700,
 
   height = 36,              -- in chunks, height of the ribbon world
   left_boundary = 8,        -- in chunks, distance to water body
   right_boundary = 11,      -- in chunks, distance to wall/biter presence
   wall_width = 5,           -- in tiles
-  wall_vulnerability = true,
   rock_richness = 1,        -- how many rocks/chunk
 
   ore_base_quantity = 11,   -- base ore quantity, everything is scaled up from this
@@ -86,14 +87,14 @@ local this = {
   spawn_shop_upgrades = {},
 }
 
-Global.register_init(
-  this,
-  function() this.surface = RS.get_surface() end,
-  function(tbl) this = tbl end
-)
+Global.register(this, function(tbl) this = tbl end)
 
 function Public.get()
   return this
+end
+
+function Public.surface()
+  return RS.get_surface()
 end
 
 return Public
