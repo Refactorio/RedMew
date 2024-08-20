@@ -8,8 +8,10 @@ local Toast = require 'features.gui.toast'
 local Token = require 'utils.token'
 local Task = require 'utils.task'
 local Public = require 'map_gen.maps.frontier.shared.core'
+local math_ceil = math.ceil
 local math_floor = math.floor
 local math_random = math.random
+local SECOND = 60
 
 local bard_refresh_messages = {
   [[Ah, a gold coin! I bow to its allure! Here are fresh wares for your perusal!]],
@@ -54,6 +56,12 @@ SpawnShop.upgrades = {
   { name = 'p_trash_size',        packs =  200, sprite = 'utility/character_logistic_trash_slots_modifier_icon', caption = 'Player trash slots size',    tooltip = {'frontier.tt_shop_p_trash_size'} },
 }
 
+SpawnShop.starter_upgrades_pool = {
+  { p_crafting_speed = 25, p_inventory_size = 10, p_reach = 3, p_running_speed = 30, p_health_bonus = 40 },
+  { energy_damage = 40, projectile_damage = 40, explosive_damage = 40, flammables_damage = 40, artillery_range = 15 },
+  { mining_productivity = 25, robot_cargo = 8, robot_speed = 40, robot_battery = 40, inserter_capacity = 4, lab_productivity = 40 },
+}
+
 function SpawnShop.add_render()
   local e = Public.get().spawn_shop
   rendering.draw_sprite {
@@ -87,6 +95,32 @@ function SpawnShop.on_game_started()
   Public.get().spawn_shop = shop
   Task.set_timeout(1, SpawnShop.add_render_token)
   SpawnShop.refresh_all_prices(false)
+
+  local seed = surface.map_gen_settings.seed
+  local pool = SpawnShop.starter_upgrades_pool
+  local bonuses = pool[seed % #pool + 1]
+  for k, v in pairs(bonuses) do
+    SpawnShop.upgrade_perk(k, v)
+  end
+
+  if math_random(1, 4) == 1 then
+    SpawnShop.upgrade_perk('p_inventory_size', 4)
+  end
+  if math_random(1, 8) == 1 then
+    SpawnShop.upgrade_perk('mining_productivity', 100)
+    SpawnShop.upgrade_perk('robot_battery', 50)
+    SpawnShop.upgrade_perk('robot_cargo', 20)
+    SpawnShop.upgrade_perk('robot_speed', 50)
+  end
+  if math_random(1, 16) == 1 then
+    SpawnShop.upgrade_perk('energy_damage', 100)
+    SpawnShop.upgrade_perk('explosive_damage', 100)
+    SpawnShop.upgrade_perk('flammables_damage', 100)
+    SpawnShop.upgrade_perk('projectile_damage', 100)
+  end
+  if math_random(1, 32) == 1 then
+    SpawnShop.upgrade_perk('lab_productivity', 200)
+  end
 end
 
 function SpawnShop.draw_gui(player)
@@ -213,6 +247,11 @@ function SpawnShop.draw_gui(player)
     tooltip = this.spawn_shop_funds > 0 and {'frontier.tt_shop_refresh_button'} or {'frontier.tt_shop_disabled_refresh_button'}
   }
   refresh_button.enabled = this.spawn_shop_funds > 0
+  local tick = this.spawn_shop_cooldown[player.index]
+  if tick and tick > game.tick then
+    refresh_button.enabled = false
+    refresh_button.tooltip = {'frontier.tt_shop_refresh_button_cooldown'}
+  end
 
   frame.force_auto_center()
   frame.auto_center = true
@@ -223,7 +262,6 @@ function SpawnShop.destroy_gui(player)
   local frame = player.gui.screen[SpawnShop.main_frame_name]
   if frame then
     frame.destroy()
-    Public.get().spawn_shop_players_in_gui_view[player.index] = nil
   end
 end
 
@@ -356,13 +394,22 @@ end
 function SpawnShop.on_player_refresh(player)
   local this = Public.get()
   this.spawn_shop_funds = this.spawn_shop_funds - 1
+  this.spawn_shop_cooldown[player.index] = game.tick + 40 * SECOND
   ScoreTracker.change_for_global(Public.scores.shop_funds.name, -1)
   player.print('[color=orange][Bard][/color] ' .. bard_refresh_messages[math_random(#bard_refresh_messages)], { sound_path = 'utility/scenario_message', color = Color.dark_grey })
+  if this.spawn_shop_funds <= 5 then
+    game.print({'frontier.shop_funds_alert', player.name, this.spawn_shop_funds})
+  end
   SpawnShop.refresh_all_prices(true)
   SpawnShop.update_all_guis()
 end
 
-function SpawnShop.upgrade_perk(id)
+function SpawnShop.upgrade_perk(id, levels)
+  local data = Public.get().spawn_shop_upgrades[id]
+  if not data then
+    return
+  end
+
   local players = game.forces.player
 
   local function apply_bonus(source, name, modifier)
@@ -392,60 +439,80 @@ function SpawnShop.upgrade_perk(id)
     end
   end
 
+  levels = levels or 1
+  data.level = (data.level or 0) + levels
   -- local target_types = { 'acid', 'electric', 'explosion', 'fire', 'impact', 'laser', 'physical', 'poison' }
   if id == 'mining_productivity' then
-    players.mining_drill_productivity_bonus = players.mining_drill_productivity_bonus + 0.01
+    players.mining_drill_productivity_bonus = players.mining_drill_productivity_bonus + 0.01 * levels
   elseif id == 'energy_damage' then
-    apply_bonus('ammo', 'laser', 0.07)
-    apply_bonus('ammo', 'electric', 0.07)
-    apply_bonus('ammo', 'beam', 0.03)
+    apply_bonus('ammo', 'laser', 0.07 * levels)
+    apply_bonus('ammo', 'electric', 0.07 * levels)
+    apply_bonus('ammo', 'beam', 0.03 * levels)
   elseif id == 'projectile_damage' then
-    apply_bonus('ammo', 'bullet', 0.04)
-    apply_bonus('ammo', 'shotgun-shell', 0.04)
-    apply_bonus('ammo', 'cannon-shell', 0.10)
-    scan_entities('turret', 'bullet', 0.07)
+    apply_bonus('ammo', 'bullet', 0.04 * levels)
+    apply_bonus('ammo', 'shotgun-shell', 0.04 * levels)
+    apply_bonus('ammo', 'cannon-shell', 0.10 * levels)
+    scan_entities('turret', 'bullet', 0.07 * levels)
   elseif id == 'explosive_damage' then
-    apply_bonus('ammo', 'rocket', 0.05)
-    apply_bonus('ammo', 'grenade', 0.02)
-    apply_bonus('ammo', 'landmine', 0.02)
+    apply_bonus('ammo', 'rocket', 0.05 * levels)
+    apply_bonus('ammo', 'grenade', 0.02 * levels)
+    apply_bonus('ammo', 'landmine', 0.02 * levels)
   elseif id == 'flammables_damage' then
-    apply_bonus('ammo', 'flamethrower', 0.02)
-    scan_entities('turret', 'flamethrower', 0.02)
+    apply_bonus('ammo', 'flamethrower', 0.02 * levels)
+    scan_entities('turret', 'flamethrower', 0.02 * levels)
   elseif id == 'artillery_range' then
-    players.artillery_range_modifier = players.artillery_range_modifier + 0.03
+    players.artillery_range_modifier = players.artillery_range_modifier + 0.03 * levels
   elseif id == 'artillery_speed' then
-    apply_bonus('gun', 'artillery-shell', 0.1)
+    apply_bonus('gun', 'artillery-shell', 0.1 * levels)
   elseif id == 'robot_cargo' then
-    players.worker_robots_storage_bonus = players.worker_robots_storage_bonus + 1
+    players.worker_robots_storage_bonus = players.worker_robots_storage_bonus + 1 * levels
   elseif id == 'robot_speed' then
-    players.worker_robots_speed_modifier = players.worker_robots_speed_modifier + 0.065
+    players.worker_robots_speed_modifier = players.worker_robots_speed_modifier + 0.065 * levels
   elseif id == 'robot_battery' then
-    players.worker_robots_battery_modifier = players.worker_robots_battery_modifier + 0.05
+    players.worker_robots_battery_modifier = players.worker_robots_battery_modifier + 0.05 * levels
   elseif id == 'braking_force' then
-    players.train_braking_force_bonus = players.train_braking_force_bonus + 0.02
+    players.train_braking_force_bonus = players.train_braking_force_bonus + 0.02 * levels
   elseif id == 'inserter_capacity' then
-    players.inserter_stack_size_bonus = players.inserter_stack_size_bonus + 1
-    players.stack_inserter_capacity_bonus = players.stack_inserter_capacity_bonus + 1
+    players.inserter_stack_size_bonus = players.inserter_stack_size_bonus + 1 * levels
+    players.stack_inserter_capacity_bonus = players.stack_inserter_capacity_bonus + 1 * levels
   elseif id == 'lab_productivity' then
-    players.laboratory_productivity_bonus = players.laboratory_productivity_bonus + 0.005
+    players.laboratory_productivity_bonus = players.laboratory_productivity_bonus + 0.005 * levels
   elseif id == 'p_crafting_speed' then
-    players.manual_crafting_speed_modifier = players.manual_crafting_speed_modifier + 0.02
+    players.manual_crafting_speed_modifier = players.manual_crafting_speed_modifier + 0.02 * levels
   elseif id == 'p_health_bonus' then
-    players.character_health_bonus = players.character_health_bonus + 0.02
+    local HP = game.entity_prototypes.character.max_health
+    players.character_health_bonus = players.character_health_bonus + math_ceil(0.02 * HP)  * levels
   elseif id == 'p_inventory_size' then
-    players.character_inventory_slots_bonus = players.character_inventory_slots_bonus + 5
+    players.character_inventory_slots_bonus = players.character_inventory_slots_bonus + 5 * levels
   elseif id == 'p_mining_speed' then
-    players.manual_mining_speed_modifier = players.manual_mining_speed_modifier + 0.02
+    players.manual_mining_speed_modifier = players.manual_mining_speed_modifier + 0.02 * levels
   elseif id == 'p_reach' then
-    players.character_build_distance_bonus = players.character_build_distance_bonus + 0.02
-    players.character_item_drop_distance_bonus = players.character_item_drop_distance_bonus + 0.02
-    players.character_reach_distance_bonus = players.character_reach_distance_bonus + 0.02
-    players.character_resource_reach_distance_bonus = players.character_resource_reach_distance_bonus + 0.02
-    players.character_item_pickup_distance_bonus = players.character_item_pickup_distance_bonus + 0.02
+    players.character_build_distance_bonus = players.character_build_distance_bonus + 1 * levels
+    players.character_item_drop_distance_bonus = players.character_item_drop_distance_bonus + 1 * levels
+    players.character_reach_distance_bonus = players.character_reach_distance_bonus + 1 * levels
+    players.character_resource_reach_distance_bonus = players.character_resource_reach_distance_bonus + 1 * levels
+    players.character_item_pickup_distance_bonus = players.character_item_pickup_distance_bonus + 1 * levels
   elseif id == 'p_running_speed' then
-    players.character_running_speed_modifier = players.character_running_speed_modifier + 0.02
+    players.character_running_speed_modifier = players.character_running_speed_modifier + 0.02 * levels
   elseif id == 'p_trash_size' then
-    players.character_trash_slot_count = players.character_trash_slot_count + 5
+    players.character_trash_slot_count = players.character_trash_slot_count + 5  * levels
+  end
+end
+
+function SpawnShop.on_entity_damaged(event)
+  local entity = event.entity
+  if not (entity and entity.valid) then
+    return
+  end
+  local this = Public.get()
+  if this.spawn_shop and this.spawn_shop.valid and entity.unit_number ~= this.spawn_shop.unit_number then
+    local cause = event.cause
+    local players = game.forces.player
+    if cause and cause.valid and cause.force == players or event.force == players then
+      if entity.health < 1 then
+        entity.health = 1
+      end
+    end
   end
 end
 
