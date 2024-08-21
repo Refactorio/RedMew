@@ -93,7 +93,7 @@ Config.player_create.starting_items = {
 }
 Config.dump_offline_inventories = {
     enabled = true,
-    offline_timout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
+    offline_timeout_mins = 30 -- time after which a player logs off that their inventory is provided to the team
 }
 Config.paint.enabled = false
 Config.permissions.presets.no_blueprints = true

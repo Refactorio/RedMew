@@ -51,7 +51,7 @@ RedmewConfig.market.enabled = false
 RedmewConfig.biter_attacks.enabled = false
 RedmewConfig.dump_offline_inventories = {
     enabled = true,
-    offline_timout_mins = 15,   -- time after which a player logs off that their inventory is provided to the team
+    offline_timeout_mins = 15,   -- time after which a player logs off that their inventory is provided to the team
 }
 
 -- leave seeds nil to have them filled in based on the map seed.
